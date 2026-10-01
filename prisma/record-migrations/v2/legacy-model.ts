@@ -5,8 +5,8 @@ import type { ClientBase } from "pg";
 import type { RecordField, RecordModel, RecordScalar } from "./contract/record-model.schema";
 
 import { createCrmPreset, presetId } from "./contract/crm-preset";
-import { RecordScalarSchema } from "./contract/record-model.schema";
 import { scalarMatchesType, validateRecordModel } from "./contract/record-model-validation";
+import { RecordScalarSchema } from "./contract/record-model.schema";
 
 export const LEGACY_TYPES = ["contact", "organization", "deal", "service", "task"] as const;
 export type LegacyType = (typeof LEGACY_TYPES)[number];
@@ -128,8 +128,6 @@ export async function readLegacyModel(client: ClientBase, companyId: string): Pr
   }>('SELECT id, currency, "dealWeightingColumnId" FROM "Company" WHERE id = $1', [companyId]);
   const company = companies.rows[0];
   if (!company) throw new Error("Migration workspace does not exist");
-  const model = createCrmPreset(companyId, company.currency);
-  const issues: MigrationIssue[] = [];
   const columns = z
     .array(LegacyColumnSchema)
     .parse(
@@ -140,6 +138,19 @@ export async function readLegacyModel(client: ClientBase, companyId: string): Pr
         )
       ).rows,
     );
+  return buildLegacyFixtureModel(companyId, company.currency, company.dealWeightingColumnId, columns);
+}
+
+/** Frozen conversion shared by upgrade fixtures; never queries legacy tables. */
+export function buildLegacyFixtureModel(
+  companyId: string,
+  currency: string,
+  dealWeightingColumnId: string | null,
+  columns: LegacyColumn[],
+): LegacyModel {
+  const company = { currency, dealWeightingColumnId };
+  const model = createCrmPreset(companyId, currency);
+  const issues: MigrationIssue[] = [];
   const unusedStageId = presetId(companyId, "deal.stage");
   model.fields = model.fields.filter((field) => field.id !== unusedStageId);
   for (const type of model.types) {

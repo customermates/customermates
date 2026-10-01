@@ -5,14 +5,12 @@ import type { ChartDataPoint } from "./chart.types";
 import { Pie, PieChart, Cell } from "recharts";
 import { observer } from "mobx-react-lite";
 import { useReducedMotion } from "framer-motion";
-import type { AggregationType } from "@/generated/prisma";
 
 import { ChartTooltip } from "@/components/chart/chart-tooltip";
 
 import { DashboardChartContainer } from "./dashboard-chart-container";
 
 type Props = {
-  aggregationType?: AggregationType;
   currency?: string | null;
   chartData: ChartDataPoint[];
   colors: string[];
@@ -20,14 +18,14 @@ type Props = {
   showLegend?: boolean;
 };
 
-export const DoughnutChart = observer(({ aggregationType, currency, chartData, showLegend = true }: Props) => {
+export const DoughnutChart = observer(({ currency, chartData, showLegend = true }: Props) => {
   const reducedMotion = useReducedMotion();
   return (
     <div className="flex size-full flex-col gap-3 min-h-0 overflow-hidden">
       <div className="flex-1 min-h-0">
         <DashboardChartContainer>
           <PieChart>
-            <ChartTooltip aggregationType={aggregationType} currency={currency} />
+            <ChartTooltip currency={currency} />
 
             <Pie
               data={chartData}

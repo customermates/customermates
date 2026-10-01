@@ -1,4 +1,4 @@
-import type { EntityType } from "@/generated/prisma";
+import type { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 export const ACTIVITY_RELATED_RECORD_LIMIT = 3;
 
@@ -17,7 +17,11 @@ export type ActivityRecordContext = {
 
 export type ActivityRecordRefKey = `${EntityType}:${string}`;
 
-export const EMPTY_RECORD_CONTEXT: ActivityRecordContext = { primary: null, related: [], relatedOverflow: 0 };
+export const EMPTY_RECORD_CONTEXT: ActivityRecordContext = {
+  primary: null,
+  related: [],
+  relatedOverflow: 0,
+};
 
 export function recordRefKey(entityType: EntityType, id: string): ActivityRecordRefKey {
   return `${entityType}:${id}`;

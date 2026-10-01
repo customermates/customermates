@@ -110,10 +110,21 @@ export class ResumeRecordOperationInteractor extends AuthenticatedInteractor<
   @Write({ input: Schema })
   async invoke(input: z.infer<typeof Schema>): Validated<{ resumed: boolean }> {
     const [operation, policy] = await Promise.all([this.records.getOperation(input.operationId), this.policy.load()]);
-    if (!operation || !policy.actor || operation.userId !== this.userId)
+    if (
+      !operation ||
+      !policy.actor ||
+      (operation.userId !== this.userId && !(policy.isAdmin && operation.kind === "provider-avatar"))
+    )
       return failNotFound(CustomErrorCode.recordNotFound);
     if (!["pending", "staging"].includes(operation.state)) return failConflict(CustomErrorCode.recordVersionChanged);
     if (operation.leaseUntil && operation.leaseUntil > new Date()) return { ok: true, data: { resumed: false } };
+    if (operation.kind === "provider-avatar") {
+      await this.background.dispatch("provider-avatar-operation", {
+        companyId: this.companyId,
+        operationId: operation.id,
+      });
+      return { ok: true, data: { resumed: true } };
+    }
     await this.background.dispatch("record-operation", {
       operationId: operation.id,
       ownerUserId: this.userId,

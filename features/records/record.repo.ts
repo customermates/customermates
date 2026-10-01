@@ -135,6 +135,26 @@ export interface RecordRepo {
     ref: RecordRef,
     take?: number,
   ): Promise<Array<{ relationId: string; source: RecordRef; target: RecordRef }>>;
+  getLinksCompanyWidePage(
+    ref: RecordRef,
+    afterId: string | undefined,
+    take: number,
+  ): Promise<Array<{ id: string; relationId: string; source: RecordRef; target: RecordRef }>>;
+  getPendingDeletionRef(operationId: string): Promise<RecordRef | null>;
+  queueDeletionRef(operationId: string, ref: RecordRef): Promise<void>;
+  completeDeletionRef(operationId: string, ref: RecordRef): Promise<void>;
+  getStagedDeletionStatus(
+    operationId: string,
+    revision: number,
+  ): Promise<{
+    recordCount: number;
+    linkCount: number;
+    affectedCount: number;
+    affectedTypeIds: string[];
+    restricted: boolean;
+    impactHash: string;
+  }>;
+  validateStagedDeletionAccess(operationId: string, access: RecordAccessMap): Promise<boolean>;
   getOutgoingLinksCompanyWide(
     typeId: string,
     recordIds: string[],
@@ -150,7 +170,14 @@ export interface RecordRepo {
   unlink(relationId: string, source: RecordRef, target: RecordRef): Promise<void>;
   receipt(key: string, userId: string): Promise<{ requestHash: string; result: Prisma.JsonValue } | null>;
   saveReceipt(key: string, userId: string, hash: string, result: unknown): Promise<void>;
-  appendEvent(ref: RecordRef, actorId: string, causeId: string, kind: string, payload: unknown): Promise<void>;
+  appendEvent(
+    ref: RecordRef,
+    actorId: string,
+    causeId: string,
+    kind: string,
+    payload: unknown,
+    beforeDeletion?: boolean,
+  ): Promise<void>;
   createOperation(request: {
     id: string;
     userId: string;

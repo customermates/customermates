@@ -21,7 +21,7 @@ export function recordToolRisk(name: string, input: unknown): RecordToolRisk | n
   const data = object(input);
   if (name === "mutate_crm_record") {
     const action = object(data.mutation).action;
-    return typeof action === "string" && ["create", "update", "link", "unlink"].includes(action)
+    return typeof action === "string" && ["create", "update", "updateMany", "link", "unlink"].includes(action)
       ? "write"
       : "sensitive";
   }

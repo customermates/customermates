@@ -1,7 +1,7 @@
 import { AI_MANAGEABLE_DATA_VIEW_SURFACE_KEYS } from "@/core/data-view/ai-manageable-surfaces";
 import { SURFACE } from "@/core/data-view/data-view-keys";
 import { dataViewNavigationHref, dataViewNavigationRanges } from "@/core/data-view/data-view-links";
-import { DATA_VIEW_PATHS, ENTITY_TIMELINE_PARENT_PATHS } from "@/core/data-view/data-view-paths";
+import { DATA_VIEW_PATHS, ENTITY_TIMELINE_PARENT_PATHS, isRecordTimelinePath } from "@/core/data-view/data-view-paths";
 import { APP_LOCALES } from "@/i18n/locale-registry";
 
 import { parse, postprocess, preprocess } from "micromark";
@@ -14,15 +14,26 @@ const INTERNAL_DETAILS = "[internal details]";
 const UUID_PATTERN = /(^|[^0-9a-f])([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})(?=$|[^0-9a-f])/gi;
 const PARTIAL_UUID_PATTERN = /(^|[^0-9a-f])([0-9a-f]{8}-(?:[0-9a-f]{0,4}(?:-[0-9a-f]{0,4}){0,3})?)$/gi;
 const REDACTION_TOKEN_SOURCE = "\\[(?:internal reference|internal details|redacted)\\]";
-const SAVED_VIEW_PATHS = AI_MANAGEABLE_DATA_VIEW_SURFACE_KEYS.map((surfaceKey) => DATA_VIEW_PATHS[surfaceKey]).filter(
-  (path): path is string => path !== null,
-);
+const SAVED_VIEW_PATHS = [
+  ...AI_MANAGEABLE_DATA_VIEW_SURFACE_KEYS,
+  SURFACE.contacts,
+  SURFACE.organizations,
+  SURFACE.deals,
+  SURFACE.services,
+  SURFACE.tasks,
+]
+  .map((surfaceKey) => DATA_VIEW_PATHS[surfaceKey])
+  .filter((path): path is string => path !== null);
 const escapePattern = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const UUID_SOURCE = "[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}";
+const TIMELINE_PARENT_SOURCE = [
+  ...ENTITY_TIMELINE_PARENT_PATHS.map((path) => escapePattern(path.slice(1))),
+  `records/${UUID_SOURCE}`,
+].join("|");
 const VIEW_KEY_SOURCE = `(?:__all__|${UUID_SOURCE})`;
 const LOCALE_PREFIX_SOURCE = `(?:(?:${APP_LOCALES.map(escapePattern).join("|")})/)?`;
 const SAVED_VIEW_URL_PATTERN = new RegExp(
-  `(^|[\\s(\\[<"'\\x60])(/${LOCALE_PREFIX_SOURCE}(?:(?:${SAVED_VIEW_PATHS.map((path) => escapePattern(path.slice(1))).join("|")})\\?view=${VIEW_KEY_SOURCE}|(?:${ENTITY_TIMELINE_PARENT_PATHS.map((path) => escapePattern(path.slice(1))).join("|")})/${UUID_SOURCE}\\?view=${VIEW_KEY_SOURCE}&viewSurface=${escapePattern(SURFACE.entityTimeline)}))(?=$|[\\s)\\]>"'\\x60!,.:;?])`,
+  `(^|[\\s(\\[<"'\\x60])(/${LOCALE_PREFIX_SOURCE}(?:(?:${[...SAVED_VIEW_PATHS.map((path) => escapePattern(path.slice(1))), `records/${UUID_SOURCE}`].join("|")})\\?view=${VIEW_KEY_SOURCE}|(?:${TIMELINE_PARENT_SOURCE})/${UUID_SOURCE}\\?view=${VIEW_KEY_SOURCE}&viewSurface=${escapePattern(SURFACE.entityTimeline)}))(?=$|[\\s)\\]>"'\\x60!,.:;?])`,
   "g",
 );
 const VIEW_URL_STREAM_PATTERN = /[^\s()[\]<>"'`]*(?:\?|&)view=[^\s()[\]<>"'`]*/g;
@@ -30,7 +41,7 @@ const MAX_LOCALE_PREFIX_LENGTH = Math.max(...APP_LOCALES.map((locale) => locale.
 const MAX_STANDALONE_VIEW_URL_LENGTH =
   Math.max(...SAVED_VIEW_PATHS.map((path) => path.length)) + MAX_LOCALE_PREFIX_LENGTH + "?view=".length + 36;
 const MAX_TIMELINE_VIEW_URL_LENGTH =
-  Math.max(...ENTITY_TIMELINE_PARENT_PATHS.map((path) => path.length)) +
+  Math.max(9 + 36, ...ENTITY_TIMELINE_PARENT_PATHS.map((path) => path.length)) +
   MAX_LOCALE_PREFIX_LENGTH +
   1 +
   36 +
@@ -38,11 +49,15 @@ const MAX_TIMELINE_VIEW_URL_LENGTH =
   36 +
   "&viewSurface=".length +
   SURFACE.entityTimeline.length;
-const MAX_SAVED_VIEW_URL_LENGTH = Math.max(MAX_STANDALONE_VIEW_URL_LENGTH, MAX_TIMELINE_VIEW_URL_LENGTH);
+const MAX_SAVED_VIEW_URL_LENGTH = Math.max(
+  MAX_STANDALONE_VIEW_URL_LENGTH,
+  MAX_TIMELINE_VIEW_URL_LENGTH,
+  9 + 36 + MAX_LOCALE_PREFIX_LENGTH + "?view=".length + 36,
+);
 const PROTECTED_STREAM_CONTEXT_CHARS = 2;
 const MESSAGING_THREADS_PATH = DATA_VIEW_PATHS[SURFACE.messagingThreads];
 const RECORD_PAGE_ROUTE_PATTERN = new RegExp(
-  `^/${LOCALE_PREFIX_SOURCE}(?:(?:${ENTITY_TIMELINE_PARENT_PATHS.map((path) => escapePattern(path.slice(1))).join("|")})/${UUID_SOURCE}${MESSAGING_THREADS_PATH ? `|${escapePattern(MESSAGING_THREADS_PATH.slice(1))}\\?threadId=${UUID_SOURCE}` : ""})$`,
+  `^/${LOCALE_PREFIX_SOURCE}(?:(?:${TIMELINE_PARENT_SOURCE})/${UUID_SOURCE}${MESSAGING_THREADS_PATH ? `|${escapePattern(MESSAGING_THREADS_PATH.slice(1))}\\?threadId=${UUID_SOURCE}` : ""})$`,
 );
 
 const PAGE_CONTEXT_BLOCK_PATTERN = /<page_context\b[^>]*>[\s\S]*?<\/page_context\s*>/gi;
@@ -154,7 +169,8 @@ function modelAuthoredDataViewHref(value: string) {
     const pathname = localePrefix ? target.pathname.slice(localePrefix.length + 1) : target.pathname;
     const knownPath =
       SAVED_VIEW_PATHS.includes(pathname) ||
-      ENTITY_TIMELINE_PARENT_PATHS.some((parentPath) => pathname.startsWith(`${parentPath}/`));
+      /^\/records\/[0-9a-f-]{36}$/i.test(pathname) ||
+      isRecordTimelinePath(pathname);
     return knownPath ? `${pathname}${target.search}` : null;
   } catch {
     return null;
@@ -345,7 +361,12 @@ function isAlreadyRedactedDataViewDestination(value: string, appBaseUrl?: string
     if (target.searchParams.get("view") !== INTERNAL_REFERENCE) return false;
 
     const queryKeys = [...target.searchParams.keys()];
-    if (SAVED_VIEW_PATHS.includes(localPath)) return queryKeys.length === 1 && queryKeys[0] === "view";
+    const segments = localPath.split("/");
+    const recordIdentity = (value: string) =>
+      value === INTERNAL_REFERENCE || new RegExp(`^${UUID_SOURCE}$`).test(value);
+    const generic = segments[1] === "records" && recordIdentity(segments[2] ?? "");
+    if (SAVED_VIEW_PATHS.includes(localPath) || (generic && segments.length === 3))
+      return queryKeys.length === 1 && queryKeys[0] === "view";
     if (
       queryKeys.length !== 2 ||
       queryKeys[0] !== "view" ||
@@ -353,6 +374,7 @@ function isAlreadyRedactedDataViewDestination(value: string, appBaseUrl?: string
       target.searchParams.get("viewSurface") !== SURFACE.entityTimeline
     )
       return false;
+    if (generic && segments.length === 4 && recordIdentity(segments[3])) return true;
     const parentPath = ENTITY_TIMELINE_PARENT_PATHS.find((path) => localPath.startsWith(`${path}/`));
     return Boolean(parentPath && localPath.slice(parentPath.length + 1) === INTERNAL_REFERENCE);
   } catch {

@@ -1,16 +1,17 @@
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { Filter, FilterableField } from "@/core/base/base-get.schema";
+import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
+import type { RootStore } from "@/core/stores/root.store";
 import type { ReactElement, ReactNode } from "react";
 import type { Root } from "react-dom/client";
-import type { RootStore } from "@/core/stores/root.store";
 
 import { act, createElement } from "react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createRoot } from "react-dom/client";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { CustomColumnType, EntityType } from "@/generated/prisma";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
+import { CustomColumnType } from "@/core/data-view/column-presentation.types";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 const harness = vi.hoisted(() => ({ palette: { current: null as unknown } }));
 
@@ -86,9 +87,18 @@ const FILTERABLE_FIELDS: FilterableField[] = [
       FilterOperatorKey.inLastDays,
     ],
   },
-  { field: FIRST_STAGE_COLUMN, operators: [FilterOperatorKey.in, FilterOperatorKey.notIn] },
-  { field: SECOND_STAGE_COLUMN, operators: [FilterOperatorKey.in, FilterOperatorKey.notIn] },
-  { field: "name", operators: [FilterOperatorKey.contains, FilterOperatorKey.equals] },
+  {
+    field: FIRST_STAGE_COLUMN,
+    operators: [FilterOperatorKey.in, FilterOperatorKey.notIn],
+  },
+  {
+    field: SECOND_STAGE_COLUMN,
+    operators: [FilterOperatorKey.in, FilterOperatorKey.notIn],
+  },
+  {
+    field: "name",
+    operators: [FilterOperatorKey.contains, FilterOperatorKey.equals],
+  },
   {
     field: RANGE_COLUMN,
     operators: [
@@ -105,9 +115,24 @@ const FILTERABLE_FIELDS: FilterableField[] = [
 ];
 
 const CUSTOM_COLUMNS = [
-  { id: RANGE_COLUMN, label: "Project period", entityType: EntityType.deal, type: CustomColumnType.dateRange },
-  { id: FIRST_STAGE_COLUMN, label: "Stage", entityType: EntityType.deal, type: CustomColumnType.singleSelect },
-  { id: SECOND_STAGE_COLUMN, label: "Stage", entityType: EntityType.deal, type: CustomColumnType.singleSelect },
+  {
+    id: RANGE_COLUMN,
+    label: "Project period",
+    entityType: EntityType.deal,
+    type: CustomColumnType.dateRange,
+  },
+  {
+    id: FIRST_STAGE_COLUMN,
+    label: "Stage",
+    entityType: EntityType.deal,
+    type: CustomColumnType.singleSelect,
+  },
+  {
+    id: SECOND_STAGE_COLUMN,
+    label: "Stage",
+    entityType: EntityType.deal,
+    type: CustomColumnType.singleSelect,
+  },
 ] as unknown as CustomColumnDto[];
 
 const roots: Root[] = [];
@@ -120,7 +145,9 @@ function tableStore(filters: Filter[] = []) {
     filters,
     p13nId: "deals",
     removeFilterAt: vi.fn((index: number) => {
-      table.setQueryOptions({ filters: table.filters.filter((_, position) => position !== index) });
+      table.setQueryOptions({
+        filters: table.filters.filter((_, position) => position !== index),
+      });
     }),
     setQueryOptions: vi.fn((args: { filters?: Filter[] }) => {
       if (args.filters) table.filters = args.filters;
@@ -155,7 +182,11 @@ function mount(element: ReactElement) {
 }
 
 function mountPalette(table: ReturnType<typeof tableStore>) {
-  return mount(createElement(FilterPalette, { store: table as unknown as BaseDataViewStore<HasId> }));
+  return mount(
+    createElement(FilterPalette, {
+      store: table as unknown as BaseDataViewStore<HasId>,
+    }),
+  );
 }
 
 function press(target: Element, key: string) {
@@ -198,7 +229,10 @@ beforeEach(() => {
       disconnect() {}
     },
   );
-  Object.defineProperty(HTMLElement.prototype, "scrollIntoView", { configurable: true, value: vi.fn() });
+  Object.defineProperty(HTMLElement.prototype, "scrollIntoView", {
+    configurable: true,
+    value: vi.fn(),
+  });
   vi.stubGlobal("matchMedia", (query: string) => ({
     matches: true,
     media: query,
@@ -216,8 +250,16 @@ afterEach(() => {
 
 describe("filter palette root page", () => {
   it("removes exactly the addressed filter from the root list without opening it", () => {
-    const alpha = { field: "name", operator: FilterOperatorKey.contains, value: "alpha" } as Filter;
-    const beta = { field: "name", operator: FilterOperatorKey.contains, value: "beta" } as Filter;
+    const alpha = {
+      field: "name",
+      operator: FilterOperatorKey.contains,
+      value: "alpha",
+    } as Filter;
+    const beta = {
+      field: "name",
+      operator: FilterOperatorKey.contains,
+      value: "beta",
+    } as Filter;
     const table = tableStore([alpha, beta]);
     const palette = openPalette(table);
     const container = mountPalette(table);
@@ -294,7 +336,13 @@ describe("filter palette date page", () => {
     const trigger = container.querySelector("[data-palette-operator-trigger]") as HTMLElement;
 
     act(() => {
-      trigger.dispatchEvent(new MouseEvent("pointerdown", { bubbles: true, cancelable: true, button: 0 }));
+      trigger.dispatchEvent(
+        new MouseEvent("pointerdown", {
+          bubbles: true,
+          cancelable: true,
+          button: 0,
+        }),
+      );
     });
 
     const item = [...document.querySelectorAll("[role='menuitem']")].find(
@@ -302,7 +350,13 @@ describe("filter palette date page", () => {
     ) as HTMLElement;
 
     act(() => {
-      item.dispatchEvent(new MouseEvent("pointerup", { bubbles: true, cancelable: true, button: 0 }));
+      item.dispatchEvent(
+        new MouseEvent("pointerup", {
+          bubbles: true,
+          cancelable: true,
+          button: 0,
+        }),
+      );
       item.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, button: 0 }));
     });
 

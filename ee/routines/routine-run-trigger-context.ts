@@ -1,4 +1,4 @@
-import type { EntityType } from "@/generated/prisma";
+import type { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 import { changedFieldsOf, entityTypeForEvent, threadIdOf } from "./routine-event-filter";
 import { routineRecordReference } from "./routine-record-reference";

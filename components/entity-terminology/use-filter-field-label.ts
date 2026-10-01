@@ -1,6 +1,6 @@
 "use client";
 
-import type { ColumnPresentation } from "@/features/custom-column/custom-column.schema";
+import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
 
 import { useTranslations } from "next-intl";
 

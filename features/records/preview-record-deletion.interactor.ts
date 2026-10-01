@@ -13,22 +13,56 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordRefSchema } from "./record-model.schema";
 import { calculationSources, recordKey } from "./record-calculation.service";
 import { recordWriteFailure } from "./mutate-record.interactor";
+import { RecordMutationTargetsSchema } from "./record-query.schema";
 
+const ValidatedDeletionPreviewSchema = z.union([
+  z
+    .object({
+      ref: RecordRefSchema,
+      expectedRevision: z.number().int().nonnegative(),
+      expectedVersion: z.number().int().positive(),
+    })
+    .strict(),
+  z
+    .object({
+      targets: RecordMutationTargetsSchema,
+      expectedRevision: z.number().int().nonnegative(),
+    })
+    .strict(),
+]);
 export const PreviewRecordDeletionSchema = z
   .object({
-    ref: RecordRefSchema,
+    ref: RecordRefSchema.optional(),
+    targets: RecordMutationTargetsSchema.optional(),
     expectedRevision: z.number().int().nonnegative(),
-    expectedVersion: z.number().int().positive(),
+    expectedVersion: z.number().int().positive().optional(),
   })
-  .strict();
+  .strict()
+  .transform((input, ctx) => {
+    const result = ValidatedDeletionPreviewSchema.safeParse(input);
+    if (!result.success) {
+      result.error.issues.forEach((issue) => ctx.addIssue({ ...issue }));
+      return z.NEVER;
+    }
+    return result.data;
+  });
 export type PreviewRecordDeletionInput = z.infer<typeof PreviewRecordDeletionSchema>;
 export const RecordDeletionPreviewSchema = z
   .object({
-    ref: RecordRefSchema,
+    ref: RecordRefSchema.optional(),
+    targets: RecordMutationTargetsSchema.optional(),
     schemaRevision: z.number().int(),
-    recordVersion: z.number().int(),
+    recordVersion: z.number().int().optional(),
     impactHash: z.string(),
-    removedRecords: z.array(z.object({ typeId: z.uuid(), label: z.string(), count: z.number().int() }).strict()),
+    removedRecords: z.array(
+      z
+        .object({
+          typeId: z.uuid(),
+          label: z.string(),
+          count: z.number().int(),
+        })
+        .strict(),
+    ),
     removedLinks: z.number().int().nullable(),
     calculations: z.array(z.object({ typeId: z.uuid(), fieldId: z.uuid(), label: z.string() }).strict()),
   })
@@ -57,7 +91,13 @@ export class PreviewRecordDeletionInteractor extends AuthenticatedInteractor<
         if (model.revision !== input.expectedRevision) return failConflict(CustomErrorCode.recordSchemaChanged);
         try {
           const plan = await this.writer.planDeletion(
-            { action: "delete", ref: input.ref, expectedVersion: input.expectedVersion },
+            "targets" in input
+              ? { action: "deleteMany", targets: input.targets }
+              : {
+                  action: "delete",
+                  ref: input.ref,
+                  expectedVersion: input.expectedVersion,
+                },
             model,
             policy,
             5000,
@@ -88,7 +128,11 @@ export class PreviewRecordDeletionInteractor extends AuthenticatedInteractor<
                 )
               )
                 continue;
-              calculations.set(field.id, { typeId: field.typeId, fieldId: field.id, label: field.label });
+              calculations.set(field.id, {
+                typeId: field.typeId,
+                fieldId: field.id,
+                label: field.label,
+              });
               changedTypes.add(field.typeId);
               expanded = true;
             }
@@ -96,9 +140,10 @@ export class PreviewRecordDeletionInteractor extends AuthenticatedInteractor<
           return {
             ok: true as const,
             data: {
-              ref: input.ref,
+              ...("targets" in input
+                ? { targets: input.targets }
+                : { ref: input.ref, recordVersion: input.expectedVersion }),
               schemaRevision: model.revision,
-              recordVersion: input.expectedVersion,
               impactHash: plan.impactHash,
               removedRecords: model.types.flatMap((type) => {
                 const count = [...plan.deleted.values()].filter((row) => row.typeId === type.id).length;

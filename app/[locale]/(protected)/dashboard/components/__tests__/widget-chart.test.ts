@@ -5,7 +5,6 @@ import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { AggregationType } from "@/generated/prisma";
 import { ChartColor, DisplayType } from "@/features/widget/widget.schema";
 
 const chartMocks = vi.hoisted(() => ({
@@ -68,9 +67,14 @@ function renderChart(displayType: DisplayType, overrides: Partial<React.Componen
   chartMocks.calls.length = 0;
   mount(
     createElement(WidgetChart, {
-      aggregationType: AggregationType.dealValue,
+      currency: "EUR",
       data: [
-        { labelKind: "system", systemLabelKey: "noGroup", optionColor: "success", value: 200 },
+        {
+          labelKind: "system",
+          systemLabelKey: "noGroup",
+          optionColor: "success",
+          value: 200,
+        },
         { labelKind: "literal", label: "Hardware", value: 100 },
       ],
       displayOptions: {
@@ -114,16 +118,15 @@ describe("WidgetChart", () => {
 
     expect(call.chart).toBe(expectedChart);
     expect(call.props).toMatchObject({
-      aggregationType: AggregationType.dealValue,
+      currency: "EUR",
       reverseXAxis: true,
       reverseYAxis: true,
     });
   });
 
-  it.each(Object.values(AggregationType))("forwards the %s aggregation to the chart", (aggregationType) => {
-    const call = renderChart(DisplayType.verticalBarChart, { aggregationType });
-
-    expect(call.props.aggregationType).toBe(aggregationType);
+  it.each(["EUR", "USD", null])("forwards the %s formatting currency to the chart", (currency) => {
+    const call = renderChart(DisplayType.verticalBarChart, { currency });
+    expect(call.props.currency).toBe(currency);
   });
 
   it("maps option colors, fallback colors, labels, and strokes into chart data", () => {

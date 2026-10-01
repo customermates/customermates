@@ -7,20 +7,20 @@ Die globale Suche ist ein Modal, keine Seite: Sie öffnet überall in der App mi
 
 ## Was findet die globale Suche, und welche Kontaktfelder durchsucht sie? [#what-does-global-search-find]
 
-Die globale Suche zeigt bis zu 50 Treffer pro Datensatztyp: Das Modal durchsucht **Kontakte, Organisationen, Deals, Services und Aufgaben**. Kontakte werden über Vorname, Nachname, jeden Kanal-Identifikator (etwa eine E-Mail-Adresse oder eine WhatsApp-Nummer) und die Namen verknüpfter Organisationen gefunden, Organisationen über ihren Namen und die Vor- und Nachnamen ihrer Kontakte, Deals, Services und Aufgaben nur über ihren Namen. Jedes eingegebene Wort muss treffen, ohne Beachtung der Groß- und Kleinschreibung, "anna schmidt" findet also nur Datensätze, die beide Wörter treffen.
+Die globale Suche liefert eine begrenzte Seite zugänglicher Datensätze aus konfigurierten Typen, einschließlich eigener Typen. Sie können Kontakte anhand ihrer E-Mail-Adresse oder Telefonnummer in den Identitätskanälen suchen. Die Suche findet außerdem zulässige Titel und durchsuchbare Feldwerte, einschließlich konfigurierter E-Mail-Felder. Mit **Mehr laden** rufen Sie weitere verfügbare Ergebnisse ab. Eingeschränkte Werte nehmen nicht an der Suche teil.
 
 Sie sehen nur die Datensatztypen, die Ihre Rolle lesen darf, und **Lesen** mit **Zugewiesen** beschränkt die Treffer auf Datensätze, denen Sie zugewiesen sind. Vor der Eingabe zeigt **Zuletzt geöffnet** Ihre letzten 8 Auswahlen aus dieser Suche, nur in diesem Browser gespeichert; **Leeren** leert die Liste. Die Pfeiltasten bewegen sich durch die Treffer, Enter öffnet einen.
 
 Nachrichten werden nicht durchsucht; der Posteingang hat seine eigene Suche.
 
-Die Auswahl eines Ergebnisses öffnet die Detailseite des Datensatzes unter `/{type}/{id}`. Um stattdessen einen Datensatz anzulegen, nutzen Sie das Steuerelement **Hinzufügen** seiner Listenseite oder den Deep-Link `?open={entityType}:new`, dokumentiert in [CRM-Datensätze](/docs/app-records).
+Die Auswahl eines Ergebnisses öffnet die Detailseite des Datensatzes unter `/records/<typeId>/<recordId>`. Um stattdessen einen Datensatz anzulegen, nutzen Sie das Steuerelement **Hinzufügen** seiner Listenseite oder die Typauswahl der Seitenleiste, dokumentiert in [CRM-Datensätze](/docs/app-records).
 
 **Link:** keine Seite; öffnen Sie das Modal auf jeder App-Seite mit Cmd+K oder Ctrl+K oder über **Suchen** in der Sidebar. **Mate:** `highlight_element` mit `nav-search` (Mate kann weder mit `navigate` dorthin wechseln noch das Modal öffnen); das Suchfeld und die Treffer sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Welche stabilen Ids hat die globale Suche? [#which-stable-ids-does-it-have]
 
 | Control | Id |
-|---|---|
+| --- | --- |
 | Sidebar-Trigger | `#nav-search` (**Suchen**) |
 | Container des Suchfelds im Modal | `#global-search-input` |
 
@@ -35,6 +35,6 @@ Für einen Agent passiert die Eingabe nach dem Öffnen des Modals im Textfeld in
 Cmd+K oder Ctrl+K, auf jedem Betriebssystem, überall in der App. Der Sidebar-Trigger **Suchen**, der ⌘K anzeigt, öffnet dasselbe Modal.
 </FaqItem>
 <FaqItem question="Wo öffnen sich Ergebnisse?">
-Auf der Detailseite des Datensatzes unter `/{type}/{id}`, dokumentiert in CRM-Datensätze.
+Auf der Detailseite des Datensatzes unter `/records/<typeId>/<recordId>`, dokumentiert in CRM-Datensätze.
 </FaqItem>
 </Faq>

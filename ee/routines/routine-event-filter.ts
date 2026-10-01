@@ -1,4 +1,4 @@
-import { EntityType } from "@/generated/prisma";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 import { extractAuditChanges } from "@/features/audit-log/audit-log-changes";
 import { RecordDeliveryEnvelopeSchema } from "@/features/records/record-delivery.schema";

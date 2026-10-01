@@ -89,7 +89,11 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
             (policy.allowed(relation.targetTypeId, "readOwn") || policy.allowed(relation.targetTypeId, "readAll")),
         );
         const paths = type.relationshipPaths?.filter(
-          (path) => !path.archived && resolveRecordPath(type.id, path.path, { relationships: allowedRelationships }),
+          (path) =>
+            !path.archived &&
+            resolveRecordPath(type.id, path.path, {
+              relationships: allowedRelationships,
+            }),
         );
         const pathRelationships = new Set(paths?.flatMap((path) => path.path.map((step) => step.relationId)));
         const relationships = allowedRelationships.filter(
@@ -127,13 +131,22 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
         } catch {
           return fail(CustomErrorCode.recordValueInvalid);
         }
+        const avatarFieldId = model.capabilities
+          .find((binding) => binding.kind === "avatar" && binding.typeId === type.id)
+          ?.fields.find((field) => field.role === "image")?.fieldId;
+        if (avatarFieldId && fields.some((field) => field.id === avatarFieldId))
+          query.fields = [...new Set([...(query.fields ?? fields.map((field) => field.id)), avatarFieldId])];
+
         const selections = recordColumns(type.id, { ...model, relationships })
           .filter((column) => column.kind === "relationship" && !state.hiddenColumns.includes(column.id))
           .flatMap((column) => {
             const selection = parseRelationshipColumnKey(column.id);
             return selection ? [selection] : [];
           });
-        const pathSelections = recordColumns(type.id, { ...model, relationships }).flatMap((column) =>
+        const pathSelections = recordColumns(type.id, {
+          ...model,
+          relationships,
+        }).flatMap((column) =>
           column.kind === "relationshipPath" && !state.hiddenColumns.includes(column.id)
             ? [{ pathId: column.definition.id, limit: 3 }]
             : [],
@@ -149,7 +162,10 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
         query.groupPage = state.grouping ? input.params.groupPage : undefined;
         const queried = await this.query.invoke(query);
         if (!queried.ok) return queried;
-        const items = queried.data.records.map((record) => ({ ...record, id: record.ref.recordId }));
+        const items = queried.data.records.map((record) => ({
+          ...record,
+          id: record.ref.recordId,
+        }));
         const grouping = queried.data.grouping;
         return {
           ok: true as const,

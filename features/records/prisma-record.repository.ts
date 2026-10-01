@@ -44,7 +44,7 @@ import { transactionStorage } from "@/core/decorators/transaction-context";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import { prisma } from "@/prisma/db";
 import { CalculatedValueSchema, RecordModelSchema } from "./record-model.schema";
-import { compileRecordQuery, fieldReadPredicate } from "./record-query";
+import { compileRecordQuery, fieldReadPredicate, recordReadPredicate } from "./record-query";
 import { compileRecordMeasure } from "./record-measure";
 import { encodeRecordValue, recordJson } from "./record-storage";
 import type { RecordIdentity, RecordIdentityInput } from "./record-identity.schema";
@@ -397,6 +397,16 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
         );
         if (rows[0]?.invalid) invalid.push(relation.id);
       }
+    }
+    for (const type of model.types) {
+      if (type.archived || !type.parentRelationshipId) continue;
+      const rows = await this.prisma.$queryRaw<Array<{ invalid: boolean }>>(Prisma.sql`
+        SELECT EXISTS (SELECT 1 FROM "CrmRecord" record
+          WHERE record."companyId" = ${this.companyId} AND record."typeId" = ${type.id}
+            AND NOT EXISTS (SELECT 1 FROM "RecordLink" link
+              WHERE link."companyId" = record."companyId" AND link."relationId" = ${type.parentRelationshipId}
+                AND link."sourceTypeId" = record."typeId" AND link."sourceId" = record.id)) AS invalid`);
+      if (rows[0]?.invalid) invalid.push(type.parentRelationshipId);
     }
     return [...new Set(invalid)];
   }
@@ -916,6 +926,118 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
     }));
   }
 
+  async getLinksCompanyWidePage(ref: RecordRef, afterId: string | undefined, take: number) {
+    const rows = await this.prisma.recordLink.findMany({
+      where: {
+        companyId: this.companyId,
+        ...(afterId ? { id: { gt: afterId } } : {}),
+        OR: [
+          { sourceTypeId: ref.typeId, sourceId: ref.recordId },
+          { targetTypeId: ref.typeId, targetId: ref.recordId },
+        ],
+      },
+      orderBy: { id: "asc" },
+      take,
+    });
+    return rows.map((row) => ({
+      id: row.id,
+      relationId: row.relationId,
+      source: { typeId: row.sourceTypeId, recordId: row.sourceId },
+      target: { typeId: row.targetTypeId, recordId: row.targetId },
+    }));
+  }
+
+  async getPendingDeletionRef(operationId: string): Promise<RecordRef | null> {
+    const rows = await this.prisma.$queryRaw<RecordRef[]>(Prisma.sql`
+      SELECT pending.payload->>'typeId' AS "typeId", pending.payload->>'recordId' AS "recordId"
+      FROM "RecordStageRow" pending
+      WHERE pending."companyId" = ${this.companyId} AND pending."operationId" = ${operationId}
+        AND pending.kind = 'delete-pending'
+        AND NOT EXISTS (SELECT 1 FROM "RecordStageRow" visited
+          WHERE visited."companyId" = pending."companyId" AND visited."operationId" = pending."operationId"
+            AND visited.kind = 'delete-plan' AND visited.key = pending.key)
+      ORDER BY pending.key LIMIT 1`);
+    return rows[0] ?? null;
+  }
+
+  async queueDeletionRef(operationId: string, ref: RecordRef): Promise<void> {
+    const key = `${ref.typeId}:${ref.recordId}`;
+    await this.prisma.$executeRaw(Prisma.sql`
+      INSERT INTO "RecordStageRow" ("companyId", "operationId", kind, key, payload)
+      SELECT ${this.companyId}, ${operationId}, 'delete-pending', ${key}, ${JSON.stringify(ref)}::jsonb
+      WHERE NOT EXISTS (SELECT 1 FROM "RecordStageRow" visited
+        WHERE visited."companyId" = ${this.companyId} AND visited."operationId" = ${operationId}
+          AND visited.kind = 'delete-plan' AND visited.key = ${key})
+      ON CONFLICT DO NOTHING`);
+  }
+
+  async completeDeletionRef(operationId: string, ref: RecordRef): Promise<void> {
+    await this.prisma.recordStageRow.deleteMany({
+      where: {
+        companyId: this.companyId,
+        operationId,
+        kind: "delete-pending",
+        key: `${ref.typeId}:${ref.recordId}`,
+      },
+    });
+  }
+
+  async getStagedDeletionStatus(operationId: string, revision: number) {
+    const rows = await this.prisma.$queryRaw<
+      Array<{
+        recordCount: number;
+        linkCount: number;
+        affectedCount: number;
+        affectedTypeIds: string[];
+        restricted: boolean;
+        impactHash: string;
+      }>
+    >(Prisma.sql`
+      WITH entries AS (
+        SELECT kind, key, payload FROM "RecordStageRow"
+        WHERE "companyId" = ${this.companyId} AND "operationId" = ${operationId}
+          AND kind IN ('delete-plan', 'delete-link', 'delete-affected', 'delete-restrict')
+      ), records AS (
+        SELECT COUNT(*)::integer AS count,
+          COALESCE('[' || string_agg(to_json(key || ':' || (payload->>'version'))::text, ',' ORDER BY key) || ']', '[]') AS json
+        FROM entries WHERE kind = 'delete-plan'
+      ), links AS (
+        SELECT COUNT(*)::integer AS count,
+          COALESCE('[' || string_agg(to_json(key)::text, ',' ORDER BY key) || ']', '[]') AS json
+        FROM entries WHERE kind = 'delete-link'
+      )
+      SELECT records.count AS "recordCount", links.count AS "linkCount",
+        (SELECT COUNT(*)::integer FROM entries WHERE kind = 'delete-affected') AS "affectedCount",
+        ARRAY(SELECT DISTINCT payload->>'typeId' FROM entries WHERE kind = 'delete-affected') AS "affectedTypeIds",
+        EXISTS (SELECT 1 FROM entries restricted WHERE restricted.kind = 'delete-restrict'
+          AND NOT EXISTS (SELECT 1 FROM entries deleted WHERE deleted.kind = 'delete-plan' AND deleted.key = restricted.key)) AS restricted,
+        encode(sha256(convert_to('{"revision":' || ${revision}::text || ',"records":' || records.json || ',"links":' || links.json || '}', 'UTF8')), 'hex') AS "impactHash"
+      FROM records CROSS JOIN links`);
+    return recordInvariant(rows[0]);
+  }
+
+  async validateStagedDeletionAccess(operationId: string, access: RecordAccessMap): Promise<boolean> {
+    const root = Prisma.raw('"deleted_record"');
+    const permitted = [...access].map(
+      ([typeId, scope]) =>
+        Prisma.sql`(${root}."typeId" = ${typeId} AND ${recordReadPredicate(this.companyId, scope, root)})`,
+    );
+    const rows = await this.prisma.$queryRaw<Array<{ valid: boolean }>>(Prisma.sql`
+      SELECT NOT EXISTS (SELECT 1 FROM "RecordStageRow" stage
+        WHERE stage."companyId" = ${this.companyId} AND stage."operationId" = ${operationId}
+          AND stage.kind = 'record' AND (stage.payload->>'deleted')::boolean
+          AND NOT EXISTS (SELECT 1 FROM "CrmRecord" ${root}
+            WHERE ${root}."companyId" = ${this.companyId} AND ${root}."typeId" = stage.payload->'ref'->>'typeId'
+              AND ${root}.id = stage.payload->'ref'->>'recordId' AND ${root}."protectedKind" IS NULL
+              AND ${root}.version = (stage.payload->>'version')::integer
+              AND EXISTS (SELECT 1 FROM "RecordStageRow" planned
+                WHERE planned."companyId" = ${this.companyId} AND planned."operationId" = ${operationId}
+                  AND planned.kind = 'delete-plan' AND planned.key = stage.key
+                  AND ${root}.version = (planned.payload->>'version')::integer)
+              AND (${permitted.length ? Prisma.join(permitted, " OR ") : Prisma.sql`FALSE`}))) AS valid`);
+    return recordInvariant(rows[0]).valid;
+  }
+
   async getOutgoingLinksCompanyWide(typeId: string, recordIds: string[], take: number) {
     if (!recordIds.length) return [];
     const rows = await this.prisma.recordLink.findMany({
@@ -1012,7 +1134,14 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
     });
   }
 
-  async appendEvent(ref: RecordRef, actorId: string, causeId: string, kind: string, payload: unknown): Promise<void> {
+  async appendEvent(
+    ref: RecordRef,
+    actorId: string,
+    causeId: string,
+    kind: string,
+    payload: unknown,
+    beforeDeletion = false,
+  ): Promise<void> {
     const id = randomUUID();
     await this.prisma.recordEvent.create({
       data: {
@@ -1026,9 +1155,7 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
         payload: recordJson(payload),
       },
     });
-    await captureRecordEventMatches(this.prisma, this, this.companyId, {
-      eventId: id,
-    });
+    await captureRecordEventMatches(this.prisma, this, this.companyId, { eventId: id }, beforeDeletion);
     await this.wakeRecordEvents();
   }
 
@@ -1193,6 +1320,13 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
     const companyId = this.companyId;
     const stage = (kind: string) =>
       Prisma.sql`stage."companyId" = ${companyId} AND stage."operationId" = ${operationId} AND stage.kind = ${kind}`;
+    await this.prisma.$executeRaw(Prisma.sql`
+      INSERT INTO "RecordEvent" ("companyId", id, "typeId", "recordId", "actorId", "causeId", kind, payload, "createdAt", attempts, "nextAttemptAt")
+      SELECT ${companyId}, stage.payload->>'id', stage.payload->'ref'->>'typeId', stage.payload->'ref'->>'recordId',
+        stage.payload->>'actorId', stage.payload->>'causeId', stage.payload->>'kind', stage.payload->'payload', NOW(), 0, NOW()
+      FROM "RecordStageRow" stage WHERE ${stage("event")}
+    `);
+    await captureRecordEventMatches(this.prisma, this, companyId, { operationId }, true);
     await this.prisma.$executeRaw(
       Prisma.sql`DELETE FROM "CrmRecord" record USING "RecordStageRow" stage WHERE ${stage("record")} AND (stage.payload->>'deleted')::boolean AND record."companyId" = ${companyId} AND record."typeId" = stage.payload->'ref'->>'typeId' AND record.id = stage.payload->'ref'->>'recordId'`,
     );
@@ -1258,12 +1392,6 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
     await this.prisma.$executeRaw(
       Prisma.sql`UPDATE "CrmRecord" record SET version = record.version + 1, "updatedAt" = NOW() WHERE record."companyId" = ${companyId} AND EXISTS (SELECT 1 FROM "RecordStageRow" stage WHERE (${stage("value")} OR ${stage("dependency")}) AND stage.payload->'ref'->>'typeId' = record."typeId" AND stage.payload->'ref'->>'recordId' = record.id) AND NOT EXISTS (SELECT 1 FROM "RecordStageRow" stage WHERE ${stage("record")} AND stage.key = record."typeId" || ':' || record.id)`,
     );
-    await this.prisma.$executeRaw(Prisma.sql`
-      INSERT INTO "RecordEvent" ("companyId", id, "typeId", "recordId", "actorId", "causeId", kind, payload, "createdAt", attempts, "nextAttemptAt")
-      SELECT ${companyId}, stage.payload->>'id', stage.payload->'ref'->>'typeId', stage.payload->'ref'->>'recordId',
-        stage.payload->>'actorId', stage.payload->>'causeId', stage.payload->>'kind', stage.payload->'payload', NOW(), 0, NOW()
-      FROM "RecordStageRow" stage WHERE ${stage("event")}
-    `);
     await captureRecordEventMatches(this.prisma, this, companyId, {
       operationId,
     });

@@ -1,21 +1,21 @@
 "use client";
 
-import type { ColumnPresentation } from "@/features/custom-column/custom-column.schema";
-import type { Filter } from "@/core/base/base-get.schema";
 import type { FilterSelectItem } from "@/components/data-view/filter-modal/inputs/use-filter-select-items";
+import type { Filter } from "@/core/base/base-get.schema";
+import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
 
 import { CheckIcon } from "lucide-react";
 import { observer } from "mobx-react-lite";
-import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useEffect, useMemo, useState } from "react";
 
 import { AppChip } from "@/components/chip/app-chip";
+import { useFilterSelectItems } from "@/components/data-view/filter-modal/inputs/use-filter-select-items";
+import { SelectionOptionsSkeleton } from "@/components/forms/selection-loading";
 import { Button } from "@/components/ui/button";
 import { CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
-import { SelectionOptionsSkeleton } from "@/components/forms/selection-loading";
-import { useDebouncedValue } from "@/core/utils/use-debounced-value";
-import { useFilterSelectItems } from "@/components/data-view/filter-modal/inputs/use-filter-select-items";
 import { cn } from "@/core/utils/cn";
+import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 
 type OptionResult = {
   key: string;

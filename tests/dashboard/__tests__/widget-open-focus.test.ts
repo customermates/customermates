@@ -4,10 +4,9 @@ import type { WidgetDto } from "@/features/widget/widget.schema";
 import type { ReactNode } from "react";
 import type { Root } from "react-dom/client";
 
-import { act, createElement } from "react";
+import { act,createElement } from "react";
 import { createRoot } from "react-dom/client";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { EntityType } from "@/generated/prisma";
+import { afterEach,beforeEach,describe,expect,it,vi } from "vitest";
 
 const harness = vi.hoisted(() => ({
   focusedAtOpen: null as Element | null,
@@ -45,7 +44,7 @@ vi.mock("@/app/[locale]/(protected)/dashboard/components/record-activity-widget-
 }));
 vi.mock("@/app/[locale]/(protected)/dashboard/components/widget-modal", () => ({ WidgetModal: () => null }));
 vi.mock("@/core/stores/root-store.provider", () => {
-  const widget = { id: "widget-1", name: "Total Deal Value" };
+  const widget = { id: "widget-1", name: "Total Deal Value", kind: "chart", contractVersion: 2 };
   const widgetModalStore = {
     add: vi.fn(),
     availableKinds: ["chart"],
@@ -93,14 +92,11 @@ describe("DashboardPageView widget opening", () => {
     act(() =>
       reactRoot.render(
         createElement(DashboardPageView, {
-          activityFilterableFields: [],
-          customColumns: [],
-          filterableFields: { [EntityType.contact]: [] } as never,
           widgets: [],
         }),
       ),
     );
-    const chart = container.querySelector<HTMLElement>('[data-chart="widget-1"], [data-activity="widget-1"]');
+    const chart = container.querySelector<HTMLElement>('[data-record-chart="widget-1"], [data-record-activity="widget-1"]');
     const editButton = container.querySelector<HTMLElement>('[data-slot="widget-card-open"]');
     if (!chart || !editButton) throw new Error("Expected the widget card and its edit button");
 

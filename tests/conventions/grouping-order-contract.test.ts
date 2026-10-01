@@ -40,9 +40,10 @@ describe("the group order is decided once, on the server", () => {
   });
 
   it("orders a custom single select axis through the one shared comparator", () => {
-    const axis = read("core/base/grouping/group-axis.ts");
+    const axis = read("features/records/record-group-query.ts");
 
-    expect(axis).toContain("orderByOptionIndex(spec.options)");
+    expect(axis).toContain("field.options.map((option, position)");
+    expect(axis).toContain("ORDER BY page_axis.position");
     expect(read("core/base/grouping/groupable-field.ts")).not.toContain("orderByOptionIndex");
   });
 

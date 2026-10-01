@@ -1,4 +1,4 @@
-import { EntityType } from "@/generated/prisma";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 import type { RoutineTriggerEvent } from "./routine-trigger-events";
 

@@ -1,28 +1,27 @@
-import { randomUUID } from "node:crypto";
-import { Client } from "pg";
-import { afterAll, describe, expect, it } from "vitest";
-import type { ClientBase } from "pg";
-import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
-import { runWithoutTenant } from "@/core/decorators/tenant-context";
-import { prisma } from "@/prisma/db";
-import { migrateLegacyWorkspace } from "../../v2/run";
-import { presetId } from "../../v2/contract/crm-preset";
-import { migrateRecordWorkspace as migrateWorkspace } from "../../run";
-import { migrateRecordActivityState } from "../run";
-import { RecordModelSchema } from "@/features/records/record-model.schema";
 import { RecordActivityQuerySchema } from "@/ee/messaging/activities/record-activities.schema";
+import { RecordModelSchema } from "@/features/records/record-model.schema";
+import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
+import { createLegacyMigrationDatabase, legacyFixtureWriter } from "@/tests/helpers/legacy-migration-database";
+import { randomUUID } from "node:crypto";
+import type { ClientBase } from "pg";
+import { afterAll, describe, expect, it } from "vitest";
+import { migrateRecordWorkspace as migrateWorkspace } from "../../run";
+import { presetId } from "../../v2/contract/crm-preset";
+import { migrateLegacyWorkspace } from "../../v2/run";
+import { migrateRecordActivityState } from "../run";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
 const companies: string[] = [];
-const clients: Client[] = [];
+const databases: Awaited<ReturnType<typeof createLegacyMigrationDatabase>>[] = [];
 const migrateRecordWorkspace = (client: ClientBase, companyId: string, mode: "preflight" | "backfill" | "reconcile") =>
   migrateWorkspace(client, companyId, mode, 4);
 async function fixture() {
-  const client = new Client({ connectionString: databaseUrl ?? undefined });
-  await client.connect();
-  clients.push(client);
-  const source = await runWithoutTenant(async () => {
+  const database = await createLegacyMigrationDatabase(databaseUrl);
+  databases.push(database);
+  const { client } = database;
+  const prisma = legacyFixtureWriter(client);
+  const source = await (async () => {
     const company = await prisma.company.create({ data: {} });
     companies.push(company.id);
     const role = await prisma.userRole.create({ data: { companyId: company.id, name: "Admin", isSystemRole: true } });
@@ -69,16 +68,15 @@ async function fixture() {
       },
     });
     return { company, user, recordId, otherService, otherLine, widget, timelineFilters };
-  });
+  })();
+
   return { ...source, client, id: (key: string) => presetId(source.company.id, key) };
 }
 
 describeDatabase("activity and provenance migration", { timeout: 30000 }, () => {
   afterAll(async () => {
-    for (const client of clients) await client.end();
-    await runWithoutTenant(() => prisma.company.deleteMany({ where: { id: { in: companies } } }));
-    await prisma.$disconnect();
-  });
+    for (const database of databases) await database.close();
+  }, 60000);
 
   it("migrates immutable configuration, full calculation provenance and saved widget identity without events", async () => {
     const f = await fixture();
@@ -106,7 +104,7 @@ describeDatabase("activity and provenance migration", { timeout: 30000 }, () => 
       { relationId: f.id("deal.contacts"), direction: "outgoing" },
     ]);
     expect(snapshots[0].snapshot.activityPaths).not.toEqual(model.activityPaths);
-    const widget = await runWithoutTenant(() => prisma.widget.findUniqueOrThrow({ where: { id: f.widget.id } }));
+    const widget = (await f.client.query('SELECT * FROM "Widget" WHERE id = $1', [f.widget.id])).rows[0];
     expect(widget).toMatchObject({
       id: f.widget.id,
       name: f.widget.name,

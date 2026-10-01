@@ -13,17 +13,22 @@ import { ChannelIconStack } from "@/components/shared/channel-icon-stack";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { channelDisplayLabel } from "@/ee/messaging/thread-display";
+import { Avatar } from "@/components/ui/avatar";
 
 export function RecordCell({
   column,
   record,
   onOpen,
   onMore,
+  relativeTimestamp = false,
+  avatarFieldId,
 }: {
   column: RecordColumn;
   record: RecordDto;
   onOpen: (ref: RecordRef) => void;
   onMore: () => void;
+  relativeTimestamp?: boolean;
+  avatarFieldId?: string;
 }) {
   const t = useTranslations();
   const intl = useHydratedIntlStore();
@@ -44,18 +49,35 @@ export function RecordCell({
     );
   }
   if (column.kind === "field") {
-    return (
-      <RecordValue
-        field={column.field}
-        result={record.fields.find((value) => value.fieldId === column.field.id)?.result}
-      />
-    );
+    const result = record.fields.find((value) => value.fieldId === column.field.id)?.result;
+    if (avatarFieldId && result?.state === "value" && result.value.kind === "text") {
+      const image = record.fields.find((field) => field.fieldId === avatarFieldId)?.result;
+      return (
+        <span className="flex min-w-0 items-center gap-2">
+          <Avatar
+            aria-hidden
+            name={result.value.value}
+            src={image?.state === "value" && image.value.kind === "text" ? image.value.value : null}
+          />
+
+          <RecordValue field={column.field} result={result} />
+        </span>
+      );
+    }
+    return <RecordValue field={column.field} result={result} />;
   }
   if (column.kind === "system") {
     if (column.id === "system:assignedTo")
       return record.assignedUsers.length ? <AvatarStack items={record.assignedUsers} size="sm" /> : empty;
+
     const instant = column.id === "system:createdAt" ? record.createdAt : record.updatedAt;
-    return <time dateTime={instant}>{intl.formatDescriptiveShortDateTime(new Date(instant))}</time>;
+    return (
+      <time dateTime={instant}>
+        {relativeTimestamp
+          ? intl.formatRelativeTime(new Date(instant))
+          : intl.formatDescriptiveShortDateTime(new Date(instant))}
+      </time>
+    );
   }
   const summary =
     column.kind === "relationshipPath"
@@ -90,7 +112,9 @@ export function RecordCell({
 
       {summary.hasMore && (
         <button
-          aria-label={t("RecordModel.linkedRecordCount", { count: summary.readableCount })}
+          aria-label={t("RecordModel.linkedRecordCount", {
+            count: summary.readableCount,
+          })}
           className="rounded-md text-xs text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
           type="button"
           onClick={onMore}

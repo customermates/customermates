@@ -114,7 +114,7 @@ describe("toolsetsForRequest", () => {
           {
             reference: {
               kind: "dataView",
-              surfaceKey: "contacts-card-store",
+              surfaceKey: "records:10000000-0000-4000-8000-000000000011",
               viewKey: "11111111-1111-4111-8111-111111111111",
               requestedAction: "update",
             },

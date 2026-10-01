@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { EntityType } from "@/generated/prisma";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 import { buildTerminologyMap, resolveEntityTerm, terminologyMessageKey } from "../entity-terminology.resolver";
 

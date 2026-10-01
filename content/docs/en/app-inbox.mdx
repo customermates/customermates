@@ -41,7 +41,7 @@ For email accounts, only messages in the folders switched on in the account's **
 Roles are edited under **My Company › Roles**. The Inbox uses the **Inbox messages** row, which offers **Read access** **None** or **All** (there is no **Assigned**) and **Manage** **Yes** or **No**.
 
 | To do this | The role needs |
-|---|---|
+| --- | --- |
 | See the Inbox and read conversations | **Inbox messages**: **Read access** **All** |
 | Reply, save, send or discard drafts, start a conversation from a contact | **Inbox messages**: **Manage** **Yes** |
 | Change the state, move an email, **Refresh**, **Resync thread**, load older messages by scrolling up, share a conversation | **Inbox messages**: **Manage** **Yes** |
@@ -77,7 +77,7 @@ With **Manage** on **Inbox messages**, scrolling to the top of a conversation fe
 Next to the conversation's name, left to right:
 
 | Control | Label | What it does |
-|---|---|---|
+| --- | --- | --- |
 | Circular arrow icon | Tooltip **Resync thread** | Fetches the conversation again from the provider; only with **Manage** |
 | Chip with participant avatars | **Private Thread** or **Shared Thread**, tooltip **Manage visibility and people** | Opens **Thread settings** |
 | Person icon with a number | Tooltip **Some participants not linked to a contact** | Opens **Thread settings**; only with **Manage** on **Contacts** |
@@ -91,7 +91,7 @@ On narrow screens the chips show icons only.
 ## What do the thread states mean?
 
 | State | Meaning |
-|---|---|
+| --- | --- |
 | **Unread** | New, or a new message came in |
 | **Open** | Read, still needs attention |
 | **Closed** | Done |
@@ -135,7 +135,7 @@ Replying needs **Manage** on **Inbox messages**; without it the composer is hidd
 
 The Inbox has no button for a new conversation. Start one from a contact: in the contact's **Channels** block, the **New message** icon next to an email address or handle opens a compose box for that channel. When several of your channels can send, pick one under **From**; for LinkedIn with Sales Navigator or Recruiter, **Send as** chooses **Classic**, **Sales Navigator InMail** or **Recruiter InMail**. After **Send** you see "Message sent. The conversation will appear shortly." The icon needs Customermates Cloud and **Manage** on **Inbox messages**. Over MCP, `send_email`, `send_chat_message` and `save_message_draft` start conversations too.
 
-**Link:** a contact's page, `/contacts/<id>`. **Mate:** `navigate` and `highlight_element` with `nav-contacts` for the contact list; the **New message** icon is not a highlight target, so Mate names it.
+**Link:** a contact's page, `/records/<typeId>/<recordId>`. **Mate:** `navigate` and `highlight_element` with `nav-contacts` for the contact list; the **New message** icon is not a highlight target, so Mate names it.
 
 ## How do drafts and attachments work?
 
@@ -155,23 +155,23 @@ The signature belongs to each email account you own, not to the Inbox: open **My
 
 Mate navigates to and highlights `#nav-inbox`. The other ids are DOM ids for external browser clients; Mate triages threads with the `update_messaging_thread` and `move_email_thread` tools instead of pressing these controls.
 
-| Action                      | Where                               | Anchor id                                  | What happens                                                               |
-| --------------------------- | ----------------------------------- | ------------------------------------------ | -------------------------------------------------------------------------- |
-| Go to Inbox                 | App sidebar                         | `#nav-inbox`                               | Opens /inbox                                                               |
-| Open thread                 | Row (button) inside the thread list | `#inbox-thread-list`                       | The list container has the id; thread rows inside it are buttons           |
-| Open the reply composer     | Collapsed row under the thread      | `#inbox-reply-expand`                      | Expands the composer; it stays open while a draft or attachment is present |
-| Reply                       | Composer at the bottom of a thread  | `#inbox-reply-input` / `#inbox-reply-send` | The input id is the chat text box; the email editor has no id. Send goes out on the thread's channel |
-| Set thread state            | Thread header state select          | `#inbox-thread-state`                      | Choose **Unread**, **Open**, **Closed** or **Spam**                        |
-| Move email to a folder      | Thread header folder select         | `#inbox-thread-folder`                     | IMAP and Outlook only; files the conversation in the real mailbox; Sent and Drafts are not targets |
-| Share thread with the team  | Thread settings                     | `#thread-shared`                           | Shares this one thread; only the channel owner, and not when the channel itself is shared |
-| Link participant to contact | Thread settings, **People**         | none                                       | **Link** per participant                                                   |
+| Action | Where | Anchor id | What happens |
+| --- | --- | --- | --- |
+| Go to Inbox | App sidebar | `#nav-inbox` | Opens /inbox |
+| Open thread | Row (button) inside the thread list | `#inbox-thread-list` | The list container has the id; thread rows inside it are buttons |
+| Open the reply composer | Collapsed row under the thread | `#inbox-reply-expand` | Expands the composer; it stays open while a draft or attachment is present |
+| Reply | Composer at the bottom of a thread | `#inbox-reply-input` / `#inbox-reply-send` | The input id is the chat text box; the email editor has no id. Send goes out on the thread's channel |
+| Set thread state | Thread header state select | `#inbox-thread-state` | Choose **Unread**, **Open**, **Closed** or **Spam** |
+| Move email to a folder | Thread header folder select | `#inbox-thread-folder` | IMAP and Outlook only; files the conversation in the real mailbox; Sent and Drafts are not targets |
+| Share thread with the team | Thread settings | `#thread-shared` | Shares this one thread; only the channel owner, and not when the channel itself is shared |
+| Link participant to contact | Thread settings, **People** | none | **Link** per participant |
 
 **Link:** the **Inbox** page, `/inbox`. **Mate:** `navigate` and `highlight_element` with `nav-inbox`; the other ids in this table are not highlight targets, so Mate names the controls.
 
 ## Tips for agents
 
 - External browser clients locate controls via the stable ids above, for example with the CSS selector `#inbox-reply-send`. The hosted assistant navigates to and highlights `nav-inbox` only.
-- Rows never carry ids. Open records via their page URL `/{type}/{id}` and a conversation via `/inbox?threadId={id}`. In the Inbox, thread rows are buttons inside `#inbox-thread-list`.
+- Rows never carry ids. Open records via their page URL `/records/<typeId>/<recordId>` and a conversation via `/inbox?threadId={id}`. In the Inbox, thread rows are buttons inside `#inbox-thread-list`.
 - Prefer [MCP](/docs/mcp) tools over clicking when a tool exists: `get_messaging_threads` reads, `update_messaging_thread` sets the state, `move_email_thread` files an email, and `save_message_draft` prepares a message for review.
 - Starting a fresh conversation (new email, new chat) is available through the MCP tools `send_email` and `send_chat_message`. Prefer those over the UI. In the app, the **New message** icon on a contact's channel opens a compose box for a quick message.
 

@@ -59,13 +59,13 @@ describe("agent durable stream reader", () => {
   it.each([
     {
       ok: true,
-      navigation: { kind: "saved-view", href: "/contacts?view=__all__" },
+      navigation: { kind: "saved-view", href: "/records/10000000-0000-4000-8000-000000000101?view=__all__" },
     },
     {
       type: "json",
       value: {
         ok: true,
-        navigation: { kind: "saved-view", href: "/contacts?view=__all__" },
+        navigation: { kind: "saved-view", href: "/records/10000000-0000-4000-8000-000000000101?view=__all__" },
       },
     },
   ])("projects only a validated saved-view destination from hosted tool output", (output) => {
@@ -85,7 +85,7 @@ describe("agent durable stream reader", () => {
           id: "view-call",
           isError: false,
           status: "done",
-          viewHref: "/contacts?view=__all__",
+          viewHref: "/records/10000000-0000-4000-8000-000000000101?view=__all__",
         },
       },
     ]);
@@ -103,7 +103,10 @@ describe("agent durable stream reader", () => {
         type: "tool-result",
         toolCallId: "other-tool",
         toolName: "update_contacts",
-        output: { ok: true, navigation: { kind: "saved-view", href: "/contacts?view=__all__" } },
+        output: {
+          ok: true,
+          navigation: { kind: "saved-view", href: "/records/10000000-0000-4000-8000-000000000101?view=__all__" },
+        },
       },
     ]);
 

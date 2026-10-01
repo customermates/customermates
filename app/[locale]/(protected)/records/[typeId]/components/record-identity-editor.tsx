@@ -1,108 +1,231 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Plus } from "lucide-react";
+import { Plus, Search } from "lucide-react";
+
 import type { MessagingProvider } from "@/generated/prisma";
-import type { RecordEditorStore } from "./record-editor.store";
-import { ContactChannels } from "../../../contacts/components/contact-channels";
-import { Command, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+
+import {
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandList,
+  CommandPrimitive,
+  useCommandInputAria,
+} from "@/components/ui/command";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
-import { inferChannelProviders, normalizeChannelValue } from "@/features/contacts/channel-value";
-import { channelClass, channelLabelKey } from "@/ee/messaging/provider";
+import { Button } from "@/components/ui/button";
+import { getProviderIcon } from "@/ee/messaging/provider-icon";
+import { channelDisplayLabel } from "@/ee/messaging/thread-display";
+import { RecordChannelStore } from "./record-channel.store";
+import type { RecordEditorStore } from "./record-editor.store";
+import { RecordChannels } from "./record-channels";
+import { EntityDetailField } from "@/components/entity-detail/entity-detail-field";
 import { EntityDetailFieldActions } from "@/components/entity-detail/entity-detail-field-actions";
 import { EntityDetailFieldDragHandle } from "@/components/entity-detail/entity-detail-fields";
-import { EntityDetailField } from "@/components/entity-detail/entity-detail-field";
+import { channelLabelKey } from "@/ee/messaging/provider";
+import { SelectionOptionsSkeleton } from "@/components/forms/selection-loading";
+import { runUserAction } from "@/core/errors/report-application-error";
+import { useClientReady } from "@/hooks/use-client-ready";
+
+const SOURCE_HINT_KEYS = {
+  conversation: "EntityChannels.addChannel.sourceConversations",
+  lookup: "EntityChannels.addChannel.sourceLookup",
+} as const;
+
+const AddChannelSearchField = observer(
+  ({ store, expanded, disabled }: { store: RecordChannelStore; expanded: boolean; disabled: boolean }) => {
+    const t = useTranslations();
+    const fieldRef = useRef<HTMLDivElement>(null);
+    const ready = useClientReady();
+    useCommandInputAria(fieldRef, expanded);
+
+    return (
+      <PopoverAnchor asChild>
+        <div
+          ref={fieldRef}
+          className="border-input bg-input-background focus-within:border-ring focus-within:ring-ring/50 flex w-full items-center gap-3 rounded-md border px-3 py-2 shadow-xs transition-[color,box-shadow] focus-within:ring-[3px] focus-within:ring-inset"
+        >
+          <Search aria-hidden className="text-muted-foreground size-5 shrink-0" />
+
+          <CommandPrimitive.Input
+            aria-label={t("EntityChannels.addChannel.trigger")}
+            className="placeholder:text-muted-foreground flex-1 bg-transparent text-sm outline-none"
+            disabled={disabled || !ready}
+            placeholder={t("EntityChannels.addChannel.searchPlaceholder")}
+            value={store.query}
+            onClick={() => store.setOpen(true)}
+            onFocus={() => store.setOpen(true)}
+            onKeyDown={(event) => {
+              if (event.key === "Escape") {
+                store.setOpen(false);
+                event.currentTarget.blur();
+              } else if (event.key === "Tab") store.setOpen(false);
+            }}
+            onValueChange={(next) => {
+              store.setOpen(true);
+              store.setQuery(next);
+            }}
+          />
+        </div>
+      </PopoverAnchor>
+    );
+  },
+);
+
+const RecordChannelPopover = observer(({ editor }: { editor: RecordEditorStore }) => {
+  const t = useTranslations();
+  const [store] = useState(() => new RecordChannelStore(editor));
+
+  useEffect(() => {
+    store.reset();
+    return () => store.reset();
+  }, [store, editor.presentation.typeId, editor.form.id]);
+
+  const candidates = store.mergedCandidates;
+  const addAsNewOptions = store.addAsNewOptions;
+  const value = store.query.trim();
+  const busy = store.isSearching || store.isResolving;
+  const hasResults = candidates.length > 0 || addAsNewOptions.length > 0;
+  const showList = store.open && (busy || hasResults || value.length >= 2);
+  const showEmpty = !busy && !store.searchError && value.length >= 2 && !hasResults;
+
+  const providerLabel = (provider: MessagingProvider) => t(`Common.providers.${channelLabelKey(provider)}`);
+
+  return (
+    <CommandPrimitive label={t("EntityChannels.addChannel.trigger")} shouldFilter={false}>
+      <Popover open={showList} onOpenChange={(next) => store.setOpen(next)}>
+        <AddChannelSearchField disabled={editor.isDisabled} expanded={showList} store={store} />
+
+        <PopoverContent
+          align="start"
+          className="w-(--radix-popover-trigger-width) overflow-hidden p-0"
+          onOpenAutoFocus={(event) => event.preventDefault()}
+        >
+          <CommandList aria-busy={busy || store.isAdding || undefined}>
+            {busy && <SelectionOptionsSkeleton label={t("EntityChannels.addChannel.searching")} />}
+
+            {!busy && store.searchError && (
+              <div className="flex flex-col items-center gap-2 px-3 py-4 text-center text-sm" role="alert">
+                <span className="text-muted-foreground">{t("Common.notifications.unexpectedError")}</span>
+
+                <Button
+                  size="sm"
+                  type="button"
+                  variant="secondary"
+                  onClick={() => runUserAction(() => store.retrySearch())}
+                >
+                  {t("ErrorCard.retry")}
+                </Button>
+              </div>
+            )}
+
+            {showEmpty && <CommandEmpty>{t("EntityChannels.addChannel.noResults")}</CommandEmpty>}
+
+            {!busy && candidates.length > 0 && (
+              <CommandGroup>
+                {candidates.map(({ candidate, source }) => {
+                  const ProviderIcon = getProviderIcon(candidate.provider);
+                  const channelLabel = channelDisplayLabel(candidate.provider, candidate.value, candidate.profileUrl);
+                  const primary = candidate.displayName || channelLabel;
+                  const showLabel = Boolean(
+                    candidate.displayName && channelLabel && channelLabel !== candidate.displayName,
+                  );
+                  return (
+                    <CommandItem
+                      key={`${candidate.provider}:${candidate.value}`}
+                      disabled={store.isAdding || editor.isDisabled}
+                      value={`${candidate.provider}:${candidate.value}`}
+                      onSelect={() => runUserAction(() => store.selectCandidate(candidate))}
+                    >
+                      <ProviderIcon className="size-5 shrink-0" />
+
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium">{primary}</p>
+
+                        <p className="text-muted-foreground truncate text-xs">
+                          {showLabel ? channelLabel : t(SOURCE_HINT_KEYS[source])}
+                        </p>
+                      </div>
+                    </CommandItem>
+                  );
+                })}
+              </CommandGroup>
+            )}
+
+            {!busy && addAsNewOptions.length === 1 && (
+              <CommandGroup>
+                <CommandItem
+                  key={`add:${addAsNewOptions[0]}`}
+                  disabled={store.isAdding || editor.isDisabled}
+                  value={`add:${addAsNewOptions[0]}`}
+                  onSelect={() => runUserAction(() => store.addAsNew(addAsNewOptions[0]))}
+                >
+                  <Plus className="size-5 shrink-0" />
+
+                  <span className="min-w-0 flex-1 truncate text-sm">
+                    {t("EntityChannels.addChannel.addAs", {
+                      value,
+                      provider: providerLabel(addAsNewOptions[0]),
+                    })}
+                  </span>
+                </CommandItem>
+              </CommandGroup>
+            )}
+
+            {!busy && addAsNewOptions.length > 1 && (
+              <div className="border-border flex items-center gap-2 border-t px-3 py-2">
+                <span className="text-muted-foreground shrink-0 text-xs">
+                  {t("EntityChannels.addChannel.addAsLabel")}
+                </span>
+
+                <div className="flex items-center gap-1">
+                  {addAsNewOptions.map((provider) => {
+                    const ProviderIcon = getProviderIcon(provider);
+                    return (
+                      <button
+                        key={provider}
+                        aria-label={providerLabel(provider)}
+                        className="hover:bg-accent flex size-8 items-center justify-center rounded-md transition-[background-color,transform] active:scale-[0.97] motion-reduce:transition-none"
+                        disabled={store.isAdding || editor.isDisabled}
+                        type="button"
+                        onClick={() => runUserAction(() => store.addAsNew(provider))}
+                      >
+                        <ProviderIcon className="size-5" />
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </CommandList>
+        </PopoverContent>
+      </Popover>
+    </CommandPrimitive>
+  );
+});
 
 export const RecordIdentityEditor = observer(function RecordIdentityEditor({ store }: { store: RecordEditorStore }) {
   const t = useTranslations();
-  const [query, setQuery] = useState("");
-  const [open, setOpen] = useState(false);
-  const providers = inferChannelProviders(query).filter((provider) => {
-    const value = normalizeChannelValue(provider, query);
-    return (
-      value &&
-      !store.form.identities.some(
-        (row) =>
-          channelClass(row.provider) === channelClass(provider) && (row.value === value || row.messagingId === value),
-      )
-    );
-  });
-  const add = (provider: MessagingProvider) => {
-    if (store.isReadOnly) return;
-    const value = normalizeChannelValue(provider, query);
-    if (!value) return;
-    store.onChange("identities", [...store.form.identities, { provider, value }]);
-    setQuery("");
-    setOpen(false);
-  };
   return (
     <EntityDetailField fieldId="system:channels">
-      <ContactChannels
+      <RecordChannels
         controlStartAddon={<EntityDetailFieldDragHandle label={t("EntityChannels.heading")} />}
         headingEndAddon={<EntityDetailFieldActions fieldId="system:channels" label={t("EntityChannels.heading")} />}
         recordChannels={{
           channels: store.form.identities,
-          canEdit: !store.isReadOnly,
+          canEdit: !store.isDisabled,
           remove: (index) => {
-            if (!store.isReadOnly) {
+            if (!store.isDisabled) {
               store.onChange(
                 "identities",
                 store.form.identities.filter((_, position) => position !== index),
               );
             }
           },
-          addControl: (
-            <Command shouldFilter={false}>
-              <Popover open={open && providers.length > 0} onOpenChange={setOpen}>
-                <PopoverAnchor asChild>
-                  <div className="border-input rounded-md border">
-                    <CommandInput
-                      aria-label={t("EntityChannels.addChannel.trigger")}
-                      placeholder={t("EntityChannels.addChannel.searchPlaceholder")}
-                      value={query}
-                      onFocus={() => setOpen(true)}
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter" && providers.length === 1) {
-                          event.preventDefault();
-                          add(providers[0]);
-                        }
-                        if (event.key === "Escape") {
-                          event.preventDefault();
-                          event.stopPropagation();
-                          setOpen(false);
-                        }
-                      }}
-                      onValueChange={(value) => {
-                        setQuery(value);
-                        setOpen(true);
-                      }}
-                    />
-                  </div>
-                </PopoverAnchor>
-
-                <PopoverContent
-                  align="start"
-                  className="w-(--radix-popover-trigger-width) p-0"
-                  onOpenAutoFocus={(event) => event.preventDefault()}
-                >
-                  <CommandList>
-                    {providers.map((provider) => (
-                      <CommandItem key={provider} value={provider} onSelect={() => add(provider)}>
-                        <Plus className="size-4" />
-
-                        {t("EntityChannels.addChannel.addAs", {
-                          value: query.trim(),
-                          provider: t(`Common.providers.${channelLabelKey(provider)}`),
-                        })}
-                      </CommandItem>
-                    ))}
-                  </CommandList>
-                </PopoverContent>
-              </Popover>
-            </Command>
-          ),
+          addControl: <RecordChannelPopover editor={store} />,
         }}
       />
     </EntityDetailField>

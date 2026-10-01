@@ -8,10 +8,14 @@ import type { RecordChoicesInput } from "@/features/records/get-record-choices.i
 import type { ResetDataViewStateInput } from "@/features/data-view/reset-data-view-state.schema";
 import type { PreviewRecordDeletionInput } from "@/features/records/preview-record-deletion.interactor";
 import type { RecordActivitiesInput } from "@/ee/messaging/activities/record-activities.schema";
+import type { RecordActivityPresentationInput } from "@/ee/messaging/activities/get-record-activity-presentation.interactor";
 import type { SaveRecordDetailLayoutInput } from "@/features/records/record-detail-layout.schema";
+import type { CheckRecordIdentityInput } from "@/features/records/check-record-identity.interactor";
+import type { SearchChannelCandidatesData } from "@/ee/messaging/inbox/search-channel-candidates.interactor";
 
 import {
   getGetRecordPresentationInteractor,
+  getGetRecordActivityPresentationInteractor,
   getGetRecordNavigationInteractor,
   getResetDataViewStateInteractor,
   getDiscoverRecordTypesInteractor,
@@ -30,15 +34,28 @@ import {
   getGetRecordActivitiesInteractor,
   getReadRecordDetailLayoutInteractor,
   getSaveRecordDetailLayoutInteractor,
+  getCheckRecordIdentityInteractor,
+  getSearchChannelCandidatesInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 import { unwrapValidated } from "@/core/validation/validation.utils";
+
+export async function checkRecordIdentityAction(input: CheckRecordIdentityInput) {
+  return serializeResult(getCheckRecordIdentityInteractor().invoke(input));
+}
+export async function searchRecordChannelsAction(input: SearchChannelCandidatesData) {
+  return serializeResult(getSearchChannelCandidatesInteractor().invoke(input));
+}
 
 export async function readRecordDetailLayoutAction(typeId: string) {
   return serializeResult(getReadRecordDetailLayoutInteractor().invoke({ typeId }));
 }
 export async function saveRecordDetailLayoutAction(input: SaveRecordDetailLayoutInput) {
   return serializeResult(getSaveRecordDetailLayoutInteractor().invoke(input));
+}
+
+export async function getRecordActivityPresentationAction(input: RecordActivityPresentationInput) {
+  return unwrapValidated(getGetRecordActivityPresentationInteractor().invoke(input));
 }
 
 export async function getRecordActivitiesAction(input: RecordActivitiesInput) {

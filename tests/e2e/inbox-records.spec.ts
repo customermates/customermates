@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
-import { test, expect } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
+import { expect, test } from "./fixtures";
 
 test("creates, unlinks and relinks a generic person from the inbox", async ({
   page,
@@ -58,10 +58,7 @@ test("creates, unlinks and relinks a generic person from the inbox", async ({
   );
   expect(stored.rows).toHaveLength(1);
   expect(stored.rows[0]).toMatchObject({ typeId: presetId(companyId, "contact"), value: email });
-  expect(
-    (await database.query('SELECT COUNT(*)::int AS count FROM "Contact" WHERE "companyId"=$1', [companyId])).rows[0]
-      .count,
-  ).toBe(0);
+  expect((await database.query("SELECT to_regclass('\"Contact\"') AS table")).rows[0].table).toBeNull();
   await settings.getByRole("button", { name: "Open contact", exact: true }).click();
   const drawer = page.getByRole("dialog", { name: "Contact", exact: true });
   await expect(drawer.getByText(email, { exact: true })).toBeVisible();
@@ -115,5 +112,30 @@ test("creates, unlinks and relinks a generic person from the inbox", async ({
     animations: "disabled",
     fullPage: true,
   });
+  await database.query(
+    'INSERT INTO "MessagingThreadParticipant" (id,"companyId","messagingThreadId",provider,"providerUserId",identifier,"identityLookupValue","displayName","updatedAt") VALUES ($1,$2,$3,\'mail\',$4,$4,$4,\'Suggested Channel\',NOW())',
+    [randomUUID(), companyId, threadId, "suggested-channel@example.test"],
+  );
+  await page.goto(`/en/records/${stored.rows[0].typeId}/${stored.rows[0].recordId}`);
+  const channelInput = page.getByRole("combobox", { name: "Add channel", exact: true });
+  await channelInput.fill("Suggested Channel");
+  await expect(channelInput).toHaveValue("Suggested Channel");
+  await expect(channelInput).toHaveAttribute("aria-expanded", "true");
+  await page.getByRole("option", { name: /Suggested Channel/ }).click();
+  await expect(page.getByText("suggested-channel@example.test", { exact: true }).first()).toBeVisible();
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await expect
+    .poll(
+      async () =>
+        (
+          await database.query('SELECT value,"displayName" FROM "RecordIdentity" WHERE "companyId"=$1 AND value=$2', [
+            companyId,
+            "suggested-channel@example.test",
+          ])
+        ).rows,
+    )
+    .toEqual([{ value: "suggested-channel@example.test", displayName: "Suggested Channel" }]);
+  await page.reload();
+  await expect(page.getByText("suggested-channel@example.test", { exact: true }).first()).toBeVisible();
   expect(errors).toEqual([]);
 });

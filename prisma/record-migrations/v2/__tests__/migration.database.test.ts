@@ -1,25 +1,24 @@
+import { createLegacyMigrationDatabase, legacyFixtureWriter } from "@/tests/helpers/legacy-migration-database";
 import { randomUUID } from "node:crypto";
-import { Client } from "pg";
 import { afterAll, describe, expect, it } from "vitest";
 
 import type { ClientBase } from "pg";
 
-import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
-import { runWithoutTenant } from "@/core/decorators/tenant-context";
-import { prisma } from "@/prisma/db";
-import { migrateLegacyWorkspace } from "../run";
 import { presetId } from "@/features/records/crm-preset";
+import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { LEGACY_RELATIONSHIPS } from "../legacy-model";
+import { migrateLegacyWorkspace } from "../run";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
 const companies: string[] = [];
-const clients: Client[] = [];
+const databases: Awaited<ReturnType<typeof createLegacyMigrationDatabase>>[] = [];
 async function fixture() {
-  const client = new Client({ connectionString: databaseUrl ?? undefined });
-  await client.connect();
-  clients.push(client);
-  const source = await runWithoutTenant(async () => {
+  const database = await createLegacyMigrationDatabase(databaseUrl);
+  databases.push(database);
+  const { client } = database;
+  const prisma = legacyFixtureWriter(client);
+  const source = await (async () => {
     const company = await prisma.company.create({ data: {} });
     companies.push(company.id);
     const role = await prisma.userRole.create({
@@ -238,7 +237,7 @@ async function fixture() {
       protectedId: protectedTask.id,
       timestamps,
     };
-  });
+  })();
   const relationId = randomUUID();
   for (const relation of LEGACY_RELATIONSHIPS) {
     await client.query(
@@ -271,10 +270,8 @@ async function fixture() {
 
 describeDatabase("legacy record migration", { timeout: 30000 }, () => {
   afterAll(async () => {
-    for (const client of clients) await client.end();
-    await runWithoutTenant(() => prisma.company.deleteMany({ where: { id: { in: companies } } }));
-    await prisma.$disconnect();
-  });
+    for (const database of databases) await database.close();
+  }, 60000);
 
   it("preserves colliding IDs, every custom value type, links, dates, notes, protected tasks and exact totals", async () => {
     const f = await fixture();
@@ -370,6 +367,90 @@ describeDatabase("legacy record migration", { timeout: 30000 }, () => {
         )
       ).rows[0],
     ).toEqual(identity);
+  });
+
+  it("rejects missing or altered source prices, line quantities, pricing modes and protected task state", async () => {
+    const f = await fixture();
+    const unlinkedId = randomUUID();
+    await f.client.query(
+      'INSERT INTO "Service" (id,"companyId",name,amount,"updatedAt") VALUES ($1,$2,\'Unlinked catalog item\',42.175,NOW())',
+      [unlinkedId, f.companyId],
+    );
+    expect(await migrateLegacyWorkspace(f.client, f.companyId, "backfill")).toMatchObject({ ok: true });
+    const price = [f.companyId, f.id("service"), unlinkedId, f.id("service.amount")];
+    await f.client.query(
+      'UPDATE "RecordValue" SET "decimalValue"=1 WHERE "companyId"=$1 AND "typeId"=$2 AND "recordId"=$3 AND "fieldId"=$4',
+      price,
+    );
+    expect(await migrateLegacyWorkspace(f.client, f.companyId, "reconcile")).toMatchObject({
+      ok: false,
+      reconciliation: { issues: [{ table: "Service", id: unlinkedId, field: "amount" }] },
+    });
+    await f.client.query(
+      'DELETE FROM "RecordValue" WHERE "companyId"=$1 AND "typeId"=$2 AND "recordId"=$3 AND "fieldId"=$4',
+      price,
+    );
+    expect(await migrateLegacyWorkspace(f.client, f.companyId, "reconcile")).toMatchObject({
+      ok: false,
+      reconciliation: { issues: [{ table: "Service", id: unlinkedId, field: "amount" }] },
+    });
+    await f.client.query(
+      'INSERT INTO "RecordValue" ("companyId","typeId","recordId","fieldId",state,"decimalValue",currency,"schemaRevision","updatedAt") VALUES ($1,$2,$3,$4,\'value\',42.175,\'EUR\',1,NOW())',
+      price,
+    );
+    for (const [key, original] of [
+      ["quantity", "2"],
+      ["effectivePrice", "1000"],
+      ["amount", "2000"],
+    ]) {
+      const selection = [f.companyId, f.id("lineItem"), f.recordId, f.id(`lineItem.${key}`)];
+      await f.client.query(
+        'UPDATE "RecordValue" SET "decimalValue"=99 WHERE "companyId"=$1 AND "typeId"=$2 AND "recordId"=$3 AND "fieldId"=$4',
+        selection,
+      );
+      expect(await migrateLegacyWorkspace(f.client, f.companyId, "reconcile")).toMatchObject({
+        ok: false,
+        reconciliation: { issues: [{ table: "ServiceDeal", id: f.recordId, field: key }] },
+      });
+      await f.client.query(
+        'UPDATE "RecordValue" SET "decimalValue"=$5::numeric WHERE "companyId"=$1 AND "typeId"=$2 AND "recordId"=$3 AND "fieldId"=$4',
+        [...selection, original],
+      );
+    }
+    const mode = [f.companyId, f.id("lineItem"), f.recordId, f.id("lineItem.pricingMode")];
+    await f.client.query(
+      'UPDATE "RecordValue" SET "textValue"=\'saved\' WHERE "companyId"=$1 AND "typeId"=$2 AND "recordId"=$3 AND "fieldId"=$4',
+      mode,
+    );
+    expect(await migrateLegacyWorkspace(f.client, f.companyId, "reconcile")).toMatchObject({
+      ok: false,
+      reconciliation: { issues: [{ table: "ServiceDeal", id: f.recordId, field: "pricingMode" }] },
+    });
+    await f.client.query(
+      'UPDATE "RecordValue" SET "textValue"=\'live\' WHERE "companyId"=$1 AND "typeId"=$2 AND "recordId"=$3 AND "fieldId"=$4',
+      mode,
+    );
+    await f.client.query(
+      'UPDATE "CrmRecord" SET "protectedKind"=NULL,"systemData"=\'{"relatedUserId":null}\'::jsonb WHERE "companyId"=$1 AND "typeId"=$2 AND id=$3',
+      [f.companyId, f.id("task"), f.protectedId],
+    );
+    expect(await migrateLegacyWorkspace(f.client, f.companyId, "reconcile")).toMatchObject({
+      ok: false,
+      reconciliation: { issues: [{ table: "Task", id: f.protectedId, field: "protected_state" }] },
+    });
+    await f.client.query(
+      'UPDATE "CrmRecord" SET "protectedKind"=\'membershipAuthorization\',"systemData"=jsonb_build_object(\'relatedUserId\',$4::text) WHERE "companyId"=$1 AND "typeId"=$2 AND id=$3',
+      [f.companyId, f.id("task"), f.protectedId, f.userId],
+    );
+    expect(await migrateLegacyWorkspace(f.client, f.companyId, "reconcile")).toMatchObject({ ok: true });
+    expect(
+      (
+        await f.client.query(
+          'SELECT trim_scale("decimalValue")::text AS value FROM "RecordValue" WHERE "companyId"=$1 AND "typeId"=$2 AND "recordId"=$3 AND "fieldId"=$4',
+          [f.companyId, f.id("deal"), f.recordId, f.id("deal.totalValue")],
+        )
+      ).rows,
+    ).toEqual([{ value: "2600" }]);
   });
 
   it("blocks cross-column identifier collisions instead of silently choosing an owner", async () => {

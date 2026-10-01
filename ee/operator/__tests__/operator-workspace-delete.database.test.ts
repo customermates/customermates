@@ -17,8 +17,8 @@ vi.mock("@/env", () => ({
   },
 }));
 
-import { OPERATOR_AUDIT_ACTION } from "../operator.schema";
 import type { OperatorRefusal } from "../operator.repo";
+import { OPERATOR_AUDIT_ACTION } from "../operator.schema";
 import { PrismaOperatorRepo } from "../prisma-operator.repository";
 
 const OPERATOR_REFUSALS: OperatorRefusal[] = ["conflict", "notFound", "unavailable"];
@@ -341,9 +341,6 @@ describeDatabase("operator workspace deletion against a real database", { timeou
 
     await runWithoutTenant(async () => {
       const owner = members[0];
-      await prisma.contact.create({ data: { companyId, firstName: "Swept", lastName: "Contact" } });
-      await prisma.organization.create({ data: { companyId, name: `Org ${randomUUID()}` } });
-      await prisma.task.create({ data: { companyId, name: `Task ${randomUUID()}`, type: "custom" } });
       await prisma.auditLog.create({
         data: { companyId, userId: owner.userId, event: "contact.created", eventData: {}, entityId: randomUUID() },
       });

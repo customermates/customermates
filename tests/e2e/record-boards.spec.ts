@@ -50,6 +50,8 @@ test("moves a board card with the keyboard and restores relationship and date gr
   await closeAppearance();
   const card = page.locator(`[data-item-id="${recordId}"]`);
   await expect(page.locator(`[data-group-key="value:${id("deal.stage.new")}"]`).locator(card)).toBeVisible();
+  await expect(page.locator(`[data-group-key="value:${id("deal.stage.new")}"]`).getByText("10%", { exact: true })).toBeVisible();
+  await expect(page.locator(`[data-group-key="value:${id("deal.stage.lost")}"]`).getByText("0%", { exact: true })).toBeVisible();
   await card.focus();
   await page.keyboard.press("Space");
   await expect(card).toHaveAttribute("aria-pressed", "true");

@@ -1,98 +1,73 @@
 "use client";
 
-import { runUserAction } from "@/core/errors/report-application-error";
-
-import { useState } from "react";
+import { useEffect, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Filter } from "lucide-react";
+import { observer } from "mobx-react-lite";
 import type { RecordRef } from "@/features/records/record-model.schema";
-import type { ActivityKind } from "@/ee/messaging/activities/activities.schema";
-import { ACTIVITY_KINDS } from "@/ee/messaging/activities/activities.schema";
+import { runUserAction } from "@/core/errors/report-application-error";
+import { useRootStore } from "@/core/stores/root-store.provider";
+import { SURFACE } from "@/core/data-view/data-view-keys";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuCheckboxItem,
-} from "@/components/ui/dropdown-menu";
+import { DataViewViewsRail } from "@/components/data-view/views/data-view-views-rail";
+import { FilterPopover } from "@/components/data-view/header/filter-popover";
 import { ActivitiesList, TimelineEmptyState, TimelineNotice } from "./activities-list";
 import { ActivityTimelineSkeleton } from "./activity-timeline-skeleton";
-import { useRecordActivities } from "./use-record-activities";
+import { RecordActivityViewsStore } from "./record-activity-views.store";
 
-export function RecordActivitiesPanel({ record }: { record: RecordRef }) {
+export const RecordActivitiesPanel = observer(function RecordActivitiesPanel({ record }: { record: RecordRef }) {
   const t = useTranslations();
-  const [kinds, setKinds] = useState<ActivityKind[]>([...ACTIVITY_KINDS]);
-  const { items, available, loading, loaded, error, hasMore, load } = useRecordActivities({
-    scope: { records: [record], typeIds: [] },
-    kinds,
-  });
-  const kindLabel = (kind: ActivityKind) =>
-    t(
-      kind === "audit"
-        ? "EntityTimeline.types.changes"
-        : kind === "message"
-          ? "EntityTimeline.types.messages"
-          : kind === "calendar_event"
-            ? "ContactHistory.calendarMeeting"
-            : "EntityTimeline.types.activities",
-    );
+  const root = useRootStore();
+  const params = useSearchParams();
+  const requestedView = params.get("viewSurface") === SURFACE.entityTimeline ? params.get("view") : null;
+  const store = useMemo(
+    () => new RecordActivityViewsStore(root, record),
+    [root, record.typeId, record.recordId, requestedView],
+  );
+  useEffect(() => {
+    store.initialView = requestedView ?? undefined;
+    if (requestedView) store.activeViewKey = requestedView;
+    runUserAction(() => store.load());
+    const release = root.recordWorkspaceStore.subscribe(() => store.load());
+    return () => {
+      release();
+      store.dispose();
+    };
+  }, [root, store, requestedView]);
+  const error = store.error || store.dataRequest.status === "refresh-error";
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-2">
         <span className="text-xs text-muted-foreground">{t("Common.actions.labelHistory")}</span>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button aria-label={t("Common.filters.palette.title")} size="sm" type="button" variant="ghost">
-              <Filter className="size-4" />
-            </Button>
-          </DropdownMenuTrigger>
-
-          <DropdownMenuContent align="end">
-            {available.map((kind) => (
-              <DropdownMenuCheckboxItem
-                key={kind}
-                checked={kinds.includes(kind)}
-                onCheckedChange={(checked) =>
-                  setKinds((current) =>
-                    checked
-                      ? [...new Set([...current, kind])]
-                      : current.length > 1
-                        ? current.filter((value) => value !== kind)
-                        : current,
-                  )
-                }
-              >
-                {kindLabel(kind)}
-              </DropdownMenuCheckboxItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <FilterPopover compact store={store} />
       </div>
+
+      <DataViewViewsRail store={store} />
 
       {error && (
         <div className="space-y-2" role="status">
           <TimelineNotice label={t("EntityTimeline.error")} />
 
-          <Button size="sm" type="button" variant="secondary" onClick={() => runUserAction(() => load())}>
+          <Button size="sm" type="button" variant="secondary" onClick={() => runUserAction(() => store.load())}>
             {t("ErrorCard.retry")}
           </Button>
         </div>
       )}
 
-      {!loaded && loading ? (
+      {!store.isReady && !error ? (
         <ActivityTimelineSkeleton />
-      ) : items.length ? (
+      ) : store.items.length ? (
         <ActivitiesList
           customColumns={[]}
-          hasMore={hasMore}
-          items={items}
-          loading={loading}
-          onLoadOlder={() => runUserAction(() => load(true))}
+          hasMore={store.hasMore}
+          items={store.items}
+          loading={store.loading}
+          onLoadOlder={() => runUserAction(() => store.load(true))}
         />
       ) : (
         !error && <TimelineEmptyState label={t("ContactHistory.noActivity")} />
       )}
     </div>
   );
-}
+});

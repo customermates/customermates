@@ -49,7 +49,7 @@ const recordWebhookFields = {
   recordTrigger: RecordTriggerDefinitionSchema.nullable()
     .optional()
     .describe(
-      "For record.created, record.updated and record.deleted: a stable type ID, query filters and watched field IDs. Null selects every accessible type. On update omit to keep the current trigger. Filters capture event-time matches; delivery rechecks current access. Deletes do not apply query filters.",
+      "For record.created, record.updated and record.deleted: a stable type ID, query filters and watched field IDs. Null selects every accessible type. On update omit to keep the current trigger. Filters capture event-time matches; deletes match the complete state before removal. Delivery rechecks current access and rechecks live filters for creation and update events.",
     ),
   recordOwnerUserId: z
     .uuid()

@@ -81,13 +81,13 @@ export class RecordWriteService {
   }
 
   async planDeletion(
-    mutation: Extract<RecordMutation, { action: "delete" }>,
+    mutation: Extract<RecordMutation, { action: "delete" | "deleteMany" }>,
     model: RecordModel,
     policy: Policy,
     limit = SYNCHRONOUS_RECORD_LIMIT,
   ) {
     await this.validateAccess(mutation, policy);
-    const pending = [mutation.ref];
+    const pending = mutation.action === "delete" ? [mutation.ref] : mutation.targets.map((target) => target.ref);
     const deleted = new Map<string, StoredRecord>();
     const affected = new Map<string, RecordRef>();
     const links = new Map<string, { relationId: string; source: RecordRef; target: RecordRef }>();
@@ -138,6 +138,23 @@ export class RecordWriteService {
 
   async validateAccess(mutation: RecordMutation, policy: Policy): Promise<void> {
     if (!policy.actor) reject(CustomErrorCode.permissionDenied, "authorization");
+    if (mutation.action === "updateMany" || mutation.action === "deleteMany") {
+      for (const target of mutation.targets) {
+        await this.validateAccess(
+          mutation.action === "updateMany"
+            ? {
+                action: "update",
+                ...target,
+                fields: mutation.fields,
+                assignedUserIds: mutation.assignedUserIds,
+                linkChanges: mutation.linkChanges,
+              }
+            : { action: "delete", ...target },
+          policy,
+        );
+      }
+      return;
+    }
     const ref =
       mutation.action === "create"
         ? null
@@ -184,7 +201,12 @@ export class RecordWriteService {
     policy: Policy,
     currency: string,
     limit = SYNCHRONOUS_RECORD_LIMIT,
-    options: { skipCalculations?: boolean; createRecordId?: string } = {},
+    options: {
+      skipCalculations?: boolean;
+      skipTouches?: boolean;
+      createRecordId?: string;
+      beforeDeletion?: (refs: RecordRef[]) => Promise<void>;
+    } = {},
   ): Promise<{
     refs: RecordRef[];
     changedFieldIds: string[];
@@ -192,6 +214,51 @@ export class RecordWriteService {
   }> {
     if (!policy.actor) reject(CustomErrorCode.permissionDenied, "authorization");
     await this.validateAccess(mutation, policy);
+    if (mutation.action === "updateMany") {
+      const seeds = new Map<string, RecordRef>();
+      const changedFields = new Set<string>();
+      const captures = new Map<string, Set<string>>();
+      for (const target of mutation.targets) {
+        const result = await this.apply(
+          {
+            action: "update",
+            ...target,
+            fields: mutation.fields,
+            assignedUserIds: mutation.assignedUserIds,
+            linkChanges: mutation.linkChanges,
+          },
+          model,
+          policy,
+          currency,
+          limit,
+          { skipCalculations: true, skipTouches: true },
+        );
+        for (const ref of result.refs) seeds.set(recordKey(ref), ref);
+        for (const fieldId of result.changedFieldIds) changedFields.add(fieldId);
+        for (const capture of result.captures) {
+          const key = recordKey(capture.ref);
+          const fields = captures.get(key) ?? new Set<string>();
+          capture.fieldIds.forEach((id) => fields.add(id));
+          captures.set(key, fields);
+        }
+        if (seeds.size > limit) reject(CustomErrorCode.recordCalculationBudget, "conflict");
+      }
+      if (!options.skipCalculations) {
+        const result = await this.calculations.recalculate(model, [...seeds.values()], currency, captures, limit);
+        if (!result.complete) reject(CustomErrorCode.recordCalculationBudget, "conflict");
+        for (const ref of result.changed) seeds.set(recordKey(ref), ref);
+        if (seeds.size > limit) reject(CustomErrorCode.recordCalculationBudget, "conflict");
+      }
+      if (!options.skipTouches) for (const ref of seeds.values()) await this.records.touch(ref);
+      return {
+        refs: [...seeds.values()],
+        changedFieldIds: [...changedFields],
+        captures: [...captures].map(([key, fields]) => ({
+          ref: recordInvariant(seeds.get(key)),
+          fieldIds: [...fields],
+        })),
+      };
+    }
     const fields = new Map(model.fields.filter((field) => !field.archived).map((field) => [field.id, field]));
     const seeds = new Map<string, RecordRef>();
     const changedFields = new Set<string>();
@@ -202,6 +269,7 @@ export class RecordWriteService {
       if (!inputs) return;
       if (!model.capabilities.some((binding) => binding.kind === "personIdentity" && binding.typeId === ref.typeId))
         reject(CustomErrorCode.recordProtected, "authorization", ["identities"]);
+
       const normalized: RecordIdentityInput[] = [];
       const claimed = new Set<string>();
       const keys: Array<{ channelClass: string; value: string }> = [];
@@ -220,6 +288,7 @@ export class RecordWriteService {
       const owners = await this.records.getIdentityOwnersCompanyWide(keys);
       if (owners.some((owner) => recordKey(owner.ref) !== recordKey(ref)))
         reject(CustomErrorCode.channelAlreadyLinked, "conflict", ["identities"]);
+
       await this.records.setIdentities(ref, normalized);
     };
     const addSeed = (ref: RecordRef) => {
@@ -350,6 +419,7 @@ export class RecordWriteService {
         reject(CustomErrorCode.recordRelationConflict, "conflict");
       if (definition.parentRelationshipId && mutation.assignedUserIds?.length)
         reject(CustomErrorCode.recordValueInvalid, "validation", ["assignedUserIds"]);
+
       if (!policy.allowed(mutation.typeId, "create")) reject(CustomErrorCode.permissionDenied, "authorization");
       const assignees = definition.parentRelationshipId ? [] : (mutation.assignedUserIds ?? [policy.actor.id]);
       if (!(await this.policy.validAssignees(policy.actor, assignees, policy.canAssignOthers)))
@@ -376,6 +446,7 @@ export class RecordWriteService {
       if (mutation.assignedUserIds) {
         if (type(mutation.ref.typeId).parentRelationshipId)
           reject(CustomErrorCode.recordValueInvalid, "validation", ["assignedUserIds"]);
+
         if (!(await this.policy.validAssignees(policy.actor, mutation.assignedUserIds, policy.canAssignOthers)))
           reject(CustomErrorCode.permissionDenied, "authorization");
         await this.records.setAssignments(mutation.ref, mutation.assignedUserIds);
@@ -402,10 +473,13 @@ export class RecordWriteService {
         recordInvariant(captures.get(recordKey(mutation.ref))).add(fieldId);
       }
       addSeed(mutation.ref);
-    } else if (mutation.action === "delete") {
+    } else if (mutation.action === "delete" || mutation.action === "deleteMany") {
       const plan = await this.planDeletion(mutation, model, policy, limit);
       for (const key of plan.deleted.keys()) deleted.add(key);
       for (const ref of plan.affected.values()) addSeed(ref);
+      await options.beforeDeletion?.(
+        [...plan.deleted.values()].map((row) => ({ typeId: row.typeId, recordId: row.id })),
+      );
       for (const key of deleted) await this.records.delete(recordInvariant(seeds.get(key)));
     } else await link(mutation.relationId, mutation.source, mutation.target, mutation.action === "unlink");
 
@@ -414,7 +488,9 @@ export class RecordWriteService {
       : await this.calculations.recalculate(model, [...seeds.values()], currency, captures, limit);
     if (!recalculated.complete) reject(CustomErrorCode.recordCalculationBudget, "conflict");
     for (const ref of recalculated.changed) addSeed(ref);
-    for (const [key, ref] of seeds) if (!deleted.has(key) && !fresh.has(key)) await this.records.touch(ref);
+    if (!options.skipTouches)
+      for (const [key, ref] of seeds) if (!deleted.has(key) && !fresh.has(key)) await this.records.touch(ref);
+
     return {
       refs: [...seeds.values()],
       changedFieldIds: [...changedFields],

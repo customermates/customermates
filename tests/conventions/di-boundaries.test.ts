@@ -1,10 +1,10 @@
 import { readFileSync } from "node:fs";
-import { join, relative } from "node:path";
+import { join,relative } from "node:path";
 
 import ts from "typescript";
-import { describe, expect, it } from "vitest";
+import { describe,expect,it } from "vitest";
 
-import { REPO_ROOT, walkFiles } from "./walk";
+import { REPO_ROOT,walkFiles } from "./walk";
 
 const ENFORCED = true;
 
@@ -109,6 +109,7 @@ describe("dependency injection boundaries", () => {
     expect([...diImports].filter((specifier) => specifier.endsWith(".interactor")).length).toBeGreaterThan(100);
     expect(prismaImports.length).toBeGreaterThan(10);
     const specImports = specifiersImportedBy(OPENAPI_SPEC_FILE);
-    expect([...specImports].filter((specifier) => specifier.endsWith(".openapi")).length).toBeGreaterThan(50);
+    expect([...specImports].filter((specifier) => specifier.endsWith(".openapi")).length).toBeGreaterThan(30);
+    expect(specImports.has("@/features/records/records.openapi")).toBe(true);
   });
 });

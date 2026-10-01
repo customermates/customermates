@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { SURFACE, type DataViewSurfaceKey, type BuiltinDataViewSurfaceKey } from "./data-view-keys";
 
 export const DATA_VIEW_PATHS: Readonly<Record<BuiltinDataViewSurfaceKey, string | null>> = Object.freeze({
@@ -28,4 +29,12 @@ export const ENTITY_TIMELINE_PARENT_PATHS = Object.freeze(
 export function dataViewPath(surface: DataViewSurfaceKey): string | null {
   if (surface.startsWith("records:")) return `/records/${surface.slice(8)}`;
   return DATA_VIEW_PATHS[surface as BuiltinDataViewSurfaceKey];
+}
+
+export function isRecordTimelinePath(path: string) {
+  const generic = path.split("/");
+  if (generic.length === 4 && generic[1] === "records")
+    return z.uuid().safeParse(generic[2]).success && z.uuid().safeParse(generic[3]).success;
+  const parent = ENTITY_TIMELINE_PARENT_PATHS.find((candidate) => path.startsWith(`${candidate}/`));
+  return Boolean(parent && z.uuid().safeParse(path.slice(parent.length + 1)).success);
 }

@@ -12,16 +12,24 @@ import { compileRecordQuery } from "../features/records/record-query";
 import { RecordSearchSchema } from "../features/records/record-search.schema";
 import { compileRecordSearch } from "../features/records/record-search-query";
 
-const { values } = parseArgs({ options: { mode: { type: "string", default: "measure" } } });
+const { values } = parseArgs({
+  options: { mode: { type: "string", default: "measure" }, database: { type: "string" } },
+});
 if (values.mode !== "seed" && values.mode !== "measure") throw new Error("Use --mode seed or --mode measure");
 const url = assertLocalDatabaseEnvironment(process.env);
-if (decodeURIComponent(new URL(url).pathname) !== "/crm_scale_20260930")
-  throw new Error("The scale fixture requires the dedicated crm_scale_20260930 database");
+if (
+  !values.database ||
+  !/^crm_scale_[a-z0-9_]{1,64}$/.test(values.database) ||
+  decodeURIComponent(new URL(url).pathname.slice(1)) !== values.database
+)
+  throw new Error("Pass --database with the exact dedicated disposable crm_scale_ database name");
 
 const client = new Client({ connectionString: url });
 const TYPES = ["contact", "organization", "deal", "service", "task"] as const;
 const RECORDS_PER_TYPE = 20_000;
-const TEXT_FIELDS_PER_TYPE = 19;
+const TEXT_FIELDS_PER_TYPE = 17;
+const scaleUuidSql = (expression: string) =>
+  `overlay(overlay(md5(${expression}) placing '8' from 13 for 1) placing '8' from 17 for 1)::uuid`;
 
 function requireValue<T>(value: T | undefined | null, message: string): T {
   if (value === undefined || value === null) throw new Error(message);
@@ -51,7 +59,6 @@ async function workspace() {
 
 async function seed() {
   const { companyId, revision, actorId, model } = await workspace();
-  if (revision !== 3) throw new Error("The scale fixture requires an untouched finalized migration");
   const prior = await client.query(
     'SELECT 1 FROM "CrmRecord" WHERE "companyId" = $1 AND "systemData" @> $2::jsonb LIMIT 1',
     [companyId, JSON.stringify({ benchmark: true })],
@@ -67,7 +74,9 @@ async function seed() {
   for (const key of TYPES) {
     const typeId = requireValue(typeIds.get(key), `Missing ${key} type`);
     const example = requireValue(
-      model.fields.find((field) => field.typeId === typeId && field.valueType === "text" && field.behavior.kind === "input"),
+      model.fields.find(
+        (field) => field.typeId === typeId && field.valueType === "text" && field.behavior.kind === "input",
+      ),
       `Missing ${key} input text field`,
     );
     for (let index = 1; index <= TEXT_FIELDS_PER_TYPE; index += 1)
@@ -89,7 +98,11 @@ async function seed() {
       behavior: { kind: "input" as const },
     });
   }
-  const updated: RecordModel = RecordModelSchema.parse({ ...model, revision: revision + 1, fields: [...model.fields, ...fields] });
+  const updated: RecordModel = RecordModelSchema.parse({
+    ...model,
+    revision: revision + 1,
+    fields: [...model.fields, ...fields],
+  });
   if (validateRecordModel(updated).issues.length) throw new Error("The scale model failed validation");
   await client.query("BEGIN");
   try {
@@ -115,12 +128,14 @@ async function seed() {
     const typeId = requireValue(typeIds.get(key), `Missing ${key} type`);
     await client.query(
       `INSERT INTO "CrmRecord" ("companyId", "typeId", id, version, "systemData", "createdAt", "updatedAt")
-       SELECT $1, $2, md5('scale:' || $2 || ':' || sequence::text)::uuid, 1,
+       SELECT $1, $2, ${scaleUuidSql("'scale:' || $2 || ':' || sequence::text")}, 1,
          jsonb_build_object('benchmark', true, 'sequence', sequence), NOW(), NOW()
        FROM generate_series(1, $3::integer) sequence`,
       [companyId, typeId, RECORDS_PER_TYPE],
     );
-    const textFieldIds = fields.filter((field) => field.typeId === typeId && field.valueType === "text").map((field) => field.id);
+    const textFieldIds = fields
+      .filter((field) => field.typeId === typeId && field.valueType === "text")
+      .map((field) => field.id);
     const amountFieldId = requireValue(
       fields.find((field) => field.typeId === typeId && field.valueType === "number")?.id,
       "Missing scale amount field",
@@ -142,6 +157,39 @@ async function seed() {
          AND record."systemData" @> '{"benchmark":true}'::jsonb`,
       [companyId, typeId, amountFieldId, updated.revision],
     );
+    const type = requireValue(
+      updated.types.find((type) => type.id === typeId),
+      `Missing ${key} definition`,
+    );
+    const titleFieldIds = [type.primaryFieldId];
+    if (key === "contact")
+      titleFieldIds.push(
+        requireValue(
+          updated.fields.find((field) => field.typeId === typeId && field.label === "First name")?.id,
+          "Missing contact title input",
+        ),
+      );
+    await client.query(
+      `INSERT INTO "RecordValue" ("companyId","typeId","recordId","fieldId",state,"textValue","schemaRevision","createdAt","updatedAt")
+       SELECT $1,$2,record.id,field_id,'value',$5 || (record."systemData"->>'sequence'),$4,NOW(),NOW()
+       FROM "CrmRecord" record CROSS JOIN unnest($3::text[]) field_id
+       WHERE record."companyId"=$1 AND record."typeId"=$2 AND record."systemData" @> '{"benchmark":true}'::jsonb`,
+      [companyId, typeId, titleFieldIds, updated.revision, `Scale ${key} `],
+    );
+    if (key === "service") {
+      const price = requireValue(
+        updated.fields.find((field) => field.typeId === typeId && field.required && field.valueType === "currency"),
+        "Missing required service price",
+      );
+      const initial = price.behavior.kind === "input" ? price.behavior.defaultValue : undefined;
+      if (initial?.kind !== "decimal") throw new Error("The service price default must be decimal");
+      await client.query(
+        `INSERT INTO "RecordValue" ("companyId","typeId","recordId","fieldId",state,"decimalValue",currency,"schemaRevision","createdAt","updatedAt")
+         SELECT $1,$2,record.id,$3,'value',$4::numeric,$5,$6,NOW(),NOW()
+         FROM "CrmRecord" record WHERE record."companyId"=$1 AND record."typeId"=$2 AND record."systemData" @> '{"benchmark":true}'::jsonb`,
+        [companyId, typeId, price.id, initial.value, initial.currency, updated.revision],
+      );
+    }
     process.stdout.write(`Seeded ${key} records and values.\n`);
   }
   const contactId = requireValue(typeIds.get("contact"), "Missing contact type");
@@ -154,9 +202,9 @@ async function seed() {
   for (let start = 1; start <= RECORDS_PER_TYPE; start += 4_000) {
     await client.query(
       `INSERT INTO "RecordLink" ("companyId", id, "relationId", "sourceTypeId", "sourceId", "targetTypeId", "targetId", "createdAt", "updatedAt")
-       SELECT $1, md5('scale:link:' || source_sequence::text || ':' || position::text)::uuid,
-         $2, $3, md5('scale:' || $3 || ':' || source_sequence::text)::uuid,
-         $4, md5('scale:' || $4 || ':' || (((source_sequence - 1) * 25 + position) % $5 + 1)::text)::uuid,
+       SELECT $1, ${scaleUuidSql("'scale:link:' || source_sequence::text || ':' || position::text")},
+         $2, $3, ${scaleUuidSql("'scale:' || $3 || ':' || source_sequence::text")},
+         $4, ${scaleUuidSql("'scale:' || $4 || ':' || (((source_sequence - 1) * 25 + position) % $5 + 1)::text")},
          NOW(), NOW()
        FROM generate_series($6::integer, LEAST($6::integer + 3999, $5::integer)) source_sequence
        CROSS JOIN generate_series(0, 24) position`,
@@ -171,7 +219,8 @@ async function seed() {
     [companyId, relationId],
   );
   const result = requireValue(counts.rows[0], "Missing scale counts");
-  if (result.records !== "100000" || result.values !== "2000000" || Number(result.links) < 500_000)
+  const expectedValues = RECORDS_PER_TYPE * (TYPES.length * (TEXT_FIELDS_PER_TYPE + 2) + 2);
+  if (result.records !== "100000" || Number(result.values) !== expectedValues || Number(result.links) < 500_000)
     throw new Error(`Scale fixture counts are incorrect: ${JSON.stringify(result)}`);
   process.stdout.write(`${JSON.stringify({ mode: "seed", counts: result })}\n`);
 }
@@ -218,7 +267,7 @@ async function measure() {
     }),
     "No types available to global search",
   );
-  const recordId = `(md5('scale:' || $2 || ':1')::uuid)::text`;
+  const recordId = `(${scaleUuidSql("'scale:' || $2 || ':1'")})::text`;
   const jobs = [
     { name: "filtered_sorted_list", sql: list.text, args: list.values },
     {

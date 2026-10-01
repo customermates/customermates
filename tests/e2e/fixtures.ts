@@ -76,6 +76,7 @@ export const test = base.extend<Fixtures>({
         }
         await use();
       } finally {
+        await Promise.all(context.pages().map((page) => page.close()));
         await database.query('DELETE FROM "AuthSession" WHERE id=$1', [sessionId]);
       }
     },

@@ -3,8 +3,9 @@ import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { RecordActivitiesResult } from "@/ee/messaging/activities/record-activities.schema";
 
-const mocked = vi.hoisted(() => ({ action: vi.fn(), listeners: new Set<() => unknown>() }));
+const mocked = vi.hoisted(() => ({ action: vi.fn(), presentation: vi.fn(), listeners: new Set<() => unknown>() }));
 const rootStore = {
+  localeStore: { getTranslation: (key: string) => key },
   recordWorkspaceStore: {
     subscribe: (fn: () => unknown) => {
       mocked.listeners.add(fn);
@@ -14,8 +15,15 @@ const rootStore = {
     },
   },
 };
+vi.mock("@/app/actions", () => ({ saveDataViewStateAction: vi.fn(), selectDataViewAction: vi.fn() }));
+vi.mock("next/navigation", () => ({ useSearchParams: () => new URLSearchParams() }));
+vi.mock("@/components/data-view/views/data-view-views-rail", () => ({ DataViewViewsRail: () => null }));
+vi.mock("@/components/data-view/header/filter-popover", () => ({ FilterPopover: () => null }));
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
-vi.mock("@/app/[locale]/(protected)/records/actions", () => ({ getRecordActivitiesAction: mocked.action }));
+vi.mock("@/app/[locale]/(protected)/records/actions", () => ({
+  getRecordActivitiesAction: mocked.action,
+  getRecordActivityPresentationAction: mocked.presentation,
+}));
 vi.mock("@/core/stores/root-store.provider", () => ({ useRootStore: () => rootStore }));
 vi.mock("../activity-timeline-skeleton", () => ({
   ActivityTimelineSkeleton: () => createElement("div", null, "Loading"),
@@ -75,6 +83,7 @@ let container: HTMLElement;
 beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   mocked.action.mockReset();
+  mocked.presentation.mockReset();
   mocked.listeners.clear();
   container = document.createElement("div");
   document.body.append(container);
@@ -89,6 +98,15 @@ const settle = (update: () => void) =>
     update();
     await Promise.resolve();
   });
+const presentation = (id: string, hasMore = false) => ({
+  ...result(id, hasMore).data,
+  columns: [],
+  filters: [],
+  views: [],
+  activeViewKey: "__all__",
+  allState: {},
+  p13nId: "entity-timeline",
+});
 const mount = () => settle(() => root.render(createElement(RecordActivitiesPanel, { record })));
 const refresh = () =>
   settle(() => {
@@ -97,10 +115,10 @@ const refresh = () =>
 
 describe("generic record activity requests", () => {
   it("keeps the last complete page during refresh failures and recovers on retry", async () => {
-    mocked.action
-      .mockResolvedValueOnce(result("saved"))
+    mocked.presentation
+      .mockResolvedValueOnce(presentation("saved"))
       .mockRejectedValueOnce(new Error("Offline"))
-      .mockResolvedValueOnce(result("recovered"));
+      .mockResolvedValueOnce(presentation("recovered"));
     await mount();
     expect(container.textContent).toContain("saved");
     await refresh();
@@ -117,20 +135,18 @@ describe("generic record activity requests", () => {
   it("ignores an older-page response after a newer invalidation refresh", async () => {
     const old = deferred();
     const fresh = deferred();
-    mocked.action
-      .mockResolvedValueOnce(result("initial", true))
-      .mockReturnValueOnce(old.promise)
-      .mockReturnValueOnce(fresh.promise);
+    mocked.presentation.mockResolvedValueOnce(presentation("initial", true)).mockReturnValueOnce(fresh.promise);
+    mocked.action.mockReturnValueOnce(old.promise);
     await mount();
     const older = [...container.querySelectorAll("button")].find((button) => button.textContent === "Older");
     await settle(() => {
       older?.click();
       older?.click();
     });
-    expect(mocked.action).toHaveBeenCalledTimes(2);
-    expect(mocked.action.mock.calls[1][0].cursor).toEqual(result("initial", true).data.nextCursor);
+    expect(mocked.action).toHaveBeenCalledTimes(1);
+    expect(mocked.action.mock.calls[0][0].cursor).toEqual(result("initial", true).data.nextCursor);
     await refresh();
-    await settle(() => fresh.resolve(result("latest")));
+    await settle(() => fresh.resolve(presentation("latest")));
     await settle(() => old.resolve(result("stale")));
     expect(container.textContent).toContain("latest");
     expect(container.textContent).not.toContain("stale");
@@ -139,14 +155,14 @@ describe("generic record activity requests", () => {
 
   it("does not reuse a previous record's page after the owning drawer changes", async () => {
     const pending = deferred();
-    mocked.action.mockReturnValueOnce(pending.promise).mockResolvedValueOnce(result("replacement"));
+    mocked.presentation.mockReturnValueOnce(pending.promise).mockResolvedValueOnce(presentation("replacement"));
     await mount();
     const next = { ...record, recordId: "00000000-0000-4000-8000-000000000003" };
     await settle(() => root.render(createElement(RecordActivitiesPanel, { key: next.recordId, record: next })));
-    await settle(() => pending.resolve(result("closed")));
+    await settle(() => pending.resolve(presentation("closed")));
     expect(container.textContent).toContain("replacement");
     expect(container.textContent).not.toContain("closed");
     expect(mocked.listeners.size).toBe(1);
-    expect(mocked.action.mock.calls[1][0].scope.records).toEqual([next]);
+    expect(mocked.presentation.mock.calls[1][0].record).toEqual(next);
   });
 });

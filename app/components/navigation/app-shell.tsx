@@ -43,7 +43,7 @@ export async function AppShell({ children, displayLanguage }: Props) {
       const result = await getGetCompanySettingsInteractor().invoke();
       return {
         company: result.data,
-        terminology: result.data.terminology.presets,
+        terminology: [],
       };
     },
     subscription: async () => (await getGetSubscriptionInteractor().invoke()).data,

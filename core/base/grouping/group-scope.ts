@@ -1,8 +1,8 @@
-import type { DateBucket } from "./grouping.schema";
 import type { GroupableFieldSpec, GroupingTargetModel } from "./groupable-field";
+import type { DateBucket } from "./grouping.schema";
 
-import { DEFAULT_DATE_BUCKET, NO_VALUE_GROUP_KEY } from "./grouping.schema";
 import { dateBucketEntry } from "./date-buckets";
+import { DEFAULT_DATE_BUCKET, NO_VALUE_GROUP_KEY } from "./grouping.schema";
 
 export type GroupTargetWhere = (model: GroupingTargetModel) => Record<string, unknown>;
 
@@ -26,11 +26,6 @@ export function groupScopeFragment(scope: GroupScope, targetWhere: GroupTargetWh
   const isNoValue = key === NO_VALUE_GROUP_KEY;
 
   switch (spec.kind) {
-    case "customSingleSelect":
-      return isNoValue
-        ? { customFieldValues: { none: { AND: [{ columnId: spec.columnId }, { value: { not: null } }] } } }
-        : { customFieldValues: { some: { AND: [{ columnId: spec.columnId }, { value: { in: [key] } }] } } };
-
     case "enum":
       if (isNoValue) return { [spec.column]: null };
 

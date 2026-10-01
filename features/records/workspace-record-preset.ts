@@ -4,15 +4,15 @@ import { createCrmPreset, presetId } from "./crm-preset";
 import { DEFAULT_SELECT_COLUMNS } from "./crm-preset-options";
 import { recordInvariant } from "./record-invariant";
 
-export function createWorkspaceRecordPreset(companyId: string, currency: string, translate: (key: string) => string) {
+export function createWorkspaceRecordPreset(companyId: string, currency: string, t: (key: string) => string) {
   const model = createCrmPreset(companyId, currency);
   const id = (key: string) => presetId(companyId, key);
-  const terminology = buildTerminologyMap([], translate);
+  const terminology = buildTerminologyMap([], t);
   const labels = new Map<string, { singular: string; plural: string }>();
   for (const [key, label] of Object.entries(terminology)) labels.set(id(key), label);
   labels.set(id("lineItem"), {
-    singular: translate("RecordModel.lineItem"),
-    plural: translate("RecordModel.lineItems"),
+    singular: t("RecordModel.lineItem"),
+    plural: t("RecordModel.lineItems"),
   });
   for (const type of model.types) {
     const label = recordInvariant(labels.get(type.id));
@@ -42,19 +42,19 @@ export function createWorkspaceRecordPreset(companyId: string, currency: string,
 
   for (const field of model.fields) {
     const key = fieldLabels.get(field.id);
-    if (key) field.label = translate(key);
+    if (key) field.label = t(key);
   }
   const lineName = recordInvariant(model.fields.find((field) => field.id === id("lineItem.name")));
-  lineName.behavior = { kind: "input", defaultValue: { kind: "text", value: translate("RecordModel.lineItem") } };
+  lineName.behavior = { kind: "input", defaultValue: { kind: "text", value: t("RecordModel.lineItem") } };
   const priceMode = recordInvariant(model.fields.find((field) => field.id === id("lineItem.pricingMode")));
-  for (const option of priceMode.options) option.label = translate(`RecordModel.priceModes.${option.id}`);
+  for (const option of priceMode.options) option.label = t(`RecordModel.priceModes.${option.id}`);
 
   for (const preset of DEFAULT_SELECT_COLUMNS) {
     const key = `${preset.entityType}.${preset.entityType === "deal" ? "stage" : "status"}`;
     const type = recordInvariant(model.types.find((type) => type.id === id(preset.entityType)));
     const options: RecordField["options"] = preset.options.map((option) => ({
       id: id(`${key}.${option.key}`),
-      label: translate(`Common.defaultData.${preset.entityType}.options.${option.key}`),
+      label: t(`Common.defaultData.${preset.entityType}.options.${option.key}`),
       color: option.color,
       attributes:
         option.weight === undefined
@@ -64,7 +64,7 @@ export function createWorkspaceRecordPreset(companyId: string, currency: string,
     const field: RecordField = {
       id: id(key),
       typeId: type.id,
-      label: translate(`Common.defaultData.${preset.entityType}.columnLabel`),
+      label: t(`Common.defaultData.${preset.entityType}.columnLabel`),
       valueType: "select",
       behavior: { kind: "input", defaultValue: { kind: "select", value: recordInvariant(options[0]).id } },
       required: false,

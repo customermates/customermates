@@ -5,11 +5,11 @@ import { z } from "zod";
 import {
   AgentTurnStopReason,
   AgentTurnTerminalCode,
-  EntityType,
   RoutineRunStatus,
   RoutineTriggerKind,
   Status,
 } from "@/generated/prisma";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { zx } from "@/core/validation/validation.utils";
 import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
@@ -55,6 +55,7 @@ export const RoutineDtoSchema = z.object({
   owner: RoutineOwnerDtoSchema.nullable(),
   name: z.string(),
   prompt: z.string(),
+  contractReview: z.object({ retiredReferences: z.array(z.string()) }).optional(),
   enabled: z.boolean(),
   triggerKind: RoutineTriggerKindSchema,
   cronExpression: z.string().nullable(),

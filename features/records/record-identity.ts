@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto";
 
-import type { RecordIdentity, RecordIdentityInput } from "./record-identity.schema";
 import { channelClass, isDeterministicProvider } from "@/ee/messaging/provider";
-import { normalizeChannelValue } from "@/features/contacts/channel-value";
+import { normalizeChannelValue } from "@/features/records/channel-value";
+import type { RecordIdentity, RecordIdentityInput } from "./record-identity.schema";
 
 export function identityKeys(identifier: Pick<RecordIdentityInput, "value" | "messagingId">): string[] {
   return [...new Set([identifier.value, ...(identifier.messagingId ? [identifier.messagingId] : [])])];
@@ -36,4 +36,8 @@ export function updatedIdentities(previous: RecordIdentity[], inputs: RecordIden
       updatedAt: unchanged ? old.updatedAt : now,
     };
   });
+}
+
+export function identifierKey(provider: RecordIdentityInput["provider"], value: string): string {
+  return `${channelClass(provider)}:${value}`;
 }

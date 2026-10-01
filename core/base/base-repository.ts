@@ -1,33 +1,28 @@
-import type { TenantUser } from "@/features/user/user.schema";
-import type { DateBucket } from "@/core/base/grouping/grouping.schema";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type { GroupCountRow } from "@/core/base/grouping/group-count";
 import type { GroupLabel } from "@/core/base/grouping/group-labels";
 import type { GroupableFieldSpec, GroupableModel, GroupingTargetModel } from "@/core/base/grouping/groupable-field";
+import type { DateBucket } from "@/core/base/grouping/grouping.schema";
+import type { TenantUser } from "@/features/user/user.schema";
 
-import { Resource, Action } from "@/generated/prisma";
+import { Action, Resource } from "@/generated/prisma";
 
-import type { Prisma, EntityType } from "@/generated/prisma";
+import type { Prisma } from "@/generated/prisma";
 
+import { getTenantUser, isTenantGuardBypassed } from "../decorators/tenant-context";
 import { getTransactionClient, transactionStorage } from "../decorators/transaction-context";
 import { runInTransaction } from "../decorators/transaction-runner";
-import { isTenantGuardBypassed, getTenantUser } from "../decorators/tenant-context";
 
-import type { CustomSort, TextSort } from "@/core/base/base-query-builder";
+import type { TextSort } from "@/core/base/base-query-builder";
 
-import { BaseQueryBuilder, compareCustomFieldValues, compareSortValues } from "@/core/base/base-query-builder";
-import { LABEL_SELECT, toGroupLabel } from "@/core/base/grouping/group-labels";
+import { BaseQueryBuilder, compareSortValues } from "@/core/base/base-query-builder";
 import { countGroupRows } from "@/core/base/grouping/group-count";
-import { prisma, type AppPrismaClient } from "@/prisma/db";
+import { LABEL_SELECT, toGroupLabel } from "@/core/base/grouping/group-labels";
 import { resolveUserFormattingTag, resolveUserLocale } from "@/i18n/user-locale";
+import { prisma, type AppPrismaClient } from "@/prisma/db";
 
 export type ModelWhereInputMap = {
-  contact: Prisma.ContactWhereInput;
-  organization: Prisma.OrganizationWhereInput;
   user: Prisma.UserWhereInput;
-  deal: Prisma.DealWhereInput;
-  service: Prisma.ServiceWhereInput;
-  task: Prisma.TaskWhereInput;
   routine: Prisma.RoutineWhereInput;
 };
 
@@ -37,6 +32,7 @@ function tenantModel(model: GroupableModel): SummableModel {
   if (model === "company" || model === "operatorAudit")
     throw new Error(`Grouping by ${model} has no tenant access scope; use an operator repository`);
 
+  if (model !== "user" && model !== "routine") throw new Error("CRM grouping uses the record query compiler");
   return model;
 }
 
@@ -65,12 +61,7 @@ export abstract class BaseRepository<
 
   protected accessWhere<R extends keyof ModelWhereInputMap>(resource: R): ModelWhereInputMap[R] {
     const modelToResourceMap: Record<keyof ModelWhereInputMap, Resource> = {
-      contact: Resource.contacts,
-      organization: Resource.organizations,
       user: Resource.users,
-      deal: Resource.deals,
-      service: Resource.services,
-      task: Resource.tasks,
       routine: Resource.routines,
     };
 
@@ -115,21 +106,7 @@ export abstract class BaseRepository<
   private readonly resourceOwnWhereMap: {
     [K in keyof ModelWhereInputMap]: (companyId: string, userId: string) => ModelWhereInputMap[K];
   } = {
-    contact: (companyId, userId) => ({
-      companyId,
-      users: { some: { userId } },
-    }),
-    organization: (companyId, userId) => ({
-      companyId,
-      users: { some: { userId } },
-    }),
     user: (companyId, userId) => ({ id: userId, companyId }),
-    deal: (companyId, userId) => ({ companyId, users: { some: { userId } } }),
-    service: (companyId, userId) => ({
-      companyId,
-      users: { some: { userId } },
-    }),
-    task: (companyId, userId) => ({ companyId, users: { some: { userId } } }),
     routine: (companyId, userId) => ({ companyId, ownerUserId: userId }),
   };
 
@@ -138,6 +115,7 @@ export abstract class BaseRepository<
   }
 
   protected override groupTargetWhere(model: GroupingTargetModel): Record<string, unknown> {
+    if (model !== "user") throw new Error("CRM grouping uses the record query compiler");
     return this.accessWhere(model) as Record<string, unknown>;
   }
 
@@ -190,7 +168,7 @@ export abstract class BaseRepository<
     const rows = await this.modelDelegate(spec.targetModel).findMany({
       where: {
         companyId: this.companyId,
-        AND: [{ id: { in: [...keys] } }, this.accessWhere(spec.targetModel)],
+        AND: [{ id: { in: [...keys] } }, this.groupTargetWhere(spec.targetModel)],
       },
       select: LABEL_SELECT[spec.targetModel],
     });
@@ -228,9 +206,7 @@ export abstract class BaseRepository<
       ) as Promise<TRow[]>;
 
     const args = await this.buildQueryArgs(opts.params, opts.baseWhere);
-    const inMemorySort = args.customSort
-      ? this.customFieldSort(opts.model, args.customSort)
-      : args.textSort && this.textFieldSort(args.textSort);
+    const inMemorySort = args.textSort && this.textFieldSort(args.textSort);
 
     if (inMemorySort) {
       const candidates = await this.modelDelegate(opts.model).findMany({
@@ -264,24 +240,6 @@ export abstract class BaseRepository<
     return rows.map(opts.map);
   }
 
-  private customFieldSort(model: ListableModel, sort: CustomSort): InMemorySort {
-    const collator = this.collator();
-    const value = (row: SortCandidate) => (row.customFieldValues as Array<{ value: string | null }>)[0]?.value;
-
-    return {
-      direction: sort.direction,
-      select: {
-        customFieldValues: {
-          where: { columnId: sort.columnId, entityType: model as EntityType },
-          select: { value: true },
-          take: 1,
-        },
-      },
-      compare: (a, b) =>
-        compareCustomFieldValues(value(a), value(b), sort.direction, sort.columnType, collator, sort.optionRank),
-    };
-  }
-
   private textFieldSort(sort: TextSort): InMemorySort {
     const collator = this.collator();
     const values = (row: SortCandidate) => sort.fields.map((field) => row[field]);
@@ -294,18 +252,7 @@ export abstract class BaseRepository<
   }
 }
 
-type ListableModel =
-  | "deal"
-  | "contact"
-  | "organization"
-  | "service"
-  | "task"
-  | "messagingThread"
-  | "routine"
-  | "calendar"
-  | "user"
-  | "userRole"
-  | "webhook";
+type ListableModel = "messagingThread" | "routine" | "calendar" | "user" | "userRole" | "webhook";
 
 type SortCandidate = Record<string, unknown>;
 

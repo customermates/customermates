@@ -1,4 +1,4 @@
-import type { Prisma } from "@/generated/prisma";
+import type { LegacyColumn, LegacyType } from "../record-migrations/v2/legacy-model";
 
 import type { ContactSeedData } from "./contacts";
 import type { SeedContext } from "./context";
@@ -9,7 +9,7 @@ import type { OrganizationSeedData } from "./organizations";
 import type { ServiceSeedData } from "./services";
 import { SYNTHETIC_TASK_PRIORITY_INDEXES, type TaskSeedData } from "./tasks";
 
-import { fixtureId, upsertFixturesById } from "./helpers";
+import { fixtureId } from "./helpers";
 import { SYNTHETIC_SEED_TIMELINE } from "./timeline";
 
 export const SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS = [
@@ -133,29 +133,28 @@ export type CustomFieldSeedInput = ContactSeedData &
   TaskSeedData;
 
 export type CustomFieldSeedData = {
+  customColumns?: LegacyColumn[];
+  customFieldValues?: CustomFieldValueFixture[];
   customColumnIds: typeof SYNTHETIC_CUSTOM_COLUMN_IDS;
   customOptionIds: typeof SYNTHETIC_CUSTOM_OPTION_IDS;
 };
 
-type CustomFieldValueFixture = Prisma.CustomFieldValueCreateManyInput & {
+export type CustomFieldValueFixture = {
   id: string;
+  companyId: string;
+  entityType: LegacyType;
+  columnId: string;
+  type: LegacyColumn["type"];
+  value: string | null;
+  contactId?: string;
+  organizationId?: string;
+  dealId?: string;
+  serviceId?: string;
+  taskId?: string;
 };
 
-function customFieldEntityWhere(value: CustomFieldValueFixture): Prisma.CustomFieldValueWhereInput {
-  if (value.contactId) return { contactId: value.contactId };
-  if (value.organizationId) return { organizationId: value.organizationId };
-  if (value.dealId) return { dealId: value.dealId };
-  if (value.serviceId) return { serviceId: value.serviceId };
-  if (value.taskId) return { taskId: value.taskId };
-
-  throw new Error(`Synthetic custom-field value ${value.id} has no entity`);
-}
-
-export async function seedCustomFields(
-  context: SeedContext,
-  entities: CustomFieldSeedInput,
-): Promise<CustomFieldSeedData> {
-  const { prisma, ids } = context;
+export function seedCustomFields(context: SeedContext, entities: CustomFieldSeedInput): Promise<CustomFieldSeedData> {
+  const { ids } = context;
   const { contacts, deals, dealDefinitions, organizations, services, tasks, taskDefinitions } = entities;
 
   const selectOptions = (entries: ReadonlyArray<readonly [string, string, string, boolean?, number?]>) =>
@@ -391,10 +390,10 @@ export async function seedCustomFields(
   ].map((customColumn, index) => ({
     ...customColumn,
     ...SYNTHETIC_SEED_TIMELINE.customColumn(index),
-  })) satisfies Prisma.CustomColumnCreateManyInput[];
+  })) satisfies (LegacyColumn & { companyId: string })[];
 
   let customFieldValueIndex = 0;
-  const customFieldValue = (input: Omit<Prisma.CustomFieldValueCreateManyInput, "id">): CustomFieldValueFixture => ({
+  const customFieldValue = (input: Omit<CustomFieldValueFixture, "id">): CustomFieldValueFixture => ({
     id: fixtureId("18000000", ++customFieldValueIndex),
     ...input,
   });
@@ -503,48 +502,10 @@ export async function seedCustomFields(
     ]),
   ];
 
-  await upsertFixturesById(customColumns, (customColumn) =>
-    prisma.customColumn.upsert({
-      where: { id: customColumn.id },
-      update: customColumn,
-      create: customColumn,
-    }),
-  );
-  for (const value of customFieldValues) {
-    await prisma.customFieldValue.deleteMany({
-      where: {
-        companyId: ids.company,
-        columnId: value.columnId,
-        id: { not: value.id },
-        ...customFieldEntityWhere(value),
-      },
-    });
-    await prisma.customFieldValue.upsert({
-      where: { id: value.id },
-      update: value,
-      create: value,
-    });
-  }
-  await prisma.customFieldValue.deleteMany({
-    where: {
-      companyId: ids.company,
-      id: { startsWith: "18000000-", notIn: customFieldValues.map(({ id }) => id) },
-    },
-  });
-  await prisma.customColumn.deleteMany({
-    where: {
-      companyId: ids.company,
-      id: { startsWith: "16000000-", notIn: customColumns.map(({ id }) => id) },
-    },
-  });
-
-  await prisma.company.update({
-    where: { id: ids.company },
-    data: { dealWeightingColumnId: SYNTHETIC_CUSTOM_COLUMN_IDS.dealStatus },
-  });
-
-  return {
+  return Promise.resolve({
+    customColumns,
+    customFieldValues,
     customColumnIds: SYNTHETIC_CUSTOM_COLUMN_IDS,
     customOptionIds: SYNTHETIC_CUSTOM_OPTION_IDS,
-  };
+  });
 }

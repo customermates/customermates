@@ -39,6 +39,11 @@ export async function reconcileMigratedRecords(client: ClientBase, source: Legac
       [source.companyId, id(type)],
     );
     for (const row of result.rows) issue(table, row.id, "identity_or_timestamps");
+    const system = await client.query(
+      `SELECT legacy.id FROM "${table}" legacy LEFT JOIN "CrmRecord" record ON record."companyId" = $1 AND record."typeId" = $2 AND record.id = legacy.id WHERE legacy."companyId" = $1 AND (${type === "task" ? "CASE WHEN legacy.type = 'userPendingAuthorization' THEN 'membershipAuthorization' END IS DISTINCT FROM record.\"protectedKind\" OR jsonb_build_object('relatedUserId', legacy.\"relatedUserId\") IS DISTINCT FROM record.\"systemData\"" : 'record."protectedKind" IS NOT NULL OR record."systemData" IS NOT NULL'})`,
+      [source.companyId, id(type)],
+    );
+    for (const row of system.rows) issue(table, row.id, "protected_state");
     report.checkedRecords += Number(
       (await client.query(`SELECT COUNT(*) FROM "${table}" WHERE "companyId" = $1`, [source.companyId])).rows[0].count,
     );
@@ -70,6 +75,32 @@ export async function reconcileMigratedRecords(client: ClientBase, source: Legac
       for (const row of notes.rows) issue(table, row.id, "notes");
     }
   }
+  for (const [table, type, key, expression, currency] of [
+    ["Service", "service", "amount", "legacy.amount::text::numeric", source.currency],
+    ["ServiceDeal", "lineItem", "quantity", "legacy.quantity::text::numeric", null],
+    ["ServiceDeal", "lineItem", "effectivePrice", "service.amount::text::numeric", source.currency],
+    [
+      "ServiceDeal",
+      "lineItem",
+      "amount",
+      "legacy.quantity::text::numeric * service.amount::text::numeric",
+      source.currency,
+    ],
+  ] as const) {
+    const values = await client.query(
+      `SELECT legacy.id FROM "${table}" legacy ${table === "ServiceDeal" ? 'JOIN "Service" service ON service."companyId" = legacy."companyId" AND service.id = legacy."serviceId"' : ""} LEFT JOIN "RecordValue" value ON value."companyId" = $1 AND value."typeId" = $2 AND value."recordId" = legacy.id AND value."fieldId" = $3 WHERE legacy."companyId" = $1 AND (${expression} IS DISTINCT FROM value."decimalValue" OR value.state IS DISTINCT FROM 'value' OR value.currency IS DISTINCT FROM $4::text)`,
+      [source.companyId, id(type), id(`${type}.${key}`), currency],
+    );
+    for (const row of values.rows) issue(table, row.id, key);
+    report.checkedValues += Number(
+      (await client.query(`SELECT COUNT(*) FROM "${table}" WHERE "companyId" = $1`, [source.companyId])).rows[0].count,
+    );
+  }
+  const pricingModes = await client.query(
+    'SELECT legacy.id FROM "ServiceDeal" legacy LEFT JOIN "RecordValue" value ON value."companyId" = $1 AND value."typeId" = $2 AND value."recordId" = legacy.id AND value."fieldId" = $3 WHERE legacy."companyId" = $1 AND (value.state IS DISTINCT FROM \'value\' OR value."textValue" IS DISTINCT FROM \'live\')',
+    [source.companyId, id("lineItem"), id("lineItem.pricingMode")],
+  );
+  for (const row of pricingModes.rows) issue("ServiceDeal", row.id, "pricingMode");
   for (const relation of [
     ...LEGACY_RELATIONSHIPS.map((relation) => ({
       ...relation,

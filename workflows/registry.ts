@@ -3,6 +3,7 @@ import { backfillConnectedAccount } from "./backfill-connected-account";
 import { deliverWebhook } from "./deliver-webhook";
 import { reconcileRoutineRuns } from "./reconcile-routine-runs";
 import { runRoutine } from "./run-routine";
+import { providerAvatarOperation } from "./provider-avatar-operation";
 import { recordOperation } from "./record-operation";
 import { processRecordEvents } from "./process-record-events";
 import { triggerTestError } from "./trigger-test-error";
@@ -14,6 +15,7 @@ export const WORKFLOW_REGISTRY = {
   "reconcile-routine-runs": reconcileRoutineRuns,
   "run-routine": runRoutine,
   "record-operation": recordOperation,
+  "provider-avatar-operation": providerAvatarOperation,
   "process-record-events": processRecordEvents,
   "trigger-test-error": triggerTestError,
 } as const;

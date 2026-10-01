@@ -1,35 +1,27 @@
+import type { GetQueryParams } from "@/core/base/base-get.schema";
+import type { GroupableFieldDto } from "@/core/base/grouping/groupable-field";
+import type { GroupPageRequest, Grouping, GroupingResult } from "@/core/base/grouping/grouping.schema";
+import type { ColumnPresentation, CustomColumnDto } from "@/core/data-view/column-presentation.schema";
+import type { DataViewSurfaceKey } from "@/core/data-view/data-view-keys";
+import type { DataViewChipDto, DataViewState } from "@/core/data-view/data-view-state.schema";
 import type { ObservableSet } from "mobx";
 import type { RootStore } from "../stores/root.store";
-import type { Filter, FilterableField, GroupValueSums, PaginationRequest, SortDescriptor } from "./base-get.schema";
 import type { GetResult } from "./base-get.interactor";
-import type { GetQueryParams } from "@/core/base/base-get.schema";
-import type { CustomColumnDto, ColumnPresentation } from "@/features/custom-column/custom-column.schema";
-import type { DataViewChipDto, DataViewState } from "@/core/data-view/data-view-state.schema";
-import type { DataViewSurfaceKey } from "@/core/data-view/data-view-keys";
-import type { GroupPageRequest, Grouping, GroupingResult } from "@/core/base/grouping/grouping.schema";
-import type { GroupableFieldDto } from "@/core/base/grouping/groupable-field";
+import type { Filter, FilterableField, GroupValueSums, PaginationRequest, SortDescriptor } from "./base-get.schema";
 
-import { makeObservable, observable, computed, action, toJS, runInAction } from "mobx";
 import deepEqual from "fast-deep-equal/es6";
-import { Action, CustomColumnType } from "@/generated/prisma";
+import { action, computed, makeObservable, observable, runInAction, toJS } from "mobx";
 
-import type { Resource, EntityType } from "@/generated/prisma";
+import type { Resource } from "@/generated/prisma";
 
-import { toastZodErrorTree } from "../utils/toast-zod-error-tree";
 import { reportApplicationError } from "../errors/report-application-error";
+import { toastZodErrorTree } from "../utils/toast-zod-error-tree";
 
 import { ViewMode } from "./base-query-builder";
 import { BaseStore } from "./base.store";
 
+import { saveDataViewStateAction, selectDataViewAction } from "@/app/actions";
 import { GROUP_PAGE_SIZE_DEFAULT, encodeGroupingToken, sameGrouping } from "@/core/base/grouping/grouping.schema";
-import {
-  saveDataViewStateAction,
-  selectDataViewAction,
-  getCustomColumnsByEntityTypeAction,
-  bulkDeleteEntitiesAction,
-  bulkUpdateCustomFieldValuesAction,
-  updateEntityCustomFieldValueAction,
-} from "@/app/actions";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 
 export const MAX_SELECTION_SIZE = 100;
@@ -54,15 +46,6 @@ export type DataViewRequestState =
 export type DataViewRefreshMode = "background" | "visible";
 
 type SelectionScope = { filters: Filter[]; searchTerm: string | null };
-
-function readItemValueSums(item: unknown, fields: readonly string[]): GroupValueSums | undefined {
-  const values = item as Record<string, unknown>;
-  const summed = fields.flatMap((field) =>
-    typeof values[field] === "number" ? [[field, values[field]] as const] : [],
-  );
-
-  return summed.length > 0 ? Object.fromEntries(summed) : undefined;
-}
 
 function shiftValueSums(group: GroupValueSums, item: GroupValueSums, sign: 1 | -1): GroupValueSums {
   const fields = new Set([...Object.keys(group), ...Object.keys(item)]);
@@ -102,10 +85,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   groupCounts: Record<string, number> = {};
   groupValueSums: Record<string, GroupValueSums> = {};
   groupedTakeOverrides: Record<string, number> = {};
-  isBulkMutating = false;
 
   public readonly resource?: Resource;
-  public readonly entityType?: EntityType;
 
   private persistViewStateTimer?: number;
   private pendingGroupOnly?: string;
@@ -117,16 +98,35 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   private requestState: DataViewRequestState = { status: "uninitialized" };
   private onChangesCallbacks: (() => void | Promise<void>)[] = [];
 
+  schemaSettingsHref?: string;
+  get supportsSelection(): boolean {
+    return false;
+  }
+  get recordLabels(): { singular: string; plural: string } | undefined {
+    return undefined;
+  }
+  get viewTypeLabel(): string | undefined {
+    return undefined;
+  }
+
+  async moveItemBetweenGroups(_params: {
+    item: Entity;
+    optimisticItem: Entity;
+    fromGroupKey: string;
+    toGroupKey: string;
+    value: string | null;
+    destinationValueSums?: GroupValueSums;
+  }): Promise<void> {}
+
   abstract get columnsDefinition(): TableColumn[];
 
   get primaryColumnId(): string {
     return "name";
   }
 
-  constructor(rootStore: RootStore, resource?: Resource, entityType?: EntityType) {
+  constructor(rootStore: RootStore, resource?: Resource) {
     super(rootStore);
     this.resource = resource;
-    this.entityType = entityType;
 
     makeObservable<this, "requestState">(this, {
       requestState: observable.ref,
@@ -162,7 +162,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       groupCounts: observable,
       groupValueSums: observable,
       groupedTakeOverrides: observable,
-      isBulkMutating: observable,
 
       filterColumns: computed,
       orderedColumns: computed,
@@ -170,8 +169,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       sortableColumnIds: computed,
       canManage: computed,
       canExport: computed,
-      canUpdateSelection: computed,
-      canDeleteSelection: computed,
       isDisabled: computed,
       hasSelection: computed,
       selectedCount: computed,
@@ -180,10 +177,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       isSelectionAtLimit: computed,
       currentSelectionScope: computed,
       isSelectionScopeStale: computed,
-      massEditableCustomColumns: computed,
       canBoard: computed,
       isGrouped: computed,
-      isGroupedByDealWeightingColumn: computed,
       groupingKey: computed,
       currentGroupableFieldId: computed,
 
@@ -194,7 +189,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       removeFilterAt: action,
       applyView: action,
       refresh: action,
-      refreshCustomColumns: action,
       upsertItem: action,
       upsertItemLocal: action,
       removeItem: action,
@@ -215,11 +209,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       transferItemBetweenResultGroups: action,
       restoreGroupValueSums: action,
       restoreResultGroups: action,
-      setBulkMutating: action,
-      bulkDelete: action,
-      bulkUpdateCustomField: action,
-      updateCustomFieldValue: action,
-      moveItemBetweenGroups: action.bound,
     });
   }
 
@@ -235,156 +224,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     return this.requestState.status === "refreshing";
   }
 
-  setBulkMutating = (next: boolean) => {
-    this.isBulkMutating = next;
-  };
-
-  bulkDelete = async (): Promise<boolean> => {
-    const ids = Array.from(this.selectedIds);
-    if (ids.length === 0 || !this.entityType) return false;
-    if (ids.length > MAX_SELECTION_SIZE) {
-      this.toastError("MassActions.limitReached", {
-        values: { limit: MAX_SELECTION_SIZE },
-      });
-      return false;
-    }
-
-    this.setBulkMutating(true);
-    try {
-      const res = await bulkDeleteEntitiesAction({
-        entityType: this.entityType,
-        ids,
-      });
-      if (res && !res.ok) {
-        toastZodErrorTree(res.error);
-        await this.refresh();
-        return false;
-      }
-      this.rootStore.activityTimelines.refreshForMany(this.entityType, ids);
-      this.clearSelection();
-      await this.refresh();
-      return true;
-    } finally {
-      this.setBulkMutating(false);
-    }
-  };
-
-  bulkUpdateCustomField = async (columnId: string, value: string): Promise<boolean> => {
-    const entityIds = Array.from(this.selectedIds);
-    if (entityIds.length === 0 || !this.entityType) return false;
-    if (entityIds.length > MAX_SELECTION_SIZE) {
-      this.toastError("MassActions.limitReached", {
-        values: { limit: MAX_SELECTION_SIZE },
-      });
-      return false;
-    }
-
-    this.setBulkMutating(true);
-    try {
-      const res = await bulkUpdateCustomFieldValuesAction({
-        entityType: this.entityType,
-        entityIds,
-        customFieldValues: [{ columnId, value }],
-      });
-      if (res && !res.ok) {
-        if (!toastZodErrorTree(res.error)) this.toastError("Common.notifications.unexpectedError");
-        await this.refresh();
-        return false;
-      }
-      this.rootStore.activityTimelines.refreshForMany(this.entityType, entityIds);
-      this.clearSelection();
-      await this.refresh();
-      this.toastSuccess("Common.notifications.updated");
-      return true;
-    } finally {
-      this.setBulkMutating(false);
-    }
-  };
-
-  updateCustomFieldValue = async (entityId: string, columnId: string, value: string | null): Promise<boolean> => {
-    const entityType = this.entityType;
-    if (!entityType) return false;
-
-    const res = await updateEntityCustomFieldValueAction({
-      entityType,
-      entityId,
-      customFieldValues: [{ columnId, value }],
-    });
-    if (res?.ok) {
-      await this.upsertItem(res.data as unknown as Entity);
-      return true;
-    }
-    toastZodErrorTree(res?.error);
-    return false;
-  };
-
   canMoveItemBetweenGroups(item: Entity): boolean {
     return Boolean(item.id);
-  }
-
-  async moveItemBetweenGroups(params: {
-    item: Entity;
-    optimisticItem: Entity;
-    fromGroupKey: string;
-    toGroupKey: string;
-    value: string | null;
-    destinationValueSums?: GroupValueSums;
-  }): Promise<void> {
-    const entityType = this.entityType;
-    if (!entityType) return;
-
-    const columnId = this.groupingResult?.columnId;
-
-    if (!columnId || !this.groupingResult?.supportsDragWriteBack) {
-      this.toastError("Common.notifications.unexpectedError");
-      return;
-    }
-
-    const summedFields = [
-      ...new Set([
-        ...Object.values(this.groupValueSums).flatMap((sums) => Object.keys(sums)),
-        ...(this.groupingResult?.groups ?? []).flatMap((group) => Object.keys(group.valueSums ?? {})),
-      ]),
-    ];
-    const itemValueSums = readItemValueSums(params.item, summedFields);
-    const valueSumsBeforeMove = this.groupValueSums;
-    const resultGroupsBeforeMove = this.groupingResult;
-
-    this.upsertItemLocal(params.optimisticItem);
-    this.transferItemBetweenGroups(params.fromGroupKey, params.toGroupKey, itemValueSums, params.destinationValueSums);
-    this.transferItemBetweenResultGroups({
-      itemId: params.item.id,
-      fromGroupKey: params.fromGroupKey,
-      toGroupKey: params.toGroupKey,
-      itemValueSums,
-      destinationValueSums: params.destinationValueSums,
-    });
-
-    const valueSumsAfterMove = this.groupValueSums;
-    const resultGroupsAfterMove = this.groupingResult;
-
-    const revert = () => {
-      this.upsertItemLocal(params.item);
-      this.transferItemBetweenGroups(params.toGroupKey, params.fromGroupKey);
-      this.restoreGroupValueSums(valueSumsBeforeMove, valueSumsAfterMove);
-      this.restoreResultGroups(resultGroupsBeforeMove, resultGroupsAfterMove);
-    };
-
-    try {
-      const res = await updateEntityCustomFieldValueAction({
-        entityType,
-        entityId: params.item.id,
-        customFieldValues: [{ columnId, value: params.value }],
-      });
-      if (res?.ok) await this.upsertItem(res.data as unknown as Entity);
-      else {
-        revert();
-        toastZodErrorTree(res?.error);
-      }
-    } catch (err) {
-      revert();
-      throw err;
-    }
   }
 
   get filterColumns(): ColumnPresentation[] {
@@ -392,17 +233,11 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   }
 
   get canBoard(): boolean {
-    return this.groupableFields.length > 0 || Boolean(this.entityType);
+    return this.groupableFields.length > 0;
   }
 
   get isGrouped(): boolean {
     return Boolean(this.grouping && this.groupingResult);
-  }
-
-  get isGroupedByDealWeightingColumn(): boolean {
-    const columnId = this.groupingResult?.columnId;
-
-    return columnId !== undefined && columnId === this.rootStore.companyStore.company?.dealWeightingColumnId;
   }
 
   get groupingKey(): string {
@@ -430,18 +265,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     if (!this.resource) return false;
 
     return this.rootStore.userStore.canAccess(this.resource);
-  }
-
-  get canUpdateSelection(): boolean {
-    if (!this.resource) return true;
-
-    return this.rootStore.userStore.can(this.resource, Action.update);
-  }
-
-  get canDeleteSelection(): boolean {
-    if (!this.resource) return true;
-
-    return this.rootStore.userStore.can(this.resource, Action.delete);
   }
 
   get isDisabled(): boolean {
@@ -483,18 +306,13 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     return !deepEqual(this.selectedScope, this.currentSelectionScope);
   }
 
-  get massEditableCustomColumns(): CustomColumnDto[] {
-    return this.customColumns.filter((col) =>
-      col.type === CustomColumnType.singleSelect ? col.options.options.length > 0 : true,
-    );
-  }
-
   isItemSelectable(_item: Entity): boolean {
     return true;
   }
 
   setSelectedIds = (keys: Set<string>) => {
     this.selectedIds.clear();
+    this.onSelectionChanged();
     this.selectedScope = undefined;
     [...keys].slice(0, MAX_SELECTION_SIZE).forEach((id) => this.selectedIds.add(id));
     this.rememberSelectionScope();
@@ -543,14 +361,19 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     const visible = new Set(this.items.map((item) => item.id));
     for (const id of [...this.selectedIds]) if (!visible.has(id)) this.selectedIds.delete(id);
     this.selectedScope = this.selectedIds.size > 0 ? this.currentSelectionScope : undefined;
+    this.onSelectionChanged();
   };
 
   clearSelection = () => {
     this.selectedIds.clear();
     this.selectedScope = undefined;
+    this.onSelectionChanged();
   };
 
+  protected onSelectionChanged(): void {}
+
   private rememberSelectionScope(): void {
+    this.onSelectionChanged();
     if (this.selectedIds.size === 0) {
       this.selectedScope = undefined;
       return;
@@ -993,16 +816,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     return list.filter((f) => known.has(f.field));
   }
 
-  refreshCustomColumns = async (): Promise<void> => {
-    if (!this.entityType) return;
-
-    const customColumns = await getCustomColumnsByEntityTypeAction({
-      entityType: this.entityType,
-    });
-
-    this.setCustomColumns(customColumns);
-  };
-
   refresh = (): Promise<void> => this.executeRefresh("background");
 
   protected refreshGuarded = (shouldCommit: () => boolean): Promise<void> =>
@@ -1105,7 +918,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     if (options.created && !isLoaded) this.adjustPaginationTotal(1);
     this.requestGeneration += 1;
     if (this.requestState.status !== "uninitialized") this.requestState = { status: "ready" };
-    if (this.entityType) this.rootStore.activityTimelines.refreshForMany(this.entityType, [target.id]);
     await this.executeOnChanges();
   };
 
@@ -1126,7 +938,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.items = items;
     this.requestGeneration += 1;
     if (this.requestState.status !== "uninitialized") this.requestState = { status: "ready" };
-    if (this.entityType) this.rootStore.activityTimelines.refreshForMany(this.entityType, [targetId]);
     await this.executeOnChanges();
   };
 

@@ -1,9 +1,9 @@
+import { WidgetKind } from "@/generated/prisma";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { AggregationType, EntityType, WidgetGroupByType, WidgetKind } from "@/generated/prisma";
 
-import type { WidgetDto } from "@/features/widget/widget.schema";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 import type { RootStore } from "@/core/stores/root.store";
+import { DisplayType, type WidgetDto } from "@/features/widget/widget.schema";
 
 const { refreshWidgetsAction, updateWidgetLayoutsAction, captureException } = vi.hoisted(() => ({
   refreshWidgetsAction: vi.fn(),
@@ -26,24 +26,29 @@ vi.mock("@/app/actions", () => ({
   upsertP13nAction: vi.fn(),
 }));
 
-import { WidgetsStore } from "../widgets.store";
 import { registerApplicationErrorHandler } from "@/core/errors/report-application-error";
+import { WidgetsStore } from "../widgets.store";
 
 const FIRST_ID = "00000000-0000-4000-8000-000000000001";
 const SECOND_ID = "00000000-0000-4000-8000-000000000002";
 
 function widget(id: string, x: number, y: number): WidgetDto {
   return {
-    aggregationType: AggregationType.count,
     companyId: "company-1",
+    contractVersion: 2,
+    version: 1,
     createdAt: new Date(0),
-    data: [],
-    dealFilters: [],
-    displayOptions: null,
-    entityFilters: [],
-    entityType: EntityType.contact,
-    groupByCustomColumnId: null,
-    groupByType: WidgetGroupByType.none,
+    data: null,
+    status: "ready",
+    groupOptions: [],
+    displayOptions: { displayType: DisplayType.verticalBarChart },
+    measure: {
+      source: { typeId: "00000000-0000-4000-8000-000000000099", filters: [], relationships: [] },
+      aggregation: "count",
+      valueFieldId: null,
+      groupBy: null,
+      groupLimit: 100,
+    },
     id,
     isTemplate: false,
     kind: WidgetKind.chart,

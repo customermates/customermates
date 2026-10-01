@@ -1,38 +1,120 @@
 import type { GetResult } from "@/core/base/base-get.interactor";
 import { action, computed, makeObservable, observable } from "mobx";
 
-import type { RootStore } from "@/core/stores/root.store";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
+import type { RootStore } from "@/core/stores/root.store";
 import type { RecordPresentationResult } from "@/features/records/get-record-presentation.interactor";
 import type { RecordRow } from "@/features/records/record-presentation";
 import type { MutateRecordInput } from "@/features/records/record-query.schema";
+import type { RecordScalar } from "@/features/records/record-model.schema";
 
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
-import { recordColumnPresentation } from "@/features/records/record-presentation";
-import { recordColumns } from "@/features/records/record-columns";
-import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { recordSurfaceKey } from "@/core/data-view/data-view-keys";
-import { getRecordPresentationAction, resetRecordViewAction, mutateRecordAction } from "../../actions";
+import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { recordColumns } from "@/features/records/record-columns";
+import { recordColumnPresentation } from "@/features/records/record-presentation";
+import { getRecordPresentationAction, mutateRecordAction, resetRecordViewAction } from "../../actions";
 
 export class RecordsStore extends BaseDataViewStore<RecordRow> {
   presentation: RecordPresentationResult;
   pendingBoardOperation: string | null = null;
+  pendingBulkOperation: string | null = null;
+  isBulkMutating = false;
+  private readonly selectionRows = new Map<string, RecordRow>();
+  private bulkRequest: { signature: string; input: MutateRecordInput } | null = null;
   private readonly movingRecords = new Set<string>();
   private readonly boardRequests = new Map<string, { signature: string; input: MutateRecordInput }>();
   private readonly loaded = new WeakMap<GetResult<RecordRow>, RecordPresentationResult>();
   constructor(rootStore: RootStore, presentation: RecordPresentationResult) {
     super(rootStore);
     this.presentation = presentation;
+    this.schemaSettingsHref = presentation.canManageSchema
+      ? `/company/data-model?typeId=${presentation.typeId}`
+      : undefined;
     makeObservable(this, {
       presentation: observable.ref,
       fields: computed,
       type: computed,
       recordColumns: computed,
       setPresentation: action,
+      moveItemBetweenGroups: action.bound,
       pendingBoardOperation: observable,
       setBoardOperation: action,
+      pendingBulkOperation: observable,
+      isBulkMutating: observable,
+      setBulkState: action,
     });
   }
+  protected override onSelectionChanged() {
+    for (const [id] of this.selectionRows) if (!this.selectedIds.has(id)) this.selectionRows.delete(id);
+    for (const row of this.items ?? [])
+      if (this.selectedIds.has(row.id) && !this.selectionRows.has(row.id)) this.selectionRows.set(row.id, row);
+  }
+  override get supportsSelection() {
+    return (
+      this.presentation.permittedActions.includes("update") || this.presentation.permittedActions.includes("delete")
+    );
+  }
+  override isItemSelectable(item: RecordRow) {
+    return !item.protectedKind && !this.isBulkMutating && !this.pendingBulkOperation;
+  }
+  get selectionTargets() {
+    return [...this.selectedIds].map((id) => {
+      const row = this.selectionRows.get(id);
+      if (!row) throw new Error("A selected record must be reloaded before it can be changed.");
+      return {
+        ref: { typeId: row.ref.typeId, recordId: row.ref.recordId },
+        expectedVersion: row.version,
+      };
+    });
+  }
+  setBulkState = (loading: boolean, operationId: string | null = this.pendingBulkOperation) => {
+    this.isBulkMutating = loading;
+    this.pendingBulkOperation = operationId;
+  };
+  bulkCompleted = async () => {
+    this.setBulkState(false, null);
+    this.clearSelection();
+    await this.rootStore.recordWorkspaceStore.invalidate();
+  };
+  bulkStopped = () => this.setBulkState(false, null);
+  bulkMutation = async (mutation: Extract<MutateRecordInput["mutation"], { action: "updateMany" | "deleteMany" }>) => {
+    if (this.isBulkMutating || this.pendingBulkOperation) return false;
+    const signature = JSON.stringify({
+      revision: this.presentation.model.revision,
+      mutation,
+    });
+    const input =
+      this.bulkRequest?.signature === signature
+        ? this.bulkRequest.input
+        : {
+            expectedRevision: this.presentation.model.revision,
+            idempotencyKey: crypto.randomUUID(),
+            mutation,
+          };
+    this.bulkRequest = { signature, input };
+    this.setBulkState(true);
+    try {
+      const result = await mutateRecordAction(input);
+      this.bulkRequest = null;
+      if (!result.ok) {
+        toastZodErrorTree(result.error);
+        await this.refresh();
+        return false;
+      }
+      if (result.data.status === "pending") this.setBulkState(false, result.data.operationId);
+      else await this.bulkCompleted();
+      return true;
+    } finally {
+      this.setBulkState(false);
+    }
+  };
+  bulkUpdateField = (fieldId: string, value: RecordScalar | null) =>
+    this.bulkMutation({
+      action: "updateMany",
+      targets: this.selectionTargets,
+      fields: [{ fieldId, value }],
+    });
   setBoardOperation = (operationId: string | null) => {
     this.pendingBoardOperation = operationId;
   };
@@ -67,12 +149,23 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
         idempotencyKey: crypto.randomUUID(),
         mutation: {
           action: "update",
-          ref: { typeId: params.item.ref.typeId, recordId: params.item.ref.recordId },
+          ref: {
+            typeId: params.item.ref.typeId,
+            recordId: params.item.ref.recordId,
+          },
           expectedVersion: params.item.version,
-          fields: [{ fieldId: field.id, value: value === null ? null : { kind: "select", value } }],
+          fields: [
+            {
+              fieldId: field.id,
+              value: value === null ? null : { kind: "select", value },
+            },
+          ],
         },
       };
-      const signature = JSON.stringify({ revision: input.expectedRevision, mutation: input.mutation });
+      const signature = JSON.stringify({
+        revision: input.expectedRevision,
+        mutation: input.mutation,
+      });
       const previous = this.boardRequests.get(params.item.id);
       if (previous?.signature === signature) input = previous.input;
       else this.boardRequests.set(params.item.id, { signature, input });
@@ -108,8 +201,15 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   get type() {
     return this.presentation.model.types.find((type) => type.id === this.presentation.typeId);
   }
+  override get recordLabels() {
+    return this.type ? { singular: this.type.label, plural: this.type.pluralLabel } : undefined;
+  }
   get columnsDefinition() {
-    return this.recordColumns.map((column) => ({ uid: column.id, label: column.label, sortable: column.sortable }));
+    return this.recordColumns.map((column) => ({
+      uid: column.id,
+      label: column.label,
+      sortable: column.sortable,
+    }));
   }
   get recordColumns() {
     return recordColumns(this.presentation.typeId, this.presentation.model).map((column) => ({
@@ -119,6 +219,9 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
           ? this.presentation.systemColumnLabels[column.id]
           : column.label,
     }));
+  }
+  override get viewTypeLabel() {
+    return this.type?.pluralLabel;
   }
   get primaryColumnId() {
     return this.type?.primaryFieldId ?? super.primaryColumnId;
@@ -130,7 +233,12 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
         .filter((column) => column.kind !== "field" && column.kind !== "identity")
         .map((column) =>
           column.kind === "relationshipPath"
-            ? { id: column.id, label: column.label, type: "recordReference" as const, typeId: column.targetTypeId }
+            ? {
+                id: column.id,
+                label: column.label,
+                type: "recordReference" as const,
+                typeId: column.targetTypeId,
+              }
             : column.kind === "relationship"
               ? {
                   id: column.id,
@@ -153,12 +261,6 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   }
   get canExport() {
     return true;
-  }
-  get canUpdateSelection() {
-    return false;
-  }
-  get canDeleteSelection() {
-    return false;
   }
   get isDisabled() {
     return !this.presentation?.permittedActions.includes("create");

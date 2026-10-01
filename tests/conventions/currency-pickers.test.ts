@@ -12,7 +12,7 @@ describe("currency picker catalog", () => {
       "utf8",
     );
     const customColumn = readFileSync(
-      join(REPO_ROOT, "components/data-view/custom-columns/custom-column-modal.tsx"),
+      join(REPO_ROOT, "app/[locale]/(protected)/company/data-model/components/field-modal.tsx"),
       "utf8",
     );
     const currencyAutocomplete = readFileSync(
@@ -24,7 +24,7 @@ describe("currency picker catalog", () => {
       '<FormAutocompleteCurrency required id="currency" inputId="company-settings-currency" />',
     );
     expect(customColumn).toContain("<FormAutocompleteCurrency");
-    expect(customColumn).toContain('id="options.currency"');
+    expect(customColumn).toContain('id="currency"');
     expect(currencyAutocomplete).toContain("items={CURRENCIES}");
     expect(currencyAutocomplete).toContain("textValue: label");
   });

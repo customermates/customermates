@@ -1,16 +1,15 @@
 "use client";
 
-import type { ReactNode } from "react";
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
+import type { ReactNode } from "react";
 
-import { useCallback, useRef } from "react";
 import { useTranslations } from "next-intl";
+import { useCallback, useRef } from "react";
 
 import { ScrollReturnButton } from "@/components/scroll/scroll-return-button";
 import { useScrollReturn } from "@/components/scroll/use-scroll-return";
 
 import { DataViewPagination } from "./header/pagination";
-import { MassActionsBar } from "./mass-actions-bar";
 import { DataViewViewsRail } from "./views/data-view-views-rail";
 
 type Props<E extends HasId> = {
@@ -36,8 +35,6 @@ export function DataViewLayout<E extends HasId>({ children, showPagination, stor
   return (
     <div className="flex h-[calc(100svh-4rem)] min-h-0 flex-col md:h-[calc(100svh-5rem)]">
       <DataViewViewsRail joinsTopBar store={store} />
-
-      <MassActionsBar store={store} />
 
       <div
         ref={scrollHostRef}

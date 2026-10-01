@@ -14,7 +14,7 @@ import type { RecordChoice } from "@/features/records/get-record-choices.interac
 import type { RecordIdentityInput } from "@/features/records/record-identity.schema";
 
 import { BaseModalStore } from "@/core/base/base-modal.store";
-import { filterScalar } from "@/features/records/record-presentation";
+import { recordInputValue } from "@/features/records/record-input-value";
 import { RecordScalarSchema } from "@/features/records/record-model.schema";
 import { mutateRecordAction, getRecordEditorAction } from "../../actions";
 
@@ -35,11 +35,16 @@ function scalarDraft(value: RecordScalar | null): unknown {
 export class RecordEditorStore extends BaseModalStore<RecordDraft> {
   record: RecordDto | null = null;
   presentation: RecordEditorContext;
-  parentLink: { relationId: string; record: RecordRef; title: CalculatedValue } | null = null;
+  parentLink: {
+    relationId: string;
+    record: RecordRef;
+    title: CalculatedValue;
+  } | null = null;
   pendingOperationId: string | null = null;
   refreshRequired = false;
   relatedRevision = 0;
   private requestKey: string | null = null;
+  private refreshGeneration = 0;
   private pendingDeletion = false;
   constructor(
     root: RootStore,
@@ -48,9 +53,20 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
     private readonly keepOpenOnSave = false,
     private readonly onDeleted?: () => Promise<void>,
   ) {
-    super(root, { id: undefined, values: {}, assignedUserIds: [], linkChanges: [], identities: [] }, undefined, {
-      register: false,
-    });
+    super(
+      root,
+      {
+        id: undefined,
+        values: {},
+        assignedUserIds: [],
+        linkChanges: [],
+        identities: [],
+      },
+      undefined,
+      {
+        register: false,
+      },
+    );
     this.presentation = presentation;
     makeObservable(this, {
       record: observable.ref,
@@ -63,6 +79,10 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
       setPendingOperation: action,
       setRefreshRequired: action,
     });
+  }
+  protected override prepareToClose() {
+    this.refreshGeneration += 1;
+    return true;
   }
   get isReadOnly() {
     if (this.pendingOperationId || this.refreshRequired) return true;
@@ -80,6 +100,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
     record: RecordDto | null,
     parentLink: RecordEditorStore["parentLink"] = null,
   ) => {
+    this.refreshGeneration += 1;
     this.presentation = presentation;
     this.record = record;
     this.parentLink = parentLink;
@@ -130,13 +151,30 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
   };
   reloadAfterNestedChange = async () => {
     if (!this.record || this.hasUnsavedChanges) return;
-    const ref = { typeId: this.record.ref.typeId, recordId: this.record.ref.recordId };
+    const generation = ++this.refreshGeneration;
+    const ref = {
+      typeId: this.record.ref.typeId,
+      recordId: this.record.ref.recordId,
+    };
     const result = await getRecordEditorAction(ref);
+    if (
+      generation !== this.refreshGeneration ||
+      !this.isOpen ||
+      this.hasUnsavedChanges ||
+      this.record?.ref.typeId !== ref.typeId ||
+      this.record?.ref.recordId !== ref.recordId
+    )
+      return;
     if (!result.ok) {
       this.setError(result.error);
       return;
     }
     if (this.hasUnsavedChanges || this.record?.ref.typeId !== ref.typeId || this.record.ref.recordId !== ref.recordId)
+      return;
+    if (
+      result.data.model.revision < this.presentation.model.revision ||
+      (result.data.record?.version ?? 0) < (this.record?.version ?? 0)
+    )
       return;
     this.edit(result.data, result.data.record, this.parentLink);
     runInAction(() => {
@@ -153,12 +191,24 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
   };
   refreshRecord = async () => {
     if (!this.record || this.hasUnsavedChanges) return;
+    const generation = ++this.refreshGeneration;
     const ref = toJS(this.record.ref);
     const result = await getRecordEditorAction(ref);
-    if (this.record?.ref.typeId !== ref.typeId || this.record?.ref.recordId !== ref.recordId || this.hasUnsavedChanges)
+    if (
+      generation !== this.refreshGeneration ||
+      this.record?.ref.typeId !== ref.typeId ||
+      this.record?.ref.recordId !== ref.recordId ||
+      this.hasUnsavedChanges
+    )
       return;
-    if (result.ok) this.edit(result.data, result.data.record, this.parentLink);
-    else this.setError(result.error);
+    if (result.ok) {
+      if (
+        result.data.model.revision < this.presentation.model.revision ||
+        (result.data.record?.version ?? 0) < (this.record?.version ?? 0)
+      )
+        return;
+      this.edit(result.data, result.data.record, this.parentLink);
+    } else this.setError(result.error);
   };
   operationCompleted = async () => {
     const deletion = this.pendingDeletion;
@@ -203,20 +253,16 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
     );
   };
   private scalar(field: RecordField): RecordScalar | null {
-    const raw = this.form.values[field.id];
-    if (raw === undefined || raw === null || raw === "") return null;
-    if (field.valueType === "richText") return { kind: "richText", documentJson: JSON.stringify(toJS(raw)) };
-    if (field.valueType === "boolean") return { kind: "boolean", value: Boolean(raw) };
-    if (field.multiple) return { kind: "textList", value: String(raw).split("\n") };
-    if (field.valueType === "dateRange" || field.valueType === "dateTimeRange") {
-      const [start, end] = String(raw).split(",");
-      return { kind: "range", start: start || null, end: end || null };
-    }
-    return filterScalar(String(raw), field, this.rootStore.companyStore.company?.currency ?? "EUR");
+    return recordInputValue(
+      toJS(this.form.values[field.id]),
+      field,
+      this.rootStore.companyStore.company?.currency ?? "EUR",
+    );
   }
   previewValue = (field: RecordField): CalculatedValue => {
     if (field.behavior.kind !== "input" && !(field.behavior.kind === "snapshot" && field.behavior.allowManualOverride))
       return this.record?.fields.find((value) => value.fieldId === field.id)?.result ?? { state: "missing" };
+
     const value = this.scalar(field);
     if (value === null) return { state: "missing" };
     const parsed = RecordScalarSchema.safeParse(value);
@@ -273,7 +319,11 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
                 : {}),
               links: toJS(this.form.linkChanges)
                 .filter((change) => change.action === "link")
-                .map(({ relationId, direction, record }) => ({ relationId, direction, record })),
+                .map(({ relationId, direction, record }) => ({
+                  relationId,
+                  direction,
+                  record,
+                })),
             },
       });
       if (!result.ok) {

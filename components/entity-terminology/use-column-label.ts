@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { EntityType } from "@/generated/prisma";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 import type { TerminologyForm } from "@/features/entity-terminology/entity-terminology.types";
 

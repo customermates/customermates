@@ -171,3 +171,38 @@ describe("record editor persistence", () => {
     );
   });
 });
+
+describe("record editor refresh ordering", () => {
+  it.each(["refreshRecord", "reloadAfterNestedChange"] as const)(
+    "does not reopen a closed drawer after %s",
+    async (method) => {
+      const saved = vi.fn();
+      const store = new RecordEditorStore(root, context("deal"), saved);
+      store.edit(context("deal"), record());
+      const response = Promise.withResolvers<{ ok: true; data: RecordEditorResult }>();
+      mocks.getRecordEditorAction.mockReturnValue(response.promise);
+      const pending = store[method]();
+      store.close();
+      response.resolve({ ok: true, data: { ...context("deal"), record: record(2) } });
+      await pending;
+      expect(store.isOpen).toBe(false);
+      expect(store.record?.version).toBe(1);
+      expect(saved).not.toHaveBeenCalled();
+    },
+  );
+  it("keeps the latest refresh when responses arrive in reverse order", async () => {
+    const store = new RecordEditorStore(root, context("deal"), vi.fn());
+    store.edit(context("deal"), record());
+    const old = Promise.withResolvers<{ ok: true; data: RecordEditorResult }>();
+    const latest = Promise.withResolvers<{ ok: true; data: RecordEditorResult }>();
+    mocks.getRecordEditorAction.mockReturnValueOnce(old.promise).mockReturnValueOnce(latest.promise);
+    const older = store.reloadAfterNestedChange();
+    const newer = store.refreshRecord();
+    latest.resolve({ ok: true, data: { ...context("deal"), record: record(3) } });
+    await newer;
+    old.resolve({ ok: true, data: { ...context("deal"), record: record(2) } });
+    await older;
+    expect(store.record?.version).toBe(3);
+    expect(store.form.values[id("deal.name")]).toBe("Deal 3");
+  });
+});

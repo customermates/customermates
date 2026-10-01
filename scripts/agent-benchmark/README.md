@@ -12,6 +12,16 @@ approvals, cancellation, stream recovery, model pinning and usage accounting. `y
 shipped-model merge gate; the lower-level campaign commands run resumable model experiments from the same registry,
 driver, fixtures and oracles.
 
+Fixtures write only generic records, typed field values, identities, and relationships. The case registry's original
+entity labels remain a fixture vocabulary, decoded through `record-fixtures.ts` and `record-oracle-projection.ts`.
+They are not retired runtime tool contracts. The runtime gate rejects actual calls to retired CRUD tools. Oracles
+compare the native snapshot as well as the case projection, so edits to unrelated records, custom types, permissions,
+or capability bindings fail the episode even when the requested change is correct.
+
+Offline fixture, oracle, and scripted-provider tests verify those contracts without model calls. They do not establish
+live model reliability. A live `check`, `judge`, and report run still requires a separately authorized spending ceiling,
+a clean local commit, its matching production build, and an isolated database and workflow directory.
+
 Requirements: the sandbox worktree with its loopback PostgreSQL, `.env` with `AI_GATEWAY_API_KEY`, `RUN_AGENT_BENCHMARK=true`,
 and the application started in production mode with the benchmark model overlay:
 

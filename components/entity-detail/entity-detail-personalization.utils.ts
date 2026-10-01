@@ -1,4 +1,4 @@
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 
 function uniqueIds(ids: string[]): string[] {
   return [...new Set(ids.filter(Boolean))];

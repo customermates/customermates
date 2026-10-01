@@ -1,21 +1,21 @@
 "use client";
 
-import type { ReactNode } from "react";
 import type { CustomFieldValueDto } from "@/core/base/base-entity.schema";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
+import type { ReactNode } from "react";
 import type { EntityDetailPreviewItem } from "./entity-detail-personalization";
 
+import type { EntityType } from "@/features/records/history/v1/legacy-enums";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import type { EntityType } from "@/generated/prisma";
 
 import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { CustomFieldValue } from "@/components/data-view/custom-columns/custom-field-value";
 import { AvatarStack } from "@/components/shared/avatar-stack";
 import { OverflowRail } from "@/components/shared/overflow-rail";
 import { TruncatedText } from "@/components/shared/truncated-text";
-import { useEntityHref } from "./hooks/use-entity-drawer-stack";
 import { useEntityDetailPersonalization } from "./entity-detail-personalization";
+import { useEntityHref } from "./hooks/use-entity-drawer-stack";
 
 export type EntityDetailSummaryField = {
   id: string;
@@ -134,7 +134,10 @@ export function EntityDetailSummaryRail({ items }: { items: EntityDetailSummaryF
         observedKey={items.length}
         overflowAttribute="data-summary-overflow"
         railClassName="gap-2 pt-0 pb-4"
-        railProps={{ "data-summary-geometry": "cards", "data-summary-rail": "" }}
+        railProps={{
+          "data-summary-geometry": "cards",
+          "data-summary-rail": "",
+        }}
         regionProps={{ "data-summary-scroll-region": "" }}
       >
         {items.map((item) => (

@@ -1,14 +1,15 @@
-import type { Root } from "react-dom/client";
-import type { ColumnDef } from "@tanstack/react-table";
-import type { ReactNode } from "react";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { BaseDataViewStore } from "@/core/base/base-data-view.store";
 import type { DataViewGroup, GroupingResult } from "@/core/base/grouping/grouping.schema";
+import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
+import type { ColumnDef } from "@tanstack/react-table";
+import type { ReactNode } from "react";
+import type { Root } from "react-dom/client";
 
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("@/i18n/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 vi.mock("mobx-react-lite", () => ({ observer: <T,>(component: T) => component }));
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, values?: Record<string, unknown>) =>
@@ -213,6 +214,7 @@ describe("board column order and labels", () => {
     const host = renderBoard(
       boardStore({
         canManage: true,
+        schemaSettingsHref: "/company/data-model?typeId=00000000-0000-4000-8000-000000000001",
         currentGroupableFieldId: "",
         groupableFields: [],
         groupingResult: undefined,

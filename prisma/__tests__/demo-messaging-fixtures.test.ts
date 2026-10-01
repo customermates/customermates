@@ -50,6 +50,14 @@ function recordingDelegate() {
     updateCalls,
     upsertResultIds,
     delegate: {
+      create: vi.fn(({ data }: { data: FixtureRow }) => {
+        calls.push({
+          create: data,
+          update: Object.fromEntries(Object.entries(data).filter(([key]) => key !== "id")),
+          where: { id: data.id },
+        });
+        return Promise.resolve(data);
+      }),
       deleteMany: vi.fn((input: DeleteManyInput) => {
         deleteManyCalls.push(input);
         return Promise.resolve({ count: 0 });
@@ -93,7 +101,11 @@ function recordingPrisma() {
       calendar: calendars.delegate,
       calendarEvent: calendarEvents.delegate,
       connectedAccount: connectedAccounts.delegate,
-      contactIdentifier: contactIdentifiers.delegate,
+      recordIdentity: contactIdentifiers.delegate,
+      recordIdentityKey: {
+        deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
+        createMany: vi.fn().mockResolvedValue({ count: 1 }),
+      },
       messagingMessage: messages.delegate,
       messagingThread: threads.delegate,
       messagingThreadParticipant: participants.delegate,
@@ -254,15 +266,8 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
       expect(settings.data?.signature.enabled).toBe(true);
       expect(emailLinkContrast(String(settings.data?.appearance.linkHex)).readable).toBe(true);
     }
-    for (const call of records.contactIdentifiers) {
-      expect(call.where).toEqual({
-        companyId_channelClass_value: {
-          companyId: call.create.companyId,
-          channelClass: call.create.channelClass,
-          value: call.create.value,
-        },
-      });
-    }
+    for (const call of records.contactIdentifiers) expect(call.where).toEqual({ id: call.create.id });
+
     expectCanonicalUpdates(records.contactIdentifiers);
     for (const account of accounts) {
       expect(account).toMatchObject({
@@ -379,39 +384,39 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
       expect.arrayContaining([
         expect.objectContaining({
           channelClass: "linkedin",
-          contactId: "contact-0",
+          recordId: "contact-0",
           displayName: "Leon Becker",
           messagingId: "demo-linkedin-leon",
           provider: "linkedin",
         }),
         expect.objectContaining({
           channelClass: "linkedin",
-          contactId: "contact-26",
+          recordId: "contact-26",
           displayName: "Rashid Malik",
           messagingId: "demo-linkedin-rashid",
           provider: "linkedin",
         }),
         expect.objectContaining({
           channelClass: "phone",
-          contactId: "contact-19",
+          recordId: "contact-19",
           displayName: "Sophie Wagner",
           provider: "whatsapp",
         }),
         expect.objectContaining({
           channelClass: "phone",
-          contactId: "contact-6",
+          recordId: "contact-6",
           displayName: "Jonas Weber",
           provider: "whatsapp",
         }),
         expect.objectContaining({
           channelClass: "instagram",
-          contactId: "contact-23",
+          recordId: "contact-23",
           displayName: "Yasmin Farouk",
           provider: "instagram",
         }),
         expect.objectContaining({
           channelClass: "telegram",
-          contactId: "contact-6",
+          recordId: "contact-6",
           displayName: "Jonas Weber",
           provider: "telegram",
         }),
@@ -600,7 +605,7 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
                 : person.telegram;
         return identifiers.some(
           (identifier) =>
-            identifier.contactId === context.contactIds[contactIndex] &&
+            identifier.recordId === context.contactIds[contactIndex] &&
             identifier.provider === fixture.account &&
             identifier.value === expectedValue,
         );
@@ -1060,7 +1065,7 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
     expect(records.contactIdentifierUpdates).toEqual([
       {
         data: records.contactIdentifiers[0]?.update,
-        where: { id: "ui-recreated-linkedin-channel" },
+        where: { companyId_id: { companyId: context.companyId, id: "ui-recreated-linkedin-channel" } },
       },
     ]);
 

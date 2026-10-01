@@ -1001,7 +1001,6 @@
   "Common": {
     "actions": {
       "add": "Add",
-      "addCustomField": "Add Field",
       "back": "Back",
       "cancel": "Cancel",
       "clear": "Clear",
@@ -1012,16 +1011,12 @@
       "continueSetup": "Continue setup",
       "copy": "Copy to clipboard",
       "delete": "Delete",
-      "deleteCustomFields": "Delete Field",
       "discard": "Discard",
-      "editCustomFields": "Edit Field",
       "expand": "Expand",
       "labelHistory": "History",
-      "labelNotes": "Notes",
       "loadMore": "Load more",
       "open": "Open",
       "openApp": "Open app",
-      "openList": "Open list",
       "refresh": "Refresh",
       "remove": "Remove",
       "reset": "Reset",
@@ -1033,7 +1028,6 @@
       "collapseSearch": "Collapse search",
       "explainField": "About {field}",
       "hidePassword": "Hide password",
-      "optionName": "Option {number} name",
       "selectOption": "Select an option",
       "showPassword": "Show password",
       "switchToBoardView": "Switch to board view",
@@ -1044,7 +1038,6 @@
       "tooltipFilters": "Filters"
     },
     "avatarUrlDescription": "Optionally provide a link to an image that will be used as your avatar. The image should be publicly accessible.",
-    "clearDefault": "Clear default",
     "colors": {
       "default": "Blue",
       "destructive": "Red",
@@ -1065,11 +1058,6 @@
       "phone": "Phone",
       "plain": "Text",
       "singleSelect": "Single Select"
-    },
-    "customFieldHelp": {
-      "deleteWeightingColumnPermission": "This field drives the weighted pipeline in {company}, so deleting it turns weighting off. Ask a workspace administrator for permission to update {company}.",
-      "immutableType": "Field type is fixed after creation. Create a new custom field to use another type.",
-      "probabilityPermission": "Stage probabilities are managed in {company}. Ask a workspace administrator for permission to update them."
     },
     "dateBuckets": {
       "day": "Day",
@@ -1132,7 +1120,6 @@
       "messageWithName": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
       "title": "Confirm Deletion"
     },
-    "details": "Details",
     "email": "Email",
     "emptyState": {
       "body": "Get started by adding your first {singular}.",
@@ -1493,8 +1480,6 @@
     },
     "inputs": {
       "addOption": "Add \"{value}\"",
-      "addService": "Add service",
-      "aggregationType": "Metric",
       "amount": "Amount",
       "avatarUrl": "Avatar URL",
       "bodyTemplate": "Body template",
@@ -1506,7 +1491,6 @@
       "currency": "Currency",
       "datePlaceholder": "Pick a date",
       "dateRangePlaceholder": "Pick a range",
-      "defaultOption": "Option {number}",
       "description": "Description",
       "displayLanguage": "Display Language",
       "displayOptions": {
@@ -1519,25 +1503,14 @@
       "emails": "Emails",
       "emptyContent": "No results found",
       "enabled": "Active",
-      "entityType": "Element",
       "events": "Events",
       "feedback": "Feedback",
       "firstName": "First Name",
       "formattingLocale": "Formatting Locale",
-      "groupByValue": "Grouping",
       "headers": "Custom headers",
-      "label": "Label",
       "lastName": "Last Name",
       "message": "Message",
       "name": "Name",
-      "options": {
-        "addOption": "Add option",
-        "allowMultiple": "Allow Multiple",
-        "color": "Color",
-        "currency": "Currency",
-        "displayFormat": "Format",
-        "lastOption": "A single select needs at least one option"
-      },
       "password": "Password",
       "prompt": "Instructions",
       "roleId": "Role",
@@ -1552,7 +1525,6 @@
       "triggerEvents": "Events",
       "triggerFilters": "Record filters",
       "triggerKind": "Trigger",
-      "type": "Type",
       "unavailableSelection": "Selection unavailable",
       "url": "URL",
       "userIds": "Assigned"
@@ -1576,12 +1548,9 @@
       "copiedToClipboard": "{value} copied to clipboard",
       "copyFailed": "Failed to copy to clipboard",
       "deleted": "Deleted",
-      "unexpectedError": "Something went wrong. Please try again.",
-      "updated": "Updated"
+      "unexpectedError": "Something went wrong. Please try again."
     },
     "pageNumber": "Page {page}",
-    "probability": "Probability",
-    "probabilityRange": "Enter a probability from 0 to 100%.",
     "providers": {
       "google": "Gmail",
       "instagram": "Instagram",
@@ -1595,7 +1564,6 @@
     "scroll": {
       "backToTop": "Back to top"
     },
-    "setAsDefault": "Set as default",
     "sidebar": {
       "description": "Displays the mobile sidebar.",
       "title": "Sidebar",
@@ -1695,10 +1663,6 @@
       "previousPage": "Previous page",
       "rowsPerPage": "Rows per page",
       "search": "Search..."
-    },
-    "taskTypes": {
-      "custom": "Custom",
-      "userPendingAuthorization": "Pending authorization"
     },
     "themes": {
       "dark": "Dark",
@@ -1890,9 +1854,6 @@
     "linkedinOpenProfile": "Open LinkedIn profile",
     "noActivity": "No activity yet for this contact."
   },
-  "ContactModal": {
-    "title": "Contact"
-  },
   "ContactPage": {
     "description": "Have a question, want a walkthrough, or exploring a partnership? Drop me a note and I'll get back within a day.",
     "form": {
@@ -1936,24 +1897,14 @@
     "activityWidget": {
       "activityCount": "{count, plural, =1 {1 activity} other {# activities}}",
       "error": "Activity could not be loaded.",
-      "loadOlderError": "Older activity could not be loaded. The entries already shown are still available.",
       "noAccount": "Connect a messaging or calendar account to show activity.",
       "noActivity": "No activity yet.",
       "noMatches": "No activity matches the current filters.",
       "noPermission": "You do not have access to any activity in this workspace.",
-      "pageLimitReached": "The oldest available page has been reached. Narrow the current selection to inspect older activity.",
       "scopeTooBroad": "These relationship filters match too many contacts to load safely. Select fewer records.",
       "title": "Recent activity"
     },
     "addCard": "Add widget",
-    "aggregationTypes": {
-      "count": "Count {entities}",
-      "dealQuantity": "Number of {services} in {deals}",
-      "dealValue": "{deal} value",
-      "dealValueRelated": "{deal} value related to {entity}",
-      "dealWeightedValue": "Weighted {deal} value",
-      "dealWeightedValueRelated": "Weighted {deal} value related to {entity}"
-    },
     "displayTypes": {
       "doughnutChart": "Doughnut Chart",
       "horizontalBarChart": "Horizontal Bar Chart",
@@ -1961,13 +1912,6 @@
       "radarChart": "Radar Chart",
       "verticalBarChart": "Vertical Bar Chart",
       "verticalBarChartWithLabels": "Vertical Bar Chart with Labels"
-    },
-    "groupBys": {
-      "none": "No Grouping"
-    },
-    "tabs": {
-      "dealFilters": "Filters for {deals}",
-      "filters": "{entityType} Filters"
     },
     "widgetEditor": {
       "addTitle": "Add widget",
@@ -1983,39 +1927,13 @@
         "deleteLabel": "Delete widget {name}"
       },
       "editTitle": "Edit {name}",
-      "filters": {
-        "activityTypeOptions": {
-          "activities": {
-            "description": "Events from connected accounts and calendars.",
-            "label": "Account & calendar"
-          },
-          "changes": {
-            "description": "Updates to CRM records, fields, and relationships.",
-            "label": "Record changes"
-          },
-          "messages": {
-            "description": "Messages sent or received through connected channels.",
-            "label": "Messages"
-          }
-        },
-        "activityTypes": "Activity types",
-        "noneAvailable": "No filters are available for this widget.",
-        "removeUnavailable": "Remove unavailable {field} filter",
-        "title": "Filters",
-        "unavailable": "{count, plural, =1 {One saved filter is no longer available. You can keep or remove it.} other {# saved filters are no longer available. You can keep or remove them.}}"
-      },
       "kind": {
         "activityTimelineDescription": "Follow record changes, messages, and account or calendar activity in time order.",
         "chartDescription": "Compare CRM data in a visual chart.",
         "title": "Choose a Widget"
       },
       "preview": {
-        "activitySummary": "{title}. Filters: {filters, plural, =0 {none} =1 {1 active} other {# active}}.",
-        "chartSummary": "{title}. {summary}. Metric: {metric}. Chart style: {chart}.",
-        "filterSummary": "{count, plural, =1 {1 filter} other {# filters}}",
-        "groupLabel": "Group {number}",
-        "title": "Preview",
-        "untitled": "Untitled widget"
+        "title": "Preview"
       },
       "progress": "Step {current} of {total}",
       "progressLabel": "Widget creation progress",
@@ -2047,54 +1965,12 @@
   },
   "DataTransfer": {
     "export": {
-      "action": "Export",
-      "failed": "The file could not be created.",
-      "success": "{count, plural, one {# record exported} other {# records exported}}",
-      "truncated": "Only the first {limit} records were exported."
+      "action": "Export"
     },
     "import": {
       "action": "Add from file",
-      "batchProgress": "Batch {done} of {total}",
-      "channelOption": "{provider} (channel)",
       "chooseFile": "Choose file",
-      "commit": "Add records",
-      "description": "Match the spreadsheet columns to fields, check the result, then add the records.",
-      "duplicateTargets": "{count, plural, one {# field is mapped from more than one column. Fix it before continuing.} other {# fields are mapped from more than one column. Fix them before continuing.}}",
-      "fileHint": "Choose a spreadsheet. Excel workbooks are supported.",
-      "fileRejected": "That file could not be read.",
-      "groupChannels": "Channels",
-      "groupCustomFields": "Custom fields",
-      "groupFields": "Fields",
-      "ignoreColumn": "Do not add",
-      "issueCount": "{count, plural, one {# problem found} other {# problems found}}",
-      "issues": {
-        "channelsNotUpdated": "Channels stay as they are on a record that already exists",
-        "duplicateRecordId": "Row {row} already updates this record",
-        "invalidChannelValue": "\"{value}\" is not a valid {provider} address",
-        "notANumber": "\"{value}\" is not a number",
-        "notAPhoneNumber": "\"{value}\" is not a phone number",
-        "relationAmbiguous": "\"{value}\" matches more than one record",
-        "relationNotFound": "\"{value}\" was not found",
-        "unknownOption": "\"{value}\" is not one of the options for {column}",
-        "unknownProvider": "\"{value}\" is not a channel type we support"
-      },
-      "mappingHint": "{file}, {rows} rows",
-      "moreIssues": "and {count} more",
-      "noIssues": "No problems found.",
-      "previewCounts": "{create} to add, {update} to update",
-      "progress": "Step {current} of {total}",
-      "progressLabel": "Import progress",
-      "recordId": "Record ID",
-      "resultCounts": "{created} added, {updated} updated",
-      "resultSkipped": "{count, plural, one {# row skipped} other {# rows skipped}}",
-      "row": "Row",
-      "rowsAffected": "{count, plural, one {# row} other {# rows}}",
-      "skipInvalid": "{count, plural, one {Import the rest and skip # row} other {Import the rest and skip # rows}}",
-      "stopped": "Stopped at row {row}. {remaining} rows were not processed.",
-      "title": "Add records from a file",
-      "unnamedColumn": "Unnamed column",
-      "validate": "Check the file",
-      "warningCount": "{count, plural, one {# warning} other {# warnings}}"
+      "fileRejected": "That file could not be read."
     },
     "menu": "Import and export",
     "recordImport": {
@@ -2125,7 +2001,6 @@
     "boardPickedUp": "Record picked up.",
     "collapseGroup": "Collapse group {group}",
     "dragToReorder": "Drag to reorder",
-    "editColumn": "Edit column",
     "expandGroup": "Expand group {group}",
     "groupOverflow": "Only {count} groups are shown",
     "noValue": "No value",
@@ -2157,14 +2032,7 @@
       "recordCount": "{count, plural, one {# record} other {# records}}"
     }
   },
-  "DealModal": {
-    "noServicesAdded": "No {entity} added yet",
-    "quantityLabel": "Quantity",
-    "title": "Deal",
-    "valueLabel": "Value"
-  },
   "Diagrams": {
-    "groups": "groups",
     "noData": "No data available",
     "noGroup": "Unassigned",
     "total": "Total"
@@ -2271,7 +2139,6 @@
       "noResults": "No matches found.",
       "searching": "Searching…",
       "searchPlaceholder": "Search or paste an email, phone or handle…",
-      "sourceContacts": "Existing contact",
       "sourceConversations": "From your conversations",
       "sourceLookup": "Found by lookup",
       "trigger": "Add channel"
@@ -2291,22 +2158,11 @@
     "unverified": "Unverified"
   },
   "EntityDetail": {
-    "computedFieldHelp": {
-      "dealValue": "Sum of unit price × quantity for every linked record in {services}. Change linked records or quantities there to update it.",
-      "serviceLineValue": "{service} price × quantity. Change the record or quantity here; edit the linked record to change its price.",
-      "serviceQuantity": "Sum of quantities across all linked records in {services}. Change the quantities there to update it.",
-      "weightedValue": "{dealValue} × the {percent}% win probability for the current stage ({stage}). Change {services}, quantities, or the stage; manage stage probabilities in {company}.",
-      "weightedValueUnconfigured": "{dealValue} × the selected stage’s win probability. Configure stage probabilities in {company} and select a stage; change {services} or quantities to update it."
-    },
     "donePersonalizing": "Done",
     "fieldCancelled": "Cancelled moving {field}.",
     "fieldDropped": "Placed {field}.",
     "fieldMoved": "Moved {field} to {target}.",
     "fieldPickedUp": "Picked up {field}.",
-    "fields": {
-      "createdAt": "Created at",
-      "updatedAt": "Updated at"
-    },
     "hideField": "Hide {field} from details",
     "overview": "Overview",
     "personalize": "Customize",
@@ -2426,11 +2282,8 @@
     "detailDescription": "Activity details and related record context.",
     "error": "Activity could not be loaded.",
     "loadOlder": "Load older",
-    "loadOlderError": "Older activity could not be loaded. The entries already shown are still available.",
     "moreRecords": "+{count} more",
     "noFurtherDetail": "No further detail was recorded for this event.",
-    "pageLimitReached": "The oldest available page has been reached. Narrow the current selection to inspect older activity.",
-    "scopeTooBroad": "These relationship filters match too many contacts to load safely. Select fewer records.",
     "types": {
       "activities": "Activities",
       "changes": "Changes",
@@ -3247,13 +3100,8 @@
       "members": "{active} of {total}"
     }
   },
-  "OrganizationModal": {
-    "title": "Organization"
-  },
   "PageState": {
-    "loading": "Loading page",
-    "notFoundDescription": "This record may have been removed or you may not have access to it.",
-    "notFoundTitle": "Record not found"
+    "loading": "Loading page"
   },
   "PendingCard": {
     "body": "You can sign in once your account has been approved by your company's administrator.",
@@ -3323,6 +3171,7 @@
     "captureChanged": "When a field changes to a value",
     "captureCreate": "When the record is created",
     "captureExplicit": "On request",
+    "color": "Color",
     "configure": "Configure",
     "connectionType": "Connection",
     "constant": "Fixed value",
@@ -3612,6 +3461,8 @@
     "title": "Administrator controls"
   },
   "RoutineDetail": {
+    "contractReviewHelp": "The prompt references retired CRM tools or API endpoints. Update those references before running it. Your instructions have been preserved.",
+    "contractReviewTitle": "Review this routine",
     "credits": "Credits",
     "empty": {
       "event": {
@@ -3680,7 +3531,6 @@
   },
   "RoutineModal": {
     "at": "at",
-    "changedFieldsHelp": "Leave empty to run on every change. Narrowing saves credits.",
     "configurationHeading": "Configuration",
     "customSchedule": "This routine uses a custom schedule: {expression}",
     "detailsTab": "Details",
@@ -3695,7 +3545,6 @@
     "scheduleTimeZone": "Times are shown in {timezone}.",
     "tabsLabel": "Routine sections",
     "title": "Routine",
-    "triggerFiltersHelp": "Leave empty to run for every record.",
     "useSchedulePreset": "Switch to a preset"
   },
   "RoutineRunReason": {
@@ -3763,9 +3612,6 @@
     "thursday": "Thursday",
     "tuesday": "Tuesday",
     "wednesday": "Wednesday"
-  },
-  "ServiceModal": {
-    "title": "Service"
   },
   "SignInForm": {
     "agreeToTerms": "By continuing, you agree to our <termsOfServiceLink>Terms</termsOfServiceLink> and acknowledge our <dataPrivacyLink>Privacy Policy</dataPrivacyLink>. See our <dpaLink>DPA</dpaLink>.",
@@ -3877,12 +3723,6 @@
     "signoff": "Best regards,\nBen",
     "subject": "Your account is inactive: we can help you restore access",
     "title": "Subscription inactivated"
-  },
-  "TaskModal": {
-    "title": "Task"
-  },
-  "TasksCard": {
-    "systemTaskTooltip": "System-managed {task}. It cannot be deleted manually; open it for more information."
   },
   "TrialExpiredOffer": {
     "body": "Your trial ended recently, but I'd love to help you get real value from Customermates. If you want, I can extend your trial and walk through your setup with you.",

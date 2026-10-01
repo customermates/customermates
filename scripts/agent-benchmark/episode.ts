@@ -1,54 +1,54 @@
 import { randomUUID } from "node:crypto";
-import { mkdir, open, rename, rm } from "node:fs/promises";
-import { basename, dirname, resolve } from "node:path";
+import { mkdir,open,rename,rm } from "node:fs/promises";
+import { basename,dirname,resolve } from "node:path";
 
 import type { Pool } from "pg";
 
+import type { AgentContextAttachment } from "@/ee/agent-chat/agent-context";
+import type { AgentModelEntry } from "@/ee/agent-chat/model-catalog";
 import type { BenchmarkArm } from "./arms";
 import type { Campaign } from "./campaign";
 import type {
-  BenchmarkCase,
-  BenchmarkCaseDriver,
-  BenchmarkDb,
-  CaseId,
-  Fixture,
-  ObservedTurn,
-  OracleCheck,
-  OracleResult,
+BenchmarkCase,
+BenchmarkCaseDriver,
+BenchmarkDb,
+CaseId,
+Fixture,
+ObservedTurn,
+OracleCheck,
+OracleResult,
 } from "./fixtures";
 import type { JudgeVerdict } from "./judge";
-import type { SseFrame, SseTiming } from "./sse";
-import type { AgentContextAttachment } from "@/ee/agent-chat/agent-context";
-import type { AgentModelEntry } from "@/ee/agent-chat/model-catalog";
+import type { SseFrame,SseTiming } from "./sse";
 
 import { runWithoutTenant } from "@/core/decorators/tenant-context";
-import { agentContextAttachmentsEqual, agentContextsFromMessageParts } from "@/ee/agent-chat/agent-context";
+import { agentContextAttachmentsEqual,agentContextsFromMessageParts } from "@/ee/agent-chat/agent-context";
 import { agentToolOutcomeStatus } from "@/ee/agent-chat/agent-durable-stream";
-import { AGENT_PANEL_TOOL_NAMES, isAgentPanelTool } from "@/ee/agent-chat/agent-ui-command";
 import { AGENT_RUN_LEASE_MS } from "@/ee/agent-chat/agent-turn-request";
+import { AGENT_PANEL_TOOL_NAMES,isAgentPanelTool } from "@/ee/agent-chat/agent-ui-command";
 import { resolveAgentModel } from "@/ee/agent-chat/model-catalog";
 import {
-  cancelAgentTurnAs,
-  expireAgentRunLeaseAs,
-  respondToApprovalAs,
-  respondToUiCommandAs,
+cancelAgentTurnAs,
+expireAgentRunLeaseAs,
+respondToApprovalAs,
+respondToUiCommandAs,
 } from "@/tests/helpers/agent-benchmark-responder";
 
 import { armModelKey } from "./arms";
 import { resolveBenchmarkRuntimeSource } from "./build-source";
 import {
-  completeEpisode,
-  recordCharge,
-  registerEpisode,
-  reserveCharge,
-  settleReservedCharge,
-  updateEpisode,
-  worstCaseEpisodeCredits,
-  worstCaseEpisodeUsd,
+completeEpisode,
+recordCharge,
+registerEpisode,
+reserveCharge,
+settleReservedCharge,
+updateEpisode,
+worstCaseEpisodeCredits,
+worstCaseEpisodeUsd,
 } from "./campaign";
-import { BENCHMARK_CASES, FIXTURE_VERSION, scoreBenchmarkCase, seedBenchmarkCase } from "./fixtures";
+import { BENCHMARK_CASES,FIXTURE_VERSION,scoreBenchmarkCase,seedBenchmarkCase } from "./fixtures";
 import { mintBenchmarkSession } from "./session";
-import { benchmarkServerSourceError, readSseFrames } from "./sse";
+import { benchmarkServerSourceError,readSseFrames } from "./sse";
 
 const TURN_TIMEOUT_MS = 15 * 60 * 1000;
 const MICROCENTS_PER_USD = 100_000_000;
@@ -625,6 +625,7 @@ function resolveContextAttachment(
       ...context,
       reference: {
         ...reference,
+        ...("typeId" in reference ? { typeId: resolveFixtureIds(reference.typeId, definition, fixtureIds) } : {}),
         recordId: resolveFixtureIds(reference.recordId, definition, fixtureIds),
       },
     };
@@ -633,9 +634,11 @@ function resolveContextAttachment(
       ...context,
       reference: {
         ...reference,
+        surfaceKey: resolveFixtureIds(reference.surfaceKey, definition, fixtureIds) as typeof reference.surfaceKey,
         viewKey: resolveFixtureIds(reference.viewKey, definition, fixtureIds),
       },
     };
+  if (reference.kind === "dataView") return { ...context, reference: { ...reference, surfaceKey: resolveFixtureIds(reference.surfaceKey, definition, fixtureIds) as typeof reference.surfaceKey } };
   return { ...context, reference: { ...reference } };
 }
 

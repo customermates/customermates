@@ -284,7 +284,7 @@ describe("agent tools", () => {
     const requiredContextBytes = conservativeAgentInitialContextBytes({
       systemPrompt,
       currentText: "Decide yourself and create the complete dataset.",
-      pageRoute: "/en/organizations",
+      pageRoute: "/en/records/10000000-0000-4000-8000-000000000102",
       toolDefinitions,
     });
 
@@ -343,8 +343,8 @@ describe("agent tools", () => {
   });
 
   it.each([
-    { action: "update", surfaceKey: "contacts-card-store", viewKey: "__all__" },
-    { action: "update", surfaceKey: "contacts-card-store", viewKey: "__all__", state: {} },
+    { action: "update", surfaceKey: "records:10000000-0000-4000-8000-000000000101", viewKey: "__all__" },
+    { action: "update", surfaceKey: "records:10000000-0000-4000-8000-000000000101", viewKey: "__all__", state: {} },
     { action: "create", surfaceKey: "operator-users", name: "Operator", state: {} },
     {
       action: "delete",
@@ -354,7 +354,8 @@ describe("agent tools", () => {
   ])("rejects unsupported saved-view input during authoritative normalization: %j", async (input) => {
     await expect(
       normalizeAgentAiToolInput("manage_data_views", input, 6000, {
-        pageRoute: "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update",
+        pageRoute:
+          "/en/records/10000000-0000-4000-8000-000000000101?view=__all__&viewSurface=records:10000000-0000-4000-8000-000000000101&viewAction=update",
       }),
     ).resolves.toMatchObject({ ok: false, result: expect.stringContaining("Validation error") });
   });
@@ -371,8 +372,11 @@ describe("agent tools", () => {
 
     try {
       const result = await execute(
-        getAgentAiTools(deps({ pageRoute: `/en/contacts/${recordId}?view=__all__&viewSurface=entity-timeline` }))
-          .manage_data_views,
+        getAgentAiTools(
+          deps({
+            pageRoute: `/en/records/10000000-0000-4000-8000-000000000101/${recordId}?view=__all__&viewSurface=entity-timeline`,
+          }),
+        ).manage_data_views,
         { action: "create", surfaceKey: "entity-timeline", name: "Contact created", state: {} },
       );
 
@@ -380,10 +384,12 @@ describe("agent tools", () => {
       expect(result).toMatchObject({
         navigation: {
           kind: "saved-view",
-          href: `/contacts/${recordId}?view=${viewKey}&viewSurface=entity-timeline`,
+          href: `/records/10000000-0000-4000-8000-000000000101/${recordId}?view=${viewKey}&viewSurface=entity-timeline`,
         },
       });
-      expect(JSON.stringify(result)).toContain(`/contacts/${recordId}?view=${viewKey}&viewSurface=entity-timeline`);
+      expect(JSON.stringify(result)).toContain(
+        `/records/10000000-0000-4000-8000-000000000101/${recordId}?view=${viewKey}&viewSurface=entity-timeline`,
+      );
       expect(JSON.stringify(result)).not.toContain("link: null");
     } finally {
       executeMcp.mockRestore();
@@ -397,9 +403,9 @@ describe("agent tools", () => {
       text: "A deliberately long result that will not fit in the hosted model result budget.",
       structuredContent: {
         action: "update",
-        surfaceKey: "contacts-card-store",
+        surfaceKey: "records:10000000-0000-4000-8000-000000000101",
         viewKey: "__all__",
-        link: "/contacts?view=__all__",
+        link: "/records/10000000-0000-4000-8000-000000000101?view=__all__",
       },
     });
 
@@ -407,16 +413,22 @@ describe("agent tools", () => {
       const result = await execute(
         getAgentAiTools(
           deps({
-            pageRoute: "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update",
+            pageRoute:
+              "/en/records/10000000-0000-4000-8000-000000000101?view=__all__&viewSurface=records:10000000-0000-4000-8000-000000000101&viewAction=update",
             resultMaxChars: 1,
           }),
         ).manage_data_views,
-        { action: "update", surfaceKey: "contacts-card-store", viewKey: "__all__", state: { viewMode: "card" } },
+        {
+          action: "update",
+          surfaceKey: "records:10000000-0000-4000-8000-000000000101",
+          viewKey: "__all__",
+          state: { viewMode: "card" },
+        },
       );
 
       expect(result).toMatchObject({
         ok: true,
-        navigation: { kind: "saved-view", href: "/contacts?view=__all__" },
+        navigation: { kind: "saved-view", href: "/records/10000000-0000-4000-8000-000000000101?view=__all__" },
       });
     } finally {
       executeMcp.mockRestore();
@@ -433,27 +445,30 @@ describe("agent tools", () => {
         text: "listed",
         structuredContent: {
           action: "list",
-          surfaceKey: "contacts-card-store",
-          link: `/contacts?view=${viewKey}`,
+          surfaceKey: "records:10000000-0000-4000-8000-000000000101",
+          link: `/records/10000000-0000-4000-8000-000000000101?view=${viewKey}`,
         },
       })
       .mockResolvedValueOnce({
         text: "deleted",
         structuredContent: {
           action: "delete",
-          surfaceKey: "contacts-card-store",
+          surfaceKey: "records:10000000-0000-4000-8000-000000000101",
           viewKey,
           deleted: true,
-          link: `/contacts?view=${viewKey}`,
+          link: `/records/10000000-0000-4000-8000-000000000101?view=${viewKey}`,
         },
       });
 
     try {
       const tools = getAgentAiTools(deps());
-      const listed = await execute(tools.manage_data_views, { action: "list", surfaceKey: "contacts-card-store" });
+      const listed = await execute(tools.manage_data_views, {
+        action: "list",
+        surfaceKey: "records:10000000-0000-4000-8000-000000000101",
+      });
       const deleted = await execute(tools.manage_data_views, {
         action: "delete",
-        surfaceKey: "contacts-card-store",
+        surfaceKey: "records:10000000-0000-4000-8000-000000000101",
         viewKey,
       });
 
@@ -465,27 +480,45 @@ describe("agent tools", () => {
   });
 
   it.each([
-    { action: "create", surfaceKey: "deals-card-store", name: "Linked deals", state: {} },
-    { action: "update", surfaceKey: "deals-card-store", viewKey: "__all__", state: { viewMode: "card" } },
-    { action: "create", surfaceKey: "contacts-card-store", name: "Unexpected new view", state: {} },
+    { action: "create", surfaceKey: "records:10000000-0000-4000-8000-000000000103", name: "Linked deals", state: {} },
     {
       action: "update",
-      surfaceKey: "contacts-card-store",
+      surfaceKey: "records:10000000-0000-4000-8000-000000000103",
+      viewKey: "__all__",
+      state: { viewMode: "card" },
+    },
+    {
+      action: "create",
+      surfaceKey: "records:10000000-0000-4000-8000-000000000101",
+      name: "Unexpected new view",
+      state: {},
+    },
+    {
+      action: "update",
+      surfaceKey: "records:10000000-0000-4000-8000-000000000101",
       viewKey: "00000000-0000-4000-8000-000000000001",
       state: { viewMode: "card" },
     },
-    { action: "delete", surfaceKey: "contacts-card-store", viewKey: "00000000-0000-4000-8000-000000000001" },
+    {
+      action: "delete",
+      surfaceKey: "records:10000000-0000-4000-8000-000000000101",
+      viewKey: "00000000-0000-4000-8000-000000000001",
+    },
   ])("rejects a different target before approval or execution: $action $surfaceKey", async (input) => {
     const mcp = ALL_MCP_TOOLS.find(({ name }) => name === "manage_data_views");
     if (!mcp) throw new Error("manage_data_views is missing");
     const executeMcp = vi.spyOn(mcp, "execute");
     const dependencies = deps({
-      pageRoute: "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update",
+      pageRoute:
+        "/en/records/10000000-0000-4000-8000-000000000101?view=__all__&viewSurface=records:10000000-0000-4000-8000-000000000101&viewAction=update",
       runExactlyOnce: vi.fn(),
     });
     try {
       const result = await execute(getAgentAiTools(dependencies).manage_data_views, input);
-      expect(result).toMatchObject({ ok: false, result: expect.stringContaining("surfaceKey=contacts-card-store") });
+      expect(result).toMatchObject({
+        ok: false,
+        result: expect.stringContaining("surfaceKey=records:10000000-0000-4000-8000-000000000101"),
+      });
       expect(executeMcp).not.toHaveBeenCalled();
       expect(dependencies.runExactlyOnce).not.toHaveBeenCalled();
       expect(dependencies.resolveApprovalContext).not.toHaveBeenCalled();
@@ -499,23 +532,34 @@ describe("agent tools", () => {
 
   it.each([
     [
-      { action: "update", surfaceKey: "contacts-card-store", viewKey: "__all__", state: { viewMode: "card" } },
-      "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update",
+      {
+        action: "update",
+        surfaceKey: "records:10000000-0000-4000-8000-000000000101",
+        viewKey: "__all__",
+        state: { viewMode: "card" },
+      },
+      "/en/records/10000000-0000-4000-8000-000000000101?view=__all__&viewSurface=records:10000000-0000-4000-8000-000000000101&viewAction=update",
     ],
     [
       { action: "create", surfaceKey: "entity-timeline", name: "My view", state: {} },
-      "/en/contacts/00000000-0000-4000-8000-000000000001?view=__all__&viewSurface=entity-timeline&viewAction=create",
+      "/en/records/10000000-0000-4000-8000-000000000101/00000000-0000-4000-8000-000000000001?view=__all__&viewSurface=entity-timeline&viewAction=create",
     ],
     [
-      { action: "config", surfaceKey: "contacts-card-store" },
-      "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update",
+      { action: "config", surfaceKey: "records:10000000-0000-4000-8000-000000000101" },
+      "/en/records/10000000-0000-4000-8000-000000000101?view=__all__&viewSurface=records:10000000-0000-4000-8000-000000000101&viewAction=update",
     ],
     [
-      { action: "list", surfaceKey: "contacts-card-store" },
-      "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update",
+      { action: "list", surfaceKey: "records:10000000-0000-4000-8000-000000000101" },
+      "/en/records/10000000-0000-4000-8000-000000000101?view=__all__&viewSurface=records:10000000-0000-4000-8000-000000000101&viewAction=update",
     ],
-    [{ action: "surfaces" }, "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update"],
-    [{ action: "create", surfaceKey: "deals-card-store", name: "My view", state: {} }, null],
+    [
+      { action: "surfaces" },
+      "/en/records/10000000-0000-4000-8000-000000000101?view=__all__&viewSurface=records:10000000-0000-4000-8000-000000000101&viewAction=update",
+    ],
+    [
+      { action: "create", surfaceKey: "records:10000000-0000-4000-8000-000000000103", name: "My view", state: {} },
+      null,
+    ],
   ] as const)("keeps valid $0.action requests on the existing MCP execution path", async (input, pageRoute) => {
     const mcp = ALL_MCP_TOOLS.find(({ name }) => name === "manage_data_views");
     if (!mcp) throw new Error("manage_data_views is missing");
@@ -535,7 +579,8 @@ describe("agent tools", () => {
     const executeMcp = vi.spyOn(mcp, "execute");
     const input = TOOL_CREATE_TYPE;
     const dependencies = deps({
-      pageRoute: "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update",
+      pageRoute:
+        "/en/records/10000000-0000-4000-8000-000000000101?view=__all__&viewSurface=records:10000000-0000-4000-8000-000000000101&viewAction=update",
       runExactlyOnce: vi.fn(),
     });
     try {
@@ -560,7 +605,12 @@ describe("agent tools", () => {
     const validate = schemaOf(tools.navigate).validate;
 
     expect(await validate?.({ targetId: "nav-contacts" })).toMatchObject({ success: true });
-    for (const targetId of ["javascript:alert(1)", "https://example.com", "//example.com", "/contacts"])
+    for (const targetId of [
+      "javascript:alert(1)",
+      "https://example.com",
+      "//example.com",
+      "/records/10000000-0000-4000-8000-000000000101",
+    ])
       expect(await validate?.({ targetId }), targetId).toMatchObject({ success: false });
   });
 
@@ -571,7 +621,14 @@ describe("agent tools", () => {
     const recordId = "00000000-0000-4000-8000-000000000001";
 
     expect(await validate?.({ typeId, recordId })).toMatchObject({ success: true });
-    for (const bad of ["new", "/deals/abc", "javascript:alert(1)", "https://example.com", "abc", "1234"])
+    for (const bad of [
+      "new",
+      "/records/10000000-0000-4000-8000-000000000103/abc",
+      "javascript:alert(1)",
+      "https://example.com",
+      "abc",
+      "1234",
+    ])
       expect(await validate?.({ typeId, recordId: bad }), bad).toMatchObject({ success: false });
     expect(await validate?.({ typeId: "not-a-type-id", recordId })).toMatchObject({ success: false });
     expect(await validate?.({ typeId })).toMatchObject({ success: false });

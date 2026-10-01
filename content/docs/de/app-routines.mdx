@@ -35,7 +35,7 @@ Jeder Nutzer erhält ein eigenes Kontingent: Starter enthält [[commercial.entit
 ## Welche Limits gelten, etwa für Läufe pro Stunde und Credits pro Lauf? [#what-are-the-limits]
 
 | Limit | Wert | Was am Limit passiert |
-|---|---|---|
+| --- | --- | --- |
 | Läufe pro Routine und Stunde | 4 | Weitere Läufe in dieser Stunde starten nicht; ein passendes Ereignis wird ohne Eintrag verworfen, und ein fälliger geplanter Lauf oder ein Lauf über **Auslöser testen** wird als **Übersprungen** erfasst |
 | Credits pro Lauf | 10 | Der Lauf stoppt an der Obergrenze und wird als **Teilweise** erfasst |
 | Aufeinanderfolgende fehlgeschlagene Läufe | 3 | Die Routine pausiert sich selbst und zeigt den Grund auf ihrer Seite |
@@ -61,9 +61,9 @@ Ein Ereignis-Auslöser startet eine Routine, wenn sich etwas in der App ändert,
 
 **Geänderte Felder** gilt nur für Aktualisierungs-Ereignisse. Benennen Sie die Felder, die Sie beobachten möchten, etwa den Wert eines Deals oder eine Ihrer Custom Columns, und die Routine läuft nur, wenn sich eines davon tatsächlich geändert hat. Das Control ist ausgeblendet, solange kein Aktualisierungs-Ereignis gewählt ist, denn Erstellungen und Löschungen melden keine Änderungen auf Feldebene.
 
-**Datensatzfilter** beschränken die Routine auf Datensätze, die Ihren Bedingungen entsprechen, etwa nur Deals, die Ihnen zugewiesen sind. Bei Löschungen greifen sie nicht, weil der Datensatz zum Startzeitpunkt der Routine bereits weg ist. Beide Controls werden nur angeboten, solange alle gewählten Ereignisse zu einem Datensatztyp gehören.
+**Datensatzfilter** begrenzen jede konfigurierte Quelle auf passende Datensätze. Bei Erstellung und Änderung gilt der resultierende gespeicherte Zustand. Bei Löschung gilt der vollständige Zustand unmittelbar vor der Entfernung, einschließlich Feldern und Beziehungen; der Treffer wird in der Löschtransaktion gespeichert. Bei mehreren Quellen bleiben Ereignisse, beobachtete Feld-Ids und Filter dem jeweiligen Typ zugeordnet.
 
-Lassen Sie ein Control leer, um bei jedem passenden Ereignis zu laufen. Ein Ereignis startet nur dann einen Lauf, wenn der Eigentümer der Routine den Datensatz oder die Unterhaltung mit seiner Rolle sehen kann; mit Lesezugriff **Zugewiesen** lösen die Datensätze anderer Personen die Routine nie aus, unabhängig von den Filtern. Bevor ein passendes Ereignis einen Lauf startet, überspringt Customermates es, wenn für diese Routine bereits ein Lauf in der Warteschlange steht oder läuft, wendet dann das Debounce-Fenster an und danach die Stundenobergrenze. Ein Ereignis, das diese Prüfungen nicht besteht, hinterlässt keinen Eintrag in der Laufliste. Zugriff des Eigentümers und Filter werden beim Start des Laufs erneut geprüft.
+Lassen Sie ein Control leer, um bei jedem passenden Ereignis zu laufen. Ein Ereignis startet nur dann einen Lauf, wenn der Eigentümer der Routine den Datensatz oder die Unterhaltung mit seiner Rolle sehen kann; mit Lesezugriff **Zugewiesen** lösen die Datensätze anderer Personen die Routine nie aus, unabhängig von den Filtern. Bevor ein passendes Ereignis einen Lauf startet, überspringt Customermates es, wenn für diese Routine bereits ein Lauf in der Warteschlange steht oder läuft, wendet dann das Debounce-Fenster an und danach die Stundenobergrenze. Ein Ereignis, das diese Prüfungen nicht besteht, hinterlässt keinen Eintrag in der Laufliste. Der aktuelle Zugriff des Eigentümers wird beim Start erneut geprüft. Bei Erstellung und Änderung werden die Filter erneut auf den aktuellen Datensatz angewandt; bei Löschung gilt der vor der Entfernung gespeicherte Treffer.
 
 Startet ein Ereignis einen Lauf, erfährt Mate vor Ihren Anweisungen, was passiert ist: den Namen des Ereignisses, die Art des Datensatzes und dessen ID, bei einer Aktualisierung die geänderten Felder und bei einem Posteingangs-Ereignis den Thread, zu dem die Nachricht gehört. Den Datensatz selbst kann es von dort aus lesen. Die vorherigen Werte der geänderten Felder erhält es nicht.
 
@@ -76,7 +76,7 @@ Startet ein Ereignis einen Lauf, erfährt Mate vor Ihren Anweisungen, was passie
 Ein Lauf öffnet sich in **Details zum Lauf** (**Zurück** führt zur Routine zurück). Dort stehen **Ausgeführt als** mit dem Namen des Eigentümers, die verbrauchten Credits, der Auslöser (**Datensatz**, **Geänderte Felder**, **Unterhaltung**) und, wenn der Lauf vorzeitig gestoppt hat, der Grund, etwa die Credit-Obergrenze. Ist der Lauf beendet, kann der Ausführende unter dem Transkript antworten und die Unterhaltung mit Mate fortsetzen; das verbraucht seine Credits.
 
 | Status | Bedeutung |
-|---|---|
+| --- | --- |
 | **In Warteschlange** (`queued`) | Wartet darauf, dass der Planer ihn startet |
 | **Läuft** (`running`) | Mate arbeitet |
 | **Erfolgreich** (`succeeded`) | Der Lauf hat seine Anweisung abgeschlossen |
@@ -110,7 +110,7 @@ In einem Chat nutzt Mate `manage_routines`, um Routinen aufzulisten, den Laufver
 Die Seite **Routinen** hat diese Ids. Mate kann zu diesen Zielen navigieren und sie hervorheben:
 
 | Oberfläche | Route | Navigationsanker | Toolbar-Anker |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Routinen | `/routines` | `#nav-routines` | `#routines-add`, `#routines-search`, `#routines-filter`, `#routines-display-options` |
 
 Layout-Controls in den Anzeigeoptionen: `#routines-layout-table`, `#routines-layout-board`. `#routines-add` wird nur für Rollen mit **Verwalten** auf **Ja** bei **Routinen** angezeigt. Routinen haben kein Import- und Exportmenü.

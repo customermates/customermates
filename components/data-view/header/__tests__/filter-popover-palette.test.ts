@@ -1,21 +1,27 @@
 import type { BaseDataViewStore } from "@/core/base/base-data-view.store";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { Filter } from "@/core/base/base-get.schema";
+import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 import type { ReactNode } from "react";
 
 import { createElement } from "react";
-import { describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
+import { describe, expect, it, vi } from "vitest";
 
-import { CustomColumnType, EntityType } from "@/generated/prisma";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
+import { CustomColumnType } from "@/core/data-view/column-presentation.types";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 const harness = vi.hoisted(() => ({ palette: { current: null as unknown } }));
 
-vi.mock("mobx-react-lite", () => ({ observer: <T>(component: T) => component }));
+vi.mock("mobx-react-lite", () => ({
+  observer: <T>(component: T) => component,
+}));
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("@/core/stores/root-store.provider", () => ({
-  useRootStore: () => ({ filterPaletteStore: harness.palette.current, terminologyStore: { overrides: [] } }),
+  useRootStore: () => ({
+    filterPaletteStore: harness.palette.current,
+    terminologyStore: { overrides: [] },
+  }),
 }));
 vi.mock("@/components/modal", () => ({
   ResponsiveOverlay: ({
@@ -30,15 +36,22 @@ vi.mock("@/components/modal", () => ({
     trigger: ReactNode;
   }) => createElement("div", null, trigger, createElement("h2", null, title), footer, children),
 }));
-vi.mock("@/components/data-view/filter-palette/filter-palette", () => ({ FilterPalette: () => null }));
+vi.mock("@/components/data-view/filter-palette/filter-palette", () => ({
+  FilterPalette: () => null,
+}));
 
-import { FilterPopover } from "../filter-popover";
 import { MAX_APPLIED_FILTERS } from "@/components/data-view/filter-palette/filter-palette.store";
+import { FilterPopover } from "../filter-popover";
 
 const CUSTOM_COLUMN_ID = "3f1c9a72-5d84-4a1e-9f3b-6c2d8e0a7b45";
 
 const CUSTOM_COLUMNS = [
-  { id: CUSTOM_COLUMN_ID, label: "Budget", entityType: EntityType.deal, type: CustomColumnType.currency },
+  {
+    id: CUSTOM_COLUMN_ID,
+    label: "Budget",
+    entityType: EntityType.deal,
+    type: CustomColumnType.currency,
+  },
 ] as unknown as CustomColumnDto[];
 
 function dataViewStore(filters: Filter[] = [], filterableFields = [{ field: "name", operators: ["contains"] }]) {
@@ -98,19 +111,36 @@ describe("filter popover", () => {
   it("names the cap only once the applied filters reach it", () => {
     const under = Array.from(
       { length: MAX_APPLIED_FILTERS - 1 },
-      (_, index) => ({ field: "name", operator: FilterOperatorKey.contains, value: `q${index}` }) as Filter,
+      (_, index) =>
+        ({
+          field: "name",
+          operator: FilterOperatorKey.contains,
+          value: `q${index}`,
+        }) as Filter,
     );
 
     expect(render(dataViewStore(under))).not.toContain("Common.filters.palette.limitReached");
     expect(
-      render(dataViewStore([...under, { field: "name", operator: FilterOperatorKey.contains, value: "last" }])),
+      render(
+        dataViewStore([
+          ...under,
+          {
+            field: "name",
+            operator: FilterOperatorKey.contains,
+            value: "last",
+          },
+        ]),
+      ),
     ).toContain("Common.filters.palette.limitReached");
   });
 
   it("titles the overlay with the palette on the root page and with the field on a value page", () => {
     expect(render(dataViewStore())).toContain("Common.filters.palette.title");
 
-    const valuePage = render(dataViewStore(), { kind: "value", field: CUSTOM_COLUMN_ID });
+    const valuePage = render(dataViewStore(), {
+      kind: "value",
+      field: CUSTOM_COLUMN_ID,
+    });
 
     expect(valuePage).toContain("Budget");
     expect(valuePage).not.toContain("Common.filters.palette.title");

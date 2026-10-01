@@ -11,35 +11,29 @@ describe("technical-id loading contract", () => {
   it("keys shell identities to the active entity and uses a breadcrumb skeleton", () => {
     const crumbs = read("app/components/app-topbar-crumbs.ts");
     const topbar = read("app/components/app-topbar.tsx");
-    const detail = read("components/entity-detail/entity-detail-layout.tsx");
-
-    expect(crumbs).toContain("runtimeIdentity.key === `${first}:${leaf}`");
+    const detail = read("app/[locale]/(protected)/records/[typeId]/components/record-detail-page.tsx");
+    expect(crumbs).toContain("runtimeIdentity.key === `records:${parts[1]}`");
     expect(crumbs).toContain('t("PageState.loading")');
     expect(crumbs).not.toMatch(/slice\(0,\s*8\)|label:\s*leaf/);
     expect(topbar).toContain("data-entity-crumb-loading");
     expect(topbar).toContain("<Skeleton");
     expect(crumbs).toContain("runtimeIdentity.key === inboxThreadId");
-    expect(detail).toContain("resolveEntityDetailPageState");
-    expect(detail).toContain('const showLoading = pageState === "loading"');
     expect(detail).toContain("layoutStore.setRuntimeIdentity");
+    expect(detail).toContain("const key = `records:${initial.typeId}`");
   });
 
-  it("guards entity hydration with a latest-request generation", () => {
-    const store = read("core/base/base-custom-column-entity-modal.store.ts");
-    const drawer = read("components/entity-detail/entity-drawer.tsx");
-    const detail = read("components/entity-detail/entity-detail-layout.tsx");
-
-    expect(store).toContain("entityLoadGeneration");
-    expect(store).toContain("isCurrentRequest");
-    expect(store).toContain("if (!isCurrentRequest()) return");
-    expect(store).toContain("this.entityLoadGeneration !== generation");
-    expect(drawer).toContain("resolveEntityDrawerPageState");
-    expect(drawer).toContain("background={<EntityDetailDrawerSkeleton");
-    expect(drawer).toContain('t("ErrorCard.retry")');
-    expect(drawer).toContain("loadGate.isCurrent(attempt, requestKey)");
-    expect(drawer).toContain("[activeKey, loadGate, p13nId, requestKey, rootStore, topEntityType, topId]");
-    expect(drawer).not.toContain("}, [top, rootStore, loadGate]);");
-    expect(detail).toContain("drawerWasOpen && !drawerIsOpen");
+  it("guards record hydration and refresh against older requests and closing the drawer", () => {
+    const store = read("core/stores/record-workspace.store.ts");
+    const editor = read("app/[locale]/(protected)/records/[typeId]/components/record-editor.store.ts");
+    const pending = read("components/records/workspace-record-editor.tsx");
+    expect(store).toContain("const opening = ++this.opening");
+    expect(store).toContain("if (opening !== this.opening || scope !== this.actorScope) return");
+    expect(editor).toContain("generation !== this.refreshGeneration");
+    expect(editor).toContain("protected override prepareToClose()");
+    expect(editor).toContain("result.data.model.revision < this.presentation.model.revision");
+    expect(editor).toContain("this.hasUnsavedChanges");
+    expect(pending).toContain('t("PageState.loading")');
+    expect(pending).toContain('role="status"');
   });
 
   it("uses geometric pending states and never falls back to selected keys", () => {
@@ -99,19 +93,18 @@ describe("technical-id loading contract", () => {
     );
   });
 
-  it("reuses the shared option skeleton in contextual async dropdowns", () => {
+  it("reuses shared option skeletons for record relationships and inbox participants", () => {
     for (const path of [
-      "app/[locale]/(protected)/contacts/components/add-channel-popover.tsx",
+      "app/[locale]/(protected)/records/[typeId]/components/record-relationship-editor.tsx",
       "app/[locale]/(protected)/inbox/components/thread-participants-contacts.tsx",
     ]) {
       const source = read(path);
       expect(source, path).toContain("SelectionOptionsSkeleton");
       expect(source, path).toContain("aria-busy");
     }
-
-    const addChannel = read("app/[locale]/(protected)/contacts/components/add-channel-popover.tsx");
-    expect(addChannel).toContain("{busy && <SelectionOptionsSkeleton");
-    expect(addChannel).toContain("{!busy && candidates.length > 0");
-    expect(addChannel).toContain("{!busy && addAsNewOptions.length === 1");
+    const relationship = read("app/[locale]/(protected)/records/[typeId]/components/record-relationship-editor.tsx");
+    expect(relationship).toContain("options.loading || search !== debounced");
+    expect(relationship).toContain("options.failed");
+    expect(relationship).toContain("state?.key === key");
   });
 });

@@ -41,7 +41,7 @@ Bei E-Mail-Konten erscheinen nur Nachrichten aus den Ordnern, die auf dem Tab **
 Rollen bearbeiten Sie unter **Mein Unternehmen › Rollen**. Der Posteingang nutzt die Zeile **Inbox-Nachrichten**, die **Lesen** mit **Keine** oder **Alle** (es gibt kein **Zugewiesen**) und **Verwalten** mit **Ja** oder **Nein** anbietet.
 
 | Um das zu tun | braucht die Rolle |
-|---|---|
+| --- | --- |
 | Den Posteingang sehen und Konversationen lesen | **Inbox-Nachrichten**: **Lesen** **Alle** |
 | Antworten, Entwürfe speichern, senden oder verwerfen, eine Konversation von einem Kontakt aus starten | **Inbox-Nachrichten**: **Verwalten** **Ja** |
 | Den Status ändern, eine E-Mail verschieben, **Aktualisieren**, **Konversation neu synchronisieren**, ältere Nachrichten durch Hochscrollen laden, eine Konversation teilen | **Inbox-Nachrichten**: **Verwalten** **Ja** |
@@ -77,7 +77,7 @@ Mit **Verwalten** bei **Inbox-Nachrichten** lädt Scrollen bis zum Anfang einer 
 Neben dem Namen der Konversation, von links nach rechts:
 
 | Steuerelement | Beschriftung | Was es tut |
-|---|---|---|
+| --- | --- | --- |
 | Symbol mit kreisförmigem Pfeil | Tooltip **Konversation neu synchronisieren** | Lädt die Konversation erneut vom Anbieter; nur mit **Verwalten** |
 | Chip mit Teilnehmer-Avataren | **Private Konversation** oder **Geteilte Konversation**, Tooltip **Sichtbarkeit und Personen verwalten** | Öffnet **Konversationseinstellungen** |
 | Personensymbol mit einer Zahl | Tooltip **Einige Teilnehmer sind nicht mit einem Kontakt verknüpft** | Öffnet **Konversationseinstellungen**; nur mit **Verwalten** bei **Kontakte** |
@@ -91,7 +91,7 @@ Auf schmalen Bildschirmen zeigen die Chips nur Symbole.
 ## Was bedeuten die Thread-Status? [#what-do-the-thread-states-mean]
 
 | Status | Bedeutung |
-|---|---|
+| --- | --- |
 | **Ungelesen** | Neu, oder eine neue Nachricht ist eingegangen |
 | **Offen** | Gelesen, braucht noch Aufmerksamkeit |
 | **Geschlossen** | Erledigt |
@@ -135,7 +135,7 @@ Antworten erfordert **Verwalten** bei **Inbox-Nachrichten**; ohne diese Berechti
 
 Der Posteingang hat keinen Button für eine neue Konversation. Starten Sie sie bei einem Kontakt: Im Block **Kanäle** des Kontakts öffnet das Symbol **Neue Nachricht** neben einer E-Mail-Adresse oder einem Handle ein Verfassen-Feld für diesen Kanal. Können mehrere Ihrer Kanäle senden, wählen Sie einen unter **Von**; bei LinkedIn mit Sales Navigator oder Recruiter wählt **Senden als** zwischen **Classic**, **Sales Navigator InMail** und **Recruiter InMail**. Nach **Senden** erscheint „Nachricht gesendet. Die Konversation erscheint in Kürze.“ Das Symbol erfordert Customermates Cloud und **Verwalten** bei **Inbox-Nachrichten**. Über MCP starten auch `send_email`, `send_chat_message` und `save_message_draft` Konversationen.
 
-**Link:** die Seite eines Kontakts, `/contacts/<id>`. **Mate:** `navigate` und `highlight_element` mit `nav-contacts` für die Kontaktliste; das Symbol **Neue Nachricht** ist kein Highlight-Ziel, deshalb nennt Mate es beim Namen.
+**Link:** die Seite eines Kontakts, `/records/<typeId>/<recordId>`. **Mate:** `navigate` und `highlight_element` mit `nav-contacts` für die Kontaktliste; das Symbol **Neue Nachricht** ist kein Highlight-Ziel, deshalb nennt Mate es beim Namen.
 
 ## Wie funktionieren Entwürfe und Anhänge? [#how-do-drafts-and-attachments-work]
 
@@ -155,23 +155,23 @@ Die Signatur gehört zu jedem E-Mail-Konto, das Ihnen gehört, nicht zum Postein
 
 Mate navigiert zu `#nav-inbox` (**Posteingang**) und hebt es hervor. Die anderen Ids sind DOM-Ids für externe Browser-Clients; Mate triagiert Threads mit den Tools `update_messaging_thread` und `move_email_thread`, statt diese Steuerelemente zu drücken.
 
-| Aktion                            | Wo                                     | Anchor-Id                                  | Was passiert                                                                                                                                                  |
-| --------------------------------- | -------------------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Zum Posteingang wechseln          | App-Sidebar                            | `#nav-inbox`                               | Öffnet /inbox                                                                                                                                                 |
-| Thread öffnen                     | Zeile (Button) in der Thread-Liste     | `#inbox-thread-list`                       | Der Listen-Container trägt die Id; die Thread-Zeilen darin sind Buttons                                                                                       |
-| Antwort-Composer öffnen           | Eingeklappte Zeile unter dem Thread    | `#inbox-reply-expand`                      | Klappt den Composer auf; er bleibt offen, solange ein Entwurf oder Anhang vorhanden ist                                                                       |
-| Antworten                         | Composer am unteren Ende eines Threads | `#inbox-reply-input` / `#inbox-reply-send` | Die Eingabe-Id gehört zum Chat-Textfeld; der E-Mail-Editor hat keine Id. Gesendet wird über den Kanal des Threads                                         |
-| Thread-Status setzen              | Status-Auswahl in der Kopfleiste       | `#inbox-thread-state`                      | **Ungelesen**, **Offen**, **Geschlossen** oder **Spam** wählen                                                                                                |
-| E-Mail in einen Ordner verschieben | Ordner-Auswahl in der Kopfleiste      | `#inbox-thread-folder`                     | Nur IMAP und Outlook; legt die Konversation im echten Postfach ab; Gesendet und Entwürfe sind keine Ziele                                                    |
-| Thread mit dem Team teilen        | Konversationseinstellungen             | `#thread-shared`                           | Teilt nur diesen Thread; nur der Besitzer des Kanals, und nicht, wenn der Kanal selbst geteilt ist                                                            |
-| Teilnehmer mit Kontakt verknüpfen | Konversationseinstellungen, **Personen** | keine                                    | **Verknüpfen** pro Teilnehmer                                                                                                                                 |
+| Aktion | Wo | Anchor-Id | Was passiert |
+| --- | --- | --- | --- |
+| Zum Posteingang wechseln | App-Sidebar | `#nav-inbox` | Öffnet /inbox |
+| Thread öffnen | Zeile (Button) in der Thread-Liste | `#inbox-thread-list` | Der Listen-Container trägt die Id; die Thread-Zeilen darin sind Buttons |
+| Antwort-Composer öffnen | Eingeklappte Zeile unter dem Thread | `#inbox-reply-expand` | Klappt den Composer auf; er bleibt offen, solange ein Entwurf oder Anhang vorhanden ist |
+| Antworten | Composer am unteren Ende eines Threads | `#inbox-reply-input` / `#inbox-reply-send` | Die Eingabe-Id gehört zum Chat-Textfeld; der E-Mail-Editor hat keine Id. Gesendet wird über den Kanal des Threads |
+| Thread-Status setzen | Status-Auswahl in der Kopfleiste | `#inbox-thread-state` | **Ungelesen**, **Offen**, **Geschlossen** oder **Spam** wählen |
+| E-Mail in einen Ordner verschieben | Ordner-Auswahl in der Kopfleiste | `#inbox-thread-folder` | Nur IMAP und Outlook; legt die Konversation im echten Postfach ab; Gesendet und Entwürfe sind keine Ziele |
+| Thread mit dem Team teilen | Konversationseinstellungen | `#thread-shared` | Teilt nur diesen Thread; nur der Besitzer des Kanals, und nicht, wenn der Kanal selbst geteilt ist |
+| Teilnehmer mit Kontakt verknüpfen | Konversationseinstellungen, **Personen** | keine | **Verknüpfen** pro Teilnehmer |
 
 **Link:** die Seite **Posteingang**, `/inbox`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`; die übrigen Ids dieser Tabelle sind keine Highlight-Ziele, deshalb nennt Mate die Steuerelemente beim Namen.
 
 ## Tipps für Agents [#tips-for-agents]
 
 - Externe Browser-Clients finden Steuerelemente über die stabilen Ids oben, zum Beispiel mit dem CSS-Selektor `#inbox-reply-send`. Der gehostete Assistent navigiert nur zu `nav-inbox` und hebt es hervor.
-- Zeilen tragen nie Ids. Öffnen Sie Datensätze über ihre Seiten-URL `/{type}/{id}` und eine Konversation über `/inbox?threadId={id}`. Im Posteingang sind Thread-Zeilen Buttons innerhalb von `#inbox-thread-list`.
+- Zeilen tragen nie Ids. Öffnen Sie Datensätze über ihre Seiten-URL `/records/<typeId>/<recordId>` und eine Konversation über `/inbox?threadId={id}`. Im Posteingang sind Thread-Zeilen Buttons innerhalb von `#inbox-thread-list`.
 - Bevorzugen Sie [MCP](/docs/mcp)-Tools gegenüber Klicks, wenn ein Tool existiert: `get_messaging_threads` liest, `update_messaging_thread` setzt den Status, `move_email_thread` legt eine E-Mail ab, und `save_message_draft` bereitet eine Nachricht zur Prüfung vor.
 - Eine neue Konversation (neue E-Mail, neuer Chat) starten Sie über die MCP-Tools `send_email` und `send_chat_message`. Bevorzugen Sie diese gegenüber der UI. In der App öffnet das Symbol **Neue Nachricht** am Kanal eines Kontakts ein Verfassen-Feld für eine schnelle Nachricht.
 

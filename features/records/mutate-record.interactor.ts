@@ -71,13 +71,16 @@ export class MutateRecordInteractor extends AuthenticatedInteractor<MutateRecord
         try {
           const company = await this.company.getDetails();
           const journal = new RecordJournal(this.records, model);
+          const cause = {
+            kind: "mutation" as const,
+            routineDepth: currentRoutineContext()?.causationDepth,
+          };
           const changed = await this.writer
             .withRepository(journal.repository)
-            .apply(input.mutation, model, policy, company.currency);
-          await journal.flush(model, this.userId, input.idempotencyKey, {
-            kind: "mutation",
-            routineDepth: currentRoutineContext()?.causationDepth,
-          });
+            .apply(input.mutation, model, policy, company.currency, undefined, {
+              beforeDeletion: (refs) => journal.prepareDeletion(refs, model, this.userId, input.idempotencyKey, cause),
+            });
+          await journal.flush(model, this.userId, input.idempotencyKey, cause);
           const refs = [];
           for (const ref of changed.refs) {
             const row = await this.records.getRecordCompanyWide(ref);

@@ -1,18 +1,15 @@
 "use client";
 
+import type { DiscoveredRecordTypes } from "@/features/records/discover-record-types.interactor";
+import type { WidgetDto } from "@/features/widget/widget.schema";
 import type { ComponentType, ReactNode } from "react";
 import type { Layout, ResponsiveLayouts } from "react-grid-layout/legacy";
-import type { FilterableField } from "@/core/base/base-get.schema";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
-import type { WidgetDto } from "@/features/widget/widget.schema";
-import type { EntityType } from "@/generated/prisma";
-import type { DiscoveredRecordTypes } from "@/features/records/discover-record-types.interactor";
 
-import dynamic from "next/dynamic";
 import { BarChart3, Plus } from "lucide-react";
 import { observer } from "mobx-react-lite";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { useTranslations } from "next-intl";
+import dynamic from "next/dynamic";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 
 import "@/styles/react-grid-layout.css";
 
@@ -22,9 +19,9 @@ import { PageState } from "@/components/page-state/page-state";
 import { resolveResourcePageState } from "@/components/page-state/resource-page-state";
 import { Icon } from "@/components/shared/icon";
 import { Button } from "@/components/ui/button";
+import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useIsTouchDevice } from "@/core/utils/use-is-touch-device";
-import { runUserAction } from "@/core/errors/report-application-error";
 
 import { DashboardPageSkeleton } from "./dashboard-page-skeleton";
 import { GRID_BREAKPOINTS, GRID_COLS } from "./grid.constants";
@@ -47,19 +44,10 @@ const ResponsiveGridLayout = dynamic(
 
 type Props = {
   recordTypes?: DiscoveredRecordTypes;
-  customColumns: CustomColumnDto[];
-  filterableFields: Record<EntityType, FilterableField[]>;
   widgets: WidgetDto[];
-  activityFilterableFields: FilterableField[];
 };
 
-export const DashboardPageView = observer(function DashboardPageView({
-  activityFilterableFields,
-  recordTypes,
-  customColumns,
-  filterableFields,
-  widgets,
-}: Props) {
+export const DashboardPageView = observer(function DashboardPageView({ recordTypes, widgets }: Props) {
   const { widgetModalStore, widgetsStore } = useRootStore();
   const { items, layouts } = widgetsStore;
   const canAddWidget = widgetModalStore.availableKinds.length > 0;
@@ -76,10 +64,7 @@ export const DashboardPageView = observer(function DashboardPageView({
   } | null>(null);
   const t = useTranslations();
 
-  useLayoutEffect(
-    () => widgetsStore.setItems({ items: widgets, customColumns }),
-    [customColumns, widgets, widgetsStore],
-  );
+  useLayoutEffect(() => widgetsStore.setItems({ items: widgets }), [widgets, widgetsStore]);
 
   useEffect(() => {
     if (typeof window === "undefined" || items.length === 0) return;
@@ -236,11 +221,7 @@ export const DashboardPageView = observer(function DashboardPageView({
     <>
       {body}
 
-      <WidgetModal
-        activityFilterableFields={activityFilterableFields}
-        customColumns={customColumns}
-        filterableFields={filterableFields}
-      />
+      <WidgetModal />
     </>
   );
 });

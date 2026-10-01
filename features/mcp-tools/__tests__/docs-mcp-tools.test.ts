@@ -222,7 +222,12 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
     "app-inbox#which-conversations-do-i-see",
     "/profile/connected-accounts",
   ],
-  ["en", "write a new email to a contact", "app-inbox#how-do-i-start-a-new-conversation", "/contacts/<id>"],
+  [
+    "en",
+    "write a new email to a contact",
+    "app-inbox#how-do-i-start-a-new-conversation",
+    "/records/<typeId>/<recordId>",
+  ],
   ["en", "Is there a calendar in Customermates?", "app-dashboard#what-can-an-activity-timeline-show", "/dashboard"],
   ["en", "share a dashboard widget with my team", "app-dashboard#what-does-the-dashboard-show", "/dashboard"],
   ["en", "Which chart types can a widget show?", "app-dashboard#which-widget-types-exist", "/dashboard"],

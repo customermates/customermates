@@ -1,7 +1,7 @@
 "use client";
 
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { Filter } from "@/core/base/base-get.schema";
+import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 
 import { useTranslations } from "next-intl";
 

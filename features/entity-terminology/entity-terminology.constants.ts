@@ -1,4 +1,5 @@
-import { EntityType, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 import type { EntityTerminologyOverride, TerminologyForm, TerminologySelectionMap } from "./entity-terminology.types";
 

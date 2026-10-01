@@ -349,35 +349,49 @@ export function compileRecordQuery(
     });
     const last = steps.at(-1);
     if (!last) throw new Error("Related filters require a relationship path");
-    const matching = compileRecordQuery(
-      companyId,
-      RecordQuerySchema.parse({
-        typeId: last.typeId,
-        filters: filter.filters,
-        relationships: filter.relationships,
-        search: filter.search,
-      }),
-      model,
-      access,
-    ).matching;
-    const pathPredicate = (level: number, parent: Prisma.Sql): Prisma.Sql => {
-      const step = steps[level];
+    const matching =
+      filter.filters.length || filter.relationships?.length || filter.search
+        ? compileRecordQuery(
+            companyId,
+            RecordQuerySchema.parse({
+              typeId: last.typeId,
+              filters: filter.filters,
+              relationships: filter.relationships,
+              search: filter.search,
+            }),
+            model,
+            access,
+          ).matching
+        : null;
+    const joins: Prisma.Sql[] = [];
+    const predicates: Prisma.Sql[] = [];
+    let parent = record;
+    for (const [level, step] of steps.entries()) {
       const target = Prisma.raw(`"related_${index}_${level}"`);
       const link = Prisma.raw(`"related_link_${index}_${level}"`);
       const sourceId = step.direction === "outgoing" ? Prisma.sql`${link}."sourceId"` : Prisma.sql`${link}."targetId"`;
       const targetId = step.direction === "outgoing" ? Prisma.sql`${link}."targetId"` : Prisma.sql`${link}."sourceId"`;
       const scope = access.get(step.typeId) ?? { userId: "", access: "none" as const };
-      const predicate =
-        level === steps.length - 1
-          ? Prisma.sql`${target}.id IN (${matching}) AND ${filter.recordIds === undefined ? Prisma.sql`TRUE` : filter.recordIds.length ? Prisma.sql`${target}.id IN (${Prisma.join(filter.recordIds)})` : Prisma.sql`FALSE`}`
-          : pathPredicate(level + 1, target);
-      return Prisma.sql`EXISTS (SELECT 1 FROM "RecordLink" ${link}
-        JOIN "CrmRecord" ${target} ON ${target}."companyId" = ${companyId} AND ${target}."typeId" = ${step.typeId} AND ${target}.id = ${targetId}
-        WHERE ${link}."companyId" = ${companyId} AND ${link}."relationId" = ${step.relation.id}
-          AND ${link}."sourceTypeId" = ${step.relation.sourceTypeId} AND ${link}."targetTypeId" = ${step.relation.targetTypeId} AND ${sourceId} = ${parent}.id
-          AND ${recordReadPredicate(companyId, scope, target)} AND ${predicate})`;
-    };
-    const related = pathPredicate(0, record);
+      const endpoint = Prisma.sql`${link}."companyId" = ${companyId} AND ${link}."relationId" = ${step.relation.id}
+        AND ${link}."sourceTypeId" = ${step.relation.sourceTypeId} AND ${link}."targetTypeId" = ${step.relation.targetTypeId}
+        AND ${sourceId} = ${parent}.id`;
+      joins.push(
+        level === 0
+          ? Prisma.sql`LATERAL (SELECT * FROM "RecordLink" ${link} WHERE ${endpoint} OFFSET 0) ${link}`
+          : Prisma.sql`JOIN LATERAL (SELECT * FROM "RecordLink" ${link} WHERE ${endpoint} OFFSET 0) ${link} ON TRUE`,
+        Prisma.sql`JOIN LATERAL (SELECT * FROM "CrmRecord" ${target} WHERE ${target}."companyId" = ${companyId}
+          AND ${target}."typeId" = ${step.typeId} AND ${target}.id = ${targetId} LIMIT 1) ${target} ON TRUE`,
+      );
+      predicates.push(recordReadPredicate(companyId, scope, target));
+      parent = target;
+    }
+    if (matching) predicates.push(Prisma.sql`${parent}.id IN (${matching})`);
+    if (filter.recordIds !== undefined) {
+      predicates.push(
+        filter.recordIds.length ? Prisma.sql`${parent}.id IN (${Prisma.join(filter.recordIds)})` : Prisma.sql`FALSE`,
+      );
+    }
+    const related = Prisma.sql`EXISTS (SELECT 1 FROM ${Prisma.join(joins, " ")} WHERE ${Prisma.join(predicates, " AND ")})`;
     conditions.push(filter.operator === "none" ? Prisma.sql`NOT (${related})` : related);
   }
   const ordering = query.sort.map((sort) => {

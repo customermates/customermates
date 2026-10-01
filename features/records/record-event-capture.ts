@@ -12,6 +12,7 @@ export async function captureRecordEventMatches(
   records: RecordRepo,
   companyId: string,
   selection: { eventId: string } | { operationId: string },
+  beforeDeletion = false,
 ): Promise<void> {
   const rows = await client.recordEventSubscription.findMany({
     where: { companyId, enabled: true, owner: { companyId, status: "active", role: { companyId } } },
@@ -65,11 +66,6 @@ export async function captureRecordEventMatches(
             },
           ];
       if (!sources.length) continue;
-      const deletedAccess = policy.allowed(typeId, "readAll")
-        ? Prisma.sql`TRUE`
-        : !type.parentRelationshipId && policy.allowed(typeId, "readOwn")
-          ? Prisma.sql`COALESCE(event.payload->'assignments'->'before', '[]'::jsonb) ? ${owner.id}`
-          : Prisma.sql`FALSE`;
       const recursion =
         subscription.kind === "routine" ? Prisma.sql`NOT (event.payload->'cause' ? 'routineDepth')` : Prisma.sql`TRUE`;
       for (const source of sources) {
@@ -85,8 +81,8 @@ export async function captureRecordEventMatches(
           FROM "RecordEvent" event
           WHERE event."companyId" = ${companyId} AND ${selected} AND event."typeId" = ${typeId}
             AND event.kind IN (${Prisma.join(source.events)}) AND ${changed} AND ${recursion}
-            AND ((event.kind = 'record.deleted' AND ${deletedAccess}) OR
-              (event.kind <> 'record.deleted' AND EXISTS (SELECT 1 FROM (${compiled.matching}) matching WHERE matching.id = event."recordId")))
+            AND ${beforeDeletion ? Prisma.sql`event.kind = 'record.deleted'` : Prisma.sql`event.kind <> 'record.deleted'`}
+            AND EXISTS (SELECT 1 FROM (${compiled.matching}) matching WHERE matching.id = event."recordId")
           ON CONFLICT ("companyId", "eventId", "subscriptionId") DO NOTHING`);
       }
     }

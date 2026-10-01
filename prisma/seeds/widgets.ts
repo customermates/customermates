@@ -1,4 +1,7 @@
 import { Prisma, WidgetKind } from "@/generated/prisma";
+import { migrateActivityQuery } from "../record-migrations/v4/activity-query";
+import { migrateChartMeasure } from "../record-migrations/v5/widgets";
+import { syntheticRecordModel } from "./records";
 
 import type { SeedContext } from "./context";
 import type { CustomFieldSeedData } from "./custom-fields";
@@ -161,7 +164,7 @@ export async function seedWidgets(context: SeedContext, customFields: CustomFiel
       layout: widgetLayout(id, definition.layout),
       name: definition.name,
       userId: ids.user,
-    } satisfies Prisma.WidgetCreateManyInput;
+    };
   });
 
   const activityDefinitions = [
@@ -224,10 +227,23 @@ export async function seedWidgets(context: SeedContext, customFields: CustomFiel
       isTemplate: false,
       layout: widgetLayout(id, definition.layout),
       userId: ids.user,
-    } satisfies Prisma.WidgetCreateManyInput;
+    };
   });
 
-  const allWidgets = [...chartWidgets, ...activityWidgets];
+  const { source, model } = syntheticRecordModel(context, customFields);
+  const allWidgets = [...chartWidgets, ...activityWidgets].map((widget) => ({
+    id: widget.id,
+    companyId: widget.companyId,
+    userId: widget.userId,
+    name: widget.name,
+    kind: widget.kind,
+    displayOptions: widget.displayOptions,
+    isTemplate: widget.isTemplate,
+    layout: widget.layout,
+    ...(widget.kind === "chart"
+      ? { measure: migrateChartMeasure(source, widget, model) as Prisma.InputJsonValue }
+      : { activityQuery: migrateActivityQuery(context.ids.company, widget.timelineFilters) as Prisma.InputJsonValue }),
+  }));
 
   await upsertFixturesById(allWidgets, (widget) =>
     prisma.widget.upsert({

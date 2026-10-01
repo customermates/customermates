@@ -5,17 +5,17 @@ import type {
   PaginationRequest,
   SortDescriptor,
 } from "@/core/base/base-get.schema";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { GroupableFieldSpec, GroupingTargetModel } from "@/core/base/grouping/groupable-field";
+import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 
+import { CustomColumnType } from "@/core/data-view/column-presentation.types";
 import { startOfDay, subDays } from "date-fns";
-import { CustomColumnType } from "@/generated/prisma";
 
-import { FilterFieldKey } from "@/core/types/filter-field-key";
-import { isCustomField } from "@/core/utils/custom-field";
+import { normalizeFilter } from "@/core/base/filter-compat";
 import { groupScopeFragment } from "@/core/base/grouping/group-scope";
 import { orderByOptionIndex } from "@/core/base/grouping/option-order";
-import { normalizeFilter } from "@/core/base/filter-compat";
+import { FilterFieldKey } from "@/core/types/filter-field-key";
+import { isCustomField } from "@/core/utils/custom-field";
 
 export interface SortableField {
   field: string;
@@ -161,7 +161,10 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
 
   private resolveTextSort(sortDescriptor: SortDescriptor | undefined): TextSort | undefined {
     const sortableFields = this.getSortableFields();
-    const validated = this.validateSortDescriptor({ sortDescriptor, sortableFields });
+    const validated = this.validateSortDescriptor({
+      sortDescriptor,
+      sortableFields,
+    });
     if (!validated) return undefined;
 
     const matched = sortableFields.find((s) => s.field === validated.field);
@@ -212,7 +215,10 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
   ): Promise<TWhereInput> {
     const where = { ...baseWhere } as WithDynamicFields<TWhereInput> & WithLogicalOperators<TWhereInput>;
     const filterableFields = await this.filterableFieldsOnce();
-    const validFilters = this.validateFilters({ filters: params.filters, filterableFields });
+    const validFilters = this.validateFilters({
+      filters: params.filters,
+      filterableFields,
+    });
 
     const customColumns = validFilters.some((f) => isCustomField(f.field)) ? await this.customColumnsOnce() : [];
     const customColumnTypeById = new Map(customColumns.map((c) => [c.id, c.type]));

@@ -1,23 +1,24 @@
-import { FilterOperatorKey as FilterOperator } from "@/core/base/base-query-builder";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
+import { FilterOperatorKey as FilterOperator } from "@/core/base/base-query-builder";
 import { recordInvariant } from "../record-invariant";
 
+import { Prisma } from "@/generated/prisma";
 import { randomUUID } from "node:crypto";
 import { Client } from "pg";
-import { Prisma } from "@/generated/prisma";
 
 import { afterAll, describe, expect, it, vi } from "vitest";
 
-import type { RecordSearch } from "../record-search.schema";
-import type { RecordMutation } from "../record-query.schema";
-import type { RecordRef, RecordScalar } from "../record-model.schema";
+import type { RecordActivitiesInput } from "@/ee/messaging/activities/record-activities.schema";
 import type { ConfigurationChange } from "../configuration.schema";
 import type { RecordEventSubscriptionDefinition } from "../record-event-subscription.schema";
-import type { RecordActivitiesInput } from "@/ee/messaging/activities/record-activities.schema";
+import type { RecordRef, RecordScalar } from "../record-model.schema";
+import type { RecordMutation } from "../record-query.schema";
+import type { RecordSearch } from "../record-search.schema";
 
-import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { DisplayType } from "@/features/widget/widget.schema";
+import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 
 vi.mock("@/env", () => ({
   env: {
@@ -226,7 +227,7 @@ async function fixture() {
     background,
   );
   const model = createCrmPreset(seed.company.id, "EUR");
-  await runWithTenant(admin, () => runInTransaction(() => repo.saveModel(model, admin.id)));
+  await runWithTenant(admin, () => runInTransaction(() => repo.saveModel(model, admin.id), { timeout: 30000 }));
   const id = (key: string) => presetId(seed.company.id, key);
   const run = <T>(fn: () => Promise<T>, as = admin) => runWithTenant(as, fn);
   const mutation = (value: RecordMutation, as = admin, idempotencyKey = randomUUID(), expectedRevision = 1) =>
@@ -369,6 +370,186 @@ async function subscribeRecordEvents(
 }
 
 describeDatabase("configurable record engine", { timeout: 30000 }, () => {
+  it("atomically bulk-updates live prices, recalculates a shared deal once, and retries without duplicate events", async () => {
+    const f = await fixture();
+    const a = await f.create("service", "A", [["service.amount", decimal("100")]]);
+    const b = await f.create("service", "B", [["service.amount", decimal("200")]]);
+    const deal = await f.create("deal", "Bulk price quote");
+    for (const service of [a, b]) {
+      await f.create(
+        "lineItem",
+        "Line",
+        [["lineItem.quantity", decimal("2", null)]],
+        [
+          {
+            relationId: f.id("lineItem.deal"),
+            direction: "outgoing",
+            record: deal,
+          },
+          {
+            relationId: f.id("lineItem.service"),
+            direction: "outgoing",
+            record: service,
+          },
+        ],
+      );
+    }
+    const before = await Promise.all([a, b, deal].map((ref) => f.readRecord(ref)));
+    const patch: RecordMutation = {
+      action: "updateMany",
+      targets: before.slice(0, 2).map((row) => ({ ref: row.ref, expectedVersion: row.version })),
+      fields: [{ fieldId: f.id("service.amount"), value: decimal("175") }],
+    };
+    const key = randomUUID();
+    const result = await f.mutation(patch, f.admin, key);
+    expect(result).toMatchObject({ ok: true, data: { status: "completed" } });
+    expect(await f.value(deal, "deal.totalValue")).toEqual({
+      state: "value",
+      value: decimal("700"),
+    });
+    for (const row of before) expect((await f.readRecord(row.ref)).version).toBe(row.version + 1);
+    const events = await f.run(() =>
+      prisma.recordEvent.findMany({
+        where: { companyId: f.company.id, causeId: key },
+      }),
+    );
+    expect(new Set(events.map((event) => `${event.typeId}:${event.recordId}`)).size).toBe(events.length);
+    expect(events.length).toBeGreaterThanOrEqual(3);
+    expect(await f.mutation(patch, f.admin, key)).toEqual(result);
+    expect(
+      await f.run(() =>
+        prisma.recordEvent.count({
+          where: { companyId: f.company.id, causeId: key },
+        }),
+      ),
+    ).toBe(events.length);
+  });
+
+  it("rolls back an entire bulk selection on an invalid field, stale version, or inaccessible target", async () => {
+    const f = await fixture();
+    const a = await f.create("service", "A", [["service.amount", decimal("100")]]);
+    const b = await f.create("service", "B", [["service.amount", decimal("200")]]);
+    const organization = await f.create("organization", "Client");
+    const targets = await Promise.all(
+      [a, b].map(async (ref) => ({
+        ref,
+        expectedVersion: (await f.readRecord(ref)).version,
+      })),
+    );
+    expect(
+      await f.mutation({
+        action: "updateMany",
+        targets: [...targets, { ref: organization, expectedVersion: 1 }],
+        fields: [{ fieldId: f.id("service.amount"), value: decimal("300") }],
+      }),
+    ).toMatchObject({ ok: false });
+    expect(await f.value(a, "service.amount")).toEqual({
+      state: "value",
+      value: decimal("100"),
+    });
+    expect(await f.value(b, "service.amount")).toEqual({
+      state: "value",
+      value: decimal("200"),
+    });
+    await f.update(b, [["service.amount", decimal("250")]]);
+    expect(
+      await f.mutation({
+        action: "updateMany",
+        targets,
+        fields: [{ fieldId: f.id("service.amount"), value: decimal("300") }],
+      }),
+    ).toMatchObject({ ok: false, error: { issues: [{ params: { kind: "conflict" } }] } });
+    await f.run(() =>
+      runInTransaction(async () => {
+        await f.repo.setGrants(a.typeId, [{ roleId: f.memberRole.id, actions: ["readOwn", "update"] }]);
+        await f.repo.setAssignments(a, [f.member.id]);
+      }),
+    );
+    const current = await Promise.all(
+      [a, b].map(async (ref) => ({
+        ref,
+        expectedVersion: (await f.readRecord(ref)).version,
+      })),
+    );
+    expect(
+      await f.mutation(
+        {
+          action: "updateMany",
+          targets: current,
+          fields: [{ fieldId: f.id("service.amount"), value: decimal("300") }],
+        },
+        f.member,
+      ),
+    ).toMatchObject({ ok: false });
+    expect(await f.value(a, "service.amount")).toEqual({
+      state: "value",
+      value: decimal("100"),
+    });
+    expect(await f.value(b, "service.amount")).toEqual({
+      state: "value",
+      value: decimal("250"),
+    });
+  });
+
+  it("previews and deletes one combined selection with cascaded line items and unchanged catalog records", async () => {
+    const f = await fixture();
+    const service = await f.create("service", "Catalog", [["service.amount", decimal("25")]]);
+    const deals = await Promise.all([f.create("deal", "A"), f.create("deal", "B")]);
+    const lines = [];
+    for (const deal of deals) {
+      lines.push(
+        await f.create(
+          "lineItem",
+          "Line",
+          [],
+          [
+            {
+              relationId: f.id("lineItem.deal"),
+              direction: "outgoing",
+              record: deal,
+            },
+            {
+              relationId: f.id("lineItem.service"),
+              direction: "outgoing",
+              record: service,
+            },
+          ],
+        ),
+      );
+    }
+    const targets = await Promise.all(
+      deals.map(async (ref) => ({
+        ref,
+        expectedVersion: (await f.readRecord(ref)).version,
+      })),
+    );
+    const preview = await f.run(() => f.previewDeletion.invoke({ targets, expectedRevision: 1 }));
+    expect(preview).toMatchObject({
+      ok: true,
+      data: {
+        targets,
+        removedLinks: 4,
+        removedRecords: expect.arrayContaining([
+          { typeId: f.id("deal"), label: "Deals", count: 2 },
+          { typeId: f.id("lineItem"), label: "Line items", count: 2 },
+        ]),
+      },
+    });
+    if (!preview.ok) throw preview.error;
+    expect(
+      await f.mutation({
+        action: "deleteMany",
+        targets,
+        expectedImpactHash: preview.data.impactHash,
+      }),
+    ).toMatchObject({ ok: true, data: { status: "completed" } });
+    for (const ref of [...deals, ...lines]) expect(await f.run(() => f.repo.getRecordCompanyWide(ref))).toBeNull();
+    expect(await f.value(service, "service.amount")).toEqual({
+      state: "value",
+      value: decimal("25"),
+    });
+  });
+
   it("marks a newly initialized workspace as generic storage", async () => {
     const f = await fixture();
     const state = await f.run(() => f.repo.getState());
@@ -543,7 +724,13 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       "task",
       "Linked task",
       [],
-      [{ relationId: f.id("task.services"), direction: "outgoing", record: service }],
+      [
+        {
+          relationId: f.id("task.services"),
+          direction: "outgoing",
+          record: service,
+        },
+      ],
     );
     const exporter = new ExportRecordsInteractor(f.repo, f.policy);
     const imported = new ImportRecordsInteractor(
@@ -553,23 +740,39 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       { getDetails: () => Promise.resolve({ currency: "EUR" }) },
     );
     const exported = await f.run(() =>
-      exporter.invoke({ typeId: f.id("task"), search: "Linked task", filters: [], relationships: [], sort: [] }),
+      exporter.invoke({
+        typeId: f.id("task"),
+        search: "Linked task",
+        filters: [],
+        relationships: [],
+        sort: [],
+      }),
     );
     if (!exported.ok) throw exported.error;
     expect(exported.data.links).toEqual([{ relationId: f.id("task.services"), source: task, target: service }]);
     const copyId = randomUUID();
     const copy = {
       ...exported.data,
-      records: exported.data.records.map((row) => ({ ...row, ref: { ...row.ref, recordId: copyId } })),
+      records: exported.data.records.map((row) => ({
+        ...row,
+        ref: { ...row.ref, recordId: copyId },
+      })),
       links: exported.data.links.map((link) => ({
         ...link,
         source: { ...link.source, recordId: copyId },
       })),
     };
     const restored = await f.run(() =>
-      imported.invoke({ document: copy, mode: "create", idempotencyKey: randomUUID() }),
+      imported.invoke({
+        document: copy,
+        mode: "create",
+        idempotencyKey: randomUUID(),
+      }),
     );
-    expect(restored).toMatchObject({ ok: true, data: { created: 1, linked: 1 } });
+    expect(restored).toMatchObject({
+      ok: true,
+      data: { created: 1, linked: 1 },
+    });
     expect(
       await f.run(() =>
         f.repo.linkedRecordsCompanyWide({ typeId: f.id("task"), recordId: copyId }, f.id("task.services"), "outgoing"),
@@ -603,7 +806,14 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       f.member,
     );
     expect(blocked).toMatchObject({ ok: false });
-    expect(await f.run(() => f.repo.getRecordCompanyWide({ typeId: f.id("task"), recordId: blockedId }))).toBeNull();
+    expect(
+      await f.run(() =>
+        f.repo.getRecordCompanyWide({
+          typeId: f.id("task"),
+          recordId: blockedId,
+        }),
+      ),
+    ).toBeNull();
   });
 
   it("exports and restores embedded deal line items with live and saved pricing", async () => {
@@ -618,8 +828,16 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         "Line",
         [["lineItem.quantity", decimal(quantity, null)]],
         [
-          { relationId: f.id("lineItem.deal"), direction: "outgoing", record: deal },
-          { relationId: f.id("lineItem.service"), direction: "outgoing", record: service },
+          {
+            relationId: f.id("lineItem.deal"),
+            direction: "outgoing",
+            record: deal,
+          },
+          {
+            relationId: f.id("lineItem.service"),
+            direction: "outgoing",
+            record: service,
+          },
         ],
       );
     const saved = await line("2");
@@ -628,7 +846,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ok: true,
     });
     await f.update(service, [["service.amount", decimal("1200")]]);
-    expect(await f.value(deal, "deal.totalValue")).toEqual({ state: "value", value: decimal("3200") });
+    expect(await f.value(deal, "deal.totalValue")).toEqual({
+      state: "value",
+      value: decimal("3200"),
+    });
 
     const exporter = new ExportRecordsInteractor(f.repo, f.policy);
     const importer = new ImportRecordsInteractor(
@@ -638,7 +859,13 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       { getDetails: () => Promise.resolve({ currency: "EUR" }) },
     );
     const exported = await f.run(() =>
-      exporter.invoke({ typeId: f.id("deal"), search: "Transfer deal", filters: [], relationships: [], sort: [] }),
+      exporter.invoke({
+        typeId: f.id("deal"),
+        search: "Transfer deal",
+        filters: [],
+        relationships: [],
+        sort: [],
+      }),
     );
     if (!exported.ok) throw exported.error;
     expect(exported.data.records.map((row) => row.ref)).toEqual(expect.arrayContaining([deal, saved, live]));
@@ -655,17 +882,35 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
     const copy = {
       ...exported.data,
-      records: exported.data.records.map((row) => ({ ...row, ref: copyRef(row.ref) })),
+      records: exported.data.records.map((row) => ({
+        ...row,
+        ref: copyRef(row.ref),
+      })),
       links: exported.data.links.map((link) => ({
         ...link,
         source: copyRef(link.source),
         target: copyRef(link.target),
       })),
     };
-    const result = await f.run(() => importer.invoke({ document: copy, mode: "create", idempotencyKey: randomUUID() }));
-    expect(result, JSON.stringify(result)).toMatchObject({ ok: true, data: { created: 3, linked: 2 } });
-    expect(await f.value(copyRef(deal), "deal.totalValue")).toEqual({ state: "value", value: decimal("3200") });
-    expect(await f.value(copyRef(deal), "deal.weightedValue")).toEqual({ state: "value", value: decimal("1920") });
+    const result = await f.run(() =>
+      importer.invoke({
+        document: copy,
+        mode: "create",
+        idempotencyKey: randomUUID(),
+      }),
+    );
+    expect(result, JSON.stringify(result)).toMatchObject({
+      ok: true,
+      data: { created: 3, linked: 2 },
+    });
+    expect(await f.value(copyRef(deal), "deal.totalValue")).toEqual({
+      state: "value",
+      value: decimal("3200"),
+    });
+    expect(await f.value(copyRef(deal), "deal.weightedValue")).toEqual({
+      state: "value",
+      value: decimal("1920"),
+    });
     expect(await f.value(copyRef(saved), "lineItem.savedPrice")).toEqual({
       state: "value",
       value: decimal("1000"),
@@ -682,7 +927,11 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const ids = Array.from({ length: 2_600 }, () => randomUUID());
     await f.run(async () => {
       await prisma.crmRecord.createMany({
-        data: ids.map((id) => ({ companyId: f.company.id, typeId: f.id("lineItem"), id })),
+        data: ids.map((id) => ({
+          companyId: f.company.id,
+          typeId: f.id("lineItem"),
+          id,
+        })),
       });
       await prisma.recordLink.createMany({
         data: ids.map((id) => ({
@@ -723,8 +972,16 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         "Line",
         [["lineItem.quantity", decimal("2", null)]],
         [
-          { relationId: f.id("lineItem.deal"), direction: "outgoing", record: deal },
-          { relationId: f.id("lineItem.service"), direction: "outgoing", record: service },
+          {
+            relationId: f.id("lineItem.deal"),
+            direction: "outgoing",
+            record: deal,
+          },
+          {
+            relationId: f.id("lineItem.service"),
+            direction: "outgoing",
+            record: service,
+          },
         ],
       );
     const visibleLine = await addLine(visible);
@@ -749,7 +1006,13 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(exported.data.records.map((row) => row.ref)).toEqual(expect.arrayContaining([visible, visibleLine]));
     expect(exported.data.records.map((row) => row.ref)).not.toEqual(expect.arrayContaining([hidden, hiddenLine]));
     expect(exported.data.records).toHaveLength(2);
-    expect(exported.data.links).toEqual([{ relationId: f.id("lineItem.deal"), source: visibleLine, target: visible }]);
+    expect(exported.data.links).toEqual([
+      {
+        relationId: f.id("lineItem.deal"),
+        source: visibleLine,
+        target: visible,
+      },
+    ]);
     expect(
       exported.data.records
         .find((row) => row.ref.recordId === visibleLine.recordId)
@@ -1770,6 +2033,464 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
     expect((await f.run(() => f.repo.getModel())).revision).toBe(1);
   });
+
+  it("requires every populated record to have a parent before adopting inherited access", async () => {
+    const f = await fixture();
+    const services = [await f.create("service", "Parented A"), await f.create("service", "Parented B")];
+    const organization = await f.create("organization", "Parent organization");
+    const relationshipId = randomUUID();
+    expect(
+      await f.run(() =>
+        f.configure.invoke({
+          expectedRevision: 1,
+          idempotencyKey: randomUUID(),
+          operations: [
+            {
+              operation: "putRelationship",
+              relationship: {
+                id: relationshipId,
+                sourceTypeId: f.id("service"),
+                targetTypeId: organization.typeId,
+                sourceLabel: "Parent organization",
+                targetLabel: "Embedded services",
+                sourceCardinality: "one",
+                targetCardinality: "many",
+                onSourceDelete: "unlink",
+                onTargetDelete: "cascade",
+                archived: false,
+              },
+            },
+          ],
+        }),
+      ),
+    ).toMatchObject({ ok: true });
+    const model = await f.run(() => f.repo.getModel());
+    const adoption = (): ConfigurationChange => ({
+      expectedRevision: 2,
+      idempotencyKey: randomUUID(),
+      operations: [
+        {
+          operation: "putType",
+          type: {
+            ...recordInvariant(model.types.find((type) => type.id === f.id("service"))),
+            embedded: true,
+            parentRelationshipId: relationshipId,
+          },
+        },
+      ],
+    });
+    for (const ref of services) {
+      expect(await f.run(() => f.preview.invoke(adoption()))).toMatchObject({
+        ok: true,
+        data: { valid: false, issues: [{ code: "cardinality_conflict", relationId: relationshipId }] },
+      });
+      expect(await f.run(() => f.configure.invoke(adoption()))).toMatchObject({ ok: false });
+      expect((await f.run(() => f.repo.getModel())).revision).toBe(2);
+      expect(
+        await f.mutation(
+          { action: "link", relationId: relationshipId, source: ref, target: organization },
+          f.admin,
+          randomUUID(),
+          2,
+        ),
+      ).toMatchObject({ ok: true });
+    }
+    expect(await f.run(() => f.preview.invoke(adoption()))).toMatchObject({ ok: true, data: { valid: true } });
+    expect(await f.run(() => f.configure.invoke(adoption()))).toMatchObject({ ok: true });
+    await f.run(() =>
+      runInTransaction(async () => {
+        await f.repo.setGrants(organization.typeId, [{ roleId: f.memberRole.id, actions: ["readOwn"] }]);
+        await f.repo.setAssignments(organization, [f.member.id]);
+      }),
+    );
+    expect((await f.readRecord(services[0], f.member)).ref).toEqual(services[0]);
+    expect((await f.readRecord(services[1], f.member)).ref).toEqual(services[1]);
+  });
+
+  it("captures filtered bulk and cascading deletions before their relationships disappear with own-record access", async () => {
+    const f = await fixture();
+    const deal = await f.create("deal", "Deletion filter parent");
+    const services = await Promise.all(
+      ["10", "0", "20"].map((amount, index) =>
+        f.create("service", `Filter service ${index}`, [["service.amount", decimal(amount)]]),
+      ),
+    );
+    for (const service of services) {
+      await f.create(
+        "lineItem",
+        "Item",
+        [["lineItem.quantity", decimal("1", null)]],
+        [
+          { relationId: f.id("lineItem.service"), direction: "outgoing", record: service },
+          { relationId: f.id("lineItem.deal"), direction: "outgoing", record: deal },
+        ],
+      );
+    }
+    await f.run(() =>
+      runInTransaction(async () => {
+        await f.repo.setGrants(f.id("service"), [{ roleId: f.memberRole.id, actions: ["readOwn"] }]);
+        await f.repo.setGrants(f.id("deal"), [{ roleId: f.memberRole.id, actions: ["readAll"] }]);
+        for (const service of services.slice(0, 2)) await f.repo.setAssignments(service, [f.member.id]);
+      }),
+    );
+    const subscription = await subscribeRecordEvents(f, {
+      ownerUserId: f.member.id,
+      events: ["record.deleted"],
+      query: {
+        typeId: f.id("service"),
+        filters: [{ fieldId: f.id("service.amount"), operator: "gt", value: decimal("5") }],
+        relationships: [],
+        relatedFilters: [
+          {
+            path: [
+              { relationId: f.id("lineItem.service"), direction: "incoming" },
+              { relationId: f.id("lineItem.deal"), direction: "outgoing" },
+            ],
+            operator: "any",
+            filters: [{ fieldId: f.id("deal.name"), operator: "eq", value: textValue("Deletion filter parent") }],
+            relationships: [],
+          },
+        ],
+      },
+    });
+    const lineHook = await subscribeRecordEvents(f, {
+      kind: "webhook",
+      typeId: null,
+      events: ["record.deleted"],
+      sources: [
+        {
+          events: ["record.deleted"],
+          changedFieldIds: [],
+          query: {
+            typeId: f.id("lineItem"),
+            filters: [],
+            relationships: [],
+            relatedFilters: [
+              {
+                path: [{ relationId: f.id("lineItem.service"), direction: "outgoing" }],
+                operator: "any",
+                filters: [{ fieldId: f.id("service.amount"), operator: "gt", value: decimal("15") }],
+                relationships: [],
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const key = randomUUID();
+    const targets = await Promise.all(
+      services.map(async (ref) => ({ ref, expectedVersion: (await f.readRecord(ref)).version })),
+    );
+    expect(await f.mutation({ action: "deleteMany", targets }, f.admin, key)).toMatchObject({ ok: true });
+    const matches = await f.run(() =>
+      prisma.recordEventMatch.findMany({
+        where: { companyId: f.company.id },
+        include: { event: true },
+      }),
+    );
+    expect(matches.filter((row) => row.subscriptionId === subscription.id).map((row) => row.event.recordId)).toEqual([
+      services[0].recordId,
+    ]);
+    expect(matches.filter((row) => row.subscriptionId === lineHook.id)).toHaveLength(1);
+    const events = await f.run(() => prisma.recordEvent.findMany({ where: { companyId: f.company.id, causeId: key } }));
+    expect(events.filter((row) => row.kind === "record.deleted")).toHaveLength(6);
+    expect(new Set(events.map((row) => `${row.typeId}:${row.recordId}:${row.kind}`)).size).toBe(events.length);
+    const matched = recordInvariant(matches.find((row) => row.subscriptionId === subscription.id));
+    const request = {
+      companyId: f.company.id,
+      userId: f.member.id,
+      eventId: matched.eventId,
+      subscriptionId: subscription.id,
+      recheckSubscriptionSources: true,
+    };
+    const reader = createTestRecordRecipientReader();
+    expect(await reader.readEvent(request)).toMatchObject({ event: "record.deleted", record: { ref: services[0] } });
+    await f.run(() => runInTransaction(() => f.repo.setGrants(f.id("service"), [])));
+    expect(await reader.readEvent(request)).toBeNull();
+  });
+
+  it(
+    "matches filtered staged deletions at atomic publication and retries without duplicate events",
+    { timeout: 180000 },
+    async () => {
+      const f = await fixture();
+      const service = await f.create("service", "Staged removal catalog", [["service.amount", decimal("10")]]);
+      const deal = await f.create("deal", "Staged removal deal");
+      const lineIds = Array.from({ length: 501 }, () => randomUUID());
+      await f.run(() =>
+        runInTransaction(async () => {
+          await prisma.crmRecord.createMany({
+            data: lineIds.map((id) => ({ companyId: f.company.id, typeId: f.id("lineItem"), id })),
+          });
+          await prisma.recordValue.createMany({
+            data: lineIds.map((recordId, index) => ({
+              companyId: f.company.id,
+              typeId: f.id("lineItem"),
+              recordId,
+              fieldId: f.id("lineItem.quantity"),
+              state: "value",
+              decimalValue: index % 2 === 0 ? "2" : "1",
+              schemaRevision: 1,
+            })),
+          });
+          await prisma.recordLink.createMany({
+            data: lineIds.flatMap((sourceId) =>
+              [service, deal].map((target) => ({
+                companyId: f.company.id,
+                relationId: f.id(target.typeId === service.typeId ? "lineItem.service" : "lineItem.deal"),
+                sourceTypeId: f.id("lineItem"),
+                sourceId,
+                targetTypeId: target.typeId,
+                targetId: target.recordId,
+              })),
+            ),
+          });
+        }),
+      );
+      const subscription = await subscribeRecordEvents(f, {
+        kind: "webhook",
+        typeId: null,
+        events: ["record.deleted"],
+        sources: [
+          {
+            events: ["record.deleted"],
+            changedFieldIds: [],
+            query: {
+              typeId: f.id("lineItem"),
+              filters: [{ fieldId: f.id("lineItem.quantity"), operator: "gt", value: decimal("1", null) }],
+              relationships: [],
+              relatedFilters: [
+                {
+                  path: [{ relationId: f.id("lineItem.service"), direction: "outgoing" }],
+                  operator: "any",
+                  filters: [
+                    { fieldId: f.id("service.name"), operator: "eq", value: textValue("Staged removal catalog") },
+                  ],
+                  relationships: [],
+                },
+              ],
+            },
+          },
+        ],
+      });
+      const key = randomUUID();
+      const result = await f.mutation(
+        { action: "delete", ref: service, expectedVersion: (await f.readRecord(service)).version },
+        f.admin,
+        key,
+      );
+      expect(result).toMatchObject({ ok: true, data: { status: "pending" } });
+      if (!result.ok || result.data.status !== "pending") throw new Error("Deletion was not staged");
+      const operationId = result.data.operationId;
+      let done = false;
+      const phases = new Set<string>();
+      for (let step = 0; step < 400 && !done; step++) {
+        const operation = await f.run(() => f.repo.getOperation(operationId));
+        phases.add((operation?.cursor as { phase?: string })?.phase ?? "source");
+        expect(
+          await f.run(() =>
+            prisma.recordEventMatch.count({ where: { companyId: f.company.id, subscriptionId: subscription.id } }),
+          ),
+        ).toBe(0);
+        expect(
+          await f.run(() => prisma.crmRecord.count({ where: { companyId: f.company.id, typeId: f.id("lineItem") } })),
+        ).toBe(501);
+        done = (await f.run(() => f.worker().advance(operationId))).done;
+      }
+      expect(done).toBe(true);
+      expect(phases).toEqual(
+        new Set([
+          "source",
+          "deletePlan",
+          "deleteLinks",
+          "deleteRecords",
+          "deleteTouches",
+          "calculations",
+          "events",
+          "publish",
+        ]),
+      );
+      const matches = () =>
+        f.run(() =>
+          prisma.recordEventMatch.findMany({
+            where: { companyId: f.company.id, subscriptionId: subscription.id },
+            include: { event: true },
+          }),
+        );
+      const accepted = await matches();
+      expect(accepted).toHaveLength(251);
+      expect(new Set(accepted.map((row) => row.event.recordId))).toEqual(
+        new Set(lineIds.filter((_, index) => index % 2 === 0)),
+      );
+      expect(
+        await f.run(() => prisma.crmRecord.count({ where: { companyId: f.company.id, typeId: f.id("lineItem") } })),
+      ).toBe(0);
+      expect(await f.run(() => f.worker().advance(operationId))).toEqual({ done: true });
+      expect(await matches()).toEqual(accepted);
+      const first = recordInvariant(accepted[0]);
+      expect(
+        await createTestRecordRecipientReader().readEvent({
+          companyId: f.company.id,
+          userId: f.admin.id,
+          eventId: first.eventId,
+          subscriptionId: subscription.id,
+        }),
+      ).toMatchObject({ event: "record.deleted" });
+    },
+  );
+
+  it.each(["resume", "stale-impact", "revoked", "changed-plan", "cancel"] as const)(
+    "preserves the complete live graph during a staged overlapping deletion: %s",
+    async (scenario) => {
+      const f = await fixture();
+      const service = await f.create("service", "Shared deletion catalog", [["service.amount", decimal("10")]]);
+      const deal = await f.create("deal", "Shared deletion deal");
+      const lines = [];
+      for (let index = 0; index < 2; index++) {
+        lines.push(
+          await f.create(
+            "lineItem",
+            `Line ${index}`,
+            [["lineItem.quantity", decimal("2", null)]],
+            [
+              { relationId: f.id("lineItem.service"), direction: "outgoing", record: service },
+              { relationId: f.id("lineItem.deal"), direction: "outgoing", record: deal },
+            ],
+          ),
+        );
+      }
+      const actor = scenario === "revoked" ? f.member : f.admin;
+      if (scenario === "revoked") {
+        await f.run(() =>
+          runInTransaction(async () => {
+            for (const typeId of [service.typeId, deal.typeId])
+              await f.repo.setGrants(typeId, [{ roleId: f.memberRole.id, actions: ["readAll", "update", "delete"] }]);
+          }),
+        );
+      }
+      const targets = await Promise.all(
+        [service, deal].map(async (ref) => ({
+          ref,
+          expectedVersion: (await f.readRecord(ref)).version,
+        })),
+      );
+      const preview = await f.run(() => f.previewDeletion.invoke({ targets, expectedRevision: 1 }), actor);
+      if (!preview.ok) throw new Error("Deletion preview was rejected");
+      const operationId = randomUUID();
+      const idempotencyKey = randomUUID();
+      await f.run(
+        () =>
+          runInTransaction(() =>
+            f.repo.createOperation({
+              id: operationId,
+              userId: actor.id,
+              kind: "mutation",
+              expectedRevision: 1,
+              request: {
+                expectedRevision: 1,
+                idempotencyKey,
+                mutation: {
+                  action: "deleteMany",
+                  targets,
+                  expectedImpactHash: scenario === "stale-impact" ? "0".repeat(64) : preview.data.impactHash,
+                },
+              },
+            }),
+          ),
+        actor,
+      );
+      const advance = () => f.run(() => f.worker().advance(operationId), actor);
+      const state = () => f.run(() => f.repo.getOperation(operationId), actor);
+      const liveGraph = () =>
+        f.run(() =>
+          Promise.all([
+            prisma.crmRecord.count({ where: { companyId: f.company.id } }),
+            prisma.recordLink.count({ where: { companyId: f.company.id } }),
+            prisma.recordEvent.count({ where: { companyId: f.company.id, causeId: idempotencyKey } }),
+          ]),
+        );
+      const before = await liveGraph();
+      if (scenario === "stale-impact") {
+        for (let step = 0; step < 10 && (await state())?.state !== "failed"; step++) await advance();
+        expect(await state()).toMatchObject({ state: "failed", errorCode: CustomErrorCode.recordVersionChanged });
+      } else {
+        for (
+          let step = 0;
+          step < 20 && ((await state())?.cursor as { phase?: string })?.phase !== "deleteLinks";
+          step++
+        ) {
+          await advance();
+          expect(await liveGraph()).toEqual(before);
+        }
+        if (scenario === "changed-plan") {
+          const line = recordInvariant(lines[0]);
+          await f.run(() =>
+            runInTransaction(() =>
+              prisma.crmRecord.update({
+                where: {
+                  companyId: f.company.id,
+                  companyId_typeId_id: { companyId: f.company.id, typeId: line.typeId, id: line.recordId },
+                },
+                data: { version: { increment: 1 } },
+              }),
+            ),
+          );
+        }
+        if (scenario === "resume") {
+          const cursor = (await state())?.cursor;
+          const original = f.repo.stageRow.bind(f.repo);
+          let interrupted = false;
+          const injection = vi.spyOn(f.repo, "stageRow").mockImplementation(async (...args) => {
+            await original(...args);
+            if (args[1] === "journal" && !interrupted) {
+              interrupted = true;
+              throw new Error("Interrupted after a staged journal write");
+            }
+          });
+          try {
+            await expect(advance()).rejects.toThrow("Interrupted after a staged journal write");
+          } finally {
+            injection.mockRestore();
+          }
+          expect((await state())?.cursor).toEqual(cursor);
+          expect(await f.run(() => f.repo.getStageRows(operationId, "journal"))).toEqual([]);
+        }
+        for (let step = 0; step < 40 && ((await state())?.cursor as { phase?: string })?.phase !== "publish"; step++) {
+          await advance();
+          expect(await liveGraph()).toEqual(before);
+          if (scenario === "cancel" && (await f.run(() => f.repo.getStageRows(operationId, "record"))).length) break;
+        }
+        if (scenario === "cancel") {
+          expect(await f.run(() => f.cancel.invoke({ operationId }), actor)).toMatchObject({ ok: true });
+          expect(await state()).toMatchObject({ state: "cancelled" });
+        } else {
+          expect((await state())?.cursor).toMatchObject({ phase: "publish" });
+          if (scenario === "revoked") await f.run(() => runInTransaction(() => f.repo.setGrants(deal.typeId, [])));
+          expect(await advance()).toEqual({ done: true });
+          expect(await state()).toMatchObject({
+            state: ["revoked", "changed-plan"].includes(scenario) ? "failed" : "completed",
+          });
+        }
+      }
+      if (scenario === "resume") {
+        const events = await f.run(() =>
+          prisma.recordEvent.findMany({ where: { companyId: f.company.id, causeId: idempotencyKey } }),
+        );
+        expect(events.filter((event) => event.kind === "record.deleted")).toHaveLength(4);
+        expect(new Set(events.map((event) => event.recordId))).toEqual(
+          new Set([service, deal, ...lines].map((ref) => ref.recordId)),
+        );
+        expect(await liveGraph()).toEqual([before[0] - 4, before[1] - 4, 4]);
+        expect(await advance()).toEqual({ done: true });
+        expect(
+          await f.run(() =>
+            prisma.recordEvent.findMany({ where: { companyId: f.company.id, causeId: idempotencyKey } }),
+          ),
+        ).toEqual(events);
+      } else expect(await liveGraph()).toEqual(before);
+      expect((await f.run(() => f.repo.getState()))?.activeOperationId).toBeNull();
+    },
+  );
 
   it("delivers removal events to the assigned owner without making deleted history public", async () => {
     const f = await fixture();
@@ -3126,7 +3847,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       },
     });
     expect(await f.run(() => service.getSystemTasksCount())).toBe(1);
-    expect(await f.run(() => prisma.task.count({ where: { companyId: f.company.id } }))).toBe(0);
     const events = await f.run(() => prisma.recordEvent.findMany({ where: { companyId: f.company.id } }));
     expect(events).toHaveLength(1);
     expect(RecordEventPayloadSchema.parse(recordInvariant(events[0]).payload).cause.kind).toBe("system");
@@ -3281,7 +4001,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           systemData: { relatedUserId: member.id },
         }),
       ]);
-      expect(await f.run(() => prisma.task.count({ where: { companyId: f.company.id } }))).toBe(0);
     } finally {
       await runWithoutTenant(() => prisma.authUser.delete({ where: { id: authUser.id } }));
     }
@@ -5028,6 +5747,42 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(
       await f.run(() => f.repo.getIdentityOwnersCompanyWide([{ channelClass: "email", value: "after@example.test" }])),
     ).toEqual([{ channelClass: "email", value: "after@example.test", ref }]);
+  });
+
+  it("checks channel availability without exposing a restricted owner or allowing stale record access", async () => {
+    const { CheckRecordIdentityInteractor } = await import("../check-record-identity.interactor");
+    const f = await fixture();
+    const foreign = await fixture();
+    const result = await f.mutation({
+      action: "create",
+      typeId: f.id("contact"),
+      fields: [],
+      identities: [{ provider: "mail", value: "claimed@example.test" }],
+    });
+    if (!result.ok || result.data.status !== "completed") throw new Error("Identity fixture failed");
+    const ref = recordInvariant(result.data.refs[0]);
+    const checker = new CheckRecordIdentityInteractor(f.repo, new RecordAccessPolicy(new PrismaUserRepo(), f.repo));
+    const input = {
+      typeId: f.id("contact"),
+      identity: { provider: "outlook" as const, value: "CLAIMED@example.test" },
+    };
+    expect(await f.run(() => checker.invoke({ ...input, recordId: ref.recordId }))).toMatchObject({ ok: true });
+    const conflict = await f.run(() => checker.invoke(input));
+    expect(conflict.ok).toBe(false);
+    expect(JSON.stringify(conflict)).not.toContain(ref.recordId);
+    expect(await f.run(() => checker.invoke({ ...input, typeId: foreign.id("contact") }))).toMatchObject({ ok: false });
+    expect(await f.run(() => checker.invoke({ ...input, typeId: f.id("service") }))).toMatchObject({ ok: false });
+    await f.run(() =>
+      runInTransaction(() =>
+        f.repo.setGrants(ref.typeId, [{ roleId: f.memberRole.id, actions: ["readOwn", "create", "update"] }]),
+      ),
+    );
+    expect(await f.run(() => checker.invoke({ ...input, recordId: ref.recordId }), f.member)).toMatchObject({
+      ok: false,
+    });
+    expect(await f.run(() => checker.invoke(input), f.member)).toMatchObject({
+      ok: false,
+    });
   });
 
   it("matches messaging identities through the capability and current record permissions after renaming", async () => {
@@ -7582,6 +8337,77 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
   });
 
+  it("bounds a paginated relationship path with hundreds of linked records even before tenant statistics catch up", async () => {
+    const f = await fixture();
+    const service = await f.create("service", "Shared catalogue service", [["service.amount", decimal("10")]]);
+    const deals = Array.from({ length: 600 }, () => randomUUID());
+    const lines = deals.map(() => randomUUID());
+    await f.run(() =>
+      runInTransaction(async () => {
+        await prisma.crmRecord.createMany({
+          data: [
+            ...deals.map((id) => ({ companyId: f.company.id, typeId: f.id("deal"), id })),
+            ...lines.map((id) => ({ companyId: f.company.id, typeId: f.id("lineItem"), id })),
+          ],
+        });
+        await prisma.recordValue.createMany({
+          data: deals.map((recordId, index) => ({
+            companyId: f.company.id,
+            typeId: f.id("deal"),
+            recordId,
+            fieldId: f.id("deal.name"),
+            state: "value",
+            textValue: `Linked deal ${index + 1}`,
+            schemaRevision: 1,
+          })),
+        });
+        await prisma.recordLink.createMany({
+          data: lines.flatMap((sourceId, index) => [
+            {
+              companyId: f.company.id,
+              relationId: f.id("lineItem.deal"),
+              sourceTypeId: f.id("lineItem"),
+              sourceId,
+              targetTypeId: f.id("deal"),
+              targetId: deals[index],
+            },
+            {
+              companyId: f.company.id,
+              relationId: f.id("lineItem.service"),
+              sourceTypeId: f.id("lineItem"),
+              sourceId,
+              targetTypeId: service.typeId,
+              targetId: service.recordId,
+            },
+          ]),
+        });
+      }),
+    );
+    for (const page of [1, 24]) {
+      const result = await f.run(() =>
+        runInTransaction(
+          async () => {
+            await prisma.$executeRaw`SET LOCAL statement_timeout = '2000ms'`;
+            return f.choices.invoke(
+              RecordChoicesSchema.parse({
+                typeId: f.id("deal"),
+                throughPath: { ref: service, pathId: f.id("service.deals.path") },
+                page,
+                pageSize: 25,
+              }),
+            );
+          },
+          { readOnly: true },
+        ),
+      );
+      expect(result).toMatchObject({ ok: true, data: { total: 600, page, pageSize: 25 } });
+      if (!result.ok) throw result.error;
+      expect(result.data.records).toHaveLength(25);
+      expect(new Set(result.data.records.map((record) => record.ref.recordId)).size).toBe(25);
+      expect(result.data.records.every((record) => record.title.state === "value")).toBe(true);
+    }
+  });
+
   it("enforces path permissions at intermediate and terminal records and rejects foreign or invalid path references", async () => {
     const f = await fixture();
     const foreign = await fixture();
@@ -8096,6 +8922,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
               materialised: true,
               isNoValue: false,
               label: "New",
+              weight: 10,
               labelKind: "value",
             },
           ]),
@@ -11223,4 +12050,258 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
     expect(match.ok && match.data.results).toHaveLength(1);
   });
+});
+
+describeDatabase("provider avatar updates through the generic engine", { timeout: 30000 }, () => {
+  it("uses renamed identity bindings, recalculates dependents and leaves unchanged inputs alone", async () => {
+    const f = await fixture();
+    const { ProviderAvatarService } = await import("../provider-avatar.service");
+    const type = recordInvariant(f.model.types.find((type) => type.id === f.id("contact")));
+    expect(
+      await f.run(() =>
+        f.configure.invoke({
+          expectedRevision: 1,
+          idempotencyKey: randomUUID(),
+          operations: [
+            {
+              operation: "putType",
+              type: { ...type, label: "Person", pluralLabel: "People" },
+            },
+          ],
+        }),
+      ),
+    ).toMatchObject({ ok: true });
+    const result = await f.mutation(
+      {
+        action: "create",
+        typeId: type.id,
+        fields: [{ fieldId: f.id("contact.firstName"), value: textValue("Picture") }],
+        identities: [{ provider: "google", value: "avatar@example.test" }],
+      },
+      f.admin,
+      randomUUID(),
+      2,
+    );
+    if (!result.ok || result.data.status !== "completed") throw new Error("Avatar fixture failed");
+    const ref = recordInvariant(result.data.refs.find((ref) => ref.typeId === type.id));
+    const background = { dispatch: vi.fn().mockResolvedValue(undefined) };
+    const service = new ProviderAvatarService(new PrismaRecordRepo(f.company.id), f.company.id, background);
+    await service.synchronize("outlook", " AVATAR@example.test ", "https://example.test/avatar.png");
+    expect(await f.value(ref, "contact.avatarUrl")).toEqual({
+      state: "value",
+      value: textValue("https://example.test/avatar.png"),
+    });
+    const version = (await f.readRecord(ref)).version;
+    await service.synchronize("google", "avatar@example.test", "https://example.test/avatar.png");
+    await service.synchronize("google", "unknown@example.test", "https://example.test/new.png");
+    expect((await f.readRecord(ref)).version).toBe(version);
+    expect(background.dispatch).not.toHaveBeenCalled();
+    const operations = await f.run(() =>
+      prisma.recordOperation.findMany({
+        where: { companyId: f.company.id, kind: "provider-avatar" },
+      }),
+    );
+    expect(operations).toHaveLength(1);
+    expect(operations[0]).toMatchObject({
+      state: "completed",
+      userId: "system:messaging",
+    });
+  });
+
+  it(
+    "keeps live values during high fan-out staging, resumes interruption and cancels before publication",
+    { timeout: 120000 },
+    async () => {
+      const f = await fixture();
+      const foreign = await fixture();
+      const { ProviderAvatarService } = await import("../provider-avatar.service");
+      const { ResumeRecordOperationInteractor } = await import("../record-operation.interactor");
+      const relationId = randomUUID();
+      const fieldId = randomUUID();
+      const sourceField = recordInvariant(f.model.fields.find((field) => field.id === f.id("contact.avatarUrl")));
+      const configField = { ...sourceField };
+      Reflect.deleteProperty(configField, "publishedSummary");
+      const change: ConfigurationChange = {
+        expectedRevision: 1,
+        idempotencyKey: randomUUID(),
+        operations: [
+          {
+            operation: "putRelationship",
+            relationship: {
+              id: relationId,
+              sourceTypeId: f.id("organization"),
+              targetTypeId: f.id("contact"),
+              sourceLabel: "Person",
+              targetLabel: "Organizations",
+              sourceCardinality: "one",
+              targetCardinality: "many",
+              onSourceDelete: "unlink",
+              onTargetDelete: "unlink",
+              archived: false,
+            },
+          },
+          {
+            operation: "putField",
+            field: {
+              ...configField,
+              id: fieldId,
+              typeId: f.id("organization"),
+              label: "Person picture",
+              behavior: {
+                kind: "lookup",
+                expression: {
+                  kind: "related",
+                  relationId,
+                  direction: "outgoing",
+                  reducer: "one",
+                  expression: { kind: "field", fieldId: sourceField.id },
+                },
+              },
+              position: 99,
+            },
+          },
+        ],
+      };
+      const preview = await f.run(() => f.preview.invoke(change));
+      expect(preview, JSON.stringify(preview)).toMatchObject({
+        ok: true,
+        data: { valid: true },
+      });
+      expect(await f.run(() => f.configure.invoke(change))).toMatchObject({
+        ok: true,
+      });
+      const personId = randomUUID();
+      const ref = { typeId: f.id("contact"), recordId: personId };
+      const recordIds = Array.from({ length: 501 }, () => randomUUID());
+      await f.run(() =>
+        runInTransaction(async () => {
+          const tx = transactionStorage.getStore()?.client as typeof prisma;
+          await f.repo.create(ref, []);
+          await f.repo.setValue(
+            ref,
+            sourceField.id,
+            {
+              state: "value",
+              value: textValue("https://example.test/old.png"),
+            },
+            2,
+          );
+          await f.repo.setIdentities(ref, [{ provider: "google", value: "many@example.test" }]);
+          await tx.crmRecord.createMany({
+            data: recordIds.map((id) => ({
+              id,
+              companyId: f.company.id,
+              typeId: f.id("organization"),
+            })),
+          });
+          await tx.recordValue.createMany({
+            data: recordIds.map((recordId) => ({
+              companyId: f.company.id,
+              typeId: f.id("organization"),
+              recordId,
+              fieldId,
+              state: "value",
+              textValue: "https://example.test/old.png",
+              schemaRevision: 2,
+            })),
+          });
+          await tx.recordLink.createMany({
+            data: recordIds.map((sourceId) => ({
+              companyId: f.company.id,
+              id: randomUUID(),
+              relationId,
+              sourceTypeId: f.id("organization"),
+              sourceId,
+              targetTypeId: ref.typeId,
+              targetId: personId,
+            })),
+          });
+        }),
+      );
+      const background = { dispatch: vi.fn().mockResolvedValue(undefined) };
+      const service = () => new ProviderAvatarService(new PrismaRecordRepo(f.company.id), f.company.id, background);
+      const activeId = async () => recordInvariant((await f.run(() => f.repo.getState()))?.activeOperationId);
+      const old = async () => {
+        expect(await f.value(ref, "contact.avatarUrl")).toEqual({
+          state: "value",
+          value: textValue("https://example.test/old.png"),
+        });
+        expect(
+          await f.run(() =>
+            prisma.recordValue.count({
+              where: {
+                companyId: f.company.id,
+                fieldId,
+                textValue: "https://example.test/old.png",
+              },
+            }),
+          ),
+        ).toBe(501);
+      };
+      await service().synchronize("outlook", "many@example.test", "https://example.test/new.png");
+      const cancelledId = await activeId();
+      expect(background.dispatch).toHaveBeenCalledWith("provider-avatar-operation", {
+        companyId: f.company.id,
+        operationId: cancelledId,
+      });
+      await old();
+      await service().advance(cancelledId);
+      await old();
+      expect(await f.run(() => f.cancel.invoke({ operationId: cancelledId }))).toMatchObject({
+        ok: true,
+        data: { cancelled: true },
+      });
+      expect(await service().advance(cancelledId)).toEqual({ done: true });
+      await old();
+      await service().synchronize("google", "many@example.test", "https://example.test/new.png");
+      const operationId = await activeId();
+      await expect(
+        new ProviderAvatarService(new PrismaRecordRepo(foreign.company.id), foreign.company.id, background).advance(
+          operationId,
+        ),
+      ).rejects.toThrow("Invalid avatar operation");
+      await expect(
+        service().synchronize("google", "many@example.test", "https://example.test/later.png"),
+      ).rejects.toThrow("waits for the workspace change");
+      await service().advance(operationId);
+      await f.run(() =>
+        prisma.recordOperation.updateMany({
+          where: { companyId: f.company.id, id: operationId },
+          data: { leaseUntil: new Date(0) },
+        }),
+      );
+      expect(
+        await f.run(() => new ResumeRecordOperationInteractor(f.repo, f.policy, background).invoke({ operationId })),
+      ).toMatchObject({ ok: true, data: { resumed: true } });
+      let done = false;
+      for (let i = 0; i < 100 && !done; i++) {
+        await old();
+        done = (await service().advance(operationId)).done;
+      }
+      expect(done).toBe(true);
+      expect(await f.value(ref, "contact.avatarUrl")).toEqual({
+        state: "value",
+        value: textValue("https://example.test/new.png"),
+      });
+      expect(
+        await f.run(() =>
+          prisma.recordValue.count({
+            where: {
+              companyId: f.company.id,
+              fieldId,
+              textValue: "https://example.test/new.png",
+            },
+          }),
+        ),
+      ).toBe(501);
+      expect((await f.run(() => f.repo.getState()))?.activeOperationId).toBeNull();
+      const events = await f.run(() =>
+        prisma.recordEvent.findMany({
+          where: { companyId: f.company.id, causeId: operationId },
+        }),
+      );
+      expect(events).toHaveLength(502);
+      expect(events.every((event) => RecordEventPayloadSchema.parse(event.payload).afterVersion === 2)).toBe(true);
+    },
+  );
 });

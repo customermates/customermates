@@ -1,5 +1,6 @@
 import type { Filter } from "@/core/base/base-get.schema";
-import { EntityType, type MessagingProvider } from "@/generated/prisma";
+import { type MessagingProvider } from "@/generated/prisma";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { FilterFieldKey } from "@/core/types/filter-field-key";

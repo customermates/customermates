@@ -1,12 +1,12 @@
 import type { ZodObject } from "zod";
 
-import { EntityType } from "@/generated/prisma";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
-import { ContactDtoSchema } from "@/features/contacts/contact.schema";
-import { DealDtoSchema } from "@/features/deals/deal.schema";
-import { OrganizationDtoSchema } from "@/features/organizations/organization.schema";
-import { ServiceDtoSchema } from "@/features/services/service.schema";
-import { TaskDtoSchema } from "@/features/tasks/task.schema";
+import { ContactDtoSchema } from "@/features/records/history/v1/contact.schema";
+import { DealDtoSchema } from "@/features/records/history/v1/deal.schema";
+import { OrganizationDtoSchema } from "@/features/records/history/v1/organization.schema";
+import { ServiceDtoSchema } from "@/features/records/history/v1/service.schema";
+import { TaskDtoSchema } from "@/features/records/history/v1/task.schema";
 
 const UNWATCHABLE_FIELDS = new Set(["id", "createdAt", "updatedAt", "avatarUrl", "customFieldValues"]);
 

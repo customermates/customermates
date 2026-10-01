@@ -1,8 +1,8 @@
 import { recordInvariant } from "./record-invariant";
 
-import type { CalculationExpression, CalculatedValue, RecordModel, RecordRef } from "./record-model.schema";
-import type { RecordRepo } from "./record.repo";
 import type { CalculationContext } from "./calculation";
+import type { CalculatedValue, CalculationExpression, RecordModel, RecordRef } from "./record-model.schema";
+import type { RecordRepo } from "./record.repo";
 
 import { evaluateCalculation, MISSING_VALUE, valueResult } from "./calculation";
 import { scalarMatchesType, validateRecordModel } from "./record-model-validation";
@@ -13,6 +13,10 @@ export const recordKey = (ref: RecordRef) => `${ref.typeId}:${ref.recordId}`;
 
 type PathStep = { relationId: string; direction: "outgoing" | "incoming" };
 type Source = { typeId: string; fieldId: string; path: PathStep[] };
+export type CalculationRecordRepo = Pick<
+  RecordRepo,
+  "getRecordCompanyWide" | "getValueDependencies" | "linkedRecordsCompanyWide" | "setValue" | "setValueDependencies"
+>;
 export class CalculationBudgetExceeded extends Error {}
 
 export function calculationSources(
@@ -37,7 +41,7 @@ export function calculationSources(
 }
 
 export class RecordCalculationService {
-  constructor(private records: RecordRepo) {}
+  constructor(private records: CalculationRecordRepo) {}
 
   async recalculate(
     model: RecordModel,

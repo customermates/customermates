@@ -1,7 +1,7 @@
-import { compileMessagingRecordQuery } from "./messaging-record-query";
-import { RecordWriteError } from "@/features/records/record-write.service";
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import { RecordWriteError } from "@/features/records/record-write.service";
 import { Prisma, type MessagingProvider } from "@/generated/prisma";
+import { compileMessagingRecordQuery } from "./messaging-record-query";
 
 import {
   MessagingMessageDirection,
@@ -12,52 +12,51 @@ import {
 
 import type {
   AttachmentMeta,
+  IngestMessage,
   MessagingAttendee,
   MessagingMessage,
   MessagingThread,
-  IngestMessage,
 } from "../messaging.schema";
 
-import type { GetMessagingThreadRepo } from "../inbox/get-messaging-thread.interactor";
-import type { ResyncThreadRepo } from "../inbox/resync-thread.interactor";
-import type { MoveEmailThreadRepo } from "../inbox/move-email-thread.interactor";
-import type { GetUnreadThreadCountRepo } from "../inbox/get-unread-thread-count.interactor";
-import type { UpdateThreadRepo } from "../thread-state/update-thread.interactor";
-import type { MessagingIngestRepo } from "../ingest/messaging-ingest.repo";
+import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type { RepoArgs } from "@/core/utils/types";
+import type { RecordIdentityReference } from "@/features/records/record-identity-reference.schema";
+import type { FindThreadsByIdsRepo } from "../find-threads-by-ids.repo";
+import type { GetMessageAttachmentMetaRepo } from "../inbox/get-message-attachment.interactor";
+import type { GetMessagingThreadRepo } from "../inbox/get-messaging-thread.interactor";
+import type { GetMessagingThreadsRepo } from "../inbox/get-messaging-threads.interactor";
+import type { GetUnreadThreadCountRepo } from "../inbox/get-unread-thread-count.interactor";
+import type { MoveEmailThreadRepo } from "../inbox/move-email-thread.interactor";
+import type { ResyncThreadRepo } from "../inbox/resync-thread.interactor";
+import type { ChannelCandidateDto, SearchChannelCandidatesRepo } from "../inbox/search-channel-candidates.interactor";
+import type { MessagingIngestRepo } from "../ingest/messaging-ingest.repo";
+import type { DiscardDraftRepo } from "../outbound/discard-draft.interactor";
+import type { SaveDraftRepo } from "../outbound/save-draft.interactor";
 import type { SendChatMessageRepo } from "../outbound/send-chat-message.interactor";
 import type { SendEmailRepo } from "../outbound/send-email.interactor";
 import type { StartChatThreadRepo } from "../outbound/start-chat.interactor";
-import type { SaveDraftRepo } from "../outbound/save-draft.interactor";
-import type { DiscardDraftRepo } from "../outbound/discard-draft.interactor";
-import type { GetMessageAttachmentMetaRepo } from "../inbox/get-message-attachment.interactor";
-import type { GetMessagingThreadsRepo } from "../inbox/get-messaging-threads.interactor";
-import type { FindThreadsByIdsRepo } from "../find-threads-by-ids.repo";
-import type { ChannelCandidateDto } from "../inbox/search-channel-candidates.interactor";
-import type { SearchChannelCandidatesRepo } from "../inbox/search-channel-candidates.interactor";
-import type { GetQueryParams } from "@/core/base/base-get.schema";
-import type { RecordIdentityReference } from "@/features/records/record-identity-reference.schema";
+import type { UpdateThreadRepo } from "../thread-state/update-thread.interactor";
 
 import { BaseRepository } from "@/core/base/base-repository";
-import { getContactRepo, getRecordIdentityReader, getRecordRepo, getRecordAccessPolicy } from "@/core/di";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
+import { getProviderAvatarService, getRecordAccessPolicy, getRecordIdentityReader, getRecordRepo } from "@/core/di";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 import type { PreviewKind } from "../attachment-kind";
 
+import { identifierKey } from "@/features/records/record-identity";
 import { classifyAttachment } from "../attachment-kind";
+import { draftRevisionMatches, normalizeDraftThreadRecipients, type DraftDeleteResult } from "../draft-thread";
+import { draftThreadProviderId } from "../draft-thread-id";
 import { htmlToPlainText } from "../email-body-text";
+import { identityLookupValue } from "../identity-lookup";
 import {
   accessibleFolderStatesWhere,
   inboxThreadVisibilityWhere,
   messageVisibilityWhere,
   threadAccessWhere,
 } from "../messaging-access";
-import { channelClass, classWhere, isDraftThreadId, isEmailProvider, isHandleProvider } from "../provider";
-import { identityLookupValue } from "../identity-lookup";
-import { draftRevisionMatches, normalizeDraftThreadRecipients, type DraftDeleteResult } from "../draft-thread";
-import { draftThreadProviderId } from "../draft-thread-id";
-import { identifierKey } from "@/features/contacts/upsert/validate-identifiers";
+import { channelClass, isDraftThreadId, isEmailProvider, isHandleProvider } from "../provider";
 
 type MappedThreadRow = ReturnType<PrismaMessagingRepo["mapThreadRow"]>;
 type ConvertDraftToSentArgs = {
@@ -1549,42 +1548,6 @@ export class PrismaMessagingRepo
     });
   }
 
-  @BypassTenantGuard
-  async findParticipantPictureUrlUnscoped(args: { companyId: string; contactId: string }) {
-    const identifiers = await this.prisma.contactIdentifier.findMany({
-      where: { companyId: args.companyId, contactId: args.contactId },
-      select: { provider: true, value: true, messagingId: true },
-    });
-    if (identifiers.length === 0) return null;
-
-    const byClass = new Map<string, { provider: MessagingProvider; values: Set<string> }>();
-    for (const row of identifiers) {
-      const entry = byClass.get(channelClass(row.provider)) ?? {
-        provider: row.provider,
-        values: new Set<string>(),
-      };
-      entry.values.add(row.value);
-      if (row.messagingId) entry.values.add(row.messagingId);
-      byClass.set(channelClass(row.provider), entry);
-    }
-    const orGroups = [...byClass.values()].map(({ provider, values }) => ({
-      ...classWhere(provider),
-      identifier: { in: [...values] },
-    }));
-
-    const participant = await this.prisma.messagingThreadParticipant.findFirst({
-      where: {
-        companyId: args.companyId,
-        OR: orGroups,
-        pictureUrl: { not: null },
-      },
-      orderBy: { createdAt: "asc" },
-      select: { pictureUrl: true },
-    });
-
-    return participant?.pictureUrl ?? null;
-  }
-
   private async resolveContactsByIdentifiers(
     pairs: { provider: MessagingProvider; value: string }[],
   ): Promise<Map<string, RecordIdentityReference>> {
@@ -1720,33 +1683,15 @@ export class PrismaMessagingRepo
       settledAttachmentsMeta: existing?.attachmentsMeta,
     });
 
-    const contactId = isInbound ? await this.resolveSenderContactId(companyId, message) : null;
-    if (contactId) {
-      await getContactRepo().recomputeContactAvatarUnscoped({
-        contactId,
-        companyId,
-      });
+    if (isInbound && safeMessage.sender.pictureUrl) {
+      await getProviderAvatarService(companyId).synchronize(
+        safeMessage.provider,
+        safeMessage.sender.identifier,
+        safeMessage.sender.pictureUrl,
+      );
     }
 
     return { isEcho: false as const, message: upserted };
-  }
-
-  private async resolveSenderContactId(companyId: string, message: IngestMessage): Promise<string | null> {
-    const senderIdentifier = message.sender.identifier?.trim();
-    if (!senderIdentifier) return null;
-
-    const matched = senderIdentifier.includes("@")
-      ? await getContactRepo().findContactByEmailUnscoped({
-          companyId,
-          email: senderIdentifier.toLowerCase(),
-        })
-      : await getContactRepo().findContactBySocialIdentifierUnscoped({
-          companyId,
-          provider: message.provider,
-          identifier: senderIdentifier,
-        });
-
-    return matched?.id ?? null;
   }
 
   @BypassTenantGuard

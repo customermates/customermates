@@ -148,7 +148,10 @@ const ACCEPTED_TODAY: [string, unknown][] = [
   ["search_crm_records", { searchTerm: "a" }],
   ["manage_widgets", { action: "list" }],
   ["manage_data_views", { action: "surfaces" }],
-  ["manage_data_views", { action: "create", surfaceKey: "contacts-card-store", name: "Leads", state: {} }],
+  [
+    "manage_data_views",
+    { action: "create", surfaceKey: "records:10000000-0000-4000-8000-000000000101", name: "Leads", state: {} },
+  ],
   ["send_email", { connectedAccountId: UUID, subject: "s", body: "b", to: [{ identifier: "ada@example.com" }] }],
 ];
 
@@ -501,18 +504,18 @@ describe("the shipped tool catalog on the Google wire", () => {
 
     expect(summarizeGoogleSchemaChanges(changes)).toEqual({
       "$schema:removed": 48,
-      "additionalProperties:removed": 198,
+      "additionalProperties:removed": 202,
       "anyOf:collapsed": 178,
       "const:removed": 5,
       "const:rewritten": 134,
       "enum:removed": 18,
-      "exclusiveMinimum:rewritten": 11,
+      "exclusiveMinimum:rewritten": 13,
       "nullable:rewritten": 161,
       "propertyNames:removed": 3,
       "oneOf:rewritten": 10,
     });
     expect(summarizeGoogleSchemaChanges(changes.filter((change) => change.loosened))).toEqual({
-      "additionalProperties:removed": 198,
+      "additionalProperties:removed": 202,
       "const:removed": 5,
       "enum:removed": 18,
       "propertyNames:removed": 3,
@@ -597,9 +600,9 @@ describe("the authoritative input gate", () => {
   });
 
   it.each([
-    { action: "update", surfaceKey: "contacts-card-store", viewKey: "__all__" },
-    { action: "update", surfaceKey: "contacts-card-store", viewKey: "__all__", state: {} },
-    { action: "delete", surfaceKey: "contacts-card-store" },
+    { action: "update", surfaceKey: "records:10000000-0000-4000-8000-000000000101", viewKey: "__all__" },
+    { action: "update", surfaceKey: "records:10000000-0000-4000-8000-000000000101", viewKey: "__all__", state: {} },
+    { action: "delete", surfaceKey: "records:10000000-0000-4000-8000-000000000101" },
     { action: "create", surfaceKey: "operator-users", name: "Operator", state: {} },
   ])("rejects malformed or unsupported saved-view input after provider decoding: %j", async (input) => {
     const result = await normalizeAgentAiToolInput("manage_data_views", input, 400);

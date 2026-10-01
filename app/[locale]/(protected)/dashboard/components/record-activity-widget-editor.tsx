@@ -16,6 +16,7 @@ import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item";
 import { FormSelect } from "@/components/forms/form-select";
 import { FormIsoDatePicker } from "@/components/forms/form-iso-date-picker";
+import { useAppForm } from "@/components/forms/form-context";
 import { Button } from "@/components/ui/button";
 import { ActivitiesList } from "@/features/messaging/activities/activities-list";
 import { RecordAiAction } from "@/app/components/agent-chat/record-ai-action";
@@ -104,6 +105,7 @@ export const RecordActivityWidgetEditor = observer(
   ({ store, section }: { store: WidgetModalStore; section: "data" | "preview" }) => {
     const t = useTranslations();
     const root = useRootStore();
+    const formDisabled = useAppForm()?.isDisabled ?? false;
     const form = store.form;
     const [typeNames, setTypeNames] = useState<Array<{ id: string; pluralLabel: string }>>([]);
     const [preview, setPreview] = useState<{ key: string; result: RecordActivitiesResult } | null>(null);
@@ -191,7 +193,9 @@ export const RecordActivityWidgetEditor = observer(
     if (section === "preview") {
       return (
         <section className="min-w-0 space-y-3 rounded-xl border border-border p-4">
-          <h3 className="text-sm font-medium">{t("Dashboard.widgetEditor.preview.title")}</h3>
+          <h3 className="text-sm font-medium" id="widget-preview-heading">
+            {t("Dashboard.widgetEditor.preview.title")}
+          </h3>
 
           {form.id && (
             <RecordAiAction
@@ -201,7 +205,7 @@ export const RecordActivityWidgetEditor = observer(
           )}
 
           <Button
-            disabled={loading}
+            disabled={formDisabled || loading}
             type="button"
             variant="secondary"
             onClick={() => {
@@ -307,6 +311,7 @@ export const RecordActivityWidgetEditor = observer(
 
                 <Button
                   aria-label={t("RecordWidgets.removeFilter")}
+                  disabled={formDisabled}
                   size="icon"
                   type="button"
                   variant="ghost"
@@ -401,6 +406,7 @@ export const RecordActivityWidgetEditor = observer(
             {threadSelection("activityQuery.threadIds")}
 
             <Button
+              disabled={formDisabled}
               type="button"
               variant="secondary"
               onClick={() => store.onChange("activityQuery.threadIds", undefined)}

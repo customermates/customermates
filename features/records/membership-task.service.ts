@@ -1,25 +1,22 @@
-import { randomUUID } from "node:crypto";
-import type { RecordRepo } from "./record.repo";
-import type { RecordRef } from "./record-model.schema";
-import type { RecordAccessPolicy } from "./record-access";
-import type { MembershipTaskRepo } from "./membership-task.repo";
-import type { TaskRepo } from "@/features/tasks/listener/user-pending-authorization-task.listener";
-import type { CountSystemTasksRepo } from "@/features/tasks/count-system-tasks.interactor";
 import { UserAccessor } from "@/core/base/user-accessor";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { RecordWriteError, normalizeRecordScalar } from "./record-write.service";
-import { RecordJournal } from "./record-journal";
-import { RecordCalculationService, recordKey, SYNCHRONOUS_RECORD_LIMIT } from "./record-calculation.service";
+import { randomUUID } from "node:crypto";
 import { valueResult } from "./calculation";
+import type { MembershipTaskRepo } from "./membership-task.repo";
+import type { RecordAccessPolicy } from "./record-access";
+import { RecordCalculationService, recordKey, SYNCHRONOUS_RECORD_LIMIT } from "./record-calculation.service";
 import { recordInvariant } from "./record-invariant";
+import { RecordJournal } from "./record-journal";
+import type { RecordRef } from "./record-model.schema";
+import { normalizeRecordScalar, RecordWriteError } from "./record-write.service";
+import type { RecordRepo } from "./record.repo";
 
 export class MembershipTaskService extends UserAccessor {
   constructor(
     private records: RecordRepo,
     private tasks: MembershipTaskRepo,
     private policy: RecordAccessPolicy,
-    private legacy: TaskRepo & CountSystemTasksRepo,
   ) {
     super();
   }
@@ -37,21 +34,7 @@ export class MembershipTaskService extends UserAccessor {
       const member = await this.tasks.getMemberCompanyWide(userId);
       if (!member) throw new RecordWriteError(CustomErrorCode.userNotFound, "not_found");
       const state = await this.records.getState();
-      if (!state?.revision) {
-        const existing = await this.legacy.findByTypeAndRelatedUserIdCompanyWide({
-          type: "userPendingAuthorization",
-          relatedUserId: userId,
-        });
-        if (reason === "registered" && member.status === "pendingAuthorization" && !existing) {
-          await this.legacy.create({
-            type: "userPendingAuthorization",
-            relatedUserId: userId,
-            name: `User Pending Authorization (${member.email})`,
-          });
-        }
-        if (member.status !== "pendingAuthorization" && existing) await this.legacy.deleteById({ id: existing.id });
-        return;
-      }
+      if (!state?.revision) throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
       const model = await this.records.getModel();
       const bindings = model.capabilities.filter((binding) => binding.kind === "membershipAuthorization");
       if (bindings.length !== 1) throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
@@ -139,7 +122,8 @@ export class MembershipTaskService extends UserAccessor {
   getSystemTasksCount(): Promise<number> {
     return runInTransaction(
       async () => {
-        if (!(await this.records.getState())?.revision) return this.legacy.getSystemTasksCount();
+        if (!(await this.records.getState())?.revision)
+          throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
         const [model, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
         if (!policy.actor || !policy.allowedSystem("users", "update")) return 0;
         const types = model.capabilities

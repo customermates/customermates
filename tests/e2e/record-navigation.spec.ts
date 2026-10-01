@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
-import { test, expect } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
+import { expect, test } from "./fixtures";
 
 test("opens original CRM URLs in the shared record screens", async ({ page, database, companyId }) => {
   for (const [path, kind] of [
@@ -29,7 +29,7 @@ test("opens original CRM URLs in the shared record screens", async ({ page, data
   expect(recordId).toBeTruthy();
   await page.goto(`/en/services/${recordId}`);
   await expect(page).toHaveURL(`/en/records/${serviceId}/${recordId}`);
-  await expect(page.getByText("Legacy link target", { exact: true })).toBeVisible();
+  await expect(page.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Legacy link target");
   await page.close();
 });
 
@@ -47,8 +47,7 @@ test("opens a legacy create deep link through the shared record editor", async (
     [companyId, presetId(companyId, "service"), name],
   );
   expect(generic.rows).toHaveLength(1);
-  const legacy = await database.query('SELECT id FROM "Service" WHERE "companyId"=$1 AND name=$2', [companyId, name]);
-  expect(legacy.rows).toHaveLength(0);
+  expect((await database.query("SELECT to_regclass('\"Service\"') AS table")).rows[0].table).toBeNull();
 });
 
 test("uses configured navigation, quick creation, rename-safe routes, and hidden types", async ({
@@ -129,10 +128,12 @@ test("uses configured navigation, quick creation, rename-safe routes, and hidden
   await expect(editor).not.toBeVisible();
   await openSidebar();
   await expect(navLink).toHaveCount(0);
+  await page.waitForLoadState("networkidle");
   await page.goto(`/en/records/${typeId}`);
   await expect(page.locator("#records-add")).toBeVisible();
   await openSidebar();
   await expect(page.locator("#nav-assistant")).toBeVisible();
+  await page.waitForLoadState("networkidle");
   await page.reload();
   await openSidebar();
   await expect(navLink).toHaveCount(0);

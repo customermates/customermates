@@ -5,7 +5,6 @@ import type { ChartDataPoint } from "./chart.types";
 import { Bar, BarChart, LabelList, XAxis, YAxis, Cell } from "recharts";
 import { observer } from "mobx-react-lite";
 import { useReducedMotion } from "framer-motion";
-import type { AggregationType } from "@/generated/prisma";
 
 import { useChartFormatter } from "./use-chart-formatter";
 import { ChartTooltip } from "@/components/chart/chart-tooltip";
@@ -13,7 +12,6 @@ import { ChartTooltip } from "@/components/chart/chart-tooltip";
 import { DashboardChartContainer } from "./dashboard-chart-container";
 
 type Props = {
-  aggregationType?: AggregationType;
   currency?: string | null;
   chartData: ChartDataPoint[];
   textColor: string;
@@ -33,8 +31,8 @@ function truncateToWidth(text: string, maxWidth: number) {
 }
 
 export const HorizontalBarChartWithLabels = observer(
-  ({ aggregationType, currency, chartData, textColor, reverseXAxis, reverseYAxis }: Props) => {
-    const formatValue = useChartFormatter(aggregationType, currency);
+  ({ currency, chartData, textColor, reverseXAxis, reverseYAxis }: Props) => {
+    const formatValue = useChartFormatter(currency);
     const reducedMotion = useReducedMotion();
 
     const formattedMaxValue = chartData.reduce((longest, entry) => {
@@ -59,7 +57,7 @@ export const HorizontalBarChartWithLabels = observer(
 
           <YAxis hide dataKey="label" reversed={Boolean(reverseYAxis)} type="category" />
 
-          <ChartTooltip aggregationType={aggregationType} currency={currency} />
+          <ChartTooltip currency={currency} />
 
           <Bar dataKey="value" isAnimationActive={reducedMotion === false} radius={4}>
             {chartData.map((entry, index) => (

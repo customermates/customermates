@@ -1,7 +1,7 @@
 import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
-import { EntityType } from "@/generated/prisma";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
@@ -21,11 +21,17 @@ export const EntityTerminologyEntrySchema = z
     if (
       !isConfigurableTerminologyEntityType(entry.entityType) ||
       !terminologyPresetKeys(entry.entityType).includes(entry.presetKey)
-    )
-      ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.terminologyInvalidPreset } });
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        params: { error: CustomErrorCode.terminologyInvalidPreset },
+      });
+    }
   });
 
-export const UpsertEntityTerminologySchema = z.object({ entries: z.array(EntityTerminologyEntrySchema).min(1) });
+export const UpsertEntityTerminologySchema = z.object({
+  entries: z.array(EntityTerminologyEntrySchema).min(1),
+});
 
 export type UpsertEntityTerminologyData = Data<typeof UpsertEntityTerminologySchema>;
 export type EntityTerminologyEntry = UpsertEntityTerminologyData["entries"][number];

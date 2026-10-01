@@ -1,43 +1,38 @@
+import { CLOUD_TRIAL } from "@/core/commercial/plan-catalog";
 import type { RepoArgs } from "@/core/utils/types";
-import type { FindUserRepo } from "./user.service";
-import type { GetUsersRepo } from "@/features/user/get/get-users.interactor";
-import type { FindUsersByIdsRepo } from "@/features/user/find-users-by-ids.repo";
-import type { RegisterUserRepo } from "@/features/user/register/register-user.interactor";
-import type { UpdateUserDetailsRepo } from "@/features/user/upsert/update-user-details.interactor";
-import type { AdminUpdateUserDetailsRepo } from "@/features/user/upsert/admin-update-user-details.interactor";
-import type { GetUserByIdRepo } from "@/features/user/get/get-user-by-id.interactor";
-import type { ResolveUserOptionsRepo } from "./get/resolve-user-options.interactor";
-import type { CompleteOnboardingWizardRepo } from "@/features/onboarding-wizard/complete-onboarding-wizard.interactor";
-import type { SendWelcomeAndDemoActionRepo } from "@/ee/lifecycle/send-welcome-and-demo.interactor";
-import type { DeleteAccountsForPlanUserRepo } from "@/ee/messaging/connect/delete-accounts-for-plan.interactor";
-import type { CountActiveUsersRepo } from "./count-active-users.repo";
+import type { DeactivateTrialUsersAndSendNoticeRepo } from "@/ee/lifecycle/deactivate-trial-users-and-send-notice.interactor";
+import type { DeactivateUsersAfterSubscriptionGracePeriodRepo } from "@/ee/lifecycle/deactivate-users-after-subscription-grace-period.interactor";
+import type { ExpireAdAttributionRepo } from "@/ee/lifecycle/expire-ad-attribution.interactor";
+import type { SendLegalDocumentNoticesRepo } from "@/ee/lifecycle/send-legal-document-notices.interactor";
 import type { SendTrialExtensionOfferActionRepo } from "@/ee/lifecycle/send-trial-extension-offer.interactor";
 import type { SendTrialInactivationReminderActionRepo } from "@/ee/lifecycle/send-trial-inactivation-reminder.interactor";
-import type { DeactivateTrialUsersAndSendNoticeRepo } from "@/ee/lifecycle/deactivate-trial-users-and-send-notice.interactor";
-import { CLOUD_TRIAL } from "@/core/commercial/plan-catalog";
-import type { DeactivateUsersAfterSubscriptionGracePeriodRepo } from "@/ee/lifecycle/deactivate-users-after-subscription-grace-period.interactor";
+import type { SendWelcomeAndDemoActionRepo } from "@/ee/lifecycle/send-welcome-and-demo.interactor";
+import type { DeleteAccountsForPlanUserRepo } from "@/ee/messaging/connect/delete-accounts-for-plan.interactor";
 import type { WebhookUserRepo } from "@/ee/messaging/webhooks/account/account-webhook.repo";
-import type { SendLegalDocumentNoticesRepo } from "@/ee/lifecycle/send-legal-document-notices.interactor";
-import type { ExpireAdAttributionRepo } from "@/ee/lifecycle/expire-ad-attribution.interactor";
 import type { WithdrawAdAttributionRepo } from "@/features/acquisition/withdraw-ad-attribution.interactor";
+import type { CompleteOnboardingWizardRepo } from "@/features/onboarding-wizard/complete-onboarding-wizard.interactor";
+import type { FindUsersByIdsRepo } from "@/features/user/find-users-by-ids.repo";
+import type { GetUserByIdRepo } from "@/features/user/get/get-user-by-id.interactor";
+import type { GetUsersRepo } from "@/features/user/get/get-users.interactor";
+import type { RegisterUserRepo } from "@/features/user/register/register-user.interactor";
+import type { AdminUpdateUserDetailsRepo } from "@/features/user/upsert/admin-update-user-details.interactor";
+import type { UpdateUserDetailsRepo } from "@/features/user/upsert/update-user-details.interactor";
 import type { Prisma } from "@/generated/prisma";
+import type { CountActiveUsersRepo } from "./count-active-users.repo";
+import type { ResolveUserOptionsRepo } from "./get/resolve-user-options.interactor";
+import type { FindUserRepo } from "./user.service";
 
-import { randomUUID } from "node:crypto";
-
-import { getTranslations } from "next-intl/server";
-import { ConversionEventType, CustomColumnType, EntityType, Status, SubscriptionStatus } from "@/generated/prisma";
+import { ConversionEventType, Status, SubscriptionStatus } from "@/generated/prisma";
 
 import { type UserDto } from "./user.schema";
 
-import { BaseRepository } from "@/core/base/base-repository";
-import { Transaction } from "@/core/decorators/transaction.decorator";
-import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { type GetQueryParams } from "@/core/base/base-get.schema";
+import { BaseRepository } from "@/core/base/base-repository";
+import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
+import { Transaction } from "@/core/decorators/transaction.decorator";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 import { env } from "@/env";
-
-import { DEFAULT_SELECT_COLUMNS } from "@/features/records/crm-preset-options";
 
 export class PrismaUserRepo
   extends BaseRepository
@@ -263,46 +258,11 @@ export class PrismaUserRepo
     });
   }
 
-  private async createDefaultCustomColumns(companyId: string) {
-    const t = await getTranslations();
-    let dealColumnId: string | undefined;
-
-    for (const column of DEFAULT_SELECT_COLUMNS) {
-      const created = await this.prisma.customColumn.create({
-        data: {
-          label: t(`Common.defaultData.${column.entityType}.columnLabel`),
-          type: CustomColumnType.singleSelect,
-          entityType: column.entityType,
-          companyId,
-          options: {
-            options: column.options.map((option, index) => ({
-              value: randomUUID(),
-              label: t(`Common.defaultData.${column.entityType}.options.${option.key}`),
-              color: option.color,
-              isDefault: index === 0,
-              index,
-              ...(option.weight === undefined ? {} : { weight: option.weight }),
-            })),
-          },
-        },
-      });
-
-      if (column.entityType === EntityType.deal) dealColumnId = created.id;
-    }
-
-    return dealColumnId;
-  }
-
   @Transaction
   async createCompanyAndUser(args: RepoArgs<RegisterUserRepo, "createCompanyAndUser">) {
     if (await this.prisma.user.findFirst({ where: { email: args.email } })) throw new Error("User already exists.");
 
     const company = await this.prisma.company.create({ data: {} });
-
-    const dealWeightingColumnId = await this.createDefaultCustomColumns(company.id);
-
-    if (dealWeightingColumnId)
-      await this.prisma.company.update({ where: { id: company.id }, data: { dealWeightingColumnId } });
 
     const adminRole = await this.prisma.userRole.create({
       data: {

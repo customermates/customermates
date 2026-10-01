@@ -80,7 +80,7 @@ const ManageRoutinesSchema = z.object({
   recordTrigger: RoutineRecordTriggerSchema.nullable()
     .optional()
     .describe(
-      "For record.created/updated/deleted: a query with stable typeId, filters and relationships, plus watched field IDs. Discover the type schema first. Do not mix record events with messaging or retired entity events.",
+      "For record.created/updated/deleted: a query with stable typeId, filters and relationships, plus watched field IDs. Discover the type schema first. Deletion filters match before removal; creation and update filters match the resulting state and are rechecked at admission. Current owner access is always rechecked. Do not mix record events with messaging or retired entity events.",
     ),
   expectedSchemaRevision: z
     .number()

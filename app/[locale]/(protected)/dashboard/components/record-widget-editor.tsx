@@ -117,7 +117,9 @@ export const RecordWidgetEditor = observer(
     if (section === "preview") {
       return (
         <section className="min-w-0 space-y-3 rounded-xl border border-border p-4">
-          <h3 className="text-sm font-medium">{t("RecordWidgets.preview")}</h3>
+          <h3 className="text-sm font-medium" id="widget-preview-heading">
+            {t("RecordWidgets.preview")}
+          </h3>
 
           {form.id && (
             <RecordAiAction
@@ -178,6 +180,15 @@ export const RecordWidgetEditor = observer(
     if (section === "filters") {
       return (
         <div className="space-y-4">
+          <h3 className="text-sm font-medium" id="widget-entity-filters-heading">
+            {t("Dashboard.widgetEditor.tabs.filtersLabel", {
+              count:
+                measure.source.filters.length +
+                measure.source.relationships.length +
+                (measure.source.relatedFilters?.length ?? 0),
+            })}
+          </h3>
+
           <FormInput id="measure.source.search" label={t("RecordWidgets.search")} />
 
           {status}

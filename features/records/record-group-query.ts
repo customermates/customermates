@@ -35,6 +35,13 @@ export type RecordGroupRow = {
 const ERROR_GROUP_KEY = "__calculation_error__";
 const RESTRICTED_GROUP_KEY = "__restricted__";
 
+function optionProbability(option: RecordModel["fields"][number]["options"][number]) {
+  const value = option.attributes.find((attribute) => attribute.key === "probability")?.value;
+  return value?.kind === "decimal" && value.currency === null && Number.isFinite(Number(value.value))
+    ? { weight: Number(value.value) }
+    : {};
+}
+
 export function compileRecordGroups(
   companyId: string,
   query: RecordQuery,
@@ -73,6 +80,7 @@ export function compileRecordGroups(
             labelKind: "value",
             isNoValue: false,
             label: option.label,
+            ...optionProbability(option),
             ...(CHIP_COLORS.some((color) => color === option.color) ? { color: option.color } : {}),
           },
         })),

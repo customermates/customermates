@@ -52,7 +52,14 @@ export const RecordRelationshipFilterSchema = z
 export const RecordRelatedFilterSchema = z
   .object({
     path: z
-      .array(z.object({ relationId: z.uuid(), direction: z.enum(["outgoing", "incoming"]) }).strict())
+      .array(
+        z
+          .object({
+            relationId: z.uuid(),
+            direction: z.enum(["outgoing", "incoming"]),
+          })
+          .strict(),
+      )
       .min(1)
       .max(6),
     operator: z.enum(["any", "none"]),
@@ -83,7 +90,14 @@ export const RecordQuerySchema = z
     relatedFilters: z.array(RecordRelatedFilterSchema).max(16).optional(),
     relationships: z.array(RecordRelationshipFilterSchema).max(50).default([]),
     sort: z
-      .array(z.object({ fieldId: RecordFieldKeySchema, direction: z.enum(["asc", "desc"]) }).strict())
+      .array(
+        z
+          .object({
+            fieldId: RecordFieldKeySchema,
+            direction: z.enum(["asc", "desc"]),
+          })
+          .strict(),
+      )
       .max(5)
       .default([]),
     page: z.number().int().min(1).max(100000).default(1),
@@ -114,6 +128,22 @@ export const RecordLinkChangeSchema = z
   })
   .strict();
 export type RecordLinkChange = z.infer<typeof RecordLinkChangeSchema>;
+
+export const RecordMutationTargetsSchema = z
+  .array(
+    z
+      .object({
+        ref: RecordRefSchema,
+        expectedVersion: z.number().int().positive(),
+      })
+      .strict(),
+  )
+  .min(1)
+  .max(100)
+  .refine(
+    (targets) => new Set(targets.map(({ ref }) => `${ref.typeId}:${ref.recordId}`)).size === targets.length,
+    "Each record can appear only once in a bulk mutation",
+  );
 
 const ValidatedRecordMutationSchema = z.discriminatedUnion("action", [
   z
@@ -176,11 +206,31 @@ const ValidatedRecordMutationSchema = z.discriminatedUnion("action", [
       target: RecordRefSchema,
     })
     .strict(),
+  z
+    .object({
+      action: z.literal("updateMany"),
+      targets: RecordMutationTargetsSchema,
+      fields: z.array(RecordFieldAssignmentSchema).max(250),
+      assignedUserIds: z.array(z.uuid()).max(100).optional(),
+      linkChanges: z.array(RecordLinkChangeSchema).max(100).optional(),
+    })
+    .strict(),
+  z
+    .object({
+      action: z.literal("deleteMany"),
+      targets: RecordMutationTargetsSchema,
+      expectedImpactHash: z
+        .string()
+        .regex(/^[a-f0-9]{64}$/)
+        .optional(),
+    })
+    .strict(),
 ]);
 const [createMutation, updateMutation, deleteMutation, linkMutation] = ValidatedRecordMutationSchema.options;
 export const RecordMutationSchema = z
   .object({
-    action: z.enum(["create", "update", "delete", "link", "unlink"]),
+    action: z.enum(["create", "update", "delete", "link", "unlink", "updateMany", "deleteMany"]),
+    targets: RecordMutationTargetsSchema.optional(),
     typeId: createMutation.shape.typeId.optional(),
     ref: updateMutation.shape.ref.optional(),
     expectedVersion: updateMutation.shape.expectedVersion.optional(),
@@ -197,7 +247,7 @@ export const RecordMutationSchema = z
   })
   .strict()
   .describe(
-    "create requires typeId and fields; update requires ref, expectedVersion and fields; delete requires ref and expectedVersion; link/unlink require relationId, source and target. Use only fields for that action.",
+    "create requires typeId and fields; update requires ref, expectedVersion and fields; delete requires ref and expectedVersion; link/unlink require relationId, source and target. updateMany/deleteMany require targets with each ref and expectedVersion; updateMany requires fields and applies the same patch to every target atomically. Use only fields for that action.",
   )
   .transform((input, ctx) => {
     const parsed = ValidatedRecordMutationSchema.safeParse(input);

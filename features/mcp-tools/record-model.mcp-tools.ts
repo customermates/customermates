@@ -47,8 +47,18 @@ import {
   RecordDeletionPreviewSchema,
 } from "@/features/records/preview-record-deletion.interactor";
 
-const read = { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false };
-const write = { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false };
+const read = {
+  readOnlyHint: true,
+  destructiveHint: false,
+  idempotentHint: true,
+  openWorldHint: false,
+};
+const write = {
+  readOnlyHint: false,
+  destructiveHint: false,
+  idempotentHint: true,
+  openWorldHint: false,
+};
 const destructive = { ...write, destructiveHint: true };
 
 export const manageRecordDetailLayoutV2Tool = {
@@ -61,7 +71,12 @@ export const manageRecordDetailLayoutV2Tool = {
   annotations: write,
   execute: (input: z.infer<typeof ManageRecordDetailLayoutSchema>) =>
     input.action === "read"
-      ? runInteractor(getReadRecordDetailLayoutInteractor().invoke({ typeId: input.typeId }), toonResult)
+      ? runInteractor(
+          getReadRecordDetailLayoutInteractor().invoke({
+            typeId: input.typeId,
+          }),
+          toonResult,
+        )
       : runInteractor(
           getSaveRecordDetailLayoutInteractor().invoke(
             SaveRecordDetailLayoutSchema.parse({
@@ -141,7 +156,7 @@ export const mutateRecordV2Tool = {
   name: "mutate_crm_record",
   title: "Change a record or relationship",
   description:
-    "Version 2. Create, update, delete, link or unlink a record. Use field-assignment arrays and stable references. Omitted fields remain unchanged; null explicitly clears an optional input. Calculated fields cannot be written. Preserve the idempotency key on retries of the exact payload. Read the latest record version before update/delete. Delete can permanently remove records and cascading line items. Preview deletion and pass its impactHash as expectedImpactHash to reject changed cascading effects. Pending operations pause workspace CRM writes and preserve the previous complete state for reads.",
+    "Version 2. Create, update, delete, link or unlink records. updateMany applies one shared patch atomically to a typed target array; deleteMany previews and deletes the whole selection atomically. Each target supplies its latest version. Use field-assignment arrays and stable references. Omitted fields remain unchanged; null explicitly clears an optional input. Calculated fields cannot be written. Preserve the idempotency key on retries of the exact payload. Read the latest record version before update/delete. Delete can permanently remove records and cascading line items. Preview deletion and pass its impactHash as expectedImpactHash to reject changed cascading effects. Pending operations pause workspace CRM writes and preserve the previous complete state for reads.",
   inputSchema: MutateRecordSchema,
   outputSchema: z.object({ result: RecordOperationResultSchema }).strict(),
   annotations: destructive,
@@ -152,7 +167,7 @@ export const previewRecordDeletionV2Tool = {
   name: "preview_crm_deletion",
   title: "Preview deletion",
   description:
-    "Version 2. Preview records and links removed by a deletion, including cascading line items. Calculations lists definitions that may need recalculation. Null removedLinks means the total is restricted. No records are changed. Pass the returned impactHash to mutate_crm_record as expectedImpactHash after approval. Both preview and deletion enforce record access, deletion policies and protected capabilities.",
+    "Version 2. Preview records and links removed by a deletion, including cascading line items. Supply a single ref and expectedVersion, or targets for an atomic selection deletion. Calculations lists definitions that may need recalculation. Null removedLinks means the total is restricted. No records are changed. Pass the returned impactHash to mutate_crm_record as expectedImpactHash after approval. Both preview and deletion enforce record access, deletion policies and protected capabilities.",
   inputSchema: PreviewRecordDeletionSchema,
   outputSchema: RecordDeletionPreviewSchema,
   annotations: read,

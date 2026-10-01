@@ -1,7 +1,7 @@
 import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
-import { EntityType } from "@/generated/prisma";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 export const ACTIVITY_SCOPE_MAX_IDS_PER_TYPE = 50;

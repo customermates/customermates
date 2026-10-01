@@ -13,6 +13,7 @@ import { FormInput } from "@/components/forms/form-input";
 import { FormSelect } from "@/components/forms/form-select";
 import { FormSwitch } from "@/components/forms/form-switch";
 import { FormIsoDatePicker } from "@/components/forms/form-iso-date-picker";
+import { useAppForm } from "@/components/forms/form-context";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { getUsersAction } from "../../company/actions";
@@ -74,6 +75,7 @@ export const RecordWidgetFieldFilters = observer(
     disabled?: boolean;
   }) => {
     const t = useTranslations();
+    const formDisabled = useAppForm()?.isDisabled ?? false;
     const { companyStore } = useRootStore();
     const defaults = (field: RecordFilterField): RecordScalar =>
       filterScalar(
@@ -111,6 +113,7 @@ export const RecordWidgetFieldFilters = observer(
 
                 <Button
                   aria-label={t("RecordWidgets.removeFilter")}
+                  disabled={formDisabled}
                   size="icon"
                   type="button"
                   variant="ghost"
@@ -164,6 +167,7 @@ export const RecordWidgetFieldFilters = observer(
 
                       <Button
                         aria-label={t("RecordWidgets.removeFilter")}
+                        disabled={formDisabled}
                         size="icon"
                         type="button"
                         variant="ghost"
@@ -250,6 +254,7 @@ export const RecordWidgetRelatedFilters = observer(
     filters: NonNullable<RecordQuery["relatedFilters"]>;
   }) => {
     const t = useTranslations();
+    const formDisabled = useAppForm()?.isDisabled ?? false;
     const labels = {
       createdAt: t("RecordModel.createdAt"),
       updatedAt: t("RecordModel.updatedAt"),
@@ -275,6 +280,7 @@ export const RecordWidgetRelatedFilters = observer(
 
                 <Button
                   aria-label={t("RecordWidgets.removeFilter")}
+                  disabled={formDisabled}
                   size="icon"
                   type="button"
                   variant="ghost"

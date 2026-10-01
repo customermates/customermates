@@ -9,6 +9,7 @@ export function RecordsPageSkeleton({
 }) {
   return (
     <DataViewSkeleton
+      data-records-page-skeleton
       animated={animated}
       spec={view === "table" ? { view, tableVariant: "entity" } : { view, identity: "text" }}
     />

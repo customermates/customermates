@@ -1,9 +1,10 @@
+import { presetId } from "@/features/records/crm-preset";
+import { identityKeys } from "@/features/records/record-identity";
 import type { MessagingProvider, Prisma, PrismaClient } from "@/generated/prisma";
 
 import type { EmailSettings } from "@/ee/messaging/email-settings";
 
 import { SYNTHETIC_COMPANY_USERS } from "@/core/config/synthetic-seed-user";
-import { identityLookupValue } from "@/ee/messaging/identity-lookup";
 import {
   DEFAULT_LINK_HEX,
   EmailFontFamily,
@@ -11,6 +12,7 @@ import {
   SignatureTemplate,
   defaultEmailSettings,
 } from "@/ee/messaging/email-settings";
+import { identityLookupValue } from "@/ee/messaging/identity-lookup";
 import { composeEmailBodies } from "@/ee/messaging/outbound/email-signature";
 import { renderEmailMarkdown } from "@/ee/messaging/outbound/render-signature";
 
@@ -539,7 +541,7 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
       participants: { none: {} },
     },
   });
-  await prisma.contactIdentifier.deleteMany({
+  await prisma.recordIdentity.deleteMany({
     where: { companyId: context.companyId, id: { startsWith: "1a000000-" } },
   });
 
@@ -562,7 +564,8 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
 
     const data = {
       companyId: context.companyId,
-      contactId: context.contactIds[person.contactIndex],
+      typeId: presetId(context.companyId, "contact"),
+      recordId: context.contactIds[person.contactIndex],
       provider: channel.provider,
       channelClass: channel.provider === "whatsapp" ? "phone" : channel.provider,
       value: attendee.identifier,
@@ -571,10 +574,10 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
       profileUrl: attendee.profileUrl ?? null,
     };
 
-    if (!data.contactId) throw new Error(`Missing demo contact for ${channel.key}`);
+    if (!data.recordId) throw new Error(`Missing demo contact for ${channel.key}`);
 
     const id = fixtureId("1a000000", index + 1);
-    const existingIdentifiers = await prisma.contactIdentifier.findMany({
+    const existingIdentifiers = await prisma.recordIdentity.findMany({
       where: {
         companyId: context.companyId,
         OR: [
@@ -589,23 +592,24 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
 
     const existingIdentifier = existingIdentifiers[0];
     if (existingIdentifier) {
-      await prisma.contactIdentifier.update({
-        where: { id: existingIdentifier.id },
+      await prisma.recordIdentity.update({
+        where: { companyId_id: { companyId: context.companyId, id: existingIdentifier.id } },
         data,
       });
-    } else {
-      await prisma.contactIdentifier.upsert({
-        where: {
-          companyId_channelClass_value: {
-            companyId: context.companyId,
-            channelClass: data.channelClass,
-            value: data.value,
-          },
-        },
-        update: data,
-        create: { ...data, id },
+      await prisma.recordIdentityKey.deleteMany({
+        where: { companyId: context.companyId, identityId: existingIdentifier.id },
       });
-    }
+    } else await prisma.recordIdentity.create({ data: { ...data, id } });
+
+    const identityId = existingIdentifier?.id ?? id;
+    await prisma.recordIdentityKey.createMany({
+      data: identityKeys(data).map((value) => ({
+        companyId: context.companyId,
+        identityId,
+        channelClass: data.channelClass,
+        value,
+      })),
+    });
   }
 
   let participantIndex = 0;

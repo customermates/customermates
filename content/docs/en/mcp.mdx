@@ -58,7 +58,7 @@ Ask the client to list its tools. All [[derived.mcp.tools.total]] should appear,
 
 
 | Client | Method | Guide |
-|---|---|---|
+| --- | --- | --- |
 | Claude web & mobile | Custom connector (OAuth) | [Connect with a custom connector](/docs/connect-custom-connector) |
 | Claude Desktop | Connector (OAuth) or config key | [Connect Claude Desktop](/docs/connect-custom-connector#claude) |
 | ChatGPT | Connector (OAuth) or key header | [Connect ChatGPT](/docs/connect-custom-connector#chatgpt) |
@@ -162,7 +162,7 @@ Create, update, delete, link or unlink through one validated operation. Supply e
 
 Inspect permitted deletion effects, including cascading records, links and dependent calculations. A restricted count is null, never zero. Pass the returned impactHash as expectedImpactHash when applying the approved deletion.
 
-**Read-only.** Required: `ref`, `expectedRevision`, `expectedVersion`.
+**Read-only.** Required: `expectedRevision`. Optional: `ref`, `targets`, `expectedVersion`.
 
 #### `query_crm_measure`
 

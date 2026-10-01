@@ -8,11 +8,22 @@ const ref = { typeId, recordId };
 
 describe("compact record mutation contract", () => {
   it.each([
-    { action: "create", typeId, fields: [], identities: [{ provider: "mail", value: "person@example.test" }] },
+    {
+      action: "create",
+      typeId,
+      fields: [],
+      identities: [{ provider: "mail", value: "person@example.test" }],
+    },
     { action: "update", ref, expectedVersion: 1, fields: [], identities: [] },
     { action: "delete", ref, expectedVersion: 1 },
     { action: "link", relationId, source: ref, target: ref },
     { action: "unlink", relationId, source: ref, target: ref },
+    {
+      action: "updateMany",
+      targets: [{ ref, expectedVersion: 1 }],
+      fields: [],
+    },
+    { action: "deleteMany", targets: [{ ref, expectedVersion: 1 }] },
   ])("preserves the $action canonical payload", (input) => {
     expect(RecordMutationSchema.parse(input)).toEqual(input);
   });
@@ -24,8 +35,28 @@ describe("compact record mutation contract", () => {
     { action: "delete", ref, expectedVersion: 1, identities: [] },
     { action: "delete", ref, expectedVersion: 1, fields: [] },
     { action: "link", relationId, source: ref },
-    { action: "unlink", relationId, source: ref, target: ref, assignedUserIds: [] },
+    {
+      action: "unlink",
+      relationId,
+      source: ref,
+      target: ref,
+      assignedUserIds: [],
+    },
     { action: "create", typeId, fields: [], ref },
+    { action: "updateMany", targets: [{ ref, expectedVersion: 1 }] },
+    { action: "deleteMany", targets: [] },
+    {
+      action: "deleteMany",
+      targets: [
+        { ref, expectedVersion: 1 },
+        { ref, expectedVersion: 1 },
+      ],
+    },
+    {
+      action: "deleteMany",
+      targets: [{ ref, expectedVersion: 1 }],
+      fields: [],
+    },
   ])("enforces action-specific requirements despite the compact wire schema", (input) => {
     expect(RecordMutationSchema.safeParse(input).success).toBe(false);
   });

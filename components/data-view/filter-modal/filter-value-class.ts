@@ -1,10 +1,10 @@
 import type { Filter } from "@/core/base/base-get.schema";
-import type { ColumnPresentation } from "@/features/custom-column/custom-column.schema";
+import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
 import type { FilterValueKind } from "@/core/types/filter-field-value-kind";
 
 import { hasValidFilterConfiguration, isCustomField } from "@/components/data-view/table-view.utils";
-import { filterValueKind } from "@/core/types/filter-field-value-kind";
 import { FilterOperatorKey, isStandaloneOperator } from "@/core/base/base-query-builder";
+import { filterValueKind } from "@/core/types/filter-field-value-kind";
 
 export type FilterValueClass =
   | "none"

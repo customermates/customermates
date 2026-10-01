@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 import { POST as createContact } from "@/app/api/v1/contacts/route";
 import { GET as readDeal, PUT as updateDeal, DELETE as deleteDeal } from "@/app/api/v1/deals/[id]/route";
 import { POST as searchService } from "@/app/api/v1/services/search/route";
+import { POST as searchLegacyActivities } from "@/app/api/v1/messaging/activities/search/route";
 import {
   POST as createManyTasks,
   PUT as updateManyTasks,
@@ -23,6 +24,7 @@ describe("retired entity-specific CRM REST contract", () => {
     updateDeal,
     deleteDeal,
     searchService,
+    searchLegacyActivities,
     createManyTasks,
     updateManyTasks,
     deleteManyTasks,

@@ -2,11 +2,11 @@ import { InitializeRecordModelService } from "@/features/records/initialize-reco
 import { PrismaRecordRepo } from "@/features/records/prisma-record.repository";
 import { randomUUID } from "node:crypto";
 
-import { describe, it, expect, afterAll, vi } from "vitest";
+import { afterAll, describe, expect, it, vi } from "vitest";
 
-import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import type { LegalNoticeAuditPayload } from "@/features/legal/legal-audit.schema";
 import type { TenantUser } from "@/features/user/user.schema";
+import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 
 import { createTranslator } from "next-intl";
 
@@ -144,7 +144,7 @@ const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
 
 describeDatabase("registration against a real database", () => {
-  it("provisions a workspace with default select fields and no demo records", async () => {
+  it("creates membership infrastructure before the record template is initialized", async () => {
     const repo = new PrismaUserRepo();
     const user = await runWithoutTenant(() =>
       repo.createCompanyAndUser({
@@ -160,49 +160,8 @@ describeDatabase("registration against a real database", () => {
     companyIds.push(user.companyId);
     const companyId = user.companyId;
 
-    const columns = await runWithoutTenant(() =>
-      prisma.customColumn.findMany({
-        where: { companyId },
-        orderBy: { createdAt: "asc" },
-      }),
-    );
-
-    expect(columns.map((column) => [column.entityType, column.label])).toEqual([
-      ["contact", "Sales Pipeline"],
-      ["deal", "Stage"],
-      ["task", "Status"],
-    ]);
-
-    const company = await runWithoutTenant(() =>
-      prisma.company.findUniqueOrThrow({
-        where: { id: companyId },
-        select: { dealWeightingColumnId: true },
-      }),
-    );
-    const dealColumn = columns.find((column) => column.entityType === "deal");
-
-    expect(company.dealWeightingColumnId).toBe(dealColumn?.id);
-
-    const stages = (
-      dealColumn?.options as {
-        options: { weight?: number; isDefault: boolean }[];
-      }
-    ).options;
-
-    expect(stages.map((stage) => stage.weight)).toEqual([10, 20, 40, 60, 80, 100, 0]);
-    expect(stages.filter((stage) => stage.isDefault)).toHaveLength(1);
-
-    const counts = await runWithoutTenant(() =>
-      Promise.all([
-        prisma.contact.count({ where: { companyId } }),
-        prisma.organization.count({ where: { companyId } }),
-        prisma.deal.count({ where: { companyId } }),
-        prisma.service.count({ where: { companyId } }),
-        prisma.task.count({ where: { companyId } }),
-      ]),
-    );
-
-    expect(counts).toEqual([0, 0, 0, 0, 0]);
+    expect(await runWithoutTenant(() => prisma.crmRecord.count({ where: { companyId } }))).toBe(0);
+    expect(await runWithoutTenant(() => prisma.recordSchemaState.findUnique({ where: { companyId } }))).toBeNull();
 
     const persistedUser = await runWithoutTenant(() =>
       prisma.user.findUniqueOrThrow({

@@ -2,10 +2,11 @@ import type { PageStateProps } from "@/components/page-state/page-state";
 import type { WidgetDto } from "@/features/widget/widget.schema";
 import type { ReactElement, ReactNode } from "react";
 
+import { WidgetKind } from "@/generated/prisma";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { EntityType, WidgetKind } from "@/generated/prisma";
 
 const harness = vi.hoisted(() => ({
   add: vi.fn(),
@@ -45,7 +46,9 @@ vi.mock("@/core/utils/use-is-touch-device", () => ({
 
 vi.mock("@/components/page-state/page-state", async (importOriginal) => {
   const React = await import("react");
-  const actual = await importOriginal<{ PageState: (props: PageStateProps) => ReactElement }>();
+  const actual = await importOriginal<{
+    PageState: (props: PageStateProps) => ReactElement;
+  }>();
 
   return {
     ...actual,
@@ -102,9 +105,6 @@ function renderDashboard(
 
   return renderToStaticMarkup(
     createElement(DashboardPageView, {
-      activityFilterableFields: [],
-      customColumns: [],
-      filterableFields: {} as never,
       widgets: items,
     }),
   );

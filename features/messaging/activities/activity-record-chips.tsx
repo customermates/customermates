@@ -3,7 +3,7 @@
 import type { ActivityRecordContextDto } from "@/ee/messaging/activities/activities.schema";
 
 import { useTranslations } from "next-intl";
-import { EntityType } from "@/generated/prisma";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 import { Avatar } from "@/components/ui/avatar";
 import { AppChip } from "@/components/chip/app-chip";

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { EntityType } from "@/generated/prisma";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 import { createTranslator } from "next-intl";
 
 import en from "@/i18n/locales/en.json";
@@ -93,16 +93,10 @@ describe("entity terminology catalogs", () => {
   });
 
   it.each(Object.entries(catalogs))("keeps %s workspace copy terminology-aware", (_locale, messages) => {
-    expect(messages.Dashboard.aggregationTypes.count).toContain("{entities}");
-    expect(messages.Dashboard.aggregationTypes.dealQuantity).toContain("{services}");
-    expect(messages.Dashboard.aggregationTypes.dealQuantity).toContain("{deals}");
-    expect(messages.Dashboard.aggregationTypes.dealValue).toContain("{deal}");
-    expect(messages.Dashboard.aggregationTypes.dealValueRelated).toContain("{entity}");
-    expect(messages.Dashboard.aggregationTypes.dealValueRelated).toContain("{deal}");
-    expect(messages.Dashboard.tabs.dealFilters).toContain("{deals}");
+    for (const aggregation of ["count", "sum", "average", "min", "max"] as const)
+      expect(messages.RecordModel.reducers[aggregation]).not.toBe("");
     expect(messages.GlobalSearch.emptyDescription.length).toBeGreaterThan(20);
     expect(messages.GlobalSearch.emptyDescription).not.toMatch(/\{(?:contacts|organizations|deals|services)\}/);
-    expect(messages.TasksCard.systemTaskTooltip).toContain("{task}");
   });
 
   it("pins the approved labels for every new preset and the corrected German Offering", () => {

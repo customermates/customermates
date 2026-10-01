@@ -1,4 +1,5 @@
 import type { DataViewState } from "@/core/data-view/data-view-state.schema";
+import { SURFACE } from "@/core/data-view/data-view-keys";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 export interface DataViewPolicy {
@@ -10,6 +11,6 @@ export function validateDataViewAccess(
   surfaceKey: string,
   state?: DataViewState,
 ): Promise<CustomErrorCode | null> {
-  if (!surfaceKey.startsWith("records:")) return Promise.resolve(null);
+  if (!surfaceKey.startsWith("records:") && surfaceKey !== SURFACE.entityTimeline) return Promise.resolve(null);
   return policy?.validate(surfaceKey, state) ?? Promise.resolve(CustomErrorCode.permissionDenied);
 }

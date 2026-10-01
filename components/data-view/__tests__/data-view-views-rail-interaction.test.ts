@@ -38,12 +38,12 @@ const harness = vi.hoisted(() => ({
 
 vi.mock("mobx-react-lite", () => ({ observer: <T>(component: T) => component }));
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/en/deals",
+  usePathname: () => "/en/records/10000000-0000-4000-8000-000000000103",
   useSearchParams: () => new URLSearchParams(harness.searchParams.current),
 }));
 vi.mock("@/i18n/navigation", () => ({
   useRouter: () => ({ push: harness.routerPush }),
-  usePathname: () => "/deals",
+  usePathname: () => "/records/10000000-0000-4000-8000-000000000103",
 }));
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, values?: Record<string, unknown>) =>
@@ -157,14 +157,15 @@ function store(overrides: Partial<BaseDataViewStore<Item>> = {}): BaseDataViewSt
     discardPendingViewState: vi.fn(() => harness.calls.push("discardPendingViewState")),
     columnOrder: [],
     columnWidths: {},
-    entityType: "DEAL",
+    supportsSelection: true,
     filters: [],
     grouping: null,
     hasSelection: false,
     hiddenColumns: [],
     isDisabled: false,
     isReady: true,
-    p13nId: "deals-card-store",
+    p13nId: "records:10000000-0000-4000-8000-000000000103",
+    viewTypeLabel: "Deals",
     pagination: { page: 1, pageSize: 25, total: 42 },
     refresh: vi.fn(() => {
       harness.calls.push("refresh");
@@ -271,7 +272,7 @@ beforeEach(() => {
   harness.routerPush.mockReset();
   harness.searchParams.current = "";
   harness.upsertDataViewAction.mockReset().mockResolvedValue({ data: view({ id: "v-new", name: "Hot" }), ok: true });
-  window.history.replaceState(null, "", "/en/deals");
+  window.history.replaceState(null, "", "/en/records/10000000-0000-4000-8000-000000000103");
   document.addEventListener("click", swallowNavigation);
   vi.stubGlobal(
     "ResizeObserver",
@@ -325,16 +326,16 @@ describe("data view rail interaction", () => {
     expect(closeEvent.defaultPrevented).toBe(true);
     expect(harness.agent.openWithContextDraft).toHaveBeenCalledExactlyOnceWith({
       context: {
-        label: "AgentChat.context.viewLabel(Open deals,AgentChat.context.surfaceViewTypeStandalone(deal))",
+        label: "AgentChat.context.viewLabel(Open deals,AgentChat.context.surfaceViewTypeStandalone(Deals))",
         reference: {
           kind: "dataView",
           requestedAction: "update",
-          surfaceKey: SURFACE.deals,
+          surfaceKey: "records:10000000-0000-4000-8000-000000000103",
           viewKey: OPEN.id,
         },
       },
       draft: "AgentChat.context.starter.update(Open deals)",
-      pageRoute: `/en/deals?view=${OPEN.id}&viewSurface=${SURFACE.deals}&viewAction=update`,
+      pageRoute: `/en/records/10000000-0000-4000-8000-000000000103?view=${OPEN.id}&viewSurface=${encodeURIComponent("records:10000000-0000-4000-8000-000000000103")}&viewAction=update`,
     });
     expect(focusAgentComposer).toHaveBeenCalledOnce();
     expect(harness.agent.viewContext.register).toHaveBeenCalledTimes(2);
@@ -350,7 +351,7 @@ describe("data view rail interaction", () => {
     expect(harness.agent.openWithContextDraft).toHaveBeenCalledWith(
       expect.objectContaining({
         context: expect.objectContaining({
-          label: "AgentChat.context.viewLabel(DataView.views.all,AgentChat.context.surfaceViewTypeStandalone(deal))",
+          label: "AgentChat.context.viewLabel(DataView.views.all,AgentChat.context.surfaceViewTypeStandalone(Deals))",
           reference: expect.objectContaining({ viewKey: ALL_VIEW_KEY }),
         }),
       }),
@@ -368,10 +369,14 @@ describe("data view rail interaction", () => {
   });
 
   it.each([
-    ["", "AgentChat.context.newViewLabel(AgentChat.context.surfaceViewType(deal))", "AgentChat.context.starter.create"],
+    [
+      "",
+      "AgentChat.context.newViewLabel(AgentChat.context.surfaceViewType(Deals))",
+      "AgentChat.context.starter.create",
+    ],
     [
       "  Qualified leads  ",
-      "AgentChat.context.namedNewViewLabel(Qualified leads,AgentChat.context.surfaceViewType(deal))",
+      "AgentChat.context.namedNewViewLabel(Qualified leads,AgentChat.context.surfaceViewType(Deals))",
       "AgentChat.context.starter.createNamed(Qualified leads)",
     ],
   ])("carries the optional name %j into the attached create-view context", (name, label, draft) => {
@@ -394,11 +399,11 @@ describe("data view rail interaction", () => {
           kind: "dataView",
           ...(name.trim() ? { proposedName: name.trim() } : {}),
           requestedAction: "create",
-          surfaceKey: SURFACE.deals,
+          surfaceKey: "records:10000000-0000-4000-8000-000000000103",
         },
       },
       draft,
-      pageRoute: `/en/deals?view=${OPEN.id}&viewSurface=${SURFACE.deals}&viewAction=create`,
+      pageRoute: `/en/records/10000000-0000-4000-8000-000000000103?view=${OPEN.id}&viewSurface=${encodeURIComponent("records:10000000-0000-4000-8000-000000000103")}&viewAction=create`,
     });
     expect(focusAgentComposer).toHaveBeenCalledOnce();
     expect(harness.upsertDataViewAction).not.toHaveBeenCalled();
@@ -425,7 +430,7 @@ describe("data view rail interaction", () => {
     expect(harness.agent.openWithContextDraft).toHaveBeenCalledWith(
       expect.objectContaining({
         context: expect.objectContaining({
-          label: "AgentChat.context.viewLabel(Open deals,AgentChat.context.surfaceViewTypeStandalone(deal))",
+          label: "AgentChat.context.viewLabel(Open deals,AgentChat.context.surfaceViewTypeStandalone(Deals))",
           reference: expect.objectContaining({ viewKey: OPEN.id }),
         }),
       }),
@@ -485,7 +490,11 @@ describe("data view rail interaction", () => {
 
     expect(value.applyView).toHaveBeenCalledExactlyOnceWith("v-a");
     expect(harness.menuOpen).toBe(false);
-    expect(pushState).toHaveBeenCalledExactlyOnceWith(null, "", "/en/deals?view=v-a");
+    expect(pushState).toHaveBeenCalledExactlyOnceWith(
+      null,
+      "",
+      "/en/records/10000000-0000-4000-8000-000000000103?view=v-a",
+    );
     expect(harness.calls).toEqual(["applyView"]);
 
     const modified = new MouseEvent("click", { bubbles: true, cancelable: true, metaKey: true });
@@ -505,7 +514,9 @@ describe("data view rail interaction", () => {
 
     act(() => chips(host)[1].click());
 
-    expect(harness.routerPush).toHaveBeenCalledExactlyOnceWith("/deals?view=v-a");
+    expect(harness.routerPush).toHaveBeenCalledExactlyOnceWith(
+      "/records/10000000-0000-4000-8000-000000000103?view=v-a",
+    );
     expect(value.applyView).not.toHaveBeenCalled();
     expect(pushState).not.toHaveBeenCalled();
   });
@@ -569,11 +580,15 @@ describe("data view rail interaction", () => {
         sortDescriptor: null,
         viewMode: "table",
       },
-      surfaceKey: "deals-card-store",
+      surfaceKey: "records:10000000-0000-4000-8000-000000000103",
     });
     expect(harness.calls).toEqual(["upsertDataViewAction", "refresh", "applyView"]);
     expect(value.applyView).toHaveBeenCalledExactlyOnceWith("v-new");
-    expect(pushState).toHaveBeenCalledExactlyOnceWith(null, "", "/en/deals?view=v-new");
+    expect(pushState).toHaveBeenCalledExactlyOnceWith(
+      null,
+      "",
+      "/en/records/10000000-0000-4000-8000-000000000103?view=v-new",
+    );
     expect(host.querySelector("[data-view-draft]")).toBeNull();
   });
 
@@ -647,7 +662,7 @@ describe("data view rail interaction", () => {
         sortDescriptor: null,
         viewMode: "table",
       },
-      surfaceKey: "deals-card-store",
+      surfaceKey: "records:10000000-0000-4000-8000-000000000103",
     });
     expect(harness.upsertDataViewAction.mock.calls[0][0]).not.toHaveProperty("id");
     expect(harness.calls).toEqual(["upsertDataViewAction", "refresh", "applyView"]);
@@ -718,7 +733,7 @@ describe("data view rail interaction", () => {
         sortDescriptor: null,
         viewMode: "table",
       },
-      surfaceKey: "deals-card-store",
+      surfaceKey: "records:10000000-0000-4000-8000-000000000103",
     });
     expect(harness.calls).toEqual(["upsertDataViewAction", "refresh"]);
     expect(host.querySelector("#view-editor-name")).toBeNull();

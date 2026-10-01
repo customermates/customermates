@@ -1,4 +1,4 @@
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 import type { DataViewStateRepo, SurfaceViewState } from "@/core/data-view/data-view-state.repo";
 import type { DataViewChipDto, DataViewState } from "@/core/data-view/data-view-state.schema";
 import type { Filter, FilterableField, GetQueryParams, SortDescriptor } from "../base-get.schema";
@@ -8,12 +8,13 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { EntityType, Prisma } from "@/generated/prisma";
+import { Prisma } from "@/generated/prisma";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
+import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import { BaseGetInteractor, BaseGetRepo } from "../base-get.interactor";
 import { DataViewResultFields } from "../base-get.schema";
 import { FilterOperatorKey, ViewMode } from "../base-query-builder";
-import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 
 type Item = { id: string };
 
@@ -147,17 +148,25 @@ describe("a GET never persists what the user is looking at", () => {
   });
 
   it("keeps the personal All tab filters and the surface default sort when only a page is requested", async () => {
-    const { data, repo } = await invokeWith({ p13nId: "contacts-card-store", page: 2 });
+    const { data, repo } = await invokeWith({
+      p13nId: "contacts-card-store",
+      page: 2,
+    });
 
     expect(data.filters).toEqual(storedFilters);
-    expect(data.sortDescriptor).toEqual({ field: "createdAt", direction: "desc" });
+    expect(data.sortDescriptor).toEqual({
+      field: "createdAt",
+      direction: "desc",
+    });
     expect(data.pagination?.page).toBe(2);
     expect(data.pagination?.pageSize).toBe(25);
     expect(repo.itemCalls[0]?.pagination).toEqual({ page: 2, pageSize: 25 });
   });
 
   it("resolves the All tab against the personal state read from personalization and writes nothing", async () => {
-    const { data, touched } = await invokeWith({ p13nId: "contacts-card-store" });
+    const { data, touched } = await invokeWith({
+      p13nId: "contacts-card-store",
+    });
 
     expect(data.activeViewKey).toBe(ALL_VIEW_KEY);
     expect(data.filters).toEqual(storedFilters);
@@ -167,7 +176,10 @@ describe("a GET never persists what the user is looking at", () => {
   });
 
   it("resolves a named view against its own state alone, never against the All tab state", async () => {
-    const { data, touched } = await invokeWith({ p13nId: "contacts-card-store", viewId: A_VIEW_ID });
+    const { data, touched } = await invokeWith({
+      p13nId: "contacts-card-store",
+      viewId: A_VIEW_ID,
+    });
 
     expect(data.activeViewKey).toBe(A_VIEW_ID);
     expect(data.filters).toEqual([]);
@@ -178,7 +190,10 @@ describe("a GET never persists what the user is looking at", () => {
   });
 
   it("carries the personal All tab state alongside a named view so the client can switch back without a blank frame", async () => {
-    const { data } = await invokeWith({ p13nId: "contacts-card-store", viewId: A_VIEW_ID });
+    const { data } = await invokeWith({
+      p13nId: "contacts-card-store",
+      viewId: A_VIEW_ID,
+    });
 
     expect(data.allState).toEqual(allState);
   });
@@ -199,13 +214,19 @@ describe("a read with no surface key says nothing about views", () => {
   const documentedButSurfaceOnlyKeys = ["columnOrder", "columnWidths", "hiddenColumns", "viewMode"];
 
   it("emits none of the fields the documented REST result schema does not declare", async () => {
-    const { data } = await invokeWith({ filters: storedFilters, searchTerm: "munich" });
+    const { data } = await invokeWith({
+      filters: storedFilters,
+      searchTerm: "munich",
+    });
 
     expect(undocumentedKeys.filter((key) => key in data)).toEqual([]);
   });
 
   it("emits no layout or view mode projection either", async () => {
-    const { data } = await invokeWith({ filters: storedFilters, viewMode: ViewMode.card });
+    const { data } = await invokeWith({
+      filters: storedFilters,
+      viewMode: ViewMode.card,
+    });
 
     expect(documentedButSurfaceOnlyKeys.filter((key) => key in data)).toEqual([]);
   });

@@ -10,7 +10,7 @@ import { REPO_ROOT, walkFiles } from "./walk";
 const ENFORCED = true;
 
 const SPEC_EXEMPT_PATHS = new Set(["/v1/mcp", "/v1/openapi"]);
-const RETIRED_RECORD_PATH = /^\/v1\/(?:contacts|organizations|deals|services|tasks)(?:\/|$)/;
+const RETIRED_RECORD_PATH = /^\/v1\/(?:contacts|organizations|deals|services|tasks|messaging\/activities\/search)(?:\/|$)/;
 const HTTP_VERBS = new Set(["get", "post", "put", "patch", "delete", "head", "options"]);
 const HTTP_HANDLER_NAMES = new Set(["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]);
 const SCHEMA_PARSE_METHOD_NAMES = new Set(["parse", "safeParse", "parseAsync", "safeParseAsync"]);

@@ -1,14 +1,11 @@
+import { ContactDtoSchema } from "@/features/records/history/v1/contact.schema";
+import { DealDtoSchema } from "@/features/records/history/v1/deal.schema";
+import { OrganizationDtoSchema } from "@/features/records/history/v1/organization.schema";
 import type { PrismaClient } from "@/generated/prisma";
-import type { ZodType } from "zod";
+import { z, type ZodType } from "zod";
 
 import { SYNTHETIC_COMPANY_USERS, SYNTHETIC_SEED_USER } from "@/core/config/synthetic-seed-user";
 import { DomainEvent } from "@/features/event/domain-events";
-import { WebhookContactCreatedSchema } from "@/features/contacts/upsert/contact-created.openapi";
-import { WebhookContactUpdatedSchema } from "@/features/contacts/upsert/contact-updated.openapi";
-import { WebhookDealCreatedSchema } from "@/features/deals/upsert/deal-created.openapi";
-import { WebhookDealUpdatedSchema } from "@/features/deals/upsert/deal-updated.openapi";
-import { WebhookOrganizationCreatedSchema } from "@/features/organizations/upsert/organization-created.openapi";
-import { WebhookOrganizationUpdatedSchema } from "@/features/organizations/upsert/organization-updated.openapi";
 import { describe, expect, it, vi } from "vitest";
 
 import type { SeedContext } from "../seeds/context";
@@ -21,13 +18,35 @@ import { SYNTHETIC_ORGANIZATION_NAMES } from "../seeds/organizations";
 import { SYNTHETIC_SEED_TIMELINE } from "../seeds/timeline";
 import { seedWebhooks, SYNTHETIC_WEBHOOK_DELIVERY_DEFINITIONS, SYNTHETIC_WEBHOOK_URL } from "../seeds/webhooks";
 
+vi.mock("../seeds/historical-record-fixtures", () => ({
+  historicalRecordFixtureRows: (
+    prisma: Record<string, { findMany(): Promise<unknown> }>,
+    _companyId: string,
+    kind: string,
+  ) => prisma[kind].findMany(),
+}));
+const envelope = (event: string, payload: ZodType) =>
+  z.object({
+    event: z.literal(event),
+    data: z.object({ userId: z.uuid(), companyId: z.uuid(), entityId: z.uuid(), payload }),
+    timestamp: z.iso.datetime(),
+  });
 const DELIVERY_SCHEMAS = {
-  [DomainEvent.CONTACT_CREATED]: WebhookContactCreatedSchema,
-  [DomainEvent.CONTACT_UPDATED]: WebhookContactUpdatedSchema,
-  [DomainEvent.DEAL_CREATED]: WebhookDealCreatedSchema,
-  [DomainEvent.DEAL_UPDATED]: WebhookDealUpdatedSchema,
-  [DomainEvent.ORGANIZATION_CREATED]: WebhookOrganizationCreatedSchema,
-  [DomainEvent.ORGANIZATION_UPDATED]: WebhookOrganizationUpdatedSchema,
+  [DomainEvent.CONTACT_CREATED]: envelope("contact.created", ContactDtoSchema),
+  [DomainEvent.CONTACT_UPDATED]: envelope(
+    "contact.updated",
+    z.object({ contact: ContactDtoSchema, changes: z.record(z.string(), z.unknown()) }),
+  ),
+  [DomainEvent.DEAL_CREATED]: envelope("deal.created", DealDtoSchema),
+  [DomainEvent.DEAL_UPDATED]: envelope(
+    "deal.updated",
+    z.object({ deal: DealDtoSchema, changes: z.record(z.string(), z.unknown()) }),
+  ),
+  [DomainEvent.ORGANIZATION_CREATED]: envelope("organization.created", OrganizationDtoSchema),
+  [DomainEvent.ORGANIZATION_UPDATED]: envelope(
+    "organization.updated",
+    z.object({ organization: OrganizationDtoSchema, changes: z.record(z.string(), z.unknown()) }),
+  ),
 } satisfies Record<(typeof SYNTHETIC_WEBHOOK_DELIVERY_DEFINITIONS)[number]["event"], ZodType>;
 
 const USER_REFERENCE = {
@@ -139,6 +158,10 @@ function context() {
         contact: { findMany: contactFindMany },
         deal: { findMany: dealFindMany },
         organization: { findMany: organizationFindMany },
+        recordEventSubscription: {
+          upsert: vi.fn().mockResolvedValue({}),
+          deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
+        },
         webhook: { deleteMany: webhookDeleteMany, upsert: webhookUpsert },
         webhookDelivery: {
           deleteMany: deliveryDeleteMany,
@@ -177,7 +200,7 @@ describe("synthetic webhook fixtures", () => {
       url: SYNTHETIC_WEBHOOK_URL,
     });
     expect(new URL(webhook.url).hostname).toBe("receiver.example");
-    expect(new Set(webhook.events)).toEqual(new Set(SYNTHETIC_WEBHOOK_DELIVERY_DEFINITIONS.map(({ event }) => event)));
+    expect(new Set(webhook.events)).toEqual(new Set(["record.created", "record.updated"]));
     expect(webhook.createdAt).toEqual(SYNTHETIC_SEED_TIMELINE.webhook.createdAt);
     expect(webhook.updatedAt).toEqual(SYNTHETIC_SEED_TIMELINE.webhook.updatedAt);
     expect(calls.webhookDeleteMany).toHaveBeenCalledOnce();

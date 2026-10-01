@@ -11,7 +11,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   Action,
   Currency,
-  EntityType,
   Locale,
   Resource,
   Status,
@@ -19,6 +18,7 @@ import {
   SubscriptionStatus,
   Theme,
 } from "@/generated/prisma";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 vi.mock("../root.store", () => ({
   RootStore: class {

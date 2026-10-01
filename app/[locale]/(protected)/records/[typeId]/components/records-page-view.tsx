@@ -35,6 +35,7 @@ import { useRecordRouteReady } from "@/components/records/use-record-route-ready
 import { RecordOperationProgress } from "@/components/records/record-operation-progress";
 import { useRecordExport } from "@/features/data-transfer/export/use-record-export";
 import { RecordImportDialog } from "./record-import-dialog";
+import { RecordMassActions } from "./record-mass-actions";
 
 export const RecordsPageView = observer(function RecordsPageView({
   presentation,
@@ -117,6 +118,9 @@ export const RecordsPageView = observer(function RecordsPageView({
     [openEditor],
   );
   const recordColumns = store.recordColumns;
+  const avatarFieldId = store.presentation.model.capabilities
+    .find((binding) => binding.kind === "avatar" && binding.typeId === store.presentation.typeId)
+    ?.fields.find((field) => field.role === "image")?.fieldId;
   const columns = useMemo<ColumnDef<RecordRow>[]>(
     () =>
       recordColumns.map((column) => ({
@@ -124,6 +128,7 @@ export const RecordsPageView = observer(function RecordsPageView({
         header: column.label,
         cell: ({ row }) => (
           <RecordCell
+            avatarFieldId={column.id === store.type?.primaryFieldId ? avatarFieldId : undefined}
             column={column}
             record={row.original}
             onMore={() => openRecord(row.original)}
@@ -131,7 +136,7 @@ export const RecordsPageView = observer(function RecordsPageView({
           />
         ),
       })),
-    [recordColumns, openRecord, openRelated],
+    [recordColumns, openRecord, openRelated, avatarFieldId, store.type?.primaryFieldId],
   );
   const handleAdd = useCallback(() => {
     runUserAction(() => openEditor({ typeId: store.presentation.typeId }));
@@ -162,7 +167,7 @@ export const RecordsPageView = observer(function RecordsPageView({
   );
   useSetTopBarActions(toolbar);
   const view = resolveDataViewView(store.viewMode, store.canBoard);
-  const state = resolveDataViewPageState({
+  const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: false,
     hasActiveQuery: Boolean(store.searchTerm?.trim()) || Boolean(store.filters?.length),
     isGrouped: store.isGrouped,
@@ -171,7 +176,7 @@ export const RecordsPageView = observer(function RecordsPageView({
     total: store.pagination?.total,
   });
   let body: ReactNode;
-  switch (state) {
+  switch (pageState) {
     case "loading":
       body = (
         <PageState background={<RecordsPageSkeleton view={view} />} label={t("PageState.loading")} state="loading" />
@@ -214,13 +219,23 @@ export const RecordsPageView = observer(function RecordsPageView({
       body = <DataViewContent columns={columns} store={store} view={view} onRowClick={openRecord} />;
       break;
     default: {
-      const exhaustive: never = state;
+      const exhaustive: never = pageState;
       body = exhaustive;
     }
   }
   return (
     <>
-      <DataViewLayout showPagination={state === "content" && view !== "board" && !store.isGrouped} store={store}>
+      <DataViewLayout showPagination={pageState === "content" && view !== "board" && !store.isGrouped} store={store}>
+        <RecordMassActions store={store} />
+
+        {store.pendingBulkOperation && (
+          <RecordOperationProgress
+            operationId={store.pendingBulkOperation}
+            onCompleted={store.bulkCompleted}
+            onStopped={store.bulkStopped}
+          />
+        )}
+
         {store.pendingBoardOperation && (
           <RecordOperationProgress
             operationId={store.pendingBoardOperation}

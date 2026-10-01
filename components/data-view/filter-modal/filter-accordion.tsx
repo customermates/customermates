@@ -1,7 +1,7 @@
 "use client";
 
 import type { Filter, FilterableField } from "@/core/base/base-get.schema";
-import type { ColumnPresentation } from "@/features/custom-column/custom-column.schema";
+import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
 
 import { observer } from "mobx-react-lite";
 

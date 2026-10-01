@@ -60,6 +60,10 @@ export const RecordActivityWidgetCard = observer(({ widget }: { widget: RecordAc
       <AppCardHeader className="flex-col items-start gap-0.5">
         <h2 className="text-x-md w-full truncate">{widget.name}</h2>
 
+        <span className="text-xs text-muted-foreground">
+          {t("Dashboard.activityWidget.activityCount", { count: timeline.items.length })}
+        </span>
+
         {widget.displayOptions.showFilters && (
           <button
             className="text-left text-xs text-muted-foreground hover:underline"

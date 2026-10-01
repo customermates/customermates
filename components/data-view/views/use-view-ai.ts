@@ -3,15 +3,15 @@
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
 import type { AgentContextAttachment } from "@/ee/agent-chat/agent-context";
 
-import { useEffect, useRef, useSyncExternalStore } from "react";
-import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { usePathname } from "next/navigation";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 
 import { focusAgentComposer } from "@/app/components/agent-chat/chat-ui";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { isAiManageableDataViewSurface } from "@/core/data-view/ai-manageable-surfaces";
-import { SurfaceKeySchema } from "@/core/data-view/data-view-identity.schema";
 import { SURFACE } from "@/core/data-view/data-view-keys";
+import { SurfaceKeySchema } from "@/core/data-view/data-view-identity.schema";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { viewAiTypeLabel } from "./view-ai-type-label";
@@ -57,8 +57,8 @@ export function useViewAi<E extends HasId>(
     const releaseCandidates = agentChatStore.contextRegistry.register(pathname, () => {
       if (!store.isReady || store.p13nId !== surfaceKey) return [];
       const activeName = store.views.find((view) => view.id === store.activeViewKey)?.name ?? t("DataView.views.all");
-      const currentViewType = viewAiTypeLabel(surfaceKey, t, singular, "standalone");
-      const newViewType = viewAiTypeLabel(surfaceKey, t, singular, "embedded");
+      const currentViewType = viewAiTypeLabel(surfaceKey, t, singular, "standalone", store.viewTypeLabel);
+      const newViewType = viewAiTypeLabel(surfaceKey, t, singular, "embedded", store.viewTypeLabel);
       const current: AgentContextAttachment = {
         reference: {
           kind: "dataView",
@@ -121,7 +121,13 @@ export function useViewAi<E extends HasId>(
     if (!available || !surface.success || !agentChatStore || !isAiManageableDataViewSurface(surface.data)) return;
     const viewKey = store.activeViewKey;
     const surfaceKey = surface.data;
-    const viewType = viewAiTypeLabel(surfaceKey, t, singular, mode === "update" ? "standalone" : "embedded");
+    const viewType = viewAiTypeLabel(
+      surfaceKey,
+      t,
+      singular,
+      mode === "update" ? "standalone" : "embedded",
+      store.viewTypeLabel,
+    );
     const reference: AgentContextAttachment["reference"] =
       mode === "update"
         ? { kind: "dataView", surfaceKey, viewKey, requestedAction: "update" }
@@ -146,7 +152,7 @@ export function useViewAi<E extends HasId>(
           ? t("AgentChat.context.starter.createNamed", { name })
           : t("AgentChat.context.starter.create")
         : surfaceKey === SURFACE.entityTimeline
-          ? t("AgentChat.context.starter.timeline", { name })
+          ? t("AgentChat.context.starter.timeline")
           : entry === "filters"
             ? t("AgentChat.context.starter.filters", { name })
             : entry === "appearance"

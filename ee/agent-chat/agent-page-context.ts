@@ -1,8 +1,6 @@
-import { z } from "zod";
-
 import { SurfaceKeySchema, ViewKeySchema } from "@/core/data-view/data-view-identity.schema";
 import { SURFACE, type DataViewSurfaceKey } from "@/core/data-view/data-view-keys";
-import { dataViewPath, ENTITY_TIMELINE_PARENT_PATHS } from "@/core/data-view/data-view-paths";
+import { dataViewPath, isRecordTimelinePath } from "@/core/data-view/data-view-paths";
 import { stripLocalePrefix } from "@/i18n/locale-registry";
 
 const CONTEXT_ORIGIN = "https://local.invalid";
@@ -20,9 +18,7 @@ function routeMatchesSurface(route: URL, surfaceKey: DataViewSurfaceKey): boolea
   const path = stripLocalePrefix(route.pathname);
   if (surfaceKey !== SURFACE.entityTimeline) return dataViewPath(surfaceKey) === path;
 
-  const parent = ENTITY_TIMELINE_PARENT_PATHS.find((candidate) => path.startsWith(`${candidate}/`));
-  if (!parent) return false;
-  return z.uuid().safeParse(path.slice(parent.length + 1)).success;
+  return isRecordTimelinePath(path);
 }
 
 export function agentViewRequestTarget(pageRoute: string | null | undefined) {

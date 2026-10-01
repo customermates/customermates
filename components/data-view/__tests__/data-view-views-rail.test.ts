@@ -51,7 +51,7 @@ const THREE_VIEWS = [
 function store(overrides: Partial<BaseDataViewStore<Item>> = {}): BaseDataViewStore<Item> {
   return {
     activeViewKey: ALL_VIEW_KEY,
-    entityType: "DEAL",
+    supportsSelection: true,
     hasSelection: false,
     isDisabled: false,
     isReady: true,
@@ -362,7 +362,7 @@ describe("data view rail", () => {
 
   it("hides the rail below md while a selection is active", () => {
     expect(render(store({ hasSelection: true, views: THREE_VIEWS }))).toContain("hidden md:flex");
-    expect(render(store({ hasSelection: true, entityType: undefined, views: THREE_VIEWS }))).not.toContain(
+    expect(render(store({ hasSelection: true, supportsSelection: false, views: THREE_VIEWS }))).not.toContain(
       "hidden md:flex",
     );
     expect(render(store({ views: THREE_VIEWS }))).not.toContain("hidden md:flex");

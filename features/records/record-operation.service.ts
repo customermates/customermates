@@ -21,17 +21,20 @@ import {
   recordKey,
 } from "./record-calculation.service";
 import { createRecordStagingRepo } from "./record-staging.repository";
-import { StagedRecordSchema } from "./record-staging.repository";
 import { validateRecordModel } from "./record-model-validation";
 import { presetId } from "./crm-preset";
 import { RecordJournal } from "./record-journal";
 import { RecordEventPayloadSchema } from "./record-event.schema";
+import { DeletionCursorSchema, RecordDeletionStaging } from "./record-deletion-staging";
 
-const CursorSchema = z.object({
-  phase: z.enum(["source", "values", "calculations", "events", "publish"]),
-  index: z.number().int().nonnegative(),
-  afterId: z.string().optional(),
-});
+const CursorSchema = z.union([
+  z.object({
+    phase: z.enum(["source", "values", "calculations", "events", "publish"]),
+    index: z.number().int().nonnegative(),
+    afterId: z.string().optional(),
+  }),
+  DeletionCursorSchema,
+]);
 const SourcesSchema = z.object({
   refs: z.array(RecordRefSchema),
   captures: z.array(z.object({ ref: RecordRefSchema, fieldIds: z.array(z.uuid()) })),
@@ -104,6 +107,16 @@ export class RecordOperationService extends UserAccessor {
             } else {
               const request = MutateRecordSchema.parse(operation.request);
               const writer = new RecordWriteService(staged, this.policy, calculations);
+              if (request.mutation.action === "delete" || request.mutation.action === "deleteMany") {
+                await writer.validateAccess(request.mutation, policy);
+                const refs =
+                  request.mutation.action === "delete"
+                    ? [request.mutation.ref]
+                    : request.mutation.targets.map((target) => target.ref);
+                for (const ref of refs) await this.records.queueDeletionRef(operationId, ref);
+                await this.records.updateOperation(operationId, { cursor: { phase: "deletePlan", index: 0 } });
+                return { done: false };
+              }
               const result = await writer.apply(request.mutation, current, policy, currency, BACKGROUND_FANOUT_LIMIT, {
                 skipCalculations: true,
                 createRecordId: presetId(this.companyId, `operation:${operationId}:record`),
@@ -134,10 +147,54 @@ export class RecordOperationService extends UserAccessor {
                 cursor: { phase: "calculations", index: 0 },
               });
             }
+            await journal.persist();
             return { done: false };
           }
 
           const model = await staged.getModel();
+          const deletionCursor = DeletionCursorSchema.safeParse(cursor);
+          if (deletionCursor.success) {
+            const mutation = MutateRecordSchema.parse(operation.request).mutation;
+            if (mutation.action !== "delete" && mutation.action !== "deleteMany")
+              throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
+            const result = await new RecordDeletionStaging(
+              this.records,
+              journal,
+              operationId,
+              BATCH_SIZE,
+              BACKGROUND_FANOUT_LIMIT,
+            ).advance(deletionCursor.data, mutation, model, policy);
+            if (result.affectedTypeIds) {
+              const typeIds = new Set(result.affectedTypeIds);
+              let expanded = true;
+              while (expanded) {
+                expanded = false;
+                for (const field of model.fields) {
+                  if (
+                    !typeIds.has(field.typeId) &&
+                    field.behavior.kind !== "input" &&
+                    calculationSources(field.behavior.expression, field.typeId, model).some((source) =>
+                      typeIds.has(source.typeId),
+                    )
+                  ) {
+                    typeIds.add(field.typeId);
+                    expanded = true;
+                  }
+                }
+              }
+              await this.records.stageRow(operationId, "sources", "affected", {
+                refs: [],
+                captures: [],
+                affectedTypeIds: [...typeIds],
+              });
+            }
+            await journal.persist();
+            await this.records.updateOperation(operationId, {
+              cursor: result.cursor,
+              processed: operation.processed + result.processed,
+            });
+            return { done: false };
+          }
           const sources = SourcesSchema.parse(await this.records.getStageRow(operationId, "sources", "affected"));
           if (cursor.phase === "values") {
             if (!prepared) throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
@@ -151,6 +208,7 @@ export class RecordOperationService extends UserAccessor {
             const refs = await staged.getRecordRefsCompanyWide(typeId, cursor.afterId, BATCH_SIZE);
             const writer = new RecordConfigurationWriter(staged, calculations);
             for (const ref of refs) await writer.initializeRecord(ref, prepared, current, BACKGROUND_FANOUT_LIMIT);
+            await journal.persist();
             await this.records.updateOperation(operationId, {
               processed: operation.processed + refs.length,
               cursor:
@@ -187,6 +245,7 @@ export class RecordOperationService extends UserAccessor {
                 continue;
               await calculations.calculateField(model, ref, field.id, currency, BACKGROUND_FANOUT_LIMIT);
             }
+            await journal.persist();
             await this.records.updateOperation(operationId, {
               processed: operation.processed + refs.length,
               cursor:
@@ -235,14 +294,10 @@ export class RecordOperationService extends UserAccessor {
               this.policy,
               new RecordCalculationService(this.records),
             ).validateAccess(mutation, policy);
-            if (mutation.action === "delete") {
-              for (const entry of await this.records.getStageRows(operationId, "record")) {
-                const deleted = StagedRecordSchema.parse(entry.payload);
-                if (!deleted.deleted) continue;
-                const row = await this.records.getRecordCompanyWide(deleted.ref);
-                if (!row || !(await policy.canRead(row)) || !policy.allowed(row.typeId, "delete") || row.protectedKind)
-                  throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
-              }
+            if (mutation.action === "delete" || mutation.action === "deleteMany") {
+              const typeIds = current.types.filter((type) => policy.allowed(type.id, "delete")).map((type) => type.id);
+              if (!(await this.records.validateStagedDeletionAccess(operationId, policy.access(typeIds))))
+                throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
             }
           }
           await this.records.publishStage(operationId, model.revision);

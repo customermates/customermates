@@ -1001,7 +1001,6 @@
   "Common": {
     "actions": {
       "add": "Añadir",
-      "addCustomField": "Añadir campo",
       "back": "Atrás",
       "cancel": "Cancelar",
       "clear": "Borrar",
@@ -1012,16 +1011,12 @@
       "continueSetup": "Continuar con la configuración",
       "copy": "Copiar al portapapeles",
       "delete": "Eliminar",
-      "deleteCustomFields": "Eliminar campo",
       "discard": "Descartar",
-      "editCustomFields": "Editar campo",
       "expand": "Ampliar",
       "labelHistory": "Historial",
-      "labelNotes": "Notas",
       "loadMore": "Cargar más",
       "open": "Abrir",
       "openApp": "Abrir la aplicación",
-      "openList": "Abrir la lista",
       "refresh": "Actualizar",
       "remove": "Quitar",
       "reset": "Restablecer",
@@ -1033,7 +1028,6 @@
       "collapseSearch": "Contraer la búsqueda",
       "explainField": "Acerca de {field}",
       "hidePassword": "Ocultar contraseña",
-      "optionName": "Nombre de la opción {number}",
       "selectOption": "Selecciona una opción",
       "showPassword": "Mostrar contraseña",
       "switchToBoardView": "Cambiar a la vista de tablero",
@@ -1044,7 +1038,6 @@
       "tooltipFilters": "Filtros"
     },
     "avatarUrlDescription": "Puedes indicar el enlace de una imagen que se usará como avatar. La imagen debe ser de acceso público.",
-    "clearDefault": "Quitar predeterminado",
     "colors": {
       "default": "Azul",
       "destructive": "Rojo",
@@ -1065,11 +1058,6 @@
       "phone": "Teléfono",
       "plain": "Texto",
       "singleSelect": "Selección única"
-    },
-    "customFieldHelp": {
-      "deleteWeightingColumnPermission": "Este campo determina la cartera ponderada en «{company}», así que eliminarlo desactiva la ponderación. Solicita a un administrador permiso para actualizar «{company}».",
-      "immutableType": "El tipo de campo queda fijo después de crearlo. Crea un nuevo campo personalizado para usar otro tipo.",
-      "probabilityPermission": "Las probabilidades de etapa se gestionan en «{company}». Solicita a un administrador permiso para actualizarlas."
     },
     "dateBuckets": {
       "day": "Día",
@@ -1132,7 +1120,6 @@
       "messageWithName": "¿Seguro que quieres eliminar \"{name}\"? Esta acción no se puede deshacer.",
       "title": "Confirmar la eliminación"
     },
-    "details": "Detalles",
     "email": "Correo electrónico",
     "emptyState": {
       "body": "Empieza añadiendo tu primer elemento «{singular}».",
@@ -1493,8 +1480,6 @@
     },
     "inputs": {
       "addOption": "Añadir \"{value}\"",
-      "addService": "Añadir servicio",
-      "aggregationType": "Métrica",
       "amount": "Importe",
       "avatarUrl": "URL del avatar",
       "bodyTemplate": "Plantilla del cuerpo",
@@ -1506,7 +1491,6 @@
       "currency": "Moneda",
       "datePlaceholder": "Seleccionar una fecha",
       "dateRangePlaceholder": "Seleccionar un intervalo",
-      "defaultOption": "Opción {number}",
       "description": "Descripción",
       "displayLanguage": "Idioma de la interfaz",
       "displayOptions": {
@@ -1519,25 +1503,14 @@
       "emails": "Correos electrónicos",
       "emptyContent": "Sin resultados",
       "enabled": "Activa",
-      "entityType": "Elemento",
       "events": "Eventos",
       "feedback": "Comentarios",
       "firstName": "Nombre",
       "formattingLocale": "Formato regional",
-      "groupByValue": "Agrupación",
       "headers": "Cabeceras personalizadas",
-      "label": "Etiqueta",
       "lastName": "Apellidos",
       "message": "Mensaje",
       "name": "Nombre",
-      "options": {
-        "addOption": "Añadir opción",
-        "allowMultiple": "Permitir varios valores",
-        "color": "Color",
-        "currency": "Moneda",
-        "displayFormat": "Formato",
-        "lastOption": "Una selección única necesita al menos una opción"
-      },
       "password": "Contraseña",
       "prompt": "Instrucciones",
       "roleId": "Rol",
@@ -1552,7 +1525,6 @@
       "triggerEvents": "Eventos",
       "triggerFilters": "Filtros de registro",
       "triggerKind": "Disparador",
-      "type": "Tipo",
       "unavailableSelection": "Selección no disponible",
       "url": "URL",
       "userIds": "Asignado a"
@@ -1576,12 +1548,9 @@
       "copiedToClipboard": "Se ha copiado {value} al portapapeles",
       "copyFailed": "No se pudo copiar al portapapeles",
       "deleted": "Eliminado",
-      "unexpectedError": "Algo ha fallado. Inténtalo de nuevo.",
-      "updated": "Actualizado"
+      "unexpectedError": "Algo ha fallado. Inténtalo de nuevo."
     },
     "pageNumber": "Página {page}",
-    "probability": "Probabilidad",
-    "probabilityRange": "Introduce una probabilidad entre 0 y 100 %.",
     "providers": {
       "google": "Gmail",
       "instagram": "Instagram",
@@ -1595,7 +1564,6 @@
     "scroll": {
       "backToTop": "Back to top"
     },
-    "setAsDefault": "Establecer como predeterminado",
     "sidebar": {
       "description": "Muestra la barra lateral móvil.",
       "title": "Barra lateral",
@@ -1695,10 +1663,6 @@
       "previousPage": "Página anterior",
       "rowsPerPage": "Filas por página",
       "search": "Buscar..."
-    },
-    "taskTypes": {
-      "custom": "Personalizada",
-      "userPendingAuthorization": "Autorización pendiente"
     },
     "themes": {
       "dark": "Oscuro",
@@ -1890,9 +1854,6 @@
     "linkedinOpenProfile": "Abrir el perfil de LinkedIn",
     "noActivity": "Aún no hay actividad para este contacto."
   },
-  "ContactModal": {
-    "title": "Contacto"
-  },
   "ContactPage": {
     "description": "¿Tienes una pregunta, quieres una demostración o estás explorando una colaboración? Escríbeme y te respondo en un día.",
     "form": {
@@ -1936,24 +1897,14 @@
     "activityWidget": {
       "activityCount": "{count, plural, =1 {1 actividad} other {# actividades}}",
       "error": "No se ha podido cargar la actividad.",
-      "loadOlderError": "No se ha podido cargar la actividad más antigua. Las entradas ya mostradas siguen disponibles.",
       "noAccount": "Conecta una cuenta de mensajería o de calendario para ver la actividad.",
       "noActivity": "Aún no hay actividad.",
       "noMatches": "Ninguna actividad coincide con los filtros actuales.",
       "noPermission": "No tienes acceso a ninguna actividad de este espacio de trabajo.",
-      "pageLimitReached": "Se ha alcanzado la página disponible más antigua. Acota la selección actual para revisar actividad más antigua.",
       "scopeTooBroad": "Estos filtros de relación coinciden con demasiados contactos para cargarlos de forma segura. Selecciona menos registros.",
       "title": "Actividad reciente"
     },
     "addCard": "Añadir widget",
-    "aggregationTypes": {
-      "count": "Número de {entities}",
-      "dealQuantity": "Número de {services} en {deals}",
-      "dealValue": "Valor de {deal}",
-      "dealValueRelated": "Valor de {deal} relacionado con {entity}",
-      "dealWeightedValue": "Valor ponderado de {deal}",
-      "dealWeightedValueRelated": "Valor ponderado de {deal} relacionado con {entity}"
-    },
     "displayTypes": {
       "doughnutChart": "Gráfico de anillo",
       "horizontalBarChart": "Gráfico de barras horizontal",
@@ -1961,13 +1912,6 @@
       "radarChart": "Gráfico radar",
       "verticalBarChart": "Gráfico de barras vertical",
       "verticalBarChartWithLabels": "Gráfico de barras vertical con etiquetas"
-    },
-    "groupBys": {
-      "none": "Sin agrupación"
-    },
-    "tabs": {
-      "dealFilters": "Filtros para {deals}",
-      "filters": "Filtros de {entityType}"
     },
     "widgetEditor": {
       "addTitle": "Añadir widget",
@@ -1983,39 +1927,13 @@
         "deleteLabel": "Eliminar el widget {name}"
       },
       "editTitle": "Editar «{name}»",
-      "filters": {
-        "activityTypeOptions": {
-          "activities": {
-            "description": "Eventos de cuentas conectadas y calendarios.",
-            "label": "Cuenta y calendario"
-          },
-          "changes": {
-            "description": "Actualizaciones de registros, campos y relaciones del CRM.",
-            "label": "Cambios en registros"
-          },
-          "messages": {
-            "description": "Mensajes enviados o recibidos a través de canales conectados.",
-            "label": "Mensajes"
-          }
-        },
-        "activityTypes": "Tipos de actividad",
-        "noneAvailable": "No hay filtros disponibles para este widget.",
-        "removeUnavailable": "Quitar el filtro no disponible «{field}»",
-        "title": "Filtros",
-        "unavailable": "{count, plural, =1 {Un filtro guardado ya no está disponible. Puedes conservarlo o quitarlo.} other {# filtros guardados ya no están disponibles. Puedes conservarlos o quitarlos.}}"
-      },
       "kind": {
         "activityTimelineDescription": "Sigue en orden cronológico los cambios en registros, los mensajes y la actividad de cuentas y calendario.",
         "chartDescription": "Compara los datos del CRM en un gráfico.",
         "title": "Elegir un widget"
       },
       "preview": {
-        "activitySummary": "{title}. Filtros: {filters, plural, =0 {ninguno} =1 {1 activo} other {# activos}}.",
-        "chartSummary": "{title}. {summary}. Métrica: {metric}. Estilo del gráfico: {chart}.",
-        "filterSummary": "{count, plural, =1 {1 filtro} other {# filtros}}",
-        "groupLabel": "Grupo {number}",
-        "title": "Vista previa",
-        "untitled": "Widget sin título"
+        "title": "Vista previa"
       },
       "progress": "Paso {current} de {total}",
       "progressLabel": "Progreso de creación del widget",
@@ -2047,54 +1965,12 @@
   },
   "DataTransfer": {
     "export": {
-      "action": "Exportar",
-      "failed": "No se pudo crear el archivo.",
-      "success": "{count, plural, one {# registro exportado} other {# registros exportados}}",
-      "truncated": "Solo se exportaron los primeros {limit} registros."
+      "action": "Exportar"
     },
     "import": {
       "action": "Añadir desde archivo",
-      "batchProgress": "Lote {done} de {total}",
-      "channelOption": "{provider} (canal)",
       "chooseFile": "Elegir archivo",
-      "commit": "Añadir registros",
-      "description": "Asocia las columnas de la hoja a los campos, revisa el resultado y añade los registros.",
-      "duplicateTargets": "{count, plural, one {# campo recibe datos de más de una columna. Corrígelo antes de continuar.} other {# campos reciben datos de más de una columna. Corrígelos antes de continuar.}}",
-      "fileHint": "Elige una hoja de cálculo. Se admiten libros de Excel.",
-      "fileRejected": "No se pudo leer ese archivo.",
-      "groupChannels": "Canales",
-      "groupCustomFields": "Campos personalizados",
-      "groupFields": "Campos",
-      "ignoreColumn": "No añadir",
-      "issueCount": "{count, plural, one {# problema encontrado} other {# problemas encontrados}}",
-      "issues": {
-        "channelsNotUpdated": "Los canales no cambian en un registro que ya existe",
-        "duplicateRecordId": "La fila {row} ya actualiza este registro",
-        "invalidChannelValue": "\"{value}\" no es una dirección de {provider} válida",
-        "notANumber": "\"{value}\" no es un número",
-        "notAPhoneNumber": "\"{value}\" no es un número de teléfono",
-        "relationAmbiguous": "\"{value}\" coincide con más de un registro",
-        "relationNotFound": "No se encontró \"{value}\"",
-        "unknownOption": "\"{value}\" no es una de las opciones de {column}",
-        "unknownProvider": "\"{value}\" no es un tipo de canal compatible"
-      },
-      "mappingHint": "{file}, {rows} filas",
-      "moreIssues": "y {count} más",
-      "noIssues": "No se encontraron problemas.",
-      "previewCounts": "{create} para añadir, {update} para actualizar",
-      "progress": "Paso {current} de {total}",
-      "progressLabel": "Progreso",
-      "recordId": "ID del registro",
-      "resultCounts": "{created} añadidos, {updated} actualizados",
-      "resultSkipped": "{count, plural, one {# fila omitida} other {# filas omitidas}}",
-      "row": "Fila",
-      "rowsAffected": "{count, plural, one {# fila} other {# filas}}",
-      "skipInvalid": "{count, plural, one {Importar el resto y omitir # fila} other {Importar el resto y omitir # filas}}",
-      "stopped": "Detenido en la fila {row}. {remaining} filas no se procesaron.",
-      "title": "Añadir registros desde un archivo",
-      "unnamedColumn": "Columna sin nombre",
-      "validate": "Comprobar el archivo",
-      "warningCount": "{count, plural, one {# aviso} other {# avisos}}"
+      "fileRejected": "No se pudo leer ese archivo."
     },
     "menu": "Importar y exportar",
     "recordImport": {
@@ -2125,7 +2001,6 @@
     "boardPickedUp": "Registro seleccionado.",
     "collapseGroup": "Contraer el grupo {group}",
     "dragToReorder": "Arrastrar para reordenar",
-    "editColumn": "Editar columna",
     "expandGroup": "Expandir el grupo {group}",
     "groupOverflow": "Solo se muestran {count} grupos",
     "noValue": "Sin valor",
@@ -2157,14 +2032,7 @@
       "recordCount": "{count, plural, one {# registro} other {# registros}}"
     }
   },
-  "DealModal": {
-    "noServicesAdded": "Aún no se ha añadido ningún elemento «{entity}»",
-    "quantityLabel": "Cantidad",
-    "title": "Oportunidad",
-    "valueLabel": "Valor"
-  },
   "Diagrams": {
-    "groups": "grupos",
     "noData": "No hay datos disponibles",
     "noGroup": "Sin asignar",
     "total": "Total"
@@ -2271,7 +2139,6 @@
       "noResults": "Sin coincidencias.",
       "searching": "Buscando…",
       "searchPlaceholder": "Busca o pega un correo, un teléfono o un identificador…",
-      "sourceContacts": "Contacto existente",
       "sourceConversations": "De tus conversaciones",
       "sourceLookup": "Encontrado por búsqueda",
       "trigger": "Añadir canal"
@@ -2291,22 +2158,11 @@
     "unverified": "Sin verificar"
   },
   "EntityDetail": {
-    "computedFieldHelp": {
-      "dealValue": "Suma del precio unitario × la cantidad de cada registro vinculado en «{services}». Edita allí los registros vinculados o las cantidades para actualizarlo.",
-      "serviceLineValue": "Precio de «{service}» × cantidad. Cambia aquí el registro o la cantidad; edita el registro vinculado para cambiar su precio.",
-      "serviceQuantity": "Suma de las cantidades de todos los registros vinculados en «{services}». Edita allí las cantidades para actualizar el valor.",
-      "weightedValue": "{dealValue} × {percent} % de probabilidad de cierre de la etapa actual ({stage}). Edita «{services}», las cantidades o la etapa; gestiona las probabilidades en «{company}».",
-      "weightedValueUnconfigured": "{dealValue} × probabilidad de cierre de la etapa seleccionada. Configura las probabilidades en «{company}» y selecciona una etapa; edita «{services}» o las cantidades."
-    },
     "donePersonalizing": "Listo",
     "fieldCancelled": "Se ha cancelado el movimiento de {field}.",
     "fieldDropped": "Se ha colocado {field}.",
     "fieldMoved": "Se ha movido {field} a {target}.",
     "fieldPickedUp": "Se ha seleccionado {field}.",
-    "fields": {
-      "createdAt": "Creado el",
-      "updatedAt": "Actualizado el"
-    },
     "hideField": "Ocultar {field} de los detalles",
     "overview": "Vista general",
     "personalize": "Personalizar",
@@ -2426,11 +2282,8 @@
     "detailDescription": "Detalles de la actividad y contexto del registro relacionado.",
     "error": "No se ha podido cargar la actividad.",
     "loadOlder": "Cargar más antiguos",
-    "loadOlderError": "No se ha podido cargar la actividad más antigua. Las entradas ya mostradas siguen disponibles.",
     "moreRecords": "+{count} más",
     "noFurtherDetail": "No se registraron más detalles para este evento.",
-    "pageLimitReached": "Se ha alcanzado la página disponible más antigua. Acota la selección actual para revisar actividad más antigua.",
-    "scopeTooBroad": "Estos filtros de relación coinciden con demasiados contactos para cargarlos de forma segura. Selecciona menos registros.",
     "types": {
       "activities": "Actividades",
       "changes": "Cambios",
@@ -3247,13 +3100,8 @@
       "members": "{active} de {total}"
     }
   },
-  "OrganizationModal": {
-    "title": "Organización"
-  },
   "PageState": {
-    "loading": "Cargando la página",
-    "notFoundDescription": "Es posible que este registro se haya eliminado o que no tengas acceso a él.",
-    "notFoundTitle": "Registro no encontrado"
+    "loading": "Cargando la página"
   },
   "PendingCard": {
     "body": "Podrás iniciar sesión en cuanto el administrador de tu empresa apruebe tu cuenta.",
@@ -3323,6 +3171,7 @@
     "captureChanged": "Cuando un campo cambia a un valor",
     "captureCreate": "Al crear el registro",
     "captureExplicit": "A petición",
+    "color": "Color",
     "configure": "Configurar",
     "connectionType": "Conexión",
     "constant": "Valor fijo",
@@ -3612,6 +3461,8 @@
     "title": "Controles de administración"
   },
   "RoutineDetail": {
+    "contractReviewHelp": "La instrucción hace referencia a herramientas o endpoints de API del CRM retirados. Actualiza esas referencias antes de ejecutarla. Tu instrucción se ha conservado.",
+    "contractReviewTitle": "Revisa esta rutina",
     "credits": "Créditos",
     "empty": {
       "event": {
@@ -3680,7 +3531,6 @@
   },
   "RoutineModal": {
     "at": "a las",
-    "changedFieldsHelp": "Déjalo vacío para ejecutar en cada cambio. Acotar ahorra créditos.",
     "configurationHeading": "Configuración",
     "customSchedule": "Esta rutina usa una programación personalizada: {expression}",
     "detailsTab": "Detalles",
@@ -3695,7 +3545,6 @@
     "scheduleTimeZone": "Las horas se muestran en {timezone}.",
     "tabsLabel": "Secciones de la rutina",
     "title": "Rutina",
-    "triggerFiltersHelp": "Déjalo vacío para ejecutar con cualquier registro.",
     "useSchedulePreset": "Cambiar a una frecuencia predefinida"
   },
   "RoutineRunReason": {
@@ -3763,9 +3612,6 @@
     "thursday": "Jueves",
     "tuesday": "Martes",
     "wednesday": "Miércoles"
-  },
-  "ServiceModal": {
-    "title": "Servicio"
   },
   "SignInForm": {
     "agreeToTerms": "Al continuar, aceptas nuestros <termsOfServiceLink>Términos</termsOfServiceLink> y reconoces haber leído nuestra <dataPrivacyLink>Política de privacidad</dataPrivacyLink>. Consulta nuestro <dpaLink>DPA</dpaLink>.",
@@ -3877,12 +3723,6 @@
     "signoff": "Un saludo,\nBen",
     "subject": "Tu cuenta está inactiva: podemos ayudarte a recuperar el acceso",
     "title": "Suscripción desactivada"
-  },
-  "TaskModal": {
-    "title": "Tarea"
-  },
-  "TasksCard": {
-    "systemTaskTooltip": "Elemento «{task}» gestionado por el sistema. No se puede eliminar manualmente; ábrelo para obtener más información."
   },
   "TrialExpiredOffer": {
     "body": "Tu prueba terminó hace poco, pero me encantaría ayudarte a sacarle valor real a Customermates. Si quieres, puedo ampliar tu prueba y repasar contigo tu configuración.",

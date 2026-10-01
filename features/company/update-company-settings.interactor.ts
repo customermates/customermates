@@ -1,36 +1,24 @@
-import type { EventService } from "../event/event.service";
 import type { Data } from "@/core/validation/validation.utils";
+import type { EventService } from "../event/event.service";
 
+import { Action, Currency, Resource } from "@/generated/prisma";
 import { z } from "zod";
-import { Currency, Resource, Action } from "@/generated/prisma";
 
 import { DomainEvent } from "../event/domain-events";
-import { dealStageWeightSchema } from "../deals/deal-weighting";
 
-import type { EntityTerminologyEntry } from "@/features/entity-terminology/entity-terminology.schema";
-
-import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { type Validated } from "@/core/validation/validation.utils";
-import { Validate } from "@/core/decorators/validate.decorator";
-import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { Transaction } from "@/core/decorators/transaction.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-
-export const DealStageWeightSchema = z.object({
-  optionValue: z.string(),
-  weight: dealStageWeightSchema().optional(),
-});
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { Transaction } from "@/core/decorators/transaction.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { Validate } from "@/core/decorators/validate.decorator";
+import { type Validated } from "@/core/validation/validation.utils";
 
 export const UpdateCompanySettingsSchema = z.strictObject({ currency: z.enum(Currency) });
-
-export type DealStageWeight = Data<typeof DealStageWeightSchema>;
 
 export type UpdateCompanySettingsData = Data<typeof UpdateCompanySettingsSchema>;
 
 export abstract class UpdateCompanySettingsRepo {
-  abstract updateDetails(args: { currency?: Currency; dealWeightingColumnId?: string | null }): Promise<void>;
-  abstract upsertTerminology(entries: EntityTerminologyEntry[]): Promise<void>;
-  abstract setDealStageWeights(entries: DealStageWeight[]): Promise<void>;
+  abstract updateDetails(args: { currency?: Currency }): Promise<void>;
 }
 
 @TenantInteractor({ resource: Resource.company, action: Action.update })

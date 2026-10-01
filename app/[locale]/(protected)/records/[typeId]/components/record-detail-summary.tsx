@@ -12,7 +12,8 @@ import { RecordValue } from "./record-value";
 import { RecordCell } from "./record-cell";
 import { useRecordChoices } from "./record-relationship-editor";
 import { AppChip } from "@/components/chip/app-chip";
-import { AvatarStack } from "@/components/shared/avatar-stack";
+import { EntityDetailAvatarSummaryValue } from "@/components/entity-detail/entity-detail-summary";
+import { channelDisplayLabel } from "@/ee/messaging/thread-display";
 import { ChannelIconStack } from "@/components/shared/channel-icon-stack";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { runUserAction } from "@/core/errors/report-application-error";
@@ -123,7 +124,9 @@ const SummaryValue = observer(function SummaryValue({
           profileUrl: entry.profileUrl ?? null,
           displayName: entry.displayName ?? null,
         }))}
-        onItemClick={(entry) => runUserAction(() => copy(entry.value))}
+        onItemClick={(entry) =>
+          runUserAction(() => copy(channelDisplayLabel(entry.provider, entry.value, entry.profileUrl)))
+        }
       />
     ) : (
       "—"
@@ -144,7 +147,12 @@ const SummaryValue = observer(function SummaryValue({
     });
     return (
       <span className="flex items-center gap-1">
-        {users.length > 0 && <AvatarStack items={users} size="sm" />}
+        {users.length > 0 && (
+          <EntityDetailAvatarSummaryValue
+            items={users}
+            onItemClick={(item) => runUserAction(() => store.rootStore.userModalStore.loadById(item.id))}
+          />
+        )}
 
         {users.length < store.form.assignedUserIds.length
           ? t("RecordModel.restricted")
@@ -155,7 +163,13 @@ const SummaryValue = observer(function SummaryValue({
     );
   }
   return store.record ? (
-    <RecordCell column={column} record={store.record} onMore={() => undefined} onOpen={() => undefined} />
+    <RecordCell
+      relativeTimestamp
+      column={column}
+      record={store.record}
+      onMore={() => undefined}
+      onOpen={() => undefined}
+    />
   ) : (
     "—"
   );

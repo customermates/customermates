@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
-import { test, expect } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
+import { expect, test } from "./fixtures";
 
 test("resolves a protected task through member approval and rejects ordinary record edits", async ({
   page,
@@ -86,10 +86,7 @@ test("resolves a protected task through member approval and rejects ordinary rec
       )
     ).rows[0].count,
   ).toBe(1);
-  expect(
-    (await database.query('SELECT COUNT(*)::integer AS count FROM "Task" WHERE "companyId"=$1', [companyId])).rows[0]
-      .count,
-  ).toBe(0);
+  expect((await database.query("SELECT to_regclass('\"Task\"') AS table")).rows[0].table).toBeNull();
   await page.goto(`/en/records/${typeId}`);
   await expect(page.getByRole("button", { name: title, exact: true })).toHaveCount(0);
   expect(errors).toEqual([]);

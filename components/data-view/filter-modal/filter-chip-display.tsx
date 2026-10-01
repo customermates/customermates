@@ -1,23 +1,23 @@
 "use client";
 
-import type { ReactNode } from "react";
 import type { Filter } from "@/core/base/base-get.schema";
-import type { ColumnPresentation } from "@/features/custom-column/custom-column.schema";
+import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
+import type { ReactNode } from "react";
 
+import { CustomColumnType } from "@/core/data-view/column-presentation.types";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { z } from "zod";
-import { CustomColumnType } from "@/generated/prisma";
 
-import { FilterOperatorKey, isStandaloneOperator } from "@/core/base/base-query-builder";
-import { SelectionValueSkeleton } from "@/components/forms/selection-loading";
-import { filterValueKind } from "@/core/types/filter-field-value-kind";
-import { isCustomField } from "@/core/utils/custom-field";
-import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import {
   type FilterSelectItem,
   useFilterSelectItems,
 } from "@/components/data-view/filter-modal/inputs/use-filter-select-items";
+import { SelectionValueSkeleton } from "@/components/forms/selection-loading";
+import { FilterOperatorKey, isStandaloneOperator } from "@/core/base/base-query-builder";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
+import { filterValueKind } from "@/core/types/filter-field-value-kind";
+import { isCustomField } from "@/core/utils/custom-field";
 
 function normalizeValues(value: unknown): string[] {
   if (Array.isArray(value)) return value.map(String);

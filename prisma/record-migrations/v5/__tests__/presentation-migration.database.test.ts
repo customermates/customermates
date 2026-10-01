@@ -1,13 +1,13 @@
-import { randomUUID } from "node:crypto";
-import { Client } from "pg";
-import type { ClientBase } from "pg";
-import Decimal from "decimal.js";
-import { afterAll, describe, expect, it } from "vitest";
-import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { compileRecordMeasure } from "@/features/records/record-measure";
-import { RecordModelSchema } from "@/features/records/record-model.schema";
-import { RecordMeasureSchema } from "@/features/records/record-measure.schema";
 import type { RecordMeasure } from "@/features/records/record-measure.schema";
+import { RecordMeasureSchema } from "@/features/records/record-measure.schema";
+import { RecordModelSchema } from "@/features/records/record-model.schema";
+import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
+import { createLegacyMigrationDatabase } from "@/tests/helpers/legacy-migration-database";
+import Decimal from "decimal.js";
+import { randomUUID } from "node:crypto";
+import type { ClientBase } from "pg";
+import { afterAll, describe, expect, it } from "vitest";
 import { migrateRecordWorkspace } from "../../run";
 import { migrateRecordPresentation } from "../run";
 import { presentationFixture, timestamps } from "./fixture";
@@ -15,12 +15,12 @@ import { presentationFixture, timestamps } from "./fixture";
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
 const companies: string[] = [];
-const clients: Client[] = [];
+const databases: Awaited<ReturnType<typeof createLegacyMigrationDatabase>>[] = [];
 type Fixture = Awaited<ReturnType<typeof presentationFixture>>;
 async function fixture(probability: 60 | 0 | null = 60) {
-  const client = new Client({ connectionString: databaseUrl ?? undefined });
-  await client.connect();
-  clients.push(client);
+  const database = await createLegacyMigrationDatabase(databaseUrl);
+  databases.push(database);
+  const { client } = database;
   return presentationFixture(client, probability, (companyId) => companies.push(companyId));
 }
 async function results(f: Fixture, widgetId: string, overall = false) {
@@ -56,9 +56,8 @@ async function expectNoEvents(f: Fixture) {
 
 describeDatabase("version five presentation database migration", { timeout: 60000 }, () => {
   afterAll(async () => {
-    if (clients[0]) await clients[0].query('DELETE FROM "Company" WHERE id = ANY($1::text[])', [companies]);
-    for (const client of clients) await client.end();
-  });
+    for (const database of databases) await database.close();
+  }, 60000);
 
   it("preserves identities, owners, timestamps, explicit overrides and unrelated surfaces across repeat runs", async () => {
     const f = await fixture();
@@ -207,7 +206,7 @@ describeDatabase("version five presentation database migration", { timeout: 6000
 
   it("rejects stale fields, cross-workspace records and members without changing presentation rows", async () => {
     const f = await fixture();
-    const foreign = await fixture();
+    const foreign = await presentationFixture(f.client);
     expect(await migrateRecordWorkspace(f.client, f.companyId, "backfill", 4)).toMatchObject({ ok: true });
     const viewId = f.views.get("deal")?.[0];
     if (!viewId) throw new Error("Missing fixture view");
@@ -234,7 +233,7 @@ describeDatabase("version five presentation database migration", { timeout: 6000
 
   it("rejects target collisions, foreign owners and active views from another surface", async () => {
     const f = await fixture();
-    const foreign = await fixture();
+    const foreign = await presentationFixture(f.client, 60, (companyId) => companies.push(companyId));
     expect(await migrateRecordWorkspace(f.client, f.companyId, "backfill", 4)).toMatchObject({ ok: true });
     const collision = await f.insert("DataView", {
       userId: f.userId,

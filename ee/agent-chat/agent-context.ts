@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import type { EntityType } from "@/generated/prisma";
+import type { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 import { AiManageableDataViewSurfaceKeySchema } from "@/core/data-view/ai-manageable-surfaces";
 import { DATA_VIEW_NAME_MAX_LENGTH } from "@/core/data-view/data-view-limits";
@@ -48,7 +48,13 @@ const AgentDynamicRecordContextReferenceSchema = z
 const AgentConfigurationContextReferenceSchema = z.union([
   z.object({ kind: z.literal("dataModel") }).strict(),
   z.object({ kind: z.literal("recordType"), typeId: z.uuid() }).strict(),
-  z.object({ kind: z.literal("recordField"), typeId: z.uuid(), fieldId: z.uuid() }).strict(),
+  z
+    .object({
+      kind: z.literal("recordField"),
+      typeId: z.uuid(),
+      fieldId: z.uuid(),
+    })
+    .strict(),
   z.object({ kind: z.literal("widget"), widgetId: z.uuid() }).strict(),
 ]);
 

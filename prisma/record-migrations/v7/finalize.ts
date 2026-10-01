@@ -1,12 +1,14 @@
 import { createHash } from "node:crypto";
 import type { ClientBase } from "pg";
 import { z } from "zod";
+import { installLegacyFingerprint, legacySourceFingerprint } from "../v8/fingerprint";
 
 const Manifest = z
   .object({
     previousSourceHashes: z.tuple([z.string(), z.string(), z.string()]),
     schemaRevision: z.literal(3),
     storageMode: z.literal("generic"),
+    legacySourceHash: z.string().optional(),
   })
   .strict();
 
@@ -87,10 +89,12 @@ export async function finalizeReconciledRecordWorkspace(client: ClientBase, comp
       [companyId],
     );
     if (active.rowCount) throw new Error("Finalization requires all record operations to settle");
+    await installLegacyFingerprint(client);
     const manifest = Manifest.parse({
       previousSourceHashes: [4, 5, 6].map((version) => saved.get(version)?.sourceHash),
       schemaRevision: 3,
       storageMode: "generic",
+      legacySourceHash: await legacySourceFingerprint(client, companyId),
     });
     const changed = await client.query(
       'UPDATE "RecordSchemaState" SET "storageMode" = $2 WHERE "companyId" = $1 AND revision = 3 AND "storageMode" = $3 AND "activeOperationId" IS NULL',

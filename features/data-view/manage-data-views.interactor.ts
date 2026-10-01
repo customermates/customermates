@@ -1,14 +1,11 @@
-import type { ResetDataViewStateInteractor } from "./reset-data-view-state.interactor";
 import type { FilterableField } from "@/core/base/base-get.schema";
 import type { SearchableField, SortableField } from "@/core/base/base-query-builder";
 import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
 import type { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
+import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import type { Validated } from "@/core/validation/validation.utils";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
-import type { UpsertDataViewInteractor } from "./upsert-data-view.interactor";
-import type { SaveDataViewStateInteractor } from "./save-data-view-state.interactor";
-import type { SelectDataViewInteractor } from "./select-data-view.interactor";
 import type { DeleteDataViewInteractor } from "./delete-data-view.interactor";
 import type {
   AgentDataViewState,
@@ -16,36 +13,39 @@ import type {
   ManageDataViewsData,
   ManageDataViewsResult,
 } from "./manage-data-views.schema";
-import type { Validated } from "@/core/validation/validation.utils";
+import type { ResetDataViewStateInteractor } from "./reset-data-view-state.interactor";
+import type { SaveDataViewStateInteractor } from "./save-data-view-state.interactor";
+import type { SelectDataViewInteractor } from "./select-data-view.interactor";
+import type { UpsertDataViewInteractor } from "./upsert-data-view.interactor";
 
-import { Action, Resource } from "@/generated/prisma";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { ViewMode } from "@/core/base/base-query-builder";
-import { groupableFieldDtos } from "@/core/base/grouping/groupable-field";
 import { resolveGrouping } from "@/core/base/grouping/group-axis";
-import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
+import { groupableFieldDtos } from "@/core/base/grouping/groupable-field";
 import {
   AI_MANAGEABLE_DATA_VIEW_SURFACE_KEYS,
   isAiManageableDataViewSurface,
+  isRecordDataViewSurface,
   type AiManageableDataViewSurfaceKey,
   type BuiltinAiManageableDataViewSurfaceKey,
-  isRecordDataViewSurface,
 } from "@/core/data-view/ai-manageable-surfaces";
+import { activityViewFilterableFields } from "@/ee/messaging/activities/record-activity-view";
+import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { Validate } from "@/core/decorators/validate.decorator";
+import { FilterFieldKey } from "@/core/types/filter-field-key";
+import { filterValueKind, TIMELINE_KIND_VIEW_VALUES } from "@/core/types/filter-field-value-kind";
 import { fail, failAuthorization, failNotFound } from "@/core/validation/interactor-failure-server";
 import { runPrecheck } from "@/core/validation/run-precheck";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { filterValueKind, TIMELINE_KIND_VIEW_VALUES } from "@/core/types/filter-field-value-kind";
-import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { DomainEvent } from "@/features/event/domain-events";
-import { DATA_VIEW_SURFACES, type SurfaceDescriptor } from "./data-view-surfaces";
-import type { RecordViewPolicy } from "@/features/records/record-view-policy";
 import { recordFilterableFields } from "@/features/records/record-presentation";
-import { ActivityFiltersSchema } from "@/ee/messaging/activities/activities.schema";
-import { getZodParseContext } from "@/core/validation/zod-error-map-server";
+import type { RecordViewPolicy } from "@/features/records/record-view-policy";
+import type { Resource } from "@/generated/prisma";
+import { Action } from "@/generated/prisma";
+import { DATA_VIEW_SURFACES, type SurfaceDescriptor } from "./data-view-surfaces";
 import { ManageDataViewsResultSchema, ManageDataViewsSchema } from "./manage-data-views.schema";
 
 export abstract class DataViewConfigurationRepo {
@@ -57,7 +57,10 @@ export abstract class DataViewConfigurationRepo {
   setMessagingSourcesEnabled?(enabled: boolean): void;
 }
 
-export type DataViewConfigurationSources = Record<BuiltinAiManageableDataViewSurfaceKey, DataViewConfigurationRepo>;
+export type DataViewConfigurationSources = Record<
+  Exclude<BuiltinAiManageableDataViewSurfaceKey, typeof SURFACE.entityTimeline>,
+  DataViewConfigurationRepo
+>;
 
 function matchesQuery(value: Record<string, unknown>, query: string | undefined, keys: readonly string[]) {
   if (!query) return true;
@@ -164,7 +167,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
       });
       const sortableFields = [
         ...config.sortableFields.map(({ field }) => ({ field })),
-        ...(data.surfaceKey === SURFACE.entityTimeline ? [] : config.customColumns).map(({ id, label, type }) => ({
+        ...config.customColumns.map(({ id, label, type }) => ({
           field: id,
           label,
           columnType: type,
@@ -425,12 +428,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
       return failAuthorization(CustomErrorCode.permissionDenied, ["surfaceKey"]);
 
     if (descriptor.messaging) return this.entitlements.require("messaging");
-    if (surfaceKey === SURFACE.entityTimeline) {
-      const messaging = this.hasRead(Resource.inboxMessages) && !(await this.entitlements.require("messaging"));
-      this.sources[surfaceKey].setMessagingSourcesEnabled?.(messaging);
-      if (!messaging && !this.hasRead(Resource.auditLog, true))
-        return failAuthorization(CustomErrorCode.permissionDenied, ["surfaceKey"]);
-    }
+
     return null;
   }
 
@@ -487,6 +485,20 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
           : [ViewMode.table],
       };
     }
+    if (surfaceKey === SURFACE.entityTimeline) {
+      const types = (await this.recordViews?.list()) ?? [];
+      return {
+        customColumns: [] satisfies CustomColumnDto[],
+        filterableFields: activityViewFilterableFields(types),
+        sortableFields: [{ field: "at", resolvedFields: ["at"] }] as SortableField[],
+        groupableFields: [] as GroupableFieldSpec[],
+        groupableDtos: [],
+        filterValues: undefined,
+        appearance: [],
+        supportsSearch: false,
+        viewModes: [ViewMode.table],
+      };
+    }
     const source = this.sources[surfaceKey];
     const [customColumns, filterableFields] = await Promise.all([
       source.getCustomColumns(),
@@ -513,7 +525,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
   }
 
   private async validateState(surfaceKey: AiManageableDataViewSurfaceKey, state: AgentDataViewState) {
-    if (isRecordDataViewSurface(surfaceKey)) {
+    if (isRecordDataViewSurface(surfaceKey) || surfaceKey === SURFACE.entityTimeline) {
       const invalid =
         (await this.recordViews?.validate(surfaceKey, state)) ??
         (this.recordViews ? null : CustomErrorCode.permissionDenied);
@@ -521,27 +533,8 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
     }
     const config = await this.configuration(surfaceKey);
     return runPrecheck(state, async (input, ctx) => {
-      if (surfaceKey === SURFACE.entityTimeline) {
-        for (const field of Object.keys(input)) {
-          if (field !== "filters" && field !== "sortDescriptor") {
-            ctx.addIssue({
-              code: "custom",
-              path: [field],
-              params: {
-                error: CustomErrorCode.invalidFilterField,
-                validValues: "filters, sortDescriptor",
-              },
-            });
-          }
-        }
-        if (input.filters) {
-          const parsed = await ActivityFiltersSchema.safeParseAsync(input.filters, await getZodParseContext());
-          if (!parsed.success)
-            for (const issue of parsed.error.issues) ctx.addIssue({ ...issue, path: ["filters", ...issue.path] });
-        }
-      }
       await this.queryPrecheck.invoke(
-        surfaceKey === SURFACE.entityTimeline ? { ...config, customColumns: [] } : config,
+        config,
         DATA_VIEW_SURFACES[surfaceKey].entityType,
         {
           filters: input.filters,

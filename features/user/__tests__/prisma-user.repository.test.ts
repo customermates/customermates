@@ -1,13 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-import { CustomColumnType, EntityType, Status } from "@/generated/prisma";
+import { Status } from "@/generated/prisma";
 
-import { CHIP_COLORS } from "@/constants/chip-colors";
 import { CLOUD_TRIAL } from "@/core/commercial/plan-catalog";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { createMockUser } from "@/tests/helpers/mock-user";
-
-const customColumnCreate = vi.fn().mockResolvedValue({ id: "column-1" });
 
 const prismaMock = {
   user: {
@@ -28,7 +25,6 @@ const prismaMock = {
   },
   userRole: { create: vi.fn().mockResolvedValue({ id: "role-1" }) },
   subscription: { create: vi.fn().mockResolvedValue({ id: "subscription-1" }) },
-  customColumn: { create: customColumnCreate },
 };
 
 vi.mock("@/prisma/db", () => ({ prisma: prismaMock }));
@@ -62,81 +58,15 @@ describe("PrismaUserRepo.createCompanyAndUser", () => {
     vi.clearAllMocks();
   });
 
-  it("gives a new workspace the select fields a CRM is expected to have", async () => {
+  it("creates membership, role, subscription, and workspace infrastructure", async () => {
     await new PrismaUserRepo().createCompanyAndUser(registerArgs);
-
-    const created = customColumnCreate.mock.calls.map((call) => call[0].data);
-
-    expect(created.map((data) => data.entityType)).toEqual([EntityType.contact, EntityType.deal, EntityType.task]);
-    expect(created.every((data) => data.type === CustomColumnType.singleSelect)).toBe(true);
-    expect(created.every((data) => data.companyId === "company-1")).toBe(true);
-  });
-
-  it("takes every label from the translator so it follows the locale", async () => {
-    await new PrismaUserRepo().createCompanyAndUser(registerArgs);
-
-    const created = customColumnCreate.mock.calls.map((call) => call[0].data);
-
-    for (const data of created) {
-      expect(data.label).toBe(`Common.defaultData.${data.entityType}.columnLabel`);
-      for (const option of data.options.options)
-        expect(option.label).toMatch(new RegExp(`^Common\\.defaultData\\.${data.entityType}\\.options\\.`));
-    }
-  });
-
-  it("gives every field exactly one default option and distinct option values", async () => {
-    await new PrismaUserRepo().createCompanyAndUser(registerArgs);
-
-    const created = customColumnCreate.mock.calls.map((call) => call[0].data);
-
-    for (const data of created) {
-      const options = data.options.options as Array<{
-        isDefault: boolean;
-        value: string;
-        color: string;
-      }>;
-
-      expect(options.length).toBeGreaterThan(1);
-      for (const option of options as Array<{ color: string }>) expect(CHIP_COLORS).toContain(option.color);
-      expect(options.filter((option) => option.isDefault)).toHaveLength(1);
-      expect(options[0].isDefault).toBe(true);
-      expect(new Set(options.map((option) => option.value)).size).toBe(options.length);
-    }
-  });
-
-  it("gives the deal field a weighted stage pipeline and points the company at it", async () => {
-    await new PrismaUserRepo().createCompanyAndUser(registerArgs);
-
-    const created = customColumnCreate.mock.calls.map((call) => call[0].data);
-    const dealColumn = created.find((data) => data.entityType === EntityType.deal);
-    const options = dealColumn.options.options as Array<{ label: string; weight?: number }>;
-
-    expect(options.map((option) => [option.label, option.weight])).toEqual([
-      ["Common.defaultData.deal.options.prospecting", 10],
-      ["Common.defaultData.deal.options.qualification", 20],
-      ["Common.defaultData.deal.options.demo", 40],
-      ["Common.defaultData.deal.options.proposal", 60],
-      ["Common.defaultData.deal.options.negotiation", 80],
-      ["Common.defaultData.deal.options.won", 100],
-      ["Common.defaultData.deal.options.lost", 0],
-    ]);
-
-    for (const data of created.filter((column) => column.entityType !== EntityType.deal))
-      for (const option of data.options.options as Array<{ weight?: number }>) expect(option.weight).toBeUndefined();
-
-    expect(prismaMock.company.update).toHaveBeenCalledWith({
-      where: { id: "company-1" },
-      data: { dealWeightingColumnId: "column-1" },
-    });
-  });
-
-  it("provisions the workspace without seeding demo records", async () => {
-    await new PrismaUserRepo().createCompanyAndUser(registerArgs);
-
-    expect(prismaMock.company.create).toHaveBeenCalledTimes(1);
-    expect(prismaMock.userRole.create).toHaveBeenCalledTimes(1);
-    expect(prismaMock.user.create).toHaveBeenCalledTimes(1);
-    expect(customColumnCreate).toHaveBeenCalledTimes(3);
+    expect(prismaMock.company.create).toHaveBeenCalledOnce();
+    expect(prismaMock.userRole.create).toHaveBeenCalledOnce();
+    expect(prismaMock.user.create).toHaveBeenCalledOnce();
+    expect(prismaMock.subscription.create).toHaveBeenCalledOnce();
+    expect(prismaMock.userRole.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ isSystemRole: true }) }),
+    );
   });
 
   it("stores one consented ad attribution row per provider on the initial owner", async () => {

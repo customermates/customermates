@@ -1,21 +1,21 @@
-import { randomUUID } from "node:crypto";
-import { Client } from "pg";
-import { afterAll, describe, expect, it } from "vitest";
-import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
-import { migrateRecordWorkspace } from "../../run";
-import { migrateRecordTriggers } from "../run";
-import { presentationFixture } from "../../v5/__tests__/fixture";
 import { RecordEventSubscriptionSchema } from "@/features/records/record-event-subscription.schema";
+import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
+import { createLegacyMigrationDatabase } from "@/tests/helpers/legacy-migration-database";
+import { randomUUID } from "node:crypto";
+import { afterAll, describe, expect, it } from "vitest";
+import { migrateRecordWorkspace } from "../../run";
+import { presentationFixture } from "../../v5/__tests__/fixture";
+import { migrateRecordTriggers } from "../run";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
 const companies: string[] = [];
-const clients: Client[] = [];
+const databases: Awaited<ReturnType<typeof createLegacyMigrationDatabase>>[] = [];
 
 async function fixture() {
-  const client = new Client({ connectionString: databaseUrl ?? undefined });
-  await client.connect();
-  clients.push(client);
+  const database = await createLegacyMigrationDatabase(databaseUrl);
+  databases.push(database);
+  const { client } = database;
   const f = await presentationFixture(client, 60, (companyId) => companies.push(companyId));
   expect(await migrateRecordWorkspace(client, f.companyId, "backfill", 5)).toMatchObject({ ok: true });
   return f;
@@ -23,8 +23,7 @@ async function fixture() {
 
 describeDatabase("legacy record trigger migration", { timeout: 60000 }, () => {
   afterAll(async () => {
-    if (clients[0]) await clients[0].query('DELETE FROM "Company" WHERE id = ANY($1::text[])', [companies]);
-    for (const client of clients) await client.end();
+    for (const database of databases) await database.close();
   });
 
   it("keeps one webhook and routine identity while converting several watched record types", async () => {

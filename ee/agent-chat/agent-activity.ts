@@ -260,15 +260,16 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
   if (recordRisk) {
     if (toolName === "configure_record_model")
       return descriptor(recordRisk === "read" ? "customFields.read" : "workspace.configure", undefined, recordRisk);
+
     if (toolName === "mutate_crm_record") {
       const mutation = inputRecord(details.mutation);
       const action = actionValue(mutation);
       const kind =
         action === "create"
           ? "records.create"
-          : action === "update"
+          : action === "update" || action === "updateMany"
             ? "records.update"
-            : action === "delete"
+            : action === "delete" || action === "deleteMany"
               ? "records.delete"
               : action === "link" || action === "unlink"
                 ? "records.link"
@@ -489,8 +490,11 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
       state: safeText(details.state, 80),
     });
   }
-  if (toolName === "move_email_thread")
-    return descriptor("messages.triage", "messages", "write", ["messages"], { action: "thread.move" });
+  if (toolName === "move_email_thread") {
+    return descriptor("messages.triage", "messages", "write", ["messages"], {
+      action: "thread.move",
+    });
+  }
 
   if (
     toolName === "get_record_schema" ||

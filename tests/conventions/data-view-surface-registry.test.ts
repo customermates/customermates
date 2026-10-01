@@ -73,8 +73,8 @@ describe("data view surface registry", () => {
 
   it("mounts the embedded timeline surface from the activities panel rather than from a page", () => {
     expect(DATA_VIEW_PATHS[SURFACE.entityTimeline]).toBeNull();
-    expect(read("features/messaging/activities/activities.store.ts")).toContain(
-      `export const ACTIVITIES_P13N_ID = "${SURFACE.entityTimeline}"`,
+    expect(read("features/messaging/activities/record-activity-views.store.ts")).toContain(
+      "this.p13nId = SURFACE.entityTimeline",
     );
   });
 });

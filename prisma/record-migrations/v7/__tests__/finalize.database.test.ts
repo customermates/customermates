@@ -1,3 +1,4 @@
+import { createLegacyMigrationDatabase } from "@/tests/helpers/legacy-migration-database";
 import { randomUUID } from "node:crypto";
 import { Client } from "pg";
 import { afterAll, describe, expect, it } from "vitest";
@@ -14,26 +15,25 @@ import {
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
 const companies: string[] = [];
-const clients: Client[] = [];
+const databases: Awaited<ReturnType<typeof createLegacyMigrationDatabase>>[] = [];
 
 async function fixture() {
-  const client = new Client({ connectionString: databaseUrl ?? undefined });
-  await client.connect();
-  clients.push(client);
+  const database = await createLegacyMigrationDatabase(databaseUrl);
+  databases.push(database);
+  const { client } = database;
   const data = await presentationFixture(client, 60, (companyId) => companies.push(companyId));
   expect(await migrateRecordWorkspace(client, data.companyId, "backfill", 6)).toMatchObject({ ok: true });
-  return data;
+  return { ...data, databaseUrl: database.url };
 }
 
 describeDatabase("record migration finalization", { timeout: 90000 }, () => {
   afterAll(async () => {
-    if (clients[0]) await clients[0].query('DELETE FROM "Company" WHERE id = ANY($1::text[])', [companies]);
-    for (const client of clients) await client.end();
+    for (const database of databases) await database.close();
   });
 
   it("reconciles under the workspace lock, switches atomically and permits idempotent recovery", async () => {
     const data = await fixture();
-    const second = new Client({ connectionString: databaseUrl ?? undefined });
+    const second = new Client({ connectionString: data.databaseUrl });
     await second.connect();
     try {
       await withRecordWorkspaceSessionLock(data.client, data.companyId, async () => {

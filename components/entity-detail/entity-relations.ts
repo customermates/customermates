@@ -1,4 +1,4 @@
-import type { EntityType } from "@/generated/prisma";
+import type { EntityType } from "@/features/records/history/v1/legacy-enums";
 import type { LucideIcon } from "lucide-react";
 
 import { Building2, CheckCircle2, Package, TrendingUp, Users } from "lucide-react";

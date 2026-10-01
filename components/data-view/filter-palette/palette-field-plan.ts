@@ -1,6 +1,6 @@
-import type { Filter, FilterableField } from "@/core/base/base-get.schema";
-import type { ColumnPresentation } from "@/features/custom-column/custom-column.schema";
 import type { FilterValueClass } from "@/components/data-view/filter-modal/filter-value-class";
+import type { Filter, FilterableField } from "@/core/base/base-get.schema";
+import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
 
 import { resolveFilterValueClass } from "@/components/data-view/filter-modal/filter-value-class";
 import { FilterOperatorKey, isStandaloneOperator } from "@/core/base/base-query-builder";

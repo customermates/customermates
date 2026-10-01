@@ -1,17 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { EntityType } from "@/generated/prisma";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
-import {
-  AGENT_CONTEXT_RECORD_ENTITIES,
-  AgentContextAttachmentSchema,
-  AgentContextAttachmentsSchema,
-  agentContextAttachmentKey,
-  agentContextAttachmentsEqual,
-  agentContextProviderPrefix,
-  agentContextsFromMessageParts,
-  type AgentContextAttachment,
-} from "../agent-context";
 import {
   clientSafeAgentMessageParts,
   hasRenderableAgentMessageParts,
@@ -19,6 +9,16 @@ import {
   SendAgentMessageSchema,
   userMessagePartsToProviderText,
 } from "../agent-chat.schema";
+import {
+  AGENT_CONTEXT_RECORD_ENTITIES,
+  agentContextAttachmentKey,
+  AgentContextAttachmentSchema,
+  agentContextAttachmentsEqual,
+  AgentContextAttachmentsSchema,
+  agentContextProviderPrefix,
+  agentContextsFromMessageParts,
+  type AgentContextAttachment,
+} from "../agent-context";
 import { conservativeAgentInitialContextBytes } from "../agent-provider-context";
 
 const VIEW_ID = "11111111-1111-4111-8111-111111111111";
@@ -27,7 +27,7 @@ const RECORD_ID = "22222222-2222-4222-8222-222222222222";
 const viewContext: AgentContextAttachment = {
   reference: {
     kind: "dataView",
-    surfaceKey: "contacts-card-store",
+    surfaceKey: "records:10000000-0000-4000-8000-000000000101",
     viewKey: VIEW_ID,
     requestedAction: "update",
   },
@@ -60,8 +60,10 @@ describe("agent context contract", () => {
       `<selected_context kind="record" typeId="${typeId}" recordId="${RECORD_ID}"/>\n`,
     );
     expect(
-      AgentContextAttachmentSchema.safeParse({ ...context, reference: { ...context.reference, entityType: "deal" } })
-        .success,
+      AgentContextAttachmentSchema.safeParse({
+        ...context,
+        reference: { ...context.reference, entityType: "deal" },
+      }).success,
     ).toBe(false);
     const field: AgentContextAttachment = {
       reference: { kind: "recordField", typeId, fieldId: VIEW_ID },
@@ -92,7 +94,7 @@ describe("agent context contract", () => {
         ...viewContext,
         reference: {
           kind: "dataView",
-          surfaceKey: "contacts-card-store",
+          surfaceKey: "records:10000000-0000-4000-8000-000000000101",
           requestedAction: "create",
         },
       }).success,
@@ -105,7 +107,7 @@ describe("agent context contract", () => {
         ...viewContext,
         reference: {
           kind: "dataView",
-          surfaceKey: "contacts-card-store",
+          surfaceKey: "records:10000000-0000-4000-8000-000000000101",
           requestedAction: "update",
         },
       }).success,
@@ -115,7 +117,7 @@ describe("agent context contract", () => {
         ...viewContext,
         reference: {
           kind: "dataView",
-          surfaceKey: "contacts-card-store",
+          surfaceKey: "records:10000000-0000-4000-8000-000000000101",
           viewKey: VIEW_ID,
           requestedAction: "create",
         },
@@ -126,7 +128,7 @@ describe("agent context contract", () => {
         ...viewContext,
         reference: {
           kind: "dataView",
-          surfaceKey: "contacts-card-store",
+          surfaceKey: "records:10000000-0000-4000-8000-000000000101",
           viewKey: VIEW_ID,
         },
       }).success,
@@ -156,7 +158,7 @@ describe("agent context contract", () => {
         {
           reference: {
             kind: "dataView",
-            surfaceKey: "deals-card-store",
+            surfaceKey: "records:10000000-0000-4000-8000-000000000012",
             requestedAction: "create",
           },
           label: "New deals view",
@@ -164,7 +166,12 @@ describe("agent context contract", () => {
       ]).success,
     ).toBe(false);
     expect(AgentContextAttachmentsSchema.safeParse(Array.from({ length: 6 }, () => recordContext)).success).toBe(false);
-    expect(AgentContextAttachmentSchema.parse({ ...recordContext, label: "x".repeat(511) }).label).toHaveLength(200);
+    expect(
+      AgentContextAttachmentSchema.parse({
+        ...recordContext,
+        label: "x".repeat(511),
+      }).label,
+    ).toHaveLength(200);
   });
 
   it("requires an attached data view to match the exact page target", () => {
@@ -173,7 +180,7 @@ describe("agent context contract", () => {
       text: "Update it",
       contexts: [viewContext],
       pageContext: {
-        route: `/en/contacts?view=${VIEW_ID}&viewSurface=contacts-card-store&viewAction=update`,
+        route: `/en/records/10000000-0000-4000-8000-000000000101?view=${VIEW_ID}&viewSurface=records:10000000-0000-4000-8000-000000000101&viewAction=update`,
       },
     };
 
@@ -181,7 +188,9 @@ describe("agent context contract", () => {
     expect(
       SendAgentMessageSchema.safeParse({
         ...request,
-        pageContext: { route: `/en/deals?view=${VIEW_ID}&viewSurface=deals-card-store&viewAction=update` },
+        pageContext: {
+          route: `/en/records/10000000-0000-4000-8000-000000000103?view=${VIEW_ID}&viewSurface=records:10000000-0000-4000-8000-000000000103&viewAction=update`,
+        },
       }).success,
     ).toBe(false);
     expect(SendAgentMessageSchema.safeParse({ ...request, pageContext: undefined }).success).toBe(false);
@@ -191,7 +200,7 @@ describe("agent context contract", () => {
     const namedCreate: AgentContextAttachment = {
       reference: {
         kind: "dataView",
-        surfaceKey: "contacts-card-store",
+        surfaceKey: "records:10000000-0000-4000-8000-000000000101",
         proposedName: "Qualified leads",
         requestedAction: "create",
       },
@@ -199,12 +208,14 @@ describe("agent context contract", () => {
     };
 
     expect(agentContextProviderPrefix([namedCreate])).toBe(
-      '<selected_context kind="dataView" surfaceKey="contacts-card-store" proposedName="Qualified leads" requestedAction="create"/>\n',
+      '<selected_context kind="dataView" surfaceKey="records:10000000-0000-4000-8000-000000000101" proposedName="Qualified leads" requestedAction="create"/>\n',
     );
   });
 
   it("provides stable keys and exact attachment equality for request idempotency", () => {
-    expect(agentContextAttachmentKey(viewContext)).toBe(`dataView:contacts-card-store:update:${VIEW_ID}`);
+    expect(agentContextAttachmentKey(viewContext)).toBe(
+      `dataView:records:10000000-0000-4000-8000-000000000101:update:${VIEW_ID}`,
+    );
     expect(agentContextAttachmentKey(recordContext.reference)).toBe(`record:contact:${RECORD_ID}`);
     expect(agentContextAttachmentsEqual([viewContext, recordContext], [viewContext, recordContext])).toBe(true);
     expect(agentContextAttachmentsEqual([viewContext], [{ ...viewContext, label: "A different display label" }])).toBe(
@@ -224,7 +235,7 @@ describe("agent context contract", () => {
     expect(agentContextsFromMessageParts(parts)).toEqual([viewContext, recordContext]);
     const prefix = agentContextProviderPrefix([viewContext, recordContext]);
     expect(prefix).toBe(
-      `<selected_context kind="dataView" surfaceKey="contacts-card-store" viewKey="${VIEW_ID}" requestedAction="update"/>\n` +
+      `<selected_context kind="dataView" surfaceKey="records:10000000-0000-4000-8000-000000000101" viewKey="${VIEW_ID}" requestedAction="update"/>\n` +
         `<selected_context kind="record" entityType="contact" recordId="${RECORD_ID}"/>\n`,
     );
     expect(prefix).not.toContain(viewContext.label);
@@ -242,7 +253,7 @@ describe("agent context contract", () => {
         context: {
           reference: {
             kind: "dataView" as const,
-            surfaceKey: "deals-card-store" as const,
+            surfaceKey: "records:10000000-0000-4000-8000-000000000012" as const,
             requestedAction: "create" as const,
           },
           label: "New deals view",

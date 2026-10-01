@@ -6,45 +6,38 @@ import type { ReactNode } from "react";
 
 import { useId, useRef } from "react";
 
-import { observer } from "mobx-react-lite";
-import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
-import { CustomColumnType } from "@/generated/prisma";
+import { CustomColumnType } from "@/core/data-view/column-presentation.types";
 import {
   DndContext,
   type DragEndEvent,
-  PointerSensor,
   KeyboardSensor,
+  PointerSensor,
   useDraggable,
   useDroppable,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { useTranslations } from "next-intl";
+import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { Layers } from "lucide-react";
+import { observer } from "mobx-react-lite";
+import { useTranslations } from "next-intl";
 
+import { AppChip } from "@/components/chip/app-chip";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Button } from "@/components/ui/button";
-import { AppChip } from "@/components/chip/app-chip";
 import type { ChipColor } from "@/constants/chip-colors";
 import type { GroupValueSums } from "@/core/base/base-get.schema";
 import { NO_VALUE_GROUP_KEY } from "@/core/base/grouping/grouping.schema";
-import { projectValueSumsForGroup } from "@/core/base/grouping/project-value-sums";
-import { DEAL_GROUP_SUM_FIELDS } from "@/features/deals/deal-weighting";
+import { useRouter } from "@/i18n/navigation";
 import { visibleColumnDefs } from "./visible-column-defs";
-import { useRootStore } from "@/core/stores/root-store.provider";
-import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
-import type { EntityType } from "@/generated/prisma";
 
-import { useColumnLabel } from "@/components/entity-terminology/use-column-label";
-import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { useNavigateToHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
-import { BoardGroupingPrompt } from "./board-grouping-prompt";
-import { kanbanKeyboardCoordinates } from "./kanban-keyboard-coordinates";
-import { DataCardBody } from "./data-card-body";
-import { GroupSummaries } from "./group-summaries";
+import { runUserAction } from "@/core/errors/report-application-error";
+import { cn } from "@/core/utils/cn";
 import type { RecordGroupSummaryResult } from "@/features/records/record-grouping.schema";
-import { useGroupLabel, visibleGroups } from "./group-label";
+import { BoardGroupingPrompt } from "./board-grouping-prompt";
+import { DataCardBody } from "./data-card-body";
 import {
   DATA_KANBAN_CARDS_CLASS_NAME,
   DATA_KANBAN_COLUMN_CLASS_NAME,
@@ -52,8 +45,9 @@ import {
   DATA_KANBAN_ROOT_CLASS_NAME,
   DATA_KANBAN_TRACK_CLASS_NAME,
 } from "./data-view-geometry";
-import { cn } from "@/core/utils/cn";
-import { runUserAction } from "@/core/errors/report-application-error";
+import { useGroupLabel, visibleGroups } from "./group-label";
+import { GroupSummaries } from "./group-summaries";
+import { kanbanKeyboardCoordinates } from "./kanban-keyboard-coordinates";
 
 type HasCustomFieldValues = HasId & {
   customFieldValues?: Array<{ columnId: string; value: unknown }>;
@@ -148,12 +142,11 @@ const KanbanColumn = observer(function KanbanColumn({
   id,
   label,
   count,
-  valueSums,
   summaries,
   color,
   weight,
   droppable,
-  entityType,
+  recordLabels,
   onHeaderClick,
   loadMore,
   children,
@@ -166,27 +159,17 @@ const KanbanColumn = observer(function KanbanColumn({
   color?: ChipColor;
   weight?: number;
   droppable: boolean;
-  entityType?: EntityType;
+  recordLabels?: { singular: string; plural: string };
   onHeaderClick?: () => void;
   loadMore?: LoadMoreAction;
   children: ReactNode;
 }) {
   const t = useTranslations();
-  const intlStore = useHydratedIntlStore();
-  const columnLabel = useColumnLabel();
-  const { singular, plural } = useEntityTerminology();
   const { setNodeRef } = useDroppable({ id, disabled: !droppable });
 
-  const formatSum = (amount: number) =>
-    intlStore.formatCurrency(amount, undefined, {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    });
-
-  const totalSum = valueSums?.[DEAL_GROUP_SUM_FIELDS.total];
-  const weightedSum = valueSums?.[DEAL_GROUP_SUM_FIELDS.weighted];
-
-  const countLabel = entityType ? `${count} ${count === 1 ? singular(entityType) : plural(entityType)}` : String(count);
+  const countLabel = recordLabels
+    ? `${count} ${count === 1 ? recordLabels.singular : recordLabels.plural}`
+    : String(count);
   const rateLabel = t("Common.stageProbability");
 
   const headerContent = color ? (
@@ -224,7 +207,7 @@ const KanbanColumn = observer(function KanbanColumn({
           <TooltipContent>{countLabel}</TooltipContent>
         </Tooltip>
 
-        {weight !== undefined && weightedSum !== undefined && (
+        {weight !== undefined && (
           <Tooltip>
             <TooltipTrigger asChild>
               <span className="text-xs text-muted-foreground tabular-nums">{weight}%</span>
@@ -235,32 +218,6 @@ const KanbanColumn = observer(function KanbanColumn({
         )}
 
         {summaries?.length ? <GroupSummaries summaries={summaries} /> : null}
-
-        {totalSum !== undefined && (
-          <span className="ml-auto flex min-w-0 shrink items-baseline gap-1 text-xs text-muted-foreground tabular-nums">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className="truncate opacity-65">{formatSum(totalSum)}</span>
-              </TooltipTrigger>
-
-              <TooltipContent>{columnLabel(DEAL_GROUP_SUM_FIELDS.total)}</TooltipContent>
-            </Tooltip>
-
-            {weightedSum !== undefined && (
-              <>
-                <span className="shrink-0 opacity-50">→</span>
-
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className="truncate text-foreground">{formatSum(weightedSum)}</span>
-                  </TooltipTrigger>
-
-                  <TooltipContent>{columnLabel(DEAL_GROUP_SUM_FIELDS.weighted)}</TooltipContent>
-                </Tooltip>
-              </>
-            )}
-          </span>
-        )}
       </div>
 
       <div className={DATA_KANBAN_CARDS_CLASS_NAME}>{children}</div>
@@ -293,7 +250,7 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
   const t = useTranslations();
   const dndContextId = useId();
   const boardRef = useRef<HTMLDivElement>(null);
-  const { customColumnModalStore } = useRootStore();
+  const router = useRouter();
   const groupLabel = useGroupLabel(store.groupingResult);
   const supportsDragWriteBack = store.groupingResult?.supportsDragWriteBack ?? false;
   const writeBackColumnId = store.groupingResult?.columnId;
@@ -301,8 +258,12 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
     (column) => column.id === writeBackColumnId && column.type === CustomColumnType.singleSelect,
   );
 
-  const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 4 } });
-  const keyboardSensor = useSensor(KeyboardSensor, { coordinateGetter: kanbanKeyboardCoordinates });
+  const pointerSensor = useSensor(PointerSensor, {
+    activationConstraint: { distance: 4 },
+  });
+  const keyboardSensor = useSensor(KeyboardSensor, {
+    coordinateGetter: kanbanKeyboardCoordinates,
+  });
   const sensors = useSensors(
     supportsDragWriteBack ? pointerSensor : null,
     supportsDragWriteBack ? keyboardSensor : null,
@@ -350,7 +311,6 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
       return;
 
     const nextValue = targetGroup === NO_VALUE_GROUP_KEY ? null : targetGroup;
-    const weight = groups.find((group) => group.key === targetGroup)?.weight;
 
     await store.moveItemBetweenGroups({
       item,
@@ -358,7 +318,7 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
       fromGroupKey,
       toGroupKey: targetGroup,
       value: nextValue,
-      destinationValueSums: store.isGroupedByDealWeightingColumn ? projectValueSumsForGroup(item, weight) : undefined,
+      destinationValueSums: undefined,
     });
     if (event.activatorEvent instanceof KeyboardEvent) {
       requestAnimationFrame(() => {
@@ -380,14 +340,22 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
   return (
     <DndContext
       accessibility={{
-        screenReaderInstructions: { draggable: t("DataView.boardKeyboardInstructions") },
+        screenReaderInstructions: {
+          draggable: t("DataView.boardKeyboardInstructions"),
+        },
         announcements: {
           onDragStart: () => t("DataView.boardPickedUp"),
           onDragOver: ({ over }) =>
-            over ? t("DataView.boardMoveTarget", { group: destinationLabel(over.id) }) : undefined,
+            over
+              ? t("DataView.boardMoveTarget", {
+                  group: destinationLabel(over.id),
+                })
+              : undefined,
           onDragEnd: ({ over }) =>
             over
-              ? t("DataView.boardMoveRequested", { group: destinationLabel(over.id) })
+              ? t("DataView.boardMoveRequested", {
+                  group: destinationLabel(over.id),
+                })
               : t("DataView.boardMoveCancelled"),
           onDragCancel: () => t("DataView.boardMoveCancelled"),
         },
@@ -413,14 +381,20 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
                 color={group.color}
                 count={group.count}
                 droppable={supportsDragWriteBack && group.writable !== false}
-                entityType={store.entityType}
                 id={group.key}
                 label={groupLabel(group)}
                 loadMore={loadMore}
+                recordLabels={store.recordLabels}
                 summaries={group.summaries}
                 valueSums={group.valueSums}
-                weight={store.isGroupedByDealWeightingColumn ? group.weight : undefined}
-                onHeaderClick={editableColumn ? () => customColumnModalStore.openWithColumn(editableColumn) : undefined}
+                weight={group.weight}
+                onHeaderClick={
+                  editableColumn && store.schemaSettingsHref
+                    ? () => {
+                        if (store.schemaSettingsHref) router.push(store.schemaSettingsHref);
+                      }
+                    : undefined
+                }
               >
                 {group.itemIds.map((itemId) => {
                   const item = itemsById.get(itemId);

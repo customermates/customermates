@@ -17,7 +17,9 @@ import { AppCard } from "@/components/card/app-card";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppForm } from "@/components/forms/form-context";
+import { FormAutocompleteCurrency } from "@/components/forms/form-autocomplete-currency";
 import { FormInput } from "@/components/forms/form-input";
+import { CHIP_COLORS } from "@/constants/chip-colors";
 import { FormSelect } from "@/components/forms/form-select";
 import { FormSwitch } from "@/components/forms/form-switch";
 import { Button } from "@/components/ui/button";
@@ -33,7 +35,7 @@ const initial = () => ({
   required: false,
   multiple: false,
   archived: false,
-  currency: "EUR",
+  currency: "eur",
   expression: {
     kind: "literal",
     value: { kind: "decimal", value: "0", currency: null },
@@ -77,7 +79,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
             required: field.required,
             multiple: field.multiple ?? false,
             archived: field.archived,
-            currency: field.format?.currency ?? this.rootStore.companyStore.company?.currency?.toUpperCase() ?? "EUR",
+            currency: (field.format?.currency ?? this.rootStore.companyStore.company?.currency ?? "EUR").toLowerCase(),
             ...(field.behavior.kind === "input" ? {} : { expression: field.behavior.expression }),
             ...(field.behavior.kind === "snapshot"
               ? {
@@ -102,7 +104,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
           }
         : {
             ...initial(),
-            currency: this.rootStore.companyStore.company?.currency?.toUpperCase() ?? "EUR",
+            currency: this.rootStore.companyStore.company?.currency?.toLowerCase() ?? "eur",
           },
     );
     this.open();
@@ -258,7 +260,7 @@ export const FieldModal = observer(function FieldModal({ store }: { store: Field
               </div>
 
               {store.form.valueType === "currency" && (
-                <FormInput id="currency" label={t("RecordModel.currency")} maxLength={3} />
+                <FormAutocompleteCurrency required id="currency" label={t("RecordModel.currency")} />
               )}
 
               {store.form.behavior !== "input" && (
@@ -329,6 +331,12 @@ export const FieldModal = observer(function FieldModal({ store }: { store: Field
                         containerClassName="flex-1"
                         id={`options.${index}.label`}
                         label={t("RecordModel.option")}
+                      />
+
+                      <FormSelect
+                        id={`options.${index}.color`}
+                        items={CHIP_COLORS.map((color) => ({ value: color, label: t(`Common.colors.${color}`) }))}
+                        label={t("RecordModel.color")}
                       />
 
                       <FormInput

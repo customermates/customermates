@@ -1,5 +1,6 @@
 import { identityLookupValue } from "@/ee/messaging/identity-lookup";
 import type { Prisma } from "@/generated/prisma";
+import type { BenchmarkFixtureWriter } from "./record-fixtures";
 
 import { isOutboundSupportOrDraftAction } from "./tool-safety";
 
@@ -173,7 +174,7 @@ type Entity = "contact" | "organization" | "deal" | "service" | "task";
 type FieldType = "singleSelect" | "phone" | "email" | "dateTime" | "plain" | "currency";
 
 export type SeedHelpers = {
-  tx: Prisma.TransactionClient;
+  tx: BenchmarkFixtureWriter;
   id: (key: string) => string;
   companyId: string;
   fixedCreated: Date;
@@ -195,6 +196,7 @@ async function ownerlessDeal(h: SeedHelpers, key: string, name: string, value: n
   await h.tx.deal.create({
     data: { id: h.id(key), companyId: h.companyId, name, totalValue: value, totalQuantity: value / 100, weightedValue: null, createdAt: h.fixedCreated, updatedAt: h.fixedCreated },
   });
+  await h.tx.serviceDeal.create({ data: { companyId: h.companyId, id: h.id("deal-service:" + key), dealId: h.id(key), serviceId: h.id("unit-service"), quantity: value / 100 } });
   await h.field(key, "deal", "deal-status", "singleSelect", h.id("option-open"));
 }
 

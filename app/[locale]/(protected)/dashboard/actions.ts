@@ -1,35 +1,29 @@
 "use server";
 
-import type { RecordActivityWidgetInput } from "@/features/widget/record-activity-widget.schema";
 import type { RecordMeasure } from "@/features/records/record-measure.schema";
+import type { RecordActivityWidgetInput } from "@/features/widget/record-activity-widget.schema";
 
-import type { RecordWidgetInput } from "@/features/widget/record-widget.schema";
+import type { UpdateUserDetailsData } from "@/features/user/upsert/update-user-details.interactor";
 import type { DeleteWidgetData } from "@/features/widget/delete-widget.interactor";
 import type { GetWidgetByIdData } from "@/features/widget/get-widget-by-id.interactor";
-import type { UpsertWidgetData } from "@/features/widget/upsert-widget.interactor";
+import type { RecordWidgetInput } from "@/features/widget/record-widget.schema";
 import type { UpdateWidgetLayoutsData } from "@/features/widget/update-widget-layouts.interactor";
-import type { UpdateUserDetailsData } from "@/features/user/upsert/update-user-details.interactor";
 
 import {
-  getUpsertRecordActivityWidgetInteractor,
-  getDiscoverRecordTypesInteractor,
-  getQueryRecordMeasureInteractor,
-  getUpsertRecordWidgetInteractor,
-  getGetRecordWidgetsInteractor,
-  getGetRecordWidgetInteractor,
-  getUpsertWidgetInteractor,
   getDeleteWidgetInteractor,
+  getDiscoverRecordTypesInteractor,
   getGetCompanyWidgetsInteractor,
+  getGetRecordWidgetInteractor,
+  getGetRecordWidgetsInteractor,
   getGetWidgetByIdInteractor,
-  getUpdateWidgetLayoutsInteractor,
   getGetWidgetsInteractor,
+  getQueryRecordMeasureInteractor,
   getUpdateUserDetailsInteractor,
+  getUpdateWidgetLayoutsInteractor,
+  getUpsertRecordActivityWidgetInteractor,
+  getUpsertRecordWidgetInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
-
-export async function upsertWidgetAction(data: UpsertWidgetData) {
-  return serializeResult(getUpsertWidgetInteractor().invoke(data));
-}
 
 export async function deleteWidgetAction(data: DeleteWidgetData) {
   return serializeResult(getDeleteWidgetInteractor().invoke(data));

@@ -61,7 +61,7 @@ export class GetRecordNavigationInteractor extends AuthenticatedInteractor<void,
           },
         };
       },
-      { readOnly: true },
+      { readOnly: true, timeout: 30000 },
     );
   }
 }

@@ -1,9 +1,9 @@
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 import type { Filter, FilterableField, GetQueryParams, SortDescriptor } from "../base-get.schema";
 
 import { describe, expect, it, vi } from "vitest";
 
-import { EntityType } from "@/generated/prisma";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 import { BaseGetInteractor, BaseGetRepo } from "../base-get.interactor";
 
@@ -58,7 +58,9 @@ class SummingInteractor extends BaseGetInteractor<Item> {
   constructor(repo: StubRepo, fields: readonly string[]) {
     super(
       repo,
-      { loadSurfaceState: vi.fn().mockResolvedValue({ activeViewKey: null, views: [], allState: {} }) },
+      {
+        loadSurfaceState: vi.fn().mockResolvedValue({ activeViewKey: null, views: [], allState: {} }),
+      },
       "interactive",
       EntityType.deal,
       undefined,
@@ -77,12 +79,18 @@ async function run(fields: readonly string[], sums: Record<string, number>, para
 
 describe("BaseGetInteractor declared value sums", () => {
   it("returns totals for the whole filtered query, not the page", async () => {
-    const { result } = await run(["totalValue", "weightedValue"], { totalValue: 1965900, weightedValue: 763150 });
+    const { result } = await run(["totalValue", "weightedValue"], {
+      totalValue: 1965900,
+      weightedValue: 763150,
+    });
 
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.data.items).toHaveLength(1);
-    expect(result.data.valueSums).toEqual({ totalValue: 1965900, weightedValue: 763150 });
+    expect(result.data.valueSums).toEqual({
+      totalValue: 1965900,
+      weightedValue: 763150,
+    });
   });
 
   it("sums under the same search and filters the list ran with", async () => {
@@ -93,7 +101,9 @@ describe("BaseGetInteractor declared value sums", () => {
   });
 
   it("omits a field the aggregate could not measure", async () => {
-    const { result } = await run(["totalValue", "weightedValue"], { totalValue: 10 });
+    const { result } = await run(["totalValue", "weightedValue"], {
+      totalValue: 10,
+    });
 
     if (!result.ok) return;
     expect(result.data.valueSums).toEqual({ totalValue: 10 });

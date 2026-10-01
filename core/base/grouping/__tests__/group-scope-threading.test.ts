@@ -1,92 +1,48 @@
-import type { FilterableField, GetQueryParams } from "@/core/base/base-get.schema";
-import type { GroupingTargetModel } from "../groupable-field";
-
-import { describe, expect, it } from "vitest";
-
-import { CustomColumnType, EntityType } from "@/generated/prisma";
-
-import { BaseQueryBuilder, FilterOperatorKey } from "@/core/base/base-query-builder";
+import { describe, expect, it, vi } from "vitest";
+import { countGroupRows } from "../group-count";
+import { enumGroupable, relationGroupable } from "../groupable-field";
 import { NO_VALUE_GROUP_KEY } from "../grouping.schema";
-import { customSelectGroupable, enumGroupable, relationGroupable } from "../groupable-field";
 
-const COLUMN_ID = "66666666-6666-4666-8666-666666666666";
-const COMPANY_ID = "company-1";
-const USER_ID = "user-1";
-
-class ProbeBuilder extends BaseQueryBuilder<Record<string, unknown>> {
-  override getFilterableFields(): Promise<FilterableField[]> {
-    return Promise.resolve([{ field: COLUMN_ID, operators: [FilterOperatorKey.in, FilterOperatorKey.isNull] }]);
-  }
-
-  override getCustomColumns() {
-    return Promise.resolve([
+describe("system group query scope threading", () => {
+  it("threads tenant and member access through both relation counts", async () => {
+    const count = vi.fn().mockResolvedValue(1),
+      groupBy = vi.fn().mockResolvedValue([{ ownerUserId: "member", _count: { _all: 2 } }]);
+    const targetWhere = vi.fn().mockReturnValue({ companyId: "tenant", id: "member" });
+    const rows = await countGroupRows(
+      { companyId: "tenant", delegate: () => ({ count, groupBy }), targetWhere },
       {
-        id: COLUMN_ID,
-        label: "Stage",
-        entityType: EntityType.deal,
-        type: CustomColumnType.singleSelect,
-        options: { options: [] },
+        spec: relationGroupable({ model: "routine", field: "ownerUserId" }),
+        where: { companyId: "tenant", enabled: true },
       },
-    ] as never);
-  }
-
-  protected override groupTargetWhere(model: GroupingTargetModel): Record<string, unknown> {
-    return model === "user" ? { companyId: COMPANY_ID, id: USER_ID } : { companyId: COMPANY_ID };
-  }
-
-  whereFor(params: GetQueryParams) {
-    return this.buildQueryArgs(params, { companyId: COMPANY_ID, users: { some: { userId: USER_ID } } });
-  }
-}
-
-function stageSpec() {
-  return customSelectGroupable({
-    column: {
-      id: COLUMN_ID,
-      label: "Stage",
-      entityType: EntityType.deal,
-      type: CustomColumnType.singleSelect,
-      options: { options: [] },
-    },
-    model: "deal",
-    entityType: EntityType.deal,
-  });
-}
-
-describe("the group scope reaches the item query without travelling through the filter channel", () => {
-  it("scopes a field that is not filterable at all, which validateFilters would have dropped", async () => {
-    const spec = enumGroupable({ model: "task", field: "type" });
-    const { where } = await new ProbeBuilder().whereFor({ groupScope: { spec, key: "custom" } });
-
-    expect(where.AND).toEqual([{ type: "custom" }]);
-    expect(where.companyId).toBe(COMPANY_ID);
-  });
-
-  it("survives alongside a custom column filter on the same entity", async () => {
-    const spec = stageSpec();
-    const { where } = await new ProbeBuilder().whereFor({
-      filters: [{ field: COLUMN_ID, operator: FilterOperatorKey.in, value: ["won"] }],
-      groupScope: { spec, key: NO_VALUE_GROUP_KEY },
-    });
-
-    expect(where.AND).toEqual([
-      { customFieldValues: { some: { AND: [{ columnId: COLUMN_ID }, { value: { in: ["won"] } }] } } },
-      { customFieldValues: { none: { AND: [{ columnId: COLUMN_ID }, { value: { not: null } }] } } },
+    );
+    expect(rows).toEqual([
+      { key: "member", count: 2 },
+      { key: NO_VALUE_GROUP_KEY, count: 1 },
     ]);
+    expect(groupBy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { companyId: "tenant", enabled: true, AND: [{ owner: { companyId: "tenant", id: "member" } }] },
+      }),
+    );
+    expect(count).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { companyId: "tenant", enabled: true, AND: [{ NOT: { owner: { companyId: "tenant", id: "member" } } }] },
+      }),
+    );
   });
-
-  it("keeps the access scope at the top level so the tenant guard still reads companyId", async () => {
-    const spec = relationGroupable({ model: "deal", field: "userIds" });
-    const { where } = await new ProbeBuilder().whereFor({ groupScope: { spec, key: NO_VALUE_GROUP_KEY } });
-
-    expect(where.companyId).toBe(COMPANY_ID);
-    expect(where.users).toEqual({ some: { userId: USER_ID } });
-    expect(where.AND).toEqual([{ users: { none: { user: { companyId: COMPANY_ID, id: USER_ID } } } }]);
-  });
-
-  it("adds nothing when no group scope is threaded", async () => {
-    const { where } = await new ProbeBuilder().whereFor({});
-
-    expect(where.AND).toBeUndefined();
+  it("sums at the source enum grain within the supplied scope", async () => {
+    const groupBy = vi.fn().mockResolvedValue([{ status: "active", _count: { _all: 2 }, _sum: { allowance: 100 } }]);
+    const rows = await countGroupRows(
+      { companyId: "tenant", delegate: () => ({ count: vi.fn(), groupBy }), targetWhere: () => ({}) },
+      {
+        spec: enumGroupable({ model: "user", field: "status" }),
+        where: { companyId: "tenant" },
+        sumFields: ["allowance"],
+      },
+    );
+    expect(rows).toEqual([{ key: "active", count: 2, sums: { allowance: 100 } }]);
+    expect(groupBy).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { companyId: "tenant" }, _sum: { allowance: true } }),
+    );
   });
 });

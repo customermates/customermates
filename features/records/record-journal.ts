@@ -8,6 +8,7 @@ import { calculationDependencyHash } from "./configuration.service";
 import { expressionFieldDependencies } from "./record-model-validation";
 import { CalculationBudgetExceeded, recordKey, SYNCHRONOUS_RECORD_LIMIT } from "./record-calculation.service";
 import { decodeRecordValue } from "./record-storage";
+import { recordInvariant } from "./record-invariant";
 
 export function historyPublications(field: RecordField, model: RecordModel) {
   const publications = new Map<string, { fieldId: string; dependencyHash: string }>();
@@ -133,6 +134,8 @@ export function recordEventChanges(
 export class RecordJournal {
   readonly repository: RecordRepo;
   private entries = new Map<string, RecordJournalEntry>();
+  private emittedDeletions = new Set<string>();
+  private dirty = new Set<string>();
 
   constructor(
     private records: RecordRepo,
@@ -191,9 +194,32 @@ export class RecordJournal {
     });
   }
 
-  private async save(entry: RecordJournalEntry): Promise<void> {
-    if (this.staging)
-      await this.staging.base.stageRow(this.staging.operationId, "journal", recordKey(entry.ref), entry);
+  private markDirty(entry: RecordJournalEntry): void {
+    if (this.staging) this.dirty.add(recordKey(entry.ref));
+  }
+
+  async persist(): Promise<void> {
+    if (!this.staging) return;
+    for (const key of this.dirty) {
+      await this.staging.base.stageRow(
+        this.staging.operationId,
+        "journal",
+        key,
+        recordInvariant(this.entries.get(key)),
+      );
+    }
+    this.dirty.clear();
+  }
+
+  async stageDeletion(ref: RecordRef): Promise<void> {
+    if (!this.staging) throw new Error("A staged deletion requires a staged journal");
+    await this.capture(ref);
+    await this.records.delete(ref);
+  }
+
+  async stageDeletedLink(link: { relationId: string; source: RecordRef; target: RecordRef }): Promise<void> {
+    if (!this.staging) throw new Error("A staged deletion requires a staged journal");
+    await this.linkChange(link.relationId, link.source, link.target, false, true);
   }
 
   private async capture(ref: RecordRef): Promise<RecordJournalEntry> {
@@ -206,7 +232,7 @@ export class RecordJournal {
       ? RecordJournalEntrySchema.parse(saved)
       : { ref, before: await snapshot(this.records, ref, this.previous), links: [] };
     this.entries.set(key, entry);
-    if (!saved) await this.save(entry);
+    if (!saved) this.markDirty(entry);
     return entry;
   }
 
@@ -232,7 +258,31 @@ export class RecordJournal {
       );
       if (found) found.after = after;
       else entry.links.push({ relationId, source, target, before, after });
-      await this.save(entry);
+      this.markDirty(entry);
+    }
+  }
+
+  async prepareDeletion(
+    refs: RecordRef[],
+    model: RecordModel,
+    actorId: string,
+    causeId: string,
+    cause: RecordEventPayload["cause"],
+  ): Promise<void> {
+    if (this.staging) throw new Error("Staged deletion matches are captured during publication");
+    for (const ref of refs) await this.capture(ref);
+    for (const ref of refs) {
+      const links = await this.records.getLinksCompanyWide(ref, this.limit * 4 + 1);
+      if (links.length > this.limit * 4) throw new CalculationBudgetExceeded();
+      for (const link of links) await this.linkChange(link.relationId, link.source, link.target, false, true);
+    }
+    for (const ref of refs) {
+      const entry = this.entries.get(recordKey(ref));
+      if (!entry) throw new Error("A deletion requires its original record snapshot");
+      const event = recordEventChanges(entry, null, model, cause);
+      if (!event) continue;
+      await this.records.appendEvent(ref, actorId, causeId, event.kind, event.payload, true);
+      this.emittedDeletions.add(recordKey(ref));
     }
   }
 
@@ -262,6 +312,7 @@ export class RecordJournal {
     causeId: string,
     cause: RecordEventPayload["cause"],
   ): Promise<void> {
+    if (this.emittedDeletions.has(recordKey(entry.ref))) return;
     const after = await snapshot(this.records, entry.ref, model);
     const event = recordEventChanges(entry, after, model, cause);
     if (!event) return;

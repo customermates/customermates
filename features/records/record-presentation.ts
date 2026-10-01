@@ -1,20 +1,20 @@
-import type { RecordDto, RecordField, RecordScalar, RecordType, RecordRelationship } from "./record-model.schema";
-import type { ColumnPresentation } from "@/features/custom-column/custom-column.schema";
-import type { Filter, FilterableField, GetQueryParams } from "@/core/base/base-get.schema";
-import type { RecordQuery } from "./record-query.schema";
-import type { DataViewState } from "@/core/data-view/data-view-state.schema";
 import type { ChipColor } from "@/constants/chip-colors";
+import type { Filter, FilterableField, GetQueryParams } from "@/core/base/base-get.schema";
+import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
+import type { DataViewState } from "@/core/data-view/data-view-state.schema";
+import type { RecordDto, RecordField, RecordRelationship, RecordScalar, RecordType } from "./record-model.schema";
+import type { RecordQuery } from "./record-query.schema";
 
 import { CHIP_COLORS } from "@/constants/chip-colors";
 import { FilterOperatorKey, ViewMode } from "@/core/base/base-query-builder";
-import { RecordQuerySchema } from "./record-query.schema";
-import { recordFilterOperators } from "./record-filter";
 import {
   parseRelationshipColumnKey,
-  relationshipColumnKey,
   parseRelationshipPathColumnKey,
+  relationshipColumnKey,
   relationshipPathColumnKey,
 } from "./record-column.schema";
+import { recordFilterOperators } from "./record-filter";
+import { RecordQuerySchema } from "./record-query.schema";
 import type { RecordRelationshipPath } from "./record-relationship-path.schema";
 
 export type RecordRow = RecordDto & { id: string };

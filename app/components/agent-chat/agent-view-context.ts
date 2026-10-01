@@ -1,6 +1,5 @@
-import { z } from "zod";
 import { stripLocalePrefix } from "@/i18n/locale-registry";
-import { dataViewPath, ENTITY_TIMELINE_PARENT_PATHS } from "@/core/data-view/data-view-paths";
+import { dataViewPath, isRecordTimelinePath } from "@/core/data-view/data-view-paths";
 import { SURFACE, type DataViewSurfaceKey } from "@/core/data-view/data-view-keys";
 import { SurfaceKeySchema, ViewKeySchema } from "@/core/data-view/data-view-state.schema";
 import { GET_PARAM_KEYS } from "@/core/utils/get-params";
@@ -19,8 +18,7 @@ export type AgentViewChange = {
 
 function isTimelineRecordPath(pathname: string) {
   const path = stripLocalePrefix(pathname);
-  const parent = ENTITY_TIMELINE_PARENT_PATHS.find((candidate) => path.startsWith(`${candidate}/`));
-  return Boolean(parent && z.uuid().safeParse(path.slice(parent.length + 1)).success);
+  return isRecordTimelinePath(path);
 }
 
 export class AgentViewContext {

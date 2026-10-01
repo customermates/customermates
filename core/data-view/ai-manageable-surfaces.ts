@@ -1,13 +1,13 @@
 import { z } from "zod";
 
+import { RecordSurfaceKeySchema } from "./data-view-identity.schema";
 import {
   DATA_VIEW_SURFACE_KEYS,
   SURFACE,
-  type DataViewSurfaceKey,
   type BuiltinDataViewSurfaceKey,
+  type DataViewSurfaceKey,
   type RecordSurfaceKey,
 } from "./data-view-keys";
-import { RecordSurfaceKeySchema } from "./data-view-identity.schema";
 
 export const OPERATOR_DATA_VIEW_SURFACE_KEYS = [
   SURFACE.operatorUsers,
@@ -15,16 +15,25 @@ export const OPERATOR_DATA_VIEW_SURFACE_KEYS = [
   SURFACE.operatorAudit,
 ] as const satisfies readonly DataViewSurfaceKey[];
 
+const RETIRED_RECORD_SURFACES = [
+  SURFACE.contacts,
+  SURFACE.organizations,
+  SURFACE.deals,
+  SURFACE.services,
+  SURFACE.tasks,
+] as const;
+
 export type BuiltinAiManageableDataViewSurfaceKey = Exclude<
   BuiltinDataViewSurfaceKey,
-  (typeof OPERATOR_DATA_VIEW_SURFACE_KEYS)[number]
+  (typeof OPERATOR_DATA_VIEW_SURFACE_KEYS)[number] | (typeof RETIRED_RECORD_SURFACES)[number]
 >;
 export type AiManageableDataViewSurfaceKey = BuiltinAiManageableDataViewSurfaceKey | RecordSurfaceKey;
 
 const OPERATOR_SURFACES = new Set<DataViewSurfaceKey>(OPERATOR_DATA_VIEW_SURFACE_KEYS);
 
 export const AI_MANAGEABLE_DATA_VIEW_SURFACE_KEYS = DATA_VIEW_SURFACE_KEYS.filter(
-  (surfaceKey) => !OPERATOR_SURFACES.has(surfaceKey),
+  (surfaceKey) =>
+    !OPERATOR_SURFACES.has(surfaceKey) && !RETIRED_RECORD_SURFACES.some((retired) => retired === surfaceKey),
 ) as readonly BuiltinAiManageableDataViewSurfaceKey[];
 
 export const AiManageableDataViewSurfaceKeySchema = z.union([

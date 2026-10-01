@@ -5,6 +5,8 @@ import type { RecordAccessPolicy } from "./record-access";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordSurfaceKeySchema } from "@/core/data-view/data-view-identity.schema";
+import { SURFACE } from "@/core/data-view/data-view-keys";
+import { activityViewStateValid, activityViewFilters } from "@/ee/messaging/activities/record-activity-view";
 import { recordViewStateIsValid } from "./record-view-state";
 import { recordSurfaceKey } from "@/core/data-view/data-view-keys";
 import { recordColumns } from "./record-columns";
@@ -50,6 +52,17 @@ export class RecordViewPolicy implements DataViewPolicy {
     };
   }
   async validate(surfaceKey: string, state?: DataViewState): Promise<CustomErrorCode | null> {
+    if (surfaceKey === SURFACE.entityTimeline) {
+      if (!state) return null;
+      if (!activityViewStateValid(state)) return CustomErrorCode.recordValueInvalid;
+      for (const filter of activityViewFilters(state.filters ?? [])) {
+        if (filter.kind === "record") {
+          const invalid = await this.validate(`records:${filter.typeId}`);
+          if (invalid) return invalid;
+        }
+      }
+      return null;
+    }
     if (!RecordSurfaceKeySchema.safeParse(surfaceKey).success) return CustomErrorCode.recordTypeNotFound;
     const typeId = surfaceKey.slice(8);
     const [model, policy] = await Promise.all([this.records.getModel(), this.access.load()]);

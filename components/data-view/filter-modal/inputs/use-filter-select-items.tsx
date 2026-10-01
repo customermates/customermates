@@ -1,65 +1,54 @@
+import {
+  getMessagingThreadsAction,
+  getMessagingThreadAction,
+  getIdentityRecordChoicesAction,
+} from "@/app/[locale]/(protected)/inbox/actions";
 import { getRecordChoicesAction } from "@/app/[locale]/(protected)/records/actions";
 import { resolveSearchReferencesAction } from "@/app/[locale]/(protected)/search/actions";
-import { recordSearchLabel } from "@/features/records/record-search.schema";
-import type { RecordRef } from "@/features/records/record-model.schema";
-import { getIdentityRecordChoicesAction } from "@/app/[locale]/(protected)/inbox/actions";
-import { recordReferenceKey, parseRecordReferenceKey } from "@/features/records/record-reference-key";
 import type { GetResult } from "@/core/base/base-get.interactor";
-import type { GetQueryParams, Filter } from "@/core/base/base-get.schema";
-import type { ColumnPresentation } from "@/features/custom-column/custom-column.schema";
-import type { ActivityThreadOptionsData } from "@/ee/messaging/activities/get-activity-thread-options.interactor";
+import type { Filter, GetQueryParams } from "@/core/base/base-get.schema";
+import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
+import type { RecordRef } from "@/features/records/record-model.schema";
+import { parseRecordReferenceKey, recordReferenceKey } from "@/features/records/record-reference-key";
+import { recordSearchLabel } from "@/features/records/record-search.schema";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
-import { z } from "zod";
 import {
   ConnectedAccountStatus,
-  CustomColumnType,
-  EntityType,
   MessagingProvider,
   MessagingThreadState,
   Status,
   SubscriptionPlan,
   SubscriptionStatus,
-  TaskType,
 } from "@/generated/prisma";
+import { CustomColumnType } from "@/core/data-view/column-presentation.types";
+import { useTranslations } from "next-intl";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { z } from "zod";
 
-import { isCustomField } from "@/components/data-view/table-view.utils";
-import { useActivityQuery } from "@/features/messaging/activities/activity-query-context";
-import { getProviderIcon } from "@/ee/messaging/provider-icon";
-import { Avatar } from "@/components/ui/avatar";
-import { FilterFieldKey } from "@/core/types/filter-field-key";
-import { TIMELINE_KIND_VIEW_VALUES } from "@/core/types/filter-field-value-kind";
-import { FilterOperatorKey } from "@/core/base/base-query-builder";
-import { type ChipColor } from "@/constants/chip-colors";
-import { USER_STATUS_COLORS_MAP } from "@/constants/user-statuses";
-import { SUBSCRIPTION_STATUS_COLOR_MAP } from "@/app/[locale]/(protected)/company/components/subscription/subscription-panel";
-import { OPERATOR_AUDIT_SOURCE } from "@/ee/operator/operator-lists.schema";
+import { getCalendarsAction, getConnectedAccountsAction } from "@/app/[locale]/(protected)/actions";
 import { getUsersAction, resolveUserOptionsAction } from "@/app/[locale]/(protected)/company/actions";
-import { getContactsAction } from "@/app/[locale]/(protected)/contacts/actions";
-import { getOrganizationsAction } from "@/app/[locale]/(protected)/organizations/actions";
-import { getDealsAction } from "@/app/[locale]/(protected)/deals/actions";
-import { getServicesAction } from "@/app/[locale]/(protected)/services/actions";
-import { getTasksAction } from "@/app/[locale]/(protected)/tasks/actions";
-import {
-  getOperatorWorkspacesAction,
-  getOperatorWorkspaceTagsAction,
-} from "@/app/[locale]/(protected)/operator/actions";
-import {
-  getActivityRecordOptionsAction,
-  getActivityThreadOptionsAction,
-  getCalendarsAction,
-  getConnectedAccountsAction,
-} from "@/app/[locale]/(protected)/actions";
-import { getSystemTaskNameTranslationKey } from "@/app/[locale]/(protected)/tasks/components/system-task.config";
+import { SUBSCRIPTION_STATUS_COLOR_MAP } from "@/app/[locale]/(protected)/company/components/subscription/subscription-panel";
 import {
   THREAD_STATE_CHIP_COLOR,
   ThreadStateDot,
 } from "@/app/[locale]/(protected)/inbox/components/thread-state-visuals";
-import { DomainEvent } from "@/features/event/domain-events";
+import {
+  getOperatorWorkspacesAction,
+  getOperatorWorkspaceTagsAction,
+} from "@/app/[locale]/(protected)/operator/actions";
+import { isCustomField } from "@/components/data-view/table-view.utils";
+import { Avatar } from "@/components/ui/avatar";
+import { type ChipColor } from "@/constants/chip-colors";
+import { USER_STATUS_COLORS_MAP } from "@/constants/user-statuses";
+import { FilterOperatorKey } from "@/core/base/base-query-builder";
+import { FilterFieldKey } from "@/core/types/filter-field-key";
+import { TIMELINE_KIND_VIEW_VALUES } from "@/core/types/filter-field-value-kind";
 import { ACTIVITY_FILTER_VALUE_MAX, ActivityFilterSchema } from "@/ee/messaging/activities/activities.schema";
-import { activityEntityTypeForFilterField } from "@/ee/messaging/activities/activity-filterable-fields";
+import { getProviderIcon } from "@/ee/messaging/provider-icon";
+import { OPERATOR_AUDIT_SOURCE } from "@/ee/operator/operator-lists.schema";
 import { AD_PROVIDER_ORDER, adProviderDisplayName } from "@/features/acquisition/ad-provider-registry";
+import { DomainEvent } from "@/features/event/domain-events";
+import { useActivityQuery } from "@/features/messaging/activities/activity-query-context";
 
 export type FilterSelectItem = {
   key: string;
@@ -85,19 +74,6 @@ function renderAvatar(name: string, src?: string | null) {
   return <Avatar className="mr-0.5" name={name} size="sm" src={src} />;
 }
 
-const contactItems: GetItemsFunction = (params) =>
-  getContactsAction(params).then((res) => ({
-    items: res.items.map((contact) => {
-      const name = `${contact.firstName} ${contact.lastName}`.trim();
-      return {
-        key: contact.id,
-        value: contact.id,
-        textValue: name,
-        startContent: renderAvatar(name, contact.avatarUrl ?? undefined),
-      };
-    }),
-  }));
-
 function renderProviderIcon(provider: string, label: string) {
   const ProviderIcon = getProviderIcon(provider as MessagingProvider);
   return <ProviderIcon aria-label={label} className="size-4 shrink-0" />;
@@ -105,7 +81,7 @@ function renderProviderIcon(provider: string, label: string) {
 
 const RecordOptionIdSchema = z.uuid();
 
-function validActivityFilters(filters: Filter[] | undefined): NonNullable<ActivityThreadOptionsData["filters"]> {
+function validActivityFilters(filters: Filter[] | undefined): z.infer<typeof ActivityFilterSchema>[] {
   return (filters ?? []).flatMap((filter) => {
     const candidate =
       filter.operator === FilterOperatorKey.hasSome || filter.operator === FilterOperatorKey.hasNone
@@ -123,7 +99,7 @@ const filterFieldKeyOf = (field: string): FilterFieldKey | undefined =>
 
 export function filterOptionSources(
   t: Translate,
-  activityQueryRef: ActivityQueryRef,
+  _activityQueryRef: ActivityQueryRef,
 ): Record<FilterFieldKey, FilterOptionSource> {
   return {
     [FilterFieldKey.userIds]: {
@@ -154,37 +130,10 @@ export function filterOptionSources(
           }),
         })),
     },
-    [FilterFieldKey.serviceIds]: {
-      getItems: (params) =>
-        getServicesAction(params).then((res) => ({
-          items: res.items.map((service) => ({
-            key: service.id,
-            value: service.id,
-            textValue: service.name,
-          })),
-        })),
-    },
-    [FilterFieldKey.dealIds]: {
-      getItems: (params) =>
-        getDealsAction(params).then((res) => ({
-          items: res.items.map((deal) => ({
-            key: deal.id,
-            value: deal.id,
-            textValue: deal.name,
-          })),
-        })),
-    },
-    [FilterFieldKey.organizationIds]: {
-      getItems: (params) =>
-        getOrganizationsAction(params).then((res) => ({
-          items: res.items.map((organization) => ({
-            key: organization.id,
-            value: organization.id,
-            textValue: organization.name,
-          })),
-        })),
-    },
-    [FilterFieldKey.contactIds]: { getItems: contactItems },
+    [FilterFieldKey.serviceIds]: NO_FILTER_OPTIONS,
+    [FilterFieldKey.dealIds]: NO_FILTER_OPTIONS,
+    [FilterFieldKey.organizationIds]: NO_FILTER_OPTIONS,
+    [FilterFieldKey.contactIds]: NO_FILTER_OPTIONS,
     [FilterFieldKey.participantContactId]: {
       getItems: async (params) => {
         const result = await getIdentityRecordChoicesAction(params.searchTerm ?? "");
@@ -209,35 +158,19 @@ export function filterOptionSources(
         })),
     },
     [FilterFieldKey.timelineThreadId]: {
-      getItems: () => {
-        const activeQuery = activityQueryRef.current;
-        return getActivityThreadOptionsAction({
-          scope: activeQuery?.scope,
-          filters: validActivityFilters(activeQuery?.filters),
-        }).then((threads) => ({
-          items: threads.map((thread) => ({
+      getItems: async (params) => {
+        const result = await getMessagingThreadsAction(params);
+        return {
+          items: result.items.map((thread) => ({
             key: thread.id,
             value: thread.id,
-            textValue: thread.label || t(`Common.providers.${thread.provider}`),
+            textValue: thread.name || t("Common.inputs.unavailableSelection"),
             startContent: renderProviderIcon(thread.provider, t(`Common.providers.${thread.provider}`)),
           })),
-        }));
+        };
       },
     },
-    [FilterFieldKey.taskIds]: {
-      getItems: (params) =>
-        getTasksAction(params).then((res) => ({
-          items: res.items.map((task) => {
-            const nameKey = getSystemTaskNameTranslationKey(task.type);
-            const label = nameKey && task.type !== TaskType.custom ? t(nameKey) : task.name;
-            return {
-              key: task.id,
-              value: task.id,
-              textValue: label,
-            };
-          }),
-        })),
-    },
+    [FilterFieldKey.taskIds]: NO_FILTER_OPTIONS,
     [FilterFieldKey.updatedAt]: NO_FILTER_OPTIONS,
     [FilterFieldKey.createdAt]: NO_FILTER_OPTIONS,
     [FilterFieldKey.event]: {
@@ -332,8 +265,16 @@ export function filterOptionSources(
     },
     [FilterFieldKey.isPlatformOperator]: {
       items: () => [
-        { key: "true", value: "true", textValue: t("OperatorUsers.values.operator") },
-        { key: "false", value: "false", textValue: t("OperatorUsers.platformAccess.revoked") },
+        {
+          key: "true",
+          value: "true",
+          textValue: t("OperatorUsers.values.operator"),
+        },
+        {
+          key: "false",
+          value: "false",
+          textValue: t("OperatorUsers.platformAccess.revoked"),
+        },
       ],
     },
     [FilterFieldKey.lastActiveAt]: NO_FILTER_OPTIONS,
@@ -485,7 +426,9 @@ export function useFilterSelectItems(
     }
     if (presentationType === "member") {
       return async (ids) => {
-        const result = await resolveUserOptionsAction({ ids: [...new Set(ids)] });
+        const result = await resolveUserOptionsAction({
+          ids: [...new Set(ids)],
+        });
         return result.users.map((user) => ({
           key: user.id,
           value: user.id,
@@ -512,28 +455,32 @@ export function useFilterSelectItems(
         });
       };
     }
+    if (fieldKey === FilterFieldKey.timelineThreadId) {
+      return async (ids) => {
+        const selected = [...new Set(ids.filter((id) => RecordOptionIdSchema.safeParse(id).success))].slice(
+          0,
+          ACTIVITY_FILTER_VALUE_MAX,
+        );
+        const results = await Promise.all(selected.map((id) => getMessagingThreadAction(id)));
+        return results.flatMap((result) =>
+          result
+            ? [
+                {
+                  key: result.thread.id,
+                  value: result.thread.id,
+                  textValue: result.thread.name || t("Common.inputs.unavailableSelection"),
+                  startContent: renderProviderIcon(
+                    result.thread.provider,
+                    t(`Common.providers.${result.thread.provider}`),
+                  ),
+                },
+              ]
+            : [],
+        );
+      };
+    }
     if (!hasActivityQuery) return undefined;
-    const entityType = activityEntityTypeForFilterField(field);
-    if (!entityType) return undefined;
-    const withAvatar = entityType === EntityType.contact;
-
-    return (ids) => {
-      const requestIds = [...new Set(ids.filter((id) => RecordOptionIdSchema.safeParse(id).success))].slice(
-        0,
-        ACTIVITY_FILTER_VALUE_MAX,
-      );
-      if (requestIds.length === 0) return Promise.resolve([]);
-      return getActivityRecordOptionsAction({ records: [{ entityType, ids: requestIds }] }).then((options) =>
-        options
-          .filter((option) => "id" in option)
-          .map((option) => ({
-            key: option.id,
-            value: option.id,
-            textValue: option.label,
-            startContent: withAvatar ? renderAvatar(option.label, option.avatarUrl ?? undefined) : undefined,
-          })),
-      );
-    };
+    return undefined;
   }, [hasActivityQuery, field, referenceTypeId, presentationType, t]);
 
   const resolveItems = useMemo<ResolveItemsFunction | undefined>(() => {
@@ -546,7 +493,9 @@ export function useFilterSelectItems(
     return async (ids) => {
       const requested = new Set(ids);
       const params: GetQueryParams = selfIdentifyingField
-        ? { filters: [{ field: selfIdentifyingField, operator: FilterOperatorKey.in, value: [...ids] }] }
+        ? {
+            filters: [{ field: selfIdentifyingField, operator: FilterOperatorKey.in, value: [...ids] }],
+          }
         : {};
       const result = await getItems(params);
       return result.items.filter((item) => requested.has(item.key));

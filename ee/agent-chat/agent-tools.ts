@@ -1,16 +1,15 @@
 import { getGetRecordNavigationInteractor } from "@/core/di";
-import { recordUiTargets } from "./record-ui-targets";
-import { z } from "zod";
 import { retiredRecordToolMessage } from "@/features/mcp-tools/retired-record-tools";
-import { asSchema, tool, jsonSchema, type ToolSet } from "ai";
+import { asSchema, jsonSchema, tool, type ToolSet } from "ai";
+import { z } from "zod";
+import { recordUiTargets } from "./record-ui-targets";
 
-import { ALL_MCP_TOOLS, MCP_ALWAYS_ON_TOOLS, MCP_TOOL_GROUPS } from "@/features/mcp-tools/tool-registry";
-import { encodeToToon } from "@/features/mcp-tools/utils";
-import { dataViewNavigationHref, entityTimelineNavigationHref } from "@/core/data-view/data-view-links";
-import { SURFACE } from "@/core/data-view/data-view-keys";
-import { dataViewPath } from "@/core/data-view/data-view-paths";
 import { AiManageableDataViewSurfaceKeySchema } from "@/core/data-view/ai-manageable-surfaces";
+import { SURFACE } from "@/core/data-view/data-view-keys";
+import { dataViewNavigationHref, entityTimelineNavigationHref } from "@/core/data-view/data-view-links";
+import { dataViewPath } from "@/core/data-view/data-view-paths";
 import { ViewKeySchema } from "@/core/data-view/data-view-state.schema";
+import { redactUnexpectedError } from "@/core/errors/redact-unexpected-error";
 import {
   executeMcpTool,
   expectedMcpToolFailure,
@@ -18,13 +17,18 @@ import {
   type McpToolExecutionResult,
 } from "@/features/mcp-tools/mcp-tool";
 import { RequestSupportSchema } from "@/features/mcp-tools/support.mcp-tools";
-import { redactUnexpectedError } from "@/core/errors/redact-unexpected-error";
+import { ALL_MCP_TOOLS, MCP_ALWAYS_ON_TOOLS, MCP_TOOL_GROUPS } from "@/features/mcp-tools/tool-registry";
+import { encodeToToon } from "@/features/mcp-tools/utils";
 
+import { getTranslator } from "@/i18n/get-translator";
+import { APP_LOCALES, isContentLocale } from "@/i18n/locale-registry";
 import { agentToolResultText } from "./agent-budget-policy";
-import { isReadOnlyTool, requiresApproval } from "./gated-tools";
-import { recordToolRisk } from "./record-tool-risk";
-import { AGENT_UI_TOOL_NAMES, toAgentUiCommandInput } from "./agent-ui-command";
+import type { AgentApprovalContextResolution } from "./agent-external-approval-context";
+import { hostedToolInputGuard } from "./agent-hosted-guards";
+import { agentViewToolMismatch } from "./agent-page-context";
 import { isUnattendedSurface, type AgentSurface } from "./agent-surface-policy";
+import { type AgentToolCancellation as AgentToolCancellationValue } from "./agent-tool-cancellation";
+import type { AgentToolInputResult } from "./agent-tool-input";
 import {
   AGENT_ON_DEMAND_TOOLSETS,
   AGENT_TOOLSET_SUMMARY,
@@ -32,18 +36,14 @@ import {
   isAgentOnDemandToolset,
 } from "./agent-toolset-routing";
 import { onDemandToolsetOfTool, toolNamesOfToolset } from "./agent-toolsets";
-import { hostedToolInputGuard } from "./agent-hosted-guards";
-import { APP_LOCALES, isContentLocale } from "@/i18n/locale-registry";
-import { getTranslator } from "@/i18n/get-translator";
-import { type AgentToolCancellation as AgentToolCancellationValue } from "./agent-tool-cancellation";
-import { ACTIVE_AGENT_UI_TARGETS, UiTargetIdSchema, agentUiPageLabelKeys, type AgentUiTarget } from "./ui-targets";
 import { AgentTourSchema } from "./agent-tours";
-import { NavigateInputSchema } from "./ui-operations";
-import type { AgentApprovalContextResolution } from "./agent-external-approval-context";
-import { internalToolIdentity } from "./tool-identity";
+import { AGENT_UI_TOOL_NAMES, toAgentUiCommandInput } from "./agent-ui-command";
+import { isReadOnlyTool, requiresApproval } from "./gated-tools";
 import { providerWireInputSchema } from "./provider-safe-json-schema";
-import type { AgentToolInputResult } from "./agent-tool-input";
-import { agentViewToolMismatch } from "./agent-page-context";
+import { recordToolRisk } from "./record-tool-risk";
+import { internalToolIdentity } from "./tool-identity";
+import { NavigateInputSchema } from "./ui-operations";
+import { ACTIVE_AGENT_UI_TARGETS, UiTargetIdSchema, agentUiPageLabelKeys, type AgentUiTarget } from "./ui-targets";
 
 export { isAgentToolCancellation, type AgentToolCancellation } from "./agent-tool-cancellation";
 
@@ -147,9 +147,7 @@ function contextualAgentToolNavigation(
   if (!surfaceKey.success || !viewKey.success) return null;
   const href =
     surfaceKey.data === SURFACE.entityTimeline
-      ? content.link === null
-        ? entityTimelineNavigationHref(pageRoute, viewKey.data)
-        : null
+      ? entityTimelineNavigationHref(pageRoute, viewKey.data)
       : content.link === `${dataViewPath(surfaceKey.data)}?view=${viewKey.data}`
         ? dataViewNavigationHref(content.link)
         : null;

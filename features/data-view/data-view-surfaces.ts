@@ -1,4 +1,5 @@
-import { EntityType, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 import { SURFACE, type BuiltinDataViewSurfaceKey } from "@/core/data-view/data-view-keys";
 import { DATA_VIEW_PATHS } from "@/core/data-view/data-view-paths";
 

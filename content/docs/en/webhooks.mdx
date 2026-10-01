@@ -20,7 +20,7 @@ Webhooks let other systems react to CRM changes without polling.
 **UI:** To create a webhook, expand **My Company** in the sidebar, open **Webhooks** and click **Add** (on narrow screens the button shows only a plus icon). Fill in the **Webhook** dialog and click **Save**.
 
 | Field | What it does |
-|---|---|
+| --- | --- |
 | **URL** | Required. The endpoint that receives a `POST` for every subscribed event. A URL entered without a scheme is saved with `https://` in front. |
 | **Description** | Optional, up to 500 characters. Shown in the list. |
 | **Events** | Required. One or more events from the catalog at the end of this page. |
@@ -31,12 +31,19 @@ Webhooks let other systems react to CRM changes without polling.
 
 To change a webhook, click its row, edit the dialog and click **Save**. To remove it, click the trash icon (**Delete**) at the top of the dialog and confirm; its past deliveries stay under **Recent Deliveries**. The list shows each webhook's **URL**, **Description**, **Events**, **Status** (**Enabled** or **Disabled**), **Created at** and **Updated at**. The search box matches the URL, and the filters cover the creation and update dates.
 
-**MCP:** `manage_webhooks` with `action: "create"`, plus `url`, `events[]`, and optional `description`, `secret`, `headers`, `bodyTemplate`, `enabled`. The hosted assistant uses the same tool, and it can also open **Webhooks** or **Recent Deliveries** for you and point at the **Add** button.
+For record events, choose the source type under **Records from**, then optionally select watched fields, search text, and field or relationship filters. Delivery uses the record access of the selected owner; the creator is the default. Only an administrator can select another owner. Existing migrated subscriptions can retain several sources.
+
+**MCP:** `manage_webhooks` with `action: "create"`, plus `url`, `events[]`, and optional `description`, `secret`, `headers`, `bodyTemplate`, `enabled`. Record subscriptions also require `expectedSchemaRevision` from `get_record_model`. Set `recordTrigger` to a query with stable type and field IDs and optional `changedFieldIds`; null selects all accessible types. `recordOwnerUserId` optionally selects the delivery owner. On update, omit these settings to preserve them; changing a trigger or owner requires the current schema revision. The hosted assistant uses the same tool, and it can also open **Webhooks** or **Recent Deliveries** for you and point at the **Add** button.
 
 ```json
 {
   "url": "https://hooks.example.com/customermates",
   "events": ["record.created", "record.updated"],
+  "expectedSchemaRevision": 3,
+  "recordTrigger": {
+    "query": { "typeId": "<project-type-id>" },
+    "changedFieldIds": []
+  },
   "secret": "use-a-random-string-from-a-password-manager",
   "enabled": true
 }
@@ -51,7 +58,7 @@ Use an HTTPS endpoint. A plain `http://` URL is accepted for any host as long as
 Access is set by the **API & Webhooks** row of the role editor under **My Company** → **Roles**. The same row also controls **My Profile** → **API & Connectors**, so a role that may manage its own API keys may also manage every webhook in the workspace.
 
 | Role setting on **API & Webhooks** | What members with that role can do |
-|---|---|
+| --- | --- |
 | **Read access** **None** (the default for a new role) | **Webhooks** and **Recent Deliveries** are hidden in the sidebar. Opening their address directly leads to the Dashboard. |
 | **Read access** **All**, **Manage** **No** | Open both pages, open every webhook's dialog read-only, and open **Event Details** for every delivery. In the dialog, a saved **Secret** and every **Custom headers** value appear as `********`; the header names stay visible. |
 | **Read access** **All**, **Manage** **Yes** | Everything above, plus add, edit and delete webhooks and resend deliveries. |
@@ -71,7 +78,9 @@ Every delivery is a `POST` with `Content-Type: application/json` and the same en
     "userId": "<who-triggered-it>",
     "companyId": "<workspace>",
     "entityId": "<affected-record>",
-    "payload": { /* event-specific */ }
+    "payload": {
+      /* event-specific */
+    }
   },
   "timestamp": "<iso-8601>"
 }
@@ -99,7 +108,11 @@ Example, `record.updated` for a contact, with unrelated fields omitted:
         "beforeVersion": 1,
         "afterVersion": 2,
         "fields": [
-          { "fieldId": "<first-name-field-id>", "before": { "value": { "state": "value", "value": { "kind": "text", "value": "Max" } } }, "after": { "value": { "state": "value", "value": { "kind": "text", "value": "Maximilian" } } } }
+          {
+            "fieldId": "<first-name-field-id>",
+            "before": { "value": { "state": "value", "value": { "kind": "text", "value": "Max" } } },
+            "after": { "value": { "state": "value", "value": { "kind": "text", "value": "Maximilian" } } }
+          }
         ]
       }
     }
@@ -155,15 +168,16 @@ Each recipe is the URL, the custom headers, and the body template to paste into 
 Start a Claude Code routine when a record changes. Create the routine at [claude.ai/code/routines](https://claude.ai/code/routines) first.
 
 <Steps>
-<Step title="Add an API trigger">
-Open the routine, click **Add another trigger**, choose **API**, then **Generate token**. Copy the URL and the token; the token is shown once and cannot be retrieved later.
-</Step>
-<Step title="Create the webhook">
-Paste the URL, select your events, and add the headers and template below.
-</Step>
-<Step title="Reference the payload in the routine prompt">
-The text arrives wrapped in a `routine-fire-payload` block that the routine treats as untrusted data. The routine's own prompt has to refer to it, for example "act on the event described in the routine-fire-payload block", or the text is ignored.
-</Step>
+  <Step title="Add an API trigger">
+    Open the routine, click **Add another trigger**, choose **API**, then **Generate token**. Copy the URL and the
+    token; the token is shown once and cannot be retrieved later.
+  </Step>
+  <Step title="Create the webhook">Paste the URL, select your events, and add the headers and template below.</Step>
+  <Step title="Reference the payload in the routine prompt">
+    The text arrives wrapped in a `routine-fire-payload` block that the routine treats as untrusted data. The routine's
+    own prompt has to refer to it, for example "act on the event described in the routine-fire-payload block", or the
+    text is ignored.
+  </Step>
 </Steps>
 
 The URL is `https://api.anthropic.com/v1/claude_code/routines/<routine-id>/fire`, and the routine id is prefixed `trig_`.
@@ -255,11 +269,11 @@ Deliveries are not strictly ordered across events. Two `record.updated` events m
 
 ## Why are notes Tiptap JSON in payloads? [#notes-are-json-not-markdown]
 
-The `notes` field in payloads is Tiptap JSON, the same structure the editor stores. To render it as markdown on your side, run it through a Tiptap-compatible serializer. In MCP, `get_records` with `include: "withNotes"` returns notes already serialized to markdown.
+The `notes` field in payloads is Tiptap JSON, the same structure the editor stores. To render it as markdown on your side, run it through a Tiptap-compatible serializer. In MCP, `read_crm_record` returns the configured rich-text value with `documentJson`; convert that document with a compatible serializer when you need markdown.
 
 ## What do delete payloads contain?
 
-Delete events carry the full record as it was before deletion, under `payload`, not just the id. The affected record id is also available as `data.entityId`.
+For `record.deleted`, `data.payload` is a version-two envelope with the qualified `record.ref`, authorized before-values and removed relationships. Its `afterVersion` is null. Source filters match immediately before removal, while the owner’s current access is checked again before delivery. The record ID also appears as `data.entityId`; use the qualified reference when joining CRM data.
 
 ## How do I debug a delivery?
 
@@ -276,7 +290,7 @@ The catalog accepts [[derived.webhooks.events.total]] event identifiers: three c
 ### Record events
 
 | Event | When it fires | `payload` |
-|---|---|---|
+| --- | --- | --- |
 | `record.created` | A record of a configured source type is created | version 2 record envelope |
 | `record.updated` | A field, assignment, identity, or link changes on a configured source type | version 2 record envelope with before/after changes |
 | `record.deleted` | A record of a configured source type is deleted | version 2 record envelope |
@@ -284,7 +298,7 @@ The catalog accepts [[derived.webhooks.events.total]] event identifiers: three c
 The following type-specific identifiers are retained for legacy configurations. They are not the contract for new generic-record writes or customer-created types; migrate their subscriptions to a generic event and record source.
 
 | Legacy event | Historical meaning | Legacy `payload` |
-|---|---|---|
+| --- | --- | --- |
 | `contact.created` | A contact is created via UI, API, MCP, or import | full contact |
 | `contact.updated` | Any contact field changes | `contact`, `changes` |
 | `contact.deleted` | A contact is deleted | full contact |
@@ -306,7 +320,7 @@ The following type-specific identifiers are retained for legacy configurations. 
 Messaging events fire on inbound provider activity on connected accounts. The **Events** list offers them in every workspace, but they fire only where connected accounts exist, which requires Cloud and a plan that includes messaging. `userId` is `null`. Payloads reference provider records by id (`connectedAccountId`, `provider`, `providerMessageId`, `threadId`, and similar) rather than embedding CRM records.
 
 | Event | When it fires |
-|---|---|
+| --- | --- |
 | `messaging.message.received` | A chat message or email is ingested |
 | `messaging.message.updated` | An ingested message is updated |
 | `messaging.message.deleted` | An ingested message is deleted |

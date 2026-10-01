@@ -14,6 +14,7 @@ import type { RecordRelationship } from "@/features/records/record-model.schema"
 import type { RecordEditorStore } from "./record-editor.store";
 
 import { Button } from "@/components/ui/button";
+import { SelectionOptionsSkeleton, SelectionValueSkeleton } from "@/components/forms/selection-loading";
 import { AppChip } from "@/components/chip/app-chip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -127,8 +128,8 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
       ) : (
         <div aria-busy={linked.loading || undefined} className="flex flex-wrap gap-1.5">
           {linked.loading && (
-            <span className="text-sm text-muted-foreground" role="status">
-              {t("Loading.text")}
+            <span aria-label={t("Loading.text")} role="status">
+              <SelectionValueSkeleton />
             </span>
           )}
 
@@ -216,9 +217,7 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
 
               <CommandList aria-busy={options.loading || undefined}>
                 {options.loading || search !== debounced ? (
-                  <div className="p-3 text-sm text-muted-foreground" role="status">
-                    {t("Loading.text")}
-                  </div>
+                  <SelectionOptionsSkeleton label={t("Loading.text")} />
                 ) : options.failed ? (
                   <div className="p-3">{error(() => setAttempt((value) => value + 1))}</div>
                 ) : (

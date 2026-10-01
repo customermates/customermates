@@ -32,7 +32,7 @@ import { stripLocalePrefix } from "@/i18n/locale-registry";
 import { useTopBarActions } from "./topbar-actions-context";
 import { buildAppTopbarCrumbs } from "./app-topbar-crumbs";
 
-import { EntityType } from "@/generated/prisma";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 export const AppTopBar = observer(({ operatorConsoleVisible }: { operatorConsoleVisible: boolean }) => {
   const t = useTranslations();

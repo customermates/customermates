@@ -29,7 +29,7 @@ describe("drawer side placement", () => {
 
   it("opens the shared entity drawer from the left", () => {
     if (!ENFORCED) return;
-    const source = read("components/entity-detail/entity-drawer.tsx");
+    const source = read("app/[locale]/(protected)/records/[typeId]/components/record-editor.tsx");
 
     expect(source).toContain('side="left"');
     expect(source).not.toContain('side="right"');

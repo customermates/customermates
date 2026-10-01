@@ -58,7 +58,7 @@ Den Client nach seinen Tools fragen. Alle [[derived.mcp.tools.total]] sollten er
 
 
 | Client | Methode | Guide |
-|---|---|---|
+| --- | --- | --- |
 | Claude Web & Mobile | Custom Connector (OAuth) | [Mit einem Custom Connector verbinden](/docs/connect-custom-connector) |
 | Claude Desktop | Connector (OAuth) oder Config-Key | [Claude Desktop verbinden](/docs/connect-custom-connector#claude) |
 | ChatGPT | Connector (OAuth) oder Key-Header | [ChatGPT verbinden](/docs/connect-custom-connector#chatgpt) |
@@ -162,7 +162,7 @@ Datensätze erstellen, ändern, löschen, verknüpfen oder entknüpfen. expected
 
 Erlaubte Auswirkungen einer Löschung prüfen, einschließlich abhängiger Datensätze, Verknüpfungen und Berechnungen. Eine nicht sichtbare Anzahl wird als `null` geliefert, nicht als `0`. Den zurückgegebenen impactHash bei der freigegebenen Löschung als expectedImpactHash übergeben.
 
-**Nur lesend.** Pflicht: `ref`, `expectedRevision`, `expectedVersion`.
+**Nur lesend.** Pflicht: `expectedRevision`. Optional: `ref`, `targets`, `expectedVersion`.
 
 #### `query_crm_measure`
 

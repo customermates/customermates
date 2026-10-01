@@ -1,45 +1,46 @@
 "use client";
 
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
-import type { MessagingProvider } from "@/generated/prisma";
+import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 import type { ActivityEntryDto } from "@/ee/messaging/activities/activities.schema";
+import type { MessagingProvider } from "@/generated/prisma";
 
-import { Fragment, type ComponentProps, type ReactNode } from "react";
 import { ArrowRight } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useLocale, useTranslations } from "next-intl";
+import { Fragment, type ComponentProps, type ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { channelDisplayLabel } from "@/ee/messaging/thread-display";
 
-import { isEmpty, partitionRelationIds } from "@/features/audit-log/audit-log-changes";
 import { hasNotesDiff, NotesDiff } from "@/app/[locale]/(protected)/company/components/audit-log/notes-diff";
+import { isEmpty, partitionRelationIds } from "@/features/audit-log/audit-log-changes";
 
-import { auditCategory, DetailHeader, IdentityAvatar, TypeBadge } from "./activities-row";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
-import { AvatarStack } from "@/components/shared/avatar-stack";
 import { AppChip } from "@/components/chip/app-chip";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { CustomFieldValue } from "@/components/data-view/custom-columns/custom-field-value";
-import { Icon } from "@/components/shared/icon";
 import { serializeJSONToMarkdown } from "@/components/editor/editor.utils";
+import { useEntityHref, useOpenEntity } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
+import { useCanonicalColumnLabel } from "@/components/entity-terminology/use-column-label";
+import { AvatarStack } from "@/components/shared/avatar-stack";
+import { Icon } from "@/components/shared/icon";
+import { countryLabelForLocale } from "@/constants/countries";
+import { getCurrencyLabel } from "@/constants/currencies";
+import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
-import { useEntityHref, useOpenEntity } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
-import { CustomColumnType, EntityType, TaskType } from "@/generated/prisma";
-import { getSystemTaskNameTranslationKey } from "@/app/[locale]/(protected)/tasks/components/system-task.config";
-import { useCanonicalColumnLabel } from "@/components/entity-terminology/use-column-label";
 import {
   CANONICAL_TERMINOLOGY_PRESET_KEY,
   terminologyMessageKey,
 } from "@/features/entity-terminology/entity-terminology.constants";
-import { countryLabelForLocale } from "@/constants/countries";
-import { getCurrencyLabel } from "@/constants/currencies";
+import { getSystemTaskNameTranslationKey } from "@/features/records/protected-task-labels";
+import { CustomColumnType } from "@/core/data-view/column-presentation.types";
+import { EntityType, TaskType } from "@/features/records/history/v1/legacy-enums";
 import type { AppLocale } from "@/i18n/locale-registry";
-import { runUserAction } from "@/core/errors/report-application-error";
+import { auditCategory, DetailHeader, IdentityAvatar, TypeBadge } from "./activities-row";
 
 type AvatarItem = {
   id: string;

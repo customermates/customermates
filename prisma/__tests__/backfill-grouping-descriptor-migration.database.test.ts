@@ -54,7 +54,7 @@ const EXPECTED_GROUPING: Record<string, unknown> = {
 
 function migrationNames() {
   return readdirSync(migrationsRoot, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
+    .filter((entry) => entry.isDirectory() && entry.name < "20261001000000_retire_legacy_crm_storage")
     .map((entry) => entry.name)
     .sort();
 }

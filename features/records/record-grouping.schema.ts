@@ -30,6 +30,7 @@ export const RecordGroupingResultSchema = z
           label: z.string().optional(),
           labelKey: z.string().optional(),
           color: z.enum(CHIP_COLORS).optional(),
+          weight: z.number().finite().optional(),
           avatarUrl: z.string().nullable().optional(),
           bucketStart: z.string().optional(),
           bucketRole: z.enum(["window", "earlier", "later"]).optional(),

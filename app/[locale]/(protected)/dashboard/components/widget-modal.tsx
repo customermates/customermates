@@ -2,63 +2,45 @@
 
 import { RecordActivityWidgetEditor } from "./record-activity-widget-editor";
 
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
-import type { FilterableField } from "@/core/base/base-get.schema";
-
-import { useEffect } from "react";
+import { WidgetKind } from "@/generated/prisma";
+import { ChevronsUpDownIcon, Trash2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
-import { ChevronsUpDownIcon, Trash2 } from "lucide-react";
-import { EntityType, WidgetGroupByType, WidgetKind } from "@/generated/prisma";
 
-import { AppModal } from "@/components/modal";
-import { AppForm } from "@/components/forms/form-context";
 import { AppCard } from "@/components/card/app-card";
-import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
+import { AppCardHeader } from "@/components/card/app-card-header";
 import { FormActions } from "@/components/card/form-actions";
-import { FormInput } from "@/components/forms/form-input";
-import { FormSelect } from "@/components/forms/form-select";
-import { FormSwitch } from "@/components/forms/form-switch";
+import { AppForm } from "@/components/forms/form-context";
 import { FormLabel } from "@/components/forms/form-label";
-import { Button } from "@/components/ui/button";
+import { FormInput } from "@/components/forms/form-input";
+import { FormSwitch } from "@/components/forms/form-switch";
+import { AppModal } from "@/components/modal";
+import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { getChartColors } from "@/constants/chart-colors";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import type { ChartColor } from "@/features/widget/widget.schema";
 import { DisplayType } from "@/features/widget/widget.schema";
-import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
-import { FilterAccordion } from "@/components/data-view/filter-modal/filter-accordion";
-import { getChartColors } from "@/constants/chart-colors";
-import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
-import { ActivityQueryProvider } from "@/features/messaging/activities/activity-query-context";
 
-import { isRecordWidgetForm, isRecordActivityWidgetForm } from "./record-widget-form";
-import { RecordWidgetEditor } from "./record-widget-editor";
-import { ActivityFilterFields } from "./activity-filter-fields";
-import { useAggregationTypeLabel } from "./use-aggregation-type-label";
-import { WidgetDisplayTypePicker } from "./widget-display-type-picker";
-import { WIDGET_EDITOR_GRID_CLASS } from "./widget-editor-layout";
-import { WidgetPreview } from "./widget-preview";
-import { WidgetStarterPicker } from "./widget-starter-picker";
 import { WizardProgress } from "@/components/shared/wizard-progress";
 import { runUserAction } from "@/core/errors/report-application-error";
-
-type Props = {
-  customColumns: CustomColumnDto[];
-  filterableFields: Record<EntityType, FilterableField[]>;
-  activityFilterableFields: FilterableField[];
-};
+import { RecordWidgetEditor } from "./record-widget-editor";
+import { isRecordActivityWidgetForm, isRecordWidgetForm } from "./record-widget-form";
+import { WidgetDisplayTypePicker } from "./widget-display-type-picker";
+import { WIDGET_EDITOR_GRID_CLASS } from "./widget-editor-layout";
+import { WidgetStarterPicker } from "./widget-starter-picker";
 
 type EditorTab = "data" | "filters" | "appearance";
 
@@ -91,10 +73,8 @@ function tabForSection(section: string, kind: WidgetKind): EditorTab {
   return "data";
 }
 
-export const WidgetModal = observer(({ customColumns, filterableFields, activityFilterableFields }: Props) => {
+export const WidgetModal = observer(() => {
   const t = useTranslations();
-  const aggregationTypeLabel = useAggregationTypeLabel();
-  const { plural, singular } = useEntityTerminology();
   const { widgetModalStore } = useRootStore();
   const { showDeleteConfirmation } = useDeleteConfirmation();
   const { resolvedTheme } = useTheme();
@@ -113,7 +93,7 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
           (form.measure.groupBy?.filter?.relationships?.length ?? 0) +
           (form.measure.groupBy?.filter?.relatedFilters?.length ?? 0) +
           Number(Boolean(form.measure.groupBy?.filter?.search))
-        : widgetModalStore.activeFiltersCount + widgetModalStore.activeDealFiltersCount
+        : 0
       : widgetModalStore.activeTimelineFiltersCount;
   const isChooseStep = isCreate && widgetModalStore.creationStep === "choose";
   const creationStepNumber = isChooseStep ? 1 : 2;
@@ -128,12 +108,6 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
       : t("Dashboard.widgetEditor.editTitle", { name: form.name });
   const saveDisabled = isDisabled || !form.name.trim() || (!isCreate && !widgetModalStore.hasUnsavedChanges);
 
-  useEffect(() => {
-    widgetModalStore.setCustomColumns(customColumns);
-    widgetModalStore.setFilterableFields(filterableFields);
-    widgetModalStore.setActivityFilterableFields(activityFilterableFields);
-  }, [activityFilterableFields, customColumns, filterableFields, widgetModalStore]);
-
   function setActiveTab(next: string) {
     if (next === "filters") {
       widgetModalStore.setExpandedSection(form.kind === WidgetKind.chart ? "filters" : "activityFilters");
@@ -147,169 +121,24 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
     widgetModalStore.setCreationStep("choose");
     requestAnimationFrame(() => document.getElementById(`widget-kind-${selectedKind}`)?.focus());
   }
-
   function renderChartData() {
-    if (form.kind !== WidgetKind.chart) return null;
-    if (isRecordWidgetForm(form)) return <RecordWidgetEditor section="data" store={widgetModalStore} />;
-
-    return (
-      <div className="grid gap-4 sm:grid-cols-2">
-        <FormSelect
-          required
-          id="entityType"
-          items={widgetModalStore.availableEntityTypes.map((entityType) => ({
-            value: entityType,
-            label: singular(entityType),
-          }))}
-          label={t("Common.inputs.entityType")}
-        />
-
-        <FormSelect
-          required
-          id="aggregationType"
-          items={widgetModalStore.aggregationTypeOptions.map(({ key }) => ({
-            value: key,
-            label: aggregationTypeLabel(key, form.entityType),
-          }))}
-          label={t("Common.inputs.aggregationType")}
-        />
-
-        <div className="space-y-1.5 sm:col-span-2">
-          <FormLabel htmlFor="groupByValue">{t("Common.inputs.groupByValue")}</FormLabel>
-
-          <Select
-            disabled={isDisabled}
-            value={widgetModalStore.groupBySelectValue}
-            onValueChange={widgetModalStore.onGroupByChange}
-          >
-            <SelectTrigger className="w-full" id="groupByValue">
-              <SelectValue placeholder=" " />
-            </SelectTrigger>
-
-            <SelectContent>
-              {widgetModalStore.groupBySelectOptions.map((option) => {
-                const isEntityGrouping = Object.values(EntityType).includes(option.key as EntityType);
-                const label = isEntityGrouping
-                  ? singular(option.key as EntityType)
-                  : option.key.startsWith("custom:") && option.label
-                    ? option.label
-                    : t("Dashboard.groupBys.none");
-                return (
-                  <SelectItem key={option.key} value={option.key}>
-                    {label}
-                  </SelectItem>
-                );
-              })}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-    );
+    return form.kind === WidgetKind.chart ? <RecordWidgetEditor section="data" store={widgetModalStore} /> : null;
   }
 
   function renderDataSettings() {
-    return (
-      <div className="flex min-w-0 flex-col gap-6">
-        <FormInput required id="name" label={t("Common.inputs.name")} />
-
-        {form.kind === WidgetKind.chart ? (
-          renderChartData()
-        ) : isRecordActivityWidgetForm(form) ? (
-          <RecordActivityWidgetEditor section="data" store={widgetModalStore} />
-        ) : (
-          <ActivityQueryProvider filters={form.timelineFilters}>
-            <ActivityFilterFields
-              expandedField={
-                widgetModalStore.expandedSection === "activityFilters"
-                  ? widgetModalStore.expandedFilterField
-                  : undefined
-              }
-              filterableFields={widgetModalStore.activityFilterableFields}
-              filters={form.timelineFilters ?? []}
-              onConnectedAccountChange={widgetModalStore.clearActivityThreadFilter}
-              onExpandedFieldChange={(field) => {
-                widgetModalStore.setExpandedSection("activityFilters");
-                widgetModalStore.setExpandedFilterField(field || undefined);
-              }}
-            />
-          </ActivityQueryProvider>
-        )}
-      </div>
+    return form.kind === WidgetKind.chart ? (
+      renderChartData()
+    ) : (
+      <RecordActivityWidgetEditor section="data" store={widgetModalStore} />
     );
   }
-
   function renderChartFilters() {
-    if (form.kind !== WidgetKind.chart) return null;
-    if (isRecordWidgetForm(form)) return <RecordWidgetEditor section="filters" store={widgetModalStore} />;
-
-    return (
-      <div className="flex min-w-0 flex-col gap-6">
-        <section aria-labelledby="widget-entity-filters-heading" className="space-y-3">
-          <div className="flex items-center justify-between gap-3">
-            <h4 className="text-sm font-medium" id="widget-entity-filters-heading">
-              {t("Dashboard.tabs.filters", {
-                entityType: singular(form.entityType),
-              })}
-            </h4>
-
-            <Badge variant="secondary">{widgetModalStore.activeFiltersCount}</Badge>
-          </div>
-
-          <FilterAccordion
-            baseId="entityFilters"
-            customColumns={widgetModalStore.customColumns}
-            filterableFields={widgetModalStore.filterableFields}
-            filters={form.entityFilters ?? []}
-            value={widgetModalStore.expandedSection === "filters" ? (widgetModalStore.expandedFilterField ?? "") : ""}
-            variant="grouped"
-            onValueChange={(field) => {
-              widgetModalStore.setExpandedSection("filters");
-              widgetModalStore.setExpandedFilterField(field);
-            }}
-          />
-        </section>
-
-        {widgetModalStore.showDealFiltersTab && (
-          <section aria-labelledby="deal-widget-filters-heading" className="space-y-3">
-            <div className="flex items-center justify-between gap-3">
-              <h4 className="text-sm font-medium" id="deal-widget-filters-heading">
-                {t("Dashboard.tabs.dealFilters", {
-                  deals: plural(EntityType.deal),
-                })}
-              </h4>
-
-              <Badge variant="secondary">{widgetModalStore.activeDealFiltersCount}</Badge>
-            </div>
-
-            <FilterAccordion
-              baseId="dealFilters"
-              customColumns={widgetModalStore.customColumnsByEntityType[EntityType.deal]}
-              filterableFields={widgetModalStore.dealFilterableFields}
-              filters={form.dealFilters ?? []}
-              value={
-                widgetModalStore.expandedSection === "dealFilters" ? (widgetModalStore.expandedFilterField ?? "") : ""
-              }
-              variant="grouped"
-              onValueChange={(field) => {
-                widgetModalStore.setExpandedSection("dealFilters");
-                widgetModalStore.setExpandedFilterField(field);
-              }}
-            />
-          </section>
-        )}
-      </div>
-    );
+    return form.kind === WidgetKind.chart ? <RecordWidgetEditor section="filters" store={widgetModalStore} /> : null;
   }
 
   function renderColorPicker() {
     if (form.kind !== WidgetKind.chart) return null;
-    if (
-      (isRecordWidgetForm(form)
-        ? Boolean(form.measure.groupBy?.fieldId)
-        : form.groupByType === WidgetGroupByType.customColumn) &&
-      form.displayOptions?.useGroupColors !== false
-    )
-      return null;
+    if (Boolean(form.measure.groupBy?.fieldId) && form.displayOptions?.useGroupColors !== false) return null;
 
     return (
       <div className="space-y-1.5">
@@ -389,9 +218,7 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
           onValueChange={(next) => widgetModalStore.onChange("displayOptions.displayType", next)}
         />
 
-        {(isRecordWidgetForm(form)
-          ? Boolean(form.measure.groupBy?.fieldId)
-          : form.groupByType === WidgetGroupByType.customColumn) && (
+        {Boolean(form.measure.groupBy?.fieldId) && (
           <FormSwitch id="displayOptions.useGroupColors" label={t("Common.inputs.displayOptions.useGroupColors")} />
         )}
 
@@ -521,6 +348,10 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
                   </TabsList>
 
                   <TabsContent aria-labelledby="widget-tab-data" className="pt-5" value="data">
+                    <div className="mb-4">
+                      <FormInput id="name" label={t("Common.inputs.name")} />
+                    </div>
+
                     {renderDataSettings()}
                   </TabsContent>
 
@@ -539,14 +370,7 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
                   <RecordActivityWidgetEditor section="preview" store={widgetModalStore} />
                 ) : isRecordWidgetForm(form) ? (
                   <RecordWidgetEditor section="preview" store={widgetModalStore} />
-                ) : (
-                  <WidgetPreview
-                    activeFilterCount={activeFilterCount}
-                    activityFilters={widgetModalStore.previewTimelineFilters}
-                    customColumns={widgetModalStore.customColumns}
-                    form={form}
-                  />
-                )}
+                ) : null}
               </div>
             )}
           </AppCardBody>

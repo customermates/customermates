@@ -1,12 +1,12 @@
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
-import type { Filter, FilterableField, GetQueryParams, SortDescriptor } from "../base-get.schema";
-import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
 import type { GroupCountRow } from "@/core/base/grouping/group-count";
+import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
+import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
+import type { Filter, FilterableField, GetQueryParams, SortDescriptor } from "../base-get.schema";
 
 import { describe, expect, it, vi } from "vitest";
 
-import { BaseGetInteractor, BaseGetRepo } from "../base-get.interactor";
 import { enumGroupables } from "@/core/base/grouping/groupable-field";
+import { BaseGetInteractor, BaseGetRepo } from "../base-get.interactor";
 
 type Item = { id: string; status: string };
 

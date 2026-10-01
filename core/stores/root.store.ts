@@ -1,75 +1,62 @@
-import type { BaseModalStore } from "../base/base-modal.store";
 import type { AppMode } from "@/core/config/environment";
+import type { BaseModalStore } from "../base/base-modal.store";
 
-import { SignInStore } from "@/app/[locale]/(public)/auth/signin/sign-in.store";
-import { SignUpStore } from "@/app/[locale]/(public)/auth/signup/sign-up.store";
-import { CompanySettingsStore } from "@/app/[locale]/(protected)/company/components/company-settings/company-settings.store";
-import { ForgotPasswordStore } from "@/app/[locale]/(public)/auth/forgot-password/forgot-password.store";
-import { VerifyEmailStore } from "@/app/[locale]/(public)/auth/verify-email/verify-email.store";
-import { McpConsentStore } from "@/app/[locale]/(public)/auth/mcp-consent/mcp-consent.store";
-import { SubscriptionStore } from "@/app/[locale]/(protected)/company/components/subscription/subscription.store";
-import { SubscriptionExpiredStore } from "@/app/[locale]/(protected)/subscription-expired/components/subscription-expired.store";
-import { LegalUpdateStore } from "@/app/[locale]/(protected)/legal-update/components/legal-update.store";
+import { AuditLogModalStore } from "@/app/[locale]/(protected)/company/components/audit-log/audit-log-modal.store";
+import { AuditLogsStore } from "@/app/[locale]/(protected)/company/components/audit-log/audit-logs.store";
 import { CompanyInviteModalStore } from "@/app/[locale]/(protected)/company/components/company-invite/company-invite-modal.store";
 import { InviteByEmailStore } from "@/app/[locale]/(protected)/company/components/company-invite/invite-by-email.store";
-import { UserModalStore } from "@/app/[locale]/(protected)/company/components/user/user-modal.store";
-import { RoleModalStore } from "@/app/[locale]/(protected)/company/components/role/role-modal.store";
-import { UsersStore } from "@/app/[locale]/(protected)/company/components/user/users.store";
+import { CompanySettingsStore } from "@/app/[locale]/(protected)/company/components/company-settings/company-settings.store";
 import { CompanyStore } from "@/app/[locale]/(protected)/company/components/company.store";
-import { ContactDetailStore } from "@/app/[locale]/(protected)/contacts/components/contact-detail.store";
-import { OrganizationDetailStore } from "@/app/[locale]/(protected)/organizations/components/organization-detail.store";
-import { OrganizationsStore } from "@/app/[locale]/(protected)/organizations/components/organizations.store";
-import { AiConnectionStore } from "@/components/ai-connection/ai-connection.store";
-import { StepProfileStore } from "@/app/[locale]/(protected)/onboarding/wizard/components/step-profile.store";
-import { OnboardingWizardStore } from "@/app/[locale]/(protected)/onboarding/wizard/components/onboarding-wizard.store";
-import { ProfileSettingsStore } from "@/app/[locale]/(protected)/profile/components/profile-settings.store";
-import { ApiKeyModalStore } from "@/app/[locale]/(protected)/profile/components/api-key-modal.store";
-import { ApiKeysStore } from "@/app/[locale]/(protected)/profile/components/api-keys.store";
-import { ConnectedAccountModalStore } from "@/app/[locale]/(protected)/profile/components/connected-account-modal.store";
-import { ConnectedAccountsStore } from "@/app/[locale]/(protected)/profile/components/connected-accounts.store";
-import { ConnectUpsellModalStore } from "@/app/[locale]/(protected)/profile/components/connect-upsell-modal.store";
-import { ContactsStore } from "@/app/[locale]/(protected)/contacts/components/contacts.store";
-import { OperatorUsersStore } from "@/app/[locale]/(protected)/operator/components/users/operator-users.store";
-import { OperatorAuditStore } from "@/app/[locale]/(protected)/operator/components/audit/operator-audit.store";
-import { OperatorWorkspacesStore } from "@/app/[locale]/(protected)/operator/components/workspaces/operator-workspaces.store";
-import { MessagingThreadsStore } from "@/app/[locale]/(protected)/inbox/components/messaging-threads.store";
+import { FeedbackModalStore } from "@/app/[locale]/(protected)/company/components/feedback/feedback-modal.store";
+import { RoleModalStore } from "@/app/[locale]/(protected)/company/components/role/role-modal.store";
+import { RolesStore } from "@/app/[locale]/(protected)/company/components/role/roles.store";
+import { SubscriptionStore } from "@/app/[locale]/(protected)/company/components/subscription/subscription.store";
+import { UserModalStore } from "@/app/[locale]/(protected)/company/components/user/user-modal.store";
+import { UsersStore } from "@/app/[locale]/(protected)/company/components/user/users.store";
+import { WebhookDeliveriesStore } from "@/app/[locale]/(protected)/company/components/webhook/webhook-deliveries.store";
+import { WebhookDeliveryModalStore } from "@/app/[locale]/(protected)/company/components/webhook/webhook-delivery-modal.store";
+import { WebhookModalStore } from "@/app/[locale]/(protected)/company/components/webhook/webhook-modal.store";
+import { WebhooksStore } from "@/app/[locale]/(protected)/company/components/webhook/webhooks.store";
+import { WidgetModalStore } from "@/app/[locale]/(protected)/dashboard/components/widget-modal.store";
+import { WidgetsStore } from "@/app/[locale]/(protected)/dashboard/components/widgets.store";
 import { MessagingThreadDetailStore } from "@/app/[locale]/(protected)/inbox/components/messaging-thread-detail.store";
+import { MessagingThreadsStore } from "@/app/[locale]/(protected)/inbox/components/messaging-threads.store";
 import { ThreadComposeStore } from "@/app/[locale]/(protected)/inbox/components/thread-compose.store";
 import { ThreadParticipantsStore } from "@/app/[locale]/(protected)/inbox/components/thread-participants.store";
-import { AddChannelStore } from "@/app/[locale]/(protected)/contacts/components/add-channel.store";
+import { LegalUpdateStore } from "@/app/[locale]/(protected)/legal-update/components/legal-update.store";
+import { OnboardingWizardStore } from "@/app/[locale]/(protected)/onboarding/wizard/components/onboarding-wizard.store";
+import { StepProfileStore } from "@/app/[locale]/(protected)/onboarding/wizard/components/step-profile.store";
+import { OperatorAuditStore } from "@/app/[locale]/(protected)/operator/components/audit/operator-audit.store";
+import { OperatorUsersStore } from "@/app/[locale]/(protected)/operator/components/users/operator-users.store";
+import { OperatorWorkspacesStore } from "@/app/[locale]/(protected)/operator/components/workspaces/operator-workspaces.store";
+import { ApiKeyModalStore } from "@/app/[locale]/(protected)/profile/components/api-key-modal.store";
+import { ApiKeysStore } from "@/app/[locale]/(protected)/profile/components/api-keys.store";
+import { ConnectUpsellModalStore } from "@/app/[locale]/(protected)/profile/components/connect-upsell-modal.store";
+import { ConnectedAccountModalStore } from "@/app/[locale]/(protected)/profile/components/connected-account-modal.store";
+import { ConnectedAccountsStore } from "@/app/[locale]/(protected)/profile/components/connected-accounts.store";
+import { ProfileSettingsStore } from "@/app/[locale]/(protected)/profile/components/profile-settings.store";
 import { UserStore } from "@/app/[locale]/(protected)/profile/components/user.store";
-import { TasksStore } from "@/app/[locale]/(protected)/tasks/components/tasks.store";
-import { TaskDetailStore } from "@/app/[locale]/(protected)/tasks/components/task-detail.store";
+import { RoutineModalStore } from "@/app/[locale]/(protected)/routines/components/routine-modal.store";
+import { RoutinesStore } from "@/app/[locale]/(protected)/routines/components/routines.store";
+import { SubscriptionExpiredStore } from "@/app/[locale]/(protected)/subscription-expired/components/subscription-expired.store";
+import { ErrorTestStore } from "@/app/[locale]/(protected)/test/error/error-test.store";
+import { ForgotPasswordStore } from "@/app/[locale]/(public)/auth/forgot-password/forgot-password.store";
+import { McpConsentStore } from "@/app/[locale]/(public)/auth/mcp-consent/mcp-consent.store";
+import { ResetPasswordStore } from "@/app/[locale]/(public)/auth/reset-password/reset-password.store";
+import { SignInStore } from "@/app/[locale]/(public)/auth/signin/sign-in.store";
+import { SignUpStore } from "@/app/[locale]/(public)/auth/signup/sign-up.store";
+import { VerifyEmailStore } from "@/app/[locale]/(public)/auth/verify-email/verify-email.store";
+import { GlobalSearchModalStore } from "@/app/components/global-search-modal.store";
+import { AiConnectionStore } from "@/components/ai-connection/ai-connection.store";
+import { FilterPaletteStore } from "@/components/data-view/filter-palette/filter-palette.store";
 import { LayoutStore } from "@/components/layout/layout.store";
+import { DeleteConfirmationModalStore } from "@/components/modal/delete-confirmation-modal.store";
 import { LoadingOverlayStore } from "@/components/shared/loading-overlay.store";
-import { ServicesStore } from "@/app/[locale]/(protected)/services/components/services.store";
-import { ServiceDetailStore } from "@/app/[locale]/(protected)/services/components/service-detail.store";
 import { IntlStore } from "@/core/stores/intl.store";
 import { LocaleStore } from "@/core/stores/locale.store";
 import { TerminologyStore } from "@/core/stores/terminology.store";
-import { WidgetsStore } from "@/app/[locale]/(protected)/dashboard/components/widgets.store";
-import { WidgetModalStore } from "@/app/[locale]/(protected)/dashboard/components/widget-modal.store";
-import { RolesStore } from "@/app/[locale]/(protected)/company/components/role/roles.store";
-import { CustomColumnModalStore } from "@/components/data-view/custom-columns/custom-column-modal.store";
-import { FilterPaletteStore } from "@/components/data-view/filter-palette/filter-palette.store";
-import { DeleteConfirmationModalStore } from "@/components/modal/delete-confirmation-modal.store";
-import { DealDetailStore } from "@/app/[locale]/(protected)/deals/components/deal-detail.store";
-import { DealsStore } from "@/app/[locale]/(protected)/deals/components/deals.store";
-import { ResetPasswordStore } from "@/app/[locale]/(public)/auth/reset-password/reset-password.store";
-import { GlobalSearchModalStore } from "@/app/components/global-search-modal.store";
-import { RecordWorkspaceStore } from "./record-workspace.store";
-import { ImportWizardStore } from "@/components/data-transfer/import-wizard.store";
-import { WebhookModalStore } from "@/app/[locale]/(protected)/company/components/webhook/webhook-modal.store";
-import { RoutinesStore } from "@/app/[locale]/(protected)/routines/components/routines.store";
-import { RoutineModalStore } from "@/app/[locale]/(protected)/routines/components/routine-modal.store";
-import { WebhooksStore } from "@/app/[locale]/(protected)/company/components/webhook/webhooks.store";
-import { WebhookDeliveriesStore } from "@/app/[locale]/(protected)/company/components/webhook/webhook-deliveries.store";
-import { WebhookDeliveryModalStore } from "@/app/[locale]/(protected)/company/components/webhook/webhook-delivery-modal.store";
-import { AuditLogModalStore } from "@/app/[locale]/(protected)/company/components/audit-log/audit-log-modal.store";
-import { AuditLogsStore } from "@/app/[locale]/(protected)/company/components/audit-log/audit-logs.store";
-import { FeedbackModalStore } from "@/app/[locale]/(protected)/company/components/feedback/feedback-modal.store";
 import { TimelineDetailModalStore } from "@/features/messaging/activities/activities-detail-modal.store";
-import { ErrorTestStore } from "@/app/[locale]/(protected)/test/error/error-test.store";
+import { RecordWorkspaceStore } from "./record-workspace.store";
 
 import { AgentChatStore } from "@/app/components/agent-chat/agent-chat.store";
 import { AgentUiControlStore } from "@/app/components/agent-chat/ui-control.store";
@@ -87,21 +74,15 @@ export class RootStore {
   private _connectUpsellModalStore?: ConnectUpsellModalStore;
   private _companyStore?: CompanyStore;
   private _terminologyStore?: TerminologyStore;
-  private _contactsStore?: ContactsStore;
   private _messagingThreadsStore?: MessagingThreadsStore;
   private _messagingThreadDetailStore?: MessagingThreadDetailStore;
   private _threadComposeStore?: ThreadComposeStore;
   private _threadParticipantsStore?: ThreadParticipantsStore;
-  private _addChannelStore?: AddChannelStore;
-  private _dealsStore?: DealsStore;
   private _intlStore?: IntlStore;
   private _layoutStore?: LayoutStore;
   private _loadingOverlayStore?: LoadingOverlayStore;
   private _localeStore?: LocaleStore;
-  private _organizationsStore?: OrganizationsStore;
   private _rolesStore?: RolesStore;
-  private _servicesStore?: ServicesStore;
-  private _tasksStore?: TasksStore;
   private _userStore?: UserStore;
   private _usersStore?: UsersStore;
   private _webhookDeliveriesStore?: WebhookDeliveriesStore;
@@ -131,27 +112,20 @@ export class RootStore {
   private _profileSettingsStore?: ProfileSettingsStore;
 
   private _companyInviteModalStore?: CompanyInviteModalStore;
-  private _contactDetailStore?: ContactDetailStore;
   private _createApiKeyModalStore?: ApiKeyModalStore;
-  private _dealDetailStore?: DealDetailStore;
   private _deleteConfirmationModalStore?: DeleteConfirmationModalStore;
   private _globalSearchModalStore?: GlobalSearchModalStore;
   private _recordWorkspaceStore?: RecordWorkspaceStore;
-  private _organizationDetailStore?: OrganizationDetailStore;
   private _roleModalStore?: RoleModalStore;
-  private _serviceDetailStore?: ServiceDetailStore;
-  private _taskDetailStore?: TaskDetailStore;
   private _userModalStore?: UserModalStore;
   private _webhookDeliveryModalStore?: WebhookDeliveryModalStore;
   private _webhookModalStore?: WebhookModalStore;
   private _routineModalStore?: RoutineModalStore;
   private _routineRunChatStore?: AgentChatStore;
-  private _importWizardStore?: ImportWizardStore;
   private _widgetModalStore?: WidgetModalStore;
   private _auditLogModalStore?: AuditLogModalStore;
   private _feedbackModalStore?: FeedbackModalStore;
   private _timelineDetailModalStore?: TimelineDetailModalStore;
-  private _customColumnModalStore?: CustomColumnModalStore;
   private _filterPaletteStore?: FilterPaletteStore;
   private _agentChatStore?: AgentChatStore;
   private _agentUiControlStore?: AgentUiControlStore;
@@ -200,14 +174,6 @@ export class RootStore {
     return (this._rolesStore ??= new RolesStore(this));
   }
 
-  get tasksStore() {
-    return (this._tasksStore ??= new TasksStore(this));
-  }
-
-  get contactsStore() {
-    return (this._contactsStore ??= new ContactsStore(this));
-  }
-
   get messagingThreadsStore() {
     return (this._messagingThreadsStore ??= new MessagingThreadsStore(this));
   }
@@ -222,26 +188,6 @@ export class RootStore {
 
   get threadParticipantsStore() {
     return (this._threadParticipantsStore ??= new ThreadParticipantsStore(this));
-  }
-
-  get addChannelStore() {
-    return (this._addChannelStore ??= new AddChannelStore(this));
-  }
-
-  get organizationsStore() {
-    return (this._organizationsStore ??= new OrganizationsStore(this));
-  }
-
-  get dealsStore() {
-    return (this._dealsStore ??= new DealsStore(this));
-  }
-
-  get servicesStore() {
-    return (this._servicesStore ??= new ServicesStore(this));
-  }
-
-  get customColumnModalStore() {
-    return (this._customColumnModalStore ??= new CustomColumnModalStore(this));
   }
 
   get filterPaletteStore() {
@@ -356,26 +302,6 @@ export class RootStore {
     return (this._roleModalStore ??= new RoleModalStore(this));
   }
 
-  get contactDetailStore() {
-    return (this._contactDetailStore ??= new ContactDetailStore(this));
-  }
-
-  get organizationDetailStore() {
-    return (this._organizationDetailStore ??= new OrganizationDetailStore(this));
-  }
-
-  get dealDetailStore() {
-    return (this._dealDetailStore ??= new DealDetailStore(this));
-  }
-
-  get serviceDetailStore() {
-    return (this._serviceDetailStore ??= new ServiceDetailStore(this));
-  }
-
-  get taskDetailStore() {
-    return (this._taskDetailStore ??= new TaskDetailStore(this));
-  }
-
   get deleteConfirmationModalStore() {
     return (this._deleteConfirmationModalStore ??= new DeleteConfirmationModalStore(this));
   }
@@ -407,10 +333,6 @@ export class RootStore {
 
   get webhookModalStore() {
     return (this._webhookModalStore ??= new WebhookModalStore(this));
-  }
-
-  get importWizardStore() {
-    return (this._importWizardStore ??= new ImportWizardStore(this));
   }
 
   get webhooksStore() {

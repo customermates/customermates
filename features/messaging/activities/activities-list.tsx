@@ -1,25 +1,27 @@
 "use client";
 
-import type { ReactNode } from "react";
+import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 import type { ActivityEntryDto } from "@/ee/messaging/activities/activities.schema";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import type { ReactNode } from "react";
 
+import { MessagingProvider } from "@/generated/prisma";
+import { ArrowLeft, ArrowRight, Calendar as CalendarIcon, Clock, Plus } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { ArrowLeft, ArrowRight, Calendar as CalendarIcon, Clock, Plus } from "lucide-react";
-import { MessagingProvider } from "@/generated/prisma";
 
-import { Icon } from "@/components/shared/icon";
-import { classifyAttachment, PREVIEW_KIND_LABEL } from "@/ee/messaging/attachment-kind";
-import { getProviderIcon } from "@/ee/messaging/provider-icon";
-import { isUnipileUnsupportedBody, messageSenderName } from "@/ee/messaging/thread-display";
 import { auditChangeLabel } from "@/components/entity-detail/audit-event-tone";
 import { useCanonicalColumnLabel } from "@/components/entity-terminology/use-column-label";
+import { Icon } from "@/components/shared/icon";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
+import { classifyAttachment, PREVIEW_KIND_LABEL } from "@/ee/messaging/attachment-kind";
+import { getProviderIcon } from "@/ee/messaging/provider-icon";
+import { isUnipileUnsupportedBody, messageSenderName } from "@/ee/messaging/thread-display";
 
+import { messagePreview } from "../message-preview";
 import { auditCategory, IdentityAvatar, ProviderAvatar, TimelineRow, TypeBadge } from "./activities-row";
+import { activityEntryKey } from "./activity-entry-key";
 import { calendarEventTitle } from "./activity-labels";
 import {
   buildCalendarSubtitle,
@@ -30,8 +32,6 @@ import {
   resolveMessageSenderName,
   resolveMessageTitle,
 } from "./activity-row-labels";
-import { activityEntryKey } from "./activity-entry-key";
-import { messagePreview } from "../message-preview";
 
 type Props = {
   items: ActivityEntryDto[];

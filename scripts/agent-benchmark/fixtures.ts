@@ -1,21 +1,24 @@
-import { identityLookupValue } from "@/ee/messaging/identity-lookup";
-import { createHash } from "node:crypto";
-import type { Prisma, PrismaClient, Action, Resource } from "@/generated/prisma";
+import { CURRENT_RECORD_READ_TOOLS, projectRecordTool, usesRetiredRecordTool, withoutRecordState } from "./record-oracle-projection";
+import { parseMarkdownToJSON,serializeJSONToMarkdown } from "@/components/editor/editor.utils";
+import { ALL_VIEW_KEY,SURFACE } from "@/core/data-view/data-view-keys";
 import type { AgentContextAttachment } from "@/ee/agent-chat/agent-context";
-import { parseMarkdownToJSON, serializeJSONToMarkdown } from "@/components/editor/editor.utils";
-import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
 import { AGENT_UI_TARGET_IDS } from "@/ee/agent-chat/ui-targets";
+import { identityLookupValue } from "@/ee/messaging/identity-lookup";
+import { presetId } from "@/features/records/crm-preset";
+import type { Action,Prisma,PrismaClient,Resource } from "@/generated/prisma";
 import de from "@/i18n/locales/de.json";
 import en from "@/i18n/locales/en.json";
+import { createHash } from "node:crypto";
+import { benchmarkRecordFixtures,benchmarkRecordSnapshot } from "./record-fixtures";
 
 import {
-  COMPLEX_CASES,
-  isComplexCaseId,
-  scoreComplexCase,
-  seedComplexCase,
-  type ComplexCaseId,
+COMPLEX_CASES,
+isComplexCaseId,
+scoreComplexCase,
+seedComplexCase,
+type ComplexCaseId,
 } from "./complex-cases";
-import { isOutboundOrSupportAction, isReadOnlyMixedToolAction } from "./tool-safety";
+import { isOutboundOrSupportAction,isReadOnlyMixedToolAction } from "./tool-safety";
 
 export const FIXTURE_VERSION = "chat-benchmark-fixture-v6";
 export const AS_OF = "2026-09-05T08:00:00.000Z";
@@ -217,7 +220,7 @@ export const BENCHMARK_CASES: readonly BenchmarkCase[] = [
     ],
     contexts: [
       {
-        pageRoute: `/en/contacts?view=${ALL_VIEW_KEY}&viewSurface=${SURFACE.contacts}&viewAction=update`,
+        pageRoute: `/en/records/{contactType}?view=${ALL_VIEW_KEY}&viewSurface=records:{contactType}&viewAction=update`,
         contexts: [
           {
             label: benchmarkMessage(en.AgentChat.context.viewLabel, {
@@ -228,7 +231,7 @@ export const BENCHMARK_CASES: readonly BenchmarkCase[] = [
             }),
             reference: {
               kind: "dataView",
-              surfaceKey: SURFACE.contacts,
+              surfaceKey: "records:{contactType}",
               viewKey: ALL_VIEW_KEY,
               requestedAction: "update",
             },
@@ -246,7 +249,7 @@ export const BENCHMARK_CASES: readonly BenchmarkCase[] = [
     prompts: [
       "Context: Contacts.\nUpdate my named Contacts saved view “Protected setup”. Keep any settings I do not mention.\n\nSwitch only this saved view to the table layout.",
     ],
-    contexts: [{ pageRoute: "/en/contacts?view={view}" }],
+    contexts: [{ pageRoute: "/en/records/{contactType}?view={view}" }],
   },
   {
     id: "V39",
@@ -259,7 +262,7 @@ export const BENCHMARK_CASES: readonly BenchmarkCase[] = [
     ],
     contexts: [
       {
-        pageRoute: `/en/contacts?view={view}&viewSurface=${SURFACE.contacts}&viewAction=update`,
+        pageRoute: `/en/records/{contactType}?view={view}&viewSurface=records:{contactType}&viewAction=update`,
       },
     ],
   },
@@ -274,7 +277,7 @@ export const BENCHMARK_CASES: readonly BenchmarkCase[] = [
     ],
     contexts: [
       {
-        pageRoute: `/en/contacts?view=${ALL_VIEW_KEY}&viewSurface=${SURFACE.contacts}&viewAction=create`,
+        pageRoute: `/en/records/{contactType}?view=${ALL_VIEW_KEY}&viewSurface=records:{contactType}&viewAction=create`,
         contexts: [
           {
             label: benchmarkMessage(en.AgentChat.context.namedNewViewLabel, {
@@ -285,7 +288,7 @@ export const BENCHMARK_CASES: readonly BenchmarkCase[] = [
             }),
             reference: {
               kind: "dataView",
-              surfaceKey: SURFACE.contacts,
+              surfaceKey: "records:{contactType}",
               proposedName: "Contacts with deals",
               requestedAction: "create",
             },
@@ -306,7 +309,7 @@ export const BENCHMARK_CASES: readonly BenchmarkCase[] = [
     contexts: [
       {
         locale: "de",
-        pageRoute: `/de/contacts/{contact}?view=${ALL_VIEW_KEY}&viewSurface=${SURFACE.entityTimeline}&viewAction=update`,
+        pageRoute: `/de/records/{contactType}/{contact}?view=${ALL_VIEW_KEY}&viewSurface=${SURFACE.entityTimeline}&viewAction=update`,
         contexts: [
           {
             label: benchmarkMessage(de.AgentChat.context.viewLabel, {
@@ -324,7 +327,7 @@ export const BENCHMARK_CASES: readonly BenchmarkCase[] = [
             label: "Ada Lovelace",
             reference: {
               kind: "record",
-              entityType: "contact",
+              typeId: "{contactType}",
               recordId: "{contact}",
             },
           },
@@ -339,7 +342,7 @@ export const BENCHMARK_CASES: readonly BenchmarkCase[] = [
     judgeable: false,
     mergeRequired: true,
     prompts: ['Delete my saved Contacts view "Deletion guard".'],
-    contexts: [{ pageRoute: "/en/contacts?view={view}" }],
+    contexts: [{ pageRoute: "/en/records/{contactType}?view={view}" }],
     driver: { approval: "reject" },
     comparative: false,
   },
@@ -471,7 +474,7 @@ export type Fixture = {
   sentinelBefore: SemanticSnapshot;
 };
 
-const TABLES = ["contact", "organization", "deal", "service", "task", "customColumn", "customFieldValue", "contactOrganization", "contactUser", "organizationUser", "dealContact", "dealOrganization", "dealUser", "serviceDeal", "serviceUser", "taskUser", "taskContact", "taskOrganization", "taskDeal", "taskService", "contactIdentifier", "connectedAccount", "messagingThread", "messagingMessage", "webhook", "p13n", "dataView"] as const;
+const TABLES = ["connectedAccount", "messagingThread", "messagingMessage", "webhook", "p13n", "dataView"] as const;
 export type SemanticSnapshot = Record<string, unknown[]>;
 
 function canonical(value: unknown): unknown {
@@ -487,7 +490,7 @@ const same = (left: unknown, right: unknown) => JSON.stringify(canonical(left)) 
 
 export async function snapshotBenchmarkCompany(db: BenchmarkDb, companyId: string): Promise<SemanticSnapshot> {
   const prisma = guarded(db);
-  const result: SemanticSnapshot = {};
+  const result: SemanticSnapshot = canonical(await benchmarkRecordSnapshot(prisma, companyId)) as SemanticSnapshot;
   for (const table of TABLES) {
     const delegate = prisma[table] as unknown as { findMany: (args: { where: { companyId: string }; orderBy: { id: "asc" } }) => Promise<unknown[]> };
     result[table] = canonical(await delegate.findMany({ where: { companyId }, orderBy: { id: "asc" } })) as unknown[];
@@ -511,6 +514,7 @@ export async function seedBenchmarkCase(
   const ids: Record<string, string> = {};
   const id = (key: string) => (ids[key] ??= stableId(namespace, key));
   const companyId = id("company");
+  ids.contactType = presetId(companyId, "contact");
   const sentinelCompanyId = id("sentinel-company");
   if (await prisma.company.count({ where: { id: { in: [companyId, sentinelCompanyId] } } }))
     throw new Error("Fixture namespace already exists; use a new run key, never overwrite fixtures");
@@ -519,7 +523,10 @@ export async function seedBenchmarkCase(
   const actorKey = definition.actor;
   const actorEmail = actorKey + "+" + id(actorKey) + "@example.invalid";
 
-  await prisma.$transaction(async (tx) => {
+  for (const kind of ["contact", "organization", "deal", "service", "task"]) ids[`${kind}Type`] = presetId(companyId, kind);
+  await prisma.$transaction(async (prismaTx) => {
+    const recordFixtures = benchmarkRecordFixtures(prismaTx, [companyId, sentinelCompanyId]);
+    const tx = recordFixtures.writer;
     await tx.company.createMany({ data: [companyId, sentinelCompanyId].map((value) => ({ id: value, currency: "eur", tags: [FIXTURE_VERSION], createdAt: FIXED_CREATED, updatedAt: FIXED_CREATED })) });
     await tx.subscription.create({
       data: {
@@ -549,7 +556,7 @@ export async function seedBenchmarkCase(
       { id: id("deal-committed"), companyId, entityType: "deal", label: "Committed amount", type: "currency", options: { currency: "eur" } },
     ] });
     const field = async (key: string, entity: Entity, column: string, type: "singleSelect" | "phone" | "email" | "dateTime" | "plain" | "currency", value: string) => {
-      await tx.customFieldValue.create({ data: { id: id("field:" + key + ":" + column), companyId, entityType: entity, columnId: id(column), type, value, ...(type === "currency" ? { numericValue: Number(value) } : {}), [entity + "Id"]: id(key) } as Prisma.CustomFieldValueUncheckedCreateInput });
+      await tx.customFieldValue.create({ data: { id: id("field:" + key + ":" + column), companyId, entityType: entity, columnId: id(column), type, value, ...(type === "currency" ? { numericValue: Number(value) } : {}), [entity + "Id"]: id(key) } });
     };
     const organization = async (key: string, name: string, notes?: string) => tx.organization.create({ data: { id: id(key), companyId, name, ...(notes ? { notes: parseMarkdownToJSON(notes) as JsonObject } : {}), createdAt: FIXED_CREATED, updatedAt: FIXED_CREATED } });
     const contact = async (key: string, firstName: string, lastName: string, organizationKey?: string) => {
@@ -989,6 +996,7 @@ export async function seedBenchmarkCase(
         auditNote,
         parseMarkdown: (markdown) => parseMarkdownToJSON(markdown) as JsonObject,
       });
+    await recordFixtures.flush();
   }, { timeout: 60_000 });
   return { caseId, namespace, companyId, sentinelCompanyId, actorUserId: id(actorKey), actorEmail, ids, before: await snapshotBenchmarkCompany(db, companyId), sentinelBefore: await snapshotBenchmarkCompany(db, sentinelCompanyId) };
 }
@@ -1003,7 +1011,7 @@ export type OracleCheck = {
   gate: OracleCheckGate;
 };
 export type OracleResult = { caseId: CaseId; passed: boolean; checks: OracleCheck[] };
-const READ_TOOLS = new Set(["load_toolset", "list_records", "search_records", "get_records", "get_record_schema", "get_workspace_context", "list_users", "get_activities", "search_docs", "get_docs_page", "get_messaging_threads", "get_calendars", "search", "fetch"]);
+const READ_TOOLS = new Set([...CURRENT_RECORD_READ_TOOLS, "load_toolset", "list_records", "search_records", "get_records", "get_record_schema", "get_workspace_context", "list_users", "get_activities", "search_docs", "get_docs_page", "get_messaging_threads", "get_calendars", "search", "fetch"]);
 const normalizeText = (text: string) => text.normalize("NFKC").toLowerCase();
 const words = (text: string) => text.trim() ? text.trim().split(/\s+/).length : 0;
 function hasAmount(text: string, amount: number) {
@@ -1070,7 +1078,7 @@ const soleLine = (text: string, pattern: RegExp) => {
   return matches.length === 1 ? matches[0] : null;
 };
 const rows = (snapshot: SemanticSnapshot, table: string) => snapshot[table] as Record<string, unknown>[];
-const without = (snapshot: SemanticSnapshot, omittedTables: string[]) => Object.fromEntries(Object.entries(snapshot).filter(([table]) => !omittedTables.includes(table)));
+const without = withoutRecordState;
 const withoutKeys = (record: Record<string, unknown> | undefined, keys: string[]) =>
   record
     ? Object.fromEntries(Object.entries(record).filter(([key]) => !keys.includes(key)))
@@ -1078,6 +1086,8 @@ const withoutKeys = (record: Record<string, unknown> | undefined, keys: string[]
 
 /** No judge model: each check is a published deterministic fact/behavior requirement. */
 export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, observed: ObservedCase): Promise<OracleResult> {
+  const currentTools = observed.turns.flatMap((turn) => turn.tools);
+  observed = { turns: observed.turns.map((turn) => ({ ...turn, tools: turn.tools.map((tool) => projectRecordTool(tool, fixture.companyId)) })) };
   const after = await snapshotBenchmarkCompany(db, fixture.companyId);
   const sentinelAfter = await snapshotBenchmarkCompany(db, fixture.sentinelCompanyId);
   const definition = BENCHMARK_CASES.find((entry) => entry.id === fixture.caseId)!;
@@ -1107,8 +1117,12 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
   const noMutatingTools = tools.every((tool) => READ_TOOLS.has(tool.name) || isReadOnlyMixedToolAction(tool));
   const unchanged = same(fixture.before, after);
   const id = (key: string) => fixture.ids[key];
+  const contactType = presetId(fixture.companyId, "contact");
+  const contactSurface = `records:${contactType}`;
+  const dealSurface = `records:${presetId(fixture.companyId, "deal")}`;
   const hasCall = (name: string) => toolNames.includes(name);
   runtimeCheck("expected-user-turn-count", observed.turns.length === definition.prompts.length);
+  runtimeCheck("current-record-tool-contract", !usesRetiredRecordTool(currentTools));
   const expectedTerminal = definition.expectedTerminal ?? "completed";
   runtimeCheck("expected-terminal-code", observed.turns.every((turn) => turn.terminalCode === expectedTerminal));
   if (definition.requiresFinalResponse !== false) runtimeCheck("nonempty-final-response", Boolean(text.trim()));
@@ -1559,10 +1573,10 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
     }
     case "V37": {
       const p13nBefore = rows(fixture.before, "p13n").find(
-        (row) => row.p13nId === SURFACE.contacts,
+        (row) => row.p13nId === contactSurface,
       );
       const p13n = rows(after, "p13n").find(
-        (row) => row.p13nId === SURFACE.contacts,
+        (row) => row.p13nId === contactSurface,
       );
       check(
         "contacts-view-context-preserved",
@@ -1571,10 +1585,10 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
       check(
         "only-requested-appearance-changed",
         same(p13n?.filters, [
-          { field: "firstName", operator: "contains", value: "Ada" },
+          { field: presetId(fixture.companyId, "contact.firstName"), operator: "contains", value: "Ada" },
         ]) &&
           p13n?.searchTerm === "Lovelace" &&
-          same(p13n?.sortDescriptor, { field: "name", direction: "desc" }) &&
+          same(p13n?.sortDescriptor, { field: presetId(fixture.companyId, "contact.name"), direction: "desc" }) &&
           same(p13n?.pagination, { pageSize: 25 }) &&
           p13n?.viewMode === "table",
       );
@@ -1588,7 +1602,7 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
             "manage_data_views",
             (input) =>
               input.action === "update" &&
-              input.surfaceKey === SURFACE.contacts &&
+              input.surfaceKey === contactSurface &&
               input.viewKey === ALL_VIEW_KEY,
           ),
       );
@@ -1609,11 +1623,11 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
           (turn) => (turn.approvalDecisions ?? []).length === 0,
         ),
       );
-      check("view-activity-metadata", hasViewActivity("activity", "views.configure", SURFACE.contacts, "update", ALL_VIEW_KEY));
-      check("view-result-href", hasSuccessfulViewHref(`/contacts?view=${ALL_VIEW_KEY}`));
+      check("view-activity-metadata", hasViewActivity("activity", "views.configure", contactSurface, "update", ALL_VIEW_KEY));
+      check("view-result-href", hasSuccessfulViewHref(`/records/${contactType}?view=${ALL_VIEW_KEY}`));
       check(
         "reply-does-not-print-navigation-href",
-        !text.includes("/contacts?view="),
+        !text.includes(`/records/${contactType}?view=`),
       );
       break;
     }
@@ -1621,21 +1635,8 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
       const view = rows(after, "dataView").find((row) => row.id === id("view"));
       check(
         "named-view-preserved-and-updated",
-        view?.name === "Protected setup" &&
-          same(view?.filters, [
-            { field: "firstName", operator: "equals", value: "Ada" },
-          ]) &&
-          view?.searchTerm === "Lovelace" &&
-          same(view?.sortDescriptor, {
-            field: "createdAt",
-            direction: "desc",
-          }) &&
-          same(view?.grouping, { field: "createdAt", bucket: "month" }) &&
-          same(view?.columnOrder, ["firstName", "lastName"]) &&
-          same(view?.columnWidths, { firstName: 220 }) &&
-          same(view?.hiddenColumns, ["updatedAt"]) &&
-          view?.pageSize === 100 &&
-          view?.viewMode === "table",
+        view?.name === "Protected setup" && view?.viewMode === "table" &&
+          same(withoutKeys(rows(fixture.before, "dataView").find((row) => row.id === id("view")), ["viewMode"]), withoutKeys(view, ["viewMode"])),
       );
       const calls = tools.filter((tool) => tool.name === "manage_data_views");
       const updateAt = calls.findIndex(
@@ -1651,7 +1652,7 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
           Number(calls[updateAt - 1]?.roundIndex) < Number(calls[updateAt]?.roundIndex) &&
           same(prior, {
             action: "list",
-            surfaceKey: SURFACE.contacts,
+            surfaceKey: contactSurface,
             viewKey: id("view"),
           }),
       );
@@ -1684,7 +1685,7 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
         ).length === 1 &&
           same(update, {
             action: "update",
-            surfaceKey: SURFACE.contacts,
+            surfaceKey: contactSurface,
             viewKey: id("view"),
             state: { viewMode: "table" },
           }),
@@ -1693,7 +1694,7 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
         "named-view-remains-selected",
         rows(after, "p13n").some(
           (row) =>
-            row.p13nId === SURFACE.contacts && row.activeViewKey === id("view"),
+            row.p13nId === contactSurface && row.activeViewKey === id("view"),
         ),
       );
       check(
@@ -1707,11 +1708,11 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
             .filter((tool) => !READ_TOOLS.has(tool.name))
             .every((tool) => tool.name === "manage_data_views"),
       );
-      check("view-activity-metadata", hasViewActivity("activity", "views.configure", SURFACE.contacts, "update", id("view")));
-      check("view-result-href", hasSuccessfulViewHref(`/contacts?view=${id("view")}`));
+      check("view-activity-metadata", hasViewActivity("activity", "views.configure", contactSurface, "update", id("view")));
+      check("view-result-href", hasSuccessfulViewHref(`/records/${contactType}?view=${id("view")}`));
       check(
         "reply-does-not-print-navigation-href",
-        !text.includes("/contacts?view="),
+        !text.includes(`/records/${contactType}?view=`),
       );
       break;
     }
@@ -1739,15 +1740,15 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
     case "V40": {
       const created = rows(after, "dataView").filter(
         (row) =>
-          row.surfaceKey === SURFACE.contacts &&
+          row.surfaceKey === contactSurface &&
           row.name === "Contacts with deals",
       );
       check("one-contacts-view-created", created.length === 1);
       const beforeContactsViews = rows(fixture.before, "dataView").filter(
-        (row) => row.surfaceKey === SURFACE.contacts,
+        (row) => row.surfaceKey === contactSurface,
       ).length;
       const afterContactsViews = rows(after, "dataView").filter(
-        (row) => row.surfaceKey === SURFACE.contacts,
+        (row) => row.surfaceKey === contactSurface,
       ).length;
       check(
         "exactly-one-total-contacts-view-added",
@@ -1756,10 +1757,10 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
       const view = created[0];
       check(
         "contacts-view-state-exact",
-        same(view?.filters, [{ field: "dealIds", operator: "hasSome" }]) &&
+        same(view?.filters, [{ field: `relationship:${presetId(fixture.companyId, "deal.contacts")}:incoming`, operator: "hasSome" }]) &&
           view?.searchTerm === "View" &&
-          same(view?.sortDescriptor, { field: "name", direction: "asc" }) &&
-          same(view?.grouping, { field: "createdAt", bucket: "month" }) &&
+          same(view?.sortDescriptor, { field: presetId(fixture.companyId, "contact.name"), direction: "asc" }) &&
+          same(view?.grouping, { field: "system:createdAt", bucket: "month" }) &&
           view?.viewMode === "card",
       );
       check(
@@ -1767,14 +1768,14 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
         Boolean(view) &&
           rows(after, "p13n").some(
             (row) =>
-              row.p13nId === SURFACE.contacts && row.activeViewKey === view?.id,
+              row.p13nId === contactSurface && row.activeViewKey === view?.id,
           ),
       );
       const beforeContactsP13n = rows(fixture.before, "p13n").find(
-        (row) => row.p13nId === SURFACE.contacts,
+        (row) => row.p13nId === contactSurface,
       );
       const afterContactsP13n = rows(after, "p13n").find(
-        (row) => row.p13nId === SURFACE.contacts,
+        (row) => row.p13nId === contactSurface,
       );
       check(
         "no-collateral-business-or-preference-mutation",
@@ -1784,10 +1785,10 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
         ) &&
           same(
             rows(fixture.before, "p13n").filter(
-              (row) => row.p13nId !== SURFACE.contacts,
+              (row) => row.p13nId !== contactSurface,
             ),
             rows(after, "p13n").filter(
-              (row) => row.p13nId !== SURFACE.contacts,
+              (row) => row.p13nId !== contactSurface,
             ),
           ) &&
           same(
@@ -1801,8 +1802,8 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
       check(
         "deals-surface-not-retargeted",
         !rows(after, "dataView").some(
-          (row) => row.surfaceKey === SURFACE.deals,
-        ) && !rows(after, "p13n").some((row) => row.p13nId === SURFACE.deals),
+          (row) => row.surfaceKey === dealSurface,
+        ) && !rows(after, "p13n").some((row) => row.p13nId === dealSurface),
       );
       check(
         "create-call-targeted-contacts",
@@ -1813,7 +1814,7 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
             tools,
             "manage_data_views",
             (input) =>
-              input.action === "create" && input.surfaceKey === SURFACE.contacts,
+              input.action === "create" && input.surfaceKey === contactSurface,
           ),
       );
       check(
@@ -1822,11 +1823,11 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
           (turn) => (turn.approvalDecisions ?? []).length === 0,
         ),
       );
-      check("view-activity-metadata", hasViewActivity("activity", "views.configure", SURFACE.contacts, "create"));
-      check("view-result-href", typeof view?.id === "string" && hasSuccessfulViewHref(`/contacts?view=${view.id}`));
+      check("view-activity-metadata", hasViewActivity("activity", "views.configure", contactSurface, "create"));
+      check("view-result-href", typeof view?.id === "string" && hasSuccessfulViewHref(`/records/${contactType}?view=${view.id}`));
       check(
         "reply-does-not-print-navigation-href",
-        !text.includes("/contacts?view="),
+        !text.includes(`/records/${contactType}?view=`),
       );
       break;
     }
@@ -1893,7 +1894,7 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
         ),
       );
       check("view-activity-metadata", hasViewActivity("activity", "views.configure", SURFACE.entityTimeline, "update", ALL_VIEW_KEY));
-      check("record-preserving-view-href", hasSuccessfulViewHref(`/contacts/${id("contact")}?view=${ALL_VIEW_KEY}&viewSurface=${SURFACE.entityTimeline}`));
+      check("record-preserving-view-href", hasSuccessfulViewHref(`/records/${contactType}/${id("contact")}?view=${ALL_VIEW_KEY}&viewSurface=${SURFACE.entityTimeline}`));
       check(
         "german-response",
         /erledigt|ansicht|aktivität|aktualisiert|geändert|eingestellt|sortiert/iu.test(
@@ -1902,7 +1903,7 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
       );
       check(
         "record-route-not-printed",
-        !text.includes(`/contacts/${id("contact")}`),
+        !text.includes(`/records/${contactType}/${id("contact")}`),
       );
       break;
     }
@@ -1919,11 +1920,11 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
           "manage_data_views",
           (input) =>
             input.action === "delete" &&
-            input.surfaceKey === SURFACE.contacts &&
+            input.surfaceKey === contactSurface &&
             input.viewKey === id("view"),
         ),
       );
-      check("delete-activity-metadata", hasViewActivity("approval_request", "views.delete", SURFACE.contacts, "delete", id("view")));
+      check("delete-activity-metadata", hasViewActivity("approval_request", "views.delete", contactSurface, "delete", id("view")));
       check(
         "approval-rejected",
         observed.turns.some((turn) =>

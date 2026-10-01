@@ -1,29 +1,26 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { Action, MessagingProvider, Resource } from "@/generated/prisma";
-import { createMockUser, createMockUserWithPermissions } from "@/tests/helpers/mock-user";
+import { FilterOperatorKey, ViewMode } from "@/core/base/base-query-builder";
+import { dateGroupables } from "@/core/base/grouping/groupable-field";
+import { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
+import { ALL_VIEW_KEY, DATA_VIEW_SURFACE_KEYS, SURFACE } from "@/core/data-view/data-view-keys";
+import { runWithTenant } from "@/core/decorators/tenant-context";
+import { CustomErrorCode } from "@/core/validation/validation.types";
+import { interactorFailureKind } from "@/core/validation/validation.utils";
+import { Action, Resource } from "@/generated/prisma";
 import {
   createMockDiModule,
   MOCK_ENV_MODULE,
   MOCK_PRISMA_DB_MODULE,
   MOCK_ZOD_MODULE,
 } from "@/tests/helpers/interactor-test-setup";
-import { runWithTenant } from "@/core/decorators/tenant-context";
-import { ALL_VIEW_KEY, DATA_VIEW_SURFACE_KEYS, SURFACE } from "@/core/data-view/data-view-keys";
-import { FilterOperatorKey, ViewMode } from "@/core/base/base-query-builder";
-import { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
-import { dateGroupables } from "@/core/base/grouping/groupable-field";
-import { interactorFailureKind } from "@/core/validation/validation.utils";
-import { CustomErrorCode } from "@/core/validation/validation.types";
-import { TIMELINE_KIND_VIEW_VALUES } from "@/core/types/filter-field-value-kind";
-import { DomainEvent } from "@/features/event/domain-events";
+import { createMockUser, createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 import { ManageDataViewsInteractor } from "../manage-data-views.interactor";
 import {
   ManageDataViewsResultSchema,
   type AgentDataViewState,
   type ManageDataViewsData,
 } from "../manage-data-views.schema";
-import de from "@/i18n/locales/de.json";
 
 const mockUser = createMockUser();
 vi.mock("@/env", () => MOCK_ENV_MODULE);
@@ -43,7 +40,7 @@ function setup() {
     getSortableFields: vi.fn(() => [{ field: "createdAt", resolvedFields: ["createdAt"] }]),
     getFilterableFields: vi.fn().mockResolvedValue([{ field: "name", operators: [FilterOperatorKey.contains] }]),
     getCustomColumns: vi.fn().mockResolvedValue([]),
-    getGroupableFields: vi.fn().mockResolvedValue(dateGroupables("contact", { createdAt: true, updatedAt: false })),
+    getGroupableFields: vi.fn().mockResolvedValue(dateGroupables("user", { createdAt: true, updatedAt: false })),
     setMessagingSourcesEnabled: vi.fn(),
   });
   const sources = Object.fromEntries(DATA_VIEW_SURFACE_KEYS.map((key) => [key, source()])) as Record<
@@ -91,17 +88,7 @@ function setup() {
     invoke: vi.fn().mockResolvedValue({ ok: true, data: { id: VIEW_ID } }),
   };
   const validator = { invoke: vi.fn().mockResolvedValue(undefined) };
-  const queryPrecheck = new QueryParamsPrecheckInteractor(
-    validator as never,
-    validator as never,
-    validator as never,
-    validator as never,
-    validator as never,
-    validator as never,
-    validator as never,
-    validator as never,
-    { findByEntityType: vi.fn().mockResolvedValue([]) } as never,
-  );
+  const queryPrecheck = new QueryParamsPrecheckInteractor(validator as never, validator as never, validator as never);
   const entitlements = { require: vi.fn().mockResolvedValue(null) };
   const interactor = new ManageDataViewsInteractor(
     sources,
@@ -135,18 +122,15 @@ describe("agent saved-view management", () => {
 
   it("discovers only surfaces that the caller may read without loading any records or views", async () => {
     const subject = setup();
-    const user = createMockUserWithPermissions([{ resource: Resource.contacts, action: Action.readOwn }]);
+    const user = createMockUserWithPermissions([{ resource: Resource.users, action: Action.readOwn }]);
     const result = await runWithTenant(user, () => subject.interactor.invoke({ action: "surfaces" }));
     expect(result.ok && result.data).toEqual({
       action: "surfaces",
-      total: 1,
+      total: 3,
       items: [
-        {
-          surfaceKey: SURFACE.contacts,
-          label: "Contacts",
-          path: "/contacts",
-          entityType: "contact",
-        },
+        { surfaceKey: SURFACE.users, label: "Members", path: "/company/members" },
+        { surfaceKey: SURFACE.roles, label: "Roles", path: "/company/roles" },
+        { surfaceKey: SURFACE.entityTimeline, label: "Record activity timeline", path: null },
       ],
     });
     expect(subject.views.loadSurfaceState).not.toHaveBeenCalled();
@@ -158,12 +142,12 @@ describe("agent saved-view management", () => {
     const result = await runWithTenant(user, () =>
       subject.interactor.invoke({
         action: "config",
-        surfaceKey: SURFACE.contacts,
+        surfaceKey: SURFACE.users,
       }),
     );
     expect(result.ok).toBe(false);
     if (!result.ok) expect(interactorFailureKind(result.error)).toBe("authorization");
-    expect(subject.sources[SURFACE.contacts].getCustomColumns).not.toHaveBeenCalled();
+    expect(subject.sources[SURFACE.users].getCustomColumns).not.toHaveBeenCalled();
     expect(subject.views.loadSurfaceState).not.toHaveBeenCalled();
   });
 
@@ -182,11 +166,11 @@ describe("agent saved-view management", () => {
     const subject = setup();
     const overview = await subject.run({
       action: "config",
-      surfaceKey: SURFACE.contacts,
+      surfaceKey: SURFACE.users,
     });
     expect(overview.ok && overview.data).toMatchObject({
       action: "config",
-      surfaceKey: SURFACE.contacts,
+      surfaceKey: SURFACE.users,
       section: "overview",
       supportsSearch: true,
       viewModes: ["table", "card"],
@@ -203,7 +187,7 @@ describe("agent saved-view management", () => {
         "hiddenColumns",
       ],
     });
-    const filters = await subject.run({ action: "config", surfaceKey: SURFACE.contacts, section: "filters" });
+    const filters = await subject.run({ action: "config", surfaceKey: SURFACE.users, section: "filters" });
     expect(filters.ok && filters.data).toMatchObject({
       action: "config",
       section: "filters",
@@ -213,9 +197,9 @@ describe("agent saved-view management", () => {
       totalPages: 1,
       items: [{ field: "name", operators: ["contains"] }],
     });
-    const sorting = await subject.run({ action: "config", surfaceKey: SURFACE.contacts, section: "sorting" });
+    const sorting = await subject.run({ action: "config", surfaceKey: SURFACE.users, section: "sorting" });
     expect(sorting.ok && sorting.data.items).toEqual([{ field: "createdAt" }]);
-    const grouping = await subject.run({ action: "config", surfaceKey: SURFACE.contacts, section: "grouping" });
+    const grouping = await subject.run({ action: "config", surfaceKey: SURFACE.users, section: "grouping" });
     expect(grouping.ok && grouping.data.items).toHaveLength(3);
   });
 
@@ -235,7 +219,7 @@ describe("agent saved-view management", () => {
 
     const secondPage = await subject.run({
       action: "list",
-      surfaceKey: SURFACE.contacts,
+      surfaceKey: SURFACE.users,
       page: 2,
       pageSize: 5,
     });
@@ -250,14 +234,14 @@ describe("agent saved-view management", () => {
 
     const roundedPageSize = await subject.run({
       action: "list",
-      surfaceKey: SURFACE.contacts,
+      surfaceKey: SURFACE.users,
       pageSize: 6,
     } as never);
     expect(roundedPageSize.ok && roundedPageSize.data).toMatchObject({ pageSize: 10, totalPages: 2 });
 
     const narrowed = await subject.run({
       action: "list",
-      surfaceKey: SURFACE.contacts,
+      surfaceKey: SURFACE.users,
       query: "renew",
     });
     expect(narrowed.ok && narrowed.data).toMatchObject({
@@ -266,14 +250,14 @@ describe("agent saved-view management", () => {
     });
     const hiddenState = await subject.run({
       action: "list",
-      surfaceKey: SURFACE.contacts,
+      surfaceKey: SURFACE.users,
       query: "internal-8",
     });
     expect(hiddenState.ok && hiddenState.data).toMatchObject({ total: 0, items: [] });
 
     const exact = await subject.run({
       action: "list",
-      surfaceKey: SURFACE.contacts,
+      surfaceKey: SURFACE.users,
       viewKey: views[7].id,
       page: 99,
       pageSize: 25,
@@ -289,22 +273,22 @@ describe("agent saved-view management", () => {
   });
 
   it.each([
-    { action: "list", surfaceKey: SURFACE.contacts, page: 0 },
-    { action: "list", surfaceKey: SURFACE.contacts, pageSize: 0 },
-    { action: "config", surfaceKey: SURFACE.contacts, pageSize: 26 },
+    { action: "list", surfaceKey: SURFACE.users, page: 0 },
+    { action: "list", surfaceKey: SURFACE.users, pageSize: 0 },
+    { action: "config", surfaceKey: SURFACE.users, pageSize: 26 },
   ])("rejects invalid paging before reading configuration or views: %j", async (input) => {
     const subject = setup();
     const result = await subject.run(input as never);
     expect(result.ok).toBe(false);
     expect(subject.views.loadSurfaceState).not.toHaveBeenCalled();
-    expect(subject.sources[SURFACE.contacts].getCustomColumns).not.toHaveBeenCalled();
+    expect(subject.sources[SURFACE.users].getCustomColumns).not.toHaveBeenCalled();
   });
 
   it("narrows configuration by field and label without matching operator metadata", async () => {
     const subject = setup();
     const operatorOnly = await subject.run({
       action: "config",
-      surfaceKey: SURFACE.contacts,
+      surfaceKey: SURFACE.users,
       section: "filters",
       query: "contains",
     });
@@ -312,52 +296,12 @@ describe("agent saved-view management", () => {
 
     const grouped = await subject.run({
       action: "config",
-      surfaceKey: SURFACE.contacts,
+      surfaceKey: SURFACE.users,
       section: "grouping",
       query: "createdAt",
     });
     expect(grouped.ok && grouped.data).toMatchObject({ total: 3 });
     expect(grouped.ok && grouped.data.items).toHaveLength(3);
-  });
-
-  it("configures activity metadata using the same messaging source entitlement as activity reads", async () => {
-    const subject = setup();
-    await subject.run({ action: "config", surfaceKey: SURFACE.entityTimeline });
-    expect(subject.sources[SURFACE.entityTimeline].setMessagingSourcesEnabled).toHaveBeenCalledWith(true);
-    const user = createMockUserWithPermissions([{ resource: Resource.auditLog, action: Action.readAll }]);
-    await runWithTenant(user, () =>
-      subject.interactor.invoke({
-        action: "config",
-        surfaceKey: SURFACE.entityTimeline,
-      }),
-    );
-    expect(subject.sources[SURFACE.entityTimeline].setMessagingSourcesEnabled).toHaveBeenLastCalledWith(false);
-  });
-
-  it("publishes canonical timeline and event values so agents do not have to guess", async () => {
-    const subject = setup();
-    subject.sources[SURFACE.entityTimeline].getFilterableFields.mockResolvedValue([
-      { field: "timelineKind", operators: [FilterOperatorKey.in] },
-      { field: "provider", operators: [FilterOperatorKey.in] },
-    ]);
-    const result = await subject.run({
-      action: "config",
-      surfaceKey: SURFACE.entityTimeline,
-      section: "filters",
-    });
-    expect(result.ok && result.data.items).toEqual([
-      { field: "timelineKind", operators: ["in"], values: TIMELINE_KIND_VIEW_VALUES },
-      { field: "provider", operators: ["in"], values: Object.values(MessagingProvider) },
-    ]);
-    const overview = await subject.run({ action: "config", surfaceKey: SURFACE.entityTimeline });
-    expect(overview.ok && overview.data.writableStateFields).toEqual(["filters", "sortDescriptor"]);
-    subject.sources[SURFACE.auditLogs].getFilterableFields.mockResolvedValue([
-      { field: "event", operators: [FilterOperatorKey.in] },
-    ]);
-    const audit = await subject.run({ action: "config", surfaceKey: SURFACE.auditLogs, section: "filters" });
-    expect(audit.ok && audit.data.items).toEqual([
-      { field: "event", operators: ["in"], values: Object.values(DomainEvent) },
-    ]);
   });
 
   it.each([
@@ -373,7 +317,7 @@ describe("agent saved-view management", () => {
     const subject = setup();
     const result = await subject.run({
       action: "create",
-      surfaceKey: SURFACE.contacts,
+      surfaceKey: SURFACE.users,
       name: "Invalid",
       state,
     });
@@ -397,98 +341,25 @@ describe("agent saved-view management", () => {
     expect(subject.upsert.invoke).not.toHaveBeenCalled();
   });
 
-  it("rejects duplicate timeline filters and fixed timeline presentation fields before saving", async () => {
-    const subject = setup();
-    for (const state of [
-      {
-        filters: [
-          { field: "timelineKind", operator: FilterOperatorKey.in, value: ["audit"] },
-          { field: "timelineKind", operator: FilterOperatorKey.in, value: ["message"] },
-        ],
-      },
-      { pageSize: 10 as const },
-    ] satisfies AgentDataViewState[]) {
-      expect(
-        (await subject.run({ action: "create", surfaceKey: SURFACE.entityTimeline, name: "Activity", state })).ok,
-      ).toBe(false);
-    }
-    expect(subject.upsert.invoke).not.toHaveBeenCalled();
-  });
-
-  it("preserves localized nested timeline validation messages and their full paths", async () => {
-    const subject = setup();
-    const localized = de.Common.errors.activityDuplicateFilterField;
-    MOCK_ZOD_MODULE.getZodParseContext.mockResolvedValue({
-      error: (issue: { code: string; params?: { error?: string } }) =>
-        issue.code === "custom" && issue.params?.error === CustomErrorCode.activityDuplicateFilterField
-          ? localized
-          : undefined,
-    });
-
-    const result = await subject.run({
-      action: "create",
-      surfaceKey: SURFACE.entityTimeline,
-      name: "Activity",
-      state: {
-        filters: [
-          { field: "timelineKind", operator: FilterOperatorKey.in, value: ["audit"] },
-          { field: "timelineKind", operator: FilterOperatorKey.in, value: ["message"] },
-        ],
-      },
-    });
-
-    expect(result.ok).toBe(false);
-    if (!result.ok) {
-      expect(result.error.issues).toEqual(
-        expect.arrayContaining([expect.objectContaining({ path: ["filters", 1, "field"], message: localized })]),
-      );
-    }
-    expect(subject.upsert.invoke).not.toHaveBeenCalled();
-  });
-
-  it("only advertises and accepts the timeline's implemented sort fields", async () => {
-    const subject = setup();
-    subject.sources[SURFACE.entityTimeline].getSortableFields.mockReturnValue([
-      { field: "at", resolvedFields: ["at"] },
-    ]);
-    subject.sources[SURFACE.entityTimeline].getCustomColumns.mockResolvedValue([
-      { id: VIEW_ID, label: "Stage", type: "singleSelect" },
-    ]);
-    const config = await subject.run({
-      action: "config",
-      surfaceKey: SURFACE.entityTimeline,
-      section: "sorting",
-    });
-    expect(config.ok && config.data.items).toEqual([{ field: "at" }]);
-    const result = await subject.run({
-      action: "create",
-      surfaceKey: SURFACE.entityTimeline,
-      name: "Activity",
-      state: { sortDescriptor: { field: VIEW_ID, direction: "asc" } },
-    });
-    expect(result.ok).toBe(false);
-    expect(subject.upsert.invoke).not.toHaveBeenCalled();
-  });
-
   it("rejects hidden ownership fields, unsupported columns and per-action stray fields on the wire", async () => {
     const subject = setup();
     for (const input of [
       {
         action: "create",
-        surfaceKey: SURFACE.contacts,
+        surfaceKey: SURFACE.users,
         name: "Hidden",
         state: {},
         userId: VIEW_ID,
       },
       {
         action: "create",
-        surfaceKey: SURFACE.contacts,
+        surfaceKey: SURFACE.users,
         name: "Columns",
         state: { hiddenColumns: ["invented"] },
       },
       {
         action: "select",
-        surfaceKey: SURFACE.contacts,
+        surfaceKey: SURFACE.users,
         viewKey: VIEW_ID,
         name: "Ignored",
       },
@@ -512,7 +383,7 @@ describe("agent saved-view management", () => {
     );
     const result = await subject.run({
       action: "update",
-      surfaceKey: SURFACE.contacts,
+      surfaceKey: SURFACE.users,
       viewKey: VIEW_ID,
       state: {
         filters: [],
@@ -523,7 +394,7 @@ describe("agent saved-view management", () => {
     });
     expect(subject.upsert.invoke).toHaveBeenCalledWith({
       id: VIEW_ID,
-      surfaceKey: SURFACE.contacts,
+      surfaceKey: SURFACE.users,
       state: {
         filters: [],
         searchTerm: "",
@@ -541,17 +412,17 @@ describe("agent saved-view management", () => {
         grouping: null,
         sortDescriptor: null,
       },
-      link: `/contacts?view=${VIEW_ID}`,
+      link: `/company/members?view=${VIEW_ID}`,
     });
   });
 
   it("renames without loading or validating unrelated view configuration", async () => {
     const subject = setup();
-    subject.sources[SURFACE.contacts].getCustomColumns.mockRejectedValue(new Error("configuration unavailable"));
+    subject.sources[SURFACE.users].getCustomColumns.mockRejectedValue(new Error("configuration unavailable"));
 
     const result = await subject.run({
       action: "update",
-      surfaceKey: SURFACE.contacts,
+      surfaceKey: SURFACE.users,
       viewKey: VIEW_ID,
       name: "Renamed only",
     });
@@ -559,10 +430,10 @@ describe("agent saved-view management", () => {
     expect(result.ok).toBe(true);
     expect(subject.upsert.invoke).toHaveBeenCalledWith({
       id: VIEW_ID,
-      surfaceKey: SURFACE.contacts,
+      surfaceKey: SURFACE.users,
       name: "Renamed only",
     });
-    expect(subject.sources[SURFACE.contacts].getCustomColumns).not.toHaveBeenCalled();
+    expect(subject.sources[SURFACE.users].getCustomColumns).not.toHaveBeenCalled();
   });
 
   it("rejects a malformed child result through the declared output contract", async () => {
@@ -571,7 +442,7 @@ describe("agent saved-view management", () => {
       ok: true,
       data: {
         ...subject.surfaceState.views[0],
-        surfaceKey: SURFACE.contacts,
+        surfaceKey: SURFACE.users,
         name: 42,
       },
     } as never);
@@ -579,7 +450,7 @@ describe("agent saved-view management", () => {
     await expect(
       subject.run({
         action: "create",
-        surfaceKey: SURFACE.contacts,
+        surfaceKey: SURFACE.users,
         name: "Valid request",
         state: {},
       }),
@@ -592,9 +463,9 @@ describe("agent saved-view management", () => {
       expect(
         ManageDataViewsResultSchema.safeParse({
           action,
-          surfaceKey: SURFACE.contacts,
+          surfaceKey: SURFACE.users,
           viewKey: VIEW_ID,
-          link: `/contacts?view=${VIEW_ID}`,
+          link: `/company/members?view=${VIEW_ID}`,
           ...(action === "create" || action === "select" ? { selected: true } : {}),
         }).success,
         action,
@@ -604,7 +475,7 @@ describe("agent saved-view management", () => {
     expect(
       ManageDataViewsResultSchema.safeParse({
         action: "delete",
-        surfaceKey: SURFACE.contacts,
+        surfaceKey: SURFACE.users,
         viewKey: VIEW_ID,
         deleted: true,
       }).success,
@@ -614,48 +485,36 @@ describe("agent saved-view management", () => {
   it.each([
     {
       action: "update",
-      surfaceKey: SURFACE.contacts,
+      surfaceKey: SURFACE.users,
       viewKey: ALL_VIEW_KEY,
       link: null,
     },
     {
       action: "update",
-      surfaceKey: SURFACE.contacts,
+      surfaceKey: SURFACE.users,
       viewKey: ALL_VIEW_KEY,
       link: "/deals?view=__all__",
     },
     {
       action: "update",
-      surfaceKey: SURFACE.contacts,
+      surfaceKey: SURFACE.users,
       viewKey: ALL_VIEW_KEY,
-      link: `/contacts?view=${VIEW_ID}`,
+      link: `/company/members?view=${VIEW_ID}`,
     },
     {
       action: "create",
       surfaceKey: SURFACE.entityTimeline,
       viewKey: VIEW_ID,
-      link: `/contacts?view=${VIEW_ID}`,
+      link: `/company/members?view=${VIEW_ID}`,
       selected: true,
     },
   ])("rejects an incoherent mutation destination: %j", (result) => {
     expect(ManageDataViewsResultSchema.safeParse(result).success).toBe(false);
   });
 
-  it("accepts the null domain link required for an embedded timeline mutation", () => {
-    expect(
-      ManageDataViewsResultSchema.safeParse({
-        action: "create",
-        surfaceKey: SURFACE.entityTimeline,
-        viewKey: VIEW_ID,
-        link: null,
-        selected: true,
-      }).success,
-    ).toBe(true);
-  });
-
   it.each([
-    { action: "update", surfaceKey: SURFACE.contacts, viewKey: VIEW_ID },
-    { action: "update", surfaceKey: SURFACE.contacts, viewKey: VIEW_ID, state: {} },
+    { action: "update", surfaceKey: SURFACE.users, viewKey: VIEW_ID },
+    { action: "update", surfaceKey: SURFACE.users, viewKey: VIEW_ID, state: {} },
   ])("rejects an empty update before any read or write: %j", async (input) => {
     const subject = setup();
     const result = await subject.run(input as never);
@@ -678,7 +537,7 @@ describe("agent saved-view management", () => {
       const subject = setup();
       const result = await subject.run({
         action,
-        surfaceKey: SURFACE.contacts,
+        surfaceKey: SURFACE.users,
         viewKey: MISSING_ID,
         ...(action === "update" ? { name: "Missing" } : {}),
       });
@@ -694,7 +553,7 @@ describe("agent saved-view management", () => {
     const subject = setup();
     const result = await subject.run({
       action: "update",
-      surfaceKey: SURFACE.contacts,
+      surfaceKey: SURFACE.users,
       viewKey: ALL_VIEW_KEY,
       state: { searchTerm: "" },
     });
@@ -703,13 +562,13 @@ describe("agent saved-view management", () => {
       searchTerm: "",
     });
     expect(subject.save.invoke).toHaveBeenCalledWith({
-      surfaceKey: SURFACE.contacts,
+      surfaceKey: SURFACE.users,
       viewKey: ALL_VIEW_KEY,
       state: { searchTerm: "" },
     });
     const renamed = await subject.run({
       action: "update",
-      surfaceKey: SURFACE.contacts,
+      surfaceKey: SURFACE.users,
       viewKey: ALL_VIEW_KEY,
       name: "Renamed",
     });
@@ -734,7 +593,7 @@ describe("agent saved-view management", () => {
 
     const result = await subject.run({
       action: "update",
-      surfaceKey: SURFACE.contacts,
+      surfaceKey: SURFACE.users,
       viewKey: ALL_VIEW_KEY,
       state: { viewMode: ViewMode.card },
     });
@@ -759,7 +618,7 @@ describe("agent saved-view management", () => {
     await expect(
       subject.run({
         action: "update",
-        surfaceKey: SURFACE.contacts,
+        surfaceKey: SURFACE.users,
         viewKey: ALL_VIEW_KEY,
         state: { viewMode: ViewMode.card },
       }),
@@ -770,7 +629,7 @@ describe("agent saved-view management", () => {
     const subject = setup();
     const result = await subject.run({
       action: "delete",
-      surfaceKey: SURFACE.contacts,
+      surfaceKey: SURFACE.users,
       viewKey: VIEW_ID,
     });
     expect(result.ok && result.data).toMatchObject({

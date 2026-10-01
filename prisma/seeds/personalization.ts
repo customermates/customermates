@@ -1,28 +1,24 @@
+import { presetId } from "@/features/records/crm-preset";
 import type { PrismaClient } from "@/generated/prisma";
+import type { LegacyType } from "../record-migrations/v2/legacy-model";
+import { migrateDetailState, migratePresentationState } from "../record-migrations/v5/state";
+import { syntheticRecordModel } from "./records";
 
-import { Prisma } from "@/generated/prisma";
 import { SURFACE } from "@/core/data-view/data-view-keys";
+import { Prisma } from "@/generated/prisma";
 
 import {
   CONTACT_DETAIL_FIELD,
   CONTACT_DETAIL_P13N_ID,
-} from "@/app/[locale]/(protected)/contacts/components/contact-detail-personalization";
-import {
   DEAL_DETAIL_FIELD,
   DEAL_DETAIL_P13N_ID,
-} from "@/app/[locale]/(protected)/deals/components/deal-detail-personalization";
-import {
   ORGANIZATION_DETAIL_FIELD,
   ORGANIZATION_DETAIL_P13N_ID,
-} from "@/app/[locale]/(protected)/organizations/components/organization-detail-personalization";
-import {
   SERVICE_DETAIL_FIELD,
   SERVICE_DETAIL_P13N_ID,
-} from "@/app/[locale]/(protected)/services/components/service-detail-personalization";
-import {
   TASK_DETAIL_FIELD,
   TASK_DETAIL_P13N_ID,
-} from "@/app/[locale]/(protected)/tasks/components/task-detail-personalization";
+} from "./legacy-presentation-fixture";
 
 import type { SeedContext } from "./context";
 import type { CustomFieldSeedData } from "./custom-fields";
@@ -412,7 +408,49 @@ export async function persistSyntheticP13nFixtures(
 }
 
 export async function seedPersonalization(context: SeedContext, customFields: CustomFieldSeedData): Promise<void> {
-  const fixtures = buildSyntheticP13nFixtures(context, customFields);
+  const { source, model } = syntheticRecordModel(context, customFields);
+  const kindBySurface: Record<string, LegacyType> = {
+    [SURFACE.contacts]: "contact",
+    [SURFACE.organizations]: "organization",
+    [SURFACE.deals]: "deal",
+    [SURFACE.services]: "service",
+    [SURFACE.tasks]: "task",
+  };
+  const fixtures = buildSyntheticP13nFixtures(context, customFields).map((fixture) => {
+    const plain = Object.fromEntries(
+      Object.entries(fixture).map(([key, value]) => [
+        key,
+        value === Prisma.DbNull || value === Prisma.JsonNull ? null : value,
+      ]),
+    );
+    const kind = kindBySurface[fixture.p13nId];
+    const detail = /^([a-z]+)-detail$/.exec(fixture.p13nId);
+    const converted = kind
+      ? {
+          ...migratePresentationState(source, kind, plain, model, true),
+          p13nId: `records:${presetId(context.ids.company, kind)}`,
+        }
+      : detail
+        ? migrateDetailState(source, detail[1] as LegacyType, plain, model)
+        : plain;
+    return Object.fromEntries(
+      Object.entries(converted).map(([key, value]) => [
+        key,
+        value === null &&
+        [
+          "filters",
+          "sortDescriptor",
+          "pagination",
+          "columnWidths",
+          "grouping",
+          "detailOptions",
+          "viewStateKeys",
+        ].includes(key)
+          ? Prisma.DbNull
+          : value,
+      ]),
+    ) as SyntheticP13nFixture;
+  });
   await persistSyntheticP13nFixtures(context.prisma, context.ids.company, context.ids.user, fixtures);
 
   const routineTemplate = fixtures.find(({ p13nId }) => p13nId === SURFACE.routines);

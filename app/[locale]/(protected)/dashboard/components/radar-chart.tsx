@@ -6,26 +6,23 @@ import { PolarAngleAxis, PolarGrid, Radar, RadarChart } from "recharts";
 import { observer } from "mobx-react-lite";
 import { useReducedMotion } from "framer-motion";
 
-import type { AggregationType } from "@/generated/prisma";
-
 import { ChartTooltip } from "@/components/chart/chart-tooltip";
 
 import { DashboardChartContainer } from "./dashboard-chart-container";
 
 type Props = {
-  aggregationType?: AggregationType;
   currency?: string | null;
   chartData: ChartDataPoint[];
   colors: string[];
   textColor: string;
 };
 
-export const RadarChartComponent = observer(({ aggregationType, currency, chartData, colors, textColor }: Props) => {
+export const RadarChartComponent = observer(({ currency, chartData, colors, textColor }: Props) => {
   const reducedMotion = useReducedMotion();
   return (
     <DashboardChartContainer>
       <RadarChart data={chartData}>
-        <ChartTooltip aggregationType={aggregationType} currency={currency} />
+        <ChartTooltip currency={currency} />
 
         <PolarAngleAxis dataKey="label" tick={{ fill: textColor, fontSize: 12 }} />
 

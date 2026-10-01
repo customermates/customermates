@@ -1,8 +1,8 @@
 import type { MessagingProvider, MessagingThreadType } from "@/generated/prisma";
 import type { MessagingAttendee } from "./messaging.schema";
 
+import { parseChannelHandle } from "@/features/records/channel-value";
 import { getProviderProfileUrl, isEmailProvider, isHandleProvider, isPhoneProvider } from "./provider";
-import { parseChannelHandle } from "@/features/contacts/channel-value";
 
 export function contactFullName(contact: { firstName: string; lastName: string } | null | undefined): string {
   return contact ? `${contact.firstName} ${contact.lastName}`.trim() : "";

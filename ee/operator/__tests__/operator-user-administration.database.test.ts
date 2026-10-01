@@ -6,8 +6,8 @@ import type { OperatorActor } from "@/core/decorators/operator-context";
 
 import { runWithOperator } from "@/core/decorators/operator-context";
 import { runWithoutTenant } from "@/core/decorators/tenant-context";
-import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createCrmPreset, presetId } from "@/features/records/crm-preset";
+import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 
 vi.mock("@/env", () => ({
   env: {
@@ -18,8 +18,8 @@ vi.mock("@/env", () => ({
   },
 }));
 
-import { OPERATOR_AUDIT_ACTION } from "../operator.schema";
 import type { OperatorRefusal } from "../operator.repo";
+import { OPERATOR_AUDIT_ACTION } from "../operator.schema";
 import { PrismaOperatorRepo } from "../prisma-operator.repository";
 
 const OPERATOR_REFUSALS: OperatorRefusal[] = [
@@ -261,16 +261,6 @@ describeDatabase("operator user administration against a real database", { timeo
       status: "pendingAuthorization",
     });
     const repo = new PrismaOperatorRepo();
-    const pendingTask = await runWithoutTenant(() =>
-      prisma.task.create({
-        data: {
-          companyId,
-          name: "Pending authorization",
-          relatedUserId: backup.userId,
-          type: "userPendingAuthorization",
-        },
-      }),
-    );
     const taskType = createCrmPreset(companyId, "EUR").types.find((type) => type.id === presetId(companyId, "task"));
     if (!taskType) throw new Error("The starter task type is missing");
     const protectedTask = await runWithoutTenant(async () => {
@@ -378,7 +368,6 @@ describeDatabase("operator user administration against a real database", { timeo
     assertAdmitted(activated);
     expect(activated.status).toBe("active");
     expect(activated.agentCreditActivatedAt).toEqual(now);
-    await expect(runWithoutTenant(() => prisma.task.findUnique({ where: { id: pendingTask.id } }))).resolves.toBeNull();
     await expect(
       runWithoutTenant(() =>
         prisma.crmRecord.findUnique({

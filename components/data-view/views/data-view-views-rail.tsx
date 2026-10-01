@@ -129,7 +129,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
       aria-label={t("DataView.views.railLabel")}
       className={cn(
         "flex shrink-0 items-start gap-1.5 border-b border-border bg-background px-4 ps-[calc(1rem+var(--safe-left,0px))] pe-[calc(1rem+var(--safe-right,0px))]",
-        store.hasSelection && store.entityType && "hidden md:flex",
+        store.hasSelection && store.supportsSelection && "hidden md:flex",
       )}
       data-data-view-rail=""
       data-joins-top-bar={joinsTopBar ? "" : undefined}

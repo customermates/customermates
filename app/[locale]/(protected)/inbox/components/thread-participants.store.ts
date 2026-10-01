@@ -1,21 +1,21 @@
-import type { RootStore } from "@/core/stores/root.store";
 import { BaseStore } from "@/core/base/base.store";
-import type { RecordIdentityInput } from "@/features/records/record-identity.schema";
-import type { RecordIdentityReference } from "@/features/records/record-identity-reference.schema";
-import type { RecordRef } from "@/features/records/record-model.schema";
+import type { RootStore } from "@/core/stores/root.store";
 import type { IdentityRecordCreateChoice } from "@/features/records/get-identity-record-choices.interactor";
+import type { RecordIdentityReference } from "@/features/records/record-identity-reference.schema";
+import type { RecordIdentityInput } from "@/features/records/record-identity.schema";
+import type { RecordRef } from "@/features/records/record-model.schema";
 import type { MutateRecordInput, RecordOperationResult } from "@/features/records/record-query.schema";
 
 import { action, computed, makeObservable, observable, runInAction, toJS } from "mobx";
 
-import { getIdentityRecordChoicesAction } from "../actions";
-import { getRecordAction, mutateRecordAction } from "../../records/actions";
 import { channelClass } from "@/ee/messaging/provider";
-import { normalizeChannelValue } from "@/features/contacts/channel-value";
+import { normalizeChannelValue } from "@/features/records/channel-value";
+import { getRecordAction, mutateRecordAction } from "../../records/actions";
+import { getIdentityRecordChoicesAction } from "../actions";
 
-import { isHandleProvider } from "@/ee/messaging/provider";
-import { Debouncer } from "@/core/utils/debounce";
 import { reportApplicationError } from "@/core/errors/report-application-error";
+import { Debouncer } from "@/core/utils/debounce";
+import { isHandleProvider } from "@/ee/messaging/provider";
 
 type ActionOutcome = { ok: boolean };
 

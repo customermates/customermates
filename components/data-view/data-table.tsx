@@ -4,24 +4,21 @@ import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store"
 import type { ColumnDef, Row, SortingState, VisibilityState } from "@tanstack/react-table";
 import type { KeyboardEvent, PointerEvent, ReactNode } from "react";
 
-import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, ChevronsUpDown } from "lucide-react";
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, ChevronsUpDown } from "lucide-react";
 import { observer } from "mobx-react-lite";
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { AppChip } from "@/components/chip/app-chip";
+import { useNavigateToHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useNavigateToHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
-import type { Prisma } from "@/generated/prisma";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/core/utils/cn";
+import type { Prisma } from "@/generated/prisma";
 
-import { isInteractiveClick } from "./is-interactive-click";
-import { useGroupLabel, visibleGroups } from "./group-label";
-import { GroupSummaries } from "./group-summaries";
 import {
   beginColumnResize,
   columnResizeLabel,
@@ -33,6 +30,9 @@ import {
   withoutColumnWidth,
   type ColumnResizeSession,
 } from "./data-table-resize";
+import { useGroupLabel, visibleGroups } from "./group-label";
+import { GroupSummaries } from "./group-summaries";
+import { isInteractiveClick } from "./is-interactive-click";
 
 type Props<E extends HasId> = {
   store: BaseDataViewStore<E>;
@@ -232,7 +232,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
     [store, t],
   );
 
-  const canBulkAct = Boolean(store.entityType);
+  const canBulkAct = store.supportsSelection;
   const allColumns = useMemo(
     () => (canBulkAct ? [selectionColumn, ...columns] : columns),
     [canBulkAct, selectionColumn, columns],
@@ -532,10 +532,6 @@ export const DataTable = observer(function DataTable<E extends HasId>({
                         <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{group.count}</span>
 
                         {group.summaries?.length ? <GroupSummaries summaries={group.summaries} /> : null}
-
-                        {store.isGroupedByDealWeightingColumn && group.weight !== undefined && (
-                          <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{group.weight}%</span>
-                        )}
                       </div>
                     </TableCell>
                   </TableRow>

@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { Filter } from "../base-get.schema";
-import type { GetResult } from "../base-get.interactor";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { RootStore } from "@/core/stores/root.store";
+import type { GetResult } from "../base-get.interactor";
+import type { Filter } from "../base-get.schema";
 
-import { Action, CustomColumnType, EntityType, Resource } from "@/generated/prisma";
+import type { Resource } from "@/generated/prisma";
+import { Action } from "@/generated/prisma";
 
-import { FilterOperatorKey } from "../base-query-builder";
 import { BaseDataViewStore, MAX_SELECTION_SIZE } from "../base-data-view.store";
+import { FilterOperatorKey } from "../base-query-builder";
 
 const { bulkDeleteEntitiesAction, bulkUpdateCustomFieldValuesAction, toastError } = vi.hoisted(() => ({
   bulkDeleteEntitiesAction: vi.fn(),
@@ -59,33 +59,11 @@ function makeStore(allowed: Action[] = [Action.create, Action.update, Action.del
     },
   } as unknown as RootStore;
 
-  return new TestStore(rootStore, resource, EntityType.contact);
+  return new TestStore(rootStore, resource);
 }
 
 function page(ids: string[], extra: Partial<GetResult<Item>> = {}): GetResult<Item> {
   return { items: ids.map((id) => ({ id })), ...extra };
-}
-
-function singleSelectColumn(id: string, optionCount: number): CustomColumnDto {
-  return {
-    id,
-    label: `single-${id}`,
-    entityType: EntityType.contact,
-    type: CustomColumnType.singleSelect,
-    options: {
-      options: Array.from({ length: optionCount }, (_, index) => ({
-        value: `opt-${index}`,
-        label: `Option ${index}`,
-        color: "info" as const,
-        isDefault: false,
-        index,
-      })),
-    },
-  } as CustomColumnDto;
-}
-
-function plainColumn(id: string): CustomColumnDto {
-  return { id, label: `plain-${id}`, entityType: EntityType.contact, type: CustomColumnType.plain } as CustomColumnDto;
 }
 
 describe("data view selection", () => {
@@ -189,10 +167,18 @@ describe("data view selection", () => {
 
   it("does not mark the selection stale when only the page changes", () => {
     const store = makeStore();
-    store.setItems(page(["a"], { pagination: { page: 1, pageSize: 5, total: 2, totalPages: 2 } }));
+    store.setItems(
+      page(["a"], {
+        pagination: { page: 1, pageSize: 5, total: 2, totalPages: 2 },
+      }),
+    );
     store.setPageSelection(true);
 
-    store.setItems(page(["b"], { pagination: { page: 2, pageSize: 5, total: 2, totalPages: 2 } }));
+    store.setItems(
+      page(["b"], {
+        pagination: { page: 2, pageSize: 5, total: 2, totalPages: 2 },
+      }),
+    );
 
     expect(store.isSelectionScopeStale).toBe(false);
   });
@@ -201,10 +187,20 @@ describe("data view selection", () => {
     const store = makeStore();
     const stored = JSON.parse('[{"field":"userIds","value":["me"],"operator":"in"}]') as Filter[];
     const reparsed = JSON.parse('[{"field":"userIds","operator":"in","value":["me"]}]') as Filter[];
-    store.setItems(page(["a"], { filters: stored, pagination: { page: 1, pageSize: 5, total: 2, totalPages: 2 } }));
+    store.setItems(
+      page(["a"], {
+        filters: stored,
+        pagination: { page: 1, pageSize: 5, total: 2, totalPages: 2 },
+      }),
+    );
     store.setPageSelection(true);
 
-    store.setItems(page(["b"], { filters: reparsed, pagination: { page: 2, pageSize: 5, total: 2, totalPages: 2 } }));
+    store.setItems(
+      page(["b"], {
+        filters: reparsed,
+        pagination: { page: 2, pageSize: 5, total: 2, totalPages: 2 },
+      }),
+    );
 
     expect(store.isSelectionScopeStale).toBe(false);
   });
@@ -266,49 +262,5 @@ describe("data view selection", () => {
 
     expect(store.selectedScope).toBeUndefined();
     expect(store.isSelectionScopeStale).toBe(false);
-  });
-
-  it("refuses a bulk delete larger than the server limit without calling the server", async () => {
-    const store = makeStore();
-    for (let index = 0; index <= MAX_SELECTION_SIZE; index += 1) store.selectedIds.add(`row-${index}`);
-
-    const result = await store.bulkDelete();
-
-    expect(result).toBe(false);
-    expect(bulkDeleteEntitiesAction).not.toHaveBeenCalled();
-    expect(toastError).toHaveBeenCalledWith("MassActions.limitReached", expect.anything());
-  });
-
-  it("refuses a bulk field write larger than the server limit without calling the server", async () => {
-    const store = makeStore();
-    for (let index = 0; index <= MAX_SELECTION_SIZE; index += 1) store.selectedIds.add(`row-${index}`);
-
-    const result = await store.bulkUpdateCustomField("column", "value");
-
-    expect(result).toBe(false);
-    expect(bulkUpdateCustomFieldValuesAction).not.toHaveBeenCalled();
-  });
-
-  it("gates each mass verb on the permission its own interactor enforces", () => {
-    const readerOnly = makeStore([], Resource.contacts);
-    const updaterOnly = makeStore([Action.update], Resource.contacts);
-    const deleterOnly = makeStore([Action.delete], Resource.contacts);
-
-    expect([readerOnly.canUpdateSelection, readerOnly.canDeleteSelection]).toEqual([false, false]);
-    expect([updaterOnly.canUpdateSelection, updaterOnly.canDeleteSelection]).toEqual([true, false]);
-    expect([deleterOnly.canUpdateSelection, deleterOnly.canDeleteSelection]).toEqual([false, true]);
-  });
-
-  it("leaves both mass verbs available on a view that declares no resource", () => {
-    const store = makeStore([]);
-
-    expect([store.canUpdateSelection, store.canDeleteSelection]).toEqual([true, true]);
-  });
-
-  it("offers every custom column type for mass editing but drops a single select with no options", () => {
-    const store = makeStore();
-    store.setCustomColumns([plainColumn("plain"), singleSelectColumn("empty", 0), singleSelectColumn("full", 2)]);
-
-    expect(store.massEditableCustomColumns.map((column) => column.id)).toEqual(["plain", "full"]);
   });
 });

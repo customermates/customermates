@@ -2,7 +2,8 @@ import type { GetResult } from "@/core/base/base-get.interactor";
 
 import { z } from "zod";
 
-import { EntityType, MessagingProvider, MessagingThreadType } from "@/generated/prisma";
+import { MessagingProvider, MessagingThreadType } from "@/generated/prisma";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 import { CalendarEventSchema } from "@/ee/calendar/calendar.schema";
 import {
   GetQueryParamsApiSchema,

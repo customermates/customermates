@@ -1,0 +1,442 @@
+{
+  "de": {
+    "contact": {
+      "client": {
+        "plural": "Kunden",
+        "singular": "Kunde"
+      },
+      "contact": {
+        "plural": "Kontakte",
+        "singular": "Kontakt"
+      },
+      "lead": {
+        "plural": "Leads",
+        "singular": "Lead"
+      },
+      "person": {
+        "plural": "Personen",
+        "singular": "Person"
+      }
+    },
+    "deal": {
+      "deal": {
+        "plural": "Deals",
+        "singular": "Deal"
+      },
+      "job": {
+        "plural": "Aufträge",
+        "singular": "Auftrag"
+      },
+      "opportunity": {
+        "plural": "Chancen",
+        "singular": "Chance"
+      },
+      "project": {
+        "plural": "Projekte",
+        "singular": "Projekt"
+      }
+    },
+    "organization": {
+      "account": {
+        "plural": "Accounts",
+        "singular": "Account"
+      },
+      "company": {
+        "plural": "Unternehmen",
+        "singular": "Unternehmen"
+      },
+      "organization": {
+        "plural": "Organisationen",
+        "singular": "Organisation"
+      }
+    },
+    "service": {
+      "offering": {
+        "plural": "Leistungen",
+        "singular": "Leistung"
+      },
+      "package": {
+        "plural": "Pakete",
+        "singular": "Paket"
+      },
+      "product": {
+        "plural": "Produkte",
+        "singular": "Produkt"
+      },
+      "service": {
+        "plural": "Services",
+        "singular": "Service"
+      }
+    },
+    "task": {
+      "actionItem": {
+        "plural": "Action Items",
+        "singular": "Action Item"
+      },
+      "followUp": {
+        "plural": "Follow-ups",
+        "singular": "Follow-up"
+      },
+      "task": {
+        "plural": "Aufgaben",
+        "singular": "Aufgabe"
+      },
+      "todo": {
+        "plural": "To-dos",
+        "singular": "To-do"
+      }
+    }
+  },
+  "en": {
+    "contact": {
+      "client": {
+        "plural": "Clients",
+        "singular": "Client"
+      },
+      "contact": {
+        "plural": "Contacts",
+        "singular": "Contact"
+      },
+      "lead": {
+        "plural": "Leads",
+        "singular": "Lead"
+      },
+      "person": {
+        "plural": "People",
+        "singular": "Person"
+      }
+    },
+    "deal": {
+      "deal": {
+        "plural": "Deals",
+        "singular": "Deal"
+      },
+      "job": {
+        "plural": "Jobs",
+        "singular": "Job"
+      },
+      "opportunity": {
+        "plural": "Opportunities",
+        "singular": "Opportunity"
+      },
+      "project": {
+        "plural": "Projects",
+        "singular": "Project"
+      }
+    },
+    "organization": {
+      "account": {
+        "plural": "Accounts",
+        "singular": "Account"
+      },
+      "company": {
+        "plural": "Companies",
+        "singular": "Company"
+      },
+      "organization": {
+        "plural": "Organizations",
+        "singular": "Organization"
+      }
+    },
+    "service": {
+      "offering": {
+        "plural": "Offerings",
+        "singular": "Offering"
+      },
+      "package": {
+        "plural": "Packages",
+        "singular": "Package"
+      },
+      "product": {
+        "plural": "Products",
+        "singular": "Product"
+      },
+      "service": {
+        "plural": "Services",
+        "singular": "Service"
+      }
+    },
+    "task": {
+      "actionItem": {
+        "plural": "Action items",
+        "singular": "Action item"
+      },
+      "followUp": {
+        "plural": "Follow-ups",
+        "singular": "Follow-up"
+      },
+      "task": {
+        "plural": "Tasks",
+        "singular": "Task"
+      },
+      "todo": {
+        "plural": "To-dos",
+        "singular": "To-do"
+      }
+    }
+  },
+  "es": {
+    "contact": {
+      "client": {
+        "plural": "Clientes",
+        "singular": "Cliente"
+      },
+      "contact": {
+        "plural": "Contactos",
+        "singular": "Contacto"
+      },
+      "lead": {
+        "plural": "Leads",
+        "singular": "Lead"
+      },
+      "person": {
+        "plural": "Personas",
+        "singular": "Persona"
+      }
+    },
+    "deal": {
+      "deal": {
+        "plural": "Oportunidades",
+        "singular": "Oportunidad"
+      },
+      "job": {
+        "plural": "Trabajos",
+        "singular": "Trabajo"
+      },
+      "opportunity": {
+        "plural": "Oportunidades comerciales",
+        "singular": "Oportunidad comercial"
+      },
+      "project": {
+        "plural": "Proyectos",
+        "singular": "Proyecto"
+      }
+    },
+    "organization": {
+      "account": {
+        "plural": "Cuentas",
+        "singular": "Cuenta"
+      },
+      "company": {
+        "plural": "Empresas",
+        "singular": "Empresa"
+      },
+      "organization": {
+        "plural": "Organizaciones",
+        "singular": "Organización"
+      }
+    },
+    "service": {
+      "offering": {
+        "plural": "Ofertas",
+        "singular": "Oferta"
+      },
+      "package": {
+        "plural": "Paquetes",
+        "singular": "Paquete"
+      },
+      "product": {
+        "plural": "Productos",
+        "singular": "Producto"
+      },
+      "service": {
+        "plural": "Servicios",
+        "singular": "Servicio"
+      }
+    },
+    "task": {
+      "actionItem": {
+        "plural": "Acciones",
+        "singular": "Acción"
+      },
+      "followUp": {
+        "plural": "Seguimientos",
+        "singular": "Seguimiento"
+      },
+      "task": {
+        "plural": "Tareas",
+        "singular": "Tarea"
+      },
+      "todo": {
+        "plural": "Pendientes",
+        "singular": "Pendiente"
+      }
+    }
+  },
+  "fr": {
+    "contact": {
+      "client": {
+        "plural": "Clients",
+        "singular": "Client"
+      },
+      "contact": {
+        "plural": "Contacts",
+        "singular": "Contact"
+      },
+      "lead": {
+        "plural": "Prospects",
+        "singular": "Prospect"
+      },
+      "person": {
+        "plural": "Personnes",
+        "singular": "Personne"
+      }
+    },
+    "deal": {
+      "deal": {
+        "plural": "Affaires",
+        "singular": "Affaire"
+      },
+      "job": {
+        "plural": "Missions",
+        "singular": "Mission"
+      },
+      "opportunity": {
+        "plural": "Opportunités",
+        "singular": "Opportunité"
+      },
+      "project": {
+        "plural": "Projets",
+        "singular": "Projet"
+      }
+    },
+    "organization": {
+      "account": {
+        "plural": "Comptes",
+        "singular": "Compte"
+      },
+      "company": {
+        "plural": "Entreprises",
+        "singular": "Entreprise"
+      },
+      "organization": {
+        "plural": "Organisations",
+        "singular": "Organisation"
+      }
+    },
+    "service": {
+      "offering": {
+        "plural": "Offres",
+        "singular": "Offre"
+      },
+      "package": {
+        "plural": "Forfaits",
+        "singular": "Forfait"
+      },
+      "product": {
+        "plural": "Produits",
+        "singular": "Produit"
+      },
+      "service": {
+        "plural": "Services",
+        "singular": "Service"
+      }
+    },
+    "task": {
+      "actionItem": {
+        "plural": "Actions",
+        "singular": "Action"
+      },
+      "followUp": {
+        "plural": "Relances",
+        "singular": "Relance"
+      },
+      "task": {
+        "plural": "Tâches",
+        "singular": "Tâche"
+      },
+      "todo": {
+        "plural": "À faire",
+        "singular": "Élément à faire"
+      }
+    }
+  },
+  "it": {
+    "contact": {
+      "client": {
+        "plural": "Clienti",
+        "singular": "Cliente"
+      },
+      "contact": {
+        "plural": "Contatti",
+        "singular": "Contatto"
+      },
+      "lead": {
+        "plural": "Lead",
+        "singular": "Lead"
+      },
+      "person": {
+        "plural": "Persone",
+        "singular": "Persona"
+      }
+    },
+    "deal": {
+      "deal": {
+        "plural": "Trattative",
+        "singular": "Trattativa"
+      },
+      "job": {
+        "plural": "Lavori",
+        "singular": "Lavoro"
+      },
+      "opportunity": {
+        "plural": "Opportunità",
+        "singular": "Opportunità"
+      },
+      "project": {
+        "plural": "Progetti",
+        "singular": "Progetto"
+      }
+    },
+    "organization": {
+      "account": {
+        "plural": "Account",
+        "singular": "Account"
+      },
+      "company": {
+        "plural": "Aziende",
+        "singular": "Azienda"
+      },
+      "organization": {
+        "plural": "Organizzazioni",
+        "singular": "Organizzazione"
+      }
+    },
+    "service": {
+      "offering": {
+        "plural": "Offerte",
+        "singular": "Offerta"
+      },
+      "package": {
+        "plural": "Pacchetti",
+        "singular": "Pacchetto"
+      },
+      "product": {
+        "plural": "Prodotti",
+        "singular": "Prodotto"
+      },
+      "service": {
+        "plural": "Servizi",
+        "singular": "Servizio"
+      }
+    },
+    "task": {
+      "actionItem": {
+        "plural": "Azioni",
+        "singular": "Azione"
+      },
+      "followUp": {
+        "plural": "Follow-up",
+        "singular": "Follow-up"
+      },
+      "task": {
+        "plural": "Attività",
+        "singular": "Attività"
+      },
+      "todo": {
+        "plural": "Cose da fare",
+        "singular": "Cosa da fare"
+      }
+    }
+  }
+}
