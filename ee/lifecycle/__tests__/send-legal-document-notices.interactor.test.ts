@@ -416,8 +416,8 @@ describe("SendLegalDocumentNoticesInteractor", () => {
     expect(props.documents.map((document) => document.version)).toEqual([
       "1. September 2026",
       "1. September 2026",
-      "30. September 2026",
-      "30. September 2026",
+      "1. Oktober 2026",
+      "1. Oktober 2026",
     ]);
   });
 
