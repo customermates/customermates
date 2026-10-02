@@ -1238,6 +1238,28 @@ describe("complete stored source coverage", () => {
     for (const source of sources) expect(delivered.get(source.id)).toBe(source.text);
   });
 
+  it("delivers actual source-body newlines in next/get without changing structured evidence or cursors", async () => {
+    const text = '# Service A\n\nAn exact source sentence.\n\t"Quoted" public evidence and 🌍知識.';
+    const sources = [source(1, text)];
+    stored(sources);
+    const reader = readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001");
+    for (const request of [{ action: "next" as const }, { action: "get" as const, id: sources[0].id, offset: 0 }]) {
+      const outcome = await executeMcpTool(reader, [request]);
+      if (!outcome.ok) throw new Error("Expected a successful source read");
+      expect(outcome.result).toContain(text);
+      expect(outcome.result).toContain('\n\nAn exact source sentence.\n\t"Quoted"');
+      expect(outcome.result).not.toContain(text.replaceAll("\n", "\\n"));
+      expect(outcome.structuredContent).toMatchObject({
+        remainingSources: 0,
+        items: [{ id: sources[0].id, offset: 0, nextOffset: null, text }],
+      });
+      expect(new TextEncoder().encode(JSON.stringify(outcome.result)).byteLength).toBeLessThanOrEqual(
+        WIKI_SOURCE_RESULT_MAX_CHARS,
+      );
+      expect(sources[0].readOffset).toBe(text.length);
+    }
+  });
+
   it("includes canonical FAQ evidence in the stored hash and reads through the appended answer before completion", async () => {
     const pair = {
       question: "Does this offering support incremental retrieval?",

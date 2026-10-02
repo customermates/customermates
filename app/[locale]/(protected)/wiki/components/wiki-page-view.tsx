@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { FormFieldHelp } from "@/components/forms/form-field-help";
 import { Sheet, SheetBody, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useNavigationGuard } from "@/components/modal/use-navigation-guard";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRouter } from "@/i18n/navigation";
 import { EMPTY_WIKI_HOMEPAGE_SETUP_STATE, useRefreshWhileWikiSetupWorks } from "@/components/wiki/wiki-homepage-setup";
@@ -80,6 +81,7 @@ export const WikiPageView = observer(function WikiPageView({
         else startNavigation(refresh);
       }),
   );
+  useNavigationGuard(store);
   const receivedRequestedPageId = useRef(requestedPageId);
   const formId = useId();
   const titleContainer = useRef<HTMLDivElement>(null);

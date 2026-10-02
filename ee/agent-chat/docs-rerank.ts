@@ -34,7 +34,7 @@ export function docsRerankChoice(result: ClassifierResult | null): number | null
 }
 
 const RANK_INSTRUCTIONS: Record<RetrievalCorpus, string> = {
-  docs: "The user wrote `latest_user_message` (in any language) and the assistant searched the documentation with `agent_query`. Which documentation section best answers what the user needs? Prefer a section dedicated to the requested page, action or permission over a broader section that only mentions it. For a request to navigate to a page, prefer the destination page and its route. For a task or relationship between records, prefer the instructions that complete the requested operation. If none answers it fully, pick the closest one; choose none only if no section answers it at all.",
+  docs: "The user wrote `latest_user_message` (in any language) and the assistant searched the documentation with `agent_query`. Which documentation section best answers what the user needs? Prefer a section whose heading names the requested action, status or permission and whose body explains the concrete instructions or rules. A broad overview, navigation list or sibling mentioning that topic is secondary to its dedicated guide. For navigation, prefer the dedicated guide to that resource or action with its own route over a broad page listing the same destination. For setup or configuration, prefer instructions that create or change it over deletion restrictions. For a status or error, prefer the specific status meaning and resolution over unrelated setup instructions. For a task or relationship between records, prefer the instructions that complete the requested operation. If none answers it fully, pick the closest one; choose none only if no section answers it at all.",
   wiki: "The user wrote `latest_user_message` (in any language) and the assistant searched the Knowledge Base with `agent_query`. Which Knowledge Base section best answers what the user needs? If none answers it fully, pick the closest one; choose none only if no section answers it at all.",
 };
 
@@ -161,5 +161,9 @@ function hostedSectionRanking(userMessage: string | null, corpus: RetrievalCorpu
 
 export function hostedSectionRankers(userMessage: string | null = null): SectionRankerFactory | undefined {
   if (!hostedDocsRerankModel()) return undefined;
-  return (corpus) => hostedSectionRanking(userMessage, corpus);
+  const rankers = new Map<RetrievalCorpus, SectionRanker | undefined>();
+  return (corpus) => {
+    if (!rankers.has(corpus)) rankers.set(corpus, hostedSectionRanking(userMessage, corpus));
+    return rankers.get(corpus);
+  };
 }

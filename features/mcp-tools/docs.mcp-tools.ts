@@ -29,7 +29,9 @@ const DocsSearchHitSchema = z.object({
   title: z.string(),
   url: z.string(),
   section: z.string().describe("Heading path of the best matching section, joined by ' > '"),
-  anchor: z.string().describe("Heading anchor of that section; pass it to get_docs_page as query context"),
+  anchor: z
+    .string()
+    .describe("Heading anchor of that section; pass a nonempty anchor unchanged to get_docs_page as query"),
   snippet: z.string(),
 });
 const DocsSearchOutputSchema = z.object({
@@ -88,7 +90,7 @@ export const searchDocsTool = {
     `Required: query. Optional: locale (one of: ${docsLocaleList}; default ${DEFAULT_LOCALE}), source (one of: docs, api, all; default docs). ` +
     "Returns ranked pages with the best section of each (slug#anchor), then the best page's url and its snippet in text, plus up to 5 full matches as structured content. " +
     "App routes in a snippet, such as `/company/subscription`, are relative: prefix them with the origin of the match's url (best= in text); that origin is the instance's configured BASE_URL. " +
-    "Then read the best page with get_docs_page and the same question as query; if it does not answer, read the next page.",
+    "Then read the best page with get_docs_page, passing its nonempty returned anchor as query to preserve the selected section across calls; omit query for an empty anchor. If it does not answer, read the next page.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
   inputSchema: z.object({
     query: z.string().min(2).describe("Free-text search, e.g. 'webhook signature' or 'filter operators'"),
@@ -116,7 +118,7 @@ export const getDocsPageTool = {
     "Use this when you need one Customermates documentation page as markdown, with its canonical URL. " +
     "App routes in the markdown, such as `/company/subscription`, are relative: prefix them with the origin of url; that origin is the instance's configured BASE_URL. " +
     `Required: slug (from search_docs). Optional: locale (one of: ${docsLocaleList}; default ${DEFAULT_LOCALE}), source (one of: docs, api; default docs). ` +
-    "Pass query with the exact detail you need to get a bounded excerpt; omit it only for the full page. " +
+    "Pass the nonempty anchor returned by search_docs as query to read its selected section across separate calls. For an empty anchor, omit query to read the full page. Otherwise pass query with the exact detail you need to get a bounded excerpt. " +
     "An unknown slug returns the valid slugs.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
   outputSchema: GetDocsPageOutputSchema,
@@ -128,7 +130,9 @@ export const getDocsPageTool = {
       .min(2)
       .max(200)
       .optional()
-      .describe("Exact question or detail to return as a focused excerpt instead of the full page"),
+      .describe(
+        "Section anchor returned by search_docs, or the exact question or detail to return as a focused excerpt instead of the full page",
+      ),
     locale: docsLocaleSchema,
     source: z.enum(["docs", "api"]).default("docs").describe("docs = product guides, api = REST endpoint reference"),
   }),

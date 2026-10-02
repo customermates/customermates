@@ -4,11 +4,12 @@ import type * as WikiPageStoreModule from "../wiki-page.store";
 import type { WikiPageStore as RealWikiPageStore } from "../wiki-page.store";
 import type { Root as ReactRoot } from "react-dom/client";
 import type * as TopBarActionsModule from "@/app/components/topbar-actions-context";
+import type { BaseFormStore } from "@/core/base/base-form.store";
 
 import { act, cloneElement, createElement, isValidElement, startTransition, Suspense, use, useState } from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
-import { observable, runInAction } from "mobx";
+import { observable, reaction, runInAction } from "mobx";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const harness = vi.hoisted(() => ({
@@ -32,6 +33,7 @@ const harness = vi.hoisted(() => ({
   refreshWhileSetupWorks: vi.fn(),
   p13nUpsert: vi.fn(),
   startSetup: vi.fn(),
+  updateWikiPage: vi.fn(),
   tryNavigate: vi.fn((navigate: () => void) => {
     navigate();
     return true;
@@ -45,6 +47,7 @@ vi.mock("next-intl", () => ({
 vi.mock("@/app/actions", () => ({ upsertP13nAction: harness.p13nUpsert }));
 vi.mock("../../actions", () => ({
   startWikiHomepageSetupAction: harness.startSetup,
+  updateWikiPageAction: harness.updateWikiPage,
 }));
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => harness.rootStore,
@@ -120,9 +123,15 @@ vi.mock("@/components/editor/editor.utils", () => ({
   parseMarkdownToJSON: (markdown: string) => ({ markdown }),
   serializeJSONToMarkdown: () => "",
 }));
-vi.mock("@/components/forms/form-context", () => ({
-  AppForm: ({ children, id }: { children?: ReactNode; id?: string }) => createElement("form", { id }, children),
-}));
+vi.mock("@/components/forms/form-context", async () => {
+  const { useNavigationGuard } = await import("@/components/modal/use-navigation-guard");
+  return {
+    AppForm: function AppForm({ children, id, store }: { children?: ReactNode; id?: string; store: BaseFormStore }) {
+      useNavigationGuard(store);
+      return createElement("form", { id }, children);
+    },
+  };
+});
 vi.mock("@/components/forms/form-select", () => ({
   FormSelect: (props: { id: string; items?: Array<{ value: string; disabled?: boolean; description?: string }> }) =>
     createElement(
@@ -190,6 +199,7 @@ vi.mock("../wiki-page.store", async (importOriginal) => {
 import { resolveWikiPageState } from "../wiki-page-state";
 import { WikiPageView } from "../wiki-page-view";
 import { TopBarActionsProvider, useTopBarActions } from "@/app/components/topbar-actions-context";
+import { NavigationGuardController } from "@/core/stores/navigation-guard.controller";
 
 const listPage = { items: [], total: 0, page: 1, pageSize: 25 };
 const page = {
@@ -245,6 +255,8 @@ function configure(canManage: boolean, agentChatEnabled: boolean, agentEnabled: 
       composerContexts: [],
     },
     navigationGuard: {
+      register: vi.fn(),
+      unregister: vi.fn(),
       tryNavigate: harness.tryNavigate,
       requestRouteRefreshWhenSafe: (refresh: () => void) => refresh(),
     },
@@ -313,6 +325,7 @@ beforeEach(() => {
   harness.topBar = null;
   harness.toolbarRenders = 0;
   harness.loadConfig.mockResolvedValue("ready");
+  harness.updateWikiPage.mockReset().mockResolvedValue({ ok: true, data: page });
   harness.selectConversation.mockResolvedValue(undefined);
   harness.p13nUpsert.mockResolvedValue({
     ok: true,
@@ -321,6 +334,188 @@ beforeEach(() => {
 });
 
 describe("Wiki document view", () => {
+  it.each(["Reset", "Save"] as const)(
+    "keeps a queued refresh blocked after the inner form unmounts until %s succeeds",
+    async (release) => {
+      configure(true, true, true);
+      harness.realStore = true;
+      harness.rootStore.userStore = { canManage: () => true, user: { id: "user-1" } };
+      const navigationGuard = new NavigationGuardController();
+      harness.rootStore.navigationGuard = navigationGuard;
+      const { container, root } = await mount(
+        createElement(WikiPageView, { initialPage: page, requestedPageId: page.id, listPage: populatedList }),
+      );
+      const store = harness.store as unknown as RealWikiPageStore;
+      act(() => {
+        store.onChange("title", "Unsaved manual title");
+        store.onChange("markdown", "Unsaved manual body");
+      });
+      const firstRefresh = vi.fn();
+      const refresh = vi.fn();
+      act(() => {
+        navigationGuard.requestRouteRefreshWhenSafe(firstRefresh);
+        navigationGuard.requestRouteRefreshWhenSafe(refresh);
+        store.setUnavailable();
+      });
+      expect(container.querySelector("form")).toBeNull();
+      expect(navigationGuard.isRouteRefreshBlocked).toBe(true);
+      expect(firstRefresh).not.toHaveBeenCalled();
+      expect(refresh).not.toHaveBeenCalled();
+      expect(store.form).toMatchObject({ title: "Unsaved manual title", markdown: "Unsaved manual body" });
+
+      if (release === "Reset") {
+        act(() => store.resetDocument());
+        expect(store.form).toMatchObject({ title: page.title, markdown: page.markdown });
+      } else {
+        act(() =>
+          runInAction(() => {
+            store.unavailable = false;
+          }),
+        );
+        expect(refresh).not.toHaveBeenCalled();
+        const saved = {
+          ...page,
+          title: "Unsaved manual title",
+          markdown: "Unsaved manual body",
+          updatedAt: new Date("2026-10-03T00:00:00.000Z"),
+        };
+        let finish!: (result: { ok: true; data: typeof saved }) => void;
+        harness.updateWikiPage.mockImplementation(
+          () =>
+            new Promise((resolve) => {
+              finish = resolve;
+            }),
+        );
+        let submitted!: Promise<void>;
+        await act(async () => {
+          submitted = store.onSubmit();
+          await Promise.resolve();
+        });
+        expect(harness.updateWikiPage).toHaveBeenCalledExactlyOnceWith({
+          id: page.id,
+          expectedUpdatedAt: page.updatedAt,
+          title: saved.title,
+          markdown: saved.markdown,
+          kind: page.kind,
+          whenToUse: undefined,
+        });
+        expect(store.isLoading).toBe(true);
+        expect(refresh).not.toHaveBeenCalled();
+        await act(async () => {
+          finish({ ok: true, data: saved });
+          await submitted;
+        });
+        expect(store.form).toMatchObject({ title: saved.title, markdown: saved.markdown, updatedAt: saved.updatedAt });
+      }
+      expect(store.hasUnsavedChanges).toBe(false);
+      expect(navigationGuard.isRouteRefreshBlocked).toBe(false);
+      expect(firstRefresh).not.toHaveBeenCalled();
+      expect(refresh).toHaveBeenCalledOnce();
+      act(() => root.render(null));
+      expect(refresh).toHaveBeenCalledOnce();
+    },
+  );
+
+  it("releases a pending refresh when the final Wiki view owner unmounts", async () => {
+    configure(true, true, true);
+    harness.realStore = true;
+    harness.rootStore.userStore = { canManage: () => true, user: { id: "user-1" } };
+    const navigationGuard = new NavigationGuardController();
+    harness.rootStore.navigationGuard = navigationGuard;
+    const { root } = await mount(
+      createElement(WikiPageView, { initialPage: page, requestedPageId: page.id, listPage: populatedList }),
+    );
+    const store = harness.store as unknown as RealWikiPageStore;
+    act(() => {
+      store.onChange("title", "Unsaved manual title");
+      store.setUnavailable();
+    });
+    const refresh = vi.fn();
+    act(() => navigationGuard.requestRouteRefreshWhenSafe(refresh));
+    expect(navigationGuard.isGuarding).toBe(true);
+    expect(refresh).not.toHaveBeenCalled();
+    act(() => root.render(null));
+    expect(navigationGuard.isGuarding).toBe(false);
+    expect(navigationGuard.isRouteRefreshBlocked).toBe(false);
+    expect(refresh).toHaveBeenCalledOnce();
+  });
+
+  it("keeps a capture-phase rail navigation on Cancel and loads the new route only after Discard", async () => {
+    configure(true, true, true);
+    harness.realStore = true;
+    harness.rootStore.userStore = { canManage: () => true, user: { id: "user-1" } };
+    const navigationGuard = new NavigationGuardController();
+    harness.rootStore.navigationGuard = navigationGuard;
+    const replacement = {
+      ...page,
+      id: "10000000-0000-4000-8000-000000000002",
+      title: "Selected destination",
+      markdown: "Destination body",
+    };
+    const pages = { ...populatedList, items: [page, replacement], total: 2 };
+    const previousUrl = window.location.href;
+    const { root, container } = await mount(
+      createElement(WikiPageView, { initialPage: page, requestedPageId: page.id, listPage: pages }),
+    );
+    const store = harness.store as unknown as RealWikiPageStore;
+    const editor = container.querySelector("[data-editor-readonly]");
+    const selected = vi.fn();
+    const disposeSelection = reaction(
+      () => store.form.id,
+      (id) => selected(id),
+    );
+    const destination = container.querySelector<HTMLAnchorElement>(`nav a[href="/wiki?page=${replacement.id}"]`);
+    expect(destination).not.toBeNull();
+    window.history.replaceState({}, "", `/en/wiki?page=${page.id}`);
+    harness.push.mockImplementation((path: string) => window.history.pushState({}, "", path));
+    try {
+      act(() => {
+        store.onChange("title", "Unsaved manual title");
+        store.onChange("markdown", "Unsaved manual body");
+        destination?.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, button: 0 }));
+      });
+      expect(navigationGuard.isPending).toBe(true);
+      expect(harness.push).not.toHaveBeenCalled();
+      expect(selected).not.toHaveBeenCalled();
+      act(() => navigationGuard.cancel());
+      expect(window.location.pathname + window.location.search).toBe(`/en/wiki?page=${page.id}`);
+      expect(store.form).toMatchObject({ id: page.id, title: "Unsaved manual title", markdown: "Unsaved manual body" });
+      expect(container.querySelector("[data-editor-readonly]")).toBe(editor);
+      expect(store.hasUnsavedChanges).toBe(true);
+
+      act(() => {
+        destination?.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, button: 0 }));
+      });
+      expect(navigationGuard.isPending).toBe(true);
+      act(() => navigationGuard.confirm());
+      expect(harness.push).toHaveBeenCalledExactlyOnceWith(`/wiki?page=${replacement.id}`);
+      expect(window.location.search).toBe(`?page=${replacement.id}`);
+      expect(store.hasUnsavedChanges).toBe(true);
+      expect(selected).not.toHaveBeenCalled();
+      act(() =>
+        root.render(
+          createElement(WikiPageView, {
+            initialPage: replacement,
+            requestedPageId: replacement.id,
+            listPage: pages,
+          }),
+        ),
+      );
+      expect(selected).toHaveBeenCalledExactlyOnceWith(replacement.id);
+      expect(store.form).toMatchObject({
+        id: replacement.id,
+        title: replacement.title,
+        markdown: replacement.markdown,
+      });
+      expect(store.hasUnsavedChanges).toBe(false);
+      expect(navigationGuard.isPending).toBe(false);
+    } finally {
+      disposeSelection();
+      harness.push.mockReset();
+      window.history.replaceState({}, "", previousUrl);
+    }
+  });
+
   it("retains the editor while a saved page refresh is suspended", async () => {
     configure(true, false);
     harness.store.form = page;

@@ -8,6 +8,7 @@ import { getZodParseContext } from "@/core/validation/zod-error-map-server";
 
 import { ReadWebsiteSourceSchema, WikiCrawlSynthesisCreateSchema } from "./wiki-crawl-synthesis.schema";
 import { WIKI_SYNTHESIS_GROUNDING_INSTRUCTION } from "./wiki-synthesis-grounding";
+import { wikiSourceResultText } from "./wiki-source-result";
 
 export { WIKI_READ_SOURCE_TOOL_NAME };
 export { WIKI_SYNTHESIS_MAX_PAGES, WikiCrawlSynthesisCreateSchema } from "./wiki-crawl-synthesis.schema";
@@ -17,7 +18,7 @@ export function readWebsiteSourceTool(crawlId: string) {
     name: WIKI_READ_SOURCE_TOOL_NAME,
     title: "Read stored website pages",
     description:
-      "Read all stored evidence before creating pages. list inventories sources; next returns bounded sequential chunks from up to eight unread sources. Repeat next until remainingSources is zero without re-listing. Then plan accounts for every source in topics or exclusions with a required basis, never both; sources can support several distinct topics. already_imported is checked against saved content; exact_duplicate requires an identical-content source anchor retained in a topic or imported; overlap names an exact retained offering title and offering role, never a foundation. Retain substantial technical articles as separate knowledge topics when their unique capabilities, constraints or steps cannot fit faithfully in that offering's four cited sources; a generic offering description does not cover technical depth. not_substantive cites exact source evidence. For exclusion and repair evidence, copy a single contiguous sentence or line directly from the returned text. Preserve spelling, punctuation and whitespace exactly; do not insert literal backslash-n characters, ellipses, translated wording or Markdown headings from the inventory. Reread with get and offset=0 when the exact text is no longer visible. Plan exact titles and roles for offerings, four foundations, supported procedures and the guide; omit an unsupported foundation with a reason. Extensions use offering roles only. Combine translations and ignore routing category when selecting topics. A plan has at most sixteen pages and cannot be replaced after acceptance. get with explicit offset=0 rereads cited evidence before creation in the next provider round; follow nextOffset. Successful creation consumes fresh reads. Offering and procedure citations stay within planned sources; aggregate foundations and the guide may cite other fully read sources in the same crawl. Cursors persist across retries.",
+      "Read all stored evidence before creating pages. list inventories sources; next returns bounded sequential chunks from up to eight unread sources. Repeat next until remainingSources is zero without re-listing. Then plan accounts for every source in topics or exclusions with a required basis, never both; sources can support several distinct topics. already_imported is checked against saved content; exact_duplicate requires an identical-content source anchor retained in a topic or imported; overlap names an exact retained offering title and offering role, never a foundation. A shared service family or technology label alone does not justify overlap. If an article adds a distinctive customer case, architecture, steps or limiting conditions, retain its source in the offering topic instead of excluding it, and cover that substance when creating the page. Retain a separate topic if the four-source budget prevents faithful coverage. Use overlap only for redundant content fully represented by the retained offering's cited sources; a source belongs in topics or exclusions, never both. Retain substantial technical articles as separate knowledge topics when their unique capabilities, constraints or steps cannot fit faithfully in that offering's four cited sources; a generic offering description does not cover technical depth. not_substantive cites exact source evidence. For exclusion and repair evidence, copy a single contiguous sentence or line directly from the returned text. Preserve spelling, punctuation and whitespace exactly; do not insert literal backslash-n characters, ellipses, translated wording or Markdown headings from the inventory. Reread with get and offset=0 when the exact text is no longer visible. Plan exact titles and roles for offerings, four foundations, supported procedures and the guide; omit an unsupported foundation with a reason. Extensions use offering roles only. Combine translations and ignore routing category when selecting topics. A plan has at most sixteen pages and cannot be replaced after acceptance. get with explicit offset=0 rereads cited evidence before creation in the next provider round; follow nextOffset. Successful creation consumes fresh reads. Offering and procedure citations stay within planned sources; aggregate foundations and the guide may cite other fully read sources in the same crawl. Cursors persist across retries.",
     annotations: {
       readOnlyHint: true,
       destructiveHint: false,
@@ -29,7 +30,10 @@ export function readWebsiteSourceTool(crawlId: string) {
     execute: async (params: z.infer<typeof ReadWebsiteSourceSchema>) => {
       const parsed = ReadWebsiteSourceSchema.safeParse(params, await getZodParseContext());
       if (!parsed.success) return mcpValidationFailure(parsed.error);
-      return runInteractor(getReadWikiWebsiteSourcesInteractor().invoke({ ...parsed.data, crawlId }), toonResult);
+      return runInteractor(getReadWikiWebsiteSourcesInteractor().invoke({ ...parsed.data, crawlId }), (payload) => ({
+        text: wikiSourceResultText(payload),
+        structuredContent: payload,
+      }));
     },
   };
 }

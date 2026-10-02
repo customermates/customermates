@@ -20,7 +20,7 @@ import {
 import { RequestSupportSchema } from "@/features/mcp-tools/support.mcp-tools";
 import { getDocsPageTool, searchDocsTool } from "@/features/mcp-tools/docs.mcp-tools";
 import { manageWikiPagesTool } from "@/features/mcp-tools/wiki.mcp-tools";
-import { runWithSectionRanking } from "@/core/retrieval/retrieval-context";
+import { runWithSectionRanking, type SectionRankerFactory } from "@/core/retrieval/retrieval-context";
 import { redactUnexpectedError } from "@/core/errors/redact-unexpected-error";
 
 import { agentToolResultText } from "./agent-budget-policy";
@@ -371,9 +371,11 @@ async function listUiTargets(input: z.infer<typeof ListUiTargetsSchema>, resultM
 
 const SECTION_RANKED_TOOLS = new Set([searchDocsTool.name, getDocsPageTool.name, manageWikiPagesTool.name]);
 
-function hostedMcpTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps): (typeof ALL_MCP_TOOLS)[number] {
+function hostedMcpTool(
+  mcp: (typeof ALL_MCP_TOOLS)[number],
+  rankers: SectionRankerFactory | undefined,
+): (typeof ALL_MCP_TOOLS)[number] {
   if (!SECTION_RANKED_TOOLS.has(mcp.name)) return mcp;
-  const rankers = hostedSectionRankers(deps.latestUserMessage ?? null);
   if (!rankers) return mcp;
   const execute = mcp.execute as (...args: unknown[]) => ReturnType<typeof mcp.execute>;
   return {
@@ -382,14 +384,19 @@ function hostedMcpTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps)
   };
 }
 
-function crmTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps, surface: AgentSurface | undefined) {
+function crmTool(
+  mcp: (typeof ALL_MCP_TOOLS)[number],
+  deps: AgentToolDeps,
+  surface: AgentSurface | undefined,
+  rankers: SectionRankerFactory | undefined,
+) {
   const resultMaxChars = mcp.name === WIKI_READ_SOURCE_TOOL_NAME ? WIKI_SOURCE_RESULT_MAX_CHARS : deps.resultMaxChars;
   return tool({
     description: mcp.description,
     inputSchema: providerSafeSchema(mcp.inputSchema),
     execute: async (input: unknown, { toolCallId }) => {
       const execute = async () => {
-        const outcome = await executeMcpTool(hostedMcpTool(mcp, deps), [input]);
+        const outcome = await executeMcpTool(hostedMcpTool(mcp, rankers), [input]);
         return agentToolResult(outcome, resultMaxChars, {
           toolName: mcp.name,
           pageRoute: deps.pageRoute,
@@ -541,24 +548,39 @@ export function isWikiWebsiteSetupTurn(
   return Boolean(options.wikiWebsiteSetup && !options.wikiHomepageSetup && options.surface === "chat");
 }
 
-function wikiWebsiteSetupTools(deps: AgentToolDeps, options: AgentToolOptions): ToolSet {
+function wikiWebsiteSetupTools(
+  deps: AgentToolDeps,
+  options: AgentToolOptions,
+  rankers: SectionRankerFactory | undefined,
+): ToolSet {
   return {
-    [WIKI_WEBSITE_IMPORT_TOOL_NAME]: crmTool(importWebsiteTool(options.locale), deps, options.surface),
+    [WIKI_WEBSITE_IMPORT_TOOL_NAME]: crmTool(importWebsiteTool(options.locale), deps, options.surface, rankers),
   };
 }
 
 export function getAgentAiTools(deps: AgentToolDeps, options: AgentToolOptions = {}): ToolSet {
+  const rankers = hostedSectionRankers(deps.latestUserMessage ?? null);
   if (options.wikiHomepageSetup) {
     if (!options.wikiCrawlId) return {};
     return withCallerContext(
       {
-        [WIKI_READ_SOURCE_TOOL_NAME]: crmTool(readWebsiteSourceTool(options.wikiCrawlId), deps, options.surface),
-        manage_wiki_pages: crmTool(createWikiFromCrawlTool(options.locale, options.wikiCrawlId), deps, options.surface),
+        [WIKI_READ_SOURCE_TOOL_NAME]: crmTool(
+          readWebsiteSourceTool(options.wikiCrawlId),
+          deps,
+          options.surface,
+          rankers,
+        ),
+        manage_wiki_pages: crmTool(
+          createWikiFromCrawlTool(options.locale, options.wikiCrawlId),
+          deps,
+          options.surface,
+          rankers,
+        ),
       },
       deps,
     );
   }
-  const crm = hostedMcpTools().map((mcp) => [mcp.name, crmTool(mcp, deps, options.surface)] as const);
+  const crm = hostedMcpTools().map((mcp) => [mcp.name, crmTool(mcp, deps, options.surface, rankers)] as const);
   return withCallerContext(
     {
       ...Object.fromEntries(crm),
@@ -566,7 +588,7 @@ export function getAgentAiTools(deps: AgentToolDeps, options: AgentToolOptions =
       [LOAD_TOOLSET_TOOL_NAME]: loadToolsetTool(),
       [ANALYZE_RECORDS_TOOL_NAME]: analyzeRecordsTool(deps),
       ...(options.webSearchEnabled ? { web_search: getAgentWebSearchTool() } : {}),
-      ...(isWikiWebsiteSetupTurn(options) ? wikiWebsiteSetupTools(deps, options) : {}),
+      ...(isWikiWebsiteSetupTurn(options) ? wikiWebsiteSetupTools(deps, options, rankers) : {}),
       request_support: tool({
         description:
           "Email a support request to the Customermates team. Use when the user asks for a human, reports a bug, or you cannot help after a genuine attempt. The recent Assistant conversation is included, and the team replies to the email address on the user's account.",

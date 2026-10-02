@@ -27,7 +27,7 @@ vi.mock("@sentry/nextjs", () => ({
   setUser: vi.fn(),
 }));
 
-import type { RankableSection } from "@/core/retrieval/retrieval-context";
+import type { RankableSection, SectionRanker } from "@/core/retrieval/retrieval-context";
 
 import { agentPageContextPrefix } from "../agent-page-context";
 
@@ -49,7 +49,7 @@ import { currentSectionRanker } from "@/core/retrieval/retrieval-context";
 import { docsCorpusSections } from "@/features/mcp-tools/docs-manifest";
 import rawDocsManifest from "@/generated/raw-docs-manifest.json";
 import { splitSections } from "@/features/mcp-tools/docs-sections";
-import { searchDocsTool } from "@/features/mcp-tools/docs.mcp-tools";
+import { getDocsPageTool, searchDocsTool } from "@/features/mcp-tools/docs.mcp-tools";
 import { manageWikiPagesTool } from "@/features/mcp-tools/wiki.mcp-tools";
 
 const QUERY = "which header does the REST API expect for auth";
@@ -680,4 +680,61 @@ describe("initial channel errors and existing channel recovery evidence", () => 
       expect(totalEvidenceChars).toBeLessThanOrEqual(16_000);
     },
   );
+});
+
+describe("section ranker lifetime", () => {
+  it("shares one docs identity across tools in one toolset and separates another toolset", async () => {
+    const seen: (SectionRanker | undefined)[] = [];
+    vi.spyOn(searchDocsTool, "execute").mockImplementation(() => {
+      seen.push(currentSectionRanker("docs"));
+      return Promise.resolve({ text: "matches: none", structuredContent: { results: [], total: 0 } });
+    });
+    vi.spyOn(getDocsPageTool, "execute").mockImplementation(() => {
+      seen.push(currentSectionRanker("docs"));
+      return Promise.resolve({
+        text: "Guide",
+        structuredContent: { title: "Guide", url: "/guide", markdown: "Guide", excerpt: true },
+      });
+    });
+    type ExecutableTools = Record<
+      string,
+      {
+        execute: (value: unknown, options: { toolCallId: string; messages: [] }) => Promise<unknown>;
+      }
+    >;
+    const first = getAgentAiTools(deps("Create a webhook")) as unknown as ExecutableTools;
+    await first.search_docs.execute(INPUT, { toolCallId: "search", messages: [] });
+    await first.get_docs_page.execute(
+      { slug: "webhooks", query: "create webhook", locale: "en", source: "docs" },
+      {
+        toolCallId: "get",
+        messages: [],
+      },
+    );
+    const second = getAgentAiTools(deps("Create a webhook")) as unknown as ExecutableTools;
+    await second.search_docs.execute(INPUT, { toolCallId: "other-turn", messages: [] });
+    expect(seen[0]).toBeTypeOf("function");
+    expect(seen[1]).toBe(seen[0]);
+    expect(seen[2]).not.toBe(seen[0]);
+    expect(currentSectionRanker("docs")).toBeUndefined();
+  });
+
+  it("retains a bounded operation introduction beside a later matching detail", () => {
+    const introduction =
+      "The record editor is where you create and change the fields that store workspace data and define how each item in the workspace is represented in lists and linked to related items.";
+    const detail = "A field lock blocks changes only after the administrator grants the restriction.";
+    const candidates = Array.from({ length: 120 }, (_, id) => ({
+      id,
+      locale: "en" as const,
+      section: {
+        pageTitle: "Records",
+        headingPath: ["Fields"],
+        text: `${introduction} ${"Workspace configuration remains available. ".repeat(40)} ${detail}`,
+      },
+    }));
+    const option = docsRankSpec(candidates, "docs", "record field lock").questions[0].options.s0;
+    expect(option).toContain("The record editor is where you create and change the fields");
+    expect(option).toContain(detail);
+    expect(option.length).toBeLessThanOrEqual("Records > Fields: ".length + 400);
+  });
 });

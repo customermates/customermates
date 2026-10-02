@@ -341,9 +341,18 @@ describe("search and page section coherence", () => {
     expect((page as { structuredContent: { markdown: string } }).structuredContent.markdown.split("\n")[0]).toContain(
       overview.headingPath.at(-1),
     );
-    expect(captured).toHaveLength(2);
-    expect(captured[1]).toEqual(captured[0]);
+    expect(captured).toHaveLength(1);
+    expect(captured[0].some(({ section }) => section === unrelated)).toBe(true);
     expect(deps.repo.storedBuild).toHaveBeenCalledTimes(2);
+    expect(deps.repo.fullTextSections).toHaveBeenCalledTimes(2);
+
+    deps.repo.fullTextSections.mockResolvedValue([row(destination)]);
+    const changed = await unifiedDocsSearchResult({ query, locale: "en", source: "docs" }, deps);
+    expect(changed.structuredContent.results[0]).toMatchObject({ slug: "app-company", anchor: destination.anchor });
+    expect(captured).toHaveLength(2);
+    expect(captured[1]).not.toEqual(captured[0]);
+    expect(deps.repo.storedBuild).toHaveBeenCalledTimes(3);
+    expect(deps.repo.fullTextSections).toHaveBeenCalledTimes(3);
   });
 
   it.each([
@@ -544,5 +553,36 @@ describe("search and page section coherence", () => {
       expect.anything(),
       expect.any(Number),
     );
+  });
+});
+
+describe("consistent docs selections keep the retrieval stages", () => {
+  it("excerpts and searches the same section while repeating FTS, vector and relevance processing", async () => {
+    const chunks = repo([row(signature), row(webhooks[0])], [row(signature), row(webhooks[0])]);
+    const embed = vi.fn(() => Promise.resolve({ vector: [1], model: "m" }));
+    const ranker = vi
+      .fn()
+      .mockResolvedValueOnce({ order: [0], abstained: false })
+      .mockResolvedValue({ order: [1], abstained: false });
+    const deps = { repo: chunks, embed, ranker };
+    const input = { query: "signature proof", locale: "en" as const, source: "docs" as const };
+    const excerpt = await unifiedDocsPageResult({ ...input, slug: "webhooks" }, deps);
+    const search = await unifiedDocsSearchResult(input, deps);
+    const markdown = (excerpt as { structuredContent: { markdown: string } }).structuredContent.markdown;
+    expect(markdown.split("\n")[0]).toContain(search.structuredContent.results[0].section.split(" > ").at(-1));
+    expect(search.structuredContent.results[0].anchor).toBe(signature.anchor);
+    expect(ranker).toHaveBeenCalledOnce();
+    expect(chunks.fullTextSections).toHaveBeenCalledTimes(2);
+    expect(embed).toHaveBeenCalledTimes(2);
+    expect(chunks.semanticSections).toHaveBeenCalledTimes(2);
+    expect(chunks.semanticIndexComplete).toHaveBeenCalledTimes(2);
+
+    chunks.fullTextSections.mockResolvedValue([{ ...row(signature), coverage: 0.2 }]);
+    chunks.semanticSections.mockResolvedValue([{ ...row(signature), similarity: 0.55 }]);
+    const rejected = await unifiedDocsSearchResult(input, deps);
+    expect(rejected.structuredContent.results).toEqual([]);
+    expect(ranker).toHaveBeenCalledOnce();
+    expect(chunks.fullTextSections).toHaveBeenCalledTimes(3);
+    expect(embed).toHaveBeenCalledTimes(3);
   });
 });

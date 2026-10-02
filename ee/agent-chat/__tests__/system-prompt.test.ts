@@ -219,3 +219,14 @@ describe("system prompt", () => {
     expect(routineTriggerEventOf(null)).toBeNull();
   });
 });
+
+describe("documentation section handoff", () => {
+  it("carries the returned section anchor across tool calls and handles a page introduction", () => {
+    const paragraph = buildAgentSystemPrompt({ ...base })
+      .split("\n")
+      .find((line) => line.startsWith("Product and how-to questions:"));
+    expect(paragraph).toContain("using its nonempty returned anchor as query");
+    expect(paragraph).toContain("omit query when its anchor is empty");
+    expect(paragraph).toContain("For a different detail, pass that exact detail as query");
+  });
+});

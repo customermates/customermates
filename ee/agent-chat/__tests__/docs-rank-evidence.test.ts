@@ -591,3 +591,20 @@ describe("complementary source paragraphs in classifier evidence", () => {
     expect(excerpt.length).toBeLessThanOrEqual(instruction.length);
   });
 });
+
+describe("overlong introductory context cannot displace complete focused evidence", () => {
+  it("reserves both complete matching rules before considering an extra long introduction", () => {
+    const introduction =
+      "The record editor is where you create and change the fields that store workspace data and define how each item in the workspace is represented in lists and linked to related items.";
+    const first = "The owner can reopen a locked field only after receiving permission from the administrator.";
+    const second = "The field lock stays enabled while the administrator reviews the requested change.";
+    const excerpt = docsRankEvidence([introduction, first, second].join("\n\n"), "field lock owner", 220, {
+      label: "Records > Fields",
+      locale: "en",
+    });
+    expect(excerpt).toContain(first);
+    expect(excerpt).toContain(second);
+    expect(excerpt).not.toContain("The record editor");
+    expect(excerpt.length).toBeLessThanOrEqual(220);
+  });
+});

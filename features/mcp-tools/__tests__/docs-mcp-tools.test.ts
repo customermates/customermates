@@ -133,3 +133,17 @@ describe("search and fetch", () => {
     }
   });
 });
+
+describe("stateless documentation section handoff", () => {
+  it("directs search and get to pass the selected anchor and allows an empty-anchor full read", () => {
+    expect(searchDocsTool.description).toContain("nonempty returned anchor as query");
+    expect(searchDocsTool.description).toContain("omit query for an empty anchor");
+    expect(getDocsPageTool.description).toContain("nonempty anchor returned by search_docs as query");
+    expect(getDocsPageTool.description).toContain("For an empty anchor, omit query");
+    const section = getDocsPageTool.inputSchema.parse({ slug: "webhooks", query: "how-do-i-create-a-webhook" });
+    expect(section.query).toBe("how-do-i-create-a-webhook");
+    const introduction = getDocsPageTool.inputSchema.parse({ slug: "webhooks" });
+    expect(introduction.query).toBeUndefined();
+    expect(getDocsPageTool.inputSchema.safeParse({ slug: "webhooks", query: "" }).success).toBe(false);
+  });
+});

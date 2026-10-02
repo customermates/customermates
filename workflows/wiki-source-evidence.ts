@@ -1,7 +1,7 @@
-import { decode } from "@toon-format/toon";
 import { z } from "zod";
 
 import { WIKI_SOURCE_RESULT_MAX_CHARS } from "@/ee/wiki-crawl/wiki-source-coverage";
+import { decodeWikiSourceResult } from "@/ee/wiki-crawl/wiki-source-result";
 
 import {
   ReadWebsiteSourceSchema,
@@ -26,7 +26,7 @@ export function wikiReadSourceEvidence(input: unknown, outcome: unknown): { sour
     return null;
   let decoded: unknown;
   try {
-    decoded = decode(output.data.result);
+    decoded = decodeWikiSourceResult(output.data.result);
   } catch {
     return null;
   }

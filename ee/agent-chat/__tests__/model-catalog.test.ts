@@ -26,8 +26,10 @@ describe("benchmark model overlay", () => {
     expect(INITIAL_WIKI_SYNTHESIS_MODEL).toEqual({
       ...SHIPPED_AGENT_MODEL,
       modelId: "google/gemini-3.8-flash",
+      thinkingLevel: "medium",
     });
     expect(resolveAgentModel("balanced", "chat")).toBe(SHIPPED_AGENT_MODEL);
+    expect(resolveAgentModel("balanced", "chat").thinkingLevel).toBe("low");
     expect(isAgentModelKey("initial_wiki_synthesis")).toBe(false);
     expect(() => resolveAgentModel("initial_wiki_synthesis")).toThrow(/Unknown agent model/);
   });

@@ -1,6 +1,7 @@
 import type { WikiSourceRecord, WikiImportedPage } from "./wiki-website-crawl.service";
 
 import { encode } from "@toon-format/toon";
+import { wikiSourceResultText } from "./wiki-source-result";
 
 export const WIKI_SOURCE_RESULT_MAX_CHARS = 48_000;
 
@@ -9,7 +10,7 @@ export function wikiSourceResultFits(result: string): boolean {
 }
 
 export function wikiSourcePayloadFits(payload: unknown): boolean {
-  return wikiSourceResultFits(encode(payload));
+  return wikiSourceResultFits(encode(payload)) && wikiSourceResultFits(wikiSourceResultText(payload));
 }
 
 export function sourceFullyRead(source: Pick<WikiSourceRecord, "text" | "readOffset">): boolean {

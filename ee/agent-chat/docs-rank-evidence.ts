@@ -204,6 +204,16 @@ export function docsRankEvidence(
   const firstSentence = [...SENTENCES.segment(opening)][0]?.segment.trim() ?? "";
   const openingBlock = lines.find((line) => line.prose && line.text === opening)?.block;
   const openingUnitIndex = units.findIndex((unit) => unit.prose && unit.block === openingBlock);
+  const focused = units
+    .map((unit, index) => ({ unit, index }))
+    .filter(({ index }) => relevant[index] > 0)
+    .sort((left, right) => relevant[right.index] - relevant[left.index] || left.index - right.index)
+    .slice(0, 2);
+  const focusedChars = focused.reduce(
+    (total, { unit }) => total + unit.text.length + (unit.context ? unit.context.length + 2 : 0) + 1,
+    0,
+  );
+  const fallbackIntroBudget = Math.min(introductionBudget, maxChars - focusedChars);
   const introduction =
     picked.size === 0 &&
     hasResidualBodyMatch &&
@@ -212,9 +222,19 @@ export function docsRankEvidence(
     !matches[openingUnitIndex].some(Boolean) &&
     introductionBudget >= 16 &&
     firstSentence.length > 0 &&
-    firstSentence.length <= introductionBudget &&
     matcher.matches(firstSentence).some((hit, index) => hit && labelMatches[index])
-      ? firstSentence
+      ? firstSentence.length <= introductionBudget
+        ? firstSentence
+        : fallbackIntroBudget >= 64
+          ? fragment(
+              firstSentence,
+              fallbackIntroBudget,
+              matcher,
+              matcher.units.map(() => false),
+              weights,
+              "",
+            )
+          : ""
       : "";
   const render = () =>
     [introduction, ...[...picked].sort(([left], [right]) => left - right).map(([, text]) => text)]
