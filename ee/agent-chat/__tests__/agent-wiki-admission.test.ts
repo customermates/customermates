@@ -267,6 +267,7 @@ describe("Workspace Wiki admission bootstrap", () => {
     });
     expect(systemPrompt).not.toContain("Current workspace guidance");
     const admission = state.usage.prepareTurn.mock.calls[0][2];
+    expect(admission.model).toEqual(resolveAgentModel());
     expect(admission.requiredContextBytes).toBe(
       conservativeAgentInitialContextBytes({
         systemPrompt,
@@ -620,9 +621,10 @@ describe("Workspace Wiki admission bootstrap", () => {
     expect(result).toMatchObject({ ok: true, data: { disposition: "run" } });
     expect(state.payload().wikiHomepageSetup).toMatchObject({ url });
     expect(state.payload().wikiCrawl).toMatchObject({ homepage: url, mode: "extend" });
+    expect(state.usage.prepareTurn.mock.calls[0][2].model).toEqual(resolveAgentModel());
   });
 
-  it("reserves and dispatches setup with the unchanged catalog model without loading the private catalog", async () => {
+  it("reserves and dispatches initial setup with its purpose-selected model without loading the private catalog", async () => {
     const state = fixture();
     const result = await state.interactor.invoke({
       clientRequestId: CLIENT_REQUEST_ID,
@@ -634,7 +636,9 @@ describe("Workspace Wiki admission bootstrap", () => {
     expect(state.catalog.invoke).not.toHaveBeenCalled();
     const admission = state.usage.prepareTurn.mock.calls[0][2];
     const payload = state.payload();
-    expect(admission.model).toEqual(resolveAgentModel());
+    expect(admission.model).toEqual(resolveAgentModel("balanced", "initial_wiki_synthesis"));
+    expect(admission.model.modelId).toBe("google/gemini-3.8-flash");
+    expect(payload.turnBudget.modelSpec).toBe(admission.model.modelId);
     expect(payload.turnBudget.maxOutputTokens).toBe(resolveAgentModel().maxOutputTokens);
     expect(payload.turnBudget.thinkingLevel).toBe("low");
     expect(payload.turnBudget.servingProvider).toBe(admission.model.servingProvider);
