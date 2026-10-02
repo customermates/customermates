@@ -45,39 +45,62 @@ export const test = base.extend<Fixtures>({
         'INSERT INTO "AuthSession" (id,token,"userId","expiresAt","createdAt","updatedAt") VALUES ($1,$2,$3,NOW()+interval \'1 hour\',NOW(),NOW())',
         [sessionId, token, workspace.authUserId],
       );
-      const signed = encodeURIComponent(`${token}.${createHmac("sha256", secret).update(token).digest("base64")}`);
+      const signed = encodeURIComponent(
+        `${token}.${createHmac("sha256", secret).update(token).digest("base64")}`,
+      );
       await context.addCookies([
-        { name: "app.session_token", value: signed, url: baseUrl, httpOnly: true, sameSite: "Lax" },
+        {
+          name: "app.session_token",
+          value: signed,
+          url: baseUrl,
+          httpOnly: true,
+          sameSite: "Lax",
+        },
       ]);
-      await context.route("**/*", async (route) => {
-        const url = new URL(route.request().url());
-        if (["127.0.0.1", "localhost", "[::1]"].includes(url.hostname) || ["data:", "blob:"].includes(url.protocol))
-          await route.continue();
-        else if (
-          url.hostname === "customermates.com" &&
-          /^\/demo\/avatars\/photos\/[a-z-]+\.png$/.test(url.pathname) &&
-          existsSync(resolve("public", url.pathname.slice(1)))
-        )
-          await route.fulfill({ path: resolve("public", url.pathname.slice(1)) });
-        else await route.abort("blockedbyclient");
-      });
+      await context.route(
+        (url) =>
+          !["127.0.0.1", "localhost", "[::1]"].includes(url.hostname) &&
+          !["data:", "blob:"].includes(url.protocol),
+        async (route) => {
+          const url = new URL(route.request().url());
+          if (
+            url.hostname === "customermates.com" &&
+            /^\/demo\/avatars\/photos\/[a-z-]+\.png$/.test(url.pathname) &&
+            existsSync(resolve("public", url.pathname.slice(1)))
+          )
+            await route.fulfill({
+              path: resolve("public", url.pathname.slice(1)),
+            });
+          else await route.abort("blockedbyclient");
+        },
+      );
       try {
         if (process.env.CRM_E2E_SERVER_MODE === "development") {
           const type = await database.query(
             "SELECT id FROM \"RecordTypeDefinition\" WHERE \"companyId\"=$1 AND definition->>'embedded'='false' ORDER BY id LIMIT 1",
             [companyId],
           );
-          if (!type.rows[0]) throw new Error("The browser baseline record types are missing");
-          for (const path of ["/en/company/data-model", `/en/records/${type.rows[0].id}`]) {
-            const response = await context.request.get(`${baseUrl}${path}`, { timeout: 120000 });
+          if (!type.rows[0])
+            throw new Error("The browser baseline record types are missing");
+          for (const path of [
+            "/en/company/data-model",
+            `/en/records/${type.rows[0].id}`,
+          ]) {
+            const response = await context.request.get(`${baseUrl}${path}`, {
+              timeout: 120000,
+            });
             if (!response.ok())
-              throw new Error(`Local development route warmup failed with status ${response.status()}`);
+              throw new Error(
+                `Local development route warmup failed with status ${response.status()}`,
+              );
           }
         }
         await use();
       } finally {
         await Promise.all(context.pages().map((page) => page.close()));
-        await database.query('DELETE FROM "AuthSession" WHERE id=$1', [sessionId]);
+        await database.query('DELETE FROM "AuthSession" WHERE id=$1', [
+          sessionId,
+        ]);
       }
     },
     { auto: true, timeout: 180000 },
