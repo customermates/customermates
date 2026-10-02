@@ -12,7 +12,8 @@ import { RecordModelSchema, RecordRefSchema, CalculatedValueSchema } from "./rec
 import { encodeRecordValue } from "./record-storage";
 import { recordKey } from "./record-calculation.service";
 import { RecordIdentitySchema } from "./record-identity.schema";
-import { updatedIdentities } from "./record-identity";
+import { identityAssociations, identityKeys } from "./record-identity";
+import { channelClass } from "@/ee/messaging/provider";
 
 export const StagedRecordSchema = z.object({
   ref: RecordRefSchema,
@@ -77,11 +78,30 @@ export function createRecordStagingRepo(base: RecordRepo, operationId: string, c
       ? z.object({ identities: z.array(RecordIdentitySchema) }).parse(row).identities
       : base.getIdentitiesCompanyWide(ref);
   };
-  overrides.setIdentities = async (ref, inputs) =>
-    base.stageRow(operationId, "identity", recordKey(ref), {
+  overrides.getIdentityChannelsCompanyWide = async (keys) => {
+    const found = new Map((await base.getIdentityChannelsCompanyWide(keys)).map((row) => [row.id, row]));
+    const requested = new Set(keys.map((key) => JSON.stringify([key.channelClass, key.value])));
+    for (const entry of await base.getStageRows(operationId, "identity")) {
+      const rows = z.object({ identities: z.array(RecordIdentitySchema) }).parse(entry.payload).identities;
+      for (const row of rows) {
+        if (identityKeys(row).some((value) => requested.has(JSON.stringify([row.channelClass, value]))))
+          found.set(row.id, row);
+      }
+    }
+    return [...found.values()];
+  };
+  overrides.setIdentities = async (ref, inputs) => {
+    const keys = inputs.flatMap((input) =>
+      identityKeys(input).map((value) => ({
+        channelClass: channelClass(input.provider),
+        value,
+      })),
+    );
+    await base.stageRow(operationId, "identity", recordKey(ref), {
       ref,
-      identities: updatedIdentities(await staged.getIdentitiesCompanyWide(ref), inputs),
+      identities: identityAssociations(inputs, await staged.getIdentityChannelsCompanyWide(keys)),
     });
+  };
   overrides.getRecordCompanyWide = async (ref) => {
     const [record, overlay, values] = await Promise.all([
       base.getRecordCompanyWide(ref),

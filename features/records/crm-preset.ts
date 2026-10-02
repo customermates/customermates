@@ -314,7 +314,8 @@ export function createCrmPreset(companyId: string, currency: string): RecordMode
     capabilities: [
       {
         id: id("capability.identity"),
-        kind: "personIdentity",
+        kind: "channels",
+        providerAvatar: true,
         typeId: id("contact"),
         fields: [
           { role: "firstName", fieldId: id("contact.firstName") },

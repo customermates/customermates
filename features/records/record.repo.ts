@@ -52,9 +52,19 @@ export interface RecordActorRepo {
 export interface RecordRepo {
   getIdentitiesCompanyWide(ref: RecordRef): Promise<RecordIdentity[]>;
   getRecordIdentitiesCompanyWide(typeId: string, recordIds: string[]): Promise<Map<string, RecordIdentity[]>>;
-  getIdentityOwnersCompanyWide(
-    keys: Array<{ channelClass: string; value: string }>,
-  ): Promise<Array<{ channelClass: string; value: string; ref: RecordRef }>>;
+  getIdentityChannelsCompanyWide(keys: Array<{ channelClass: string; value: string }>): Promise<RecordIdentity[]>;
+  getIdentityOwnersCompanyWide(keys: Array<{ channelClass: string; value: string }>): Promise<
+    Array<{
+      channelClass: string;
+      value: string;
+      identityId: string;
+      ref: RecordRef;
+    }>
+  >;
+  setIdentityResolutionCompanyWide(
+    identityId: string,
+    input: Pick<RecordIdentityInput, "messagingId" | "displayName" | "profileUrl">,
+  ): Promise<void>;
   setIdentities(ref: RecordRef, inputs: RecordIdentityInput[]): Promise<void>;
   getModel(): Promise<RecordModel>;
   searchRecords(
@@ -139,7 +149,14 @@ export interface RecordRepo {
     ref: RecordRef,
     afterId: string | undefined,
     take: number,
-  ): Promise<Array<{ id: string; relationId: string; source: RecordRef; target: RecordRef }>>;
+  ): Promise<
+    Array<{
+      id: string;
+      relationId: string;
+      source: RecordRef;
+      target: RecordRef;
+    }>
+  >;
   getPendingDeletionRef(operationId: string): Promise<RecordRef | null>;
   queueDeletionRef(operationId: string, ref: RecordRef): Promise<void>;
   completeDeletionRef(operationId: string, ref: RecordRef): Promise<void>;

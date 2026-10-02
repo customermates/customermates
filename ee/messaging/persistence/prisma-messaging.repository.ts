@@ -194,7 +194,13 @@ export class PrismaMessagingRepo
   }
 
   getSortableFields() {
-    return [{ field: "lastMessageAt", resolvedFields: ["lastMessageAt"], nullable: true }];
+    return [
+      {
+        field: "lastMessageAt",
+        resolvedFields: ["lastMessageAt"],
+        nullable: true,
+      },
+    ];
   }
 
   protected getDefaultOrderBy() {
@@ -254,12 +260,7 @@ export class PrismaMessagingRepo
     const contactByKey = await this.resolveContactsByIdentifiers(pairs);
     for (const thread of threads) {
       for (const participant of thread.participants)
-        participant.record = contactByKey.get(identifierKey(thread.provider, participant.identifier)) ?? null;
-
-      if (thread.lastMessageSenderIdentifier) {
-        const senderName = contactByKey.get(identifierKey(thread.provider, thread.lastMessageSenderIdentifier))?.title;
-        if (senderName) thread.lastMessageSenderName = senderName;
-      }
+        participant.records = contactByKey.get(identifierKey(thread.provider, participant.identifier)) ?? [];
     }
 
     await this.resolveParticipantNamesAcrossThreads(threads);
@@ -332,7 +333,10 @@ export class PrismaMessagingRepo
     if (take === undefined && selected.length > 1000)
       throw new RecordWriteError(CustomErrorCode.recordCalculationBudget);
     const rows = await this.prisma.messagingThread.findMany({
-      where: { companyId: this.companyId, id: { in: selected.map((row) => row.id) } },
+      where: {
+        companyId: this.companyId,
+        id: { in: selected.map((row) => row.id) },
+      },
       select: this.threadSelect,
     });
     const byId = new Map(rows.map((row) => [row.id, row]));
@@ -750,7 +754,7 @@ export class PrismaMessagingRepo
         ...attendee,
         identifier: identifier ?? "",
         attendeeId: providerUserId,
-        record: null as RecordIdentityReference | null,
+        records: [] as RecordIdentityReference[],
       })),
       preview,
       previewKind,
@@ -773,7 +777,10 @@ export class PrismaMessagingRepo
         ...inboxThreadVisibilityWhere(
           this.companyId,
           this.userId,
-          folderStates.map((row) => ({ id: row.id, visibleSet: row.selectedFolderIds })),
+          folderStates.map((row) => ({
+            id: row.id,
+            visibleSet: row.selectedFolderIds,
+          })),
         ),
       },
     });
@@ -814,7 +821,7 @@ export class PrismaMessagingRepo
       ...rest,
       identifier: identifier ?? "",
       attendeeId: providerUserId ?? "",
-      record: null,
+      records: [],
     };
   }
 
@@ -1461,7 +1468,12 @@ export class PrismaMessagingRepo
     const account = accessibleThread.connectedAccount;
     const folderStates =
       account.foldersSyncedAt !== null
-        ? [{ id: accessibleThread.connectedAccountId, visibleSet: account.selectedFolderIds }]
+        ? [
+            {
+              id: accessibleThread.connectedAccountId,
+              visibleSet: account.selectedFolderIds,
+            },
+          ]
         : [];
     const where = {
       messagingThreadId: threadId,
@@ -1527,7 +1539,8 @@ export class PrismaMessagingRepo
 
     for (const attendee of attendees) {
       delete (attendee as MessagingAttendee & { contact?: unknown }).contact;
-      attendee.record = contactByKey?.get(identifierKey(provider, attendee.identifier.trim())) ?? null;
+      delete (attendee as MessagingAttendee & { record?: unknown }).record;
+      attendee.records = contactByKey?.get(identifierKey(provider, attendee.identifier.trim())) ?? [];
     }
     messages.forEach((message) => {
       if (message.sender.isSelf || hasLetter(message.sender.displayName)) return;
@@ -1550,9 +1563,9 @@ export class PrismaMessagingRepo
 
   private async resolveContactsByIdentifiers(
     pairs: { provider: MessagingProvider; value: string }[],
-  ): Promise<Map<string, RecordIdentityReference>> {
+  ): Promise<Map<string, RecordIdentityReference[]>> {
     const matches = await getRecordIdentityReader().resolve(pairs);
-    return new Map(matches.map((match) => [identifierKey(match.provider, match.value), match.record]));
+    return new Map(matches.map((match) => [identifierKey(match.provider, match.value), match.records]));
   }
 
   @BypassTenantGuard

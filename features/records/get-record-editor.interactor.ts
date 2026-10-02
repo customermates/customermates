@@ -1,3 +1,4 @@
+import { recordChannelsEnabled } from "./record-channels";
 import { z } from "zod";
 import type { Action } from "@/generated/prisma";
 import type { RecordAccessPolicy } from "./record-access";
@@ -93,10 +94,7 @@ export class GetRecordEditorInteractor extends AuthenticatedInteractor<
             ? await this.records.getVisibleFields(ref, model, policy.access([...accessible]))
             : new Set<string>();
           const record = stored ? recordDto(stored, model, visible, policy.memberScope) : null;
-          if (
-            record &&
-            model.capabilities.some((binding) => binding.kind === "personIdentity" && binding.typeId === type.id)
-          )
+          if (record && recordChannelsEnabled(model, type.id))
             record.identities = await this.records.getIdentitiesCompanyWide(record.ref);
           return {
             ok: true,

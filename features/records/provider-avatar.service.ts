@@ -26,7 +26,14 @@ const KIND = "provider-avatar";
 const LIMIT = 1000000;
 const BATCH = 50;
 const RequestSchema = z
-  .object({ ref: RecordRefSchema, fieldId: z.uuid(), pictureUrl: z.url(), affectedTypeIds: z.array(z.uuid()) })
+  .object({
+    targets: z
+      .array(z.object({ ref: RecordRefSchema, fieldId: z.uuid() }).strict())
+      .min(1)
+      .max(1000),
+    pictureUrl: z.url(),
+    affectedTypeIds: z.array(z.uuid()),
+  })
   .strict();
 const CursorSchema = z
   .object({
@@ -72,32 +79,43 @@ export class ProviderAvatarService {
         const owners = await this.records.getIdentityOwnersCompanyWide([
           { channelClass: channelClass(provider), value },
         ]);
-        const owner = owners.find(({ ref }) =>
-          model.capabilities.some((binding) => binding.kind === "personIdentity" && binding.typeId === ref.typeId),
-        );
-        if (!owner) return;
-        const binding = model.capabilities.find(
-          (binding) => binding.kind === "avatar" && binding.typeId === owner.ref.typeId,
-        );
-        const field = model.fields.find(
-          (field) => field.id === binding?.fields.find((field) => field.role === "image")?.fieldId && !field.archived,
-        );
-        if (!field || field.behavior.kind !== "input") return;
-        const record = await this.records.getRecordCompanyWide(owner.ref);
-        if (!record) return;
-        const previous = decodeRecordValue(
-          record.values.find((value) => value.fieldId === field.id),
-          field,
-        );
-        if (previous.state === "value" && previous.value.kind === "text" && previous.value.value === pictureUrl) return;
+        const targets: Array<{ ref: RecordRef; fieldId: string }> = [];
+        for (const { ref } of new Map(owners.map((owner) => [recordKey(owner.ref), owner])).values()) {
+          if (
+            !model.types.some((type) => type.id === ref.typeId && !type.archived) ||
+            !model.capabilities.some(
+              (binding) =>
+                binding.kind === "channels" &&
+                binding.enabled !== false &&
+                binding.providerAvatar &&
+                binding.typeId === ref.typeId,
+            )
+          )
+            continue;
+          const binding = model.capabilities.find(
+            (binding) => binding.kind === "avatar" && binding.typeId === ref.typeId,
+          );
+          const field = model.fields.find(
+            (field) => field.id === binding?.fields.find((field) => field.role === "image")?.fieldId && !field.archived,
+          );
+          if (!field || field.behavior.kind !== "input") continue;
+          const record = await this.records.getRecordCompanyWide(ref);
+          if (!record || record.protectedKind) continue;
+          const previous = decodeRecordValue(
+            record.values.find((value) => value.fieldId === field.id),
+            field,
+          );
+          if (previous.state !== "value" || previous.value.kind !== "text" || previous.value.value !== pictureUrl)
+            targets.push({ ref, fieldId: field.id });
+        }
+        if (!targets.length) return;
         if ((await this.records.getState())?.activeOperationId)
           throw new DeferredWebhookError("CRM avatar enrichment waits for the workspace change to complete");
         const operationId = randomUUID();
         const request = RequestSchema.parse({
-          ref: owner.ref,
-          fieldId: field.id,
+          targets,
           pictureUrl,
-          affectedTypeIds: affectedTypes(model, owner.ref),
+          affectedTypeIds: [...new Set(targets.flatMap((target) => affectedTypes(model, target.ref)))],
         });
         await this.records.createOperation({
           id: operationId,
@@ -112,26 +130,33 @@ export class ProviderAvatarService {
           LIMIT,
           { base: this.records, operationId },
         );
-        await journal.repository.setValue(
-          owner.ref,
-          field.id,
-          { state: "value", value: { kind: "text", value: pictureUrl } },
-          model.revision,
-        );
-        await journal.repository.touch(owner.ref);
+        for (const target of targets) {
+          await journal.repository.setValue(
+            target.ref,
+            target.fieldId,
+            { state: "value", value: { kind: "text", value: pictureUrl } },
+            model.revision,
+          );
+          await journal.repository.touch(target.ref);
+        }
         const calculated = await new RecordCalculationService(journal.repository).recalculate(
           model,
-          [owner.ref],
+          targets.map((target) => target.ref),
           await this.records.getWorkspaceCurrencyOrThrow(),
         );
         await journal.persist();
         if (!calculated.complete) {
-          await this.records.updateOperation(operationId, { cursor: { phase: "calculations", index: 0 } });
-          await this.background.dispatch("provider-avatar-operation", { companyId: this.companyId, operationId });
+          await this.records.updateOperation(operationId, {
+            cursor: { phase: "calculations", index: 0 },
+          });
+          await this.background.dispatch("provider-avatar-operation", {
+            companyId: this.companyId,
+            operationId,
+          });
           return;
         }
         for (const ref of new Map(calculated.changed.map((ref) => [recordKey(ref), ref])).values())
-          if (recordKey(ref) !== recordKey(owner.ref)) await journal.repository.touch(ref);
+          if (!targets.some((target) => recordKey(target.ref) === recordKey(ref))) await journal.repository.touch(ref);
         await journal.persist();
         await this.flush(journal, model, operationId);
         await this.publish(operationId, model);
@@ -154,16 +179,25 @@ export class ProviderAvatarService {
             throw new Error("Avatar operation revision changed");
           const model = await this.records.getModel();
           const request = RequestSchema.parse(operation.request);
-          const binding = model.capabilities.find(
-            (binding) => binding.kind === "avatar" && binding.typeId === request.ref.typeId,
-          );
-          const field = model.fields.find((field) => field.id === request.fieldId && !field.archived);
-          if (
-            !field ||
-            field.behavior.kind !== "input" ||
-            !binding?.fields.some((binding) => binding.role === "image" && binding.fieldId === field.id)
-          )
-            throw new Error("Avatar operation binding changed");
+          for (const target of request.targets) {
+            const binding = model.capabilities.find(
+              (binding) => binding.kind === "avatar" && binding.typeId === target.ref.typeId,
+            );
+            const field = model.fields.find((field) => field.id === target.fieldId && !field.archived);
+            if (
+              !field ||
+              field.behavior.kind !== "input" ||
+              !binding?.fields.some((binding) => binding.role === "image" && binding.fieldId === field.id) ||
+              !model.capabilities.some(
+                (binding) =>
+                  binding.kind === "channels" &&
+                  binding.enabled !== false &&
+                  binding.providerAvatar &&
+                  binding.typeId === target.ref.typeId,
+              )
+            )
+              throw new Error("Avatar operation binding changed");
+          }
           const validation = validateRecordModel(model);
           if (validation.issues.length) throw new Error("Avatar operation model is invalid");
           const cursor = CursorSchema.parse(operation.cursor);
@@ -183,7 +217,9 @@ export class ProviderAvatarService {
             )[cursor.index];
             const field = model.fields.find((field) => field.id === fieldId);
             if (!field) {
-              await this.records.updateOperation(operationId, { cursor: { phase: "events", index: 0 } });
+              await this.records.updateOperation(operationId, {
+                cursor: { phase: "events", index: 0 },
+              });
               return { done: false };
             }
             const refs = await journal.repository.getRecordRefsCompanyWide(field.typeId, cursor.afterId, BATCH);
@@ -242,7 +278,11 @@ export class ProviderAvatarService {
           ["completed", "cancelled", "failed"].includes(operation.state)
         )
           return;
-        await this.records.updateOperation(operationId, { state: "failed", errorCode, leaseUntil: null });
+        await this.records.updateOperation(operationId, {
+          state: "failed",
+          errorCode,
+          leaseUntil: null,
+        });
         await this.records.clearOperationLock(operationId);
       },
       { companyId: this.companyId },

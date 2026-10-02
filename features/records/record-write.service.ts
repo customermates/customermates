@@ -1,3 +1,4 @@
+import { recordChannelsEnabled } from "./record-channels";
 import { recordInvariant } from "./record-invariant";
 
 import { createHash, randomUUID } from "node:crypto";
@@ -17,19 +18,11 @@ import { valueResult } from "./calculation";
 import { decodeRecordValue } from "./record-storage";
 import { RecordCalculationService, recordKey, SYNCHRONOUS_RECORD_LIMIT } from "./record-calculation.service";
 import type { RecordIdentityInput } from "./record-identity.schema";
-import { identityKeys, normalizedIdentity } from "./record-identity";
-import { channelClass } from "@/ee/messaging/provider";
+import { normalizedIdentity } from "./record-identity";
 
 type Policy = Awaited<ReturnType<RecordAccessPolicy["load"]>>;
-export class RecordWriteError extends Error {
-  constructor(
-    public readonly code: CustomErrorCode,
-    public readonly kind: InteractorFailureKind = "validation",
-    public readonly path: Array<string | number> = [],
-  ) {
-    super(code);
-  }
-}
+export { RecordWriteError } from "./record-write-error";
+import { RecordWriteError } from "./record-write-error";
 function reject(
   code: CustomErrorCode,
   kind: InteractorFailureKind = "validation",
@@ -267,28 +260,15 @@ export class RecordWriteService {
     const fresh = new Set<string>();
     const assignIdentities = async (ref: RecordRef, inputs: RecordIdentityInput[] | undefined) => {
       if (!inputs) return;
-      if (!model.capabilities.some((binding) => binding.kind === "personIdentity" && binding.typeId === ref.typeId))
+      if (!recordChannelsEnabled(model, ref.typeId))
         reject(CustomErrorCode.recordProtected, "authorization", ["identities"]);
 
       const normalized: RecordIdentityInput[] = [];
-      const claimed = new Set<string>();
-      const keys: Array<{ channelClass: string; value: string }> = [];
       for (const [index, input] of inputs.entries()) {
         const row = normalizedIdentity(input);
         if (!row) reject(CustomErrorCode.invalidChannelValue, "validation", ["identities", index, "value"]);
-        for (const value of identityKeys(row)) {
-          const kind = channelClass(row.provider);
-          const key = JSON.stringify([kind, value]);
-          if (claimed.has(key)) reject(CustomErrorCode.duplicateChannel, "validation", ["identities", index, "value"]);
-          claimed.add(key);
-          keys.push({ channelClass: kind, value });
-        }
         normalized.push(row);
       }
-      const owners = await this.records.getIdentityOwnersCompanyWide(keys);
-      if (owners.some((owner) => recordKey(owner.ref) !== recordKey(ref)))
-        reject(CustomErrorCode.channelAlreadyLinked, "conflict", ["identities"]);
-
       await this.records.setIdentities(ref, normalized);
     };
     const addSeed = (ref: RecordRef) => {
@@ -478,7 +458,10 @@ export class RecordWriteService {
       for (const key of plan.deleted.keys()) deleted.add(key);
       for (const ref of plan.affected.values()) addSeed(ref);
       await options.beforeDeletion?.(
-        [...plan.deleted.values()].map((row) => ({ typeId: row.typeId, recordId: row.id })),
+        [...plan.deleted.values()].map((row) => ({
+          typeId: row.typeId,
+          recordId: row.id,
+        })),
       );
       for (const key of deleted) await this.records.delete(recordInvariant(seeds.get(key)));
     } else await link(mutation.relationId, mutation.source, mutation.target, mutation.action === "unlink");

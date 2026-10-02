@@ -19,6 +19,7 @@ const describeDatabase = databaseUrl ? describe : describe.skip;
 
 function attendee(identifier: string, isSelf = false): MessagingAttendee {
   return {
+    records: [],
     attendeeId: identifier,
     identifier,
     displayName: null,
@@ -27,7 +28,6 @@ function attendee(identifier: string, isSelf = false): MessagingAttendee {
     headline: null,
     occupation: null,
     isSelf,
-    record: null,
   };
 }
 

@@ -1,4 +1,3 @@
-import { randomUUID } from "node:crypto";
 import type { StartChatContactRepo } from "@/ee/messaging/outbound/start-chat.interactor";
 import type { RepoArgs } from "@/core/utils/types";
 import type { RecordRepo } from "./record.repo";
@@ -8,12 +7,13 @@ import { BaseRepository } from "@/core/base/base-repository";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { channelClass } from "@/ee/messaging/provider";
 import { identityLookupValue } from "@/ee/messaging/identity-lookup";
+import { RecordIdentityReader } from "./record-identity-reader";
 
 export class StartChatRecordChannelRepo extends BaseRepository implements StartChatContactRepo {
   constructor(
     private records: RecordRepo,
     private access: RecordAccessPolicy,
-    private mutate: MutateRecordInteractor,
+    _mutate: MutateRecordInteractor,
   ) {
     super();
   }
@@ -23,21 +23,24 @@ export class StartChatRecordChannelRepo extends BaseRepository implements StartC
       async () => {
         const value = identityLookupValue(args.provider, args.identifier);
         if (!value) return null;
-        const [model, policy] = await Promise.all([this.records.getModel(), this.access.load()]);
-        const bound = model.capabilities
-          .filter((binding) => binding.kind === "personIdentity")
-          .map((binding) => binding.typeId);
-        const row = await this.prisma.recordIdentity.findFirst({
-          where: {
-            companyId: this.companyId,
-            typeId: { in: bound },
-            keys: { some: { companyId: this.companyId, channelClass: channelClass(args.provider), value } },
-          },
-        });
-        if (!row) return null;
-        const ref = { typeId: row.typeId, recordId: row.recordId };
-        if (!(await this.records.searchRecords({ refs: [ref] }, model, policy.access(bound))).length) return null;
-        return { id: row.id, messagingId: row.messagingId, displayName: row.displayName, profileUrl: row.profileUrl };
+        const matches = await new RecordIdentityReader(this.records, this.access).resolve([
+          { provider: args.provider, value },
+        ]);
+        const ids = new Set(
+          matches.flatMap((match) => match.records.flatMap((record) => (record.identityId ? [record.identityId] : []))),
+        );
+        if (ids.size !== 1) return null;
+        const row = (
+          await this.records.getIdentityChannelsCompanyWide([{ channelClass: channelClass(args.provider), value }])
+        ).find((row) => ids.has(row.id));
+        return row
+          ? {
+              id: row.id,
+              messagingId: row.messagingId,
+              displayName: row.displayName,
+              profileUrl: row.profileUrl,
+            }
+          : null;
       },
       { readOnly: true },
     );
@@ -45,47 +48,32 @@ export class StartChatRecordChannelRepo extends BaseRepository implements StartC
 
   async saveResolvedContactChannel(args: RepoArgs<StartChatContactRepo, "saveResolvedContactChannel">) {
     await runInTransaction(async () => {
-      const [state, model, policy] = await Promise.all([
-        this.records.getState(),
-        this.records.getModel(),
-        this.access.load(),
-      ]);
-      if (state?.activeOperationId) return;
-      const row = await this.prisma.recordIdentity.findFirst({ where: { companyId: this.companyId, id: args.id } });
-      if (
-        !row ||
-        !model.capabilities.some((binding) => binding.kind === "personIdentity" && binding.typeId === row.typeId)
-      )
-        return;
-      const ref = { typeId: row.typeId, recordId: row.recordId };
-      const record = await this.records.getRecordCompanyWide(ref);
-      if (!record || !policy.allowed(row.typeId, "update") || !(await policy.canRead(record))) return;
-      const identities = await this.records.getIdentitiesCompanyWide(ref);
-      const result = await this.mutate.invoke({
-        expectedRevision: model.revision,
-        idempotencyKey: randomUUID(),
-        mutation: {
-          action: "update",
-          ref,
-          expectedVersion: record.version,
-          fields: [],
-          identities: identities.map((identity) => ({
-            provider: identity.provider,
-            value: identity.value,
-            messagingId: identity.messagingId,
-            displayName: identity.displayName,
-            profileUrl: identity.profileUrl,
-            ...(identity.id === args.id
-              ? {
-                  messagingId: args.messagingId,
-                  displayName: args.displayName ?? identity.displayName,
-                  profileUrl: args.profileUrl ?? identity.profileUrl,
-                }
-              : {}),
-          })),
+      if ((await this.records.getState())?.activeOperationId) return;
+      const row = await this.prisma.recordIdentity.findUnique({
+        where: {
+          companyId: this.companyId,
+          companyId_id: { companyId: this.companyId, id: args.id },
         },
       });
-      if (!result.ok) throw new Error("Resolved provider identity could not be saved");
+      if (!row) return;
+      const matches = await new RecordIdentityReader(this.records, this.access).resolve([
+        { provider: row.provider, value: row.value },
+      ]);
+      let editable = false;
+      for (const reference of matches.flatMap((match) => match.records)) {
+        if (!reference.canEdit) continue;
+        const record = await this.records.getRecordCompanyWide(reference.ref);
+        if (record && !record.protectedKind) {
+          editable = true;
+          break;
+        }
+      }
+      if (!editable) return;
+      await this.records.setIdentityResolutionCompanyWide(args.id, {
+        messagingId: args.messagingId,
+        displayName: args.displayName ?? row.displayName,
+        profileUrl: args.profileUrl ?? row.profileUrl,
+      });
     });
   }
 }

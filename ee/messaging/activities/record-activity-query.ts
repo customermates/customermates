@@ -1,3 +1,4 @@
+import { recordChannelsEnabled } from "@/features/records/record-channels";
 import { Prisma } from "@/generated/prisma";
 import type { RecordModel } from "@/features/records/record-model.schema";
 import type { RecordAccessMap } from "@/features/records/record-query.schema";
@@ -65,17 +66,30 @@ export function compileRecordActivityScope(
           : ids.length
             ? Prisma.sql`${root}.id IN (${Prisma.join(ids)})`
             : Prisma.sql`FALSE`;
-      const identity =
-        path.includeMessages &&
-        model.capabilities.some((binding) => binding.typeId === typeId && binding.kind === "personIdentity");
-      return Prisma.sql`SELECT ${current}."typeId", ${current}.id, ${path.includeAudit}::boolean AS audit, ${identity}::boolean AS messaging
+      const identity = path.includeMessages && recordChannelsEnabled(model, typeId);
+      return Prisma.sql`SELECT ${current}."typeId", ${current}.id, ${path.includeAudit}::boolean AS audit, ${identity}::boolean AS messaging, ${path.includeMessages}::boolean AS threading
       FROM "CrmRecord" ${root} ${joins.length ? Prisma.join(joins, " ") : Prisma.empty}
       WHERE ${root}."companyId" = ${companyId} AND ${root}."typeId" = ${path.typeId} AND ${rootSelection} AND (${Prisma.join(predicates, " AND ")})`;
     })
     .filter((branch): branch is Prisma.Sql => branch !== null);
+  const direct = model.types.filter(
+    (type) =>
+      !type.archived &&
+      (!restricted || scope.typeIds.includes(type.id) || scope.records.some((ref) => ref.typeId === type.id)),
+  );
+  for (const type of direct) {
+    const ids = scope.records.filter((ref) => ref.typeId === type.id).map((ref) => ref.recordId);
+    const selected =
+      !restricted || scope.typeIds.includes(type.id)
+        ? Prisma.sql`TRUE`
+        : Prisma.sql`record.id IN (${Prisma.join(ids)})`;
+    branches.push(Prisma.sql`SELECT record."typeId", record.id, FALSE AS audit, FALSE AS messaging, TRUE AS threading
+      FROM "CrmRecord" record WHERE record."companyId" = ${companyId} AND record."typeId" = ${type.id}
+      AND ${selected} AND ${recordReadPredicate(companyId, access.get(type.id) ?? { access: "none", userId }, Prisma.sql`record`)}`);
+  }
   return branches.length
-    ? Prisma.sql`SELECT "typeId", id, bool_or(audit) AS audit, bool_or(messaging) AS messaging FROM (${Prisma.join(branches, " UNION ALL ")}) expanded GROUP BY "typeId", id`
-    : Prisma.sql`SELECT NULL::text AS "typeId", NULL::text AS id, FALSE AS audit, FALSE AS messaging WHERE FALSE`;
+    ? Prisma.sql`SELECT "typeId", id, bool_or(audit) AS audit, bool_or(messaging) AS messaging, bool_or(threading) AS threading FROM (${Prisma.join(branches, " UNION ALL ")}) expanded GROUP BY "typeId", id`
+    : Prisma.sql`SELECT NULL::text AS "typeId", NULL::text AS id, FALSE AS audit, FALSE AS messaging, FALSE AS threading WHERE FALSE`;
 }
 
 export function compileRecordActivityIndex(
@@ -121,7 +135,10 @@ export function compileRecordActivityIndex(
       ...input,
       scope: {
         typeIds: filter.recordIds.length ? [] : [filter.typeId],
-        records: filter.recordIds.map((recordId) => ({ typeId: filter.typeId, recordId })),
+        records: filter.recordIds.map((recordId) => ({
+          typeId: filter.typeId,
+          recordId,
+        })),
       },
     };
     return [
@@ -148,14 +165,20 @@ export function compileRecordActivityIndex(
     source = Prisma.raw("activity_scope"),
   ) => Prisma.sql`EXISTS (
     SELECT 1 FROM "RecordIdentityKey" identity_key JOIN "RecordIdentity" identity ON identity."companyId" = ${companyId} AND identity.id = identity_key."identityId"
-    JOIN ${source} scope ON scope."typeId" = identity."typeId" AND scope.id = identity."recordId" AND scope.messaging
+    JOIN "RecordIdentityLink" association ON association."companyId" = ${companyId} AND association."identityId" = identity.id
+    JOIN ${source} scope ON scope."typeId" = association."typeId" AND scope.id = association."recordId" AND scope.messaging
     WHERE identity_key."companyId" = ${companyId} AND identity_key."channelClass" = ${channel} AND identity_key.value = ${value})`;
-  const messageMatches = (source = Prisma.raw("activity_scope")) => Prisma.sql`EXISTS (
-    SELECT 1 FROM "MessagingThreadParticipant" participant WHERE participant."companyId" = ${companyId} AND participant."messagingThreadId" = thread.id AND NOT participant."isSelf"
-    AND ${identity(Prisma.sql`CASE WHEN participant.provider IN ('google', 'mail', 'outlook') THEN 'email' WHEN participant.provider = 'whatsapp' THEN 'phone' ELSE participant.provider::text END`, Prisma.sql`participant."identityLookupValue"`, source)})`;
+  const messageMatches = (source = Prisma.raw("activity_scope")) => Prisma.sql`(
+    EXISTS (SELECT 1 FROM "MessagingThreadParticipant" participant WHERE participant."companyId" = ${companyId} AND participant."messagingThreadId" = thread.id AND NOT participant."isSelf"
+      AND ${identity(Prisma.sql`CASE WHEN participant.provider IN ('google', 'mail', 'outlook') THEN 'email' WHEN participant.provider = 'whatsapp' THEN 'phone' ELSE participant.provider::text END`, Prisma.sql`participant."identityLookupValue"`, source)})
+    OR EXISTS (SELECT 1 FROM "MessagingThreadRecordLink" association
+      JOIN ${source} scope ON scope."typeId" = association."typeId" AND scope.id = association."recordId" AND scope.threading
+      WHERE association."companyId" = ${companyId} AND association."threadId" = thread.id)
+  )`;
   const calendarMatches = (source = Prisma.raw("activity_scope")) => Prisma.sql`EXISTS (
       SELECT 1 FROM "RecordIdentityKey" identity_key JOIN "RecordIdentity" identity ON identity."companyId" = ${companyId} AND identity.id = identity_key."identityId"
-      JOIN ${source} scope ON scope."typeId" = identity."typeId" AND scope.id = identity."recordId" AND scope.messaging
+      JOIN "RecordIdentityLink" association ON association."companyId" = ${companyId} AND association."identityId" = identity.id
+    JOIN ${source} scope ON scope."typeId" = association."typeId" AND scope.id = association."recordId" AND scope.messaging
       WHERE identity_key."companyId" = ${companyId} AND identity_key."channelClass" = 'email' AND identity_key.value = ANY(event."attendeeEmails"))`;
   const auditMatches = (typeId: Prisma.Sql, recordId: Prisma.Sql) =>
     matchingRecords(

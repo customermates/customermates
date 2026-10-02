@@ -69,7 +69,10 @@ export class GetRecordActivitiesInteractor extends AuthenticatedInteractor<
           for (const ref of [
             ...input.scope.records,
             ...recordFilters.flatMap((filter) =>
-              filter.recordIds.map((recordId) => ({ typeId: filter.typeId, recordId })),
+              filter.recordIds.map((recordId) => ({
+                typeId: filter.typeId,
+                recordId,
+              })),
             ),
           ]) {
             const row = await this.records.getRecordCompanyWide(ref);
@@ -112,11 +115,17 @@ export class GetRecordActivitiesInteractor extends AuthenticatedInteractor<
               activity.identifier ? [{ provider: activity.provider, value: activity.identifier }] : [],
             ),
             ...calendar.flatMap((event) =>
-              event.attendeeEmails.map((value) => ({ provider: event.event.provider, value })),
+              event.attendeeEmails.map((value) => ({
+                provider: event.event.provider,
+                value,
+              })),
             ),
           ]);
           const matches = new Map(
-            identifierMatches.map((match) => [JSON.stringify([match.provider, match.value]), match.record.ref]),
+            identifierMatches.map((match) => [
+              JSON.stringify([match.provider, match.value]),
+              match.records.map((record) => record.ref),
+            ]),
           );
           const references = new Map<string, RecordRef[]>();
           const add = (kind: string, id: string, refs: RecordRef[]) =>
@@ -127,13 +136,13 @@ export class GetRecordActivitiesInteractor extends AuthenticatedInteractor<
               "message",
               message.id,
               [message.sender, ...message.recipients.to, ...message.recipients.cc, ...message.recipients.bcc].flatMap(
-                (attendee) => (attendee.record ? [attendee.record.ref] : []),
+                (attendee) => attendee.records.map((record) => record.ref),
               ),
             );
           }
           for (const activity of activities) {
             const ref = matches.get(JSON.stringify([activity.provider, activity.identifier]));
-            if (ref) add("activity", activity.id, [ref]);
+            if (ref) add("activity", activity.id, ref);
           }
           for (const event of calendar) {
             add(
@@ -141,7 +150,7 @@ export class GetRecordActivitiesInteractor extends AuthenticatedInteractor<
               event.id,
               event.attendeeEmails.flatMap((email) => {
                 const ref = matches.get(JSON.stringify([event.event.provider, email]));
-                return ref ? [ref] : [];
+                return ref ?? [];
               }),
             );
           }

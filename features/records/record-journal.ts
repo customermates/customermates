@@ -43,9 +43,7 @@ async function snapshot(
   const dependencies = new Map(
     (await records.getRecordDependenciesCompanyWide(ref)).map((entry) => [entry.fieldId, entry.sources]),
   );
-  const identities = model.capabilities.some(
-    (binding) => binding.typeId === ref.typeId && binding.kind === "personIdentity",
-  )
+  const identities = model.capabilities.some((binding) => binding.typeId === ref.typeId && binding.kind === "channels")
     ? await records.getIdentitiesCompanyWide(ref)
     : [];
   return {

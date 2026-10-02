@@ -22,10 +22,11 @@ export async function hydrateMessageRecordIdentities(
     ).values(),
   ];
   const matches = new Map(
-    (await reader.resolve(pairs)).map((match) => [JSON.stringify([match.provider, match.value]), match.record]),
+    (await reader.resolve(pairs)).map((match) => [JSON.stringify([match.provider, match.value]), match.records]),
   );
   for (const { attendee, provider } of attendees) {
     delete (attendee as MessagingAttendee & { contact?: unknown }).contact;
-    attendee.record = matches.get(JSON.stringify([provider, attendee.identifier.trim()])) ?? null;
+    delete (attendee as MessagingAttendee & { record?: unknown }).record;
+    attendee.records = matches.get(JSON.stringify([provider, attendee.identifier.trim()])) ?? [];
   }
 }

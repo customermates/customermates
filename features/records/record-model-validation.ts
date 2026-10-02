@@ -237,7 +237,11 @@ export function validateRecordModel(model: RecordModel): {
         !["number", "currency"].includes(field.valueType) ||
         summaries.has(key)
       )
-        issues.push({ code: "invalid_layout_field", typeId: type.id, fieldId: summary.fieldId });
+        issues.push({
+          code: "invalid_layout_field",
+          typeId: type.id,
+          fieldId: summary.fieldId,
+        });
       summaries.add(key);
     }
     if (type.defaults.hiddenColumns.includes(type.primaryFieldId))
@@ -246,14 +250,22 @@ export function validateRecordModel(model: RecordModel): {
       type.defaults.groupBy &&
       !resolveRecordGrouping(type.id, { field: type.defaults.groupBy, bucket: type.defaults.groupBucket }, model)
     )
-      issues.push({ code: "invalid_grouping_field", typeId: type.id, fieldId: type.defaults.groupBy });
+      issues.push({
+        code: "invalid_grouping_field",
+        typeId: type.id,
+        fieldId: type.defaults.groupBy,
+      });
     if (!type.defaults.groupBy && type.defaults.groupBucket)
       issues.push({ code: "invalid_grouping_field", typeId: type.id });
     if (
       type.defaults.sortField &&
       !recordColumns(type.id, model).some((column) => column.id === type.defaults.sortField && column.sortable)
     )
-      issues.push({ code: "invalid_sort_field", typeId: type.id, fieldId: type.defaults.sortField });
+      issues.push({
+        code: "invalid_sort_field",
+        typeId: type.id,
+        fieldId: type.defaults.sortField,
+      });
   }
   for (const type of model.types) {
     const visited = new Set<string>();
@@ -307,7 +319,21 @@ export function validateRecordModel(model: RecordModel): {
       issues.push({ code: "duplicate_grant_role" });
   }
 
+  const channelTypes = new Set<string>();
   for (const binding of model.capabilities) {
+    if (binding.kind === "channels") {
+      if (channelTypes.has(binding.typeId))
+        issues.push({
+          code: "duplicate_channels_capability",
+          typeId: binding.typeId,
+        });
+      channelTypes.add(binding.typeId);
+    }
+    if (binding.kind !== "channels" && (binding.enabled !== undefined || binding.providerAvatar !== undefined))
+      issues.push({
+        code: "invalid_capability_options",
+        typeId: binding.typeId,
+      });
     const type = types.get(binding.typeId);
     if (!type || type.archived) issues.push({ code: "capability_requires_type", typeId: binding.typeId });
     if (binding.kind === "membershipAuthorization" && type?.embedded)
@@ -326,7 +352,7 @@ export function validateRecordModel(model: RecordModel): {
         field.archived ||
         field.typeId !== binding.typeId ||
         field.valueType !== expectedType ||
-        (binding.kind === "personIdentity" && field.behavior.kind !== "input")
+        (binding.kind === "channels" && field.behavior.kind !== "input")
       ) {
         issues.push({
           code: "capability_requires_field",
@@ -351,11 +377,6 @@ export function validateRecordModel(model: RecordModel): {
       }
       typeId = outgoing ? relation.targetTypeId : relation.sourceTypeId;
     }
-    if (
-      activity.includeMessages &&
-      !model.capabilities.some((binding) => binding.kind === "personIdentity" && binding.typeId === typeId)
-    )
-      issues.push({ code: "activity_messages_require_identity", typeId });
   }
   for (const field of model.fields) {
     if (field.multiple && !["text", "email", "phone", "url"].includes(field.valueType))

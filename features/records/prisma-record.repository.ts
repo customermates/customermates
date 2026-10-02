@@ -1,3 +1,4 @@
+import { channelClass } from "@/ee/messaging/provider";
 import { RecordRevisionChangeSchema, type RecordRevisionChange } from "./record-revision.schema";
 import { captureRecordEventMatches } from "./record-event-capture";
 import { RecordEventSubscriptionSchema } from "./record-event-subscription.schema";
@@ -49,7 +50,7 @@ import { compileRecordMeasure } from "./record-measure";
 import { encodeRecordValue, recordJson } from "./record-storage";
 import type { RecordIdentity, RecordIdentityInput } from "./record-identity.schema";
 import { RecordIdentitySchema } from "./record-identity.schema";
-import { identityKeys, updatedIdentities } from "./record-identity";
+import { identityKeys, identityAssociations } from "./record-identity";
 import { resolveUserFormattingTag, resolveUserLocale } from "@/i18n/user-locale";
 import { RecordQuerySchema } from "./record-query.schema";
 import { RecordDetailLayoutSchema, recordDetailKey } from "./record-detail-layout.schema";
@@ -76,65 +77,67 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
     return this.scopedCompanyId ?? super.companyId;
   }
 
+  private identityDto(row: {
+    id: string;
+    provider: RecordIdentity["provider"];
+    channelClass: string;
+    value: string;
+    messagingId: string | null;
+    displayName: string | null;
+    profileUrl: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+    keys: Array<{ value: string }>;
+  }): RecordIdentity {
+    return RecordIdentitySchema.parse({
+      id: row.id,
+      provider: row.provider,
+      channelClass: row.channelClass,
+      value: row.value,
+      messagingId: row.messagingId,
+      displayName: row.displayName,
+      profileUrl: row.profileUrl,
+      aliases: row.keys.map((key) => key.value),
+      createdAt: row.createdAt.toISOString(),
+      updatedAt: row.updatedAt.toISOString(),
+    });
+  }
+
   async getRecordIdentitiesCompanyWide(typeId: string, recordIds: string[]) {
     const identities = new Map<string, RecordIdentity[]>();
     if (!recordIds.length) return identities;
-    const rows = await this.prisma.recordIdentity.findMany({
+    const rows = await this.prisma.recordIdentityLink.findMany({
       where: { companyId: this.companyId, typeId, recordId: { in: recordIds } },
-      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
-      select: {
-        recordId: true,
-        id: true,
-        provider: true,
-        channelClass: true,
-        value: true,
-        messagingId: true,
-        displayName: true,
-        profileUrl: true,
-        createdAt: true,
-        updatedAt: true,
+      orderBy: [{ createdAt: "asc" }, { identityId: "asc" }],
+      include: {
+        identity: {
+          include: { keys: { where: { companyId: this.companyId } } },
+        },
       },
     });
-    for (const { recordId, ...row } of rows) {
-      const values = identities.get(recordId) ?? [];
-      values.push(
-        RecordIdentitySchema.parse({
-          ...row,
-          createdAt: row.createdAt.toISOString(),
-          updatedAt: row.updatedAt.toISOString(),
-        }),
-      );
-      identities.set(recordId, values);
+    for (const row of rows) {
+      const values = identities.get(row.recordId) ?? [];
+      values.push(this.identityDto(row.identity));
+      identities.set(row.recordId, values);
     }
     return identities;
   }
+
   async getIdentitiesCompanyWide(ref: RecordRef) {
+    return (await this.getRecordIdentitiesCompanyWide(ref.typeId, [ref.recordId])).get(ref.recordId) ?? [];
+  }
+
+  async getIdentityChannelsCompanyWide(keys: Array<{ channelClass: string; value: string }>) {
+    if (!keys.length) return [];
     const rows = await this.prisma.recordIdentity.findMany({
       where: {
         companyId: this.companyId,
-        typeId: ref.typeId,
-        recordId: ref.recordId,
+        keys: { some: { companyId: this.companyId, OR: keys } },
       },
-      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
-      select: {
-        id: true,
-        provider: true,
-        channelClass: true,
-        value: true,
-        messagingId: true,
-        displayName: true,
-        profileUrl: true,
-        createdAt: true,
-        updatedAt: true,
-      },
+      include: { keys: { where: { companyId: this.companyId } } },
+      orderBy: { id: "asc" },
     });
-    return rows.map((row) =>
-      RecordIdentitySchema.parse({
-        ...row,
-        createdAt: row.createdAt.toISOString(),
-        updatedAt: row.updatedAt.toISOString(),
-      }),
-    );
+    return rows.map((row) => this.identityDto(row));
   }
 
   async getIdentityOwnersCompanyWide(keys: Array<{ channelClass: string; value: string }>) {
@@ -144,39 +147,111 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
       select: {
         channelClass: true,
         value: true,
-        identity: { select: { typeId: true, recordId: true } },
+        identityId: true,
+        identity: {
+          select: {
+            records: {
+              where: { companyId: this.companyId },
+              select: { typeId: true, recordId: true },
+              take: 10001,
+            },
+          },
+        },
       },
     });
-    return rows.map(({ identity, ...key }) => ({ ...key, ref: identity }));
+    const owners = rows.flatMap(({ identity, ...key }) => identity.records.map((ref) => ({ ...key, ref })));
+    if (owners.length > 10000) throw new RecordWriteError(CustomErrorCode.recordCalculationBudget, "conflict");
+    return owners;
   }
 
   async setIdentities(ref: RecordRef, inputs: RecordIdentityInput[]): Promise<void> {
-    const rows = updatedIdentities(await this.getIdentitiesCompanyWide(ref), inputs);
-    await this.prisma.recordIdentity.deleteMany({
+    const keys = inputs.flatMap((input) =>
+      identityKeys(input).map((value) => ({
+        channelClass: channelClass(input.provider),
+        value,
+      })),
+    );
+    const known = await this.getIdentityChannelsCompanyWide(keys);
+    const rows = identityAssociations(inputs, known);
+    const ids = rows.map((row) => row.id);
+    await this.prisma.recordIdentityLink.deleteMany({
       where: {
         companyId: this.companyId,
         typeId: ref.typeId,
         recordId: ref.recordId,
+        identityId: { notIn: ids },
       },
     });
-    for (const row of rows) {
-      await this.prisma.recordIdentity.create({
-        data: {
-          ...row,
+    const existing = new Set(known.map((row) => row.id));
+    for (const { aliases, ...row } of rows) {
+      if (!existing.has(row.id)) {
+        await this.prisma.recordIdentity.create({
+          data: { ...row, companyId: this.companyId },
+        });
+        await this.prisma.recordIdentityKey.createMany({
+          data: identityKeys({ ...row, aliases }).map((value) => ({
+            companyId: this.companyId,
+            identityId: row.id,
+            channelClass: row.channelClass,
+            value,
+          })),
+        });
+      }
+    }
+    if (ids.length)
+      await this.prisma.recordIdentityLink.createMany({
+        data: ids.map((identityId) => ({
           companyId: this.companyId,
-          typeId: ref.typeId,
-          recordId: ref.recordId,
+          identityId,
+          ...ref,
+        })),
+        skipDuplicates: true,
+      });
+  }
+
+  async setIdentityResolutionCompanyWide(
+    identityId: string,
+    input: Pick<RecordIdentityInput, "messagingId" | "displayName" | "profileUrl">,
+  ): Promise<void> {
+    const row = await this.prisma.recordIdentity.findUnique({
+      where: {
+        companyId: this.companyId,
+        companyId_id: { companyId: this.companyId, id: identityId },
+      },
+    });
+    if (!row) return;
+    if (input.messagingId) {
+      await this.prisma.recordIdentityKey.createMany({
+        data: [
+          {
+            companyId: this.companyId,
+            channelClass: row.channelClass,
+            value: input.messagingId,
+            identityId,
+          },
+        ],
+        skipDuplicates: true,
+      });
+      const owner = await this.prisma.recordIdentityKey.findUnique({
+        where: {
+          companyId: this.companyId,
+          companyId_channelClass_value: {
+            companyId: this.companyId,
+            channelClass: row.channelClass,
+            value: input.messagingId,
+          },
         },
       });
-      await this.prisma.recordIdentityKey.createMany({
-        data: identityKeys(row).map((value) => ({
-          companyId: this.companyId,
-          identityId: row.id,
-          channelClass: row.channelClass,
-          value,
-        })),
-      });
+      if (owner?.identityId !== identityId)
+        throw new RecordWriteError(CustomErrorCode.channelAlreadyLinked, "conflict");
     }
+    await this.prisma.recordIdentity.update({
+      where: {
+        companyId: this.companyId,
+        companyId_id: { companyId: this.companyId, id: identityId },
+      },
+      data: input,
+    });
   }
   private readonly assignmentSelect = {
     userId: true,
@@ -1033,7 +1108,11 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
   async getOutgoingLinksCompanyWide(typeId: string, recordIds: string[], take: number) {
     if (!recordIds.length) return [];
     const rows = await this.prisma.recordLink.findMany({
-      where: { companyId: this.companyId, sourceTypeId: typeId, sourceId: { in: recordIds } },
+      where: {
+        companyId: this.companyId,
+        sourceTypeId: typeId,
+        sourceId: { in: recordIds },
+      },
       orderBy: { id: "asc" },
       take,
     });
@@ -1326,27 +1405,47 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
       .$executeRaw(Prisma.sql`INSERT INTO "CrmRecord" ("companyId", "typeId", id, version, "protectedKind", "systemData", "createdAt", "updatedAt")
       SELECT ${companyId}, stage.payload->'ref'->>'typeId', stage.payload->'ref'->>'recordId', (stage.payload->>'version')::integer, stage.payload->>'protectedKind', NULLIF(stage.payload->'systemData', 'null'::jsonb), (stage.payload->>'createdAt')::timestamp, (stage.payload->>'updatedAt')::timestamp FROM "RecordStageRow" stage WHERE ${stage("record")} AND NOT (stage.payload->>'deleted')::boolean
       ON CONFLICT ("companyId", "typeId", id) DO UPDATE SET version = EXCLUDED.version, "updatedAt" = EXCLUDED."updatedAt"`);
+    const collisions = await this.prisma.$queryRaw<Array<{ collision: boolean }>>(Prisma.sql`
+      SELECT EXISTS (
+        SELECT 1 FROM "RecordStageRow" stage CROSS JOIN LATERAL jsonb_array_elements(stage.payload->'identities') item(data)
+        CROSS JOIN LATERAL (SELECT DISTINCT value FROM (
+          SELECT item.data->>'value' AS value UNION SELECT item.data->>'messagingId'
+          UNION SELECT jsonb_array_elements_text(COALESCE(item.data->'aliases', '[]'::jsonb))) aliases WHERE value IS NOT NULL) alias
+        JOIN "RecordIdentityKey" key ON key."companyId" = ${companyId} AND key."channelClass" = item.data->>'channelClass' AND key.value = alias.value
+        WHERE ${stage("identity")} AND key."identityId" <> item.data->>'id'
+      ) AS collision`);
+    if (collisions[0]?.collision) throw new RecordWriteError(CustomErrorCode.channelAlreadyLinked, "conflict");
     await this.prisma.$executeRaw(Prisma.sql`
-      DELETE FROM "RecordIdentity" identity USING "RecordStageRow" stage
-      WHERE ${stage("identity")} AND identity."companyId" = ${companyId}
-        AND identity."typeId" = stage.payload->'ref'->>'typeId' AND identity."recordId" = stage.payload->'ref'->>'recordId'
+      DELETE FROM "RecordIdentityLink" association USING "RecordStageRow" stage
+      WHERE ${stage("identity")} AND association."companyId" = ${companyId}
+        AND association."typeId" = stage.payload->'ref'->>'typeId' AND association."recordId" = stage.payload->'ref'->>'recordId'
+        AND NOT EXISTS (SELECT 1 FROM jsonb_array_elements(stage.payload->'identities') item(data) WHERE item.data->>'id' = association."identityId")
     `);
     await this.prisma.$executeRaw(Prisma.sql`
-      INSERT INTO "RecordIdentity" ("companyId", id, "typeId", "recordId", provider, "channelClass", value, "messagingId", "displayName", "profileUrl", "createdAt", "updatedAt")
-      SELECT ${companyId}, item.data->>'id', record."typeId", record.id, (item.data->>'provider')::"MessagingProvider",
+      INSERT INTO "RecordIdentity" ("companyId", id, provider, "channelClass", value, "messagingId", "displayName", "profileUrl", "createdAt", "updatedAt")
+      SELECT DISTINCT ON (item.data->>'id') ${companyId}, item.data->>'id', (item.data->>'provider')::"MessagingProvider",
         item.data->>'channelClass', item.data->>'value', item.data->>'messagingId', item.data->>'displayName', item.data->>'profileUrl',
         (item.data->>'createdAt')::timestamp, (item.data->>'updatedAt')::timestamp
       FROM "RecordStageRow" stage CROSS JOIN LATERAL jsonb_array_elements(stage.payload->'identities') AS item(data)
       JOIN "CrmRecord" record ON record."companyId" = ${companyId} AND record."typeId" = stage.payload->'ref'->>'typeId' AND record.id = stage.payload->'ref'->>'recordId'
-      WHERE ${stage("identity")}
+      WHERE ${stage("identity")} ON CONFLICT ("companyId", id) DO NOTHING
     `);
     await this.prisma.$executeRaw(Prisma.sql`
       INSERT INTO "RecordIdentityKey" ("companyId", "channelClass", value, "identityId")
-      SELECT identity."companyId", identity."channelClass", key.value, identity.id
-      FROM "RecordIdentity" identity CROSS JOIN LATERAL (SELECT DISTINCT unnest(ARRAY[identity.value, identity."messagingId"]) AS value) key
-      WHERE identity."companyId" = ${companyId} AND key.value IS NOT NULL AND EXISTS (
-        SELECT 1 FROM "RecordStageRow" stage WHERE ${stage("identity")} AND identity."typeId" = stage.payload->'ref'->>'typeId' AND identity."recordId" = stage.payload->'ref'->>'recordId'
-      )
+      SELECT DISTINCT ${companyId}, item.data->>'channelClass', alias.value, item.data->>'id'
+      FROM "RecordStageRow" stage CROSS JOIN LATERAL jsonb_array_elements(stage.payload->'identities') item(data)
+      CROSS JOIN LATERAL (SELECT DISTINCT value FROM (
+        SELECT item.data->>'value' AS value UNION SELECT item.data->>'messagingId'
+        UNION SELECT jsonb_array_elements_text(COALESCE(item.data->'aliases', '[]'::jsonb))) aliases WHERE value IS NOT NULL) alias
+      JOIN "RecordIdentity" identity ON identity."companyId" = ${companyId} AND identity.id = item.data->>'id'
+      WHERE ${stage("identity")} ON CONFLICT ("companyId", "channelClass", value) DO NOTHING
+    `);
+    await this.prisma.$executeRaw(Prisma.sql`
+      INSERT INTO "RecordIdentityLink" ("companyId", "identityId", "typeId", "recordId")
+      SELECT DISTINCT ${companyId}, item.data->>'id', record."typeId", record.id
+      FROM "RecordStageRow" stage CROSS JOIN LATERAL jsonb_array_elements(stage.payload->'identities') item(data)
+      JOIN "CrmRecord" record ON record."companyId" = ${companyId} AND record."typeId" = stage.payload->'ref'->>'typeId' AND record.id = stage.payload->'ref'->>'recordId'
+      WHERE ${stage("identity")} ON CONFLICT ("companyId", "identityId", "typeId", "recordId") DO NOTHING
     `);
     await this.prisma.$executeRaw(
       Prisma.sql`DELETE FROM "RecordAssignment" assignment USING "RecordStageRow" stage WHERE ${stage("record")} AND assignment."companyId" = ${companyId} AND assignment."typeId" = stage.payload->'ref'->>'typeId' AND assignment."recordId" = stage.payload->'ref'->>'recordId'`,
@@ -1406,6 +1505,8 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
       where: { companyId, activeOperationId: id },
       data: { activeOperationId: null },
     });
-    await this.prisma.recordStageRow.deleteMany({ where: { companyId, operationId: id } });
+    await this.prisma.recordStageRow.deleteMany({
+      where: { companyId, operationId: id },
+    });
   }
 }

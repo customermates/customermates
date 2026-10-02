@@ -1,3 +1,4 @@
+import { recordChannelsEnabled } from "@/features/records/record-channels";
 import type { z } from "zod";
 
 import type { RecordRepo, StoredRecord } from "@/features/records/record.repo";
@@ -50,7 +51,11 @@ export class ExportRecordsInteractor extends AuthenticatedInteractor<ExportRecor
         if (!type || (!policy.allowed(type.id, "readAll") && !policy.allowed(type.id, "readOwn")))
           return failNotFound(CustomErrorCode.recordTypeNotFound);
 
-        const query = RecordQuerySchema.parse({ ...input, page: 1, pageSize: PAGE_SIZE });
+        const query = RecordQuerySchema.parse({
+          ...input,
+          page: 1,
+          pageSize: PAGE_SIZE,
+        });
         const invalid = invalidRecordQueryPart(query, model);
         if (invalid) return fail(CustomErrorCode.recordValueInvalid, [invalid]);
         const access = policy.access(model.types.filter((item) => !item.archived).map((item) => item.id));
@@ -64,9 +69,7 @@ export class ExportRecordsInteractor extends AuthenticatedInteractor<ExportRecor
           visibleFields: Map<string, Set<string>>,
         ) => {
           if (records.length + pageRows.length > RECORD_EXPORT_LIMIT) return false;
-          const identities = model.capabilities.some(
-            (binding) => binding.kind === "personIdentity" && binding.typeId === pageTypeId,
-          )
+          const identities = recordChannelsEnabled(model, pageTypeId)
             ? await this.records.getRecordIdentitiesCompanyWide(
                 pageTypeId,
                 pageRows.map((record) => record.id),
@@ -145,7 +148,10 @@ export class ExportRecordsInteractor extends AuthenticatedInteractor<ExportRecor
                     PAGE_SIZE,
                   );
                   const visibleFields = await this.records.getVisibleFieldsCompanyWide(
-                    childRows.map((row) => ({ typeId: row.typeId, recordId: row.id })),
+                    childRows.map((row) => ({
+                      typeId: row.typeId,
+                      recordId: row.id,
+                    })),
                     model,
                     access,
                   );

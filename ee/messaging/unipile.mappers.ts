@@ -21,6 +21,7 @@ export const EMPTY_ATTENDEE: MessagingAttendee = {
   profileUrl: null,
   headline: null,
   occupation: null,
+  records: [],
 };
 
 const WHATSAPP_JID_DOMAINS = ["@s.whatsapp.net", "@c.us", "@g.us"];
@@ -76,6 +77,7 @@ export function buildChatAttendee(src: {
     profileUrl: src.profileUrl ?? null,
     headline: src.headline ?? null,
     occupation: src.occupation ?? null,
+    records: [],
   };
 }
 

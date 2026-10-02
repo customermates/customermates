@@ -20,7 +20,9 @@ export function compileMessagingRecordQuery(
   access: RecordAccessMap,
 ): Prisma.Sql {
   const bound = new Set(
-    model.capabilities.filter((binding) => binding.kind === "personIdentity").map((binding) => binding.typeId),
+    model.capabilities
+      .filter((binding) => binding.kind === "channels" && binding.enabled !== false)
+      .map((binding) => binding.typeId),
   );
   const readable = model.types
     .filter((type) => !type.archived && bound.has(type.id))
@@ -31,7 +33,8 @@ export function compileMessagingRecordQuery(
   const linked = (refs?: RecordRef[]) => Prisma.sql`EXISTS (
     SELECT 1 FROM "RecordIdentityKey" identity_key
     JOIN "RecordIdentity" identity ON identity."companyId" = ${companyId} AND identity.id = identity_key."identityId"
-    JOIN "CrmRecord" record ON record."companyId" = ${companyId} AND record."typeId" = identity."typeId" AND record.id = identity."recordId"
+    JOIN "RecordIdentityLink" association ON association."companyId" = ${companyId} AND association."identityId" = identity.id
+    JOIN "CrmRecord" record ON record."companyId" = ${companyId} AND record."typeId" = association."typeId" AND record.id = association."recordId"
     WHERE identity_key."companyId" = ${companyId}
       AND identity_key."channelClass" = CASE WHEN participant.provider IN ('mail', 'google', 'outlook') THEN 'email' WHEN participant.provider = 'whatsapp' THEN 'phone' ELSE participant.provider::text END
       AND identity_key.value = participant."identityLookupValue"

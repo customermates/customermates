@@ -66,7 +66,7 @@ export const MessagingAttendeeSchema = z.object({
   headline: z.string().nullish(),
   occupation: z.string().nullish(),
   isSelf: z.boolean().optional(),
-  record: RecordIdentityReferenceSchema.nullish(),
+  records: z.array(RecordIdentityReferenceSchema).default([]),
 });
 export type MessagingAttendee = z.infer<typeof MessagingAttendeeSchema>;
 

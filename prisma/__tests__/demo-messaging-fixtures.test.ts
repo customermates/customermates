@@ -85,6 +85,7 @@ function recordingPrisma() {
   const calendars = recordingDelegate();
   const connectedAccounts = recordingDelegate();
   const contactIdentifiers = recordingDelegate();
+  const identityLinks: FixtureRow[] = [];
   const messages = recordingDelegate();
   const participants = recordingDelegate();
   const threads = recordingDelegate();
@@ -102,6 +103,12 @@ function recordingPrisma() {
       calendarEvent: calendarEvents.delegate,
       connectedAccount: connectedAccounts.delegate,
       recordIdentity: contactIdentifiers.delegate,
+      recordIdentityLink: {
+        createMany: vi.fn(({ data }: { data: FixtureRow[] }) => {
+          identityLinks.push(...data);
+          return Promise.resolve({ count: data.length });
+        }),
+      },
       recordIdentityKey: {
         deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
         createMany: vi.fn().mockResolvedValue({ count: 1 }),
@@ -132,6 +139,7 @@ function recordingPrisma() {
       connectedAccounts: connectedAccounts.calls,
       connectedAccountDeletes: connectedAccounts.deleteManyCalls,
       contactIdentifiers: contactIdentifiers.calls,
+      identityLinks,
       contactIdentifierDeletes: contactIdentifiers.deleteManyCalls,
       contactIdentifierUpdates: contactIdentifiers.updateCalls,
       messages: messages.calls,
@@ -349,7 +357,9 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
         id: fixtureId("26000000", index + 1),
         identifier: fixture.identifier,
         kind: fixture.kind,
-        payload: expect.objectContaining({ fullName: people[fixture.person].displayName }),
+        payload: expect.objectContaining({
+          fullName: people[fixture.person].displayName,
+        }),
       });
       expect(activity?.occurredAt).toEqual(new Date(calendarAnchor.getTime() - fixture.occurredMinutesAgo * 60_000));
       expect(records.accountActivities[index]?.where).toEqual({
@@ -373,9 +383,18 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
       })),
     ].toSorted((left, right) => right.at.getTime() - left.at.getTime());
     expect(newestEventRows.slice(0, 3)).toEqual([
-      expect.objectContaining({ identifier: "demo-linkedin-leon", kind: "activity" }),
-      expect.objectContaining({ identifier: "demo-linkedin-rashid", kind: "activity" }),
-      expect.objectContaining({ identifier: "demo-fixture-calendar-event-1", kind: "calendar" }),
+      expect.objectContaining({
+        identifier: "demo-linkedin-leon",
+        kind: "activity",
+      }),
+      expect.objectContaining({
+        identifier: "demo-linkedin-rashid",
+        kind: "activity",
+      }),
+      expect.objectContaining({
+        identifier: "demo-fixture-calendar-event-1",
+        kind: "calendar",
+      }),
     ]);
     expectCanonicalUpdates(records.accountActivities, ["id", "identifier", "kind"]);
 
@@ -384,44 +403,60 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
       expect.arrayContaining([
         expect.objectContaining({
           channelClass: "linkedin",
-          recordId: "contact-0",
           displayName: "Leon Becker",
           messagingId: "demo-linkedin-leon",
           provider: "linkedin",
         }),
         expect.objectContaining({
           channelClass: "linkedin",
-          recordId: "contact-26",
           displayName: "Rashid Malik",
           messagingId: "demo-linkedin-rashid",
           provider: "linkedin",
         }),
         expect.objectContaining({
           channelClass: "phone",
-          recordId: "contact-19",
           displayName: "Sophie Wagner",
           provider: "whatsapp",
         }),
         expect.objectContaining({
           channelClass: "phone",
-          recordId: "contact-6",
           displayName: "Jonas Weber",
           provider: "whatsapp",
         }),
         expect.objectContaining({
           channelClass: "instagram",
-          recordId: "contact-23",
           displayName: "Yasmin Farouk",
           provider: "instagram",
         }),
         expect.objectContaining({
           channelClass: "telegram",
-          recordId: "contact-6",
           displayName: "Jonas Weber",
           provider: "telegram",
         }),
       ]),
     );
+
+    expect(records.identityLinks).toHaveLength(6);
+    for (const [provider, recordId] of [
+      ["linkedin", "contact-0"],
+      ["linkedin", "contact-26"],
+      ["whatsapp", "contact-19"],
+      ["whatsapp", "contact-6"],
+      ["instagram", "contact-23"],
+      ["telegram", "contact-6"],
+    ]) {
+      const link = records.identityLinks.find(
+        (row) =>
+          row.recordId === recordId &&
+          identifiers.some((identity) => identity.id === row.identityId && identity.provider === provider),
+      );
+      expect(link).toMatchObject({ companyId: context.companyId, recordId });
+      expect(link?.typeId).toEqual(expect.any(String));
+    }
+    for (const identity of identifiers) {
+      expect(identity).not.toHaveProperty("recordId");
+      expect(identity).not.toHaveProperty("typeId");
+    }
 
     expect(threads).toHaveLength(28);
     expectCanonicalUpdates(records.threads);
@@ -605,7 +640,9 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
                 : person.telegram;
         return identifiers.some(
           (identifier) =>
-            identifier.recordId === context.contactIds[contactIndex] &&
+            records.identityLinks.some(
+              (link) => link.identityId === identifier.id && link.recordId === context.contactIds[contactIndex],
+            ) &&
             identifier.provider === fixture.account &&
             identifier.value === expectedValue,
         );
@@ -1065,7 +1102,12 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
     expect(records.contactIdentifierUpdates).toEqual([
       {
         data: records.contactIdentifiers[0]?.update,
-        where: { companyId_id: { companyId: context.companyId, id: "ui-recreated-linkedin-channel" } },
+        where: {
+          companyId_id: {
+            companyId: context.companyId,
+            id: "ui-recreated-linkedin-channel",
+          },
+        },
       },
     ]);
 

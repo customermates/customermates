@@ -1,3 +1,4 @@
+import { recordChannelsEnabled } from "./record-channels";
 import { z } from "zod";
 import { getTranslations } from "next-intl/server";
 
@@ -155,8 +156,7 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
         query.includeRelationships = selections;
         query.includePaths = pathSelections;
         query.includeIdentities =
-          !state.hiddenColumns.includes("system:channels") &&
-          model.capabilities.some((binding) => binding.kind === "personIdentity" && binding.typeId === type.id);
+          !state.hiddenColumns.includes("system:channels") && recordChannelsEnabled(model, type.id);
         query.grouping = state.grouping ?? undefined;
         query.groupSummaries = state.grouping ? type.defaults.groupSummaries : undefined;
         query.groupPage = state.grouping ? input.params.groupPage : undefined;

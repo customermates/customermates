@@ -1,3 +1,4 @@
+import { recordReadPredicate } from "@/features/records/record-query";
 import { BaseRepository } from "@/core/base/base-repository";
 import { Prisma } from "@/generated/prisma";
 import type { RecordActivitiesRepo, RecordActivityActor } from "./record-activities.repo";
@@ -14,7 +15,7 @@ import {
   type RecordActivityIndexRow,
 } from "./record-activity-query";
 import { formatChannelIdentifier, threadCounterpart } from "../thread-display";
-import { RecordModelSchema } from "@/features/records/record-model.schema";
+import { readRecordModelSnapshot } from "@/features/records/record-model-snapshot";
 import type { RecordRef } from "@/features/records/record-model.schema";
 import { presetId } from "@/features/records/crm-preset";
 import { LEGACY_RECORD_KINDS } from "@/features/records/legacy-record-history";
@@ -28,27 +29,62 @@ export class PrismaRecordActivitiesRepo extends BaseRepository implements Record
 
   async eventsCompanyWide(ids: string[]) {
     if (!ids.length) return [];
-    const events = await this.prisma.recordEvent.findMany({ where: { companyId: this.companyId, id: { in: ids } } });
+    const events = await this.prisma.recordEvent.findMany({
+      where: { companyId: this.companyId, id: { in: ids } },
+    });
     const actors = await this.prisma.user.findMany({
-      where: { companyId: this.companyId, id: { in: events.map((event) => event.actorId) } },
-      select: { id: true, firstName: true, lastName: true, email: true, avatarUrl: true },
+      where: {
+        companyId: this.companyId,
+        id: { in: events.map((event) => event.actorId) },
+      },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        avatarUrl: true,
+      },
     });
     const byId = new Map(actors.map((actor) => [actor.id, actor]));
-    const missing: RecordActivityActor = { firstName: "", lastName: "", email: "", avatarUrl: null };
-    return events.map((event) => ({ ...event, actor: byId.get(event.actorId) ?? missing }));
+    const missing: RecordActivityActor = {
+      firstName: "",
+      lastName: "",
+      email: "",
+      avatarUrl: null,
+    };
+    return events.map((event) => ({
+      ...event,
+      actor: byId.get(event.actorId) ?? missing,
+    }));
   }
 
   async auditLogsCompanyWide(ids: string[]) {
     if (!ids.length) return [];
-    const rows = await this.prisma.auditLog.findMany({ where: { companyId: this.companyId, id: { in: ids } } });
+    const rows = await this.prisma.auditLog.findMany({
+      where: { companyId: this.companyId, id: { in: ids } },
+    });
     const actors = await this.prisma.user.findMany({
-      where: { companyId: this.companyId, id: { in: rows.map((row) => row.userId) } },
-      select: { firstName: true, lastName: true, email: true, avatarUrl: true, id: true },
+      where: {
+        companyId: this.companyId,
+        id: { in: rows.map((row) => row.userId) },
+      },
+      select: {
+        firstName: true,
+        lastName: true,
+        email: true,
+        avatarUrl: true,
+        id: true,
+      },
     });
     const byId = new Map(actors.map((actor) => [actor.id, actor]));
     return rows.map((row) => ({
       ...row,
-      actor: byId.get(row.userId) ?? { firstName: "", lastName: "", email: "", avatarUrl: null },
+      actor: byId.get(row.userId) ?? {
+        firstName: "",
+        lastName: "",
+        email: "",
+        avatarUrl: null,
+      },
     }));
   }
 
@@ -58,9 +94,15 @@ export class PrismaRecordActivitiesRepo extends BaseRepository implements Record
         where: { companyId: this.companyId },
         orderBy: { revision: "asc" },
       }),
-      this.prisma.company.findUniqueOrThrow({ where: { id: this.companyId }, select: { currency: true } }),
+      this.prisma.company.findUniqueOrThrow({
+        where: { id: this.companyId },
+        select: { currency: true },
+      }),
     ]);
-    return { model: RecordModelSchema.parse(revision.snapshot), currency: company.currency };
+    return {
+      model: readRecordModelSnapshot(revision.snapshot),
+      currency: company.currency,
+    };
   }
 
   async hasHistoryCompanyWide(ref: RecordRef) {
@@ -76,7 +118,9 @@ export class PrismaRecordActivitiesRepo extends BaseRepository implements Record
           where: {
             companyId: this.companyId,
             entityId: ref.recordId,
-            event: { in: ["created", "updated", "deleted"].map((action) => `${kind}.${action}`) },
+            event: {
+              in: ["created", "updated", "deleted"].map((action) => `${kind}.${action}`),
+            },
           },
           select: { id: true },
         })),
@@ -87,7 +131,10 @@ export class PrismaRecordActivitiesRepo extends BaseRepository implements Record
     if (!ids.length) return [];
     const rows = await this.prisma.messagingMessage.findMany({
       where: { companyId: this.companyId, id: { in: ids } },
-      include: { thread: { include: { participants: true } }, connectedAccount: { select: { userId: true } } },
+      include: {
+        thread: { include: { participants: true } },
+        connectedAccount: { select: { userId: true } },
+      },
     });
     return rows.map(({ thread, connectedAccount, ...message }) => {
       const participant = threadCounterpart(thread.participants);
@@ -143,11 +190,18 @@ export class PrismaRecordActivitiesRepo extends BaseRepository implements Record
     access: RecordAccessMap,
   ) {
     const records = index.filter((row) => row.kind === "record" || row.kind === "audit");
-    if (!records.length) return [];
+    const messageIds = index.filter((row) => row.kind === "message").map((row) => row.id);
+    if (!records.length && !messageIds.length) return [];
     const scope = compileRecordActivityScope(this.companyId, this.userId, input, model, access);
     const history = compileRecordHistoryScope(this.companyId, input, model, access);
     const recordIds = records.filter((row) => row.kind === "record").map((row) => row.id);
     const auditIds = records.filter((row) => row.kind === "audit").map((row) => row.id);
+    const readableTypes = model.types
+      .filter((type) => !type.archived)
+      .map(
+        (type) =>
+          Prisma.sql`(record."typeId" = ${type.id} AND ${recordReadPredicate(this.companyId, access.get(type.id) ?? { access: "none", userId: this.userId }, Prisma.sql`record`)})`,
+      );
     const rows = await this.prisma.$queryRaw<
       Array<{ id: string; kind: string; typeId: string; recordId: string }>
     >(Prisma.sql`
@@ -159,7 +213,17 @@ export class PrismaRecordActivitiesRepo extends BaseRepository implements Record
       JOIN legacy_types legacy ON legacy.event = event.event
       JOIN history_scope scope ON scope."typeId" = legacy."typeId" AND scope.id = event."entityId"
       WHERE event."companyId" = ${this.companyId} AND ${auditIds.length ? Prisma.sql`event.id IN (${Prisma.join(auditIds)})` : Prisma.sql`FALSE`}
+      UNION ALL SELECT message.id, 'message'::text AS kind, association."typeId", association."recordId"
+      FROM "MessagingMessage" message
+      JOIN "MessagingThreadRecordLink" association ON association."companyId" = ${this.companyId} AND association."threadId" = message."messagingThreadId"
+      JOIN "CrmRecord" record ON record."companyId" = ${this.companyId} AND record."typeId" = association."typeId" AND record.id = association."recordId"
+      WHERE message."companyId" = ${this.companyId} AND ${messageIds.length ? Prisma.sql`message.id IN (${Prisma.join(messageIds)})` : Prisma.sql`FALSE`}
+        AND (${readableTypes.length ? Prisma.join(readableTypes, " OR ") : Prisma.sql`FALSE`})
     `);
-    return rows.map((row) => ({ id: row.id, kind: row.kind, ref: { typeId: row.typeId, recordId: row.recordId } }));
+    return rows.map((row) => ({
+      id: row.id,
+      kind: row.kind,
+      ref: { typeId: row.typeId, recordId: row.recordId },
+    }));
   }
 }

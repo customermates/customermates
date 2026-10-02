@@ -80,7 +80,11 @@ function workspaceEmailSettings(): EmailSettings {
       linkHex: DEFAULT_LINK_HEX,
       linkStyle: EmailLinkStyle.underlined,
     },
-    signature: { ...base.signature, enabled: true, template: SignatureTemplate.plain },
+    signature: {
+      ...base.signature,
+      enabled: true,
+      template: SignatureTemplate.plain,
+    },
   };
 }
 
@@ -95,7 +99,11 @@ function correspondentEmailSettings(): EmailSettings {
       linkHex: "#2f6fd0",
       linkStyle: EmailLinkStyle.plain,
     },
-    signature: { ...base.signature, enabled: true, template: SignatureTemplate.plain },
+    signature: {
+      ...base.signature,
+      enabled: true,
+      template: SignatureTemplate.plain,
+    },
   };
 }
 
@@ -564,8 +572,6 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
 
     const data = {
       companyId: context.companyId,
-      typeId: presetId(context.companyId, "contact"),
-      recordId: context.contactIds[person.contactIndex],
       provider: channel.provider,
       channelClass: channel.provider === "whatsapp" ? "phone" : channel.provider,
       value: attendee.identifier,
@@ -574,7 +580,8 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
       profileUrl: attendee.profileUrl ?? null,
     };
 
-    if (!data.recordId) throw new Error(`Missing demo contact for ${channel.key}`);
+    const recordId = context.contactIds[person.contactIndex];
+    if (!recordId) throw new Error(`Missing demo contact for ${channel.key}`);
 
     const id = fixtureId("1a000000", index + 1);
     const existingIdentifiers = await prisma.recordIdentity.findMany({
@@ -593,15 +600,35 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
     const existingIdentifier = existingIdentifiers[0];
     if (existingIdentifier) {
       await prisma.recordIdentity.update({
-        where: { companyId_id: { companyId: context.companyId, id: existingIdentifier.id } },
+        where: {
+          companyId_id: {
+            companyId: context.companyId,
+            id: existingIdentifier.id,
+          },
+        },
         data,
       });
       await prisma.recordIdentityKey.deleteMany({
-        where: { companyId: context.companyId, identityId: existingIdentifier.id },
+        where: {
+          companyId: context.companyId,
+          identityId: existingIdentifier.id,
+        },
       });
     } else await prisma.recordIdentity.create({ data: { ...data, id } });
 
     const identityId = existingIdentifier?.id ?? id;
+    await prisma.recordIdentityLink.createMany({
+      data: [
+        {
+          companyId: context.companyId,
+          identityId,
+          typeId: presetId(context.companyId, "contact"),
+          recordId,
+        },
+      ],
+      skipDuplicates: true,
+    });
+
     await prisma.recordIdentityKey.createMany({
       data: identityKeys(data).map((value) => ({
         companyId: context.companyId,

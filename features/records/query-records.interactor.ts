@@ -1,3 +1,4 @@
+import { recordChannelsEnabled } from "./record-channels";
 import { z } from "zod";
 
 import type { RecordRepo, StoredRecord } from "./record.repo";
@@ -196,7 +197,7 @@ export class GetRecordInteractor extends AuthenticatedInteractor<z.infer<typeof 
             policy.access(model.types.filter((type) => !type.archived).map((type) => type.id)),
           );
           const data = recordDto(record, model, visible, policy.memberScope);
-          if (model.capabilities.some((binding) => binding.kind === "personIdentity" && binding.typeId === ref.typeId))
+          if (recordChannelsEnabled(model, ref.typeId))
             data.identities = await this.records.getIdentitiesCompanyWide(ref);
           return { ok: true as const, data };
         } catch (error) {

@@ -2,7 +2,7 @@ import { RecordIdentityReader } from "./record-identity-reader";
 import { z } from "zod";
 import type { RecordRepo } from "./record.repo";
 import type { RecordAccessPolicy } from "./record-access";
-import type { RecordIdentityReference } from "./record-identity-reference.schema";
+import { RecordIdentityReferenceSchema } from "./record-identity-reference.schema";
 import type { Validated } from "@/core/validation/validation.utils";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -17,10 +17,20 @@ import { recordWriteFailure } from "./mutate-record.interactor";
 export const ResolveRecordIdentitiesSchema = z
   .object({
     identifiers: z.array(RecordIdentityInputSchema.pick({ provider: true, value: true })).max(1000),
+    typeIds: z.array(z.uuid()).max(100).optional(),
   })
   .strict();
 type Input = z.infer<typeof ResolveRecordIdentitiesSchema>;
-type Output = { matches: Array<Input["identifiers"][number] & { record: RecordIdentityReference }> };
+export const ResolveRecordIdentitiesResultSchema = z
+  .object({
+    matches: z.array(
+      RecordIdentityInputSchema.pick({ provider: true, value: true })
+        .extend({ records: z.array(RecordIdentityReferenceSchema) })
+        .strict(),
+    ),
+  })
+  .strict();
+type Output = z.infer<typeof ResolveRecordIdentitiesResultSchema>;
 
 @AllowInDemoMode
 @TenantInteractor()
@@ -41,7 +51,12 @@ export class ResolveRecordIdentitiesInteractor extends AuthenticatedInteractor<I
         try {
           return {
             ok: true,
-            data: { matches: await new RecordIdentityReader(this.records, this.policy).resolve(input.identifiers) },
+            data: {
+              matches: await new RecordIdentityReader(this.records, this.policy).resolve(
+                input.identifiers,
+                input.typeIds,
+              ),
+            },
           };
         } catch (error) {
           return recordWriteFailure(error);

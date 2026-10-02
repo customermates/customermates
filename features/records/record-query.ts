@@ -1,3 +1,4 @@
+import { recordChannelsEnabled } from "./record-channels";
 import { Prisma } from "@/generated/prisma";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordWriteError } from "./record-write.service";
@@ -242,9 +243,10 @@ export function compileRecordQuery(
           AND value.state = 'value'
           AND element ILIKE ${search} AND (${Prisma.join(permitted, " OR ")})`);
     }
-    if (model.capabilities.some((binding) => binding.kind === "personIdentity" && binding.typeId === query.typeId)) {
-      matches.push(Prisma.sql`SELECT identity."recordId" AS id FROM "RecordIdentity" identity
-        WHERE identity."companyId" = ${companyId} AND identity."typeId" = ${query.typeId}
+    if (recordChannelsEnabled(model, query.typeId)) {
+      matches.push(Prisma.sql`SELECT association."recordId" AS id FROM "RecordIdentityLink" association
+        JOIN "RecordIdentity" identity ON identity."companyId" = ${companyId} AND identity.id = association."identityId"
+        WHERE association."companyId" = ${companyId} AND association."typeId" = ${query.typeId}
         AND (identity.value ILIKE ${search} OR identity."messagingId" ILIKE ${search})`);
     }
     if (matches.length) {

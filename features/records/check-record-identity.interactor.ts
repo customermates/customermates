@@ -1,3 +1,4 @@
+import { recordChannelsEnabled } from "./record-channels";
 import { z } from "zod";
 
 import type { RecordRepo } from "./record.repo";
@@ -13,7 +14,6 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { channelClass } from "@/ee/messaging/provider";
 import { RecordIdentityInputSchema } from "./record-identity.schema";
 import { identityKeys, normalizedIdentity } from "./record-identity";
-import { recordKey } from "./record-calculation.service";
 
 export const CheckRecordIdentitySchema = z
   .object({
@@ -45,8 +45,7 @@ export class CheckRecordIdentityInteractor extends AuthenticatedInteractor<
         const type = model.types.find((type) => type.id === input.typeId && !type.archived);
         if (!policy.actor || !type || (!policy.allowed(type.id, "readAll") && !policy.allowed(type.id, "readOwn")))
           return failNotFound(CustomErrorCode.recordTypeNotFound);
-        if (!model.capabilities.some((binding) => binding.kind === "personIdentity" && binding.typeId === type.id))
-          return failAuthorization(CustomErrorCode.recordProtected);
+        if (!recordChannelsEnabled(model, type.id)) return failAuthorization(CustomErrorCode.recordProtected);
         const ref = input.recordId ? { typeId: type.id, recordId: input.recordId } : null;
         if (!policy.allowed(type.id, ref ? "update" : "create"))
           return failAuthorization(CustomErrorCode.permissionDenied);
@@ -57,10 +56,10 @@ export class CheckRecordIdentityInteractor extends AuthenticatedInteractor<
         }
         const identity = normalizedIdentity(input.identity);
         if (!identity) return fail(CustomErrorCode.invalidChannelValue, ["identity", "value"]);
-        const owners = await this.records.getIdentityOwnersCompanyWide(
+        const known = await this.records.getIdentityChannelsCompanyWide(
           identityKeys(identity).map((value) => ({ channelClass: channelClass(identity.provider), value })),
         );
-        if (owners.some((owner) => !ref || recordKey(owner.ref) !== recordKey(ref)))
+        if (new Set(known.map((row) => row.id)).size > 1)
           return failConflict(CustomErrorCode.channelAlreadyLinked, ["identity"]);
         return { ok: true, data: { available: true } };
       },

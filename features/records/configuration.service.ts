@@ -321,16 +321,34 @@ export class RecordConfigurationService extends UserAccessor {
         grants.push({ typeId, grants: operation.grants });
       }
       if (operation.operation === "putCapability") {
-        if (!policy.isAdmin) throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
         const binding = resolveDefinition(operation.capability) as RecordModel["capabilities"][number];
         const existing = current.capabilities.find((candidate) => candidate.id === binding.id);
-        const protectedKind = (kind: string) => ["personIdentity", "membershipAuthorization"].includes(kind);
+        if (binding.kind !== "channels" && !policy.isAdmin)
+          throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
+        const protectedKind = (kind: string) => kind === "membershipAuthorization";
         if (
+          (existing && (existing.typeId !== binding.typeId || existing.kind !== binding.kind)) ||
           (existing && protectedKind(existing.kind) && JSON.stringify(existing) !== JSON.stringify(binding)) ||
           (!existing && protectedKind(binding.kind))
         )
           throw new RecordWriteError(CustomErrorCode.recordProtected, "authorization");
         upsert(model.capabilities, binding);
+        if (binding.kind === "channels" && binding.enabled !== false && (!existing || existing.enabled === false)) {
+          const selfId = presetId(this.companyId, `activities:${binding.typeId}:self`);
+          const self = model.activityPaths.find((path) => path.id === selfId);
+          const type = model.types.find((type) => type.id === binding.typeId);
+          if (self) self.includeMessages = true;
+          else if (type)
+            model.activityPaths.push({
+              id: selfId,
+              typeId: type.id,
+              label: type.pluralLabel,
+              path: [],
+              includeMessages: true,
+              includeAudit: true,
+              archived: false,
+            });
+        }
       }
       if (operation.operation === "putActivityPath")
         upsert(model.activityPaths, resolveDefinition(operation.activityPath) as RecordModel["activityPaths"][number]);
@@ -430,7 +448,10 @@ export class RecordConfigurationService extends UserAccessor {
         for (const entry of layouts) {
           if (!blockedLayouts.has(entry.typeId) && !recordDetailLayoutIsValid(entry.typeId, entry.layout, model)) {
             blockedLayouts.add(entry.typeId);
-            validation.issues.push({ code: "detail_layout_incompatible", typeId: entry.typeId });
+            validation.issues.push({
+              code: "detail_layout_incompatible",
+              typeId: entry.typeId,
+            });
           }
         }
         const last = layouts.at(-1);
@@ -446,7 +467,10 @@ export class RecordConfigurationService extends UserAccessor {
           if (blockedTypes.has(consumer.typeId)) continue;
           if (!recordViewStateIsValid(consumer.typeId, consumer.state, model, currency)) {
             blockedTypes.add(consumer.typeId);
-            validation.issues.push({ code: "saved_view_incompatible", typeId: consumer.typeId });
+            validation.issues.push({
+              code: "saved_view_incompatible",
+              typeId: consumer.typeId,
+            });
           }
         }
         const last = consumers.at(-1);
@@ -459,7 +483,10 @@ export class RecordConfigurationService extends UserAccessor {
       const widgets = await this.records.getWidgetMeasuresCompanyWide(widgetCursor);
       for (const widget of widgets) {
         if (!recordMeasureIsValid(widget.measure, model))
-          validation.issues.push({ code: "widget_incompatible", typeId: widget.measure.source.typeId });
+          validation.issues.push({
+            code: "widget_incompatible",
+            typeId: widget.measure.source.typeId,
+          });
       }
       const last = widgets.at(-1);
       if (!last || widgets.length < 200) break;
@@ -488,7 +515,10 @@ export class RecordConfigurationService extends UserAccessor {
       const subscriptions = await this.records.getEventSubscriptionsCompanyWide(subscriptionCursor);
       for (const subscription of subscriptions) {
         if (!recordEventSubscriptionIsValid(subscription, model))
-          validation.issues.push({ code: "event_subscription_incompatible", typeId: subscription.typeId ?? undefined });
+          validation.issues.push({
+            code: "event_subscription_incompatible",
+            typeId: subscription.typeId ?? undefined,
+          });
       }
       const last = subscriptions.at(-1);
       if (!last || subscriptions.length < 200) break;
@@ -516,7 +546,11 @@ export class RecordConfigurationService extends UserAccessor {
             } catch (error) {
               if (!(error instanceof RecordWriteError)) throw error;
               invalid.add(field.id);
-              validation.issues.push({ code: "existing_values_incompatible", fieldId: field.id, typeId });
+              validation.issues.push({
+                code: "existing_values_incompatible",
+                fieldId: field.id,
+                typeId,
+              });
             }
           }
         }
@@ -529,7 +563,10 @@ export class RecordConfigurationService extends UserAccessor {
         causeId: input.idempotencyKey,
         expectedRevision: current.revision,
         configuration: input,
-        references: [...references].map(([reference, id]) => ({ reference, id })),
+        references: [...references].map(([reference, id]) => ({
+          reference,
+          id,
+        })),
         grants: grants.map(({ typeId, grants: after }) => ({
           typeId,
           before: previousGrants

@@ -458,7 +458,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         targets,
         fields: [{ fieldId: f.id("service.amount"), value: decimal("300") }],
       }),
-    ).toMatchObject({ ok: false, error: { issues: [{ params: { kind: "conflict" } }] } });
+    ).toMatchObject({
+      ok: false,
+      error: { issues: [{ params: { kind: "conflict" } }] },
+    });
     await f.run(() =>
       runInTransaction(async () => {
         await f.repo.setGrants(a.typeId, [{ roleId: f.memberRole.id, actions: ["readOwn", "update"] }]);
@@ -2082,21 +2085,36 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     for (const ref of services) {
       expect(await f.run(() => f.preview.invoke(adoption()))).toMatchObject({
         ok: true,
-        data: { valid: false, issues: [{ code: "cardinality_conflict", relationId: relationshipId }] },
+        data: {
+          valid: false,
+          issues: [{ code: "cardinality_conflict", relationId: relationshipId }],
+        },
       });
-      expect(await f.run(() => f.configure.invoke(adoption()))).toMatchObject({ ok: false });
+      expect(await f.run(() => f.configure.invoke(adoption()))).toMatchObject({
+        ok: false,
+      });
       expect((await f.run(() => f.repo.getModel())).revision).toBe(2);
       expect(
         await f.mutation(
-          { action: "link", relationId: relationshipId, source: ref, target: organization },
+          {
+            action: "link",
+            relationId: relationshipId,
+            source: ref,
+            target: organization,
+          },
           f.admin,
           randomUUID(),
           2,
         ),
       ).toMatchObject({ ok: true });
     }
-    expect(await f.run(() => f.preview.invoke(adoption()))).toMatchObject({ ok: true, data: { valid: true } });
-    expect(await f.run(() => f.configure.invoke(adoption()))).toMatchObject({ ok: true });
+    expect(await f.run(() => f.preview.invoke(adoption()))).toMatchObject({
+      ok: true,
+      data: { valid: true },
+    });
+    expect(await f.run(() => f.configure.invoke(adoption()))).toMatchObject({
+      ok: true,
+    });
     await f.run(() =>
       runInTransaction(async () => {
         await f.repo.setGrants(organization.typeId, [{ roleId: f.memberRole.id, actions: ["readOwn"] }]);
@@ -2121,8 +2139,16 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         "Item",
         [["lineItem.quantity", decimal("1", null)]],
         [
-          { relationId: f.id("lineItem.service"), direction: "outgoing", record: service },
-          { relationId: f.id("lineItem.deal"), direction: "outgoing", record: deal },
+          {
+            relationId: f.id("lineItem.service"),
+            direction: "outgoing",
+            record: service,
+          },
+          {
+            relationId: f.id("lineItem.deal"),
+            direction: "outgoing",
+            record: deal,
+          },
         ],
       );
     }
@@ -2138,7 +2164,13 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       events: ["record.deleted"],
       query: {
         typeId: f.id("service"),
-        filters: [{ fieldId: f.id("service.amount"), operator: "gt", value: decimal("5") }],
+        filters: [
+          {
+            fieldId: f.id("service.amount"),
+            operator: "gt",
+            value: decimal("5"),
+          },
+        ],
         relationships: [],
         relatedFilters: [
           {
@@ -2147,7 +2179,13 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
               { relationId: f.id("lineItem.deal"), direction: "outgoing" },
             ],
             operator: "any",
-            filters: [{ fieldId: f.id("deal.name"), operator: "eq", value: textValue("Deletion filter parent") }],
+            filters: [
+              {
+                fieldId: f.id("deal.name"),
+                operator: "eq",
+                value: textValue("Deletion filter parent"),
+              },
+            ],
             relationships: [],
           },
         ],
@@ -2167,9 +2205,20 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
             relationships: [],
             relatedFilters: [
               {
-                path: [{ relationId: f.id("lineItem.service"), direction: "outgoing" }],
+                path: [
+                  {
+                    relationId: f.id("lineItem.service"),
+                    direction: "outgoing",
+                  },
+                ],
                 operator: "any",
-                filters: [{ fieldId: f.id("service.amount"), operator: "gt", value: decimal("15") }],
+                filters: [
+                  {
+                    fieldId: f.id("service.amount"),
+                    operator: "gt",
+                    value: decimal("15"),
+                  },
+                ],
                 relationships: [],
               },
             ],
@@ -2179,7 +2228,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
     const key = randomUUID();
     const targets = await Promise.all(
-      services.map(async (ref) => ({ ref, expectedVersion: (await f.readRecord(ref)).version })),
+      services.map(async (ref) => ({
+        ref,
+        expectedVersion: (await f.readRecord(ref)).version,
+      })),
     );
     expect(await f.mutation({ action: "deleteMany", targets }, f.admin, key)).toMatchObject({ ok: true });
     const matches = await f.run(() =>
@@ -2192,7 +2244,11 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       services[0].recordId,
     ]);
     expect(matches.filter((row) => row.subscriptionId === lineHook.id)).toHaveLength(1);
-    const events = await f.run(() => prisma.recordEvent.findMany({ where: { companyId: f.company.id, causeId: key } }));
+    const events = await f.run(() =>
+      prisma.recordEvent.findMany({
+        where: { companyId: f.company.id, causeId: key },
+      }),
+    );
     expect(events.filter((row) => row.kind === "record.deleted")).toHaveLength(6);
     expect(new Set(events.map((row) => `${row.typeId}:${row.recordId}:${row.kind}`)).size).toBe(events.length);
     const matched = recordInvariant(matches.find((row) => row.subscriptionId === subscription.id));
@@ -2204,7 +2260,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       recheckSubscriptionSources: true,
     };
     const reader = createTestRecordRecipientReader();
-    expect(await reader.readEvent(request)).toMatchObject({ event: "record.deleted", record: { ref: services[0] } });
+    expect(await reader.readEvent(request)).toMatchObject({
+      event: "record.deleted",
+      record: { ref: services[0] },
+    });
     await f.run(() => runInTransaction(() => f.repo.setGrants(f.id("service"), [])));
     expect(await reader.readEvent(request)).toBeNull();
   });
@@ -2220,7 +2279,11 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       await f.run(() =>
         runInTransaction(async () => {
           await prisma.crmRecord.createMany({
-            data: lineIds.map((id) => ({ companyId: f.company.id, typeId: f.id("lineItem"), id })),
+            data: lineIds.map((id) => ({
+              companyId: f.company.id,
+              typeId: f.id("lineItem"),
+              id,
+            })),
           });
           await prisma.recordValue.createMany({
             data: lineIds.map((recordId, index) => ({
@@ -2257,14 +2320,29 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
             changedFieldIds: [],
             query: {
               typeId: f.id("lineItem"),
-              filters: [{ fieldId: f.id("lineItem.quantity"), operator: "gt", value: decimal("1", null) }],
+              filters: [
+                {
+                  fieldId: f.id("lineItem.quantity"),
+                  operator: "gt",
+                  value: decimal("1", null),
+                },
+              ],
               relationships: [],
               relatedFilters: [
                 {
-                  path: [{ relationId: f.id("lineItem.service"), direction: "outgoing" }],
+                  path: [
+                    {
+                      relationId: f.id("lineItem.service"),
+                      direction: "outgoing",
+                    },
+                  ],
                   operator: "any",
                   filters: [
-                    { fieldId: f.id("service.name"), operator: "eq", value: textValue("Staged removal catalog") },
+                    {
+                      fieldId: f.id("service.name"),
+                      operator: "eq",
+                      value: textValue("Staged removal catalog"),
+                    },
                   ],
                   relationships: [],
                 },
@@ -2275,7 +2353,11 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       });
       const key = randomUUID();
       const result = await f.mutation(
-        { action: "delete", ref: service, expectedVersion: (await f.readRecord(service)).version },
+        {
+          action: "delete",
+          ref: service,
+          expectedVersion: (await f.readRecord(service)).version,
+        },
         f.admin,
         key,
       );
@@ -2289,11 +2371,20 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         phases.add((operation?.cursor as { phase?: string })?.phase ?? "source");
         expect(
           await f.run(() =>
-            prisma.recordEventMatch.count({ where: { companyId: f.company.id, subscriptionId: subscription.id } }),
+            prisma.recordEventMatch.count({
+              where: {
+                companyId: f.company.id,
+                subscriptionId: subscription.id,
+              },
+            }),
           ),
         ).toBe(0);
         expect(
-          await f.run(() => prisma.crmRecord.count({ where: { companyId: f.company.id, typeId: f.id("lineItem") } })),
+          await f.run(() =>
+            prisma.crmRecord.count({
+              where: { companyId: f.company.id, typeId: f.id("lineItem") },
+            }),
+          ),
         ).toBe(501);
         done = (await f.run(() => f.worker().advance(operationId))).done;
       }
@@ -2323,9 +2414,15 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         new Set(lineIds.filter((_, index) => index % 2 === 0)),
       );
       expect(
-        await f.run(() => prisma.crmRecord.count({ where: { companyId: f.company.id, typeId: f.id("lineItem") } })),
+        await f.run(() =>
+          prisma.crmRecord.count({
+            where: { companyId: f.company.id, typeId: f.id("lineItem") },
+          }),
+        ),
       ).toBe(0);
-      expect(await f.run(() => f.worker().advance(operationId))).toEqual({ done: true });
+      expect(await f.run(() => f.worker().advance(operationId))).toEqual({
+        done: true,
+      });
       expect(await matches()).toEqual(accepted);
       const first = recordInvariant(accepted[0]);
       expect(
@@ -2353,8 +2450,16 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
             `Line ${index}`,
             [["lineItem.quantity", decimal("2", null)]],
             [
-              { relationId: f.id("lineItem.service"), direction: "outgoing", record: service },
-              { relationId: f.id("lineItem.deal"), direction: "outgoing", record: deal },
+              {
+                relationId: f.id("lineItem.service"),
+                direction: "outgoing",
+                record: service,
+              },
+              {
+                relationId: f.id("lineItem.deal"),
+                direction: "outgoing",
+                record: deal,
+              },
             ],
           ),
         );
@@ -2364,7 +2469,12 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         await f.run(() =>
           runInTransaction(async () => {
             for (const typeId of [service.typeId, deal.typeId])
-              await f.repo.setGrants(typeId, [{ roleId: f.memberRole.id, actions: ["readAll", "update", "delete"] }]);
+              await f.repo.setGrants(typeId, [
+                {
+                  roleId: f.memberRole.id,
+                  actions: ["readAll", "update", "delete"],
+                },
+              ]);
           }),
         );
       }
@@ -2406,13 +2516,18 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           Promise.all([
             prisma.crmRecord.count({ where: { companyId: f.company.id } }),
             prisma.recordLink.count({ where: { companyId: f.company.id } }),
-            prisma.recordEvent.count({ where: { companyId: f.company.id, causeId: idempotencyKey } }),
+            prisma.recordEvent.count({
+              where: { companyId: f.company.id, causeId: idempotencyKey },
+            }),
           ]),
         );
       const before = await liveGraph();
       if (scenario === "stale-impact") {
         for (let step = 0; step < 10 && (await state())?.state !== "failed"; step++) await advance();
-        expect(await state()).toMatchObject({ state: "failed", errorCode: CustomErrorCode.recordVersionChanged });
+        expect(await state()).toMatchObject({
+          state: "failed",
+          errorCode: CustomErrorCode.recordVersionChanged,
+        });
       } else {
         for (
           let step = 0;
@@ -2429,7 +2544,11 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
               prisma.crmRecord.update({
                 where: {
                   companyId: f.company.id,
-                  companyId_typeId_id: { companyId: f.company.id, typeId: line.typeId, id: line.recordId },
+                  companyId_typeId_id: {
+                    companyId: f.company.id,
+                    typeId: line.typeId,
+                    id: line.recordId,
+                  },
                 },
                 data: { version: { increment: 1 } },
               }),
@@ -2474,7 +2593,9 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       }
       if (scenario === "resume") {
         const events = await f.run(() =>
-          prisma.recordEvent.findMany({ where: { companyId: f.company.id, causeId: idempotencyKey } }),
+          prisma.recordEvent.findMany({
+            where: { companyId: f.company.id, causeId: idempotencyKey },
+          }),
         );
         expect(events.filter((event) => event.kind === "record.deleted")).toHaveLength(4);
         expect(new Set(events.map((event) => event.recordId))).toEqual(
@@ -2484,14 +2605,20 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         expect(await advance()).toEqual({ done: true });
         expect(
           await f.run(() =>
-            prisma.recordEvent.findMany({ where: { companyId: f.company.id, causeId: idempotencyKey } }),
+            prisma.recordEvent.findMany({
+              where: { companyId: f.company.id, causeId: idempotencyKey },
+            }),
           ),
         ).toEqual(events);
       } else expect(await liveGraph()).toEqual(before);
       expect((await f.run(() => f.repo.getState()))?.activeOperationId).toBeNull();
-      expect(await f.run(() => prisma.recordStageRow.count({ where: { companyId: f.company.id, operationId } }))).toBe(
-        0,
-      );
+      expect(
+        await f.run(() =>
+          prisma.recordStageRow.count({
+            where: { companyId: f.company.id, operationId },
+          }),
+        ),
+      ).toBe(0);
     },
   );
 
@@ -3724,7 +3851,9 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     expect(await f.run(() => getUpsertRoleInteractor().invoke(input))).toMatchObject({ ok: false });
     expect(await f.run(() => getGetRoleEditorInteractor().invoke({}))).toMatchObject({ ok: true });
-    expect(await f.run(() => f.cancel.invoke({ operationId }))).toMatchObject({ ok: true });
+    expect(await f.run(() => f.cancel.invoke({ operationId }))).toMatchObject({
+      ok: true,
+    });
     const events = getEventService();
     vi.spyOn(events, "publish").mockRejectedValue(new Error("Simulated audit failure"));
     const service = new RoleManagementService(
@@ -5221,8 +5350,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         identities: [{ provider: "outlook", value: "person@example.test" }],
       }),
     ).toMatchObject({
-      ok: false,
-      error: { issues: [{ params: { kind: "conflict" } }] },
+      ok: true,
     });
     expect(
       await f.mutation({
@@ -5230,11 +5358,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         identities: [{ provider: "linkedin", value: "provider-person" }],
       }),
     ).toMatchObject({
-      ok: false,
-      error: { issues: [{ params: { kind: "conflict" } }] },
+      ok: true,
     });
     const count = await f.run(() => f.repo.countRecordsCompanyWide([ref.typeId]));
-    expect(count).toBe(1);
+    expect(count).toBe(3);
     const fresh = await f.readRecord(ref);
     expect(
       await f.mutation({
@@ -5487,7 +5614,9 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(await f.run(() => executeMcpTool(manageRecordDetailLayoutV2Tool, [reset]), f.member)).toMatchObject({
       ok: false,
     });
-    expect(await f.run(() => f.cancel.invoke({ operationId }))).toMatchObject({ ok: true });
+    expect(await f.run(() => f.cancel.invoke({ operationId }))).toMatchObject({
+      ok: true,
+    });
     expect(await f.run(() => executeMcpTool(manageRecordDetailLayoutV2Tool, [reset]), f.member)).toMatchObject({
       ok: true,
       structuredContent: { hasPersonalization: false },
@@ -5626,7 +5755,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     await assertReaders([]);
   });
 
-  it("rejects duplicate channel claims inside a payload and channels on unbound types", async () => {
+  it("deduplicates channel associations inside a payload and channels on unbound types", async () => {
     const f = await fixture();
     expect(
       await f.mutation({
@@ -5638,7 +5767,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           { provider: "google", value: "PERSON@example.test" },
         ],
       }),
-    ).toMatchObject({ ok: false });
+    ).toMatchObject({ ok: true });
     const ref = await f.create("organization", "Company");
     expect(
       await f.mutation({
@@ -5694,12 +5823,12 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       await f.run(() =>
         f.repo.getIdentityOwnersCompanyWide([{ channelClass: "email", value: "private@example.test" }]),
       ),
-    ).toEqual([{ channelClass: "email", value: "private@example.test", ref }]);
+    ).toMatchObject([{ channelClass: "email", value: "private@example.test", ref }]);
     expect(
       await foreign.run(() =>
         foreign.repo.getIdentityOwnersCompanyWide([{ channelClass: "email", value: "private@example.test" }]),
       ),
-    ).toEqual([{ channelClass: "email", value: "private@example.test", ref: other }]);
+    ).toMatchObject([{ channelClass: "email", value: "private@example.test", ref: other }]);
   });
 
   it("keeps staged channel edits invisible until atomic publication", async () => {
@@ -5750,7 +5879,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     ).toEqual([]);
     expect(
       await f.run(() => f.repo.getIdentityOwnersCompanyWide([{ channelClass: "email", value: "after@example.test" }])),
-    ).toEqual([{ channelClass: "email", value: "after@example.test", ref }]);
+    ).toMatchObject([{ channelClass: "email", value: "after@example.test", ref }]);
   });
 
   it("checks channel availability without exposing a restricted owner or allowing stale record access", async () => {
@@ -5772,7 +5901,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     };
     expect(await f.run(() => checker.invoke({ ...input, recordId: ref.recordId }))).toMatchObject({ ok: true });
     const conflict = await f.run(() => checker.invoke(input));
-    expect(conflict.ok).toBe(false);
+    expect(conflict.ok).toBe(true);
     expect(JSON.stringify(conflict)).not.toContain(ref.recordId);
     expect(await f.run(() => checker.invoke({ ...input, typeId: foreign.id("contact") }))).toMatchObject({ ok: false });
     expect(await f.run(() => checker.invoke({ ...input, typeId: f.id("service") }))).toMatchObject({ ok: false });
@@ -5785,7 +5914,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ok: false,
     });
     expect(await f.run(() => checker.invoke(input), f.member)).toMatchObject({
-      ok: false,
+      ok: true,
     });
   });
 
@@ -5815,7 +5944,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       });
     expect(await f.run(resolve, f.member)).toMatchObject({
       ok: true,
-      data: { matches: [] },
+      data: { matches: [{ records: [] }] },
     });
     await f.run(() =>
       runInTransaction(async () => {
@@ -5830,7 +5959,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           {
             provider: "outlook",
             value: "CONNECTED@example.test",
-            record: { ref, title: "Connected Person" },
+            records: [{ ref, title: "Connected Person" }],
           },
         ],
       },
@@ -5858,12 +5987,12 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
     expect(await f.run(resolve, f.member)).toMatchObject({
       ok: true,
-      data: { matches: [{ record: { ref } }] },
+      data: { matches: [{ records: [{ ref }] }] },
     });
     await f.run(() => runInTransaction(() => f.repo.setAssignments(ref, [])));
     expect(await f.run(resolve, f.member)).toMatchObject({
       ok: true,
-      data: { matches: [] },
+      data: { matches: [{ records: [] }] },
     });
     expect(
       await f.run(() => f.search.invoke(RecordSearchSchema.parse({ searchTerm: "connected@example.test" })), f.member),
@@ -5952,9 +6081,9 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
     const read = () => inbox.listMessagesForThread(thread.id, { page: 1, pageSize: 10 });
     const before = await f.run(read, f.member);
-    expect(before.messages[0]?.sender.record).toBeNull();
+    expect(before.messages[0]?.sender.records).toEqual([]);
     expect(before.messages[0]?.sender).not.toHaveProperty("contact");
-    expect(before.messages[0]?.recipients.to[0]?.record).toBeNull();
+    expect(before.messages[0]?.recipients.to[0]?.records).toEqual([]);
     expect(before.messages[0]?.recipients.bcc).toEqual([]);
     expect(await f.run(() => lookup.invoke({ search: "" }), f.member)).toMatchObject({
       ok: true,
@@ -5969,13 +6098,15 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       }),
     );
     const after = await f.run(read, f.member);
-    expect(after.messages[0]?.sender.record).toEqual({
-      ref,
-      title: "CRM Ada",
-      avatarUrl: null,
-      canEdit: true,
-    });
-    expect(after.messages[0]?.recipients.to[0]?.record).toEqual(after.messages[0]?.sender.record);
+    expect(after.messages[0]?.sender.records).toMatchObject([
+      {
+        ref,
+        title: "CRM Ada",
+        avatarUrl: null,
+        canEdit: true,
+      },
+    ]);
+    expect(after.messages[0]?.recipients.to[0]?.records).toEqual(after.messages[0]?.sender.records);
     expect(await f.run(() => lookup.invoke({ search: "ada" }), f.member)).toMatchObject({
       ok: true,
       data: {
@@ -6001,7 +6132,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       expect((await f.run(() => inbox.getItems(params), f.member)).map((row) => row.id)).toEqual([thread.id]);
     }
     await f.run(() => runInTransaction(() => f.repo.setAssignments(ref, [])));
-    expect((await f.run(read, f.member)).messages[0]?.sender.record).toBeNull();
+    expect((await f.run(read, f.member)).messages[0]?.sender.records).toEqual([]);
     expect(await f.run(() => inbox.getCount(filter("allSet")), f.member)).toBe(0);
     await f.run(() =>
       prisma.connectedAccount.update({
@@ -6221,6 +6352,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
             attendeeId: "provider-person",
             identifier,
             displayName: "Provider person",
+            records: [],
           },
         ],
       });
@@ -6234,7 +6366,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         ],
       };
       expect(await f.run(() => inbox.getCount(params))).toBe(1);
-      expect((await f.run(() => inbox.getItems(params)))[0]?.participants[0]?.record?.ref).toEqual(ref);
+      expect((await f.run(() => inbox.getItems(params)))[0]?.participants[0]?.records?.[0]?.ref).toEqual(ref);
       const before = await f.run(() =>
         prisma.messagingThreadParticipant.findFirstOrThrow({
           where: { companyId: f.company.id, messagingThreadId: thread.id },
@@ -8350,8 +8482,16 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       runInTransaction(async () => {
         await prisma.crmRecord.createMany({
           data: [
-            ...deals.map((id) => ({ companyId: f.company.id, typeId: f.id("deal"), id })),
-            ...lines.map((id) => ({ companyId: f.company.id, typeId: f.id("lineItem"), id })),
+            ...deals.map((id) => ({
+              companyId: f.company.id,
+              typeId: f.id("deal"),
+              id,
+            })),
+            ...lines.map((id) => ({
+              companyId: f.company.id,
+              typeId: f.id("lineItem"),
+              id,
+            })),
           ],
         });
         await prisma.recordValue.createMany({
@@ -8395,7 +8535,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
             return f.choices.invoke(
               RecordChoicesSchema.parse({
                 typeId: f.id("deal"),
-                throughPath: { ref: service, pathId: f.id("service.deals.path") },
+                throughPath: {
+                  ref: service,
+                  pathId: f.id("service.deals.path"),
+                },
                 page,
                 pageSize: 25,
               }),
@@ -8404,7 +8547,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           { readOnly: true },
         ),
       );
-      expect(result).toMatchObject({ ok: true, data: { total: 600, page, pageSize: 25 } });
+      expect(result).toMatchObject({
+        ok: true,
+        data: { total: 600, page, pageSize: 25 },
+      });
       if (!result.ok) throw result.error;
       expect(result.data.records).toHaveLength(25);
       expect(new Set(result.data.records.map((record) => record.ref.recordId)).size).toBe(25);
@@ -11573,14 +11719,26 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     } finally {
       interruptedCleanup.mockRestore();
     }
-    expect(await f.value(service, "service.amount")).toEqual({ state: "value", value: decimal("10") });
-    expect(await f.value(deal, "deal.totalValue")).toEqual({ state: "value", value: decimal("20") });
+    expect(await f.value(service, "service.amount")).toEqual({
+      state: "value",
+      value: decimal("10"),
+    });
+    expect(await f.value(deal, "deal.totalValue")).toEqual({
+      state: "value",
+      value: decimal("20"),
+    });
     expect(await operationEvents()).toEqual([]);
     expect((await f.run(() => f.repo.getState()))?.activeOperationId).toBe(operationId);
     expect(
-      await f.run(() => prisma.recordStageRow.count({ where: { companyId: f.company.id, operationId } })),
+      await f.run(() =>
+        prisma.recordStageRow.count({
+          where: { companyId: f.company.id, operationId },
+        }),
+      ),
     ).toBeGreaterThan(0);
-    expect(await f.run(() => f.worker().advance(operationId))).toEqual({ done: true });
+    expect(await f.run(() => f.worker().advance(operationId))).toEqual({
+      done: true,
+    });
     expect(await f.value(service, "service.amount")).toEqual({
       state: "value",
       value: decimal("12"),
@@ -11601,7 +11759,13 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       after: { value: { state: "value", value: decimal("24") } },
     });
     expect((await f.run(() => f.repo.getState()))?.activeOperationId).toBeNull();
-    expect(await f.run(() => prisma.recordStageRow.count({ where: { companyId: f.company.id, operationId } }))).toBe(0);
+    expect(
+      await f.run(() =>
+        prisma.recordStageRow.count({
+          where: { companyId: f.company.id, operationId },
+        }),
+      ),
+    ).toBe(0);
     expect(await f.run(() => f.worker().advance(operationId))).toEqual({
       done: true,
     });
@@ -11630,7 +11794,12 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
               action: "update",
               ref: service,
               expectedVersion: 1,
-              fields: [{ fieldId: f.id("service.name"), value: textValue("Unpublished source") }],
+              fields: [
+                {
+                  fieldId: f.id("service.name"),
+                  value: textValue("Unpublished source"),
+                },
+              ],
             },
           },
         }),
@@ -11649,9 +11818,18 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       state: "failed",
       errorCode: "worker_failed",
     });
-    expect(await f.run(() => prisma.recordStageRow.count({ where: { companyId: f.company.id, operationId } }))).toBe(0);
+    expect(
+      await f.run(() =>
+        prisma.recordStageRow.count({
+          where: { companyId: f.company.id, operationId },
+        }),
+      ),
+    ).toBe(0);
     expect((await f.run(() => f.repo.getState()))?.activeOperationId).toBeNull();
-    expect(await f.value(service, "service.name")).toEqual({ state: "value", value: textValue("Recoverable source") });
+    expect(await f.value(service, "service.name")).toEqual({
+      state: "value",
+      value: textValue("Recoverable source"),
+    });
   });
 
   it("cleans a failed background operation's shadow rows without touching another workspace's colliding operation ID", async () => {
@@ -11674,7 +11852,12 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
                 action: "update",
                 ref: service,
                 expectedVersion: 1,
-                fields: [{ fieldId: workspace.id("service.name"), value: textValue("Unpublished") }],
+                fields: [
+                  {
+                    fieldId: workspace.id("service.name"),
+                    value: textValue("Unpublished"),
+                  },
+                ],
               },
             },
           }),
@@ -11682,14 +11865,30 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       );
       await workspace.run(() => workspace.worker().advance(operationId));
     }
-    await f.repo.failOperationUnscoped({ companyId: f.company.id, userId: other.admin.id, operationId });
-    expect(await f.run(() => f.repo.getOperation(operationId))).toMatchObject({ state: "staging" });
-    await f.repo.failOperationUnscoped({ companyId: f.company.id, userId: f.admin.id, operationId });
+    await f.repo.failOperationUnscoped({
+      companyId: f.company.id,
+      userId: other.admin.id,
+      operationId,
+    });
+    expect(await f.run(() => f.repo.getOperation(operationId))).toMatchObject({
+      state: "staging",
+    });
+    await f.repo.failOperationUnscoped({
+      companyId: f.company.id,
+      userId: f.admin.id,
+      operationId,
+    });
     expect(await f.run(() => f.repo.getOperation(operationId))).toMatchObject({
       state: "failed",
       errorCode: "worker_failed",
     });
-    expect(await f.run(() => prisma.recordStageRow.count({ where: { companyId: f.company.id, operationId } }))).toBe(0);
+    expect(
+      await f.run(() =>
+        prisma.recordStageRow.count({
+          where: { companyId: f.company.id, operationId },
+        }),
+      ),
+    ).toBe(0);
     expect((await f.run(() => f.repo.getState()))?.activeOperationId).toBeNull();
     expect(await other.run(() => other.repo.getOperation(operationId))).toMatchObject({ state: "staging" });
     expect((await other.run(() => other.repo.getStageRows(operationId, "record"))).length).toBeGreaterThan(0);
@@ -12132,7 +12331,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           f.configure.invoke({
             expectedRevision: 1,
             idempotencyKey: randomUUID(),
-            operations: [...scalarFields, collection].map((field) => ({ operation: "putField" as const, field })),
+            operations: [...scalarFields, collection].map((field) => ({
+              operation: "putField" as const,
+              field,
+            })),
           }),
         ),
       ).toMatchObject({ ok: true, data: { status: "completed" } });
@@ -12156,9 +12358,19 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
                 .slice(offset, offset + 300)
                 .flatMap((recordId, index) => {
                   const match = offset + index;
-                  const base = { companyId: f.company.id, typeId, recordId, state: "value", schemaRevision: 2 };
+                  const base = {
+                    companyId: f.company.id,
+                    typeId,
+                    recordId,
+                    state: "value",
+                    schemaRevision: 2,
+                  };
                   return [
-                    { ...base, fieldId: primaryFieldId, textValue: `Search fixture ${match}` },
+                    {
+                      ...base,
+                      fieldId: primaryFieldId,
+                      textValue: `Search fixture ${match}`,
+                    },
                     ...scalarFields.map((field, fieldIndex) => ({
                       ...base,
                       fieldId: field.id,
@@ -12189,7 +12401,12 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
               { statement_timeout: "2s" },
             ]);
             const list = await f.query.invoke(
-              RecordQuerySchema.parse({ typeId, search: searchTerm, fields: [primaryFieldId], pageSize: 25 }),
+              RecordQuerySchema.parse({
+                typeId,
+                search: searchTerm,
+                fields: [primaryFieldId],
+                pageSize: 25,
+              }),
             );
             expect(list).toMatchObject({ ok: true, data: { total: 3 } });
             if (!list.ok) throw list.error;
@@ -12525,7 +12742,9 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
           prisma.recordStageRow.count({
             where: {
               companyId: f.company.id,
-              operation: { state: { in: ["completed", "cancelled", "failed"] } },
+              operation: {
+                state: { in: ["completed", "cancelled", "failed"] },
+              },
             },
           }),
         ),

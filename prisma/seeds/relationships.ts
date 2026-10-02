@@ -26,22 +26,29 @@ export async function seedRelationships(context: SeedContext, entities: Relation
   await context.prisma.$transaction(
     async (prisma) => {
       await prisma.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${companyId}, 0))`;
-      const state = await prisma.recordSchemaState.findUniqueOrThrow({ where: { companyId } });
+      const state = await prisma.recordSchemaState.findUniqueOrThrow({
+        where: { companyId },
+      });
       if (state.activeOperationId) throw new Error("Cannot seed links during a CRM operation");
       const records = syntheticCalculationRepo(prisma, companyId);
-      await prisma.recordIdentity.deleteMany({ where: { companyId, id: { startsWith: "b0000000-" } } });
+      await prisma.recordIdentity.deleteMany({
+        where: { companyId, id: { startsWith: "b0000000-" } },
+      });
       for (const [index, contact] of contacts.entries()) {
         const key = { companyId, id: fixtureId("b0000000", index + 1) },
           value = contactDefinitions[index][2];
         await prisma.recordIdentity.create({
           data: {
             ...key,
-            typeId: id("contact"),
-            recordId: contact.id,
             provider: "mail",
             channelClass: channelClass("mail"),
             value,
-            keys: { create: identityKeys({ value }).map((value) => ({ value })) },
+            keys: {
+              create: identityKeys({ value }).map((value) => ({ value })),
+            },
+            records: {
+              create: { typeId: id("contact"), recordId: contact.id },
+            },
           },
         });
       }
@@ -102,7 +109,10 @@ export async function seedRelationships(context: SeedContext, entities: Relation
           recordId = fixtureId("12000000", index + 1),
           typeId = id("lineItem"),
           key = { companyId, typeId, id: recordId };
-        const times = { createdAt: deals[dealIndex].createdAt, updatedAt: deals[dealIndex].updatedAt };
+        const times = {
+          createdAt: deals[dealIndex].createdAt,
+          updatedAt: deals[dealIndex].updatedAt,
+        };
         await prisma.crmRecord.upsert({
           where: { companyId_typeId_id: key },
           create: { ...key, ...times },
@@ -118,7 +128,10 @@ export async function seedRelationships(context: SeedContext, entities: Relation
         await records.setValue(
           ref,
           id("lineItem.quantity"),
-          { state: "value", value: { kind: "decimal", value: String(quantity), currency: null } },
+          {
+            state: "value",
+            value: { kind: "decimal", value: String(quantity), currency: null },
+          },
           state.revision,
         );
         await records.setValue(
@@ -154,13 +167,23 @@ export async function seedRelationships(context: SeedContext, entities: Relation
         ...new Map(
           links.map((row) => [
             `${row.relationId}:${String(row.id).slice(0, 9)}`,
-            { relationId: row.relationId, id: { startsWith: String(row.id).slice(0, 9) } },
+            {
+              relationId: row.relationId,
+              id: { startsWith: String(row.id).slice(0, 9) },
+            },
           ]),
         ).values(),
       ];
-      await prisma.recordLink.deleteMany({ where: { companyId, OR: namespaces } });
+      await prisma.recordLink.deleteMany({
+        where: { companyId, OR: namespaces },
+      });
       for (const row of links) {
-        const key = { companyId, relationId: row.relationId, sourceId: row.sourceId, targetId: row.targetId };
+        const key = {
+          companyId,
+          relationId: row.relationId,
+          sourceId: row.sourceId,
+          targetId: row.targetId,
+        };
         const data = Object.fromEntries(Object.entries(row).filter(([key]) => key !== "id"));
         await prisma.recordLink.upsert({
           where: { companyId_relationId_sourceId_targetId: key },

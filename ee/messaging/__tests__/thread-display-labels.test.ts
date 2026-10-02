@@ -2,10 +2,11 @@ import type { MessagingAttendee } from "../messaging.schema";
 
 import { describe, expect, it } from "vitest";
 
-import { displayableIdentifier, identifierLabel, participantLabel } from "../thread-display";
+import { displayableIdentifier, identifierLabel, participantLabel, participantAvatar } from "../thread-display";
 
 function attendee(overrides: Partial<MessagingAttendee>): MessagingAttendee {
   return {
+    records: [],
     attendeeId: "a",
     identifier: "",
     displayName: null,
@@ -47,14 +48,26 @@ describe("participantLabel", () => {
   it("prefers the crm contact name", () => {
     const p = attendee({
       identifier: "anna-keller-ops",
-      record: { ref: { typeId: "people", recordId: "c1" }, title: "Anna Keller", avatarUrl: null, canEdit: false },
+      records: [
+        {
+          ref: { typeId: "people", recordId: "c1" },
+          typeLabel: "Person",
+          typePluralLabel: "People",
+          title: "Anna Keller",
+          avatarUrl: null,
+          canEdit: false,
+        },
+      ],
     });
 
     expect(participantLabel(p, "linkedin", "unknown")).toBe("Anna Keller");
   });
 
   it("falls back to the provider display name", () => {
-    const p = attendee({ identifier: "anna-keller-ops", displayName: "Anna Keller" });
+    const p = attendee({
+      identifier: "anna-keller-ops",
+      displayName: "Anna Keller",
+    });
 
     expect(participantLabel(p, "linkedin", "unknown")).toBe("Anna Keller");
   });
@@ -67,5 +80,37 @@ describe("participantLabel", () => {
 
   it("uses the fallback when there is nothing at all", () => {
     expect(participantLabel(attendee({}), "linkedin", "unknown")).toBe("unknown");
+  });
+});
+
+describe("ambiguous participant associations", () => {
+  it("uses provider identity presentation instead of selecting a linked business record", () => {
+    const p = attendee({
+      identifier: "alice@example.test",
+      displayName: "Provider Alice",
+      pictureUrl: "https://example.test/alice.png",
+      records: [
+        {
+          ref: { typeId: "people", recordId: "alice" },
+          typeLabel: "Person",
+          typePluralLabel: "People",
+          title: "Alice",
+          avatarUrl: "https://example.test/contact.png",
+          canEdit: true,
+        },
+        {
+          ref: { typeId: "organizations", recordId: "acme" },
+          typeLabel: "Organization",
+          typePluralLabel: "Organizations",
+          title: "Acme",
+          avatarUrl: "https://example.test/logo.png",
+          canEdit: true,
+        },
+      ],
+    });
+    expect(participantLabel(p, "mail", "unknown")).toBe("Provider Alice");
+    expect(participantAvatar(p)).toBe("https://example.test/alice.png");
+    expect(participantAvatar({ ...p, pictureUrl: null })).toBeNull();
+    expect(participantLabel({ ...p, displayName: null }, "mail", "unknown")).toBe("alice@example.test");
   });
 });

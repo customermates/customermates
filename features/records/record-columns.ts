@@ -70,7 +70,7 @@ export function recordColumns(typeId: string, model: RecordModel): RecordColumn[
       });
     }
   }
-  if (model.capabilities.some((binding) => binding.kind === "personIdentity" && binding.typeId === typeId))
+  if (model.capabilities.some((binding) => binding.kind === "channels" && binding.typeId === typeId))
     columns.push({ kind: "identity", id: "system:channels", label: "channels", sortable: false });
   columns.push(
     { kind: "system", id: "system:assignedTo", label: "assignedTo", sortable: false },

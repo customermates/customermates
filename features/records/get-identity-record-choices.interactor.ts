@@ -53,7 +53,8 @@ export class GetIdentityRecordChoicesInteractor extends AuthenticatedInteractor<
         if (!policy.actor) return failAuthorization(CustomErrorCode.permissionDenied);
         const bindings = model.capabilities.filter(
           (binding) =>
-            binding.kind === "personIdentity" &&
+            binding.kind === "channels" &&
+            binding.enabled !== false &&
             model.types.some((type) => type.id === binding.typeId && !type.archived),
         );
         const typeIds = bindings.map((binding) => binding.typeId);

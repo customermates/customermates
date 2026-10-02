@@ -6,6 +6,7 @@ import { deriveReplyRecipients } from "../reply-recipients";
 
 function attendee(identifier: string, isSelf = false): MessagingAttendee {
   return {
+    records: [],
     attendeeId: identifier,
     displayName: null,
     identifier,
@@ -91,8 +92,16 @@ describe("deriveReplyRecipients", () => {
     const result = deriveReplyRecipients(
       [attendee("ben@gmx.de")],
       [
-        message({ direction: "inbound", sender: attendee("ben@gmx.de"), to: [attendee("me@outlook.de", true)] }),
-        message({ direction: "inbound", sender: attendee("other@x.com"), isDraft: true }),
+        message({
+          direction: "inbound",
+          sender: attendee("ben@gmx.de"),
+          to: [attendee("me@outlook.de", true)],
+        }),
+        message({
+          direction: "inbound",
+          sender: attendee("other@x.com"),
+          isDraft: true,
+        }),
       ],
     );
 

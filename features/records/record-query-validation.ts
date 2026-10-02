@@ -1,3 +1,4 @@
+import { recordChannelsEnabled } from "./record-channels";
 import type { RecordModel } from "./record-model.schema";
 import type { RecordQuery } from "./record-query.schema";
 
@@ -24,11 +25,7 @@ export function invalidRecordQueryPart(
   | "grouping"
   | "groupSummaries"
   | null {
-  if (
-    query.includeIdentities &&
-    !model.capabilities.some((binding) => binding.kind === "personIdentity" && binding.typeId === query.typeId)
-  )
-    return "includeIdentities";
+  if (query.includeIdentities && !recordChannelsEnabled(model, query.typeId)) return "includeIdentities";
   if ((query.groupPage || query.groupSummaries) && !query.grouping) return "grouping";
   if (query.grouping && !resolveRecordGrouping(query.typeId, query.grouping, model)) return "grouping";
   const fields = new Map(

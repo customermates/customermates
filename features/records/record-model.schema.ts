@@ -325,7 +325,10 @@ export const RecordRelationshipSchema = z
 export type RecordRelationship = z.infer<typeof RecordRelationshipSchema>;
 
 export const RecordGroupSummaryDefinitionSchema = z
-  .object({ fieldId: z.uuid(), aggregation: z.enum(["sum", "average", "min", "max"]) })
+  .object({
+    fieldId: z.uuid(),
+    aggregation: z.enum(["sum", "average", "min", "max"]),
+  })
   .strict();
 export type RecordGroupSummaryDefinition = z.infer<typeof RecordGroupSummaryDefinitionSchema>;
 
@@ -438,12 +441,20 @@ export const RecordRelationshipSummarySchema = z
   })
   .strict();
 export type RecordRelationshipSummary = z.infer<typeof RecordRelationshipSummarySchema>;
-export const RecordPathSummarySchema = RecordRelationshipSummarySchema.omit({ relationId: true, direction: true })
+export const RecordPathSummarySchema = RecordRelationshipSummarySchema.omit({
+  relationId: true,
+  direction: true,
+})
   .extend({ pathId: z.uuid() })
   .strict();
 export type RecordPathSummary = z.infer<typeof RecordPathSummarySchema>;
 export const RecordMemberSchema = z
-  .object({ id: z.uuid(), firstName: z.string(), lastName: z.string(), avatarUrl: z.string().nullable() })
+  .object({
+    id: z.uuid(),
+    firstName: z.string(),
+    lastName: z.string(),
+    avatarUrl: z.string().nullable(),
+  })
   .strict();
 export type RecordMember = z.infer<typeof RecordMemberSchema>;
 export const RecordDtoSchema = z
