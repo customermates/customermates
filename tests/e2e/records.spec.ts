@@ -10,9 +10,9 @@ test("creates a custom list and field through the UI, then persists a decimal re
   const errors: string[] = [];
   const resizeNotices: string[] = [];
   page.on("pageerror", (error) => {
-    if (error.message === "ResizeObserver loop completed with undelivered notifications.") {
+    if (error.message === "ResizeObserver loop completed with undelivered notifications.")
       resizeNotices.push(page.url());
-    } else errors.push(error.message);
+    else errors.push(error.message);
   });
   page.on("console", (message) => {
     if (message.type() === "error") errors.push(message.text());
@@ -27,12 +27,18 @@ test("creates a custom list and field through the UI, then persists a decimal re
   await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
   await expect(dialog).not.toBeVisible();
   const typeId = new URL(page.url()).pathname.split("/").at(-1);
+  const openConfiguredRecords = async () => {
+    const link = page.locator(`[id="nav-records:${typeId}"]`);
+    if (!(await link.isVisible())) await page.locator("#sidebar-trigger").click();
+    await link.click();
+    await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}$`));
+  };
   const type = await database.query('SELECT definition FROM "RecordTypeDefinition" WHERE "companyId"=$1 AND id=$2', [
     companyId,
     typeId,
   ]);
   expect(type.rows[0]?.definition.pluralLabel).toBe(name);
-  await page.getByRole("link", { name: "Configure", exact: true }).click();
+  await page.getByRole("link", { name: "Configure", exact: true }).and(page.locator("#records-configure")).click();
   await page.getByRole("button", { name: "Add field", exact: true }).click();
   await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Budget");
   await dialog.getByRole("combobox", { name: "Value type", exact: true }).click();
@@ -41,7 +47,7 @@ test("creates a custom list and field through the UI, then persists a decimal re
   await expect(dialog.getByRole("status")).toContainText("Ready to apply");
   await dialog.getByRole("button", { name: "Apply changes", exact: true }).click();
   await expect(dialog).not.toBeVisible();
-  await page.getByRole("main").getByRole("link", { name, exact: true }).click();
+  await openConfiguredRecords();
   await page.locator("#records-add").click();
   await dialog.getByRole("textbox", { name: name, exact: false }).fill(recordName);
   await dialog.getByRole("textbox", { name: "Budget", exact: false }).fill("123456789012345.125");
@@ -65,7 +71,7 @@ test("creates a custom list and field through the UI, then persists a decimal re
   expect(errors).toEqual([]);
   await page.screenshot({ path: testInfo.outputPath("record-details.png"), fullPage: true, animations: "disabled" });
   await page.keyboard.press("Escape");
-  await page.getByRole("link", { name: "Configure", exact: true }).click();
+  await page.getByRole("link", { name: "Configure", exact: true }).and(page.locator("#records-configure")).click();
   await page.getByRole("button", { name: "Relationship", exact: true }).click();
   await dialog.getByRole("combobox", { name: "Link to", exact: true }).click();
   await page.getByRole("option", { name: "Organizations", exact: true }).click();
@@ -81,7 +87,7 @@ test("creates a custom list and field through the UI, then persists a decimal re
   );
   const client = organization.rows[0];
   expect(client).toBeDefined();
-  await page.getByRole("main").getByRole("link", { name, exact: true }).click();
+  await openConfiguredRecords();
   await page.getByRole("button", { name: recordName, exact: true }).click();
   await dialog.getByRole("combobox", { name: "Client organization", exact: true }).click();
   await page.getByRole("option", { name: client.name, exact: true }).click();
@@ -108,6 +114,11 @@ test("creates a custom list and field through the UI, then persists a decimal re
   await page.getByRole("button", { name: "Type settings", exact: true }).click();
   const renamed = name.replace("Projects", "Initiatives");
   await dialog.locator("#pluralName").fill(renamed);
+  await dialog.getByRole("button", { name: "Preview changes", exact: true }).click();
+  await expect(dialog.getByRole("status")).toContainText("Ready to apply");
+  await dialog.getByRole("button", { name: "Apply changes", exact: true }).click();
+  await expect(dialog).not.toBeVisible();
+  await page.getByRole("button", { name: "Shared defaults", exact: true }).click();
   await dialog.getByRole("combobox", { name: "Default grouping", exact: true }).click();
   await page.getByRole("option", { name: "Assigned to", exact: true }).click();
   await dialog.getByRole("button", { name: "Add summary", exact: true }).click();
@@ -122,7 +133,7 @@ test("creates a custom list and field through the UI, then persists a decimal re
   await expect(dialog.getByRole("status")).toContainText("Ready to apply");
   await dialog.getByRole("button", { name: "Apply changes", exact: true }).click();
   await expect(dialog).not.toBeVisible();
-  await page.getByRole("main").getByRole("link", { name: renamed, exact: true }).click();
+  await openConfiguredRecords();
   await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}`));
   await expect(
     page.locator('[data-slot="group-header-row"] [aria-label="Budget · Sum: €123,456,789,012,345.13"]'),
@@ -176,7 +187,7 @@ test("creates a custom list and field through the UI, then persists a decimal re
   await page.getByRole("option", { name: "Sum", exact: true }).click();
   await dialog.getByRole("combobox", { name: "Value field", exact: false }).click();
   await page.getByRole("option", { name: "Budget", exact: true }).click();
-  await dialog.locator("#widget-tab-filters").click();
+  await expect(dialog.getByRole("heading", { name: "Filters, none active", exact: true })).toBeVisible();
   await dialog.getByRole("combobox", { name: "Add filter", exact: true }).click();
   await page.getByRole("option", { name: "Budget", exact: true }).click();
   await dialog.getByRole("combobox", { name: "Condition", exact: true }).click();
@@ -228,10 +239,11 @@ test("creates a custom list and field through the UI, then persists a decimal re
       await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
   });
   expect(resizeNotices).toHaveLength(settledNoticeCount);
-  if (resizeNotices.length)
+  if (resizeNotices.length) {
     await testInfo.attach("settled-resize-observer-notices", {
       body: JSON.stringify({ source: "Radix/Floating UI select positioning", locations: resizeNotices }),
       contentType: "application/json",
     });
+  }
   expect(errors).toEqual([]);
 });

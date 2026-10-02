@@ -2489,13 +2489,10 @@
       "conversationRecords": "Record della conversazione",
       "conversationRecordsHint": "Collega questa conversazione a un record senza collegare le altre conversazioni di questo partecipante.",
       "link": "Collega",
-      "linkedRecords": "Record collegati",
       "linkRecord": "Collega record",
       "linkUpdateFailed": "Impossibile aggiornare il collegamento al contatto",
       "noRecords": "Nessun record collegato",
-      "openContact": "Apri il contatto",
       "openRecord": "Apri record",
-      "unlink": "Scollega il contatto",
       "unlinkRecord": "Scollega record"
     },
     "previewAudio": "🎵 Audio",

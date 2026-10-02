@@ -106,7 +106,7 @@ test("uses configured navigation, quick creation, rename-safe routes, and hidden
   await navLink.click();
   await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}$`));
   await expect(page.locator("#records-add")).toBeVisible();
-  await page.getByRole("link", { name: "Configure", exact: true }).click();
+  await page.getByRole("link", { name: "Configure", exact: true }).and(page.locator("#records-configure")).click();
   await page.getByRole("button", { name: "Type settings", exact: true }).click();
   await editor.getByRole("textbox", { name: "Name", exact: false }).first().fill("Engagement");
   await editor.getByRole("textbox", { name: "Navigation label", exact: false }).fill("Engagements");
@@ -120,7 +120,7 @@ test("uses configured navigation, quick creation, rename-safe routes, and hidden
   await navLink.click();
   await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}$`));
   await expect(page.locator("#records-add")).toBeVisible();
-  await page.getByRole("link", { name: "Configure", exact: true }).click();
+  await page.getByRole("link", { name: "Configure", exact: true }).and(page.locator("#records-configure")).click();
   await page.getByRole("button", { name: "Type settings", exact: true }).click();
   await editor.getByRole("switch", { name: "Show in navigation", exact: true }).uncheck();
   await editor.getByRole("button", { name: "Preview changes", exact: true }).click();

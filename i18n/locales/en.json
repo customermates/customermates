@@ -2489,13 +2489,10 @@
       "conversationRecords": "Conversation records",
       "conversationRecordsHint": "Link this conversation to a record without linking other conversations from this participant.",
       "link": "Link",
-      "linkedRecords": "Linked records",
       "linkRecord": "Link record",
       "linkUpdateFailed": "Couldn't update the contact link",
       "noRecords": "No linked records",
-      "openContact": "Open contact",
       "openRecord": "Open record",
-      "unlink": "Unlink contact",
       "unlinkRecord": "Unlink record"
     },
     "previewAudio": "🎵 Audio",

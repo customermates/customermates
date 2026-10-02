@@ -2489,13 +2489,10 @@
       "conversationRecords": "Registros de la conversación",
       "conversationRecordsHint": "Vincula esta conversación a un registro sin vincular otras conversaciones de este participante.",
       "link": "Vincular",
-      "linkedRecords": "Registros vinculados",
       "linkRecord": "Vincular registro",
       "linkUpdateFailed": "No se pudo actualizar el vínculo con el contacto",
       "noRecords": "Sin registros vinculados",
-      "openContact": "Abrir el contacto",
       "openRecord": "Abrir registro",
-      "unlink": "Desvincular el contacto",
       "unlinkRecord": "Desvincular registro"
     },
     "previewAudio": "🎵 Audio",

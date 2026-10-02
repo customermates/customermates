@@ -22,6 +22,6 @@ test("keeps currency on Settings and routes CRM configuration to Data model", as
 
   await page.locator("#company-settings-data-model").getByRole("link", { name: "Configure" }).click();
   await expect(page).toHaveURL(/\/en\/company\/data-model$/);
-  await expect(page.getByRole("heading", { name: "Data model", exact: true })).toBeVisible();
+  await expect(page.locator("header")).toContainText("Data model");
   await expect(page.getByRole("button", { name: "Create list", exact: true })).toBeVisible();
 });

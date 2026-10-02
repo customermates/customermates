@@ -2489,13 +2489,10 @@
       "conversationRecords": "Fiches de la conversation",
       "conversationRecordsHint": "Liez cette conversation à une fiche sans lier les autres conversations de ce participant.",
       "link": "Lier",
-      "linkedRecords": "Fiches liées",
       "linkRecord": "Lier une fiche",
       "linkUpdateFailed": "Impossible de mettre à jour le lien vers le contact",
       "noRecords": "Aucune fiche liée",
-      "openContact": "Ouvrir le contact",
       "openRecord": "Ouvrir la fiche",
-      "unlink": "Dissocier le contact",
       "unlinkRecord": "Délier la fiche"
     },
     "previewAudio": "🎵 Audio",

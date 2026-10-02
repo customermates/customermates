@@ -2489,13 +2489,10 @@
       "conversationRecords": "Datensätze dieser Unterhaltung",
       "conversationRecordsHint": "Verknüpfe diese Unterhaltung mit einem Datensatz, ohne andere Unterhaltungen dieser Person zu verknüpfen.",
       "link": "Verknüpfen",
-      "linkedRecords": "Verknüpfte Datensätze",
       "linkRecord": "Datensatz verknüpfen",
       "linkUpdateFailed": "Kontaktverknüpfung konnte nicht aktualisiert werden",
       "noRecords": "Keine verknüpften Datensätze",
-      "openContact": "Kontakt öffnen",
       "openRecord": "Datensatz öffnen",
-      "unlink": "Verknüpfung entfernen",
       "unlinkRecord": "Datensatzverknüpfung entfernen"
     },
     "previewAudio": "🎵 Audio",
