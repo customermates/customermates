@@ -1852,8 +1852,7 @@
     "calendarResponseNoreply": "Nessuna risposta",
     "calendarResponseYes": "Accettato",
     "linkedinConnectionAccepted": "Invito LinkedIn accettato",
-    "linkedinOpenProfile": "Apri il profilo LinkedIn",
-    "noActivity": "Nessuna attività per questo contatto."
+    "linkedinOpenProfile": "Apri il profilo LinkedIn"
   },
   "ContactPage": {
     "description": "Hai una domanda, vuoi una dimostrazione o stai valutando una collaborazione? Scrivimi e ti rispondo entro un giorno.",

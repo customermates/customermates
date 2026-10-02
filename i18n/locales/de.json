@@ -1852,8 +1852,7 @@
     "calendarResponseNoreply": "Keine Antwort",
     "calendarResponseYes": "Zugesagt",
     "linkedinConnectionAccepted": "LinkedIn-Kontaktanfrage angenommen",
-    "linkedinOpenProfile": "LinkedIn-Profil öffnen",
-    "noActivity": "Noch keine Aktivität für diesen Kontakt."
+    "linkedinOpenProfile": "LinkedIn-Profil öffnen"
   },
   "ContactPage": {
     "description": "Frage, Walkthrough oder Partnerschaft? Schreiben Sie mir kurz, ich melde mich innerhalb eines Tages zurück.",

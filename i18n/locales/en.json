@@ -1852,8 +1852,7 @@
     "calendarResponseNoreply": "No reply",
     "calendarResponseYes": "Accepted",
     "linkedinConnectionAccepted": "LinkedIn connection accepted",
-    "linkedinOpenProfile": "Open LinkedIn profile",
-    "noActivity": "No activity yet for this contact."
+    "linkedinOpenProfile": "Open LinkedIn profile"
   },
   "ContactPage": {
     "description": "Have a question, want a walkthrough, or exploring a partnership? Drop me a note and I'll get back within a day.",
