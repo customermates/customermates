@@ -335,7 +335,8 @@ export function validateRecordModel(model: RecordModel): {
         typeId: binding.typeId,
       });
     const type = types.get(binding.typeId);
-    if (!type || type.archived) issues.push({ code: "capability_requires_type", typeId: binding.typeId });
+    if (!type || (type.archived && !(binding.kind === "channels" && binding.enabled === false)))
+      issues.push({ code: "capability_requires_type", typeId: binding.typeId });
     if (binding.kind === "membershipAuthorization" && type?.embedded)
       issues.push({ code: "capability_requires_type", typeId: binding.typeId });
     if (new Set(binding.fields.map((field) => field.role)).size !== binding.fields.length) {

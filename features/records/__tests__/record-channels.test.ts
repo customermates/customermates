@@ -40,6 +40,14 @@ describe("configurable Channels capability", () => {
     binding.enabled = false;
     expect(recordChannelsEnabled(model, typeId)).toBe(false);
     expect(validateRecordModel(model).issues).toEqual([]);
+    const type = model.types.find((type) => type.id === typeId);
+    if (!type) throw new Error("Missing channel type");
+    type.archived = true;
+    expect(validateRecordModel(model).issues).not.toContainEqual({ code: "capability_requires_type", typeId });
+    binding.enabled = true;
+    expect(validateRecordModel(model).issues).toContainEqual({ code: "capability_requires_type", typeId });
+    binding.enabled = false;
+    type.archived = false;
     model.capabilities.push({ ...binding, id: companyId });
     expect(validateRecordModel(model).issues).toContainEqual({ code: "duplicate_channels_capability", typeId });
   });
