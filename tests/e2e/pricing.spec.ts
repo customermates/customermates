@@ -16,11 +16,18 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
   });
   const dialogs = page.getByRole("dialog");
   const typeId = (key: string) => presetId(companyId, key);
+  const openRecords = async (key: string) => {
+    const link = page.locator(`[id="nav-records:${typeId(key)}"]`);
+    if (!(await link.isVisible())) await page.locator("#sidebar-trigger").click();
+    await link.click();
+    await expect.poll(() => new URL(page.url()).pathname).toBe(`/en/records/${typeId(key)}`);
+    await expect(page.locator("#records-add")).toBeEnabled();
+  };
+  await page.goto(`/en/records/${typeId("service")}`);
   for (const [name, price] of [
     ["Service A", "1000"],
     ["Service B", "200"],
   ]) {
-    await page.goto(`/en/records/${typeId("service")}`);
     await page.locator("#records-add").click();
     await dialogs.getByRole("textbox", { name: "Name", exact: false }).fill(name);
     await dialogs.getByRole("textbox", { name: "Price", exact: false }).fill(price);
@@ -28,7 +35,7 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
     await expect(dialogs).not.toBeVisible();
     await expect(page.getByText(name, { exact: true })).toBeVisible();
   }
-  await page.goto(`/en/records/${typeId("deal")}`);
+  await openRecords("deal");
   await page.locator("#records-add").click();
   await dialogs.getByRole("textbox", { name: "Name", exact: false }).fill("Local opportunity");
   await dialogs.getByRole("combobox", { name: "Stage", exact: true }).click();
@@ -80,7 +87,8 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
       .getByRole("button", { name: "Open Service B", exact: true }),
   ).toBeVisible();
   await page.keyboard.press("Escape");
-  await page.goto(`/en/company/data-model?typeId=${typeId("deal")}`);
+  await expect(dialogs).not.toBeVisible();
+  await page.locator("#records-configure").click();
   await page.getByRole("button", { name: "Relationship", exact: true }).click();
   await dialogs.getByRole("combobox", { name: "Connection", exact: true }).click();
   await page.getByRole("option", { name: "Through linked records", exact: true }).click();
@@ -106,7 +114,7 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
       { relationId: typeId("lineItem.service"), direction: "outgoing" },
     ],
   });
-  await page.goto(`/en/records/${typeId("deal")}`);
+  await openRecords("deal");
   await expect(page.getByRole("columnheader", { name: "Offered services", exact: false })).toBeVisible();
   await page.getByRole("button", { name: "Appearance", exact: true }).click();
   await page.getByRole("combobox", { name: "Group By", exact: true }).click();
@@ -132,7 +140,7 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
   await page.getByRole("button", { name: "Reset to shared defaults", exact: true }).click();
   await expect(page.getByRole("button", { name: "Local opportunity", exact: true })).toHaveCount(1);
   const changeLivePrice = async (price: string) => {
-    await page.goto(`/en/records/${typeId("service")}`);
+    await openRecords("service");
     await page.getByRole("button", { name: "Service A", exact: true }).click();
     await dialogs.getByRole("textbox", { name: "Price", exact: false }).fill(price);
     await dialogs.getByRole("button", { name: "Save", exact: true }).click();
@@ -140,7 +148,7 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
   };
   await changeLivePrice("1200");
   await expect.poll(totals).toEqual({ Value: "3000", Quantity: "5", "Weighted value": "1800" });
-  await page.goto(`/en/records/${typeId("deal")}`);
+  await openRecords("deal");
   await page.getByRole("button", { name: "Local opportunity", exact: true }).click();
   for (const name of ["A first", "A second"]) {
     await dialogs.getByRole("region", { name: "Line items" }).getByRole("button", { name, exact: true }).click();
@@ -171,9 +179,10 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
     animations: "disabled",
   });
   await page.keyboard.press("Escape");
+  await expect(dialogs).not.toBeVisible();
   await changeLivePrice("1400");
   await expect.poll(totals).toEqual({ Value: "2600", Quantity: "5", "Weighted value": "1560" });
-  await page.goto(`/en/records/${typeId("deal")}`);
+  await openRecords("deal");
   await page.getByRole("button", { name: "Local opportunity", exact: true }).click();
   await dialogs.getByRole("combobox", { name: "Stage", exact: true }).click();
   await page.getByRole("option", { name: "Lost", exact: true }).click();
@@ -185,7 +194,7 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
   );
   expect(lines.rows).toEqual([{ count: 3 }]);
   await expect(dialogs).not.toBeVisible();
-  await page.goto(`/en/records/${typeId("service")}`);
+  await openRecords("service");
   await page.getByRole("button", { name: "Service A", exact: true }).click();
   await dialogs.getByRole("button", { name: "Delete", exact: true }).click();
   const confirmation = page.getByRole("alertdialog");

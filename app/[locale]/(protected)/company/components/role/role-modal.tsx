@@ -192,8 +192,8 @@ export const RoleModal = observer(({ store }: Props) => {
 
               <p className="text-xs text-muted-foreground">{t("RoleModal.recordTypesHint")}</p>
 
-              <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] gap-x-3 divide-y divide-border border-y border-border sm:gap-x-6">
-                <div className="col-span-3 grid grid-cols-subgrid py-2 text-[10px] font-medium uppercase tracking-wide text-muted-foreground sm:text-[11px]">
+              <div className="grid grid-cols-2 gap-x-3 divide-y divide-border border-y border-border sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:gap-x-6">
+                <div className="hidden py-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground sm:col-span-3 sm:grid sm:grid-cols-subgrid">
                   <span>{t("RoleModal.recordTypes")}</span>
 
                   <span>{t("RoleModal.manageAccess")}</span>
@@ -204,10 +204,10 @@ export const RoleModal = observer(({ store }: Props) => {
                 {store.context?.types.map((type, index) => (
                   <div
                     key={type.id}
-                    className="col-span-3 grid grid-cols-subgrid items-center py-3"
+                    className="col-span-2 grid grid-cols-subgrid items-start gap-y-3 py-3 sm:col-span-3 sm:items-center sm:gap-y-0"
                     data-record-permission={type.id}
                   >
-                    <h3 className="min-w-0 break-words text-sm font-medium">
+                    <h3 className="col-span-2 min-w-0 break-words text-sm font-medium sm:col-span-1">
                       {type.label}
 
                       {type.archived && (
@@ -217,24 +217,36 @@ export const RoleModal = observer(({ store }: Props) => {
                       )}
                     </h3>
 
-                    <div className="flex max-w-48 flex-wrap gap-x-3 gap-y-2">
-                      <FormCheckbox id={`recordGrants.${index}.create`} label={t("RoleModal.create")} />
+                    <div className="space-y-2">
+                      <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground sm:hidden">
+                        {t("RoleModal.manageAccess")}
+                      </p>
 
-                      <FormCheckbox id={`recordGrants.${index}.update`} label={t("RoleModal.edit")} />
+                      <div className="flex max-w-48 flex-wrap gap-x-3 gap-y-2">
+                        <FormCheckbox id={`recordGrants.${index}.create`} label={t("RoleModal.create")} />
 
-                      <FormCheckbox id={`recordGrants.${index}.delete`} label={t("RoleModal.delete")} />
+                        <FormCheckbox id={`recordGrants.${index}.update`} label={t("RoleModal.edit")} />
+
+                        <FormCheckbox id={`recordGrants.${index}.delete`} label={t("RoleModal.delete")} />
+                      </div>
                     </div>
 
-                    <FormRadioGroup
-                      ariaLabel={`${type.label} — ${t("RoleModal.readAccess")}`}
-                      className="w-32 gap-3 sm:w-auto"
-                      id={`recordGrants.${index}.readAccess`}
-                      options={[
-                        { value: "all", label: t("RoleModal.readAll") },
-                        { value: "own", label: t("RoleModal.readOwn") },
-                        { value: "none", label: t("RoleModal.readNone") },
-                      ]}
-                    />
+                    <div className="space-y-2">
+                      <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground sm:hidden">
+                        {t("RoleModal.readAccess")}
+                      </p>
+
+                      <FormRadioGroup
+                        ariaLabel={`${type.label} — ${t("RoleModal.readAccess")}`}
+                        className="gap-3"
+                        id={`recordGrants.${index}.readAccess`}
+                        options={[
+                          { value: "all", label: t("RoleModal.readAll") },
+                          { value: "own", label: t("RoleModal.readOwn") },
+                          { value: "none", label: t("RoleModal.readNone") },
+                        ]}
+                      />
+                    </div>
                   </div>
                 ))}
               </div>

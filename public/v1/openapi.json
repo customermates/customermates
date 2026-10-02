@@ -13054,7 +13054,7 @@
                                 ]
                               },
                               "includeIdentities": {
-                                "description": "Include identity channels for returned records of a person-identity bound type.",
+                                "description": "Include registered identifiers for returned records of a type with Channels enabled.",
                                 "type": "boolean"
                               },
                               "search": {
@@ -14882,7 +14882,7 @@
                                   ]
                                 },
                                 "includeIdentities": {
-                                  "description": "Include identity channels for returned records of a person-identity bound type.",
+                                  "description": "Include registered identifiers for returned records of a type with Channels enabled.",
                                   "type": "boolean"
                                 },
                                 "search": {
@@ -25501,7 +25501,7 @@
                                   ]
                                 },
                                 "includeIdentities": {
-                                  "description": "Include identity channels for returned records of a person-identity bound type.",
+                                  "description": "Include registered identifiers for returned records of a type with Channels enabled.",
                                   "type": "boolean"
                                 },
                                 "search": {
@@ -36116,7 +36116,7 @@
                                         ]
                                       },
                                       "includeIdentities": {
-                                        "description": "Include identity channels for returned records of a person-identity bound type.",
+                                        "description": "Include registered identifiers for returned records of a type with Channels enabled.",
                                         "type": "boolean"
                                       },
                                       "search": {
@@ -53498,7 +53498,7 @@
                     }
                   },
                   "includeIdentities": {
-                    "description": "Include identity channels for returned records of a person-identity bound type.",
+                    "description": "Include registered identifiers for returned records of a type with Channels enabled.",
                     "type": "boolean"
                   },
                   "search": {
@@ -56790,7 +56790,7 @@
                         ]
                       },
                       "includeIdentities": {
-                        "description": "Include identity channels for returned records of a person-identity bound type.",
+                        "description": "Include registered identifiers for returned records of a type with Channels enabled.",
                         "type": "boolean"
                       },
                       "search": {

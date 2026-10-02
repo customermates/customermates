@@ -79,8 +79,10 @@ test("configures a role for a new type, preserves granular rights after rename a
   expect((await grants()).rows).toEqual([{ typeId, actions: ["create", "readOwn"] }]);
   await page.goto("/en/company/roles");
   await page.getByRole("button", { name: "Project coordinators", exact: true }).click();
+  await expect(role).toBeVisible();
   await projectGrant.scrollIntoViewIfNeeded();
   await expect(projectGrant.getByText("Initiatives", { exact: true })).toBeVisible();
+  expect((await projectGrant.getByText("Initiatives", { exact: true }).boundingBox())?.width).toBeGreaterThan(120);
   await expect(projectGrant.getByRole("radio", { name: "Assigned", exact: true })).toBeChecked();
   await projectGrant.getByRole("radio", { name: "All", exact: true }).check();
   await projectGrant.getByRole("checkbox", { name: "Edit", exact: true }).check();
