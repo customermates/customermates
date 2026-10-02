@@ -87,11 +87,13 @@ import { agentAuxiliaryCharge, buildAgentTurnClassifierTrace } from "@/ee/agent-
 import { getAgentChatRepo, getBackgroundTaskService } from "@/core/di";
 import { internalToolIdentity, WIKI_WEBSITE_IMPORT_TOOL_NAME } from "@/ee/agent-chat/tool-identity";
 import { readAgentProviderCharge, readGatewayCostMicrocents } from "@/ee/agent-chat/gateway-cost";
+import { readAgentProviderErrorCharge, readAgentProviderRoundCharge } from "@/ee/agent-chat/agent-provider-error";
 import { isReadOnlyAgentToolCall, requiresApproval } from "@/ee/agent-chat/gated-tools";
 import { isAgentToolCancellation } from "@/ee/agent-chat/agent-tool-cancellation";
 import { createAgentToolInputResolver, type AgentToolInputResult } from "@/ee/agent-chat/agent-tool-input";
 import { resolveAgentApprovalContext } from "@/ee/agent-chat/agent-external-approval-context";
 import {
+  agentFundedRetryCount,
   agentWebSearchReserveMicrocents,
   isAgentContextWithinBudget,
   resolveAgentToolResultMaxChars,
@@ -214,10 +216,21 @@ function hasErrorMarker(error: unknown, marker: symbol) {
 }
 
 function isAgentProviderFailure(error: unknown): boolean {
-  if (hasErrorMarker(error, AI_API_CALL_ERROR_MARKER) || hasErrorMarker(error, AI_GATEWAY_ERROR_MARKER)) return true;
-  if (hasErrorMarker(error, AI_RETRY_ERROR_MARKER)) return true;
-  if (typeof error !== "object" || error === null || !("cause" in error)) return false;
-  return isAgentProviderFailure(error.cause);
+  const seen = new Set<unknown>();
+  let current = error;
+  for (let depth = 0; depth < 32; depth += 1) {
+    if (typeof current !== "object" || current === null || seen.has(current)) return false;
+    seen.add(current);
+    if (
+      hasErrorMarker(current, AI_API_CALL_ERROR_MARKER) ||
+      hasErrorMarker(current, AI_GATEWAY_ERROR_MARKER) ||
+      hasErrorMarker(current, AI_RETRY_ERROR_MARKER)
+    )
+      return true;
+    if (!("cause" in current)) return false;
+    current = current.cause;
+  }
+  return false;
 }
 
 function usageSettlementForTurn(payload: AgentTurnWorkflowPayload, outcome: AgentTurnUsageOutcome) {
@@ -1366,6 +1379,13 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       ledger.reduce((total, entry) => total + entry.costMicrocents, 0) +
       agentAuxiliaryCharge(auxiliaryCharges).costMicrocents;
 
+    const fundedRetryCount = () =>
+      agentFundedRetryCount({
+        remainingMicrocents: Math.max(0, reservedMicrocents - accruedCostMicrocents()),
+        roundReserveMicrocents: payload.turnBudget.roundReserveMicrocents,
+        maxRetries: AGENT_MODEL_DEFAULT_MAX_RETRIES,
+      });
+
     const ensureReservation = async (requiredMicrocents: number): Promise<boolean> => {
       if (requiredMicrocents <= reservedMicrocents) return true;
       const extension = await ensureTurnReservation(payload, requiredMicrocents);
@@ -1481,6 +1501,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         if (webSearchCalls > webSearchCallLimit) webSearchOvershoot = true;
         const chargeableSearches = agentWebSearchChargeableCallsInStep(step, isSuccessfulAgentWebResult);
         const charge = readAgentProviderCharge(step.providerMetadata, payload.turnBudget.servingProvider);
+        const roundCharge = readAgentProviderRoundCharge(step.providerMetadata, payload.turnBudget.servingProvider);
         const gatewayDebitMicrocents = readGatewayCostMicrocents(step.providerMetadata);
         const hasPositiveGatewayDebit = (gatewayDebitMicrocents ?? 0) > 0;
         const hasTokenUsage = Object.values(roundTokens).some((count) => count > 0);
@@ -1497,7 +1518,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                   payload.turnBudget.inferenceRegion,
                 );
         const provenNotBilled = charge.outcome === "notBilled" && chargeableSearches === 0;
-        const costMicrocents =
+        const standaloneCostMicrocents =
           charge.outcome === "measured"
             ? charge.charge.costMicrocents
             : charge.outcome === "notBilled"
@@ -1508,18 +1529,35 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                     (hasPositiveGatewayDebit ? 0 : chargeableSearches * AGENT_WEB_SEARCH_WORST_CASE_MICROCENTS),
                 );
 
+        const roundSearchFallbackMicrocents =
+          roundCharge?.currentAttemptOutcome === "notBilled"
+            ? chargeableSearches * AGENT_WEB_SEARCH_WORST_CASE_MICROCENTS
+            : 0;
+        const aggregateCostMicrocents = roundCharge
+          ? roundCharge.measured
+            ? roundCharge.costMicrocents + roundSearchFallbackMicrocents
+            : Math.max(roundCharge.costMicrocents, remainingReservationMicrocents)
+          : standaloneCostMicrocents;
+        const safeAggregateCost = Number.isSafeInteger(aggregateCostMicrocents);
+        const costMicrocents = Math.min(Number.MAX_SAFE_INTEGER, aggregateCostMicrocents);
+        const measured = roundCharge
+          ? roundCharge.measured && roundSearchFallbackMicrocents === 0 && safeAggregateCost
+          : charge.outcome === "measured" || provenNotBilled;
+        const unreadableReason = roundCharge
+          ? !safeAggregateCost
+            ? "the provider reported an unrepresentable aggregate cost"
+            : (roundCharge.unreadableReason ??
+              (roundSearchFallbackMicrocents > 0
+                ? "the gateway reported billed search work without a usable current debit"
+                : undefined))
+          : charge.outcome === "unreadable"
+            ? charge.reason
+            : charge.outcome === "notBilled" && !provenNotBilled
+              ? "the gateway reported billed search work without a usable total debit"
+              : undefined;
+
         tokens = addTokens(tokens, roundTokens);
-        ledger.push({
-          tokens: roundTokens,
-          costMicrocents,
-          measured: charge.outcome === "measured" || provenNotBilled,
-          unreadableReason:
-            charge.outcome === "unreadable"
-              ? charge.reason
-              : charge.outcome === "notBilled" && !provenNotBilled
-                ? "the gateway reported billed search work without a usable total debit"
-                : undefined,
-        });
+        ledger.push({ tokens: roundTokens, costMicrocents, measured, unreadableReason });
         unreportedProviderRounds = Math.max(0, unreportedProviderRounds - 1);
 
         const roundOutcome = await persistRound(payload, {
@@ -1744,25 +1782,31 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           )
             throw AGENT_CONTEXT_COMPACTION_REQUIRED;
           if (!(await canStartNextHostedAiProviderRound(payload))) throw hostedAiPaused;
-          if (readingWebsite) return { activeTools, toolChoice: "required" as const };
+          if (readingWebsite) {
+            const maxRetries = fundedRetryCount();
+            return {
+              activeTools,
+              toolChoice: "required" as const,
+              ...(maxRetries < AGENT_MODEL_DEFAULT_MAX_RETRIES ? { maxRetries } : {}),
+            };
+          }
 
           if (webSearchOvershoot) {
             return {
               activeTools: activeTools.filter((toolName) => !isAgentWebTool(toolName)),
               toolChoice: "none" as const,
-              maxRetries: AGENT_MODEL_DEFAULT_MAX_RETRIES,
+              maxRetries: fundedRetryCount(),
             };
           }
           const webSearchPermitted =
             activeTools.includes(AGENT_WEB_SEARCH_TOOL_NAME) &&
             !(isUnattendedSurface(surface) && performedWrite) &&
             (await webSearchAffordable());
+          const maxRetries = webSearchPermitted ? 0 : fundedRetryCount();
           return {
             activeTools: webSearchPermitted ? activeTools : activeTools.filter((toolName) => !isAgentWebTool(toolName)),
             ...(payload.wikiCrawl ? { toolChoice: "auto" as const } : {}),
-            ...(payload.webSearchEnabled
-              ? { maxRetries: webSearchPermitted ? 0 : AGENT_MODEL_DEFAULT_MAX_RETRIES }
-              : {}),
+            ...(payload.webSearchEnabled || maxRetries < AGENT_MODEL_DEFAULT_MAX_RETRIES ? { maxRetries } : {}),
           };
         },
         telemetry: {
@@ -1822,8 +1866,21 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           }
           continue;
         }
+        const failureCharge = readAgentProviderErrorCharge(error, payload.turnBudget.servingProvider);
+        if (failureCharge && unreportedProviderRounds > 0) {
+          const remainingReservationMicrocents = Math.max(0, reservedMicrocents - accruedCostMicrocents());
+          ledger.push({
+            tokens: emptyTokens(),
+            costMicrocents: failureCharge.measured
+              ? failureCharge.costMicrocents
+              : Math.max(failureCharge.costMicrocents, remainingReservationMicrocents),
+            measured: failureCharge.measured,
+            unreadableReason: failureCharge.unreadableReason,
+          });
+          unreportedProviderRounds -= 1;
+        }
         const failure = toWorkflowFailure(error);
-        if (isAgentProviderFailure(error)) {
+        if (failureCharge?.providerFailure !== false && (failureCharge || isAgentProviderFailure(error))) {
           providerFailure = failure;
           providerStop = "provider_error";
         } else roundFailure = failure;

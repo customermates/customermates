@@ -473,6 +473,8 @@ export function providerWireInputSchema(
   if (toolName === WIKI_READ_SOURCE_TOOL_NAME && isSchemaNode(schema) && isSchemaNode(schema.properties)) {
     const repairs = schema.properties.reclassifiedOfferings;
     if (isSchemaNode(repairs)) delete repairs.maxItems;
+    const exclusions = schema.properties.excluded;
+    if (isSchemaNode(exclusions)) delete exclusions.maxItems;
     const group = schema.properties.topics;
     if (isSchemaNode(group) && isSchemaNode(group.items) && isSchemaNode(group.items.properties)) {
       const sourceIds = group.items.properties.sourceIds;

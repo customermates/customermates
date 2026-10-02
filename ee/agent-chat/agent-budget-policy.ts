@@ -64,6 +64,23 @@ export function agentRoundWorstCaseMicrocents(entry: AgentModelEntry) {
   return agentRoundWorstCaseMicrocentsForContextBytes(entry, agentContextTokensToBytes(entry.maxContextTokens));
 }
 
+export function agentFundedRetryCount(args: {
+  remainingMicrocents: number;
+  roundReserveMicrocents: number;
+  maxRetries: number;
+}): number {
+  if (
+    !Number.isSafeInteger(args.remainingMicrocents) ||
+    args.remainingMicrocents < 0 ||
+    !Number.isSafeInteger(args.roundReserveMicrocents) ||
+    args.roundReserveMicrocents < 1 ||
+    !Number.isSafeInteger(args.maxRetries) ||
+    args.maxRetries < 0
+  )
+    return 0;
+  return Math.min(args.maxRetries, Math.max(0, Math.floor(args.remainingMicrocents / args.roundReserveMicrocents) - 1));
+}
+
 export function agentWebSearchReserveMicrocents(remainingSearches: number): number {
   if (!Number.isSafeInteger(remainingSearches) || remainingSearches < 1) return 0;
   return remainingSearches * AGENT_WEB_SEARCH_WORST_CASE_MICROCENTS;

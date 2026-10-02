@@ -7,6 +7,7 @@ import {
   agentContextBytesToWorstCaseProviderTokens,
   agentContextTokensToBytes,
   agentToolResultText,
+  agentFundedRetryCount,
   agentWebSearchReserveMicrocents,
   agentRoundWorstCaseMicrocents,
   agentRoundWorstCaseMicrocentsForContextBytes,
@@ -72,6 +73,44 @@ describe("agent turn credit budget", () => {
     expect(agentRoundWorstCaseMicrocents(BALANCED)).toBe(5_602_300);
     expect(Number.isSafeInteger(agentRoundWorstCaseMicrocents(NANO))).toBe(true);
     expect(agentRoundWorstCaseMicrocents(NANO) % CREDIT).not.toBe(0);
+  });
+
+  it.each([
+    [0, 0],
+    [1_999_999, 0],
+    [2_000_000, 0],
+    [3_999_999, 0],
+    [4_000_000, 1],
+    [5_999_999, 1],
+    [6_000_000, 2],
+    [20_000_000, 2],
+  ])("funds %i microcents as at most %i retries beyond the admitted request", (remainingMicrocents, retries) => {
+    expect(agentFundedRetryCount({ remainingMicrocents, roundReserveMicrocents: 2 * CREDIT, maxRetries: 2 })).toBe(
+      retries,
+    );
+  });
+
+  it("preserves the configured retry ceiling and disables retry funding on invalid bounds", () => {
+    expect(
+      agentFundedRetryCount({ remainingMicrocents: 20 * CREDIT, roundReserveMicrocents: 2 * CREDIT, maxRetries: 0 }),
+    ).toBe(0);
+    expect(
+      agentFundedRetryCount({ remainingMicrocents: 20 * CREDIT, roundReserveMicrocents: 2 * CREDIT, maxRetries: 1 }),
+    ).toBe(1);
+    const valid = { remainingMicrocents: 6 * CREDIT, roundReserveMicrocents: 2 * CREDIT, maxRetries: 2 };
+    for (const remainingMicrocents of [-1, 1.5, Number.NaN, Number.POSITIVE_INFINITY, Number.MAX_SAFE_INTEGER + 1])
+      expect(agentFundedRetryCount({ ...valid, remainingMicrocents })).toBe(0);
+    for (const roundReserveMicrocents of [
+      0,
+      -1,
+      1.5,
+      Number.NaN,
+      Number.POSITIVE_INFINITY,
+      Number.MAX_SAFE_INTEGER + 1,
+    ])
+      expect(agentFundedRetryCount({ ...valid, roundReserveMicrocents })).toBe(0);
+    for (const maxRetries of [-1, 1.5, Number.NaN, Number.POSITIVE_INFINITY, Number.MAX_SAFE_INTEGER + 1])
+      expect(agentFundedRetryCount({ ...valid, maxRetries })).toBe(0);
   });
 
   it("reserves the worst-case search price of every remaining search in exact microcents", () => {

@@ -599,7 +599,7 @@ describe("the shipped tool catalog on the Google wire", () => {
     expect(accepted, accepted.join("\n")).toEqual([]);
   });
 
-  it("projects only nested website-plan array bounds for Google's wire schema", () => {
+  it("projects website-plan array bounds while retaining Google's source-specific proof declaration", () => {
     const options = { wikiHomepageSetup: true, wikiCrawlId: UUID, locale: "en", surface: "chat" as const };
     const original = getAgentAiToolDefinitions("azure", options);
     const google = getAgentAiToolDefinitions("vertex", options);
@@ -622,7 +622,11 @@ describe("the shipped tool catalog on the Google wire", () => {
       });
     }
     expect(properties.topics).toMatchObject({ maxItems: 16 });
-    expect(properties.excluded).toMatchObject({ maxItems: 40 });
+    expect(properties.excluded).not.toHaveProperty("maxItems");
+    const originalReader = original.find(({ name }) => name === "read_website_source")?.inputSchema as JsonRecord;
+    expect((originalReader.properties as JsonRecord).excluded).toMatchObject({ maxItems: 40 });
+    const ordinaryGoogle = providerWireInputSchema(originalReader, "vertex", "another_tool") as JsonRecord;
+    expect((ordinaryGoogle.properties as JsonRecord).excluded).toMatchObject({ maxItems: 40 });
     expect(properties.omittedFoundations).toMatchObject({ maxItems: 4 });
     for (const { inputSchema } of google)
       expect(() => new Ajv({ strict: false }).compile(inputSchema as object)).not.toThrow();
@@ -649,6 +653,101 @@ describe("the shipped tool catalog on the Google wire", () => {
     expect(await normalizeAgentAiToolInput("read_website_source", input, 48_000, options)).toMatchObject({ ok: false });
     input.excluded[0].sourceIds.pop();
     expect(await normalizeAgentAiToolInput("read_website_source", input, 48_000, options)).toMatchObject({ ok: true });
+  });
+
+  it("projects only the outer exclusion cap while preserving every proof field and the declared input", () => {
+    const options = { wikiHomepageSetup: true, wikiCrawlId: UUID, locale: "en", surface: "chat" as const };
+    const original = getAgentAiToolDefinitions("azure", options).find(({ name }) => name === "read_website_source")
+      ?.inputSchema as JsonRecord;
+    const before = structuredClone(original);
+    const google = getAgentAiToolDefinitions("vertex", options).find(({ name }) => name === "read_website_source")
+      ?.inputSchema as JsonRecord;
+    const expected = googleSafeJsonSchema(original).schema as JsonRecord;
+    const properties = expected.properties as JsonRecord;
+    delete (properties.excluded as JsonRecord).maxItems;
+    delete (properties.reclassifiedOfferings as JsonRecord).maxItems;
+    const topic = ((properties.topics as JsonRecord).items as JsonRecord).properties as JsonRecord;
+    delete (topic.sourceIds as JsonRecord).maxItems;
+    expect(google).toEqual(expected);
+    expect(original).toEqual(before);
+    expect(providerWireInputSchema(original, "azure", "read_website_source")).toBe(original);
+    const excluded = ((google.properties as JsonRecord).excluded as JsonRecord).items as JsonRecord;
+    expect(excluded).toMatchObject({
+      required: ["sourceIds", "reason", "basis"],
+      properties: {
+        sourceIds: { type: "array", minItems: 1, maxItems: 1 },
+        basis: { type: "string", enum: ["already_imported", "exact_duplicate", "overlap", "not_substantive"] },
+        duplicateOfSourceId: { type: "string", pattern: "^[0-9a-fA-F-]{36}$" },
+        coveredByTitle: { type: "string", minLength: 1, maxLength: 120 },
+        coveredByRole: { type: "string", enum: ["offering"] },
+        evidenceQuote: { type: "string", minLength: 1, maxLength: 500 },
+      },
+    });
+  });
+
+  it("retains the authoritative forty-exclusion limit after the Google outer-cap projection", async () => {
+    const options = { wikiHomepageSetup: true, wikiCrawlId: UUID, locale: "en", surface: "chat" as const };
+    const input = {
+      action: "plan",
+      excluded: Array.from({ length: 41 }, (_, index) => ({
+        sourceIds: [`00000000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`],
+        reason: "An unchanged source already imported into a retained page.",
+        basis: "already_imported",
+      })),
+    };
+    expect(await normalizeAgentAiToolInput("read_website_source", input, 48_000, options)).toMatchObject({ ok: false });
+    input.excluded.pop();
+    expect(await normalizeAgentAiToolInput("read_website_source", input, 48_000, options)).toMatchObject({ ok: true });
+  });
+
+  it("normalizes every valid exclusion basis with its required proof fields", async () => {
+    const options = { wikiHomepageSetup: true, wikiCrawlId: UUID, locale: "en", surface: "chat" as const };
+    const base = { sourceIds: [UUID], reason: "Source-specific evidence supports this disposition." };
+    for (const proof of [
+      { basis: "already_imported" },
+      { basis: "exact_duplicate", duplicateOfSourceId: "00000000-0000-4000-8000-000000000002" },
+      { basis: "overlap", coveredByTitle: "Service A", coveredByRole: "offering" },
+      { basis: "not_substantive", evidenceQuote: "Exact evidence from this named source." },
+    ]) {
+      expect(
+        await normalizeAgentAiToolInput(
+          "read_website_source",
+          { action: "plan", excluded: [{ ...base, ...proof }] },
+          48_000,
+          options,
+        ),
+      ).toMatchObject({ ok: true });
+    }
+  });
+
+  it("rejects missing or mismatched exclusion proofs despite the Google outer-cap projection", async () => {
+    const options = { wikiHomepageSetup: true, wikiCrawlId: UUID, locale: "en", surface: "chat" as const };
+    const base = { sourceIds: [UUID], reason: "Source-specific evidence is required." };
+    for (const proof of [
+      {},
+      { basis: "already_imported", evidenceQuote: "An unrelated extra proof." },
+      { basis: "exact_duplicate" },
+      { basis: "exact_duplicate", duplicateOfSourceId: UUID, coveredByRole: "offering" },
+      { basis: "overlap", coveredByTitle: "Service A" },
+      { basis: "overlap", coveredByTitle: "Service A", coveredByRole: "company_overview" },
+      {
+        basis: "overlap",
+        coveredByTitle: "Service A",
+        coveredByRole: "offering",
+        evidenceQuote: "An unrelated extra proof.",
+      },
+      { basis: "not_substantive" },
+      { basis: "not_substantive", evidenceQuote: "Exact source evidence.", duplicateOfSourceId: UUID },
+    ]) {
+      expect(
+        await normalizeAgentAiToolInput(
+          "read_website_source",
+          { action: "plan", excluded: [{ ...base, ...proof }] },
+          48_000,
+          options,
+        ),
+      ).toMatchObject({ ok: false });
+    }
   });
 
   it("projects the website repair array without relaxing its authoritative forty-item limit", async () => {

@@ -15,6 +15,7 @@ type StreamOptions = {
   tools: Record<string, WorkflowTool>;
   prepared: unknown;
   messages: unknown[];
+  completeStep: (step: unknown) => Promise<void>;
   completeStepAndPrepareNext: (step: unknown, messages?: unknown[]) => Promise<void>;
   executeAndCompleteTool: (toolName: string, input: unknown, toolCallId: string, batch?: unknown[]) => Promise<unknown>;
 };
@@ -169,6 +170,10 @@ vi.mock("@ai-sdk/workflow", () => {
             tools: this.options.tools,
             prepared,
             messages: prompt,
+            completeStep: async (step) => {
+              completedSteps.add(step);
+              await this.options.onStepEnd(step);
+            },
             completeStepAndPrepareNext: async (step, nextMessages = messages) => {
               completedSteps.add(step);
               await this.options.onStepEnd(step);
@@ -720,7 +725,120 @@ describe("agent-turn hosted-AI provider gates", () => {
     expect(state.execute).not.toHaveBeenCalled();
   });
 
-  it("never disables model retries for a turn that cannot search", async () => {
+  it.each([
+    ["chat", 1, 0],
+    ["chat", 2, 1],
+    ["chat", 3, undefined],
+    ["routine", 1, 0],
+    ["routine", 2, 1],
+    ["routine", 3, undefined],
+  ] as const)("funds %s retries from %i held round envelopes", async (surface, envelopes, maxRetries) => {
+    state.runTools = ({ prepared, messages }) => {
+      if (maxRetries === undefined) expect(prepared).not.toHaveProperty("maxRetries");
+      else expect(prepared).toHaveProperty("maxRetries", maxRetries);
+      return Promise.resolve({ finishReason: "stop", messages, steps: [unbilledStopStep()] });
+    };
+
+    await runAgentTurn({
+      ...payload,
+      surface,
+      webSearchEnabled: false,
+      turnBudget: { ...payload.turnBudget, reservedMicrocents: envelopes * payload.turnBudget.roundReserveMicrocents },
+    });
+
+    expect(state.providerCalls).toBe(1);
+    expect(state.extendReservation).not.toHaveBeenCalled();
+    expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ stopReason: null }));
+  });
+
+  it.each(["chat", "routine"] as const)(
+    "keeps an admitted small-context %s request when no full retry envelope fits",
+    async (surface) => {
+      state.runTools = ({ prepared, messages }) => {
+        expect(prepared).toHaveProperty("maxRetries", 0);
+        return Promise.resolve({ finishReason: "stop", messages, steps: [unbilledStopStep()] });
+      };
+
+      await runAgentTurn({
+        ...payload,
+        surface,
+        webSearchEnabled: false,
+        turnBudget: { ...payload.turnBudget, reservedMicrocents: CREDIT },
+      });
+
+      expect(state.providerCalls).toBe(1);
+      expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ stopReason: null }));
+    },
+  );
+
+  it.each(["chat", "routine"] as const)(
+    "deducts accrued model charges before funding the next %s retry",
+    async (surface) => {
+      state.runTools = async ({ prepared, completeStepAndPrepareNext, messages }) => {
+        expect(prepared).not.toHaveProperty("maxRetries");
+        const billed = {
+          ...unbilledStopStep(),
+          finishReason: "tool-calls",
+          providerMetadata: {
+            gateway: {
+              gatewayCost: "0.01",
+              cost: "0.01",
+              routing: {
+                finalProvider: "vertex",
+                modelAttempts: [
+                  { providerAttempts: [{ provider: "vertex", credentialType: "system", success: true }] },
+                ],
+              },
+            },
+          },
+        };
+        await completeStepAndPrepareNext(billed);
+        expect(state.prepared).toHaveProperty("maxRetries", 1);
+        return { finishReason: "stop", messages, steps: [unbilledStopStep()] };
+      };
+
+      await runAgentTurn({
+        ...payload,
+        surface,
+        webSearchEnabled: false,
+        turnBudget: { ...payload.turnBudget, reservedMicrocents: 3 * payload.turnBudget.roundReserveMicrocents },
+      });
+
+      expect(state.recordRound.mock.calls[0]?.[0]).toMatchObject({ costMicrocents: CREDIT });
+      expect(state.extendReservation).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(["chat", "routine"] as const)("deducts auxiliary costs before funding the next %s retry", async (surface) => {
+    state.definitions = [{ name: "search_docs", description: "search_docs", inputSchema: { type: "object" } }];
+    state.normalize.mockImplementation((_toolName, input) => Promise.resolve({ ok: true, input }));
+    state.runTools = async ({ prepared, executeAndCompleteTool, completeStepAndPrepareNext, messages }) => {
+      expect(prepared).toHaveProperty("maxRetries", 1);
+      state.toolCharges = [
+        { use: "docs_rerank", model: "jev", costMicrocents: CREDIT, measured: true, answered: true },
+      ];
+      await executeAndCompleteTool("search_docs", { query: "public documentation" }, "funded-docs");
+      await completeStepAndPrepareNext({ ...unbilledStopStep(), finishReason: "tool-calls" });
+      expect(state.prepared).toHaveProperty("maxRetries", 0);
+      return { finishReason: "stop", messages, steps: [unbilledStopStep()] };
+    };
+
+    await runAgentTurn({
+      ...payload,
+      surface,
+      webSearchEnabled: false,
+      turnBudget: { ...payload.turnBudget, reservedMicrocents: 2 * payload.turnBudget.roundReserveMicrocents },
+    });
+
+    expect(state.extendReservation).not.toHaveBeenCalled();
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        usageSettlement: expect.objectContaining({ costMicrocents: CREDIT, costSource: "measured" }),
+      }),
+    );
+  });
+
+  it("preserves the default retries for a fully funded turn that cannot search", async () => {
     state.runTools = async ({ completeStepAndPrepareNext }) => {
       await completeStepAndPrepareNext(streamedStep("", "tool-calls"));
       return { finishReason: "stop", messages: [], steps: [] };
@@ -1784,6 +1902,259 @@ describe("agent-turn provider charge evidence", () => {
     },
   });
 
+  const durableFailure = (attempts: unknown[]) =>
+    new Error("Provider request failed", {
+      cause: { kind: "ai-sdk-workflow-provider-error", version: 1, attempts },
+    });
+
+  it.each(["chat", "routine"] as const)(
+    "accounts billed SDK retries alongside a successful streamed %s request",
+    async (surface) => {
+      const finishMetadata = metadata("0.0007");
+      state.runTools = ({ messages }) =>
+        Promise.resolve({
+          finishReason: "stop",
+          messages,
+          steps: [
+            {
+              ...streamedStep("A reply.", "stop"),
+              providerMetadata: {
+                ...finishMetadata,
+                workflow: {
+                  providerReceipt: {
+                    kind: "ai-sdk-workflow-provider-error",
+                    version: 1,
+                    attempts: [metadata("0.0005")],
+                    currentAttempt: { finishMetadata },
+                  },
+                },
+              },
+            },
+          ],
+        });
+      await runAgentTurn({ ...payload, surface });
+      expect(state.providerCalls).toBe(1);
+      expect(state.recordRound).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ costMicrocents: 120_000 }));
+      expect(state.finalize).toHaveBeenCalledWith(
+        expect.objectContaining({
+          usageSettlement: expect.objectContaining({
+            costMicrocents: 120_000,
+            chargedMicrocents: 120_000,
+            costSource: "measured",
+          }),
+        }),
+      );
+    },
+  );
+
+  it("retains the approved envelope when a successful stream follows an SDK attempt without a receipt", async () => {
+    const finishMetadata = metadata("0.0007");
+    state.runTools = ({ messages }) =>
+      Promise.resolve({
+        finishReason: "stop",
+        messages,
+        steps: [
+          {
+            ...streamedStep("A reply.", "stop"),
+            providerMetadata: {
+              ...finishMetadata,
+              workflow: {
+                providerReceipt: {
+                  kind: "ai-sdk-workflow-provider-error",
+                  version: 1,
+                  attempts: [null],
+                  currentAttempt: { finishMetadata },
+                },
+              },
+            },
+          },
+        ],
+      });
+    await runAgentTurn(payload);
+    expect(state.recordRound).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ costMicrocents: payload.turnBudget.reservedMicrocents }),
+    );
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        usageSettlement: expect.objectContaining({
+          costMicrocents: payload.turnBudget.reservedMicrocents,
+          chargedMicrocents: payload.turnBudget.reservedMicrocents,
+          costSource: "estimated",
+        }),
+      }),
+    );
+  });
+
+  it("keeps a captured finish debit when a later provider read throws a proven zero error", async () => {
+    state.runTools = () =>
+      Promise.reject(
+        new Error("Public reader failure", {
+          cause: {
+            kind: "ai-sdk-workflow-provider-error",
+            version: 1,
+            attempts: [],
+            currentAttempt: {
+              finishMetadata: metadata("0.0005"),
+              errorAttempts: [metadata("0", false)],
+            },
+          },
+        }),
+      );
+    await runAgentTurn(payload);
+    expect(state.recordRound).not.toHaveBeenCalled();
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        stopReason: "provider_error",
+        usageSettlement: expect.objectContaining({
+          costMicrocents: 50_000,
+          chargedMicrocents: 50_000,
+          costSource: "measured",
+        }),
+      }),
+    );
+  });
+
+  it("keeps an explicit writable failure as turn_error while settling its captured debit", async () => {
+    const error = Object.assign(
+      new Error("Public writable failure", {
+        cause: {
+          kind: "ai-sdk-workflow-provider-error",
+          version: 1,
+          attempts: [],
+          providerFailure: false,
+          currentAttempt: { finishMetadata: metadata("0.0005") },
+        },
+      }),
+      { [Symbol.for("vercel.ai.gateway.error")]: true },
+    );
+    state.runTools = () => Promise.reject(error);
+    await runAgentTurn(payload);
+    expect(state.recordRound).not.toHaveBeenCalled();
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        stopReason: "turn_error",
+        usageSettlement: expect.objectContaining({
+          costMicrocents: 50_000,
+          chargedMicrocents: 50_000,
+          costSource: "measured",
+        }),
+      }),
+    );
+  });
+
+  it.each(["chat", "routine"] as const)(
+    "settles a Gateway-proven zero pre-stream %s failure without charging the reserved envelope",
+    async (surface) => {
+      state.runTools = () => Promise.reject(durableFailure([metadata("0", false)]));
+      await runAgentTurn({ ...payload, surface });
+      expect(state.providerCalls).toBe(1);
+      expect(state.recordRound).not.toHaveBeenCalled();
+      expect(state.finalize).toHaveBeenCalledWith(
+        expect.objectContaining({
+          terminalCode: "partial",
+          stopReason: "provider_error",
+          usageSettlement: expect.objectContaining({ costMicrocents: 0, chargedMicrocents: 0, costSource: "measured" }),
+        }),
+      );
+    },
+  );
+
+  it("sums a billed SDK attempt followed by a proven zero attempt exactly once", async () => {
+    state.runTools = () => Promise.reject(durableFailure([metadata("0.0005"), metadata("0", false)]));
+    await runAgentTurn(payload);
+    expect(state.providerCalls).toBe(1);
+    expect(state.recordRound).not.toHaveBeenCalled();
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        stopReason: "provider_error",
+        usageSettlement: expect.objectContaining({
+          costMicrocents: 50_000,
+          chargedMicrocents: 50_000,
+          costSource: "measured",
+        }),
+      }),
+    );
+  });
+
+  it("keeps the approved envelope when a failed SDK retry attempt is missing its receipt", async () => {
+    state.runTools = () => Promise.reject(durableFailure([null, metadata("0", false)]));
+    await runAgentTurn(payload);
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        stopReason: "provider_error",
+        usageSettlement: expect.objectContaining({
+          costMicrocents: payload.turnBudget.reservedMicrocents,
+          chargedMicrocents: payload.turnBudget.reservedMicrocents,
+          costSource: "estimated",
+        }),
+      }),
+    );
+  });
+
+  it("preserves the measured first round alongside a later proven zero pre-stream rejection", async () => {
+    let segment = 0;
+    state.runTools = ({ messages }) =>
+      segment++ === 0
+        ? Promise.resolve({
+            finishReason: "length",
+            messages,
+            steps: [{ ...streamedStep("First reply.", "length"), providerMetadata: metadata("0.0005") }],
+          })
+        : Promise.reject(durableFailure([metadata("0", false)]));
+    await runAgentTurn(payload);
+    expect(state.providerCalls).toBe(2);
+    expect(state.recordRound).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ costMicrocents: 50_000 }));
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        stopReason: "provider_error",
+        usageSettlement: expect.objectContaining({
+          costMicrocents: 50_000,
+          chargedMicrocents: 50_000,
+          costSource: "measured",
+        }),
+      }),
+    );
+  });
+
+  it("reports an unmarked cyclic provider rejection visibly and retains its unreported reserve", async () => {
+    const error = new Error("Public cyclic rejection");
+    Object.defineProperty(error, "cause", { value: error });
+    state.runTools = () => Promise.reject(error);
+    await runAgentTurn(payload);
+    expect(state.providerCalls).toBe(1);
+    expect(state.recordRound).not.toHaveBeenCalled();
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        terminalCode: "partial",
+        stopReason: "turn_error",
+        usageSettlement: expect.objectContaining({
+          costMicrocents: payload.turnBudget.reservedMicrocents,
+          chargedMicrocents: payload.turnBudget.reservedMicrocents,
+          costSource: "estimated",
+        }),
+      }),
+    );
+  });
+
+  it("never bills a catch receipt again when onStepEnd already accounted for the round", async () => {
+    state.runTools = async ({ completeStep }) => {
+      await completeStep({ ...streamedStep("A reply.", "stop"), providerMetadata: metadata("0.0005") });
+      throw durableFailure([metadata("0.0005")]);
+    };
+    await runAgentTurn(payload);
+    expect(state.providerCalls).toBe(1);
+    expect(state.recordRound).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ costMicrocents: 50_000 }));
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        usageSettlement: expect.objectContaining({
+          costMicrocents: 50_000,
+          chargedMicrocents: 50_000,
+          costSource: "measured",
+        }),
+      }),
+    );
+  });
+
   it.each(["chat", "routine"] as const)(
     "retains the approved reserve when an attempted %s provider round fails before reporting usage",
     async (surface) => {
@@ -1869,6 +2240,51 @@ describe("agent-turn provider charge evidence", () => {
       }),
     );
   });
+
+  it.each(["chat", "routine"] as const)(
+    "settles a proven unbilled %s stream without finish usage and preserves resolved-error retries",
+    async (surface) => {
+      state.runTools = ({ messages }) =>
+        Promise.resolve({
+          finishReason: "error",
+          messages,
+          steps: [
+            {
+              ...streamedStep("", "error"),
+              usage: {},
+              providerMetadata: {
+                workflow: {
+                  providerReceipt: {
+                    kind: "ai-sdk-workflow-provider-error",
+                    version: 1,
+                    attempts: [],
+                    currentAttempt: { errorAttempts: [metadata("0", false)] },
+                  },
+                },
+              },
+            },
+          ],
+          error: durableFailure([metadata("0", false)]),
+        });
+
+      await runAgentTurn({ ...payload, surface });
+
+      expect(state.providerCalls).toBe(3);
+      expect(state.reportFailure).toHaveBeenCalledTimes(3);
+      expect(state.recordRound).toHaveBeenCalledTimes(3);
+      expect(state.recordRound.mock.calls.map(([round]) => round.costMicrocents)).toEqual([0, 0, 0]);
+      expect(state.finalize).toHaveBeenCalledWith(
+        expect.objectContaining({
+          stopReason: "provider_error",
+          usageSettlement: expect.objectContaining({
+            costMicrocents: 0,
+            chargedMicrocents: 0,
+            costSource: "measured",
+          }),
+        }),
+      );
+    },
+  );
 
   it("settles the aggregate Gateway receipt without treating opaque provider retries as unreported rounds", async () => {
     const receipt = metadata("0.0005");
@@ -3373,6 +3789,46 @@ describe("routine browse-or-mutate batch safety", () => {
     },
   );
 
+  it("does not let a billed prior SDK attempt suppress current successful search fallback", async () => {
+    const prior = {
+      gateway: {
+        gatewayCost: "0.0005",
+        routing: {
+          finalProvider: "vertex",
+          modelAttempts: [{ providerAttempts: [{ provider: "vertex", credentialType: "system", success: true }] }],
+        },
+      },
+    };
+    const finishMetadata = { gateway: { gatewayCost: "0", routing: { modelAttempts: [] } } };
+    const search = {
+      ...nativeSearchStep(),
+      finishReason: "stop",
+      providerMetadata: {
+        ...finishMetadata,
+        workflow: {
+          providerReceipt: {
+            kind: "ai-sdk-workflow-provider-error",
+            version: 1,
+            attempts: [prior],
+            currentAttempt: { finishMetadata },
+          },
+        },
+      },
+    };
+    state.runTools = ({ messages }) => Promise.resolve({ finishReason: "stop", messages, steps: [search] });
+    await runAgentTurn({ ...payload, webSearchEnabled: true });
+    expect(state.recordRound).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ costMicrocents: 1_250_000 }));
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        usageSettlement: expect.objectContaining({
+          costMicrocents: 1_250_000,
+          chargedMicrocents: 1_250_000,
+          costSource: "estimated",
+        }),
+      }),
+    );
+  });
+
   it("does not retry a resolved provider error after the failed round ran a provider search", async () => {
     let segment = 0;
     state.runTools = ({ messages }) => {
@@ -3551,13 +4007,38 @@ describe("routine browse-or-mutate batch safety", () => {
     expect(afterOvershoot).toEqual({
       activeTools: ["load_toolset", "manage_wiki_pages", "list_users"],
       toolChoice: "none",
-      maxRetries: 2,
+      maxRetries: 0,
     });
     expect(state.prepared).toMatchObject({ toolChoice: "none" });
     const [[firstRound]] = state.recordRound.mock.calls;
     expect(firstRound.costMicrocents).toBeGreaterThanOrEqual(5 * 1_200_000);
     const required = state.extendReservation.mock.calls.map(([args]) => args.requiredMicrocents as number);
     expect(Math.max(...required)).toBeGreaterThanOrEqual(firstRound.costMicrocents);
+  });
+
+  it("keeps the existing two-retry ceiling after search overshoot when three complete envelopes remain funded", async () => {
+    const step = searchesStep(5, 5);
+    delete (step.providerMetadata.gateway as { gatewayCost?: string }).gatewayCost;
+    step.providerMetadata.gateway.routing.finalProvider = "azure";
+    let afterOvershoot: unknown;
+    state.runTools = async ({ completeStepAndPrepareNext }) => {
+      await completeStepAndPrepareNext(step);
+      afterOvershoot = state.prepared;
+      return finish();
+    };
+
+    await runAgentTurn({
+      ...payload,
+      turnBudget: { ...payload.turnBudget, reservedMicrocents: 20 * CREDIT },
+      webSearchEnabled: true,
+    });
+
+    expect(afterOvershoot).toEqual({
+      activeTools: ["load_toolset", "manage_wiki_pages", "list_users"],
+      toolChoice: "none",
+      maxRetries: 2,
+    });
+    expect(state.extendReservation).not.toHaveBeenCalled();
   });
 
   it("never charges an errored search at the worst-case fallback price", async () => {
@@ -3636,6 +4117,70 @@ describe("routine browse-or-mutate batch safety", () => {
       ];
       state.normalize.mockImplementation((_toolName, input) => Promise.resolve({ ok: true, input }));
     };
+
+    it.each([
+      [1, 0],
+      [2, 1],
+      [3, undefined],
+    ] as const)("funds the website reading branch from %i held round envelopes", async (envelopes, maxRetries) => {
+      preparePlan();
+      state.runTools = async ({ prepared, executeAndCompleteTool, completeStepAndPrepareNext }) => {
+        expect(prepared).toMatchObject({ activeTools: ["read_website_source"], toolChoice: "required" });
+        if (maxRetries === undefined) expect(prepared).not.toHaveProperty("maxRetries");
+        else expect(prepared).toHaveProperty("maxRetries", maxRetries);
+        await executeAndCompleteTool("read_website_source", foundationPlan, "funded-plan");
+        await completeStepAndPrepareNext({ ...unbilledStopStep(), finishReason: "tool-calls" });
+        if (maxRetries === undefined) expect(state.prepared).not.toHaveProperty("maxRetries");
+        else expect(state.prepared).toHaveProperty("maxRetries", maxRetries);
+        await createFoundations(executeAndCompleteTool);
+        return finish();
+      };
+
+      await runAgentTurn({
+        ...setupPayload,
+        turnBudget: {
+          ...payload.turnBudget,
+          reservedMicrocents: envelopes * payload.turnBudget.roundReserveMicrocents,
+        },
+      });
+
+      expect(state.providerCalls).toBe(2);
+      expect(state.extendReservation).not.toHaveBeenCalled();
+      expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
+    });
+
+    it("deducts auxiliary costs before funding another required website read", async () => {
+      preparePlan();
+      state.runTools = async ({ prepared, executeAndCompleteTool, completeStepAndPrepareNext }) => {
+        expect(prepared).toMatchObject({ activeTools: ["read_website_source"], toolChoice: "required", maxRetries: 1 });
+        state.toolCharges = [
+          { use: "docs_rerank", model: "jev", costMicrocents: CREDIT, measured: true, answered: true },
+        ];
+        await executeAndCompleteTool("read_website_source", { action: "next" }, "funded-read");
+        await completeStepAndPrepareNext({ ...unbilledStopStep(), finishReason: "tool-calls" });
+        expect(state.prepared).toMatchObject({
+          activeTools: ["read_website_source"],
+          toolChoice: "required",
+          maxRetries: 0,
+        });
+        await executeAndCompleteTool("read_website_source", foundationPlan, "funded-plan");
+        await createFoundations(executeAndCompleteTool);
+        return finish();
+      };
+
+      await runAgentTurn({
+        ...setupPayload,
+        turnBudget: { ...payload.turnBudget, reservedMicrocents: 2 * payload.turnBudget.roundReserveMicrocents },
+      });
+
+      expect(state.extendReservation).not.toHaveBeenCalled();
+      expect(state.finalize).toHaveBeenCalledWith(
+        expect.objectContaining({
+          terminalCode: "completed",
+          usageSettlement: expect.objectContaining({ costMicrocents: CREDIT, costSource: "measured" }),
+        }),
+      );
+    });
 
     it("requires an accounted source plan before it allows page creation", async () => {
       preparePlan();

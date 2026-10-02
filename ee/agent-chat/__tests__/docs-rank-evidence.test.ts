@@ -392,4 +392,79 @@ describe("bounded classifier evidence", () => {
       if (maxChars === 0) expect(excerpt).toBe("");
     },
   );
+
+  it("keeps a fitting page definition beside an incidental link action", () => {
+    const definition = "The Directory page lists workspace members.";
+    const markdown = [
+      `${definition} Search and filters help you review membership changes and invite more people to the workspace.`,
+      "",
+      "| Action | Result |",
+      "|---|---|",
+      "| Share link | Copy the invitation link and send the link to a new teammate. |",
+      "| Invite by email | Email the workspace link to selected addresses. |",
+    ].join("\n");
+    const excerpt = docsRankEvidence(markdown, "link to the Directory page", 160, {
+      label: "Directory page",
+      locale: "en",
+    });
+    expect(excerpt).toContain(definition);
+    expect(excerpt).toContain("invitation link");
+    expect(excerpt.length).toBeLessThanOrEqual(160);
+  });
+
+  it.each([
+    [
+      "app-company",
+      "members-tab",
+      "link to the members page",
+      "The Members page lists the people in the workspace and is where you invite teammates.",
+    ],
+    [
+      "app-company",
+      "audit-logs-tab",
+      "who edited this contact, is there a history",
+      "who changed which record or setting, and when.",
+    ],
+    [
+      "app-onboarding",
+      "what-are-the-three-steps",
+      "link to the onboarding wizard",
+      "has four steps: Your profile, Knowledge Base, Invite your team and Connect your AI.",
+    ],
+    [
+      "webhooks",
+      "who-can-see-and-change-webhooks",
+      "who can see webhook secrets",
+      "Access is set by the API & Webhooks row of the role editor under My Company → Roles.",
+    ],
+  ] as const)("keeps %s's fitting definition alongside a residual detail", (slug, anchor, query, definition) => {
+    const page = rawDocsManifest.docs.en[slug];
+    const section = splitSections({
+      slug,
+      source: "docs",
+      pageTitle: page.title,
+      markdown: page.content,
+    }).find((candidate) => candidate.anchor === anchor);
+    expect(section).toBeDefined();
+    if (!section) throw new Error("Expected public documentation section");
+    const excerpt = docsRankEvidence(section.text, query, 400, {
+      label: `${section.pageTitle} > ${section.headingPath.join(" > ")}`,
+      locale: "en",
+    });
+    expect(excerpt).toContain(definition);
+    expect(excerpt.length).toBeLessThanOrEqual(400);
+  });
+
+  it("includes the lead separator in a bound that cannot fit both complete units", () => {
+    const definition = "The Directory page lists workspace members.";
+    const action = "Copy the invitation link and share it with one teammate to invite them to the workspace.";
+    const maxChars = definition.length + action.length;
+    const excerpt = docsRankEvidence(`${definition}\n\n${action}`, "link to the Directory page", maxChars, {
+      label: "Directory page",
+      locale: "en",
+    });
+    expect(excerpt).toContain(definition);
+    expect(excerpt).toContain("invitation link");
+    expect(excerpt.length).toBeLessThanOrEqual(maxChars);
+  });
 });

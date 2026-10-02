@@ -119,7 +119,9 @@ export function docsRankEvidence(
   const labelMatches = matcher.matches(context.label ?? "");
   let active = matcher.units.map((_, index) => !labelMatches[index]);
   const allBodyMatches = units.map(({ text }) => matcher.matches(text));
-  if (active.some(Boolean) && !allBodyMatches.some((hits) => hits.some((hit, index) => hit && active[index])))
+  const hasResidualBodyMatch =
+    active.some(Boolean) && allBodyMatches.some((hits) => hits.some((hit, index) => hit && active[index]));
+  if (active.some(Boolean) && !hasResidualBodyMatch)
     active = active.map((hit, index) => hit || (labelMatches[index] && allBodyMatches.some((hits) => hits[index])));
   const bodies = units.map(({ text, context: unitContext }) => [unitContext, text].filter(Boolean).join(" "));
   const bodyMatches = allBodyMatches.map((hits) => hits.map((hit, index) => hit && active[index]));
@@ -175,10 +177,25 @@ export function docsRankEvidence(
       });
     }
   }
+  const firstSentence = [...SENTENCES.segment(opening)][0]?.segment.trim() ?? "";
+  const openingBlock = lines.find((line) => line.prose && line.text === opening)?.block;
+  const openingUnitIndex = units.findIndex((unit) => unit.prose && unit.block === openingBlock);
+  const introductionBudget = Math.floor(maxChars / 3);
+  const introduction =
+    picked.size === 0 &&
+    hasResidualBodyMatch &&
+    openingBlock !== undefined &&
+    openingUnitIndex >= 0 &&
+    !matches[openingUnitIndex].some(Boolean) &&
+    introductionBudget >= 16 &&
+    firstSentence.length > 0 &&
+    firstSentence.length <= introductionBudget &&
+    matcher.matches(firstSentence).some((hit, index) => hit && labelMatches[index])
+      ? firstSentence
+      : "";
   const render = () =>
-    [...picked]
-      .sort(([left], [right]) => left - right)
-      .map(([, text]) => text)
+    [introduction, ...[...picked].sort(([left], [right]) => left - right).map(([, text]) => text)]
+      .filter(Boolean)
       .join(" ");
   while (remaining.size > 0) {
     let index = remaining.values().next().value;
@@ -193,7 +210,7 @@ export function docsRankEvidence(
       }
     }
     remaining.delete(index);
-    const room = maxChars - render().length - (picked.size ? 1 : 0);
+    const room = maxChars - render().length - (picked.size > 0 || introduction.length > 0 ? 1 : 0);
     if (room < 1 || (picked.size > 0 && room < 16)) break;
     const unit = units[index];
     const context = unit.context
