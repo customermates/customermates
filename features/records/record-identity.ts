@@ -31,6 +31,26 @@ export function normalizedIdentity(input: RecordIdentityInput): RecordIdentityIn
     : null;
 }
 
+export function normalizedIdentityAssociation(
+  input: RecordIdentityInput,
+  known: RecordIdentity[],
+): RecordIdentityInput | null {
+  const normalized = normalizedIdentity(input);
+  if (normalized) return normalized;
+  const kind = channelClass(input.provider);
+  if (!known.some((row) => row.channelClass === kind && identityKeys(row).includes(input.value.trim()))) return null;
+  const identity = identityAssociations([{ ...input, value: input.value.trim() }], known)[0];
+  return identity
+    ? {
+        provider: identity.provider,
+        value: identity.value,
+        messagingId: identity.messagingId,
+        displayName: identity.displayName,
+        profileUrl: identity.profileUrl,
+      }
+    : null;
+}
+
 export function updatedIdentities(previous: RecordIdentity[], inputs: RecordIdentityInput[]): RecordIdentity[] {
   const now = new Date().toISOString();
   return inputs.map((input) => {

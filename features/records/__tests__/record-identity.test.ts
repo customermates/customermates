@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { identityKeys, normalizedIdentity, updatedIdentities, identityAssociations } from "../record-identity";
+import {
+  identityKeys,
+  normalizedIdentity,
+  updatedIdentities,
+  identityAssociations,
+  normalizedIdentityAssociation,
+} from "../record-identity";
 import { RecordIdentityInputsSchema } from "../record-identity.schema";
 
 describe("record identity channels", () => {
@@ -143,5 +149,23 @@ describe("shared identity associations", () => {
       (row) => ({ ...row, aliases: ["alice", "urn:new", "urn:old"] }),
     );
     expect(identityAssociations([{ provider: "linkedin", value: "urn:old" }], known)).toEqual(known);
+  });
+});
+
+describe("registered opaque channel aliases", () => {
+  it("allows known provider IDs to reuse a channel while rejecting unregistered malformed values", () => {
+    const known = updatedIdentities([], [{ provider: "linkedin", value: "alice", messagingId: "urn:alice" }]);
+    expect(normalizedIdentity({ provider: "linkedin", value: "urn:alice" })).toBeNull();
+    expect(
+      normalizedIdentityAssociation({ provider: "linkedin", value: "urn:alice", displayName: "Overwrite" }, known),
+    ).toEqual({
+      provider: "linkedin",
+      value: "alice",
+      messagingId: "urn:alice",
+      displayName: null,
+      profileUrl: null,
+    });
+    expect(normalizedIdentityAssociation({ provider: "linkedin", value: "urn:missing" }, known)).toBeNull();
+    expect(normalizedIdentityAssociation({ provider: "linkedin", value: "invalid handle" }, known)).toBeNull();
   });
 });

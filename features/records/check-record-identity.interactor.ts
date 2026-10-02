@@ -54,11 +54,19 @@ export class CheckRecordIdentityInteractor extends AuthenticatedInteractor<
           if (!record || !(await policy.canRead(record))) return failNotFound(CustomErrorCode.recordNotFound);
           if (record.protectedKind) return failAuthorization(CustomErrorCode.recordProtected);
         }
-        const identity = normalizedIdentity(input.identity);
-        if (!identity) return fail(CustomErrorCode.invalidChannelValue, ["identity", "value"]);
+        const normalized = normalizedIdentity(input.identity);
+        const lookup = normalized ?? input.identity;
         const known = await this.records.getIdentityChannelsCompanyWide(
-          identityKeys(identity).map((value) => ({ channelClass: channelClass(identity.provider), value })),
+          identityKeys(lookup).map((value) => ({ channelClass: channelClass(lookup.provider), value })),
         );
+        if (
+          !normalized &&
+          !known.some(
+            (identity) =>
+              identity.channelClass === channelClass(lookup.provider) && identityKeys(identity).includes(lookup.value),
+          )
+        )
+          return fail(CustomErrorCode.invalidChannelValue, ["identity", "value"]);
         if (new Set(known.map((row) => row.id)).size > 1)
           return failConflict(CustomErrorCode.channelAlreadyLinked, ["identity"]);
         return { ok: true, data: { available: true } };

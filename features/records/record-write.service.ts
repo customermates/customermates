@@ -18,7 +18,8 @@ import { valueResult } from "./calculation";
 import { decodeRecordValue } from "./record-storage";
 import { RecordCalculationService, recordKey, SYNCHRONOUS_RECORD_LIMIT } from "./record-calculation.service";
 import type { RecordIdentityInput } from "./record-identity.schema";
-import { normalizedIdentity } from "./record-identity";
+import { identityKeys, normalizedIdentity, normalizedIdentityAssociation } from "./record-identity";
+import { channelClass } from "@/ee/messaging/provider";
 
 type Policy = Awaited<ReturnType<RecordAccessPolicy["load"]>>;
 export { RecordWriteError } from "./record-write-error";
@@ -263,9 +264,17 @@ export class RecordWriteService {
       if (!recordChannelsEnabled(model, ref.typeId))
         reject(CustomErrorCode.recordProtected, "authorization", ["identities"]);
 
+      const aliases = inputs.filter((input) => !normalizedIdentity(input));
+      const known = aliases.length
+        ? await this.records.getIdentityChannelsCompanyWide(
+            aliases.flatMap((input) =>
+              identityKeys(input).map((value) => ({ channelClass: channelClass(input.provider), value })),
+            ),
+          )
+        : [];
       const normalized: RecordIdentityInput[] = [];
       for (const [index, input] of inputs.entries()) {
-        const row = normalizedIdentity(input);
+        const row = normalizedIdentityAssociation(input, known);
         if (!row) reject(CustomErrorCode.invalidChannelValue, "validation", ["identities", index, "value"]);
         normalized.push(row);
       }

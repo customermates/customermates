@@ -5313,7 +5313,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         {
           provider: "linkedin",
           value: "person",
-          messagingId: "provider-person",
+          messagingId: "urn:provider-person",
         },
       ],
     };
@@ -5355,7 +5355,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(
       await f.mutation({
         ...request,
-        identities: [{ provider: "linkedin", value: "provider-person" }],
+        identities: [{ provider: "linkedin", value: "urn:provider-person" }],
       }),
     ).toMatchObject({
       ok: true,
