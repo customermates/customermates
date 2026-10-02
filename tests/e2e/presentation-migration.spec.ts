@@ -135,7 +135,7 @@ test("opens migrated saved views, personal details and financial widgets with pe
   await expect(page.locator("#nav-add")).toHaveAttribute("aria-disabled", "false");
   await expect(page.locator("header")).toContainText("People");
   const person = (await database.query('SELECT id FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 LIMIT 1', [companyId, personType])).rows[0];
-  await page.locator("#global-data-views").getByRole("link", { name: "All", exact: true }).click();
+  await page.locator("#global-data-views-all").click();
   await page.getByRole("button", { name: "Synthetic Person", exact: true }).click();
   await page.getByRole("dialog").getByRole("link", { name: "Open page", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/en/records/${personType}/${person.id}$`));
