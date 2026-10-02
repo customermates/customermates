@@ -1,6 +1,6 @@
 "use client";
 
-import { action, makeObservable, observable } from "mobx";
+import { action, makeObservable, observable, toJS } from "mobx";
 import { observer } from "mobx-react-lite";
 import { Save } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -18,6 +18,7 @@ import { RelationshipPathInput } from "@/components/records/relationship-path-in
 import { RecordConfigurationPreview } from "@/components/records/record-configuration-preview";
 import { RecordOperationProgress } from "@/components/records/record-operation-progress";
 import { ModelChangeStore } from "./model-change.store";
+import { ModelChangeRecovery } from "./model-change-recovery";
 
 type ActivityPath = RecordModel["activityPaths"][number];
 const empty = () => ({
@@ -30,8 +31,14 @@ const empty = () => ({
 });
 export class ActivityPathModalStore extends ModelChangeStore<ReturnType<typeof empty>> {
   typeId = "";
-  constructor(root: RootStore, model: RecordModel, completed: (preview: ConfigurationPreview) => Promise<void>) {
-    super(root, empty(), model, completed);
+  constructor(
+    root: RootStore,
+    model: RecordModel,
+    completed: (preview: ConfigurationPreview) => Promise<void>,
+    canRenewSummaries = false,
+    onModelRefreshed?: (model: RecordModel) => void,
+  ) {
+    super(root, empty(), model, completed, canRenewSummaries, onModelRefreshed);
     makeObservable(this, { typeId: observable, edit: action });
   }
   edit = (model: RecordModel, typeId: string, definition?: ActivityPath) => {
@@ -40,6 +47,16 @@ export class ActivityPathModalStore extends ModelChangeStore<ReturnType<typeof e
     this.onInitOrRefresh(definition ? { ...empty(), ...definition } : empty());
     this.open();
   };
+  protected projectLatestModel(model: RecordModel) {
+    if (!model.types.some((type) => type.id === this.typeId)) return null;
+    if (!this.form.id) return toJS(this.savedState);
+    const latest = model.activityPaths.find((path) => path.id === this.form.id);
+    if (!latest) return null;
+    const projected = new ActivityPathModalStore(this.rootStore, model, async () => {});
+    projected.edit(model, latest.typeId, latest);
+    this.typeId = latest.typeId;
+    return toJS(projected.form);
+  }
   operations(): ConfigurationChange["operations"] {
     return [
       {
@@ -57,10 +74,10 @@ export const ActivityPathModal = observer(function ActivityPathModal({ store }: 
         {
           id: "save-activity-path",
           icon: Save,
-          label: store.preview?.valid ? t("RecordModel.apply") : t("RecordModel.preview"),
+          label: store.previewReady ? t("RecordModel.apply") : t("RecordModel.preview"),
           onClick: store.onSubmit,
           busy: store.isLoading,
-          disabled: Boolean(store.pendingOperationId),
+          disabled: store.isReadOnly,
         },
       ]}
       size="lg"
@@ -75,6 +92,8 @@ export const ActivityPathModal = observer(function ActivityPathModal({ store }: 
 
           <AppCardBody>
             <p className="text-sm text-muted-foreground">{t("RecordModel.activityConnectionsHelp")}</p>
+
+            <ModelChangeRecovery store={store} />
 
             {store.pendingOperationId && (
               <RecordOperationProgress
@@ -100,7 +119,9 @@ export const ActivityPathModal = observer(function ActivityPathModal({ store }: 
 
             {store.form.id && <FormSwitch id="archived" label={t("RecordModel.archiveActivityPath")} />}
 
-            {store.preview && <RecordConfigurationPreview model={store.model} preview={store.preview} />}
+            {store.preview && (
+              <RecordConfigurationPreview model={store.model} preview={store.preview} renewal={store.summaryRenewal} />
+            )}
           </AppCardBody>
         </AppCard>
       </AppForm>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, type ReactNode } from "react";
+import { useCallback, useId, type ReactNode } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import type { RecordEditorStore } from "./record-editor.store";
@@ -27,6 +27,7 @@ export const RecordDetailOverview = observer(function RecordDetailOverview({
   renderEditor: (child: RecordEditorStore) => ReactNode;
 }) {
   const t = useTranslations();
+  const assignedInputId = `assignedUserIds-${useId()}`;
   const { setPreviewFieldValue } = useEntityDetailPersonalization();
   const previewAssignees = useCallback(
     (items: EntityDetailPreviewItem[]) => setPreviewFieldValue("system:assignedTo", items),
@@ -45,11 +46,12 @@ export const RecordDetailOverview = observer(function RecordDetailOverview({
       if (column.id === "system:assignedTo") {
         if (type?.embedded) return [];
         content = (
-          <RecordDetailField fieldId={column.id} inputId="assignedUserIds" label={label}>
+          <RecordDetailField fieldId={column.id} inputId={assignedInputId} label={label}>
             <FormAutocompleteAvatar
               ariaLabel={label}
               getItems={getUsersAction}
               id="assignedUserIds"
+              inputId={assignedInputId}
               items={
                 store.record?.assignedUsers ?? (store.rootStore.userStore.user ? [store.rootStore.userStore.user] : [])
               }

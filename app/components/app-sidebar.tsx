@@ -331,6 +331,7 @@ const FullAppSidebar = observer(
         title: t("UserAvatar.documentation"),
         icon: FileText,
         href: restricted ? "/dashboard" : "/docs",
+        prefetch: false,
       },
       {
         key: "feedback",

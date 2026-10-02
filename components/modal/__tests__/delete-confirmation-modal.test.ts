@@ -132,3 +132,74 @@ describe("DeleteConfirmationModal submission boundary", () => {
     });
   });
 });
+
+describe("delete confirmation ownership", () => {
+  function store() {
+    return new DeleteConfirmationModalStore({
+      localeStore: { getTranslation: (key: string) => key },
+      registerModalStore: vi.fn(),
+    } as unknown as RootStore);
+  }
+  it("does not close or announce a new confirmation after an earlier delete completes", async () => {
+    const modal = store();
+    let resolve!: (value: boolean) => void;
+    modal.openWith({
+      title: "Earlier record",
+      onConfirm: () =>
+        new Promise<boolean>((done) => {
+          resolve = done;
+        }),
+    });
+    const first = modal.onSubmit();
+    modal.close();
+    modal.openWith({ title: "Current record", onConfirm: () => Promise.resolve(false) });
+    resolve(true);
+    await first;
+    expect(modal.isOpen).toBe(true);
+    expect(modal.form.title).toBe("Current record");
+    expect(toastSuccess).not.toHaveBeenCalled();
+  });
+  it("does not release a new confirmation's loading state when an earlier request settles", async () => {
+    const modal = store();
+    let firstResolve!: (value: boolean) => void;
+    let secondResolve!: (value: boolean) => void;
+    modal.openWith({
+      onConfirm: () =>
+        new Promise<boolean>((done) => {
+          firstResolve = done;
+        }),
+    });
+    const first = modal.onSubmit();
+    modal.close();
+    modal.openWith({
+      onConfirm: () =>
+        new Promise<boolean>((done) => {
+          secondResolve = done;
+        }),
+    });
+    const second = modal.onSubmit();
+    firstResolve(true);
+    await first;
+    expect(modal.isLoading).toBe(true);
+    secondResolve(false);
+    await second;
+    expect(modal.isLoading).toBe(false);
+    expect(modal.isOpen).toBe(true);
+  });
+  it("admits one confirmation submission while its request is outstanding", async () => {
+    const modal = store();
+    let resolve!: (value: boolean) => void;
+    const onConfirm = vi.fn(
+      () =>
+        new Promise<boolean>((done) => {
+          resolve = done;
+        }),
+    );
+    modal.openWith({ onConfirm });
+    const pending = modal.onSubmit();
+    await modal.onSubmit();
+    expect(onConfirm).toHaveBeenCalledOnce();
+    resolve(false);
+    await pending;
+  });
+});

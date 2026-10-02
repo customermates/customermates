@@ -1,7 +1,7 @@
 "use client";
 
 import { z } from "zod";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { RecordAiAction } from "@/app/components/agent-chat/record-ai-action";
@@ -95,6 +95,16 @@ export const RecordWidgetEditor = observer(
     const [preview, setPreview] = useState<{ key: string; result: RecordMeasureResult } | null>(null);
     const [loading, setLoading] = useState(false);
     const [previewError, setPreviewError] = useState(false);
+    const previewGeneration = useRef(0);
+    const previewKey = isRecordWidgetForm(form) ? JSON.stringify(form.measure) : null;
+    useEffect(() => {
+      previewGeneration.current += 1;
+      setLoading(false);
+      setPreviewError(false);
+      return () => {
+        previewGeneration.current += 1;
+      };
+    }, [form, previewKey, model?.revision, store.isOpen]);
     if (!isRecordWidgetForm(form)) return null;
     const measure = form.measure;
     const key = JSON.stringify(measure);
@@ -144,6 +154,8 @@ export const RecordWidgetEditor = observer(
           variant="secondary"
           onClick={() =>
             runUserAction(async () => {
+              const generation = ++previewGeneration.current;
+              const isCurrent = () => generation === previewGeneration.current;
               setLoading(true);
               setPreviewError(false);
               try {
@@ -153,7 +165,8 @@ export const RecordWidgetEditor = observer(
                   toastZodErrorTree(z.treeifyError(parsed.error));
                   return;
                 }
-                const result = await previewRecordWidgetAction(parsed.data);
+                const result = await store.runPreview(() => previewRecordWidgetAction(parsed.data));
+                if (!result || !isCurrent()) return;
                 if (!result.ok) {
                   setPreviewError(true);
                   toastZodErrorTree(result.error);
@@ -166,10 +179,12 @@ export const RecordWidgetEditor = observer(
                 setPreview({ key, result: result.data });
                 store.onChange("expectedRevision", result.data.schemaRevision);
               } catch (error) {
-                setPreviewError(true);
-                throw error;
+                if (isCurrent()) {
+                  setPreviewError(true);
+                  throw error;
+                }
               } finally {
-                setLoading(false);
+                if (isCurrent()) setLoading(false);
               }
             })
           }

@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import type { RecordEventOutboxRepo } from "../record-event-outbox.repo";
+import type { RecordOperationQueueRepo } from "../record-operation-queue.repo";
 import type { WebhookDeliveryQueueRepo } from "@/features/webhook/webhook-delivery-queue.repo";
 import { SweepRecordDeliveriesInteractor } from "../sweep-record-deliveries.interactor";
 
@@ -18,10 +19,11 @@ describe("record delivery recovery sweep", () => {
     const sweep = new SweepRecordDeliveriesInteractor(
       { dueCompaniesUnscoped } as unknown as RecordEventOutboxRepo,
       { dueUnscoped } as unknown as WebhookDeliveryQueueRepo,
+      { claimDueUnscoped: vi.fn().mockResolvedValue([]) } as unknown as RecordOperationQueueRepo,
       { dispatch },
     );
 
-    await expect(sweep.invoke()).resolves.toEqual({ eventWorkspaces: 1, webhookDeliveries: 1 });
+    await expect(sweep.invoke()).resolves.toEqual({ eventWorkspaces: 1, webhookDeliveries: 1, recordOperations: 0 });
     expect(dispatch).toHaveBeenCalledWith("process-record-events", {
       companyId: "6a61ad3a-df22-43db-9a09-c77b582cbfee",
     });
@@ -46,10 +48,59 @@ describe("record delivery recovery sweep", () => {
           },
         ]),
       } as unknown as WebhookDeliveryQueueRepo,
+      { claimDueUnscoped: vi.fn().mockResolvedValue([]) } as unknown as RecordOperationQueueRepo,
       { dispatch },
     );
 
     await expect(sweep.invoke()).rejects.toThrow("next sweep will retry");
     expect(dispatch).toHaveBeenCalledTimes(2);
+  });
+
+  it("retries a failed start using the stored workspace and owner, without claiming a live lease", async () => {
+    const operation = {
+      companyId: "6a61ad3a-df22-43db-9a09-c77b582cbfee",
+      operationId: "8f1f44a8-67a5-4262-a57c-f6bc1155a231",
+      ownerUserId: "79d62254-a527-4959-b02e-d92bab92945b",
+      kind: "mutation" as const,
+    };
+    const claimDueUnscoped = vi
+      .fn()
+      .mockResolvedValueOnce([operation])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([operation]);
+    const dispatch = vi.fn().mockRejectedValueOnce(new Error("Workflow unavailable")).mockResolvedValue(undefined);
+    const sweep = new SweepRecordDeliveriesInteractor(
+      { dueCompaniesUnscoped: vi.fn().mockResolvedValue([]) } as unknown as RecordEventOutboxRepo,
+      { dueUnscoped: vi.fn().mockResolvedValue([]) } as unknown as WebhookDeliveryQueueRepo,
+      { claimDueUnscoped } as unknown as RecordOperationQueueRepo,
+      { dispatch },
+    );
+    await expect(sweep.invoke()).rejects.toThrow("next sweep will retry");
+    await expect(sweep.invoke()).resolves.toMatchObject({ recordOperations: 0 });
+    await expect(sweep.invoke()).resolves.toMatchObject({ recordOperations: 1 });
+    expect(dispatch).toHaveBeenCalledTimes(2);
+    expect(dispatch).toHaveBeenNthCalledWith(2, "record-operation", {
+      operationId: operation.operationId,
+      ownerUserId: operation.ownerUserId,
+      tenant: { companyId: operation.companyId, userId: operation.ownerUserId },
+    });
+  });
+
+  it("routes avatar work without forging a user tenant", async () => {
+    const dispatch = vi.fn().mockResolvedValue(undefined);
+    const companyId = "6a61ad3a-df22-43db-9a09-c77b582cbfee";
+    const operationId = "8f1f44a8-67a5-4262-a57c-f6bc1155a231";
+    const sweep = new SweepRecordDeliveriesInteractor(
+      { dueCompaniesUnscoped: vi.fn().mockResolvedValue([]) } as unknown as RecordEventOutboxRepo,
+      { dueUnscoped: vi.fn().mockResolvedValue([]) } as unknown as WebhookDeliveryQueueRepo,
+      {
+        claimDueUnscoped: vi
+          .fn()
+          .mockResolvedValue([{ companyId, operationId, ownerUserId: "system:messaging", kind: "provider-avatar" }]),
+      } as unknown as RecordOperationQueueRepo,
+      { dispatch },
+    );
+    await expect(sweep.invoke()).resolves.toMatchObject({ recordOperations: 1 });
+    expect(dispatch).toHaveBeenCalledWith("provider-avatar-operation", { companyId, operationId });
   });
 });

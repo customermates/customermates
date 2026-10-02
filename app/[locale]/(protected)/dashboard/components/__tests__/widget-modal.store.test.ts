@@ -289,3 +289,72 @@ describe("generic widget modal", () => {
     expect(store.form.measure.groupBy?.filter).toEqual({ filters: [], relationships: [] });
   });
 });
+
+describe("widget preview ownership", () => {
+  it("drops a closed widget preview without applying its revision to a new draft", async () => {
+    const { store } = setup();
+    start(store);
+    const wait = deferred<{ schemaRevision: number }>();
+    const preview = store.runPreview(() => wait.promise);
+    store.close();
+    start(store);
+    store.onChange("name", "New draft");
+    const revision = store.form.expectedRevision;
+    wait.resolve({ schemaRevision: revision + 10 });
+    expect(await preview).toBeUndefined();
+    expect(store.form.name).toBe("New draft");
+    expect(store.form.expectedRevision).toBe(revision);
+  });
+
+  it("rejects an earlier preview even after its query is selected again", async () => {
+    const { store } = setup();
+    start(store);
+    const wait = deferred<string>();
+    const previous = store.runPreview(() => wait.promise);
+    store.onChange("measure.aggregation", "sum");
+    store.onChange("measure.aggregation", "count");
+    expect(await store.runPreview(() => Promise.resolve("Current count"))).toBe("Current count");
+    wait.resolve("Old count");
+    expect(await previous).toBeUndefined();
+  });
+
+  it("ignores a previous session failure while preserving failures for the current query", async () => {
+    const { store } = setup();
+    start(store);
+    let reject!: (error: Error) => void;
+    const previous = store.runPreview(
+      () =>
+        new Promise<string>((_, fail) => {
+          reject = fail;
+        }),
+    );
+    store.close();
+    start(store);
+    reject(new Error("Old query failed"));
+    expect(await previous).toBeUndefined();
+    await expect(store.runPreview(() => Promise.reject(new Error("Current query failed")))).rejects.toThrow(
+      "Current query failed",
+    );
+  });
+
+  it("keeps a valid preview when appearance changes without changing its data query", async () => {
+    const { store } = setup();
+    start(store);
+    const wait = deferred<string>();
+    const preview = store.runPreview(() => wait.promise);
+    store.onChange("displayOptions.showLegend", false);
+    wait.resolve("Current result");
+    expect(await preview).toBe("Current result");
+  });
+
+  it("applies the same ownership guard to activity query changes", async () => {
+    const { store } = setup();
+    store.add();
+    store.startFromKind(WidgetKind.activityTimeline, "History");
+    const wait = deferred<string>();
+    const preview = store.runPreview(() => wait.promise);
+    store.onChange("activityQuery.kinds", ["audit"]);
+    wait.resolve("Old activity list");
+    expect(await preview).toBeUndefined();
+  });
+});

@@ -84,12 +84,13 @@ export class QueryRecordsInteractor extends AuthenticatedInteractor<RecordQuery,
         if (invalid) return fail(CustomErrorCode.recordValueInvalid, [invalid]);
         try {
           const result = await this.records.query(query, model, access, policy.memberScope);
-          const identities = query.includeIdentities
-            ? await this.records.getRecordIdentitiesCompanyWide(
-                query.typeId,
-                result.records.map((record) => record.id),
-              )
-            : null;
+          const identities =
+            query.includeIdentities && recordChannelsEnabled(model, query.typeId)
+              ? await this.records.getRecordIdentitiesCompanyWide(
+                  query.typeId,
+                  result.records.map((record) => record.id),
+                )
+              : null;
           const relationships = await this.records.relationshipSummaries(
             query.typeId,
             result.records.map((record) => record.id),

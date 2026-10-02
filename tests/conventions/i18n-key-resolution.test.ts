@@ -834,6 +834,14 @@ export const DYNAMIC_KEY_SITES = [
 
 const NONLITERAL_T_CALL_SITES = new Map<string, number>([
   [
+    'app/[locale]/(protected)/records/[typeId]/components/record-editor-fields.tsx :: t :: captureStaged ? "RecordModel.captureOnSave" : "RecordModel.captureValue"',
+    1,
+  ],
+  [
+    'app/[locale]/(protected)/records/[typeId]/components/record-editor-fields.tsx :: t :: captureStaged ? "RecordModel.captureOnSaveField" : "RecordModel.captureValueField"',
+    1,
+  ],
+  [
     "app/[locale]/(protected)/records/[typeId]/components/record-identity-editor.tsx :: t :: SOURCE_HINT_KEYS[source]",
     1,
   ],
@@ -875,7 +883,7 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
   ],
   ["components/entity-terminology/use-entity-terminology.ts :: t :: key", 1],
   [
-    'components/records/record-configuration-preview.tsx :: t :: issue.code === "existing_values_incompatible" ? "RecordModel.existingValuesIncompatible" : issue.code === "saved_view_incompatible" ? "RecordModel.savedViewIncompatible" : issue.code === "detail_layout_incompatible" ? "RecordModel.detailLayoutIncompatible" : "RecordModel.dependencyHelp"',
+    'components/records/record-configuration-preview.tsx :: t :: issue.code === "existing_values_incompatible" ? "RecordModel.existingValuesIncompatible" : issue.code === "saved_view_incompatible" ? "RecordModel.savedViewIncompatible" : issue.code === "detail_layout_incompatible" ? "RecordModel.detailLayoutIncompatible" : issue.code === "summary_approval_required" ? "RecordModel.summaryApprovalRequired" : "RecordModel.dependencyHelp"',
     1,
   ],
   [
@@ -950,6 +958,15 @@ const TERMINOLOGY_TEMPLATE_EVIDENCE = Object.fromEntries(
 
 const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
   {
+    file: "app/[locale]/(protected)/records/[typeId]/components/record-editor-fields.tsx",
+    keys: [
+      "RecordModel.captureOnSave",
+      "RecordModel.captureValue",
+      "RecordModel.captureOnSaveField",
+      "RecordModel.captureValueField",
+    ],
+  },
+  {
     file: "app/[locale]/(protected)/records/[typeId]/components/record-identity-editor.tsx",
     keys: ["EntityChannels.addChannel.sourceConversations", "EntityChannels.addChannel.sourceLookup"],
   },
@@ -959,6 +976,7 @@ const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
       "RecordModel.existingValuesIncompatible",
       "RecordModel.savedViewIncompatible",
       "RecordModel.detailLayoutIncompatible",
+      "RecordModel.summaryApprovalRequired",
       "RecordModel.dependencyHelp",
     ],
   },
@@ -1114,6 +1132,7 @@ const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
 const T_CALL_PATTERN =
   /(?:(?<![\w$.])|(?<=this\.))(t(?:\.(?:rich|raw|markup|has))?)\(\s*("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`)/g;
 const GET_TRANSLATION_PATTERN = /(?<![\w$])(getTranslation)\(\s*("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`)/g;
+const TRANSLATION_REF_CALL_PATTERN = /(?<![\w$.])(translationRef\.current)\(\s*("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`)/g;
 const NAMESPACE_PATTERN = /(?:useTranslations|getTranslations)\(\s*"([^"]+)"\s*\)/g;
 const TRANSLATOR_NAMESPACE_PATTERN = /getTranslator\(\s*[^,)]+,\s*"([^"]+)"\s*\)/g;
 const STRING_LITERAL_PATTERN = /"((?:[^"\\]|\\.)*)"|'((?:[^'\\]|\\.)*)'|`((?:[^`\\]|\\.)*)`/g;
@@ -1171,6 +1190,8 @@ function normalizeNodeText(value: string): string {
 function translationCallee(node: ts.Expression): string | undefined {
   if (ts.isIdentifier(node) && node.text === "t") return "t";
   if (!ts.isPropertyAccessExpression(node)) return undefined;
+  if (node.name.text === "current" && ts.isIdentifier(node.expression) && node.expression.text === "translationRef")
+    return "translationRef.current";
   if (node.name.text === "t" && node.expression.kind === ts.SyntaxKind.ThisKeyword) return "this.t";
   if (!T_METHODS.has(node.name.text)) return undefined;
 
@@ -1280,7 +1301,7 @@ function scanSources(): {
         ...[...source.matchAll(NAMESPACE_PATTERN)].map((match) => match[1]),
         ...[...source.matchAll(TRANSLATOR_NAMESPACE_PATTERN)].map((match) => match[1]),
       ];
-      for (const pattern of [T_CALL_PATTERN, GET_TRANSLATION_PATTERN]) {
+      for (const pattern of [T_CALL_PATTERN, GET_TRANSLATION_PATTERN, TRANSLATION_REF_CALL_PATTERN]) {
         for (const match of source.matchAll(pattern)) {
           const [full, callee, argument] = match;
           const matchIndex = match.index ?? 0;
@@ -1389,6 +1410,20 @@ function scanSources(): {
 
 describe("i18n key resolution", () => {
   const { staticViolations, dynamicSites, consumerKeys, indirectViolations, nonliteralSites } = scanSources();
+
+  it("checks literal translator-ref calls and registers nonliteral ones", () => {
+    const call = 'translationRef.current("DataTransfer.export.missing")';
+    const match = [...call.matchAll(TRANSLATION_REF_CALL_PATTERN)][0];
+    expect(match?.[1]).toBe("translationRef.current");
+    expect(match?.[2]).toBe('"DataTransfer.export.missing"');
+    expect(resolves("DataTransfer.export.missing", [], loadCatalogPaths())).toBe(false);
+    expect(consumerKeys.has("DataTransfer.export.success")).toBe(true);
+    expect(consumerKeys.has("DataTransfer.export.failed")).toBe(true);
+
+    const nonliteral = new Map<string, number>();
+    scanNonliteralTranslationCalls("translationRef.current(variableKey);", "fixture.ts", nonliteral);
+    expect([...nonliteral]).toEqual([["fixture.ts :: translationRef.current :: variableKey", 1]]);
+  });
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("resolves every static translation key against the catalog", () => {
     expect(staticViolations, `unresolvable translation keys:\n${staticViolations.join("\n")}`).toEqual([]);

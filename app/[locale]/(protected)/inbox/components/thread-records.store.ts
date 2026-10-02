@@ -39,6 +39,7 @@ export class ThreadRecordsStore extends BaseStore {
       bind: action,
       reload: action,
       setSearching: action,
+      retryCurrent: action,
       setQuery: action,
       mutate: action,
       dispose: action,
@@ -99,6 +100,7 @@ export class ThreadRecordsStore extends BaseStore {
     this.searchGeneration += 1;
     this.debouncer.cancel();
     this.searching = next;
+    this.loading = false;
     this.query = "";
     this.results = [];
     this.error = false;
@@ -113,10 +115,28 @@ export class ThreadRecordsStore extends BaseStore {
     this.debouncer.run(() => void this.search(generation, query.trim()));
   };
 
+  retryCurrent = async () => {
+    if (!this.searching) {
+      await this.reload();
+      return;
+    }
+    this.debouncer.cancel();
+    const generation = ++this.searchGeneration;
+    const query = this.query.trim();
+    this.error = false;
+    this.loading = query.length > 0;
+    if (query) await this.search(generation, query);
+  };
+
   private async search(generation: number, query: string) {
     if (!query) return;
     try {
-      const result = await globalSearchAction({ searchTerm: query, includeEmbedded: true, limit: 25, cursor: null });
+      const result = await globalSearchAction({
+        searchTerm: query,
+        includeEmbedded: true,
+        limit: 25,
+        cursor: null,
+      });
       runInAction(() => {
         if (generation !== this.searchGeneration) return;
         if (result.ok) {

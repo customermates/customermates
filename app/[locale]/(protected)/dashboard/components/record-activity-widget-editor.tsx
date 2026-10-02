@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
@@ -120,6 +120,16 @@ export const RecordActivityWidgetEditor = observer(
     const [loading, setLoading] = useState(false);
     const [previewError, setPreviewError] = useState(false);
     const query = isRecordActivityWidgetForm(form) ? form.activityQuery : null;
+    const previewGeneration = useRef(0);
+    const previewKey = JSON.stringify(query);
+    useEffect(() => {
+      previewGeneration.current += 1;
+      setLoading(false);
+      setPreviewError(false);
+      return () => {
+        previewGeneration.current += 1;
+      };
+    }, [form, previewKey, store.isOpen]);
     const typeIds = query
       ? [
           ...new Set(
@@ -221,19 +231,27 @@ export const RecordActivityWidgetEditor = observer(
               toastZodErrorTree(z.treeifyError(parsed.error));
               return;
             }
+            const generation = ++previewGeneration.current;
+            const isCurrent = () => generation === previewGeneration.current;
             setLoading(true);
             setPreviewError(false);
             runUserAction(() =>
-              getRecordActivitiesAction({ ...parsed.data, cursor: null, limit: 25 })
+              store
+                .runPreview(() => getRecordActivitiesAction({ ...parsed.data, cursor: null, limit: 25 }))
                 .then((result) => {
+                  if (!result || !isCurrent()) return;
                   if (result.ok) setPreview({ key, result: result.data });
                   else {
                     setPreviewError(true);
                     toastZodErrorTree(result.error);
                   }
                 })
-                .catch(() => setPreviewError(true))
-                .finally(() => setLoading(false)),
+                .catch(() => {
+                  if (isCurrent()) setPreviewError(true);
+                })
+                .finally(() => {
+                  if (isCurrent()) setLoading(false);
+                }),
             );
           }}
         >

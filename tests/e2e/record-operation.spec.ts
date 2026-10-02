@@ -100,19 +100,78 @@ test("keeps complete application reads, History and a blocked form draft while a
   await name.fill("Retained during recalculation");
   await expect(draft.getByRole("main").getByRole("button", { name: "Save", exact: true })).toBeEnabled();
   const errors: string[] = [];
+  const expectedTransportErrors: string[] = [];
+  let transportFaults = 0;
   for (const browserPage of [page, draft]) {
     browserPage.on("pageerror", (error) => {
       if (error.message !== "ResizeObserver loop completed with undelivered notifications.") errors.push(error.message);
     });
     browserPage.on("console", (message) => {
-      if (message.type() === "error") errors.push(message.text());
+      if (message.type() !== "error") return;
+      if (
+        browserPage === page &&
+        transportFaults === 1 &&
+        /^Failed to load resource:/.test(message.text()) &&
+        /ERR_FAILED|network connection was lost|Load failed/.test(message.text())
+      )
+        expectedTransportErrors.push(message.text());
+      else errors.push(message.text());
     });
   }
   await page.getByRole("button", { name: "Shared live catalogue price", exact: true }).click();
   await editor.getByRole("textbox", { name: "Price", exact: false }).fill("20");
   await editor.getByRole("button", { name: "Save", exact: true }).click();
   await expect(editor.getByRole("status").filter({ hasText: "Existing data remains available" })).toBeVisible();
+  const cancelledOperationId = (await snapshot()).activeOperationId;
+  expect(cancelledOperationId).toBeTruthy();
+  let faultArmed = true;
+  await page.route("**/*", async (route) => {
+    const request = route.request();
+    if (
+      faultArmed &&
+      request.method() === "POST" &&
+      request.headers()["next-action"] &&
+      request.postData() === JSON.stringify([cancelledOperationId])
+    ) {
+      faultArmed = false;
+      const response = await route.fetch();
+      expect(response.status()).toBe(200);
+      transportFaults += 1;
+      await route.abort("failed");
+    } else await route.continue();
+  });
+  await expect(editor.getByRole("alert")).toContainText("Could not load progress. Your draft is retained.");
+  expect(transportFaults).toBe(1);
+  await editor.getByRole("button", { name: "Retry", exact: true }).click();
+  await expect(editor.getByRole("status").filter({ hasText: "Existing data remains available" })).toBeVisible();
+  await page.unrouteAll({ behavior: "wait" });
+  await editor.getByRole("button", { name: "Resume", exact: true }).click();
+  await expect(editor.getByRole("button", { name: "Cancel change", exact: true })).toBeEnabled();
+  await editor.getByRole("button", { name: "Cancel change", exact: true }).click();
+  await expect(editor.getByText("The change was cancelled.", { exact: true })).toBeVisible();
+  expect(await snapshot()).toEqual({ activeOperationId: null, price: "10", count: 600, minimum: "10", maximum: "10" });
+  expect(
+    (
+      await database.query('SELECT state FROM "RecordOperation" WHERE "companyId"=$1 AND id=$2', [
+        companyId,
+        cancelledOperationId,
+      ])
+    ).rows,
+  ).toEqual([{ state: "cancelled" }]);
+  expect(
+    (
+      await database.query(
+        'SELECT COUNT(*)::integer AS count FROM "RecordStageRow" WHERE "companyId"=$1 AND "operationId"=$2',
+        [companyId, cancelledOperationId],
+      )
+    ).rows,
+  ).toEqual([{ count: 0 }]);
+  await editor.getByRole("button", { name: "Return to draft", exact: true }).click();
+  await expect(editor.getByRole("textbox", { name: "Price", exact: false })).toHaveValue("20");
+  await editor.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(editor.getByRole("status").filter({ hasText: "Existing data remains available" })).toBeVisible();
   expect((await snapshot()).activeOperationId).toBeTruthy();
+  expect((await snapshot()).activeOperationId).not.toBe(cancelledOperationId);
   await draft.getByRole("main").getByRole("button", { name: "Save", exact: true }).click();
   await expect(
     draft.getByText(
@@ -149,9 +208,15 @@ test("keeps complete application reads, History and a blocked form draft while a
     await expect(loadedLine).toBeVisible();
     await expect(readMain.locator('[aria-busy="true"]')).toHaveCount(0);
     await expect(readMain.getByRole("alert")).toHaveCount(0);
-    uiReadTimings.push({ surface: "fresh detail and linked-record choices", elapsedMs: performance.now() - freshReadStarted });
+    uiReadTimings.push({
+      surface: "fresh detail and linked-record choices",
+      elapsedMs: performance.now() - freshReadStarted,
+    });
     expect((await snapshot()).activeOperationId).toBe(beforeFreshRead.activeOperationId);
-    await readPage.screenshot({ path: testInfo.outputPath("fresh-relationship-choices-during-staging.png"), animations: "disabled" });
+    await readPage.screenshot({
+      path: testInfo.outputPath("fresh-relationship-choices-during-staging.png"),
+      animations: "disabled",
+    });
 
     const historyStarted = performance.now();
     if (!(await history.isVisible())) await readMain.getByRole("tab", { name: "Activities", exact: true }).click();
@@ -177,7 +242,10 @@ test("keeps complete application reads, History and a blocked form draft while a
     expect((await snapshot()).activeOperationId).toBe(beforeFreshRead.activeOperationId);
     historyReadsDuringPause += 1;
     uiReadTimings.push({ surface: "History and creation-event detail", elapsedMs: performance.now() - historyStarted });
-    await readPage.screenshot({ path: testInfo.outputPath("history-detail-during-staging.png"), animations: "disabled" });
+    await readPage.screenshot({
+      path: testInfo.outputPath("history-detail-during-staging.png"),
+      animations: "disabled",
+    });
     await readPage.keyboard.press("Escape");
     await expect(historyDetail).not.toBeVisible();
     await expect(history).toBeVisible();
@@ -200,18 +268,28 @@ test("keeps complete application reads, History and a blocked form draft while a
                   ? value.value.value
                   : null;
               });
-              if (result.total !== 600 || result.records.length !== 25 || new Set(amounts).size !== 1 || !["10", "20"].includes(amounts[0] ?? ""))
+              if (
+                result.total !== 600 ||
+                result.records.length !== 25 ||
+                new Set(amounts).size !== 1 ||
+                !["10", "20"].includes(amounts[0] ?? "")
+              )
                 applicationReadFailures.push("Application snapshot is incomplete, mixed or incorrectly typed");
               const after = await snapshot();
               if (state.activeOperationId && after.activeOperationId === state.activeOperationId) {
                 applicationReadsDuringPause += 1;
-                if (amounts[0] !== "10") applicationReadFailures.push("Paused application snapshot exposed staged values");
+                if (amounts[0] !== "10")
+                  applicationReadFailures.push("Paused application snapshot exposed staged values");
               }
-              if (!state.activeOperationId && amounts[0] !== "20") applicationReadFailures.push("Completed application snapshot retained old values");
+              if (!state.activeOperationId && amounts[0] !== "20")
+                applicationReadFailures.push("Completed application snapshot retained old values");
             }
-            if (await editor.getByRole("alert").count() || await readMain.getByRole("alert").count())
+            if ((await editor.getByRole("alert").count()) || (await readMain.getByRole("alert").count()))
               applicationReadFailures.push("Relationship choice or operation alert during staging");
-            if (await history.getByRole("status").count() || await history.getByRole("button", { name: "Try again", exact: true }).count())
+            if (
+              (await history.getByRole("status").count()) ||
+              (await history.getByRole("button", { name: "Try again", exact: true }).count())
+            )
               applicationReadFailures.push("History entered its error or retry state during staging");
           } catch (error) {
             applicationReadFailures.push(error instanceof Error ? error.message : "Application read request failed");
@@ -250,16 +328,22 @@ test("keeps complete application reads, History and a blocked form draft while a
   } finally {
     await writeFile(
       testInfo.outputPath("application-reads-during-staging.json"),
-      JSON.stringify({
-        project: testInfo.project.name,
-        records: 600,
-        completeReads,
-        applicationReadsDuringPause,
-        historyReadsDuringPause,
-        failures: applicationReadFailures,
-        elapsedMs: applicationReadTimings,
-        uiReads: uiReadTimings,
-      }, null, 2),
+      JSON.stringify(
+        {
+          project: testInfo.project.name,
+          records: 600,
+          completeReads,
+          applicationReadsDuringPause,
+          historyReadsDuringPause,
+          failures: applicationReadFailures,
+          elapsedMs: applicationReadTimings,
+          uiReads: uiReadTimings,
+          transportFaults,
+          expectedTransportErrors,
+        },
+        null,
+        2,
+      ),
     );
   }
   await expect(editor).not.toBeVisible({ timeout: 15000 });
@@ -269,9 +353,12 @@ test("keeps complete application reads, History and a blocked form draft while a
     [companyId, id("deal"), deals[0], id("deal.name")],
   );
   expect(persistedName.rows).toEqual([{ textValue: "Fan-out deal 1" }]);
-  const operation = await database.query('SELECT state FROM "RecordOperation" WHERE "companyId"=$1', [companyId]);
-  expect(operation.rows).toEqual([{ state: "completed" }]);
+  const operation = await database.query('SELECT state FROM "RecordOperation" WHERE "companyId"=$1 ORDER BY state', [
+    companyId,
+  ]);
+  expect(operation.rows).toEqual([{ state: "cancelled" }, { state: "completed" }]);
   expect(errors).toEqual([]);
+  expect(expectedTransportErrors.length).toBeLessThanOrEqual(1);
   await readPage.close();
   await draft.close();
 });

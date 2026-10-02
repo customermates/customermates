@@ -14,6 +14,7 @@ export interface DeleteConfirmationData {
 }
 
 export class DeleteConfirmationModalStore extends BaseModalStore<DeleteConfirmationData> {
+  private sessionGeneration = 0;
   constructor(rootStore: RootStore) {
     super(rootStore, {
       title: "",
@@ -22,20 +23,28 @@ export class DeleteConfirmationModalStore extends BaseModalStore<DeleteConfirmat
     });
   }
 
+  protected override prepareToClose(): boolean {
+    this.sessionGeneration += 1;
+    return true;
+  }
+
   onSubmit = async (event?: FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
 
-    if (!this.form.onConfirm) return;
+    if (!this.isOpen || this.isLoading || !this.form.onConfirm) return;
+    const session = this.sessionGeneration;
+    const form = this.form;
+    const isCurrent = () => this.isOpen && session === this.sessionGeneration && form === this.form;
 
     this.setIsLoading(true);
     try {
-      const confirmed = await this.form.onConfirm();
-      if (!confirmed) return;
+      const confirmed = await form.onConfirm();
+      if (!confirmed || !isCurrent()) return;
 
-      this.toastSuccess(this.form.successKey ?? "Common.notifications.deleted");
+      this.toastSuccess(form.successKey ?? "Common.notifications.deleted");
       this.close();
     } finally {
-      this.setIsLoading(false);
+      if (isCurrent()) this.setIsLoading(false);
     }
   };
 }

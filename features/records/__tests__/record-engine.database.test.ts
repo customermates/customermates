@@ -19,6 +19,7 @@ import { DisplayType } from "@/features/widget/widget.schema";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import { interactorFailureStatus } from "@/core/validation/validation.utils";
 
 vi.mock("@/env", () => ({
   env: {
@@ -43,7 +44,7 @@ const { ImportRecordsInteractor } = await import("@/features/data-transfer/impor
 const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
 const { RecordAccessPolicy } = await import("../record-access");
 const { RecordCalculationService } = await import("../record-calculation.service");
-const { RecordWriteService } = await import("../record-write.service");
+const { RecordWriteService, RecordWriteError } = await import("../record-write.service");
 const { RecordOperationService } = await import("../record-operation.service");
 const { CancelRecordOperationInteractor, GetRecordOperationInteractor } = await import(
   "../record-operation.interactor"
@@ -630,6 +631,40 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
   });
 
+  it("returns export budget failures without hiding unexpected errors and remains retryable", async () => {
+    const f = await fixture();
+    const source = await f.create("service", "Retryable export", [["service.amount", decimal("12.125")]]);
+    const exporter = new ExportRecordsInteractor(f.repo, f.policy);
+    const input = { typeId: source.typeId, filters: [], relationships: [], sort: [] };
+    const query = vi.spyOn(f.repo, "query");
+    try {
+      query.mockRejectedValueOnce(new RecordWriteError(CustomErrorCode.recordCalculationBudget));
+      const rejected = await f.run(() => exporter.invoke(input));
+      expect(rejected).toMatchObject({ ok: false });
+      expect(rejected).not.toHaveProperty("data");
+      if (rejected.ok) throw new Error("Budget failure unexpectedly exported a document");
+      expect(interactorFailureStatus(rejected.error)).toBe(400);
+      expect(rejected.error.issues).toEqual([
+        expect.objectContaining({
+          code: "custom",
+          params: expect.objectContaining({ error: CustomErrorCode.recordCalculationBudget }),
+        }),
+      ]);
+      const unexpected = new Error("Unexpected export database failure");
+      query.mockRejectedValueOnce(unexpected);
+      await expect(f.run(() => exporter.invoke(input))).rejects.toBe(unexpected);
+    } finally {
+      query.mockRestore();
+    }
+    const retried = await f.run(() => exporter.invoke(input));
+    if (!retried.ok) throw retried.error;
+    expect(retried.data.records.map((row) => row.ref)).toEqual([source]);
+    expect(retried.data.records[0].fields.find((field) => field.fieldId === f.id("service.amount"))?.result).toEqual({
+      state: "value",
+      value: decimal("12.125"),
+    });
+  });
+
   it("imports a generic export atomically with stable IDs and idempotent retries", async () => {
     const f = await fixture();
     const original = await f.create("service", "Transfer source", [["service.amount", decimal("123.45")]]);
@@ -817,6 +852,159 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         }),
       ),
     ).toBeNull();
+  });
+
+  it("omits archived relationships and types from transfer documents without deleting retained associations", async () => {
+    const f = await fixture();
+    const definition: ConfigurationChange = {
+      expectedRevision: 1,
+      idempotencyKey: randomUUID(),
+      operations: [
+        {
+          operation: "createType",
+          reference: "$sources",
+          label: "Source",
+          pluralLabel: "Sources",
+          description: "",
+          icon: "list",
+          embedded: false,
+          accessPresetId: null,
+        },
+        {
+          operation: "createType",
+          reference: "$targets",
+          label: "Target",
+          pluralLabel: "Targets",
+          description: "",
+          icon: "list",
+          embedded: false,
+          accessPresetId: null,
+        },
+        {
+          operation: "putRelationship",
+          relationship: {
+            id: "$transferRelationship",
+            sourceTypeId: "$sources",
+            targetTypeId: "$targets",
+            sourceLabel: "Targets",
+            targetLabel: "Sources",
+            sourceCardinality: "many",
+            targetCardinality: "many",
+            onSourceDelete: "unlink",
+            onTargetDelete: "unlink",
+            archived: false,
+          },
+        },
+      ],
+    };
+    const preview = await f.run(() => f.preview.invoke(definition));
+    if (!preview.ok) throw preview.error;
+    expect(preview.data.valid).toBe(true);
+    const refId = (reference: string) =>
+      recordInvariant(preview.data.references.find((item) => item.reference === reference)).id;
+    expect(await f.run(() => f.configure.invoke(definition))).toMatchObject({ ok: true, data: { schemaRevision: 2 } });
+    const create = async (
+      reference: string,
+      label: string,
+      links?: Extract<RecordMutation, { action: "create" }>["links"],
+    ) => {
+      const result = await f.mutation(
+        {
+          action: "create",
+          typeId: refId(reference),
+          fields: [{ fieldId: refId(`${reference}.name`), value: textValue(label) }],
+          links,
+        },
+        f.admin,
+        randomUUID(),
+        2,
+      );
+      if (!result.ok || result.data.status !== "completed") throw new Error("Archived transfer fixture failed");
+      return recordInvariant(result.data.refs.find((item) => item.typeId === refId(reference)));
+    };
+    const target = await create("$targets", "Retained target");
+    const source = await create("$sources", "Transfer source", [
+      {
+        relationId: refId("$transferRelationship"),
+        direction: "outgoing",
+        record: target,
+      },
+    ]);
+    const exporter = new ExportRecordsInteractor(f.repo, f.policy);
+    const importer = new ImportRecordsInteractor(
+      f.repo,
+      f.policy,
+      new RecordWriteService(f.repo, f.policy, new RecordCalculationService(f.repo)),
+      { getDetails: () => Promise.resolve({ currency: "EUR" }) },
+    );
+    const before = await f.run(() =>
+      exporter.invoke({ typeId: source.typeId, filters: [], relationships: [], sort: [] }),
+    );
+    if (!before.ok) throw before.error;
+    expect(before.data.links).toEqual([{ relationId: refId("$transferRelationship"), source, target }]);
+    const model = await f.run(() => f.repo.getModel());
+    const relation = recordInvariant(model.relationships.find((item) => item.id === refId("$transferRelationship")));
+    expect(
+      await f.run(() =>
+        f.configure.invoke({
+          expectedRevision: 2,
+          idempotencyKey: randomUUID(),
+          operations: [{ operation: "putRelationship", relationship: { ...relation, archived: true } }],
+        }),
+      ),
+    ).toMatchObject({ ok: true, data: { schemaRevision: 3 } });
+    const roundTrip = async () => {
+      const exported = await f.run(() =>
+        exporter.invoke({ typeId: source.typeId, filters: [], relationships: [], sort: [] }),
+      );
+      if (!exported.ok) throw exported.error;
+      expect(exported.data.records.map((row) => row.ref)).toEqual([source]);
+      expect(exported.data.links).toEqual([]);
+      expect(
+        await f.run(() =>
+          importer.invoke({
+            mode: "update",
+            idempotencyKey: randomUUID(),
+            document: exported.data,
+          }),
+        ),
+      ).toMatchObject({ ok: true });
+      expect(
+        await f.run(() =>
+          prisma.recordLink.count({
+            where: {
+              companyId: f.company.id,
+              relationId: relation.id,
+              sourceTypeId: source.typeId,
+              sourceId: source.recordId,
+              targetTypeId: target.typeId,
+              targetId: target.recordId,
+            },
+          }),
+        ),
+      ).toBe(1);
+      expect(
+        (await f.readRecord(source)).fields.find((field) => field.fieldId === refId("$sources.name"))?.result,
+      ).toEqual({ state: "value", value: textValue("Transfer source") });
+    };
+    await roundTrip();
+    const current = await f.run(() => f.repo.getModel());
+    const targetType = recordInvariant(current.types.find((item) => item.id === target.typeId));
+    expect(
+      await f.run(() =>
+        f.configure.invoke({
+          expectedRevision: current.revision,
+          idempotencyKey: randomUUID(),
+          operations: [
+            { operation: "putType", type: { ...targetType, archived: true } },
+            ...current.activityPaths
+              .filter((path) => path.typeId === target.typeId)
+              .map((path) => ({ operation: "putActivityPath" as const, activityPath: { ...path, archived: true } })),
+          ],
+        }),
+      ),
+    ).toMatchObject({ ok: true });
+    await roundTrip();
   });
 
   it("exports and restores embedded deal line items with live and saved pricing", async () => {
@@ -5402,7 +5590,12 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           typeId,
           fields:
             typeId === organizationTypeId
-              ? [{ fieldId: f.id("organization.name"), value: textValue("Shared organization") }]
+              ? [
+                  {
+                    fieldId: f.id("organization.name"),
+                    value: textValue("Shared organization"),
+                  },
+                ]
               : [],
           identities: [{ provider, value: "shared@example.test", displayName }],
         },
@@ -5434,7 +5627,13 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const unlink = async (ref: RecordRef) => {
       expect(
         await f.mutation(
-          { action: "update", ref, expectedVersion: (await f.readRecord(ref)).version, fields: [], identities: [] },
+          {
+            action: "update",
+            ref,
+            expectedVersion: (await f.readRecord(ref)).version,
+            fields: [],
+            identities: [],
+          },
           f.admin,
           randomUUID(),
           2,
@@ -5466,7 +5665,11 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect((await f.readRecord(contact)).identities?.[0]?.id).toBe(contactIdentity.id);
     expect(
       await f.mutation(
-        { action: "delete", ref: contact, expectedVersion: (await f.readRecord(contact)).version },
+        {
+          action: "delete",
+          ref: contact,
+          expectedVersion: (await f.readRecord(contact)).version,
+        },
         f.admin,
         randomUUID(),
         2,
@@ -5485,7 +5688,13 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
   it("lets schema managers enable Channels without granting record access and preserves associations across disabling", async () => {
     const f = await fixture();
     const typeId = f.id("organization");
-    const capability = { id: randomUUID(), kind: "channels" as const, typeId, fields: [], enabled: true };
+    const capability = {
+      id: randomUUID(),
+      kind: "channels" as const,
+      typeId,
+      fields: [],
+      enabled: true,
+    };
     const change = (revision: number, enabled: boolean): ConfigurationChange => ({
       expectedRevision: revision,
       idempotencyKey: randomUUID(),
@@ -5494,7 +5703,12 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(await f.run(() => f.configure.invoke(change(1, true)), f.member)).toMatchObject({ ok: false });
     await runWithoutTenant(() =>
       prisma.rolePermission.create({
-        data: { companyId: f.company.id, roleId: f.memberRole.id, resource: "dataModel", action: "update" },
+        data: {
+          companyId: f.company.id,
+          roleId: f.memberRole.id,
+          resource: "dataModel",
+          action: "update",
+        },
       }),
     );
     expect(await f.run(() => f.configure.invoke(change(1, true)), f.member)).toMatchObject({
@@ -5505,7 +5719,12 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       {
         action: "create",
         typeId,
-        fields: [{ fieldId: f.id("organization.name"), value: textValue("Disabled organization") }],
+        fields: [
+          {
+            fieldId: f.id("organization.name"),
+            value: textValue("Disabled organization"),
+          },
+        ],
         identities: [{ provider: "mail", value: "disabled@example.test" }],
       },
       f.admin,
@@ -5515,6 +5734,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     if (!result.ok || result.data.status !== "completed") throw new Error("Disabled channel fixture failed");
     const ref = recordInvariant(result.data.refs.find((ref) => ref.typeId === typeId));
     const identityId = (await f.readRecord(ref)).identities?.[0]?.id;
+    const withChannels = await f.run(() =>
+      f.query.invoke(RecordQuerySchema.parse({ typeId, includeIdentities: true })),
+    );
+    expect(withChannels).toMatchObject({ ok: true, data: { records: [{ ref, identities: [{ id: identityId }] }] } });
     const reader = new RecordIdentityReader(f.repo, f.policy);
     const resolve = (as = f.admin) =>
       f.run(() => reader.resolve([{ provider: "mail", value: "disabled@example.test" }]), as);
@@ -5525,10 +5748,20 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
     expect((await resolve())[0].records).toEqual([]);
     expect((await f.readRecord(ref)).identities).toBeUndefined();
+    const withoutChannels = await f.run(() =>
+      f.query.invoke(RecordQuerySchema.parse({ typeId, includeIdentities: true })),
+    );
+    expect(withoutChannels).toMatchObject({ ok: false });
     expect((await f.run(() => f.repo.getIdentitiesCompanyWide(ref)))[0]?.id).toBe(identityId);
     expect(
       await f.mutation(
-        { action: "update", ref, expectedVersion: (await f.readRecord(ref)).version, fields: [], identities: [] },
+        {
+          action: "update",
+          ref,
+          expectedVersion: (await f.readRecord(ref)).version,
+          fields: [],
+          identities: [],
+        },
         f.admin,
         randomUUID(),
         3,
@@ -5552,7 +5785,12 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           f.configure.invoke({
             expectedRevision: 4,
             idempotencyKey: randomUUID(),
-            operations: [{ operation: "putCapability", capability: { ...membership, fields: [] } }],
+            operations: [
+              {
+                operation: "putCapability",
+                capability: { ...membership, fields: [] },
+              },
+            ],
           }),
         f.member,
       ),
@@ -5604,7 +5842,12 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const lookup = new GetIdentityRecordChoicesInteractor(f.repo, f.policy);
     for (const includeEmbedded of [false, true]) {
       const result = await f.run(() =>
-        f.search.invoke(RecordSearchSchema.parse({ searchTerm: "Embedded row", includeEmbedded })),
+        f.search.invoke(
+          RecordSearchSchema.parse({
+            searchTerm: "Embedded row",
+            includeEmbedded,
+          }),
+        ),
       );
       if (!result.ok) throw result.error;
       expect(result.data.results.some((record) => record.ref.recordId === line.recordId)).toBe(includeEmbedded);
@@ -5646,10 +5889,19 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     await f.run(() =>
       runInTransaction(async () => {
         await staged.setIdentities(first, [
-          { provider: "linkedin", value: "shared", messagingId: "urn:shared", displayName: "Registered name" },
+          {
+            provider: "linkedin",
+            value: "shared",
+            messagingId: "urn:shared",
+            displayName: "Registered name",
+          },
         ]);
         await staged.setIdentities(second, [
-          { provider: "linkedin", value: "urn:shared", displayName: "Overwrite attempt" },
+          {
+            provider: "linkedin",
+            value: "urn:shared",
+            displayName: "Overwrite attempt",
+          },
         ]);
       }),
     );
@@ -5671,6 +5923,57 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     expect(owners.map((owner) => owner.ref)).toEqual(expect.arrayContaining([first, second]));
     expect(new Set(owners.map((owner) => owner.identityId))).toEqual(new Set([canonical.id]));
+    expect(
+      await f.run(() =>
+        f.repo.getIdentityOwnersCompanyWide([
+          { channelClass: "linkedin", value: "urn:shared" },
+          { channelClass: "linkedin", value: "urn:shared" },
+        ]),
+      ),
+    ).toEqual(owners);
+    expect(
+      await f.run(() =>
+        f.repo.getIdentityOwnersCompanyWide([{ channelClass: "linkedin", value: "urn:shared" }], [f.id("service")]),
+      ),
+    ).toEqual([]);
+  });
+
+  it("caps a many-alias identity join before hydrating owner rows", async () => {
+    const f = await fixture();
+    const ref = { typeId: f.id("contact"), recordId: randomUUID() };
+    const extraIds = Array.from({ length: 20 }, () => randomUUID());
+    const keys = Array.from({ length: 500 }, (_, index) => ({
+      channelClass: "email",
+      value: `owner-alias-${index}@example.test`,
+    }));
+    await f.run(() =>
+      runInTransaction(async () => {
+        const tx = transactionStorage.getStore()?.client as typeof prisma;
+        await f.repo.create(ref, []);
+        await f.repo.setIdentities(ref, [{ provider: "mail", value: keys[0].value }]);
+        const identity = recordInvariant((await f.repo.getIdentitiesCompanyWide(ref))[0]);
+        await tx.crmRecord.createMany({
+          data: extraIds.map((id) => ({ companyId: f.company.id, typeId: ref.typeId, id })),
+        });
+        await tx.recordIdentityLink.createMany({
+          data: extraIds.map((recordId) => ({
+            companyId: f.company.id,
+            identityId: identity.id,
+            typeId: ref.typeId,
+            recordId,
+          })),
+        });
+        await tx.recordIdentityKey.createMany({
+          data: keys.slice(1).map((key) => ({ ...key, companyId: f.company.id, identityId: identity.id })),
+        });
+      }),
+    );
+    expect(await f.run(() => f.repo.getIdentityOwnersCompanyWide(keys.slice(0, 1)))).toHaveLength(21);
+    await expect(f.run(() => f.repo.getIdentityOwnersCompanyWide(keys))).rejects.toMatchObject({
+      code: CustomErrorCode.recordCalculationBudget,
+      kind: "conflict",
+    });
+    expect(await f.run(() => f.repo.getIdentityOwnersCompanyWide(keys, [f.id("service")]))).toEqual([]);
   });
 
   it("preserves personal detail choices across shared defaults and resets to future defaults", async () => {
@@ -6440,6 +6743,166 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     expect((await f.run(read, f.member)).messages).toEqual([]);
     expect(await f.run(() => inbox.getCount({}), f.member)).toBe(0);
+  });
+
+  it("resolves every selected Channels record while keeping search results bounded and unreadable refs absent", async () => {
+    const { GetIdentityRecordChoicesInteractor } = await import("../get-identity-record-choices.interactor");
+    const f = await fixture();
+    const refs: RecordRef[] = [];
+    for (let index = 0; index < 13; index++) {
+      const result = await f.mutation({
+        action: "create",
+        typeId: f.id("contact"),
+        fields: [
+          {
+            fieldId: f.id("contact.firstName"),
+            value: textValue(`Selected Contact ${index}`),
+          },
+        ],
+        assignedUserIds: [index < 12 ? f.member.id : f.admin.id],
+      });
+      if (!result.ok || result.data.status !== "completed") throw new Error("Selected record fixture failed");
+      refs.push(recordInvariant(result.data.refs.find((ref) => ref.typeId === f.id("contact"))));
+    }
+    await f.run(() =>
+      runInTransaction(() => f.repo.setGrants(f.id("contact"), [{ roleId: f.memberRole.id, actions: ["readOwn"] }])),
+    );
+    const choices = new GetIdentityRecordChoicesInteractor(f.repo, f.policy);
+    const selected = await f.run(() => choices.invoke({ search: "", refs }), f.member);
+    expect(selected).toMatchObject({ ok: true });
+    if (!selected.ok) throw selected.error;
+    expect(selected.data.records.map((record) => record.ref)).toHaveLength(12);
+    expect(selected.data.records.map((record) => record.ref)).toEqual(expect.arrayContaining(refs.slice(0, 12)));
+    expect(selected.data.records.map((record) => record.ref)).not.toContainEqual(refs[12]);
+    const searched = await f.run(() => choices.invoke({ search: "Selected Contact" }), f.member);
+    expect(searched).toMatchObject({ ok: true });
+    if (!searched.ok) throw searched.error;
+    expect(searched.data.records).toHaveLength(10);
+  });
+
+  it("resolves participant fallback names only from currently readable threads and the same provider", async () => {
+    const { PrismaMessagingRepo } = await import("@/ee/messaging/persistence/prisma-messaging.repository");
+    const { EMPTY_ATTENDEE } = await import("@/ee/messaging/unipile.mappers");
+    const f = await fixture();
+    const opaqueId = "424242";
+    const accounts = await f.run(() =>
+      Promise.all([
+        prisma.connectedAccount.create({
+          data: {
+            companyId: f.company.id,
+            userId: f.member.id,
+            provider: "mail",
+            status: "ok",
+            unipileAccountId: randomUUID(),
+          },
+        }),
+        prisma.connectedAccount.create({
+          data: {
+            companyId: f.company.id,
+            userId: f.admin.id,
+            provider: "mail",
+            status: "ok",
+            unipileAccountId: randomUUID(),
+          },
+        }),
+        prisma.connectedAccount.create({
+          data: {
+            companyId: f.company.id,
+            userId: f.member.id,
+            provider: "telegram",
+            status: "ok",
+            unipileAccountId: randomUUID(),
+          },
+        }),
+      ]),
+    );
+    const ownAccount = recordInvariant(accounts[0]);
+    const privateAccount = recordInvariant(accounts[1]);
+    const otherProviderAccount = recordInvariant(accounts[2]);
+    const makeThread = (account: typeof ownAccount, displayName: string) =>
+      f.run(() =>
+        prisma.messagingThread.create({
+          data: {
+            companyId: f.company.id,
+            connectedAccountId: account.id,
+            provider: account.provider,
+            type: "single",
+            name: null,
+            lastMessageAt: new Date(),
+            unipileThreadId: randomUUID(),
+            participants: {
+              create: {
+                companyId: f.company.id,
+                provider: account.provider,
+                providerUserId: opaqueId,
+                identifier: account.provider === "mail" ? "unnamed@example.test" : "424242",
+                displayName,
+              },
+            },
+          },
+        }),
+      );
+    const target = await makeThread(ownAccount, "");
+    const privateThread = await makeThread(privateAccount, "Private mailbox name");
+    await makeThread(otherProviderAccount, "Other provider name");
+    await f.run(() =>
+      prisma.messagingMessage.create({
+        data: {
+          companyId: f.company.id,
+          messagingThreadId: target.id,
+          connectedAccountId: ownAccount.id,
+          provider: "mail",
+          direction: "inbound",
+          origin: "unipile",
+          unipileMessageId: randomUUID(),
+          sentAt: new Date(),
+          sender: {
+            ...EMPTY_ATTENDEE,
+            attendeeId: opaqueId,
+            identifier: "unnamed@example.test",
+            displayName: "",
+          },
+          recipients: { to: [], cc: [], bcc: [] },
+          bodyText: "Readable message",
+        },
+      }),
+    );
+    const inbox = new PrismaMessagingRepo();
+    const names = async () => {
+      const threads = await f.run(() => inbox.getItems({ pagination: { page: 1, pageSize: 10 } }), f.member);
+      const selected = recordInvariant(threads.find((thread) => thread.id === target.id));
+      const messages = await f.run(() => inbox.listMessagesForThread(target.id, { page: 1, pageSize: 10 }), f.member);
+      return [selected.participants[0]?.displayName, messages.messages[0]?.sender.displayName];
+    };
+    expect(await names()).toEqual(["", ""]);
+    await f.run(() =>
+      prisma.messagingThread.update({
+        where: { companyId: f.company.id, id: privateThread.id },
+        data: { sharedToCrm: true },
+      }),
+    );
+    expect(await names()).toEqual(["Private mailbox name", "Private mailbox name"]);
+    await f.run(() =>
+      prisma.messagingThread.update({
+        where: { companyId: f.company.id, id: privateThread.id },
+        data: { sharedToCrm: false },
+      }),
+    );
+    expect(await names()).toEqual(["", ""]);
+    await f.run(() =>
+      prisma.connectedAccount.update({
+        where: { companyId: f.company.id, id: privateAccount.id },
+        data: { shared: true },
+      }),
+    );
+    expect(await names()).toEqual(["Private mailbox name", "Private mailbox name"]);
+    await f.run(() =>
+      prisma.connectedAccount.update({
+        where: { companyId: f.company.id, id: privateAccount.id },
+        data: { shared: false },
+      }),
+    );
+    expect(await names()).toEqual(["", ""]);
   });
 
   it("filters and paginates inbox matches in PostgreSQL without searching hidden message bodies", async () => {
@@ -11297,49 +11760,73 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
   });
 
-  it("converts calculated value to manual using its last complete result", async () => {
-    const f = await fixture();
-    const service = await f.create("service", "Service", [["service.amount", decimal("11.25")]]);
-    const deal = await f.create("deal", "Deal");
-    await f.create(
-      "lineItem",
-      "Line",
-      [],
-      [
-        {
-          relationId: f.id("lineItem.service"),
-          direction: "outgoing",
-          record: service,
-        },
-        {
-          relationId: f.id("lineItem.deal"),
-          direction: "outgoing",
-          record: deal,
-        },
-      ],
-    );
-    const field = recordInvariant(f.model.fields.find((field) => field.id === f.id("deal.totalValue")));
-    const { publishedSummary, ...definition } = field;
-    expect(publishedSummary).toBe(false);
-    const input: ConfigurationChange = {
-      expectedRevision: 1,
-      idempotencyKey: randomUUID(),
-      operations: [
-        {
-          operation: "putField",
-          field: { ...definition, behavior: { kind: "input" } },
-        },
-      ],
-    };
-    expect(await f.run(() => f.configure.invoke(input))).toMatchObject({
-      ok: true,
-      data: { schemaRevision: 2 },
-    });
-    expect(await f.value(deal, "deal.totalValue")).toEqual({
-      state: "value",
-      value: decimal("11.25"),
-    });
-  });
+  it.each([false, true])(
+    "converts calculated value to manual using its last complete result (published=%s)",
+    async (publish) => {
+      const f = await fixture();
+      const service = await f.create("service", "Service", [["service.amount", decimal("11.25")]]);
+      const deal = await f.create("deal", "Deal");
+      await f.create(
+        "lineItem",
+        "Line",
+        [],
+        [
+          {
+            relationId: f.id("lineItem.service"),
+            direction: "outgoing",
+            record: service,
+          },
+          {
+            relationId: f.id("lineItem.deal"),
+            direction: "outgoing",
+            record: deal,
+          },
+        ],
+      );
+      const field = recordInvariant(f.model.fields.find((field) => field.id === f.id("deal.totalValue")));
+      const { publishedSummary, ...definition } = field;
+      expect(publishedSummary).toBe(false);
+      if (publish) {
+        expect(
+          await f.run(() =>
+            f.configure.invoke({
+              expectedRevision: 1,
+              idempotencyKey: randomUUID(),
+              operations: [
+                {
+                  operation: "publishSummary",
+                  fieldId: field.id,
+                  published: true,
+                  dependencyHash: calculationDependencyHash(field, f.model),
+                },
+              ],
+            }),
+          ),
+        ).toMatchObject({ ok: true });
+      }
+      const input: ConfigurationChange = {
+        expectedRevision: publish ? 2 : 1,
+        idempotencyKey: randomUUID(),
+        operations: [
+          {
+            operation: "putField",
+            field: { ...definition, behavior: { kind: "input" } },
+          },
+        ],
+      };
+      expect(await f.run(() => f.configure.invoke(input))).toMatchObject({
+        ok: true,
+        data: { schemaRevision: publish ? 3 : 2 },
+      });
+      expect(await f.value(deal, "deal.totalValue")).toEqual({
+        state: "value",
+        value: decimal("11.25"),
+      });
+      expect(
+        (await f.run(() => f.repo.getModel())).fields.find((candidate) => candidate.id === field.id)?.publishedSummary,
+      ).toBe(false);
+    },
+  );
 
   it("rejects illegal typed values and tenant-crossing foreign keys without partial writes", async () => {
     const f = await fixture();
@@ -12786,6 +13273,561 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
 });
 
 describeDatabase("provider avatar updates through the generic engine", { timeout: 30000 }, () => {
+  it("ignores over 1000 ineligible identity links without pausing writes, then updates the sole eligible owner", async () => {
+    const f = await fixture();
+    const { ProviderAvatarService } = await import("../provider-avatar.service");
+    const organization = { typeId: f.id("organization"), recordId: randomUUID() };
+    const person = { typeId: f.id("contact"), recordId: randomUUID() };
+    const extraIds = Array.from({ length: 1000 }, () => randomUUID());
+    expect(
+      await f.run(() =>
+        f.configure.invoke({
+          expectedRevision: 1,
+          idempotencyKey: randomUUID(),
+          operations: [
+            {
+              operation: "putCapability",
+              capability: {
+                id: randomUUID(),
+                kind: "channels",
+                typeId: organization.typeId,
+                fields: [],
+                enabled: true,
+                providerAvatar: true,
+              },
+            },
+          ],
+        }),
+      ),
+    ).toMatchObject({ ok: true, data: { status: "completed" } });
+    // Organization has Channels/providerAvatar enabled but no avatar image binding.
+    await f.run(() =>
+      runInTransaction(async () => {
+        const tx = transactionStorage.getStore()?.client as typeof prisma;
+        await f.repo.create(organization, []);
+        await f.repo.setIdentities(organization, [{ provider: "google", value: "filtered-avatar@example.test" }]);
+        const identity = recordInvariant((await f.repo.getIdentitiesCompanyWide(organization))[0]);
+        await tx.crmRecord.createMany({
+          data: extraIds.map((id) => ({ companyId: f.company.id, typeId: organization.typeId, id })),
+        });
+        await tx.recordIdentityLink.createMany({
+          data: extraIds.map((recordId) => ({
+            companyId: f.company.id,
+            identityId: identity.id,
+            typeId: organization.typeId,
+            recordId,
+          })),
+        });
+      }),
+    );
+    const background = { dispatch: vi.fn().mockResolvedValue(undefined) };
+    const service = new ProviderAvatarService(new PrismaRecordRepo(f.company.id), f.company.id, background);
+    const original = await f.readRecord(organization);
+    await service.synchronize("google", "filtered-avatar@example.test", "https://example.test/updated.png");
+    expect((await f.readRecord(organization)).version).toBe(original.version);
+    expect((await f.run(() => f.repo.getState()))?.activeOperationId).toBeNull();
+    expect(background.dispatch).not.toHaveBeenCalled();
+    expect(
+      await f.run(() => prisma.recordOperation.count({ where: { companyId: f.company.id, kind: "provider-avatar" } })),
+    ).toBe(0);
+    const protectedPerson = { typeId: person.typeId, recordId: randomUUID() };
+    await f.run(() =>
+      runInTransaction(async () => {
+        const tx = transactionStorage.getStore()?.client as typeof prisma;
+        const identity = recordInvariant((await f.repo.getIdentitiesCompanyWide(organization))[0]);
+        await tx.crmRecord.create({
+          data: {
+            companyId: f.company.id,
+            typeId: protectedPerson.typeId,
+            id: protectedPerson.recordId,
+            protectedKind: "system:test",
+          },
+        });
+        await tx.recordIdentityLink.create({
+          data: {
+            companyId: f.company.id,
+            identityId: identity.id,
+            typeId: protectedPerson.typeId,
+            recordId: protectedPerson.recordId,
+          },
+        });
+      }),
+    );
+    expect(
+      await f.run(async () => {
+        const identity = recordInvariant((await f.repo.getIdentitiesCompanyWide(organization))[0]);
+        return f.repo.getIdentityOwnerRefsPageCompanyWide(identity.id, undefined, 1001, [person.typeId]);
+      }),
+    ).toEqual([]);
+    await service.synchronize("google", "filtered-avatar@example.test", "https://example.test/updated.png");
+    expect((await f.run(() => f.repo.getState()))?.activeOperationId).toBeNull();
+    expect(background.dispatch).not.toHaveBeenCalled();
+    await f.run(() =>
+      runInTransaction(async () => {
+        const tx = transactionStorage.getStore()?.client as typeof prisma;
+        await f.repo.create(person, []);
+        const identity = recordInvariant((await f.repo.getIdentitiesCompanyWide(organization))[0]);
+        await tx.recordIdentityLink.create({
+          data: { companyId: f.company.id, identityId: identity.id, typeId: person.typeId, recordId: person.recordId },
+        });
+      }),
+    );
+    await service.synchronize("google", "filtered-avatar@example.test", "https://example.test/updated.png");
+    expect(await f.value(person, "contact.avatarUrl")).toEqual({
+      state: "value",
+      value: textValue("https://example.test/updated.png"),
+    });
+    expect((await f.readRecord(organization)).version).toBe(original.version);
+    expect((await f.run(() => f.repo.getState()))?.activeOperationId).toBeNull();
+    expect(background.dispatch).not.toHaveBeenCalled();
+  });
+  it(
+    "stages more than 1000 direct owners without failing optional inbound enrichment",
+    { timeout: 240000 },
+    async () => {
+      const f = await fixture();
+      const { ProviderAvatarService } = await import("../provider-avatar.service");
+      const ref = { typeId: f.id("contact"), recordId: randomUUID() };
+      const extraIds = Array.from({ length: 1000 }, () => randomUUID());
+      const fieldId = f.id("contact.avatarUrl");
+      const relationId = randomUUID();
+      const relatedFieldId = randomUUID();
+      const unrelatedFormulaId = randomUUID();
+      const unrelatedAvatarId = randomUUID();
+      const organization = { typeId: f.id("organization"), recordId: randomUUID() };
+      const unrelatedService = { typeId: f.id("service"), recordId: randomUUID() };
+      const { publishedSummary, ...avatarField } = recordInvariant(
+        f.model.fields.find((field) => field.id === fieldId),
+      );
+      expect(publishedSummary).toBe(false);
+      const configuration: ConfigurationChange = {
+        expectedRevision: 1,
+        idempotencyKey: randomUUID(),
+        operations: [
+          {
+            operation: "putRelationship",
+            relationship: {
+              id: relationId,
+              sourceTypeId: organization.typeId,
+              targetTypeId: ref.typeId,
+              sourceLabel: "Person",
+              targetLabel: "Organizations",
+              sourceCardinality: "one",
+              targetCardinality: "many",
+              onSourceDelete: "unlink",
+              onTargetDelete: "unlink",
+              archived: false,
+            },
+          },
+          {
+            operation: "putField",
+            field: {
+              ...avatarField,
+              id: relatedFieldId,
+              typeId: organization.typeId,
+              label: "Related avatar",
+              position: 99,
+              behavior: {
+                kind: "lookup",
+                expression: {
+                  kind: "related",
+                  relationId,
+                  direction: "outgoing",
+                  reducer: "one",
+                  expression: { kind: "field", fieldId },
+                },
+              },
+            },
+          },
+          {
+            operation: "putField",
+            field: {
+              ...avatarField,
+              id: unrelatedAvatarId,
+              typeId: unrelatedService.typeId,
+              label: "Service avatar",
+              position: 99,
+            },
+          },
+          {
+            operation: "putField",
+            field: {
+              id: unrelatedFormulaId,
+              typeId: unrelatedService.typeId,
+              label: "Service title copy",
+              valueType: "text",
+              behavior: { kind: "formula", expression: { kind: "field", fieldId: f.id("service.name") } },
+              required: false,
+              archived: false,
+              options: [],
+              position: 100,
+            },
+          },
+          {
+            operation: "putCapability",
+            capability: {
+              id: randomUUID(),
+              kind: "channels",
+              typeId: unrelatedService.typeId,
+              fields: [],
+              enabled: true,
+              providerAvatar: true,
+            },
+          },
+          {
+            operation: "putCapability",
+            capability: {
+              id: randomUUID(),
+              kind: "avatar",
+              typeId: unrelatedService.typeId,
+              fields: [{ role: "image", fieldId: unrelatedAvatarId }],
+            },
+          },
+        ],
+      };
+      const configured = await f.run(() => f.configure.invoke(configuration));
+      if (!configured.ok) throw new Error(JSON.stringify(configured.error));
+      expect(configured).toMatchObject({
+        ok: true,
+        data: { status: "completed", schemaRevision: 2 },
+      });
+      await f.run(() =>
+        runInTransaction(async () => {
+          const tx = transactionStorage.getStore()?.client as typeof prisma;
+          await f.repo.create(ref, []);
+          await f.repo.create(organization, []);
+          await f.repo.create(unrelatedService, []);
+          await f.repo.setValue(
+            unrelatedService,
+            f.id("service.name"),
+            { state: "value", value: textValue("Stable") },
+            2,
+          );
+          await f.repo.setValue(unrelatedService, unrelatedFormulaId, { state: "value", value: textValue("Stale") }, 2);
+          await f.repo.setValue(
+            organization,
+            relatedFieldId,
+            { state: "value", value: textValue("https://example.test/old.png") },
+            2,
+          );
+          await tx.recordLink.create({
+            data: {
+              companyId: f.company.id,
+              id: randomUUID(),
+              relationId,
+              sourceTypeId: organization.typeId,
+              sourceId: organization.recordId,
+              targetTypeId: ref.typeId,
+              targetId: ref.recordId,
+            },
+          });
+          await f.repo.setIdentities(ref, [{ provider: "google", value: "large-avatar@example.test" }]);
+          const identity = recordInvariant((await f.repo.getIdentitiesCompanyWide(ref))[0]);
+          await tx.crmRecord.createMany({
+            data: extraIds.map((id) => ({
+              companyId: f.company.id,
+              typeId: ref.typeId,
+              id,
+            })),
+          });
+          await tx.recordIdentityLink.createMany({
+            data: extraIds.map((recordId) => ({
+              companyId: f.company.id,
+              identityId: identity.id,
+              typeId: ref.typeId,
+              recordId,
+            })),
+          });
+          await tx.recordValue.createMany({
+            data: extraIds.map((recordId) => ({
+              companyId: f.company.id,
+              typeId: ref.typeId,
+              recordId,
+              fieldId,
+              state: "value",
+              textValue: "https://example.test/old.png",
+              schemaRevision: 2,
+            })),
+          });
+          await f.repo.setValue(
+            ref,
+            fieldId,
+            {
+              state: "value",
+              value: textValue("https://example.test/old.png"),
+            },
+            2,
+          );
+        }),
+      );
+      const { PrismaMessagingRepo } = await import("@/ee/messaging/persistence/prisma-messaging.repository");
+      const { BackgroundTaskService } = await import("@/core/utils/background-task.service");
+      const { PrismaRecordOperationQueueRepo } = await import("../prisma-record-operation-queue.repository");
+      const account = await f.run(() =>
+        prisma.connectedAccount.create({
+          data: {
+            companyId: f.company.id,
+            userId: f.admin.id,
+            provider: "google",
+            status: "ok",
+            unipileAccountId: randomUUID(),
+          },
+        }),
+      );
+      const providerMessageId = `avatar-${randomUUID()}`;
+      const failedStart = vi
+        .spyOn(BackgroundTaskService.prototype as unknown as { startWorkflow: () => Promise<string> }, "startWorkflow")
+        .mockRejectedValue(new Error("Transient Workflow start failure"));
+      try {
+        const ingested = await runWithoutTenant(() =>
+          new PrismaMessagingRepo().ingestMessageUnscoped({
+            companyId: f.company.id,
+            connectedAccountId: account.id,
+            backfill: false,
+            message: {
+              unipileMessageId: providerMessageId,
+              providerMessageId: null,
+              unipileThreadId: `chat-${randomUUID()}`,
+              threadType: "single",
+              provider: "google",
+              direction: "inbound",
+              origin: "unipile",
+              sender: {
+                attendeeId: "avatar-sender",
+                displayName: "Shared identity",
+                identifier: "large-avatar@example.test",
+                pictureUrl: "https://example.test/new.png",
+                isSelf: false,
+                records: [],
+              },
+              recipients: { to: [], cc: [], bcc: [] },
+              subject: null,
+              bodyText: "Valid inbound message",
+              bodyHtml: null,
+              attachmentsMeta: [],
+              folderIds: [],
+              isEvent: false,
+              isDeleted: false,
+              isHidden: false,
+              sentAt: new Date(),
+              reactions: [],
+            },
+          }),
+        );
+        expect(ingested).toMatchObject({ isEcho: false, message: { unipileMessageId: providerMessageId } });
+        expect(failedStart).toHaveBeenCalled();
+      } finally {
+        failedStart.mockRestore();
+      }
+      expect(
+        await f.run(() =>
+          prisma.messagingMessage.count({
+            where: {
+              companyId: f.company.id,
+              unipileMessageId: providerMessageId,
+            },
+          }),
+        ),
+      ).toBe(1);
+      const operationId = recordInvariant((await f.run(() => f.repo.getState()))?.activeOperationId);
+      const queue = new PrismaRecordOperationQueueRepo();
+      const now = new Date();
+      const claimed = await runWithoutTenant(() => queue.claimDueUnscoped(now, new Date(now.getTime() + 60000), 100));
+      expect(claimed).toContainEqual({
+        companyId: f.company.id,
+        operationId,
+        ownerUserId: "system:messaging",
+        kind: "provider-avatar",
+      });
+      const liveLease = await runWithoutTenant(() =>
+        queue.claimDueUnscoped(new Date(now.getTime() + 30000), new Date(now.getTime() + 90000), 100),
+      );
+      expect(liveLease.some((candidate) => candidate.operationId === operationId)).toBe(false);
+      const background = { dispatch: vi.fn().mockResolvedValue(undefined) };
+      const service = new ProviderAvatarService(new PrismaRecordRepo(f.company.id), f.company.id, background);
+      expect(
+        await f.run(() =>
+          prisma.recordValue.count({
+            where: {
+              companyId: f.company.id,
+              fieldId,
+              textValue: "https://example.test/old.png",
+            },
+          }),
+        ),
+      ).toBe(1001);
+      let done = false;
+      for (let i = 0; i < 1000 && !done; i++) done = (await service.advance(operationId)).done;
+      expect(done).toBe(true);
+      expect(
+        await f.run(() =>
+          prisma.recordValue.count({
+            where: {
+              companyId: f.company.id,
+              fieldId,
+              textValue: "https://example.test/new.png",
+            },
+          }),
+        ),
+      ).toBe(1001);
+      expect((await f.run(() => f.repo.getState()))?.activeOperationId).toBeNull();
+      const publishedEvents = await f.run(() =>
+        prisma.recordEvent.count({
+          where: {
+            companyId: f.company.id,
+            causeId: operationId,
+          },
+        }),
+      );
+      expect(publishedEvents).toBe(1002);
+      expect(
+        await f.run(() =>
+          prisma.recordValue.findUniqueOrThrow({
+            where: {
+              companyId: f.company.id,
+              companyId_typeId_recordId_fieldId: {
+                companyId: f.company.id,
+                typeId: organization.typeId,
+                recordId: organization.recordId,
+                fieldId: relatedFieldId,
+              },
+            },
+          }),
+        ),
+      ).toMatchObject({ textValue: "https://example.test/new.png" });
+      expect(
+        await f.run(() =>
+          prisma.recordValue.findUniqueOrThrow({
+            where: {
+              companyId: f.company.id,
+              companyId_typeId_recordId_fieldId: {
+                companyId: f.company.id,
+                typeId: unrelatedService.typeId,
+                recordId: unrelatedService.recordId,
+                fieldId: unrelatedFormulaId,
+              },
+            },
+          }),
+        ),
+      ).toMatchObject({ textValue: "Stale" });
+      expect(
+        await f.run(() =>
+          prisma.recordEvent.count({
+            where: {
+              companyId: f.company.id,
+              causeId: operationId,
+              typeId: unrelatedService.typeId,
+            },
+          }),
+        ),
+      ).toBe(0);
+      expect(await service.advance(operationId)).toEqual({ done: true });
+      expect(
+        await f.run(() =>
+          prisma.recordEvent.count({
+            where: {
+              companyId: f.company.id,
+              causeId: operationId,
+            },
+          }),
+        ),
+      ).toBe(publishedEvents);
+      const terminalClaim = await runWithoutTenant(() =>
+        queue.claimDueUnscoped(new Date(now.getTime() + 120000), new Date(now.getTime() + 180000), 100),
+      );
+      expect(terminalClaim.some((candidate) => candidate.operationId === operationId)).toBe(false);
+      expect(
+        await f.run(() =>
+          prisma.recordStageRow.count({
+            where: {
+              companyId: f.company.id,
+              operationId,
+            },
+          }),
+        ),
+      ).toBe(0);
+      const alreadyCurrentMessageId = `avatar-current-${randomUUID()}`;
+      const secondFailedStart = vi
+        .spyOn(BackgroundTaskService.prototype as unknown as { startWorkflow: () => Promise<string> }, "startWorkflow")
+        .mockRejectedValue(new Error("Transient Workflow start failure"));
+      try {
+        const ingested = await runWithoutTenant(() =>
+          new PrismaMessagingRepo().ingestMessageUnscoped({
+            companyId: f.company.id,
+            connectedAccountId: account.id,
+            backfill: false,
+            message: {
+              unipileMessageId: alreadyCurrentMessageId,
+              providerMessageId: null,
+              unipileThreadId: `chat-${randomUUID()}`,
+              threadType: "single",
+              provider: "google",
+              direction: "inbound",
+              origin: "unipile",
+              sender: {
+                attendeeId: "avatar-sender",
+                displayName: "Shared identity",
+                identifier: "large-avatar@example.test",
+                pictureUrl: "https://example.test/new.png",
+                isSelf: false,
+                records: [],
+              },
+              recipients: { to: [], cc: [], bcc: [] },
+              subject: null,
+              bodyText: "A second valid inbound message",
+              bodyHtml: null,
+              attachmentsMeta: [],
+              folderIds: [],
+              isEvent: false,
+              isDeleted: false,
+              isHidden: false,
+              sentAt: new Date(),
+              reactions: [],
+            },
+          }),
+        );
+        expect(ingested).toMatchObject({ isEcho: false, message: { unipileMessageId: alreadyCurrentMessageId } });
+      } finally {
+        secondFailedStart.mockRestore();
+      }
+      const noChangeOperationId = recordInvariant((await f.run(() => f.repo.getState()))?.activeOperationId);
+      expect(noChangeOperationId).not.toBe(operationId);
+      let noChangeDone = false;
+      for (let i = 0; i < 100 && !noChangeDone; i++) noChangeDone = (await service.advance(noChangeOperationId)).done;
+      expect(noChangeDone).toBe(true);
+      expect((await f.run(() => f.repo.getState()))?.activeOperationId).toBeNull();
+      expect(
+        await f.run(() =>
+          prisma.recordEvent.count({
+            where: {
+              companyId: f.company.id,
+              causeId: noChangeOperationId,
+            },
+          }),
+        ),
+      ).toBe(0);
+      expect(
+        await f.run(() =>
+          prisma.recordStageRow.count({
+            where: {
+              companyId: f.company.id,
+              operationId: noChangeOperationId,
+            },
+          }),
+        ),
+      ).toBe(0);
+      expect(
+        await f.run(() =>
+          prisma.recordEvent.count({
+            where: {
+              companyId: f.company.id,
+              causeId: operationId,
+            },
+          }),
+        ),
+      ).toBe(publishedEvents);
+    },
+  );
   it("uses renamed identity bindings, recalculates dependents and leaves unchanged inputs alone", async () => {
     const f = await fixture();
     const { ProviderAvatarService } = await import("../provider-avatar.service");

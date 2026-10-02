@@ -25,6 +25,7 @@ export default async function DataModelPage({
     <PageContainer>
       <DataModelPageView
         canManage={catalog.canManageSchema}
+        canPublishSummary={catalog.canPublishSummary ?? false}
         initialModel={model}
         selectedTypeId={typeof params.typeId === "string" ? params.typeId : undefined}
       />

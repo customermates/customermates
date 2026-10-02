@@ -67,7 +67,7 @@ export class RecordIdentityReader {
             channelClass: channelClass(input.provider),
             value: identityLookupValue(input.provider, input.value) ?? "",
           }));
-          const owners = (await this.records.getIdentityOwnersCompanyWide(keys)).filter((owner) =>
+          const owners = (await this.records.getIdentityOwnersCompanyWide(keys, [...bound])).filter((owner) =>
             bound.has(owner.ref.typeId),
           );
           const refs = [...new Map(owners.map((owner) => [recordKey(owner.ref), owner.ref])).values()];

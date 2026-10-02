@@ -18,6 +18,7 @@ import { recordDto } from "@/features/records/query-records.interactor";
 import { RECORD_EXPORT_LIMIT, RECORD_EXPORT_LINK_LIMIT } from "@/features/data-transfer/record-transfer.schema";
 import { RecordQuerySchema } from "@/features/records/record-query.schema";
 import { invalidRecordQueryPart } from "@/features/records/record-query-validation";
+import { recordWriteFailure } from "@/features/records/mutate-record.interactor";
 
 const PAGE_SIZE = 250;
 
@@ -59,6 +60,15 @@ export class ExportRecordsInteractor extends AuthenticatedInteractor<ExportRecor
         const invalid = invalidRecordQueryPart(query, model);
         if (invalid) return fail(CustomErrorCode.recordValueInvalid, [invalid]);
         const access = policy.access(model.types.filter((item) => !item.archived).map((item) => item.id));
+        const activeTypes = new Set(model.types.filter((item) => !item.archived).map((item) => item.id));
+        const activeRelationships = new Set(
+          model.relationships
+            .filter(
+              (relation) =>
+                !relation.archived && activeTypes.has(relation.sourceTypeId) && activeTypes.has(relation.targetTypeId),
+            )
+            .map((relation) => relation.id),
+        );
         const records: RecordDto[] = [];
         const links: RecordExportLink[] = [];
         let processedLinkCount = 0;
@@ -88,14 +98,15 @@ export class ExportRecordsInteractor extends AuthenticatedInteractor<ExportRecor
           );
           processedLinkCount += candidateLinks.length;
           if (processedLinkCount > RECORD_EXPORT_LINK_LIMIT) return false;
+          const visibleLinks = candidateLinks.filter((link) => activeRelationships.has(link.relationId));
           const targetRefs = new Map<string, RecordRef>(
-            candidateLinks
+            visibleLinks
               .filter((link) => !checkedTargets.has(`${link.target.typeId}:${link.target.recordId}`))
               .map((link) => [`${link.target.typeId}:${link.target.recordId}`, link.target] as const),
           );
           const targets = await this.records.getRecordsCompanyWide([...targetRefs.values()]);
           const targetsByKey = new Map(targets.map((target) => [`${target.typeId}:${target.id}`, target]));
-          for (const link of candidateLinks) {
+          for (const link of visibleLinks) {
             const key = `${link.target.typeId}:${link.target.recordId}`;
             let readable = checkedTargets.get(key);
             if (readable === undefined) {
@@ -182,6 +193,6 @@ export class ExportRecordsInteractor extends AuthenticatedInteractor<ExportRecor
         };
       },
       { readOnly: true, timeout: 120_000 },
-    );
+    ).catch(recordWriteFailure);
   }
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
@@ -35,6 +35,10 @@ export const RecordPathRecords = observer(function RecordPathRecords({
     store.isOpen && store.record !== null,
     attempt + store.relatedRevision,
   );
+  useEffect(() => {
+    const data = result.data;
+    if (data) setPage((current) => Math.min(current, Math.max(1, Math.ceil(data.total / data.pageSize))));
+  }, [result.data]);
   return (
     <section aria-label={path.label} className="space-y-1.5">
       <RecordDetailField fieldId={relationshipPathColumnKey(path.id)} label={path.label}>

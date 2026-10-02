@@ -159,3 +159,93 @@ describe("inbox identity controls", () => {
     expect(store.pendingOperationId).toBeNull();
   });
 });
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((done) => {
+    resolve = done;
+  });
+  return { promise, resolve };
+}
+
+describe("participant mutation ownership", () => {
+  beforeEach(() => {
+    actions.getIdentityRecordChoicesAction.mockResolvedValue({
+      canManage: true,
+      records: [],
+      createTypes: [],
+      schemaRevision: 3,
+    });
+    actions.getRecordAction.mockResolvedValue({
+      ok: true,
+      data: { ref, schemaRevision: 3, version: 7, identities: [] },
+    });
+  });
+
+  it("invalidates an accepted earlier write without clearing another thread's search", async () => {
+    const { store, root } = makeStore();
+    const wait = deferred<{ ok: true; data: { status: "completed"; refs: (typeof ref)[]; schemaRevision: number } }>();
+    actions.mutateRecordAction.mockReturnValueOnce(wait.promise);
+    const mutation = store.link("ada@example.test", ref);
+    await vi.waitFor(() => expect(actions.mutateRecordAction).toHaveBeenCalledOnce());
+    store.bind("another-thread");
+    store.activeIdentifier = "other@example.test";
+    store.query = "Another search";
+    wait.resolve({ ok: true, data: { status: "completed", refs: [ref], schemaRevision: 3 } });
+    await mutation;
+    expect(store.activeIdentifier).toBe("other@example.test");
+    expect(store.query).toBe("Another search");
+    expect(store.pending).toBe(false);
+    expect(root.recordWorkspaceStore.invalidate).toHaveBeenCalledOnce();
+    expect(root.messagingThreadDetailStore.refresh).not.toHaveBeenCalled();
+  });
+
+  it("does not attach an old pending operation to a newly bound thread", async () => {
+    const { store } = makeStore();
+    const wait = deferred<{ ok: true; data: { status: "pending"; operationId: string; schemaRevision: number } }>();
+    actions.mutateRecordAction.mockReturnValueOnce(wait.promise);
+    const mutation = store.link("ada@example.test", ref);
+    await vi.waitFor(() => expect(actions.mutateRecordAction).toHaveBeenCalledOnce());
+    store.bind("another-thread");
+    wait.resolve({ ok: true, data: { status: "pending", operationId: "old-operation", schemaRevision: 3 } });
+    await mutation;
+    expect(store.pendingOperationId).toBeNull();
+    expect(store.pending).toBe(false);
+  });
+
+  it("does not dispatch preparation that completes after the thread changes", async () => {
+    const { store } = makeStore();
+    const wait = deferred<{
+      ok: true;
+      data: { ref: typeof ref; schemaRevision: number; version: number; identities: [] };
+    }>();
+    actions.getRecordAction.mockReturnValueOnce(wait.promise);
+    const mutation = store.link("ada@example.test", ref);
+    store.bind("another-thread");
+    wait.resolve({ ok: true, data: { ref, schemaRevision: 3, version: 7, identities: [] } });
+    await mutation;
+    expect(actions.mutateRecordAction).not.toHaveBeenCalled();
+    expect(store.pending).toBe(false);
+  });
+
+  it("does not clear a new pending request when the earlier request settles", async () => {
+    const { store } = makeStore();
+    const first = deferred<{ ok: true; data: { status: "completed"; refs: (typeof ref)[]; schemaRevision: number } }>();
+    const second = deferred<{
+      ok: true;
+      data: { status: "completed"; refs: (typeof ref)[]; schemaRevision: number };
+    }>();
+    actions.mutateRecordAction.mockReturnValueOnce(first.promise).mockReturnValueOnce(second.promise);
+    const oldMutation = store.link("ada@example.test", ref);
+    await vi.waitFor(() => expect(actions.mutateRecordAction).toHaveBeenCalledOnce());
+    store.bind("another-thread");
+    const newMutation = store.link("ada@example.test", ref);
+    await vi.waitFor(() => expect(actions.mutateRecordAction).toHaveBeenCalledTimes(2));
+    first.resolve({ ok: true, data: { status: "completed", refs: [ref], schemaRevision: 3 } });
+    await oldMutation;
+    expect(store.pending).toBe(true);
+    second.resolve({ ok: true, data: { status: "completed", refs: [ref], schemaRevision: 3 } });
+    await newMutation;
+    expect(store.pending).toBe(false);
+  });
+});

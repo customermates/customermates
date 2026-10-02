@@ -287,7 +287,7 @@ export class RecordConfigurationService extends UserAccessor {
           throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
         upsert(model.fields, {
           ...field,
-          publishedSummary: existing?.publishedSummary ?? false,
+          publishedSummary: field.behavior.kind === "input" ? false : (existing?.publishedSummary ?? false),
         });
       }
       if (operation.operation === "putRelationship") {
@@ -378,6 +378,7 @@ export class RecordConfigurationService extends UserAccessor {
         const existing = current.fields.find((candidate) => candidate.id === field.id);
         if (
           existing?.publishedSummary &&
+          field.behavior.kind !== "input" &&
           calculationDependencyHash(existing, current) !== calculationDependencyHash(field, model)
         ) {
           validation.issues.push({

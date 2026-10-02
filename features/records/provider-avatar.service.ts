@@ -25,21 +25,32 @@ const ACTOR = "system:messaging";
 const KIND = "provider-avatar";
 const LIMIT = 1000000;
 const BATCH = 50;
-const RequestSchema = z
-  .object({
-    targets: z
-      .array(z.object({ ref: RecordRefSchema, fieldId: z.uuid() }).strict())
-      .min(1)
-      .max(1000),
-    pictureUrl: z.url(),
-    affectedTypeIds: z.array(z.uuid()),
-  })
-  .strict();
+const RequestSchema = z.union([
+  z
+    .object({
+      targets: z
+        .array(z.object({ ref: RecordRefSchema, fieldId: z.uuid() }).strict())
+        .min(1)
+        .max(1000),
+      pictureUrl: z.url(),
+      affectedTypeIds: z.array(z.uuid()),
+    })
+    .strict(),
+  z
+    .object({
+      identityId: z.uuid(),
+      pictureUrl: z.url(),
+      affectedTypeIds: z.array(z.uuid()),
+    })
+    .strict(),
+]);
 const CursorSchema = z
   .object({
-    phase: z.enum(["calculations", "events", "publish"]),
+    phase: z.enum(["sources", "calculations", "events", "publish"]),
     index: z.number().int().nonnegative(),
     afterId: z.string().optional(),
+    afterRef: RecordRefSchema.optional(),
+    affectedTypeIds: z.array(z.uuid()).optional(),
   })
   .strict();
 
@@ -62,6 +73,34 @@ function affectedTypes(model: RecordModel, ref: RecordRef) {
   return [...types];
 }
 
+function avatarSourceTypeIds(model: RecordModel): string[] {
+  return [
+    ...new Set(
+      model.capabilities
+        .filter(
+          (binding) =>
+            binding.kind === "channels" &&
+            binding.enabled !== false &&
+            binding.providerAvatar &&
+            model.types.some((type) => type.id === binding.typeId && !type.archived) &&
+            model.capabilities.some((avatar) => {
+              if (avatar.kind !== "avatar" || avatar.typeId !== binding.typeId) return false;
+              const fieldId = avatar.fields.find((item) => item.role === "image")?.fieldId;
+              return model.fields.some(
+                (field) =>
+                  field.id === fieldId &&
+                  field.typeId === binding.typeId &&
+                  !field.archived &&
+                  field.valueType === "url" &&
+                  field.behavior.kind === "input",
+              );
+            }),
+        )
+        .map((binding) => binding.typeId),
+    ),
+  ];
+}
+
 export class ProviderAvatarService {
   constructor(
     private records: RecordRepo,
@@ -76,11 +115,46 @@ export class ProviderAvatarService {
         const value = identityLookupValue(provider, identifier);
         if (!value || !pictureUrl || !z.url().safeParse(pictureUrl).success) return;
         const model = await this.records.getModel();
-        const owners = await this.records.getIdentityOwnersCompanyWide([
-          { channelClass: channelClass(provider), value },
-        ]);
+        const identity = (
+          await this.records.getIdentityChannelsCompanyWide([{ channelClass: channelClass(provider), value }])
+        )[0];
+        if (!identity) return;
+        const sourceTypeIds = avatarSourceTypeIds(model);
+        if (!sourceTypeIds.length) return;
+        const refs = await this.records.getIdentityOwnerRefsPageCompanyWide(
+          identity.id,
+          undefined,
+          1001,
+          sourceTypeIds,
+        );
+        if (!refs.length) return;
+        if (refs.length > 1000) {
+          if ((await this.records.getState())?.activeOperationId)
+            throw new DeferredWebhookError("CRM avatar enrichment waits for the workspace change to complete");
+          const operationId = randomUUID();
+          const request = RequestSchema.parse({
+            identityId: identity.id,
+            pictureUrl,
+            affectedTypeIds: [],
+          });
+          await this.records.createOperation({
+            id: operationId,
+            userId: ACTOR,
+            kind: KIND,
+            expectedRevision: model.revision,
+            request,
+          });
+          await this.records.updateOperation(operationId, {
+            cursor: { phase: "sources", index: 0 },
+          });
+          await this.background.dispatch("provider-avatar-operation", {
+            companyId: this.companyId,
+            operationId,
+          });
+          return;
+        }
         const targets: Array<{ ref: RecordRef; fieldId: string }> = [];
-        for (const { ref } of new Map(owners.map((owner) => [recordKey(owner.ref), owner])).values()) {
+        for (const ref of refs) {
           if (
             !model.types.some((type) => type.id === ref.typeId && !type.archived) ||
             !model.capabilities.some(
@@ -179,7 +253,7 @@ export class ProviderAvatarService {
             throw new Error("Avatar operation revision changed");
           const model = await this.records.getModel();
           const request = RequestSchema.parse(operation.request);
-          for (const target of request.targets) {
+          for (const target of "targets" in request ? request.targets : []) {
             const binding = model.capabilities.find(
               (binding) => binding.kind === "avatar" && binding.typeId === target.ref.typeId,
             );
@@ -211,9 +285,89 @@ export class ProviderAvatarService {
             LIMIT,
             { base: this.records, operationId },
           );
+          if (cursor.phase === "sources") {
+            if (!("identityId" in request)) throw new Error("Invalid avatar source cursor");
+            const affectedTypeIds = new Set(cursor.affectedTypeIds ?? request.affectedTypeIds);
+            const refs = await this.records.getIdentityOwnerRefsPageCompanyWide(
+              request.identityId,
+              cursor.afterRef,
+              BATCH,
+              avatarSourceTypeIds(model),
+            );
+            for (const ref of refs) {
+              if (
+                !model.types.some((type) => type.id === ref.typeId && !type.archived) ||
+                !model.capabilities.some(
+                  (binding) =>
+                    binding.kind === "channels" &&
+                    binding.enabled !== false &&
+                    binding.providerAvatar &&
+                    binding.typeId === ref.typeId,
+                )
+              )
+                continue;
+              const binding = model.capabilities.find(
+                (binding) => binding.kind === "avatar" && binding.typeId === ref.typeId,
+              );
+              const field = model.fields.find(
+                (field) =>
+                  field.id === binding?.fields.find((item) => item.role === "image")?.fieldId && !field.archived,
+              );
+              if (!field || field.behavior.kind !== "input") continue;
+              const record = await this.records.getRecordCompanyWide(ref);
+              if (!record || record.protectedKind) continue;
+              const previous = decodeRecordValue(
+                record.values.find((value) => value.fieldId === field.id),
+                field,
+              );
+              if (
+                previous.state === "value" &&
+                previous.value.kind === "text" &&
+                previous.value.value === request.pictureUrl
+              )
+                continue;
+              await journal.repository.setValue(
+                ref,
+                field.id,
+                {
+                  state: "value",
+                  value: { kind: "text", value: request.pictureUrl },
+                },
+                model.revision,
+              );
+              await journal.repository.touch(ref);
+              for (const typeId of affectedTypes(model, ref)) affectedTypeIds.add(typeId);
+            }
+            await journal.persist();
+            if (refs.length < BATCH && affectedTypeIds.size === 0) {
+              await this.records.updateOperation(operationId, {
+                state: "completed",
+                processed: operation.processed + refs.length,
+                result: { status: "completed", refs: [], schemaRevision: model.revision },
+                leaseUntil: null,
+              });
+              await this.records.clearOperationLock(operationId);
+              return { done: true };
+            }
+            await this.records.updateOperation(operationId, {
+              processed: operation.processed + refs.length,
+              cursor:
+                refs.length === BATCH
+                  ? {
+                      phase: "sources",
+                      index: cursor.index + 1,
+                      afterRef: refs.at(-1),
+                      affectedTypeIds: [...affectedTypeIds],
+                    }
+                  : { phase: "calculations", index: 0, affectedTypeIds: [...affectedTypeIds] },
+            });
+            return { done: false };
+          }
           if (cursor.phase === "calculations") {
+            const affectedTypeIds =
+              "identityId" in request ? (cursor.affectedTypeIds ?? request.affectedTypeIds) : request.affectedTypeIds;
             const fieldId = validation.calculationOrder.filter((id) =>
-              model.fields.some((field) => field.id === id && request.affectedTypeIds.includes(field.typeId)),
+              model.fields.some((field) => field.id === id && affectedTypeIds.includes(field.typeId)),
             )[cursor.index];
             const field = model.fields.find((field) => field.id === fieldId);
             if (!field) {
@@ -234,7 +388,11 @@ export class ProviderAvatarService {
               cursor:
                 refs.length === BATCH
                   ? { ...cursor, afterId: refs.at(-1)?.recordId }
-                  : { phase: "calculations", index: cursor.index + 1 },
+                  : {
+                      phase: "calculations",
+                      index: cursor.index + 1,
+                      ...(cursor.affectedTypeIds ? { affectedTypeIds: cursor.affectedTypeIds } : {}),
+                    },
             });
             return { done: false };
           }

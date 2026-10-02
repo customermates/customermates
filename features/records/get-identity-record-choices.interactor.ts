@@ -24,7 +24,11 @@ export const IdentityRecordChoicesSchema = z
       .optional(),
   })
   .strict();
-export type IdentityRecordCreateChoice = { typeId: string; label: string; nameFieldIds: string[] };
+export type IdentityRecordCreateChoice = {
+  typeId: string;
+  label: string;
+  nameFieldIds: string[];
+};
 export type IdentityRecordChoices = {
   records: RecordIdentityReference[];
   createTypes: IdentityRecordCreateChoice[];
@@ -66,12 +70,23 @@ export class GetIdentityRecordChoicesInteractor extends AuthenticatedInteractor<
                       refs: input.refs
                         .map((ref) =>
                           typeof ref === "string"
-                            ? { typeId: presetId(this.companyId, "contact"), recordId: ref }
+                            ? {
+                                typeId: presetId(this.companyId, "contact"),
+                                recordId: ref,
+                              }
                             : ref,
                         )
                         .filter((ref) => typeIds.includes(ref.typeId)),
                     }
-                  : { search: { searchTerm: input.search, typeIds, limit: 10, cursor: null }, includeEmbedded: true },
+                  : {
+                      search: {
+                        searchTerm: input.search,
+                        typeIds,
+                        limit: 10,
+                        cursor: null,
+                      },
+                      includeEmbedded: true,
+                    },
                 model,
                 policy.access(model.types.filter((type) => !type.archived).map((type) => type.id)),
               )
@@ -107,14 +122,20 @@ export class GetIdentityRecordChoicesInteractor extends AuthenticatedInteractor<
               )
             )
               return [];
-            return [{ typeId: type.id, label: type.label, nameFieldIds: named.map((field) => field.id) }];
+            return [
+              {
+                typeId: type.id,
+                label: type.label,
+                nameFieldIds: named.map((field) => field.id),
+              },
+            ];
           });
           return {
             ok: true,
             data: {
-              records: rows
-                .slice(0, 10)
-                .map((row) => identityReference(row, model, policy.allowed(row.typeId, "update"))),
+              records: (input.refs ? rows : rows.slice(0, 10)).map((row) =>
+                identityReference(row, model, policy.allowed(row.typeId, "update")),
+              ),
               createTypes,
               schemaRevision: model.revision,
               canManage:

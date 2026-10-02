@@ -38,7 +38,8 @@ import {
   getSearchChannelCandidatesInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
-import { unwrapValidated } from "@/core/validation/validation.utils";
+import { z } from "zod";
+import { serializeInteractorFailure, unwrapValidated, type Validated } from "@/core/validation/validation.utils";
 
 export async function checkRecordIdentityAction(input: CheckRecordIdentityInput) {
   return serializeResult(getCheckRecordIdentityInteractor().invoke(input));
@@ -79,11 +80,21 @@ export async function getRecordPresentationAction(typeId: string, params: GetQue
 export async function getRecordModelAction(typeIds?: string[]) {
   return unwrapValidated(getGetRecordModelInteractor().invoke({ typeIds }));
 }
+async function serializeConfigurationResult<T>(result: Validated<T>) {
+  const resolved = await result;
+  return resolved.ok
+    ? resolved
+    : {
+        ok: false as const,
+        error: z.treeifyError(resolved.error),
+        failure: serializeInteractorFailure(resolved.error),
+      };
+}
 export async function previewRecordConfigurationAction(change: ConfigurationChange) {
-  return serializeResult(getPreviewRecordConfigurationInteractor().invoke(change));
+  return serializeConfigurationResult(getPreviewRecordConfigurationInteractor().invoke(change));
 }
 export async function applyRecordConfigurationAction(change: ConfigurationChange) {
-  return serializeResult(getApplyRecordConfigurationInteractor().invoke(change));
+  return serializeConfigurationResult(getApplyRecordConfigurationInteractor().invoke(change));
 }
 export async function mutateRecordAction(input: MutateRecordInput) {
   return serializeResult(getMutateRecordInteractor().invoke(input));

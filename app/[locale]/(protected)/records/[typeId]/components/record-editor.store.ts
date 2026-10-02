@@ -24,6 +24,7 @@ export type RecordDraft = {
   assignedUserIds: string[];
   linkChanges: Array<RecordLinkChange & { title: RecordChoice["title"] }>;
   identities: RecordIdentityInput[];
+  captureFieldIds: string[];
 };
 function scalarDraft(value: RecordScalar | null): unknown {
   if (!value) return undefined;
@@ -45,6 +46,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
   relatedRevision = 0;
   private requestKey: string | null = null;
   private refreshGeneration = 0;
+  private sessionGeneration = 0;
   private pendingDeletion = false;
   constructor(
     root: RootStore,
@@ -61,6 +63,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
         assignedUserIds: [],
         linkChanges: [],
         identities: [],
+        captureFieldIds: [],
       },
       undefined,
       {
@@ -78,9 +81,18 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
       edit: action,
       setPendingOperation: action,
       setRefreshRequired: action,
+      toggleCapture: action,
     });
   }
+  get sessionKey() {
+    return this.sessionGeneration;
+  }
+  captureSession = () => {
+    const session = this.sessionGeneration;
+    return () => this.isOpen && session === this.sessionGeneration;
+  };
   protected override prepareToClose() {
+    this.sessionGeneration += 1;
     this.refreshGeneration += 1;
     return true;
   }
@@ -100,6 +112,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
     record: RecordDto | null,
     parentLink: RecordEditorStore["parentLink"] = null,
   ) => {
+    this.sessionGeneration += 1;
     this.refreshGeneration += 1;
     this.presentation = presentation;
     this.record = record;
@@ -110,6 +123,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
     this.requestKey = null;
     this.onInitOrRefresh({
       id: record?.ref.recordId,
+      captureFieldIds: [],
       assignedUserIds:
         record?.assignedUserIds ?? (this.rootStore.userStore.user ? [this.rootStore.userStore.user.id] : []),
       identities: (record?.identities ?? []).map(({ provider, value, messagingId, displayName, profileUrl }) => ({
@@ -208,6 +222,9 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
       )
         return;
       this.edit(result.data, result.data.record, this.parentLink);
+      runInAction(() => {
+        this.relatedRevision += 1;
+      });
     } else this.setError(result.error);
   };
   operationCompleted = async () => {
@@ -237,6 +254,16 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
   protected afterChange() {
     this.requestKey = null;
   }
+  toggleCapture = (fieldId: string) => {
+    const field = this.fields.find((field) => field.id === fieldId);
+    if (!this.record || this.isDisabled || field?.behavior.kind !== "snapshot" || field.behavior.capture !== "explicit")
+      return;
+    const current = this.form.captureFieldIds;
+    this.onChange(
+      "captureFieldIds",
+      current.includes(fieldId) ? current.filter((id) => id !== fieldId) : [...current, fieldId],
+    );
+  };
   stageLink = (change: RecordLinkChange, title: RecordChoice["title"]) => {
     const current = this.form.linkChanges;
     const existing = current.find(
@@ -269,7 +296,9 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
     return parsed.success ? { state: "value", value: parsed.data } : { state: "error", code: "type_mismatch" };
   };
   onSubmit = async () => {
-    if (this.isReadOnly || this.isLoading || this.pendingOperationId) return;
+    if (!this.isOpen || this.isReadOnly || this.isLoading || this.pendingOperationId) return;
+    const session = this.sessionGeneration;
+    const isCurrent = () => session === this.sessionGeneration && this.isOpen;
     this.setIsLoading(true);
     try {
       const fields = this.fields
@@ -277,6 +306,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
           (field) =>
             (field.behavior.kind === "input" ||
               (field.behavior.kind === "snapshot" && field.behavior.allowManualOverride)) &&
+            !this.form.captureFieldIds.includes(field.id) &&
             (field.behavior.kind !== "snapshot" || this.form.values[field.id] !== undefined) &&
             (!this.record ||
               JSON.stringify(this.form.values[field.id]) !== JSON.stringify(this.savedState.values[field.id])),
@@ -300,6 +330,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
               expectedVersion: this.record.version,
               fields,
               ...identities,
+              ...(this.form.captureFieldIds.length ? { captureFieldIds: toJS(this.form.captureFieldIds) } : {}),
               linkChanges: toJS(this.form.linkChanges).map(({ action, relationId, direction, record }) => ({
                 action,
                 relationId,
@@ -328,16 +359,17 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
             },
       });
       if (!result.ok) {
-        this.setError(result.error);
+        if (isCurrent()) this.setError(result.error);
         return;
       }
       if (result.data.status === "pending") {
-        this.setPendingOperation(result.data.operationId);
+        if (isCurrent()) this.setPendingOperation(result.data.operationId);
         return;
       }
-      await this.operationCompleted();
+      if (isCurrent()) await this.operationCompleted();
+      else await this.onSaved();
     } finally {
-      this.setIsLoading(false);
+      if (session === this.sessionGeneration) this.setIsLoading(false);
     }
   };
 }

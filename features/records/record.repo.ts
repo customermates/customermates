@@ -58,7 +58,10 @@ export interface RecordRepo {
     keys: Array<{ channelClass: string; value: string }>,
   ): Promise<RecordIdentity[]>;
   stageIdentityChannelsCompanyWide(operationId: string, identities: RecordIdentity[]): Promise<void>;
-  getIdentityOwnersCompanyWide(keys: Array<{ channelClass: string; value: string }>): Promise<
+  getIdentityOwnersCompanyWide(
+    keys: Array<{ channelClass: string; value: string }>,
+    typeIds?: string[],
+  ): Promise<
     Array<{
       channelClass: string;
       value: string;
@@ -66,6 +69,13 @@ export interface RecordRepo {
       ref: RecordRef;
     }>
   >;
+  /** Avatar enrichment source pager: returns only unprotected records in the requested types. */
+  getIdentityOwnerRefsPageCompanyWide(
+    identityId: string,
+    after: RecordRef | undefined,
+    take: number,
+    typeIds: string[],
+  ): Promise<RecordRef[]>;
   setIdentityResolutionCompanyWide(
     identityId: string,
     input: Pick<RecordIdentityInput, "messagingId" | "displayName" | "profileUrl">,

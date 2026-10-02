@@ -12,12 +12,14 @@ export function RecordDetailField({
   inputId,
   label,
   required,
+  action,
   children,
 }: {
   fieldId: string;
   inputId?: string;
   label: string;
   required?: boolean;
+  action?: ReactNode;
   children: ReactNode;
 }) {
   return (
@@ -29,6 +31,8 @@ export function RecordDetailField({
 
             {required && <span className="text-destructive"> *</span>}
           </FormLabel>
+
+          {action}
 
           <EntityDetailFieldActions fieldId={fieldId} label={label} />
         </div>

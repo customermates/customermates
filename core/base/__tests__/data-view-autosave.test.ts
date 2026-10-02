@@ -46,9 +46,10 @@ const VIEW: DataViewChipDto = {
 class TestStore extends BaseDataViewStore<Item> {
   requestedParams: (GetQueryParams | undefined)[] = [];
   nextRefresh?: () => Promise<GetResult<Item>>;
+  availableColumns = [{ uid: "name" }, { uid: "stage" }];
 
   get columnsDefinition() {
-    return [{ uid: "name" }, { uid: "stage" }];
+    return this.availableColumns;
   }
 
   protected refreshAction(params?: GetQueryParams): Promise<GetResult<Item>> {
@@ -480,5 +481,133 @@ describe("data view autosave", () => {
     await vi.advanceTimersByTimeAsync(1500);
 
     expect(saveDataViewStateAction).not.toHaveBeenCalled();
+  });
+});
+
+describe("same-view local column state across pending reads", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    echoPersistable = true;
+    saveDataViewStateAction.mockReset();
+    saveDataViewStateAction.mockResolvedValue({ ok: true, data: { viewKey: ALL_VIEW_KEY } });
+    selectDataViewAction.mockReset();
+    selectDataViewAction.mockResolvedValue({ ok: true, data: { activeViewKey: ALL_VIEW_KEY } });
+    toastZodErrorTree.mockClear();
+  });
+  afterEach(() => vi.useRealTimers());
+  it("preserves a hide made during an earlier sort query and writes the same projection with the new query", async () => {
+    const store = hydrated();
+    const response = deferred<GetResult<Item>>();
+    store.nextRefresh = () => response.promise;
+    store.setQueryOptions({ sortDescriptor: { field: "stage", direction: "asc" } });
+    await vi.advanceTimersByTimeAsync(0);
+    store.setViewOptions({ hiddenColumns: ["stage"] });
+    response.resolve({ ...serverEcho({ sortDescriptor: { field: "stage", direction: "asc" } }), hiddenColumns: [] });
+    await vi.advanceTimersByTimeAsync(0);
+    expect(store.hiddenColumns).toEqual(["stage"]);
+    expect(store.sortDescriptor).toEqual({ field: "stage", direction: "asc" });
+    await store.settleViewState();
+    expect(saveDataViewStateAction).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({
+        surfaceKey: SURFACE.tasks,
+        viewKey: ALL_VIEW_KEY,
+        state: expect.objectContaining({
+          hiddenColumns: ["stage"],
+          sortDescriptor: { field: "stage", direction: "asc" },
+        }),
+      }),
+    );
+    expect(store.allViewState.hiddenColumns).toEqual(["stage"]);
+  });
+  it("preserves an unpersisted column order and width that existed before an ordinary read began", async () => {
+    const store = hydrated();
+    store.setViewOptions({ columnOrder: ["stage"], columnWidth: { uid: "stage", width: 240 } });
+    const response = deferred<GetResult<Item>>();
+    store.nextRefresh = () => response.promise;
+    const query = store.refreshQuery();
+    response.resolve({ ...serverEcho(), columnOrder: [], columnWidths: {} });
+    await query;
+    expect(store.columnOrder).toEqual(["stage"]);
+    expect(store.columnWidths).toEqual({ stage: 240 });
+    await store.settleViewState();
+    expect(saveDataViewStateAction.mock.calls[0][0].state).toMatchObject({
+      columnOrder: ["stage"],
+      columnWidths: { stage: 240 },
+    });
+  });
+  it("preserves an in-flight write's projection without queuing a duplicate save", async () => {
+    const store = hydrated();
+    const save = deferred<{ ok: true; data: { viewKey: string } }>();
+    saveDataViewStateAction.mockReturnValueOnce(save.promise);
+    store.setViewOptions({ hiddenColumns: ["stage"], columnWidth: { uid: "stage", width: 260 } });
+    await vi.advanceTimersByTimeAsync(1000);
+    const response = deferred<GetResult<Item>>();
+    store.nextRefresh = () => response.promise;
+    const query = store.refreshQuery();
+    response.resolve({ ...serverEcho(), hiddenColumns: [], columnWidths: {} });
+    await query;
+    expect(store.hiddenColumns).toEqual(["stage"]);
+    expect(store.columnWidths).toEqual({ stage: 260 });
+    save.resolve({ ok: true, data: { viewKey: ALL_VIEW_KEY } });
+    await store.settleViewState();
+    expect(store.allViewState).toMatchObject({ hiddenColumns: ["stage"], columnWidths: { stage: 260 } });
+    await vi.advanceTimersByTimeAsync(1500);
+    expect(saveDataViewStateAction).toHaveBeenCalledOnce();
+  });
+  it("accepts authoritative reset/default columns on an explicit reload when there are no newer local edits", async () => {
+    const store = hydrated();
+    store.setViewOptions({ hiddenColumns: ["stage"], columnWidth: { uid: "stage", width: 260 } });
+    await store.settleViewState();
+    store.nextRefresh = () => Promise.resolve({ ...serverEcho(), hiddenColumns: [], columnWidths: { stage: 320 } });
+    await store.reloadSavedView();
+    expect(store.hiddenColumns).toEqual([]);
+    expect(store.columnWidths).toEqual({ stage: 320 });
+    expect(saveDataViewStateAction).toHaveBeenCalledOnce();
+  });
+  it("does not carry the outgoing view's local projection into a newer view selection", async () => {
+    const store = hydrated();
+    const oldResponse = deferred<GetResult<Item>>();
+    store.nextRefresh = () => oldResponse.promise;
+    const oldQuery = store.refreshQuery();
+    store.setViewOptions({ hiddenColumns: ["stage"] });
+    store.nextRefresh = () =>
+      Promise.resolve({ ...serverEcho({ viewId: VIEW_ID }), hiddenColumns: [], columnWidths: { stage: 300 } });
+    store.applyView(VIEW_ID);
+    await vi.advanceTimersByTimeAsync(0);
+    oldResponse.resolve({ ...serverEcho(), hiddenColumns: [] });
+    await oldQuery;
+    expect(store.activeViewKey).toBe(VIEW_ID);
+    expect(store.hiddenColumns).toEqual([]);
+    expect(store.columnWidths).toEqual({ stage: 300 });
+    expect(saveDataViewStateAction).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ viewKey: ALL_VIEW_KEY, state: expect.objectContaining({ hiddenColumns: ["stage"] }) }),
+    );
+  });
+  it("keeps an untouched remote width while retaining a newer local hide and drops removed column identifiers", async () => {
+    const store = hydrated();
+    const response = deferred<GetResult<Item>>();
+    store.nextRefresh = () => response.promise;
+    const query = store.refreshQuery();
+    store.setViewOptions({ hiddenColumns: ["stage"] });
+    response.resolve({ ...serverEcho(), hiddenColumns: [], columnWidths: { stage: 320 } });
+    await query;
+    expect(store.hiddenColumns).toEqual(["stage"]);
+    expect(store.columnWidths).toEqual({ stage: 320 });
+    store.setViewOptions({ columnOrder: ["stage"], columnWidth: { uid: "stage", width: 240 } });
+    const removed = deferred<GetResult<Item>>();
+    store.nextRefresh = () => removed.promise;
+    const refresh = store.refreshQuery();
+    store.availableColumns = [{ uid: "name" }];
+    removed.resolve({ ...serverEcho(), hiddenColumns: [], columnOrder: [], columnWidths: {} });
+    await refresh;
+    expect(store.hiddenColumns).toEqual([]);
+    expect(store.columnOrder).toEqual([]);
+    expect(store.columnWidths).toEqual({});
+    await store.settleViewState();
+    expect(saveDataViewStateAction.mock.calls[0][0].state).toMatchObject({
+      hiddenColumns: [],
+      columnOrder: [],
+      columnWidths: {},
+    });
   });
 });

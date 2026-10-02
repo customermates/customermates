@@ -26,6 +26,7 @@ export const DiscoveredRecordTypesSchema = z
     contractVersion: z.literal(2),
     schemaRevision: z.number().int(),
     canManageSchema: z.boolean(),
+    canPublishSummary: z.boolean().optional(),
     total: z.number().int(),
     types: z.array(
       z
@@ -87,6 +88,7 @@ export class DiscoverRecordTypesInteractor extends AuthenticatedInteractor<
             contractVersion: 2 as const,
             schemaRevision: model.revision,
             canManageSchema: policy.canManageSchema,
+            canPublishSummary: policy.isAdmin,
             total: types.length,
             types: types.slice((input.page - 1) * input.pageSize, input.page * input.pageSize).map((type) => ({
               id: type.id,

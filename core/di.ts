@@ -12,6 +12,7 @@ import { GetIdentityRecordChoicesInteractor } from "@/features/records/get-ident
 import { GetRecordNavigationInteractor } from "@/features/records/get-record-navigation.interactor";
 import { GetRecordPresentationInteractor } from "@/features/records/get-record-presentation.interactor";
 import { PrismaRecordEventOutboxRepo } from "@/features/records/prisma-record-event-outbox.repository";
+import { PrismaRecordOperationQueueRepo } from "@/features/records/prisma-record-operation-queue.repository";
 import { PrismaRecordEventSubscriptionRepo } from "@/features/records/prisma-record-event-subscription.repository";
 import { ProcessDueRecordEventsInteractor } from "@/features/records/process-due-record-events.interactor";
 import { ProcessRecordEventInteractor } from "@/features/records/process-record-event.interactor";
@@ -501,6 +502,7 @@ export const getSweepRecordDeliveriesInteractor = () =>
   new SweepRecordDeliveriesInteractor(
     new PrismaRecordEventOutboxRepo(),
     new PrismaWebhookDeliveryQueueRepo(),
+    new PrismaRecordOperationQueueRepo(),
     getBackgroundTaskService(),
   );
 export const getRoutineRepo = () => new PrismaRoutineRepo(getRoutineEventAccess(), getRecordEventSubscriptionRepo());

@@ -1,6 +1,6 @@
 "use client";
 
-import { action, makeObservable, observable } from "mobx";
+import { action, makeObservable, observable, toJS } from "mobx";
 import { observer } from "mobx-react-lite";
 import { Save } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -21,6 +21,7 @@ import { FormInput } from "@/components/forms/form-input";
 import { FormSelect } from "@/components/forms/form-select";
 import { FormSwitch } from "@/components/forms/form-switch";
 import { ModelChangeStore } from "./model-change.store";
+import { ModelChangeRecovery } from "./model-change-recovery";
 import { RelationshipPathInput } from "@/components/records/relationship-path-input";
 import { recordInvariant } from "@/features/records/record-invariant";
 
@@ -39,8 +40,14 @@ const empty = () => ({
 });
 export class RelationshipModalStore extends ModelChangeStore<ReturnType<typeof empty>> {
   sourceTypeId = "";
-  constructor(root: RootStore, model: RecordModel, completed: (preview: ConfigurationPreview) => Promise<void>) {
-    super(root, empty(), model, completed);
+  constructor(
+    root: RootStore,
+    model: RecordModel,
+    completed: (preview: ConfigurationPreview) => Promise<void>,
+    canRenewSummaries = false,
+    onModelRefreshed?: (model: RecordModel) => void,
+  ) {
+    super(root, empty(), model, completed, canRenewSummaries, onModelRefreshed);
     makeObservable(this, { sourceTypeId: observable, edit: action, editPath: action });
   }
   edit = (model: RecordModel, typeId: string, relationship?: RecordRelationship) => {
@@ -62,6 +69,23 @@ export class RelationshipModalStore extends ModelChangeStore<ReturnType<typeof e
     });
     this.open();
   };
+  protected projectLatestModel(model: RecordModel) {
+    const source = model.types.find((type) => type.id === this.sourceTypeId);
+    if (!source) return null;
+    if (!this.form.id) return toJS(this.savedState);
+    const projected = new RelationshipModalStore(this.rootStore, model, async () => {});
+    if (this.form.mode === "path") {
+      const latest = source.relationshipPaths?.find((path) => path.id === this.form.id);
+      if (!latest) return null;
+      projected.editPath(model, this.sourceTypeId, latest);
+    } else {
+      const latest = model.relationships.find((relation) => relation.id === this.form.id);
+      if (!latest) return null;
+      projected.edit(model, this.sourceTypeId, latest);
+    }
+    this.sourceTypeId = projected.sourceTypeId;
+    return toJS(projected.form);
+  }
   operations(): ConfigurationChange["operations"] {
     const { mode, path, ...relationship } = this.form;
     if (mode === "path") {
@@ -105,10 +129,10 @@ export const RelationshipModal = observer(function RelationshipModal({ store }: 
         {
           id: "save-relationship",
           icon: Save,
-          label: store.preview?.valid ? t("RecordModel.apply") : t("RecordModel.preview"),
+          label: store.previewReady ? t("RecordModel.apply") : t("RecordModel.preview"),
           onClick: store.onSubmit,
           busy: store.isLoading,
-          disabled: Boolean(store.pendingOperationId),
+          disabled: store.isReadOnly,
         },
       ]}
       store={store}
@@ -121,6 +145,8 @@ export const RelationshipModal = observer(function RelationshipModal({ store }: 
           </AppCardHeader>
 
           <AppCardBody>
+            <ModelChangeRecovery store={store} />
+
             {store.pendingOperationId && (
               <RecordOperationProgress
                 operationId={store.pendingOperationId}
@@ -210,7 +236,13 @@ export const RelationshipModal = observer(function RelationshipModal({ store }: 
                 </>
               )}
 
-              {store.preview && <RecordConfigurationPreview model={store.model} preview={store.preview} />}
+              {store.preview && (
+                <RecordConfigurationPreview
+                  model={store.model}
+                  preview={store.preview}
+                  renewal={store.summaryRenewal}
+                />
+              )}
             </div>
           </AppCardBody>
         </AppCard>

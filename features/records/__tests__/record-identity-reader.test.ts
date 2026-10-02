@@ -89,6 +89,13 @@ describe("shared identifier resolution", () => {
       ),
     ).toBe(true);
     expect(f.repo.getIdentityOwnersCompanyWide).toHaveBeenCalledTimes(1);
+    expect(f.repo.getIdentityOwnersCompanyWide).toHaveBeenCalledWith(
+      [
+        { channelClass: "email", value: "alice@example.test" },
+        { channelClass: "email", value: "alice@example.test" },
+      ],
+      expect.arrayContaining([f.contact.typeId, f.organization.typeId]),
+    );
     expect(f.repo.searchRecords).toHaveBeenCalledTimes(1);
   });
 
@@ -120,6 +127,10 @@ describe("shared identifier resolution", () => {
       [f.organization.typeId],
     );
     expect(filtered[0].records.map((record) => record.ref)).toEqual([f.organization]);
+    expect(f.repo.getIdentityOwnersCompanyWide).toHaveBeenLastCalledWith(
+      [{ channelClass: "email", value: "alice@example.test" }],
+      [f.organization.typeId],
+    );
     const binding = f.model.capabilities.find(
       (binding) => binding.kind === "channels" && binding.typeId === f.organization.typeId,
     );

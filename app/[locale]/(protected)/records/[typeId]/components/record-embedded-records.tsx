@@ -44,6 +44,9 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
       setAttempt((value) => value + 1);
     },
     onPending: store.setPendingOperation,
+    captureSession: store.captureSession,
+    sessionKey: store.sessionKey,
+    onInvalidated: store.rootStore.recordWorkspaceStore.invalidate,
   });
   const parent = store.record;
   const key =
@@ -56,6 +59,7 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
           type.id,
           type.parentRelationshipId,
           attempt,
+          store.relatedRevision,
         ])
       : null;
   useEffect(() => {
@@ -84,6 +88,10 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
     };
   }, [key]);
   const current = request?.key === key ? request : null;
+  useEffect(() => {
+    const data = current?.data;
+    if (data) setPage((currentPage) => Math.min(currentPage, Math.max(1, Math.ceil(data.total / 10))));
+  }, [current?.data]);
   const fields = store.presentation.model.fields.filter(
     (field) => field.typeId === type.id && field.valueType !== "richText" && !field.archived,
   );
@@ -96,10 +104,12 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
   const open = (record?: RecordDto) =>
     runUserAction(async () => {
       if (!parent || !type.parentRelationshipId || (!record && !editable)) return;
+      const isCurrent = store.captureSession();
       const context = await getRecordEditorAction({
         typeId: type.id,
         ...(record ? { recordId: record.ref.recordId } : {}),
       });
+      if (!isCurrent()) return;
       if (!context.ok) {
         toastZodErrorTree(context.error);
         return;

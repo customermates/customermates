@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Check, ChevronsUpDown, X } from "lucide-react";
@@ -73,9 +73,17 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
       ...(store.record ? { linkedTo: { ref: store.record.ref, relationId: relationship.id, direction } } : {}),
     },
     store.isOpen && store.record !== null,
-    attempt,
+    attempt + store.relatedRevision,
   );
   const options = useRecordChoices({ typeId, page, pageSize: 25, search: debounced }, open && store.isOpen, attempt);
+  useEffect(() => {
+    const data = linked.data;
+    if (data) setLinkedPage((current) => Math.min(current, Math.max(1, Math.ceil(data.total / data.pageSize))));
+  }, [linked.data]);
+  useEffect(() => {
+    const data = options.data;
+    if (data) setPage((current) => Math.min(current, Math.max(1, Math.ceil(data.total / data.pageSize))));
+  }, [options.data]);
   const changes = store.form.linkChanges.filter(
     (change) => change.relationId === relationship.id && change.direction === direction,
   );
@@ -111,7 +119,7 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
     setSearch("");
     setPage(1);
   }
-  const id = `relationship-${relationship.id}-${direction}`;
+  const id = `relationship-${relationship.id}-${direction}-${useId()}`;
   const error = (retry: () => void) => (
     <div className="flex items-center gap-2 text-sm" role="alert">
       <span>{t("Common.notifications.unexpectedError")}</span>
@@ -152,8 +160,22 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
                   </button>
                 ) : undefined
               }
+              tooltip={title(record)}
             >
-              {title(record)}
+              <button
+                aria-label={t("RecordModel.openRecord", { name: title(record) })}
+                className="max-w-full rounded-sm text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                type="button"
+                onClick={(event) =>
+                  store.rootStore.recordWorkspaceStore.open(
+                    record.ref,
+                    event.currentTarget,
+                    document.getElementById(id),
+                  )
+                }
+              >
+                {title(record)}
+              </button>
             </AppChip>
           ))}
         </div>

@@ -2,7 +2,7 @@
 
 import { runUserAction } from "@/core/errors/report-application-error";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
@@ -37,15 +37,30 @@ export function RecordImportDialog({
   const t = useTranslations();
   const fileInput = useRef<HTMLInputElement>(null);
   const key = useRef<string | null>(null);
+  const selectionGeneration = useRef(0);
   const [document, setDocument] = useState<RecordExport | null>(null);
   const [fileName, setFileName] = useState("");
   const [mode, setMode] = useState<"create" | "update">("create");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
+  useEffect(() => {
+    selectionGeneration.current += 1;
+    setDocument(null);
+    setFileName("");
+    setError("");
+    setMode("create");
+    key.current = null;
+    if (fileInput.current) fileInput.current.value = "";
+    return () => {
+      selectionGeneration.current += 1;
+    };
+  }, [open, typeId, schemaRevision]);
+
   const close = (value: boolean) => {
     if (busy) return;
     if (!value) {
+      selectionGeneration.current += 1;
       setDocument(null);
       setFileName("");
       setError("");
@@ -55,6 +70,7 @@ export function RecordImportDialog({
     onOpenChange(value);
   };
   const selectFile = async (file: File) => {
+    const generation = ++selectionGeneration.current;
     setDocument(null);
     setFileName(file.name);
     setError("");
@@ -64,7 +80,9 @@ export function RecordImportDialog({
       return;
     }
     try {
-      const parsed = RecordExportSchema.safeParse(JSON.parse(await file.text()));
+      const contents = await file.text();
+      if (generation !== selectionGeneration.current) return;
+      const parsed = RecordExportSchema.safeParse(JSON.parse(contents));
       if (!parsed.success) {
         setError(t("DataTransfer.import.fileRejected"));
         return;
@@ -83,7 +101,7 @@ export function RecordImportDialog({
       }
       setDocument(parsed.data);
     } catch {
-      setError(t("DataTransfer.import.fileRejected"));
+      if (generation === selectionGeneration.current) setError(t("DataTransfer.import.fileRejected"));
     }
   };
   const submit = async () => {

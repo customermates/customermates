@@ -124,13 +124,16 @@ export function boardStore(overrides: Partial<BaseDataViewStore<Item>> = {}): Ba
 
 const roots = new Set<Root>();
 
-export function renderBoard(value: BaseDataViewStore<Item>): HTMLElement {
+export function renderBoard(
+  value: BaseDataViewStore<Item>,
+  options: { onCardClick?: (item: Item) => void; cardHref?: (item: Item) => string | undefined } = {},
+): HTMLElement {
   const host = document.createElement("div");
   document.body.append(host);
   const root = createRoot(host);
   roots.add(root);
   act(() => {
-    root.render(createElement(DataKanbanView<Item>, { columns, store: value }) as ReactNode);
+    root.render(createElement(DataKanbanView<Item>, { columns, store: value, ...options }) as ReactNode);
   });
 
   return host;
@@ -172,6 +175,40 @@ describe("board column order and labels", () => {
     expect(buttons).toHaveLength(1);
     act(() => buttons[0].click());
     expect(loadMoreInGroup).toHaveBeenCalledWith("won");
+  });
+
+  it("opens a readable, non-draggable card by pointer or keyboard without disabling its navigation", () => {
+    const onCardClick = vi.fn();
+    const host = renderBoard(boardStore({ canMoveItemBetweenGroups: () => false }), { onCardClick });
+    const card = host.querySelector<HTMLElement>('[data-item-id="e-new"]');
+
+    expect(card).not.toBeNull();
+    expect(card?.getAttribute("role")).toBe("button");
+    expect(card?.getAttribute("tabindex")).toBe("0");
+    expect(card?.hasAttribute("aria-disabled")).toBe(false);
+
+    act(() => card?.click());
+    expect(onCardClick).toHaveBeenCalledWith(ITEMS[1]);
+
+    act(() => card?.focus());
+    expect(document.activeElement).toBe(card);
+
+    for (const key of ["Enter", " "]) {
+      act(() => {
+        card?.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, cancelable: true, key }));
+      });
+    }
+    expect(onCardClick).toHaveBeenCalledTimes(3);
+  });
+
+  it("retains dnd keyboard attributes on a writable card", () => {
+    const host = renderBoard(boardStore(), { onCardClick: vi.fn() });
+    const card = host.querySelector<HTMLElement>('[data-item-id="e-new"]');
+
+    expect(card?.getAttribute("role")).toBe("button");
+    expect(card?.getAttribute("tabindex")).toBe("0");
+    expect(card?.getAttribute("aria-describedby")).toBeTruthy();
+    expect(card?.getAttribute("aria-disabled")).not.toBe("true");
   });
 
   it("keeps an empty no-value column on the board so a card can be dragged back out of every group", () => {

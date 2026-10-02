@@ -1,6 +1,6 @@
 "use client";
 
-import { action, makeObservable, observable } from "mobx";
+import { action, makeObservable, observable, toJS } from "mobx";
 import { observer } from "mobx-react-lite";
 import { ArrowDown, ArrowUp, Save, Plus, X } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -24,6 +24,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ModelChangeStore } from "./model-change.store";
+import { ModelChangeRecovery } from "./model-change-recovery";
 import { recordChannelsEnabled } from "@/features/records/record-channels";
 import { recordColumns } from "@/features/records/record-columns";
 import { recordGroupableFields, resolveRecordGrouping } from "@/features/records/record-grouping";
@@ -52,9 +53,19 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
   original: RecordType | null = null;
   section: "settings" | "appearance" = "settings";
   private channelBindingId = "";
-  constructor(root: RootStore, model: RecordModel, completed: (preview: ConfigurationPreview) => Promise<void>) {
-    super(root, initialType(), model, completed);
-    makeObservable(this, { original: observable.ref, section: observable, edit: action });
+  constructor(
+    root: RootStore,
+    model: RecordModel,
+    completed: (preview: ConfigurationPreview, isCurrentSession?: () => boolean) => Promise<void>,
+    canRenewSummaries = false,
+    onModelRefreshed?: (model: RecordModel) => void,
+  ) {
+    super(root, initialType(), model, completed, canRenewSummaries, onModelRefreshed);
+    makeObservable(this, {
+      original: observable.ref,
+      section: observable,
+      edit: action,
+    });
   }
   edit = (model: RecordModel, type: RecordType | null, section: "settings" | "appearance" = "settings") => {
     this.section = section;
@@ -93,6 +104,16 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
     );
     this.open();
   };
+  protected projectLatestModel(model: RecordModel) {
+    if (!this.original) return toJS(this.savedState);
+    const latest = model.types.find((type) => type.id === this.original?.id);
+    if (!latest) return null;
+    const projected = new TypeModalStore(this.rootStore, model, async () => {});
+    projected.edit(model, latest, this.section);
+    this.original = latest;
+    this.channelBindingId = projected.channelBindingId;
+    return toJS(projected.form);
+  }
   moveColumn = (fieldId: string, offset: number) => {
     const columns = [...this.form.columns];
     const from = columns.indexOf(fieldId);
@@ -241,13 +262,13 @@ export const TypeModal = observer(function TypeModal({ store }: { store: TypeMod
           id: "create-list",
           icon: Save,
           label: store.original
-            ? store.preview?.valid
+            ? store.previewReady
               ? t("RecordModel.apply")
               : t("RecordModel.preview")
             : t("RecordModel.createList"),
           onClick: store.onSubmit,
           busy: store.isLoading,
-          disabled: Boolean(store.pendingOperationId),
+          disabled: store.isReadOnly,
         },
       ]}
       size={store.original ? "xl" : "md"}
@@ -261,6 +282,8 @@ export const TypeModal = observer(function TypeModal({ store }: { store: TypeMod
           </AppCardHeader>
 
           <AppCardBody>
+            <ModelChangeRecovery store={store} />
+
             {store.pendingOperationId && (
               <RecordOperationProgress
                 operationId={store.pendingOperationId}
@@ -298,10 +321,16 @@ export const TypeModal = observer(function TypeModal({ store }: { store: TypeMod
                       description={t("RecordModel.accessDescription")}
                       id="accessPresetId"
                       items={[
-                        { value: "private", label: t("RecordModel.privateAccess") },
+                        {
+                          value: "private",
+                          label: t("RecordModel.privateAccess"),
+                        },
                         ...store.model.accessPresets
                           .filter((preset) => !preset.archived)
-                          .map((preset) => ({ value: preset.id, label: preset.label })),
+                          .map((preset) => ({
+                            value: preset.id,
+                            label: preset.label,
+                          })),
                       ]}
                       label={t("RecordModel.access")}
                     />
@@ -362,10 +391,16 @@ export const TypeModal = observer(function TypeModal({ store }: { store: TypeMod
                       <FormSelect
                         id="sortField"
                         items={[
-                          { value: "none", label: t("RecordModel.defaultOrder") },
+                          {
+                            value: "none",
+                            label: t("RecordModel.defaultOrder"),
+                          },
                           ...columns
                             .filter((column) => column.sortable)
-                            .map((column) => ({ value: column.id, label: column.label })),
+                            .map((column) => ({
+                              value: column.id,
+                              label: column.label,
+                            })),
                         ]}
                         label={t("RecordModel.defaultSort")}
                       />
@@ -484,7 +519,9 @@ export const TypeModal = observer(function TypeModal({ store }: { store: TypeMod
                             </label>
 
                             <Button
-                              aria-label={t("RecordModel.moveUp", { field: field.label })}
+                              aria-label={t("RecordModel.moveUp", {
+                                field: field.label,
+                              })}
                               disabled={index === 0 || store.isReadOnly || store.isLoading}
                               size="icon"
                               type="button"
@@ -495,7 +532,9 @@ export const TypeModal = observer(function TypeModal({ store }: { store: TypeMod
                             </Button>
 
                             <Button
-                              aria-label={t("RecordModel.moveDown", { field: field.label })}
+                              aria-label={t("RecordModel.moveDown", {
+                                field: field.label,
+                              })}
                               disabled={index === store.form.columns.length - 1 || store.isReadOnly || store.isLoading}
                               size="icon"
                               type="button"
@@ -536,7 +575,13 @@ export const TypeModal = observer(function TypeModal({ store }: { store: TypeMod
                 </>
               )}
 
-              {store.preview && <RecordConfigurationPreview model={store.model} preview={store.preview} />}
+              {store.preview && (
+                <RecordConfigurationPreview
+                  model={store.model}
+                  preview={store.preview}
+                  renewal={store.summaryRenewal}
+                />
+              )}
             </div>
           </AppCardBody>
         </AppCard>

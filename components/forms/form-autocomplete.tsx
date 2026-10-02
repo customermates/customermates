@@ -126,8 +126,8 @@ export const FormAutocomplete = observer(
     const isDisabled = Boolean(disabled) || Boolean(store?.isLoading);
     const isReadOnly = !isDisabled && (Boolean(readOnly) || Boolean(store?.isReadOnly));
     const canEdit = !isReadOnly && !isDisabled;
-    const labelId = `${id}-label`;
     const domId = inputId ?? id;
+    const labelId = `${domId}-label`;
 
     const itemsArray: T[] = useMemo(() => Array.from(items ?? []), [items]);
     const popoverOpen = canEdit && open;

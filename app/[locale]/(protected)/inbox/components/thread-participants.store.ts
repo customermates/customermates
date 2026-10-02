@@ -17,7 +17,7 @@ import { reportApplicationError } from "@/core/errors/report-application-error";
 import { Debouncer } from "@/core/utils/debounce";
 import { isHandleProvider } from "@/ee/messaging/provider";
 
-type ActionOutcome = { ok: boolean };
+type ActionOutcome = { ok: boolean; pending?: boolean };
 
 function identityInput(row: RecordIdentityInput): RecordIdentityInput {
   return {
@@ -46,6 +46,8 @@ export class ThreadParticipantsStore extends BaseStore {
   private threadId = "";
   private debouncer = new Debouncer();
   private searchGeneration = 0;
+  private sessionGeneration = 0;
+  private bindingGeneration = 0;
 
   constructor(rootStore: RootStore) {
     super(rootStore);
@@ -91,20 +93,33 @@ export class ThreadParticipantsStore extends BaseStore {
   }
 
   bind = (threadId: string) => {
+    this.sessionGeneration += 1;
+    this.bindingGeneration += 1;
     this.threadId = threadId;
     this.isOpen = false;
+    this.pending = false;
+    this.pendingOperationId = null;
+    this.retryMutation = null;
     this.reset();
     this.canManageRecords = false;
     void this.loadCapabilities(threadId);
   };
 
   setOpen = (next: boolean) => {
+    if (next !== this.isOpen) {
+      this.sessionGeneration += 1;
+      this.pending = false;
+      this.retryMutation = null;
+    }
     this.isOpen = next;
     this.reset();
     if (!next) void this.rootStore.messagingThreadDetailStore.refresh().catch(reportApplicationError);
   };
 
   startLink = (identifier: string) => {
+    this.sessionGeneration += 1;
+    this.pending = false;
+    this.retryMutation = null;
     this.activeIdentifier = identifier;
     this.query = "";
     this.results = [];
@@ -113,6 +128,9 @@ export class ThreadParticipantsStore extends BaseStore {
   };
 
   backToList = () => {
+    this.sessionGeneration += 1;
+    this.pending = false;
+    this.retryMutation = null;
     this.activeIdentifier = null;
     this.query = "";
     this.results = [];
@@ -140,8 +158,8 @@ export class ThreadParticipantsStore extends BaseStore {
     const ref = { typeId: reference.typeId, recordId: reference.recordId };
     const linked = this.identifierInputFor(identifier);
     if (!linked) return;
-    await this.mutate(() =>
-      this.executeMutation(`link:${JSON.stringify([ref, linked])}`, async () => {
+    await this.mutate((session) =>
+      this.executeMutation(session, `link:${JSON.stringify([ref, linked])}`, async () => {
         const loaded = await getRecordAction(toJS(ref));
         if (!loaded.ok) return null;
         const previous = loaded.data.identities?.map(identityInput) ?? [];
@@ -169,8 +187,8 @@ export class ThreadParticipantsStore extends BaseStore {
       ?.records.find((record) => record.ref.typeId === reference.typeId && record.ref.recordId === reference.recordId);
     if (!thread || !association) return;
     const ref = { typeId: reference.typeId, recordId: reference.recordId };
-    await this.mutate(() =>
-      this.executeMutation(`unlink:${JSON.stringify([ref, thread.provider, identifier])}`, async () => {
+    await this.mutate((session) =>
+      this.executeMutation(session, `unlink:${JSON.stringify([ref, thread.provider, identifier])}`, async () => {
         const loaded = await getRecordAction(toJS(ref));
         if (!loaded.ok) return null;
         const normalized = normalizeChannelValue(thread.provider, identifier) ?? identifier;
@@ -203,8 +221,8 @@ export class ThreadParticipantsStore extends BaseStore {
         ? this.createTypes[0]
         : null;
     if (!trimmed || !linked || !choice) return;
-    await this.mutate(() =>
-      this.executeMutation(`create:${JSON.stringify([choice.typeId, trimmed, linked])}`, () => {
+    await this.mutate((session) =>
+      this.executeMutation(session, `create:${JSON.stringify([choice.typeId, trimmed, linked])}`, () => {
         const [first, ...rest] = trimmed.split(/\s+/);
         return Promise.resolve({
           expectedRevision: this.schemaRevision,
@@ -240,36 +258,44 @@ export class ThreadParticipantsStore extends BaseStore {
   };
 
   private async loadCapabilities(threadId: string) {
+    const binding = this.bindingGeneration;
     try {
       const result = await getIdentityRecordChoicesAction("");
       runInAction(() => {
-        if (this.threadId === threadId) this.canManageRecords = result.canManage;
+        if (this.threadId === threadId && binding === this.bindingGeneration) this.canManageRecords = result.canManage;
       });
     } catch (error) {
       reportApplicationError(error);
     }
   }
 
-  private async executeMutation(key: string, prepare: () => Promise<MutateRecordInput | null>): Promise<ActionOutcome> {
+  private async executeMutation(
+    session: number,
+    key: string,
+    prepare: () => Promise<MutateRecordInput | null>,
+  ): Promise<ActionOutcome> {
     const actor = this.rootStore.userStore.user;
     const scopedKey = JSON.stringify([actor?.companyId, actor?.id, key]);
-    if (this.retryMutation?.key !== scopedKey) {
+    let request = this.retryMutation;
+    if (request?.key !== scopedKey) {
       const input = await prepare();
-      if (!input) return { ok: false };
-      this.retryMutation = { key: scopedKey, input };
+      if (!input || session !== this.sessionGeneration) return { ok: false };
+      request = { key: scopedKey, input };
+      this.retryMutation = request;
     }
-    const result = await mutateRecordAction(toJS(this.retryMutation.input));
-    this.retryMutation = null;
-    return result.ok ? this.acceptOperation(result.data) : { ok: false };
+    if (session !== this.sessionGeneration) return { ok: false };
+    const result = await mutateRecordAction(toJS(request.input));
+    if (session === this.sessionGeneration && this.retryMutation === request) this.retryMutation = null;
+    return result.ok ? this.acceptOperation(result.data, session) : { ok: false };
   }
 
-  private acceptOperation(result: RecordOperationResult): ActionOutcome {
-    if (result.status === "pending") {
+  private acceptOperation(result: RecordOperationResult, session: number): ActionOutcome {
+    if (result.status === "pending" && session === this.sessionGeneration) {
       runInAction(() => {
         this.pendingOperationId = result.operationId;
       });
     }
-    return { ok: true };
+    return { ok: true, pending: result.status === "pending" };
   }
 
   private identifierInputFor(identifier: string): RecordIdentityInput | null {
@@ -289,27 +315,30 @@ export class ThreadParticipantsStore extends BaseStore {
     };
   }
 
-  private mutate = async (run: () => Promise<ActionOutcome>): Promise<void> => {
+  private mutate = async (run: (session: number) => Promise<ActionOutcome>): Promise<void> => {
+    if (this.pending || this.pendingOperationId) return;
+    const session = this.sessionGeneration;
     runInAction(() => {
       this.pending = true;
     });
     let succeeded = false;
     try {
-      const result = await run();
+      const result = await run(session);
       succeeded = result.ok;
-      if (succeeded && !this.pendingOperationId) await this.operationCompleted().catch(reportApplicationError);
+      if (succeeded && !result.pending) {
+        if (session === this.sessionGeneration) await this.operationCompleted().catch(reportApplicationError);
+        else await this.rootStore.recordWorkspaceStore.invalidate().catch(reportApplicationError);
+      }
     } catch {
       succeeded = false;
     } finally {
-      runInAction(() => {
-        this.pending = false;
-        if (succeeded) {
-          this.activeIdentifier = null;
-          this.query = "";
-          this.results = [];
-        }
-      });
-      if (!succeeded) this.toastError("Inbox.participants.linkUpdateFailed");
+      if (session === this.sessionGeneration) {
+        runInAction(() => {
+          this.pending = false;
+          if (succeeded) this.reset();
+        });
+        if (!succeeded) this.toastError("Inbox.participants.linkUpdateFailed");
+      }
     }
   };
 

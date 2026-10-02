@@ -829,6 +829,18 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     const generation = ++this.requestGeneration;
     const wasInitialized = this.isReady;
     const writeSeqBeforeRequest = this.viewStateWriteSeq;
+    const projectionBeforeRequest = {
+      surfaceKey: this.p13nId,
+      viewKey: this.activeViewKey,
+      columnOrder: toJS(this.columnOrder),
+      columnWidths: toJS(this.columnWidths),
+      hiddenColumns: toJS(this.hiddenColumns),
+    };
+    const pendingProjectionAtStart =
+      !resolveFromServer &&
+      (this.persistViewStateTimer !== undefined ||
+        this.queuedViewStateWrites.has(JSON.stringify([this.p13nId, this.activeViewKey])) ||
+        this.failedViewStateWrites.has(this.activeViewKey));
     const groupPage = this.buildGroupPageRequest();
     const params: GetQueryParams = resolveFromServer
       ? {
@@ -890,9 +902,43 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     runInAction(() => {
       const localAllState = this.allViewState;
       const localViews = this.views;
+      const localProjection = {
+        columnOrder: toJS(this.columnOrder),
+        columnWidths: toJS(this.columnWidths),
+        hiddenColumns: toJS(this.hiddenColumns),
+      };
+      const sameProjectionScope =
+        wasInitialized &&
+        projectionBeforeRequest.surfaceKey !== undefined &&
+        projectionBeforeRequest.surfaceKey === this.p13nId &&
+        projectionBeforeRequest.viewKey === this.activeViewKey &&
+        projectionBeforeRequest.surfaceKey === result.p13nId &&
+        projectionBeforeRequest.viewKey === (result.activeViewKey ?? ALL_VIEW_KEY);
+      const keepOrder =
+        sameProjectionScope &&
+        (pendingProjectionAtStart || !deepEqual(localProjection.columnOrder, projectionBeforeRequest.columnOrder));
+      const keepWidths =
+        sameProjectionScope &&
+        (pendingProjectionAtStart || !deepEqual(localProjection.columnWidths, projectionBeforeRequest.columnWidths));
+      const keepHidden =
+        sameProjectionScope &&
+        (pendingProjectionAtStart || !deepEqual(localProjection.hiddenColumns, projectionBeforeRequest.hiddenColumns));
 
       this.onRefreshAccepted(result);
       this.setItems(result);
+      const available = new Set(this.columnsDefinition.map((column) => column.uid));
+      if (keepOrder)
+        this.columnOrder = localProjection.columnOrder.filter((id) => available.has(id) && id !== this.primaryColumnId);
+      if (keepWidths) {
+        this.columnWidths = Object.fromEntries(
+          Object.entries(localProjection.columnWidths).filter(([id]) => available.has(id)),
+        );
+      }
+      if (keepHidden) {
+        this.hiddenColumns = localProjection.hiddenColumns.filter(
+          (id) => available.has(id) && id !== this.primaryColumnId,
+        );
+      }
       this.restoreViewStateWrittenDuringRequest(writeSeqBeforeRequest, localAllState, localViews);
     });
   };
@@ -1031,6 +1077,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   };
 
   private viewStateWrite: Promise<void> | undefined;
+  private queuedViewStateWrites = new Map<string, number>();
   private failedViewStateWrites = new Set<string>();
 
   settleViewState = async (): Promise<void> => {
@@ -1097,10 +1144,15 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
           this.failedViewStateWrites.add(viewKey);
           reportApplicationError(error);
         });
+    const pendingKey = JSON.stringify([surfaceKey, viewKey]);
+    this.queuedViewStateWrites.set(pendingKey, (this.queuedViewStateWrites.get(pendingKey) ?? 0) + 1);
     const write = this.viewStateWrite ? this.viewStateWrite.then(persist) : persist();
     this.viewStateWrite = write;
     void write.then(() => {
       if (this.viewStateWrite === write) this.viewStateWrite = undefined;
+      const remaining = (this.queuedViewStateWrites.get(pendingKey) ?? 1) - 1;
+      if (remaining > 0) this.queuedViewStateWrites.set(pendingKey, remaining);
+      else this.queuedViewStateWrites.delete(pendingKey);
     });
     return write;
   };

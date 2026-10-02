@@ -177,28 +177,57 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
     `);
   }
 
-  async getIdentityOwnersCompanyWide(keys: Array<{ channelClass: string; value: string }>) {
-    if (!keys.length) return [];
-    const rows = await this.prisma.recordIdentityKey.findMany({
-      where: { companyId: this.companyId, OR: keys },
-      select: {
-        channelClass: true,
-        value: true,
-        identityId: true,
-        identity: {
-          select: {
-            records: {
-              where: { companyId: this.companyId },
-              select: { typeId: true, recordId: true },
-              take: 10001,
-            },
-          },
-        },
+  async getIdentityOwnersCompanyWide(keys: Array<{ channelClass: string; value: string }>, typeIds?: string[]) {
+    if (!keys.length || (typeIds && !typeIds.length)) return [];
+    const uniqueKeys = [...new Map(keys.map((key) => [JSON.stringify([key.channelClass, key.value]), key])).values()];
+    const typeConstraint = typeIds ? Prisma.sql`AND owner."typeId" IN (${Prisma.join(typeIds)})` : Prisma.empty;
+    const rows = await this.prisma.$queryRaw<
+      Array<{ channelClass: string; value: string; identityId: string; typeId: string; recordId: string }>
+    >(Prisma.sql`
+      SELECT identity_key."channelClass", identity_key.value, identity_key."identityId",
+        owner."typeId", owner."recordId"
+      FROM (VALUES ${Prisma.join(uniqueKeys.map((key) => Prisma.sql`(${key.channelClass}::text, ${key.value}::text)`))})
+        AS requested("channelClass", value)
+      JOIN "RecordIdentityKey" identity_key
+        ON identity_key."companyId" = ${this.companyId}
+        AND identity_key."channelClass" = requested."channelClass"
+        AND identity_key.value = requested.value
+      JOIN "RecordIdentityLink" owner
+        ON owner."companyId" = identity_key."companyId"
+        AND owner."identityId" = identity_key."identityId"
+      WHERE identity_key."companyId" = ${this.companyId}
+        ${typeConstraint}
+      ORDER BY identity_key."channelClass", identity_key.value, owner."typeId", owner."recordId"
+      LIMIT 10001
+    `);
+    if (rows.length > 10000) throw new RecordWriteError(CustomErrorCode.recordCalculationBudget, "conflict");
+    return rows.map(({ typeId, recordId, ...key }) => ({ ...key, ref: { typeId, recordId } }));
+  }
+
+  async getIdentityOwnerRefsPageCompanyWide(
+    identityId: string,
+    after: RecordRef | undefined,
+    take: number,
+    typeIds: string[],
+  ) {
+    if (!typeIds.length) return [];
+    const rows = await this.prisma.recordIdentityLink.findMany({
+      where: {
+        companyId: this.companyId,
+        identityId,
+        typeId: { in: typeIds },
+        record: { is: { companyId: this.companyId, protectedKind: null } },
+        ...(after
+          ? {
+              OR: [{ typeId: { gt: after.typeId } }, { typeId: after.typeId, recordId: { gt: after.recordId } }],
+            }
+          : {}),
       },
+      orderBy: [{ typeId: "asc" }, { recordId: "asc" }],
+      take,
+      select: { typeId: true, recordId: true },
     });
-    const owners = rows.flatMap(({ identity, ...key }) => identity.records.map((ref) => ({ ...key, ref })));
-    if (owners.length > 10000) throw new RecordWriteError(CustomErrorCode.recordCalculationBudget, "conflict");
-    return owners;
+    return rows.map(({ typeId, recordId }) => ({ typeId, recordId }));
   }
 
   async setIdentities(ref: RecordRef, inputs: RecordIdentityInput[]): Promise<void> {

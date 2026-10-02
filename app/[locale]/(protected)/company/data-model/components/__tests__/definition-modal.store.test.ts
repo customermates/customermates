@@ -8,9 +8,12 @@ vi.mock("../../../../records/actions", () => ({
   previewRecordConfigurationAction: vi.fn(),
 }));
 import { FieldModalStore } from "../field-modal";
+import { applyRecordConfigurationAction, previewRecordConfigurationAction } from "../../../../records/actions";
 import { ActivityPathModalStore } from "../activity-path-modal";
 import { TypeModalStore } from "../type-modal";
 import { RelationshipModalStore } from "../relationship-modal";
+vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree: vi.fn() }));
+import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 const company = "6487f9fb-7b10-439a-b783-9d3da8184b14";
 const id = (key: string) => presetId(company, key);
 const root = { registerModalStore: vi.fn(), companyStore: { company: { currency: "EUR" } } } as unknown as RootStore;
@@ -129,4 +132,284 @@ describe("configuration modal contracts", () => {
       archived: false,
     });
   });
+});
+
+describe("field value defaults and typed snapshot triggers", () => {
+  it("distinguishes an absent Boolean default from an explicitly false default", () => {
+    const model = createCrmPreset(company, "EUR");
+    const store = new FieldModalStore(root, model, vi.fn());
+    store.edit(model, id("organization"), null);
+    store.onChange("label", "Confirmed");
+    store.onChange("valueType", "boolean");
+    let operation = validate(store.operations()).operations[0];
+    expect(operation.operation === "putField" && operation.field.behavior).toEqual({ kind: "input" });
+    store.onChange("hasDefaultValue", true);
+    operation = validate(store.operations()).operations[0];
+    expect(operation.operation === "putField" && operation.field.behavior).toEqual({
+      kind: "input",
+      defaultValue: { kind: "boolean", value: false },
+    });
+    store.onChange("hasDefaultValue", false);
+    operation = validate(store.operations()).operations[0];
+    expect(operation.operation === "putField" && operation.field.behavior).toEqual({ kind: "input" });
+  });
+  it("preserves zero and exact decimal defaults, then clears incompatible local defaults when type changes", () => {
+    const model = createCrmPreset(company, "EUR");
+    const store = new FieldModalStore(root, model, vi.fn());
+    store.edit(model, id("organization"), null);
+    store.onChange("label", "Budget");
+    store.onChange("valueType", "currency");
+    store.onChange("hasDefaultValue", true);
+    store.onChange("defaultValue", "0");
+    let operation = validate(store.operations()).operations[0];
+    expect(operation.operation === "putField" && operation.field.behavior).toEqual({
+      kind: "input",
+      defaultValue: { kind: "decimal", value: "0", currency: "EUR" },
+    });
+    store.onChange("defaultValue", "1234567890.123456789");
+    operation = validate(store.operations()).operations[0];
+    expect(operation.operation === "putField" && operation.field.behavior).toEqual({
+      kind: "input",
+      defaultValue: { kind: "decimal", value: "1234567890.123456789", currency: "EUR" },
+    });
+    store.onChange("valueType", "boolean");
+    expect(store.form.hasDefaultValue).toBe(false);
+    expect(store.form.defaultValue).toBeUndefined();
+  });
+  it("round trips Boolean, date-range and rich-text snapshot trigger values without string coercion", () => {
+    const model = createCrmPreset(company, "EUR");
+    const base = recordInvariant(model.fields.find((field) => field.id === id("deal.name")));
+    const cases = [
+      { type: "boolean" as const, value: { kind: "boolean" as const, value: false } },
+      { type: "dateRange" as const, value: { kind: "range" as const, start: "2026-10-03", end: "2026-10-06" } },
+      { type: "richText" as const, value: { kind: "richText" as const, documentJson: JSON.stringify({ blocks: [] }) } },
+    ];
+    for (const item of cases) {
+      const trigger = { ...base, valueType: item.type, behavior: { kind: "input" as const } };
+      const field = {
+        ...recordInvariant(model.fields.find((field) => field.id === id("deal.totalValue"))),
+        behavior: {
+          kind: "snapshot" as const,
+          expression: { kind: "literal" as const, value: { kind: "decimal" as const, value: "7", currency: "EUR" } },
+          capture: "whenChanged" as const,
+          triggerFieldId: trigger.id,
+          triggerValue: item.value,
+        },
+      };
+      const configured = { ...model, fields: model.fields.map((field) => (field.id === trigger.id ? trigger : field)) };
+      configured.fields = configured.fields.filter((definition) => definition.id !== field.id).concat(field);
+      const store = new FieldModalStore(root, configured, vi.fn());
+      store.edit(configured, id("deal"), field);
+      const operation = validate(store.operations()).operations[0];
+      expect(operation.operation === "putField" && operation.field.behavior).toEqual({
+        ...field.behavior,
+        allowManualOverride: false,
+      });
+    }
+  });
+});
+
+describe("field summary publication previews", () => {
+  function setup(admin: boolean) {
+    const model = createCrmPreset(company, "EUR");
+    const completed = vi.fn().mockResolvedValue(undefined);
+    const configuredRoot = {
+      ...root,
+      recordWorkspaceStore: { refreshNavigation: vi.fn().mockResolvedValue(undefined) },
+    } as unknown as RootStore;
+    const store = new FieldModalStore(configuredRoot, model, completed, admin);
+    const field = recordInvariant(model.fields.find((field) => field.id === id("deal.weightedValue")));
+    store.edit(model, id("deal"), field);
+    return { store, field };
+  }
+  function preview(fieldId: string, hash: string, valid = true) {
+    return {
+      ok: true as const,
+      data: {
+        expectedRevision: 1,
+        nextRevision: 2,
+        valid,
+        execution: "synchronous" as const,
+        dataValidation: "complete" as const,
+        affectedRecords: 0,
+        references: [],
+        issues: [],
+        calculations: [{ fieldId, dependencyHash: hash }],
+      },
+    };
+  }
+  it("previews the server-approved dependency bundle before applying and keeps the same hash and idempotency key", async () => {
+    vi.mocked(previewRecordConfigurationAction).mockReset();
+    vi.mocked(applyRecordConfigurationAction).mockReset();
+    const { store, field } = setup(true);
+    const hash = "a".repeat(64);
+    store.onChange("publishedSummary", true);
+    vi.mocked(previewRecordConfigurationAction)
+      .mockResolvedValueOnce(preview(field.id, hash))
+      .mockResolvedValueOnce(preview(field.id, hash));
+    await store.onSubmit();
+    expect(previewRecordConfigurationAction).toHaveBeenCalledTimes(2);
+    expect(applyRecordConfigurationAction).not.toHaveBeenCalled();
+    const approved = vi.mocked(previewRecordConfigurationAction).mock.calls[1][0];
+    expect(approved.operations).toContainEqual({
+      operation: "publishSummary",
+      fieldId: field.id,
+      published: true,
+      dependencyHash: hash,
+    });
+    vi.mocked(applyRecordConfigurationAction).mockResolvedValueOnce({
+      ok: true,
+      data: { status: "completed", refs: [], schemaRevision: 2 },
+    });
+    await store.onSubmit();
+    expect(applyRecordConfigurationAction).toHaveBeenCalledExactlyOnceWith(approved);
+  });
+  it("does not emit publication authority from an ordinary schema manager's local draft", async () => {
+    vi.mocked(previewRecordConfigurationAction).mockReset();
+    vi.mocked(applyRecordConfigurationAction).mockReset();
+    const { store, field } = setup(false);
+    store.onChange("publishedSummary", true);
+    vi.mocked(previewRecordConfigurationAction).mockResolvedValueOnce(preview(field.id, "a".repeat(64)));
+    await store.onSubmit();
+    expect(previewRecordConfigurationAction).toHaveBeenCalledOnce();
+    expect(
+      vi
+        .mocked(previewRecordConfigurationAction)
+        .mock.calls[0][0].operations.some((operation) => operation.operation === "publishSummary"),
+    ).toBe(false);
+  });
+  it("retries a failed approval preview without adding duplicate publication operations", async () => {
+    vi.mocked(previewRecordConfigurationAction).mockReset();
+    vi.mocked(applyRecordConfigurationAction).mockReset();
+    const { store, field } = setup(true);
+    const hash = "c".repeat(64);
+    store.onChange("publishedSummary", true);
+    vi.mocked(previewRecordConfigurationAction)
+      .mockResolvedValueOnce(preview(field.id, hash))
+      .mockResolvedValueOnce({
+        ok: false,
+        error: { errors: ["Unavailable"] },
+        failure: { kind: "unavailable", issues: [{ code: "custom", path: [], message: "Unavailable" }] },
+      });
+    await store.onSubmit();
+    expect(store.preview).toBeNull();
+    vi.mocked(previewRecordConfigurationAction).mockResolvedValueOnce(preview(field.id, hash));
+    await store.onSubmit();
+    expect(previewRecordConfigurationAction).toHaveBeenCalledTimes(3);
+    expect(store.operations().filter((operation) => operation.operation === "publishSummary")).toEqual([
+      { operation: "publishSummary", fieldId: field.id, published: true, dependencyHash: hash },
+    ]);
+    expect(applyRecordConfigurationAction).not.toHaveBeenCalled();
+  });
+  it("renews a published field against the changed dependency hash and drops approval after another edit", async () => {
+    vi.mocked(previewRecordConfigurationAction).mockReset();
+    vi.mocked(applyRecordConfigurationAction).mockReset();
+    const { store, field } = setup(true);
+    field.publishedSummary = true;
+    store.edit(store.model, id("deal"), field);
+    store.onChange("expression", { kind: "literal", value: { kind: "decimal", value: "10", currency: "EUR" } });
+    vi.mocked(previewRecordConfigurationAction)
+      .mockResolvedValueOnce(preview(field.id, "b".repeat(64), false))
+      .mockResolvedValueOnce(preview(field.id, "b".repeat(64)));
+    await store.onSubmit();
+    expect(store.preview?.valid).toBe(true);
+    expect(store.operations()).toContainEqual({
+      operation: "publishSummary",
+      fieldId: field.id,
+      published: true,
+      dependencyHash: "b".repeat(64),
+    });
+    store.onChange("expression", { kind: "literal", value: { kind: "decimal", value: "20", currency: "EUR" } });
+    expect(store.preview).toBeNull();
+    expect(store.operations().some((operation) => operation.operation === "publishSummary")).toBe(false);
+  });
+});
+
+describe("field decimal display formatting", () => {
+  it("round trips precision, supports zero and clearing, and retains exact defaults and unrelated formatting", () => {
+    const model = createCrmPreset(company, "EUR");
+    const field = recordInvariant(model.fields.find((field) => field.id === id("service.amount")));
+    field.format = { ...field.format, decimalPlaces: 3, color: "success" };
+    field.behavior = { kind: "input", defaultValue: { kind: "decimal", value: "19.876500000125", currency: "EUR" } };
+    const store = new FieldModalStore(root, model, vi.fn());
+    store.edit(model, field.typeId, field);
+    expect(store.form.decimalPlaces).toBe("3");
+    expect(validate(store.operations()).operations[0]).toMatchObject({
+      operation: "putField",
+      field: { format: { decimalPlaces: 3, currency: "EUR", color: "success" }, behavior: field.behavior },
+    });
+    store.onChange("decimalPlaces", "0");
+    expect(validate(store.operations()).operations[0]).toMatchObject({
+      operation: "putField",
+      field: { format: { decimalPlaces: 0 }, behavior: field.behavior },
+    });
+    store.onChange("decimalPlaces", "");
+    expect(validate(store.operations()).operations[0]).toMatchObject({
+      operation: "putField",
+      field: { format: { decimalPlaces: null, currency: "EUR", color: "success" }, behavior: field.behavior },
+    });
+  });
+  it.each(["0", "30"])("accepts the backend's integer formatting boundary %s", (precision) => {
+    const model = createCrmPreset(company, "EUR");
+    const store = new FieldModalStore(root, model, vi.fn());
+    store.edit(model, id("organization"), null);
+    store.onChange("label", "Formatted amount");
+    store.onChange("valueType", "number");
+    store.onChange("decimalPlaces", precision);
+    expect(validate(store.operations()).operations[0]).toMatchObject({
+      operation: "putField",
+      field: { format: { decimalPlaces: Number(precision), currency: null } },
+    });
+  });
+  it.each(["-1", "31", "1.5", "invalid"])(
+    "rejects invalid formatting precision %s without rounding it",
+    (precision) => {
+      const model = createCrmPreset(company, "EUR");
+      const store = new FieldModalStore(root, model, vi.fn());
+      store.edit(model, id("organization"), null);
+      store.onChange("label", "Formatted amount");
+      store.onChange("valueType", "number");
+      store.onChange("decimalPlaces", precision);
+      expect(() => validate(store.operations())).toThrow();
+      expect(store.form.decimalPlaces).toBe(precision);
+    },
+  );
+  it("drops numeric display formatting when the field changes to a nonnumeric value type", () => {
+    const model = createCrmPreset(company, "EUR");
+    const field = recordInvariant(model.fields.find((field) => field.id === id("service.amount")));
+    field.format = { ...field.format, decimalPlaces: 4 };
+    const store = new FieldModalStore(root, model, vi.fn());
+    store.edit(model, field.typeId, field);
+    store.onChange("valueType", "text");
+    expect(store.form.decimalPlaces).toBe("");
+    expect(validate(store.operations()).operations[0]).toMatchObject({
+      operation: "putField",
+      field: { valueType: "text", format: { decimalPlaces: null, currency: null } },
+    });
+  });
+});
+
+describe("configuration form validation feedback", () => {
+  it.each(["-1", "31", "1.5", "invalid"])(
+    "retains invalid precision %s without sending it or reporting an application failure",
+    async (precision) => {
+      vi.mocked(previewRecordConfigurationAction).mockClear();
+      vi.mocked(applyRecordConfigurationAction).mockClear();
+      vi.mocked(toastZodErrorTree).mockClear();
+      const model = createCrmPreset(company, "EUR");
+      const store = new FieldModalStore(root, model, vi.fn());
+      store.edit(model, id("organization"), null);
+      store.onChange("label", "Formatted amount");
+      store.onChange("valueType", "number");
+      store.onChange("decimalPlaces", precision);
+      await expect(store.onSubmit()).resolves.toBeUndefined();
+      expect(store.form.decimalPlaces).toBe(precision);
+      expect(store.isOpen).toBe(true);
+      expect(store.isLoading).toBe(false);
+      expect(store.preview).toBeNull();
+      expect(toastZodErrorTree).toHaveBeenCalledOnce();
+      expect(previewRecordConfigurationAction).not.toHaveBeenCalled();
+      expect(applyRecordConfigurationAction).not.toHaveBeenCalled();
+    },
+  );
 });

@@ -46,7 +46,7 @@ export const ThreadRecords = observer(({ threadId }: { threadId: string }) => {
         <div className="flex items-center justify-between gap-2 text-sm" role="alert">
           <span>{t("Common.notifications.unexpectedError")}</span>
 
-          <Button size="sm" variant="secondary" onClick={() => runUserAction(store.reload)}>
+          <Button size="sm" variant="secondary" onClick={() => runUserAction(store.retryCurrent)}>
             {t("ErrorCard.retry")}
           </Button>
         </div>

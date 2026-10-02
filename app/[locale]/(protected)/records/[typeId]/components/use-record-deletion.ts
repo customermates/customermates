@@ -12,15 +12,22 @@ export function useRecordDeletion({
   onDeleted,
   onPending,
   mutateMany,
+  sessionKey,
+  captureSession,
+  onInvalidated,
 }: {
   onDeleted: () => Promise<void>;
   onPending: (operationId: string) => void;
+  sessionKey?: number;
+  captureSession?: () => () => boolean;
+  onInvalidated?: () => Promise<void>;
   mutateMany?: (mutation: Extract<RecordMutation, { action: "deleteMany" }>) => Promise<boolean>;
 }) {
   const t = useTranslations();
   const { showConfirmation } = useDeleteConfirmation();
   const [isPreviewing, setIsPreviewing] = useState(false);
   const mounted = useRef(true);
+  const generation = useRef(0);
   const requests = useRef(new Map<string, string>());
   useEffect(() => {
     mounted.current = true;
@@ -28,6 +35,10 @@ export function useRecordDeletion({
       mounted.current = false;
     };
   }, []);
+  useEffect(() => {
+    generation.current += 1;
+    setIsPreviewing(false);
+  }, [sessionKey]);
   const request = async (
     targets: Array<{ ref: RecordDto["ref"]; expectedVersion: number }>,
     schemaRevision: number,
@@ -35,13 +46,16 @@ export function useRecordDeletion({
     many: boolean,
   ) => {
     if (isPreviewing) return;
+    const requestedGeneration = ++generation.current;
+    const sessionIsCurrent = captureSession?.() ?? (() => true);
+    const isCurrent = () => mounted.current && generation.current === requestedGeneration && sessionIsCurrent();
     setIsPreviewing(true);
     try {
       const input = many
         ? { targets, expectedRevision: schemaRevision }
         : { ...targets[0], expectedRevision: schemaRevision };
       const result = await previewRecordDeletionAction(input);
-      if (!mounted.current) return;
+      if (!isCurrent()) return;
       if (!result.ok) {
         toastZodErrorTree(result.error);
         return;
@@ -68,6 +82,7 @@ export function useRecordDeletion({
         message: description,
         successKey: "RecordModel.deletionAccepted",
         onConfirm: async () => {
+          if (!isCurrent()) return false;
           if (many && mutateMany) {
             return mutateMany({
               action: "deleteMany",
@@ -88,17 +103,21 @@ export function useRecordDeletion({
             },
           });
           if (!result.ok) {
-            toastZodErrorTree(result.error);
+            if (isCurrent()) toastZodErrorTree(result.error);
             return false;
           }
           requests.current.delete(payloadKey);
-          if (result.data.status === "pending") onPending(result.data.operationId);
-          else await onDeleted();
+          if (result.data.status === "pending") {
+            if (isCurrent()) onPending(result.data.operationId);
+          } else if (isCurrent()) await onDeleted();
+          else await onInvalidated?.();
           return true;
         },
       });
+    } catch (error) {
+      if (isCurrent()) throw error;
     } finally {
-      if (mounted.current) setIsPreviewing(false);
+      if (isCurrent()) setIsPreviewing(false);
     }
   };
   return {

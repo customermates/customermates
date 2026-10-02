@@ -28,10 +28,12 @@ import { useRecordRouteReady } from "@/components/records/use-record-route-ready
 export const DataModelPageView = observer(function DataModelPageView({
   initialModel,
   canManage,
+  canPublishSummary = false,
   selectedTypeId,
 }: {
   initialModel: RecordModel;
   canManage: boolean;
+  canPublishSummary?: boolean;
   selectedTypeId?: string;
 }) {
   useRecordRouteReady();
@@ -51,20 +53,37 @@ export const DataModelPageView = observer(function DataModelPageView({
   const refresh = store.refresh;
   const [typeModal] = useState(
     () =>
-      new TypeModalStore(root, initialModel, async (preview) => {
-        await refresh();
-        const id = preview.references.find((reference) => reference.reference === "$type")?.id;
-        if (id) {
-          const discovered = await discoverRecordTypesAction([id]);
-          const created = discovered.types.find((type) => type.id === id);
-          const readable = created?.permittedActions.some((action) => action === "readOwn" || action === "readAll");
-          router.push(readable ? `/records/${id}` : `/company/data-model?typeId=${id}`);
-        }
-      }),
+      new TypeModalStore(
+        root,
+        initialModel,
+        async (preview, isCurrentSession = () => true) => {
+          await refresh();
+          const id = preview.references.find((reference) => reference.reference === "$type")?.id;
+          if (id && isCurrentSession()) {
+            const discovered = await discoverRecordTypesAction([id]);
+            if (!isCurrentSession()) return;
+            const created = discovered.types.find((type) => type.id === id);
+            const readable = created?.permittedActions.some((action) => action === "readOwn" || action === "readAll");
+            router.push(readable ? `/records/${id}` : `/company/data-model?typeId=${id}`);
+          }
+        },
+        canPublishSummary,
+        store.hydrate,
+      ),
   );
-  const [fieldModal] = useState(() => new FieldModalStore(root, initialModel, refresh));
-  const [relationModal] = useState(() => new RelationshipModalStore(root, initialModel, refresh));
-  const [activityModal] = useState(() => new ActivityPathModalStore(root, initialModel, refresh));
+  const [fieldModal] = useState(
+    () => new FieldModalStore(root, initialModel, refresh, canPublishSummary, store.hydrate),
+  );
+  const [relationModal] = useState(
+    () => new RelationshipModalStore(root, initialModel, refresh, canPublishSummary, store.hydrate),
+  );
+  const [activityModal] = useState(
+    () => new ActivityPathModalStore(root, initialModel, refresh, canPublishSummary, store.hydrate),
+  );
+  useEffect(() => {
+    for (const modal of [typeModal, fieldModal, relationModal, activityModal])
+      modal.setCanRenewSummaries(canPublishSummary);
+  }, [canPublishSummary, typeModal, fieldModal, relationModal, activityModal]);
   const consumedCreate = useRef(false);
   useEffect(() => {
     if (!createRequested) {

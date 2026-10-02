@@ -24,6 +24,7 @@ import { useFormFieldErrors } from "./use-form-field";
 
 type Props = {
   id: string;
+  inputId?: string;
   label?: string | null;
   placeholder?: string;
   required?: boolean;
@@ -39,6 +40,7 @@ type Props = {
 export const FormIsoDatePicker = observer(
   ({
     id,
+    inputId,
     label,
     placeholder,
     required,
@@ -56,6 +58,7 @@ export const FormIsoDatePicker = observer(
     const intlStore = useHydratedIntlStore();
 
     const raw = controlledValue ?? store?.getValue(id);
+    const domId = inputId ?? id;
     const isoValue = typeof raw === "string" && raw !== "" ? raw : undefined;
     const parsed = parseIsoDate(isoValue);
     const { hasError } = useFormFieldErrors(id);
@@ -123,7 +126,7 @@ export const FormIsoDatePicker = observer(
     return (
       <div className={cn("flex flex-col gap-1.5", containerClassName)}>
         {resolvedLabel && (
-          <FormLabel htmlFor={id}>
+          <FormLabel fieldId={id} htmlFor={domId}>
             {resolvedLabel}
 
             {required ? <span className="text-destructive"> *</span> : null}
@@ -142,7 +145,7 @@ export const FormIsoDatePicker = observer(
               )}
               data-field-state={isReadOnly ? "read-only" : undefined}
               disabled={isLoading}
-              id={id}
+              id={domId}
               type="button"
               variant="field"
             >
@@ -176,13 +179,13 @@ export const FormIsoDatePicker = observer(
                 <Separator />
 
                 <div className="flex flex-col gap-2 p-3">
-                  <FormLabel className="text-xs text-muted-foreground" htmlFor={`${id}-time`}>
+                  <FormLabel className="text-xs text-muted-foreground" htmlFor={`${domId}-time`}>
                     {t("Common.datePresets.startTime")}
                   </FormLabel>
 
                   <TimeInput
                     disabled={isLoading}
-                    id={`${id}-time`}
+                    id={`${domId}-time`}
                     use12Hour={intlStore.use12Hour}
                     value={timeValue}
                     onChange={handleTimeChange}

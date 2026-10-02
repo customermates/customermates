@@ -40,6 +40,9 @@ const RecordEditorBody = observer(function RecordEditorBody({
   const [panel, setPanel] = useState("details");
   const id = useId();
   const deletion = useRecordDeletion({
+    sessionKey: store.sessionKey,
+    captureSession: store.captureSession,
+    onInvalidated: store.rootStore.recordWorkspaceStore.invalidate,
     onDeleted: store.deletionCompleted,
     onPending: (id) => store.setPendingOperation(id, true),
   });

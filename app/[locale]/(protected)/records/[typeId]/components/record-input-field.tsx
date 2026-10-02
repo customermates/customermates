@@ -18,16 +18,18 @@ import { getUsersAction } from "../../../company/actions";
 export const RecordInputField = observer(function RecordInputField({
   field,
   id,
+  inputId,
   label = field.label,
 }: {
   field: RecordField;
   id: string;
+  inputId?: string;
   label?: string | null;
 }) {
   const t = useTranslations();
   const store = useAppForm();
   const root = useRootStore();
-  const shared = { id, label, required: field.required };
+  const shared = { id, inputId, label, required: field.required };
   if (field.valueType === "richText") {
     return (
       <div className="space-y-1.5">
@@ -35,7 +37,7 @@ export const RecordInputField = observer(function RecordInputField({
 
         <Editor
           data={store?.getValue(id) as object | undefined}
-          label={field.label}
+          label={label ?? field.label}
           readOnly={Boolean(store?.isReadOnly || store?.isLoading)}
           onChange={(value) => store?.onChange(id, value)}
         />
@@ -58,7 +60,7 @@ export const RecordInputField = observer(function RecordInputField({
     return (
       <FormAutocompleteAvatar
         {...shared}
-        ariaLabel={field.label}
+        ariaLabel={label ?? field.label}
         getItems={getUsersAction}
         items={root.userStore.user ? [root.userStore.user] : []}
       />

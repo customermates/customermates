@@ -268,38 +268,63 @@ export class PrismaMessagingRepo
     return threads;
   }
 
-  private async resolveBestNamesByProviderUserId(providerUserIds: Set<string>): Promise<Map<string, string>> {
-    if (providerUserIds.size === 0) return new Map();
+  private async resolveBestNamesByProviderUserId(
+    participants: Array<{
+      provider: MessagingProvider;
+      providerUserId: string;
+    }>,
+  ): Promise<Map<string, string>> {
+    const identities = [
+      ...new Map(
+        participants.map((participant) => [
+          JSON.stringify([participant.provider, participant.providerUserId]),
+          participant,
+        ]),
+      ).values(),
+    ];
+    if (!identities.length) return new Map();
 
     const rows = await this.prisma.messagingThreadParticipant.findMany({
       where: {
         companyId: this.companyId,
-        providerUserId: { in: [...providerUserIds] },
+        OR: identities,
+        thread: threadAccessWhere(this.companyId, this.userId),
       },
-      select: { providerUserId: true, displayName: true },
+      select: { provider: true, providerUserId: true, displayName: true },
+      orderBy: { id: "asc" },
     });
 
     const bestName = new Map<string, string>();
     for (const row of rows) {
-      if (hasLetter(row.displayName) && !bestName.has(row.providerUserId))
-        bestName.set(row.providerUserId, row.displayName);
+      const key = JSON.stringify([row.provider, row.providerUserId]);
+      if (hasLetter(row.displayName) && !bestName.has(key)) bestName.set(key, row.displayName);
     }
 
     return bestName;
   }
 
   private async resolveParticipantNamesAcrossThreads<T extends MappedThreadRow>(threads: T[]): Promise<void> {
-    const unnamed = new Set<string>();
-    for (const thread of threads)
-      for (const p of thread.participants) if (p.attendeeId && !hasLetter(p.displayName)) unnamed.add(p.attendeeId);
-
+    const unnamed = threads.flatMap((thread) =>
+      thread.participants.flatMap((participant) =>
+        participant.attendeeId && !hasLetter(participant.displayName)
+          ? [
+              {
+                provider: thread.provider,
+                providerUserId: participant.attendeeId,
+              },
+            ]
+          : [],
+      ),
+    );
     const bestName = await this.resolveBestNamesByProviderUserId(unnamed);
 
     for (const thread of threads) {
       const single = thread.type === MessagingThreadType.single;
       for (const p of thread.participants) {
         if (hasLetter(p.displayName)) continue;
-        const better = bestName.get(p.attendeeId) || (single && !p.isSelf && hasLetter(thread.name) ? thread.name : "");
+        const better =
+          bestName.get(JSON.stringify([thread.provider, p.attendeeId])) ||
+          (single && !p.isSelf && hasLetter(thread.name) ? thread.name : "");
         if (better) p.displayName = better;
       }
     }
@@ -1534,7 +1559,9 @@ export class PrismaMessagingRepo
       if (!message.sender.isSelf && message.sender.attendeeId && !hasLetter(message.sender.displayName))
         unnamed.add(message.sender.attendeeId);
     }
-    const bestName = await this.resolveBestNamesByProviderUserId(unnamed);
+    const bestName = await this.resolveBestNamesByProviderUserId(
+      [...unnamed].map((providerUserId) => ({ provider, providerUserId })),
+    );
     const single = thread.type === MessagingThreadType.single;
 
     for (const attendee of attendees) {
@@ -1544,7 +1571,9 @@ export class PrismaMessagingRepo
     }
     messages.forEach((message) => {
       if (message.sender.isSelf || hasLetter(message.sender.displayName)) return;
-      const better = bestName.get(message.sender.attendeeId) || (single && hasLetter(thread.name) ? thread.name : "");
+      const better =
+        bestName.get(JSON.stringify([provider, message.sender.attendeeId])) ||
+        (single && hasLetter(thread.name) ? thread.name : "");
       if (better) message.sender.displayName = better;
     });
   }

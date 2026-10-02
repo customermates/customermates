@@ -110,8 +110,15 @@ function KanbanCard({
         if (!isDragging && !transform) onClick?.();
         e.stopPropagation();
       }}
-      {...listeners}
-      {...attributes}
+      onKeyDown={(event) => {
+        if (draggable || (!onClick && !href) || event.target !== event.currentTarget) return;
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        if (onClick) onClick();
+        else if (href) navigateToHref(href);
+      }}
+      {...(draggable ? listeners : {})}
+      {...(draggable ? attributes : onClick || href ? { role: "button", tabIndex: 0 } : {})}
     >
       {href && !isDragging && (
         <a

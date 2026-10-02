@@ -55,6 +55,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
   private loadGeneration = 0;
   private sessionGeneration = 0;
   private companyWidgetsGeneration = 0;
+  private previewGeneration = 0;
 
   constructor(rootStore: RootStore) {
     super(rootStore, {
@@ -365,6 +366,36 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
       return;
     }
   };
+  runPreview = async <T>(run: () => Promise<T>): Promise<T | undefined> => {
+    if (!this.isOpen) return undefined;
+    const session = this.sessionGeneration;
+    const generation = ++this.previewGeneration;
+    const form = this.form;
+    const query = this.previewQuery();
+    const isCurrent = () =>
+      this.isOpen &&
+      session === this.sessionGeneration &&
+      generation === this.previewGeneration &&
+      form === this.form &&
+      query === this.previewQuery();
+    try {
+      const result = await run();
+      return isCurrent() ? result : undefined;
+    } catch (error) {
+      if (isCurrent()) throw error;
+      return undefined;
+    }
+  };
+
+  private previewQuery = () =>
+    JSON.stringify(
+      isRecordWidgetForm(this.form)
+        ? this.form.measure
+        : isRecordActivityWidgetForm(this.form)
+          ? this.form.activityQuery
+          : null,
+    );
+
   private buildNewForm = (kind: WidgetKind, defaultActivityName?: string): WidgetModalForm => {
     const common = {
       contractVersion: 2 as const,
@@ -458,6 +489,8 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
   };
 
   protected override afterChange(id: string): void {
+    if (id === "measure" || id.startsWith("measure.") || id === "activityQuery" || id.startsWith("activityQuery."))
+      this.previewGeneration += 1;
     if (id === "measure.groupBy") this.initializeGroupFilter(this.form);
   }
 
