@@ -2468,13 +2468,14 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       if (scenario === "revoked") {
         await f.run(() =>
           runInTransaction(async () => {
-            for (const typeId of [service.typeId, deal.typeId])
+            for (const typeId of [service.typeId, deal.typeId]) {
               await f.repo.setGrants(typeId, [
                 {
                   roleId: f.memberRole.id,
                   actions: ["readAll", "update", "delete"],
                 },
               ]);
+            }
           }),
         );
       }
@@ -5396,7 +5397,15 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     ).toMatchObject({ ok: true, data: { schemaRevision: 2 } });
     const make = async (typeId: string, provider: "mail" | "outlook", displayName: string) => {
       const result = await f.mutation(
-        { action: "create", typeId, fields: [], identities: [{ provider, value: "shared@example.test", displayName }] },
+        {
+          action: "create",
+          typeId,
+          fields:
+            typeId === organizationTypeId
+              ? [{ fieldId: f.id("organization.name"), value: textValue("Shared organization") }]
+              : [],
+          identities: [{ provider, value: "shared@example.test", displayName }],
+        },
         f.admin,
         randomUUID(),
         2,
@@ -5493,7 +5502,12 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       data: { schemaRevision: 2 },
     });
     const result = await f.mutation(
-      { action: "create", typeId, fields: [], identities: [{ provider: "mail", value: "disabled@example.test" }] },
+      {
+        action: "create",
+        typeId,
+        fields: [{ fieldId: f.id("organization.name"), value: textValue("Disabled organization") }],
+        identities: [{ provider: "mail", value: "disabled@example.test" }],
+      },
       f.admin,
       randomUUID(),
       2,
@@ -5543,6 +5557,63 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         f.member,
       ),
     ).toMatchObject({ ok: false });
+  });
+
+  it("offers existing Channels-enabled embedded records without offering parentless quick creation", async () => {
+    const { GetIdentityRecordChoicesInteractor } = await import("../get-identity-record-choices.interactor");
+    const f = await fixture();
+    const service = await f.create("service", "Embedded catalog", [["service.amount", decimal("100")]]);
+    const deal = await f.create("deal", "Embedded parent");
+    const line = await f.create(
+      "lineItem",
+      "Embedded row",
+      [["lineItem.quantity", decimal("1", null)]],
+      [
+        {
+          relationId: f.id("lineItem.deal"),
+          direction: "outgoing",
+          record: deal,
+        },
+        {
+          relationId: f.id("lineItem.service"),
+          direction: "outgoing",
+          record: service,
+        },
+      ],
+    );
+    expect(
+      await f.run(() =>
+        f.configure.invoke({
+          expectedRevision: 1,
+          idempotencyKey: randomUUID(),
+          operations: [
+            {
+              operation: "putCapability",
+              capability: {
+                id: randomUUID(),
+                kind: "channels",
+                typeId: line.typeId,
+                fields: [],
+                enabled: true,
+              },
+            },
+          ],
+        }),
+      ),
+    ).toMatchObject({ ok: true, data: { schemaRevision: 2 } });
+    const lookup = new GetIdentityRecordChoicesInteractor(f.repo, f.policy);
+    for (const input of [{ search: "Embedded catalog" }, { search: "", refs: [line] }]) {
+      const result = await f.run(() => lookup.invoke(input));
+      expect(result).toMatchObject({
+        ok: true,
+        data: {
+          records: expect.arrayContaining([expect.objectContaining({ ref: line })]),
+          schemaRevision: 2,
+        },
+      });
+      if (!result.ok) throw new Error(JSON.stringify(result.error));
+      expect(result.data.createTypes.map((type) => type.typeId)).not.toContain(line.typeId);
+    }
   });
 
   it("stages shared identities once and publishes both associations together without rewriting registered metadata", async () => {
@@ -6492,7 +6563,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           kind: "message",
           message: {
             bodyText: "ordinary visible body",
-            sender: { record: { ref } },
+            sender: { records: [{ ref }] },
           },
         });
       }
@@ -11504,7 +11575,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const messageEntry = visible.data.items.find((entry) => entry.kind === "message");
     expect(messageEntry).toMatchObject({
       message: {
-        sender: { record: { ref: person, title: "Activity person" } },
+        sender: { records: [{ ref: person, title: "Activity person" }] },
         recipients: { bcc: [] },
       },
     });

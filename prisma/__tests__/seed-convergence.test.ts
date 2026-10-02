@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { resolve } from "node:path";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { describe, expect, it } from "vitest";
@@ -18,9 +18,11 @@ suite("generic synthetic seed convergence", { timeout: 180000 }, () => {
     const fixture = await createLegacyMigrationDatabase(database);
     let prisma: PrismaClient | undefined;
     try {
-      await fixture.client.query(
-        await readFile(resolve("prisma/migrations", CRM_CONTRACTION_MIGRATION, "migration.sql"), "utf8"),
-      );
+      const migrations = (await readdir(resolve("prisma/migrations")))
+        .filter((entry) => /^\d+_/.test(entry) && entry >= CRM_CONTRACTION_MIGRATION)
+        .sort();
+      for (const migration of migrations)
+        await fixture.client.query(await readFile(resolve("prisma/migrations", migration, "migration.sql"), "utf8"));
       prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: fixture.url }) });
       const context = createSeedContext(prisma, {
         seedUserEmail: "max.bergmann@customermates.com",

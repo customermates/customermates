@@ -50,6 +50,16 @@ suite("native configurable record upgrade", { timeout: 120000 }, () => {
         )
       ).rows;
       expect(before.length).toBeGreaterThan(0);
+      const previous = (
+        await fixture.client.query(
+          'SELECT revision,snapshot FROM "RecordSchemaRevision" WHERE "companyId"=$1 ORDER BY revision',
+          [source.companyId],
+        )
+      ).rows;
+      const previousRevision = previous.at(-1).revision;
+      expect(previous.at(-1).snapshot.capabilities).toEqual(
+        expect.arrayContaining([expect.objectContaining({ kind: "personIdentity" })]),
+      );
       await deploy(environment);
       await deploy(environment);
       const after = (
@@ -59,6 +69,33 @@ suite("native configurable record upgrade", { timeout: 120000 }, () => {
         )
       ).rows;
       expect(after).toEqual(before);
+      const snapshots = (
+        await fixture.client.query(
+          'SELECT revision,snapshot FROM "RecordSchemaRevision" WHERE "companyId"=$1 ORDER BY revision',
+          [source.companyId],
+        )
+      ).rows;
+      expect(snapshots.slice(0, -1)).toEqual(previous);
+      expect(snapshots.at(-1)).toMatchObject({
+        revision: previousRevision + 1,
+        snapshot: {
+          revision: previousRevision + 1,
+          capabilities: expect.arrayContaining([
+            expect.objectContaining({
+              kind: "channels",
+              enabled: true,
+              providerAvatar: true,
+            }),
+          ]),
+        },
+      });
+      expect(
+        (
+          await fixture.client.query('SELECT revision FROM "RecordSchemaState" WHERE "companyId"=$1', [
+            source.companyId,
+          ])
+        ).rows[0].revision,
+      ).toBe(previousRevision + 1);
       expect(
         (
           await fixture.client.query(

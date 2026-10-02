@@ -7,7 +7,7 @@ import { presentationMigrationModel } from "../model";
 import { migrateDetailState, migratePresentationState } from "../state";
 import { migrateQueryFilter } from "../filters";
 import { migrateChartMeasure } from "../widgets";
-import { RecordModelSchema } from "@/features/records/record-model.schema";
+import { readRecordModelSnapshot } from "@/features/records/record-model-snapshot";
 import { recordMeasureIsValid } from "@/features/records/record-measure-validation";
 import { RecordMeasureSchema } from "@/features/records/record-measure.schema";
 import { recordViewStateIsValid } from "@/features/records/record-view-state";
@@ -70,9 +70,20 @@ const chart = (entityType: LegacyType, aggregationType = "count", groupByType = 
 });
 
 describe("version five presentation conversion", () => {
-  it("keeps a frozen metadata contract compatible with the running generic engine", () => {
+  it("decodes a frozen metadata contract without rewriting its historical revision", () => {
     const { model } = fixture();
-    expect(RecordModelSchema.parse(model)).toEqual(model);
+    const snapshot = structuredClone(model);
+    const decoded = readRecordModelSnapshot(model);
+    expect(model).toEqual(snapshot);
+    expect(decoded).toEqual({
+      ...model,
+      capabilities: model.capabilities.map((binding) =>
+        binding.kind === "personIdentity"
+          ? { ...binding, kind: "channels", enabled: true, providerAvatar: true }
+          : binding,
+      ),
+    });
+    expect(decoded.revision).toBe(model.revision);
     expect(model.revision).toBe(3);
     expect(model.types.find((type) => type.id === id("contact"))?.defaults.hiddenColumns).toEqual([
       id("contact.firstName"),
@@ -165,7 +176,7 @@ describe("version five presentation conversion", () => {
         ),
       ),
     );
-    expect(recordViewStateIsValid(id("deal"), state, RecordModelSchema.parse(model), "EUR")).toBe(true);
+    expect(recordViewStateIsValid(id("deal"), state, readRecordModelSnapshot(model), "EUR")).toBe(true);
     expect(() =>
       migratePresentationState(
         source,
@@ -224,7 +235,7 @@ describe("version five presentation conversion", () => {
       expect(measure.source.typeId).toBe(id(kind));
       expect(measure.aggregation).toBe("count");
       expect(measure.valueFieldId).toBeNull();
-      expect(recordMeasureIsValid(RecordMeasureSchema.parse(measure), RecordModelSchema.parse(model))).toBe(true);
+      expect(recordMeasureIsValid(RecordMeasureSchema.parse(measure), readRecordModelSnapshot(model))).toBe(true);
     },
   );
 
@@ -247,7 +258,7 @@ describe("version five presentation conversion", () => {
       expect(measure.groupBy?.fieldId).toBe(status);
       expect(measure.groupBy?.path).toHaveLength(kind === "deal" ? 0 : 1);
       if (kind !== "deal") expect(measure.groupBy?.filter?.filters).toHaveLength(1);
-      expect(recordMeasureIsValid(RecordMeasureSchema.parse(measure), RecordModelSchema.parse(model))).toBe(true);
+      expect(recordMeasureIsValid(RecordMeasureSchema.parse(measure), readRecordModelSnapshot(model))).toBe(true);
     },
   );
 
@@ -272,7 +283,7 @@ describe("version five presentation conversion", () => {
         expect(
           measure.source.relatedFilters?.some((filter) => filter.operator === "none" && filter.path.length === 3),
         ).toBe(true);
-        expect(recordMeasureIsValid(RecordMeasureSchema.parse(measure), RecordModelSchema.parse(model))).toBe(true);
+        expect(recordMeasureIsValid(RecordMeasureSchema.parse(measure), readRecordModelSnapshot(model))).toBe(true);
       }
     },
   );

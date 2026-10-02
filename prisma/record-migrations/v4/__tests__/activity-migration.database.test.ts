@@ -1,5 +1,5 @@
 import { RecordActivityQuerySchema } from "@/ee/messaging/activities/record-activities.schema";
-import { RecordModelSchema } from "@/features/records/record-model.schema";
+import { readRecordModelSnapshot } from "@/features/records/record-model-snapshot";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createLegacyMigrationDatabase, legacyFixtureWriter } from "@/tests/helpers/legacy-migration-database";
 import { randomUUID } from "node:crypto";
@@ -96,7 +96,7 @@ describeDatabase("activity and provenance migration", { timeout: 30000 }, () => 
       )
     ).rows;
     expect(snapshots.map((row) => row.revision)).toEqual([1, 2]);
-    const model = RecordModelSchema.parse(snapshots[1].snapshot);
+    const model = readRecordModelSnapshot(snapshots[1].snapshot);
     expect(model.activityPaths).toHaveLength(10);
     expect(model.activityPaths.find((path) => path.typeId === f.id("service") && path.includeMessages)?.path).toEqual([
       { relationId: f.id("lineItem.service"), direction: "incoming" },

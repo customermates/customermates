@@ -1,7 +1,7 @@
 import { compileRecordMeasure } from "@/features/records/record-measure";
 import type { RecordMeasure } from "@/features/records/record-measure.schema";
 import { RecordMeasureSchema } from "@/features/records/record-measure.schema";
-import { RecordModelSchema } from "@/features/records/record-model.schema";
+import { readRecordModelSnapshot } from "@/features/records/record-model-snapshot";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createLegacyMigrationDatabase } from "@/tests/helpers/legacy-migration-database";
 import Decimal from "decimal.js";
@@ -24,7 +24,7 @@ async function fixture(probability: 60 | 0 | null = 60) {
   return presentationFixture(client, probability, (companyId) => companies.push(companyId));
 }
 async function results(f: Fixture, widgetId: string, overall = false) {
-  const model = RecordModelSchema.parse(
+  const model = readRecordModelSnapshot(
     (
       await f.client.query('SELECT snapshot FROM "RecordSchemaRevision" WHERE "companyId" = $1 AND revision = 3', [
         f.companyId,
