@@ -125,6 +125,8 @@ Picking an entry sends the current browser tab to a secure connection page, not 
 - **Account already connected**: this account is already connected by a member of your workspace. If that is someone else, ask them to share it with the workspace instead of connecting it twice.
 - **Invalid credentials**, **Link expired**, **Verification failed**, **Account disconnected** or **Channel connection failed**: start again from **Connect channel**.
 
+An initial connection error needs another attempt from **Connect channel**; for **Error** on an existing channel’s card, its owner uses **Reactivate**.
+
 **Link:** `/profile/connected-accounts`. **Mate:** `navigate` and `highlight_element` with `nav-profile-connected-accounts`, then `highlight_element` with `profile-connected-accounts-connect`; the nine menu entries have no id, so Mate names them.
 
 ### How many channels can I connect?

@@ -628,3 +628,56 @@ describe("real small sibling evidence", () => {
     expect(evidence.length).toBeLessThanOrEqual(80);
   });
 });
+
+describe("initial channel errors and existing channel recovery evidence", () => {
+  it.each([
+    {
+      locale: "en" as const,
+      query: "Error connecting my Gmail channel",
+      initialAction: /initial connection error.*Connect channel/iu,
+      existingAction: /existing channel.*owner.*Reactivate/iu,
+    },
+    {
+      locale: "de" as const,
+      query: "Fehler beim Verbinden des Gmail-Kanals",
+      initialAction: /Fehler beim ersten Verbinden.*Kanal verbinden/iu,
+      existingAction: /vorhandenen Kanals.*Besitzer.*Reaktivieren/iu,
+    },
+  ])(
+    "keeps distinct setup and owner recovery conditions in $locale",
+    ({ locale, query, initialAction, existingAction }) => {
+      const setup = docsCorpusSections("docs", locale).find(
+        (section) => section.slug === "app-profile" && section.anchor === "how-do-i-connect-a-channel",
+      );
+      expect(setup).toBeDefined();
+      if (!setup) throw new Error("Missing initial channel connection fixture.");
+      const candidates: RankableSection[] = Array.from({ length: 120 }, (_, id) => ({
+        id,
+        locale,
+        section:
+          id === 0
+            ? setup
+            : {
+                pageTitle: "Unrelated",
+                headingPath: ["Background"],
+                text: "Other documentation.",
+              },
+      }));
+      const options = docsRankSpec(candidates, "docs", query).questions[0].options;
+      const title = `${setup.pageTitle} > ${setup.headingPath.join(" > ")}: `;
+      const evidence = options.s0.slice(title.length);
+      expect(evidence).toMatch(initialAction);
+      expect(evidence).toMatch(existingAction);
+      expect(evidence).toContain("Link: /profile/connected-accounts");
+      expect(evidence.length).toBeLessThanOrEqual(400);
+      let totalEvidenceChars = 0;
+      for (const candidate of candidates) {
+        const candidateTitle = `${candidate.section.pageTitle} > ${candidate.section.headingPath.join(" > ")}: `;
+        const candidateEvidence = options[`s${candidate.id}`].slice(candidateTitle.length);
+        expect(candidateEvidence.length).toBeLessThanOrEqual(candidate.id < 20 ? 400 : 80);
+        totalEvidenceChars += candidateEvidence.length;
+      }
+      expect(totalEvidenceChars).toBeLessThanOrEqual(16_000);
+    },
+  );
+});
