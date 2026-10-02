@@ -22,6 +22,7 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
   "query_crm_records",
   "read_crm_operation",
   "read_crm_record",
+  "resolve_record_identifiers",
   "search",
   "search_crm_records",
   "search_docs",
@@ -52,6 +53,7 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
 exports[`gated-tools > snapshots the surface so new tools and actions force a conscious approval decision 3`] = `
 [
   "configure_record_model",
+  "manage_conversation_records",
   "manage_record_detail_layout",
   "manage_roles",
   "manage_team",
@@ -66,6 +68,11 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
     "list",
     "browse",
     "save",
+  ],
+  "manage_conversation_records": [
+    "read",
+    "link",
+    "unlink",
   ],
   "manage_data_views": [
     "surfaces",

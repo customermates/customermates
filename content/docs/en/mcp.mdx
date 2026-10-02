@@ -106,7 +106,7 @@ The MCP server can discover schemas, query and change records, configure fields 
 **Read-only** means the tool does not write. **Can delete data** identifies a tool that includes destructive operations; it does not mean every action on that tool deletes data. For example, configuration preview does not write. Tools that send messages, invitations or support requests, move email or change provider data also have real effects even when they do not carry a destructive flag. Configure client approval behavior for the actual operation. The server enforces authorization and validation, but an external MCP call does not open the hosted assistant’s approval dialog.
 
 {/* mcp-catalog:flags */}
-**Read-only:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
+**Read-only:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
 
 **Can delete data:** `mutate_crm_record`, `manage_data_views`, `discard_message_draft`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_webhooks`, `manage_roles`
 {/* /mcp-catalog */}
@@ -119,7 +119,7 @@ The [[derived.mcp.tools.groups.records]] record tools serve the five starter typ
 
 Every record reference contains both `typeId` and `recordId`. Query and search are separate from aggregation: `query_crm_records` pages through a type, `search_crm_records` finds accessible records, and `query_crm_measure` calculates totals across all matching records. Never infer a complete total from one page. Inspect ambiguous search results before choosing a write target.
 
-`read_crm_record` returns the current record version and schema revision. Update input fields through typed assignments in `mutate_crm_record`; use its link/unlink actions for relationships. Person identity channels are protected bindings, so an ordinary email field does not become a matching key. Replacing `identities` preserves only the channels supplied in the array; omitting it leaves them unchanged.
+`read_crm_record` returns the current record version and schema revision. Update input fields through typed assignments in `mutate_crm_record`; use its link/unlink actions for relationships. Channels can be enabled on any configured type. They use indexed identity associations; an ordinary email field does not become a matching key. Replacing `identities` preserves only the channels supplied in the array; omitting it leaves them unchanged.
 
 {/* mcp-catalog:records */}
 #### `discover_record_types`
@@ -142,13 +142,19 @@ Filter, sort and paginate records of one configured type in PostgreSQL. Read its
 
 #### `search_crm_records`
 
-Search accessible configured types, including customer-created types. Results include both typeId and recordId. For another page, pass nextCursor with the same searchTerm and typeIds. Resolve ambiguous matches before writing.
+Search accessible configured types, including customer-created types. includeEmbedded also searches embedded records such as line items. Results include both typeId and recordId. For another page, pass nextCursor with the same searchTerm, typeIds and includeEmbedded. Resolve ambiguous matches before writing.
 
-**Read-only.** Required: `searchTerm`. Optional: `typeIds`, `limit`, `cursor`.
+**Read-only.** Required: `searchTerm`. Optional: `typeIds`, `includeEmbedded`, `limit`, `cursor`.
+
+#### `resolve_record_identifiers`
+
+Resolve exact email, phone or supported profile identifiers through the indexed channel registry. Each input returns every accessible linked record, including its type label. Optional typeIds limit the lists. Empty records arrays mean no accessible match; clarify ambiguity before changing a record.
+
+**Read-only.** Required: `identifiers`. Optional: `typeIds`.
 
 #### `read_crm_record`
 
-Read one record by typeId and recordId, including typed values, notes, relationship summaries and current record/configuration versions. Identity channels appear only for types with the protected person-identity binding.
+Read one record by typeId and recordId, including typed values, notes, relationship summaries and current record/configuration versions. Channels appear on types with Channels enabled; identifiers can match several accessible records.
 
 **Read-only.** Required: `typeId`, `recordId`.
 
@@ -269,6 +275,12 @@ Required: `threadId`, `state`.
 Move an email conversation into another mailbox folder at the provider.
 
 Required: `threadId`, `folderId`.
+
+#### `manage_conversation_records`
+
+Read, link or unlink records for one accessible inbox conversation. These links affect only that thread, never other conversations or the sender’s global channel associations. Link and unlink need expectedRevision, idempotencyKey, Inbox management and permission to update the record.
+
+Required: `action`, `threadId`. Optional: `ref`, `expectedRevision`, `idempotencyKey`.
 
 #### `connect_messaging_account`
 

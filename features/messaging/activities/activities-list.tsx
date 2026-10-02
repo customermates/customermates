@@ -17,7 +17,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { classifyAttachment, PREVIEW_KIND_LABEL } from "@/ee/messaging/attachment-kind";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
-import { isUnipileUnsupportedBody, messageSenderName } from "@/ee/messaging/thread-display";
+import { participantAvatar, isUnipileUnsupportedBody, messageSenderName } from "@/ee/messaging/thread-display";
 
 import { messagePreview } from "../message-preview";
 import { auditCategory, IdentityAvatar, ProviderAvatar, TimelineRow, TypeBadge } from "./activities-row";
@@ -187,7 +187,7 @@ export const ActivitiesList = observer(({ customColumns, hasMore, items, loading
                   <IdentityAvatar
                     badge={messageBadge}
                     name={senderLabel || title}
-                    src={message.sender.record?.avatarUrl || message.sender.pictureUrl}
+                    src={participantAvatar(message.sender)}
                   />
                 }
                 isFirst={index === 0}

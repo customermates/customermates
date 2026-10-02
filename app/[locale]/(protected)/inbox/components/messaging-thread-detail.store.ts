@@ -296,10 +296,10 @@ export class MessagingThreadDetailStore extends BaseStore {
     }
   };
 
-  applyParticipantRecord = async (threadId: string, identifier: string, record: MessagingAttendee["record"]) => {
+  applyParticipantRecord = async (threadId: string, identifier: string, records: MessagingAttendee["records"]) => {
     const patch = (participants: MessagingAttendee[]) =>
       participants.map((participant) =>
-        participant.identifier === identifier ? { ...participant, record } : participant,
+        participant.identifier === identifier ? { ...participant, records } : participant,
       );
 
     runInAction(() => {
@@ -307,7 +307,7 @@ export class MessagingThreadDetailStore extends BaseStore {
         this.refreshGeneration += 1;
         this.thread.participants = patch(this.thread.participants);
         this.messages = this.messages.map((message) =>
-          message.sender.identifier === identifier ? { ...message, sender: { ...message.sender, record } } : message,
+          message.sender.identifier === identifier ? { ...message, sender: { ...message.sender, records } } : message,
         );
       }
     });

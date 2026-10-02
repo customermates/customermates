@@ -9,13 +9,13 @@ Customermates stores CRM information as configured record types. Contacts, Organ
 
 | Starting type | Purpose | Initial behavior |
 | --- | --- | --- |
-| Contact | Person | Name, protected identity channels, notes, assignments |
+| Contact | Person | Name, indexed channels, notes, assignments |
 | Organization | Company or account | Name, notes, assignments |
 | Deal | Sales opportunity | Name, service line items, calculated value and quantity, optional weighted value |
 | Service | Offering or catalog item | Name, live unit price |
 | Task | Work item | Name, assignments, status option field; membership-approval tasks retain protected actions |
 
-These are templates of the common engine, not the only types it can store. Fields, relationships, and presentation defaults can be extended. Protected identity and membership actions remain bound to explicit system capabilities. An ordinary phone or email field is not automatically an identity channel. Read the current type and field IDs with `discover_record_types` and `get_record_model`.
+The starting templates and custom types use the same engine. Fields, relationships, and presentation defaults can be extended. Enable Channels on any type to link indexed identifiers to its records; one identifier can link to several records. Ordinary phone and email fields do not participate in matching. Membership-approval actions remain protected. Read the current type and field IDs with `discover_record_types` and `get_record_model`.
 
 ## How is a deal's total value calculated? [#how-is-a-deals-total-value-calculated]
 

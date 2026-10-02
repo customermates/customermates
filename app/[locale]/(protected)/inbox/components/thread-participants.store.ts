@@ -162,10 +162,12 @@ export class ThreadParticipantsStore extends BaseStore {
     );
   };
 
-  unlink = async (identifier: string): Promise<void> => {
+  unlink = async (identifier: string, reference: RecordRef): Promise<void> => {
     const thread = this.rootStore.messagingThreadDetailStore.thread;
-    const reference = thread?.participants.find((participant) => participant.identifier === identifier)?.record?.ref;
-    if (!reference || !thread) return;
+    const association = thread?.participants
+      .find((participant) => participant.identifier === identifier)
+      ?.records.find((record) => record.ref.typeId === reference.typeId && record.ref.recordId === reference.recordId);
+    if (!thread || !association) return;
     const ref = { typeId: reference.typeId, recordId: reference.recordId };
     await this.mutate(() =>
       this.executeMutation(`unlink:${JSON.stringify([ref, thread.provider, identifier])}`, async () => {
@@ -177,8 +179,9 @@ export class ThreadParticipantsStore extends BaseStore {
             ?.filter(
               (row) =>
                 !(
-                  channelClass(row.provider) === channelClass(thread.provider) &&
-                  (row.value === normalized || row.messagingId === identifier)
+                  row.id === association.identityId ||
+                  (channelClass(row.provider) === channelClass(thread.provider) &&
+                    (row.value === normalized || row.messagingId === identifier))
                 ),
             )
             .map(identityInput) ?? [];
@@ -274,7 +277,8 @@ export class ThreadParticipantsStore extends BaseStore {
     if (!thread) return null;
     const participant = thread.participants.find((p) => p.identifier === identifier) ?? null;
     const raw = isHandleProvider(thread.provider) && participant?.profileUrl ? participant.profileUrl : identifier;
-    const value = normalizeChannelValue(thread.provider, raw);
+    const value =
+      normalizeChannelValue(thread.provider, raw) ?? (isHandleProvider(thread.provider) ? identifier.trim() : null);
     if (!value) return null;
     return {
       provider: thread.provider,
@@ -339,7 +343,16 @@ export class ThreadParticipantsStore extends BaseStore {
       const result = await getIdentityRecordChoicesAction(requestedQuery);
       runInAction(() => {
         if (!isCurrent()) return;
-        this.results = result.records;
+        const linked =
+          this.rootStore.messagingThreadDetailStore.thread?.participants.find(
+            (participant) => participant.identifier === requestedIdentifier,
+          )?.records ?? [];
+        this.results = result.records.filter(
+          (record) =>
+            !linked.some(
+              (existing) => existing.ref.typeId === record.ref.typeId && existing.ref.recordId === record.ref.recordId,
+            ),
+        );
         this.createTypes = result.createTypes;
         this.schemaRevision = result.schemaRevision;
       });

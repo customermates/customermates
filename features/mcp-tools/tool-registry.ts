@@ -6,6 +6,7 @@ import {
   configureRecordModelV2Tool,
   queryRecordsV2Tool,
   searchRecordsV2Tool,
+  resolveRecordIdentifiersV2Tool,
   readRecordV2Tool,
   mutateRecordV2Tool,
   previewRecordDeletionV2Tool,
@@ -34,6 +35,7 @@ import {
   sendEmailTool,
   updateMessagingThreadTool,
   moveEmailThreadTool,
+  manageConversationRecordsTool,
 } from "@/features/mcp-tools/messaging.mcp-tools";
 import {
   getSocialPostEngagementTool,
@@ -56,6 +58,7 @@ export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
     getRecordModelV2Tool,
     queryRecordsV2Tool,
     searchRecordsV2Tool,
+    resolveRecordIdentifiersV2Tool,
     readRecordV2Tool,
     mutateRecordV2Tool,
     previewRecordDeletionV2Tool,
@@ -75,6 +78,7 @@ export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
     discardMessageDraftTool,
     updateMessagingThreadTool,
     moveEmailThreadTool,
+    manageConversationRecordsTool,
     connectMessagingAccountTool,
   ],
   social: [

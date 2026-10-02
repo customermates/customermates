@@ -9,13 +9,13 @@ Customermates speichert CRM-Informationen als konfigurierte Datensatztypen. Kont
 
 | Starttyp | Zweck | Anfängliches Verhalten |
 | --- | --- | --- |
-| Kontakt | Person | Name, geschützte Identitätskanäle, Notizen, Zuweisungen |
+| Kontakt | Person | Name, indizierte Kanäle, Notizen, Zuweisungen |
 | Organisation | Firma oder Account | Name, Notizen, Zuweisungen |
 | Deal | Verkaufschance | Name, Service-Positionen, berechneter Wert und Menge, optional gewichteter Wert |
 | Service | Angebot oder Katalogeintrag | Name, aktueller Einzelpreis |
 | Aufgabe | Arbeitsschritt | Name, Zuweisungen, Status-Auswahlfeld; Genehmigungsaufgaben behalten geschützte Aktionen |
 
-Diese Typen sind Vorlagen derselben Engine und nicht die einzigen möglichen Typen. Felder, Beziehungen und Darstellung lassen sich erweitern. Identität und Mitgliedschaft bleiben an ausdrücklich geschützte Systemfunktionen gebunden. Ein gewöhnliches Telefon- oder E-Mail-Feld wird nicht automatisch zum Identitätskanal. Aktuelle Typ- und Feld-IDs liefern `discover_record_types` und `get_record_model`.
+Startvorlagen und eigene Typen verwenden dieselbe Engine. Felder, Beziehungen und Darstellung lassen sich erweitern. Die Kanal-Funktion lässt sich für jeden Typ aktivieren und verknüpft indizierte Kennungen mit seinen Datensätzen; eine Kennung kann zu mehreren Datensätzen gehören. Gewöhnliche Telefon- und E-Mail-Felder nehmen nicht an der Zuordnung teil. Aktionen zur Genehmigung von Mitgliedschaften bleiben geschützt. Aktuelle Typ- und Feld-IDs liefern `discover_record_types` und `get_record_model`.
 
 ## Wie wird der Gesamtwert eines Deals berechnet? [#how-is-a-deals-total-value-calculated]
 

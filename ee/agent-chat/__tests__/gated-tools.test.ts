@@ -131,6 +131,9 @@ describe("gated-tools", () => {
       ["mutate_crm_record", { mutation: { action: "unlink" } }],
       ["save_message_draft", {}],
       ["update_messaging_thread", {}],
+      ["manage_conversation_records", { action: "read" }],
+      ["manage_conversation_records", { action: "link" }],
+      ["manage_conversation_records", { action: "unlink" }],
       ["update_workspace_settings", {}],
       ["manage_team", { action: "update_member" }],
       ["connect_messaging_account", {}],
@@ -286,10 +289,10 @@ describe("gated-tools", () => {
 
     expect(groupSizes).toEqual({
       "record-model": 3,
-      records: 9,
+      records: 10,
       workspace: 2,
       views: 2,
-      messaging: 10,
+      messaging: 11,
       social: 8,
       docs: 2,
       widgets: 1,

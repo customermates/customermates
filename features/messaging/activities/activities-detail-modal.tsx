@@ -25,7 +25,7 @@ import { AppCardBody } from "@/components/card/app-card-body";
 import { EmailFrame } from "../email-frame";
 import { Button } from "@/components/ui/button";
 import { isEmailProvider } from "@/ee/messaging/provider";
-import { messageSenderName } from "@/ee/messaging/thread-display";
+import { participantAvatar, messageSenderName } from "@/ee/messaging/thread-display";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { AuditDetail } from "./audit-detail";
@@ -75,7 +75,7 @@ export const MessageDetail = observer(({ entry }: { entry: Extract<ActivityEntry
             badge={<TypeBadge icon={DirectionIcon} label={directionLabel} tone={isOutbound ? "sent" : "received"} />}
             name={senderName}
             size="xl"
-            src={message.sender.record?.avatarUrl || message.sender.pictureUrl}
+            src={participantAvatar(message.sender)}
           />
         }
         provider={message.provider}

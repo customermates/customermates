@@ -28,7 +28,7 @@ export function identityReference(
     typePluralLabel: type?.pluralLabel ?? "",
     title: row.state === "value" && row.title ? row.title : (type?.label ?? ""),
     avatarUrl: row.pictureUrl,
-    canEdit,
+    canEdit: canEdit && !row.protectedKind,
   };
 }
 
@@ -43,11 +43,12 @@ export class RecordIdentityReader {
     return runInTransaction(
       async () => {
         const [model, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
-        if (!policy.actor)
+        if (!policy.actor) {
           return identifiers.map((identifier) => ({
             ...identifier,
             records: [],
           }));
+        }
         const bound = new Set(
           model.capabilities
             .filter(
@@ -75,7 +76,7 @@ export class RecordIdentityReader {
             const rows = await this.records.searchRecords(
               { refs: refs.slice(index, index + 100) },
               model,
-              policy.access([...bound]),
+              policy.access(model.types.filter((type) => !type.archived).map((type) => type.id)),
             );
             for (const row of rows) readable.set(recordKey(row), row);
           }
@@ -92,7 +93,7 @@ export class RecordIdentityReader {
           batch.forEach((identifier, index) => {
             const key = keys[index];
             const records = [...(byKey.get(JSON.stringify([key.channelClass, key.value])) ?? [])].sort((left, right) =>
-              recordKey(left.ref).localeCompare(recordKey(right.ref)),
+              recordKey(left.ref) < recordKey(right.ref) ? -1 : recordKey(left.ref) > recordKey(right.ref) ? 1 : 0,
             );
             matches.push({ ...identifier, records });
           });

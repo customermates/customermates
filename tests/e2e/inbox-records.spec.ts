@@ -51,15 +51,15 @@ test("creates, unlinks and relinks a generic person from the inbox", async ({
   await expect(settings).toBeVisible();
   await settings.getByRole("button", { name: "Link", exact: true }).click();
   await settings.getByRole("option", { name: 'Create "Inbox Person"', exact: true }).click();
-  await expect(settings.getByRole("button", { name: "Unlink contact", exact: true })).toBeVisible();
+  await expect(settings.getByRole("button", { name: "Unlink record: Inbox Person", exact: true })).toBeVisible();
   const stored = await database.query(
-    'SELECT id,"typeId","recordId",value FROM "RecordIdentity" WHERE "companyId"=$1',
+    'SELECT i.id,l."typeId",l."recordId",i.value FROM "RecordIdentity" i JOIN "RecordIdentityLink" l ON l."companyId"=i."companyId" AND l."identityId"=i.id WHERE i."companyId"=$1',
     [companyId],
   );
   expect(stored.rows).toHaveLength(1);
   expect(stored.rows[0]).toMatchObject({ typeId: presetId(companyId, "contact"), value: email });
   expect((await database.query("SELECT to_regclass('\"Contact\"') AS table")).rows[0].table).toBeNull();
-  await settings.getByRole("button", { name: "Open contact", exact: true }).click();
+  await settings.getByRole("button", { name: "Open record: Inbox Person", exact: true }).click();
   const drawer = page.getByRole("dialog", { name: "Contact", exact: true });
   await expect(drawer.getByText(email, { exact: true })).toBeVisible();
   await drawer.getByRole("tab", { name: "History", exact: true }).click();
@@ -90,23 +90,24 @@ test("creates, unlinks and relinks a generic person from the inbox", async ({
   await page.keyboard.press("Escape");
   await expect(drawer).not.toBeVisible();
   await expect(settings).toBeVisible();
-  await settings.getByRole("button", { name: "Unlink contact", exact: true }).click();
+  await settings.getByRole("button", { name: "Unlink record: Inbox Person", exact: true }).click();
+  await expect(settings.getByRole("button", { name: "Unlink record: Inbox Person", exact: true })).not.toBeVisible();
   await expect(settings.getByRole("button", { name: "Link", exact: true })).toBeVisible();
   expect(
-    (await database.query('SELECT COUNT(*)::int AS count FROM "RecordIdentity" WHERE "companyId"=$1', [companyId]))
+    (await database.query('SELECT COUNT(*)::int AS count FROM "RecordIdentityLink" WHERE "companyId"=$1', [companyId]))
       .rows[0].count,
   ).toBe(0);
   await settings.getByRole("button", { name: "Link", exact: true }).click();
   await settings.getByRole("option", { name: "Inbox Person", exact: true }).click();
-  await expect(settings.getByRole("button", { name: "Unlink contact", exact: true })).toBeVisible();
-  const relinked = await database.query('SELECT "recordId",value FROM "RecordIdentity" WHERE "companyId"=$1', [
+  await expect(settings.getByRole("button", { name: "Unlink record: Inbox Person", exact: true })).toBeVisible();
+  const relinked = await database.query('SELECT l."recordId",i.value FROM "RecordIdentity" i JOIN "RecordIdentityLink" l ON l."companyId"=i."companyId" AND l."identityId"=i.id WHERE i."companyId"=$1', [
     companyId,
   ]);
   expect(relinked.rows).toEqual([{ recordId: stored.rows[0].recordId, value: email }]);
   await page.keyboard.press("Escape");
   await page.reload();
   await settingsControl.click();
-  await expect(settings.getByRole("button", { name: "Unlink contact", exact: true })).toBeVisible();
+  await expect(settings.getByRole("button", { name: "Unlink record: Inbox Person", exact: true })).toBeVisible();
   await page.screenshot({
     path: testInfo.outputPath("inbox-record-identity.png"),
     animations: "disabled",

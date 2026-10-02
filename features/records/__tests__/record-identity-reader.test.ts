@@ -105,6 +105,14 @@ describe("shared identifier resolution", () => {
     ]);
   });
 
+  it("never offers editing a protected record through a channel match", async () => {
+    const f = fixture();
+    f.rows[0].protectedKind = "membershipAuthorization";
+    const result = await f.reader.resolve([{ provider: "mail", value: "alice@example.test" }]);
+    expect(result[0].records.find((record) => record.ref.recordId === f.contact.recordId)?.canEdit).toBe(false);
+    expect(result[0].records.find((record) => record.ref.recordId === f.organization.recordId)?.canEdit).toBe(true);
+  });
+
   it("supports type filters and disabled Channels while retaining associations", async () => {
     const f = fixture();
     const filtered = await f.reader.resolve(

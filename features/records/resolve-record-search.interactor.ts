@@ -48,7 +48,10 @@ export class ResolveRecordSearchInteractor extends AuthenticatedInteractor<
             (a, b) =>
               (positions.get(`${a.typeId}:${a.recordId}`) ?? 0) - (positions.get(`${b.typeId}:${b.recordId}`) ?? 0),
           );
-          return { ok: true, data: { results: rows.map((row) => recordSearchHit(row, model)) } };
+          return {
+            ok: true,
+            data: { results: rows.map((row) => recordSearchHit(row, model, policy.allowed(row.typeId, "update"))) },
+          };
         } catch (error) {
           return recordWriteFailure(error);
         }

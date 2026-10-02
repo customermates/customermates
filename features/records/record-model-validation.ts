@@ -236,12 +236,13 @@ export function validateRecordModel(model: RecordModel): {
         field.archived ||
         !["number", "currency"].includes(field.valueType) ||
         summaries.has(key)
-      )
+      ) {
         issues.push({
           code: "invalid_layout_field",
           typeId: type.id,
           fieldId: summary.fieldId,
         });
+      }
       summaries.add(key);
     }
     if (type.defaults.hiddenColumns.includes(type.primaryFieldId))
@@ -249,23 +250,25 @@ export function validateRecordModel(model: RecordModel): {
     if (
       type.defaults.groupBy &&
       !resolveRecordGrouping(type.id, { field: type.defaults.groupBy, bucket: type.defaults.groupBucket }, model)
-    )
+    ) {
       issues.push({
         code: "invalid_grouping_field",
         typeId: type.id,
         fieldId: type.defaults.groupBy,
       });
+    }
     if (!type.defaults.groupBy && type.defaults.groupBucket)
       issues.push({ code: "invalid_grouping_field", typeId: type.id });
     if (
       type.defaults.sortField &&
       !recordColumns(type.id, model).some((column) => column.id === type.defaults.sortField && column.sortable)
-    )
+    ) {
       issues.push({
         code: "invalid_sort_field",
         typeId: type.id,
         fieldId: type.defaults.sortField,
       });
+    }
   }
   for (const type of model.types) {
     const visited = new Set<string>();
@@ -322,18 +325,20 @@ export function validateRecordModel(model: RecordModel): {
   const channelTypes = new Set<string>();
   for (const binding of model.capabilities) {
     if (binding.kind === "channels") {
-      if (channelTypes.has(binding.typeId))
+      if (channelTypes.has(binding.typeId)) {
         issues.push({
           code: "duplicate_channels_capability",
           typeId: binding.typeId,
         });
+      }
       channelTypes.add(binding.typeId);
     }
-    if (binding.kind !== "channels" && (binding.enabled !== undefined || binding.providerAvatar !== undefined))
+    if (binding.kind !== "channels" && (binding.enabled !== undefined || binding.providerAvatar !== undefined)) {
       issues.push({
         code: "invalid_capability_options",
         typeId: binding.typeId,
       });
+    }
     const type = types.get(binding.typeId);
     if (!type || (type.archived && !(binding.kind === "channels" && binding.enabled === false)))
       issues.push({ code: "capability_requires_type", typeId: binding.typeId });

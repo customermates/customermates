@@ -73,7 +73,7 @@ export interface RecordRepo {
   setIdentities(ref: RecordRef, inputs: RecordIdentityInput[]): Promise<void>;
   getModel(): Promise<RecordModel>;
   searchRecords(
-    request: { search: RecordSearch } | { refs: RecordRef[] },
+    request: { search: RecordSearch; includeEmbedded?: boolean } | { refs: RecordRef[] },
     model: RecordModel,
     access: RecordAccessMap,
   ): Promise<RecordSearchRow[]>;

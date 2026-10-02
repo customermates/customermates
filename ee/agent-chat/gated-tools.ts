@@ -38,6 +38,10 @@ const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
     approvalFreeActions: ["read", "save", "reset"],
     readOnlyActions: ["read"],
   },
+  manage_conversation_records: {
+    approvalFreeActions: ["read", "link", "unlink"],
+    readOnlyActions: ["read"],
+  },
   manage_routines: {
     approvalFreeActions: ["list", "runs", "create", "update", "pause", "run_now"],
     readOnlyActions: ["list", "runs"],

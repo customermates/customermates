@@ -22,7 +22,8 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
 
 import { ThreadPeopleManager } from "./thread-participants-contacts";
-import { displayableIdentifier, participantLabel } from "@/ee/messaging/thread-display";
+import { ThreadRecords } from "./thread-records";
+import { participantAvatar, displayableIdentifier, participantLabel } from "@/ee/messaging/thread-display";
 import { runUserAction } from "@/core/errors/report-application-error";
 
 type Props = {
@@ -52,7 +53,7 @@ export const ThreadSettings = observer(
           ? participantLabel(selfParticipant, provider, t("Inbox.senderUnknown"))
           : t("Inbox.senderUnknown"));
     const linkable = participants.filter((p) => !p.isSelf && p.identifier.trim());
-    const unlinkedCount = linkable.filter((p) => !p.record).length;
+    const unlinkedCount = linkable.filter((p) => p.records.length === 0).length;
     const showBadge = canManageContacts && unlinkedCount > 0;
     const isShared = accountShared || sharedToCrm;
 
@@ -71,7 +72,7 @@ export const ThreadSettings = observer(
                   <Avatar
                     name={participantLabel(p, provider, t("Inbox.senderUnknown"))}
                     size="sm"
-                    src={p.record?.avatarUrl ?? p.pictureUrl ?? undefined}
+                    src={participantAvatar(p) ?? undefined}
                   />
                 )}
                 renderOverflow={(count) => <Avatar fallback={`+${count}`} size="sm" />}
@@ -175,6 +176,8 @@ export const ThreadSettings = observer(
                   </div>
                 </section>
               )}
+
+              <ThreadRecords threadId={threadId} />
             </AppCardBody>
           </AppCard>
         </AppModal>

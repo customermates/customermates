@@ -129,7 +129,7 @@ export const ThreadPanel = observer(({ threadDetail, locked = false }: Props) =>
       const replyRecipients = deriveReplyRecipients(thread.participants, messages);
       const avatarByIdentifier = new Map<string, string>();
       for (const participant of thread.participants) {
-        const url = participant.record?.avatarUrl ?? participant.pictureUrl;
+        const url = participantAvatar(participant);
         if (participant.identifier && url) avatarByIdentifier.set(participant.identifier, url);
       }
 
@@ -193,3 +193,4 @@ export const ThreadPanel = observer(({ threadDetail, locked = false }: Props) =>
 
   return body;
 });
+import { participantAvatar } from "@/ee/messaging/thread-display";

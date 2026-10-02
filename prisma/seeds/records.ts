@@ -1,12 +1,8 @@
+import { readRecordModelSnapshot } from "@/features/records/record-model-snapshot";
 import { SYNTHETIC_HOSTED_AI_OPERATOR_USER_DEFINITIONS } from "./hosted-ai-operator";
 import { Prisma, type PrismaClient } from "@/generated/prisma";
 import { createCrmPreset, presetId } from "@/features/records/crm-preset";
-import {
-  RecordModelSchema,
-  type RecordModel,
-  type RecordRef,
-  type RecordScalar,
-} from "@/features/records/record-model.schema";
+import { type RecordModel, type RecordRef, type RecordScalar } from "@/features/records/record-model.schema";
 import { validateRecordModel } from "@/features/records/record-model-validation";
 import { RecordCalculationService, type CalculationRecordRepo } from "@/features/records/record-calculation.service";
 import { encodeRecordValue, recordJson } from "@/features/records/record-storage";
@@ -25,7 +21,7 @@ import { SYNTHETIC_CUSTOM_COLUMN_IDS } from "./custom-fields";
 export function syntheticRecordModel(
   context: Pick<SeedContext, "ids">,
   fields: CustomFieldSeedData,
-): { source: LegacyModel; model: RecordModel } {
+): { source: LegacyModel; model: RecordModel; presentationModel: ReturnType<typeof presentationMigrationModel> } {
   if (!fields.customColumns) throw new Error("Synthetic record fields are missing");
   const source = buildLegacyFixtureModel(
     context.ids.company,
@@ -34,9 +30,10 @@ export function syntheticRecordModel(
     fields.customColumns,
   );
   if (source.issues.length) throw new Error(`Invalid synthetic field configuration: ${JSON.stringify(source.issues)}`);
-  const model = RecordModelSchema.parse({ ...presentationMigrationModel(source), revision: 1 });
+  const presentationModel = { ...presentationMigrationModel(source), revision: 1 };
+  const model = readRecordModelSnapshot(presentationModel);
   if (validateRecordModel(model).issues.length) throw new Error("Invalid synthetic record configuration");
-  return { source, model };
+  return { source, model, presentationModel };
 }
 
 async function initialize(
@@ -52,7 +49,7 @@ async function initialize(
     const revision = await prisma.recordSchemaRevision.findUniqueOrThrow({
       where: { companyId_revision: { companyId, revision: current.revision } },
     });
-    return RecordModelSchema.parse(revision.snapshot);
+    return readRecordModelSnapshot(revision.snapshot);
   }
   for (const type of proposed.types) {
     const presetKey =
@@ -304,7 +301,7 @@ export async function calculateSyntheticRecords(prisma: PrismaClient, companyId:
       const revision = await tx.recordSchemaRevision.findUniqueOrThrow({
         where: { companyId_revision: { companyId, revision: state.revision } },
       });
-      const model = RecordModelSchema.parse(revision.snapshot);
+      const model = readRecordModelSnapshot(revision.snapshot);
       const refs: RecordRef[] = (
         await tx.crmRecord.findMany({ where: { companyId }, select: { typeId: true, id: true } })
       ).map((row) => ({ typeId: row.typeId, recordId: row.id }));

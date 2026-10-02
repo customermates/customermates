@@ -10,6 +10,7 @@ import type { DiscardDraftData } from "@/ee/messaging/outbound/discard-draft.int
 import type { StartChatData } from "@/ee/messaging/outbound/start-chat.interactor";
 import type { ResolveProviderProfileData } from "@/ee/messaging/outbound/resolve-provider-profile.interactor";
 import type { MoveEmailThreadData } from "@/ee/messaging/inbox/move-email-thread.interactor";
+import type { MutateThreadRecordsInput } from "@/ee/messaging/thread-records/thread-records.schema";
 
 import {
   getGetMessagingThreadsInteractor,
@@ -26,6 +27,8 @@ import {
   getResolveProviderProfileInteractor,
   getRefreshInboxInteractor,
   getGetUnreadThreadCountInteractor,
+  getReadThreadRecordsInteractor,
+  getMutateThreadRecordsInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 import { unwrapValidated } from "@/core/validation/validation.utils";
@@ -49,6 +52,14 @@ export async function refreshInboxAction() {
 
 export async function getIdentityRecordChoicesAction(search: string, refs?: Array<RecordRef | string>) {
   return unwrapValidated(getGetIdentityRecordChoicesInteractor().invoke({ search, ...(refs ? { refs } : {}) }));
+}
+
+export async function readThreadRecordsAction(threadId: string) {
+  return serializeResult(getReadThreadRecordsInteractor().invoke({ threadId }));
+}
+
+export async function mutateThreadRecordsAction(input: MutateThreadRecordsInput) {
+  return serializeResult(getMutateThreadRecordsInteractor().invoke(input));
 }
 
 export async function updateThreadAction(data: UpdateThreadData) {

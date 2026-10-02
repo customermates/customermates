@@ -5602,7 +5602,14 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ),
     ).toMatchObject({ ok: true, data: { schemaRevision: 2 } });
     const lookup = new GetIdentityRecordChoicesInteractor(f.repo, f.policy);
-    for (const input of [{ search: "Embedded catalog" }, { search: "", refs: [line] }]) {
+    for (const includeEmbedded of [false, true]) {
+      const result = await f.run(() =>
+        f.search.invoke(RecordSearchSchema.parse({ searchTerm: "Embedded row", includeEmbedded })),
+      );
+      if (!result.ok) throw result.error;
+      expect(result.data.results.some((record) => record.ref.recordId === line.recordId)).toBe(includeEmbedded);
+    }
+    for (const input of [{ search: "Embedded row" }, { search: "", refs: [line] }]) {
       const result = await f.run(() => lookup.invoke(input));
       expect(result).toMatchObject({
         ok: true,

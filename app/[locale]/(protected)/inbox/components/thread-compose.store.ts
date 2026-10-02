@@ -247,6 +247,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       attendeeId: value,
       identifier: value,
       displayName: null,
+      records: [],
     });
     const connectedAccountId = this.newThreadTarget?.connectedAccountId ?? detail.thread?.connectedAccountId ?? "";
     const account = this.rootStore.connectedAccountsStore.items.find((item) => item.id === connectedAccountId);
@@ -270,6 +271,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
         attendeeId: "",
         identifier: "",
         displayName: null,
+        records: [],
         isSelf: true,
       },
       recipients: {

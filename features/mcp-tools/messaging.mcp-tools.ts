@@ -50,7 +50,38 @@ import {
   getUpdateThreadInteractor,
   getMoveEmailThreadInteractor,
   getCreateAuthLinkInteractor,
+  getReadThreadRecordsInteractor,
+  getMutateThreadRecordsInteractor,
 } from "@/core/di";
+import {
+  ManageThreadRecordsSchema,
+  ThreadRecordsResultSchema,
+  ThreadRecordMutationResultSchema,
+  MutateThreadRecordsSchema,
+} from "@/ee/messaging/thread-records/thread-records.schema";
+
+export const manageConversationRecordsTool = {
+  name: "manage_conversation_records",
+  title: "Link conversation records",
+  description:
+    "Read, link or unlink records for one accessible inbox conversation. These links apply only to this thread; they never attach a sender's identifier to a record or infer links for future conversations. Read first for schemaRevision and existing links. Link/unlink require expectedRevision and an idempotencyKey; retry identical payloads with the same key. Both inbox update permission and access to update the record are required. Record timelines and activity widgets include linked messages subject to the existing inbox/account permissions. Use resolve_record_identifiers and mutate_crm_record for global channel associations instead.",
+  inputSchema: ManageThreadRecordsSchema,
+  outputSchema: z
+    .object({
+      action: z.enum(["read", "link", "unlink"]),
+      result: z.union([ThreadRecordsResultSchema, ThreadRecordMutationResultSchema]),
+    })
+    .strict(),
+  annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  execute: (input: z.infer<typeof ManageThreadRecordsSchema>) =>
+    input.action === "read"
+      ? runInteractor(getReadThreadRecordsInteractor().invoke({ threadId: input.threadId }), (result) =>
+          toonResult({ action: input.action, result }),
+        )
+      : runInteractor(getMutateThreadRecordsInteractor().invoke(MutateThreadRecordsSchema.parse(input)), (result) =>
+          toonResult({ action: input.action, result }),
+        ),
+};
 
 const GetMessagingThreadsSchema = z.object({
   threadId: z
@@ -86,7 +117,7 @@ const linkedParticipantOutput = z.looseObject({
   identifier: z.string().nullable().optional(),
   isSelf: z.boolean(),
   isLinked: z.boolean(),
-  record: RecordIdentityReferenceSchema.nullable(),
+  records: z.array(RecordIdentityReferenceSchema),
 });
 
 const GetMessagingThreadsOutputSchema = z
@@ -194,8 +225,8 @@ export const getMessagingThreadsTool = {
                 identifier: p.identifier,
                 provider: data.thread.provider,
                 isSelf: p.isSelf ?? false,
-                isLinked: p.record != null,
-                record: p.record ?? null,
+                isLinked: p.records.length > 0,
+                records: p.records,
               })),
               sharedToCrm: data.thread.sharedToCrm,
               isOwner: data.thread.isOwner,
@@ -253,8 +284,8 @@ export const getMessagingThreadsTool = {
                 identifier: p.identifier,
                 provider: thread.provider,
                 isSelf: p.isSelf ?? false,
-                isLinked: p.record != null,
-                record: p.record ?? null,
+                isLinked: p.records.length > 0,
+                records: p.records,
               })),
               sharedToCrm: thread.sharedToCrm,
               isOwner: thread.isOwner,

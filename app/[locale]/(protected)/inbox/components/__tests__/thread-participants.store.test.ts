@@ -13,7 +13,7 @@ vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 import { ThreadParticipantsStore } from "../thread-participants.store";
 
 const ref = { typeId: "10000000-0000-4000-8000-000000000001", recordId: "10000000-0000-4000-8000-000000000002" };
-const person = { ref, title: "Ada", avatarUrl: null, canEdit: true };
+const person = { ref, title: "Ada", avatarUrl: null, canEdit: true, identityId: "email" };
 const createType = { typeId: ref.typeId, label: "Person", nameFieldIds: ["first", "last"] };
 function makeStore() {
   const root = {
@@ -25,7 +25,7 @@ function makeStore() {
       thread: {
         id: "thread",
         provider: "mail",
-        participants: [{ identifier: "ada@example.test", displayName: "Ada", record: person }],
+        participants: [{ identifier: "ada@example.test", displayName: "Ada", records: [person] }],
       },
     },
   };
@@ -99,9 +99,38 @@ describe("inbox identity controls", () => {
       ok: true,
       data: { status: "completed", refs: [ref], schemaRevision: 2 },
     });
-    await store.unlink("ada@example.test");
+    await store.unlink("ada@example.test", ref);
     expect(actions.mutateRecordAction.mock.calls[0][0].mutation.identities).toEqual([
       { provider: "linkedin", value: "ada", messagingId: "opaque", displayName: undefined, profileUrl: undefined },
+    ]);
+  });
+
+  it("unlinks a retained alias by canonical identity ID after the identifier changes", async () => {
+    const { store } = makeStore();
+    actions.getRecordAction.mockResolvedValue({
+      ok: true,
+      data: {
+        schemaRevision: 2,
+        version: 9,
+        identities: [
+          { id: "email", provider: "google", value: "new-ada@example.test" },
+          { id: "other", provider: "mail", value: "team@example.test" },
+        ],
+      },
+    });
+    actions.mutateRecordAction.mockResolvedValue({
+      ok: true,
+      data: { status: "completed", refs: [ref], schemaRevision: 2 },
+    });
+    await store.unlink("ada@example.test", ref);
+    expect(actions.mutateRecordAction.mock.calls[0][0].mutation.identities).toEqual([
+      {
+        provider: "mail",
+        value: "team@example.test",
+        messagingId: undefined,
+        displayName: undefined,
+        profileUrl: undefined,
+      },
     ]);
   });
 

@@ -14,6 +14,7 @@ import { IntlLink, useRouter } from "@/i18n/navigation";
 import { observer } from "mobx-react-lite";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { Alert } from "@/components/shared/alert";
+import { runUserAction } from "@/core/errors/report-application-error";
 import { recordTypeIcon } from "@/components/records/record-type-icon";
 import { ActivityPathModal, ActivityPathModalStore } from "./activity-path-modal";
 import { DataModelStore } from "./data-model.store";
@@ -174,7 +175,7 @@ export const DataModelPageView = observer(function DataModelPageView({
     <div className="animate-page-result-in w-full max-w-3xl space-y-6 motion-reduce:animate-none">
       {store.refreshFailed && (
         <Alert color="danger" description={t("ErrorCard.title")}>
-          <Button disabled={store.isRefreshing} size="sm" variant="secondary" onClick={() => void refresh()}>
+          <Button disabled={store.isRefreshing} size="sm" variant="secondary" onClick={() => runUserAction(refresh)}>
             {t("ErrorCard.retry")}
           </Button>
         </Alert>

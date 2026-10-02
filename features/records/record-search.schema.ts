@@ -14,6 +14,7 @@ export const RecordSearchSchema = z
   .object({
     searchTerm: z.string().trim().min(1).max(200),
     typeIds: z.array(z.uuid()).min(1).max(100).optional(),
+    includeEmbedded: z.boolean().optional(),
     limit: z.number().int().min(1).max(100).default(40),
     cursor: RecordSearchCursorSchema.nullable().default(null),
   })
@@ -28,6 +29,7 @@ export const RecordSearchHitSchema = z
     typePluralLabel: z.string(),
     icon: z.string(),
     pictureUrl: z.string().nullable(),
+    canEdit: z.boolean().optional(),
   })
   .strict();
 export type RecordSearchHit = z.infer<typeof RecordSearchHitSchema>;

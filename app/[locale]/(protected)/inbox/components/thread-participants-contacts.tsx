@@ -3,7 +3,7 @@
 import type { MessagingProvider } from "@/generated/prisma";
 import type { MessagingAttendee } from "@/ee/messaging/messaging.schema";
 
-import { ChevronLeft, ExternalLink, Plus, Unlink, UserPlus } from "lucide-react";
+import { ChevronLeft, Plus, Unlink, UserPlus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
 
@@ -13,7 +13,12 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { RecordOperationProgress } from "@/components/records/record-operation-progress";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { displayableIdentifier, isAttendeeUnlinked, participantLabel } from "@/ee/messaging/thread-display";
+import {
+  displayableIdentifier,
+  isAttendeeUnlinked,
+  participantLabel,
+  participantAvatar,
+} from "@/ee/messaging/thread-display";
 import { SelectionOptionsSkeleton } from "@/components/forms/selection-loading";
 import { runUserAction } from "@/core/errors/report-application-error";
 
@@ -165,6 +170,8 @@ export const ThreadPeopleManager = observer(({ participants, provider, canManage
 
                       <div className="min-w-0 flex-1">
                         <div className="truncate text-sm">{label}</div>
+
+                        <div className="text-muted-foreground truncate text-xs">{c.typePluralLabel}</div>
                       </div>
                     </CommandItem>
                   );
@@ -180,13 +187,13 @@ export const ThreadPeopleManager = observer(({ participants, provider, canManage
   return (
     <div className="flex flex-col gap-1">
       {participants.map((p) => {
-        const matched = p.record ?? null;
+        const matches = p.records;
         const label = participantLabel(p, provider, t("Inbox.senderUnknown"));
         const subtitle = displayableIdentifier(provider, p.identifier);
-        const avatarUrl = matched?.avatarUrl ?? p.pictureUrl ?? undefined;
+        const avatarUrl = participantAvatar(p) ?? undefined;
 
         return (
-          <div key={p.identifier} className="flex items-center gap-2 py-2">
+          <div key={p.identifier} className="flex flex-col gap-2 py-2">
             <div className="flex min-w-0 flex-1 items-center gap-3">
               <Avatar
                 name={label}
@@ -205,47 +212,44 @@ export const ThreadPeopleManager = observer(({ participants, provider, canManage
               </div>
             </div>
 
-            {matched ? (
-              <div className="flex shrink-0 items-center gap-2">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      aria-label={t("Inbox.participants.openContact")}
-                      className="size-7 text-muted-foreground"
-                      size="icon-sm"
-                      type="button"
-                      variant="ghost"
-                      onClick={(event) => recordWorkspaceStore.open(matched.ref, event.currentTarget)}
-                    >
-                      <ExternalLink className="size-3.5" />
-                    </Button>
-                  </TooltipTrigger>
+            <div className="flex min-w-0 flex-col items-start gap-1 pl-11">
+              {matches.map((record) => (
+                <div key={`${record.ref.typeId}:${record.ref.recordId}`} className="flex w-full items-center gap-1">
+                  <Button
+                    aria-label={`${t("Inbox.participants.openRecord")}: ${record.title}`}
+                    className="h-7 min-w-0 flex-1 justify-start gap-1 px-2 text-xs"
+                    type="button"
+                    variant="secondary"
+                    onClick={(event) => recordWorkspaceStore.open(record.ref, event.currentTarget)}
+                  >
+                    <span className="truncate">{record.title || record.typeLabel}</span>
 
-                  <TooltipContent>{t("Inbox.participants.openContact")}</TooltipContent>
-                </Tooltip>
+                    <span className="text-muted-foreground shrink-0">· {record.typeLabel}</span>
+                  </Button>
 
-                {canManage && matched.canEdit && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        aria-label={t("Inbox.participants.unlink")}
-                        className="size-7"
-                        data-size="icon-sm"
-                        disabled={store.pending}
-                        type="button"
-                        variant="softDestructive"
-                        onClick={() => runUserAction(() => store.unlink(p.identifier))}
-                      >
-                        <Unlink className="size-3.5" />
-                      </Button>
-                    </TooltipTrigger>
+                  {canManage && record.canEdit && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          aria-label={`${t("Inbox.participants.unlinkRecord")}: ${record.title}`}
+                          className="size-7"
+                          disabled={store.pending}
+                          size="icon-sm"
+                          type="button"
+                          variant="ghost"
+                          onClick={() => runUserAction(() => store.unlink(p.identifier, record.ref))}
+                        >
+                          <Unlink className="size-3.5" />
+                        </Button>
+                      </TooltipTrigger>
 
-                    <TooltipContent>{t("Inbox.participants.unlink")}</TooltipContent>
-                  </Tooltip>
-                )}
-              </div>
-            ) : (
-              canManage && (
+                      <TooltipContent>{t("Inbox.participants.unlinkRecord")}</TooltipContent>
+                    </Tooltip>
+                  )}
+                </div>
+              ))}
+
+              {canManage && (
                 <Button
                   className="h-7 shrink-0 gap-1.5 px-2"
                   disabled={store.pending}
@@ -257,8 +261,8 @@ export const ThreadPeopleManager = observer(({ participants, provider, canManage
 
                   <span className="text-xs">{t("Inbox.participants.link")}</span>
                 </Button>
-              )
-            )}
+              )}
+            </div>
           </div>
         );
       })}

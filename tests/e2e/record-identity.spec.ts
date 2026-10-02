@@ -21,7 +21,7 @@ test("edits identity channels in the generic drawer and searches persisted chann
   await expect(dialog.getByText("person@example.test", { exact: true })).toBeVisible();
   await dialog.getByRole("button", { name: "Save", exact: true }).click();
   await expect(dialog).not.toBeVisible();
-  const stored = await database.query('SELECT id, "recordId", value FROM "RecordIdentity" WHERE "companyId"=$1', [
+  const stored = await database.query('SELECT i.id,l."recordId",i.value FROM "RecordIdentity" i JOIN "RecordIdentityLink" l ON l."companyId"=i."companyId" AND l."identityId"=i.id WHERE i."companyId"=$1', [
     companyId,
   ]);
   expect(stored.rows).toHaveLength(1);

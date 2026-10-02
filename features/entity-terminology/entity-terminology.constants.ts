@@ -5,7 +5,6 @@ import type { EntityTerminologyOverride, TerminologyForm, TerminologySelectionMa
 
 export const FILTER_FIELD_TERMINOLOGY: Record<string, { entityType: EntityType; form: TerminologyForm }> = {
   contactIds: { entityType: EntityType.contact, form: "singular" },
-  participantContactId: { entityType: EntityType.contact, form: "singular" },
   organizationIds: { entityType: EntityType.organization, form: "singular" },
   dealIds: { entityType: EntityType.deal, form: "singular" },
   serviceIds: { entityType: EntityType.service, form: "singular" },

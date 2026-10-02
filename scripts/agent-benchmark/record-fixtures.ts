@@ -1,7 +1,8 @@
+import { readRecordModelSnapshot } from "@/features/records/record-model-snapshot";
 import { randomUUID } from "node:crypto";
 import { Prisma, type PrismaClient } from "@/generated/prisma";
 import { presetId } from "@/features/records/crm-preset";
-import { RecordModelSchema, type RecordModel, type RecordScalar } from "@/features/records/record-model.schema";
+import { type RecordModel, type RecordScalar } from "@/features/records/record-model.schema";
 import { validateRecordModel } from "@/features/records/record-model-validation";
 import { RecordCalculationService } from "@/features/records/record-calculation.service";
 import { decodeRecordValue, recordJson } from "@/features/records/record-storage";
@@ -37,7 +38,8 @@ export function benchmarkRecordFixtures(prisma: Prisma.TransactionClient, compan
       const columns = rows("customColumn", companyId);
       const source = buildLegacyFixtureModel(companyId, "eur", null, columns.map((row) => ({ ...row, createdAt: row.createdAt ?? new Date(0), updatedAt: row.updatedAt ?? new Date(0) })) as unknown as Parameters<typeof buildLegacyFixtureModel>[3]);
       if (source.issues.length) throw new Error(`Benchmark schema is invalid: ${JSON.stringify(source.issues)}`);
-      const model = RecordModelSchema.parse({ ...presentationMigrationModel(source), revision: 1 });
+      const presentationModel = { ...presentationMigrationModel(source), revision: 1 };
+      const model = readRecordModelSnapshot(presentationModel);
       const validation = validateRecordModel(model); if (validation.issues.length) throw new Error(`Invalid benchmark model: ${JSON.stringify(validation.issues)}`);
       await initialize(prisma, companyId, model);
       const values = syntheticCalculationRepo(prisma, companyId);
@@ -71,12 +73,12 @@ export function benchmarkRecordFixtures(prisma: Prisma.TransactionClient, compan
         for (const kind of ["deal", "service"]) await prisma.recordLink.create({ data: { companyId, id: row.id, relationId: presetId(companyId, `lineItem.${kind}`), sourceTypeId: presetId(companyId, "lineItem"), sourceId: row.id, targetTypeId: presetId(companyId, kind), targetId: String(row[`${kind}Id`]) } });
       }
       for (const row of rows("contactIdentifier", companyId)) {
-        await prisma.recordIdentity.create({ data: { id: row.id, companyId, typeId: presetId(companyId, "contact"), recordId: String(row.contactId), provider: row.provider as Prisma.RecordIdentityCreateInput["provider"], channelClass: String(row.channelClass), value: String(row.value), displayName: row.displayName as string | null, messagingId: row.messagingId as string | null, profileUrl: row.profileUrl as string | null, keys: { create: identityKeys({ value: String(row.value), messagingId: row.messagingId as string | null }).map((value) => ({ value })) } } });
+        await prisma.recordIdentity.create({ data: { id: row.id, companyId, records: { create: { typeId: presetId(companyId, "contact"), recordId: String(row.contactId) } }, provider: row.provider as Prisma.RecordIdentityCreateInput["provider"], channelClass: String(row.channelClass), value: String(row.value), displayName: row.displayName as string | null, messagingId: row.messagingId as string | null, profileUrl: row.profileUrl as string | null, keys: { create: identityKeys({ value: String(row.value), messagingId: row.messagingId as string | null }).map((value) => ({ value })) } } });
       }
       for (const table of ["dataView", "p13n"] as const) for (const row of rows(table, companyId)) {
         const surface = String(table === "dataView" ? row.surfaceKey : row.p13nId);
         const kind = KINDS.find((kind) => SURFACE[`${kind}s` as keyof typeof SURFACE] === surface);
-        const state = kind ? migratePresentationState(source, kind, row, model, table === "p13n") : {};
+        const state = kind ? migratePresentationState(source, kind, row, presentationModel, table === "p13n") : {};
         const data = { ...row, ...state, ...(kind ? { [table === "dataView" ? "surfaceKey" : "p13nId"]: `records:${presetId(companyId, kind)}` } : {}) };
         if (table === "dataView") await prisma.dataView.create({ data: data as unknown as Prisma.DataViewUncheckedCreateInput });
         else await prisma.p13n.create({ data: data as unknown as Prisma.P13nUncheckedCreateInput });
@@ -102,17 +104,17 @@ async function initialize(prisma: Prisma.TransactionClient, companyId: string, m
   }
 }
 
-const PHYSICAL_TABLES = ["recordTypeDefinition", "recordFieldDefinition", "recordRelationshipDefinition", "recordSchemaState", "recordSchemaRevision", "recordTypeGrant", "crmRecord", "recordValue", "recordValueDependency", "recordLink", "recordAssignment", "recordIdentity", "recordIdentityKey"] as const;
+const PHYSICAL_TABLES = ["recordTypeDefinition", "recordFieldDefinition", "recordRelationshipDefinition", "recordSchemaState", "recordSchemaRevision", "recordTypeGrant", "crmRecord", "recordValue", "recordValueDependency", "recordLink", "recordAssignment", "recordIdentity", "recordIdentityKey", "recordIdentityLink", "messagingThreadRecordLink"] as const;
 const valueString = (value: RecordScalar | null) => !value ? null : value.kind === "richText" ? value.documentJson : value.kind === "range" ? `${value.start ?? ""},${value.end ?? ""}` : value.kind === "textList" ? value.value.join(",") : String(value.value);
 
 /** The old case vocabulary is a read-only projection. Raw generic state additionally protects read-only and foreign-workspace oracles. */
 export async function benchmarkRecordSnapshot(prisma: PrismaClient, companyId: string) {
   const state = await prisma.recordSchemaState.findUniqueOrThrow({ where: { companyId } });
-  const model = RecordModelSchema.parse((await prisma.recordSchemaRevision.findUniqueOrThrow({ where: { companyId_revision: { companyId, revision: state.revision } } })).snapshot);
+  const model = readRecordModelSnapshot((await prisma.recordSchemaRevision.findUniqueOrThrow({ where: { companyId_revision: { companyId, revision: state.revision } } })).snapshot);
   const records = await prisma.crmRecord.findMany({ where: { companyId }, include: { values: true }, orderBy: { id: "asc" } });
   const links = await prisma.recordLink.findMany({ where: { companyId }, orderBy: { id: "asc" } });
   const assignments = await prisma.recordAssignment.findMany({ where: { companyId } });
-  const identities = await prisma.recordIdentity.findMany({ where: { companyId }, orderBy: { id: "asc" } });
+  const identities = await prisma.recordIdentity.findMany({ where: { companyId }, include: { records: true }, orderBy: { id: "asc" } });
   const result: Record<string, unknown[]> = {};
   result["generic:model"] = [model];
   const builtin = new Set([...KINDS, "lineItem"].flatMap((kind) => ["name", "firstName", "lastName", "notes", "avatarUrl", "amount", "quantity", "pricingMode", "savedPrice", "effectivePrice", "weightedValue", "totalValue", "totalQuantity", "stage", "type"].map((field) => presetId(companyId, `${kind}.${field}`))));
@@ -144,7 +146,7 @@ export async function benchmarkRecordSnapshot(prisma: PrismaClient, companyId: s
   const typeOf = (typeId: string) => KINDS.find((kind) => presetId(companyId, kind) === typeId);
   result.customColumn = customFields.map((field) => ({ id: field.id, companyId, entityType: typeOf(field.typeId), label: field.label, type: ({ text: "plain", currency: "currency", select: "singleSelect", url: "link", email: "email", phone: "phone", dateTime: "dateTime", date: "date" } as Record<string, string>)[field.valueType] ?? field.valueType, options: field.valueType === "select" ? { options: field.options.map((option, index) => ({ value: option.id, label: option.label, color: option.color, index })) } : field.valueType === "currency" ? { currency: field.format?.currency?.toLowerCase() } : null }));
   result.customFieldValue = records.flatMap((row) => customFields.filter((field) => field.typeId === row.typeId).flatMap((field) => { const scalar = read(row, field.id); if (!scalar) return []; const entity = typeOf(row.typeId); return [{ id: `${row.typeId}:${row.id}:${field.id}`, companyId, columnId: field.id, entityType: entity, [`${entity}Id`]: row.id, value: valueString(scalar), numericValue: scalar.kind === "decimal" ? Number(scalar.value) : null }]; }));
-  result.contactIdentifier = identities.map(({ typeId: _typeId, recordId, ...row }) => ({ ...row, contactId: recordId }));
+  result.contactIdentifier = identities.flatMap(({ records: associations, ...row }) => associations.filter((link) => link.typeId === presetId(companyId, "contact")).map((link) => ({ ...row, contactId: link.recordId })));
   for (const table of PHYSICAL_TABLES) {
     const delegate = prisma[table] as unknown as { findMany(args: unknown): Promise<unknown[]> };
     result[`generic:${table}`] = (await delegate.findMany({ where: { companyId } })).toSorted((a, b) => (JSON.stringify(a) < JSON.stringify(b) ? -1 : JSON.stringify(a) > JSON.stringify(b) ? 1 : 0));

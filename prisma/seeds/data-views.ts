@@ -332,7 +332,7 @@ export async function persistSyntheticDataViewFixtures(
 }
 
 export async function seedDataViews(context: SeedContext, customFields: CustomFieldSeedData): Promise<void> {
-  const { source, model } = syntheticRecordModel(context, customFields);
+  const { source, presentationModel } = syntheticRecordModel(context, customFields);
   const kindBySurface: Record<string, LegacyType> = {
     [SURFACE.contacts]: "contact",
     [SURFACE.organizations]: "organization",
@@ -346,7 +346,7 @@ export async function seedDataViews(context: SeedContext, customFields: CustomFi
       ? {
           ...view,
           surfaceKey: `records:${presetId(context.ids.company, kind)}`,
-          state: migratePresentationState(source, kind, view.state, model, false) as DataViewState,
+          state: migratePresentationState(source, kind, view.state, presentationModel, false) as DataViewState,
         }
       : view;
   });

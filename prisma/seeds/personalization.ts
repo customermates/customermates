@@ -408,7 +408,7 @@ export async function persistSyntheticP13nFixtures(
 }
 
 export async function seedPersonalization(context: SeedContext, customFields: CustomFieldSeedData): Promise<void> {
-  const { source, model } = syntheticRecordModel(context, customFields);
+  const { source, presentationModel } = syntheticRecordModel(context, customFields);
   const kindBySurface: Record<string, LegacyType> = {
     [SURFACE.contacts]: "contact",
     [SURFACE.organizations]: "organization",
@@ -427,11 +427,11 @@ export async function seedPersonalization(context: SeedContext, customFields: Cu
     const detail = /^([a-z]+)-detail$/.exec(fixture.p13nId);
     const converted = kind
       ? {
-          ...migratePresentationState(source, kind, plain, model, true),
+          ...migratePresentationState(source, kind, plain, presentationModel, true),
           p13nId: `records:${presetId(context.ids.company, kind)}`,
         }
       : detail
-        ? migrateDetailState(source, detail[1] as LegacyType, plain, model)
+        ? migrateDetailState(source, detail[1] as LegacyType, plain, presentationModel)
         : plain;
     return Object.fromEntries(
       Object.entries(converted).map(([key, value]) => [

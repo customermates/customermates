@@ -7,7 +7,7 @@ Diese Seite dokumentiert den Managed-Cloud-Screen **Posteingang** für Menschen 
 
 ## Was ist der Posteingang, und wo finde ich seinen Link? [#what-is-the-inbox]
 
-Der Posteingang ist vereinheitlichtes Messaging in Customermates Cloud: E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Konversationen (Threads) in einer Liste, die jüngste Aktivität zuerst. Klicken Sie eine Konversation in der Liste an, um sie neben der Liste zu lesen; auf schmalen Bildschirmen wechseln sich Liste und Konversation ab. Aus einer Konversation heraus antworten Sie auf ihrem ursprünglichen Kanal, setzen ihren Status, verschieben eine E-Mail in einen anderen Ordner, teilen die Konversation mit Ihrem Team und verknüpfen ihre Teilnehmer mit Kontakten. Die Kanäle selbst verbinden Sie unter **Mein Profil › Kanäle**, siehe [App-Guide, Profil](/docs/app-profile).
+Der Posteingang ist vereinheitlichtes Messaging in Customermates Cloud: E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Konversationen (Threads) in einer Liste, die jüngste Aktivität zuerst. Klicken Sie eine Konversation in der Liste an, um sie neben der Liste zu lesen; auf schmalen Bildschirmen wechseln sich Liste und Konversation ab. Aus einer Konversation heraus antworten Sie auf ihrem ursprünglichen Kanal, setzen ihren Status, verschieben eine E-Mail in einen anderen Ordner, teilen die Konversation mit Ihrem Team und verknüpfen Teilnehmer mit Datensätzen in Listen mit aktivierter Kanal-Funktion oder nur diese Konversation mit einem Datensatz. Die Kanäle selbst verbinden Sie unter **Mein Profil › Kanäle**, siehe [App-Guide, Profil](/docs/app-profile).
 
 **Link:** der Link zur Seite **Posteingang**, `/inbox`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`; Thread-Liste, Antwortfeld, Status- und Ordner-Auswahl, Konversationseinstellungen, Suche, Filter, **Aktualisieren** und **Kanäle** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
@@ -45,7 +45,9 @@ Rollen bearbeiten Sie unter **Mein Unternehmen › Rollen**. Der Posteingang nut
 | Den Posteingang sehen und Konversationen lesen | **Inbox-Nachrichten**: **Lesen** **Alle** |
 | Antworten, Entwürfe speichern, senden oder verwerfen, eine Konversation von einem Kontakt aus starten | **Inbox-Nachrichten**: **Verwalten** **Ja** |
 | Den Status ändern, eine E-Mail verschieben, **Aktualisieren**, **Konversation neu synchronisieren**, ältere Nachrichten durch Hochscrollen laden, eine Konversation teilen | **Inbox-Nachrichten**: **Verwalten** **Ja** |
-| Einen Teilnehmer verknüpfen oder die Verknüpfung entfernen, aus ihm einen Kontakt anlegen | **Kontakte**: **Verwalten** **Ja** |
+| Einen Teilnehmerkanal verknüpfen oder lösen, einen Datensatz erstellen | Lese- und Änderungsrecht für die gewählte Liste; Erstellrecht für neue Datensätze |
+| Einen Datensatz mit dieser Konversation verknüpfen oder lösen | **Inbox-Nachrichten**: **Verwalten** **Ja**, sowie Lese- und Änderungsrecht am Datensatz |
+| Kanal-Funktion und Listen konfigurieren | Das separate Konfigurationsrecht für das Datenmodell |
 
 Ohne **Verwalten** bei **Inbox-Nachrichten** ist das Antwortfeld ausgeblendet, Status und Ordner erscheinen als schreibgeschützte Chips, und eine ungelesene Konversation bleibt beim Öffnen **Ungelesen**. Eine einzelne Konversation zu teilen setzt außerdem voraus, dass Ihnen ihr Kanal gehört.
 
@@ -56,7 +58,7 @@ Ohne **Verwalten** bei **Inbox-Nachrichten** ist das Antwortfeld ausgeblendet, S
 Die Kopfleiste über der Liste enthält diese Steuerelemente:
 
 - **Suchen...** findet Konversationen nach Betreff, Nachrichtentext, Konversationsname sowie Namen oder Adressen der Teilnehmer.
-- **Filter** (Trichter-Symbol) bietet **Status**, **Kontakt** (benannt nach Ihrer Bezeichnung für Kontakte; Konversationen mit diesem verknüpften Kontakt), **Teilnehmer** (**nicht vollständig verknüpft** findet Konversationen mit jemandem, der noch nicht mit einem Kontakt verknüpft ist), **Anbieter** (der Kanal) und **Entwurf** (**hat welche** findet Konversationen mit einem gespeicherten Entwurf).
+- **Filter** (Trichter-Symbol) bietet **Status**, **Verknüpfte Datensätze** (Auswahl eines Datensatzes aus einer Liste mit aktivierter Kanal-Funktion), **Teilnehmer** (**nicht vollständig verknüpft** findet Konversationen mit jemandem, für den kein lesbarer Datensatz gefunden wurde), **Anbieter** (der Kanal) und **Entwurf** (**hat welche** findet Konversationen mit einem gespeicherten Entwurf).
 - **Aktualisieren** holt sofort neue Nachrichten aus Ihren Kanälen und den geteilten Kanälen des Workspace (**Posteingang aktualisiert.**); bremst ein Anbieter, erscheint „Einige Kanäle haben ihr Rate-Limit erreicht. Bitte in ein paar Minuten erneut versuchen.“ Der Button erscheint nur mit **Verwalten** bei **Inbox-Nachrichten**.
 - **Kanäle** öffnet **Mein Profil › Kanäle**, mit einer Zahl, wenn Kanäle Aufmerksamkeit brauchen. Der Button erscheint nur mit **Verwalten** bei **Inbox-Nachrichten**.
 
@@ -66,11 +68,11 @@ Die Ansichtsleiste bietet **Alle** und Ihre persönlichen gespeicherten Ansichte
 
 ## Wie öffne ich eine bestimmte Konversation? [#how-do-i-open-a-specific-conversation]
 
-Klicken Sie eine Zeile in der Liste an; die Adresse wird zu `/inbox?threadId=<id>`, die Sie als Lesezeichen speichern oder an ein Teammitglied schicken können, das die Konversation sehen darf. Eine Id, die Sie nicht öffnen können, führt zurück zu `/inbox`. Bei einem Kontakt hat der Block **Kanäle** ein Symbol **Zum Posteingang**, das `/inbox?filters=participantContactId:in:<contactId>` öffnet: jede Konversation mit diesem Kontakt.
+Klicken Sie eine Zeile in der Liste an; die Adresse wird zu `/inbox?threadId=<id>`, die Sie als Lesezeichen speichern oder an ein Teammitglied schicken können, das die Konversation sehen darf. Eine Id, die Sie nicht öffnen können, führt zurück zu `/inbox`. Wählen Sie einen Datensatz im Filter **Verknüpfte Datensätze**, um seine Konversationen zu finden. Die Zuordnung nutzt seine Kanalkennungen und prüft weiterhin Ihren Zugriff auf jede Konversation.
 
 Mit **Verwalten** bei **Inbox-Nachrichten** lädt Scrollen bis zum Anfang einer Konversation ältere Nachrichten vom Anbieter, einmal pro Konversation, bis Sie die Seite neu laden; ohne diese Berechtigung wird nichts nachgeladen. **Konversation neu synchronisieren** in der Kopfleiste lädt die Konversation erneut und braucht dieselbe Berechtigung.
 
-**Link:** die Seite **Posteingang**, `/inbox`; eine einzelne Konversation ist `/inbox?threadId=<id>`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`, das den Posteingang öffnet, aber keine einzelne Konversation, deshalb öffnet Mate den Posteingang und nennt die Konversation beim Namen; die Zeilen und **Zum Posteingang** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** die Seite **Posteingang**, `/inbox`; eine einzelne Konversation ist `/inbox?threadId=<id>`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`, das den Posteingang öffnet, aber keine einzelne Konversation, deshalb öffnet Mate den Posteingang und nennt die Konversation beim Namen; Zeilen und Filter sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Was steht in der Kopfleiste einer Konversation? [#what-is-in-the-conversation-header]
 
@@ -80,7 +82,7 @@ Neben dem Namen der Konversation, von links nach rechts:
 | --- | --- | --- |
 | Symbol mit kreisförmigem Pfeil | Tooltip **Konversation neu synchronisieren** | Lädt die Konversation erneut vom Anbieter; nur mit **Verwalten** |
 | Chip mit Teilnehmer-Avataren | **Private Konversation** oder **Geteilte Konversation**, Tooltip **Sichtbarkeit und Personen verwalten** | Öffnet **Konversationseinstellungen** |
-| Personensymbol mit einer Zahl | Tooltip **Einige Teilnehmer sind nicht mit einem Kontakt verknüpft** | Öffnet **Konversationseinstellungen**; nur mit **Verwalten** bei **Kontakte** |
+| Personensymbol mit einer Zahl | Tooltip **Einige Teilnehmer haben keinen verknüpften Datensatz, den Sie lesen dürfen** | Öffnet **Konversationseinstellungen**; sichtbar, wenn Sie Datensätze in einer Liste mit aktivierter Kanal-Funktion anlegen oder bearbeiten dürfen |
 | Ordner-Chip, nur bei E-Mail | Der Ordnername oder **Kein Ordner** | Verschiebt die E-Mail in einen anderen Ordner (`#inbox-thread-folder`); nicht sichtbar bei einer Konversation, die aus dem privaten Kanal eines Teammitglieds geteilt wurde |
 | Status-Chip | **Ungelesen**, **Offen**, **Geschlossen** oder **Spam** | Setzt den Status (`#inbox-thread-state`) |
 
@@ -117,11 +119,13 @@ Um jede Konversation eines Kanals zu teilen, teilen Sie den Kanal: **Sichtbarkei
 
 **Link:** die Seite **Posteingang**, `/inbox`, und die Seite **Kanäle**, `/profile/connected-accounts`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox` oder `nav-profile-connected-accounts`; der Chip und der Schalter der Konversation sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen; hat der Besitzer den Kanal unter **Kanäle** geöffnet, hebt `connected-account-visibility` seinen Schalter **Sichtbarkeit** hervor.
 
-## Wie verknüpfe ich eine Konversation oder einen E-Mail-Thread mit einem Kontakt? [#how-do-i-link-a-participant]
+## Wie verknüpfe ich Teilnehmer und Datensätze? [#how-do-i-link-a-participant]
 
-Eine Konversation, auch ein E-Mail-Thread, verknüpft sich über ihre Teilnehmer mit einem Kontakt. Öffnen Sie **Konversationseinstellungen** über den Chip in der Kopfleiste; **Personen** listet alle Beteiligten der Konversation. Klicken Sie bei einem nicht verknüpften Teilnehmer auf **Verknüpfen**, durchsuchen Sie dann Ihre Kontakte oder wählen Sie **„…“ erstellen** mit dem eingegebenen Namen, um einen neuen Kontakt anzulegen. Das Verknüpfen fügt diese E-Mail-Adresse oder dieses Handle den Kanälen des Kontakts hinzu, sodass jede Konversation damit, nicht nur diese, auf der Timeline dieses Kontakts erscheint. Ein verknüpfter Teilnehmer bietet **Kontakt öffnen** und **Verknüpfung entfernen**; das Entfernen nimmt die Adresse wieder vom Kontakt. Teilnehmer bleiben in beiden Fällen in der Konversation sichtbar. Verknüpfen und Entfernen erfordern **Verwalten** bei **Kontakte**.
+Öffnen Sie **Thread-Einstellungen**. Unter **Personen** erscheinen alle zugänglichen Datensätze, die mit dem Kanal des Teilnehmers verbunden sind. **Verknüpfen** kann einen Datensatz jeder Liste mit aktivierter Kanal-Funktion hinzufügen. Dieselbe indizierte E-Mail-, Telefon- oder Profilkennung kann mit mehreren Datensätzen verbunden sein, etwa einem Kontakt und einer Organisation. Das Lösen entfernt nur die gewählte Verbindung. Diese Kanalverbindungen gelten auch für andere Konversationen mit derselben Kennung. Ein gewöhnliches Textfeld wird nicht automatisch für die Zuordnung verwendet.
 
-**Link:** die Seite **Posteingang**, `/inbox`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`; **Konversationseinstellungen**, **Verknüpfen** und **Verknüpfung entfernen** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+Unter **Konversationsdatensätze** verbindet **Datensatz verknüpfen** nur diese Konversation mit einem Datensatz, etwa einem Projekt oder Deal ohne Kanal-Funktion. Verlauf und Aktivitäts-Widgets können die sichtbaren Nachrichten dieser Konversation zeigen. Andere Konversationen bleiben getrennt. Verknüpfungen erweitern weder den Zugriff auf private Nachrichten noch auf geschützte Datensätze. Bei mehreren Treffern bleiben Name und Bild des Kanalteilnehmers maßgeblich.
+
+**Mate:** `resolve_record_identifiers` findet alle zugänglichen Treffer effizient. `manage_conversation_records` liest und ändert die Verknüpfungen einer Konversation. Globale Kanalverbindungen ändern sich über `mutate_crm_record` mit aktueller Konfigurations- und Datensatzversion.
 
 ## Wie antworte ich auf eine Konversation? [#how-do-i-reply-to-a-conversation]
 
@@ -164,7 +168,8 @@ Mate navigiert zu `#nav-inbox` (**Posteingang**) und hebt es hervor. Die anderen
 | Thread-Status setzen | Status-Auswahl in der Kopfleiste | `#inbox-thread-state` | **Ungelesen**, **Offen**, **Geschlossen** oder **Spam** wählen |
 | E-Mail in einen Ordner verschieben | Ordner-Auswahl in der Kopfleiste | `#inbox-thread-folder` | Nur IMAP und Outlook; legt die Konversation im echten Postfach ab; Gesendet und Entwürfe sind keine Ziele |
 | Thread mit dem Team teilen | Konversationseinstellungen | `#thread-shared` | Teilt nur diesen Thread; nur der Besitzer des Kanals, und nicht, wenn der Kanal selbst geteilt ist |
-| Teilnehmer mit Kontakt verknüpfen | Konversationseinstellungen, **Personen** | keine | **Verknüpfen** pro Teilnehmer |
+| Teilnehmerkanal verknüpfen | Konversationseinstellungen, **Personen** | keine | **Verknüpfen**; jede Verbindung separat lösen |
+| Diese Konversation mit einem Datensatz verknüpfen | **Konversationsdatensätze** | keine | **Datensatz verknüpfen** |
 
 **Link:** die Seite **Posteingang**, `/inbox`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`; die übrigen Ids dieser Tabelle sind keine Highlight-Ziele, deshalb nennt Mate die Steuerelemente beim Namen.
 

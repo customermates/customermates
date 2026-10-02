@@ -71,15 +71,16 @@ export class GetIdentityRecordChoicesInteractor extends AuthenticatedInteractor<
                         )
                         .filter((ref) => typeIds.includes(ref.typeId)),
                     }
-                  : { search: { searchTerm: input.search, typeIds, limit: 10, cursor: null } },
+                  : { search: { searchTerm: input.search, typeIds, limit: 10, cursor: null }, includeEmbedded: true },
                 model,
-                policy.access(typeIds),
+                policy.access(model.types.filter((type) => !type.archived).map((type) => type.id)),
               )
             : [];
           const createTypes = bindings.flatMap((binding) => {
             const type = model.types.find((type) => type.id === binding.typeId);
             if (
               !type ||
+              type.embedded ||
               !policy.allowed(type.id, "create") ||
               (!policy.allowed(type.id, "readAll") && !policy.allowed(type.id, "readOwn"))
             )

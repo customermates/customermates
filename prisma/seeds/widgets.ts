@@ -230,7 +230,7 @@ export async function seedWidgets(context: SeedContext, customFields: CustomFiel
     };
   });
 
-  const { source, model } = syntheticRecordModel(context, customFields);
+  const { source, presentationModel } = syntheticRecordModel(context, customFields);
   const allWidgets = [...chartWidgets, ...activityWidgets].map((widget) => ({
     id: widget.id,
     companyId: widget.companyId,
@@ -241,7 +241,7 @@ export async function seedWidgets(context: SeedContext, customFields: CustomFiel
     isTemplate: widget.isTemplate,
     layout: widget.layout,
     ...(widget.kind === "chart"
-      ? { measure: migrateChartMeasure(source, widget, model) as Prisma.InputJsonValue }
+      ? { measure: migrateChartMeasure(source, widget, presentationModel) as Prisma.InputJsonValue }
       : { activityQuery: migrateActivityQuery(context.ids.company, widget.timelineFilters) as Prisma.InputJsonValue }),
   }));
 

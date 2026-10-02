@@ -185,11 +185,11 @@ test("edits a linear calculation and restores archived fields, activity connecti
   await openRecordList(page, typeId);
   await page.locator("#records-add").click();
   await dialog.getByRole("textbox", { name, exact: false }).fill("Pilot research");
-  await dialog.getByRole("textbox", { name: "Budget", exact: false }).fill("12.5");
+  await dialog.getByRole("textbox", { name: "Budget", exact: true }).fill("12.5");
   await dialog.getByRole("button", { name: "Save", exact: true }).click();
   await expect(dialog).not.toBeVisible();
   const calculated = await database.query(
-    'SELECT state,"decimalValue"::text AS value FROM "RecordValue" WHERE "companyId"=$1 AND "typeId"=$2 AND "fieldId"=$3',
+    'SELECT state,trim_scale("decimalValue")::text AS value FROM "RecordValue" WHERE "companyId"=$1 AND "typeId"=$2 AND "fieldId"=$3',
     [companyId, typeId, doubled?.id],
   );
   expect(calculated.rows).toEqual([{ state: "value", value: "25" }]);

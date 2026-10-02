@@ -42,6 +42,7 @@ const DRAFT_REVISION = "2026-09-04T10:00:00.000Z";
 
 function attendee(identifier: string) {
   return {
+    records: [],
     attendeeId: identifier,
     displayName: null,
     identifier,

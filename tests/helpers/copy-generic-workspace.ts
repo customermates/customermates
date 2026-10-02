@@ -1,7 +1,7 @@
 import type { ClientBase } from "pg";
 import { LEGACY_CRM_TABLES } from "@/prisma/record-migrations/v8/tables";
 
-const TABLES = ["Company", "UserRole", "RolePermission", "User", "AuthUser", "Subscription", "RecordSchemaState", "RecordTypeDefinition", "RecordFieldDefinition", "RecordRelationshipDefinition", "RecordSchemaRevision", "CrmRecord", "RecordIdentity", "RecordIdentityKey", "RecordValue", "RecordValueDependency", "RecordLink", "RecordAssignment", "RecordTypeGrant", "RecordMigrationCheckpoint", "P13n", "DataView", "Widget", "Routine", "RecordEventSubscription"];
+const TABLES = ["Company", "UserRole", "RolePermission", "User", "AuthUser", "Subscription", "RecordSchemaState", "RecordTypeDefinition", "RecordFieldDefinition", "RecordRelationshipDefinition", "RecordSchemaRevision", "CrmRecord", "RecordIdentity", "RecordIdentityKey", "RecordIdentityLink", "RecordValue", "RecordValueDependency", "RecordLink", "RecordAssignment", "RecordTypeGrant", "RecordMigrationCheckpoint", "P13n", "DataView", "Widget", "Routine", "RecordEventSubscription"];
 
 /** Browser upgrade fixtures are copied only after real SQL contraction; both endpoints are disposable loopback databases. */
 export async function copyGenericWorkspace(source: ClientBase, destination: ClientBase, companyId: string) {

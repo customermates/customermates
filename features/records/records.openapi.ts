@@ -6,6 +6,16 @@ import {
   RoleApiMutationResultSchema,
 } from "@/features/role/role-management.schema";
 import { RecordSearchSchema, RecordSearchResultSchema } from "./record-search.schema";
+import {
+  ReadThreadRecordsSchema,
+  MutateThreadRecordsSchema,
+  ThreadRecordsResultSchema,
+  ThreadRecordMutationResultSchema,
+} from "@/ee/messaging/thread-records/thread-records.schema";
+import {
+  ResolveRecordIdentitiesSchema,
+  ResolveRecordIdentitiesResultSchema,
+} from "./resolve-record-identities.interactor";
 import { ExportRecordsSchema } from "@/features/data-transfer/export/export-records.interactor";
 import {
   ImportRecordsSchema,
@@ -67,6 +77,30 @@ function operation(
 }
 
 export const recordApiPaths = {
+  "/v2/messaging/record-links/read": {
+    post: operation(
+      "readConversationRecords",
+      "Read accessible conversation records",
+      ReadThreadRecordsSchema,
+      ThreadRecordsResultSchema,
+    ),
+  },
+  "/v2/messaging/record-links/mutate": {
+    post: operation(
+      "mutateConversationRecords",
+      "Link or unlink one conversation record",
+      MutateThreadRecordsSchema,
+      ThreadRecordMutationResultSchema,
+    ),
+  },
+  "/v2/records/identities/resolve": {
+    post: operation(
+      "resolveRecordIdentifiers",
+      "Resolve exact channel identifiers to every accessible linked record",
+      ResolveRecordIdentitiesSchema,
+      ResolveRecordIdentitiesResultSchema,
+    ),
+  },
   "/v2/roles/read": {
     post: operation(
       "readRoleConfiguration",

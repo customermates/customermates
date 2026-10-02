@@ -29,7 +29,7 @@ export async function historicalRecordFixtureRows(
     where: { companyId },
     include: {
       values: true,
-      identities: true,
+      identities: { include: { identity: true } },
       assignments: {
         include: { user: { select: { id: true, firstName: true, lastName: true, avatarUrl: true, email: true } } },
       },
@@ -134,14 +134,16 @@ export async function historicalRecordFixtureRows(
         totalValue: number(row, "deal.totalValue"),
         totalQuantity: number(row, "deal.totalQuantity"),
         weightedValue: scalar(row, "deal.weightedValue") ? number(row, "deal.weightedValue") : null,
-        identifiers: row.identities.map(({ id, provider, value, messagingId, displayName, profileUrl }) => ({
-          id,
-          provider,
-          value,
-          messagingId,
-          displayName,
-          profileUrl,
-        })),
+        identifiers: row.identities.map(
+          ({ identity: { id, provider, value, messagingId, displayName, profileUrl } }) => ({
+            id,
+            provider,
+            value,
+            messagingId,
+            displayName,
+            profileUrl,
+          }),
+        ),
         users: row.assignments.map(({ user }) => ({ user })),
         contacts: related(row, "contact").map((contact) => ({ contact })),
         organizations: related(row, "organization").map((organization) => ({ organization })),

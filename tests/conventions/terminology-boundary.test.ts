@@ -48,7 +48,6 @@ const ENTITY_REFERENCE_FILTER_FIELDS = [
   "dealIds",
   "serviceIds",
   "taskIds",
-  "participantContactId",
 ];
 
 function toRepoPath(path: string) {

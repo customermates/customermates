@@ -16,7 +16,7 @@ import { RecordSearchSchema } from "./record-search.schema";
 import { CalculatedValueSchema } from "./record-model.schema";
 import { recordWriteFailure } from "./mutate-record.interactor";
 
-export function recordSearchHit(row: RecordSearchRow, model: RecordModel): RecordSearchHit {
+export function recordSearchHit(row: RecordSearchRow, model: RecordModel, canEdit = false): RecordSearchHit {
   const type = recordInvariant(model.types.find((type) => type.id === row.typeId));
   return {
     ref: { typeId: row.typeId, recordId: row.recordId },
@@ -32,6 +32,7 @@ export function recordSearchHit(row: RecordSearchRow, model: RecordModel): Recor
     typePluralLabel: type.pluralLabel,
     icon: type.icon,
     pictureUrl: row.pictureUrl,
+    canEdit: canEdit && !row.protectedKind,
   };
 }
 
@@ -55,7 +56,7 @@ export class SearchRecordsInteractor extends AuthenticatedInteractor<RecordSearc
           return failConflict(CustomErrorCode.recordSchemaChanged);
         try {
           const rows = await this.records.searchRecords(
-            { search: input },
+            { search: input, includeEmbedded: input.includeEmbedded === true },
             model,
             policy.access(model.types.filter((type) => !type.archived).map((type) => type.id)),
           );
@@ -64,7 +65,7 @@ export class SearchRecordsInteractor extends AuthenticatedInteractor<RecordSearc
           return {
             ok: true,
             data: {
-              results: selected.map((row) => recordSearchHit(row, model)),
+              results: selected.map((row) => recordSearchHit(row, model, policy.allowed(row.typeId, "update"))),
               schemaRevision: model.revision,
               nextCursor:
                 rows.length > input.limit && last

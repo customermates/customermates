@@ -1054,6 +1054,22 @@ export const getGetMessagingThreadsApiInteractor = () =>
     getEntitlementService(),
   );
 
+export const getReadThreadRecordsInteractor = () =>
+  new ReadThreadRecordsInteractor(
+    new PrismaThreadRecordsRepo(),
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getEntitlementService(),
+  );
+
+export const getMutateThreadRecordsInteractor = () =>
+  new MutateThreadRecordsInteractor(
+    new PrismaThreadRecordsRepo(),
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getEntitlementService(),
+  );
+
 export const getGetMessagingThreadInteractor = () =>
   new GetMessagingThreadInteractor(getMessagingRepo(), getConnectedAccountRepo(), getEntitlementService());
 
@@ -1472,3 +1488,8 @@ export const getManageDataViewsInteractor = () =>
     getRecordViewPolicy(),
     getResetDataViewStateInteractor(),
   );
+import {
+  ReadThreadRecordsInteractor,
+  MutateThreadRecordsInteractor,
+} from "@/ee/messaging/thread-records/thread-records.interactor";
+import { PrismaThreadRecordsRepo } from "@/ee/messaging/thread-records/prisma-thread-records.repository";

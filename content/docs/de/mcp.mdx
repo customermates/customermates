@@ -106,7 +106,7 @@ Der MCP-Server kann Schemata finden, Datensätze abfragen und ändern, Felder un
 **Read-only** bedeutet, dass ein Tool nicht schreibt. **Kann Daten löschen** kennzeichnet Tools mit destruktiven Aktionen; nicht jede Aktion dieses Tools löscht Daten. Eine Konfigurationsvorschau schreibt beispielsweise nichts. Nachrichten, Einladungen und Supportanfragen versenden, E-Mails verschieben oder Anbieterdaten ändern kann auch ohne destruktives Flag reale Auswirkungen haben. Die Client-Freigabe muss zur konkreten Aktion passen. Das Backend prüft Berechtigungen und Eingaben; ein externer MCP-Aufruf öffnet jedoch keinen Freigabedialog des integrierten Assistenten.
 
 {/* mcp-catalog:flags */}
-**Nur lesend:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
+**Nur lesend:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
 
 **Kann Daten löschen:** `mutate_crm_record`, `manage_data_views`, `discard_message_draft`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_webhooks`, `manage_roles`
 {/* /mcp-catalog */}
@@ -119,7 +119,7 @@ Die [[derived.mcp.tools.groups.records]] Datensatz-Tools bedienen die fünf Star
 
 Jede Datensatzreferenz enthält `typeId` und `recordId`. Abfrage, Suche und Aggregation sind getrennt: `query_crm_records` liest einen Typ seitenweise, `search_crm_records` findet zugängliche Datensätze, `query_crm_measure` berechnet Summen über alle Treffer. Eine Seite ist keine vollständige Gesamtsumme. Mehrdeutige Suchtreffer vor einer Änderung klären.
 
-`read_crm_record` liefert aktuelle Datensatz- und Schemaversionen. Eingabefelder über typisierte Zuweisungen in `mutate_crm_record` ändern; für Beziehungen dessen link/unlink-Aktionen verwenden. Identitätskanäle gehören zu geschützten Personenbindungen. Ein normales E-Mail-Feld wird dadurch nicht zum Identitätsschlüssel. Ein übergebenes `identities`-Array ersetzt die Kanalliste; ohne dieses Feld bleibt sie erhalten.
+`read_crm_record` liefert aktuelle Datensatz- und Schemaversionen. Eingabefelder über typisierte Zuweisungen in `mutate_crm_record` ändern; für Beziehungen dessen link/unlink-Aktionen verwenden. Kanäle können für jeden konfigurierten Typ aktiviert werden. Sie verwenden indexierte Identitätsverknüpfungen; ein normales E-Mail-Feld wird nicht zum Identitätsschlüssel. Ein übergebenes `identities`-Array ersetzt die Kanalliste; ohne dieses Feld bleibt sie erhalten.
 
 {/* mcp-catalog:records */}
 #### `discover_record_types`
@@ -142,13 +142,19 @@ Datensätze eines konfigurierten Typs in PostgreSQL filtern, sortieren und seite
 
 #### `search_crm_records`
 
-Zugängliche konfigurierte Typen durchsuchen, einschließlich selbst angelegter Typen. Ergebnisse enthalten typeId und recordId. Für die nächste Seite nextCursor mit unverändertem searchTerm und typeIds übergeben. Mehrdeutige Treffer vor Änderungen klären.
+Zugängliche konfigurierte Typen durchsuchen, einschließlich selbst angelegter Typen. includeEmbedded durchsucht auch eingebettete Datensätze wie Positionen. Ergebnisse enthalten typeId und recordId. Für die nächste Seite nextCursor mit unverändertem searchTerm, typeIds und includeEmbedded übergeben. Mehrdeutige Treffer vor Änderungen klären.
 
-**Nur lesend.** Pflicht: `searchTerm`. Optional: `typeIds`, `limit`, `cursor`.
+**Nur lesend.** Pflicht: `searchTerm`. Optional: `typeIds`, `includeEmbedded`, `limit`, `cursor`.
+
+#### `resolve_record_identifiers`
+
+Exakte E-Mail-, Telefon- oder unterstützte Profilkennungen über das indizierte Kanalregister auflösen. Jede Eingabe liefert alle zugänglichen verknüpften Datensätze mit Typbezeichnung. typeIds begrenzt die Listen. Ein leeres records-Array bedeutet keinen zugänglichen Treffer; Mehrdeutigkeit vor Änderungen klären.
+
+**Nur lesend.** Pflicht: `identifiers`. Optional: `typeIds`.
 
 #### `read_crm_record`
 
-Einen Datensatz über typeId und recordId lesen, einschließlich typisierter Werte, Notizen, Beziehungsübersichten und aktueller Datensatz- und Konfigurationsversionen. Identitätskanäle erscheinen nur bei Typen mit geschützter Personenbindung.
+Einen Datensatz über typeId und recordId lesen, einschließlich typisierter Werte, Notizen, Beziehungsübersichten und aktueller Datensatz- und Konfigurationsversionen. Kanäle erscheinen bei Typen mit aktivierter Kanal-Funktion. Mehrere Datensätze können dieselbe indizierte Kennung teilen.
 
 **Nur lesend.** Pflicht: `typeId`, `recordId`.
 
@@ -269,6 +275,12 @@ Pflicht: `threadId`, `state`.
 Eine E-Mail-Konversation beim Anbieter in einen anderen Postfachordner verschieben.
 
 Pflicht: `threadId`, `folderId`.
+
+#### `manage_conversation_records`
+
+Datensätze einer zugänglichen Inbox-Konversation lesen, verknüpfen oder lösen. Die Verknüpfung gilt nur für diesen Thread, nicht für andere Konversationen oder globale Kanalkennungen. Verknüpfen und Lösen erfordern expectedRevision, idempotencyKey, Inbox-Verwaltung und Änderungsrecht am Datensatz.
+
+Pflicht: `action`, `threadId`. Optional: `ref`, `expectedRevision`, `idempotencyKey`.
 
 #### `connect_messaging_account`
 

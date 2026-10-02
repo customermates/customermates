@@ -284,7 +284,8 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
         .map((field) => ({ fieldId: field.id, value: this.scalar(field) }));
       const identities =
         this.presentation.model.capabilities.some(
-          (binding) => binding.kind === "personIdentity" && binding.typeId === this.presentation.typeId,
+          (binding) =>
+            binding.kind === "channels" && binding.enabled !== false && binding.typeId === this.presentation.typeId,
         ) &&
         (!this.record || JSON.stringify(this.form.identities) !== JSON.stringify(this.savedState.identities))
           ? { identities: toJS(this.form.identities) }

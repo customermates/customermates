@@ -246,7 +246,7 @@ describe("inbox reconciliation", () => {
       messages: [],
       thread: {
         ...detail().thread,
-        participants: [{ identifier: "sender", record: null }],
+        participants: [{ identifier: "sender", records: [] }],
       },
     } as unknown as ThreadDetail;
     store.hydrate(before);
@@ -256,13 +256,15 @@ describe("inbox reconciliation", () => {
     const record = {
       ref: { typeId: "contact-type", recordId: "contact" },
       title: "Test Contact",
+      typeLabel: "Contact",
+      typePluralLabel: "Contacts",
       avatarUrl: null,
       canEdit: true,
     };
-    await store.applyParticipantRecord("thread", "sender", record);
+    await store.applyParticipantRecord("thread", "sender", [record]);
     pending.resolve(before);
     await refresh;
-    expect(store.thread?.participants[0].record).toEqual(record);
+    expect(store.thread?.participants[0].records).toEqual([record]);
   });
   it("uses the authoritative list mutation when marking a thread read", async () => {
     const { store } = setup();

@@ -7,7 +7,7 @@ This page documents the managed-cloud **Inbox** screen for humans and for author
 
 ## What is the Inbox, and where is its link? [#what-is-the-inbox]
 
-The Inbox is unified messaging on Customermates Cloud: email, LinkedIn, WhatsApp, Instagram and Telegram conversations (threads) in one list, the most recent activity first. Click a conversation in the list to read it next to the list; on narrow screens the list and the conversation take turns. From a conversation you reply on its original channel, set its state, move an email to another folder, share the conversation with your team and link its participants to contacts. The channels themselves are connected under **My Profile › Channels**, see [App guide, Profile](/docs/app-profile).
+The Inbox is unified messaging on Customermates Cloud: email, LinkedIn, WhatsApp, Instagram and Telegram conversations (threads) in one list, the most recent activity first. Click a conversation in the list to read it next to the list; on narrow screens the list and the conversation take turns. From a conversation you reply on its original channel, set its state, move an email to another folder, share the conversation with your team and link participants to records across channel-enabled lists, or link this conversation to a record. The channels themselves are connected under **My Profile › Channels**, see [App guide, Profile](/docs/app-profile).
 
 **Link:** the link to the **Inbox** page, `/inbox`. **Mate:** `navigate` and `highlight_element` with `nav-inbox`; the thread list, reply box, state and folder selects, thread settings, search, filters, **Refresh** and **Channels** are not highlight targets, so Mate names them.
 
@@ -45,7 +45,9 @@ Roles are edited under **My Company › Roles**. The Inbox uses the **Inbox mess
 | See the Inbox and read conversations | **Inbox messages**: **Read access** **All** |
 | Reply, save, send or discard drafts, start a conversation from a contact | **Inbox messages**: **Manage** **Yes** |
 | Change the state, move an email, **Refresh**, **Resync thread**, load older messages by scrolling up, share a conversation | **Inbox messages**: **Manage** **Yes** |
-| Link or unlink a participant, create a contact from one | **Contacts**: **Manage** **Yes** |
+| Link or unlink a participant’s channel, create a record from one | Read and **Edit** access to the selected record; **Create** for a new record |
+| Link or unlink a record for this conversation | **Inbox messages**: **Manage** **Yes**, plus read and update access to that record |
+| Enable Channels or configure lists | The separate **Data model** configuration permission |
 
 Without **Manage** on **Inbox messages** the reply box is hidden, state and folder show as read-only chips, and opening an unread conversation leaves it **Unread**. Sharing a single conversation also requires that you own its channel.
 
@@ -56,7 +58,7 @@ Without **Manage** on **Inbox messages** the reply box is hidden, state and fold
 The top bar above the list holds these controls:
 
 - **Search...** finds conversations by subject, message text, conversation name, and participant names or addresses.
-- **Filters** (funnel icon) offers **State**, **Contact** (named after your term for contacts; conversations with that linked contact), **Participants** (**not fully linked** finds conversations with someone not linked to a contact yet), **Provider** (the channel) and **Draft** (**has some** finds conversations with a saved draft).
+- **Filters** (funnel icon) offers **State**, **Linked records** (select a record from a channel-enabled list), **Participants** (**not fully linked** finds conversations with someone who has no matching record you can read), **Provider** (the channel) and **Draft** (**has some** finds conversations with a saved draft).
 - **Refresh** pulls new messages from your channels and the workspace's shared channels right away (**Inbox refreshed.**); when a provider pushes back it says "Some channels hit their rate limit. Try again in a few minutes." It appears only with **Manage** on **Inbox messages**.
 - **Channels** opens **My Profile › Channels**, with a number when channels need attention. It appears only with **Manage** on **Inbox messages**.
 
@@ -66,11 +68,11 @@ The views rail offers **All** and your personal saved views. The list shows 25 c
 
 ## How do I open a specific conversation?
 
-Click a row in the list; the address becomes `/inbox?threadId=<id>`, which you can bookmark or send to a teammate who can see the conversation. An id you cannot open brings you back to `/inbox`. On a contact, the **Channels** block has a **Go to inbox** icon that opens `/inbox?filters=participantContactId:in:<contactId>`: every conversation with that contact.
+Click a row in the list; the address becomes `/inbox?threadId=<id>`, which you can bookmark or send to a teammate who can see the conversation. An id you cannot open brings you back to `/inbox`. To find conversations for a record, select it in the **Linked records** filter. Matching uses its Channels identifiers and still checks your access to each conversation.
 
 With **Manage** on **Inbox messages**, scrolling to the top of a conversation fetches older messages from the provider, once per conversation until you reload the page; without it nothing more loads. **Resync thread** in the header fetches the conversation again and needs the same permission.
 
-**Link:** the **Inbox** page, `/inbox`; one conversation is `/inbox?threadId=<id>`. **Mate:** `navigate` and `highlight_element` with `nav-inbox`, which opens the Inbox but not a single conversation, so Mate opens the Inbox and names the conversation; the rows and **Go to inbox** are not highlight targets, so Mate names them.
+**Link:** the **Inbox** page, `/inbox`; one conversation is `/inbox?threadId=<id>`. **Mate:** `navigate` and `highlight_element` with `nav-inbox`, which opens the Inbox but not a single conversation, so Mate opens the Inbox and names the conversation; rows and filters are not highlight targets, so Mate names them.
 
 ## What is in the conversation header?
 
@@ -80,7 +82,7 @@ Next to the conversation's name, left to right:
 | --- | --- | --- |
 | Circular arrow icon | Tooltip **Resync thread** | Fetches the conversation again from the provider; only with **Manage** |
 | Chip with participant avatars | **Private Thread** or **Shared Thread**, tooltip **Manage visibility and people** | Opens **Thread settings** |
-| Person icon with a number | Tooltip **Some participants not linked to a contact** | Opens **Thread settings**; only with **Manage** on **Contacts** |
+| Person icon with a number | Tooltip **Some participants have no linked record you can read** | Opens **Thread settings**; shown when you can create or edit records in a channel-enabled list |
 | Folder chip, email only | The folder name or **No folder** | Moves the email to another folder (`#inbox-thread-folder`); not shown for a conversation shared from a teammate's private channel |
 | State chip | **Unread**, **Open**, **Closed** or **Spam** | Sets the state (`#inbox-thread-state`) |
 
@@ -117,11 +119,13 @@ To share every conversation of a channel, share the channel: **Visibility** on i
 
 **Link:** the **Inbox** page, `/inbox`, and the **Channels** page, `/profile/connected-accounts`. **Mate:** `navigate` and `highlight_element` with `nav-inbox` or `nav-profile-connected-accounts`; the chip and the per-conversation switch are not highlight targets, so Mate names them; once the owner has opened the channel on **Channels**, `connected-account-visibility` highlights its **Visibility** switch.
 
-## How do I link a conversation or email thread to a contact? [#how-do-i-link-a-participant]
+## How do I link participants and records? [#how-do-i-link-a-participant]
 
-A conversation, an email thread included, links to a contact through its participants. Open **Thread settings** from the header chip; **People** lists everyone in the conversation. For an unlinked participant, click **Link**, then search your contacts or choose **Create "…"** with the typed name to add a new contact. Linking adds that email address or handle to the contact's channels, so every conversation with it, not only this one, appears on that contact's timeline. A linked participant offers **Open contact** and **Unlink contact**; unlinking removes the address from the contact again. Participants stay visible in the conversation either way. Linking and unlinking need **Manage** on **Contacts**.
+Open **Thread settings**. Under **People**, each participant shows every accessible record associated with their channel. **Link** can add a record from any list with **Channels** enabled. The same indexed email, phone number or supported profile identifier can belong to several records, including a contact and an organization. **Unlink record** removes only the selected association. These channel associations resolve other conversations using the same identifier; an ordinary text field does not participate in matching.
 
-**Link:** the **Inbox** page, `/inbox`. **Mate:** `navigate` and `highlight_element` with `nav-inbox`; **Thread settings**, **Link** and **Unlink contact** are not highlight targets, so Mate names them.
+Under **Conversation records**, **Link record** connects only this conversation to a record, including a project or deal without Channels enabled. Its history and activity widgets can then show the conversation’s visible messages. Other conversations from the participant stay separate. Linking does not grant access to private messages or restricted records. Provider names and pictures remain the participant’s presentation when several records match.
+
+**Mate:** `resolve_record_identifiers` finds all accessible matches efficiently. `manage_conversation_records` reads and changes the one-conversation links. Global channel associations use `mutate_crm_record` with the selected record’s latest revision and version.
 
 ## How do I reply to a conversation?
 
@@ -164,7 +168,8 @@ Mate navigates to and highlights `#nav-inbox`. The other ids are DOM ids for ext
 | Set thread state | Thread header state select | `#inbox-thread-state` | Choose **Unread**, **Open**, **Closed** or **Spam** |
 | Move email to a folder | Thread header folder select | `#inbox-thread-folder` | IMAP and Outlook only; files the conversation in the real mailbox; Sent and Drafts are not targets |
 | Share thread with the team | Thread settings | `#thread-shared` | Shares this one thread; only the channel owner, and not when the channel itself is shared |
-| Link participant to contact | Thread settings, **People** | none | **Link** per participant |
+| Link a participant’s channel | Thread settings, **People** | none | **Link** per participant; each record can be unlinked separately |
+| Link this conversation to a record | Thread settings, **Conversation records** | none | **Link record** |
 
 **Link:** the **Inbox** page, `/inbox`. **Mate:** `navigate` and `highlight_element` with `nav-inbox`; the other ids in this table are not highlight targets, so Mate names the controls.
 

@@ -338,7 +338,7 @@ export class RecordConfigurationService extends UserAccessor {
           const self = model.activityPaths.find((path) => path.id === selfId);
           const type = model.types.find((type) => type.id === binding.typeId);
           if (self) self.includeMessages = true;
-          else if (type)
+          else if (type) {
             model.activityPaths.push({
               id: selfId,
               typeId: type.id,
@@ -348,6 +348,7 @@ export class RecordConfigurationService extends UserAccessor {
               includeAudit: true,
               archived: false,
             });
+          }
         }
       }
       if (operation.operation === "putActivityPath")
@@ -482,11 +483,12 @@ export class RecordConfigurationService extends UserAccessor {
     for (;;) {
       const widgets = await this.records.getWidgetMeasuresCompanyWide(widgetCursor);
       for (const widget of widgets) {
-        if (!recordMeasureIsValid(widget.measure, model))
+        if (!recordMeasureIsValid(widget.measure, model)) {
           validation.issues.push({
             code: "widget_incompatible",
             typeId: widget.measure.source.typeId,
           });
+        }
       }
       const last = widgets.at(-1);
       if (!last || widgets.length < 200) break;
@@ -514,11 +516,12 @@ export class RecordConfigurationService extends UserAccessor {
     for (;;) {
       const subscriptions = await this.records.getEventSubscriptionsCompanyWide(subscriptionCursor);
       for (const subscription of subscriptions) {
-        if (!recordEventSubscriptionIsValid(subscription, model))
+        if (!recordEventSubscriptionIsValid(subscription, model)) {
           validation.issues.push({
             code: "event_subscription_incompatible",
             typeId: subscription.typeId ?? undefined,
           });
+        }
       }
       const last = subscriptions.at(-1);
       if (!last || subscriptions.length < 200) break;

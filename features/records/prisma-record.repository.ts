@@ -235,7 +235,7 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
         });
       }
     }
-    if (ids.length)
+    if (ids.length) {
       await this.prisma.recordIdentityLink.createMany({
         data: ids.map((identityId) => ({
           companyId: this.companyId,
@@ -244,6 +244,7 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
         })),
         skipDuplicates: true,
       });
+    }
   }
 
   async setIdentityResolutionCompanyWide(
@@ -660,7 +661,7 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
   }
 
   async searchRecords(
-    request: { search: RecordSearch } | { refs: RecordRef[] },
+    request: { search: RecordSearch; includeEmbedded?: boolean } | { refs: RecordRef[] },
     model: RecordModel,
     access: RecordAccessMap,
   ): Promise<RecordSearchRow[]> {
