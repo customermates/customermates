@@ -9,6 +9,7 @@ import { createCrmPreset, presetId } from "@/features/records/crm-preset";
 
 const mocks = vi.hoisted(() => ({
   mutateRecordAction: vi.fn(),
+  getRecordPresentationAction: vi.fn(),
   invalidate: vi.fn(),
 }));
 vi.mock("../../../actions", () => mocks);
@@ -21,6 +22,7 @@ const id = (key: string) => presetId(companyId, key);
 const model = createCrmPreset(companyId, "EUR");
 const root = {
   recordWorkspaceStore: { invalidate: mocks.invalidate },
+  localeStore: { getTranslation: (key: string) => key },
 } as unknown as RootStore;
 const presentation = {
   model,
@@ -64,6 +66,9 @@ const params = {
 };
 function store() {
   const store = new RecordsStore(root, presentation);
+  store.setItems(presentation.result);
+  mocks.getRecordPresentationAction.mockResolvedValue({ ...presentation, result: { items: [] } });
+  mocks.invalidate.mockImplementation(() => store.refresh());
   store.groupingResult = {
     grouping: { field: id("deal.stage") },
     kind: "customSingleSelect",
@@ -174,6 +179,136 @@ describe("generic selection persistence", () => {
     expect(mocks.mutateRecordAction.mock.calls[0][0]).toEqual(mocks.mutateRecordAction.mock.calls[1][0]);
     expect(state.selectedCount).toBe(0);
     expect(mocks.invalidate).toHaveBeenCalledOnce();
+  });
+
+  it("keeps selection disabled until a completed bulk update has refreshed record versions", async () => {
+    const state = store();
+    state.items = [item];
+    state.toggleItemSelection(item.id);
+    const refresh = Promise.withResolvers<RecordPresentationResult>();
+    mocks.getRecordPresentationAction.mockReturnValue(refresh.promise);
+    mocks.mutateRecordAction.mockResolvedValue({
+      ok: true,
+      data: { status: "completed", refs: [item.ref], schemaRevision: 1 },
+    });
+    const saving = state.bulkUpdateField(id("deal.stage"), {
+      kind: "select",
+      value: id("deal.stage.new"),
+    });
+    await vi.waitFor(() => expect(mocks.invalidate).toHaveBeenCalledOnce());
+    expect(state.isBulkMutating).toBe(true);
+    expect(state.isItemSelectable(item)).toBe(false);
+    expect(state.selectedCount).toBe(1);
+    expect(state.selectionTargets).toEqual([{ ref: item.ref, expectedVersion: 3 }]);
+    refresh.resolve({ ...presentation, result: { items: [{ ...item, version: 4 }] } });
+    await saving;
+    expect(state.isBulkMutating).toBe(false);
+    expect(state.selectedCount).toBe(0);
+    state.toggleItemSelection(item.id);
+    expect(state.selectionTargets).toEqual([{ ref: item.ref, expectedVersion: 4 }]);
+  });
+
+  it("keeps completed writes locked through refresh failures and accepts a retry without repeating the mutation", async () => {
+    const state = store();
+    state.items = [item];
+    state.toggleItemSelection(item.id);
+    mocks.mutateRecordAction.mockResolvedValue({ ok: true, data: { status: "completed", refs: [item.ref] } });
+    mocks.getRecordPresentationAction.mockRejectedValue(new Error("Refresh unavailable"));
+    mocks.invalidate.mockImplementation(() => Promise.allSettled([state.refresh()]));
+    await expect(state.bulkUpdateField(id("deal.stage"), null)).rejects.toThrow("Refresh unavailable");
+    expect(state.isBulkMutating).toBe(true);
+    expect(state.canRetryBulkRefresh).toBe(true);
+    expect(state.isItemSelectable(item)).toBe(false);
+    expect(state.selectedCount).toBe(1);
+    await state.bulkUpdateField(id("deal.stage"), null);
+    expect(mocks.mutateRecordAction).toHaveBeenCalledOnce();
+    mocks.getRecordPresentationAction.mockResolvedValue({
+      ...presentation,
+      result: { items: [{ ...item, version: 4 }] },
+    });
+    await state.retryBulkRefresh();
+    expect(state.isBulkMutating).toBe(false);
+    expect(state.canRetryBulkRefresh).toBe(false);
+    expect(state.selectedCount).toBe(0);
+    state.toggleItemSelection(item.id);
+    expect(state.selectionTargets).toEqual([{ ref: item.ref, expectedVersion: 4 }]);
+  });
+
+  it("does not unlock when a newer query discards the completion refresh", async () => {
+    const state = store();
+    state.items = [item];
+    state.toggleItemSelection(item.id);
+    const first = Promise.withResolvers<RecordPresentationResult>();
+    const next = Promise.withResolvers<RecordPresentationResult>();
+    mocks.getRecordPresentationAction.mockReturnValueOnce(first.promise).mockReturnValue(next.promise);
+    mocks.mutateRecordAction.mockResolvedValue({ ok: true, data: { status: "completed", refs: [item.ref] } });
+    const saving = state.bulkUpdateField(id("deal.stage"), null);
+    await vi.waitFor(() => expect(mocks.getRecordPresentationAction).toHaveBeenCalledOnce());
+    const newer = state.refresh();
+    first.resolve({ ...presentation, result: { items: [{ ...item, version: 4 }] } });
+    await vi.waitFor(() => expect(mocks.getRecordPresentationAction).toHaveBeenCalledTimes(3));
+    expect(state.isBulkMutating).toBe(true);
+    expect(state.items[0].version).toBe(3);
+    next.resolve({ ...presentation, result: { items: [{ ...item, version: 5 }] } });
+    await Promise.all([saving, newer]);
+    expect(state.isBulkMutating).toBe(false);
+    expect(state.selectedCount).toBe(0);
+    state.toggleItemSelection(item.id);
+    expect(state.selectionTargets).toEqual([{ ref: item.ref, expectedVersion: 5 }]);
+  });
+
+  it("ignores a pre-completion refresh while workspace invalidation is waiting", async () => {
+    const state = store();
+    state.items = [item];
+    state.toggleItemSelection(item.id);
+    const earlier = Promise.withResolvers<RecordPresentationResult>();
+    mocks.getRecordPresentationAction.mockReturnValueOnce(earlier.promise);
+    const refreshing = state.refresh();
+    const invalidating = Promise.withResolvers<undefined>();
+    mocks.invalidate.mockReturnValue(invalidating.promise);
+    mocks.mutateRecordAction.mockResolvedValue({ ok: true, data: { status: "completed", refs: [item.ref] } });
+    const saving = state.bulkUpdateField(id("deal.stage"), null);
+    await vi.waitFor(() => expect(mocks.invalidate).toHaveBeenCalledOnce());
+    earlier.resolve({ ...presentation, result: { items: [item] } });
+    await refreshing;
+    expect(state.isBulkMutating).toBe(true);
+    expect(state.selectedCount).toBe(1);
+    mocks.getRecordPresentationAction.mockResolvedValue({
+      ...presentation,
+      result: { items: [{ ...item, version: 4 }] },
+    });
+    invalidating.resolve(undefined);
+    await saving;
+    expect(state.isBulkMutating).toBe(false);
+    state.toggleItemSelection(item.id);
+    expect(state.selectionTargets).toEqual([{ ref: item.ref, expectedVersion: 4 }]);
+  });
+
+  it("offers a retry when incoming hydration discards the completion refresh without an error", async () => {
+    const state = store();
+    state.items = [item];
+    state.toggleItemSelection(item.id);
+    mocks.invalidate.mockResolvedValue(undefined);
+    mocks.mutateRecordAction.mockResolvedValue({ ok: true, data: { status: "completed", refs: [item.ref] } });
+    const fresh = Promise.withResolvers<RecordPresentationResult>();
+    mocks.getRecordPresentationAction.mockReturnValueOnce(fresh.promise);
+    const saving = state.bulkUpdateField(id("deal.stage"), null);
+    await vi.waitFor(() => expect(mocks.getRecordPresentationAction).toHaveBeenCalledOnce());
+    state.setItems({ items: [item] });
+    fresh.resolve({ ...presentation, result: { items: [{ ...item, version: 4 }] } });
+    await saving;
+    expect(state.dataRequest.status).toBe("ready");
+    expect(state.isBulkMutating).toBe(true);
+    expect(state.canRetryBulkRefresh).toBe(true);
+    expect(state.isItemSelectable(item)).toBe(false);
+    mocks.getRecordPresentationAction.mockResolvedValue({
+      ...presentation,
+      result: { items: [{ ...item, version: 4 }] },
+    });
+    await state.retryBulkRefresh();
+    expect(state.canRetryBulkRefresh).toBe(false);
+    expect(state.isBulkMutating).toBe(false);
+    expect(mocks.mutateRecordAction).toHaveBeenCalledOnce();
   });
 
   it("retains a staged bulk operation and prevents another mutation until publication", async () => {

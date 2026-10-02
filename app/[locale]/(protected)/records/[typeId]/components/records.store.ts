@@ -20,18 +20,24 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   pendingBoardOperation: string | null = null;
   pendingBulkOperation: string | null = null;
   isBulkMutating = false;
+  private bulkRefreshGeneration = 0;
+  private awaitingBulkRefresh: number | null = null;
+  private bulkRefreshRetryNeeded = false;
   private readonly selectionRows = new Map<string, RecordRow>();
   private bulkRequest: { signature: string; input: MutateRecordInput } | null = null;
   private readonly movingRecords = new Set<string>();
   private readonly boardRequests = new Map<string, { signature: string; input: MutateRecordInput }>();
-  private readonly loaded = new WeakMap<GetResult<RecordRow>, RecordPresentationResult>();
+  private readonly loaded = new WeakMap<
+    GetResult<RecordRow>,
+    { presentation: RecordPresentationResult; bulkRefreshGeneration: number }
+  >();
   constructor(rootStore: RootStore, presentation: RecordPresentationResult) {
     super(rootStore);
     this.presentation = presentation;
     this.schemaSettingsHref = presentation.canManageSchema
       ? `/company/data-model?typeId=${presentation.typeId}`
       : undefined;
-    makeObservable(this, {
+    makeObservable<this, "awaitingBulkRefresh" | "bulkRefreshRetryNeeded">(this, {
       presentation: observable.ref,
       fields: computed,
       type: computed,
@@ -42,7 +48,12 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
       setBoardOperation: action,
       pendingBulkOperation: observable,
       isBulkMutating: observable,
+      awaitingBulkRefresh: observable,
+      bulkRefreshRetryNeeded: observable,
+      canRetryBulkRefresh: computed,
       setBulkState: action,
+      bulkCompleted: action,
+      setBulkRefreshRetryNeeded: action,
     });
   }
   protected override onSelectionChanged() {
@@ -69,15 +80,36 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
     });
   }
   setBulkState = (loading: boolean, operationId: string | null = this.pendingBulkOperation) => {
-    this.isBulkMutating = loading;
+    this.isBulkMutating = loading || this.awaitingBulkRefresh !== null;
     this.pendingBulkOperation = operationId;
   };
   bulkCompleted = async () => {
-    this.setBulkState(false, null);
-    this.clearSelection();
-    await this.rootStore.recordWorkspaceStore.invalidate();
+    this.awaitingBulkRefresh = ++this.bulkRefreshGeneration;
+    this.setBulkRefreshRetryNeeded(false);
+    this.setBulkState(true);
+    try {
+      await this.rootStore.recordWorkspaceStore.invalidate();
+      if (this.awaitingBulkRefresh !== null) await this.refreshQuery();
+    } finally {
+      this.setBulkRefreshRetryNeeded(this.awaitingBulkRefresh !== null);
+    }
   };
   bulkStopped = () => this.setBulkState(false, null);
+  setBulkRefreshRetryNeeded = (needed: boolean) => {
+    this.bulkRefreshRetryNeeded = needed;
+  };
+  retryBulkRefresh = async () => {
+    if (!this.canRetryBulkRefresh) return;
+    this.setBulkRefreshRetryNeeded(false);
+    try {
+      await this.refreshQuery();
+    } finally {
+      this.setBulkRefreshRetryNeeded(this.awaitingBulkRefresh !== null);
+    }
+  };
+  get canRetryBulkRefresh() {
+    return this.awaitingBulkRefresh !== null && this.bulkRefreshRetryNeeded;
+  }
   bulkMutation = async (mutation: Extract<MutateRecordInput["mutation"], { action: "updateMany" | "deleteMany" }>) => {
     if (this.isBulkMutating || this.pendingBulkOperation) return false;
     const signature = JSON.stringify({
@@ -269,12 +301,19 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
     this.presentation = presentation;
   };
   protected onRefreshAccepted(result: GetResult<RecordRow>) {
-    const presentation = this.loaded.get(result);
-    if (presentation) this.setPresentation(presentation);
+    const loaded = this.loaded.get(result);
+    if (loaded) this.setPresentation(loaded.presentation);
+    if (loaded?.bulkRefreshGeneration === this.awaitingBulkRefresh && !result.grouping?.partial) {
+      this.awaitingBulkRefresh = null;
+      this.setBulkRefreshRetryNeeded(false);
+      this.clearSelection();
+      this.setBulkState(false, null);
+    }
   }
   protected async refreshAction(params?: GetQueryParams) {
+    const bulkRefreshGeneration = this.bulkRefreshGeneration;
     const presentation = await getRecordPresentationAction(this.presentation.typeId, params);
-    this.loaded.set(presentation.result, presentation);
+    this.loaded.set(presentation.result, { presentation, bulkRefreshGeneration });
     return presentation.result;
   }
 }

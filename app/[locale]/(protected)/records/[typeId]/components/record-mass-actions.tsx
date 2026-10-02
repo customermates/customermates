@@ -149,6 +149,12 @@ export const RecordMassActions = observer(function RecordMassActions({ store }: 
 
       <div className="grow" />
 
+      {store.canRetryBulkRefresh && (
+        <Button size="sm" type="button" variant="secondary" onClick={() => runUserAction(store.retryBulkRefresh)}>
+          {t("ErrorCard.retry")}
+        </Button>
+      )}
+
       {store.presentation.permittedActions.includes("update") && fields.length > 0 && (
         <ResponsiveOverlay
           open={open}
