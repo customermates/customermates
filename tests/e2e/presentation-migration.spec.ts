@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { resolve } from "node:path";
 import { presetId } from "../../features/records/crm-preset";
 import { migrateRecordWorkspace } from "../../prisma/record-migrations/run";
@@ -49,6 +49,10 @@ const test = base.extend({
       await finalizeReconciledRecordWorkspace(upgrade.client, legacy.companyId);
       await prepareLegacyContraction(upgrade.client);
       await upgrade.client.query(await readFile(resolve("prisma/migrations", CRM_CONTRACTION_MIGRATION, "migration.sql"), "utf8"));
+      for (const migration of (await readdir(resolve("prisma/migrations")))
+        .filter((entry) => /^\d+_/.test(entry) && entry > CRM_CONTRACTION_MIGRATION)
+        .sort())
+        await upgrade.client.query(await readFile(resolve("prisma/migrations", migration, "migration.sql"), "utf8"));
       await copyGenericWorkspace(upgrade.client, database, legacy.companyId);
       await use(workspace);
     } finally {

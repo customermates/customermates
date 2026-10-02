@@ -231,6 +231,8 @@ test("edits a linear calculation and restores archived fields, activity connecti
   await dialog.getByRole("switch", { name: "Archive this type", exact: true }).check();
   await applyConfiguration(page);
   await page.getByRole("link", { name: "All lists", exact: true }).click();
+  await expect(page).toHaveURL(/\/en\/company\/data-model$/);
+  await expect(page.locator("header").getByRole("button", { name: "Create list", exact: true })).toBeVisible();
   const list = page.getByRole("main").getByRole("link", { name: new RegExp(`^${name}`) });
   const hideArchived = page.getByRole("button", { name: "Hide archived", exact: true });
   if (await hideArchived.isVisible()) await hideArchived.click();

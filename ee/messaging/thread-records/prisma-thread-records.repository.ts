@@ -7,7 +7,11 @@ export class PrismaThreadRecordsRepo extends BaseRepository implements ThreadRec
   async canAccessThread(threadId: string) {
     return Boolean(
       await this.prisma.messagingThread.findFirst({
-        where: { AND: [{ companyId: this.companyId, id: threadId }, threadAccessWhere(this.companyId, this.userId)] },
+        where: {
+          companyId: this.companyId,
+          id: threadId,
+          AND: [threadAccessWhere(this.companyId, this.userId)],
+        },
         select: { id: true },
       }),
     );
