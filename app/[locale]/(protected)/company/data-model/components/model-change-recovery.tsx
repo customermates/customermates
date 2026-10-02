@@ -3,6 +3,7 @@
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 type RecoveryStore = {
   refreshRequired: boolean;
@@ -30,7 +31,7 @@ export const ModelChangeRecovery = observer(function ModelChangeRecovery({ store
             size="sm"
             type="button"
             variant="secondary"
-            onClick={() => void store.refreshModel()}
+            onClick={() => runUserAction(() => store.refreshModel())}
           >
             {t("RecordModel.staleRefresh")}
           </Button>

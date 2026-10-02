@@ -69,7 +69,6 @@ export interface RecordRepo {
       ref: RecordRef;
     }>
   >;
-  /** Avatar enrichment source pager: returns only unprotected records in the requested types. */
   getIdentityOwnerRefsPageCompanyWide(
     identityId: string,
     after: RecordRef | undefined,

@@ -69,7 +69,7 @@ describe("generic dashboard widget UI", () => {
     const chart = component("record-widget-editor.tsx");
     const activity = component("record-activity-widget-editor.tsx");
     expect(chart).toContain('t("RecordWidgets.preview")');
-    expect(chart).toContain("await previewRecordWidgetAction(parsed.data)");
+    expect(chart).toContain("await store.runPreview(() => previewRecordWidgetAction(parsed.data))");
     expect(chart).toContain("<RecordWidgetChart");
     expect(activity).toContain('t("Dashboard.widgetEditor.preview.title")');
     expect(activity).toContain("getRecordActivitiesAction({ ...parsed.data, cursor: null, limit: 25 })");

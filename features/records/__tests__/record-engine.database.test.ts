@@ -13300,7 +13300,6 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
         }),
       ),
     ).toMatchObject({ ok: true, data: { status: "completed" } });
-    // Organization has Channels/providerAvatar enabled but no avatar image binding.
     await f.run(() =>
       runInTransaction(async () => {
         const tx = transactionStorage.getStore()?.client as typeof prisma;
