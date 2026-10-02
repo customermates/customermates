@@ -66,7 +66,7 @@ export const RecordActivitiesPanel = observer(function RecordActivitiesPanel({ r
           onLoadOlder={() => runUserAction(() => store.load(true))}
         />
       ) : (
-        !error && <TimelineEmptyState label={t("ContactHistory.noActivity")} />
+        !error && <TimelineEmptyState label={t("Dashboard.activityWidget.noActivity")} />
       )}
     </div>
   );
