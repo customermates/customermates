@@ -1418,6 +1418,7 @@
         "lastName": "Cognome",
         "name": "Nome",
         "ownerUserId": "Proprietario",
+        "participantContactId": "Record collegati",
         "participants": "Partecipanti",
         "plan": "Piano",
         "provider": "Provider",
@@ -2539,7 +2540,7 @@
       "spam": "Spam",
       "unread": "Non letta"
     },
-    "unlinkedParticipants": "Alcuni partecipanti non sono collegati a un contatto",
+    "unlinkedParticipants": "Alcuni partecipanti non hanno record collegati che puoi vedere",
     "voice": {
       "pause": "Metti in pausa",
       "play": "Riproduci",

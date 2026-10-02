@@ -1418,6 +1418,7 @@
         "lastName": "Last name",
         "name": "Name",
         "ownerUserId": "Owner",
+        "participantContactId": "Linked records",
         "participants": "Participants",
         "plan": "Plan",
         "provider": "Provider",
@@ -2539,7 +2540,7 @@
       "spam": "Spam",
       "unread": "Unread"
     },
-    "unlinkedParticipants": "Some participants not linked to a contact",
+    "unlinkedParticipants": "Some participants have no linked record you can read",
     "voice": {
       "pause": "Pause",
       "play": "Play",

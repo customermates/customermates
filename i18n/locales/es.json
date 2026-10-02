@@ -1418,6 +1418,7 @@
         "lastName": "Apellidos",
         "name": "Nombre",
         "ownerUserId": "Propietario",
+        "participantContactId": "Registros vinculados",
         "participants": "Participantes",
         "plan": "Plan",
         "provider": "Proveedor",
@@ -2539,7 +2540,7 @@
       "spam": "Spam",
       "unread": "Sin leer"
     },
-    "unlinkedParticipants": "Algunos participantes no están vinculados a un contacto",
+    "unlinkedParticipants": "Algunos participantes no tienen ningún registro vinculado que puedas ver",
     "voice": {
       "pause": "Pausar",
       "play": "Reproducir",

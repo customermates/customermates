@@ -1418,6 +1418,7 @@
         "lastName": "Nom de famille",
         "name": "Nom",
         "ownerUserId": "Propriétaire",
+        "participantContactId": "Fiches liées",
         "participants": "Participants",
         "plan": "Forfait",
         "provider": "Fournisseur",
@@ -2539,7 +2540,7 @@
       "spam": "Spam",
       "unread": "Non lue"
     },
-    "unlinkedParticipants": "Certains participants ne sont pas liés à un contact",
+    "unlinkedParticipants": "Certains participants n’ont aucune fiche liée que vous pouvez consulter",
     "voice": {
       "pause": "Mettre en pause",
       "play": "Lire",

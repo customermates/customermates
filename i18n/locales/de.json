@@ -1418,6 +1418,7 @@
         "lastName": "Nachname",
         "name": "Name",
         "ownerUserId": "Inhaber",
+        "participantContactId": "Verknüpfte Datensätze",
         "participants": "Teilnehmer",
         "plan": "Tarif",
         "provider": "Anbieter",
@@ -2539,7 +2540,7 @@
       "spam": "Spam",
       "unread": "Ungelesen"
     },
-    "unlinkedParticipants": "Einige Teilnehmer sind nicht mit einem Kontakt verknüpft",
+    "unlinkedParticipants": "Einige Teilnehmer haben keinen verknüpften Datensatz, den Sie lesen dürfen",
     "voice": {
       "pause": "Pausieren",
       "play": "Abspielen",
