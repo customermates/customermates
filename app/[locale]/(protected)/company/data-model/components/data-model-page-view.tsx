@@ -40,6 +40,7 @@ export const DataModelPageView = observer(function DataModelPageView({
   const createRequested = useSearchParams().get("create") === "true";
   const t = useTranslations();
   const [store] = useState(() => new DataModelStore(initialModel));
+  const [showArchived, setShowArchived] = useState(false);
   const authoritative = useRef(initialModel);
   if (authoritative.current !== initialModel) {
     authoritative.current = initialModel;
@@ -96,11 +97,14 @@ export const DataModelPageView = observer(function DataModelPageView({
               disabled={!interactive}
               size="sm"
               variant="secondary"
-              onClick={() => typeModal.edit(model, selected)}
+              onClick={() => {
+                typeModal.edit(model, selected);
+                if (selected.archived) typeModal.onChange("archived", false);
+              }}
             >
               <Settings2 aria-hidden className="size-4" />
 
-              {t("RecordModel.typeSettings")}
+              {selected.archived ? t("RecordModel.restore") : t("RecordModel.typeSettings")}
             </Button>
 
             <Button
@@ -131,7 +135,7 @@ export const DataModelPageView = observer(function DataModelPageView({
   useSetTopBarActions(toolbar);
   const typeRows = (embedded: boolean) =>
     model.types
-      .filter((type) => !type.archived && type.embedded === embedded)
+      .filter((type) => (!type.archived || showArchived) && type.embedded === embedded)
       .map((type) => {
         const Icon = recordTypeIcon(type.icon);
         return (
@@ -145,6 +149,10 @@ export const DataModelPageView = observer(function DataModelPageView({
             <span className="min-w-0 flex-1">
               <span className="block text-sm font-medium">{type.pluralLabel}</span>
 
+              {type.archived && (
+                <span className="block text-xs text-muted-foreground">{t("RecordModel.archived")}</span>
+              )}
+
               {type.description && <span className="block text-xs text-muted-foreground">{type.description}</span>}
             </span>
 
@@ -152,6 +160,16 @@ export const DataModelPageView = observer(function DataModelPageView({
           </IntlLink>
         );
       });
+  const hasArchived = selected
+    ? selected.archived ||
+      model.fields.some((field) => field.typeId === selected.id && field.archived) ||
+      model.relationships.some(
+        (relation) =>
+          relation.archived && (relation.sourceTypeId === selected.id || relation.targetTypeId === selected.id),
+      ) ||
+      selected.relationshipPaths?.some((path) => path.archived) ||
+      model.activityPaths.some((path) => path.typeId === selected.id && path.archived)
+    : model.types.some((type) => type.archived);
   return (
     <div className="animate-page-result-in w-full max-w-3xl space-y-6 motion-reduce:animate-none">
       {store.refreshFailed && (
@@ -170,6 +188,20 @@ export const DataModelPageView = observer(function DataModelPageView({
         }}
       />
 
+      {hasArchived && (
+        <div className="flex justify-end">
+          <Button
+            aria-pressed={showArchived}
+            size="sm"
+            type="button"
+            variant="ghost"
+            onClick={() => setShowArchived((current) => !current)}
+          >
+            {showArchived ? t("RecordModel.hideArchived") : t("RecordModel.showArchived")}
+          </Button>
+        </div>
+      )}
+
       {selected ? (
         <>
           <div className="space-y-2">
@@ -183,6 +215,8 @@ export const DataModelPageView = observer(function DataModelPageView({
 
             <h2 className="text-base font-semibold">{selected.pluralLabel}</h2>
 
+            {selected.archived && <p className="text-xs text-muted-foreground">{t("RecordModel.archived")}</p>}
+
             {selected.description && <p className="text-sm text-muted-foreground">{selected.description}</p>}
           </div>
 
@@ -191,11 +225,15 @@ export const DataModelPageView = observer(function DataModelPageView({
 
             <div className="divide-y divide-border">
               {model.fields
-                .filter((field) => field.typeId === selected.id && !field.archived)
+                .filter((field) => field.typeId === selected.id && (!field.archived || showArchived))
                 .map((field) => (
                   <div key={field.id} className="flex items-center justify-between gap-3 py-3">
                     <div className="min-w-0">
                       <span className="text-sm font-medium">{field.label}</span>
+
+                      {field.archived && (
+                        <span className="ml-2 text-xs text-muted-foreground">{t("RecordModel.archived")}</span>
+                      )}
 
                       <p className="text-xs text-muted-foreground">{`${t(`RecordModel.types.${field.valueType}`)} · ${t(`RecordModel.behaviors.${field.behavior.kind}`)}`}</p>
                     </div>
@@ -205,9 +243,12 @@ export const DataModelPageView = observer(function DataModelPageView({
                         disabled={!interactive}
                         size="sm"
                         variant="ghost"
-                        onClick={() => fieldModal.edit(model, selected.id, field)}
+                        onClick={() => {
+                          fieldModal.edit(model, selected.id, field);
+                          if (field.archived) fieldModal.onChange("archived", false);
+                        }}
                       >
-                        {t("RecordModel.edit")}
+                        {field.archived ? t("RecordModel.restore") : t("RecordModel.edit")}
                       </Button>
                     )}
                   </div>
@@ -234,11 +275,15 @@ export const DataModelPageView = observer(function DataModelPageView({
             </div>
 
             {(selected.relationshipPaths ?? [])
-              .filter((path) => !path.archived)
+              .filter((path) => !path.archived || showArchived)
               .map((path) => (
                 <div key={path.id} className="flex items-center justify-between gap-3 py-2">
                   <div>
                     <span className="text-sm">{path.label}</span>
+
+                    {path.archived && (
+                      <span className="ml-2 text-xs text-muted-foreground">{t("RecordModel.archived")}</span>
+                    )}
 
                     <p className="text-xs text-muted-foreground">{t("RecordModel.relationshipPath")}</p>
                   </div>
@@ -248,9 +293,12 @@ export const DataModelPageView = observer(function DataModelPageView({
                       disabled={!interactive}
                       size="sm"
                       variant="ghost"
-                      onClick={() => relationModal.editPath(model, selected.id, path)}
+                      onClick={() => {
+                        relationModal.editPath(model, selected.id, path);
+                        if (path.archived) relationModal.onChange("archived", false);
+                      }}
                     >
-                      {t("RecordModel.edit")}
+                      {path.archived ? t("RecordModel.restore") : t("RecordModel.edit")}
                     </Button>
                   )}
                 </div>
@@ -259,7 +307,7 @@ export const DataModelPageView = observer(function DataModelPageView({
             {model.relationships
               .filter(
                 (relation) =>
-                  !relation.archived &&
+                  (!relation.archived || showArchived) &&
                   (relation.sourceTypeId === selected.id || relation.targetTypeId === selected.id),
               )
               .map((relation) => {
@@ -271,6 +319,10 @@ export const DataModelPageView = observer(function DataModelPageView({
                       <span className="text-sm">
                         {relation.sourceTypeId === selected.id ? relation.sourceLabel : relation.targetLabel}
                       </span>
+
+                      {relation.archived && (
+                        <span className="ml-2 text-xs text-muted-foreground">{t("RecordModel.archived")}</span>
+                      )}
 
                       {target && (
                         <IntlLink
@@ -287,9 +339,12 @@ export const DataModelPageView = observer(function DataModelPageView({
                         disabled={!interactive}
                         size="sm"
                         variant="ghost"
-                        onClick={() => relationModal.edit(model, selected.id, relation)}
+                        onClick={() => {
+                          relationModal.edit(model, selected.id, relation);
+                          if (relation.archived) relationModal.onChange("archived", false);
+                        }}
                       >
-                        {t("RecordModel.edit")}
+                        {relation.archived ? t("RecordModel.restore") : t("RecordModel.edit")}
                       </Button>
                     )}
                   </div>
@@ -318,19 +373,28 @@ export const DataModelPageView = observer(function DataModelPageView({
             <p className="text-xs text-muted-foreground">{t("RecordModel.activityConnectionsHelp")}</p>
 
             {model.activityPaths
-              .filter((path) => path.typeId === selected.id && !path.archived)
+              .filter((path) => path.typeId === selected.id && (!path.archived || showArchived))
               .map((path) => (
                 <div key={path.id} className="flex items-center justify-between gap-3 py-2">
-                  <span className="text-sm">{path.label}</span>
+                  <span className="text-sm">
+                    {path.label}
+
+                    {path.archived && (
+                      <span className="ml-2 text-xs text-muted-foreground">{t("RecordModel.archived")}</span>
+                    )}
+                  </span>
 
                   {canManage && (
                     <Button
                       disabled={!interactive}
                       size="sm"
                       variant="ghost"
-                      onClick={() => activityModal.edit(model, selected.id, path)}
+                      onClick={() => {
+                        activityModal.edit(model, selected.id, path);
+                        if (path.archived) activityModal.onChange("archived", false);
+                      }}
                     >
-                      {t("RecordModel.edit")}
+                      {path.archived ? t("RecordModel.restore") : t("RecordModel.edit")}
                     </Button>
                   )}
                 </div>
@@ -343,7 +407,7 @@ export const DataModelPageView = observer(function DataModelPageView({
 
           <div className="divide-y divide-border">{typeRows(false)}</div>
 
-          {model.types.some((type) => type.embedded && !type.archived) && (
+          {model.types.some((type) => type.embedded && (!type.archived || showArchived)) && (
             <section className="space-y-2">
               <h2 className="text-sm font-medium">{t("RecordModel.embeddedLists")}</h2>
 
