@@ -1,223 +1,239 @@
 {
   "checks": {
-    "build": {
-      "build_id": "TgbMauXHO9KOdQoo0C8Xm",
+    "typecheck": {
+      "status": "passed",
+      "build_id": null,
       "counts": {},
-      "duration_ms": 101435,
-      "evidence_sha256": "13f61f15537dcdab7a92199c568af6bf1830857713d6bce5f775da420b95adfe",
-      "execution_attribution": "current-source-execution",
-      "immutable_event_sha256": "43da739487857d5c3303a0a8481cc836c8b10d53aeb5870665f22ececb8d4386",
-      "independent_review_sha256": "913d20f550d2a76ec7a0c04d8218a521e395a5e90b32f4ada1a4f5d971fed6a7",
+      "duration_ms": 10488,
+      "evidence_sha256": "ec1d05fd9f84348b0596291c19506ad9df7b80f7e19b256b2fc567cbc760166d",
+      "immutable_event_sha256": "dfa2a0d22dabc677c8215ad4a303bd84a4779605a30d1162b928633b94b53992",
+      "independent_review_sha256": "2e3368ec5cb26785ec15d79000015f8a906a7d6d3abb7d7ad0dc035505288818",
+      "execution_attribution": "root-owned-current-source-execution; independent saved-artifact review only",
       "provider_cap_zero": true,
       "provider_paused": true,
-      "source_freeze_id": "023c7fc2fde8885f2cf05a887eb07c58e3501e3925a8dd53bcc911c9b0f4ea42",
-      "status": "passed"
+      "source_head": "b21bd1c32c24f499271203b03ffcbb577ce96850",
+      "source_freeze_id": "9dc844ba7bbc12fbe7e7c9ad552b3ac2744903f0cf59902ed5c7f2e998292646"
     },
-    "built_browser": {
-      "build_id": "TgbMauXHO9KOdQoo0C8Xm",
-      "counts": {
-        "failed_assertions": 0,
-        "passed_assertions": 29
-      },
-      "duration_ms": null,
-      "evidence_sha256": "461dad99c1a1a77827b6652f23adef591a82bc4b3401d895c0e6792c9c680566",
-      "execution_attribution": "current-source-execution",
-      "immutable_event_sha256": null,
-      "independent_review_sha256": "6f3ba21fff9aa7ffc94ae92c42ea3788bf293041e5be8dea27506de92164b0a5",
+    "lint": {
+      "status": "passed",
+      "build_id": null,
+      "counts": {},
+      "duration_ms": 76925,
+      "evidence_sha256": "a5a8de346a447025243ba55dbb019a9e120470389a270ae5f0179a153a0156f8",
+      "immutable_event_sha256": "26b73e68c2e6aec2293f0db72a4d41e7d94b79e6fbdd40d0a01f70e4e3cd8543",
+      "independent_review_sha256": "2e3368ec5cb26785ec15d79000015f8a906a7d6d3abb7d7ad0dc035505288818",
+      "execution_attribution": "root-owned-current-source-execution; independent saved-artifact review only",
       "provider_cap_zero": true,
       "provider_paused": true,
-      "source_freeze_id": "023c7fc2fde8885f2cf05a887eb07c58e3501e3925a8dd53bcc911c9b0f4ea42",
-      "status": "passed"
+      "source_head": "b21bd1c32c24f499271203b03ffcbb577ce96850",
+      "source_freeze_id": "9dc844ba7bbc12fbe7e7c9ad552b3ac2744903f0cf59902ed5c7f2e998292646"
+    },
+    "vitest": {
+      "status": "passed",
+      "build_id": null,
+      "counts": {
+        "failed_suites": 0,
+        "failed_tests": 0,
+        "passed_suites": 1045,
+        "passed_tests": 10414,
+        "skipped_suites": 1,
+        "skipped_tests": 20
+      },
+      "duration_ms": 654891,
+      "evidence_sha256": "9b95b9af7e0ae770dfd1ff60e889b384d1a7dd53699939fca0cc7b6f2bdde590",
+      "immutable_event_sha256": "f11b14b4bded2cf6c43aed9fb2734923f8a6a505392d925ae0f46b9a3b7e8169",
+      "independent_review_sha256": "2e3368ec5cb26785ec15d79000015f8a906a7d6d3abb7d7ad0dc035505288818",
+      "execution_attribution": "root-owned-current-source-execution; independent saved-artifact review only",
+      "provider_cap_zero": true,
+      "provider_paused": true,
+      "source_head": "b21bd1c32c24f499271203b03ffcbb577ce96850",
+      "source_freeze_id": "9dc844ba7bbc12fbe7e7c9ad552b3ac2744903f0cf59902ed5c7f2e998292646"
+    },
+    "build": {
+      "status": "passed",
+      "build_id": "rDwUIFEJs-xqOLrMtVLib",
+      "counts": {},
+      "duration_ms": 91493,
+      "evidence_sha256": "a9f7a0cf888cd0932d83cf93dc87ff3cafb7d2380326f1e75ca90bb172665635",
+      "immutable_event_sha256": "bb8ec6bab461917f9d49ea8bc8939b28b2c1479d1fa67d43786257756bed0449",
+      "independent_review_sha256": "2e3368ec5cb26785ec15d79000015f8a906a7d6d3abb7d7ad0dc035505288818",
+      "execution_attribution": "root-owned-current-source-execution; independent saved-artifact review only",
+      "provider_cap_zero": true,
+      "provider_paused": true,
+      "source_head": "b21bd1c32c24f499271203b03ffcbb577ce96850",
+      "source_freeze_id": "9dc844ba7bbc12fbe7e7c9ad552b3ac2744903f0cf59902ed5c7f2e998292646"
     },
     "built_http": {
-      "build_id": "TgbMauXHO9KOdQoo0C8Xm",
+      "status": "passed",
+      "build_id": "rDwUIFEJs-xqOLrMtVLib",
       "counts": {
         "failed_assertions": 0,
         "passed_assertions": 18,
         "passed_suites": 2,
         "skipped_tests": 0
       },
-      "duration_ms": 13642,
-      "evidence_sha256": "85afa4ca59c122e8860b0b753ffa7658ca9a7cf2f03205bdc8711ebb9ddbd26f",
-      "execution_attribution": "current-source-execution",
-      "immutable_event_sha256": "63aa2f6e3808542715599e87d2db055b665b7e777b0959988106fd29056f4cab",
-      "independent_review_sha256": "62c15da754bf673e72b92e0f2657c9ae366e8f6f7a4c89f50b29a006086ba3dc",
+      "duration_ms": 15090,
+      "evidence_sha256": "d16291cdf001755785dc292e16568783003d70995e3469913ec226e676f85684",
+      "immutable_event_sha256": "cdffcc0321222e74efbb0b9c3666e1449580e04b4ebc572590a00c2a535de1e8",
+      "independent_review_sha256": "2e3368ec5cb26785ec15d79000015f8a906a7d6d3abb7d7ad0dc035505288818",
+      "execution_attribution": "root-owned-current-source-execution; independent saved-artifact review only",
       "provider_cap_zero": true,
       "provider_paused": true,
-      "source_freeze_id": "023c7fc2fde8885f2cf05a887eb07c58e3501e3925a8dd53bcc911c9b0f4ea42",
-      "status": "passed"
+      "source_head": "b21bd1c32c24f499271203b03ffcbb577ce96850",
+      "source_freeze_id": "9dc844ba7bbc12fbe7e7c9ad552b3ac2744903f0cf59902ed5c7f2e998292646"
     },
     "focused_current": {
-      "status": "pending"
-    },
-    "lint": {
-      "build_id": null,
-      "counts": {},
-      "duration_ms": 116568,
-      "evidence_sha256": "38d5d866de4f56f3817b35145cb0167445aaf26488ebe98e7d21db911197c196",
-      "execution_attribution": "current-source-execution",
-      "immutable_event_sha256": "d7a75d217082c43e022f5662198ccd357247cade9e008d23c36773a26902517b",
-      "independent_review_sha256": "913d20f550d2a76ec7a0c04d8218a521e395a5e90b32f4ada1a4f5d971fed6a7",
-      "provider_cap_zero": true,
-      "provider_paused": true,
-      "source_freeze_id": "023c7fc2fde8885f2cf05a887eb07c58e3501e3925a8dd53bcc911c9b0f4ea42",
-      "status": "passed"
-    },
-    "migrations": {
+      "status": "passed",
       "build_id": null,
       "counts": {
-        "failed_checks": 0,
-        "passed_checks": 6
+        "passed_suites": 5,
+        "passed_tests": 92,
+        "failed_tests": 0
+      },
+      "duration_ms": 42262,
+      "evidence_sha256": "b8a979d23f48c982078470849c8a4e67c10b4334de0a15447065b993993a555e",
+      "immutable_event_sha256": "3dd58a443173c088b9bd86fb00882c888cc895d18b95f75a1b794ecb61740f8c",
+      "independent_review_sha256": "2e3368ec5cb26785ec15d79000015f8a906a7d6d3abb7d7ad0dc035505288818",
+      "execution_attribution": "root-owned-current-source-execution; independent saved-artifact review only",
+      "provider_cap_zero": true,
+      "provider_paused": true,
+      "source_head": "b21bd1c32c24f499271203b03ffcbb577ce96850",
+      "source_freeze_id": "9dc844ba7bbc12fbe7e7c9ad552b3ac2744903f0cf59902ed5c7f2e998292646"
+    },
+    "fresh_migration": {
+      "status": "passed",
+      "build_id": null,
+      "counts": {
+        "passed_checks": 1,
+        "failed_checks": 0
+      },
+      "duration_ms": 1210,
+      "evidence_sha256": "2879b5b84d43ab2a2e665723051f5b624e84760b39a0683add6b90cd461ad667",
+      "immutable_event_sha256": "2eb196fd92a7621fececb6eee2bff5a01fc8df7a54a5dda0ba5257d4be29ed60",
+      "independent_review_sha256": "2e3368ec5cb26785ec15d79000015f8a906a7d6d3abb7d7ad0dc035505288818",
+      "execution_attribution": "root-owned-current-source-execution; independent saved-artifact review only",
+      "provider_cap_zero": true,
+      "provider_paused": true,
+      "source_head": "b21bd1c32c24f499271203b03ffcbb577ce96850",
+      "source_freeze_id": "9dc844ba7bbc12fbe7e7c9ad552b3ac2744903f0cf59902ed5c7f2e998292646"
+    },
+    "workflow_bootstrap": {
+      "status": "passed",
+      "build_id": null,
+      "counts": {
+        "passed_checks": 1,
+        "failed_checks": 0
+      },
+      "duration_ms": 617,
+      "evidence_sha256": "d4319de6a4912ba4a73dfda90cb7c45dda2565c82e3bb2caa2c1a3e6516d6957",
+      "immutable_event_sha256": "dcfbe81ea0f7ef588ce13c2ac656770cba2da49d61f750a660e6025e1e9aa94e",
+      "independent_review_sha256": "2e3368ec5cb26785ec15d79000015f8a906a7d6d3abb7d7ad0dc035505288818",
+      "execution_attribution": "root-owned-current-source-execution; independent saved-artifact review only",
+      "provider_cap_zero": true,
+      "provider_paused": true,
+      "source_head": "b21bd1c32c24f499271203b03ffcbb577ce96850",
+      "source_freeze_id": "9dc844ba7bbc12fbe7e7c9ad552b3ac2744903f0cf59902ed5c7f2e998292646"
+    },
+    "seed_twice": {
+      "status": "passed",
+      "build_id": null,
+      "counts": {
+        "passed_checks": 2,
+        "failed_checks": 0
+      },
+      "duration_ms": 6678,
+      "evidence_sha256": "2727ba32e2e72b507e817f95029a906b3163ef28cc9942bcfbf98c7ef772a9f0",
+      "immutable_event_sha256": null,
+      "immutable_event_sha256s": [
+        "0dc377b30d8e2c29766f7c01e821eef926a65617d6843ed04164f83ba8f55f43",
+        "eb8f87ae536c61434250d606c1b0382411fc5f687281ee1d1a9e98f0db77b753"
+      ],
+      "independent_review_sha256": "2727ba32e2e72b507e817f95029a906b3163ef28cc9942bcfbf98c7ef772a9f0",
+      "execution_attribution": "root-owned-current-source-execution; first and second seed process durations summed",
+      "provider_paused": true,
+      "provider_cap_zero": true,
+      "source_head": "b21bd1c32c24f499271203b03ffcbb577ce96850",
+      "source_freeze_id": "9dc844ba7bbc12fbe7e7c9ad552b3ac2744903f0cf59902ed5c7f2e998292646"
+    },
+    "migrations": {
+      "status": "passed",
+      "build_id": null,
+      "counts": {
+        "passed_checks": 6,
+        "failed_checks": 0
       },
       "duration_ms": null,
       "evidence_sha256": "8e3115694e16aed250d662f8ca9980a161e00baecc8dad92e525611fac7b7af9",
-      "execution_attribution": "unchanged-authority-evidence-bridge",
       "immutable_event_sha256": null,
-      "independent_review_sha256": "62c15da754bf673e72b92e0f2657c9ae366e8f6f7a4c89f50b29a006086ba3dc",
-      "provider_cap_zero": true,
+      "independent_review_sha256": "2727ba32e2e72b507e817f95029a906b3163ef28cc9942bcfbf98c7ef772a9f0",
+      "execution_attribution": "historical six-case executions, unchanged-authority evidence bridge; not six new source88 runs",
       "provider_paused": true,
-      "source_freeze_id": "023c7fc2fde8885f2cf05a887eb07c58e3501e3925a8dd53bcc911c9b0f4ea42",
-      "status": "passed"
+      "provider_cap_zero": true,
+      "source_freeze_id": "9dc844ba7bbc12fbe7e7c9ad552b3ac2744903f0cf59902ed5c7f2e998292646"
     },
-    "seed_twice": {
-      "build_id": null,
+    "built_browser": {
+      "status": "passed_with_explicit_coverage_limits",
+      "build_id": "rDwUIFEJs-xqOLrMtVLib",
       "counts": {
-        "failed_checks": 0,
-        "passed_checks": 2
+        "assertions_passed": 23,
+        "separate_synthetic_user_journeys": 2
       },
-      "duration_ms": 8333,
-      "evidence_sha256": "9cb4c53bcd0f1db157991d10198d55d0d93d903c1740872678ed6b146d58b5da",
-      "execution_attribution": "current-source-execution",
-      "immutable_event_sha256": null,
-      "independent_review_sha256": "62c15da754bf673e72b92e0f2657c9ae366e8f6f7a4c89f50b29a006086ba3dc",
-      "provider_cap_zero": true,
-      "provider_paused": true,
-      "source_freeze_id": "023c7fc2fde8885f2cf05a887eb07c58e3501e3925a8dd53bcc911c9b0f4ea42",
-      "status": "passed"
-    },
-    "typecheck": {
-      "build_id": null,
-      "counts": {},
-      "duration_ms": 11275,
-      "evidence_sha256": "609ed4c7b12e8adf2af4784fdc3a29424a537764d846971ce12f91c97605f943",
-      "execution_attribution": "current-source-execution",
-      "immutable_event_sha256": "6110715a5aaf0fc35b7a5c31a705de57e2f751888de0fdf625212f1beaac8447",
-      "independent_review_sha256": "913d20f550d2a76ec7a0c04d8218a521e395a5e90b32f4ada1a4f5d971fed6a7",
-      "provider_cap_zero": true,
-      "provider_paused": true,
-      "source_freeze_id": "023c7fc2fde8885f2cf05a887eb07c58e3501e3925a8dd53bcc911c9b0f4ea42",
-      "status": "passed"
-    },
-    "vitest": {
-      "build_id": null,
-      "counts": {
-        "failed_suites": 0,
-        "failed_tests": 0,
-        "passed_suites": 1044,
-        "passed_tests": 10396,
-        "skipped_suites": 1,
-        "skipped_tests": 20
-      },
-      "duration_ms": 727002,
-      "evidence_sha256": "3499b94ff183583ef02e523da35b4c8f7edbebd67b895631f746dc21cd2bbea4",
-      "execution_attribution": "current-source-execution",
-      "immutable_event_sha256": "9a2572465c2c6395cebb750c14b7753e61f3440541d200b889c35e5763a37d08",
-      "independent_review_sha256": "913d20f550d2a76ec7a0c04d8218a521e395a5e90b32f4ada1a4f5d971fed6a7",
-      "provider_cap_zero": true,
-      "provider_paused": true,
-      "source_freeze_id": "023c7fc2fde8885f2cf05a887eb07c58e3501e3925a8dd53bcc911c9b0f4ea42",
-      "status": "passed"
-    },
-    "workflow_bootstrap": {
-      "build_id": null,
-      "counts": {
-        "failed_checks": 0,
-        "passed_checks": 1
-      },
-      "duration_ms": 693,
-      "evidence_sha256": "d78e8bbcfec1a969b57e2fd655d72da5c6d6a6d31d1338fbf5c227feffcb0a30",
-      "execution_attribution": "current-source-execution",
-      "immutable_event_sha256": "4c24f5688d953b7706df0f3023ba79996923d050f4f9dd8eabe064f6b9e13adb",
-      "independent_review_sha256": "62c15da754bf673e72b92e0f2657c9ae366e8f6f7a4c89f50b29a006086ba3dc",
-      "provider_cap_zero": true,
-      "provider_paused": true,
-      "source_freeze_id": "023c7fc2fde8885f2cf05a887eb07c58e3501e3925a8dd53bcc911c9b0f4ea42",
-      "status": "passed"
+      "duration_ms": null,
+      "evidence_sha256": "a6ddfffdcf9eabacbaf5f4263679cedca78b17688f70cf4510fa4ebbe5b83151",
+      "independent_review_sha256": "8da5938f7a4e800668de541b414db1c682714c8433b28c5b2ca811c170f2ef20",
+      "source_head": "b21bd1c32c24f499271203b03ffcbb577ce96850",
+      "source_freeze_id": "9dc844ba7bbc12fbe7e7c9ad552b3ac2744903f0cf59902ed5c7f2e998292646",
+      "qualification": "Actual root native source88 free browser checks pass23 assertions. Mobile native Home/Shift+End/Backspace recovery is a separate fresh synthetic user after CLI context/auth loss. Failed selector/shortcut/empty-fill attempts are preserved. This does not establish live streaming, actual import terminal retention, current UI typed unnumbered-procedure failure or all console errors. Historical29 source85 assertions retain their original bounds. Page-type description text is accepted; no three separate help-tooltip opening claim."
     }
   },
   "complete_local_gate_passed": true,
   "correction_evidence": {
-    "current_corpus_source_only": {
-      "attribution": "Pure canonical source algorithms and regenerated raw manifest; no index/embedding/database/provider graph call.",
-      "chunks": 1043,
-      "corpus_build_hash": "9ccbb5cba2fb45e2f61fd23f34828e56fb707525c9495380bf2d9e14c98e540c",
-      "embedding_format": "docs-embedding-v2",
-      "evidence_sha256": "195d9cf6f466fcdaccc28ec37436edf320a9644277579a0e07e82df49a3daebc",
-      "no_live_index_state_inferred": true,
-      "sections": 846,
-      "source_head": "4d4e4af8a241b161f212fbfe9f9286d99c66b256",
-      "unique_content_hashes": 939
+    "source_head": "b21bd1c32c24f499271203b03ffcbb577ce96850",
+    "source_freeze_id": "9dc844ba7bbc12fbe7e7c9ad552b3ac2744903f0cf59902ed5c7f2e998292646",
+    "source_identity_attribution": "All88 manifest files match current source. Neighbor review and byte continuity are separate from root-executed tests and future model acceptance.",
+    "evidence_quote_boundary": {
+      "status": "implemented_and_focused_boundary_tests_passed",
+      "review_sha256": "5dd4b31c21801a4f7a64e6441189416c7b4cc1494439a1f346c2131cb49680de",
+      "scope": "Mandatory bounded per-section sourceId/quote entries; exact quote membership in this page own cited current source before atomic persistence; typed wikiSourceEvidenceInvalid error. No semantic entailment, exhaustive clause grounding, quotation relevance or latest returned prefix-span guarantee."
     },
-    "gmail_state_projection": {
-      "execution_attribution": "RED/GREEN verification of installed Gmail correction working-tree bytes subsequently committed as 4d4e4af8; not a recorded post-commit source85 focused run.",
-      "execution_head_recorded": false,
-      "fresh_hosted_selection_verified": false,
-      "green_log_sha256": "38c576fe7d280f07ccc1172ffbfb6057104c068b425d56d15782d811da4cee97",
-      "green_passed_suites": 3,
-      "green_passed_tests": 98,
-      "green_process_done_ms": 25980,
-      "green_vitest_duration_ms": 25170,
-      "initial_attempt_vs_existing_error_card_clarified": true,
-      "installed_neighbor_review_sha256": "dec8aedd3c11667c2d06d1b483b5648466fbe9c403a35d00d2f1d30d5d634cf3",
-      "original_gold_or_numeric_bound_changed": false,
-      "red_failed_additive_tests": 2,
-      "red_log_sha256": "663baacfe2cf933cff6e170b6120f66802b9e666151c899ba8bf4a3e90c9a4d1",
-      "red_passed_existing_tests": 22,
-      "status": "focused_passed",
-      "tested_content_commit": "4d4e4af8a241b161f212fbfe9f9286d99c66b256"
+    "quoted_language_boundary": {
+      "status": "implemented_and_focused_boundary_tests_passed",
+      "scope": "Separate quoted prose aggregation uses canonical conservative franc thresholds; technical code excluded. Does not detect every short, uppercase or mixed-language phrase."
     },
-    "grounding": {
-      "execution_attribution": "Focused verification of installed grounding working-tree bytes subsequently committed as d839501f; not a new current-source85 focused run.",
-      "execution_head_recorded": false,
-      "focused_log_sha256": "ad2a5e267ab25f3eb978b118679481b1b316bea2c1df3cbe552e76e5eeaa7326",
-      "installed_neighbor_review_sha256": "c159fed2f41ce6774a4548c989edf16de3d9629b1b82af3449afefbcafc070d0",
-      "passed_suites": 7,
-      "passed_tests": 130,
-      "process_done_ms": 67740,
-      "semantic_enforcement": "Prompt guidance and existing typed structural source/citation validation; not entailment proof.",
-      "status": "focused_passed",
-      "tested_content_commit": "d839501f3db187fdd0094b3cd1d6f27942eb40b1",
-      "tests_not_newly_authored_for_this_guidance": true,
-      "vitest_duration_ms": 66800
-    },
-    "runtime_acceptance": "Focused deterministic corrections only; no new hosted/content/live lifecycle acceptance.",
-    "source_freeze_id": "023c7fc2fde8885f2cf05a887eb07c58e3501e3925a8dd53bcc911c9b0f4ea42",
-    "source_head": "4d4e4af8a241b161f212fbfe9f9286d99c66b256",
-    "source_identity_attribution": "Current installed correction bytes. Focused logs are separate executions whose exact Git HEAD was not recorded here; their matching tested content was subsequently committed at the identities below. The final full gate ran at the current source head."
+    "focused_current_evidence_sha256": "2e3368ec5cb26785ec15d79000015f8a906a7d6d3abb7d7ad0dc035505288818",
+    "parent_reported_precommit_focused_tests": 120,
+    "parent_reported_precommit_focused_attribution": "Owner-reported prior focused run, not relabeled as the current92-test owned-database event.",
+    "frontend_unchanged_25_file_bridge_sha256": "5dda4509439de8fb1d6dd02dbd05ccb8651f97385ef479340864d83b20aa8ee7",
+    "runtime_acceptance": "Source88 automated/free UI acceptance passed with stated bounds. Corrected current hosted content/30 contracts and actual live import dirty-terminal remain unverified."
   },
   "current_owned_resource_cleanup": {
+    "state": "passed",
     "all_owned_transient_resources_removed": true,
     "dev_database_untouched": true,
-    "evidence_sha256": "54e8f787e24c8214afc7cc3c048588aef1ce889b943cd51093e022cafcf078f3",
-    "paid_synthetic_data_retained": true,
     "preview_database_untouched": true,
-    "state": "closed"
+    "paid_synthetic_data_retained": true,
+    "evidence_sha256": "fa79e4158fd87cc15ef2f0f419c6888de2154a6cb92effacc015000052f1791e",
+    "qualification": "The marked source88 provider-paused server closed on requested SIGTERM; source/build unchanged. Its fresh owned gate DB was dropped only after zero connected sessions, without FORCE, and absence verified. Both test-user journeys belonged to that DB. Retained paid corpus and historical25,000,000-microcent hold are preserved; dev/preview were not targeted.",
+    "free_server_exit_sha256": "a7f73e6976ca6217987c87335c7db8c2ded9fe0233c0b84a6cfaa14789a63fee",
+    "free_browser_close_sha256": "7b6df3d55d43203cadbfcf966c168fb8c40fcd4653461c98f3b6c02abf9b5605"
   },
   "external": {
     "drafts_preserved": true,
-    "kb": {
-      "distinct_checks_count": 6,
-      "exact_head_ci_verified": true,
-      "head": "152d76a8f5796ce094aefc49daa0f62e70b418be",
-      "raw_records": 7,
-      "snapshot_sha256": "a762b372339ebeb5629726acb2efd7b602cd5374657fc9614d93dc82cd5bf922",
-      "status": "passed"
-    },
+    "product_publication_status": "source88_successor_not_published",
     "product": {
+      "head": "b21bd1c32c24f499271203b03ffcbb577ce96850",
       "exact_head_ci_verified": false,
-      "status": "pending"
+      "status": "pending",
+      "snapshot_sha256": null
     },
-    "product_publication_status": "not_published"
+    "kb": {
+      "head": "6e97510bfa6462e0e8a11ddc2fae2891c944a86d",
+      "exact_head_ci_verified": true,
+      "status": "passed",
+      "snapshot_sha256": "046b664524170e2a75d0df2c8cedaacc02335f5108884f5d764d12b9c03d96d3",
+      "distinct_checks_count": 6
+    },
+    "qualification": "No old exact-head green result is relabeled onto the new product or KB head."
   },
   "historical_verification": {
     "attribution": "These results predate the current website synthesis, evidence formatter and compound/coherence fixes. They are retained as evidence for their own source/build revisions and are not final current-source UI/live acceptance.",
@@ -3855,67 +3871,409 @@
       }
     },
     "source82_preexecution_template_artifact_sha256": "ca5f6d8abc9fbe762132cd5ae16060677880db3e8357101f98de1b8bf8cb3a13",
-    "source_tree": "876c5ec040ad219cc114abc903fe596830c2d399"
+    "source_tree": "876c5ec040ad219cc114abc903fe596830c2d399",
+    "source85_pre_evidence_packet": {
+      "attribution": "Previously tracked source85 packet snapshot, preserved verbatim by value; historical approvals, runtime results and pending states below do not describe source88.",
+      "packet_input_sha256": "bf0aa6ee20a9dd00e57d1976c4825e408f3dc182ba4602e1c3d672e4ab58fcdf",
+      "source_snapshot": {
+        "build_id": "TgbMauXHO9KOdQoo0C8Xm",
+        "final_packet_commit_head": null,
+        "frozen_source_file_count": 85,
+        "independent_source_review_sha256": "925df5e01f6d58c1d9dec19903f8cdcd88ecd44d4e57429f6e8e32a642fb385d",
+        "source_freeze_artifact_sha256": "e763e6de09198664c9d7b9ece9b1306d3094c476f24c171d0b185dd71253e91e",
+        "source_freeze_id": "023c7fc2fde8885f2cf05a887eb07c58e3501e3925a8dd53bcc911c9b0f4ea42",
+        "source_head": "4d4e4af8a241b161f212fbfe9f9286d99c66b256"
+      },
+      "checks": {
+        "build": {
+          "build_id": "TgbMauXHO9KOdQoo0C8Xm",
+          "counts": {},
+          "duration_ms": 101435,
+          "evidence_sha256": "13f61f15537dcdab7a92199c568af6bf1830857713d6bce5f775da420b95adfe",
+          "execution_attribution": "current-source-execution",
+          "immutable_event_sha256": "43da739487857d5c3303a0a8481cc836c8b10d53aeb5870665f22ececb8d4386",
+          "independent_review_sha256": "913d20f550d2a76ec7a0c04d8218a521e395a5e90b32f4ada1a4f5d971fed6a7",
+          "provider_cap_zero": true,
+          "provider_paused": true,
+          "source_freeze_id": "023c7fc2fde8885f2cf05a887eb07c58e3501e3925a8dd53bcc911c9b0f4ea42",
+          "status": "passed"
+        },
+        "built_browser": {
+          "build_id": "TgbMauXHO9KOdQoo0C8Xm",
+          "counts": {
+            "failed_assertions": 0,
+            "passed_assertions": 29
+          },
+          "duration_ms": null,
+          "evidence_sha256": "461dad99c1a1a77827b6652f23adef591a82bc4b3401d895c0e6792c9c680566",
+          "execution_attribution": "current-source-execution",
+          "immutable_event_sha256": null,
+          "independent_review_sha256": "6f3ba21fff9aa7ffc94ae92c42ea3788bf293041e5be8dea27506de92164b0a5",
+          "provider_cap_zero": true,
+          "provider_paused": true,
+          "source_freeze_id": "023c7fc2fde8885f2cf05a887eb07c58e3501e3925a8dd53bcc911c9b0f4ea42",
+          "status": "passed"
+        },
+        "built_http": {
+          "build_id": "TgbMauXHO9KOdQoo0C8Xm",
+          "counts": {
+            "failed_assertions": 0,
+            "passed_assertions": 18,
+            "passed_suites": 2,
+            "skipped_tests": 0
+          },
+          "duration_ms": 13642,
+          "evidence_sha256": "85afa4ca59c122e8860b0b753ffa7658ca9a7cf2f03205bdc8711ebb9ddbd26f",
+          "execution_attribution": "current-source-execution",
+          "immutable_event_sha256": "63aa2f6e3808542715599e87d2db055b665b7e777b0959988106fd29056f4cab",
+          "independent_review_sha256": "62c15da754bf673e72b92e0f2657c9ae366e8f6f7a4c89f50b29a006086ba3dc",
+          "provider_cap_zero": true,
+          "provider_paused": true,
+          "source_freeze_id": "023c7fc2fde8885f2cf05a887eb07c58e3501e3925a8dd53bcc911c9b0f4ea42",
+          "status": "passed"
+        },
+        "focused_current": {
+          "status": "pending"
+        },
+        "lint": {
+          "build_id": null,
+          "counts": {},
+          "duration_ms": 116568,
+          "evidence_sha256": "38d5d866de4f56f3817b35145cb0167445aaf26488ebe98e7d21db911197c196",
+          "execution_attribution": "current-source-execution",
+          "immutable_event_sha256": "d7a75d217082c43e022f5662198ccd357247cade9e008d23c36773a26902517b",
+          "independent_review_sha256": "913d20f550d2a76ec7a0c04d8218a521e395a5e90b32f4ada1a4f5d971fed6a7",
+          "provider_cap_zero": true,
+          "provider_paused": true,
+          "source_freeze_id": "023c7fc2fde8885f2cf05a887eb07c58e3501e3925a8dd53bcc911c9b0f4ea42",
+          "status": "passed"
+        },
+        "migrations": {
+          "build_id": null,
+          "counts": {
+            "failed_checks": 0,
+            "passed_checks": 6
+          },
+          "duration_ms": null,
+          "evidence_sha256": "8e3115694e16aed250d662f8ca9980a161e00baecc8dad92e525611fac7b7af9",
+          "execution_attribution": "unchanged-authority-evidence-bridge",
+          "immutable_event_sha256": null,
+          "independent_review_sha256": "62c15da754bf673e72b92e0f2657c9ae366e8f6f7a4c89f50b29a006086ba3dc",
+          "provider_cap_zero": true,
+          "provider_paused": true,
+          "source_freeze_id": "023c7fc2fde8885f2cf05a887eb07c58e3501e3925a8dd53bcc911c9b0f4ea42",
+          "status": "passed"
+        },
+        "seed_twice": {
+          "build_id": null,
+          "counts": {
+            "failed_checks": 0,
+            "passed_checks": 2
+          },
+          "duration_ms": 8333,
+          "evidence_sha256": "9cb4c53bcd0f1db157991d10198d55d0d93d903c1740872678ed6b146d58b5da",
+          "execution_attribution": "current-source-execution",
+          "immutable_event_sha256": null,
+          "independent_review_sha256": "62c15da754bf673e72b92e0f2657c9ae366e8f6f7a4c89f50b29a006086ba3dc",
+          "provider_cap_zero": true,
+          "provider_paused": true,
+          "source_freeze_id": "023c7fc2fde8885f2cf05a887eb07c58e3501e3925a8dd53bcc911c9b0f4ea42",
+          "status": "passed"
+        },
+        "typecheck": {
+          "build_id": null,
+          "counts": {},
+          "duration_ms": 11275,
+          "evidence_sha256": "609ed4c7b12e8adf2af4784fdc3a29424a537764d846971ce12f91c97605f943",
+          "execution_attribution": "current-source-execution",
+          "immutable_event_sha256": "6110715a5aaf0fc35b7a5c31a705de57e2f751888de0fdf625212f1beaac8447",
+          "independent_review_sha256": "913d20f550d2a76ec7a0c04d8218a521e395a5e90b32f4ada1a4f5d971fed6a7",
+          "provider_cap_zero": true,
+          "provider_paused": true,
+          "source_freeze_id": "023c7fc2fde8885f2cf05a887eb07c58e3501e3925a8dd53bcc911c9b0f4ea42",
+          "status": "passed"
+        },
+        "vitest": {
+          "build_id": null,
+          "counts": {
+            "failed_suites": 0,
+            "failed_tests": 0,
+            "passed_suites": 1044,
+            "passed_tests": 10396,
+            "skipped_suites": 1,
+            "skipped_tests": 20
+          },
+          "duration_ms": 727002,
+          "evidence_sha256": "3499b94ff183583ef02e523da35b4c8f7edbebd67b895631f746dc21cd2bbea4",
+          "execution_attribution": "current-source-execution",
+          "immutable_event_sha256": "9a2572465c2c6395cebb750c14b7753e61f3440541d200b889c35e5763a37d08",
+          "independent_review_sha256": "913d20f550d2a76ec7a0c04d8218a521e395a5e90b32f4ada1a4f5d971fed6a7",
+          "provider_cap_zero": true,
+          "provider_paused": true,
+          "source_freeze_id": "023c7fc2fde8885f2cf05a887eb07c58e3501e3925a8dd53bcc911c9b0f4ea42",
+          "status": "passed"
+        },
+        "workflow_bootstrap": {
+          "build_id": null,
+          "counts": {
+            "failed_checks": 0,
+            "passed_checks": 1
+          },
+          "duration_ms": 693,
+          "evidence_sha256": "d78e8bbcfec1a969b57e2fd655d72da5c6d6a6d31d1338fbf5c227feffcb0a30",
+          "execution_attribution": "current-source-execution",
+          "immutable_event_sha256": "4c24f5688d953b7706df0f3023ba79996923d050f4f9dd8eabe064f6b9e13adb",
+          "independent_review_sha256": "62c15da754bf673e72b92e0f2657c9ae366e8f6f7a4c89f50b29a006086ba3dc",
+          "provider_cap_zero": true,
+          "provider_paused": true,
+          "source_freeze_id": "023c7fc2fde8885f2cf05a887eb07c58e3501e3925a8dd53bcc911c9b0f4ea42",
+          "status": "passed"
+        }
+      },
+      "correction_evidence": {
+        "current_corpus_source_only": {
+          "attribution": "Pure canonical source algorithms and regenerated raw manifest; no index/embedding/database/provider graph call.",
+          "chunks": 1043,
+          "corpus_build_hash": "9ccbb5cba2fb45e2f61fd23f34828e56fb707525c9495380bf2d9e14c98e540c",
+          "embedding_format": "docs-embedding-v2",
+          "evidence_sha256": "195d9cf6f466fcdaccc28ec37436edf320a9644277579a0e07e82df49a3daebc",
+          "no_live_index_state_inferred": true,
+          "sections": 846,
+          "source_head": "4d4e4af8a241b161f212fbfe9f9286d99c66b256",
+          "unique_content_hashes": 939
+        },
+        "gmail_state_projection": {
+          "execution_attribution": "RED/GREEN verification of installed Gmail correction working-tree bytes subsequently committed as 4d4e4af8; not a recorded post-commit source85 focused run.",
+          "execution_head_recorded": false,
+          "fresh_hosted_selection_verified": false,
+          "green_log_sha256": "38c576fe7d280f07ccc1172ffbfb6057104c068b425d56d15782d811da4cee97",
+          "green_passed_suites": 3,
+          "green_passed_tests": 98,
+          "green_process_done_ms": 25980,
+          "green_vitest_duration_ms": 25170,
+          "initial_attempt_vs_existing_error_card_clarified": true,
+          "installed_neighbor_review_sha256": "dec8aedd3c11667c2d06d1b483b5648466fbe9c403a35d00d2f1d30d5d634cf3",
+          "original_gold_or_numeric_bound_changed": false,
+          "red_failed_additive_tests": 2,
+          "red_log_sha256": "663baacfe2cf933cff6e170b6120f66802b9e666151c899ba8bf4a3e90c9a4d1",
+          "red_passed_existing_tests": 22,
+          "status": "focused_passed",
+          "tested_content_commit": "4d4e4af8a241b161f212fbfe9f9286d99c66b256"
+        },
+        "grounding": {
+          "execution_attribution": "Focused verification of installed grounding working-tree bytes subsequently committed as d839501f; not a new current-source85 focused run.",
+          "execution_head_recorded": false,
+          "focused_log_sha256": "ad2a5e267ab25f3eb978b118679481b1b316bea2c1df3cbe552e76e5eeaa7326",
+          "installed_neighbor_review_sha256": "c159fed2f41ce6774a4548c989edf16de3d9629b1b82af3449afefbcafc070d0",
+          "passed_suites": 7,
+          "passed_tests": 130,
+          "process_done_ms": 67740,
+          "semantic_enforcement": "Prompt guidance and existing typed structural source/citation validation; not entailment proof.",
+          "status": "focused_passed",
+          "tested_content_commit": "d839501f3db187fdd0094b3cd1d6f27942eb40b1",
+          "tests_not_newly_authored_for_this_guidance": true,
+          "vitest_duration_ms": 66800
+        },
+        "runtime_acceptance": "Focused deterministic corrections only; no new hosted/content/live lifecycle acceptance.",
+        "source_freeze_id": "023c7fc2fde8885f2cf05a887eb07c58e3501e3925a8dd53bcc911c9b0f4ea42",
+        "source_head": "4d4e4af8a241b161f212fbfe9f9286d99c66b256",
+        "source_identity_attribution": "Current installed correction bytes. Focused logs are separate executions whose exact Git HEAD was not recorded here; their matching tested content was subsequently committed at the identities below. The final full gate ran at the current source head."
+      },
+      "current_owned_resource_cleanup": {
+        "all_owned_transient_resources_removed": true,
+        "dev_database_untouched": true,
+        "evidence_sha256": "54e8f787e24c8214afc7cc3c048588aef1ce889b943cd51093e022cafcf078f3",
+        "paid_synthetic_data_retained": true,
+        "preview_database_untouched": true,
+        "state": "closed"
+      },
+      "external": {
+        "drafts_preserved": true,
+        "kb": {
+          "distinct_checks_count": 6,
+          "exact_head_ci_verified": true,
+          "head": "152d76a8f5796ce094aefc49daa0f62e70b418be",
+          "raw_records": 7,
+          "snapshot_sha256": "a762b372339ebeb5629726acb2efd7b602cd5374657fc9614d93dc82cd5bf922",
+          "status": "passed"
+        },
+        "product": {
+          "exact_head_ci_verified": false,
+          "status": "pending"
+        },
+        "product_publication_status": "not_published"
+      },
+      "kb": {
+        "checks_passed_count": 8,
+        "gate_evidence_sha256": "9c0a01b44cd7b3a5ddb2b55d3324368505414bc981ae101d784e857c5150a5f7",
+        "gate_status": "passed",
+        "head": "152d76a8f5796ce094aefc49daa0f62e70b418be",
+        "semantic_review_sha256": "a301cb553fa26710db3d98702894fdfde64c3a3f16a34b034f51c4d6ffc80a7b"
+      },
+      "live_provider": {
+        "complete_contracts_passed": false,
+        "current_source_acceptance": "pending after correction; no source85 provider rerun",
+        "future_batch": {
+          "approved_ceiling_microcents": null,
+          "attribution": "Separate future batch proposal; no prior batch allowance is transferred. Actual approval requires a separately reviewed successor update before execution.",
+          "authorization_status": "pending",
+          "complete_contracts_passed": false,
+          "executed": false,
+          "execution_authorized": false,
+          "proposed_ceiling_microcents": 200000000,
+          "semantic_acceptance": false,
+          "stage_names": [
+            "import4",
+            "contracts4"
+          ],
+          "state": "not_approved"
+        },
+        "latest_closed_batch_accounted_microcents": 62385921,
+        "latest_closed_batch_contracts": {
+          "failed": 4,
+          "passed": 26,
+          "total": 30
+        },
+        "latest_closed_batch_held_microcents": 0,
+        "latest_closed_batch_source": "a455abd78fccda968760d0a90a1a339589952996",
+        "semantic_acceptance": false
+      },
+      "review_matrix": {
+        "attribution": "Neighbor/source review only; historical runtime claims retain their original revisions.",
+        "consolidated_csv_sha256": "6a24a714142cc82a25cf3c4a08baf8086189247d1dd182f025d29cd4afaea757",
+        "consolidated_matrix_sha256": "3360da9d8b0cd8ee0cf00a10d2242d1ed95905443a224987977044d59d73832f",
+        "corrected": 169,
+        "current_branch_paths": 763,
+        "derived_packet_exclusions": [
+          "scripts/agent-benchmark/reports/2026-10-01-mate-bundle-final-cleanup/README.md",
+          "scripts/agent-benchmark/reports/2026-10-01-mate-bundle-final-cleanup/verification.json",
+          "scripts/agent-benchmark/reports/2026-10-01-mate-bundle-final-cleanup/review-matrix.csv"
+        ],
+        "justified": 13,
+        "original_paths": 592,
+        "raw_current_diff_paths": 766,
+        "reviewed": 590,
+        "reviewed_union_paths": 772
+      },
+      "pending": [
+        "Final packet consistency review and exact future publication-head CI.",
+        "Any nonpassing local/build/HTTP/browser/cleanup above; source85 provider/content acceptance has not run.",
+        "Original actual live dirty-editor/observer loss remains unresolved despite passing deterministic35.118s guard fixture.",
+        "Separate import4/contracts4 US$2 approval is pending; no successor paid work is authorized by this packet.",
+        "Human legal/privacy/customer-notice and provider-contract checkpoints, preview reset checkpoint and merge approval; product then KB."
+      ],
+      "complete_local_gate_passed": true,
+      "status": "Current source-bound proposal; only completed artifacts below establish their stated acceptance. Merge readiness remains false.",
+      "reviewed_at": "2026-10-02T14:08:33.069045+00:00"
+    }
   },
   "invariants": {
-    "claim_scope": "Initial-only model and typed fresh-source/citation guards are implemented; generated semantic content and hosted choice still require actual live acceptance.",
+    "claim_scope": "Initial-only3.8 model, typed freshness/provenance, exact quoted-source membership and conservative quoted-language guards are implemented. They do not prove semantic faithfulness, exhaustive offering coverage, current hosted choice or live dirty-editor retention.",
     "cosine_drop_below": 0.6,
     "embedding_wait_ms": 1100,
     "idf_keep_coverage": 0.9,
     "initial_import_model": "google/gemini-3.8-flash",
     "normal_chat_routine_extend_model": "google/gemini-3.5-flash-lite",
     "stored_model_identifier": "balanced",
-    "strict_hosted_gold_sha256": "0f6d4a5d8a0a1ad500b09688a277cad1768b945e5bec6af960dfb5c5a70c2576"
+    "strict_hosted_suite_path": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+    "strict_hosted_suite_sha256": "0f6d4a5d8a0a1ad500b09688a277cad1768b945e5bec6af960dfb5c5a70c2576",
+    "strict_hosted_gold_file_path": "features/mcp-tools/__tests__/fixtures/docs-retrieval-golden.ts",
+    "strict_hosted_gold_file_sha256": "b1686f99e00ffe37b50742a9825b8235d0ad7fd64a98b3889df4fe51d0a7204b",
+    "benchmark_attribution": "The retained0f6d hash identifies the complete30-case regression suite, not its separate gold fixture file. Both source files remain unchanged; historical metadata is retained at its original revision."
   },
   "kb": {
+    "head": "6e97510bfa6462e0e8a11ddc2fae2891c944a86d",
+    "changed_paths": 23,
+    "gate_status": "passed_native_receipt",
     "checks_passed_count": 8,
-    "gate_evidence_sha256": "9c0a01b44cd7b3a5ddb2b55d3324368505414bc981ae101d784e857c5150a5f7",
-    "gate_status": "passed",
-    "head": "152d76a8f5796ce094aefc49daa0f62e70b418be",
-    "semantic_review_sha256": "a301cb553fa26710db3d98702894fdfde64c3a3f16a34b034f51c4d6ffc80a7b"
+    "gate_evidence_sha256": "de56386f0cd1cbf200cc8c50ce4768e647fb238393ab9937339689e56ea32e9a",
+    "focused_fixture_tests_passed": 33,
+    "focused_fixture_evidence_sha256": "355c5eabc271d06c1fd51daa808048b1c62349f1f30016f0af789f14113a7236",
+    "semantic_review_sha256": "5dd4b31c21801a4f7a64e6441189416c7b4cc1494439a1f346c2131cb49680de",
+    "clone_transport_review_sha256": "fffd3fbd70e79848c4d8afb12ef66e84413d4d91ddcc45b4215ae642c63cf623",
+    "qualification": "Actual local gate8/8 and focused hook/task fixture33/33 logs are bound. The evidence docs retain e5 bytes; six --no-local fixture clone arguments and durable convention are independently reviewed at current6e head. All exact current CI/policy checks passed; target labels remain."
   },
   "live_provider": {
     "complete_contracts_passed": false,
-    "current_source_acceptance": "pending after correction; no source85 provider rerun",
-    "future_batch": {
-      "approved_ceiling_microcents": null,
-      "attribution": "Separate future batch proposal; no prior batch allowance is transferred. Actual approval requires a separately reviewed successor update before execution.",
-      "authorization_status": "pending",
-      "complete_contracts_passed": false,
-      "executed": false,
-      "execution_authorized": false,
-      "proposed_ceiling_microcents": 200000000,
-      "semantic_acceptance": false,
-      "stage_names": [
-        "import4",
-        "contracts4"
-      ],
-      "state": "not_approved"
-    },
-    "latest_closed_batch_accounted_microcents": 62385921,
-    "latest_closed_batch_contracts": {
-      "failed": 4,
-      "passed": 26,
-      "total": 30
-    },
+    "semantic_acceptance": false,
+    "current_source_acceptance": "pending after evidence/language correction; no source88 provider rerun",
+    "latest_closed_batch_accounted_microcents": 50786156,
     "latest_closed_batch_held_microcents": 0,
-    "latest_closed_batch_source": "a455abd78fccda968760d0a90a1a339589952996",
-    "semantic_acceptance": false
+    "latest_closed_batch_source": "a3e94197d66195d81b96e1436a41c86cde3c45ca",
+    "latest_closed_batch_application_source": "4d4e4af8a241b161f212fbfe9f9286d99c66b256",
+    "latest_closed_batch_source_freeze": "023c7fc2fde8885f2cf05a887eb07c58e3501e3925a8dd53bcc911c9b0f4ea42",
+    "latest_closed_batch_build_id": "TgbMauXHO9KOdQoo0C8Xm",
+    "latest_closed_batch_contracts": {
+      "passed": 27,
+      "failed": 3,
+      "total": 30,
+      "deterministic_passed": 15,
+      "deterministic_total": 15,
+      "hosted_passed": 12,
+      "hosted_total": 15,
+      "strict_query_misses": 14,
+      "alternate_partial_or_ambiguous_query_misses": 13,
+      "confirmed_deadline_query_misses": 1,
+      "report_sha256": "4d78334d24f55522661d4fdf03444159f4299f8997b5f86000132cb96d7b2d47",
+      "independent_review_sha256": "2162c04b35029efe853cc5750732ae172dcd76ed5efbafdfa92395a7a5b7b509",
+      "qualification": "Thirteen misses include adequate alternates, partial answers and domain ambiguity; they remain original strict-gold failures and are not all complete accepted answers."
+    },
+    "latest_closed_batch_content": {
+      "checks_passed": 1,
+      "checks_failed": 8,
+      "checks_pending": 0,
+      "checks_total": 9,
+      "findings": 18,
+      "semantic_acceptance": false,
+      "terminal_artifact_sha256": "ce3144b23343883dea2df716d0763890a19c63e75b5a0635f0d84ac849e64a95",
+      "independent_review_sha256": "3eb47bbe2862f31a36aa07046a30a577811e5bdf80f43aa672b8337e20beb2f5"
+    },
+    "latest_closed_batch_finance": {
+      "approved_ceiling_microcents": 200000000,
+      "import_microcents": 37153129,
+      "contracts_conservative_microcents": 13633027,
+      "aggregate_microcents": 50786156,
+      "held_microcents": 0,
+      "contracts_measured_receipt_microcents": 13080568,
+      "contracts_estimated_receipt_microcents": 183603,
+      "contracts_conservative_excess_microcents": 1650,
+      "ledger_sha256": "b0152156bef602520cf64b27e80277afd804fbdbb7b2e0c93d2f626212e09e2c",
+      "drained": true,
+      "accounting_qualification": "Application event settlement and standalone report debit counted once; per-round import totals only reconcile. Unused prior ceiling does not authorize a future batch.",
+      "estimated_attempt_multiplier": 3,
+      "contracts_estimated_attempt_reservation_microcents": 550809
+    },
+    "actual_live_dirty_terminal_status": "UNVERIFIED",
+    "future_batch": {
+      "stage_names": [
+        "import5",
+        "contracts5"
+      ],
+      "authorization_status": "pending",
+      "state": "not_approved",
+      "approved_ceiling_microcents": null,
+      "proposed_ceiling_microcents": 200000000,
+      "execution_authorized": false,
+      "executed": false,
+      "complete_contracts_passed": false,
+      "semantic_acceptance": false,
+      "attribution": "Fresh separateUS$2 question pending. No transfer of unused prior allowance; no paid successor request has been executed. Source/build/golds/ledger/wrappers require a fresh guarded audit after explicit approval."
+    }
   },
   "pending": [
-    "Final packet consistency review and exact future publication-head CI.",
-    "Any nonpassing local/build/HTTP/browser/cleanup above; source85 provider/content acceptance has not run.",
-    "Original actual live dirty-editor/observer loss remains unresolved despite passing deterministic35.118s guard fixture.",
-    "Separate import4/contracts4 US$2 approval is pending; no successor paid work is authorized by this packet.",
-    "Human legal/privacy/customer-notice and provider-contract checkpoints, preview reset checkpoint and merge approval; product then KB."
+    "Final successor packet consistency review, ordinary product publication and exact new product head CI evidence. KB6e exact-head CI is green.",
+    "Source88 hosted Google wire complexity, all nine full-body content checks, all thirty retrieval cases and actual live import dirty-editor completion acceptance remain unverified after the correction.",
+    "Fresh import5/contracts5US$2 question pending; not approved and not executed. Prior unused ceiling is not transferable.",
+    "Human legal/privacy disclosures, customer notice, Exa/TypeSafeAI contractual checks, preview reset checkpoint and merge approval; merge product196 thenKB158."
   ],
   "ready_to_merge": false,
   "review_matrix": {
-    "attribution": "Neighbor/source review only; historical runtime claims retain their original revisions.",
-    "consolidated_csv_sha256": "6a24a714142cc82a25cf3c4a08baf8086189247d1dd182f025d29cd4afaea757",
-    "consolidated_matrix_sha256": "3360da9d8b0cd8ee0cf00a10d2242d1ed95905443a224987977044d59d73832f",
-    "corrected": 169,
-    "current_branch_paths": 763,
+    "attribution": "Per-file neighbor/source review only; runtime evidence retains its original revision.",
+    "consolidated_csv_sha256": "21b0e25946cea66601cda8fb7ea74a9ae8cb327b391af15832d4c4fe3b258388",
+    "consolidated_matrix_sha256": "88fa91b442e09b44ae6497d68a2bd1dd804827595c36c253329f919514b8b8f2",
+    "assembly_proof_sha256": "f0dd0fb2813c45014da8c21d2e5c983bf6f0e994163124e3b580c6190c3149cb",
+    "corrected": 182,
+    "current_branch_paths": 766,
     "derived_packet_exclusions": [
       "scripts/agent-benchmark/reports/2026-10-01-mate-bundle-final-cleanup/README.md",
       "scripts/agent-benchmark/reports/2026-10-01-mate-bundle-final-cleanup/verification.json",
@@ -3923,21 +4281,28 @@
     ],
     "justified": 13,
     "original_paths": 592,
-    "raw_current_diff_paths": 766,
-    "reviewed": 590,
-    "reviewed_union_paths": 772
+    "raw_current_diff_paths": 769,
+    "reviewed": 580,
+    "reviewed_union_paths": 775,
+    "missing_present_paths": 0,
+    "stale_rows": 0,
+    "unreviewed_paths": 0
   },
-  "reviewed_at": "2026-10-02T14:08:33.069045+00:00",
+  "reviewed_at": "2026-10-02T19:05:47.499979+00:00",
   "schema_version": 3,
   "source_base": "31d1df14c9185e62f23bf902be3ef518b42ca5b3",
   "source_snapshot": {
-    "build_id": "TgbMauXHO9KOdQoo0C8Xm",
+    "build_id": "rDwUIFEJs-xqOLrMtVLib",
     "final_packet_commit_head": null,
-    "frozen_source_file_count": 85,
-    "independent_source_review_sha256": "925df5e01f6d58c1d9dec19903f8cdcd88ecd44d4e57429f6e8e32a642fb385d",
-    "source_freeze_artifact_sha256": "e763e6de09198664c9d7b9ece9b1306d3094c476f24c171d0b185dd71253e91e",
-    "source_freeze_id": "023c7fc2fde8885f2cf05a887eb07c58e3501e3925a8dd53bcc911c9b0f4ea42",
-    "source_head": "4d4e4af8a241b161f212fbfe9f9286d99c66b256"
+    "frozen_source_file_count": 88,
+    "independent_source_review_sha256": "5dd4b31c21801a4f7a64e6441189416c7b4cc1494439a1f346c2131cb49680de",
+    "source_freeze_artifact_sha256": "eec5c28b49f542371476474bfe7ab2ce542e811ce52cc0d1df51f02ac477f0ba",
+    "source_freeze_id": "9dc844ba7bbc12fbe7e7c9ad552b3ac2744903f0cf59902ed5c7f2e998292646",
+    "source_head": "b21bd1c32c24f499271203b03ffcbb577ce96850",
+    "frontend_unchanged_25_file_bridge_sha256": "5dda4509439de8fb1d6dd02dbd05ccb8651f97385ef479340864d83b20aa8ee7"
   },
-  "status": "Current source-bound proposal; only completed artifacts below establish their stated acceptance. Merge readiness remains false."
+  "status": "Source88 full automated/free local gate passed with explicit browser coverage limits. Root-owned free transient resources closed. KB6e exact-head CI is green. Product publication/new exact-head CI and corrected live acceptance remain pending; merge readiness is false.",
+  "automated_local_gate_passed": true,
+  "packet_independent_review_sha256": "f54103043d67b6e4bca534380cc494a4d690bacdbdd36a76031d32947636107a",
+  "packet_independent_review_attribution": "Read-only final reviewer cleared all substantive fields and input hashes before this review digest was bound by the root; no runtime or application source change."
 }
