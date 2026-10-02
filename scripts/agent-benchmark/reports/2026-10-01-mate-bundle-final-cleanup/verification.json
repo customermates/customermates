@@ -1,396 +1,223 @@
 {
   "checks": {
     "build": {
-      "base_url": "http://127.0.0.1:4241",
-      "build_id": "x4gRHkm1UZ5uL9oiJEh12",
-      "duration_ms": 80742,
-      "log": "navigation-gate/final-build.log",
-      "passed": true,
-      "source_freeze_id": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c"
-    },
-    "built_browser": {
-      "assertions": [
-        {
-          "name": "Clean toolbar has bordered overflow, rightmost New page, visible Ask Mate and12 demo pages",
-          "passed": true
-        },
-        {
-          "name": "Dirty title shows only Reset and Save",
-          "passed": true
-        },
-        {
-          "name": "Reset restores the saved title and clean toolbar",
-          "passed": true
-        },
-        {
-          "name": "Delete icon and text use the shared destructive color",
-          "passed": true
-        },
-        {
-          "name": "Keyboard focus explains the Operating Guide and why Mate reads it each request",
-          "passed": true
-        },
-        {
-          "name": "390-pixel mobile layout has no horizontal overflow",
-          "passed": true
-        },
-        {
-          "name": "Opened mobile picker shows the common no-match state with no page links",
-          "passed": true
-        },
-        {
-          "name": "Browser has no recorded JavaScript exceptions",
-          "passed": true
-        }
-      ],
-      "attribution": "Fresh provider-disabled controlled browser smoke on this build; historical detailed journeys remain separately attributed.",
-      "build_id": "x4gRHkm1UZ5uL9oiJEh12",
-      "evidence_sha256": "b535f947aa3167d2ccb7814588e4668211a8f0c20f48ed22ef95b0c6040e0adc",
-      "failed_assertions": 0,
-      "independent_review_attribution": "Independent saved-artifact and raw-JSON review includes actual viewing of all five screenshots; no additional browser replay or live-provider acceptance.",
-      "independent_review_sha256": "4e1c1793511a290ac88a7153093de2d435389be54b2eadea6110fddcc66d9001",
-      "limitations": [
-        "Fresh provider-disabled smoke does not accept hosted ranking or generated website content.",
-        "Earlier detailed CRUD/conflict/ordering/streaming journeys retain their original build attribution under separately checked frontend/shared bytes.",
-        "Old dropped-fixture sign-in, early title predicates using contenteditable instead of textarea, stale menu ref and a multi-term search with relevant hits are excluded harness attempts.",
-        "Only recorded JavaScript exceptions are checked; no claim about every browser schedule or live-stream timing."
-      ],
-      "passed": true,
-      "passed_assertions": 8,
+      "build_id": "TgbMauXHO9KOdQoo0C8Xm",
+      "counts": {},
+      "duration_ms": 101435,
+      "evidence_sha256": "13f61f15537dcdab7a92199c568af6bf1830857713d6bce5f775da420b95adfe",
+      "execution_attribution": "current-source-execution",
+      "immutable_event_sha256": "43da739487857d5c3303a0a8481cc836c8b10d53aeb5870665f22ececb8d4386",
+      "independent_review_sha256": "913d20f550d2a76ec7a0c04d8218a521e395a5e90b32f4ada1a4f5d971fed6a7",
       "provider_cap_zero": true,
       "provider_paused": true,
-      "source_freeze_id": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c"
+      "source_freeze_id": "023c7fc2fde8885f2cf05a887eb07c58e3501e3925a8dd53bcc911c9b0f4ea42",
+      "status": "passed"
+    },
+    "built_browser": {
+      "build_id": "TgbMauXHO9KOdQoo0C8Xm",
+      "counts": {
+        "failed_assertions": 0,
+        "passed_assertions": 29
+      },
+      "duration_ms": null,
+      "evidence_sha256": "461dad99c1a1a77827b6652f23adef591a82bc4b3401d895c0e6792c9c680566",
+      "execution_attribution": "current-source-execution",
+      "immutable_event_sha256": null,
+      "independent_review_sha256": "6f3ba21fff9aa7ffc94ae92c42ea3788bf293041e5be8dea27506de92164b0a5",
+      "provider_cap_zero": true,
+      "provider_paused": true,
+      "source_freeze_id": "023c7fc2fde8885f2cf05a887eb07c58e3501e3925a8dd53bcc911c9b0f4ea42",
+      "status": "passed"
     },
     "built_http": {
-      "attribution": "Fresh built-server checks with both database URLs on an owned disposable database.",
-      "build_id": "x4gRHkm1UZ5uL9oiJEh12",
-      "duration_ms": 11262,
-      "files": 2,
-      "log": "navigation-gate/final-built-http.log",
-      "passed": true,
-      "source_freeze_id": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c",
-      "tests": 18
-    },
-    "focused_final_boundaries": {
-      "attribution": "Parent-owned final focused rerun after actual repository ESLint formatting. Earlier repeat 3,552 ms and 9,306 ms are retained in gate-results.jsonl.",
-      "duration_ms": 3377,
-      "files": 8,
-      "log": "post-live-gate/focused-final-boundaries.log",
-      "passed": true,
-      "source_freeze_id": "a73446a5ede7408b3d2e4492fba389a6c807df6ce3c62e19bf1a5243bb419913",
-      "tests": 258
-    },
-    "focused_label_fallback": {
-      "actual_repaired_delete_query_selected": true,
-      "before_failed": 2,
-      "before_passed": 44,
-      "full_hosted_acceptance_open": true,
-      "latest_combined_files": 8,
-      "latest_combined_tests_passed": 258,
-      "passed": true,
-      "source_freeze_id": "a73446a5ede7408b3d2e4492fba389a6c807df6ce3c62e19bf1a5243bb419913"
-    },
-    "focused_linguistic": {
-      "execution_attribution": "parent-owned prior49-source linguistic-after-final.log; unchanged retrieval sources",
-      "files": 6,
-      "passed": true,
-      "tests": 108
-    },
-    "focused_metadata": {
-      "duration_ms": 11847,
-      "execution_attribution": "before website-wire-only correction; retrieval sources unchanged",
-      "files": 8,
-      "passed": true,
-      "skipped_tests": 15,
-      "tests": 112
-    },
-    "focused_per_unit_context": {
-      "before_failed": 3,
-      "before_passed": 39,
-      "current_hosted_contract_acceptance_pending": true,
-      "execution_attribution": "Parent-owned per-unit-context-before/after logs",
-      "files": 3,
-      "passed": true,
-      "tests": 78
-    },
-    "focused_selected_navigation": {
-      "before_failed": 2,
-      "before_passed": 54,
-      "duration_ms": 3275,
-      "files": 3,
-      "independent_review_sha256": "c3059c257fd13d69882b1ca72d3b3b10cafe15b8859313234e54995e16a0b61b",
-      "limitations": "Injected ranker choices test serialization; no fresh hosted ranking acceptance.",
-      "log": "navigation-gate/focused-navigation.log",
-      "original_test_bytes_unchanged": true,
-      "passed": true,
-      "short_block_before_failed": 1,
-      "short_block_before_passed": 56,
-      "source_freeze_id": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c",
-      "tests": 57
-    },
-    "focused_source_exclusion_guard": {
-      "after_log": "exclusion-gate/focused-exclusions.log",
-      "assertion_qualification": "Four original expect target expressions change only by supplying mandatory exclusion fields to execute calls inside expect: one repaired-plan call, two intentionally lossy workflow plan calls and one accepted workflow repair. Matcher names, modifiers and expected arguments remain token-identical. They are not claimed byte-identical full assertion expressions.",
-      "before_log": "exclusion-gate/focused-exclusions-before.log",
-      "duration_ms": 6525,
-      "files": 5,
-      "fixture_only_full_expression_changes": 4,
-      "original_matcher_expectations_preserved": true,
-      "passed": true,
-      "root_before_failed": 11,
-      "root_before_passed": 280,
-      "semantic_limit": "Validates evidence references and offering identity, not semantic equivalence, offering discovery or acceptable completed live content.",
-      "source_freeze_id": "6e1a63d34a4ce1e8aadef7025063b91ea74855760eba3fe0e6ed3c50e032c010",
-      "static_matcher_expectation_proof_sha256": "67cf25e21ce112f3a6ea6991e574f2212096a4be2e889c2447aa78008cb327d2",
-      "tests": 291
-    },
-    "focused_stream_scanning": {
-      "attribution": "Earlier pre-formatting source59 with identical sanitizer and original workflow fixture bytes; the new safety-test expression was only line-wrapped before the final full run. This focused result retains its actual pre-formatting source identity.",
-      "files": 4,
-      "independent_review_sha256": "5e8df61ff47f2fd3152faa86c2aea9ab079d015824e543cc9e48e867562d83aa",
-      "log": "ci-linear-gate/format-warning-attempt/focused-streaming.log",
-      "original_timeout_ms": 5000,
-      "passed": true,
-      "source_freeze_id": "c891e7c5a2834c4edfcf4cf10ddf130c06cc1927ab1775e5fe901d7ddb85a87a",
-      "tests": 273,
-      "timeout_extended": false
-    },
-    "focused_vertex_repair_projection": {
-      "authoritative_bounds_preserved": true,
-      "before_failed": 1,
-      "before_passed": 42,
-      "duration_ms": 3350,
-      "files": 4,
-      "passed": true,
-      "tests": 107
-    },
-    "focused_visibility_guard": {
-      "actual_dirty_retention_ms": 253378,
-      "before_failed": 4,
-      "before_passed": 9,
-      "built_two_tab_retest_pending": false,
-      "execution_attribution": "Parent-owned visibility-refresh-before/after logs",
-      "files": 2,
-      "final_build_id": "WuPPuaVD9uYPiLG47LzsI",
-      "final_ui_evidence_sha256": "0a20a94ba34f42445ecc62674a2b06ab5a64ce436f782b4b2932ae2d66ee5a76",
-      "passed": true,
-      "tests": 29
-    },
-    "full_frozen_gate": {
-      "duration_ms": 344790,
-      "log": "navigation-gate/final-vitest.log",
-      "passed": true,
-      "passed_files": 1041,
-      "passed_tests": 10251,
-      "runtime": "Node 24.18",
-      "skip_attribution": "Fifteen paid opt-in families execute separately and remain failed overall; five HTTP cases pass separately as 18 assertions on this final build. No skipped result is presented as live-provider acceptance.",
-      "skipped_files": 1,
-      "skipped_tests": 20,
-      "source_freeze_id": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c"
-    },
-    "inherited_built_browser": {
-      "assertions": [
-        {
-          "name": "Dirty title and native body survive remote save and visibility refresh",
-          "passed": true,
-          "retained_ms": 253378
-        },
-        {
-          "name": "Stale save exposes conflict without losing edits",
-          "passed": true
-        },
-        {
-          "name": "Cancel preserves title, body and editor identity",
-          "passed": true
-        },
-        {
-          "name": "Discard reloads remote saved version and clean toolbar",
-          "passed": true
-        },
-        {
-          "name": "Settled title input remains dirty across eight seconds",
-          "passed": true
-        },
-        {
-          "name": "Overflow is bordered and destructive icon matches text",
-          "passed": true
-        },
-        {
-          "name": "Deletion cancel closes dialog and keeps page",
-          "passed": true
-        },
-        {
-          "name": "Confirmed deletion removes fixture from rail and database",
-          "passed": true
-        },
-        {
-          "name": "390px mobile layout has no horizontal overflow",
-          "passed": true
-        },
-        {
-          "name": "Mobile no-match search settles with empty result",
-          "passed": true
-        },
-        {
-          "name": "Page-type help opens using keyboard and explains retrieval",
-          "passed": true
-        },
-        {
-          "name": "No recorded browser exceptions",
-          "passed": true
-        }
-      ],
-      "attribution": "Actual earlier a734/WuPP UI12; inherited frontend and shared dependency bytes match the exclusion guard revision. This is not a replay on the new build.",
-      "build_id": "WuPPuaVD9uYPiLG47LzsI",
-      "byte_identity_proof_sha256": "83f3d5068a94cc3a3a50067b1e77388e8031701defaf7aee68f6df27c12dceb9",
-      "current_source_byte_identity_checks": 101,
-      "current_source_byte_identity_mismatches": 0,
-      "evidence_sha256": "0a20a94ba34f42445ecc62674a2b06ab5a64ce436f782b4b2932ae2d66ee5a76",
-      "failed_assertions": 0,
-      "independent_review": {
-        "application_findings": 0,
-        "cancel_scope": "New-build capture proves retained text/editor while dialog remains open; controlled settled PZNR C Cancel/Discard supports dismissal under unchanged frontend source. Do not imply every transient modal state was independently replayed.",
-        "current_source_hash_checks": 18,
-        "current_source_hash_mismatches": 0,
-        "inherited_frontend_files": 83,
-        "inherited_hash_mismatches": 0,
-        "limitations": [
-          "Independent reviewer inspected saved artifacts, not repeated live UI assertions.",
-          "Eight-second duration is root-executed assertion; its raw capture has stable dirty value/actions but no separate elapsed counter.",
-          "Empty captured browser-error file means no recorded exceptions, not proof of every hidden browser error.",
-          "Source freeze/build linkage comes from root assertion packet; UI byte hashes verified independently, not a recomputed full56-source digest.",
-          "Live content completeness and strict hosted retrieval acceptance remain unmet; this UI review does not clear them."
-        ],
-        "markdown_sha256": "5f49d93f3afce6c4b233473cf0bf479cc8ead13e32fefda849c406a016936a8e",
-        "packet_sha256": "148361a86506918cd89074384396633302fb0e547a5e92bb73344760e7cc3a2a",
-        "passed": true,
-        "screenshot_hash_mismatches": 0,
-        "screenshots_checked": 4,
-        "shared_component_prior_hash_checks": 12
+      "build_id": "TgbMauXHO9KOdQoo0C8Xm",
+      "counts": {
+        "failed_assertions": 0,
+        "passed_assertions": 18,
+        "passed_suites": 2,
+        "skipped_tests": 0
       },
-      "inherited_into_source_freeze": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c",
-      "limitations": [
-        "Initial incomplete CLI type command produced no dirty body and is excluded.",
-        "Early screenshots before transitions settled are excluded.",
-        "Cancel proof asserts text/editor retention; settled cancel and repeat conflict behavior are separately supported by previous unchanged-frontend PZNR evidence.",
-        "Ambiguous edits entered during prior save navigation were not reproduced after settling; no source defect is inferred.",
-        "Live content completeness and strict hosted retrieval acceptance remain unmet."
-      ],
-      "passed": true,
-      "passed_assertions": 12,
-      "source_freeze_id": "a73446a5ede7408b3d2e4492fba389a6c807df6ce3c62e19bf1a5243bb419913"
+      "duration_ms": 13642,
+      "evidence_sha256": "85afa4ca59c122e8860b0b753ffa7658ca9a7cf2f03205bdc8711ebb9ddbd26f",
+      "execution_attribution": "current-source-execution",
+      "immutable_event_sha256": "63aa2f6e3808542715599e87d2db055b665b7e777b0959988106fd29056f4cab",
+      "independent_review_sha256": "62c15da754bf673e72b92e0f2657c9ae366e8f6f7a4c89f50b29a006086ba3dc",
+      "provider_cap_zero": true,
+      "provider_paused": true,
+      "source_freeze_id": "023c7fc2fde8885f2cf05a887eb07c58e3501e3925a8dd53bcc911c9b0f4ea42",
+      "status": "passed"
     },
-    "kb_gate": {
-      "checks": 8,
-      "current_overlay_committed_head": "90bf7868ac49163d13895780a4e769f60adec086",
-      "current_overlay_documents": 0,
-      "duration_ms": 26180,
-      "exact_head_attribution": "Index current; eight-check gate before ordinary commit/push on identical documentation bytes.",
-      "failed": 0,
-      "head": "90bf7868ac49163d13895780a4e769f60adec086",
-      "log": "kb-navigation-gate.log",
-      "passed": true,
-      "runtime": "Node22.21.1",
-      "skipped": 0
-    },
-    "kb_semantic_review": {
-      "head": "90bf7868ac49163d13895780a4e769f60adec086",
-      "inherited_prior_review_pages": 18,
-      "passed": true,
-      "prior_review_packet_sha256": "b22e3365b99ce44cb1f3bcd89946a545d6ca9bb3c32aff07d6ac1e86894f5750",
-      "selected_navigation_review_sha256": "0c688318b9ab56e1178bbc072b5c390b4a72998d02cdcbeeb69afb80eac4b3af",
-      "status": "Exact source-bound target documentation follow-ups supplement the inherited18-path audit; no live acceptance asserted.",
-      "stream_scan_review_sha256": "492b2a32851b7825418da752ad0dd2fde937d19f58cc90a5f7f5a2bfec99bdf3"
+    "focused_current": {
+      "status": "pending"
     },
     "lint": {
-      "command": "yarn lint --max-warnings=0",
-      "duration_ms": 73706,
-      "log": "navigation-gate/final-lint.log",
-      "passed": true,
-      "source_freeze_id": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c"
+      "build_id": null,
+      "counts": {},
+      "duration_ms": 116568,
+      "evidence_sha256": "38d5d866de4f56f3817b35145cb0167445aaf26488ebe98e7d21db911197c196",
+      "execution_attribution": "current-source-execution",
+      "immutable_event_sha256": "d7a75d217082c43e022f5662198ccd357247cade9e008d23c36773a26902517b",
+      "independent_review_sha256": "913d20f550d2a76ec7a0c04d8218a521e395a5e90b32f4ada1a4f5d971fed6a7",
+      "provider_cap_zero": true,
+      "provider_paused": true,
+      "source_freeze_id": "023c7fc2fde8885f2cf05a887eb07c58e3501e3925a8dd53bcc911c9b0f4ea42",
+      "status": "passed"
+    },
+    "migrations": {
+      "build_id": null,
+      "counts": {
+        "failed_checks": 0,
+        "passed_checks": 6
+      },
+      "duration_ms": null,
+      "evidence_sha256": "8e3115694e16aed250d662f8ca9980a161e00baecc8dad92e525611fac7b7af9",
+      "execution_attribution": "unchanged-authority-evidence-bridge",
+      "immutable_event_sha256": null,
+      "independent_review_sha256": "62c15da754bf673e72b92e0f2657c9ae366e8f6f7a4c89f50b29a006086ba3dc",
+      "provider_cap_zero": true,
+      "provider_paused": true,
+      "source_freeze_id": "023c7fc2fde8885f2cf05a887eb07c58e3501e3925a8dd53bcc911c9b0f4ea42",
+      "status": "passed"
+    },
+    "seed_twice": {
+      "build_id": null,
+      "counts": {
+        "failed_checks": 0,
+        "passed_checks": 2
+      },
+      "duration_ms": 8333,
+      "evidence_sha256": "9cb4c53bcd0f1db157991d10198d55d0d93d903c1740872678ed6b146d58b5da",
+      "execution_attribution": "current-source-execution",
+      "immutable_event_sha256": null,
+      "independent_review_sha256": "62c15da754bf673e72b92e0f2657c9ae366e8f6f7a4c89f50b29a006086ba3dc",
+      "provider_cap_zero": true,
+      "provider_paused": true,
+      "source_freeze_id": "023c7fc2fde8885f2cf05a887eb07c58e3501e3925a8dd53bcc911c9b0f4ea42",
+      "status": "passed"
     },
     "typecheck": {
-      "command": "yarn typecheck",
-      "duration_ms": 5045,
-      "log": "navigation-gate/final-typecheck.log",
-      "passed": true,
-      "source_freeze_id": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c"
+      "build_id": null,
+      "counts": {},
+      "duration_ms": 11275,
+      "evidence_sha256": "609ed4c7b12e8adf2af4784fdc3a29424a537764d846971ce12f91c97605f943",
+      "execution_attribution": "current-source-execution",
+      "immutable_event_sha256": "6110715a5aaf0fc35b7a5c31a705de57e2f751888de0fdf625212f1beaac8447",
+      "independent_review_sha256": "913d20f550d2a76ec7a0c04d8218a521e395a5e90b32f4ada1a4f5d971fed6a7",
+      "provider_cap_zero": true,
+      "provider_paused": true,
+      "source_freeze_id": "023c7fc2fde8885f2cf05a887eb07c58e3501e3925a8dd53bcc911c9b0f4ea42",
+      "status": "passed"
+    },
+    "vitest": {
+      "build_id": null,
+      "counts": {
+        "failed_suites": 0,
+        "failed_tests": 0,
+        "passed_suites": 1044,
+        "passed_tests": 10396,
+        "skipped_suites": 1,
+        "skipped_tests": 20
+      },
+      "duration_ms": 727002,
+      "evidence_sha256": "3499b94ff183583ef02e523da35b4c8f7edbebd67b895631f746dc21cd2bbea4",
+      "execution_attribution": "current-source-execution",
+      "immutable_event_sha256": "9a2572465c2c6395cebb750c14b7753e61f3440541d200b889c35e5763a37d08",
+      "independent_review_sha256": "913d20f550d2a76ec7a0c04d8218a521e395a5e90b32f4ada1a4f5d971fed6a7",
+      "provider_cap_zero": true,
+      "provider_paused": true,
+      "source_freeze_id": "023c7fc2fde8885f2cf05a887eb07c58e3501e3925a8dd53bcc911c9b0f4ea42",
+      "status": "passed"
+    },
+    "workflow_bootstrap": {
+      "build_id": null,
+      "counts": {
+        "failed_checks": 0,
+        "passed_checks": 1
+      },
+      "duration_ms": 693,
+      "evidence_sha256": "d78e8bbcfec1a969b57e2fd655d72da5c6d6a6d31d1338fbf5c227feffcb0a30",
+      "execution_attribution": "current-source-execution",
+      "immutable_event_sha256": "4c24f5688d953b7706df0f3023ba79996923d050f4f9dd8eabe064f6b9e13adb",
+      "independent_review_sha256": "62c15da754bf673e72b92e0f2657c9ae366e8f6f7a4c89f50b29a006086ba3dc",
+      "provider_cap_zero": true,
+      "provider_paused": true,
+      "source_freeze_id": "023c7fc2fde8885f2cf05a887eb07c58e3501e3925a8dd53bcc911c9b0f4ea42",
+      "status": "passed"
     }
   },
+  "complete_local_gate_passed": true,
+  "correction_evidence": {
+    "current_corpus_source_only": {
+      "attribution": "Pure canonical source algorithms and regenerated raw manifest; no index/embedding/database/provider graph call.",
+      "chunks": 1043,
+      "corpus_build_hash": "9ccbb5cba2fb45e2f61fd23f34828e56fb707525c9495380bf2d9e14c98e540c",
+      "embedding_format": "docs-embedding-v2",
+      "evidence_sha256": "195d9cf6f466fcdaccc28ec37436edf320a9644277579a0e07e82df49a3daebc",
+      "no_live_index_state_inferred": true,
+      "sections": 846,
+      "source_head": "4d4e4af8a241b161f212fbfe9f9286d99c66b256",
+      "unique_content_hashes": 939
+    },
+    "gmail_state_projection": {
+      "execution_attribution": "RED/GREEN verification of installed Gmail correction working-tree bytes subsequently committed as 4d4e4af8; not a recorded post-commit source85 focused run.",
+      "execution_head_recorded": false,
+      "fresh_hosted_selection_verified": false,
+      "green_log_sha256": "38c576fe7d280f07ccc1172ffbfb6057104c068b425d56d15782d811da4cee97",
+      "green_passed_suites": 3,
+      "green_passed_tests": 98,
+      "green_process_done_ms": 25980,
+      "green_vitest_duration_ms": 25170,
+      "initial_attempt_vs_existing_error_card_clarified": true,
+      "installed_neighbor_review_sha256": "dec8aedd3c11667c2d06d1b483b5648466fbe9c403a35d00d2f1d30d5d634cf3",
+      "original_gold_or_numeric_bound_changed": false,
+      "red_failed_additive_tests": 2,
+      "red_log_sha256": "663baacfe2cf933cff6e170b6120f66802b9e666151c899ba8bf4a3e90c9a4d1",
+      "red_passed_existing_tests": 22,
+      "status": "focused_passed",
+      "tested_content_commit": "4d4e4af8a241b161f212fbfe9f9286d99c66b256"
+    },
+    "grounding": {
+      "execution_attribution": "Focused verification of installed grounding working-tree bytes subsequently committed as d839501f; not a new current-source85 focused run.",
+      "execution_head_recorded": false,
+      "focused_log_sha256": "ad2a5e267ab25f3eb978b118679481b1b316bea2c1df3cbe552e76e5eeaa7326",
+      "installed_neighbor_review_sha256": "c159fed2f41ce6774a4548c989edf16de3d9629b1b82af3449afefbcafc070d0",
+      "passed_suites": 7,
+      "passed_tests": 130,
+      "process_done_ms": 67740,
+      "semantic_enforcement": "Prompt guidance and existing typed structural source/citation validation; not entailment proof.",
+      "status": "focused_passed",
+      "tested_content_commit": "d839501f3db187fdd0094b3cd1d6f27942eb40b1",
+      "tests_not_newly_authored_for_this_guidance": true,
+      "vitest_duration_ms": 66800
+    },
+    "runtime_acceptance": "Focused deterministic corrections only; no new hosted/content/live lifecycle acceptance.",
+    "source_freeze_id": "023c7fc2fde8885f2cf05a887eb07c58e3501e3925a8dd53bcc911c9b0f4ea42",
+    "source_head": "4d4e4af8a241b161f212fbfe9f9286d99c66b256",
+    "source_identity_attribution": "Current installed correction bytes. Focused logs are separate executions whose exact Git HEAD was not recorded here; their matching tested content was subsequently committed at the identities below. The final full gate ran at the current source head."
+  },
   "current_owned_resource_cleanup": {
-    "all_owned_resources_removed": false,
+    "all_owned_transient_resources_removed": true,
     "dev_database_untouched": true,
-    "drop_proof_sha256": [
-      "8e1ce8880c752bc59e12be68086b84224b9f0524f537a3a982e39fd36e829f94",
-      "4a1972c64b3ed53f8d746eba20d3a0638f8d0eeef889f8cceefde45d04432cf0",
-      "8b44c699d0f2753bc7889e7487e474a5d85e470cae023d9ede608ef6962cdba5"
-    ],
-    "no_account_or_database_identifiers_included": true,
-    "owned_browser_closed": true,
-    "owned_browser_database_dropped_and_absent": true,
-    "owned_gate_database_dropped_and_absent": true,
-    "owned_prior_gate_database_dropped_and_absent": true,
-    "owned_server_stopped": true,
-    "paid_synthetic_database_retained": true,
-    "passed": true,
+    "evidence_sha256": "54e8f787e24c8214afc7cc3c048588aef1ce889b943cd51093e022cafcf078f3",
+    "paid_synthetic_data_retained": true,
     "preview_database_untouched": true,
-    "provider_cap_zero": true,
-    "provider_paused": true,
-    "retained_scope": "Previously owned paid synthetic workspace and canonical indexed corpus, for separately approved follow-up.",
-    "scope_attribution": "Only owned disposable final gate/browser and preceding CI gate databases were dropped; owned browser CLI closed and final port verified unbound. Paid synthetic data retained.",
-    "source_files": 59,
-    "source_freeze_id": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c",
-    "source_hash_drift": 0,
-    "user_port_4000_untouched": true
+    "state": "closed"
   },
   "external": {
-    "current_kb_overlay_documents": 0,
-    "current_kb_overlay_pushed": true,
-    "current_source_overlay_pushed": false,
     "drafts_preserved": true,
-    "kb_ci_snapshot_sha256": "cf3784da9e03d4762b2d8790d274f13f4e50bca520dbbeba44fdfd908ffee26c",
-    "kb_current_overlay_exact_head_ci_verified": true,
-    "kb_current_overlay_semantic_audit_complete": true,
-    "kb_exact_head_checks": [
-      "verification (ubuntu)",
-      "policy / Validate repository policy",
-      "readiness (macos-latest)",
-      "readiness (windows-latest)",
-      "ci",
-      "repository-policy"
-    ],
-    "kb_exact_head_ci_attribution": "Fresh exact90bf786 checks, all recorded checks SUCCESS; draft and mergeable.",
-    "kb_exact_head_ci_verified": true,
-    "kb_head": "90bf7868ac49163d13895780a4e769f60adec086",
-    "kb_head_pushed": true,
-    "kb_mergeable": "MERGEABLE",
-    "kb_semantic_18_page_audit_complete": true,
-    "local_reviewed_product_head": "96e63dbb26fb4911fdb72bcd7799b4eb374ac295",
-    "local_reviewed_product_head_pushed": true,
-    "mainline_refresh": {
-      "attribution": "Parent fetched unchanged origins; reviewer independently read local origin/main refs and merge-base ancestry, with no ref writes.",
-      "kb_head_contains_main": true,
-      "kb_main": "790c0ecc2b5bc39b95156dc43375090a5b510066",
-      "product_head_contains_main": true,
-      "product_main": "31d1df14c9185e62f23bf902be3ef518b42ca5b3"
+    "kb": {
+      "distinct_checks_count": 6,
+      "exact_head_ci_verified": true,
+      "head": "152d76a8f5796ce094aefc49daa0f62e70b418be",
+      "raw_records": 7,
+      "snapshot_sha256": "a762b372339ebeb5629726acb2efd7b602cd5374657fc9614d93dc82cd5bf922",
+      "status": "passed"
     },
-    "migration_adoption_scope_confirmed": true,
-    "preview_reset": "Human checkpoint against the rewritten migration revision; no agent reset or cleanup.",
-    "previous_green_kb_head": "157b403aaf7f466eff7024f2c93a3877734a1895",
-    "previous_kb_exact_head_ci_verified": true,
-    "product_exact_new_head_ci_verified": false,
-    "published_product_ci_failure": {
-      "cause": "Quadratic unanchored view-URL no-match scanning; bounded token-start lookbehind avoids retries without changing redaction ranges.",
-      "failed_tests": 2,
-      "original_assertions_and_timeout_preserved": true,
-      "original_timeout_ms": 5000,
-      "run": 36915929892
+    "product": {
+      "exact_head_ci_verified": false,
+      "status": "pending"
     },
-    "published_product_head": "96e63dbb26fb4911fdb72bcd7799b4eb374ac295",
-    "published_product_head_pushed": true,
-    "remote_product_head_attribution": "Published96 CI failed only the two original40,000-character compaction tests at unchanged5-second timeout. This packet captures the verified local correction before ordinary publication; final head and CI are recorded in the PR description.",
-    "snapshot_at": "2026-10-01T20:56:18.079816+00:00",
-    "snapshot_kind": "Prepublication snapshot; current GitHub PR state after publication is authoritative."
+    "product_publication_status": "not_published"
   },
   "historical_verification": {
     "attribution": "These results predate the current website synthesis, evidence formatter and compound/coherence fixes. They are retained as evidence for their own source/build revisions and are not final current-source UI/live acceptance.",
@@ -1113,6 +940,39 @@
       },
       "typecheck_passed": false
     },
+    "oct02_attempt2_full_timeout_failure": {
+      "assertion_failures": 0,
+      "cause_qualification": "Concurrent work was observed; the exception proves deadline failure, not a particular competing process cause.",
+      "duration_ms": 583500,
+      "failed_files": 2,
+      "failed_tests": 5,
+      "log": "2026-10-02-final-gate/attempt2/final-vitest.log",
+      "log_sha256": "e394f86d8da1ea698c1fe9ae04b7684ae18592720332f92c8051417985a6f792",
+      "passed": false,
+      "passed_files": 1041,
+      "passed_tests": 10359,
+      "skipped_files": 1,
+      "skipped_tests": 20,
+      "source_freeze_id": "491f9b0cc69756e97040e01a48e4afad66e07d8832c3ccb73e933d23d94c1fa7",
+      "timeout_failures": {
+        "15000ms": 1,
+        "5000ms": 4
+      }
+    },
+    "oct02_initial_fixture_type_failure": {
+      "log": "2026-10-02-final-gate/final-typecheck.log",
+      "log_sha256": "83545c6384a8a79d7544ff59ab5acbc4f7b139837c9139e059b43e4d04b40c98",
+      "passed": false,
+      "scope": "Five new native fixture compile errors; all preserved before explicit typed/enumerable guards."
+    },
+    "oct02_intermediate_native_guard_failure": {
+      "failed_tests": 2,
+      "log": "2026-10-02-usd1/native-type-guards-green.log",
+      "log_sha256": "70b0b5edfee1c86b95860c17b08e3f013a7f196fe82bc5d18cb0a687792f0e3d",
+      "passed": false,
+      "passed_tests": 39,
+      "scope": "Plain-class record guard rejected native errors; corrected by validating enumerable values while preserving the original instance."
+    },
     "owned_resource_cleanup": {
       "built_browser_sessions_closed": 2,
       "completed": true,
@@ -1653,6 +1513,1077 @@
       "overlay_matches_current_files": true,
       "working_tree_overlay_files": 38
     },
+    "pre_oct02_69_packet": {
+      "attribution": "Unmodified previously published b620 packet; older local/live results keep their original revisions and builds.",
+      "checks": {
+        "build": {
+          "base_url": "http://127.0.0.1:4241",
+          "build_id": "x4gRHkm1UZ5uL9oiJEh12",
+          "duration_ms": 80742,
+          "log": "navigation-gate/final-build.log",
+          "passed": true,
+          "source_freeze_id": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c"
+        },
+        "built_browser": {
+          "assertions": [
+            {
+              "name": "Clean toolbar has bordered overflow, rightmost New page, visible Ask Mate and12 demo pages",
+              "passed": true
+            },
+            {
+              "name": "Dirty title shows only Reset and Save",
+              "passed": true
+            },
+            {
+              "name": "Reset restores the saved title and clean toolbar",
+              "passed": true
+            },
+            {
+              "name": "Delete icon and text use the shared destructive color",
+              "passed": true
+            },
+            {
+              "name": "Keyboard focus explains the Operating Guide and why Mate reads it each request",
+              "passed": true
+            },
+            {
+              "name": "390-pixel mobile layout has no horizontal overflow",
+              "passed": true
+            },
+            {
+              "name": "Opened mobile picker shows the common no-match state with no page links",
+              "passed": true
+            },
+            {
+              "name": "Browser has no recorded JavaScript exceptions",
+              "passed": true
+            }
+          ],
+          "attribution": "Fresh provider-disabled controlled browser smoke on this build; historical detailed journeys remain separately attributed.",
+          "build_id": "x4gRHkm1UZ5uL9oiJEh12",
+          "evidence_sha256": "b535f947aa3167d2ccb7814588e4668211a8f0c20f48ed22ef95b0c6040e0adc",
+          "failed_assertions": 0,
+          "independent_review_attribution": "Independent saved-artifact and raw-JSON review includes actual viewing of all five screenshots; no additional browser replay or live-provider acceptance.",
+          "independent_review_sha256": "4e1c1793511a290ac88a7153093de2d435389be54b2eadea6110fddcc66d9001",
+          "limitations": [
+            "Fresh provider-disabled smoke does not accept hosted ranking or generated website content.",
+            "Earlier detailed CRUD/conflict/ordering/streaming journeys retain their original build attribution under separately checked frontend/shared bytes.",
+            "Old dropped-fixture sign-in, early title predicates using contenteditable instead of textarea, stale menu ref and a multi-term search with relevant hits are excluded harness attempts.",
+            "Only recorded JavaScript exceptions are checked; no claim about every browser schedule or live-stream timing."
+          ],
+          "passed": true,
+          "passed_assertions": 8,
+          "provider_cap_zero": true,
+          "provider_paused": true,
+          "source_freeze_id": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c"
+        },
+        "built_http": {
+          "attribution": "Fresh built-server checks with both database URLs on an owned disposable database.",
+          "build_id": "x4gRHkm1UZ5uL9oiJEh12",
+          "duration_ms": 11262,
+          "files": 2,
+          "log": "navigation-gate/final-built-http.log",
+          "passed": true,
+          "source_freeze_id": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c",
+          "tests": 18
+        },
+        "focused_final_boundaries": {
+          "attribution": "Parent-owned final focused rerun after actual repository ESLint formatting. Earlier repeat 3,552 ms and 9,306 ms are retained in gate-results.jsonl.",
+          "duration_ms": 3377,
+          "files": 8,
+          "log": "post-live-gate/focused-final-boundaries.log",
+          "passed": true,
+          "source_freeze_id": "a73446a5ede7408b3d2e4492fba389a6c807df6ce3c62e19bf1a5243bb419913",
+          "tests": 258
+        },
+        "focused_label_fallback": {
+          "actual_repaired_delete_query_selected": true,
+          "before_failed": 2,
+          "before_passed": 44,
+          "full_hosted_acceptance_open": true,
+          "latest_combined_files": 8,
+          "latest_combined_tests_passed": 258,
+          "passed": true,
+          "source_freeze_id": "a73446a5ede7408b3d2e4492fba389a6c807df6ce3c62e19bf1a5243bb419913"
+        },
+        "focused_linguistic": {
+          "execution_attribution": "parent-owned prior49-source linguistic-after-final.log; unchanged retrieval sources",
+          "files": 6,
+          "passed": true,
+          "tests": 108
+        },
+        "focused_metadata": {
+          "duration_ms": 11847,
+          "execution_attribution": "before website-wire-only correction; retrieval sources unchanged",
+          "files": 8,
+          "passed": true,
+          "skipped_tests": 15,
+          "tests": 112
+        },
+        "focused_per_unit_context": {
+          "before_failed": 3,
+          "before_passed": 39,
+          "current_hosted_contract_acceptance_pending": true,
+          "execution_attribution": "Parent-owned per-unit-context-before/after logs",
+          "files": 3,
+          "passed": true,
+          "tests": 78
+        },
+        "focused_selected_navigation": {
+          "before_failed": 2,
+          "before_passed": 54,
+          "duration_ms": 3275,
+          "files": 3,
+          "independent_review_sha256": "c3059c257fd13d69882b1ca72d3b3b10cafe15b8859313234e54995e16a0b61b",
+          "limitations": "Injected ranker choices test serialization; no fresh hosted ranking acceptance.",
+          "log": "navigation-gate/focused-navigation.log",
+          "original_test_bytes_unchanged": true,
+          "passed": true,
+          "short_block_before_failed": 1,
+          "short_block_before_passed": 56,
+          "source_freeze_id": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c",
+          "tests": 57
+        },
+        "focused_source_exclusion_guard": {
+          "after_log": "exclusion-gate/focused-exclusions.log",
+          "assertion_qualification": "Four original expect target expressions change only by supplying mandatory exclusion fields to execute calls inside expect: one repaired-plan call, two intentionally lossy workflow plan calls and one accepted workflow repair. Matcher names, modifiers and expected arguments remain token-identical. They are not claimed byte-identical full assertion expressions.",
+          "before_log": "exclusion-gate/focused-exclusions-before.log",
+          "duration_ms": 6525,
+          "files": 5,
+          "fixture_only_full_expression_changes": 4,
+          "original_matcher_expectations_preserved": true,
+          "passed": true,
+          "root_before_failed": 11,
+          "root_before_passed": 280,
+          "semantic_limit": "Validates evidence references and offering identity, not semantic equivalence, offering discovery or acceptable completed live content.",
+          "source_freeze_id": "6e1a63d34a4ce1e8aadef7025063b91ea74855760eba3fe0e6ed3c50e032c010",
+          "static_matcher_expectation_proof_sha256": "67cf25e21ce112f3a6ea6991e574f2212096a4be2e889c2447aa78008cb327d2",
+          "tests": 291
+        },
+        "focused_stream_scanning": {
+          "attribution": "Earlier pre-formatting source59 with identical sanitizer and original workflow fixture bytes; the new safety-test expression was only line-wrapped before the final full run. This focused result retains its actual pre-formatting source identity.",
+          "files": 4,
+          "independent_review_sha256": "5e8df61ff47f2fd3152faa86c2aea9ab079d015824e543cc9e48e867562d83aa",
+          "log": "ci-linear-gate/format-warning-attempt/focused-streaming.log",
+          "original_timeout_ms": 5000,
+          "passed": true,
+          "source_freeze_id": "c891e7c5a2834c4edfcf4cf10ddf130c06cc1927ab1775e5fe901d7ddb85a87a",
+          "tests": 273,
+          "timeout_extended": false
+        },
+        "focused_vertex_repair_projection": {
+          "authoritative_bounds_preserved": true,
+          "before_failed": 1,
+          "before_passed": 42,
+          "duration_ms": 3350,
+          "files": 4,
+          "passed": true,
+          "tests": 107
+        },
+        "focused_visibility_guard": {
+          "actual_dirty_retention_ms": 253378,
+          "before_failed": 4,
+          "before_passed": 9,
+          "built_two_tab_retest_pending": false,
+          "execution_attribution": "Parent-owned visibility-refresh-before/after logs",
+          "files": 2,
+          "final_build_id": "WuPPuaVD9uYPiLG47LzsI",
+          "final_ui_evidence_sha256": "0a20a94ba34f42445ecc62674a2b06ab5a64ce436f782b4b2932ae2d66ee5a76",
+          "passed": true,
+          "tests": 29
+        },
+        "full_frozen_gate": {
+          "duration_ms": 344790,
+          "log": "navigation-gate/final-vitest.log",
+          "passed": true,
+          "passed_files": 1041,
+          "passed_tests": 10251,
+          "runtime": "Node 24.18",
+          "skip_attribution": "Fifteen paid opt-in families execute separately and remain failed overall; five HTTP cases pass separately as 18 assertions on this final build. No skipped result is presented as live-provider acceptance.",
+          "skipped_files": 1,
+          "skipped_tests": 20,
+          "source_freeze_id": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c"
+        },
+        "inherited_built_browser": {
+          "assertions": [
+            {
+              "name": "Dirty title and native body survive remote save and visibility refresh",
+              "passed": true,
+              "retained_ms": 253378
+            },
+            {
+              "name": "Stale save exposes conflict without losing edits",
+              "passed": true
+            },
+            {
+              "name": "Cancel preserves title, body and editor identity",
+              "passed": true
+            },
+            {
+              "name": "Discard reloads remote saved version and clean toolbar",
+              "passed": true
+            },
+            {
+              "name": "Settled title input remains dirty across eight seconds",
+              "passed": true
+            },
+            {
+              "name": "Overflow is bordered and destructive icon matches text",
+              "passed": true
+            },
+            {
+              "name": "Deletion cancel closes dialog and keeps page",
+              "passed": true
+            },
+            {
+              "name": "Confirmed deletion removes fixture from rail and database",
+              "passed": true
+            },
+            {
+              "name": "390px mobile layout has no horizontal overflow",
+              "passed": true
+            },
+            {
+              "name": "Mobile no-match search settles with empty result",
+              "passed": true
+            },
+            {
+              "name": "Page-type help opens using keyboard and explains retrieval",
+              "passed": true
+            },
+            {
+              "name": "No recorded browser exceptions",
+              "passed": true
+            }
+          ],
+          "attribution": "Actual earlier a734/WuPP UI12; inherited frontend and shared dependency bytes match the exclusion guard revision. This is not a replay on the new build.",
+          "build_id": "WuPPuaVD9uYPiLG47LzsI",
+          "byte_identity_proof_sha256": "83f3d5068a94cc3a3a50067b1e77388e8031701defaf7aee68f6df27c12dceb9",
+          "current_source_byte_identity_checks": 101,
+          "current_source_byte_identity_mismatches": 0,
+          "evidence_sha256": "0a20a94ba34f42445ecc62674a2b06ab5a64ce436f782b4b2932ae2d66ee5a76",
+          "failed_assertions": 0,
+          "independent_review": {
+            "application_findings": 0,
+            "cancel_scope": "New-build capture proves retained text/editor while dialog remains open; controlled settled PZNR C Cancel/Discard supports dismissal under unchanged frontend source. Do not imply every transient modal state was independently replayed.",
+            "current_source_hash_checks": 18,
+            "current_source_hash_mismatches": 0,
+            "inherited_frontend_files": 83,
+            "inherited_hash_mismatches": 0,
+            "limitations": [
+              "Independent reviewer inspected saved artifacts, not repeated live UI assertions.",
+              "Eight-second duration is root-executed assertion; its raw capture has stable dirty value/actions but no separate elapsed counter.",
+              "Empty captured browser-error file means no recorded exceptions, not proof of every hidden browser error.",
+              "Source freeze/build linkage comes from root assertion packet; UI byte hashes verified independently, not a recomputed full56-source digest.",
+              "Live content completeness and strict hosted retrieval acceptance remain unmet; this UI review does not clear them."
+            ],
+            "markdown_sha256": "5f49d93f3afce6c4b233473cf0bf479cc8ead13e32fefda849c406a016936a8e",
+            "packet_sha256": "148361a86506918cd89074384396633302fb0e547a5e92bb73344760e7cc3a2a",
+            "passed": true,
+            "screenshot_hash_mismatches": 0,
+            "screenshots_checked": 4,
+            "shared_component_prior_hash_checks": 12
+          },
+          "inherited_into_source_freeze": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c",
+          "limitations": [
+            "Initial incomplete CLI type command produced no dirty body and is excluded.",
+            "Early screenshots before transitions settled are excluded.",
+            "Cancel proof asserts text/editor retention; settled cancel and repeat conflict behavior are separately supported by previous unchanged-frontend PZNR evidence.",
+            "Ambiguous edits entered during prior save navigation were not reproduced after settling; no source defect is inferred.",
+            "Live content completeness and strict hosted retrieval acceptance remain unmet."
+          ],
+          "passed": true,
+          "passed_assertions": 12,
+          "source_freeze_id": "a73446a5ede7408b3d2e4492fba389a6c807df6ce3c62e19bf1a5243bb419913"
+        },
+        "kb_gate": {
+          "checks": 8,
+          "current_overlay_committed_head": "90bf7868ac49163d13895780a4e769f60adec086",
+          "current_overlay_documents": 0,
+          "duration_ms": 26180,
+          "exact_head_attribution": "Index current; eight-check gate before ordinary commit/push on identical documentation bytes.",
+          "failed": 0,
+          "head": "90bf7868ac49163d13895780a4e769f60adec086",
+          "log": "kb-navigation-gate.log",
+          "passed": true,
+          "runtime": "Node22.21.1",
+          "skipped": 0
+        },
+        "kb_semantic_review": {
+          "head": "90bf7868ac49163d13895780a4e769f60adec086",
+          "inherited_prior_review_pages": 18,
+          "passed": true,
+          "prior_review_packet_sha256": "b22e3365b99ce44cb1f3bcd89946a545d6ca9bb3c32aff07d6ac1e86894f5750",
+          "selected_navigation_review_sha256": "0c688318b9ab56e1178bbc072b5c390b4a72998d02cdcbeeb69afb80eac4b3af",
+          "status": "Exact source-bound target documentation follow-ups supplement the inherited18-path audit; no live acceptance asserted.",
+          "stream_scan_review_sha256": "492b2a32851b7825418da752ad0dd2fde937d19f58cc90a5f7f5a2bfec99bdf3"
+        },
+        "lint": {
+          "command": "yarn lint --max-warnings=0",
+          "duration_ms": 73706,
+          "log": "navigation-gate/final-lint.log",
+          "passed": true,
+          "source_freeze_id": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c"
+        },
+        "typecheck": {
+          "command": "yarn typecheck",
+          "duration_ms": 5045,
+          "log": "navigation-gate/final-typecheck.log",
+          "passed": true,
+          "source_freeze_id": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c"
+        }
+      },
+      "external": {
+        "current_kb_overlay_documents": 0,
+        "current_kb_overlay_pushed": true,
+        "current_source_overlay_pushed": false,
+        "drafts_preserved": true,
+        "kb_ci_snapshot_sha256": "cf3784da9e03d4762b2d8790d274f13f4e50bca520dbbeba44fdfd908ffee26c",
+        "kb_current_overlay_exact_head_ci_verified": true,
+        "kb_current_overlay_semantic_audit_complete": true,
+        "kb_exact_head_checks": [
+          "verification (ubuntu)",
+          "policy / Validate repository policy",
+          "readiness (macos-latest)",
+          "readiness (windows-latest)",
+          "ci",
+          "repository-policy"
+        ],
+        "kb_exact_head_ci_attribution": "Fresh exact90bf786 checks, all recorded checks SUCCESS; draft and mergeable.",
+        "kb_exact_head_ci_verified": true,
+        "kb_head": "90bf7868ac49163d13895780a4e769f60adec086",
+        "kb_head_pushed": true,
+        "kb_mergeable": "MERGEABLE",
+        "kb_semantic_18_page_audit_complete": true,
+        "local_reviewed_product_head": "96e63dbb26fb4911fdb72bcd7799b4eb374ac295",
+        "local_reviewed_product_head_pushed": true,
+        "mainline_refresh": {
+          "attribution": "Parent fetched unchanged origins; reviewer independently read local origin/main refs and merge-base ancestry, with no ref writes.",
+          "kb_head_contains_main": true,
+          "kb_main": "790c0ecc2b5bc39b95156dc43375090a5b510066",
+          "product_head_contains_main": true,
+          "product_main": "31d1df14c9185e62f23bf902be3ef518b42ca5b3"
+        },
+        "migration_adoption_scope_confirmed": true,
+        "preview_reset": "Human checkpoint against the rewritten migration revision; no agent reset or cleanup.",
+        "previous_green_kb_head": "157b403aaf7f466eff7024f2c93a3877734a1895",
+        "previous_kb_exact_head_ci_verified": true,
+        "product_exact_new_head_ci_verified": false,
+        "published_product_ci_failure": {
+          "cause": "Quadratic unanchored view-URL no-match scanning; bounded token-start lookbehind avoids retries without changing redaction ranges.",
+          "failed_tests": 2,
+          "original_assertions_and_timeout_preserved": true,
+          "original_timeout_ms": 5000,
+          "run": 36915929892
+        },
+        "published_product_head": "96e63dbb26fb4911fdb72bcd7799b4eb374ac295",
+        "published_product_head_pushed": true,
+        "remote_product_head_attribution": "Published96 CI failed only the two original40,000-character compaction tests at unchanged5-second timeout. This packet captures the verified local correction before ordinary publication; final head and CI are recorded in the PR description.",
+        "snapshot_at": "2026-10-01T20:56:18.079816+00:00",
+        "snapshot_kind": "Prepublication snapshot; current GitHub PR state after publication is authoritative."
+      },
+      "live_provider": {
+        "actual_provider_work": "Gemini embeddings and Jev, plus the initial built local ainovi.de import/chat",
+        "budget_accounting": {
+          "additional_approval_pending": true,
+          "additional_approval_received": false,
+          "additional_requested_usd": 1,
+          "all_contract_runs_conservative_usd": 1.57706326,
+          "all_diagnostics_conservative_usd": 0.00543411,
+          "all_full_contract_runs_conservative_usd": 1.55883642,
+          "all_subset_contract_runs_conservative_usd": 0.01822684,
+          "batch_cap_usd": 2,
+          "full_contract_runs_recorded": 9,
+          "latest_run10_conservative_usd": 0.14896981,
+          "latest_run11_conservative_usd": 0.1348382,
+          "latest_run12_conservative_usd": 0.13473667,
+          "navigation_embedding_ab_probe_conservative_usd": 6.465e-05,
+          "new_failed_ui_cost_delta_usd": 0.06382417,
+          "new_partial_import_and_manual_ui_delta_usd": 0.13902096,
+          "not_a_provider_invoice": true,
+          "note": "The corrected continuous batch totals US$1.91323767 below the only approved US$2 ceiling. US$0.00039344 of diagnostic receipts previously duplicated within complete-run totals is counted once. A further US$1 request is pending; no extra approval or additional spend is claimed.",
+          "observed_built_app_cost_delta_usd": 0.3307403,
+          "observed_combined_conservative_usd": 1.91323767,
+          "only_approved_batch_ceiling_usd": 2,
+          "prior_built_app_cost_delta_usd": 0.12789517,
+          "probe_runs_recorded": 3,
+          "remaining_approved_usd": 0.08676233,
+          "run1_duplicate_report_counted_once": true,
+          "six_full_contract_runs_conservative_usd": 1.14029174,
+          "two_single_query_probes_conservative_usd": 0.00032879
+        },
+        "current_fixes": {
+          "actual_repaired_delete_query_selected": true,
+          "complete_current_hosted_contract_suite_passed": false,
+          "corrections": [
+            "Preserve validated offering hypotheses across failed coverage/plan repair; source-specific singleton exclusions and quoted reclassification.",
+            "Expose only captured complete canonical FAQ answers within bounded text/hash/cursor semantics.",
+            "Require reviewed gaps arrays and stricter topic citation boundaries without inventing policies.",
+            "Shared unquoted compound alternatives, coherent complete Markdown definitions, own-heading-sensitive and query-focused classifier evidence, literal underscore/query-route preservation.",
+            "Canonical docs embedding input removes generated navigation metadata outside fenced examples; raw searchable body/offsets remain unchanged and versioned build identity includes both raw and semantic input hashes.",
+            "Fitting first actual prose retains coherent aggregate classifier evidence; stronger later actions remain preferred and structural prefixes cannot trigger it.",
+            "Fitting paragraph units, same-block consequence context and escaped canonical Unicode/prefix/substring query units preserve evidence without increasing bounds.",
+            "Canonical exhaustive five-locale analyzers, actual label/locale context, weighted specificity, literal-code payloads, limiting clauses, fitting consecutive prose, resource-label ties and earliest mixed-form surface locations preserve the original bounds.",
+            "Project the Google-only website repair array without maxItems; retain canonical 40-item and 500-character limits. Actual wire isolation and later synthesis succeed, but the actual three-page content is incomplete and fails content review.",
+            "Per-unit evidence context cannot outrank real body matches; typed expected-failure metadata survives hosted tool wrapping and receipt replay; tab visibility refresh waits on the existing dirty/saving form guard.",
+            "Bound canonical typed failures by the original full escaped JSON response budget; preserve repair custom codes and truncation notice through replay. Current 56-path local gate passes; complete real-provider content acceptance remains unresolved.",
+            "Conditional label-backed body fallback applies only when a residual request unit exists but no residual unit has an actual body match. Matching residual actions and full-label introductory behavior remain unchanged. Two failing-before regressions and two boundary regressions pass; no complete new provider acceptance is claimed."
+          ],
+          "new_built_live_onboarding_content_acceptance": false,
+          "selected_navigation_metadata": {
+            "finding": "Selected same-page child Link metadata could be omitted after primary excerpt consumes cap.",
+            "status": "Corrected in serializer with unchanged ranking,1400total and one-third metadata cap; deterministic cases pass; fresh hosted acceptance remains pending."
+          },
+          "source_and_deterministic_regressions_reviewed": true
+        },
+        "executed": true,
+        "full_contract_gate_passed": false,
+        "full_contract_runs": [
+          {
+            "cap_usd": 0.5,
+            "conservatively_accounted_usd": 0.14467686,
+            "contract_count": 15,
+            "corpus_build_hash": "d8f590dc03fa670eefe2ff3c153f55bd4de1785ffb8ec157a7c96941dd9cf2fd",
+            "deterministic_passed": 15,
+            "duration_ms": 95690,
+            "estimated_attempt_usd": 0.01627767,
+            "exit_code": 1,
+            "failed_contracts": [
+              "answers a page-link question with a section whose link line names that page",
+              "answers task and permission questions with the section that handles them and that section's link line",
+              "answers where-is and take-me-to questions with the section that introduces that page, and its link line",
+              "answers common CRM question families with the section that handles them, whatever words the question uses",
+              "keeps the definition of the read access a who-sees-what question names"
+            ],
+            "hosted_failed": 5,
+            "hosted_passed": 10,
+            "measured_receipt_usd": 0.0958401,
+            "run": 1,
+            "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+            "source_overlay_diff_sha256": null,
+            "total_failed": 5,
+            "total_passed": 25
+          },
+          {
+            "cap_usd": 0.5,
+            "conservatively_accounted_usd": 0.45990232,
+            "contract_count": 15,
+            "corpus_build_hash": "d8f590dc03fa670eefe2ff3c153f55bd4de1785ffb8ec157a7c96941dd9cf2fd",
+            "deterministic_passed": 15,
+            "duration_ms": 50823,
+            "estimated_attempt_usd": 0.13075271,
+            "exit_code": 1,
+            "failed_contracts": [
+              "answers a page-link question with a section whose link line names that page",
+              "answers task and permission questions with the section that handles them and that section's link line",
+              "answers where-is and take-me-to questions with the section that introduces that page, and its link line",
+              "keeps a question that uses link as a verb on the relationships section, not on a section of record-page links",
+              "keeps a question about the link between two records on the relationships section",
+              "answers common CRM question families with the section that handles them, whatever words the question uses"
+            ],
+            "hosted_failed": 6,
+            "hosted_passed": 9,
+            "measured_receipt_usd": 0.06753559,
+            "run": 2,
+            "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+            "source_overlay_diff_sha256": "3df6c419e51ba3778c6ef78cb62617b48e10d6283584c1ffbdde3fdb9b52443b",
+            "total_failed": 6,
+            "total_passed": 24
+          },
+          {
+            "cap_usd": 0.4,
+            "conservatively_accounted_usd": 0.2088766,
+            "contract_count": 15,
+            "corpus_build_hash": "d8f590dc03fa670eefe2ff3c153f55bd4de1785ffb8ec157a7c96941dd9cf2fd",
+            "deterministic_passed": 15,
+            "duration_ms": 191111,
+            "estimated_attempt_usd": 0.03921727,
+            "exit_code": 1,
+            "failed_contracts": [
+              "answers task and permission questions with the section that handles them and that section's link line",
+              "keeps a question that uses link as a verb on the relationships section, not on a section of record-page links",
+              "keeps a question about the link between two records on the relationships section",
+              "answers common CRM question families with the section that handles them, whatever words the question uses"
+            ],
+            "hosted_failed": 4,
+            "hosted_passed": 11,
+            "measured_receipt_usd": 0.09112504,
+            "run": 3,
+            "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+            "source_overlay_diff_sha256": "f361dfe3d5256784ffcfbb6b5504eb7654d4eb161bb89f80db090da41bd16195",
+            "total_failed": 4,
+            "total_passed": 26
+          },
+          {
+            "cap_usd": 0.4,
+            "conservatively_accounted_usd": 0.09181668,
+            "contract_count": 15,
+            "corpus_build_hash": "d8f590dc03fa670eefe2ff3c153f55bd4de1785ffb8ec157a7c96941dd9cf2fd",
+            "deterministic_passed": 15,
+            "duration_ms": 272349,
+            "estimated_attempt_usd": 0.00067175,
+            "exit_code": 1,
+            "failed_contracts": [
+              "answers task and permission questions with the section that handles them and that section's link line",
+              "keeps a question that uses link as a verb on the relationships section, not on a section of record-page links",
+              "keeps a question about the link between two records on the relationships section",
+              "answers common CRM question families with the section that handles them, whatever words the question uses"
+            ],
+            "hosted_failed": 4,
+            "hosted_passed": 11,
+            "measured_receipt_usd": 0.08980143,
+            "run": 4,
+            "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+            "source_overlay_diff_sha256": "9cb67ce710890d24b0f9fb4cfd49f6a55d9875126628a62c13a6e3c114808c7a",
+            "total_failed": 4,
+            "total_passed": 26
+          },
+          {
+            "cap_usd": 0.3,
+            "conservatively_accounted_usd": 0.09961163,
+            "contract_count": 15,
+            "corpus_build_hash": "d8f590dc03fa670eefe2ff3c153f55bd4de1785ffb8ec157a7c96941dd9cf2fd",
+            "deterministic_passed": 15,
+            "duration_ms": 274826,
+            "estimated_attempt_usd": 0.00293781,
+            "exit_code": 1,
+            "failed_contracts": [
+              "answers task and permission questions with the section that handles them and that section's link line",
+              "keeps a question that uses link as a verb on the relationships section, not on a section of record-page links",
+              "keeps a question about the link between two records on the relationships section",
+              "answers common CRM question families with the section that handles them, whatever words the question uses",
+              "excerpts the section search_docs names, with that section's own link line"
+            ],
+            "hosted_failed": 5,
+            "hosted_passed": 10,
+            "measured_receipt_usd": 0.0907883,
+            "run": 5,
+            "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+            "source_overlay_diff_sha256": "36f300e90c8f24e877f72300365ccff4df10da1559b758dd34b028a56310aab9",
+            "total_failed": 5,
+            "total_passed": 25
+          },
+          {
+            "cap_usd": 0.3,
+            "conservatively_accounted_usd": 0.13540765,
+            "contract_count": 15,
+            "corpus_build_hash": "d8f590dc03fa670eefe2ff3c153f55bd4de1785ffb8ec157a7c96941dd9cf2fd",
+            "deterministic_passed": 15,
+            "duration_ms": 287291,
+            "estimated_attempt_usd": 0.00199672,
+            "exit_code": 1,
+            "failed_contracts": [
+              "answers task and permission questions with the section that handles them and that section's link line",
+              "answers where-is and take-me-to questions with the section that introduces that page, and its link line",
+              "keeps a question about the link between two records on the relationships section",
+              "answers common CRM question families with the section that handles them, whatever words the question uses"
+            ],
+            "hosted_failed": 4,
+            "hosted_passed": 11,
+            "measured_receipt_usd": 0.12941239,
+            "run": 6,
+            "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+            "source_overlay_diff_sha256": "860ea52dcfbc46891106feb2a831886183483f9f45e6bc80e0671abca814cc88",
+            "total_failed": 4,
+            "total_passed": 26
+          },
+          {
+            "admission_concurrency": 1,
+            "cap_usd": 0.25,
+            "conservatively_accounted_usd": 0.14896981,
+            "contract_count": 15,
+            "corpus_build_hash": "beabd8179f162860bec54b94caeb34b02dc54f0f34c62327d613627f8159ca75",
+            "deterministic_passed": 15,
+            "duration_ms": 460301,
+            "embedding_model": "google/gemini-embedding-001",
+            "estimated_attempt_usd": 0.00271652,
+            "exit_code": 1,
+            "failed_contracts": [
+              "answers task and permission questions with the section that handles them and that section's link line",
+              "answers where-is and take-me-to questions with the section that introduces that page, and its link line",
+              "matches the user's words to the docs' words for sharing, change history, trial end and mailboxes",
+              "keeps a question about the link between two records on the relationships section",
+              "answers common CRM question families with the section that handles them, whatever words the question uses"
+            ],
+            "hosted_failed": 5,
+            "hosted_passed": 10,
+            "indexed": 340,
+            "invocations": 382,
+            "measured_receipt_usd": 0.14081575,
+            "run": 10,
+            "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+            "source_manifest_sha256": "9ebe0ccb9874f8533116f100c8da84289a48f64d1c1d9d44eb871eb6df63aa5f",
+            "source_overlay_diff_sha256": "61bd603763b55e4637049936522e8de24c9c21d10e591812110277a646e0402f",
+            "source_overlay_files": 44,
+            "total_failed": 5,
+            "total_passed": 25
+          },
+          {
+            "admission_concurrency": 1,
+            "cap_usd": 0.2,
+            "conservatively_accounted_usd": 0.1348382,
+            "contract_count": 15,
+            "corpus_build_hash": "beabd8179f162860bec54b94caeb34b02dc54f0f34c62327d613627f8159ca75",
+            "deterministic_passed": 15,
+            "duration_ms": 275222,
+            "embedding_model": "google/gemini-embedding-001",
+            "estimated_attempt_usd": 0.00162111,
+            "exit_code": 1,
+            "failed_contracts": [
+              "answers a page-link question with a section whose link line names that page",
+              "answers task and permission questions with the section that handles them and that section's link line",
+              "matches the user's words to the docs' words for sharing, change history, trial end and mailboxes",
+              "keeps a question that uses link as a verb on the relationships section, not on a section of record-page links",
+              "keeps a question about the link between two records on the relationships section",
+              "answers common CRM question families with the section that handles them, whatever words the question uses"
+            ],
+            "hosted_failed": 6,
+            "hosted_passed": 9,
+            "indexed": 0,
+            "invocations": 381,
+            "measured_receipt_usd": 0.12996467,
+            "run": 11,
+            "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+            "source_overlay_diff_sha256": "38cdcc9be87b8a329a1db23d726da412f8ab869a384824b07ebdbc61d396d829",
+            "total_failed": 6,
+            "total_passed": 24
+          },
+          {
+            "admission_concurrency": 1,
+            "cap_usd": 0.18,
+            "conservatively_accounted_usd": 0.13473667,
+            "contract_count": 15,
+            "corpus_build_hash": "beabd8179f162860bec54b94caeb34b02dc54f0f34c62327d613627f8159ca75",
+            "deterministic_passed": 15,
+            "duration_ms": 323874,
+            "embedding_model": "google/gemini-embedding-001",
+            "estimated_attempt_usd": 0.00246464,
+            "execution_sha256": "45d6ae5ece1a3b22ab6fb2c5583dbcb6469a22052e078b761a40bca6fc1dd374",
+            "exit_code": 1,
+            "failed_contracts": [
+              "answers a page-link question with a section whose link line names that page",
+              "answers task and permission questions with the section that handles them and that section's link line",
+              "matches the user's words to the docs' words for sharing, change history, trial end and mailboxes",
+              "keeps a question that uses link as a verb on the relationships section, not on a section of record-page links",
+              "keeps a question about the link between two records on the relationships section",
+              "answers common CRM question families with the section that handles them, whatever words the question uses",
+              "excerpts the section search_docs names, with that section's own link line"
+            ],
+            "hosted_failed": 7,
+            "hosted_passed": 8,
+            "indexed": 0,
+            "invocations": 376,
+            "measured_receipt_usd": 0.12734275,
+            "report_sha256": "c4a8b16928045b7b1da25a28075dae7b5af2132179cd3ef38fe1cab410c56619",
+            "run": 12,
+            "source_attribution": "Actual retrieval execution before the subsequent website-reader-only Vertex declaration fix; Jev request/retrieval sources remain unchanged.",
+            "source_freeze_id": "388c35e0fb7c455d19bed97f5baa25a6be0fa233f8422f7ad3b7326ca0e2d11a",
+            "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+            "source_overlay_diff_sha256": "4651ac4f0ba2641823e5985a6c859e68b09bbc3df893e6d09ad750ebb3f9a6c9",
+            "total_failed": 7,
+            "total_passed": 23
+          }
+        ],
+        "initial_ainovi_onboarding": {
+          "canonical_internal_links_valid": true,
+          "content_acceptance_complete": false,
+          "duplicate_language_pages": false,
+          "evidenced_offerings_expected": 5,
+          "evidenced_offerings_present": 4,
+          "fully_read_sources": 38,
+          "guide_created_last": true,
+          "invented_internal_policy_found": false,
+          "one_guide": true,
+          "saved_pages": 9,
+          "single_language": "English",
+          "source_characters": 313277,
+          "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+          "unresolved_findings_from_this_run": [
+            {
+              "id": "CONTENT01",
+              "title": "Standalone Software Engineering offering lost"
+            },
+            {
+              "id": "CONTENT02",
+              "title": "Extracted FAQ answers invisible to synthesis reader"
+            },
+            {
+              "id": "CONTENT03",
+              "title": "Use-case citations do not support stated details"
+            },
+            {
+              "id": "CONTENT04",
+              "title": "Guide omits explicit unknown internal-rule gaps"
+            }
+          ]
+        },
+        "latest_built_ainovi_import": {
+          "actual_stop_reason": "hosted_ai_unavailable",
+          "actual_terminal_code": "partial",
+          "build_id": "15Wxiq8ji-5h7jTqCRoVg",
+          "content_acceptance_complete": false,
+          "content_coverage_review": "Actual partial content has substantive failures beyond the cap: SAP and Data Science offerings are excluded as allegedly covered by a summary; a German page title appears during an explicit English import. The latest software page cites its matching dedicated source URL; full citation acceptance remains unverified. Three saved pages are incomplete coverage. Source prompt/repair changes do not establish that these results are corrected.",
+          "crawl_status_interpretation": "Crawl completed indicates extraction/dispatch acceptance; workflow completed means handler exited. Neither establishes full synthesis.",
+          "created_pages": 3,
+          "creation_tool_receipts": 1,
+          "lifecycle_proof_sha256": "db91a8c5ca19bc8973334d9c8e58135ae3bcf942e8501b9e80b1274dfdc89db2",
+          "observed_terminal_message": "Hosted AI temporarily unavailable",
+          "passed": false,
+          "processed_targets": 40,
+          "readback_sha256": "1c23925eaf94e6959128d17ba941d8daef5f41bb09ed9c40a4ca76f800f0d4a8",
+          "source_snapshot": "historical_verification.pre_visibility_49_source_snapshot",
+          "status": "incomplete; actual terminal partial / hosted_ai_unavailable",
+          "stored_useful_sources": 38,
+          "substantive_content_findings": [
+            "SAP and Data Science offerings excluded as covered by summary without proper dedicated coverage.",
+            "Full citation acceptance is unverified; the latest software source URL matches its dedicated stored source.",
+            "German title in explicitly English website import.",
+            "Full offering, FAQ answer, citation and internal-rule gap coverage not accepted."
+          ],
+          "terminal_reason_qualification": "Operator cap bounded the harness, but the terminal record does not identify which admission subcheck failed. Offering exclusions preceded this stop.",
+          "tool_receipts": 26,
+          "total_targets": 40
+        },
+        "latest_full_contract_result": {
+          "deterministic_passed": 15,
+          "failed_tests": 7,
+          "hosted_failed": 7,
+          "hosted_passed": 8,
+          "hosted_total": 15,
+          "passed": false,
+          "passed_tests": 23,
+          "run": 12,
+          "total": 30
+        },
+        "latest_subset_contract_result": {
+          "acceptance_note": "Delete query now selects the dedicated Relationships section. The link-as-a-verb query fails with a late vector, and the later where-links query fails dedicated-section identity. Relevant alternative facts do not satisfy unchanged gold assertions. No same-input source regression is proven and no full-suite pass is claimed.",
+          "cap_usd": 0.02,
+          "classification_sha256": "4daa349cae7db4975658eef61a67e9228b0e50ccc3faf5919f757bbed8b73cd5",
+          "conservatively_accounted_usd": 0.00096612,
+          "contracts": [
+            {
+              "status": "failed",
+              "title": "keeps a question that uses link as a verb on the relationships section, not on a section of record-page links"
+            },
+            {
+              "status": "failed",
+              "title": "keeps a question about the link between two records on the relationships section"
+            }
+          ],
+          "corpus_build_hash": "beabd8179f162860bec54b94caeb34b02dc54f0f34c62327d613627f8159ca75",
+          "duration_ms": 6844,
+          "estimated_attempt_usd": 0,
+          "exit_code": 1,
+          "hosted_failed": 2,
+          "hosted_passed": 0,
+          "indexed": 0,
+          "input_comparison_sha256": "1bd2e187d1b1bf16a69dc11debdcd9b3fbdc279be85a6487944ad4916543c601",
+          "invocation_classification": [
+            {
+              "actual": "architecture-security#how-does-external-ai-access-work",
+              "expected": "concepts#how-do-relationships-link-records",
+              "limitation": "Selected public security excerpt accurately says relation lists are not accepted by update tools and links change through manage_record_links. It is relevant but does not clear the dedicated-section identity assertion.",
+              "query": "link a contact to an organization",
+              "state": "strict-miss; causal source regression not proven"
+            },
+            {
+              "actual": "concepts#how-do-relationships-link-records",
+              "expected": "concepts#how-do-relationships-link-records",
+              "limitation": "Single-provider observation supports intended evidence restoration, not a controlled causal quality comparison.",
+              "query": "Can I delete the link to an organization from a contact?",
+              "state": "actual target selected; failing family not equal failed invocation"
+            },
+            {
+              "actual": "app-records#how-do-i-change-a-deal-stage-or-a-task-status-on-the-board",
+              "expected": "concepts#how-do-relationships-link-records",
+              "limitation": "Selected section actually contains the body instruction that relations appear as labelled relation fields inside the form. Its heading is the board stage/status section, so the strict identity assertion still fails.",
+              "query": "Where are the links between contacts and deals shown?",
+              "state": "strict-miss; no Run13 comparator"
+            }
+          ],
+          "invocations": 3,
+          "measured_receipt_usd": 0.00096612,
+          "passed": false,
+          "receipts": 6,
+          "report_sha256": "fe72203af99ca9017b03b5c6653f47733fe85dc166ae3980e0d1ded541410cec",
+          "run": 14,
+          "scope": "Only two unchanged hosted relationship families selected; 28 cases not run. Failure of a family does not mean every invocation in it failed.",
+          "skipped_tests": 28,
+          "source_freeze_id": "a73446a5ede7408b3d2e4492fba389a6c807df6ce3c62e19bf1a5243bb419913",
+          "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+          "source_overlay_diff_sha256": "1b1155a4accc3bb19b8f9a9e96018f8e05bf33dd91f526351de8f655cb16ab2e"
+        },
+        "navigation_embedding_ab_diagnostic": {
+          "cap_usd": 0.01,
+          "conservatively_accounted_usd": 6.465e-05,
+          "duration_ms": 4396,
+          "estimated_attempt_usd": 0,
+          "exit_code": 0,
+          "index_writes": 0,
+          "indexed": 0,
+          "kind": "read-only-index-embedding-ab-diagnostic",
+          "limitation": "A paired embedding diagnostic of one unchanged public Inbox section; no stored-index mutation and no full retrieval-contract or content-acceptance pass.",
+          "measured_receipt_usd": 6.465e-05,
+          "passed": true,
+          "result": {
+            "corpusBuildHash": "d8f590dc03fa670eefe2ff3c153f55bd4de1785ffb8ec157a7c96941dd9cf2fd",
+            "current": {
+              "sha256": "593524ed9ee56c2bd53471f5865ada63e4ce7fdc2f4b26e2060a8fc99c5da075",
+              "similarity": 0.5958023037206343,
+              "utf8Bytes": 1210
+            },
+            "documentDurationMs": 372,
+            "identity": {
+              "anchor": "which-conversations-do-i-see",
+              "locale": "en",
+              "slug": "app-inbox",
+              "source": "docs"
+            },
+            "query": {
+              "durationMs": 884,
+              "sha256": "34c224f53d168136347b785eb188ab134d11cbbf746a0aa0ad43b8f7c4c58d37",
+              "utf8Bytes": 46
+            },
+            "similarityDifference": 0.011426022487265208,
+            "totalDurationMs": 1256,
+            "withoutNavigationMetadata": {
+              "sha256": "bc1748ef9def8a2be06d23a12023360b5ff0d87e27060070bb3a545be217d26d",
+              "similarity": 0.6072283262078995,
+              "utf8Bytes": 794
+            }
+          },
+          "run": 9,
+          "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+          "source_overlay_diff_sha256": "6de5492b4f8d0e59ccdfee130ae6b284d7396c20db4ba564d4e2c1e5566f19c7"
+        },
+        "privacy_exact_section_diagnostics": [
+          {
+            "cap_usd": 0.01,
+            "conservatively_accounted_usd": 0.00032744,
+            "duration_ms": 5284,
+            "embedding": "timeout",
+            "estimated_attempt_usd": 0,
+            "exit_code": 0,
+            "expected_section": "app-inbox#which-conversations-do-i-see",
+            "expected_section_first_full_text": true,
+            "expected_section_first_semantic": false,
+            "index_complete": true,
+            "limitation": "The timed-out vector skips the relevance floor and reaches Jev.",
+            "max_coverage": 0.7079787692170872,
+            "max_similarity": null,
+            "measured_receipt_usd": 0.00032744,
+            "passed": true,
+            "query": "Can my manager read my private WhatsApp chats?",
+            "rerank": "used",
+            "returned_pages": 5,
+            "run": 7,
+            "scope": "single unchanged exact privacy-section retrieval diagnostic",
+            "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+            "source_overlay_diff_sha256": "6de5492b4f8d0e59ccdfee130ae6b284d7396c20db4ba564d4e2c1e5566f19c7"
+          },
+          {
+            "cap_usd": 0.01,
+            "conservatively_accounted_usd": 1.35e-06,
+            "duration_ms": 3990,
+            "embedding": "used",
+            "estimated_attempt_usd": 0,
+            "exit_code": 1,
+            "expected_section": "app-inbox#which-conversations-do-i-see",
+            "expected_section_first_full_text": true,
+            "expected_section_first_semantic": true,
+            "index_complete": true,
+            "limitation": "A timely vector with cosine below 0.60 drops the correct candidate before Jev; this unresolved recall failure is not a permission/privacy breach.",
+            "max_coverage": 0.7079787692170872,
+            "max_similarity": 0.5958024501250354,
+            "measured_receipt_usd": 1.35e-06,
+            "passed": false,
+            "query": "Can my manager read my private WhatsApp chats?",
+            "rerank": "none",
+            "returned_pages": 0,
+            "run": 8,
+            "scope": "single unchanged exact privacy-section retrieval diagnostic",
+            "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+            "source_overlay_diff_sha256": "6de5492b4f8d0e59ccdfee130ae6b284d7396c20db4ba564d4e2c1e5566f19c7"
+          }
+        ],
+        "subset_contract_runs": [
+          {
+            "cap_usd": 0.05,
+            "conservatively_accounted_usd": 0.01726072,
+            "contracts": [
+              {
+                "status": "passed",
+                "title": "keeps a question that uses link as a verb on the relationships section, not on a section of record-page links"
+              },
+              {
+                "status": "failed",
+                "title": "keeps a question about the link between two records on the relationships section"
+              },
+              {
+                "status": "failed",
+                "title": "answers common CRM question families with the section that handles them, whatever words the question uses"
+              },
+              {
+                "status": "failed",
+                "title": "excerpts the section search_docs names, with that section's own link line"
+              }
+            ],
+            "corpus_build_hash": "beabd8179f162860bec54b94caeb34b02dc54f0f34c62327d613627f8159ca75",
+            "duration_ms": 62472,
+            "estimated_attempt_usd": 0.00039623,
+            "exit_code": 1,
+            "hosted_failed": 3,
+            "hosted_passed": 1,
+            "indexed": 0,
+            "invocations": 47,
+            "measured_receipt_usd": 0.01607203,
+            "passed": false,
+            "receipts": 91,
+            "report_sha256": "8cba599159e4b83d3025fe67d2f62938ef01581a156ff2120a24a7efe0123eac",
+            "run": 13,
+            "scope": "Four unchanged hosted families only; 26 other cases skipped. This is not a complete-suite acceptance pass.",
+            "skipped_tests": 26,
+            "source_freeze_id": "6cd7bf496521e98610ff738dbd8fe2e50ddb93a08789a1fa988e01fdb3a73968",
+            "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+            "source_overlay_diff_sha256": "1b1155a4accc3bb19b8f9a9e96018f8e05bf33dd91f526351de8f655cb16ab2e"
+          },
+          {
+            "acceptance_note": "Delete query now selects the dedicated Relationships section. The link-as-a-verb query fails with a late vector, and the later where-links query fails dedicated-section identity. Relevant alternative facts do not satisfy unchanged gold assertions. No same-input source regression is proven and no full-suite pass is claimed.",
+            "cap_usd": 0.02,
+            "classification_sha256": "4daa349cae7db4975658eef61a67e9228b0e50ccc3faf5919f757bbed8b73cd5",
+            "conservatively_accounted_usd": 0.00096612,
+            "contracts": [
+              {
+                "status": "failed",
+                "title": "keeps a question that uses link as a verb on the relationships section, not on a section of record-page links"
+              },
+              {
+                "status": "failed",
+                "title": "keeps a question about the link between two records on the relationships section"
+              }
+            ],
+            "corpus_build_hash": "beabd8179f162860bec54b94caeb34b02dc54f0f34c62327d613627f8159ca75",
+            "duration_ms": 6844,
+            "estimated_attempt_usd": 0,
+            "exit_code": 1,
+            "hosted_failed": 2,
+            "hosted_passed": 0,
+            "indexed": 0,
+            "input_comparison_sha256": "1bd2e187d1b1bf16a69dc11debdcd9b3fbdc279be85a6487944ad4916543c601",
+            "invocation_classification": [
+              {
+                "actual": "architecture-security#how-does-external-ai-access-work",
+                "expected": "concepts#how-do-relationships-link-records",
+                "limitation": "Selected public security excerpt accurately says relation lists are not accepted by update tools and links change through manage_record_links. It is relevant but does not clear the dedicated-section identity assertion.",
+                "query": "link a contact to an organization",
+                "state": "strict-miss; causal source regression not proven"
+              },
+              {
+                "actual": "concepts#how-do-relationships-link-records",
+                "expected": "concepts#how-do-relationships-link-records",
+                "limitation": "Single-provider observation supports intended evidence restoration, not a controlled causal quality comparison.",
+                "query": "Can I delete the link to an organization from a contact?",
+                "state": "actual target selected; failing family not equal failed invocation"
+              },
+              {
+                "actual": "app-records#how-do-i-change-a-deal-stage-or-a-task-status-on-the-board",
+                "expected": "concepts#how-do-relationships-link-records",
+                "limitation": "Selected section actually contains the body instruction that relations appear as labelled relation fields inside the form. Its heading is the board stage/status section, so the strict identity assertion still fails.",
+                "query": "Where are the links between contacts and deals shown?",
+                "state": "strict-miss; no Run13 comparator"
+              }
+            ],
+            "invocations": 3,
+            "measured_receipt_usd": 0.00096612,
+            "passed": false,
+            "receipts": 6,
+            "report_sha256": "fe72203af99ca9017b03b5c6653f47733fe85dc166ae3980e0d1ded541410cec",
+            "run": 14,
+            "scope": "Only two unchanged hosted relationship families selected; 28 cases not run. Failure of a family does not mean every invocation in it failed.",
+            "skipped_tests": 28,
+            "source_freeze_id": "a73446a5ede7408b3d2e4492fba389a6c807df6ce3c62e19bf1a5243bb419913",
+            "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+            "source_overlay_diff_sha256": "1b1155a4accc3bb19b8f9a9e96018f8e05bf33dd91f526351de8f655cb16ab2e"
+          }
+        ],
+        "vertex_wire_isolation": {
+          "canonical_server_max_items": 40,
+          "execution_attribution": "parent-owned actual wire comparison",
+          "only_repair_maxItems_removed_success": true,
+          "original_required_tool_http_status": 400,
+          "schema_bytes_removed": 14,
+          "scope": "A narrow actual-provider declaration probe; does not prove a completed website import or revised UI/content acceptance.",
+          "source_fix": "Google-only reclassifiedOfferings.maxItems projection",
+          "successful_probe_total_tokens": 995
+        }
+      },
+      "owned_resource_cleanup": {
+        "all_owned_resources_removed": false,
+        "dev_database_untouched": true,
+        "drop_proof_sha256": [
+          "8e1ce8880c752bc59e12be68086b84224b9f0524f537a3a982e39fd36e829f94",
+          "4a1972c64b3ed53f8d746eba20d3a0638f8d0eeef889f8cceefde45d04432cf0",
+          "8b44c699d0f2753bc7889e7487e474a5d85e470cae023d9ede608ef6962cdba5"
+        ],
+        "no_account_or_database_identifiers_included": true,
+        "owned_browser_closed": true,
+        "owned_browser_database_dropped_and_absent": true,
+        "owned_gate_database_dropped_and_absent": true,
+        "owned_prior_gate_database_dropped_and_absent": true,
+        "owned_server_stopped": true,
+        "paid_synthetic_database_retained": true,
+        "passed": true,
+        "preview_database_untouched": true,
+        "provider_cap_zero": true,
+        "provider_paused": true,
+        "retained_scope": "Previously owned paid synthetic workspace and canonical indexed corpus, for separately approved follow-up.",
+        "scope_attribution": "Only owned disposable final gate/browser and preceding CI gate databases were dropped; owned browser CLI closed and final port verified unbound. Paid synthetic data retained.",
+        "source_files": 59,
+        "source_freeze_id": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c",
+        "source_hash_drift": 0,
+        "user_port_4000_untouched": true
+      },
+      "review_matrix": {
+        "application_and_dependency_paths": 753,
+        "consolidated_csv_sha256": "140d1b9e6abe5cdc834c6a0389359b4f5a0100dbe9e634dbc3fd12f688dda4d2",
+        "consolidated_matrix_sha256": "ee592915d2835299898792be54636001afabc09a222c0dc99be0b51f270b414a",
+        "corrected": 169,
+        "count_attribution": "All762 union paths compared to established neighbors; current59 source hashes are independently reviewed. Three derived packet files receive separate artifact consistency review.",
+        "current_incremental_review_sha256": "37a00206f95e66764f14c5137ea313fae5524625b9509648e923c340c8c3b332",
+        "current_overlay_paths": 59,
+        "historical_56_review_sha256": "40104bd97fda0edff352780718d2887e84a450f5d708d2cf27bf175f2921dddd",
+        "initial_only_paths": 9,
+        "justified": 13,
+        "latest49_path_independent_review_sha256": "bec5b299c5b4c988bc5b6b274b262e99793785ff2ad9b363c79522ac30000aad",
+        "latest56_path_independent_review_sha256": "0b811b8c8f2b7f405f4855f8da45afee2b1eca31808dde9b3dee3737c8b0c317",
+        "latest56_reviewed_paths": 56,
+        "open_source_findings": 0,
+        "original_paths": 592,
+        "requires_regeneration": false,
+        "reviewed": 580,
+        "reviewed_union_paths": 762,
+        "selected_navigation_review_sha256": "c3059c257fd13d69882b1ca72d3b3b10cafe15b8859313234e54995e16a0b61b",
+        "self_derived_packet_files_excluded": 3,
+        "source_exclusion_test_review_sha256": "ba412f79f42e9e9b98d57fe9ebd49150c356068974b0762e8b7182449f319950",
+        "source_hash_drift": 0,
+        "stale_paths_at_proposal_snapshot": [],
+        "stale_tagged_hashes": 0,
+        "uncovered_current_paths": 0
+      },
+      "source_snapshot": {
+        "base_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+        "current_independent_review_sha256": "37a00206f95e66764f14c5137ea313fae5524625b9509648e923c340c8c3b332",
+        "final_committed_head": null,
+        "frozen": true,
+        "hash_format": "sha256 of JSON.stringify(files), paths sorted",
+        "latest_completed_gate_snapshot": "Final source59 passes local typecheck, zero-warning lint, full Vitest, build, aligned-origin HTTP and fresh provider-disabled browser smoke. Published exact-head CI is authoritative on the PR after this prepublication packet.",
+        "parent_head": "96e63dbb26fb4911fdb72bcd7799b4eb374ac295",
+        "recorded_at": "2026-10-01T20:33:09.885Z",
+        "source_freeze_file_sha256": "8d1b8c6ac7ec91705e3983102b09eccf77e001c49d01983b5e4f086e05a0ac41",
+        "source_freeze_id": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c",
+        "working_tree_overlay_files": 59
+      }
+    },
     "pre_streaming_fix_57_checks": {
       "build": {
         "base_url": "http://127.0.0.1:4237",
@@ -2191,792 +3122,822 @@
       "source_freeze_id": "8df439d17d81abd77eb8e718b7b8a889b590883d374d528442364b22037067c6",
       "working_tree_overlay_files": 49
     },
+    "previous_69_source_packet": {
+      "checks": {
+        "build": {
+          "base_url": "http://localhost:4000",
+          "build_id": "LwQqQljvNqDYziG0dPeEN",
+          "duration_ms": 171456,
+          "evidence_sha256": "2ae8ee6cb3d87bfff858b1650c2eba34475edcfb2ff88c8e7e8ee8eb4771c855",
+          "exit_code": 0,
+          "log": "2026-10-02-final-gate/attempt3/final-build.log",
+          "log_sha256": "8fc73724837c802be571b32e393c2b96f31907508d93ffdd8703ba74b446545d",
+          "passed": true,
+          "source_freeze_id": "491f9b0cc69756e97040e01a48e4afad66e07d8832c3ccb73e933d23d94c1fa7",
+          "state": "passed"
+        },
+        "built_browser": {
+          "passed": false,
+          "source_freeze_id": "491f9b0cc69756e97040e01a48e4afad66e07d8832c3ccb73e933d23d94c1fa7",
+          "state": "pending"
+        },
+        "built_http": {
+          "base_url": "http://localhost:4000",
+          "build_id": "LwQqQljvNqDYziG0dPeEN",
+          "duration_ms": 22718,
+          "exit_code": 0,
+          "failed_files": 0,
+          "failed_tests": 0,
+          "log": "2026-10-02-final-gate/attempt3/final-built-http.log",
+          "log_sha256": "4ccc81c576fa3d860ba0c3724b0400a49d3522e6a5852acaf889addb30c41383",
+          "passed": true,
+          "passed_files": 2,
+          "passed_tests": 18,
+          "skipped_files": 0,
+          "skipped_tests": 0,
+          "source_freeze_id": "491f9b0cc69756e97040e01a48e4afad66e07d8832c3ccb73e933d23d94c1fa7",
+          "state": "passed"
+        },
+        "full_frozen_gate": {
+          "duration_ms": 913498,
+          "exit_code": 0,
+          "failed_files": 0,
+          "failed_tests": 0,
+          "independent_review_sha256": "d6c7cb491cfcf81836e469762cb5a10958f7d1259ac88256ffd91f23eb4d99f1",
+          "log": "2026-10-02-final-gate/attempt3/final-vitest.log",
+          "log_sha256": "44cc619de728111c6ebd4ebbc20cd859916ba1133c76bd85bf78d2bc025afc89",
+          "passed": true,
+          "passed_files": 1043,
+          "passed_tests": 10364,
+          "skip_attribution": "Fifteen paid opt-in families and five HTTP cases remain explicit; skipped cases are not passes. HTTP is verified separately when current built evidence exists.",
+          "skipped_files": 1,
+          "skipped_tests": 20,
+          "source_freeze_id": "491f9b0cc69756e97040e01a48e4afad66e07d8832c3ccb73e933d23d94c1fa7",
+          "state": "passed"
+        },
+        "funded_retry_focused": {
+          "attribution": "Earlier focused proof on the funding correction before final native fixture guards; not a current full-gate claim.",
+          "files": 5,
+          "independent_review_sha256": "500843dc49329b56b6b8855a202e50b577fa78263473a156f0eea45db90e1670",
+          "log": "2026-10-02-usd1/funded-retry-green.log",
+          "log_sha256": "b384464be12a762e59f221ef9e498849d64fa34be03a8cee289525223dd97aa4",
+          "original_expectation_change": "One unchanged underfunded overshoot fixture intentionally changes native retry allowance2to0; a separate funded fixture retains2. Original matchers and contract golds are not claimed fully byte-identical.",
+          "passed": true,
+          "passed_tests": 342
+        },
+        "isolated_timeout_regressions": {
+          "deadlines_changed": false,
+          "duration_ms": 10070,
+          "exit_code": 0,
+          "failed_files": 0,
+          "failed_tests": 0,
+          "log": "2026-10-02-final-gate/attempt3/focused-timeouts.log",
+          "log_sha256": "b0c33b864b633d0efcda7d26be5597adb541727d881d9c64e47d4b7e4187d05c",
+          "passed": true,
+          "passed_files": 2,
+          "passed_tests": 29,
+          "skipped_files": 0,
+          "skipped_tests": 0,
+          "source_freeze_id": "491f9b0cc69756e97040e01a48e4afad66e07d8832c3ccb73e933d23d94c1fa7",
+          "state": "passed"
+        },
+        "kb_gate": {
+          "checks": 8,
+          "duration_ms": 36090,
+          "head": "cd4934dd02b175dd9ec341ae3697832f140b2731",
+          "log_sha256": "8db645ddc645cd8206f79b740e27993c7e2a7603ed416d8e5a70c4da552bdaec",
+          "passed": true,
+          "source_proof_sha256": "1c3421397cc38adb7c49bd3ed4916d10c73bd526799040d7fe997a0bac74c1df",
+          "state": "passed"
+        },
+        "lint": {
+          "duration_ms": 133525,
+          "exit_code": 0,
+          "log": "2026-10-02-final-gate/attempt2/final-lint.log",
+          "log_sha256": "aff34d8964644e695406328abcc51fee3761859f0ffcf2870cf1167ba780ef6b",
+          "passed": true,
+          "source_freeze_id": "491f9b0cc69756e97040e01a48e4afad66e07d8832c3ccb73e933d23d94c1fa7",
+          "state": "passed"
+        },
+        "migration_matrix": {
+          "attribution": "Six actual native Prisma fresh/upgrade/recovery cases; no database/account identifiers copied.",
+          "cases": [
+            {
+              "columns": 16,
+              "deploy": 0,
+              "kind": "fresh",
+              "repeat": 0,
+              "vector": true,
+              "version": 17
+            },
+            {
+              "columns": 16,
+              "deploy": 0,
+              "kind": "upgrade",
+              "repeat": 0,
+              "vector": true,
+              "version": 17
+            },
+            {
+              "columns": 16,
+              "events": 1,
+              "injectedFailureExit": 1,
+              "kind": "recovery",
+              "resolve": 0,
+              "retry": 0,
+              "vector": true,
+              "version": 17
+            },
+            {
+              "columns": 16,
+              "deploy": 0,
+              "kind": "fresh",
+              "repeat": 0,
+              "vector": false,
+              "version": 16
+            },
+            {
+              "columns": 16,
+              "deploy": 0,
+              "kind": "upgrade",
+              "repeat": 0,
+              "vector": false,
+              "version": 16
+            },
+            {
+              "columns": 16,
+              "events": 1,
+              "injectedFailureExit": 1,
+              "kind": "recovery",
+              "resolve": 0,
+              "retry": 0,
+              "vector": false,
+              "version": 16
+            }
+          ],
+          "log_sha256": "8e3115694e16aed250d662f8ca9980a161e00baecc8dad92e525611fac7b7af9",
+          "migration_sha256": "7bebfa60212ef048ee8eb8232fdcfa1ed6332c06ae680c6b6d3872aa7165fe17",
+          "owned_absence_proof_sha256": "897c824b1a77058ec8a114ecee6b7a24d96cf18a118fd639e7da92963c01a14f",
+          "passed": true
+        },
+        "native_fixture_guards": {
+          "attribution": "Final formatted native guard proof; earlier matcher expressions remain equivalent after three exact metadata aliases. Tool-result input remains the original native Error instance.",
+          "files": 1,
+          "independent_review_sha256": "d38ac5626f3631684b8349cb7f8cbf9c19b951877d8fbe030513b290ce4d2b46",
+          "log": "2026-10-02-usd1/native-enumerable-guard-green.log",
+          "log_sha256": "ab483a7264eab0dce97b6363a20731035c2d47482ef963e5f301ce6abae133c3",
+          "passed": true,
+          "passed_tests": 41
+        },
+        "typecheck": {
+          "duration_ms": 9303,
+          "exit_code": 0,
+          "log": "2026-10-02-final-gate/attempt2/final-typecheck.log",
+          "log_sha256": "a4d3a247b631e3fdb20630a577043645f96eba73ed3f232f3fc1f452db82041a",
+          "passed": true,
+          "source_freeze_id": "491f9b0cc69756e97040e01a48e4afad66e07d8832c3ccb73e933d23d94c1fa7",
+          "state": "passed"
+        }
+      },
+      "current_owned_resource_cleanup": {
+        "all_owned_resources_removed": false,
+        "passed": false,
+        "provider_cap_zero": true,
+        "provider_paused": true,
+        "scope": "Current owned gate/browser resources; prior cleanup remains historical. Paid synthetic corpus may be retained for separately admitted stages.",
+        "state": "pending"
+      },
+      "external": {
+        "current_kb_overlay_pushed": true,
+        "current_source_overlay_pushed": false,
+        "drafts_preserved": true,
+        "kb_current_overlay_exact_head_ci_verified": false,
+        "kb_exact_head_ci_verified": false,
+        "kb_head": "cd4934dd02b175dd9ec341ae3697832f140b2731",
+        "kb_head_pushed": true,
+        "local_reviewed_product_head": "b62058cfdf0022d55d837844b2729d405a646171",
+        "local_reviewed_product_head_pushed": true,
+        "migration_adoption_scope_confirmed": true,
+        "preview_reset": "Human checkpoint against the rewritten migration revision; no agent reset or cleanup.",
+        "product_exact_new_head_ci_verified": false,
+        "published_product_head": "b62058cfdf0022d55d837844b2729d405a646171",
+        "published_product_head_pushed": true,
+        "remote_product_head_attribution": "Published b620 is the parent; its previous successful checks do not verify the current overlay.",
+        "snapshot_at": "2026-10-02T09:48:31.678641+00:00",
+        "snapshot_kind": "Prepublication current69-file proposal; exact future product-head checks are not yet accepted."
+      },
+      "invariants": {
+        "classifier_evidence_total_chars": 16000,
+        "classifier_option_max_chars": 800,
+        "corpus_unchanged": false,
+        "corpus_unchanged_note": "EN/DE relationship facts relocate from the board-stage answer to Concepts/Relationships; canonical documents regenerate. Strict questions and gold expectations are byte-identical.",
+        "cosine_drop_below": 0.6,
+        "embedding_input_format": "docs-embedding-v2",
+        "embedding_wait_ms": 1100,
+        "hosted_original_assertions_preserved": true,
+        "idf_coverage_keep_floor": 0.9,
+        "leading_candidate_weight_ratio": "5:1",
+        "permissions_and_tenant_scope_before_wiki_ranker": true,
+        "skip_floor_when_vector_late_or_index_incomplete": true,
+        "strict_gold_source_sha256": "0f6d4a5d8a0a1ad500b09688a277cad1768b945e5bec6af960dfb5c5a70c2576",
+        "strict_queries_and_golds_unchanged": true
+      },
+      "live_provider": {
+        "budget_accounting": {
+          "approved_ceiling_microcents": 100000000,
+          "approved_separate_batch_usd": 1,
+          "attribution": "New approved US1 batch is separate from historical US2. Account for every original stage once; retain historical customer holds unchanged. No future stage admitted by this packet.",
+          "contracts2_admitted": false,
+          "held_microcents": 0,
+          "import2_admitted": false,
+          "ledger_sha256": "08558f40e3c3ac1753f3ea6dbe87dfe6a4c2476f406ea6a0e11a757b2361a28c",
+          "original_baseline_sha256": "8e53e1e9da0ab71fb49d17cacdf96fe480698d456d2c8f07bb3971f2606869e6",
+          "remaining_microcents": 79288106,
+          "used_conservative_usd": 0.20711894,
+          "used_microcents": 20711894
+        },
+        "current_source_acceptance": {
+          "limitation": "Wire/privacy/receipt/funding and excerpt fixes have deterministic coverage; no paid acceptance may be inferred from those checks.",
+          "required": [
+            "Complete all15 hosted families plus15 deterministic cases with unchanged golds",
+            "Complete ainovi import content/citation/language/gaps coverage and lifecycle under the approved allocation"
+          ],
+          "source_freeze_id": "491f9b0cc69756e97040e01a48e4afad66e07d8832c3ccb73e933d23d94c1fa7",
+          "state": "pending"
+        },
+        "executed": true,
+        "full_contract_gate_passed": false,
+        "initial_import": {
+          "accepted": false,
+          "conservative_microcents": 6412282,
+          "failure": "Initial provider invalid-argument400 before synthesis persistence",
+          "persisted_pages": 0,
+          "settlement_sha256": "7f56455f876e6b1fb851e82ba500ad48ffa67812b2ef30edafcf82eca6d96a3a",
+          "source_head": "b62058cfdf0022d55d837844b2729d405a646171"
+        },
+        "latest_complete_run": {
+          "attribution": "Complete unchanged suite on published b620 before the current69-file corrections. No current-source full live acceptance.",
+          "conservative_usd": 0.13372477,
+          "deterministic_passed": 15,
+          "execution_log_sha256": "2c7ccba34bc8c99e16ea085ab97b9ec6e5f97529bcac71e8430f136a40e2b73f",
+          "hosted_failed": 4,
+          "hosted_passed": 11,
+          "hosted_total": 15,
+          "indexed_field_attribution": "Report indexed0 means no new embeddings created in that invocation; it is not the retained corpus index size.",
+          "passed": false,
+          "passed_tests": 26,
+          "report_sha256": "924cce32cbd79b52b4b894c0a61ff0ec7f8e3b746d1042151f3e17afec4569f9",
+          "source_head": "b62058cfdf0022d55d837844b2729d405a646171",
+          "total": 30
+        }
+      },
+      "pending": [
+        "Complete and independently review the current provider-paused browser evidence; current full Vitest is accepted.",
+        "Admit future import2/contracts2 only through the reviewed named-stage wrapper and remaining approved US1 budget; historical holds/baseline remain unchanged.",
+        "Accept complete current-source generated content and all unchanged hosted contract families; local deterministic checks do not substitute for this.",
+        "Ordinary publication and exact new product/KB heads plus CI/deployment require fresh saved primary snapshots.",
+        "Keep both PRs drafts until owner requests readiness; human legal/privacy/DPA/preview reset/merge checkpoints remain."
+      ],
+      "ready_to_merge": false,
+      "review_matrix": {
+        "application_and_dependency_paths": 758,
+        "consolidated_csv_sha256": "c2bd975ffae0e57f93636c48f89b7010709dbf7d3ffca881f15f3271b63a4c26",
+        "consolidated_matrix_sha256": "2126a3989b61ce44954a652575fefb2b2d9897aa98b0bdd0810202fbb95946d5",
+        "corrected": 177,
+        "count_attribution": "Strict assembler767 union paths, all69 frozen source hashes covered; the three derived packet files require a fresh independent consistency review.",
+        "current_incremental_review_sha256": "6aa3808fe745ec57d216270a5cfe626323a57b2b0548278ac0fe7b59f04bf9b8",
+        "current_overlay_paths": 69,
+        "historical_56_review_sha256": "40104bd97fda0edff352780718d2887e84a450f5d708d2cf27bf175f2921dddd",
+        "initial_only_paths": 9,
+        "justified": 13,
+        "latest49_path_independent_review_sha256": "bec5b299c5b4c988bc5b6b274b262e99793785ff2ad9b363c79522ac30000aad",
+        "latest56_path_independent_review_sha256": "0b811b8c8f2b7f405f4855f8da45afee2b1eca31808dde9b3dee3737c8b0c317",
+        "latest56_reviewed_paths": 56,
+        "open_source_findings": 0,
+        "original_paths": 592,
+        "requires_regeneration": false,
+        "reviewed": 577,
+        "reviewed_union_paths": 767,
+        "selected_navigation_review_sha256": "c3059c257fd13d69882b1ca72d3b3b10cafe15b8859313234e54995e16a0b61b",
+        "self_derived_packet_files_excluded": 3,
+        "source_exclusion_test_review_sha256": "ba412f79f42e9e9b98d57fe9ebd49150c356068974b0762e8b7182449f319950",
+        "source_hash_drift": 0,
+        "stale_paths_at_proposal_snapshot": [],
+        "stale_tagged_hashes": 0,
+        "uncovered_current_paths": 0
+      },
+      "reviewed_at": "2026-10-02",
+      "source_base": "31d1df14c9185e62f23bf902be3ef518b42ca5b3",
+      "source_review_followups": [
+        {
+          "finding": "Lower-IDF equal-coverage opening preference and linguistic/literal/clause/context evidence loss",
+          "focused_after_passed": 108,
+          "path": "ee/agent-chat/docs-rank-evidence.ts",
+          "root_before_failed": 10,
+          "root_before_passed": 27,
+          "status": "Corrected"
+        },
+        {
+          "combined_before_failed": 4,
+          "combined_before_passed": 71,
+          "finding": "Earliest inflected surface displaced by later literal forms at32-location cap",
+          "focused_after_passed": 108,
+          "path": "core/retrieval/retrieval-evidence-matcher.ts",
+          "status": "Corrected"
+        },
+        {
+          "authoritative_limit": 40,
+          "evidence_quote_max_chars": 500,
+          "finding": "Vertex rejects forced website repair declaration containing reclassifiedOfferings.maxItems",
+          "focused_after_passed": 107,
+          "path": "ee/agent-chat/provider-safe-json-schema.ts",
+          "root_before_failed": 1,
+          "root_before_passed": 42,
+          "status": "Corrected in source; revised end-to-end content acceptance pending"
+        },
+        {
+          "finding": "Context-only table relevance must not displace actual body evidence",
+          "focused_after_files": 3,
+          "focused_after_passed": 78,
+          "path": "ee/agent-chat/docs-rank-evidence.ts",
+          "root_before_failed": 3,
+          "root_before_passed": 39,
+          "status": "Corrected in source; final hosted acceptance pending"
+        },
+        {
+          "finding": "Hosted tool wrapper discarded canonical typed planning failures",
+          "path": "ee/agent-chat/agent-tools.ts",
+          "status": "Corrected in source; final completed content acceptance pending"
+        },
+        {
+          "finding": "Unconditional visibility refresh can remount and discard dirty editor content",
+          "focused_after_files": 2,
+          "focused_after_passed": 29,
+          "path": "app/components/navigation/navigation-switch.tsx",
+          "prior_built_reproductions": 3,
+          "root_before_failed": 4,
+          "root_before_passed": 9,
+          "status": "Corrected in source; actual final WuPP built-browser retention and conflict checks pass. Twelve current UI assertions are independently reviewed with qualified transient/harness limitations."
+        },
+        {
+          "finding": "Unbounded failure metadata and escaped text could bypass result limits or erase the truncation notice.",
+          "focused_after_files": 8,
+          "focused_after_passed": 254,
+          "path": "ee/agent-chat/agent-tool-failure.ts",
+          "status": "Corrected in source; 254 focused tests pass. Full website content acceptance remains separate."
+        },
+        {
+          "finding": "Unmatched residual request verb suppressed all real label-backed body evidence and omitted the relationship operation tail.",
+          "focused_after_files": 8,
+          "focused_after_passed": 258,
+          "path": "ee/agent-chat/docs-rank-evidence.ts",
+          "status": "Corrected by narrow fallback; all original bounds/expectations remain. Actual run14 delete invocation selects Relationships, but both selected strict families still fail on other queries. This is not full hosted acceptance."
+        },
+        {
+          "finding": "Free-text source exclusions could silently substitute foundational summaries for distinct offering coverage.",
+          "focused_after_files": 5,
+          "focused_after_passed": 291,
+          "path": "ee/wiki-crawl/read-wiki-website-sources.interactor.ts",
+          "root_before_failed": 11,
+          "root_before_passed": 280,
+          "source_freeze_id": "6e1a63d34a4ce1e8aadef7025063b91ea74855760eba3fe0e6ed3c50e032c010",
+          "status": "Corrected in source with typed source-specific exclusion bases; final generated-content acceptance remains open."
+        },
+        {
+          "path": "ee/agent-chat/agent-output-safety.ts",
+          "source_freeze_id": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c",
+          "status": "Corrected quadratic scanner; token boundary matches preserve saved-view/UUID redaction and chunk output. Original two workflow tests/default5seconds unchanged."
+        },
+        {
+          "path": "features/mcp-tools/docs-unified-search.ts",
+          "source_freeze_id": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c",
+          "status": "Corrected selected-child metadata starvation and discarded-short-block guard; original tests/golds unchanged."
+        }
+      ],
+      "source_snapshot": {
+        "attribution": "Current69-file overlay; acceptance states below derive from explicit completed artifacts only.",
+        "base_head": "b62058cfdf0022d55d837844b2729d405a646171",
+        "current_independent_review_sha256": "6aa3808fe745ec57d216270a5cfe626323a57b2b0548278ac0fe7b59f04bf9b8",
+        "final_committed_head": null,
+        "frozen": true,
+        "hash_format": "sha256 of JSON.stringify(files), paths sorted",
+        "historical_source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+        "parent_head": "b62058cfdf0022d55d837844b2729d405a646171",
+        "recorded_at": "2026-10-02T08:56:21.493Z",
+        "source_freeze_file_sha256": "f7a0f1e2b14c2076a258ed733e3c9cbc5c6d5eb160f7c3127da45a4980a65e3f",
+        "source_freeze_id": "491f9b0cc69756e97040e01a48e4afad66e07d8832c3ccb73e933d23d94c1fa7",
+        "working_tree_overlay_files": 69
+      },
+      "status": "Current 69-file source has accepted typecheck, zero-warning lint and complete full Vitest results on the exact freeze. The completed current build is independently accepted. Current provider-paused browser checks remain pending. The current KB local gate is accepted. Live and future exact-head CI acceptance remain open. No merge-readiness claim."
+    },
+    "previous_69_source_packet_artifacts": {
+      "previous-69-README.md": "e4271bed82a5b9ff4570353b3b51e6a7f22cbd0153768db9d53c739077f6e72b",
+      "previous-69-matrix.csv": "c2bd975ffae0e57f93636c48f89b7010709dbf7d3ffca881f15f3271b63a4c26",
+      "previous-69-verification.json": "ff7268749308e16fd0aebcda9ce9d7cb818d13a87fb5c811475bfe74cc2921e4"
+    },
+    "settled_usd1_and_failed_import2_contracts2": {
+      "build_id": "LwQqQljvNqDYziG0dPeEN",
+      "contracts2": {
+        "attribution": "Actual saved report verifies10/15 hosted outcomes; parent reports15/15 deterministic, reconciling25/30 total. Full native audit remains separately owned.",
+        "complete_suite_passed": false,
+        "deterministic_failed": 0,
+        "deterministic_passed": 15,
+        "failed_tests": 5,
+        "hosted_failed": 5,
+        "hosted_passed": 10,
+        "hosted_total": 15,
+        "passed_tests": 25,
+        "report_sha256": "b32bfecd8cba0aaad7f76707bc16f400f0c3fba8475472f24a9370af92ed31c2",
+        "skipped_tests": 0,
+        "strict_gold_sha256": "0f6d4a5d8a0a1ad500b09688a277cad1768b945e5bec6af960dfb5c5a70c2576",
+        "total": 30
+      },
+      "import2": {
+        "content_accepted": false,
+        "created_pages": 16,
+        "finding_codes": [
+          "foundation_placeholders",
+          "unsupported_guide_citations",
+          "mixed_ordinary_language",
+          "unqualified_numeric_claim",
+          "false_overlap_exclusion"
+        ],
+        "lifecycle": "completed",
+        "semantic_review_sha256": "2ef141d37c50bf0eec11c3b5cc95e94ff189a24fd1b66e0b44ee0dd90f4385d2",
+        "settlement_sha256": "ab94c5272edc5851b7ee0c51ee08c0b40fae53fe0e736944ba974cc05f4e3004",
+        "terminal_snapshot_sha256": "52d6dccbea0929beb0664def066a22370ddc836375ac7ac445c6a0e0bdc0452a"
+      },
+      "source81_attempt4": {
+        "attribution": "Saved full attempt failed; later corrections/complete reruns are not inferred.",
+        "complete_gate_passed": false,
+        "events": [
+          {
+            "code": 0,
+            "durationMs": 1343,
+            "label": "final-migrate"
+          },
+          {
+            "code": 0,
+            "durationMs": 3572,
+            "label": "final-seed-first"
+          },
+          {
+            "code": 0,
+            "durationMs": 3124,
+            "label": "final-seed-second"
+          },
+          {
+            "code": 0,
+            "durationMs": 655,
+            "label": "final-workflow-bootstrap"
+          },
+          {
+            "code": 0,
+            "durationMs": 9644,
+            "label": "final-typecheck"
+          },
+          {
+            "code": 0,
+            "durationMs": 84856,
+            "label": "final-lint"
+          },
+          {
+            "code": 1,
+            "durationMs": 709262,
+            "label": "final-vitest"
+          }
+        ],
+        "finding_code": "initial_model_admission_expectation_stale",
+        "gate_events_sha256": "390a20cb2cab0b03572f640b664a4d0342a07954a4eda7a3c38006d03e04f6f9",
+        "source_freeze_id": "bf96bde7b08473837ce3a94c42aa026155bb6e358ae4f04a826222a1d9f5911d",
+        "source_head": "701a80d225839c95fc0b5e476cf248f15a4295a2",
+        "vitest_log_sha256": "2cbfe5631c43ae91bd26566498d3657a704409f5cf0453cbca33be32711a4e21",
+        "vitest_summary": {
+          "failed_suites": 1,
+          "failed_tests": 1,
+          "passed_suites": 1043,
+          "passed_tests": 10393,
+          "skipped_tests": 20
+        }
+      },
+      "source_freeze_id": "491f9b0cc69756e97040e01a48e4afad66e07d8832c3ccb73e933d23d94c1fa7",
+      "source_head": "19ae8577507dea396064a79a83204d919a034a51",
+      "usd1_accounting": {
+        "approved_ceiling_microcents": 100000000,
+        "attribution": "Separate completed US1 batch; historical US2 remains separate. Conservative receipts/estimates are not a provider invoice.",
+        "conservatively_accounted_microcents": 59639369,
+        "drained": true,
+        "held_microcents": 0,
+        "ledger_sha256": "60c328f4e343c11f3d4cea9c33c31fdd38ff3f1f597a008d162461c8c0d9375d",
+        "remaining_microcents": 40360631,
+        "stages_counted_once": {
+          "contracts": 13372477,
+          "contracts2": 13367848,
+          "diagnostic": 592922,
+          "diagnostic2": 334213,
+          "import": 6412282,
+          "import2": 25559627
+        },
+        "stages_sha256": "d3e52a6f01abfaf484145ea557cc0a868d4477ffc7b77981092ec52533026260"
+      }
+    },
+    "source82_closed_import3_contracts3": {
+      "build_id": "hiWH68uHtvM9_y_0YqwP1",
+      "contracts3": {
+        "attribution": "Full unchanged suite, not an aggregate of subsets. Failure source/golds and800ms deadline remain unchanged; later deterministic correction is not a hosted rerun.",
+        "classification": {
+          "all_expected_gold_sections_offered": true,
+          "all_original_thirty_cases_ran": true,
+          "alternate_useful_passages_do_not_pass_original_gold": true,
+          "jev_abstention_in_failed_checks": false,
+          "late_query_vectors_in_failed_checks": false,
+          "relationship_families_passed": true,
+          "two_deadline_fallback_misses": true
+        },
+        "complete_suite_passed": false,
+        "deterministic_failed": 0,
+        "deterministic_passed": 15,
+        "duration_ms": 393124,
+        "estimated_receipts": 11,
+        "execution_sha256": "52862c68786e0de15e4d63cfe71c562d571c265b4f58701a1e3d4818eee6e216",
+        "failed_families": [
+          "answers task and permission questions with the section that handles them and that section's link line",
+          "matches the user's words to the docs' words for sharing, change history, trial end and mailboxes",
+          "answers common CRM question families with the section that handles them, whatever words the question uses",
+          "excerpts the section search_docs names, with that section's own link line"
+        ],
+        "failed_tests": 4,
+        "hosted_failed": 4,
+        "hosted_passed": 11,
+        "independent_review_sha256": "257a80af94de3656d8e1559f14286e6d081ecd93b505fee89602fd140f4c1850",
+        "invocations": 376,
+        "measured_receipts": 576,
+        "passed_tests": 26,
+        "rank_attempts": 379,
+        "report_sha256": "4269d72d27ff0be939f834497b12e9e03a13fc15b5f83a4907c465a918a572ab",
+        "skipped_tests": 0,
+        "strict_gold_sha256": "0f6d4a5d8a0a1ad500b09688a277cad1768b945e5bec6af960dfb5c5a70c2576",
+        "total": 30,
+        "wrapper_exit_code": 1
+      },
+      "corpus_build_hash": "306b357c7f74ec1ef33467e89747c171d5d8367cb08522403f5a4ba82db50a9a",
+      "deterministic_completion_dirty_guard": {
+        "attribution": "Narrow historical source82 deterministic downstream guard fixture; it does not resolve the original actual import observer loss.",
+        "dirty_title_retained_ms": 35118,
+        "independent_review_sha256": "3db16cebc57ded81c8dda8dd0df25854df29d79abcaf75ac7c672c2a95628d95",
+        "live_synthesis_replayed": false,
+        "one_observed_reload_after_native_reset": true,
+        "original_live_observer_loss": "pending: caller/cause unproved; requires actual live repeat",
+        "provider_cap_zero": true,
+        "provider_paused": true,
+        "result_sha256": "db21f5463560a56b7678779f240c0ec5df16038c1fcf2c1a948f461009e8a479",
+        "status": "passed",
+        "synthetic_completion_private_test_seam": true
+      },
+      "import3": {
+        "attribution": "All ten full saved pages and eleven actually cited full sources reviewed; structural provenance/freshness passed, semantic support failed. Guide storage passed but actual UI was separately pending. Count/lifecycle/cost are not content acceptance.",
+        "check_counts": {
+          "failed": 6,
+          "passed_with_qualified_offering_scope": 2,
+          "pending_actual_ui": 1
+        },
+        "checks": [
+          {
+            "finding_ids": [],
+            "id": "all-pages-substantive",
+            "status": "pass"
+          },
+          {
+            "finding_ids": [
+              "C1",
+              "C2",
+              "C3",
+              "C4",
+              "C6"
+            ],
+            "id": "factual-grounding",
+            "status": "fail"
+          },
+          {
+            "finding_ids": [],
+            "id": "distinct-offering-coverage",
+            "status": "pass_material_offering_scope"
+          },
+          {
+            "finding_ids": [
+              "C1"
+            ],
+            "id": "customers-use-cases",
+            "status": "fail"
+          },
+          {
+            "finding_ids": [
+              "C2",
+              "C6"
+            ],
+            "id": "sales-faq-answers",
+            "status": "fail"
+          },
+          {
+            "finding_ids": [
+              "C4",
+              "C5"
+            ],
+            "id": "observed-voice-tone",
+            "status": "fail"
+          },
+          {
+            "finding_ids": [],
+            "id": "grounded-guide",
+            "status": "pending_ui_with_storage_structure_pass"
+          },
+          {
+            "finding_ids": [
+              "C5"
+            ],
+            "id": "single-target-language",
+            "status": "fail"
+          },
+          {
+            "finding_ids": [
+              "C3",
+              "C4"
+            ],
+            "id": "citation-provenance-freshness",
+            "status": "fail_semantic_with_structural_provenance_pass"
+          }
+        ],
+        "created_pages": 10,
+        "elapsed_ms": 297459,
+        "finding_codes": [
+          "unsupported_customer_case_details",
+          "unqualified_privacy_guarantee",
+          "uncited_voice_examples",
+          "untranslated_ordinary_sentences",
+          "unsupported_sales_policy",
+          "false_gap_premise"
+        ],
+        "fully_read_sources": 38,
+        "model": "google/gemini-3.8-flash",
+        "provider_rounds": 32,
+        "runtime_close_unexpected_exit": true,
+        "semantic_acceptance": false,
+        "semantic_review_sha256": "16ef62a31c0b91df99c1b1c6d40d3dc9a116f33eeb35e619013add263e7944bd",
+        "serving_provider": "vertex",
+        "settlement_sha256": "eea5c461d0c772791c0ea020f07e529b46c06401aa3a8bb3eaffc2c1efb1840e",
+        "sources": 38,
+        "terminal_lifecycle": {
+          "claimedTools": 0,
+          "financialDrainSeparatelyRequired": true,
+          "newHolds": 0,
+          "terminal": true
+        },
+        "verdict": "FAILED"
+      },
+      "source82_build": {
+        "build_id": "hiWH68uHtvM9_y_0YqwP1",
+        "duration_ms": 124522,
+        "independent_review_sha256": "9f13fbc31cdf8bc55b11c4c5f7551a755c06b82c045509b33bcc9afcbdbbb893",
+        "next_declared_artifacts": 18,
+        "required_artifacts": 18,
+        "status": "passed"
+      },
+      "source82_built_http": {
+        "duration_ms": 11569,
+        "failed_assertions": 0,
+        "independent_review_sha256": "19ebc06d95dbd235843dd61c66417364dd391217f0759fcd3a17ab91c2bdb426",
+        "passed_assertions": 18,
+        "passed_suites": 2,
+        "provider_cap_zero": true,
+        "provider_paused": true,
+        "status": "passed"
+      },
+      "source82_free_built_ui": {
+        "attribution": "Root-executed saved free UI smoke; independent artifact review only. Detailed historical/live journeys are not replayed.",
+        "failed_reported_assertions": 0,
+        "independent_review_sha256": "ab9e6fb54e475783d6bacee5eee60583444605d6bc4fe39bc39f686f43931d4b",
+        "passed_reported_assertions": 26,
+        "status": "cleared-with-explicit-coverage-limits"
+      },
+      "source82_full_gate": {
+        "attribution": "Historical source82 execution; not current source85 acceptance.",
+        "built_http_opt_in_skips": 5,
+        "hosted_opt_in_skips": 15,
+        "independent_review_sha256": "bb9ce9ed7fe6d3b335dce2fcefcdc93915bce039ed5efc7b0629f9457ea2609c",
+        "lint_ms": 368085,
+        "passed_suites": 1044,
+        "passed_tests": 10394,
+        "skipped_suites": 1,
+        "skipped_tests": 20,
+        "status": "passed",
+        "typecheck_ms": 18822,
+        "vitest_ms": 905867
+      },
+      "source_freeze_id": "0b5a1f1f1725b894e12ed90fac498ea260473be9541e232b55c207ef4b120e37",
+      "source_head": "a455abd78fccda968760d0a90a1a339589952996",
+      "usd2_accounting": {
+        "attribution": "Separate closed approved US$2 batch; no remaining allowance is transferred into a proposed successor. Conservative metering is not a provider invoice.",
+        "baseline_sha256": "6f1329d303a8032330a5fd94f8c7d9bbe9c7957cd409589bd87e763c21b55646",
+        "conservatively_accounted_microcents": 62385921,
+        "drained": true,
+        "held_microcents": 0,
+        "historical_customer_hold_microcents": 25000000,
+        "historical_platform_hold_microcents": 0,
+        "ledger_sha256": "05e65452a9943e15047f0609195fcf7167f75b560c846e276eef428daf8b3096",
+        "owner_approved_ceiling_microcents": 200000000,
+        "remaining_microcents": 137614079,
+        "stages_counted_once": {
+          "contracts3": 13806195,
+          "import3": 48579726
+        },
+        "stages_sha256": "5561d8ca4bf7329efb67e9cb6eaa1e5b662e198c355ffc7e2cdbfb01bdbb65b0",
+        "state": "closed"
+      }
+    },
+    "source82_preexecution_template_artifact_sha256": "ca5f6d8abc9fbe762132cd5ae16060677880db3e8357101f98de1b8bf8cb3a13",
     "source_tree": "876c5ec040ad219cc114abc903fe596830c2d399"
   },
   "invariants": {
-    "classifier_evidence_total_chars": 16000,
-    "classifier_option_max_chars": 800,
-    "corpus_unchanged": true,
-    "corpus_unchanged_note": "Documentation Markdown and strict question/expected-section corpora remain unchanged; canonical semantic input has a new versioned build identity.",
+    "claim_scope": "Initial-only model and typed fresh-source/citation guards are implemented; generated semantic content and hosted choice still require actual live acceptance.",
     "cosine_drop_below": 0.6,
-    "embedding_input_format": "docs-embedding-v2",
     "embedding_wait_ms": 1100,
-    "hosted_original_assertions_preserved": true,
-    "idf_coverage_keep_floor": 0.9,
-    "leading_candidate_weight_ratio": "5:1",
-    "permissions_and_tenant_scope_before_wiki_ranker": true,
-    "skip_floor_when_vector_late_or_index_incomplete": true
+    "idf_keep_coverage": 0.9,
+    "initial_import_model": "google/gemini-3.8-flash",
+    "normal_chat_routine_extend_model": "google/gemini-3.5-flash-lite",
+    "stored_model_identifier": "balanced",
+    "strict_hosted_gold_sha256": "0f6d4a5d8a0a1ad500b09688a277cad1768b945e5bec6af960dfb5c5a70c2576"
+  },
+  "kb": {
+    "checks_passed_count": 8,
+    "gate_evidence_sha256": "9c0a01b44cd7b3a5ddb2b55d3324368505414bc981ae101d784e857c5150a5f7",
+    "gate_status": "passed",
+    "head": "152d76a8f5796ce094aefc49daa0f62e70b418be",
+    "semantic_review_sha256": "a301cb553fa26710db3d98702894fdfde64c3a3f16a34b034f51c4d6ffc80a7b"
   },
   "live_provider": {
-    "actual_provider_work": "Gemini embeddings and Jev, plus the initial built local ainovi.de import/chat",
-    "budget_accounting": {
-      "additional_approval_pending": true,
-      "additional_approval_received": false,
-      "additional_requested_usd": 1,
-      "all_contract_runs_conservative_usd": 1.57706326,
-      "all_diagnostics_conservative_usd": 0.00543411,
-      "all_full_contract_runs_conservative_usd": 1.55883642,
-      "all_subset_contract_runs_conservative_usd": 0.01822684,
-      "batch_cap_usd": 2,
-      "full_contract_runs_recorded": 9,
-      "latest_run10_conservative_usd": 0.14896981,
-      "latest_run11_conservative_usd": 0.1348382,
-      "latest_run12_conservative_usd": 0.13473667,
-      "navigation_embedding_ab_probe_conservative_usd": 6.465e-05,
-      "new_failed_ui_cost_delta_usd": 0.06382417,
-      "new_partial_import_and_manual_ui_delta_usd": 0.13902096,
-      "not_a_provider_invoice": true,
-      "note": "The corrected continuous batch totals US$1.91323767 below the only approved US$2 ceiling. US$0.00039344 of diagnostic receipts previously duplicated within complete-run totals is counted once. A further US$1 request is pending; no extra approval or additional spend is claimed.",
-      "observed_built_app_cost_delta_usd": 0.3307403,
-      "observed_combined_conservative_usd": 1.91323767,
-      "only_approved_batch_ceiling_usd": 2,
-      "prior_built_app_cost_delta_usd": 0.12789517,
-      "probe_runs_recorded": 3,
-      "remaining_approved_usd": 0.08676233,
-      "run1_duplicate_report_counted_once": true,
-      "six_full_contract_runs_conservative_usd": 1.14029174,
-      "two_single_query_probes_conservative_usd": 0.00032879
-    },
-    "current_fixes": {
-      "actual_repaired_delete_query_selected": true,
-      "complete_current_hosted_contract_suite_passed": false,
-      "corrections": [
-        "Preserve validated offering hypotheses across failed coverage/plan repair; source-specific singleton exclusions and quoted reclassification.",
-        "Expose only captured complete canonical FAQ answers within bounded text/hash/cursor semantics.",
-        "Require reviewed gaps arrays and stricter topic citation boundaries without inventing policies.",
-        "Shared unquoted compound alternatives, coherent complete Markdown definitions, own-heading-sensitive and query-focused classifier evidence, literal underscore/query-route preservation.",
-        "Canonical docs embedding input removes generated navigation metadata outside fenced examples; raw searchable body/offsets remain unchanged and versioned build identity includes both raw and semantic input hashes.",
-        "Fitting first actual prose retains coherent aggregate classifier evidence; stronger later actions remain preferred and structural prefixes cannot trigger it.",
-        "Fitting paragraph units, same-block consequence context and escaped canonical Unicode/prefix/substring query units preserve evidence without increasing bounds.",
-        "Canonical exhaustive five-locale analyzers, actual label/locale context, weighted specificity, literal-code payloads, limiting clauses, fitting consecutive prose, resource-label ties and earliest mixed-form surface locations preserve the original bounds.",
-        "Project the Google-only website repair array without maxItems; retain canonical 40-item and 500-character limits. Actual wire isolation and later synthesis succeed, but the actual three-page content is incomplete and fails content review.",
-        "Per-unit evidence context cannot outrank real body matches; typed expected-failure metadata survives hosted tool wrapping and receipt replay; tab visibility refresh waits on the existing dirty/saving form guard.",
-        "Bound canonical typed failures by the original full escaped JSON response budget; preserve repair custom codes and truncation notice through replay. Current 56-path local gate passes; complete real-provider content acceptance remains unresolved.",
-        "Conditional label-backed body fallback applies only when a residual request unit exists but no residual unit has an actual body match. Matching residual actions and full-label introductory behavior remain unchanged. Two failing-before regressions and two boundary regressions pass; no complete new provider acceptance is claimed."
+    "complete_contracts_passed": false,
+    "current_source_acceptance": "pending after correction; no source85 provider rerun",
+    "future_batch": {
+      "approved_ceiling_microcents": null,
+      "attribution": "Separate future batch proposal; no prior batch allowance is transferred. Actual approval requires a separately reviewed successor update before execution.",
+      "authorization_status": "pending",
+      "complete_contracts_passed": false,
+      "executed": false,
+      "execution_authorized": false,
+      "proposed_ceiling_microcents": 200000000,
+      "semantic_acceptance": false,
+      "stage_names": [
+        "import4",
+        "contracts4"
       ],
-      "new_built_live_onboarding_content_acceptance": false,
-      "selected_navigation_metadata": {
-        "finding": "Selected same-page child Link metadata could be omitted after primary excerpt consumes cap.",
-        "status": "Corrected in serializer with unchanged ranking,1400total and one-third metadata cap; deterministic cases pass; fresh hosted acceptance remains pending."
-      },
-      "source_and_deterministic_regressions_reviewed": true
+      "state": "not_approved"
     },
-    "executed": true,
-    "full_contract_gate_passed": false,
-    "full_contract_runs": [
-      {
-        "cap_usd": 0.5,
-        "conservatively_accounted_usd": 0.14467686,
-        "contract_count": 15,
-        "corpus_build_hash": "d8f590dc03fa670eefe2ff3c153f55bd4de1785ffb8ec157a7c96941dd9cf2fd",
-        "deterministic_passed": 15,
-        "duration_ms": 95690,
-        "estimated_attempt_usd": 0.01627767,
-        "exit_code": 1,
-        "failed_contracts": [
-          "answers a page-link question with a section whose link line names that page",
-          "answers task and permission questions with the section that handles them and that section's link line",
-          "answers where-is and take-me-to questions with the section that introduces that page, and its link line",
-          "answers common CRM question families with the section that handles them, whatever words the question uses",
-          "keeps the definition of the read access a who-sees-what question names"
-        ],
-        "hosted_failed": 5,
-        "hosted_passed": 10,
-        "measured_receipt_usd": 0.0958401,
-        "run": 1,
-        "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
-        "source_overlay_diff_sha256": null,
-        "total_failed": 5,
-        "total_passed": 25
-      },
-      {
-        "cap_usd": 0.5,
-        "conservatively_accounted_usd": 0.45990232,
-        "contract_count": 15,
-        "corpus_build_hash": "d8f590dc03fa670eefe2ff3c153f55bd4de1785ffb8ec157a7c96941dd9cf2fd",
-        "deterministic_passed": 15,
-        "duration_ms": 50823,
-        "estimated_attempt_usd": 0.13075271,
-        "exit_code": 1,
-        "failed_contracts": [
-          "answers a page-link question with a section whose link line names that page",
-          "answers task and permission questions with the section that handles them and that section's link line",
-          "answers where-is and take-me-to questions with the section that introduces that page, and its link line",
-          "keeps a question that uses link as a verb on the relationships section, not on a section of record-page links",
-          "keeps a question about the link between two records on the relationships section",
-          "answers common CRM question families with the section that handles them, whatever words the question uses"
-        ],
-        "hosted_failed": 6,
-        "hosted_passed": 9,
-        "measured_receipt_usd": 0.06753559,
-        "run": 2,
-        "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
-        "source_overlay_diff_sha256": "3df6c419e51ba3778c6ef78cb62617b48e10d6283584c1ffbdde3fdb9b52443b",
-        "total_failed": 6,
-        "total_passed": 24
-      },
-      {
-        "cap_usd": 0.4,
-        "conservatively_accounted_usd": 0.2088766,
-        "contract_count": 15,
-        "corpus_build_hash": "d8f590dc03fa670eefe2ff3c153f55bd4de1785ffb8ec157a7c96941dd9cf2fd",
-        "deterministic_passed": 15,
-        "duration_ms": 191111,
-        "estimated_attempt_usd": 0.03921727,
-        "exit_code": 1,
-        "failed_contracts": [
-          "answers task and permission questions with the section that handles them and that section's link line",
-          "keeps a question that uses link as a verb on the relationships section, not on a section of record-page links",
-          "keeps a question about the link between two records on the relationships section",
-          "answers common CRM question families with the section that handles them, whatever words the question uses"
-        ],
-        "hosted_failed": 4,
-        "hosted_passed": 11,
-        "measured_receipt_usd": 0.09112504,
-        "run": 3,
-        "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
-        "source_overlay_diff_sha256": "f361dfe3d5256784ffcfbb6b5504eb7654d4eb161bb89f80db090da41bd16195",
-        "total_failed": 4,
-        "total_passed": 26
-      },
-      {
-        "cap_usd": 0.4,
-        "conservatively_accounted_usd": 0.09181668,
-        "contract_count": 15,
-        "corpus_build_hash": "d8f590dc03fa670eefe2ff3c153f55bd4de1785ffb8ec157a7c96941dd9cf2fd",
-        "deterministic_passed": 15,
-        "duration_ms": 272349,
-        "estimated_attempt_usd": 0.00067175,
-        "exit_code": 1,
-        "failed_contracts": [
-          "answers task and permission questions with the section that handles them and that section's link line",
-          "keeps a question that uses link as a verb on the relationships section, not on a section of record-page links",
-          "keeps a question about the link between two records on the relationships section",
-          "answers common CRM question families with the section that handles them, whatever words the question uses"
-        ],
-        "hosted_failed": 4,
-        "hosted_passed": 11,
-        "measured_receipt_usd": 0.08980143,
-        "run": 4,
-        "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
-        "source_overlay_diff_sha256": "9cb67ce710890d24b0f9fb4cfd49f6a55d9875126628a62c13a6e3c114808c7a",
-        "total_failed": 4,
-        "total_passed": 26
-      },
-      {
-        "cap_usd": 0.3,
-        "conservatively_accounted_usd": 0.09961163,
-        "contract_count": 15,
-        "corpus_build_hash": "d8f590dc03fa670eefe2ff3c153f55bd4de1785ffb8ec157a7c96941dd9cf2fd",
-        "deterministic_passed": 15,
-        "duration_ms": 274826,
-        "estimated_attempt_usd": 0.00293781,
-        "exit_code": 1,
-        "failed_contracts": [
-          "answers task and permission questions with the section that handles them and that section's link line",
-          "keeps a question that uses link as a verb on the relationships section, not on a section of record-page links",
-          "keeps a question about the link between two records on the relationships section",
-          "answers common CRM question families with the section that handles them, whatever words the question uses",
-          "excerpts the section search_docs names, with that section's own link line"
-        ],
-        "hosted_failed": 5,
-        "hosted_passed": 10,
-        "measured_receipt_usd": 0.0907883,
-        "run": 5,
-        "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
-        "source_overlay_diff_sha256": "36f300e90c8f24e877f72300365ccff4df10da1559b758dd34b028a56310aab9",
-        "total_failed": 5,
-        "total_passed": 25
-      },
-      {
-        "cap_usd": 0.3,
-        "conservatively_accounted_usd": 0.13540765,
-        "contract_count": 15,
-        "corpus_build_hash": "d8f590dc03fa670eefe2ff3c153f55bd4de1785ffb8ec157a7c96941dd9cf2fd",
-        "deterministic_passed": 15,
-        "duration_ms": 287291,
-        "estimated_attempt_usd": 0.00199672,
-        "exit_code": 1,
-        "failed_contracts": [
-          "answers task and permission questions with the section that handles them and that section's link line",
-          "answers where-is and take-me-to questions with the section that introduces that page, and its link line",
-          "keeps a question about the link between two records on the relationships section",
-          "answers common CRM question families with the section that handles them, whatever words the question uses"
-        ],
-        "hosted_failed": 4,
-        "hosted_passed": 11,
-        "measured_receipt_usd": 0.12941239,
-        "run": 6,
-        "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
-        "source_overlay_diff_sha256": "860ea52dcfbc46891106feb2a831886183483f9f45e6bc80e0671abca814cc88",
-        "total_failed": 4,
-        "total_passed": 26
-      },
-      {
-        "admission_concurrency": 1,
-        "cap_usd": 0.25,
-        "conservatively_accounted_usd": 0.14896981,
-        "contract_count": 15,
-        "corpus_build_hash": "beabd8179f162860bec54b94caeb34b02dc54f0f34c62327d613627f8159ca75",
-        "deterministic_passed": 15,
-        "duration_ms": 460301,
-        "embedding_model": "google/gemini-embedding-001",
-        "estimated_attempt_usd": 0.00271652,
-        "exit_code": 1,
-        "failed_contracts": [
-          "answers task and permission questions with the section that handles them and that section's link line",
-          "answers where-is and take-me-to questions with the section that introduces that page, and its link line",
-          "matches the user's words to the docs' words for sharing, change history, trial end and mailboxes",
-          "keeps a question about the link between two records on the relationships section",
-          "answers common CRM question families with the section that handles them, whatever words the question uses"
-        ],
-        "hosted_failed": 5,
-        "hosted_passed": 10,
-        "indexed": 340,
-        "invocations": 382,
-        "measured_receipt_usd": 0.14081575,
-        "run": 10,
-        "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
-        "source_manifest_sha256": "9ebe0ccb9874f8533116f100c8da84289a48f64d1c1d9d44eb871eb6df63aa5f",
-        "source_overlay_diff_sha256": "61bd603763b55e4637049936522e8de24c9c21d10e591812110277a646e0402f",
-        "source_overlay_files": 44,
-        "total_failed": 5,
-        "total_passed": 25
-      },
-      {
-        "admission_concurrency": 1,
-        "cap_usd": 0.2,
-        "conservatively_accounted_usd": 0.1348382,
-        "contract_count": 15,
-        "corpus_build_hash": "beabd8179f162860bec54b94caeb34b02dc54f0f34c62327d613627f8159ca75",
-        "deterministic_passed": 15,
-        "duration_ms": 275222,
-        "embedding_model": "google/gemini-embedding-001",
-        "estimated_attempt_usd": 0.00162111,
-        "exit_code": 1,
-        "failed_contracts": [
-          "answers a page-link question with a section whose link line names that page",
-          "answers task and permission questions with the section that handles them and that section's link line",
-          "matches the user's words to the docs' words for sharing, change history, trial end and mailboxes",
-          "keeps a question that uses link as a verb on the relationships section, not on a section of record-page links",
-          "keeps a question about the link between two records on the relationships section",
-          "answers common CRM question families with the section that handles them, whatever words the question uses"
-        ],
-        "hosted_failed": 6,
-        "hosted_passed": 9,
-        "indexed": 0,
-        "invocations": 381,
-        "measured_receipt_usd": 0.12996467,
-        "run": 11,
-        "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
-        "source_overlay_diff_sha256": "38cdcc9be87b8a329a1db23d726da412f8ab869a384824b07ebdbc61d396d829",
-        "total_failed": 6,
-        "total_passed": 24
-      },
-      {
-        "admission_concurrency": 1,
-        "cap_usd": 0.18,
-        "conservatively_accounted_usd": 0.13473667,
-        "contract_count": 15,
-        "corpus_build_hash": "beabd8179f162860bec54b94caeb34b02dc54f0f34c62327d613627f8159ca75",
-        "deterministic_passed": 15,
-        "duration_ms": 323874,
-        "embedding_model": "google/gemini-embedding-001",
-        "estimated_attempt_usd": 0.00246464,
-        "execution_sha256": "45d6ae5ece1a3b22ab6fb2c5583dbcb6469a22052e078b761a40bca6fc1dd374",
-        "exit_code": 1,
-        "failed_contracts": [
-          "answers a page-link question with a section whose link line names that page",
-          "answers task and permission questions with the section that handles them and that section's link line",
-          "matches the user's words to the docs' words for sharing, change history, trial end and mailboxes",
-          "keeps a question that uses link as a verb on the relationships section, not on a section of record-page links",
-          "keeps a question about the link between two records on the relationships section",
-          "answers common CRM question families with the section that handles them, whatever words the question uses",
-          "excerpts the section search_docs names, with that section's own link line"
-        ],
-        "hosted_failed": 7,
-        "hosted_passed": 8,
-        "indexed": 0,
-        "invocations": 376,
-        "measured_receipt_usd": 0.12734275,
-        "report_sha256": "c4a8b16928045b7b1da25a28075dae7b5af2132179cd3ef38fe1cab410c56619",
-        "run": 12,
-        "source_attribution": "Actual retrieval execution before the subsequent website-reader-only Vertex declaration fix; Jev request/retrieval sources remain unchanged.",
-        "source_freeze_id": "388c35e0fb7c455d19bed97f5baa25a6be0fa233f8422f7ad3b7326ca0e2d11a",
-        "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
-        "source_overlay_diff_sha256": "4651ac4f0ba2641823e5985a6c859e68b09bbc3df893e6d09ad750ebb3f9a6c9",
-        "total_failed": 7,
-        "total_passed": 23
-      }
-    ],
-    "initial_ainovi_onboarding": {
-      "canonical_internal_links_valid": true,
-      "content_acceptance_complete": false,
-      "duplicate_language_pages": false,
-      "evidenced_offerings_expected": 5,
-      "evidenced_offerings_present": 4,
-      "fully_read_sources": 38,
-      "guide_created_last": true,
-      "invented_internal_policy_found": false,
-      "one_guide": true,
-      "saved_pages": 9,
-      "single_language": "English",
-      "source_characters": 313277,
-      "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
-      "unresolved_findings_from_this_run": [
-        {
-          "id": "CONTENT01",
-          "title": "Standalone Software Engineering offering lost"
-        },
-        {
-          "id": "CONTENT02",
-          "title": "Extracted FAQ answers invisible to synthesis reader"
-        },
-        {
-          "id": "CONTENT03",
-          "title": "Use-case citations do not support stated details"
-        },
-        {
-          "id": "CONTENT04",
-          "title": "Guide omits explicit unknown internal-rule gaps"
-        }
-      ]
-    },
-    "latest_built_ainovi_import": {
-      "actual_stop_reason": "hosted_ai_unavailable",
-      "actual_terminal_code": "partial",
-      "build_id": "15Wxiq8ji-5h7jTqCRoVg",
-      "content_acceptance_complete": false,
-      "content_coverage_review": "Actual partial content has substantive failures beyond the cap: SAP and Data Science offerings are excluded as allegedly covered by a summary; a German page title appears during an explicit English import. The latest software page cites its matching dedicated source URL; full citation acceptance remains unverified. Three saved pages are incomplete coverage. Source prompt/repair changes do not establish that these results are corrected.",
-      "crawl_status_interpretation": "Crawl completed indicates extraction/dispatch acceptance; workflow completed means handler exited. Neither establishes full synthesis.",
-      "created_pages": 3,
-      "creation_tool_receipts": 1,
-      "lifecycle_proof_sha256": "db91a8c5ca19bc8973334d9c8e58135ae3bcf942e8501b9e80b1274dfdc89db2",
-      "observed_terminal_message": "Hosted AI temporarily unavailable",
-      "passed": false,
-      "processed_targets": 40,
-      "readback_sha256": "1c23925eaf94e6959128d17ba941d8daef5f41bb09ed9c40a4ca76f800f0d4a8",
-      "source_snapshot": "historical_verification.pre_visibility_49_source_snapshot",
-      "status": "incomplete; actual terminal partial / hosted_ai_unavailable",
-      "stored_useful_sources": 38,
-      "substantive_content_findings": [
-        "SAP and Data Science offerings excluded as covered by summary without proper dedicated coverage.",
-        "Full citation acceptance is unverified; the latest software source URL matches its dedicated stored source.",
-        "German title in explicitly English website import.",
-        "Full offering, FAQ answer, citation and internal-rule gap coverage not accepted."
-      ],
-      "terminal_reason_qualification": "Operator cap bounded the harness, but the terminal record does not identify which admission subcheck failed. Offering exclusions preceded this stop.",
-      "tool_receipts": 26,
-      "total_targets": 40
-    },
-    "latest_full_contract_result": {
-      "deterministic_passed": 15,
-      "failed_tests": 7,
-      "hosted_failed": 7,
-      "hosted_passed": 8,
-      "hosted_total": 15,
-      "passed": false,
-      "passed_tests": 23,
-      "run": 12,
+    "latest_closed_batch_accounted_microcents": 62385921,
+    "latest_closed_batch_contracts": {
+      "failed": 4,
+      "passed": 26,
       "total": 30
     },
-    "latest_subset_contract_result": {
-      "acceptance_note": "Delete query now selects the dedicated Relationships section. The link-as-a-verb query fails with a late vector, and the later where-links query fails dedicated-section identity. Relevant alternative facts do not satisfy unchanged gold assertions. No same-input source regression is proven and no full-suite pass is claimed.",
-      "cap_usd": 0.02,
-      "classification_sha256": "4daa349cae7db4975658eef61a67e9228b0e50ccc3faf5919f757bbed8b73cd5",
-      "conservatively_accounted_usd": 0.00096612,
-      "contracts": [
-        {
-          "status": "failed",
-          "title": "keeps a question that uses link as a verb on the relationships section, not on a section of record-page links"
-        },
-        {
-          "status": "failed",
-          "title": "keeps a question about the link between two records on the relationships section"
-        }
-      ],
-      "corpus_build_hash": "beabd8179f162860bec54b94caeb34b02dc54f0f34c62327d613627f8159ca75",
-      "duration_ms": 6844,
-      "estimated_attempt_usd": 0,
-      "exit_code": 1,
-      "hosted_failed": 2,
-      "hosted_passed": 0,
-      "indexed": 0,
-      "input_comparison_sha256": "1bd2e187d1b1bf16a69dc11debdcd9b3fbdc279be85a6487944ad4916543c601",
-      "invocation_classification": [
-        {
-          "actual": "architecture-security#how-does-external-ai-access-work",
-          "expected": "concepts#how-do-relationships-link-records",
-          "limitation": "Selected public security excerpt accurately says relation lists are not accepted by update tools and links change through manage_record_links. It is relevant but does not clear the dedicated-section identity assertion.",
-          "query": "link a contact to an organization",
-          "state": "strict-miss; causal source regression not proven"
-        },
-        {
-          "actual": "concepts#how-do-relationships-link-records",
-          "expected": "concepts#how-do-relationships-link-records",
-          "limitation": "Single-provider observation supports intended evidence restoration, not a controlled causal quality comparison.",
-          "query": "Can I delete the link to an organization from a contact?",
-          "state": "actual target selected; failing family not equal failed invocation"
-        },
-        {
-          "actual": "app-records#how-do-i-change-a-deal-stage-or-a-task-status-on-the-board",
-          "expected": "concepts#how-do-relationships-link-records",
-          "limitation": "Selected section actually contains the body instruction that relations appear as labelled relation fields inside the form. Its heading is the board stage/status section, so the strict identity assertion still fails.",
-          "query": "Where are the links between contacts and deals shown?",
-          "state": "strict-miss; no Run13 comparator"
-        }
-      ],
-      "invocations": 3,
-      "measured_receipt_usd": 0.00096612,
-      "passed": false,
-      "receipts": 6,
-      "report_sha256": "fe72203af99ca9017b03b5c6653f47733fe85dc166ae3980e0d1ded541410cec",
-      "run": 14,
-      "scope": "Only two unchanged hosted relationship families selected; 28 cases not run. Failure of a family does not mean every invocation in it failed.",
-      "skipped_tests": 28,
-      "source_freeze_id": "a73446a5ede7408b3d2e4492fba389a6c807df6ce3c62e19bf1a5243bb419913",
-      "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
-      "source_overlay_diff_sha256": "1b1155a4accc3bb19b8f9a9e96018f8e05bf33dd91f526351de8f655cb16ab2e"
-    },
-    "navigation_embedding_ab_diagnostic": {
-      "cap_usd": 0.01,
-      "conservatively_accounted_usd": 6.465e-05,
-      "duration_ms": 4396,
-      "estimated_attempt_usd": 0,
-      "exit_code": 0,
-      "index_writes": 0,
-      "indexed": 0,
-      "kind": "read-only-index-embedding-ab-diagnostic",
-      "limitation": "A paired embedding diagnostic of one unchanged public Inbox section; no stored-index mutation and no full retrieval-contract or content-acceptance pass.",
-      "measured_receipt_usd": 6.465e-05,
-      "passed": true,
-      "result": {
-        "corpusBuildHash": "d8f590dc03fa670eefe2ff3c153f55bd4de1785ffb8ec157a7c96941dd9cf2fd",
-        "current": {
-          "sha256": "593524ed9ee56c2bd53471f5865ada63e4ce7fdc2f4b26e2060a8fc99c5da075",
-          "similarity": 0.5958023037206343,
-          "utf8Bytes": 1210
-        },
-        "documentDurationMs": 372,
-        "identity": {
-          "anchor": "which-conversations-do-i-see",
-          "locale": "en",
-          "slug": "app-inbox",
-          "source": "docs"
-        },
-        "query": {
-          "durationMs": 884,
-          "sha256": "34c224f53d168136347b785eb188ab134d11cbbf746a0aa0ad43b8f7c4c58d37",
-          "utf8Bytes": 46
-        },
-        "similarityDifference": 0.011426022487265208,
-        "totalDurationMs": 1256,
-        "withoutNavigationMetadata": {
-          "sha256": "bc1748ef9def8a2be06d23a12023360b5ff0d87e27060070bb3a545be217d26d",
-          "similarity": 0.6072283262078995,
-          "utf8Bytes": 794
-        }
-      },
-      "run": 9,
-      "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
-      "source_overlay_diff_sha256": "6de5492b4f8d0e59ccdfee130ae6b284d7396c20db4ba564d4e2c1e5566f19c7"
-    },
-    "privacy_exact_section_diagnostics": [
-      {
-        "cap_usd": 0.01,
-        "conservatively_accounted_usd": 0.00032744,
-        "duration_ms": 5284,
-        "embedding": "timeout",
-        "estimated_attempt_usd": 0,
-        "exit_code": 0,
-        "expected_section": "app-inbox#which-conversations-do-i-see",
-        "expected_section_first_full_text": true,
-        "expected_section_first_semantic": false,
-        "index_complete": true,
-        "limitation": "The timed-out vector skips the relevance floor and reaches Jev.",
-        "max_coverage": 0.7079787692170872,
-        "max_similarity": null,
-        "measured_receipt_usd": 0.00032744,
-        "passed": true,
-        "query": "Can my manager read my private WhatsApp chats?",
-        "rerank": "used",
-        "returned_pages": 5,
-        "run": 7,
-        "scope": "single unchanged exact privacy-section retrieval diagnostic",
-        "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
-        "source_overlay_diff_sha256": "6de5492b4f8d0e59ccdfee130ae6b284d7396c20db4ba564d4e2c1e5566f19c7"
-      },
-      {
-        "cap_usd": 0.01,
-        "conservatively_accounted_usd": 1.35e-06,
-        "duration_ms": 3990,
-        "embedding": "used",
-        "estimated_attempt_usd": 0,
-        "exit_code": 1,
-        "expected_section": "app-inbox#which-conversations-do-i-see",
-        "expected_section_first_full_text": true,
-        "expected_section_first_semantic": true,
-        "index_complete": true,
-        "limitation": "A timely vector with cosine below 0.60 drops the correct candidate before Jev; this unresolved recall failure is not a permission/privacy breach.",
-        "max_coverage": 0.7079787692170872,
-        "max_similarity": 0.5958024501250354,
-        "measured_receipt_usd": 1.35e-06,
-        "passed": false,
-        "query": "Can my manager read my private WhatsApp chats?",
-        "rerank": "none",
-        "returned_pages": 0,
-        "run": 8,
-        "scope": "single unchanged exact privacy-section retrieval diagnostic",
-        "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
-        "source_overlay_diff_sha256": "6de5492b4f8d0e59ccdfee130ae6b284d7396c20db4ba564d4e2c1e5566f19c7"
-      }
-    ],
-    "subset_contract_runs": [
-      {
-        "cap_usd": 0.05,
-        "conservatively_accounted_usd": 0.01726072,
-        "contracts": [
-          {
-            "status": "passed",
-            "title": "keeps a question that uses link as a verb on the relationships section, not on a section of record-page links"
-          },
-          {
-            "status": "failed",
-            "title": "keeps a question about the link between two records on the relationships section"
-          },
-          {
-            "status": "failed",
-            "title": "answers common CRM question families with the section that handles them, whatever words the question uses"
-          },
-          {
-            "status": "failed",
-            "title": "excerpts the section search_docs names, with that section's own link line"
-          }
-        ],
-        "corpus_build_hash": "beabd8179f162860bec54b94caeb34b02dc54f0f34c62327d613627f8159ca75",
-        "duration_ms": 62472,
-        "estimated_attempt_usd": 0.00039623,
-        "exit_code": 1,
-        "hosted_failed": 3,
-        "hosted_passed": 1,
-        "indexed": 0,
-        "invocations": 47,
-        "measured_receipt_usd": 0.01607203,
-        "passed": false,
-        "receipts": 91,
-        "report_sha256": "8cba599159e4b83d3025fe67d2f62938ef01581a156ff2120a24a7efe0123eac",
-        "run": 13,
-        "scope": "Four unchanged hosted families only; 26 other cases skipped. This is not a complete-suite acceptance pass.",
-        "skipped_tests": 26,
-        "source_freeze_id": "6cd7bf496521e98610ff738dbd8fe2e50ddb93a08789a1fa988e01fdb3a73968",
-        "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
-        "source_overlay_diff_sha256": "1b1155a4accc3bb19b8f9a9e96018f8e05bf33dd91f526351de8f655cb16ab2e"
-      },
-      {
-        "acceptance_note": "Delete query now selects the dedicated Relationships section. The link-as-a-verb query fails with a late vector, and the later where-links query fails dedicated-section identity. Relevant alternative facts do not satisfy unchanged gold assertions. No same-input source regression is proven and no full-suite pass is claimed.",
-        "cap_usd": 0.02,
-        "classification_sha256": "4daa349cae7db4975658eef61a67e9228b0e50ccc3faf5919f757bbed8b73cd5",
-        "conservatively_accounted_usd": 0.00096612,
-        "contracts": [
-          {
-            "status": "failed",
-            "title": "keeps a question that uses link as a verb on the relationships section, not on a section of record-page links"
-          },
-          {
-            "status": "failed",
-            "title": "keeps a question about the link between two records on the relationships section"
-          }
-        ],
-        "corpus_build_hash": "beabd8179f162860bec54b94caeb34b02dc54f0f34c62327d613627f8159ca75",
-        "duration_ms": 6844,
-        "estimated_attempt_usd": 0,
-        "exit_code": 1,
-        "hosted_failed": 2,
-        "hosted_passed": 0,
-        "indexed": 0,
-        "input_comparison_sha256": "1bd2e187d1b1bf16a69dc11debdcd9b3fbdc279be85a6487944ad4916543c601",
-        "invocation_classification": [
-          {
-            "actual": "architecture-security#how-does-external-ai-access-work",
-            "expected": "concepts#how-do-relationships-link-records",
-            "limitation": "Selected public security excerpt accurately says relation lists are not accepted by update tools and links change through manage_record_links. It is relevant but does not clear the dedicated-section identity assertion.",
-            "query": "link a contact to an organization",
-            "state": "strict-miss; causal source regression not proven"
-          },
-          {
-            "actual": "concepts#how-do-relationships-link-records",
-            "expected": "concepts#how-do-relationships-link-records",
-            "limitation": "Single-provider observation supports intended evidence restoration, not a controlled causal quality comparison.",
-            "query": "Can I delete the link to an organization from a contact?",
-            "state": "actual target selected; failing family not equal failed invocation"
-          },
-          {
-            "actual": "app-records#how-do-i-change-a-deal-stage-or-a-task-status-on-the-board",
-            "expected": "concepts#how-do-relationships-link-records",
-            "limitation": "Selected section actually contains the body instruction that relations appear as labelled relation fields inside the form. Its heading is the board stage/status section, so the strict identity assertion still fails.",
-            "query": "Where are the links between contacts and deals shown?",
-            "state": "strict-miss; no Run13 comparator"
-          }
-        ],
-        "invocations": 3,
-        "measured_receipt_usd": 0.00096612,
-        "passed": false,
-        "receipts": 6,
-        "report_sha256": "fe72203af99ca9017b03b5c6653f47733fe85dc166ae3980e0d1ded541410cec",
-        "run": 14,
-        "scope": "Only two unchanged hosted relationship families selected; 28 cases not run. Failure of a family does not mean every invocation in it failed.",
-        "skipped_tests": 28,
-        "source_freeze_id": "a73446a5ede7408b3d2e4492fba389a6c807df6ce3c62e19bf1a5243bb419913",
-        "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
-        "source_overlay_diff_sha256": "1b1155a4accc3bb19b8f9a9e96018f8e05bf33dd91f526351de8f655cb16ab2e"
-      }
-    ],
-    "vertex_wire_isolation": {
-      "canonical_server_max_items": 40,
-      "execution_attribution": "parent-owned actual wire comparison",
-      "only_repair_maxItems_removed_success": true,
-      "original_required_tool_http_status": 400,
-      "schema_bytes_removed": 14,
-      "scope": "A narrow actual-provider declaration probe; does not prove a completed website import or revised UI/content acceptance.",
-      "source_fix": "Google-only reclassifiedOfferings.maxItems projection",
-      "successful_probe_total_tokens": 995
-    }
+    "latest_closed_batch_held_microcents": 0,
+    "latest_closed_batch_source": "a455abd78fccda968760d0a90a1a339589952996",
+    "semantic_acceptance": false
   },
   "pending": [
-    "Publish final source normally and verify exact new product-head CI/deployment; this immutable packet is a prepublication snapshot, and live PR state is authoritative afterward.",
-    "Resolve complete/subset strict hosted-family failures or obtain explicit owner acceptance; preserve original golds and do not claim full-provider success.",
-    "Complete actual website content acceptance: dedicated SAP/Data Science offerings, explicit English titles, FAQ answers and reviewed internal-rule gaps remain unmet; full citation acceptance remains unverified. The exclusion guard has not been accepted through completed live synthesis.",
-    "Future paid follow-up requires stated authorization. The original ceiling remains US$2 with corrected US$1.91323767 recorded; the requested additional US$1 is pending and does not authorize spend.",
-    "Human preview reset, legal/privacy/vendor-contract/customer-notice checkpoints and merge approval."
+    "Final packet consistency review and exact future publication-head CI.",
+    "Any nonpassing local/build/HTTP/browser/cleanup above; source85 provider/content acceptance has not run.",
+    "Original actual live dirty-editor/observer loss remains unresolved despite passing deterministic35.118s guard fixture.",
+    "Separate import4/contracts4 US$2 approval is pending; no successor paid work is authorized by this packet.",
+    "Human legal/privacy/customer-notice and provider-contract checkpoints, preview reset checkpoint and merge approval; product then KB."
   ],
   "ready_to_merge": false,
   "review_matrix": {
-    "application_and_dependency_paths": 753,
-    "consolidated_csv_sha256": "140d1b9e6abe5cdc834c6a0389359b4f5a0100dbe9e634dbc3fd12f688dda4d2",
-    "consolidated_matrix_sha256": "ee592915d2835299898792be54636001afabc09a222c0dc99be0b51f270b414a",
+    "attribution": "Neighbor/source review only; historical runtime claims retain their original revisions.",
+    "consolidated_csv_sha256": "6a24a714142cc82a25cf3c4a08baf8086189247d1dd182f025d29cd4afaea757",
+    "consolidated_matrix_sha256": "3360da9d8b0cd8ee0cf00a10d2242d1ed95905443a224987977044d59d73832f",
     "corrected": 169,
-    "count_attribution": "All762 union paths compared to established neighbors; current59 source hashes are independently reviewed. Three derived packet files receive separate artifact consistency review.",
-    "current_incremental_review_sha256": "37a00206f95e66764f14c5137ea313fae5524625b9509648e923c340c8c3b332",
-    "current_overlay_paths": 59,
-    "historical_56_review_sha256": "40104bd97fda0edff352780718d2887e84a450f5d708d2cf27bf175f2921dddd",
-    "initial_only_paths": 9,
+    "current_branch_paths": 763,
+    "derived_packet_exclusions": [
+      "scripts/agent-benchmark/reports/2026-10-01-mate-bundle-final-cleanup/README.md",
+      "scripts/agent-benchmark/reports/2026-10-01-mate-bundle-final-cleanup/verification.json",
+      "scripts/agent-benchmark/reports/2026-10-01-mate-bundle-final-cleanup/review-matrix.csv"
+    ],
     "justified": 13,
-    "latest49_path_independent_review_sha256": "bec5b299c5b4c988bc5b6b274b262e99793785ff2ad9b363c79522ac30000aad",
-    "latest56_path_independent_review_sha256": "0b811b8c8f2b7f405f4855f8da45afee2b1eca31808dde9b3dee3737c8b0c317",
-    "latest56_reviewed_paths": 56,
-    "open_source_findings": 0,
     "original_paths": 592,
-    "requires_regeneration": false,
-    "reviewed": 580,
-    "reviewed_union_paths": 762,
-    "selected_navigation_review_sha256": "c3059c257fd13d69882b1ca72d3b3b10cafe15b8859313234e54995e16a0b61b",
-    "self_derived_packet_files_excluded": 3,
-    "source_exclusion_test_review_sha256": "ba412f79f42e9e9b98d57fe9ebd49150c356068974b0762e8b7182449f319950",
-    "source_hash_drift": 0,
-    "stale_paths_at_proposal_snapshot": [],
-    "stale_tagged_hashes": 0,
-    "uncovered_current_paths": 0
+    "raw_current_diff_paths": 766,
+    "reviewed": 590,
+    "reviewed_union_paths": 772
   },
-  "reviewed_at": "2026-10-01",
+  "reviewed_at": "2026-10-02T14:08:33.069045+00:00",
+  "schema_version": 3,
   "source_base": "31d1df14c9185e62f23bf902be3ef518b42ca5b3",
-  "source_review_followups": [
-    {
-      "finding": "Lower-IDF equal-coverage opening preference and linguistic/literal/clause/context evidence loss",
-      "focused_after_passed": 108,
-      "path": "ee/agent-chat/docs-rank-evidence.ts",
-      "root_before_failed": 10,
-      "root_before_passed": 27,
-      "status": "Corrected"
-    },
-    {
-      "combined_before_failed": 4,
-      "combined_before_passed": 71,
-      "finding": "Earliest inflected surface displaced by later literal forms at32-location cap",
-      "focused_after_passed": 108,
-      "path": "core/retrieval/retrieval-evidence-matcher.ts",
-      "status": "Corrected"
-    },
-    {
-      "authoritative_limit": 40,
-      "evidence_quote_max_chars": 500,
-      "finding": "Vertex rejects forced website repair declaration containing reclassifiedOfferings.maxItems",
-      "focused_after_passed": 107,
-      "path": "ee/agent-chat/provider-safe-json-schema.ts",
-      "root_before_failed": 1,
-      "root_before_passed": 42,
-      "status": "Corrected in source; revised end-to-end content acceptance pending"
-    },
-    {
-      "finding": "Context-only table relevance must not displace actual body evidence",
-      "focused_after_files": 3,
-      "focused_after_passed": 78,
-      "path": "ee/agent-chat/docs-rank-evidence.ts",
-      "root_before_failed": 3,
-      "root_before_passed": 39,
-      "status": "Corrected in source; final hosted acceptance pending"
-    },
-    {
-      "finding": "Hosted tool wrapper discarded canonical typed planning failures",
-      "path": "ee/agent-chat/agent-tools.ts",
-      "status": "Corrected in source; final completed content acceptance pending"
-    },
-    {
-      "finding": "Unconditional visibility refresh can remount and discard dirty editor content",
-      "focused_after_files": 2,
-      "focused_after_passed": 29,
-      "path": "app/components/navigation/navigation-switch.tsx",
-      "prior_built_reproductions": 3,
-      "root_before_failed": 4,
-      "root_before_passed": 9,
-      "status": "Corrected in source; actual final WuPP built-browser retention and conflict checks pass. Twelve current UI assertions are independently reviewed with qualified transient/harness limitations."
-    },
-    {
-      "finding": "Unbounded failure metadata and escaped text could bypass result limits or erase the truncation notice.",
-      "focused_after_files": 8,
-      "focused_after_passed": 254,
-      "path": "ee/agent-chat/agent-tool-failure.ts",
-      "status": "Corrected in source; 254 focused tests pass. Full website content acceptance remains separate."
-    },
-    {
-      "finding": "Unmatched residual request verb suppressed all real label-backed body evidence and omitted the relationship operation tail.",
-      "focused_after_files": 8,
-      "focused_after_passed": 258,
-      "path": "ee/agent-chat/docs-rank-evidence.ts",
-      "status": "Corrected by narrow fallback; all original bounds/expectations remain. Actual run14 delete invocation selects Relationships, but both selected strict families still fail on other queries. This is not full hosted acceptance."
-    },
-    {
-      "finding": "Free-text source exclusions could silently substitute foundational summaries for distinct offering coverage.",
-      "focused_after_files": 5,
-      "focused_after_passed": 291,
-      "path": "ee/wiki-crawl/read-wiki-website-sources.interactor.ts",
-      "root_before_failed": 11,
-      "root_before_passed": 280,
-      "source_freeze_id": "6e1a63d34a4ce1e8aadef7025063b91ea74855760eba3fe0e6ed3c50e032c010",
-      "status": "Corrected in source with typed source-specific exclusion bases; final generated-content acceptance remains open."
-    },
-    {
-      "path": "ee/agent-chat/agent-output-safety.ts",
-      "source_freeze_id": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c",
-      "status": "Corrected quadratic scanner; token boundary matches preserve saved-view/UUID redaction and chunk output. Original two workflow tests/default5seconds unchanged."
-    },
-    {
-      "path": "features/mcp-tools/docs-unified-search.ts",
-      "source_freeze_id": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c",
-      "status": "Corrected selected-child metadata starvation and discarded-short-block guard; original tests/golds unchanged."
-    }
-  ],
   "source_snapshot": {
-    "base_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
-    "current_independent_review_sha256": "37a00206f95e66764f14c5137ea313fae5524625b9509648e923c340c8c3b332",
-    "final_committed_head": null,
-    "frozen": true,
-    "hash_format": "sha256 of JSON.stringify(files), paths sorted",
-    "latest_completed_gate_snapshot": "Final source59 passes local typecheck, zero-warning lint, full Vitest, build, aligned-origin HTTP and fresh provider-disabled browser smoke. Published exact-head CI is authoritative on the PR after this prepublication packet.",
-    "parent_head": "96e63dbb26fb4911fdb72bcd7799b4eb374ac295",
-    "recorded_at": "2026-10-01T20:33:09.885Z",
-    "source_freeze_file_sha256": "8d1b8c6ac7ec91705e3983102b09eccf77e001c49d01983b5e4f086e05a0ac41",
-    "source_freeze_id": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c",
-    "working_tree_overlay_files": 59
+    "build_id": "TgbMauXHO9KOdQoo0C8Xm",
+    "final_packet_commit_head": null,
+    "frozen_source_file_count": 85,
+    "independent_source_review_sha256": "925df5e01f6d58c1d9dec19903f8cdcd88ecd44d4e57429f6e8e32a642fb385d",
+    "source_freeze_artifact_sha256": "e763e6de09198664c9d7b9ece9b1306d3094c476f24c171d0b185dd71253e91e",
+    "source_freeze_id": "023c7fc2fde8885f2cf05a887eb07c58e3501e3925a8dd53bcc911c9b0f4ea42",
+    "source_head": "4d4e4af8a241b161f212fbfe9f9286d99c66b256"
   },
-  "status": "Final independently reviewed59-file source passes attributed local automated/build/HTTP/provider-disabled browser gates. Live hosted-family and generated-content acceptance remains open. This immutable packet precedes product publication; exact published-head CI is recorded in PR description."
+  "status": "Current source-bound proposal; only completed artifacts below establish their stated acceptance. Merge readiness remains false."
 }
