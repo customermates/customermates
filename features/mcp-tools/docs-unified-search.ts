@@ -303,7 +303,7 @@ export async function unifiedDocsExcerpt(
     );
     const selected = search.pages.filter(({ section }) => section.source === page.source && section.slug === page.slug);
     let preferred =
-      search.chosen?.find((section) => section.source === page.source && section.slug === page.slug) ?? named;
+      named ?? search.chosen?.find((section) => section.source === page.source && section.slug === page.slug);
     let ranked = selected.map(({ section }) => ({ section, chunkOrdinal: 0 }));
     if (!preferred) {
       const fallback = await fusedSections(

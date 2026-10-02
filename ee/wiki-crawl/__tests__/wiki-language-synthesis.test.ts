@@ -307,7 +307,10 @@ describe("single language Wiki synthesis", () => {
       ],
     });
     expect(result).toMatchObject({
-      failure: { kind: "validation", issues: [expect.objectContaining({ customCode: "wikiSourceCitationInvalid" })] },
+      failure: {
+        kind: "validation",
+        issues: [expect.objectContaining({ customCode: "wikiSourceExclusionOverlapInvalid" })],
+      },
     });
     expect(harness.advance).not.toHaveBeenCalled();
   });
@@ -331,7 +334,10 @@ describe("single language Wiki synthesis", () => {
       ],
     });
     expect(result).toMatchObject({
-      failure: { kind: "validation", issues: [expect.objectContaining({ customCode: "wikiSourceCitationInvalid" })] },
+      failure: {
+        kind: "validation",
+        issues: [expect.objectContaining({ customCode: "wikiSourceExclusionOverlapInvalid" })],
+      },
     });
     expect(harness.advance).not.toHaveBeenCalled();
   });
@@ -388,7 +394,10 @@ describe("single language Wiki synthesis", () => {
         ],
       });
       expect(result).toMatchObject({
-        failure: { kind: "validation", issues: [expect.objectContaining({ customCode: "wikiSourceCitationInvalid" })] },
+        failure: {
+          kind: "validation",
+          issues: [expect.objectContaining({ customCode: "wikiSourceExclusionDuplicateInvalid" })],
+        },
       });
       expect(harness.advance).not.toHaveBeenCalled();
     },
@@ -424,7 +433,10 @@ describe("single language Wiki synthesis", () => {
       excluded: [{ sourceIds: [otherId], basis: "already_imported", reason: "Already saved." }],
     });
     expect(result).toMatchObject({
-      failure: { kind: "validation", issues: [expect.objectContaining({ customCode: "wikiSourceCitationInvalid" })] },
+      failure: {
+        kind: "validation",
+        issues: [expect.objectContaining({ customCode: "wikiSourceExclusionImportedInvalid" })],
+      },
     });
     expect(harness.advance).not.toHaveBeenCalled();
   });
@@ -482,10 +494,105 @@ describe("single language Wiki synthesis", () => {
       ],
     });
     expect(result).toMatchObject({
-      failure: { kind: "validation", issues: [expect.objectContaining({ customCode: "wikiSourceCitationInvalid" })] },
+      failure: {
+        kind: "validation",
+        issues: [expect.objectContaining({ customCode: "wikiSourceExclusionEvidenceInvalid" })],
+      },
     });
     expect(harness.advance).not.toHaveBeenCalled();
   });
+
+  it("reports every invalid exclusion with its index and repair-specific typed failure", async () => {
+    const sources = await harness.sources();
+    const ids = [2, 3, 4, 5].map((index) => `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`);
+    harness.sources.mockResolvedValue([
+      ...sources,
+      ...ids.map((id, index) => ({ ...sources[0], id, contentHash: `distinct-source-${index}` })),
+    ]);
+    const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({
+      action: "plan",
+      topics: foundations,
+      excluded: [
+        { sourceIds: [ids[0]], basis: "already_imported", reason: "Already saved." },
+        { sourceIds: [ids[1]], basis: "exact_duplicate", duplicateOfSourceId: SOURCE_ID, reason: "Translated text." },
+        {
+          sourceIds: [ids[2]],
+          basis: "overlap",
+          coveredByTitle: foundations[0].title,
+          coveredByRole: "offering",
+          reason: "Covered by a foundation.",
+        },
+        {
+          sourceIds: [ids[3]],
+          basis: "not_substantive",
+          reason: "No useful evidence.",
+          evidenceQuote: "This quotation is absent from the source.",
+        },
+      ],
+    });
+    expect(result).toMatchObject({
+      failure: {
+        kind: "validation",
+        issues: [
+          expect.objectContaining({ path: ["excluded", 0, "basis"], customCode: "wikiSourceExclusionImportedInvalid" }),
+          expect.objectContaining({
+            path: ["excluded", 1, "duplicateOfSourceId"],
+            customCode: "wikiSourceExclusionDuplicateInvalid",
+          }),
+          expect.objectContaining({
+            path: ["excluded", 2, "coveredByTitle"],
+            customCode: "wikiSourceExclusionOverlapInvalid",
+          }),
+          expect.objectContaining({
+            path: ["excluded", 3, "evidenceQuote"],
+            customCode: "wikiSourceExclusionEvidenceInvalid",
+          }),
+        ],
+      },
+    });
+    for (const id of ids) expect(JSON.stringify(result)).toContain(id);
+    expect(JSON.stringify(result)).not.toContain("Cite only ids returned");
+    expect(harness.advance).not.toHaveBeenCalled();
+    expect(harness.create).not.toHaveBeenCalled();
+  });
+
+  it.each(["literal_newline", "translated_quote", "ellipsis", "wrong_case"])(
+    "rejects a %s alteration to exclusion evidence without normalizing it",
+    async (kind) => {
+      const text = "First exact factual sentence.\nSecond exact factual sentence.";
+      const source = (await harness.sources())[0];
+      harness.sources.mockResolvedValue([{ ...source, text, readOffset: text.length }]);
+      const evidenceQuote =
+        kind === "literal_newline"
+          ? text.replaceAll("\n", "\\n")
+          : kind === "translated_quote"
+            ? "Primera frase factual exacta."
+            : kind === "ellipsis"
+              ? "First exact...Second exact factual sentence."
+              : "FIRST exact factual sentence.";
+      const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({
+        action: "plan",
+        topics: [],
+        omittedFoundations,
+        excluded: [
+          { sourceIds: [SOURCE_ID], basis: "not_substantive", reason: "No useful company evidence.", evidenceQuote },
+        ],
+      });
+      expect(result).toMatchObject({
+        failure: {
+          kind: "validation",
+          issues: [
+            expect.objectContaining({
+              path: ["excluded", 0, "evidenceQuote"],
+              customCode: "wikiSourceExclusionEvidenceInvalid",
+            }),
+          ],
+        },
+      });
+      expect(harness.advance).not.toHaveBeenCalled();
+      expect(harness.create).not.toHaveBeenCalled();
+    },
+  );
 
   it("rejects a free-text coverage exclusion without a source-specific basis", async () => {
     const result = await executeMcpTool(readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001"), [

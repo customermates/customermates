@@ -81,6 +81,7 @@ export function agentToolInputContext(toolName: string, input: unknown) {
   if (resource) return context(namedItems(Array.isArray(input) ? input : data[resource]));
   if (toolName === "manage_wiki_pages")
     return context(data.action === "create" ? namedItems(data.pages) : [data.title ?? data.query]);
+  if (toolName === WIKI_READ_SOURCE_TOOL_NAME && data.action === "plan") return context(namedItems(data.topics));
   if (toolName === WIKI_WEBSITE_IMPORT_TOOL_NAME) return context([websiteLabel(data.url)]);
   if (toolName === "web_search" || toolName === "search_docs") return context([data.query]);
   if (toolName === "search_records" || toolName === "list_records") return context([data.searchTerm]);

@@ -121,6 +121,26 @@ describe("contextual activity labels", () => {
     ).toEqual({ labels: ["About us", "example.com/products"] });
   });
 
+  it("distinguishes planning from reading and preserves bounded page titles on failures", () => {
+    const descriptor = activity("read_website_source", {
+      action: "plan",
+      topics: ["Service A", "Service B", "Voice and tone", "Operating Guide"].map((title) => ({
+        title,
+        sourceIds: ["private-id"],
+      })),
+      excluded: [{ evidenceQuote: "Private source quotation" }],
+    });
+    expect(descriptor.kind).toBe("web.plan");
+    expect(descriptor.context).toEqual({ labels: ["Service A", "Service B", "Voice and tone"], additionalCount: 1 });
+    const copy = agentActivityCopy(descriptor, t);
+    expect(copy.running).toBe("Planning Knowledge Base pages · Service A, Service B, Voice and tone (+1)");
+    expect(copy.error).toBe("Couldn’t plan the Knowledge Base pages · Service A, Service B, Voice and tone (+1)");
+    expect(JSON.stringify(descriptor)).not.toMatch(/private-id|Private source quotation/);
+    expect(activity("read_website_source", { action: "get", id: "private-id" }).kind).toBe("web.review");
+    expect(activity("read_website_source", { action: "list" }).kind).toBe("web.sources");
+    expect(AgentActivityDescriptorSchema.parse(JSON.parse(JSON.stringify(descriptor)))).toEqual(descriptor);
+  });
+
   it("reads only display names from the actual mixed-record result wrappers", () => {
     expect(
       agentToolOutputContext("get_records", {

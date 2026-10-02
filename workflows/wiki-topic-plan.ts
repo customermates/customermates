@@ -39,6 +39,10 @@ export function wikiPlanningCandidates(input: unknown, outcome: unknown, invento
     !failure.data.failure.issues.some(
       ({ customCode }) =>
         customCode === CustomErrorCode.wikiSourceCoverageRequired ||
+        customCode === CustomErrorCode.wikiSourceExclusionImportedInvalid ||
+        customCode === CustomErrorCode.wikiSourceExclusionDuplicateInvalid ||
+        customCode === CustomErrorCode.wikiSourceExclusionOverlapInvalid ||
+        customCode === CustomErrorCode.wikiSourceExclusionEvidenceInvalid ||
         customCode === CustomErrorCode.wikiSourcePlanAccountingInvalid ||
         customCode === CustomErrorCode.wikiSourcePlanIncomplete,
     )

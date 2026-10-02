@@ -470,6 +470,37 @@ describe("bounded classifier evidence", () => {
 });
 
 describe("complementary source paragraphs in classifier evidence", () => {
+  it("retains the complete adjacent operation when the opening already uses the labelled action word", () => {
+    const opening =
+      "Components link to bundles and share their settings. Components link to one or more bundles with bundle permissions.";
+    const operation =
+      "Link the records through the selection field. Pick the component, then save. The connect_record action adds or removes one chosen relation without replacing unrelated relations.";
+    const excerpt = docsRankEvidence(`${opening}\n\n${operation}`, "How do I link a component to a bundle?", 220, {
+      label: "ExampleNet > Link related items",
+      locale: "en",
+    });
+
+    expect(excerpt).toContain(operation);
+    expect(excerpt.length).toBeLessThanOrEqual(220);
+    expect(hasBrokenSurrogate(excerpt)).toBe(false);
+  });
+
+  it("keeps a neighbouring operation's limiting condition within the same evidence bound", () => {
+    const opening =
+      "Reports link to teams and share their settings. Reports link to one or more teams with shared team permissions.";
+    const operation =
+      "Link the report through its selection field. Only an assigned member may save the chosen relation; never replace the team's other report links.";
+    const excerpt = docsRankEvidence(`${opening}\n\n${operation}`, "How do I link a report to a team?", 220, {
+      label: "ExampleNet > Link related items",
+      locale: "en",
+    });
+
+    expect(excerpt).toContain(operation);
+    expect(excerpt).toContain("Only an assigned member may save");
+    expect(excerpt).toContain("never replace");
+    expect(excerpt.length).toBeLessThanOrEqual(220);
+  });
+
   it("leaves space for actual operation evidence when an opening supplies the residual entity facts", () => {
     const opening =
       "Components belong to bundles and share the bundle settings. A component belongs to one or more bundles and has bundle permissions.";

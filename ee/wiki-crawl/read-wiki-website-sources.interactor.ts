@@ -7,7 +7,7 @@ import { Action, Resource } from "@/generated/prisma";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
-import { fail, failNotFound } from "@/core/validation/interactor-failure-server";
+import { fail, failIssues, failNotFound, type FailureIssue } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { wikiPagePath } from "@/features/wiki/wiki-links";
 
@@ -85,31 +85,68 @@ export class ReadWikiWebsiteSourcesInteractor extends AuthenticatedInteractor<Re
       if (new Set(titles).size !== titles.length) return fail(CustomErrorCode.wikiImportTitleInvalid, ["topics"]);
       const sourcesById = new Map(coverage.sources.map((source) => [source.id, source]));
       const topicsByTitle = new Map(data.topics.map((topic) => [topic.title, topic]));
-      if (
-        (data.excluded ?? []).some((exclusion) => {
-          const source = sourcesById.get(exclusion.sourceIds[0]);
-          if (!source) return true;
-          if (exclusion.basis === "already_imported") return !coverage.imported.has(source.id);
-          if (exclusion.basis === "exact_duplicate") {
-            const duplicate = sourcesById.get(exclusion.duplicateOfSourceId ?? "");
-            return (
-              !duplicate ||
-              duplicate.id === source.id ||
-              duplicate.contentHash !== source.contentHash ||
-              (!topicSources.has(duplicate.id) && !coverage.imported.has(duplicate.id))
-            );
+      const exclusionIssues: FailureIssue[] = [];
+      (data.excluded ?? []).forEach((exclusion, index) => {
+        const sourceId = exclusion.sourceIds[0];
+        const source = sourcesById.get(sourceId);
+        if (!source) {
+          exclusionIssues.push({
+            code: CustomErrorCode.wikiSourceCitationInvalid,
+            path: ["excluded", index, "sourceIds", 0],
+          });
+          return;
+        }
+        if (exclusion.basis === "already_imported") {
+          if (!coverage.imported.has(source.id)) {
+            exclusionIssues.push({
+              code: CustomErrorCode.wikiSourceExclusionImportedInvalid,
+              path: ["excluded", index, "basis"],
+              values: { sourceId },
+            });
           }
-          if (exclusion.basis === "overlap") {
-            const topic = topicsByTitle.get(exclusion.coveredByTitle ?? "");
-            return !topic || topic.role !== "offering" || exclusion.coveredByRole !== topic.role;
+          return;
+        }
+        if (exclusion.basis === "exact_duplicate") {
+          const duplicate = sourcesById.get(exclusion.duplicateOfSourceId ?? "");
+          if (
+            !duplicate ||
+            duplicate.id === source.id ||
+            duplicate.contentHash !== source.contentHash ||
+            (!topicSources.has(duplicate.id) && !coverage.imported.has(duplicate.id))
+          ) {
+            exclusionIssues.push({
+              code: CustomErrorCode.wikiSourceExclusionDuplicateInvalid,
+              path: ["excluded", index, "duplicateOfSourceId"],
+              values: { sourceId, duplicateOfSourceId: exclusion.duplicateOfSourceId ?? "" },
+            });
           }
-          const quote = exclusion.evidenceQuote;
-          return (
-            quote === undefined || !source.text.includes(quote) || (quote.length < 20 && source.text.trim() !== quote)
-          );
-        })
-      )
-        return fail(CustomErrorCode.wikiSourceCitationInvalid, ["excluded"]);
+          return;
+        }
+        if (exclusion.basis === "overlap") {
+          const topic = topicsByTitle.get(exclusion.coveredByTitle ?? "");
+          if (!topic || topic.role !== "offering" || exclusion.coveredByRole !== topic.role) {
+            exclusionIssues.push({
+              code: CustomErrorCode.wikiSourceExclusionOverlapInvalid,
+              path: ["excluded", index, "coveredByTitle"],
+              values: { sourceId, coveredByTitle: exclusion.coveredByTitle ?? "" },
+            });
+          }
+          return;
+        }
+        const quote = exclusion.evidenceQuote;
+        if (
+          quote === undefined ||
+          !source.text.includes(quote) ||
+          (quote.length < 20 && source.text.trim() !== quote)
+        ) {
+          exclusionIssues.push({
+            code: CustomErrorCode.wikiSourceExclusionEvidenceInvalid,
+            path: ["excluded", index, "evidenceQuote"],
+            values: { sourceId },
+          });
+        }
+      });
+      if (exclusionIssues.length > 0) return failIssues(exclusionIssues);
       const omitted = data.omittedFoundations ?? [];
       const roles = [...data.topics.map(({ role }) => role), ...omitted.map(({ role }) => role)];
       const invalidRoles =

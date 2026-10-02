@@ -353,6 +353,11 @@
           }
         },
         "web": {
+          "plan": {
+            "done": "Pages de la base de connaissances planifiées",
+            "error": "Impossible de planifier les pages de la base de connaissances",
+            "running": "Planification des pages de la base de connaissances"
+          },
           "review": {
             "done": "Contenu du site examiné",
             "error": "Impossible d’examiner le contenu du site",
@@ -1373,6 +1378,10 @@
       "wikiSourceCitationUnread": "Lisez chaque source citée entièrement avec read_website_source ; non lues : {ids}. Rien n’a été modifié.",
       "wikiSourceCoverageRequired": "Lisez toutes les sources restantes avec read_website_source action=next avant de créer des pages ou de relire des sources. Il reste {remainingSources} sources. Rien n’a été modifié.",
       "wikiSourceEvidenceInvalid": "Chaque section doit contenir des passages justificatifs exacts provenant des sources du site citées sur cette page. Relisez les preuves et corrigez les citations ou les sources. Rien n’a été modifié.",
+      "wikiSourceExclusionDuplicateInvalid": "La source {sourceId} n’est pas une copie au contenu identique de la source conservée ou importée {duplicateOfSourceId}. Les traductions nécessitent un chevauchement sémantique avec le titre exact d’une offre conservée, et non exact_duplicate. Rien n’a été modifié.",
+      "wikiSourceExclusionEvidenceInvalid": "La citation de la source {sourceId} ne correspond pas exactement au texte enregistré. Relisez-la avec get et offset=0, puis copiez une phrase ou une ligne continue sans modifier les espaces, la ponctuation ni les mots. Rien n’a été modifié.",
+      "wikiSourceExclusionImportedInvalid": "La source {sourceId} n’a pas été importée sans modification. Choisissez un motif d’exclusion étayé ou conservez-la dans un sujet. Rien n’a été modifié.",
+      "wikiSourceExclusionOverlapInvalid": "La source {sourceId} désigne {coveredByTitle}, qui n’est pas le titre exact d’une offre conservée. Utilisez le titre d’une offre prévue ; les pages de base, les procédures et le guide ne peuvent pas couvrir une offre exclue. Rien n’a été modifié.",
       "wikiSourceNotFound": "Identifiant de source inconnu. Appelez list d’abord.",
       "wikiSourcePlanAccountingInvalid": "Incluez chaque source une seule fois dans un groupe ou les exclusions, et jamais dans topics et excluded à la fois. Identifiants en double : [{duplicateSourceIds}]. Identifiants dans topics et excluded : [{overlappingSourceIds}]. Identifiants non pris en compte : [{missingSourceIds}]. Rien n’a été modifié.",
       "wikiSourcePlanIncomplete": "Envoie une liste topics et, avant de créer des pages, prends en compte chaque source enregistrée et chaque rôle de page requis dans un sujet étayé ou une omission justifiée. Identifiants de sources non pris en compte : [{missingSourceIds}]. Rôles manquants ou non valides : [{missingRoles}].",

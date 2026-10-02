@@ -353,6 +353,11 @@
           }
         },
         "web": {
+          "plan": {
+            "done": "Pagine della knowledge base pianificate",
+            "error": "Impossibile pianificare le pagine della knowledge base",
+            "running": "Pianificazione delle pagine della knowledge base"
+          },
           "review": {
             "done": "Contenuti del sito esaminati",
             "error": "Impossibile esaminare i contenuti del sito",
@@ -1373,6 +1378,10 @@
       "wikiSourceCitationUnread": "Leggi ogni fonte citata per intero con read_website_source; non lette: {ids}. Non è stato modificato nulla.",
       "wikiSourceCoverageRequired": "Leggi tutte le fonti rimanenti con read_website_source action=next prima di creare pagine o rileggere fonti. Restano {remainingSources} fonti. Non è stato modificato nulla.",
       "wikiSourceEvidenceInvalid": "Ogni sezione richiede passaggi di supporto esatti dalle fonti del sito citate in questa pagina. Rileggi le prove e correggi le citazioni o le fonti. Non è stato modificato nulla.",
+      "wikiSourceExclusionDuplicateInvalid": "La fonte {sourceId} non è una copia dal contenuto identico della fonte conservata o importata {duplicateOfSourceId}. Le traduzioni richiedono una sovrapposizione semantica con il titolo esatto di un’offerta conservata, non exact_duplicate. Non è stato modificato nulla.",
+      "wikiSourceExclusionEvidenceInvalid": "La citazione della fonte {sourceId} non corrisponde esattamente al testo salvato. Rileggila con get e offset=0, quindi copia una frase o una riga continua senza modificare spazi, punteggiatura o parole. Non è stato modificato nulla.",
+      "wikiSourceExclusionImportedInvalid": "La fonte {sourceId} non è stata importata senza modifiche. Scegli un motivo di esclusione supportato o mantienila in un argomento. Non è stato modificato nulla.",
+      "wikiSourceExclusionOverlapInvalid": "La fonte {sourceId} indica {coveredByTitle}, che non è il titolo esatto di un’offerta conservata. Usa il titolo di un’offerta pianificata; le pagine di base, le procedure e la guida non possono coprire un’offerta esclusa. Non è stato modificato nulla.",
       "wikiSourceNotFound": "ID della fonte sconosciuto. Esegui prima list.",
       "wikiSourcePlanAccountingInvalid": "Includi ogni fonte una sola volta in un gruppo o nelle esclusioni, e mai contemporaneamente in topics ed excluded. ID duplicati: [{duplicateSourceIds}]. ID in topics ed excluded: [{overlappingSourceIds}]. ID non inclusi: [{missingSourceIds}]. Non è stato modificato nulla.",
       "wikiSourcePlanIncomplete": "Invia un elenco topics e, prima di creare le pagine, includi ogni fonte salvata e ogni ruolo di pagina richiesto in un argomento supportato o un’omissione motivata. ID delle fonti non incluse: [{missingSourceIds}]. Ruoli mancanti o non validi: [{missingRoles}].",

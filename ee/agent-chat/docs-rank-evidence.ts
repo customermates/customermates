@@ -181,7 +181,7 @@ export function docsRankEvidence(
         next?.prose === true &&
         next.text === lines.find((line) => line.block === next.block)?.text &&
         next.block !== units[openingIndex].block &&
-        (!hasResidualBodyMatch || labelMatches.some((hit, term) => hit && !openingHits[term] && nextMatches[term]));
+        (!hasResidualBodyMatch || labelMatches.some((hit, term) => hit && nextMatches[term]));
       const openingBudget = complementary
         ? Math.min(opening.length, introductionBudget, maxChars - next.text.length - 1)
         : opening.length;

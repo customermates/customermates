@@ -79,6 +79,10 @@ describe("rejected website plan hypotheses", () => {
   });
   it.each([
     CustomErrorCode.wikiSourceCoverageRequired,
+    CustomErrorCode.wikiSourceExclusionImportedInvalid,
+    CustomErrorCode.wikiSourceExclusionDuplicateInvalid,
+    CustomErrorCode.wikiSourceExclusionOverlapInvalid,
+    CustomErrorCode.wikiSourceExclusionEvidenceInvalid,
     CustomErrorCode.wikiSourcePlanIncomplete,
     CustomErrorCode.wikiSourcePlanAccountingInvalid,
   ])("retains valid offering anchors for the typed %s failure, independently of the category", (customCode) => {

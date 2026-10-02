@@ -80,7 +80,7 @@ export const ReadWebsiteSourceSchema = z.object({
     .max(40)
     .optional()
     .describe(
-      "plan only: one source per exclusion with a reason and basis. already_imported requires an unchanged imported source. exact_duplicate names duplicateOfSourceId with identical stored content, retained in a topic or already imported. overlap names the exact coveredByTitle of a retained offering and coveredByRole=offering; foundations cannot replace offerings. not_substantive requires an exact evidenceQuote from that source. Translations and overlap are semantic judgments, not exact-content duplicates. Routing category does not determine relevance.",
+      "plan only: one source per exclusion with a reason and basis. already_imported requires an unchanged imported source. exact_duplicate names duplicateOfSourceId with identical stored content, retained in a topic or already imported. overlap names the exact coveredByTitle of a retained offering and coveredByRole=offering; foundations cannot replace offerings. not_substantive requires an exact evidenceQuote from that source. For exclusion and repair evidence, copy a single contiguous sentence or line directly from the returned text. Preserve spelling, punctuation and whitespace exactly; do not insert literal backslash-n characters, ellipses, translated wording or Markdown headings from the inventory. Reread with get and offset=0 when the exact text is no longer visible. Translations and overlap are semantic judgments, not exact-content duplicates. Routing category does not determine relevance.",
     ),
   reclassifiedOfferings: z
     .array(
@@ -108,18 +108,32 @@ export type ReadWebsiteSourceInput = z.infer<typeof ReadWebsiteSourceSchema>;
 
 const SynthesisSectionSchema = z.object({
   heading: z.string().trim().min(1).max(120),
-  content: z.string().trim().min(1).max(8_000),
   evidence: z
     .array(
       z.object({
         sourceId: z.uuid(),
-        quote: z.string().trim().min(1).max(2_000),
+        quote: z
+          .string()
+          .trim()
+          .min(1)
+          .max(2_000)
+          .describe(
+            "One complete exact source sentence or contiguous passage. Prefer a single sentence. Copy the actual text, not its display escaping; never flatten or alter Markdown between lines.",
+          ),
       }),
     )
     .min(1)
     .max(8)
     .describe(
-      "Exact supporting passages for every factual claim and example in this section, copied from its own cited sourceIds. Preserve qualifications when translating or summarizing. Quotes remain private tool evidence and are not added to the saved page. Ground labelled recommendations in observed wording; keep unknown internal rules in gaps.",
+      "Select these exact own-source passages before composing content. Every factual sentence and example must be supported by one of them, including its scope, conditions and limitations. Evidence remains private and is not added to the saved page. Ground labelled recommendations in observed wording; keep unknown internal rules in gaps.",
+    ),
+  content: z
+    .string()
+    .trim()
+    .min(1)
+    .max(8_000)
+    .describe(
+      "Compose after evidence: conservative paraphrases of only supported claims. Attribute published security, compliance, cost, performance and customer outcome claims to their source. Preserve possibility, risk reduction, conditions, limitations and work status; do not turn a warning into a proven countermeasure or infer implementation details.",
     ),
 });
 const SynthesisPageSchema = z.object({

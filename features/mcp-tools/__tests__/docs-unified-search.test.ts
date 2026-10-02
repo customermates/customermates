@@ -7,6 +7,7 @@ import type { DocsFullTextRow, DocsSemanticRow } from "../prisma-docs-chunk.repo
 import { describe, expect, it, vi } from "vitest";
 
 import { collectRetrievalTimings } from "@/core/retrieval/retrieval-context";
+import { slugifyHeading } from "@/core/utils/search-text";
 
 import { docsCorpus } from "../docs-corpus";
 import { docsCorpusSections } from "../docs-manifest";
@@ -179,21 +180,75 @@ describe("unified documentation search", () => {
     expect(api).not.toHaveBeenCalled();
   });
 
+  it.each([signature.anchor, signature.headingPath.at(-1)])(
+    "keeps the explicitly requested section ahead of a conflicting hosted choice for %s",
+    async (query) => {
+      const unrelated = webhooks.at(-1);
+      if (!unrelated || !query) throw new Error("expected named and alternative webhook sections");
+      expect(unrelated).not.toBe(signature);
+      expect(
+        signature.anchor === slugifyHeading(query) ||
+          slugifyHeading(signature.headingPath.at(-1) ?? "") === slugifyHeading(query),
+      ).toBe(true);
+      const ranker = vi.fn((_query: string, candidates: readonly RankableSection[]) => {
+        const candidate = candidates.find(({ section }) => section === unrelated);
+        if (!candidate) throw new Error("expected alternative section offered to the ranker");
+        return Promise.resolve({ order: [candidate.id], abstained: false });
+      });
+
+      const result = await unifiedDocsPageResult(
+        { slug: "webhooks", query, locale: "en", source: "docs" },
+        { repo: repo([row(signature)]), embed: null, ranker },
+      );
+
+      expect(ranker).toHaveBeenCalledOnce();
+      expect(ranker).toHaveReturnedTimes(1);
+      await expect(ranker.mock.results[0].value).resolves.toEqual({ order: [expect.any(Number)], abstained: false });
+      expect((result as { text: string }).text.split("\n")[0]).toBe(`## ${signature.headingPath.at(-1)}`);
+      expect((result as { text: string }).text).toContain("X-Webhook-Signature");
+      expect((result as { text: string }).text).toContain("HMAC-SHA256(secret, rawRequestBody)");
+      expect(
+        (result as { structuredContent: { markdown: string } }).structuredContent.markdown.length,
+      ).toBeLessThanOrEqual(1_400);
+    },
+  );
+
   it("returns the section get_docs_page's re-rank prefers, and the page head when nothing matches", async () => {
     const last = webhooks.at(-1);
     if (!last) throw new Error("expected webhook sections");
-    const ranker = vi.fn((_query: string, candidates: readonly RankableSection[]) =>
-      Promise.resolve({ order: [candidates.findIndex((candidate) => candidate.section === last)], abstained: true }),
-    );
-    const page = { slug: "webhooks", query: "which events exist", locale: "en" as const, source: "docs" as const };
+    const ranker = vi.fn((_query: string, candidates: readonly RankableSection[]) => {
+      const candidate = candidates.find(({ section }) => section === last);
+      if (!candidate) throw new Error("expected preferred webhook section offered to the ranker");
+      return Promise.resolve({ order: [candidate.id], abstained: true });
+    });
+    const page = {
+      slug: "webhooks",
+      query: "which events are available",
+      locale: "en" as const,
+      source: "docs" as const,
+    };
+    const target = slugifyHeading(page.query);
+    expect(
+      webhooks.every(
+        (section) => section.anchor !== target && slugifyHeading(section.headingPath.at(-1) ?? "") !== target,
+      ),
+    ).toBe(true);
 
     const ranked = await unifiedDocsPageResult(page, { repo: repo([row(signature)]), embed: null, ranker });
     expect(typeof ranked === "object" && "structuredContent" in ranked && ranked.structuredContent).toMatchObject({
       excerpt: true,
     });
     expect((ranked as { text: string }).text.startsWith(`## ${last.headingPath.at(-1)}`)).toBe(true);
+    expect(ranker).toHaveBeenCalledOnce();
+    expect(ranker).toHaveBeenCalledWith(
+      page.query,
+      expect.arrayContaining([expect.objectContaining({ section: last })]),
+    );
 
-    const named = await unifiedDocsPageResult(page, { repo: repo([]), embed: null, ranker: undefined });
+    const named = await unifiedDocsPageResult(
+      { ...page, query: "which events exist" },
+      { repo: repo([]), embed: null, ranker: undefined },
+    );
     expect((named as { text: string }).text.startsWith("## Which events exist?")).toBe(true);
 
     const empty = await unifiedDocsPageResult(
