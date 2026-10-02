@@ -31,7 +31,7 @@ import {
   RecordQuerySchema,
   RecordOperationResultSchema,
 } from "@/features/records/record-query.schema";
-import { RecordQueryResultSchema } from "@/features/records/query-records.interactor";
+import { RecordQueryResultSchema } from "@/features/records/record-query-result.schema";
 import { RecordMeasureSchema, RecordMeasureResultSchema } from "@/features/records/record-measure.schema";
 import {
   RecordOperationInputSchema,

@@ -5,7 +5,7 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import type { RecordDto, RecordType } from "@/features/records/record-model.schema";
-import type { RecordQueryResult } from "@/features/records/query-records.interactor";
+import type { RecordQueryResult } from "@/features/records/record-query-result.schema";
 import { RecordQuerySchema } from "@/features/records/record-query.schema";
 import { RecordEditorStore } from "./record-editor.store";
 import { RecordValue } from "./record-value";

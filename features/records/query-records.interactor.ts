@@ -1,5 +1,5 @@
 import { recordChannelsEnabled } from "./record-channels";
-import { z } from "zod";
+import type { z } from "zod";
 
 import type { RecordRepo, StoredRecord } from "./record.repo";
 import type { RecordAccessPolicy } from "./record-access";
@@ -15,11 +15,11 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { fail, failAuthorization, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordQuerySchema } from "./record-query.schema";
-import { RecordDtoSchema, RecordRefSchema } from "./record-model.schema";
+import { RecordRefSchema } from "./record-model.schema";
 import { invalidRecordQueryPart } from "./record-query-validation";
 import { decodeRecordValue } from "./record-storage";
 import { recordWriteFailure } from "./mutate-record.interactor";
-import { RecordGroupingResultSchema } from "./record-grouping.schema";
+import type { RecordQueryResult } from "./record-query-result.schema";
 import { recordGroupableFields } from "./record-grouping";
 
 export function recordDto(
@@ -59,16 +59,6 @@ export function recordDto(
       })),
   };
 }
-
-export const RecordQueryResultSchema = z.object({
-  records: z.array(RecordDtoSchema),
-  total: z.number().int(),
-  page: z.number().int(),
-  pageSize: z.number().int(),
-  schemaRevision: z.number().int(),
-  grouping: RecordGroupingResultSchema.optional(),
-});
-export type RecordQueryResult = z.infer<typeof RecordQueryResultSchema>;
 
 @AllowInDemoMode
 @TenantInteractor()

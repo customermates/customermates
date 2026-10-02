@@ -2,7 +2,7 @@ import { writeFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
 import { test, expect } from "./fixtures";
-import { RecordQueryResultSchema } from "../../features/records/query-records.interactor";
+import { RecordQueryResultSchema } from "../../features/records/record-query-result.schema";
 
 test("keeps complete application reads, History and a blocked form draft while a high-fan-out update publishes", async ({
   page,

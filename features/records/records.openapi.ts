@@ -38,7 +38,7 @@ import { RecordModelSchema, RecordRefSchema, RecordDtoSchema } from "./record-mo
 import { GetModelSchema } from "./configure-records.interactor";
 import { ConfigurationContractSchema, ConfigurationPreviewSchema } from "./configuration.schema";
 import { RecordQuerySchema, MutateRecordSchema, RecordOperationResultSchema } from "./record-query.schema";
-import { RecordQueryResultSchema } from "./query-records.interactor";
+import { RecordQueryResultSchema } from "./record-query-result.schema";
 import { RecordMeasureSchema, RecordMeasureResultSchema } from "./record-measure.schema";
 import { RecordOperationInputSchema, RecordOperationStatusSchema } from "./record-operation.interactor";
 import { PreviewRecordDeletionSchema, RecordDeletionPreviewSchema } from "./preview-record-deletion.interactor";

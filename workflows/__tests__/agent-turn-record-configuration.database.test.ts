@@ -178,7 +178,7 @@ const { ConfigurationPreviewSchema } = await import("@/features/records/configur
 const { DiscoveredRecordTypesSchema } = await import("@/features/records/discover-record-types.interactor");
 const { RecordModelSchema, RecordDtoSchema } = await import("@/features/records/record-model.schema");
 const { RecordOperationResultSchema } = await import("@/features/records/record-query.schema");
-const { RecordQueryResultSchema } = await import("@/features/records/query-records.interactor");
+const { RecordQueryResultSchema } = await import("@/features/records/record-query-result.schema");
 const { runAgentTurn } = await import("@/workflows/agent-turn");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
