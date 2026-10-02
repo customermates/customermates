@@ -109,6 +109,18 @@ export type ReadWebsiteSourceInput = z.infer<typeof ReadWebsiteSourceSchema>;
 const SynthesisSectionSchema = z.object({
   heading: z.string().trim().min(1).max(120),
   content: z.string().trim().min(1).max(8_000),
+  evidence: z
+    .array(
+      z.object({
+        sourceId: z.uuid(),
+        quote: z.string().trim().min(1).max(2_000),
+      }),
+    )
+    .min(1)
+    .max(8)
+    .describe(
+      "Exact supporting passages for every factual claim and example in this section, copied from its own cited sourceIds. Preserve qualifications when translating or summarizing. Quotes remain private tool evidence and are not added to the saved page. Ground labelled recommendations in observed wording; keep unknown internal rules in gaps.",
+    ),
 });
 const SynthesisPageSchema = z.object({
   title: SynthesisTitleSchema,

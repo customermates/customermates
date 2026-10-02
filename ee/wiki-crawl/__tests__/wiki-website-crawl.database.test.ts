@@ -1005,13 +1005,14 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     ).rows as Array<{ id: string; url: string }>;
     const tool = createWikiFromCrawlTool("en", crawlId);
     const create = (pages: unknown[]) => runWithTenant(user, () => tool.execute({ action: "create", pages } as never));
+    const evidence = [{ sourceId: refund.id, quote: "Refunds within 30 days." }];
 
     const unknown = await create([
       {
         title: "Refunds",
         kind: "knowledge",
         gaps: [],
-        sections: [{ heading: "A", content: "B" }],
+        sections: [{ heading: "A", content: "B", evidence }],
         sourceIds: [randomUUID()],
       },
     ]);
@@ -1021,7 +1022,7 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
         title: "Refunds",
         kind: "knowledge",
         gaps: [],
-        sections: [{ heading: "A", content: "B" }],
+        sections: [{ heading: "A", content: "B", evidence }],
         sourceIds: [refund.id],
       },
     ]);
@@ -1035,6 +1036,39 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     }
     await runWithTenant(user, () => readWebsiteSourceTool(crawlId).execute({ action: "get", id: refund.id }));
 
+    const unsupported = await create([
+      {
+        title: "Grounded policy",
+        kind: "knowledge",
+        gaps: [],
+        sections: [{ heading: "Refunds", content: "Refunds within 30 days.", evidence }],
+        sourceIds: [refund.id],
+      },
+      {
+        title: "Unsupported guarantee",
+        kind: "knowledge",
+        gaps: [],
+        sections: [
+          {
+            heading: "Refunds",
+            content: "Refunds are always approved.",
+            evidence: [{ sourceId: refund.id, quote: "Refunds are always approved." }],
+          },
+        ],
+        sourceIds: [refund.id],
+      },
+    ]);
+    expect(unsupported).toMatchObject({
+      failure: {
+        kind: "validation",
+        issues: [expect.objectContaining({ customCode: "wikiSourceEvidenceInvalid" })],
+      },
+    });
+    expect(
+      (await client.query('SELECT "id" FROM "WikiPage" WHERE "companyId"=$1 AND "sourceUrl" IS NULL', [companyId]))
+        .rows,
+    ).toEqual([]);
+
     await create([
       {
         title: "Operating Guide",
@@ -1043,6 +1077,7 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
           {
             heading: "Routing",
             content: "- Refunds -> Refund procedure\\n- Other -> Support",
+            evidence,
           },
         ],
         sourceIds: [refund.id],
@@ -1057,6 +1092,7 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
           {
             heading: "Steps",
             content: "1. Check the plan.\n2. Refund within 30 days.",
+            evidence,
           },
         ],
         sourceIds: [refund.id],
@@ -1110,7 +1146,7 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
       title: `Summary ${index}`,
       kind: "knowledge",
       gaps: [],
-      sections: [{ heading: "A", content: "B" }],
+      sections: [{ heading: "A", content: "B", evidence }],
       sourceIds: [refund.id],
     }));
     for (let round = 0; round < 3; round += 1) {

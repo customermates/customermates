@@ -18,6 +18,8 @@ import { appLocaleOrDefault } from "@/i18n/locale-registry";
 
 import { wikiSourceCoverage } from "./wiki-source-coverage";
 import { wikiSynthesisSectionMarkdown } from "./wiki-synthesis-markdown";
+import { invalidWikiSynthesisEvidence } from "./wiki-synthesis-evidence";
+import { wikiSynthesisQuotedLanguageConflicts } from "./wiki-synthesis-language";
 import {
   CreateWikiPagesFromCrawlSchema,
   CreateWikiPagesFromCrawlResultSchema,
@@ -47,13 +49,16 @@ export class CreateWikiPagesFromCrawlInteractor extends AuthenticatedInteractor<
 
     const wrongLanguage = data.pages.some((page) => {
       const bodies = page.sections.map(({ content }) => content);
-      return [
-        ...bodies,
-        page.whenToUse ?? "",
-        page.sections.map(({ heading }) => heading).join("\n"),
-        [page.title, page.whenToUse, ...bodies].join("\n"),
-        page.gaps.join("\n"),
-      ].some((body) => wikiLanguageConflicts(body, targetLocale));
+      return (
+        wikiSynthesisQuotedLanguageConflicts(bodies, targetLocale) ||
+        [
+          ...bodies,
+          page.whenToUse ?? "",
+          page.sections.map(({ heading }) => heading).join("\n"),
+          [page.title, page.whenToUse, ...bodies].join("\n"),
+          page.gaps.join("\n"),
+        ].some((body) => wikiLanguageConflicts(body, targetLocale))
+      );
     });
     if (wrongLanguage) return fail(CustomErrorCode.wikiImportLanguageRequired, ["pages"], { locale: targetLocale });
 
@@ -84,6 +89,9 @@ export class CreateWikiPagesFromCrawlInteractor extends AuthenticatedInteractor<
       ),
     ];
     if (unread.length > 0) return fail(CustomErrorCode.wikiSourceCitationUnread, ["pages"], { ids: unread.join(", ") });
+
+    const invalidEvidence = invalidWikiSynthesisEvidence(data.pages, sources);
+    if (invalidEvidence) return fail(CustomErrorCode.wikiSourceEvidenceInvalid, invalidEvidence);
 
     const t = await getTranslator(targetLocale, "WikiSetup.generated");
     const pages = data.pages.map((page) => ({

@@ -27,7 +27,18 @@ const input = {
       title: "Refunds",
       kind: "knowledge" as const,
       gaps: [],
-      sections: [{ heading: "Annual plans", content: "Refunds within 30 days." }],
+      sections: [
+        {
+          heading: "Annual plans",
+          content: "Refunds within 30 days.",
+          evidence: [
+            {
+              sourceId: "00000000-0000-4000-8000-000000000002",
+              quote: "Refunds within 30 days.",
+            },
+          ],
+        },
+      ],
       sourceIds: ["00000000-0000-4000-8000-000000000002"],
     },
   ],

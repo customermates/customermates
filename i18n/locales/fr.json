@@ -1372,6 +1372,7 @@
       "wikiSourceCitationInvalid": "Citez uniquement les identifiants renvoyés par read_website_source. Rien n’a été modifié.",
       "wikiSourceCitationUnread": "Lisez chaque source citée entièrement avec read_website_source ; non lues : {ids}. Rien n’a été modifié.",
       "wikiSourceCoverageRequired": "Lisez toutes les sources restantes avec read_website_source action=next avant de créer des pages ou de relire des sources. Il reste {remainingSources} sources. Rien n’a été modifié.",
+      "wikiSourceEvidenceInvalid": "Chaque section doit contenir des passages justificatifs exacts provenant des sources du site citées sur cette page. Relisez les preuves et corrigez les citations ou les sources. Rien n’a été modifié.",
       "wikiSourceNotFound": "Identifiant de source inconnu. Appelez list d’abord.",
       "wikiSourcePlanAccountingInvalid": "Incluez chaque source une seule fois dans un groupe ou les exclusions, et jamais dans topics et excluded à la fois. Identifiants en double : [{duplicateSourceIds}]. Identifiants dans topics et excluded : [{overlappingSourceIds}]. Identifiants non pris en compte : [{missingSourceIds}]. Rien n’a été modifié.",
       "wikiSourcePlanIncomplete": "Envoie une liste topics et, avant de créer des pages, prends en compte chaque source enregistrée et chaque rôle de page requis dans un sujet étayé ou une omission justifiée. Identifiants de sources non pris en compte : [{missingSourceIds}]. Rôles manquants ou non valides : [{missingRoles}].",

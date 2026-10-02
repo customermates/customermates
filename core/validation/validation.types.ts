@@ -95,6 +95,7 @@ export enum CustomErrorCode {
   wikiImportLanguageRequired = "wikiImportLanguageRequired",
   wikiImportPageLimit = "wikiImportPageLimit",
   wikiSourceCitationInvalid = "wikiSourceCitationInvalid",
+  wikiSourceEvidenceInvalid = "wikiSourceEvidenceInvalid",
   wikiSourceCitationUnread = "wikiSourceCitationUnread",
   wikiImportTitleInvalid = "wikiImportTitleInvalid",
   wikiImportLinkInvalid = "wikiImportLinkInvalid",

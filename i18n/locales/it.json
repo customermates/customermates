@@ -1372,6 +1372,7 @@
       "wikiSourceCitationInvalid": "Cita solo gli ID restituiti da read_website_source. Non è stato modificato nulla.",
       "wikiSourceCitationUnread": "Leggi ogni fonte citata per intero con read_website_source; non lette: {ids}. Non è stato modificato nulla.",
       "wikiSourceCoverageRequired": "Leggi tutte le fonti rimanenti con read_website_source action=next prima di creare pagine o rileggere fonti. Restano {remainingSources} fonti. Non è stato modificato nulla.",
+      "wikiSourceEvidenceInvalid": "Ogni sezione richiede passaggi di supporto esatti dalle fonti del sito citate in questa pagina. Rileggi le prove e correggi le citazioni o le fonti. Non è stato modificato nulla.",
       "wikiSourceNotFound": "ID della fonte sconosciuto. Esegui prima list.",
       "wikiSourcePlanAccountingInvalid": "Includi ogni fonte una sola volta in un gruppo o nelle esclusioni, e mai contemporaneamente in topics ed excluded. ID duplicati: [{duplicateSourceIds}]. ID in topics ed excluded: [{overlappingSourceIds}]. ID non inclusi: [{missingSourceIds}]. Non è stato modificato nulla.",
       "wikiSourcePlanIncomplete": "Invia un elenco topics e, prima di creare le pagine, includi ogni fonte salvata e ogni ruolo di pagina richiesto in un argomento supportato o un’omissione motivata. ID delle fonti non incluse: [{missingSourceIds}]. Ruoli mancanti o non validi: [{missingRoles}].",

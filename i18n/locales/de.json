@@ -1372,6 +1372,7 @@
       "wikiSourceCitationInvalid": "Zitiere nur IDs aus read_website_source. Es wurde nichts geändert.",
       "wikiSourceCitationUnread": "Lies jede zitierte Quelle vollständig mit read_website_source; ungelesen: {ids}. Es wurde nichts geändert.",
       "wikiSourceCoverageRequired": "Lies alle verbleibenden Quellen mit read_website_source action=next, bevor du Seiten erstellst oder Quellen erneut liest. {remainingSources} Quellen sind noch offen. Es wurde nichts geändert.",
+      "wikiSourceEvidenceInvalid": "Jeder Abschnitt benötigt genaue Belegstellen aus den zitierten Website-Quellen dieser Seite. Lies die Belege erneut und korrigiere die Zitate oder Quellen. Es wurde nichts geändert.",
       "wikiSourceNotFound": "Unbekannte Quellen-ID. Rufe zuerst list auf.",
       "wikiSourcePlanAccountingInvalid": "Führe jede Quelle innerhalb einer Gruppe oder der Ausschlüsse nur einmal auf und niemals sowohl in topics als auch in excluded. Doppelte Quellen-IDs: [{duplicateSourceIds}]. IDs in topics und excluded: [{overlappingSourceIds}]. Nicht berücksichtigte Quellen-IDs: [{missingSourceIds}]. Es wurde nichts geändert.",
       "wikiSourcePlanIncomplete": "Sende eine topics-Liste und berücksichtige vor dem Erstellen der Seiten jede gespeicherte Quelle und jede erforderliche Seitenrolle mit einem belegten Thema oder einer begründeten Auslassung. Nicht berücksichtigte Quellen-IDs: [{missingSourceIds}]. Fehlende oder ungültige Rollen: [{missingRoles}].",

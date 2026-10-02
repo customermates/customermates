@@ -71,11 +71,11 @@ const omittedFoundations = WIKI_SYNTHESIS_FOUNDATION_ROLES.map((role) => ({
   role,
   reason: "No usable company evidence",
 }));
-const page = (content: string, kind: "knowledge" | "guide" = "knowledge") => ({
+const page = (content: string, kind: "knowledge" | "guide" = "knowledge", quote = GERMAN) => ({
   title: "Company",
   kind,
   gaps: [] as string[],
-  sections: [{ heading: "Support", content }],
+  sections: [{ heading: "Support", content, evidence: [{ sourceId: SOURCE_ID, quote }] }],
   sourceIds: [SOURCE_ID],
 });
 
@@ -110,6 +110,161 @@ beforeEach(() => {
 });
 
 describe("single language Wiki synthesis", () => {
+  it.each([undefined, []])("refuses a section without supporting evidence (%j)", async (evidence) => {
+    const value = {
+      ...page(ENGLISH),
+      sections: [{ heading: "Support", content: ENGLISH, evidence }],
+    };
+    const result = await createWikiFromCrawlTool("en", "00000000-0000-4000-8000-00000000c001").execute({
+      action: "create",
+      pages: [value] as never,
+    });
+    expect(result).toMatchObject({ failure: { kind: "validation" } });
+    expect(harness.create).not.toHaveBeenCalled();
+  });
+
+  it("validates all page evidence before writing any member of a batch", async () => {
+    const valid = page(ENGLISH);
+    const invalid = page(ENGLISH);
+    invalid.sections[0].evidence[0].quote = "Refunds are always approved automatically.";
+    const result = await createWikiFromCrawlTool("en", "00000000-0000-4000-8000-00000000c001").execute({
+      action: "create",
+      pages: [valid, invalid],
+    });
+    expect(result).toMatchObject({
+      failure: {
+        kind: "validation",
+        issues: [
+          expect.objectContaining({
+            path: ["pages", 1, "sections", 0, "evidence", 0],
+          }),
+        ],
+      },
+    });
+    expect(harness.create).not.toHaveBeenCalled();
+  });
+
+  it("accepts English synthesis from German evidence without saving the raw quotations", async () => {
+    await createWikiFromCrawlTool("en", "00000000-0000-4000-8000-00000000c001").execute({
+      action: "create",
+      pages: [page(ENGLISH)],
+    });
+    expect(harness.create).toHaveBeenCalledOnce();
+    const markdown = harness.create.mock.calls[0][0].pages[0].markdown;
+    expect(markdown).toContain(ENGLISH);
+    expect(markdown).not.toContain(GERMAN);
+    expect(markdown).not.toContain("evidence");
+  });
+
+  it("preserves product names and technical identifiers in German synthesis", async () => {
+    harness.crawl.mockResolvedValue({
+      locale: "de",
+      mode: "initial",
+      startedAt: new Date(),
+    });
+    const content = `${GERMAN}\n\n"SAP Analytics Cloud", "Microsoft Dynamics 365", "Minimum Viable Product", "ABAP Stack", "REST API".`;
+    await createWikiFromCrawlTool("de", "00000000-0000-4000-8000-00000000c001").execute({
+      action: "create",
+      pages: [page(content)],
+    });
+    expect(harness.create).toHaveBeenCalledOnce();
+  });
+
+  it("excludes code examples and link destinations from quoted-prose language checks", async () => {
+    const content = `${ENGLISH}\n\n\`"${GERMAN}"\`\n\n\`\`\`text\n"${GERMAN}"\n\`\`\`\n\n[Support](https://example.com/"${encodeURIComponent(GERMAN)}")`;
+    await createWikiFromCrawlTool("en", "00000000-0000-4000-8000-00000000c001").execute({
+      action: "create",
+      pages: [page(content)],
+    });
+    expect(harness.create).toHaveBeenCalledOnce();
+  });
+
+  it.each(["fabricated_quote", "other_source", "uncited_source"])(
+    "refuses %s section evidence before persisting a generated page",
+    async (kind) => {
+      const otherId = "00000000-0000-4000-8000-000000000002";
+      const sources = await harness.sources();
+      harness.sources.mockResolvedValue([
+        ...sources,
+        {
+          ...sources[0],
+          id: otherId,
+          text: ENGLISH,
+          contentHash: "english-source",
+          readOffset: ENGLISH.length,
+        },
+      ]);
+      const value = {
+        ...page(ENGLISH),
+        sections: [
+          {
+            heading: "Support",
+            content: ENGLISH,
+            evidence: [
+              {
+                sourceId: kind === "uncited_source" ? otherId : SOURCE_ID,
+                quote: kind === "fabricated_quote" ? "Every request receives an unconditional refund." : ENGLISH,
+              },
+            ],
+          },
+        ],
+      };
+      const result = await createWikiFromCrawlTool("en", "00000000-0000-4000-8000-00000000c001").execute({
+        action: "create",
+        pages: [value],
+      });
+      expect(result).toMatchObject({
+        failure: {
+          kind: "validation",
+          issues: [
+            expect.objectContaining({
+              customCode: "wikiSourceEvidenceInvalid",
+            }),
+          ],
+        },
+      });
+      expect(harness.create).not.toHaveBeenCalled();
+    },
+  );
+
+  it("refuses untranslated prose examples concealed by a mostly English page", async () => {
+    const content = `${ENGLISH}\n\n${ENGLISH}\n\nExamples: "${GERMAN}"`;
+    const result = await createWikiFromCrawlTool("en", "00000000-0000-4000-8000-00000000c001").execute({
+      action: "create",
+      pages: [page(content)],
+    });
+    expect(result).toMatchObject({
+      failure: {
+        kind: "validation",
+        issues: [expect.objectContaining({ customCode: "wikiImportLanguageRequired" })],
+      },
+    });
+    expect(harness.create).not.toHaveBeenCalled();
+  });
+
+  it.each(["emphasis", "link", "softbreak"])("checks quoted prose containing Markdown %s", async (format) => {
+    const quotation = GERMAN.replace(
+      "Vertrag",
+      format === "emphasis" ? "**Vertrag**" : format === "link" ? "[Vertrag](https://example.com)" : "Vertrag\n",
+    );
+    const content = `${ENGLISH}\n\n${ENGLISH}\n\nExample: “${quotation}”`;
+    const result = await createWikiFromCrawlTool("en", "00000000-0000-4000-8000-00000000c001").execute({
+      action: "create",
+      pages: [page(content)],
+    });
+    expect(result).toMatchObject({
+      failure: {
+        kind: "validation",
+        issues: [
+          expect.objectContaining({
+            customCode: "wikiImportLanguageRequired",
+          }),
+        ],
+      },
+    });
+    expect(harness.create).not.toHaveBeenCalled();
+  });
+
   it("explains overlapping accounting and missing sources without claiming a known id is unknown", async () => {
     const sources = await harness.sources();
     const missing = "00000000-0000-4000-8000-000000000002";
@@ -297,9 +452,18 @@ describe("single language Wiki synthesis", () => {
     const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({
       action: "plan",
       topics: foundations,
-      excluded: [{ sourceIds: [otherId], basis: "already_imported", reason: "Already saved unchanged." }],
+      excluded: [
+        {
+          sourceIds: [otherId],
+          basis: "already_imported",
+          reason: "Already saved unchanged.",
+        },
+      ],
     });
-    expect(structured(result)).toMatchObject({ topicPlan: foundations, importedSources: 1 });
+    expect(structured(result)).toMatchObject({
+      topicPlan: foundations,
+      importedSources: 1,
+    });
     expect(harness.advance).not.toHaveBeenCalled();
   });
 
@@ -695,7 +859,7 @@ describe("single language Wiki synthesis", () => {
   );
 
   it.each(["content", "heading", "gap"])("rejects placeholder page links in generated %s", async (field) => {
-    const value = { ...page(ENGLISH), sections: [{ heading: "Support", content: ENGLISH }], gaps: [] as string[] };
+    const value = { ...page(ENGLISH), gaps: [] as string[] };
     const invalid = "[Support](/wiki?page=...)";
     if (field === "content") value.sections[0].content = `${ENGLISH}\\n\\n${invalid}`;
     if (field === "heading") value.sections[0].heading = invalid;
@@ -795,7 +959,10 @@ describe("single language Wiki synthesis", () => {
     );
     const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({ action: "next" });
     expect(structured(result)).toMatchObject({
-      createdPageLinks: created.map(({ id, title }) => ({ title, path: `/wiki?page=${id}` })),
+      createdPageLinks: created.map(({ id, title }) => ({
+        title,
+        path: `/wiki?page=${id}`,
+      })),
     });
     const encoded = encodeToToon(structured(result));
     expect(new TextEncoder().encode(JSON.stringify(encoded)).byteLength).toBeLessThanOrEqual(
@@ -859,7 +1026,11 @@ describe("single language Wiki synthesis", () => {
 
   it("rejects a foreign section hidden inside otherwise target-language content", async () => {
     const value = page(ENGLISH);
-    value.sections.push({ heading: "Details", content: GERMAN });
+    value.sections.push({
+      heading: "Details",
+      content: GERMAN,
+      evidence: [{ sourceId: SOURCE_ID, quote: GERMAN }],
+    });
     await createWikiFromCrawlTool("en", "00000000-0000-4000-8000-00000000c001").execute({
       action: "create",
       pages: [value],
@@ -1071,7 +1242,7 @@ describe("complete stored source coverage", () => {
     await tool.execute({ action: "next" });
     await createWikiFromCrawlTool("en", "00000000-0000-4000-8000-00000000c001").execute({
       action: "create",
-      pages: [page(ENGLISH)],
+      pages: [page(ENGLISH, "knowledge", ENGLISH)],
     });
     expect(harness.create).toHaveBeenCalledOnce();
   });
