@@ -53,6 +53,11 @@ export interface RecordRepo {
   getIdentitiesCompanyWide(ref: RecordRef): Promise<RecordIdentity[]>;
   getRecordIdentitiesCompanyWide(typeId: string, recordIds: string[]): Promise<Map<string, RecordIdentity[]>>;
   getIdentityChannelsCompanyWide(keys: Array<{ channelClass: string; value: string }>): Promise<RecordIdentity[]>;
+  getStagedIdentityChannelsCompanyWide(
+    operationId: string,
+    keys: Array<{ channelClass: string; value: string }>,
+  ): Promise<RecordIdentity[]>;
+  stageIdentityChannelsCompanyWide(operationId: string, identities: RecordIdentity[]): Promise<void>;
   getIdentityOwnersCompanyWide(keys: Array<{ channelClass: string; value: string }>): Promise<
     Array<{
       channelClass: string;

@@ -5375,6 +5375,226 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect((await f.readRecord(ref)).identities).toEqual([]);
   });
 
+  it("shares one indexed channel across types, hides restricted associations, and retains the identity after unlinking", async () => {
+    const f = await fixture();
+    const organizationTypeId = f.id("organization");
+    const binding = {
+      id: randomUUID(),
+      kind: "channels" as const,
+      typeId: organizationTypeId,
+      fields: [],
+      enabled: true,
+    };
+    expect(
+      await f.run(() =>
+        f.configure.invoke({
+          expectedRevision: 1,
+          idempotencyKey: randomUUID(),
+          operations: [{ operation: "putCapability", capability: binding }],
+        }),
+      ),
+    ).toMatchObject({ ok: true, data: { schemaRevision: 2 } });
+    const make = async (typeId: string, provider: "mail" | "outlook", displayName: string) => {
+      const result = await f.mutation(
+        { action: "create", typeId, fields: [], identities: [{ provider, value: "shared@example.test", displayName }] },
+        f.admin,
+        randomUUID(),
+        2,
+      );
+      if (!result.ok || result.data.status !== "completed") throw new Error("Shared channel fixture failed");
+      return recordInvariant(result.data.refs.find((ref) => ref.typeId === typeId));
+    };
+    const contact = await make(f.id("contact"), "mail", "Original identity");
+    const organization = await make(organizationTypeId, "outlook", "Must not overwrite");
+    const contactIdentity = recordInvariant((await f.readRecord(contact)).identities?.[0]);
+    expect((await f.readRecord(organization)).identities?.[0]).toEqual(contactIdentity);
+    expect(contactIdentity.displayName).toBe("Original identity");
+    const reader = new RecordIdentityReader(f.repo, f.policy);
+    const resolve = (as = f.admin) =>
+      f.run(() => reader.resolve([{ provider: "google", value: "SHARED@example.test" }]), as);
+    expect((await resolve())[0].records.map((record) => record.ref)).toEqual(
+      expect.arrayContaining([contact, organization]),
+    );
+    await f.run(() =>
+      runInTransaction(async () => {
+        await f.repo.setGrants(contact.typeId, [{ roleId: f.memberRole.id, actions: ["readOwn"] }]);
+        await f.repo.setAssignments(contact, [f.member.id]);
+      }),
+    );
+    expect((await resolve(f.member))[0].records.map((record) => record.ref)).toEqual([contact]);
+    const unlink = async (ref: RecordRef) => {
+      expect(
+        await f.mutation(
+          { action: "update", ref, expectedVersion: (await f.readRecord(ref)).version, fields: [], identities: [] },
+          f.admin,
+          randomUUID(),
+          2,
+        ),
+      ).toMatchObject({ ok: true });
+    };
+    await unlink(contact);
+    expect((await resolve())[0].records.map((record) => record.ref)).toEqual([organization]);
+    await unlink(organization);
+    expect((await resolve())[0].records).toEqual([]);
+    const retained = await f.run(() =>
+      f.repo.getIdentityChannelsCompanyWide([{ channelClass: "email", value: "shared@example.test" }]),
+    );
+    expect(retained.map((identity) => identity.id)).toEqual([contactIdentity.id]);
+    expect(
+      await f.mutation(
+        {
+          action: "update",
+          ref: contact,
+          expectedVersion: (await f.readRecord(contact)).version,
+          fields: [],
+          identities: [{ provider: "outlook", value: "shared@example.test" }],
+        },
+        f.admin,
+        randomUUID(),
+        2,
+      ),
+    ).toMatchObject({ ok: true });
+    expect((await f.readRecord(contact)).identities?.[0]?.id).toBe(contactIdentity.id);
+    expect(
+      await f.mutation(
+        { action: "delete", ref: contact, expectedVersion: (await f.readRecord(contact)).version },
+        f.admin,
+        randomUUID(),
+        2,
+      ),
+    ).toMatchObject({ ok: true });
+    expect((await resolve())[0].records).toEqual([]);
+    expect(
+      (
+        await f.run(() =>
+          f.repo.getIdentityChannelsCompanyWide([{ channelClass: "email", value: "shared@example.test" }]),
+        )
+      )[0]?.id,
+    ).toBe(contactIdentity.id);
+  });
+
+  it("lets schema managers enable Channels without granting record access and preserves associations across disabling", async () => {
+    const f = await fixture();
+    const typeId = f.id("organization");
+    const capability = { id: randomUUID(), kind: "channels" as const, typeId, fields: [], enabled: true };
+    const change = (revision: number, enabled: boolean): ConfigurationChange => ({
+      expectedRevision: revision,
+      idempotencyKey: randomUUID(),
+      operations: [{ operation: "putCapability", capability: { ...capability, enabled } }],
+    });
+    expect(await f.run(() => f.configure.invoke(change(1, true)), f.member)).toMatchObject({ ok: false });
+    await runWithoutTenant(() =>
+      prisma.rolePermission.create({
+        data: { companyId: f.company.id, roleId: f.memberRole.id, resource: "dataModel", action: "update" },
+      }),
+    );
+    expect(await f.run(() => f.configure.invoke(change(1, true)), f.member)).toMatchObject({
+      ok: true,
+      data: { schemaRevision: 2 },
+    });
+    const result = await f.mutation(
+      { action: "create", typeId, fields: [], identities: [{ provider: "mail", value: "disabled@example.test" }] },
+      f.admin,
+      randomUUID(),
+      2,
+    );
+    if (!result.ok || result.data.status !== "completed") throw new Error("Disabled channel fixture failed");
+    const ref = recordInvariant(result.data.refs.find((ref) => ref.typeId === typeId));
+    const identityId = (await f.readRecord(ref)).identities?.[0]?.id;
+    const reader = new RecordIdentityReader(f.repo, f.policy);
+    const resolve = (as = f.admin) =>
+      f.run(() => reader.resolve([{ provider: "mail", value: "disabled@example.test" }]), as);
+    expect((await resolve(f.member))[0].records).toEqual([]);
+    expect(await f.run(() => f.configure.invoke(change(2, false)), f.member)).toMatchObject({
+      ok: true,
+      data: { schemaRevision: 3 },
+    });
+    expect((await resolve())[0].records).toEqual([]);
+    expect((await f.readRecord(ref)).identities).toBeUndefined();
+    expect((await f.run(() => f.repo.getIdentitiesCompanyWide(ref)))[0]?.id).toBe(identityId);
+    expect(
+      await f.mutation(
+        { action: "update", ref, expectedVersion: (await f.readRecord(ref)).version, fields: [], identities: [] },
+        f.admin,
+        randomUUID(),
+        3,
+      ),
+    ).toMatchObject({ ok: false });
+    expect(await f.run(() => f.configure.invoke(change(3, true)), f.member)).toMatchObject({
+      ok: true,
+      data: { schemaRevision: 4 },
+    });
+    expect((await resolve())[0].records[0]?.ref).toEqual(ref);
+    expect((await f.readRecord(ref)).identities?.[0]?.id).toBe(identityId);
+    expect((await f.run(() => f.repo.getModel())).activityPaths).toEqual(
+      expect.arrayContaining([expect.objectContaining({ typeId, path: [], includeMessages: true })]),
+    );
+    const membership = recordInvariant(
+      f.model.capabilities.find((binding) => binding.kind === "membershipAuthorization"),
+    );
+    expect(
+      await f.run(
+        () =>
+          f.configure.invoke({
+            expectedRevision: 4,
+            idempotencyKey: randomUUID(),
+            operations: [{ operation: "putCapability", capability: { ...membership, fields: [] } }],
+          }),
+        f.member,
+      ),
+    ).toMatchObject({ ok: false });
+  });
+
+  it("stages shared identities once and publishes both associations together without rewriting registered metadata", async () => {
+    const { createRecordStagingRepo } = await import("../record-staging.repository");
+    const f = await fixture();
+    const first = { typeId: f.id("contact"), recordId: randomUUID() };
+    const second = { typeId: first.typeId, recordId: randomUUID() };
+    const operationId = randomUUID();
+    await f.run(() =>
+      runInTransaction(async () => {
+        await f.repo.create(first, []);
+        await f.repo.create(second, []);
+        await f.repo.createOperation({
+          id: operationId,
+          userId: f.admin.id,
+          kind: "mutation",
+          expectedRevision: 1,
+          request: {},
+        });
+      }),
+    );
+    const staged = createRecordStagingRepo(f.repo, operationId, f.company.id);
+    await f.run(() =>
+      runInTransaction(async () => {
+        await staged.setIdentities(first, [
+          { provider: "linkedin", value: "shared", messagingId: "urn:shared", displayName: "Registered name" },
+        ]);
+        await staged.setIdentities(second, [
+          { provider: "linkedin", value: "urn:shared", displayName: "Overwrite attempt" },
+        ]);
+      }),
+    );
+    const canonical = recordInvariant((await f.run(() => staged.getIdentitiesCompanyWide(first)))[0]);
+    expect((await f.run(() => staged.getIdentitiesCompanyWide(second)))[0]).toEqual(canonical);
+    expect(await f.run(() => f.repo.getIdentitiesCompanyWide(first))).toEqual([]);
+    expect(await f.run(() => f.repo.getIdentitiesCompanyWide(second))).toEqual([]);
+    await f.run(() =>
+      runInTransaction(async () => {
+        await f.repo.publishStage(operationId, 1);
+        await f.repo.updateOperation(operationId, { state: "completed" });
+        await f.repo.clearOperationLock(operationId);
+      }),
+    );
+    expect((await f.readRecord(first)).identities?.[0]).toMatchObject(canonical);
+    expect((await f.readRecord(second)).identities?.[0]).toMatchObject(canonical);
+    const owners = await f.run(() =>
+      f.repo.getIdentityOwnersCompanyWide([{ channelClass: "linkedin", value: "urn:shared" }]),
+    );
+    expect(owners.map((owner) => owner.ref)).toEqual(expect.arrayContaining([first, second]));
+    expect(new Set(owners.map((owner) => owner.identityId))).toEqual(new Set([canonical.id]));
+  });
+
   it("preserves personal detail choices across shared defaults and resets to future defaults", async () => {
     const f = await fixture();
     const type = recordInvariant(f.model.types.find((type) => type.id === f.id("organization")));

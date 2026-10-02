@@ -42,16 +42,18 @@ function fixture() {
     errorCode: null,
   })) as RecordSearchRow[];
   const repo = {
-    getModel: vi.fn(async () => model),
-    getIdentityOwnersCompanyWide: vi.fn(async () => owners),
-    searchRecords: vi.fn(async () => rows),
-  } as unknown as RecordRepo;
+    getModel: vi.fn(() => Promise.resolve(model)),
+    getIdentityOwnersCompanyWide: vi.fn(() => Promise.resolve(owners)),
+    searchRecords: vi.fn(() => Promise.resolve(rows)),
+  };
   const policy = {
-    load: vi.fn(async () => ({
-      actor: { id: "actor" },
-      access: () => new Map(),
-      allowed: () => true,
-    })),
+    load: vi.fn(() =>
+      Promise.resolve({
+        actor: { id: "actor" },
+        access: () => new Map(),
+        allowed: () => true,
+      }),
+    ),
   } as unknown as RecordAccessPolicy;
   return {
     model,
@@ -61,7 +63,7 @@ function fixture() {
     owners,
     rows,
     repo,
-    reader: new RecordIdentityReader(repo, policy),
+    reader: new RecordIdentityReader(repo as unknown as RecordRepo, policy),
   };
 }
 

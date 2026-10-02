@@ -80,14 +80,7 @@ export function createRecordStagingRepo(base: RecordRepo, operationId: string, c
   };
   overrides.getIdentityChannelsCompanyWide = async (keys) => {
     const found = new Map((await base.getIdentityChannelsCompanyWide(keys)).map((row) => [row.id, row]));
-    const requested = new Set(keys.map((key) => JSON.stringify([key.channelClass, key.value])));
-    for (const entry of await base.getStageRows(operationId, "identity")) {
-      const rows = z.object({ identities: z.array(RecordIdentitySchema) }).parse(entry.payload).identities;
-      for (const row of rows) {
-        if (identityKeys(row).some((value) => requested.has(JSON.stringify([row.channelClass, value]))))
-          found.set(row.id, row);
-      }
-    }
+    for (const row of await base.getStagedIdentityChannelsCompanyWide(operationId, keys)) found.set(row.id, row);
     return [...found.values()];
   };
   overrides.setIdentities = async (ref, inputs) => {
@@ -97,10 +90,9 @@ export function createRecordStagingRepo(base: RecordRepo, operationId: string, c
         value,
       })),
     );
-    await base.stageRow(operationId, "identity", recordKey(ref), {
-      ref,
-      identities: identityAssociations(inputs, await staged.getIdentityChannelsCompanyWide(keys)),
-    });
+    const identities = identityAssociations(inputs, await staged.getIdentityChannelsCompanyWide(keys));
+    await base.stageIdentityChannelsCompanyWide(operationId, identities);
+    await base.stageRow(operationId, "identity", recordKey(ref), { ref, identities });
   };
   overrides.getRecordCompanyWide = async (ref) => {
     const [record, overlay, values] = await Promise.all([

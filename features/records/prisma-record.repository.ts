@@ -140,6 +140,43 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
     return rows.map((row) => this.identityDto(row));
   }
 
+  async getStagedIdentityChannelsCompanyWide(
+    operationId: string,
+    keys: Array<{ channelClass: string; value: string }>,
+  ) {
+    if (!keys.length) return [];
+    const rows = await this.prisma.recordStageRow.findMany({
+      where: {
+        companyId: this.companyId,
+        operationId,
+        kind: "identity-key",
+        key: { in: keys.map((key) => `${key.channelClass}:${key.value}`) },
+      },
+      select: { payload: true },
+    });
+    return [
+      ...new Map(
+        rows.map((row) => {
+          const identity = RecordIdentitySchema.parse(row.payload);
+          return [identity.id, identity] as const;
+        }),
+      ).values(),
+    ];
+  }
+
+  async stageIdentityChannelsCompanyWide(operationId: string, identities: RecordIdentity[]): Promise<void> {
+    if (!identities.length) return;
+    await this.prisma.$executeRaw(Prisma.sql`
+      INSERT INTO "RecordStageRow" ("companyId", "operationId", kind, key, payload)
+      SELECT DISTINCT ${this.companyId}, ${operationId}, 'identity-key', item.data->>'channelClass' || ':' || alias.value, item.data
+      FROM jsonb_array_elements(${JSON.stringify(identities)}::jsonb) item(data)
+      CROSS JOIN LATERAL (SELECT DISTINCT value FROM (
+        SELECT item.data->>'value' AS value UNION SELECT item.data->>'messagingId'
+        UNION SELECT jsonb_array_elements_text(COALESCE(item.data->'aliases', '[]'::jsonb))) aliases WHERE value IS NOT NULL) alias
+      ON CONFLICT ("companyId", "operationId", kind, key) DO NOTHING
+    `);
+  }
+
   async getIdentityOwnersCompanyWide(keys: Array<{ channelClass: string; value: string }>) {
     if (!keys.length) return [];
     const rows = await this.prisma.recordIdentityKey.findMany({

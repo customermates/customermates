@@ -38,7 +38,7 @@ CREATE TABLE "MessagingThreadRecordLink" (
   CONSTRAINT "MessagingThreadRecordLink_companyId_threadId_fkey" FOREIGN KEY ("companyId", "threadId") REFERENCES "MessagingThread"("companyId", id) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT "MessagingThreadRecordLink_companyId_typeId_recordId_fkey" FOREIGN KEY ("companyId", "typeId", "recordId") REFERENCES "CrmRecord"("companyId", "typeId", id) ON DELETE CASCADE ON UPDATE CASCADE
 );
-CREATE INDEX "MessagingThreadRecordLink_companyId_typeId_recordId_threadId_idx" ON "MessagingThreadRecordLink"("companyId", "typeId", "recordId", "threadId");
+CREATE INDEX "MessagingThreadRecordLink_companyId_typeId_recordId_threadI_idx" ON "MessagingThreadRecordLink"("companyId", "typeId", "recordId", "threadId");
 WITH updated AS (
   SELECT state."companyId", state.revision + 1 AS revision,
     jsonb_set(jsonb_set(revision.snapshot, '{capabilities}',
