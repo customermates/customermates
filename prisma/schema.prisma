@@ -1017,7 +1017,9 @@ model MessagingThread {
   updatedAt           DateTime                     @updatedAt
   messages            MessagingMessage[]
   participants        MessagingThreadParticipant[]
+  recordLinks         MessagingThreadRecordLink[]
 
+  @@unique([companyId, id])
   @@unique([connectedAccountId, unipileThreadId])
   @@index([companyId])
   @@index([companyId, state])
@@ -1701,7 +1703,8 @@ model CrmRecord {
   outgoing      RecordLink[]         @relation("RecordLinkSource")
   incoming      RecordLink[]         @relation("RecordLinkTarget")
   assignments   RecordAssignment[]
-  identities    RecordIdentity[]
+  identities    RecordIdentityLink[]
+  threads       MessagingThreadRecordLink[]
 
   @@id([companyId, typeId, id])
   @@index([companyId, typeId, createdAt, id])
@@ -1711,8 +1714,6 @@ model CrmRecord {
 model RecordIdentity {
   companyId    String
   id           String              @default(uuid())
-  typeId       String
-  recordId     String
   provider     MessagingProvider
   channelClass String
   value        String
@@ -1722,12 +1723,37 @@ model RecordIdentity {
   createdAt    DateTime            @default(now())
   updatedAt    DateTime            @updatedAt
   company      Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  record       CrmRecord           @relation(fields: [companyId, typeId, recordId], references: [companyId, typeId, id], onDelete: Cascade)
   keys         RecordIdentityKey[]
+  records      RecordIdentityLink[]
 
   @@id([companyId, id])
   @@unique([companyId, id, channelClass])
+}
+
+model RecordIdentityLink {
+  companyId  String
+  identityId String
+  typeId     String
+  recordId   String
+  createdAt  DateTime        @default(now())
+  identity   RecordIdentity @relation(fields: [companyId, identityId], references: [companyId, id], onDelete: Cascade)
+  record     CrmRecord      @relation(fields: [companyId, typeId, recordId], references: [companyId, typeId, id], onDelete: Cascade)
+
+  @@id([companyId, identityId, typeId, recordId])
   @@index([companyId, typeId, recordId])
+}
+
+model MessagingThreadRecordLink {
+  companyId String
+  threadId  String
+  typeId    String
+  recordId  String
+  createdAt DateTime        @default(now())
+  thread    MessagingThread @relation(fields: [companyId, threadId], references: [companyId, id], onDelete: Cascade)
+  record    CrmRecord       @relation(fields: [companyId, typeId, recordId], references: [companyId, typeId, id], onDelete: Cascade)
+
+  @@id([companyId, threadId, typeId, recordId])
+  @@index([companyId, typeId, recordId, threadId])
 }
 
 model RecordIdentityKey {

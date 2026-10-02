@@ -377,7 +377,8 @@ export const RecordAccessPresetSchema = z
 export const RecordCapabilitySchema = z
   .object({
     id: z.uuid(),
-    kind: z.enum(["personIdentity", "membershipAuthorization", "avatar", "calendar"]),
+    kind: z.enum(["channels", "membershipAuthorization", "avatar", "calendar"]),
+    enabled: z.boolean().optional(),
     typeId: z.uuid(),
     fields: z.array(
       z

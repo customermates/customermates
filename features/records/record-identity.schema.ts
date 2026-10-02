@@ -17,6 +17,7 @@ export type RecordIdentityInput = z.infer<typeof RecordIdentityInputSchema>;
 
 export const RecordIdentitySchema = RecordIdentityInputSchema.extend({
   id: z.uuid(),
+  aliases: z.array(z.string()).optional(),
   channelClass: z.string(),
   messagingId: z.string().nullable(),
   displayName: z.string().nullable(),
@@ -30,5 +31,5 @@ export const RecordIdentityInputsSchema = z
   .array(RecordIdentityInputSchema)
   .max(100)
   .describe(
-    "Replaces identity channels on a person-identity bound type. Omit to preserve; [] clears. Ordinary email fields are separate.",
+    "Replaces this record's channel associations on a channels-enabled type. Omit to preserve; [] unlinks this record. Existing shared identities remain unchanged. Ordinary email fields are separate.",
   );
