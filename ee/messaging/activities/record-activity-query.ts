@@ -35,12 +35,23 @@ export function compileRecordActivityScope(
   const branches = paths
     .map((path, branch) => {
       let typeId = path.typeId;
-      let current = Prisma.raw(`activity_root_${branch}`);
-      const root = current;
-      const joins: Prisma.Sql[] = [];
+      const root = Prisma.raw(`activity_root_${branch}`);
+      let current = Prisma.raw(`activity_frontier_${branch}_0`);
       const allowed = (typeId: string, record: Prisma.Sql) =>
         recordReadPredicate(companyId, access.get(typeId) ?? { access: "none", userId }, record);
-      const predicates = [allowed(typeId, current)];
+      const ids = scope.records.filter((ref) => ref.typeId === path.typeId).map((ref) => ref.recordId);
+      const rootSelection =
+        !restricted || scope.typeIds.includes(path.typeId)
+          ? Prisma.sql`TRUE`
+          : ids.length
+            ? Prisma.sql`${root}.id IN (${Prisma.join(ids)})`
+            : Prisma.sql`FALSE`;
+      const frontiers = [
+        Prisma.sql`${current} AS MATERIALIZED (
+        SELECT ${root}."typeId", ${root}.id FROM "CrmRecord" ${root}
+        WHERE ${root}."companyId" = ${companyId} AND ${root}."typeId" = ${path.typeId}
+        AND ${rootSelection} AND ${allowed(typeId, root)})`,
+      ];
       for (const [index, step] of path.path.entries()) {
         const relationship = model.relationships.find(
           (relation) => relation.id === step.relationId && !relation.archived,
@@ -52,24 +63,24 @@ export function compileRecordActivityScope(
         if (!model.types.some((type) => type.id === typeId && !type.archived)) return null;
         const target = Prisma.raw(`activity_target_${branch}_${index}`);
         const link = Prisma.raw(`activity_link_${branch}_${index}`);
+        const next = Prisma.raw(`activity_frontier_${branch}_${index + 1}`);
         const sourceColumn = outgoing ? Prisma.sql`${link}."sourceId"` : Prisma.sql`${link}."targetId"`;
         const targetColumn = outgoing ? Prisma.sql`${link}."targetId"` : Prisma.sql`${link}."sourceId"`;
-        joins.push(Prisma.sql`JOIN "RecordLink" ${link} ON ${link}."companyId" = ${companyId} AND ${link}."relationId" = ${step.relationId} AND ${sourceColumn} = ${current}.id
-        JOIN "CrmRecord" ${target} ON ${target}."companyId" = ${companyId} AND ${target}."typeId" = ${typeId} AND ${target}.id = ${targetColumn}`);
-        predicates.push(allowed(typeId, target));
-        current = target;
+        frontiers.push(Prisma.sql`${next} AS MATERIALIZED (
+          SELECT DISTINCT ${target}."typeId", ${target}.id FROM ${current}
+          JOIN LATERAL (SELECT * FROM "RecordLink" ${link}
+            WHERE ${link}."companyId" = ${companyId} AND ${link}."relationId" = ${step.relationId}
+            AND ${link}."sourceTypeId" = ${relationship.sourceTypeId} AND ${link}."targetTypeId" = ${relationship.targetTypeId}
+            AND ${sourceColumn} = ${current}.id OFFSET 0) ${link} ON TRUE
+          JOIN LATERAL (SELECT ${target}."typeId", ${target}.id FROM "CrmRecord" ${target}
+            WHERE ${target}."companyId" = ${companyId} AND ${target}."typeId" = ${typeId} AND ${target}.id = ${targetColumn}
+            AND ${allowed(typeId, target)} OFFSET 0) ${target} ON TRUE)`);
+        current = next;
       }
-      const ids = scope.records.filter((ref) => ref.typeId === path.typeId).map((ref) => ref.recordId);
-      const rootSelection =
-        !restricted || scope.typeIds.includes(path.typeId)
-          ? Prisma.sql`TRUE`
-          : ids.length
-            ? Prisma.sql`${root}.id IN (${Prisma.join(ids)})`
-            : Prisma.sql`FALSE`;
       const identity = path.includeMessages && recordChannelsEnabled(model, typeId);
-      return Prisma.sql`SELECT ${current}."typeId", ${current}.id, ${path.includeAudit}::boolean AS audit, ${identity}::boolean AS messaging, ${path.includeMessages}::boolean AS threading
-      FROM "CrmRecord" ${root} ${joins.length ? Prisma.join(joins, " ") : Prisma.empty}
-      WHERE ${root}."companyId" = ${companyId} AND ${root}."typeId" = ${path.typeId} AND ${rootSelection} AND (${Prisma.join(predicates, " AND ")})`;
+      return Prisma.sql`(WITH ${Prisma.join(frontiers)}
+        SELECT ${current}."typeId", ${current}.id, ${path.includeAudit}::boolean AS audit,
+        ${identity}::boolean AS messaging, ${path.includeMessages}::boolean AS threading FROM ${current})`;
     })
     .filter((branch): branch is Prisma.Sql => branch !== null);
   const direct = model.types.filter(

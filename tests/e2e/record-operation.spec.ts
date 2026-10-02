@@ -1,8 +1,10 @@
+import { writeFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
 import { test, expect } from "./fixtures";
+import { RecordQueryResultSchema } from "../../features/records/query-records.interactor";
 
-test("keeps complete reads and a blocked form draft while a high-fan-out price update publishes through the worker", async ({
+test("keeps complete application reads, History and a blocked form draft while a high-fan-out update publishes", async ({
   page,
   context,
   database,
@@ -98,10 +100,14 @@ test("keeps complete reads and a blocked form draft while a high-fan-out price u
   await name.fill("Retained during recalculation");
   await expect(draft.getByRole("main").getByRole("button", { name: "Save", exact: true })).toBeEnabled();
   const errors: string[] = [];
-  for (const browserPage of [page, draft])
+  for (const browserPage of [page, draft]) {
     browserPage.on("pageerror", (error) => {
       if (error.message !== "ResizeObserver loop completed with undelivered notifications.") errors.push(error.message);
     });
+    browserPage.on("console", (message) => {
+      if (message.type() === "error") errors.push(message.text());
+    });
+  }
   await page.getByRole("button", { name: "Shared live catalogue price", exact: true }).click();
   await editor.getByRole("textbox", { name: "Price", exact: false }).fill("20");
   await editor.getByRole("button", { name: "Save", exact: true }).click();
@@ -116,32 +122,146 @@ test("keeps complete reads and a blocked form draft while a high-fan-out price u
   ).toBeVisible();
   await expect(name).toHaveValue("Retained during recalculation");
   await draft.screenshot({ path: testInfo.outputPath("draft-during-recalculation.png"), animations: "disabled" });
+  const readPage = await context.newPage();
+  readPage.on("pageerror", (error) => {
+    if (error.message !== "ResizeObserver loop completed with undelivered notifications.") errors.push(error.message);
+  });
+  readPage.on("console", (message) => {
+    if (message.type() === "error") errors.push(message.text());
+  });
+  const readMain = readPage.getByRole("main");
+  const history = readMain.locator('[data-detail-panel="activities"]');
   let completeReads = 0;
-  await expect
-    .poll(
-      async () => {
-        const state = await snapshot();
-        expect(state.count).toBe(600);
-        if (state.activeOperationId) {
+  let applicationReadsDuringPause = 0;
+  let historyReadsDuringPause = 0;
+  const applicationReadFailures: string[] = [];
+  const applicationReadTimings: number[] = [];
+  const uiReadTimings: Array<{ surface: string; elapsedMs: number }> = [];
+  try {
+    const freshReadStarted = performance.now();
+    const beforeFreshRead = await snapshot();
+    expect(beforeFreshRead.activeOperationId).toBeTruthy();
+    await readPage.goto(`/en/records/${id("service")}/${service}`);
+    await expect(readPage.locator("#sidebar-trigger")).toHaveAttribute("aria-disabled", "false");
+    await expect(readMain.getByRole("textbox", { name: "Price", exact: false })).toHaveValue("10");
+    const loadedLine = readMain.getByRole("button", { name: /^Unlink Line [0-9]+$/ }).first();
+    await loadedLine.scrollIntoViewIfNeeded();
+    await expect(loadedLine).toBeVisible();
+    await expect(readMain.locator('[aria-busy="true"]')).toHaveCount(0);
+    await expect(readMain.getByRole("alert")).toHaveCount(0);
+    uiReadTimings.push({ surface: "fresh detail and linked-record choices", elapsedMs: performance.now() - freshReadStarted });
+    expect((await snapshot()).activeOperationId).toBe(beforeFreshRead.activeOperationId);
+    await readPage.screenshot({ path: testInfo.outputPath("fresh-relationship-choices-during-staging.png"), animations: "disabled" });
+
+    const historyStarted = performance.now();
+    if (!(await history.isVisible())) await readMain.getByRole("tab", { name: "Activities", exact: true }).click();
+    await expect(history).toBeVisible();
+    await expect(history.getByText("History", { exact: true })).toBeVisible();
+    const creation = history.locator("ol").getByText("Browser Administrator", { exact: true });
+    await expect(creation).toHaveCount(1);
+    await creation.scrollIntoViewIfNeeded();
+    await expect(creation).toBeVisible();
+    await expect(history.locator('[data-skeleton-kind="activity-timeline"]')).toHaveCount(0);
+    await expect(history.getByRole("status")).toHaveCount(0);
+    await expect(history.getByRole("button", { name: "Try again", exact: true })).toHaveCount(0);
+    await expect(history.getByText("Activity could not be loaded.", { exact: true })).toHaveCount(0);
+    await expect(history.getByText("No activity yet.", { exact: true })).toHaveCount(0);
+    await creation.click();
+    const historyDetail = readPage.getByRole("dialog", { name: /^Record created at / });
+    await expect(historyDetail).toBeVisible();
+    await expect(historyDetail.getByText("Shared live catalogue price", { exact: true }).first()).toBeVisible();
+    const historicalPrice = historyDetail.getByText("€10.00", { exact: true });
+    await historicalPrice.scrollIntoViewIfNeeded();
+    await expect(historicalPrice).toBeVisible();
+    await expect(historyDetail.getByText("€20.00", { exact: true })).toHaveCount(0);
+    expect((await snapshot()).activeOperationId).toBe(beforeFreshRead.activeOperationId);
+    historyReadsDuringPause += 1;
+    uiReadTimings.push({ surface: "History and creation-event detail", elapsedMs: performance.now() - historyStarted });
+    await readPage.screenshot({ path: testInfo.outputPath("history-detail-during-staging.png"), animations: "disabled" });
+    await readPage.keyboard.press("Escape");
+    await expect(historyDetail).not.toBeVisible();
+    await expect(history).toBeVisible();
+
+    await expect
+      .poll(
+        async () => {
+          const state = await snapshot();
+          const started = performance.now();
+          try {
+            const response = await page.request.post("/api/v2/records/query", {
+              data: { typeId: id("deal"), fields: [id("deal.totalValue")], page: 1, pageSize: 25 },
+            });
+            if (!response.ok()) applicationReadFailures.push(`HTTP ${response.status()}`);
+            else {
+              const result = RecordQueryResultSchema.parse(await response.json());
+              const amounts = result.records.map((record) => {
+                const value = record.fields.find((field) => field.fieldId === id("deal.totalValue"))?.result;
+                return value?.state === "value" && value.value.kind === "decimal" && value.value.currency === "EUR"
+                  ? value.value.value
+                  : null;
+              });
+              if (result.total !== 600 || result.records.length !== 25 || new Set(amounts).size !== 1 || !["10", "20"].includes(amounts[0] ?? ""))
+                applicationReadFailures.push("Application snapshot is incomplete, mixed or incorrectly typed");
+              const after = await snapshot();
+              if (state.activeOperationId && after.activeOperationId === state.activeOperationId) {
+                applicationReadsDuringPause += 1;
+                if (amounts[0] !== "10") applicationReadFailures.push("Paused application snapshot exposed staged values");
+              }
+              if (!state.activeOperationId && amounts[0] !== "20") applicationReadFailures.push("Completed application snapshot retained old values");
+            }
+            if (await editor.getByRole("alert").count() || await readMain.getByRole("alert").count())
+              applicationReadFailures.push("Relationship choice or operation alert during staging");
+            if (await history.getByRole("status").count() || await history.getByRole("button", { name: "Try again", exact: true }).count())
+              applicationReadFailures.push("History entered its error or retry state during staging");
+          } catch (error) {
+            applicationReadFailures.push(error instanceof Error ? error.message : "Application read request failed");
+          } finally {
+            applicationReadTimings.push(performance.now() - started);
+          }
+          expect(state.count).toBe(600);
+          if (state.activeOperationId) {
+            expect({ price: state.price, minimum: state.minimum, maximum: state.maximum }).toEqual({
+              price: "10",
+              minimum: "10",
+              maximum: "10",
+            });
+            completeReads += 1;
+            return false;
+          }
           expect({ price: state.price, minimum: state.minimum, maximum: state.maximum }).toEqual({
-            price: "10",
-            minimum: "10",
-            maximum: "10",
+            price: "20",
+            minimum: "20",
+            maximum: "20",
           });
-          completeReads += 1;
-          return false;
-        }
-        expect({ price: state.price, minimum: state.minimum, maximum: state.maximum }).toEqual({
-          price: "20",
-          minimum: "20",
-          maximum: "20",
-        });
-        return true;
-      },
-      { timeout: 180000, intervals: [100, 250, 500, 1000] },
-    )
-    .toBe(true);
-  expect(completeReads).toBeGreaterThan(0);
+          return true;
+        },
+        { timeout: 180000, intervals: [100, 250, 500, 1000] },
+      )
+      .toBe(true);
+    expect(completeReads).toBeGreaterThan(0);
+    expect(applicationReadsDuringPause).toBeGreaterThan(0);
+    expect(historyReadsDuringPause).toBe(1);
+    expect(applicationReadFailures).toEqual([]);
+    await expect(history.getByRole("status")).toHaveCount(0);
+    await expect(history.getByRole("button", { name: "Try again", exact: true })).toHaveCount(0);
+  } catch (error) {
+    applicationReadFailures.push(error instanceof Error ? error.message : "Staging verification failed");
+    throw error;
+  } finally {
+    await writeFile(
+      testInfo.outputPath("application-reads-during-staging.json"),
+      JSON.stringify({
+        project: testInfo.project.name,
+        records: 600,
+        completeReads,
+        applicationReadsDuringPause,
+        historyReadsDuringPause,
+        failures: applicationReadFailures,
+        elapsedMs: applicationReadTimings,
+        uiReads: uiReadTimings,
+      }, null, 2),
+    );
+  }
   await expect(editor).not.toBeVisible({ timeout: 15000 });
   await expect(name).toHaveValue("Retained during recalculation");
   const persistedName = await database.query(
@@ -152,5 +272,6 @@ test("keeps complete reads and a blocked form draft while a high-fan-out price u
   const operation = await database.query('SELECT state FROM "RecordOperation" WHERE "companyId"=$1', [companyId]);
   expect(operation.rows).toEqual([{ state: "completed" }]);
   expect(errors).toEqual([]);
+  await readPage.close();
   await draft.close();
 });

@@ -23,7 +23,13 @@ export function recordReadPredicate(
   if (scope.parent) {
     const parent = Prisma.raw(`"access_parent_${depth}"`);
     const link = Prisma.raw(`"access_link_${depth}"`);
-    return Prisma.sql`EXISTS (SELECT 1 FROM "RecordLink" ${link} JOIN "CrmRecord" ${parent} ON ${parent}."companyId" = ${companyId} AND ${parent}."typeId" = ${scope.parent.typeId} AND ${parent}.id = ${link}."targetId" WHERE ${link}."companyId" = ${companyId} AND ${link}."relationId" = ${scope.parent.relationId} AND ${link}."sourceId" = ${record}.id AND ${recordReadPredicate(companyId, scope.parent.scope, parent, depth + 1)})`;
+    return Prisma.sql`EXISTS (SELECT 1 FROM "RecordLink" ${link}
+      JOIN LATERAL (SELECT ${parent}.id FROM "CrmRecord" ${parent}
+        WHERE ${parent}."companyId" = ${companyId} AND ${parent}."typeId" = ${scope.parent.typeId}
+        AND ${parent}.id = ${link}."targetId" AND ${recordReadPredicate(companyId, scope.parent.scope, parent, depth + 1)} OFFSET 0) ${parent} ON TRUE
+      WHERE ${link}."companyId" = ${companyId} AND ${link}."relationId" = ${scope.parent.relationId}
+      AND ${link}."sourceTypeId" = ${record}."typeId" AND ${link}."targetTypeId" = ${scope.parent.typeId}
+      AND ${link}."sourceId" = ${record}.id OFFSET 0)`;
   }
   if (scope.access === "all") return Prisma.sql`TRUE`;
   if (scope.access === "none") return Prisma.sql`FALSE`;

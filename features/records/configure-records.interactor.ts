@@ -260,7 +260,7 @@ export class GetRecordModelInteractor extends AuthenticatedInteractor<z.infer<ty
           .filter((type) => accessible.has(type.id) && (!input.typeIds || input.typeIds.includes(type.id)))
           .map((type) => ({
             ...type,
-            relationshipPaths: type.relationshipPaths?.filter((path) => {
+            relationshipPaths: (type.relationshipPaths ?? []).filter((path) => {
               const steps = resolveRecordPath(type.id, path.path, model);
               return (
                 policy.canManageSchema ||
