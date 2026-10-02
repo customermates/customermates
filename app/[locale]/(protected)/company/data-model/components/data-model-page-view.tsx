@@ -96,7 +96,7 @@ export const DataModelPageView = observer(function DataModelPageView({
           <>
             <Button
               aria-label={selected.archived ? t("RecordModel.restore") : t("RecordModel.typeSettings")}
-              className="max-sm:size-8 max-sm:p-0"
+              className="max-sm:size-8 max-sm:p-0 max-sm:has-[>svg]:px-0"
               disabled={!interactive}
               size="sm"
               variant="secondary"
@@ -114,7 +114,7 @@ export const DataModelPageView = observer(function DataModelPageView({
 
             <Button
               aria-label={t("RecordModel.sharedDefaults")}
-              className="max-sm:size-8 max-sm:p-0"
+              className="max-sm:size-8 max-sm:p-0 max-sm:has-[>svg]:px-0"
               disabled={!interactive}
               size="sm"
               variant="secondary"
@@ -127,7 +127,7 @@ export const DataModelPageView = observer(function DataModelPageView({
 
             <Button
               aria-label={t("RecordModel.addField")}
-              className="max-sm:size-8 max-sm:p-0"
+              className="max-sm:size-8 max-sm:p-0 max-sm:has-[>svg]:px-0"
               disabled={!interactive}
               size="sm"
               onClick={() => fieldModal.edit(model, selected.id, null)}
@@ -140,7 +140,7 @@ export const DataModelPageView = observer(function DataModelPageView({
         ) : (
           <Button
             aria-label={t("RecordModel.createList")}
-            className="max-sm:size-8 max-sm:p-0"
+            className="max-sm:size-8 max-sm:p-0 max-sm:has-[>svg]:px-0"
             disabled={!interactive}
             size="sm"
             onClick={() => typeModal.edit(model, null)}

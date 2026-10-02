@@ -156,7 +156,7 @@ export const RecordsPageView = observer(function RecordsPageView({
         />
 
         {store.presentation.canManageSchema && (
-          <Button asChild className="max-sm:size-8 max-sm:p-0" size="sm" variant="secondary">
+          <Button asChild className="max-sm:size-8 max-sm:p-0 max-sm:has-[>svg]:px-0" size="sm" variant="secondary">
             <IntlLink
               aria-label={t("RecordModel.configure")}
               href={`/company/data-model?typeId=${presentation.typeId}`}
