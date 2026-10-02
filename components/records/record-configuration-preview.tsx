@@ -8,8 +8,8 @@ import type { RecordModel } from "@/features/records/record-model.schema";
 export function RecordConfigurationPreview({ preview, model }: { preview: ConfigurationPreview; model: RecordModel }) {
   const t = useTranslations();
   return (
-    <div className="space-y-2 rounded-md border border-border p-3 text-sm" role="status">
-      <p>
+    <div className="space-y-2 text-sm" role="status">
+      <p className={preview.valid ? "font-medium" : "font-medium text-destructive"}>
         {preview.valid
           ? t("RecordModel.previewReady", { count: preview.affectedRecords })
           : t("RecordModel.invalidConfiguration")}

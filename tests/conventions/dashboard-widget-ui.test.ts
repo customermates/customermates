@@ -46,7 +46,8 @@ describe("generic dashboard widget UI", () => {
     expect(chart).toContain("<RecordWidgetRelatedFilters");
     expect(fields).toContain("<FormSelect");
     expect(fields).toContain("recordFilterOperators(field)");
-    expect(fields).toContain("rounded-lg border border-border");
+    expect(fields).toContain("border-b border-border");
+    expect(fields).not.toContain("rounded-lg border border-border");
     expect(activity).toContain("<FormAutocomplete");
     expect(activity).toContain('selectionMode="multiple"');
     expect(activity).toContain("RecordActivityQuerySchema");

@@ -1,12 +1,18 @@
 "use client";
 
+import { useState } from "react";
 import { action, makeObservable, observable } from "mobx";
 import { observer } from "mobx-react-lite";
 import { Plus, Save, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import type { RootStore } from "@/core/stores/root.store";
-import type { RecordField, RecordModel, CalculationExpression } from "@/features/records/record-model.schema";
+import type {
+  RecordField,
+  RecordModel,
+  CalculationExpression,
+  RecordScalar,
+} from "@/features/records/record-model.schema";
 import type { ConfigurationChange, ConfigurationPreview } from "@/features/records/configuration.schema";
 
 import { RecordConfigurationPreview } from "@/components/records/record-configuration-preview";
@@ -49,6 +55,7 @@ const initial = () => ({
     label: string;
     probability: string;
     color: string | null;
+    attributes: Array<{ key: string; value: RecordScalar }>;
   }>,
 });
 export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>> {
@@ -99,6 +106,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
                 label: option.label,
                 color: option.color,
                 probability: probability?.kind === "decimal" ? probability.value : "",
+                attributes: option.attributes.filter((attribute) => attribute.key !== "probability"),
               };
             }),
           }
@@ -115,6 +123,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
       label: "",
       color: "secondary",
       probability: "",
+      attributes: [],
     });
     this.setPreview(null);
   };
@@ -168,9 +177,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
               label: option.label,
               color: option.color,
               attributes: [
-                ...(this.original?.options
-                  .find((old) => old.id === option.id)
-                  ?.attributes.filter((attribute) => attribute.key !== "probability") ?? []),
+                ...option.attributes,
                 ...(option.probability
                   ? [
                       {
@@ -192,6 +199,8 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
 }
 export const FieldModal = observer(function FieldModal({ store }: { store: FieldModalStore }) {
   const t = useTranslations();
+  const [showProbability, setShowProbability] = useState(false);
+  const optionMetadata = showProbability || store.form.options.some((option) => option.probability !== "");
   return (
     <AppModal
       actions={[
@@ -256,6 +265,38 @@ export const FieldModal = observer(function FieldModal({ store }: { store: Field
                     label: t(`RecordModel.behaviors.${value}`),
                   }))}
                   label={t("RecordModel.behavior")}
+                  onValueChange={(behavior) => {
+                    store.onChange("behavior", behavior);
+                    if (behavior === "lookup" || behavior === "rollup") {
+                      const relation = store.model.relationships.find(
+                        (relation) =>
+                          !relation.archived &&
+                          (relation.sourceTypeId === store.typeId || relation.targetTypeId === store.typeId),
+                      );
+                      if (!relation) return;
+                      const direction = relation.sourceTypeId === store.typeId ? "outgoing" : "incoming";
+                      const targetId = direction === "outgoing" ? relation.targetTypeId : relation.sourceTypeId;
+                      const field = store.model.fields.find(
+                        (field) =>
+                          field.typeId === targetId && !field.archived && field.valueType === store.form.valueType,
+                      );
+                      const current = store.form.expression;
+                      store.onChange(
+                        "expression",
+                        current.kind === "related"
+                          ? { ...current, reducer: behavior === "lookup" ? "one" : "sum" }
+                          : {
+                              kind: "related",
+                              relationId: relation.id,
+                              direction,
+                              reducer: behavior === "lookup" ? "one" : "sum",
+                              expression: field
+                                ? { kind: "field", fieldId: field.id }
+                                : { kind: "literal", value: null },
+                            },
+                      );
+                    }
+                  }}
                 />
               </div>
 
@@ -265,6 +306,7 @@ export const FieldModal = observer(function FieldModal({ store }: { store: Field
 
               {store.form.behavior !== "input" && (
                 <CalculationInput
+                  behavior={store.form.behavior}
                   model={store.model}
                   typeId={store.typeId}
                   value={store.form.expression}
@@ -326,43 +368,121 @@ export const FieldModal = observer(function FieldModal({ store }: { store: Field
                   <span className="text-sm font-medium">{t("RecordModel.options")}</span>
 
                   {store.form.options.map((option, index) => (
-                    <div key={option.id} className="flex items-end gap-2">
-                      <FormInput
-                        containerClassName="flex-1"
-                        id={`options.${index}.label`}
-                        label={t("RecordModel.option")}
-                      />
+                    <div key={option.id} className="space-y-3">
+                      <div className="flex flex-wrap items-end gap-2">
+                        <FormInput
+                          containerClassName="min-w-32 flex-1"
+                          id={`options.${index}.label`}
+                          label={t("RecordModel.option")}
+                        />
 
-                      <FormSelect
-                        id={`options.${index}.color`}
-                        items={CHIP_COLORS.map((color) => ({ value: color, label: t(`Common.colors.${color}`) }))}
-                        label={t("RecordModel.color")}
-                      />
+                        <FormSelect
+                          id={`options.${index}.color`}
+                          items={CHIP_COLORS.map((color) => ({ value: color, label: t(`Common.colors.${color}`) }))}
+                          label={t("RecordModel.color")}
+                        />
 
-                      <FormInput
-                        containerClassName="w-24"
-                        id={`options.${index}.probability`}
-                        inputMode="decimal"
-                        label={t("RecordModel.probability")}
-                      />
+                        {optionMetadata && (
+                          <FormInput
+                            containerClassName="w-24"
+                            id={`options.${index}.probability`}
+                            inputMode="decimal"
+                            label={t("RecordModel.probability")}
+                          />
+                        )}
+
+                        <Button
+                          aria-label={t("RecordModel.removeOption")}
+                          disabled={store.isDisabled}
+                          size="icon"
+                          type="button"
+                          variant="ghost"
+                          onClick={() => store.removeOption(option.id)}
+                        >
+                          <Trash2 className="size-4" />
+                        </Button>
+                      </div>
+
+                      {option.attributes.map((attribute, offset) => (
+                        <div key={offset} className="space-y-3">
+                          <div className="flex items-end gap-2">
+                            <FormInput
+                              containerClassName="flex-1"
+                              id={`options.${index}.attributes.${offset}.key`}
+                              label={t("RecordModel.attribute")}
+                            />
+
+                            <Button
+                              aria-label={t("RecordModel.removeInput")}
+                              disabled={store.isDisabled}
+                              size="icon"
+                              type="button"
+                              variant="ghost"
+                              onClick={() =>
+                                store.onChange(
+                                  `options.${index}.attributes`,
+                                  option.attributes.filter((_, position) => position !== offset),
+                                )
+                              }
+                            >
+                              <Trash2 aria-hidden className="size-4" />
+                            </Button>
+                          </div>
+
+                          <CalculationInput
+                            literalOnly
+                            model={store.model}
+                            path={`options.${index}.attributes.${offset}`}
+                            typeId={store.typeId}
+                            value={{ kind: "literal", value: attribute.value }}
+                            onChange={(expression) => {
+                              if (expression.kind === "literal" && expression.value)
+                                store.onChange(`options.${index}.attributes.${offset}.value`, expression.value);
+                            }}
+                          />
+                        </div>
+                      ))}
 
                       <Button
-                        aria-label={t("RecordModel.removeOption")}
-                        size="icon"
+                        disabled={store.isDisabled}
+                        size="sm"
                         type="button"
                         variant="ghost"
-                        onClick={() => store.removeOption(option.id)}
+                        onClick={() =>
+                          store.onChange(`options.${index}.attributes`, [
+                            ...option.attributes,
+                            { key: "", value: { kind: "decimal", value: "0", currency: null } },
+                          ])
+                        }
                       >
-                        <Trash2 className="size-4" />
+                        {t("RecordModel.addAttribute")}
                       </Button>
                     </div>
                   ))}
 
-                  <Button size="sm" type="button" variant="secondary" onClick={store.addOption}>
+                  <Button
+                    disabled={store.isDisabled}
+                    size="sm"
+                    type="button"
+                    variant="secondary"
+                    onClick={store.addOption}
+                  >
                     <Plus className="size-4" />
 
                     {t("RecordModel.addOption")}
                   </Button>
+
+                  {!optionMetadata && (
+                    <Button
+                      disabled={store.isDisabled}
+                      size="sm"
+                      type="button"
+                      variant="ghost"
+                      onClick={() => setShowProbability(true)}
+                    >
+                      {t("RecordModel.addProbability")}
+                    </Button>
+                  )}
                 </div>
               )}
 

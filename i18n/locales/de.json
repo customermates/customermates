@@ -1935,8 +1935,6 @@
       "preview": {
         "title": "Vorschau"
       },
-      "progress": "Schritt {current} von {total}",
-      "progressLabel": "Fortschritt beim Erstellen des Widgets",
       "save": "Änderungen speichern",
       "sharing": {
         "template": "Als Vorlage freigeben"
@@ -1947,10 +1945,7 @@
       },
       "tabs": {
         "appearance": "Darstellung",
-        "data": "Daten",
-        "filters": "Filter",
-        "filtersLabel": "{count, plural, =0 {Filter, keine aktiv} =1 {Filter, 1 aktiv} other {Filter, # aktiv}}",
-        "label": "Widget-Einstellungen"
+        "filtersLabel": "{count, plural, =0 {Filter, keine aktiv} =1 {Filter, 1 aktiv} other {Filter, # aktiv}}"
       },
       "templates": {
         "by": "Geteilt von {name}",
@@ -2494,7 +2489,14 @@
       "link": "Verknüpfen",
       "linkUpdateFailed": "Kontaktverknüpfung konnte nicht aktualisiert werden",
       "openContact": "Kontakt öffnen",
-      "unlink": "Verknüpfung entfernen"
+      "unlink": "Verknüpfung entfernen",
+      "openRecord": "Datensatz öffnen",
+      "unlinkRecord": "Datensatzverknüpfung entfernen",
+      "linkedRecords": "Verknüpfte Datensätze",
+      "conversationRecords": "Datensätze dieser Unterhaltung",
+      "conversationRecordsHint": "Verknüpfe diese Unterhaltung mit einem Datensatz, ohne andere Unterhaltungen dieser Person zu verknüpfen.",
+      "linkRecord": "Datensatz verknüpfen",
+      "noRecords": "Keine verknüpften Datensätze"
     },
     "previewAudio": "🎵 Audio",
     "previewFile": "📄 Anhang",
@@ -3273,7 +3275,6 @@
     "oppositeCount": "Datensätze je verknüpftem Datensatz",
     "oppositeLabel": "Bezeichnung auf der Gegenseite",
     "option": "Option",
-    "optionProbability": "Optionswahrscheinlichkeit",
     "options": "Optionen",
     "pinnedFields": "Angeheftete Detailfelder",
     "pluralDescription": "Der Name in der Navigation. Leer lassen, um den Listennamen zu verwenden.",
@@ -3348,7 +3349,34 @@
     "unlinkRecord": "Verknüpfung mit {name} entfernen",
     "updatedAt": "Aktualisiert am",
     "valueType": "Werttyp",
-    "yes": "Ja"
+    "yes": "Ja",
+    "activityConnections": "Aktivitätsverbindungen",
+    "activityConnectionsHelp": "Wähle aus, welche verknüpften Datensätze Nachrichten und Änderungen zur Aktivitätenübersicht dieser Liste beitragen. Nachrichten- und Datensatzberechtigungen gelten weiterhin.",
+    "addActivityConnection": "Verbindung hinzufügen",
+    "includeMessages": "Nachrichten einbeziehen",
+    "includeAudit": "Datensatzänderungen einbeziehen",
+    "archiveActivityPath": "Verbindung archivieren",
+    "allLists": "Alle Listen",
+    "fields": "Felder",
+    "relationships": "Beziehungen",
+    "embeddedLists": "Eingebettete Listen",
+    "enableChannels": "Kanäle aktivieren",
+    "channelsHelp": "Füge Datensätzen in dieser Liste E-Mail-Adressen, Telefonnummern und soziale Konten hinzu. Eine Kennung kann mit mehreren Datensätzen verknüpft sein.",
+    "calculationNavigation": "Berechnungsnavigation",
+    "calculationResult": "Ergebnis",
+    "calculationInput": "Eingabe {number}",
+    "value": "Wert",
+    "optionAttribute": "Optionsattribut",
+    "attribute": "Attributname",
+    "rangeStart": "Von",
+    "rangeEnd": "Bis",
+    "conditionIf": "Bedingung",
+    "conditionThen": "Dann",
+    "conditionOtherwise": "Andernfalls",
+    "removeInput": "Eingabe entfernen",
+    "addProbability": "Wahrscheinlichkeit hinzufügen",
+    "useChannelAvatar": "Profilbild des Kanals verwenden",
+    "addAttribute": "Attribut hinzufügen"
   },
   "RecordTriggers": {
     "changedFieldsHelp": "Leer lassen, um jede Änderung zu erfassen.",
@@ -3399,7 +3427,8 @@
     "signedChart": "Negative Werte werden als Liste angezeigt. Wähle ein Balkendiagramm zur Darstellung.",
     "source": "Datensätze aus",
     "unavailable": "Diese Kennzahl ist nicht verfügbar. Prüfe Konfiguration und Zugriff.",
-    "value": "Wertefeld"
+    "value": "Wertefeld",
+    "previewFailed": "Die Vorschau konnte nicht geladen werden. Versuche es erneut."
   },
   "ResetPassword": {
     "cta": "Passwort zurücksetzen",
@@ -3666,8 +3695,14 @@
       "connectedAccountsPerUser": "{accounts, plural, one {# verbundenes Konto pro Nutzer} other {# verbundene Konten pro Nutzer}}",
       "creditNote": "Credits für den gehosteten KI-Assistenten werden monatlich erneuert; nicht genutzte Credits werden nicht übertragen. Externe MCP-Clients nutzen deinen eigenen KI-Anbieter und verbrauchen diese Credits nicht.",
       "features": {
-        "business": ["Alles aus Pro", "Geteilte Konten und priorisierter Support"],
-        "pro": ["Alles aus Starter", "Einheitlicher Posteingang"],
+        "business": [
+          "Alles aus Pro",
+          "Geteilte Konten und priorisierter Support"
+        ],
+        "pro": [
+          "Alles aus Starter",
+          "Einheitlicher Posteingang"
+        ],
         "starter": [
           "Vollständiges CRM: Kontakte, Deals, Organisationen, Aufgaben",
           "Audit-Log",

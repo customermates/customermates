@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { RecordActivityWidgetEditor } from "./record-activity-widget-editor";
 
 import { WidgetKind } from "@/generated/prisma";
@@ -19,7 +20,6 @@ import { FormInput } from "@/components/forms/form-input";
 import { FormSwitch } from "@/components/forms/form-switch";
 import { AppModal } from "@/components/modal";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -28,21 +28,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getChartColors } from "@/constants/chart-colors";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import type { ChartColor } from "@/features/widget/widget.schema";
 import { DisplayType } from "@/features/widget/widget.schema";
 
-import { WizardProgress } from "@/components/shared/wizard-progress";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { RecordWidgetEditor } from "./record-widget-editor";
-import { isRecordActivityWidgetForm, isRecordWidgetForm } from "./record-widget-form";
 import { WidgetDisplayTypePicker } from "./widget-display-type-picker";
 import { WIDGET_EDITOR_GRID_CLASS } from "./widget-editor-layout";
 import { WidgetStarterPicker } from "./widget-starter-picker";
-
-type EditorTab = "data" | "filters" | "appearance";
 
 function WidgetModalSkeleton() {
   const t = useTranslations();
@@ -66,13 +61,6 @@ function WidgetModalSkeleton() {
   );
 }
 
-function tabForSection(section: string, kind: WidgetKind): EditorTab {
-  if (section === "activityFilters") return kind === WidgetKind.activityTimeline ? "data" : "filters";
-  if (section === "filters" || section === "dealFilters") return "filters";
-  if (section === "display") return "appearance";
-  return "data";
-}
-
 export const WidgetModal = observer(() => {
   const t = useTranslations();
   const { widgetModalStore } = useRootStore();
@@ -82,25 +70,7 @@ export const WidgetModal = observer(() => {
   const chartColors = getChartColors(resolvedTheme);
   const isCreate = !form.id;
   const canDeleteWidget = !isCreate && canManage && Boolean(form.id);
-  const activeTab = tabForSection(widgetModalStore.expandedSection, form.kind);
-  const activeFilterCount =
-    form.kind === WidgetKind.chart
-      ? isRecordWidgetForm(form)
-        ? form.measure.source.filters.length +
-          form.measure.source.relationships.length +
-          (form.measure.source.relatedFilters?.length ?? 0) +
-          (form.measure.groupBy?.filter?.filters?.length ?? 0) +
-          (form.measure.groupBy?.filter?.relationships?.length ?? 0) +
-          (form.measure.groupBy?.filter?.relatedFilters?.length ?? 0) +
-          Number(Boolean(form.measure.groupBy?.filter?.search))
-        : 0
-      : widgetModalStore.activeTimelineFiltersCount;
   const isChooseStep = isCreate && widgetModalStore.creationStep === "choose";
-  const creationStepNumber = isChooseStep ? 1 : 2;
-  const progressText = t("Dashboard.widgetEditor.progress", {
-    current: creationStepNumber,
-    total: 2,
-  });
   const dialogTitle = isChooseStep
     ? t("Dashboard.widgetEditor.kind.title")
     : isCreate
@@ -108,32 +78,51 @@ export const WidgetModal = observer(() => {
       : t("Dashboard.widgetEditor.editTitle", { name: form.name });
   const saveDisabled = isDisabled || !form.name.trim() || (!isCreate && !widgetModalStore.hasUnsavedChanges);
 
-  function setActiveTab(next: string) {
-    if (next === "filters") {
-      widgetModalStore.setExpandedSection(form.kind === WidgetKind.chart ? "filters" : "activityFilters");
+  useEffect(() => {
+    if (
+      !widgetModalStore.isOpen ||
+      widgetModalStore.isHydrating ||
+      isChooseStep ||
+      widgetModalStore.expandedSection === "config"
+    )
       return;
-    }
-    widgetModalStore.setExpandedSection(next === "appearance" ? "display" : "config");
-  }
+    const frame = requestAnimationFrame(() => {
+      const id = widgetModalStore.expandedSection === "display" ? "widget-config-appearance" : "widget-config-filters";
+      const section = document.getElementById(id);
+      section?.scrollIntoView({ block: "start" });
+      section?.querySelector<HTMLElement>("input, button, [tabindex='0']")?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [
+    widgetModalStore,
+    widgetModalStore.isOpen,
+    widgetModalStore.isHydrating,
+    widgetModalStore.expandedSection,
+    isChooseStep,
+  ]);
 
   function goBackToKindStep() {
     const selectedKind = form.kind;
     widgetModalStore.setCreationStep("choose");
     requestAnimationFrame(() => document.getElementById(`widget-kind-${selectedKind}`)?.focus());
   }
-  function renderChartData() {
-    return form.kind === WidgetKind.chart ? <RecordWidgetEditor section="data" store={widgetModalStore} /> : null;
-  }
-
   function renderDataSettings() {
-    return form.kind === WidgetKind.chart ? (
-      renderChartData()
-    ) : (
-      <RecordActivityWidgetEditor section="data" store={widgetModalStore} />
+    const appearance = (
+      <section
+        aria-label={t("Dashboard.widgetEditor.tabs.appearance")}
+        className="space-y-4"
+        id="widget-config-appearance"
+      >
+        <h3 className="text-sm font-medium">{t("Dashboard.widgetEditor.tabs.appearance")}</h3>
+
+        {renderAppearanceSettings()}
+      </section>
     );
-  }
-  function renderChartFilters() {
-    return form.kind === WidgetKind.chart ? <RecordWidgetEditor section="filters" store={widgetModalStore} /> : null;
+    return form.kind === WidgetKind.chart ? (
+      <RecordWidgetEditor appearance={appearance} section="all" store={widgetModalStore} />
+    ) : (
+      <RecordActivityWidgetEditor appearance={appearance} section="all" store={widgetModalStore} />
+    );
   }
 
   function renderColorPicker() {
@@ -281,27 +270,14 @@ export const WidgetModal = observer(() => {
           ? t("Dashboard.widgetEditor.steps.chooseDescription")
           : t("Dashboard.widgetEditor.steps.configureDescription")
       }
-      size={isChooseStep ? "3xl" : "5xl"}
+      size={isChooseStep ? "3xl" : "xl"}
       store={widgetModalStore}
       title={dialogTitle}
     >
       <AppForm store={widgetModalStore}>
         <AppCard>
-          <AppCardHeader className="flex-col items-start gap-4">
-            <div className="min-w-0 flex-1 space-y-1">
-              {isCreate && <p className="text-xs text-muted-foreground">{progressText}</p>}
-
-              <h2 className="min-w-0 break-words text-xl font-semibold">{dialogTitle}</h2>
-            </div>
-
-            {isCreate && (
-              <WizardProgress
-                current={creationStepNumber}
-                label={t("Dashboard.widgetEditor.progressLabel")}
-                total={2}
-                valueText={progressText}
-              />
-            )}
+          <AppCardHeader>
+            <h2 className="min-w-0 break-words text-base font-semibold">{dialogTitle}</h2>
           </AppCardHeader>
 
           <AppCardBody className={isChooseStep ? "md:flex-initial" : "md:min-h-96"}>
@@ -318,59 +294,10 @@ export const WidgetModal = observer(() => {
                 />
               </div>
             ) : (
-              <div className={WIDGET_EDITOR_GRID_CLASS}>
-                <Tabs className="min-w-0" value={activeTab} onValueChange={setActiveTab}>
-                  <TabsList
-                    aria-label={t("Dashboard.widgetEditor.tabs.label")}
-                    className={form.kind === WidgetKind.chart ? "grid w-full grid-cols-3" : "grid w-full grid-cols-2"}
-                    variant="segmented"
-                  >
-                    <TabsTrigger disabled={isDisabled} id="widget-tab-data" value="data">
-                      {t("Dashboard.widgetEditor.tabs.data")}
-                    </TabsTrigger>
+              <div className="min-w-0 space-y-6" data-widget-editor="linear">
+                <FormInput id="name" label={t("Common.inputs.name")} />
 
-                    {form.kind === WidgetKind.chart && (
-                      <TabsTrigger
-                        aria-label={t("Dashboard.widgetEditor.tabs.filtersLabel", { count: activeFilterCount })}
-                        disabled={isDisabled}
-                        id="widget-tab-filters"
-                        value="filters"
-                      >
-                        {t("Dashboard.widgetEditor.tabs.filters")}
-
-                        {activeFilterCount > 0 && <Badge variant="secondary">{activeFilterCount}</Badge>}
-                      </TabsTrigger>
-                    )}
-
-                    <TabsTrigger disabled={isDisabled} id="widget-tab-appearance" value="appearance">
-                      {t("Dashboard.widgetEditor.tabs.appearance")}
-                    </TabsTrigger>
-                  </TabsList>
-
-                  <TabsContent aria-labelledby="widget-tab-data" className="pt-5" value="data">
-                    <div className="mb-4">
-                      <FormInput id="name" label={t("Common.inputs.name")} />
-                    </div>
-
-                    {renderDataSettings()}
-                  </TabsContent>
-
-                  {form.kind === WidgetKind.chart && (
-                    <TabsContent aria-labelledby="widget-tab-filters" className="pt-5" value="filters">
-                      {renderChartFilters()}
-                    </TabsContent>
-                  )}
-
-                  <TabsContent aria-labelledby="widget-tab-appearance" className="pt-5" value="appearance">
-                    {renderAppearanceSettings()}
-                  </TabsContent>
-                </Tabs>
-
-                {isRecordActivityWidgetForm(form) ? (
-                  <RecordActivityWidgetEditor section="preview" store={widgetModalStore} />
-                ) : isRecordWidgetForm(form) ? (
-                  <RecordWidgetEditor section="preview" store={widgetModalStore} />
-                ) : null}
+                {renderDataSettings()}
               </div>
             )}
           </AppCardBody>

@@ -1,7 +1,7 @@
 "use client";
 
 import { z } from "zod";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { RecordAiAction } from "@/app/components/agent-chat/record-ai-action";
@@ -80,12 +80,21 @@ function useWidgetModel(store: WidgetModalStore) {
 }
 
 export const RecordWidgetEditor = observer(
-  ({ store, section }: { store: WidgetModalStore; section: "data" | "filters" | "preview" }) => {
+  ({
+    store,
+    section,
+    appearance,
+  }: {
+    store: WidgetModalStore;
+    appearance?: ReactNode;
+    section: "data" | "filters" | "preview" | "all";
+  }) => {
     const t = useTranslations();
     const { model, retry } = useWidgetModel(store);
     const form = store.form;
     const [preview, setPreview] = useState<{ key: string; result: RecordMeasureResult } | null>(null);
     const [loading, setLoading] = useState(false);
+    const [previewError, setPreviewError] = useState(false);
     if (!isRecordWidgetForm(form)) return null;
     const measure = form.measure;
     const key = JSON.stringify(measure);
@@ -114,140 +123,148 @@ export const RecordWidgetEditor = observer(
           {t("ErrorCard.retry")}
         </Button>
       ) : null;
-    if (section === "preview") {
-      return (
-        <section className="min-w-0 space-y-3 rounded-xl border border-border p-4">
-          <h3 className="text-sm font-medium" id="widget-preview-heading">
-            {t("RecordWidgets.preview")}
-          </h3>
+    const previewContent = (
+      <section className="min-w-0 space-y-3">
+        <h3 className="text-sm font-medium" id="widget-preview-heading">
+          {t("RecordWidgets.preview")}
+        </h3>
 
-          {form.id && (
-            <RecordAiAction
-              active={store.isOpen}
-              context={{ reference: { kind: "widget", widgetId: form.id }, label: form.name }}
-            />
-          )}
+        {form.id && (
+          <RecordAiAction
+            active={store.isOpen}
+            context={{ reference: { kind: "widget", widgetId: form.id }, label: form.name }}
+          />
+        )}
 
-          <p className="text-xs text-muted-foreground">{t("RecordWidgets.previewHelp")}</p>
+        <p className="text-xs text-muted-foreground">{t("RecordWidgets.previewHelp")}</p>
 
-          <Button
-            disabled={loading || !model}
-            type="button"
-            variant="secondary"
-            onClick={() =>
-              runUserAction(async () => {
-                setLoading(true);
-                try {
-                  const parsed = RecordMeasureSchema.safeParse(measure);
-                  if (!parsed.success) {
-                    toastZodErrorTree(z.treeifyError(parsed.error));
-                    return;
-                  }
-                  const result = await previewRecordWidgetAction(parsed.data);
-                  if (!result.ok) {
-                    toastZodErrorTree(result.error);
-                    return;
-                  }
-                  if (model && result.data.schemaRevision !== model.revision) {
-                    retry();
-                    return;
-                  }
-                  setPreview({ key, result: result.data });
-                  store.onChange("expectedRevision", result.data.schemaRevision);
-                } finally {
-                  setLoading(false);
+        <Button
+          disabled={loading || !model}
+          type="button"
+          variant="secondary"
+          onClick={() =>
+            runUserAction(async () => {
+              setLoading(true);
+              setPreviewError(false);
+              try {
+                const parsed = RecordMeasureSchema.safeParse(measure);
+                if (!parsed.success) {
+                  setPreviewError(true);
+                  toastZodErrorTree(z.treeifyError(parsed.error));
+                  return;
                 }
-              })
-            }
-          >
-            {loading ? t("Loading.text") : t("RecordWidgets.preview")}
-          </Button>
+                const result = await previewRecordWidgetAction(parsed.data);
+                if (!result.ok) {
+                  setPreviewError(true);
+                  toastZodErrorTree(result.error);
+                  return;
+                }
+                if (model && result.data.schemaRevision !== model.revision) {
+                  retry();
+                  return;
+                }
+                setPreview({ key, result: result.data });
+                store.onChange("expectedRevision", result.data.schemaRevision);
+              } catch (error) {
+                setPreviewError(true);
+                throw error;
+              } finally {
+                setLoading(false);
+              }
+            })
+          }
+        >
+          {loading ? t("Loading.text") : t("RecordWidgets.preview")}
+        </Button>
 
-          {preview?.key === key && preview.result.schemaRevision === model?.revision && (
-            <div className="h-64">
-              <RecordWidgetChart
-                data={preview.result}
-                displayOptions={form.displayOptions}
-                groupOptions={model?.fields.find((field) => field.id === measure.groupBy?.fieldId)?.options ?? []}
-                measure={measure}
-                status="ready"
-              />
-            </div>
-          )}
-        </section>
-      );
-    }
-    if (section === "filters") {
-      return (
-        <div className="space-y-4">
-          <h3 className="text-sm font-medium" id="widget-entity-filters-heading">
-            {t("Dashboard.widgetEditor.tabs.filtersLabel", {
-              count:
-                measure.source.filters.length +
-                measure.source.relationships.length +
-                (measure.source.relatedFilters?.length ?? 0),
-            })}
-          </h3>
+        {previewError && (
+          <p className="text-sm text-destructive" role="alert">
+            {t("RecordWidgets.previewFailed")}
+          </p>
+        )}
 
-          <FormInput id="measure.source.search" label={t("RecordWidgets.search")} />
+        {preview?.key === key && preview.result.schemaRevision === model?.revision && (
+          <div className="h-64">
+            <RecordWidgetChart
+              data={preview.result}
+              displayOptions={form.displayOptions}
+              groupOptions={model?.fields.find((field) => field.id === measure.groupBy?.fieldId)?.options ?? []}
+              measure={measure}
+              status="ready"
+            />
+          </div>
+        )}
+      </section>
+    );
+    const filtersContent = (
+      <div className="space-y-4">
+        <h3 className="text-sm font-medium" id="widget-entity-filters-heading">
+          {t("Dashboard.widgetEditor.tabs.filtersLabel", {
+            count:
+              measure.source.filters.length +
+              measure.source.relationships.length +
+              (measure.source.relatedFilters?.length ?? 0),
+          })}
+        </h3>
 
-          {status}
+        <FormInput id="measure.source.search" label={t("RecordWidgets.search")} />
 
-          <RecordWidgetFieldFilters
-            disabled={!model}
-            fields={recordFilterFields(sourceFields, {
-              createdAt: t("RecordModel.createdAt"),
-              updatedAt: t("RecordModel.updatedAt"),
-              assignedTo: t("RecordModel.assignedTo"),
-            })}
-            filters={measure.source.filters}
-            id="measure.source.filters"
-            store={store}
-          />
+        {status}
 
-          <RecordWidgetRelatedFilters
-            filters={measure.source.relatedFilters ?? []}
-            id="measure.source.relatedFilters"
-            model={model}
-            store={store}
-            typeId={measure.source.typeId}
-          />
+        <RecordWidgetFieldFilters
+          disabled={!model}
+          fields={recordFilterFields(sourceFields, {
+            createdAt: t("RecordModel.createdAt"),
+            updatedAt: t("RecordModel.updatedAt"),
+            assignedTo: t("RecordModel.assignedTo"),
+          })}
+          filters={measure.source.filters}
+          id="measure.source.filters"
+          store={store}
+        />
 
-          {measure.groupBy && (
-            <section aria-label={t("RecordWidgets.groupFilters")} className="space-y-4 border-t border-border pt-4">
-              <h3 className="text-sm font-medium">{t("RecordWidgets.groupFilters")}</h3>
+        <RecordWidgetRelatedFilters
+          filters={measure.source.relatedFilters ?? []}
+          id="measure.source.relatedFilters"
+          model={model}
+          store={store}
+          typeId={measure.source.typeId}
+        />
 
-              <p className="text-xs text-muted-foreground">{t("RecordWidgets.groupFilterHelp")}</p>
+        {measure.groupBy && (
+          <section aria-label={t("RecordWidgets.groupFilters")} className="space-y-4 border-t border-border pt-4">
+            <h3 className="text-sm font-medium">{t("RecordWidgets.groupFilters")}</h3>
 
-              <FormInput id="measure.groupBy.filter.search" label={t("RecordWidgets.search")} />
+            <p className="text-xs text-muted-foreground">{t("RecordWidgets.groupFilterHelp")}</p>
 
-              <RecordWidgetFieldFilters
-                disabled={!model}
-                fields={recordFilterFields(model?.fields.filter((field) => field.typeId === groupTypeId) ?? [], {
-                  createdAt: t("RecordModel.createdAt"),
-                  updatedAt: t("RecordModel.updatedAt"),
-                  assignedTo: t("RecordModel.assignedTo"),
-                })}
-                filters={measure.groupBy.filter?.filters ?? []}
-                id="measure.groupBy.filter.filters"
-                store={store}
-              />
+            <FormInput id="measure.groupBy.filter.search" label={t("RecordWidgets.search")} />
 
-              <RecordWidgetRelatedFilters
-                filters={measure.groupBy.filter?.relatedFilters ?? []}
-                id="measure.groupBy.filter.relatedFilters"
-                model={model}
-                store={store}
-                typeId={groupTypeId}
-              />
-            </section>
-          )}
-        </div>
-      );
-    }
+            <RecordWidgetFieldFilters
+              disabled={!model}
+              fields={recordFilterFields(model?.fields.filter((field) => field.typeId === groupTypeId) ?? [], {
+                createdAt: t("RecordModel.createdAt"),
+                updatedAt: t("RecordModel.updatedAt"),
+                assignedTo: t("RecordModel.assignedTo"),
+              })}
+              filters={measure.groupBy.filter?.filters ?? []}
+              id="measure.groupBy.filter.filters"
+              store={store}
+            />
+
+            <RecordWidgetRelatedFilters
+              filters={measure.groupBy.filter?.relatedFilters ?? []}
+              id="measure.groupBy.filter.relatedFilters"
+              model={model}
+              store={store}
+              typeId={groupTypeId}
+            />
+          </section>
+        )}
+      </div>
+    );
     const sourceType = model?.types.find((type) => type.id === measure.source.typeId);
     const relations = widgetRelationshipChoices(model, groupTypeId);
-    return (
+    const dataContent = (
       <div className="space-y-4">
         <FormAutocomplete<{ id: string; pluralLabel: string }>
           getItems={discoverWidgetRecordTypesAction}
@@ -347,6 +364,20 @@ export const RecordWidgetEditor = observer(
             )
           }
         />
+      </div>
+    );
+    if (section === "data") return dataContent;
+    if (section === "filters") return filtersContent;
+    if (section === "preview") return previewContent;
+    return (
+      <div className="space-y-6">
+        {dataContent}
+
+        <section id="widget-config-filters">{filtersContent}</section>
+
+        {appearance}
+
+        <section id="widget-config-preview">{previewContent}</section>
       </div>
     );
   },

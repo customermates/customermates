@@ -107,7 +107,7 @@ export const RecordWidgetFieldFilters = observer(
           const filterId = `${id}[${index}]`;
           const many = filter.operator === "in" || filter.operator === "notIn";
           return (
-            <div key={`${field.id}:${index}`} className="space-y-3 rounded-lg border border-border p-3">
+            <div key={`${field.id}:${index}`} className="space-y-3 border-b border-border pb-4">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-sm font-medium">{field.label}</span>
 
@@ -184,7 +184,7 @@ export const RecordWidgetFieldFilters = observer(
                   ))}
 
                   <Button
-                    disabled={(filter.values?.length ?? 0) >= 100}
+                    disabled={formDisabled || (filter.values?.length ?? 0) >= 100}
                     type="button"
                     variant="ghost"
                     onClick={() => store.onChange(`${filterId}.values`, [...(filter.values ?? []), defaults(field)])}
@@ -274,7 +274,7 @@ export const RecordWidgetRelatedFilters = observer(
             return step.direction === "outgoing" ? relation.sourceLabel : relation.targetLabel;
           });
           return (
-            <div key={index} className="space-y-3 rounded-lg border border-border p-3">
+            <div key={index} className="space-y-3 border-b border-border pb-4">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-sm font-medium">{pathLabels.join(" / ")}</span>
 

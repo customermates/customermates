@@ -1,9 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useClientReady } from "@/hooks/use-client-ready";
-import { Plus, Link2, ChevronRight } from "lucide-react";
+import { Plus, Link2, ChevronRight, ArrowLeft, Settings2, Activity } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import type { RecordModel } from "@/features/records/record-model.schema";
@@ -11,16 +11,20 @@ import type { RecordModel } from "@/features/records/record-model.schema";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { RecordAiAction } from "@/app/components/agent-chat/record-ai-action";
 import { IntlLink, useRouter } from "@/i18n/navigation";
-import { AppCard } from "@/components/card/app-card";
-import { AppCardBody } from "@/components/card/app-card-body";
+import { observer } from "mobx-react-lite";
+import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
+import { Alert } from "@/components/shared/alert";
+import { recordTypeIcon } from "@/components/records/record-type-icon";
+import { ActivityPathModal, ActivityPathModalStore } from "./activity-path-modal";
+import { DataModelStore } from "./data-model.store";
 import { Button } from "@/components/ui/button";
-import { discoverRecordTypesAction, getRecordModelAction } from "../../../records/actions";
+import { discoverRecordTypesAction } from "../../../records/actions";
 import { TypeModal, TypeModalStore } from "./type-modal";
 import { FieldModal, FieldModalStore } from "./field-modal";
 import { RelationshipModal, RelationshipModalStore } from "./relationship-modal";
 import { useRecordRouteReady } from "@/components/records/use-record-route-ready";
 
-export function DataModelPageView({
+export const DataModelPageView = observer(function DataModelPageView({
   initialModel,
   canManage,
   selectedTypeId,
@@ -35,11 +39,14 @@ export function DataModelPageView({
   const router = useRouter();
   const createRequested = useSearchParams().get("create") === "true";
   const t = useTranslations();
-  const [model, setModel] = useState(initialModel);
-  const refresh = useCallback(async () => {
-    const next = await getRecordModelAction();
-    setModel((current) => (next.revision >= current.revision ? next : current));
-  }, []);
+  const [store] = useState(() => new DataModelStore(initialModel));
+  const authoritative = useRef(initialModel);
+  if (authoritative.current !== initialModel) {
+    authoritative.current = initialModel;
+    store.hydrate(initialModel);
+  }
+  const model = store.model;
+  const refresh = store.refresh;
   const [typeModal] = useState(
     () =>
       new TypeModalStore(root, initialModel, async (preview) => {
@@ -55,6 +62,7 @@ export function DataModelPageView({
   );
   const [fieldModal] = useState(() => new FieldModalStore(root, initialModel, refresh));
   const [relationModal] = useState(() => new RelationshipModalStore(root, initialModel, refresh));
+  const [activityModal] = useState(() => new ActivityPathModalStore(root, initialModel, refresh));
   const consumedCreate = useRef(false);
   useEffect(() => {
     if (!createRequested) {
@@ -72,124 +80,124 @@ export function DataModelPageView({
     return () => window.cancelAnimationFrame(frame);
   }, [createRequested, canManage, model, typeModal]);
   useEffect(() => {
-    const stores = [typeModal, fieldModal, relationModal];
+    const stores = [typeModal, fieldModal, relationModal, activityModal];
     for (const store of stores) root.registerModalStore(store);
     return () => {
       for (const store of stores) root.unregisterModalStore(store);
     };
-  }, [root, typeModal, fieldModal, relationModal]);
+  }, [root, typeModal, fieldModal, relationModal, activityModal]);
   const selected = model.types.find((type) => type.id === selectedTypeId);
-  return (
-    <div className="mx-auto w-full max-w-4xl space-y-6">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-semibold">{t("RecordModel.dataModel")}</h1>
+  const toolbar = useMemo(
+    () =>
+      canManage ? (
+        selected ? (
+          <>
+            <Button
+              disabled={!interactive}
+              size="sm"
+              variant="secondary"
+              onClick={() => typeModal.edit(model, selected)}
+            >
+              <Settings2 aria-hidden className="size-4" />
 
-          <p className="mt-1 text-sm text-muted-foreground">{t("RecordModel.dataModelDescription")}</p>
+              {t("RecordModel.typeSettings")}
+            </Button>
 
-          <RecordAiAction
-            registerContext
-            context={{
-              reference: selected ? { kind: "recordType", typeId: selected.id } : { kind: "dataModel" },
-              label: selected?.pluralLabel ?? t("RecordModel.dataModel"),
-            }}
-          />
-        </div>
+            <Button
+              disabled={!interactive}
+              size="sm"
+              variant="secondary"
+              onClick={() => typeModal.edit(model, selected, "appearance")}
+            >
+              {t("RecordModel.sharedDefaults")}
+            </Button>
 
-        {canManage && (
-          <Button
-            disabled={!interactive}
-            size="sm"
-            onClick={() => {
-              typeModal.edit(model, null);
-            }}
-          >
-            <Plus className="size-4" />
+            <Button disabled={!interactive} size="sm" onClick={() => fieldModal.edit(model, selected.id, null)}>
+              <Plus aria-hidden className="size-4" />
+
+              {t("RecordModel.addField")}
+            </Button>
+          </>
+        ) : (
+          <Button disabled={!interactive} size="sm" onClick={() => typeModal.edit(model, null)}>
+            <Plus aria-hidden className="size-4" />
 
             {t("RecordModel.createList")}
           </Button>
-        )}
-      </div>
+        )
+      ) : null,
+    [canManage, selected, interactive, model, typeModal, fieldModal, t],
+  );
+  useSetTopBarActions(toolbar);
+  const typeRows = (embedded: boolean) =>
+    model.types
+      .filter((type) => !type.archived && type.embedded === embedded)
+      .map((type) => {
+        const Icon = recordTypeIcon(type.icon);
+        return (
+          <IntlLink
+            key={type.id}
+            className="flex items-center gap-3 rounded-md p-3 hover:bg-accent"
+            href={`/company/data-model?typeId=${type.id}`}
+          >
+            <Icon aria-hidden className="size-4 shrink-0 text-muted-foreground" />
 
-      <AppCard>
-        <AppCardBody className="space-y-1">
-          {model.types
-            .filter((type) => !type.archived && !type.embedded)
-            .map((type) => (
-              <div key={type.id} className="flex items-center justify-between gap-3 rounded-md p-3 hover:bg-accent">
-                <div>
-                  <IntlLink className="font-medium" href={`/records/${type.id}`}>
-                    {type.pluralLabel}
-                  </IntlLink>
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-medium">{type.pluralLabel}</span>
 
-                  {type.description && <p className="text-sm text-muted-foreground">{type.description}</p>}
-                </div>
+              {type.description && <span className="block text-xs text-muted-foreground">{type.description}</span>}
+            </span>
 
-                <Button asChild size="sm" variant="ghost">
-                  <IntlLink href={`/company/data-model?typeId=${type.id}`}>
-                    {t("RecordModel.configure")}
+            <ChevronRight aria-hidden className="size-4 text-muted-foreground" />
+          </IntlLink>
+        );
+      });
+  return (
+    <div className="animate-page-result-in w-full max-w-3xl space-y-6 motion-reduce:animate-none">
+      {store.refreshFailed && (
+        <Alert color="danger" description={t("ErrorCard.title")}>
+          <Button disabled={store.isRefreshing} size="sm" variant="secondary" onClick={() => void refresh()}>
+            {t("ErrorCard.retry")}
+          </Button>
+        </Alert>
+      )}
 
-                    <ChevronRight className="size-4" />
-                  </IntlLink>
-                </Button>
-              </div>
-            ))}
-        </AppCardBody>
-      </AppCard>
+      <RecordAiAction
+        registerContext
+        context={{
+          reference: selected ? { kind: "recordType", typeId: selected.id } : { kind: "dataModel" },
+          label: selected?.pluralLabel ?? t("RecordModel.dataModel"),
+        }}
+      />
 
-      {selected && (
-        <AppCard>
-          <AppCardBody className="space-y-5">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 className="text-lg font-medium">{selected.pluralLabel}</h2>
+      {selected ? (
+        <>
+          <div className="space-y-2">
+            <Button asChild className="-ml-3 w-fit" size="sm" variant="ghost">
+              <IntlLink href="/company/data-model">
+                <ArrowLeft aria-hidden className="size-4" />
 
-              {canManage && (
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    disabled={!interactive}
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => typeModal.edit(model, selected)}
-                  >
-                    {t("RecordModel.typeSettings")}
-                  </Button>
+                {t("RecordModel.allLists")}
+              </IntlLink>
+            </Button>
 
-                  <Button
-                    disabled={!interactive}
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => relationModal.edit(model, selected.id)}
-                  >
-                    <Link2 className="size-4" />
+            <h2 className="text-base font-semibold">{selected.pluralLabel}</h2>
 
-                    {t("RecordModel.relationship")}
-                  </Button>
+            {selected.description && <p className="text-sm text-muted-foreground">{selected.description}</p>}
+          </div>
 
-                  <Button
-                    disabled={!interactive}
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => fieldModal.edit(model, selected.id, null)}
-                  >
-                    <Plus className="size-4" />
-
-                    {t("RecordModel.addField")}
-                  </Button>
-                </div>
-              )}
-            </div>
+          <section aria-label={t("RecordModel.fields")} className="space-y-2">
+            <h3 className="text-sm font-medium">{t("RecordModel.fields")}</h3>
 
             <div className="divide-y divide-border">
               {model.fields
                 .filter((field) => field.typeId === selected.id && !field.archived)
                 .map((field) => (
                   <div key={field.id} className="flex items-center justify-between gap-3 py-3">
-                    <div>
+                    <div className="min-w-0">
                       <span className="text-sm font-medium">{field.label}</span>
 
-                      <p className="text-xs text-muted-foreground">
-                        {`${t(`RecordModel.types.${field.valueType}`)} · ${t(`RecordModel.behaviors.${field.behavior.kind}`)}`}
-                      </p>
+                      <p className="text-xs text-muted-foreground">{`${t(`RecordModel.types.${field.valueType}`)} · ${t(`RecordModel.behaviors.${field.behavior.kind}`)}`}</p>
                     </div>
 
                     {canManage && (
@@ -205,45 +213,78 @@ export function DataModelPageView({
                   </div>
                 ))}
             </div>
+          </section>
 
-            <div className="space-y-2">
-              {(selected.relationshipPaths ?? [])
-                .filter((path) => !path.archived)
-                .map((path) => (
-                  <div key={path.id} className="flex items-center justify-between gap-3">
+          <section aria-label={t("RecordModel.relationships")} className="space-y-2">
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="text-sm font-medium">{t("RecordModel.relationships")}</h3>
+
+              {canManage && (
+                <Button
+                  disabled={!interactive}
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => relationModal.edit(model, selected.id)}
+                >
+                  <Link2 aria-hidden className="size-4" />
+
+                  {t("RecordModel.relationship")}
+                </Button>
+              )}
+            </div>
+
+            {(selected.relationshipPaths ?? [])
+              .filter((path) => !path.archived)
+              .map((path) => (
+                <div key={path.id} className="flex items-center justify-between gap-3 py-2">
+                  <div>
+                    <span className="text-sm">{path.label}</span>
+
+                    <p className="text-xs text-muted-foreground">{t("RecordModel.relationshipPath")}</p>
+                  </div>
+
+                  {canManage && (
+                    <Button
+                      disabled={!interactive}
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => relationModal.editPath(model, selected.id, path)}
+                    >
+                      {t("RecordModel.edit")}
+                    </Button>
+                  )}
+                </div>
+              ))}
+
+            {model.relationships
+              .filter(
+                (relation) =>
+                  !relation.archived &&
+                  (relation.sourceTypeId === selected.id || relation.targetTypeId === selected.id),
+              )
+              .map((relation) => {
+                const targetId = relation.sourceTypeId === selected.id ? relation.targetTypeId : relation.sourceTypeId;
+                const target = model.types.find((type) => type.id === targetId);
+                return (
+                  <div key={relation.id} className="flex items-center justify-between gap-3 py-2">
                     <div>
-                      <span className="text-sm">{path.label}</span>
+                      <span className="text-sm">
+                        {relation.sourceTypeId === selected.id ? relation.sourceLabel : relation.targetLabel}
+                      </span>
 
-                      <p className="text-xs text-muted-foreground">{t("RecordModel.relationshipPath")}</p>
+                      {target && (
+                        <IntlLink
+                          className="block text-xs text-muted-foreground hover:underline"
+                          href={`/company/data-model?typeId=${target.id}`}
+                        >
+                          {target.pluralLabel}
+                        </IntlLink>
+                      )}
                     </div>
 
                     {canManage && (
                       <Button
                         disabled={!interactive}
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => relationModal.editPath(model, selected.id, path)}
-                      >
-                        {t("RecordModel.edit")}
-                      </Button>
-                    )}
-                  </div>
-                ))}
-
-              {model.relationships
-                .filter(
-                  (relation) =>
-                    !relation.archived &&
-                    (relation.sourceTypeId === selected.id || relation.targetTypeId === selected.id),
-                )
-                .map((relation) => (
-                  <div key={relation.id} className="flex items-center justify-between gap-3">
-                    <span className="text-sm">
-                      {relation.sourceTypeId === selected.id ? relation.sourceLabel : relation.targetLabel}
-                    </span>
-
-                    {canManage && (
-                      <Button
                         size="sm"
                         variant="ghost"
                         onClick={() => relationModal.edit(model, selected.id, relation)}
@@ -252,10 +293,64 @@ export function DataModelPageView({
                       </Button>
                     )}
                   </div>
-                ))}
+                );
+              })}
+          </section>
+
+          <section aria-label={t("RecordModel.activityConnections")} className="space-y-2">
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="text-sm font-medium">{t("RecordModel.activityConnections")}</h3>
+
+              {canManage && (
+                <Button
+                  disabled={!interactive}
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => activityModal.edit(model, selected.id)}
+                >
+                  <Activity aria-hidden className="size-4" />
+
+                  {t("RecordModel.addActivityConnection")}
+                </Button>
+              )}
             </div>
-          </AppCardBody>
-        </AppCard>
+
+            <p className="text-xs text-muted-foreground">{t("RecordModel.activityConnectionsHelp")}</p>
+
+            {model.activityPaths
+              .filter((path) => path.typeId === selected.id && !path.archived)
+              .map((path) => (
+                <div key={path.id} className="flex items-center justify-between gap-3 py-2">
+                  <span className="text-sm">{path.label}</span>
+
+                  {canManage && (
+                    <Button
+                      disabled={!interactive}
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => activityModal.edit(model, selected.id, path)}
+                    >
+                      {t("RecordModel.edit")}
+                    </Button>
+                  )}
+                </div>
+              ))}
+          </section>
+        </>
+      ) : (
+        <>
+          <p className="text-sm text-muted-foreground">{t("RecordModel.dataModelDescription")}</p>
+
+          <div className="divide-y divide-border">{typeRows(false)}</div>
+
+          {model.types.some((type) => type.embedded && !type.archived) && (
+            <section className="space-y-2">
+              <h2 className="text-sm font-medium">{t("RecordModel.embeddedLists")}</h2>
+
+              <div className="divide-y divide-border">{typeRows(true)}</div>
+            </section>
+          )}
+        </>
       )}
 
       <TypeModal store={typeModal} />
@@ -263,6 +358,8 @@ export function DataModelPageView({
       <FieldModal store={fieldModal} />
 
       <RelationshipModal store={relationModal} />
+
+      <ActivityPathModal store={activityModal} />
     </div>
   );
-}
+});

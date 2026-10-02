@@ -192,17 +192,42 @@ export const RoleModal = observer(({ store }: Props) => {
 
               <p className="text-xs text-muted-foreground">{t("RoleModal.recordTypesHint")}</p>
 
-              {store.context?.types.map((type, index) => (
-                <div key={type.id} className="space-y-3 border-t border-border py-3" data-record-permission={type.id}>
-                  <div className="flex items-center gap-2 text-sm font-medium">
-                    <span className="min-w-0 break-words">{type.label}</span>
+              <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] gap-x-3 divide-y divide-border border-y border-border sm:gap-x-6">
+                <div className="col-span-3 grid grid-cols-subgrid py-2 text-[10px] font-medium uppercase tracking-wide text-muted-foreground sm:text-[11px]">
+                  <span>{t("RoleModal.recordTypes")}</span>
 
-                    {type.archived && <span className="text-xs text-muted-foreground">{t("RoleModal.archived")}</span>}
-                  </div>
+                  <span>{t("RoleModal.manageAccess")}</span>
 
-                  <div className="flex flex-wrap gap-x-6 gap-y-3">
+                  <span>{t("RoleModal.readAccess")}</span>
+                </div>
+
+                {store.context?.types.map((type, index) => (
+                  <div
+                    key={type.id}
+                    className="col-span-3 grid grid-cols-subgrid items-center py-3"
+                    data-record-permission={type.id}
+                  >
+                    <h3 className="min-w-0 break-words text-sm font-medium">
+                      {type.label}
+
+                      {type.archived && (
+                        <span className="block text-xs font-normal text-muted-foreground">
+                          {t("RoleModal.archived")}
+                        </span>
+                      )}
+                    </h3>
+
+                    <div className="flex max-w-48 flex-wrap gap-x-3 gap-y-2">
+                      <FormCheckbox id={`recordGrants.${index}.create`} label={t("RoleModal.create")} />
+
+                      <FormCheckbox id={`recordGrants.${index}.update`} label={t("RoleModal.edit")} />
+
+                      <FormCheckbox id={`recordGrants.${index}.delete`} label={t("RoleModal.delete")} />
+                    </div>
+
                     <FormRadioGroup
                       ariaLabel={`${type.label} — ${t("RoleModal.readAccess")}`}
+                      className="w-32 gap-3 sm:w-auto"
                       id={`recordGrants.${index}.readAccess`}
                       options={[
                         { value: "all", label: t("RoleModal.readAll") },
@@ -210,17 +235,9 @@ export const RoleModal = observer(({ store }: Props) => {
                         { value: "none", label: t("RoleModal.readNone") },
                       ]}
                     />
-
-                    <div className="flex flex-wrap gap-4">
-                      <FormCheckbox id={`recordGrants.${index}.create`} label={t("RoleModal.create")} />
-
-                      <FormCheckbox id={`recordGrants.${index}.update`} label={t("RoleModal.edit")} />
-
-                      <FormCheckbox id={`recordGrants.${index}.delete`} label={t("RoleModal.delete")} />
-                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </AppCardBody>
 

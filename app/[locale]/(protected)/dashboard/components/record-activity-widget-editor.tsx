@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
@@ -102,7 +102,15 @@ function RecordSelection({
 }
 
 export const RecordActivityWidgetEditor = observer(
-  ({ store, section }: { store: WidgetModalStore; section: "data" | "preview" }) => {
+  ({
+    store,
+    section,
+    appearance,
+  }: {
+    store: WidgetModalStore;
+    appearance?: ReactNode;
+    section: "data" | "preview" | "all";
+  }) => {
     const t = useTranslations();
     const root = useRootStore();
     const formDisabled = useAppForm()?.isDisabled ?? false;
@@ -190,65 +198,63 @@ export const RecordActivityWidgetEditor = observer(
         )}
       </FormAutocomplete>
     );
-    if (section === "preview") {
-      return (
-        <section className="min-w-0 space-y-3 rounded-xl border border-border p-4">
-          <h3 className="text-sm font-medium" id="widget-preview-heading">
-            {t("Dashboard.widgetEditor.preview.title")}
-          </h3>
+    const previewContent = (
+      <section className="min-w-0 space-y-3">
+        <h3 className="text-sm font-medium" id="widget-preview-heading">
+          {t("Dashboard.widgetEditor.preview.title")}
+        </h3>
 
-          {form.id && (
-            <RecordAiAction
-              active={store.isOpen}
-              context={{ reference: { kind: "widget", widgetId: form.id }, label: form.name }}
-            />
-          )}
+        {form.id && (
+          <RecordAiAction
+            active={store.isOpen}
+            context={{ reference: { kind: "widget", widgetId: form.id }, label: form.name }}
+          />
+        )}
 
-          <Button
-            disabled={formDisabled || loading}
-            type="button"
-            variant="secondary"
-            onClick={() => {
-              const parsed = RecordActivityQuerySchema.safeParse(query);
-              if (!parsed.success) {
-                toastZodErrorTree(z.treeifyError(parsed.error));
-                return;
-              }
-              setLoading(true);
-              setPreviewError(false);
-              runUserAction(() =>
-                getRecordActivitiesAction({ ...parsed.data, cursor: null, limit: 25 })
-                  .then((result) => {
-                    if (result.ok) setPreview({ key, result: result.data });
-                    else {
-                      setPreviewError(true);
-                      toastZodErrorTree(result.error);
-                    }
-                  })
-                  .catch(() => setPreviewError(true))
-                  .finally(() => setLoading(false)),
-              );
-            }}
-          >
-            {loading ? t("Loading.text") : t("Dashboard.widgetEditor.preview.title")}
-          </Button>
+        <Button
+          disabled={formDisabled || loading}
+          type="button"
+          variant="secondary"
+          onClick={() => {
+            const parsed = RecordActivityQuerySchema.safeParse(query);
+            if (!parsed.success) {
+              toastZodErrorTree(z.treeifyError(parsed.error));
+              return;
+            }
+            setLoading(true);
+            setPreviewError(false);
+            runUserAction(() =>
+              getRecordActivitiesAction({ ...parsed.data, cursor: null, limit: 25 })
+                .then((result) => {
+                  if (result.ok) setPreview({ key, result: result.data });
+                  else {
+                    setPreviewError(true);
+                    toastZodErrorTree(result.error);
+                  }
+                })
+                .catch(() => setPreviewError(true))
+                .finally(() => setLoading(false)),
+            );
+          }}
+        >
+          {loading ? t("Loading.text") : t("Dashboard.widgetEditor.preview.title")}
+        </Button>
 
-          {previewError && <p role="alert">{t("Dashboard.activityWidget.error")}</p>}
+        {previewError && <p role="alert">{t("Dashboard.activityWidget.error")}</p>}
 
-          {preview?.key === key && (
-            <ActivitiesList
-              customColumns={[]}
-              hasMore={false}
-              items={preview.result.items}
-              loading={false}
-              onLoadOlder={() => undefined}
-            />
-          )}
-        </section>
-      );
-    }
+        {preview?.key === key && (
+          <ActivitiesList
+            customColumns={[]}
+            hasMore={false}
+            items={preview.result.items}
+            loading={false}
+            onLoadOlder={() => undefined}
+          />
+        )}
+      </section>
+    );
     const filters = query.filters ?? [];
-    return (
+    const dataContent = (
       <div className="space-y-4">
         <p className="text-xs text-muted-foreground">{t("RecordActivityWidgets.scopeHelp")}</p>
 
@@ -276,7 +282,7 @@ export const RecordActivityWidgetEditor = observer(
         </FormAutocomplete>
 
         {scopeTypes.map((typeId) => (
-          <div key={typeId} className="space-y-2 rounded-lg border border-border p-3">
+          <div key={typeId} className="space-y-2">
             <p className="text-sm font-medium">
               {typeNames.find((type) => type.id === typeId)?.pluralLabel ?? t("Loading.text")}
             </p>
@@ -305,7 +311,7 @@ export const RecordActivityWidgetEditor = observer(
           const operators = filter.kind === "record" ? ["in", "notIn", "hasSome", "hasNone"] : ["in", "notIn"];
           const presence = filter.kind === "record" && (filter.operator === "hasSome" || filter.operator === "hasNone");
           return (
-            <div key={index} className="space-y-3 rounded-lg border border-border p-3">
+            <div key={index} className="space-y-3 border-b border-border pb-4">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-sm font-medium">{t(`RecordActivityWidgets.filterKinds.${filter.kind}`)}</span>
 
@@ -421,6 +427,17 @@ export const RecordActivityWidgetEditor = observer(
 
           <FormIsoDatePicker dateOnly={false} id="activityQuery.before" label={t("RecordActivityWidgets.before")} />
         </div>
+      </div>
+    );
+    if (section === "data") return dataContent;
+    if (section === "preview") return previewContent;
+    return (
+      <div className="space-y-6">
+        {dataContent}
+
+        {appearance}
+
+        <section id="widget-config-preview">{previewContent}</section>
       </div>
     );
   },

@@ -89,6 +89,14 @@ const RECORD_TOP_LEVEL_DYNAMIC_KEYS = [
   "missing",
   "restricted",
   "calculationError",
+  "field",
+  "relationship",
+  "option",
+  "member",
+  "multipleValues",
+  ...RECORD_VALUE_TYPE_KEYS.map((key) => key.replace("RecordModel.", "")),
+  ...RECORD_REDUCER_KEYS.map((key) => key.replace("RecordModel.", "")),
+  ...RECORD_OPERATOR_KEYS.map((key) => key.replace("RecordModel.", "")),
   "yes",
   "no",
 ].map((key) => `RecordModel.${key}`);
@@ -525,6 +533,8 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
     ["in", "notIn", "hasSome", "hasNone"].map((operator) => `RecordActivityWidgets.operators.${operator}`),
   ],
   ["RecordModel.${*}", RECORD_TOP_LEVEL_DYNAMIC_KEYS],
+  ["RecordModel.condition${*}", ["If", "Then", "Otherwise"].map((key) => `RecordModel.condition${key}`)],
+  ["RecordModel.range${*}", ["Start", "End"].map((key) => `RecordModel.range${key}`)],
   ["RecordModel.behaviors.${*}", RECORD_BEHAVIOR_KEYS],
   ["RecordModel.deletion.${*}", ["unlink", "restrict", "cascade"].map((value) => `RecordModel.deletion.${value}`)],
   ["RecordModel.operators.${*}", RECORD_OPERATOR_KEYS],
@@ -628,6 +638,9 @@ const DYNAMIC_SITE_CONSUMERS = new Map<string, readonly string[]>([
 const ENFORCED = true;
 
 export const DYNAMIC_KEY_SITES = [
+  "app/[locale]/(protected)/company/data-model/components/calculation-input.tsx :: t :: RecordModel.${key}",
+  'app/[locale]/(protected)/company/data-model/components/calculation-input.tsx :: t :: RecordModel.condition${index === 0 ? "If" : index === 1 ? "Then" : "Otherwise"}',
+  'app/[locale]/(protected)/company/data-model/components/calculation-input.tsx :: t :: RecordModel.range${end === "start" ? "Start" : "End"}',
   "app/[locale]/(protected)/company/components/audit-log/audit-log-modal.tsx :: t :: Common.events.${auditLog.event}",
   "app/[locale]/(protected)/company/components/audit-log/use-audit-log-columns.tsx :: t :: Common.events.${row.original.event}",
   "app/[locale]/(protected)/company/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.description",

@@ -13,6 +13,7 @@ const testEnvironment = {
   BETTER_AUTH_SECRET: "vitest-secret",
 };
 const domTestFiles = [
+  "app/**/company/data-model/components/__tests__/calculation-input.dom.test.ts",
   "features/messaging/activities/__tests__/record-activities-panel.test.ts",
   "app/[locale]/(public)/auth/reset-password/__tests__/reset-password-form.test.ts",
   "app/[locale]/(static)/contact/__tests__/contact-form.test.ts",

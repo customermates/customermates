@@ -1935,8 +1935,6 @@
       "preview": {
         "title": "Vista previa"
       },
-      "progress": "Paso {current} de {total}",
-      "progressLabel": "Progreso de creación del widget",
       "save": "Guardar cambios",
       "sharing": {
         "template": "Compartir como plantilla"
@@ -1947,10 +1945,7 @@
       },
       "tabs": {
         "appearance": "Apariencia",
-        "data": "Datos",
-        "filters": "Filtros",
-        "filtersLabel": "{count, plural, =0 {Filtros, ninguno activo} =1 {Filtros, 1 activo} other {Filtros, # activos}}",
-        "label": "Configuración del widget"
+        "filtersLabel": "{count, plural, =0 {Filtros, ninguno activo} =1 {Filtros, 1 activo} other {Filtros, # activos}}"
       },
       "templates": {
         "by": "Compartido por {name}",
@@ -2494,7 +2489,14 @@
       "link": "Vincular",
       "linkUpdateFailed": "No se pudo actualizar el vínculo con el contacto",
       "openContact": "Abrir el contacto",
-      "unlink": "Desvincular el contacto"
+      "unlink": "Desvincular el contacto",
+      "openRecord": "Abrir registro",
+      "unlinkRecord": "Desvincular registro",
+      "linkedRecords": "Registros vinculados",
+      "conversationRecords": "Registros de la conversación",
+      "conversationRecordsHint": "Vincula esta conversación a un registro sin vincular otras conversaciones de este participante.",
+      "linkRecord": "Vincular registro",
+      "noRecords": "Sin registros vinculados"
     },
     "previewAudio": "🎵 Audio",
     "previewFile": "📄 Archivo adjunto",
@@ -3273,7 +3275,6 @@
     "oppositeCount": "Registros por registro vinculado",
     "oppositeLabel": "Etiqueta en el otro lado",
     "option": "Opción",
-    "optionProbability": "Probabilidad de la opción",
     "options": "Opciones",
     "pinnedFields": "Campos de detalle fijados",
     "pluralDescription": "El nombre mostrado en la navegación. Déjalo vacío para usar el nombre de la lista.",
@@ -3348,7 +3349,34 @@
     "unlinkRecord": "Desvincular {name}",
     "updatedAt": "Actualizado el",
     "valueType": "Tipo de valor",
-    "yes": "Sí"
+    "yes": "Sí",
+    "activityConnections": "Conexiones de actividad",
+    "activityConnectionsHelp": "Elige qué registros vinculados aportan mensajes y cambios al historial de actividad de esta lista. Se siguen aplicando los permisos de mensajes y registros.",
+    "addActivityConnection": "Añadir conexión",
+    "includeMessages": "Incluir mensajes",
+    "includeAudit": "Incluir cambios de registros",
+    "archiveActivityPath": "Archivar conexión",
+    "allLists": "Todas las listas",
+    "fields": "Campos",
+    "relationships": "Relaciones",
+    "embeddedLists": "Listas integradas",
+    "enableChannels": "Activar canales",
+    "channelsHelp": "Añade direcciones de correo, números de teléfono y cuentas sociales a los registros de esta lista. Un identificador puede vincularse con varios registros.",
+    "calculationNavigation": "Navegación del cálculo",
+    "calculationResult": "Resultado",
+    "calculationInput": "Entrada {number}",
+    "value": "Valor",
+    "optionAttribute": "Atributo de la opción",
+    "attribute": "Nombre del atributo",
+    "rangeStart": "Desde",
+    "rangeEnd": "Hasta",
+    "conditionIf": "Condición",
+    "conditionThen": "Entonces",
+    "conditionOtherwise": "Si no",
+    "removeInput": "Eliminar entrada",
+    "addProbability": "Añadir probabilidad",
+    "useChannelAvatar": "Usar la foto de perfil del canal",
+    "addAttribute": "Añadir atributo"
   },
   "RecordTriggers": {
     "changedFieldsHelp": "Déjalo vacío para incluir todos los cambios.",
@@ -3399,7 +3427,8 @@
     "signedChart": "Los valores negativos se muestran en una lista. Elige un gráfico de barras para representarlos.",
     "source": "Registros de",
     "unavailable": "Esta medida no está disponible. Revisa su configuración o los permisos.",
-    "value": "Campo de valor"
+    "value": "Campo de valor",
+    "previewFailed": "No se pudo cargar la vista previa. Inténtalo de nuevo."
   },
   "ResetPassword": {
     "cta": "Restablecer la contraseña",
@@ -3666,8 +3695,14 @@
       "connectedAccountsPerUser": "{accounts, plural, one {# cuenta conectada por usuario} other {# cuentas conectadas por usuario}}",
       "creditNote": "Los créditos de IA alojada se renuevan cada mes; los créditos no utilizados no se acumulan. Los clientes MCP externos utilizan tu propio proveedor de IA y no consumen estos créditos.",
       "features": {
-        "business": ["Todo lo de Pro", "Cuentas compartidas y soporte prioritario"],
-        "pro": ["Todo lo de Starter", "Bandeja de entrada unificada"],
+        "business": [
+          "Todo lo de Pro",
+          "Cuentas compartidas y soporte prioritario"
+        ],
+        "pro": [
+          "Todo lo de Starter",
+          "Bandeja de entrada unificada"
+        ],
         "starter": [
           "CRM completo: contactos, oportunidades, organizaciones y tareas",
           "Registro de auditoría",

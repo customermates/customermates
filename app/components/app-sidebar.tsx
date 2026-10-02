@@ -14,6 +14,7 @@ import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
 import { useTheme } from "next-themes";
 import {
+  Settings2,
   Building,
   MessageCircle,
   FileText,
@@ -234,14 +235,27 @@ const FullAppSidebar = observer(
         {
           key: "crm",
           label: t("NavigationBar.crm"),
-          items: (recordWorkspaceStore.navigation?.types ?? []).map((type) => ({
-            key: `records:${type.id}`,
-            title: type.pluralLabel,
-            href: `/records/${type.id}`,
-            icon: recordTypeIcon(type.icon),
-            visible: true,
-            badge: type.hasAuthorizationTasks ? systemTaskCount : undefined,
-          })),
+          items: [
+            ...(recordWorkspaceStore.navigation?.types ?? []).map((type) => ({
+              key: `records:${type.id}`,
+              title: type.pluralLabel,
+              href: `/records/${type.id}`,
+              icon: recordTypeIcon(type.icon),
+              visible: true,
+              badge: type.hasAuthorizationTasks ? systemTaskCount : undefined,
+            })),
+            ...(recordWorkspaceStore.navigation?.canManageSchema
+              ? [
+                  {
+                    key: "configure-records",
+                    title: t("RecordModel.configure"),
+                    href: "/company/data-model",
+                    icon: Settings2,
+                    visible: true,
+                  },
+                ]
+              : []),
+          ],
         },
         {
           key: "workspace",

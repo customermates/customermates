@@ -24,6 +24,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ModelChangeStore } from "./model-change.store";
+import { recordChannelsEnabled } from "@/features/records/record-channels";
 import { recordColumns } from "@/features/records/record-columns";
 import { recordGroupableFields, resolveRecordGrouping } from "@/features/records/record-grouping";
 import { encodeGroupingToken, decodeGroupingToken } from "@/core/base/grouping/grouping.schema";
@@ -35,6 +36,8 @@ const initialType = () => ({
   icon: "folder",
   accessPresetId: "private",
   archived: false,
+  channelsEnabled: false,
+  providerAvatar: false,
   navigationVisible: true,
   layout: "table" as RecordType["defaults"]["layout"],
   groupBy: "none",
@@ -47,13 +50,19 @@ const initialType = () => ({
 });
 export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialType>> {
   original: RecordType | null = null;
+  section: "settings" | "appearance" = "settings";
+  private channelBindingId = "";
   constructor(root: RootStore, model: RecordModel, completed: (preview: ConfigurationPreview) => Promise<void>) {
     super(root, initialType(), model, completed);
-    makeObservable(this, { original: observable.ref, edit: action });
+    makeObservable(this, { original: observable.ref, section: observable, edit: action });
   }
-  edit = (model: RecordModel, type: RecordType | null) => {
+  edit = (model: RecordModel, type: RecordType | null, section: "settings" | "appearance" = "settings") => {
+    this.section = section;
     this.resetModel(model);
     this.original = type;
+    this.channelBindingId =
+      model.capabilities.find((binding) => binding.kind === "channels" && binding.typeId === type?.id)?.id ??
+      crypto.randomUUID();
     this.immediateApply = !type;
     const columns = type ? recordColumns(type.id, model) : [];
     const grouping = type?.defaults.groupBy
@@ -65,6 +74,10 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
         ? {
             ...initialType(),
             name: type.label,
+            channelsEnabled: recordChannelsEnabled(model, type.id),
+            providerAvatar:
+              model.capabilities.find((binding) => binding.kind === "channels" && binding.typeId === type.id)
+                ?.providerAvatar ?? false,
             pluralName: type.pluralLabel,
             description: type.description,
             icon: type.icon,
@@ -152,6 +165,25 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
             },
           },
         },
+        ...(this.form.channelsEnabled !== recordChannelsEnabled(this.model, this.original.id) ||
+        this.form.providerAvatar !==
+          (this.model.capabilities.find((binding) => binding.id === this.channelBindingId)?.providerAvatar ?? false)
+          ? [
+              {
+                operation: "putCapability" as const,
+                capability: {
+                  ...(this.model.capabilities.find((binding) => binding.id === this.channelBindingId) ?? {
+                    id: this.channelBindingId,
+                    fields: [],
+                  }),
+                  kind: "channels" as const,
+                  typeId: this.original.id,
+                  enabled: this.form.channelsEnabled,
+                  providerAvatar: this.form.providerAvatar,
+                },
+              },
+            ]
+          : []),
       ];
     }
     return [
@@ -165,6 +197,21 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
         embedded: false,
         accessPresetId: this.form.accessPresetId === "private" ? null : this.form.accessPresetId,
       },
+      ...(this.form.channelsEnabled
+        ? [
+            {
+              operation: "putCapability" as const,
+              capability: {
+                id: this.channelBindingId,
+                kind: "channels" as const,
+                typeId: "$type",
+                fields: [],
+                enabled: true,
+                providerAvatar: this.form.providerAvatar,
+              },
+            },
+          ]
+        : []),
     ];
   }
 }
@@ -182,7 +229,11 @@ export const TypeModal = observer(function TypeModal({ store }: { store: TypeMod
               : column.label,
       }))
     : [];
-  const title = store.original ? t("RecordModel.typeSettings") : t("RecordModel.createList");
+  const title = store.original
+    ? store.section === "appearance"
+      ? t("RecordModel.sharedDefaults")
+      : t("RecordModel.typeSettings")
+    : t("RecordModel.createList");
   return (
     <AppModal
       actions={[
@@ -219,44 +270,57 @@ export const TypeModal = observer(function TypeModal({ store }: { store: TypeMod
             )}
 
             <div className="space-y-4">
-              <FormInput required id="name" label={t("RecordModel.name")} />
+              {store.section === "settings" && (
+                <>
+                  <FormInput required id="name" label={t("RecordModel.name")} />
 
-              <FormInput
-                description={t("RecordModel.pluralDescription")}
-                id="pluralName"
-                label={t("RecordModel.pluralName")}
-              />
+                  <FormInput
+                    description={t("RecordModel.pluralDescription")}
+                    id="pluralName"
+                    label={t("RecordModel.pluralName")}
+                  />
 
-              <FormTextarea id="description" label={t("RecordModel.description")} />
+                  <FormTextarea id="description" label={t("RecordModel.description")} />
 
-              <FormSelect
-                id="icon"
-                items={[
-                  { value: "folder", label: t("RecordModel.folder") },
-                  { value: "briefcase", label: t("RecordModel.briefcase") },
-                  { value: "list", label: t("RecordModel.list") },
-                  { value: "building", label: t("RecordModel.building") },
-                ]}
-                label={t("RecordModel.icon")}
-              />
+                  <FormSelect
+                    id="icon"
+                    items={[
+                      { value: "folder", label: t("RecordModel.folder") },
+                      { value: "briefcase", label: t("RecordModel.briefcase") },
+                      { value: "list", label: t("RecordModel.list") },
+                      { value: "building", label: t("RecordModel.building") },
+                    ]}
+                    label={t("RecordModel.icon")}
+                  />
 
-              {!store.original && (
-                <FormSelect
-                  description={t("RecordModel.accessDescription")}
-                  id="accessPresetId"
-                  items={[
-                    { value: "private", label: t("RecordModel.privateAccess") },
-                    ...store.model.accessPresets
-                      .filter((preset) => !preset.archived)
-                      .map((preset) => ({ value: preset.id, label: preset.label })),
-                  ]}
-                  label={t("RecordModel.access")}
-                />
+                  {!store.original && (
+                    <FormSelect
+                      description={t("RecordModel.accessDescription")}
+                      id="accessPresetId"
+                      items={[
+                        { value: "private", label: t("RecordModel.privateAccess") },
+                        ...store.model.accessPresets
+                          .filter((preset) => !preset.archived)
+                          .map((preset) => ({ value: preset.id, label: preset.label })),
+                      ]}
+                      label={t("RecordModel.access")}
+                    />
+                  )}
+
+                  <FormSwitch id="channelsEnabled" label={t("RecordModel.enableChannels")} />
+
+                  <p className="text-xs text-muted-foreground">{t("RecordModel.channelsHelp")}</p>
+
+                  {store.form.channelsEnabled &&
+                    store.model.capabilities.some(
+                      (binding) => binding.kind === "avatar" && binding.typeId === store.original?.id,
+                    ) && <FormSwitch id="providerAvatar" label={t("RecordModel.useChannelAvatar")} />}
+                </>
               )}
 
-              {store.original && (
+              {store.original && store.section === "appearance" && (
                 <>
-                  <div className="space-y-4 border-t border-border pt-4">
+                  <div className="space-y-4">
                     <div>
                       <h3 className="text-sm font-medium">{t("RecordModel.sharedDefaults")}</h3>
 
@@ -461,7 +525,11 @@ export const TypeModal = observer(function TypeModal({ store }: { store: TypeMod
                       ))}
                     </fieldset>
                   </div>
+                </>
+              )}
 
+              {store.original && store.section === "settings" && (
+                <>
                   <FormSwitch id="navigationVisible" label={t("RecordModel.showInNavigation")} />
 
                   <FormSwitch id="archived" label={t("RecordModel.archiveType")} />
