@@ -120,12 +120,16 @@ const SynthesisPageSchema = z.object({
     .optional()
     .describe("Procedures only: third-person trigger with the words customers use."),
   sections: z.array(SynthesisSectionSchema).min(1).max(8),
-  sourceIds: z.array(z.uuid()).min(1).max(4).describe("Ids from read_website_source that support this page."),
+  sourceIds: z
+    .array(z.uuid())
+    .min(1)
+    .max(4)
+    .describe("Freshly read sourceIds that directly support every factual claim and example on this page."),
   gaps: z
     .array(z.string().trim().min(1).max(300))
     .max(8)
     .describe(
-      "Review missing information explicitly. Use questions for unsupported internal rules, approvals, qualification, follow-up and handover; an empty array means the evidence supports the scope of this page.",
+      "Review missing information explicitly. Ask neutral questions for unknown internal rules, approvals, qualification, follow-up and handover without assuming unverified facts; an empty array means the evidence supports the scope of this page.",
     ),
 });
 export const WikiCrawlSynthesisCreateSchema = z.object({

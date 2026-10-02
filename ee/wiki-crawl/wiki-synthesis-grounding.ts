@@ -1,0 +1,7 @@
+export const WIKI_SYNTHESIS_GROUNDING_INSTRUCTION = [
+  "Ground every factual claim and example in one of that page's cited, freshly returned source passages. Before creating, check a compact working brief pairing each claim or example with its sourceId and exact supporting passage; keep the brief out of saved pages and the final answer.",
+  "Preserve approximate numbers, conditions, exceptions, attribution and whether a case is ongoing, proposed or completed. Do not infer technical inputs, integrations, APIs, customer roles or departments, results, guarantees or internal rules from an offering name, industry knowledge or sensible practice.",
+  "Evidence elsewhere in the crawl does not justify an uncited claim. Reread and include that source in this page's sourceIds, or omit the claim. If four cited sources cannot support the whole scope, narrow the page rather than substitute an unrelated source.",
+  "Examples must come from cited text. Translate every ordinary source-language example into the Knowledge Base language, label translated examples as translations, and do not present a translation as a verbatim quotation. Preserve proper names and technical identifiers.",
+  "Separate observed facts from explicitly labelled writing or sales recommendations; a recommendation is not an approved company policy. Unknowns become neutral questions without assuming an architecture, customer outcome, approval rule or policy. Check every claim and example against its supporting passage before creating; omit unsupported assertions.",
+].join(" ");

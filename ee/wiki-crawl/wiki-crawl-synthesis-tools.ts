@@ -7,6 +7,7 @@ import { WIKI_READ_SOURCE_TOOL_NAME } from "@/ee/agent-chat/tool-identity";
 import { getZodParseContext } from "@/core/validation/zod-error-map-server";
 
 import { ReadWebsiteSourceSchema, WikiCrawlSynthesisCreateSchema } from "./wiki-crawl-synthesis.schema";
+import { WIKI_SYNTHESIS_GROUNDING_INSTRUCTION } from "./wiki-synthesis-grounding";
 
 export { WIKI_READ_SOURCE_TOOL_NAME };
 export { WIKI_SYNTHESIS_MAX_PAGES, WikiCrawlSynthesisCreateSchema } from "./wiki-crawl-synthesis.schema";
@@ -37,8 +38,10 @@ export function createWikiFromCrawlTool(_locale: string | undefined, crawlId: st
   return {
     name: "manage_wiki_pages",
     title: "Create Knowledge Base pages from the website",
-    description:
+    description: [
       "Create one to five Knowledge Base pages per call from stored website pages. kind knowledge summarises facts; guide is the one Operating Guide; procedure has whenToUse and numbered steps. Cite only the sources that support the facts on each page, including cross-offering use cases. Preserve actual FAQ questions, answers and limitations rather than a list of FAQ topics. Review and supply gaps for every page; the guide records unconfirmed internal qualification, follow-up, approval and handover questions. The server adds the Sources list with fetch dates and the gaps list. Pages are immediately available to Mate and connected AI tools.",
+      WIKI_SYNTHESIS_GROUNDING_INSTRUCTION,
+    ].join(" "),
     annotations: {
       readOnlyHint: false,
       destructiveHint: false,
