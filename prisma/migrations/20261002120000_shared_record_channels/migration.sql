@@ -42,7 +42,7 @@ CREATE INDEX "MessagingThreadRecordLink_companyId_typeId_recordId_threadId_idx" 
 WITH updated AS (
   SELECT state."companyId", state.revision + 1 AS revision,
     jsonb_set(jsonb_set(revision.snapshot, '{capabilities}',
-      (SELECT COALESCE(jsonb_agg(CASE WHEN binding->>'kind' = 'personIdentity' THEN binding || '{"kind":"channels","enabled":true}'::jsonb ELSE binding END ORDER BY ordinal), '[]'::jsonb)
+      (SELECT COALESCE(jsonb_agg(CASE WHEN binding->>'kind' = 'personIdentity' THEN binding || '{"kind":"channels","enabled":true,"providerAvatar":true}'::jsonb ELSE binding END ORDER BY ordinal), '[]'::jsonb)
        FROM jsonb_array_elements(COALESCE(revision.snapshot->'capabilities', '[]'::jsonb)) WITH ORDINALITY AS capability(binding, ordinal))),
        '{revision}', to_jsonb(state.revision + 1)) AS snapshot
   FROM "RecordSchemaState" state JOIN "RecordSchemaRevision" revision ON revision."companyId" = state."companyId" AND revision.revision = state.revision

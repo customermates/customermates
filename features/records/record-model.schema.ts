@@ -379,6 +379,7 @@ export const RecordCapabilitySchema = z
     id: z.uuid(),
     kind: z.enum(["channels", "membershipAuthorization", "avatar", "calendar"]),
     enabled: z.boolean().optional(),
+    providerAvatar: z.boolean().optional(),
     typeId: z.uuid(),
     fields: z.array(
       z
