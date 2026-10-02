@@ -126,7 +126,13 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       findSetupCrawl(
         homepageUrl: string,
         clientRequestId: string,
-      ): Promise<{ id: string; homepageUrl: string; pendingHosts: string[]; mode?: string; locale: string } | null>;
+      ): Promise<{
+        id: string;
+        homepageUrl: string;
+        pendingHosts: string[];
+        mode?: string;
+        locale: string;
+      } | null>;
       findLatestCrawl(): Promise<{ pendingHosts: string[] } | null>;
     },
   ) {
@@ -303,7 +309,10 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         ? await this.wikiCrawls.findSetupCrawl(wikiHomepageSetup.url, setupClientRequestId)
         : null;
     if (wikiHomepageSetup && !wikiCrawl) return fail(CustomErrorCode.invalidUrl, ["wikiHomepageSetupUrl"]);
-    const turnModel = resolveAgentModel(requestedModelKey);
+    const turnModel = resolveAgentModel(
+      requestedModelKey,
+      mode === "interactive" && wikiCrawl?.mode === "initial" ? "initial_wiki_synthesis" : "chat",
+    );
     const locale = wikiCrawl ? appLocaleOrDefault(wikiCrawl.locale) : (data.locale ?? resolveUserLocale(user));
     let conversationTitle = data.text;
     if (wikiHomepageSetup) {

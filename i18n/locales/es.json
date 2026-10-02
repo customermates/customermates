@@ -1373,6 +1373,7 @@
       "wikiSourceCitationUnread": "Lee cada fuente citada por completo con read_website_source; sin leer: {ids}. No se ha cambiado nada.",
       "wikiSourceCoverageRequired": "Lee todas las fuentes restantes con read_website_source action=next antes de crear páginas o volver a leer fuentes. Quedan {remainingSources} fuentes. No se ha cambiado nada.",
       "wikiSourceNotFound": "ID de fuente desconocido. Ejecuta list primero.",
+      "wikiSourcePlanAccountingInvalid": "Incluye cada fuente una sola vez dentro de un grupo o en las exclusiones, y nunca en topics y excluded a la vez. ID duplicados: [{duplicateSourceIds}]. ID en topics y excluded: [{overlappingSourceIds}]. ID sin incluir: [{missingSourceIds}]. No se ha cambiado nada.",
       "wikiSourcePlanIncomplete": "Envía una lista topics y, antes de crear páginas, incluye cada fuente guardada y cada función de página necesaria en un tema respaldado o una omisión justificada. ID de fuentes sin incluir: [{missingSourceIds}]. Funciones ausentes o no válidas: [{missingRoles}].",
       "wikiSourceReadOrder": "Lee en orden sin omitir texto. Usa next o el nextOffset guardado de list.",
       "wikiWhenToUseRequired": "Un procedimiento necesita una breve descripción de cuándo usarlo."

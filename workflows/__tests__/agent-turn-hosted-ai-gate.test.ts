@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { encode } from "@toon-format/toon";
 import { ForbiddenError } from "@/core/errors/app-errors";
 import type { AgentToolDeps, AgentToolOptions } from "@/ee/agent-chat/agent-tools";
 import type * as Ai from "ai";
@@ -23,7 +24,12 @@ type StreamOptions = {
 const CREDIT = 1_000_000;
 
 const state = vi.hoisted(() => ({
-  synthesisSources: [] as Array<{ id: string; text: string; contentHash: string; readOffset: number }>,
+  synthesisSources: [] as Array<{
+    id: string;
+    text: string;
+    contentHash: string;
+    readOffset: number;
+  }>,
   synthesisInventories: [] as Array<string | null | undefined>,
   latestCrawl: null as { pendingHosts: string[] } | null,
   crawl: null as { userId: string; homepageUrl: string } | null,
@@ -137,7 +143,9 @@ vi.mock("@ai-sdk/workflow", () => {
           instructions: string;
           providerOptions: unknown;
           maxRetries?: number;
-          telemetry?: { integrations: { onLanguageModelCallStart?: () => void } };
+          telemetry?: {
+            integrations: { onLanguageModelCallStart?: () => void };
+          };
           tools: Record<string, WorkflowTool>;
         },
       ) {
@@ -164,6 +172,7 @@ vi.mock("@ai-sdk/workflow", () => {
         if (state.runTools) {
           const completedSteps = new Set<unknown>();
           const prompt = state.approvedCallsRunFirst ? await runApprovedCalls(this.options.tools, messages) : messages;
+          let deliveredMessages = [...prompt];
           const prepared = await this.options.prepareStep({ messages: preparedMessages(prompt) });
           startProviderRound();
           const result = await state.runTools({
@@ -174,7 +183,7 @@ vi.mock("@ai-sdk/workflow", () => {
               completedSteps.add(step);
               await this.options.onStepEnd(step);
             },
-            completeStepAndPrepareNext: async (step, nextMessages = messages) => {
+            completeStepAndPrepareNext: async (step, nextMessages = deliveredMessages) => {
               completedSteps.add(step);
               await this.options.onStepEnd(step);
               state.prepared = await this.options.prepareStep({ messages: preparedMessages(nextMessages) });
@@ -183,12 +192,29 @@ vi.mock("@ai-sdk/workflow", () => {
             executeAndCompleteTool: async (toolName, input, toolCallId, batch) => {
               const tool = this.options.tools[toolName];
               if (!tool?.execute) throw new Error(`Tool ${toolName} cannot execute.`);
+              const currentBatch = batch ?? [
+                { role: "assistant", content: [{ type: "tool-call", toolName, toolCallId, input }] },
+              ];
+              const executionMessages = [...deliveredMessages, ...currentBatch];
               const output = await tool.execute(input, {
                 toolCallId,
-                messages: batch ?? [
-                  { role: "assistant", content: [{ type: "tool-call", toolName, toolCallId, input }] },
-                ],
+                messages: executionMessages,
               });
+              deliveredMessages = [
+                ...deliveredMessages,
+                ...currentBatch,
+                {
+                  role: "tool",
+                  content: [
+                    {
+                      type: "tool-result",
+                      toolName,
+                      toolCallId,
+                      output: { type: "json", value: output },
+                    },
+                  ],
+                },
+              ];
               this.options.onToolExecutionEnd({
                 success: true,
                 toolCall: { toolCallId, toolName },
@@ -4084,6 +4110,7 @@ describe("routine browse-or-mutate batch safety", () => {
       state.crawl = { userId: payload.userId, homepageUrl: read.url };
       state.synthesisSources = [];
       state.synthesisInventories = [];
+      state.execute.mockImplementation(withSourceReads(() => ({ ok: true, result: "done" })));
     });
 
     const planSourceId = "00000000-0000-4000-8000-000000000001";
@@ -4096,17 +4123,89 @@ describe("routine browse-or-mutate batch safety", () => {
       "operating_guide",
     ].map((role) => ({ title: role, role, sourceIds: [planSourceId] }));
     const foundationPlan = { action: "plan", topics: foundationTopics, excluded: [] };
+    const sourceReadOutcome = (input: unknown) => {
+      if (!input || typeof input !== "object") return undefined;
+      const request = input as {
+        action?: string;
+        id?: string;
+        offset?: number;
+      };
+      if (request.action !== "get") return undefined;
+      const source = state.synthesisSources.find(({ id }) => id === request.id);
+      if (!source) return { ok: false, result: "Source not found." };
+      if (state.synthesisSources.some(({ text, readOffset }) => readOffset < text.length))
+        return { ok: false, result: "Complete stored source coverage first." };
+      const offset = request.offset ?? source.readOffset;
+      if (!Number.isSafeInteger(offset) || offset < 0 || offset > source.text.length)
+        return { ok: false, result: "Invalid source offset." };
+      const end = Math.min(source.text.length, offset + 12_000);
+      return {
+        ok: true,
+        result: encode({
+          createdPageLinks: [],
+          remainingSources: 0,
+          importedSources: 0,
+          nextAction: "get cited sources, then create",
+          items: [
+            {
+              id: source.id,
+              title: "Stored source",
+              url: `https://example.com/${source.id}`,
+              category: "other",
+              offset,
+              nextOffset: end < source.text.length ? end : null,
+              text: source.text.slice(offset, end),
+            },
+          ],
+        }),
+      };
+    };
+    const withSourceReads =
+      <T>(run: (input: T) => unknown) =>
+      (input: T) =>
+        Promise.resolve(sourceReadOutcome(input) ?? run(input));
+    const readFreshSources = async (
+      execute: StreamOptions["executeAndCompleteTool"],
+      sourceIds: readonly string[],
+      suffix: string,
+    ) => {
+      for (const id of new Set(sourceIds)) {
+        expect(
+          await execute("read_website_source", { action: "get", id, offset: 0 }, `get-${suffix}-${id}`),
+        ).toMatchObject({ ok: true });
+      }
+    };
+    const createWithFreshSources = async (
+      execute: StreamOptions["executeAndCompleteTool"],
+      input: {
+        action: string;
+        pages: Array<{
+          title: string;
+          sourceIds: string[];
+          role?: string;
+          kind?: string;
+        }>;
+      },
+      toolCallId: string,
+    ) => {
+      await readFreshSources(
+        execute,
+        input.pages.flatMap(({ sourceIds }) => sourceIds),
+        toolCallId,
+      );
+      return execute("manage_wiki_pages", input, toolCallId);
+    };
     const createFoundations = async (
       execute: (name: string, input: unknown, id: string) => Promise<unknown>,
       suffix = "",
     ) => {
-      await execute(
-        "manage_wiki_pages",
+      await createWithFreshSources(
+        execute,
         { action: "create", pages: foundationTopics.slice(0, -1).map((topic) => ({ ...topic, kind: "knowledge" })) },
         `foundations${suffix}`,
       );
-      await execute(
-        "manage_wiki_pages",
+      await createWithFreshSources(
+        execute,
         { action: "create", pages: [{ ...foundationTopics[4], kind: "guide" }] },
         `guide${suffix}`,
       );
@@ -4117,6 +4216,135 @@ describe("routine browse-or-mutate batch safety", () => {
       ];
       state.normalize.mockImplementation((_toolName, input) => Promise.resolve({ ok: true, input }));
     };
+
+    it.each(["none", "list", "next", "default_offset", "same_round", "compacted"])(
+      "requires delivered fresh source evidence after %s reading",
+      async (kind) => {
+        preparePlan();
+        state.runTools = async ({ executeAndCompleteTool, tools }) => {
+          await executeAndCompleteTool("read_website_source", foundationPlan, "fresh-plan");
+          const input = {
+            action: "create",
+            pages: foundationTopics.slice(0, -1).map((value) => ({ ...value, kind: "knowledge" })),
+          };
+          let batch: unknown[] | undefined;
+          if (kind !== "none") {
+            const action = kind === "list" || kind === "next" ? kind : "get";
+            await executeAndCompleteTool(
+              "read_website_source",
+              { action, id: planSourceId, ...(kind === "default_offset" ? {} : { offset: 0 }) },
+              "fresh-get",
+            );
+          }
+          if (kind === "same_round") {
+            batch = [
+              {
+                role: "assistant",
+                content: [
+                  call("read_website_source", "fresh-get", { action: "get", id: planSourceId, offset: 0 }),
+                  call("manage_wiki_pages", "fresh-create", input),
+                ],
+              },
+            ];
+          }
+          if (kind === "compacted") {
+            batch = [
+              {
+                role: "tool",
+                content: [
+                  {
+                    type: "tool-result",
+                    toolCallId: "fresh-get",
+                    toolName: "read_website_source",
+                    output: { type: "json", value: { ok: true, result: "Compacted read summary" } },
+                  },
+                ],
+              },
+              { role: "assistant", content: [call("manage_wiki_pages", "fresh-create", input)] },
+            ];
+          }
+          const before = state.execute.mock.calls.length;
+          const create = tools.manage_wiki_pages.execute;
+          if (!create) throw new Error("Expected Knowledge Base creation tool");
+          expect(
+            await (kind === "compacted"
+              ? create(input, { toolCallId: "fresh-create", messages: batch })
+              : executeAndCompleteTool("manage_wiki_pages", input, "fresh-create", batch)),
+          ).toMatchObject({ ok: false, result: expect.stringContaining("Reread these cited sources") });
+          expect(state.execute).toHaveBeenCalledTimes(before);
+          await createFoundations(executeAndCompleteTool, "recovered");
+          return finish();
+        };
+        await runAgentTurn(setupPayload);
+        expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
+      },
+    );
+
+    it("accepts corrected foundation citations, removes each topic once, and consumes successful reads", async () => {
+      preparePlan();
+      const other = "00000000-0000-4000-8000-000000000002";
+      state.synthesisSources.push({
+        id: other,
+        text: "Verified customers and public communication",
+        contentHash: "other",
+        readOffset: 100,
+      });
+      state.runTools = async ({ executeAndCompleteTool }) => {
+        await executeAndCompleteTool("read_website_source", foundationPlan, "aggregate-plan");
+        const pages = foundationTopics
+          .slice(0, -1)
+          .map((value) => ({ ...value, kind: "knowledge", sourceIds: [other] }));
+        expect(
+          await createWithFreshSources(executeAndCompleteTool, { action: "create", pages }, "aggregate-create"),
+        ).toMatchObject({ ok: true });
+        expect(
+          await executeAndCompleteTool("manage_wiki_pages", { action: "create", pages }, "aggregate-duplicate"),
+        ).toMatchObject({ ok: false, result: expect.stringContaining("remaining planned titles") });
+        const guide = { ...foundationTopics[4], kind: "guide", sourceIds: [other] };
+        expect(
+          await executeAndCompleteTool("manage_wiki_pages", { action: "create", pages: [guide] }, "consumed-guide"),
+        ).toMatchObject({ ok: false, result: expect.stringContaining("Reread these cited sources") });
+        expect(
+          await createWithFreshSources(executeAndCompleteTool, { action: "create", pages: [guide] }, "fresh-guide"),
+        ).toMatchObject({ ok: true });
+        return finish();
+      };
+      await runAgentTurn(setupPayload);
+      expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
+    });
+
+    it("retains visible fresh evidence after a failed create and never marks that topic complete", async () => {
+      preparePlan();
+      let creates = 0;
+      state.execute.mockImplementation(
+        withSourceReads((input: { action?: string }) => {
+          if (input.action === "create" && ++creates === 1) return { ok: false, result: "save failed" };
+          return { ok: true, result: "done" };
+        }),
+      );
+      state.runTools = async ({ executeAndCompleteTool }) => {
+        await executeAndCompleteTool("read_website_source", foundationPlan, "retry-plan");
+        const input = {
+          action: "create",
+          pages: foundationTopics.slice(0, -1).map((value) => ({ ...value, kind: "knowledge" })),
+        };
+        await readFreshSources(executeAndCompleteTool, [planSourceId], "retry");
+        expect(await executeAndCompleteTool("manage_wiki_pages", input, "save-failed")).toMatchObject({
+          ok: false,
+          result: "save failed",
+        });
+        expect(await executeAndCompleteTool("manage_wiki_pages", input, "save-retry")).toMatchObject({ ok: true });
+        await createWithFreshSources(
+          executeAndCompleteTool,
+          { action: "create", pages: [{ ...foundationTopics[4], kind: "guide" }] },
+          "retry-guide",
+        );
+        return finish();
+      };
+      await runAgentTurn(setupPayload);
+      expect(creates).toBe(3);
+      expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
+    });
 
     it.each([
       [1, 0],
@@ -4228,8 +4456,8 @@ describe("routine browse-or-mutate batch safety", () => {
         expect(JSON.stringify(messages)).toContain(planSourceId);
         expect(JSON.stringify(messages)).toContain("Service A");
         expect(JSON.stringify(messages)).not.toContain(oversized);
-        await executeAndCompleteTool(
-          "manage_wiki_pages",
+        await createWithFreshSources(
+          executeAndCompleteTool,
           { action: "create", pages: [{ ...topic, kind: "knowledge" }] },
           "create",
         );
@@ -4267,26 +4495,28 @@ describe("routine browse-or-mutate batch safety", () => {
             new TextEncoder().encode(JSON.stringify({ ...context, messages })).byteLength <= maxBytes,
         );
         let planCalls = 0;
-        state.execute.mockImplementation((input: { action?: string }) => {
-          if (input.action === "plan" && ++planCalls === 1) {
-            return Promise.resolve({
-              ok: false,
-              result: "Unaccounted source.",
-              failure: {
-                kind: "validation",
-                issues: [
-                  {
-                    code: "custom",
-                    path: ["topics"],
-                    message: "Unaccounted source.",
-                    customCode,
-                  },
-                ],
-              },
-            });
-          }
-          return Promise.resolve({ ok: true, result: "saved" });
-        });
+        state.execute.mockImplementation(
+          withSourceReads((input: { action?: string }) => {
+            if (input.action === "plan" && ++planCalls === 1) {
+              return Promise.resolve({
+                ok: false,
+                result: "Unaccounted source.",
+                failure: {
+                  kind: "validation",
+                  issues: [
+                    {
+                      code: "custom",
+                      path: ["topics"],
+                      message: "Unaccounted source.",
+                      customCode,
+                    },
+                  ],
+                },
+              });
+            }
+            return Promise.resolve({ ok: true, result: "saved" });
+          }),
+        );
         const oversized = "completed:" + "x".repeat(40_000);
         let runs = 0;
         state.runTools = async ({ messages, executeAndCompleteTool }) => {
@@ -4347,8 +4577,8 @@ describe("routine browse-or-mutate batch safety", () => {
               "complete-repair",
             ),
           ).toMatchObject({ ok: true });
-          await executeAndCompleteTool(
-            "manage_wiki_pages",
+          await createWithFreshSources(
+            executeAndCompleteTool,
             { action: "create", pages: [topic, secondTopic].map((value) => ({ ...value, kind: "knowledge" })) },
             "offering-pages",
           );
@@ -4378,6 +4608,7 @@ describe("routine browse-or-mutate batch safety", () => {
           { action: "plan", topics: [topic, secondTopic, ...foundationTopics], excluded: [] },
           "plan",
         );
+        await readFreshSources(executeAndCompleteTool, [planSourceId, secondSourceId], "invalid-citations");
         const beforeCreate = state.execute.mock.calls.length;
         expect(
           await executeAndCompleteTool(
@@ -4387,8 +4618,8 @@ describe("routine browse-or-mutate batch safety", () => {
           ),
         ).toMatchObject({ ok: false });
         expect(state.execute).toHaveBeenCalledTimes(beforeCreate);
-        await executeAndCompleteTool(
-          "manage_wiki_pages",
+        await createWithFreshSources(
+          executeAndCompleteTool,
           { action: "create", pages: [topic, secondTopic].map((value) => ({ ...value, kind: "knowledge" })) },
           "matching-citations",
         );
@@ -4411,26 +4642,28 @@ describe("routine browse-or-mutate batch safety", () => {
         readOffset: 0,
       });
       let planCalls = 0;
-      state.execute.mockImplementation((input: { action?: string }) => {
-        if (input.action === "plan" && ++planCalls === 1) {
-          return Promise.resolve({
-            ok: false,
-            result: "Complete stored source coverage first.",
-            failure: {
-              kind: "validation",
-              issues: [
-                {
-                  code: "custom",
-                  path: [],
-                  message: "Complete stored source coverage first.",
-                  customCode: "wikiSourceCoverageRequired",
-                },
-              ],
-            },
-          });
-        }
-        return Promise.resolve({ ok: true, result: "saved" });
-      });
+      state.execute.mockImplementation(
+        withSourceReads((input: { action?: string }) => {
+          if (input.action === "plan" && ++planCalls === 1) {
+            return Promise.resolve({
+              ok: false,
+              result: "Complete stored source coverage first.",
+              failure: {
+                kind: "validation",
+                issues: [
+                  {
+                    code: "custom",
+                    path: [],
+                    message: "Complete stored source coverage first.",
+                    customCode: "wikiSourceCoverageRequired",
+                  },
+                ],
+              },
+            });
+          }
+          return Promise.resolve({ ok: true, result: "saved" });
+        }),
+      );
       state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {
         expect(
           await executeAndCompleteTool(
@@ -4473,8 +4706,8 @@ describe("routine browse-or-mutate batch safety", () => {
             "complete-after-coverage",
           ),
         ).toMatchObject({ ok: true });
-        await executeAndCompleteTool(
-          "manage_wiki_pages",
+        await createWithFreshSources(
+          executeAndCompleteTool,
           { action: "create", pages: [topic, secondTopic].map((value) => ({ ...value, kind: "knowledge" })) },
           "offering-pages",
         );
@@ -4498,26 +4731,28 @@ describe("routine browse-or-mutate batch safety", () => {
         readOffset: 100,
       });
       let planCalls = 0;
-      state.execute.mockImplementation((input: { action?: string }) => {
-        if (input.action === "plan" && ++planCalls === 1) {
-          return Promise.resolve({
-            ok: false,
-            result: "Account for the archive source.",
-            failure: {
-              kind: "validation",
-              issues: [
-                {
-                  code: "custom",
-                  path: ["topics"],
-                  message: "Account for the archive source.",
-                  customCode: "wikiSourcePlanIncomplete",
-                },
-              ],
-            },
-          });
-        }
-        return Promise.resolve({ ok: true, result: "saved" });
-      });
+      state.execute.mockImplementation(
+        withSourceReads((input: { action?: string }) => {
+          if (input.action === "plan" && ++planCalls === 1) {
+            return Promise.resolve({
+              ok: false,
+              result: "Account for the archive source.",
+              failure: {
+                kind: "validation",
+                issues: [
+                  {
+                    code: "custom",
+                    path: ["topics"],
+                    message: "Account for the archive source.",
+                    customCode: "wikiSourcePlanIncomplete",
+                  },
+                ],
+              },
+            });
+          }
+          return Promise.resolve({ ok: true, result: "saved" });
+        }),
+      );
       state.runTools = async ({ executeAndCompleteTool }) => {
         expect(
           await executeAndCompleteTool(
@@ -4550,8 +4785,8 @@ describe("routine browse-or-mutate batch safety", () => {
             "distinct-shared-source",
           ),
         ).toMatchObject({ ok: true });
-        await executeAndCompleteTool(
-          "manage_wiki_pages",
+        await createWithFreshSources(
+          executeAndCompleteTool,
           { action: "create", pages: [topic, secondTopic].map((value) => ({ ...value, kind: "knowledge" })) },
           "distinct-offering-pages",
         );
@@ -4574,6 +4809,7 @@ describe("routine browse-or-mutate batch safety", () => {
             { ...foundationPlan, topics: [topic, ...foundationTopics] },
             "plan",
           );
+          await readFreshSources(executeAndCompleteTool, [planSourceId], "invalid-kind-and-order");
           expect(await executeAndCompleteTool("read_website_source", foundationPlan, "replacement-plan")).toMatchObject(
             { ok: false },
           );
@@ -4593,19 +4829,20 @@ describe("routine browse-or-mutate batch safety", () => {
           ).toMatchObject({ ok: false });
         } else {
           expect(JSON.stringify(messages)).toContain("Service A");
-          await executeAndCompleteTool(
-            "manage_wiki_pages",
+          await createWithFreshSources(
+            executeAndCompleteTool,
             { action: "create", pages: [{ ...topic, kind: "knowledge" }] },
             "topic",
           );
-          await executeAndCompleteTool(
-            "manage_wiki_pages",
+          await createWithFreshSources(
+            executeAndCompleteTool,
             {
               action: "create",
               pages: foundationTopics.slice(0, -1).map((topic) => ({ ...topic, kind: "knowledge" })),
             },
             "foundations",
           );
+          await readFreshSources(executeAndCompleteTool, [planSourceId], "invalid-combined-guide");
           expect(
             await executeAndCompleteTool(
               "manage_wiki_pages",
@@ -4619,8 +4856,8 @@ describe("routine browse-or-mutate batch safety", () => {
               "combined-guide",
             ),
           ).toMatchObject({ ok: false });
-          await executeAndCompleteTool(
-            "manage_wiki_pages",
+          await createWithFreshSources(
+            executeAndCompleteTool,
             { action: "create", pages: [{ ...foundationTopics[4], kind: "guide" }] },
             "guide",
           );
@@ -4635,13 +4872,15 @@ describe("routine browse-or-mutate batch safety", () => {
     it("rejects duplicate batches and serializes simultaneous saves of the same planned title", async () => {
       preparePlan();
       let writes = 0;
-      state.execute.mockImplementation(async (input: { action?: string; pages?: unknown[] }) => {
-        if (input.action === "create") {
-          writes += 1;
-          await Promise.resolve();
-        }
-        return { ok: true, result: "saved" };
-      });
+      state.execute.mockImplementation(
+        withSourceReads(async (input: { action?: string; pages?: unknown[] }) => {
+          if (input.action === "create") {
+            writes += 1;
+            await Promise.resolve();
+          }
+          return { ok: true, result: "saved" };
+        }),
+      );
       state.runTools = async ({ executeAndCompleteTool }) => {
         await executeAndCompleteTool(
           "read_website_source",
@@ -4649,6 +4888,7 @@ describe("routine browse-or-mutate batch safety", () => {
           "plan",
         );
         const page = { ...topic, kind: "knowledge" };
+        await readFreshSources(executeAndCompleteTool, page.sourceIds, "shared-concurrent-create");
         expect(
           await executeAndCompleteTool(
             "manage_wiki_pages",
@@ -4673,9 +4913,11 @@ describe("routine browse-or-mutate batch safety", () => {
 
     it("does not report completion when a planned topic fails to save", async () => {
       preparePlan();
-      state.execute.mockImplementation((input: { action?: string }) =>
-        Promise.resolve(
-          input.action === "plan" ? { ok: true, result: "planned" } : { ok: false, result: "save failed" },
+      state.execute.mockImplementation(
+        withSourceReads((input: { action?: string }) =>
+          Promise.resolve(
+            input.action === "plan" ? { ok: true, result: "planned" } : { ok: false, result: "save failed" },
+          ),
         ),
       );
       let runs = 0;
@@ -4688,7 +4930,11 @@ describe("routine browse-or-mutate batch safety", () => {
             "plan",
           );
         }
-        await executeAndCompleteTool("manage_wiki_pages", { action: "create", pages: [topic] }, `create-${runs}`);
+        await createWithFreshSources(
+          executeAndCompleteTool,
+          { action: "create", pages: [{ ...topic, kind: "knowledge" }] },
+          `create-${runs}`,
+        );
         return finish();
       };
       await runAgentTurn(setupPayload);
@@ -4736,7 +4982,14 @@ describe("routine browse-or-mutate batch safety", () => {
     });
 
     it("continues a premature stop until complete evidence is read", async () => {
-      state.synthesisSources = [{ id: "source", text: "unread evidence", contentHash: "hash", readOffset: 0 }];
+      state.synthesisSources = [
+        {
+          id: planSourceId,
+          text: "unread evidence",
+          contentHash: "hash",
+          readOffset: 0,
+        },
+      ];
       let runs = 0;
       state.normalize.mockImplementation((_toolName, input) => Promise.resolve({ ok: true, input }));
       state.runTools = async ({ messages, executeAndCompleteTool }) => {
@@ -4758,7 +5011,14 @@ describe("routine browse-or-mutate batch safety", () => {
     });
 
     it("requires reading and source planning before releasing the create tool", async () => {
-      state.synthesisSources = [{ id: "source", text: "unread evidence", contentHash: "hash", readOffset: 0 }];
+      state.synthesisSources = [
+        {
+          id: planSourceId,
+          text: "unread evidence",
+          contentHash: "hash",
+          readOffset: 0,
+        },
+      ];
       let runs = 0;
       state.normalize.mockImplementation((_toolName, input) => Promise.resolve({ ok: true, input }));
       state.runTools = async ({ prepared, completeStepAndPrepareNext, executeAndCompleteTool }) => {

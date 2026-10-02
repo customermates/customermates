@@ -99,6 +99,7 @@ export enum CustomErrorCode {
   wikiImportTitleInvalid = "wikiImportTitleInvalid",
   wikiImportLinkInvalid = "wikiImportLinkInvalid",
   wikiSourcePlanIncomplete = "wikiSourcePlanIncomplete",
+  wikiSourcePlanAccountingInvalid = "wikiSourcePlanAccountingInvalid",
   wikiProcedureNeedsSteps = "wikiProcedureNeedsSteps",
   wikiHomepageSetupStartFailed = "wikiHomepageSetupStartFailed",
   threadNotFound = "threadNotFound",

@@ -73,7 +73,7 @@ export const ReadWebsiteSourceSchema = z.object({
     .max(WIKI_SYNTHESIS_MAX_PAGES)
     .optional()
     .describe(
-      "plan only: exact titles, roles and supporting sources for offerings, four foundations, supported procedures and the Operating Guide. Combine translations; the same source can support several distinct topics.",
+      "plan only: exact titles, roles and supporting sources for offerings, four foundations, supported procedures and the Operating Guide. Combine translations; the same source can support several distinct topics. Offering and procedure citations stay within planned sourceIds; aggregate foundations and the guide may cite other fully read sources in the same crawl.",
     ),
   excluded: z
     .array(WikiSourceExclusionSchema)

@@ -54,13 +54,20 @@ export class ReadWikiWebsiteSourcesInteractor extends AuthenticatedInteractor<Re
       const sourceIds = new Set(coverage.sources.map(({ id }) => id));
       const topicSources = new Set((data.topics ?? []).flatMap(({ sourceIds }) => sourceIds));
       const excluded = (data.excluded ?? []).flatMap(({ sourceIds }) => sourceIds);
-      if (
-        [...accounted].some((id) => !sourceIds.has(id)) ||
-        groups.some(({ sourceIds }) => new Set(sourceIds).size !== sourceIds.length) ||
-        new Set(excluded).size !== excluded.length ||
-        excluded.some((id) => topicSources.has(id))
-      )
+      if ([...accounted].some((id) => !sourceIds.has(id)))
         return fail(CustomErrorCode.wikiSourceCitationInvalid, ["topics"]);
+      const duplicated = new Set([
+        ...groups.flatMap(({ sourceIds }) => sourceIds.filter((id, index) => sourceIds.indexOf(id) !== index)),
+        ...excluded.filter((id, index) => excluded.indexOf(id) !== index),
+      ]);
+      const overlapping = [...new Set(excluded.filter((id) => topicSources.has(id)))];
+      if (duplicated.size > 0 || overlapping.length > 0) {
+        return fail(CustomErrorCode.wikiSourcePlanAccountingInvalid, ["topics"], {
+          duplicateSourceIds: [...duplicated].join(", "),
+          overlappingSourceIds: overlapping.join(", "),
+          missingSourceIds: [...sourceIds].filter((id) => !accounted.has(id)).join(", "),
+        });
+      }
       const missingSourceIds = [...sourceIds].filter((id) => !accounted.has(id));
       if (!data.topics || missingSourceIds.length > 0) {
         return fail(CustomErrorCode.wikiSourcePlanIncomplete, ["topics"], {

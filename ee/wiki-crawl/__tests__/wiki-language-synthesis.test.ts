@@ -110,6 +110,30 @@ beforeEach(() => {
 });
 
 describe("single language Wiki synthesis", () => {
+  it("explains overlapping accounting and missing sources without claiming a known id is unknown", async () => {
+    const sources = await harness.sources();
+    const missing = "00000000-0000-4000-8000-000000000002";
+    harness.sources.mockResolvedValue([...sources, { ...sources[0], id: missing, contentHash: "distinct" }]);
+    const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({
+      action: "plan",
+      topics: foundations,
+      excluded: [nonSubstantiveExclusion(SOURCE_ID, "No additional company facts")],
+    });
+    expect(result).toMatchObject({
+      failure: {
+        kind: "validation",
+        issues: [
+          expect.objectContaining({
+            customCode: "wikiSourcePlanAccountingInvalid",
+          }),
+        ],
+      },
+    });
+    expect(JSON.stringify(result)).toContain(SOURCE_ID);
+    expect(JSON.stringify(result)).toContain(missing);
+    expect(JSON.stringify(result)).not.toContain("Cite only ids");
+    expect(harness.advance).not.toHaveBeenCalled();
+  });
   it("rejects an overlap that names a foundation while claiming an offering role", async () => {
     const sources = await harness.sources();
     const otherId = "00000000-0000-4000-8000-000000000002";
@@ -911,7 +935,10 @@ describe("complete stored source coverage", () => {
     const delivered = new Map<string, string>();
     while (sources.some(({ readOffset, text }) => readOffset < text.length)) {
       const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({ action: "next" });
-      const value = structured(result) as { items: Array<{ id: string; text: string }>; remainingSources: number };
+      const value = structured(result) as {
+        items: Array<{ id: string; text: string }>;
+        remainingSources: number;
+      };
       expect(value.items.length).toBeLessThanOrEqual(8);
       expect(value.items[0]).toMatchObject({
         title: expect.stringContaining("Topic"),
@@ -1109,7 +1136,9 @@ describe("complete stored source coverage", () => {
     const sources = Array.from({ length: 4 }, (_, i) => source(i + 1, '\n\t"'.repeat(4000)));
     stored(sources);
     const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({ action: "next" });
-    const value = structured(result) as { items: Array<{ id: string; offset: number; text: string }> };
+    const value = structured(result) as {
+      items: Array<{ id: string; offset: number; text: string }>;
+    };
     const encoded = encodeToToon(structured(result));
     expect(encoded.length).toBeLessThanOrEqual(WIKI_SOURCE_RESULT_MAX_CHARS);
     expect(new TextEncoder().encode(JSON.stringify(encoded)).byteLength).toBeLessThanOrEqual(

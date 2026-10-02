@@ -4,7 +4,22 @@ import { z } from "zod";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
-import { ReadWebsiteSourceSchema } from "@/ee/wiki-crawl/wiki-crawl-synthesis.schema";
+import { ReadWebsiteSourceSchema, WIKI_SYNTHESIS_FOUNDATION_ROLES } from "@/ee/wiki-crawl/wiki-crawl-synthesis.schema";
+
+export function wikiPageMatchesTopic(
+  topic: WikiSourceTopic,
+  page: { title: string; kind: string; sourceIds: readonly string[] },
+): boolean {
+  const kind = topic.role === "operating_guide" ? "guide" : topic.role === "procedure" ? "procedure" : "knowledge";
+  const aggregate =
+    topic.role === "operating_guide" || WIKI_SYNTHESIS_FOUNDATION_ROLES.some((role) => role === topic.role);
+  return (
+    page.title === topic.title &&
+    page.kind === kind &&
+    page.sourceIds.length > 0 &&
+    (aggregate || page.sourceIds.every((id) => topic.sourceIds.includes(id)))
+  );
+}
 
 const SourceInventorySchema = z.object({
   items: z.array(z.object({ id: z.uuid(), imported: z.boolean().optional() })),
@@ -24,6 +39,7 @@ export function wikiPlanningCandidates(input: unknown, outcome: unknown, invento
     !failure.data.failure.issues.some(
       ({ customCode }) =>
         customCode === CustomErrorCode.wikiSourceCoverageRequired ||
+        customCode === CustomErrorCode.wikiSourcePlanAccountingInvalid ||
         customCode === CustomErrorCode.wikiSourcePlanIncomplete,
     )
   )

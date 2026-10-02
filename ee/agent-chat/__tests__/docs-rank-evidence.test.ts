@@ -468,3 +468,95 @@ describe("bounded classifier evidence", () => {
     expect(excerpt.length).toBeLessThanOrEqual(maxChars);
   });
 });
+
+describe("complementary source paragraphs in classifier evidence", () => {
+  it("leaves space for actual operation evidence when an opening supplies the residual entity facts", () => {
+    const opening =
+      "Components belong to bundles and share the bundle settings. A component belongs to one or more bundles and has bundle permissions.";
+    const operation =
+      "Link the records through the selection field. Pick the component, then save. The connect_record action adds or removes one chosen relation without replacing unrelated relations.";
+    const excerpt = docsRankEvidence(
+      `${opening}\n\n${operation}\n\n| Component | Example |\n|---|---|\n| Component to Bundle | An example bundle |`,
+      "How do I link a component to a bundle?",
+      220,
+      { label: "ExampleNet > Link related items", locale: "en" },
+    );
+    expect(excerpt).toContain("Pick the component, then save.");
+    expect(excerpt).toContain("connect_record");
+    expect(excerpt).toContain("without replacing unrelated relations");
+    expect(excerpt.length).toBeLessThanOrEqual(220);
+    expect(hasBrokenSurrogate(excerpt)).toBe(false);
+  });
+
+  it.each([
+    ["en", "how do I link a deal to a service?", "Pick the records, then save."],
+    [
+      "de",
+      "Wie entferne ich den Link zwischen Kontakt und Organisation?",
+      "Wählen Sie die Datensätze, dann speichern Sie.",
+    ],
+  ] as const)(
+    "retains %s's actual relationship operation alongside its bounded definition",
+    (locale, query, action) => {
+      const page = rawDocsManifest.docs[locale].concepts;
+      const section = splitSections({
+        slug: "concepts",
+        source: "docs",
+        pageTitle: page.title,
+        markdown: page.content,
+      }).find(({ anchor }) => anchor === "how-do-relationships-link-records");
+      expect(section).toBeDefined();
+      if (!section) throw new Error("Expected public documentation section");
+      const excerpt = docsRankEvidence(section.text, query, 396, {
+        label: `${section.pageTitle} > ${section.headingPath.join(" > ")}`,
+        locale,
+      });
+      expect(excerpt).toContain(action);
+      expect(excerpt).toContain("manage_record_links");
+      expect(excerpt.length).toBeLessThanOrEqual(396);
+      expect(hasBrokenSurrogate(excerpt)).toBe(false);
+    },
+  );
+
+  it("does not join a following section through a structural heading", () => {
+    const excerpt = docsRankEvidence(
+      "Components belong to bundles.\n\n## Separate administration\n\nLink the unrelated administrator account. " +
+        "Unrelated background. ".repeat(20),
+      "How do I link a component to a bundle?",
+      80,
+      { label: "Related items > Link", locale: "en" },
+    );
+    expect(excerpt).toBe("Components belong to bundles.");
+    expect(excerpt).not.toContain("administrator");
+    expect(excerpt.length).toBeLessThanOrEqual(80);
+  });
+
+  it("does not promote a fragment of an oversized next paragraph as a whole source block", () => {
+    const next =
+      "Link records to the administrator. " +
+      "Unrelated background sentence. ".repeat(20) +
+      "The oversized_neighbor_marker is near the end.";
+    const excerpt = docsRankEvidence(
+      `Components belong to bundles.\n\n${next}`,
+      "How do I link a component to a bundle?",
+      150,
+      { label: "Related items > Link", locale: "en" },
+    );
+    expect(excerpt).toBe("Components belong to bundles.");
+    expect(excerpt).not.toContain("oversized_neighbor_marker");
+    expect(excerpt.length).toBeLessThanOrEqual(150);
+  });
+
+  it("preserves a stronger later instruction over the opening and its neighboring paragraph", () => {
+    const instruction = "Only an administrator can change component permissions.";
+    const excerpt = docsRankEvidence(
+      `Components belong to bundles.\n\nLink records through the form.\n\n${instruction}`,
+      "component permissions",
+      instruction.length,
+      { label: "Components", locale: "en" },
+    );
+    expect(excerpt).toBe(instruction);
+    expect(excerpt).not.toContain("form");
+    expect(excerpt.length).toBeLessThanOrEqual(instruction.length);
+  });
+});

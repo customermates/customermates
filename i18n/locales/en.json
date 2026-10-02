@@ -1373,6 +1373,7 @@
       "wikiSourceCitationUnread": "Read each cited source completely with read_website_source before citing it; unread: {ids}. Nothing was changed.",
       "wikiSourceCoverageRequired": "Read all remaining stored evidence with read_website_source action=next before creating pages or rereading sources. {remainingSources} sources remain. Nothing was changed.",
       "wikiSourceNotFound": "Unknown source id. Call list first.",
+      "wikiSourcePlanAccountingInvalid": "Keep each source once within a group or exclusions, and never in both topics and exclusions. Duplicate source IDs: [{duplicateSourceIds}]. IDs in both topics and exclusions: [{overlappingSourceIds}]. Unaccounted source IDs: [{missingSourceIds}]. Nothing was changed.",
       "wikiSourcePlanIncomplete": "Send a topics list, then account for every stored source and each required page role with a supported topic or reasoned omission before creating pages. Unaccounted source IDs: [{missingSourceIds}]. Missing or invalid roles: [{missingRoles}].",
       "wikiSourceReadOrder": "Read sequentially without skipping text. Use next or the stored nextOffset from list.",
       "wikiWhenToUseRequired": "A procedure needs a short description of when to use it."

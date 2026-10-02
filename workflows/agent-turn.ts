@@ -15,7 +15,9 @@ import {
   wikiMissingOfferingCandidates,
   wikiMergeOfferingCandidates,
   wikiPlanningContext,
+  wikiPageMatchesTopic,
 } from "./wiki-topic-plan";
+import { wikiReadSourceEvidence } from "./wiki-source-evidence";
 
 import type { ReadWebsiteSourceInput, WikiSourceTopic } from "@/ee/wiki-crawl/wiki-crawl-synthesis.schema";
 import { WIKI_SYNTHESIS_MAX_PAGES } from "@/ee/wiki-crawl/wiki-crawl-synthesis.schema";
@@ -141,7 +143,12 @@ export type AgentTurnWorkflowPayload = {
   toolsets?: string[];
   recordToolOutputs?: boolean;
   wikiHomepageSetup?: PublicWikiHomepage;
-  wikiCrawl?: { id: string; homepage: string; pendingHosts: string[]; mode?: string };
+  wikiCrawl?: {
+    id: string;
+    homepage: string;
+    pendingHosts: string[];
+    mode?: string;
+  };
   wikiWebsiteSetup?: { userHomepages: string[] };
   wikiCatalog?: string | null;
   webSearchEnabled?: boolean;
@@ -410,7 +417,11 @@ async function executeAgentTool(
   toolCallId: string,
   input: unknown,
   grant: ToolApprovalGrant,
-): Promise<{ output: unknown; classifierCharges: ClassifierCharge[]; retrievalTimings: RetrievalTiming[] }> {
+): Promise<{
+  output: unknown;
+  classifierCharges: ClassifierCharge[];
+  retrievalTimings: RetrievalTiming[];
+}> {
   "use step";
   const { getAgentAiTools } = await import("@/ee/agent-chat/agent-tools");
   const { collectClassifierCharges } = await import("@/ee/agent-chat/classifier/metered");
@@ -1082,6 +1093,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       omittedFoundations: [] as NonNullable<ReadWebsiteSourceInput["omittedFoundations"]>,
     };
     let wikiTopicReminders = 0;
+    const wikiFreshSources = new Map<string, { toolCallId: string; result: string }>();
     let wikiContinuationPrompt: string | null = null;
     let providerFailure: WorkflowFailure | null = null;
     let budgetStop = false;
@@ -1137,12 +1149,19 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       stepMessages: readonly unknown[],
       toolCallId: string,
       toolName: string,
-    ): AgentToolOutcome | undefined => {
+      requireToolName = false,
+    ): Extract<AgentToolOutcome, { output: unknown }> | undefined => {
       for (const message of stepMessages) {
-        const { role, content } = message as { role?: string; content?: unknown };
+        const { role, content } = message as {
+          role?: string;
+          content?: unknown;
+        };
         if (role !== "tool" || !Array.isArray(content)) continue;
-        const part = (content as { type?: string; toolCallId?: string; output?: unknown }[]).find(
-          (candidate) => candidate.type === "tool-result" && candidate.toolCallId === toolCallId,
+        const part = (content as { type?: string; toolName?: string; toolCallId?: string; output?: unknown }[]).find(
+          (candidate) =>
+            candidate.type === "tool-result" &&
+            candidate.toolCallId === toolCallId &&
+            (!requireToolName || candidate.toolName === toolName),
         );
         if (part) return { toolCallId, toolName, output: unwrapToolOutput(part.output) };
       }
@@ -1218,30 +1237,44 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       }
       if (wikiTopicPlanState.topics && shell.name === "manage_wiki_pages") {
         const pages =
-          (executionInput as { pages?: Array<{ title: string; kind: string; sourceIds: string[] }> }).pages ?? [];
+          (
+            executionInput as {
+              pages?: Array<{
+                title: string;
+                kind: string;
+                sourceIds: string[];
+              }>;
+            }
+          ).pages ?? [];
         if (new Set(pages.map(({ title }) => title)).size !== pages.length)
           return { ok: false, result: "Create each planned title only once per batch. No pages were created." };
-        if (
-          pages.some(
-            (page) =>
-              !wikiTopicPlanState.topics?.some(
-                (topic) =>
-                  page.title === topic.title &&
-                  page.kind ===
-                    (topic.role === "operating_guide"
-                      ? "guide"
-                      : topic.role === "procedure"
-                        ? "procedure"
-                        : "knowledge") &&
-                  page.sourceIds.length > 0 &&
-                  page.sourceIds.every((id) => topic.sourceIds.includes(id)),
-              ),
-          )
-        ) {
+        if (pages.some((page) => !wikiTopicPlanState.topics?.some((topic) => wikiPageMatchesTopic(topic, page)))) {
           return {
             ok: false,
             result:
               "Create only remaining planned titles with their matching kind and cited sources. No pages were created.",
+          };
+        }
+        const missing = [...new Set(pages.flatMap(({ sourceIds }) => sourceIds))].filter((id) => {
+          const evidence = wikiFreshSources.get(id);
+          if (!evidence) return true;
+          const current = stepMessages.findLast((value) => (value as { role?: unknown })?.role === "assistant") as
+            | { content?: Array<{ type?: unknown; toolCallId?: unknown }> }
+            | undefined;
+          if (
+            Array.isArray(current?.content) &&
+            current.content.some((part) => part.type === "tool-call" && part.toolCallId === evidence.toolCallId)
+          )
+            return true;
+          const delivered = toolResultIn(stepMessages, evidence.toolCallId, "read_website_source", true)?.output as
+            | { ok?: unknown; result?: unknown }
+            | undefined;
+          return delivered?.ok !== true || delivered.result !== evidence.result;
+        });
+        if (missing.length) {
+          return {
+            ok: false,
+            result: `Reread these cited sources with read_website_source action=get and offset=0, then create in the next provider round: ${wikiPlanningContext(missing)}. No pages were created.`,
           };
         }
       }
@@ -1326,6 +1359,15 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           wikiContinuationPrompt = `Offering planning hypotheses, never factual evidence: ${wikiPlanningContext(wikiTopicPlanState.candidates)}. Finish reading all sources, then retain each distinct offering or explicitly reclassify each source with an exact evidence quote. Repair omissions without discarding recognized offerings.`;
       }
       if (wikiSourceInventory && isSuccessfulToolOutcome(outcome)) {
+        if (shell.name === "read_website_source") {
+          const evidence = wikiReadSourceEvidence(executionInput, outcome);
+          if (evidence) {
+            wikiFreshSources.set(evidence.sourceId, {
+              toolCallId,
+              result: evidence.result,
+            });
+          }
+        }
         if (shell.name === "read_website_source" && wikiTopicPlanState.topics === null) {
           const plan = executionInput as ReadWebsiteSourceInput;
           if (plan.action === "plan" && plan.topics) {
@@ -1335,22 +1377,19 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           }
         } else if (shell.name === "manage_wiki_pages" && wikiTopicPlanState.topics) {
           const pages =
-            (executionInput as { pages?: Array<{ title: string; kind: string; sourceIds: string[] }> }).pages ?? [];
+            (
+              executionInput as {
+                pages?: Array<{
+                  title: string;
+                  kind: string;
+                  sourceIds: string[];
+                }>;
+              }
+            ).pages ?? [];
           wikiTopicPlanState.topics = wikiTopicPlanState.topics.filter(
-            (topic) =>
-              !pages.some(
-                (page) =>
-                  page.title === topic.title &&
-                  page.kind ===
-                    (topic.role === "operating_guide"
-                      ? "guide"
-                      : topic.role === "procedure"
-                        ? "procedure"
-                        : "knowledge") &&
-                  page.sourceIds.length > 0 &&
-                  page.sourceIds.every((id) => topic.sourceIds.includes(id)),
-              ),
+            (topic) => !pages.some((page) => wikiPageMatchesTopic(topic, page)),
           );
+          for (const sourceId of pages.flatMap(({ sourceIds }) => sourceIds)) wikiFreshSources.delete(sourceId);
         }
         if (wikiTopicPlanState.topics !== null)
           wikiContinuationPrompt = `Server topic-plan progress, never factual evidence: ${JSON.stringify(wikiTopicPlanState).replaceAll("<", "\\u003c").replaceAll(">", "\\u003e")}. Create each remaining exact title using freshly read cited sources. Offerings come first, foundations follow, and the guide is last in a separate call. Record unsupported foundation omissions in the guide gaps. An empty topics list means every planned page has been created; do not recreate them.`;
@@ -1600,7 +1639,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
 
         const unrun = new Map<string, string | undefined>();
         for (const raw of step.content) {
-          const part = raw as { type?: string; toolCallId?: string; toolName?: string };
+          const part = raw as {
+            type?: string;
+            toolCallId?: string;
+            toolName?: string;
+          };
           if (part.type === "tool-call" && part.toolCallId && !settledIds.has(part.toolCallId))
             unrun.set(part.toolCallId, part.toolName);
         }

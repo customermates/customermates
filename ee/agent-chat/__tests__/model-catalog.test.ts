@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { SHIPPED_AGENT_MODEL, isAgentModelKey, resolveAgentModel } from "../model-catalog";
+import {
+  SHIPPED_AGENT_MODEL,
+  INITIAL_WIKI_SYNTHESIS_MODEL,
+  isAgentModelKey,
+  resolveAgentModel,
+} from "../model-catalog";
 import { loadBenchmarkModelOverlay } from "../benchmark-model-registry";
 
 const entry = {
@@ -15,6 +20,17 @@ const entry = {
 };
 
 describe("benchmark model overlay", () => {
+  it("resolves the stronger initial synthesis purpose without exposing another stored model key", () => {
+    expect(resolveAgentModel(null, "initial_wiki_synthesis")).toBe(INITIAL_WIKI_SYNTHESIS_MODEL);
+    expect(resolveAgentModel("balanced", "initial_wiki_synthesis")).toBe(INITIAL_WIKI_SYNTHESIS_MODEL);
+    expect(INITIAL_WIKI_SYNTHESIS_MODEL).toEqual({
+      ...SHIPPED_AGENT_MODEL,
+      modelId: "google/gemini-3.8-flash",
+    });
+    expect(resolveAgentModel("balanced", "chat")).toBe(SHIPPED_AGENT_MODEL);
+    expect(isAgentModelKey("initial_wiki_synthesis")).toBe(false);
+    expect(() => resolveAgentModel("initial_wiki_synthesis")).toThrow(/Unknown agent model/);
+  });
   it("is empty unless the local benchmark flag is set", () => {
     expect(loadBenchmarkModelOverlay({ AGENT_BENCHMARK_ARMS: JSON.stringify([entry]) })).toEqual({});
     expect(loadBenchmarkModelOverlay({ LOCAL_AGENT_BENCHMARK: "true" })).toEqual({});

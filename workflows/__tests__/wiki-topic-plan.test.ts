@@ -9,6 +9,7 @@ import {
   wikiMissingOfferingCandidates,
   wikiPlanningCandidates,
   wikiPlanningContext,
+  wikiPageMatchesTopic,
 } from "@/workflows/wiki-topic-plan";
 
 const id = (index: number) => `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`;
@@ -39,15 +40,53 @@ const inventory = JSON.stringify({
 });
 
 describe("rejected website plan hypotheses", () => {
-  it.each([CustomErrorCode.wikiSourceCoverageRequired, CustomErrorCode.wikiSourcePlanIncomplete])(
-    "retains valid offering anchors for the typed %s failure, independently of the category",
-    (customCode) => {
-      const topic = offering("Verified service");
-      expect(wikiPlanningCandidates({ action: "plan", topics: [topic] }, failure(customCode), inventory)).toEqual([
-        topic,
-      ]);
-    },
-  );
+  it.each([
+    "company_overview",
+    "customers_and_use_cases",
+    "sales_messaging",
+    "voice_and_tone",
+    "operating_guide",
+  ] as const)("allows %s to summarize other same-crawl evidence without changing its exact identity", (role) => {
+    const topic: WikiSourceTopic = {
+      title: "Planned summary",
+      role,
+      sourceIds: [id(1)],
+    };
+    const page = {
+      title: topic.title,
+      kind: role === "operating_guide" ? "guide" : "knowledge",
+      sourceIds: [id(3)],
+    };
+    expect(wikiPageMatchesTopic(topic, page)).toBe(true);
+    expect(wikiPageMatchesTopic(topic, { ...page, title: "Unplanned summary" })).toBe(false);
+    expect(wikiPageMatchesTopic(topic, { ...page, kind: "procedure" })).toBe(false);
+    expect(wikiPageMatchesTopic(topic, { ...page, sourceIds: [] })).toBe(false);
+  });
+
+  it.each(["offering", "procedure"] as const)("preserves all planned source anchors for %s", (role) => {
+    const topic: WikiSourceTopic = {
+      title: "Planned detail",
+      role,
+      sourceIds: [id(1)],
+    };
+    const page = {
+      title: topic.title,
+      kind: role === "procedure" ? "procedure" : "knowledge",
+      sourceIds: [id(1)],
+    };
+    expect(wikiPageMatchesTopic(topic, page)).toBe(true);
+    expect(wikiPageMatchesTopic(topic, { ...page, sourceIds: [id(1), id(3)] })).toBe(false);
+  });
+  it.each([
+    CustomErrorCode.wikiSourceCoverageRequired,
+    CustomErrorCode.wikiSourcePlanIncomplete,
+    CustomErrorCode.wikiSourcePlanAccountingInvalid,
+  ])("retains valid offering anchors for the typed %s failure, independently of the category", (customCode) => {
+    const topic = offering("Verified service");
+    expect(wikiPlanningCandidates({ action: "plan", topics: [topic] }, failure(customCode), inventory)).toEqual([
+      topic,
+    ]);
+  });
 
   it("does not promote successful, unrelated, untyped or malformed outcomes into hypotheses", () => {
     const input = { action: "plan", topics: [offering("Verified service")] };

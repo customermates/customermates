@@ -12,7 +12,7 @@ import {
   MOCK_ZOD_MODULE,
 } from "@/tests/helpers/interactor-test-setup";
 
-import { SHIPPED_AGENT_MODEL } from "../model-catalog";
+import { SHIPPED_AGENT_MODEL, INITIAL_WIKI_SYNTHESIS_MODEL } from "../model-catalog";
 
 const mockUser = createMockUserWithPermissions([]);
 const request = vi.hoisted(() => ({ origin: "http://127.0.0.1:4016" }));
@@ -126,6 +126,58 @@ describe("agent access", () => {
     expect(mockUser.role?.isSystemRole).toBe(false);
     expect(mockUser.role?.permissions).toEqual([]);
   });
+
+  it.each(["initial", "extend", "refresh", null] as const)(
+    "prices the trusted %s purpose before reservation or dispatch",
+    async (mode) => {
+      const repo = {
+        normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
+        findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
+        claimAgentRunLease: vi.fn(),
+        isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+      };
+      const usage = usageService();
+      usage.prepareTurn.mockResolvedValue({
+        summary: { blockedReason: "credits_exhausted" },
+        reservation: null,
+      });
+      const background = backgroundTasks();
+      const crawls = setupCrawls();
+      crawls.findSetupCrawl.mockResolvedValue({
+        id: "crawl-1",
+        homepageUrl: "https://example.com/",
+        pendingHosts: [],
+        locale: "en",
+        mode,
+      } as never);
+      const result = await new SendAgentMessageInteractor(
+        repo as never,
+        usage as never,
+        mockEntitlementService(),
+        background as never,
+        emptyCustomColumns(),
+        emptyWikiCatalog(),
+        undefined,
+        crawls,
+      ).invoke({
+        clientRequestId: CLIENT_REQUEST_ID,
+        text: "Set up company knowledge",
+        retry: false,
+        ...(mode ? { wikiHomepageSetupUrl: "https://example.com/" } : {}),
+      });
+      expect(result.ok).toBe(false);
+      expect(usage.prepareTurn).toHaveBeenCalledWith(
+        mockUser.id,
+        expect.any(Date),
+        expect.objectContaining({
+          model: mode === "initial" ? INITIAL_WIKI_SYNTHESIS_MODEL : SHIPPED_AGENT_MODEL,
+          requiredContextBytes: expect.any(Number),
+        }),
+      );
+      expect(repo.claimAgentRunLease).not.toHaveBeenCalled();
+      expect(background.dispatchTracked).not.toHaveBeenCalled();
+    },
+  );
 
   it("denies a direct send invocation before admission or usage work when the kill switch is active", async () => {
     const repo = {

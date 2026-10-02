@@ -27,12 +27,23 @@ export const SHIPPED_AGENT_MODEL = {
 
 assertServableEntry(SHIPPED_AGENT_MODEL_KEY, SHIPPED_AGENT_MODEL);
 
+export const INITIAL_WIKI_SYNTHESIS_MODEL = {
+  ...SHIPPED_AGENT_MODEL,
+  modelId: "google/gemini-3.8-flash",
+} as const satisfies AgentModelEntry;
+
+assertServableEntry("initial Knowledge Base synthesis", INITIAL_WIKI_SYNTHESIS_MODEL);
+
 export function isAgentModelKey(value: string): boolean {
   return value === SHIPPED_AGENT_MODEL_KEY || Object.hasOwn(benchmarkModelOverlay(), value);
 }
 
-export function resolveAgentModel(key?: string | null): AgentModelEntry {
-  if (key == null || key === SHIPPED_AGENT_MODEL_KEY) return SHIPPED_AGENT_MODEL;
+export function resolveAgentModel(
+  key?: string | null,
+  purpose: "chat" | "initial_wiki_synthesis" = "chat",
+): AgentModelEntry {
+  if (key == null || key === SHIPPED_AGENT_MODEL_KEY)
+    return purpose === "initial_wiki_synthesis" ? INITIAL_WIKI_SYNTHESIS_MODEL : SHIPPED_AGENT_MODEL;
   const overlay = benchmarkModelOverlay()[key];
   if (overlay) return overlay;
   throw new Error(`Unknown agent model "${key}".`);

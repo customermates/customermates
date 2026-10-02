@@ -163,24 +163,47 @@ export function docsRankEvidence(
     ? ""
     : plainLine(firstLine);
   const openingIndex = units.findIndex((unit) => unit.prose && unit.text === opening);
+  const introductionBudget = Math.floor(maxChars / 3);
   if (opening && openingIndex >= 0 && opening.length <= maxChars) {
     const normalized = fold(opening);
-    const openingMatches = matcher.matches(opening).map((hit, index) => hit && active[index]);
+    const openingHits = matcher.matches(opening);
+    const openingMatches = openingHits.map((hit, index) => hit && active[index]);
     const openingScore =
       openingMatches.reduce((sum, hit, term) => sum + (hit ? weights[term] : 0), 0) +
       (phrase && active.some(Boolean) && normalized.includes(phrase) ? 1 : 0);
     if (!active.some(Boolean) || (openingScore > 0 && openingScore >= Math.max(0, ...relevant))) {
-      picked.set(openingIndex, opening);
+      const nextIndex = openingIndex + 1;
+      const next = units[nextIndex];
+      const nextMatches = next ? matcher.matches(next.text) : [];
+      const complementary =
+        active.some(Boolean) &&
+        labelMatches.some(Boolean) &&
+        next?.prose === true &&
+        next.text === lines.find((line) => line.block === next.block)?.text &&
+        next.block !== units[openingIndex].block &&
+        (!hasResidualBodyMatch || labelMatches.some((hit, term) => hit && !openingHits[term] && nextMatches[term]));
+      const openingBudget = complementary
+        ? Math.min(opening.length, introductionBudget, maxChars - next.text.length - 1)
+        : opening.length;
+      const retainNext = complementary && openingBudget >= 16;
+      const lead = retainNext ? fragment(opening, openingBudget, matcher, active, weights, phrase) : opening;
+      picked.set(openingIndex, lead);
       remaining.delete(openingIndex);
-      openingMatches.forEach((hit, term) => {
-        if (hit) seen.add(term);
+      matcher.matches(lead).forEach((hit, term) => {
+        if (hit && active[term]) seen.add(term);
       });
+      if (retainNext) {
+        picked.set(nextIndex, next.text);
+        remaining.delete(nextIndex);
+        nextMatches.forEach((hit, term) => {
+          if (hit && active[term]) seen.add(term);
+        });
+      }
     }
   }
   const firstSentence = [...SENTENCES.segment(opening)][0]?.segment.trim() ?? "";
   const openingBlock = lines.find((line) => line.prose && line.text === opening)?.block;
   const openingUnitIndex = units.findIndex((unit) => unit.prose && unit.block === openingBlock);
-  const introductionBudget = Math.floor(maxChars / 3);
   const introduction =
     picked.size === 0 &&
     hasResidualBodyMatch &&
