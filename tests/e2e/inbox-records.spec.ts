@@ -119,6 +119,7 @@ test("creates, unlinks and relinks a generic person from the inbox", async ({
   );
   await page.goto(`/en/records/${stored.rows[0].typeId}/${stored.rows[0].recordId}`);
   const channelInput = page.getByRole("combobox", { name: "Add channel", exact: true });
+  await channelInput.click();
   await channelInput.fill("Suggested Channel");
   await expect(channelInput).toHaveValue("Suggested Channel");
   await expect(channelInput).toHaveAttribute("aria-expanded", "true");

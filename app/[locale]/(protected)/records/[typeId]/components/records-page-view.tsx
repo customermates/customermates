@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
+import { Settings2 } from "lucide-react";
 
 import type { ReactNode } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -155,9 +156,15 @@ export const RecordsPageView = observer(function RecordsPageView({
         />
 
         {store.presentation.canManageSchema && (
-          <Button asChild size="sm" variant="secondary">
-            <IntlLink href={`/company/data-model?typeId=${presentation.typeId}`} id="records-configure">
-              {t("RecordModel.configure")}
+          <Button asChild className="max-sm:size-8 max-sm:p-0" size="sm" variant="secondary">
+            <IntlLink
+              aria-label={t("RecordModel.configure")}
+              href={`/company/data-model?typeId=${presentation.typeId}`}
+              id="records-configure"
+            >
+              <Settings2 aria-hidden className="size-4" />
+
+              <span className="hidden sm:inline">{t("RecordModel.configure")}</span>
             </IntlLink>
           </Button>
         )}

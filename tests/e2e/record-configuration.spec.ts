@@ -67,6 +67,7 @@ test("opens Sidebar Configure and preserves channel binding choices for seeded a
     .getByRole("link", { name: "Configure", exact: true })
     .and(page.locator("#nav-configure-records"));
   if (!(await configure.isVisible())) await page.locator("#sidebar-trigger").click();
+  await expect(page.locator("#nav-assistant")).toBeVisible();
   await expect(configure).toHaveAttribute("href", "/en/company/data-model");
   await configure.click();
   await expect(page).toHaveURL(/\/en\/company\/data-model$/);
@@ -120,6 +121,8 @@ test("opens Sidebar Configure and preserves channel binding choices for seeded a
   await page.keyboard.press("Escape");
   await expect(dialog).not.toBeVisible();
   await page.getByRole("link", { name: "Configure", exact: true }).and(page.locator("#records-configure")).click();
+  for (const name of ["Type settings", "Shared defaults", "Add field"])
+    await expect(page.getByRole("button", { name, exact: true })).toBeInViewport({ ratio: 1 });
   await page.getByRole("button", { name: "Type settings", exact: true }).click();
   await expect(channels).toBeChecked();
   await expect(providerAvatar).not.toBeVisible();

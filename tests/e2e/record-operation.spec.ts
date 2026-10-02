@@ -93,8 +93,10 @@ test("keeps complete reads and a blocked form draft while a high-fan-out price u
   expect(await snapshot()).toEqual({ activeOperationId: null, price: "10", count: 600, minimum: "10", maximum: "10" });
   const draft = await context.newPage();
   await draft.goto(`/en/records/${id("deal")}/${deals[0]}`);
+  await expect(draft.locator("#nav-add")).toHaveAttribute("aria-disabled", "false");
   const name = draft.getByRole("main").getByRole("textbox", { name: "Name", exact: false });
   await name.fill("Retained during recalculation");
+  await expect(draft.getByRole("main").getByRole("button", { name: "Save", exact: true })).toBeEnabled();
   const errors: string[] = [];
   for (const browserPage of [page, draft])
     browserPage.on("pageerror", (error) => {

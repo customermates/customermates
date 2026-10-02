@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useClientReady } from "@/hooks/use-client-ready";
-import { Plus, Link2, ChevronRight, ArrowLeft, Settings2, Activity } from "lucide-react";
+import { Plus, Link2, ChevronRight, ArrowLeft, Settings2, Activity, LayoutList } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import type { RecordModel } from "@/features/records/record-model.schema";
@@ -95,6 +95,8 @@ export const DataModelPageView = observer(function DataModelPageView({
         selected ? (
           <>
             <Button
+              aria-label={selected.archived ? t("RecordModel.restore") : t("RecordModel.typeSettings")}
+              className="max-sm:size-8 max-sm:p-0"
               disabled={!interactive}
               size="sm"
               variant="secondary"
@@ -105,29 +107,47 @@ export const DataModelPageView = observer(function DataModelPageView({
             >
               <Settings2 aria-hidden className="size-4" />
 
-              {selected.archived ? t("RecordModel.restore") : t("RecordModel.typeSettings")}
+              <span className="hidden sm:inline">
+                {selected.archived ? t("RecordModel.restore") : t("RecordModel.typeSettings")}
+              </span>
             </Button>
 
             <Button
+              aria-label={t("RecordModel.sharedDefaults")}
+              className="max-sm:size-8 max-sm:p-0"
               disabled={!interactive}
               size="sm"
               variant="secondary"
               onClick={() => typeModal.edit(model, selected, "appearance")}
             >
-              {t("RecordModel.sharedDefaults")}
+              <LayoutList aria-hidden className="size-4" />
+
+              <span className="hidden sm:inline">{t("RecordModel.sharedDefaults")}</span>
             </Button>
 
-            <Button disabled={!interactive} size="sm" onClick={() => fieldModal.edit(model, selected.id, null)}>
+            <Button
+              aria-label={t("RecordModel.addField")}
+              className="max-sm:size-8 max-sm:p-0"
+              disabled={!interactive}
+              size="sm"
+              onClick={() => fieldModal.edit(model, selected.id, null)}
+            >
               <Plus aria-hidden className="size-4" />
 
-              {t("RecordModel.addField")}
+              <span className="hidden sm:inline">{t("RecordModel.addField")}</span>
             </Button>
           </>
         ) : (
-          <Button disabled={!interactive} size="sm" onClick={() => typeModal.edit(model, null)}>
+          <Button
+            aria-label={t("RecordModel.createList")}
+            className="max-sm:size-8 max-sm:p-0"
+            disabled={!interactive}
+            size="sm"
+            onClick={() => typeModal.edit(model, null)}
+          >
             <Plus aria-hidden className="size-4" />
 
-            {t("RecordModel.createList")}
+            <span className="hidden sm:inline">{t("RecordModel.createList")}</span>
           </Button>
         )
       ) : null,

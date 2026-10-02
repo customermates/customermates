@@ -80,6 +80,7 @@ export async function removeBrowserWorkspace(
 ) {
   await database.query("BEGIN");
   try {
+    await database.query("SELECT pg_advisory_xact_lock(hashtextextended($1, 0))", [workspace.companyId]);
     await database.query('DELETE FROM "AuthUser" WHERE id=$1 AND "companyId"=$2', [
       workspace.authUserId,
       workspace.companyId,
