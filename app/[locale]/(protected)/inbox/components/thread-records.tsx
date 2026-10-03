@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
 import { ChevronLeft, Plus, Unlink } from "lucide-react";
@@ -10,12 +10,16 @@ import { SelectionOptionsSkeleton } from "@/components/forms/selection-loading";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { recordSearchKey, recordSearchLabel } from "@/features/records/record-search.schema";
+import { useFocusAfterRemoval } from "@/components/ui/use-focus-after-removal";
 import { ThreadRecordsStore } from "./thread-records.store";
 
 export const ThreadRecords = observer(({ threadId }: { threadId: string }) => {
   const t = useTranslations();
   const root = useRootStore();
   const [store] = useState(() => new ThreadRecordsStore(root));
+  const list = useRef<HTMLDivElement>(null);
+  const toggle = useRef<HTMLButtonElement>(null);
+  const focusAfterRemoval = useFocusAfterRemoval();
   useEffect(() => {
     store.bind(threadId);
     return store.dispose;
@@ -27,6 +31,7 @@ export const ThreadRecords = observer(({ threadId }: { threadId: string }) => {
 
         {store.detail?.canManage && (
           <Button
+            ref={toggle}
             disabled={store.pending}
             size="sm"
             type="button"
@@ -46,7 +51,7 @@ export const ThreadRecords = observer(({ threadId }: { threadId: string }) => {
         <div className="flex items-center justify-between gap-2 text-sm" role="alert">
           <span>{t("Common.notifications.unexpectedError")}</span>
 
-          <Button size="sm" variant="secondary" onClick={() => runUserAction(store.retryCurrent)}>
+          <Button disabled={store.loading} size="sm" variant="secondary" onClick={() => runUserAction(store.reload)}>
             {t("ErrorCard.retry")}
           </Button>
         </div>
@@ -62,12 +67,22 @@ export const ThreadRecords = observer(({ threadId }: { threadId: string }) => {
             onValueChange={store.setQuery}
           />
 
-          <CommandList aria-busy={store.loading || undefined}>
-            {store.loading && <SelectionOptionsSkeleton label={t("Loading.text")} />}
+          <CommandList aria-busy={store.searchLoading || undefined}>
+            {store.searchLoading && <SelectionOptionsSkeleton label={t("Loading.text")} />}
 
-            {!store.loading && !store.error && <CommandEmpty>{t("GlobalSearch.noResults")}</CommandEmpty>}
+            {store.searchError && (
+              <div className="flex items-center justify-between gap-2 p-2 text-sm" role="alert">
+                <span>{t("Common.notifications.unexpectedError")}</span>
 
-            {!store.loading &&
+                <Button size="sm" variant="secondary" onClick={() => runUserAction(store.retryCurrent)}>
+                  {t("ErrorCard.retry")}
+                </Button>
+              </div>
+            )}
+
+            {!store.searchLoading && !store.searchError && <CommandEmpty>{t("GlobalSearch.noResults")}</CommandEmpty>}
+
+            {!store.searchLoading &&
               store.results.map((record) => (
                 <CommandItem
                   key={recordSearchKey(record)}
@@ -83,41 +98,51 @@ export const ThreadRecords = observer(({ threadId }: { threadId: string }) => {
           </CommandList>
         </Command>
       ) : (
-        <div className="flex flex-col gap-1">
+        <div ref={list} className="flex flex-col gap-1">
           {store.loading && !store.detail && <SelectionOptionsSkeleton label={t("Loading.text")} />}
 
           {!store.loading && !store.error && store.detail?.records.length === 0 && (
             <p className="text-muted-foreground text-xs">{t("Inbox.participants.noRecords")}</p>
           )}
 
-          {!store.error &&
-            store.detail?.records.map((record) => (
-              <div key={recordSearchKey(record)} className="flex items-center gap-1">
+          {store.detail?.records.map((record, index) => (
+            <div key={recordSearchKey(record)} className="flex items-center gap-1">
+              <Button
+                aria-label={`${t("Inbox.participants.openRecord")}: ${recordSearchLabel(record, t)}`}
+                className="min-w-0 flex-1 justify-start"
+                data-thread-record-open=""
+                size="sm"
+                variant="secondary"
+                onClick={(event) => root.recordWorkspaceStore.open(record.ref, event.currentTarget)}
+              >
+                <span className="truncate">{recordSearchLabel(record, t)}</span>
+
+                <span className="text-muted-foreground shrink-0 text-xs">· {record.typeLabel}</span>
+              </Button>
+
+              {record.canUnlink && (
                 <Button
-                  aria-label={`${t("Inbox.participants.openRecord")}: ${recordSearchLabel(record, t)}`}
-                  className="min-w-0 flex-1 justify-start"
-                  size="sm"
-                  variant="secondary"
-                  onClick={(event) => root.recordWorkspaceStore.open(record.ref, event.currentTarget)}
+                  aria-label={`${t("Inbox.participants.unlinkRecord")}: ${recordSearchLabel(record, t)}`}
+                  disabled={store.pending}
+                  size="icon-sm"
+                  variant="ghost"
+                  onClick={() =>
+                    runUserAction(async () => {
+                      await store.mutate("unlink", record.ref);
+                      focusAfterRemoval({
+                        container: () => list.current,
+                        selector: "[data-thread-record-open]",
+                        index,
+                        fallback: () => toggle.current,
+                      });
+                    })
+                  }
                 >
-                  <span className="truncate">{recordSearchLabel(record, t)}</span>
-
-                  <span className="text-muted-foreground shrink-0 text-xs">· {record.typeLabel}</span>
+                  <Unlink className="size-3.5" />
                 </Button>
-
-                {record.canUnlink && (
-                  <Button
-                    aria-label={`${t("Inbox.participants.unlinkRecord")}: ${recordSearchLabel(record, t)}`}
-                    disabled={store.pending}
-                    size="icon-sm"
-                    variant="ghost"
-                    onClick={() => runUserAction(() => store.mutate("unlink", record.ref))}
-                  >
-                    <Unlink className="size-3.5" />
-                  </Button>
-                )}
-              </div>
-            ))}
+              )}
+            </div>
+          ))}
         </div>
       )}
     </section>

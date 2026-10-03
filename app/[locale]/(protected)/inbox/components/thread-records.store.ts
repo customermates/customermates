@@ -19,6 +19,8 @@ export class ThreadRecordsStore extends BaseStore {
   searching = false;
   loading = false;
   error = false;
+  searchLoading = false;
+  searchError = false;
   pending = false;
   private threadId = "";
   private generation = 0;
@@ -35,6 +37,8 @@ export class ThreadRecordsStore extends BaseStore {
       searching: observable,
       loading: observable,
       error: observable,
+      searchLoading: observable,
+      searchError: observable,
       pending: observable,
       bind: action,
       reload: action,
@@ -64,6 +68,9 @@ export class ThreadRecordsStore extends BaseStore {
     this.retry = null;
     this.pending = false;
     this.loading = false;
+    this.error = false;
+    this.searchLoading = false;
+    this.searchError = false;
   };
 
   reload = async () => {
@@ -84,10 +91,7 @@ export class ThreadRecordsStore extends BaseStore {
       });
     } catch {
       runInAction(() => {
-        if (generation === this.generation) {
-          this.detail = null;
-          this.error = true;
-        }
+        if (threadId === this.threadId && generation === this.generation) this.error = true;
       });
     } finally {
       runInAction(() => {
@@ -100,18 +104,18 @@ export class ThreadRecordsStore extends BaseStore {
     this.searchGeneration += 1;
     this.debouncer.cancel();
     this.searching = next;
-    this.loading = false;
+    this.searchLoading = false;
+    this.searchError = false;
     this.query = "";
     this.results = [];
-    this.error = false;
   };
 
   setQuery = (query: string) => {
     this.query = query;
     const generation = ++this.searchGeneration;
     this.results = [];
-    this.error = false;
-    this.loading = query.trim().length > 0;
+    this.searchError = false;
+    this.searchLoading = query.trim().length > 0;
     this.debouncer.run(() => void this.search(generation, query.trim()));
   };
 
@@ -123,8 +127,8 @@ export class ThreadRecordsStore extends BaseStore {
     this.debouncer.cancel();
     const generation = ++this.searchGeneration;
     const query = this.query.trim();
-    this.error = false;
-    this.loading = query.length > 0;
+    this.searchError = false;
+    this.searchLoading = query.length > 0;
     if (query) await this.search(generation, query);
   };
 
@@ -148,15 +152,15 @@ export class ThreadRecordsStore extends BaseStore {
                   existing.ref.typeId === record.ref.typeId && existing.ref.recordId === record.ref.recordId,
               ),
           );
-        } else this.error = true;
+        } else this.searchError = true;
       });
     } catch {
       runInAction(() => {
-        if (generation === this.searchGeneration) this.error = true;
+        if (generation === this.searchGeneration) this.searchError = true;
       });
     } finally {
       runInAction(() => {
-        if (generation === this.searchGeneration) this.loading = false;
+        if (generation === this.searchGeneration) this.searchLoading = false;
       });
     }
   }

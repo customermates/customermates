@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Check, ChevronsUpDown, X } from "lucide-react";
@@ -14,6 +14,7 @@ import type { RecordRelationship } from "@/features/records/record-model.schema"
 import type { RecordEditorStore } from "./record-editor.store";
 
 import { Button } from "@/components/ui/button";
+import { useFocusAfterRemoval } from "@/components/ui/use-focus-after-removal";
 import { SelectionOptionsSkeleton, SelectionValueSkeleton } from "@/components/forms/selection-loading";
 import { AppChip } from "@/components/chip/app-chip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -123,6 +124,8 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
     setPage(1);
   }
   const id = `relationship-${relationship.id}-${direction}-${useId()}`;
+  const chips = useRef<HTMLDivElement>(null);
+  const focusAfterRemoval = useFocusAfterRemoval();
   const error = (retry: () => void) => (
     <div className="flex items-center gap-2 text-sm" role="alert">
       <span>{t("Common.notifications.unexpectedError")}</span>
@@ -137,7 +140,7 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
       {linked.failed ? (
         error(() => setAttempt((value) => value + 1))
       ) : chosen.length > 0 || store.isReadOnly ? (
-        <div aria-busy={linked.loading || undefined} className="flex flex-wrap gap-1.5">
+        <div ref={chips} aria-busy={linked.loading || undefined} className="flex flex-wrap gap-1.5">
           {linked.loading && store.isReadOnly && chosen.length === 0 && (
             <span aria-label={t("Loading.text")} role="status">
               <SelectionValueSkeleton />
@@ -148,7 +151,7 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
             <span className="text-sm text-muted-foreground">—</span>
           )}
 
-          {chosen.map((record) => (
+          {chosen.map((record, index) => (
             <AppChip
               key={record.ref.recordId}
               endContent={
@@ -156,8 +159,17 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
                   <button
                     aria-label={t("RecordModel.unlinkRecord", { name: title(record) })}
                     className="inline-flex size-5 items-center justify-center rounded-sm focus-visible:ring-2 focus-visible:ring-ring"
+                    data-relationship-unlink=""
                     type="button"
-                    onClick={() => stage(record, "unlink")}
+                    onClick={() => {
+                      stage(record, "unlink");
+                      focusAfterRemoval({
+                        container: () => chips.current,
+                        selector: "[data-relationship-unlink]",
+                        index,
+                        fallback: () => document.getElementById(id),
+                      });
+                    }}
                   >
                     <X className="size-3" />
                   </button>

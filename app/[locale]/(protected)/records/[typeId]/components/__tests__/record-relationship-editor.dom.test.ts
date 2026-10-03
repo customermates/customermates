@@ -1,4 +1,5 @@
 import { act, createElement, type ReactNode } from "react";
+import { action, observable } from "mobx";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { RecordEditorStore } from "../record-editor.store";
@@ -209,5 +210,35 @@ describe("relationship loading presentation and response ownership", () => {
       await Promise.resolve();
     });
     expect(field.textContent).toBe("—");
+  });
+});
+
+describe("relationship unlink focus", () => {
+  it("moves focus to the next linked record after unlinking, then to the Link control", async () => {
+    const other: RecordChoice = {
+      ref: { typeId: relation.targetTypeId, recordId: "10000000-0000-4000-8000-000000000007" },
+      title: { state: "value", value: { kind: "text", value: "Second project" } },
+    };
+    actions.choices.mockResolvedValue({ ok: true, data: results([linked, other]) });
+    const form = observable({ linkChanges: [] as unknown[] });
+    const store = Object.assign(editor(), {
+      form,
+      stageLink: action((change: object, title: unknown) => {
+        form.linkChanges.push({ ...change, title });
+      }),
+    }) as unknown as RecordEditorStore;
+    const field = render(store);
+    await act(async () => {
+      await Promise.resolve();
+    });
+    const unlinks = () => [...field.querySelectorAll<HTMLButtonElement>('[aria-label="RecordModel.unlinkRecord"]')];
+    expect(unlinks()).toHaveLength(2);
+    unlinks()[0].focus();
+    act(() => unlinks()[0].click());
+    expect(unlinks()).toHaveLength(1);
+    expect(document.activeElement).toBe(unlinks()[0]);
+    act(() => unlinks()[0].click());
+    expect(unlinks()).toHaveLength(0);
+    expect(document.activeElement).toBe(field.querySelector('[role="combobox"]'));
   });
 });

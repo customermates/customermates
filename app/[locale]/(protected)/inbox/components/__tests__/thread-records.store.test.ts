@@ -133,13 +133,14 @@ describe("conversation search recovery ownership", () => {
       .mockResolvedValueOnce({ ok: true, data: { results: [editable] } });
     store.setSearching(true);
     store.setQuery("project");
-    await vi.waitFor(() => expect(store.error).toBe(true));
+    await vi.waitFor(() => expect(store.searchError).toBe(true));
+    expect(store.error).toBe(false);
     await store.retryCurrent();
     expect(store.query).toBe("project");
     expect(store.searching).toBe(true);
     expect(store.results).toEqual([editable]);
-    expect(store.loading).toBe(false);
-    expect(store.error).toBe(false);
+    expect(store.searchLoading).toBe(false);
+    expect(store.searchError).toBe(false);
     expect(actions.globalSearchAction).toHaveBeenCalledTimes(2);
     expect(actions.globalSearchAction.mock.calls[1][0].searchTerm).toBe("project");
     expect(actions.readThreadRecordsAction).toHaveBeenCalledTimes(1);
@@ -156,7 +157,7 @@ describe("conversation search recovery ownership", () => {
     store.setQuery("project");
     await vi.waitFor(() => expect(actions.globalSearchAction).toHaveBeenCalledOnce());
     store.setSearching(false);
-    expect(store.loading).toBe(false);
+    expect(store.searchLoading).toBe(false);
     expect(store.query).toBe("");
     response.resolve({
       ok: true,
@@ -165,8 +166,48 @@ describe("conversation search recovery ownership", () => {
     await response.promise;
     await Promise.resolve();
     expect(store.results).toEqual([]);
+    expect(store.searchLoading).toBe(false);
+    expect(store.searchError).toBe(false);
+    store.dispose();
+  });
+
+  it("keeps a running conversation reload's loading state when search mode toggles", async () => {
+    const { store } = await fixture();
+    const read = Promise.withResolvers<unknown>();
+    actions.readThreadRecordsAction.mockReturnValueOnce(read.promise);
+    const reload = store.reload();
+    store.setSearching(true);
+    store.setSearching(false);
+    expect(store.loading).toBe(true);
+    read.resolve({ ok: true, data: detail });
+    await reload;
     expect(store.loading).toBe(false);
+    store.dispose();
+  });
+});
+
+describe("conversation record reload failures", () => {
+  beforeEach(() => vi.clearAllMocks());
+  it("keeps the last linked records visible when a reload cannot reach the server", async () => {
+    const { store } = await fixture();
+    actions.readThreadRecordsAction.mockRejectedValueOnce(new Error("Offline"));
+    await store.reload();
+    expect(store.detail).toEqual(detail);
+    expect(store.error).toBe(true);
+    actions.readThreadRecordsAction.mockResolvedValueOnce({ ok: true, data: detail });
+    await store.reload();
     expect(store.error).toBe(false);
+    store.dispose();
+  });
+
+  it("does not report a search failure as a conversation failure", async () => {
+    const { store } = await fixture();
+    actions.globalSearchAction.mockRejectedValueOnce(new Error("Unavailable"));
+    store.setSearching(true);
+    store.setQuery("project");
+    await vi.waitFor(() => expect(store.searchError).toBe(true));
+    expect(store.error).toBe(false);
+    expect(store.detail).toEqual(detail);
     store.dispose();
   });
 });
