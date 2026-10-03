@@ -87,7 +87,10 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
   const changes = store.form.linkChanges.filter(
     (change) => change.relationId === relationship.id && change.direction === direction,
   );
-  const original = linked.data?.records ?? [];
+  const initialSummary = store.record?.relationships.find(
+    (entry) => entry.relationId === relationship.id && entry.direction === direction,
+  );
+  const original = linked.data?.records ?? (linked.loading && linkedPage === 1 ? (initialSummary?.records ?? []) : []);
   const chosen = [
     ...original.filter(
       (record) =>
@@ -133,9 +136,9 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
     <RecordDetailField fieldId={relationshipColumnKey(relationship.id, direction)} inputId={id} label={label}>
       {linked.failed ? (
         error(() => setAttempt((value) => value + 1))
-      ) : (
+      ) : chosen.length > 0 || store.isReadOnly ? (
         <div aria-busy={linked.loading || undefined} className="flex flex-wrap gap-1.5">
-          {linked.loading && (
+          {linked.loading && store.isReadOnly && chosen.length === 0 && (
             <span aria-label={t("Loading.text")} role="status">
               <SelectionValueSkeleton />
             </span>
@@ -179,7 +182,7 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
             </AppChip>
           ))}
         </div>
-      )}
+      ) : null}
 
       {linked.data && linked.data.total > linked.data.pageSize && (
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -211,6 +214,7 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
         <Popover modal open={open && editable} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <Button
+              aria-busy={linked.loading || undefined}
               aria-expanded={open && editable}
               aria-label={label}
               className="w-full justify-between font-normal"
@@ -220,7 +224,13 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
               type="button"
               variant="field"
             >
-              <span>{t("RecordModel.linkRecord")}</span>
+              {linked.loading ? (
+                <span aria-label={t("Loading.text")} role="status">
+                  <SelectionValueSkeleton />
+                </span>
+              ) : (
+                <span>{t("RecordModel.linkRecord")}</span>
+              )}
 
               <ChevronsUpDown className="size-4 opacity-50" />
             </Button>

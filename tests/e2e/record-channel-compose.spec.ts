@@ -283,8 +283,75 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
     expect(await readDrafts()).toEqual([draft]);
   }
 
+  let holdLinkedChoices = true;
+  const releaseChoices: Array<() => void> = [];
+  await page.route("**/*", async (route) => {
+    const request = route.request();
+    if (
+      !holdLinkedChoices ||
+      request.method() !== "POST" ||
+      !request.headers()["next-action"] ||
+      new URL(request.url()).pathname !== `/en/records/${typeId}/${records[1].recordId}`
+    )
+      return route.fallback();
+    let args: unknown;
+    try {
+      args = JSON.parse(request.postData() ?? "null");
+    } catch {
+      return route.fallback();
+    }
+    if (
+      !Array.isArray(args) ||
+      args.length !== 1 ||
+      !args[0]?.linkedTo ||
+      args[0].linkedTo.ref?.typeId !== records[1].typeId ||
+      args[0].linkedTo.ref?.recordId !== records[1].recordId
+    )
+      return route.fallback();
+    const response = await route.fetch();
+    expect(response.status()).toBe(200);
+    await new Promise<void>((resolve) => {
+      releaseChoices.push(resolve);
+    });
+    await route.fulfill({ response });
+  });
   await openRecord(1);
-  await activateCompose(start());
+  const pendingLinkedFields = page.locator('[data-entity-field^="relationship:"] [aria-busy="true"]');
+  const relationCount = model.relationships.filter(
+    (relation: { sourceTypeId: string; targetTypeId: string; archived: boolean }) =>
+      !relation.archived && (relation.sourceTypeId === typeId || relation.targetTypeId === typeId),
+  ).length;
+  expect(relationCount).toBe(3);
+  await expect.poll(() => releaseChoices.length).toBeGreaterThan(0);
+  await expect(pendingLinkedFields).toHaveCount(relationCount);
+  const beforeChoiceLoad = await start().boundingBox();
+  if (!beforeChoiceLoad) throw new Error("Expected visible compose trigger during relationship loading");
+  if (testInfo.project.name !== "mobile") {
+    await page.mouse.move(
+      beforeChoiceLoad.x + beforeChoiceLoad.width / 2,
+      beforeChoiceLoad.y + beforeChoiceLoad.height / 2,
+    );
+    await page.mouse.down();
+  }
+  try {
+    for (let index = 0; index < relationCount; index += 1) {
+      await expect.poll(() => releaseChoices.length).toBeGreaterThan(index);
+      releaseChoices[index]();
+      await expect(pendingLinkedFields).toHaveCount(relationCount - index - 1);
+      const afterChoiceLoad = await start().boundingBox();
+      if (!afterChoiceLoad) throw new Error("Relationship loading removed the compose trigger");
+      expect(Math.abs(afterChoiceLoad.y - beforeChoiceLoad.y)).toBeLessThanOrEqual(1);
+      expect(Math.abs(afterChoiceLoad.x - beforeChoiceLoad.x)).toBeLessThanOrEqual(1);
+      expect(Math.abs(afterChoiceLoad.width - beforeChoiceLoad.width)).toBeLessThanOrEqual(1);
+      expect(Math.abs(afterChoiceLoad.height - beforeChoiceLoad.height)).toBeLessThanOrEqual(1);
+    }
+  } finally {
+    holdLinkedChoices = false;
+    releaseChoices.forEach((release) => release());
+    if (testInfo.project.name !== "mobile") await page.mouse.up();
+  }
+  if (testInfo.project.name === "mobile") await activateCompose(start());
+  await expect(start()).toHaveAttribute("aria-expanded", "true");
   await expect(body).toHaveText("");
   await popover.getByPlaceholder("Subject", { exact: true }).fill("Local second company delivery");
   await body.fill("Message only for the second company");
