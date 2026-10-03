@@ -41,11 +41,9 @@ async function seedKey(referenceId: string, overrides: { enabled?: boolean; expi
   return id;
 }
 
-async function serviceSignedInAs(userId: string | null) {
+async function service() {
   const { AuthService } = await import("@/features/auth/auth.service");
-  const service = new AuthService({ send: vi.fn() } as never);
-  vi.spyOn(service, "getSession").mockResolvedValue(userId ? ({ user: { id: userId } } as never) : null);
-  return service;
+  return new AuthService({ send: vi.fn() } as never);
 }
 
 describeDatabase("API key references against the database", { timeout: 120_000 }, () => {
@@ -69,8 +67,8 @@ describeDatabase("API key references against the database", { timeout: 120_000 }
     const missing = randomUUID();
 
     const result = await (
-      await serviceSignedInAs(ownerId)
-    ).resolveApiKeyReferences([active, disabled, expired, unlimited, foreign, missing]);
+      await service()
+    ).resolveApiKeyReferences(ownerId, [active, disabled, expired, unlimited, foreign, missing]);
 
     expect([...result.active].sort()).toEqual([active, unlimited].sort());
     expect([...result.foreign]).toEqual([foreign]);
@@ -88,16 +86,27 @@ describeDatabase("API key references against the database", { timeout: 120_000 }
     });
     const newest = await seedKey(ownerId);
 
-    const result = await (await serviceSignedInAs(ownerId)).resolveApiKeyReferences([newest]);
+    const result = await (await service()).resolveApiKeyReferences(ownerId, [newest]);
 
     expect([...result.active]).toEqual([newest]);
   });
 
-  it("treats every existing reference as foreign without a session", async () => {
+  it("recognizes a key created by the API key plugin as owned by its auth user", async () => {
     const ownerId = await seedAuthUser();
+    const { auth } = await import("@/core/auth/better-auth");
+    const created = await auth.api.createApiKey({ body: { name: "Cursor", userId: ownerId } });
+
+    const result = await (await service()).resolveApiKeyReferences(ownerId, [created.id]);
+
+    expect([...result.active]).toEqual([created.id]);
+  });
+
+  it("treats another owner's existing reference as foreign", async () => {
+    const ownerId = await seedAuthUser();
+    const otherId = await seedAuthUser();
     const key = await seedKey(ownerId);
 
-    const result = await (await serviceSignedInAs(null)).resolveApiKeyReferences([key]);
+    const result = await (await service()).resolveApiKeyReferences(otherId, [key]);
 
     expect(result.active.size).toBe(0);
     expect([...result.foreign]).toEqual([key]);

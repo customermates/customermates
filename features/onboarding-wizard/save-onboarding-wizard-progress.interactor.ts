@@ -39,12 +39,16 @@ export class SaveOnboardingWizardProgressInteractor {
   ): Promise<Awaited<Validated<OnboardingWizardProgress>> | Redirect> {
     const resolution = await this.routeGuardService.resolveAccountState();
     if (resolution.state !== "onboarding") return redirectTo(accountStateRedirect(resolution.state) ?? "/");
-    if (!resolution.user) return redirectTo("/auth/signin");
+    if (!resolution.user || !resolution.sessionUser) return redirectTo("/auth/signin");
+    const ownerAuthUserId = resolution.sessionUser.id;
     if (resolution.user.id !== data.userId) return failAuthorization(CustomErrorCode.permissionDenied);
 
     return runWithTenant(resolution.user, async () => {
       const references = Object.entries(data.progress.ai.apiKeyIds);
-      const { active, foreign } = await this.authService.resolveApiKeyReferences(references.map(([, id]) => id));
+      const { active, foreign } = await this.authService.resolveApiKeyReferences(
+        ownerAuthUserId,
+        references.map(([, id]) => id),
+      );
       if (references.some(([, id]) => foreign.has(id)))
         return failAuthorization(CustomErrorCode.permissionDenied, ["progress", "ai", "apiKeyIds"]);
 

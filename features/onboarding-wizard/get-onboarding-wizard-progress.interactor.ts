@@ -26,12 +26,16 @@ export class GetOnboardingWizardProgressInteractor {
   async invoke(): Promise<{ ok: true; data: OnboardingWizardProgress } | Redirect> {
     const resolution = await this.routeGuardService.resolveAccountState();
     if (resolution.state !== "onboarding") return redirectTo(accountStateRedirect(resolution.state) ?? "/");
-    if (!resolution.user) return redirectTo("/auth/signin");
+    if (!resolution.user || !resolution.sessionUser) return redirectTo("/auth/signin");
+    const ownerAuthUserId = resolution.sessionUser.id;
 
     return runWithTenant(resolution.user, async () => {
       const progress = readOnboardingWizardProgress(await this.repo.findOnboardingWizardProgressOrThrow());
       const references = Object.entries(progress.ai.apiKeyIds);
-      const { active } = await this.authService.resolveApiKeyReferences(references.map(([, id]) => id));
+      const { active } = await this.authService.resolveApiKeyReferences(
+        ownerAuthUserId,
+        references.map(([, id]) => id),
+      );
       progress.ai.apiKeyIds = Object.fromEntries(references.filter(([, id]) => active.has(id)));
       return { ok: true as const, data: progress };
     });

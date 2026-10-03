@@ -305,8 +305,10 @@ export class AuthService {
     return result.apiKeys;
   }
 
-  async resolveApiKeyReferences(ids: string[]): Promise<{ active: Set<string>; foreign: Set<string> }> {
-    const session = await this.getSession();
+  async resolveApiKeyReferences(
+    ownerAuthUserId: string,
+    ids: string[],
+  ): Promise<{ active: Set<string>; foreign: Set<string> }> {
     const keys = ids.length
       ? await prisma.apikey.findMany({
           where: { id: { in: ids } },
@@ -318,7 +320,7 @@ export class AuthService {
     const foreign = new Set<string>();
 
     for (const key of keys) {
-      if (!session || key.referenceId !== session.user.id) foreign.add(key.id);
+      if (key.referenceId !== ownerAuthUserId) foreign.add(key.id);
       else if (key.enabled !== false && (!key.expiresAt || key.expiresAt.getTime() > now)) active.add(key.id);
     }
 

@@ -15,6 +15,7 @@ import { SaveOnboardingWizardProgressInteractor } from "../save-onboarding-wizar
 import { readOnboardingWizardProgress } from "../onboarding-wizard-progress.schema";
 
 const user = createMockUser({ onboardingWizardCompletedAt: null });
+const sessionUser = { id: "auth-user-id" };
 const progress = { ...readOnboardingWizardProgress(null), step: "ai" as const };
 const repo = { findOnboardingWizardProgressOrThrow: vi.fn(), saveOnboardingWizardProgress: vi.fn() };
 const guard = { resolveAccountState: vi.fn() };
@@ -25,7 +26,7 @@ const save = () => new SaveOnboardingWizardProgressInteractor(repo as never, gua
 beforeEach(() => {
   vi.clearAllMocks();
   (MOCK_ENV_MODULE.env as { APP_MODE: string }).APP_MODE = "cloud";
-  guard.resolveAccountState.mockResolvedValue({ state: "onboarding", user });
+  guard.resolveAccountState.mockResolvedValue({ state: "onboarding", user, sessionUser });
   repo.findOnboardingWizardProgressOrThrow.mockResolvedValue(progress);
   repo.saveOnboardingWizardProgress.mockResolvedValue(true);
   auth.resolveApiKeyReferences.mockResolvedValue({ active: new Set(), foreign: new Set() });
@@ -66,7 +67,7 @@ describe("onboarding progress access and persistence", () => {
     guard.resolveAccountState.mockResolvedValue({ state: "onboarding", user: null });
     await expect(read().invoke()).resolves.toEqual({ redirect: "/auth/signin" });
     await expect(save().invoke({ userId: user.id, progress })).resolves.toEqual({ redirect: "/auth/signin" });
-    guard.resolveAccountState.mockResolvedValue({ state: "onboarding", user });
+    guard.resolveAccountState.mockResolvedValue({ state: "onboarding", user, sessionUser });
     expect(await save().invoke({ userId: "previous-account", progress })).toMatchObject({ ok: false });
     expect(repo.saveOnboardingWizardProgress).not.toHaveBeenCalled();
   });
@@ -113,7 +114,7 @@ describe("onboarding progress access and persistence", () => {
     const pruned = { ...progress, ai: { ...progress.ai, apiKeyIds: { cursor: "valid" } } };
 
     await expect(save().invoke({ userId: user.id, progress: stale })).resolves.toEqual({ ok: true, data: pruned });
-    expect(auth.resolveApiKeyReferences).toHaveBeenCalledWith(["valid", "deleted", "disabled"]);
+    expect(auth.resolveApiKeyReferences).toHaveBeenCalledWith("auth-user-id", ["valid", "deleted", "disabled"]);
     expect(repo.saveOnboardingWizardProgress).toHaveBeenCalledExactlyOnceWith(pruned);
   });
 
