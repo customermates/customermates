@@ -681,6 +681,8 @@ describe("the shipped tool catalog on the Google wire", () => {
         coveredByTitle: { type: "string", minLength: 1, maxLength: 120 },
         coveredByRole: { type: "string", enum: ["offering"] },
         evidenceQuote: { type: "string", minLength: 1, maxLength: 500 },
+        counterpartSourceId: { type: "string", pattern: "^[0-9a-fA-F-]{36}$" },
+        counterpartQuote: { type: "string", minLength: 1, maxLength: 500 },
       },
     });
   });
@@ -706,7 +708,14 @@ describe("the shipped tool catalog on the Google wire", () => {
     for (const proof of [
       { basis: "already_imported" },
       { basis: "exact_duplicate", duplicateOfSourceId: "00000000-0000-4000-8000-000000000002" },
-      { basis: "overlap", coveredByTitle: "Service A", coveredByRole: "offering" },
+      {
+        basis: "overlap",
+        coveredByTitle: "Service A",
+        coveredByRole: "offering",
+        evidenceQuote: "Exact evidence from this named source.",
+        counterpartSourceId: "00000000-0000-4000-8000-000000000002",
+        counterpartQuote: "Exact evidence from the retained offering source.",
+      },
       { basis: "not_substantive", evidenceQuote: "Exact evidence from this named source." },
     ]) {
       expect(
@@ -723,6 +732,12 @@ describe("the shipped tool catalog on the Google wire", () => {
   it("rejects missing or mismatched exclusion proofs despite the Google outer-cap projection", async () => {
     const options = { wikiHomepageSetup: true, wikiCrawlId: UUID, locale: "en", surface: "chat" as const };
     const base = { sourceIds: [UUID], reason: "Source-specific evidence is required." };
+    const witnesses = {
+      evidenceQuote: "Exact evidence from this named source.",
+      counterpartSourceId: "00000000-0000-4000-8000-000000000002",
+      counterpartQuote: "Exact evidence from the retained offering source.",
+    };
+    const overlap = { basis: "overlap", coveredByTitle: "Service A", coveredByRole: "offering", ...witnesses };
     for (const proof of [
       {},
       { basis: "already_imported", evidenceQuote: "An unrelated extra proof." },
@@ -736,8 +751,23 @@ describe("the shipped tool catalog on the Google wire", () => {
         coveredByRole: "offering",
         evidenceQuote: "An unrelated extra proof.",
       },
+      { ...overlap, evidenceQuote: undefined },
+      { ...overlap, counterpartSourceId: undefined },
+      { ...overlap, counterpartQuote: undefined },
+      {
+        basis: "already_imported",
+        counterpartSourceId: witnesses.counterpartSourceId,
+        counterpartQuote: witnesses.counterpartQuote,
+      },
+      {
+        basis: "exact_duplicate",
+        duplicateOfSourceId: UUID,
+        counterpartSourceId: witnesses.counterpartSourceId,
+        counterpartQuote: witnesses.counterpartQuote,
+      },
       { basis: "not_substantive" },
       { basis: "not_substantive", evidenceQuote: "Exact source evidence.", duplicateOfSourceId: UUID },
+      { basis: "not_substantive", ...witnesses },
     ]) {
       expect(
         await normalizeAgentAiToolInput(
@@ -784,8 +814,8 @@ describe("the shipped tool catalog on the Google wire", () => {
       action: "plan",
       topics: [
         {
-          title: "Service A",
-          role: "offering",
+          title: "Company overview",
+          role: "company_overview",
           sourceIds: Array.from(
             { length: 41 },
             (_, index) => `00000000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`,
@@ -798,6 +828,34 @@ describe("the shipped tool catalog on the Google wire", () => {
     input.topics[0].sourceIds.pop();
     expect(await normalizeAgentAiToolInput("read_website_source", input, 48_000, options)).toMatchObject({ ok: true });
   });
+
+  it.each(["offering", "procedure"] as const)(
+    "retains the authoritative four-source %s limit after the website wire projection",
+    async (role) => {
+      const options = { wikiHomepageSetup: true, wikiCrawlId: UUID, locale: "en", surface: "chat" as const };
+      const input = {
+        action: "plan",
+        topics: [
+          {
+            title: "Supported detail",
+            role,
+            sourceIds: Array.from(
+              { length: 5 },
+              (_, index) => `00000000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`,
+            ),
+          },
+        ],
+        excluded: [],
+      };
+      expect(await normalizeAgentAiToolInput("read_website_source", input, 48_000, options)).toMatchObject({
+        ok: false,
+      });
+      input.topics[0].sourceIds.pop();
+      expect(await normalizeAgentAiToolInput("read_website_source", input, 48_000, options)).toMatchObject({
+        ok: true,
+      });
+    },
+  );
 
   it("reports exactly the constructs the provider never receives", () => {
     const changes = changesForShippedCatalog();
