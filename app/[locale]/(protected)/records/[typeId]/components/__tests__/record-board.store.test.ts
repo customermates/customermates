@@ -155,6 +155,42 @@ describe("generic selection persistence", () => {
     expect(state.selectionTargets).toEqual([{ ref: item.ref, expectedVersion: 5 }]);
   });
 
+  it("sends the refreshed version for a still-selected record after the list reloads", async () => {
+    const state = store();
+    state.setItems({ items: [item] });
+    state.toggleItemSelection(item.id);
+    expect(state.selectionTargets).toEqual([{ ref: item.ref, expectedVersion: 3 }]);
+    mocks.getRecordPresentationAction.mockResolvedValue({
+      ...presentation,
+      result: { items: [{ ...item, version: 4 }] },
+    });
+    await state.refresh();
+    expect(state.selectedIds.has(item.id)).toBe(true);
+    expect(state.selectionTargets).toEqual([{ ref: item.ref, expectedVersion: 4 }]);
+    mocks.mutateRecordAction.mockResolvedValue({
+      ok: true,
+      data: { status: "pending", operationId: randomUUID() },
+    });
+    await state.bulkUpdateField(id("deal.stage"), null);
+    expect(mocks.mutateRecordAction.mock.calls[0][0].mutation.targets).toEqual([{ ref: item.ref, expectedVersion: 4 }]);
+  });
+
+  it("derives export availability from read permission", () => {
+    expect(new RecordsStore(root, presentation).canExport).toBe(true);
+    expect(new RecordsStore(root, { ...presentation, permittedActions: ["readOwn"] }).canExport).toBe(true);
+    expect(new RecordsStore(root, { ...presentation, permittedActions: ["create", "update"] }).canExport).toBe(false);
+  });
+
+  it("ignores a presentation computed against an older data model revision", () => {
+    const state = new RecordsStore(root, { ...presentation, model: { ...model, revision: 5 } });
+    const older = { ...presentation, model: { ...model, revision: 4 } };
+    state.setPresentation(older);
+    expect(state.presentation.model.revision).toBe(5);
+    const newer = { ...presentation, model: { ...model, revision: 6 } };
+    state.setPresentation(newer);
+    expect(state.presentation).toBe(newer);
+  });
+
   it("reuses the exact request after an uncertain bulk response and clears selection only after completion", async () => {
     const state = store();
     state.items = [item];

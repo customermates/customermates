@@ -1,11 +1,8 @@
 "use client";
 
-import { runUserAction } from "@/core/errors/report-application-error";
-
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { toast } from "sonner";
 import { Settings2 } from "lucide-react";
 
 import type { ReactNode } from "react";
@@ -28,10 +25,6 @@ import { IntlLink } from "@/i18n/navigation";
 import { RecordsStore } from "./records.store";
 import { RecordsPageSkeleton } from "./records-page-skeleton";
 import { RecordCell } from "./record-cell";
-import { getRecordEditorAction } from "../../actions";
-import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
-import { RecordEditorStore } from "./record-editor.store";
-import { RecordEditor } from "./record-editor";
 import { useRecordRouteReady } from "@/components/records/use-record-route-ready";
 import { RecordOperationProgress } from "@/components/records/record-operation-progress";
 import { useRecordExport } from "@/features/data-transfer/export/use-record-export";
@@ -48,18 +41,12 @@ export const RecordsPageView = observer(function RecordsPageView({
   const t = useTranslations();
   const [store] = useState(() => new RecordsStore(root, presentation));
   const [importOpen, setImportOpen] = useState(false);
-  const [editor] = useState(
-    () =>
-      new RecordEditorStore(root, presentation, async () => {
-        await store.refresh();
-      }),
-  );
   const applied = useRef(presentation);
-  const opening = useRef(0);
-  if (applied.current !== presentation) {
+  useEffect(() => {
+    if (applied.current === presentation) return;
     applied.current = presentation;
     store.setPresentation(presentation);
-  }
+  }, [presentation, store]);
   useDataViewSync(store, presentation.result);
   useEffect(
     () =>
@@ -68,13 +55,6 @@ export const RecordsPageView = observer(function RecordsPageView({
       }),
     [root, store],
   );
-  useEffect(() => {
-    root.registerModalStore(editor);
-    return () => {
-      opening.current += 1;
-      root.unregisterModalStore(editor);
-    };
-  }, [root, editor]);
   useEffect(() => {
     const key = `records:${presentation.typeId}`;
     root.layoutStore.setRuntimeIdentity({
@@ -87,37 +67,14 @@ export const RecordsPageView = observer(function RecordsPageView({
     return () => root.layoutStore.clearRuntimeIdentity("entity", key);
   }, [root, presentation.typeId, store.type?.pluralLabel, t]);
   const openEditor = useCallback(
-    async (ref: { typeId: string; recordId?: string }) => {
-      const generation = ++opening.current;
-      try {
-        const result = await getRecordEditorAction({
-          typeId: ref.typeId,
-          ...(ref.recordId ? { recordId: ref.recordId } : {}),
-        });
-        if (generation !== opening.current) return;
-        if (!result.ok) {
-          toastZodErrorTree(result.error);
-          return;
-        }
-        editor.edit(result.data, result.data.record);
-      } catch {
-        if (generation === opening.current) toast.error(t("Common.notifications.unexpectedError"));
-      }
+    (ref: { typeId: string; recordId?: string }) => {
+      const target = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      root.recordWorkspaceStore.open(ref, target);
     },
-    [editor, t],
+    [root],
   );
-  const openRelated = useCallback(
-    (ref: RecordRef) => {
-      runUserAction(() => openEditor(ref));
-    },
-    [openEditor],
-  );
-  const openRecord = useCallback(
-    (record: RecordRow) => {
-      runUserAction(() => openEditor(record.ref));
-    },
-    [openEditor],
-  );
+  const openRelated = useCallback((ref: RecordRef) => openEditor(ref), [openEditor]);
+  const openRecord = useCallback((record: RecordRow) => openEditor(record.ref), [openEditor]);
   const recordColumns = store.recordColumns;
   const avatarFieldId = store.presentation.model.capabilities
     .find((binding) => binding.kind === "avatar" && binding.typeId === store.presentation.typeId)
@@ -139,9 +96,7 @@ export const RecordsPageView = observer(function RecordsPageView({
       })),
     [recordColumns, openRecord, openRelated, avatarFieldId, store.type?.primaryFieldId],
   );
-  const handleAdd = useCallback(() => {
-    runUserAction(() => openEditor({ typeId: store.presentation.typeId }));
-  }, [openEditor, store]);
+  const handleAdd = useCallback(() => openEditor({ typeId: store.presentation.typeId }), [openEditor, store]);
   const handleExport = useRecordExport(store.presentation);
   const handleImport = useCallback(() => setImportOpen(true), []);
   const toolbar = useMemo(
@@ -253,8 +208,6 @@ export const RecordsPageView = observer(function RecordsPageView({
 
         {body}
       </DataViewLayout>
-
-      <RecordEditor store={editor} />
 
       <RecordImportDialog
         open={importOpen}

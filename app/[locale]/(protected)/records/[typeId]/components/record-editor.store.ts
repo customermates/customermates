@@ -53,7 +53,6 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
   } | null = null;
   pendingOperationId: string | null = null;
   refreshRequired = false;
-  /** Field ids (or draft keys) changed both in the draft and on the server since the draft started. */
   conflicts: string[] = [];
   relatedRevision = 0;
   private requestKey: string | null = null;
@@ -211,11 +210,6 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
       ),
     };
   }
-  /**
-   * Receives a newer server copy of the open record (for example a refreshed page payload).
-   * A clean editor adopts it; an editor holding a draft keeps the draft and asks for an
-   * explicit "reload and keep my changes" instead of silently discarding either side.
-   */
   receiveLatest = (latest: RecordEditorResult) => {
     if (
       latest.model.revision < this.presentation.model.revision ||
@@ -235,7 +229,6 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
     }
     this.edit(latest, latest.record);
   };
-  /** Loads the latest record and replays the unsaved draft on top of it. */
   reloadKeepingChanges = async () => {
     if (!this.record || this.isLoading || this.pendingOperationId) return;
     if (!this.hasUnsavedChanges) {
@@ -288,7 +281,6 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
     this.refreshRequired = false;
     this.relatedRevision += 1;
   };
-  /** Settles fields that changed on both sides after a rebase. */
   resolveConflicts = (choice: "draft" | "latest") => {
     if (choice === "latest") {
       const saved = toJS(this.savedState);

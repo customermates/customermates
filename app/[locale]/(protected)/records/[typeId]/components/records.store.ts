@@ -299,14 +299,21 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
     );
   }
   get canExport() {
-    return true;
+    return (
+      this.presentation.permittedActions.includes("readAll") || this.presentation.permittedActions.includes("readOwn")
+    );
   }
   get isDisabled() {
     return !this.presentation?.permittedActions.includes("create");
   }
   setPresentation = (presentation: RecordPresentationResult) => {
+    if (presentation === this.presentation || presentation.model.revision < this.presentation.model.revision) return;
     this.presentation = presentation;
   };
+  override setItems(args: GetResult<RecordRow>): void {
+    super.setItems(args);
+    for (const row of args.items) if (this.selectedIds.has(row.id)) this.selectionRows.set(row.id, row);
+  }
   protected onRefreshAccepted(result: GetResult<RecordRow>) {
     const loaded = this.loaded.get(result);
     if (loaded) this.setPresentation(loaded.presentation);

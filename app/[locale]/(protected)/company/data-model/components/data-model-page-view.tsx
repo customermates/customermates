@@ -45,10 +45,11 @@ export const DataModelPageView = observer(function DataModelPageView({
   const [store] = useState(() => new DataModelStore(initialModel));
   const [showArchived, setShowArchived] = useState(false);
   const authoritative = useRef(initialModel);
-  if (authoritative.current !== initialModel) {
+  useEffect(() => {
+    if (authoritative.current === initialModel) return;
     authoritative.current = initialModel;
     store.hydrate(initialModel);
-  }
+  }, [initialModel, store]);
   const model = store.model;
   const refresh = store.refresh;
   const [typeModal] = useState(
