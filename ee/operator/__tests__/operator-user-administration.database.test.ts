@@ -1,3 +1,4 @@
+import { prismaAgentChatRepoDependencies } from "@/tests/helpers/prisma-agent-chat-repo";
 import { randomUUID } from "node:crypto";
 
 import { afterAll, describe, expect, it, vi } from "vitest";
@@ -19,7 +20,11 @@ vi.mock("@/env", () => ({
 
 import { OPERATOR_AUDIT_ACTION } from "../operator.schema";
 import type { OperatorRefusal } from "../operator.repo";
+import { PrismaAgentChatRepo } from "@/ee/agent-chat/prisma-agent-chat.repository";
 import { PrismaOperatorRepo } from "../prisma-operator.repository";
+import { PrismaOperatorUsersRepo } from "../prisma-operator-users.repository";
+import { FilterFieldKey } from "@/core/types/filter-field-key";
+import { FilterOperatorKey } from "@/core/base/base-query-builder";
 
 const OPERATOR_REFUSALS: OperatorRefusal[] = [
   "conflict",
@@ -146,10 +151,11 @@ async function createUsage(args: {
         state: args.state,
         costMicrocents: args.state === "settled" ? BigInt(args.credits) * 1_000_000n : 0n,
         costSource: args.state === "settled" ? "measured" : "estimated",
-        reservedCredits: args.credits,
-        chargedCredits: args.state === "settled" ? args.credits : args.state === "retained" ? args.credits : 0,
+        reservedMicrocents: BigInt(args.credits) * 1_000_000n,
+        chargedMicrocents: args.state === "reserved" ? 0n : BigInt(args.credits) * 1_000_000n,
         planSnapshot: "enterprise",
         subscriptionStatusSnapshot: "active",
+        allowanceMicrocentsSnapshot: 10_000_000n,
         allowanceCreditsSnapshot: 10,
         periodStart,
         periodEnd,
@@ -200,7 +206,7 @@ describeDatabase("operator user administration against a real database", { timeo
     }
 
     const actor = operatorActor();
-    const repo = new PrismaOperatorRepo();
+    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
 
     const summary = await runWithOperator(actor, () => repo.getUserSummaryUnscoped());
     expect(summary.totalUsers).toBeGreaterThanOrEqual(27);
@@ -259,7 +265,7 @@ describeDatabase("operator user administration against a real database", { timeo
       roleId: role.id,
       status: "pendingAuthorization",
     });
-    const repo = new PrismaOperatorRepo();
+    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
     const pendingTask = await runWithoutTenant(() =>
       prisma.task.create({
         data: {
@@ -326,7 +332,10 @@ describeDatabase("operator user administration against a real database", { timeo
     expect(repeated.status).toBe("inactive");
     const statusAudits = await runWithoutTenant(() =>
       prisma.operatorAuditEvent.findMany({
-        where: { action: OPERATOR_AUDIT_ACTION.userStatusUpdate, targetUserId: request.userId },
+        where: {
+          action: OPERATOR_AUDIT_ACTION.userStatusUpdate,
+          targetUserId: request.userId,
+        },
       }),
     );
     expect(statusAudits).toHaveLength(2);
@@ -352,7 +361,7 @@ describeDatabase("operator user administration against a real database", { timeo
       email: `missing-subscription-${randomUUID()}@example.invalid`,
     });
     const actor = operatorActor();
-    const repo = new PrismaOperatorRepo();
+    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
     const before = await runWithoutTenant(() => prisma.subscription.findUniqueOrThrow({ where: { companyId } }));
 
     const request = {
@@ -395,7 +404,10 @@ describeDatabase("operator user administration against a real database", { timeo
     });
     const snapshotAudits = await runWithoutTenant(() =>
       prisma.operatorAuditEvent.findMany({
-        where: { action: OPERATOR_AUDIT_ACTION.subscriptionSnapshotCorrect, targetUserId: target.userId },
+        where: {
+          action: OPERATOR_AUDIT_ACTION.subscriptionSnapshotCorrect,
+          targetUserId: target.userId,
+        },
       }),
     );
     expect(snapshotAudits).toHaveLength(2);
@@ -442,6 +454,99 @@ describeDatabase("operator user administration against a real database", { timeo
     ).resolves.toBe("notFound");
   });
 
+  it("shows shared indexing and pool pressure consistently and zero reset leaves no spendable credits", async () => {
+    const companyId = await createCompany({
+      plan: "enterprise",
+      enterpriseCreditsPerUser: 500,
+    });
+    const first = await createUser({
+      companyId,
+      email: `shared-a-${randomUUID()}@example.invalid`,
+    });
+    const second = await createUser({
+      companyId,
+      email: `shared-b-${randomUUID()}@example.invalid`,
+    });
+    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
+    const actor = operatorActor();
+    await runWithoutTenant(() =>
+      prisma.agentUsageEvent.create({
+        data: {
+          companyId,
+          userId: null,
+          purpose: "wikiIndexing",
+          state: "settled",
+          model: "embedding",
+          reservedMicrocents: 100_000_000n,
+          chargedMicrocents: 100_000_000n,
+          reservedCredits: 100,
+          chargedCredits: 100,
+          allowanceCreditsSnapshot: 1000,
+          allowanceMicrocentsSnapshot: 1_000_000_000n,
+          costMicrocents: 100_000_000n,
+          planSnapshot: "enterprise",
+          subscriptionStatusSnapshot: "active",
+          periodStart,
+          periodEnd,
+          settledAt: now,
+        },
+      }),
+    );
+    const { AgentUsageService } = await import("@/ee/agent-chat/agent-usage.service");
+    const usage = new AgentUsageService(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
+    const listRepo = new PrismaOperatorUsersRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
+    const readListBalance = async () => {
+      vi.useFakeTimers({ toFake: ["Date"] });
+      vi.setSystemTime(now);
+      try {
+        const rows = await runWithoutTenant(() =>
+          listRepo.getItems({
+            filters: [{ field: FilterFieldKey.workspaceId, operator: FilterOperatorKey.in, value: [companyId] }],
+          }),
+        );
+        expect(rows).toHaveLength(2);
+        return rows.find((row) => row.id === first.userId)?.remainingMicrocents;
+      } finally {
+        vi.useRealTimers();
+      }
+    };
+    const summary = await usage.getUsageSummary(first.userId, now);
+    const detail = await runWithOperator(actor, () => repo.getUserDetailUnscoped(first.userId, now));
+    assertAdmitted(detail);
+    expect(summary.creditsRemaining).toBe(450);
+    expect(await readListBalance()).toBe(450_000_000);
+    expect(detail?.creditPeriod).toMatchObject({
+      remainingMicrocents: 450_000_000,
+      committedMicrocents: 50_000_000,
+    });
+    await createUsage({
+      companyId,
+      userId: second.userId,
+      state: "settled",
+      credits: 850,
+    });
+    const pressured = await runWithOperator(actor, () => repo.getUserDetailUnscoped(first.userId, now));
+    assertAdmitted(pressured);
+    expect(pressured?.creditPeriod?.remainingMicrocents).toBe(50_000_000);
+    expect(await readListBalance()).toBe(50_000_000);
+    expect((await usage.getUsageSummary(first.userId, now)).creditsRemaining).toBe(50);
+    const reset = await runWithOperator(actor, () =>
+      repo.resetUserCreditsUnscoped(
+        {
+          userId: first.userId,
+          mode: "zeroBalance",
+          reason: "Synthetic reset",
+          operationId: randomUUID(),
+        },
+        now,
+      ),
+    );
+    assertAdmitted(reset);
+    expect(reset.user.creditPeriod?.remainingMicrocents).toBe(0);
+    expect(await readListBalance()).toBe(0);
+    expect((await usage.getUsageSummary(first.userId, now)).creditsRemaining).toBe(0);
+  });
+
   it("resets credits with compensating rows, serializes concurrent resets, and never rewrites usage", async () => {
     const companyId = await createCompany({
       plan: "enterprise",
@@ -453,7 +558,7 @@ describeDatabase("operator user administration against a real database", { timeo
       email: `reset-${randomUUID()}@example.invalid`,
     });
     const actor = operatorActor();
-    const repo = new PrismaOperatorRepo();
+    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
     await Promise.all([
       createUsage({
         companyId,
@@ -479,6 +584,7 @@ describeDatabase("operator user administration against a real database", { timeo
         data: {
           companyId,
           userId: target.userId,
+          deltaMicrocents: 4_000_000n,
           creditDelta: 4,
           periodStart,
           periodEnd,
@@ -506,12 +612,12 @@ describeDatabase("operator user administration against a real database", { timeo
     assertAdmitted(base);
     const baseReplay = await runWithOperator(actor, () => repo.resetUserCreditsUnscoped(baseRequest, now));
     assertAdmitted(baseReplay);
-    expect(base.adjustment.creditDelta).toBe(-4);
+    expect(base.adjustment.deltaMicrocents).toBe(-4_000_000);
     expect(base.user.creditPeriod).toMatchObject({
-      baseAllowanceCredits: 10,
-      adjustmentCredits: 0,
-      committedCredits: 6,
-      remainingCredits: 4,
+      baseAllowanceMicrocents: 10_000_000,
+      adjustmentMicrocents: 0,
+      committedMicrocents: 6_000_000,
+      remainingMicrocents: 4_000_000,
     });
     expect(baseReplay.adjustment).toEqual(base.adjustment);
 
@@ -533,12 +639,12 @@ describeDatabase("operator user administration against a real database", { timeo
     expect(results.filter((value) => value === "conflict")).toHaveLength(1);
 
     const winner = admittedResults[0];
-    expect(winner.adjustment.creditDelta).toBe(-4);
+    expect(winner.adjustment.deltaMicrocents).toBe(-4_000_000);
     expect(winner.user.creditPeriod).toMatchObject({
-      effectiveAllowanceCredits: 6,
-      committedCredits: 6,
-      remainingCredits: 0,
-      overageCredits: 0,
+      effectiveAllowanceMicrocents: 6_000_000,
+      committedMicrocents: 6_000_000,
+      remainingMicrocents: 0,
+      overageMicrocents: 0,
     });
 
     const winningOperationId = winner.adjustment.operationId;
@@ -579,7 +685,10 @@ describeDatabase("operator user administration against a real database", { timeo
     await expect(
       runWithoutTenant(() =>
         prisma.operatorAuditEvent.count({
-          where: { action: OPERATOR_AUDIT_ACTION.creditBalanceReset, targetUserId: target.userId },
+          where: {
+            action: OPERATOR_AUDIT_ACTION.creditBalanceReset,
+            targetUserId: target.userId,
+          },
         }),
       ),
     ).resolves.toBe(2);
@@ -607,7 +716,7 @@ describeDatabase("operator user administration against a real database", { timeo
       email: `undercut-reset-${randomUUID()}@example.invalid`,
     });
     const actor = operatorActor();
-    const repo = new PrismaOperatorRepo();
+    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
     await Promise.all([
       createUsage({
         companyId,
@@ -633,6 +742,7 @@ describeDatabase("operator user administration against a real database", { timeo
         data: {
           companyId,
           userId: target.userId,
+          deltaMicrocents: 2_000_000n,
           creditDelta: 2,
           periodStart,
           periodEnd,
@@ -663,15 +773,22 @@ describeDatabase("operator user administration against a real database", { timeo
     await expect(
       runWithoutTenant(() =>
         prisma.operatorAuditEvent.count({
-          where: { action: OPERATOR_AUDIT_ACTION.creditAdjustmentCreate, targetUserId: target.userId },
+          where: {
+            action: OPERATOR_AUDIT_ACTION.creditAdjustmentCreate,
+            targetUserId: target.userId,
+          },
         }),
       ),
     ).resolves.toBe(0);
   });
 
   it("refuses credit work with allowanceMissing until an Enterprise workspace has a contracted allowance", async () => {
-    const repo = new PrismaOperatorRepo();
-    const companyId = await createCompany({ plan: "enterprise", status: "active", enterpriseCreditsPerUser: null });
+    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
+    const companyId = await createCompany({
+      plan: "enterprise",
+      status: "active",
+      enterpriseCreditsPerUser: null,
+    });
     const target = await createUser({
       companyId,
       email: `allowance-missing-${randomUUID()}@example.invalid`,
@@ -694,7 +811,14 @@ describeDatabase("operator user administration against a real database", { timeo
     expect(refused).toBe("allowanceMissing");
 
     const refusedReset = await runWithOperator(actor, () =>
-      repo.resetUserCreditsUnscoped({ userId: target.userId, mode: "baseAllowance", operationId: randomUUID() }, now),
+      repo.resetUserCreditsUnscoped(
+        {
+          userId: target.userId,
+          mode: "baseAllowance",
+          operationId: randomUUID(),
+        },
+        now,
+      ),
     );
     expect(refusedReset).toBe("allowanceMissing");
 
@@ -728,16 +852,27 @@ describeDatabase("operator user administration against a real database", { timeo
   });
 
   it("updates trial end and billing binding, auditing previous and next on every edit", async () => {
-    const repo = new PrismaOperatorRepo();
+    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
     const providerId = `provider-${randomUUID()}`;
-    const companyId = await createCompany({ plan: "pro", status: "trial", lemonSqueezyId: providerId });
-    await createUser({ companyId, email: `terms-${randomUUID()}@example.invalid` });
+    const companyId = await createCompany({
+      plan: "pro",
+      status: "trial",
+      lemonSqueezyId: providerId,
+    });
+    await createUser({
+      companyId,
+      email: `terms-${randomUUID()}@example.invalid`,
+    });
     const actor = operatorActor();
     const extended = new Date("2026-11-20T22:59:59.999Z");
 
     const updated = await runWithOperator(actor, () =>
       repo.updateSubscriptionTermsUnscoped(
-        { companyId, trialEndDate: extended.toISOString(), lemonSqueezyId: providerId },
+        {
+          companyId,
+          trialEndDate: extended.toISOString(),
+          lemonSqueezyId: providerId,
+        },
         now,
       ),
     );
@@ -745,25 +880,37 @@ describeDatabase("operator user administration against a real database", { timeo
 
     const cleared = await runWithOperator(actor, () =>
       repo.updateSubscriptionTermsUnscoped(
-        { companyId, trialEndDate: extended.toISOString(), lemonSqueezyId: null },
+        {
+          companyId,
+          trialEndDate: extended.toISOString(),
+          lemonSqueezyId: null,
+        },
         now,
       ),
     );
     assertAdmitted(cleared);
 
     await runWithoutTenant(async () => {
-      const subscription = await prisma.subscription.findUniqueOrThrow({ where: { companyId } });
+      const subscription = await prisma.subscription.findUniqueOrThrow({
+        where: { companyId },
+      });
       expect(subscription.trialEndDate?.toISOString()).toBe(extended.toISOString());
       expect(subscription.lemonSqueezyId).toBeNull();
       expect(subscription.lemonSqueezyVariantId).toBeNull();
 
       const audits = await prisma.operatorAuditEvent.findMany({
-        where: { actorUserId: actor.userId, action: OPERATOR_AUDIT_ACTION.subscriptionTermsUpdate },
+        where: {
+          actorUserId: actor.userId,
+          action: OPERATOR_AUDIT_ACTION.subscriptionTermsUpdate,
+        },
         orderBy: { createdAt: "asc" },
       });
       expect(audits).toHaveLength(2);
 
-      const first = audits[0]?.metadata as { previous?: Record<string, unknown>; next?: Record<string, unknown> };
+      const first = audits[0]?.metadata as {
+        previous?: Record<string, unknown>;
+        next?: Record<string, unknown>;
+      };
       expect(first.previous?.lemonSqueezyId).toBe(providerId);
       expect(first.next?.trialEndDate).toBe(extended.toISOString());
 
@@ -779,7 +926,7 @@ describeDatabase("operator user administration against a real database", { timeo
   });
 
   it("refuses to clear a trial end date that is already set, and leaves an absent one writable", async () => {
-    const repo = new PrismaOperatorRepo();
+    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
     const companyId = await createCompany({ plan: "pro", status: "trial" });
     const actor = operatorActor();
 
@@ -789,14 +936,26 @@ describeDatabase("operator user administration against a real database", { timeo
     expect(refused).toBe("trialEndRequired");
 
     await runWithoutTenant(async () => {
-      const subscription = await prisma.subscription.findUniqueOrThrow({ where: { companyId } });
+      const subscription = await prisma.subscription.findUniqueOrThrow({
+        where: { companyId },
+      });
       expect(subscription.trialEndDate).not.toBeNull();
-      expect(await prisma.operatorAuditEvent.count({ where: { actorUserId: actor.userId } })).toBe(0);
+      expect(
+        await prisma.operatorAuditEvent.count({
+          where: { actorUserId: actor.userId },
+        }),
+      ).toBe(0);
     });
 
-    const perpetualId = await createCompany({ plan: "enterprise", status: "active" });
+    const perpetualId = await createCompany({
+      plan: "enterprise",
+      status: "active",
+    });
     await runWithoutTenant(() =>
-      prisma.subscription.update({ where: { companyId: perpetualId }, data: { trialEndDate: null } }),
+      prisma.subscription.update({
+        where: { companyId: perpetualId },
+        data: { trialEndDate: null },
+      }),
     );
 
     const stillWritable = await runWithOperator(actor, () =>
@@ -806,14 +965,28 @@ describeDatabase("operator user administration against a real database", { timeo
   });
 
   it("refuses a credit reset whose operationId belongs to a different workspace", async () => {
-    const repo = new PrismaOperatorRepo();
+    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
     const actor = operatorActor();
 
-    const companyA = await createCompany({ plan: "enterprise", status: "active", enterpriseCreditsPerUser: 10 });
-    const targetA = await createUser({ companyId: companyA, email: `replay-a-${randomUUID()}@example.invalid` });
+    const companyA = await createCompany({
+      plan: "enterprise",
+      status: "active",
+      enterpriseCreditsPerUser: 10,
+    });
+    const targetA = await createUser({
+      companyId: companyA,
+      email: `replay-a-${randomUUID()}@example.invalid`,
+    });
 
-    const companyB = await createCompany({ plan: "enterprise", status: "active", enterpriseCreditsPerUser: 10 });
-    const targetB = await createUser({ companyId: companyB, email: `replay-b-${randomUUID()}@example.invalid` });
+    const companyB = await createCompany({
+      plan: "enterprise",
+      status: "active",
+      enterpriseCreditsPerUser: 10,
+    });
+    const targetB = await createUser({
+      companyId: companyB,
+      email: `replay-b-${randomUUID()}@example.invalid`,
+    });
 
     const foreignOperationId = randomUUID();
     await runWithoutTenant(() =>
@@ -821,6 +994,7 @@ describeDatabase("operator user administration against a real database", { timeo
         data: {
           companyId: companyB,
           userId: targetB.userId,
+          deltaMicrocents: 99_000_000n,
           creditDelta: 99,
           periodStart,
           periodEnd,
@@ -833,7 +1007,11 @@ describeDatabase("operator user administration against a real database", { timeo
 
     const replayed = await runWithOperator(actor, () =>
       repo.resetUserCreditsUnscoped(
-        { userId: targetA.userId, mode: "baseAllowance", operationId: foreignOperationId },
+        {
+          userId: targetA.userId,
+          mode: "baseAllowance",
+          operationId: foreignOperationId,
+        },
         now,
       ),
     );
@@ -841,12 +1019,15 @@ describeDatabase("operator user administration against a real database", { timeo
     expect(replayed).toBe("conflict");
 
     await runWithoutTenant(async () => {
-      const adjustments = await prisma.agentCreditAdjustment.findMany({ where: { companyId: companyA } });
+      const adjustments = await prisma.agentCreditAdjustment.findMany({
+        where: { companyId: companyA },
+      });
       expect(adjustments).toEqual([]);
       const foreign = await prisma.agentCreditAdjustment.findUniqueOrThrow({
         where: { operationId: foreignOperationId },
       });
       expect(foreign.companyId).toBe(companyB);
+      expect(foreign.deltaMicrocents).toBe(99_000_000n);
       expect(foreign.creditDelta).toBe(99);
     });
   });

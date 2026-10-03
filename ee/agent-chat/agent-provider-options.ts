@@ -1,0 +1,20 @@
+import type { AgentModelEntry } from "./model-catalog";
+
+export function getAgentProviderOptions(
+  servingProvider: string,
+  inferenceRegion: AgentModelEntry["inferenceRegion"] = null,
+) {
+  return {
+    gateway: {
+      only: [servingProvider],
+      ...(inferenceRegion ? { inferenceRegion: { scope: "zone" as const, geoRegion: inferenceRegion } } : {}),
+      zeroDataRetention: true,
+      disallowPromptTraining: true,
+      caching: "auto" as const,
+    },
+    openai: {
+      parallelToolCalls: false,
+      store: false,
+    },
+  };
+}

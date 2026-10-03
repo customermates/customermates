@@ -9,11 +9,13 @@ vi.mock("next-intl/server", () => ({
 }));
 
 import { ALL_MCP_TOOLS, MCP_TOOL_GROUPS, MCP_ALWAYS_ON_TOOLS } from "@/features/mcp-tools/tool-registry";
+import { importWebsiteTool } from "@/ee/wiki-crawl/wiki-import-tool";
 import { describeAgentTool } from "../agent-activity";
 import {
   AGENT_APPROVAL_POLICY_TOOL_NAMES,
   approvalFreeActionsForTool,
   readOnlyActionsForTool,
+  isReadOnlyAgentToolCall,
   isReadOnlyTool,
   requiresApproval,
   AGENT_DESTRUCTIVE_APPROVAL_FREE_TOOL_NAMES,
@@ -64,12 +66,39 @@ describe("gated-tools", () => {
     expect(approvalNeeded(routines, {})).toBe(true);
   });
 
+  it("requires a fresh approval to rename record types, while other workspace settings stay immediate", () => {
+    const settings = toolByName("update_workspace_settings");
+    const rename = { target: "company", terminology: [{ entityType: "deal", presetKey: "opportunity" }] };
+
+    expect(approvalNeeded(settings, rename)).toBe(true);
+    expect(approvalNeeded(settings, { ...rename, currency: "EUR" })).toBe(true);
+    expect(approvalNeeded(settings, { target: "company", terminology: "opportunity" })).toBe(true);
+    expect(approvalNeeded(settings, { target: "company", currency: "EUR" })).toBe(false);
+    expect(approvalNeeded(settings, { target: "company", currency: "EUR", terminology: [] })).toBe(false);
+    expect(approvalNeeded(settings, { target: "company", currency: "EUR", terminology: null })).toBe(false);
+    expect(approvalNeeded(settings, { target: "profile", firstName: "Ada" })).toBe(false);
+    expect(describeInternalTool("update_workspace_settings", rename)).toMatchObject({
+      kind: "workspace.terminology",
+      risk: "sensitive",
+    });
+    expect(describeInternalTool("update_workspace_settings", { target: "company", currency: "EUR" })).toMatchObject({
+      kind: "workspace.settings",
+      risk: "write",
+    });
+  });
+
   it("fails closed: a tool without annotations is not read-only", () => {
     for (const tool of ALL_MCP_TOOLS.filter((tool) => !tool.annotations)) expect(isReadOnlyTool(tool)).toBe(false);
   });
 
   it("fails closed: only explicit readOnlyHint:true escapes the write path", () => {
     for (const tool of ALL_MCP_TOOLS) expect(isReadOnlyTool(tool)).toBe(tool.annotations?.readOnlyHint === true);
+  });
+
+  it("counts toolset loading, web access and UI target listing as reads, and an unknown unannotated tool as a write", () => {
+    for (const name of ["load_toolset", "web_search", "list_ui_targets"])
+      expect(isReadOnlyAgentToolCall(name, {}, { toolset: "messaging" })).toBe(true);
+    expect(isReadOnlyAgentToolCall("some_future_tool", {}, {})).toBe(false);
   });
 
   it("fails closed: a tool outside the policy map always requires approval", () => {
@@ -110,6 +139,15 @@ describe("gated-tools", () => {
       expect(approvalNeeded(toolByName(name), { action })).toBe(true);
   });
 
+  it("starts a website import without approval, with an accurate label", () => {
+    const setup = importWebsiteTool("en");
+    const input = { url: "https://example.com/" };
+
+    expect(setup.annotations).toMatchObject({ readOnlyHint: false, destructiveHint: false });
+    expect(approvalNeeded(setup, input)).toBe(false);
+    expect(describeInternalTool(setup.name, input)).toMatchObject({ kind: "records.create", risk: "write" });
+  });
+
   it("lets ordinary CRM work run without approval", () => {
     const freeCalls: [string, unknown][] = [
       ["create_contacts", {}],
@@ -119,6 +157,7 @@ describe("gated-tools", () => {
       ["update_record_notes", {}],
       ["manage_record_links", { action: "add" }],
       ["manage_record_links", { action: "remove" }],
+      ["manage_record_links", { action: "set" }],
       ["save_message_draft", {}],
       ["update_messaging_thread", {}],
       ["update_workspace_settings", {}],
@@ -146,7 +185,7 @@ describe("gated-tools", () => {
   });
 
   it("keeps every policy key pointing at a real tool", () => {
-    const names = new Set(ALL_MCP_TOOLS.map((tool) => tool.name));
+    const names = new Set([...ALL_MCP_TOOLS, importWebsiteTool("en")].map((tool) => tool.name));
     for (const name of AGENT_APPROVAL_POLICY_TOOL_NAMES) expect(names.has(name)).toBe(true);
   });
 
@@ -190,6 +229,7 @@ describe("gated-tools", () => {
       records: 17,
       workspace: 2,
       views: 1,
+      wiki: 1,
       messaging: 10,
       social: 8,
       docs: 2,

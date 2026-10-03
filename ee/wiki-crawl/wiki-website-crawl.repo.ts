@@ -1,0 +1,66 @@
+import type { WikiCrawlTarget } from "./website-discovery";
+import type { WikiCrawlTargetStatus } from "@/features/wiki/wiki-crawl-progress.schema";
+import type { WikiCrawlSynthesisResult } from "./wiki-crawl-synthesis";
+import type {
+  WikiCrawlStatus,
+  WikiCrawlRecord,
+  WikiSourceRecord,
+  WikiImportedPage,
+} from "./wiki-website-crawl.service";
+
+export abstract class WikiWebsiteCrawlRepo {
+  abstract createCrawl(
+    data: Pick<
+      WikiCrawlRecord,
+      "clientRequestId" | "homepageUrl" | "registrableDomain" | "locale" | "mode" | "extraHosts"
+    >,
+  ): Promise<{ status: "created"; crawl: WikiCrawlRecord } | { status: "active" }>;
+  abstract findCrawlByClientRequest(clientRequestId: string): Promise<WikiCrawlRecord | null>;
+  abstract findLatestCrawl(): Promise<WikiCrawlRecord | null>;
+  abstract getCrawl(id: string): Promise<WikiCrawlRecord | null>;
+  abstract claimWorkflow(id: string, workflowRunId: string): Promise<boolean>;
+  abstract listRefreshTargets(): Promise<WikiCrawlTarget[]>;
+  abstract updateCrawl(id: string, patch: Partial<Omit<WikiCrawlRecord, "id" | "userId">>): Promise<void>;
+  abstract settleCrawl(id: string, result: WikiCrawlSynthesisResult): Promise<void>;
+  abstract claimCrawl(
+    id: string,
+    from: readonly WikiCrawlStatus[],
+    patch: Partial<Omit<WikiCrawlRecord, "id" | "userId">> & {
+      status: WikiCrawlStatus;
+    },
+  ): Promise<boolean>;
+  abstract updateTargetStatus(
+    crawlId: string,
+    url: string,
+    status: Exclude<WikiCrawlTargetStatus, "pending">,
+  ): Promise<boolean>;
+  abstract countSources(crawlId: string): Promise<number>;
+  abstract saveSource(
+    crawlId: string,
+    source: Omit<WikiSourceRecord, "id" | "fetchedAt" | "readAt" | "readOffset"> & {
+      canonicalUrl: string;
+    },
+  ): Promise<void>;
+  abstract listSources(crawlId: string): Promise<WikiSourceRecord[]>;
+  abstract getSource(crawlId: string, id: string): Promise<WikiSourceRecord | null>;
+  abstract advanceSourceRead(crawlId: string, id: string, offset: number, end: number): Promise<boolean>;
+  abstract advanceSourceReads(
+    crawlId: string,
+    chunks: Array<{ id: string; offset: number; end: number }>,
+  ): Promise<void>;
+  abstract claimSourceImport(crawlId: string, id: string): Promise<boolean>;
+  abstract countImportedPages(since: Date): Promise<number>;
+  abstract deleteEarlierSources(crawlId: string): Promise<void>;
+  abstract findImportedPage(sourceUrl: string): Promise<WikiImportedPage | null>;
+  abstract markImported(
+    pageId: string,
+    source: {
+      url: string;
+      fetchedAt: Date;
+      contentHash: string;
+      importedUpdatedAt: Date;
+    },
+  ): Promise<void>;
+  abstract countSynthesizedPages(since: Date): Promise<number>;
+  abstract listSynthesizedPages(since: Date, limit: number): Promise<Array<{ id: string; title: string }>>;
+}

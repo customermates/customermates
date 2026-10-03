@@ -1,3 +1,4 @@
+import { wikiWebsiteNetwork } from "@/ee/wiki-crawl/wiki-website-network";
 /**
  * Application dependency injection - single source of truth for everything wired
  * into the Next.js app, including the in-process workflow steps.
@@ -51,6 +52,7 @@ import { ReleaseOwnerRoutinesInteractor } from "@/ee/routines/release-owner-rout
 import { PruneRoutineRunsInteractor } from "@/ee/routines/prune-routine-runs.interactor";
 import { PrismaWebhookDeliveryRepo } from "@/features/webhook/prisma-webhook-delivery.repository";
 import { PrismaAuditLogRepo } from "@/features/audit-log/prisma-audit-log.repository";
+import { PrismaWikiPageRepo } from "@/features/wiki/prisma-wiki-page.repository";
 import { PrismaMessagingRepo } from "@/ee/messaging/persistence/prisma-messaging.repository";
 import { PrismaConnectedAccountRepo } from "@/ee/messaging/persistence/prisma-connected-account.repository";
 import { PrismaUnipileWebhookRepo } from "@/ee/messaging/persistence/prisma-unipile-webhook.repository";
@@ -183,6 +185,7 @@ import { RegisterUserInteractor } from "@/features/user/register/register-user.i
 import { RegisterOnboardingProfileInteractor } from "@/features/user/register/register-onboarding-profile.interactor";
 import { UpdateUserDetailsInteractor } from "@/features/user/upsert/update-user-details.interactor";
 import { CompleteOnboardingWizardInteractor } from "@/features/onboarding-wizard/complete-onboarding-wizard.interactor";
+import { CompleteOnboardingWikiStepInteractor } from "@/features/onboarding-wizard/complete-onboarding-wiki-step.interactor";
 import { GetUserDetailsInteractor } from "@/features/user/get/get-user-details.interactor";
 import { GetUserByIdInteractor } from "@/features/user/get/get-user-by-id.interactor";
 import { GetTeamMemberInteractor } from "@/features/user/get/get-team-member.interactor";
@@ -305,6 +308,17 @@ import { GetWebhookDeliveriesInteractor } from "@/features/webhook/get-webhook-d
 import { ResendWebhookDeliveryInteractor } from "@/features/webhook/resend-webhook-delivery.interactor";
 import { GetWebhookByIdInteractor } from "@/features/webhook/get-webhook-by-id.interactor";
 import { ModifyEntityRelationInteractor } from "@/features/relations/modify-entity-relation.interactor";
+import { GetWikiPagesInteractor } from "@/features/wiki/get-wiki-pages.interactor";
+import { GetWikiCatalogInteractor } from "@/features/wiki/get-wiki-catalog.interactor";
+import { SearchWikiPagesInteractor, sharedWikiSearchOrders } from "@/features/wiki/search-wiki-pages.interactor";
+import { GetWikiPageInteractor } from "@/features/wiki/get-wiki-page.interactor";
+import { CreateWikiPagesInteractor } from "@/features/wiki/create-wiki-pages.interactor";
+import { MoveWikiPageInteractor } from "@/features/wiki/move-wiki-page.interactor";
+import { UpdateWikiPageInteractor } from "@/features/wiki/update-wiki-page.interactor";
+import { DeleteWikiPageInteractor } from "@/features/wiki/delete-wiki-page.interactor";
+import { StartWikiHomepageSetupInteractor } from "@/features/wiki/start-wiki-homepage-setup.interactor";
+import { GetWikiHomepageSetupStateInteractor } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
+import { FailWikiWebsiteCrawlInteractor } from "@/ee/wiki-crawl/fail-wiki-website-crawl.interactor";
 // Custom Column interactors
 import { GetCustomColumnsInteractor } from "@/features/custom-column/get-custom-columns.interactor";
 import { GetCustomColumnsByEntityTypeInteractor } from "@/features/custom-column/get-custom-columns-by-entity-type.interactor";
@@ -356,6 +370,7 @@ import { CreateSupportTicketInteractor } from "@/features/support/create-support
 import { FeedbackCreator } from "@/features/feedback/feedback.creator";
 import { PrismaAgentChatRepo } from "@/ee/agent-chat/prisma-agent-chat.repository";
 import { AgentUsageService } from "@/ee/agent-chat/agent-usage.service";
+import { ReconcileRetrievalReservationsInteractor } from "@/ee/agent-chat/reconcile-retrieval-reservations.interactor";
 import { SendAgentMessageInteractor } from "@/ee/agent-chat/send-agent-message.interactor";
 import { GetAgentConfigInteractor } from "@/ee/agent-chat/get-agent-config.interactor";
 import { RespondToApprovalInteractor } from "@/ee/agent-chat/respond-to-approval.interactor";
@@ -396,6 +411,21 @@ import { PrismaOperatorRiskSummaryRepo } from "@/ee/operator/prisma-operator-ris
 import { UpdateOperatorUserPlatformAccessInteractor } from "@/ee/operator/update-operator-user-platform-access.interactor";
 import { CorrectOperatorSubscriptionSnapshotInteractor } from "@/ee/operator/correct-operator-subscription-snapshot.interactor";
 import { ResetOperatorUserCreditsInteractor } from "@/ee/operator/reset-operator-user-credits.interactor";
+import { WikiEmbeddingService } from "@/ee/wiki-retrieval/wiki-embedding.service";
+import { DocsSemanticIndexDispatcher } from "@/ee/wiki-retrieval/docs-semantic-index-dispatcher";
+import { DocsSemanticIndexService } from "@/ee/wiki-retrieval/docs-semantic-index.service";
+import { PrismaDocsChunkRepo } from "@/features/mcp-tools/prisma-docs-chunk.repository";
+import { tenantStorage } from "@/core/decorators/tenant-context";
+import type { QueryEmbedding } from "@/core/retrieval/retrieval-pipeline";
+import { PrismaWikiWebsiteCrawlRepo } from "@/ee/wiki-crawl/prisma-wiki-website-crawl.repository";
+import { WikiWebsiteCrawlService } from "@/ee/wiki-crawl/wiki-website-crawl.service";
+import { CreateWikiPagesFromCrawlInteractor } from "@/ee/wiki-crawl/create-wiki-pages-from-crawl.interactor";
+import { ReadWikiWebsiteSourcesInteractor } from "@/ee/wiki-crawl/read-wiki-website-sources.interactor";
+import { wikiCrawlSynthesisStarter } from "@/ee/wiki-crawl/wiki-crawl-synthesis";
+import { WikiSemanticQueryEmbedder } from "@/ee/wiki-retrieval/wiki-query-embedder";
+import { WikiSemanticIndexService } from "@/ee/wiki-retrieval/wiki-semantic-index.service";
+import { WikiSemanticIndexDispatcher } from "@/ee/wiki-retrieval/wiki-semantic-index-scheduler";
+import { WikiSemanticIndexListener } from "@/ee/wiki-retrieval/wiki-semantic-index-listener";
 // Validators
 
 // ─── Section 2: Repos ───────────────────────────────────────────────────────
@@ -431,13 +461,15 @@ export const getRoutineFilterMatcher = () =>
 export const getRoutineEventAccess = () => new PrismaRoutineEventAccess(getRoutineFilterMatcher());
 export const getWebhookDeliveryRepo = () => new PrismaWebhookDeliveryRepo();
 export const getAuditLogRepo = () => new PrismaAuditLogRepo();
+export const getWikiPageRepo = () => new PrismaWikiPageRepo();
 export const getMessagingRepo = () => new PrismaMessagingRepo();
 export const getConnectedAccountRepo = () => new PrismaConnectedAccountRepo();
 export const getUnipileWebhookRepo = () => new PrismaUnipileWebhookRepo();
 export const getCalendarRepo = () => new PrismaCalendarRepo();
 export const getCalendarEventsRepo = () => new PrismaCalendarEventsRepo();
-export const getAgentChatRepo = () => new PrismaAgentChatRepo();
-export const getOperatorRepo = () => new PrismaOperatorRepo();
+export const getAgentChatRepo = (): PrismaAgentChatRepo =>
+  new PrismaAgentChatRepo(getWikiPageRepo(), getWikiWebsiteCrawlRepo);
+export const getOperatorRepo = () => new PrismaOperatorRepo(getAgentChatRepo());
 export const getOperatorAccessRepo = () => new PrismaOperatorAccessRepo();
 
 // ─── Section 3: Services ────────────────────────────────────────────────────
@@ -453,11 +485,37 @@ export const getInviteTokenCookieRepo = () => new NextInviteTokenCookieRepo();
 export const getOnboardingIntentService = () =>
   new OnboardingIntentService(getInviteTokenValidationInteractor(), env.BETTER_AUTH_SECRET);
 export const getUserPendingAuthorizationTaskListener = () => new UserPendingAuthorizationTaskListener(getTaskRepo());
+export const getWikiEmbeddingService = () => new WikiEmbeddingService(getAgentUsageService());
+export const getWikiSemanticIndexService = () =>
+  new WikiSemanticIndexService(getWikiPageRepo(), getWikiEmbeddingService());
+const getWikiSemanticIndexDispatcher = (trigger: "write" | "search") =>
+  new WikiSemanticIndexDispatcher(getWikiPageRepo(), getWikiEmbeddingService(), getBackgroundTaskService(), trigger);
+export const getWikiSemanticIndexListener = () =>
+  new WikiSemanticIndexListener(getWikiSemanticIndexDispatcher("write"));
+export const getDocsChunkRepo = () => new PrismaDocsChunkRepo();
+export const getDocsSemanticIndexService = () =>
+  new DocsSemanticIndexService(getDocsChunkRepo(), getAgentUsageService());
+export const getDocsSemanticIndexDispatcher = () =>
+  new DocsSemanticIndexDispatcher(getDocsChunkRepo(), getBackgroundTaskService());
+export const getRetrievalQueryEmbedder = (): QueryEmbedding | null => {
+  const tenant = tenantStorage.getStore();
+  if (!tenant?.user || tenant.bypass) return null;
+  const embedder = new WikiSemanticQueryEmbedder(getWikiEmbeddingService());
+  return (query, wait) => embedder.embedQuery(query, wait);
+};
+const getWikiSemanticRetrieval = () => ({
+  embedder: new WikiSemanticQueryEmbedder(getWikiEmbeddingService()),
+  scheduler: getWikiSemanticIndexDispatcher("search"),
+});
 
 const EXPECTED_EVENT_LISTENERS = [
   {
     factory: getUserPendingAuthorizationTaskListener,
     events: [DomainEvent.USER_REGISTERED, DomainEvent.USER_UPDATED],
+  },
+  {
+    factory: getWikiSemanticIndexListener,
+    events: [DomainEvent.WIKI_PAGE_CREATED, DomainEvent.WIKI_PAGE_UPDATED],
   },
 ] as const;
 
@@ -1012,6 +1070,8 @@ export const getUpdateUserDetailsInteractor = () => new UpdateUserDetailsInterac
 
 export const getCompleteOnboardingWizardInteractor = () =>
   new CompleteOnboardingWizardInteractor(getUserRepo(), getRouteGuardService());
+export const getCompleteOnboardingWikiStepInteractor = () =>
+  new CompleteOnboardingWikiStepInteractor(getUserRepo(), getRouteGuardService());
 
 export const getGetUserDetailsInteractor = () => new GetUserDetailsInteractor();
 
@@ -1129,6 +1189,39 @@ export const getGetWidgetFilterableFieldsInteractor = () =>
     getEntitlementService(),
   );
 
+export const getGetWikiPagesInteractor = () => new GetWikiPagesInteractor(getWikiPageRepo());
+export const getGetWikiCatalogInteractor = () => new GetWikiCatalogInteractor(getWikiPageRepo());
+export const getSearchWikiPagesInteractor = () =>
+  new SearchWikiPagesInteractor(getWikiPageRepo(), "stored", null, sharedWikiSearchOrders);
+export const getSearchWikiKnowledgeInteractor = () =>
+  new SearchWikiPagesInteractor(getWikiPageRepo(), "stored", getWikiSemanticRetrieval(), sharedWikiSearchOrders);
+export const getSearchExternalizedWikiPagesInteractor = () =>
+  new SearchWikiPagesInteractor(getWikiPageRepo(), "externalized", getWikiSemanticRetrieval(), sharedWikiSearchOrders);
+export const getGetWikiPageInteractor = () => new GetWikiPageInteractor(getWikiPageRepo());
+export const getCreateWikiPagesInteractor = () => new CreateWikiPagesInteractor(getWikiPageRepo(), getEventService());
+export const getMoveWikiPageInteractor = () => new MoveWikiPageInteractor(getWikiPageRepo());
+export const getUpdateWikiPageInteractor = () => new UpdateWikiPageInteractor(getWikiPageRepo(), getEventService());
+export const getDeleteWikiPageInteractor = () => new DeleteWikiPageInteractor(getWikiPageRepo(), getEventService());
+export const getWikiWebsiteCrawlRepo = (): PrismaWikiWebsiteCrawlRepo =>
+  new PrismaWikiWebsiteCrawlRepo(getWikiPageRepo(), getAgentChatRepo());
+export const getFailWikiWebsiteCrawlInteractor = () => new FailWikiWebsiteCrawlInteractor(getWikiWebsiteCrawlRepo());
+export const getCreateWikiPagesFromCrawlInteractor = () =>
+  new CreateWikiPagesFromCrawlInteractor(getWikiWebsiteCrawlRepo(), getCreateWikiPagesInteractor());
+export const getReadWikiWebsiteSourcesInteractor = () =>
+  new ReadWikiWebsiteSourcesInteractor(getWikiWebsiteCrawlRepo());
+export const getStartWikiHomepageSetupInteractor = () =>
+  new StartWikiHomepageSetupInteractor(getWikiPageRepo(), getWikiWebsiteCrawlRepo(), getBackgroundTaskService());
+export const getGetWikiHomepageSetupStateInteractor = () =>
+  new GetWikiHomepageSetupStateInteractor(getWikiPageRepo(), getAgentChatRepo(), getWikiWebsiteCrawlRepo());
+export const getWikiWebsiteCrawlService = () =>
+  new WikiWebsiteCrawlService(
+    getWikiWebsiteCrawlRepo(),
+    getCreateWikiPagesInteractor(),
+    getUpdateWikiPageInteractor(),
+    wikiCrawlSynthesisStarter(getSendAgentMessageInteractor()),
+    wikiWebsiteNetwork(),
+  );
+
 // --- Webhook ---
 
 export const getGetWebhooksInteractor = () =>
@@ -1158,6 +1251,7 @@ export const getModifyEntityRelationInteractor = () =>
     getDealIdsValidator(),
     getServiceIdsValidator(),
     getTaskIdsValidator(),
+    getUserRepo(),
   );
 
 export const getDeleteWebhookInteractor = () =>
@@ -1726,6 +1820,8 @@ export const getDeliverWebhookInteractor = () =>
 export const getCreateSupportTicketInteractor = () => new CreateSupportTicketInteractor(getFeedbackCreator());
 
 export const getAgentUsageService = () => new AgentUsageService(getAgentChatRepo());
+export const getReconcileRetrievalReservationsInteractor = () =>
+  new ReconcileRetrievalReservationsInteractor(getAgentUsageService());
 
 export const getSendAgentMessageInteractor = () =>
   new SendAgentMessageInteractor(
@@ -1734,6 +1830,9 @@ export const getSendAgentMessageInteractor = () =>
     getEntitlementService(),
     getBackgroundTaskService(),
     getCustomColumnRepo(),
+    getGetWikiCatalogInteractor(),
+    getUserService(),
+    getWikiWebsiteCrawlRepo(),
   );
 
 export const getGetRoutinesInteractor = () =>
@@ -1840,7 +1939,7 @@ export const getGetOperatorUserDetailInteractor = () => new GetOperatorUserDetai
 export const getUpdateOperatorUserStatusInteractor = () =>
   new UpdateOperatorUserStatusInteractor(getOperatorRepo(), getReleaseOwnerRoutinesInteractor());
 
-export const getOperatorUsersRepo = () => new PrismaOperatorUsersRepo();
+export const getOperatorUsersRepo = () => new PrismaOperatorUsersRepo(getAgentChatRepo());
 
 export const getGetOperatorUsersInteractor = () =>
   new GetOperatorUsersInteractor(getOperatorUsersRepo(), getDataViewStateRepo());

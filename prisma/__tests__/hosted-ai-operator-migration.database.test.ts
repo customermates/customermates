@@ -100,6 +100,7 @@ describeDatabase("hosted AI operator migration", { timeout: 120_000 }, () => {
       expect(checks.rows.map(({ conname }) => conname)).toEqual([
         "AgentCreditAdjustment_actor_id_valid",
         "AgentCreditAdjustment_delta_bounded_nonzero",
+        "AgentCreditAdjustment_delta_microcents_bounded",
         "AgentCreditAdjustment_operation_id_valid",
         "AgentCreditAdjustment_period_ordered",
         "AgentCreditAdjustment_reason_valid",

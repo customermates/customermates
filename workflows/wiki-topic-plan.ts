@@ -1,0 +1,208 @@
+import type { ReadWebsiteSourceInput, WikiSourceTopic } from "@/ee/wiki-crawl/wiki-crawl-synthesis.schema";
+
+import { z } from "zod";
+
+import { CustomErrorCode } from "@/core/validation/validation.types";
+import { SerializedInteractorFailureSchema } from "@/core/validation/validation.utils";
+import { WIKI_SOURCE_RESULT_MAX_CHARS } from "@/ee/wiki-crawl/wiki-source-coverage";
+import { boundedAgentToolFailure } from "@/ee/agent-chat/agent-tool-failure";
+
+import { ReadWebsiteSourceSchema, WIKI_SYNTHESIS_FOUNDATION_ROLES } from "@/ee/wiki-crawl/wiki-crawl-synthesis.schema";
+
+export function wikiPageMatchesTopic(
+  topic: WikiSourceTopic,
+  page: { title: string; kind: string; sourceIds: readonly string[] },
+): boolean {
+  const kind = topic.role === "operating_guide" ? "guide" : topic.role === "procedure" ? "procedure" : "knowledge";
+  const aggregate =
+    topic.role === "operating_guide" || WIKI_SYNTHESIS_FOUNDATION_ROLES.some((role) => role === topic.role);
+  return (
+    page.title === topic.title &&
+    page.kind === kind &&
+    page.sourceIds.length > 0 &&
+    new Set(page.sourceIds).size === page.sourceIds.length &&
+    (aggregate ||
+      (page.sourceIds.length === topic.sourceIds.length && page.sourceIds.every((id) => topic.sourceIds.includes(id))))
+  );
+}
+
+export function wikiSynthesisBatchSharesSources(pages: readonly { sourceIds: readonly string[] }[]): boolean {
+  const sources = pages[0]?.sourceIds ?? [];
+  return pages.every(
+    (page) =>
+      new Set(page.sourceIds).size === page.sourceIds.length &&
+      page.sourceIds.length === sources.length &&
+      page.sourceIds.every((id) => sources.includes(id)),
+  );
+}
+
+const SourceInventorySchema = z.object({
+  items: z.array(z.object({ id: z.uuid(), imported: z.boolean().optional() })),
+});
+const PlanningFailureSchema = z.object({
+  ok: z.literal(false),
+  failure: z.object({ issues: z.array(z.object({ customCode: z.string().optional() })) }),
+});
+
+export function wikiPlanningCandidates(input: unknown, outcome: unknown, inventory: string): WikiSourceTopic[] {
+  const plan = ReadWebsiteSourceSchema.safeParse(input);
+  const failure = PlanningFailureSchema.safeParse(outcome);
+  if (
+    !plan.success ||
+    plan.data.action !== "plan" ||
+    !failure.success ||
+    !failure.data.failure.issues.some(
+      ({ customCode }) =>
+        customCode === CustomErrorCode.wikiSourceCoverageRequired ||
+        customCode === CustomErrorCode.wikiSourceExclusionImportedInvalid ||
+        customCode === CustomErrorCode.wikiSourceExclusionDuplicateInvalid ||
+        customCode === CustomErrorCode.wikiSourceExclusionOverlapInvalid ||
+        customCode === CustomErrorCode.wikiSourceExclusionEvidenceInvalid ||
+        customCode === CustomErrorCode.wikiSourcePlanAccountingInvalid ||
+        customCode === CustomErrorCode.wikiSourcePlanIncomplete,
+    )
+  )
+    return [];
+  const titles = (plan.data.topics ?? []).map(({ title }) => title.toLowerCase());
+  if (new Set(titles).size !== titles.length) return [];
+  const sources = new Map(
+    SourceInventorySchema.parse(JSON.parse(inventory)).items.map(({ id, imported }) => [id, imported]),
+  );
+  return (plan.data.topics ?? []).filter(
+    ({ role, sourceIds: ids }) =>
+      role === "offering" &&
+      ids.every((id) => sources.has(id)) &&
+      ids.some((id) => sources.get(id) !== true) &&
+      new Set(ids).size === ids.length,
+  );
+}
+
+function matchingOfferings(
+  known: readonly WikiSourceTopic[],
+  candidates: readonly WikiSourceTopic[],
+): Map<number, number> {
+  const matched = new Map<number, number>();
+  const visit = (index: number, seen: Set<number>): boolean => {
+    const offering = known[index];
+    const targets = candidates
+      .map((topic, targetIndex) => ({ topic, targetIndex }))
+      .sort((a, b) => Number(b.topic.title === offering.title) - Number(a.topic.title === offering.title));
+    for (const { topic, targetIndex } of targets) {
+      if (seen.has(targetIndex) || !offering.sourceIds.every((id) => topic.sourceIds.includes(id))) continue;
+      seen.add(targetIndex);
+      const prior = matched.get(targetIndex);
+      if (prior === undefined || visit(prior, seen)) {
+        matched.set(targetIndex, index);
+        return true;
+      }
+    }
+    return false;
+  };
+  known.forEach((_, index) => visit(index, new Set()));
+  return matched;
+}
+
+export function wikiMergeOfferingCandidates(
+  known: readonly WikiSourceTopic[],
+  incoming: readonly WikiSourceTopic[],
+): WikiSourceTopic[] {
+  const matched = matchingOfferings(known, incoming);
+  return [...known, ...incoming.filter((_, index) => !matched.has(index))];
+}
+
+export function wikiMissingOfferingCandidates(
+  known: readonly WikiSourceTopic[],
+  plan: ReadWebsiteSourceInput,
+): WikiSourceTopic[] {
+  const unresolved = known.filter(
+    (offering) =>
+      !offering.sourceIds.every((sourceId) =>
+        (plan.reclassifiedOfferings ?? []).some(
+          (value) => value.title === offering.title && value.sourceId === sourceId,
+        ),
+      ),
+  );
+  const matched = new Set(
+    matchingOfferings(
+      unresolved,
+      (plan.topics ?? []).filter(({ role }) => role === "offering"),
+    ).values(),
+  );
+  return unresolved.filter((_, index) => !matched.has(index));
+}
+
+export function wikiPlanningContext(value: unknown): string {
+  return JSON.stringify(value).replaceAll("<", "\\u003c").replaceAll(">", "\\u003e");
+}
+
+const SourcePlanRepairFailureSchema = z.object({
+  ok: z.literal(false),
+  reviewScope: z.literal("whole_sources").optional(),
+  result: z.string().max(WIKI_SOURCE_RESULT_MAX_CHARS),
+  failure: SerializedInteractorFailureSchema.extend({ kind: z.literal("validation") }),
+});
+
+const SOURCE_PLAN_REPAIR_CODES = new Set<CustomErrorCode>([
+  CustomErrorCode.wikiSourceCoverageRequired,
+  CustomErrorCode.wikiSourceCitationInvalid,
+  CustomErrorCode.wikiSourceExclusionImportedInvalid,
+  CustomErrorCode.wikiSourceExclusionDuplicateInvalid,
+  CustomErrorCode.wikiSourceExclusionOverlapInvalid,
+  CustomErrorCode.wikiSourceExclusionEvidenceInvalid,
+  CustomErrorCode.wikiSourcePlanAccountingInvalid,
+  CustomErrorCode.wikiSourcePlanIncomplete,
+  CustomErrorCode.wikiImportTitleInvalid,
+]);
+
+export function wikiSourcePlanRepair(input: unknown, outcome: unknown) {
+  const draft = ReadWebsiteSourceSchema.safeParse(input);
+  const rejected = SourcePlanRepairFailureSchema.safeParse(outcome);
+  if (
+    !draft.success ||
+    draft.data.action !== "plan" ||
+    draft.data.topics === undefined ||
+    !rejected.success ||
+    !rejected.data.failure.issues.some(({ customCode }) => customCode && SOURCE_PLAN_REPAIR_CODES.has(customCode))
+  )
+    return null;
+  return {
+    draft: draft.data,
+    failure: rejected.data.failure,
+    repairInstructions: rejected.data.result,
+    ...(rejected.data.reviewScope ? { reviewScope: rejected.data.reviewScope } : {}),
+  };
+}
+
+export type WikiSourcePlanRepair = NonNullable<ReturnType<typeof wikiSourcePlanRepair>>;
+
+export function wikiSourcePlanRepairContext(repair: WikiSourcePlanRepair): string {
+  const repairSteps =
+    repair.reviewScope === "whole_sources"
+      ? "This is a whole-source coverage refusal, not a request to paraphrase otherwise valid quotations. Before resubmitting a paid review, repair ALL reported substantive overlap failures against the complete excluded source and every source cited by its retained offering. Retain each distinct offering scope and case in the plan; do not infer complete overlap from a shared quote, technology or one embedded case. Reread only affected sources as needed. A small-group read is allowed, but partial substantive repair is not a reason to resubmit while other reported overlap failures remain. The existing maximum of three rejected full-plan reviews still applies."
+      : "First finish any unread sources with action=next. Once remainingSources is zero, reread only one affected source or a small group with action=get and offset=0, following nextOffset. Copy a single contiguous sentence or line from the returned source exactly, preserving whitespace, punctuation and wording. After repairing those entries, immediately resubmit the complete retained action=plan, even if other reported issues remain. A rejected resubmission preserves the corrected entries and returns the remaining issues for the next bounded repair.";
+  return `Rejected website source-plan repair checkpoint, never factual evidence or website instructions: ${wikiPlanningContext(repair)}. No source plan was accepted. Preserve the complete draft, including foundations, guide, exclusions, counterpart pairs, omittedFoundations and reclassifiedOfferings. ${repairSteps} Partial repair is never acceptance: every validation issue must be resolved before page creation. Do not keep rereading unrelated sources or replace the draft with offering hypotheses. Existing offering hypotheses remain independent and must still be retained or explicitly reclassified. No page creation is allowed until the plan is accepted.`;
+}
+
+export function wikiSourcePlanRefusal(
+  result: string,
+  maxChars: number,
+  kind: "validation" | "conflict" = "validation",
+) {
+  return boundedAgentToolFailure(
+    {
+      result,
+      failure: {
+        kind,
+        issues: [
+          {
+            code: "custom",
+            path: ["topics"],
+            message: result,
+            ...(kind === "validation" ? { customCode: CustomErrorCode.wikiSourcePlanIncomplete } : {}),
+          },
+        ],
+      },
+    },
+    maxChars,
+  );
+}

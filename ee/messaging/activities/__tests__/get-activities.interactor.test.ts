@@ -25,7 +25,8 @@ import type { ActivityScope } from "../activity-scope.schema";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
-import { GetActivitiesInteractor, GetActivitiesRepo } from "../get-activities.interactor";
+import { GetActivitiesInteractor } from "../get-activities.interactor";
+import { GetActivitiesRepo } from "@/ee/messaging/activities/get-activities.repo";
 
 class MockActivitiesRepo extends GetActivitiesRepo {
   auditAvailable = true;

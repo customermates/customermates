@@ -72,9 +72,53 @@ The server exposes instructions when a client connects. Whether a client present
 
 ## Server instructions, prompts, and toolsets
 
-The server sends workflow guidance when a client connects: read the schema first, find ids before writing, change relations only through `manage_record_links`, and get the user's confirmation, naming the exact records or recipients, before deleting or sending. That guidance is not a server-enforced confirmation gate. Verify how the chosen client passes instructions to the model and handles approval before granting write, delete or messaging access. In clients that support MCP prompts, a built-in get-started prompt can summarize the workspace to personalize the start.
+The server sends workflow guidance when a client connects: read the schema first, find ids before writing, change relations only through `manage_record_links`, and get the user's confirmation, naming the exact records or recipients, before deleting or sending. That guidance is not a server-enforced confirmation gate. Verify how the chosen client passes instructions to the model and handles approval before granting write, delete or messaging access. In clients that support MCP prompts, a built-in get-started prompt can summarize the workspace to personalize the start; it is offered when both the `workspace` and `records` toolsets are active.
 
 The full [[derived.mcp.tools.total]]-tool surface is the default. Append `?toolsets=` to the endpoint URL to narrow it, for example `/api/v1/mcp?toolsets=records,messaging`. Keys and details are in [Narrowing with ?toolsets=](/docs/mcp#narrowing-with-toolsets).
+
+## Shared Knowledge Base [#shared-workspace-wiki]
+
+Keep your CRM processes, company voice, product knowledge, and support answers in **Knowledge Base**, directly below **Dashboard** in the sidebar. The same permission-checked pages are available to people in the CRM, Mate, cloud routines, and connected MCP clients. Manual pages work in cloud and self-hosted workspaces.
+
+### Write and link pages
+
+Choose **New page**, enter a title, and write directly in the visual editor. It uses the same formatting as CRM Notes. Choose **Save** when you are ready; changes are not saved automatically. **Reset** discards unsaved edits. Use the page list to switch documents or search their titles and content.
+
+The Operating Guide stays pinned first in the page list. People with Knowledge Base Manage can drag the other pages into order; everyone in the workspace sees the same saved order.
+
+An empty Knowledge Base offers **New page** for manual writing and **Build from my website** to ask Mate to import a website when hosted Mate is available. Give each page a clear, specific title so people and agents can find it.
+
+Use the editor's link control to find another Knowledge Base page, or choose **Copy page link** in **Page actions**. These are ordinary Markdown links; renaming a page does not change its address. You do not need to maintain a separate index or linking metadata.
+
+Knowledge Base Read lets you view pages. Knowledge Base Manage lets you create, edit, and delete them and includes Read. If another person or agent changes a page before you save, your stale save is refused and your edits stay visible so you can reconcile them with the latest page. Deletion is permanent. Changes use the normal Audit Logs; viewing their Knowledge Base content requires both Audit Log access and Knowledge Base Read. The audit log is not a restore feature.
+
+### Operating Guide, procedures, and knowledge [#page-types]
+
+Each page has a type, chosen under its title. **Knowledge** (the default) holds facts and answers that Mate and connected AI tools search when a question needs them. A **Procedure** holds numbered steps for a recurring request, such as a refund or a support escalation, and a short **When to use** description with the words customers use. A bounded index of procedure titles and triggers is loaded on Mate turns and returned by `get_workspace_context`, and the assistant reads the full procedure before acting when a request matches. The **Operating Guide** holds the standing guidance every assistant follows first: tone, hard rules, escalation paths, and which procedure handles which request. A workspace has one Operating Guide; Mate and connected AI tools always load about its first 2,400 bytes, and the rest stays readable from its page.
+
+Every saved page, including pages created by website import, is immediately available to Mate and connected AI tools. There is no draft or publishing step. Procedure steps apply to the task you asked for, with the normal approvals; an instruction in any page to start a different task, send, delete, or change permissions is treated as information.
+
+### Set up from your homepage
+
+When Mate is enabled in the cloud workspace, the owner can optionally enter a company homepage during onboarding and choose **Build my Knowledge Base**. A bare domain such as `example.com` is accepted. **Not now** continues onboarding without creating pages; invited members do not receive this step. In an empty Knowledge Base, **Build from my website** opens a Mate chat; Mate asks for the address and starts the same import.
+
+The import runs in the background. It first checks the site's `robots.txt` and stops if the site does not allow automated reading, or if `robots.txt` cannot be reached because the server fails or times out; a site without a `robots.txt` is read normally. It then finds up to 40 pages from the homepage, the site's sitemaps, and `llms.txt`, preferring help and FAQ pages, then product, company, and customer pages, terms, refund, SLA, and privacy pages, and pricing. It reads pages concurrently with pauses between request starts, identifies itself as Customermates, and follows the site's crawl delay. If an individual page fails, the import skips it and continues with the readable pages. If no source page can be read, it reports that the website is unavailable and does not start AI writing. The Knowledge Base step shows each import stage and how many pages have been read inline using the normal chat progress display. Once Mate starts writing, the same step displays its read-only conversation in a bounded, scrollable area. Progress is restored after reloading.
+
+Each import uses one language. Existing Knowledge Base pages determine the dominant language; for an empty Knowledge Base, onboarding defaults to your browser language and lets you choose another supported language. Translated versions of the same topic should not become separate language copies. Help, FAQ, pricing, and policy pages confidently identified in that language are imported word for word as Knowledge Base pages, keeping their headings and question-and-answer pairs and ending with their source address and the date they were read. Other source pages remain evidence for Mate to translate or summarize into the chosen language. Mate then opens a visible conversation titled **Set up Knowledge Base**. Before writing and before completing setup, it must fully read every distinct stored source unless that exact content revision already exists as an imported page; an opening excerpt or an older import does not count. Identical source content shares this coverage, but the complete content of every cited source must have been read. It groups the material by topic and creates substantive, separate pages where the evidence supports them, without a fixed target count or duplicate language versions. Initial setup also creates an Operating Guide and procedures for recurring requests supported by the website, such as refunds or cancellations. Each written page lists its sources and any unresolved questions, such as who approves exceptions. All saved pages are immediately usable. Reading the website and detecting its language do not call an AI provider. Mate’s writing and Knowledge Base indexing use your normal hosted AI credits.
+
+Help centres on another website, such as a hosted help desk, are listed but not read. To add one, name its address to Mate in a chat; Mate imports it into the existing Knowledge Base. Added help-centre content uses the Knowledge Base’s language; Mate may create translated knowledge pages, without replacing its Operating Guide or procedures. There is no website-refresh button on Knowledge Base pages. Source addresses and fetch dates remain available for provenance and import recovery. Source text remains available for the 24-hour retry window and while its synthesis turn is active. A later import removes older source text after both conditions end.
+
+Pages that require sign-in or depend on browser scripts may not be readable. Review imported and written pages before relying on them; they are ordinary editable Knowledge Base documents. Mate and routines can separately search the web. The public MCP endpoint exposes Knowledge Base retrieval and editing, not the website importer.
+
+### Read the Knowledge Base from an AI client [#read-the-wiki-from-an-ai-client]
+
+Your connected AI clients read the same current pages through this MCP endpoint. Start with `get_workspace_context`: on its first page `wiki.guide` contains the Operating Guide (about its first 2,400 bytes and a `nextOffset` for the rest), `wiki.procedures` lists procedures with their `whenToUse`, and `wiki.items` contains ten knowledge page titles, stable URLs, and short opening excerpts. Pass `wiki.nextPage` as `wikiPage` to continue. The `customermates://wiki/catalog?page=1` resource returns the same content.
+
+Use the standard read-only `search` tool to find relevant content, then `fetch` with either the returned `wiki:<uuid>` ID or its exact URL. Knowledge Base Markdown is returned in bounded chunks with a canonical source URL; repeat `fetch` with `nextOffset` as `offset` until it is null. An offset belongs to the tool that returned it, so continue a `fetch` read with `fetch` and a `manage_wiki_pages` read with `manage_wiki_pages`; if `updatedAt` changes between chunks, restart at offset 0. Links between Knowledge Base pages are absolute and can be passed directly back to `fetch`. Clients with MCP resource support can also discover the paginated catalog and page templates with `resources/list` and `resources/templates/list`. Each Knowledge Base result from `search` also carries a highlighted `snippet`, the heading path of the matched `section`, and an `offset`: pass that `offset` to `fetch` to open the page at the answer, and use offset 0 or the returned `outline` for earlier context. Knowledge Base search matches the words of the query in full text, including inflected forms in English, German, Spanish, French, and Italian. When your account has AI credits, it also matches by meaning, so a question worded differently from the page, or asked in another language, still finds it; a query embedding is charged only when a search uses it, to the person whose search started it, even if a colleague’s simultaneous identical search is the one that consumes it. Knowledge Base indexing is paid from the workspace’s combined allowance; public documentation indexing is paid by Customermates. External clients pay their own model provider separately from these server-side retrieval costs. Without credits, and on self-hosted instances, it is full text only. In both modes a page containing a queried code or identifier, such as `E-4012` or `OPS-1182`, comes first, regardless of separators or case, and a misspelled word that matches no Knowledge Base page is corrected from the words of your Knowledge Base: the results come from the corrected query, which `search` returns in `didYouMean`. `manage_wiki_pages` with `action: "search"` returns the same fields plus `retrieval` (`semantic` or `keyword`), with offsets for its own `get`; `action: "get"` uses the same read-only continuation pattern. Separate `create` and `update` actions create or edit pages when your role has Knowledge Base Manage. Reads require Knowledge Base Read, and every change uses the ordinary audit log.
+
+The server instructions first tell connected agents to call `get_workspace_context`, follow the Operating Guide, and read a procedure whose `whenToUse` matches before acting. They also tell agents to search and read relevant Knowledge Base pages before using company facts, processes, voice, product, or support guidance, follow useful links, and cite the exact returned URLs; `search` and `fetch` mark procedure and guide pages with their `kind`. MCP clients decide whether they expose resources and server instructions to their model, so no server can force every arbitrary client to perform those reads. If your client ignores that guidance, add the same retrieval instruction to the client's persistent instructions. Keep the documentation itself in the CRM so every supported client retrieves the current authoritative copy.
+
+When the tool list changes, refresh or republish the ChatGPT connector: an Enterprise or Edu workspace admin chooses **Refresh** on the existing connector and reviews its actions, and Business workspaces recreate and republish it. Until then ChatGPT keeps the tools and server instructions it approved earlier, such as a list without `manage_wiki_pages`. `search` and `fetch` calls always use the current server behavior.
 
 ## How the tool surface is shaped
 
@@ -84,7 +128,7 @@ The MCP surface is built so that models with weaker planning can use it reliably
 - **Merged periphery**: custom columns, widgets, and webhooks each live behind one tool (`manage_custom_columns`, `manage_widgets`, `manage_webhooks`) with an `action` switch, so the model picks an action instead of choosing among many near-identical tools.
 - **Inline enum hints**: every enum field lists its valid values inline in the description, so the model does not have to resolve external types.
 - **Filter examples inline**: every `filters` parameter has a concrete JSON example in its description.
-- **Relationship safety**: relations change through `manage_record_links` (add or remove). The `update_*` tools do not accept relation id fields: an `organizationIds`, `userIds`, `contactIds`, `dealIds`, `serviceIds` or `taskIds` field there is rejected as an unknown field. The one exception is `services` on `update_deals`, which replaces the deal's whole service list with quantities. `null` on `customFieldValues`, or on `services` in `update_deals`, is rejected with a hint to omit the field, pass `[]`, or use `manage_record_links`.
+- **Relationship safety**: relations change through `manage_record_links` (add, remove, or set to replace the whole list in one call, keeping links to records outside the caller's access). The `update_*` tools do not accept relation id fields: an `organizationIds`, `userIds`, `contactIds`, `dealIds`, `serviceIds` or `taskIds` field there is rejected as an unknown field. The one exception is `services` on `update_deals`, which replaces the deal's whole service list with quantities. `null` on `customFieldValues`, or on `services` in `update_deals`, is rejected with a hint to omit the field, pass `[]`, or use `manage_record_links`.
 - **Explicit intent**: `manage_custom_columns` upsert requires `intent` (`create` or `update`); on update the `label`, `type` and `entityType` are immutable and the label must match the existing one, so changing a type or a label means delete and recreate.
 - **Destructive flags**: every destructive tool or action has `destructiveHint: true` and says `IRREVERSIBLE` in its description.
 
@@ -98,14 +142,14 @@ Both live at the same base URL. MCP is `/api/v1/mcp`; the OpenAPI spec is at `/a
 
 ## Tool catalog: the full list of MCP tools [#tool-catalog]
 
-Customermates exposes [[derived.mcp.tools.total]] MCP tools, all enabled by default. They cover records, workspace, saved views, messaging, social posts, documentation and deep research, custom columns, widgets, routines, webhooks, admin, and support. Every destructive tool is flagged and says `IRREVERSIBLE` in its description. Relations change through `manage_record_links`; the update tools do not touch them, except `services` on `update_deals`, which replaces a deal's service list.
+Customermates exposes [[derived.mcp.tools.total]] MCP tools, all enabled by default. They cover records, workspace, saved views, the Knowledge Base, messaging, social posts, documentation and deep research, custom columns, widgets, routines, webhooks, admin, and support. Every destructive tool is flagged and says `IRREVERSIBLE` in its description. Relations change through `manage_record_links`; the update tools do not touch them, except `services` on `update_deals`, which replaces a deal's service list.
 
 Every tool below carries its summary, its flag when it has one, and its arguments. Two flags matter: **Read-only** marks a tool that mutates nothing, which is what you allow without prompting in your client, and **IRREVERSIBLE** marks one that deletes data. For merged tools the destructive flag applies to their delete-capable actions. Tools that send something real or change data outside the workspace carry neither flag, among them `send_email`, `send_chat_message`, `request_support`, `manage_team` (invite sends real emails), `manage_social_relations` (invite, accept, cancel), the save action of `linkedin_manage_sales_lists` and `move_email_thread` (moves the thread in the real mailbox). Keep them on *Ask* in your client; the server instructions ask the model to confirm most of them.
 
 {/* mcp-catalog:flags */}
 **Read-only:** `get_record_schema`, `list_records`, `search_records`, `get_records`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
 
-**IRREVERSIBLE:** `delete_records`, `manage_data_views`, `discard_message_draft`, `manage_custom_columns`, `manage_widgets`, `manage_routines`, `manage_webhooks`
+**IRREVERSIBLE:** `delete_records`, `manage_data_views`, `manage_wiki_pages`, `discard_message_draft`, `manage_custom_columns`, `manage_widgets`, `manage_routines`, `manage_webhooks`
 {/* /mcp-catalog */}
 
 Full JSON Schema for every tool is available live at `POST /api/v1/mcp` with `method: "tools/list"`.
@@ -114,7 +158,7 @@ Full JSON Schema for every tool is available live at `POST /api/v1/mcp` with `me
 
 [[derived.mcp.tools.groups.records]] tools work against the five record types (contact, organization, deal, service, task). Records carry custom columns defined per workspace, so `get_record_schema` is the anchor: it returns the custom-column ids and option values that writes need. Fields such as a deal or task status are configurable singleSelect custom columns, not fixed native fields; `get_record_schema` returns whatever columns the workspace actually has.
 
-All create and update tools take custom-column values via customFieldValues; call `get_record_schema` first for the column ids. `list_records` returns `total` and, for entities with numeric columns, `sums` before the items; for deals `sums` carries `totalValue`, `totalQuantity` and `weightedValue`, the pipeline weighted by each stage's win probability, across every record matching the filters. When `searchTerm` matches several records, `writeTargetGuidance.status` is `ambiguous`: ask the user to choose from `items`, inspect more pages when `total` exceeds the current page, and enrich duplicate names with `get_records` before a single-record write. `pageSize` is rounded up to the next supported size: 5, 10, 25 or 100.
+All create and update tools take custom-column values via customFieldValues; call `get_record_schema` first for the column ids. `list_records` returns `total` and, for deals and custom currency columns, `sums` before the items; for deals `sums` carries `totalValue` and `weightedValue`, the pipeline weighted by each stage's win probability, across every record matching the filters. In a list result, not a grouped one, where `searchTerm` or a `name` filter matches several records, `writeTargetGuidance.status` is `ambiguous`: ask the user to choose from `items`, inspect more pages when `total` exceeds the current page, and enrich duplicate names with `get_records` before a single-record write. With `include`, each listed item also carries the fields asked for: `owners` adds `userIds`, `links` the ids of the linked records such as `dealIds` and `taskIds`, `customFields` the `customFieldValues` with single-select values as option ids, and `dates` `createdAt` and `updatedAt`. A relation your role cannot read is left out, so a missing key means you cannot read that relation and an empty array means none you can see is linked. `pageSize` accepts any whole number from 1 to 100 and returns exactly that many records per page, fewer only on the last; `page` counts in that size, so page 2 at `pageSize` 50 holds records 51 to 100, and the result reports both. With `groupBy` (a single-select column, a relation such as `userIds`, or `createdAt` or `updatedAt` by day, week or month), `list_records` returns `groups` with each group's label and count, and for deals the `totalValue` and `weightedValue` sums, instead of items. It lists up to 50 groups, plus a `No value` group for records without one, and gives sums for up to 25 of them; when it leaves out a group that holds records, or some sums, `groupsIncomplete` is `true` and `groupNote` says what is missing. Grouping by `createdAt` or `updatedAt` covers the last 7 days, the last 7 weeks or the last 12 months, month being the default, each up to and including the current one: older records are counted together in one `before` group, records dated after the current period in one `from` group, and `groupNote` points this out whenever either of them holds records.
 
 {/* mcp-catalog:records */}
 #### `get_record_schema`
@@ -125,9 +169,9 @@ Schema and custom-column metadata, never record data. One entity type, or all fi
 
 #### `list_records`
 
-Search, filter, sort, paginate one entity type. Always returns the total. Deals include totalValue and totalQuantity, services include amount.
+Search, filter, sort, paginate one entity type, or count and total it per group with groupBy. Always returns the total. Deals include totalValue and totalQuantity, services include amount.
 
-**Read-only.** Required: `entity`. Optional: `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
+**Read-only.** Required: `entity`. Optional: `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`, `groupBy`, `include`.
 
 #### `search_records`
 
@@ -209,7 +253,7 @@ Required: `entity`, `mode`, `items`.
 
 #### `manage_record_links`
 
-Add or remove ids on one relation (`action` add or remove). The way to change relations; only `update_deals` also replaces a deal's whole service list.
+Add, remove or replace the ids on one relation (`action` add, remove or set); set makes the ids the complete list in one call and keeps links to records outside your access. The way to change relations; only `update_deals` also replaces a deal's whole service list.
 
 Required: `action`, `entity`, `sourceId`, `relation`, `ids`.
 
@@ -225,9 +269,9 @@ IRREVERSIBLE hard-delete of 1 to 100 records by id (contacts also by email, phon
 {/* mcp-catalog:workspace */}
 #### `get_workspace_context`
 
-Your user, the workspace currency and record-type labels (terminology, the words to use with the user), all roles including permissions, and your connected messaging accounts (your own plus any shared with the workspace; empty when your role has no Inbox messages read access) in one call. The natural first call of a session.
+Your user, the workspace currency and record-type labels (terminology, the words to use with the user), all roles including permissions, your connected messaging accounts (your own plus any shared with the workspace; empty when your role has no Inbox messages read access), and the Knowledge Base's Operating Guide, its procedure index with when-to-use triggers, and a permission-filtered list of knowledge pages (pass `wikiPage` for more; omitted without Knowledge Base Read) in one call. The natural first call of a session.
 
-**Read-only.** No arguments.
+**Read-only.** Optional: `wikiPage`.
 
 #### `list_users`
 
@@ -244,6 +288,16 @@ Team members with id, name, email, roleId, and status. When the caller's role ha
 Discover, inspect, create, update, select and delete personal saved views on supported workspace pages. Configuration and view discovery are paginated and searchable; create selects the new view, updates patch only supplied settings, and delete is IRREVERSIBLE. Operator-console views are not available through this tool.
 
 **IRREVERSIBLE.** Required: `action`. Optional: `surfaceKey`, `viewKey`, `section`, `page`, `pageSize`, `query`, `name`, `state`.
+{/* /mcp-catalog */}
+
+### Knowledge Base [#workspace-wiki]
+
+{/* mcp-catalog:wiki */}
+#### `manage_wiki_pages`
+
+List, search, read, create, update, or permanently delete Knowledge Base pages, each a knowledge page, a procedure with a when-to-use trigger, or the one Operating Guide. Updates and deletes require the latest updatedAt value; create can atomically require an empty Knowledge Base.
+
+**IRREVERSIBLE.** Required: `action`. Optional: `id`, `query`, `offset`, `page`, `pages`, `requireEmpty`, `expectedUpdatedAt`, `title`, `markdown`, `kind`, `whenToUse`.
 {/* /mcp-catalog */}
 
 ### Messaging
@@ -408,27 +462,27 @@ For a company, call `get_social_profile` with `profileType=company` and an `iden
 {/* mcp-catalog:docs */}
 #### `search_docs`
 
-Full-text search over the docs; defaults to the product guides (source=docs); pass source=api or all to include the REST API reference. Returns up to 5 pages, each with slug, source, title, url, its best-matching section and anchor, and a snippet, plus the total. App routes in a snippet, such as `/company/subscription`, are relative: a full link is the origin of that page's URL followed by the route; that origin is the instance's configured `BASE_URL`.
+Search over the docs; defaults to the product guides (source=docs); pass source=api or all to include the REST API reference. Matches the query's words in full text and, when you have AI credits, also by meaning. Returns up to 5 pages, each with slug, source, title, url, its best-matching section and anchor, and a snippet, plus the total. App routes in a snippet, such as `/company/subscription`, are relative: a full link is the origin of that page's URL followed by the route; that origin is the instance's configured `BASE_URL`.
 
 **Read-only.** Required: `query`. Optional: `locale`, `source`.
 
 #### `get_docs_page`
 
-One documentation page as markdown with its canonical URL. App routes in the page, such as `/company/subscription`, are relative: a full link is the origin of that URL followed by the route; that origin is the instance's configured `BASE_URL`. Pass `query` to get a focused excerpt of about 1,400 characters from the best-matching section (plus a second section when it fits) instead of the full page. Lists valid slugs on a miss.
+One documentation page as markdown with its canonical URL. App routes in the page, such as `/company/subscription`, are relative: a full link is the origin of that URL followed by the route; that origin is the instance's configured `BASE_URL`. Pass a nonempty `anchor` returned by search with the original question as `query` to read that selected section in about 1,400 characters. With `query` alone, searches for the best-matching section (plus a second section when it fits). Omit both for the full page. Lists valid slugs on a miss.
 
-**Read-only.** Required: `slug`. Optional: `query`, `locale`, `source`.
+**Read-only.** Required: `slug`. Optional: `anchor`, `query`, `locale`, `source`.
 
 #### `search`
 
-Required by ChatGPT deep research connectors; federates CRM records and docs. Interactive agents should prefer `search_records` or `search_docs`. App routes in the docs that `fetch` returns, such as `/company/subscription`, are relative: a full link is the origin of the result's URL followed by the route; that origin is the instance's configured `BASE_URL`.
+Read-only search across Knowledge Base content, CRM records, and product docs. Knowledge Base results match the query's words in full text and, when you have AI credits, also by meaning and across languages; pages containing a queried code or identifier come first. Each returns a stable `wiki:<uuid>` id with a highlighted `snippet`, the matched `section`, and its `offset` for `fetch`; when a misspelled word matches no Knowledge Base page, it is corrected from the Knowledge Base's own words and `didYouMean` returns the corrected query the results come from. Compatible with ChatGPT company knowledge and deep research. App routes in the docs that `fetch` returns, such as `/company/subscription`, are relative: a full link is the origin of the result's URL followed by the route; that origin is the instance's configured `BASE_URL`.
 
 **Read-only.** Required: `query`.
 
 #### `fetch`
 
-Deep-research companion to `search`: fetches one result by its id. App routes in a docs result, such as `/company/subscription`, are relative: a full link is the origin of its URL followed by the route; that origin is the instance's configured `BASE_URL`.
+Read a result from `search`, including bounded Knowledge Base Markdown chunks by `wiki:<uuid>` or its exact returned URL. Pass a search result's `offset` to open at the matched section, and continue with `nextOffset` until it is null. At offset 0 a page longer than one chunk also returns an `outline` of its H1 to H3 headings with offsets. Internal Knowledge Base links are absolute and directly followable. Knowledge Base Read is required for Knowledge Base content. App routes in a docs result, such as `/company/subscription`, are relative: a full link is the origin of its URL followed by the route; that origin is the instance's configured `BASE_URL`.
 
-**Read-only.** Required: `id`.
+**Read-only.** Required: `id`. Optional: `offset`.
 {/* /mcp-catalog */}
 
 ### Custom columns
@@ -509,7 +563,7 @@ All [[derived.mcp.tools.total]] tools are on by default. To expose only part of 
 <BASE_URL>/api/v1/mcp?toolsets=records,messaging
 ```
 
-Keys: records, workspace, views, messaging, social, docs, custom-columns, widgets, routines, webhooks, admin, support. No parameter means everything; unknown keys are ignored, and a list with no recognised key serves the full surface. `search` and `fetch` are always on so deep-research connectors keep working on any narrowed surface.
+Keys: records, workspace, views, wiki, messaging, social, docs, custom-columns, widgets, routines, webhooks, admin, support. No parameter means everything; unknown keys are ignored, and a list with no recognised key serves the full surface. `search` and `fetch` are always on so deep-research connectors keep working on any narrowed surface.
 
 ### When a call is refused
 
@@ -569,7 +623,7 @@ Claude on web, mobile and desktop, ChatGPT, Claude Code, Codex, Cursor and the G
 None in particular. The MCP endpoint and API keys work on every plan, during the trial, and on self-hosted instances. The plan changes what some tools allow: the messaging, calendar and social tools need a plan with messaging, Pro or higher in the cloud, and on Starter or self-hosted they refuse with a plan message; connecting a messaging account stops at the plan's account limit per user; `manage_routines` refuses a new routine once the caller has reached the plan's routine limit; and activity widgets leave out messages and calendar events without messaging. See [when a call is refused](/docs/mcp#when-a-call-is-refused). When a trial ends or a payment fails, the web app pauses first, while API keys and MCP connections keep working until the members are set **Inactive**; see [what happens when the trial ends](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails).
 </FaqItem>
 <FaqItem question="Can I reduce the number of tools a client sees?">
-Yes. Append `?toolsets=` with a comma-separated list of group keys (`records`, `workspace`, `views`, `messaging`, `social`, `docs`, `custom-columns`, `widgets`, `routines`, `webhooks`, `admin`, `support`) to the endpoint URL and only those tools are advertised. The two connector tools `search` and `fetch` stay always on.
+Yes. Append `?toolsets=` with a comma-separated list of group keys (`records`, `workspace`, `views`, `wiki`, `messaging`, `social`, `docs`, `custom-columns`, `widgets`, `routines`, `webhooks`, `admin`, `support`) to the endpoint URL and only those tools are advertised. The two connector tools `search` and `fetch` stay always on.
 </FaqItem>
 <FaqItem question="How do I recognize dangerous tools?">
 Every destructive tool is flagged in the catalog above and says `IRREVERSIBLE` in its description. Tools that send something real, such as `send_email`, `send_chat_message` or the `manage_team` invite, carry no destructive flag; the [Tool catalog](/docs/mcp#tool-catalog) lists them. Clients that honor MCP annotations also receive `destructiveHint` and can ask for confirmation before calling. This metadata helps the client; it is not a second server-side approval gate.

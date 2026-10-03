@@ -83,6 +83,22 @@ describe("manage_routines activity", () => {
     expect(ROUTING_LOCALES.length).toBeGreaterThan(0);
   });
 
+  it("carries distinct, localized approval copy for renaming record types", () => {
+    const rename = { target: "company", terminology: [{ entityType: "deal", presetKey: "opportunity" }] };
+    for (const input of [rename, { ...rename, currency: "EUR" }]) {
+      const activity = describeInternalTool("update_workspace_settings", input);
+      expect(requiresApproval(internalToolIdentity("update_workspace_settings"), { annotations: {} }, input)).toBe(
+        true,
+      );
+      expect(AGENT_APPROVAL_COPY_KINDS).toContain(activity.kind);
+      for (const locale of ROUTING_LOCALES) {
+        const copy = agentActivityCopy(activity, translatorFor(locale));
+        expect(copy.approval.length, `${locale} ${activity.kind}`).toBeGreaterThan(0);
+        expect(copy.approval, `${locale} ${activity.kind}`).not.toBe(copy.running);
+      }
+    }
+  });
+
   it("carries approval copy for every kind that can still reach an approval card", () => {
     const declaredActions = (tool: (typeof ALL_MCP_TOOLS)[number]): string[] => {
       const shape = (tool.inputSchema as { shape?: Record<string, { options?: unknown }> }).shape;
@@ -100,5 +116,23 @@ describe("manage_routines activity", () => {
     expect(reachable.size).toBeGreaterThan(0);
     for (const kind of reachable) expect(AGENT_APPROVAL_COPY_KINDS).toContain(kind);
     expect(AGENT_APPROVAL_COPY_KINDS).not.toContain("records.read");
+  });
+});
+
+describe("website source activity", () => {
+  it("names internal evidence reads and keeps external tools with the same name sensitive", () => {
+    const activity = describeInternalTool("read_website_source", { action: "next" });
+    expect(activity).toMatchObject({ kind: "web.review", risk: "read" });
+    for (const locale of ROUTING_LOCALES) {
+      const copy = agentActivityCopy(activity, translatorFor(locale));
+      expect(copy.running).not.toEqual(
+        agentActivityCopy(describeInternalTool("unknown", {}), translatorFor(locale)).running,
+      );
+      expect(copy.done.length).toBeGreaterThan(0);
+      expect(copy.error.length).toBeGreaterThan(0);
+    }
+    expect(
+      describeAgentTool({ source: "external-mcp", serverId: "external", name: "read_website_source" }, {}),
+    ).toMatchObject({ kind: "generic", risk: "sensitive" });
   });
 });

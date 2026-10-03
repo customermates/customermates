@@ -23,6 +23,16 @@ describe("Node runtime contract", () => {
     expect(process.versions.node.split(".")[0]).toBe("24");
   });
 
+  it("applies the committed dependency patches when the Docker image installs dependencies", () => {
+    const packageJson = JSON.parse(readFileSync(join(REPO_ROOT, "package.json"), "utf8"));
+    const dockerfile = readFileSync(join(REPO_ROOT, "Dockerfile"), "utf8");
+    const depsStage = dockerfile.slice(dockerfile.indexOf(" AS deps"), dockerfile.indexOf(" AS builder"));
+
+    expect(packageJson.scripts.postinstall).toContain("patch-package --error-on-fail");
+    expect(depsStage).toContain("COPY patches ./patches");
+    expect(depsStage.indexOf("COPY patches ./patches")).toBeLessThan(depsStage.indexOf("RUN yarn install"));
+  });
+
   it("does not leak Node's internal transformAlgorithm TypeError during a cancel/write race", async () => {
     const stream = new TransformStream({
       transform(chunk, controller) {

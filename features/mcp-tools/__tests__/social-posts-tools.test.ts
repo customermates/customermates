@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { mcpToolResultText } from "../mcp-tool";
+import { mcpToolResultText, type McpToolResult } from "../mcp-tool";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
@@ -401,5 +401,56 @@ describe("manage_social_relations routing", () => {
       }),
     ).toThrow(/invitationId/);
     expect(spies.acceptRelationRequest).not.toHaveBeenCalled();
+  });
+});
+
+describe("social list totals", () => {
+  const structured = (result: McpToolResult) =>
+    typeof result === "string" || !("structuredContent" in result) ? undefined : result.structuredContent;
+  const lists = [
+    {
+      spy: spies.listSocialPosts,
+      schema: getSocialPostsTool.outputSchema,
+      run: () => runPosts({ connectedAccountId: ACCOUNT_ID, limit: 100 }),
+    },
+    {
+      spy: spies.listPostComments,
+      schema: getSocialPostEngagementTool.outputSchema,
+      run: () => runEngagement({ connectedAccountId: ACCOUNT_ID, postId: "p1", limit: 100 }),
+    },
+    {
+      spy: spies.listPostReactions,
+      schema: getSocialPostEngagementTool.outputSchema,
+      run: () => runEngagement({ connectedAccountId: ACCOUNT_ID, postId: "p1", kind: "reactions", limit: 100 }),
+    },
+    {
+      spy: spies.listCommentReactions,
+      schema: getSocialPostEngagementTool.outputSchema,
+      run: () => runEngagement({ connectedAccountId: ACCOUNT_ID, postId: "p1", commentId: "c1", limit: 100 }),
+    },
+    {
+      spy: spies.listRelationRequests,
+      schema: manageSocialRelationsTool.outputSchema,
+      run: () => runRelations({ action: "list", connectedAccountId: ACCOUNT_ID, limit: 100 }),
+    },
+  ];
+
+  it("reports total only when the provider counts the rows, never the length of the page", async () => {
+    for (const { spy, schema, run } of lists) {
+      spy.mockResolvedValueOnce({ ok: true as const, data: { data: [{ id: "row-1" }, { id: "row-2" }] } });
+      spy.mockResolvedValueOnce({
+        ok: true as const,
+        data: { data: [{ id: "row-1" }, { id: "row-2" }], total_count: 180, next_cursor: null },
+      });
+
+      const uncounted = structured(await run());
+      const counted = structured(await run());
+
+      expect(uncounted).not.toHaveProperty("total");
+      expect(uncounted).toHaveProperty("next_cursor", null);
+      expect(counted).toHaveProperty("total", 180);
+      expect(schema.safeParse(uncounted).success).toBe(true);
+      expect(schema.safeParse(counted).success).toBe(true);
+    }
   });
 });

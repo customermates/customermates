@@ -44,6 +44,7 @@ export const EntityDetailPageView = observer(
           : store.customColumns;
     const personalization = config.personalization?.(customColumns, (resource) => root.userStore.canAccess(resource));
     const personalizationScope = root.userStore.user?.id ?? "anonymous";
+    const panelLayoutP13nId = root.appMode === "demo" ? undefined : personalization?.p13nId;
 
     return (
       <EntityDetailPersonalizationProvider
@@ -61,6 +62,11 @@ export const EntityDetailPageView = observer(
           historyPanel={<EntityTimelinePanel entityId={id} entityType={entityType} initial={timelineInitial} />}
           identity={config.identity(store.fetchedEntity ?? {}, t, singular(entityType))}
           masterData={<Master layout="page" />}
+          panelLayout={{
+            initial: personalizationInitial?.columnWidths,
+            p13nId: panelLayoutP13nId,
+            persistenceScope: personalizationScope,
+          }}
           serverSnapshotApplied={serverSnapshotApplied}
           showNotesPanel={config.showNotesPanel}
           store={store}

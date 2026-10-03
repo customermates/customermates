@@ -4,6 +4,7 @@ import { toModelMessages, type ReplayMessage } from "./agent-stream-utils";
 import type { AgentAiToolDefinition } from "./agent-tools";
 import { isAgentContextWithinBudget, serializedAgentContextBytes } from "./agent-budget-policy";
 import { AGENT_REPLAY_COUNT, agentReplayWorstCaseMessageChars } from "./agent-replay-budget";
+import { agentWikiSystemPrompt, type AgentSystemPromptParts } from "./agent-wiki-context";
 import { agentPageContextPrefix } from "./agent-page-context";
 import { agentContextProviderPrefix, type AgentContextAttachment } from "./agent-context";
 
@@ -14,12 +15,13 @@ export type AgentProviderContext = {
 };
 
 export function buildAgentProviderContext(
-  systemPrompt: string,
+  systemPrompt: string | AgentSystemPromptParts,
   messages: ReplayMessage[],
   toolDefinitions: AgentAiToolDefinition[],
+  wikiCatalog?: string | null,
 ): AgentProviderContext {
   return {
-    system: systemPrompt,
+    system: agentWikiSystemPrompt(systemPrompt, wikiCatalog),
     messages: toModelMessages(messages),
     tools: toolDefinitions,
   };
@@ -34,11 +36,12 @@ export function isAgentStepContextWithinBudget(
 }
 
 export function conservativeAgentInitialContextBytes(args: {
-  systemPrompt: string;
+  systemPrompt: string | AgentSystemPromptParts;
   currentText: string;
   contexts?: readonly AgentContextAttachment[];
   pageRoute: string | null;
   toolDefinitions: AgentAiToolDefinition[];
+  wikiCatalog?: string | null;
 }): number | null {
   const worstCaseMessageChars = agentReplayWorstCaseMessageChars();
   const priorMessages = Array.from({ length: AGENT_REPLAY_COUNT - 1 }, (_, index) => ({
@@ -51,6 +54,7 @@ export function conservativeAgentInitialContextBytes(args: {
     args.systemPrompt,
     [...priorMessages, { role: "user", text: `${pageContext}${selectedContexts}${args.currentText}` }],
     args.toolDefinitions,
+    args.wikiCatalog,
   );
   return serializedAgentContextBytes(context);
 }

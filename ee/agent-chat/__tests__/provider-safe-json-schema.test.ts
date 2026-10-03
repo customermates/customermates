@@ -14,14 +14,20 @@ import {
 
 const mockUser = createMockUser();
 
-vi.mock("@/env", () => MOCK_ENV_MODULE);
+vi.mock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env } }));
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
-vi.mock("@sentry/nextjs", () => ({ captureException: vi.fn(), setTag: vi.fn(), setUser: vi.fn() }));
+vi.mock("@sentry/nextjs", () => ({
+  captureException: vi.fn(),
+  setTag: vi.fn(),
+  setUser: vi.fn(),
+}));
 vi.mock("next-intl/server", () => ({
   getTranslations: () => {
-    const translator = Object.assign((key: string) => key, { raw: (key: string) => `localized:${key}` });
+    const translator = Object.assign((key: string) => key, {
+      raw: (key: string) => `localized:${key}`,
+    });
     return Promise.resolve(translator);
   },
   getLocale: () => Promise.resolve("en"),
@@ -70,21 +76,47 @@ const NO_GOOGLE_FIELD = [
 
 const ACCEPTED_TODAY: [string, unknown][] = [
   ["list_records", { entity: "contact", pageSize: 25 }],
-  ["list_records", { entity: "contact", filters: [{ field: "name", operator: "contains", value: "a" }] }],
-  ["list_records", { entity: "contact", filters: [{ field: "createdAt", operator: "inLastDays", value: 7 }] }],
+  [
+    "list_records",
+    {
+      entity: "contact",
+      filters: [{ field: "name", operator: "contains", value: "a" }],
+    },
+  ],
+  [
+    "list_records",
+    {
+      entity: "contact",
+      filters: [{ field: "createdAt", operator: "inLastDays", value: 7 }],
+    },
+  ],
   ["list_records", { entity: "contact", filters: [{ field: "owner", operator: "isNull" }] }],
   ["list_records", { entity: "contact", filters: [{ field: "tags", operator: "in", value: ["a"] }] }],
+  ["list_records", { entity: "deal", include: ["owners", "links", "customFields", "dates"] }],
+  ["list_records", { entity: "task", include: [] }],
   ["get_activities", {}],
   ["get_activities", { pageSize: 5 }],
   ["create_contacts", { contacts: [{ firstName: "Ada", lastName: "L", notes: "# hi" }] }],
   ["create_contacts", { contacts: [{ firstName: "Ada", lastName: "L", notes: null }] }],
   ["create_contacts", { contacts: [{ firstName: "Ada", lastName: "L", notes: 42 }] }],
   ["update_contacts", { contacts: [{ id: UUID, customFieldValues: null }] }],
-  ["update_contacts", { contacts: [{ id: UUID, customFieldValues: [{ columnId: UUID, value: null }] }] }],
+  [
+    "update_contacts",
+    {
+      contacts: [{ id: UUID, customFieldValues: [{ columnId: UUID, value: null }] }],
+    },
+  ],
   ["update_deals", { deals: [{ id: UUID, services: null }] }],
   [
     "manage_custom_columns",
-    { action: "upsert", id: null, intent: "create", label: "L", type: "plain", entityType: "contact" },
+    {
+      action: "upsert",
+      id: null,
+      intent: "create",
+      label: "L",
+      type: "plain",
+      entityType: "contact",
+    },
   ],
   ["manage_custom_columns", { action: "upsert", id: UUID, options: null }],
   ["manage_webhooks", { action: "update", secret: null }],
@@ -94,14 +126,26 @@ const ACCEPTED_TODAY: [string, unknown][] = [
   ["update_workspace_settings", { target: "profile", avatarUrl: "https://example.com/a.png" }],
   ["navigate", { targetId: "nav-deals" }],
   ["navigate", { entity: "contact", recordId: UUID }],
-  ["linkedin_search_sales_leads", { connectedAccountId: UUID, filters: { network_distance: [1, 2, "GROUP"] } }],
   [
     "linkedin_search_sales_leads",
-    { connectedAccountId: UUID, filters: { company_headcount: [{ min: 51, max: 200 }] } },
+    {
+      connectedAccountId: UUID,
+      filters: { network_distance: [1, 2, "GROUP"] },
+    },
+  ],
+  [
+    "linkedin_search_sales_leads",
+    {
+      connectedAccountId: UUID,
+      filters: { company_headcount: [{ min: 51, max: 200 }] },
+    },
   ],
   [
     "linkedin_search_sales_companies",
-    { connectedAccountId: UUID, filters: { annual_revenue: { min: 0.5, max: 2.5, currency: "USD" } } },
+    {
+      connectedAccountId: UUID,
+      filters: { annual_revenue: { min: 0.5, max: 2.5, currency: "USD" } },
+    },
   ],
   ["create_services", { services: [{ name: "S", amount: 10 }] }],
   ["get_social_posts", { connectedAccountId: UUID, authorIdentifier: "x", limit: 5, offset: 1 }],
@@ -111,17 +155,23 @@ const ACCEPTED_TODAY: [string, unknown][] = [
   ["manage_data_views", { action: "surfaces" }],
   ["manage_data_views", { action: "create", surfaceKey: "contacts-card-store", name: "Leads", state: {} }],
   ["send_email", { connectedAccountId: UUID, subject: "s", body: "b", to: [{ identifier: "ada@example.com" }] }],
+  ["analyze_records", { reads: [{ tool: "list_records", input: { entity: "deal" } }], code: "(data) => data" }],
+  ["analyze_records", { reads: [{ tool: "list_records", input: '{"entity":"deal"}' }], code: "(data) => data" }],
+  ["analyze_records", { reads: [{ tool: "get_activities" }], code: "(data) => data" }],
 ];
 
 const REJECTED_TODAY: [string, unknown][] = [
   ["list_records", {}],
   ["list_records", { entity: "spaceship" }],
+  ["list_records", { entity: "deal", include: ["notes"] }],
+  ["list_records", { entity: "deal", include: "customFields" }],
   ["navigate", { entity: "contact", recordId: "new" }],
   ["navigate", { entity: "spaceship", recordId: UUID }],
   ["create_contacts", { contacts: [] }],
   ["manage_webhooks", { action: "detonate" }],
   ["update_contacts", { contacts: [{ id: UUID, customFieldValues: [{ columnId: UUID, value: 5 }] }] }],
   ["send_email", { connectedAccountId: "nope", subject: "s", body: "b", to: [{ identifier: "a@b.com" }] }],
+  ["analyze_records", { reads: [{ tool: "list_records", input: [{ entity: "deal" }] }], code: "(data) => data" }],
 ];
 
 const declaredTools = getAgentAiToolDefinitions();
@@ -168,15 +218,25 @@ describe("the Google function-declaration dialect", () => {
       $schema: "http://json-schema.org/draft-07/schema#",
       type: "object",
       properties: {
-        a: { type: "array", items: { type: "string", format: "uuid", uniqueItems: true } },
-        b: { type: "object", propertyNames: { pattern: "^x" }, patternProperties: { "^y": { type: "string" } } },
+        a: {
+          type: "array",
+          items: { type: "string", format: "uuid", uniqueItems: true },
+        },
+        b: {
+          type: "object",
+          propertyNames: { pattern: "^x" },
+          patternProperties: { "^y": { type: "string" } },
+        },
       },
       additionalProperties: false,
     });
 
     expect(result.schema).toEqual({
       type: "object",
-      properties: { a: { type: "array", items: { type: "string" } }, b: { type: "object" } },
+      properties: {
+        a: { type: "array", items: { type: "string" } },
+        b: { type: "object" },
+      },
     });
   });
 
@@ -185,8 +245,13 @@ describe("the Google function-declaration dialect", () => {
       anyOf: [{ type: "string" }, { type: "number" }],
     });
     expect(
-      googleSafeJsonSchema({ anyOf: [{ type: "boolean" }], oneOf: [{ type: "string" }, { type: "number" }] }).schema,
-    ).toEqual({ anyOf: [{ type: "boolean" }, { type: "string" }, { type: "number" }] });
+      googleSafeJsonSchema({
+        anyOf: [{ type: "boolean" }],
+        oneOf: [{ type: "string" }, { type: "number" }],
+      }).schema,
+    ).toEqual({
+      anyOf: [{ type: "boolean" }, { type: "string" }, { type: "number" }],
+    });
   });
 
   it("re-expresses a string const as the single-value enum Google understands", () => {
@@ -197,8 +262,66 @@ describe("the Google function-declaration dialect", () => {
     });
   });
 
+  it("merges a union of string literals into one enum that admits exactly the same values", () => {
+    const declared = {
+      description: "Operator",
+      anyOf: [
+        { type: "string", const: "in", title: "in" },
+        { type: "string", const: "notIn", title: "notIn" },
+        { type: "string", enum: ["in", "between"] },
+      ],
+    };
+    const result = googleSafeJsonSchema(declared);
+
+    expect(result.schema).toEqual({ type: "string", description: "Operator", enum: ["in", "notIn", "between"] });
+    expect(result.changes.filter(({ loosened }) => loosened)).toEqual([]);
+    const before = new Ajv().compile(declared);
+    const after = new Ajv().compile(result.schema as never);
+    for (const value of ["in", "notIn", "between", "equals", "", 1, null])
+      expect(after(value), String(value)).toBe(before(value));
+  });
+
+  it("keeps a union of literals whose branches carry more than their value, or that admits null", () => {
+    expect(
+      googleSafeJsonSchema({
+        anyOf: [
+          { type: "string", const: "a", title: "Alpha" },
+          { type: "string", const: "b" },
+        ],
+      }).schema,
+    ).toEqual({
+      anyOf: [
+        { type: "string", title: "Alpha", enum: ["a"] },
+        { type: "string", enum: ["b"] },
+      ],
+    });
+    expect(
+      googleSafeJsonSchema({
+        anyOf: [{ type: "string", const: "a" }, { type: "string", const: "b" }, { type: "null" }],
+      }).schema,
+    ).toEqual({
+      anyOf: [
+        { type: "string", nullable: true, description: 'Allowed values: "a".' },
+        { type: "string", enum: ["b"] },
+      ],
+    });
+  });
+
+  it("drops a title that only repeats the single value it names", () => {
+    expect(googleSafeJsonSchema({ type: "string", title: "inLastDays", const: "inLastDays" }).schema).toEqual({
+      type: "string",
+      enum: ["inLastDays"],
+    });
+  });
+
   it("keeps the numeric type and names the values when it drops a non-string enum", () => {
-    expect(googleSafeJsonSchema({ description: "Radius", type: "number", enum: [1, 5, 10] }).schema).toEqual({
+    expect(
+      googleSafeJsonSchema({
+        description: "Radius",
+        type: "number",
+        enum: [1, 5, 10],
+      }).schema,
+    ).toEqual({
       type: "number",
       description: "Radius Allowed values: 1, 5, 10.",
       minimum: 1,
@@ -209,7 +332,13 @@ describe("the Google function-declaration dialect", () => {
   it("leaves a description that already names every dropped value alone", () => {
     const description = "Results per page (one of: 5, 10, 25, 100). Default 10.";
 
-    expect(googleSafeJsonSchema({ description, type: "number", enum: [5, 10, 25, 100] }).schema).toEqual({
+    expect(
+      googleSafeJsonSchema({
+        description,
+        type: "number",
+        enum: [5, 10, 25, 100],
+      }).schema,
+    ).toEqual({
       type: "number",
       description,
       minimum: 5,
@@ -290,15 +419,24 @@ describe("the Google function-declaration dialect", () => {
   });
 
   it("drops an enum that would stop nullable admitting null", () => {
-    const single = googleSafeJsonSchema({ anyOf: [{ type: "string", enum: ["a", "b"] }, { type: "null" }] });
+    const single = googleSafeJsonSchema({
+      anyOf: [{ type: "string", enum: ["a", "b"] }, { type: "null" }],
+    });
 
-    expect(single.schema).toEqual({ type: "string", nullable: true, description: 'Allowed values: "a", "b".' });
+    expect(single.schema).toEqual({
+      type: "string",
+      nullable: true,
+      description: 'Allowed values: "a", "b".',
+    });
     expect(new Ajv().compile(single.schema as never)(null)).toBe(true);
     expect(new Ajv().compile({ type: "string", enum: ["a"], nullable: true })(null)).toBe(false);
   });
 
   it("leaves a union that already admits null unconstrained rather than nullable", () => {
-    const result = googleSafeJsonSchema({ description: "Markdown content", anyOf: [{}, { type: "null" }] });
+    const result = googleSafeJsonSchema({
+      description: "Markdown content",
+      anyOf: [{}, { type: "null" }],
+    });
 
     expect(result.schema).toEqual({ description: "Markdown content" });
     expect(new Ajv().compile(result.schema as never)(null)).toBe(true);
@@ -307,15 +445,23 @@ describe("the Google function-declaration dialect", () => {
 
   it("splices a nested bare union into its parent union", () => {
     expect(
-      googleSafeJsonSchema({ anyOf: [{ type: "boolean" }, { anyOf: [{ type: "string" }, { type: "number" }] }] })
-        .schema,
-    ).toEqual({ anyOf: [{ type: "boolean" }, { type: "string" }, { type: "number" }] });
+      googleSafeJsonSchema({
+        anyOf: [{ type: "boolean" }, { anyOf: [{ type: "string" }, { type: "number" }] }],
+      }).schema,
+    ).toEqual({
+      anyOf: [{ type: "boolean" }, { type: "string" }, { type: "number" }],
+    });
   });
 
   it("never emits an empty enum, an empty union, or a tuple items", () => {
     expect(googleSafeJsonSchema({ type: "string", enum: [null] }).schema).toEqual({ type: "string", nullable: true });
     expect(googleSafeJsonSchema({ anyOf: [{ type: "null" }] }).schema).toEqual({});
-    expect(googleSafeJsonSchema({ type: "array", items: [{ type: "string" }, { type: "number" }] }).schema).toEqual({
+    expect(
+      googleSafeJsonSchema({
+        type: "array",
+        items: [{ type: "string" }, { type: "number" }],
+      }).schema,
+    ).toEqual({
       type: "array",
     });
   });
@@ -337,7 +483,9 @@ describe("the Google function-declaration dialect", () => {
     const document = {
       $schema: "http://json-schema.org/draft-07/schema#",
       type: "object",
-      properties: { a: { anyOf: [{ type: "string", const: "x" }, { type: "null" }] } },
+      properties: {
+        a: { anyOf: [{ type: "string", const: "x" }, { type: "null" }] },
+      },
     };
     const before = JSON.stringify(document);
     googleSafeJsonSchema(document);
@@ -357,7 +505,10 @@ describe("serving-provider routing", () => {
   });
 
   it("hands every other provider the caller's own document, by reference", () => {
-    const document = { $schema: "http://json-schema.org/draft-07/schema#", oneOf: [{ type: "string" }] };
+    const document = {
+      $schema: "http://json-schema.org/draft-07/schema#",
+      oneOf: [{ type: "string" }],
+    };
 
     expect(providerWireInputSchema(document, "azure")).toBe(document);
     expect(providerWireInputSchema(document, undefined)).toBe(document);
@@ -448,29 +599,288 @@ describe("the shipped tool catalog on the Google wire", () => {
     expect(accepted, accepted.join("\n")).toEqual([]);
   });
 
+  it("projects website-plan array bounds while retaining Google's source-specific proof declaration", () => {
+    const options = { wikiHomepageSetup: true, wikiCrawlId: UUID, locale: "en", surface: "chat" as const };
+    const original = getAgentAiToolDefinitions("azure", options);
+    const google = getAgentAiToolDefinitions("vertex", options);
+    const reader = google.find(({ name }) => name === "read_website_source")?.inputSchema as JsonRecord;
+    const properties = reader.properties as JsonRecord;
+    for (const name of ["topics", "excluded"]) {
+      const group = properties[name] as JsonRecord;
+      const item = group.items as JsonRecord;
+      const ids = (item.properties as JsonRecord).sourceIds as JsonRecord;
+      expect(ids).toMatchObject({
+        type: "array",
+        minItems: 1,
+        items: { type: "string", pattern: "^[0-9a-fA-F-]{36}$" },
+      });
+      if (name === "topics") expect(ids).not.toHaveProperty("maxItems");
+      else expect(ids).toHaveProperty("maxItems", 1);
+      const raw = original.find(({ name }) => name === "read_website_source")?.inputSchema as JsonRecord;
+      expect((((raw.properties as JsonRecord)[name] as JsonRecord).items as JsonRecord).properties).toMatchObject({
+        sourceIds: { maxItems: name === "topics" ? 40 : 1 },
+      });
+    }
+    expect(properties.topics).toMatchObject({ maxItems: 16 });
+    expect(properties.excluded).not.toHaveProperty("maxItems");
+    const originalReader = original.find(({ name }) => name === "read_website_source")?.inputSchema as JsonRecord;
+    expect((originalReader.properties as JsonRecord).excluded).toMatchObject({ maxItems: 40 });
+    const ordinaryGoogle = providerWireInputSchema(originalReader, "vertex", "another_tool") as JsonRecord;
+    expect((ordinaryGoogle.properties as JsonRecord).excluded).toMatchObject({ maxItems: 40 });
+    expect(properties.omittedFoundations).toMatchObject({ maxItems: 4 });
+    for (const { inputSchema } of google)
+      expect(() => new Ajv({ strict: false }).compile(inputSchema as object)).not.toThrow();
+    const creation = google.find(({ name }) => name === "manage_wiki_pages")?.inputSchema;
+    expect(creation).toEqual(
+      providerWireInputSchema(original.find(({ name }) => name === "manage_wiki_pages")?.inputSchema, "vertex"),
+    );
+  });
+
+  it("keeps source-specific exclusion bounds in both the Google declaration and authoritative validation", async () => {
+    const options = { wikiHomepageSetup: true, wikiCrawlId: UUID, locale: "en", surface: "chat" as const };
+    const input = {
+      action: "plan",
+      topics: [],
+      excluded: [
+        {
+          sourceIds: [UUID, "00000000-0000-4000-8000-000000000002"],
+          reason: "This one source does not establish a substantive offering.",
+          basis: "not_substantive",
+          evidenceQuote: "Exact evidence from this named source.",
+        },
+      ],
+    };
+    expect(await normalizeAgentAiToolInput("read_website_source", input, 48_000, options)).toMatchObject({ ok: false });
+    input.excluded[0].sourceIds.pop();
+    expect(await normalizeAgentAiToolInput("read_website_source", input, 48_000, options)).toMatchObject({ ok: true });
+  });
+
+  it("projects only the outer exclusion cap while preserving every proof field and the declared input", () => {
+    const options = { wikiHomepageSetup: true, wikiCrawlId: UUID, locale: "en", surface: "chat" as const };
+    const original = getAgentAiToolDefinitions("azure", options).find(({ name }) => name === "read_website_source")
+      ?.inputSchema as JsonRecord;
+    const before = structuredClone(original);
+    const google = getAgentAiToolDefinitions("vertex", options).find(({ name }) => name === "read_website_source")
+      ?.inputSchema as JsonRecord;
+    const expected = googleSafeJsonSchema(original).schema as JsonRecord;
+    const properties = expected.properties as JsonRecord;
+    delete (properties.excluded as JsonRecord).maxItems;
+    delete (properties.reclassifiedOfferings as JsonRecord).maxItems;
+    const topic = ((properties.topics as JsonRecord).items as JsonRecord).properties as JsonRecord;
+    delete (topic.sourceIds as JsonRecord).maxItems;
+    expect(google).toEqual(expected);
+    expect(original).toEqual(before);
+    expect(providerWireInputSchema(original, "azure", "read_website_source")).toBe(original);
+    const excluded = ((google.properties as JsonRecord).excluded as JsonRecord).items as JsonRecord;
+    expect(excluded).toMatchObject({
+      required: ["sourceIds", "reason", "basis"],
+      properties: {
+        sourceIds: { type: "array", minItems: 1, maxItems: 1 },
+        basis: { type: "string", enum: ["already_imported", "exact_duplicate", "overlap", "not_substantive"] },
+        duplicateOfSourceId: { type: "string", pattern: "^[0-9a-fA-F-]{36}$" },
+        coveredByTitle: { type: "string", minLength: 1, maxLength: 120 },
+        coveredByRole: { type: "string", enum: ["offering"] },
+        evidenceQuote: { type: "string", minLength: 1, maxLength: 500 },
+        counterpartSourceId: { type: "string", pattern: "^[0-9a-fA-F-]{36}$" },
+        counterpartQuote: { type: "string", minLength: 1, maxLength: 500 },
+      },
+    });
+  });
+
+  it("retains the authoritative forty-exclusion limit after the Google outer-cap projection", async () => {
+    const options = { wikiHomepageSetup: true, wikiCrawlId: UUID, locale: "en", surface: "chat" as const };
+    const input = {
+      action: "plan",
+      excluded: Array.from({ length: 41 }, (_, index) => ({
+        sourceIds: [`00000000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`],
+        reason: "An unchanged source already imported into a retained page.",
+        basis: "already_imported",
+      })),
+    };
+    expect(await normalizeAgentAiToolInput("read_website_source", input, 48_000, options)).toMatchObject({ ok: false });
+    input.excluded.pop();
+    expect(await normalizeAgentAiToolInput("read_website_source", input, 48_000, options)).toMatchObject({ ok: true });
+  });
+
+  it("normalizes every valid exclusion basis with its required proof fields", async () => {
+    const options = { wikiHomepageSetup: true, wikiCrawlId: UUID, locale: "en", surface: "chat" as const };
+    const base = { sourceIds: [UUID], reason: "Source-specific evidence supports this disposition." };
+    for (const proof of [
+      { basis: "already_imported" },
+      { basis: "exact_duplicate", duplicateOfSourceId: "00000000-0000-4000-8000-000000000002" },
+      {
+        basis: "overlap",
+        coveredByTitle: "Service A",
+        coveredByRole: "offering",
+        evidenceQuote: "Exact evidence from this named source.",
+        counterpartSourceId: "00000000-0000-4000-8000-000000000002",
+        counterpartQuote: "Exact evidence from the retained offering source.",
+      },
+      { basis: "not_substantive", evidenceQuote: "Exact evidence from this named source." },
+    ]) {
+      expect(
+        await normalizeAgentAiToolInput(
+          "read_website_source",
+          { action: "plan", excluded: [{ ...base, ...proof }] },
+          48_000,
+          options,
+        ),
+      ).toMatchObject({ ok: true });
+    }
+  });
+
+  it("rejects missing or mismatched exclusion proofs despite the Google outer-cap projection", async () => {
+    const options = { wikiHomepageSetup: true, wikiCrawlId: UUID, locale: "en", surface: "chat" as const };
+    const base = { sourceIds: [UUID], reason: "Source-specific evidence is required." };
+    const witnesses = {
+      evidenceQuote: "Exact evidence from this named source.",
+      counterpartSourceId: "00000000-0000-4000-8000-000000000002",
+      counterpartQuote: "Exact evidence from the retained offering source.",
+    };
+    const overlap = { basis: "overlap", coveredByTitle: "Service A", coveredByRole: "offering", ...witnesses };
+    for (const proof of [
+      {},
+      { basis: "already_imported", evidenceQuote: "An unrelated extra proof." },
+      { basis: "exact_duplicate" },
+      { basis: "exact_duplicate", duplicateOfSourceId: UUID, coveredByRole: "offering" },
+      { basis: "overlap", coveredByTitle: "Service A" },
+      { basis: "overlap", coveredByTitle: "Service A", coveredByRole: "company_overview" },
+      {
+        basis: "overlap",
+        coveredByTitle: "Service A",
+        coveredByRole: "offering",
+        evidenceQuote: "An unrelated extra proof.",
+      },
+      { ...overlap, evidenceQuote: undefined },
+      { ...overlap, counterpartSourceId: undefined },
+      { ...overlap, counterpartQuote: undefined },
+      {
+        basis: "already_imported",
+        counterpartSourceId: witnesses.counterpartSourceId,
+        counterpartQuote: witnesses.counterpartQuote,
+      },
+      {
+        basis: "exact_duplicate",
+        duplicateOfSourceId: UUID,
+        counterpartSourceId: witnesses.counterpartSourceId,
+        counterpartQuote: witnesses.counterpartQuote,
+      },
+      { basis: "not_substantive" },
+      { basis: "not_substantive", evidenceQuote: "Exact source evidence.", duplicateOfSourceId: UUID },
+      { basis: "not_substantive", ...witnesses },
+    ]) {
+      expect(
+        await normalizeAgentAiToolInput(
+          "read_website_source",
+          { action: "plan", excluded: [{ ...base, ...proof }] },
+          48_000,
+          options,
+        ),
+      ).toMatchObject({ ok: false });
+    }
+  });
+
+  it("projects the website repair array without relaxing its authoritative forty-item limit", async () => {
+    const options = { wikiHomepageSetup: true, wikiCrawlId: UUID, locale: "en", surface: "chat" as const };
+    const original = getAgentAiToolDefinitions("azure", options).find(({ name }) => name === "read_website_source")
+      ?.inputSchema as JsonRecord;
+    const google = getAgentAiToolDefinitions("vertex", options).find(({ name }) => name === "read_website_source")
+      ?.inputSchema as JsonRecord;
+    const originalRepair = (original.properties as JsonRecord).reclassifiedOfferings as JsonRecord;
+    const projectedRepair = (google.properties as JsonRecord).reclassifiedOfferings as JsonRecord;
+    expect(originalRepair).toHaveProperty("maxItems", 40);
+    expect(projectedRepair).not.toHaveProperty("maxItems");
+    expect(projectedRepair).toMatchObject({
+      type: "array",
+      items: { properties: { evidenceQuote: { type: "string", minLength: 1, maxLength: 500 } } },
+    });
+    const input = {
+      action: "plan",
+      reclassifiedOfferings: Array.from({ length: 41 }, () => ({
+        title: "Service A",
+        sourceId: UUID,
+        reason: "This source describes an existing offering.",
+        evidenceQuote: "An existing offering.",
+      })),
+    };
+    expect(await normalizeAgentAiToolInput("read_website_source", input, 48_000, options)).toMatchObject({ ok: false });
+    input.reclassifiedOfferings.pop();
+    expect(await normalizeAgentAiToolInput("read_website_source", input, 48_000, options)).toMatchObject({ ok: true });
+  });
+
+  it("retains authoritative forty-source bounds despite the website wire projection", async () => {
+    const options = { wikiHomepageSetup: true, wikiCrawlId: UUID, locale: "en", surface: "chat" as const };
+    const input = {
+      action: "plan",
+      topics: [
+        {
+          title: "Company overview",
+          role: "company_overview",
+          sourceIds: Array.from(
+            { length: 41 },
+            (_, index) => `00000000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`,
+          ),
+        },
+      ],
+      excluded: [],
+    };
+    expect(await normalizeAgentAiToolInput("read_website_source", input, 48_000, options)).toMatchObject({ ok: false });
+    input.topics[0].sourceIds.pop();
+    expect(await normalizeAgentAiToolInput("read_website_source", input, 48_000, options)).toMatchObject({ ok: true });
+  });
+
+  it.each(["offering", "procedure"] as const)(
+    "retains the authoritative four-source %s limit after the website wire projection",
+    async (role) => {
+      const options = { wikiHomepageSetup: true, wikiCrawlId: UUID, locale: "en", surface: "chat" as const };
+      const input = {
+        action: "plan",
+        topics: [
+          {
+            title: "Supported detail",
+            role,
+            sourceIds: Array.from(
+              { length: 5 },
+              (_, index) => `00000000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`,
+            ),
+          },
+        ],
+        excluded: [],
+      };
+      expect(await normalizeAgentAiToolInput("read_website_source", input, 48_000, options)).toMatchObject({
+        ok: false,
+      });
+      input.topics[0].sourceIds.pop();
+      expect(await normalizeAgentAiToolInput("read_website_source", input, 48_000, options)).toMatchObject({
+        ok: true,
+      });
+    },
+  );
+
   it("reports exactly the constructs the provider never receives", () => {
     const changes = changesForShippedCatalog();
 
     expect(summarizeGoogleSchemaChanges(changes)).toEqual({
-      "$schema:removed": 52,
-      "additionalProperties:removed": 59,
-      "anyOf:collapsed": 47,
+      "$schema:removed": 54,
+      "additionalProperties:removed": 41,
+      "anyOf:collapsed": 37,
+      "anyOf:merged": 42,
       "const:removed": 5,
-      "const:rewritten": 236,
+      "const:rewritten": 172,
       "enum:removed": 18,
       "exclusiveMinimum:rewritten": 12,
       "nullable:collapsed": 10,
       "nullable:rewritten": 27,
-      "propertyNames:removed": 1,
-      "oneOf:rewritten": 19,
+      "propertyNames:removed": 3,
+      "oneOf:rewritten": 9,
     });
     expect(summarizeGoogleSchemaChanges(changes.filter((change) => change.loosened))).toEqual({
-      "additionalProperties:removed": 59,
+      "additionalProperties:removed": 41,
       "const:removed": 5,
       "enum:removed": 18,
       "exclusiveMinimum:rewritten": 2,
-      "propertyNames:removed": 1,
-      "oneOf:rewritten": 19,
+      "propertyNames:removed": 3,
+      "oneOf:rewritten": 9,
     });
   });
 
@@ -507,16 +917,25 @@ describe("the authoritative input gate", () => {
   it("stays the Zod validator, which the wire transform never touches", async () => {
     const pageSize = (schemaOf(googleTools, "list_records") as JsonRecord).properties as JsonRecord;
     expect(pageSize.pageSize).not.toHaveProperty("enum");
-    expect(new Ajv().compile(schemaOf(googleTools, "list_records") as never)({ entity: "contact", pageSize: 7 })).toBe(
-      true,
-    );
+    expect(
+      new Ajv().compile(schemaOf(googleTools, "list_records") as never)({
+        entity: "contact",
+        pageSize: 7,
+      }),
+    ).toBe(true);
 
     const coerced = await normalizeAgentAiToolInput("list_records", { entity: "contact", pageSize: "25" }, 400);
-    const rounded = await normalizeAgentAiToolInput("list_records", { entity: "contact", pageSize: 7 }, 400);
+    const exact = await normalizeAgentAiToolInput("list_records", { entity: "contact", pageSize: 7 }, 400);
     const rejected = await normalizeAgentAiToolInput("list_records", { entity: "contact", pageSize: 0 }, 400);
 
-    expect(coerced).toEqual({ ok: true, input: { entity: "contact", page: 1, pageSize: 25 } });
-    expect(rounded).toEqual({ ok: true, input: { entity: "contact", page: 1, pageSize: 10 } });
+    expect(coerced).toEqual({
+      ok: true,
+      input: { entity: "contact", page: 1, pageSize: 25 },
+    });
+    expect(exact).toEqual({
+      ok: true,
+      input: { entity: "contact", page: 1, pageSize: 7 },
+    });
     expect(rejected.ok).toBe(false);
   });
 
@@ -550,12 +969,16 @@ describe("the transform on the wire", () => {
   it("is asked for by serving provider where the workflow builds its tool shells", () => {
     const source = readFileSync(join(REPO_ROOT, "workflows", "agent-turn.ts"), "utf8");
 
-    expect(source).toContain("agentToolDefinitionsForTurn({ surface, servingProvider })");
-    expect(source).toContain("loadAgentToolShells(surface, payload.turnBudget.servingProvider)");
+    expect(source).toContain("return agentToolDefinitionsForTurn({");
+    expect(source).toContain("surface,");
+    expect(source).toContain("servingProvider,");
+    expect(source).toContain("...options,");
+    expect(source).toContain("loadAgentToolShells(surface, payload.turnBudget.servingProvider, {");
     expect(source).not.toContain("getAgentAiToolDefinitions()");
 
     const admission = readFileSync(join(REPO_ROOT, "ee", "agent-chat", "send-agent-message.interactor.ts"), "utf8");
-    expect(admission).toContain("agentToolDefinitionsForTurn({ servingProvider: turnModel.servingProvider, surface })");
+    expect(admission).toContain("agentToolDefinitionsForTurn({");
+    expect(admission).toContain("servingProvider: turnModel.servingProvider");
     expect(admission).not.toContain("getAgentAiToolDefinitions()");
   });
 });
@@ -583,7 +1006,12 @@ describe("empty enum members, which Google rejects outright", () => {
     const probe = { target: "company", avatarUrl: "" };
     expect(ajv.compile(before.inputSchema as object)(probe)).toBe(true);
     expect(accepts(probe), "the transform must never tighten").toBe(true);
-    expect(accepts({ target: "company", avatarUrl: "https://example.invalid/a.png" })).toBe(true);
+    expect(
+      accepts({
+        target: "company",
+        avatarUrl: "https://example.invalid/a.png",
+      }),
+    ).toBe(true);
     expect(accepts({ target: "company", avatarUrl: null })).toBe(true);
   });
 });

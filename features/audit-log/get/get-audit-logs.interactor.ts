@@ -1,3 +1,4 @@
+import type { GetAuditLogsRepo } from "./get-audit-logs.repo";
 import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
 
 import { Action, Resource } from "@/generated/prisma";
@@ -6,7 +7,6 @@ import { type AuditLogDto } from "@/features/audit-log/audit-log.dto";
 
 import { z } from "zod";
 
-import { BaseGetRepo } from "@/core/base/base-get.interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { BaseGetInteractor } from "@/core/base/base-get.interactor";
 import { GetQueryParamsSchema, type GetQueryParams, createGetResultSchema } from "@/core/base/base-get.schema";
@@ -26,8 +26,6 @@ const AuditLogDtoSchema = z.object({
   }),
   entityId: z.string(),
 });
-
-export abstract class GetAuditLogsRepo extends BaseGetRepo<AuditLogDto> {}
 
 @AllowInDemoMode
 @TenantInteractor({ resource: Resource.auditLog, action: Action.readAll })

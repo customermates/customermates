@@ -292,6 +292,12 @@ describe("hosted-AI control configuration", () => {
     for (const invalid of ["TRUE", "1", "yes", "on"])
       expect(() => resolveStrictBoolean("HOSTED_AI_PROVIDER_WORK_PAUSED", invalid)).toThrow(/"true" or "false"/);
   });
+
+  it("ships hosted Mate's docs re-rank and web search on, with no switch to leave them off", () => {
+    const template = readFileSync(new URL("../../.env.cloud.template", import.meta.url), "utf8");
+
+    expect(template).not.toMatch(/AGENT_DOCS_RERANK|AGENT_WEB_SEARCH/);
+  });
 });
 
 describe("self-hosted configuration", () => {

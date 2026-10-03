@@ -1,12 +1,14 @@
 import type { RepoArgs } from "@/core/utils/types";
 import type { FindUserRepo } from "./user.service";
-import type { GetUsersRepo } from "@/features/user/get/get-users.interactor";
+import type { GetUsersRepo } from "@/features/user/get/get-users.repo";
 import type { FindUsersByIdsRepo } from "@/features/user/find-users-by-ids.repo";
+import type { ModifyRelationUserRepo } from "@/features/relations/modify-relation-user.repo";
 import type { RegisterUserRepo } from "@/features/user/register/register-user.interactor";
 import type { UpdateUserDetailsRepo } from "@/features/user/upsert/update-user-details.interactor";
 import type { AdminUpdateUserDetailsRepo } from "@/features/user/upsert/admin-update-user-details.interactor";
 import type { GetUserByIdRepo } from "@/features/user/get/get-user-by-id.interactor";
 import type { CompleteOnboardingWizardRepo } from "@/features/onboarding-wizard/complete-onboarding-wizard.interactor";
+import type { CompleteOnboardingWikiStepRepo } from "@/features/onboarding-wizard/complete-onboarding-wiki-step.repo";
 import type { SendWelcomeAndDemoActionRepo } from "@/ee/lifecycle/send-welcome-and-demo.interactor";
 import type { DeleteAccountsForPlanUserRepo } from "@/ee/messaging/connect/delete-accounts-for-plan.interactor";
 import type { CountActiveUsersRepo } from "./count-active-users.repo";
@@ -84,6 +86,7 @@ export class PrismaUserRepo
     FindUserRepo,
     GetUsersRepo,
     FindUsersByIdsRepo,
+    ModifyRelationUserRepo,
     GetUserByIdRepo,
     RegisterUserRepo,
     UpdateUserDetailsRepo,
@@ -96,6 +99,7 @@ export class PrismaUserRepo
     DeleteAccountsForPlanUserRepo,
     CountActiveUsersRepo,
     CompleteOnboardingWizardRepo,
+    CompleteOnboardingWikiStepRepo,
     WebhookUserRepo,
     SendLegalDocumentNoticesRepo,
     ExpireAdAttributionRepo,
@@ -126,6 +130,7 @@ export class PrismaUserRepo
       agreeToTerms: true,
       lastActiveAt: true,
       onboardingWizardCompletedAt: true,
+      onboardingWikiStepCompletedAt: true,
       createdAt: true,
       updatedAt: true,
       role: {
@@ -272,6 +277,20 @@ export class PrismaUserRepo
     await this.prisma.user.updateMany({
       data: { onboardingWizardCompletedAt: new Date() },
       where: { id: args.userId, companyId },
+    });
+  }
+
+  async markOnboardingWikiStepCompleted(
+    args: RepoArgs<CompleteOnboardingWikiStepRepo, "markOnboardingWikiStepCompleted">,
+  ) {
+    const { companyId } = this.user;
+    await this.prisma.user.updateMany({
+      data: { onboardingWikiStepCompletedAt: new Date() },
+      where: {
+        id: args.userId,
+        companyId,
+        onboardingWikiStepCompletedAt: null,
+      },
     });
   }
 

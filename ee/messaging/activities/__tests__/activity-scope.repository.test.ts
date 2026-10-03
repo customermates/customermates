@@ -119,6 +119,7 @@ const reader = () =>
     { resource: Resource.organizations, action: Action.readAll },
     { resource: Resource.services, action: Action.readAll },
     { resource: Resource.tasks, action: Action.readAll },
+    { resource: Resource.wiki, action: Action.readAll },
   ]);
 
 async function run(scope?: Parameters<PrismaActivitiesRepo["setScope"]>[0]) {
@@ -527,6 +528,7 @@ describe("activity relationship filters", () => {
     const noContactAccess = createMockUserWithPermissions([
       { resource: Resource.auditLog, action: Action.readAll },
       { resource: Resource.inboxMessages, action: Action.readAll },
+      { resource: Resource.wiki, action: Action.readAll },
     ]);
 
     await runWithTenant(noContactAccess, () =>

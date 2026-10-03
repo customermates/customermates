@@ -2,6 +2,8 @@ import type { MessagingProvider } from "@/generated/prisma";
 
 import { z } from "zod";
 
+import { fold } from "@/core/utils/search-text";
+
 import { isFileableEmailProvider } from "./provider";
 
 export const EmailFolderSchema = z.object({
@@ -33,11 +35,7 @@ export function isSkippedEmailFolder(folder: { role?: string | null; name?: stri
 }
 
 function normalizeFolderName(name: string): string {
-  return name
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "");
+  return fold(name.trim());
 }
 
 const SENT_FOLDER_NAMES = new Set(

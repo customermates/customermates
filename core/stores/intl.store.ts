@@ -15,6 +15,7 @@ import type { AppLocale } from "@/i18n/locale-registry";
 import { appLocaleOrDefault, formattingTagFor, isFormattingLocale } from "@/i18n/locale-registry";
 import { resolveUserFormattingTag } from "@/i18n/user-locale";
 import { formatLocalizedNumber, parseLocalizedNumber, parseLocalizedNumberToCanonical } from "./intl-number";
+import { agentCreditDisplay, type AgentCreditDisplay } from "@/core/commercial/agent-credits";
 
 const TIMEAGO_LOCALES = { de, en, es, fr, it } satisfies Record<AppLocale, Parameters<typeof register>[1]>;
 
@@ -101,6 +102,17 @@ export class IntlStore {
       maximumFractionDigits: options?.maximumFractionDigits ?? 2,
       useGrouping: options?.useGrouping ?? true,
     });
+  }
+
+  formatAgentCredits(credits: number): AgentCreditDisplay {
+    const localeStore = this.rootStore.localeStore;
+    return agentCreditDisplay(
+      credits,
+      this.formattingLocale,
+      localeStore.translation
+        ? (amount) => localeStore.getTranslation("Common.creditsBelowMinimum", { amount })
+        : undefined,
+    );
   }
 
   formatNumberForEditing(value: number | undefined, locale = this.formattingLocale): string {

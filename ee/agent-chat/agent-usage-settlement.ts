@@ -1,6 +1,5 @@
 import type { LanguageModelUsage } from "ai";
 
-import { agentCreditsForStartedProviderCost } from "./agent-credit-policy";
 import { computeCostMicrocents, type ModelInferenceRegion, type TokenCounts } from "./model-pricing";
 
 export type AgentUsageCostSource = "measured" | "estimated";
@@ -8,16 +7,22 @@ export type AgentUsageCostSource = "measured" | "estimated";
 export type AgentProviderChargeEvidence = {
   billed: boolean;
   measuredCostMicrocents: number | null;
+  estimatedCostMicrocents?: number;
   stepTokens: readonly TokenCounts[];
   unreadableReason: string | null;
+};
+
+type AgentAuxiliaryCharge = {
+  costMicrocents: number;
+  measured: boolean;
 };
 
 export type AgentUsageSettlement = TokenCounts & {
   model: string;
   costMicrocents: number;
   costSource: AgentUsageCostSource;
-  reservedCredits: number;
-  chargedCredits: number;
+  reservedMicrocents: number;
+  chargedMicrocents: number;
   policyBreach: boolean;
   state: "settled";
 };
@@ -43,36 +48,43 @@ export function buildAgentUsageSettlement(args: {
   provider?: string;
   inferenceRegion?: ModelInferenceRegion | null;
   tokens: TokenCounts;
-  reservedCredits: number;
+  reservedMicrocents: number;
   providerCharge: AgentProviderChargeEvidence;
+  auxiliary?: AgentAuxiliaryCharge;
 }): AgentUsageSettlement {
-  if (!Number.isSafeInteger(args.reservedCredits) || args.reservedCredits < 1)
-    throw new Error("Agent usage reservation credits are invalid.");
+  if (!Number.isSafeInteger(args.reservedMicrocents) || args.reservedMicrocents < 1)
+    throw new Error("Agent usage reservation microcents are invalid.");
+  const auxiliary = args.auxiliary ?? { costMicrocents: 0, measured: true };
+  if (!Number.isSafeInteger(auxiliary.costMicrocents) || auxiliary.costMicrocents < 0)
+    throw new Error("Agent auxiliary usage cost is invalid.");
 
-  const base = { ...args.tokens, model: args.model, reservedCredits: args.reservedCredits };
+  const base = { ...args.tokens, model: args.model, reservedMicrocents: args.reservedMicrocents };
 
-  if (!args.providerCharge.billed) {
+  if (!args.providerCharge.billed && auxiliary.costMicrocents === 0) {
     return {
       ...base,
       costMicrocents: 0,
       costSource: "measured",
-      chargedCredits: 0,
+      chargedMicrocents: 0,
       policyBreach: false,
       state: "settled",
     };
   }
 
-  const measured = args.providerCharge.measuredCostMicrocents;
-  const costSource: AgentUsageCostSource = measured === null ? "estimated" : "measured";
-  const costMicrocents = measured ?? estimateCostMicrocents(args);
-  const meteredCredits = agentCreditsForStartedProviderCost(costMicrocents);
+  const measured = args.providerCharge.billed ? args.providerCharge.measuredCostMicrocents : 0;
+  const costSource: AgentUsageCostSource = measured !== null && auxiliary.measured ? "measured" : "estimated";
+  const costMicrocents =
+    (measured ?? args.providerCharge.estimatedCostMicrocents ?? estimateCostMicrocents(args)) +
+    auxiliary.costMicrocents;
+  if (!Number.isSafeInteger(costMicrocents) || costMicrocents < 0)
+    throw new Error("AI provider cost must be a non-negative whole number of microcents.");
 
   return {
     ...base,
     costMicrocents,
     costSource,
-    chargedCredits: Math.min(meteredCredits, args.reservedCredits),
-    policyBreach: meteredCredits > args.reservedCredits,
+    chargedMicrocents: Math.min(costMicrocents, args.reservedMicrocents),
+    policyBreach: costMicrocents > args.reservedMicrocents,
     state: "settled",
   };
 }

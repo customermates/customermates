@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { MODEL_CATALOG, isAgentModelKey, loadBenchmarkModelOverlay, resolveAgentModel } from "../model-catalog";
+import {
+  SHIPPED_AGENT_MODEL,
+  INITIAL_WIKI_SYNTHESIS_MODEL,
+  isAgentModelKey,
+  resolveAgentModel,
+} from "../model-catalog";
+import { loadBenchmarkModelOverlay } from "../benchmark-model-registry";
 
 const entry = {
   key: "bench:flash-lite-low",
@@ -14,6 +20,20 @@ const entry = {
 };
 
 describe("benchmark model overlay", () => {
+  it("resolves the stronger initial synthesis purpose without exposing another stored model key", () => {
+    expect(resolveAgentModel(null, "initial_wiki_synthesis")).toBe(INITIAL_WIKI_SYNTHESIS_MODEL);
+    expect(resolveAgentModel("balanced", "initial_wiki_synthesis")).toBe(INITIAL_WIKI_SYNTHESIS_MODEL);
+    expect(INITIAL_WIKI_SYNTHESIS_MODEL).toEqual({
+      ...SHIPPED_AGENT_MODEL,
+      modelId: "google/gemini-3.8-flash",
+      maxOutputTokens: 16_384,
+      thinkingLevel: "low",
+    });
+    expect(resolveAgentModel("balanced", "chat")).toBe(SHIPPED_AGENT_MODEL);
+    expect(resolveAgentModel("balanced", "chat").thinkingLevel).toBe("low");
+    expect(isAgentModelKey("initial_wiki_synthesis")).toBe(false);
+    expect(() => resolveAgentModel("initial_wiki_synthesis")).toThrow(/Unknown agent model/);
+  });
   it("is empty unless the local benchmark flag is set", () => {
     expect(loadBenchmarkModelOverlay({ AGENT_BENCHMARK_ARMS: JSON.stringify([entry]) })).toEqual({});
     expect(loadBenchmarkModelOverlay({ LOCAL_AGENT_BENCHMARK: "true" })).toEqual({});
@@ -65,8 +85,9 @@ describe("benchmark model overlay", () => {
   it("keeps the shipped catalog keys authoritative", () => {
     expect(isAgentModelKey("balanced")).toBe(true);
     expect(isAgentModelKey("bench:not-loaded")).toBe(false);
-    expect(resolveAgentModel()).toBe(MODEL_CATALOG.balanced);
-    expect(resolveAgentModel("fast")).toBe(MODEL_CATALOG.fast);
+    expect(resolveAgentModel()).toBe(SHIPPED_AGENT_MODEL);
+    expect(isAgentModelKey("fast")).toBe(false);
+    expect(() => resolveAgentModel("fast")).toThrow(/Unknown agent model/);
     expect(() => resolveAgentModel("bench:not-loaded")).toThrow(/Unknown agent model/);
   });
 });

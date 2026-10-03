@@ -2,7 +2,8 @@ import { AI_MANAGEABLE_DATA_VIEW_SURFACE_KEYS } from "@/core/data-view/ai-manage
 import { SURFACE } from "@/core/data-view/data-view-keys";
 import { dataViewNavigationHref, dataViewNavigationRanges } from "@/core/data-view/data-view-links";
 import { DATA_VIEW_PATHS, ENTITY_TIMELINE_PARENT_PATHS } from "@/core/data-view/data-view-paths";
-import { APP_LOCALES } from "@/i18n/locale-registry";
+import { findWikiPageHrefRanges, parseWikiPageHref } from "@/features/wiki/wiki-links";
+import { APP_LOCALES, ROUTING_LOCALES } from "@/i18n/locale-registry";
 
 import { parse, postprocess, preprocess } from "micromark";
 import { decodeString } from "micromark-util-decode-string";
@@ -10,6 +11,10 @@ import { decodeString } from "micromark-util-decode-string";
 const INTERNAL_REFERENCE = "[internal reference]";
 const REDACTED_VALUE = "[redacted]";
 const INTERNAL_DETAILS = "[internal details]";
+const WIKI_LOCALE_SOURCE = ROUTING_LOCALES.map((locale) => locale.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
+const WIKI_LOCALE_PATH_SOURCE = WIKI_LOCALE_SOURCE ? `(?:(?:${WIKI_LOCALE_SOURCE})\/)?` : "";
+const WIKI_URL_TOKEN_PATTERN = new RegExp(`(?:^|\\s)\\S*\\/${WIKI_LOCALE_PATH_SOURCE}wiki\\?page=\\S*`, "gi");
+const WIKI_TO_LINK_PATTERN = /\]\(to:(\/(?:[a-z]{2}\/)?wiki\?page=[^)]+)\)/giu;
 
 const UUID_PATTERN = /(^|[^0-9a-f])([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})(?=$|[^0-9a-f])/gi;
 const PARTIAL_UUID_PATTERN = /(^|[^0-9a-f])([0-9a-f]{8}-(?:[0-9a-f]{0,4}(?:-[0-9a-f]{0,4}){0,3})?)$/gi;
@@ -25,7 +30,7 @@ const SAVED_VIEW_URL_PATTERN = new RegExp(
   `(^|[\\s(\\[<"'\\x60])(/${LOCALE_PREFIX_SOURCE}(?:(?:${SAVED_VIEW_PATHS.map((path) => escapePattern(path.slice(1))).join("|")})\\?view=${VIEW_KEY_SOURCE}|(?:${ENTITY_TIMELINE_PARENT_PATHS.map((path) => escapePattern(path.slice(1))).join("|")})/${UUID_SOURCE}\\?view=${VIEW_KEY_SOURCE}&viewSurface=${escapePattern(SURFACE.entityTimeline)}))(?=$|[\\s)\\]>"'\\x60!,.:;?])`,
   "g",
 );
-const VIEW_URL_STREAM_PATTERN = /[^\s()[\]<>"'`]*(?:\?|&)view=[^\s()[\]<>"'`]*/g;
+const VIEW_URL_STREAM_PATTERN = /(?<![^\s()[\]<>"'`])[^\s()[\]<>"'`]*(?:\?|&)view=[^\s()[\]<>"'`]*/g;
 const MAX_LOCALE_PREFIX_LENGTH = Math.max(...APP_LOCALES.map((locale) => locale.length + 1));
 const MAX_STANDALONE_VIEW_URL_LENGTH =
   Math.max(...SAVED_VIEW_PATHS.map((path) => path.length)) + MAX_LOCALE_PREFIX_LENGTH + "?view=".length + 36;
@@ -114,6 +119,7 @@ const STREAM_TAIL_LENGTH = Math.max(
 const PROTECTED_STREAM_PATTERNS = [
   VIEW_URL_STREAM_PATTERN,
   SAVED_VIEW_URL_PATTERN,
+  WIKI_URL_TOKEN_PATTERN,
   UUID_PATTERN,
   PAGE_CONTEXT_BLOCK_PATTERN,
   PAGE_CONTEXT_TAG_PATTERN,
@@ -460,8 +466,22 @@ function canonicalizeSameOriginDataViewLinks(value: string, origin?: string) {
     );
 }
 
-function replaceUuid(value: string) {
-  return value.replace(UUID_PATTERN, (_match, prefix: string) => `${prefix}${INTERNAL_REFERENCE}`);
+function replaceUuid(value: string, wikiBaseUrl?: string) {
+  const pageLinks = findWikiPageHrefRanges(value, wikiBaseUrl);
+  return value.replace(UUID_PATTERN, (match, prefix: string, id: string, offset: number) => {
+    const idStart = offset + prefix.length;
+    const idEnd = idStart + id.length;
+    return pageLinks.some((link) => link.id === id.toLowerCase() && idStart >= link.start && idEnd <= link.end)
+      ? match
+      : `${prefix}${INTERNAL_REFERENCE}`;
+  });
+}
+
+function normalizeWikiLinkAliases(value: string, wikiBaseUrl?: string) {
+  return value.replace(WIKI_TO_LINK_PATTERN, (match, href: string) => {
+    const target = parseWikiPageHref(href, wikiBaseUrl);
+    return target ? `](${target.path})` : match;
+  });
 }
 
 function markdownResourceLinks(value: string) {
@@ -493,7 +513,7 @@ function markdownResourceLinks(value: string) {
   return links;
 }
 
-function replaceUuidOutsideRecordPageLinks(value: string) {
+function replaceUuidOutsideRecordPageLinks(value: string, wikiBaseUrl?: string) {
   if (value.search(UUID_PATTERN) < 0) return value;
   let visible = "";
   let copiedUntil = 0;
@@ -503,15 +523,16 @@ function replaceUuidOutsideRecordPageLinks(value: string) {
     const destination = value.slice(link.destination.start, link.destination.end);
     const decodedDestination = decodeString(destination);
     if (decodedDestination.search(UUID_PATTERN) < 0) continue;
-    visible += replaceUuid(value.slice(copiedUntil, link.start));
-    visible +=
-      link.type === "link" && RECORD_PAGE_ROUTE_PATTERN.test(decodedDestination)
-        ? `${replaceUuid(value.slice(link.start, link.destination.start))}${destination}${replaceUuid(value.slice(link.destination.end, link.end))}`
-        : replaceUuid(link.text ? value.slice(link.text.start, link.text.end) : "");
+    visible += replaceUuid(value.slice(copiedUntil, link.start), wikiBaseUrl);
+    if (link.type === "link" && RECORD_PAGE_ROUTE_PATTERN.test(decodedDestination))
+      visible += `${replaceUuid(value.slice(link.start, link.destination.start), wikiBaseUrl)}${destination}${replaceUuid(value.slice(link.destination.end, link.end), wikiBaseUrl)}`;
+    else if (link.type === "link" && parseWikiPageHref(decodedDestination, wikiBaseUrl))
+      visible += replaceUuid(value.slice(link.start, link.end), wikiBaseUrl);
+    else visible += replaceUuid(link.text ? value.slice(link.text.start, link.text.end) : "", wikiBaseUrl);
     copiedUntil = link.end;
   }
 
-  return `${visible}${replaceUuid(value.slice(copiedUntil))}`;
+  return `${visible}${replaceUuid(value.slice(copiedUntil), wikiBaseUrl)}`;
 }
 
 function unwrapRecordPageLinks(value: string): string {
@@ -601,6 +622,7 @@ function incompletePrivateMarkerStart(value: string, streamTail = false) {
 
     if (!streamTail) continue;
     for (let length = Math.min(marker.length - 1, lower.length); length > 0; length -= 1) {
+      if (marker.startsWith("```") && length <= 3) continue;
       if (!lower.endsWith(marker.slice(0, length))) continue;
       start = earliest(start, lower.length - length);
       break;
@@ -741,11 +763,13 @@ function indentedContinuationContextStart(value: string, boundary: number) {
   return null;
 }
 
-function protectStreamBoundary(value: string, requestedEnd: number) {
+function protectStreamBoundary(value: string, requestedEnd: number, wikiBaseUrl?: string) {
   let safeEnd = requestedEnd;
   const markdown = parsedMarkdownUrlRanges(value);
+  const wikiPageHrefs = findWikiPageHrefRanges(value, wikiBaseUrl);
   while (true) {
     const previousSafeEnd = safeEnd;
+    for (const range of wikiPageHrefs) if (range.start < safeEnd && range.end > safeEnd) safeEnd = range.start;
     for (const range of markdown.streamContainers)
       if (range.start < safeEnd && range.end > safeEnd) safeEnd = range.start;
     for (const range of markdown.streamOpaqueContent)
@@ -781,8 +805,8 @@ function protectStreamBoundary(value: string, requestedEnd: number) {
   }
 }
 
-function redactCompleteAgentVisibleText(value: string) {
-  return value
+function redactCompleteAgentVisibleText(value: string, wikiBaseUrl?: string) {
+  return normalizeWikiLinkAliases(value, wikiBaseUrl)
     .replace(PAGE_CONTEXT_TAG_PATTERN, "")
     .replace(ENCODED_PAGE_CONTEXT_TAG_PATTERN, "")
     .replace(PRIVATE_REASONING_TAG_PATTERN, "")
@@ -798,7 +822,7 @@ function redactCompleteAgentVisibleText(value: string) {
     .replace(INTERNAL_COST_PATTERN, INTERNAL_DETAILS);
 }
 
-function sanitizeTextFragment(value: string) {
+function sanitizeTextFragment(value: string, wikiBaseUrl?: string) {
   const withoutClosedPrivateContent = stripClosedPrivateContent(value);
   const unsafeStart = earliest(
     earliest(
@@ -810,7 +834,9 @@ function sanitizeTextFragment(value: string) {
   const complete = replaceUuidOutsideRecordPageLinks(
     redactCompleteAgentVisibleText(
       unsafeStart === null ? withoutClosedPrivateContent : withoutClosedPrivateContent.slice(0, unsafeStart),
+      wikiBaseUrl,
     ),
+    wikiBaseUrl,
   );
   return replacePartialUuidTail(complete);
 }
@@ -821,19 +847,19 @@ function plainLinkLabel(value: string) {
   return sanitizeTextFragment(plainLabel).replace(/[<>]/g, "");
 }
 
-function sanitizeVisibleText(value: string, appBaseUrl?: string) {
+function sanitizeVisibleText(value: string, appBaseUrl?: string, wikiBaseUrl?: string) {
   const canonicalValue = canonicalizeSameOriginDataViewLinks(value, appBaseUrl);
   const withoutPreviouslyRedactedLinks = unwrapAlreadyRedactedDataViewLinks(canonicalValue, appBaseUrl);
   const withoutModelAuthoredLinks = unwrapModelAuthoredDataViewLinks(withoutPreviouslyRedactedLinks);
-  return neutralizeBareModelAuthoredDataViewUrls(sanitizeTextFragment(withoutModelAuthoredLinks));
+  return neutralizeBareModelAuthoredDataViewUrls(sanitizeTextFragment(withoutModelAuthoredLinks, wikiBaseUrl));
 }
 
-export function sanitizeAgentVisibleText(value: string) {
-  return sanitizeVisibleText(value);
+export function sanitizeAgentVisibleText(value: string, wikiBaseUrl?: string) {
+  return sanitizeVisibleText(value, undefined, wikiBaseUrl);
 }
 
 export function sanitizeAgentVisibleTextForApp(value: string, appBaseUrl: string) {
-  return sanitizeVisibleText(value, appBaseUrl);
+  return sanitizeVisibleText(value, appBaseUrl, appBaseUrl);
 }
 
 export function sanitizeAgentPlainText(value: string) {
@@ -899,7 +925,7 @@ export class AgentVisibleTextStreamSanitizer {
 
     const protocolStart = toolProtocolStart(this.buffer);
     if (protocolStart !== null) {
-      const visible = sanitizeVisibleText(this.buffer.slice(0, protocolStart), this.appBaseUrl);
+      const visible = sanitizeVisibleText(this.buffer.slice(0, protocolStart), this.appBaseUrl, this.appBaseUrl);
       this.buffer = "";
       this.toolProtocolRemoved = true;
       return visible;
@@ -910,8 +936,12 @@ export class AgentVisibleTextStreamSanitizer {
       earliest(openPrivateContentStart(this.buffer), incompletePrivateMarkerStart(this.buffer, true)),
       incompleteToolProtocolStart(this.buffer),
     );
-    const safeEnd = protectStreamBoundary(this.buffer, Math.min(requestedEnd, unsafeStart ?? this.buffer.length));
-    const visible = sanitizeVisibleText(this.buffer.slice(0, safeEnd), this.appBaseUrl);
+    const safeEnd = protectStreamBoundary(
+      this.buffer,
+      Math.min(requestedEnd, unsafeStart ?? this.buffer.length),
+      this.appBaseUrl,
+    );
+    const visible = sanitizeVisibleText(this.buffer.slice(0, safeEnd), this.appBaseUrl, this.appBaseUrl);
     this.buffer = this.buffer.slice(safeEnd);
     return visible;
   }
@@ -922,13 +952,13 @@ export class AgentVisibleTextStreamSanitizer {
 
     const protocolStart = toolProtocolStart(this.buffer);
     if (protocolStart !== null) {
-      const visible = sanitizeVisibleText(this.buffer.slice(0, protocolStart), this.appBaseUrl);
+      const visible = sanitizeVisibleText(this.buffer.slice(0, protocolStart), this.appBaseUrl, this.appBaseUrl);
       this.buffer = "";
       this.toolProtocolRemoved = true;
       return visible;
     }
 
-    const visible = sanitizeVisibleText(this.buffer, this.appBaseUrl);
+    const visible = sanitizeVisibleText(this.buffer, this.appBaseUrl, this.appBaseUrl);
     this.buffer = "";
     return visible;
   }

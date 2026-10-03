@@ -5,7 +5,6 @@ import {
   encodeToToon,
   runInteractor,
   customMcpFailure,
-  enumHint,
   formatDatesInResponse,
   FILTER_FIELD_DESCRIPTION,
   mcpInteractorFailure,
@@ -27,18 +26,12 @@ import { ChartColor, DisplayType } from "@/features/widget/widget.schema";
 import { FilterSchema } from "@/core/base/base-get.schema";
 import { ActivityFiltersSchema } from "@/ee/messaging/activities/activities.schema";
 
-const entityTypeValues = Object.values(EntityType);
-const groupByValues = Object.values(WidgetGroupByType);
-const aggregationValues = Object.values(AggregationType);
-const displayTypeValues = Object.values(DisplayType);
-const chartColorValues = Object.values(ChartColor);
-
 const ChartCreateWidgetSchema = z
   .object({
     action: z.literal("create"),
     kind: z.literal(WidgetKind.chart).optional(),
     name: z.string().min(1).describe("Human-readable widget title shown on the dashboard"),
-    entityType: z.enum(EntityType).describe(`Entity type the widget counts/aggregates ${enumHint(entityTypeValues)}`),
+    entityType: z.enum(EntityType).describe("Entity type the widget counts/aggregates"),
     entityFilters: z
       .array(FilterSchema)
       .optional()
@@ -49,8 +42,8 @@ const ChartCreateWidgetSchema = z
       .describe(
         `Filters applied to deals when aggregating dealValue/dealQuantity. Not allowed when entityType is deal. ${FILTER_FIELD_DESCRIPTION}`,
       ),
-    displayType: z.enum(DisplayType).describe(`Chart type ${enumHint(displayTypeValues)}`),
-    groupByType: z.enum(WidgetGroupByType).describe(`How to group the data ${enumHint(groupByValues)}`),
+    displayType: z.enum(DisplayType).describe("Chart type"),
+    groupByType: z.enum(WidgetGroupByType).describe("How to group the data"),
     groupByCustomColumnId: z
       .uuid()
       .optional()
@@ -58,7 +51,7 @@ const ChartCreateWidgetSchema = z
     aggregationType: z
       .enum(AggregationType)
       .describe(
-        `Aggregation to compute. ${enumHint(aggregationValues)}. ` +
+        "Aggregation to compute. " +
           "count = number of entities; dealValue = sum of related deal values; dealQuantity = sum of related deal quantities.",
       ),
   })
@@ -79,27 +72,15 @@ const ChartUpdateWidgetSchema = z
     action: z.literal("update"),
     id: z.uuid().describe("Widget id"),
     name: z.string().min(1).optional(),
-    groupByType: z
-      .enum(WidgetGroupByType)
-      .optional()
-      .describe(`${enumHint(groupByValues)}`),
+    groupByType: z.enum(WidgetGroupByType).optional(),
     groupByCustomColumnId: z.uuid().optional().describe("Custom-column id. Required if groupByType is customColumn."),
-    aggregationType: z
-      .enum(AggregationType)
-      .optional()
-      .describe(`${enumHint(aggregationValues)}`),
+    aggregationType: z.enum(AggregationType).optional(),
     entityFilters: z.array(FilterSchema).optional().describe(`REPLACES entity filters. ${FILTER_FIELD_DESCRIPTION}`),
     dealFilters: z.array(FilterSchema).optional().describe(`REPLACES deal filters. ${FILTER_FIELD_DESCRIPTION}`),
-    displayType: z
-      .enum(DisplayType)
-      .optional()
-      .describe(`${enumHint(displayTypeValues)}`),
+    displayType: z.enum(DisplayType).optional(),
     reverseXAxis: z.boolean().optional(),
     reverseYAxis: z.boolean().optional(),
-    barColors: z
-      .array(z.enum(ChartColor))
-      .optional()
-      .describe(`Each color ${enumHint(chartColorValues)}`),
+    barColors: z.array(z.enum(ChartColor)).optional().describe("Chart colors"),
   })
   .strict();
 
@@ -143,9 +124,7 @@ const ManageWidgetsSchema = z.object({
   entityType: z
     .enum(EntityType)
     .optional()
-    .describe(
-      `Entity type the widget counts/aggregates ${enumHint(entityTypeValues)}. Required for create; immutable on update.`,
-    ),
+    .describe("Entity type the widget counts/aggregates. Required for create; immutable on update."),
   entityFilters: z
     .array(FilterSchema)
     .optional()
@@ -156,16 +135,10 @@ const ManageWidgetsSchema = z.object({
     .array(FilterSchema)
     .optional()
     .describe(
-      `create and update; on update REPLACES the deal filter array. Applied when aggregating dealValue/dealQuantity. Not allowed when entityType is deal. ${FILTER_FIELD_DESCRIPTION}`,
+      "create and update; on update REPLACES the deal filter array. Applied when aggregating dealValue/dealQuantity. Not allowed when entityType is deal. Same rule syntax as entityFilters.",
     ),
-  displayType: z
-    .enum(DisplayType)
-    .optional()
-    .describe(`Chart type ${enumHint(displayTypeValues)}. Required for create.`),
-  groupByType: z
-    .enum(WidgetGroupByType)
-    .optional()
-    .describe(`How to group the data ${enumHint(groupByValues)}. Required for create.`),
+  displayType: z.enum(DisplayType).optional().describe("Chart type. Required for create."),
+  groupByType: z.enum(WidgetGroupByType).optional().describe("How to group the data. Required for create."),
   groupByCustomColumnId: z
     .uuid()
     .optional()
@@ -174,15 +147,12 @@ const ManageWidgetsSchema = z.object({
     .enum(AggregationType)
     .optional()
     .describe(
-      `Aggregation to compute ${enumHint(aggregationValues)}. Required for create. ` +
+      "Aggregation to compute. Required for create. " +
         "count = number of entities; dealValue = sum of related deal values; dealQuantity = sum of related deal quantities.",
     ),
   reverseXAxis: z.boolean().optional().describe("update only."),
   reverseYAxis: z.boolean().optional().describe("update only."),
-  barColors: z
-    .array(z.enum(ChartColor))
-    .optional()
-    .describe(`update only. Each color ${enumHint(chartColorValues)}`),
+  barColors: z.array(z.enum(ChartColor)).optional().describe("update only. Chart colors."),
   timelineFilters: ActivityFiltersSchema.optional().describe(
     "activityTimeline create/update only; each field may appear once. On update REPLACES the activity filter array. Create rejects inaccessible relationship UUIDs; update may retain or remove only unavailable UUIDs already stored on that widget.",
   ),
@@ -208,12 +178,10 @@ export const manageWidgetsTool = {
   name: "manage_widgets",
   title: "Manage widgets",
   description:
-    "Use this when you need to create, update, delete, or read dashboard widgets. " +
+    "Use this when the user asks to see, create, change or delete their dashboard widgets. A widget you create stays on their dashboard, so never create or update one to work out an answer; answer data questions with list_records filters, sums or groupBy instead. " +
     "action list returns { id, name, kind } entries. " +
     "action get returns full configuration; chart widgets include computed data points, while activityTimeline widgets expose timelineFilters for reuse with get_activities; an id that was not found returns { id, error }, so inspect every item. " +
-    "Each chart data point has value and either { labelKind: literal, label } or { labelKind: system, systemLabelKey }, so it answers questions like total pipeline value by stage in one call. " +
-    "For chart creation omit kind and provide name, entityType, displayType, groupByType, aggregationType. " +
-    "For activityTimeline creation provide kind, name, and optional timelineFilters/showFilters. " +
+    "Each chart data point has value and either { labelKind: literal, label } or { labelKind: system, systemLabelKey }. " +
     "Updates infer the immutable stored kind; only provided fields change and filter arrays replace their previous values. " +
     "Create rejects inaccessible relationship UUIDs; update may retain or remove an unavailable UUID only when that same UUID is already stored. " +
     "action delete is IRREVERSIBLE.",

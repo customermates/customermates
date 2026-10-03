@@ -1,3 +1,4 @@
+import { prismaAgentChatRepoDependencies } from "@/tests/helpers/prisma-agent-chat-repo";
 import { randomUUID } from "node:crypto";
 
 import { Client } from "pg";
@@ -44,9 +45,10 @@ describeDatabase("interrupted agent attempts against PostgreSQL", () => {
     const reservationId = randomUUID();
     await client.query(
       `INSERT INTO "AgentUsageEvent"
-       ("id","companyId","userId","state","reservedCredits","chargedCredits",
-        "planSnapshot","subscriptionStatusSnapshot","allowanceCreditsSnapshot","periodStart","periodEnd")
-       VALUES ($1,$2,$3,'reserved',7,0,'pro','active',1000,CURRENT_TIMESTAMP,
+       ("id","companyId","userId","state","reservedCredits","chargedCredits","reservedMicrocents",
+        "planSnapshot","subscriptionStatusSnapshot","allowanceCreditsSnapshot","allowanceMicrocentsSnapshot",
+        "periodStart","periodEnd")
+       VALUES ($1,$2,$3,'reserved',7,0,6500000,'pro','active',1000,1000000000,CURRENT_TIMESTAMP,
                CURRENT_TIMESTAMP + INTERVAL '1 month')`,
       [reservationId, companyId, userId],
     );
@@ -110,9 +112,10 @@ describeDatabase("interrupted agent attempts against PostgreSQL", () => {
     );
     await client.query(
       `INSERT INTO "AgentUsageEvent"
-       ("id","companyId","userId","turnRequestId","state","reservedCredits","chargedCredits",
-        "planSnapshot","subscriptionStatusSnapshot","allowanceCreditsSnapshot","periodStart","periodEnd","providerStartedAt")
-       VALUES ($1,$2,$3,$4,'reserved',7,0,'pro','active',1000,CURRENT_TIMESTAMP,
+       ("id","companyId","userId","turnRequestId","state","reservedCredits","chargedCredits","reservedMicrocents",
+        "planSnapshot","subscriptionStatusSnapshot","allowanceCreditsSnapshot","allowanceMicrocentsSnapshot",
+        "periodStart","periodEnd","providerStartedAt")
+       VALUES ($1,$2,$3,$4,'reserved',7,0,6500000,'pro','active',1000,1000000000,CURRENT_TIMESTAMP,
                CURRENT_TIMESTAMP + INTERVAL '1 month',$5)`,
       [randomUUID(), companyId, userId, turnRequestId, providerStartedAt],
     );
@@ -134,7 +137,8 @@ describeDatabase("interrupted agent attempts against PostgreSQL", () => {
   async function snapshot(turnRequestId: string) {
     const result = await client.query(
       `SELECT t."status", t."terminalAt", t."terminalCode", t."assistantMessageId",
-              u."state", u."reservedCredits", u."chargedCredits", u."settledAt", u."providerStartedAt",
+              u."state", u."reservedCredits", u."chargedCredits", u."reservedMicrocents"::int AS "reservedMicrocents",
+              u."chargedMicrocents"::int AS "chargedMicrocents", u."settledAt", u."providerStartedAt",
               (SELECT COUNT(*)::int FROM "AgentRunLease" l WHERE l."companyId" = t."companyId") AS leases,
               (SELECT COUNT(*)::int FROM "AgentRunRound" r WHERE r."turnRequestId" = t.id) AS rounds
        FROM "AgentTurnRequest" t JOIN "AgentUsageEvent" u ON u."turnRequestId" = t.id
@@ -146,7 +150,7 @@ describeDatabase("interrupted agent attempts against PostgreSQL", () => {
 
   beforeAll(async () => {
     const { PrismaAgentChatRepo } = await import("../prisma-agent-chat.repository");
-    repo = new PrismaAgentChatRepo();
+    repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
     await client.connect();
     await client.query('INSERT INTO "Company" ("id","updatedAt") VALUES ($1,CURRENT_TIMESTAMP)', [companyId]);
     await client.query(
@@ -199,6 +203,8 @@ describeDatabase("interrupted agent attempts against PostgreSQL", () => {
     expect(await snapshot(turn.turnRequestId)).toMatchObject({
       status: "uncertain",
       state: "retained",
+      chargedMicrocents: 6_500_000,
+      reservedMicrocents: 6_500_000,
       chargedCredits: 7,
       reservedCredits: 7,
       terminalAt: expect.any(Date),
@@ -267,7 +273,8 @@ describeDatabase("interrupted agent attempts against PostgreSQL", () => {
       [assistantMessageId, turn.turnRequestId],
     );
     await client.query(
-      `UPDATE "AgentUsageEvent" SET state = 'settled', "chargedCredits" = 2, "costSource" = 'measured',
+      `UPDATE "AgentUsageEvent" SET state = 'settled', "chargedCredits" = 2, "chargedMicrocents" = 1500000,
+       "costSource" = 'measured',
        "settledAt" = CURRENT_TIMESTAMP WHERE "turnRequestId" = $1`,
       [turn.turnRequestId],
     );

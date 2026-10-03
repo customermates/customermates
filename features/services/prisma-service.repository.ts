@@ -2,14 +2,14 @@ import type { CustomColumnDto } from "@/features/custom-column/custom-column.sch
 import type { RepoArgs } from "@/core/utils/types";
 import type { GetWidgetFilterableFieldsServiceRepo } from "../widget/get-widget-filterable-fields.interactor";
 import type { GetCompanyWideServiceRepo } from "./get-company-wide-service.repo";
-import type { GetServicesRepo } from "./get/get-services.interactor";
+import type { GetServicesRepo } from "@/features/services/get/get-services.repo";
 import type { GetConfigurationRepo } from "@/core/base/base-get-configuration.interactor";
 import type { GetServiceByIdRepo } from "./get/get-service-by-id.interactor";
 import type { CreateServiceRepo } from "./upsert/create-service.repo";
 import type { UpdateServiceRepo } from "./upsert/update-service.repo";
 import type { DeleteServiceRepo } from "./delete/delete-service.repo";
 import type { FindServicesByIdsRepo } from "./find-services-by-ids.repo";
-import type { ModifyRelationServiceRepo } from "@/features/relations/modify-entity-relation.interactor";
+import type { ModifyRelationServiceRepo } from "@/features/relations/modify-relation-service.repo";
 
 import { EntityType, Resource } from "@/generated/prisma";
 

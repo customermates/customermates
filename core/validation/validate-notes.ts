@@ -7,7 +7,7 @@ import { editorSchema } from "@/components/editor/editor-extensions";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 const MAX_JSON_SIZE = 262_144;
-const MAX_NOTES_LENGTH = 65_535;
+export const MAX_NOTES_LENGTH = 65_535;
 
 function detectNotesFormat(input: string | object): "json" | "markdown" {
   if (typeof input === "object") return "json";

@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { slugifyHeading } from "@/features/mcp-tools/docs-retrieval";
+import { slugifyHeading } from "@/core/utils/search-text";
 import { CONTENT_LOCALES, DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
 import { REPO_ROOT } from "./walk";

@@ -22,6 +22,7 @@ function defaultRolePermissions() {
     api: { canManage: "no", readAccess: "none" },
     tasks: { canManage: "no", readAccess: "own" },
     inboxMessages: { canManage: "no", readAccess: "none" },
+    wiki: { canManage: "no", readAccess: "all" },
     auditLog: { readAccess: "none" },
     routines: { canManage: "no", readAccess: "own" },
   } as const;
@@ -128,6 +129,7 @@ export class RoleModalStore extends BaseModalStore<UpsertRoleData> {
       api: { canManage: "no", readAccess: "none" },
       tasks: { canManage: "no", readAccess: "none" },
       inboxMessages: { canManage: "no", readAccess: "none" },
+      wiki: { canManage: "no", readAccess: "none" },
       auditLog: { readAccess: "none" },
       routines: { canManage: "no", readAccess: "none" },
     };
@@ -159,6 +161,7 @@ export class RoleModalStore extends BaseModalStore<UpsertRoleData> {
           else if (permission.action === Action.readOwn && resource.readAccess === "none") resource.readAccess = "own";
         }
       });
+      if (permissions.wiki.canManage === "yes") permissions.wiki.readAccess = "all";
     }
 
     this.onInitOrRefresh({
@@ -190,4 +193,8 @@ export class RoleModalStore extends BaseModalStore<UpsertRoleData> {
       this.setIsLoading(false);
     }
   };
+
+  protected override afterChange(id: string, value: unknown): void {
+    if (id === "permissions.wiki.canManage" && value === "yes") this.form.permissions.wiki.readAccess = "all";
+  }
 }

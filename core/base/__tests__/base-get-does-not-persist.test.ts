@@ -1,21 +1,18 @@
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import { StubRepo } from "./fixtures/base-get-does-not-persist-stub-repo";
+import { ProbeInteractor } from "./fixtures/base-get-does-not-persist-probe-interactor";
+
 import type { DataViewStateRepo, SurfaceViewState } from "@/core/data-view/data-view-state.repo";
 import type { DataViewChipDto, DataViewState } from "@/core/data-view/data-view-state.schema";
-import type { Filter, FilterableField, GetQueryParams, SortDescriptor } from "../base-get.schema";
+import type { Filter, GetQueryParams } from "../base-get.schema";
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { EntityType, Prisma } from "@/generated/prisma";
-
-import { BaseGetInteractor, BaseGetRepo } from "../base-get.interactor";
 import { DataViewResultFields } from "../base-get.schema";
 import { FilterOperatorKey, ViewMode } from "../base-query-builder";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
-
-type Item = { id: string };
 
 const A_VIEW_ID = "6b2f4e10-7c3a-4d51-9f28-1a2b3c4d5e6f";
 
@@ -32,58 +29,6 @@ function viewStateRepoRecordingEveryTouchedMember(surface: SurfaceViewState) {
   });
 
   return { repo, touched };
-}
-
-class StubRepo extends BaseGetRepo<Item> {
-  itemCalls: GetQueryParams[] = [];
-
-  getItems(params: GetQueryParams): Promise<Item[]> {
-    this.itemCalls.push(params);
-    return Promise.resolve([{ id: "one" }]);
-  }
-
-  getCount(): Promise<number> {
-    return Promise.resolve(1);
-  }
-
-  getSortableFields() {
-    return [
-      { field: "createdAt", resolvedFields: ["createdAt"] },
-      { field: "name", resolvedFields: ["name"] },
-    ];
-  }
-
-  getSearchableFields() {
-    return [];
-  }
-
-  getFilterableFields(): Promise<FilterableField[]> {
-    return Promise.resolve([{ field: "firstName", operators: [FilterOperatorKey.contains] }]);
-  }
-
-  getCustomColumns(): Promise<CustomColumnDto[]> {
-    return Promise.resolve([]);
-  }
-
-  validateFilters({ filters }: { filters: Filter[] | undefined }): Filter[] {
-    return filters ?? [];
-  }
-
-  validateSortDescriptor({ sortDescriptor }: { sortDescriptor: SortDescriptor | undefined }) {
-    return sortDescriptor;
-  }
-
-  sumNumericFields<F extends string>(): Promise<Partial<Record<F, number | null>>> {
-    return Promise.resolve({} as Partial<Record<F, number | null>>);
-  }
-}
-
-class ProbeInteractor extends BaseGetInteractor<Item> {
-  constructor(viewStateRepo: DataViewStateRepo, repo: StubRepo) {
-    super(repo, viewStateRepo, "interactive", EntityType.contact, {
-      sortDescriptor: { field: "createdAt", direction: Prisma.SortOrder.desc },
-    });
-  }
 }
 
 const storedFilters: Filter[] = [{ field: "firstName", operator: FilterOperatorKey.contains, value: "ada" }];

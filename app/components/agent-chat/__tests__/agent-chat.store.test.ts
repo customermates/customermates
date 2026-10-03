@@ -56,6 +56,7 @@ const CONFIG = {
     services: false,
     tasks: false,
     routines: false,
+    wiki: false,
     widgets: false,
     connectedAccounts: false,
   },
@@ -470,6 +471,19 @@ describe("AgentChatStore", () => {
     expect(store.composerDraft).toBe("Help me create my first contact.");
     expect(store.items).toEqual([]);
     expect([...stored.values()]).toEqual(["true"]);
+  });
+
+  it("leaves history for the already-running selected conversation", async () => {
+    const conversationId = "00000000-0000-4000-8000-000000000001";
+    const store = new AgentChatStore(root() as never);
+    store.conversationId = conversationId;
+    store.isWorking = true;
+    store.isHistoryOpen = true;
+
+    await store.selectConversation(conversationId);
+
+    expect(store.isHistoryOpen).toBe(false);
+    expect(actionsMock.getAgentConversationAction).not.toHaveBeenCalled();
   });
 
   it("deduplicates composer contexts, replaces the selected data view, and enforces the limit", () => {
@@ -3701,11 +3715,11 @@ describe("AgentChatStore", () => {
     await vi.advanceTimersByTimeAsync(1);
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(store.queuedPrompt).toBe("Queue this while the first turn reconciles");
-    await vi.advanceTimersByTimeAsync(5000);
+    await vi.advanceTimersByTimeAsync(5250);
     for (let attempt = 0; attempt < 10 && (fetchMock.mock.calls.length < 4 || store.isWorking); attempt += 1)
       await vi.advanceTimersByTimeAsync(1);
 
-    expect(actionsMock.getAgentConversationAction).toHaveBeenCalledOnce();
+    expect(actionsMock.getAgentConversationAction).toHaveBeenCalledTimes(2);
     expect(fetchMock).toHaveBeenCalledTimes(4);
     expect(String(fetchMock.mock.calls[1]?.[0])).toContain(`/api/agent/conversations/${conversationId}/stream`);
     expect(JSON.parse(String(fetchMock.mock.calls[2]?.[1]?.body))).toMatchObject({
@@ -3925,6 +3939,32 @@ describe("AgentChatStore", () => {
         item.kind === "activity" && item.providerCallId === "invalid-view-write",
     );
     expect(invalid?.activity.viewHref).toBeUndefined();
+  });
+
+  it("keeps bounded result context in the live transcript without replacing an input target", () => {
+    const store = new AgentChatStore(root() as never);
+    const { handleEvent } = store as unknown as { handleEvent: (event: Record<string, unknown>) => void };
+    let seq = 0;
+    for (const [id, context, resultContext, isError] of [
+      ["source", undefined, { labels: ["About us"] }, false],
+      ["query", { labels: ["Voice"] }, { labels: ["Voice and tone"] }, false],
+      ["invalid", undefined, { labels: ["a", "b", "c", "d"] }, false],
+      ["failed", undefined, { labels: ["False success"] }, true],
+    ] as const) {
+      handleEvent({
+        seq: seq++,
+        type: "activity",
+        id,
+        activity: { kind: "web.review", risk: "read", affectedResources: [], ...(context ? { context } : {}) },
+      });
+      handleEvent({ seq: seq++, type: "activity_result", id, isError, context: resultContext });
+    }
+    expect(store.items.filter((item) => item.kind === "activity").map((item) => item.activity.context)).toEqual([
+      { labels: ["About us"] },
+      { labels: ["Voice"] },
+      undefined,
+      undefined,
+    ]);
   });
 
   it("requests one route refresh after successful mutations even without mapped resources", () => {
@@ -4185,16 +4225,22 @@ describe("AgentChatStore", () => {
   it("completes a soft route refresh without clearing a newer queued refresh", () => {
     const store = new AgentChatStore(root() as never);
 
+    runInAction(() => {
+      store.streamStatus = "finalizing";
+    });
     store.markRouteSyncRefreshing();
     store.markRouteSyncComplete();
     expect(store.routeSyncStatus).toBe("idle");
+    expect(store.streamStatus).toBe("idle");
 
     store.markRouteSyncRefreshing();
     runInAction(() => {
       store.routeSyncStatus = "queued";
+      store.streamStatus = "finalizing";
     });
     store.markRouteSyncComplete();
     expect(store.routeSyncStatus).toBe("queued");
+    expect(store.streamStatus).toBe("finalizing");
   });
 
   it("reconnects an active durable stream from the next confirmed sequence", async () => {
@@ -4284,6 +4330,52 @@ describe("AgentChatStore", () => {
     fetchMock.mockRestore();
   });
 
+  it.each(["failed", "hung"])("recovers a committed answer after the first canonical request %s", async (failure) => {
+    vi.useFakeTimers();
+    const conversationId = "00000000-0000-4000-8000-000000000071";
+    if (failure === "failed")
+      actionsMock.getAgentConversationAction.mockRejectedValueOnce(new Error("temporary history outage"));
+    else actionsMock.getAgentConversationAction.mockImplementationOnce(() => new Promise(() => undefined));
+    actionsMock.getAgentConversationAction.mockResolvedValueOnce({
+      activeTurn: false,
+      messages: [
+        {
+          id: "saved-terminal-answer",
+          role: "assistant",
+          parts: [{ type: "text", text: "The saved answer survived the history outage." }],
+        },
+      ],
+      nextCursor: null,
+    });
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(
+        new Response(
+          `data: ${JSON.stringify({ seq: 0, type: "turn_done", assistantMessageId: "saved-terminal-answer", isError: false, terminalCode: "completed", affectedResources: [] })}\n\n`,
+          { headers: { "content-type": "text/event-stream", "x-conversation-id": conversationId } },
+        ),
+      );
+    const store = new AgentChatStore(root() as never);
+    const sending = store.sendMessage("Recover the committed answer");
+    await vi.advanceTimersByTimeAsync(5250);
+    await sending;
+    expect(actionsMock.getAgentConversationAction).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenCalledOnce();
+    expect(store.items).toContainEqual(
+      expect.objectContaining({
+        kind: "assistant",
+        messageId: "saved-terminal-answer",
+        text: "The saved answer survived the history outage.",
+        streaming: false,
+      }),
+    );
+    expect(store.items).not.toContainEqual(expect.objectContaining({ kind: "turn_error" }));
+    expect(store.hasInSessionTerminalResult).toBe(true);
+    expect(store.isWorking).toBe(false);
+    expect(vi.getTimerCount()).toBe(0);
+    fetchMock.mockRestore();
+  });
+
   it("retries a reattached canonical timeout with the client request id rather than the persisted user id", async () => {
     vi.useFakeTimers();
     const conversationId = "00000000-0000-4000-8000-00000000005d";
@@ -4308,6 +4400,7 @@ describe("AgentChatStore", () => {
         ],
         nextCursor: null,
       })
+      .mockImplementationOnce(() => new Promise(() => undefined))
       .mockImplementationOnce(() => new Promise(() => undefined));
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
@@ -4356,7 +4449,7 @@ describe("AgentChatStore", () => {
     const store = new AgentChatStore(root() as never);
 
     await store.selectConversationForEmbeddedViewer(conversationId);
-    await vi.advanceTimersByTimeAsync(5000);
+    await vi.advanceTimersByTimeAsync(10_250);
     for (let attempt = 0; attempt < 10 && store.isWorking; attempt += 1) await vi.advanceTimersByTimeAsync(1);
 
     const turnError = store.items.findLast(
@@ -4385,11 +4478,13 @@ describe("AgentChatStore", () => {
     fetchMock.mockRestore();
   });
 
-  it("shows a recoverable turn error after the one canonical reconciliation request exhausts", async () => {
+  it("shows a recoverable turn error after bounded canonical reconciliation requests exhaust", async () => {
     vi.useFakeTimers();
     const conversationId = "00000000-0000-4000-8000-00000000005a";
     const clientRequestId = "00000000-0000-4000-8000-00000000005b";
-    actionsMock.getAgentConversationAction.mockImplementationOnce(() => new Promise(() => undefined));
+    actionsMock.getAgentConversationAction
+      .mockImplementationOnce(() => new Promise(() => undefined))
+      .mockImplementationOnce(() => new Promise(() => undefined));
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
       .mockResolvedValueOnce(
@@ -4454,10 +4549,10 @@ describe("AgentChatStore", () => {
       messageId: clientRequestId,
       pageRoute: "/en/contacts",
     });
-    await vi.advanceTimersByTimeAsync(5000);
+    await vi.advanceTimersByTimeAsync(10_250);
     await sending;
 
-    expect(actionsMock.getAgentConversationAction).toHaveBeenCalledOnce();
+    expect(actionsMock.getAgentConversationAction).toHaveBeenCalledTimes(2);
     expect(store.items).toContainEqual(
       expect.objectContaining({
         kind: "turn_error",
@@ -6229,6 +6324,14 @@ describe("AgentChatStore", () => {
   });
 });
 
+class FakeHTMLElement {
+  isConnected = true;
+  marker = true;
+  scrollIntoView = vi.fn();
+  constructor(private readonly rects = 1) {}
+  getClientRects = () => Array.from({ length: this.rects });
+}
+
 describe("AgentUiControlStore", () => {
   afterEach(() => {
     vi.useRealTimers();
@@ -6240,11 +6343,6 @@ describe("AgentUiControlStore", () => {
   }
 
   it("self-navigates the connected-account walkthrough and reaches its connect control", async () => {
-    class FakeHTMLElement {
-      isConnected = true;
-      getClientRects = () => [{}];
-      scrollIntoView = vi.fn();
-    }
     const elements = new Map([
       ["nav-profile-connected-accounts", new FakeHTMLElement()],
       ["profile-connected-accounts-connect", new FakeHTMLElement()],
@@ -6289,11 +6387,7 @@ describe("AgentUiControlStore", () => {
 
   it("searches backward past unavailable tour targets", async () => {
     vi.useFakeTimers();
-    class FakeHTMLElement {
-      isConnected = true;
-      getClientRects = () => [{}];
-      scrollIntoView = vi.fn();
-    }
+
     const elements = new Map([
       ["nav-contacts", new FakeHTMLElement()],
       ["contacts-search", new FakeHTMLElement()],
@@ -6341,12 +6435,7 @@ describe("AgentUiControlStore", () => {
 
   it("reports a guided-tour failure when none of its allowed targets exist", async () => {
     vi.useFakeTimers();
-    vi.stubGlobal(
-      "HTMLElement",
-      class FakeHTMLElement {
-        marker = true;
-      },
-    );
+    vi.stubGlobal("HTMLElement", FakeHTMLElement);
     vi.stubGlobal("document", {
       activeElement: null,
       getElementById: vi.fn().mockReturnValue(null),
@@ -6383,12 +6472,7 @@ describe("AgentUiControlStore", () => {
 
   it("does not resurrect a tour ended during an awaited navigation", async () => {
     let resolveNavigation!: (value: "navigated") => void;
-    vi.stubGlobal(
-      "HTMLElement",
-      class FakeHTMLElement {
-        marker = true;
-      },
-    );
+    vi.stubGlobal("HTMLElement", FakeHTMLElement);
     vi.stubGlobal("document", {
       activeElement: null,
       getElementById: vi.fn().mockReturnValue(null),
@@ -6422,11 +6506,7 @@ describe("AgentUiControlStore", () => {
 
   it("waits for a cross-page stop to render instead of skipping it and ending the tour", async () => {
     vi.useFakeTimers();
-    class FakeHTMLElement {
-      isConnected = true;
-      getClientRects = () => [{}];
-      scrollIntoView = vi.fn();
-    }
+
     const rendered = new Set(["company-subscription-refresh"]);
     const elements = new Map(
       ["company-subscription-refresh", "company-members-add", "company-roles-add"].map((id) => [
@@ -6474,11 +6554,7 @@ describe("AgentUiControlStore", () => {
 
   it("skips a tour stop on a page the role cannot open without navigating there", async () => {
     vi.useFakeTimers();
-    class FakeHTMLElement {
-      isConnected = true;
-      getClientRects = () => [{}];
-      scrollIntoView = vi.fn();
-    }
+
     const elements = new Map([
       ["nav-dashboard", new FakeHTMLElement()],
       ["company-members-add", new FakeHTMLElement()],
@@ -6513,12 +6589,7 @@ describe("AgentUiControlStore", () => {
 
   it("skips a tour stop that is mounted but has no layout", async () => {
     vi.useFakeTimers();
-    class FakeHTMLElement {
-      isConnected = true;
-      constructor(private readonly rects: number) {}
-      getClientRects = () => Array.from({ length: this.rects });
-      scrollIntoView = vi.fn();
-    }
+
     const elements = new Map([
       ["nav-profile-connected-accounts", new FakeHTMLElement(1)],
       ["connected-account-signature", new FakeHTMLElement(0)],

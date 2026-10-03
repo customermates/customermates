@@ -125,6 +125,8 @@ Die Wahl eines Eintrags leitet den aktuellen Browser-Tab auf eine sichere Verbin
 - **Konto bereits verbunden**: Dieses Konto ist bereits von einem Mitglied Ihres Workspace verbunden. Ist das jemand anderes, bitten Sie die Person, es mit dem Workspace zu teilen, statt es doppelt zu verbinden.
 - **Ungültige Anmeldedaten**, **Link abgelaufen**, **Verifizierung fehlgeschlagen**, **Konto getrennt** oder **Kanalverbindung fehlgeschlagen**: Beginnen Sie erneut mit **Kanal verbinden**.
 
+Ein Fehler beim ersten Verbinden wird über **Kanal verbinden** erneut versucht; beim **Fehler**-Status eines vorhandenen Kanals nutzt der Besitzer **Reaktivieren**.
+
 **Link:** `/profile/connected-accounts`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-connected-accounts`, danach `highlight_element` mit `profile-connected-accounts-connect`; die neun Menüeinträge haben keine Id, deshalb nennt Mate sie beim Namen.
 
 ### Wie viele Kanäle kann ich verbinden? [#how-many-channels-can-i-connect]
@@ -188,7 +190,7 @@ Solange **Signatur hinzufügen** eingeschaltet ist, wird die gespeicherte Signat
 
 ### Wie reaktiviere, synchronisiere oder trenne ich einen Kanal? [#how-do-i-reactivate-resync-or-disconnect-a-channel]
 
-Öffnen Sie den Kanal über seine Karte. Die Aktionen liegen im Kanal-Dialog und erscheinen nur für den Besitzer:
+Öffnen Sie eine vorhandene Kanal-Karte; nur der Besitzer sieht **Reaktivieren** und die anderen Aktionen. Scheitert das erste Verbinden, versuchen Sie **Kanal verbinden** erneut:
 
 - **Reaktivieren** (bei **Erneute Verbindung nötig**, **Berechtigungsproblem**, **Fehler** oder **Gestoppt**): leitet den Tab auf die Verbindungsseite für dasselbe Konto um (30 Minuten gültig) und bringt Sie zurück zu **Kanäle**.
 - **Neu synchronisieren** (bei **Verbunden** oder **Wird verbunden**): importiert den Verlauf im Hintergrund erneut, was meist 1 bis 3 Minuten dauert.

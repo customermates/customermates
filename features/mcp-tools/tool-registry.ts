@@ -13,6 +13,7 @@ import { manageWebhooksTool } from "@/features/mcp-tools/webhook.mcp-tools";
 import { manageWidgetsTool } from "@/features/mcp-tools/widget.mcp-tools";
 import { manageRoutinesTool } from "@/features/mcp-tools/routine.mcp-tools";
 import { requestSupportTool } from "@/features/mcp-tools/support.mcp-tools";
+import { manageWikiPagesTool } from "@/features/mcp-tools/wiki.mcp-tools";
 import {
   deleteRecordsTool,
   getRecordSchemaTool,
@@ -71,6 +72,7 @@ export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
   ],
   workspace: [getWorkspaceContextTool, listUsersTool],
   views: [manageDataViewsTool],
+  wiki: [manageWikiPagesTool],
   messaging: [
     getMessagingThreadsTool,
     getActivitiesTool,

@@ -7,7 +7,7 @@ import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 import { calendarEventAccessWhere } from "@/ee/messaging/messaging-access";
 import type { CalendarAttendee, CalendarEventDto } from "./calendar.schema";
-import type { GetCalendarEventsRepo } from "./get-calendar-events.interactor";
+import type { GetCalendarEventsRepo } from "@/ee/calendar/get-calendar-events.repo";
 import type { GetCalendarEventByIdRepo } from "./get-calendar-event-by-id.interactor";
 
 export class PrismaCalendarEventsRepo

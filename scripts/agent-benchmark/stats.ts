@@ -60,6 +60,14 @@ function binomialTwoSidedP(successes: number, trials: number): number {
   return Math.min(1, 2 * p);
 }
 
+export type McNemarResult = { pairs: number; candidateOnly: number; controlOnly: number; p: number };
+
+export function mcnemarExact(pairs: readonly { control: boolean; candidate: boolean }[]): McNemarResult {
+  const candidateOnly = pairs.filter((pair) => pair.candidate && !pair.control).length;
+  const controlOnly = pairs.filter((pair) => pair.control && !pair.candidate).length;
+  return { pairs: pairs.length, candidateOnly, controlOnly, p: binomialTwoSidedP(candidateOnly, candidateOnly + controlOnly) };
+}
+
 export function comparePaired(candidate: readonly EpisodeOutcome[], control: readonly EpisodeOutcome[]): PairedComparison {
   const candidateRates = caseRates(candidate);
   const controlRates = caseRates(control);

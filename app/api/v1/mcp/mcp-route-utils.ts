@@ -5,7 +5,7 @@ import * as Sentry from "@sentry/nextjs";
 
 import { redactUnexpectedError } from "@/core/errors/redact-unexpected-error";
 import { executeMcpTool, type McpTool } from "@/features/mcp-tools/mcp-tool";
-import { GET_STARTED_PROMPT, MCP_SERVER_INSTRUCTIONS } from "@/features/mcp-tools/server-instructions";
+import { buildMcpServerInstructions, GET_STARTED_PROMPT } from "@/features/mcp-tools/server-instructions";
 import { env } from "@/env";
 
 export type { McpTool, McpToolResult } from "@/features/mcp-tools/mcp-tool";
@@ -54,12 +54,16 @@ function registerAllTools(server: Parameters<Parameters<typeof createMcpHandler>
   }
 }
 
-function registerPrompts(server: Parameters<Parameters<typeof createMcpHandler>[0]>[0]) {
+type McpServer = Parameters<Parameters<typeof createMcpHandler>[0]>[0];
+
+function registerPrompts(server: McpServer, tools: McpTool[]) {
+  const names = new Set(tools.map((tool) => tool.name));
+  if (!names.has("get_workspace_context") || !names.has("get_record_schema")) return;
   server.registerPrompt(
     "get-started",
     {
       title: "Get started",
-      description: "Personalized CRM kickoff: interview the user, then summarize the workspace",
+      description: "Personalized CRM kickoff: read the workspace and Knowledge Base, then ask what to focus on",
     },
     () => ({
       messages: [
@@ -115,6 +119,7 @@ export function createMcpRoute(
   toolGroups: Record<string, McpTool[]>,
   alwaysOn: McpTool[] = [],
   endpoint = "/api/v1/mcp",
+  registerFeatures?: (server: McpServer, tools: McpTool[]) => void,
 ) {
   const knownKeys = Object.keys(toolGroups);
   const handlers = new Map<string, (request: Request) => Promise<Response>>();
@@ -128,9 +133,12 @@ export function createMcpRoute(
     const handler = createMcpHandler(
       (server) => {
         registerAllTools(server, tools);
-        registerPrompts(server);
+        registerPrompts(server, tools);
+        registerFeatures?.(server, tools);
       },
-      { instructions: MCP_SERVER_INSTRUCTIONS },
+      {
+        instructions: buildMcpServerInstructions(tools.map((tool) => tool.name)),
+      },
       { streamableHttpEndpoint: endpoint },
     );
     handlers.set(toolsetKey, handler);

@@ -55,7 +55,7 @@ const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 type ToolResult = { structuredContent?: Record<string, unknown> };
 
 async function run(params: Record<string, unknown>) {
-  const result = await manageRoutinesTool.execute(params as never);
+  const result = await manageRoutinesTool.execute(manageRoutinesTool.inputSchema.parse(params));
   return { text: mcpToolResultText(result), structured: (result as ToolResult).structuredContent ?? {} };
 }
 

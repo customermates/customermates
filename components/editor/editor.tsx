@@ -176,7 +176,7 @@ export function Editor({ data, onChange, readOnly = false }: Props) {
   useEffect(() => {
     if (!editor) return;
     if (editor.isEditable === !readOnly) return;
-    editor.setEditable(!readOnly);
+    editor.setEditable(!readOnly, false);
   }, [editor, readOnly]);
 
   useEffect(() => {

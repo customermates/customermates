@@ -1,3 +1,4 @@
+import { prismaAgentChatRepoDependencies } from "@/tests/helpers/prisma-agent-chat-repo";
 import type { TenantUser } from "@/features/user/user.schema";
 
 import { randomUUID } from "node:crypto";
@@ -920,7 +921,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
       status: "running",
     });
     await runWithTenant(tenant(ownerId), () =>
-      new PrismaAgentChatRepo().createAndLinkRoutineConversationForRun({
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).createAndLinkRoutineConversationForRun({
         routineRunId: admissionRunId,
         conversationId: admissionConversationId,
         title: "Lifecycle routine",
@@ -935,7 +936,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
     const usageId = await insertReservedUsage();
 
     await runWithTenant(tenant(ownerId), () =>
-      new PrismaAgentChatRepo().admitAgentTurnOrThrow({
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).admitAgentTurnOrThrow({
         conversationId: admissionConversationId,
         title: "Lifecycle routine",
         runId: agentRunId,
@@ -983,7 +984,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
       status: "running",
     });
     await runWithTenant(tenant(ownerId), () =>
-      new PrismaAgentChatRepo().createAndLinkRoutineConversationForRun({
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).createAndLinkRoutineConversationForRun({
         routineRunId: admissionRunId,
         conversationId: admissionConversationId,
         title: "Lifecycle routine",
@@ -1000,7 +1001,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
 
     await expect(
       runWithTenant(tenant(ownerId), () =>
-        new PrismaAgentChatRepo().admitAgentTurnOrThrow({
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).admitAgentTurnOrThrow({
           conversationId: admissionConversationId,
           title: "Lifecycle routine",
           runId: agentRunId,
@@ -1051,7 +1052,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
     );
 
     await runWithTenant(tenant(ownerId), () =>
-      new PrismaAgentChatRepo().createAndLinkRoutineConversationForRun({
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).createAndLinkRoutineConversationForRun({
         routineRunId: abandonedRunId,
         conversationId: abandonedConversationId,
         title: "Abandoned before admission",
@@ -1121,7 +1122,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
       status: "running",
     });
     await runWithTenant(tenant(ownerId), () =>
-      new PrismaAgentChatRepo().createAndLinkRoutineConversationForRun({
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).createAndLinkRoutineConversationForRun({
         routineRunId: failedRunId,
         conversationId: failedConversationId,
         title: "Pre-admission failure",
@@ -1171,7 +1172,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
       }),
     );
     await runWithTenant(tenant(ownerId), () =>
-      new PrismaAgentChatRepo().createAndLinkRoutineConversationForRun({
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).createAndLinkRoutineConversationForRun({
         routineRunId: lateRunId,
         conversationId: lateConversationId,
         title: "Late admission",
@@ -1205,7 +1206,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
     );
     const usageId = await insertReservedUsage();
     await runWithTenant(tenant(ownerId), () =>
-      new PrismaAgentChatRepo().admitAgentTurnOrThrow({
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).admitAgentTurnOrThrow({
         conversationId: lateConversationId,
         title: "Late admission",
         runId: agentRunId,

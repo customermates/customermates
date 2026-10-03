@@ -1,3 +1,5 @@
+import { WIKI_READ_SOURCE_TOOL_NAME } from "./tool-identity";
+
 export type GoogleSchemaChangeAction = "collapsed" | "merged" | "removed" | "rewritten";
 
 export type GoogleSchemaChange = {
@@ -117,6 +119,30 @@ function namesEveryValue(description: string, values: readonly unknown[]) {
     const rendered = String(value).replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&");
     return new RegExp(`(^|[^\\w.])${rendered}([^\\w.]|$)`).test(description);
   });
+}
+
+function isStringEnumBranch(node: SchemaNode) {
+  return (
+    node.type === "string" &&
+    Array.isArray(node.enum) &&
+    node.enum.length > 0 &&
+    node.enum.every((value) => typeof value === "string") &&
+    Object.keys(node).every((key) => key === "type" || key === "enum")
+  );
+}
+
+function isBareStringEnumUnion(draft: SchemaNode, members: readonly SchemaNode[]) {
+  return draft.type === undefined && draft.enum === undefined && members.every(isStringEnumBranch);
+}
+
+function repeatsOnlyEnumValue(node: SchemaNode) {
+  return (
+    node.type === "string" &&
+    Array.isArray(node.enum) &&
+    node.enum.length === 1 &&
+    typeof node.title === "string" &&
+    node.title === node.enum[0]
+  );
 }
 
 function typedBranches(values: readonly unknown[]): SchemaNode[] {
@@ -382,7 +408,12 @@ export function googleSafeJsonSchema(document: unknown): GoogleSafeSchemaResult 
       });
 
       delete draft.anyOf;
-      if (members.length > 1) draft.anyOf = members;
+      if (members.length > 1 && !admitsNull && isBareStringEnumUnion(draft, members)) {
+        draft.type = "string";
+        draft.enum = [...new Set(members.flatMap((member) => member.enum as string[]))];
+        const detail = `merged ${members.length} string-enum branches into one enum that admits the same values`;
+        record(pointer, "anyOf", "merged", detail, false);
+      } else if (members.length > 1) draft.anyOf = members;
       else if (members.length === 1) {
         mergeAbsent(draft, members[0], pointer, "anyOf");
         record(pointer, "anyOf", "collapsed", "a union with one remaining branch became that branch", false);
@@ -391,6 +422,10 @@ export function googleSafeJsonSchema(document: unknown): GoogleSafeSchemaResult 
 
     if (rewriteEnum(draft, pointer)) admitsNull = true;
     if (admitsNull) admitNull(draft, pointer);
+    if (repeatsOnlyEnumValue(draft)) {
+      delete draft.title;
+      record(pointer, "title", "removed", "dropped a title that only repeats the single enum value", false);
+    }
 
     for (const key of Object.keys(draft)) {
       if (GOOGLE_SCHEMA_KEYS.has(key)) continue;
@@ -427,10 +462,26 @@ export function googleSafeJsonSchema(document: unknown): GoogleSafeSchemaResult 
   return { schema: rewrite(document, "#"), changes };
 }
 
-export function providerWireInputSchema(document: unknown, servingProvider: string | null | undefined): unknown {
+export function providerWireInputSchema(
+  document: unknown,
+  servingProvider: string | null | undefined,
+  toolName?: string,
+): unknown {
   if (!isGoogleServingProvider(servingProvider)) return document;
 
-  return googleSafeJsonSchema(document).schema;
+  const schema = googleSafeJsonSchema(document).schema;
+  if (toolName === WIKI_READ_SOURCE_TOOL_NAME && isSchemaNode(schema) && isSchemaNode(schema.properties)) {
+    const repairs = schema.properties.reclassifiedOfferings;
+    if (isSchemaNode(repairs)) delete repairs.maxItems;
+    const exclusions = schema.properties.excluded;
+    if (isSchemaNode(exclusions)) delete exclusions.maxItems;
+    const group = schema.properties.topics;
+    if (isSchemaNode(group) && isSchemaNode(group.items) && isSchemaNode(group.items.properties)) {
+      const sourceIds = group.items.properties.sourceIds;
+      if (isSchemaNode(sourceIds)) delete sourceIds.maxItems;
+    }
+  }
+  return schema;
 }
 
 export function summarizeGoogleSchemaChanges(changes: readonly GoogleSchemaChange[]) {

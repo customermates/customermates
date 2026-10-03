@@ -60,18 +60,25 @@ describeDatabase("agent assistant migration", { timeout: 120_000 }, () => {
       );
 
       expect(checks.rows.map((row) => row.conname)).toEqual([
+        "AgentConversation_credit_ceiling_microcents_valid",
         "AgentCreditAdjustment_actor_id_valid",
         "AgentCreditAdjustment_delta_bounded_nonzero",
+        "AgentCreditAdjustment_delta_microcents_bounded",
         "AgentCreditAdjustment_operation_id_valid",
         "AgentCreditAdjustment_period_ordered",
         "AgentCreditAdjustment_reason_valid",
         "AgentTurnRequest_attempt_count_positive",
         "AgentUsageEvent_amounts_nonnegative",
         "AgentUsageEvent_charge_within_reservation",
+        "AgentUsageEvent_microcent_charge_within_reservation",
+        "AgentUsageEvent_microcents_nonnegative",
         "AgentUsageEvent_period_ordered",
         "AgentUsageEvent_released_state_uncharged",
+        "AgentUsageEvent_released_state_uncharged_microcents",
+        "AgentUsageEvent_reserved_state_uncharged_microcents",
         "AgentUsageEvent_reserved_state_unsettled",
         "AgentUsageEvent_terminal_state_settled",
+        "AgentUsageEvent_user_or_workspace_charge",
       ]);
     });
   });
@@ -193,6 +200,7 @@ describeDatabase("agent assistant migration", { timeout: 120_000 }, () => {
       expect(costColumns.rows).toEqual([
         { table_name: "AgentRunRound", data_type: "bigint" },
         { table_name: "AgentUsageEvent", data_type: "bigint" },
+        { table_name: "HostedAiPlatformUsage", data_type: "bigint" },
       ]);
     });
   });

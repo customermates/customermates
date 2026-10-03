@@ -2,14 +2,14 @@ import { describe, expect, it } from "vitest";
 
 import { CONTENT_LOCALES, type ContentLocale } from "@/i18n/locale-registry";
 
-import { getDocsPageRaw, getDocsPageTool, listDocsSlugs } from "../docs.mcp-tools";
+import { getDocsPageRaw, listDocsSlugs, docsPageResult } from "../docs.mcp-tools";
 import { mcpToolResultText, type McpToolResult } from "../mcp-tool";
 
 import { env } from "@/env";
 import { generateOpenApiSpec } from "@/core/openapi/openapi-spec";
 
 function getPage(args: { slug: string; locale?: ContentLocale }) {
-  return mcpToolResultText(getDocsPageTool.execute({ locale: "en", source: "docs", ...args }) as McpToolResult);
+  return mcpToolResultText(docsPageResult({ locale: "en", source: "docs", ...args }) as McpToolResult);
 }
 
 describe("docs pages served to agents", () => {
@@ -46,9 +46,7 @@ describe("docs pages served to agents", () => {
       expect(markdown).not.toContain("<APIPage");
     }
     expect(
-      mcpToolResultText(
-        getDocsPageTool.execute({ slug: "getContactById", locale: "en", source: "api" }) as McpToolResult,
-      ),
+      mcpToolResultText(docsPageResult({ slug: "getContactById", locale: "en", source: "api" }) as McpToolResult),
     ).toContain("**Endpoint:** `GET /api/v1/contacts/{id}`, operationId `getContactById`.");
   });
 
@@ -64,9 +62,7 @@ describe("docs pages served to agents", () => {
     expect(pages.length).toBeGreaterThan(0);
     expect(markers).toEqual([]);
     expect(
-      mcpToolResultText(
-        getDocsPageTool.execute({ slug: "createContact", locale: "en", source: "api" }) as McpToolResult,
-      ),
+      mcpToolResultText(docsPageResult({ slug: "createContact", locale: "en", source: "api" }) as McpToolResult),
     ).toContain("\n> Creates a new contact. First name and last name are required. All other fields are optional.\n");
   });
 

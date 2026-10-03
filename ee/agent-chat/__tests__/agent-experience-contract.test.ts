@@ -40,6 +40,7 @@ const EMPTY_COUNTS = {
   services: false,
   tasks: false,
   routines: false,
+  wiki: false,
   widgets: false,
   connectedAccounts: false,
 };
@@ -54,11 +55,22 @@ describe("agent experience contract", () => {
     expect(agentPageState("contacts", populated)).toBe("data");
     expect(agentPageState("routines", EMPTY_COUNTS)).toBe("empty");
     expect(agentPageState("routines", { ...EMPTY_COUNTS, routines: true })).toBe("data");
+    expect(agentPageState("wiki", EMPTY_COUNTS)).toBe("empty");
+    expect(agentPageState("wiki", { ...EMPTY_COUNTS, wiki: true })).toBe("data");
     expect(agentPageActions("contacts", "data", enT, "en").map((action) => action.id)).not.toEqual(
       agentPageActions("contacts", "empty", enT, "en").map((action) => action.id),
     );
 
-    for (const page of ["dashboard", "tasks", "contacts", "organizations", "deals", "services", "routines"] as const) {
+    for (const page of [
+      "dashboard",
+      "tasks",
+      "contacts",
+      "organizations",
+      "deals",
+      "services",
+      "routines",
+      "wiki",
+    ] as const) {
       for (const state of ["empty", "data"] as const) {
         expect(agentPageActions(page, state, enT, "en")).toHaveLength(3);
         expect(agentPageActions(page, state, deT, "de")).toHaveLength(3);
@@ -147,13 +159,13 @@ describe("agent experience contract", () => {
       contacts: "Kundinnen und Kunden",
     });
 
-    expect(copy.running).toBe("2 Kundinnen und Kunden werden erstellt");
-    expect(copy.done).toBe("2 Kundinnen und Kunden wurden erstellt");
-    expect(JSON.stringify(copy)).not.toContain("Ada");
-    expect(JSON.stringify(copy)).not.toContain("Grace");
+    expect(copy.running).toBe("2 Kundinnen und Kunden werden erstellt · Ada, Grace");
+    expect(copy.done).toBe("2 Kundinnen und Kunden wurden erstellt · Ada, Grace");
+    expect(copy.running).toContain("Ada, Grace");
+    expect(copy.done).toContain("Ada, Grace");
   });
 
-  it("shows safe create and update counts without retaining record details", () => {
+  it("shows counts and record names without retaining IDs or other record details", () => {
     const created = describeInternalTool("create_contacts", {
       contacts: [
         {
@@ -177,11 +189,35 @@ describe("agent experience contract", () => {
       resource: "deals",
       count: 1,
     });
-    expect(agentActivityCopy(created, enT).running).toBe("Creating 2 contacts");
-    expect(agentActivityCopy(created, deT).done).toBe("2 Kontakte wurden erstellt");
-    expect(agentActivityCopy(updated, enT).done).toBe("Updated 1 deal");
-    expect(agentActivityCopy(updated, deT).running).toBe("1 Deal wird aktualisiert");
-    expect(JSON.stringify([created, updated])).not.toMatch(/Ada|Grace|Private project|never-show|00000000/);
+    expect(agentActivityCopy(created, enT).running).toBe("Creating 2 contacts · Ada, Grace");
+    expect(agentActivityCopy(created, deT).done).toBe("2 Kontakte wurden erstellt · Ada, Grace");
+    expect(agentActivityCopy(updated, enT).done).toBe("Updated 1 deal · Private project");
+    expect(agentActivityCopy(updated, deT).running).toBe("1 Deal wird aktualisiert · Private project");
+    expect(JSON.stringify([created, updated])).not.toMatch(/never-show|00000000/);
+  });
+
+  it("explains Wiki creation with task-specific progress", () => {
+    const wikiCreate = describeInternalTool("manage_wiki_pages", {
+      action: "create",
+      pages: Array.from({ length: 5 }, (_, index) => ({
+        title: `Private page ${index + 1}`,
+      })),
+    });
+
+    expect(wikiCreate).toMatchObject({
+      kind: "records.create",
+      resource: "wiki",
+      count: 5,
+      risk: "write",
+      affectedResources: ["wiki"],
+    });
+    expect(agentActivityCopy(wikiCreate, enT).running).toBe(
+      "Creating 5 Knowledge Base pages · Private page 1, Private page 2, Private page 3 (+2)",
+    );
+    expect(wikiCreate.context).toEqual({
+      labels: ["Private page 1", "Private page 2", "Private page 3"],
+      additionalCount: 2,
+    });
   });
 
   it("keeps no input-derived data on a navigate or highlight activity", () => {
@@ -221,41 +257,46 @@ describe("agent experience contract", () => {
     ] as const;
     const activities = tools.map(([toolName, kind]) => {
       const activity = describeInternalTool(toolName, {
-        query: "private-workspace-value",
+        query: "webhook signatures",
         page: "private-page-slug",
       });
-      expect(activity).toEqual({ kind, affectedResources: [], risk: "read" });
+      expect(activity).toEqual({
+        kind,
+        affectedResources: [],
+        risk: "read",
+        ...(toolName === "search_docs" ? { context: { labels: ["webhook signatures"] } } : {}),
+      });
       expect(JSON.stringify(activity)).not.toContain("private");
       return activity;
     });
     const expectedDoneLabels = {
       de: [
         "Workspace-Details wurden geprüft",
-        "Dokumentation wurde durchsucht",
+        "Dokumentation wurde durchsucht · webhook signatures",
         "Passende Anleitung wurde gelesen",
         "Verfügbare Steuerelemente wurden geprüft",
       ],
       en: [
         "Checked workspace details",
-        "Searched the documentation",
+        "Searched the documentation · webhook signatures",
         "Read the relevant guide",
         "Checked available controls",
       ],
       es: [
         "Detalles del espacio de trabajo revisados",
-        "Documentación consultada",
+        "Documentación consultada · webhook signatures",
         "Guía correspondiente consultada",
         "Controles disponibles revisados",
       ],
       fr: [
         "Informations de l’espace de travail vérifiées",
-        "Documentation consultée",
+        "Documentation consultée · webhook signatures",
         "Guide correspondant consulté",
         "Éléments d’interface disponibles vérifiés",
       ],
       it: [
         "Dettagli dell’area di lavoro controllati",
-        "Documentazione consultata",
+        "Documentazione consultata · webhook signatures",
         "Guida pertinente consultata",
         "Comandi disponibili controllati",
       ],
@@ -285,7 +326,12 @@ describe("agent experience contract", () => {
       ],
       [
         "manage_custom_columns",
-        { action: "upsert", intent: "update", id: privateId, label: "Private field" },
+        {
+          action: "upsert",
+          intent: "update",
+          id: privateId,
+          label: "Private field",
+        },
         "customFields.update",
       ],
       ["manage_custom_columns", { action: "delete", id: privateId }, "customFields.delete"],
@@ -313,12 +359,12 @@ describe("agent experience contract", () => {
     const expectedDoneLabels = {
       de: [
         "Benutzerdefinierte Felder wurden geprüft",
-        "Benutzerdefiniertes Feld wurde erstellt",
-        "Benutzerdefiniertes Feld wurde aktualisiert",
+        "Benutzerdefiniertes Feld wurde erstellt · Private field",
+        "Benutzerdefiniertes Feld wurde aktualisiert · Private field",
         "Benutzerdefiniertes Feld wurde entfernt",
         "Dashboard-Widgets wurden geprüft",
-        "Dashboard-Widget wurde erstellt",
-        "Dashboard-Widget wurde aktualisiert",
+        "Dashboard-Widget wurde erstellt · Private widget",
+        "Dashboard-Widget wurde aktualisiert · Private widget",
         "Dashboard-Widget wurde entfernt",
         "Workspace-Bezeichnungen wurden aktualisiert",
         "Workspace-Einstellungen wurden aktualisiert",
@@ -326,12 +372,12 @@ describe("agent experience contract", () => {
       ],
       en: [
         "Reviewed custom fields",
-        "Created a custom field",
-        "Updated a custom field",
+        "Created a custom field · Private field",
+        "Updated a custom field · Private field",
         "Removed a custom field",
         "Reviewed dashboard widgets",
-        "Created a dashboard widget",
-        "Updated a dashboard widget",
+        "Created a dashboard widget · Private widget",
+        "Updated a dashboard widget · Private widget",
         "Removed a dashboard widget",
         "Updated workspace terminology",
         "Updated workspace settings",
@@ -339,12 +385,12 @@ describe("agent experience contract", () => {
       ],
       es: [
         "Campos personalizados revisados",
-        "Campo personalizado creado",
-        "Campo personalizado actualizado",
+        "Campo personalizado creado · Private field",
+        "Campo personalizado actualizado · Private field",
         "Campo personalizado eliminado",
         "Widgets del panel revisados",
-        "Widget del panel creado",
-        "Widget del panel actualizado",
+        "Widget del panel creado · Private widget",
+        "Widget del panel actualizado · Private widget",
         "Widget del panel eliminado",
         "Terminología del espacio de trabajo actualizada",
         "Configuración del espacio de trabajo actualizada",
@@ -352,12 +398,12 @@ describe("agent experience contract", () => {
       ],
       fr: [
         "Champs personnalisés vérifiés",
-        "Champ personnalisé créé",
-        "Champ personnalisé mis à jour",
+        "Champ personnalisé créé · Private field",
+        "Champ personnalisé mis à jour · Private field",
         "Champ personnalisé supprimé",
         "Widgets du tableau de bord vérifiés",
-        "Widget du tableau de bord créé",
-        "Widget du tableau de bord mis à jour",
+        "Widget du tableau de bord créé · Private widget",
+        "Widget du tableau de bord mis à jour · Private widget",
         "Widget du tableau de bord supprimé",
         "Terminologie de l’espace de travail mise à jour",
         "Paramètres de l’espace de travail mis à jour",
@@ -365,12 +411,12 @@ describe("agent experience contract", () => {
       ],
       it: [
         "Campi personalizzati controllati",
-        "Campo personalizzato creato",
-        "Campo personalizzato aggiornato",
+        "Campo personalizzato creato · Private field",
+        "Campo personalizzato aggiornato · Private field",
         "Campo personalizzato rimosso",
         "Widget della dashboard controllati",
-        "Widget della dashboard creato",
-        "Widget della dashboard aggiornato",
+        "Widget della dashboard creato · Private widget",
+        "Widget della dashboard aggiornato · Private widget",
         "Widget della dashboard rimosso",
         "Terminologia dell’area di lavoro aggiornata",
         "Impostazioni dell’area di lavoro aggiornate",
@@ -383,7 +429,7 @@ describe("agent experience contract", () => {
       expect(labels).toEqual(expectedDoneLabels[locale]);
       expect(new Set(labels).size).toBe(labels.length);
     }
-    expect(JSON.stringify(activities)).not.toMatch(/00000000|Private|secret/);
+    expect(JSON.stringify(activities)).not.toMatch(/00000000|secret/);
     const ambiguousLegacyActivity = describeInternalTool("manage_custom_columns", {
       action: "upsert",
       intent: "invalid",
@@ -392,7 +438,9 @@ describe("agent experience contract", () => {
     expect(ambiguousLegacyActivity.kind).toBe("customFields.configure");
     expect(agentActivityCopy(ambiguousLegacyActivity, enT).done).toBe("Configured custom fields");
     expect(JSON.stringify(ambiguousLegacyActivity)).not.toContain(privateId);
-    const ambiguousWidgetActivity = describeInternalTool("manage_widgets", { action: "legacy" });
+    const ambiguousWidgetActivity = describeInternalTool("manage_widgets", {
+      action: "legacy",
+    });
     expect(ambiguousWidgetActivity.kind).toBe("widgets.configure");
     expect(agentActivityCopy(ambiguousWidgetActivity, enT).done).toBe("Configured dashboard widgets");
     expect(
@@ -602,7 +650,10 @@ describe("agent experience contract", () => {
       resource: "messages",
       affectedResources: ["messages"],
       risk: "write",
-      consequence: { action: "draft.save", preview: `See [Deal [Q3]](/deals/${dealId})` },
+      consequence: {
+        action: "draft.save",
+        preview: `See [Deal [Q3]](/deals/${dealId})`,
+      },
     });
 
     expect(draft.consequence?.subject).toBe("Next steps for CRM Rollout");

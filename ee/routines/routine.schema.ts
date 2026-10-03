@@ -90,7 +90,7 @@ export const RoutineRunDtoSchema = z.object({
   finishedAt: z.date().nullable(),
   terminalCode: z.enum(AgentTurnTerminalCode).nullable(),
   stopReason: z.enum(AgentTurnStopReason).nullable(),
-  chargedCredits: z.number().int(),
+  chargedCredits: z.number().nonnegative(),
   summary: z.string().nullable(),
   error: z.string().nullable(),
   createdAt: z.date(),
