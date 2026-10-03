@@ -202,6 +202,30 @@ describe("deterministic record calculations", () => {
     });
   });
 
+  it("rounds averages and day differences to the stored decimal scale", async () => {
+    const dateTime = (value: string): CalculationExpression => ({
+      kind: "literal",
+      value: { kind: "dateTime", value },
+    });
+    expect(
+      await evaluateCalculation(
+        operation("daysBetween", dateTime("2026-01-01T00:00:00Z"), dateTime("2026-01-01T01:00:00Z")),
+        ref,
+        empty,
+      ),
+    ).toEqual(decimalResult("0.041666666666666666666666666667"));
+    expect(reduceCalculatedValues("average", [decimalResult("1"), decimalResult("1"), decimalResult("2")])).toEqual(
+      decimalResult("1.333333333333333333333333333333"),
+    );
+    expect(
+      reduceCalculatedValues("average", [
+        decimalResult("2", "EUR"),
+        decimalResult("1", "EUR"),
+        decimalResult("2", "EUR"),
+      ]),
+    ).toEqual(decimalResult("1.666666666666666666666666666667", "EUR"));
+  });
+
   it("rejects lossy stored decimals", () => {
     expect(isRepresentableDecimal("123456789012345678901234567890.12345678901234567890123456789")).toBe(true);
     expect(isRepresentableDecimal("0.0000000000000000000000000000001")).toBe(false);

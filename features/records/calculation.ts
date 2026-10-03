@@ -33,6 +33,14 @@ export function decimalResult(input: Decimal.Value, currency: string | null = nu
   return valueResult({ kind: "decimal", value: decimal.toFixed(), currency });
 }
 
+// Averages and day differences are inherently fractional (1/3, 1/24), so they
+// are rounded half-up to the stored scale. Other arithmetic stays exact and
+// reports out_of_range instead of rounding silently.
+const STORED_DECIMAL_SCALE = 30;
+function roundedResult(input: Decimal, currency: string | null = null): CalculatedValue {
+  return decimalResult(input.toDecimalPlaces(STORED_DECIMAL_SCALE, Decimal.ROUND_HALF_UP), currency);
+}
+
 export function isRepresentableDecimal(input: string): boolean {
   try {
     const decimal = new ExactDecimal(input);
@@ -122,7 +130,7 @@ export function reduceCalculatedValues(
   if (currencies.size > 1) return error("currency_mismatch");
   const currency = currencies.size ? [...currencies][0] : decimals[0].currency;
   const sum = decimals.reduce((total, value) => total.plus(value.value), new ExactDecimal(0));
-  return decimalResult(reducer === "average" ? sum.div(decimals.length) : sum, currency);
+  return reducer === "average" ? roundedResult(sum.div(decimals.length), currency) : decimalResult(sum, currency);
 }
 
 function operate(
@@ -196,7 +204,7 @@ function operate(
     const from = Date.parse(String(scalarValue(a)));
     const until = Date.parse(String(scalarValue(b)));
     if (!Number.isFinite(from) || !Number.isFinite(until)) return error("invalid_date");
-    return decimalResult(new ExactDecimal(until).minus(from).div(86400000));
+    return roundedResult(new ExactDecimal(until).minus(from).div(86400000));
   }
   return error("type_mismatch");
 }
