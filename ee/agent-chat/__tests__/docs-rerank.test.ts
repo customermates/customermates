@@ -860,6 +860,22 @@ describe("channel connection prerequisites in bounded classifier evidence", () =
   it.each([
     {
       locale: "en" as const,
+      query: "Error connecting my Gmail channel",
+      controls: [
+        "existing channel card",
+        "only its owner",
+        "failed initial connection",
+        "Connect channel",
+        "Reactivate",
+      ],
+    },
+    {
+      locale: "de" as const,
+      query: "Fehler beim Verbinden des Gmail-Kanals",
+      controls: ["vorhandene Kanal-Karte", "nur der Besitzer", "erste Verbinden", "Kanal verbinden", "Reaktivieren"],
+    },
+    {
+      locale: "en" as const,
       query: "My initial email connection failed",
       controls: [
         "existing channel card",

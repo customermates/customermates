@@ -331,7 +331,10 @@ export function docsRankEvidence(
       .filter(Boolean)
       .find((text) => ownScope.startsWith(`${text} `));
     if (coveredScope) ownScope = ownScope.slice(coveredScope.length).trim();
-    const scope = ownScope && ownScope.length + 2 + unit.text.length <= room ? ownScope.replace(/[:：]$/u, "") : "";
+    const scope =
+      ownScope && ownScope.length + 2 + Math.min(unit.text.length, Math.ceil(room / 2)) <= room
+        ? ownScope.replace(/[:：]$/u, "")
+        : "";
     const context =
       scope ||
       (unit.context

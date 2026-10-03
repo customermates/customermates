@@ -24,6 +24,15 @@ import {
 } from "./wiki-topic-plan";
 import { wikiReadSourceEvidence } from "./wiki-source-evidence";
 import {
+  WIKI_SOURCE_PLAN_REPAIR_MAX_REFUSALS,
+  wikiSourcePlanRepairMayReset,
+  wikiSourcePlanRepairReadGuard,
+  wikiSourcePlanRepairReadComplete,
+  wikiSourcePlanRepairReadContext,
+  wikiSourcePlanReadOutcome,
+  type WikiSourcePlanRepairReads,
+} from "./wiki-source-plan-repair-reads";
+import {
   prepareWikiSynthesisReview,
   wikiSynthesisReviewDecision,
   parseWikiSynthesisReviewReceipt,
@@ -1301,6 +1310,21 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     const wikiReviewRejections = new Map<string, number>();
     let wikiContinuationPrompt: string | null = null;
     let wikiPlanRepair: WikiSourcePlanRepair | null = null;
+    let wikiPlanRepairReads: WikiSourcePlanRepairReads | null = null;
+    let wikiPlanRepairReadRefusals = 0;
+    const retainWikiPlanRepair = (input: unknown, outcome: unknown) => {
+      const repair = wikiSourcePlanRepair(input, outcome);
+      if (!repair) return;
+      if (wikiSourceInventory && wikiSourcePlanRepairMayReset(wikiPlanRepair, input, wikiSourceInventory)) {
+        wikiPlanRepairReads = null;
+        wikiPlanRepairReadRefusals = 0;
+      }
+      wikiPlanRepair = repair;
+    };
+    const wikiPlanRepairContext = () =>
+      wikiPlanRepair
+        ? `${wikiSourcePlanRepairContext(wikiPlanRepair)} ${wikiSourcePlanRepairReadContext(wikiPlanRepairReads)} Local read refusals: ${wikiPlanRepairReadRefusals}/${WIKI_SOURCE_PLAN_REPAIR_MAX_REFUSALS}.`
+        : "";
     let providerFailure: WorkflowFailure | null = null;
     let budgetStop = false;
     let hostedAiStop = false;
@@ -1308,6 +1332,10 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     let abandoned = false;
     let reservedMicrocents = payload.turnBudget.reservedMicrocents;
     let roundFailure: WorkflowFailure | null = null;
+    const recordWikiPlanRepairReadRefusal = () => {
+      wikiPlanRepairReadRefusals += 1;
+      if (wikiPlanRepairReadRefusals >= WIKI_SOURCE_PLAN_REPAIR_MAX_REFUSALS) providerStop = "turn_error";
+    };
     const settledToolCallIds = new Set<string>();
 
     const recordContinuationRound = (step: AgentRoundResult, outcomes: AgentToolOutcome[]) => {
@@ -1406,7 +1434,16 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       stepMessages: readonly unknown[],
     ) => {
       const prepared = await resolveToolInput(shell.name, toolCallId, input);
-      if (!prepared.ok) return prepared;
+      if (!prepared.ok) {
+        if (
+          wikiSourceInventory &&
+          wikiPlanRepair &&
+          wikiTopicPlanState.topics === null &&
+          shell.name === "read_website_source"
+        )
+          recordWikiPlanRepairReadRefusal();
+        return prepared;
+      }
       const readOnly = isReadOnlyAgentToolCall(shell.name, shell, prepared.input);
       let executionInput = prepared.input;
       if (
@@ -1419,6 +1456,29 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           payload.turnBudget.maxToolResultChars,
           "conflict",
         );
+      }
+      let repairRead: { replayed: boolean } | null = null;
+      if (
+        wikiSourceInventory &&
+        wikiPlanRepair &&
+        wikiTopicPlanState.topics === null &&
+        shell.name === "read_website_source"
+      ) {
+        const remainingSources = await pendingWikiSynthesisSources(payload);
+        const guarded = wikiSourcePlanRepairReadGuard(
+          wikiPlanRepair,
+          wikiPlanRepairReads,
+          executionInput,
+          toolCallId,
+          wikiSourceInventory,
+          remainingSources,
+        );
+        if (!guarded.ok) {
+          recordWikiPlanRepairReadRefusal();
+          return wikiSourcePlanRefusal(guarded.result, payload.turnBudget.maxToolResultChars, "conflict");
+        }
+        wikiPlanRepairReads = guarded.reads;
+        repairRead = { replayed: guarded.replayed };
       }
       if (
         wikiSourceInventory &&
@@ -1434,7 +1494,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
             `Retain these distinct offering candidates or explicitly reclassify each cited source with an exact evidence quote: ${wikiPlanningContext(missing)}. No plan was accepted.`,
             payload.turnBudget.maxToolResultChars,
           );
-          wikiPlanRepair = wikiSourcePlanRepair(executionInput, refusal) ?? wikiPlanRepair;
+          retainWikiPlanRepair(executionInput, refusal);
           return refusal;
         }
       }
@@ -1698,10 +1758,12 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       );
       auxiliaryCharges.push(...executed.classifierCharges);
       retrievalTimings.push(...(executed.retrievalTimings ?? []));
-      const outcome = executed.output;
+      let outcome = executed.output;
       if (wikiSourceInventory && shell.name === "read_website_source") {
-        const repair = wikiSourcePlanRepair(executionInput, outcome);
-        if (repair) wikiPlanRepair = repair;
+        if (repairRead && !repairRead.replayed)
+          wikiPlanRepairReads = wikiSourcePlanRepairReadComplete(wikiPlanRepairReads, executionInput, outcome);
+        retainWikiPlanRepair(executionInput, outcome);
+        outcome = wikiSourcePlanReadOutcome(executionInput, outcome, wikiTopicPlanState.topics !== null);
       }
       if (wikiSourceInventory) {
         const mergedCandidates = wikiMergeOfferingCandidates(
@@ -1713,7 +1775,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
             "Too many unresolved offering candidates for the sixteen-page import. Complete a supported plan or explicitly reclassify candidates with fresh evidence before adding more topics; no plan was accepted.",
             payload.turnBudget.maxToolResultChars,
           );
-          wikiPlanRepair = wikiSourcePlanRepair(executionInput, refusal) ?? wikiPlanRepair;
+          retainWikiPlanRepair(executionInput, refusal);
           return refusal;
         }
         wikiTopicPlanState.candidates = mergedCandidates;
@@ -1734,6 +1796,8 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           const plan = executionInput as ReadWebsiteSourceInput;
           if (plan.action === "plan" && plan.topics) {
             wikiPlanRepair = null;
+            wikiPlanRepairReads = null;
+            wikiPlanRepairReadRefusals = 0;
             wikiTopicPlanState.topics = plan.topics;
             wikiTopicPlanState.candidates = [];
             wikiTopicPlanState.omittedFoundations = plan.omittedFoundations ?? [];
@@ -2074,8 +2138,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
             ]
           : [...compacted.messages];
         if (wikiContinuationPrompt) candidateMessages.push({ role: "user" as const, content: wikiContinuationPrompt });
-        if (wikiPlanRepair)
-          candidateMessages.push({ role: "user" as const, content: wikiSourcePlanRepairContext(wikiPlanRepair) });
+        if (wikiPlanRepair) candidateMessages.push({ role: "user" as const, content: wikiPlanRepairContext() });
         const activeForCandidate = activeToolNamesFor(candidateMessages);
         if (
           !isAgentStepContextWithinBudget(
@@ -2365,9 +2428,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                 role: "user" as const,
                 content: wikiContinuationPrompt,
               },
-              ...(wikiPlanRepair
-                ? [{ role: "user" as const, content: wikiSourcePlanRepairContext(wikiPlanRepair) }]
-                : []),
+              ...(wikiPlanRepair ? [{ role: "user" as const, content: wikiPlanRepairContext() }] : []),
             ];
             continue;
           }
@@ -2390,9 +2451,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
               role: "user" as const,
               content: wikiContinuationPrompt,
             },
-            ...(wikiPlanRepair
-              ? [{ role: "user" as const, content: wikiSourcePlanRepairContext(wikiPlanRepair) }]
-              : []),
+            ...(wikiPlanRepair ? [{ role: "user" as const, content: wikiPlanRepairContext() }] : []),
           ];
           continue;
         }

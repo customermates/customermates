@@ -227,7 +227,7 @@ export class ReadWikiWebsiteSourcesInteractor extends AuthenticatedInteractor<Re
           createdPageLinks,
           remainingSources: coverage.pending.length,
           importedSources: coverage.imported.size,
-          nextAction: coverage.pending.length ? "next" : "get cited sources, then create",
+          nextAction: coverage.pending.length ? "next" : "plan",
           items,
           nextOffset: start + items.length < coverage.sources.length ? start + items.length : null,
         },
@@ -278,7 +278,7 @@ export class ReadWikiWebsiteSourcesInteractor extends AuthenticatedInteractor<Re
         createdPageLinks,
         remainingSources: after.pending.length,
         importedSources: after.imported.size,
-        nextAction: after.pending.length ? "next" : "get cited sources, then create",
+        nextAction: after.pending.length ? "next" : "plan",
         items: chunks,
       },
     };

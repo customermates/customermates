@@ -5418,6 +5418,245 @@ describe("routine browse-or-mutate batch safety", () => {
       expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
     });
 
+    it("preserves a consumed repair group through compaction until a changed complete plan is resubmitted", async () => {
+      preparePlan();
+      const secondSourceId = "00000000-0000-4000-8000-000000000002";
+      const thirdSourceId = "00000000-0000-4000-8000-000000000003";
+      state.synthesisSources.push(
+        { id: secondSourceId, text: "Second exact archival sentence.", contentHash: "second", readOffset: 100 },
+        { id: thirdSourceId, text: "Third exact archival sentence.", contentHash: "third", readOffset: 100 },
+      );
+      const draft = {
+        action: "plan",
+        topics: [topic, ...foundationTopics],
+        excluded: [secondSourceId, thirdSourceId].map((id) => ({
+          sourceIds: [id],
+          basis: "not_substantive",
+          reason: "Archival publication",
+          evidenceQuote: "A paraphrased archival sentence.",
+        })),
+      };
+      const rejection = {
+        ok: false,
+        result: "Copy exact source text for the indexed exclusion, then resubmit the complete plan.",
+        failure: {
+          kind: "validation",
+          issues: [
+            {
+              code: "custom",
+              path: ["excluded", 0, "evidenceQuote"],
+              message: "",
+              customCode: "wikiSourceExclusionEvidenceInvalid",
+            },
+          ],
+        },
+      };
+      let executedPlans = 0;
+      state.execute.mockImplementation(
+        withSourceReads((input: { action?: string }) => {
+          if (input.action === "plan" && ++executedPlans <= 2) {
+            return executedPlans === 1
+              ? rejection
+              : {
+                  ...rejection,
+                  failure: {
+                    ...rejection.failure,
+                    issues: [{ ...rejection.failure.issues[0], path: ["excluded", 1, "evidenceQuote"] }],
+                  },
+                };
+          }
+          return { ok: true, result: "saved" };
+        }),
+      );
+      state.contextFits.mockImplementation(
+        (context: object, messages: unknown, maxBytes: number) =>
+          new TextEncoder().encode(JSON.stringify({ ...context, messages })).byteLength <= maxBytes,
+      );
+      const oversized = "completed:" + "x".repeat(40_000);
+      let runs = 0;
+      state.runTools = async ({ messages, executeAndCompleteTool }) => {
+        if (++runs === 1) {
+          expect(await executeAndCompleteTool("read_website_source", draft, "repair-plan-original")).toEqual(rejection);
+          await readFreshSources(executeAndCompleteTool, [secondSourceId], "repair-second");
+          const before = state.execute.mock.calls.length;
+          expect(
+            await executeAndCompleteTool(
+              "read_website_source",
+              { action: "get", id: thirdSourceId, offset: 0 },
+              "premature-third",
+            ),
+          ).toMatchObject({ ok: false, failure: { kind: "conflict" } });
+          expect(await executeAndCompleteTool("read_website_source", draft, "identical-rejected-plan")).toMatchObject({
+            ok: false,
+            failure: { kind: "conflict" },
+          });
+          expect(state.execute).toHaveBeenCalledTimes(before);
+          return {
+            finishReason: "stop",
+            messages: [...messages, { role: "assistant", content: oversized }],
+            steps: [streamedStep(oversized, "stop")],
+          };
+        }
+        const context = JSON.stringify(messages);
+        expect(context).toContain("Rejected website source-plan repair checkpoint");
+        expect(context).toContain("Server repair-read budget");
+        expect(context).toContain(secondSourceId);
+        expect(context).toContain("Local read refusals: 2/3");
+        expect(context).not.toContain(oversized);
+        const partlyCorrected = {
+          ...draft,
+          excluded: [{ ...draft.excluded[0], evidenceQuote: "Second exact archival sentence." }, draft.excluded[1]],
+        };
+        expect(
+          await executeAndCompleteTool("read_website_source", partlyCorrected, "repair-plan-changed"),
+        ).toMatchObject({ ok: false, failure: { kind: "validation" } });
+        await readFreshSources(executeAndCompleteTool, [thirdSourceId], "repair-third");
+        expect(
+          await executeAndCompleteTool(
+            "read_website_source",
+            {
+              ...partlyCorrected,
+              excluded: [
+                { ...partlyCorrected.excluded[0] },
+                { ...partlyCorrected.excluded[1], evidenceQuote: "Third exact archival sentence." },
+              ],
+            },
+            "repair-plan-accepted",
+          ),
+        ).toMatchObject({ ok: true });
+        expect(
+          await createWithFreshSources(
+            executeAndCompleteTool,
+            { action: "create", pages: [{ ...topic, kind: "knowledge" }] },
+            "repair-offering",
+          ),
+        ).toMatchObject({ ok: true });
+        await createFoundations(executeAndCompleteTool);
+        return finish();
+      };
+      await runAgentTurn({ ...setupPayload, turnBudget: { ...payload.turnBudget, maxContextBytes: 32_000 } });
+      expect(runs).toBe(2);
+      expect(executedPlans).toBe(3);
+      expect(state.semanticReview).toHaveBeenCalled();
+      expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
+    });
+
+    it("stops repeated no-op repair reads before another provider request without losing completed-round cost", async () => {
+      preparePlan();
+      const draft = { ...foundationPlan, topics: [topic, ...foundationTopics] };
+      state.execute.mockImplementation(
+        withSourceReads((input: { action?: string }) =>
+          input.action === "plan"
+            ? {
+                ok: false,
+                result: "The retained complete plan still requires correction.",
+                failure: {
+                  kind: "validation",
+                  issues: [{ code: "custom", path: ["topics"], message: "", customCode: "wikiSourcePlanIncomplete" }],
+                },
+              }
+            : { ok: true, result: "saved" },
+        ),
+      );
+      state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {
+        expect(await executeAndCompleteTool("read_website_source", draft, "bounded-rejection")).toMatchObject({
+          ok: false,
+        });
+        await readFreshSources(executeAndCompleteTool, [planSourceId], "bounded-first-read");
+        const before = state.execute.mock.calls.length;
+        for (const [index, request] of [
+          { ...draft },
+          { action: "get", id: planSourceId, offset: 0 },
+          { action: "next" },
+        ].entries()) {
+          expect(
+            await executeAndCompleteTool("read_website_source", request, `bounded-refusal-${index}`),
+          ).toMatchObject({ ok: false, failure: { kind: "conflict" } });
+        }
+        expect(state.execute).toHaveBeenCalledTimes(before);
+        await completeStepAndPrepareNext(streamedStep("Repair plan not resubmitted.", "tool-calls"));
+        throw new Error("A new provider round must not be admitted after the third local refusal.");
+      };
+      await runAgentTurn(setupPayload);
+      expect(state.providerCalls).toBe(1);
+      expect(state.reportFailure).not.toHaveBeenCalled();
+      expect(state.semanticReview).not.toHaveBeenCalled();
+      expect(state.execute.mock.calls.filter(([input]) => input.action === "create")).toHaveLength(0);
+      expect(state.finalize).toHaveBeenCalledWith(
+        expect.objectContaining({
+          terminalCode: "partial",
+          stopReason: "turn_error",
+          usageSettlement: expect.objectContaining({ costMicrocents: expect.any(Number), costSource: "estimated" }),
+        }),
+      );
+      expect(state.recordRound).toHaveBeenCalledOnce();
+      expect(state.recordRound.mock.calls[0][0].costMicrocents).toBeGreaterThan(0);
+    });
+
+    it("counts malformed repair reads without replacing their original typed normalization failures", async () => {
+      preparePlan();
+      const draft = { ...foundationPlan, topics: [topic, ...foundationTopics] };
+      const invalid = {
+        ok: false,
+        result: "The source id must be a UUID.",
+        failure: { kind: "validation", issues: [{ code: "invalid_format", path: ["id"], message: "Invalid UUID" }] },
+      };
+      state.normalize.mockImplementation((_toolName, input: unknown) =>
+        Promise.resolve(
+          input && typeof input === "object" && "id" in input && input.id === "not-a-source-id"
+            ? invalid
+            : { ok: true, input },
+        ),
+      );
+      state.execute.mockImplementation(
+        withSourceReads((input: { action?: string }) =>
+          input.action === "plan"
+            ? {
+                ok: false,
+                result: "The retained complete plan still requires correction.",
+                failure: {
+                  kind: "validation",
+                  issues: [{ code: "custom", path: ["topics"], message: "", customCode: "wikiSourcePlanIncomplete" }],
+                },
+              }
+            : { ok: true, result: "saved" },
+        ),
+      );
+      state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {
+        expect(await executeAndCompleteTool("read_website_source", draft, "normalization-rejected-plan")).toMatchObject(
+          { ok: false },
+        );
+        await readFreshSources(executeAndCompleteTool, [planSourceId], "normalization-first-read");
+        const before = state.execute.mock.calls.length;
+        for (let index = 0; index < 3; index++) {
+          expect(
+            await executeAndCompleteTool(
+              "read_website_source",
+              { action: "get", id: "not-a-source-id", offset: 0 },
+              `invalid-repair-${index}`,
+            ),
+          ).toEqual(invalid);
+        }
+        expect(state.execute).toHaveBeenCalledTimes(before);
+        await completeStepAndPrepareNext(streamedStep("Invalid source requests are rejected.", "tool-calls"));
+        throw new Error("Malformed repair reads must not admit another provider round.");
+      };
+      await runAgentTurn(setupPayload);
+      expect(state.providerCalls).toBe(1);
+      expect(state.reportFailure).not.toHaveBeenCalled();
+      expect(state.semanticReview).not.toHaveBeenCalled();
+      expect(state.execute.mock.calls.filter(([input]) => input.action === "create")).toHaveLength(0);
+      expect(state.finalize).toHaveBeenCalledWith(
+        expect.objectContaining({
+          terminalCode: "partial",
+          stopReason: "turn_error",
+          usageSettlement: expect.objectContaining({ costMicrocents: expect.any(Number), costSource: "estimated" }),
+        }),
+      );
+      expect(state.recordRound).toHaveBeenCalledOnce();
+      expect(state.recordRound.mock.calls[0][0].costMicrocents).toBeGreaterThan(0);
+    });
+
     it("does not silently drop a required repair checkpoint when compaction cannot admit it", async () => {
       preparePlan();
       state.contextFits.mockImplementation(
