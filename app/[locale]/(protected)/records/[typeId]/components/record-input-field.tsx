@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import type { RecordField } from "@/features/records/record-model.schema";
 import { useAppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
+import { FormDecimalInput } from "@/components/forms/form-decimal-input";
 import { FormTextarea } from "@/components/forms/form-textarea";
 import { FormSelect } from "@/components/forms/form-select";
 import { FormAutocompleteAvatar } from "@/components/forms/form-autocomplete-avatar";
@@ -73,10 +74,17 @@ export const RecordInputField = observer(function RecordInputField({
     return <FormIsoDateRangePicker {...shared} dateOnly={field.valueType === "dateRange"} />;
 
   if (field.multiple) return <FormTextarea {...shared} placeholder={t("RecordModel.onePerLine")} />;
-  return (
-    <FormInput
-      {...shared}
-      inputMode={field.valueType === "number" || field.valueType === "currency" ? "decimal" : undefined}
-    />
-  );
+  if (field.valueType === "number" || field.valueType === "currency") {
+    return (
+      <FormDecimalInput
+        {...shared}
+        endContent={
+          field.valueType === "currency"
+            ? (field.format?.currency ?? root.companyStore.company?.currency ?? "").toUpperCase() || undefined
+            : undefined
+        }
+      />
+    );
+  }
+  return <FormInput {...shared} />;
 });

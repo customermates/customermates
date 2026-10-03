@@ -14,7 +14,12 @@ import type { AppLocale } from "@/i18n/locale-registry";
 
 import { appLocaleOrDefault, formattingTagFor, isFormattingLocale } from "@/i18n/locale-registry";
 import { resolveUserFormattingTag } from "@/i18n/user-locale";
-import { formatLocalizedNumber, parseLocalizedNumber, parseLocalizedNumberToCanonical } from "./intl-number";
+import {
+  formatCanonicalDecimal,
+  formatLocalizedNumber,
+  parseLocalizedNumber,
+  parseLocalizedNumberToCanonical,
+} from "./intl-number";
 
 const TIMEAGO_LOCALES = { de, en, es, fr, it } satisfies Record<AppLocale, Parameters<typeof register>[1]>;
 
@@ -113,6 +118,14 @@ export class IntlStore {
 
   parseNumberToCanonical(value: string, locale = this.formattingLocale): string | undefined {
     return parseLocalizedNumberToCanonical(value, locale);
+  }
+
+  formatDecimal(value: string, locale = this.formattingLocale): string {
+    return formatCanonicalDecimal(value, locale);
+  }
+
+  formatDecimalForEditing(value: string, locale = this.formattingLocale): string {
+    return formatCanonicalDecimal(value, locale, { useGrouping: false });
   }
 
   get collator(): Intl.Collator {
