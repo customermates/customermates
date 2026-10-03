@@ -370,17 +370,17 @@ export async function unifiedDocsExcerpt(
             maxChars: room,
           })
         : "";
+    const link = second?.text
+      .split("\n")
+      .find((line) => line.startsWith("**Link:**"))
+      ?.split("**Mate:**")[0]
+      .trimEnd();
     if (
       second &&
       search.chosen?.includes(second) &&
       !first.text.split("\n").some((line) => line.startsWith("**Link:**")) &&
-      !(secondary.length > DOCS_EXCERPT_MIN_PART && secondary.split("\n").some((line) => line.startsWith("**Link:**")))
+      !(secondary.length > DOCS_EXCERPT_MIN_PART && secondary.split("\n").includes(link ?? ""))
     ) {
-      const link = second.text
-        .split("\n")
-        .find((line) => line.startsWith("**Link:**"))
-        ?.split("**Mate:**")[0]
-        .trimEnd();
       if (link) {
         const metadata = [excerptHeading(second), link].filter(Boolean).join("\n\n");
         const primaryChars = DOCS_PAGE_EXCERPT_CHARS - metadata.length - 2;
@@ -391,6 +391,7 @@ export async function unifiedDocsExcerpt(
           const primary = retrievalExcerpt({ heading, markdown: first.text, query, maxChars: primaryChars });
           return `${primary}\n\n${metadata}`;
         }
+        return lead;
       }
     }
     return secondary.length > DOCS_EXCERPT_MIN_PART ? `${lead}\n\n${secondary}` : lead;

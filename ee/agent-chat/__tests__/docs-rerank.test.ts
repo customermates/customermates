@@ -55,6 +55,12 @@ import { manageWikiPagesTool } from "@/features/mcp-tools/wiki.mcp-tools";
 const QUERY = "which header does the REST API expect for auth";
 const INPUT = { query: QUERY, locale: "en", source: "docs" };
 
+function optionEvidence(option: string): string {
+  const evidence = option.match(/^Content: ([\s\S]*?)\nPage context:/mu)?.[1];
+  if (evidence === undefined) throw new Error("Expected section content before page context");
+  return evidence;
+}
+
 function deps(latestUserMessage: string | null = null): AgentToolDeps {
   return {
     latestUserMessage,
@@ -228,9 +234,11 @@ describe("docs re-rank candidates and spec", () => {
     expect(question.instruction).toContain("`latest_user_message`");
     expect(question.instruction).toContain("`agent_query`");
     expect(question.options[`s${title.id}`]).toBe(
-      `${title.section.pageTitle} > ${title.section.headingPath.join(" > ")}`,
+      `Section: ${title.section.headingPath.at(-1)}\nPage context: ${title.section.pageTitle}`,
     );
-    expect(question.options[`s${excerpted.id}`]).toContain(": ");
+    expect(question.options[`s${excerpted.id}`]).toBe(
+      "Section: Authentication\nContent: Send the key in the x-api-key header.\nPage context: API Keys",
+    );
     expect(docsRankState(QUERY, USER_MESSAGE)).toEqual({
       latest_user_message: USER_MESSAGE,
       agent_query: QUERY,
@@ -461,9 +469,7 @@ describe("query-focused section-ranking evidence", () => {
     expect(question.options.s0).toContain("They cover records, workspace, saved views, the Knowledge Base, messaging");
     expect(question.options.s0).toContain("widgets, routines, webhooks, admin, and support");
     expect(question.options.s0).toContain("manage_record_links");
-    expect(question.options.s0.length).toBeLessThanOrEqual(
-      `${section.pageTitle} > ${section.headingPath.join(" > ")}: `.length + 478,
-    );
+    expect(optionEvidence(question.options.s0).length).toBeLessThanOrEqual(478);
   });
 
   it("includes a matching detail after a long introduction and keeps the page route", () => {
@@ -486,7 +492,7 @@ describe("query-focused section-ranking evidence", () => {
     expect(question.options.s0).toContain("Permission issue means the mailbox needs to be reactivated.");
     expect(question.options.s0).toContain("/profile/accounts");
     expect(question.options.s0).not.toContain("internal target");
-    expect(question.options.s0.length).toBeLessThanOrEqual("Connections > Mailbox status: ".length + 800);
+    expect(optionEvidence(question.options.s0).length).toBeLessThanOrEqual(800);
   });
 
   it("preserves underscores and query delimiters in navigation evidence", () => {
@@ -538,7 +544,7 @@ describe("query-focused section-ranking evidence", () => {
     let characters = 0;
     for (const { id } of candidates) {
       const option = question.options[`s${id}`];
-      const excerpt = option.slice("Connections > Mailbox status: ".length);
+      const excerpt = optionEvidence(option);
       expect(excerpt).toContain("Reactivation restores access.");
       expect(excerpt).toContain("/profile/accounts");
       expect(excerpt).not.toContain("Additional navigation guidance");
@@ -561,7 +567,7 @@ describe("query-focused section-ranking evidence", () => {
     const [question] = docsRankSpec(candidates, "docs", "service quantity relationship").questions;
     expect(question.options.s2).toContain(instruction);
     expect(question.options.s2).toContain("/records");
-    expect(question.options.s119.length).toBeLessThanOrEqual("Records > Relationships: ".length + 80);
+    expect(optionEvidence(question.options.s119).length).toBeLessThanOrEqual(80);
   });
   it("does not spend a small sibling excerpt on its already supplied section heading", () => {
     const heading =
@@ -578,7 +584,7 @@ describe("query-focused section-ranking evidence", () => {
     const [question] = docsRankSpec(candidates, "docs", "own assigned contacts").questions;
     expect(question.options.s119).toContain(evidence);
     expect(question.options.s119.split(heading)).toHaveLength(2);
-    expect(question.options.s119.length).toBeLessThanOrEqual(`Permissions > ${heading}: `.length + 80);
+    expect(optionEvidence(question.options.s119).length).toBeLessThanOrEqual(80);
   });
 });
 
@@ -619,8 +625,7 @@ describe("real small sibling evidence", () => {
             },
     }));
     const option = docsRankSpec(candidates, "docs", "Can users only see their own contacts?").questions[0].options.s119;
-    const title = `${role.pageTitle} > ${role.headingPath.join(" > ")}: `;
-    const evidence = option.slice(title.length);
+    const evidence = optionEvidence(option);
     expect(evidence).toContain("only");
     expect(evidence).toMatch(/assigned|member|records/iu);
     expect(evidence).toContain("Link: /company/roles");
@@ -664,16 +669,14 @@ describe("initial channel errors and existing channel recovery evidence", () => 
               },
       }));
       const options = docsRankSpec(candidates, "docs", query).questions[0].options;
-      const title = `${setup.pageTitle} > ${setup.headingPath.join(" > ")}: `;
-      const evidence = options.s0.slice(title.length);
+      const evidence = optionEvidence(options.s0);
       expect(evidence).toMatch(initialAction);
       expect(evidence).toMatch(existingAction);
       expect(evidence).toContain("Link: /profile/connected-accounts");
       expect(evidence.length).toBeLessThanOrEqual(400);
       let totalEvidenceChars = 0;
       for (const candidate of candidates) {
-        const candidateTitle = `${candidate.section.pageTitle} > ${candidate.section.headingPath.join(" > ")}: `;
-        const candidateEvidence = options[`s${candidate.id}`].slice(candidateTitle.length);
+        const candidateEvidence = optionEvidence(options[`s${candidate.id}`]);
         expect(candidateEvidence.length).toBeLessThanOrEqual(candidate.id < 20 ? 400 : 80);
         totalEvidenceChars += candidateEvidence.length;
       }

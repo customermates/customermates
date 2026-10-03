@@ -9,6 +9,87 @@ function hasBrokenSurrogate(value: string): boolean {
 }
 
 describe("bounded classifier evidence", () => {
+  it("keeps a fitting paraphrased consequence even when an outside table row supplies another query word", () => {
+    const paragraph = "Closing a request changes its status. This never sends anything to the other side.";
+    const excerpt = docsRankEvidence(
+      `${paragraph}\n\n| Resource | Detail |\n|---|---|\n| Customer | A customer may have several requests. |`,
+      "does closing a request notify the customer",
+      120,
+    );
+    expect(excerpt).toContain(paragraph);
+    expect(excerpt).toContain("This never sends anything to the other side");
+    expect(excerpt.length).toBeLessThanOrEqual(120);
+  });
+
+  it("preserves a novel restriction over a separate paragraph that repeats already covered topics", () => {
+    const excerpt = docsRankEvidence(
+      "Administrators can read records from this page. Restricted items require a separate permission before anyone may read or change them, regardless of the page’s visible actions.\n\nAdministrators find records here.",
+      "records administrators restricted",
+      100,
+    );
+    expect(excerpt).toContain("Restricted items require a separate permission");
+    expect(excerpt).toBe(
+      "Administrators can read records from this page. Restricted items require a separate permission…",
+    );
+    expect(excerpt.length).toBeLessThanOrEqual(100);
+  });
+
+  it("preserves a complete fitting opening restriction when a resource row also matches", () => {
+    const restriction = "An assigned role limits the records a member can see to those assigned to them.";
+    const opening = `${restriction} ${"The editor requires a name and a description with configured length limits. ".repeat(3)}`;
+    const markdown = [
+      opening,
+      "| Resource | Manage | Read | Scope |\n|---|---|---|---|\n| Contacts | Yes, No | All, Assigned, None | Assigned access limits records to their assigned members. |",
+    ].join("\n\n");
+    const excerpt = docsRankEvidence(markdown, "only own contacts see", 400, {
+      label: "How do I restrict a member to assigned records?",
+      locale: "en",
+    });
+    expect(excerpt).toContain(restriction);
+    expect(excerpt).toContain(opening.trim());
+    expect(excerpt).toContain("Contacts:");
+    expect(excerpt.length).toBeLessThanOrEqual(400);
+  });
+
+  it("retains the real German role restriction in its existing classifier evidence bound", () => {
+    const page = rawDocsManifest.docs.de["app-company"];
+    const section = splitSections({
+      slug: "app-company",
+      source: "docs",
+      pageTitle: page.title,
+      markdown: page.content,
+    }).find(({ anchor }) => anchor === "how-does-the-role-editor-work");
+    if (!section) throw new Error("Expected public role-editor section");
+    const body = section.text.replace(/^#{1,6} [^\n]*(?:\n|$)/u, "");
+    const excerpt = docsRankEvidence(body, "Nur eigene Kontakte sehen", 375, {
+      label: section.headingPath.at(-1),
+      locale: "de",
+    });
+    expect(excerpt).toContain("Eine eigene Rolle beschränkt, was ihre Mitglieder sehen und ändern dürfen");
+    expect(excerpt).toContain("nur die ihnen zugewiesenen Datensätze");
+    expect(excerpt).toContain("Kontakte");
+    expect(excerpt).toContain("Pflichtfeld");
+    expect(excerpt.length).toBeLessThanOrEqual(375);
+  });
+
+  it("retains the real stage definition for classification within the existing evidence bound", () => {
+    const page = rawDocsManifest.docs.en["app-records"];
+    const section = splitSections({
+      slug: "app-records",
+      source: "docs",
+      pageTitle: page.title,
+      markdown: page.content,
+    }).find(({ anchor }) => anchor === "how-do-i-change-a-deal-stage-or-a-task-status-on-the-board");
+    if (!section) throw new Error("Expected public stage configuration section");
+    const body = section.text.replace(/^#{1,6} [^\n]*(?:\n|$)/u, "");
+    const excerpt = docsRankEvidence(body, "How do I set up pipeline stages?", 374, {
+      label: section.headingPath.at(-1),
+      locale: "en",
+    });
+    expect(excerpt).toContain("Pipeline stages and task statuses are singleSelect custom columns, not fixed fields");
+    expect(excerpt.length).toBeLessThanOrEqual(374);
+  });
+
   it("uses label-backed body evidence when an unmatched request verb leaves no body match", () => {
     const operation =
       "ExampleNet links change through the remove_connection action; the action removes only the chosen account relation and preserves the other links.";

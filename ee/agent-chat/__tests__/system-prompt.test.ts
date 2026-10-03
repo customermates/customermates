@@ -225,8 +225,8 @@ describe("documentation section handoff", () => {
     const paragraph = buildAgentSystemPrompt({ ...base })
       .split("\n")
       .find((line) => line.startsWith("Product and how-to questions:"));
-    expect(paragraph).toContain("using its nonempty returned anchor as query");
-    expect(paragraph).toContain("omit query when its anchor is empty");
-    expect(paragraph).toContain("For a different detail, pass that exact detail as query");
+    expect(paragraph).toContain("using its nonempty returned anchor as anchor and the original question as query");
+    expect(paragraph).toContain("omit anchor and query when its anchor is empty");
+    expect(paragraph).toContain("For a different detail, omit anchor and pass that exact detail as query");
   });
 });

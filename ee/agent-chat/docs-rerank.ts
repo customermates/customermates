@@ -34,7 +34,7 @@ export function docsRerankChoice(result: ClassifierResult | null): number | null
 }
 
 const RANK_INSTRUCTIONS: Record<RetrievalCorpus, string> = {
-  docs: "The user wrote `latest_user_message` (in any language) and the assistant searched the documentation with `agent_query`. Which documentation section best answers what the user needs? Prefer a section whose heading names the requested action, status or permission and whose body explains the concrete instructions or rules. A broad overview, navigation list or sibling mentioning that topic is secondary to its dedicated guide. For navigation, prefer the dedicated guide to that resource or action with its own route over a broad page listing the same destination. For setup or configuration, prefer instructions that create or change it over deletion restrictions. For a status or error, prefer the specific status meaning and resolution over unrelated setup instructions. For a task or relationship between records, prefer the instructions that complete the requested operation. If none answers it fully, pick the closest one; choose none only if no section answers it at all.",
+  docs: "Given the user's intent in `latest_user_message` and the searched detail in `agent_query`, which documentation section directly answers the request? Judge the section's own heading and content. Page context only identifies its location. Prefer the specific instructions or rules that answer the request over a section that merely mentions the topic or links elsewhere. If none answers it fully, pick the closest one; choose none only if no section answers it at all.",
   wiki: "The user wrote `latest_user_message` (in any language) and the assistant searched the Knowledge Base with `agent_query`. Which Knowledge Base section best answers what the user needs? If none answers it fully, pick the closest one; choose none only if no section answers it at all.",
 };
 
@@ -84,12 +84,19 @@ export function docsRankSpec(
         DOCS_RERANK_OPTION_CHARS,
         Math.floor((DOCS_RERANK_EVIDENCE_CHARS * weights[index]) / totalWeight),
       );
-      const title = `${section.pageTitle} > ${section.headingPath.join(" > ")}`;
+      const heading = section.headingPath.at(-1) || section.pageTitle;
+      const title = `${section.pageTitle} > ${section.headingPath.slice(0, -1).join(" > ")}`.replace(/ > $/u, "");
+      const content = section.text
+        ? docsRankExcerpt(section.text, query, optionChars, section.headingPath.at(-1), {
+            label: `${section.pageTitle} > ${section.headingPath.join(" > ")}`,
+            locale,
+          })
+        : "";
       return [
         `s${id}`,
-        section.text
-          ? `${title}: ${docsRankExcerpt(section.text, query, optionChars, section.headingPath.at(-1), { label: title, locale })}`
-          : title,
+        [`Section: ${heading}`, content ? `Content: ${content}` : "", `Page context: ${title}`]
+          .filter(Boolean)
+          .join("\n"),
       ];
     }),
   );

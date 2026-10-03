@@ -11,7 +11,7 @@ const LINK_LINE = /^\*\*Link:\*\*/;
 const FENCE = /^ {0,3}(`{3,}|~{3,})([^\n]*)$/;
 const LIST_LINE = /^\s*(?:[-*+]|\d+[.)])\s/u;
 
-function unitsIn(markdown: string, maxUnitChars: number, preserveIntro: boolean): ExcerptUnit[] {
+function unitsIn(markdown: string, maxUnitChars: number, preserveParagraphs: boolean): ExcerptUnit[] {
   const lines = markdown.split("\n");
   const units: ExcerptUnit[] = [];
   let heading: ContextLine[] = [];
@@ -76,11 +76,7 @@ function unitsIn(markdown: string, maxUnitChars: number, preserveIntro: boolean)
       units.push({ text: line, context: heading });
       continue;
     }
-    if (
-      preserveIntro &&
-      units.length === 0 &&
-      [...heading.map(({ text }) => text), line].join("\n").length <= maxUnitChars
-    ) {
+    if (preserveParagraphs && [...heading.map(({ text }) => text), line].join("\n").length <= maxUnitChars) {
       units.push({ text: line, context: heading });
       continue;
     }
@@ -157,7 +153,7 @@ export function retrievalExcerpt(args: {
   if (whole.length <= maxChars) return whole;
   if (heading.length >= maxChars) return bounded(heading, maxChars);
   const links = args.markdown.split("\n").filter((line) => LINK_LINE.test(line));
-  const link = linkSuffix(links, Math.max(0, Math.min(Math.floor(maxChars / 3), maxChars - heading.length - 43)));
+  const link = linkSuffix(links, Math.max(0, Math.min(128, Math.floor(maxChars / 3), maxChars - heading.length - 43)));
   const suffix = link ? `\n\n${link}` : "";
   const units = unitsIn(args.markdown, maxChars - heading.length - (heading ? 2 : 0) - suffix.length, Boolean(heading));
   const terms = fullTextUnits(args.query)
@@ -177,7 +173,7 @@ export function retrievalExcerpt(args: {
   const relevant = units.map((_, index) => relevance(index));
   const remaining = new Set(units.map((_, index) => index));
   const picked = new Map<number, string>();
-  if (heading && relevant[0] > 0) {
+  if (heading && relevant[0] > 0 && relevant[0] >= Math.max(0, ...relevant)) {
     picked.set(0, units[0].text);
     if (render(units, picked, heading).length + suffix.length <= maxChars) {
       remaining.delete(0);

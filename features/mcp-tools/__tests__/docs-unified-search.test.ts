@@ -47,6 +47,46 @@ function repo(fullText: DocsFullTextRow[], semantic: DocsSemanticRow[] | null = 
 const INPUT = { query: "check that a webhook came from you", locale: "en" as const, source: "docs" as const };
 
 describe("unified documentation search", () => {
+  it("fetches complete stage setup instructions from the section returned by search", async () => {
+    const section = docsCorpusSections("docs", "en").find(
+      (value) =>
+        value.slug === "app-records" && value.anchor === "how-do-i-change-a-deal-stage-or-a-task-status-on-the-board",
+    );
+    if (!section) throw new Error("Missing stage configuration documentation");
+    const ranker = vi.fn((_query: string, candidates: readonly RankableSection[]) => {
+      const chosen = candidates.find((candidate) => candidate.section === section);
+      if (!chosen) throw new Error("Expected stage section offered to the ranker");
+      return Promise.resolve({ order: [chosen.id], abstained: false });
+    });
+    const deps = { repo: repo([row(section)]), embed: null, ranker };
+    const result = await unifiedDocsSearchResult(
+      {
+        query: "How do I set up pipeline stages?",
+        locale: "en",
+        source: "docs",
+      },
+      deps,
+    );
+    const [best] = result.structuredContent.results;
+    expect(best).toMatchObject({ slug: section.slug, anchor: section.anchor });
+    const fetched = await unifiedDocsPageResult(
+      {
+        slug: best.slug,
+        anchor: best.anchor,
+        query: "How do I set up pipeline stages?",
+        locale: "en",
+        source: "docs",
+      },
+      deps,
+    );
+    const markdown = (fetched as { structuredContent: { markdown: string } }).structuredContent.markdown;
+    expect(markdown).toContain("To add or rename stages, open the column's **Edit Field** dialog");
+    expect(markdown).toContain("Changing a column needs **Manage** on that record type");
+    expect(markdown).toContain("`/deals`");
+    expect(markdown.length).toBeLessThanOrEqual(1_400);
+    expect(ranker).toHaveBeenCalledTimes(1);
+  });
+
   it.each(["api", "all"] as const)("applies the relevance and Jev abstention stages to %s", async (source) => {
     const section = docsCorpusSections("api", "en")[0];
     if (!section) throw new Error("REST reference corpus is empty");

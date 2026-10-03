@@ -6,7 +6,14 @@ import { CONTENT_LOCALES, DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
 import type { DocsSection } from "./docs-sections";
 
-import { getDocsPageRaw, listDocsSlugs, pageUrl, type DocsLocale, type DocsSource } from "./docs-manifest";
+import {
+  docsCorpusSections,
+  getDocsPageRaw,
+  listDocsSlugs,
+  pageUrl,
+  type DocsLocale,
+  type DocsSource,
+} from "./docs-manifest";
 
 import { unifiedDocsExcerpt, unifiedDocsSearch, type UnifiedDocsDeps } from "./docs-unified-search";
 
@@ -31,7 +38,7 @@ const DocsSearchHitSchema = z.object({
   section: z.string().describe("Heading path of the best matching section, joined by ' > '"),
   anchor: z
     .string()
-    .describe("Heading anchor of that section; pass a nonempty anchor unchanged to get_docs_page as query"),
+    .describe("Heading anchor of that section; pass a nonempty anchor unchanged to get_docs_page as anchor"),
   snippet: z.string(),
 });
 const DocsSearchOutputSchema = z.object({
@@ -90,7 +97,7 @@ export const searchDocsTool = {
     `Required: query. Optional: locale (one of: ${docsLocaleList}; default ${DEFAULT_LOCALE}), source (one of: docs, api, all; default docs). ` +
     "Returns ranked pages with the best section of each (slug#anchor), then the best page's url and its snippet in text, plus up to 5 full matches as structured content. " +
     "App routes in a snippet, such as `/company/subscription`, are relative: prefix them with the origin of the match's url (best= in text); that origin is the instance's configured BASE_URL. " +
-    "Then read the best page with get_docs_page, passing its nonempty returned anchor as query to preserve the selected section across calls; omit query for an empty anchor. If it does not answer, read the next page.",
+    "Then read the best page with get_docs_page, passing its nonempty returned anchor as anchor and the original question as query to preserve both the section and the requested detail; omit anchor and query for an empty anchor. If it does not answer, read the next page.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
   inputSchema: z.object({
     query: z.string().min(2).describe("Free-text search, e.g. 'webhook signature' or 'filter operators'"),
@@ -107,8 +114,8 @@ export const searchDocsTool = {
 const GetDocsPageOutputSchema = z.object({
   title: z.string(),
   url: z.string(),
-  markdown: z.string().describe("The focused excerpt when query was passed, otherwise the full page"),
-  excerpt: z.boolean().describe("True when markdown is a query-focused excerpt rather than the full page"),
+  markdown: z.string().describe("The focused excerpt when query or anchor was passed, otherwise the full page"),
+  excerpt: z.boolean().describe("True when markdown is a section or query-focused excerpt rather than the full page"),
 });
 
 export const getDocsPageTool = {
@@ -118,12 +125,21 @@ export const getDocsPageTool = {
     "Use this when you need one Customermates documentation page as markdown, with its canonical URL. " +
     "App routes in the markdown, such as `/company/subscription`, are relative: prefix them with the origin of url; that origin is the instance's configured BASE_URL. " +
     `Required: slug (from search_docs). Optional: locale (one of: ${docsLocaleList}; default ${DEFAULT_LOCALE}), source (one of: docs, api; default docs). ` +
-    "Pass the nonempty anchor returned by search_docs as query to read its selected section across separate calls. For an empty anchor, omit query to read the full page. Otherwise pass query with the exact detail you need to get a bounded excerpt. " +
+    "Pass the nonempty anchor returned by search_docs as anchor and the original question as query to read the selected section without losing the requested detail. For an empty anchor, omit anchor and query to read the full page. Otherwise pass query with the exact detail you need to get a bounded excerpt. " +
     "An unknown slug returns the valid slugs.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
   outputSchema: GetDocsPageOutputSchema,
   inputSchema: z.object({
     slug: z.string().min(1).describe("Docs page slug, e.g. 'quickstart' or 'mcp' (the MCP tool catalog is on 'mcp')"),
+    anchor: z
+      .string()
+      .trim()
+      .min(1)
+      .max(200)
+      .optional()
+      .describe(
+        "Exact nonempty section anchor returned by search_docs; pins that section while query focuses its content",
+      ),
     query: z
       .string()
       .trim()
@@ -131,7 +147,7 @@ export const getDocsPageTool = {
       .max(200)
       .optional()
       .describe(
-        "Section anchor returned by search_docs, or the exact question or detail to return as a focused excerpt instead of the full page",
+        "Exact question or detail to return as a focused excerpt; may be combined with anchor. A section anchor is also accepted for existing clients",
       ),
     locale: docsLocaleSchema,
     source: z.enum(["docs", "api"]).default("docs").describe("docs = product guides, api = REST endpoint reference"),
@@ -139,14 +155,29 @@ export const getDocsPageTool = {
   execute: (input: GetDocsPageInput) => getDocsPage(input),
 };
 
-export type GetDocsPageInput = { slug: string; query?: string; locale: DocsLocale; source: DocsSource };
+export type GetDocsPageInput = {
+  slug: string;
+  anchor?: string;
+  query?: string;
+  locale: DocsLocale;
+  source: DocsSource;
+};
 
-export function docsPageResult({ slug, locale, source }: GetDocsPageInput, excerpt?: string) {
+export function docsPageResult({ slug, anchor, query, locale, source }: GetDocsPageInput, excerpt?: string) {
   const page = getDocsPageRaw(slug, locale, source);
 
   if (!page) {
     const validSlugs = listDocsSlugs(locale, source).join(", ");
     return mcpMessageFailure(`Unknown ${source} page "${slug}" for locale "${locale}". Valid slugs: ${validSlugs}`);
+  }
+
+  if (anchor !== undefined && excerpt === undefined) {
+    const section = docsCorpusSections(source, locale).find(
+      (value) => value.slug === page.slug && value.anchor === anchor,
+    );
+    if (!section)
+      return mcpMessageFailure(`Unknown section "${anchor}" in ${source} page "${slug}" for locale "${locale}"`);
+    excerpt = docsRerankExcerpt(section, DOCS_RERANK_EXCERPT_CHARS, query ?? "");
   }
 
   if (excerpt !== undefined) {
@@ -206,6 +237,7 @@ export async function searchDocsHits(query: string, locale: DocsLocale, source: 
 }
 
 export async function unifiedDocsPageResult(input: GetDocsPageInput, deps: UnifiedDocsDeps) {
+  if (input.anchor !== undefined) return docsPageResult(input);
   const page = input.query ? getDocsPageRaw(input.slug, input.locale, input.source) : null;
   if (!page || !input.query) return docsPageResult(input);
   const excerpt = await unifiedDocsExcerpt(
@@ -217,6 +249,6 @@ export async function unifiedDocsPageResult(input: GetDocsPageInput, deps: Unifi
 }
 
 export async function getDocsPage(input: GetDocsPageInput) {
-  if (!input.query) return docsPageResult(input);
+  if (input.anchor !== undefined || !input.query) return docsPageResult(input);
   return unifiedDocsPageResult(input, await unifiedDocsDeps());
 }

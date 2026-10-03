@@ -1545,9 +1545,9 @@ describe("agent tools", () => {
     expect(prompt).toContain("use the available tools directly");
     expect(prompt).toContain("batch each entity's records into one write call");
     expect(prompt).toContain("one focused search_docs call");
-    expect(prompt).toContain("using its nonempty returned anchor as query");
-    expect(prompt).toContain("omit query when its anchor is empty");
-    expect(prompt).toContain("For a different detail, pass that exact detail as query");
+    expect(prompt).toContain("using its nonempty returned anchor as anchor and the original question as query");
+    expect(prompt).toContain("omit anchor and query when its anchor is empty");
+    expect(prompt).toContain("For a different detail, omit anchor and pass that exact detail as query");
     expect(prompt).toContain("Make one focused list_ui_targets query");
     expect(prompt).toContain("A tour navigates to each step itself");
     expect(prompt).toContain("never click or activate interface controls");

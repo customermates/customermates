@@ -122,6 +122,40 @@ describe("bounded retrieval excerpts", () => {
 });
 
 describe("complete answer blocks in retrieval excerpts", () => {
+  it("does not let a weaker introduction crowd out a fitting action and its restriction", () => {
+    const paragraph =
+      "Export sends records to an Excel workbook. Only assigned members may export their own records. " +
+      "Additional background. ".repeat(15);
+    const excerpt = retrievalExcerpt({
+      markdown: "Records have shared list settings. ".repeat(15) + "\n\n" + paragraph,
+      query: "records export",
+      heading: "## Records",
+      maxChars: 700,
+    });
+    expect(excerpt).toContain("Export sends records to an Excel workbook.");
+    expect(excerpt).toContain("Only assigned members may export their own records.");
+    expect(excerpt).not.toContain("shared list settings");
+    expect(excerpt.length).toBeLessThanOrEqual(700);
+  });
+
+  it("keeps a later action paragraph together with its permission requirement", () => {
+    const paragraph =
+      "To rename pipeline stages, open Edit Field. Changing the column requires Manage on that record type.";
+    const excerpt = retrievalExcerpt({
+      markdown: [
+        "Background details. ".repeat(100),
+        paragraph,
+        "**Link:** `/deals`. **Mate:** " + "Additional navigation guidance. ".repeat(100),
+      ].join("\n\n"),
+      query: "rename pipeline stages",
+      heading: "## Board columns",
+      maxChars: 200,
+    });
+    expect(excerpt).toContain(paragraph);
+    expect(excerpt).toContain("**Link:** `/deals`.");
+    expect(excerpt.length).toBeLessThanOrEqual(200);
+  });
+
   it("keeps the neighboring formula in a coherent paragraph that fits the available excerpt", () => {
     const paragraph =
       "The weighted total estimates the pipeline. Each item is multiplied by its current probability. Changing the setting recalculates all totals.";

@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
+import { docsCorpusSections } from "../docs-manifest";
+
 import { CONTENT_LOCALES, type ContentLocale } from "@/i18n/locale-registry";
 
 import { getDocsPageTool, listDocsSlugs, searchDocsTool, docsPageResult } from "../docs.mcp-tools";
@@ -47,7 +49,11 @@ describe("get_docs_page", () => {
   });
 
   it("lists valid slugs for an unknown slug", () => {
-    const raw = docsPageResult({ locale: "en", source: "docs", slug: "does-not-exist" });
+    const raw = docsPageResult({
+      locale: "en",
+      source: "docs",
+      slug: "does-not-exist",
+    });
     const result = mcpToolResultText(raw);
     expect(result.startsWith("Validation error:")).toBe(true);
     expect(result).toContain("quickstart");
@@ -135,14 +141,71 @@ describe("search and fetch", () => {
 });
 
 describe("stateless documentation section handoff", () => {
+  it.each(CONTENT_LOCALES)("reads a normalized page path with an exact %s section anchor", (locale) => {
+    const section = docsCorpusSections("docs", locale).find((value) => value.slug === "webhooks" && value.anchor);
+    if (!section) throw new Error("Missing webhook section");
+    const result = docsPageResult({ slug: "/docs/webhooks.mdx", anchor: section.anchor, locale, source: "docs" });
+    expect(result).toMatchObject({
+      structuredContent: { excerpt: true, url: expect.stringContaining("/docs/webhooks") },
+    });
+    expect(mcpToolResultText(result)).toContain(section.headingPath.at(-1));
+    expect(
+      (result as { structuredContent: { markdown: string } }).structuredContent.markdown.length,
+    ).toBeLessThanOrEqual(1_400);
+  });
+
+  it("rejects out-of-page and out-of-corpus anchors and unknown anchors in each locale", () => {
+    const section = docsCorpusSections("docs", "en").find((value) => value.slug === "webhooks" && value.anchor);
+    if (!section) throw new Error("Missing webhook section");
+    for (const input of [
+      { slug: "quickstart", locale: "en", source: "docs", anchor: section.anchor },
+      { slug: "webhooks", locale: "en", source: "api", anchor: section.anchor },
+      ...CONTENT_LOCALES.map((locale) => ({
+        slug: "webhooks",
+        locale,
+        source: "docs" as const,
+        anchor: "not-a-real-section",
+      })),
+    ] as const) {
+      const result = docsPageResult(input);
+      expect(result).toMatchObject({ failure: { kind: "validation" } });
+      expect(mcpToolResultText(result)).toMatch(/^Validation error:/u);
+    }
+  });
+
+  it("validates anchors separately from the original question and retains legacy anchor queries", () => {
+    const input = getDocsPageTool.inputSchema.parse({
+      slug: "webhooks",
+      anchor: "  how-do-i-create-a-webhook  ",
+      query: "  How do I create a webhook?  ",
+    });
+    expect(input.anchor).toBe("how-do-i-create-a-webhook");
+    expect(input.query).toBe("How do I create a webhook?");
+    for (const anchor of ["", "  ", "a".repeat(201)])
+      expect(getDocsPageTool.inputSchema.safeParse({ slug: "webhooks", anchor }).success).toBe(false);
+    expect(getDocsPageTool.inputSchema.safeParse({ slug: "webhooks", anchor: "a".repeat(200) }).success).toBe(true);
+    expect(getDocsPageTool.inputSchema.parse({ slug: "webhooks", query: "how-do-i-create-a-webhook" }).query).toBe(
+      "how-do-i-create-a-webhook",
+    );
+  });
+
   it("directs search and get to pass the selected anchor and allows an empty-anchor full read", () => {
-    expect(searchDocsTool.description).toContain("nonempty returned anchor as query");
-    expect(searchDocsTool.description).toContain("omit query for an empty anchor");
-    expect(getDocsPageTool.description).toContain("nonempty anchor returned by search_docs as query");
-    expect(getDocsPageTool.description).toContain("For an empty anchor, omit query");
-    const section = getDocsPageTool.inputSchema.parse({ slug: "webhooks", query: "how-do-i-create-a-webhook" });
+    expect(searchDocsTool.description).toContain(
+      "nonempty returned anchor as anchor and the original question as query",
+    );
+    expect(searchDocsTool.description).toContain("omit anchor and query for an empty anchor");
+    expect(getDocsPageTool.description).toContain(
+      "nonempty anchor returned by search_docs as anchor and the original question as query",
+    );
+    expect(getDocsPageTool.description).toContain("For an empty anchor, omit anchor and query");
+    const section = getDocsPageTool.inputSchema.parse({
+      slug: "webhooks",
+      query: "how-do-i-create-a-webhook",
+    });
     expect(section.query).toBe("how-do-i-create-a-webhook");
-    const introduction = getDocsPageTool.inputSchema.parse({ slug: "webhooks" });
+    const introduction = getDocsPageTool.inputSchema.parse({
+      slug: "webhooks",
+    });
     expect(introduction.query).toBeUndefined();
     expect(getDocsPageTool.inputSchema.safeParse({ slug: "webhooks", query: "" }).success).toBe(false);
   });
