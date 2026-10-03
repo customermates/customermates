@@ -582,7 +582,7 @@ async function executeWikiSynthesisReview(
       toolCallId: receiptKey,
       toolName: WIKI_SYNTHESIS_REVIEW_TOOL_NAME,
     };
-    const claim = await repo.claimAgentClassifierReceiptUnscoped({ ...identity, initialResultJson: initial });
+    const claim = await repo.claimAgentClassifierReceiptOrThrowUnscoped({ ...identity, initialResultJson: initial });
     const saved = parseWikiSynthesisReviewReceipt(claim.resultJson, requestSha256);
     if (claim.state === "settled") return { receiptKey, settled: true, result: saved.result, charge: saved.charge };
     if (saved.result !== null || !saved.charge || saved.charge.measured || saved.charge.answered)

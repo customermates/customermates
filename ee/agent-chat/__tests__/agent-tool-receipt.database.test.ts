@@ -130,16 +130,21 @@ describeDatabase("agent tool receipts wrap a real mutation", { timeout: 120_000 
       });
     });
     const claims = await runWithoutTenant(() =>
-      Promise.all([repo.claimAgentClassifierReceiptUnscoped(args), repo.claimAgentClassifierReceiptUnscoped(args)]),
+      Promise.all([
+        repo.claimAgentClassifierReceiptOrThrowUnscoped(args),
+        repo.claimAgentClassifierReceiptOrThrowUnscoped(args),
+      ]),
     );
     expect(claims.map(({ state }) => state).toSorted()).toEqual(["fresh", "unknown"]);
     expect(claims.map(({ resultJson }) => resultJson)).toEqual([args.initialResultJson, args.initialResultJson]);
     expect(await runWithoutTenant(() => prisma.agentToolReceipt.count({ where: { turnRequestId } }))).toBe(1);
     await expect(
-      runWithoutTenant(() => repo.claimAgentClassifierReceiptUnscoped({ ...args, companyId: randomUUID() })),
+      runWithoutTenant(() => repo.claimAgentClassifierReceiptOrThrowUnscoped({ ...args, companyId: randomUUID() })),
     ).rejects.toThrow("turn ownership changed");
     await expect(
-      runWithoutTenant(() => repo.claimAgentClassifierReceiptUnscoped({ ...args, toolName: "different_classifier" })),
+      runWithoutTenant(() =>
+        repo.claimAgentClassifierReceiptOrThrowUnscoped({ ...args, toolName: "different_classifier" }),
+      ),
     ).rejects.toThrow("receipt ownership changed");
     await expect(
       runWithoutTenant(() =>
@@ -150,13 +155,13 @@ describeDatabase("agent tool receipts wrap a real mutation", { timeout: 120_000 
         }),
       ),
     ).rejects.toThrow("could not be settled");
-    expect(await runWithoutTenant(() => repo.claimAgentClassifierReceiptUnscoped(args))).toEqual({
+    expect(await runWithoutTenant(() => repo.claimAgentClassifierReceiptOrThrowUnscoped(args))).toEqual({
       state: "unknown",
       resultJson: args.initialResultJson,
     });
     const settled = { ...args.initialResultJson, charge: { costMicrocents: 600 }, result: { supported: true } };
     await runWithoutTenant(() => repo.settleAgentClassifierReceiptUnscoped({ ...args, resultJson: settled }));
-    expect(await runWithoutTenant(() => repo.claimAgentClassifierReceiptUnscoped(args))).toEqual({
+    expect(await runWithoutTenant(() => repo.claimAgentClassifierReceiptOrThrowUnscoped(args))).toEqual({
       state: "settled",
       resultJson: settled,
     });

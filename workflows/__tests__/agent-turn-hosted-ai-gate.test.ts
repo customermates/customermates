@@ -308,7 +308,7 @@ vi.mock("@/core/di", () => ({
       if (state.gateFailure) return Promise.reject(state.gateFailure);
       return Promise.resolve(state.gateResults.shift() ?? true);
     }),
-    claimAgentClassifierReceiptUnscoped: state.claimSemanticReceipt,
+    claimAgentClassifierReceiptOrThrowUnscoped: state.claimSemanticReceipt,
     settleAgentClassifierReceiptUnscoped: state.settleSemanticReceipt,
     finalizeAgentTurnOrThrowUnscoped: state.finalize,
     reconcileInterruptedAgentTurnUnscoped: state.reconcile,

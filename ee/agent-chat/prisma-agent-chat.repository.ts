@@ -1653,7 +1653,7 @@ export class PrismaAgentChatRepo
   }
 
   @BypassTenantGuard
-  async claimAgentClassifierReceiptUnscoped(args: {
+  async claimAgentClassifierReceiptOrThrowUnscoped(args: {
     turnRequestId: string;
     companyId: string;
     toolCallId: string;

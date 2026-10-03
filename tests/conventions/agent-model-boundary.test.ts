@@ -43,7 +43,14 @@ describe("agent model budget boundary", () => {
     expect(matchingProductionFiles(unmeteredClassifierCall).filter(outsideClassifier)).toEqual([]);
     expect(matchingProductionFiles(/\bclassifyMetered\s*\(/).filter(outsideClassifier)).toEqual([
       "ee/agent-chat/docs-rerank.ts",
+      "workflows/agent-turn.ts",
     ]);
+    const workflow = readFileSync(`${REPO_ROOT}/workflows/agent-turn.ts`, "utf8");
+    expect(workflow).toContain("executeWikiSynthesisReview.maxRetries = 0");
+    expect(workflow).toContain("repo.claimAgentClassifierReceiptOrThrowUnscoped");
+    expect(workflow).toContain("repo.settleAgentClassifierReceiptUnscoped");
+    expect(workflow).toContain("recordWikiSynthesisReviewCharge(auxiliaryCharges, wikiReviewChargeIndices, evaluated)");
+    expect(workflow).toContain("agentAuxiliaryCharge(auxiliaryCharges).costMicrocents");
   });
 
   it("never constructs a provider instance, so no api key can reach a durable step argument", () => {
