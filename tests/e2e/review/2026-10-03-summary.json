@@ -1,0 +1,597 @@
+{
+  "application": {
+    "databaseCases": 521,
+    "databaseFiles": 66,
+    "failed": 0,
+    "fileCount": 853,
+    "optionalHttpSkips": [
+      {
+        "file": "tests/conventions/hub-reachability.test.ts",
+        "name": "hub pagination and rendered reachability answers a signed-out request for a path no route serves with a 404, and keeps protected routes behind sign-in",
+        "status": "skipped"
+      },
+      {
+        "file": "tests/conventions/hub-reachability.test.ts",
+        "name": "hub pagination and rendered reachability answers every proxy-detected missing page with a server-rendered 404, not a soft 404",
+        "status": "skipped"
+      },
+      {
+        "file": "tests/conventions/hub-reachability.test.ts",
+        "name": "hub pagination and rendered reachability permanently sends unprefixed content paths to the default locale and negotiates only the root",
+        "status": "skipped"
+      },
+      {
+        "file": "tests/conventions/hub-reachability.test.ts",
+        "name": "hub pagination and rendered reachability crawls the production server output, metadata, semantic pagination outcomes, sitemap, and every localized detail route",
+        "status": "skipped"
+      },
+      {
+        "file": "tests/conventions/sitemap-reachability.test.ts",
+        "name": "sitemap reachability submits only URLs that answer 200 and point their canonical at themselves",
+        "status": "skipped"
+      }
+    ],
+    "passed": 7554,
+    "total": 7559
+  },
+  "baseCommit": "31d1df14c9185e62f23bf902be3ef518b42ca5b3",
+  "browser": {
+    "files": 38,
+    "journeys": 70,
+    "projects": {
+      "chromium": 70,
+      "firefox": 70,
+      "mobile": 70,
+      "webkit": 70
+    },
+    "stats": {
+      "duration": 4344218.312,
+      "expected": 280,
+      "flaky": 0,
+      "skipped": 0,
+      "startTime": "2026-10-03T16:46:05.012Z",
+      "unexpected": 0
+    }
+  },
+  "freshMigrations": [
+    {
+      "major": 17,
+      "migrationCount": 67,
+      "repeatedSeedIdentitiesReconciled": true
+    },
+    {
+      "major": 16,
+      "migrationCount": 67,
+      "repeatedSeedIdentitiesReconciled": true
+    }
+  ],
+  "functionalCommit": "2753e0d46a3eaa43d4ecf3773bf57320bb59430d",
+  "functionalTree": "1ae232c87cd97b2354f6f418396dd7e490d38b79",
+  "gates": [
+    {
+      "durationSeconds": 8.228,
+      "name": "docs-generate-catalog",
+      "status": "passed"
+    },
+    {
+      "durationSeconds": 2.632,
+      "name": "openapi-generate",
+      "status": "passed"
+    },
+    {
+      "durationSeconds": 0.891,
+      "name": "raw-docs-generate",
+      "status": "passed"
+    },
+    {
+      "durationSeconds": 5.112,
+      "name": "typecheck",
+      "status": "passed"
+    },
+    {
+      "durationSeconds": 77.741,
+      "name": "lint",
+      "status": "passed"
+    },
+    {
+      "durationSeconds": 0.755,
+      "name": "i18n-audit",
+      "status": "passed"
+    },
+    {
+      "durationSeconds": 14.357,
+      "name": "conventions-check",
+      "status": "passed"
+    },
+    {
+      "durationSeconds": 0.36,
+      "name": "network-guard",
+      "status": "passed"
+    },
+    {
+      "durationSeconds": 57.231,
+      "name": "build",
+      "status": "passed"
+    },
+    {
+      "durationSeconds": 199.747,
+      "name": "browser-channel",
+      "status": "passed"
+    },
+    {
+      "durationSeconds": 95.824,
+      "name": "browser-timeline",
+      "status": "passed"
+    },
+    {
+      "durationSeconds": 96.992,
+      "name": "browser-activity-detail",
+      "status": "passed"
+    },
+    {
+      "durationSeconds": 335.067,
+      "name": "browser-controls",
+      "status": "passed"
+    },
+    {
+      "durationSeconds": 192.039,
+      "name": "browser-archive-visibility",
+      "status": "passed"
+    },
+    {
+      "durationSeconds": 265.513,
+      "name": "test",
+      "status": "passed"
+    },
+    {
+      "durationSeconds": 198.042,
+      "name": "pg16-records",
+      "status": "passed"
+    },
+    {
+      "durationSeconds": 4345.063,
+      "name": "browser",
+      "status": "passed"
+    }
+  ],
+  "handoffVerification": {
+    "browserDiscovery": {
+      "files": 38,
+      "profileCombinations": 280
+    },
+    "browserSmoke": {
+      "failed": 0,
+      "flaky": 0,
+      "journey": "creates a custom list and field through the UI, then persists a decimal record across reloads",
+      "passed": 4,
+      "projects": ["chromium", "firefox", "webkit", "mobile"],
+      "skipped": 0,
+      "startTime": "2026-10-03T20:19:46.928Z"
+    },
+    "conventions": {
+      "failed": 0,
+      "optionalHttpSkips": 5,
+      "passed": 870
+    },
+    "documentationChangeOnly": true,
+    "freshSetup": {
+      "databaseMajor": 17,
+      "migrationCount": 67,
+      "normalSigninPageHttpStatus": 200,
+      "privateEnvironmentFilesCreated": 4,
+      "seedRuns": 2,
+      "workflowBootstrap": "passed"
+    },
+    "functionalSourceCommit": "2753e0d46a3eaa43d4ecf3773bf57320bb59430d",
+    "scope": "Portable setup commands and smoke verification on the original machine. The full earlier suite is not rerun here; verification on the SSH target remains required."
+  },
+  "independentReview": {
+    "result": "no unresolved material blocker",
+    "reviewScope": [
+      "UI/shared components",
+      "MobX request and form ownership",
+      "DI and interactors",
+      "tenant transactions",
+      "permission and derived-value visibility",
+      "identifiers/channels",
+      "migration and recovery",
+      "source/count/tooling provenance"
+    ]
+  },
+  "journeyInventory": [
+    {
+      "file": "tests/e2e/activity-widget-filters.spec.ts",
+      "journeysPerProfile": 1,
+      "titles": [
+        "configures an activity path and applies provider, channel, conversation and date filters to a persisted widget"
+      ]
+    },
+    {
+      "file": "tests/e2e/activity-widget.spec.ts",
+      "journeysPerProfile": 1,
+      "titles": ["creates a custom-type activity widget, previews history, edits it and preserves assistant drafts"]
+    },
+    {
+      "file": "tests/e2e/company-settings.spec.ts",
+      "journeysPerProfile": 1,
+      "titles": ["keeps currency on Settings and routes CRM configuration to Data model"]
+    },
+    {
+      "file": "tests/e2e/inbox-records.spec.ts",
+      "journeysPerProfile": 1,
+      "titles": ["creates, unlinks and relinks a generic person from the inbox"]
+    },
+    {
+      "file": "tests/e2e/membership-tasks.spec.ts",
+      "journeysPerProfile": 1,
+      "titles": ["resolves a protected task through member approval and rejects ordinary record edits"]
+    },
+    {
+      "file": "tests/e2e/presentation-migration.spec.ts",
+      "journeysPerProfile": 1,
+      "titles": ["opens migrated saved views, personal details and financial widgets with persisted values"]
+    },
+    {
+      "file": "tests/e2e/pricing.spec.ts",
+      "journeysPerProfile": 1,
+      "titles": ["edits duplicate embedded items, live and saved prices, and weighted totals through the generic UI"]
+    },
+    {
+      "file": "tests/e2e/record-access-ui.spec.ts",
+      "journeysPerProfile": 9,
+      "titles": [
+        "admits an assigned-record writer and separately delegates schema configuration without granting new record or role access",
+        "configures a two-hop relationship path and lets a genuine read-only user navigate it without changing links",
+        "configures self-type singular and many relationships, edits from both ends, preserves archived links and previews deletion policies",
+        "copies another member's widget template into an independent owned widget without changing the original",
+        "keeps personal views separate from shared defaults and completes their UI lifecycle for two genuine users",
+        "keeps retained values restricted after a delegated manager converts fields and archives their private source through the UI",
+        "keeps shared Inbox participants permission-scoped across genuine readers and isolates identical identifiers in another workspace",
+        "publishes and withdraws a private-input summary through the field UI without granting the delegated reader access to its inputs",
+        "renders dependency-restricted calculated widget values as a secondary reader and rechecks grant changes"
+      ]
+    },
+    {
+      "file": "tests/e2e/record-boards.spec.ts",
+      "journeysPerProfile": 1,
+      "titles": ["moves a board card with the keyboard and restores relationship and date grouping"]
+    },
+    {
+      "file": "tests/e2e/record-bulk.spec.ts",
+      "journeysPerProfile": 3,
+      "titles": [
+        "retains off-view selections, keeps visible rows, clears selection and clears only the selected optional field",
+        "selects records, bulk-edits exact decimals, previews cascades, and deletes only the selected records",
+        "shows a conflict and leaves every selected record unchanged when another tab updates its version"
+      ]
+    },
+    {
+      "file": "tests/e2e/record-calculation-ui.spec.ts",
+      "journeysPerProfile": 1,
+      "titles": [
+        "configures lookup, rollup, snapshot and manual values, then builds a weighted-value widget through the UI"
+      ]
+    },
+    {
+      "file": "tests/e2e/record-channel-compose.spec.ts",
+      "journeysPerProfile": 1,
+      "titles": ["opens a list-qualified inbox and preserves, saves, edits and sends channel drafts locally"]
+    },
+    {
+      "file": "tests/e2e/record-configuration-recovery.spec.ts",
+      "journeysPerProfile": 2,
+      "titles": [
+        "preserves a stale relationship-path draft and blocks publication after the definition is removed",
+        "recovers concurrent configuration drafts and resolves each same-control choice without losing unrelated edits"
+      ]
+    },
+    {
+      "file": "tests/e2e/record-configuration.spec.ts",
+      "journeysPerProfile": 2,
+      "titles": [
+        "edits a linear calculation and restores archived fields, activity connections and a list",
+        "opens Sidebar Configure and preserves channel binding choices for seeded and custom lists"
+      ]
+    },
+    {
+      "file": "tests/e2e/record-controls-recovery.spec.ts",
+      "journeysPerProfile": 7,
+      "titles": [
+        "paginates and retries record and widget history, restores a personal timeline view and recovers the dashboard after one accepted save",
+        "recovers a parent after an embedded save without repeating the child mutation or losing recalculated totals",
+        "retains readable list content after a failed refresh and retries the empty-list error without changing persisted records",
+        "retries failed participant and conversation searches and archives and restores a real relationship projection",
+        "retries relationship reads and accepted record, bulk and schema refreshes without repeating writes",
+        "uses Average, Minimum and Maximum at record grain, groups through relationships, edits group colors and retries an owned preview",
+        "uses explicit activity record scope, event kinds, positive and negative record filters and preserves saved query semantics"
+      ]
+    },
+    {
+      "file": "tests/e2e/record-detail-layout.spec.ts",
+      "journeysPerProfile": 1,
+      "titles": ["persists personal detail pins, visibility and keyboard order without losing the record draft"]
+    },
+    {
+      "file": "tests/e2e/record-export.spec.ts",
+      "journeysPerProfile": 3,
+      "titles": [
+        "downloads generic records from the shared table with persisted typed values",
+        "exports a customer-created type through the same transfer menu",
+        "round-trips deal line items and their calculated total through the transfer menu"
+      ]
+    },
+    {
+      "file": "tests/e2e/record-field-controls.spec.ts",
+      "journeysPerProfile": 5,
+      "titles": [
+        "builds every calculation operator with the linear editor and persists results and visible errors",
+        "captures snapshots on request and on stage changes while preserving manual replacements and drafts",
+        "changes numeric display precision through the field editor without rounding stored values",
+        "configures and persists all fourteen field types, multiple values and calendar controls through the UI",
+        "preserves missing, false, zero and exact money defaults and captures a snapshot only on a change to false"
+      ]
+    },
+    {
+      "file": "tests/e2e/record-filters.spec.ts",
+      "journeysPerProfile": 1,
+      "titles": ["restores relationship, assignment and date filters with labels after reloading the generic list"]
+    },
+    {
+      "file": "tests/e2e/record-identity.spec.ts",
+      "journeysPerProfile": 1,
+      "titles": ["edits identity channels in the generic drawer and searches persisted channels"]
+    },
+    {
+      "file": "tests/e2e/record-import-recovery.spec.ts",
+      "journeysPerProfile": 1,
+      "titles": [
+        "rejects malformed and invalid typed imports without partial records and accepts a corrected file in the same dialog"
+      ]
+    },
+    {
+      "file": "tests/e2e/record-measures.spec.ts",
+      "journeysPerProfile": 1,
+      "titles": ["keeps source totals separate from filtered widget groups across save and reload"]
+    },
+    {
+      "file": "tests/e2e/record-navigation.spec.ts",
+      "journeysPerProfile": 3,
+      "titles": [
+        "opens a legacy create deep link through the shared record editor",
+        "opens original CRM URLs in the shared record screens",
+        "uses configured navigation, quick creation, rename-safe routes, and hidden types"
+      ]
+    },
+    {
+      "file": "tests/e2e/record-operation.spec.ts",
+      "journeysPerProfile": 1,
+      "titles": [
+        "keeps complete application reads, History and a blocked form draft while a high-fan-out update publishes"
+      ]
+    },
+    {
+      "file": "tests/e2e/record-page.spec.ts",
+      "journeysPerProfile": 1,
+      "titles": ["opens a stable record page, preserves its draft alongside the assistant, and saves notes"]
+    },
+    {
+      "file": "tests/e2e/record-pagination.spec.ts",
+      "journeysPerProfile": 1,
+      "titles": ["returns to a valid relationship, path and embedded page after deleting its last row"]
+    },
+    {
+      "file": "tests/e2e/record-presentation.spec.ts",
+      "journeysPerProfile": 1,
+      "titles": [
+        "renders the configurable record surface in all application locales and both themes without document overflow"
+      ]
+    },
+    {
+      "file": "tests/e2e/record-request-ownership.spec.ts",
+      "journeysPerProfile": 3,
+      "titles": [
+        "discards an earlier real configuration preview without attaching it to another field draft",
+        "keeps a newly opened record draft when an accepted deletion response arrives later",
+        "keeps the current record draft when a previous real save response arrives after close and reopen"
+      ]
+    },
+    {
+      "file": "tests/e2e/record-roles.spec.ts",
+      "journeysPerProfile": 1,
+      "titles": ["configures a role for a new type, preserves granular rights after rename and deletes the unused role"]
+    },
+    {
+      "file": "tests/e2e/record-routines.spec.ts",
+      "journeysPerProfile": 1,
+      "titles": ["persists a routine for a customer-created type and matches only its configured record changes"]
+    },
+    {
+      "file": "tests/e2e/record-search.spec.ts",
+      "journeysPerProfile": 1,
+      "titles": ["searches custom records across pages, opens generic drawers, and attaches AI context"]
+    },
+    {
+      "file": "tests/e2e/record-tools.spec.ts",
+      "journeysPerProfile": 1,
+      "titles": [
+        "configures a type, formula, saved view and widget over authenticated MCP and opens the persisted result in the UI"
+      ]
+    },
+    {
+      "file": "tests/e2e/record-webhook-delivery.spec.ts",
+      "journeysPerProfile": 2,
+      "titles": [
+        "delivers a custom-record event to a loopback receiver and retries a transient failure",
+        "delivers only deleted records that matched the webhook filter before removal"
+      ]
+    },
+    {
+      "file": "tests/e2e/record-webhooks.spec.ts",
+      "journeysPerProfile": 2,
+      "titles": [
+        "keeps migrated multi-type webhook sources when editing delivery settings",
+        "persists a webhook for a customer-created type with an explicit owner and filtered record changes"
+      ]
+    },
+    {
+      "file": "tests/e2e/records.spec.ts",
+      "journeysPerProfile": 2,
+      "titles": [
+        "creates a custom list and field through the UI, then persists a decimal record across reloads",
+        "resizes table columns with keyboard controls, restores saved widths and resets the override"
+      ]
+    },
+    {
+      "file": "tests/e2e/shared-channels.spec.ts",
+      "journeysPerProfile": 1,
+      "titles": ["shares an indexed identifier across lists, unlinks one association and links only one conversation"]
+    },
+    {
+      "file": "tests/e2e/starter-records.spec.ts",
+      "journeysPerProfile": 1,
+      "titles": [
+        "creates, edits, connects, assigns, reloads, and deletes all five starter types without legacy storage"
+      ]
+    },
+    {
+      "file": "tests/e2e/widget-controls.spec.ts",
+      "journeysPerProfile": 2,
+      "titles": [
+        "persists every chart style, appearance, a copied template, resizing and deletion through the unified builder",
+        "preserves widget previews and accessible draft confirmations across responsive breakpoint changes"
+      ]
+    }
+  ],
+  "limits": [
+    "Five named optional served-marketing HTTP tests skipped; no required database/browser skips.",
+    "Fresh-seed hashes exclude timestamps; populated legacy migration behavior has separate database fixtures.",
+    "Browser matrix covers supported action families and bounded edge cases, not every theoretical configuration or timing permutation.",
+    "Mobile is emulated WebKit; desktop drag and representative theme/locale coverage are explicitly bounded.",
+    "Clipboard content is asserted in Chromium only; strict console collectors vary by spec.",
+    "Offline scripted providers prove production tool contracts/orchestration/persistence, not real model comprehension or live provider delivery.",
+    "Real paid shipped-model acceptance, production-data preflight, external n8n consumers, release/deployment and Docker architecture acceptance remain separate gates.",
+    "Subsequent handoff changes are documentation/evidence only; these counts are not execution on an SSH machine or later functional code."
+  ],
+  "postgres16": {
+    "passed": 160,
+    "total": 160
+  },
+  "preservedReviewData": {
+    "reconciled": true,
+    "tablesCompared": 9
+  },
+  "runtime": {
+    "buildId": "8Zb2TMTgWJSVd2BZRciTq",
+    "node": "24.18.0",
+    "postgresVersions": [16, 17],
+    "yarn": "1.22.22"
+  },
+  "scale": {
+    "cohort": {
+      "cohortLinks": 500000,
+      "cohortRecords": 100000,
+      "cohortValues": 1940100
+    },
+    "hardware": {
+      "cores": 12,
+      "cpu": "Apple M4 Pro",
+      "memoryGiB": 24,
+      "postgres": "17.11"
+    },
+    "measurementLayer": "direct SQL/compiler and production interactors; not browser/HTTP or hosted capacity",
+    "metrics": [
+      {
+        "maxMs": 262.8,
+        "medianMs": 246.3,
+        "minMs": 239,
+        "name": "engine_filtered_sorted_list",
+        "p95Ms": 256.5,
+        "samples": 30,
+        "warmups": 3
+      },
+      {
+        "maxMs": 15.5,
+        "medianMs": 11.1,
+        "minMs": 10.1,
+        "name": "engine_record_detail",
+        "p95Ms": 14.5,
+        "samples": 30,
+        "warmups": 3
+      },
+      {
+        "maxMs": 644.4,
+        "medianMs": 603.6,
+        "minMs": 592.4,
+        "name": "engine_grouped_measure",
+        "p95Ms": 622.8,
+        "samples": 30,
+        "warmups": 3
+      },
+      {
+        "maxMs": 460.6,
+        "medianMs": 445.6,
+        "minMs": 435.3,
+        "name": "engine_global_search",
+        "p95Ms": 459.6,
+        "samples": 30,
+        "warmups": 3
+      },
+      {
+        "maxMs": 78.3,
+        "medianMs": 60,
+        "minMs": 55.9,
+        "name": "engine_write_with_title_calculation",
+        "p95Ms": 76.9,
+        "samples": 30,
+        "warmups": 3
+      },
+      {
+        "maxMs": 346.4,
+        "medianMs": 339.5,
+        "minMs": 333.3,
+        "name": "engine_export_20_records_500_links",
+        "p95Ms": 346.4,
+        "samples": 5,
+        "warmups": 3
+      },
+      {
+        "maxMs": 1210.4,
+        "medianMs": 1189.4,
+        "minMs": 1164.1,
+        "name": "engine_import_20_record_updates",
+        "p95Ms": 1210.4,
+        "samples": 5,
+        "warmups": 3
+      }
+    ],
+    "stagedOperation": {
+      "admissionMs": 34.7,
+      "advances": 29,
+      "completeReadsVerified": true,
+      "fanout": 600,
+      "pausedWriteRejected": true,
+      "stageAndPublishMs": 15507.3
+    },
+    "targets": {
+      "engine_filtered_sorted_list": {
+        "ceilingMs": 500,
+        "p95Ms": 256.5
+      },
+      "engine_grouped_measure": {
+        "ceilingMs": 1000,
+        "p95Ms": 622.8
+      },
+      "engine_record_detail": {
+        "ceilingMs": 500,
+        "p95Ms": 14.5
+      },
+      "engine_write_with_title_calculation": {
+        "ceilingMs": 1000,
+        "p95Ms": 76.9
+      }
+    }
+  },
+  "schemaVersion": 1,
+  "status": "recorded local acceptance; unshipped; rerun on the target machine",
+  "verifiedOn": "2026-10-03"
+}
