@@ -126,9 +126,9 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
     const id = randomUUID();
     await client.query(
       `INSERT INTO "AgentUsageEvent"
-         ("id", "companyId", "userId", "turnRequestId", "state", "reservedCredits", "chargedCredits",
-          "planSnapshot", "subscriptionStatusSnapshot", "allowanceCreditsSnapshot", "periodStart", "periodEnd")
-       VALUES ($1, $2, $3, $4, 'reserved', 5, 0, 'enterprise', 'active', 100,
+         ("id", "companyId", "userId", "turnRequestId", "state", "reservedMicrocents",
+          "planSnapshot", "subscriptionStatusSnapshot", "allowanceMicrocentsSnapshot", "periodStart", "periodEnd")
+       VALUES ($1, $2, $3, $4, 'reserved', 5000000, 'enterprise', 'active', 100000000,
                CURRENT_TIMESTAMP - INTERVAL '1 day', CURRENT_TIMESTAMP + INTERVAL '1 day')`,
       [id, companyId, ownerId, turnRequestId],
     );
@@ -1277,10 +1277,10 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
     });
     await client.query(
       `INSERT INTO "AgentUsageEvent"
-         ("id", "companyId", "userId", "turnRequestId", "state", "reservedCredits", "chargedCredits",
-          "planSnapshot", "subscriptionStatusSnapshot", "allowanceCreditsSnapshot", "periodStart", "periodEnd",
+         ("id", "companyId", "userId", "turnRequestId", "state", "reservedMicrocents", "chargedMicrocents",
+          "planSnapshot", "subscriptionStatusSnapshot", "allowanceMicrocentsSnapshot", "periodStart", "periodEnd",
           "settledAt")
-       VALUES ($1, $2, $3, $4, 'settled', 5, 3, 'enterprise', 'active', 100,
+       VALUES ($1, $2, $3, $4, 'settled', 5000000, 3000000, 'enterprise', 'active', 100000000,
                CURRENT_TIMESTAMP - INTERVAL '1 day', CURRENT_TIMESTAMP + INTERVAL '1 day', CURRENT_TIMESTAMP)`,
       [usageId, companyId, ownerId, inferredTurnId],
     );

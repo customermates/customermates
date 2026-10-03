@@ -66,14 +66,14 @@ function usageService(webSearchEnabled = true) {
     prepareTurn: vi.fn().mockResolvedValue({
       summary,
       reservation: {
-        reservedCredits: 44,
+        reservedMicrocents: 44_000_000,
         planSnapshot: "pro",
         subscriptionStatusSnapshot: "active",
-        allowanceCreditsSnapshot: 500,
+        allowanceMicrocentsSnapshot: 500_000_000,
         periodStart: summary.periodStart,
         periodEnd: summary.resetAt,
         budget: {
-          reservedCredits: 44,
+          reservedMicrocents: 44_000_000,
           maxOutputTokens: 2048,
           maxContextBytes: 200_000,
           maxToolResultChars: 6_000,
@@ -568,15 +568,8 @@ describe("agent access", () => {
     );
   });
 
-  it.each([
-    { label: "microcent", stored: { creditCeilingMicrocents: 2_000_000n, creditCeiling: 2 }, expected: 2_000_000 },
-    {
-      label: "previous-release whole-credit",
-      stored: { creditCeilingMicrocents: null, creditCeiling: 3 },
-      expected: 3_000_000,
-    },
-  ])(
-    "admits the initial routine message only through the internal routine path with a $label ceiling",
+  it.each([{ stored: { creditCeilingMicrocents: 2_000_000n }, expected: 2_000_000 }])(
+    "admits the initial routine message only through the internal routine path with its microcent ceiling",
     async ({ stored, expected }) => {
       const background = backgroundTasks();
       const usage = usageService();

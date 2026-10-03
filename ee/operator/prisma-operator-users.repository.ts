@@ -14,9 +14,9 @@ import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 
 import {
+  agentMicrocentsFromStorage,
   memberCreditHeadroomMicrocents,
   workspaceIndexingShareMicrocents,
-  microcentsWithLegacyCredits,
   resolveAgentCreditEntitlement,
 } from "@/ee/agent-chat/agent-credit-policy";
 import { env } from "@/env";
@@ -279,7 +279,6 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
           periodStart: true,
           periodEnd: true,
           deltaMicrocents: true,
-          creditDelta: true,
         },
       }),
       this.prisma.agentUsageEvent.findMany({
@@ -289,7 +288,6 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
           periodStart: true,
           periodEnd: true,
           chargedMicrocents: true,
-          chargedCredits: true,
         },
       }),
       this.prisma.agentUsageEvent.findMany({
@@ -302,7 +300,6 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
           periodStart: true,
           periodEnd: true,
           reservedMicrocents: true,
-          reservedCredits: true,
         },
       }),
     ]);
@@ -318,7 +315,7 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
       add(
         adjustmentByPeriod,
         periodKey(row.userId, row.periodStart, row.periodEnd),
-        microcentsWithLegacyCredits(row.deltaMicrocents, row.creditDelta, "Hosted-AI credit adjustment total"),
+        agentMicrocentsFromStorage(row.deltaMicrocents, "Hosted-AI credit adjustment total"),
         "Hosted-AI credit adjustment total",
       );
     }
@@ -329,7 +326,7 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
       add(
         committedByPeriod,
         periodKey(row.userId, row.periodStart, row.periodEnd),
-        microcentsWithLegacyCredits(row.chargedMicrocents, row.chargedCredits, "Charged hosted-AI credits"),
+        agentMicrocentsFromStorage(row.chargedMicrocents, "Charged hosted-AI credits"),
         "Committed hosted-AI credits",
       );
     }
@@ -338,7 +335,7 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
       add(
         committedByPeriod,
         periodKey(row.userId, row.periodStart, row.periodEnd),
-        microcentsWithLegacyCredits(row.reservedMicrocents, row.reservedCredits, "Reserved hosted-AI credits"),
+        agentMicrocentsFromStorage(row.reservedMicrocents, "Reserved hosted-AI credits"),
         "Committed hosted-AI credits",
       );
     }

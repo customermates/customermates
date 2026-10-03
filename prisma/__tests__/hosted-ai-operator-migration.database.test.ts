@@ -100,7 +100,6 @@ describeDatabase("hosted AI operator migration", { timeout: 120_000 }, () => {
       expect(checks.rows.map(({ conname }) => conname)).toEqual([
         "AgentCreditAdjustment_actor_id_valid",
         "AgentCreditAdjustment_delta_bounded_nonzero",
-        "AgentCreditAdjustment_delta_microcents_bounded",
         "AgentCreditAdjustment_operation_id_valid",
         "AgentCreditAdjustment_period_ordered",
         "AgentCreditAdjustment_reason_valid",
@@ -148,13 +147,15 @@ describeDatabase("hosted AI operator migration", { timeout: 120_000 }, () => {
       const adjustment = (id: string, delta: number, start = "2026-08-01", end = "2026-09-01") =>
         client.query(
           `INSERT INTO "AgentCreditAdjustment"
-             ("id", "companyId", "userId", "creditDelta", "periodStart", "periodEnd", "reason",
+             ("id", "companyId", "userId", "deltaMicrocents", "periodStart", "periodEnd", "reason",
               "operationId", "createdByOperatorUserId")
            VALUES ($1, 'co', 'u', $2, $3, $4, 'Correction', $1, 'operator')`,
           [id, delta, start, end],
         );
       await expect(adjustment("zero", 0)).rejects.toThrow(/AgentCreditAdjustment_delta_bounded_nonzero/u);
-      await expect(adjustment("large", 1_000_001)).rejects.toThrow(/AgentCreditAdjustment_delta_bounded_nonzero/u);
+      await expect(adjustment("large", 1_000_000_000_001)).rejects.toThrow(
+        /AgentCreditAdjustment_delta_bounded_nonzero/u,
+      );
       await expect(adjustment("period", 1, "2026-09-01", "2026-08-01")).rejects.toThrow(
         /AgentCreditAdjustment_period_ordered/u,
       );

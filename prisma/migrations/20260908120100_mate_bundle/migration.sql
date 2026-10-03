@@ -237,8 +237,8 @@ ALTER TABLE "WikiSourceDocument" ADD CONSTRAINT "WikiSourceDocument_companyId_fk
 CREATE UNIQUE INDEX "WikiWebsiteCrawl_active_company_key" ON "WikiWebsiteCrawl"("companyId")
   WHERE "status" IN ('queued', 'discovering', 'fetching', 'importing', 'synthesizing');
 
--- Exact charge units are millionths of one credit (one credit = one US cent). Backfill every existing ledger pair.
--- Keep legacy columns and synchronization until all old workers have drained; a later contract migration removes them.
+-- Exact charge units are millionths of one credit (one credit = one US cent). Backfill every ledger column, then drop
+-- the whole-credit columns. Constraints that referenced them are rebuilt on the exact columns.
 ALTER TABLE "AgentUsageEvent"
   ADD COLUMN "reservedMicrocents" BIGINT NOT NULL DEFAULT 0,
   ADD COLUMN "chargedMicrocents" BIGINT NOT NULL DEFAULT 0,
@@ -252,16 +252,23 @@ SET
   "allowanceMicrocentsSnapshot" = "allowanceCreditsSnapshot"::bigint * 1000000;
 
 ALTER TABLE "AgentUsageEvent"
-  ADD CONSTRAINT "AgentUsageEvent_microcents_nonnegative" CHECK (
+  DROP CONSTRAINT "AgentUsageEvent_amounts_nonnegative",
+  DROP CONSTRAINT "AgentUsageEvent_charge_within_reservation",
+  DROP CONSTRAINT "AgentUsageEvent_reserved_state_unsettled",
+  DROP CONSTRAINT "AgentUsageEvent_released_state_uncharged",
+  DROP COLUMN "reservedCredits",
+  DROP COLUMN "chargedCredits",
+  DROP COLUMN "allowanceCreditsSnapshot",
+  ADD CONSTRAINT "AgentUsageEvent_amounts_nonnegative" CHECK (
     "reservedMicrocents" >= 0 AND "chargedMicrocents" >= 0 AND "allowanceMicrocentsSnapshot" >= 0
+    AND "inputTokens" >= 0 AND "outputTokens" >= 0 AND "cacheReadTokens" >= 0
+    AND "cacheWriteTokens" >= 0 AND "costMicrocents" >= 0
   ),
-  ADD CONSTRAINT "AgentUsageEvent_microcent_charge_within_reservation" CHECK (
-    "chargedMicrocents" <= "reservedMicrocents"
+  ADD CONSTRAINT "AgentUsageEvent_charge_within_reservation" CHECK ("chargedMicrocents" <= "reservedMicrocents"),
+  ADD CONSTRAINT "AgentUsageEvent_reserved_state_unsettled" CHECK (
+    "state" <> 'reserved' OR ("settledAt" IS NULL AND "chargedMicrocents" = 0)
   ),
-  ADD CONSTRAINT "AgentUsageEvent_reserved_state_uncharged_microcents" CHECK (
-    "state" <> 'reserved' OR "chargedMicrocents" = 0
-  ),
-  ADD CONSTRAINT "AgentUsageEvent_released_state_uncharged_microcents" CHECK (
+  ADD CONSTRAINT "AgentUsageEvent_released_state_uncharged" CHECK (
     "state" <> 'released' OR "chargedMicrocents" = 0
   ),
   ADD CONSTRAINT "AgentUsageEvent_user_or_workspace_charge" CHECK (
@@ -276,6 +283,7 @@ CREATE UNIQUE INDEX "AgentUsageEvent_workspace_accrual_key"
 ALTER TABLE "RoutineRun" ADD COLUMN "chargedMicrocents" BIGINT NOT NULL DEFAULT 0;
 UPDATE "RoutineRun" SET "chargedMicrocents" = "chargedCredits"::bigint * 1000000;
 ALTER TABLE "RoutineRun"
+  DROP COLUMN "chargedCredits",
   ADD CONSTRAINT "RoutineRun_charged_microcents_nonnegative" CHECK ("chargedMicrocents" >= 0);
 
 ALTER TABLE "AgentConversation" ADD COLUMN "creditCeilingMicrocents" BIGINT;
@@ -283,16 +291,19 @@ UPDATE "AgentConversation"
 SET "creditCeilingMicrocents" = "creditCeiling"::bigint * 1000000
 WHERE "creditCeiling" IS NOT NULL;
 ALTER TABLE "AgentConversation"
+  DROP COLUMN "creditCeiling",
   ADD CONSTRAINT "AgentConversation_credit_ceiling_microcents_valid" CHECK (
     "creditCeilingMicrocents" IS NULL OR "creditCeilingMicrocents" > 0
   );
 
 ALTER TABLE "AgentCreditAdjustment" ADD COLUMN "deltaMicrocents" BIGINT NOT NULL DEFAULT 0;
 UPDATE "AgentCreditAdjustment" SET "deltaMicrocents" = "creditDelta"::bigint * 1000000;
-
 ALTER TABLE "AgentCreditAdjustment"
-  ADD CONSTRAINT "AgentCreditAdjustment_delta_microcents_bounded" CHECK (
-    "deltaMicrocents" BETWEEN -1000000000000 AND 1000000000000
+  DROP CONSTRAINT "AgentCreditAdjustment_delta_bounded_nonzero",
+  DROP COLUMN "creditDelta",
+  ALTER COLUMN "deltaMicrocents" DROP DEFAULT,
+  ADD CONSTRAINT "AgentCreditAdjustment_delta_bounded_nonzero" CHECK (
+    "deltaMicrocents" BETWEEN -1000000000000 AND 1000000000000 AND "deltaMicrocents" <> 0
   );
 
 CREATE OR REPLACE FUNCTION docs_search_config(locale text) RETURNS regconfig
@@ -375,78 +386,5 @@ CREATE TABLE "HostedAiPlatformReservation" (
   "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT "HostedAiPlatformReservation_reserved_positive" CHECK ("reservedMicrocents" > 0)
 );
-
--- Legacy reservations/charges round up; allowances and ceilings round down; signed adjustments round away from zero.
--- Exact writes preserve fractions. Legacy absolute writes remain valid during the mixed-worker deployment window.
-CREATE FUNCTION sync_agent_credit_pair() RETURNS trigger LANGUAGE plpgsql AS $$
-DECLARE
-  previous JSONB;
-  incoming JSONB := to_jsonb(NEW);
-  legacy_name TEXT;
-  exact_name TEXT;
-  rounding TEXT;
-  legacy BIGINT;
-  exact BIGINT;
-  old_legacy BIGINT;
-  old_exact BIGINT;
-  mirror BIGINT;
-  position INT := 0;
-BEGIN
-  IF TG_OP = 'UPDATE' THEN previous := to_jsonb(OLD); END IF;
-  WHILE position < TG_NARGS LOOP
-    legacy_name := TG_ARGV[position];
-    exact_name := TG_ARGV[position + 1];
-    rounding := TG_ARGV[position + 2];
-    legacy := (incoming ->> legacy_name)::bigint;
-    exact := (incoming ->> exact_name)::bigint;
-    old_legacy := (previous ->> legacy_name)::bigint;
-    old_exact := (previous ->> exact_name)::bigint;
-    mirror := CASE rounding
-      WHEN 'down' THEN floor(exact::numeric / 1000000)::bigint
-      WHEN 'away' THEN (sign(exact) * ceil(abs(exact)::numeric / 1000000))::bigint
-      ELSE ceil(exact::numeric / 1000000)::bigint END;
-    IF TG_OP = 'INSERT' THEN
-      IF (exact IS NULL OR exact = 0) AND legacy IS NOT NULL AND legacy <> 0 THEN
-        exact := legacy * 1000000;
-      END IF;
-    ELSIF exact IS NOT DISTINCT FROM old_exact AND legacy IS DISTINCT FROM old_legacy
-      AND legacy IS DISTINCT FROM mirror THEN
-      exact := legacy * 1000000;
-    END IF;
-    mirror := CASE rounding
-      WHEN 'down' THEN floor(exact::numeric / 1000000)::bigint
-      WHEN 'away' THEN (sign(exact) * ceil(abs(exact)::numeric / 1000000))::bigint
-      ELSE ceil(exact::numeric / 1000000)::bigint END;
-    incoming := incoming || jsonb_build_object(exact_name, exact, legacy_name, mirror);
-    position := position + 3;
-  END LOOP;
-  IF TG_TABLE_NAME = 'AgentUsageEvent'
-    AND TG_OP = 'UPDATE'
-    AND (to_jsonb(NEW) -> 'chargedMicrocents') IS NOT DISTINCT FROM (previous -> 'chargedMicrocents')
-    AND (to_jsonb(NEW) -> 'chargedCredits') IS DISTINCT FROM (previous -> 'chargedCredits')
-    AND (to_jsonb(NEW) ->> 'chargedCredits')::bigint <= (to_jsonb(NEW) ->> 'reservedCredits')::bigint
-    AND (incoming ->> 'chargedMicrocents')::bigint > (incoming ->> 'reservedMicrocents')::bigint THEN
-    incoming := incoming || jsonb_build_object(
-      'reservedMicrocents', (incoming ->> 'chargedMicrocents')::bigint,
-      'reservedCredits', (incoming ->> 'chargedCredits')::bigint
-    );
-  END IF;
-  NEW := jsonb_populate_record(NEW, incoming);
-  RETURN NEW;
-END;
-$$;
-
-CREATE TRIGGER "AgentUsageEvent_sync_credit_pairs" BEFORE INSERT OR UPDATE ON "AgentUsageEvent"
-FOR EACH ROW EXECUTE FUNCTION sync_agent_credit_pair(
-  'reservedCredits', 'reservedMicrocents', 'up',
-  'chargedCredits', 'chargedMicrocents', 'up',
-  'allowanceCreditsSnapshot', 'allowanceMicrocentsSnapshot', 'down'
-);
-CREATE TRIGGER "RoutineRun_sync_credit_pairs" BEFORE INSERT OR UPDATE ON "RoutineRun"
-FOR EACH ROW EXECUTE FUNCTION sync_agent_credit_pair('chargedCredits', 'chargedMicrocents', 'up');
-CREATE TRIGGER "AgentConversation_sync_credit_pairs" BEFORE INSERT OR UPDATE ON "AgentConversation"
-FOR EACH ROW EXECUTE FUNCTION sync_agent_credit_pair('creditCeiling', 'creditCeilingMicrocents', 'down');
-CREATE TRIGGER "AgentCreditAdjustment_sync_credit_pairs" BEFORE INSERT OR UPDATE ON "AgentCreditAdjustment"
-FOR EACH ROW EXECUTE FUNCTION sync_agent_credit_pair('creditDelta', 'deltaMicrocents', 'away');
 
 COMMIT;

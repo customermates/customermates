@@ -95,7 +95,7 @@ function fixture() {
     findConversation: vi.fn().mockResolvedValue({
       id: CONVERSATION_ID,
       origin: "routine",
-      creditCeiling: 500,
+      creditCeilingMicrocents: 500_000_000n,
     }),
     findInteractiveConversation: vi
       .fn()

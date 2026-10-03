@@ -243,7 +243,6 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         modelKey: null,
         origin: "user",
         creditCeilingMicrocents: null,
-        creditCeiling: null,
         selectedAt: new Date("2026-08-06T10:00:00.000Z"),
       },
       select: { id: true },
@@ -276,7 +275,6 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         modelKey: null,
         origin: "routine",
         creditCeilingMicrocents: 2_500_000,
-        creditCeiling: 2,
         selectedAt: now,
       },
       select: { id: true },
@@ -1938,7 +1936,6 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         planSnapshot: "pro",
         subscriptionStatusSnapshot: "active",
         allowanceMicrocentsSnapshot: 500_000_000,
-        allowanceCreditsSnapshot: 500,
         periodStart: new Date("2026-07-15T10:30:00.000Z"),
         periodEnd: new Date("2026-08-15T10:30:00.000Z"),
       },
@@ -2142,7 +2139,6 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         costMicrocents: 123,
         costSource: "measured",
         chargedMicrocents: 1_000_000,
-        chargedCredits: 1,
         policyBreach: false,
         settledAt: completedAt,
       },
@@ -2419,7 +2415,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         state: "reserved",
         providerStartedAt: null,
       },
-      data: { state: "released", chargedMicrocents: 0, chargedCredits: 0, settledAt: now },
+      data: { state: "released", chargedMicrocents: 0, settledAt: now },
     });
     expect(prismaMock.agentTurnRequest.updateMany).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -2462,46 +2458,12 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         costSource: "estimated",
         reservedMicrocents: 6_000_000,
         chargedMicrocents: 6_000_000,
-        chargedCredits: 6,
         settledAt: now,
       },
     });
     expect(prismaMock.agentTurnRequest.updateMany).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ status: "uncertain", terminalAt: now }),
-      }),
-    );
-  });
-
-  it("retains an interrupted previous-release reservation at its whole-credit amount", async () => {
-    const now = new Date("2026-08-06T10:10:00.000Z");
-    prismaMock.agentRunLease.findMany.mockResolvedValue([
-      { runId: "run-1", expiresAt: new Date("2026-08-06T10:00:00.000Z") },
-    ]);
-    prismaMock.agentTurnRequest.findFirst.mockResolvedValue(
-      storedTurn({ providerStartedAt: new Date("2026-08-06T09:59:00.000Z") }),
-    );
-    prismaMock.agentUsageEvent.findFirst.mockResolvedValue({
-      id: "reservation-1",
-      reservedMicrocents: 0n,
-      reservedCredits: 7,
-    });
-    prismaMock.agentUsageEvent.updateMany.mockResolvedValue({ count: 1 });
-    prismaMock.agentTurnRequest.updateMany.mockResolvedValue({ count: 1 });
-    prismaMock.agentRunLease.deleteMany.mockResolvedValue({ count: 1 });
-
-    await runWithTenant(user, () =>
-      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).normalizeExpiredAgentRunLease(now, "claude-test"),
-    );
-
-    expect(prismaMock.agentUsageEvent.updateMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({
-          state: "retained",
-          reservedMicrocents: 7_000_000,
-          chargedMicrocents: 7_000_000,
-          chargedCredits: 7,
-        }),
       }),
     );
   });
@@ -2536,7 +2498,6 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       data: {
         state: "released",
         chargedMicrocents: 0,
-        chargedCredits: 0,
         settledAt: expect.any(Date),
       },
     });
@@ -3015,7 +2976,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         companyId: user.companyId,
         state: "reserved",
       },
-      data: { state: "released", chargedMicrocents: 0, chargedCredits: 0, settledAt: releasedAt },
+      data: { state: "released", chargedMicrocents: 0, settledAt: releasedAt },
     });
   });
 

@@ -740,7 +740,6 @@ export async function seedRoutines(context: SeedContext): Promise<void> {
           finishedAt,
           terminalCode: run.status === RoutineRunStatus.succeeded ? AgentTurnTerminalCode.completed : null,
           chargedMicrocents: agentCreditsToMicrocents(run.chargedCredits),
-          chargedCredits: Math.ceil(run.chargedCredits),
           summary: run.summary ?? null,
           error: run.error ?? null,
         };

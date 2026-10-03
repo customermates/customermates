@@ -513,13 +513,12 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     const rows = await runWithoutTenant(() =>
       prisma.agentUsageEvent.findMany({
         where: { userId },
-        select: { reservedMicrocents: true, reservedCredits: true, state: true },
+        select: { reservedMicrocents: true, state: true },
       }),
     );
     const reservedTotal = rows.reduce((total, row) => total + Number(row.reservedMicrocents), 0);
 
     expect(reservedTotal).toBe(200 * CREDIT);
-    expect(rows.reduce((total, row) => total + row.reservedCredits, 0)).toBe(200);
     expect(rows.every((row) => row.state === "reserved")).toBe(true);
   });
 
@@ -623,7 +622,6 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
           companyId,
           userId: colleagueId,
           deltaMicrocents: 2_500_000n,
-          creditDelta: 3,
           periodStart: empty.periodStart,
           periodEnd: empty.periodEnd,
           operationId: randomUUID(),
@@ -743,7 +741,6 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
           costMicrocents: true,
           chargedMicrocents: true,
           reservedMicrocents: true,
-          chargedCredits: true,
           inputTokens: true,
         },
       }),
@@ -756,7 +753,6 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
         costMicrocents: 1_100_001n,
         chargedMicrocents: 1_100_001n,
         reservedMicrocents: 1_100_001n,
-        chargedCredits: 2,
         inputTokens: 20,
       },
       {
@@ -766,7 +762,6 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
         costMicrocents: 51n,
         chargedMicrocents: 45n,
         reservedMicrocents: 45n,
-        chargedCredits: 1,
         inputTokens: 30,
       },
     ]);
@@ -1046,77 +1041,6 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     expect((await platformCost()) - before).toBe(180n);
   });
 
-  it("counts rows and adjustments the previous release wrote in whole credits only", async () => {
-    const anchor = new Date(Date.UTC(2026, 0, 15));
-    const now = new Date();
-    const { companyId, userId } = await seedActiveSeat(anchor);
-    const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
-    const pool = await runWithoutTenant(() => repo.getWorkspaceCreditPoolUnscoped(companyId, now));
-    if (!pool) throw new Error("Expected a workspace credit pool.");
-    const legacyRow = (state: "reserved" | "settled", credits: number) =>
-      runWithoutTenant(() =>
-        prisma.agentUsageEvent.create({
-          data: {
-            id: randomUUID(),
-            companyId,
-            userId,
-            sessionId: randomUUID(),
-            state,
-            reservedCredits: credits,
-            chargedCredits: state === "settled" ? credits : 0,
-            settledAt: state === "settled" ? now : null,
-            planSnapshot: "starter",
-            subscriptionStatusSnapshot: "active",
-            allowanceCreditsSnapshot: 200,
-            periodStart: pool.periodStart,
-            periodEnd: pool.periodEnd,
-          },
-        }),
-      );
-    await legacyRow("reserved", 5);
-    await legacyRow("settled", 3);
-    await runWithoutTenant(() =>
-      prisma.agentCreditAdjustment.create({
-        data: {
-          companyId,
-          userId,
-          creditDelta: 10,
-          periodStart: pool.periodStart,
-          periodEnd: pool.periodEnd,
-          operationId: randomUUID(),
-          createdByOperatorUserId: "fixture",
-        },
-      }),
-    );
-
-    await expect(
-      runWithoutTenant(() => repo.getUserCreditUsageUnscoped(companyId, userId, pool.periodStart, pool.periodEnd)),
-    ).resolves.toMatchObject({ usedMicrocents: 8 * CREDIT, recentTurnMicrocents: 3 * CREDIT });
-    await expect(
-      runWithoutTenant(() => repo.getUserCreditAdjustmentUnscoped(companyId, userId, pool.periodStart, pool.periodEnd)),
-    ).resolves.toBe(10 * CREDIT);
-    await expect(runWithoutTenant(() => repo.getWorkspaceCreditPoolUnscoped(companyId, now))).resolves.toMatchObject({
-      limitMicrocents: 210 * CREDIT,
-      usedMicrocents: 8 * CREDIT,
-    });
-    await expect(
-      runWithoutTenant(() =>
-        repo.reserveUsageEventUnscoped({
-          id: randomUUID(),
-          companyId,
-          userId,
-          sessionId: randomUUID(),
-          reservedMicrocents: 202 * CREDIT + 1,
-          planSnapshot: "starter",
-          subscriptionStatusSnapshot: "active",
-          allowanceMicrocentsSnapshot: 210 * CREDIT,
-          periodStart: pool.periodStart,
-          periodEnd: pool.periodEnd,
-        }),
-      ),
-    ).rejects.toThrow(/exceeds the current allowance/);
-  });
-
   it("admits a reservation to the exact microcent of the remaining allowance", async () => {
     const anchor = new Date(Date.UTC(2026, 0, 15));
     const { companyId, userId } = await seedActiveSeat(anchor);
@@ -1145,12 +1069,12 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       prisma.agentUsageEvent.findMany({
         where: { userId },
         orderBy: { createdAt: "asc" },
-        select: { reservedMicrocents: true, reservedCredits: true, allowanceMicrocentsSnapshot: true },
+        select: { reservedMicrocents: true, allowanceMicrocentsSnapshot: true },
       }),
     );
     expect(rows).toEqual([
-      { reservedMicrocents: 199_249_999n, reservedCredits: 200, allowanceMicrocentsSnapshot: 200_000_000n },
-      { reservedMicrocents: 750_001n, reservedCredits: 1, allowanceMicrocentsSnapshot: 200_000_000n },
+      { reservedMicrocents: 199_249_999n, allowanceMicrocentsSnapshot: 200_000_000n },
+      { reservedMicrocents: 750_001n, allowanceMicrocentsSnapshot: 200_000_000n },
     ]);
   });
 
@@ -1686,7 +1610,6 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       costMicrocents: 1_080_587n,
       costSource: "estimated",
       chargedMicrocents: 1_080_587n,
-      chargedCredits: 2,
       policyBreach: false,
     });
     expect(usage).toEqual({ usedMicrocents: 1_080_587, recentTurnMicrocents: 1_080_587 });

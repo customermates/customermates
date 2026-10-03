@@ -6,12 +6,7 @@ import { TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER } from "@/ee/subscription/entit
 import {
   agentCreditPeriodForAnchor,
   agentMicrocentsFromStorage,
-  legacyCreditsAwayFromZero,
-  legacyCreditsRoundedDown,
-  legacyCreditsRoundedUp,
-  ceilingMicrocentsWithLegacyCredits,
   memberCreditHeadroomMicrocents,
-  microcentsWithLegacyCredits,
   prorateAgentAllowanceForSeat,
   resolveAgentCreditEntitlement,
   workspaceAgentCreditRate,
@@ -279,24 +274,6 @@ describe("agentCreditPeriodForAnchor month-end and leap-year anchors", () => {
   });
 });
 
-describe("legacy whole-credit columns", () => {
-  it.each([
-    [0, 0, 0, 0],
-    [1, 1, 0, 1],
-    [999_999, 1, 0, 1],
-    [1_000_000, 1, 1, 1],
-    [1_000_001, 2, 1, 2],
-    [-1, 0, -1, -1],
-    [-999_999, 0, -1, -1],
-    [-1_000_000, -1, -1, -1],
-    [-1_000_001, -1, -2, -2],
-  ])("rounds %i microcents up to %i, down to %i, and away from zero to %i", (microcents, up, down, away) => {
-    expect(legacyCreditsRoundedUp(microcents)).toBe(up);
-    expect(legacyCreditsRoundedDown(microcents)).toBe(down);
-    expect(legacyCreditsAwayFromZero(microcents)).toBe(away);
-  });
-});
-
 describe("workspace indexing share", () => {
   it("splits unassigned indexing usage by allowance, rounding each share up", () => {
     const pool = 1_000 * CREDIT;
@@ -341,18 +318,5 @@ describe("workspace indexing share", () => {
     expect(headroom(100, 100)).toBe(400);
     expect(headroom(100, 950)).toBe(50);
     expect(headroom(600, 700)).toBe(0);
-  });
-});
-
-describe("previous-release rows during the deploy window", () => {
-  it("reads whole credits when a row carries no microcent value", () => {
-    expect(microcentsWithLegacyCredits(0n, 5, "row")).toBe(5 * CREDIT);
-    expect(microcentsWithLegacyCredits(0n, -3, "row")).toBe(-3 * CREDIT);
-    expect(microcentsWithLegacyCredits(0n, 0, "row")).toBe(0);
-    expect(microcentsWithLegacyCredits(null, null, "row")).toBe(0);
-    expect(microcentsWithLegacyCredits(750_000n, 1, "row")).toBe(750_000);
-    expect(ceilingMicrocentsWithLegacyCredits(null, 10, "ceiling")).toBe(10 * CREDIT);
-    expect(ceilingMicrocentsWithLegacyCredits(null, null, "ceiling")).toBeNull();
-    expect(ceilingMicrocentsWithLegacyCredits(2_500_000n, 2, "ceiling")).toBe(2_500_000);
   });
 });

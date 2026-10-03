@@ -156,7 +156,6 @@ async function createUsage(args: {
         planSnapshot: "enterprise",
         subscriptionStatusSnapshot: "active",
         allowanceMicrocentsSnapshot: 10_000_000n,
-        allowanceCreditsSnapshot: 10,
         periodStart,
         periodEnd,
         providerStartedAt: args.state === "reserved" ? null : now,
@@ -479,9 +478,6 @@ describeDatabase("operator user administration against a real database", { timeo
           model: "embedding",
           reservedMicrocents: 100_000_000n,
           chargedMicrocents: 100_000_000n,
-          reservedCredits: 100,
-          chargedCredits: 100,
-          allowanceCreditsSnapshot: 1000,
           allowanceMicrocentsSnapshot: 1_000_000_000n,
           costMicrocents: 100_000_000n,
           planSnapshot: "enterprise",
@@ -585,7 +581,6 @@ describeDatabase("operator user administration against a real database", { timeo
           companyId,
           userId: target.userId,
           deltaMicrocents: 4_000_000n,
-          creditDelta: 4,
           periodStart,
           periodEnd,
           reason: "Existing support adjustment",
@@ -743,7 +738,6 @@ describeDatabase("operator user administration against a real database", { timeo
           companyId,
           userId: target.userId,
           deltaMicrocents: 2_000_000n,
-          creditDelta: 2,
           periodStart,
           periodEnd,
           reason: "Existing adjustment above committed usage",
@@ -995,7 +989,6 @@ describeDatabase("operator user administration against a real database", { timeo
           companyId: companyB,
           userId: targetB.userId,
           deltaMicrocents: 99_000_000n,
-          creditDelta: 99,
           periodStart,
           periodEnd,
           reason: "Belongs to another workspace",
@@ -1028,7 +1021,6 @@ describeDatabase("operator user administration against a real database", { timeo
       });
       expect(foreign.companyId).toBe(companyB);
       expect(foreign.deltaMicrocents).toBe(99_000_000n);
-      expect(foreign.creditDelta).toBe(99);
     });
   });
 });

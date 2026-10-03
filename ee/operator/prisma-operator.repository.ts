@@ -9,7 +9,6 @@ import { runInTransaction } from "@/core/decorators/transaction-runner";
 import {
   agentCreditsToMicrocents,
   agentMicrocentsFromStorage,
-  legacyCreditsAwayFromZero,
   resolveAgentCreditEntitlement,
   memberCreditHeadroomMicrocents,
   workspaceIndexingShareMicrocents,
@@ -191,10 +190,6 @@ function emptyUserSummary(): OperatorUserSummaryDto {
   };
 }
 
-function withLegacyCredits(microcents: bigint | null | undefined, legacyCredits: number | null | undefined): bigint {
-  return (microcents ?? 0n) + BigInt(legacyCredits ?? 0) * 1_000_000n;
-}
-
 function toUsageTotals(input: {
   settledCostMicrocents: bigint | null | undefined;
   chargedMicrocents: bigint | null | undefined;
@@ -248,45 +243,27 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
       ...seat,
       state: { in: ["reserved" as const, "retained" as const] },
     };
-    const [adjustments, legacyAdjustments, settled, legacySettled, reserved, legacyReserved] = await Promise.all([
+    const [adjustments, settled, reserved] = await Promise.all([
       this.prisma.agentCreditAdjustment.aggregate({
         where: seat,
         _sum: { deltaMicrocents: true },
-      }),
-      this.prisma.agentCreditAdjustment.aggregate({
-        where: { ...seat, deltaMicrocents: 0 },
-        _sum: { creditDelta: true },
       }),
       this.prisma.agentUsageEvent.aggregate({
         where: settledWhere,
         _sum: { chargedMicrocents: true },
       }),
       this.prisma.agentUsageEvent.aggregate({
-        where: { ...settledWhere, chargedMicrocents: 0 },
-        _sum: { chargedCredits: true },
-      }),
-      this.prisma.agentUsageEvent.aggregate({
         where: reservedWhere,
         _sum: { reservedMicrocents: true },
-      }),
-      this.prisma.agentUsageEvent.aggregate({
-        where: { ...reservedWhere, reservedMicrocents: 0 },
-        _sum: { reservedCredits: true },
       }),
     ]);
     return {
       adjustmentMicrocents: agentMicrocentsFromStorage(
-        withLegacyCredits(adjustments._sum.deltaMicrocents, legacyAdjustments._sum.creditDelta),
+        adjustments._sum.deltaMicrocents,
         "Hosted-AI credit adjustment total",
       ),
-      chargedMicrocents: asSafeMicrocents(
-        withLegacyCredits(settled._sum.chargedMicrocents, legacySettled._sum.chargedCredits),
-        "Charged hosted-AI credits",
-      ),
-      reservedMicrocents: asSafeMicrocents(
-        withLegacyCredits(reserved._sum.reservedMicrocents, legacyReserved._sum.reservedCredits),
-        "Reserved hosted-AI credits",
-      ),
+      chargedMicrocents: asSafeMicrocents(settled._sum.chargedMicrocents, "Charged hosted-AI credits"),
+      reservedMicrocents: asSafeMicrocents(reserved._sum.reservedMicrocents, "Reserved hosted-AI credits"),
     };
   }
 
@@ -302,22 +279,14 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
       ...companyWhere,
       state: { in: ["reserved" as const, "retained" as const] },
     };
-    const [settled, legacySettled, reserved, legacyReserved] = await Promise.all([
+    const [settled, reserved] = await Promise.all([
       this.prisma.agentUsageEvent.aggregate({
         where: settledWhere,
         _sum: { costMicrocents: true, chargedMicrocents: true },
       }),
       this.prisma.agentUsageEvent.aggregate({
-        where: { ...settledWhere, chargedMicrocents: 0 },
-        _sum: { chargedCredits: true },
-      }),
-      this.prisma.agentUsageEvent.aggregate({
         where: reservedWhere,
         _sum: { reservedMicrocents: true },
-      }),
-      this.prisma.agentUsageEvent.aggregate({
-        where: { ...reservedWhere, reservedMicrocents: 0 },
-        _sum: { reservedCredits: true },
       }),
     ]);
 
@@ -333,10 +302,8 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
 
     return toUsageTotals({
       settledCostMicrocents: (settled._sum.costMicrocents ?? 0n) + (platform?._sum.costMicrocents ?? 0n),
-      chargedMicrocents: withLegacyCredits(settled._sum.chargedMicrocents, legacySettled._sum.chargedCredits),
-      reservedMicrocents:
-        withLegacyCredits(reserved._sum.reservedMicrocents, legacyReserved._sum.reservedCredits) +
-        (platformReserved?._sum.reservedMicrocents ?? 0n),
+      chargedMicrocents: settled._sum.chargedMicrocents,
+      reservedMicrocents: (reserved._sum.reservedMicrocents ?? 0n) + (platformReserved?._sum.reservedMicrocents ?? 0n),
     });
   }
 
@@ -1000,7 +967,6 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
             companyId: data.companyId,
             userId: data.userId,
             deltaMicrocents,
-            creditDelta: legacyCreditsAwayFromZero(deltaMicrocents),
             periodStart,
             periodEnd,
             reason,
@@ -1096,7 +1062,6 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
             companyId,
             userId: data.userId,
             deltaMicrocents,
-            creditDelta: legacyCreditsAwayFromZero(deltaMicrocents),
             periodStart: credit.periodStart,
             periodEnd: credit.periodEnd,
             reason,

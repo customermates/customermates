@@ -5,7 +5,7 @@ import { SubscriptionStatus, type SubscriptionPlan } from "@/generated/prisma";
 import type { Data } from "@/core/validation/validation.utils";
 import { assertValidDate } from "@/core/utils/date";
 
-import { AGENT_CREDIT_MICROCENTS, agentCreditsToMicrocents } from "@/core/commercial/agent-credits";
+import { agentCreditsToMicrocents } from "@/core/commercial/agent-credits";
 import { getEntitlements, TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER } from "@/ee/subscription/entitlements";
 
 export {
@@ -14,19 +14,6 @@ export {
   agentCreditsToMicrocents,
   agentMicrocentsToCredits,
 } from "@/core/commercial/agent-credits";
-
-export function legacyCreditsRoundedUp(microcents: number): number {
-  return Math.ceil(microcents / AGENT_CREDIT_MICROCENTS) || 0;
-}
-
-export function legacyCreditsRoundedDown(microcents: number): number {
-  return Math.floor(microcents / AGENT_CREDIT_MICROCENTS);
-}
-
-export function legacyCreditsAwayFromZero(microcents: number): number {
-  const credits = Math.ceil(Math.abs(microcents) / AGENT_CREDIT_MICROCENTS);
-  return microcents < 0 ? -credits : credits;
-}
 
 export const AGENT_RETRIEVAL_RESERVATION_TTL_MS = 15 * 60 * 1000;
 export const AGENT_RETRIEVAL_PLATFORM_PURPOSE = "wikiQueryEmbeddingUnused";
@@ -63,27 +50,6 @@ export function agentMicrocentsFromStorage(value: bigint | number | null | undef
   if (!Number.isSafeInteger(microcents) || (typeof value === "bigint" && BigInt(microcents) !== value))
     throw new Error(`${description} is invalid.`);
   return microcents;
-}
-
-export function microcentsWithLegacyCredits(
-  microcents: bigint | number | null | undefined,
-  credits: number | null | undefined,
-  description: string,
-): number {
-  const exact = agentMicrocentsFromStorage(microcents, description);
-  if (exact !== 0 || !credits) return exact;
-  return agentMicrocentsFromStorage(BigInt(credits) * BigInt(AGENT_CREDIT_MICROCENTS), description);
-}
-
-export function ceilingMicrocentsWithLegacyCredits(
-  microcents: bigint | null,
-  credits: number | null,
-  description: string,
-): number | null {
-  if (microcents !== null) return agentMicrocentsFromStorage(microcents, description);
-  return credits === null
-    ? null
-    : agentMicrocentsFromStorage(BigInt(credits) * BigInt(AGENT_CREDIT_MICROCENTS), description);
 }
 
 export const AgentCreditEntitlementBlockedReasonSchema = z.enum([
