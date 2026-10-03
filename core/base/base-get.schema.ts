@@ -72,13 +72,14 @@ export const FilterSchema = z.preprocess(
       })
       .strict()
       .meta({ title: "Relationship existence filter" }),
-    z
-      .object({
-        field: z.string(),
-        operator: z.literal(FilterOperatorKey.inLastDays).meta({ title: "inLastDays" }),
-        value: z.coerce.number().int().positive(),
-      })
-      .meta({ title: "Relative window filter" }),
+    z.object({
+      field: z.string(),
+      operator: z.enum([FilterOperatorKey.inLastDays, FilterOperatorKey.notInLastDays]),
+      value: z.preprocess(
+        (value) => (typeof value === "number" || typeof value === "string" ? value : Number.NaN),
+        z.coerce.number().int().positive(),
+      ),
+    }),
   ]),
 );
 export type Filter = Data<typeof FilterSchema>;
@@ -116,10 +117,20 @@ export type GroupedPaginationRequest = Data<typeof GroupedPaginationRequestSchem
 export const GroupValueSumsSchema = z.record(z.string(), z.number());
 export type GroupValueSums = Data<typeof GroupValueSumsSchema>;
 
+export const FilterOptionSchema = z.object({
+  value: z.string(),
+  label: z.string().nullable(),
+  groupLabel: z.string().nullable().optional(),
+  groupKey: z.string().optional(),
+  provider: z.string().optional(),
+});
+export type FilterOption = Data<typeof FilterOptionSchema>;
+
 export const FilterableFieldSchema = z.object({
   field: z.string(),
   operators: z.array(z.enum(FilterOperatorKey)),
   label: z.string().optional(),
+  options: z.array(FilterOptionSchema).optional(),
 });
 export type FilterableField = Data<typeof FilterableFieldSchema>;
 

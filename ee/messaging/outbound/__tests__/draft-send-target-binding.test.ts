@@ -184,6 +184,51 @@ function expectDraftNotFound(result: any) {
 describe("SendEmailInteractor draft target binding", () => {
   beforeEach(() => vi.clearAllMocks());
 
+  it("delivers a saved Bcc-only cold draft with an empty public To list", async () => {
+    const repo = emailRepo({
+      findDraftById: vi.fn().mockResolvedValue({
+        ...emailDraft,
+        recipientIdentifiers: [],
+        ccIdentifiers: [],
+        bccIdentifiers: ["hidden@example.com"],
+      }),
+    });
+    const service = emailService();
+    service.getEmail.mockResolvedValue({ ...sentEmail, to: [], bcc: [{ email: "hidden@example.com" }] });
+    const result = await emailInteractor(repo, service).invoke({
+      ...coldEmailInput,
+      to: [],
+      bcc: ["hidden@example.com"],
+    });
+    expect(result.ok).toBe(true);
+    expect(service.sendEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: [],
+        bcc: [{ email: "hidden@example.com" }],
+      }),
+    );
+  });
+
+  it.each([
+    { to: [], bcc: ["other@example.com"] },
+    { to: [], cc: ["hidden@example.com"] },
+    { to: [{ identifier: "hidden@example.com" }] },
+  ])("rejects a changed Bcc-only target or a hidden recipient promoted to another field: %j", async (groups) => {
+    const repo = emailRepo({
+      findDraftById: vi.fn().mockResolvedValue({
+        ...emailDraft,
+        recipientIdentifiers: [],
+        ccIdentifiers: [],
+        bccIdentifiers: ["hidden@example.com"],
+      }),
+    });
+    const service = emailService();
+    const result = await emailInteractor(repo, service).invoke({ ...coldEmailInput, ...groups });
+    expectDraftNotFound(result);
+    expect(service.sendEmail).not.toHaveBeenCalled();
+    expect(repo.discardDraftAfterSend).not.toHaveBeenCalled();
+  });
+
   it.each([
     ["another account", { connectedAccountId: OTHER_ACCOUNT_ID, unipileThreadId: "draft_email" }],
     ["a real provider thread", { connectedAccountId: EMAIL_ACCOUNT_ID, unipileThreadId: "email-thread" }],

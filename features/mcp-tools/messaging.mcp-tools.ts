@@ -18,7 +18,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { threadFolder } from "./thread-folder";
 import { MoveEmailThreadSchema } from "@/ee/messaging/inbox/move-email-thread.interactor";
 
-import { GetQueryParamsSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
+import { FilterableFieldSchema, GetQueryParamsSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
 import { filterFieldsHint } from "@/core/types/filter-field-value-kind";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { isRedirect } from "@/features/auth/auth-outcome";
@@ -30,6 +30,7 @@ import { BaseSendChatMessageSchema } from "@/ee/messaging/outbound/send-chat-mes
 import { BaseStartChatInputSchema, StartChatInputSchema } from "@/ee/messaging/outbound/start-chat.interactor";
 import { SaveDraftSchema } from "@/ee/messaging/outbound/save-draft.interactor";
 import { DiscardDraftSchema } from "@/ee/messaging/outbound/discard-draft.interactor";
+import { MessagingAttendeeSchema } from "@/ee/messaging/messaging.schema";
 
 import { UpdateThreadSchema } from "@/ee/messaging/thread-state/update-thread.interactor";
 import {
@@ -70,8 +71,14 @@ const GetMessagingThreadsSchema = z.object({
         FilterFieldKey.draft,
         FilterFieldKey.participantContactId,
         FilterFieldKey.participants,
+        FilterFieldKey.connectedAccountId,
+        FilterFieldKey.emailFolder,
+        FilterFieldKey.lastMessageDirection,
+        FilterFieldKey.lastMessageSentAt,
+        FilterFieldKey.lastMessageAt,
       ]),
-    ),
+    ) +
+      " Use scoped options; folders are JSON [accountId,folderId] grouped by account. Last direction/date exclude drafts/deleted/events. AND notInLastDays:3 + inLastDays:7; last activity includes drafts.",
   ),
   sortDescriptor: SortDescriptorSchema.optional().describe(sortDescription("lastMessageAt")),
 });
@@ -86,15 +93,31 @@ const linkedParticipantOutput = z.looseObject({
   contact: z.object({ id: z.string(), name: z.string().nullable() }).nullable(),
 });
 
+const messageRecipientOutput = MessagingAttendeeSchema.pick({ identifier: true, displayName: true });
+
 const GetMessagingThreadsOutputSchema = z
   .looseObject({
+    filterableFields: z.array(FilterableFieldSchema).optional(),
     thread: z
       .looseObject({
         id: z.string(),
         participants: z.array(linkedParticipantOutput),
       })
       .optional(),
-    messages: z.array(z.looseObject({ id: z.string(), isDraft: z.boolean().optional() })).optional(),
+    messages: z
+      .array(
+        z.looseObject({
+          id: z.string(),
+          isDraft: z.boolean().optional(),
+          senderIdentifier: z.string().nullable(),
+          recipients: z.object({
+            to: z.array(messageRecipientOutput),
+            cc: z.array(messageRecipientOutput),
+            bcc: z.array(messageRecipientOutput),
+          }),
+        }),
+      )
+      .optional(),
     items: z
       .array(
         z.looseObject({
@@ -160,10 +183,7 @@ export const getMessagingThreadsTool = {
   name: "get_messaging_threads",
   title: "Get messaging threads",
   description:
-    "Use this when reading the inbox: without threadId lists message threads across connected accounts; with threadId returns that thread's detail (full participants plus a page of messages, drafts flagged isDraft, page 1 is the most recent). " +
-    "List rows carry id, name/subject/preview, state, lastMessageAt, and participants (displayName, identifier, provider, isSelf, isLinked, linked CRM contact) capped at 50; message bodies appear only in detail mode. " +
-    "List mode omits threads that have no messages yet (unless they hold a draft); detail by threadId returns any thread. " +
-    "A participant with isLinked=false is NOT yet a CRM contact; filter `participants` with the `hasUnset` operator to find threads that have such people.",
+    "Read accessible inbox threads; page paginates lists and threadId messages (newest first, isDraft flags drafts). Detail messages include senderIdentifier and separate To/Cc/Bcc recipient groups for draft editing or sending. Bcc is returned only for outgoing mail with whole-account access; never promote it into To, Cc or public participants. Lists return scoped filterableFields and up to 50 participants. Empty threads need drafts; participants:hasUnset finds people without CRM links.",
   annotations: {
     readOnlyHint: true,
     idempotentHint: true,
@@ -210,6 +230,21 @@ export const getMessagingThreadsTool = {
               id: message.id,
               direction: message.direction,
               sender: message.sender?.displayName ?? message.sender?.identifier ?? null,
+              senderIdentifier: message.sender?.identifier ?? null,
+              recipients: {
+                to: message.recipients.to.map((person) => ({
+                  identifier: person.identifier,
+                  displayName: person.displayName,
+                })),
+                cc: message.recipients.cc.map((person) => ({
+                  identifier: person.identifier,
+                  displayName: person.displayName,
+                })),
+                bcc: message.recipients.bcc.map((person) => ({
+                  identifier: person.identifier,
+                  displayName: person.displayName,
+                })),
+              },
               subject: message.subject,
               bodyText: message.bodyText,
               isDraft: message.isDraft,
@@ -242,6 +277,7 @@ export const getMessagingThreadsTool = {
           formatDatesInResponse({
             total: data.pagination?.total ?? data.items.length,
             page,
+            filterableFields: data.filterableFields,
             items: data.items.map((thread) => ({
               id: thread.id,
               connectedAccountId: thread.connectedAccountId,
@@ -477,15 +513,12 @@ export const sendEmailTool = {
   name: "send_email",
   title: "Send email",
   description:
-    "Send a real email (or reply) from a connected email account. SIDE EFFECT: delivers a real message that cannot be recalled. " +
-    "Show your user the recipients and the exact text and get their go-ahead before calling; use save_message_draft when they have not approved wording. " +
-    "Required: to, subject, body, and at least one of threadId (reply; takes precedence if both given) or connectedAccountId (new email). " +
-    "Optional: cc, bcc. cc/bcc are plain email strings (not the {identifier} object form used by to). " +
-    "When sending a saved draft, pass both draftMessageId and its opaque draftRevision from save_message_draft or get_messaging_threads. " +
-    "The connected account's enabled signature is appended automatically and its email appearance is applied, " +
-    "so never write a sign-off or signature into body. " +
-    "When replying into a thread, an identical body sent to that thread within about a minute is rejected as a duplicate. " +
-    "connectedAccountId is get_workspace_context.connectedAccounts[].id (check its status is ok first); threadId is get_messaging_threads.items[].id.",
+    "SIDE EFFECT: sends a real email that cannot be recalled. Show recipients and exact text; get approval first, otherwise use save_message_draft. " +
+    "Requires to, subject, body and threadId (reply, takes precedence) or connectedAccountId (new email). " +
+    "to uses {identifier} objects; cc/bcc use email strings. At least one recipient across these groups; to: [] allows Cc-only or Bcc-only email. Never promote Bcc into To/Cc. " +
+    "Saved drafts require draftMessageId and draftRevision from save_message_draft or get_messaging_threads. " +
+    "The enabled account signature and appearance apply automatically; never add a sign-off/signature to body. Duplicate reply bodies within a minute are rejected. " +
+    "Use connectedAccountId from get_workspace_context.connectedAccounts[].id (status ok); threadId from get_messaging_threads.items[].id.",
   annotations: {
     readOnlyHint: false,
     destructiveHint: false,
@@ -509,16 +542,11 @@ export const saveMessageDraftTool = {
   name: "save_message_draft",
   title: "Save message draft",
   description:
-    "Use this when the user wants a message prepared for review: the draft appears in their inbox and they send it themselves. " +
-    "Two modes. With threadId it drafts a reply on that existing thread. With connectedAccountId plus recipients it prepares a " +
-    "brand-new conversation that exists only as a draft, so outreach to someone you have never messaged can be prepared without " +
-    "sending anything; recipients takes email addresses, or one linkedin, telegram or instagram handle. " +
-    "send_email and send_chat_message deliver immediately, never use them when asked to draft. " +
-    "A draft stores only the body; the sending account's enabled signature is appended when it is sent, " +
-    "so never write a sign-off or signature into body. " +
-    "A thread has at most one draft, saving again replaces it. subject, cc, and bcc apply to email only. " +
-    "Drafts show up in get_messaging_threads and can be isolated there with the draft filter. " +
-    "Returns the draft message id, its opaque revision token for later send/discard, and its thread id.",
+    "Prepare a message for inbox review without sending. Use threadId for a reply, or connectedAccountId plus recipients for a new local draft thread. " +
+    "recipients are email addresses or one chat handle. Email-only subject/cc/bcc are supported; recipients: [] allows Cc-only or Bcc-only email with at least one cc/bcc address. Explicit recipients also sets reply To. " +
+    "Saving replaces the thread's one draft. The enabled signature is appended at send time; never add a sign-off/signature to body. " +
+    "Use get_messaging_threads with the draft filter to find drafts. Returns draftMessageId, draftRevision and threadId for later send/discard. " +
+    "Never use send_email/send_chat_message when asked to draft; they deliver immediately.",
   annotations: {
     readOnlyHint: false,
     idempotentHint: true,
@@ -628,10 +656,9 @@ export const moveEmailThreadTool = {
   name: "move_email_thread",
   title: "Move email thread to a folder",
   description:
-    "Files an email conversation into another folder AT THE PROVIDER, so it moves in the real mailbox too. " +
-    "Required: threadId, folderId. Both come from get_messaging_threads; read thread.folder.moveTargets for the ids you may use. " +
-    "Only email threads can be moved, and only into a listed target: Sent and Drafts are never targets. " +
-    "Moving into a folder the workspace does not watch, such as Archive, removes the conversation from the inbox list; the result reports this as hiddenFromInbox.",
+    "Move eligible emails in the provider mailbox. Requires threadId and folderId from get_messaging_threads; use thread.folder.moveTargets IDs. " +
+    "Optional messageId from that thread moves only that email. Sent and Drafts stay in place and are never targets. " +
+    "Emails moved outside watched folders disappear from the inbox; other visible emails keep the conversation available.",
   annotations: { readOnlyHint: false, idempotentHint: true, destructiveHint: false, openWorldHint: true },
   inputSchema: MoveEmailThreadSchema,
   outputSchema: MoveEmailThreadOutputSchema,

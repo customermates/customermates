@@ -15,6 +15,7 @@ import { CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/componen
 import { SelectionOptionsSkeleton } from "@/components/forms/selection-loading";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { useFilterSelectItems } from "@/components/data-view/filter-modal/inputs/use-filter-select-items";
+import { filterSelectGroups } from "@/components/data-view/filter-modal/inputs/filter-select-groups";
 import { cn } from "@/core/utils/cn";
 
 type OptionResult = {
@@ -122,36 +123,49 @@ export const PaletteValueSelect = observer(function PaletteValueSelect({
           <CommandEmpty>{t("Common.inputs.emptyContent")}</CommandEmpty>
         )}
 
-        {!loading && !optionError && filteredItems.length > 0 && (
-          <CommandGroup>
-            {filteredItems.map((item) => {
-              const isSelected = selected.includes(item.key);
+        {!loading &&
+          !optionError &&
+          filteredItems.length > 0 &&
+          filterSelectGroups(filteredItems).map((group) => (
+            <CommandGroup
+              key={group.key}
+              data-filter-option-group={group.key || undefined}
+              heading={
+                group.label ? (
+                  <span className="block truncate" title={group.label}>
+                    {group.label}
+                  </span>
+                ) : undefined
+              }
+            >
+              {group.items.map((item) => {
+                const isSelected = selected.includes(item.key);
 
-              return (
-                <CommandItem
-                  key={item.key}
-                  className={cn(isSelected && "bg-accent")}
-                  data-palette-selected={isSelected}
-                  data-palette-value={item.key}
-                  disabled={!isSelected && selectionLimitReached}
-                  keywords={[item.textValue]}
-                  value={item.key}
-                  onSelect={() => onToggle(item.key, maxSelectedValues)}
-                >
-                  {item.startContent}
+                return (
+                  <CommandItem
+                    key={item.key}
+                    className={cn(isSelected && "bg-accent")}
+                    data-palette-selected={isSelected}
+                    data-palette-value={item.key}
+                    disabled={!isSelected && selectionLimitReached}
+                    keywords={[item.textValue]}
+                    value={item.key}
+                    onSelect={() => onToggle(item.key, maxSelectedValues)}
+                  >
+                    {item.startContent}
 
-                  {item.color ? (
-                    <AppChip variant={item.color}>{item.textValue}</AppChip>
-                  ) : (
-                    <span className="truncate">{item.textValue}</span>
-                  )}
+                    {item.color ? (
+                      <AppChip variant={item.color}>{item.textValue}</AppChip>
+                    ) : (
+                      <span className="truncate">{item.optionLabel ?? item.textValue}</span>
+                    )}
 
-                  {isSelected && <CheckIcon className="ml-auto size-3.5" />}
-                </CommandItem>
-              );
-            })}
-          </CommandGroup>
-        )}
+                    {isSelected && <CheckIcon className="ml-auto size-3.5" />}
+                  </CommandItem>
+                );
+              })}
+            </CommandGroup>
+          ))}
       </CommandList>
 
       {selectionLimitReached && maxSelectedValues !== undefined && (

@@ -84,6 +84,7 @@ const FILTERABLE_FIELDS: FilterableField[] = [
       FilterOperatorKey.lte,
       FilterOperatorKey.between,
       FilterOperatorKey.inLastDays,
+      FilterOperatorKey.notInLastDays,
     ],
   },
   { field: FIRST_STAGE_COLUMN, operators: [FilterOperatorKey.in, FilterOperatorKey.notIn] },
@@ -332,6 +333,26 @@ describe("filter palette date page", () => {
     expect(
       container.querySelector("[data-palette-value='inLastDays-30'] [data-palette-current='true']"),
     ).not.toBeNull();
+  });
+
+  it("combines older-than days with a recent window without replacing the first condition", () => {
+    const table = tableStore();
+    const palette = openPalette(table);
+    const container = mountPalette(table);
+    act(() => palette.pickField("createdAt"));
+    click(valueRow(container, FilterOperatorKey.notInLastDays));
+    expect(container.querySelector("[cmdk-root]")).toBeNull();
+    const input = container.querySelector("#draft\\.value") as HTMLInputElement;
+    expect(input).not.toBeNull();
+    act(() => palette.commitNow({ value: 3 }));
+    act(() => palette.pop());
+    act(() => palette.pop());
+    act(() => palette.pickField("createdAt"));
+    click(valueRow(container, "inLastDays-7"));
+    expect(table.filters).toEqual([
+      { field: "createdAt", operator: FilterOperatorKey.notInLastDays, value: 3 },
+      { field: "createdAt", operator: FilterOperatorKey.inLastDays, value: 7 },
+    ]);
   });
 
   it("ignores Enter raised by an input inside a portalled calendar popover", () => {

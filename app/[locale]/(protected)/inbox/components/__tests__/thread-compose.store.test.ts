@@ -333,14 +333,14 @@ describe("ThreadComposeStore draft lifecycle", () => {
     expect(store.hasUnsavedChanges).toBe(true);
   });
 
-  it("preserves derived reply recipients when a legacy draft has an empty to list", () => {
+  it("preserves derived chat recipients when a legacy chat draft has an empty to list", () => {
     const draft = message({
-      provider: MessagingProvider.google,
+      provider: MessagingProvider.linkedin,
       recipients: { to: [], cc: [], bcc: [] },
     });
     const { store } = makeHarness([draft]);
     store.initialize({
-      provider: MessagingProvider.google,
+      provider: MessagingProvider.linkedin,
       threadId: THREAD_ID,
       defaultRecipients: [RECIPIENT],
     });
@@ -1092,7 +1092,6 @@ describe("ThreadComposeStore email recipient validation", () => {
   it.each([
     { label: "an invalid To address", recipients: ["not-an-email"], cc: [], field: "recipients" },
     { label: "an invalid Cc address", recipients: [RECIPIENT], cc: ["not-an-email"], field: "cc" },
-    { label: "an empty To field", recipients: [], cc: [], field: "recipients" },
   ])("reports $label in the viewer's language instead of zod's English text", async ({ recipients, cc, field }) => {
     const store = composeEmailReply(recipients, cc);
 
@@ -1102,6 +1101,67 @@ describe("ThreadComposeStore email recipient validation", () => {
     const node = tree.properties?.[field];
     const messages = [...(node?.errors ?? []), ...(node?.items ?? []).flatMap((item) => item?.errors ?? [])];
     expect(messages).toEqual(["Common.errors.invalidEmail"]);
+    expect(actions.sendEmailAction).not.toHaveBeenCalled();
+  });
+
+  it("requires one recipient across all email fields and translates the empty-recipient error", async () => {
+    const store = composeEmailReply([]);
+    await store.send();
+    expect(store.error?.properties?.recipients?.errors).toEqual(["Common.errors.emailRecipientsRequired"]);
+    expect(actions.sendEmailAction).not.toHaveBeenCalled();
+  });
+
+  it.each(["cc", "bcc"] as const)("sends %s-only replies without adding the previous To recipients", async (field) => {
+    const store = composeEmailReply([]);
+    store.onChange(field, [RECIPIENT]);
+    actions.sendEmailAction.mockResolvedValue({ ok: true, data: null });
+    await store.send();
+    expect(actions.sendEmailAction).toHaveBeenCalledWith(expect.objectContaining({ to: [], [field]: [RECIPIENT] }));
+  });
+
+  it("restores Bcc-only draft fields, saves and sends them without promoting hidden recipients", async () => {
+    const draft = message({
+      provider: MessagingProvider.google,
+      recipients: { to: [], cc: [], bcc: [attendee("hidden@example.com")] },
+    });
+    const { store } = makeHarness([draft]);
+    store.initialize({
+      provider: MessagingProvider.google,
+      threadId: THREAD_ID,
+      defaultRecipients: [RECIPIENT],
+    });
+    store.loadDraft(draft);
+    expect(store.form.recipients).toEqual([]);
+    expect(store.form.bcc).toEqual(["hidden@example.com"]);
+    expect(store.showCcBcc).toBe(true);
+    actions.saveDraftAction.mockResolvedValue({ ok: true, data: draft });
+    await store.saveDraft();
+    expect(actions.saveDraftAction).toHaveBeenCalledWith(
+      expect.objectContaining({
+        recipients: [],
+        cc: undefined,
+        bcc: ["hidden@example.com"],
+      }),
+    );
+    actions.sendEmailAction.mockResolvedValue(failure);
+    await store.sendDraft(draft);
+    store.initialize({
+      provider: MessagingProvider.google,
+      threadId: OTHER_THREAD_ID,
+      defaultRecipients: ["unrelated@example.com"],
+    });
+    actions.sendEmailAction.mockResolvedValue({ ok: true, data: null });
+    await store.retrySend(DRAFT_ID);
+    expect(actions.sendEmailAction).toHaveBeenCalledTimes(2);
+    for (const [input] of actions.sendEmailAction.mock.calls)
+      expect(input).toEqual(expect.objectContaining({ threadId: THREAD_ID, to: [], bcc: ["hidden@example.com"] }));
+  });
+
+  it("rejects invalid Bcc addresses before delivery", async () => {
+    const store = composeEmailReply([]);
+    store.onChange("bcc", ["not-an-email"]);
+    await store.send();
+    expect(store.error?.properties?.bcc?.items?.[0]?.errors).toEqual(["Common.errors.invalidEmail"]);
     expect(actions.sendEmailAction).not.toHaveBeenCalled();
   });
 });

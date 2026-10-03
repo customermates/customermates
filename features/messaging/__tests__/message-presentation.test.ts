@@ -10,6 +10,7 @@ import { observable, runInAction } from "mobx";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const harness = vi.hoisted(() => ({
+  clipboard: vi.fn(),
   loadDraft: vi.fn(),
   discardDraft: vi.fn(),
   send: vi.fn(),
@@ -25,7 +26,11 @@ const harness = vi.hoisted(() => ({
   }>,
 }));
 
-vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
+vi.mock("next-intl", () => ({
+  useTranslations: () => (key: string, values?: Record<string, string>) =>
+    values ? `${key}:${Object.values(values).join(",")}` : key,
+}));
+vi.mock("@/core/utils/use-copy-to-clipboard", () => ({ useCopyToClipboard: () => harness.clipboard }));
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({
     messagingThreadDetailStore: { messageStatus: harness.messageStatus },
@@ -36,6 +41,7 @@ vi.mock("@/core/stores/root-store.provider", () => ({
     },
     threadParticipantsStore: { setOpen: vi.fn() },
     connectedAccountsStore: { items: harness.accounts },
+    userStore: { can: () => true },
     timelineDetailModalStore: {
       isOpen: true,
       form: { entry: harness.timelineEntry, customColumns: [] },
@@ -47,6 +53,8 @@ vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
   useHydratedIntlStore: () => ({
     formatNumericalShortDateTime: () => "Date",
     formatTime: () => "Time",
+    formatNumber: (value: number) => String(value),
+    collator: new Intl.Collator("en"),
   }),
 }));
 vi.mock("@/core/errors/report-application-error", () => ({
@@ -76,6 +84,7 @@ vi.mock("@/app/[locale]/(protected)/inbox/components/message-attachment", () => 
 }));
 
 import { MessageItem } from "@/app/[locale]/(protected)/inbox/components/message-item";
+import { EmailMessageHeader } from "@/app/[locale]/(protected)/inbox/components/email-message-header";
 import { MessageDetail, TimelineDetailModal } from "../activities/activities-detail-modal";
 import { hasLoadableRemoteImages, MessageBody } from "../message-body";
 import { MessageSurface } from "../message-surface";
@@ -193,6 +202,8 @@ describe("shared message presentation", () => {
     expect(container.querySelector("iframe")?.getAttribute("srcdoc")).toContain("Current footer");
     expect(container.querySelector("iframe")?.getAttribute("srcdoc")).not.toContain("Stale saved preview");
     expect(expected).not.toContain("-- ");
+    expect(button("Inbox.compose.loadRemoteImages").closest("[data-email-header]")).not.toBeNull();
+    expect(button("Inbox.compose.loadRemoteImages").closest("[data-message-actions]")).toBeNull();
     expect(container.querySelector("iframe")?.getAttribute("srcdoc")).toContain("img-src data:;");
     act(() => button("Inbox.compose.loadRemoteImages").click());
     expect(container.querySelector("iframe")?.getAttribute("srcdoc")).toContain("img-src data: https:;");
@@ -317,9 +328,96 @@ describe("shared message presentation", () => {
     expect(hasLoadableRemoteImages('<img src="https://example.com/pixel" style="display:none">')).toBe(false);
     expect(hasLoadableRemoteImages('<img src="data:image/png;base64,abcd">')).toBe(false);
   });
+  it("offers explicit loading for a preserved legacy email background", () => {
+    const message = {
+      ...BASE,
+      bodyHtml:
+        '<html><head id="authored-head"></head><body title="Background > preview" background="https://example.test/background.png"><p>Authored email</p></body></html>',
+    };
+    render(createElement(MessageItem, { message, isMine: true, accountOwner: null }));
+    expect(container.querySelector("iframe")?.srcdoc).toContain("img-src data:;");
+    expect(container.querySelector("iframe")?.srcdoc).toContain('background="https://example.test/background.png"');
+    act(() => button("Inbox.compose.loadRemoteImages").click());
+    expect(container.querySelector("iframe")?.srcdoc).toContain("img-src data: https:;");
+    expect(container.querySelector("iframe")?.srcdoc).toContain("Authored email");
+    expect(hasLoadableRemoteImages('<body background="data:image/png;base64,abcd">')).toBe(false);
+  });
 });
 
 describe("Inbox and activity consumers", () => {
+  it("discloses and copies every recipient without changing the message's folder", () => {
+    const person = (id: string, identifier: string) => ({ attendeeId: id, identifier, displayName: null });
+    const message = {
+      ...BASE,
+      folderIds: ["inbox"],
+      recipients: {
+        to: [person("to", "reader@example.test"), person("to-2", "second@example.test")],
+        cc: [person("cc", "team@example.test")],
+        bcc: [person("bcc", "archive@example.test")],
+      },
+    };
+    render(
+      createElement(EmailMessageHeader, {
+        senderName: "Sender",
+        message,
+        folders: [{ id: "inbox", name: "Inbox", role: null, totalCount: null, unreadCount: null }],
+      }),
+    );
+    const disclosure = button("Inbox.messageDetails");
+    expect(disclosure.getAttribute("aria-expanded")).toBe("false");
+    expect(container.textContent).not.toContain("archive@example.test");
+    act(() => disclosure.click());
+    expect(disclosure.getAttribute("aria-expanded")).toBe("true");
+    expect(container.textContent).toContain("Inbox.compose.from:");
+    expect(container.textContent?.match(/Inbox\.compose\.toLabel:/g)).toHaveLength(1);
+    for (const address of ["reader@example.test", "second@example.test", "team@example.test", "archive@example.test"]) {
+      expect(container.querySelectorAll(`[aria-label="Inbox.copyAddress:${address}"]`)).toHaveLength(1);
+      act(() => button(`Inbox.copyAddress:${address}`).click());
+      expect(harness.clipboard).toHaveBeenLastCalledWith(address);
+    }
+    expect(container.querySelector('[aria-label="Inbox.folders.messageOptions:Inbox"]')).not.toBeNull();
+    act(() => disclosure.click());
+    expect(disclosure.getAttribute("aria-expanded")).toBe("false");
+    expect(container.textContent).not.toContain("archive@example.test");
+    expect(container.textContent).not.toContain("second@example.test");
+    expect(container.textContent).toContain("reader@example.test");
+  });
+
+  it("expands Cc-only email without duplicating Cc or inventing To", () => {
+    render(
+      createElement(EmailMessageHeader, {
+        senderName: "Sender",
+        message: {
+          ...BASE,
+          recipients: {
+            to: [],
+            cc: [
+              { attendeeId: "cc-1", identifier: "first@example.test", displayName: null },
+              { attendeeId: "cc-2", identifier: "second@example.test", displayName: null },
+            ],
+            bcc: [{ attendeeId: "bcc", identifier: "hidden@example.test", displayName: null }],
+          },
+        },
+        folders: [],
+      }),
+    );
+    act(() => button("Inbox.messageDetails").click());
+    expect(container.textContent?.match(/Inbox\.compose\.ccLabel:/g)).toHaveLength(1);
+    expect(container.textContent).not.toContain("Inbox.compose.toLabel:");
+    for (const address of ["first@example.test", "second@example.test", "hidden@example.test"])
+      expect(container.querySelectorAll(`[aria-label="Inbox.copyAddress:${address}"]`)).toHaveLength(1);
+  });
+
+  it("keeps copying on the addresses without a duplicate menu command", () => {
+    render(createElement(EmailMessageHeader, { senderName: "Sender", message: BASE, folders: [] }));
+    act(() => {
+      button("Inbox.emailActions").dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+    });
+    const items = Array.from(document.body.querySelectorAll('[role="menuitem"]')).map((item) => item.textContent);
+    expect(items).toContain("Inbox.messageDetails");
+    expect(items.some((text) => text?.includes("Inbox.copyAddress"))).toBe(false);
+  });
+
   it.each(["inbox", "activity"])("uses the shared neutral email surface in %s", (surface) => {
     render(
       surface === "inbox"
@@ -332,8 +430,8 @@ describe("Inbox and activity consumers", () => {
     );
     const frame = container.querySelector("iframe");
     expect(frame).not.toBeNull();
-    expect(frame?.parentElement?.classList.contains("bg-card")).toBe(true);
-    expect(frame?.parentElement?.className).not.toMatch(/bg-primary|p-1\.5/);
+    expect(frame?.closest(".bg-card")).not.toBeNull();
+    expect(frame?.closest(".bg-card")?.className).not.toMatch(/bg-primary|p-1\.5/);
   });
 
   it("allows activity images explicitly and resets permission when another message opens", () => {
@@ -403,6 +501,7 @@ describe("Inbox and activity consumers", () => {
       attachmentsMeta: [{ id: "attachment", name: "Document", mime: "text/plain" }],
     };
     render(createElement(MessageItem, { message, isMine: true, accountOwner: null }));
+    expect(container.textContent).toContain("Inbox.compose.toLabel:");
     expect(container.textContent).toContain("recipient@example.com");
     expect(container.querySelector('[data-attachment="attachment"]')).not.toBeNull();
     act(() => button("Inbox.compose.draftEdit").click());
@@ -424,7 +523,7 @@ describe("Inbox and activity consumers", () => {
         accountOwner: null,
       }),
     );
-    expect(container.querySelector("iframe")?.parentElement?.classList.contains("ring-destructive/50")).toBe(true);
+    expect(container.querySelector("iframe")?.closest(".ring-destructive\\/50")).not.toBeNull();
     act(() => button("Inbox.compose.retry").click());
     expect(harness.retrySend).toHaveBeenCalledWith(BASE.id);
   });

@@ -10,6 +10,8 @@ export type DraftThreadTarget = {
   connectedAccountId: string;
   unipileThreadId: string;
   recipientIdentifiers: string[];
+  ccIdentifiers?: string[];
+  bccIdentifiers?: string[];
   updatedAt: Date;
 };
 

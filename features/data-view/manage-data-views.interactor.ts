@@ -125,8 +125,9 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
           : ["filters", "searchTerm", "sortDescriptor", "pageSize", "viewMode", "grouping"];
       const filterableFields = config.filterableFields.map((field) => {
         const valueKind = filterValueKind(field.field);
-        const values =
-          field.field === FilterFieldKey.timelineKind.toString()
+        const values = field.options
+          ? field.options.map((option) => option.value)
+          : field.field === FilterFieldKey.timelineKind.toString()
             ? TIMELINE_KIND_VIEW_VALUES
             : valueKind?.kind === "enum"
               ? valueKind.values

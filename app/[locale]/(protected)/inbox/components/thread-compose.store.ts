@@ -154,9 +154,18 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     const email = z.email({ error });
     const result = z
       .object({
-        recipients: requireRecipients ? z.array(email).min(1, { error }) : z.array(email),
+        recipients: z.array(email),
         cc: z.array(email),
         bcc: z.array(email),
+      })
+      .superRefine((value, ctx) => {
+        if (requireRecipients && value.recipients.length + value.cc.length + value.bcc.length === 0) {
+          ctx.addIssue({
+            code: "custom",
+            message: this.t("Common.errors.emailRecipientsRequired"),
+            path: ["recipients"],
+          });
+        }
       })
       .safeParse({
         recipients: this.form.recipients,
@@ -582,11 +591,12 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     const onSent = this.onNewThreadSent;
     const draftBinding = { draftMessageId: draft.id, draftRevision: draft.draftRevision };
     const email = isEmailProvider(draft.provider);
-    const recipients = draft.recipients.to.length
-      ? draft.recipients.to.map((recipient) => recipient.identifier)
-      : detail.thread?.id === draft.messagingThreadId
-        ? [...this.form.recipients]
-        : [];
+    const recipients =
+      email || draft.recipients.to.length
+        ? draft.recipients.to.map((recipient) => recipient.identifier)
+        : detail.thread?.id === draft.messagingThreadId
+          ? [...this.form.recipients]
+          : [];
     if (newThread && this.newThreadTarget?.draftThreadId === draft.messagingThreadId)
       this.newThreadTarget = { ...this.newThreadTarget, draftThreadId: undefined };
     return this.deliver({
@@ -723,7 +733,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       this.form.subject = draft.subject ?? this.form.subject;
       this.form.body = draft.bodyText ?? "";
       const recipients = draft.recipients.to.map((attendee) => attendee.identifier).filter(Boolean);
-      if (recipients.length > 0) this.form.recipients = recipients;
+      if (this.isEmail || recipients.length > 0) this.form.recipients = recipients;
       this.form.cc = draft.recipients.cc.map((attendee) => attendee.identifier).filter(Boolean);
       this.form.bcc = draft.recipients.bcc.map((attendee) => attendee.identifier).filter(Boolean);
       this.attachments = [...this.draftAttachments];

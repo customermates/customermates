@@ -167,17 +167,17 @@ export class MessagingThreadDetailStore extends BaseStore {
     });
   };
 
-  moveToFolder = async (folderId: string): Promise<void> => {
+  moveToFolder = async (folderId: string, messageId?: string): Promise<void> => {
     const thread = this.thread;
     const context = this.folderContext;
-    if (!thread || !context || this.movingThreadIds.has(thread.id) || context.currentFolderIds.includes(folderId))
-      return;
+    if (!thread || !context || this.movingThreadIds.has(thread.id)) return;
 
     this.movingThreadIds.add(thread.id);
     try {
       const result = await moveEmailThreadAction({
         threadId: thread.id,
         folderId,
+        ...(messageId ? { messageId } : {}),
       });
       if (!result.ok) {
         toastZodErrorTree(result.error);

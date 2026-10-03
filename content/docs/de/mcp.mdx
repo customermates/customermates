@@ -257,6 +257,8 @@ Messaging-basierte Tools brauchen einen Tarif mit Messaging: ab Pro, nur in der 
 
 Zwei Modi: ohne threadId listet es Inbox-Threads mit Filtern und Sortierung (Threads ohne Nachricht werden ausgeblendet, außer sie enthalten einen Draft; der `draft`-Filter zeigt genau die Threads mit Draft); mit threadId liefert es einen Thread plus eine Seite seiner Nachrichten (Standard 25, neueste zuerst, Drafts inklusive).
 
+Der Listenmodus liefert außerdem `filterableFields` mit nutzerbezogenen `options` für `connectedAccountId` und `emailFolder`. Verwenden Sie deren exakte Werte; Ordnerwerte sind JSON-kodierte Paare aus `[Account-UUID, Anbieter-Ordner-ID]`, damit gleiche Ordner-IDs verschiedener Konten getrennt bleiben. Ordneroptionen enthalten `groupKey` als Kontoidentität und `groupLabel` als Überschrift des zugänglichen Katalogs. `in` findet jede sichtbare Platzierung, `notIn` schließt diese aus. `lastMessageDirection` erlaubt `inbound` (empfangen) oder `outbound` (gesendet) mit `in`/`notIn` und verwendet die jüngste sichtbare Nachricht ohne Entwürfe, gelöschte Nachrichten oder Systemereignisse; reine Entwurfsthreads passen zu keiner Richtung. `lastMessageSentAt` filtert das Datum derselben tatsächlichen Nachricht. Kombinieren Sie `notInLastDays` 3 und `inLastDays` 7 mit UND für drei bis sieben Tage alte Nachrichten; Konto-, Ordner- und Richtungsbedingungen lassen sich hinzufügen. Relative Tagesfenster nutzen die übliche Tagesgrenze und bleiben in gespeicherten Ansichten dynamisch. `lastMessageAt` filtert die letzte Aktivität einschließlich Entwürfen. `manage_data_views` zeigt dieselben Optionen und validiert sie beim Speichern einer Inbox-Ansicht. Thread-Details enthalten die Absenderkennung und getrennte An-/Cc-/Bcc-Gruppen für jede Nachricht; verborgene Bcc-Empfänger sind nur bei Zugriff auf das sendende Konto sichtbar.
+
 **Nur lesend.** Optional: `threadId`, `page`, `pageSize`, `searchTerm`, `filters`, `sortDescriptor`.
 
 #### `get_activities`
@@ -279,13 +281,13 @@ Pflicht: `text`. Optional: `threadId`, `draftMessageId`, `draftRevision`, `conne
 
 #### `send_email`
 
-Stellt sofort zu. Senden oder antworten von einem verbundenen E-Mail-Konto; für einen gespeicherten Draft sind draftMessageId und draftRevision erforderlich. Die aktivierte Signatur des Kontos wird automatisch angehängt, schreiben Sie daher keine Grußformel in den Text.
+Stellt sofort zu. Senden oder antworten von einem verbundenen E-Mail-Konto; für einen gespeicherten Draft sind draftMessageId und draftRevision erforderlich. Die aktivierte Signatur des Kontos wird automatisch angehängt, schreiben Sie daher keine Grußformel in den Text. Mindestens ein Empfänger muss in `to`, `cc` oder `bcc` stehen; für E-Mails nur mit Cc oder Bcc verwenden Sie `to: []`. Cc und Bcc erwarten E-Mail-Adressen als Strings. Übernehmen Sie verborgene Bcc-Adressen niemals in An oder Cc.
 
 Pflicht: `to`, `subject`, `body`. Optional: `threadId`, `connectedAccountId`, `cc`, `bcc`, `bodyFormat`, `attachments`, `draftMessageId`, `draftRevision`.
 
 #### `save_message_draft`
 
-Nachricht zur Durchsicht vorbereiten: Der Draft erscheint in der Inbox, und Sie senden ihn selbst. Mit `threadId` entsteht eine Antwort, mit `connectedAccountId` plus `recipients` eine komplett neue Unterhaltung, die zunächst nur als Draft existiert. Gibt Message-ID und undurchsichtiges Revision-Token zurück; erneutes Speichern aktualisiert den einen Draft des Threads. Die Signatur wird beim Senden des Drafts angehängt, schreiben Sie daher keine Grußformel in den Text.
+Nachricht zur Durchsicht vorbereiten: Der Draft erscheint in der Inbox, und Sie senden ihn selbst. Mit `threadId` entsteht eine Antwort, mit `connectedAccountId` plus `recipients` eine komplett neue Unterhaltung, die zunächst nur als Draft existiert. Gibt Message-ID und undurchsichtiges Revision-Token zurück; erneutes Speichern aktualisiert den einen Draft des Threads. Die Signatur wird beim Senden des Drafts angehängt, schreiben Sie daher keine Grußformel in den Text. Für E-Mails nur mit Cc oder Bcc übergeben Sie `recipients: []` und mindestens eine Adresse in `cc` oder `bcc`. Ein explizites `recipients`-Array setzt auch bei Antwortentwürfen das An-Feld.
 
 Pflicht: `body`. Optional: `threadId`, `connectedAccountId`, `recipients`, `subject`, `cc`, `bcc`.
 
@@ -305,7 +307,7 @@ Pflicht: `threadId`, `state`.
 
 Eine E-Mail-Konversation beim Anbieter in einen anderen Postfachordner verschieben.
 
-Pflicht: `threadId`, `folderId`.
+Pflicht: `threadId`, `folderId`. Optional: `messageId`.
 
 #### `connect_messaging_account`
 

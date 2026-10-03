@@ -26,7 +26,7 @@ describe("SaveNewThreadDraftSchema", () => {
   it.each([
     ["connectedAccountId", { recipients: ["recipient@example.com"], body: "Draft body" }],
     ["recipients", { connectedAccountId: ACCOUNT_ID, body: "Draft body" }],
-    ["nonempty recipients", { ...newThreadDraft, recipients: [] }],
+    ["one recipient across all email fields", { ...newThreadDraft, recipients: [] }],
   ])("requires %s", (_label, value) => {
     expect(SaveNewThreadDraftSchema.safeParse(value).success).toBe(false);
   });
@@ -44,10 +44,25 @@ describe("SaveReplyDraftBodySchema", () => {
     expect(SaveReplyDraftBodySchema.safeParse({ body: "Reply draft" }).success).toBe(true);
   });
 
+  it("accepts explicit primary recipients, including an empty To field for Bcc-only drafts", () => {
+    expect(
+      SaveReplyDraftBodySchema.safeParse({
+        body: "Private reply draft",
+        recipients: [],
+        bcc: ["hidden@example.com"],
+      }).success,
+    ).toBe(true);
+    expect(
+      SaveReplyDraftBodySchema.safeParse({
+        body: "Reply draft",
+        recipients: ["recipient@example.com"],
+      }).success,
+    ).toBe(true);
+  });
+
   it.each([
     ["threadId", { body: "Reply draft", threadId: THREAD_ID }],
     ["connectedAccountId", { body: "Reply draft", connectedAccountId: ACCOUNT_ID }],
-    ["recipients", { body: "Reply draft", recipients: ["recipient@example.com"] }],
   ])("rejects the %s target field", (_label, value) => {
     expect(SaveReplyDraftBodySchema.safeParse(value).success).toBe(false);
   });

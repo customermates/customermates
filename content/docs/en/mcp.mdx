@@ -257,6 +257,8 @@ Messaging-backed tools need a plan with messaging: Pro or higher, in the cloud o
 
 Two modes: without threadId lists inbox threads with filters and sorting (threads with no message yet are hidden unless they hold a draft; the `draft` filter isolates threads that hold one); with threadId returns one thread plus a page of its messages (default 25, newest first, drafts included).
 
+List mode also returns `filterableFields`, including caller-scoped `options` for `connectedAccountId` and `emailFolder`. Use their exact option values; folder values are JSON-encoded `[account UUID, provider folder ID]` pairs, so the same folder ID on two accounts remains distinct. Folder options include `groupKey` (account identity) and `groupLabel` (heading), scoped to the accessible catalog. Folder `in` matches any visible placement, and `notIn` matches none. `lastMessageDirection` accepts `inbound` (received) or `outbound` (sent) with `in`/`notIn`, using the latest visible non-draft, non-deleted, non-event message; a draft-only thread matches neither. `lastMessageSentAt` filters the date of that same actual message. AND-combine `notInLastDays` 3 with `inLastDays` 7 for three to seven days ago, plus any account/folder/direction conditions. Relative day windows use the standard day-start cutoff and remain dynamic in saved views. `lastMessageAt` filters last activity, including drafts. `manage_data_views` exposes the same options and validates them when saving an Inbox view. Thread details include the sender identifier and separate To/Cc/Bcc groups for each message; hidden Bcc is shown only with access to the outgoing account.
+
 **Read-only.** Optional: `threadId`, `page`, `pageSize`, `searchTerm`, `filters`, `sortDescriptor`.
 
 #### `get_activities`
@@ -279,13 +281,13 @@ Required: `text`. Optional: `threadId`, `draftMessageId`, `draftRevision`, `conn
 
 #### `send_email`
 
-Delivers immediately. Send or reply from a connected email account; sending a saved draft requires both draftMessageId and draftRevision. The account's enabled signature is appended automatically, so never write a sign-off into the body.
+Delivers immediately. Send or reply from a connected email account; sending a saved draft requires both draftMessageId and draftRevision. The account's enabled signature is appended automatically, so never write a sign-off into the body. At least one recipient is required across `to`, `cc` and `bcc`; use `to: []` for Cc-only or Bcc-only email. Cc and Bcc take email strings. Never move hidden Bcc addresses into To or Cc.
 
 Required: `to`, `subject`, `body`. Optional: `threadId`, `connectedAccountId`, `cc`, `bcc`, `bodyFormat`, `attachments`, `draftMessageId`, `draftRevision`.
 
 #### `save_message_draft`
 
-Prepare a message for review: the draft shows up in the inbox and the user sends it. With `threadId` it drafts a reply; with `connectedAccountId` plus `recipients` it prepares a brand-new conversation that exists only as a draft. Returns the message id and opaque revision token; saving again updates the thread's one draft. The signature is appended when the draft is sent, so never write a sign-off into the body.
+Prepare a message for review: the draft shows up in the inbox and the user sends it. With `threadId` it drafts a reply; with `connectedAccountId` plus `recipients` it prepares a brand-new conversation that exists only as a draft. Returns the message id and opaque revision token; saving again updates the thread's one draft. The signature is appended when the draft is sent, so never write a sign-off into the body. For Cc-only or Bcc-only email, pass `recipients: []` with at least one `cc` or `bcc` address. An explicit `recipients` array also sets the To field on reply drafts.
 
 Required: `body`. Optional: `threadId`, `connectedAccountId`, `recipients`, `subject`, `cc`, `bcc`.
 
@@ -305,7 +307,7 @@ Required: `threadId`, `state`.
 
 Move an email conversation into another mailbox folder at the provider.
 
-Required: `threadId`, `folderId`.
+Required: `threadId`, `folderId`. Optional: `messageId`.
 
 #### `connect_messaging_account`
 

@@ -17,11 +17,19 @@ type Props = {
   onPushInput: (operator: FilterOperatorKey) => void;
 };
 
-type InputRowKey = "dateIncludes" | "dateBefore" | "dateOnOrBefore" | "dateAfter" | "dateOnOrAfter" | "dateBetween";
+type InputRowKey =
+  | "dateIncludes"
+  | "dateBefore"
+  | "dateOnOrBefore"
+  | "dateAfter"
+  | "dateOnOrAfter"
+  | "dateBetween"
+  | "dateOlderThan";
 
 const DAY_PRESETS = [7, 30, 90, 365];
 
 const INPUT_ROWS: { operator: FilterOperatorKey; key: InputRowKey }[] = [
+  { operator: OperatorKey.notInLastDays, key: "dateOlderThan" },
   { operator: OperatorKey.contains, key: "dateIncludes" },
   { operator: OperatorKey.lt, key: "dateBefore" },
   { operator: OperatorKey.lte, key: "dateOnOrBefore" },
@@ -45,6 +53,7 @@ export const PaletteValueDate = observer(function PaletteValueDate({
     dateIncludes: t("Common.filters.palette.dateIncludes"),
     dateOnOrAfter: t("Common.filters.palette.dateOnOrAfter"),
     dateOnOrBefore: t("Common.filters.palette.dateOnOrBefore"),
+    dateOlderThan: t("Common.filters.palette.dateOlderThan"),
   };
   const hasRelativeWindow = declaredOperators.includes(OperatorKey.inLastDays);
   const relativeWindow = operator === OperatorKey.inLastDays && typeof value === "number" ? value : undefined;
@@ -54,34 +63,34 @@ export const PaletteValueDate = observer(function PaletteValueDate({
     <CommandList className="max-h-none! overflow-visible">
       <CommandEmpty>{t("Common.inputs.emptyContent")}</CommandEmpty>
 
-      {hasRelativeWindow && (
-        <CommandGroup>
-          {DAY_PRESETS.map((days) => (
-            <CommandItem
-              key={days}
-              data-palette-value={`inLastDays-${days}`}
-              value={t("Common.filters.daysPreset", { count: days })}
-              onSelect={() => onCommitPreset(days)}
-            >
-              <span className="truncate">{t("Common.filters.daysPreset", { count: days })}</span>
-
-              {relativeWindow === days && marker}
-            </CommandItem>
-          ))}
-
-          <CommandItem
-            data-palette-value="inLastDays-custom"
-            value={t("Common.filters.palette.dateCustom")}
-            onSelect={() => onPushInput(OperatorKey.inLastDays)}
-          >
-            <span className="truncate">{t("Common.filters.palette.dateCustom")}</span>
-
-            {relativeWindow !== undefined && !DAY_PRESETS.includes(relativeWindow) && marker}
-          </CommandItem>
-        </CommandGroup>
-      )}
-
       <CommandGroup>
+        {hasRelativeWindow && (
+          <>
+            {DAY_PRESETS.map((days) => (
+              <CommandItem
+                key={days}
+                data-palette-value={`inLastDays-${days}`}
+                value={t("Common.filters.daysPreset", { count: days })}
+                onSelect={() => onCommitPreset(days)}
+              >
+                <span className="truncate">{t("Common.filters.daysPreset", { count: days })}</span>
+
+                {relativeWindow === days && marker}
+              </CommandItem>
+            ))}
+
+            <CommandItem
+              data-palette-value="inLastDays-custom"
+              value={t("Common.filters.palette.dateCustom")}
+              onSelect={() => onPushInput(OperatorKey.inLastDays)}
+            >
+              <span className="truncate">{t("Common.filters.palette.dateCustom")}</span>
+
+              {relativeWindow !== undefined && !DAY_PRESETS.includes(relativeWindow) && marker}
+            </CommandItem>
+          </>
+        )}
+
         {INPUT_ROWS.filter((row) => declaredOperators.includes(row.operator)).map((row) => (
           <CommandItem
             key={row.operator}

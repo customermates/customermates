@@ -61,7 +61,7 @@ export const SendEmailSchema = z
   .object({
     threadId: z.uuid().optional(),
     connectedAccountId: z.uuid().optional(),
-    to: z.array(AttendeeSchema).min(1).max(100),
+    to: z.array(AttendeeSchema).max(100).describe("Primary recipients. Use [] for Cc-only or Bcc-only email"),
     cc: z.array(z.email()).max(100).optional(),
     bcc: z.array(z.email()).max(100).optional(),
     subject: z.string().max(998),
@@ -82,6 +82,13 @@ export const SendEmailSchema = z
     ),
   })
   .superRefine((d, ctx) => {
+    if (d.to.length + (d.cc?.length ?? 0) + (d.bcc?.length ?? 0) === 0) {
+      ctx.addIssue({
+        code: "custom",
+        params: { error: CustomErrorCode.emailRecipientsRequired },
+        path: ["to"],
+      });
+    }
     if (!hasCompleteDraftBinding(d)) {
       ctx.addIssue({
         code: "custom",
@@ -206,7 +213,10 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
               account.provider,
               draft.recipientIdentifiers,
               data.to.map((recipient) => recipient.identifier),
-            )))
+            ) ||
+            (data.to.length === 0 &&
+              (!draftThreadRecipientSetsMatch(account.provider, draft.ccIdentifiers ?? [], data.cc ?? []) ||
+                !draftThreadRecipientSetsMatch(account.provider, draft.bccIdentifiers ?? [], data.bcc ?? [])))))
     )
       return failNotFound(CustomErrorCode.draftMessageNotFound);
 
