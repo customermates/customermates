@@ -3,6 +3,7 @@ import { z } from "zod";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { WIKI_TITLE_MAX_LENGTH, WIKI_WHEN_TO_USE_MAX_LENGTH, WikiPageDtoSchema } from "@/features/wiki/wiki.schema";
 import { WikiCrawlCategorySchema } from "./website-discovery";
+import { WIKI_SOURCE_PLANNING_PASSAGES_INSTRUCTION } from "./wiki-synthesis-grounding";
 
 export const WIKI_SYNTHESIS_MAX_PAGES = 16;
 export const WIKI_SYNTHESIS_MAX_PAGE_SOURCES = 4;
@@ -86,7 +87,10 @@ export const ReadWebsiteSourceSchema = z.object({
   action: z
     .enum(["list", "get", "next", "plan"])
     .describe(
-      "list = source inventory; next = unread chunks; get = reread after full coverage; plan = account for every source with topic groups or reasoned exclusions before creating pages.",
+      [
+        "list = source inventory; next = unread chunks; get = reread after full coverage; plan = account for every source with topic groups or reasoned exclusions before creating pages.",
+        WIKI_SOURCE_PLANNING_PASSAGES_INSTRUCTION,
+      ].join(" "),
     ),
   id: z.uuid().optional().describe("Source id from list."),
   offset: z.coerce.number().int().min(0).optional().describe("Prior nextOffset; get must not skip unread text."),
@@ -209,6 +213,10 @@ export const ReadWikiWebsiteSourcesResultSchema = z.object({
       url: z.string(),
       category: WikiCrawlCategorySchema,
       headings: z.array(z.string()).optional(),
+      planningPassages: z
+        .array(z.object({ offset: z.number().int().nonnegative(), text: z.string().min(20).max(500) }))
+        .max(3)
+        .optional(),
       chars: z.number().int().nonnegative().optional(),
       imported: z.boolean().optional(),
       read: z.boolean().optional(),

@@ -57,7 +57,10 @@ import { getAgentAiTools, type AgentToolDeps } from "@/ee/agent-chat/agent-tools
 import { SerializedInteractorFailureSchema } from "@/core/validation/validation.utils";
 import { wikiSourcePlanRepair, wikiSourcePlanRepairContext } from "@/workflows/wiki-topic-plan";
 import { createWikiFromCrawlTool, readWebsiteSourceTool } from "../wiki-crawl-synthesis-tools";
-import { WIKI_SOURCE_RESULT_MAX_CHARS } from "../wiki-source-coverage";
+import { WIKI_SOURCE_RESULT_MAX_CHARS, wikiSourcePayloadFits } from "../wiki-source-coverage";
+import { wikiSourceResultText } from "../wiki-source-result";
+import { wikiReadSourceEvidence } from "@/workflows/wiki-source-evidence";
+import { WIKI_SOURCE_PLANNING_PASSAGES_INSTRUCTION } from "../wiki-synthesis-grounding";
 import {
   ReadWebsiteSourceSchema,
   WikiSourceTopicSchema,
@@ -123,6 +126,110 @@ beforeEach(() => {
 });
 
 describe("single language Wiki synthesis", () => {
+  it("exposes exact planning leads only after full coverage without granting a fresh creation read", async () => {
+    const tool = readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001");
+    expect(tool.description).toContain(WIKI_SOURCE_PLANNING_PASSAGES_INSTRUCTION);
+    const sources = await harness.sources();
+    harness.sources.mockResolvedValue([{ ...sources[0], readOffset: 0 }]);
+    const unread = structured(await tool.execute({ action: "list" })) as { items: Record<string, unknown>[] };
+    expect(unread.items[0]).not.toHaveProperty("planningPassages");
+    expect(harness.advance).not.toHaveBeenCalled();
+    expect(await executeMcpTool(tool, [{ action: "plan", topics: foundations }])).toMatchObject({
+      ok: false,
+      failure: { issues: [expect.objectContaining({ customCode: "wikiSourceCoverageRequired" })] },
+    });
+
+    harness.sources.mockResolvedValue(sources);
+    const read = structured(await tool.execute({ action: "list" })) as {
+      items: { id: string; text?: string; planningPassages: { offset: number; text: string }[] }[];
+    };
+    expect(read.items[0].planningPassages).toEqual([{ offset: 0, text: GERMAN }]);
+    expect(read.items[0]).not.toHaveProperty("text");
+    const outcome = { ok: true, result: wikiSourceResultText(read) };
+    expect(wikiReadSourceEvidence({ action: "list" }, outcome)).toBeNull();
+    expect(wikiReadSourceEvidence({ action: "get", id: SOURCE_ID, offset: 0 }, outcome)).toBeNull();
+    expect(harness.advance).not.toHaveBeenCalled();
+    expect(harness.create).not.toHaveBeenCalled();
+  });
+
+  it("accepts a copied own-source planning passage while still rejecting altered or foreign evidence", async () => {
+    const sources = await harness.sources();
+    const footerId = "00000000-0000-4000-8000-000000000002";
+    const footer = "Footer links to the privacy notice and legal imprint.";
+    harness.sources.mockResolvedValue([
+      ...sources,
+      { ...sources[0], id: footerId, text: footer, contentHash: "footer", readOffset: footer.length },
+    ]);
+    const tool = readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001");
+    const inventory = structured(await tool.execute({ action: "list" })) as {
+      items: { id: string; planningPassages: { text: string }[] }[];
+    };
+    const quote = inventory.items.find(({ id }) => id === footerId)?.planningPassages[0].text;
+    expect(quote).toBe(footer);
+    for (const invalid of [footer.replace("privacy notice", "privacy  notice"), GERMAN]) {
+      const rejected = await executeMcpTool(tool, [
+        { action: "plan", topics: foundations, excluded: [nonSubstantiveExclusion(footerId, "Footer only.", invalid)] },
+      ]);
+      expect(rejected).toMatchObject({
+        ok: false,
+        failure: {
+          issues: [
+            expect.objectContaining({
+              customCode: "wikiSourceExclusionEvidenceInvalid",
+              path: ["excluded", 0, "evidenceQuote"],
+            }),
+          ],
+        },
+      });
+    }
+    expect(
+      await executeMcpTool(tool, [
+        {
+          action: "plan",
+          topics: foundations,
+          excluded: [nonSubstantiveExclusion(footerId, "Footer only.", quote)],
+        },
+      ]),
+    ).toMatchObject({ ok: true, structuredContent: { topicPlan: foundations } });
+    expect(harness.advance).not.toHaveBeenCalled();
+    expect(harness.create).not.toHaveBeenCalled();
+  });
+
+  it("paginates bounded planning passages without dropping any source identity", async () => {
+    const sources = await harness.sources();
+    const records = Array.from({ length: 40 }, (_, index) => {
+      const text = [0, 1, 2].map((part) => `${index}-${part} ${"知識🌍".repeat(110)}`).join("\n\n");
+      return {
+        ...sources[0],
+        id: `00000000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`,
+        text,
+        contentHash: `full-${index}`,
+        readOffset: text.length,
+      };
+    });
+    harness.sources.mockResolvedValue(records);
+    const tool = readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001");
+    const ids: string[] = [];
+    let offset: number | null = 0;
+    let pages = 0;
+    while (offset !== null) {
+      const result = structured(await tool.execute({ action: "list", offset })) as {
+        items: { id: string }[];
+        nextOffset: number | null;
+      };
+      expect(wikiSourcePayloadFits(result)).toBe(true);
+      expect(result.items.length).toBeGreaterThan(0);
+      ids.push(...result.items.map(({ id }) => id));
+      offset = result.nextOffset;
+      pages++;
+    }
+    expect(pages).toBeGreaterThan(1);
+    expect(ids).toEqual(records.map(({ id }) => id));
+    expect(new Set(ids).size).toBe(40);
+    expect(harness.advance).not.toHaveBeenCalled();
+    expect(harness.create).not.toHaveBeenCalled();
+  });
+
   it("keeps every ordinary evidence repair path visible through the hosted adapter", async () => {
     const deps: AgentToolDeps = {
       runUiCommand: vi.fn().mockResolvedValue({ ok: true, result: "unused" }),

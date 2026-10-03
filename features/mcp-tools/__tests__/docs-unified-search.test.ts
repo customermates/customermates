@@ -768,3 +768,46 @@ describe("authoritative action and condition excerpts", () => {
     },
   );
 });
+
+describe("source-owned destination recovery", () => {
+  const wrong = docsCorpusSections("docs", "de").find(
+    (section) => section.slug === "app-company" && section.anchor === "how-do-invitations-work",
+  );
+  const tasks = docsCorpusSections("docs", "de").find(
+    (section) => section.slug === "app-records" && section.anchor === "how-do-i-add-a-record",
+  );
+  if (!wrong || !tasks) throw new Error("Missing destination fallback documentation");
+  const input = { query: "Link zur Aufgaben-Seite", locale: "de" as const, source: "docs" as const };
+
+  it.each(["unavailable", "failed", "abstained"] as const)(
+    "uses the section's own destination after a %s ranking without reporting a classifier success",
+    async (mode) => {
+      const ranker =
+        mode === "unavailable"
+          ? undefined
+          : mode === "failed"
+            ? vi.fn(() => Promise.reject(new Error("deadline")))
+            : vi.fn(() => Promise.resolve({ order: [0], abstained: true }));
+      const { value, timings } = await collectRetrievalTimings(() =>
+        unifiedDocsSearchResult(input, { repo: repo([row(wrong), row(tasks)]), embed: null, ranker }),
+      );
+      expect(value.structuredContent.results[0]).toMatchObject({ slug: tasks.slug, anchor: tasks.anchor });
+      expect(timings[0].rerank).toBe(mode === "abstained" ? "used" : mode);
+    },
+  );
+
+  it("preserves a successful hosted choice and still empties an abstaining result below the lexical floor", async () => {
+    const successful = await unifiedDocsSearchResult(input, {
+      repo: repo([row(wrong), row(tasks)]),
+      embed: null,
+      ranker: () => Promise.resolve({ order: [0], abstained: false }),
+    });
+    expect(successful.structuredContent.results[0]).toMatchObject({ slug: wrong.slug, anchor: wrong.anchor });
+    const rejected = await unifiedDocsSearchResult(input, {
+      repo: repo([{ ...row(wrong), coverage: 0.2 }], [{ ...row(tasks), similarity: 0.7 }]),
+      embed: () => Promise.resolve({ vector: [1], model: "test" }),
+      ranker: () => Promise.resolve({ order: [0], abstained: true }),
+    });
+    expect(rejected.structuredContent).toEqual({ results: [], total: 0 });
+  });
+});

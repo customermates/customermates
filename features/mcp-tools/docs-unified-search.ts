@@ -13,7 +13,7 @@ import { fold, slugifyHeading } from "@/core/utils/search-text";
 
 import { docsCorpus, docsCorpusSection, docsSectionKey, docsSectionSearchBody } from "./docs-corpus";
 import { docsCorpusSections, type DocsLocale, type DocsSource } from "./docs-manifest";
-import { stableDocsRanker } from "./docs-section-ranking";
+import { docsDestinationFallbackOrder, stableDocsRanker } from "./docs-section-ranking";
 
 const DOCS_FULL_TEXT_CANDIDATES = 40;
 const DOCS_SEMANTIC_CANDIDATES = 30;
@@ -252,7 +252,11 @@ async function selectedDocsSections(
       relevance,
     });
     if (!keepsResults(relevance, ranking)) return { pages: [], total: 0, chosen: null };
-    const picked = (ranking?.order ?? [])
+    const fallback =
+      relevance === "kept" && (!ranking || ranking.abstained)
+        ? docsDestinationFallbackOrder(input.query, candidates)
+        : null;
+    const picked = (fallback ?? ranking?.order ?? [])
       .flatMap((id) => candidates.find((candidate) => candidate.id === id)?.section ?? [])
       .slice(0, DOCS_RERANK_RETURNED) as DocsSection[];
     chosen = picked.length > 0 ? picked : null;
@@ -337,7 +341,11 @@ export async function unifiedDocsExcerpt(
           source: page.source,
         }),
       });
-      const top = ranking?.order[0];
+      const destination =
+        fallback.relevance === "kept" && (!ranking || ranking.abstained)
+          ? docsDestinationFallbackOrder(query, candidates)
+          : null;
+      const top = (destination ?? ranking?.order)?.[0];
       preferred = top === undefined ? undefined : own[top];
     }
     const ordered = [...(preferred ? [preferred] : []), ...ranked.map((entry) => entry.section)].filter(

@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { RankableSection, SectionRanker, SectionRanking } from "@/core/retrieval/retrieval-context";
 
-import { stableDocsRanker } from "../docs-section-ranking";
+import { docsDestinationFallbackOrder, stableDocsRanker } from "../docs-section-ranking";
 
 const candidates: RankableSection[] = [
   { id: 0, locale: "en", section: { pageTitle: "Guide", headingPath: ["Create"], text: "Create the record." } },
@@ -114,5 +114,36 @@ describe("stable documentation selection", () => {
     expect(await first).toEqual({ order: [0], abstained: false });
     resolveSecond({ order: [1], abstained: false });
     expect(await second).toEqual({ order: [0], abstained: false });
+  });
+});
+
+describe("documentation destination fallback", () => {
+  const section = (id: number, text: string): RankableSection => ({
+    id,
+    locale: "en",
+    section: { pageTitle: "Guide", headingPath: ["Section"], text },
+  });
+
+  it("requires every meaningful query term in the source-owned destination and keeps both orders stable", () => {
+    const choices = [
+      section(4, "Tasks page link in the body.\n**Link:** the Members page, `/company/members`."),
+      section(7, "**Link:** the link to the Tasks page, `/tasks`."),
+      section(2, "**Link:** the link to the Tasks page, `/tasks`."),
+      section(9, "**Link:** the Projects page, `/projects`."),
+    ];
+    expect(docsDestinationFallbackOrder("link to the tasks page", choices)).toEqual([7, 2, 4, 9]);
+    expect(docsDestinationFallbackOrder("how do I create tasks", choices)).toBeNull();
+    expect(docsDestinationFallbackOrder("unavailable destination", choices)).toBeNull();
+    expect(choices.map(({ id }) => id)).toEqual([4, 7, 2, 9]);
+  });
+
+  it("does not credit metadata labels, route names, body mentions or Mate instructions as destinations", () => {
+    expect(
+      docsDestinationFallbackOrder("link to the tasks page", [
+        section(0, "**Link:** `/tasks`. **Mate:** link to the tasks page"),
+        section(1, "The link to the Tasks page is here.\n**Link:** `/company/members`."),
+        section(2, "**Link:** the Tasks page, `/tasks`."),
+      ]),
+    ).toBeNull();
   });
 });

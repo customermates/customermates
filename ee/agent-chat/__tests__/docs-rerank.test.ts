@@ -941,11 +941,11 @@ describe("connection renewal evidence", () => {
 });
 
 describe("requested documentation question and destination evidence", () => {
-  it("states that a reported status does not imply a recovery request", () => {
+  it("distinguishes a requested status definition from help with a reported problem", () => {
     const instruction = docsRankSpec(RANKABLE, "docs", "A channel reports a status").questions[0].instruction;
 
     expect(instruction).toMatch(/question kind.*meaning or governing facts.*procedure.*navigation.*recovery/iu);
-    expect(instruction).toMatch(/reported status.*unasked recovery action/iu);
+    expect(instruction).toMatch(/question defining a status.*meaning.*reporting their own failure.*remediation/iu);
     expect(instruction).toMatch(/own heading and Content.*requested fact or operation/iu);
     expect(instruction).toContain("choose none only if no section answers it at all");
     expect(docsRankState("reported status", "A channel reports a status")).toEqual({

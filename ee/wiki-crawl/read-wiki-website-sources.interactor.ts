@@ -13,6 +13,7 @@ import { wikiPagePath } from "@/features/wiki/wiki-links";
 
 import { sourceFullyRead, wikiSourceCoverage, wikiSourcePayloadFits } from "./wiki-source-coverage";
 import { wikiSourceHeadings } from "./wiki-source-inventory";
+import { wikiSourcePlanningPassages } from "./wiki-source-planning-passages";
 import {
   ReadWikiWebsiteSourcesSchema,
   ReadWikiWebsiteSourcesResultSchema,
@@ -208,6 +209,7 @@ export class ReadWikiWebsiteSourcesInteractor extends AuthenticatedInteractor<Re
     }
     if (data.action === "list") {
       const headings = wikiSourceHeadings(coverage.sources);
+      const passages = coverage.pending.length === 0 ? wikiSourcePlanningPassages(coverage.sources) : null;
       const start = Math.min(data.offset ?? 0, coverage.sources.length);
       const items = coverage.sources.slice(start, start + 40).map((source) => ({
         id: source.id,
@@ -215,23 +217,22 @@ export class ReadWikiWebsiteSourcesInteractor extends AuthenticatedInteractor<Re
         category: source.category,
         title: source.title,
         headings: (headings.get(source.id) ?? []).slice(0, 12),
+        ...(passages ? { planningPassages: passages.get(source.id) ?? [] } : {}),
         chars: source.text.length,
         imported: coverage.imported.has(source.id),
         read: coverage.readHashes.has(source.contentHash),
         nextOffset: sourceFullyRead(source) ? null : source.readOffset,
       }));
-      while (items.length > 1 && !wikiSourcePayloadFits({ createdPageLinks, items })) items.pop();
-      return {
-        ok: true as const,
-        data: {
-          createdPageLinks,
-          remainingSources: coverage.pending.length,
-          importedSources: coverage.imported.size,
-          nextAction: coverage.pending.length ? "next" : "plan",
-          items,
-          nextOffset: start + items.length < coverage.sources.length ? start + items.length : null,
-        },
-      };
+      const result = (): ReadSourcesResult => ({
+        createdPageLinks,
+        remainingSources: coverage.pending.length,
+        importedSources: coverage.imported.size,
+        nextAction: coverage.pending.length ? "next" : "plan",
+        items,
+        nextOffset: start + items.length < coverage.sources.length ? start + items.length : null,
+      });
+      while (items.length > 1 && !wikiSourcePayloadFits(result())) items.pop();
+      return { ok: true as const, data: result() };
     }
     const selected =
       data.action === "next" ? coverage.pending.slice(0, 8) : coverage.sources.filter(({ id }) => id === data.id);
@@ -256,7 +257,15 @@ export class ReadWikiWebsiteSourcesInteractor extends AuthenticatedInteractor<Re
       return fail(CustomErrorCode.wikiSourceCoverageRequired, [], { remainingSources: coverage.pending.length });
 
     const chunks = items.filter((item) => item !== null);
-    while (!wikiSourcePayloadFits({ createdPageLinks, items: chunks })) {
+    while (
+      !wikiSourcePayloadFits({
+        createdPageLinks,
+        remainingSources: coverage.pending.length,
+        importedSources: coverage.imported.size,
+        nextAction: "next",
+        items: chunks,
+      })
+    ) {
       const last = chunks.reduce<(typeof chunks)[number] | undefined>(
         (largest, chunk) => (!largest || chunk.text.length > largest.text.length ? chunk : largest),
         undefined,
