@@ -160,6 +160,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   const openInbox = async () => {
     const link = channels.getByRole("link", { name: "Go to inbox", exact: true });
     if (testInfo.project.name === "webkit") await link.press("Enter");
+    else if (testInfo.project.name === "mobile") await link.tap();
     else await link.click();
     await expect(page).toHaveURL(/\/en\/inbox\?/);
   };
