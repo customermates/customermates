@@ -419,9 +419,7 @@ import { tenantStorage } from "@/core/decorators/tenant-context";
 import type { QueryEmbedding } from "@/core/retrieval/retrieval-pipeline";
 import { PrismaWikiWebsiteCrawlRepo } from "@/ee/wiki-crawl/prisma-wiki-website-crawl.repository";
 import { WikiWebsiteCrawlService } from "@/ee/wiki-crawl/wiki-website-crawl.service";
-import { CreateWikiPagesFromCrawlInteractor } from "@/ee/wiki-crawl/create-wiki-pages-from-crawl.interactor";
-import { ReadWikiWebsiteSourcesInteractor } from "@/ee/wiki-crawl/read-wiki-website-sources.interactor";
-import { wikiCrawlSynthesisStarter } from "@/ee/wiki-crawl/wiki-crawl-synthesis";
+import { WikiWebsiteSynthesisService } from "@/ee/wiki-crawl/wiki-website-synthesis.service";
 import { WikiSemanticQueryEmbedder } from "@/ee/wiki-retrieval/wiki-query-embedder";
 import { WikiSemanticIndexService } from "@/ee/wiki-retrieval/wiki-semantic-index.service";
 import { WikiSemanticIndexDispatcher } from "@/ee/wiki-retrieval/wiki-semantic-index-scheduler";
@@ -467,8 +465,7 @@ export const getConnectedAccountRepo = () => new PrismaConnectedAccountRepo();
 export const getUnipileWebhookRepo = () => new PrismaUnipileWebhookRepo();
 export const getCalendarRepo = () => new PrismaCalendarRepo();
 export const getCalendarEventsRepo = () => new PrismaCalendarEventsRepo();
-export const getAgentChatRepo = (): PrismaAgentChatRepo =>
-  new PrismaAgentChatRepo(getWikiPageRepo(), getWikiWebsiteCrawlRepo);
+export const getAgentChatRepo = (): PrismaAgentChatRepo => new PrismaAgentChatRepo(getWikiPageRepo());
 export const getOperatorRepo = () => new PrismaOperatorRepo(getAgentChatRepo());
 export const getOperatorAccessRepo = () => new PrismaOperatorAccessRepo();
 
@@ -1203,24 +1200,21 @@ export const getMoveWikiPageInteractor = () => new MoveWikiPageInteractor(getWik
 export const getUpdateWikiPageInteractor = () => new UpdateWikiPageInteractor(getWikiPageRepo(), getEventService());
 export const getDeleteWikiPageInteractor = () => new DeleteWikiPageInteractor(getWikiPageRepo(), getEventService());
 export const getWikiWebsiteCrawlRepo = (): PrismaWikiWebsiteCrawlRepo =>
-  new PrismaWikiWebsiteCrawlRepo(getWikiPageRepo(), getAgentChatRepo());
+  new PrismaWikiWebsiteCrawlRepo(getWikiPageRepo());
 export const getFailWikiWebsiteCrawlInteractor = () => new FailWikiWebsiteCrawlInteractor(getWikiWebsiteCrawlRepo());
-export const getCreateWikiPagesFromCrawlInteractor = () =>
-  new CreateWikiPagesFromCrawlInteractor(getWikiWebsiteCrawlRepo(), getCreateWikiPagesInteractor());
-export const getReadWikiWebsiteSourcesInteractor = () =>
-  new ReadWikiWebsiteSourcesInteractor(getWikiWebsiteCrawlRepo());
 export const getStartWikiHomepageSetupInteractor = () =>
   new StartWikiHomepageSetupInteractor(getWikiPageRepo(), getWikiWebsiteCrawlRepo(), getBackgroundTaskService());
 export const getGetWikiHomepageSetupStateInteractor = () =>
-  new GetWikiHomepageSetupStateInteractor(getWikiPageRepo(), getAgentChatRepo(), getWikiWebsiteCrawlRepo());
+  new GetWikiHomepageSetupStateInteractor(getWikiPageRepo(), getWikiWebsiteCrawlRepo());
 export const getWikiWebsiteCrawlService = () =>
   new WikiWebsiteCrawlService(
     getWikiWebsiteCrawlRepo(),
     getCreateWikiPagesInteractor(),
     getUpdateWikiPageInteractor(),
-    wikiCrawlSynthesisStarter(getSendAgentMessageInteractor()),
     wikiWebsiteNetwork(),
   );
+export const getWikiWebsiteSynthesisService = () =>
+  new WikiWebsiteSynthesisService(getWikiWebsiteCrawlRepo(), getAgentUsageService(), getCreateWikiPagesInteractor());
 
 // --- Webhook ---
 

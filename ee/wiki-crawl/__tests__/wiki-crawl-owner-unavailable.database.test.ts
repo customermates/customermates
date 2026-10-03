@@ -5,10 +5,8 @@ import { randomUUID } from "node:crypto";
 import { Client } from "pg";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
-import { PrismaAgentChatRepo } from "@/ee/agent-chat/prisma-agent-chat.repository";
 import { PrismaWikiPageRepo } from "@/features/wiki/prisma-wiki-page.repository";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
-import { prismaAgentChatRepoDependencies } from "@/tests/helpers/prisma-agent-chat-repo";
 
 import { PrismaWikiWebsiteCrawlRepo } from "../prisma-wiki-website-crawl.repository";
 
@@ -19,11 +17,7 @@ describeDatabase("Website import cleanup with an unavailable owner", () => {
   const client = new Client({ connectionString: databaseUrl ?? undefined });
   const companyId = randomUUID();
   const ownerId = randomUUID();
-  const repo = () =>
-    new PrismaWikiWebsiteCrawlRepo(
-      new PrismaWikiPageRepo(),
-      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
-    );
+  const repo = () => new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo());
 
   const createCrawl = async (status: WikiCrawlStatus, workflowRunId: string | null) => {
     const id = randomUUID();

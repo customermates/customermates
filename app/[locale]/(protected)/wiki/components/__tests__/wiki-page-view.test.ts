@@ -193,7 +193,6 @@ vi.mock("@/components/wiki/wiki-homepage-setup", () => ({
     status: "idle",
     homepage: null,
     domain: null,
-    conversationId: null,
     pages: [],
   },
 }));
@@ -277,7 +276,6 @@ function configure(canManage: boolean, agentChatEnabled: boolean, agentEnabled: 
       enabled: agentEnabled,
       isWorking: false,
       historyMutationPending: null,
-      conversationId: null,
       open: harness.open,
       loadConfig: harness.loadConfig,
       selectConversation: harness.selectConversation,
@@ -774,7 +772,6 @@ describe("Wiki document view", () => {
       status: "working" as const,
       homepage: "https://example.com/",
       domain: "example.com",
-      conversationId: null,
       pages: [page],
       progress: { fetched: 20, total: 60 },
     };
@@ -870,7 +867,6 @@ describe("Wiki document view", () => {
             status: "completed",
             homepage: null,
             domain: null,
-            conversationId: null,
             pages: [remote],
           },
         }),
@@ -1439,7 +1435,6 @@ describe("Wiki empty state", () => {
           status: "working",
           homepage: "https://example.com/",
           domain: "example.com",
-          conversationId: "conversation-1",
           pages: [],
         },
         listPage,
@@ -1447,22 +1442,13 @@ describe("Wiki empty state", () => {
     );
     const { container: topBar } = await mount(harness.topBar);
 
-    await act(async () => {
-      [...container.querySelectorAll<HTMLButtonElement>("#wiki-document-panel button")]
-        .find((button) => button.textContent?.includes("WikiSetup.openTask"))
-        ?.click();
-      await Promise.resolve();
-    });
-
     expect(container.textContent).not.toContain("Wiki.newPage");
     expect(topBar.querySelector('[aria-label="Wiki.newPage"]')).toBeNull();
     expect(harness.store.startCreate).not.toHaveBeenCalled();
-    expect(harness.open).toHaveBeenCalledOnce();
-    expect(harness.loadConfig).toHaveBeenCalledOnce();
-    expect(harness.selectConversation).toHaveBeenCalledExactlyOnceWith("conversation-1");
+    expect(container.querySelector('[data-testid="wiki-setup-crawl-progress"]')).not.toBeNull();
   });
 
-  it("does not offer a competing manual page while an active setup cannot be opened", async () => {
+  it("does not offer a competing manual page while Mate is unavailable during setup", async () => {
     configure(true, true, false);
     const { container } = await mount(
       createElement(WikiPageView, {
@@ -1471,7 +1457,6 @@ describe("Wiki empty state", () => {
           status: "working",
           homepage: "https://example.com/",
           domain: "example.com",
-          conversationId: "conversation-1",
           pages: [],
         },
         listPage,
@@ -1525,7 +1510,6 @@ describe("Wiki empty state", () => {
           status: "completed",
           homepage: "https://example.com/",
           domain: "example.com",
-          conversationId: null,
           pages: [page],
           refreshable: true,
         },
@@ -1549,7 +1533,6 @@ describe("Wiki empty state", () => {
           status: "working",
           homepage: "https://example.com/",
           domain: "example.com",
-          conversationId: null,
           pages: [],
           progress: { fetched: 2, total: 4 },
         },
@@ -1572,7 +1555,6 @@ describe("Wiki empty state", () => {
           status: "failed",
           homepage: "https://example.com/",
           domain: "example.com",
-          conversationId: null,
           pages: [page],
           refreshable: true,
         },
@@ -1585,7 +1567,7 @@ describe("Wiki empty state", () => {
     expect(actions.onRefreshFromWebsite).toBeUndefined();
   });
 
-  it("shows setup progress without a task link to managers who did not start it", async () => {
+  it("shows setup progress to every manager", async () => {
     configure(true, true, true);
     const { container } = await mount(
       createElement(WikiPageView, {
@@ -1594,7 +1576,6 @@ describe("Wiki empty state", () => {
           status: "working",
           homepage: "https://example.com/",
           domain: "example.com",
-          conversationId: null,
           pages: [],
         },
         listPage,
@@ -1603,9 +1584,8 @@ describe("Wiki empty state", () => {
     const { container: topBar } = await mount(harness.topBar);
 
     expect(container.textContent).toContain("WikiSetup.status.workingTitle");
-    expect(container.textContent).toContain("WikiSetup.status.workingBodyNoTaskWiki");
+    expect(container.textContent).toContain("WikiSetup.status.workingBodyWiki");
     expect(container.textContent).not.toContain("Wiki.emptyTitle");
-    expect(container.textContent).not.toContain("WikiSetup.openTask");
     expect(container.textContent).not.toContain("Wiki.newPage");
     expect(container.querySelector('[data-testid="empty-page-agent-suggestions"]')).toBeNull();
     expect(topBar.querySelector('[aria-label="Wiki.newPage"]')).toBeNull();
@@ -1732,7 +1712,6 @@ describe("Wiki route lifetime", () => {
                 status: "failed",
                 homepage: null,
                 domain: null,
-                conversationId: null,
                 pages: [remote],
               },
             }),

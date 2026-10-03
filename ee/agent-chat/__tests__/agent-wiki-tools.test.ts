@@ -410,24 +410,6 @@ describe("managed Wiki retrieval tools", () => {
   });
 });
 
-describe("website setup tool boundary", () => {
-  it.each([false, true])(
-    "exposes only the stored sources and page creation of an import when web search is enabled=%s",
-    (webSearchEnabled) => {
-      const tools = getAgentAiTools(dependencies(), {
-        wikiHomepageSetup: true,
-        wikiCrawlId: "crawl-1",
-        webSearchEnabled,
-      });
-      expect(Object.keys(tools).toSorted()).toEqual(["manage_wiki_pages", "read_website_source"]);
-    },
-  );
-
-  it("exposes no tools to a setup turn without a website import", () => {
-    expect(getAgentAiTools(dependencies(), { wikiHomepageSetup: true })).toEqual({});
-  });
-});
-
 describe("website Wiki setup in ordinary chat", () => {
   it("adds only the background website import beside the ordinary chat catalog", () => {
     const options = { surface: "chat" as const, wikiWebsiteSetup: true };
@@ -442,14 +424,6 @@ describe("website Wiki setup in ordinary chat", () => {
   it.each([
     ["a routine", { surface: "routine" as const, wikiWebsiteSetup: true }],
     ["a turn without the admitted flag", { surface: "chat" as const }],
-    [
-      "an onboarding setup turn",
-      {
-        surface: "chat" as const,
-        wikiWebsiteSetup: true,
-        wikiHomepageSetup: true,
-      },
-    ],
   ])("keeps the chat website import out of %s", (_case, options) => {
     expect(getAgentAiTools(dependencies(), options).import_website).toBeUndefined();
   });
@@ -459,7 +433,6 @@ describe("website Wiki setup in ordinary chat", () => {
       .mockResolvedValue({
         ok: true,
         data: {
-          conversationId: null,
           homepage: "https://example.com/",
           domain: "example.com",
           mode: "initial",
@@ -467,12 +440,11 @@ describe("website Wiki setup in ordinary chat", () => {
       })
       .mockResolvedValueOnce({
         ok: true,
-        data: { conversationId: null, homepage: "https://example.com/", domain: "example.com", mode: "initial" },
+        data: { homepage: "https://example.com/", domain: "example.com", mode: "initial" },
       })
       .mockResolvedValueOnce({
         ok: true,
         data: {
-          conversationId: null,
           homepage: "https://acme.zendesk.com/hc/de",
           domain: "zendesk.com",
           mode: "extend",
@@ -496,14 +468,5 @@ describe("website Wiki setup in ordinary chat", () => {
       ["https://acme.zendesk.com/hc/de", undefined, "de"],
     ]);
     expect(deps.requestApproval).not.toHaveBeenCalled();
-  });
-
-  it("gives an onboarding setup turn for a finished crawl the stored-source reader and an evidence-backed create", () => {
-    const tools = getAgentAiTools(dependencies(), {
-      surface: "chat" as const,
-      wikiHomepageSetup: true,
-      wikiCrawlId: "00000000-0000-4000-8000-000000000009",
-    });
-    expect(Object.keys(tools).sort()).toEqual(["manage_wiki_pages", "read_website_source"]);
   });
 });

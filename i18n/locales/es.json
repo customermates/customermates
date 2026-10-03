@@ -353,25 +353,10 @@
           }
         },
         "web": {
-          "plan": {
-            "done": "Páginas de la base de conocimiento planificadas",
-            "error": "No se pudieron planificar las páginas de la base de conocimiento",
-            "running": "Planificando páginas de la base de conocimiento"
-          },
-          "review": {
-            "done": "Contenido del sitio revisado",
-            "error": "No se pudo revisar el contenido del sitio",
-            "running": "Revisando el contenido del sitio"
-          },
           "search": {
             "done": "Búsqueda web completada",
             "error": "No se pudo buscar en la web",
             "running": "Buscando en la web"
-          },
-          "sources": {
-            "done": "Páginas web listadas",
-            "error": "No se pudieron listar las páginas web",
-            "running": "Listando páginas web"
           }
         },
         "webhooks": {
@@ -1361,36 +1346,12 @@
       "widgetWeightedValueNotAllowedForService": "La agregación de valor ponderado no está permitida para el tipo de elemento Servicio.",
       "wikiGuideExists": "Esta base de conocimientos ya tiene una guía operativa. Actualiza la guía existente.",
       "wikiHomepageSetupStartFailed": "Mate no pudo iniciar la configuración de la base de conocimientos. Inténtalo de nuevo.",
-      "wikiImportKnowledgeOnly": "Una ampliación del centro de ayuda solo crea páginas de conocimiento; las guías y los procedimientos existentes no cambian.",
-      "wikiImportLanguageRequired": "Escribe cada página en {locale}. Traduce las fuentes a ese idioma. No se ha cambiado nada.",
-      "wikiImportLinkInvalid": "Usa los enlaces exactos de la base de conocimientos devueltos al leer las fuentes. No se pueden guardar enlaces de marcador de posición.",
-      "wikiImportNotFound": "Esta importación del sitio web ya no está disponible. No se ha cambiado nada.",
-      "wikiImportPageLimit": "Esta importación puede crear como máximo {maximum} páginas de resumen; ya existen {created}: {titles}. No se ha cambiado nada.",
-      "wikiImportTitleInvalid": "Usa un título de página simple sin campos de herramientas serializados.",
       "wikiNotEmpty": "Esta acción requiere que la base de conocimientos esté vacía.",
       "wikiPageConflict": "Esta página de la base de conocimientos cambió después de que la abrieras. Vuelve a cargarla e inténtalo de nuevo.",
       "wikiPageNotFound": "Página de la base de conocimientos no encontrada o no accesible.",
       "wikiPagePinned": "La guía operativa permanece en primer lugar. Mueva otra página.",
       "wikiPageUpdateEmpty": "Indica al menos un campo para actualizar la página.",
       "wikiProcedureNeedsSteps": "Un procedimiento necesita pasos numerados.",
-      "wikiSourceChunkTooLarge": "El fragmento de la fuente es demasiado grande. No se ha marcado nada como leído.",
-      "wikiSourceCitationInvalid": "Cita solo IDs devueltos por read_website_source. No se ha cambiado nada.",
-      "wikiSourceCitationUnread": "Lee cada fuente citada por completo con read_website_source; sin leer: {ids}. No se ha cambiado nada.",
-      "wikiSourceClaimsUnsupported": "El contenido señalado no refleja fielmente sus propios pasajes del sitio web. Corrige cada afirmación señalada conservando el alcance, estado, condiciones, límites y atribución de la fuente; usa solo hechos respaldados. No se cambió nada.",
-      "wikiSourceCoverageRequired": "Lee todas las fuentes restantes con read_website_source action=next antes de crear páginas o volver a leer fuentes. Quedan {remainingSources} fuentes. No se ha cambiado nada.",
-      "wikiSourceEvidenceInvalid": "Cada sección necesita pasajes de respaldo exactos de las fuentes del sitio citadas en esta página. Corrige todas las citas o fuentes indicadas copiando una frase completa y contigua o una línea del texto recién devuelto, conservando los espacios y saltos de línea reales, la puntuación y la ortografía. Nunca insertes caracteres literales de barra inversa y n; elige una frase completa más corta en lugar de reconstruir un pasaje de varias líneas. Vuelve a leer juntas todas las fuentes necesarias para el lote antes de reintentarlo. No se ha cambiado nada.",
-      "wikiSourceExclusionDuplicateInvalid": "La fuente {sourceId} no es una copia de contenido idéntico de la fuente conservada o importada {duplicateOfSourceId}. Para páginas traducidas de la empresa o de fundamentos, conserva ambos identificadores de fuente en los temas de fundamentos pertinentes como referencias de lectura. Para traducciones de ofertas realmente redundantes, usa overlap con el título exacto de la oferta conservada y citas exactas de la fuente y de la fuente de comparación; de lo contrario, conserva la fuente en su tema. No se ha cambiado nada.",
-      "wikiSourceExclusionEvidenceInvalid": "La cita de la fuente {sourceId} no coincide exactamente con su texto guardado. Vuelve a leerla con get y offset=0 y copia una oración o línea continua sin cambiar espacios, puntuación ni palabras. No se ha cambiado nada.",
-      "wikiSourceExclusionImportedInvalid": "La fuente {sourceId} no se ha importado sin cambios. Elige un motivo de exclusión respaldado o consérvala en un tema. No se ha cambiado nada.",
-      "wikiSourceExclusionOverlapInvalid": "La oferta exacta {coveredByTitle} debe cubrir toda la fuente {sourceId}. Compartir palabras, tecnología o un caso no basta. Conserva los temas distintos. No se ha cambiado nada.",
-      "wikiSourceNotFound": "ID de fuente desconocido. Ejecuta list primero.",
-      "wikiSourcePlanAccountingInvalid": "Incluye cada fuente una sola vez dentro de un grupo o en las exclusiones, y nunca en topics y excluded a la vez. ID duplicados: [{duplicateSourceIds}]. ID en topics y excluded: [{overlappingSourceIds}]. ID sin incluir: [{missingSourceIds}]. No se ha cambiado nada.",
-      "wikiSourcePlanCitationLimit": "Planifica entre una y cuatro fuentes por oferta o procedimiento y cita todas al crearlo. Divide un tema si cuatro fuentes no cubren su contenido diferenciado. No se ha aceptado ningún plan.",
-      "wikiSourcePlanIncomplete": "Envía una lista topics y, antes de crear páginas, incluye cada fuente guardada y cada función de página necesaria en un tema respaldado o una omisión justificada. ID de fuentes sin incluir: [{missingSourceIds}]. Funciones ausentes o no válidas: [{missingRoles}].",
-      "wikiSourceReadOrder": "Lee en orden sin omitir texto. Usa next o el nextOffset guardado de list.",
-      "wikiSourceReviewLimit": "Mate no pudo verificar este contenido tras las correcciones permitidas. No se crearon páginas de esta solicitud. Revisa las páginas ya guardadas en la Knowledge Base.",
-      "wikiSourceReviewTooLarge": "El contenido completo y sus pruebas superan el límite de verificación. Envía menos páginas o secciones completas más cortas, sin omitir pruebas. No se cambió nada.",
-      "wikiSourceReviewUnavailable": "Mate no pudo verificar este contenido del sitio web. No se crearon páginas de esta solicitud. Las páginas ya guardadas siguen disponibles.",
       "wikiWhenToUseRequired": "Un procedimiento necesita una breve descripción de cuándo usarlo."
     },
     "events": {
@@ -3823,11 +3784,10 @@
     }
   },
   "WikiSetup": {
-    "agentPrompt": "Conoce nuestra empresa a partir de {homepage} y crea las páginas de nuestra base de conocimientos.",
     "continue": "Continuar",
     "continueBackground": "Continuar mientras Mate trabaja",
-    "conversationTitle": "Configurar la base de conocimientos del espacio de trabajo",
     "crawlProgress": {
+      "created": "Creada",
       "discovering": "Buscando páginas del sitio",
       "failed": "Omitida",
       "found": "{count} páginas encontradas",
@@ -3835,21 +3795,20 @@
       "read": "Leída",
       "reading": "Leyendo",
       "readingCount": "Leyendo páginas · {fetched}/{total}",
-      "steps": "2 pasos",
-      "synthesizing": "Iniciando Mate para redactar las páginas de la base de conocimientos",
-      "title": "Progreso de importación del sitio"
+      "steps": "3 pasos",
+      "title": "Progreso de importación del sitio",
+      "writing": "Escribiendo",
+      "writingCount": "Escribiendo páginas · {created}/{total}"
     },
     "generated": {
       "gapsHeading": "Aspectos por confirmar",
+      "pagesHeading": "Páginas de la base de conocimiento",
       "sourcesHeading": "Fuentes"
     },
     "homepageLabel": "Sitio web de la empresa",
     "homepagePlaceholder": "https://ejemplo.com",
     "languageDescription": "Se usa el idioma del navegador de forma predeterminada. Si la base de conocimientos ya contiene páginas, su idioma determina la selección.",
     "languageLabel": "Idioma de la base de conocimientos",
-    "openTask": "Abrir tarea de Mate",
-    "progressLoadFailed": "No se pudo cargar aquí el progreso de Mate. Inténtalo de nuevo.",
-    "progressLoading": "Cargando el progreso de Mate",
     "start": "Crear mi base de conocimientos",
     "status": {
       "completedBodyOnboarding": "Mate ha creado tus páginas iniciales con datos respaldados por el sitio web. Podrás revisarlas más tarde en la base de conocimientos y confirmar lo que esté marcado como pendiente de confirmar.",
@@ -3857,16 +3816,14 @@
       "completedTitle": "Tu base de conocimientos inicial está lista",
       "failedBody": "La configuración se detuvo antes de que todas las páginas estuvieran listas. Las páginas ya creadas siguen disponibles. Puedes continuar y revisarlas en la base de conocimientos.",
       "failedBodyBlocked": "{domain} no permite la lectura automática en su robots.txt, así que no se importó nada. Puedes crear las páginas tú mismo.",
-      "failedBodySynthesis": "El sitio web se ha leído, pero Mate no ha podido iniciar la creación de las páginas. Inténtalo de nuevo. Las páginas ya creadas siguen disponibles.",
+      "failedBodySynthesis": "Se leyó el sitio web, pero Mate no pudo escribir las páginas. Inténtalo de nuevo. Las páginas ya creadas siguen disponibles.",
       "failedBodyUnavailable": "Mate no pudo leer {domain}. Revisa la dirección o continúa y añade páginas más tarde.",
       "failedTitle": "La configuración no terminó",
-      "noContentBody": "Revisa la tarea de Mate para ver los detalles. Puedes probar con otro sitio web o continuar y añadir páginas más tarde.",
+      "noContentBody": "Mate no encontró información útil para páginas de la base de conocimiento. Puedes probar con otro sitio web o continuar y añadir páginas más tarde.",
       "noContentTitle": "No se crearon páginas de la base de conocimientos",
       "readingBody": "Mate ha leído {fetched} de {total} páginas de {domain}.",
-      "workingBody": "Mate está leyendo {domain}, comprobando páginas útiles e incorporando información con fuentes a tu base de conocimientos. Puedes seguir el progreso aquí o continuar con el siguiente paso.",
-      "workingBodyNoTask": "Mate está leyendo {domain} e incorporando información con fuentes a tu base de conocimientos. Puedes continuar con el siguiente paso mientras trabaja.",
-      "workingBodyNoTaskWiki": "Mate está leyendo {domain} y creando la base de conocimientos. Puedes volver más tarde para ver las páginas terminadas.",
-      "workingBodyWiki": "Mate está leyendo {domain}, comprobando páginas útiles e incorporando información con fuentes a tu base de conocimientos. Puedes dejar esta tarea abierta o volver más tarde.",
+      "workingBody": "Mate está leyendo {domain} e incorporando información con fuentes a tu base de conocimientos. Puedes continuar con el siguiente paso mientras trabaja.",
+      "workingBodyWiki": "Mate está leyendo {domain} y creando la base de conocimientos. Puedes volver más tarde para ver las páginas terminadas.",
       "workingTitle": "Mate está conociendo tu empresa"
     },
     "tryAnother": "Probar otro sitio",

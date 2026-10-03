@@ -12,7 +12,7 @@ import { isAgentTurnTerminalError } from "@/ee/agent-chat/agent-turn-request";
 import {
   clientSafeAgentMessageParts,
   hasSuccessfulAgentMutation,
-  PublicSendAgentMessageSchema,
+  SendAgentMessageSchema,
 } from "@/ee/agent-chat/agent-chat.schema";
 
 export const runtime = "nodejs";
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
   if (env.AGENT_CHAT_DISABLED) return new Response(null, { status: 404 });
 
   try {
-    const parsed = PublicSendAgentMessageSchema.safeParse(await request.json());
+    const parsed = SendAgentMessageSchema.safeParse(await request.json());
     if (!parsed.success) return NextResponse.json(z.prettifyError(parsed.error), { status: 400 });
     const data = parsed.data;
     const result = await getSendAgentMessageInteractor().invoke(data);

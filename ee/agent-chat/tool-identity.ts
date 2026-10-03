@@ -1,4 +1,3 @@
-export const WIKI_READ_SOURCE_TOOL_NAME = "read_website_source";
 export const WIKI_WEBSITE_IMPORT_TOOL_NAME = "import_website";
 
 export const AGENT_TOOL_SOURCES = [

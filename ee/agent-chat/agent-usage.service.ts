@@ -38,7 +38,7 @@ export type AgentRetrievalReservation = {
 };
 
 export type AgentRetrievalGrant = {
-  purpose: "wikiRetrieval" | "wikiIndexing";
+  purpose: "wikiRetrieval" | "wikiIndexing" | "wikiSynthesis";
   companyId: string;
   userId: string | null;
   planSnapshot: SubscriptionPlan;
@@ -273,12 +273,16 @@ export class AgentUsageService {
     };
   }
 
-  async prepareRetrieval(userId: string, now = new Date()): Promise<AgentRetrievalGrant | null> {
+  async prepareRetrieval(
+    userId: string,
+    now = new Date(),
+    purpose: "wikiRetrieval" | "wikiSynthesis" = "wikiRetrieval",
+  ): Promise<AgentRetrievalGrant | null> {
     const state = await this.resolveUsageState(userId, now);
     if (state.summary.blockedReason || !state.user.subscription || !state.summary.plan) return null;
     if (!(await this.repo.admitsHostedAiRetrievalUnscoped(now))) return null;
     return {
-      purpose: "wikiRetrieval",
+      purpose,
       companyId: state.user.companyId,
       userId: state.user.id,
       planSnapshot: state.summary.plan,

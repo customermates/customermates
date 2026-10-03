@@ -146,7 +146,6 @@ export class RootStore {
   private _webhookModalStore?: WebhookModalStore;
   private _routineModalStore?: RoutineModalStore;
   private _routineRunChatStore?: AgentChatStore;
-  private _wikiSetupChatStore?: AgentChatStore;
   private _importWizardStore?: ImportWizardStore;
   private _widgetModalStore?: WidgetModalStore;
   private _auditLogModalStore?: AuditLogModalStore;
@@ -399,10 +398,6 @@ export class RootStore {
 
   get routineRunChatStore() {
     return (this._routineRunChatStore ??= new AgentChatStore(this, { persistOpenState: false }));
-  }
-
-  get wikiSetupChatStore() {
-    return (this._wikiSetupChatStore ??= new AgentChatStore(this, { persistOpenState: false }));
   }
 
   get routinesStore() {

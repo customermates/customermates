@@ -5,7 +5,7 @@ import en from "@/i18n/locales/en.json";
 import { AgentActivityContextSchema, agentToolOutputContext } from "../agent-activity-context";
 import { AgentActivityDescriptorSchema, agentActivityCopy, describeAgentTool } from "../agent-activity";
 import { AgentDurableStreamReader } from "../agent-durable-stream";
-import { AgentTurnTranscript, type AgentTranscriptEvent } from "../agent-turn-transcript";
+import { AgentTurnTranscript } from "../agent-turn-transcript";
 import { internalToolIdentity } from "../tool-identity";
 
 const translate = createTranslator({ locale: "en", messages: en });
@@ -103,44 +103,6 @@ describe("contextual activity labels", () => {
     expect(AgentActivityContextSchema.safeParse({ labels: [" "] }).success).toBe(false);
   });
 
-  it("distinguishes listing sources and reviewing them, with title or clean URL fallbacks", () => {
-    expect(activity("read_website_source", { action: "list" }).kind).toBe("web.sources");
-    expect(activity("read_website_source", { action: "next" }).kind).toBe("web.review");
-    expect(
-      agentToolOutputContext("read_website_source", {
-        items: [
-          {
-            title: "About us",
-            url: "https://example.com/about",
-            text: "private body",
-            id: "private-id",
-          },
-          { title: " ", url: "https://example.com/products?token=private" },
-        ],
-      }),
-    ).toEqual({ labels: ["About us", "example.com/products"] });
-  });
-
-  it("distinguishes planning from reading and preserves bounded page titles on failures", () => {
-    const descriptor = activity("read_website_source", {
-      action: "plan",
-      topics: ["Service A", "Service B", "Voice and tone", "Operating Guide"].map((title) => ({
-        title,
-        sourceIds: ["private-id"],
-      })),
-      excluded: [{ evidenceQuote: "Private source quotation" }],
-    });
-    expect(descriptor.kind).toBe("web.plan");
-    expect(descriptor.context).toEqual({ labels: ["Service A", "Service B", "Voice and tone"], additionalCount: 1 });
-    const copy = agentActivityCopy(descriptor, t);
-    expect(copy.running).toBe("Planning Knowledge Base pages · Service A, Service B, Voice and tone (+1)");
-    expect(copy.error).toBe("Couldn’t plan the Knowledge Base pages · Service A, Service B, Voice and tone (+1)");
-    expect(JSON.stringify(descriptor)).not.toMatch(/private-id|Private source quotation/);
-    expect(activity("read_website_source", { action: "get", id: "private-id" }).kind).toBe("web.review");
-    expect(activity("read_website_source", { action: "list" }).kind).toBe("web.sources");
-    expect(AgentActivityDescriptorSchema.parse(JSON.parse(JSON.stringify(descriptor)))).toEqual(descriptor);
-  });
-
   it("reads only display names from the actual mixed-record result wrappers", () => {
     expect(
       agentToolOutputContext("get_records", {
@@ -154,40 +116,6 @@ describe("contextual activity labels", () => {
         ],
       }),
     ).toEqual({ labels: ["Ada Lovelace", "Acme", "CRM rollout"], additionalCount: 2 });
-  });
-
-  it("persists the same successful source context that the durable stream emits", () => {
-    const events: AgentTranscriptEvent[] = [];
-    const transcript = new AgentTurnTranscript((event) => events.push(event));
-    transcript.beginToolCall({
-      toolCallId: "read",
-      toolName: "read_website_source",
-      activity: activity("read_website_source", { action: "next" }),
-    });
-    const output = {
-      ok: true,
-      result: "private body",
-      activityContext: { labels: ["About us", "Our services"] },
-    };
-    transcript.completeToolCall({
-      toolCallId: "read",
-      toolName: "read_website_source",
-      status: "done",
-      failed: false,
-      output,
-    });
-    const streamed = new AgentDurableStreamReader().read({
-      type: "tool-result",
-      toolCallId: "read",
-      toolName: "read_website_source",
-      output,
-    });
-    expect(streamed).toEqual(events.at(-1));
-    expect(transcript.replyParts[0]).toMatchObject({
-      activity: { context: output.activityContext },
-      status: "done",
-    });
-    expect(JSON.stringify([events, transcript.replyParts])).not.toContain("private body");
   });
 
   it("retains a search query instead of replacing it with results and ignores failed result context", () => {
@@ -219,7 +147,7 @@ describe("contextual activity labels", () => {
         reader.read({
           type: "tool-result",
           toolCallId: "read",
-          toolName: "read_website_source",
+          toolName: "manage_wiki_pages",
           output,
         })?.payload.context,
       ).toBeUndefined();

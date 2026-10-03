@@ -353,25 +353,10 @@
           }
         },
         "web": {
-          "plan": {
-            "done": "Pages de la base de connaissances planifiées",
-            "error": "Impossible de planifier les pages de la base de connaissances",
-            "running": "Planification des pages de la base de connaissances"
-          },
-          "review": {
-            "done": "Contenu du site examiné",
-            "error": "Impossible d’examiner le contenu du site",
-            "running": "Examen du contenu du site"
-          },
           "search": {
             "done": "Recherche web terminée",
             "error": "Impossible d’effectuer la recherche web",
             "running": "Recherche sur le web"
-          },
-          "sources": {
-            "done": "Pages web répertoriées",
-            "error": "Impossible de répertorier les pages web",
-            "running": "Liste des pages web en cours"
           }
         },
         "webhooks": {
@@ -1361,36 +1346,12 @@
       "widgetWeightedValueNotAllowedForService": "L'agrégation de valeur pondérée n'est pas autorisée pour le type d'élément Service.",
       "wikiGuideExists": "Cette base de connaissances a déjà un guide opérationnel. Mettez à jour le guide existant.",
       "wikiHomepageSetupStartFailed": "Mate n’a pas pu démarrer la configuration de la base de connaissances. Réessayez.",
-      "wikiImportKnowledgeOnly": "Une extension du centre d’aide crée uniquement des pages de connaissances ; les guides et procédures existants restent inchangés.",
-      "wikiImportLanguageRequired": "Rédigez chaque page en {locale}. Traduisez les sources dans cette langue. Rien n’a été modifié.",
-      "wikiImportLinkInvalid": "Utilisez les liens exacts de la base de connaissances renvoyés par la lecture des sources. Les liens fictifs ne peuvent pas être enregistrés.",
-      "wikiImportNotFound": "Cet import du site web n’est plus disponible. Rien n’a été modifié.",
-      "wikiImportPageLimit": "Cet import peut créer au maximum {maximum} pages de synthèse ; {created} existent déjà : {titles}. Rien n’a été modifié.",
-      "wikiImportTitleInvalid": "Utilisez un titre de page simple sans champs d’outil sérialisés.",
       "wikiNotEmpty": "Cette action nécessite une base de connaissances vide.",
       "wikiPageConflict": "Cette page de la base de connaissances a été modifiée après son ouverture. Rechargez-la et réessayez.",
       "wikiPageNotFound": "Page de la base de connaissances introuvable ou inaccessible.",
       "wikiPagePinned": "Le guide opérationnel reste en première position. Déplacez une autre page.",
       "wikiPageUpdateEmpty": "Renseignez au moins un champ pour modifier la page.",
       "wikiProcedureNeedsSteps": "Une procédure doit contenir des étapes numérotées.",
-      "wikiSourceChunkTooLarge": "Le fragment de source est trop volumineux. Rien n’a été marqué comme lu.",
-      "wikiSourceCitationInvalid": "Citez uniquement les identifiants renvoyés par read_website_source. Rien n’a été modifié.",
-      "wikiSourceCitationUnread": "Lisez chaque source citée entièrement avec read_website_source ; non lues : {ids}. Rien n’a été modifié.",
-      "wikiSourceClaimsUnsupported": "Le contenu signalé ne reflète pas fidèlement ses propres passages du site web. Corrigez chaque affirmation signalée en conservant la portée, le statut, les conditions, les limites et l'attribution de la source ; utilisez uniquement des faits étayés. Rien n'a été modifié.",
-      "wikiSourceCoverageRequired": "Lisez toutes les sources restantes avec read_website_source action=next avant de créer des pages ou de relire des sources. Il reste {remainingSources} sources. Rien n’a été modifié.",
-      "wikiSourceEvidenceInvalid": "Chaque section doit contenir des passages justificatifs exacts provenant des sources du site citées sur cette page. Corrigez toutes les citations ou sources signalées en copiant une phrase complète et contiguë ou une ligne du texte fraîchement renvoyé, en conservant les espaces et sauts de ligne réels, la ponctuation et l’orthographe. N’insérez jamais les caractères littéraux barre oblique inverse et n ; préférez une phrase complète plus courte à la reconstruction d’un passage sur plusieurs lignes. Relisez ensemble toutes les sources nécessaires au groupe de pages avant de réessayer. Rien n’a été modifié.",
-      "wikiSourceExclusionDuplicateInvalid": "La source {sourceId} n’est pas une copie au contenu identique de la source conservée ou importée {duplicateOfSourceId}. Pour les pages traduites de l’entreprise ou des fondamentaux, conservez les deux identifiants de source dans les thèmes de fondamentaux pertinents comme pistes de lecture. Pour les traductions d’offres réellement redondantes, utilisez overlap avec le titre exact de l’offre conservée et des citations exactes de la source et de la source correspondante ; sinon, conservez la source dans son thème. Rien n’a été modifié.",
-      "wikiSourceExclusionEvidenceInvalid": "La citation de la source {sourceId} ne correspond pas exactement au texte enregistré. Relisez-la avec get et offset=0, puis copiez une phrase ou une ligne continue sans modifier les espaces, la ponctuation ni les mots. Rien n’a été modifié.",
-      "wikiSourceExclusionImportedInvalid": "La source {sourceId} n’a pas été importée sans modification. Choisissez un motif d’exclusion étayé ou conservez-la dans un sujet. Rien n’a été modifié.",
-      "wikiSourceExclusionOverlapInvalid": "L’offre exacte {coveredByTitle} doit couvrir toute la source {sourceId}. Des mots, une technologie ou un cas communs ne suffisent pas. Gardez les sujets distincts. Rien n’a été modifié.",
-      "wikiSourceNotFound": "Identifiant de source inconnu. Appelez list d’abord.",
-      "wikiSourcePlanAccountingInvalid": "Incluez chaque source une seule fois dans un groupe ou les exclusions, et jamais dans topics et excluded à la fois. Identifiants en double : [{duplicateSourceIds}]. Identifiants dans topics et excluded : [{overlappingSourceIds}]. Identifiants non pris en compte : [{missingSourceIds}]. Rien n’a été modifié.",
-      "wikiSourcePlanCitationLimit": "Prévoyez une à quatre sources par offre ou procédure et citez-les toutes lors de sa création. Divisez un sujet si quatre sources ne couvrent pas ses éléments distincts. Aucun plan n’a été accepté.",
-      "wikiSourcePlanIncomplete": "Envoie une liste topics et, avant de créer des pages, prends en compte chaque source enregistrée et chaque rôle de page requis dans un sujet étayé ou une omission justifiée. Identifiants de sources non pris en compte : [{missingSourceIds}]. Rôles manquants ou non valides : [{missingRoles}].",
-      "wikiSourceReadOrder": "Lisez dans l’ordre sans sauter de texte. Utilisez next ou le nextOffset enregistré par list.",
-      "wikiSourceReviewLimit": "Mate n'a pas pu vérifier ce contenu après les corrections autorisées. Aucune page de cette demande n'a été créée. Consultez les pages déjà enregistrées dans la Knowledge Base.",
-      "wikiSourceReviewTooLarge": "Le contenu complet et ses preuves dépassent la limite de vérification. Envoyez moins de pages ou des sections complètes plus courtes, sans omettre de preuves. Rien n'a été modifié.",
-      "wikiSourceReviewUnavailable": "Mate n'a pas pu vérifier ce contenu du site web. Aucune page de cette demande n'a été créée. Les pages déjà enregistrées restent disponibles.",
       "wikiWhenToUseRequired": "Une procédure doit indiquer brièvement quand l'utiliser."
     },
     "events": {
@@ -3823,11 +3784,10 @@
     }
   },
   "WikiSetup": {
-    "agentPrompt": "Découvre notre entreprise à partir de {homepage} et crée les pages de notre base de connaissances.",
     "continue": "Continuer",
     "continueBackground": "Continuer pendant que Mate travaille",
-    "conversationTitle": "Configurer la base de connaissances de l’espace de travail",
     "crawlProgress": {
+      "created": "Créée",
       "discovering": "Recherche des pages du site",
       "failed": "Ignorée",
       "found": "{count} pages trouvées",
@@ -3835,21 +3795,20 @@
       "read": "Lue",
       "reading": "Lecture en cours",
       "readingCount": "Lecture des pages · {fetched}/{total}",
-      "steps": "2 étapes",
-      "synthesizing": "Démarrage de Mate pour rédiger les pages de la base de connaissances",
-      "title": "Progression de l’import du site"
+      "steps": "3 étapes",
+      "title": "Progression de l’import du site",
+      "writing": "Rédaction",
+      "writingCount": "Rédaction des pages · {created}/{total}"
     },
     "generated": {
       "gapsHeading": "Points à confirmer",
+      "pagesHeading": "Pages de la base de connaissances",
       "sourcesHeading": "Sources"
     },
     "homepageLabel": "Site web de l’entreprise",
     "homepagePlaceholder": "https://exemple.fr",
     "languageDescription": "La langue du navigateur est utilisée par défaut. Si la base de connaissances contient déjà des pages, leur langue détermine le choix.",
     "languageLabel": "Langue de la base de connaissances",
-    "openTask": "Ouvrir la tâche Mate",
-    "progressLoadFailed": "La progression de Mate n’a pas pu être chargée ici. Réessayez.",
-    "progressLoading": "Chargement de la progression de Mate",
     "start": "Créer ma base de connaissances",
     "status": {
       "completedBodyOnboarding": "Mate a créé vos pages initiales avec des faits issus du site web. Vous pourrez les vérifier plus tard dans la base de connaissances et confirmer tout ce qui est indiqué comme point à confirmer.",
@@ -3857,16 +3816,14 @@
       "completedTitle": "Votre base de connaissances de départ est prête",
       "failedBody": "La configuration s’est arrêtée avant que toutes les pages soient prêtes. Les pages déjà créées restent disponibles. Vous pouvez continuer et les consulter dans la base de connaissances.",
       "failedBodyBlocked": "{domain} n'autorise pas la lecture automatique dans son robots.txt, donc rien n'a été importé. Vous pouvez créer les pages vous-même.",
-      "failedBodySynthesis": "Le site a été lu, mais Mate n’a pas pu lancer la création des pages. Réessayez. Les pages déjà créées restent disponibles.",
+      "failedBodySynthesis": "Le site web a été lu, mais Mate n'a pas pu rédiger les pages. Réessayez. Les pages déjà créées restent disponibles.",
       "failedBodyUnavailable": "Mate n'a pas pu lire {domain}. Vérifiez l'adresse, ou continuez et ajoutez des pages plus tard.",
       "failedTitle": "La configuration n’a pas abouti",
-      "noContentBody": "Consultez la tâche Mate pour plus de détails. Vous pouvez essayer un autre site ou continuer et ajouter des pages plus tard.",
+      "noContentBody": "Mate n'a trouvé aucune information exploitable pour des pages de la base de connaissances. Vous pouvez essayer un autre site web ou continuer et ajouter des pages plus tard.",
       "noContentTitle": "Aucune page de la base de connaissances n’a été créée",
       "readingBody": "Mate a lu {fetched} pages sur {total} sur {domain}.",
-      "workingBody": "Mate lit {domain}, consulte les pages utiles et transforme les informations issues de ces sources en contenu pour votre base de connaissances. Vous pouvez suivre sa progression ici ou passer à l’étape suivante.",
-      "workingBodyNoTask": "Mate lit {domain} et transforme les informations issues de ces sources en contenu pour votre base de connaissances. Vous pouvez passer à l’étape suivante pendant son travail.",
-      "workingBodyNoTaskWiki": "Mate lit {domain} et crée la base de connaissances. Vous pourrez revenir plus tard pour consulter les pages terminées.",
-      "workingBodyWiki": "Mate lit {domain}, consulte les pages utiles et transforme les informations issues de ces sources en contenu pour votre base de connaissances. Vous pouvez garder cette tâche ouverte ou revenir plus tard.",
+      "workingBody": "Mate lit {domain} et transforme les informations issues de ces sources en contenu pour votre base de connaissances. Vous pouvez passer à l’étape suivante pendant son travail.",
+      "workingBodyWiki": "Mate lit {domain} et crée la base de connaissances. Vous pourrez revenir plus tard pour consulter les pages terminées.",
       "workingTitle": "Mate découvre votre entreprise"
     },
     "tryAnother": "Essayer un autre site",

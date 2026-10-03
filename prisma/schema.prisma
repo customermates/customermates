@@ -336,7 +336,7 @@ model WikiWebsiteCrawl {
   fetched           Int                    @default(0)
   failed            Int                    @default(0)
   importedPages     Int                    @default(0)
-  conversationId    String?
+  topics            Json?
   failureReason     String?
   startedAt         DateTime               @default(now())
   finishedAt        DateTime?
@@ -360,8 +360,6 @@ model WikiSourceDocument {
   qaPairs         Json?
   contentHash     String
   fetchedAt       DateTime         @default(now())
-  readOffset      Int              @default(0)
-  readAt          DateTime?
   importClaimedAt DateTime?
   crawl           WikiWebsiteCrawl @relation(fields: [crawlId], references: [id], onDelete: Cascade)
   company         Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
@@ -1958,6 +1956,7 @@ enum AgentUsagePurpose {
   turn
   wikiRetrieval
   wikiIndexing
+  wikiSynthesis
 }
 
 enum AgentUsageCostSource {
@@ -1981,7 +1980,6 @@ model AgentTurnRequest {
   clientRequestId         String
   text                    String
   pageRoute               String?
-  wikiHomepageSetupUrl    String?
   status                  AgentTurnStatus
   runId                   String
   externalRunId           String?

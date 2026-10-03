@@ -34,7 +34,6 @@ const CRAWL: WikiWebsiteCrawlStart = {
   mode: "initial",
   homepageUrl: "https://example.com/",
   registrableDomain: "example.com",
-  conversationId: null,
   pendingHosts: ["acme.zendesk.com"],
   extraHosts: [],
 };
@@ -87,17 +86,6 @@ describe("StartWikiHomepageSetupInteractor", () => {
     );
     expect(result.ok).toBe(true);
     expect(crawlRepo.createCrawl).toHaveBeenCalledWith(expect.objectContaining({ locale: "en" }));
-  });
-
-  it.each(["replay", "queued join"])("masks another member's private import chat on %s", async (path) => {
-    const privateCrawl = { ...CRAWL, userId: "other-user", conversationId: "private-conversation" };
-    const { interactor } = harness(
-      path === "replay" ? { reusable: privateCrawl } : { active: true, latest: privateCrawl },
-    );
-    const result = await runWithTenant(mockUser, () =>
-      interactor.invoke({ homepage: "example.com", clientRequestId: CLIENT_REQUEST_ID }),
-    );
-    expect(result).toMatchObject({ ok: true, data: { conversationId: null, domain: "example.com" } });
   });
 
   it("infers extension only for a help host recorded by a previous import", async () => {
@@ -184,7 +172,6 @@ describe("StartWikiHomepageSetupInteractor", () => {
     expect(result).toEqual({
       ok: true,
       data: {
-        conversationId: null,
         homepage: "https://example.com/about",
         domain: "example.com",
         mode: "initial",
@@ -210,7 +197,6 @@ describe("StartWikiHomepageSetupInteractor", () => {
       reusable: {
         ...CRAWL,
         status: "completed",
-        conversationId: "00000000-0000-4000-8000-000000000002",
       },
     });
     expect(
@@ -223,7 +209,7 @@ describe("StartWikiHomepageSetupInteractor", () => {
       ),
     ).toMatchObject({
       ok: true,
-      data: { conversationId: "00000000-0000-4000-8000-000000000002" },
+      data: { homepage: CRAWL.homepageUrl },
     });
     expect(repo.wikiIsEmpty).not.toHaveBeenCalled();
     expect(crawlRepo.createCrawl).not.toHaveBeenCalled();

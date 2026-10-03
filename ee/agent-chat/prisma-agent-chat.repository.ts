@@ -1,4 +1,3 @@
-import { activeWikiHomepageSetupWhere } from "./wiki-setup-admission";
 import { randomUUID } from "node:crypto";
 
 import {
@@ -17,9 +16,6 @@ import { BaseRepository } from "@/core/base/base-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { env } from "@/env";
-import type { GetWikiHomepageSetupTurnRepo } from "@/features/wiki/get-wiki-homepage-setup-turn.repo";
-import type { WikiHomepageSetupTurn } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
-import { parsePublicWikiHomepage } from "@/features/wiki/wiki-homepage";
 
 import type {
   AgentRetrievalCharge,
@@ -28,9 +24,7 @@ import type {
   AgentWorkspaceCreditPool,
 } from "./agent-usage.service";
 import type { AgentUsageRepo } from "@/ee/agent-chat/agent-usage.repo";
-import type { WikiCrawlSetupRepo, WikiCrawlSetupIdentity } from "./wiki-crawl-setup.repo";
 import type { GetWikiSuggestionSignalRepo } from "@/features/wiki/get-wiki-suggestion-signal.repo";
-import type { WikiCrawlAdmissionRepo } from "@/ee/wiki-crawl/wiki-crawl-admission.repo";
 import { AGENT_CONVERSATION_PAGE_SIZE, AGENT_MESSAGE_PAGE_SIZE, type AgentConversationPage } from "./agent-history";
 import { AGENT_MAX_CONCURRENT_RUNS_PER_USER } from "./agent-run-limits";
 import { clientSafeAgentMessageParts, hasRenderableAgentMessageParts, partsToText } from "./agent-chat.schema";
@@ -51,7 +45,6 @@ import {
   AGENT_RUN_LEASE_MS,
   isAgentTurnStopReason,
   isAgentTurnTerminalCode,
-  wikiHomepageSetupConflict,
   type AgentTurnRequestSnapshot,
   type AgentTurnRequestStatus,
   type AgentTurnStopReason,
@@ -74,7 +67,6 @@ type StoredAgentTurnRow = {
   clientRequestId: string;
   text: string;
   pageRoute: string | null;
-  wikiHomepageSetupUrl: string | null;
   status: string;
   runId: string;
   attemptCount: number;
@@ -142,7 +134,6 @@ type AgentTurnAdmissionArgs = {
         text: string;
         contexts?: AgentContextAttachment[];
         pageRoute: string | null;
-        wikiHomepageSetupUrl?: string | null;
         userMessageId: string;
       }
     | {
@@ -150,7 +141,6 @@ type AgentTurnAdmissionArgs = {
         turnRequestId: string;
         priorRunId: string;
         priorAttemptCount: number;
-        wikiHomepageSetupUrl?: string | null;
         userMessageId: string;
       };
 };
@@ -234,14 +224,8 @@ export type AgentUsageReservationExtension =
   | { disposition: "hosted_ai_unavailable" }
   | { disposition: "turn_error" };
 
-export class PrismaAgentChatRepo
-  extends BaseRepository
-  implements AgentUsageRepo, GetWikiHomepageSetupTurnRepo, WikiCrawlSetupRepo
-{
-  constructor(
-    private readonly wikiSuggestions: GetWikiSuggestionSignalRepo,
-    private readonly wikiCrawlAdmission: () => WikiCrawlAdmissionRepo,
-  ) {
+export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRepo {
+  constructor(private readonly wikiSuggestions: GetWikiSuggestionSignalRepo) {
     super();
   }
 
@@ -361,7 +345,6 @@ export class PrismaAgentChatRepo
       clientRequestId: row.clientRequestId,
       text: row.text,
       pageRoute: row.pageRoute,
-      wikiHomepageSetupUrl: row.wikiHomepageSetupUrl,
       status,
       runId: row.runId,
       attemptCount: row.attemptCount,
@@ -574,43 +557,6 @@ export class PrismaAgentChatRepo
         if (linkedRun.count !== 1) throw new Error("Routine run changed before agent admission.");
       }
 
-      if (args.turn.wikiHomepageSetupUrl) {
-        const activeSetup = await this.prisma.agentTurnRequest.findFirst({
-          where: {
-            ...activeWikiHomepageSetupWhere(companyId, admittedAt),
-            id: { not: args.turn.turnRequestId },
-          },
-          select: { id: true },
-        });
-        if (activeSetup) throw wikiHomepageSetupConflict();
-        const crawlAdmission = this.wikiCrawlAdmission();
-        const activeCrawl = await crawlAdmission.findActiveHomepageSetupCrawl();
-        if (
-          activeCrawl &&
-          (args.turn.kind !== "create" ||
-            activeCrawl.status !== "synthesizing" ||
-            activeCrawl.clientRequestId !== args.turn.clientRequestId ||
-            activeCrawl.homepageUrl !== args.turn.wikiHomepageSetupUrl)
-        )
-          throw wikiHomepageSetupConflict();
-        const originalRequest =
-          args.turn.kind === "retry"
-            ? await this.prisma.agentTurnRequest.findFirst({
-                where: { id: args.turn.turnRequestId, companyId, userId, conversationId },
-                select: { clientRequestId: true },
-              })
-            : null;
-        const crawlClientRequestId =
-          args.turn.kind === "create" ? args.turn.clientRequestId : originalRequest?.clientRequestId;
-        if (!crawlClientRequestId) throw wikiHomepageSetupConflict();
-        const boundCrawl = await crawlAdmission.hasBoundHomepageSetupCrawl({
-          userId,
-          clientRequestId: crawlClientRequestId,
-          homepageUrl: args.turn.wikiHomepageSetupUrl,
-        });
-        if (!boundCrawl) throw wikiHomepageSetupConflict();
-      }
-
       if (args.turn.kind === "retry") {
         const retried = await this.prisma.agentTurnRequest.updateMany({
           where: {
@@ -650,7 +596,6 @@ export class PrismaAgentChatRepo
             clientRequestId: args.turn.clientRequestId,
             text: args.turn.text,
             pageRoute: args.turn.pageRoute,
-            wikiHomepageSetupUrl: args.turn.wikiHomepageSetupUrl,
             status: "running",
             runId: args.runId,
             attemptCount: 1,
@@ -706,45 +651,6 @@ export class PrismaAgentChatRepo
         recentMessages: recentMessages.reverse(),
       };
     });
-  }
-
-  async findWikiHomepageSetupTurn(): Promise<WikiHomepageSetupTurn | null> {
-    const select = {
-      status: true,
-      terminalCode: true,
-      wikiHomepageSetupUrl: true,
-      conversationId: true,
-      userId: true,
-      affectedResources: true,
-    } as const;
-    const orderBy = [{ createdAt: "desc" as const }, { id: "desc" as const }];
-    const active = await this.prisma.agentTurnRequest.findFirst({
-      where: activeWikiHomepageSetupWhere(this.companyId, new Date()),
-      orderBy,
-      select,
-    });
-    const setup =
-      active ??
-      (await this.prisma.agentTurnRequest.findFirst({
-        where: {
-          companyId: this.companyId,
-          wikiHomepageSetupUrl: { not: null },
-        },
-        orderBy,
-        select,
-      }));
-    const url = setup?.wikiHomepageSetupUrl;
-    const homepage = url ? parsePublicWikiHomepage(url) : null;
-    if (!setup || !url || !homepage) return null;
-    return {
-      active: active !== null,
-      status: setup.status,
-      terminalCode: setup.terminalCode,
-      homepage: url,
-      domain: homepage.registrableDomain,
-      conversationId: setup.userId === this.userId ? setup.conversationId : null,
-      affectedResources: setup.affectedResources,
-    };
   }
 
   async archiveConversation(id: string) {
@@ -1151,7 +1057,6 @@ export class PrismaAgentChatRepo
       clientRequestId: true,
       text: true,
       pageRoute: true,
-      wikiHomepageSetupUrl: true,
       status: true,
       runId: true,
       attemptCount: true,
@@ -1625,71 +1530,6 @@ export class PrismaAgentChatRepo
       skipDuplicates: true,
     });
     return claimed.count === 1 ? ("claimed" as const) : ("conversationBusy" as const);
-  }
-
-  @BypassTenantGuard
-  async claimAgentClassifierReceiptOrThrowUnscoped(args: {
-    turnRequestId: string;
-    companyId: string;
-    toolCallId: string;
-    toolName: string;
-    initialResultJson: Prisma.InputJsonValue;
-  }): Promise<{ state: "fresh" | "settled" | "unknown"; resultJson: unknown }> {
-    return this.withCompanyTransaction(args.companyId, async () => {
-      const turn = await this.prisma.agentTurnRequest.findFirst({
-        where: { id: args.turnRequestId, companyId: args.companyId },
-        select: { id: true },
-      });
-      if (!turn) throw new Error("Agent classifier receipt turn ownership changed.");
-
-      const claimed = await this.prisma.agentToolReceipt.createMany({
-        data: [
-          {
-            turnRequestId: args.turnRequestId,
-            companyId: args.companyId,
-            toolCallId: args.toolCallId,
-            toolName: args.toolName,
-            resultJson: args.initialResultJson,
-          },
-        ],
-        skipDuplicates: true,
-      });
-      const receipt = await this.prisma.agentToolReceipt.findUniqueOrThrow({
-        where: {
-          turnRequestId_toolCallId: { turnRequestId: args.turnRequestId, toolCallId: args.toolCallId },
-        },
-        select: { companyId: true, toolName: true, state: true, resultJson: true },
-      });
-      if (receipt.companyId !== args.companyId || receipt.toolName !== args.toolName)
-        throw new Error("Agent classifier receipt ownership changed.");
-      return {
-        state: claimed.count === 1 ? "fresh" : receipt.state === "settled" ? "settled" : "unknown",
-        resultJson: receipt.resultJson,
-      };
-    });
-  }
-
-  @BypassTenantGuard
-  async settleAgentClassifierReceiptUnscoped(args: {
-    turnRequestId: string;
-    companyId: string;
-    toolCallId: string;
-    toolName: string;
-    resultJson: Prisma.InputJsonValue;
-  }): Promise<void> {
-    await this.withCompanyTransaction(args.companyId, async () => {
-      const settled = await this.prisma.agentToolReceipt.updateMany({
-        where: {
-          turnRequestId: args.turnRequestId,
-          companyId: args.companyId,
-          toolCallId: args.toolCallId,
-          toolName: args.toolName,
-          state: "claimed",
-        },
-        data: { state: "settled", resultJson: args.resultJson, settledAt: new Date() },
-      });
-      if (settled.count !== 1) throw new Error("Agent classifier receipt could not be settled.");
-    });
   }
 
   @BypassTenantGuard
@@ -2898,7 +2738,7 @@ export class PrismaAgentChatRepo
     >`
       UPDATE "AgentUsageEvent" SET "state" = 'released', "chargedMicrocents" = 0,
         "settledAt" = ${args.now}
-      WHERE "purpose" IN ('wikiRetrieval', 'wikiIndexing') AND "state" = 'reserved'
+      WHERE "purpose" IN ('wikiRetrieval', 'wikiIndexing', 'wikiSynthesis') AND "state" = 'reserved'
         AND "createdAt" < ${args.reservedBefore}
         AND (${args.companyId ?? null}::text IS NULL OR "companyId" = ${args.companyId ?? null}::text)
       RETURNING "model", "reservedMicrocents", "providerStartedAt", "createdAt"
@@ -3142,34 +2982,5 @@ export class PrismaAgentChatRepo
         settledAt: releasedAt,
       },
     });
-  }
-
-  async hasActiveWikiHomepageSetup(now: Date) {
-    const turn = await this.prisma.agentTurnRequest.findFirst({
-      where: activeWikiHomepageSetupWhere(this.companyId, now),
-      select: { id: true },
-    });
-    return Boolean(turn);
-  }
-
-  async protectedWikiHomepageSetupUrls(now: Date) {
-    const turns = await this.prisma.agentTurnRequest.findMany({
-      where: activeWikiHomepageSetupWhere(this.companyId, now),
-      select: { wikiHomepageSetupUrl: true },
-    });
-    return turns.flatMap(({ wikiHomepageSetupUrl }) => (wikiHomepageSetupUrl ? [wikiHomepageSetupUrl] : []));
-  }
-
-  async findWikiHomepageSetupConversation(identity: WikiCrawlSetupIdentity) {
-    const turn = await this.prisma.agentTurnRequest.findFirst({
-      where: {
-        companyId: this.companyId,
-        userId: identity.userId,
-        clientRequestId: identity.clientRequestId,
-        wikiHomepageSetupUrl: identity.homepageUrl,
-      },
-      select: { conversationId: true },
-    });
-    return turn?.conversationId ?? null;
   }
 }

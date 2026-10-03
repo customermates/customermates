@@ -27,7 +27,7 @@ describe("bounded hosted tool failure metadata", () => {
   });
 
   it("keeps distinct validated custom codes through dense repeated issues and JSON replay", () => {
-    const customCodes = [CustomErrorCode.wikiSourceCoverageRequired, CustomErrorCode.wikiSourcePlanIncomplete];
+    const customCodes = [CustomErrorCode.wikiNotEmpty, CustomErrorCode.invalidUrl];
     const input = {
       result: "Localized validation detail. ".repeat(2_000),
       failure: {

@@ -1,23 +1,10 @@
 import { getTranslations } from "next-intl/server";
-import { z } from "zod";
 
 import type { CustomErrorCode } from "./validation.types";
 import { createZodError, type InteractorFailure, type InteractorFailureKind } from "./validation.utils";
 
 type FailureValues = Record<string, string | number>;
 type FailurePath = Array<string | number>;
-
-export type FailureIssue = {
-  code: CustomErrorCode;
-  path?: FailurePath;
-  values?: FailureValues;
-};
-
-export async function failIssues(issues: readonly FailureIssue[]): Promise<InteractorFailure> {
-  if (issues.length === 0) throw new Error("An interactor failure requires at least one issue.");
-  const failures = await Promise.all(issues.map(({ code, path = [], values = {} }) => fail(code, path, values)));
-  return { ok: false, error: new z.ZodError(failures.flatMap(({ error }) => error.issues)) };
-}
 
 async function interactorFailure(
   kind: InteractorFailureKind | null,

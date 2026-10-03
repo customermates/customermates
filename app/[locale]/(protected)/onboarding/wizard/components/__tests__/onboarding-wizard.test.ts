@@ -3,8 +3,7 @@ import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-s
 
 import type { ReactNode } from "react";
 
-import { act, createElement } from "react";
-import { createRoot } from "react-dom/client";
+import { createElement } from "react";
 import { observable } from "mobx";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -16,7 +15,6 @@ const testContext = vi.hoisted(() => ({
     onSkip?: () => void | Promise<void>;
     canStart?: boolean;
     disabled?: boolean;
-    renderConversation?: (conversationId: string) => ReactNode;
   },
   embeddedSelectConversation: vi.fn(),
   wikiSetupChatStore: null as Record<string, unknown> | null,
@@ -92,7 +90,6 @@ vi.mock("@/components/wiki/wiki-homepage-setup", () => ({
     status: "idle",
     homepage: null,
     domain: null,
-    conversationId: null,
     pages: [],
   },
   WikiHomepageSetup: (props: {
@@ -100,7 +97,6 @@ vi.mock("@/components/wiki/wiki-homepage-setup", () => ({
     onSkip?: () => void | Promise<void>;
     canStart?: boolean;
     disabled?: boolean;
-    renderConversation?: (conversationId: string) => ReactNode;
   }) => {
     testContext.wikiProps = props;
     return createElement("div", { "data-step": "wiki" });
@@ -188,88 +184,6 @@ describe("OnboardingWizard", () => {
     expect(renderWizard(true, false, true, true)).toContain('data-step="invite"');
   });
 
-  it("renders the selected setup conversation read-only with text-only links", () => {
-    renderWizard(true);
-    const props = testContext.wikiProps;
-    const chatStore = testContext.wikiSetupChatStore;
-    if (!props?.renderConversation || !chatStore) throw new Error("Wiki setup conversation did not render.");
-    chatStore.conversationId = "conversation-1";
-    chatStore.isWorking = true;
-
-    const html = renderToStaticMarkup(props.renderConversation("conversation-1"));
-
-    expect(html).toContain('data-testid="wiki-setup-conversation"');
-    expect(html).not.toMatch(/class="[^"]*(?:border-border|h-64|h-72)[^"]*" data-testid="wiki-setup-conversation"/);
-    expect(html).toContain('data-scrollable="true"');
-    expect(html).toContain("max-h-[min(24rem,50dvh)]");
-    expect(html).toContain('data-agent-conversation="true"');
-    expect(html).toContain('data-read-only="true"');
-    expect(html).toContain('data-links-as-text="true"');
-    expect(html).toContain('data-agent-progress="true"');
-    expect(html).toContain('data-agent-announcer="true"');
-    expect(html).not.toContain("agent-composer");
-    const container = document.createElement("div");
-    container.innerHTML = html;
-    const conversation = container.querySelector('[data-agent-conversation="true"]');
-    expect(conversation?.querySelector('[data-agent-progress="true"]')).not.toBeNull();
-    expect(container.querySelectorAll('[data-agent-progress="true"]')).toHaveLength(1);
-  });
-
-  it("loads a restored setup conversation through the dedicated embedded store", async () => {
-    renderWizard(true);
-    const props = testContext.wikiProps;
-    const chatStore = testContext.wikiSetupChatStore;
-    if (!props?.renderConversation || !chatStore) throw new Error("Wiki setup conversation did not render.");
-    testContext.embeddedSelectConversation.mockImplementation((conversationId: string) => {
-      chatStore.conversationId = conversationId;
-      return Promise.resolve();
-    });
-    const container = document.createElement("div");
-    document.body.append(container);
-    const root = createRoot(container);
-
-    await act(async () => {
-      root.render(props.renderConversation?.("conversation-restored"));
-      await Promise.resolve();
-    });
-    expect(testContext.embeddedSelectConversation).toHaveBeenCalledExactlyOnceWith("conversation-restored");
-    expect(container.querySelector('[data-agent-conversation="true"]')).not.toBeNull();
-    expect(container.querySelector('[aria-label="PageState.loading"]')).toBeNull();
-
-    act(() => root.unmount());
-    container.remove();
-  });
-
-  it("retries a failed inline transcript load without opening the floating assistant", async () => {
-    renderWizard(true);
-    const props = testContext.wikiProps;
-    const chatStore = testContext.wikiSetupChatStore;
-    if (!props?.renderConversation || !chatStore) throw new Error("Wiki setup conversation did not render.");
-    chatStore.conversationId = "conversation-1";
-    chatStore.conversationLoadError = true;
-    const container = document.createElement("div");
-    document.body.append(container);
-    const root = createRoot(container);
-
-    await act(async () => {
-      root.render(props.renderConversation?.("conversation-1"));
-      await Promise.resolve();
-    });
-    const retry = [...container.querySelectorAll<HTMLButtonElement>("button")].find((button) =>
-      button.textContent?.includes("ErrorCard.retry"),
-    );
-    if (!retry) throw new Error("Inline transcript retry did not render.");
-    await act(async () => {
-      retry.click();
-      await Promise.resolve();
-    });
-
-    expect(testContext.embeddedSelectConversation).toHaveBeenCalledExactlyOnceWith("conversation-1");
-
-    act(() => root.unmount());
-    container.remove();
-  });
-
   it.each(["onContinue", "onSkip"] as const)("advances an owner from Wiki when %s fires", async (callback) => {
     renderWizard(true);
     const props = testContext.wikiProps;
@@ -314,7 +228,6 @@ describe("OnboardingWizard", () => {
       status: "working",
       homepage: "https://example.com/",
       domain: "example.com",
-      conversationId: "conversation-1",
       pages: [],
     });
 

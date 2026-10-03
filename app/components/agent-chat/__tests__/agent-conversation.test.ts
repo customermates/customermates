@@ -59,13 +59,6 @@ beforeEach(() => {
 afterEach(() => vi.useRealTimers());
 
 describe("AgentConversationLog", () => {
-  it("places an opted-in reconnecting status inside the transcript log", () => {
-    const html = renderToStaticMarkup(createElement(AgentConversationLog, { showProgressStatus: true }));
-
-    expect(html).toMatch(/role="log"[\s\S]*AgentChat\.ui\.reconnecting/);
-    expect(html.match(/animate-spin/g)).toHaveLength(1);
-  });
-
   it("does not add connection state to ordinary conversation logs", () => {
     const html = renderToStaticMarkup(createElement(AgentConversationLog));
 

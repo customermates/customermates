@@ -28,7 +28,6 @@ export const StartWikiHomepageSetupSchema = z.object({
 export type StartWikiHomepageSetupData = Data<typeof StartWikiHomepageSetupSchema>;
 
 export type StartedWikiHomepageSetup = {
-  conversationId: string | null;
   homepage: string;
   domain: string;
   mode: WikiWebsiteCrawlMode;
@@ -44,7 +43,6 @@ export type WikiWebsiteCrawlStart = {
   mode: WikiWebsiteCrawlMode;
   homepageUrl: string;
   registrableDomain: string;
-  conversationId: string | null;
   pendingHosts: string[];
   extraHosts: string[];
 };
@@ -160,7 +158,6 @@ export class StartWikiHomepageSetupInteractor extends AuthenticatedInteractor<
     return {
       ok: true as const,
       data: {
-        conversationId: crawl.userId === this.user.id ? crawl.conversationId : null,
         homepage: crawl.homepageUrl,
         domain: crawl.registrableDomain,
         mode: crawl.mode,

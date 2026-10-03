@@ -47,19 +47,13 @@ function harness(offset: number, knownRevision = true) {
       sourceContentHash: "old",
     }),
     markImported: vi.fn().mockResolvedValue(undefined),
-    settleCrawl: vi.fn().mockResolvedValue(undefined),
     updateCrawl: vi.fn().mockResolvedValue(undefined),
   };
   const update = vi.fn().mockResolvedValue({
     ok: true,
     data: { id: "page-1", updatedAt: new Date(importedAt.getTime() + 2_000) },
   });
-  const service = new WikiWebsiteCrawlService(
-    repo as never,
-    { invoke: vi.fn() } as never,
-    { invoke: update } as never,
-    () => Promise.resolve({ conversationId: null, failureReason: "synthesisNotStarted" }),
-  );
+  const service = new WikiWebsiteCrawlService(repo as never, { invoke: vi.fn() } as never, { invoke: update } as never);
   return { service, repo, update, importedAt, source };
 }
 
@@ -89,7 +83,7 @@ describe("Wiki imported revision protection", () => {
     expect(repo.claimSourceImport).not.toHaveBeenCalled();
   });
 
-  it("starts synthesis for an extension while leaving refresh synthesis disabled", async () => {
+  it("hands an extension to synthesis while leaving refresh synthesis disabled", async () => {
     const { repo } = harness(0);
     const crawl = {
       mode: "extend",
@@ -104,10 +98,8 @@ describe("Wiki imported revision protection", () => {
       deleteEarlierSources: vi.fn(),
       countSources: vi.fn().mockResolvedValue(1),
     };
-    const start = vi.fn().mockResolvedValue({ conversationId: "conversation-1", failureReason: null });
-    const service = new WikiWebsiteCrawlService(extensionRepo as never, {} as never, {} as never, start);
+    const service = new WikiWebsiteCrawlService(extensionRepo as never, {} as never, {} as never);
     await service.finish("crawl-1");
-    expect(start).toHaveBeenCalledExactlyOnceWith(crawl);
     expect(repo.claimCrawl).toHaveBeenCalledWith("crawl-1", ["importing"], {
       status: "synthesizing",
     });
@@ -155,9 +147,7 @@ describe("Wiki imported revision protection", () => {
       getCrawl: vi.fn().mockResolvedValue({ mode: "refresh", discovered: 2, fetched: 0 }),
       deleteEarlierSources: vi.fn().mockResolvedValue(undefined),
     };
-    const unavailable = new WikiWebsiteCrawlService(unavailableRepo as never, {} as never, {} as never, () =>
-      Promise.resolve({ conversationId: null, failureReason: "synthesisNotStarted" }),
-    );
+    const unavailable = new WikiWebsiteCrawlService(unavailableRepo as never, {} as never, {} as never);
     await unavailable.finish("crawl-1");
     expect(unavailableRepo.claimCrawl).toHaveBeenCalledWith(
       "crawl-1",

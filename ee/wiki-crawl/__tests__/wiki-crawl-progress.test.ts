@@ -35,15 +35,12 @@ function fixture(status: "pending" | "reading" | "read" | "failed" = "pending") 
     saveSource: vi.fn().mockImplementation(() => {
       events.push("saved");
     }),
-    settleCrawl: vi.fn().mockResolvedValue(undefined),
     updateCrawl: vi.fn(),
     countSources: vi.fn(),
     claimCrawl: vi.fn().mockResolvedValue(true),
     listRefreshTargets: vi.fn(),
   };
-  const service = new WikiWebsiteCrawlService(repo as never, {} as never, {} as never, () =>
-    Promise.resolve({ conversationId: null, failureReason: "synthesisNotStarted" }),
-  );
+  const service = new WikiWebsiteCrawlService(repo as never, {} as never, {} as never);
   return { target, repo, service, events };
 }
 
@@ -371,15 +368,12 @@ describe("persisted per-page crawl progress", () => {
     const { repo } = fixture();
     repo.getCrawl.mockResolvedValue({ status: "importing", mode, discovered: 3, fetched: 0 });
     repo.countSources.mockResolvedValue(0);
-    const start = vi.fn();
     const service = new WikiWebsiteCrawlService(
       { ...repo, deleteEarlierSources: vi.fn() } as never,
       {} as never,
       {} as never,
-      start,
     );
     await service.finish("crawl");
-    expect(start).not.toHaveBeenCalled();
     expect(repo.claimCrawl).toHaveBeenCalledExactlyOnceWith(
       "crawl",
       ["importing"],

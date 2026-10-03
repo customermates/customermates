@@ -353,25 +353,10 @@
           }
         },
         "web": {
-          "plan": {
-            "done": "Wissensdatenbankseiten geplant",
-            "error": "Wissensdatenbankseiten konnten nicht geplant werden",
-            "running": "Wissensdatenbankseiten planen"
-          },
-          "review": {
-            "done": "Website-Inhalte geprüft",
-            "error": "Website-Inhalte konnten nicht geprüft werden",
-            "running": "Website-Inhalte werden geprüft"
-          },
           "search": {
             "done": "Web wurde durchsucht",
             "error": "Web konnte nicht durchsucht werden",
             "running": "Web wird durchsucht"
-          },
-          "sources": {
-            "done": "Webseiten wurden aufgelistet",
-            "error": "Webseiten konnten nicht aufgelistet werden",
-            "running": "Webseiten werden aufgelistet"
           }
         },
         "webhooks": {
@@ -1361,36 +1346,12 @@
       "widgetWeightedValueNotAllowedForService": "Gewichtete Wert-Aggregation ist für den Elementtyp Service nicht erlaubt.",
       "wikiGuideExists": "Diese Wissensdatenbank hat bereits einen Betriebsleitfaden. Aktualisiere stattdessen den vorhandenen Leitfaden.",
       "wikiHomepageSetupStartFailed": "Mate konnte die Wissensdatenbank-Einrichtung nicht starten. Bitte versuche es erneut.",
-      "wikiImportKnowledgeOnly": "Eine Helpcenter-Erweiterung erstellt nur Wissensseiten; bestehende Anleitungen und Abläufe bleiben unverändert.",
-      "wikiImportLanguageRequired": "Schreibe jede Seite auf {locale}. Übersetze die Quellen in diese Sprache. Es wurde nichts geändert.",
-      "wikiImportLinkInvalid": "Verwende die genauen Wissensdatenbank-Links aus der Quellenabfrage. Platzhalter-Links können nicht gespeichert werden.",
-      "wikiImportNotFound": "Dieser Website-Import ist nicht mehr verfügbar. Es wurde nichts geändert.",
-      "wikiImportPageLimit": "Dieser Import kann höchstens {maximum} Übersichtsseiten erstellen; {created} bestehen bereits: {titles}. Es wurde nichts geändert.",
-      "wikiImportTitleInvalid": "Verwende einen einfachen Seitentitel ohne serialisierte Tool-Felder.",
       "wikiNotEmpty": "Diese Aktion erfordert eine leere Wissensdatenbank.",
       "wikiPageConflict": "Diese Wissensdatenbank-Seite wurde geändert, nachdem du sie geöffnet hast. Lade sie neu und versuche es erneut.",
       "wikiPageNotFound": "Wissensdatenbank-Seite nicht gefunden oder nicht zugänglich.",
       "wikiPagePinned": "Der Betriebsleitfaden bleibt an erster Stelle. Verschiebe eine andere Seite.",
       "wikiPageUpdateEmpty": "Gib mindestens ein Feld an, um die Seite zu aktualisieren.",
       "wikiProcedureNeedsSteps": "Ein Verfahren braucht nummerierte Schritte.",
-      "wikiSourceChunkTooLarge": "Der Quellenabschnitt ist zu groß. Es wurde nichts als gelesen markiert.",
-      "wikiSourceCitationInvalid": "Zitiere nur IDs aus read_website_source. Es wurde nichts geändert.",
-      "wikiSourceCitationUnread": "Lies jede zitierte Quelle vollständig mit read_website_source; ungelesen: {ids}. Es wurde nichts geändert.",
-      "wikiSourceClaimsUnsupported": "Der gemeldete Inhalt gibt die eigenen Website-Passagen nicht korrekt wieder. Korrigiere jede gemeldete Aussage mit dem genauen Umfang, Status, den Bedingungen, Grenzen und der Quellenzuordnung; verwende nur belegte Fakten. Nichts wurde geändert.",
-      "wikiSourceCoverageRequired": "Lies alle verbleibenden Quellen mit read_website_source action=next, bevor du Seiten erstellst oder Quellen erneut liest. {remainingSources} Quellen sind noch offen. Es wurde nichts geändert.",
-      "wikiSourceEvidenceInvalid": "Jeder Abschnitt benötigt genaue Belegstellen aus den zitierten Website-Quellen dieser Seite. Korrigiere alle gemeldeten Zitate oder Quellen, indem du einen vollständigen zusammenhängenden Satz oder eine Zeile aus dem frisch zurückgegebenen Text kopierst und tatsächliche Leerzeichen, Zeilenumbrüche, Satzzeichen und Schreibweise beibehältst. Füge keine wörtlichen Backslash-n-Zeichen ein; wähle lieber einen kürzeren vollständigen Satz, statt eine mehrzeilige Passage nachzubauen. Lies vor dem nächsten Versuch alle Quellen der eingereichten Seitengruppe zusammen erneut. Es wurde nichts geändert.",
-      "wikiSourceExclusionDuplicateInvalid": "Die Quelle {sourceId} ist keine inhaltsgleiche Kopie der beibehaltenen oder importierten Quelle {duplicateOfSourceId}. Behalte bei übersetzten Unternehmens- oder Grundlagenseiten beide Quellen-IDs in den passenden Grundlagenthemen als Lesehinweise bei. Verwende für tatsächlich redundante Angebotsübersetzungen overlap mit dem exakten Titel des beibehaltenen Angebots und exakten Zitaten aus der Quelle und der Vergleichsquelle; behalte die Quelle andernfalls in ihrem Thema bei. Es wurde nichts geändert.",
-      "wikiSourceExclusionEvidenceInvalid": "Das Zitat für die Quelle {sourceId} stimmt nicht exakt mit ihrem gespeicherten Text überein. Lies sie erneut mit get und offset=0 und kopiere einen zusammenhängenden Satz oder eine Zeile ohne Änderungen an Leerzeichen, Zeichensetzung oder Wortlaut. Es wurde nichts geändert.",
-      "wikiSourceExclusionImportedInvalid": "Die Quelle {sourceId} wurde nicht unverändert importiert. Wähle einen belegten Ausschlussgrund oder behalte sie in einem Thema. Es wurde nichts geändert.",
-      "wikiSourceExclusionOverlapInvalid": "Quelle {sourceId} muss im exakten Angebot {coveredByTitle} vollständig enthalten sein. Gemeinsame Worte, Technik oder ein Fall genügen nicht. Behalte eigenständige Themen bei. Nichts wurde geändert.",
-      "wikiSourceNotFound": "Unbekannte Quellen-ID. Rufe zuerst list auf.",
-      "wikiSourcePlanAccountingInvalid": "Führe jede Quelle innerhalb einer Gruppe oder der Ausschlüsse nur einmal auf und niemals sowohl in topics als auch in excluded. Doppelte Quellen-IDs: [{duplicateSourceIds}]. IDs in topics und excluded: [{overlappingSourceIds}]. Nicht berücksichtigte Quellen-IDs: [{missingSourceIds}]. Es wurde nichts geändert.",
-      "wikiSourcePlanCitationLimit": "Plane pro Angebot oder Ablauf eine bis vier Quellen und zitiere beim Erstellen alle davon. Teile ein Thema auf, wenn vier Quellen seine unterschiedlichen Inhalte nicht abdecken können. Es wurde kein Plan angenommen.",
-      "wikiSourcePlanIncomplete": "Sende eine topics-Liste und berücksichtige vor dem Erstellen der Seiten jede gespeicherte Quelle und jede erforderliche Seitenrolle mit einem belegten Thema oder einer begründeten Auslassung. Nicht berücksichtigte Quellen-IDs: [{missingSourceIds}]. Fehlende oder ungültige Rollen: [{missingRoles}].",
-      "wikiSourceReadOrder": "Lies der Reihe nach, ohne Text zu überspringen. Verwende next oder den gespeicherten nextOffset aus list.",
-      "wikiSourceReviewLimit": "Mate konnte diesen Inhalt auch nach den zulässigen Korrekturen nicht prüfen. Es wurden keine Seiten aus dieser Anfrage erstellt. Prüfe bereits gespeicherte Seiten in der Knowledge Base.",
-      "wikiSourceReviewTooLarge": "Der vollständige Inhalt und seine Belege überschreiten das Prüflimit. Übermittle weniger Seiten oder kürzere vollständige Abschnitte, ohne Belege wegzulassen. Nichts wurde geändert.",
-      "wikiSourceReviewUnavailable": "Mate konnte diesen Website-Inhalt nicht prüfen. Es wurden keine Seiten aus dieser Anfrage erstellt. Bereits gespeicherte Seiten bleiben verfügbar.",
       "wikiWhenToUseRequired": "Ein Verfahren braucht eine kurze Beschreibung, wann es gilt."
     },
     "events": {
@@ -3823,11 +3784,10 @@
     }
   },
   "WikiSetup": {
-    "agentPrompt": "Informiere dich auf {homepage} über unser Unternehmen und erstelle unsere Wissensdatenbank-Seiten.",
     "continue": "Weiter",
     "continueBackground": "Weiter, während Mate arbeitet",
-    "conversationTitle": "Wissensdatenbank einrichten",
     "crawlProgress": {
+      "created": "Erstellt",
       "discovering": "Website-Seiten werden gesucht",
       "failed": "Übersprungen",
       "found": "{count} Seiten gefunden",
@@ -3835,21 +3795,20 @@
       "read": "Gelesen",
       "reading": "Wird gelesen",
       "readingCount": "Seiten lesen · {fetched}/{total}",
-      "steps": "2 Schritte",
-      "synthesizing": "Mate beginnt mit dem Schreiben der Wissensdatenbank-Seiten",
-      "title": "Fortschritt des Website-Imports"
+      "steps": "3 Schritte",
+      "title": "Fortschritt des Website-Imports",
+      "writing": "Wird geschrieben",
+      "writingCount": "Seiten schreiben · {created}/{total}"
     },
     "generated": {
       "gapsHeading": "Noch zu klären",
+      "pagesHeading": "Seiten der Wissensdatenbank",
       "sourcesHeading": "Quellen"
     },
     "homepageLabel": "Unternehmenswebsite",
     "homepagePlaceholder": "https://beispiel.de",
     "languageDescription": "Standardmäßig wird die Browsersprache verwendet. Wenn Wissensdatenbank-Seiten vorhanden sind, bestimmt deren Sprache die Auswahl.",
     "languageLabel": "Wissensdatenbank-Sprache",
-    "openTask": "Mate-Aufgabe öffnen",
-    "progressLoadFailed": "Mates Fortschritt konnte hier nicht geladen werden. Versuche es erneut.",
-    "progressLoading": "Mates Fortschritt wird geladen",
     "start": "Wissensdatenbank erstellen",
     "status": {
       "completedBodyOnboarding": "Mate hat deine Startseiten mit belegten Website-Fakten erstellt. Du kannst sie später in der Wissensdatenbank prüfen und alles bestätigen, was als noch zu klären markiert ist.",
@@ -3857,16 +3816,14 @@
       "completedTitle": "Deine erste Wissensdatenbank ist bereit",
       "failedBody": "Die Einrichtung wurde beendet, bevor alle Seiten fertig waren. Bereits erstellte Seiten bleiben erhalten. Du kannst fortfahren und sie in der Wissensdatenbank prüfen.",
       "failedBodyBlocked": "{domain} erlaubt in der robots.txt kein automatisches Lesen, daher wurde nichts importiert. Du kannst Seiten stattdessen selbst anlegen.",
-      "failedBodySynthesis": "Die Website wurde gelesen, aber Mate konnte die Seitenerstellung nicht starten. Versuche es erneut. Bereits erstellte Seiten bleiben erhalten.",
+      "failedBodySynthesis": "Die Website wurde gelesen, aber Mate konnte die Seiten nicht schreiben. Versuche es erneut. Bereits erstellte Seiten bleiben verfügbar.",
       "failedBodyUnavailable": "Mate konnte {domain} nicht lesen. Prüfe die Adresse oder fahre fort und lege Seiten später an.",
       "failedTitle": "Einrichtung nicht abgeschlossen",
-      "noContentBody": "Prüfe die Mate-Aufgabe für weitere Details. Du kannst eine andere Website versuchen oder fortfahren und später Seiten hinzufügen.",
+      "noContentBody": "Mate hat keine verwertbaren Informationen für Wissensdatenbank-Seiten gefunden. Du kannst eine andere Website versuchen oder fortfahren und später Seiten hinzufügen.",
       "noContentTitle": "Es wurden keine Wissensdatenbank-Seiten erstellt",
       "readingBody": "Mate hat {fetched} von {total} Seiten auf {domain} gelesen.",
-      "workingBody": "Mate liest {domain}, prüft hilfreiche Seiten und überträgt Informationen aus diesen Quellen in deine Wissensdatenbank. Du kannst den Fortschritt hier verfolgen oder mit dem nächsten Schritt fortfahren.",
-      "workingBodyNoTask": "Mate liest {domain} und überträgt Informationen aus diesen Quellen in deine Wissensdatenbank. Du kannst mit dem nächsten Schritt fortfahren, während Mate arbeitet.",
-      "workingBodyNoTaskWiki": "Mate liest {domain} und erstellt die Wissensdatenbank. Du kannst später zurückkehren, um die fertigen Seiten zu sehen.",
-      "workingBodyWiki": "Mate liest {domain}, prüft hilfreiche Seiten und überträgt Informationen aus diesen Quellen in deine Wissensdatenbank. Du kannst diese Aufgabe geöffnet lassen oder später zurückkehren.",
+      "workingBody": "Mate liest {domain} und überträgt Informationen aus diesen Quellen in deine Wissensdatenbank. Du kannst mit dem nächsten Schritt fortfahren, während Mate arbeitet.",
+      "workingBodyWiki": "Mate liest {domain} und erstellt die Wissensdatenbank. Du kannst später zurückkehren, um die fertigen Seiten zu sehen.",
       "workingTitle": "Mate lernt dein Unternehmen kennen"
     },
     "tryAnother": "Andere Website versuchen",

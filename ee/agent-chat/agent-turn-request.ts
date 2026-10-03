@@ -16,7 +16,6 @@ export type AgentTurnRequestSnapshot = {
   clientRequestId: string;
   text: string;
   pageRoute: string | null;
-  wikiHomepageSetupUrl?: string | null;
   status: AgentTurnRequestStatus;
   runId: string;
   attemptCount: number;
@@ -34,29 +33,8 @@ export type AgentTurnRequestInput = {
   conversationId?: string;
   text: string;
   pageRoute: string | null;
-  wikiHomepageSetupUrl?: string;
   retry: boolean;
 };
-
-type WikiHomepageSetupConflictCause = { kind: "wikiHomepageSetupConflict" };
-
-export function wikiHomepageSetupConflict(): Error {
-  return new Error("A Knowledge Base homepage setup is already running.", {
-    cause: { kind: "wikiHomepageSetupConflict" } satisfies WikiHomepageSetupConflictCause,
-  });
-}
-
-export function isWikiHomepageSetupConflict(
-  error: unknown,
-): error is Error & { cause: WikiHomepageSetupConflictCause } {
-  return (
-    error instanceof Error &&
-    typeof error.cause === "object" &&
-    error.cause !== null &&
-    "kind" in error.cause &&
-    error.cause.kind === "wikiHomepageSetupConflict"
-  );
-}
 
 export type AgentTurnAdmissionDecision =
   | { disposition: "new" }
@@ -73,7 +51,6 @@ function sameRequest(turn: AgentTurnRequestSnapshot, input: AgentTurnRequestInpu
     turn.clientRequestId === input.clientRequestId &&
     turn.text === input.text &&
     turn.pageRoute === input.pageRoute &&
-    (input.wikiHomepageSetupUrl === undefined || turn.wikiHomepageSetupUrl === input.wikiHomepageSetupUrl) &&
     (!input.conversationId || turn.conversationId === input.conversationId)
   );
 }

@@ -1,4 +1,3 @@
-import { prismaAgentChatRepoDependencies } from "@/tests/helpers/prisma-agent-chat-repo";
 import type { TenantUser } from "@/features/user/user.schema";
 
 import { randomUUID } from "node:crypto";
@@ -13,7 +12,6 @@ import { DomainEvent } from "@/features/event/domain-events";
 import { EventService } from "@/features/event/event.service";
 import { PrismaAuditLogRepo } from "@/features/audit-log/prisma-audit-log.repository";
 import { PrismaRoleRepo } from "@/features/role/prisma-role.repository";
-import { PrismaAgentChatRepo } from "@/ee/agent-chat/prisma-agent-chat.repository";
 import { PrismaWikiWebsiteCrawlRepo } from "@/ee/wiki-crawl/prisma-wiki-website-crawl.repository";
 import { UserService } from "@/features/user/user.service";
 import type { UpsertRoleData } from "@/features/role/upsert-role.interactor";
@@ -570,35 +568,11 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
   it("keeps another company's pages and active homepage setup out of local setup decisions", async () => {
     const foreign = await create(foreignUser, [{ title: "Foreign page", markdown: "Foreign body" }]);
     if (!foreign.ok) throw new Error("Foreign Wiki fixture was not created.");
-    const foreignConversationId = randomUUID();
-    await client.query(
-      'INSERT INTO "AgentConversation" ("id", "companyId", "userId", "updatedAt") VALUES ($1, $2, $3, CURRENT_TIMESTAMP)',
-      [foreignConversationId, foreignCompanyId, foreignUserId],
-    );
-    await client.query(
-      `INSERT INTO "AgentTurnRequest" ("id", "companyId", "userId", "conversationId", "clientRequestId", "text", "wikiHomepageSetupUrl", "status", "runId", "userMessageId", "heartbeatAt", "updatedAt")
-       VALUES ($1, $2, $3, $4, $5, $6, $7, 'running', $8, $9, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
-      [
-        randomUUID(),
-        foreignCompanyId,
-        foreignUserId,
-        foreignConversationId,
-        randomUUID(),
-        "Set up the Wiki from https://example.com/",
-        "https://example.com/",
-        randomUUID(),
-        randomUUID(),
-      ],
-    );
     const setupState = (tenant: TenantUser) =>
       runWithTenant(tenant, () =>
         new GetWikiHomepageSetupStateInteractor(
           new PrismaWikiPageRepo(),
-          new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
-          new PrismaWikiWebsiteCrawlRepo(
-            new PrismaWikiPageRepo(),
-            new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
-          ),
+          new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo()),
         ).invoke(),
       );
     const background = { dispatch: vi.fn().mockResolvedValue(undefined) };
@@ -606,10 +580,7 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
       runWithTenant(tenant, () =>
         new StartWikiHomepageSetupInteractor(
           new PrismaWikiPageRepo(),
-          new PrismaWikiWebsiteCrawlRepo(
-            new PrismaWikiPageRepo(),
-            new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
-          ),
+          new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo()),
           background as never,
         ).invoke({ homepage: "example.org", clientRequestId: randomUUID(), locale: "en" }),
       );
@@ -635,16 +606,16 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
       ]);
       expect(await setupState(foreignUser)).toMatchObject({
         ok: true,
-        data: { status: "working", domain: "example.com", conversationId: foreignConversationId },
+        data: { status: "completed", domain: "example.com" },
       });
 
       expect(await setupState(user)).toEqual({
         ok: true,
-        data: { status: "idle", homepage: null, domain: null, conversationId: null, pages: [] },
+        data: { status: "idle", homepage: null, domain: null, pages: [] },
       });
       expect(await startSetup(user)).toMatchObject({
         ok: true,
-        data: { conversationId: null, homepage: "https://example.org/", domain: "example.org" },
+        data: { homepage: "https://example.org/", domain: "example.org" },
       });
       expect(await startSetup(user)).toMatchObject({ ok: true });
       expect(background.dispatch).toHaveBeenCalledTimes(2);
@@ -660,7 +631,6 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
       expect(await create(user, [{ title: "Local page", markdown: "Local body" }], true)).toMatchObject({ ok: true });
     } finally {
       await client.query('DELETE FROM "WikiWebsiteCrawl" WHERE "companyId" = ANY($1)', [[companyId, foreignCompanyId]]);
-      await client.query('DELETE FROM "AgentConversation" WHERE "id" = $1', [foreignConversationId]);
     }
   });
 

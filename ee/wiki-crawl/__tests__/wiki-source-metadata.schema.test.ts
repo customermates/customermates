@@ -3,24 +3,9 @@ import { z } from "zod";
 
 import { parseWikiCrawlMode, WIKI_CRAWL_MODES } from "@/features/wiki/wiki-crawl-mode.schema";
 import { WIKI_CRAWL_CATEGORIES } from "../website-discovery";
-import { ReadWikiWebsiteSourcesResultSchema } from "../wiki-crawl-synthesis.schema";
 import { parseStoredWikiSourceMetadata } from "../wiki-source-metadata.schema";
 
 const pair = { question: "How does this work?", answer: "Use the documented process." };
-const item = {
-  id: "00000000-0000-4000-8000-000000000001",
-  title: "Page",
-  url: "https://example.com/help",
-  nextOffset: null,
-};
-const result = (category: string) => ({
-  createdPageLinks: [],
-  remainingSources: 0,
-  importedSources: 0,
-  nextAction: "next",
-  items: [{ ...item, category }],
-});
-
 describe("canonical Wiki crawl record decoding", () => {
   it("preserves every canonical mode instead of introducing a default", () => {
     for (const mode of WIKI_CRAWL_MODES) expect(parseWikiCrawlMode(mode)).toBe(mode);
@@ -35,12 +20,10 @@ describe("canonical Wiki crawl record decoding", () => {
     }
   });
 
-  it("preserves all canonical categories and exposes only that enum to synthesis", () => {
-    for (const category of WIKI_CRAWL_CATEGORIES) {
+  it("preserves all canonical categories", () => {
+    for (const category of WIKI_CRAWL_CATEGORIES)
       expect(parseStoredWikiSourceMetadata({ category, qaPairs: [pair] })).toEqual({ category, qaPairs: [pair] });
-      expect(ReadWikiWebsiteSourcesResultSchema.safeParse(result(category)).success).toBe(true);
-    }
-    expect(ReadWikiWebsiteSourcesResultSchema.safeParse(result("invalid")).success).toBe(false);
+    expect(() => parseStoredWikiSourceMetadata({ category: "invalid", qaPairs: [pair] })).toThrow();
   });
 
   it("retains the nullable no-FAQ contract and legitimate long extracted strings without mutation", () => {

@@ -5,8 +5,8 @@ import type { CreateWikiPagesInteractor } from "@/features/wiki/create-wiki-page
 import type { UpdateWikiPageInteractor } from "@/features/wiki/update-wiki-page.interactor";
 import type { WikiCrawlCategory } from "./website-discovery";
 import type { StoredWikiCrawlTarget } from "./wiki-crawl-target.schema";
-import type { WikiCrawlSynthesisResult } from "./wiki-crawl-synthesis";
 import type { WikiSourceQa } from "./website-source-extract";
+import type { StoredWikiSynthesisTopic } from "./wiki-synthesis.schema";
 import type { WikiWebsiteCrawlMode } from "@/features/wiki/wiki-crawl-mode.schema";
 
 import { UserAccessor } from "@/core/base/user-accessor";
@@ -46,7 +46,7 @@ export type WikiCrawlRecord = {
   fetched: number;
   failed: number;
   importedPages: number;
-  conversationId: string | null;
+  topics: StoredWikiSynthesisTopic[] | null;
   failureReason: string | null;
   startedAt: Date;
   finishedAt: Date | null;
@@ -61,8 +61,6 @@ export type WikiSourceRecord = {
   qaPairs: WikiSourceQa[];
   contentHash: string;
   fetchedAt: Date;
-  readAt: Date | null;
-  readOffset: number;
 };
 
 export type WikiImportedPage = {
@@ -72,8 +70,6 @@ export type WikiImportedPage = {
   sourceContentHash: string | null;
   sourceImportedUpdatedAt: Date | null;
 };
-
-export type WikiCrawlSynthesisStarter = (crawl: WikiCrawlRecord) => Promise<WikiCrawlSynthesisResult>;
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -131,7 +127,6 @@ export class WikiWebsiteCrawlService extends UserAccessor {
     private repo: WikiWebsiteCrawlRepo,
     private createPages: Pick<CreateWikiPagesInteractor, "invoke">,
     private updatePage: Pick<UpdateWikiPageInteractor, "invoke">,
-    private startSynthesis: WikiCrawlSynthesisStarter,
     private network: WikiWebsiteNetwork = wikiWebsiteNetwork(),
   ) {
     super();
@@ -316,10 +311,6 @@ export class WikiWebsiteCrawlService extends UserAccessor {
     });
   }
 
-  async fail(crawlId: string): Promise<void> {
-    await this.repo.settleCrawl(crawlId, { conversationId: null, failureReason: "error" });
-  }
-
   async finish(crawlId: string): Promise<void> {
     const crawl = await this.load(crawlId);
     await this.repo.deleteEarlierSources(crawlId);
@@ -340,20 +331,6 @@ export class WikiWebsiteCrawlService extends UserAccessor {
       });
       return;
     }
-    if (
-      crawl.status !== "synthesizing" &&
-      !(await this.repo.claimCrawl(crawlId, ["importing"], {
-        status: "synthesizing",
-      }))
-    )
-      return;
-    const result = await this.startSynthesis(crawl);
-    const { failureReason } = result;
-    if (
-      failureReason === "synthesisAdmission:agentTurnAlreadyRunning" ||
-      failureReason === "synthesisDisposition:atCapacity"
-    )
-      throw new Error("Wiki synthesis admission is still busy.");
-    await this.repo.settleCrawl(crawlId, result);
+    if (crawl.status !== "synthesizing") await this.repo.claimCrawl(crawlId, ["importing"], { status: "synthesizing" });
   }
 }

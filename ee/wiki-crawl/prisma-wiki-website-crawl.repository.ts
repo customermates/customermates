@@ -1,5 +1,3 @@
-import type { WikiCrawlSynthesisResult } from "./wiki-crawl-synthesis";
-import type { WikiCrawlSetupRepo } from "@/ee/agent-chat/wiki-crawl-setup.repo";
 import type { WikiImportPageRepo, WikiImportProvenance } from "@/features/wiki/wiki-import-page.repo";
 import type { WikiCrawlTarget } from "./website-discovery";
 import type { WikiCrawlTargetStatus } from "@/features/wiki/wiki-crawl-progress.schema";
@@ -7,7 +5,6 @@ import type { WikiCrawlRecord, WikiCrawlStatus, WikiSourceRecord } from "./wiki-
 import type { WikiWebsiteCrawlRepo } from "@/ee/wiki-crawl/wiki-website-crawl.repo";
 import type { StartWikiWebsiteCrawlRepo } from "@/features/wiki/start-wiki-website-crawl.repo";
 import type { GetWikiWebsiteCrawlStateRepo } from "@/features/wiki/get-wiki-website-crawl-state.repo";
-import type { WikiCrawlAdmissionRepo, WikiHomepageSetupCrawlBinding } from "./wiki-crawl-admission.repo";
 import type { WikiWebsiteCrawlCleanupRepo, WikiWebsiteCrawlCleanup } from "./wiki-website-crawl-cleanup.repo";
 
 import { Prisma } from "@/generated/prisma";
@@ -18,6 +15,7 @@ import { WIKI_CRAWL_ACTIVE_STATUSES } from "./wiki-website-crawl.service";
 import { parseStoredWikiCrawlTargets } from "./wiki-crawl-target.schema";
 import { parseWikiCrawlMode } from "@/features/wiki/wiki-crawl-mode.schema";
 import { parseStoredWikiSourceMetadata } from "./wiki-source-metadata.schema";
+import { parseStoredWikiSynthesisTopics } from "./wiki-synthesis.schema";
 
 const CRAWL_SELECT = {
   id: true,
@@ -36,7 +34,7 @@ const CRAWL_SELECT = {
   fetched: true,
   failed: true,
   importedPages: true,
-  conversationId: true,
+  topics: true,
   failureReason: true,
   startedAt: true,
   finishedAt: true,
@@ -51,8 +49,6 @@ const SOURCE_SELECT = {
   qaPairs: true,
   contentHash: true,
   fetchedAt: true,
-  readAt: true,
-  readOffset: true,
 } as const;
 
 type CrawlRow = Prisma.WikiWebsiteCrawlGetPayload<{
@@ -71,6 +67,7 @@ function crawlRecord(row: CrawlRow): WikiCrawlRecord {
     ...row,
     mode: parseWikiCrawlMode(row.mode),
     targets,
+    topics: parseStoredWikiSynthesisTopics(row.topics),
   };
 }
 
@@ -81,10 +78,13 @@ function sourceRecord(row: SourceRow): WikiSourceRecord {
   };
 }
 
-function crawlPatch({ targets, mode, ...rest }: Partial<Omit<WikiCrawlRecord, "id" | "userId">>) {
+function crawlPatch({ targets, topics, mode, ...rest }: Partial<Omit<WikiCrawlRecord, "id" | "userId">>) {
   const storedTargets = targets === undefined ? undefined : parseStoredWikiCrawlTargets(targets);
   return {
     ...rest,
+    ...(topics !== undefined
+      ? { topics: topics === null ? Prisma.DbNull : (parseStoredWikiSynthesisTopics(topics) as Prisma.InputJsonValue) }
+      : {}),
     ...(mode !== undefined ? { mode: parseWikiCrawlMode(mode) } : {}),
     ...(targets !== undefined
       ? {
@@ -96,39 +96,10 @@ function crawlPatch({ targets, mode, ...rest }: Partial<Omit<WikiCrawlRecord, "i
 
 export class PrismaWikiWebsiteCrawlRepo
   extends BaseRepository
-  implements
-    WikiWebsiteCrawlRepo,
-    StartWikiWebsiteCrawlRepo,
-    GetWikiWebsiteCrawlStateRepo,
-    WikiCrawlAdmissionRepo,
-    WikiWebsiteCrawlCleanupRepo
+  implements WikiWebsiteCrawlRepo, StartWikiWebsiteCrawlRepo, GetWikiWebsiteCrawlStateRepo, WikiWebsiteCrawlCleanupRepo
 {
-  constructor(
-    private readonly pages: WikiImportPageRepo,
-    private readonly agentSetup: WikiCrawlSetupRepo,
-  ) {
+  constructor(private readonly pages: WikiImportPageRepo) {
     super();
-  }
-
-  async findActiveHomepageSetupCrawl() {
-    return this.prisma.wikiWebsiteCrawl.findFirst({
-      where: { companyId: this.companyId, status: { in: [...WIKI_CRAWL_ACTIVE_STATUSES] } },
-      select: { clientRequestId: true, homepageUrl: true, status: true },
-    });
-  }
-
-  async hasBoundHomepageSetupCrawl({ userId, clientRequestId, homepageUrl }: WikiHomepageSetupCrawlBinding) {
-    const crawl = await this.prisma.wikiWebsiteCrawl.findFirst({
-      where: {
-        companyId: this.companyId,
-        userId,
-        clientRequestId,
-        homepageUrl,
-        status: { in: ["synthesizing", "completed"] },
-      },
-      select: { id: true },
-    });
-    return crawl !== null;
   }
 
   @BypassTenantGuard
@@ -160,15 +131,11 @@ export class PrismaWikiWebsiteCrawlRepo
   ) {
     const mode = parseWikiCrawlMode(data.mode);
     try {
-      return await this.withCompanyTransaction(this.companyId, async () => {
-        const activeSetup = await this.agentSetup.hasActiveWikiHomepageSetup(new Date());
-        if (activeSetup) return { status: "active" as const };
-        const row = await this.prisma.wikiWebsiteCrawl.create({
-          data: { ...data, mode, companyId: this.companyId, userId: this.user.id },
-          select: CRAWL_SELECT,
-        });
-        return { status: "created" as const, crawl: crawlRecord(row) };
+      const row = await this.prisma.wikiWebsiteCrawl.create({
+        data: { ...data, mode, companyId: this.companyId, userId: this.user.id },
+        select: CRAWL_SELECT,
       });
+      return { status: "created" as const, crawl: crawlRecord(row) };
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002")
         return { status: "active" as const };
@@ -202,20 +169,11 @@ export class PrismaWikiWebsiteCrawlRepo
 
   async retryFailedDispatch(id: string) {
     try {
-      return await this.withCompanyTransaction(this.companyId, async () => {
-        const activeSetup = await this.agentSetup.hasActiveWikiHomepageSetup(new Date());
-        if (activeSetup) return null;
-        await this.prisma.wikiWebsiteCrawl.updateMany({
-          where: {
-            id,
-            companyId: this.companyId,
-            status: "failed",
-            failureReason: "dispatch",
-          },
-          data: { status: "queued", failureReason: null, finishedAt: null },
-        });
-        return this.getCrawl(id);
+      await this.prisma.wikiWebsiteCrawl.updateMany({
+        where: { id, companyId: this.companyId, status: "failed", failureReason: "dispatch" },
+        data: { status: "queued", failureReason: null, finishedAt: null },
       });
+      return await this.getCrawl(id);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") return null;
       throw error;
@@ -275,35 +233,6 @@ export class PrismaWikiWebsiteCrawlRepo
       data: crawlPatch(patch),
     });
     return count === 1;
-  }
-
-  async settleCrawl(id: string, result: WikiCrawlSynthesisResult): Promise<void> {
-    await this.withCompanyTransaction(this.companyId, async () => {
-      const crawl = await this.prisma.wikiWebsiteCrawl.findFirst({
-        where: { id, companyId: this.companyId },
-        select: { userId: true, clientRequestId: true, homepageUrl: true },
-      });
-      if (!crawl) return;
-      const admittedConversationId = await this.agentSetup.findWikiHomepageSetupConversation({
-        userId: crawl.userId,
-        clientRequestId: crawl.clientRequestId,
-        homepageUrl: crawl.homepageUrl,
-      });
-      const conversationId = admittedConversationId ?? result.conversationId;
-      await this.prisma.wikiWebsiteCrawl.updateMany({
-        where: {
-          id,
-          companyId: this.companyId,
-          status: { in: ["queued", "discovering", "fetching", "importing", "synthesizing"] },
-        },
-        data: {
-          status: conversationId ? "completed" : "failed",
-          conversationId,
-          failureReason: conversationId ? null : result.failureReason,
-          finishedAt: new Date(),
-        },
-      });
-    });
   }
 
   async updateTargetStatus(crawlId: string, url: string, status: Exclude<WikiCrawlTargetStatus, "pending">) {
@@ -406,46 +335,6 @@ export class PrismaWikiWebsiteCrawlRepo
     return rows.map(sourceRecord);
   }
 
-  async getSource(crawlId: string, id: string) {
-    const row = await this.prisma.wikiSourceDocument.findFirst({
-      where: { id, crawlId, companyId: this.companyId },
-      select: SOURCE_SELECT,
-    });
-    return row ? sourceRecord(row) : null;
-  }
-
-  async advanceSourceRead(crawlId: string, id: string, offset: number, end: number) {
-    const source = await this.getSource(crawlId, id);
-    if (
-      !source ||
-      !Number.isSafeInteger(offset) ||
-      !Number.isSafeInteger(end) ||
-      offset < 0 ||
-      end <= offset ||
-      end > source.text.length ||
-      offset > source.readOffset
-    )
-      return false;
-    if (end <= source.readOffset) return true;
-    if (offset !== source.readOffset) return false;
-    const { count } = await this.prisma.wikiSourceDocument.updateMany({
-      where: { id, crawlId, companyId: this.companyId, readOffset: offset },
-      data: { readOffset: end, readAt: end === source.text.length ? new Date() : null },
-    });
-    if (count === 1) return true;
-    const current = await this.getSource(crawlId, id);
-    return current !== null && current.readOffset >= end;
-  }
-
-  async advanceSourceReads(crawlId: string, chunks: Array<{ id: string; offset: number; end: number }>) {
-    await this.withCompanyTransaction(this.companyId, async () => {
-      for (const chunk of chunks) {
-        if (!(await this.advanceSourceRead(crawlId, chunk.id, chunk.offset, chunk.end)))
-          throw new Error("Website source cursor changed; retry the read.");
-      }
-    });
-  }
-
   async claimSourceImport(crawlId: string, id: string) {
     const { count } = await this.prisma.wikiSourceDocument.updateMany({
       where: { id, crawlId, companyId: this.companyId, importClaimedAt: null },
@@ -459,51 +348,17 @@ export class PrismaWikiWebsiteCrawlRepo
   }
 
   async deleteEarlierSources(crawlId: string) {
-    await this.withCompanyTransaction(this.companyId, async () => {
-      const now = new Date();
-      const protectedHomepages = await this.agentSetup.protectedWikiHomepageSetupUrls(now);
-      await this.prisma.wikiSourceDocument.deleteMany({
-        where: {
-          companyId: this.companyId,
-          crawlId: { not: crawlId },
-          crawl: {
-            companyId: this.companyId,
-            startedAt: { lt: new Date(now.getTime() - 24 * 60 * 60 * 1_000) },
-            status: { in: ["completed", "failed", "blocked"] },
-            homepageUrl: { notIn: protectedHomepages },
-          },
-        },
-      });
+    await this.prisma.wikiSourceDocument.deleteMany({
+      where: {
+        companyId: this.companyId,
+        crawlId: { not: crawlId },
+        crawl: { companyId: this.companyId, status: { in: ["completed", "failed", "blocked"] } },
+      },
     });
   }
 
   async findImportedPage(sourceUrl: string) {
     return this.pages.findImportedPage(sourceUrl);
-  }
-
-  async findSetupCrawl(homepageUrl: string, clientRequestId: string) {
-    const crawl = await this.prisma.wikiWebsiteCrawl.findFirst({
-      where: {
-        companyId: this.companyId,
-        userId: this.user.id,
-        homepageUrl,
-        clientRequestId,
-        mode: { in: ["initial", "extend"] },
-        status: { in: ["synthesizing", "completed"] },
-        startedAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1_000) },
-      },
-      orderBy: [{ startedAt: "desc" }, { id: "desc" }],
-      select: { id: true, homepageUrl: true, pendingHosts: true, mode: true, locale: true },
-    });
-    return crawl ? { ...crawl, mode: parseWikiCrawlMode(crawl.mode) } : null;
-  }
-
-  async countSynthesizedPages(since: Date) {
-    return this.pages.countSynthesizedPages(since);
-  }
-
-  async listSynthesizedPages(since: Date, limit: number) {
-    return this.pages.listSynthesizedPages(since, limit);
   }
 
   async markImported(pageId: string, source: WikiImportProvenance) {

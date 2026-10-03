@@ -50,7 +50,6 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
     status: "idle",
     homepage: null,
     domain: null,
-    conversationId: null,
     pages: [],
   };
   let canSetupWithMate = false;

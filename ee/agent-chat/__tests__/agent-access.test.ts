@@ -12,7 +12,7 @@ import {
   MOCK_ZOD_MODULE,
 } from "@/tests/helpers/interactor-test-setup";
 
-import { SHIPPED_AGENT_MODEL, INITIAL_WIKI_SYNTHESIS_MODEL } from "../model-catalog";
+import { SHIPPED_AGENT_MODEL } from "../model-catalog";
 
 const mockUser = createMockUserWithPermissions([]);
 const request = vi.hoisted(() => ({ origin: "http://127.0.0.1:4016" }));
@@ -42,7 +42,6 @@ vi.mock("next/headers", () => ({
 import { GetAgentConversationInteractor } from "../get-agent-conversation.interactor";
 import { RespondToUiCommandInteractor } from "../respond-to-ui-command.interactor";
 import { SendAgentMessageInteractor } from "../send-agent-message.interactor";
-import { wikiHomepageSetupConflict } from "../agent-turn-request";
 import { agentUiCommandHookToken } from "../agent-ui-command";
 
 const CONVERSATION_ID = "00000000-0000-4000-8000-000000000001";
@@ -109,15 +108,7 @@ const backgroundTasks = () => ({
   resume: vi.fn().mockResolvedValue(true),
 });
 
-const setupCrawls = () => ({
-  findSetupCrawl: vi.fn().mockResolvedValue({
-    id: "crawl-1",
-    homepageUrl: "https://example.com/",
-    pendingHosts: [],
-    locale: "en",
-  }),
-  findLatestCrawl: vi.fn().mockResolvedValue(null),
-});
+const setupCrawls = () => ({ findLatestCrawl: vi.fn().mockResolvedValue(null) });
 
 describe("agent access", () => {
   beforeEach(() => {
@@ -126,58 +117,6 @@ describe("agent access", () => {
     expect(mockUser.role?.isSystemRole).toBe(false);
     expect(mockUser.role?.permissions).toEqual([]);
   });
-
-  it.each(["initial", "extend", "refresh", null] as const)(
-    "prices the trusted %s purpose before reservation or dispatch",
-    async (mode) => {
-      const repo = {
-        normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
-        findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
-        claimAgentRunLease: vi.fn(),
-        isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
-      };
-      const usage = usageService();
-      usage.prepareTurn.mockResolvedValue({
-        summary: { blockedReason: "credits_exhausted" },
-        reservation: null,
-      });
-      const background = backgroundTasks();
-      const crawls = setupCrawls();
-      crawls.findSetupCrawl.mockResolvedValue({
-        id: "crawl-1",
-        homepageUrl: "https://example.com/",
-        pendingHosts: [],
-        locale: "en",
-        mode,
-      } as never);
-      const result = await new SendAgentMessageInteractor(
-        repo as never,
-        usage as never,
-        mockEntitlementService(),
-        background as never,
-        emptyCustomColumns(),
-        emptyWikiCatalog(),
-        undefined,
-        crawls,
-      ).invoke({
-        clientRequestId: CLIENT_REQUEST_ID,
-        text: "Set up company knowledge",
-        retry: false,
-        ...(mode ? { wikiHomepageSetupUrl: "https://example.com/" } : {}),
-      });
-      expect(result.ok).toBe(false);
-      expect(usage.prepareTurn).toHaveBeenCalledWith(
-        mockUser.id,
-        expect.any(Date),
-        expect.objectContaining({
-          model: mode === "initial" ? INITIAL_WIKI_SYNTHESIS_MODEL : SHIPPED_AGENT_MODEL,
-          requiredContextBytes: expect.any(Number),
-        }),
-      );
-      expect(repo.claimAgentRunLease).not.toHaveBeenCalled();
-      expect(background.dispatchTracked).not.toHaveBeenCalled();
-    },
-  );
 
   it("denies a direct send invocation before admission or usage work when the kill switch is active", async () => {
     const repo = {
@@ -472,53 +411,6 @@ describe("agent access", () => {
 
     expect(repo.findAgentTurnRequestForAdmission).toHaveBeenCalledBefore(usage.prepareTurn);
     expect(repo.claimAgentRunLease).not.toHaveBeenCalled();
-  });
-
-  it.each([
-    ["the canonical URL is missing", "https://localhost/", undefined],
-    [
-      "no website import exists for it",
-      "https://example.com/",
-      {
-        findSetupCrawl: () => Promise.resolve(null),
-        findLatestCrawl: () => Promise.resolve(null),
-      },
-    ],
-  ])("rejects homepage setup before persistence when %s", async (_case, wikiHomepageSetupUrl, crawls) => {
-    const repo = {
-      normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
-      findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
-      claimAgentRunLease: vi.fn(),
-      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
-      createAgentConversationForRun: vi.fn(),
-      deleteUnusedAgentConversation: vi.fn(),
-      recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
-    };
-    const usage = usageService(false);
-
-    const result = await new SendAgentMessageInteractor(
-      repo as never,
-      usage as never,
-      mockEntitlementService(),
-      backgroundTasks() as never,
-      emptyCustomColumns(),
-      emptyWikiCatalog(),
-      undefined,
-      crawls,
-    ).invoke({
-      clientRequestId: CLIENT_REQUEST_ID,
-      text: "Set up the Workspace Wiki from localhost.",
-      wikiHomepageSetupUrl,
-      retry: false,
-    });
-
-    expect(result).toMatchObject({
-      ok: false,
-      error: { issues: [{ params: { error: "invalidUrl" } }] },
-    });
-    expect(usage.prepareTurn).not.toHaveBeenCalled();
-    expect(repo.claimAgentRunLease).not.toHaveBeenCalled();
-    expect(repo.createAgentConversationForRun).not.toHaveBeenCalled();
   });
 
   it("continues only an explicitly owned conversation and never silently switches chats", async () => {
@@ -1052,7 +944,6 @@ describe("agent access", () => {
       clientRequestId: CLIENT_REQUEST_ID,
       text: "retry this",
       pageRoute: null,
-      wikiHomepageSetupUrl: "https://example.com/",
       status: "failed",
       runId: "run-1",
       attemptCount: 1,
@@ -1106,7 +997,6 @@ describe("agent access", () => {
       clientRequestId: CLIENT_REQUEST_ID,
       text: "retry this",
       retry: true,
-      wikiHomepageSetupUrl: "https://example.com/",
     });
 
     expect(result.ok && result.data.disposition).toBe("run");
@@ -1119,130 +1009,11 @@ describe("agent access", () => {
           turnRequestId: "turn-1",
           priorRunId: "run-1",
           priorAttemptCount: 1,
-          wikiHomepageSetupUrl: "https://example.com/",
           userMessageId: MESSAGE_ID,
         },
       }),
     );
     expect(result.ok && result.data.disposition === "run" && result.data.userMessageId).toBe(MESSAGE_ID);
-    expect(tasks.dispatchTracked).toHaveBeenCalledWith(
-      "agent-turn",
-      expect.objectContaining({
-        wikiHomepageSetup: {
-          registrableDomain: "example.com",
-          url: "https://example.com/",
-        },
-      }),
-    );
-  });
-
-  it("refuses a homepage-setup retry that did not come through the setup path", async () => {
-    const usage = usageService();
-    const repo = {
-      normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
-      findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue({
-        snapshot: {
-          id: "turn-1",
-          conversationId: CONVERSATION_ID,
-          clientRequestId: CLIENT_REQUEST_ID,
-          text: "retry this",
-          pageRoute: null,
-          wikiHomepageSetupUrl: "https://example.com/",
-          status: "failed",
-          runId: "run-1",
-          attemptCount: 1,
-          providerStartedAt: null,
-          userMessageId: MESSAGE_ID,
-          assistantMessageId: null,
-          terminalCode: null,
-          affectedResources: [],
-          hasLaterMessages: false,
-        },
-        assistantMessage: null,
-      }),
-      claimAgentRunLease: vi.fn(),
-      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
-      createAgentConversationForRun: vi.fn(),
-      deleteUnusedAgentConversation: vi.fn(),
-      recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
-      findInteractiveConversation: vi.fn(),
-      admitAgentTurnOrThrow: vi.fn(),
-    };
-    const tasks = backgroundTasks();
-
-    const result = await new SendAgentMessageInteractor(
-      repo as never,
-      usage as never,
-      mockEntitlementService(),
-      tasks as never,
-      emptyCustomColumns(),
-      emptyWikiCatalog(),
-    ).invoke({
-      clientRequestId: CLIENT_REQUEST_ID,
-      text: "retry this",
-      retry: true,
-    });
-
-    expect(result.ok && result.data.disposition).toBe("conflict");
-    expect(usage.prepareTurn).not.toHaveBeenCalled();
-    expect(repo.findInteractiveConversation).not.toHaveBeenCalled();
-    expect(repo.claimAgentRunLease).not.toHaveBeenCalled();
-    expect(repo.admitAgentTurnOrThrow).not.toHaveBeenCalled();
-    expect(tasks.dispatchTracked).not.toHaveBeenCalled();
-  });
-
-  it("rejects attempts to mutate durable retry tool metadata before budget or persistence work", async () => {
-    const usage = usageService();
-    const repo = {
-      normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
-      findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue({
-        snapshot: {
-          id: "turn-1",
-          conversationId: CONVERSATION_ID,
-          clientRequestId: CLIENT_REQUEST_ID,
-          text: "retry this",
-          pageRoute: null,
-          wikiHomepageSetupUrl: "https://example.com/",
-          status: "failed",
-          runId: "run-1",
-          attemptCount: 1,
-          providerStartedAt: null,
-          userMessageId: MESSAGE_ID,
-          assistantMessageId: null,
-          terminalCode: null,
-          affectedResources: [],
-          hasLaterMessages: false,
-        },
-        assistantMessage: null,
-      }),
-      claimAgentRunLease: vi.fn(),
-      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
-      createAgentConversationForRun: vi.fn(),
-      deleteUnusedAgentConversation: vi.fn(),
-      recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
-      admitAgentTurnOrThrow: vi.fn(),
-    };
-    const tasks = backgroundTasks();
-
-    const result = await new SendAgentMessageInteractor(
-      repo as never,
-      usage as never,
-      mockEntitlementService(),
-      tasks as never,
-      emptyCustomColumns(),
-      emptyWikiCatalog(),
-    ).invoke({
-      clientRequestId: CLIENT_REQUEST_ID,
-      text: "retry this",
-      retry: true,
-      wikiHomepageSetupUrl: "https://other.com/",
-    });
-
-    expect(result.ok && result.data.disposition).toBe("conflict");
-    expect(usage.prepareTurn).not.toHaveBeenCalled();
-    expect(repo.claimAgentRunLease).not.toHaveBeenCalled();
-    expect(repo.admitAgentTurnOrThrow).not.toHaveBeenCalled();
-    expect(tasks.dispatchTracked).not.toHaveBeenCalled();
   });
 
   it("returns a conflict for reused request data without touching budget or persistence", async () => {
@@ -1476,49 +1247,6 @@ describe("agent access", () => {
       runId: expect.any(String),
       reservationId: reservation?.reservationId,
     });
-  });
-
-  it("returns a conflict and dispatches no provider work when another homepage setup wins admission", async () => {
-    const usage = usageService();
-    const tasks = backgroundTasks();
-    const repo = {
-      normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
-      findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
-      claimAgentRunLease: vi.fn().mockResolvedValue("claimed"),
-      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
-      createAgentConversationForRun: vi.fn().mockResolvedValue(undefined),
-      deleteUnusedAgentConversation: vi.fn().mockResolvedValue(undefined),
-      recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
-      admitAgentTurnOrThrow: vi.fn().mockRejectedValue(wikiHomepageSetupConflict()),
-      releasePreProviderAdmissionOrThrowUnscoped: vi.fn().mockResolvedValue({ disposition: "released" }),
-    };
-
-    const result = await new SendAgentMessageInteractor(
-      repo as never,
-      usage as never,
-      mockEntitlementService(),
-      tasks as never,
-      emptyCustomColumns(),
-      emptyWikiCatalog(),
-      undefined,
-      setupCrawls(),
-    ).invoke({
-      clientRequestId: CLIENT_REQUEST_ID,
-      text: "Set up the Workspace Wiki from https://example.com/",
-      retry: false,
-      wikiHomepageSetupUrl: "https://example.com/",
-    });
-
-    expect(result).toMatchObject({
-      ok: false,
-      error: {
-        issues: [{ path: ["homepage"], params: { error: "agentTurnAlreadyRunning" } }],
-      },
-    });
-    expect(repo.releasePreProviderAdmissionOrThrowUnscoped).toHaveBeenCalledOnce();
-    expect(repo.deleteUnusedAgentConversation).toHaveBeenCalledOnce();
-    expect(tasks.dispatchTracked).not.toHaveBeenCalled();
-    expect(repo.recordAgentTurnExternalRun).not.toHaveBeenCalled();
   });
 
   it("does not admit a chat turn when phase-one credit reservation fails", async () => {

@@ -9,7 +9,11 @@ const MODEL_CALL_PATTERN =
   /\b(?:streamText|generateText|generateObject|streamObject|embed|embedMany)\s*\(|\bnew\s+(?:Agent|WorkflowAgent|ToolLoopAgent)\s*\(/;
 const PROVIDER_FACTORY_PATTERN =
   /\b(?:createOpenAI|createAnthropic|createGoogleGenerativeAI|createGateway|createProviderRegistry|customProvider|wrapProvider)\s*\(/;
-const APPROVED_MODEL_CALL_FILES = ["ee/wiki-retrieval/wiki-embedding-model.ts", "workflows/agent-turn.ts"];
+const APPROVED_MODEL_CALL_FILES = [
+  "ee/wiki-crawl/wiki-synthesis-model.ts",
+  "ee/wiki-retrieval/wiki-embedding-model.ts",
+  "workflows/agent-turn.ts",
+];
 
 function productionTypeScriptFiles() {
   return walkFiles(REPO_ROOT, (path) => {
@@ -43,13 +47,9 @@ describe("agent model budget boundary", () => {
     expect(matchingProductionFiles(unmeteredClassifierCall).filter(outsideClassifier)).toEqual([]);
     expect(matchingProductionFiles(/\bclassifyMetered\s*\(/).filter(outsideClassifier)).toEqual([
       "ee/agent-chat/docs-rerank.ts",
-      "workflows/agent-turn.ts",
+      "ee/wiki-crawl/wiki-website-synthesis.service.ts",
     ]);
     const workflow = readFileSync(`${REPO_ROOT}/workflows/agent-turn.ts`, "utf8");
-    expect(workflow).toContain("executeWikiSynthesisReview.maxRetries = 0");
-    expect(workflow).toContain("repo.claimAgentClassifierReceiptOrThrowUnscoped");
-    expect(workflow).toContain("repo.settleAgentClassifierReceiptUnscoped");
-    expect(workflow).toContain("recordWikiSynthesisReviewCharge(auxiliaryCharges, wikiReviewChargeIndices, evaluated)");
     expect(workflow).toContain("agentAuxiliaryCharge(auxiliaryCharges).costMicrocents");
   });
 

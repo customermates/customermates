@@ -3955,7 +3955,13 @@ describe("AgentChatStore", () => {
         seq: seq++,
         type: "activity",
         id,
-        activity: { kind: "web.review", risk: "read", affectedResources: [], ...(context ? { context } : {}) },
+        activity: {
+          kind: "records.read",
+          resource: "wiki",
+          risk: "read",
+          affectedResources: [],
+          ...(context ? { context } : {}),
+        },
       });
       handleEvent({ seq: seq++, type: "activity_result", id, isError, context: resultContext });
     }

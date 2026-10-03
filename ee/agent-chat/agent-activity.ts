@@ -5,12 +5,7 @@ import { dataViewNavigationHref } from "@/core/data-view/data-view-links";
 
 import { approvalFreeActionsForTool, isApprovalRelevantValue, readOnlyActionsForTool } from "./gated-tools";
 import type { AgentToolIdentity } from "./tool-identity";
-import {
-  internalToolIdentity,
-  isInternalToolIdentity,
-  WIKI_READ_SOURCE_TOOL_NAME,
-  WIKI_WEBSITE_IMPORT_TOOL_NAME,
-} from "./tool-identity";
+import { internalToolIdentity, isInternalToolIdentity, WIKI_WEBSITE_IMPORT_TOOL_NAME } from "./tool-identity";
 
 import { sanitizeAgentPlainText } from "./agent-output-safety";
 import { ANALYZE_RECORDS_TOOL_NAME, LOAD_TOOLSET_TOOL_NAME } from "./agent-toolset-routing";
@@ -45,9 +40,6 @@ export const AGENT_ACTIVITY_KINDS = [
   "docs.search",
   "docs.read",
   "web.search",
-  "web.review",
-  "web.plan",
-  "web.sources",
   "records.read",
   "records.analyze",
   "records.create",
@@ -291,13 +283,6 @@ function describeAgentToolAction(identity: AgentToolIdentity, input: unknown): A
     return descriptor("interface.navigate", undefined, "read");
   if (toolName === "configure_view") return descriptor("interface.interact", undefined, "read");
   if (toolName === "start_tour") return descriptor("interface.tour", undefined, "read");
-  if (toolName === WIKI_READ_SOURCE_TOOL_NAME) {
-    return descriptor(
-      details.action === "plan" ? "web.plan" : details.action === "list" ? "web.sources" : "web.review",
-      undefined,
-      "read",
-    );
-  }
   if (toolName === "web_search") return descriptor("web.search", undefined, "read");
   if (toolName === WIKI_WEBSITE_IMPORT_TOOL_NAME) return descriptor("records.create", "wiki", "write");
   if (toolName === "manage_wiki_pages") {

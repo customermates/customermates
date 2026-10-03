@@ -1,6 +1,5 @@
 "use client";
 
-import type { ReactNode } from "react";
 import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
 
 import { useEffect, useRef, useState } from "react";
@@ -32,14 +31,12 @@ type Props = {
   initialState?: WikiHomepageSetupState;
   onContinue?: () => void | Promise<void>;
   onSkip?: () => void | Promise<void>;
-  renderConversation: (conversationId: string) => ReactNode;
 };
 
 export const EMPTY_WIKI_HOMEPAGE_SETUP_STATE: WikiHomepageSetupState = {
   status: "idle",
   homepage: null,
   domain: null,
-  conversationId: null,
   pages: [],
 };
 export function useRefreshWhileWikiSetupWorks(state: WikiHomepageSetupState) {
@@ -92,7 +89,6 @@ export const WikiHomepageSetup = observer(function WikiHomepageSetup({
   initialState = EMPTY_WIKI_HOMEPAGE_SETUP_STATE,
   onContinue,
   onSkip,
-  renderConversation,
 }: Props) {
   const t = useTranslations();
   const router = useRouter();
@@ -150,13 +146,12 @@ export const WikiHomepageSetup = observer(function WikiHomepageSetup({
         return;
       }
 
-      const { conversationId, domain, homepage: canonicalHomepage } = result.data;
+      const { domain, homepage: canonicalHomepage } = result.data;
       focusStatusAfterSubmit.current = true;
       const workingState: WikiHomepageSetupState = {
         status: "working",
         homepage: canonicalHomepage,
         domain,
-        conversationId,
         pages: [],
         crawlPhase: "queued",
         progress: { fetched: 0, total: 0 },
@@ -181,23 +176,17 @@ export const WikiHomepageSetup = observer(function WikiHomepageSetup({
     const working = state.status === "working";
     const failed = state.status === "failed";
     const domain = state.domain ?? state.homepage ?? "";
-    const workingBody = state.conversationId
-      ? t("WikiSetup.status.workingBody", { domain })
-      : t("WikiSetup.status.workingBodyNoTask", { domain });
+    const workingBody = t("WikiSetup.status.workingBody", { domain });
     const failedBody =
       state.failureReason === "blocked"
         ? t("WikiSetup.status.failedBodyBlocked", { domain })
         : state.failureReason === "unavailable"
           ? t("WikiSetup.status.failedBodyUnavailable", { domain })
-          : state.failureReason === "assistantUnavailable"
-            ? t("Common.errors.agentServiceUnavailable")
-            : state.failureReason === "credits"
-              ? t("Common.errors.agentLimitReached")
-              : state.failureReason === "busy"
-                ? t("Common.errors.agentTurnAlreadyRunning")
-                : state.failureReason === "synthesis"
-                  ? t("WikiSetup.status.failedBodySynthesis")
-                  : t("WikiSetup.status.failedBody");
+          : state.failureReason === "credits"
+            ? t("Common.errors.agentLimitReached")
+            : state.failureReason === "synthesis"
+              ? t("WikiSetup.status.failedBodySynthesis")
+              : t("WikiSetup.status.failedBody");
     const completedBody = state.homepage
       ? t("WikiSetup.status.completedBodyOnboarding")
       : t("WikiSetup.status.completedExistingBody");
@@ -207,9 +196,7 @@ export const WikiHomepageSetup = observer(function WikiHomepageSetup({
           <div
             ref={statusContainer}
             aria-live="polite"
-            className={
-              working || (completed && state.conversationId) ? "sr-only" : "flex items-start gap-2 outline-none"
-            }
+            className={working ? "sr-only" : "flex items-start gap-2 outline-none"}
             tabIndex={-1}
           >
             <div className="mt-0.5 shrink-0 text-muted-foreground">
@@ -267,17 +254,7 @@ export const WikiHomepageSetup = observer(function WikiHomepageSetup({
 
         {state.progress || state.crawlPhase ? <WikiSetupProgress state={state} /> : null}
 
-        {working &&
-        !state.conversationId &&
-        (!state.crawlPhase || state.crawlPhase === "importing" || state.crawlPhase === "synthesizing") ? (
-          <div className="flex items-center gap-2 text-xs text-muted-foreground" role="status">
-            <Loader2 aria-hidden="true" className="size-3.5 animate-spin motion-reduce:animate-none" />
-
-            <span>{t("WikiSetup.crawlProgress.synthesizing")}</span>
-          </div>
-        ) : null}
-
-        {completed && !state.conversationId ? (
+        {completed ? (
           <div className="grid gap-1.5">
             {state.pages.map((page) => (
               <div key={page.id} className="flex items-center gap-2 px-3 py-2 text-sm">
@@ -288,8 +265,6 @@ export const WikiHomepageSetup = observer(function WikiHomepageSetup({
             ))}
           </div>
         ) : null}
-
-        {state.conversationId ? renderConversation(state.conversationId) : null}
 
         <div className="flex flex-wrap justify-end gap-2">
           {canStart && !working && !completed && !failed && state.pages.length === 0 ? (

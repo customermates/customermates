@@ -9,6 +9,9 @@ const state = vi.hoisted(() => ({
   fetchBatch: vi.fn(),
   importSources: vi.fn(),
   finish: vi.fn(),
+  plan: vi.fn(),
+  writeTopic: vi.fn(),
+  settle: vi.fn(),
   failWorkflowUnscoped: vi.fn(),
   reportFailure: vi.fn(),
 }));
@@ -29,6 +32,7 @@ vi.mock("@/core/di", () => ({
     importSources: state.importSources,
     finish: state.finish,
   }),
+  getWikiWebsiteSynthesisService: () => ({ plan: state.plan, writeTopic: state.writeTopic, settle: state.settle }),
   getFailWikiWebsiteCrawlInteractor: () => ({ invoke: state.failWorkflowUnscoped }),
 }));
 vi.mock("../capture-failure", () => ({
@@ -54,6 +58,9 @@ beforeEach(() => {
   state.fetchBatch.mockResolvedValue(undefined);
   state.importSources.mockResolvedValue(undefined);
   state.finish.mockResolvedValue(undefined);
+  state.plan.mockResolvedValue(2);
+  state.writeTopic.mockResolvedValue(undefined);
+  state.settle.mockResolvedValue(undefined);
   state.failWorkflowUnscoped.mockResolvedValue(undefined);
   state.reportFailure.mockResolvedValue(undefined);
 });
@@ -126,10 +133,14 @@ describe("Website import workflow owner lifecycle", () => {
     expect(state.reportFailure).not.toHaveBeenCalled();
   });
 
-  it("keeps all authorized work tenant-scoped and imports only after every read batch finishes", async () => {
+  it("keeps all authorized work tenant-scoped, imports after every read batch, then writes each planned page", async () => {
     state.discover.mockResolvedValueOnce(2);
     await crawlWikiWebsite(payload);
-    expect(state.tenantCalls).toBe(6);
+    expect(state.tenantCalls).toBe(10);
+    expect(state.writeTopic).toHaveBeenNthCalledWith(1, payload.crawlId, 0);
+    expect(state.writeTopic).toHaveBeenNthCalledWith(2, payload.crawlId, 1);
+    expect(state.finish.mock.invocationCallOrder[0]).toBeLessThan(state.plan.mock.invocationCallOrder[0]);
+    expect(state.writeTopic.mock.invocationCallOrder[1]).toBeLessThan(state.settle.mock.invocationCallOrder[0]);
     expect(state.fetchBatch).toHaveBeenNthCalledWith(1, payload.crawlId, 0);
     expect(state.fetchBatch).toHaveBeenNthCalledWith(2, payload.crawlId, 1);
     expect(state.fetchBatch.mock.invocationCallOrder[1]).toBeLessThan(state.importSources.mock.invocationCallOrder[0]);

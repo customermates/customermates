@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { sanitizeAgentPlainText } from "./agent-output-safety";
-import { WIKI_READ_SOURCE_TOOL_NAME, WIKI_WEBSITE_IMPORT_TOOL_NAME } from "./tool-identity";
+import { WIKI_WEBSITE_IMPORT_TOOL_NAME } from "./tool-identity";
 
 function record(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
@@ -81,7 +81,6 @@ export function agentToolInputContext(toolName: string, input: unknown) {
   if (resource) return context(namedItems(Array.isArray(input) ? input : data[resource]));
   if (toolName === "manage_wiki_pages")
     return context(data.action === "create" ? namedItems(data.pages) : [data.title ?? data.query]);
-  if (toolName === WIKI_READ_SOURCE_TOOL_NAME && data.action === "plan") return context(namedItems(data.topics));
   if (toolName === WIKI_WEBSITE_IMPORT_TOOL_NAME) return context([websiteLabel(data.url)]);
   if (toolName === "web_search" || toolName === "search_docs") return context([data.query]);
   if (toolName === "search_records" || toolName === "list_records") return context([data.searchTerm]);
@@ -92,7 +91,6 @@ export function agentToolInputContext(toolName: string, input: unknown) {
 }
 
 const RESULT_CONTEXT_TOOLS = new Set([
-  WIKI_READ_SOURCE_TOOL_NAME,
   "get_docs_page",
   "manage_wiki_pages",
   "get_records",
@@ -105,10 +103,6 @@ const RESULT_CONTEXT_TOOLS = new Set([
 export function agentToolOutputContext(toolName: string | undefined, structuredContent: unknown) {
   if (!toolName || !RESULT_CONTEXT_TOOLS.has(toolName)) return undefined;
   const data = record(structuredContent);
-  if (toolName === WIKI_READ_SOURCE_TOOL_NAME) {
-    const items = Array.isArray(data.items) ? data.items.slice(0, 100) : [];
-    return context(items.map((item) => label(record(item).title) ?? websiteLabel(record(item).url)));
-  }
   if (toolName === "get_records") {
     const items = Array.isArray(data.items) ? data.items.slice(0, 100) : [];
     return context(

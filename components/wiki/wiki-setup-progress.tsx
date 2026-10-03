@@ -2,7 +2,7 @@
 
 import type { LucideIcon } from "lucide-react";
 import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
-import type { WikiCrawlTargetStatus } from "@/features/wiki/wiki-crawl-progress.schema";
+import type { WikiCrawlTargetStatus, WikiSynthesisTopicProgress } from "@/features/wiki/wiki-crawl-progress.schema";
 
 import { Check, ChevronDown, Circle, Loader2, Minus, X } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -22,6 +22,13 @@ const PROGRESS_STATUS_ICONS: Record<ProgressStatus, LucideIcon> = {
   read: Check,
   failed: X,
   skipped: Minus,
+};
+
+const TOPIC_PROGRESS_STATUS: Record<WikiSynthesisTopicProgress["status"], ProgressStatus> = {
+  pending: "pending",
+  writing: "reading",
+  created: "read",
+  skipped: "skipped",
 };
 
 function StatusIcon({ status }: { status: ProgressStatus }) {
@@ -44,7 +51,10 @@ export function WikiSetupProgress({ state }: { state: WikiHomepageSetupState }) 
   const pages = progress?.pages ?? [];
   const discovering = state.crawlPhase === "queued" || state.crawlPhase === "discovering";
   const reading = state.crawlPhase === "fetching";
-  const active = state.status === "working" && (discovering || reading);
+  const writing = state.crawlPhase === "importing" || state.crawlPhase === "synthesizing";
+  const topics = progress?.topics ?? [];
+  const createdTopics = topics.filter((topic) => topic.status === "created").length;
+  const active = state.status === "working";
   const readingComplete =
     (progress?.total ?? 0) > 0 &&
     (progress?.fetched ?? 0) > 0 &&
@@ -68,16 +78,32 @@ export function WikiSetupProgress({ state }: { state: WikiHomepageSetupState }) 
         : hasError
           ? "failed"
           : "pending";
+  const writingStatus: ProgressStatus = writing
+    ? "reading"
+    : topics.length > 0 && topics.every((topic) => topic.status === "created" || topic.status === "skipped")
+      ? "read"
+      : state.status === "failed" && readingComplete
+        ? "failed"
+        : "pending";
+  const writingSummary = t("WikiSetup.crawlProgress.writingCount", { created: createdTopics, total: topics.length });
   const summary = discovering
     ? t("WikiSetup.crawlProgress.discovering")
     : reading
       ? t("WikiSetup.crawlProgress.readingCount", { fetched: progress?.fetched ?? 0, total: progress?.total ?? 0 })
-      : t("WikiSetup.crawlProgress.steps");
+      : writing
+        ? writingSummary
+        : t("WikiSetup.crawlProgress.steps");
   const pageStatusLabels: Record<ProgressStatus, string> = {
     pending: t("WikiSetup.crawlProgress.pending"),
     reading: t("WikiSetup.crawlProgress.reading"),
     read: t("WikiSetup.crawlProgress.read"),
     failed: t("WikiSetup.crawlProgress.failed"),
+    skipped: t("WikiSetup.crawlProgress.failed"),
+  };
+  const topicStatusLabels: Record<WikiSynthesisTopicProgress["status"], string> = {
+    pending: t("WikiSetup.crawlProgress.pending"),
+    writing: t("WikiSetup.crawlProgress.writing"),
+    created: t("WikiSetup.crawlProgress.created"),
     skipped: t("WikiSetup.crawlProgress.failed"),
   };
 
@@ -161,6 +187,30 @@ export function WikiSetupProgress({ state }: { state: WikiHomepageSetupState }) 
                     ) : null}
 
                     <span className="min-w-0 [overflow-wrap:anywhere]">{page.url}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </li>
+
+          <li aria-current={writing ? "step" : undefined} className={activityRowClassName}>
+            <div className="flex items-start gap-2 text-foreground [&>svg]:mt-0.5">
+              <StatusIcon status={writingStatus} />
+
+              <span>{writingSummary}</span>
+            </div>
+
+            {topics.length > 0 ? (
+              <ul className="max-h-32 space-y-1.5 overflow-y-auto pl-[1.375rem]">
+                {topics.map((topic) => (
+                  <li
+                    key={topic.title}
+                    aria-label={`${topicStatusLabels[topic.status]}: ${topic.title}`}
+                    className="flex items-start gap-2 [&>svg]:mt-0.5"
+                  >
+                    <StatusIcon status={TOPIC_PROGRESS_STATUS[topic.status]} />
+
+                    <span className="min-w-0 [overflow-wrap:anywhere]">{topic.title}</span>
                   </li>
                 ))}
               </ul>

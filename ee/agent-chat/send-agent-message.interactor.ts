@@ -1,4 +1,3 @@
-import { appLocaleOrDefault } from "@/i18n/locale-registry";
 import { randomUUID } from "node:crypto";
 import type { z } from "zod";
 import * as Sentry from "@sentry/nextjs";
@@ -14,7 +13,6 @@ import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import { env } from "@/env";
 
 import { resolveUserLocale } from "@/i18n/user-locale";
-import { getTranslator } from "@/i18n/get-translator";
 import { Action, AgentConversationOrigin, Resource } from "@/generated/prisma";
 
 import {
@@ -34,12 +32,7 @@ import {
 import type { AgentRunContext } from "./agent-run-context";
 import type { AgentUsageService } from "./agent-usage.service";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
-import {
-  AGENT_RUN_LEASE_MS,
-  decideAgentTurnAdmission,
-  isWikiHomepageSetupConflict,
-  type AgentTurnRequestSnapshot,
-} from "./agent-turn-request";
+import { AGENT_RUN_LEASE_MS, decideAgentTurnAdmission, type AgentTurnRequestSnapshot } from "./agent-turn-request";
 import { agentSystemPromptParts, routineTriggerEventOf } from "./system-prompt";
 import { agentToolDefinitionsForTurn } from "./agent-tools";
 import { toolsetsForRequest, toolsetsFromActivities } from "./agent-toolset-routing";
@@ -63,14 +56,12 @@ import {
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { GetWikiCatalogInteractor } from "@/features/wiki/get-wiki-catalog.interactor";
 import type { UserService } from "@/features/user/user.service";
-import { parsePublicPageUrl, type PublicWikiHomepage } from "@/features/wiki/wiki-homepage";
 import { AppErrorCode, appErrorDetails } from "@/core/errors/app-errors";
 import { agentWebSearchReserveMicrocents } from "./agent-budget-policy";
 import { agentMicrocentsFromStorage } from "./agent-credit-policy";
 import { agentWebSearchCallLimit } from "./agent-web-search";
 import { serializeAgentWikiCatalog } from "./agent-wiki-context";
 import { userWebsiteHomepages } from "./user-website-homepages";
-import type { WikiWebsiteCrawlMode } from "@/features/wiki/wiki-crawl-mode.schema";
 
 type AdmittedAgentRun = { disposition: "run"; externalRunId: string } & Omit<AgentRunContext, "appBaseUrl">;
 type AgentInvocationMode = "interactive" | "routine";
@@ -124,16 +115,6 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     private wikiCatalog: Pick<GetWikiCatalogInteractor, "invoke">,
     private userService?: Pick<UserService, "hasPermission">,
     private wikiCrawls?: {
-      findSetupCrawl(
-        homepageUrl: string,
-        clientRequestId: string,
-      ): Promise<{
-        id: string;
-        homepageUrl: string;
-        pendingHosts: string[];
-        mode?: WikiWebsiteCrawlMode;
-        locale: string;
-      } | null>;
       findLatestCrawl(): Promise<{ pendingHosts: string[] } | null>;
     },
   ) {
@@ -190,7 +171,6 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           text: data.text,
           pageRoute,
           retry: data.retry,
-          wikiHomepageSetupUrl: data.wikiHomepageSetupUrl,
         });
 
     if (decision.disposition === "completed") {
@@ -251,11 +231,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       };
     }
 
-    const setupRetryOutsideSetup =
-      decision.disposition === "retry" &&
-      Boolean(decision.turn.wikiHomepageSetupUrl) &&
-      data.wikiHomepageSetupUrl === undefined;
-    if (decision.disposition === "conflict" || setupRetryOutsideSetup) {
+    if (decision.disposition === "conflict") {
       return {
         ok: true as const,
         data: {
@@ -298,50 +274,25 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     const requestedModelKey = retiredModelKey ? SHIPPED_AGENT_MODEL_KEY : (storedModelKey ?? data.modelKey ?? null);
     if (requestedModelKey !== null && !isAgentModelKey(requestedModelKey))
       return fail(CustomErrorCode.agentModelUnavailable, ["modelKey"]);
-    const setupUrl = decision.disposition === "retry" ? decision.turn.wikiHomepageSetupUrl : data.wikiHomepageSetupUrl;
-    const wikiHomepageSetup: PublicWikiHomepage | undefined = setupUrl
-      ? (parsePublicPageUrl(setupUrl) ?? undefined)
-      : undefined;
-    if (setupUrl && !wikiHomepageSetup) return fail(CustomErrorCode.invalidUrl, ["wikiHomepageSetupUrl"]);
-    const setupClientRequestId =
-      decision.disposition === "retry" ? decision.turn.clientRequestId : data.clientRequestId;
-    const wikiCrawl =
-      wikiHomepageSetup && this.wikiCrawls
-        ? await this.wikiCrawls.findSetupCrawl(wikiHomepageSetup.url, setupClientRequestId)
-        : null;
-    if (wikiHomepageSetup && !wikiCrawl) return fail(CustomErrorCode.invalidUrl, ["wikiHomepageSetupUrl"]);
-    const turnModel = resolveAgentModel(
-      requestedModelKey,
-      mode === "interactive" && wikiCrawl?.mode === "initial" ? "initial_wiki_synthesis" : "chat",
-    );
-    const locale = wikiCrawl ? appLocaleOrDefault(wikiCrawl.locale) : (data.locale ?? resolveUserLocale(user));
-    let conversationTitle = data.text;
-    if (wikiHomepageSetup) {
-      const t = await getTranslator(locale, "WikiSetup");
-      conversationTitle = t("conversationTitle");
-    }
+    const turnModel = resolveAgentModel(requestedModelKey);
+    const locale = data.locale ?? resolveUserLocale(user);
     let wikiCatalog: string | null = null;
     let wikiWebsiteSetup = false;
-    if (!wikiHomepageSetup) {
-      try {
-        const result = await this.wikiCatalog.invoke({ page: 1 });
-        if (!result.ok) return result;
-        wikiCatalog = serializeAgentWikiCatalog(result.data);
-        const wikiEmpty = result.data.total === 0 && !result.data.guide && !result.data.procedures?.total;
-        wikiWebsiteSetup =
-          mode === "interactive" &&
-          (wikiEmpty || ((await this.wikiCrawls?.findLatestCrawl())?.pendingHosts.length ?? 0) > 0) &&
-          (await this.wikiWebsiteSetupAvailable());
-      } catch (error) {
-        if (appErrorDetails(error)?.code !== AppErrorCode.permissionDenied) throw error;
-      }
+    try {
+      const result = await this.wikiCatalog.invoke({ page: 1 });
+      if (!result.ok) return result;
+      wikiCatalog = serializeAgentWikiCatalog(result.data);
+      const wikiEmpty = result.data.total === 0 && !result.data.guide && !result.data.procedures?.total;
+      wikiWebsiteSetup =
+        mode === "interactive" &&
+        (wikiEmpty || ((await this.wikiCrawls?.findLatestCrawl())?.pendingHosts.length ?? 0) > 0) &&
+        (await this.wikiWebsiteSetupAvailable());
+    } catch (error) {
+      if (appErrorDetails(error)?.code !== AppErrorCode.permissionDenied) throw error;
     }
     const toolOptions = {
       locale,
       surface,
-      wikiHomepageSetup: Boolean(wikiHomepageSetup),
-      wikiCrawlId: wikiCrawl?.id ?? null,
-      wikiCrawlMode: wikiCrawl?.mode ?? null,
       wikiWebsiteSetup,
       webSearchEnabled: true,
     };
@@ -356,10 +307,6 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         surface,
         triggerEvent: routineTriggerEventOf(data.text),
         schemaDigest,
-        wikiHomepageSetup: Boolean(wikiHomepageSetup),
-        wikiCrawlSynthesis: wikiCrawl
-          ? { homepage: wikiCrawl.homepageUrl, pendingHosts: wikiCrawl.pendingHosts, mode: wikiCrawl.mode }
-          : null,
         wikiWebsiteSetup,
         webSearchEnabled: true,
       }),
@@ -403,7 +350,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           if (await this.repo.isAtAgentRunLimit(phaseOneAt)) return "at-user-limit" as const;
           await this.repo.createAgentConversationForRun({
             conversationId,
-            title: conversationTitle,
+            title: data.text,
             modelKey: requestedModelKey,
             now: phaseOneAt,
           });
@@ -492,7 +439,6 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
                 turnRequestId,
                 priorRunId: decision.turn.runId,
                 priorAttemptCount: decision.turn.attemptCount,
-                wikiHomepageSetupUrl: wikiHomepageSetup?.url,
                 userMessageId,
               }
             : {
@@ -502,7 +448,6 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
                 text: data.text,
                 contexts,
                 pageRoute,
-                wikiHomepageSetupUrl: wikiHomepageSetup?.url,
                 userMessageId,
               },
       });
@@ -560,17 +505,6 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         toolsets,
         ...(schemaDigest ? { schemaDigest } : {}),
         ...(recordsBenchmarkToolOutputs(process.env) ? { recordToolOutputs: true } : {}),
-        wikiHomepageSetup,
-        ...(wikiCrawl
-          ? {
-              wikiCrawl: {
-                id: wikiCrawl.id,
-                homepage: wikiCrawl.homepageUrl,
-                pendingHosts: wikiCrawl.pendingHosts,
-                mode: wikiCrawl.mode,
-              },
-            }
-          : {}),
         ...(wikiWebsiteSetup
           ? {
               wikiWebsiteSetup: {
@@ -619,9 +553,6 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           tags: { kind: "agent-admission-cleanup-failure" },
         });
       }
-      if (isWikiHomepageSetupConflict(error))
-        return failConflict(CustomErrorCode.agentTurnAlreadyRunning, ["homepage"]);
-
       throw error;
     }
   }

@@ -28,6 +28,7 @@ import { useNavigationGuard } from "@/components/modal/use-navigation-guard";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRouter } from "@/i18n/navigation";
 import { EMPTY_WIKI_HOMEPAGE_SETUP_STATE, useRefreshWhileWikiSetupWorks } from "@/components/wiki/wiki-homepage-setup";
+import { WikiSetupProgress } from "@/components/wiki/wiki-setup-progress";
 import { wikiPagePath } from "@/features/wiki/wiki-links";
 import { ResizablePanelGroup } from "@/components/layout/resizable-panels";
 import { useP13nColumnWidths } from "@/components/shared/use-p13n-column-widths";
@@ -86,9 +87,7 @@ export const WikiPageView = observer(function WikiPageView({
   });
   const initialPanelSizes = readStoredPanelSizes(columnWidths, WIKI_PANEL_LAYOUT_ID, WIKI_PANEL_IDS, false);
   const canManage = store.canManage;
-  const agentChatStore = rootStore.agentChatStore;
   const setupActive = initialSetupState.status === "working";
-  const setupConversationId = setupActive ? initialSetupState.conversationId : null;
   const setupDomain = setupActive ? initialSetupState.domain : null;
 
   useLayoutEffect(() => {
@@ -116,8 +115,6 @@ export const WikiPageView = observer(function WikiPageView({
     setupActive,
   });
   useRefreshWhileWikiSetupWorks(initialSetupState);
-  const canOpenSetupTask =
-    Boolean(setupConversationId) && rootStore.agentChatEnabled && agentChatStore.enabled !== false;
   const tryNavigate = useCallback(
     (navigate: () => void) => rootStore.navigationGuard.tryNavigate(navigate),
     [rootStore],
@@ -212,38 +209,9 @@ export const WikiPageView = observer(function WikiPageView({
     case "setup":
       documentBody = (
         <PageState
-          action={
-            canOpenSetupTask ? (
-              <Button
-                data-agent-focus-return
-                disabled={
-                  Boolean(agentChatStore.historyMutationPending) ||
-                  (agentChatStore.isWorking && agentChatStore.conversationId !== setupConversationId)
-                }
-                size="sm"
-                variant="secondary"
-                onClick={() => {
-                  agentChatStore.open();
-                  runUserAction(async () => {
-                    await agentChatStore.loadConfig();
-                    if (setupConversationId) await agentChatStore.selectConversation(setupConversationId);
-                  });
-                }}
-              >
-                {t("WikiSetup.openTask")}
-              </Button>
-            ) : undefined
-          }
+          action={<WikiSetupProgress state={initialSetupState} />}
           background={<WikiPageSkeleton documentOnly animated={false} />}
-          description={
-            !setupDomain
-              ? undefined
-              : setupConversationId
-                ? t("WikiSetup.status.workingBodyWiki", { domain: setupDomain })
-                : t("WikiSetup.status.workingBodyNoTaskWiki", {
-                    domain: setupDomain,
-                  })
-          }
+          description={setupDomain ? t("WikiSetup.status.workingBodyWiki", { domain: setupDomain }) : undefined}
           icon={Sparkles}
           state="empty"
           title={t("WikiSetup.status.workingTitle")}

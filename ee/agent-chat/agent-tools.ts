@@ -1,6 +1,5 @@
 import { agentToolOutputContext } from "./agent-activity-context";
 import { boundedAgentToolFailure } from "./agent-tool-failure";
-import { WIKI_SOURCE_RESULT_MAX_CHARS } from "@/ee/wiki-crawl/wiki-source-coverage";
 import { z } from "zod";
 import { asSchema, tool, jsonSchema, type ToolSet } from "ai";
 
@@ -60,21 +59,12 @@ import type { AgentToolInputResult } from "./agent-tool-input";
 import { getAgentWebSearchTool } from "./agent-web-search";
 import { hostedWorkspaceContextTool } from "@/features/mcp-tools/workspace.mcp-tools";
 import { localizeWikiPageUrls } from "@/features/wiki/wiki-links";
-import type { WikiWebsiteCrawlMode } from "@/features/wiki/wiki-crawl-mode.schema";
 import { agentViewToolMismatch } from "./agent-page-context";
 import { hostedSectionRankers } from "./docs-rerank";
-import {
-  createWikiFromCrawlTool,
-  readWebsiteSourceTool,
-  WIKI_READ_SOURCE_TOOL_NAME,
-} from "@/ee/wiki-crawl/wiki-crawl-synthesis-tools";
 
 export type AgentToolOptions = {
   locale?: string;
   webSearchEnabled?: boolean;
-  wikiHomepageSetup?: boolean;
-  wikiCrawlId?: string | null;
-  wikiCrawlMode?: WikiWebsiteCrawlMode | null;
   wikiWebsiteSetup?: boolean;
   surface?: AgentSurface;
 };
@@ -180,10 +170,10 @@ function agentToolResult(
   maxChars: number,
   context: { toolName?: string; pageRoute?: string | null } = {},
 ) {
-  const text =
-    context.toolName === WIKI_READ_SOURCE_TOOL_NAME
-      ? contextualAgentToolResultText(context.toolName, outcome, context.pageRoute)
-      : localizeWikiPageUrls(contextualAgentToolResultText(context.toolName, outcome, context.pageRoute), env.BASE_URL);
+  const text = localizeWikiPageUrls(
+    contextualAgentToolResultText(context.toolName, outcome, context.pageRoute),
+    env.BASE_URL,
+  );
   if (!outcome.ok) return boundedAgentToolFailure({ result: text, failure: outcome.failure }, maxChars);
   const navigation = contextualAgentToolNavigation(context.toolName, outcome, context.pageRoute);
   const activityContext = agentToolOutputContext(context.toolName, outcome.structuredContent);
@@ -392,7 +382,7 @@ function crmTool(
   surface: AgentSurface | undefined,
   rankers: SectionRankerFactory | undefined,
 ) {
-  const resultMaxChars = mcp.name === WIKI_READ_SOURCE_TOOL_NAME ? WIKI_SOURCE_RESULT_MAX_CHARS : deps.resultMaxChars;
+  const resultMaxChars = deps.resultMaxChars;
   return tool({
     description: mcp.description,
     inputSchema: providerSafeSchema(mcp.inputSchema),
@@ -404,8 +394,7 @@ function crmTool(
           pageRoute: deps.pageRoute,
         });
       };
-      const enrollable =
-        mcp.name === WIKI_READ_SOURCE_TOOL_NAME || (!isReadOnlyTool(mcp) && !hasNonTransactionalEffect(mcp.name));
+      const enrollable = !isReadOnlyTool(mcp) && !hasNonTransactionalEffect(mcp.name);
       const run = enrollable ? () => deps.runExactlyOnce(toolCallId, mcp.name, execute) : execute;
       return runSafely(async () => {
         const mismatch = agentViewToolMismatch(deps.pageRoute, mcp.name, input);
@@ -544,10 +533,8 @@ export function hostedMcpTools() {
   );
 }
 
-export function isWikiWebsiteSetupTurn(
-  options: Pick<AgentToolOptions, "wikiHomepageSetup" | "wikiWebsiteSetup" | "surface">,
-) {
-  return Boolean(options.wikiWebsiteSetup && !options.wikiHomepageSetup && options.surface === "chat");
+export function isWikiWebsiteSetupTurn(options: Pick<AgentToolOptions, "wikiWebsiteSetup" | "surface">) {
+  return Boolean(options.wikiWebsiteSetup && options.surface === "chat");
 }
 
 function wikiWebsiteSetupTools(
@@ -562,26 +549,6 @@ function wikiWebsiteSetupTools(
 
 export function getAgentAiTools(deps: AgentToolDeps, options: AgentToolOptions = {}): ToolSet {
   const rankers = hostedSectionRankers(deps.latestUserMessage ?? null);
-  if (options.wikiHomepageSetup) {
-    if (!options.wikiCrawlId) return {};
-    return withCallerContext(
-      {
-        [WIKI_READ_SOURCE_TOOL_NAME]: crmTool(
-          readWebsiteSourceTool(options.wikiCrawlId),
-          deps,
-          options.surface,
-          rankers,
-        ),
-        manage_wiki_pages: crmTool(
-          createWikiFromCrawlTool(options.locale, options.wikiCrawlId, options.wikiCrawlMode === "initial"),
-          deps,
-          options.surface,
-          rankers,
-        ),
-      },
-      deps,
-    );
-  }
   const crm = hostedMcpTools().map((mcp) => [mcp.name, crmTool(mcp, deps, options.surface, rankers)] as const);
   return withCallerContext(
     {
@@ -638,7 +605,7 @@ export function describeAgentAiTools(tools: ToolSet, servingProvider?: string): 
       "description" in agentTool && typeof agentTool.description === "string" ? agentTool.description : undefined,
     inputSchema:
       "inputSchema" in agentTool
-        ? providerWireInputSchema(asSchema(agentTool.inputSchema).jsonSchema, servingProvider, name)
+        ? providerWireInputSchema(asSchema(agentTool.inputSchema).jsonSchema, servingProvider)
         : undefined,
   }));
 }
@@ -669,9 +636,6 @@ export function agentToolDefinitionsForTurn(args: {
   surface: AgentSurface;
   locale?: string;
   webSearchEnabled?: boolean;
-  wikiHomepageSetup?: boolean;
-  wikiCrawlId?: string | null;
-  wikiCrawlMode?: WikiWebsiteCrawlMode | null;
   wikiWebsiteSetup?: boolean;
 }): AgentTurnToolDefinition[] {
   const panelToolNames = new Set<string>(AGENT_UI_TOOL_NAMES);

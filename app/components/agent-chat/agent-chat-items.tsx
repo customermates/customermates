@@ -1,8 +1,5 @@
 "use client";
 
-import type { ComponentProps } from "react";
-import type { Components } from "streamdown";
-
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Check, ChevronDown, Copy, Loader2, Square, X } from "lucide-react";
@@ -33,12 +30,6 @@ import { dataViewNavigationHref } from "@/core/data-view/data-view-links";
 import { ActionTooltip, ItemTime, TypingDots, chatUiCopy, focusAgentComposer } from "./chat-ui";
 import { AgentComposerContexts } from "./agent-composer-contexts";
 
-function MessageLinkText({ children }: ComponentProps<"a"> & { node?: unknown }) {
-  return <span className="underline decoration-dotted underline-offset-2">{children}</span>;
-}
-
-const nonInteractiveMessageLinks = { a: MessageLinkText } satisfies Components;
-
 export function useAgentActivityTerminology(): Partial<Record<AgentActivityResource, string>> {
   const { plural } = useEntityTerminology();
   return {
@@ -52,12 +43,10 @@ export function useAgentActivityTerminology(): Partial<Record<AgentActivityResou
 
 export const AgentChatItemView = observer(function AgentChatItemView({
   item,
-  renderLinksAsText = false,
   readOnly = false,
   userLabel,
 }: {
   item: Exclude<AgentChatItem, { kind: "activity" }>;
-  renderLinksAsText?: boolean;
   readOnly?: boolean;
   userLabel?: string;
 }) {
@@ -98,7 +87,7 @@ export const AgentChatItemView = observer(function AgentChatItemView({
         <div className="flex min-w-0 flex-col items-start gap-1.5">
           <div className="w-full text-sm leading-relaxed [&_pre]:overflow-x-auto">
             <MessageResponse
-              components={renderLinksAsText ? nonInteractiveMessageLinks : agentMessageComponents}
+              components={agentMessageComponents}
               mode={item.streaming ? "streaming" : "static"}
               rehypePlugins={agentMessageRehypePlugins}
               showTableActions={!item.streaming}
@@ -230,7 +219,7 @@ export function compactActivityItems(items: ActivityItem[]) {
     const previous = rows.at(-1);
     const canGroup =
       item.activity.risk === "read" &&
-      (item.activity.kind === "web.review" || item.activity.kind === "generic") &&
+      item.activity.kind === "generic" &&
       (item.status === "done" || item.status === "running");
     if (
       canGroup &&

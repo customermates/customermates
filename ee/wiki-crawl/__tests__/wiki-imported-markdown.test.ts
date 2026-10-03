@@ -13,8 +13,6 @@ const source: WikiSourceRecord = {
   qaPairs: [{ question: "Can I pause instead?", answer: "Yes, for up to three months." }],
   contentHash: "hash",
   fetchedAt: new Date("2026-09-20T08:00:00.000Z"),
-  readAt: null,
-  readOffset: 0,
 };
 
 describe("imported Wiki page copy", () => {

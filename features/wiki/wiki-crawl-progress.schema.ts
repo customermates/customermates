@@ -16,3 +16,9 @@ export const WikiCrawlTargetProgressSchema = z.object({
   status: WikiCrawlTargetStatusSchema,
 });
 export type WikiCrawlTargetProgress = Data<typeof WikiCrawlTargetProgressSchema>;
+
+export const WikiSynthesisTopicProgressSchema = z.object({
+  title: z.string().min(1).max(200),
+  status: z.enum(["pending", "writing", "created", "skipped"]),
+});
+export type WikiSynthesisTopicProgress = Data<typeof WikiSynthesisTopicProgressSchema>;

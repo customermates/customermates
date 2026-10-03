@@ -1,5 +1,3 @@
-import { WIKI_READ_SOURCE_TOOL_NAME } from "./tool-identity";
-
 export type GoogleSchemaChangeAction = "collapsed" | "merged" | "removed" | "rewritten";
 
 export type GoogleSchemaChange = {
@@ -462,26 +460,10 @@ export function googleSafeJsonSchema(document: unknown): GoogleSafeSchemaResult 
   return { schema: rewrite(document, "#"), changes };
 }
 
-export function providerWireInputSchema(
-  document: unknown,
-  servingProvider: string | null | undefined,
-  toolName?: string,
-): unknown {
+export function providerWireInputSchema(document: unknown, servingProvider: string | null | undefined): unknown {
   if (!isGoogleServingProvider(servingProvider)) return document;
 
-  const schema = googleSafeJsonSchema(document).schema;
-  if (toolName === WIKI_READ_SOURCE_TOOL_NAME && isSchemaNode(schema) && isSchemaNode(schema.properties)) {
-    const repairs = schema.properties.reclassifiedOfferings;
-    if (isSchemaNode(repairs)) delete repairs.maxItems;
-    const exclusions = schema.properties.excluded;
-    if (isSchemaNode(exclusions)) delete exclusions.maxItems;
-    const group = schema.properties.topics;
-    if (isSchemaNode(group) && isSchemaNode(group.items) && isSchemaNode(group.items.properties)) {
-      const sourceIds = group.items.properties.sourceIds;
-      if (isSchemaNode(sourceIds)) delete sourceIds.maxItems;
-    }
-  }
-  return schema;
+  return googleSafeJsonSchema(document).schema;
 }
 
 export function summarizeGoogleSchemaChanges(changes: readonly GoogleSchemaChange[]) {

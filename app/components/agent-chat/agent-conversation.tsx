@@ -16,7 +16,7 @@ import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
 import { ActionTooltip, chatUiCopy } from "./chat-ui";
 import { AgentActivity, AgentChatItemView, consecutiveActivityItems, isWorkingActivityGroup } from "./agent-chat-items";
-import { AgentInitialProgress, AgentProgressStatus } from "./agent-status-announcer";
+import { AgentInitialProgress } from "./agent-status-announcer";
 import { AgentComposerContexts } from "./agent-composer-contexts";
 import { AgentComposerTextInput } from "./agent-composer-text-input";
 import { AgentContextPicker } from "./agent-context-picker";
@@ -28,20 +28,16 @@ import { useAgentChatStore, useAgentChatUiTargets } from "./agent-chat-store-con
 export const AgentConversationLog = observer(function AgentConversationLog({
   className = "px-3",
   readOnly = false,
-  renderLinksAsText = false,
   scrollContainerRef,
   scrollFooterRef,
   scrollable = true,
-  showProgressStatus = false,
   userLabel,
 }: {
   className?: string;
   readOnly?: boolean;
-  renderLinksAsText?: boolean;
   scrollContainerRef?: RefObject<HTMLElement | null>;
   scrollFooterRef?: RefObject<HTMLElement | null>;
   scrollable?: boolean;
-  showProgressStatus?: boolean;
   userLabel?: string;
 }) {
   const store = useAgentChatStore();
@@ -86,20 +82,13 @@ export const AgentConversationLog = observer(function AgentConversationLog({
                   <ActivityGroup index={index} />
                 )
               ) : (
-                <AgentChatItemView
-                  item={item}
-                  readOnly={readOnly}
-                  renderLinksAsText={renderLinksAsText}
-                  userLabel={userLabel}
-                />
+                <AgentChatItemView item={item} readOnly={readOnly} userLabel={userLabel} />
               )}
             </Fragment>
           );
         })}
 
         <AgentInitialProgress />
-
-        {showProgressStatus ? <AgentProgressStatus inline /> : null}
       </div>
     </MessagesScrollContainer>
   );

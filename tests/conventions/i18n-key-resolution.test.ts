@@ -759,7 +759,6 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
   ['ee/agent-chat/agent-page-actions.ts :: t :: terminologyMessageKey(entityType, "", form)', 1],
   ["ee/agent-chat/agent-page-actions.ts :: t :: terminologyMessageKey(entityType, preset, form)", 1],
   ["core/validation/interactor-failure-server.ts :: t.raw :: code", 1],
-  ["workflows/agent-turn.ts :: t.raw :: code", 1],
   ["features/mcp-tools/mcp-tool.ts :: t.raw :: customCode", 1],
   [
     'features/messaging/activities/audit-detail.tsx :: t :: terminologyMessageKey(selection.entityType, presetKey, "plural") as never',

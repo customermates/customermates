@@ -37,7 +37,6 @@ const SendAgentMessageObjectSchema = z.object({
   modelKey: z.string().min(1).max(50).optional(),
   locale: AgentAppLocaleSchema.optional(),
   retry: z.boolean().default(false),
-  wikiHomepageSetupUrl: z.url().max(2_000).optional(),
 });
 
 function refineSelectedViewContext(
@@ -62,10 +61,6 @@ function refineSelectedViewContext(
 }
 
 export const SendAgentMessageSchema = SendAgentMessageObjectSchema.superRefine(refineSelectedViewContext);
-
-export const PublicSendAgentMessageSchema = SendAgentMessageObjectSchema.omit({
-  wikiHomepageSetupUrl: true,
-}).superRefine(refineSelectedViewContext);
 
 export type SendAgentMessageData = Data<typeof SendAgentMessageSchema>;
 

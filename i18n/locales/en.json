@@ -353,25 +353,10 @@
           }
         },
         "web": {
-          "plan": {
-            "done": "Planned Knowledge Base pages",
-            "error": "Couldn’t plan the Knowledge Base pages",
-            "running": "Planning Knowledge Base pages"
-          },
-          "review": {
-            "done": "Reviewed website content",
-            "error": "Couldn’t review the website content",
-            "running": "Reviewing website content"
-          },
           "search": {
             "done": "Searched the web",
             "error": "Couldn’t search the web",
             "running": "Searching the web"
-          },
-          "sources": {
-            "done": "Listed website pages",
-            "error": "Couldn’t list the website pages",
-            "running": "Listing website pages"
           }
         },
         "webhooks": {
@@ -1361,36 +1346,12 @@
       "widgetWeightedValueNotAllowedForService": "Weighted value aggregation is not allowed for Service element type.",
       "wikiGuideExists": "This Knowledge Base already has an Operating Guide. Update the existing guide instead.",
       "wikiHomepageSetupStartFailed": "Mate could not start the Knowledge Base setup. Please try again.",
-      "wikiImportKnowledgeOnly": "A help-centre extension creates knowledge pages only; existing guides and procedures stay unchanged.",
-      "wikiImportLanguageRequired": "Write every page in {locale}. Translate the source content into that language. Nothing was changed.",
-      "wikiImportLinkInvalid": "Use the exact Knowledge Base page links returned by the source reader. Placeholder links cannot be saved.",
-      "wikiImportNotFound": "This website import is no longer available. Nothing was changed.",
-      "wikiImportPageLimit": "This import may create at most {maximum} summary pages; {created} exist: {titles}. Nothing was changed.",
-      "wikiImportTitleInvalid": "Use a plain page title without serialized tool fields.",
       "wikiNotEmpty": "This action requires an empty Knowledge Base.",
       "wikiPageConflict": "This Knowledge Base page changed after you opened it. Reload it and try again.",
       "wikiPageNotFound": "Knowledge Base page not found or not accessible.",
       "wikiPagePinned": "The Operating Guide stays first. Move another page instead.",
       "wikiPageUpdateEmpty": "Provide at least one field to update the page.",
       "wikiProcedureNeedsSteps": "A procedure needs numbered steps.",
-      "wikiSourceChunkTooLarge": "Source chunk cannot fit safely. Nothing was marked read.",
-      "wikiSourceCitationInvalid": "Cite only ids returned by read_website_source. Nothing was changed.",
-      "wikiSourceCitationUnread": "Read each cited source completely with read_website_source before citing it; unread: {ids}. Nothing was changed.",
-      "wikiSourceClaimsUnsupported": "The reported content does not faithfully follow its own website passages. Rewrite every reported claim with the source's exact scope, status, conditions, limits and attribution; use only supported facts. Nothing was changed.",
-      "wikiSourceCoverageRequired": "Read all remaining stored evidence with read_website_source action=next before creating pages or rereading sources. {remainingSources} sources remain. Nothing was changed.",
-      "wikiSourceEvidenceInvalid": "Each section needs exact supporting passages from that page’s cited website sources. Fix every reported quotation or citation by copying one complete contiguous sentence or line from freshly returned text, preserving actual whitespace, punctuation and spelling. Never insert literal backslash-n characters; prefer a shorter complete sentence to reconstructing a multiline passage. Reread all sources needed by the submitted batch together before retrying. Nothing was changed.",
-      "wikiSourceExclusionDuplicateInvalid": "Source {sourceId} is not an exact-content duplicate of retained or imported source {duplicateOfSourceId}. For translated company or foundation pages, retain both source IDs in the relevant foundation topics as reading leads. For genuinely redundant offering translations, use overlap with the exact retained offering title and exact source and counterpart quotes; otherwise retain the source in its topic. Nothing was changed.",
-      "wikiSourceExclusionEvidenceInvalid": "The quotation for source {sourceId} does not exactly match its stored text. Reread with get and offset=0, then copy one contiguous sentence or line without changing whitespace, punctuation or wording. Nothing was changed.",
-      "wikiSourceExclusionImportedInvalid": "Source {sourceId} is not an unchanged imported source. Choose a supported exclusion basis or retain it in a topic. Nothing was changed.",
-      "wikiSourceExclusionOverlapInvalid": "Source {sourceId} must be fully covered by the exact offering {coveredByTitle}. Retain distinct scope and cases; shared wording, technology or one case is insufficient. Nothing was changed.",
-      "wikiSourceNotFound": "Unknown source id. Call list first.",
-      "wikiSourcePlanAccountingInvalid": "Keep each source once within a group or exclusions, and never in both topics and exclusions. Duplicate source IDs: [{duplicateSourceIds}]. IDs in both topics and exclusions: [{overlappingSourceIds}]. Unaccounted source IDs: [{missingSourceIds}]. Nothing was changed.",
-      "wikiSourcePlanCitationLimit": "Plan one to four sources per offering or procedure and cite all of them when creating it. Split a topic if four sources cannot cover its distinct material. No plan was accepted.",
-      "wikiSourcePlanIncomplete": "Send a topics list, then account for every stored source and each required page role with a supported topic or reasoned omission before creating pages. Unaccounted source IDs: [{missingSourceIds}]. Missing or invalid roles: [{missingRoles}].",
-      "wikiSourceReadOrder": "Read sequentially without skipping text. Use next or the stored nextOffset from list.",
-      "wikiSourceReviewLimit": "Mate could not verify this content after the allowed corrections. No pages in this request were created. Review any pages already saved in the Knowledge Base.",
-      "wikiSourceReviewTooLarge": "The complete content and evidence exceed the verification limit. Submit fewer pages or smaller complete sections; do not omit supporting passages. Nothing was changed.",
-      "wikiSourceReviewUnavailable": "Mate could not verify this website content. No pages in this request were created. Any pages already saved remain available.",
       "wikiWhenToUseRequired": "A procedure needs a short description of when to use it."
     },
     "events": {
@@ -3823,11 +3784,10 @@
     }
   },
   "WikiSetup": {
-    "agentPrompt": "Learn about our company from {homepage} and create our Knowledge Base pages.",
     "continue": "Continue",
     "continueBackground": "Continue while Mate works",
-    "conversationTitle": "Set up Knowledge Base",
     "crawlProgress": {
+      "created": "Created",
       "discovering": "Finding website pages",
       "failed": "Skipped",
       "found": "{count} pages found",
@@ -3835,21 +3795,20 @@
       "read": "Read",
       "reading": "Reading",
       "readingCount": "Reading pages · {fetched}/{total}",
-      "steps": "2 steps",
-      "synthesizing": "Starting Mate to write Knowledge Base pages",
-      "title": "Website import progress"
+      "steps": "3 steps",
+      "title": "Website import progress",
+      "writing": "Writing",
+      "writingCount": "Writing pages · {created}/{total}"
     },
     "generated": {
       "gapsHeading": "Gaps to confirm",
+      "pagesHeading": "Knowledge Base pages",
       "sourcesHeading": "Sources"
     },
     "homepageLabel": "Company website",
     "homepagePlaceholder": "https://example.com",
     "languageDescription": "Defaults to your browser language. Existing Knowledge Base pages determine the language when available.",
     "languageLabel": "Knowledge Base language",
-    "openTask": "Open Mate task",
-    "progressLoadFailed": "Mate’s progress could not be loaded here. Try again.",
-    "progressLoading": "Loading Mate’s progress",
     "start": "Build my Knowledge Base",
     "status": {
       "completedBodyOnboarding": "Mate created your starter pages with cited website facts. You can review them later in the Knowledge Base and confirm anything marked as a gap.",
@@ -3857,16 +3816,14 @@
       "completedTitle": "Your starter Knowledge Base is ready",
       "failedBody": "Setup stopped before all pages were ready. Any pages already created are still available. You can continue and review them in the Knowledge Base.",
       "failedBodyBlocked": "{domain} does not allow automated reading in its robots.txt, so nothing was imported. You can add pages yourself instead.",
-      "failedBodySynthesis": "The website was read, but Mate could not start creating the pages. Try again. Any pages already created are still available.",
+      "failedBodySynthesis": "The website was read, but Mate could not write the pages. Try again. Any pages already created are still available.",
       "failedBodyUnavailable": "Mate could not read {domain}. Check the address, or continue and add pages later.",
       "failedTitle": "Setup did not finish",
-      "noContentBody": "Review the Mate task for details. You can try another website or continue and add pages later.",
+      "noContentBody": "Mate found no usable information for Knowledge Base pages. You can try another website or continue and add pages later.",
       "noContentTitle": "No Knowledge Base pages were created",
       "readingBody": "Mate has read {fetched} of {total} pages from {domain}.",
-      "workingBody": "Mate is reading {domain}, checking useful pages, and turning sourced information into your Knowledge Base. You can follow the progress here or continue to the next step.",
-      "workingBodyNoTask": "Mate is reading {domain} and turning sourced information into your Knowledge Base. You can continue to the next step while it works.",
-      "workingBodyNoTaskWiki": "Mate is reading {domain} and building the Knowledge Base. You can return later to see the finished pages.",
-      "workingBodyWiki": "Mate is reading {domain}, checking useful pages, and turning sourced information into your Knowledge Base. You can keep this task open or return later.",
+      "workingBody": "Mate is reading {domain} and turning sourced information into your Knowledge Base. You can continue to the next step while it works.",
+      "workingBodyWiki": "Mate is reading {domain} and building the Knowledge Base. You can return later to see the finished pages.",
       "workingTitle": "Mate is learning about your company"
     },
     "tryAnother": "Try another website",

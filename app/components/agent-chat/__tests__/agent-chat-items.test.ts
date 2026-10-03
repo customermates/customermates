@@ -150,42 +150,16 @@ describe("AgentActivity", () => {
   });
 });
 
-describe("website activity compaction", () => {
+describe("repeated read activity compaction", () => {
   const read = (
     id: string,
     status: "done" | "running" | "error" | "cancelled" = "done",
   ): Extract<AgentChatItem, { kind: "activity" }> => ({
     kind: "activity",
     id,
-    activity: { kind: "web.review", risk: "read", affectedResources: [] },
+    activity: { kind: "generic", risk: "read", affectedResources: [] },
     status,
     turnKey: "turn-1",
-  });
-
-  it("keeps many source chunks in one updating row without mutating the transcript", () => {
-    const items = [...Array.from({ length: 30 }, (_, index) => read(String(index))), read("active", "running")];
-    const rows = compactActivityItems(items);
-    expect(rows).toHaveLength(1);
-    expect(rows[0]).toMatchObject({ id: "0", repetitions: 31, status: "running" });
-    expect(items[0].status).toBe("done");
-    expect(items).toHaveLength(31);
-    const html = renderToStaticMarkup(createElement(AgentActivity, { items, isWorking: true, isTrailing: true }));
-    expect(html).toContain("AgentChat.activity.state.web.review.running");
-    expect(html).not.toContain("collapsible-trigger");
-  });
-
-  it("keeps different source batches distinguishable and compacts only repeated chunks of the same source", () => {
-    const first = { ...read("first"), activity: { ...read("first").activity, context: { labels: ["About us"] } } };
-    const second = { ...read("second"), activity: { ...read("second").activity, context: { labels: ["Services"] } } };
-    expect(compactActivityItems([first, { ...first, id: "next-chunk" }, second])).toMatchObject([
-      { id: "first", repetitions: 2, activity: { context: { labels: ["About us"] } } },
-      { id: "second", repetitions: 1, activity: { context: { labels: ["Services"] } } },
-    ]);
-    const html = renderToStaticMarkup(
-      createElement(AgentActivity, { items: [{ ...second, status: "running" }], isWorking: true, isTrailing: true }),
-    );
-    expect(html).toContain("AgentChat.activity.state.web.review.running:AgentChat.activity.defaultRecords · Services");
-    expect(html).not.toContain("collapsible-trigger");
   });
 
   it("retains failures, cancellation, page creations and turn boundaries", () => {
@@ -230,7 +204,6 @@ describe("website activity compaction", () => {
     expect(compactActivityItems(items)).toHaveLength(1);
     expect(html).toContain("AgentChat.ui.activityComplete");
     expect(html).not.toContain("AgentChat.activity.state.generic.done");
-    expect(html).not.toContain("AgentChat.activity.state.web.review");
     expect(
       compactActivityItems(
         items.map((item) => ({ ...item, activity: { ...item.activity, risk: "sensitive" as const } })),

@@ -10,55 +10,6 @@ import type { WorkflowTenant } from "./workflow-tenant";
 import type { ClassifierCharge } from "@/ee/agent-chat/classifier/metered";
 import type { RetrievalTiming } from "@/core/retrieval/retrieval-context";
 import type { ModelMessage } from "ai";
-import {
-  wikiPlanningCandidates,
-  wikiMissingOfferingCandidates,
-  wikiMergeOfferingCandidates,
-  wikiPlanningContext,
-  wikiSourcePlanRepair,
-  wikiSourcePlanRepairContext,
-  wikiSourcePlanRefusal,
-  type WikiSourcePlanRepair,
-  wikiPageMatchesTopic,
-  wikiSynthesisBatchSharesSources,
-} from "./wiki-topic-plan";
-import { wikiReadSourceEvidence } from "./wiki-source-evidence";
-import {
-  wikiSynthesisCreationRepair,
-  wikiSynthesisCreationRepairMessages,
-  type WikiSynthesisCreationRepair,
-} from "./wiki-synthesis-creation-repair";
-import { WIKI_SYNTHESIS_OWN_QUOTE_INSTRUCTION } from "@/ee/wiki-crawl/wiki-synthesis-grounding";
-import {
-  WIKI_SOURCE_PLAN_REPAIR_MAX_REFUSALS,
-  wikiSourcePlanRepairMayReset,
-  wikiSourcePlanRepairReadGuard,
-  wikiSourcePlanRepairReadComplete,
-  wikiSourcePlanRepairReadContext,
-  wikiSourcePlanReadOutcome,
-  type WikiSourcePlanRepairReads,
-} from "./wiki-source-plan-repair-reads";
-import {
-  prepareWikiSynthesisReview,
-  wikiSynthesisReviewDecision,
-  parseWikiSynthesisReviewReceipt,
-  recordWikiSynthesisReviewCharge,
-  WikiSynthesisReviewReceiptSchema,
-  WIKI_SYNTHESIS_REVIEW_TOOL_NAME,
-  type WikiSynthesisReviewEvaluation,
-  WIKI_SYNTHESIS_REVIEW_DEADLINE_MS,
-  WIKI_SYNTHESIS_REVIEW_MAX_REJECTIONS,
-  type WikiSynthesisReviewRequest,
-} from "./wiki-synthesis-review";
-import { prepareWikiSourcePlanReviews } from "./wiki-source-plan-review";
-import { classifierReservationMicrocents } from "@/ee/agent-chat/classifier/classifier-reservation";
-import { serializeInteractorFailure } from "@/core/validation/validation.utils";
-import { boundedAgentToolFailure } from "@/ee/agent-chat/agent-tool-failure";
-import { appLocaleOrDefault } from "@/i18n/locale-registry";
-import { CustomErrorCode } from "@/core/validation/validation.types";
-
-import type { ReadWebsiteSourceInput, WikiSourceTopic } from "@/ee/wiki-crawl/wiki-crawl-synthesis.schema";
-import { WIKI_SYNTHESIS_MAX_PAGES, WikiCrawlSynthesisCreateSchema } from "@/ee/wiki-crawl/wiki-crawl-synthesis.schema";
 
 import { WorkflowAgent } from "@ai-sdk/workflow";
 import { createHook, getWritable, sleep } from "workflow";
@@ -87,8 +38,6 @@ import { googleThinkingProviderOptions } from "@/ee/agent-chat/agent-thinking-op
 import { buildAgentProviderContext } from "@/ee/agent-chat/agent-provider-context";
 import { agentSystemPromptParts, routineTriggerEventOf } from "@/ee/agent-chat/system-prompt";
 import type { AgentAiToolDefinition, AgentToolOptions } from "@/ee/agent-chat/agent-tools";
-import type { PublicWikiHomepage } from "@/features/wiki/wiki-homepage";
-import type { WikiWebsiteCrawlMode } from "@/features/wiki/wiki-crawl-mode.schema";
 import { getAgentProviderOptions } from "@/ee/agent-chat/agent-provider-options";
 import {
   agentBatchContainsWebCall,
@@ -181,13 +130,6 @@ export type AgentTurnWorkflowPayload = {
   surface?: AgentTurnSurface;
   toolsets?: string[];
   recordToolOutputs?: boolean;
-  wikiHomepageSetup?: PublicWikiHomepage;
-  wikiCrawl?: {
-    id: string;
-    homepage: string;
-    pendingHosts: string[];
-    mode?: WikiWebsiteCrawlMode;
-  };
   wikiWebsiteSetup?: { userHomepages: string[] };
   wikiCatalog?: string | null;
   webSearchEnabled?: boolean;
@@ -456,7 +398,6 @@ async function executeAgentTool(
   toolCallId: string,
   input: unknown,
   grant: ToolApprovalGrant,
-  reviewedWikiCreate = false,
 ): Promise<{
   output: unknown;
   classifierCharges: ClassifierCharge[];
@@ -468,9 +409,6 @@ async function executeAgentTool(
   const { collectRetrievalTimings } = await import("@/core/retrieval/retrieval-context");
   const tools = getAgentAiTools(backgroundToolDeps(payload, grant), {
     locale: payload.locale,
-    wikiHomepageSetup: Boolean(payload.wikiHomepageSetup),
-    wikiCrawlId: payload.wikiCrawl?.id ?? null,
-    wikiCrawlMode: payload.wikiCrawl ? (payload.wikiCrawl.mode ?? "initial") : null,
     wikiWebsiteSetup: Boolean(payload.wikiWebsiteSetup),
     webSearchEnabled: payload.webSearchEnabled,
     surface: payload.surface ?? "chat",
@@ -492,195 +430,9 @@ async function executeAgentTool(
     );
     return { output: value, classifierCharges: charges, retrievalTimings: timings };
   };
-  if (!reviewedWikiCreate) return run();
-  if (
-    !payload.wikiCrawl ||
-    !payload.wikiHomepageSetup ||
-    (payload.wikiCrawl.mode ?? "initial") !== "initial" ||
-    toolName !== "manage_wiki_pages" ||
-    !WikiCrawlSynthesisCreateSchema.safeParse(input).success
-  )
-    throw new Error("Invalid reviewed Wiki mutation.");
-  return runAsBackgroundTenant(payload.userId, () =>
-    runInTransaction(
-      async () => {
-        if (getTenantUser().companyId !== payload.companyId) throw new Error("Wiki synthesis tenant changed.");
-        const repo = getAgentChatRepo();
-        if (
-          (await repo.isAgentTurnCancellationRequestedUnscoped({
-            turnRequestId: payload.turnRequestId,
-            companyId: payload.companyId,
-          })) ||
-          !(await repo.canStartNextHostedAiProviderRoundUnscoped({
-            turnRequestId: payload.turnRequestId,
-            companyId: payload.companyId,
-            userId: payload.userId,
-          }))
-        ) {
-          return {
-            output: await formatWikiSynthesisReviewFailure(
-              payload,
-              CustomErrorCode.wikiSourceReviewUnavailable,
-              [{ path: ["pages"] }],
-              "unavailable",
-            ),
-            classifierCharges: [],
-            retrievalTimings: [],
-          };
-        }
-        return run();
-      },
-      { companyId: payload.companyId },
-    ),
-  );
+  return run();
 }
 executeAgentTool.maxRetries = 0;
-
-async function loadWikiSynthesisReviewContext(payload: AgentTurnWorkflowPayload) {
-  "use step";
-  if (
-    !payload.wikiCrawl ||
-    !payload.wikiHomepageSetup ||
-    (payload.surface ?? "chat") !== "chat" ||
-    (payload.wikiCrawl.mode ?? "initial") !== "initial"
-  )
-    return null;
-  const { getUserService, getWikiWebsiteCrawlRepo } = await import("@/core/di");
-  const { Action, Resource } = await import("@/generated/prisma");
-  const { env } = await import("@/env");
-  const { wikiSourceCoverage } = await import("@/ee/wiki-crawl/wiki-source-coverage");
-  if (env.APP_MODE !== "cloud") return null;
-  const { id, homepage } = payload.wikiCrawl;
-  return runAsBackgroundTenant(payload.userId, async () => {
-    if (getTenantUser().companyId !== payload.companyId) throw new Error("Wiki synthesis tenant changed.");
-    if (!(await getUserService().hasPermission(Resource.wiki, Action.create))) return null;
-    const repo = getWikiWebsiteCrawlRepo();
-    const crawl = await repo.getCrawl(id);
-    if (!crawl || crawl.userId !== payload.userId || crawl.homepageUrl !== homepage) return null;
-    if (crawl.mode !== "initial") return null;
-    const coverage = await wikiSourceCoverage(repo, id);
-    const savedPages = await repo.listSynthesizedPages(crawl.startedAt, WIKI_SYNTHESIS_MAX_PAGES);
-    return {
-      sources: coverage.sources.map(({ id, title, text, contentHash }) => ({ id, title, text, contentHash })),
-      pending: coverage.pending.length,
-      readHashes: [...coverage.readHashes],
-      savedPages,
-    };
-  });
-}
-loadWikiSynthesisReviewContext.maxRetries = 0;
-
-async function executeWikiSynthesisReview(
-  payload: AgentTurnWorkflowPayload,
-  request: WikiSynthesisReviewRequest,
-): Promise<WikiSynthesisReviewEvaluation> {
-  "use step";
-  const { createHash } = await import("node:crypto");
-  const { getAgentChatRepo } = await import("@/core/di");
-  const { classifyMetered } = await import("@/ee/agent-chat/classifier/metered");
-  const requestSha256 = createHash("sha256")
-    .update(JSON.stringify({ spec: request.spec, state: request.state }))
-    .digest("hex");
-  const receiptKey = `${WIKI_SYNTHESIS_REVIEW_TOOL_NAME}:${requestSha256}`;
-  const initial = WikiSynthesisReviewReceiptSchema.parse({
-    schemaVersion: 1,
-    requestSha256,
-    result: null,
-    charge: {
-      use: WIKI_SYNTHESIS_REVIEW_TOOL_NAME,
-      model: "jev",
-      costMicrocents: classifierReservationMicrocents(request.spec, request.state),
-      measured: false,
-      answered: false,
-    },
-  });
-  return runAsBackgroundTenant(payload.userId, async () => {
-    if (getTenantUser().companyId !== payload.companyId) throw new Error("Wiki synthesis tenant changed.");
-    const repo = getAgentChatRepo();
-    const identity = {
-      turnRequestId: payload.turnRequestId,
-      companyId: payload.companyId,
-      toolCallId: receiptKey,
-      toolName: WIKI_SYNTHESIS_REVIEW_TOOL_NAME,
-    };
-    const claim = await repo.claimAgentClassifierReceiptOrThrowUnscoped({ ...identity, initialResultJson: initial });
-    const saved = parseWikiSynthesisReviewReceipt(claim.resultJson, requestSha256);
-    if (claim.state === "settled") return { receiptKey, settled: true, result: saved.result, charge: saved.charge };
-    if (saved.result !== null || !saved.charge || saved.charge.measured || saved.charge.answered)
-      throw new Error("Unsettled Wiki synthesis review receipt is invalid.");
-    if (claim.state === "unknown") return { receiptKey, settled: false, result: null, charge: saved.charge };
-    const allowed =
-      !(await repo.isAgentTurnCancellationRequestedUnscoped({
-        turnRequestId: payload.turnRequestId,
-        companyId: payload.companyId,
-      })) &&
-      (await repo.canStartNextHostedAiProviderRoundUnscoped({
-        turnRequestId: payload.turnRequestId,
-        companyId: payload.companyId,
-        userId: payload.userId,
-      }));
-    const evaluated = allowed
-      ? await classifyMetered(WIKI_SYNTHESIS_REVIEW_TOOL_NAME, request.spec, request.state, "jev", {
-          timeoutMs: WIKI_SYNTHESIS_REVIEW_DEADLINE_MS,
-        })
-      : { result: null, charge: null };
-    const settled = WikiSynthesisReviewReceiptSchema.parse({ schemaVersion: 1, requestSha256, ...evaluated });
-    await repo.settleAgentClassifierReceiptUnscoped({ ...identity, resultJson: settled });
-    return { receiptKey, settled: true, result: settled.result, charge: settled.charge };
-  });
-}
-executeWikiSynthesisReview.maxRetries = 0;
-
-async function wikiSynthesisReviewFailure(
-  payload: AgentTurnWorkflowPayload,
-  code: CustomErrorCode,
-  issues: Array<{ path: Array<string | number>; decision?: string; values?: Record<string, string | number> }>,
-  kind: "validation" | "unavailable" = "validation",
-  values: Record<string, string | number> = {},
-) {
-  "use step";
-  return formatWikiSynthesisReviewFailure(payload, code, issues, kind, values);
-}
-wikiSynthesisReviewFailure.maxRetries = 0;
-
-async function formatWikiSynthesisReviewFailure(
-  payload: AgentTurnWorkflowPayload,
-  code: CustomErrorCode,
-  issues: Array<{ path: Array<string | number>; decision?: string; values?: Record<string, string | number> }>,
-  kind: "validation" | "unavailable" = "validation",
-  values: Record<string, string | number> = {},
-) {
-  const { z } = await import("zod");
-  const { getTranslator } = await import("@/i18n/get-translator");
-  const { serializeInteractorFailure } = await import("@/core/validation/validation.utils");
-  const { boundedAgentToolFailure } = await import("@/ee/agent-chat/agent-tool-failure");
-  const t = await getTranslator(appLocaleOrDefault(payload.locale), "Common.errors");
-  let template = t.raw(code) as string;
-  if (code === CustomErrorCode.wikiSourceClaimsUnsupported) template += ` ${WIKI_SYNTHESIS_OWN_QUOTE_INSTRUCTION}`;
-  const messageFor = (issueValues: Record<string, string | number> = {}) => {
-    let message = template;
-    for (const [key, value] of Object.entries({ ...values, ...issueValues }))
-      message = message.replaceAll(`{${key}}`, String(value));
-    return message;
-  };
-  const error = new z.ZodError(
-    issues.map(({ path, values: issueValues }) => ({
-      code: "custom" as const,
-      path,
-      message: messageFor(issueValues),
-      params: { error: code, kind },
-    })),
-  );
-  const location = ({ path, decision }: (typeof issues)[number]) =>
-    `${path.join(".")}${decision ? `: ${decision}` : ""}`;
-  const result = issues.some((issue) => issue.values)
-    ? issues.map((issue) => `${location(issue)}. ${messageFor(issue.values)}`).join("; ")
-    : `${issues.map(location).join("; ")}. ${messageFor()}`;
-  return boundedAgentToolFailure(
-    { result, failure: serializeInteractorFailure(error, kind) },
-    payload.turnBudget.maxToolResultChars,
-  );
-}
 
 async function authorizedWikiSetup(payload: AgentTurnWorkflowPayload): Promise<boolean> {
   "use step";
@@ -706,59 +458,6 @@ async function authorizedWikiSetup(payload: AgentTurnWorkflowPayload): Promise<b
   });
 }
 authorizedWikiSetup.maxRetries = 0;
-
-async function authorizedWikiCrawlSynthesis(payload: AgentTurnWorkflowPayload): Promise<boolean> {
-  "use step";
-  if (!payload.wikiCrawl || !payload.wikiHomepageSetup || (payload.surface ?? "chat") !== "chat") return false;
-  const { getUserService, getWikiWebsiteCrawlRepo } = await import("@/core/di");
-  const { getTenantUser } = await import("@/core/decorators/tenant-context");
-  const { Action, Resource } = await import("@/generated/prisma");
-  const { env } = await import("@/env");
-  if (env.APP_MODE === "demo") return false;
-  const crawlId = payload.wikiCrawl.id;
-  return runAsBackgroundTenant(payload.userId, async () => {
-    if (getTenantUser().companyId !== payload.companyId) return false;
-    if (!(await getUserService().hasPermission(Resource.wiki, Action.create))) return false;
-    const crawl = await getWikiWebsiteCrawlRepo().getCrawl(crawlId);
-    return Boolean(crawl && crawl.userId === payload.userId && crawl.homepageUrl === payload.wikiCrawl?.homepage);
-  });
-}
-authorizedWikiCrawlSynthesis.maxRetries = 0;
-
-async function loadWikiSourceInventory(payload: AgentTurnWorkflowPayload): Promise<string | null> {
-  "use step";
-  if (!payload.wikiCrawl || !payload.wikiHomepageSetup || (payload.surface ?? "chat") !== "chat") return null;
-  const { getUserService, getWikiWebsiteCrawlRepo } = await import("@/core/di");
-  const { Action, Resource } = await import("@/generated/prisma");
-  const { env } = await import("@/env");
-  const { wikiSourceCoverage } = await import("@/ee/wiki-crawl/wiki-source-coverage");
-  const { wikiSourceInventory } = await import("@/ee/wiki-crawl/wiki-source-inventory");
-  if (env.APP_MODE === "demo") return null;
-  const { id, homepage } = payload.wikiCrawl;
-  return runAsBackgroundTenant(payload.userId, async () => {
-    if (getTenantUser().companyId !== payload.companyId) throw new Error("Wiki synthesis tenant changed.");
-    if (!(await getUserService().hasPermission(Resource.wiki, Action.create))) return null;
-    const repo = getWikiWebsiteCrawlRepo();
-    const crawl = await repo.getCrawl(id);
-    if (!crawl || crawl.userId !== payload.userId || crawl.homepageUrl !== homepage) return null;
-    const coverage = await wikiSourceCoverage(repo, id);
-    return coverage.sources.length ? wikiSourceInventory(coverage.sources, coverage.imported) : null;
-  });
-}
-loadWikiSourceInventory.maxRetries = 0;
-
-async function pendingWikiSynthesisSources(payload: AgentTurnWorkflowPayload): Promise<number> {
-  "use step";
-  const crawlId = payload.wikiCrawl?.id;
-  if (!crawlId) return 0;
-  const { getWikiWebsiteCrawlRepo } = await import("@/core/di");
-  const { wikiSourceCoverage } = await import("@/ee/wiki-crawl/wiki-source-coverage");
-  return runAsBackgroundTenant(payload.userId, async () => {
-    if (getTenantUser().companyId !== payload.companyId) throw new Error("Wiki synthesis tenant changed.");
-    const coverage = await wikiSourceCoverage(getWikiWebsiteCrawlRepo(), crawlId);
-    return coverage.pending.length;
-  });
-}
 
 async function authorizedWikiCatalog(payload: AgentTurnWorkflowPayload): Promise<string | null> {
   "use step";
@@ -797,9 +496,6 @@ async function normalizeAgentToolInput(
       {
         locale: payload.locale,
         pageRoute: payload.pageRoute,
-        wikiHomepageSetup: Boolean(payload.wikiHomepageSetup),
-        wikiCrawlId: payload.wikiCrawl?.id ?? null,
-        wikiCrawlMode: payload.wikiCrawl ? (payload.wikiCrawl.mode ?? "initial") : null,
         wikiWebsiteSetup: Boolean(payload.wikiWebsiteSetup),
         webSearchEnabled: payload.webSearchEnabled,
         surface: payload.surface ?? "chat",
@@ -1242,9 +938,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     const approvalWindowMs = approvalWindowMsForSurface(surface);
     const shells = await loadAgentToolShells(surface, payload.turnBudget.servingProvider, {
       locale: payload.locale,
-      wikiHomepageSetup: Boolean(payload.wikiHomepageSetup),
-      wikiCrawlId: payload.wikiCrawl?.id ?? null,
-      wikiCrawlMode: payload.wikiCrawl ? (payload.wikiCrawl.mode ?? "initial") : null,
       wikiWebsiteSetup: Boolean(payload.wikiWebsiteSetup),
       webSearchEnabled: payload.webSearchEnabled,
     });
@@ -1256,7 +949,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     }, payload.appBaseUrl);
 
     const initialToolsets = payload.toolsets ?? [];
-    const wikiSourceInventory = payload.wikiCrawl ? await loadWikiSourceInventory(payload) : null;
     const systemPrompt = agentSystemPromptParts({
       userName: payload.userName,
       locale: payload.locale,
@@ -1264,15 +956,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       loadedToolsets: initialToolsets,
       schemaDigest: payload.schemaDigest ?? null,
       triggerEvent: routineTriggerEventOf(payload.messages.findLast((message) => message.role === "user")?.text),
-      wikiHomepageSetup: Boolean(payload.wikiHomepageSetup),
-      wikiCrawlSynthesis: payload.wikiCrawl
-        ? {
-            homepage: payload.wikiCrawl.homepage,
-            pendingHosts: payload.wikiCrawl.pendingHosts,
-            mode: payload.wikiCrawl.mode,
-            sourceInventory: wikiSourceInventory,
-          }
-        : null,
       wikiWebsiteSetup: Boolean(payload.wikiWebsiteSetup),
       webSearchEnabled: payload.webSearchEnabled,
     });
@@ -1320,39 +1003,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     } | null = null;
     let providerStop: Extract<AgentTurnStopReason, "provider_error" | "content_filter" | "turn_error"> | null = null;
     let resolvedProviderErrorRetries = 0;
-    let wikiCoverageReminders = 0;
-    const wikiTopicPlanState = {
-      topics: null as WikiSourceTopic[] | null,
-      candidates: [] as WikiSourceTopic[],
-      omittedFoundations: [] as NonNullable<ReadWebsiteSourceInput["omittedFoundations"]>,
-    };
-    let wikiPlanReviewRejections = 0;
-    let wikiTopicReminders = 0;
-    const wikiFreshSources = new Map<string, { toolCallId: string; result: string }>();
-    const wikiApprovedReviews = new Set<string>();
-    const wikiReviewChargeIndices = new Map<string, number>();
-    const wikiReviewRejections = new Map<string, number>();
-    let wikiContinuationPrompt: string | null = null;
-    let wikiCreationRepair: WikiSynthesisCreationRepair | null = null;
-    const wikiCreationRepairContexts = new Set<string>();
-    const withWikiCreationRepair = (candidateMessages: readonly ModelMessage[]) =>
-      wikiSynthesisCreationRepairMessages(candidateMessages, wikiCreationRepair, wikiCreationRepairContexts);
-    let wikiPlanRepair: WikiSourcePlanRepair | null = null;
-    let wikiPlanRepairReads: WikiSourcePlanRepairReads | null = null;
-    let wikiPlanRepairReadRefusals = 0;
-    const retainWikiPlanRepair = (input: unknown, outcome: unknown) => {
-      const repair = wikiSourcePlanRepair(input, outcome);
-      if (!repair) return;
-      if (wikiSourceInventory && wikiSourcePlanRepairMayReset(wikiPlanRepair, input, wikiSourceInventory)) {
-        wikiPlanRepairReads = null;
-        wikiPlanRepairReadRefusals = 0;
-      }
-      wikiPlanRepair = repair;
-    };
-    const wikiPlanRepairContext = () =>
-      wikiPlanRepair
-        ? `${wikiSourcePlanRepairContext(wikiPlanRepair)} ${wikiSourcePlanRepairReadContext(wikiPlanRepairReads)} Local read refusals: ${wikiPlanRepairReadRefusals}/${WIKI_SOURCE_PLAN_REPAIR_MAX_REFUSALS}.`
-        : "";
     let providerFailure: WorkflowFailure | null = null;
     let budgetStop = false;
     let hostedAiStop = false;
@@ -1360,10 +1010,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     let abandoned = false;
     let reservedMicrocents = payload.turnBudget.reservedMicrocents;
     let roundFailure: WorkflowFailure | null = null;
-    const recordWikiPlanRepairReadRefusal = () => {
-      wikiPlanRepairReadRefusals += 1;
-      if (wikiPlanRepairReadRefusals >= WIKI_SOURCE_PLAN_REPAIR_MAX_REFUSALS) providerStop = "turn_error";
-    };
     const settledToolCallIds = new Set<string>();
 
     const recordContinuationRound = (step: AgentRoundResult, outcomes: AgentToolOutcome[]) => {
@@ -1455,148 +1101,16 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       );
     };
 
-    const invokeShellTool = async (
+    const runShellTool = async (
       shell: AgentToolShell,
       input: unknown,
       toolCallId: string,
       stepMessages: readonly unknown[],
     ) => {
       const prepared = await resolveToolInput(shell.name, toolCallId, input);
-      if (!prepared.ok) {
-        if (
-          wikiSourceInventory &&
-          wikiPlanRepair &&
-          wikiTopicPlanState.topics === null &&
-          shell.name === "read_website_source"
-        )
-          recordWikiPlanRepairReadRefusal();
-        return prepared;
-      }
+      if (!prepared.ok) return prepared;
       const readOnly = isReadOnlyAgentToolCall(shell.name, shell, prepared.input);
       let executionInput = prepared.input;
-      if (
-        wikiTopicPlanState.topics !== null &&
-        shell.name === "read_website_source" &&
-        (executionInput as { action?: string }).action === "plan"
-      ) {
-        return wikiSourcePlanRefusal(
-          "The source plan is already accepted. Continue its remaining exact titles; do not replace the plan.",
-          payload.turnBudget.maxToolResultChars,
-          "conflict",
-        );
-      }
-      let repairRead: { replayed: boolean } | null = null;
-      if (
-        wikiSourceInventory &&
-        wikiPlanRepair &&
-        wikiTopicPlanState.topics === null &&
-        shell.name === "read_website_source"
-      ) {
-        const remainingSources = await pendingWikiSynthesisSources(payload);
-        const guarded = wikiSourcePlanRepairReadGuard(
-          wikiPlanRepair,
-          wikiPlanRepairReads,
-          executionInput,
-          toolCallId,
-          wikiSourceInventory,
-          remainingSources,
-        );
-        if (!guarded.ok) {
-          recordWikiPlanRepairReadRefusal();
-          return wikiSourcePlanRefusal(guarded.result, payload.turnBudget.maxToolResultChars, "conflict");
-        }
-        wikiPlanRepairReads = guarded.reads;
-        repairRead = { replayed: guarded.replayed };
-      }
-      if (
-        wikiSourceInventory &&
-        shell.name === "read_website_source" &&
-        (executionInput as ReadWebsiteSourceInput).action === "plan"
-      ) {
-        const missing = wikiMissingOfferingCandidates(
-          wikiTopicPlanState.candidates,
-          executionInput as ReadWebsiteSourceInput,
-        );
-        if (missing.length) {
-          const refusal = wikiSourcePlanRefusal(
-            `Retain these distinct offering candidates or explicitly reclassify each cited source with an exact evidence quote: ${wikiPlanningContext(missing)}. No plan was accepted.`,
-            payload.turnBudget.maxToolResultChars,
-          );
-          retainWikiPlanRepair(executionInput, refusal);
-          return refusal;
-        }
-      }
-      if (wikiSourceInventory && shell.name === "manage_wiki_pages" && wikiTopicPlanState.topics === null) {
-        return {
-          ok: false,
-          result: "First account for every stored source with read_website_source action=plan. No pages were created.",
-        };
-      }
-      if (wikiTopicPlanState.topics && shell.name === "manage_wiki_pages") {
-        const pages =
-          (
-            executionInput as {
-              pages?: Array<{
-                title: string;
-                kind: string;
-                sourceIds: string[];
-              }>;
-            }
-          ).pages ?? [];
-        if (new Set(pages.map(({ title }) => title)).size !== pages.length)
-          return { ok: false, result: "Create each planned title only once per batch. No pages were created." };
-        if (!wikiSynthesisBatchSharesSources(pages)) {
-          return {
-            ok: false,
-            result:
-              "Create multiple pages together only when their citation-source sets are identical. Use separate create calls for different source sets. No pages were created.",
-          };
-        }
-        if (pages.some((page) => !wikiTopicPlanState.topics?.some((topic) => wikiPageMatchesTopic(topic, page)))) {
-          return {
-            ok: false,
-            result:
-              "Create only remaining planned titles with their matching kind. Offering and procedure pages must cite every planned source, with no extra or duplicate IDs. No pages were created.",
-          };
-        }
-        const missing = [...new Set(pages.flatMap(({ sourceIds }) => sourceIds))].filter((id) => {
-          const evidence = wikiFreshSources.get(id);
-          if (!evidence) return true;
-          const current = stepMessages.findLast((value) => (value as { role?: unknown })?.role === "assistant") as
-            | { content?: Array<{ type?: unknown; toolCallId?: unknown }> }
-            | undefined;
-          if (
-            Array.isArray(current?.content) &&
-            current.content.some((part) => part.type === "tool-call" && part.toolCallId === evidence.toolCallId)
-          )
-            return true;
-          const delivered = toolResultIn(stepMessages, evidence.toolCallId, "read_website_source", true)?.output as
-            | { ok?: unknown; result?: unknown }
-            | undefined;
-          return delivered?.ok !== true || delivered.result !== evidence.result;
-        });
-        if (missing.length) {
-          return {
-            ok: false,
-            result: `Reread these cited sources with read_website_source action=get and offset=0, then create in the next provider round: ${wikiPlanningContext(missing)}. No pages were created.`,
-          };
-        }
-      }
-      if (
-        wikiTopicPlanState.topics &&
-        shell.name === "manage_wiki_pages" &&
-        (executionInput as { pages?: Array<{ kind?: string }> }).pages?.some(({ kind }) => kind === "guide")
-      ) {
-        const pages = (executionInput as { pages: unknown[] }).pages;
-        if (pages.length !== 1 || wikiTopicPlanState.topics.some(({ role }) => role !== "operating_guide")) {
-          return {
-            ok: false,
-            result:
-              "Create every remaining offering and foundation before the separate one-page Operating Guide call. No pages were created.",
-          };
-        }
-      }
-      const websiteCreate = Boolean(payload.wikiHomepageSetup) && !readOnly;
       if (payload.wikiWebsiteSetup && shell.name === WIKI_WEBSITE_IMPORT_TOOL_NAME) {
         if (!(await authorizedWikiSetup(payload))) {
           return {
@@ -1618,13 +1132,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         }
         executionInput = { url: homepage.url };
       }
-      if (websiteCreate && !(await authorizedWikiCrawlSynthesis(payload))) {
-        return {
-          ok: false,
-          result:
-            "Website Knowledge Base setup is no longer available: it needs Knowledge Base create access and this user's recent website import. Nothing was changed.",
-        };
-      }
       if (
         isUnattendedSurface(surface) &&
         !readOnly &&
@@ -1636,414 +1143,18 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
             "This routine cannot mutate data after browsing or in a batch containing web access. Nothing was changed.",
         };
       }
-      const reviewedWikiCreate = Boolean(
-        wikiSourceInventory &&
-          shell.name === "manage_wiki_pages" &&
-          !readOnly &&
-          (payload.wikiCrawl?.mode ?? "initial") === "initial",
-      );
-      if (reviewedWikiCreate) {
-        const create = WikiCrawlSynthesisCreateSchema.safeParse(executionInput);
-        if (!create.success) {
-          return boundedAgentToolFailure(
-            {
-              result: create.error.issues.map(({ path, message }) => `${path.join(".")}: ${message}`).join("; "),
-              failure: serializeInteractorFailure(create.error),
-            },
-            payload.turnBudget.maxToolResultChars,
-          );
-        }
-        const canonical = await loadWikiSynthesisReviewContext(payload);
-        if (!canonical) {
-          return wikiSynthesisReviewFailure(
-            payload,
-            CustomErrorCode.wikiSourceReviewUnavailable,
-            [{ path: ["pages"] }],
-            "unavailable",
-          );
-        }
-        if (canonical.pending > 0) {
-          return wikiSynthesisReviewFailure(
-            payload,
-            CustomErrorCode.wikiSourceCoverageRequired,
-            [{ path: ["pages"] }],
-            "validation",
-            { remainingSources: canonical.pending },
-          );
-        }
-        const sources = new Map(canonical.sources.map((source) => [source.id, source]));
-        if (create.data.pages.some(({ sourceIds }) => sourceIds.some((id) => !sources.has(id))))
-          return wikiSynthesisReviewFailure(payload, CustomErrorCode.wikiSourceCitationInvalid, [{ path: ["pages"] }]);
-        const unread = [...new Set(create.data.pages.flatMap(({ sourceIds }) => sourceIds))].filter(
-          (id) => !canonical.readHashes.includes(sources.get(id)?.contentHash ?? ""),
-        );
-        if (unread.length > 0) {
-          return wikiSynthesisReviewFailure(
-            payload,
-            CustomErrorCode.wikiSourceCitationUnread,
-            [{ path: ["pages"] }],
-            "validation",
-            { ids: unread.join(", ") },
-          );
-        }
-        const review = prepareWikiSynthesisReview(
-          create.data,
-          sources,
-          canonical.savedPages,
-          appLocaleOrDefault(payload.locale),
-          payload.turnBudget.maxContextBytes,
-        );
-        if (!review.ok) {
-          return wikiSynthesisReviewFailure(
-            payload,
-            review.reason === "evidence"
-              ? CustomErrorCode.wikiSourceEvidenceInvalid
-              : CustomErrorCode.wikiSourceReviewTooLarge,
-            review.paths.map((path) => ({ path })),
-          );
-        }
-        const key = JSON.stringify({ spec: review.request.spec, state: review.request.state });
-        if (!wikiApprovedReviews.has(key)) {
-          if (
-            create.data.pages.some(
-              ({ title }) => (wikiReviewRejections.get(title) ?? 0) >= WIKI_SYNTHESIS_REVIEW_MAX_REJECTIONS,
-            )
-          ) {
-            providerStop = "turn_error";
-            return wikiSynthesisReviewFailure(payload, CustomErrorCode.wikiSourceReviewLimit, [{ path: ["pages"] }]);
-          }
-          if (!(await canStartNextHostedAiProviderRound(payload))) {
-            hostedAiStop = true;
-            return wikiSynthesisReviewFailure(
-              payload,
-              CustomErrorCode.wikiSourceReviewUnavailable,
-              [{ path: ["pages"] }],
-              "unavailable",
-            );
-          }
-          const reviewReservation = classifierReservationMicrocents(review.request.spec, review.request.state);
-          const requiredMicrocents =
-            accruedCostMicrocents() +
-            (unreportedProviderRounds + 1) * payload.turnBudget.roundReserveMicrocents +
-            reviewReservation;
-          if (!(await ensureReservation(requiredMicrocents))) {
-            return wikiSynthesisReviewFailure(
-              payload,
-              CustomErrorCode.wikiSourceReviewUnavailable,
-              [{ path: ["pages"] }],
-              "unavailable",
-            );
-          }
-          cancelled = await readCancellation(payload);
-          if (cancelled || !(await canStartNextHostedAiProviderRound(payload))) {
-            if (!cancelled) hostedAiStop = true;
-            return wikiSynthesisReviewFailure(
-              payload,
-              CustomErrorCode.wikiSourceReviewUnavailable,
-              [{ path: ["pages"] }],
-              "unavailable",
-            );
-          }
-          const evaluated = await executeWikiSynthesisReview(payload, review.request);
-          recordWikiSynthesisReviewCharge(auxiliaryCharges, wikiReviewChargeIndices, evaluated);
-          const decision = wikiSynthesisReviewDecision(review.request, evaluated.result);
-          if (decision.kind === "unavailable") {
-            providerStop = "provider_error";
-            return wikiSynthesisReviewFailure(
-              payload,
-              CustomErrorCode.wikiSourceReviewUnavailable,
-              [{ path: ["pages"] }],
-              "unavailable",
-            );
-          }
-          if (decision.kind === "rejected") {
-            for (const title of new Set(decision.issues.map(({ pageTitle }) => pageTitle)))
-              wikiReviewRejections.set(title, (wikiReviewRejections.get(title) ?? 0) + 1);
-            if ([...wikiReviewRejections.values()].some((count) => count >= WIKI_SYNTHESIS_REVIEW_MAX_REJECTIONS))
-              providerStop = "turn_error";
-            const retained = wikiSynthesisCreationRepair(
-              create.data,
-              review.request,
-              evaluated.result,
-              payload.turnBudget.maxContextBytes,
-            );
-            if (retained.kind === "size") {
-              providerStop = "turn_error";
-              return wikiSynthesisReviewFailure(payload, CustomErrorCode.wikiSourceReviewTooLarge, decision.issues);
-            }
-            if (retained.kind === "retained") wikiCreationRepair = retained.repair;
-            else {
-              roundFailure ??= toWorkflowFailure(
-                new Error(
-                  "Rejected website creation repair checkpoint does not match its canonical candidate and review.",
-                ),
-              );
-            }
-            return wikiSynthesisReviewFailure(payload, CustomErrorCode.wikiSourceClaimsUnsupported, decision.issues);
-          }
-          wikiApprovedReviews.add(key);
-        }
-        cancelled = await readCancellation(payload);
-        if (cancelled || !(await canStartNextHostedAiProviderRound(payload))) {
-          if (!cancelled) hostedAiStop = true;
-          return wikiSynthesisReviewFailure(
-            payload,
-            CustomErrorCode.wikiSourceReviewUnavailable,
-            [{ path: ["pages"] }],
-            "unavailable",
-          );
-        }
-      }
       const executed = await executeAgentTool(
         payload,
         shell.name,
         toolCallId,
         executionInput,
         grants.get(toolCallId) ?? "not-required",
-        reviewedWikiCreate,
       );
       auxiliaryCharges.push(...executed.classifierCharges);
       retrievalTimings.push(...(executed.retrievalTimings ?? []));
-      let outcome = executed.output;
-      let wikiPlanRepairOutcome: unknown = null;
-      if (
-        wikiSourceInventory &&
-        payload.wikiHomepageSetup &&
-        (payload.wikiCrawl?.mode ?? "initial") === "initial" &&
-        shell.name === "read_website_source" &&
-        (executionInput as ReadWebsiteSourceInput).action === "plan" &&
-        isSuccessfulToolOutcome(outcome) &&
-        (executionInput as ReadWebsiteSourceInput).excluded?.some(({ basis }) => basis === "overlap")
-      ) {
-        outcome = await (async () => {
-          const canonical = await loadWikiSynthesisReviewContext(payload);
-          if (!canonical) {
-            return wikiSynthesisReviewFailure(
-              payload,
-              CustomErrorCode.wikiSourceReviewUnavailable,
-              [{ path: ["excluded"] }],
-              "unavailable",
-            );
-          }
-          if (canonical.pending > 0) {
-            return wikiSynthesisReviewFailure(
-              payload,
-              CustomErrorCode.wikiSourceCoverageRequired,
-              [{ path: ["excluded"] }],
-              "validation",
-              { remainingSources: canonical.pending },
-            );
-          }
-          const prepared = prepareWikiSourcePlanReviews(
-            executionInput as ReadWebsiteSourceInput,
-            new Map(canonical.sources.map((source) => [source.id, source])),
-            appLocaleOrDefault(payload.locale),
-            payload.turnBudget.maxContextBytes,
-          );
-          if (!prepared.ok) {
-            return wikiSynthesisReviewFailure(
-              payload,
-              prepared.reason === "evidence"
-                ? CustomErrorCode.wikiSourceExclusionEvidenceInvalid
-                : CustomErrorCode.wikiSourceReviewTooLarge,
-              prepared.paths.map((path) => ({
-                path,
-                values: {
-                  sourceId: (executionInput as ReadWebsiteSourceInput).excluded?.[Number(path[1])]?.sourceIds[0] ?? "",
-                },
-              })),
-            );
-          }
-          if (wikiPlanReviewRejections >= WIKI_SYNTHESIS_REVIEW_MAX_REJECTIONS) {
-            providerStop = "turn_error";
-            return wikiSynthesisReviewFailure(payload, CustomErrorCode.wikiSourceReviewLimit, [{ path: ["excluded"] }]);
-          }
-          const rejected: Array<{ path: Array<string | number>; pageTitle: string; decision: string }> = [];
-          for (const request of prepared.requests) {
-            const key = JSON.stringify({ spec: request.spec, state: request.state });
-            if (wikiApprovedReviews.has(key)) continue;
-            if (!(await canStartNextHostedAiProviderRound(payload))) {
-              hostedAiStop = true;
-              return wikiSynthesisReviewFailure(
-                payload,
-                CustomErrorCode.wikiSourceReviewUnavailable,
-                request.locations,
-                "unavailable",
-              );
-            }
-            const requiredMicrocents =
-              accruedCostMicrocents() +
-              (unreportedProviderRounds + 1) * payload.turnBudget.roundReserveMicrocents +
-              classifierReservationMicrocents(request.spec, request.state);
-            if (!(await ensureReservation(requiredMicrocents))) {
-              return wikiSynthesisReviewFailure(
-                payload,
-                CustomErrorCode.wikiSourceReviewUnavailable,
-                request.locations,
-                "unavailable",
-              );
-            }
-            cancelled = await readCancellation(payload);
-            if (cancelled || !(await canStartNextHostedAiProviderRound(payload))) {
-              if (!cancelled) hostedAiStop = true;
-              return wikiSynthesisReviewFailure(
-                payload,
-                CustomErrorCode.wikiSourceReviewUnavailable,
-                request.locations,
-                "unavailable",
-              );
-            }
-            const evaluated = await executeWikiSynthesisReview(payload, request);
-            recordWikiSynthesisReviewCharge(auxiliaryCharges, wikiReviewChargeIndices, evaluated);
-            const decision = wikiSynthesisReviewDecision(request, evaluated.result);
-            if (decision.kind === "unavailable") {
-              providerStop = "provider_error";
-              return wikiSynthesisReviewFailure(
-                payload,
-                CustomErrorCode.wikiSourceReviewUnavailable,
-                request.locations,
-                "unavailable",
-              );
-            }
-            if (decision.kind === "rejected") rejected.push(...decision.issues);
-            else wikiApprovedReviews.add(key);
-          }
-          if (rejected.length) {
-            wikiPlanReviewRejections += 1;
-            if (wikiPlanReviewRejections >= WIKI_SYNTHESIS_REVIEW_MAX_REJECTIONS) providerStop = "turn_error";
-            const plan = executionInput as ReadWebsiteSourceInput;
-            wikiPlanRepairOutcome = {
-              ok: false,
-              reviewScope: "whole_sources",
-              result:
-                "Repair all reported substantive overlap failures before a paid resubmission. Exact matching quotations do not establish whole-source coverage; retain every distinct scope and case in the topic plan.",
-              failure: {
-                kind: "validation",
-                issues: rejected.map(({ path }) => ({
-                  code: "custom",
-                  path: [...path],
-                  message: "",
-                  customCode: CustomErrorCode.wikiSourceExclusionOverlapInvalid,
-                })),
-              },
-            };
-            return wikiSynthesisReviewFailure(
-              payload,
-              CustomErrorCode.wikiSourceExclusionOverlapInvalid,
-              rejected.map((issue) => ({
-                ...issue,
-                values: {
-                  sourceId: plan.excluded?.[Number(issue.path[1])]?.sourceIds[0] ?? "",
-                  coveredByTitle: issue.pageTitle,
-                },
-              })),
-            );
-          }
-          cancelled = await readCancellation(payload);
-          if (cancelled || !(await canStartNextHostedAiProviderRound(payload))) {
-            if (!cancelled) hostedAiStop = true;
-            return wikiSynthesisReviewFailure(
-              payload,
-              CustomErrorCode.wikiSourceReviewUnavailable,
-              [{ path: ["excluded"] }],
-              "unavailable",
-            );
-          }
-          return outcome;
-        })();
-      }
-      if (wikiSourceInventory && shell.name === "read_website_source") {
-        if (repairRead && !repairRead.replayed)
-          wikiPlanRepairReads = wikiSourcePlanRepairReadComplete(wikiPlanRepairReads, executionInput, outcome);
-        retainWikiPlanRepair(executionInput, wikiPlanRepairOutcome ?? outcome);
-        outcome = wikiSourcePlanReadOutcome(executionInput, outcome, wikiTopicPlanState.topics !== null);
-      }
-      if (wikiSourceInventory) {
-        const mergedCandidates = wikiMergeOfferingCandidates(
-          wikiTopicPlanState.candidates,
-          wikiPlanningCandidates(executionInput, outcome, wikiSourceInventory),
-        );
-        if (mergedCandidates.length > WIKI_SYNTHESIS_MAX_PAGES) {
-          const refusal = wikiSourcePlanRefusal(
-            "Too many unresolved offering candidates for the sixteen-page import. Complete a supported plan or explicitly reclassify candidates with fresh evidence before adding more topics; no plan was accepted.",
-            payload.turnBudget.maxToolResultChars,
-          );
-          retainWikiPlanRepair(executionInput, refusal);
-          return refusal;
-        }
-        wikiTopicPlanState.candidates = mergedCandidates;
-        if (wikiTopicPlanState.candidates.length && wikiTopicPlanState.topics === null)
-          wikiContinuationPrompt = `Offering planning hypotheses, never factual evidence: ${wikiPlanningContext(wikiTopicPlanState.candidates)}. Finish reading all sources, then retain each distinct offering or explicitly reclassify each source with an exact evidence quote. Repair omissions without discarding recognized offerings.`;
-      }
-      if (wikiSourceInventory && isSuccessfulToolOutcome(outcome)) {
-        if (shell.name === "read_website_source") {
-          const evidence = wikiReadSourceEvidence(executionInput, outcome);
-          if (evidence) {
-            wikiFreshSources.set(evidence.sourceId, {
-              toolCallId,
-              result: evidence.result,
-            });
-          }
-        }
-        if (shell.name === "read_website_source" && wikiTopicPlanState.topics === null) {
-          const plan = executionInput as ReadWebsiteSourceInput;
-          if (plan.action === "plan" && plan.topics) {
-            wikiPlanRepair = null;
-            wikiPlanRepairReads = null;
-            wikiPlanRepairReadRefusals = 0;
-            wikiTopicPlanState.topics = plan.topics;
-            wikiTopicPlanState.candidates = [];
-            wikiTopicPlanState.omittedFoundations = plan.omittedFoundations ?? [];
-          }
-        } else if (shell.name === "manage_wiki_pages" && wikiTopicPlanState.topics) {
-          const pages =
-            (
-              executionInput as {
-                pages?: Array<{
-                  title: string;
-                  kind: string;
-                  sourceIds: string[];
-                }>;
-              }
-            ).pages ?? [];
-          wikiTopicPlanState.topics = wikiTopicPlanState.topics.filter(
-            (topic) => !pages.some((page) => wikiPageMatchesTopic(topic, page)),
-          );
-          for (const sourceId of pages.flatMap(({ sourceIds }) => sourceIds)) wikiFreshSources.delete(sourceId);
-          if (
-            wikiCreationRepair?.draft.pages.every((rejected) =>
-              pages.some(
-                (page) =>
-                  page.title === rejected.title &&
-                  page.kind === rejected.kind &&
-                  page.sourceIds.length === rejected.sourceIds.length &&
-                  rejected.sourceIds.every((sourceId) => page.sourceIds.includes(sourceId)),
-              ),
-            )
-          )
-            wikiCreationRepair = null;
-        }
-        if (wikiTopicPlanState.topics !== null)
-          wikiContinuationPrompt = `Server topic-plan progress, never factual evidence: ${JSON.stringify(wikiTopicPlanState).replaceAll("<", "\\u003c").replaceAll(">", "\\u003e")}. Create each remaining exact title using freshly read cited sources. Create supported foundations first, grouping only pages with identical citation-source sets; then complete every offering and procedure, and create the guide last in a separate call. Record unsupported foundation omissions in the guide gaps. An empty topics list means every planned page has been created; do not recreate them.`;
-      }
+      const outcome = executed.output;
       if (!readOnly && isSuccessfulToolOutcome(outcome)) performedWrite = true;
       return outcome;
-    };
-
-    let wikiSynthesisTail: Promise<unknown> = Promise.resolve();
-    const runShellTool = (
-      shell: AgentToolShell,
-      input: unknown,
-      toolCallId: string,
-      stepMessages: readonly unknown[],
-    ) => {
-      if (!wikiSourceInventory) return invokeShellTool(shell, input, toolCallId, stepMessages);
-      const execution = wikiSynthesisTail.then(() => invokeShellTool(shell, input, toolCallId, stepMessages));
-      wikiSynthesisTail = execution.then(
-        () => undefined,
-        () => undefined,
-      );
-      return execution;
     };
 
     const accruedCostMicrocents = () =>
@@ -2333,7 +1444,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           retainedResponseSteps,
           resultDigest: true,
         });
-        let candidateMessages = continueOutput
+        const candidateMessages = continueOutput
           ? [
               ...compacted.messages,
               {
@@ -2342,9 +1453,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
               },
             ]
           : [...compacted.messages];
-        if (wikiContinuationPrompt) candidateMessages.push({ role: "user" as const, content: wikiContinuationPrompt });
-        if (wikiPlanRepair) candidateMessages.push({ role: "user" as const, content: wikiPlanRepairContext() });
-        candidateMessages = withWikiCreationRepair(candidateMessages);
         const activeForCandidate = activeToolNamesFor(candidateMessages);
         if (
           !isAgentStepContextWithinBudget(
@@ -2439,11 +1547,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           settleApprovedCalls(stepMessages, false);
           if (abandoned || cancelled || budgetStop || hostedAiStop || providerStop !== null || roundFailure !== null)
             throw AGENT_LOCAL_TERMINATION_REQUIRED;
-          const readingWebsite = Boolean(
-            (wikiSourceInventory && wikiTopicPlanState.topics === null) ||
-              (payload.wikiCrawl && (await pendingWikiSynthesisSources(payload)) > 0),
-          );
-          const activeTools = readingWebsite ? ["read_website_source"] : activeToolNamesFor(stepMessages);
+          const activeTools = activeToolNamesFor(stepMessages);
           const activeDefinitions = activeTools
             ? toolDefinitions.filter((definition) => activeTools.includes(definition.name))
             : toolDefinitions;
@@ -2459,15 +1563,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           )
             throw AGENT_CONTEXT_COMPACTION_REQUIRED;
           if (!(await canStartNextHostedAiProviderRound(payload))) throw hostedAiPaused;
-          if (readingWebsite) {
-            const maxRetries = fundedRetryCount();
-            return {
-              activeTools,
-              toolChoice: "required" as const,
-              ...(maxRetries < AGENT_MODEL_DEFAULT_MAX_RETRIES ? { maxRetries } : {}),
-            };
-          }
-
           if (webSearchOvershoot) {
             return {
               activeTools: activeTools.filter((toolName) => !isAgentWebTool(toolName)),
@@ -2482,7 +1577,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           const maxRetries = webSearchPermitted ? 0 : fundedRetryCount();
           return {
             activeTools: webSearchPermitted ? activeTools : activeTools.filter((toolName) => !isAgentWebTool(toolName)),
-            ...(payload.wikiCrawl ? { toolChoice: "auto" as const } : {}),
             ...(payload.webSearchEnabled || maxRetries < AGENT_MODEL_DEFAULT_MAX_RETRIES ? { maxRetries } : {}),
           };
         },
@@ -2591,13 +1685,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           resolvedProviderErrorRetries += 1;
           await reportResolvedProviderError(payload, finishReason, resolvedError, resolvedProviderErrorRetries);
           providerStop = null;
-          messages = withWikiCreationRepair(
-            nextAgentSegmentMessages({
-              messages: result.messages,
-              finishReason,
-              lastStep: continuationSteps.at(-1),
-            }),
-          );
+          messages = nextAgentSegmentMessages({
+            messages: result.messages,
+            finishReason,
+            lastStep: continuationSteps.at(-1),
+          });
           continue;
         }
         await reportResolvedProviderError(payload, finishReason, resolvedError, resolvedProviderErrorRetries + 1);
@@ -2609,69 +1701,14 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
 
       let pending = pendingApprovalCalls(result.messages);
       if (pending.length === 0) {
-        if (finishReason === "stop") {
-          const remaining = payload.wikiCrawl ? await pendingWikiSynthesisSources(payload) : 0;
-          if (remaining === 0) {
-            if (!wikiSourceInventory || (wikiTopicPlanState.topics !== null && wikiTopicPlanState.topics.length === 0))
-              break;
-            if (wikiTopicReminders >= 2) {
-              roundFailure = toWorkflowFailure(
-                new Error("Website synthesis stopped before its topic plan was completed."),
-              );
-              break;
-            }
-            if (!(await ensureReservation(accruedCostMicrocents() + payload.turnBudget.roundReserveMicrocents))) break;
-            wikiTopicReminders += 1;
-            wikiContinuationPrompt =
-              wikiTopicPlanState.topics === null
-                ? `Website setup still needs a source topic plan. Call read_website_source action=plan, accounting for every source in topics or source-specific exclusions, never both, and every supported page role. Retain recognized offering candidates: ${wikiPlanningContext(wikiTopicPlanState.candidates)}; explicitly reclassify each source with an exact evidence quote if unsupported. Distinct dedicated offerings and technical capabilities require their own topics. Routing category does not determine relevance. Never claim completion before the plan and its pages are complete.`
-                : `Website setup still has planned topics to create: ${JSON.stringify(wikiTopicPlanState).replaceAll("<", "\\u003c").replaceAll(">", "\\u003e")}. Reread their cited sources and create each exact planned title before claiming completion: supported foundations first, grouping only pages with identical citation-source sets, then every offering and procedure, and the guide last in a separate call. Record unsupported foundations in the guide gaps. Do not invent facts or recreate completed topics.`;
-            messages = withWikiCreationRepair([
-              ...nextAgentSegmentMessages({
-                messages: result.messages,
-                finishReason,
-                lastStep: continuationSteps.at(-1),
-              }),
-              {
-                role: "user" as const,
-                content: wikiContinuationPrompt,
-              },
-              ...(wikiPlanRepair ? [{ role: "user" as const, content: wikiPlanRepairContext() }] : []),
-            ]);
-            continue;
-          }
-          if (wikiCoverageReminders >= 2) {
-            roundFailure = toWorkflowFailure(
-              new Error("Website synthesis stopped before stored evidence was fully read."),
-            );
-            break;
-          }
-          if (!(await ensureReservation(accruedCostMicrocents() + payload.turnBudget.roundReserveMicrocents))) break;
-          wikiCoverageReminders += 1;
-          wikiContinuationPrompt = `The website import is incomplete: ${remaining} stored source groups still have unread text. Continue read_website_source action=next until remainingSources is zero, then create evidence-based pages for all supported distinct topics. Do not claim completion or pad the page count. Retain these offering planning hypotheses, never factual evidence: ${wikiPlanningContext(wikiTopicPlanState.candidates)}.`;
-          messages = withWikiCreationRepair([
-            ...nextAgentSegmentMessages({
-              messages: result.messages,
-              finishReason,
-              lastStep: continuationSteps.at(-1),
-            }),
-            {
-              role: "user" as const,
-              content: wikiContinuationPrompt,
-            },
-            ...(wikiPlanRepair ? [{ role: "user" as const, content: wikiPlanRepairContext() }] : []),
-          ]);
-          continue;
-        }
+        if (finishReason === "stop") break;
         if (cancelled || budgetStop || providerStop !== null || roundFailure !== null) break;
 
-        const carried = withWikiCreationRepair(
-          nextAgentSegmentMessages({
-            messages: result.messages,
-            finishReason,
-            lastStep: continuationSteps.at(-1),
-          }),
-        );
+        const carried = nextAgentSegmentMessages({
+          messages: result.messages,
+          finishReason,
+          lastStep: continuationSteps.at(-1),
+        });
         const fitsWhole = isAgentStepContextWithinBudget(
           { ...providerContext, system: instructions },
           carried,
@@ -2709,7 +1746,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       if (pending.length === 0) {
         resolveDeferredRound([]);
         await publishTranscriptEvents(queued.splice(0));
-        messages = withWikiCreationRepair(resumableMessages);
+        messages = resumableMessages;
         continue;
       }
 
@@ -2745,7 +1782,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         pending = pending.filter((call) => !isAgentPanelTool(call.toolName));
         if (pending.length === 0) {
           resolveDeferredRound(resumed.map((entry) => ({ ...entry })));
-          messages = withWikiCreationRepair(resumableMessages);
+          messages = resumableMessages;
           continue;
         }
         appendDeferredOutcomes(resumed);
@@ -2831,7 +1868,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       );
       if (approvedCalls.size > 0) appendDeferredOutcomes(declined);
       else resolveDeferredRound(declined);
-      messages = withWikiCreationRepair(withApprovalResponses(resumableMessages, outcomes, surface));
+      messages = withApprovalResponses(resumableMessages, outcomes, surface);
     }
 
     if (abandoned) {
@@ -2884,7 +1921,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       const trailing = transcript.replyText.trim() ? `\n\n${message}` : message;
       transcript.appendText(trailing);
       await publishAssistantText(trailing);
-    } else if (!payload.wikiHomepageSetup && webSources.size > 0 && transcript.replyText.trim()) {
+    } else if (webSources.size > 0 && transcript.replyText.trim()) {
       const sourceFooter = agentWebSourcesFooter(
         [...webSources],
         await resolveRunnerMessage(payload.locale, "sourcesHeading"),

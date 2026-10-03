@@ -10,8 +10,6 @@ COMMIT;
 -- Never replay this file after a successful migration or edit migration history already adopted by a durable environment.
 BEGIN;
 
-ALTER TABLE "AgentTurnRequest" ADD COLUMN     "wikiHomepageSetupUrl" TEXT;
-
 ALTER TABLE "User" ADD COLUMN     "onboardingWikiStepCompletedAt" TIMESTAMP(3);
 
 CREATE TYPE "WikiPageKind" AS ENUM ('guide', 'procedure', 'knowledge');
@@ -155,7 +153,7 @@ EXCEPTION
 END
 $$;
 
-CREATE TYPE "AgentUsagePurpose" AS ENUM ('turn', 'wikiRetrieval', 'wikiIndexing');
+CREATE TYPE "AgentUsagePurpose" AS ENUM ('turn', 'wikiRetrieval', 'wikiIndexing', 'wikiSynthesis');
 
 ALTER TABLE "AgentUsageEvent"
   ADD COLUMN "purpose" "AgentUsagePurpose" NOT NULL DEFAULT 'turn',
@@ -190,7 +188,7 @@ CREATE TABLE "WikiWebsiteCrawl" (
     "fetched" INTEGER NOT NULL DEFAULT 0,
     "failed" INTEGER NOT NULL DEFAULT 0,
     "importedPages" INTEGER NOT NULL DEFAULT 0,
-    "conversationId" TEXT,
+    "topics" JSONB,
     "failureReason" TEXT,
     "startedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "finishedAt" TIMESTAMP(3),
@@ -211,12 +209,9 @@ CREATE TABLE "WikiSourceDocument" (
     "qaPairs" JSONB,
     "contentHash" TEXT NOT NULL,
     "fetchedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "readOffset" INTEGER NOT NULL DEFAULT 0,
-    "readAt" TIMESTAMP(3),
     "importClaimedAt" TIMESTAMP(3),
 
-    CONSTRAINT "WikiSourceDocument_pkey" PRIMARY KEY ("id"),
-    CONSTRAINT "WikiSourceDocument_readOffset_nonnegative" CHECK ("readOffset" >= 0)
+    CONSTRAINT "WikiSourceDocument_pkey" PRIMARY KEY ("id")
 );
 
 CREATE UNIQUE INDEX "WikiWebsiteCrawl_companyId_clientRequestId_key" ON "WikiWebsiteCrawl"("companyId", "clientRequestId");

@@ -1,6 +1,5 @@
 import type { WikiCrawlTarget } from "./website-discovery";
 import type { WikiCrawlTargetStatus } from "@/features/wiki/wiki-crawl-progress.schema";
-import type { WikiCrawlSynthesisResult } from "./wiki-crawl-synthesis";
 import type {
   WikiCrawlStatus,
   WikiCrawlRecord,
@@ -21,7 +20,6 @@ export abstract class WikiWebsiteCrawlRepo {
   abstract claimWorkflow(id: string, workflowRunId: string): Promise<boolean>;
   abstract listRefreshTargets(): Promise<WikiCrawlTarget[]>;
   abstract updateCrawl(id: string, patch: Partial<Omit<WikiCrawlRecord, "id" | "userId">>): Promise<void>;
-  abstract settleCrawl(id: string, result: WikiCrawlSynthesisResult): Promise<void>;
   abstract claimCrawl(
     id: string,
     from: readonly WikiCrawlStatus[],
@@ -37,17 +35,11 @@ export abstract class WikiWebsiteCrawlRepo {
   abstract countSources(crawlId: string): Promise<number>;
   abstract saveSource(
     crawlId: string,
-    source: Omit<WikiSourceRecord, "id" | "fetchedAt" | "readAt" | "readOffset"> & {
+    source: Omit<WikiSourceRecord, "id" | "fetchedAt"> & {
       canonicalUrl: string;
     },
   ): Promise<void>;
   abstract listSources(crawlId: string): Promise<WikiSourceRecord[]>;
-  abstract getSource(crawlId: string, id: string): Promise<WikiSourceRecord | null>;
-  abstract advanceSourceRead(crawlId: string, id: string, offset: number, end: number): Promise<boolean>;
-  abstract advanceSourceReads(
-    crawlId: string,
-    chunks: Array<{ id: string; offset: number; end: number }>,
-  ): Promise<void>;
   abstract claimSourceImport(crawlId: string, id: string): Promise<boolean>;
   abstract countImportedPages(since: Date): Promise<number>;
   abstract deleteEarlierSources(crawlId: string): Promise<void>;
@@ -61,6 +53,4 @@ export abstract class WikiWebsiteCrawlRepo {
       importedUpdatedAt: Date;
     },
   ): Promise<void>;
-  abstract countSynthesizedPages(since: Date): Promise<number>;
-  abstract listSynthesizedPages(since: Date, limit: number): Promise<Array<{ id: string; title: string }>>;
 }

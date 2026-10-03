@@ -1,17 +1,50 @@
+import type { WikiSynthesisRole } from "./wiki-synthesis.schema";
+
 export const WIKI_SYNTHESIS_OWN_QUOTE_INSTRUCTION =
-  "Each factual claim must follow that candidate's own selected evidence quotations. A section uses only its own sections.evidence; page metadata may use that page's flattened section evidence. Corresponding canonical source passages provide attribution and nearby conditions and limitations for those selected quotations, not permission to add further facts absent from them. Remove every named entity, metric, technology, customer relationship, result or scope those selected quotations do not establish, or select a further exact supporting passage from freshly returned text. Adding attribution or changing synonyms alone does not repair an unquoted claim.";
+  "Each factual claim must follow that candidate's own selected evidence quotations. A section uses only its own sections.evidence; page metadata may use that page's flattened section evidence. Corresponding canonical source passages provide attribution and nearby conditions and limitations for those selected quotations, not permission to add further facts absent from them.";
 
-export const WIKI_SOURCE_PLANNING_PASSAGES_INSTRUCTION =
-  "After full reading, call list and follow every inventory nextOffset before submitting the first plan. It returns planningPassages: bounded exact passages with offsets from each source, ordered to lead with page-specific text rather than shared boilerplate. These are reading leads, not a conclusion that sources overlap or that an offering is unsupported. For plan evidenceQuote or counterpartQuote, copy a passage's text exactly only when it supports that source-specific judgment; never translate it or copy another source's passage. If it is insufficient, reread the source instead. During a rejected plan repair, retain the checkpoint and use the permitted get reads; do not list again. Preserve the complete source accounting and every distinct offering. Planning passages never satisfy the fresh get-at-offset-zero evidence required before creating a page.";
-
-export const WIKI_SYNTHESIS_GROUNDING_INSTRUCTION = [
-  WIKI_SYNTHESIS_OWN_QUOTE_INSTRUCTION,
-  "Choose supporting evidence before composing content. For each intended claim, first select a complete, exact sentence or contiguous passage from freshly returned source text. Prefer one short complete sentence copied directly, preserving actual whitespace, punctuation and spelling; never insert literal backslash-n characters or reconstruct multiline text. Identify its attribution, scope, conditions and limitations; then write one conservative paraphrase that keeps them. If no passage supports the entire claim, narrow or omit it. Every factual claim and example needs its own support from that page's cited, freshly returned sources; unrelated evidence cannot justify additional claims. Keep private evidence quotations out of authored content and the final answer.",
-  "Report security, compliance, savings, accuracy and customer outcomes as attributed public source claims, not independently verified assurances. Keep the original possibility, degree of risk reduction, conditions, exceptions, approximate figures and whether work is ongoing, proposed or completed. A source saying a method may reduce a risk must remain an attributed, conditional risk-reduction statement. Known limitations belong beside the related capability, not only in gaps. A passage describing a threat does not prove the product implements a countermeasure. A description of a certification does not prove the company or a person holds it. Do not infer technical inputs, integrations, APIs, customer roles or departments, storage design, guarantees or internal rules from general industry practice.",
-  "Evidence elsewhere in the crawl does not justify an uncited claim. Reread and include that source in this page's sourceIds, or omit the claim. If four cited sources cannot support the whole scope, narrow the page rather than substitute an unrelated source.",
-  "Examples must come from cited text. Translate every ordinary source-language example into the Knowledge Base language, label translated examples as translations, and do not present a translation as a verbatim quotation. Do not retain original-language phrases in parentheses or terminology lists. Only proper names and technical identifiers retain their original spelling; raw source quotations belong exclusively in sections.evidence.",
-  "A narrower paraphrase is safer than a broader claim. Supporting an ongoing implementation does not mean delivering a completed project; reducing a dependency or risk does not mean eliminating it; several people does not mean one person; testing does not imply automated or continuous testing. Preserve the source's exact scope and status rather than filling in familiar industry practices. Before creating, check every result statement for source tense and every capability statement for limiting words. Present support stays present support; a completed result requires an explicit completed result in the cited passage. Partial applicability or transfer remains partial, even when both products are named. Keep each condition beside the precise benefit it qualifies; a related capability elsewhere in the same source does not remove that condition.",
-  "Give each customer case or outcome its own section and supporting passage. Keep delivered results separate from ongoing work, migration support and partial applicability. Do not group cases with different statuses under a blanket completed-projects statement or carry one case's results into another.",
-  "Give the Operating Guide actual saved page names and links without factual product summaries that require additional citations. Public contacts and director titles do not establish internal commercial approval authority. Unknown approval, qualification and handover rules belong only in gaps; clearly label any proposed communication guidance as a recommendation.",
-  "Separate observed facts from explicitly labelled writing or sales recommendations; a recommendation is not an approved company policy. Unknowns become neutral questions without assuming an architecture, customer outcome, approval rule or policy. Check every claim and example against its supporting passage before creating; omit unsupported assertions.",
+export const WIKI_SYNTHESIS_PLAN_INSTRUCTION = [
+  "You plan a company Knowledge Base from a crawled public website. The Knowledge Base helps a sales assistant answer questions about this company accurately.",
+  "Use only the inventory: each source has a key, URL, title, headings and a few representative passages.",
+  "Plan one page per distinct offering (product, service or package) the website evidences, citing the one to six sources that describe it. Combine translations of the same page. Do not plan an offering that is only a navigation label.",
+  "Plan procedures only when a source describes concrete customer-facing steps.",
+  "Sources marked imported are already in the Knowledge Base word for word; cite them only when another page needs them.",
+  "Write titles in the Knowledge Base language, unique and specific.",
 ].join(" ");
+
+export const WIKI_SYNTHESIS_INITIAL_PLAN_INSTRUCTION =
+  "Also plan exactly one page for each foundation role, each citing the most relevant one to six sources: company_overview, customers_and_use_cases (customer types, industries, cases), sales_messaging (value propositions, differentiators and frequently asked questions), voice_and_tone (how the company writes, observed from its own wording). End with exactly one operating_guide citing the homepage and contact or about sources.";
+
+export const WIKI_SYNTHESIS_EXTEND_PLAN_INSTRUCTION =
+  "Plan offering and procedure pages only; the Knowledge Base already has its foundations and Operating Guide.";
+
+export const WIKI_SYNTHESIS_PAGE_INSTRUCTION = [
+  "You write one Knowledge Base page from the cited source text only.",
+  "Choose supporting evidence before composing content. For each intended claim, first copy a complete, exact sentence or contiguous passage from the source text into evidence, preserving its spelling, punctuation and whitespace. Then write one conservative paraphrase that keeps its attribution, scope, conditions and limitations. If no passage supports the entire claim, narrow or omit it.",
+  "Report security, compliance, savings, accuracy and customer outcomes as attributed public source claims, not independently verified assurances. Keep the original possibility, degree of risk reduction, conditions, exceptions, approximate figures and whether work is ongoing, proposed or completed. A passage describing a threat does not prove the product implements a countermeasure. Do not infer technical inputs, integrations, APIs, customer roles, storage design, guarantees or internal rules from general industry practice.",
+  "Give each customer case or outcome its own section and supporting passage. Keep delivered results separate from ongoing work and partial applicability.",
+  "A narrower paraphrase is safer than a broader claim. Present support stays present support; a completed result requires an explicit completed result in the cited passage.",
+  "Write headings, content and gaps in the Knowledge Base language. Translate source-language examples and label them as translations; only proper names and technical identifiers keep their original spelling. Raw quotations belong only in evidence.",
+  "Unknown internal rules, approvals, qualification criteria, prices or handover steps become neutral questions in gaps. Never invent a policy, and label any writing or sales recommendation as a recommendation.",
+].join(" ");
+
+const ROLE_GUIDANCE: Record<WikiSynthesisRole, string> = {
+  company_overview:
+    "Explain the business, evidenced audiences, problems it solves and stated outcomes; retain qualifications on expertise and numerical claims. Do not substitute registry, imprint or contact details for a business overview.",
+  customers_and_use_cases:
+    "Organize evidenced audiences and concrete use cases by situation or problem, relevant offering and stated outcome. Name customers only when sources name them. Distinguish published examples from completed customer engagements and preserve ongoing or proposed project status. Unknown customer or qualification facts belong in gaps.",
+  sales_messaging:
+    "Preserve evidenced value propositions, differentiators and limitations. Include actual FAQ questions with faithful answers where supported; a list of FAQ topics is insufficient. Label suggested sales wording as source-based recommendations, and do not turn qualified capabilities into guarantees.",
+  voice_and_tone:
+    "Describe observable formality, form of address, terminology, sentence style and treatment of benefits or technical details, each backed by a brief example from customer-facing text. Label these as observations of the public website, not an approved brand policy, and keep writing recommendations separate from observations.",
+  offering:
+    "Describe this offering: what it is, who it is for, how it works, its scope, integrations, conditions and limitations, and any documented customer cases.",
+  procedure:
+    "Describe only the customer-facing steps the sources document, as numbered steps, one per line, and set whenToUse to a third-person trigger in the customer's words. Contact details alone are not a procedure.",
+  operating_guide:
+    "Write the Operating Guide for the sales assistant, under 2,000 characters: how to communicate, which Knowledge Base pages to consult (they are linked automatically), and public contact routes the sources show. A rule is confirmed only when a cited source states it. Put unknown internal rules (qualification, follow-up ownership, offer and discount approval, won-deal handover) into gaps as questions, and never appoint an approver from a job title.",
+};
+
+export function wikiSynthesisRoleGuidance(role: WikiSynthesisRole): string {
+  return ROLE_GUIDANCE[role];
+}
