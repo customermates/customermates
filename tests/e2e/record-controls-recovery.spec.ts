@@ -197,7 +197,13 @@ test("paginates and retries record and widget history, restores a personal timel
   await expect(rows).toHaveCount(25);
   await expect(older).toBeVisible();
   expect(await storedView()).toEqual([savedView]);
-  await page.getByRole("tab", { name: "Details", exact: true }).click();
+  const copiedHref = await view.getAttribute("href");
+  if (!copiedHref) throw new Error("Expected canonical history view link");
+  const services = page.locator('[data-sidebar="menu-button"]').filter({ hasText: /^Services$/ });
+  await expect(page.locator("#sidebar-trigger")).not.toHaveAttribute("aria-disabled", "true");
+  if (!(await services.isVisible())) await page.locator("#sidebar-trigger").click();
+  await services.click();
+  await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}(?:\\?.*)?$`));
   await expect(history).toHaveCount(0);
   await expect
     .poll(
@@ -210,10 +216,6 @@ test("paginates and retries record and widget history, restores a personal timel
         ).rows[0],
     )
     .toEqual({ activeViewKey: ALL_VIEW_KEY, filters: [] });
-  await page.getByRole("tab", { name: "Activities", exact: true }).click();
-  await expect(rows).toHaveCount(25);
-  const copiedHref = await view.getAttribute("href");
-  if (!copiedHref) throw new Error("Expected canonical history view link");
   const linkedPage = await page.context().newPage();
   const linkedEvidence = transportEvidence(linkedPage);
   await linkedPage.goto(copiedHref);
@@ -225,11 +227,6 @@ test("paginates and retries record and widget history, restores a personal timel
   );
   await expect(linkedHistory.getByText(english.Dashboard.activityWidget.noActivity, { exact: true })).toBeVisible();
   await expect(linkedHistory.locator("ol > li")).toHaveCount(0);
-  const services = page.locator('[data-sidebar="menu-button"]').filter({ hasText: /^Services$/ });
-  await expect(page.locator("#sidebar-trigger")).not.toHaveAttribute("aria-disabled", "true");
-  if (!(await services.isVisible())) await page.locator("#sidebar-trigger").click();
-  await services.click();
-  await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}(?:\\?.*)?$`));
   await page.getByRole("button", { name, exact: true }).click();
   const drawer = page.getByRole("dialog", { name: "Service", exact: true });
   await expect(drawer).toBeVisible();
