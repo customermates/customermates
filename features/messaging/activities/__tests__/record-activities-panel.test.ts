@@ -19,7 +19,7 @@ vi.mock("@/app/actions", () => ({ saveDataViewStateAction: vi.fn(), selectDataVi
 vi.mock("next/navigation", () => ({ useSearchParams: () => new URLSearchParams() }));
 vi.mock("@/components/data-view/views/data-view-views-rail", () => ({ DataViewViewsRail: () => null }));
 vi.mock("@/components/data-view/header/filter-popover", () => ({ FilterPopover: () => null }));
-vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
+vi.mock("next-intl", () => ({ useLocale: () => "en", useTranslations: () => (key: string) => key }));
 vi.mock("@/app/[locale]/(protected)/records/actions", () => ({
   getRecordActivitiesAction: mocked.action,
   getRecordActivityPresentationAction: mocked.presentation,

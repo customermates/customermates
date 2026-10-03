@@ -3,6 +3,8 @@
 import { useId, useState, type ReactNode } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
+import { SURFACE } from "@/core/data-view/data-view-keys";
 import { Maximize2 } from "lucide-react";
 import type { RecordEditorStore } from "./record-editor.store";
 import { RecordOperationProgress } from "@/components/records/record-operation-progress";
@@ -37,6 +39,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
   renderEditor: (child: RecordEditorStore) => ReactNode;
 }) {
   const t = useTranslations();
+  const params = useSearchParams();
   const [panel, setPanel] = useState("details");
   const id = useId();
   const deletion = useRecordDeletion({
@@ -115,6 +118,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
               <div className="p-4">
                 <RecordActivitiesPanel
                   key={`${store.record.ref.typeId}:${store.record.ref.recordId}`}
+                  viewSyncToUrl
                   record={store.record.ref}
                 />
               </div>
@@ -125,6 +129,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
               <RecordDetailOverview renderEditor={renderEditor} store={store} />
             </div>
           }
+          initialPanel={params.get("viewSurface") === SURFACE.entityTimeline ? "activities" : "details"}
           notes={
             hasNotes ? (
               <div className="p-4">

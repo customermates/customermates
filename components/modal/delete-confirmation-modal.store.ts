@@ -10,11 +10,14 @@ export interface DeleteConfirmationData {
   confirmLabel?: string;
   confirmVariant?: "default" | "destructive";
   successKey?: string;
+  focusAfterConfirm?: () => boolean;
   onConfirm: () => Promise<boolean>;
 }
 
 export class DeleteConfirmationModalStore extends BaseModalStore<DeleteConfirmationData> {
   private sessionGeneration = 0;
+  private confirmedFocusReturn: { generation: number; form: DeleteConfirmationData; focus: () => boolean } | null =
+    null;
   constructor(rootStore: RootStore) {
     super(rootStore, {
       title: "",
@@ -25,8 +28,17 @@ export class DeleteConfirmationModalStore extends BaseModalStore<DeleteConfirmat
 
   protected override prepareToClose(): boolean {
     this.sessionGeneration += 1;
+    this.confirmedFocusReturn = null;
     return true;
   }
+
+  restoreConfirmedFocus = () => {
+    const handoff = this.confirmedFocusReturn;
+    this.confirmedFocusReturn = null;
+    if (!handoff || this.isOpen || handoff.generation !== this.sessionGeneration || handoff.form !== this.form)
+      return false;
+    return handoff.focus();
+  };
 
   onSubmit = async (event?: FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
@@ -43,6 +55,8 @@ export class DeleteConfirmationModalStore extends BaseModalStore<DeleteConfirmat
 
       this.toastSuccess(form.successKey ?? "Common.notifications.deleted");
       this.close();
+      if (form.focusAfterConfirm)
+        this.confirmedFocusReturn = { generation: this.sessionGeneration, form, focus: form.focusAfterConfirm };
     } finally {
       if (isCurrent()) this.setIsLoading(false);
     }

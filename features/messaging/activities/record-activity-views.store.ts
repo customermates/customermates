@@ -28,9 +28,13 @@ export class RecordActivityViewsStore extends BaseDataViewStore<ActivityEntryDto
   constructor(
     root: RootStore,
     private record: RecordRef,
+    viewPathname?: string,
+    viewSyncToUrl = false,
   ) {
     super(root);
     this.p13nId = SURFACE.entityTimeline;
+    this.viewPathname = viewPathname;
+    this.viewSyncToUrl = viewSyncToUrl;
     makeObservable(this, {
       columns: observable.ref,
       hasMore: observable,

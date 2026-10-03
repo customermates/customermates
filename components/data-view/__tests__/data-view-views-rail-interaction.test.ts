@@ -26,7 +26,7 @@ const harness = vi.hoisted(() => ({
   },
   appMode: { current: "cloud" as "cloud" | "demo" | "self-hosted" },
   calls: [] as string[],
-  confirmations: [] as { entityName?: string; onConfirm: () => Promise<boolean> }[],
+  confirmations: [] as { entityName?: string; onConfirm: () => Promise<boolean>; focusAfterConfirm?: () => boolean }[],
   deleteDataViewAction: vi.fn(),
   menuOpen: false,
   menuCloseAutoFocus: { current: undefined as ((event: Event) => void) | undefined },
@@ -68,8 +68,11 @@ vi.mock("@/app/actions", () => ({
 }));
 vi.mock("@/components/modal/hooks/use-delete-confirmation", () => ({
   useDeleteConfirmation: () => ({
-    showDeleteConfirmation: (onConfirm: () => Promise<boolean>, entityName?: string) =>
-      harness.confirmations.push({ entityName, onConfirm }),
+    showDeleteConfirmation: (
+      onConfirm: () => Promise<boolean>,
+      entityName?: string,
+      focusAfterConfirm?: () => boolean,
+    ) => harness.confirmations.push({ entityName, onConfirm, focusAfterConfirm }),
   }),
 }));
 vi.mock("@/components/modal/responsive-overlay", () => ({
@@ -756,7 +759,74 @@ describe("data view rail interaction", () => {
     expect(harness.deleteDataViewAction).toHaveBeenCalledExactlyOnceWith({ id: "v-a" });
     expect(value.applyView).toHaveBeenCalledExactlyOnceWith(ALL_VIEW_KEY);
     expect(value.refresh).not.toHaveBeenCalled();
+    const all = host.querySelector<HTMLAnchorElement>("#global-data-views-all");
+    if (!all) throw new Error("Expected All chip");
+    vi.spyOn(all, "getClientRects").mockReturnValue([{}] as unknown as DOMRectList);
+    expect(harness.confirmations[0].focusAfterConfirm?.()).toBe(true);
     expect(document.activeElement).toBe(host.querySelector("#global-data-views-all"));
+  });
+
+  it.each([true, false])("restores deletion focus only to its usable owning rail (usable=%s)", async (usable) => {
+    const parent = store();
+    const child = store({ activeViewKey: "v-a", p13nId: SURFACE.entityTimeline, viewSyncToUrl: false });
+    const host = render(parent);
+    act(() => {
+      root?.render(
+        createElement(
+          "div",
+          null,
+          createElement(
+            "section",
+            { "data-parent-rail": "" },
+            createElement(DataViewViewsRail<Item>, { store: parent }),
+          ),
+          createElement("section", { "data-child-rail": "" }, createElement(DataViewViewsRail<Item>, { store: child })),
+        ),
+      );
+    });
+    const owningRail = host.querySelector<HTMLElement>("[data-child-rail]");
+    if (!owningRail) throw new Error("Expected mounted child rail");
+    act(() => byText(owningRail, "DataView.views.delete").click());
+    await act(async () => {
+      expect(await harness.confirmations[0].onConfirm()).toBe(true);
+    });
+    expect(child.applyView).toHaveBeenCalledExactlyOnceWith(ALL_VIEW_KEY);
+    expect(parent.applyView).not.toHaveBeenCalled();
+    const all = owningRail.querySelector<HTMLAnchorElement>("#global-data-views-all");
+    if (!all) throw new Error("Expected owning All chip");
+    vi.spyOn(all, "getClientRects").mockReturnValue((usable ? [{}] : []) as unknown as DOMRectList);
+    const parentAll = host.querySelector<HTMLAnchorElement>("[data-parent-rail] #global-data-views-all");
+    if (!parentAll) throw new Error("Expected visible parent All chip");
+    vi.spyOn(parentAll, "getClientRects").mockReturnValue([{}] as unknown as DOMRectList);
+    expect(harness.confirmations[0].focusAfterConfirm?.()).toBe(usable);
+    if (usable) expect(document.activeElement).toBe(all);
+    else expect(document.activeElement).not.toBe(parentAll);
+  });
+
+  it("does not move deletion focus into a replacement store on the same mounted rail", async () => {
+    const earlier = store({ activeViewKey: "v-a" });
+    const host = render(earlier);
+    let finish!: (result: { ok: boolean; data: { id: string } }) => void;
+    harness.deleteDataViewAction.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+    );
+    act(() => byText(host, "DataView.views.delete").click());
+    const pending = harness.confirmations[0].onConfirm();
+    const replacement = store({ p13nId: SURFACE.entityTimeline, viewSyncToUrl: false });
+    act(() => root?.render(createElement(DataViewViewsRail<Item>, { store: replacement })));
+    const all = host.querySelector<HTMLAnchorElement>("#global-data-views-all");
+    if (!all) throw new Error("Expected replacement All chip");
+    vi.spyOn(all, "getClientRects").mockReturnValue([{}] as unknown as DOMRectList);
+    await act(async () => {
+      finish({ ok: true, data: { id: "v-a" } });
+      expect(await pending).toBe(true);
+    });
+    expect(harness.confirmations[0].focusAfterConfirm?.()).toBe(false);
+    expect(document.activeElement).not.toBe(all);
+    expect(replacement.applyView).not.toHaveBeenCalled();
   });
 
   it("swaps positions with the neighbouring view when reordering", async () => {

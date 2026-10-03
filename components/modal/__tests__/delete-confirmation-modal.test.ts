@@ -140,6 +140,43 @@ describe("delete confirmation ownership", () => {
       registerModalStore: vi.fn(),
     } as unknown as RootStore);
   }
+  it("hands off confirmed close focus once, after the dialog closes", async () => {
+    const modal = store();
+    const focusAfterConfirm = vi.fn(() => true);
+    modal.openWith({ onConfirm: () => Promise.resolve(true), focusAfterConfirm });
+    expect(modal.restoreConfirmedFocus()).toBe(false);
+    await modal.onSubmit();
+    expect(modal.isOpen).toBe(false);
+    expect(focusAfterConfirm).not.toHaveBeenCalled();
+    expect(modal.restoreConfirmedFocus()).toBe(true);
+    expect(modal.restoreConfirmedFocus()).toBe(false);
+    expect(focusAfterConfirm).toHaveBeenCalledOnce();
+  });
+  it("keeps false confirmations and cancellation on normal opener restoration", async () => {
+    const modal = store();
+    const focusAfterConfirm = vi.fn(() => true);
+    modal.openWith({ onConfirm: () => Promise.resolve(false), focusAfterConfirm });
+    await modal.onSubmit();
+    expect(modal.restoreConfirmedFocus()).toBe(false);
+    modal.close();
+    expect(modal.restoreConfirmedFocus()).toBe(false);
+    expect(focusAfterConfirm).not.toHaveBeenCalled();
+  });
+  it("cannot restore a successful old target after a new confirmation opens or replaces its form", async () => {
+    const modal = store();
+    const focusAfterConfirm = vi.fn(() => true);
+    modal.openWith({ onConfirm: () => Promise.resolve(true), focusAfterConfirm });
+    await modal.onSubmit();
+    modal.openWith({ title: "New confirmation", focusAfterConfirm: undefined });
+    expect(modal.restoreConfirmedFocus()).toBe(false);
+    expect(focusAfterConfirm).not.toHaveBeenCalled();
+    modal.close();
+    modal.openWith({ onConfirm: () => Promise.resolve(true), focusAfterConfirm });
+    await modal.onSubmit();
+    modal.onInitOrRefresh({ title: "Replaced form", focusAfterConfirm: undefined });
+    expect(modal.restoreConfirmedFocus()).toBe(false);
+    expect(focusAfterConfirm).not.toHaveBeenCalled();
+  });
   it("does not close or announce a new confirmation after an earlier delete completes", async () => {
     const modal = store();
     let resolve!: (value: boolean) => void;

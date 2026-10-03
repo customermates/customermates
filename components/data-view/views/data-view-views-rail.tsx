@@ -29,7 +29,7 @@ import { VIEW_SURFACE_CLASS, VIEW_TAB_CLASS, ViewChip } from "./view-chip";
 import { ViewMenuItems } from "./view-menu-items";
 import { VIEW_META_NAME_INPUT_ID, ViewMetaOverlay } from "./view-meta-overlay";
 import { allViewMenuItems, orderChips, sortViewsByPosition, viewMenuItems } from "./view-rail-model";
-import { viewHref } from "./view-actions";
+import { surfaceKeyOf, viewHref } from "./view-actions";
 import { useRovingFocus } from "./use-roving-focus";
 import { useViewCommands } from "./use-view-commands";
 import { useViewAi } from "./use-view-ai";
@@ -64,6 +64,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
   const [meta, setMeta] = useState<ViewMetaDraft | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const pendingAi = useRef<(() => void) | null>(null);
+  const owningRail = useRef<{ element: HTMLElement; store: BaseDataViewStore<E> } | null>(null);
   const ai = useViewAi(store);
   const offersViews = Boolean(store.p13nId);
 
@@ -72,6 +73,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
     openMeta: setMeta,
     pathname,
     store,
+    owningRail: () => (owningRail.current?.store === store ? owningRail.current.element : null),
   });
 
   const chips = orderChips(store.views, store.activeViewKey);
@@ -126,6 +128,9 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
 
   return (
     <nav
+      ref={(element) => {
+        owningRail.current = element ? { element, store } : null;
+      }}
       aria-label={t("DataView.views.railLabel")}
       className={cn(
         "flex shrink-0 items-start gap-1.5 border-b border-border bg-background px-4 ps-[calc(1rem+var(--safe-left,0px))] pe-[calc(1rem+var(--safe-right,0px))]",
@@ -159,7 +164,11 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
                 return (
                   <ViewChip
                     key={ALL_VIEW_KEY}
-                    href={viewHref(pathname, ALL_VIEW_KEY)}
+                    href={viewHref(
+                      store.viewPathname ?? pathname,
+                      ALL_VIEW_KEY,
+                      store.viewPathname ? surfaceKeyOf(store) : undefined,
+                    )}
                     id="global-data-views-all"
                     isActive={chip.isActive}
                     label={t("DataView.views.all")}
@@ -174,7 +183,11 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
               return (
                 <ViewChip
                   key={chip.view.id}
-                  href={viewHref(pathname, chip.view.id)}
+                  href={viewHref(
+                    store.viewPathname ?? pathname,
+                    chip.view.id,
+                    store.viewPathname ? surfaceKeyOf(store) : undefined,
+                  )}
                   isActive={chip.isActive}
                   label={chip.view.name}
                   preview={previewFor(chip.view.name, chip.isActive)}

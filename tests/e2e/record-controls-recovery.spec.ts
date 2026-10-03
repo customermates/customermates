@@ -15,6 +15,7 @@ import {
   type RecordMutation,
 } from "../../features/records/record-query.schema";
 import type { RecordActivityQuery } from "../../ee/messaging/activities/record-activities.schema";
+import { ALL_VIEW_KEY, SURFACE } from "../../core/data-view/data-view-keys";
 import english from "../../i18n/locales/en.json" with { type: "json" };
 
 async function post(page: Page, path: string, data: unknown) {
@@ -64,6 +65,317 @@ const text = (fieldId: string, value: string) => ({
 const decimal = (fieldId: string, value: string, currency: string | null = null) => ({
   fieldId,
   value: { kind: "decimal" as const, value, currency },
+});
+
+test("paginates and retries record and widget history, restores a personal timeline view and recovers the dashboard after one accepted save", async ({
+  page,
+  database,
+  companyId,
+  workspace,
+}, testInfo) => {
+  test.setTimeout(300000);
+  const evidence = transportEvidence(page);
+  const current = await model(page);
+  const typeId = presetId(companyId, "service");
+  const priceId = presetId(companyId, "service.amount");
+  const name = "Paginated recovery service";
+  const ref = await create(page, current, typeId, [
+    text(presetId(companyId, "service.name"), name),
+    decimal(priceId, "1", "EUR"),
+  ]);
+  for (let price = 2; price <= 29; price += 1) {
+    const record = await database.query(
+      'SELECT version FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 AND id=$3',
+      [companyId, ref.typeId, ref.recordId],
+    );
+    await mutate(page, current, {
+      action: "update",
+      ref,
+      expectedVersion: record.rows[0].version,
+      fields: [decimal(priceId, String(price), "EUR")],
+    });
+  }
+  const journal = async () =>
+    (
+      await database.query(
+        'SELECT id,kind,payload,"createdAt" FROM "RecordEvent" WHERE "companyId"=$1 AND "typeId"=$2 AND "recordId"=$3 ORDER BY "createdAt",id',
+        [companyId, ref.typeId, ref.recordId],
+      )
+    ).rows;
+  const beforeJournal = await journal();
+  expect(beforeJournal).toHaveLength(29);
+  const faults = new Set([
+    "record history",
+    "older record history",
+    "dashboard collection",
+    "widget history",
+    "older widget history",
+  ]);
+  let dashboardFaultArmed = false;
+  await page.route("**/*", async (route) => {
+    const args = nextArguments(route.request());
+    if (!args) return route.fallback();
+    let label: string | null = null;
+    const input = args[0];
+    if (args.length === 1 && typeof input === "object" && input !== null) {
+      if ("record" in input && JSON.stringify(input.record) === JSON.stringify(ref)) label = "record history";
+      if ("scope" in input && typeof input.scope === "object" && input.scope !== null && "cursor" in input) {
+        const scope = input.scope as { records?: RecordRef[]; typeIds?: string[] };
+        if (JSON.stringify(scope.records) === JSON.stringify([ref]) && input.cursor !== null)
+          label = "older record history";
+        if (JSON.stringify(scope.typeIds) === JSON.stringify([typeId]))
+          label = input.cursor === null ? "widget history" : "older widget history";
+      }
+    }
+    if (dashboardFaultArmed && args.length === 0 && new URL(route.request().url()).pathname === "/en/dashboard")
+      label = "dashboard collection";
+    if (label && faults.delete(label)) await evidence.failResponse(route, label);
+    else await route.fallback();
+  });
+  await page.goto(`/en/records/${ref.typeId}/${ref.recordId}`);
+  const history = page.locator('main [data-detail-panel="activities"]');
+  if (!(await history.isVisible())) await page.getByRole("tab", { name: "Activities", exact: true }).click();
+  const rows = history.locator("ol > li");
+  const retry = history.getByRole("button", { name: english.ErrorCard.retry, exact: true });
+  const older = history.getByRole("button", { name: english.EntityTimeline.loadOlder, exact: true });
+  await expect(retry).toBeVisible();
+  await retry.click();
+  await expect(rows).toHaveCount(25);
+  await expect(retry).toHaveCount(0);
+  await older.click();
+  await expect(retry).toBeVisible();
+  await expect(rows).toHaveCount(25);
+  await retry.click();
+  await expect(rows).toHaveCount(25);
+  await expect(retry).toHaveCount(0);
+  await older.click();
+  await expect(rows).toHaveCount(29);
+  await expect(older).toHaveCount(0);
+  await rows.last().getByRole("button").click();
+  const detail = page.getByRole("dialog", { name: /^Record created at / });
+  await expect(detail).toBeVisible();
+  await expect(detail.getByText("€1.00", { exact: true })).toBeVisible();
+  await detail.getByRole("button", { name: "Close", exact: true }).click();
+  await expect(detail).toHaveCount(0);
+  await history.getByRole("button", { name: english.Common.ariaLabels.tooltipFilters, exact: true }).click();
+  await page.locator('[data-palette-field="timelineKind"]').click();
+  await page.locator('[data-palette-value="messages"]').click();
+  await page.locator("#filter-palette-back").click();
+  await page.keyboard.press("Escape");
+  await expect(history.getByText(english.Dashboard.activityWidget.noActivity, { exact: true })).toBeVisible();
+  await expect(rows).toHaveCount(0);
+  await history.locator("#global-data-views-new").click();
+  const viewName = "My message history";
+  await page.locator("#view-editor-name").fill(viewName);
+  await page.locator('button[form="view-editor-form"]').click();
+  await expect(page.locator("#view-editor-name")).toHaveCount(0);
+  const view = history.getByRole("link", { name: viewName, exact: true });
+  await expect(view).toHaveAttribute("aria-current", "page");
+  const storedView = async () =>
+    (
+      await database.query(
+        'SELECT id,filters FROM "DataView" WHERE "companyId"=$1 AND "userId"=$2 AND "surfaceKey"=$3 AND name=$4',
+        [companyId, workspace.userId, SURFACE.entityTimeline, viewName],
+      )
+    ).rows;
+  await expect.poll(storedView).toHaveLength(1);
+  const [savedView] = await storedView();
+  expect(savedView.filters).toEqual([{ field: "timelineKind", operator: "in", value: ["messages"] }]);
+  await expect(page).toHaveURL(
+    (url) =>
+      url.searchParams.get("viewSurface") === SURFACE.entityTimeline && url.searchParams.get("view") === savedView.id,
+  );
+  await page.reload();
+  if (!(await history.isVisible())) await page.getByRole("tab", { name: "Activities", exact: true }).click();
+  await expect(view).toHaveAttribute("aria-current", "page");
+  await expect(history.getByText(english.Dashboard.activityWidget.noActivity, { exact: true })).toBeVisible();
+  await history.locator("#global-data-views-all").click();
+  await expect(history.locator("#global-data-views-all")).toHaveAttribute("aria-current", "page");
+  await history.getByRole("button", { name: english.Common.ariaLabels.tooltipFilters, exact: true }).click();
+  await page.getByRole("button", { name: english.Common.actions.clear, exact: true }).click();
+  await page.keyboard.press("Escape");
+  await expect(rows).toHaveCount(25);
+  await expect(older).toBeVisible();
+  expect(await storedView()).toEqual([savedView]);
+  await expect
+    .poll(
+      async () =>
+        (
+          await database.query(
+            'SELECT "activeViewKey" FROM "P13n" WHERE "companyId"=$1 AND "userId"=$2 AND "p13nId"=$3',
+            [companyId, workspace.userId, SURFACE.entityTimeline],
+          )
+        ).rows[0]?.activeViewKey,
+    )
+    .toBe(ALL_VIEW_KEY);
+  const copiedHref = await view.getAttribute("href");
+  if (!copiedHref) throw new Error("Expected canonical history view link");
+  const linkedPage = await page.context().newPage();
+  const linkedEvidence = transportEvidence(linkedPage);
+  await linkedPage.goto(copiedHref);
+  const linkedHistory = linkedPage.locator('main [data-detail-panel="activities"]');
+  await expect(linkedHistory).toBeVisible();
+  await expect(linkedHistory.getByRole("link", { name: viewName, exact: true })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+  await expect(linkedHistory.getByText(english.Dashboard.activityWidget.noActivity, { exact: true })).toBeVisible();
+  await expect(linkedHistory.locator("ol > li")).toHaveCount(0);
+  const services = page.locator('[data-sidebar="menu-button"]').filter({ hasText: /^Services$/ });
+  await expect(page.locator("#sidebar-trigger")).not.toHaveAttribute("aria-disabled", "true");
+  if (!(await services.isVisible())) await page.locator("#sidebar-trigger").click();
+  await services.click();
+  await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}(?:\\?.*)?$`));
+  await page.getByRole("button", { name, exact: true }).click();
+  const drawer = page.getByRole("dialog", { name: "Service", exact: true });
+  await expect(drawer).toBeVisible();
+  const parentUrl = page.url();
+  const parentPresentation = async () =>
+    (
+      await database.query('SELECT * FROM "P13n" WHERE "companyId"=$1 AND "userId"=$2 AND "p13nId"=$3', [
+        companyId,
+        workspace.userId,
+        `records:${typeId}`,
+      ])
+    ).rows;
+  const beforeParentPresentation = await parentPresentation();
+  await drawer.getByRole("tab", { name: english.Common.actions.labelHistory, exact: true }).click();
+  const drawerHistory = drawer.getByRole("tabpanel", { name: english.Common.actions.labelHistory, exact: true });
+  await drawerHistory.getByRole("link", { name: viewName, exact: true }).click();
+  await expect(drawerHistory.getByRole("link", { name: viewName, exact: true })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+  await expect(drawerHistory.getByText(english.Dashboard.activityWidget.noActivity, { exact: true })).toBeVisible();
+  await expect(page).toHaveURL(parentUrl);
+  expect(await drawerHistory.getByRole("link", { name: viewName, exact: true }).getAttribute("href")).toBe(copiedHref);
+  await expect
+    .poll(
+      async () =>
+        (
+          await database.query(
+            'SELECT "activeViewKey" FROM "P13n" WHERE "companyId"=$1 AND "userId"=$2 AND "p13nId"=$3',
+            [companyId, workspace.userId, SURFACE.entityTimeline],
+          )
+        ).rows[0]?.activeViewKey,
+    )
+    .toBe(savedView.id);
+  await drawerHistory.locator("#global-data-views-menu").click();
+  await page.locator("#global-data-views-ai").click();
+  const contexts = page.getByTestId("agent-composer-contexts");
+  await expect(contexts.getByText(name, { exact: true })).toBeVisible();
+  await expect(contexts).toContainText(viewName);
+  await expect(drawer).toBeVisible();
+  await expect(drawerHistory.getByRole("link", { name: viewName, exact: true })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+  await expect(page).toHaveURL(parentUrl);
+  await page.getByTestId("agent-panel").getByRole("button", { name: "Close", exact: true }).click();
+  await drawerHistory.locator("#global-data-views-menu").click();
+  await page.getByRole("menuitem", { name: english.DataView.views.duplicate, exact: true }).click();
+  const temporaryViewName = "Drawer history copy";
+  await page.locator("#view-editor-name").fill(temporaryViewName);
+  await page.locator('button[form="view-editor-form"]').click();
+  await expect(page.locator("#view-editor-name")).toHaveCount(0);
+  await expect(drawerHistory.getByRole("link", { name: temporaryViewName, exact: true })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+  await drawerHistory.locator("#global-data-views-menu").click();
+  await page.getByRole("menuitem", { name: english.DataView.views.delete, exact: true }).click();
+  await page.getByRole("alertdialog").locator("#confirm-delete").click();
+  await expect(page.getByRole("alertdialog")).toHaveCount(0);
+  await expect(drawerHistory.locator("#global-data-views-all")).toHaveAttribute("aria-current", "page");
+  await expect(drawerHistory.locator("#global-data-views-all")).toBeFocused();
+  await expect(page).toHaveURL(parentUrl);
+  expect(await storedView()).toEqual([savedView]);
+  expect(await parentPresentation()).toEqual(beforeParentPresentation);
+  await drawer.getByRole("button", { name: "Close", exact: true }).click();
+  await expect(drawer).toHaveCount(0);
+  await expect(page).toHaveURL(parentUrl);
+  expect(
+    (await database.query('SELECT COUNT(*)::integer AS count FROM "AgentMessage" WHERE "companyId"=$1', [companyId]))
+      .rows,
+  ).toEqual([{ count: 0 }]);
+  await linkedHistory.locator("#global-data-views-menu").click();
+  await linkedPage.getByRole("menuitem", { name: english.DataView.views.delete, exact: true }).click();
+  await linkedPage.getByRole("alertdialog").locator("#confirm-delete").click();
+  await expect.poll(storedView).toEqual([]);
+  await expect(linkedPage).toHaveURL(
+    (url) =>
+      url.searchParams.get("view") === ALL_VIEW_KEY && url.searchParams.get("viewSurface") === SURFACE.entityTimeline,
+  );
+  await expect(linkedHistory.locator("ol > li")).toHaveCount(25);
+  await linkedPage.reload();
+  await expect(linkedHistory).toBeVisible();
+  await expect(linkedHistory.locator("ol > li")).toHaveCount(25);
+  await linkedEvidence.verify(testInfo, []);
+  await linkedPage.close();
+  const dashboard = page.getByRole("link", { name: "Dashboard", exact: true });
+  if (!(await dashboard.isVisible())) await page.locator("#sidebar-trigger").click();
+  await dashboard.click();
+  await expect(page).toHaveURL(/\/en\/dashboard$/);
+  await page.locator("#dashboard-add-widget").click();
+  const dialog = page.getByRole("dialog");
+  await dialog.locator("#widget-kind-activityTimeline").click();
+  const widgetName = "Recoverable service history";
+  await dialog.getByRole("textbox", { name: "Name", exact: false }).fill(widgetName);
+  await toggleMultiple(page, "#activity-scope-types", "Services");
+  dashboardFaultArmed = true;
+  await dialog.locator("#widget-modal-save").click();
+  const storedWidget = async () =>
+    (
+      await database.query(
+        'SELECT id,version,name,"activityQuery","displayOptions",layout FROM "Widget" WHERE "companyId"=$1 AND "userId"=$2',
+        [companyId, workspace.userId],
+      )
+    ).rows;
+  await expect.poll(storedWidget).toHaveLength(1);
+  const [acceptedWidget] = await storedWidget();
+  expect(acceptedWidget).toMatchObject({
+    version: 1,
+    name: widgetName,
+    activityQuery: { scope: { typeIds: [typeId], records: [] } },
+  });
+  await expect(dialog.locator("#widget-modal-save")).toBeDisabled();
+  await dialog.getByRole("button", { name: "Close", exact: true }).click();
+  await expect(dialog).toHaveCount(0);
+  const dashboardError = page.locator('main [data-page-state="error"][role="alert"]');
+  await expect(dashboardError).toBeVisible();
+  await dashboardError.getByRole("button", { name: english.ErrorCard.retry, exact: true }).click();
+  await expect(dashboardError).toHaveCount(0);
+  const card = page
+    .locator('[data-uid="app-card"]')
+    .filter({ has: page.getByRole("heading", { name: widgetName, exact: true }) });
+  const widgetRows = card.locator("ol > li");
+  const widgetRetry = card.getByRole("button", { name: english.ErrorCard.retry, exact: true });
+  const widgetOlder = card.getByRole("button", { name: english.EntityTimeline.loadOlder, exact: true });
+  await expect(widgetRetry).toBeVisible();
+  await widgetRetry.click();
+  await expect(widgetRows).toHaveCount(25);
+  await expect(widgetRetry).toHaveCount(0);
+  await widgetOlder.click();
+  await expect(widgetRetry).toBeVisible();
+  await expect(widgetRows).toHaveCount(25);
+  await widgetRetry.click();
+  await expect(widgetRows).toHaveCount(25);
+  await expect(widgetRetry).toHaveCount(0);
+  await widgetOlder.click();
+  await expect(widgetRows).toHaveCount(29);
+  await expect(widgetOlder).toHaveCount(0);
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  expect(await storedWidget()).toEqual([acceptedWidget]);
+  expect(await journal()).toEqual(beforeJournal);
+  expect(faults.size).toBe(0);
+  await page.screenshot({ path: testInfo.outputPath("paginated-recovered-service-history.png"), fullPage: true });
+  await evidence.verify(testInfo, [
+    "record history",
+    "older record history",
+    "dashboard collection",
+    "widget history",
+    "older widget history",
+  ]);
 });
 function nextArguments(request: Request): unknown[] | null {
   if (
@@ -520,7 +832,7 @@ test("uses explicit activity record scope, event kinds, positive and negative re
     },
   ];
   const people: RecordRef[] = [];
-  for (const entry of entries)
+  for (const entry of entries) {
     people.push(
       await create(
         page,
@@ -530,6 +842,7 @@ test("uses explicit activity record scope, event kinds, positive and negative re
         { identities: [{ provider: "mail", value: entry.email }] },
       ),
     );
+  }
   await mutate(page, current, {
     action: "link",
     relationId: id("contact.organizations"),
@@ -1064,12 +1377,13 @@ test("retries relationship reads and accepted record, bulk and schema refreshes 
   expect(await sourceRows()).toEqual(afterSave);
   await expect(main.locator('[aria-busy="true"]')).toHaveCount(0);
   await page.goto(`/en/records/${service.typeId}`);
-  for (const name of ["Recovery service", "Recovery second"])
+  for (const name of ["Recovery service", "Recovery second"]) {
     await page
       .getByRole("row")
       .filter({ has: page.getByRole("button", { name, exact: true }) })
       .getByRole("checkbox")
       .check();
+  }
   const mass = page.locator("[data-record-mass-actions]");
   await mass.getByRole("button", { name: "Update", exact: true }).click();
   await page

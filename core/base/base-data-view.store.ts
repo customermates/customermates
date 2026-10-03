@@ -99,6 +99,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   private onChangesCallbacks: (() => void | Promise<void>)[] = [];
 
   schemaSettingsHref?: string;
+  viewPathname?: string;
+  viewSyncToUrl = true;
   get supportsSelection(): boolean {
     return false;
   }

@@ -12,15 +12,17 @@ export function EntityDetailPanels({
   notes,
   activities,
   summary,
+  initialPanel = "details",
 }: {
   details: ReactNode;
   notes?: ReactNode;
   activities?: ReactNode;
   summary?: ReactNode;
+  initialPanel?: DetailPanel;
 }) {
   const t = useTranslations();
   const id = useId();
-  const [activePanel, setActivePanel] = useState<DetailPanel>("details");
+  const [activePanel, setActivePanel] = useState<DetailPanel>(initialPanel);
   const [isSplit, setIsSplit] = useState(false);
   const switcherRef = useRef<HTMLDivElement>(null);
   const hasTabs = Boolean(notes || activities);

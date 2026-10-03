@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { presetId } from "@/features/records/crm-preset";
+import { SURFACE, recordSurfaceKey } from "@/core/data-view/data-view-keys";
+import { redirectLegacyRecordRoute } from "../records/legacy-record-redirect";
 
 const mocks = vi.hoisted(() => ({
   notFound: vi.fn(() => {
@@ -43,6 +45,33 @@ describe("legacy record detail links", () => {
     mocks.requireAccess.mockResolvedValue(undefined);
     mocks.resolveAccountState.mockResolvedValue({ user: { companyId } });
   });
+
+  it.each([
+    ["contact", SURFACE.contacts],
+    ["organization", SURFACE.organizations],
+    ["deal", SURFACE.deals],
+    ["service", SURFACE.services],
+    ["task", SURFACE.tasks],
+  ] as const)("normalizes a matching historical %s list scope", async (kind, viewSurface) => {
+    await expect(
+      redirectLegacyRecordRoute(kind, undefined, Promise.resolve({ view: "__all__", viewSurface })),
+    ).rejects.toThrow("redirect:");
+    const url = new URL(mocks.redirect.mock.calls[0][0], "http://localhost");
+    expect(url.pathname).toBe(`/en/records/${presetId(companyId, kind)}`);
+    expect(url.searchParams.get("viewSurface")).toBe(recordSurfaceKey(presetId(companyId, kind)));
+    expect(url.searchParams.get("view")).toBe("__all__");
+  });
+
+  it.each([SURFACE.deals, [SURFACE.contacts, SURFACE.contacts]])(
+    "retains foreign or ambiguous legacy markers %j",
+    async (viewSurface) => {
+      await expect(redirectLegacyRecordRoute("contact", undefined, Promise.resolve({ viewSurface }))).rejects.toThrow(
+        "redirect:",
+      );
+      const url = new URL(mocks.redirect.mock.calls[0][0], "http://localhost");
+      expect(url.searchParams.getAll("viewSurface")).toEqual(Array.isArray(viewSurface) ? viewSurface : [viewSurface]);
+    },
+  );
 
   it.each(pages)("redirects a $kind detail to its stable generic type and retains its view", async ({ kind, load }) => {
     const page = (await load()).default;

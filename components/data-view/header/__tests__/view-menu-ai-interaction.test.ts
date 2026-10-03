@@ -346,6 +346,41 @@ describe("view menu AI context handoff", () => {
     },
   );
 
+  it("uses the bound nested record and canonical timeline route while preparing its mounted context", async () => {
+    const typeId = "10000000-0000-4000-8000-000000000101";
+    const canonical = `/en/records/${typeId}/${RECORD_ID}`;
+    const parent: AgentContextCandidate = {
+      context: {
+        label: "Parent",
+        reference: { kind: "record", typeId, recordId: "10000000-0000-4000-8000-000000000999" },
+      },
+      pageRoute: harness.pathname,
+    };
+    const child: AgentContextCandidate = {
+      context: { label: "Child", reference: { kind: "record", typeId, recordId: RECORD_ID } },
+      pageRoute: canonical,
+    };
+    harness.agent.contextRegistry.candidates.mockReturnValue([parent, child]);
+    const store = dataViewStore({ p13nId: SURFACE.entityTimeline, viewPathname: canonical });
+    render(createElement(FilterPopover, { id: "filters", store }));
+    openAi("filters");
+    expect(harness.agent.openWithContextDraft).toHaveBeenCalledWith(
+      expect.objectContaining({
+        pageRoute: `${canonical}?view=${VIEW_ID}&viewSurface=entity-timeline&viewAction=update`,
+      }),
+    );
+    expect(harness.agent.addComposerContext).toHaveBeenCalledExactlyOnceWith(child.context, canonical, undefined, {
+      replaceOldestAtLimit: true,
+    });
+    expect(harness.agent.viewContext.route(harness.pathname)).toBe(
+      `${canonical}?view=${VIEW_ID}&viewSurface=entity-timeline`,
+    );
+    await harness.agent.viewContext.prepare(
+      `${canonical}?view=${VIEW_ID}&viewSurface=entity-timeline&viewAction=update`,
+    );
+    expect(store.settleViewState).toHaveBeenCalledOnce();
+  });
+
   it("flushes a pending filter draft before handing the exact filter context to the composer", async () => {
     const store = dataViewStore();
     render(createElement(FilterPopover, { id: "filters", store }));

@@ -53,6 +53,7 @@ export function useViewAi<E extends HasId>(
       pathname,
       () => (store.isReady && store.p13nId ? { surfaceKey: store.p13nId, viewKey: store.activeViewKey } : null),
       () => store.settleViewState(),
+      store.viewPathname,
     );
     const releaseCandidates = agentChatStore.contextRegistry.register(pathname, () => {
       if (!store.isReady || store.p13nId !== surfaceKey) return [];
@@ -82,14 +83,14 @@ export function useViewAi<E extends HasId>(
       return [
         {
           context: current,
-          pageRoute: viewRoute(pathname, surfaceKey, store.activeViewKey, "update"),
+          pageRoute: viewRoute(store.viewPathname ?? pathname, surfaceKey, store.activeViewKey, "update"),
           starter: t("AgentChat.context.starter.update", {
             name: activeName,
           }),
         },
         {
           context: create,
-          pageRoute: viewRoute(pathname, surfaceKey, store.activeViewKey, "create"),
+          pageRoute: viewRoute(store.viewPathname ?? pathname, surfaceKey, store.activeViewKey, "create"),
           starter: t("AgentChat.context.starter.create"),
         },
       ];
@@ -99,7 +100,7 @@ export function useViewAi<E extends HasId>(
       releaseCandidates();
       releaseView();
     };
-  }, [agentChatStore, pathname, registerPageContext, singular, store, store.p13nId, t]);
+  }, [agentChatStore, pathname, registerPageContext, singular, store, store.p13nId, store.viewPathname, t]);
 
   useEffect(
     () => () => {
@@ -158,7 +159,7 @@ export function useViewAi<E extends HasId>(
             : entry === "appearance"
               ? t("AgentChat.context.starter.appearance", { name })
               : t("AgentChat.context.starter.update", { name });
-    const pageRoute = viewRoute(pathname, surfaceKey, viewKey, mode);
+    const pageRoute = viewRoute(store.viewPathname ?? pathname, surfaceKey, viewKey, mode);
 
     releaseActionContext.current?.();
     releaseActionContext.current = agentChatStore.viewContext.register(
@@ -168,12 +169,19 @@ export function useViewAi<E extends HasId>(
           ? { surfaceKey, viewKey }
           : null,
       () => store.settleViewState(),
+      store.viewPathname,
     );
     agentChatStore.openWithContextDraft({ context, draft: starter, pageRoute });
     if (surfaceKey === SURFACE.entityTimeline) {
-      const record = agentChatStore.contextRegistry
-        .candidates(pathname)
-        .find((candidate) => candidate.context.reference.kind === "record");
+      const record = agentChatStore.contextRegistry.candidates(pathname).find((candidate) => {
+        const reference = candidate.context.reference;
+        return (
+          reference.kind === "record" &&
+          (!store.viewPathname ||
+            ("typeId" in reference &&
+              store.viewPathname.endsWith(`/records/${reference.typeId}/${reference.recordId}`)))
+        );
+      });
       if (record)
         agentChatStore.addComposerContext(record.context, record.pageRoute, undefined, { replaceOldestAtLimit: true });
     }

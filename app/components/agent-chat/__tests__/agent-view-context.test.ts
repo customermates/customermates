@@ -7,6 +7,48 @@ const VIEW_ID = "b6319ec8-d1b5-4844-bba4-c8c0ca819214";
 const RECORD_ID = "47e3aafd-9af8-44f5-a198-50e0094e0785";
 
 describe("agent saved-view context", () => {
+  it("prepares a canonical embedded timeline route while retaining its mounted owner", async () => {
+    const context = new AgentViewContext();
+    const prepare = vi.fn(() => Promise.resolve());
+    const parent = "/en/records/10000000-0000-4000-8000-000000000001";
+    const canonical = `${parent}/${RECORD_ID}`;
+    const release = context.register(
+      parent,
+      () => ({ surfaceKey: SURFACE.entityTimeline, viewKey: VIEW_ID }),
+      prepare,
+      canonical,
+    );
+    const route = `${canonical}?view=${VIEW_ID}&viewSurface=entity-timeline`;
+    expect(context.route(parent)).toBe(route);
+    await context.prepare(route);
+    expect(prepare).toHaveBeenCalledOnce();
+    await context.prepare(`${parent}/00000000-0000-4000-8000-000000000002?view=${VIEW_ID}&viewSurface=entity-timeline`);
+    expect(prepare).toHaveBeenCalledOnce();
+    expect(
+      context.reloadHref(`http://localhost${parent}`, [{ surfaceKey: SURFACE.entityTimeline, action: "create" }]),
+    ).toBeNull();
+    release();
+    await context.prepare(route);
+    expect(prepare).toHaveBeenCalledOnce();
+  });
+
+  it("does not revive an old canonical alias under another mounted owner", async () => {
+    const context = new AgentViewContext();
+    const prepare = vi.fn(() => Promise.resolve());
+    const parent = "/en/records/10000000-0000-4000-8000-000000000001";
+    const canonical = `${parent}/${RECORD_ID}`;
+    context.register(parent, () => ({ surfaceKey: SURFACE.entityTimeline, viewKey: VIEW_ID }), prepare, canonical);
+    const release = context.register("/en/company/members", () => ({
+      surfaceKey: SURFACE.users,
+      viewKey: ALL_VIEW_KEY,
+    }));
+    await context.prepare(`${canonical}?view=${VIEW_ID}&viewSurface=entity-timeline`);
+    expect(prepare).not.toHaveBeenCalled();
+    expect(context.route(parent)).toBe(parent);
+    release();
+    await context.prepare(`${canonical}?view=${VIEW_ID}&viewSurface=entity-timeline`);
+    expect(prepare).toHaveBeenCalledOnce();
+  });
   it("settles pending saves only for the same captured view and page", async () => {
     const context = new AgentViewContext();
     const prepare = vi.fn(() => Promise.resolve());

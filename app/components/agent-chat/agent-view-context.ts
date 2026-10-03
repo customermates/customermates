@@ -7,6 +7,7 @@ import { GET_PARAM_KEYS } from "@/core/utils/get-params";
 type ViewContext = { surfaceKey: string; viewKey: string };
 type Registration = {
   pathname: string;
+  viewPathname?: string;
   read: () => ViewContext | null;
   prepare?: () => Promise<void>;
 };
@@ -28,20 +29,28 @@ export class AgentViewContext {
     return this.registrations.at(-1);
   }
 
-  register(pathname: string, read: Registration["read"], prepare?: Registration["prepare"]): () => void {
-    const registration = { pathname, read, prepare };
+  register(
+    pathname: string,
+    read: Registration["read"],
+    prepare?: Registration["prepare"],
+    viewPathname?: string,
+  ): () => void {
+    const registration = { pathname, read, prepare, viewPathname };
     this.registrations.push(registration);
     return () => {
       this.registrations = this.registrations.filter((entry) => entry !== registration);
     };
   }
 
-  private current(pathname: string) {
-    if (this.registration?.pathname !== pathname) return null;
+  private current(pathname: string, allowViewPathname = false) {
+    const owner = this.registration;
+    if (!owner || (owner.pathname !== pathname && !(allowViewPathname && owner.viewPathname === pathname))) return null;
 
     for (let index = this.registrations.length - 1; index >= 0; index -= 1) {
       const registration = this.registrations[index];
-      if (registration.pathname !== pathname) break;
+      if (registration.pathname !== owner.pathname) break;
+      if (registration.pathname !== pathname && !(allowViewPathname && registration.viewPathname === pathname))
+        continue;
       const value = registration.read();
       const surface = SurfaceKeySchema.safeParse(value?.surfaceKey);
       const view = ViewKeySchema.safeParse(value?.viewKey);
@@ -58,12 +67,12 @@ export class AgentViewContext {
       view: view.viewKey,
       viewSurface: view.surfaceKey,
     });
-    return `${pathname}?${query}`;
+    return `${view.registration.viewPathname ?? pathname}?${query}`;
   }
 
   prepare(route: string): Promise<void> | undefined {
     const url = new URL(route, "http://localhost");
-    const current = this.current(url.pathname);
+    const current = this.current(url.pathname, true);
     if (
       current?.surfaceKey !== url.searchParams.get("viewSurface") ||
       current?.viewKey !== url.searchParams.get("view")

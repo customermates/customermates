@@ -37,6 +37,10 @@ export const DeleteConfirmationModal = observer(() => {
         className="flex flex-col gap-0 border-0 bg-transparent p-0 shadow-none"
         size="sm"
         {...focusReturn}
+        onCloseAutoFocus={(event) => {
+          if (store.restoreConfirmedFocus()) event.preventDefault();
+          else focusReturn.onCloseAutoFocus(event);
+        }}
       >
         <AppCard>
           <AppCardHeader>

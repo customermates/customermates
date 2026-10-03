@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
 import type { RecordRef } from "@/features/records/record-model.schema";
 import { runUserAction } from "@/core/errors/report-application-error";
@@ -15,14 +15,23 @@ import { ActivitiesList, TimelineEmptyState, TimelineNotice } from "./activities
 import { ActivityTimelineSkeleton } from "./activity-timeline-skeleton";
 import { RecordActivityViewsStore } from "./record-activity-views.store";
 
-export const RecordActivitiesPanel = observer(function RecordActivitiesPanel({ record }: { record: RecordRef }) {
+export const RecordActivitiesPanel = observer(function RecordActivitiesPanel({
+  record,
+  viewSyncToUrl = false,
+}: {
+  record: RecordRef;
+  viewSyncToUrl?: boolean;
+}) {
   const t = useTranslations();
+  const locale = useLocale();
   const root = useRootStore();
   const params = useSearchParams();
-  const requestedView = params.get("viewSurface") === SURFACE.entityTimeline ? params.get("view") : null;
+  const viewPathname = `/${locale}/records/${record.typeId}/${record.recordId}`;
+  const requestedView =
+    viewSyncToUrl && params.get("viewSurface") === SURFACE.entityTimeline ? params.get("view") : null;
   const store = useMemo(
-    () => new RecordActivityViewsStore(root, record),
-    [root, record.typeId, record.recordId, requestedView],
+    () => new RecordActivityViewsStore(root, record, viewPathname, viewSyncToUrl),
+    [root, record.typeId, record.recordId, requestedView, viewPathname, viewSyncToUrl],
   );
   useEffect(() => {
     store.initialView = requestedView ?? undefined;
