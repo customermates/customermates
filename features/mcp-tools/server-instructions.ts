@@ -11,6 +11,9 @@ export const MCP_DATE_INSTRUCTION =
   "Dates: a date or dateTime you write is an instant. Read the workspace time zone from get_workspace_context, carry that offset, for example 2026-09-14T09:00:00+02:00 for 09:00 Europe/Berlin, and never append Z to a wall-clock time your user gave you. Ask for today's date rather than assuming your host's clock matches the workspace.";
 
 export const CRM_DATA_INVARIANTS = [
+  "Business records represent real items the user requested, with facts confirmed by the user, existing workspace records or relevant Knowledge Base pages. A general workspace setup request is for useful configuration; create sample records only when explicitly requested.",
+  "Never invent service prices, budgets, deal amounts or current deal stages. Leave optional unknowns unset; if a required commercial value such as a service amount is missing, ask before writing that record instead of using a guessed or placeholder value.",
+  "Public website case studies and testimonials are reference material, not evidence of live CRM customers, contacts, opportunities or business relationships. Do not turn them into records, deal stages or record links without confirmation of the actual items and relationships requested.",
   "Deal stage and task status are singleSelect custom columns, not fixed fields.",
   "Never guess custom-column ids or singleSelect option ids; read them from get_record_schema.",
   "Contact ids: a UUID, or a channel the contact owns: an email, a phone, or 'provider:handle' (linkedin, telegram, instagram).",

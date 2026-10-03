@@ -573,11 +573,11 @@
             },
             "first-contact": {
               "label": "Create my first contact",
-              "prompt": "Help me create my first contact. Ask for only the details you need."
+              "prompt": "Help me create my first real contact from confirmed facts in my Knowledge Base, existing workspace or what I tell you. Ask which person and only for missing required details; do not create a sample or testimonial contact."
             },
             "setup-contacts": {
               "label": "Set up contacts",
-              "prompt": "Set up contacts from my Knowledge Base and existing workspace. Create a useful minimal structure, and ask only for missing decisions."
+              "prompt": "Configure useful contact fields and views from my Knowledge Base and existing workspace. Do not create sample contacts or turn public testimonials into contacts. Ask only for missing decisions."
             }
           }
         },
@@ -603,7 +603,7 @@
             },
             "setup": {
               "label": "Set up my workspace",
-              "prompt": "Set up my workspace using what is already in the Knowledge Base and CRM. Fill clear gaps, and ask me only for information or decisions you cannot find."
+              "prompt": "Configure my workspace from my Knowledge Base and existing CRM facts. Set up useful fields, views and settings without adding sample records. Do not turn public case studies or testimonials into contacts, organizations or deals, or invent prices, budgets or current deal stages. Ask only for missing decisions."
             },
             "tour": {
               "label": "Show me around",
@@ -633,11 +633,11 @@
             },
             "first-deal": {
               "label": "Create my first deal",
-              "prompt": "Help me create my first deal and link the right organization, contacts, and services."
+              "prompt": "Help me create my first real deal from a confirmed opportunity I identify. Use my Knowledge Base and existing workspace, link only confirmed organizations, contacts and services, and ask for missing required facts such as the amount or current stage before creating it."
             },
             "setup-pipeline": {
               "label": "Set up my pipeline",
-              "prompt": "Use my Knowledge Base and existing records to set up a simple sales pipeline. Ask only for missing decisions before creating records."
+              "prompt": "Configure a simple sales pipeline from my Knowledge Base and existing workspace. Do not create sample deals or treat public case studies as current opportunities. Ask only for missing pipeline decisions; never invent deal amounts, budgets or current stages."
             }
           }
         },
@@ -667,7 +667,7 @@
             },
             "default-setup": {
               "label": "Help me set up my CRM",
-              "prompt": "Set up my CRM using what is already in the Knowledge Base and workspace. Fill clear gaps, and ask me only for information or decisions you cannot find."
+              "prompt": "Configure my CRM from my Knowledge Base and existing workspace facts. Set up useful fields, views and settings without adding sample records. Do not turn public case studies or testimonials into contacts, organizations or deals, or invent prices, budgets or current deal stages. Ask only for missing decisions."
             }
           }
         },
@@ -719,7 +719,7 @@
           "empty": {
             "first-organization": {
               "label": "Create my first organization",
-              "prompt": "Help me create my first organization and connect the right people or deals."
+              "prompt": "Help me create my first real organization from confirmed facts in my Knowledge Base, existing workspace or what I tell you. Ask which organization and only for missing required details. Link only confirmed people or deals; do not invent a customer relationship."
             },
             "organizations-tour": {
               "label": "Learn how organizations work",
@@ -727,7 +727,7 @@
             },
             "setup-organizations": {
               "label": "Set up organizations",
-              "prompt": "Set up organizations from my Knowledge Base and existing workspace. Create a useful minimal structure, and ask only for missing decisions."
+              "prompt": "Configure useful organization fields and views from my Knowledge Base and existing workspace. Do not create sample organizations or treat public case studies as current business relationships. Ask only for missing decisions."
             }
           }
         },
@@ -779,7 +779,7 @@
           "empty": {
             "first-service": {
               "label": "Create my first offering",
-              "prompt": "Help me create my first service or product with the right name and price."
+              "prompt": "Help me create my first real service or product from my Knowledge Base and existing workspace. Ask only for the offering choice and required details that are missing. If its required price is unknown, ask before creating it; never guess a price or use a placeholder."
             },
             "services-tour": {
               "label": "Learn how offerings work",
@@ -787,7 +787,7 @@
             },
             "setup-services": {
               "label": "Set up my offerings",
-              "prompt": "Use my Knowledge Base to set up the services or products it describes. Avoid duplicates and ask only for missing commercial details."
+              "prompt": "Create only real services or products documented in my Knowledge Base, avoiding duplicates in my workspace. Use confirmed prices. If a required price or other commercial detail is unknown, ask before creating that offering; never invent a price or use a placeholder."
             }
           }
         },
@@ -809,11 +809,11 @@
           "empty": {
             "first-task": {
               "label": "Create my first task",
-              "prompt": "Help me create my first task and connect it to the right records."
+              "prompt": "Help me create my first real task that I identify, using my Knowledge Base and existing workspace. Link only confirmed records and ask only for missing required decisions. Do not invent a task, owner or due date."
             },
             "setup-tasks": {
               "label": "Set up my workflow",
-              "prompt": "Help me design a minimal task workflow for my business and propose the fields and first tasks to create."
+              "prompt": "Configure a minimal task workflow with useful fields and views from my Knowledge Base and existing workspace. Do not create sample tasks, owners or due dates. Ask only for missing workflow decisions."
             },
             "tasks-tour": {
               "label": "Learn how tasks work",
@@ -1378,7 +1378,7 @@
       "wikiSourceCitationUnread": "Read each cited source completely with read_website_source before citing it; unread: {ids}. Nothing was changed.",
       "wikiSourceClaimsUnsupported": "The reported content does not faithfully follow its own website passages. Rewrite every reported claim with the source's exact scope, status, conditions, limits and attribution; use only supported facts. Nothing was changed.",
       "wikiSourceCoverageRequired": "Read all remaining stored evidence with read_website_source action=next before creating pages or rereading sources. {remainingSources} sources remain. Nothing was changed.",
-      "wikiSourceEvidenceInvalid": "Each section needs exact supporting passages from that page's cited website sources. Correct every reported quotation or citation, then reread all sources needed by the submitted batch together before retrying. Nothing was changed.",
+      "wikiSourceEvidenceInvalid": "Each section needs exact supporting passages from that page’s cited website sources. Fix every reported quotation or citation by copying one complete contiguous sentence or line from freshly returned text, preserving actual whitespace, punctuation and spelling. Never insert literal backslash-n characters; prefer a shorter complete sentence to reconstructing a multiline passage. Reread all sources needed by the submitted batch together before retrying. Nothing was changed.",
       "wikiSourceExclusionDuplicateInvalid": "Source {sourceId} is not an exact-content duplicate of retained or imported source {duplicateOfSourceId}. For translated company or foundation pages, retain both source IDs in the relevant foundation topics as reading leads. For genuinely redundant offering translations, use overlap with the exact retained offering title and exact source and counterpart quotes; otherwise retain the source in its topic. Nothing was changed.",
       "wikiSourceExclusionEvidenceInvalid": "The quotation for source {sourceId} does not exactly match its stored text. Reread with get and offset=0, then copy one contiguous sentence or line without changing whitespace, punctuation or wording. Nothing was changed.",
       "wikiSourceExclusionImportedInvalid": "Source {sourceId} is not an unchanged imported source. Choose a supported exclusion basis or retain it in a topic. Nothing was changed.",

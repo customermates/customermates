@@ -573,11 +573,11 @@
             },
             "first-contact": {
               "label": "Créer mon premier contact",
-              "prompt": "Aidez-moi à créer mon premier contact. Demandez uniquement les informations nécessaires."
+              "prompt": "Aidez-moi à créer mon premier contact réel à partir de faits confirmés dans ma base de connaissances, l’espace de travail ou mes indications. Demandez de quelle personne il s’agit et uniquement les informations obligatoires manquantes ; ne créez pas de contact d’exemple ou issu d’un témoignage."
             },
             "setup-contacts": {
               "label": "Configurer les contacts",
-              "prompt": "Configure les contacts à partir de ma base de connaissances et de mon espace de travail. Crée une structure minimale utile et demande uniquement les décisions manquantes."
+              "prompt": "Configure des champs et vues de contacts utiles à partir de ma base de connaissances et de l’espace de travail. Ne crée pas de contacts d’exemple et ne transforme pas les témoignages publics en contacts. Demande uniquement les décisions manquantes."
             }
           }
         },
@@ -603,7 +603,7 @@
             },
             "setup": {
               "label": "Configurer mon espace de travail",
-              "prompt": "Configure mon espace de travail à partir de la base de connaissances et du CRM. Comble les lacunes évidentes et demande uniquement les informations ou décisions introuvables."
+              "prompt": "Configure mon espace de travail à partir de ma base de connaissances et des faits existants du CRM. Configure des champs, vues et paramètres utiles sans ajouter de fiches d’exemple. Ne transforme pas les études de cas ou témoignages publics en contacts, organisations ou opportunités, et n’invente pas de prix, budgets ou étapes actuelles d’opportunités. Demande uniquement les décisions manquantes."
             },
             "tour": {
               "label": "Faites-moi visiter",
@@ -633,11 +633,11 @@
             },
             "first-deal": {
               "label": "Créer ma première opportunité",
-              "prompt": "Aidez-moi à créer ma première opportunité et à relier la bonne organisation, les bons contacts et les bons services."
+              "prompt": "Aidez-moi à créer ma première opportunité réelle à partir d’une opportunité confirmée que j’identifie. Utilisez ma base de connaissances et l’espace de travail, reliez uniquement des organisations, contacts et services confirmés et demandez les faits obligatoires manquants, comme le montant ou l’étape actuelle, avant de la créer."
             },
             "setup-pipeline": {
               "label": "Configurer mon pipeline",
-              "prompt": "Utilise ma base de connaissances et les données existantes pour configurer un pipeline commercial simple. Demande uniquement les décisions manquantes avant de créer des fiches."
+              "prompt": "Configure un pipeline commercial simple à partir de ma base de connaissances et de l’espace de travail. Ne crée pas d’opportunités d’exemple et ne considère pas les études de cas publiques comme des opportunités actuelles. Demande uniquement les décisions manquantes du pipeline ; n’invente jamais de montants, budgets ou étapes actuelles."
             }
           }
         },
@@ -667,7 +667,7 @@
             },
             "default-setup": {
               "label": "Aidez-moi à configurer mon CRM",
-              "prompt": "Configure mon CRM à partir de la base de connaissances et de l’espace de travail. Comble les lacunes évidentes et demande uniquement les informations ou décisions manquantes."
+              "prompt": "Configure mon CRM à partir de ma base de connaissances et des faits existants de l’espace de travail. Configure des champs, vues et paramètres utiles sans ajouter de fiches d’exemple. Ne transforme pas les études de cas ou témoignages publics en contacts, organisations ou opportunités, et n’invente pas de prix, budgets ou étapes actuelles d’opportunités. Demande uniquement les décisions manquantes."
             }
           }
         },
@@ -719,7 +719,7 @@
           "empty": {
             "first-organization": {
               "label": "Créer ma première organisation",
-              "prompt": "Aidez-moi à créer ma première organisation et à y relier les bonnes personnes ou opportunités."
+              "prompt": "Aidez-moi à créer ma première organisation réelle à partir de faits confirmés dans ma base de connaissances, l’espace de travail ou mes indications. Demandez de quelle organisation il s’agit et uniquement les informations obligatoires manquantes. Reliez uniquement des personnes ou opportunités confirmées ; n’inventez pas de relation client."
             },
             "organizations-tour": {
               "label": "Découvrir le fonctionnement des organisations",
@@ -727,7 +727,7 @@
             },
             "setup-organizations": {
               "label": "Configurer les organisations",
-              "prompt": "Configure les organisations à partir de ma base de connaissances et de mon espace de travail. Crée une structure minimale utile et demande uniquement les décisions manquantes."
+              "prompt": "Configure des champs et vues d’organisations utiles à partir de ma base de connaissances et de l’espace de travail. Ne crée pas d’organisations d’exemple et ne considère pas les études de cas publiques comme des relations commerciales actuelles. Demande uniquement les décisions manquantes."
             }
           }
         },
@@ -779,7 +779,7 @@
           "empty": {
             "first-service": {
               "label": "Créer ma première offre",
-              "prompt": "Aidez-moi à créer mon premier service ou produit avec le bon nom et le bon prix."
+              "prompt": "Aidez-moi à créer mon premier service ou produit réel à partir de ma base de connaissances et de l’espace de travail. Demandez uniquement quelle offre choisir et les informations obligatoires manquantes. Si son prix obligatoire est inconnu, demandez avant de le créer ; ne devinez jamais de prix et n’utilisez pas de valeur provisoire."
             },
             "services-tour": {
               "label": "Découvrir le fonctionnement des offres",
@@ -787,7 +787,7 @@
             },
             "setup-services": {
               "label": "Configurer mes offres",
-              "prompt": "Configure les services ou produits décrits dans ma base de connaissances. Évite les doublons et demande uniquement les détails commerciaux manquants."
+              "prompt": "Crée uniquement les services ou produits réels documentés dans ma base de connaissances, en évitant les doublons dans l’espace de travail. Utilise des prix confirmés. Si un prix obligatoire ou une autre information commerciale obligatoire est inconnu, demande avant de créer cette offre ; n’invente jamais de prix et n’utilise pas de valeur provisoire."
             }
           }
         },
@@ -809,11 +809,11 @@
           "empty": {
             "first-task": {
               "label": "Créer ma première tâche",
-              "prompt": "Aidez-moi à créer ma première tâche et à la relier aux bons enregistrements."
+              "prompt": "Aidez-moi à créer ma première tâche réelle que j’identifie, à partir de ma base de connaissances et de l’espace de travail. Reliez uniquement des fiches confirmées et demandez uniquement les décisions obligatoires manquantes. N’inventez pas de tâche, de responsable ou d’échéance."
             },
             "setup-tasks": {
               "label": "Configurer mon flux de travail",
-              "prompt": "Aidez-moi à concevoir un flux de tâches minimal pour mon activité et proposez les champs et les premières tâches à créer."
+              "prompt": "Configure un flux de tâches minimal avec des champs et vues utiles à partir de ma base de connaissances et de l’espace de travail. Ne crée pas de tâches d’exemple et n’invente pas de responsables ou d’échéances. Demande uniquement les décisions manquantes du flux de travail."
             },
             "tasks-tour": {
               "label": "Découvrir le fonctionnement des tâches",
@@ -1378,7 +1378,7 @@
       "wikiSourceCitationUnread": "Lisez chaque source citée entièrement avec read_website_source ; non lues : {ids}. Rien n’a été modifié.",
       "wikiSourceClaimsUnsupported": "Le contenu signalé ne reflète pas fidèlement ses propres passages du site web. Corrigez chaque affirmation signalée en conservant la portée, le statut, les conditions, les limites et l'attribution de la source ; utilisez uniquement des faits étayés. Rien n'a été modifié.",
       "wikiSourceCoverageRequired": "Lisez toutes les sources restantes avec read_website_source action=next avant de créer des pages ou de relire des sources. Il reste {remainingSources} sources. Rien n’a été modifié.",
-      "wikiSourceEvidenceInvalid": "Chaque section doit contenir des passages justificatifs exacts provenant des sources du site citées sur cette page. Corrigez toutes les citations ou sources signalées, puis relisez ensemble toutes les sources nécessaires au groupe de pages avant de réessayer. Rien n’a été modifié.",
+      "wikiSourceEvidenceInvalid": "Chaque section doit contenir des passages justificatifs exacts provenant des sources du site citées sur cette page. Corrigez toutes les citations ou sources signalées en copiant une phrase complète et contiguë ou une ligne du texte fraîchement renvoyé, en conservant les espaces et sauts de ligne réels, la ponctuation et l’orthographe. N’insérez jamais les caractères littéraux barre oblique inverse et n ; préférez une phrase complète plus courte à la reconstruction d’un passage sur plusieurs lignes. Relisez ensemble toutes les sources nécessaires au groupe de pages avant de réessayer. Rien n’a été modifié.",
       "wikiSourceExclusionDuplicateInvalid": "La source {sourceId} n’est pas une copie au contenu identique de la source conservée ou importée {duplicateOfSourceId}. Pour les pages traduites de l’entreprise ou des fondamentaux, conservez les deux identifiants de source dans les thèmes de fondamentaux pertinents comme pistes de lecture. Pour les traductions d’offres réellement redondantes, utilisez overlap avec le titre exact de l’offre conservée et des citations exactes de la source et de la source correspondante ; sinon, conservez la source dans son thème. Rien n’a été modifié.",
       "wikiSourceExclusionEvidenceInvalid": "La citation de la source {sourceId} ne correspond pas exactement au texte enregistré. Relisez-la avec get et offset=0, puis copiez une phrase ou une ligne continue sans modifier les espaces, la ponctuation ni les mots. Rien n’a été modifié.",
       "wikiSourceExclusionImportedInvalid": "La source {sourceId} n’a pas été importée sans modification. Choisissez un motif d’exclusion étayé ou conservez-la dans un sujet. Rien n’a été modifié.",

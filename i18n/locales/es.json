@@ -573,11 +573,11 @@
             },
             "first-contact": {
               "label": "Crear mi primer contacto",
-              "prompt": "Ayúdame a crear mi primer contacto. Pregunta solo por los datos que necesites."
+              "prompt": "Ayúdame a crear mi primer contacto real con datos confirmados de mi base de conocimientos, el espacio de trabajo o lo que te indique. Pregunta qué persona es y solo por los datos obligatorios que falten; no crees un contacto de ejemplo ni uno a partir de un testimonio."
             },
             "setup-contacts": {
               "label": "Configurar los contactos",
-              "prompt": "Configura los contactos con mi base de conocimientos y el espacio de trabajo. Crea una estructura mínima útil y pregunta solo por decisiones pendientes."
+              "prompt": "Configura campos y vistas de contactos útiles a partir de mi base de conocimientos y el espacio de trabajo. No crees contactos de ejemplo ni conviertas testimonios públicos en contactos. Pregunta solo por decisiones pendientes."
             }
           }
         },
@@ -603,7 +603,7 @@
             },
             "setup": {
               "label": "Configurar mi espacio de trabajo",
-              "prompt": "Configura mi espacio de trabajo usando la base de conocimientos y el CRM. Cubre las carencias evidentes y pregunta solo por datos o decisiones que no puedas encontrar."
+              "prompt": "Configura mi espacio de trabajo a partir de mi base de conocimientos y los datos existentes del CRM. Crea campos, vistas y ajustes útiles sin añadir registros de ejemplo. No conviertas casos de estudio o testimonios públicos en contactos, organizaciones u oportunidades, ni inventes precios, presupuestos o etapas actuales de oportunidades. Pregunta solo por decisiones pendientes."
             },
             "tour": {
               "label": "Enséñame la aplicación",
@@ -633,11 +633,11 @@
             },
             "first-deal": {
               "label": "Crear mi primera oportunidad",
-              "prompt": "Ayúdame a crear mi primera oportunidad y a vincular la organización, los contactos y los servicios adecuados."
+              "prompt": "Ayúdame a crear mi primera oportunidad real a partir de una oportunidad confirmada que yo identifique. Usa mi base de conocimientos y el espacio de trabajo, vincula únicamente organizaciones, contactos y servicios confirmados y pregunta por los datos obligatorios que falten, como el importe o la etapa actual, antes de crearla."
             },
             "setup-pipeline": {
               "label": "Configurar mi pipeline",
-              "prompt": "Usa mi base de conocimientos y los registros existentes para configurar un pipeline de ventas sencillo. Pregunta solo por decisiones pendientes antes de crear registros."
+              "prompt": "Configura un pipeline de ventas sencillo a partir de mi base de conocimientos y el espacio de trabajo. No crees oportunidades de ejemplo ni trates casos de estudio públicos como oportunidades actuales. Pregunta solo por decisiones pendientes del pipeline; nunca inventes importes, presupuestos o etapas actuales."
             }
           }
         },
@@ -667,7 +667,7 @@
             },
             "default-setup": {
               "label": "Ayúdame a configurar mi CRM",
-              "prompt": "Configura mi CRM usando la base de conocimientos y el espacio de trabajo. Cubre las carencias evidentes y pregunta solo por datos o decisiones que falten."
+              "prompt": "Configura mi CRM a partir de mi base de conocimientos y los datos existentes del espacio de trabajo. Crea campos, vistas y ajustes útiles sin añadir registros de ejemplo. No conviertas casos de estudio o testimonios públicos en contactos, organizaciones u oportunidades, ni inventes precios, presupuestos o etapas actuales de oportunidades. Pregunta solo por decisiones pendientes."
             }
           }
         },
@@ -719,7 +719,7 @@
           "empty": {
             "first-organization": {
               "label": "Crear mi primera organización",
-              "prompt": "Ayúdame a crear mi primera organización y a conectar las personas u oportunidades adecuadas."
+              "prompt": "Ayúdame a crear mi primera organización real con datos confirmados de mi base de conocimientos, el espacio de trabajo o lo que te indique. Pregunta qué organización es y solo por los datos obligatorios que falten. Vincula únicamente personas u oportunidades confirmadas; no inventes una relación de cliente."
             },
             "organizations-tour": {
               "label": "Descubrir cómo funcionan las organizaciones",
@@ -727,7 +727,7 @@
             },
             "setup-organizations": {
               "label": "Configurar las organizaciones",
-              "prompt": "Configura las organizaciones con mi base de conocimientos y el espacio de trabajo. Crea una estructura mínima útil y pregunta solo por decisiones pendientes."
+              "prompt": "Configura campos y vistas de organizaciones útiles a partir de mi base de conocimientos y el espacio de trabajo. No crees organizaciones de ejemplo ni trates casos de estudio públicos como relaciones comerciales actuales. Pregunta solo por decisiones pendientes."
             }
           }
         },
@@ -779,7 +779,7 @@
           "empty": {
             "first-service": {
               "label": "Crear mi primera oferta",
-              "prompt": "Ayúdame a crear mi primer servicio o producto con el nombre y el precio adecuados."
+              "prompt": "Ayúdame a crear mi primer servicio o producto real a partir de mi base de conocimientos y el espacio de trabajo. Pregunta solo qué oferta elegir y por los datos obligatorios que falten. Si su precio obligatorio es desconocido, pregunta antes de crearlo; nunca adivines un precio ni uses un valor provisional."
             },
             "services-tour": {
               "label": "Descubrir cómo funcionan las ofertas",
@@ -787,7 +787,7 @@
             },
             "setup-services": {
               "label": "Configurar mis ofertas",
-              "prompt": "Configura los servicios o productos descritos en mi base de conocimientos. Evita duplicados y pregunta solo por detalles comerciales pendientes."
+              "prompt": "Crea únicamente servicios o productos reales documentados en mi base de conocimientos, evitando duplicados en el espacio de trabajo. Usa precios confirmados. Si falta un precio obligatorio u otro dato comercial obligatorio, pregunta antes de crear esa oferta; nunca inventes un precio ni uses un valor provisional."
             }
           }
         },
@@ -809,11 +809,11 @@
           "empty": {
             "first-task": {
               "label": "Crear mi primera tarea",
-              "prompt": "Ayúdame a crear mi primera tarea y a conectarla con los registros adecuados."
+              "prompt": "Ayúdame a crear mi primera tarea real que yo identifique, usando mi base de conocimientos y el espacio de trabajo. Vincula solo registros confirmados y pregunta solo por las decisiones obligatorias que falten. No inventes una tarea, un responsable o una fecha de vencimiento."
             },
             "setup-tasks": {
               "label": "Configurar mi flujo de trabajo",
-              "prompt": "Ayúdame a diseñar un flujo de tareas mínimo para mi negocio y propón los campos y las primeras tareas que crear."
+              "prompt": "Configura un flujo de tareas mínimo con campos y vistas útiles a partir de mi base de conocimientos y el espacio de trabajo. No crees tareas de ejemplo ni inventes responsables o fechas de vencimiento. Pregunta solo por decisiones pendientes del flujo de trabajo."
             },
             "tasks-tour": {
               "label": "Descubrir cómo funcionan las tareas",
@@ -1378,7 +1378,7 @@
       "wikiSourceCitationUnread": "Lee cada fuente citada por completo con read_website_source; sin leer: {ids}. No se ha cambiado nada.",
       "wikiSourceClaimsUnsupported": "El contenido señalado no refleja fielmente sus propios pasajes del sitio web. Corrige cada afirmación señalada conservando el alcance, estado, condiciones, límites y atribución de la fuente; usa solo hechos respaldados. No se cambió nada.",
       "wikiSourceCoverageRequired": "Lee todas las fuentes restantes con read_website_source action=next antes de crear páginas o volver a leer fuentes. Quedan {remainingSources} fuentes. No se ha cambiado nada.",
-      "wikiSourceEvidenceInvalid": "Cada sección necesita pasajes de respaldo exactos de las fuentes del sitio citadas en esta página. Corrige todas las citas o fuentes indicadas y vuelve a leer juntas todas las fuentes necesarias para el lote de páginas antes de reintentarlo. No se ha cambiado nada.",
+      "wikiSourceEvidenceInvalid": "Cada sección necesita pasajes de respaldo exactos de las fuentes del sitio citadas en esta página. Corrige todas las citas o fuentes indicadas copiando una frase completa y contigua o una línea del texto recién devuelto, conservando los espacios y saltos de línea reales, la puntuación y la ortografía. Nunca insertes caracteres literales de barra inversa y n; elige una frase completa más corta en lugar de reconstruir un pasaje de varias líneas. Vuelve a leer juntas todas las fuentes necesarias para el lote antes de reintentarlo. No se ha cambiado nada.",
       "wikiSourceExclusionDuplicateInvalid": "La fuente {sourceId} no es una copia de contenido idéntico de la fuente conservada o importada {duplicateOfSourceId}. Para páginas traducidas de la empresa o de fundamentos, conserva ambos identificadores de fuente en los temas de fundamentos pertinentes como referencias de lectura. Para traducciones de ofertas realmente redundantes, usa overlap con el título exacto de la oferta conservada y citas exactas de la fuente y de la fuente de comparación; de lo contrario, conserva la fuente en su tema. No se ha cambiado nada.",
       "wikiSourceExclusionEvidenceInvalid": "La cita de la fuente {sourceId} no coincide exactamente con su texto guardado. Vuelve a leerla con get y offset=0 y copia una oración o línea continua sin cambiar espacios, puntuación ni palabras. No se ha cambiado nada.",
       "wikiSourceExclusionImportedInvalid": "La fuente {sourceId} no se ha importado sin cambios. Elige un motivo de exclusión respaldado o consérvala en un tema. No se ha cambiado nada.",

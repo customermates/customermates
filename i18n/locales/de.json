@@ -573,11 +573,11 @@
             },
             "first-contact": {
               "label": "Ersten Kontakt erstellen",
-              "prompt": "Hilf mir, meinen ersten Kontakt zu erstellen. Frage nur die nötigen Angaben ab."
+              "prompt": "Hilf mir, meinen ersten echten Kontakt aus bestätigten Fakten in meiner Wissensdatenbank, meinem Arbeitsbereich oder meinen Angaben zu erstellen. Frage nach der Person und nur nach fehlenden Pflichtangaben; erstelle keinen Beispielkontakt und keinen Kontakt aus einem Testimonial."
             },
             "setup-contacts": {
               "label": "Kontakte einrichten",
-              "prompt": "Richte Kontakte anhand meiner Wissensdatenbank und meines Arbeitsbereichs ein. Erstelle eine einfache, nützliche Struktur und frage nur nach fehlenden Entscheidungen."
+              "prompt": "Konfiguriere nützliche Kontaktfelder und Ansichten anhand meiner Wissensdatenbank und meines Arbeitsbereichs. Erstelle keine Beispielkontakte und mache aus öffentlichen Testimonials keine Kontakte. Frage nur nach fehlenden Entscheidungen."
             }
           }
         },
@@ -603,7 +603,7 @@
             },
             "setup": {
               "label": "Workspace einrichten",
-              "prompt": "Richte meinen Arbeitsbereich mit dem Wissen aus der Wissensdatenbank und dem CRM ein. Schließe klare Lücken und frage nur nach Informationen oder Entscheidungen, die du nicht finden kannst."
+              "prompt": "Konfiguriere meinen Arbeitsbereich anhand meiner Wissensdatenbank und der vorhandenen CRM-Fakten. Richte nützliche Felder, Ansichten und Einstellungen ein, ohne Beispieldatensätze anzulegen. Mache aus öffentlichen Fallstudien oder Testimonials keine Kontakte, Organisationen oder Deals und erfinde keine Preise, Budgets oder aktuellen Deal-Phasen. Frage nur nach fehlenden Entscheidungen."
             },
             "tour": {
               "label": "Plattform kennenlernen",
@@ -633,11 +633,11 @@
             },
             "first-deal": {
               "label": "Ersten Deal erstellen",
-              "prompt": "Hilf mir, meinen ersten Deal zu erstellen und passende Organisationen, Kontakte und Leistungen zu verknüpfen."
+              "prompt": "Hilf mir, meinen ersten echten Deal aus einer bestätigten Verkaufschance zu erstellen, die ich benenne. Nutze meine Wissensdatenbank und meinen Arbeitsbereich, verknüpfe nur bestätigte Organisationen, Kontakte und Leistungen und frage vor dem Anlegen nach fehlenden Pflichtangaben wie Betrag oder aktueller Phase."
             },
             "setup-pipeline": {
               "label": "Pipeline einrichten",
-              "prompt": "Nutze meine Wissensdatenbank und vorhandene Datensätze, um eine einfache Vertriebspipeline einzurichten. Frage vor dem Anlegen nur nach fehlenden Entscheidungen."
+              "prompt": "Konfiguriere eine einfache Vertriebspipeline anhand meiner Wissensdatenbank und meines Arbeitsbereichs. Erstelle keine Beispiel-Deals und behandle öffentliche Fallstudien nicht als aktuelle Verkaufschancen. Frage nur nach fehlenden Pipeline-Entscheidungen; erfinde keine Deal-Beträge, Budgets oder aktuellen Phasen."
             }
           }
         },
@@ -667,7 +667,7 @@
             },
             "default-setup": {
               "label": "Hilf mir bei der Einrichtung",
-              "prompt": "Richte mein CRM mit dem Wissen aus der Wissensdatenbank und dem Arbeitsbereich ein. Schließe klare Lücken und frage nur nach fehlenden Informationen oder Entscheidungen."
+              "prompt": "Konfiguriere mein CRM anhand meiner Wissensdatenbank und der vorhandenen Fakten im Arbeitsbereich. Richte nützliche Felder, Ansichten und Einstellungen ein, ohne Beispieldatensätze anzulegen. Mache aus öffentlichen Fallstudien oder Testimonials keine Kontakte, Organisationen oder Deals und erfinde keine Preise, Budgets oder aktuellen Deal-Phasen. Frage nur nach fehlenden Entscheidungen."
             }
           }
         },
@@ -719,7 +719,7 @@
           "empty": {
             "first-organization": {
               "label": "Erste Organisation erstellen",
-              "prompt": "Hilf mir, meine erste Organisation zu erstellen und passende Personen oder Deals zu verknüpfen."
+              "prompt": "Hilf mir, meine erste echte Organisation aus bestätigten Fakten in meiner Wissensdatenbank, meinem Arbeitsbereich oder meinen Angaben zu erstellen. Frage nach der Organisation und nur nach fehlenden Pflichtangaben. Verknüpfe nur bestätigte Personen oder Deals; erfinde keine Kundenbeziehung."
             },
             "organizations-tour": {
               "label": "Organisationen kennenlernen",
@@ -727,7 +727,7 @@
             },
             "setup-organizations": {
               "label": "Organisationen einrichten",
-              "prompt": "Richte Organisationen anhand meiner Wissensdatenbank und meines Arbeitsbereichs ein. Erstelle eine einfache, nützliche Struktur und frage nur nach fehlenden Entscheidungen."
+              "prompt": "Konfiguriere nützliche Organisationsfelder und Ansichten anhand meiner Wissensdatenbank und meines Arbeitsbereichs. Erstelle keine Beispielorganisationen und behandle öffentliche Fallstudien nicht als aktuelle Geschäftsbeziehungen. Frage nur nach fehlenden Entscheidungen."
             }
           }
         },
@@ -779,7 +779,7 @@
           "empty": {
             "first-service": {
               "label": "Erstes Angebot erstellen",
-              "prompt": "Hilf mir, meine erste Leistung oder mein erstes Produkt mit passendem Namen und Preis zu erstellen."
+              "prompt": "Hilf mir, meine erste echte Leistung oder mein erstes echtes Produkt anhand meiner Wissensdatenbank und meines Arbeitsbereichs zu erstellen. Frage nur nach der Auswahl und fehlenden Pflichtangaben. Wenn der erforderliche Preis unbekannt ist, frage vor dem Anlegen; schätze keinen Preis und verwende keinen Platzhalter."
             },
             "services-tour": {
               "label": "Angebote kennenlernen",
@@ -787,7 +787,7 @@
             },
             "setup-services": {
               "label": "Angebot einrichten",
-              "prompt": "Richte die Leistungen oder Produkte ein, die meine Wissensdatenbank beschreibt. Vermeide Duplikate und frage nur nach fehlenden kaufmännischen Angaben."
+              "prompt": "Erstelle nur echte Leistungen oder Produkte, die meine Wissensdatenbank beschreibt, und vermeide Duplikate im Arbeitsbereich. Verwende bestätigte Preise. Wenn ein erforderlicher Preis oder eine andere kaufmännische Pflichtangabe unbekannt ist, frage vor dem Anlegen der Leistung; erfinde keinen Preis und verwende keinen Platzhalter."
             }
           }
         },
@@ -809,11 +809,11 @@
           "empty": {
             "first-task": {
               "label": "Erste Aufgabe erstellen",
-              "prompt": "Hilf mir, meine erste Aufgabe zu erstellen und mit den passenden Datensätzen zu verknüpfen."
+              "prompt": "Hilf mir, meine erste echte Aufgabe zu erstellen, die ich benenne, und nutze dafür meine Wissensdatenbank und meinen Arbeitsbereich. Verknüpfe nur bestätigte Datensätze und frage nur nach fehlenden Pflichtentscheidungen. Erfinde keine Aufgabe, Zuständigen oder Fälligkeiten."
             },
             "setup-tasks": {
               "label": "Workflow einrichten",
-              "prompt": "Hilf mir, einen minimalen Aufgaben-Workflow zu planen, und schlage passende Felder und erste Aufgaben vor."
+              "prompt": "Konfiguriere einen minimalen Aufgaben-Workflow mit nützlichen Feldern und Ansichten anhand meiner Wissensdatenbank und meines Arbeitsbereichs. Erstelle keine Beispielaufgaben und erfinde keine Zuständigen oder Fälligkeiten. Frage nur nach fehlenden Workflow-Entscheidungen."
             },
             "tasks-tour": {
               "label": "Aufgaben kennenlernen",
@@ -1378,7 +1378,7 @@
       "wikiSourceCitationUnread": "Lies jede zitierte Quelle vollständig mit read_website_source; ungelesen: {ids}. Es wurde nichts geändert.",
       "wikiSourceClaimsUnsupported": "Der gemeldete Inhalt gibt die eigenen Website-Passagen nicht korrekt wieder. Korrigiere jede gemeldete Aussage mit dem genauen Umfang, Status, den Bedingungen, Grenzen und der Quellenzuordnung; verwende nur belegte Fakten. Nichts wurde geändert.",
       "wikiSourceCoverageRequired": "Lies alle verbleibenden Quellen mit read_website_source action=next, bevor du Seiten erstellst oder Quellen erneut liest. {remainingSources} Quellen sind noch offen. Es wurde nichts geändert.",
-      "wikiSourceEvidenceInvalid": "Jeder Abschnitt benötigt genaue Belegstellen aus den zitierten Website-Quellen dieser Seite. Korrigiere alle gemeldeten Zitate oder Quellen und lies vor dem nächsten Versuch alle Quellen der eingereichten Seitengruppe zusammen erneut. Es wurde nichts geändert.",
+      "wikiSourceEvidenceInvalid": "Jeder Abschnitt benötigt genaue Belegstellen aus den zitierten Website-Quellen dieser Seite. Korrigiere alle gemeldeten Zitate oder Quellen, indem du einen vollständigen zusammenhängenden Satz oder eine Zeile aus dem frisch zurückgegebenen Text kopierst und tatsächliche Leerzeichen, Zeilenumbrüche, Satzzeichen und Schreibweise beibehältst. Füge keine wörtlichen Backslash-n-Zeichen ein; wähle lieber einen kürzeren vollständigen Satz, statt eine mehrzeilige Passage nachzubauen. Lies vor dem nächsten Versuch alle Quellen der eingereichten Seitengruppe zusammen erneut. Es wurde nichts geändert.",
       "wikiSourceExclusionDuplicateInvalid": "Die Quelle {sourceId} ist keine inhaltsgleiche Kopie der beibehaltenen oder importierten Quelle {duplicateOfSourceId}. Behalte bei übersetzten Unternehmens- oder Grundlagenseiten beide Quellen-IDs in den passenden Grundlagenthemen als Lesehinweise bei. Verwende für tatsächlich redundante Angebotsübersetzungen overlap mit dem exakten Titel des beibehaltenen Angebots und exakten Zitaten aus der Quelle und der Vergleichsquelle; behalte die Quelle andernfalls in ihrem Thema bei. Es wurde nichts geändert.",
       "wikiSourceExclusionEvidenceInvalid": "Das Zitat für die Quelle {sourceId} stimmt nicht exakt mit ihrem gespeicherten Text überein. Lies sie erneut mit get und offset=0 und kopiere einen zusammenhängenden Satz oder eine Zeile ohne Änderungen an Leerzeichen, Zeichensetzung oder Wortlaut. Es wurde nichts geändert.",
       "wikiSourceExclusionImportedInvalid": "Die Quelle {sourceId} wurde nicht unverändert importiert. Wähle einen belegten Ausschlussgrund oder behalte sie in einem Thema. Es wurde nichts geändert.",
