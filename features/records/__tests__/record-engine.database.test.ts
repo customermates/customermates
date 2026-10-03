@@ -11931,6 +11931,404 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     },
   );
 
+  it.each([
+    { behavior: "input" as const, staged: false },
+    { behavior: "snapshot" as const, staged: false },
+    { behavior: "input" as const, staged: true },
+    { behavior: "snapshot" as const, staged: true },
+  ])(
+    "retains restricted provenance after $behavior conversion and source archive (staged=$staged)",
+    { timeout: 120000 },
+    async ({ behavior, staged }) => {
+      const f = await fixture();
+      const setup: ConfigurationChange = {
+        expectedRevision: 1,
+        idempotencyKey: randomUUID(),
+        operations: [
+          ...["source", "summary"].map((name) => ({
+            operation: "createType" as const,
+            reference: `$${name}`,
+            label: name,
+            pluralLabel: `${name} rows`,
+            description: "",
+            icon: "folder",
+            embedded: false,
+            accessPresetId: null,
+          })),
+          {
+            operation: "putRelationship",
+            relationship: {
+              id: "$sourceLink",
+              sourceTypeId: "$summary",
+              targetTypeId: "$source",
+              sourceLabel: "Private source",
+              targetLabel: "Summaries",
+              sourceCardinality: "one",
+              targetCardinality: "many",
+              onSourceDelete: "unlink",
+              onTargetDelete: "unlink",
+              archived: false,
+            },
+          },
+          {
+            operation: "putField",
+            field: {
+              id: "$amount",
+              typeId: "$source",
+              label: "Private amount",
+              valueType: "currency",
+              required: false,
+              archived: false,
+              options: [],
+              position: 2,
+              behavior: { kind: "input", defaultValue: decimal("37") },
+            },
+          },
+          {
+            operation: "putField",
+            field: {
+              id: "$total",
+              typeId: "$summary",
+              label: "Retained total",
+              valueType: "currency",
+              required: false,
+              archived: false,
+              options: [],
+              position: 2,
+              behavior: {
+                kind: "rollup",
+                expression: {
+                  kind: "related",
+                  relationId: "$sourceLink",
+                  direction: "outgoing",
+                  expression: { kind: "field", fieldId: "$amount" },
+                  reducer: "sum",
+                },
+              },
+            },
+          },
+          {
+            operation: "putField",
+            field: {
+              id: "$memo",
+              typeId: "$summary",
+              label: "Private memo",
+              valueType: "text",
+              required: false,
+              archived: false,
+              options: [],
+              position: 3,
+              behavior: {
+                kind: "lookup",
+                expression: {
+                  kind: "related",
+                  relationId: "$sourceLink",
+                  direction: "outgoing",
+                  expression: { kind: "field", fieldId: "$source.name" },
+                  reducer: "one",
+                },
+              },
+            },
+          },
+        ],
+      };
+      expect(await f.run(() => f.configure.invoke(setup))).toMatchObject({
+        ok: true,
+        data: { status: "completed", schemaRevision: 2 },
+      });
+      const model = await f.run(() => f.repo.getModel());
+      const sourceType = recordInvariant(model.types.find((type) => type.label === "source"));
+      const summaryType = recordInvariant(model.types.find((type) => type.label === "summary"));
+      const total = recordInvariant(model.fields.find((field) => field.label === "Retained total"));
+      const memo = recordInvariant(model.fields.find((field) => field.label === "Private memo"));
+      const relation = recordInvariant(model.relationships.find((entry) => entry.sourceTypeId === summaryType.id));
+      const canary = `Private-${randomUUID()}`;
+      const create = async (
+        typeId: string,
+        primaryFieldId: string,
+        name: string,
+        links?: Extract<RecordMutation, { action: "create" }>["links"],
+      ) => {
+        const result = await f.mutation(
+          {
+            action: "create",
+            typeId,
+            fields: [{ fieldId: primaryFieldId, value: textValue(name) }],
+            links,
+          },
+          f.admin,
+          randomUUID(),
+          2,
+        );
+        if (!result.ok || result.data.status !== "completed") throw new Error("Provenance fixture creation failed");
+        return recordInvariant(result.data.refs.find((ref) => ref.typeId === typeId));
+      };
+      const source = await create(sourceType.id, sourceType.primaryFieldId, canary);
+      const summary = await create(summaryType.id, summaryType.primaryFieldId, "Readable summary", [
+        { relationId: relation.id, direction: "outgoing", record: source },
+      ]);
+      expect((await f.readRecord(summary)).fields.find((value) => value.fieldId === total.id)?.result).toEqual({
+        state: "value",
+        value: decimal("37"),
+      });
+      const manager = await runWithoutTenant(async () => {
+        const role = await prisma.userRole.create({
+          data: { companyId: f.company.id, name: "Schema manager" },
+        });
+        await prisma.rolePermission.create({
+          data: {
+            companyId: f.company.id,
+            roleId: role.id,
+            resource: "dataModel",
+            action: "update",
+          },
+        });
+        const user = await prisma.user.create({
+          data: {
+            companyId: f.company.id,
+            roleId: role.id,
+            firstName: "Schema",
+            lastName: "Manager",
+            email: `${randomUUID()}@example.test`,
+            status: "active",
+          },
+        });
+        return createMockUser({ ...user, role: { ...role, permissions: [] } });
+      });
+      expect(await f.run(() => f.policy.load(), manager)).toMatchObject({
+        isAdmin: false,
+        canManageSchema: true,
+        canManageRoles: false,
+      });
+      await f.run(() =>
+        runInTransaction(async () => {
+          for (const type of model.types.filter((type) => type.id !== sourceType.id && !type.embedded))
+            await f.repo.setGrants(type.id, [{ roleId: f.memberRole.id, actions: ["readAll"] }]);
+        }),
+      );
+      const readerPolicy = await f.run(() => f.policy.load(), f.member);
+      const readerAccess = readerPolicy.access(model.types.map((type) => type.id));
+      expect(readerAccess.get(sourceType.id)?.access).toBe("none");
+      for (const type of model.types.filter((type) => type.id !== sourceType.id))
+        expect(readerAccess.get(type.id)?.access).toBe("all");
+      const assertRestricted = async () => {
+        const row = await f.readRecord(summary, f.member);
+        for (const field of [total, memo])
+          expect(row.fields.find((value) => value.fieldId === field.id)?.result).toEqual({ state: "restricted" });
+        const list = await f.run(
+          () =>
+            f.query.invoke(
+              RecordQuerySchema.parse({
+                typeId: summaryType.id,
+                fields: [total.id, memo.id],
+                filters: [
+                  { fieldId: summaryType.primaryFieldId, operator: "eq", value: textValue("Readable summary") },
+                ],
+              }),
+            ),
+          f.member,
+        );
+        expect(list).toMatchObject({
+          ok: true,
+          data: {
+            records: expect.arrayContaining([
+              expect.objectContaining({
+                ref: summary,
+                fields: expect.arrayContaining([
+                  expect.objectContaining({
+                    fieldId: total.id,
+                    result: { state: "restricted" },
+                  }),
+                  expect.objectContaining({
+                    fieldId: memo.id,
+                    result: { state: "restricted" },
+                  }),
+                ]),
+              }),
+            ]),
+          },
+        });
+        expect(
+          await f.run(
+            () =>
+              f.query.invoke(
+                RecordQuerySchema.parse({
+                  typeId: summaryType.id,
+                  filters: [{ fieldId: total.id, operator: "eq", value: decimal("37") }],
+                }),
+              ),
+            f.member,
+          ),
+        ).toMatchObject({ ok: true, data: { total: 0, records: [] } });
+        expect(
+          await f.run(
+            () =>
+              f.query.invoke(
+                RecordQuerySchema.parse({
+                  typeId: summaryType.id,
+                  search: canary,
+                }),
+              ),
+            f.member,
+          ),
+        ).toMatchObject({ ok: true, data: { total: 0, records: [] } });
+        expect(
+          await f.run(
+            () =>
+              f.search.invoke(
+                RecordSearchSchema.parse({
+                  searchTerm: canary,
+                  typeIds: [summaryType.id],
+                }),
+              ),
+            f.member,
+          ),
+        ).toMatchObject({ ok: true, data: { results: [] } });
+        expect(
+          await f.run(
+            () =>
+              f.measure.invoke(
+                RecordMeasureSchema.parse({
+                  source: { typeId: summaryType.id },
+                  aggregation: "sum",
+                  valueFieldId: total.id,
+                  groupBy: null,
+                }),
+              ),
+            f.member,
+          ),
+        ).toMatchObject({
+          ok: true,
+          data: { total: { result: { state: "restricted" } } },
+        });
+      };
+      await assertRestricted();
+      const publication: ConfigurationChange = {
+        expectedRevision: 2,
+        idempotencyKey: randomUUID(),
+        operations: [
+          {
+            operation: "publishSummary",
+            fieldId: total.id,
+            published: true,
+            dependencyHash: calculationDependencyHash(total, model),
+          },
+        ],
+      };
+      const deniedPublication = {
+        ok: false,
+        error: {
+          issues: [
+            expect.objectContaining({ params: expect.objectContaining({ error: CustomErrorCode.permissionDenied }) }),
+          ],
+        },
+      };
+      expect(await f.run(() => f.preview.invoke(publication), manager)).toMatchObject(deniedPublication);
+      expect(await f.run(() => f.configure.invoke(publication), manager)).toMatchObject(deniedPublication);
+      if (staged) {
+        const ids = Array.from({ length: 500 }, () => randomUUID());
+        await f.run(() =>
+          runInTransaction(async () => {
+            const tx = getTransactionClient() ?? prisma;
+            await tx.crmRecord.createMany({
+              data: ids.map((id) => ({
+                id,
+                companyId: f.company.id,
+                typeId: summaryType.id,
+              })),
+            });
+            await tx.recordValue.createMany({
+              data: ids.map((recordId, index) => ({
+                companyId: f.company.id,
+                typeId: summaryType.id,
+                recordId,
+                fieldId: summaryType.primaryFieldId,
+                state: "value",
+                textValue: `Padding ${index}`,
+                schemaRevision: 2,
+              })),
+            });
+          }),
+        );
+      }
+      const change: ConfigurationChange = {
+        expectedRevision: 2,
+        idempotencyKey: randomUUID(),
+        operations: [
+          ...[total, memo].map(({ publishedSummary: _published, ...field }) => ({
+            operation: "putField" as const,
+            field: {
+              ...field,
+              behavior:
+                behavior === "input"
+                  ? { kind: "input" as const }
+                  : {
+                      kind: "snapshot" as const,
+                      capture: "explicit" as const,
+                      expression: {
+                        kind: "literal" as const,
+                        value: field.valueType === "currency" ? decimal("0") : textValue("Replacement"),
+                      },
+                    },
+            },
+          })),
+          { operation: "putType", type: { ...sourceType, archived: true } },
+          {
+            operation: "putRelationship",
+            relationship: { ...relation, archived: true },
+          },
+          ...model.activityPaths
+            .filter((path) => path.typeId === sourceType.id)
+            .map((activityPath) => ({
+              operation: "putActivityPath" as const,
+              activityPath: { ...activityPath, archived: true },
+            })),
+        ],
+      };
+      expect(await f.run(() => f.preview.invoke(change), manager)).toMatchObject({ ok: true, data: { valid: true } });
+      const result = await f.run(() => f.configure.invoke(change), manager);
+      expect(result).toMatchObject({
+        ok: true,
+        data: { status: staged ? "pending" : "completed" },
+      });
+      if (!result.ok) throw new Error("Provenance conversion failed");
+      if (result.data.status === "pending") {
+        const operationId = result.data.operationId;
+        let completed = false;
+        for (let step = 0; step < 200; step++) {
+          expect((await f.run(() => f.repo.getModel())).revision).toBe(2);
+          await assertRestricted();
+          const progress = await f.run(() => f.worker().advance(operationId), manager);
+          if (progress.done) {
+            completed = true;
+            break;
+          }
+        }
+        expect(completed).toBe(true);
+        expect(await f.run(() => f.status.invoke({ operationId }), manager)).toMatchObject({
+          ok: true,
+          data: { state: "completed" },
+        });
+      }
+      const accepted = await f.run(() => f.repo.getModel());
+      expect(accepted.revision).toBe(3);
+      expect(accepted.types.find((type) => type.id === sourceType.id)?.archived).toBe(true);
+      expect(accepted.relationships.find((entry) => entry.id === relation.id)?.archived).toBe(true);
+      for (const field of [total, memo]) {
+        expect(accepted.fields.find((entry) => entry.id === field.id)).toMatchObject({
+          behavior: { kind: behavior },
+          publishedSummary: false,
+        });
+      }
+      for (const field of [total, memo])
+        expect(await f.run(() => f.repo.getValueDependencies(summary, field.id))).toEqual([source]);
+      const stored = recordInvariant(await f.run(() => f.repo.getRecordCompanyWide(summary)));
+      expect(stored.values.find((value) => value.fieldId === total.id)?.decimalValue?.toString()).toBe("37");
+      expect(stored.values.find((value) => value.fieldId === memo.id)?.textValue).toBe(canary);
+      await assertRestricted();
+    },
+  );
+
   it("rejects illegal typed values and tenant-crossing foreign keys without partial writes", async () => {
     const f = await fixture();
     const other = await fixture();

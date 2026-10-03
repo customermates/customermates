@@ -1716,6 +1716,345 @@ async function summaryFieldEditorUi(page: Page, typeId: string, label: string) {
   return dialog;
 }
 
+test("keeps retained values restricted after a delegated manager converts fields and archives their private source through the UI", async ({
+  page,
+  browser,
+  database,
+  companyId,
+}, testInfo) => {
+  test.setTimeout(240000);
+  const errors = relationshipCaptureErrors(page);
+  await post(page, "/api/v2/model/apply", {
+    expectedRevision: (await readModel(page)).revision,
+    idempotencyKey: randomUUID(),
+    operations: [
+      ...[
+        { reference: "$source", label: "Private source row", pluralLabel: "Private source rows" },
+        { reference: "$summary", label: "Archive summary", pluralLabel: "Archive summaries" },
+      ].map((type) => ({
+        operation: "createType",
+        ...type,
+        description: "",
+        icon: "folder",
+        embedded: false,
+        accessPresetId: null,
+      })),
+      {
+        operation: "putRelationship",
+        relationship: {
+          id: "$sourceLink",
+          sourceTypeId: "$summary",
+          targetTypeId: "$source",
+          sourceLabel: "Private source",
+          targetLabel: "Summaries",
+          sourceCardinality: "one",
+          targetCardinality: "many",
+          onSourceDelete: "unlink",
+          onTargetDelete: "unlink",
+          archived: false,
+        },
+      },
+      {
+        operation: "putField",
+        field: {
+          id: "$amount",
+          typeId: "$source",
+          label: "Private amount",
+          valueType: "currency",
+          required: false,
+          archived: false,
+          options: [],
+          position: 2,
+          behavior: { kind: "input" },
+        },
+      },
+      {
+        operation: "putField",
+        field: {
+          id: "$total",
+          typeId: "$summary",
+          label: "Retained total",
+          valueType: "currency",
+          required: false,
+          archived: false,
+          options: [],
+          position: 2,
+          behavior: {
+            kind: "rollup",
+            expression: {
+              kind: "related",
+              relationId: "$sourceLink",
+              direction: "outgoing",
+              expression: { kind: "field", fieldId: "$amount" },
+              reducer: "sum",
+            },
+          },
+        },
+      },
+      {
+        operation: "putField",
+        field: {
+          id: "$memo",
+          typeId: "$summary",
+          label: "Private memo",
+          valueType: "text",
+          required: false,
+          archived: false,
+          options: [],
+          position: 3,
+          behavior: {
+            kind: "lookup",
+            expression: {
+              kind: "related",
+              relationId: "$sourceLink",
+              direction: "outgoing",
+              expression: { kind: "field", fieldId: "$source.name" },
+              reducer: "one",
+            },
+          },
+        },
+      },
+    ],
+  });
+  let model = await readModel(page);
+  const sourceType = model.types.find((type) => type.pluralLabel === "Private source rows");
+  const summaryType = model.types.find((type) => type.pluralLabel === "Archive summaries");
+  const amount = model.fields.find((field) => field.label === "Private amount");
+  const total = model.fields.find((field) => field.label === "Retained total");
+  const memo = model.fields.find((field) => field.label === "Private memo");
+  const relation = model.relationships.find((entry) => entry.sourceLabel === "Private source");
+  if (!sourceType || !summaryType || !amount || !total || !memo || !relation)
+    throw new Error("The private-source fixture schema is incomplete");
+  await post(page, "/api/v2/model/apply", {
+    expectedRevision: model.revision,
+    idempotencyKey: randomUUID(),
+    operations: [
+      {
+        operation: "putType",
+        type: {
+          ...summaryType,
+          defaults: { ...summaryType.defaults, columns: [summaryType.primaryFieldId, total.id, memo.id] },
+        },
+      },
+    ],
+  });
+  const canary = `Private-${randomUUID()}`;
+  const source = await mutate(page, {
+    action: "create",
+    typeId: sourceType.id,
+    fields: [
+      { fieldId: sourceType.primaryFieldId, value: { kind: "text", value: canary } },
+      { fieldId: amount.id, value: { kind: "decimal", value: "41.25", currency: "EUR" } },
+    ],
+  });
+  const summary = await mutate(page, {
+    action: "create",
+    typeId: summaryType.id,
+    fields: [{ fieldId: summaryType.primaryFieldId, value: { kind: "text", value: "Readable archive summary" } }],
+    links: [{ relationId: relation.id, direction: "outgoing", record: source }],
+  });
+  expect(
+    RecordDtoSchema.parse(await post(page, "/api/v2/records/read", summary)).fields.find(
+      (field) => field.fieldId === total.id,
+    )?.result,
+  ).toEqual({ state: "value", value: { kind: "decimal", value: "41.25", currency: "EUR" } });
+  model = await readModel(page);
+  const readerRole = await saveRole(page, {
+    name: "All active lists reader",
+    description: "No private-source access",
+    permissions: { company: { canManage: "no" } },
+    recordGrants: model.types
+      .filter((type) => type.id !== sourceType.id && !type.embedded)
+      .map((type) => ({ typeId: type.id, actions: ["readAll"] })),
+  });
+  const managerRole = await saveRole(page, {
+    name: "Archive schema manager",
+    description: "Schema configuration without record access or publication",
+    permissions: { company: { canManage: "no" }, dataModel: { canManage: "yes" } },
+    recordGrants: [],
+  });
+  const reader = await secondaryUser(browser, database, companyId, readerRole.role.id, testInfo);
+  const manager = await secondaryUser(browser, database, companyId, managerRole.role.id, testInfo);
+  const widgetSchema = z.object({
+    id: z.uuid(),
+    status: z.enum(["ready", "unavailable"]),
+    data: RecordMeasureResultSchema.nullable(),
+  });
+  const widgetName = "Retained private total";
+  try {
+    expect((await manager.page.request.post("/api/v2/records/read", { data: source })).status()).toBe(404);
+    expect((await manager.page.request.post("/api/v2/records/read", { data: summary })).status()).toBe(404);
+    expect((await reader.page.request.post("/api/v2/records/read", { data: source })).status()).toBe(404);
+    for (const type of model.types.filter((type) => type.embedded))
+      expect((await reader.page.request.post("/api/v2/records/query", { data: { typeId: type.id } })).status()).toBe(200);
+    const widget = widgetSchema.parse(
+      await post(reader.page, "/api/v2/widgets/save", {
+        expectedRevision: (await readModel(page)).revision,
+        idempotencyKey: randomUUID(),
+        name: widgetName,
+        measure: { source: { typeId: summaryType.id }, aggregation: "sum", valueFieldId: total.id, groupBy: null },
+        displayOptions: { displayType: "verticalBarChart", showFilters: true },
+        isTemplate: false,
+      }),
+    );
+    const assertStored = async () => {
+      expect(
+        (
+          await database.query(
+            'SELECT state,trim_scale("decimalValue")::text AS amount,currency FROM "RecordValue" WHERE "companyId"=$1 AND "typeId"=$2 AND "recordId"=$3 AND "fieldId"=$4',
+            [companyId, summary.typeId, summary.recordId, total.id],
+          )
+        ).rows,
+      ).toEqual([{ state: "value", amount: "41.25", currency: "EUR" }]);
+      expect(
+        (
+          await database.query(
+            'SELECT "textValue" FROM "RecordValue" WHERE "companyId"=$1 AND "typeId"=$2 AND "recordId"=$3 AND "fieldId"=$4',
+            [companyId, summary.typeId, summary.recordId, memo.id],
+          )
+        ).rows,
+      ).toEqual([{ textValue: canary }]);
+      for (const field of [total, memo])
+        expect(
+          (
+            await database.query(
+              'SELECT "sourceTypeId","sourceId" FROM "RecordValueDependency" WHERE "companyId"=$1 AND "typeId"=$2 AND "recordId"=$3 AND "fieldId"=$4',
+              [companyId, summary.typeId, summary.recordId, field.id],
+            )
+          ).rows,
+        ).toEqual([{ sourceTypeId: source.typeId, sourceId: source.recordId }]);
+    };
+    const assertRestricted = async () => {
+      const dto = RecordDtoSchema.parse(await post(reader.page, "/api/v2/records/read", summary));
+      for (const field of [total, memo])
+        expect(dto.fields.find((entry) => entry.fieldId === field.id)?.result).toEqual({ state: "restricted" });
+      await reader.page.goto(`/en/records/${summaryType.id}`);
+      const row = reader.page
+        .getByRole("row")
+        .filter({ has: reader.page.getByRole("button", { name: "Readable archive summary", exact: true }) });
+      await expect(row.getByRole("cell", { name: "Restricted", exact: true })).toHaveCount(2);
+      await expect(row).not.toContainText(canary);
+      await expect(row).not.toContainText("€41.25");
+      await row.getByRole("button", { name: "Readable archive summary", exact: true }).click();
+      const editor = reader.page.getByRole("dialog", { name: summaryType.label, exact: true });
+      for (const field of [total, memo]) {
+        const value = editor.locator(`[data-entity-field="${field.id}"]`);
+        await expect(value.getByText("Restricted", { exact: true })).toBeVisible();
+        await expect(value.locator("input,textarea")).toHaveCount(0);
+      }
+      await reader.page.waitForLoadState("networkidle");
+      await reader.page.keyboard.press("Escape");
+      await expect(editor).not.toBeVisible();
+      if (!(await reader.page.locator("#nav-search").isVisible()))
+        await reader.page.locator("#sidebar-trigger").click();
+      await reader.page.locator("#nav-search").click();
+      await reader.page.locator("#global-search-input input").fill(canary);
+      await expect(reader.page.getByText(englishMessages.GlobalSearch.noResults, { exact: true })).toBeVisible();
+      expect(
+        z
+          .object({ results: z.array(z.unknown()) })
+          .parse(await post(reader.page, "/api/v2/records/search", { searchTerm: canary })).results,
+      ).toEqual([]);
+      await reader.page.locator("#global-search-input input").fill("Readable archive summary");
+      await reader.page.getByRole("option").filter({ hasText: "Readable archive summary" }).click();
+      for (const field of [total, memo])
+        await expect(
+          editor.locator(`[data-entity-field="${field.id}"]`).getByText("Restricted", { exact: true }),
+        ).toBeVisible();
+      await reader.page.waitForLoadState("networkidle");
+      await reader.page.keyboard.press("Escape");
+      await expect(editor).not.toBeVisible();
+      await reader.page.goto("/en/dashboard");
+      const card = reader.page
+        .locator('[data-uid="app-card"]')
+        .filter({ has: reader.page.getByRole("heading", { name: widgetName, exact: true }) });
+      await expect(card.getByText("Overall: Restricted", { exact: true })).toBeVisible();
+      await expect(card.locator("dd").getByText("Restricted", { exact: true })).toBeVisible();
+      await expect(card.locator(".recharts-wrapper")).toHaveCount(0);
+      await expect(card).not.toContainText("€41.25");
+      expect(widgetSchema.parse(await post(reader.page, "/api/v2/widgets/read", { id: widget.id }))).toMatchObject({
+        status: "ready",
+        data: { total: { result: { state: "restricted" } } },
+      });
+      await assertStored();
+    };
+    await assertRestricted();
+    const applyUi = async () => {
+      const dialog = manager.page.getByRole("dialog");
+      await dialog.getByRole("button", { name: "Preview changes", exact: true }).click();
+      await expect(dialog.getByRole("status")).toContainText("Ready to apply");
+      await dialog.getByRole("button", { name: "Apply changes", exact: true }).click();
+      await expect(dialog).not.toBeVisible();
+      await manager.page.waitForLoadState("networkidle");
+    };
+    for (const field of [total, memo]) {
+      const dialog = await summaryFieldEditorUi(manager.page, summaryType.id, field.label);
+      await expect(
+        dialog.getByRole("switch", { name: englishMessages.RecordModel.publishSummary, exact: true }),
+      ).toHaveCount(0);
+      await dialog.locator("#behavior").click();
+      await manager.page.getByRole("option", { name: "Entered manually", exact: true }).click();
+      await applyUi();
+    }
+    await assertRestricted();
+    await manager.page.goto(`/en/company/data-model?typeId=${summaryType.id}`);
+    const relationshipRow = manager.page
+      .getByRole("region", { name: "Relationships", exact: true })
+      .getByText("Private source", { exact: true })
+      .locator("..")
+      .locator("..");
+    await relationshipRow.getByRole("button", { name: "Edit", exact: true }).click();
+    await manager.page.getByRole("dialog").locator("#archived").check();
+    await applyUi();
+    await manager.page.goto(`/en/company/data-model?typeId=${sourceType.id}`);
+    const activity = manager.page
+      .getByRole("region", { name: "Activity connections", exact: true })
+      .getByText(sourceType.pluralLabel, { exact: true })
+      .locator("..");
+    await activity.getByRole("button", { name: "Edit", exact: true }).click();
+    await manager.page.getByRole("dialog").getByRole("switch", { name: "Archive connection", exact: true }).check();
+    await applyUi();
+    await manager.page.getByRole("button", { name: "Type settings", exact: true }).click();
+    await manager.page.getByRole("dialog").getByRole("switch", { name: "Archive this type", exact: true }).check();
+    await applyUi();
+    model = await readModel(page);
+    expect(model.types.find((type) => type.id === sourceType.id)?.archived).toBe(true);
+    expect(model.relationships.find((entry) => entry.id === relation.id)?.archived).toBe(true);
+    for (const field of [total, memo])
+      expect(model.fields.find((entry) => entry.id === field.id)).toMatchObject({
+        behavior: { kind: "input" },
+        publishedSummary: false,
+      });
+    expect(
+      (
+        await database.query(
+          'SELECT "typeId",actions::text[] AS actions FROM "RecordTypeGrant" WHERE "companyId"=$1 AND "roleId"=$2 ORDER BY "typeId"',
+          [companyId, readerRole.role.id],
+        )
+      ).rows,
+    ).toEqual(
+      model.types
+        .filter((type) => type.id !== sourceType.id && !type.embedded)
+        .map((type) => ({ typeId: type.id, actions: ["readAll"] }))
+        .sort((a, b) => a.typeId.localeCompare(b.typeId)),
+    );
+    expect((await manager.page.request.post("/api/v2/records/read", { data: source })).status()).toBe(404);
+    await assertRestricted();
+    await reader.page.reload();
+    await expect(reader.page.getByText("Overall: Restricted", { exact: true })).toBeVisible();
+    await reader.page.screenshot({
+      path: testInfo.outputPath("archived-source-restricted-widget.png"),
+      animations: "disabled",
+    });
+    expect(reader.errors).toEqual([]);
+    expect(manager.errors).toEqual([]);
+    expect(errors).toEqual([]);
+  } finally {
+    await manager.close();
+    await reader.close();
+  }
+});
+
 test("publishes and withdraws a private-input summary through the field UI without granting the delegated reader access to its inputs", async ({
   page,
   browser,

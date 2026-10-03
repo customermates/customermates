@@ -47,7 +47,7 @@ export function fieldReadPredicate(
     Boolean(
       scope && depth <= 12 && scope.access === "all" && (!scope.parent || fullyReadable(scope.parent.scope, depth + 1)),
     );
-  if (model.types.every((type) => type.archived || fullyReadable(access.get(type.id)))) return Prisma.sql`TRUE`;
+  if (model.types.every((type) => fullyReadable(access.get(type.id)))) return Prisma.sql`TRUE`;
   const fields = new Map(model.fields.map((definition) => [definition.id, definition]));
   const relations = new Map(model.relationships.map((definition) => [definition.id, definition]));
   let sequence = 0;

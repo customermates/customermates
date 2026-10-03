@@ -22,6 +22,8 @@ export const RecordEditorField = observer(function RecordEditorField({
   const t = useTranslations();
   const id = `values.${field.id}`;
   const inputId = `${id}-${useId()}`;
+  const result = store.record?.fields.find((value) => value.fieldId === field.id)?.result;
+  const restricted = result?.state === "restricted";
   const captureStaged = store.form.captureFieldIds.includes(field.id);
   const captureAction =
     store.record && !store.isReadOnly && field.behavior.kind === "snapshot" && field.behavior.capture === "explicit" ? (
@@ -41,15 +43,16 @@ export const RecordEditorField = observer(function RecordEditorField({
         {t(captureStaged ? "RecordModel.captureOnSave" : "RecordModel.captureValue")}
       </Button>
     ) : null;
-  if (field.behavior.kind !== "input" && !(field.behavior.kind === "snapshot" && field.behavior.allowManualOverride)) {
+  if (
+    restricted ||
+    (field.behavior.kind !== "input" && !(field.behavior.kind === "snapshot" && field.behavior.allowManualOverride))
+  ) {
     return store.record ? (
       <EntityDetailStaticField
-        action={captureAction}
+        action={restricted ? null : captureAction}
         fieldId={field.id}
         label={field.label}
-        value={
-          <RecordValue field={field} result={store.record.fields.find((value) => value.fieldId === field.id)?.result} />
-        }
+        value={<RecordValue field={field} result={result} />}
       />
     ) : null;
   }
