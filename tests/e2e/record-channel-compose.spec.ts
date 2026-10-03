@@ -19,9 +19,8 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   const browserDiagnostics: string[] = [];
   const captureError = (message: string) => {
     if (
-      (testInfo.project.name === "webkit" || testInfo.project.name === "mobile") &&
       message ===
-        "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set."
+      "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set."
     )
       browserDiagnostics.push(message);
     else errors.push(message);
@@ -78,7 +77,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
     records.push(result.refs[0]);
   }
   const accounts = [randomUUID(), randomUUID()];
-  for (const [index, account] of accounts.entries())
+  for (const [index, account] of accounts.entries()) {
     await database.query(
       'INSERT INTO "ConnectedAccount" (id,"companyId","userId","unipileAccountId",provider,status,"hasMessaging","emailAddress","displayName","sentFolderIds","updatedAt") VALUES ($1,$2,$3,$4,\'mail\',\'ok\',true,$5,$6,ARRAY[\'e2e_sent\'],NOW())',
       [
@@ -90,6 +89,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
         `Local Sender ${index + 1}`,
       ],
     );
+  }
   const threadIds = [randomUUID(), randomUUID()];
   for (const [index, thread] of threadIds.entries()) {
     await database.query(
@@ -239,11 +239,11 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
     await popover.getByRole("textbox", { name: label, exact: true }).press("Enter");
   }
   await expect(channelRow().getByRole("button", { name: /Unlink/ })).toHaveCount(0);
-  await activateCompose(
-    channels
-      .locator('[data-record-channel-key="mail:alias-first@example.test"]')
-      .getByRole("button", { name: "Compose Email message", exact: true }),
-  );
+  const aliasRow = channels.locator('[data-record-channel-key="mail:alias-first@example.test"]');
+  const aliasCompose = aliasRow.getByRole("button", { name: "Compose Email message", exact: true });
+  // On a narrow screen, the open composer covers the other channel's trigger.
+  // Close through the visible active trigger; desktop also exercises a dirty recipient switch.
+  await activateCompose(testInfo.project.name === "mobile" ? start() : aliasCompose);
   await expect(guard).toBeVisible();
   await guard.getByRole("button", { name: "Cancel", exact: true }).click();
   await expect(body).toHaveText("Draft belonging to the first company");
@@ -268,6 +268,15 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   expect(draft.recipients.cc.map((item: { identifier: string }) => item.identifier)).toEqual(["copy@example.test"]);
   expect(draft.recipients.bcc.map((item: { identifier: string }) => item.identifier)).toEqual(["hidden@example.test"]);
   expect(isDraftThreadId(draft.unipileThreadId)).toBe(true);
+  if (testInfo.project.name === "mobile") {
+    await activateCompose(aliasCompose);
+    await expect(aliasCompose).toHaveAttribute("aria-expanded", "true");
+    await expect(body).toHaveText("");
+    await expect(popover.getByPlaceholder("Subject", { exact: true })).toHaveValue("");
+    await activateCompose(aliasCompose);
+    await expect(popover).not.toBeVisible();
+    expect(await readDrafts()).toEqual([draft]);
+  }
 
   await openRecord(1);
   await activateCompose(start());
@@ -493,7 +502,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
     animations: "disabled",
     fullPage: true,
   });
-  await testInfo.attach("expected-webkit-email-sandbox-diagnostics", {
+  await testInfo.attach("expected-email-sandbox-diagnostics", {
     body: Buffer.from(JSON.stringify(browserDiagnostics)),
     contentType: "application/json",
   });
