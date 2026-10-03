@@ -9,7 +9,6 @@ export interface ViewStateWriteIntent {
   discard(): void;
 }
 
-// Reserve on edit, before debounce: a late close must not turn an older edit into a newer one.
 export function reserveViewStateWrite(root: RootStore, key: string): ViewStateWriteIntent {
   let entries = scopes.get(root);
   if (!entries) {
