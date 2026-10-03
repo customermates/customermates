@@ -142,11 +142,14 @@ test("persists every chart style, appearance, a copied template, resizing and de
     await expect(gridItem).not.toHaveClass(/\breact-draggable-dragging\b/);
     await expect(dialog).toHaveCount(0);
     await expect
-      .poll(async () => (await read("Complete chart controls"))[0].layout[breakpoint]?.x)
+      .poll(async () => (await read("Complete chart controls"))[0].layout?.[breakpoint]?.x)
       .toBe(position.x + direction);
     const moved = (await read("Complete chart controls"))[0];
     expect(moved.layout[breakpoint]).toMatchObject({ y: position.y, w: position.w, h: position.h });
     expect(moved.version).toBeGreaterThan(beforeMove.version);
+    await expect
+      .poll(async () => (await gridItem.boundingBox())?.x)
+      .toBeCloseTo(gridBounds.x + (position.x + direction) * step, 0);
     const movedBounds = await gridItem.boundingBox();
     if (!movedBounds) throw new Error("The moved widget is not visible");
     await page.reload();

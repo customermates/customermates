@@ -322,7 +322,12 @@ test("resizes table columns with keyboard controls, restores saved widths and re
     await page.mouse.down();
     await page.mouse.move(x - 40, y, { steps: 5 });
     await page.mouse.up();
-    await expect.poll(stored).toBe(Math.round(Math.max(80, headerBounds.width - 40) * 100) / 100);
+    const draggedWidth = Math.round(Math.max(80, headerBounds.width - 40) * 100) / 100;
+    await expect.poll(stored).toBe(draggedWidth);
+    await page.reload();
+    await expect(handle).toBeVisible();
+    await expect(header).toHaveAttribute("style", new RegExp(`(?:^|;)\\s*width: ${draggedWidth}px;`));
+    expect(await stored()).toBe(draggedWidth);
   }
   await handle.focus();
   await handle.press("Enter");
