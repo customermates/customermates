@@ -1653,6 +1653,71 @@ export class PrismaAgentChatRepo
   }
 
   @BypassTenantGuard
+  async claimAgentClassifierReceiptUnscoped(args: {
+    turnRequestId: string;
+    companyId: string;
+    toolCallId: string;
+    toolName: string;
+    initialResultJson: Prisma.InputJsonValue;
+  }): Promise<{ state: "fresh" | "settled" | "unknown"; resultJson: unknown }> {
+    return this.withCompanyTransaction(args.companyId, async () => {
+      const turn = await this.prisma.agentTurnRequest.findFirst({
+        where: { id: args.turnRequestId, companyId: args.companyId },
+        select: { id: true },
+      });
+      if (!turn) throw new Error("Agent classifier receipt turn ownership changed.");
+
+      const claimed = await this.prisma.agentToolReceipt.createMany({
+        data: [
+          {
+            turnRequestId: args.turnRequestId,
+            companyId: args.companyId,
+            toolCallId: args.toolCallId,
+            toolName: args.toolName,
+            resultJson: args.initialResultJson,
+          },
+        ],
+        skipDuplicates: true,
+      });
+      const receipt = await this.prisma.agentToolReceipt.findUniqueOrThrow({
+        where: {
+          turnRequestId_toolCallId: { turnRequestId: args.turnRequestId, toolCallId: args.toolCallId },
+        },
+        select: { companyId: true, toolName: true, state: true, resultJson: true },
+      });
+      if (receipt.companyId !== args.companyId || receipt.toolName !== args.toolName)
+        throw new Error("Agent classifier receipt ownership changed.");
+      return {
+        state: claimed.count === 1 ? "fresh" : receipt.state === "settled" ? "settled" : "unknown",
+        resultJson: receipt.resultJson,
+      };
+    });
+  }
+
+  @BypassTenantGuard
+  async settleAgentClassifierReceiptUnscoped(args: {
+    turnRequestId: string;
+    companyId: string;
+    toolCallId: string;
+    toolName: string;
+    resultJson: Prisma.InputJsonValue;
+  }): Promise<void> {
+    await this.withCompanyTransaction(args.companyId, async () => {
+      const settled = await this.prisma.agentToolReceipt.updateMany({
+        where: {
+          turnRequestId: args.turnRequestId,
+          companyId: args.companyId,
+          toolCallId: args.toolCallId,
+          toolName: args.toolName,
+          state: "claimed",
+        },
+        data: { state: "settled", resultJson: args.resultJson, settledAt: new Date() },
+      });
+      if (settled.count !== 1) throw new Error("Agent classifier receipt could not be settled.");
+    });
+  }
+
+  @BypassTenantGuard
   async claimAgentToolReceiptUnscoped(args: {
     turnRequestId: string;
     companyId: string;

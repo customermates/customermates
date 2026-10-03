@@ -10,6 +10,8 @@ const envState = vi.hoisted(() => ({
 vi.mock("@/env", () => ({ env: envState }));
 
 import { computeCostMicrocents } from "../../model-pricing";
+import { AGENT_MIN_BYTES_PER_PROVIDER_TOKEN, AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS } from "../../agent-model";
+import { classifierReservationMicrocents } from "../classifier-reservation";
 import { JEV_MODEL_ID, JEV_PRICING_PROVIDER, jevRequestBody } from "../jev-runner";
 import {
   classifyMetered,
@@ -74,6 +76,46 @@ describe("hosted docs re-rank switch", () => {
 });
 
 describe("metered classifier calls", () => {
+  it("reserves the complete UTF-8 request with the shared provider token envelope before spending", () => {
+    const state = { message: "A conditional recommendation. 😀".repeat(200) };
+    const bytes = Buffer.byteLength(JSON.stringify(jevRequestBody(SPEC, state)), "utf8");
+    expect(classifierReservationMicrocents(SPEC, state)).toBe(
+      computeCostMicrocents(
+        JEV_MODEL_ID,
+        {
+          inputTokens: Math.ceil(bytes / AGENT_MIN_BYTES_PER_PROVIDER_TOKEN) + AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS,
+          outputTokens: 0,
+          cacheReadTokens: 0,
+          cacheWriteTokens: 0,
+        },
+        JEV_PRICING_PROVIDER,
+        null,
+      ),
+    );
+    expect(classifierReservationMicrocents(SPEC, state)).toBeGreaterThan(estimateClassifierCostMicrocents(SPEC, state));
+  });
+
+  it.each([200, 503])(
+    "settles semantic reviews through the existing actual receipt or sent-failure fallback (status=%i)",
+    async (status) => {
+      const { value, charges } = await collectClassifierCharges(() =>
+        classifyMetered("wiki_synthesis_review", SPEC, STATE, "jev", {
+          apiKey: "k",
+          fetch: reply(measuredBody("0.000016002"), status),
+        }),
+      );
+      expect(charges).toEqual([
+        {
+          use: "wiki_synthesis_review",
+          model: "jev",
+          costMicrocents: status === 200 ? 1600 : estimateClassifierCostMicrocents(SPEC, STATE),
+          measured: status === 200,
+          answered: status === 200,
+        },
+      ]);
+      expect(value.result === null).toBe(status !== 200);
+    },
+  );
   it("charges the measured gateway cost and hands it to the surrounding collector", async () => {
     const { value, charges } = await collectClassifierCharges(() =>
       classifyMetered("docs_rerank", SPEC, STATE, "jev", { apiKey: "k", fetch: reply(measuredBody("0.000016002")) }),

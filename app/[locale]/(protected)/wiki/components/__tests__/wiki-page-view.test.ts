@@ -1,4 +1,5 @@
 import type * as TooltipModule from "@/components/ui/tooltip";
+import type * as FormSelectModule from "@/components/forms/form-select";
 import type { ReactElement, ReactNode } from "react";
 import type * as WikiPageStoreModule from "../wiki-page.store";
 import type { WikiPageStore as RealWikiPageStore } from "../wiki-page.store";
@@ -14,6 +15,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const harness = vi.hoisted(() => ({
   realStore: false,
+  realFormSelect: false,
   rootStore: {} as Record<string, unknown>,
   store: {} as Record<string, unknown>,
   pageChanged: null as null | ((pageId: string | null) => void),
@@ -130,26 +132,32 @@ vi.mock("@/components/editor/editor.utils", () => ({
 vi.mock("@/components/forms/form-context", async () => {
   const { useNavigationGuard } = await import("@/components/modal/use-navigation-guard");
   return {
+    useAppForm: () => harness.store,
     AppForm: function AppForm({ children, id, store }: { children?: ReactNode; id?: string; store: BaseFormStore }) {
       useNavigationGuard(store);
       return createElement("form", { id }, children);
     },
   };
 });
-vi.mock("@/components/forms/form-select", () => ({
-  FormSelect: (props: { id: string; items?: Array<{ value: string; disabled?: boolean; description?: string }> }) =>
-    createElement(
-      "select",
-      { "data-form-select": props.id },
-      props.items?.map((item) =>
-        createElement(
-          "option",
-          { key: item.value, disabled: item.disabled, "data-description": item.description },
-          item.value,
-        ),
-      ),
-    ),
-}));
+vi.mock("@/components/forms/form-select", async (importOriginal) => {
+  const actual = await importOriginal<typeof FormSelectModule>();
+  return {
+    FormSelect: (props: React.ComponentProps<typeof actual.FormSelect>) =>
+      harness.realFormSelect
+        ? createElement(actual.FormSelect, props)
+        : createElement(
+            "select",
+            { "data-form-select": props.id },
+            props.items?.map((item) =>
+              createElement(
+                "option",
+                { key: item.value, disabled: item.disabled, "data-description": item.description },
+                item.value,
+              ),
+            ),
+          ),
+  };
+});
 vi.mock("@/components/forms/form-textarea", () => ({
   FormTextarea: ({
     label: _label,
@@ -340,6 +348,7 @@ beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   vi.clearAllMocks();
   harness.realStore = false;
+  harness.realFormSelect = false;
   harness.pageChanged = null;
   harness.tryNavigate.mockImplementation((navigate: () => void) => {
     navigate();
@@ -359,6 +368,150 @@ beforeEach(() => {
 });
 
 describe("Wiki document view", () => {
+  it.each(["guide", "procedure", "knowledge"] as const)(
+    "keeps %s clean when the real select emits an empty value after creation cancellation and route selection",
+    async (kind) => {
+      configure(true, true, true);
+      harness.realStore = true;
+      harness.realFormSelect = true;
+      harness.rootStore.userStore = { canManage: () => true, user: { id: "user-1" } };
+      const navigationGuard = new NavigationGuardController();
+      harness.rootStore.navigationGuard = navigationGuard;
+      const replacement = {
+        ...page,
+        id: "10000000-0000-4000-8000-000000000002",
+        title: "Selected destination",
+        kind,
+        markdown: kind === "procedure" ? "1. Follow the documented process." : "Destination body",
+        whenToUse: kind === "procedure" ? "When a documented request arrives" : null,
+      };
+      const pages = { ...populatedList, items: [page, replacement], total: 2 };
+      function Toolbar() {
+        return createElement("header", null, useTopBarActions().actions);
+      }
+      const frame = (selected: typeof page | typeof replacement) =>
+        createElement(
+          TopBarActionsProvider,
+          null,
+          createElement(Toolbar),
+          createElement(WikiPageView, { initialPage: selected, requestedPageId: selected.id, listPage: pages }),
+        );
+      const { container, root } = await mount(frame(page));
+      const store = harness.store as unknown as RealWikiPageStore;
+      const emitEmptyNativeSelection = () => {
+        const nativeSelect = container.querySelector<HTMLSelectElement>(
+          '[data-wiki-page-kind] select[aria-hidden="true"]',
+        );
+        expect(nativeSelect).not.toBeNull();
+        if (!nativeSelect) throw new Error("Expected the real Radix native select");
+        act(() => {
+          nativeSelect.selectedIndex = -1;
+          nativeSelect.dispatchEvent(new Event("change", { bubbles: true }));
+        });
+      };
+
+      act(() => container.querySelector<HTMLButtonElement>('[aria-label="Wiki.newPage"]')?.click());
+      expect(store.creating).toBe(true);
+      act(() => container.querySelector<HTMLButtonElement>('[aria-label="Common.actions.cancel"]')?.click());
+      expect(store.creating).toBe(false);
+      expect(store.form.kind).toBe(page.kind);
+      expect(store.hasUnsavedChanges).toBe(false);
+      emitEmptyNativeSelection();
+      expect(store.form.kind).toBe(page.kind);
+      expect(store.hasUnsavedChanges).toBe(false);
+      expect(navigationGuard.isGuarding).toBe(false);
+
+      const destination = container.querySelector<HTMLAnchorElement>(`nav a[href="/wiki?page=${replacement.id}"]`);
+      expect(destination).not.toBeNull();
+      act(() => {
+        destination?.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, button: 0 }));
+      });
+      expect(harness.push).toHaveBeenCalledExactlyOnceWith(`/wiki?page=${replacement.id}`);
+      act(() => root.render(frame(replacement)));
+      expect(store.form).toMatchObject({ id: replacement.id, title: replacement.title, kind });
+      expect(store.hasUnsavedChanges).toBe(false);
+      emitEmptyNativeSelection();
+      expect(store.form).toMatchObject({ id: replacement.id, title: replacement.title, kind });
+      expect(store.hasUnsavedChanges).toBe(false);
+      expect(navigationGuard.isGuarding).toBe(false);
+      expect(container.querySelector('[aria-label="Common.actions.reset"]')).toBeNull();
+      expect(container.querySelector('[aria-label="Common.actions.save"]')).toBeNull();
+    },
+  );
+
+  it("keeps the real kind select canonical after Cancel and confirmed Discard, while accepting a procedure selection", async () => {
+    configure(true, true, true);
+    harness.realStore = true;
+    harness.realFormSelect = true;
+    harness.rootStore.userStore = { canManage: () => true, user: { id: "user-1" } };
+    const navigationGuard = new NavigationGuardController();
+    harness.rootStore.navigationGuard = navigationGuard;
+    const replacement = {
+      ...page,
+      id: "10000000-0000-4000-8000-000000000002",
+      title: "Guide destination",
+      kind: "guide" as const,
+      markdown: "Documented guide",
+    };
+    const pages = { ...populatedList, items: [page, replacement], total: 2 };
+    const previousUrl = window.location.href;
+    const { container, root } = await mount(
+      createElement(WikiPageView, { initialPage: page, requestedPageId: page.id, listPage: pages }),
+    );
+    const store = harness.store as unknown as RealWikiPageStore;
+    const destination = container.querySelector<HTMLAnchorElement>(`nav a[href="/wiki?page=${replacement.id}"]`);
+    expect(destination).not.toBeNull();
+    window.history.replaceState({}, "", `/en/wiki?page=${page.id}`);
+    harness.push.mockImplementation((path: string) => window.history.pushState({}, "", path));
+    try {
+      act(() => {
+        store.onChange("title", "Unsaved title");
+        destination?.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, button: 0 }));
+      });
+      expect(navigationGuard.isPending).toBe(true);
+      act(() => navigationGuard.cancel());
+      expect(harness.push).not.toHaveBeenCalled();
+      expect(store.form).toMatchObject({ id: page.id, title: "Unsaved title", kind: page.kind });
+      expect(store.hasUnsavedChanges).toBe(true);
+      act(() => {
+        destination?.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, button: 0 }));
+      });
+      act(() => navigationGuard.confirm());
+      expect(harness.push).toHaveBeenCalledExactlyOnceWith(`/wiki?page=${replacement.id}`);
+      act(() =>
+        root.render(
+          createElement(WikiPageView, { initialPage: replacement, requestedPageId: replacement.id, listPage: pages }),
+        ),
+      );
+      expect(store.form).toMatchObject({ id: replacement.id, title: replacement.title, kind: "guide" });
+      expect(store.hasUnsavedChanges).toBe(false);
+      expect(window.location.search).toBe(`?page=${replacement.id}`);
+      const nativeSelect = container.querySelector<HTMLSelectElement>(
+        '[data-wiki-page-kind] select[aria-hidden="true"]',
+      );
+      expect(nativeSelect).not.toBeNull();
+      if (!nativeSelect) throw new Error("Expected the real Radix native select");
+      act(() => {
+        nativeSelect.selectedIndex = -1;
+        nativeSelect.dispatchEvent(new Event("change", { bubbles: true }));
+      });
+      expect(store.form.kind).toBe("guide");
+      expect(store.hasUnsavedChanges).toBe(false);
+      expect(navigationGuard.isGuarding).toBe(false);
+      act(() => {
+        nativeSelect.value = "procedure";
+        nativeSelect.dispatchEvent(new Event("change", { bubbles: true }));
+      });
+      expect(store.form.kind).toBe("procedure");
+      expect(store.hasUnsavedChanges).toBe(true);
+      expect(navigationGuard.isGuarding).toBe(true);
+      expect(container.querySelector('[data-form-textarea="whenToUse"]')).not.toBeNull();
+    } finally {
+      harness.push.mockReset();
+      window.history.replaceState({}, "", previousUrl);
+    }
+  });
+
   it.each(["Reset", "Save"] as const)(
     "keeps a queued refresh blocked after the inner form unmounts until %s succeeds",
     async (release) => {

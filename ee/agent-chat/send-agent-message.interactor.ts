@@ -70,6 +70,7 @@ import { ceilingMicrocentsWithLegacyCredits } from "./agent-credit-policy";
 import { agentWebSearchCallLimit } from "./agent-web-search";
 import { serializeAgentWikiCatalog } from "./agent-wiki-context";
 import { userWebsiteHomepages } from "./user-website-homepages";
+import type { WikiWebsiteCrawlMode } from "@/features/wiki/wiki-crawl-mode.schema";
 
 type AdmittedAgentRun = { disposition: "run"; externalRunId: string } & Omit<AgentRunContext, "appBaseUrl">;
 type AgentInvocationMode = "interactive" | "routine";
@@ -130,7 +131,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         id: string;
         homepageUrl: string;
         pendingHosts: string[];
-        mode?: string;
+        mode?: WikiWebsiteCrawlMode;
         locale: string;
       } | null>;
       findLatestCrawl(): Promise<{ pendingHosts: string[] } | null>;

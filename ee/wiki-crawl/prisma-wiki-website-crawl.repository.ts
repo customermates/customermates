@@ -482,7 +482,7 @@ export class PrismaWikiWebsiteCrawlRepo
   }
 
   async findSetupCrawl(homepageUrl: string, clientRequestId: string) {
-    return this.prisma.wikiWebsiteCrawl.findFirst({
+    const crawl = await this.prisma.wikiWebsiteCrawl.findFirst({
       where: {
         companyId: this.companyId,
         userId: this.user.id,
@@ -495,6 +495,7 @@ export class PrismaWikiWebsiteCrawlRepo
       orderBy: [{ startedAt: "desc" }, { id: "desc" }],
       select: { id: true, homepageUrl: true, pendingHosts: true, mode: true, locale: true },
     });
+    return crawl ? { ...crawl, mode: parseWikiCrawlMode(crawl.mode) } : null;
   }
 
   async countSynthesizedPages(since: Date) {

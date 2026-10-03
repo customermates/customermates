@@ -741,3 +741,44 @@ describe("section ranker lifetime", () => {
     expect(option.length).toBeLessThanOrEqual("Records > Fields: ".length + 400);
   });
 });
+
+describe("canonical webhook secret permissions", () => {
+  it.each([
+    {
+      locale: "en" as const,
+      query: "Who can see saved webhook secrets?",
+      visibility: "only to the Admin role or roles with Manage Yes on API & Webhooks",
+      readOnly: "Read access All alone shows ********",
+    },
+    {
+      locale: "de" as const,
+      query: "Wer kann gespeicherte Webhook-Secrets sehen?",
+      visibility: "nur die Rolle Admin oder Rollen mit Verwalten Ja bei API & Webhooks",
+      readOnly: "Lesen Alle allein zeigt ********",
+    },
+  ])("keeps the complete $locale grant and read-only boundary", ({ locale, query, visibility, readOnly }) => {
+    const section = docsCorpusSections("docs", locale).find(
+      (candidate) => candidate.slug === "webhooks" && candidate.anchor === "who-can-see-and-change-webhooks",
+    );
+    if (!section) throw new Error("Missing canonical webhook permission section.");
+    const candidates = Array.from({ length: 120 }, (_, id) => ({
+      id,
+      locale,
+      section: id === 0 ? section : { pageTitle: "Unrelated", headingPath: ["History"], text: "Unrelated history." },
+    }));
+    const [question] = docsRankSpec(candidates, "docs", query).questions;
+    const evidence = optionEvidence(question.options.s0);
+    expect(evidence).toContain(visibility);
+    expect(evidence).toContain(readOnly);
+    expect(evidence).toContain("Link: /company/webhooks");
+    expect(evidence.length).toBeLessThanOrEqual(400);
+    expect(Object.keys(question.options)).toHaveLength(121);
+    let characters = 0;
+    for (const candidate of candidates) {
+      const excerpt = optionEvidence(question.options[`s${candidate.id}`]);
+      expect(excerpt.length).toBeLessThanOrEqual(candidate.id < 20 ? 400 : 80);
+      characters += excerpt.length;
+    }
+    expect(characters).toBeLessThanOrEqual(16_000);
+  });
+});

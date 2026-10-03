@@ -3,6 +3,23 @@ import { describe, expect, it } from "vitest";
 import { buildAgentTurnClassifierTrace, isAgentTurnClassifierTrace } from "../agent-classifier-trace";
 
 describe("agent turn classifier trace", () => {
+  it("includes semantic review costs and unavailable attempts without storing content or changing older trace shapes", () => {
+    const trace = buildAgentTurnClassifierTrace([
+      { use: "wiki_synthesis_review", model: "jev", costMicrocents: 600, measured: true, answered: true },
+      { use: "wiki_synthesis_review", model: "jev", costMicrocents: 700, measured: false, answered: false },
+    ]);
+    expect(trace).toEqual({
+      auxiliaryCostMicrocents: 1300,
+      auxiliaryMeasured: false,
+      docsRerank: null,
+      wikiSynthesisReview: { model: "jev", calls: 2, answered: 1, costMicrocents: 1300, measured: false },
+    });
+    expect(isAgentTurnClassifierTrace(trace)).toBe(true);
+    expect(isAgentTurnClassifierTrace({ ...trace, wikiSynthesisReview: "claim text" })).toBe(false);
+    expect(isAgentTurnClassifierTrace({ auxiliaryCostMicrocents: 0, auxiliaryMeasured: true, docsRerank: null })).toBe(
+      true,
+    );
+  });
   it("records docs re-rank calls with their summed cost and nothing else, never text", () => {
     const trace = buildAgentTurnClassifierTrace([
       { use: "docs_rerank", model: "jev", costMicrocents: 1_600, measured: true, answered: true },

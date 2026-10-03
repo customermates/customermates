@@ -1376,6 +1376,7 @@
       "wikiSourceChunkTooLarge": "Der Quellenabschnitt ist zu groß. Es wurde nichts als gelesen markiert.",
       "wikiSourceCitationInvalid": "Zitiere nur IDs aus read_website_source. Es wurde nichts geändert.",
       "wikiSourceCitationUnread": "Lies jede zitierte Quelle vollständig mit read_website_source; ungelesen: {ids}. Es wurde nichts geändert.",
+      "wikiSourceClaimsUnsupported": "Der gemeldete Inhalt gibt die eigenen Website-Passagen nicht korrekt wieder. Korrigiere jede gemeldete Aussage mit dem genauen Umfang, Status, den Bedingungen, Grenzen und der Quellenzuordnung; verwende nur belegte Fakten. Nichts wurde geändert.",
       "wikiSourceCoverageRequired": "Lies alle verbleibenden Quellen mit read_website_source action=next, bevor du Seiten erstellst oder Quellen erneut liest. {remainingSources} Quellen sind noch offen. Es wurde nichts geändert.",
       "wikiSourceEvidenceInvalid": "Jeder Abschnitt benötigt genaue Belegstellen aus den zitierten Website-Quellen dieser Seite. Korrigiere alle gemeldeten Zitate oder Quellen und lies vor dem nächsten Versuch alle Quellen der eingereichten Seitengruppe zusammen erneut. Es wurde nichts geändert.",
       "wikiSourceExclusionDuplicateInvalid": "Die Quelle {sourceId} ist keine inhaltsgleiche Kopie der beibehaltenen oder importierten Quelle {duplicateOfSourceId}. Übersetzungen benötigen eine semantische Überschneidung mit dem exakten Titel eines beibehaltenen Angebots, nicht exact_duplicate. Es wurde nichts geändert.",
@@ -1387,6 +1388,9 @@
       "wikiSourcePlanCitationLimit": "Plane pro Angebot oder Ablauf eine bis vier Quellen und zitiere beim Erstellen alle davon. Teile ein Thema auf, wenn vier Quellen seine unterschiedlichen Inhalte nicht abdecken können. Es wurde kein Plan angenommen.",
       "wikiSourcePlanIncomplete": "Sende eine topics-Liste und berücksichtige vor dem Erstellen der Seiten jede gespeicherte Quelle und jede erforderliche Seitenrolle mit einem belegten Thema oder einer begründeten Auslassung. Nicht berücksichtigte Quellen-IDs: [{missingSourceIds}]. Fehlende oder ungültige Rollen: [{missingRoles}].",
       "wikiSourceReadOrder": "Lies der Reihe nach, ohne Text zu überspringen. Verwende next oder den gespeicherten nextOffset aus list.",
+      "wikiSourceReviewLimit": "Mate konnte diesen Inhalt auch nach den zulässigen Korrekturen nicht prüfen. Es wurden keine Seiten aus dieser Anfrage erstellt. Prüfe bereits gespeicherte Seiten in der Knowledge Base.",
+      "wikiSourceReviewTooLarge": "Der vollständige Inhalt und seine Belege überschreiten das Prüflimit. Übermittle weniger Seiten oder kürzere vollständige Abschnitte, ohne Belege wegzulassen. Nichts wurde geändert.",
+      "wikiSourceReviewUnavailable": "Mate konnte diesen Website-Inhalt nicht prüfen. Es wurden keine Seiten aus dieser Anfrage erstellt. Bereits gespeicherte Seiten bleiben verfügbar.",
       "wikiWhenToUseRequired": "Ein Verfahren braucht eine kurze Beschreibung, wann es gilt."
     },
     "events": {

@@ -19,9 +19,26 @@ import {
   wikiSynthesisBatchSharesSources,
 } from "./wiki-topic-plan";
 import { wikiReadSourceEvidence } from "./wiki-source-evidence";
+import {
+  prepareWikiSynthesisReview,
+  wikiSynthesisReviewDecision,
+  parseWikiSynthesisReviewReceipt,
+  recordWikiSynthesisReviewCharge,
+  WikiSynthesisReviewReceiptSchema,
+  WIKI_SYNTHESIS_REVIEW_TOOL_NAME,
+  type WikiSynthesisReviewEvaluation,
+  WIKI_SYNTHESIS_REVIEW_DEADLINE_MS,
+  WIKI_SYNTHESIS_REVIEW_MAX_REJECTIONS,
+  type WikiSynthesisReviewRequest,
+} from "./wiki-synthesis-review";
+import { classifierReservationMicrocents } from "@/ee/agent-chat/classifier/classifier-reservation";
+import { serializeInteractorFailure } from "@/core/validation/validation.utils";
+import { boundedAgentToolFailure } from "@/ee/agent-chat/agent-tool-failure";
+import { appLocaleOrDefault } from "@/i18n/locale-registry";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 
 import type { ReadWebsiteSourceInput, WikiSourceTopic } from "@/ee/wiki-crawl/wiki-crawl-synthesis.schema";
-import { WIKI_SYNTHESIS_MAX_PAGES } from "@/ee/wiki-crawl/wiki-crawl-synthesis.schema";
+import { WIKI_SYNTHESIS_MAX_PAGES, WikiCrawlSynthesisCreateSchema } from "@/ee/wiki-crawl/wiki-crawl-synthesis.schema";
 
 import { WorkflowAgent } from "@ai-sdk/workflow";
 import { createHook, getWritable, sleep } from "workflow";
@@ -51,6 +68,7 @@ import { buildAgentProviderContext } from "@/ee/agent-chat/agent-provider-contex
 import { agentSystemPromptParts, routineTriggerEventOf } from "@/ee/agent-chat/system-prompt";
 import type { AgentAiToolDefinition, AgentToolOptions } from "@/ee/agent-chat/agent-tools";
 import type { PublicWikiHomepage } from "@/features/wiki/wiki-homepage";
+import type { WikiWebsiteCrawlMode } from "@/features/wiki/wiki-crawl-mode.schema";
 import { getAgentProviderOptions } from "@/ee/agent-chat/agent-provider-options";
 import {
   agentBatchContainsWebCall,
@@ -148,7 +166,7 @@ export type AgentTurnWorkflowPayload = {
     id: string;
     homepage: string;
     pendingHosts: string[];
-    mode?: string;
+    mode?: WikiWebsiteCrawlMode;
   };
   wikiWebsiteSetup?: { userHomepages: string[] };
   wikiCatalog?: string | null;
@@ -418,6 +436,7 @@ async function executeAgentTool(
   toolCallId: string,
   input: unknown,
   grant: ToolApprovalGrant,
+  reviewedWikiCreate = false,
 ): Promise<{
   output: unknown;
   classifierCharges: ClassifierCharge[];
@@ -443,13 +462,191 @@ async function executeAgentTool(
   const execute = tools[toolName]?.execute;
   if (!execute) throw new Error(`Agent tool ${toolName} has no executable implementation.`);
 
-  const {
-    value: { value, charges },
-    timings,
-  } = await collectRetrievalTimings(() => collectClassifierCharges(() => execute(input, { toolCallId, messages: [] })));
-  return { output: value, classifierCharges: charges, retrievalTimings: timings };
+  const run = async () => {
+    const {
+      value: { value, charges },
+      timings,
+    } = await collectRetrievalTimings(() =>
+      collectClassifierCharges(() => execute(input, { toolCallId, messages: [] })),
+    );
+    return { output: value, classifierCharges: charges, retrievalTimings: timings };
+  };
+  if (!reviewedWikiCreate) return run();
+  if (
+    !payload.wikiCrawl ||
+    !payload.wikiHomepageSetup ||
+    (payload.wikiCrawl.mode ?? "initial") !== "initial" ||
+    toolName !== "manage_wiki_pages" ||
+    !WikiCrawlSynthesisCreateSchema.safeParse(input).success
+  )
+    throw new Error("Invalid reviewed Wiki mutation.");
+  return runAsBackgroundTenant(payload.userId, () =>
+    runInTransaction(
+      async () => {
+        if (getTenantUser().companyId !== payload.companyId) throw new Error("Wiki synthesis tenant changed.");
+        const repo = getAgentChatRepo();
+        if (
+          (await repo.isAgentTurnCancellationRequestedUnscoped({
+            turnRequestId: payload.turnRequestId,
+            companyId: payload.companyId,
+          })) ||
+          !(await repo.canStartNextHostedAiProviderRoundUnscoped({
+            turnRequestId: payload.turnRequestId,
+            companyId: payload.companyId,
+            userId: payload.userId,
+          }))
+        ) {
+          return {
+            output: await formatWikiSynthesisReviewFailure(
+              payload,
+              CustomErrorCode.wikiSourceReviewUnavailable,
+              [{ path: ["pages"] }],
+              "unavailable",
+            ),
+            classifierCharges: [],
+            retrievalTimings: [],
+          };
+        }
+        return run();
+      },
+      { companyId: payload.companyId },
+    ),
+  );
 }
 executeAgentTool.maxRetries = 0;
+
+async function loadWikiSynthesisReviewContext(payload: AgentTurnWorkflowPayload) {
+  "use step";
+  if (
+    !payload.wikiCrawl ||
+    !payload.wikiHomepageSetup ||
+    (payload.surface ?? "chat") !== "chat" ||
+    (payload.wikiCrawl.mode ?? "initial") !== "initial"
+  )
+    return null;
+  const { getUserService, getWikiWebsiteCrawlRepo } = await import("@/core/di");
+  const { Action, Resource } = await import("@/generated/prisma");
+  const { env } = await import("@/env");
+  const { wikiSourceCoverage } = await import("@/ee/wiki-crawl/wiki-source-coverage");
+  if (env.APP_MODE !== "cloud") return null;
+  const { id, homepage } = payload.wikiCrawl;
+  return runAsBackgroundTenant(payload.userId, async () => {
+    if (getTenantUser().companyId !== payload.companyId) throw new Error("Wiki synthesis tenant changed.");
+    if (!(await getUserService().hasPermission(Resource.wiki, Action.create))) return null;
+    const repo = getWikiWebsiteCrawlRepo();
+    const crawl = await repo.getCrawl(id);
+    if (!crawl || crawl.userId !== payload.userId || crawl.homepageUrl !== homepage) return null;
+    if (crawl.mode !== "initial") return null;
+    const coverage = await wikiSourceCoverage(repo, id);
+    const savedPages = await repo.listSynthesizedPages(crawl.startedAt, WIKI_SYNTHESIS_MAX_PAGES);
+    return {
+      sources: coverage.sources.map(({ id, text, contentHash }) => ({ id, text, contentHash })),
+      pending: coverage.pending.length,
+      readHashes: [...coverage.readHashes],
+      savedPages,
+    };
+  });
+}
+loadWikiSynthesisReviewContext.maxRetries = 0;
+
+async function executeWikiSynthesisReview(
+  payload: AgentTurnWorkflowPayload,
+  request: WikiSynthesisReviewRequest,
+): Promise<WikiSynthesisReviewEvaluation> {
+  "use step";
+  const { createHash } = await import("node:crypto");
+  const { getAgentChatRepo } = await import("@/core/di");
+  const { classifyMetered } = await import("@/ee/agent-chat/classifier/metered");
+  const requestSha256 = createHash("sha256")
+    .update(JSON.stringify({ spec: request.spec, state: request.state }))
+    .digest("hex");
+  const receiptKey = `${WIKI_SYNTHESIS_REVIEW_TOOL_NAME}:${requestSha256}`;
+  const initial = WikiSynthesisReviewReceiptSchema.parse({
+    schemaVersion: 1,
+    requestSha256,
+    result: null,
+    charge: {
+      use: WIKI_SYNTHESIS_REVIEW_TOOL_NAME,
+      model: "jev",
+      costMicrocents: classifierReservationMicrocents(request.spec, request.state),
+      measured: false,
+      answered: false,
+    },
+  });
+  return runAsBackgroundTenant(payload.userId, async () => {
+    if (getTenantUser().companyId !== payload.companyId) throw new Error("Wiki synthesis tenant changed.");
+    const repo = getAgentChatRepo();
+    const identity = {
+      turnRequestId: payload.turnRequestId,
+      companyId: payload.companyId,
+      toolCallId: receiptKey,
+      toolName: WIKI_SYNTHESIS_REVIEW_TOOL_NAME,
+    };
+    const claim = await repo.claimAgentClassifierReceiptUnscoped({ ...identity, initialResultJson: initial });
+    const saved = parseWikiSynthesisReviewReceipt(claim.resultJson, requestSha256);
+    if (claim.state === "settled") return { receiptKey, settled: true, result: saved.result, charge: saved.charge };
+    if (saved.result !== null || !saved.charge || saved.charge.measured || saved.charge.answered)
+      throw new Error("Unsettled Wiki synthesis review receipt is invalid.");
+    if (claim.state === "unknown") return { receiptKey, settled: false, result: null, charge: saved.charge };
+    const allowed =
+      !(await repo.isAgentTurnCancellationRequestedUnscoped({
+        turnRequestId: payload.turnRequestId,
+        companyId: payload.companyId,
+      })) &&
+      (await repo.canStartNextHostedAiProviderRoundUnscoped({
+        turnRequestId: payload.turnRequestId,
+        companyId: payload.companyId,
+        userId: payload.userId,
+      }));
+    const evaluated = allowed
+      ? await classifyMetered(WIKI_SYNTHESIS_REVIEW_TOOL_NAME, request.spec, request.state, "jev", {
+          timeoutMs: WIKI_SYNTHESIS_REVIEW_DEADLINE_MS,
+        })
+      : { result: null, charge: null };
+    const settled = WikiSynthesisReviewReceiptSchema.parse({ schemaVersion: 1, requestSha256, ...evaluated });
+    await repo.settleAgentClassifierReceiptUnscoped({ ...identity, resultJson: settled });
+    return { receiptKey, settled: true, result: settled.result, charge: settled.charge };
+  });
+}
+executeWikiSynthesisReview.maxRetries = 0;
+
+async function wikiSynthesisReviewFailure(
+  payload: AgentTurnWorkflowPayload,
+  code: CustomErrorCode,
+  issues: Array<{ path: Array<string | number>; decision?: string }>,
+  kind: "validation" | "unavailable" = "validation",
+  values: Record<string, string | number> = {},
+) {
+  "use step";
+  return formatWikiSynthesisReviewFailure(payload, code, issues, kind, values);
+}
+wikiSynthesisReviewFailure.maxRetries = 0;
+
+async function formatWikiSynthesisReviewFailure(
+  payload: AgentTurnWorkflowPayload,
+  code: CustomErrorCode,
+  issues: Array<{ path: Array<string | number>; decision?: string }>,
+  kind: "validation" | "unavailable" = "validation",
+  values: Record<string, string | number> = {},
+) {
+  const { z } = await import("zod");
+  const { getTranslator } = await import("@/i18n/get-translator");
+  const { serializeInteractorFailure } = await import("@/core/validation/validation.utils");
+  const { boundedAgentToolFailure } = await import("@/ee/agent-chat/agent-tool-failure");
+  const t = await getTranslator(appLocaleOrDefault(payload.locale), "Common.errors");
+  let message = t.raw(code) as string;
+  for (const [key, value] of Object.entries(values)) message = message.replaceAll(`{${key}}`, String(value));
+  const error = new z.ZodError(
+    issues.map(({ path }) => ({ code: "custom" as const, path, message, params: { error: code, kind } })),
+  );
+  const locations = issues
+    .map(({ path, decision }) => `${path.join(".")}${decision ? `: ${decision}` : ""}`)
+    .join("; ");
+  return boundedAgentToolFailure(
+    { result: `${locations}. ${message}`, failure: serializeInteractorFailure(error, kind) },
+    payload.turnBudget.maxToolResultChars,
+  );
+}
 
 async function authorizedWikiSetup(payload: AgentTurnWorkflowPayload): Promise<boolean> {
   "use step";
@@ -1085,7 +1282,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       step: AgentRoundResult;
       outcomes: AgentToolOutcome[];
     } | null = null;
-    let providerStop: Extract<AgentTurnStopReason, "provider_error" | "content_filter"> | null = null;
+    let providerStop: Extract<AgentTurnStopReason, "provider_error" | "content_filter" | "turn_error"> | null = null;
     let resolvedProviderErrorRetries = 0;
     let wikiCoverageReminders = 0;
     const wikiTopicPlanState = {
@@ -1095,6 +1292,9 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     };
     let wikiTopicReminders = 0;
     const wikiFreshSources = new Map<string, { toolCallId: string; result: string }>();
+    const wikiApprovedReviews = new Set<string>();
+    const wikiReviewChargeIndices = new Map<string, number>();
+    const wikiReviewRejections = new Map<string, number>();
     let wikiContinuationPrompt: string | null = null;
     let providerFailure: WorkflowFailure | null = null;
     let budgetStop = false;
@@ -1340,12 +1540,153 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
             "This routine cannot mutate data after browsing or in a batch containing web access. Nothing was changed.",
         };
       }
+      const reviewedWikiCreate = Boolean(
+        wikiSourceInventory &&
+          shell.name === "manage_wiki_pages" &&
+          !readOnly &&
+          (payload.wikiCrawl?.mode ?? "initial") === "initial",
+      );
+      if (reviewedWikiCreate) {
+        const create = WikiCrawlSynthesisCreateSchema.safeParse(executionInput);
+        if (!create.success) {
+          return boundedAgentToolFailure(
+            {
+              result: create.error.issues.map(({ path, message }) => `${path.join(".")}: ${message}`).join("; "),
+              failure: serializeInteractorFailure(create.error),
+            },
+            payload.turnBudget.maxToolResultChars,
+          );
+        }
+        const canonical = await loadWikiSynthesisReviewContext(payload);
+        if (!canonical) {
+          return wikiSynthesisReviewFailure(
+            payload,
+            CustomErrorCode.wikiSourceReviewUnavailable,
+            [{ path: ["pages"] }],
+            "unavailable",
+          );
+        }
+        if (canonical.pending > 0) {
+          return wikiSynthesisReviewFailure(
+            payload,
+            CustomErrorCode.wikiSourceCoverageRequired,
+            [{ path: ["pages"] }],
+            "validation",
+            { remainingSources: canonical.pending },
+          );
+        }
+        const sources = new Map(canonical.sources.map((source) => [source.id, source]));
+        if (create.data.pages.some(({ sourceIds }) => sourceIds.some((id) => !sources.has(id))))
+          return wikiSynthesisReviewFailure(payload, CustomErrorCode.wikiSourceCitationInvalid, [{ path: ["pages"] }]);
+        const unread = [...new Set(create.data.pages.flatMap(({ sourceIds }) => sourceIds))].filter(
+          (id) => !canonical.readHashes.includes(sources.get(id)?.contentHash ?? ""),
+        );
+        if (unread.length > 0) {
+          return wikiSynthesisReviewFailure(
+            payload,
+            CustomErrorCode.wikiSourceCitationUnread,
+            [{ path: ["pages"] }],
+            "validation",
+            { ids: unread.join(", ") },
+          );
+        }
+        const review = prepareWikiSynthesisReview(
+          create.data,
+          sources,
+          canonical.savedPages,
+          appLocaleOrDefault(payload.locale),
+          payload.turnBudget.maxContextBytes,
+        );
+        if (!review.ok) {
+          return wikiSynthesisReviewFailure(
+            payload,
+            review.reason === "evidence"
+              ? CustomErrorCode.wikiSourceEvidenceInvalid
+              : CustomErrorCode.wikiSourceReviewTooLarge,
+            review.paths.map((path) => ({ path })),
+          );
+        }
+        const key = JSON.stringify({ spec: review.request.spec, state: review.request.state });
+        if (!wikiApprovedReviews.has(key)) {
+          if (
+            create.data.pages.some(
+              ({ title }) => (wikiReviewRejections.get(title) ?? 0) >= WIKI_SYNTHESIS_REVIEW_MAX_REJECTIONS,
+            )
+          ) {
+            providerStop = "turn_error";
+            return wikiSynthesisReviewFailure(payload, CustomErrorCode.wikiSourceReviewLimit, [{ path: ["pages"] }]);
+          }
+          if (!(await canStartNextHostedAiProviderRound(payload))) {
+            hostedAiStop = true;
+            return wikiSynthesisReviewFailure(
+              payload,
+              CustomErrorCode.wikiSourceReviewUnavailable,
+              [{ path: ["pages"] }],
+              "unavailable",
+            );
+          }
+          const reviewReservation = classifierReservationMicrocents(review.request.spec, review.request.state);
+          const requiredMicrocents =
+            accruedCostMicrocents() +
+            (unreportedProviderRounds + 1) * payload.turnBudget.roundReserveMicrocents +
+            reviewReservation;
+          if (!(await ensureReservation(requiredMicrocents))) {
+            return wikiSynthesisReviewFailure(
+              payload,
+              CustomErrorCode.wikiSourceReviewUnavailable,
+              [{ path: ["pages"] }],
+              "unavailable",
+            );
+          }
+          cancelled = await readCancellation(payload);
+          if (cancelled || !(await canStartNextHostedAiProviderRound(payload))) {
+            if (!cancelled) hostedAiStop = true;
+            return wikiSynthesisReviewFailure(
+              payload,
+              CustomErrorCode.wikiSourceReviewUnavailable,
+              [{ path: ["pages"] }],
+              "unavailable",
+            );
+          }
+          const evaluated = await executeWikiSynthesisReview(payload, review.request);
+          recordWikiSynthesisReviewCharge(auxiliaryCharges, wikiReviewChargeIndices, evaluated);
+          const decision = wikiSynthesisReviewDecision(review.request, evaluated.result);
+          if (decision.kind === "unavailable") {
+            providerStop = "provider_error";
+            return wikiSynthesisReviewFailure(
+              payload,
+              CustomErrorCode.wikiSourceReviewUnavailable,
+              [{ path: ["pages"] }],
+              "unavailable",
+            );
+          }
+          if (decision.kind === "rejected") {
+            for (const title of new Set(decision.issues.map(({ pageTitle }) => pageTitle)))
+              wikiReviewRejections.set(title, (wikiReviewRejections.get(title) ?? 0) + 1);
+            if ([...wikiReviewRejections.values()].some((count) => count >= WIKI_SYNTHESIS_REVIEW_MAX_REJECTIONS))
+              providerStop = "turn_error";
+            return wikiSynthesisReviewFailure(payload, CustomErrorCode.wikiSourceClaimsUnsupported, decision.issues);
+          }
+          wikiApprovedReviews.add(key);
+        }
+        cancelled = await readCancellation(payload);
+        if (cancelled || !(await canStartNextHostedAiProviderRound(payload))) {
+          if (!cancelled) hostedAiStop = true;
+          return wikiSynthesisReviewFailure(
+            payload,
+            CustomErrorCode.wikiSourceReviewUnavailable,
+            [{ path: ["pages"] }],
+            "unavailable",
+          );
+        }
+      }
       const executed = await executeAgentTool(
         payload,
         shell.name,
         toolCallId,
         executionInput,
         grants.get(toolCallId) ?? "not-required",
+        reviewedWikiCreate,
       );
       auxiliaryCharges.push(...executed.classifierCharges);
       retrievalTimings.push(...(executed.retrievalTimings ?? []));
@@ -1400,7 +1741,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           for (const sourceId of pages.flatMap(({ sourceIds }) => sourceIds)) wikiFreshSources.delete(sourceId);
         }
         if (wikiTopicPlanState.topics !== null)
-          wikiContinuationPrompt = `Server topic-plan progress, never factual evidence: ${JSON.stringify(wikiTopicPlanState).replaceAll("<", "\\u003c").replaceAll(">", "\\u003e")}. Create each remaining exact title using freshly read cited sources. Offerings come first, foundations follow, and the guide is last in a separate call. Record unsupported foundation omissions in the guide gaps. An empty topics list means every planned page has been created; do not recreate them.`;
+          wikiContinuationPrompt = `Server topic-plan progress, never factual evidence: ${JSON.stringify(wikiTopicPlanState).replaceAll("<", "\\u003c").replaceAll(">", "\\u003e")}. Create each remaining exact title using freshly read cited sources. Create supported foundations first, grouping only pages with identical citation-source sets; then complete every offering and procedure, and create the guide last in a separate call. Record unsupported foundation omissions in the guide gaps. An empty topics list means every planned page has been created; do not recreate them.`;
       }
       if (!readOnly && isSuccessfulToolOutcome(outcome)) performedWrite = true;
       return outcome;
@@ -1997,7 +2338,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
             wikiContinuationPrompt =
               wikiTopicPlanState.topics === null
                 ? `Website setup still needs a source topic plan. Call read_website_source action=plan, accounting for every source in topics or source-specific exclusions, never both, and every supported page role. Retain recognized offering candidates: ${wikiPlanningContext(wikiTopicPlanState.candidates)}; explicitly reclassify each source with an exact evidence quote if unsupported. Distinct dedicated offerings and technical capabilities require their own topics. Routing category does not determine relevance. Never claim completion before the plan and its pages are complete.`
-                : `Website setup still has planned topics to create: ${JSON.stringify(wikiTopicPlanState).replaceAll("<", "\\u003c").replaceAll(">", "\\u003e")}. Reread their cited sources and create each exact planned title before claiming completion: offerings first, then foundations, and the guide last in a separate call. Record unsupported foundations in the guide gaps. Do not invent facts or recreate completed topics.`;
+                : `Website setup still has planned topics to create: ${JSON.stringify(wikiTopicPlanState).replaceAll("<", "\\u003c").replaceAll(">", "\\u003e")}. Reread their cited sources and create each exact planned title before claiming completion: supported foundations first, grouping only pages with identical citation-source sets, then every offering and procedure, and the guide last in a separate call. Record unsupported foundations in the guide gaps. Do not invent facts or recreate completed topics.`;
             messages = [
               ...nextAgentSegmentMessages({
                 messages: result.messages,

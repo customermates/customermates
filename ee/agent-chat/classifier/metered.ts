@@ -10,7 +10,7 @@ import { computeCostMicrocents, type TokenCounts } from "../model-pricing";
 import { classifyAttempt } from "./index";
 import { JEV_MODEL_ID, JEV_PRICING_PROVIDER, jevRequestBody } from "./jev-runner";
 
-type ClassifierUse = "docs_rerank" | "wiki_rerank";
+type ClassifierUse = "docs_rerank" | "wiki_rerank" | "wiki_synthesis_review";
 
 export type ClassifierCharge = {
   use: ClassifierUse;

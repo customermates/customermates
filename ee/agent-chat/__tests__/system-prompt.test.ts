@@ -120,10 +120,15 @@ describe("system prompt", () => {
     expect(prompt).toContain("Up to six procedures (kind procedure)");
     expect(prompt).toContain("zero is valid");
     expect(prompt).toContain("Never turn generic contact details into internal policy");
-    expect(prompt).toContain("Then cover the CRM and go-to-market foundations");
+    expect(prompt).toContain("supported CRM and go-to-market foundation pages FIRST");
     expect(prompt).toContain("Voice and tone");
-    expect(prompt).toContain("individual offering and technical-topic knowledge pages FIRST");
-    expect(prompt).toContain("the first create batch must contain offering pages only");
+    expect(prompt).toContain(
+      "Then create the individual offering and technical-topic knowledge pages, before the guide",
+    );
+    expect(prompt).toContain("foundation priority never replaces offering coverage");
+    expect(prompt).not.toContain("individual offering and technical-topic knowledge pages FIRST");
+    expect(prompt).toContain("the first create batch must contain supported foundation pages only");
+    expect(prompt).not.toContain("the first create batch must contain offering pages only");
     expect(prompt).toContain("Read and cite the dedicated source for each offering");
     expect(prompt).toContain("If the offering checklist is empty, create supported foundation pages directly");
     expect(prompt).toContain("Do not appoint anyone to approve prices, SLAs or timelines");

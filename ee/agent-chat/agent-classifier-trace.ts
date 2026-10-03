@@ -15,6 +15,7 @@ export type AgentTurnClassifierTrace = {
   auxiliaryMeasured: boolean;
   docsRerank: AgentDocsRerankTrace | null;
   wikiRerank?: AgentDocsRerankTrace | null;
+  wikiSynthesisReview?: AgentDocsRerankTrace | null;
   retrieval?: RetrievalTiming[];
 };
 
@@ -45,11 +46,13 @@ export function buildAgentTurnClassifierTrace(
   if (charges.length === 0 && retrieval.length === 0) return null;
   const auxiliary = agentAuxiliaryCharge(charges);
   const wikiRerank = traceOfUse(charges.filter((charge) => charge.use === "wiki_rerank"));
+  const wikiSynthesisReview = traceOfUse(charges.filter((charge) => charge.use === "wiki_synthesis_review"));
   return {
     auxiliaryCostMicrocents: auxiliary.costMicrocents,
     auxiliaryMeasured: auxiliary.measured,
     docsRerank: traceOfUse(charges.filter((charge) => charge.use === "docs_rerank")),
     ...(wikiRerank ? { wikiRerank } : {}),
+    ...(wikiSynthesisReview ? { wikiSynthesisReview } : {}),
     ...(retrieval.length > 0 ? { retrieval: retrieval.slice(0, TRACE_RETRIEVAL_ENTRIES) } : {}),
   };
 }
@@ -63,6 +66,9 @@ export function isAgentTurnClassifierTrace(value: unknown): value is AgentTurnCl
     typeof trace.auxiliaryMeasured === "boolean" &&
     (trace.docsRerank === null || typeof trace.docsRerank === "object") &&
     (trace.wikiRerank === undefined || trace.wikiRerank === null || typeof trace.wikiRerank === "object") &&
+    (trace.wikiSynthesisReview === undefined ||
+      trace.wikiSynthesisReview === null ||
+      typeof trace.wikiSynthesisReview === "object") &&
     (trace.retrieval === undefined || Array.isArray(trace.retrieval))
   );
 }

@@ -1376,6 +1376,7 @@
       "wikiSourceChunkTooLarge": "El fragmento de la fuente es demasiado grande. No se ha marcado nada como leído.",
       "wikiSourceCitationInvalid": "Cita solo IDs devueltos por read_website_source. No se ha cambiado nada.",
       "wikiSourceCitationUnread": "Lee cada fuente citada por completo con read_website_source; sin leer: {ids}. No se ha cambiado nada.",
+      "wikiSourceClaimsUnsupported": "El contenido señalado no refleja fielmente sus propios pasajes del sitio web. Corrige cada afirmación señalada conservando el alcance, estado, condiciones, límites y atribución de la fuente; usa solo hechos respaldados. No se cambió nada.",
       "wikiSourceCoverageRequired": "Lee todas las fuentes restantes con read_website_source action=next antes de crear páginas o volver a leer fuentes. Quedan {remainingSources} fuentes. No se ha cambiado nada.",
       "wikiSourceEvidenceInvalid": "Cada sección necesita pasajes de respaldo exactos de las fuentes del sitio citadas en esta página. Corrige todas las citas o fuentes indicadas y vuelve a leer juntas todas las fuentes necesarias para el lote de páginas antes de reintentarlo. No se ha cambiado nada.",
       "wikiSourceExclusionDuplicateInvalid": "La fuente {sourceId} no es una copia de contenido idéntico de la fuente conservada o importada {duplicateOfSourceId}. Las traducciones requieren una coincidencia semántica con el título exacto de una oferta conservada, no exact_duplicate. No se ha cambiado nada.",
@@ -1387,6 +1388,9 @@
       "wikiSourcePlanCitationLimit": "Planifica entre una y cuatro fuentes por oferta o procedimiento y cita todas al crearlo. Divide un tema si cuatro fuentes no cubren su contenido diferenciado. No se ha aceptado ningún plan.",
       "wikiSourcePlanIncomplete": "Envía una lista topics y, antes de crear páginas, incluye cada fuente guardada y cada función de página necesaria en un tema respaldado o una omisión justificada. ID de fuentes sin incluir: [{missingSourceIds}]. Funciones ausentes o no válidas: [{missingRoles}].",
       "wikiSourceReadOrder": "Lee en orden sin omitir texto. Usa next o el nextOffset guardado de list.",
+      "wikiSourceReviewLimit": "Mate no pudo verificar este contenido tras las correcciones permitidas. No se crearon páginas de esta solicitud. Revisa las páginas ya guardadas en la Knowledge Base.",
+      "wikiSourceReviewTooLarge": "El contenido completo y sus pruebas superan el límite de verificación. Envía menos páginas o secciones completas más cortas, sin omitir pruebas. No se cambió nada.",
+      "wikiSourceReviewUnavailable": "Mate no pudo verificar este contenido del sitio web. No se crearon páginas de esta solicitud. Las páginas ya guardadas siguen disponibles.",
       "wikiWhenToUseRequired": "Un procedimiento necesita una breve descripción de cuándo usarlo."
     },
     "events": {

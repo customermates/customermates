@@ -146,7 +146,7 @@ function fixture() {
       id: "crawl-1",
       homepageUrl,
       pendingHosts: [] as string[],
-      mode: homepageUrl.includes("zendesk") ? "extend" : "initial",
+      mode: homepageUrl.includes("zendesk") ? ("extend" as const) : ("initial" as const),
       locale: "en",
     }),
   );

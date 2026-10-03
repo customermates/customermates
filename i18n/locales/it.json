@@ -1376,6 +1376,7 @@
       "wikiSourceChunkTooLarge": "Il frammento della fonte è troppo grande. Nulla è stato contrassegnato come letto.",
       "wikiSourceCitationInvalid": "Cita solo gli ID restituiti da read_website_source. Non è stato modificato nulla.",
       "wikiSourceCitationUnread": "Leggi ogni fonte citata per intero con read_website_source; non lette: {ids}. Non è stato modificato nulla.",
+      "wikiSourceClaimsUnsupported": "Il contenuto segnalato non riflette fedelmente i propri passaggi del sito web. Correggi ogni affermazione segnalata conservando ambito, stato, condizioni, limiti e attribuzione della fonte; usa solo fatti supportati. Nulla è stato modificato.",
       "wikiSourceCoverageRequired": "Leggi tutte le fonti rimanenti con read_website_source action=next prima di creare pagine o rileggere fonti. Restano {remainingSources} fonti. Non è stato modificato nulla.",
       "wikiSourceEvidenceInvalid": "Ogni sezione richiede passaggi di supporto esatti dalle fonti del sito citate in questa pagina. Correggi tutte le citazioni o le fonti segnalate, poi rileggi insieme tutte le fonti necessarie per il gruppo di pagine prima di riprovare. Non è stato modificato nulla.",
       "wikiSourceExclusionDuplicateInvalid": "La fonte {sourceId} non è una copia dal contenuto identico della fonte conservata o importata {duplicateOfSourceId}. Le traduzioni richiedono una sovrapposizione semantica con il titolo esatto di un’offerta conservata, non exact_duplicate. Non è stato modificato nulla.",
@@ -1387,6 +1388,9 @@
       "wikiSourcePlanCitationLimit": "Pianifica da una a quattro fonti per offerta o procedura e citale tutte quando la crei. Dividi un argomento se quattro fonti non coprono i suoi contenuti distinti. Nessun piano è stato accettato.",
       "wikiSourcePlanIncomplete": "Invia un elenco topics e, prima di creare le pagine, includi ogni fonte salvata e ogni ruolo di pagina richiesto in un argomento supportato o un’omissione motivata. ID delle fonti non incluse: [{missingSourceIds}]. Ruoli mancanti o non validi: [{missingRoles}].",
       "wikiSourceReadOrder": "Leggi in ordine senza saltare testo. Usa next o il nextOffset salvato da list.",
+      "wikiSourceReviewLimit": "Mate non ha potuto verificare questo contenuto dopo le correzioni consentite. Non sono state create pagine da questa richiesta. Controlla le pagine già salvate nella Knowledge Base.",
+      "wikiSourceReviewTooLarge": "Il contenuto completo e le sue prove superano il limite di verifica. Invia meno pagine o sezioni complete più brevi, senza omettere prove. Nulla è stato modificato.",
+      "wikiSourceReviewUnavailable": "Mate non ha potuto verificare questo contenuto del sito web. Non sono state create pagine da questa richiesta. Le pagine già salvate restano disponibili.",
       "wikiWhenToUseRequired": "Una procedura richiede una breve descrizione di quando usarla."
     },
     "events": {

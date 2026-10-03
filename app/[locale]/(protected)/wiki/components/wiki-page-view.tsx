@@ -41,7 +41,7 @@ import { WikiPageRail } from "./wiki-page-rail";
 import { resolveWikiPageState } from "./wiki-page-state";
 import { WIKI_LAYOUT_P13N_ID, WIKI_PANEL_LAYOUT_ID } from "./wiki-personalization";
 import { useWikiPages } from "./use-wiki-pages";
-import { WIKI_PAGE_KINDS, WIKI_WHEN_TO_USE_MAX_LENGTH } from "@/features/wiki/wiki.schema";
+import { WikiPageKindSchema, WIKI_PAGE_KINDS, WIKI_WHEN_TO_USE_MAX_LENGTH } from "@/features/wiki/wiki.schema";
 
 const WIKI_PANEL_IDS = ["pages", "document"] as const;
 
@@ -332,6 +332,10 @@ export const WikiPageView = observer(function WikiPageView({
                         {kindHelp[store.form.kind]}
                       </FormFieldHelp>
                     }
+                    onValueChange={(value) => {
+                      const kind = WikiPageKindSchema.safeParse(value);
+                      if (kind.success) store.onChange("kind", kind.data);
+                    }}
                   />
 
                   {store.form.kind === "procedure" && (

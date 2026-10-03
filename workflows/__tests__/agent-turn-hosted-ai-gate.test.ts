@@ -6,6 +6,7 @@ import type * as Ai from "ai";
 import type * as LocaleRegistry from "@/i18n/locale-registry";
 import type * as BudgetPolicy from "@/ee/agent-chat/agent-budget-policy";
 import type * as WikiContext from "@/ee/agent-chat/agent-wiki-context";
+import type * as Env from "@/env";
 
 type WorkflowTool = {
   needsApproval: (input: unknown, options: { toolCallId: string }) => Promise<boolean>;
@@ -32,7 +33,7 @@ const state = vi.hoisted(() => ({
   }>,
   synthesisInventories: [] as Array<string | null | undefined>,
   latestCrawl: null as { pendingHosts: string[] } | null,
-  crawl: null as { userId: string; homepageUrl: string } | null,
+  crawl: null as { userId: string; homepageUrl: string; mode: "initial" | "extend" | "refresh" } | null,
   gateResults: [] as boolean[],
   gateFailure: null as Error | null,
   serializationFailure: null as Error | null,
@@ -82,6 +83,16 @@ const state = vi.hoisted(() => ({
   toolDeps: [] as AgentToolDeps[],
   toolOptions: [] as AgentToolOptions[],
   toolCharges: [] as unknown[],
+  appMode: "cloud" as "cloud" | "demo" | "self-hosted",
+  semanticReview: vi.fn(),
+  semanticReviewReservation: vi.fn(),
+  semanticReceipts: new Map<
+    string,
+    { companyId: string; toolName: string; state: "claimed" | "settled"; resultJson: unknown }
+  >(),
+  claimSemanticReceipt: vi.fn(),
+  settleSemanticReceipt: vi.fn(),
+  beforeWikiMutation: null as null | (() => void),
 }));
 
 vi.mock("@ai-sdk/workflow", () => {
@@ -265,8 +276,27 @@ vi.mock("ai", async (importOriginal) => ({
   isStepCount: () => () => false,
 }));
 
+vi.mock("@/env", async (importOriginal) => {
+  const actual = await importOriginal<typeof Env>();
+  return {
+    ...actual,
+    env: {
+      ...actual.env,
+      get APP_MODE() {
+        return state.appMode;
+      },
+    },
+  };
+});
+
 vi.mock("@/core/decorators/background-tenant", () => ({
   runAsBackgroundTenant: (_userId: string, run: () => unknown) => Promise.resolve(run()),
+}));
+vi.mock("@/core/decorators/transaction-runner", () => ({
+  runInTransaction: (run: () => Promise<unknown>) => {
+    state.beforeWikiMutation?.();
+    return run();
+  },
 }));
 vi.mock("@/core/decorators/tenant-context", () => ({
   getTenantUser: () => ({ companyId: state.tenantCompanyId }),
@@ -278,6 +308,8 @@ vi.mock("@/core/di", () => ({
       if (state.gateFailure) return Promise.reject(state.gateFailure);
       return Promise.resolve(state.gateResults.shift() ?? true);
     }),
+    claimAgentClassifierReceiptUnscoped: state.claimSemanticReceipt,
+    settleAgentClassifierReceiptUnscoped: state.settleSemanticReceipt,
     finalizeAgentTurnOrThrowUnscoped: state.finalize,
     reconcileInterruptedAgentTurnUnscoped: state.reconcile,
     isAgentTurnCancellationRequestedUnscoped: state.readCancellation,
@@ -300,6 +332,7 @@ vi.mock("@/core/di", () => ({
   }),
   getWikiWebsiteCrawlRepo: () => ({
     listSources: () => Promise.resolve(state.synthesisSources),
+    listSynthesizedPages: () => Promise.resolve([]),
     findImportedPage: () => Promise.resolve(null),
     findLatestCrawl: () => Promise.resolve(state.latestCrawl),
     getCrawl: () => Promise.resolve(state.crawl),
@@ -338,7 +371,12 @@ vi.mock("@/features/mcp-tools/tool-registry", () => ({
     { name: "update_workspace_settings", annotations: { readOnlyHint: false } },
   ],
 }));
+vi.mock("@/ee/agent-chat/classifier/classifier-reservation", () => ({
+  classifierReservationMicrocents: state.semanticReviewReservation,
+}));
+
 vi.mock("@/ee/agent-chat/classifier/metered", () => ({
+  classifyMetered: state.semanticReview,
   collectClassifierCharges: async (run: () => Promise<unknown>) => ({
     value: await run(),
     charges: state.toolCharges.splice(0),
@@ -374,10 +412,18 @@ vi.mock("@/ee/agent-chat/agent-budget-policy", async (importOriginal) => {
       (state.budgetFits(...args) as boolean | undefined) ?? actual.isAgentContextWithinBudget(...args),
   };
 });
-vi.mock("@/i18n/get-translator", () => ({
-  getTranslator: (locale: string) =>
-    Promise.resolve((key: string) => (locale === "en" ? `localized:${key}` : `${locale}:${key}`)),
-}));
+vi.mock("@/i18n/get-translator", async () => {
+  const { default: messages } = await import("@/i18n/locales/en.json");
+  const errors = new Map(Object.entries(messages.Common.errors));
+  return {
+    getTranslator: (locale: string) =>
+      Promise.resolve(
+        Object.assign((key: string) => (locale === "en" ? `localized:${key}` : `${locale}:${key}`), {
+          raw: (key: string) => errors.get(key),
+        }),
+      ),
+  };
+});
 vi.mock("@/i18n/locale-registry", async (importOriginal) => ({
   ...(await importOriginal<typeof LocaleRegistry>()),
   appLocaleOrDefault: (locale: string) => locale,
@@ -459,6 +505,83 @@ beforeEach(() => {
   state.approvedCallsRunFirst = false;
   state.instructions.length = 0;
   state.toolCharges = [];
+  state.appMode = "cloud";
+  state.beforeWikiMutation = null;
+  state.semanticReceipts.clear();
+  state.claimSemanticReceipt
+    .mockReset()
+    .mockImplementation(
+      (args: {
+        turnRequestId: string;
+        companyId: string;
+        toolCallId: string;
+        toolName: string;
+        initialResultJson: unknown;
+      }) => {
+        const key = `${args.turnRequestId}:${args.toolCallId}`;
+        const existing = state.semanticReceipts.get(key);
+        if (existing) {
+          if (existing.companyId !== args.companyId || existing.toolName !== args.toolName)
+            throw new Error("Agent classifier receipt ownership changed.");
+          return Promise.resolve({
+            state: existing.state === "settled" ? "settled" : "unknown",
+            resultJson: existing.resultJson,
+          });
+        }
+        state.semanticReceipts.set(key, {
+          companyId: args.companyId,
+          toolName: args.toolName,
+          state: "claimed",
+          resultJson: args.initialResultJson,
+        });
+        return Promise.resolve({ state: "fresh", resultJson: args.initialResultJson });
+      },
+    );
+  state.settleSemanticReceipt
+    .mockReset()
+    .mockImplementation(
+      (args: {
+        turnRequestId: string;
+        companyId: string;
+        toolCallId: string;
+        toolName: string;
+        resultJson: unknown;
+      }) => {
+        const existing = state.semanticReceipts.get(`${args.turnRequestId}:${args.toolCallId}`);
+        if (
+          !existing ||
+          existing.state !== "claimed" ||
+          existing.companyId !== args.companyId ||
+          existing.toolName !== args.toolName
+        )
+          throw new Error("Agent classifier receipt could not be settled.");
+        existing.state = "settled";
+        existing.resultJson = args.resultJson;
+        return Promise.resolve();
+      },
+    );
+  state.semanticReviewReservation.mockReset().mockReturnValue(0);
+  state.semanticReview.mockReset().mockImplementation((_use, spec) =>
+    Promise.resolve({
+      result: {
+        model: "jev",
+        answers: Object.fromEntries(
+          spec.questions.map(({ id }: { id: string }) => [
+            id,
+            {
+              type: "choice",
+              choice: "supported",
+              probabilities: null,
+              confidence: null,
+            },
+          ]),
+        ),
+        costMicrocents: 0,
+        latencyMs: 1,
+      },
+      charge: { use: "wiki_synthesis_review", model: "jev", costMicrocents: 0, measured: true, answered: true },
+    }),
+  );
   state.reconcile.mockReset().mockResolvedValue({ reconciled: true });
   state.close.mockReset().mockResolvedValue(undefined);
   state.reportFailure.mockReset().mockResolvedValue(undefined);
@@ -4096,6 +4219,7 @@ describe("routine browse-or-mutate batch safety", () => {
     };
     await runAgentTurn(payload);
     expect(state.execute).toHaveBeenCalledOnce();
+    expect(state.semanticReview).not.toHaveBeenCalled();
   });
 
   describe("Wiki setup from a website import", () => {
@@ -4107,7 +4231,7 @@ describe("routine browse-or-mutate batch safety", () => {
 
     beforeEach(() => {
       state.definitions = ["read_website_source", "manage_wiki_pages"].map(definition);
-      state.crawl = { userId: payload.userId, homepageUrl: read.url };
+      state.crawl = { userId: payload.userId, homepageUrl: read.url, mode: "initial" };
       state.synthesisSources = [];
       state.synthesisInventories = [];
       state.execute.mockImplementation(withSourceReads(() => ({ ok: true, result: "done" })));
@@ -4175,6 +4299,15 @@ describe("routine browse-or-mutate batch safety", () => {
         ).toMatchObject({ ok: true });
       }
     };
+    const completeSynthesisPage = <T extends { title: string; sourceIds: string[]; kind?: string }>(page: T) => ({
+      ...page,
+      gaps: [],
+      sections: page.sourceIds.map((sourceId) => {
+        const source = state.synthesisSources.find(({ id }) => id === sourceId);
+        if (!source) throw new Error("Missing synthetic source fixture.");
+        return { heading: "Verified scope", content: source.text, evidence: [{ sourceId, quote: source.text.trim() }] };
+      }),
+    });
     const createWithFreshSources = async (
       execute: StreamOptions["executeAndCompleteTool"],
       input: {
@@ -4193,7 +4326,7 @@ describe("routine browse-or-mutate batch safety", () => {
         input.pages.flatMap(({ sourceIds }) => sourceIds),
         toolCallId,
       );
-      return execute("manage_wiki_pages", input, toolCallId);
+      return execute("manage_wiki_pages", { ...input, pages: input.pages.map(completeSynthesisPage) }, toolCallId);
     };
     const createFoundations = async (
       execute: (name: string, input: unknown, id: string) => Promise<unknown>,
@@ -4280,6 +4413,543 @@ describe("routine browse-or-mutate batch safety", () => {
       },
     );
 
+    it("preserves malformed schema issues instead of mislabelling them as a semantic rejection", async () => {
+      preparePlan();
+      state.runTools = async ({ executeAndCompleteTool }) => {
+        await executeAndCompleteTool(
+          "read_website_source",
+          { ...foundationPlan, topics: [topic, ...foundationTopics] },
+          "schema-plan",
+        );
+        await readFreshSources(executeAndCompleteTool, [planSourceId], "schema");
+        const page = completeSynthesisPage({ ...topic, kind: "knowledge" });
+        const malformed = Object.fromEntries(Object.entries(page).filter(([key]) => key !== "gaps"));
+        const before = state.execute.mock.calls.length;
+        expect(
+          await executeAndCompleteTool("manage_wiki_pages", { action: "create", pages: [malformed] }, "schema-create"),
+        ).toMatchObject({
+          ok: false,
+          failure: { kind: "validation", issues: [{ code: "invalid_type", path: ["pages", 0, "gaps"] }] },
+        });
+        expect(state.execute).toHaveBeenCalledTimes(before);
+        expect(state.semanticReview).not.toHaveBeenCalled();
+        await createWithFreshSources(
+          executeAndCompleteTool,
+          { action: "create", pages: [{ ...topic, kind: "knowledge" }] },
+          "schema-recovered",
+        );
+        await createFoundations(executeAndCompleteTool);
+        return finish();
+      };
+      await runAgentTurn(setupPayload);
+      expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
+    });
+
+    it("rejects qualified claims atomically, retains the plan and fresh reads, then accepts a corrected complete page", async () => {
+      preparePlan();
+      state.semanticReview.mockResolvedValueOnce({
+        result: {
+          model: "jev",
+          costMicrocents: 600,
+          latencyMs: 1,
+          answers: {
+            p0_metadata: { type: "choice", choice: "supported", confidence: null, probabilities: null },
+            p0_s0: { type: "choice", choice: "qualified", confidence: 0.99, probabilities: null },
+          },
+        },
+        charge: { use: "wiki_synthesis_review", model: "jev", costMicrocents: 600, measured: true, answered: true },
+      });
+      state.runTools = async ({ executeAndCompleteTool }) => {
+        await executeAndCompleteTool(
+          "read_website_source",
+          { ...foundationPlan, topics: [topic, ...foundationTopics] },
+          "semantic-plan",
+        );
+        await readFreshSources(executeAndCompleteTool, [planSourceId], "semantic");
+        const page = completeSynthesisPage({ ...topic, kind: "knowledge" });
+        page.sections[0].content = "The company completed the entire deployment.";
+        const before = state.execute.mock.calls.length;
+        expect(
+          await executeAndCompleteTool("manage_wiki_pages", { action: "create", pages: [page] }, "unqualified-create"),
+        ).toMatchObject({
+          ok: false,
+          failure: {
+            kind: "validation",
+            issues: [{ path: ["pages", 0, "sections", 0, "content"], customCode: "wikiSourceClaimsUnsupported" }],
+          },
+        });
+        expect(state.execute).toHaveBeenCalledTimes(before);
+        page.sections[0].content = state.synthesisSources[0].text;
+        expect(
+          await executeAndCompleteTool("manage_wiki_pages", { action: "create", pages: [page] }, "qualified-create"),
+        ).toMatchObject({ ok: true });
+        await createFoundations(executeAndCompleteTool);
+        return finish();
+      };
+      await runAgentTurn(setupPayload);
+      expect(state.finalize).toHaveBeenCalledWith(
+        expect.objectContaining({
+          terminalCode: "completed",
+          usageSettlement: expect.objectContaining({ costMicrocents: 600 }),
+        }),
+      );
+      expect(state.semanticReview.mock.calls[0][0]).toBe("wiki_synthesis_review");
+    });
+
+    it("charges an unanswered sent review once, stores nothing and terminates honestly", async () => {
+      preparePlan();
+      state.semanticReview.mockResolvedValueOnce({
+        result: null,
+        charge: { use: "wiki_synthesis_review", model: "jev", costMicrocents: 900, measured: false, answered: false },
+      });
+      state.runTools = async ({ executeAndCompleteTool }) => {
+        await executeAndCompleteTool(
+          "read_website_source",
+          { ...foundationPlan, topics: [topic, ...foundationTopics] },
+          "unavailable-plan",
+        );
+        await readFreshSources(executeAndCompleteTool, [planSourceId], "unavailable");
+        const before = state.execute.mock.calls.length;
+        expect(
+          await executeAndCompleteTool(
+            "manage_wiki_pages",
+            { action: "create", pages: [completeSynthesisPage({ ...topic, kind: "knowledge" })] },
+            "unavailable-create",
+          ),
+        ).toMatchObject({ ok: false, failure: { kind: "unavailable" } });
+        expect(state.execute).toHaveBeenCalledTimes(before);
+        return finish();
+      };
+      await runAgentTurn(setupPayload);
+      expect(state.semanticReview).toHaveBeenCalledOnce();
+      expect(state.finalize).toHaveBeenCalledWith(
+        expect.objectContaining({
+          terminalCode: "partial",
+          stopReason: "provider_error",
+          usageSettlement: expect.objectContaining({ costMicrocents: 900, costSource: "estimated" }),
+          classifierTrace: expect.objectContaining({
+            wikiSynthesisReview: { model: "jev", calls: 1, answered: 0, costMicrocents: 900, measured: false },
+          }),
+        }),
+      );
+    });
+
+    it.each(["credit_limit", "hosted_ai_unavailable"])(
+      "does not call the review or write when its reservation is denied by %s",
+      async (disposition) => {
+        preparePlan();
+        state.semanticReviewReservation.mockReturnValue(payload.turnBudget.reservedMicrocents);
+        state.extendReservation.mockResolvedValueOnce({ disposition });
+        state.runTools = async ({ executeAndCompleteTool }) => {
+          await executeAndCompleteTool(
+            "read_website_source",
+            { ...foundationPlan, topics: [topic, ...foundationTopics] },
+            "review-reserve-plan",
+          );
+          await readFreshSources(executeAndCompleteTool, [planSourceId], "review-reserve");
+          const before = state.execute.mock.calls.length;
+          expect(
+            await executeAndCompleteTool(
+              "manage_wiki_pages",
+              { action: "create", pages: [completeSynthesisPage({ ...topic, kind: "knowledge" })] },
+              "review-reserve-create",
+            ),
+          ).toMatchObject({ ok: false, failure: { kind: "unavailable" } });
+          expect(state.execute).toHaveBeenCalledTimes(before);
+          return finish();
+        };
+        await runAgentTurn(setupPayload);
+        expect(state.semanticReview).not.toHaveBeenCalled();
+        expect(state.finalize).toHaveBeenCalledWith(
+          expect.objectContaining({ terminalCode: "partial", stopReason: disposition }),
+        );
+        expect(state.extendReservation).toHaveBeenCalledWith(
+          expect.objectContaining({
+            requiredMicrocents: payload.turnBudget.reservedMicrocents + 2 * payload.turnBudget.roundReserveMicrocents,
+          }),
+        );
+      },
+    );
+
+    it("never pays to review invalid own quotations and reports every rejected location", async () => {
+      preparePlan();
+      state.runTools = async ({ executeAndCompleteTool }) => {
+        await executeAndCompleteTool(
+          "read_website_source",
+          { ...foundationPlan, topics: [topic, ...foundationTopics] },
+          "quotes-plan",
+        );
+        await readFreshSources(executeAndCompleteTool, [planSourceId], "quotes");
+        const page = completeSynthesisPage({ ...topic, kind: "knowledge" });
+        page.sections[0].evidence.push({ sourceId: planSourceId, quote: "A different nonexistent quotation." });
+        page.sections[0].evidence[0].quote = "An invented quotation that is not in the source.";
+        const before = state.execute.mock.calls.length;
+        const result = await executeAndCompleteTool(
+          "manage_wiki_pages",
+          { action: "create", pages: [page] },
+          "quotes-create",
+        );
+        expect(result).toMatchObject({ ok: false, result: expect.stringContaining("pages.0.sections.0.evidence.0") });
+        expect(JSON.stringify(result)).toContain("pages.0.sections.0.evidence.1");
+        expect(state.execute).toHaveBeenCalledTimes(before);
+        expect(state.semanticReview).not.toHaveBeenCalled();
+        await createWithFreshSources(
+          executeAndCompleteTool,
+          { action: "create", pages: [{ ...topic, kind: "knowledge" }] },
+          "quotes-recovered",
+        );
+        await createFoundations(executeAndCompleteTool);
+        return finish();
+      };
+      await runAgentTurn(setupPayload);
+      expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
+    });
+
+    it("reuses an identical approved candidate after failed storage without charging again, but rechecks changed bytes", async () => {
+      preparePlan();
+      let creates = 0;
+      state.execute.mockImplementation(
+        withSourceReads((input: { action?: string }) => {
+          if (input.action === "create" && ++creates <= 2) return { ok: false, result: "save failed" };
+          return { ok: true, result: "saved" };
+        }),
+      );
+      state.runTools = async ({ executeAndCompleteTool }) => {
+        await executeAndCompleteTool(
+          "read_website_source",
+          { ...foundationPlan, topics: [topic, ...foundationTopics] },
+          "cached-plan",
+        );
+        await readFreshSources(executeAndCompleteTool, [planSourceId], "cached");
+        const page = completeSynthesisPage({ ...topic, kind: "knowledge" });
+        for (const id of ["cached-failed", "cached-identical"]) {
+          expect(
+            await executeAndCompleteTool("manage_wiki_pages", { action: "create", pages: [page] }, id),
+          ).toMatchObject({ ok: false, result: "save failed" });
+        }
+        expect(state.semanticReview).toHaveBeenCalledOnce();
+        page.sections[0].content += "\nThis is a labelled recommendation.";
+        expect(
+          await executeAndCompleteTool("manage_wiki_pages", { action: "create", pages: [page] }, "cached-changed"),
+        ).toMatchObject({ ok: true });
+        expect(state.semanticReview).toHaveBeenCalledTimes(2);
+        await createFoundations(executeAndCompleteTool);
+        return finish();
+      };
+      await runAgentTurn(setupPayload);
+      expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
+    });
+
+    it("bounds rejected rewrites without letting a new tool call ID bypass the page's limit", async () => {
+      preparePlan();
+      state.semanticReview.mockImplementation((_use, spec) =>
+        Promise.resolve({
+          result: {
+            model: "jev",
+            costMicrocents: 0,
+            latencyMs: 1,
+            answers: Object.fromEntries(
+              spec.questions.map(({ id }: { id: string }) => [
+                id,
+                { type: "choice", choice: "unsupported", confidence: 0.99, probabilities: null },
+              ]),
+            ),
+          },
+          charge: { use: "wiki_synthesis_review", model: "jev", costMicrocents: 0, measured: true, answered: true },
+        }),
+      );
+      state.runTools = async ({ executeAndCompleteTool }) => {
+        await executeAndCompleteTool(
+          "read_website_source",
+          { ...foundationPlan, topics: [topic, ...foundationTopics] },
+          "bounded-plan",
+        );
+        await readFreshSources(executeAndCompleteTool, [planSourceId], "bounded");
+        const before = state.execute.mock.calls.length;
+        for (let attempt = 0; attempt < 4; attempt++) {
+          const page = completeSynthesisPage({ ...topic, kind: "knowledge" });
+          page.sections[0].content = `Unsupported rewrite ${attempt}.`;
+          expect(
+            await executeAndCompleteTool(
+              "manage_wiki_pages",
+              { action: "create", pages: [page] },
+              `bounded-create-${attempt}`,
+            ),
+          ).toMatchObject({ ok: false });
+        }
+        expect(state.execute).toHaveBeenCalledTimes(before);
+        return finish();
+      };
+      await runAgentTurn(setupPayload);
+      expect(state.semanticReview).toHaveBeenCalledTimes(3);
+      expect(state.finalize).toHaveBeenCalledWith(
+        expect.objectContaining({ terminalCode: "partial", stopReason: "turn_error" }),
+      );
+    });
+
+    it("recovers a claimed paid review at its full reserve without resending or storing a page", async () => {
+      preparePlan();
+      state.semanticReviewReservation.mockReturnValue(9_000);
+      state.claimSemanticReceipt.mockImplementationOnce((args) =>
+        Promise.resolve({ state: "unknown", resultJson: args.initialResultJson }),
+      );
+      state.runTools = async ({ executeAndCompleteTool }) => {
+        await executeAndCompleteTool(
+          "read_website_source",
+          { ...foundationPlan, topics: [topic, ...foundationTopics] },
+          "crash-plan",
+        );
+        await readFreshSources(executeAndCompleteTool, [planSourceId], "crash");
+        const before = state.execute.mock.calls.length;
+        expect(
+          await executeAndCompleteTool(
+            "manage_wiki_pages",
+            {
+              action: "create",
+              pages: [completeSynthesisPage({ ...topic, kind: "knowledge" })],
+            },
+            "crash-create",
+          ),
+        ).toMatchObject({ ok: false, failure: { kind: "unavailable" } });
+        expect(state.execute).toHaveBeenCalledTimes(before);
+        return finish();
+      };
+      await runAgentTurn(setupPayload);
+      expect(state.semanticReview).not.toHaveBeenCalled();
+      expect(state.settleSemanticReceipt).not.toHaveBeenCalled();
+      expect(state.claimSemanticReceipt).toHaveBeenCalledWith(
+        expect.objectContaining({
+          toolCallId: expect.stringMatching(/^wiki_synthesis_review:[a-f0-9]{64}$/),
+          initialResultJson: expect.objectContaining({
+            result: null,
+            charge: expect.objectContaining({ costMicrocents: 9_000 }),
+          }),
+        }),
+      );
+      expect(state.finalize).toHaveBeenCalledWith(
+        expect.objectContaining({
+          terminalCode: "partial",
+          stopReason: "provider_error",
+          usageSettlement: expect.objectContaining({ costMicrocents: 9_000, costSource: "estimated" }),
+          classifierTrace: expect.objectContaining({
+            wikiSynthesisReview: { model: "jev", calls: 1, answered: 0, costMicrocents: 9_000, measured: false },
+          }),
+        }),
+      );
+    });
+
+    it("replays a settled supported review without another paid request and retains its measured charge", async () => {
+      preparePlan();
+      state.claimSemanticReceipt.mockImplementationOnce((args) =>
+        Promise.resolve({
+          state: "settled",
+          resultJson: {
+            ...args.initialResultJson,
+            result: {
+              model: "jev",
+              costMicrocents: 600,
+              latencyMs: 1,
+              answers: Object.fromEntries(
+                ["p0_metadata", "p0_s0"].map((id) => [
+                  id,
+                  { type: "choice", choice: "supported", probabilities: null, confidence: null },
+                ]),
+              ),
+            },
+            charge: { use: "wiki_synthesis_review", model: "jev", costMicrocents: 600, measured: true, answered: true },
+          },
+        }),
+      );
+      state.runTools = async ({ executeAndCompleteTool }) => {
+        await executeAndCompleteTool(
+          "read_website_source",
+          { ...foundationPlan, topics: [topic, ...foundationTopics] },
+          "settled-plan",
+        );
+        await createWithFreshSources(
+          executeAndCompleteTool,
+          { action: "create", pages: [{ ...topic, kind: "knowledge" }] },
+          "settled-create",
+        );
+        expect(state.semanticReview).not.toHaveBeenCalled();
+        await createFoundations(executeAndCompleteTool);
+        return finish();
+      };
+      await runAgentTurn(setupPayload);
+      expect(state.finalize).toHaveBeenCalledWith(
+        expect.objectContaining({
+          terminalCode: "completed",
+          usageSettlement: expect.objectContaining({ costMicrocents: 600 }),
+        }),
+      );
+    });
+
+    it("does not charge the same rejected review repeatedly under new tool call IDs", async () => {
+      preparePlan();
+      state.semanticReview.mockImplementation((_use, spec) =>
+        Promise.resolve({
+          result: {
+            model: "jev",
+            costMicrocents: 700,
+            latencyMs: 1,
+            answers: Object.fromEntries(
+              spec.questions.map(({ id }: { id: string }) => [
+                id,
+                { type: "choice", choice: "unsupported", probabilities: null, confidence: null },
+              ]),
+            ),
+          },
+          charge: { use: "wiki_synthesis_review", model: "jev", costMicrocents: 700, measured: true, answered: true },
+        }),
+      );
+      state.runTools = async ({ executeAndCompleteTool }) => {
+        await executeAndCompleteTool(
+          "read_website_source",
+          { ...foundationPlan, topics: [topic, ...foundationTopics] },
+          "repeat-plan",
+        );
+        await readFreshSources(executeAndCompleteTool, [planSourceId], "repeat");
+        const before = state.execute.mock.calls.length;
+        for (let attempt = 0; attempt < 4; attempt++) {
+          expect(
+            await executeAndCompleteTool(
+              "manage_wiki_pages",
+              {
+                action: "create",
+                pages: [completeSynthesisPage({ ...topic, kind: "knowledge" })],
+              },
+              `repeat-create-${attempt}`,
+            ),
+          ).toMatchObject({ ok: false });
+        }
+        expect(state.execute).toHaveBeenCalledTimes(before);
+        return finish();
+      };
+      await runAgentTurn(setupPayload);
+      expect(state.semanticReview).toHaveBeenCalledOnce();
+      expect(state.finalize).toHaveBeenCalledWith(
+        expect.objectContaining({
+          terminalCode: "partial",
+          stopReason: "turn_error",
+          usageSettlement: expect.objectContaining({ costMicrocents: 700 }),
+          classifierTrace: expect.objectContaining({
+            wikiSynthesisReview: { model: "jev", calls: 1, answered: 1, costMicrocents: 700, measured: true },
+          }),
+        }),
+      );
+    });
+
+    it.each(["cancel", "reservation_closed", "cancel_before_mutation"])(
+      "retains the review charge but refuses a late website write after %s",
+      async (reason) => {
+        preparePlan();
+        state.semanticReview.mockImplementationOnce((_use, spec) => {
+          if (reason === "cancel") state.readCancellation.mockResolvedValue(true);
+          if (reason === "reservation_closed") state.gateResults = [false];
+          if (reason === "cancel_before_mutation")
+            state.beforeWikiMutation = () => state.readCancellation.mockResolvedValue(true);
+          return Promise.resolve({
+            result: {
+              model: "jev",
+              costMicrocents: 600,
+              latencyMs: 1,
+              answers: Object.fromEntries(
+                spec.questions.map(({ id }: { id: string }) => [
+                  id,
+                  { type: "choice", choice: "supported", probabilities: null, confidence: null },
+                ]),
+              ),
+            },
+            charge: { use: "wiki_synthesis_review", model: "jev", costMicrocents: 600, measured: true, answered: true },
+          });
+        });
+        state.runTools = async ({ executeAndCompleteTool }) => {
+          await executeAndCompleteTool(
+            "read_website_source",
+            { ...foundationPlan, topics: [topic, ...foundationTopics] },
+            `late-${reason}-plan`,
+          );
+          await readFreshSources(executeAndCompleteTool, [planSourceId], reason);
+          const before = state.execute.mock.calls.length;
+          expect(
+            await executeAndCompleteTool(
+              "manage_wiki_pages",
+              {
+                action: "create",
+                pages: [completeSynthesisPage({ ...topic, kind: "knowledge" })],
+              },
+              `late-${reason}-create`,
+            ),
+          ).toMatchObject({ ok: false, failure: { kind: "unavailable" } });
+          expect(state.execute).toHaveBeenCalledTimes(before);
+          return finish();
+        };
+        await runAgentTurn(setupPayload);
+        expect(state.semanticReview).toHaveBeenCalledOnce();
+        expect(state.settleSemanticReceipt).toHaveBeenCalledOnce();
+        expect(state.finalize).toHaveBeenCalledWith(
+          expect.objectContaining({
+            terminalCode: reason === "reservation_closed" ? "partial" : "cancelled",
+            stopReason: reason === "reservation_closed" ? "hosted_ai_unavailable" : "cancelled",
+            usageSettlement: expect.objectContaining({ costMicrocents: 600 }),
+          }),
+        );
+      },
+    );
+
+    it("rejects an extension crawl mislabeled initial in the workflow payload before reviewing or creating", async () => {
+      preparePlan();
+      if (state.crawl) state.crawl.mode = "extend";
+      state.runTools = async ({ executeAndCompleteTool }) => {
+        await executeAndCompleteTool(
+          "read_website_source",
+          { ...foundationPlan, topics: [topic, ...foundationTopics] },
+          "canonical-mode-plan",
+        );
+        await readFreshSources(executeAndCompleteTool, [planSourceId], "canonical-mode");
+        const before = state.execute.mock.calls.length;
+        expect(
+          await executeAndCompleteTool(
+            "manage_wiki_pages",
+            {
+              action: "create",
+              pages: [completeSynthesisPage({ ...topic, kind: "knowledge" })],
+            },
+            "canonical-mode-create",
+          ),
+        ).toMatchObject({ ok: false, failure: { kind: "unavailable" } });
+        expect(state.execute).toHaveBeenCalledTimes(before);
+        state.readCancellation.mockResolvedValue(true);
+        return finish();
+      };
+      await runAgentTurn(setupPayload);
+      expect(state.semanticReview).not.toHaveBeenCalled();
+      expect(state.claimSemanticReceipt).not.toHaveBeenCalled();
+    });
+
+    it("keeps extension creation on its existing plan and fresh-source path without paid semantic review", async () => {
+      preparePlan();
+      if (state.crawl) state.crawl.mode = "extend";
+      state.runTools = async ({ executeAndCompleteTool }) => {
+        await executeAndCompleteTool(
+          "read_website_source",
+          { ...foundationPlan, topics: [topic, ...foundationTopics] },
+          "extend-plan",
+        );
+        await createWithFreshSources(
+          executeAndCompleteTool,
+          { action: "create", pages: [{ ...topic, kind: "knowledge" }] },
+          "extend-create",
+        );
+        await createFoundations(executeAndCompleteTool);
+        return finish();
+      };
+      await runAgentTurn({ ...setupPayload, wikiCrawl: { ...setupPayload.wikiCrawl, mode: "extend" } });
+      expect(state.semanticReview).not.toHaveBeenCalled();
+      expect(state.claimSemanticReceipt).not.toHaveBeenCalled();
+      expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
+    });
+
     it("accepts corrected foundation citations, removes each topic once, and consumes successful reads", async () => {
       preparePlan();
       const other = "00000000-0000-4000-8000-000000000002";
@@ -4326,7 +4996,7 @@ describe("routine browse-or-mutate batch safety", () => {
         await executeAndCompleteTool("read_website_source", foundationPlan, "retry-plan");
         const input = {
           action: "create",
-          pages: foundationTopics.slice(0, -1).map((value) => ({ ...value, kind: "knowledge" })),
+          pages: foundationTopics.slice(0, -1).map((value) => completeSynthesisPage({ ...value, kind: "knowledge" })),
         };
         await readFreshSources(executeAndCompleteTool, [planSourceId], "retry");
         expect(await executeAndCompleteTool("manage_wiki_pages", input, "save-failed")).toMatchObject({
@@ -4373,7 +5043,11 @@ describe("routine browse-or-mutate batch safety", () => {
       });
 
       expect(state.providerCalls).toBe(2);
-      expect(state.extendReservation).not.toHaveBeenCalled();
+      if (envelopes === 1) {
+        expect(state.extendReservation).toHaveBeenCalledWith(
+          expect.objectContaining({ requiredMicrocents: 2 * payload.turnBudget.roundReserveMicrocents }),
+        );
+      } else expect(state.extendReservation).not.toHaveBeenCalled();
       expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
     });
 
@@ -4401,7 +5075,11 @@ describe("routine browse-or-mutate batch safety", () => {
         turnBudget: { ...payload.turnBudget, reservedMicrocents: 2 * payload.turnBudget.roundReserveMicrocents },
       });
 
-      expect(state.extendReservation).not.toHaveBeenCalled();
+      expect(state.extendReservation).toHaveBeenCalledWith(
+        expect.objectContaining({
+          requiredMicrocents: CREDIT + 2 * payload.turnBudget.roundReserveMicrocents,
+        }),
+      );
       expect(state.finalize).toHaveBeenCalledWith(
         expect.objectContaining({
           terminalCode: "completed",
@@ -4943,7 +5621,7 @@ describe("routine browse-or-mutate batch safety", () => {
           { ...foundationPlan, topics: [topic, ...foundationTopics] },
           "plan",
         );
-        const page = { ...topic, kind: "knowledge" };
+        const page = completeSynthesisPage({ ...topic, kind: "knowledge" });
         await readFreshSources(executeAndCompleteTool, page.sourceIds, "shared-concurrent-create");
         expect(
           await executeAndCompleteTool(
@@ -5127,7 +5805,7 @@ describe("routine browse-or-mutate batch safety", () => {
       ["Wiki create permission was revoked", () => state.wikiCreatePermission.mockResolvedValue(false), {}],
       [
         "the import belongs to another user",
-        () => (state.crawl = { userId: "someone-else", homepageUrl: read.url }),
+        () => (state.crawl = { userId: "someone-else", homepageUrl: read.url, mode: "initial" }),
         {},
       ],
     ])("refuses the setup create when %s", async (_, revoke, override) => {
