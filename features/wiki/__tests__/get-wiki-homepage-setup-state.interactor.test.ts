@@ -78,6 +78,17 @@ const CRAWL: WikiWebsiteCrawlState = {
 };
 
 describe("GetWikiHomepageSetupStateInteractor", () => {
+  it.each([CRAWL, null])("exposes saved pages and the total while an import is still working", async (crawl) => {
+    const state = interactor(SETUP, [PAGE], crawl);
+    state.pageRepo.listPages.mockResolvedValue({ items: [PAGE], total: 7, page: 1, pageSize: 5 });
+    await expect(state.interactor.invoke()).resolves.toMatchObject({
+      ok: true,
+      data: { status: "working", pages: [PAGE], pageCount: 7 },
+    });
+    expect(state.pageRepo.listPages).toHaveBeenCalledExactlyOnceWith({ page: 1, pageSize: 5 });
+    state.pageRepo.listPages.mockResolvedValue({ items: [PAGE], total: 8, page: 1, pageSize: 5 });
+    await expect(state.interactor.invoke()).resolves.toMatchObject({ data: { pageCount: 8 } });
+  });
   it("exposes persisted per-page statuses and only a real current reading URL", async () => {
     const targets = [
       { url: "https://example.com/a", status: "read" as const },
@@ -248,6 +259,7 @@ describe("GetWikiHomepageSetupStateInteractor", () => {
         domain: "example.com",
         conversationId: null,
         pages: [],
+        pageCount: 0,
         crawlPhase: "fetching",
         progress: { fetched: 7, total: 24, failed: 0 },
       },
@@ -271,7 +283,7 @@ describe("GetWikiHomepageSetupStateInteractor", () => {
       return { ...CRAWL, status: "completed", conversationId: SETUP.conversationId };
     });
     await expect(subject.interactor.invoke()).resolves.toMatchObject({
-      data: { status: "working", conversationId: SETUP.conversationId, pages: [] },
+      data: { status: "working", conversationId: SETUP.conversationId, pages: [PAGE], pageCount: 1 },
     });
   });
 
@@ -326,7 +338,7 @@ describe("GetWikiHomepageSetupStateInteractor", () => {
   it("keeps an active setup visible when another client creates a page", async () => {
     const { interactor: getState, pageRepo } = interactor(SETUP, [PAGE]);
     await expect(getState.invoke()).resolves.toMatchObject({
-      data: { status: "working", pages: [] },
+      data: { status: "working", pages: [PAGE], pageCount: 1 },
     });
     expect(pageRepo.listPages).toHaveBeenCalledWith({ page: 1, pageSize: 5 });
   });

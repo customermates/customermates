@@ -5,6 +5,7 @@ import { WIKI_TITLE_MAX_LENGTH, WIKI_WHEN_TO_USE_MAX_LENGTH, WikiPageDtoSchema }
 import { WikiCrawlCategorySchema } from "./website-discovery";
 
 export const WIKI_SYNTHESIS_MAX_PAGES = 16;
+export const WIKI_SYNTHESIS_MAX_PAGE_SOURCES = 4;
 
 const SynthesisTitleSchema = z
   .string()
@@ -22,11 +23,24 @@ export const WIKI_SYNTHESIS_FOUNDATION_ROLES = [
 ] as const;
 const FoundationRoleSchema = z.enum(WIKI_SYNTHESIS_FOUNDATION_ROLES);
 
-export const WikiSourceTopicSchema = z.object({
-  title: SynthesisTitleSchema,
-  role: z.enum(["offering", "procedure", ...WIKI_SYNTHESIS_FOUNDATION_ROLES, "operating_guide"]).default("offering"),
-  sourceIds: z.array(z.uuid()).min(1).max(40),
-});
+export const WikiSourceTopicSchema = z
+  .object({
+    title: SynthesisTitleSchema,
+    role: z.enum(["offering", "procedure", ...WIKI_SYNTHESIS_FOUNDATION_ROLES, "operating_guide"]).default("offering"),
+    sourceIds: z.array(z.uuid()).min(1).max(40),
+  })
+  .superRefine((topic, context) => {
+    if (
+      (topic.role === "offering" || topic.role === "procedure") &&
+      topic.sourceIds.length > WIKI_SYNTHESIS_MAX_PAGE_SOURCES
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["sourceIds"],
+        params: { error: CustomErrorCode.wikiSourcePlanCitationLimit },
+      });
+    }
+  });
 export type WikiSourceTopic = z.infer<typeof WikiSourceTopicSchema>;
 
 const WikiSourceExclusionSchema = z
@@ -38,19 +52,27 @@ const WikiSourceExclusionSchema = z
     coveredByTitle: SynthesisTitleSchema.optional(),
     coveredByRole: z.literal("offering").optional(),
     evidenceQuote: z.string().trim().min(1).max(500).optional(),
+    counterpartSourceId: z.uuid().optional(),
+    counterpartQuote: z.string().trim().min(1).max(500).optional(),
   })
   .superRefine((value, context) => {
     const hasDuplicate = value.duplicateOfSourceId !== undefined;
     const hasCoverage = value.coveredByTitle !== undefined || value.coveredByRole !== undefined;
     const hasEvidence = value.evidenceQuote !== undefined;
+    const hasCounterpart = value.counterpartSourceId !== undefined || value.counterpartQuote !== undefined;
     const valid =
       value.basis === "already_imported"
-        ? !hasDuplicate && !hasCoverage && !hasEvidence
+        ? !hasDuplicate && !hasCoverage && !hasEvidence && !hasCounterpart
         : value.basis === "exact_duplicate"
-          ? hasDuplicate && !hasCoverage && !hasEvidence
+          ? hasDuplicate && !hasCoverage && !hasEvidence && !hasCounterpart
           : value.basis === "overlap"
-            ? value.coveredByTitle !== undefined && value.coveredByRole !== undefined && !hasDuplicate && !hasEvidence
-            : hasEvidence && !hasDuplicate && !hasCoverage;
+            ? value.coveredByTitle !== undefined &&
+              value.coveredByRole !== undefined &&
+              hasEvidence &&
+              value.counterpartSourceId !== undefined &&
+              value.counterpartQuote !== undefined &&
+              !hasDuplicate
+            : hasEvidence && !hasDuplicate && !hasCoverage && !hasCounterpart;
     if (!valid) {
       context.addIssue({
         code: "custom",
@@ -73,14 +95,14 @@ export const ReadWebsiteSourceSchema = z.object({
     .max(WIKI_SYNTHESIS_MAX_PAGES)
     .optional()
     .describe(
-      "plan only: exact titles, roles and supporting sources for offerings, four foundations, supported procedures and the Operating Guide. Combine translations; the same source can support several distinct topics. Offering and procedure citations stay within planned sourceIds; aggregate foundations and the guide may cite other fully read sources in the same crawl.",
+      "plan only: exact titles, roles and supporting sources for offerings, four foundations, supported procedures and the Operating Guide. Combine translations; the same source can support several distinct topics. Offering and procedure pages must cite every planned sourceId; aggregate foundations and the guide may cite other fully read sources in the same crawl. Each offering or procedure plans one to four supporting sources, and its create must cite every planned source. Retain distinctive customer cases, architecture, steps and limitations in those sources and in the authored page; if four sources cannot cover them faithfully, split the topic before accepting the plan.",
     ),
   excluded: z
     .array(WikiSourceExclusionSchema)
     .max(40)
     .optional()
     .describe(
-      "plan only: one source per exclusion with a reason and basis. already_imported requires an unchanged imported source. exact_duplicate names duplicateOfSourceId with identical stored content, retained in a topic or already imported. overlap names the exact coveredByTitle of a retained offering and coveredByRole=offering; foundations cannot replace offerings. A shared service family or technology label alone does not justify overlap. If an article adds a distinctive customer case, architecture, steps or limiting conditions, retain its source in the offering topic instead of excluding it, and cover that substance when creating the page. Retain a separate topic if the four-source budget prevents faithful coverage. Use overlap only for redundant content fully represented by the retained offering's cited sources; a source belongs in topics or exclusions, never both. not_substantive requires an exact evidenceQuote from that source. For exclusion and repair evidence, copy a single contiguous sentence or line directly from the returned text. Preserve spelling, punctuation and whitespace exactly; do not insert literal backslash-n characters, ellipses, translated wording or Markdown headings from the inventory. Reread with get and offset=0 when the exact text is no longer visible. Translations and overlap are semantic judgments, not exact-content duplicates. Routing category does not determine relevance.",
+      "plan only: one source per exclusion with a reason and basis. already_imported requires an unchanged imported source. exact_duplicate names duplicateOfSourceId with identical stored content, retained in a topic or already imported. overlap names the exact coveredByTitle of a retained offering and coveredByRole=offering; foundations cannot replace offerings. A shared service family or technology label alone does not justify overlap. If an article adds a distinctive customer case, architecture, steps or limiting conditions, retain its source in the offering topic instead of excluding it, and cover that substance when creating the page. Retain a separate topic if the four-source budget prevents faithful coverage. Use overlap only for redundant content fully represented by the retained offering's cited sources; a source belongs in topics or exclusions, never both. not_substantive requires an exact evidenceQuote from that source. For exclusion and repair evidence, copy a single contiguous sentence or line directly from the returned text. Preserve spelling, punctuation and whitespace exactly; do not insert literal backslash-n characters, ellipses, translated wording or Markdown headings from the inventory. Reread with get and offset=0 when the exact text is no longer visible. Translations and overlap are semantic judgments, not exact-content duplicates. Routing category does not determine relevance. An overlap exclusion requires evidenceQuote copied exactly from the excluded source and counterpartSourceId plus counterpartQuote copied exactly from one source retained by the named offering topic. Compare the substantive case, architecture, steps and limits; a service-family name or shared technology alone is not redundancy. If a distinct fact is missing from the retained evidence, retain the article in the topic instead of excluding it. For translated company or foundation pages, retain both source IDs as foundation reading leads and select appropriate actual citations later. Do not invent an offering coverage anchor for a foundation translation.",
     ),
   reclassifiedOfferings: z
     .array(
@@ -149,7 +171,7 @@ const SynthesisPageSchema = z.object({
   sourceIds: z
     .array(z.uuid())
     .min(1)
-    .max(4)
+    .max(WIKI_SYNTHESIS_MAX_PAGE_SOURCES)
     .describe("Freshly read sourceIds that directly support every factual claim and example on this page."),
   gaps: z
     .array(z.string().trim().min(1).max(300))

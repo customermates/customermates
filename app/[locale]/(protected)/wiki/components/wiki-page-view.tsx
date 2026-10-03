@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import type { ResizablePanelDefinition } from "@/components/layout/resizable-panels";
 import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
 
-import { useCallback, useEffect, useId, useMemo, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, useTransition } from "react";
 import { observer } from "mobx-react-lite";
 import { reaction } from "mobx";
 import { BookOpen, ChevronDown, Plus, Sparkles } from "lucide-react";
@@ -33,7 +33,6 @@ import { ResizablePanelGroup } from "@/components/layout/resizable-panels";
 import { useP13nColumnWidths } from "@/components/shared/use-p13n-column-widths";
 import { mergeStoredPanelSizes, readStoredPanelSizes } from "@/components/layout/resizable-panels.utils";
 
-import { WikiPageStore } from "./wiki-page.store";
 import { WikiPageActions } from "./wiki-page-actions";
 import { WikiPageOutline } from "./wiki-page-outline";
 import { WikiPageSkeleton } from "./wiki-page-skeleton";
@@ -70,19 +69,12 @@ export const WikiPageView = observer(function WikiPageView({
   const router = useRouter();
   const [isNavigating, startNavigation] = useTransition();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [store] = useState(
-    () =>
-      new WikiPageStore(rootStore, initialPage, (pageId) => {
-        const refresh = () => {
-          router.replace(pageId ? wikiPagePath(pageId) : "/wiki");
-          router.refresh();
-        };
-        if (pageId) refresh();
-        else startNavigation(refresh);
-      }),
-  );
+  const [store] = useState(() => {
+    const cached = rootStore.wikiPageStore;
+    cached.initializeServerPage(initialPage, requestedPageId);
+    return cached;
+  });
   useNavigationGuard(store);
-  const receivedRequestedPageId = useRef(requestedPageId);
   const formId = useId();
   const titleContainer = useRef<HTMLDivElement>(null);
   const documentContainer = useRef<HTMLDivElement>(null);
@@ -99,16 +91,13 @@ export const WikiPageView = observer(function WikiPageView({
   const setupConversationId = setupActive ? initialSetupState.conversationId : null;
   const setupDomain = setupActive ? initialSetupState.domain : null;
 
-  useEffect(() => {
-    const selectionChanged = receivedRequestedPageId.current !== requestedPageId;
-    receivedRequestedPageId.current = requestedPageId;
-    if (selectionChanged && requestedPageId !== store.form.id) store.load(initialPage);
-    else store.receivePage(initialPage);
+  useLayoutEffect(() => {
+    store.receiveServerPage(initialPage, requestedPageId);
     const savedState = store.savedState;
     return reaction(
       () => store.creating || store.hasUnsavedChanges || store.isLoading,
       (blocked) => {
-        if (!blocked && store.savedState === savedState) store.receivePage(initialPage);
+        if (!blocked && store.savedState === savedState) store.receiveServerPage(initialPage, requestedPageId);
       },
     );
   }, [initialPage, requestedPageId, store]);
@@ -117,7 +106,8 @@ export const WikiPageView = observer(function WikiPageView({
   }, [store.creating]);
 
   const missing =
-    !store.creating && (store.unavailable || (unavailable && !store.hasUnsavedChanges && !store.isLoading));
+    !store.creating &&
+    (store.unavailable || (unavailable && !store.awaitingSelection && !store.hasUnsavedChanges && !store.isLoading));
   const hasDocument = !missing && (store.creating || Boolean(store.form.id));
   const pageState = resolveWikiPageState({
     isNavigating,

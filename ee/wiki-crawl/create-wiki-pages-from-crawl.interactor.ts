@@ -8,7 +8,7 @@ import { Action, Resource } from "@/generated/prisma";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
-import { fail, failNotFound } from "@/core/validation/interactor-failure-server";
+import { fail, failIssues, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { wikiLanguageConflicts } from "@/features/wiki/wiki-language";
 import { hasInvalidWikiPageLinks } from "@/features/wiki/wiki-markdown-links";
@@ -18,7 +18,7 @@ import { appLocaleOrDefault } from "@/i18n/locale-registry";
 
 import { wikiSourceCoverage } from "./wiki-source-coverage";
 import { wikiSynthesisSectionMarkdown } from "./wiki-synthesis-markdown";
-import { invalidWikiSynthesisEvidence } from "./wiki-synthesis-evidence";
+import { invalidWikiSynthesisEvidencePaths } from "./wiki-synthesis-evidence";
 import { wikiSynthesisQuotedLanguageConflicts } from "./wiki-synthesis-language";
 import {
   CreateWikiPagesFromCrawlSchema,
@@ -90,8 +90,9 @@ export class CreateWikiPagesFromCrawlInteractor extends AuthenticatedInteractor<
     ];
     if (unread.length > 0) return fail(CustomErrorCode.wikiSourceCitationUnread, ["pages"], { ids: unread.join(", ") });
 
-    const invalidEvidence = invalidWikiSynthesisEvidence(data.pages, sources);
-    if (invalidEvidence) return fail(CustomErrorCode.wikiSourceEvidenceInvalid, invalidEvidence);
+    const invalidEvidence = invalidWikiSynthesisEvidencePaths(data.pages, sources);
+    if (invalidEvidence.length)
+      return failIssues(invalidEvidence.map((path) => ({ code: CustomErrorCode.wikiSourceEvidenceInvalid, path })));
 
     const t = await getTranslator(targetLocale, "WikiSetup.generated");
     const pages = data.pages.map((page) => ({

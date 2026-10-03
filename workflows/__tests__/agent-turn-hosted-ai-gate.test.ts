@@ -4577,11 +4577,15 @@ describe("routine browse-or-mutate batch safety", () => {
               "complete-repair",
             ),
           ).toMatchObject({ ok: true });
-          await createWithFreshSources(
-            executeAndCompleteTool,
-            { action: "create", pages: [topic, secondTopic].map((value) => ({ ...value, kind: "knowledge" })) },
-            "offering-pages",
-          );
+          for (const value of [topic, secondTopic]) {
+            expect(
+              await createWithFreshSources(
+                executeAndCompleteTool,
+                { action: "create", pages: [{ ...value, kind: "knowledge" }] },
+                `offering-pages-${value.title}`,
+              ),
+            ).toMatchObject({ ok: true });
+          }
           await createFoundations(executeAndCompleteTool);
           return finish();
         };
@@ -4591,6 +4595,50 @@ describe("routine browse-or-mutate batch safety", () => {
         expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
       },
     );
+
+    it("keeps unrelated source groups in separate atomic creates while retaining both planned topics", async () => {
+      preparePlan();
+      const secondSourceId = "00000000-0000-4000-8000-000000000002";
+      const secondTopic = { title: "Service B", role: "offering", sourceIds: [secondSourceId] };
+      state.synthesisSources.push({
+        id: secondSourceId,
+        text: "# Service B\nDistinct verified offering",
+        contentHash: "service-b",
+        readOffset: 100,
+      });
+      state.runTools = async ({ executeAndCompleteTool }) => {
+        expect(
+          await executeAndCompleteTool(
+            "read_website_source",
+            { action: "plan", topics: [topic, secondTopic, ...foundationTopics], excluded: [] },
+            "separate-groups-plan",
+          ),
+        ).toMatchObject({ ok: true });
+        await readFreshSources(executeAndCompleteTool, [planSourceId, secondSourceId], "separate-groups");
+        const beforeCreate = state.execute.mock.calls.length;
+        expect(
+          await executeAndCompleteTool(
+            "manage_wiki_pages",
+            { action: "create", pages: [topic, secondTopic].map((value) => ({ ...value, kind: "knowledge" })) },
+            "unrelated-group-create",
+          ),
+        ).toMatchObject({ ok: false, result: expect.stringContaining("citation-source sets are identical") });
+        expect(state.execute).toHaveBeenCalledTimes(beforeCreate);
+        for (const value of [topic, secondTopic]) {
+          expect(
+            await createWithFreshSources(
+              executeAndCompleteTool,
+              { action: "create", pages: [{ ...value, kind: "knowledge" }] },
+              `separate-groups-${value.title}`,
+            ),
+          ).toMatchObject({ ok: true });
+        }
+        await createFoundations(executeAndCompleteTool);
+        return finish();
+      };
+      await runAgentTurn(setupPayload);
+      expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
+    });
 
     it("rejects extra citations outside a page's accepted topic instead of accepting one overlapping source", async () => {
       preparePlan();
@@ -4618,11 +4666,15 @@ describe("routine browse-or-mutate batch safety", () => {
           ),
         ).toMatchObject({ ok: false });
         expect(state.execute).toHaveBeenCalledTimes(beforeCreate);
-        await createWithFreshSources(
-          executeAndCompleteTool,
-          { action: "create", pages: [topic, secondTopic].map((value) => ({ ...value, kind: "knowledge" })) },
-          "matching-citations",
-        );
+        for (const value of [topic, secondTopic]) {
+          expect(
+            await createWithFreshSources(
+              executeAndCompleteTool,
+              { action: "create", pages: [{ ...value, kind: "knowledge" }] },
+              `matching-citations-${value.title}`,
+            ),
+          ).toMatchObject({ ok: true });
+        }
         await createFoundations(executeAndCompleteTool);
         return finish();
       };
@@ -4706,11 +4758,15 @@ describe("routine browse-or-mutate batch safety", () => {
             "complete-after-coverage",
           ),
         ).toMatchObject({ ok: true });
-        await createWithFreshSources(
-          executeAndCompleteTool,
-          { action: "create", pages: [topic, secondTopic].map((value) => ({ ...value, kind: "knowledge" })) },
-          "offering-pages",
-        );
+        for (const value of [topic, secondTopic]) {
+          expect(
+            await createWithFreshSources(
+              executeAndCompleteTool,
+              { action: "create", pages: [{ ...value, kind: "knowledge" }] },
+              `offering-pages-${value.title}`,
+            ),
+          ).toMatchObject({ ok: true });
+        }
         await createFoundations(executeAndCompleteTool);
         return finish();
       };

@@ -359,6 +359,7 @@ export async function unifiedDocsExcerpt(
       markdown: first.text,
       query,
       maxChars: DOCS_PAGE_EXCERPT_CHARS,
+      locale: page.locale,
     });
     const room = DOCS_PAGE_EXCERPT_CHARS - lead.length - 2;
     const secondary =
@@ -368,6 +369,7 @@ export async function unifiedDocsExcerpt(
             markdown: second.text,
             query,
             maxChars: room,
+            locale: page.locale,
           })
         : "";
     const link = second?.text
@@ -388,7 +390,13 @@ export async function unifiedDocsExcerpt(
           metadata.length <= Math.floor(DOCS_PAGE_EXCERPT_CHARS / 3) &&
           primaryChars > heading.length + DOCS_EXCERPT_MIN_PART
         ) {
-          const primary = retrievalExcerpt({ heading, markdown: first.text, query, maxChars: primaryChars });
+          const primary = retrievalExcerpt({
+            heading,
+            markdown: first.text,
+            query,
+            maxChars: primaryChars,
+            locale: page.locale,
+          });
           return `${primary}\n\n${metadata}`;
         }
         return lead;

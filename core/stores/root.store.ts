@@ -69,6 +69,7 @@ import { AuditLogsStore } from "@/app/[locale]/(protected)/company/components/au
 import { FeedbackModalStore } from "@/app/[locale]/(protected)/company/components/feedback/feedback-modal.store";
 import { TimelineDetailModalStore } from "@/features/messaging/activities/activities-detail-modal.store";
 import { ErrorTestStore } from "@/app/[locale]/(protected)/test/error/error-test.store";
+import { WikiPageStore } from "@/app/[locale]/(protected)/wiki/components/wiki-page.store";
 
 import { AgentChatStore } from "@/app/components/agent-chat/agent-chat.store";
 import { AgentUiControlStore } from "@/app/components/agent-chat/ui-control.store";
@@ -122,6 +123,7 @@ export class RootStore {
   private _onboardingWizardStore?: OnboardingWizardStore;
   private _resetPasswordStore?: ResetPasswordStore;
   private _errorTestStore?: ErrorTestStore;
+  private _wikiPageStore?: WikiPageStore;
   private _signInStore?: SignInStore;
   private _signUpStore?: SignUpStore;
   private _subscriptionStore?: SubscriptionStore;
@@ -165,6 +167,10 @@ export class RootStore {
 
   get layoutStore() {
     return (this._layoutStore ??= new LayoutStore());
+  }
+
+  get wikiPageStore() {
+    return (this._wikiPageStore ??= new WikiPageStore(this, null));
   }
 
   get userStore() {

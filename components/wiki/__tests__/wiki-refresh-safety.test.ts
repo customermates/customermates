@@ -59,6 +59,23 @@ afterEach(() => {
 });
 
 describe("Wiki polling safety", () => {
+  it("refreshes for growing saved-page totals after the five summaries are unchanged", async () => {
+    harness.rootStore = { navigationGuard: new NavigationGuardController() };
+    harness.getState.mockResolvedValue({ ok: true, data: { ...workingState, pageCount: 6 } });
+    const root = createRoot(document.createElement("div"));
+    try {
+      act(() => root.render(createElement(Poller, { working: true })));
+      await act(() => vi.advanceTimersByTimeAsync(2500));
+      expect(harness.refresh).toHaveBeenCalledOnce();
+      await act(() => vi.advanceTimersByTimeAsync(2500));
+      expect(harness.refresh).toHaveBeenCalledOnce();
+      harness.getState.mockResolvedValue({ ok: true, data: { ...workingState, pageCount: 7 } });
+      await act(() => vi.advanceTimersByTimeAsync(2500));
+      expect(harness.refresh).toHaveBeenCalledTimes(2);
+    } finally {
+      act(() => root.unmount());
+    }
+  });
   it("does not refresh the route when a poll returns the same state", async () => {
     harness.rootStore = { navigationGuard: new NavigationGuardController() };
     harness.getState.mockResolvedValue({ ok: true, data: workingState });

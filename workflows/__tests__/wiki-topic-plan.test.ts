@@ -10,6 +10,7 @@ import {
   wikiPlanningCandidates,
   wikiPlanningContext,
   wikiPageMatchesTopic,
+  wikiSynthesisBatchSharesSources,
 } from "@/workflows/wiki-topic-plan";
 
 const id = (index: number) => `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`;
@@ -76,6 +77,16 @@ describe("rejected website plan hypotheses", () => {
     };
     expect(wikiPageMatchesTopic(topic, page)).toBe(true);
     expect(wikiPageMatchesTopic(topic, { ...page, sourceIds: [id(1), id(3)] })).toBe(false);
+    const merged = { ...topic, sourceIds: [id(1), id(2)] };
+    expect(wikiPageMatchesTopic(merged, page)).toBe(false);
+    expect(wikiPageMatchesTopic(merged, { ...page, sourceIds: [id(2), id(1)] })).toBe(true);
+    expect(wikiPageMatchesTopic(topic, { ...page, sourceIds: [id(1), id(1)] })).toBe(false);
+  });
+  it("groups only identical citation sets without treating a shared homepage as complete overlap", () => {
+    expect(wikiSynthesisBatchSharesSources([{ sourceIds: [id(1), id(2)] }, { sourceIds: [id(2), id(1)] }])).toBe(true);
+    expect(wikiSynthesisBatchSharesSources([{ sourceIds: [id(1), id(2)] }, { sourceIds: [id(1), id(3)] }])).toBe(false);
+    expect(wikiSynthesisBatchSharesSources([{ sourceIds: [id(1), id(1)] }])).toBe(false);
+    expect(wikiSynthesisBatchSharesSources([{ sourceIds: [id(1)] }])).toBe(true);
   });
   it.each([
     CustomErrorCode.wikiSourceCoverageRequired,

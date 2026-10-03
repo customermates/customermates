@@ -16,6 +16,7 @@ import {
   wikiMergeOfferingCandidates,
   wikiPlanningContext,
   wikiPageMatchesTopic,
+  wikiSynthesisBatchSharesSources,
 } from "./wiki-topic-plan";
 import { wikiReadSourceEvidence } from "./wiki-source-evidence";
 
@@ -1248,11 +1249,18 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           ).pages ?? [];
         if (new Set(pages.map(({ title }) => title)).size !== pages.length)
           return { ok: false, result: "Create each planned title only once per batch. No pages were created." };
+        if (!wikiSynthesisBatchSharesSources(pages)) {
+          return {
+            ok: false,
+            result:
+              "Create multiple pages together only when their citation-source sets are identical. Use separate create calls for different source sets. No pages were created.",
+          };
+        }
         if (pages.some((page) => !wikiTopicPlanState.topics?.some((topic) => wikiPageMatchesTopic(topic, page)))) {
           return {
             ok: false,
             result:
-              "Create only remaining planned titles with their matching kind and cited sources. No pages were created.",
+              "Create only remaining planned titles with their matching kind. Offering and procedure pages must cite every planned source, with no extra or duplicate IDs. No pages were created.",
           };
         }
         const missing = [...new Set(pages.flatMap(({ sourceIds }) => sourceIds))].filter((id) => {

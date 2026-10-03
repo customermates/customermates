@@ -667,3 +667,79 @@ describe("consistent docs selections keep the retrieval stages", () => {
     expect(embed).toHaveBeenCalledTimes(3);
   });
 });
+
+describe("authoritative action and condition excerpts", () => {
+  it.each([
+    {
+      locale: "de" as const,
+      slug: "app-records",
+      anchor: "how-do-i-import-or-export-records",
+      query: "Wie läuft der Import ab?",
+      facts: [
+        "**Aus Datei hinzufügen** öffnet einen Wizard",
+        "10 MB und 10.000 Zeilen",
+        "CSV-Dateien werden nicht akzeptiert",
+        "`/contacts`",
+      ],
+    },
+    {
+      locale: "de" as const,
+      slug: "app-profile",
+      anchor: "how-do-i-connect-a-channel",
+      query: "Fehler beim Verbinden des Gmail-Kanals",
+      facts: [
+        "**Kanalverbindung fehlgeschlagen**",
+        "Beginnen Sie erneut mit **Kanal verbinden**",
+        "beim **Fehler**-Status eines vorhandenen Kanals nutzt der Besitzer **Reaktivieren**",
+        "`/profile/connected-accounts`",
+      ],
+    },
+    {
+      locale: "de" as const,
+      slug: "connect-custom-connector",
+      anchor: "claude",
+      query: "Claude erneute Verbindung",
+      facts: [
+        "Die Verbindung hängt an Ihrem Claude-Konto, nicht an einem Gerät",
+        "erneuert sich im Hintergrund",
+        "ohne diese Berechtigung fügen Sie die URL wie oben ein",
+        "`/profile/api-keys`",
+      ],
+    },
+    {
+      locale: "de" as const,
+      slug: "app-company",
+      anchor: "how-does-the-role-editor-work",
+      query: "Nur eigene Kontakte sehen",
+      facts: [
+        "**Zugewiesen** nur die Datensätze, denen das Mitglied zugewiesen ist",
+        "**Keine** blendet die Seite und ihre Datensätze aus",
+        "**Kontakte**",
+        "`/company/roles`",
+      ],
+    },
+    {
+      locale: "en" as const,
+      slug: "concepts",
+      anchor: "how-do-relationships-link-records",
+      query: "Is the link between a deal and its services stored with a quantity?",
+      facts: [
+        "a deal can carry several services with quantities",
+        "`update_deals` keeps `services`",
+        "Every other relation changes only through `manage_record_links`",
+        "`null` or `[]` clears it",
+      ],
+    },
+  ])(
+    "preserves $slug/$anchor's source action and applicable conditions in $locale",
+    async ({ locale, slug, anchor, query, facts }) => {
+      const fetched = await unifiedDocsPageResult(
+        { slug, anchor, query, locale, source: "docs" },
+        { repo: repo([]), embed: null, ranker: undefined },
+      );
+      const markdown = (fetched as { structuredContent: { markdown: string } }).structuredContent.markdown;
+      for (const fact of facts) expect(markdown).toContain(fact);
+      expect(markdown.length).toBeLessThanOrEqual(1_400);
+    },
+  );
+});

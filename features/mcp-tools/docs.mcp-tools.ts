@@ -62,12 +62,18 @@ export const DOCS_RERANK_EXCERPT_CHARS = 1_400;
 
 export type SearchDocsInput = { query: string; locale: DocsLocale; source: "docs" | "api" | "all" };
 
-export function docsRerankExcerpt(section: DocsSection, chars = DOCS_RERANK_EXCERPT_CHARS, query = ""): string {
+export function docsRerankExcerpt(
+  section: DocsSection,
+  chars = DOCS_RERANK_EXCERPT_CHARS,
+  query = "",
+  locale: DocsLocale = DEFAULT_LOCALE,
+): string {
   return retrievalExcerpt({
     heading: `## ${section.headingPath.join(" > ")}`,
     markdown: section.text,
     query,
     maxChars: chars,
+    locale,
   });
 }
 
@@ -78,11 +84,17 @@ function rankedDocsSearchText(
   total: number,
   chosen: readonly DocsSection[],
   query: string,
+  locale: DocsLocale,
 ): string {
   const matches = results.map(({ slug, source, anchor }) => `${source}:${slug}#${anchor}`).join("\n");
   const excerpts = chosen
     .map((section, index) =>
-      docsRerankExcerpt(section, index === 0 ? DOCS_RERANK_EXCERPT_CHARS : DOCS_RANK_SECONDARY_EXCERPT_CHARS, query),
+      docsRerankExcerpt(
+        section,
+        index === 0 ? DOCS_RERANK_EXCERPT_CHARS : DOCS_RANK_SECONDARY_EXCERPT_CHARS,
+        query,
+        locale,
+      ),
     )
     .join("\n\n");
   return `matches:\n${matches}\ntotal=${total}\nbest=${results[0].url}\nexcerpt=\n${excerpts}`;
@@ -177,7 +189,7 @@ export function docsPageResult({ slug, anchor, query, locale, source }: GetDocsP
     );
     if (!section)
       return mcpMessageFailure(`Unknown section "${anchor}" in ${source} page "${slug}" for locale "${locale}"`);
-    excerpt = docsRerankExcerpt(section, DOCS_RERANK_EXCERPT_CHARS, query ?? "");
+    excerpt = docsRerankExcerpt(section, DOCS_RERANK_EXCERPT_CHARS, query ?? "", locale);
   }
 
   if (excerpt !== undefined) {
@@ -223,7 +235,7 @@ export async function unifiedDocsSearchResult(input: SearchDocsInput, deps: Unif
   const results = pages.map(({ section, snippet }) => docsSearchHit(section, input.locale, snippet));
   const text =
     chosen && results.length > 0
-      ? rankedDocsSearchText(results, total, chosen, input.query)
+      ? rankedDocsSearchText(results, total, chosen, input.query, input.locale)
       : compactDocsSearchText(results, total);
   return { text, structuredContent: { results, total } };
 }

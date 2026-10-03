@@ -330,3 +330,41 @@ describe("definition-list context within the excerpt budget", () => {
     expect(excerpt.indexOf(routine)).toBeLessThan(excerpt.indexOf(critical));
   });
 });
+
+describe("locale-aware bounded answer matching", () => {
+  it("does not treat a German question word as part of an unrelated answer word", () => {
+    const action = "Import liest eine Excel-Datei und fügt Datensätze in Batches hinzu.";
+    const restriction = "Nur Besitzer dürfen diese Aktion ausführen.";
+    const excerpt = retrievalExcerpt({
+      markdown: [
+        "Datensätze haben gemeinsame Einstellungen.",
+        "Der Export enthält die wieder geöffneten Datensätze. ".repeat(12),
+        `${action} ${restriction}`,
+      ].join("\n\n"),
+      query: "Wie läuft der Import ab?",
+      locale: "de",
+      heading: "## Datensätze",
+      maxChars: 220,
+    });
+    expect(excerpt).toContain(`${action} ${restriction}`);
+    expect(excerpt).not.toContain("wieder geöffneten");
+    expect(excerpt.length).toBeLessThanOrEqual(220);
+  });
+
+  it("matches German inflected action words without making substrings into word matches", () => {
+    const excerpt = retrievalExcerpt({
+      markdown: [
+        "Portierungspläne enthalten wieder geöffnete Anfragen. ".repeat(12),
+        "Importieren prüft jede Zeile vor dem Schreiben. Unzulässige Zeilen werden ausgelassen.",
+      ].join("\n\n"),
+      query: "Wie importiere ich Datensätze?",
+      locale: "de",
+      heading: "## Übertragen",
+      maxChars: 180,
+    });
+    expect(excerpt).toContain("Importieren prüft jede Zeile vor dem Schreiben.");
+    expect(excerpt).toContain("Unzulässige Zeilen werden ausgelassen.");
+    expect(excerpt).not.toContain("Portierungspläne");
+    expect(excerpt.length).toBeLessThanOrEqual(180);
+  });
+});

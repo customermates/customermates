@@ -130,6 +130,32 @@ export class ReadWikiWebsiteSourcesInteractor extends AuthenticatedInteractor<Re
               path: ["excluded", index, "coveredByTitle"],
               values: { sourceId, coveredByTitle: exclusion.coveredByTitle ?? "" },
             });
+            return;
+          }
+          const counterpartId = exclusion.counterpartSourceId ?? "";
+          const counterpart = sourcesById.get(counterpartId);
+          if (!counterpart || counterpartId === sourceId || !topic?.sourceIds.includes(counterpartId)) {
+            exclusionIssues.push({
+              code: CustomErrorCode.wikiSourceCitationInvalid,
+              path: ["excluded", index, "counterpartSourceId"],
+            });
+          }
+          for (const [field, ownerId, owner] of [
+            ["evidenceQuote", sourceId, source],
+            ["counterpartQuote", counterpartId, counterpart],
+          ] as const) {
+            const quote = exclusion[field];
+            if (
+              quote === undefined ||
+              !owner?.text.includes(quote) ||
+              (quote.length < 20 && owner.text.trim() !== quote)
+            ) {
+              exclusionIssues.push({
+                code: CustomErrorCode.wikiSourceExclusionEvidenceInvalid,
+                path: ["excluded", index, field],
+                values: { sourceId: ownerId },
+              });
+            }
           }
           return;
         }

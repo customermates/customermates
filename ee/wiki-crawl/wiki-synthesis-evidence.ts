@@ -1,12 +1,11 @@
-export function invalidWikiSynthesisEvidence(
+export function invalidWikiSynthesisEvidencePaths(
   pages: readonly {
     sourceIds: readonly string[];
-    sections: readonly {
-      evidence: readonly { sourceId: string; quote: string }[];
-    }[];
+    sections: readonly { evidence: readonly { sourceId: string; quote: string }[] }[];
   }[],
   sources: ReadonlyMap<string, { text: string }>,
-): (string | number)[] | null {
+): (string | number)[][] {
+  const paths: (string | number)[][] = [];
   for (const [pageIndex, page] of pages.entries()) {
     for (const [sectionIndex, section] of page.sections.entries()) {
       for (const [evidenceIndex, evidence] of section.evidence.entries()) {
@@ -16,9 +15,9 @@ export function invalidWikiSynthesisEvidence(
           !source?.text.includes(evidence.quote) ||
           (evidence.quote.length < 20 && source.text.trim() !== evidence.quote)
         )
-          return ["pages", pageIndex, "sections", sectionIndex, "evidence", evidenceIndex];
+          paths.push(["pages", pageIndex, "sections", sectionIndex, "evidence", evidenceIndex]);
       }
     }
   }
-  return null;
+  return paths;
 }

@@ -8,7 +8,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createTranslator } from "next-intl";
 import messages from "@/i18n/locales/en.json";
 import { createMockUser } from "@/tests/helpers/mock-user";
-import { createMockDiModule, MOCK_PRISMA_DB_MODULE, MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-test-setup";
+import {
+  createMockDiModule,
+  MOCK_ENV_MODULE,
+  MOCK_PRISMA_DB_MODULE,
+  MOCK_ZOD_MODULE,
+} from "@/tests/helpers/interactor-test-setup";
 
 const harness = vi.hoisted(() => ({
   create: vi.fn(),
@@ -19,6 +24,7 @@ const harness = vi.hoisted(() => ({
   imported: vi.fn(),
   advance: vi.fn(),
 }));
+vi.mock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env } }));
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("next-intl/server", () => ({
@@ -47,9 +53,15 @@ vi.mock("@/i18n/get-translator", () => ({
   getTranslator: () => Promise.resolve((key: string) => key),
 }));
 
+import { getAgentAiTools, type AgentToolDeps } from "@/ee/agent-chat/agent-tools";
+import { SerializedInteractorFailureSchema } from "@/core/validation/validation.utils";
 import { createWikiFromCrawlTool, readWebsiteSourceTool } from "../wiki-crawl-synthesis-tools";
 import { WIKI_SOURCE_RESULT_MAX_CHARS } from "../wiki-source-coverage";
-import { WIKI_SYNTHESIS_FOUNDATION_ROLES } from "../wiki-crawl-synthesis.schema";
+import {
+  ReadWebsiteSourceSchema,
+  WikiSourceTopicSchema,
+  WIKI_SYNTHESIS_FOUNDATION_ROLES,
+} from "../wiki-crawl-synthesis.schema";
 
 function structured(result: McpToolResult) {
   if (typeof result === "string" || !("structuredContent" in result))
@@ -110,6 +122,119 @@ beforeEach(() => {
 });
 
 describe("single language Wiki synthesis", () => {
+  it("keeps every ordinary evidence repair path visible through the hosted adapter", async () => {
+    const deps: AgentToolDeps = {
+      runUiCommand: vi.fn().mockResolvedValue({ ok: true, result: "unused" }),
+      requestApproval: vi.fn().mockResolvedValue("approve"),
+      resolveApprovalContext: vi.fn().mockImplementation((_name, input) => Promise.resolve({ ok: true, input })),
+      createSupportTicket: vi.fn().mockResolvedValue({ ok: true, result: "unused" }),
+      runExactlyOnce: (_callId, _name, run) => run(),
+      runInCallerContext: (run) => run(),
+      resultMaxChars: 6000,
+    };
+    const tools = getAgentAiTools(deps, {
+      locale: "en",
+      wikiHomepageSetup: true,
+      wikiCrawlId: "00000000-0000-4000-8000-00000000c001",
+      surface: "chat",
+    }) as unknown as Record<string, { execute: (input: unknown, options: { toolCallId: string }) => Promise<unknown> }>;
+    const pages = ["Support", "Subscriptions"].map((title, index) => ({
+      ...page(ENGLISH),
+      title,
+      sections: [0, 1].map((section) => ({
+        heading: `Support details ${section + 1}`,
+        content: ENGLISH,
+        evidence: [{ sourceId: SOURCE_ID, quote: `This absent support quotation ${index}-${section} is invalid.` }],
+      })),
+    }));
+    const output = await tools.manage_wiki_pages.execute({ action: "create", pages }, { toolCallId: "repair-1" });
+    expect(output).toMatchObject({ ok: false, failure: { kind: "validation" } });
+    const failure = output as { result: string; failure: unknown };
+    for (const pageIndex of [0, 1]) {
+      for (const section of [0, 1])
+        expect(failure.result).toContain(`pages[${pageIndex}].sections[${section}].evidence[0]`);
+    }
+    expect(SerializedInteractorFailureSchema.safeParse(failure.failure).success).toBe(true);
+    expect(JSON.stringify(failure.failure).length).toBeLessThanOrEqual(1024);
+    expect(JSON.stringify(output).length).toBeLessThanOrEqual(deps.resultMaxChars);
+    expect(harness.create).not.toHaveBeenCalled();
+  });
+
+  it.each(["offering", "procedure"] as const)(
+    "rejects an uncreatable five-source %s plan while preserving aggregate leads",
+    (role) => {
+      const sourceIds = [1, 2, 3, 4, 5].map((index) => `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`);
+      expect(WikiSourceTopicSchema.safeParse({ title: "Detail", role, sourceIds }).success).toBe(false);
+      expect(WikiSourceTopicSchema.safeParse({ title: "Detail", role, sourceIds: sourceIds.slice(0, 4) }).success).toBe(
+        true,
+      );
+      expect(WikiSourceTopicSchema.safeParse({ title: "Overview", role: "company_overview", sourceIds }).success).toBe(
+        true,
+      );
+    },
+  );
+
+  it("rejects a title-only overlap without both exact source witnesses", () => {
+    const exclusion = {
+      sourceIds: [SOURCE_ID],
+      reason: "Same offering",
+      basis: "overlap",
+      coveredByTitle: "Support",
+      coveredByRole: "offering",
+    };
+    expect(ReadWebsiteSourceSchema.safeParse({ action: "plan", excluded: [exclusion] }).success).toBe(false);
+  });
+
+  it("reports both false overlap quotations and an unrelated counterpart without accepting the plan", async () => {
+    const sources = await harness.sources();
+    const excludedId = "00000000-0000-4000-8000-000000000002";
+    const counterpartId = "00000000-0000-4000-8000-000000000003";
+    harness.sources.mockResolvedValue([
+      ...sources,
+      ...[excludedId, counterpartId].map((id) => ({ ...sources[0], id, contentHash: id })),
+    ]);
+    const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({
+      action: "plan",
+      topics: [
+        { title: "Support", role: "offering", sourceIds: [SOURCE_ID] },
+        { title: "Separate case", role: "offering", sourceIds: [counterpartId] },
+        ...foundations,
+      ],
+      excluded: [
+        {
+          sourceIds: [excludedId],
+          reason: "Repeated material",
+          basis: "overlap",
+          coveredByTitle: "Support",
+          coveredByRole: "offering",
+          evidenceQuote: "Absent from the excluded source.",
+          counterpartSourceId: counterpartId,
+          counterpartQuote: "Absent from the counterpart source.",
+        },
+      ],
+    });
+    expect(result).toMatchObject({
+      failure: {
+        kind: "validation",
+        issues: [
+          expect.objectContaining({
+            customCode: "wikiSourceCitationInvalid",
+            path: ["excluded", 0, "counterpartSourceId"],
+          }),
+          expect.objectContaining({
+            customCode: "wikiSourceExclusionEvidenceInvalid",
+            path: ["excluded", 0, "evidenceQuote"],
+          }),
+          expect.objectContaining({
+            customCode: "wikiSourceExclusionEvidenceInvalid",
+            path: ["excluded", 0, "counterpartQuote"],
+          }),
+        ],
+      },
+    });
+    expect(harness.create).not.toHaveBeenCalled();
+  });
+
   it.each([undefined, []])("refuses a section without supporting evidence (%j)", async (evidence) => {
     const value = {
       ...page(ENGLISH),
@@ -303,6 +428,9 @@ describe("single language Wiki synthesis", () => {
           basis: "overlap",
           coveredByTitle: foundations[0].title,
           coveredByRole: "offering",
+          evidenceQuote: sources[0].text,
+          counterpartSourceId: SOURCE_ID,
+          counterpartQuote: sources[0].text,
         },
       ],
     });
@@ -330,6 +458,9 @@ describe("single language Wiki synthesis", () => {
           basis: "overlap",
           coveredByTitle: kind === "guide" ? foundations[foundations.length - 1].title : topic.title,
           coveredByRole: "offering",
+          evidenceQuote: sources[0].text,
+          counterpartSourceId: SOURCE_ID,
+          counterpartQuote: sources[0].text,
         },
       ],
     });
@@ -357,6 +488,9 @@ describe("single language Wiki synthesis", () => {
           basis: "overlap",
           coveredByTitle: offering.title,
           coveredByRole: "offering",
+          evidenceQuote: sources[0].text,
+          counterpartSourceId: SOURCE_ID,
+          counterpartQuote: sources[0].text,
         },
       ],
     });
@@ -520,6 +654,9 @@ describe("single language Wiki synthesis", () => {
           basis: "overlap",
           coveredByTitle: foundations[0].title,
           coveredByRole: "offering",
+          evidenceQuote: sources[0].text,
+          counterpartSourceId: SOURCE_ID,
+          counterpartQuote: sources[0].text,
           reason: "Covered by a foundation.",
         },
         {

@@ -17,7 +17,19 @@ export function wikiPageMatchesTopic(
     page.title === topic.title &&
     page.kind === kind &&
     page.sourceIds.length > 0 &&
-    (aggregate || page.sourceIds.every((id) => topic.sourceIds.includes(id)))
+    new Set(page.sourceIds).size === page.sourceIds.length &&
+    (aggregate ||
+      (page.sourceIds.length === topic.sourceIds.length && page.sourceIds.every((id) => topic.sourceIds.includes(id))))
+  );
+}
+
+export function wikiSynthesisBatchSharesSources(pages: readonly { sourceIds: readonly string[] }[]): boolean {
+  const sources = pages[0]?.sourceIds ?? [];
+  return pages.every(
+    (page) =>
+      new Set(page.sourceIds).size === page.sourceIds.length &&
+      page.sourceIds.length === sources.length &&
+      page.sourceIds.every((id) => sources.includes(id)),
   );
 }
 

@@ -1,6 +1,6 @@
-import { fold } from "@/core/utils/search-text";
+import type { LocaleCode } from "@/i18n/locale-registry";
 
-import { fullTextUnits, fullTextUnitTerms } from "./full-text-query";
+import { createRetrievalEvidenceMatcher } from "./retrieval-evidence-matcher";
 
 type ContextLine = { order: number; text: string };
 type ExcerptUnit = { text: string; context: ContextLine[]; table?: number; prose?: boolean };
@@ -176,6 +176,7 @@ export function retrievalExcerpt(args: {
   query: string;
   heading?: string;
   maxChars: number;
+  locale?: LocaleCode;
 }): string {
   const maxChars = Math.max(0, Math.floor(args.maxChars));
   if (!maxChars) return "";
@@ -187,14 +188,9 @@ export function retrievalExcerpt(args: {
   const link = linkSuffix(links, Math.max(0, Math.min(128, Math.floor(maxChars / 3), maxChars - heading.length - 43)));
   const suffix = link ? `\n\n${link}` : "";
   const units = unitsIn(args.markdown, maxChars - heading.length - (heading ? 2 : 0) - suffix.length, Boolean(heading));
-  const terms = fullTextUnits(args.query)
-    .filter((unit) => unit.substring || unit.text.length >= 3)
-    .map((unit) => fullTextUnitTerms(unit).map((parts) => parts.map(fold)));
-  const bodies = units.map((unit) => fold(unit.text));
-  const matches = bodies.map((body) =>
-    terms.map((alternatives) => alternatives.some((parts) => parts.every((term) => body.includes(term)))),
-  );
-  const weights = terms.map((_, index) =>
+  const matcher = createRetrievalEvidenceMatcher(args.query, args.locale);
+  const matches = units.map((unit) => matcher.matches(unit.text));
+  const weights = matcher.units.map((_, index) =>
     Math.log(1 + units.length / (1 + matches.filter((hits) => hits[index]).length)),
   );
   const score = (index: number, seen: ReadonlySet<number>) =>
@@ -242,21 +238,13 @@ export function retrievalExcerpt(args: {
         picked.set(index, "");
         const room = maxChars - render(units, picked, heading).length - suffix.length;
         picked.delete(index);
-        const body = proseWindow(unit.text, room, (value) => {
-          const folded = fold(value);
-          return terms.reduce(
-            (sum, alternatives, term) =>
-              sum +
-              (!seen.has(term) && alternatives.some((parts) => parts.every((part) => folded.includes(part)))
-                ? weights[term]
-                : 0),
-            0,
-          );
-        });
+        const body = proseWindow(unit.text, room, (value) =>
+          matcher.matches(value).reduce((sum, hit, term) => sum + (hit && !seen.has(term) ? weights[term] : 0), 0),
+        );
         if (body) {
           picked.set(index, body);
-          terms.forEach((alternatives, term) => {
-            if (alternatives.some((parts) => parts.every((part) => fold(body).includes(part)))) seen.add(term);
+          matcher.matches(body).forEach((hit, term) => {
+            if (hit) seen.add(term);
           });
         }
       }

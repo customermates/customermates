@@ -22,6 +22,7 @@ export const WikiHomepageSetupStateSchema = z.object({
   domain: z.string().nullable(),
   conversationId: z.string().nullable(),
   pages: z.array(WikiPageSummarySchema).max(5),
+  pageCount: z.number().int().min(0).optional(),
   crawlPhase: WikiCrawlPhaseSchema.optional(),
   progress: z
     .object({
@@ -77,7 +78,7 @@ export class GetWikiHomepageSetupStateInteractor extends AuthenticatedInteractor
   @ValidateOutput(WikiHomepageSetupStateSchema)
   async invoke(): Validated<WikiHomepageSetupState> {
     const crawl = await this.crawlRepo.findLatestCrawl();
-    const [setup, { items: pages }] = await Promise.all([
+    const [setup, { items: pages, total: pageCount }] = await Promise.all([
       this.setupTurnRepo.findWikiHomepageSetupTurn(),
       this.pageRepo.listPages({ page: 1, pageSize: 5 }),
     ]);
@@ -115,7 +116,8 @@ export class GetWikiHomepageSetupStateInteractor extends AuthenticatedInteractor
           homepage: crawl.homepageUrl,
           domain: crawl.registrableDomain,
           conversationId: matchingSetup?.conversationId ?? null,
-          pages: [],
+          pages,
+          pageCount,
           crawlPhase: phase.data,
           progress,
         },
@@ -158,7 +160,8 @@ export class GetWikiHomepageSetupStateInteractor extends AuthenticatedInteractor
           homepage: setup.homepage,
           domain: setup.domain,
           conversationId: setup.conversationId,
-          pages: [],
+          pages,
+          pageCount,
           ...(matchingSetup ? { progress } : {}),
         },
       };

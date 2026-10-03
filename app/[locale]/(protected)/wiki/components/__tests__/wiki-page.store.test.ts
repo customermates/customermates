@@ -352,6 +352,90 @@ describe("Wiki document editing", () => {
     expect(store.unavailable).toBe(true);
   });
 
+  it("acknowledges the saved route even if its page disappeared before the response arrived", async () => {
+    const created = { ...page, id: "10000000-0000-4000-8000-000000000002" };
+    actions.create.mockResolvedValue({ ok: true, data: [created] });
+    const store = new WikiPageStore(rootStore(), null, vi.fn());
+    store.initializeServerPage(page);
+    store.startCreate();
+    store.onChange("title", created.title);
+    await store.onSubmit();
+    expect(store.awaitingSelection).toBe(true);
+    store.receiveServerPage(null, created.id);
+    expect(store.awaitingSelection).toBe(false);
+    expect(store.form.id).toBeNull();
+    expect(store.hasUnsavedChanges).toBe(false);
+  });
+
+  it.each(["reload", "save", "delete"] as const)(
+    "does not apply a late %s result or navigation callback to a successor page",
+    async (operation) => {
+      let finish!: (value: unknown) => void;
+      const pending = new Promise((resolve) => {
+        finish = resolve;
+      });
+      const action = operation === "reload" ? actions.get : operation === "save" ? actions.update : actions.delete;
+      action.mockReturnValue(pending);
+      const originalChanged = vi.fn();
+      const successorChanged = vi.fn();
+      const store = new WikiPageStore(rootStore(), page, originalChanged);
+      if (operation === "save") store.onChange("title", "Original unsaved title");
+      const result = operation === "reload" ? store.reload() : operation === "save" ? store.onSubmit() : store.delete();
+
+      store.releaseView();
+      const successor = { ...page, id: "10000000-0000-4000-8000-000000000002", title: "Successor page" };
+      store.initializeServerPage(successor, successor.id);
+      store.attachOnChanged(successorChanged);
+      store.onChange("markdown", "Two unsaved paragraphs on the successor page.\n\nBoth must remain.");
+      store.setIsLoading(true);
+      const successorForm = { ...store.form };
+      finish({ ok: true, data: latest });
+      await result;
+
+      expect(store.form).toEqual(successorForm);
+      expect(store.hasUnsavedChanges).toBe(true);
+      expect(store.isLoading).toBe(true);
+      expect(store.conflict).toBe(false);
+      expect(store.unavailable).toBe(false);
+      expect(originalChanged).not.toHaveBeenCalled();
+      expect(successorChanged).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(["reload", "save", "delete"] as const)(
+    "does not report a late %s failure on a successor page",
+    async (operation) => {
+      let finish!: (value: unknown) => void;
+      const pending = new Promise((resolve) => {
+        finish = resolve;
+      });
+      const action = operation === "reload" ? actions.get : operation === "save" ? actions.update : actions.delete;
+      action.mockReturnValue(pending);
+      const store = new WikiPageStore(rootStore(), page, vi.fn());
+      if (operation === "save") store.onChange("title", "Original unsaved title");
+      const result = operation === "reload" ? store.reload() : operation === "save" ? store.onSubmit() : store.delete();
+
+      store.releaseView();
+      const successor = { ...page, id: "10000000-0000-4000-8000-000000000002", title: "Successor page" };
+      store.initializeServerPage(successor, successor.id);
+      finish({
+        ok: false,
+        error: { errors: ["Original reload failed"] },
+        failure: {
+          kind: "conflict",
+          issues: [{ code: "custom", customCode: CustomErrorCode.wikiPageConflict, path: [], message: "Stale page" }],
+        },
+      });
+      await result;
+
+      expect(store.form).toMatchObject({ id: successor.id, title: successor.title });
+      expect(store.error).toBeUndefined();
+      expect(store.conflict).toBe(false);
+      expect(store.isLoading).toBe(false);
+      expect(actions.toast).not.toHaveBeenCalled();
+    },
+  );
+
   it("keeps asynchronous state changes inside MobX actions and blocks a duplicate Save", async () => {
     let finish!: (value: unknown) => void;
     actions.update.mockImplementation(

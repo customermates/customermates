@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { wikiSourcePayloadFits, wikiSourceResultFits, WIKI_SOURCE_RESULT_MAX_CHARS } from "../wiki-source-coverage";
 import { decodeWikiSourceResult, wikiSourceResultText } from "../wiki-source-result";
-import { invalidWikiSynthesisEvidence } from "../wiki-synthesis-evidence";
+import { invalidWikiSynthesisEvidencePaths } from "../wiki-synthesis-evidence";
 import { wikiReadSourceEvidence } from "@/workflows/wiki-source-evidence";
 
 const id = "00000000-0000-4000-8000-000000000001";
@@ -178,10 +178,10 @@ describe("readable stored website evidence", () => {
         sections: [{ evidence: [{ sourceId: id, quote: text }] }],
       },
     ];
-    expect(invalidWikiSynthesisEvidence(pages, new Map([[id, { text }]]))).toBeNull();
+    expect(invalidWikiSynthesisEvidencePaths(pages, new Map([[id, { text }]]))).toEqual([]);
     for (const quote of [text.replaceAll("\n", "\\n"), "First exact...supporting sentence."]) {
       expect(
-        invalidWikiSynthesisEvidence(
+        invalidWikiSynthesisEvidencePaths(
           [
             {
               sourceIds: [id],
@@ -190,8 +190,38 @@ describe("readable stored website evidence", () => {
           ],
           new Map([[id, { text }]]),
         ),
-      ).not.toBeNull();
+      ).toEqual([["pages", 0, "sections", 0, "evidence", 0]]);
     }
+  });
+
+  it("reports every invalid quotation without accepting a partially repaired batch", () => {
+    const otherId = "00000000-0000-4000-8000-000000000002";
+    const paragraphs = "First exact supporting sentence.\n\nSecond exact supporting sentence.";
+    const pages = [
+      {
+        sourceIds: [id],
+        sections: [
+          {
+            evidence: [
+              { sourceId: id, quote: paragraphs.replaceAll("\n\n", " ") },
+              { sourceId: id, quote: "First exact...Second exact supporting sentence." },
+              { sourceId: otherId, quote: "First exact supporting sentence." },
+            ],
+          },
+        ],
+      },
+    ];
+    const sources = new Map([
+      [id, { text: paragraphs }],
+      [otherId, { text: paragraphs }],
+    ]);
+    expect(invalidWikiSynthesisEvidencePaths(pages, sources)).toEqual(
+      [0, 1, 2].map((index) => ["pages", 0, "sections", 0, "evidence", index]),
+    );
+    pages[0].sections[0].evidence[0].quote = paragraphs;
+    expect(invalidWikiSynthesisEvidencePaths(pages, sources)).toEqual(
+      [1, 2].map((index) => ["pages", 0, "sections", 0, "evidence", index]),
+    );
   });
 
   it("rejects truncated, extra, mismatched and malformed source framing", () => {
