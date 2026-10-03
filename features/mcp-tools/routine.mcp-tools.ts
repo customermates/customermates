@@ -69,7 +69,7 @@ const ManageRoutinesSchema = z.object({
     .array(z.string())
     .optional()
     .describe(
-      "Restricts an update event to these field keys or custom-column ids. Dropped unless every event shares one entity type.",
+      "Not stored for record events: put the watched field IDs of the subscribed record type in recordTrigger.changedFieldIds instead.",
     ),
   triggerFilters: z
     .array(FilterSchema)
@@ -80,7 +80,7 @@ const ManageRoutinesSchema = z.object({
   recordTrigger: RoutineRecordTriggerSchema.nullable()
     .optional()
     .describe(
-      "For record.created/updated/deleted: a query with stable typeId, filters and relationships, plus watched field IDs. Discover the type schema first. Deletion filters match before removal; creation and update filters match the resulting state and are rechecked at admission. Current owner access is always rechecked. Do not mix record events with messaging or retired entity events.",
+      "For record.created/updated/deleted: a query with stable typeId, filters and relationships, plus watched field IDs. Discover the type schema first. Deletion filters match before removal; creation and update filters match the resulting state and are rechecked at admission. Current owner access is always rechecked. Do not mix record events with messaging events.",
     ),
   expectedSchemaRevision: z
     .number()

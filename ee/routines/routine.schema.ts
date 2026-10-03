@@ -14,7 +14,12 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { zx } from "@/core/validation/validation.utils";
 import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
 import { FilterSchema } from "@/core/base/base-get.schema";
-import { ROUTINE_TRIGGER_EVENTS, RoutineTriggerEventSchema } from "./routine-trigger-events";
+import {
+  ROUTINE_TRIGGER_EVENTS,
+  RoutineTriggerEventSchema,
+  STORED_ROUTINE_TRIGGER_EVENTS,
+  StoredRoutineTriggerEventSchema,
+} from "./routine-trigger-events";
 import { ROUTINE_TRIGGER_FIELD_LIMIT } from "./routine-run-trigger-context";
 import {
   RecordTriggerDefinitionSchema,
@@ -37,7 +42,12 @@ export const RoutineRunStatusSchema = z.enum(RoutineRunStatus);
 
 export const RoutineRecordTriggerSchema = RecordTriggerDefinitionSchema;
 
-export { ROUTINE_TRIGGER_EVENTS, RoutineTriggerEventSchema };
+export {
+  ROUTINE_TRIGGER_EVENTS,
+  RoutineTriggerEventSchema,
+  STORED_ROUTINE_TRIGGER_EVENTS,
+  StoredRoutineTriggerEventSchema,
+};
 
 export const RoutineOwnerDtoSchema = z.object({
   id: z.uuid(),
@@ -93,7 +103,7 @@ export const RoutineRunDtoSchema = z.object({
   turnRequestId: z.uuid().nullable(),
   status: RoutineRunStatusSchema,
   triggerKind: RoutineTriggerKindSchema,
-  triggerEvent: RoutineTriggerEventSchema.nullable(),
+  triggerEvent: StoredRoutineTriggerEventSchema.nullable(),
   triggerEntityId: z.string().nullable(),
   triggerContext: RoutineRunTriggerContextSchema.nullable(),
   scheduledFor: z.date(),
@@ -127,7 +137,10 @@ const UpsertRoutineFieldsSchema = z.object({
   debounceSeconds: z.number().int().min(0).max(86_400).optional(),
 });
 
-export type RoutineValidationData = z.output<typeof UpsertRoutineFieldsSchema>;
+/** The merged final state: an unchanged stored routine may still carry a retired trigger event. */
+export type RoutineValidationData = Omit<z.output<typeof UpsertRoutineFieldsSchema>, "triggerEvents"> & {
+  triggerEvents?: z.output<typeof StoredRoutineTriggerEventSchema>[];
+};
 
 export function validateRoutineFinalState(data: RoutineValidationData, ctx: z.RefinementCtx) {
   const creating = !data.id;

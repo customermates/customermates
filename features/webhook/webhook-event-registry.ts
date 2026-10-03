@@ -40,6 +40,7 @@ export const WEBHOOK_EVENTS = [
   ...WEBHOOK_MESSAGING_EVENTS,
 ] as const;
 
-export const WEBHOOK_EVENT_COUNT = WEBHOOK_EVENTS.length;
-export const WEBHOOK_MESSAGING_EVENT_COUNT = WEBHOOK_EVENTS.filter((event) => event.startsWith("messaging.")).length;
-export const WEBHOOK_RECORD_EVENT_COUNT = WEBHOOK_EVENT_COUNT - WEBHOOK_MESSAGING_EVENT_COUNT;
+/** Counts of the events a webhook can subscribe to; legacy identifiers only decode stored data. */
+export const WEBHOOK_EVENT_COUNT = WEBHOOK_CURRENT_EVENTS.length;
+export const WEBHOOK_MESSAGING_EVENT_COUNT = WEBHOOK_MESSAGING_EVENTS.length;
+export const WEBHOOK_RECORD_EVENT_COUNT = WEBHOOK_RECORD_EVENTS.length;

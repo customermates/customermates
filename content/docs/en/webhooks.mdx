@@ -285,7 +285,7 @@ For `record.deleted`, `data.payload` is a version-two envelope with the qualifie
 
 ## Which events exist?
 
-The catalog accepts [[derived.webhooks.events.total]] event identifiers: three current record events, fifteen type-specific legacy identifiers for existing configurations, and [[derived.webhooks.events.messaging]] messaging events. For a new CRM webhook, select `record.created`, `record.updated`, or `record.deleted` and configure its record sources to choose types, fields, and filters. This also covers customer-created types. All use the envelope from [What does the payload look like?](#what-does-the-payload-look-like). Routines can be triggered by the same events except **Email Deleted** (`messaging.email.deleted`) and **Chat Deleted** (`messaging.chat.deleted`); **Message Deleted** (`messaging.message.deleted`) does trigger routines; see [Routines](/docs/app-routines#how-do-event-triggers-work).
+A webhook can subscribe to [[derived.webhooks.events.total]] events: [[derived.webhooks.events.records]] record events and [[derived.webhooks.events.messaging]] messaging events. Fifteen retired type-specific identifiers can still appear on older webhooks and in the delivery history, but they can no longer be selected and nothing emits them. For a new CRM webhook, select `record.created`, `record.updated`, or `record.deleted` and configure its record sources to choose types, fields, and filters. This also covers customer-created types. All use the envelope from [What does the payload look like?](#what-does-the-payload-look-like). Routines can be triggered by the same events except **Email Deleted** (`messaging.email.deleted`) and **Chat Deleted** (`messaging.chat.deleted`); **Message Deleted** (`messaging.message.deleted`) does trigger routines; see [Routines](/docs/app-routines#how-do-event-triggers-work).
 
 ### Record events
 
@@ -295,7 +295,7 @@ The catalog accepts [[derived.webhooks.events.total]] event identifiers: three c
 | `record.updated` | A field, assignment, identity, or link changes on a configured source type | version 2 record envelope with before/after changes |
 | `record.deleted` | A record of a configured source type is deleted | version 2 record envelope |
 
-The following type-specific identifiers are retained for legacy configurations. They are not the contract for new generic-record writes or customer-created types; migrate their subscriptions to a generic event and record source.
+The following type-specific identifiers are retired. They are kept only so older configurations and delivery records stay readable; they cannot be selected for a webhook or routine, and no change emits them. Replace them with a generic event and a record source.
 
 | Legacy event | Historical meaning | Legacy `payload` |
 | --- | --- | --- |

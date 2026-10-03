@@ -3,6 +3,28 @@ import { RecordEventSubscriptionSchema } from "@/features/records/record-event-s
 import { Prisma } from "@/generated/prisma";
 import type { SeedContext } from "./context";
 
+const LEGACY_RECORD_EVENT = /^(contact|organization|deal|service|task)\.(created|updated|deleted)$/;
+
+type GenericRecordEvent = "record.created" | "record.updated" | "record.deleted";
+
+function genericRecordEventsByType(events: readonly string[]) {
+  const byType = new Map<string, Set<GenericRecordEvent>>();
+  for (const event of events) {
+    const match = LEGACY_RECORD_EVENT.exec(event);
+    if (!match) continue;
+    const generic = byType.get(match[1]) ?? new Set();
+    generic.add(`record.${match[2]}` as GenericRecordEvent);
+    byType.set(match[1], generic);
+  }
+  return byType;
+}
+
+/** The events a seeded routine or webhook is stored with: authored type-specific events become generic ones. */
+export function liveSeedEvents(events: readonly string[]): string[] {
+  const generic = [...new Set([...genericRecordEventsByType(events).values()].flatMap((set) => [...set]))].sort();
+  return [...new Set([...events.filter((event) => !LEGACY_RECORD_EVENT.test(event)), ...generic])];
+}
+
 export async function seedRecordEventSubscription(
   context: SeedContext,
   input: {
@@ -14,21 +36,9 @@ export async function seedRecordEventSubscription(
     changedFields?: string[];
   },
 ) {
-  const byType = new Map<string, Set<"record.created" | "record.updated" | "record.deleted">>();
-  for (const event of input.events) {
-    const match = /^(contact|organization|deal|service|task)\.(created|updated|deleted)$/.exec(event);
-    if (!match) continue;
-    const events = byType.get(match[1]) ?? new Set();
-    events.add(`record.${match[2]}` as "record.created" | "record.updated" | "record.deleted");
-    byType.set(match[1], events);
-  }
+  const byType = genericRecordEventsByType(input.events);
   const events = [...new Set([...byType.values()].flatMap((events) => [...events]))].sort();
-  const liveEvents = [
-    ...new Set([
-      ...input.events.filter((event) => !/^(contact|organization|deal|service|task)\./.test(event)),
-      ...events,
-    ]),
-  ];
+  const liveEvents = liveSeedEvents(input.events);
   if (!events.length) {
     await context.prisma.recordEventSubscription.deleteMany({
       where: { companyId: context.ids.company, id: input.id },

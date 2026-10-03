@@ -32,6 +32,7 @@ import {
   ROUTINE_RUN_POLL_INTERVAL_MS,
   ROUTINE_RUN_POLL_MAX_MS,
   RoutineModalStore,
+  routineFormFor,
 } from "../routine-modal.store";
 
 const OWNER_ID = "30000000-0000-4000-8000-000000000010";
@@ -145,6 +146,20 @@ function makeStore(
     localeStore: { getTranslation: (key: string) => key },
   } as unknown as RootStore);
 }
+
+describe("routineFormFor", () => {
+  it("offers only events that still fire when an existing routine is opened for editing", () => {
+    const form = routineFormFor(
+      makeRoutine({
+        triggerKind: RoutineTriggerKind.event,
+        cronExpression: null,
+        timezone: null,
+        triggerEvents: ["deal.updated", "messaging.message.received"],
+      }),
+    );
+    expect(form.triggerEvents).toEqual(["messaging.message.received"]);
+  });
+});
 
 describe("RoutineModalStore", () => {
   it("keeps a dynamic trigger and draft through reloads and clears incompatible fields on a type change", async () => {

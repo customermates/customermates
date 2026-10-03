@@ -21,6 +21,7 @@ import { BaseModalStore } from "@/core/base/base-modal.store";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { isRecordChangeEvent } from "@/ee/routines/routine-event-filter";
+import { isRoutineTriggerEvent } from "@/ee/routines/routine-trigger-events";
 import { DEFAULT_ROUTINE_TIMEZONE } from "@/ee/routines/routine-schedule";
 import {
   DEFAULT_ROUTINE_SCHEDULE,
@@ -77,7 +78,7 @@ export function routineFormFor(routine: RoutineDto): RoutineModalForm {
     enabled: routine.enabled,
     triggerKind: routine.triggerKind,
     timezone: routine.timezone ?? DEFAULT_ROUTINE_TIMEZONE,
-    triggerEvents: routine.triggerEvents,
+    triggerEvents: routine.triggerEvents.filter(isRoutineTriggerEvent),
     changedFields: routine.changedFields,
     triggerFilters: routine.triggerFilters,
     recordTrigger: routine.recordTrigger ?? null,

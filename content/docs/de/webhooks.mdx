@@ -287,7 +287,7 @@ Bei `record.deleted` enthält `data.payload` ein Version-zwei-Envelope mit der e
 
 ## Welche Ereignisse gibt es? [#which-events-exist]
 
-Der Katalog akzeptiert [[derived.webhooks.events.total]] Event-Bezeichner: drei aktuelle Datensatz-Events, fünfzehn typspezifische Altbezeichner für bestehende Konfigurationen und [[derived.webhooks.events.messaging]] Messaging-Events. Für einen neuen CRM-Webhook wählen Sie `record.created`, `record.updated` oder `record.deleted` und legen Datensatzquellen mit Typen, Feldern und Filtern fest. Das funktioniert auch für selbst angelegte Typen. Alle nutzen den Umschlag aus [Wie sieht der Payload aus?](#what-does-the-payload-look-like). Routinen können durch dieselben Ereignisse ausgelöst werden, mit Ausnahme von **E-Mail gelöscht** (`messaging.email.deleted`) und **Chat gelöscht** (`messaging.chat.deleted`); **Nachricht gelöscht** (`messaging.message.deleted`) löst Routinen aus; siehe [Routinen](/docs/app-routines#how-do-event-triggers-work).
+Ein Webhook kann [[derived.webhooks.events.total]] Events abonnieren: [[derived.webhooks.events.records]] Datensatz-Events und [[derived.webhooks.events.messaging]] Messaging-Events. Fünfzehn stillgelegte typspezifische Bezeichner können noch an älteren Webhooks und im Zustellungsverlauf stehen, lassen sich aber nicht mehr auswählen und werden von nichts mehr ausgelöst. Für einen neuen CRM-Webhook wählen Sie `record.created`, `record.updated` oder `record.deleted` und legen Datensatzquellen mit Typen, Feldern und Filtern fest. Das funktioniert auch für selbst angelegte Typen. Alle nutzen den Umschlag aus [Wie sieht der Payload aus?](#what-does-the-payload-look-like). Routinen können durch dieselben Ereignisse ausgelöst werden, mit Ausnahme von **E-Mail gelöscht** (`messaging.email.deleted`) und **Chat gelöscht** (`messaging.chat.deleted`); **Nachricht gelöscht** (`messaging.message.deleted`) löst Routinen aus; siehe [Routinen](/docs/app-routines#how-do-event-triggers-work).
 
 ### Record-Events [#record-events]
 
@@ -297,7 +297,7 @@ Der Katalog akzeptiert [[derived.webhooks.events.total]] Event-Bezeichner: drei 
 | `record.updated` | Feld, Zuweisung, Identität oder Verknüpfung eines konfigurierten Quelltyps ändert sich | Datensatzumschlag Version 2 mit vorherigen und neuen Werten |
 | `record.deleted` | Ein Datensatz eines konfigurierten Quelltyps wird gelöscht | Datensatzumschlag Version 2 |
 
-Die folgenden typspezifischen Bezeichner bleiben für ältere Konfigurationen erhalten. Sie sind nicht der Vertrag für neue generische Datensatzänderungen oder selbst angelegte Typen; migrieren Sie solche Abonnements auf ein generisches Event mit Datensatzquelle.
+Die folgenden typspezifischen Bezeichner sind stillgelegt. Sie bleiben nur erhalten, damit ältere Konfigurationen und Zustellungseinträge lesbar bleiben; für Webhooks und Routinen lassen sie sich nicht auswählen, und keine Änderung löst sie aus. Ersetzen Sie sie durch ein generisches Event mit Datensatzquelle.
 
 | Altes Event | Frühere Bedeutung | Alter `payload` |
 | --- | --- | --- |

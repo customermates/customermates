@@ -296,7 +296,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
       createTestRoutineRepo().upsertRoutineOrThrow({
         id: scheduledRoutineId,
         triggerKind: "event",
-        triggerEvents: ["deal.updated"],
+        triggerEvents: ["messaging.message.received"],
       }),
     );
 
@@ -373,7 +373,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
         createTestRoutineRepo().upsertRoutineOrThrow({
           id: raceRoutineId,
           triggerKind: "event",
-          triggerEvents: ["deal.updated"],
+          triggerEvents: ["messaging.message.received"],
         }),
       );
       await waitForWaiters(1);
@@ -398,7 +398,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
       }>('SELECT "triggerKind", "triggerEvents" FROM "Routine" WHERE "id" = $1', [raceRoutineId]);
       expect(stored.rows[0]).toEqual({
         triggerKind: "event",
-        triggerEvents: ["deal.updated"],
+        triggerEvents: ["messaging.message.received"],
       });
     } finally {
       if (!released) await blocker.query("ROLLBACK");
@@ -444,7 +444,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
             name,
             prompt: "Do something",
             triggerKind: "event",
-            triggerEvents: ["deal.updated"],
+            triggerEvents: ["messaging.message.received"],
           },
           limit,
         ),
@@ -495,7 +495,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
               name: `First owner's Pro routine ${index}`,
               prompt: "Do something",
               triggerKind: "event",
-              triggerEvents: ["deal.updated"],
+              triggerEvents: ["messaging.message.received"],
             },
             5,
           ),
@@ -509,7 +509,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
               name: "Second owner's first Pro routine",
               prompt: "Do something",
               triggerKind: "event",
-              triggerEvents: ["deal.updated"],
+              triggerEvents: ["messaging.message.received"],
             },
             5,
           ),
@@ -523,7 +523,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
               name: "First owner's sixth Business routine",
               prompt: "Do something",
               triggerKind: "event",
-              triggerEvents: ["deal.updated"],
+              triggerEvents: ["messaging.message.received"],
             },
             "unlimited",
           ),
@@ -586,7 +586,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
             name: "Stale-session create",
             prompt: "Do something",
             triggerKind: "event",
-            triggerEvents: ["deal.updated"],
+            triggerEvents: ["messaging.message.received"],
           }),
         ),
       ).rejects.toThrow("no longer eligible");

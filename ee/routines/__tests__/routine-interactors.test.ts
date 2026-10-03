@@ -26,7 +26,13 @@ vi.mock("next-intl/server", () => ({
   getLocale: () => Promise.resolve("en"),
 }));
 
-import { ROUTINE_TRIGGER_EVENTS, UpsertRoutineSchema } from "../routine.schema";
+import {
+  ROUTINE_TRIGGER_EVENTS,
+  RoutineDtoSchema,
+  RoutineRunDtoSchema,
+  STORED_ROUTINE_TRIGGER_EVENTS,
+  UpsertRoutineSchema,
+} from "../routine.schema";
 import { RunRoutineNowInteractor } from "../run-routine-now.interactor";
 import { FailRoutineRunInteractor } from "../fail-routine-run.interactor";
 import { StartRoutineRunInteractor } from "../start-routine-run.interactor";
@@ -130,6 +136,20 @@ describe("UpsertRoutineSchema", () => {
         triggerEvents: ["messaging.chat.deleted"],
       }).success,
     ).toBe(false);
+  });
+
+  it("accepts only events that are still emitted when creating or updating, but still decodes retired ones", () => {
+    const retired = "deal.updated";
+    expect(ROUTINE_TRIGGER_EVENTS).not.toContain(retired);
+    expect(STORED_ROUTINE_TRIGGER_EVENTS).toContain(retired);
+    const routine = { name: "Deal watcher", prompt: "Summarise the change", triggerKind: "event" } as const;
+    expect(UpsertRoutineSchema.safeParse({ ...routine, triggerEvents: [retired] }).success).toBe(false);
+    expect(UpsertRoutineSchema.safeParse({ id: ROUTINE_ID, triggerEvents: [retired] }).success).toBe(false);
+    expect(UpsertRoutineSchema.safeParse({ ...routine, triggerEvents: ["messaging.message.received"] }).success).toBe(
+      true,
+    );
+    expect(RoutineDtoSchema.shape.triggerEvents.safeParse([retired]).success).toBe(true);
+    expect(RoutineRunDtoSchema.shape.triggerEvent.safeParse(retired).success).toBe(true);
   });
 
   it("rejects an unparseable cron expression", () => {

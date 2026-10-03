@@ -1,13 +1,29 @@
 import type { z } from "zod";
 
-import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
+import { WebhookCurrentEventSchema, WebhookEventSchema } from "@/features/webhook/webhook.schema";
 import { DomainEvent } from "@/features/event/domain-events";
 
-export const RoutineTriggerEventSchema = WebhookEventSchema.exclude([
-  DomainEvent.MESSAGING_EMAIL_DELETED,
-  DomainEvent.MESSAGING_CHAT_DELETED,
-]);
+const NON_TRIGGERING_EVENTS = [DomainEvent.MESSAGING_EMAIL_DELETED, DomainEvent.MESSAGING_CHAT_DELETED] as const;
+
+/**
+ * Events a routine can be created or updated with: only events the platform still emits.
+ */
+export const RoutineTriggerEventSchema = WebhookCurrentEventSchema.exclude([...NON_TRIGGERING_EVENTS]);
 
 export const ROUTINE_TRIGGER_EVENTS = RoutineTriggerEventSchema.options;
 
 export type RoutineTriggerEvent = z.infer<typeof RoutineTriggerEventSchema>;
+
+export function isRoutineTriggerEvent(value: string): value is RoutineTriggerEvent {
+  return (ROUTINE_TRIGGER_EVENTS as readonly string[]).includes(value);
+}
+
+/**
+ * Events that can appear on stored routines and their run history, including the retired
+ * type-specific entity events. Use only to decode what is already stored, never for input.
+ */
+export const StoredRoutineTriggerEventSchema = WebhookEventSchema.exclude([...NON_TRIGGERING_EVENTS]);
+
+export const STORED_ROUTINE_TRIGGER_EVENTS = StoredRoutineTriggerEventSchema.options;
+
+export type StoredRoutineTriggerEvent = z.infer<typeof StoredRoutineTriggerEventSchema>;

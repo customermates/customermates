@@ -76,11 +76,18 @@ describe("system prompt", () => {
 
   it("trims the routine trigger guide to the fired event", () => {
     const all = buildAgentSystemPrompt({ ...base, surface: "routine" });
-    const one = buildAgentSystemPrompt({ ...base, surface: "routine", triggerEvent: "deal.updated" });
-    expect(all).toContain("- contact.created:");
-    expect(one).toContain("- deal.updated:");
-    expect(one).not.toContain("- contact.created:");
-    expect(one.length).toBeLessThan(all.length - 1000);
+    const one = buildAgentSystemPrompt({ ...base, surface: "routine", triggerEvent: "messaging.message.received" });
+    expect(all).toContain("- record.created:");
+    expect(all).not.toContain("- contact.created:");
+    expect(one).toContain("- messaging.message.received:");
+    expect(one).not.toContain("- record.created:");
+    expect(ROUTINE_TRIGGER_EVENTS.filter((event) => one.includes(`- ${event}:`))).toEqual([
+      "messaging.message.received",
+    ]);
+    expect(one.length).toBeLessThan(all.length);
+    const retired = buildAgentSystemPrompt({ ...base, surface: "routine", triggerEvent: "deal.updated" });
+    expect(retired).toContain("- deal.updated:");
+    expect(retired).not.toContain("- record.created:");
     const unknown = buildAgentSystemPrompt({ ...base, surface: "routine", triggerEvent: "made.up" });
     for (const event of ROUTINE_TRIGGER_EVENTS) expect(unknown).toContain(`- ${event}:`);
   });

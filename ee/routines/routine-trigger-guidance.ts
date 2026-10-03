@@ -1,10 +1,13 @@
 import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
-import type { RoutineTriggerEvent } from "./routine-trigger-events";
+import type { StoredRoutineTriggerEvent } from "./routine-trigger-events";
 
-import { ROUTINE_TRIGGER_EVENTS } from "./routine-trigger-events";
+import { STORED_ROUTINE_TRIGGER_EVENTS } from "./routine-trigger-events";
 
-type SelectableRoutineTriggerEvent = Exclude<RoutineTriggerEvent, "messaging.email.deleted" | "messaging.chat.deleted">;
+type GuidedRoutineTriggerEvent = Exclude<
+  StoredRoutineTriggerEvent,
+  "messaging.email.deleted" | "messaging.chat.deleted"
+>;
 
 export const ROUTINE_TRIGGER_GUIDANCE_ACTIONS = [
   "recordCreated",
@@ -79,18 +82,18 @@ export const ROUTINE_TRIGGER_GUIDANCE = {
     entityType: null,
   },
   "messaging.relation.created": { action: "relationCreated", entityType: null },
-} satisfies Record<SelectableRoutineTriggerEvent, RoutineTriggerGuidance>;
+} satisfies Record<GuidedRoutineTriggerEvent, RoutineTriggerGuidance>;
 
 export function routineTriggerGuidance(event: string): RoutineTriggerGuidance | null {
   return Object.prototype.hasOwnProperty.call(ROUTINE_TRIGGER_GUIDANCE, event)
-    ? ROUTINE_TRIGGER_GUIDANCE[event as SelectableRoutineTriggerEvent]
+    ? ROUTINE_TRIGGER_GUIDANCE[event as GuidedRoutineTriggerEvent]
     : null;
 }
 
 export function orderedRoutineTriggerGuidance(events: readonly string[]): RoutineTriggerGuidanceItem[] {
   const selected = new Set(events);
 
-  return ROUTINE_TRIGGER_EVENTS.flatMap((event) => {
+  return STORED_ROUTINE_TRIGGER_EVENTS.flatMap((event) => {
     const guidance = routineTriggerGuidance(event);
 
     return selected.has(event) && guidance ? [{ event, guidance }] : [];

@@ -8,6 +8,7 @@ import {
   smallestIntervalMinutes,
 } from "@/ee/routines/routine-schedule";
 import { ROUTINE_TIMEZONE, SYNTHETIC_ROUTINES } from "../seeds/routines";
+import { liveSeedEvents } from "../seeds/record-event-subscriptions";
 import { RETIRED_RECORD_TOOLS } from "@/features/mcp-tools/retired-record-tools";
 import { isCustomField } from "@/core/utils/custom-field";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
@@ -104,13 +105,14 @@ describe("synthetic routine fixtures", () => {
     }
   });
 
-  it("only triggers on events a routine is allowed to watch", () => {
+  it("only stores events a routine is allowed to watch", () => {
     const allowed = new Set<string>(ROUTINE_TRIGGER_EVENTS);
 
     for (const routine of evented) {
       if (routine.trigger.kind !== "event") continue;
       expect(routine.trigger.events.length, routine.name).toBeGreaterThan(0);
-      for (const event of routine.trigger.events) expect(allowed.has(event), `${routine.name}: ${event}`).toBe(true);
+      for (const event of liveSeedEvents(routine.trigger.events))
+        expect(allowed.has(event), `${routine.name}: ${event}`).toBe(true);
       expect(routine.trigger.debounceSeconds).toBeGreaterThanOrEqual(0);
       expect(routine.trigger.debounceSeconds).toBeLessThanOrEqual(86_400);
     }

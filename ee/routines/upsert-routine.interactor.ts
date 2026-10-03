@@ -1,4 +1,4 @@
-import type { RoutineDto, UpsertRoutineData } from "./routine.schema";
+import type { RoutineDto, RoutineValidationData, UpsertRoutineData } from "./routine.schema";
 import type { Validated } from "@/core/validation/validation.utils";
 import type { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 import type { EventService } from "@/features/event/event.service";
@@ -20,7 +20,7 @@ import { RoutineLimitExceededError, type RoutineCountLimit } from "./routine-run
 import { RecordWriteError } from "@/features/records/record-write.service";
 import { recordWriteFailure } from "@/features/records/mutate-record.interactor";
 
-function mergeRoutineFinalState(previous: RoutineDto, update: UpsertRoutineData): UpsertRoutineData {
+function mergeRoutineFinalState(previous: RoutineDto, update: UpsertRoutineData): RoutineValidationData {
   const triggerKind = update.triggerKind ?? previous.triggerKind;
   const switchingToSchedule =
     previous.triggerKind !== RoutineTriggerKind.schedule && triggerKind === RoutineTriggerKind.schedule;

@@ -8,12 +8,32 @@ export type RenderedWebhookBody =
   | { ok: false; reason: "unrenderable" | "invalidJson" | "notAnObject" | "tooLarge" };
 
 export const WEBHOOK_TEMPLATE_SAMPLE_ENVELOPE = {
-  event: "contact.created",
+  event: "record.updated",
   data: {
     userId: "00000000-0000-4000-8000-000000000001",
     companyId: "00000000-0000-4000-8000-000000000002",
     entityId: "00000000-0000-4000-8000-000000000003",
-    payload: { id: "00000000-0000-4000-8000-000000000003", firstName: "Ada", lastName: "Lovelace" },
+    payload: {
+      version: 2,
+      id: "00000000-0000-4000-8000-000000000004",
+      companyId: "00000000-0000-4000-8000-000000000002",
+      event: "record.updated",
+      timestamp: "2026-01-01T00:00:00.000Z",
+      actorId: "00000000-0000-4000-8000-000000000001",
+      causeId: "00000000-0000-4000-8000-000000000006",
+      cause: { kind: "mutation" },
+      record: {
+        ref: { typeId: "00000000-0000-4000-8000-000000000005", recordId: "00000000-0000-4000-8000-000000000003" },
+        schemaRevision: 1,
+        beforeVersion: 1,
+        afterVersion: 2,
+        assignments: null,
+        identities: null,
+        links: [],
+        related: [],
+        fields: [],
+      },
+    },
   },
   timestamp: "2026-01-01T00:00:00.000Z",
 } as const;

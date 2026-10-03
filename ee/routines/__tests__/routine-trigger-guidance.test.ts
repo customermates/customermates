@@ -10,7 +10,7 @@ import {
   orderedRoutineTriggerGuidance,
   routineTriggerGuidance,
 } from "@/ee/routines/routine-trigger-guidance";
-import { ROUTINE_TRIGGER_EVENTS } from "@/ee/routines/routine-trigger-events";
+import { ROUTINE_TRIGGER_EVENTS, STORED_ROUTINE_TRIGGER_EVENTS } from "@/ee/routines/routine-trigger-events";
 import { APP_LOCALES, type AppLocale } from "@/i18n/locale-registry";
 
 const CONDITION_KEYS = [
@@ -43,11 +43,15 @@ function messageAt(messages: Record<string, unknown>, path: string): string {
 }
 
 describe("routine trigger empty-state guidance", () => {
-  it("covers exactly every selectable event", () => {
-    expect(ROUTINE_TRIGGER_EVENTS).toHaveLength(27);
-    expect(Object.keys(ROUTINE_TRIGGER_GUIDANCE)).toEqual([...ROUTINE_TRIGGER_EVENTS]);
+  it("offers only events that are still emitted, and keeps guidance for every stored event", () => {
+    expect(ROUTINE_TRIGGER_EVENTS).toHaveLength(12);
+    expect(ROUTINE_TRIGGER_EVENTS.filter((event) => /^(contact|organization|deal|service|task)\./.test(event))).toEqual(
+      [],
+    );
+    expect(Object.keys(ROUTINE_TRIGGER_GUIDANCE)).toEqual([...STORED_ROUTINE_TRIGGER_EVENTS]);
 
     for (const event of ROUTINE_TRIGGER_EVENTS) expect(routineTriggerGuidance(event)).not.toBeNull();
+    expect(routineTriggerGuidance("deal.updated")?.action).toBe("recordUpdated");
     expect(routineTriggerGuidance("messaging.email.deleted")).toBeNull();
     expect(routineTriggerGuidance("messaging.chat.deleted")).toBeNull();
   });
