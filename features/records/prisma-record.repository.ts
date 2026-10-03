@@ -177,10 +177,30 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
     `);
   }
 
-  async getIdentityOwnersCompanyWide(keys: Array<{ channelClass: string; value: string }>, typeIds?: string[]) {
-    if (!keys.length || (typeIds && !typeIds.length)) return [];
+  async getIdentityOwnersCompanyWide(
+    keys: Array<{ channelClass: string; value: string }>,
+    typeIds?: string[],
+    options: { access?: RecordAccessMap; limitPerKey?: number } = {},
+  ) {
+    const { access, limitPerKey } = options;
+    const readableTypeIds = access
+      ? (typeIds ?? [...access.keys()]).filter((typeId) => (access.get(typeId)?.access ?? "none") !== "none")
+      : typeIds;
+    if (!keys.length || (readableTypeIds && !readableTypeIds.length)) return [];
     const uniqueKeys = [...new Map(keys.map((key) => [JSON.stringify([key.channelClass, key.value]), key])).values()];
-    const typeConstraint = typeIds ? Prisma.sql`AND owner."typeId" IN (${Prisma.join(typeIds)})` : Prisma.empty;
+    const typeConstraint = readableTypeIds
+      ? Prisma.sql`AND association."typeId" IN (${Prisma.join(readableTypeIds)})`
+      : Prisma.empty;
+    const record = Prisma.sql`record`;
+    const readable = access
+      ? Prisma.sql`AND (${Prisma.join(
+          (readableTypeIds ?? []).map(
+            (typeId) =>
+              Prisma.sql`(record."typeId" = ${typeId} AND ${recordReadPredicate(this.companyId, recordInvariant(access.get(typeId)), record)})`,
+          ),
+          " OR ",
+        )})`
+      : Prisma.empty;
     const rows = await this.prisma.$queryRaw<
       Array<{ channelClass: string; value: string; identityId: string; typeId: string; recordId: string }>
     >(Prisma.sql`
@@ -192,15 +212,24 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
         ON identity_key."companyId" = ${this.companyId}
         AND identity_key."channelClass" = requested."channelClass"
         AND identity_key.value = requested.value
-      JOIN "RecordIdentityLink" owner
-        ON owner."companyId" = identity_key."companyId"
-        AND owner."identityId" = identity_key."identityId"
+      CROSS JOIN LATERAL (
+        SELECT association."typeId", association."recordId"
+        FROM "RecordIdentityLink" association
+        JOIN "CrmRecord" record ON record."companyId" = association."companyId"
+          AND record."typeId" = association."typeId" AND record.id = association."recordId"
+        WHERE association."companyId" = identity_key."companyId"
+          AND association."identityId" = identity_key."identityId"
+          ${typeConstraint}
+          ${readable}
+        ORDER BY association."typeId", association."recordId"
+        ${limitPerKey === undefined ? Prisma.empty : Prisma.sql`LIMIT ${limitPerKey + 1}`}
+      ) owner
       WHERE identity_key."companyId" = ${this.companyId}
-        ${typeConstraint}
       ORDER BY identity_key."channelClass", identity_key.value, owner."typeId", owner."recordId"
-      LIMIT 10001
+      ${limitPerKey === undefined ? Prisma.sql`LIMIT 10001` : Prisma.empty}
     `);
-    if (rows.length > 10000) throw new RecordWriteError(CustomErrorCode.recordCalculationBudget, "conflict");
+    if (limitPerKey === undefined && rows.length > 10000)
+      throw new RecordWriteError(CustomErrorCode.recordCalculationBudget, "conflict");
     return rows.map(({ typeId, recordId, ...key }) => ({ ...key, ref: { typeId, recordId } }));
   }
 

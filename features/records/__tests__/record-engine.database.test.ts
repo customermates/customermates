@@ -89,7 +89,7 @@ const { ProcessDueRecordEventsInteractor } = await import("../process-due-record
 const { PrismaRecordEventOutboxRepo } = await import("../prisma-record-event-outbox.repository");
 const { PrismaAuditLogRepo } = await import("@/features/audit-log/prisma-audit-log.repository");
 const { runInRoutineContext } = await import("@/core/decorators/routine-context");
-const { RecordIdentityReader } = await import("../record-identity-reader");
+const { RecordIdentityReader, IDENTITY_MATCH_DISPLAY_LIMIT } = await import("../record-identity-reader");
 const { PrismaRecordActivitiesRepo } = await import("@/ee/messaging/activities/prisma-record-activities.repository");
 const { GetRecordActivitiesInteractor } = await import("@/ee/messaging/activities/get-record-activities.interactor");
 const { RecordActivitiesInputSchema } = await import("@/ee/messaging/activities/record-activities.schema");
@@ -6120,6 +6120,55 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
     expect(await f.run(() => f.repo.getIdentityOwnersCompanyWide(keys, [f.id("service")]))).toEqual([]);
   });
+
+  it(
+    "bounds display lookups of an identifier shared by over 10,000 records after applying readability",
+    { timeout: 120000 },
+    async () => {
+      const f = await fixture();
+      const typeId = f.id("contact");
+      const owned = { typeId, recordId: randomUUID() };
+      const key = { channelClass: "email", value: "heavily-shared@example.test" };
+      await f.run(() =>
+        runInTransaction(async () => {
+          const tx = transactionStorage.getStore()?.client as typeof prisma;
+          await f.repo.create(owned, [f.member.id]);
+          await f.repo.setIdentities(owned, [{ provider: "mail", value: key.value }]);
+          const identity = recordInvariant((await f.repo.getIdentitiesCompanyWide(owned))[0]);
+          await tx.$executeRaw`INSERT INTO "CrmRecord" ("companyId", "typeId", id, "updatedAt")
+          SELECT ${f.company.id}, ${typeId}, gen_random_uuid()::text, NOW() FROM generate_series(1, 10050)`;
+          await tx.$executeRaw`INSERT INTO "RecordIdentityLink" ("companyId", "identityId", "typeId", "recordId")
+          SELECT ${f.company.id}, ${identity.id}, record."typeId", record.id FROM "CrmRecord" record
+          WHERE record."companyId" = ${f.company.id} AND record."typeId" = ${typeId}
+          ON CONFLICT DO NOTHING`;
+          await f.repo.setGrants(typeId, [{ roleId: f.memberRole.id, actions: ["readOwn"] }]);
+        }),
+      );
+      await expect(f.run(() => f.repo.getIdentityOwnersCompanyWide([key]))).rejects.toMatchObject({
+        code: CustomErrorCode.recordCalculationBudget,
+        kind: "conflict",
+      });
+      const reader = new RecordIdentityReader(f.repo, f.policy);
+      const lookup = { provider: "mail" as const, value: "Heavily-Shared@example.test" };
+      const [display] = await f.run(() => reader.resolve([lookup]));
+      expect(display.records).toHaveLength(IDENTITY_MATCH_DISPLAY_LIMIT);
+      expect(display.moreRecords).toBe(true);
+      await expect(f.run(() => reader.resolve([lookup], undefined, { complete: true }))).rejects.toMatchObject({
+        code: CustomErrorCode.recordCalculationBudget,
+      });
+      const memberAccess = (await f.run(() => f.policy.load(), f.member)).access([typeId]);
+      expect(
+        (
+          await f.run(() => f.repo.getIdentityOwnersCompanyWide([key], [typeId], { access: memberAccess }), f.member)
+        ).map((owner) => owner.ref),
+      ).toEqual([owned]);
+      for (const options of [{}, { complete: true }]) {
+        const [member] = await f.run(() => reader.resolve([lookup], undefined, options), f.member);
+        expect(member.records.map((record) => record.ref)).toEqual([owned]);
+        expect(member.moreRecords).toBeUndefined();
+      }
+    },
+  );
 
   it("preserves personal detail choices across shared defaults and resets to future defaults", async () => {
     const f = await fixture();

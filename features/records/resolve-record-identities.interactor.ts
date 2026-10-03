@@ -55,6 +55,7 @@ export class ResolveRecordIdentitiesInteractor extends AuthenticatedInteractor<I
               matches: await new RecordIdentityReader(this.records, this.policy).resolve(
                 input.identifiers,
                 input.typeIds,
+                { complete: true },
               ),
             },
           };

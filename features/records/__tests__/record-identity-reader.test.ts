@@ -3,7 +3,7 @@ import { createCrmPreset, presetId } from "../crm-preset";
 import type { RecordRepo } from "../record.repo";
 import type { RecordAccessPolicy } from "../record-access";
 import type { RecordSearchRow } from "../record-search-query";
-import { RecordIdentityReader } from "../record-identity-reader";
+import { IDENTITY_MATCH_DISPLAY_LIMIT, RecordIdentityReader } from "../record-identity-reader";
 
 vi.mock("@/core/decorators/transaction-runner", () => ({
   runInTransaction: (fn: () => unknown) => fn(),
@@ -95,8 +95,32 @@ describe("shared identifier resolution", () => {
         { channelClass: "email", value: "alice@example.test" },
       ],
       expect.arrayContaining([f.contact.typeId, f.organization.typeId]),
+      { access: expect.any(Map), limitPerKey: IDENTITY_MATCH_DISPLAY_LIMIT },
     );
     expect(f.repo.searchRecords).toHaveBeenCalledTimes(1);
+  });
+
+  it("marks a display lookup that omitted further records, and leaves complete lookups unbounded", async () => {
+    const f = fixture();
+    const refs = Array.from({ length: IDENTITY_MATCH_DISPLAY_LIMIT + 1 }, (_, index) => ({
+      typeId: f.contact.typeId,
+      recordId: `70000000-0000-4000-8000-${String(100 + index).padStart(12, "0")}`,
+    }));
+    vi.mocked(f.repo.getIdentityOwnersCompanyWide).mockResolvedValue(
+      refs.map((ref) => ({ channelClass: "email", value: "alice@example.test", identityId: f.identityId, ref })),
+    );
+    vi.mocked(f.repo.searchRecords).mockResolvedValue(refs.map((ref) => ({ ...f.rows[0], ...ref })));
+    const [display] = await f.reader.resolve([{ provider: "mail", value: "alice@example.test" }]);
+    expect(display.records).toHaveLength(IDENTITY_MATCH_DISPLAY_LIMIT);
+    expect(display.moreRecords).toBe(true);
+    const [complete] = await f.reader.resolve([{ provider: "mail", value: "alice@example.test" }], undefined, {
+      complete: true,
+    });
+    expect(complete.records).toHaveLength(IDENTITY_MATCH_DISPLAY_LIMIT + 1);
+    expect(complete).not.toHaveProperty("moreRecords");
+    expect(f.repo.getIdentityOwnersCompanyWide).toHaveBeenLastCalledWith(expect.any(Array), expect.any(Array), {
+      access: expect.any(Map),
+    });
   });
 
   it("omits inaccessible associations without publishing hidden counts or owners", async () => {
@@ -130,6 +154,7 @@ describe("shared identifier resolution", () => {
     expect(f.repo.getIdentityOwnersCompanyWide).toHaveBeenLastCalledWith(
       [{ channelClass: "email", value: "alice@example.test" }],
       [f.organization.typeId],
+      { access: expect.any(Map), limitPerKey: IDENTITY_MATCH_DISPLAY_LIMIT },
     );
     const binding = f.model.capabilities.find(
       (binding) => binding.kind === "channels" && binding.typeId === f.organization.typeId,
