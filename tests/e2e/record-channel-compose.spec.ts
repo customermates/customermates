@@ -97,7 +97,11 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
         thread,
         accounts[0],
         randomUUID(),
-        JSON.stringify({ attendeeId: recipients[index], identifier: recipients[index] }),
+        JSON.stringify({
+          attendeeId: recipients[index],
+          identifier: recipients[index],
+          displayName: `Channel company ${index + 1}`,
+        }),
         JSON.stringify({ to: [], cc: [], bcc: [] }),
         `Existing conversation ${index + 1}`,
       ],
@@ -111,12 +115,19 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await openRecord(0);
   const channels = page.locator('[data-entity-field="system:channels"]');
   const channelRow = () => channels.locator(`[data-record-channel-key="mail:${activeRecipient}"]`);
+  const openInbox = async () => {
+    const link = channels.getByRole("link", { name: "Go to inbox", exact: true });
+    if (testInfo.project.name === "webkit") await link.press("Enter");
+    else await link.click();
+    await expect(page).toHaveURL(/\/en\/inbox\?/);
+  };
   if (testInfo.project.name === "chromium") await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await page.bringToFront();
   await channelRow().getByRole("button", { name: "Copy", exact: true }).click();
   await expect(page.getByText(`${recipients[0]} copied to clipboard`, { exact: true })).toBeVisible();
   if (testInfo.project.name === "chromium")
     expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(recipients[0]);
-  await channels.getByRole("link", { name: "Go to inbox", exact: true }).click();
+  await openInbox();
   await expect(page.locator(`[data-thread-id="${threadIds[0]}"]`)).toBeVisible();
   await expect(page.locator(`[data-thread-id="${threadIds[1]}"]`)).not.toBeVisible();
   expect(decodeGetParams(new URL(page.url()).searchParams).filters).toEqual([
@@ -138,8 +149,9 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await popover.getByRole("button", { name: "Insert emoji", exact: true }).click();
   await page.getByRole("button", { name: "👍", exact: true }).click();
   await expect(body).toContainText("👍");
+  await expect(page.getByRole("button", { name: "👍", exact: true })).not.toBeVisible();
   const draftText = await body.innerText();
-  await page.keyboard.press("Escape");
+  await body.press("Escape");
   const guard = page.getByRole("alertdialog", { name: "Unsaved Changes", exact: true });
   await expect(guard).toBeVisible();
   await guard.getByRole("button", { name: "Cancel", exact: true }).click();
@@ -240,12 +252,12 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   expect(sent.recipients.cc).toEqual([]);
   expect(sent.recipients.bcc).toEqual([]);
   expect((await readDrafts()).map((row) => row.id)).toEqual([draft.id]);
-  await channels.getByRole("link", { name: "Go to inbox", exact: true }).click();
+  await openInbox();
   await expect(page.locator(`[data-thread-id="${sent.messagingThreadId}"]`)).toBeVisible();
   await page.locator(`[data-thread-id="${sent.messagingThreadId}"]`).click();
   await expect(
     page
-      .getByRole("region", { name: "Conversation", exact: true })
+      .frameLocator('iframe[title="Email content"]')
       .getByText("Message only for the second company", { exact: true }),
   ).toBeVisible();
   await page.locator("#inbox-thread-state").click();
@@ -265,7 +277,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await expect(page.locator("#inbox-thread-state")).toHaveAttribute("aria-label", "Closed");
 
   await openRecord(0);
-  await channels.getByRole("link", { name: "Go to inbox", exact: true }).click();
+  await openInbox();
   await page.locator(`[data-thread-id="${draft.messagingThreadId}"]`).click();
   const conversation = page.getByRole("region", { name: "Conversation", exact: true });
   await conversation.getByRole("button", { name: "Edit", exact: true }).click();
@@ -285,15 +297,17 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await page
     .getByRole("row")
     .filter({ has: page.getByText("Channel company 1", { exact: true }) })
-    .getByText("Channel company 1", { exact: true })
+    .getByRole("button", { name: "Channel company 1", exact: true })
     .click();
   const drawer = page.getByRole("dialog", { name: "Organization", exact: true });
   await expect(drawer).toBeVisible();
-  await drawer.getByRole("button", { name: "Personalize", exact: true }).click();
+  await expect(drawer.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Channel company 1");
+  await drawer.getByRole("button", { name: "Customize", exact: true }).click();
+  await expect(drawer.getByRole("button", { name: "Hide Channels from details", exact: true })).toBeVisible();
   await drawer
     .locator('[data-record-channel-key="mail:first-channel@example.test"]')
     .getByRole("button", { name: "Compose Email message", exact: true })
-    .click();
+    .press("Enter");
   await body.fill("Protect this drawer draft");
   await expect(drawer.getByRole("button", { name: /Unlink/ })).toHaveCount(0);
   await expect(drawer.getByRole("button", { name: "Delete", exact: true })).toBeDisabled();
@@ -327,7 +341,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await page
     .getByRole("row")
     .filter({ has: page.getByText("Channel company 1", { exact: true }) })
-    .getByText("Channel company 1", { exact: true })
+    .getByRole("button", { name: "Channel company 1", exact: true })
     .click();
   await drawer
     .locator('[data-record-channel-key="mail:first-channel@example.test"]')
@@ -354,10 +368,11 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await page
     .getByRole("row")
     .filter({ has: page.getByText("Channel company 1", { exact: true }) })
-    .getByText("Channel company 1", { exact: true })
+    .getByRole("button", { name: "Channel company 1", exact: true })
     .click();
   await drawer.getByRole("link", { name: "Open page", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}/${records[0].recordId}$`));
+  await expect(drawer).toHaveCount(0);
   await start().click();
   await body.fill("Keep this full-page history draft");
   await page.goBack();
@@ -368,12 +383,15 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await guard.getByRole("button", { name: "Discard", exact: true }).click();
   await expect(recovered).not.toBeVisible();
   expect((await readDrafts()).length).toBe(0);
-  if (!(await organizations.isVisible())) await page.locator("#sidebar-trigger").click();
-  await organizations.click();
+  if (new URL(page.url()).pathname !== `/en/records/${typeId}`) {
+    if (!(await organizations.isVisible())) await page.locator("#sidebar-trigger").click();
+    await organizations.click();
+    await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}$`));
+  }
   await page
     .getByRole("row")
     .filter({ has: page.getByText("Channel company 1", { exact: true }) })
-    .getByText("Channel company 1", { exact: true })
+    .getByRole("button", { name: "Channel company 1", exact: true })
     .click();
   await drawer
     .locator('[data-record-channel-key="mail:first-channel@example.test"]')
@@ -384,9 +402,10 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await expect(guard).toBeVisible();
   await guard.getByRole("button", { name: "Discard", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}/${records[0].recordId}$`));
+  await expect(drawer).toHaveCount(0);
   await expect(recovered).not.toBeVisible();
   await expect(popover).not.toBeVisible();
-  await channels.getByRole("link", { name: "Go to inbox", exact: true }).click();
+  await openInbox();
   await page.locator(`[data-thread-id="${threadIds[0]}"]`).click();
   const settingsControl = page
     .getByRole("button", { name: "Thread settings", exact: true })
@@ -399,21 +418,22 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
     .click();
   await drawer.getByRole("link", { name: "Open page", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}/${records[0].recordId}$`));
+  await expect(drawer).toHaveCount(0);
   await start().click();
   await popover.getByPlaceholder("Subject", { exact: true }).fill("Recovered while inbox selected");
   await body.fill("Keep separate from the existing inbox reply");
   await page.goBack();
   await expect(recovered).toBeVisible();
   await expect(recoveredBody).toHaveText("Keep separate from the existing inbox reply");
-  await expect(page.getByRole("region", { name: "Conversation", exact: true }).locator("#inbox-reply-send")).toHaveCount(
-    0,
-  );
+  await expect(recovered.locator("#inbox-reply-send")).toHaveCount(1);
+  await expect(page.locator("#inbox-reply-send")).toHaveCount(1);
+  await expect(page.locator("#inbox-reply-expand")).toHaveCount(0);
   await recovered.getByRole("button", { name: "More send options", exact: true }).click();
   await page.getByRole("menuitem", { name: "Save as draft", exact: true }).click();
   await expect(recovered).not.toBeVisible();
-  await expect(page.getByRole("region", { name: "Conversation", exact: true }).locator("#inbox-reply-expand")).toBeVisible();
-  await page.getByRole("region", { name: "Conversation", exact: true }).locator("#inbox-reply-expand").click();
-  await expect(page.getByRole("region", { name: "Conversation", exact: true }).locator("#inbox-reply-send")).toBeVisible();
+  await expect(page.locator("#inbox-reply-expand")).toBeVisible();
+  await page.locator("#inbox-reply-expand").click();
+  await expect(page.locator("#inbox-reply-send")).toBeVisible();
   await expect.poll(async () => (await readDrafts()).length).toBe(1);
   const recoveredDraft = (await readDrafts())[0];
   expect(recoveredDraft).toMatchObject({

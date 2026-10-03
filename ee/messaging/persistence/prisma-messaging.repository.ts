@@ -883,6 +883,7 @@ export class PrismaMessagingRepo
               provider: args.provider,
               providerUserId: identifier,
               identifier,
+              identityLookupValue: identityLookupValue(args.provider, identifier),
             })),
           },
         },
@@ -900,7 +901,23 @@ export class PrismaMessagingRepo
       row = raced as unknown as MessagingThread;
     }
 
+    await this.withCompanyTransaction(this.companyId, () => this.refreshDraftParticipantKeys(row.id, args.provider));
     return row;
+  }
+
+  private async refreshDraftParticipantKeys(threadId: string, provider: MessagingProvider): Promise<void> {
+    const participants = await this.prisma.messagingThreadParticipant.findMany({
+      where: { companyId: this.companyId, messagingThreadId: threadId, provider, isSelf: false },
+      select: { id: true, identifier: true, identityLookupValue: true, updatedAt: true },
+    });
+    for (const participant of participants) {
+      const lookup = identityLookupValue(provider, participant.identifier);
+      if (participant.identityLookupValue === lookup) continue;
+      await this.prisma.messagingThreadParticipant.updateMany({
+        where: { id: participant.id, companyId: this.companyId, messagingThreadId: threadId, provider },
+        data: { identityLookupValue: lookup, updatedAt: participant.updatedAt },
+      });
+    }
   }
 
   async upsertThreadDraftOrThrow(args: {
@@ -925,6 +942,7 @@ export class PrismaMessagingRepo
         },
         select: { id: true, unipileThreadId: true },
       });
+      if (isDraftThreadId(thread.unipileThreadId)) await this.refreshDraftParticipantKeys(thread.id, args.provider);
 
       const now = new Date();
       const unipileMessageId = draftMessageProviderId(args.threadId);
