@@ -246,6 +246,46 @@ test("admits an assigned-record writer and separately delegates schema configura
         })
       ).status(),
     ).toBe(404);
+    const assignees = async () =>
+      (
+        await database.query(
+          'SELECT "userId" FROM "RecordAssignment" WHERE "companyId"=$1 AND "typeId"=$2 AND "recordId"=$3 ORDER BY "userId"',
+          [companyId, type.id, unassigned.recordId],
+        )
+      ).rows.map((row: { userId: string }) => row.userId);
+    await page.goto(`/en/records/${type.id}`);
+    await page.getByRole("button", { name: "Other member project", exact: true }).click();
+    const administratorEditor = page.getByRole("dialog", { name: "Project", exact: true });
+    const assignmentControl = administratorEditor.getByRole("combobox", { name: "Assigned to", exact: true });
+    await expect(assignmentControl).toContainText("Browser Administrator");
+    if (testInfo.project.use.isMobile) {
+      const bounds = await assignmentControl.boundingBox();
+      if (!bounds) throw new Error("The assignment picker is missing");
+      await assignmentControl.tap({ position: { x: bounds.width - 18, y: bounds.height / 2 } });
+    } else await assignmentControl.click();
+    await page.getByRole("option").filter({ hasText: "Secondary Browser User" }).click();
+    await page.keyboard.press("Escape");
+    await expect(assignmentControl).toHaveAttribute("aria-expanded", "false");
+    await administratorEditor.getByRole("button", { name: "Save", exact: true }).click();
+    await expect(administratorEditor).not.toBeVisible();
+    await expect.poll(assignees).toEqual([workspace.userId, member.userId].sort());
+    await member.page.reload();
+    await expect(member.page.getByRole("button", { name: "Other member project", exact: true })).toBeVisible();
+    expect((await member.page.request.post("/api/v2/records/read", { data: unassigned })).status()).toBe(200);
+    await page.getByRole("button", { name: "Other member project", exact: true }).click();
+    const assignmentField = administratorEditor.locator('[data-entity-field="system:assignedTo"]');
+    await assignmentField
+      .locator('[data-slot="badge"]')
+      .filter({ hasText: "Secondary Browser User" })
+      .getByRole("button", { name: englishMessages.Common.actions.remove, exact: true })
+      .click();
+    await administratorEditor.getByRole("button", { name: "Save", exact: true }).click();
+    await expect(administratorEditor).not.toBeVisible();
+    await expect.poll(assignees).toEqual([workspace.userId]);
+    await member.page.reload();
+    await expect(member.page.getByRole("button", { name: "Other member project", exact: true })).toHaveCount(0);
+    await expect(member.page.getByRole("button", { name: "Edited assigned project", exact: true })).toBeVisible();
+    expect((await member.page.request.post("/api/v2/records/read", { data: unassigned })).status()).toBe(404);
     await member.page.goto(`/en/company/data-model?typeId=${type.id}`);
     await expect(member.page.getByRole("heading", { name: "Projects", exact: true })).toBeVisible();
     await expect(member.page.getByRole("button", { name: "Type settings", exact: true })).toHaveCount(0);
