@@ -246,6 +246,37 @@ describe("unified documentation search", () => {
     expect(partial.structuredContent.results.length).toBeGreaterThan(0);
   });
 
+  it.each(["unavailable", "failed"] as const)(
+    "keeps a relationship operation on its governing section when the ranker is %s",
+    async (mode) => {
+      const relationships = docsCorpusSections("docs", "en").find(
+        (section) => section.slug === "concepts" && section.anchor === "how-do-relationships-link-records",
+      );
+      const create = docsCorpusSections("docs", "en").find(
+        (section) => section.slug === "app-records" && section.anchor === "how-do-i-add-a-record",
+      );
+      if (!relationships || !create) throw new Error("Missing relationship fallback documentation");
+      const ranker = mode === "unavailable" ? undefined : vi.fn(() => Promise.reject(new Error("deadline")));
+      const chunks = repo([row(relationships), row(create)], [row(relationships), row(create)]);
+      const embed = vi.fn(() => Promise.resolve({ vector: [1], model: "local-stub" }));
+      const { value, timings } = await collectRetrievalTimings(() =>
+        unifiedDocsSearchResult(
+          { query: "link a contact to an organization", locale: "en", source: "docs" },
+          { repo: chunks, embed, ranker },
+        ),
+      );
+      expect(value.structuredContent.results[0]).toMatchObject({
+        slug: relationships.slug,
+        anchor: relationships.anchor,
+      });
+      expect(value.structuredContent.results.map(({ slug }) => slug)).toEqual(["concepts", "app-records"]);
+      expect(timings[0].rerank).toBe(mode);
+      expect(timings[0].embedding).toBe("used");
+      expect(chunks.semanticIndexComplete).toHaveBeenCalledOnce();
+      expect(embed).toHaveBeenCalledOnce();
+    },
+  );
+
   it("keeps the fused order when the re-rank fails and does not re-rank an empty REST result", async () => {
     const failing = vi.fn(() => Promise.reject(new Error("timeout")));
     const failed = await unifiedDocsSearchResult(INPUT, {
@@ -767,47 +798,4 @@ describe("authoritative action and condition excerpts", () => {
       expect(markdown.length).toBeLessThanOrEqual(1_400);
     },
   );
-});
-
-describe("source-owned destination recovery", () => {
-  const wrong = docsCorpusSections("docs", "de").find(
-    (section) => section.slug === "app-company" && section.anchor === "how-do-invitations-work",
-  );
-  const tasks = docsCorpusSections("docs", "de").find(
-    (section) => section.slug === "app-records" && section.anchor === "how-do-i-add-a-record",
-  );
-  if (!wrong || !tasks) throw new Error("Missing destination fallback documentation");
-  const input = { query: "Link zur Aufgaben-Seite", locale: "de" as const, source: "docs" as const };
-
-  it.each(["unavailable", "failed", "abstained"] as const)(
-    "uses the section's own destination after a %s ranking without reporting a classifier success",
-    async (mode) => {
-      const ranker =
-        mode === "unavailable"
-          ? undefined
-          : mode === "failed"
-            ? vi.fn(() => Promise.reject(new Error("deadline")))
-            : vi.fn(() => Promise.resolve({ order: [0], abstained: true }));
-      const { value, timings } = await collectRetrievalTimings(() =>
-        unifiedDocsSearchResult(input, { repo: repo([row(wrong), row(tasks)]), embed: null, ranker }),
-      );
-      expect(value.structuredContent.results[0]).toMatchObject({ slug: tasks.slug, anchor: tasks.anchor });
-      expect(timings[0].rerank).toBe(mode === "abstained" ? "used" : mode);
-    },
-  );
-
-  it("preserves a successful hosted choice and still empties an abstaining result below the lexical floor", async () => {
-    const successful = await unifiedDocsSearchResult(input, {
-      repo: repo([row(wrong), row(tasks)]),
-      embed: null,
-      ranker: () => Promise.resolve({ order: [0], abstained: false }),
-    });
-    expect(successful.structuredContent.results[0]).toMatchObject({ slug: wrong.slug, anchor: wrong.anchor });
-    const rejected = await unifiedDocsSearchResult(input, {
-      repo: repo([{ ...row(wrong), coverage: 0.2 }], [{ ...row(tasks), similarity: 0.7 }]),
-      embed: () => Promise.resolve({ vector: [1], model: "test" }),
-      ranker: () => Promise.resolve({ order: [0], abstained: true }),
-    });
-    expect(rejected.structuredContent).toEqual({ results: [], total: 0 });
-  });
 });

@@ -1,29 +1,10 @@
 import { createHash } from "node:crypto";
 
-import { createRetrievalEvidenceMatcher } from "@/core/retrieval/retrieval-evidence-matcher";
-
-import type { RankableSection, SectionRanker, SectionRanking } from "@/core/retrieval/retrieval-context";
+import type { SectionRanker, SectionRanking } from "@/core/retrieval/retrieval-context";
 import type { DocsLocale, DocsSource } from "./docs-manifest";
 
 const DOCS_RANKING_CACHE_SIZE = 64;
 const rankings = new WeakMap<SectionRanker, Map<string, SectionRanking>>();
-
-export function docsDestinationFallbackOrder(query: string, candidates: readonly RankableSection[]): number[] | null {
-  const matcher = createRetrievalEvidenceMatcher(query, candidates[0]?.locale);
-  if (matcher.units.length === 0) return null;
-  const matched = candidates.filter(({ section }) => {
-    const link = section.text.match(/^\*\*Link:\*\*([^\n]*)$/mu)?.[1].split("**Mate:**")[0];
-    if (!link || !/`\/[^`]+`/u.test(link)) return false;
-    const destination = link
-      .replace(/`[^`]*`/gu, "")
-      .replace(/\[([^\]]*)\]\([^)]*\)/gu, "$1")
-      .replace(/[*_]/gu, "");
-    return matcher.matches(destination).every(Boolean);
-  });
-  if (matched.length === 0) return null;
-  const ids = new Set(matched.map(({ id }) => id));
-  return [...ids, ...candidates.filter(({ id }) => !ids.has(id)).map(({ id }) => id)];
-}
 
 export function stableDocsRanker(args: {
   ranker: SectionRanker | undefined;
