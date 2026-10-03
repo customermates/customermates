@@ -1,4 +1,6 @@
 import { runInTransaction } from "@/core/decorators/transaction-runner";
+import deepEqual from "fast-deep-equal";
+import { recordJson } from "@/features/records/record-storage";
 import type { RepoArgs } from "@/core/utils/types";
 import type { DeleteWidgetRepo } from "./delete-widget.interactor";
 import type { FindWidgetsByIdsRepo } from "./find-widgets-by-ids.repo";
@@ -226,23 +228,27 @@ export class PrismaWidgetRepo
         companyId,
         userId,
       },
-      select: { id: true },
+      select: { id: true, layout: true },
     });
 
-    await Promise.all(
-      widgets.map((widget) => {
+    const results = await Promise.all(
+      widgets.map(async (widget) => {
         const layout: WidgetLayout = {
           xs: args.layouts.xs.find((l) => l.i === widget.id),
           sm: args.layouts.sm.find((l) => l.i === widget.id),
           md: args.layouts.md.find((l) => l.i === widget.id),
           lg: args.layouts.lg.find((l) => l.i === widget.id),
         };
+        if (deepEqual(widget.layout, recordJson(layout))) return null;
 
-        return this.prisma.widget.update({
+        const saved = await this.prisma.widget.update({
           where: { id: widget.id, companyId, userId },
-          data: { layout },
+          data: { layout, version: { increment: 1 } },
+          select: { id: true, version: true },
         });
+        return { ...saved, layout };
       }),
     );
+    return results.filter((result) => result !== null);
   }
 }

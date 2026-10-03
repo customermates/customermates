@@ -118,6 +118,7 @@ const { PrismaCompanyRepo } = await import("@/features/company/prisma-company.re
 const { InitializeRecordModelService } = await import("../initialize-record-model.service");
 const { DomainEvent } = await import("@/features/event/domain-events");
 const { PrismaWidgetRepo } = await import("@/features/widget/prisma-widget.repository");
+const { UpdateWidgetLayoutsInteractor } = await import("@/features/widget/update-widget-layouts.interactor");
 const { GetWidgetCompatibilityInteractor } = await import("@/features/widget/get-widget-compatibility.interactor");
 const { executeMcpTool } = await import("@/features/mcp-tools/mcp-tool");
 const { manageDataViewsTool } = await import("@/features/mcp-tools/data-view.mcp-tools");
@@ -12905,6 +12906,121 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
     expect(await other.run(() => other.writeWidget.invoke({ ...input, idempotencyKey: randomUUID() }))).toMatchObject({
       ok: false,
+    });
+  });
+
+  it("versions saved widget positions, returns authoritative layouts and isolates owners and workspaces", async () => {
+    const f = await fixture();
+    const other = await fixture();
+    const input = {
+      expectedRevision: 1,
+      idempotencyKey: randomUUID(),
+      name: "Versioned positions",
+      measure: RecordMeasureSchema.parse({
+        source: { typeId: f.id("service") },
+        aggregation: "count",
+        valueFieldId: null,
+        groupBy: null,
+      }),
+      displayOptions: { displayType: DisplayType.verticalBarChart },
+      isTemplate: false,
+    };
+    const created = await f.run(() => f.writeWidget.invoke(input));
+    const foreign = await other.run(() =>
+      other.writeWidget.invoke({
+        ...input,
+        measure: RecordMeasureSchema.parse({
+          source: { typeId: other.id("service") },
+          aggregation: "count",
+          valueFieldId: null,
+          groupBy: null,
+        }),
+      }),
+    );
+    if (!created.ok || !foreign.ok) throw new Error("Expected valid owned widgets");
+    const member = await f.run(() =>
+      prisma.widget.create({
+        data: {
+          companyId: f.company.id,
+          userId: f.member.id,
+          name: "Another owner's positions",
+          kind: "chart",
+          measure: input.measure as Prisma.InputJsonValue,
+          displayOptions: input.displayOptions,
+        },
+      }),
+    );
+    const untouchedId = randomUUID();
+    const untouchedPosition = { i: untouchedId, x: 4, y: 1, w: 3, h: 2 };
+    await f.run(() =>
+      prisma.widget.create({
+        data: {
+          id: untouchedId,
+          companyId: f.company.id,
+          userId: f.admin.id,
+          name: "Unchanged owned widget",
+          kind: "chart",
+          measure: input.measure as Prisma.InputJsonValue,
+          displayOptions: input.displayOptions,
+          layout: { lg: untouchedPosition },
+        },
+      }),
+    );
+    const layouts = {
+      xs: [],
+      sm: [],
+      md: [],
+      lg: [
+        ...[created.data.id, foreign.data.id, member.id].map((id) => ({ i: id, x: 2, y: 1, w: 3, h: 2 })),
+        untouchedPosition,
+      ],
+    };
+    const writer = new UpdateWidgetLayoutsInteractor(new PrismaWidgetRepo());
+    expect(await f.run(() => writer.invoke({ layouts }))).toEqual({
+      ok: true,
+      data: [
+        { id: created.data.id, version: 2, layout: { xs: undefined, sm: undefined, md: undefined, lg: layouts.lg[0] } },
+      ],
+    });
+    expect(await f.run(() => f.widgets.findOwned(created.data.id))).toMatchObject({
+      version: 2,
+      layout: { lg: layouts.lg[0] },
+    });
+    expect(await other.run(() => other.widgets.findOwned(foreign.data.id))).toMatchObject({ version: 1, layout: null });
+    expect(await f.run(() => f.widgets.findOwned(untouchedId))).toMatchObject({
+      version: 1,
+      layout: { lg: untouchedPosition },
+    });
+    expect(
+      await f.run(() => prisma.widget.findUniqueOrThrow({ where: { id: member.id, companyId: f.company.id } })),
+    ).toMatchObject({
+      version: 1,
+      layout: null,
+    });
+    expect(
+      await f.run(() =>
+        f.writeWidget.invoke({
+          ...input,
+          id: created.data.id,
+          expectedVersion: 1,
+          idempotencyKey: randomUUID(),
+          name: "Stale position overwrite",
+        }),
+      ),
+    ).toMatchObject({ ok: false });
+    expect(await f.run(() => writer.invoke({ layouts }))).toEqual({ ok: true, data: [] });
+    expect(
+      await f.run(() =>
+        writer.invoke({
+          layouts: {
+            ...layouts,
+            lg: layouts.lg.map((item) => (item.i === created.data.id ? { ...item, x: 3 } : item)),
+          },
+        }),
+      ),
+    ).toMatchObject({
+      ok: true,
+      data: [{ id: created.data.id, version: 3 }],
     });
   });
 

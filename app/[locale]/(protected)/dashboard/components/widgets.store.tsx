@@ -1,5 +1,5 @@
 import type { Layout, LayoutItem, ResponsiveLayouts } from "react-grid-layout/legacy";
-import type { UpdateWidgetLayoutsData } from "@/features/widget/update-widget-layouts.interactor";
+import type { SavedWidgetLayout, UpdateWidgetLayoutsData } from "@/features/widget/update-widget-layouts.interactor";
 import type { WidgetDto } from "@/features/widget/widget.schema";
 import type { GetResult } from "@/core/base/base-get.interactor";
 import type { RootStore } from "@/core/stores/root.store";
@@ -23,6 +23,7 @@ export class WidgetsStore extends BaseDataViewStore<WidgetDto> {
   private confirmedLayouts: ResponsiveLayouts = this.layouts;
   private layoutItems: WidgetDto[] | null = null;
   private collectionActor: string | null = null;
+  private layoutReceipts = new Map<string, SavedWidgetLayout>();
   private pendingLayout: {
     layouts: ResponsiveLayouts;
     payload: UpdateWidgetLayoutsData["layouts"];
@@ -50,14 +51,26 @@ export class WidgetsStore extends BaseDataViewStore<WidgetDto> {
   }
 
   setItems(args: GetResult<WidgetDto>) {
+    const current = new Map(this.items.map((widget) => [widget.id, widget]));
+    if (this.collectionActor !== this.layoutActor) this.layoutReceipts.clear();
     super.setItems({
       ...args,
+      items: args.items.map((widget) => {
+        const known = current.get(widget.id);
+        if (this.collectionActor === this.layoutActor && known && known.version > widget.version) return known;
+        const receipt = this.layoutReceipts.get(widget.id);
+        if (receipt && receipt.version > widget.version) return { ...widget, layout: receipt.layout };
+        this.layoutReceipts.delete(widget.id);
+        return widget;
+      }),
       customColumns: args.customColumns ?? this.customColumns,
     });
     this.rebuildLayouts();
   }
 
   private rebuildLayouts() {
+    const ids = new Set(this.items.map((widget) => widget.id));
+    for (const id of this.layoutReceipts.keys()) if (!ids.has(id)) this.layoutReceipts.delete(id);
     const layouts: MutableLayouts = { xs: [], sm: [], md: [], lg: [] };
 
     this.items.forEach((widget) => {
@@ -139,19 +152,52 @@ export class WidgetsStore extends BaseDataViewStore<WidgetDto> {
       const ownsActor = () => pending.actor === this.layoutActor && pending.actor === this.collectionActor;
       if (!ownsActor()) continue;
       try {
-        const result = await updateWidgetLayoutsAction({ layouts: pending.payload });
+        const confirmed = this.normalizeLayouts(this.confirmedLayouts);
+        const ids = new Set(
+          pending.payload.lg.concat(pending.payload.md, pending.payload.sm, pending.payload.xs).map((item) => item.i),
+        );
+        const changed = new Set(
+          [...ids].filter((id) =>
+            BREAKPOINTS.some(
+              (breakpoint) =>
+                JSON.stringify(confirmed[breakpoint].find((item) => item.i === id)) !==
+                JSON.stringify(pending.payload[breakpoint].find((item) => item.i === id)),
+            ),
+          ),
+        );
+        if (changed.size === 0) continue;
+        const layouts = Object.fromEntries(
+          BREAKPOINTS.map((breakpoint) => [
+            breakpoint,
+            pending.payload[breakpoint].filter((item) => changed.has(item.i)),
+          ]),
+        ) as UpdateWidgetLayoutsData["layouts"];
+        const result = await updateWidgetLayoutsAction({ layouts });
         if (!ownsActor()) continue;
         if (result.ok) {
-          this.confirmedLayouts = this.rebaseLayouts(this.confirmedLayouts, pending.layouts);
-          const confirmed = this.normalizeLayouts(this.confirmedLayouts);
+          const saved = new Map(result.data.map((widget) => [widget.id, widget]));
+          const savedLayouts: ResponsiveLayouts = Object.fromEntries(
+            BREAKPOINTS.map((breakpoint) => [
+              breakpoint,
+              this.items.flatMap((widget) => {
+                const committed = saved.get(widget.id);
+                const item =
+                  committed && committed.version >= widget.version
+                    ? committed.layout[breakpoint]
+                    : widget.layout?.[breakpoint];
+                return item ? [{ ...item, y: item.y ?? 0 }] : [];
+              }),
+            ]),
+          );
+          this.confirmedLayouts = this.rebaseLayouts(this.confirmedLayouts, savedLayouts);
           runInAction(() => {
             for (const widget of this.items) {
-              widget.layout = Object.fromEntries(
-                BREAKPOINTS.map((breakpoint) => [
-                  breakpoint,
-                  confirmed[breakpoint].find((item) => item.i === widget.id),
-                ]),
-              );
+              const committed = saved.get(widget.id);
+              if (committed && committed.version >= widget.version) {
+                this.layoutReceipts.set(widget.id, committed);
+                if (committed.version <= widget.version + 1) widget.version = committed.version;
+                widget.layout = committed.layout;
+              }
             }
           });
         } else {
