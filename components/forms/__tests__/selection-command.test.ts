@@ -374,6 +374,81 @@ describe("FormAutocomplete command behavior", () => {
   });
 });
 
+describe("Select editability transitions", () => {
+  for (const component of ["select", "chip"] as const) {
+    for (const blockedState of ["readOnly", "loading"] as const) {
+      it(`${component} closes across ${blockedState}, stays closed after recovery and rejects blocked interaction`, async () => {
+        testContext.formValue = "alpha";
+        const warnings = vi.spyOn(console, "warn");
+        const errors = vi.spyOn(console, "error");
+        const element = () =>
+          component === "select"
+            ? createElement(FormSelect, {
+                id: "transition-status",
+                items: [
+                  { value: "alpha", label: "Alpha" },
+                  { value: "beta", label: "Beta" },
+                ],
+                label: "Status",
+              })
+            : createElement(FormSelectChip, {
+                id: "transition-status",
+                items: [{ key: "alpha" }, { key: "beta" }],
+                label: "Status",
+                translateFn: (key) => key,
+              });
+        const container = mount(element());
+        const root = roots.at(-1);
+        if (!root) throw new Error("The mounted Select root must exist");
+        const trigger = requiredElement(container.querySelector<HTMLButtonElement>("#transition-status"));
+        const rerender = async (blocked: boolean) => {
+          testContext.formIsReadOnly = blocked && blockedState === "readOnly";
+          testContext.formIsLoading = blocked && blockedState === "loading";
+          await act(async () => {
+            root.render(element());
+            await Promise.resolve();
+          });
+        };
+
+        try {
+          await press(trigger, "ArrowDown");
+          expect(trigger.getAttribute("aria-expanded")).toBe("true");
+          expect(document.querySelector('[role="listbox"]')).not.toBeNull();
+          await rerender(true);
+          expect(trigger.getAttribute("aria-expanded")).toBe("false");
+          expect(trigger.disabled).toBe(blockedState === "loading");
+          expect(trigger.getAttribute("aria-readonly")).toBe(blockedState === "readOnly" ? "true" : null);
+          expect(document.querySelector('[role="listbox"]')).toBeNull();
+          await press(trigger, "ArrowDown");
+          expect(document.querySelector('[role="listbox"]')).toBeNull();
+          expect(testContext.onChange).not.toHaveBeenCalled();
+          await rerender(false);
+          expect(trigger.getAttribute("aria-expanded")).toBe("false");
+          expect(document.querySelector('[role="listbox"]')).toBeNull();
+          expect(
+            [...warnings.mock.calls, ...errors.mock.calls]
+              .map((args) => args.join(" "))
+              .filter((message) => message.includes("Select is changing")),
+          ).toEqual([]);
+          await press(trigger, "ArrowDown");
+          expect(document.querySelector('[role="listbox"]')).not.toBeNull();
+          const beta = requiredElement(
+            Array.from(document.querySelectorAll<HTMLElement>('[role="option"]')).find((item) =>
+              item.textContent?.includes(component === "select" ? "Beta" : "beta"),
+            ),
+          );
+          await press(beta, "Enter");
+          expect(testContext.onChange).toHaveBeenCalledOnce();
+          expect(testContext.onChange).toHaveBeenCalledWith("transition-status", "beta");
+        } finally {
+          warnings.mockRestore();
+          errors.mockRestore();
+        }
+      });
+    }
+  }
+});
+
 describe("selection field state semantics", () => {
   it("keeps contextual help beside the visible FormSelect label", () => {
     testContext.formValue = "plain";

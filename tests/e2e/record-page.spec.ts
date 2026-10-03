@@ -1,3 +1,4 @@
+import type { Locator } from "@playwright/test";
 import { test, expect } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
 
@@ -15,12 +16,34 @@ test("opens a stable record page, preserves its draft alongside the assistant, a
   });
   const typeId = (key: string) => presetId(companyId, key);
   const dialogs = page.getByRole("dialog");
+  const waitForDealReads = async (container: Locator) => {
+    const overview = container.getByRole("tab", { name: "Overview", exact: true });
+    if (await overview.isVisible()) await overview.click();
+    for (const [key, direction, label] of [
+      ["deal.contacts", "outgoing", "Contacts"],
+      ["deal.organizations", "outgoing", "Organizations"],
+      ["task.deals", "incoming", "Tasks"],
+    ]) {
+      const field = container.locator(`[data-entity-field="relationship:${typeId(key)}:${direction}"]`);
+      await expect(field).toBeVisible();
+      await expect(field.getByRole("combobox", { name: label, exact: true })).toBeEnabled();
+      await expect(field.locator('[aria-busy="true"]')).toHaveCount(0);
+    }
+    const lines = container.getByRole("region", { name: "Line items", exact: true });
+    await expect(lines.getByRole("table")).toBeVisible();
+    await expect(lines.getByRole("status")).toHaveCount(0);
+    const services = container.getByRole("region", { name: "Services", exact: true });
+    await expect(services.getByText("—", { exact: true })).toBeVisible();
+    await expect(services.getByRole("status")).toHaveCount(0);
+    await expect(services.getByRole("alert")).toHaveCount(0);
+  };
   await page.goto(`/en/records/${typeId("deal")}`);
   await page.locator("#records-add").click();
   await dialogs.getByRole("textbox", { name: "Name", exact: false }).fill("Local opportunity");
   await dialogs.getByRole("button", { name: "Save", exact: true }).click();
   await expect(dialogs).not.toBeVisible();
   await page.getByRole("button", { name: "Local opportunity", exact: true }).click();
+  await waitForDealReads(dialogs);
   await dialogs.getByRole("link", { name: "Open page", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/records/${typeId("deal")}/[a-f0-9-]+$`));
   await expect(dialogs).not.toBeVisible();
@@ -37,6 +60,7 @@ test("opens a stable record page, preserves its draft alongside the assistant, a
   await main.getByRole("button", { name: "Save", exact: true }).click();
   await expect(main.getByRole("navigation", { name: "Breadcrumb" }).getByRole("link", { name: "Opportunity with notes" })).toBeVisible();
   await expect(main.getByRole("button", { name: "Reset", exact: true })).not.toBeVisible();
+  await waitForDealReads(main);
   await page.reload();
   await expect(main.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Opportunity with notes");
   await main.getByRole("tab", { name: "Notes", exact: true }).click();

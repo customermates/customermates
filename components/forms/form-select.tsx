@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import type { ChipColor } from "@/constants/chip-colors";
 
+import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
@@ -65,6 +66,7 @@ export const FormSelect = observer(
   }: Props) => {
     const t = useTranslations();
     const store = useAppForm();
+    const [open, setOpen] = useState(false);
     const resolvedLabel = useResolvedFieldLabel(id, label);
     const raw = controlledValue ?? store?.getValue(id);
     const value = raw == null ? "" : String(raw);
@@ -73,7 +75,12 @@ export const FormSelect = observer(
     const isDisabled = Boolean(disabled) || Boolean(store?.isLoading);
     const isReadOnly = !isDisabled && ((store?.isReadOnly ?? false) || Boolean(readOnly));
     const hasUnresolvedValue = value !== "" && selectedItem === undefined;
+    const canEdit = !isDisabled && !isReadOnly;
     const domId = inputId ?? id;
+
+    useEffect(() => {
+      if (!canEdit) setOpen(false);
+    }, [canEdit]);
 
     return (
       <div className={cn("flex flex-col gap-1.5", containerClassName)}>
@@ -91,10 +98,11 @@ export const FormSelect = observer(
 
         <Select
           disabled={isDisabled}
-          open={isReadOnly ? false : undefined}
+          open={canEdit && open}
           value={value}
+          onOpenChange={(next) => setOpen(canEdit && next)}
           onValueChange={
-            isReadOnly ? undefined : (next) => (onValueChange ? onValueChange(next) : store?.onChange(id, next))
+            !canEdit ? undefined : (next) => (onValueChange ? onValueChange(next) : store?.onChange(id, next))
           }
         >
           <SelectTrigger
