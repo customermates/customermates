@@ -4,6 +4,8 @@ import Decimal from "decimal.js";
 
 import type { CalculatedValue, CalculationExpression, RecordRef, RecordScalar } from "./record-model.schema";
 
+import { recordInstantMicros } from "./record-instant";
+
 const ExactDecimal = Decimal.clone({
   precision: 160,
   rounding: Decimal.ROUND_HALF_UP,
@@ -66,6 +68,11 @@ function compare(left: RecordScalar, right: RecordScalar): number | null {
   if (left.kind === "decimal" && right.kind === "decimal") {
     if (left.currency !== right.currency) return null;
     return new ExactDecimal(left.value).cmp(right.value);
+  }
+  if (left.kind === "dateTime" && right.kind === "dateTime") {
+    const a = recordInstantMicros(left.value);
+    const b = recordInstantMicros(right.value);
+    return a === b ? 0 : a < b ? -1 : 1;
   }
   const a = scalarValue(left);
   const b = scalarValue(right);

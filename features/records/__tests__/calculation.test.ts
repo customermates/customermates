@@ -138,6 +138,37 @@ describe("deterministic record calculations", () => {
     expect(reduceCalculatedValues("sum", [MISSING_VALUE])).toEqual(MISSING_VALUE);
   });
 
+  it("compares dateTimes as instants regardless of their offsets", async () => {
+    const dateTime = (value: string): CalculationExpression => ({
+      kind: "literal",
+      value: { kind: "dateTime", value },
+    });
+    const berlin = dateTime("2026-01-01T10:00:00+02:00");
+    const utc = dateTime("2026-01-01T09:00:00Z");
+    expect(await evaluateCalculation(operation("lessThan", berlin, utc), ref, empty)).toEqual(
+      valueResult({ kind: "boolean", value: true }),
+    );
+    expect(await evaluateCalculation(operation("greaterThan", berlin, utc), ref, empty)).toEqual(
+      valueResult({ kind: "boolean", value: false }),
+    );
+    expect(
+      await evaluateCalculation(operation("equal", berlin, dateTime("2026-01-01T08:00:00.000000Z")), ref, empty),
+    ).toEqual(valueResult({ kind: "boolean", value: true }));
+    expect(
+      await evaluateCalculation(
+        operation("lessThan", dateTime("2026-01-01T08:00:00.000001Z"), dateTime("2026-01-01T08:00:00.000002Z")),
+        ref,
+        empty,
+      ),
+    ).toEqual(valueResult({ kind: "boolean", value: true }));
+    const instants = [
+      valueResult({ kind: "dateTime", value: "2026-01-01T10:00:00+02:00" }),
+      valueResult({ kind: "dateTime", value: "2026-01-01T09:00:00Z" }),
+    ];
+    expect(reduceCalculatedValues("min", instants)).toEqual(instants[0]);
+    expect(reduceCalculatedValues("max", instants)).toEqual(instants[1]);
+  });
+
   it("rejects lossy stored decimals", () => {
     expect(isRepresentableDecimal("123456789012345678901234567890.12345678901234567890123456789")).toBe(true);
     expect(isRepresentableDecimal("0.0000000000000000000000000000001")).toBe(false);
