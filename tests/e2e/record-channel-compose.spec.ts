@@ -155,9 +155,19 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
     await expect(page.locator("#sidebar-trigger")).toHaveAttribute("aria-disabled", "false");
   };
   await openRecord(0);
+  const relationCount = model.relationships.filter(
+    (relation: { sourceTypeId: string; targetTypeId: string; archived: boolean }) =>
+      !relation.archived && (relation.sourceTypeId === typeId || relation.targetTypeId === typeId),
+  ).length;
+  expect(relationCount).toBe(3);
   const channels = page.locator('[data-entity-field="system:channels"]');
   const channelRow = () => channels.locator(`[data-record-channel-key="mail:${activeRecipient}"]`);
   const openInbox = async () => {
+    // The following persistence reload must not interrupt the source editor's queued relationship reads.
+    const relationshipControls = page.locator('[data-entity-field^="relationship:"]').getByRole("combobox");
+    await expect(relationshipControls).toHaveCount(relationCount);
+    for (let index = 0; index < relationCount; index++) await expect(relationshipControls.nth(index)).toBeEnabled();
+    await expect(page.locator('[data-entity-field^="relationship:"] [aria-busy="true"]')).toHaveCount(0);
     const link = channels.getByRole("link", { name: "Go to inbox", exact: true });
     if (testInfo.project.name === "webkit") await link.press("Enter");
     else if (testInfo.project.name === "mobile") await link.tap();
@@ -318,11 +328,6 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   });
   await openRecord(1);
   const pendingLinkedFields = page.locator('[data-entity-field^="relationship:"] [aria-busy="true"]');
-  const relationCount = model.relationships.filter(
-    (relation: { sourceTypeId: string; targetTypeId: string; archived: boolean }) =>
-      !relation.archived && (relation.sourceTypeId === typeId || relation.targetTypeId === typeId),
-  ).length;
-  expect(relationCount).toBe(3);
   await expect.poll(() => releaseChoices.length).toBeGreaterThan(0);
   await expect(pendingLinkedFields).toHaveCount(relationCount);
   const beforeChoiceLoad = await start().boundingBox();
@@ -424,7 +429,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await conversation.getByRole("button", { name: "Discard", exact: true }).click();
   await expect.poll(async () => (await readDrafts()).length).toBe(0);
   await expect(conversation.getByRole("button", { name: "Edit", exact: true })).not.toBeVisible();
-  await page.goto(`/en/records/${typeId}`);
+  await navigateType(typeId);
   await page
     .getByRole("row")
     .filter({ has: page.getByText("Channel company 1", { exact: true }) })
