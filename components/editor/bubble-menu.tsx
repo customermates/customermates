@@ -93,10 +93,10 @@ export function BubbleMenu({ editor, anchorRect, onClose }: Props) {
           type="button"
           variant="ghost"
           onClick={(event) => {
-            if (event.detail === 0) action.onClick();
+            if (event.detail === 0 && editor.isEditable) action.onClick();
           }}
           onMouseDown={(event) => {
-            if (event.button !== 0) return;
+            if (event.button !== 0 || !editor.isEditable) return;
             event.preventDefault();
             event.stopPropagation();
             action.onClick();

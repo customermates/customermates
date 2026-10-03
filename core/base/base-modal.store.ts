@@ -13,10 +13,10 @@ export abstract class BaseModalStore<T extends object = object> extends BaseForm
   public focusReturnTarget: HTMLElement | null = null;
   public focusReturnFallback: HTMLElement | null = null;
 
-  constructor(rootStore: RootStore, initialState: T, resource?: Resource) {
+  constructor(rootStore: RootStore, initialState: T, resource?: Resource, options = { register: true }) {
     super(rootStore, initialState, resource);
 
-    rootStore.registerModalStore(this);
+    if (options.register) rootStore.registerModalStore(this);
 
     makeObservable(this, {
       isOpen: observable,

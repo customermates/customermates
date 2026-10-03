@@ -12,6 +12,8 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { type Validated } from "@/core/validation/validation.utils";
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { RecordWriteError } from "@/features/records/record-write.service";
+import { recordWriteFailure } from "@/features/records/mutate-record.interactor";
 
 const Schema = z.object({
   id: z.uuid(),
@@ -38,7 +40,13 @@ export class DeleteWebhookInteractor extends AuthenticatedInteractor<DeleteWebho
     precheck: (self, data, ctx) => self.validator.invoke([{ ids: data.id, path: ["id"] }], ctx),
   })
   async invoke(data: DeleteWebhookData): Validated<string> {
-    const webhook = await this.repo.deleteWebhookOrThrow(data.id);
+    let webhook: WebhookDto;
+    try {
+      webhook = await this.repo.deleteWebhookOrThrow(data.id);
+    } catch (error) {
+      if (error instanceof RecordWriteError) return recordWriteFailure(error);
+      throw error;
+    }
 
     await this.eventService.publish(DomainEvent.WEBHOOK_DELETED, {
       entityId: webhook.id,

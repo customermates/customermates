@@ -45,9 +45,11 @@ export const MOCK_ENV_MODULE = {
 // ---------------------------------------------------------------------------
 const makeFindIds = () => vi.fn().mockImplementation((ids: Set<string>) => Promise.resolve(new Set(ids)));
 const makeFindIdsMap = () =>
-  vi.fn().mockImplementation((ids: Set<string>) =>
-    Promise.resolve(new Map([...ids].map((id): [string, string] => [id, id]))),
-  );
+  vi
+    .fn()
+    .mockImplementation((ids: Set<string>) =>
+      Promise.resolve(new Map([...ids].map((id): [string, string] => [id, id]))),
+    );
 
 /**
  * Returns the mock DI module. Accepts a getter function `() => mockUser`
@@ -57,6 +59,14 @@ const makeFindIdsMap = () =>
  */
 export function createMockDiModule(getMockUser: () => TenantUser) {
   return {
+    getGetRecordNavigationInteractor: () => ({
+      invoke: vi
+        .fn()
+        .mockResolvedValue({
+          ok: true,
+          data: { companyId: getMockUser().companyId, schemaRevision: 1, canManageSchema: false, types: [] },
+        }),
+    }),
     getUserService: () => ({
       getActiveUserOrThrow: vi.fn().mockResolvedValue(getMockUser()),
       getActiveTenantUserOrThrow: vi.fn().mockResolvedValue(getMockUser()),

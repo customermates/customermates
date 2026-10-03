@@ -10,6 +10,7 @@ import { toSidebarUser } from "./sidebar-user";
 
 import {
   getGetCompanySettingsInteractor,
+  getGetRecordNavigationInteractor,
   getCountSystemTasksInteractor,
   getGetSubscriptionInteractor,
   getGetUnreadThreadCountInteractor,
@@ -21,6 +22,8 @@ import { resolveRequestAccountState } from "@/features/auth/next/resolve-account
 import { isAgentChatAvailable } from "@/ee/agent-chat/agent-availability";
 import { RootStoreProvider } from "@/core/stores/root-store.provider";
 import { DEFAULT_LOCALE, isRoutingLocale } from "@/i18n/locale-registry";
+import { unwrapValidated } from "@/core/validation/validation.utils";
+import { ForbiddenError } from "@/core/errors/app-errors";
 
 type Props = {
   children: React.ReactNode;
@@ -35,16 +38,25 @@ export async function AppShell({ children, displayLanguage }: Props) {
     getMessages(),
   ]);
   const navigation = await loadNavigationData(account.state, {
+    records: () => unwrapValidated(getGetRecordNavigationInteractor().invoke()),
     company: async () => {
       const result = await getGetCompanySettingsInteractor().invoke();
       return {
         company: result.data,
-        terminology: result.data.terminology.presets,
+        terminology: [],
       };
     },
     subscription: async () => (await getGetSubscriptionInteractor().invoke()).data,
     systemTaskCount: async () => (await getCountSystemTasksInteractor().invoke()).data,
-    unreadThreadCount: async () => (await getGetUnreadThreadCountInteractor().invoke()).data,
+    unreadThreadCount: async () => {
+      try {
+        const result = await getGetUnreadThreadCountInteractor().invoke();
+        return result.ok ? result.data : 0;
+      } catch (error) {
+        if (error instanceof ForbiddenError) return 0;
+        throw error;
+      }
+    },
     channelsNeedingActionCount: async () => (await getCountChannelsNeedingActionInteractor().invoke()).data,
   });
 
@@ -64,6 +76,7 @@ export async function AppShell({ children, displayLanguage }: Props) {
           company: accountAllowed ? navigation.company : null,
           terminology: accountAllowed ? navigation.terminology : [],
           subscription: accountAllowed ? navigation.subscription : null,
+          recordNavigation: accountAllowed ? navigation.records : null,
         }}
       >
         <NavigationSwitch
@@ -75,6 +88,7 @@ export async function AppShell({ children, displayLanguage }: Props) {
           emailVerified={accountAllowed ? account.emailVerified : null}
           legalStatus={accountAllowed ? account.legalStatus : null}
           operatorConsoleVisible={operatorConsoleVisible}
+          recordNavigation={navigation.records}
           sidebarUser={toSidebarUser(account.user)}
           subscription={navigation.subscription}
           systemTaskCount={navigation.systemTaskCount}

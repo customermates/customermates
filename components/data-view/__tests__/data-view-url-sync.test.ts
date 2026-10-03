@@ -134,6 +134,61 @@ describe("data-view URL synchronization", () => {
     cleanupNext();
   });
 
+  it("cancels old-route URL writes as soon as an internal link begins navigation", () => {
+    const { state, store } = createStore();
+    const replaceState = vi.spyOn(window.history, "replaceState");
+    const cleanup = connectDataViewUrlSync(store);
+    const anchor = document.createElement("a");
+    anchor.href = "/en/organizations";
+    anchor.addEventListener("click", (event) => event.preventDefault());
+    document.body.append(anchor);
+    runInAction(() => {
+      state.grouping = { field: A_GROUPING_COLUMN_ID };
+    });
+    anchor.click();
+    vi.advanceTimersByTime(100);
+    expect(replaceState).not.toHaveBeenCalled();
+    runInAction(() => {
+      state.searchTerm = "late old-route refresh";
+    });
+    vi.advanceTimersByTime(100);
+    expect(replaceState).not.toHaveBeenCalled();
+    window.dispatchEvent(new PopStateEvent("popstate"));
+    runInAction(() => {
+      state.searchTerm = "returned";
+    });
+    vi.advanceTimersByTime(100);
+    expect(window.location.search).toContain("searchTerm=returned");
+    cleanup();
+    anchor.remove();
+  });
+
+  it.each([
+    { href: "/en/organizations", target: "_blank", ctrlKey: false },
+    { href: "/en/organizations", target: "", ctrlKey: true },
+    { href: "/en/contacts?other=query", target: "", ctrlKey: false },
+    { href: "https://example.com/another-page", target: "", ctrlKey: false },
+  ])(
+    "keeps URL synchronization for a link that does not leave this application surface: $href/$target/$ctrlKey",
+    ({ href, target, ctrlKey }) => {
+      const { state, store } = createStore();
+      const cleanup = connectDataViewUrlSync(store);
+      const anchor = document.createElement("a");
+      anchor.href = href;
+      anchor.target = target;
+      anchor.addEventListener("click", (event) => event.preventDefault());
+      document.body.append(anchor);
+      anchor.dispatchEvent(new MouseEvent("click", { button: 0, bubbles: true, cancelable: true, ctrlKey }));
+      runInAction(() => {
+        state.searchTerm = "still here";
+      });
+      vi.advanceTimersByTime(100);
+      expect(window.location.search).toBe("?searchTerm=still+here");
+      cleanup();
+      anchor.remove();
+    },
+  );
+
   it("writes the active view id, the card mode and the grouping column, and drops them again on All", () => {
     const { state, store } = createStore();
     const replaceState = vi.spyOn(window.history, "replaceState");

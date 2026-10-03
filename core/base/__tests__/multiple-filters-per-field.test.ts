@@ -1,7 +1,7 @@
-import type { GetResult } from "../base-get.interactor";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
-import type { Filter, FilterableField, GetQueryParams } from "../base-get.schema";
+import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 import type { RootStore } from "@/core/stores/root.store";
+import type { GetResult } from "../base-get.interactor";
+import type { Filter, FilterableField, GetQueryParams } from "../base-get.schema";
 
 import { describe, expect, it, vi } from "vitest";
 
@@ -15,29 +15,48 @@ vi.mock("@/app/actions", () => ({
   updateEntityCustomFieldValueAction: vi.fn(),
 }));
 
+import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
+import { FilterFieldKey } from "@/core/types/filter-field-key";
+import { decodeGetParams, encodeGetParams } from "@/core/utils/get-params";
+import { CustomColumnType } from "@/core/data-view/column-presentation.types";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 import { BaseDataViewStore } from "../base-data-view.store";
 import { BaseQueryBuilder, defaultValidateFilters, FilterOperatorKey, ViewMode } from "../base-query-builder";
-import { CustomColumnType, EntityType } from "@/generated/prisma";
-import { decodeGetParams, encodeGetParams } from "@/core/utils/get-params";
-import { FilterFieldKey } from "@/core/types/filter-field-key";
-import { SURFACE, ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 
 type Item = { id: string };
 
 const CUSTOM_COLUMN_ID = "3f1c9a72-5d84-4a1e-9f3b-6c2d8e0a7b45";
 
 const FILTERABLE_FIELDS: FilterableField[] = [
-  { field: FilterFieldKey.status, operators: [FilterOperatorKey.in, FilterOperatorKey.notIn] },
-  { field: FilterFieldKey.userIds, operators: [FilterOperatorKey.in, FilterOperatorKey.notIn] },
-  { field: CUSTOM_COLUMN_ID, operators: [FilterOperatorKey.contains, FilterOperatorKey.equals] },
+  {
+    field: FilterFieldKey.status,
+    operators: [FilterOperatorKey.in, FilterOperatorKey.notIn],
+  },
+  {
+    field: FilterFieldKey.userIds,
+    operators: [FilterOperatorKey.in, FilterOperatorKey.notIn],
+  },
+  {
+    field: CUSTOM_COLUMN_ID,
+    operators: [FilterOperatorKey.contains, FilterOperatorKey.equals],
+  },
 ];
 
 const CUSTOM_COLUMNS = [
-  { id: CUSTOM_COLUMN_ID, label: "Notes", entityType: EntityType.deal, type: CustomColumnType.plain },
+  {
+    id: CUSTOM_COLUMN_ID,
+    label: "Notes",
+    entityType: EntityType.deal,
+    type: CustomColumnType.plain,
+  },
 ] as unknown as CustomColumnDto[];
 
 const statusFilter = (value: string): Filter =>
-  ({ field: FilterFieldKey.status, operator: FilterOperatorKey.in, value: [value] }) as Filter;
+  ({
+    field: FilterFieldKey.status,
+    operator: FilterOperatorKey.in,
+    value: [value],
+  }) as Filter;
 
 class TestQueryBuilder extends BaseQueryBuilder<Record<string, unknown>> {
   override getFilterableFields(): Promise<FilterableField[]> {
@@ -106,8 +125,16 @@ describe("two filters on one field", () => {
   it("becomes two separate AND clauses on a relation field", async () => {
     const { where } = await new TestQueryBuilder().buildQueryArgs({
       filters: [
-        { field: FilterFieldKey.userIds, operator: FilterOperatorKey.in, value: ["u1"] } as Filter,
-        { field: FilterFieldKey.userIds, operator: FilterOperatorKey.in, value: ["u2"] } as Filter,
+        {
+          field: FilterFieldKey.userIds,
+          operator: FilterOperatorKey.in,
+          value: ["u1"],
+        } as Filter,
+        {
+          field: FilterFieldKey.userIds,
+          operator: FilterOperatorKey.in,
+          value: ["u2"],
+        } as Filter,
       ],
     });
 
@@ -121,8 +148,16 @@ describe("two filters on one field", () => {
   it("becomes two separate AND clauses on a custom column", async () => {
     const { where } = await new TestQueryBuilder().buildQueryArgs({
       filters: [
-        { field: CUSTOM_COLUMN_ID, operator: FilterOperatorKey.contains, value: "acme" } as Filter,
-        { field: CUSTOM_COLUMN_ID, operator: FilterOperatorKey.contains, value: "corp" } as Filter,
+        {
+          field: CUSTOM_COLUMN_ID,
+          operator: FilterOperatorKey.contains,
+          value: "acme",
+        } as Filter,
+        {
+          field: CUSTOM_COLUMN_ID,
+          operator: FilterOperatorKey.contains,
+          value: "corp",
+        } as Filter,
       ],
     });
 

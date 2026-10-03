@@ -11,6 +11,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const testContext = vi.hoisted(() => ({ rootStore: null as unknown }));
 
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
+vi.mock("@/app/[locale]/(protected)/records/actions", () => ({
+  getRecordAction: vi.fn(),
+  getRecordNavigationAction: vi.fn(),
+}));
 vi.mock("@/core/stores/root-store.provider", () => ({ useRootStore: () => testContext.rootStore }));
 vi.mock("@/components/ai-elements/message", () => ({
   MessageResponse: ({ children }: { children: ReactNode }) => createElement("span", null, children),

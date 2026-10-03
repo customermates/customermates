@@ -1,16 +1,17 @@
-import type { ContactDto } from "@/features/contacts/contact.schema";
-import type { OrganizationDto } from "@/features/organizations/organization.schema";
-import type { DealDto } from "@/features/deals/deal.schema";
-import type { ServiceDto } from "@/features/services/service.schema";
-import type { TaskDto } from "@/features/tasks/task.schema";
+import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
+import type { AccountRemovalReason } from "@/ee/messaging/connect/account-removal-reason";
+import type { RoutineDto } from "@/ee/routines/routine.schema";
+import type { LegalAcceptanceAuditPayload, LegalNoticeAuditPayload } from "@/features/legal/legal-audit.schema";
+import type { ContactDto } from "@/features/records/history/v1/contact.schema";
+import type { DealDto } from "@/features/records/history/v1/deal.schema";
+import type { OrganizationDto } from "@/features/records/history/v1/organization.schema";
+import type { ServiceDto } from "@/features/records/history/v1/service.schema";
+import type { TaskDto } from "@/features/records/history/v1/task.schema";
 import type { RoleDto } from "@/features/role/role.schema";
 import type { WebhookEventPayload } from "@/features/webhook/webhook-event-payload";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
-import type { LegalAcceptanceAuditPayload, LegalNoticeAuditPayload } from "@/features/legal/legal-audit.schema";
-import type { RoutineDto } from "@/ee/routines/routine.schema";
-import type { AccountRemovalReason } from "@/ee/messaging/connect/account-removal-reason";
 
-import type { CountryCode, Status, Currency, EntityType, MessagingProvider } from "@/generated/prisma";
+import type { CountryCode, Currency, MessagingProvider, Status } from "@/generated/prisma";
+import type { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 export enum DomainEvent {
   USER_REGISTERED = "user.registered",
@@ -307,7 +308,9 @@ export type DomainEventMap = {
     userId: string;
     companyId: string;
     entityId: string;
-    payload: ConnectedAccountAuditPayload & { removalReason?: AccountRemovalReason };
+    payload: ConnectedAccountAuditPayload & {
+      removalReason?: AccountRemovalReason;
+    };
   };
   [DomainEvent.CONNECTED_ACCOUNT_UPDATED]: {
     userId: string;

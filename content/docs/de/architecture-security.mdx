@@ -41,7 +41,7 @@ Nein. Enterprise-Single-Sign-on mit Ihrem eigenen Identity-Provider über SAML o
 
 ## Wie wird die Autorisierung entschieden? [#how-is-authorization-decided]
 
-Pro Nutzer und Rolle. Eine Rolle, bearbeitet unter **Mein Unternehmen** › **Rollen**, legt für jede Ressource (die fünf Datensatztypen und Workspace-Funktionen wie **Benutzer & Rollen**, **Unternehmen**, **API & Webhooks** und **Audit-Log**) zwei Dinge fest: **Verwalten**, wobei **Ja** Erstellen, Aktualisieren und Löschen gemeinsam gewährt, und **Lesen** mit **Alle**, **Zugewiesen** oder **Keine**. Nicht jede Ressource bietet jede Option. Die System-Rolle **Admin** hat jede Berechtigung. Jede Operation prüft die Berechtigung, bevor sie handelt. API-Keys erben die Berechtigungen ihres besitzenden Nutzers; ein Scoping pro Key gibt es nicht.
+Rollen unter **Mein Unternehmen** › **Rollen** vergeben **Erstellen**, **Bearbeiten**, **Löschen** und das Leserecht **Alle**, **Zugewiesen** oder **Keine** getrennt für jeden Datensatztyp, einschließlich eigener Typen. Bearbeiten und Löschen erfordern die Aktionsberechtigung und Zugriff auf den Datensatz. Workspace-Funktionen behalten ihre Verwalten- und Leseoptionen. Die Verwaltung des **Datenmodells** ist von Datensatzzugriff und Rollenverwaltung getrennt; ohne Rollenverwaltungsrecht dürfen Datenmodell-Verwalter keine zusätzlichen Rechte vergeben. Die System-Rolle **Admin** hat alle Rechte. Datensatz- und Konfigurationsänderungen prüfen Rechte und Revisionen erneut innerhalb der Workspace-Transaktion. API-Keys erben die aktuellen Rechte ihres Besitzers; ein Scoping pro Key gibt es nicht.
 
 **Link:** die Seite **Rollen**, `/company/roles`. **Mate:** `navigate` und `highlight_element` mit `nav-company-roles`; `company-roles-add` hebt **Hinzufügen** für Rollen mit **Verwalten** bei **Benutzer & Rollen** hervor, und im geöffneten Dialog **Rolle** heben `role-modal-save` und `role-modal-reset` **Speichern** und **Zurücksetzen** hervor, und `role-modal-delete` hebt **Löschen** bei einer gespeicherten eigenen Rolle hervor, die kein Mitglied nutzt; die Berechtigungszeilen und Felder sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
@@ -64,9 +64,9 @@ MCP-Anfragen nutzen denselben Authentifizierungs- und Autorisierungspfad. Wenn e
 
 Die MCP-Oberfläche ergänzt Eingabe-Schutzregeln, die Tool-Aufrufe absichern:
 
-- Update-Tools nehmen keine Verknüpfungslisten für Kontakte, Organisationen, Deals, Nutzer, Aufgaben oder Leistungen an; diese Verknüpfungen ändern sich nur über `manage_record_links`. Die einzige Ausnahme ist `update_deals`, dessen Liste `services` die Leistungen des Deals ersetzt und der einzige Weg ist, Mengen zu setzen. Ein `null` für `services` oder `customFieldValues` wird abgelehnt, sodass ein `null` nie Verknüpfungen oder Werte löschen kann; `services: []` entfernt bewusst alle Leistungen vom Deal.
-- Ein Update-Tool akzeptiert nur IDs seines eigenen Datensatztyps. Jede andere ID scheitert mit einer Nicht-gefunden-Meldung wie „Kontakt-ID nicht gefunden oder nicht zugänglich.“, sodass ein Update nie beim falschen Datensatztyp landet.
-- Destruktive Tools verlangen eine explizite Liste von Datensatz-IDs. Ein Löschen per Filter gibt es nicht.
+- `mutate_crm_record` ändert jeweils einen typisierten Datensatz oder eine Verknüpfung. Jede Referenz enthält Typ-ID und Datensatz-ID; Verknüpfungen nennen zusätzlich die Beziehungsdefinition. Ausgelassene Felder bleiben unverändert, `null` leert ein optionales Eingabefeld ausdrücklich. Berechnete Felder sind nicht direkt beschreibbar.
+- Das Backend prüft Typ, Workspace, Datensatzrechte, Version und Konfigurationsrevision während der Schreibtransaktion. Eine Referenz auf einen anderen Typ oder Workspace kann ein Update nicht umleiten.
+- Zum Löschen sind eine Datensatzreferenz und ein aktueller Hash der Auswirkungs-Vorschau erforderlich; ein Löschen per Filter gibt es nicht.
 
 Die vollständige Liste finden Sie im [MCP-Tool-Katalog](/docs/mcp#tool-catalog).
 

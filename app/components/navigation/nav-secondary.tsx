@@ -17,6 +17,7 @@ export type NavSecondaryItem = {
   title: string;
   icon: React.FC<SVGProps<SVGSVGElement>>;
   href?: string;
+  prefetch?: boolean;
   onSelect?: (invoker: HTMLElement) => void;
 };
 
@@ -37,6 +38,7 @@ export function NavSecondary({ items, ...props }: Props) {
                     className="text-foreground no-underline hover:no-underline"
                     href={item.href}
                     id={`nav-${item.key}`}
+                    prefetch={item.prefetch}
                   >
                     <NavLinkPendingIcon icon={item.icon} />
 

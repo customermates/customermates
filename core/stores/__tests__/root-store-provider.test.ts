@@ -11,7 +11,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   Action,
   Currency,
-  EntityType,
   Locale,
   Resource,
   Status,
@@ -19,6 +18,7 @@ import {
   SubscriptionStatus,
   Theme,
 } from "@/generated/prisma";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 vi.mock("../root.store", () => ({
   RootStore: class {
@@ -40,6 +40,12 @@ vi.mock("../root.store", () => ({
       company: null as Company | null,
       setCompany: (company: Company | null) => {
         this.companyStore.company = company;
+      },
+    };
+    readonly recordWorkspaceStore = {
+      navigation: null as RootStoreInitialState["recordNavigation"],
+      setNavigation: (navigation: RootStoreInitialState["recordNavigation"]) => {
+        this.recordWorkspaceStore.navigation = navigation;
       },
     };
     readonly terminologyStore = {

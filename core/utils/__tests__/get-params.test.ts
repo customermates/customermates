@@ -7,6 +7,31 @@ import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { decodeGetParams, encodeGetParams } from "@/core/utils/get-params";
 
 describe("filter URL parameters", () => {
+  it("preserves dynamic references, delimiters in selected values and system sorting/grouping", () => {
+    const filters: Filter[] = [
+      { field: "relationship:8f1c1a4e-0b2d-4a9e-9d7c-1f2a3b4c5d6e:outgoing", operator: FilterOperatorKey.hasSome },
+      { field: "system:assignedTo", operator: FilterOperatorKey.in, value: ["8f1c1a4e-0b2d-4a9e-9d7c-1f2a3b4c5d6e"] },
+      { field: "system:updatedAt", operator: FilterOperatorKey.inLastDays, value: 7 },
+      { field: "name", operator: FilterOperatorKey.in, value: ["Smith, Taylor", "Text: includes, delimiters"] },
+    ];
+    const sortDescriptor = { field: "system:createdAt", direction: "desc" as const };
+    const grouping = { field: "system:createdAt", bucket: "month" as const };
+    const decoded = decodeGetParams(
+      new URLSearchParams(encodeGetParams({ filters, sortDescriptor, grouping }).toString()),
+    );
+    expect(decoded).toMatchObject({ filters, sortDescriptor, grouping });
+  });
+
+  it("decodes existing dynamic URLs and rejects malformed versioned filter tokens", () => {
+    const encoded = new URLSearchParams();
+    encoded.append("filters", "system:updatedAt:inLastDays:7");
+    encoded.append("filters", "v2.{malformed}");
+    encoded.append("filters", 'v2.{"field":"name","operator":"execute","value":"unsafe"}');
+    expect(decodeGetParams(encoded).filters).toEqual([
+      { field: "system:updatedAt", operator: FilterOperatorKey.inLastDays, value: 7 },
+    ]);
+  });
+
   it("round trips relation existence filters without a value token", () => {
     const filters: Filter[] = [
       { field: FilterFieldKey.userIds, operator: FilterOperatorKey.hasNone },

@@ -104,7 +104,7 @@ The server sends its instructions to your AI when it connects, so the client alr
 - *"Create a contact for Jane Doe at Initech, link it to the Initech organization, and start a deal for 12 hours of consulting."*
 - *"Set the Status column on the Acme deal to Won and add a note that the contract was signed today."*
 
-The record types are contact, organization, deal, service, and task. Fields such as a deal's status or a task's priority are configurable custom columns per workspace, not fixed product fields. Ask your AI to call `get_record_schema` to see the columns and their allowed values before writing.
+Contacts, organizations, deals, services, and tasks are the starting record types; your workspace can add more. Fields such as a deal's stage or a task's priority are configured per workspace. Ask your AI to call `discover_record_types` and `get_record_model` to see the relevant fields and allowed values before writing.
 
 ## Confirming tool calls: which ones can I always allow? [#confirming-tool-calls]
 
@@ -126,8 +126,8 @@ Leave every tool that is not read-only on *Ask*. The full list is in the [MCP to
 | No "Add custom connector" option | Free plan | Custom connectors need a paid Claude or ChatGPT plan. See [the CLI method](/docs/connect-cli) |
 | Approved but nothing connects | You approved from a different account | Sign into the right Customermates account, then retry |
 | "Tool not found" | Stale connector cache | Remove and re-add the connector |
-| Server rejects a relationship update | `update_*` tools do not accept relation id fields; only `services` on `update_deals` is accepted, and it replaces the deal's whole service list | Ask the agent to use `manage_record_links` |
-| Enum field rejected | Value not in the column's option list | Ask the agent to call `get_record_schema` first |
+| Server rejects a relationship update | The relationship ID or endpoint is missing or inaccessible | Ask the agent to read `get_record_model`, then use `mutate_crm_record` with `link` or `unlink` |
+| Select field rejected | Value not in the field's option list | Ask the agent to call `get_record_model` first |
 | A messaging, calendar or social tool is refused with a plan message | The workspace has no plan with messaging (Starter, self-hosted, or no active subscription or trial) | On Cloud, a member with **Manage** **Yes** on **Company** chooses Pro or higher under **My Company → Subscription**. Self-hosted instances have no messaging; use Customermates Cloud for these tools |
 
 **Link:** the **API & Connectors** page, `/profile/api-keys`, the **Members** page, `/company/members`, and the **Subscription** page, `/company/subscription` (cloud only). **Mate:** `navigate` and `highlight_element` with `nav-profile-api-keys`, `nav-company-members` or `nav-company-subscription`. `profile-api-keys-generate` highlights **Add** on the API page (roles with **Manage** on **API & Webhooks**); the member rows are not highlight targets, so Mate names them; once a member row is open, `member-modal-status` highlights **Status** and `member-modal-save` highlights **Save** in the **User** dialog (roles with **Manage** on **Users & Roles**), and `company-subscription-plan-picker` outlines the plan cards while the picker is shown.

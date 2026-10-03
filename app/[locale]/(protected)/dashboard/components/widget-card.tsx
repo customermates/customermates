@@ -5,13 +5,13 @@ import type { WidgetDto } from "@/features/widget/widget.schema";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
-import { ActivityWidgetCard } from "./activity-widget-card";
-import { ChartWidgetCard } from "./chart-widget-card";
 import { openWidgetEditor } from "./widget-interaction";
 
-import { isChartWidget } from "@/features/widget/widget.schema";
-import { useRootStore } from "@/core/stores/root-store.provider";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { useRootStore } from "@/core/stores/root-store.provider";
+import { isRecordActivityWidget, isRecordWidget } from "@/features/widget/widget.schema";
+import { RecordActivityWidgetCard } from "./record-activity-widget-card";
+import { RecordWidgetCard } from "./record-widget-card";
 
 type Props = {
   widget: WidgetDto;
@@ -20,7 +20,11 @@ type Props = {
 export const WidgetCard = observer(({ widget }: Props) => {
   const t = useTranslations();
   const { widgetModalStore } = useRootStore();
-  const card = isChartWidget(widget) ? <ChartWidgetCard widget={widget} /> : <ActivityWidgetCard widget={widget} />;
+  const card = isRecordActivityWidget(widget) ? (
+    <RecordActivityWidgetCard widget={widget} />
+  ) : isRecordWidget(widget) ? (
+    <RecordWidgetCard widget={widget} />
+  ) : null;
 
   return (
     <div className="relative h-full">

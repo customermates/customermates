@@ -6,6 +6,7 @@ import { loadNavigationData, type NavigationDataLoaders } from "../navigation-da
 
 function loaders(): NavigationDataLoaders {
   return {
+    records: vi.fn().mockResolvedValue({ companyId: "company-1", schemaRevision: 1, canManageSchema: true, types: [] }),
     company: vi.fn().mockResolvedValue({
       company: { id: "company-1" },
       terminology: [],
@@ -33,6 +34,7 @@ describe("loadNavigationData", () => {
       const deps = loaders();
 
       expect(await loadNavigationData(state, deps)).toEqual({
+        records: null,
         company: null,
         terminology: [],
         subscription: null,

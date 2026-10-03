@@ -1,0 +1,36 @@
+import type { Data } from "@/core/validation/validation.utils";
+
+import { z } from "zod";
+
+import {
+  CustomFieldValueSchema,
+  DealReferenceSchema,
+  UserReferenceSchema,
+  TaskReferenceSchema,
+  NotesSchema,
+} from "@/core/base/base-entity.schema";
+import { CustomColumnDtoSchema } from "@/core/data-view/column-presentation.schema";
+
+export const ServiceDtoSchema = z.object({
+  id: z.uuid(),
+  name: z.string(),
+  amount: z.number(),
+  notes: NotesSchema,
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  users: z.array(UserReferenceSchema),
+  deals: z.array(DealReferenceSchema),
+  tasks: z.array(TaskReferenceSchema),
+  customFieldValues: z
+    .array(CustomFieldValueSchema)
+    .describe(
+      "Custom field values for this service. Query available custom field configurations via GET /v1/services/configuration, which returns customColumns with their definitions.",
+    ),
+});
+
+export type ServiceDto = Data<typeof ServiceDtoSchema>;
+
+export const ServiceByIdResponseSchema = z.object({
+  service: ServiceDtoSchema.nullable(),
+  customColumns: z.array(CustomColumnDtoSchema),
+});

@@ -1,3 +1,10 @@
+import type { RecordEventSubscriptionRepo } from "@/features/records/record-event-subscription.repo";
+import {
+  RecordTriggerDefinitionSchema,
+  RecordTriggerSourceSchema,
+} from "@/features/records/record-event-subscription.schema";
+import { RecordWriteError } from "@/features/records/record-write.service";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { RepoArgs } from "@/core/utils/types";
 import type { GetWebhooksRepo } from "./get-webhooks.interactor";
 import type { UpsertWebhookRepo } from "./upsert-webhook.interactor";
@@ -6,7 +13,6 @@ import type { FindWebhooksByIdsRepo } from "./find-webhooks-by-ids.repo";
 import type { WebhookDto } from "./webhook.schema";
 import type { GetWebhooksForEventRepo } from "@/features/event/event.service";
 import type { GetWebhookByIdRepo } from "./get-webhook-by-id.interactor";
-import type { DeliverWebhookConfigRepo } from "./deliver-webhook.interactor";
 
 import { Action, Prisma, Resource } from "@/generated/prisma";
 
@@ -28,9 +34,103 @@ export class PrismaWebhookRepo
     DeleteWebhookRepo,
     GetWebhooksForEventRepo,
     FindWebhooksByIdsRepo,
-    GetWebhookByIdRepo,
-    DeliverWebhookConfigRepo
+    GetWebhookByIdRepo
 {
+  constructor(private readonly subscriptions: RecordEventSubscriptionRepo) {
+    super();
+  }
+
+  private async withRecordSubscriptions(rows: WebhookDto[]): Promise<WebhookDto[]> {
+    const ids = rows.filter((row) => row.events.some((event) => event.startsWith("record."))).map((row) => row.id);
+    const subscriptions = await this.subscriptions.findCompanyWide(this.companyId, ids);
+    const byId = new Map(subscriptions.filter((row) => row.kind === "webhook").map((row) => [row.id, row]));
+    return rows.map((row) => {
+      const subscription = byId.get(row.id);
+      return {
+        ...row,
+        recordOwnerUserId: subscription?.ownerUserId ?? null,
+        recordSources: subscription?.sources?.length
+          ? subscription.sources.map((source) => RecordTriggerSourceSchema.parse(source))
+          : null,
+        recordTrigger: subscription?.query
+          ? RecordTriggerDefinitionSchema.parse({
+              query: subscription.query,
+              changedFieldIds: subscription.changedFieldIds,
+            })
+          : null,
+      };
+    });
+  }
+
+  private async assertWriter(action: "update" | "delete", ownerUserId?: string | null) {
+    const actor = await this.prisma.user.findFirst({
+      where: { companyId: this.companyId, id: this.userId, status: "active", role: { companyId: this.companyId } },
+      select: {
+        role: {
+          select: {
+            isSystemRole: true,
+            permissions: { where: { companyId: this.companyId, resource: "api", action }, select: { action: true } },
+          },
+        },
+      },
+    });
+    if (
+      !actor?.role ||
+      (!actor.role.isSystemRole && (!actor.role.permissions.length || (ownerUserId && ownerUserId !== this.userId)))
+    )
+      throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
+  }
+
+  private async saveRecordSubscription(
+    webhook: WebhookDto,
+    input: RepoArgs<UpsertWebhookRepo, "upsertWebhookOrThrow">,
+    previous?: WebhookDto,
+  ) {
+    const events = webhook.events.filter(
+      (event): event is "record.created" | "record.updated" | "record.deleted" =>
+        event === "record.created" || event === "record.updated" || event === "record.deleted",
+    );
+    if (!events.length) {
+      if (input.recordTrigger || input.recordSources?.length || input.recordOwnerUserId)
+        throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
+      await this.subscriptions.remove(webhook.id);
+      return;
+    }
+    if (
+      (!previous?.recordOwnerUserId ||
+        input.recordTrigger !== undefined ||
+        input.recordSources !== undefined ||
+        input.recordOwnerUserId !== undefined) &&
+      input.expectedSchemaRevision === undefined
+    )
+      throw new RecordWriteError(CustomErrorCode.recordSchemaChanged, "conflict");
+    const sources =
+      input.recordSources !== undefined
+        ? input.recordSources
+        : input.recordTrigger !== undefined
+          ? null
+          : previous?.recordSources;
+    const trigger = sources?.length
+      ? null
+      : input.recordTrigger === undefined
+        ? previous?.recordTrigger
+        : input.recordTrigger;
+    await this.subscriptions.save(
+      {
+        id: webhook.id,
+        kind: "webhook",
+        ownerUserId: input.recordOwnerUserId ?? previous?.recordOwnerUserId ?? this.userId,
+        typeId: trigger?.query.typeId ?? null,
+        query: trigger?.query ?? null,
+        sources: sources ?? null,
+        changedFieldIds: trigger?.changedFieldIds ?? [],
+        events,
+        enabled: webhook.enabled,
+      },
+      input.expectedSchemaRevision,
+    );
+  }
+
   private get baseSelect() {
     return {
       id: true,
@@ -81,7 +181,7 @@ export class PrismaWebhookRepo
   }
 
   async getItems(params: GetQueryParams) {
-    return this.list({
+    const rows = await this.list({
       model: "webhook",
       baseWhere: { companyId: this.companyId },
       select: this.baseSelect,
@@ -89,6 +189,7 @@ export class PrismaWebhookRepo
       map: (webhook: Prisma.WebhookGetPayload<{ select: PrismaWebhookRepo["baseSelect"] }>) =>
         this.toWebhookDto(webhook),
     });
+    return this.withRecordSubscriptions(rows);
   }
 
   async getCount(params: GetQueryParams) {
@@ -101,6 +202,8 @@ export class PrismaWebhookRepo
   async upsertWebhookOrThrow(args: RepoArgs<UpsertWebhookRepo, "upsertWebhookOrThrow">) {
     const { companyId } = this.user;
     const { id, ...webhookData } = args;
+    const previous = id ? await this.getWebhookByIdOrThrow(id) : undefined;
+    await this.assertWriter("update", previous?.recordOwnerUserId);
 
     if (id) {
       await this.prisma.webhook.findFirstOrThrow({ where: { id, companyId } });
@@ -118,6 +221,7 @@ export class PrismaWebhookRepo
         },
       });
 
+      await this.saveRecordSubscription(await this.getWebhookByIdOrThrow(id), args, previous);
       return this.getWebhookByIdOrThrow(id);
     }
 
@@ -135,6 +239,7 @@ export class PrismaWebhookRepo
       select: { id: true },
     });
 
+    await this.saveRecordSubscription(await this.getWebhookByIdOrThrow(created.id), args);
     return this.getWebhookByIdOrThrow(created.id);
   }
 
@@ -147,11 +252,18 @@ export class PrismaWebhookRepo
       select: this.baseSelect,
     });
 
+    const dto = (await this.withRecordSubscriptions([this.toWebhookDto(webhook)]))[0];
+    await this.assertWriter("delete", dto.recordOwnerUserId);
+    await this.subscriptions.remove(id);
+    await this.prisma.webhookDelivery.updateMany({
+      where: { companyId, webhookId: id },
+      data: { webhookId: null, nextAttemptAt: null, leaseToken: null, leaseExpiresAt: null },
+    });
     await this.prisma.webhook.delete({
       where: { id, companyId },
     });
 
-    return this.toWebhookDto(webhook);
+    return dto;
   }
 
   async getWebhooksForEvent(event: string) {
@@ -175,30 +287,6 @@ export class PrismaWebhookRepo
     return this.prisma.webhook.findMany({ where: { companyId, enabled: true, events: { has: event } } });
   }
 
-  @BypassTenantGuard
-  async getDeliveryConfigUnscoped(args: RepoArgs<DeliverWebhookConfigRepo, "getDeliveryConfigUnscoped">) {
-    const { companyId, url } = args;
-
-    const webhooks = await this.prisma.webhook.findMany({
-      where: { companyId, url },
-      select: { secret: true, headers: true, bodyTemplate: true },
-      orderBy: { createdAt: "asc" },
-    });
-
-    const webhook = webhooks[0];
-    const carriesDeliveryOverrides = webhooks.some(
-      (candidate) =>
-        candidate.bodyTemplate !== null || Object.keys(parseStoredWebhookHeaders(candidate.headers)).length > 0,
-    );
-
-    return {
-      secret: webhook?.secret ?? null,
-      headers: parseStoredWebhookHeaders(webhook?.headers),
-      bodyTemplate: webhook?.bodyTemplate ?? null,
-      ambiguous: webhooks.length > 1 && carriesDeliveryOverrides,
-    };
-  }
-
   async getWebhookByIdOrThrow(id: string) {
     const { companyId } = this.user;
 
@@ -207,7 +295,7 @@ export class PrismaWebhookRepo
       select: this.baseSelect,
     });
 
-    return this.toWebhookDto(webhook);
+    return (await this.withRecordSubscriptions([this.toWebhookDto(webhook)]))[0];
   }
 
   async getWebhookById(id: string) {
@@ -218,7 +306,7 @@ export class PrismaWebhookRepo
       select: this.baseSelect,
     });
 
-    return webhook ? this.toWebhookDto(webhook) : null;
+    return webhook ? (await this.withRecordSubscriptions([this.toWebhookDto(webhook)]))[0] : null;
   }
 
   async findIds(ids: Set<string>) {

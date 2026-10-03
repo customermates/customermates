@@ -27,6 +27,7 @@ import { useFormFieldErrors } from "./use-form-field";
 
 type Props = {
   id: string;
+  inputId?: string;
   label?: string | null;
   placeholder?: string;
   required?: boolean;
@@ -39,6 +40,7 @@ type Props = {
 export const FormIsoDateRangePicker = observer(
   ({
     id,
+    inputId,
     label,
     placeholder,
     required,
@@ -53,6 +55,7 @@ export const FormIsoDateRangePicker = observer(
     const intlStore = useHydratedIntlStore();
 
     const raw = store?.getValue(id);
+    const domId = inputId ?? id;
     const csvValue = typeof raw === "string" ? raw : undefined;
     const parsedRange = parseRange(csvValue);
     const { hasError } = useFormFieldErrors(id);
@@ -142,7 +145,7 @@ export const FormIsoDateRangePicker = observer(
     return (
       <div className={cn("flex flex-col gap-1.5", containerClassName)}>
         {resolvedLabel && (
-          <FormLabel htmlFor={id}>
+          <FormLabel fieldId={id} htmlFor={domId}>
             {resolvedLabel}
 
             {required ? <span className="text-destructive"> *</span> : null}
@@ -161,7 +164,7 @@ export const FormIsoDateRangePicker = observer(
               )}
               data-field-state={isReadOnly ? "read-only" : undefined}
               disabled={isLoading}
-              id={id}
+              id={domId}
               type="button"
               variant="field"
             >
@@ -195,13 +198,13 @@ export const FormIsoDateRangePicker = observer(
 
                 <div className="flex flex-col gap-3 p-3 sm:flex-row">
                   <div className="flex flex-1 flex-col gap-1.5">
-                    <FormLabel className="text-xs text-muted-foreground" htmlFor={`${id}-time-from`}>
+                    <FormLabel className="text-xs text-muted-foreground" htmlFor={`${domId}-time-from`}>
                       {t("Common.datePresets.startTime")}
                     </FormLabel>
 
                     <TimeInput
                       disabled={isLoading || !parsedRange}
-                      id={`${id}-time-from`}
+                      id={`${domId}-time-from`}
                       use12Hour={intlStore.use12Hour}
                       value={fromTimeValue}
                       onChange={(v) => handleTimeChange("from", v)}
@@ -209,13 +212,13 @@ export const FormIsoDateRangePicker = observer(
                   </div>
 
                   <div className="flex flex-1 flex-col gap-1.5">
-                    <FormLabel className="text-xs text-muted-foreground" htmlFor={`${id}-time-to`}>
+                    <FormLabel className="text-xs text-muted-foreground" htmlFor={`${domId}-time-to`}>
                       {t("Common.datePresets.endTime")}
                     </FormLabel>
 
                     <TimeInput
                       disabled={isLoading || !parsedRange}
-                      id={`${id}-time-to`}
+                      id={`${domId}-time-to`}
                       use12Hour={intlStore.use12Hour}
                       value={toTimeValue}
                       onChange={(v) => handleTimeChange("to", v)}

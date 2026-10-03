@@ -19,16 +19,46 @@ export const WORKSPACE_SECTIONS: Record<WorkspaceSection, WorkspaceSubroute[]> =
       resource: Resource.inboxMessages,
       cloudOnly: true,
     },
-    { slug: "api-keys", labelKey: "ApiKeysCard.title", resource: Resource.api },
+    {
+      slug: "api-keys",
+      labelKey: "ApiKeysCard.title",
+      resource: Resource.api,
+    },
   ],
   company: [
-    { slug: "subscription", labelKey: "NavigationBar.subscription", resource: Resource.company, cloudOnly: true },
-    { slug: "settings", labelKey: "NavigationBar.settings", resource: Resource.company },
-    { slug: "members", labelKey: "NavigationBar.members", resource: Resource.users },
+    {
+      slug: "subscription",
+      labelKey: "NavigationBar.subscription",
+      resource: Resource.company,
+      cloudOnly: true,
+    },
+    {
+      slug: "settings",
+      labelKey: "NavigationBar.settings",
+      resource: Resource.company,
+    },
+    { slug: "data-model", labelKey: "RecordModel.dataModel" },
+    {
+      slug: "members",
+      labelKey: "NavigationBar.members",
+      resource: Resource.users,
+    },
     { slug: "roles", labelKey: "RolesCard.title", resource: Resource.users },
-    { slug: "audit-logs", labelKey: "AuditLogsCard.title", resource: Resource.auditLog },
-    { slug: "webhooks", labelKey: "WebhooksCard.title", resource: Resource.api },
-    { slug: "webhook-deliveries", labelKey: "WebhookDeliveriesCard.title", resource: Resource.api },
+    {
+      slug: "audit-logs",
+      labelKey: "AuditLogsCard.title",
+      resource: Resource.auditLog,
+    },
+    {
+      slug: "webhooks",
+      labelKey: "WebhooksCard.title",
+      resource: Resource.api,
+    },
+    {
+      slug: "webhook-deliveries",
+      labelKey: "WebhookDeliveriesCard.title",
+      resource: Resource.api,
+    },
   ],
 };
 

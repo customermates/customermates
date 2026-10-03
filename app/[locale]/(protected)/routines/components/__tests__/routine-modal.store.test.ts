@@ -1,23 +1,16 @@
 import type { RootStore } from "@/core/stores/root.store";
 import type { RoutineDto, RoutineRunDto } from "@/ee/routines/routine.schema";
 
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { autorun, runInAction } from "mobx";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { RoutineRunStatus, RoutineTriggerKind } from "@/generated/prisma";
-import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { registerApplicationErrorHandler } from "@/core/errors/report-application-error";
+import { createCrmPreset } from "@/features/records/crm-preset";
+import { RoutineRunStatus, RoutineTriggerKind } from "@/generated/prisma";
 
 const routineActions = vi.hoisted(() => ({
   deleteRoutineAction: vi.fn(),
-  getRoutineFilterFieldsAction: vi.fn(() =>
-    Promise.resolve({
-      filterableFields: {
-        organization: [{ field: "name" }, { field: "type" }],
-      },
-      customColumns: [],
-    }),
-  ),
+  getRoutineFilterFieldsAction: vi.fn(),
   getRoutineRunsAction: vi.fn<
     (input: { routineId: string; cursor?: string }) => Promise<{ runs: RoutineRunDto[]; nextCursor: string | null }>
   >(() => Promise.resolve({ runs: [], nextCursor: null })),
@@ -154,14 +147,54 @@ function makeStore(
 }
 
 describe("RoutineModalStore", () => {
+  it("keeps a dynamic trigger and draft through reloads and clears incompatible fields on a type change", async () => {
+    const store = makeStore();
+    await store.openForCreate();
+    const model = createCrmPreset("30000000-0000-4000-8000-000000000040", "EUR");
+    runInAction(() => {
+      store.recordModel = model;
+    });
+    store.onChange("name", "Project follow-up");
+    store.onChange("prompt", "Keep the original customer instructions.");
+    store.onChange("triggerKind", "event");
+    store.onChange("triggerKind", "event");
+    store.onChange("triggerEvents", ["record.updated"]);
+    const first = model.types[0];
+    const second = model.types[1];
+    const field = model.fields.find((field) => field.typeId === first.id);
+    if (!field) throw new Error("Preset primary field missing");
+    store.onChange("recordTrigger.changedFieldIds", [field.id]);
+    expect(store.payload.recordTrigger?.query.typeId).toBe(first.id);
+    expect(store.payload.recordTrigger?.changedFieldIds).toEqual([field.id]);
+    expect(store.payload.expectedSchemaRevision).toBe(model.revision);
+    const trigger = structuredClone(store.payload.recordTrigger);
+    await store.openForEdit(
+      makeRoutine({
+        triggerKind: "event",
+        triggerEvents: ["record.updated"],
+        recordTrigger: trigger,
+        prompt: "Keep the original customer instructions.",
+      }),
+    );
+    runInAction(() => {
+      store.recordModel = model;
+    });
+    expect(store.payload.recordTrigger).toEqual(trigger);
+    store.onChange("recordTrigger.query.typeId", second.id);
+    expect(store.payload.recordTrigger).toEqual({
+      query: { typeId: second.id, filters: [], relationships: [] },
+      changedFieldIds: [],
+    });
+    expect(store.payload.prompt).toBe("Keep the original customer instructions.");
+    store.onChange("triggerEvents", ["messaging.message.received"]);
+    expect(store.payload.recordTrigger).toBeNull();
+    expect(store.payload.expectedSchemaRevision).toBeUndefined();
+  });
   beforeEach(() => {
     vi.useRealTimers();
     vi.resetAllMocks();
     routineActions.getRoutineFilterFieldsAction.mockResolvedValue({
-      filterableFields: {
-        organization: [{ field: "name" }, { field: "type" }],
-      },
-      customColumns: [],
+      recordModel: createCrmPreset("30000000-0000-4000-8000-000000000040", "EUR"),
     });
     routineActions.getRoutineRunsAction.mockResolvedValue({
       runs: [],
@@ -349,116 +382,72 @@ describe("RoutineModalStore", () => {
     }
   });
 
-  it("fills in the record filters once a trigger event names an entity", async () => {
-    const store = makeStore();
-
-    await store.openForCreate();
-
-    expect(store.form.triggerFilters).toEqual([]);
-
-    store.onChange("triggerEvents", ["organization.created"]);
-    await Promise.resolve();
-
-    expect(store.form.triggerFilters).toHaveLength(2);
-  });
-
-  it("refreshes custom-field metadata whenever the editor is opened", async () => {
+  it("creates a usable trigger without generating legacy filter rows", async () => {
     const store = makeStore();
     await store.openForCreate();
-
-    routineActions.getRoutineFilterFieldsAction.mockResolvedValue({
-      filterableFields: { organization: [{ field: "new-field" }] },
-      customColumns: [],
+    store.onChange("triggerKind", "event");
+    store.onChange("triggerEvents", ["record.created"]);
+    expect(store.form.recordTrigger?.query).toEqual({
+      typeId: store.recordModel?.types[0].id,
+      filters: [],
+      relationships: [],
     });
-    await store.openForCreate();
-
-    expect(routineActions.getRoutineFilterFieldsAction).toHaveBeenCalledTimes(2);
-    expect(store.filterableFieldsByEntityType.organization).toEqual([{ field: "new-field" }]);
-  });
-
-  it("offers change fields only once a selected event reports changes", async () => {
-    const store = makeStore();
-
-    await store.openForCreate();
-
-    store.onChange("triggerEvents", ["organization.created"]);
-    await Promise.resolve();
-
-    expect(store.watchesRecordChanges).toBe(false);
-    expect(store.changeFields).toEqual([]);
-
-    store.onChange("triggerEvents", ["organization.updated"]);
-    await Promise.resolve();
-
-    expect(store.watchesRecordChanges).toBe(true);
-    expect(store.changeFields).toContain("name");
-    expect(store.changeFields).toContain("notes");
-  });
-
-  it("drops watched fields when the events stop reporting changes", async () => {
-    const store = makeStore();
-
-    await store.openForCreate();
-
-    store.onChange("triggerEvents", ["organization.updated"]);
-    await Promise.resolve();
-    store.onChange("changedFields", ["name"]);
-
-    store.onChange("triggerEvents", ["organization.created"]);
-    await Promise.resolve();
-
-    expect(store.form.changedFields).toEqual([]);
+    expect(store.payload.triggerFilters).toEqual([]);
     expect(store.payload.changedFields).toEqual([]);
   });
 
-  it("drops watched fields the new entity does not have", async () => {
+  it("refreshes the configured record metadata whenever the editor is opened", async () => {
     const store = makeStore();
-
     await store.openForCreate();
-
-    store.onChange("triggerEvents", ["organization.updated"]);
-    await Promise.resolve();
-    store.onChange("changedFields", ["name"]);
-
-    store.onChange("triggerEvents", ["contact.updated"]);
-    await Promise.resolve();
-
-    expect(store.form.changedFields).toEqual([]);
-    expect(store.payload.triggerFilters).toEqual([]);
+    const revised = createCrmPreset("30000000-0000-4000-8000-000000000040", "EUR");
+    revised.revision = 9;
+    revised.fields[0].label = "Renamed field";
+    routineActions.getRoutineFilterFieldsAction.mockResolvedValue({ recordModel: revised });
+    await store.openForCreate();
+    expect(routineActions.getRoutineFilterFieldsAction).toHaveBeenCalledTimes(2);
+    expect(store.recordModel?.fields[0].label).toBe("Renamed field");
+    store.onChange("triggerKind", "event");
+    store.onChange("triggerEvents", ["record.updated"]);
+    expect(store.payload.expectedSchemaRevision).toBe(9);
   });
 
-  it("preserves unavailable conditions until the owner explicitly changes entity type", async () => {
-    const unavailableFieldId = "40000000-0000-4000-8000-000000000099";
-    const unavailableFilter = {
-      field: unavailableFieldId,
-      operator: FilterOperatorKey.equals,
-      value: "enterprise",
-    } as const;
+  it("clears watched fields when selected events stop reporting record changes", async () => {
     const store = makeStore();
+    await store.openForCreate();
+    store.onChange("triggerKind", "event");
+    store.onChange("triggerEvents", ["record.updated"]);
+    store.onChange("recordTrigger.changedFieldIds", [store.recordModel?.fields[0].id]);
+    expect(store.watchesRecordChanges).toBe(true);
+    store.onChange("triggerKind", "event");
+    store.onChange("triggerEvents", ["record.created"]);
+    expect(store.watchesRecordChanges).toBe(false);
+    expect(store.payload.recordTrigger?.changedFieldIds).toEqual([]);
+  });
 
+  it("preserves unavailable stable references until the owner explicitly changes the source type", async () => {
+    const fieldId = "40000000-0000-4000-8000-000000000099";
+    const model = createCrmPreset("30000000-0000-4000-8000-000000000040", "EUR");
+    const query = {
+      typeId: model.types[0].id,
+      filters: [{ fieldId, operator: "eq" as const, value: { kind: "text" as const, value: "enterprise" } }],
+      relationships: [],
+    };
+    const store = makeStore();
     await store.openForEdit(
       makeRoutine({
         triggerKind: RoutineTriggerKind.event,
-        triggerEvents: ["organization.updated"],
-        changedFields: [unavailableFieldId],
-        triggerFilters: [unavailableFilter],
+        triggerEvents: ["record.updated"],
+        recordTrigger: { query, changedFieldIds: [fieldId] },
       }),
     );
-
-    expect(store.form.changedFields).toEqual([unavailableFieldId]);
-    expect(store.form.triggerFilters).toContainEqual(unavailableFilter);
-    expect(store.payload.changedFields).toEqual([unavailableFieldId]);
-    expect(store.payload.triggerFilters).toEqual([unavailableFilter]);
-
-    store.onChange("triggerEvents", ["organization.updated", "organization.created"]);
-
-    expect(store.payload.changedFields).toEqual([unavailableFieldId]);
-    expect(store.payload.triggerFilters).toEqual([unavailableFilter]);
-
-    store.onChange("triggerEvents", ["contact.updated"]);
-
-    expect(store.payload.changedFields).toEqual([]);
-    expect(store.payload.triggerFilters).toEqual([]);
+    expect(store.payload.recordTrigger).toEqual({ query, changedFieldIds: [fieldId] });
+    store.onChange("triggerEvents", ["record.updated", "record.created"]);
+    expect(store.payload.recordTrigger).toEqual({ query, changedFieldIds: [fieldId] });
+    store.onChange("recordTrigger.query.typeId", model.types[1].id);
+    expect(store.payload.recordTrigger).toEqual({
+      query: { typeId: model.types[1].id, filters: [], relationships: [] },
+      changedFieldIds: [],
+    });
   });
 
   it("stamps the local time zone on a routine created in the browser", async () => {

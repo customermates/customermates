@@ -46,6 +46,9 @@
         "records": {
           "delete": "{count, plural, one {Bereit, {target} endgültig zu löschen} other {Bereit, {target} endgültig zu löschen}}"
         },
+        "roles": {
+          "manage": "Diese Rollenänderung bestätigen"
+        },
         "routines": {
           "configure": "Bereit, die Routine zu pausieren oder auszuführen",
           "delete": "Bereit, die Routine samt Verlauf zu löschen"
@@ -66,6 +69,9 @@
         "widgets": {
           "configure": "Bereit, Dashboard-Widgets zu ändern",
           "delete": "Bereit, ein Dashboard-Widget endgültig zu löschen"
+        },
+        "workspace": {
+          "configure": "Bereit, das Datenmodell des Arbeitsbereichs zu ändern"
         }
       },
       "cancelled": "Gestoppt",
@@ -80,6 +86,8 @@
         "recordsDelete": "Das kann nicht rückgängig gemacht werden.",
         "recordsLink": "Datensätze verknüpfen",
         "recordsUnlink": "Verknüpfungen entfernen",
+        "roleDelete": "Ausgewählte Rolle löschen",
+        "roleSave": "Rolle und Datensatzzugriff speichern",
         "routineDelete": "Die ausgewählte Routine samt Verlauf endgültig löschen",
         "routinePause": "Die ausgewählte Routine pausieren",
         "routineRun": "Die ausgewählte Routine jetzt ausführen",
@@ -271,6 +279,13 @@
             "done": "{count, plural, one {{target} wurde aktualisiert} other {{target} wurden aktualisiert}}",
             "error": "{count, plural, one {{target} konnte nicht aktualisiert werden} other {{target} konnten nicht aktualisiert werden}}",
             "running": "{count, plural, one {{target} wird aktualisiert} other {{target} werden aktualisiert}}"
+          }
+        },
+        "roles": {
+          "manage": {
+            "done": "Rollenrechte geändert",
+            "error": "Die Rolle konnte nicht geändert werden",
+            "running": "Rollenrechte werden geändert"
           }
         },
         "routines": {
@@ -986,7 +1001,6 @@
   "Common": {
     "actions": {
       "add": "Hinzufügen",
-      "addCustomField": "Feld hinzufügen",
       "back": "Zurück",
       "cancel": "Abbrechen",
       "clear": "Leeren",
@@ -997,16 +1011,12 @@
       "continueSetup": "Einrichtung fortsetzen",
       "copy": "In die Zwischenablage kopieren",
       "delete": "Löschen",
-      "deleteCustomFields": "Feld löschen",
       "discard": "Verwerfen",
-      "editCustomFields": "Feld bearbeiten",
       "expand": "Aufklappen",
       "labelHistory": "Verlauf",
-      "labelNotes": "Notizen",
       "loadMore": "Mehr laden",
       "open": "Öffnen",
       "openApp": "App öffnen",
-      "openList": "Liste öffnen",
       "refresh": "Aktualisieren",
       "remove": "Entfernen",
       "reset": "Zurücksetzen",
@@ -1018,7 +1028,6 @@
       "collapseSearch": "Suche einklappen",
       "explainField": "Informationen zu {field}",
       "hidePassword": "Passwort ausblenden",
-      "optionName": "Name der Option {number}",
       "selectOption": "Option auswählen",
       "showPassword": "Passwort anzeigen",
       "switchToBoardView": "Zur Board-Ansicht wechseln",
@@ -1029,7 +1038,6 @@
       "tooltipFilters": "Filter"
     },
     "avatarUrlDescription": "Gib optional einen Link zu einem Bild ein, das als dein Avatar verwendet wird. Das Bild sollte öffentlich zugänglich sein.",
-    "clearDefault": "Standard entfernen",
     "colors": {
       "default": "Blau",
       "destructive": "Rot",
@@ -1050,11 +1058,6 @@
       "phone": "Telefon",
       "plain": "Text",
       "singleSelect": "Einzelauswahl"
-    },
-    "customFieldHelp": {
-      "deleteWeightingColumnPermission": "Dieses Feld steuert die gewichtete Pipeline unter „{company}“, deshalb schaltet das Löschen die Gewichtung aus. Bitte einen Administrator um die Berechtigung, „{company}“ zu ändern.",
-      "immutableType": "Der Feldtyp ist nach dem Erstellen festgelegt. Erstelle ein neues benutzerdefiniertes Feld, um einen anderen Typ zu verwenden.",
-      "probabilityPermission": "Phasenwahrscheinlichkeiten werden unter „{company}“ verwaltet. Bitte einen Administrator um die Berechtigung, sie zu ändern."
     },
     "dateBuckets": {
       "day": "Tag",
@@ -1117,7 +1120,6 @@
       "messageWithName": "Möchtest du \"{name}\" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
       "title": "Löschung bestätigen"
     },
-    "details": "Details",
     "email": "E-Mail",
     "emptyState": {
       "body": "Füge deinen ersten Datensatz vom Typ „{singular}“ hinzu, um loszulegen.",
@@ -1219,7 +1221,21 @@
       "passwordMismatch": "Passwörter müssen übereinstimmen.",
       "permissionDenied": "Diese Aktion ist mit deinen aktuellen Berechtigungen nicht verfügbar.",
       "privacyAcknowledgementRequired": "Bitte bestätigen Sie, dass Sie die Datenschutzerklärung gelesen haben.",
+      "recordCalculationBudget": "Diese Änderung erfordert eine Neuberechnung im Hintergrund.",
+      "recordConfigurationInvalid": "Prüfe die Felder und Verknüpfungen dieser Konfiguration.",
+      "recordDependencies": "Aktualisiere zuerst die abhängigen Felder, Ansichten, Widgets oder Zuordnungen.",
+      "recordIdempotencyConflict": "Dieser Anfrageschlüssel wurde für eine andere Änderung verwendet. Starte eine neue Anfrage.",
+      "recordNotFound": "Dieser Datensatz ist nicht verfügbar.",
+      "recordProtected": "Dieser Datensatz wird durch einen Systemablauf verwaltet.",
+      "recordReadOnlyField": "Dieses Feld wird berechnet. Ändere seine Definition, um Werte manuell einzugeben.",
+      "recordRelationConflict": "Diese Verknüpfung entspricht nicht den festgelegten Regeln.",
+      "recordSchemaChanged": "Das Datenmodell wurde geändert. Lade die Seite neu und versuche es erneut.",
+      "recordTypeNotFound": "Dieser Datensatztyp ist nicht verfügbar.",
+      "recordValueInvalid": "Prüfe die markierten Werte des Datensatzes.",
+      "recordVersionChanged": "Dieser Datensatz wurde geändert. Lade ihn vor dem Speichern neu.",
+      "recordWritePaused": "Das Datenmodell wird aktualisiert. Dein Entwurf bleibt erhalten; versuche es nach Abschluss erneut.",
       "relationNotAllowed": "Die Beziehung '{relation}' ist für {entity} nicht erlaubt. Erlaubte Beziehungen: {allowed}.",
+      "roleAccessPresetInUse": "Diese Rolle wird von einer Zugriffsvorlage verwendet. Aktualisiere die Vorlage, bevor du die Rolle löschst.",
       "roleAssignedCannotDelete": "Eine Nutzern zugewiesene Rolle kann nicht gelöscht werden.",
       "roleNotFound": "Rollen-ID nicht gefunden oder nicht zugänglich.",
       "roleSelfEditForbidden": "Du kannst die Berechtigungen deiner eigenen Rolle nicht ändern.",
@@ -1346,6 +1362,11 @@
         "deleted": "Organisation gelöscht",
         "updated": "Organisation aktualisiert"
       },
+      "record": {
+        "created": "Datensatz erstellt",
+        "deleted": "Datensatz gelöscht",
+        "updated": "Datensatz aktualisiert"
+      },
       "records": {
         "exported": "Datensätze exportiert"
       },
@@ -1397,6 +1418,7 @@
         "lastName": "Nachname",
         "name": "Name",
         "ownerUserId": "Inhaber",
+        "participantContactId": "Verknüpfte Datensätze",
         "participants": "Teilnehmer",
         "plan": "Tarif",
         "provider": "Anbieter",
@@ -1459,8 +1481,6 @@
     },
     "inputs": {
       "addOption": "„{value}“ hinzufügen",
-      "addService": "Leistung hinzufügen",
-      "aggregationType": "Metrik",
       "amount": "Betrag",
       "avatarUrl": "Avatar-URL",
       "bodyTemplate": "Body-Vorlage",
@@ -1472,7 +1492,6 @@
       "currency": "Währung",
       "datePlaceholder": "Datum auswählen",
       "dateRangePlaceholder": "Zeitraum auswählen",
-      "defaultOption": "Option {number}",
       "description": "Beschreibung",
       "displayLanguage": "Anzeigesprache",
       "displayOptions": {
@@ -1485,25 +1504,14 @@
       "emails": "E-Mails",
       "emptyContent": "Keine Ergebnisse gefunden",
       "enabled": "Aktiv",
-      "entityType": "Element",
       "events": "Ereignisse",
       "feedback": "Feedback",
       "firstName": "Vorname",
       "formattingLocale": "Regionales Format",
-      "groupByValue": "Gruppierung",
       "headers": "Eigene Header",
-      "label": "Bezeichnung",
       "lastName": "Nachname",
       "message": "Nachricht",
       "name": "Name",
-      "options": {
-        "addOption": "Option hinzufügen",
-        "allowMultiple": "Mehrere erlauben",
-        "color": "Farbe",
-        "currency": "Währung",
-        "displayFormat": "Format",
-        "lastOption": "Eine Einfachauswahl benötigt mindestens eine Option"
-      },
       "password": "Passwort",
       "prompt": "Anweisungen",
       "roleId": "Rolle",
@@ -1518,7 +1526,6 @@
       "triggerEvents": "Ereignisse",
       "triggerFilters": "Datensatzfilter",
       "triggerKind": "Auslöser",
-      "type": "Typ",
       "unavailableSelection": "Auswahl nicht verfügbar",
       "url": "URL",
       "userIds": "Zugewiesen"
@@ -1542,12 +1549,9 @@
       "copiedToClipboard": "{value} in die Zwischenablage kopiert",
       "copyFailed": "Fehler beim Kopieren in die Zwischenablage",
       "deleted": "Gelöscht",
-      "unexpectedError": "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
-      "updated": "Aktualisiert"
+      "unexpectedError": "Etwas ist schiefgelaufen. Bitte versuche es erneut."
     },
     "pageNumber": "Seite {page}",
-    "probability": "Wahrscheinlichkeit",
-    "probabilityRange": "Gib eine Wahrscheinlichkeit von 0 bis 100 % ein.",
     "providers": {
       "google": "Gmail",
       "instagram": "Instagram",
@@ -1561,7 +1565,6 @@
     "scroll": {
       "backToTop": "Nach oben"
     },
-    "setAsDefault": "Als Standard festlegen",
     "sidebar": {
       "description": "Zeigt die mobile Seitenleiste an.",
       "title": "Seitenleiste",
@@ -1662,10 +1665,6 @@
       "rowsPerPage": "Zeilen pro Seite",
       "search": "Suchen..."
     },
-    "taskTypes": {
-      "custom": "Benutzerdefiniert",
-      "userPendingAuthorization": "Autorisierung ausstehend"
-    },
     "themes": {
       "dark": "Dunkel",
       "light": "Hell",
@@ -1693,20 +1692,7 @@
     "title": "Benutzer einladen"
   },
   "CompanySettings": {
-    "currencyDescription": "Wird für alle Geldwerte im CRM verwendet, zum Beispiel: {deals}, {services}.",
-    "dataModelTitle": "Datenmodell",
-    "forecasting": {
-      "columnLabel": "{deal}-Phasenfeld",
-      "columnPlaceholder": "Feld auswählen",
-      "currentTotal": "Gewichtete Pipeline",
-      "currentTotalHelp": "Summe aus Wert × Phasenwahrscheinlichkeit für jeden Eintrag mit Phase. Änderungen ergeben sich aus „{services}“, Mengen oder Phasen in „{deals}“; Wahrscheinlichkeiten werden oben verwaltet.",
-      "description": "Gewichte jede {deal}-Phase mit ihrer Abschlusswahrscheinlichkeit, um einen abgezinsten Pipeline-Wert zu sehen.",
-      "noColumn": "Nicht konfiguriert",
-      "totalPipeline": "Gesamtpipeline",
-      "totalPipelineHelp": "Summe aller Werte in „{deals}“. Änderungen ergeben sich aus „{services}“ oder Mengen in diesen Einträgen.",
-      "withoutStage": "Nicht gewichtet · kein {column}",
-      "withoutStageHelp": "Wert der Einträge in „{deals}“ ohne Auswahl in „{column}“. Mit einer Phase fließen sie in die gewichtete Pipeline ein."
-    }
+    "dataModelTitle": "Datenmodell"
   },
   "CompanyUserModal": {
     "activeUserWarning": "Du kannst dein eigenes Benutzerkonto in deinen <settingsLink>Einstellungen</settingsLink> bearbeiten.",
@@ -1866,11 +1852,7 @@
     "calendarResponseNoreply": "Keine Antwort",
     "calendarResponseYes": "Zugesagt",
     "linkedinConnectionAccepted": "LinkedIn-Kontaktanfrage angenommen",
-    "linkedinOpenProfile": "LinkedIn-Profil öffnen",
-    "noActivity": "Noch keine Aktivität für diesen Kontakt."
-  },
-  "ContactModal": {
-    "title": "Kontakt"
+    "linkedinOpenProfile": "LinkedIn-Profil öffnen"
   },
   "ContactPage": {
     "description": "Frage, Walkthrough oder Partnerschaft? Schreiben Sie mir kurz, ich melde mich innerhalb eines Tages zurück.",
@@ -1915,24 +1897,14 @@
     "activityWidget": {
       "activityCount": "{count, plural, =1 {1 Aktivität} other {# Aktivitäten}}",
       "error": "Aktivitäten konnten nicht geladen werden.",
-      "loadOlderError": "Ältere Aktivitäten konnten nicht geladen werden. Bereits angezeigte Einträge bleiben verfügbar.",
       "noAccount": "Verbinde ein Messaging- oder Kalenderkonto, um Aktivitäten anzuzeigen.",
       "noActivity": "Noch keine Aktivität.",
       "noMatches": "Keine Aktivität entspricht den aktuellen Filtern.",
       "noPermission": "Du hast keinen Zugriff auf Aktivitäten in diesem Workspace.",
-      "pageLimitReached": "Die älteste verfügbare Seite wurde erreicht. Grenze die aktuelle Auswahl ein, um ältere Aktivitäten zu prüfen.",
       "scopeTooBroad": "Diese Beziehungsfilter treffen auf zu viele Kontakte zu, um sie sicher zu laden. Wähle weniger Datensätze aus.",
       "title": "Letzte Aktivität"
     },
     "addCard": "Widget hinzufügen",
-    "aggregationTypes": {
-      "count": "Anzahl {entities}",
-      "dealQuantity": "Anzahl {services} in {deals}",
-      "dealValue": "{deal}-Wert",
-      "dealValueRelated": "{deal}-Wert bezogen auf {entity}",
-      "dealWeightedValue": "Gewichteter {deal}-Wert",
-      "dealWeightedValueRelated": "Gewichteter {deal}-Wert bezogen auf {entity}"
-    },
     "displayTypes": {
       "doughnutChart": "Ringdiagramm",
       "horizontalBarChart": "Horizontales Balkendiagramm",
@@ -1940,13 +1912,6 @@
       "radarChart": "Radardiagramm",
       "verticalBarChart": "Vertikales Balkendiagramm",
       "verticalBarChartWithLabels": "Vertikales Balkendiagramm mit Beschriftungen"
-    },
-    "groupBys": {
-      "none": "Keine Gruppierung"
-    },
-    "tabs": {
-      "dealFilters": "Filter für {deals}",
-      "filters": "{entityType}-Filter"
     },
     "widgetEditor": {
       "addTitle": "Widget hinzufügen",
@@ -1962,42 +1927,14 @@
         "deleteLabel": "Widget löschen: {name}"
       },
       "editTitle": "„{name}“ bearbeiten",
-      "filters": {
-        "activityTypeOptions": {
-          "activities": {
-            "description": "Ereignisse aus verbundenen Konten und Kalendern.",
-            "label": "Konto & Kalender"
-          },
-          "changes": {
-            "description": "Aktualisierungen an CRM-Datensätzen, Feldern und Verknüpfungen.",
-            "label": "Datensatzänderungen"
-          },
-          "messages": {
-            "description": "Über verbundene Kanäle gesendete oder empfangene Nachrichten.",
-            "label": "Nachrichten"
-          }
-        },
-        "activityTypes": "Aktivitätsarten",
-        "noneAvailable": "Für dieses Widget sind keine Filter verfügbar.",
-        "removeUnavailable": "Nicht verfügbaren Filter „{field}“ entfernen",
-        "title": "Filter",
-        "unavailable": "{count, plural, =1 {Ein gespeicherter Filter ist nicht mehr verfügbar. Du kannst ihn behalten oder entfernen.} other {# gespeicherte Filter sind nicht mehr verfügbar. Du kannst sie behalten oder entfernen.}}"
-      },
       "kind": {
         "activityTimelineDescription": "Verfolge Datensatzänderungen, Nachrichten sowie Konto- und Kalenderaktivitäten chronologisch.",
         "chartDescription": "Vergleiche CRM-Daten in einem Diagramm.",
         "title": "Widget auswählen"
       },
       "preview": {
-        "activitySummary": "{title}. Filter: {filters, plural, =0 {keine} =1 {1 aktiv} other {# aktiv}}.",
-        "chartSummary": "{title}. {summary}. Kennzahl: {metric}. Diagrammstil: {chart}.",
-        "filterSummary": "{count, plural, =1 {1 Filter} other {# Filter}}",
-        "groupLabel": "Gruppe {number}",
-        "title": "Vorschau",
-        "untitled": "Widget ohne Titel"
+        "title": "Vorschau"
       },
-      "progress": "Schritt {current} von {total}",
-      "progressLabel": "Fortschritt beim Erstellen des Widgets",
       "save": "Änderungen speichern",
       "sharing": {
         "template": "Als Vorlage freigeben"
@@ -2008,10 +1945,7 @@
       },
       "tabs": {
         "appearance": "Darstellung",
-        "data": "Daten",
-        "filters": "Filter",
-        "filtersLabel": "{count, plural, =0 {Filter, keine aktiv} =1 {Filter, 1 aktiv} other {Filter, # aktiv}}",
-        "label": "Widget-Einstellungen"
+        "filtersLabel": "{count, plural, =0 {Filter, keine aktiv} =1 {Filter, 1 aktiv} other {Filter, # aktiv}}"
       },
       "templates": {
         "by": "Geteilt von {name}",
@@ -2027,55 +1961,28 @@
   "DataTransfer": {
     "export": {
       "action": "Exportieren",
-      "failed": "Die Datei konnte nicht erstellt werden.",
-      "success": "{count, plural, one {# Datensatz exportiert} other {# Datensätze exportiert}}",
-      "truncated": "Es wurden nur die ersten {limit} Datensätze exportiert."
+      "failed": "Die Datensätze konnten nicht exportiert werden. Prüfen Sie Ihre Filter und Berechtigungen.",
+      "success": "{count, plural, one {# Datensatz exportiert} other {# Datensätze exportiert}}."
     },
     "import": {
       "action": "Aus Datei hinzufügen",
-      "batchProgress": "Stapel {done} von {total}",
-      "channelOption": "{provider} (Kanal)",
       "chooseFile": "Datei wählen",
-      "commit": "Datensätze hinzufügen",
-      "description": "Tabellenspalten den Feldern zuordnen, Ergebnis prüfen und Datensätze hinzufügen.",
-      "duplicateTargets": "{count, plural, one {# Feld wird von mehreren Spalten belegt. Bitte vor dem Fortfahren korrigieren.} other {# Felder werden von mehreren Spalten belegt. Bitte vor dem Fortfahren korrigieren.}}",
-      "fileHint": "Wähle eine Tabelle. Excel-Arbeitsmappen werden unterstützt.",
-      "fileRejected": "Diese Datei konnte nicht gelesen werden.",
-      "groupChannels": "Kanäle",
-      "groupCustomFields": "Benutzerdefinierte Felder",
-      "groupFields": "Felder",
-      "ignoreColumn": "Nicht hinzufügen",
-      "issueCount": "{count, plural, one {# Problem gefunden} other {# Probleme gefunden}}",
-      "issues": {
-        "channelsNotUpdated": "Kanäle bleiben unverändert, wenn der Datensatz bereits existiert",
-        "duplicateRecordId": "Zeile {row} aktualisiert diesen Datensatz bereits",
-        "invalidChannelValue": "\"{value}\" ist keine gültige {provider}-Adresse",
-        "notANumber": "\"{value}\" ist keine Zahl",
-        "notAPhoneNumber": "\"{value}\" ist keine Telefonnummer",
-        "relationAmbiguous": "\"{value}\" passt auf mehr als einen Datensatz",
-        "relationNotFound": "\"{value}\" wurde nicht gefunden",
-        "unknownOption": "\"{value}\" ist keine der Optionen für {column}",
-        "unknownProvider": "\"{value}\" ist kein unterstützter Kanaltyp"
-      },
-      "mappingHint": "{file}, {rows} Zeilen",
-      "moreIssues": "und {count} weitere",
-      "noIssues": "Keine Probleme gefunden.",
-      "previewCounts": "{create} hinzufügen, {update} aktualisieren",
-      "progress": "Schritt {current} von {total}",
-      "progressLabel": "Fortschritt",
-      "recordId": "Datensatz-ID",
-      "resultCounts": "{created} hinzugefügt, {updated} aktualisiert",
-      "resultSkipped": "{count, plural, one {# Zeile übersprungen} other {# Zeilen übersprungen}}",
-      "row": "Zeile",
-      "rowsAffected": "{count, plural, one {# Zeile} other {# Zeilen}}",
-      "skipInvalid": "{count, plural, one {Rest importieren und # Zeile überspringen} other {Rest importieren und # Zeilen überspringen}}",
-      "stopped": "Bei Zeile {row} gestoppt. {remaining} Zeilen wurden nicht verarbeitet.",
-      "title": "Datensätze aus einer Datei hinzufügen",
-      "unnamedColumn": "Unbenannte Spalte",
-      "validate": "Datei prüfen",
-      "warningCount": "{count, plural, one {# Hinweis} other {# Hinweise}}"
+      "fileRejected": "Diese Datei konnte nicht gelesen werden."
     },
-    "menu": "Import und Export"
+    "menu": "Import und Export",
+    "recordImport": {
+      "create": "Mit exportierten IDs erstellen",
+      "failed": "Die Datensätze konnten nicht importiert werden. Prüfe Datei und Berechtigungen.",
+      "fileHint": "Wähle einen Customermates-JSON-Export für diese Liste.",
+      "ready": "{count, plural, one {# Datensatz} other {# Datensätze}} und {links, plural, one {# Verknüpfung} other {# Verknüpfungen}} sind bereit für den Import.",
+      "schemaMismatch": "Die Listenstruktur hat sich seit dem Export geändert.",
+      "submit": "Datensätze importieren",
+      "success": "{count, plural, one {# Datensatz importiert} other {# Datensätze importiert}}.",
+      "title": "Datensätze importieren",
+      "tooLarge": "Importiere jeweils bis zu 100 Datensätze und 500 Verknüpfungen.",
+      "typeMismatch": "Diese Datei gehört zu einer anderen Liste.",
+      "update": "Übereinstimmende IDs aktualisieren"
+    }
   },
   "DataView": {
     "board": {
@@ -2084,9 +1991,13 @@
       "promptBody": "Wähle ein Feld zum Gruppieren. Jeder Wert wird zu einer Spalte auf dem Board.",
       "promptTitle": "Wähle, wie dieses Board gruppiert wird"
     },
+    "boardKeyboardInstructions": "Drücke die Leertaste, um einen Datensatz aufzunehmen. Wähle mit den Pfeiltasten links und rechts eine Gruppe und drücke die Leertaste zum Verschieben. Escape bricht ab.",
+    "boardMoveCancelled": "Verschieben abgebrochen.",
+    "boardMoveRequested": "Verschieben nach {group} angefordert.",
+    "boardMoveTarget": "Datensatz nach {group} verschieben.",
+    "boardPickedUp": "Datensatz aufgenommen.",
     "collapseGroup": "Gruppe {group} einklappen",
     "dragToReorder": "Zum Neuanordnen ziehen",
-    "editColumn": "Spalte bearbeiten",
     "expandGroup": "Gruppe {group} ausklappen",
     "groupOverflow": "Es werden nur {count} Gruppen angezeigt",
     "noValue": "Kein Wert",
@@ -2118,14 +2029,7 @@
       "recordCount": "{count, plural, one {# Datensatz} other {# Datensätze}}"
     }
   },
-  "DealModal": {
-    "noServicesAdded": "Noch keine {entity} hinzugefügt",
-    "quantityLabel": "Anzahl",
-    "title": "Deal",
-    "valueLabel": "Wert"
-  },
   "Diagrams": {
-    "groups": "Gruppen",
     "noData": "Keine Daten verfügbar",
     "noGroup": "Nicht zugeordnet",
     "total": "Gesamt"
@@ -2232,7 +2136,6 @@
       "noResults": "Keine Treffer.",
       "searching": "Suche…",
       "searchPlaceholder": "Suchen oder E-Mail, Telefon oder Handle einfügen…",
-      "sourceContacts": "Bestehender Kontakt",
       "sourceConversations": "Aus deinen Konversationen",
       "sourceLookup": "Per Suche gefunden",
       "trigger": "Kanal hinzufügen"
@@ -2252,22 +2155,16 @@
     "unverified": "Unbestätigt"
   },
   "EntityDetail": {
-    "computedFieldHelp": {
-      "dealValue": "Summe aus Einzelpreis × Menge für jeden verknüpften Eintrag in „{services}“. Ändere dort verknüpfte Einträge oder Mengen, um den Wert zu aktualisieren.",
-      "serviceLineValue": "Preis von „{service}“ × Menge. Ändere hier den Eintrag oder die Menge; bearbeite den verknüpften Eintrag, um seinen Preis zu ändern.",
-      "serviceQuantity": "Summe der Mengen aller verknüpften Einträge in „{services}“. Ändere dort die Mengen, um den Wert zu aktualisieren.",
-      "weightedValue": "{dealValue} × {percent} % Abschlusswahrscheinlichkeit der aktuellen Phase ({stage}). Ändere „{services}“, Mengen oder die Phase; bearbeite Phasenwahrscheinlichkeiten unter „{company}“.",
-      "weightedValueUnconfigured": "{dealValue} × Abschlusswahrscheinlichkeit der ausgewählten Phase. Richte unter „{company}“ Phasenwahrscheinlichkeiten ein und wähle eine Phase; ändere „{services}“ oder Mengen."
-    },
     "donePersonalizing": "Fertig",
-    "fields": {
-      "createdAt": "Erstellt am",
-      "updatedAt": "Aktualisiert am"
-    },
+    "fieldCancelled": "Verschieben von {field} abgebrochen.",
+    "fieldDropped": "{field} abgelegt.",
+    "fieldMoved": "{field} zu {target} verschoben.",
+    "fieldPickedUp": "{field} aufgenommen.",
     "hideField": "{field} in den Details ausblenden",
     "overview": "Übersicht",
     "personalize": "Anpassen",
     "pinField": "{field} an die Übersicht anheften",
+    "reorderInstructions": "Drücke die Leertaste oder Eingabe, um ein Feld aufzunehmen. Verschiebe es mit den Pfeiltasten, lege es mit Leertaste oder Eingabe ab und brich mit Escape ab.",
     "sections": {
       "notes": "Notizen"
     },
@@ -2382,11 +2279,8 @@
     "detailDescription": "Aktivitätsdetails und zugehöriger Datensatzkontext.",
     "error": "Aktivitäten konnten nicht geladen werden.",
     "loadOlder": "Ältere laden",
-    "loadOlderError": "Ältere Aktivitäten konnten nicht geladen werden. Bereits angezeigte Einträge bleiben verfügbar.",
     "moreRecords": "+{count} weitere",
     "noFurtherDetail": "Für dieses Ereignis wurden keine weiteren Details gespeichert.",
-    "pageLimitReached": "Die älteste verfügbare Seite wurde erreicht. Grenze die aktuelle Auswahl ein, um ältere Aktivitäten zu prüfen.",
-    "scopeTooBroad": "Diese Beziehungsfilter treffen auf zu viele Kontakte zu, um sie sicher zu laden. Wähle weniger Datensätze aus.",
     "types": {
       "activities": "Aktivitäten",
       "changes": "Änderungen",
@@ -2470,12 +2364,13 @@
   },
   "GlobalSearch": {
     "clearRecent": "Leeren",
-    "emptyDescription": "Durchsuche {contacts}, {organizations}, {deals}, {services} und {tasks} an einem Ort.",
+    "emptyDescription": "Finde Datensätze in den Listen, auf die du Zugriff hast.",
     "emptyTitle": "Finde alles in deinem Workspace",
     "groupRecent": "Zuletzt geöffnet",
     "hintNavigate": "Navigieren",
     "hintOpen": "Öffnen",
     "loading": "Suche...",
+    "loadMore": "Mehr laden",
     "noResults": "Keine Ergebnisse gefunden",
     "placeholder": "Suchen...",
     "staleItem": "Dieser Eintrag existiert nicht mehr und wurde aus den zuletzt geöffneten entfernt."
@@ -2552,7 +2447,7 @@
       "loadRemoteImages": "Externe Bilder laden",
       "moreSendOptions": "Weitere Sendeoptionen",
       "newThreadSent": "Nachricht gesendet. Die Konversation erscheint in Kürze.",
-      "noContacts": "Keine Kontakte.",
+      "noContacts": "Keine Einträge.",
       "retry": "Erneut versuchen",
       "saveDraft": "Als Entwurf speichern",
       "send": "Senden",
@@ -2593,10 +2488,14 @@
     "mediaUnavailable": "Medien nicht verfügbar",
     "messageDeleted": "Diese Nachricht wurde gelöscht",
     "participants": {
+      "conversationRecords": "Datensätze dieser Unterhaltung",
+      "conversationRecordsHint": "Verknüpfe diese Unterhaltung mit einem Datensatz, ohne andere Unterhaltungen dieser Person zu verknüpfen.",
       "link": "Verknüpfen",
-      "linkUpdateFailed": "Kontaktverknüpfung konnte nicht aktualisiert werden",
-      "openContact": "Kontakt öffnen",
-      "unlink": "Verknüpfung entfernen"
+      "linkRecord": "Datensatz verknüpfen",
+      "linkUpdateFailed": "Eintragsverknüpfung konnte nicht aktualisiert werden",
+      "noRecords": "Keine verknüpften Datensätze",
+      "openRecord": "Datensatz öffnen",
+      "unlinkRecord": "Datensatzverknüpfung entfernen"
     },
     "previewAudio": "🎵 Audio",
     "previewFile": "📄 Anhang",
@@ -2642,7 +2541,7 @@
       "spam": "Spam",
       "unread": "Ungelesen"
     },
-    "unlinkedParticipants": "Einige Teilnehmer sind nicht mit einem Kontakt verknüpft",
+    "unlinkedParticipants": "Einige Teilnehmer haben keinen verknüpften Datensatz, den Sie lesen dürfen",
     "voice": {
       "pause": "Pausieren",
       "play": "Abspielen",
@@ -3202,13 +3101,8 @@
       "members": "{active} von {total}"
     }
   },
-  "OrganizationModal": {
-    "title": "Organisation"
-  },
   "PageState": {
-    "loading": "Seite wird geladen",
-    "notFoundDescription": "Dieser Datensatz wurde möglicherweise entfernt oder du hast keinen Zugriff darauf.",
-    "notFoundTitle": "Datensatz nicht gefunden"
+    "loading": "Seite wird geladen"
   },
   "PendingCard": {
     "body": "Du kannst dich anmelden, sobald dein Konto von einem Administrator deines Unternehmens genehmigt wurde.",
@@ -3217,6 +3111,348 @@
   },
   "ProfileSections": {
     "apiKeysDescription": "Langlebige API-Schlüssel für den programmatischen Zugriff."
+  },
+  "RecordActivityWidgets": {
+    "after": "Von",
+    "allRecords": "Ohne Datensatzauswahl werden alle zugänglichen Datensätze dieses Typs einbezogen.",
+    "before": "Bis",
+    "clearConversation": "Unterhaltungsfilter entfernen",
+    "filterKinds": {
+      "account": "Kanal",
+      "provider": "Anbieter",
+      "record": "Verknüpfte Datensätze",
+      "source": "Aktivitätstyp",
+      "thread": "Unterhaltung"
+    },
+    "operators": {
+      "hasNone": "Hat keinen verknüpften Datensatz",
+      "hasSome": "Hat einen verknüpften Datensatz",
+      "in": "Enthält mindestens einen von",
+      "notIn": "Schließt alle aus"
+    },
+    "records": "Datensätze",
+    "scopeHelp": "Ohne Auswahl werden alle zugänglichen Aktivitäten angezeigt. Ausgewählte Typen und Datensätze werden zusammengefasst; zusätzliche Filter müssen alle zutreffen.",
+    "types": "Datensatztypen"
+  },
+  "RecordModel": {
+    "access": "Zugriff",
+    "accessDescription": "Nur Administratoren können auf diese Liste zugreifen, sofern keine freigegebene Zugriffsvorlage ausgewählt wird.",
+    "activityConnections": "Aktivitätsverbindungen",
+    "activityConnectionsHelp": "Wähle aus, welche verknüpften Datensätze Nachrichten und Änderungen zur Aktivitätenübersicht dieser Liste beitragen. Nachrichten- und Datensatzberechtigungen gelten weiterhin.",
+    "addActivityConnection": "Verbindung hinzufügen",
+    "addAttribute": "Attribut hinzufügen",
+    "addEmbedded": "{type} hinzufügen",
+    "addField": "Feld hinzufügen",
+    "addGroupSummary": "Übersicht hinzufügen",
+    "addInput": "Eingabe hinzufügen",
+    "addOption": "Option hinzufügen",
+    "addPathStep": "Beziehungsschritt hinzufügen",
+    "addProbability": "Wahrscheinlichkeit hinzufügen",
+    "aggregation": "Zusammenfassung",
+    "allLists": "Alle Listen",
+    "allowManualOverride": "Manuell eingegebenen Ersatzwert erlauben",
+    "apply": "Änderungen anwenden",
+    "archiveActivityPath": "Verbindung archivieren",
+    "archived": "Archiviert",
+    "archivedField": "Archiviertes Feld",
+    "archiveField": "Feld archivieren",
+    "archiveRelationship": "Verknüpfung archivieren",
+    "archiveRelationshipPath": "Diese Spalte mit verknüpften Datensätzen archivieren",
+    "archiveType": "Diesen Typ archivieren",
+    "ascending": "Aufsteigend",
+    "assignedTo": "Zugewiesen an",
+    "assignmentChange": "Zugewiesene Mitglieder: {before} → {after}",
+    "attribute": "Attributname",
+    "behavior": "Wertquelle",
+    "behaviors": {
+      "formula": "Berechnet",
+      "input": "Manuell eingegeben",
+      "lookup": "Wert eines verknüpften Datensatzes",
+      "rollup": "Summe verknüpfter Datensätze",
+      "snapshot": "Bei einem Ereignis gespeichert"
+    },
+    "board": "Board",
+    "briefcase": "Aktentasche",
+    "building": "Gebäude",
+    "calculationError": "Berechnung nicht verfügbar",
+    "calculationInput": "Eingabe {number}",
+    "calculationNavigation": "Berechnungsnavigation",
+    "calculationResult": "Ergebnis",
+    "calculationSource": "Verwenden",
+    "cancelOperation": "Änderung abbrechen",
+    "capture": "Wert speichern",
+    "captureChanged": "Wenn ein Feld einen bestimmten Wert erhält",
+    "captureCreate": "Beim Erstellen des Datensatzes",
+    "captureExplicit": "Auf Anfrage",
+    "captureOnSave": "Beim Speichern erfassen",
+    "captureOnSaveField": "{field} beim Speichern erfassen",
+    "captureValue": "Wert erfassen",
+    "captureValueField": "{field} erfassen",
+    "channelsHelp": "Füge Datensätzen in dieser Liste E-Mail-Adressen, Telefonnummern und soziale Konten hinzu. Eine Kennung kann mit mehreren Datensätzen verknüpft sein.",
+    "color": "Farbe",
+    "conditionIf": "Bedingung",
+    "conditionOtherwise": "Andernfalls",
+    "conditionThen": "Dann",
+    "configure": "Konfigurieren",
+    "connectionType": "Verbindung",
+    "constant": "Fester Wert",
+    "createdAt": "Erstellt am",
+    "createList": "Liste erstellen",
+    "currency": "Währung",
+    "currentValue": "Aktueller Wert",
+    "dataModel": "Datenmodell",
+    "dataModelDescription": "Konfiguriere Listen, Felder, Verknüpfungen und Berechnungen.",
+    "decimalPlaces": "Dezimalstellen",
+    "decimalPlacesHelp": "Für die Standardeinstellung leer lassen. Dies ändert die Anzeige der Werte, nicht ihre Berechnung.",
+    "defaultColumns": "Standardspalten",
+    "defaultGrouping": "Standardgruppierung",
+    "defaultLayout": "Standardlayout",
+    "defaultOrder": "Erstellungsreihenfolge",
+    "defaultSort": "Standardsortierung",
+    "defaultValue": "Standardwert",
+    "deleteRecord": "{name} löschen",
+    "deletion": {
+      "cascade": "Verknüpfte Datensätze ebenfalls löschen",
+      "restrict": "Löschen bei Verknüpfung verhindern",
+      "unlink": "Verknüpfung entfernen"
+    },
+    "deletionAccepted": "Löschung angenommen.",
+    "deletionCalculations": "Möglicherweise betroffene Berechnungen: {fields}.",
+    "deletionLinks": "Entfernte Verknüpfungen: {count}.",
+    "deletionRecords": "Dabei werden entfernt: {records}.",
+    "deletionRestrictedLinks": "Die Anzahl der Verknüpfungen ist ausgeblendet, da einige verknüpfte Datensätze geschützt sind.",
+    "dependencyHelp": "Löse die betroffenen Abhängigkeiten, bevor du diese Änderung anwendest.",
+    "descending": "Absteigend",
+    "description": "Beschreibung",
+    "detailLayoutIncompatible": "Eine persönliche Detailansicht verwendet dieses Feld oder diese Verknüpfung noch. Aktualisiere die Ansicht oder setze sie zurück, bevor du die Definition änderst.",
+    "detailLayoutSaveFailed": "Layoutänderungen konnten nicht gespeichert werden.",
+    "directRelationship": "Direkte Beziehung",
+    "edit": "Bearbeiten",
+    "editField": "Feld bearbeiten",
+    "embeddedLists": "Eingebettete Listen",
+    "empty": "Noch keine Datensätze",
+    "emptyDescription": "Erstelle deinen ersten Datensatz.",
+    "enableChannels": "Kanäle aktivieren",
+    "existingValuesIncompatible": "Vorhandene Werte passen nicht zu dieser Definition. Behalte einen kompatiblen Typ oder aktualisiere zuerst diese Werte.",
+    "field": "Feld",
+    "fields": "Felder",
+    "folder": "Ordner",
+    "groupSummaries": "Gruppenübersichten",
+    "groupSummariesDescription": "Summen und andere Kennzahlen in Tabellengruppen und Board-Spalten anzeigen. Jeder Datensatz wird pro Gruppe einmal gezählt, auch auf späteren Seiten.",
+    "hideArchived": "Archivierte ausblenden",
+    "icon": "Symbol",
+    "identityChannels": "Kanäle",
+    "includeAudit": "Datensatzänderungen einbeziehen",
+    "includeMessages": "Nachrichten einbeziehen",
+    "invalidConfiguration": "Diese Änderung muss vor dem Anwenden überprüft werden.",
+    "lineFields": {
+      "amount": "Betrag",
+      "effectivePrice": "Einzelpreis",
+      "pricingMode": "Preisberechnung",
+      "quantity": "Menge",
+      "savedPrice": "Gespeicherter Einzelpreis"
+    },
+    "lineItem": "Position",
+    "lineItems": "Positionen",
+    "linkedCount": "Verknüpfte Datensätze je Datensatz",
+    "linkedRecordCount": "{count} verknüpfte Datensätze",
+    "linkedRecords": "Verknüpfte Datensätze",
+    "linkedType": "Verknüpfen mit",
+    "linkRecord": "Datensatz verknüpfen",
+    "list": "Liste",
+    "many": "Mehrere",
+    "member": "Mitglied",
+    "missing": "Kein Wert",
+    "moveDown": "{field} nach unten verschieben",
+    "moveUp": "{field} nach oben verschieben",
+    "multipleValues": "Mehrere Werte erlauben",
+    "name": "Name",
+    "newRecord": "Neuer Datensatz",
+    "no": "Nein",
+    "noGrouping": "Keine Gruppierung",
+    "one": "Einer",
+    "onePerLine": "Einen Wert pro Zeile eingeben.",
+    "onSourceDelete": "Beim Löschen dieses Datensatzes",
+    "onTargetDelete": "Beim Löschen des verknüpften Datensatzes",
+    "openPage": "Seite öffnen",
+    "openRecord": "{name} öffnen",
+    "operation": "Berechnung",
+    "operationCancelled": "Die Änderung wurde abgebrochen.",
+    "operationFailed": "Die Änderung ist fehlgeschlagen. Der vorherige vollständige Stand bleibt aktiv.",
+    "operationPending": "Änderungen werden vorbereitet. Bestehende Daten bleiben verfügbar.",
+    "operationProgress": "{processed} von {total} vorbereitet",
+    "operators": {
+      "add": "Addieren",
+      "and": "Alle Bedingungen",
+      "coalesce": "Erster verfügbarer Wert",
+      "concat": "Text verbinden",
+      "daysBetween": "Tage zwischen",
+      "divide": "Dividieren",
+      "equal": "Ist gleich",
+      "greaterThan": "Größer als",
+      "if": "Wenn, dann, sonst",
+      "lessThan": "Kleiner als",
+      "lower": "Kleinbuchstaben",
+      "multiply": "Multiplizieren",
+      "not": "Nicht",
+      "or": "Eine der Bedingungen",
+      "subtract": "Subtrahieren",
+      "trim": "Umgebende Leerzeichen entfernen",
+      "upper": "Großbuchstaben"
+    },
+    "oppositeCount": "Datensätze je verknüpftem Datensatz",
+    "oppositeLabel": "Bezeichnung auf der Gegenseite",
+    "option": "Option",
+    "optionAttribute": "Optionsattribut",
+    "options": "Optionen",
+    "pinnedFields": "Angeheftete Detailfelder",
+    "pluralDescription": "Der Name in der Navigation. Leer lassen, um den Listennamen zu verwenden.",
+    "pluralName": "Navigationsbezeichnung",
+    "preview": "Änderungen prüfen",
+    "previewReady": "Bereit zum Anwenden. {count} Datensätze werden geprüft.",
+    "previousValue": "Vorheriger Wert",
+    "priceModes": {
+      "live": "Aktueller Preis",
+      "saved": "Gespeicherter Preis"
+    },
+    "privateAccess": "Nur Administratoren",
+    "probability": "Wahrscheinlichkeit %",
+    "progressUnavailable": "Fortschritt konnte nicht geladen werden. Dein Entwurf bleibt erhalten.",
+    "publishSummary": "Zusammenfassung freigeben",
+    "publishSummaryHelp": "Mitglieder mit Leserechten für diesen Datensatz sehen diesen Wert auch bei privaten verknüpften Daten. Mit dem Speichern werden die Eingaben dieser Berechnung freigegeben.",
+    "rangeEnd": "Bis",
+    "rangeStart": "Von",
+    "record": "Datensatz",
+    "records": "Datensätze",
+    "reducers": {
+      "average": "Durchschnitt",
+      "count": "Anzahl",
+      "max": "Maximum",
+      "min": "Minimum",
+      "one": "Einzelner verknüpfter Wert",
+      "sum": "Summe"
+    },
+    "relationship": "Verknüpfung",
+    "relationshipChange": "{count} Verknüpfungen geändert",
+    "relationshipLabel": "Bezeichnung auf dieser Seite",
+    "relationshipPath": "Über verknüpfte Datensätze",
+    "relationshipPathHelp": "Zeige Datensätze über bestehende Beziehungen an. Bearbeite die zugrunde liegenden Verknüpfungen, um diese Datensätze zu ändern.",
+    "relationships": "Beziehungen",
+    "reloadLists": "Listen neu laden",
+    "removeGroupSummary": "Übersicht entfernen",
+    "removeInput": "Eingabe entfernen",
+    "removeOption": "Option entfernen",
+    "removePathStep": "{label} und folgende Schritte entfernen",
+    "renewPublishedSummaries": "Veröffentlichte Zusammenfassungen erneut freigeben",
+    "renewPublishedSummariesHelp": "Die geänderten Eingaben für diese Zusammenfassungen freigeben. Ihre Werte bleiben für Leser sichtbar, die keinen Zugriff auf die verknüpften Eingaben haben.",
+    "required": "Erforderlich",
+    "resetDefaults": "Auf gemeinsame Vorgaben zurücksetzen",
+    "resetDetailLayout": "Auf Standard zurücksetzen",
+    "restore": "Wiederherstellen",
+    "restricted": "Eingeschränkt",
+    "resume": "Fortsetzen",
+    "retry": "Erneut versuchen",
+    "returnToDraft": "Zurück zum Entwurf",
+    "saveBeforeEmbedded": "Speichere diesen Datensatz, bevor du verknüpfte Einträge änderst.",
+    "savedViewIncompatible": "Aktualisiere vor dieser Änderung die gespeicherten Ansichten und persönlichen Layouts, die dieses Feld verwenden.",
+    "savingDetailLayout": "Layout wird gespeichert…",
+    "setDefaultValue": "Standardwert festlegen",
+    "sharedDefaults": "Gemeinsame Vorgaben",
+    "sharedDefaultsDescription": "Diese Vorgaben gelten, bis jemand seine eigene Ansicht anpasst. Bestehende persönliche Einstellungen bleiben erhalten.",
+    "showArchived": "Archivierte anzeigen",
+    "showInNavigation": "In der Navigation anzeigen",
+    "sortDirection": "Sortierrichtung",
+    "stagedValidation": "Vorhandene Daten werden im Hintergrund geprüft. Der vorherige vollständige Stand bleibt aktiv, bis Prüfung und Neuberechnung erfolgreich sind.",
+    "staleControlConflict": "Eine Einstellung wurde an anderer Stelle geändert. Wähle vor der erneuten Vorschau die gewünschte Version.",
+    "staleKeepDraft": "Meinen Entwurf behalten",
+    "staleLoadLatest": "Neuesten Stand übernehmen",
+    "staleRefresh": "Datenmodell aktualisieren",
+    "staleRefreshFailed": "Das Datenmodell konnte nicht aktualisiert werden. Dein Entwurf ist noch da; versuche es erneut.",
+    "staleRefreshRequired": "Das Datenmodell wurde geändert. Aktualisiere es, um diesen Entwurf weiterzubearbeiten.",
+    "staleTargetMissing": "Diese Definition wurde entfernt. Dein Entwurf bleibt erhalten, kann aber nicht angewendet werden.",
+    "summaryAggregation": "Berechnung",
+    "summaryApprovalRequired": "Diese Zusammenfassung ist freigegeben. Änderungen an den Berechnungseingaben erfordern die Freigabe eines Administrators.",
+    "summaryField": "Feld für die Übersicht",
+    "systemActor": "System",
+    "table": "Tabelle",
+    "triggerField": "Wenn sich dieses Feld ändert",
+    "triggerValue": "Auf diesen Wert",
+    "types": {
+      "boolean": "Ja oder nein",
+      "currency": "Geldbetrag",
+      "date": "Datum",
+      "dateRange": "Datumsbereich",
+      "dateTime": "Datum und Uhrzeit",
+      "dateTimeRange": "Datums- und Zeitbereich",
+      "email": "E-Mail",
+      "member": "Mitglied",
+      "number": "Zahl",
+      "phone": "Telefon",
+      "richText": "Formatierter Text",
+      "select": "Einzelauswahl",
+      "text": "Text",
+      "url": "Webadresse"
+    },
+    "typeSettings": "Typeinstellungen",
+    "unavailableOption": "Nicht verfügbare Option",
+    "unlinkRecord": "Verknüpfung mit {name} entfernen",
+    "updatedAt": "Aktualisiert am",
+    "useChannelAvatar": "Profilbild des Kanals verwenden",
+    "value": "Wert",
+    "valueType": "Werttyp",
+    "yes": "Ja"
+  },
+  "RecordTriggers": {
+    "changedFieldsHelp": "Leer lassen, um jede Änderung zu erfassen.",
+    "triggerFiltersHelp": "Leer lassen, um alle Datensätze zu erfassen."
+  },
+  "RecordWidgets": {
+    "addFilter": "Filter hinzufügen",
+    "addRelatedFilter": "Filter für verknüpfte Datensätze hinzufügen",
+    "attribution": "Ein Datensatz kann in mehreren Gruppen erscheinen. Gruppensummen können die Gesamtsumme übersteigen.",
+    "filterDays": "Anzahl der Tage",
+    "filterFrom": "Von",
+    "filterOperator": "Bedingung",
+    "filterUntil": "Bis",
+    "filterValue": "Wert",
+    "group": "Gruppieren nach",
+    "groupFilterHelp": "Wähle aus, welche Datensätze als Gruppen angezeigt werden. Die Gesamtsumme verwendet weiterhin die Quellfilter oben.",
+    "groupFilters": "Gruppenfilter",
+    "groupFilterSummary": "Gruppen sind gefiltert. Die Gesamtsumme enthält alle passenden Quelldatensätze.",
+    "groupPath": "Beziehungen folgen",
+    "groupRecord": "Jeder Datensatz",
+    "loadingSchema": "Felder werden geladen…",
+    "measure": "Kennzahl",
+    "operators": {
+      "between": "Zwischen",
+      "contains": "Enthält",
+      "empty": "Ist leer",
+      "eq": "Ist gleich",
+      "gt": "Größer als",
+      "gte": "Mindestens",
+      "in": "Ist einer von",
+      "inLastDays": "In den letzten Tagen",
+      "lt": "Kleiner als",
+      "lte": "Höchstens",
+      "ne": "Ist nicht gleich",
+      "notEmpty": "Ist nicht leer",
+      "notIn": "Ist keiner von",
+      "startsWith": "Beginnt mit"
+    },
+    "overall": "Insgesamt: {value}",
+    "preview": "Kennzahl prüfen",
+    "previewFailed": "Die Vorschau konnte nicht geladen werden. Versuche es erneut.",
+    "previewHelp": "Die Vorschau verwendet aktuelle Datensätze und deine Zugriffsrechte.",
+    "relatedAny": "Mindestens ein zugänglicher verknüpfter Datensatz trifft zu",
+    "relatedFilterHelp": "Alle Bedingungen eines Filters für verknüpfte Datensätze gelten für denselben Datensatz. Nur Datensätze, auf die du Zugriff hast, werden berücksichtigt.",
+    "relatedMatch": "Verknüpfte Datensätze",
+    "relatedNone": "Kein zugänglicher verknüpfter Datensatz trifft zu",
+    "removeFilter": "Filter entfernen",
+    "search": "Datensätze suchen",
+    "signedChart": "Negative Werte werden als Liste angezeigt. Wähle ein Balkendiagramm zur Darstellung.",
+    "source": "Datensätze aus",
+    "unavailable": "Diese Kennzahl ist nicht verfügbar. Prüfe Konfiguration und Zugriff.",
+    "value": "Wertefeld"
   },
   "ResetPassword": {
     "cta": "Passwort zurücksetzen",
@@ -3231,6 +3467,10 @@
     "title": "Passwort zurücksetzen"
   },
   "RoleModal": {
+    "archived": "Archiviert",
+    "create": "Erstellen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
     "manageAccess": "Verwalten",
     "no": "Nein",
     "ownRoleAlert": "Diese Rolle ist dir zugewiesen und kann nicht bearbeitet werden. Bitte einen anderen Administrator, sie zu ändern.",
@@ -3238,12 +3478,15 @@
     "readAll": "Alle",
     "readNone": "Keine",
     "readOwn": "Zugewiesen",
+    "recordTypes": "Datensatztypen",
+    "recordTypesHint": "Neue Typen sind zunächst nicht zugänglich. Eingebettete Einträge übernehmen den Zugriff ihres übergeordneten Datensatzes.",
     "resourceHeader": "Ressource",
     "resources": {
       "api": "API & Webhooks",
       "auditLog": "Audit-Log",
       "company": "Unternehmen",
       "contacts": "Kontakte",
+      "dataModel": "Datenmodell",
       "deals": "Deals",
       "inboxMessages": "Inbox-Nachrichten",
       "organizations": "Organisationen",
@@ -3271,6 +3514,8 @@
     "title": "Admin-Steuerung"
   },
   "RoutineDetail": {
+    "contractReviewHelp": "Die Anweisung verweist auf abgelöste CRM-Werkzeuge oder API-Endpunkte. Aktualisiere diese Verweise vor der Ausführung. Deine Anweisung wurde unverändert beibehalten.",
+    "contractReviewTitle": "Routine überprüfen",
     "credits": "Guthaben",
     "empty": {
       "event": {
@@ -3339,7 +3584,6 @@
   },
   "RoutineModal": {
     "at": "um",
-    "changedFieldsHelp": "Leer lassen, um bei jeder Änderung zu laufen. Eingrenzen spart Guthaben.",
     "configurationHeading": "Konfiguration",
     "customSchedule": "Diese Routine nutzt einen eigenen Zeitplan: {expression}",
     "detailsTab": "Details",
@@ -3354,7 +3598,6 @@
     "scheduleTimeZone": "Zeiten werden in {timezone} angezeigt.",
     "tabsLabel": "Bereiche der Routine",
     "title": "Routine",
-    "triggerFiltersHelp": "Leer lassen, um für jeden Datensatz zu laufen.",
     "useSchedulePreset": "Zu einem Muster wechseln"
   },
   "RoutineRunReason": {
@@ -3422,9 +3665,6 @@
     "thursday": "Donnerstag",
     "tuesday": "Dienstag",
     "wednesday": "Mittwoch"
-  },
-  "ServiceModal": {
-    "title": "Service"
   },
   "SignInForm": {
     "agreeToTerms": "Mit dem Fortfahren stimmst du unseren <termsOfServiceLink>AGB</termsOfServiceLink> zu und nimmst unsere <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> zur Kenntnis. Siehe unseren <dpaLink>AVV</dpaLink>.",
@@ -3537,12 +3777,6 @@
     "subject": "Dein Konto ist inaktiv: Wir helfen bei der Wiederherstellung",
     "title": "Abonnement deaktiviert"
   },
-  "TaskModal": {
-    "title": "Aufgabe"
-  },
-  "TasksCard": {
-    "systemTaskTooltip": "Vom System verwaltet: {task}. Der Eintrag kann nicht manuell gelöscht werden. Öffne ihn für weitere Informationen."
-  },
   "TrialExpiredOffer": {
     "body": "Deine Testphase ist vor Kurzem abgelaufen, aber ich helfe dir gerne dabei, echten Nutzen aus Customermates zu ziehen. Wenn du möchtest, verlängere ich deine Testphase und gehe dein Setup gemeinsam mit dir Schritt für Schritt durch.",
     "cta": "Kontakt aufnehmen",
@@ -3637,10 +3871,14 @@
     "url": "URL"
   },
   "WebhookModal": {
+    "allAccessibleTypes": "Alle zugänglichen Typen",
     "bodyTemplateDescription": "Optionale JSON-Vorlage für den Anfrage-Body, für Empfänger mit fester Struktur. Leer lassen, um den Standard-Ereignisumschlag zu senden.",
+    "currentUser": "Aktueller Benutzer",
     "disabled": "Deaktiviert",
     "enabled": "Aktiviert",
     "headersDescription": "Optionale Header, die bei jeder Zustellung mitgesendet werden, einer pro Zeile als Name: Wert. Nutze sie für Empfänger, die eine eigene Authentifizierung verlangen. Content-Type und der Signatur-Header lassen sich nicht überschreiben.",
+    "recordOwner": "Zugriffsberechtigtes Mitglied",
+    "recordOwnerHelp": "Datensatzereignisse werden mit den aktuellen Berechtigungen dieses Mitglieds zugestellt. Nur Administratoren können ein anderes Mitglied wählen. Filter gelten zum Zeitpunkt der Änderung, nicht beim Löschen.",
     "secretDescription": "Optionales Geheimnis zur Generierung einer HMAC-SHA256-Signatur, die im X-Webhook-Signature-Header gesendet wird. Zur Überprüfung den Request-Body mit diesem Geheimnis mittels HMAC-SHA256 hashen und mit dem Header-Wert vergleichen.",
     "title": "Webhook",
     "urlDescription": "Die Endpunkt-URL, an die Webhook-Ereignisse per POST-Anfragen gesendet werden."

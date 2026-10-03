@@ -9,7 +9,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { Action, Resource } from "@/generated/prisma";
 
 import { NO_VALUE_GROUP_KEY } from "@/core/base/grouping/grouping.schema";
-import { PrismaRoutineRepo } from "../prisma-routine.repository";
+import { createTestRoutineRepo } from "@/tests/helpers/record-delivery";
 import { relationGroupable } from "@/core/base/grouping/groupable-field";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUserWithPermissions } from "@/tests/helpers/mock-user";
@@ -55,7 +55,7 @@ describeDatabase("grouped routine reads on PostgreSQL", () => {
 
   async function axis(user: TenantUser) {
     return runWithTenant(user, async () => {
-      const repo = new PrismaRoutineRepo();
+      const repo = createTestRoutineRepo();
       const spec = ownerSpec();
       const rows = await repo.countByGroup({ spec, params: {}, now: new Date().toISOString() });
 
@@ -145,7 +145,7 @@ describeDatabase("grouped routine reads on PostgreSQL", () => {
   });
 
   it("declares no owner grouping to a reader who cannot read users", async () => {
-    const declared = await runWithTenant(withoutUsers, () => new PrismaRoutineRepo().getGroupableFields());
+    const declared = await runWithTenant(withoutUsers, () => createTestRoutineRepo().getGroupableFields());
 
     expect(declared.map((spec) => spec.field)).toEqual(["createdAt", "updatedAt"]);
   });

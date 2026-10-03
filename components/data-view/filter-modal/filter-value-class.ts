@@ -1,10 +1,10 @@
 import type { Filter } from "@/core/base/base-get.schema";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
 import type { FilterValueKind } from "@/core/types/filter-field-value-kind";
 
 import { hasValidFilterConfiguration, isCustomField } from "@/components/data-view/table-view.utils";
-import { filterValueKind } from "@/core/types/filter-field-value-kind";
 import { FilterOperatorKey, isStandaloneOperator } from "@/core/base/base-query-builder";
+import { filterValueKind } from "@/core/types/filter-field-value-kind";
 
 export type FilterValueClass =
   | "none"
@@ -30,6 +30,7 @@ function comparisonValueClass(kind: FilterValueKind["kind"] | undefined): Filter
   switch (kind) {
     case "date":
       return "isoDate";
+    case "recordRef":
     case "entityId":
     case "enum":
     case "event":
@@ -72,18 +73,22 @@ function standardValueClass(field: string, operator: FilterOperatorKey): FilterV
 export function resolveFilterValueClass(
   field: string,
   operator: FilterOperatorKey | undefined,
-  customColumns?: CustomColumnDto[],
+  customColumns?: ColumnPresentation[],
 ): FilterValueClass {
   if (!operator || isStandaloneOperator(operator)) return "none";
 
-  if (isCustomField(field)) {
-    const customColumn = customColumns?.find((column) => column.id === field);
+  const customColumn = customColumns?.find((column) => column.id === field);
+  if (isCustomField(field) || customColumn) {
     if (!customColumn) return "unavailable";
 
     switch (customColumn.type) {
       case "singleSelect":
+      case "member":
+      case "boolean":
+      case "recordReference":
         return "stringArray";
       case "currency":
+      case "number":
         return "numericString";
       case "date":
       case "dateRange":
@@ -103,12 +108,15 @@ export function resolveFilterValueClass(
   return standardValueClass(field, operator);
 }
 
-export function resolveFilterDateGranularity(field: string, customColumns?: CustomColumnDto[]): FilterDateGranularity {
-  if (!isCustomField(field)) return "minute";
-
+export function resolveFilterDateGranularity(
+  field: string,
+  customColumns?: ColumnPresentation[],
+): FilterDateGranularity {
   const customColumn = customColumns?.find((column) => column.id === field);
 
-  return customColumn && DAY_GRANULARITY_COLUMN_TYPES.includes(customColumn.type) ? "day" : "minute";
+  return customColumn && (DAY_GRANULARITY_COLUMN_TYPES as readonly string[]).includes(customColumn.type)
+    ? "day"
+    : "minute";
 }
 
 function isValueUsableAs(value: unknown, valueClass: FilterValueClass): boolean {
@@ -128,7 +136,7 @@ function isValueUsableAs(value: unknown, valueClass: FilterValueClass): boolean 
 export function shouldPreserveFilterValue(
   filter: Filter,
   next: FilterOperatorKey | undefined,
-  customColumns?: CustomColumnDto[],
+  customColumns?: ColumnPresentation[],
 ): boolean {
   const previous = filter.operator as FilterOperatorKey | undefined;
 

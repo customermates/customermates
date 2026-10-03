@@ -7,15 +7,13 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { Action, Locale, Resource } from "@/generated/prisma";
 
+import { runWithTenant } from "@/core/decorators/tenant-context";
 import { PrismaCalendarRepo } from "@/ee/calendar/prisma-calendar.repository";
-import { PrismaRoutineRepo } from "@/ee/routines/prisma-routine.repository";
 import { PrismaRoleRepo } from "@/features/role/prisma-role.repository";
-import { PrismaServiceRepo } from "@/features/services/prisma-service.repository";
 import { PrismaUserRepo } from "@/features/user/prisma-user.repository";
-import { PrismaWebhookRepo } from "@/features/webhook/prisma-webhook.repository";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUserWithPermissions } from "@/tests/helpers/mock-user";
-import { runWithTenant } from "@/core/decorators/tenant-context";
+import { createTestRoutineRepo, createTestWebhookRepo } from "@/tests/helpers/record-delivery";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -30,7 +28,7 @@ describeDatabase("built-in text sorts on PostgreSQL follow the user's locale", (
   const accountId = randomUUID();
   const reader: TenantUser = {
     ...createMockUserWithPermissions(
-      [Resource.services, Resource.routines, Resource.users, Resource.api].map((resource) => ({
+      [Resource.routines, Resource.users, Resource.api].map((resource) => ({
         resource,
         action: Action.readAll,
       })),
@@ -53,10 +51,6 @@ describeDatabase("built-in text sorts on PostgreSQL follow the user's locale", (
       await client.query(
         'INSERT INTO "User" ("id", "email", "firstName", "lastName", "companyId", "updatedAt") VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)',
         [index === 0 ? viewerId : randomUUID(), `${randomUUID()}@example.com`, name, "Person", companyId],
-      );
-      await client.query(
-        'INSERT INTO "Service" ("id", "name", "amount", "companyId", "updatedAt") VALUES ($1, $2, 1, $3, CURRENT_TIMESTAMP)',
-        [randomUUID(), name, companyId],
       );
       await client.query(
         `INSERT INTO "Routine" ("id", "companyId", "name", "prompt", "triggerKind", "enabled", "nextRunAt", "updatedAt")
@@ -87,7 +81,7 @@ describeDatabase("built-in text sorts on PostgreSQL follow the user's locale", (
   });
 
   afterAll(async () => {
-    for (const table of ["Calendar", "ConnectedAccount", "Routine", "Webhook", "Service", "User", "UserRole"])
+    for (const table of ["Calendar", "ConnectedAccount", "Routine", "Webhook", "User", "UserRole"])
       await client.query(`DELETE FROM "${table}" WHERE "companyId" = $1`, [companyId]);
     await client.query('DELETE FROM "Company" WHERE "id" = $1', [companyId]);
     await client.end();
@@ -99,15 +93,13 @@ describeDatabase("built-in text sorts on PostgreSQL follow the user's locale", (
     const expected = direction === "asc" ? GERMAN_ORDER : [...GERMAN_ORDER].reverse();
     const params = { sortDescriptor: { field: "name", direction } };
 
-    const services = await read(() => new PrismaServiceRepo().getItems(params));
-    const routines = await read(() => new PrismaRoutineRepo().getItems(params));
+    const routines = await read(() => createTestRoutineRepo().getItems(params));
     const members = await read(() => new PrismaUserRepo().getItems(params));
-    const webhooks = await read(() => new PrismaWebhookRepo().getItems(params));
+    const webhooks = await read(() => createTestWebhookRepo().getItems(params));
     const roles = await read(() =>
       new PrismaRoleRepo().getItems({ sortDescriptor: { field: "type", direction: "asc" } }),
     );
 
-    expect(services.map((service) => service.name)).toEqual(expected);
     expect(routines.map((routine) => routine.name)).toEqual(expected);
     expect(members.map((member) => member.firstName)).toEqual(expected);
     expect(webhooks.map((webhook) => webhook.url)).toEqual(expected.map((name) => `https://example.com/${name}`));
@@ -124,17 +116,9 @@ describeDatabase("built-in text sorts on PostgreSQL follow the user's locale", (
     expect(descending.map((calendar) => calendar.name)).toEqual([...GERMAN_ORDER].reverse());
   });
 
-  it("pages after sorting, so the second page starts where the locale order continues", async () => {
-    const page = await read(() =>
-      new PrismaServiceRepo().getItems({ sortDescriptor: { field: "name", direction: "asc" }, skip: 2, take: 2 }),
-    );
-
-    expect(page.map((service) => service.name)).toEqual(["CRM Setup", "Überprüfung"]);
-  });
-
   it.each(["asc", "desc"] as const)("lists routines without a next run last when sorting %s", async (direction) => {
     const routines = await read(() =>
-      new PrismaRoutineRepo().getItems({ sortDescriptor: { field: "nextRunAt", direction } }),
+      createTestRoutineRepo().getItems({ sortDescriptor: { field: "nextRunAt", direction } }),
     );
     const scheduledNames = direction === "asc" ? ["Umzug", "Zahlung"] : ["Zahlung", "Umzug"];
 

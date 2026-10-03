@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { EntityType } from "@/generated/prisma";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/en/contacts",

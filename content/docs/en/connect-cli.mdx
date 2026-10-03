@@ -78,7 +78,7 @@ The server briefs your agent at connect, so it already knows the tool surface an
 - *"Pull the last ten contacts I created. Any without an email address?"*
 - *"Create a contact for Jane Doe at Initech, link it to the Initech organization, and start a deal for 12 hours of consulting."*
 
-The available record types are contact, organization, deal, service, and task. Deals and tasks have no fixed pipeline field. Attributes like a deal's status or a task's priority are configurable custom columns, so the values in a prompt depend on how your workspace is set up. Call `get_record_schema` to see the columns a record type currently has.
+Contacts, organizations, deals, services, and tasks are the starting record types; your workspace can add more. Attributes such as a deal's stage or a task's priority depend on the workspace configuration. Call `discover_record_types` and then `get_record_model` for the relevant type IDs before writing.
 
 ## Troubleshooting
 
@@ -89,7 +89,7 @@ The available record types are contact, organization, deal, service, and task. D
 | Codex | TOML parse error | Inline-table values use `=`, not `:` | Check the `env_http_headers = { ... }` line |
 | All | Tools are listed, but every call that reads or changes workspace data fails with "Sign in to use this action." | The key is wrong or truncated, or a key that worked has expired (keys from **Quick connections** expire after 365 days) or was deleted. The server lists tools for any `x-api-key` header and checks the key only when a tool reads or changes workspace data; `search_docs`, `get_docs_page` and `fetch` of a `doc:` id need no valid key, so a working documentation lookup does not prove the key is valid | Create a new key under **My Profile → API & Connectors**, paste the full 64 characters, and update the client |
 | All | A connection that worked now fails with "Your user account is inactive. Contact a workspace administrator." | The key's owner was set to **Inactive** | A member with **Manage** on **Users & Roles** sets them back to **Active** under **My Company → Members**, and the existing key works again |
-| All | Relation update rejected | `update_*` tools do not accept relation id fields; only `services` on `update_deals` is accepted, and it replaces the deal's whole service list | Ask the agent to use `manage_record_links` to add or remove links |
+| All | Relationship update rejected | A relationship ID or endpoint is missing or inaccessible | Ask the agent to read `get_record_model`, then use `mutate_crm_record` with `link` or `unlink` and stable record references |
 
 **Link:** the **API & Connectors** page, `/profile/api-keys`, and the **Members** page, `/company/members`. **Mate:** `navigate` and `highlight_element` with `nav-profile-api-keys` or `nav-company-members`, and `highlight_element` with `profile-api-keys-generate` for **Add** (roles with **Manage** on **API & Webhooks**); the key cards and the member rows are not highlight targets, so Mate names them; once a member row is open, `member-modal-status` highlights **Status** and `member-modal-save` highlights **Save** in the **User** dialog (roles with **Manage** on **Users & Roles**).
 

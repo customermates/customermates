@@ -5,7 +5,8 @@ import type { EntityDetailSummaryField } from "../entity-detail-summary";
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { CustomColumnType, EntityType } from "@/generated/prisma";
+import { CustomColumnType } from "@/core/data-view/column-presentation.types";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 const harness = vi.hoisted(() => ({
   isTruncated: false,

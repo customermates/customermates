@@ -109,7 +109,8 @@ describe("guarded account-state route contract", () => {
       "<GlobalSearchModal />",
       "<CompanyUserModal />",
       "<CompanyInviteModal />",
-      "<EntityDrawer />",
+      "<LegacyRecordDrawerBridge />",
+      "<WorkspaceRecordEditor />",
       "<ConnectedAccountModal />",
     ]) {
       expect(layout.lastIndexOf(component), component).toBeGreaterThan(guardedMarkup);

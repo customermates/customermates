@@ -2,33 +2,32 @@
 
 import type { RoutineModalStore } from "./routine-modal.store";
 
+import { Pause } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Pause } from "lucide-react";
 
 import { RoutineTriggerKind } from "@/generated/prisma";
 
-import { Alert } from "@/components/shared/alert";
 import { AppChip } from "@/components/chip/app-chip";
-import { Avatar } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { FilterAccordion } from "@/components/data-view/filter-modal/filter-accordion";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormInput } from "@/components/forms/form-input";
-import { FormLabel } from "@/components/forms/form-label";
 import { FormSelect } from "@/components/forms/form-select";
 import { FormSwitch } from "@/components/forms/form-switch";
 import { FormTextarea } from "@/components/forms/form-textarea";
-import { useChangeFieldLabel } from "@/components/entity-terminology/use-change-field-label";
+import { Alert } from "@/components/shared/alert";
+import { Avatar } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { USER_STATUS_COLORS_MAP } from "@/constants/user-statuses";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
-import { ROUTINE_TRIGGER_EVENTS } from "@/ee/routines/routine.schema";
 import {
   ROUTINE_SCHEDULE_PRESETS,
   ROUTINE_WEEKDAY_KEYS,
   describeRoutineSchedule,
   scheduleHasClockTime,
 } from "@/ee/routines/routine-schedule-preset";
-import { USER_STATUS_COLORS_MAP } from "@/constants/user-statuses";
+import { ROUTINE_TRIGGER_EVENTS } from "@/ee/routines/routine.schema";
+import { routineContractReview } from "@/ee/routines/routine-contract-review";
+import { RoutineRecordTrigger } from "./routine-record-trigger";
 
 const TRIGGER_EVENT_ITEMS = ROUTINE_TRIGGER_EVENTS.map((event) => ({
   key: event,
@@ -54,13 +53,6 @@ export const RoutineConfigurationPane = observer(({ store, onPause }: Props) => 
   const preset = form.schedulePreset ?? "daily";
   const scheduleSummary = describeRoutineSchedule(store.compiledCron, t, (date) => intlStore.formatTime(date));
   const hasClockTime = scheduleHasClockTime(store.compiledCron);
-  const changeFieldLabel = useChangeFieldLabel();
-  const filterableFields = store.filterableFields;
-  const changedFieldItems = store.changeFields.map((field) => ({
-    key: field,
-  }));
-  const hasChangedFieldRows = changedFieldItems.length > 0 || (form.changedFields?.length ?? 0) > 0;
-  const hasTriggerFilterRows = filterableFields.length > 0 || (form.triggerFilters?.length ?? 0) > 0;
   const ownerName = form.owner ? `${form.owner.firstName} ${form.owner.lastName}`.trim() : null;
   const ownerAvailable = store.hasAvailableOwner;
   return (
@@ -171,6 +163,14 @@ export const RoutineConfigurationPane = observer(({ store, onPause }: Props) => 
         placeholder={scheduled ? t("RoutineModal.promptExampleSchedule") : t("RoutineModal.promptExampleEvent")}
         rows={4}
       />
+
+      {routineContractReview(form.prompt ?? "").length > 0 && (
+        <Alert
+          color="warning"
+          description={t("RoutineDetail.contractReviewHelp")}
+          title={t("RoutineDetail.contractReviewTitle")}
+        />
+      )}
 
       <FormSelect
         required
@@ -298,40 +298,23 @@ export const RoutineConfigurationPane = observer(({ store, onPause }: Props) => 
 
           <p className="text-subdued text-xs">{t("RoutineModal.eventSuppressionNote")}</p>
 
-          {hasChangedFieldRows && (
-            <div className="space-y-1.5">
-              <FormAutocomplete
-                id="changedFields"
-                items={changedFieldItems}
-                renderValue={(items) =>
-                  items.map((item) => (
-                    <AppChip key={item.key}>{changeFieldLabel(item.key, store.customColumns)}</AppChip>
-                  ))
-                }
-                selectionMode="multiple"
-              >
-                {(item) => <span>{changeFieldLabel(item.key, store.customColumns)}</span>}
-              </FormAutocomplete>
+          {store.usesRecordTrigger &&
+            (form.recordSources?.length ? (
+              <div className="flex flex-wrap gap-1.5">
+                {form.recordSources.map((source, index) => (
+                  <AppChip key={`${source.query.typeId}:${index}`}>
+                    {store.recordModel?.types.find((type) => type.id === source.query.typeId)?.pluralLabel ??
+                      t("RecordModel.records")}
 
-              <p className="text-subdued text-xs">{t("RoutineModal.changedFieldsHelp")}</p>
-            </div>
-          )}
+                    {" · "}
 
-          {hasTriggerFilterRows && (
-            <div className="space-y-1.5">
-              <FormLabel>{t("Common.inputs.triggerFilters")}</FormLabel>
-
-              <FilterAccordion
-                baseId="triggerFilters"
-                customColumns={store.customColumns}
-                filterableFields={filterableFields}
-                filters={(form.triggerFilters as never) ?? []}
-                variant="grouped"
-              />
-
-              <p className="text-subdued text-xs">{t("RoutineModal.triggerFiltersHelp")}</p>
-            </div>
-          )}
+                    {source.events.map((event) => t(`Common.events.${event}`)).join(", ")}
+                  </AppChip>
+                ))}
+              </div>
+            ) : (
+              <RoutineRecordTrigger store={store} />
+            ))}
         </div>
       )}
     </section>

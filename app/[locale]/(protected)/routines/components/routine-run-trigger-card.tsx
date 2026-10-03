@@ -1,20 +1,23 @@
 "use client";
 
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 import type { RoutineRunDto } from "@/ee/routines/routine.schema";
+import type { RecordField } from "@/features/records/record-model.schema";
 
 import { useTranslations } from "next-intl";
 
 import { AppChip } from "@/components/chip/app-chip";
-import { InfoRow } from "@/components/shared/info-row";
 import { useChangeFieldLabel } from "@/components/entity-terminology/use-change-field-label";
+import { InfoRow } from "@/components/shared/info-row";
+import { IntlLink } from "@/i18n/navigation";
 
 type Props = {
   run: RoutineRunDto;
-  customColumns: CustomColumnDto[];
+  customColumns?: CustomColumnDto[];
+  recordFields?: RecordField[];
 };
 
-export function RoutineRunTriggerCard({ run, customColumns }: Props) {
+export function RoutineRunTriggerCard({ run, customColumns = [], recordFields }: Props) {
   const t = useTranslations();
   const changeFieldLabel = useChangeFieldLabel();
   const context = run.triggerContext;
@@ -29,7 +32,20 @@ export function RoutineRunTriggerCard({ run, customColumns }: Props) {
 
       {run.triggerEntityId && (
         <InfoRow label={t("RoutineDetail.triggerRecord")}>
-          <span className="font-mono text-xs">{run.triggerEntityId}</span>
+          {context?.recordRef ? (
+            run.triggerEvent === "record.deleted" ? (
+              <span className="text-xs">{t("Common.events.record.deleted")}</span>
+            ) : (
+              <IntlLink
+                className="text-xs underline underline-offset-2"
+                href={`/records/${context.recordRef.typeId}/${context.recordRef.recordId}`}
+              >
+                {t("RecordModel.openRecord", { name: t("RecordModel.record") })}
+              </IntlLink>
+            )
+          ) : (
+            <span className="font-mono text-xs">{run.triggerEntityId}</span>
+          )}
         </InfoRow>
       )}
 
@@ -44,7 +60,11 @@ export function RoutineRunTriggerCard({ run, customColumns }: Props) {
           <span className="flex flex-wrap justify-end gap-1">
             {context.changedFields.map((field) => (
               <AppChip key={field} size="sm">
-                {changeFieldLabel(field, customColumns)}
+                {context.recordRef
+                  ? (recordFields?.find((definition) => definition.id === field)?.label ??
+                    t("RecordWidgets.unavailable"))
+                  : (recordFields?.find((definition) => definition.id === field)?.label ??
+                    changeFieldLabel(field, customColumns))}
               </AppChip>
             ))}
 

@@ -1,36 +1,28 @@
 "use client";
 
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import type { HasId } from "@/core/base/base-data-view.store";
 import type { CustomFieldValueDto } from "@/core/base/base-entity.schema";
-import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
+import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 
-import { useCallback, useState } from "react";
-import { observer } from "mobx-react-lite";
+import { CustomColumnType } from "@/core/data-view/column-presentation.types";
 import { Mail, Phone } from "lucide-react";
-import { CustomColumnType } from "@/generated/prisma";
+import { observer } from "mobx-react-lite";
+import { useCallback } from "react";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { AppChip } from "@/components/chip/app-chip";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
-import { ClickableChip } from "@/components/chip/clickable-chip";
 import { Favicon } from "@/components/shared/favicon";
-import { TruncatedText } from "@/components/shared/truncated-text";
-import { openableLinkTarget } from "@/core/validation/openable-link-target";
-import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { Icon } from "@/components/shared/icon";
-import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
+import { TruncatedText } from "@/components/shared/truncated-text";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
+import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
+import { openableLinkTarget } from "@/core/validation/openable-link-target";
 
 type Props<E extends HasId & { customFieldValues: CustomFieldValueDto[] }> = {
   column: CustomColumnDto;
   item: E;
   showOverflowTooltip?: boolean;
-  store?: BaseDataViewStore<E>;
 };
 
 function CustomFieldTextValue({
@@ -58,25 +50,12 @@ export const CustomFieldValue = observer(
     column,
     item,
     showOverflowTooltip = false,
-    store,
   }: Props<E>) => {
     const copy = useCopyToClipboard();
     const intlStore = useHydratedIntlStore();
 
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
     const field = item.customFieldValues.find((cfv) => cfv.columnId === column.id);
     const value = field?.value?.toString() ?? "";
-
-    async function handleSelectOption(optionValue: string) {
-      if (!store) return;
-
-      try {
-        await store.updateCustomFieldValue(item.id, column.id, optionValue);
-      } finally {
-        setIsDropdownOpen(false);
-      }
-    }
 
     const renderValue = useCallback((): React.ReactElement => {
       switch (column.type) {
@@ -87,38 +66,10 @@ export const CustomFieldValue = observer(
 
           const selectedVariant = selectedOption.color;
 
-          if (!store) {
-            return (
-              <AppChip focusableTooltip size="sm" variant={selectedVariant}>
-                {selectedOption.label}
-              </AppChip>
-            );
-          }
-
-          const options = column.options.options;
-
           return (
-            // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events -- stops clicks on the radix dropdown (trigger + portaled items) from bubbling to the parent card's navigation handler
-            <span className="relative" onClick={(event) => event.stopPropagation()}>
-              <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
-                <DropdownMenuTrigger asChild>
-                  <button className="inline-flex max-w-full" type="button">
-                    <ClickableChip variant={selectedVariant}>{selectedOption.label}</ClickableChip>
-                  </button>
-                </DropdownMenuTrigger>
-
-                <DropdownMenuContent className="max-h-60 overflow-y-auto">
-                  {options.map((option) => (
-                    <DropdownMenuItem
-                      key={option.value}
-                      onSelect={() => runUserAction(() => handleSelectOption(option.value))}
-                    >
-                      <AppChip variant={option.color}>{option.label}</AppChip>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </span>
+            <AppChip focusableTooltip size="sm" variant={selectedVariant}>
+              {selectedOption.label}
+            </AppChip>
           );
         }
 
@@ -259,7 +210,7 @@ export const CustomFieldValue = observer(
             <span />
           );
       }
-    }, [column, item, value, isDropdownOpen, handleSelectOption, copy, showOverflowTooltip]);
+    }, [column, item, value, copy, showOverflowTooltip]);
 
     return renderValue();
   },

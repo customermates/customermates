@@ -2,7 +2,7 @@ import type { MessagingProvider } from "@/generated/prisma";
 
 import { z } from "zod";
 
-import { normalizeChannelValue } from "@/features/contacts/channel-value";
+import { normalizeChannelValue } from "@/features/records/channel-value";
 
 export type DraftThreadTarget = {
   id: string;

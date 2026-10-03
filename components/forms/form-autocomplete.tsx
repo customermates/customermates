@@ -52,6 +52,7 @@ type Props<T extends Identifiable> = {
   popoverFitContent?: boolean;
   chipHref?: (key: string) => string | undefined;
   onSelectionDataChange?: (items: Array<{ key: string; data?: T }>) => void;
+  onValueChange?: (value: string | string[] | undefined) => void;
 };
 
 function keyOf<T extends Identifiable>(item: T): string {
@@ -96,6 +97,7 @@ export const FormAutocomplete = observer(
     popoverFitContent = false,
     chipHref,
     onSelectionDataChange,
+    onValueChange,
   }: Props<T>) => {
     const store = useAppForm();
     const navigateToHref = useNavigateToHref();
@@ -124,8 +126,8 @@ export const FormAutocomplete = observer(
     const isDisabled = Boolean(disabled) || Boolean(store?.isLoading);
     const isReadOnly = !isDisabled && (Boolean(readOnly) || Boolean(store?.isReadOnly));
     const canEdit = !isReadOnly && !isDisabled;
-    const labelId = `${id}-label`;
     const domId = inputId ?? id;
+    const labelId = `${domId}-label`;
 
     const itemsArray: T[] = useMemo(() => Array.from(items ?? []), [items]);
     const popoverOpen = canEdit && open;
@@ -211,7 +213,8 @@ export const FormAutocomplete = observer(
 
     function commit(next: string[] | string | undefined) {
       if (!canEdit) return;
-      if (store) store.onChange(id, next);
+      if (onValueChange) onValueChange(next);
+      else if (store) store.onChange(id, next);
       setInput("");
     }
 

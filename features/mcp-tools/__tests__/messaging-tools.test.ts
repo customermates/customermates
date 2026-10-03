@@ -3,8 +3,6 @@ import { z } from "zod";
 
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { MOCK_ENV_MODULE, createMockDiModule, MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-test-setup";
-import { WidgetKind } from "@/generated/prisma";
-import { ActivityWidgetDtoSchema } from "@/features/widget/widget.schema";
 
 const mockUser = createMockUser();
 
@@ -19,7 +17,7 @@ vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/core/di", () => ({
   ...createMockDiModule(() => mockUser),
   getCreateAuthLinkInteractor: () => ({ invoke: spies.createAuthLink }),
-  getGetActivitiesApiInteractor: () => ({ invoke: spies.getActivities }),
+  getGetRecordActivitiesInteractor: () => ({ invoke: spies.getActivities }),
   getGetMessagingThreadInteractor: () => ({ invoke: spies.getMessagingThread }),
 }));
 
@@ -64,134 +62,71 @@ describe("connect_messaging_account", () => {
 });
 
 describe("get_activities", () => {
-  it("passes a multi-record scope to the API interactor", async () => {
-    const dealId = "00000000-0000-4000-8000-000000000001";
-    const taskId = "00000000-0000-4000-8000-000000000002";
+  const typeId = "00000000-0000-4000-8000-000000000001";
+  const anotherTypeId = "00000000-0000-4000-8000-000000000002";
+  const recordId = "00000000-0000-4000-8000-000000000003";
+  beforeEach(() => {
     spies.getActivities.mockResolvedValue({
       ok: true,
-      data: {
-        items: [],
-        pagination: { page: 1, pageSize: 25, total: 0, totalPages: 1 },
-        scopeTruncated: false,
-      },
+      data: { items: [], availableSources: ["audit"], nextCursor: null },
     });
+  });
 
-    await getActivitiesTool.execute(
-      getActivitiesTool.inputSchema.parse({
-        scope: {
-          records: [
-            { entityType: "deal", ids: [dealId] },
-            { entityType: "task", ids: [taskId] },
-          ],
-        },
-      }),
+  it("passes full references without collapsing equal IDs in different types", async () => {
+    const records = [
+      { typeId, recordId },
+      { typeId: anotherTypeId, recordId },
+    ];
+    await getActivitiesTool.execute(getActivitiesTool.inputSchema.parse({ scope: { records } }));
+    expect(spies.getActivities).toHaveBeenCalledWith(
+      expect.objectContaining({ scope: { records, typeIds: [] }, cursor: null, limit: 25 }),
     );
+  });
 
+  it("uses the accessible configured paths for an empty scope", async () => {
+    await getActivitiesTool.execute(getActivitiesTool.inputSchema.parse({}));
     expect(spies.getActivities).toHaveBeenCalledWith(
       expect.objectContaining({
-        scope: {
-          records: [
-            { entityType: "deal", ids: [dealId] },
-            { entityType: "task", ids: [taskId] },
-          ],
-        },
+        scope: { records: [], typeIds: [] },
+        kinds: ["audit", "message", "activity", "calendar_event"],
       }),
     );
   });
 
-  it("passes low-level scope and relationship filters together unchanged", async () => {
-    const dealId = "00000000-0000-4000-8000-000000000001";
-    const contactId = "00000000-0000-4000-8000-000000000002";
-    const filters = [{ field: "contactIds", operator: "in", value: [contactId] }];
-    spies.getActivities.mockResolvedValue({
-      ok: true,
-      data: {
-        items: [],
-        pagination: { page: 1, pageSize: 25, total: 0, totalPages: 1 },
-        scopeTruncated: false,
-      },
-    });
-
-    await getActivitiesTool.execute(
-      getActivitiesTool.inputSchema.parse({
-        scope: { records: [{ entityType: "deal", ids: [dealId] }] },
-        filters,
-      }),
-    );
-
-    expect(spies.getActivities).toHaveBeenCalledWith(
-      expect.objectContaining({
-        scope: { records: [{ entityType: "deal", ids: [dealId] }] },
-        filters,
-      }),
-    );
-  });
-
-  it("rejects malformed relationship filters at the MCP boundary", () => {
-    expect(
-      getActivitiesTool.inputSchema.safeParse({
-        filters: [{ field: "contactIds", operator: "in", value: [] }],
-      }).success,
-    ).toBe(false);
-    expect(
-      getActivitiesTool.inputSchema.safeParse({
-        filters: [
-          {
-            field: "dealIds",
-            operator: "hasNone",
-            value: ["00000000-0000-4000-8000-000000000001"],
-          },
-        ],
-      }).success,
-    ).toBe(false);
-  });
-
-  it("rejects duplicate activity filter fields before invoking the interactor", () => {
-    const duplicate = {
-      field: "contactIds",
-      operator: "hasSome",
+  it("preserves date, provider, thread and cursor constraints", async () => {
+    const cursor = { at: "2020-01-01T00:00:00.123456Z", kind: "message", id: recordId };
+    const input = {
+      scope: { typeIds: [typeId] },
+      kinds: ["message"],
+      providers: ["mail"],
+      threadIds: [recordId],
+      after: "2019-01-01T00:00:00Z",
+      cursor,
+      limit: 5,
     };
+    await getActivitiesTool.execute(getActivitiesTool.inputSchema.parse(input));
+    expect(spies.getActivities).toHaveBeenCalledWith({ ...input, scope: { typeIds: [typeId], records: [] } });
+  });
 
-    expect(() =>
-      getActivitiesTool.inputSchema.parse({
-        filters: [duplicate, duplicate],
-      }),
-    ).toThrow();
+  it.each([
+    { entityType: "deal" },
+    { scope: { records: [{ entityType: "deal", ids: [recordId] }] } },
+    { filters: [{ field: "contactIds", operator: "in", value: [recordId] }] },
+    { scope: { records: [{ recordId }] } },
+    { page: 2 },
+    { pageSize: 5 },
+    { bogusParam: 1 },
+  ])("rejects incomplete or retired scope contracts instead of broadening them", (input) => {
+    expect(getActivitiesTool.inputSchema.safeParse(input).success).toBe(false);
     expect(spies.getActivities).not.toHaveBeenCalled();
   });
 
-  it("accepts activity-widget filters unchanged", () => {
-    const filter = {
-      field: "contactIds",
-      operator: "in",
-      value: ["00000000-0000-4000-8000-000000000001"],
-    };
-    const widget = ActivityWidgetDtoSchema.parse({
-      id: "00000000-0000-4000-8000-000000000002",
-      userId: mockUser.id,
-      companyId: mockUser.companyId,
-      name: "Recent activity",
-      kind: WidgetKind.activityTimeline,
-      timelineFilters: [filter],
-      displayOptions: { showFilters: true },
-      layout: null,
-      isTemplate: false,
-      createdAt: new Date(0),
-      updatedAt: new Date(0),
-    });
-
+  it("bounds page size and reference count", () => {
+    expect(getActivitiesTool.inputSchema.safeParse({ limit: 100 }).success).toBe(true);
+    expect(getActivitiesTool.inputSchema.safeParse({ limit: 101 }).success).toBe(false);
     expect(
       getActivitiesTool.inputSchema.safeParse({
-        filters: widget.timelineFilters,
-      }).success,
-    ).toBe(true);
-  });
-
-  it("rejects the removed partial legacy scope instead of widening it", () => {
-    expect(getActivitiesTool.inputSchema.safeParse({ entityType: "deal" }).success).toBe(false);
-    expect(
-      getActivitiesTool.inputSchema.safeParse({
-        entityId: "00000000-0000-4000-8000-000000000001",
+        scope: { records: Array.from({ length: 51 }, () => ({ typeId, recordId })) },
       }).success,
     ).toBe(false);
   });
@@ -268,9 +203,7 @@ describe("email body exposure", () => {
             records: {},
           },
         ],
-        pageLimitReached: false,
-        scopeTruncated: false,
-        pagination: { total: 1 },
+        nextCursor: null,
       },
     });
 

@@ -112,6 +112,7 @@ export const ThreadReplyComposer = observer(
     const mounted = useRef(false);
     const [emojiOpen, setEmojiOpen] = useState(false);
     const [expanded, setExpanded] = useState(false);
+    const detachedNewThread = threadComposeStore.isDetachedNewThread;
 
     useEffect(() => {
       mounted.current = true;
@@ -151,6 +152,12 @@ export const ThreadReplyComposer = observer(
 
     useEffect(() => {
       if (!threadId) return;
+      if (
+        threadComposeStore.sourceContextKey &&
+        threadComposeStore.detachNewThread(threadComposeStore.sourceContextKey)
+      )
+        return;
+
       if (initializedThreadId.current === threadId) return;
       initializedThreadId.current = threadId;
       if (threadComposeStore.form.threadId === threadId) return;
@@ -180,6 +187,7 @@ export const ThreadReplyComposer = observer(
       });
     }, [
       threadComposeStore,
+      detachedNewThread,
       provider,
       threadId,
       defaultSubject,
@@ -193,11 +201,18 @@ export const ThreadReplyComposer = observer(
     function handleKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
       if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
         event.preventDefault();
-        runUserAction(() => threadComposeStore.send());
+        if (!isNewThread || activeSender) runUserAction(() => threadComposeStore.send());
       }
     }
 
     if (!userStore.can(Resource.inboxMessages, Action.create)) return null;
+    if (
+      threadId &&
+      threadComposeStore.sourceContextKey &&
+      threadComposeStore.isNewThread &&
+      (threadComposeStore.hasUnsavedChanges || threadComposeStore.isLoading)
+    )
+      return null;
 
     const { isLoading, isEmail, isLinkedin, isNewThread, showCcBcc, editingDraftId, attachments } = threadComposeStore;
     const signatureAccountId = isNewThread
@@ -210,8 +225,10 @@ export const ThreadReplyComposer = observer(
     const linkedinProduct = threadComposeStore.form.linkedinProduct;
 
     const senders = isNewThread ? connectedAccountsStore.usableSendersFor(provider) : [];
-    const activeSender =
-      senders.find((account) => account.id === threadComposeStore.newThreadTarget?.connectedAccountId) ?? senders[0];
+    const activeSender = senders.find(
+      (account) => account.id === threadComposeStore.newThreadTarget?.connectedAccountId,
+    );
+    const senderUnavailable = isNewThread && !activeSender;
     const senderProducts = activeSender?.linkedinProducts ?? [];
     const availableProducts = senderProducts.length
       ? LINKEDIN_PRODUCTS.filter((product) => senderProducts.includes(product))
@@ -231,8 +248,12 @@ export const ThreadReplyComposer = observer(
     const isOpen = expanded || hasWorkInProgress;
 
     const form = (
-      <AppForm className="flex flex-col" store={threadComposeStore} onSubmit={threadComposeStore.send}>
-        {senders.length > 1 && activeSender && (
+      <AppForm
+        className="flex flex-col"
+        store={threadComposeStore}
+        onSubmit={() => (senderUnavailable ? Promise.resolve() : threadComposeStore.send())}
+      >
+        {isNewThread && (senders.length > 1 || senderUnavailable) && (
           <div className="border-border flex items-center gap-2 border-b px-3 py-1">
             <span className="text-muted-foreground w-8 shrink-0 text-xs font-medium">{t("Inbox.compose.from")}</span>
 
@@ -244,7 +265,7 @@ export const ThreadReplyComposer = observer(
                   type="button"
                 >
                   <AppChip interactive endContent={<ChevronDown className="size-3" />} variant="secondary">
-                    {senderLabel(activeSender)}
+                    {activeSender ? senderLabel(activeSender) : t("Common.ariaLabels.selectOption")}
                   </AppChip>
                 </button>
               </DropdownMenuTrigger>
@@ -255,7 +276,7 @@ export const ThreadReplyComposer = observer(
                     key={account.id}
                     onSelect={() => threadComposeStore.setNewThreadAccount(account.id)}
                   >
-                    <Check className={account.id === activeSender.id ? "size-4" : "size-4 opacity-0"} />
+                    <Check className={account.id === activeSender?.id ? "size-4" : "size-4 opacity-0"} />
 
                     {senderLabel(account)}
                   </DropdownMenuItem>
@@ -526,7 +547,7 @@ export const ThreadReplyComposer = observer(
           <div className="flex items-stretch">
             <Button
               className="rounded-r-none pr-2.5"
-              disabled={isLoading}
+              disabled={isLoading || senderUnavailable}
               id="inbox-reply-send"
               size="sm"
               type="submit"
@@ -542,7 +563,7 @@ export const ThreadReplyComposer = observer(
                   <Button
                     aria-label={t("Inbox.compose.moreSendOptions")}
                     className="border-primary-foreground/20 rounded-l-none border-l px-1.5"
-                    disabled={isLoading}
+                    disabled={isLoading || senderUnavailable}
                     size="sm"
                     type="button"
                   >
@@ -551,7 +572,12 @@ export const ThreadReplyComposer = observer(
                 </DropdownMenuTrigger>
 
                 <DropdownMenuContent align="end" className="min-w-40">
-                  <DropdownMenuItem onSelect={() => runUserAction(() => threadComposeStore.saveDraft())}>
+                  <DropdownMenuItem
+                    disabled={senderUnavailable}
+                    onSelect={() => {
+                      if (!senderUnavailable) runUserAction(() => threadComposeStore.saveDraft());
+                    }}
+                  >
                     {editingDraftId ? t("Inbox.compose.updateDraft") : t("Inbox.compose.saveDraft")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>

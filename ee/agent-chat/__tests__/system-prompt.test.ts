@@ -20,7 +20,7 @@ describe("system prompt", () => {
 
   it("states the verification, clarification and confidentiality rules", () => {
     const prompt = buildAgentSystemPrompt({ ...base });
-    expect(prompt).toContain("read the exact `total` and `sums` from the tool result and cite them");
+    expect(prompt).toContain("read query_crm_measure at the requested record grain and cite its result");
     expect(prompt).toContain("ask one short question naming the candidates instead of guessing");
     expect(prompt).toContain("another company's or workspace's records");
     expect(prompt).toContain(

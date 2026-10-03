@@ -6,6 +6,7 @@ import type { Company } from "@/generated/prisma";
 import type { EntityTerminologyOverride } from "@/features/entity-terminology/entity-terminology.types";
 import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interactor";
 import type { RoutingLocale } from "@/i18n/locale-registry";
+import type { RecordNavigation } from "@/features/records/record-navigation.schema";
 
 import { createContext, useContext, useEffect, useState } from "react";
 
@@ -23,6 +24,7 @@ type Props = {
 };
 
 export type RootStoreInitialState = {
+  recordNavigation?: RecordNavigation | null;
   locale: RoutingLocale;
   user: TenantUser | null;
   company: Company | null;
@@ -37,6 +39,7 @@ function createRootStore(agentChatEnabled: boolean, appMode: AppMode, initialSta
   rootStore.companyStore.setCompany(initialState.company);
   rootStore.terminologyStore.setOverrides(initialState.terminology);
   rootStore.subscriptionStore.setSubscription(initialState.subscription);
+  rootStore.recordWorkspaceStore.setNavigation(initialState.recordNavigation ?? null);
   return rootStore;
 }
 

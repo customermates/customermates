@@ -1,31 +1,32 @@
-import type { Prisma, PrismaClient } from "@/generated/prisma";
-import type { ContactDto } from "@/features/contacts/contact.schema";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
-import type { DealDto } from "@/features/deals/deal.schema";
+import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 import type { DomainEventMap } from "@/features/event/domain-events";
-import type { OrganizationDto } from "@/features/organizations/organization.schema";
+import type { ContactDto } from "@/features/records/history/v1/contact.schema";
+import type { DealDto } from "@/features/records/history/v1/deal.schema";
+import type { OrganizationDto } from "@/features/records/history/v1/organization.schema";
+import type { ServiceDto } from "@/features/records/history/v1/service.schema";
+import type { TaskDto } from "@/features/records/history/v1/task.schema";
 import type { RoleDto } from "@/features/role/role.schema";
-import type { ServiceDto } from "@/features/services/service.schema";
-import type { TaskDto } from "@/features/tasks/task.schema";
 import type { WebhookDto } from "@/features/webhook/webhook.schema";
+import type { Prisma, PrismaClient } from "@/generated/prisma";
+import { seedCustomFields } from "./custom-fields";
+import { historicalRecordFixtureRows } from "./historical-record-fixtures";
 
-import { toWebhookEventPayload } from "@/features/webhook/webhook-event-payload";
-import { ContactDtoSchema } from "@/features/contacts/contact.schema";
-import { CustomColumnDtoSchema } from "@/features/custom-column/custom-column.schema";
-import { DealDtoSchema } from "@/features/deals/deal.schema";
-import { DomainEvent } from "@/features/event/domain-events";
-import { OrganizationDtoSchema } from "@/features/organizations/organization.schema";
-import { RoleDtoSchema } from "@/features/role/role.schema";
-import { ServiceDtoSchema } from "@/features/services/service.schema";
-import { TaskDtoSchema } from "@/features/tasks/task.schema";
-import { WebhookDtoSchema } from "@/features/webhook/webhook.schema";
+import { CustomColumnDtoSchema } from "@/core/data-view/column-presentation.schema";
 import { calculateChanges } from "@/core/utils/calculate-changes";
+import { DomainEvent } from "@/features/event/domain-events";
+import { ContactDtoSchema } from "@/features/records/history/v1/contact.schema";
+import { DealDtoSchema } from "@/features/records/history/v1/deal.schema";
+import { OrganizationDtoSchema } from "@/features/records/history/v1/organization.schema";
+import { ServiceDtoSchema } from "@/features/records/history/v1/service.schema";
+import { TaskDtoSchema } from "@/features/records/history/v1/task.schema";
+import { RoleDtoSchema } from "@/features/role/role.schema";
+import { toWebhookEventPayload } from "@/features/webhook/webhook-event-payload";
+import { WebhookDtoSchema } from "@/features/webhook/webhook.schema";
 
 import type { SeedContext } from "./context";
 import type { RelationshipSeedInput } from "./relationships";
 
 import { SYNTHETIC_CUSTOM_COLUMN_IDS } from "./custom-fields";
-import { dealSeedSelect } from "./deal-select";
 import { fixtureId } from "./helpers";
 import {
   SYNTHETIC_CONTACT_UPDATE_INDEXES,
@@ -93,26 +94,6 @@ export type SyntheticAuditFixture = {
   id: string;
   userId: string;
 };
-
-const userReferenceSelect = {
-  id: true,
-  firstName: true,
-  lastName: true,
-  avatarUrl: true,
-  email: true,
-} as const;
-
-const contactReferenceSelect = {
-  id: true,
-  firstName: true,
-  lastName: true,
-  avatarUrl: true,
-} as const;
-
-const organizationReferenceSelect = { id: true, name: true } as const;
-const dealReferenceSelect = { id: true, name: true } as const;
-const taskReferenceSelect = { id: true, name: true, type: true } as const;
-const customFieldValueSelect = { columnId: true, value: true } as const;
 
 function inputJson(value: unknown): Prisma.InputJsonValue {
   return JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue;
@@ -588,129 +569,37 @@ async function loadSyntheticAuditSnapshot(
         },
       },
     }),
-    prisma.customColumn.findMany({
-      where: {
-        id: { in: Object.values(SYNTHETIC_CUSTOM_COLUMN_IDS) },
-        companyId: context.ids.company,
-      },
-      orderBy: { id: "asc" },
-      select: {
-        id: true,
-        label: true,
-        entityType: true,
-        type: true,
-        options: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    }),
-    prisma.contact.findMany({
-      where: {
-        id: { in: entities.contacts.map(({ id }) => id) },
-        companyId: context.ids.company,
-      },
-      orderBy: { id: "asc" },
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-        avatarUrl: true,
-        notes: true,
-        createdAt: true,
-        updatedAt: true,
-        identifiers: {
-          orderBy: { createdAt: "asc" },
-          select: {
-            id: true,
-            provider: true,
-            value: true,
-            messagingId: true,
-            displayName: true,
-            profileUrl: true,
-          },
-        },
-        organizations: {
-          select: { organization: { select: organizationReferenceSelect } },
-        },
-        users: { select: { user: { select: userReferenceSelect } } },
-        deals: { select: { deal: { select: dealReferenceSelect } } },
-        tasks: { select: { task: { select: taskReferenceSelect } } },
-        customFieldValues: { select: customFieldValueSelect },
-      },
-    }),
-    prisma.organization.findMany({
-      where: {
-        id: { in: entities.organizations.map(({ id }) => id) },
-        companyId: context.ids.company,
-      },
-      orderBy: { id: "asc" },
-      select: {
-        id: true,
-        name: true,
-        notes: true,
-        createdAt: true,
-        updatedAt: true,
-        contacts: { select: { contact: { select: contactReferenceSelect } } },
-        users: { select: { user: { select: userReferenceSelect } } },
-        deals: { select: { deal: { select: dealReferenceSelect } } },
-        tasks: { select: { task: { select: taskReferenceSelect } } },
-        customFieldValues: { select: customFieldValueSelect },
-      },
-    }),
-    prisma.deal.findMany({
-      where: {
-        id: { in: entities.deals.map(({ id }) => id) },
-        companyId: context.ids.company,
-      },
-      orderBy: { id: "asc" },
-      select: dealSeedSelect,
-    }),
-    prisma.service.findMany({
-      where: {
-        id: { in: entities.services.map(({ id }) => id) },
-        companyId: context.ids.company,
-      },
-      orderBy: { id: "asc" },
-      select: {
-        id: true,
-        name: true,
-        amount: true,
-        notes: true,
-        createdAt: true,
-        updatedAt: true,
-        users: { select: { user: { select: userReferenceSelect } } },
-        deals: { select: { deal: { select: dealReferenceSelect } } },
-        tasks: { select: { task: { select: taskReferenceSelect } } },
-        customFieldValues: { select: customFieldValueSelect },
-      },
-    }),
-    prisma.task.findMany({
-      where: {
-        id: { in: entities.tasks.map(({ id }) => id) },
-        companyId: context.ids.company,
-      },
-      orderBy: { id: "asc" },
-      select: {
-        id: true,
-        name: true,
-        type: true,
-        notes: true,
-        createdAt: true,
-        updatedAt: true,
-        users: { select: { user: { select: userReferenceSelect } } },
-        contacts: { select: { contact: { select: contactReferenceSelect } } },
-        organizations: {
-          select: { organization: { select: organizationReferenceSelect } },
-        },
-        deals: { select: { deal: { select: dealReferenceSelect } } },
-        services: {
-          select: {
-            service: { select: { id: true, name: true, amount: true } },
-          },
-        },
-        customFieldValues: { select: customFieldValueSelect },
-      },
-    }),
+    Promise.resolve((await seedCustomFields(context, entities)).customColumns ?? []),
+    historicalRecordFixtureRows(
+      prisma,
+      context.ids.company,
+      "contact",
+      entities.contacts.map(({ id }) => id),
+    ),
+    historicalRecordFixtureRows(
+      prisma,
+      context.ids.company,
+      "organization",
+      entities.organizations.map(({ id }) => id),
+    ),
+    historicalRecordFixtureRows(
+      prisma,
+      context.ids.company,
+      "deal",
+      entities.deals.map(({ id }) => id),
+    ),
+    historicalRecordFixtureRows(
+      prisma,
+      context.ids.company,
+      "service",
+      entities.services.map(({ id }) => id),
+    ),
+    historicalRecordFixtureRows(
+      prisma,
+      context.ids.company,
+      "task",
+      entities.tasks.map(({ id }) => id),
+    ),
     prisma.connectedAccount.findMany({
       where: {
         companyId: context.ids.company,

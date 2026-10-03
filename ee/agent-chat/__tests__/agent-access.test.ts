@@ -1,16 +1,18 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { presetId } from "@/features/records/crm-preset";
+import { mockRecordDiscovery } from "@/tests/helpers/record-tools";
 import * as Sentry from "@sentry/nextjs";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
-import { createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 import { runWithTenant } from "@/core/decorators/tenant-context";
-import { mockEntitlementService } from "@/tests/helpers/mock-entitlement-service";
 import {
   createMockDiModule,
   MOCK_ENV_MODULE,
   MOCK_PRISMA_DB_MODULE,
   MOCK_ZOD_MODULE,
 } from "@/tests/helpers/interactor-test-setup";
+import { mockEntitlementService } from "@/tests/helpers/mock-entitlement-service";
+import { createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 
 import { MODEL_CATALOG } from "../model-catalog";
 
@@ -39,10 +41,10 @@ vi.mock("next/headers", () => ({
   headers: () => new Headers({ origin: request.origin }),
 }));
 
+import { agentUiCommandHookToken } from "../agent-ui-command";
 import { GetAgentConversationInteractor } from "../get-agent-conversation.interactor";
 import { RespondToUiCommandInteractor } from "../respond-to-ui-command.interactor";
 import { SendAgentMessageInteractor } from "../send-agent-message.interactor";
-import { agentUiCommandHookToken } from "../agent-ui-command";
 
 const CONVERSATION_ID = "00000000-0000-4000-8000-000000000001";
 const MESSAGE_ID = "00000000-0000-4000-8000-000000000002";
@@ -129,7 +131,7 @@ describe("agent access", () => {
       usage as never,
       entitlements as never,
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "hello",
@@ -151,7 +153,7 @@ describe("agent access", () => {
       {
         reference: {
           kind: "dataView" as const,
-          surfaceKey: "contacts-card-store" as const,
+          surfaceKey: "records:10000000-0000-4000-8000-000000000101" as const,
           viewKey: "11111111-1111-4111-8111-111111111111",
           requestedAction: "update" as const,
         },
@@ -211,14 +213,14 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       background as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: currentText,
       contexts,
       pageContext: {
         route:
-          "/en/contacts?view=11111111-1111-4111-8111-111111111111&viewSurface=contacts-card-store&viewAction=update",
+          "/en/records/10000000-0000-4000-8000-000000000101?view=11111111-1111-4111-8111-111111111111&viewSurface=records:10000000-0000-4000-8000-000000000101&viewAction=update",
       },
       locale: "de",
       retry: false,
@@ -227,12 +229,12 @@ describe("agent access", () => {
     expect(result.ok).toBe(true);
     if (!result.ok || result.data.disposition !== "run") return;
     expect(result.data.messages[0]?.text).toBe(
-      `<selected_context kind="record" entityType="contact" recordId="${MESSAGE_ID}"/>\nEarlier question`,
+      `<selected_context kind="record" typeId="${presetId(mockUser.companyId, "contact")}" recordId="${MESSAGE_ID}"/>\nEarlier question`,
     );
     expect(result.data.messages[1]?.text).toHaveLength(2000);
     expect(result.data.messages[2]?.text).toBe(
-      `<page_context route="/en/contacts?view=11111111-1111-4111-8111-111111111111&amp;viewSurface=contacts-card-store&amp;viewAction=update" surfaceKey="contacts-card-store" viewKey="11111111-1111-4111-8111-111111111111" requestedAction="update"/>\n` +
-        `<selected_context kind="dataView" surfaceKey="contacts-card-store" viewKey="11111111-1111-4111-8111-111111111111" requestedAction="update"/>\n` +
+      `<page_context route="/en/records/10000000-0000-4000-8000-000000000101?view=11111111-1111-4111-8111-111111111111&amp;viewSurface=records:10000000-0000-4000-8000-000000000101&amp;viewAction=update" surfaceKey="records:10000000-0000-4000-8000-000000000101" viewKey="11111111-1111-4111-8111-111111111111" requestedAction="update"/>\n` +
+        `<selected_context kind="dataView" surfaceKey="records:10000000-0000-4000-8000-000000000101" viewKey="11111111-1111-4111-8111-111111111111" requestedAction="update"/>\n` +
         currentText,
     );
     expect(result.data.locale).toBe("de");
@@ -246,7 +248,7 @@ describe("agent access", () => {
           text: currentText,
           contexts,
           pageRoute:
-            "/en/contacts?view=11111111-1111-4111-8111-111111111111&viewSurface=contacts-card-store&viewAction=update",
+            "/en/records/10000000-0000-4000-8000-000000000101?view=11111111-1111-4111-8111-111111111111&viewSurface=records:10000000-0000-4000-8000-000000000101&viewAction=update",
           userMessageId: expect.any(String),
         }),
       }),
@@ -294,7 +296,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "hello",
@@ -341,7 +343,7 @@ describe("agent access", () => {
       usageService() as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       conversationId: CONVERSATION_ID,
@@ -394,7 +396,7 @@ describe("agent access", () => {
         usage as never,
         mockEntitlementService(),
         background as never,
-        { getCustomColumns: () => Promise.resolve([]) } as never,
+        mockRecordDiscovery(),
       ).invokeRoutine({
         clientRequestId: CLIENT_REQUEST_ID,
         conversationId: CONVERSATION_ID,
@@ -440,7 +442,7 @@ describe("agent access", () => {
         usage as never,
         mockEntitlementService(),
         backgroundTasks() as never,
-        { getCustomColumns: () => Promise.resolve([]) } as never,
+        mockRecordDiscovery(),
       ).invokeRoutine({
         clientRequestId: CLIENT_REQUEST_ID,
         conversationId: CONVERSATION_ID,
@@ -494,7 +496,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       background as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       conversationId: CONVERSATION_ID,
@@ -554,12 +556,12 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       conversationId: CONVERSATION_ID,
       text: "Decide yourself.",
-      pageContext: { route: "/en/organizations" },
+      pageContext: { route: "/en/records/10000000-0000-4000-8000-000000000102" },
       retry: false,
     });
 
@@ -614,7 +616,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "same",
@@ -670,7 +672,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "same",
@@ -733,7 +735,7 @@ describe("agent access", () => {
       usageService() as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "retry this",
@@ -792,7 +794,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "different",
@@ -847,7 +849,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "Summarize this",
@@ -884,7 +886,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       conversationId: CONVERSATION_ID,
@@ -919,7 +921,7 @@ describe("agent access", () => {
       usageService() as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "hello",
@@ -954,7 +956,7 @@ describe("agent access", () => {
         usage as never,
         mockEntitlementService(),
         backgroundTasks() as never,
-        { getCustomColumns: () => Promise.resolve([]) } as never,
+        mockRecordDiscovery(),
       ).invoke({
         clientRequestId: CLIENT_REQUEST_ID,
         text: "hello",
@@ -1000,7 +1002,7 @@ describe("agent access", () => {
         usage as never,
         mockEntitlementService(),
         backgroundTasks() as never,
-        { getCustomColumns: () => Promise.resolve([]) } as never,
+        mockRecordDiscovery(),
       ).invoke({
         clientRequestId: CLIENT_REQUEST_ID,
         text: "hello",
@@ -1039,7 +1041,7 @@ describe("agent access", () => {
         usageService() as never,
         mockEntitlementService(),
         backgroundTasks() as never,
-        { getCustomColumns: () => Promise.resolve([]) } as never,
+        mockRecordDiscovery(),
       ).invoke({
         clientRequestId: CLIENT_REQUEST_ID,
         text: "hello",
@@ -1248,7 +1250,7 @@ describe("agent access", () => {
       commandId: "command-1",
       name: "navigate",
       ok: true,
-      result: "Navigated to /contacts.",
+      result: "Navigated to /records/10000000-0000-4000-8000-000000000101.",
     });
 
     expect(result.ok).toBe(true);

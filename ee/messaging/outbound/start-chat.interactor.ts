@@ -1,36 +1,29 @@
 import { fail, failNotFound } from "@/core/validation/interactor-failure-server";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
+import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { ConnectedAccount } from "@/generated/prisma";
 import type { IngestMessage, MessagingAttendee, MessagingMessage } from "../messaging.schema";
 import type { MessagingService, StartChatSpecifics } from "../messaging.service";
-import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
-import { z } from "zod";
-import { randomUUID } from "node:crypto";
-import { getLocale } from "next-intl/server";
 import * as Sentry from "@sentry/node";
+import { getLocale } from "next-intl/server";
+import { randomUUID } from "node:crypto";
+import { z } from "zod";
 
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { Write } from "@/core/decorators/write.decorator";
+import { CustomErrorCode } from "@/core/validation/validation.types";
+import { normalizeChannelValue } from "@/features/records/channel-value";
 import {
-  Resource,
   Action,
   MessagingMessageDirection,
   MessagingMessageOrigin,
   MessagingProvider,
   MessagingThreadType,
+  Resource,
 } from "@/generated/prisma";
-import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Write } from "@/core/decorators/write.decorator";
-import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { CustomErrorCode } from "@/core/validation/validation.types";
-import { normalizeChannelValue } from "@/features/contacts/channel-value";
-import {
-  LINKEDIN_PRODUCTS,
-  LINKEDIN_PRODUCT_PRIMARY_INBOX,
-  isDraftThreadId,
-  isHandleProvider,
-  type LinkedinProduct,
-} from "../provider";
 import {
   DraftRevisionSchema,
   draftRevisionMatches,
@@ -39,6 +32,13 @@ import {
   hasCompleteDraftBinding,
   type DraftThreadTarget,
 } from "../draft-thread";
+import {
+  LINKEDIN_PRODUCTS,
+  LINKEDIN_PRODUCT_PRIMARY_INBOX,
+  isDraftThreadId,
+  isHandleProvider,
+  type LinkedinProduct,
+} from "../provider";
 import { formatRetryAfter } from "../retry-after";
 import { EMPTY_ATTENDEE, buildChatAttendee } from "../unipile.mappers";
 import { UnipileInboxSchema } from "../unipile.schema";

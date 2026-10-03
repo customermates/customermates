@@ -2,7 +2,8 @@ import type { GetResult } from "@/core/base/base-get.interactor";
 
 import { z } from "zod";
 
-import { EntityType, MessagingProvider, MessagingThreadType } from "@/generated/prisma";
+import { MessagingProvider, MessagingThreadType } from "@/generated/prisma";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 import { CalendarEventSchema } from "@/ee/calendar/calendar.schema";
 import {
   GetQueryParamsApiSchema,
@@ -21,6 +22,8 @@ import { MessagingProviderSchema } from "../messaging.schema";
 import { AuditChangeSchema } from "@/features/audit-log/audit-log-changes";
 import { ACTIVITY_RELATED_RECORD_LIMIT } from "./activity-record-refs";
 import { ACTIVITY_MAX_PAGE, ActivityScopeSchema } from "./activity-scope.schema";
+import { RecordRefSchema } from "@/features/records/record-model.schema";
+import { RecordHistoryChangesSchema } from "@/features/records/record-event.schema";
 
 const CalendarEventDtoSchema = CalendarEventSchema.pick({
   id: true,
@@ -60,12 +63,20 @@ export const ActivityThreadRefSchema = z.object({
 
 export type ActivityThreadRef = z.infer<typeof ActivityThreadRefSchema>;
 
-export const ActivityRecordRefSchema = z.object({
+const LegacyActivityRecordRefSchema = z.object({
   entityType: z.enum(EntityType),
   id: z.uuid(),
   label: z.string(),
   avatarUrl: z.string().nullish(),
 });
+
+export const GenericActivityRecordRefSchema = z.object({
+  ref: RecordRefSchema,
+  label: z.string(),
+  avatarUrl: z.string().nullable(),
+  icon: z.string(),
+});
+export const ActivityRecordRefSchema = z.union([GenericActivityRecordRefSchema, LegacyActivityRecordRefSchema]);
 
 export type ActivityRecordRefDto = z.infer<typeof ActivityRecordRefSchema>;
 
@@ -79,12 +90,22 @@ export type ActivityRecordContextDto = z.infer<typeof ActivityRecordContextSchem
 
 export const ActivityEntryDtoSchema = z.union([
   z.object({
+    kind: z.literal("record"),
+    id: z.string(),
+    at: z.date(),
+    actor: ActorSchema,
+    event: z.enum(["record.created", "record.updated", "record.deleted"]),
+    changes: RecordHistoryChangesSchema,
+    records: ActivityRecordContextSchema,
+  }),
+  z.object({
     kind: z.literal("audit"),
     id: z.string(),
     at: z.date(),
     actor: ActorSchema,
     event: z.string(),
     changes: z.array(AuditChangeSchema),
+    recordChanges: RecordHistoryChangesSchema.optional(),
     records: ActivityRecordContextSchema,
   }),
   z.object({
@@ -113,7 +134,7 @@ export const ActivityEntryDtoSchema = z.union([
 ]);
 
 export type ActivityEntryDto = z.infer<typeof ActivityEntryDtoSchema>;
-export type ActivityKind = ActivityEntryDto["kind"];
+export type ActivityKind = Exclude<ActivityEntryDto["kind"], "record">;
 
 export const ACTIVITY_KINDS = ["audit", "message", "activity", "calendar_event"] as const;
 

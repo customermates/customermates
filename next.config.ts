@@ -30,9 +30,7 @@ const nextConfig: NextConfig = {
 
   htmlLimitedBots: /.*/,
 
-  devIndicators: {
-    position: "top-left",
-  },
+  devIndicators: process.env.CRM_LOCAL_TEST_TRANSPORT === "true" ? false : { position: "top-left" },
 
   compress: true,
 
@@ -41,6 +39,7 @@ const nextConfig: NextConfig = {
   },
 
   experimental: {
+    ...(process.env.CRM_LOCAL_TEST_TRANSPORT === "true" ? { turbopackFileSystemCacheForDev: false } : {}),
     globalNotFound: true,
     serverActions: {
       bodySizeLimit: "25mb",

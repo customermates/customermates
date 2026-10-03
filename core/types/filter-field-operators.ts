@@ -1,4 +1,4 @@
-import { CustomColumnType } from "@/generated/prisma";
+import { CustomColumnType } from "@/core/data-view/column-presentation.types";
 
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 

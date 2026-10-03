@@ -1,10 +1,10 @@
-import { EntityType, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 import type { EntityTerminologyOverride, TerminologyForm, TerminologySelectionMap } from "./entity-terminology.types";
 
 export const FILTER_FIELD_TERMINOLOGY: Record<string, { entityType: EntityType; form: TerminologyForm }> = {
   contactIds: { entityType: EntityType.contact, form: "singular" },
-  participantContactId: { entityType: EntityType.contact, form: "singular" },
   organizationIds: { entityType: EntityType.organization, form: "singular" },
   dealIds: { entityType: EntityType.deal, form: "singular" },
   serviceIds: { entityType: EntityType.service, form: "singular" },

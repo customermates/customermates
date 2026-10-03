@@ -21,7 +21,7 @@ import { PrismaAgentChatRepo } from "@/ee/agent-chat/prisma-agent-chat.repositor
 import { DeleteRoutineInteractor } from "../delete-routine.interactor";
 import { FailRoutineRunInteractor } from "../fail-routine-run.interactor";
 import { PauseRoutineInteractor } from "../pause-routine.interactor";
-import { PrismaRoutineRepo } from "../prisma-routine.repository";
+import { createTestRoutineRepo } from "@/tests/helpers/record-delivery";
 import { ReconcileRoutineRunsInteractor } from "../reconcile-routine-runs.interactor";
 import { ReleaseOwnerRoutinesInteractor } from "../release-owner-routines.interactor";
 import { RoutineLimitExceededError } from "../routine-run-limits";
@@ -212,9 +212,9 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
 
     const [referenced, watched, crossTenantReference] = await runWithTenant(tenant(ownerId), () =>
       Promise.all([
-        new PrismaRoutineRepo().hasRoutineFieldReference(referencedField),
-        new PrismaRoutineRepo().hasRoutineFieldReference(watchedField),
-        new PrismaRoutineRepo().hasRoutineFieldReference(otherCompanyField),
+        createTestRoutineRepo().hasRoutineFieldReference(referencedField),
+        createTestRoutineRepo().hasRoutineFieldReference(watchedField),
+        createTestRoutineRepo().hasRoutineFieldReference(otherCompanyField),
       ]),
     );
 
@@ -234,7 +234,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
 
     await client.query('UPDATE "User" SET "roleId" = $1 WHERE "id" = $2', [memberRoleId, teammateId]);
     const pauseResult = await runWithTenant(staleAdmin, () =>
-      new PauseRoutineInteractor(new PrismaRoutineRepo(), eventServiceStub()).invoke({ routineId }),
+      new PauseRoutineInteractor(createTestRoutineRepo(), eventServiceStub()).invoke({ routineId }),
     );
 
     await client.query('UPDATE "User" SET "roleId" = $1, "status" = $2 WHERE "id" = $3', [
@@ -243,7 +243,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
       teammateId,
     ]);
     const deleteResult = await runWithTenant(staleAdmin, () =>
-      new DeleteRoutineInteractor(new PrismaRoutineRepo(), eventServiceStub()).invoke({
+      new DeleteRoutineInteractor(createTestRoutineRepo(), eventServiceStub()).invoke({
         id: routineId,
       }),
     );
@@ -269,13 +269,13 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
 
   it("hides another company's routine from a routine lookup", async () => {
     await expect(
-      runWithTenant(tenant(ownerId), () => new PrismaRoutineRepo().getRoutineByIdOrThrow(otherRoutineId)),
+      runWithTenant(tenant(ownerId), () => createTestRoutineRepo().getRoutineByIdOrThrow(otherRoutineId)),
     ).rejects.toThrow();
   });
 
   it("lists only the caller's company when finding event routines", async () => {
     const routines = await runWithTenant(tenant(ownerId), () =>
-      new PrismaRoutineRepo().findEventRoutinesUnscoped(companyId, "contact.updated"),
+      createTestRoutineRepo().findEventRoutinesUnscoped(companyId, "contact.updated"),
     );
 
     expect(routines.map((routine) => routine.id)).toEqual([routineId]);
@@ -293,7 +293,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
     );
 
     await runWithTenant(tenant(ownerId), () =>
-      new PrismaRoutineRepo().upsertRoutineOrThrow({
+      createTestRoutineRepo().upsertRoutineOrThrow({
         id: scheduledRoutineId,
         triggerKind: "event",
         triggerEvents: ["deal.updated"],
@@ -370,7 +370,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
       await blocker.query("SELECT pg_advisory_xact_lock(hashtextextended($1, 0))", [raceCompanyId]);
 
       firstWrite = runWithTenant(tenant(raceOwnerId, raceCompanyId), () =>
-        new PrismaRoutineRepo().upsertRoutineOrThrow({
+        createTestRoutineRepo().upsertRoutineOrThrow({
           id: raceRoutineId,
           triggerKind: "event",
           triggerEvents: ["deal.updated"],
@@ -379,7 +379,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
       await waitForWaiters(1);
 
       staleWrite = runWithTenant(tenant(raceOwnerId, raceCompanyId), () =>
-        new PrismaRoutineRepo().upsertRoutineOrThrow({
+        createTestRoutineRepo().upsertRoutineOrThrow({
           id: raceRoutineId,
           triggerEvents: [],
         }),
@@ -422,7 +422,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
       [corruptedEventRoutineId, companyId, ownerId, new Date(now.getTime() - 60_000)],
     );
 
-    const due = await runWithoutTenant(() => new PrismaRoutineRepo().findDueRoutinesUnscoped(now, 100));
+    const due = await runWithoutTenant(() => createTestRoutineRepo().findDueRoutinesUnscoped(now, 100));
 
     expect(due.map((routine) => routine.id)).not.toContain(corruptedEventRoutineId);
   });
@@ -439,7 +439,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
 
     const createRoutine = (name: string, limit: number | "unlimited") =>
       runWithTenant(tenant(quotaOwnerId, quotaCompanyId), () =>
-        new PrismaRoutineRepo().upsertRoutineOrThrow(
+        createTestRoutineRepo().upsertRoutineOrThrow(
           {
             name,
             prompt: "Do something",
@@ -490,7 +490,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
     try {
       for (let index = 1; index <= 5; index += 1) {
         await runWithTenant(tenant(firstOwnerId, quotaCompanyId), () =>
-          new PrismaRoutineRepo().upsertRoutineOrThrow(
+          createTestRoutineRepo().upsertRoutineOrThrow(
             {
               name: `First owner's Pro routine ${index}`,
               prompt: "Do something",
@@ -504,7 +504,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
 
       await expect(
         runWithTenant(tenant(secondOwnerId, quotaCompanyId), () =>
-          new PrismaRoutineRepo().upsertRoutineOrThrow(
+          createTestRoutineRepo().upsertRoutineOrThrow(
             {
               name: "Second owner's first Pro routine",
               prompt: "Do something",
@@ -518,7 +518,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
 
       await expect(
         runWithTenant(tenant(firstOwnerId, quotaCompanyId), () =>
-          new PrismaRoutineRepo().upsertRoutineOrThrow(
+          createTestRoutineRepo().upsertRoutineOrThrow(
             {
               name: "First owner's sixth Business routine",
               prompt: "Do something",
@@ -573,7 +573,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
     );
 
     try {
-      const repo = new PrismaRoutineRepo();
+      const repo = createTestRoutineRepo();
       await client.query('UPDATE "User" SET "status" = \'inactive\' WHERE "id" = $1', [activeOwnerId]);
       await expect(
         runWithTenant(tenant(activeOwnerId, eligibilityCompanyId), () =>
@@ -614,7 +614,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
 
   it("refuses to admit an event run for a routine outside the named company", async () => {
     const admitted = await runWithTenant(tenant(ownerId), () =>
-      new PrismaRoutineRepo().admitEventRoutineRunsUnscoped({
+      createTestRoutineRepo().admitEventRoutineRunsUnscoped({
         companyId,
         event: "contact.updated",
         entityId: null,
@@ -628,7 +628,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
   });
 
   it("shows a company routine and its owner to another active member", async () => {
-    const result = await runWithTenant(tenant(teammateId), () => new PrismaRoutineRepo().getItems({}));
+    const result = await runWithTenant(tenant(teammateId), () => createTestRoutineRepo().getItems({}));
     const visible = result.find((routine) => routine.id === routineId);
 
     expect(visible).toMatchObject({
@@ -667,7 +667,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
       const outcomes = await Promise.all(
         [firstRunId, secondRunId].map((routineRunId) =>
           runWithTenant(tenant(ownerId), () =>
-            new PrismaRoutineRepo().claimQueuedRoutineRunForOwnerUnscoped({
+            createTestRoutineRepo().claimQueuedRoutineRunForOwnerUnscoped({
               routineRunId,
               executedByUserId: ownerId,
               now: new Date(),
@@ -714,7 +714,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
     };
     const claim = (routineRunId: string) =>
       runWithTenant(tenant(ownerId), () =>
-        new PrismaRoutineRepo().claimQueuedRoutineRunForOwnerUnscoped({
+        createTestRoutineRepo().claimQueuedRoutineRunForOwnerUnscoped({
           routineRunId,
           executedByUserId: ownerId,
           now: new Date(),
@@ -801,7 +801,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
 
     await client.query(`UPDATE "User" SET "status" = 'inactive' WHERE "id" = $1`, [inactiveOwnerId]);
 
-    const releaseRepo = new PrismaRoutineRepo();
+    const releaseRepo = createTestRoutineRepo();
     await new ReleaseOwnerRoutinesInteractor(releaseRepo, new ReconcileRoutineRunsInteractor(releaseRepo)).invoke({
       companyId,
       ownerUserId: inactiveOwnerId,
@@ -825,7 +825,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
     ]);
 
     const staleReconcile = await runWithTenant(tenant(ownerId), () =>
-      new PrismaRoutineRepo().settleRoutineRunUnscoped({
+      createTestRoutineRepo().settleRoutineRunUnscoped({
         routineRunId: runningRunId,
         routineId: inactiveRoutineId,
         expectedStatus: "running",
@@ -853,7 +853,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
       clientRequestId: protectedRunId,
     });
     const deleted = await runWithTenant(tenant(ownerId), () =>
-      new PrismaRoutineRepo().deleteRoutineOrThrow(protectedRoutineId),
+      createTestRoutineRepo().deleteRoutineOrThrow(protectedRoutineId),
     );
 
     expect(deleted).toBeNull();
@@ -883,7 +883,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
     const usageId = await insertReservedUsage();
 
     const deleted = await runWithTenant(tenant(ownerId), () =>
-      new PrismaRoutineRepo().deleteRoutineOrThrow(protectedRoutineId),
+      createTestRoutineRepo().deleteRoutineOrThrow(protectedRoutineId),
     );
 
     expect(deleted).toBeNull();
@@ -1044,7 +1044,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
       createdAt: abandonedAt,
     });
     await runWithoutTenant(() =>
-      new PrismaRoutineRepo().prisma.routineRun.updateMany({
+      createTestRoutineRepo().prisma.routineRun.updateMany({
         where: { id: abandonedRunId, companyId },
         data: { startedAt: abandonedAt },
       }),
@@ -1074,7 +1074,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
     ]);
     expect(preAdmissionTurn.rowCount).toBe(0);
 
-    const repo = new PrismaRoutineRepo();
+    const repo = createTestRoutineRepo();
     const orphaned = await runWithTenant(tenant(ownerId), () =>
       repo.findOrphanedRunningRoutineRunsUnscoped(new Date(reconcileAt.getTime() - 10 * 60 * 1000), 1_000),
     );
@@ -1129,7 +1129,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
       }),
     );
 
-    await new FailRoutineRunInteractor(new PrismaRoutineRepo()).invoke({
+    await new FailRoutineRunInteractor(createTestRoutineRepo()).invoke({
       routineRunId: failedRunId,
       expectedExecutorUserId: ownerId,
       reason: "startFailed",
@@ -1165,7 +1165,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
       createdAt: old,
     });
     await runWithoutTenant(() =>
-      new PrismaRoutineRepo().prisma.routineRun.updateMany({
+      createTestRoutineRepo().prisma.routineRun.updateMany({
         where: { id: lateRunId, companyId },
         data: { startedAt: old },
       }),
@@ -1192,7 +1192,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
     ]);
     expect(preAdmissionTurn.rowCount).toBe(0);
 
-    const repo = new PrismaRoutineRepo();
+    const repo = createTestRoutineRepo();
     const orphaned = await runWithTenant(tenant(ownerId), () =>
       repo.findOrphanedRunningRoutineRunsUnscoped(new Date("2020-01-01T00:30:00.000Z"), 1_000),
     );
@@ -1285,7 +1285,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
     );
 
     const deleted = await runWithTenant(tenant(ownerId), () =>
-      new PrismaRoutineRepo().deleteRoutineOrThrow(deletedRoutineId),
+      createTestRoutineRepo().deleteRoutineOrThrow(deletedRoutineId),
     );
 
     expect(deleted?.id).toBe(deletedRoutineId);
@@ -1345,7 +1345,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
     });
     await insertReservedUsage(activeTurnId);
 
-    const repo = new PrismaRoutineRepo();
+    const repo = createTestRoutineRepo();
     const expired = await runWithTenant(tenant(ownerId), () =>
       repo.findExpiredRoutineRunsUnscoped(new Date("2021-01-01T00:00:00.000Z"), 1_000),
     );
@@ -1379,7 +1379,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
       status: "queued",
     });
 
-    const repo = new PrismaRoutineRepo();
+    const repo = createTestRoutineRepo();
     const paused = await runWithTenant(tenant(ownerId), () =>
       repo.upsertRoutineOrThrow({ id: ownerRoutineId, enabled: false }),
     );
@@ -1435,7 +1435,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
       [queuedRunId, companyId, guardedRoutineId, ownerId],
     );
 
-    await runWithTenant(tenant(ownerId), () => new PrismaRoutineRepo().pauseRoutineOrThrow(guardedRoutineId, pausedAt));
+    await runWithTenant(tenant(ownerId), () => createTestRoutineRepo().pauseRoutineOrThrow(guardedRoutineId, pausedAt));
 
     const routine = await client.query<{
       lastRunStatus: string | null;
@@ -1481,7 +1481,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
 
     await expect(
       runWithTenant(tenant(ownerId), () =>
-        new PrismaRoutineRepo().settleRoutineRunUnscoped({
+        createTestRoutineRepo().settleRoutineRunUnscoped({
           routineRunId: runningRunId,
           routineId: guardedRoutineId,
           expectedStatus: "running",

@@ -2,9 +2,12 @@ import type { ContactSeedData } from "./contacts";
 import type { SeedContext } from "./context";
 import type { DealSeedData } from "./deals";
 import type { OrganizationSeedData } from "./organizations";
+import { calculateSyntheticRecords, seedRecordFixtures } from "./records";
 import type { ServiceSeedData } from "./services";
 import type { TaskSeedData } from "./tasks";
 
+import { seedAgentConversations } from "./agent-chat";
+import { seedSyntheticAuditLogs } from "./audit-logs";
 import { seedContacts } from "./contacts";
 import { seedCustomFields } from "./custom-fields";
 import { seedDataViews } from "./data-views";
@@ -15,9 +18,7 @@ import {
   seedLocalHostedAiOperatorAccess,
 } from "./hosted-ai-operator";
 import { seedIdentity } from "./identity";
-import { seedAgentConversations } from "./agent-chat";
 import { seedDemoMessagingFixtures } from "./messaging/seed";
-import { seedSyntheticAuditLogs } from "./audit-logs";
 import { seedOrganizations } from "./organizations";
 import { seedPersonalization } from "./personalization";
 import { seedRelationships } from "./relationships";
@@ -52,10 +53,12 @@ export async function runSyntheticSeed(
   };
 
   const customFieldData = await seedCustomFields(context, entities);
+  await seedRecordFixtures(context, entities, customFieldData);
+  await seedRelationships(context, entities);
+  await calculateSyntheticRecords(context.prisma, context.ids.company);
   await seedWidgets(context, customFieldData);
   await seedDataViews(context, customFieldData);
   await seedPersonalization(context, customFieldData);
-  await seedRelationships(context, entities);
   await seedWebhooks(context);
   await seedDemoMessagingFixtures(context.prisma, {
     companyId: context.ids.company,

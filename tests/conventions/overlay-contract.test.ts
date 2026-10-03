@@ -89,7 +89,7 @@ const PRIMITIVE_DEFAULTS: { file: string; mustContain: string[] }[] = [
 const CONTROLLED_FOCUS_RETURN_SURFACES = [
   "app/components/app-sidebar.tsx",
   "components/modal/app-modal.tsx",
-  "components/entity-detail/entity-drawer.tsx",
+  "app/[locale]/(protected)/records/[typeId]/components/record-editor.tsx",
   "components/modal/unsaved-changes-guard.tsx",
   "components/modal/delete-confirmation-modal.tsx",
   "components/ui/command.tsx",
@@ -435,7 +435,7 @@ describe("overlay contract", () => {
   });
 
   it("keeps task-overlay headers and action footers divider-free", () => {
-    const entityDetail = readFileSync(join(REPO_ROOT, "components/entity-detail/entity-detail-body.tsx"), "utf8");
+    const entityDetail = readFileSync(join(REPO_ROOT, "app/[locale]/(protected)/records/[typeId]/components/record-editor-content.tsx"), "utf8");
     const responsiveOverlay = readFileSync(join(REPO_ROOT, "components/modal/responsive-overlay.tsx"), "utf8");
     const footerViolations = sourcePatternViolations(OVERLAY_FOOTER_DIVIDER);
 
@@ -484,9 +484,9 @@ describe("overlay contract", () => {
     expect(entityDrawerStack).not.toContain(".focus(");
     expect(entityDrawerStack).not.toContain("window.setTimeout(");
 
-    const entityDrawer = readFileSync(join(REPO_ROOT, "components/entity-detail/entity-drawer.tsx"), "utf8");
-    expect(entityDrawer).toContain("if (focusEntityDrawerInvoker())");
-    expect(entityDrawer).toContain("focusReturn.onCloseAutoFocus(event)");
+    const entityDrawer = readFileSync(join(REPO_ROOT, "app/[locale]/(protected)/records/[typeId]/components/record-editor.tsx"), "utf8");
+    expect(entityDrawer).toContain("store.focusReturnTarget, store.focusReturnFallback");
+    expect(entityDrawer).toContain("{...focusReturn}");
 
     const appSidebar = readFileSync(join(REPO_ROOT, "app/components/app-sidebar.tsx"), "utf8");
     expect(appSidebar).toContain("globalSearchModalStore.openFrom(invoker");

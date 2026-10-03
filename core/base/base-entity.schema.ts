@@ -1,7 +1,7 @@
 import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
-import { TaskType } from "@/generated/prisma";
+import { TaskType } from "@/features/records/history/v1/legacy-enums";
 
 export const NotesSchema = z
   .any()

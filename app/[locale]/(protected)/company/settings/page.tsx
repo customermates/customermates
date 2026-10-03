@@ -13,10 +13,7 @@ export default async function CompanySettingsPage() {
 
   return (
     <PageContainer>
-      <CompanySettingsForm
-        currency={companyResult.data.currency}
-        dealWeightingColumnId={companyResult.data.dealWeightingColumnId}
-      />
+      <CompanySettingsForm currency={companyResult.data.currency} />
     </PageContainer>
   );
 }

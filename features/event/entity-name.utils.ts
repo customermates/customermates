@@ -1,9 +1,9 @@
 import type { MessagingProvider } from "@/generated/prisma";
 import type { DomainEventMap } from "./domain-events";
 
-import { TaskType } from "@/generated/prisma";
+import { TaskType } from "@/features/records/history/v1/legacy-enums";
 
-import { getSystemTaskNameTranslationKey } from "@/app/[locale]/(protected)/tasks/components/system-task.config";
+import { getSystemTaskNameTranslationKey } from "@/features/records/protected-task-labels";
 
 import { DomainEvent } from "./domain-events";
 

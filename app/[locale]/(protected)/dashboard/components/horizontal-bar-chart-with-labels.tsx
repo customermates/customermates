@@ -1,19 +1,18 @@
 "use client";
 
 import type { ChartDataPoint } from "./chart.types";
-import { isCurrencyAggregation } from "@/features/widget/widget-aggregation";
 
 import { Bar, BarChart, LabelList, XAxis, YAxis, Cell } from "recharts";
 import { observer } from "mobx-react-lite";
-import type { AggregationType } from "@/generated/prisma";
+import { useReducedMotion } from "framer-motion";
 
-import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
+import { useChartFormatter } from "./use-chart-formatter";
 import { ChartTooltip } from "@/components/chart/chart-tooltip";
 
 import { DashboardChartContainer } from "./dashboard-chart-container";
 
 type Props = {
-  aggregationType?: AggregationType;
+  currency?: string | null;
   chartData: ChartDataPoint[];
   textColor: string;
   reverseXAxis?: boolean;
@@ -32,14 +31,14 @@ function truncateToWidth(text: string, maxWidth: number) {
 }
 
 export const HorizontalBarChartWithLabels = observer(
-  ({ aggregationType, chartData, textColor, reverseXAxis, reverseYAxis }: Props) => {
-    const intlStore = useHydratedIntlStore();
+  ({ currency, chartData, textColor, reverseXAxis, reverseYAxis }: Props) => {
+    const formatValue = useChartFormatter(currency);
+    const reducedMotion = useReducedMotion();
 
-    const formatValue = (value: number) =>
-      isCurrencyAggregation(aggregationType) ? intlStore.formatCurrency(value) : intlStore.formatNumber(value);
-
-    const maxValue = chartData[0].value;
-    const formattedMaxValue = formatValue(maxValue);
+    const formattedMaxValue = chartData.reduce((longest, entry) => {
+      const text = entry.formattedValue ?? formatValue(entry.value);
+      return text.length > longest.length ? text : longest;
+    }, "");
 
     const valueMargin = Math.max(formattedMaxValue.length * CHAR_WIDTH + 12, 56);
     const right = reverseXAxis ? 0 : valueMargin;
@@ -50,7 +49,7 @@ export const HorizontalBarChartWithLabels = observer(
         <BarChart data={chartData} layout="vertical" margin={{ right, left }}>
           <XAxis
             hide
-            domain={[0, "dataMax"]}
+            domain={[(minimum: number) => Math.min(0, minimum), (maximum: number) => Math.max(0, maximum)]}
             padding={{ right: 1, left: 1 }}
             reversed={Boolean(reverseXAxis)}
             type="number"
@@ -58,9 +57,9 @@ export const HorizontalBarChartWithLabels = observer(
 
           <YAxis hide dataKey="label" reversed={Boolean(reverseYAxis)} type="category" />
 
-          <ChartTooltip aggregationType={aggregationType} />
+          <ChartTooltip currency={currency} />
 
-          <Bar dataKey="value" radius={4}>
+          <Bar dataKey="value" isAnimationActive={reducedMotion === false} radius={4}>
             {chartData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={entry.fill} stroke={entry.strokeColor} strokeWidth={1.5} />
             ))}
@@ -92,8 +91,9 @@ export const HorizontalBarChartWithLabels = observer(
             />
 
             <LabelList
-              dataKey="value"
+              dataKey={chartData.some((entry) => entry.formattedValue !== undefined) ? "formattedValue" : "value"}
               formatter={(value) => {
+                if (typeof value === "string") return value;
                 const numValue = typeof value === "number" ? value : Number(value) || 0;
                 return formatValue(numValue);
               }}

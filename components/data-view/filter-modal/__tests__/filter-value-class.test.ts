@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import type { Filter } from "@/core/base/base-get.schema";
+import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 import type { FilterValueClass } from "../filter-value-class";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 
 import {
   resolveFilterDateGranularity,

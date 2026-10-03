@@ -34,9 +34,11 @@ describe("shared tabs", () => {
     expect(trigger).toContain("dark:group-data-[variant=segmented]/tabs-list:data-[state=active]:bg-primary/5");
   });
 
-  it("gives the widget editor the segmented variant", () => {
+  it("keeps widget configuration in one linear form", () => {
     const widgetModal = read("app/[locale]/(protected)/dashboard/components/widget-modal.tsx");
 
-    expect(widgetModal).toContain('variant="segmented"');
+    expect(widgetModal).toContain('data-widget-editor="linear"');
+    expect(widgetModal).toContain('section="all"');
+    expect(widgetModal).not.toContain("<Tabs");
   });
 });

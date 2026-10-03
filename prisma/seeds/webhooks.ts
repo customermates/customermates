@@ -1,13 +1,15 @@
-import type { ContactDto } from "@/features/contacts/contact.schema";
-import type { DealDto } from "@/features/deals/deal.schema";
+import { seedRecordEventSubscription } from "./record-event-subscriptions";
 import type { DomainEventMap } from "@/features/event/domain-events";
-import type { OrganizationDto } from "@/features/organizations/organization.schema";
+import type { ContactDto } from "@/features/records/history/v1/contact.schema";
+import type { DealDto } from "@/features/records/history/v1/deal.schema";
+import type { OrganizationDto } from "@/features/records/history/v1/organization.schema";
 import type { Prisma } from "@/generated/prisma";
+import { historicalRecordFixtureRows } from "./historical-record-fixtures";
 
-import { ContactDtoSchema } from "@/features/contacts/contact.schema";
-import { DealDtoSchema } from "@/features/deals/deal.schema";
 import { DomainEvent } from "@/features/event/domain-events";
-import { OrganizationDtoSchema } from "@/features/organizations/organization.schema";
+import { ContactDtoSchema } from "@/features/records/history/v1/contact.schema";
+import { DealDtoSchema } from "@/features/records/history/v1/deal.schema";
+import { OrganizationDtoSchema } from "@/features/records/history/v1/organization.schema";
 
 import type { SeedContext } from "./context";
 
@@ -16,7 +18,6 @@ import {
   SYNTHETIC_PREVIOUS_DEAL_NAMES,
   SYNTHETIC_PREVIOUS_ORGANIZATION_NAMES,
 } from "./audit-logs";
-import { dealSeedSelect } from "./deal-select";
 import { fixtureId, upsertFixturesById } from "./helpers";
 import { SYNTHETIC_SEED_TIMELINE } from "./timeline";
 
@@ -166,26 +167,6 @@ export const SYNTHETIC_WEBHOOK_DELIVERY_DEFINITIONS = [
   },
 ] as const satisfies ReadonlyArray<DeliveryDefinition>;
 
-const userReferenceSelect = {
-  id: true,
-  firstName: true,
-  lastName: true,
-  avatarUrl: true,
-  email: true,
-} as const;
-
-const contactReferenceSelect = {
-  id: true,
-  firstName: true,
-  lastName: true,
-  avatarUrl: true,
-} as const;
-
-const organizationReferenceSelect = { id: true, name: true } as const;
-const dealReferenceSelect = { id: true, name: true } as const;
-const taskReferenceSelect = { id: true, name: true, type: true } as const;
-const customFieldValueSelect = { columnId: true, value: true } as const;
-
 function inputJson(value: unknown): Prisma.InputJsonValue {
   return JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue;
 }
@@ -217,58 +198,9 @@ async function loadWebhookSnapshots(context: SeedContext): Promise<WebhookSnapsh
   const organizationIds = fixtureIds("organization");
 
   const [contactRows, dealRows, organizationRows] = await Promise.all([
-    prisma.contact.findMany({
-      where: { id: { in: contactIds }, companyId: ids.company },
-      orderBy: { id: "asc" },
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-        avatarUrl: true,
-        notes: true,
-        createdAt: true,
-        updatedAt: true,
-        identifiers: {
-          orderBy: { createdAt: "asc" },
-          select: {
-            id: true,
-            provider: true,
-            value: true,
-            messagingId: true,
-            displayName: true,
-            profileUrl: true,
-          },
-        },
-        organizations: {
-          select: { organization: { select: organizationReferenceSelect } },
-        },
-        users: { select: { user: { select: userReferenceSelect } } },
-        deals: { select: { deal: { select: dealReferenceSelect } } },
-        tasks: { select: { task: { select: taskReferenceSelect } } },
-        customFieldValues: { select: customFieldValueSelect },
-      },
-    }),
-    prisma.deal.findMany({
-      where: { id: { in: dealIds }, companyId: ids.company },
-      orderBy: { id: "asc" },
-      select: dealSeedSelect,
-    }),
-    prisma.organization.findMany({
-      where: { id: { in: organizationIds }, companyId: ids.company },
-      orderBy: { id: "asc" },
-      select: {
-        id: true,
-        name: true,
-        notes: true,
-        createdAt: true,
-        updatedAt: true,
-        contacts: { select: { contact: { select: contactReferenceSelect } } },
-        users: { select: { user: { select: userReferenceSelect } } },
-        deals: { select: { deal: { select: dealReferenceSelect } } },
-        tasks: { select: { task: { select: taskReferenceSelect } } },
-        customFieldValues: { select: customFieldValueSelect },
-      },
-    }),
+    historicalRecordFixtureRows(prisma, ids.company, "contact", contactIds),
+    historicalRecordFixtureRows(prisma, ids.company, "deal", dealIds),
+    historicalRecordFixtureRows(prisma, ids.company, "organization", organizationIds),
   ]);
 
   if (contactRows.length !== contactIds.length)
@@ -436,14 +368,20 @@ export async function seedWebhooks(context: SeedContext): Promise<void> {
     companyId: ids.company,
     description: SYNTHETIC_WEBHOOK_DESCRIPTION,
     enabled: false,
-    events: [
-      DomainEvent.CONTACT_CREATED,
-      DomainEvent.CONTACT_UPDATED,
-      DomainEvent.DEAL_CREATED,
-      DomainEvent.DEAL_UPDATED,
-      DomainEvent.ORGANIZATION_CREATED,
-      DomainEvent.ORGANIZATION_UPDATED,
-    ],
+    events: await seedRecordEventSubscription(context, {
+      id: fixtureId("22000000", 1),
+      kind: "webhook",
+      ownerUserId: ids.user,
+      enabled: false,
+      events: [
+        DomainEvent.CONTACT_CREATED,
+        DomainEvent.CONTACT_UPDATED,
+        DomainEvent.DEAL_CREATED,
+        DomainEvent.DEAL_UPDATED,
+        DomainEvent.ORGANIZATION_CREATED,
+        DomainEvent.ORGANIZATION_UPDATED,
+      ],
+    }),
     createdAt: SYNTHETIC_SEED_TIMELINE.webhook.createdAt,
     secret: null,
     url: SYNTHETIC_WEBHOOK_URL,

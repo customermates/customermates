@@ -1,3 +1,6 @@
+import { InitializeRecordModelService } from "@/features/records/initialize-record-model.service";
+import { PrismaRecordRepo } from "@/features/records/prisma-record.repository";
+import { runWithTenant } from "@/core/decorators/tenant-context";
 import type { TenantUser } from "@/features/user/user.schema";
 
 import { randomUUID } from "node:crypto";
@@ -134,6 +137,7 @@ describeDatabase("deactivating a teammate and the routines it disables", { timeo
         data: [seedRoutine(routineA, "Daily digest"), seedRoutine(routineB, "Stale deal sweep")],
       });
     });
+    await runWithTenant(actingAdmin, () => new InitializeRecordModelService(new PrismaRecordRepo()).initialize());
   });
 
   afterAll(async () => {

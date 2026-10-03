@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { EntityType } from "@/generated/prisma";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 import {
   carriesChangedFields,
@@ -55,7 +55,12 @@ describe("event entity types", () => {
 describe("changed field extraction", () => {
   it("reads the changed field names from an update payload", () => {
     const eventData = {
-      payload: { changes: { firstName: { previous: "A", current: "B" }, notes: { previous: 1, current: 2 } } },
+      payload: {
+        changes: {
+          firstName: { previous: "A", current: "B" },
+          notes: { previous: 1, current: 2 },
+        },
+      },
     };
 
     expect(changedFieldsOf(eventData).sort()).toEqual(["firstName", "notes"]);
@@ -103,7 +108,12 @@ describe("the picker and the change map speak the same vocabulary", () => {
   };
 
   it("offers every plain field an organization update can report", () => {
-    const current = { ...previous, name: "After", notes: "new", users: [{ id: "u1" }] };
+    const current = {
+      ...previous,
+      name: "After",
+      notes: "new",
+      users: [{ id: "u1" }],
+    };
     const produced = Object.keys(calculateChanges(previous, current));
     const offered = new Set(ROUTINE_CHANGE_FIELDS[EntityType.organization]);
 

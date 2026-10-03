@@ -1,62 +1,43 @@
 "use client";
 
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
-import type { FilterableField } from "@/core/base/base-get.schema";
-
 import { useEffect } from "react";
+import { RecordActivityWidgetEditor } from "./record-activity-widget-editor";
+
+import { WidgetKind } from "@/generated/prisma";
+import { ChevronsUpDownIcon, Trash2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
-import { ChevronsUpDownIcon, Trash2 } from "lucide-react";
-import { EntityType, WidgetGroupByType, WidgetKind } from "@/generated/prisma";
 
-import { AppModal } from "@/components/modal";
-import { AppForm } from "@/components/forms/form-context";
 import { AppCard } from "@/components/card/app-card";
-import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
+import { AppCardHeader } from "@/components/card/app-card-header";
 import { FormActions } from "@/components/card/form-actions";
-import { FormInput } from "@/components/forms/form-input";
-import { FormSelect } from "@/components/forms/form-select";
-import { FormSwitch } from "@/components/forms/form-switch";
+import { AppForm } from "@/components/forms/form-context";
 import { FormLabel } from "@/components/forms/form-label";
+import { FormInput } from "@/components/forms/form-input";
+import { FormSwitch } from "@/components/forms/form-switch";
+import { AppModal } from "@/components/modal";
+import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Skeleton } from "@/components/ui/skeleton";
+import { getChartColors } from "@/constants/chart-colors";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import type { ChartColor } from "@/features/widget/widget.schema";
 import { DisplayType } from "@/features/widget/widget.schema";
-import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
-import { FilterAccordion } from "@/components/data-view/filter-modal/filter-accordion";
-import { getChartColors } from "@/constants/chart-colors";
-import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
-import { ActivityQueryProvider } from "@/features/messaging/activities/activity-query-context";
 
-import { ActivityFilterFields } from "./activity-filter-fields";
-import { useAggregationTypeLabel } from "./use-aggregation-type-label";
+import { runUserAction } from "@/core/errors/report-application-error";
+import { RecordWidgetEditor } from "./record-widget-editor";
 import { WidgetDisplayTypePicker } from "./widget-display-type-picker";
 import { WIDGET_EDITOR_GRID_CLASS } from "./widget-editor-layout";
-import { WidgetPreview } from "./widget-preview";
 import { WidgetStarterPicker } from "./widget-starter-picker";
-import { WizardProgress } from "@/components/shared/wizard-progress";
-import { runUserAction } from "@/core/errors/report-application-error";
-
-type Props = {
-  customColumns: CustomColumnDto[];
-  filterableFields: Record<EntityType, FilterableField[]>;
-  activityFilterableFields: FilterableField[];
-};
-
-type EditorTab = "data" | "filters" | "appearance";
 
 function WidgetModalSkeleton() {
   const t = useTranslations();
@@ -80,17 +61,8 @@ function WidgetModalSkeleton() {
   );
 }
 
-function tabForSection(section: string, kind: WidgetKind): EditorTab {
-  if (section === "activityFilters") return kind === WidgetKind.activityTimeline ? "data" : "filters";
-  if (section === "filters" || section === "dealFilters") return "filters";
-  if (section === "display") return "appearance";
-  return "data";
-}
-
-export const WidgetModal = observer(({ customColumns, filterableFields, activityFilterableFields }: Props) => {
+export const WidgetModal = observer(() => {
   const t = useTranslations();
-  const aggregationTypeLabel = useAggregationTypeLabel();
-  const { plural, singular } = useEntityTerminology();
   const { widgetModalStore } = useRootStore();
   const { showDeleteConfirmation } = useDeleteConfirmation();
   const { resolvedTheme } = useTheme();
@@ -98,17 +70,7 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
   const chartColors = getChartColors(resolvedTheme);
   const isCreate = !form.id;
   const canDeleteWidget = !isCreate && canManage && Boolean(form.id);
-  const activeTab = tabForSection(widgetModalStore.expandedSection, form.kind);
-  const activeFilterCount =
-    form.kind === WidgetKind.chart
-      ? widgetModalStore.activeFiltersCount + widgetModalStore.activeDealFiltersCount
-      : widgetModalStore.activeTimelineFiltersCount;
   const isChooseStep = isCreate && widgetModalStore.creationStep === "choose";
-  const creationStepNumber = isChooseStep ? 1 : 2;
-  const progressText = t("Dashboard.widgetEditor.progress", {
-    current: creationStepNumber,
-    total: 2,
-  });
   const dialogTitle = isChooseStep
     ? t("Dashboard.widgetEditor.kind.title")
     : isCreate
@@ -117,178 +79,55 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
   const saveDisabled = isDisabled || !form.name.trim() || (!isCreate && !widgetModalStore.hasUnsavedChanges);
 
   useEffect(() => {
-    widgetModalStore.setCustomColumns(customColumns);
-    widgetModalStore.setFilterableFields(filterableFields);
-    widgetModalStore.setActivityFilterableFields(activityFilterableFields);
-  }, [activityFilterableFields, customColumns, filterableFields, widgetModalStore]);
-
-  function setActiveTab(next: string) {
-    if (next === "filters") {
-      widgetModalStore.setExpandedSection(form.kind === WidgetKind.chart ? "filters" : "activityFilters");
+    if (
+      !widgetModalStore.isOpen ||
+      widgetModalStore.isHydrating ||
+      isChooseStep ||
+      widgetModalStore.expandedSection === "config"
+    )
       return;
-    }
-    widgetModalStore.setExpandedSection(next === "appearance" ? "display" : "config");
-  }
+    const frame = requestAnimationFrame(() => {
+      const id = widgetModalStore.expandedSection === "display" ? "widget-config-appearance" : "widget-config-filters";
+      const section = document.getElementById(id);
+      section?.scrollIntoView({ block: "start" });
+      section?.querySelector<HTMLElement>("input, button, [tabindex='0']")?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [
+    widgetModalStore,
+    widgetModalStore.isOpen,
+    widgetModalStore.isHydrating,
+    widgetModalStore.expandedSection,
+    isChooseStep,
+  ]);
 
   function goBackToKindStep() {
     const selectedKind = form.kind;
     widgetModalStore.setCreationStep("choose");
     requestAnimationFrame(() => document.getElementById(`widget-kind-${selectedKind}`)?.focus());
   }
-
-  function renderChartData() {
-    if (form.kind !== WidgetKind.chart) return null;
-
-    return (
-      <div className="grid gap-4 sm:grid-cols-2">
-        <FormSelect
-          required
-          id="entityType"
-          items={widgetModalStore.availableEntityTypes.map((entityType) => ({
-            value: entityType,
-            label: singular(entityType),
-          }))}
-          label={t("Common.inputs.entityType")}
-        />
-
-        <FormSelect
-          required
-          id="aggregationType"
-          items={widgetModalStore.aggregationTypeOptions.map(({ key }) => ({
-            value: key,
-            label: aggregationTypeLabel(key, form.entityType),
-          }))}
-          label={t("Common.inputs.aggregationType")}
-        />
-
-        <div className="space-y-1.5 sm:col-span-2">
-          <FormLabel htmlFor="groupByValue">{t("Common.inputs.groupByValue")}</FormLabel>
-
-          <Select
-            disabled={isDisabled}
-            value={widgetModalStore.groupBySelectValue}
-            onValueChange={widgetModalStore.onGroupByChange}
-          >
-            <SelectTrigger className="w-full" id="groupByValue">
-              <SelectValue placeholder=" " />
-            </SelectTrigger>
-
-            <SelectContent>
-              {widgetModalStore.groupBySelectOptions.map((option) => {
-                const isEntityGrouping = Object.values(EntityType).includes(option.key as EntityType);
-                const label = isEntityGrouping
-                  ? singular(option.key as EntityType)
-                  : option.key.startsWith("custom:") && option.label
-                    ? option.label
-                    : t("Dashboard.groupBys.none");
-                return (
-                  <SelectItem key={option.key} value={option.key}>
-                    {label}
-                  </SelectItem>
-                );
-              })}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-    );
-  }
-
   function renderDataSettings() {
-    return (
-      <div className="flex min-w-0 flex-col gap-6">
-        <FormInput required id="name" label={t("Common.inputs.name")} />
+    const appearance = (
+      <section
+        aria-label={t("Dashboard.widgetEditor.tabs.appearance")}
+        className="space-y-4"
+        id="widget-config-appearance"
+      >
+        <h3 className="text-sm font-medium">{t("Dashboard.widgetEditor.tabs.appearance")}</h3>
 
-        {form.kind === WidgetKind.chart ? (
-          renderChartData()
-        ) : (
-          <ActivityQueryProvider filters={form.timelineFilters}>
-            <ActivityFilterFields
-              expandedField={
-                widgetModalStore.expandedSection === "activityFilters"
-                  ? widgetModalStore.expandedFilterField
-                  : undefined
-              }
-              filterableFields={widgetModalStore.activityFilterableFields}
-              filters={form.timelineFilters ?? []}
-              onConnectedAccountChange={widgetModalStore.clearActivityThreadFilter}
-              onExpandedFieldChange={(field) => {
-                widgetModalStore.setExpandedSection("activityFilters");
-                widgetModalStore.setExpandedFilterField(field || undefined);
-              }}
-            />
-          </ActivityQueryProvider>
-        )}
-      </div>
+        {renderAppearanceSettings()}
+      </section>
     );
-  }
-
-  function renderChartFilters() {
-    if (form.kind !== WidgetKind.chart) return null;
-
-    return (
-      <div className="flex min-w-0 flex-col gap-6">
-        <section aria-labelledby="widget-entity-filters-heading" className="space-y-3">
-          <div className="flex items-center justify-between gap-3">
-            <h4 className="text-sm font-medium" id="widget-entity-filters-heading">
-              {t("Dashboard.tabs.filters", {
-                entityType: singular(form.entityType),
-              })}
-            </h4>
-
-            <Badge variant="secondary">{widgetModalStore.activeFiltersCount}</Badge>
-          </div>
-
-          <FilterAccordion
-            baseId="entityFilters"
-            customColumns={widgetModalStore.customColumns}
-            filterableFields={widgetModalStore.filterableFields}
-            filters={form.entityFilters ?? []}
-            value={widgetModalStore.expandedSection === "filters" ? (widgetModalStore.expandedFilterField ?? "") : ""}
-            variant="grouped"
-            onValueChange={(field) => {
-              widgetModalStore.setExpandedSection("filters");
-              widgetModalStore.setExpandedFilterField(field);
-            }}
-          />
-        </section>
-
-        {widgetModalStore.showDealFiltersTab && (
-          <section aria-labelledby="deal-widget-filters-heading" className="space-y-3">
-            <div className="flex items-center justify-between gap-3">
-              <h4 className="text-sm font-medium" id="deal-widget-filters-heading">
-                {t("Dashboard.tabs.dealFilters", {
-                  deals: plural(EntityType.deal),
-                })}
-              </h4>
-
-              <Badge variant="secondary">{widgetModalStore.activeDealFiltersCount}</Badge>
-            </div>
-
-            <FilterAccordion
-              baseId="dealFilters"
-              customColumns={widgetModalStore.customColumnsByEntityType[EntityType.deal]}
-              filterableFields={widgetModalStore.dealFilterableFields}
-              filters={form.dealFilters ?? []}
-              value={
-                widgetModalStore.expandedSection === "dealFilters" ? (widgetModalStore.expandedFilterField ?? "") : ""
-              }
-              variant="grouped"
-              onValueChange={(field) => {
-                widgetModalStore.setExpandedSection("dealFilters");
-                widgetModalStore.setExpandedFilterField(field);
-              }}
-            />
-          </section>
-        )}
-      </div>
+    return form.kind === WidgetKind.chart ? (
+      <RecordWidgetEditor appearance={appearance} section="all" store={widgetModalStore} />
+    ) : (
+      <RecordActivityWidgetEditor appearance={appearance} section="all" store={widgetModalStore} />
     );
   }
 
   function renderColorPicker() {
     if (form.kind !== WidgetKind.chart) return null;
-    if (form.groupByType === WidgetGroupByType.customColumn && form.displayOptions?.useGroupColors !== false)
-      return null;
+    if (Boolean(form.measure.groupBy?.fieldId) && form.displayOptions?.useGroupColors !== false) return null;
 
     return (
       <div className="space-y-1.5">
@@ -368,7 +207,7 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
           onValueChange={(next) => widgetModalStore.onChange("displayOptions.displayType", next)}
         />
 
-        {form.groupByType === WidgetGroupByType.customColumn && (
+        {Boolean(form.measure.groupBy?.fieldId) && (
           <FormSwitch id="displayOptions.useGroupColors" label={t("Common.inputs.displayOptions.useGroupColors")} />
         )}
 
@@ -431,27 +270,14 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
           ? t("Dashboard.widgetEditor.steps.chooseDescription")
           : t("Dashboard.widgetEditor.steps.configureDescription")
       }
-      size={isChooseStep ? "3xl" : "5xl"}
+      size={isChooseStep ? "3xl" : "xl"}
       store={widgetModalStore}
       title={dialogTitle}
     >
       <AppForm store={widgetModalStore}>
         <AppCard>
-          <AppCardHeader className="flex-col items-start gap-4">
-            <div className="min-w-0 flex-1 space-y-1">
-              {isCreate && <p className="text-xs text-muted-foreground">{progressText}</p>}
-
-              <h2 className="min-w-0 break-words text-xl font-semibold">{dialogTitle}</h2>
-            </div>
-
-            {isCreate && (
-              <WizardProgress
-                current={creationStepNumber}
-                label={t("Dashboard.widgetEditor.progressLabel")}
-                total={2}
-                valueText={progressText}
-              />
-            )}
+          <AppCardHeader>
+            <h2 className="min-w-0 break-words text-base font-semibold">{dialogTitle}</h2>
           </AppCardHeader>
 
           <AppCardBody className={isChooseStep ? "md:flex-initial" : "md:min-h-96"}>
@@ -468,56 +294,10 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
                 />
               </div>
             ) : (
-              <div className={WIDGET_EDITOR_GRID_CLASS}>
-                <Tabs className="min-w-0" value={activeTab} onValueChange={setActiveTab}>
-                  <TabsList
-                    aria-label={t("Dashboard.widgetEditor.tabs.label")}
-                    className={form.kind === WidgetKind.chart ? "grid w-full grid-cols-3" : "grid w-full grid-cols-2"}
-                    variant="segmented"
-                  >
-                    <TabsTrigger disabled={isDisabled} id="widget-tab-data" value="data">
-                      {t("Dashboard.widgetEditor.tabs.data")}
-                    </TabsTrigger>
+              <div className="min-w-0 space-y-6" data-widget-editor="linear">
+                <FormInput id="name" label={t("Common.inputs.name")} />
 
-                    {form.kind === WidgetKind.chart && (
-                      <TabsTrigger
-                        aria-label={t("Dashboard.widgetEditor.tabs.filtersLabel", { count: activeFilterCount })}
-                        disabled={isDisabled}
-                        id="widget-tab-filters"
-                        value="filters"
-                      >
-                        {t("Dashboard.widgetEditor.tabs.filters")}
-
-                        {activeFilterCount > 0 && <Badge variant="secondary">{activeFilterCount}</Badge>}
-                      </TabsTrigger>
-                    )}
-
-                    <TabsTrigger disabled={isDisabled} id="widget-tab-appearance" value="appearance">
-                      {t("Dashboard.widgetEditor.tabs.appearance")}
-                    </TabsTrigger>
-                  </TabsList>
-
-                  <TabsContent aria-labelledby="widget-tab-data" className="pt-5" value="data">
-                    {renderDataSettings()}
-                  </TabsContent>
-
-                  {form.kind === WidgetKind.chart && (
-                    <TabsContent aria-labelledby="widget-tab-filters" className="pt-5" value="filters">
-                      {renderChartFilters()}
-                    </TabsContent>
-                  )}
-
-                  <TabsContent aria-labelledby="widget-tab-appearance" className="pt-5" value="appearance">
-                    {renderAppearanceSettings()}
-                  </TabsContent>
-                </Tabs>
-
-                <WidgetPreview
-                  activeFilterCount={activeFilterCount}
-                  activityFilters={widgetModalStore.previewTimelineFilters}
-                  customColumns={widgetModalStore.customColumns}
-                  form={form}
-                />
+                {renderDataSettings()}
               </div>
             )}
           </AppCardBody>

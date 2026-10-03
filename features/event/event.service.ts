@@ -16,8 +16,11 @@ import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
 import { env } from "@/env";
 
 export abstract class GetWebhooksForEventRepo {
-  abstract getWebhooksForEvent(event: string): Promise<{ url: string; events: string[] }[]>;
-  abstract getWebhooksForEventUnscoped(event: string, companyId: string): Promise<{ url: string; events: string[] }[]>;
+  abstract getWebhooksForEvent(event: string): Promise<{ id: string; url: string; events: string[] }[]>;
+  abstract getWebhooksForEventUnscoped(
+    event: string,
+    companyId: string,
+  ): Promise<{ id: string; url: string; events: string[] }[]>;
 }
 
 export abstract class CreateAuditLogRepo {
@@ -210,6 +213,7 @@ export class EventService extends UserAccessor {
     };
 
     const data = webhooks.map((webhook) => ({
+      webhookId: webhook.id,
       url: webhook.url,
       event,
       requestBody: body as Record<string, unknown>,

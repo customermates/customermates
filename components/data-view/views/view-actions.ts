@@ -30,17 +30,19 @@ export function surfaceKeyOf<E extends HasId>(store: BaseDataViewStore<E>): Data
   return store.p13nId as DataViewSurfaceKey;
 }
 
-export function viewHref(pathname: string, viewKey: string): string {
+export function viewHref(pathname: string, viewKey: string, surfaceKey?: DataViewSurfaceKey): string {
+  if (surfaceKey) return `${pathname}?${new URLSearchParams({ view: viewKey, viewSurface: surfaceKey })}`;
   return viewKey === ALL_VIEW_KEY ? pathname : `${pathname}?view=${encodeURIComponent(viewKey)}`;
 }
 
-export function viewLink(pathname: string, viewKey: string): string {
-  return new URL(viewHref(pathname, viewKey), window.location.origin).toString();
+export function viewLink(pathname: string, viewKey: string, surfaceKey?: DataViewSurfaceKey): string {
+  return new URL(viewHref(pathname, viewKey, surfaceKey), window.location.origin).toString();
 }
 
 export function selectView<E extends HasId>(store: BaseDataViewStore<E>, viewKey: string, pathname: string): void {
   store.applyView(viewKey);
-  window.history.pushState(null, "", viewHref(pathname, viewKey));
+  if (store.viewSyncToUrl === false || (store.viewPathname && store.viewPathname !== pathname)) return;
+  window.history.pushState(null, "", viewHref(pathname, viewKey, store.viewPathname ? surfaceKeyOf(store) : undefined));
 }
 
 function unwrap(result: UpsertResult): DataViewChipDto | null {
@@ -132,8 +134,11 @@ export async function deleteView<E extends HasId>(
     return false;
   }
 
-  if (isActive) store.applyView(ALL_VIEW_KEY);
-  else await store.refresh();
+  if (isActive && store.activeViewKey === view.id) {
+    store.applyView(ALL_VIEW_KEY);
+    if (store.viewPathname && store.viewSyncToUrl && window.location.pathname === store.viewPathname)
+      window.history.replaceState(null, "", viewHref(store.viewPathname, ALL_VIEW_KEY, surfaceKeyOf(store)));
+  } else await store.refresh();
 
   return true;
 }

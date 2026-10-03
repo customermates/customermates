@@ -1,6 +1,6 @@
-import type { Filter, FilterableField } from "@/core/base/base-get.schema";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { FilterValueClass } from "@/components/data-view/filter-modal/filter-value-class";
+import type { Filter, FilterableField } from "@/core/base/base-get.schema";
+import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
 
 import { resolveFilterValueClass } from "@/components/data-view/filter-modal/filter-value-class";
 import { FilterOperatorKey, isStandaloneOperator } from "@/core/base/base-query-builder";
@@ -44,7 +44,7 @@ export function declaredOperatorsOf(field: string, filterableFields: FilterableF
 export function palettePlan(
   field: string,
   filterableFields: FilterableField[],
-  customColumns?: CustomColumnDto[],
+  customColumns?: ColumnPresentation[],
 ): PalettePlan {
   const declared = declaredOperatorsOf(field, filterableFields);
   const impliedOperator = PALETTE_OPERATOR_PREFERENCE.find((operator) => declared.includes(operator));

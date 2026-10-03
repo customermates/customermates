@@ -1,14 +1,15 @@
-import type { Root } from "react-dom/client";
-import type { ColumnDef } from "@tanstack/react-table";
-import type { ReactNode } from "react";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { BaseDataViewStore } from "@/core/base/base-data-view.store";
 import type { DataViewGroup, GroupingResult } from "@/core/base/grouping/grouping.schema";
+import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
+import type { ColumnDef } from "@tanstack/react-table";
+import type { ReactNode } from "react";
+import type { Root } from "react-dom/client";
 
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("@/i18n/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 vi.mock("mobx-react-lite", () => ({ observer: <T,>(component: T) => component }));
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, values?: Record<string, unknown>) =>
@@ -123,13 +124,16 @@ export function boardStore(overrides: Partial<BaseDataViewStore<Item>> = {}): Ba
 
 const roots = new Set<Root>();
 
-export function renderBoard(value: BaseDataViewStore<Item>): HTMLElement {
+export function renderBoard(
+  value: BaseDataViewStore<Item>,
+  options: { onCardClick?: (item: Item) => void; cardHref?: (item: Item) => string | undefined } = {},
+): HTMLElement {
   const host = document.createElement("div");
   document.body.append(host);
   const root = createRoot(host);
   roots.add(root);
   act(() => {
-    root.render(createElement(DataKanbanView<Item>, { columns, store: value }) as ReactNode);
+    root.render(createElement(DataKanbanView<Item>, { columns, store: value, ...options }) as ReactNode);
   });
 
   return host;
@@ -173,6 +177,40 @@ describe("board column order and labels", () => {
     expect(loadMoreInGroup).toHaveBeenCalledWith("won");
   });
 
+  it("opens a readable, non-draggable card by pointer or keyboard without disabling its navigation", () => {
+    const onCardClick = vi.fn();
+    const host = renderBoard(boardStore({ canMoveItemBetweenGroups: () => false }), { onCardClick });
+    const card = host.querySelector<HTMLElement>('[data-item-id="e-new"]');
+
+    expect(card).not.toBeNull();
+    expect(card?.getAttribute("role")).toBe("button");
+    expect(card?.getAttribute("tabindex")).toBe("0");
+    expect(card?.hasAttribute("aria-disabled")).toBe(false);
+
+    act(() => card?.click());
+    expect(onCardClick).toHaveBeenCalledWith(ITEMS[1]);
+
+    act(() => card?.focus());
+    expect(document.activeElement).toBe(card);
+
+    for (const key of ["Enter", " "]) {
+      act(() => {
+        card?.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, cancelable: true, key }));
+      });
+    }
+    expect(onCardClick).toHaveBeenCalledTimes(3);
+  });
+
+  it("retains dnd keyboard attributes on a writable card", () => {
+    const host = renderBoard(boardStore(), { onCardClick: vi.fn() });
+    const card = host.querySelector<HTMLElement>('[data-item-id="e-new"]');
+
+    expect(card?.getAttribute("role")).toBe("button");
+    expect(card?.getAttribute("tabindex")).toBe("0");
+    expect(card?.getAttribute("aria-describedby")).toBeTruthy();
+    expect(card?.getAttribute("aria-disabled")).not.toBe("true");
+  });
+
   it("keeps an empty no-value column on the board so a card can be dragged back out of every group", () => {
     const host = renderBoard(
       boardStore({
@@ -213,6 +251,7 @@ describe("board column order and labels", () => {
     const host = renderBoard(
       boardStore({
         canManage: true,
+        schemaSettingsHref: "/company/data-model?typeId=00000000-0000-4000-8000-000000000001",
         currentGroupableFieldId: "",
         groupableFields: [],
         groupingResult: undefined,

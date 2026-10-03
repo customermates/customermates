@@ -1,6 +1,7 @@
 import type { AgentToolIdentity } from "./tool-identity";
 
 import { agentToolIdentityKey, internalToolIdentity, isInternalToolIdentity } from "./tool-identity";
+import { recordToolRisk } from "./record-tool-risk";
 
 export function isReadOnlyTool(tool: { annotations?: Record<string, boolean> }) {
   return tool.annotations?.readOnlyHint === true;
@@ -8,22 +9,21 @@ export function isReadOnlyTool(tool: { annotations?: Record<string, boolean> }) 
 
 type AgentApprovalPolicy =
   | { approvalFree: true }
+  | { inputRisk: (input: unknown) => "read" | "write" | "sensitive" | null }
   | { approvalFreeActions: readonly string[]; readOnlyActions?: readonly string[] };
 
 const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
+  configure_record_model: { inputRisk: (input) => recordToolRisk("configure_record_model", input) },
+  mutate_crm_record: { inputRisk: (input) => recordToolRisk("mutate_crm_record", input) },
+  cancel_crm_operation: { approvalFree: true },
+  resume_crm_operation: { approvalFree: true },
   connect_messaging_account: { approvalFree: true },
-  create_contacts: { approvalFree: true },
-  create_deals: { approvalFree: true },
-  create_organizations: { approvalFree: true },
-  create_services: { approvalFree: true },
-  create_tasks: { approvalFree: true },
   discard_message_draft: { approvalFree: true },
-  manage_custom_columns: { approvalFreeActions: ["list", "upsert"], readOnlyActions: ["list"] },
-  manage_record_links: { approvalFree: true },
   manage_social_relations: {
     approvalFreeActions: ["list", "invite", "accept", "cancel"],
     readOnlyActions: ["list"],
   },
+  manage_roles: { approvalFreeActions: ["read", "save"], readOnlyActions: ["read"] },
   manage_team: { approvalFreeActions: ["update_member"] },
   manage_webhooks: {
     approvalFreeActions: ["list", "get", "list_deliveries", "create", "update"],
@@ -31,8 +31,16 @@ const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
   },
   manage_widgets: { approvalFreeActions: ["list", "get", "create", "update"], readOnlyActions: ["list", "get"] },
   manage_data_views: {
-    approvalFreeActions: ["surfaces", "list", "config", "create", "update", "select"],
+    approvalFreeActions: ["surfaces", "list", "config", "create", "update", "select", "reset"],
     readOnlyActions: ["surfaces", "list", "config"],
+  },
+  manage_record_detail_layout: {
+    approvalFreeActions: ["read", "save", "reset"],
+    readOnlyActions: ["read"],
+  },
+  manage_conversation_records: {
+    approvalFreeActions: ["read", "link", "unlink"],
+    readOnlyActions: ["read"],
   },
   manage_routines: {
     approvalFreeActions: ["list", "runs", "create", "update", "pause", "run_now"],
@@ -46,13 +54,7 @@ const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
   save_message_draft: { approvalFree: true },
   send_chat_message: { approvalFree: true },
   send_email: { approvalFree: true },
-  update_contacts: { approvalFree: true },
-  update_deals: { approvalFree: true },
   update_messaging_thread: { approvalFree: true },
-  update_organizations: { approvalFree: true },
-  update_record_notes: { approvalFree: true },
-  update_services: { approvalFree: true },
-  update_tasks: { approvalFree: true },
   update_workspace_settings: { approvalFree: true },
 };
 
@@ -93,6 +95,7 @@ export function requiresApproval(
   const policy = policyFor(identity);
   if (!policy) return true;
   if ("approvalFree" in policy) return false;
+  if ("inputRisk" in policy) return !["read", "write"].includes(policy.inputRisk(input) ?? "sensitive");
 
   const action =
     input && typeof input === "object" && !Array.isArray(input) ? (input as { action?: unknown }).action : undefined;

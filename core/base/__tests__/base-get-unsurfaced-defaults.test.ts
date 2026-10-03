@@ -1,11 +1,11 @@
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 import type { DataViewStateRepo, SurfaceViewState } from "@/core/data-view/data-view-state.repo";
 import type { Filter, FilterableField, GetQueryParams, SortDescriptor } from "../base-get.schema";
 
 import { describe, expect, it, vi } from "vitest";
 
-import { BaseGetInteractor, BaseGetRepo } from "../base-get.interactor";
 import { SURFACE } from "@/core/data-view/data-view-keys";
+import { BaseGetInteractor, BaseGetRepo } from "../base-get.interactor";
 
 vi.mock("@/core/validation/run-precheck", () => ({
   runPrecheck: (data: unknown) => Promise.resolve({ ok: true, data }),

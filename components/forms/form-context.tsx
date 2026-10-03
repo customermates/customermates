@@ -34,6 +34,7 @@ export const AppForm = observer(({ store, onSubmit, className, children, ...prop
         {...props}
         className={cn("contents", className)}
         onSubmit={(event) => {
+          if (event.target !== event.currentTarget) return;
           event.preventDefault();
           if (handleSubmit) runUserAction(() => handleSubmit(event));
         }}

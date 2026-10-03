@@ -51,7 +51,7 @@ export class MessagingThreadDetailStore extends BaseStore {
       toggleSharing: action,
       resyncThread: action,
       loadOlderMessages: action,
-      applyParticipantContact: action,
+      applyParticipantRecord: action,
       appendMessage: action,
       replaceMessageById: action,
       removeMessageById: action,
@@ -296,10 +296,10 @@ export class MessagingThreadDetailStore extends BaseStore {
     }
   };
 
-  applyParticipantContact = async (threadId: string, identifier: string, contact: MessagingAttendee["contact"]) => {
+  applyParticipantRecord = async (threadId: string, identifier: string, records: MessagingAttendee["records"]) => {
     const patch = (participants: MessagingAttendee[]) =>
       participants.map((participant) =>
-        participant.identifier === identifier ? { ...participant, contact } : participant,
+        participant.identifier === identifier ? { ...participant, records } : participant,
       );
 
     runInAction(() => {
@@ -307,7 +307,7 @@ export class MessagingThreadDetailStore extends BaseStore {
         this.refreshGeneration += 1;
         this.thread.participants = patch(this.thread.participants);
         this.messages = this.messages.map((message) =>
-          message.sender.identifier === identifier ? { ...message, sender: { ...message.sender, contact } } : message,
+          message.sender.identifier === identifier ? { ...message, sender: { ...message.sender, records } } : message,
         );
       }
     });

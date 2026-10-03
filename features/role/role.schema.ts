@@ -21,7 +21,12 @@ export const RoleDtoSchema = z.object({
 
 export type RoleDto = Data<typeof RoleDtoSchema>;
 
-export const RoleWithAssignmentsDtoSchema = RoleDtoSchema.extend({
+export const RolePermissionsDtoSchema = RoleDtoSchema.extend({
+  recordGrants: z.array(z.object({ typeId: z.uuid(), actions: z.array(z.enum(Action)) })).optional(),
+});
+export type RolePermissionsDto = z.infer<typeof RolePermissionsDtoSchema>;
+
+export const RoleWithAssignmentsDtoSchema = RolePermissionsDtoSchema.extend({
   hasUsersAssigned: z.boolean(),
 });
 

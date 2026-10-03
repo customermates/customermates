@@ -1,6 +1,20 @@
 import type { $ZodRawIssue } from "zod/v4/core";
 
 export enum CustomErrorCode {
+  recordNotFound = "recordNotFound",
+  recordTypeNotFound = "recordTypeNotFound",
+  recordConfigurationInvalid = "recordConfigurationInvalid",
+  recordValueInvalid = "recordValueInvalid",
+  recordSchemaChanged = "recordSchemaChanged",
+  recordVersionChanged = "recordVersionChanged",
+  recordWritePaused = "recordWritePaused",
+  recordReadOnlyField = "recordReadOnlyField",
+  recordIdempotencyConflict = "recordIdempotencyConflict",
+  recordRelationConflict = "recordRelationConflict",
+  recordDependencies = "recordDependencies",
+  recordCalculationBudget = "recordCalculationBudget",
+  recordProtected = "recordProtected",
+
   agentApprovalUnavailable = "agentApprovalUnavailable",
   agentConversationNotFound = "agentConversationNotFound",
   agentLimitReached = "agentLimitReached",
@@ -87,6 +101,7 @@ export enum CustomErrorCode {
   roleAssignedCannotDelete = "roleAssignedCannotDelete",
   roleSelfEditForbidden = "roleSelfEditForbidden",
   roleSystemImmutable = "roleSystemImmutable",
+  roleAccessPresetInUse = "roleAccessPresetInUse",
   routineNotFound = "routineNotFound",
   routineAdminRequired = "routineAdminRequired",
   routineDeleteHasRunningRun = "routineDeleteHasRunningRun",

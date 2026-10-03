@@ -3,7 +3,8 @@ import type { FilterableField } from "@/core/base/base-get.schema";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
-import { Action, EntityType, Resource } from "@/generated/prisma";
+import { Action, Resource } from "@/generated/prisma";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 import { TERMINOLOGY_ENTITY_RESOURCE } from "@/features/entity-terminology/entity-terminology.constants";
 
 export const ACTIVITY_FILTER_FIELD_BY_ENTITY_TYPE: Record<EntityType, FilterFieldKey> = {

@@ -60,7 +60,12 @@ describeDatabase("a routine whose owner becomes unavailable", { timeout: 120_000
       .join("\n");
 
     expect(sql).not.toMatch(/CREATE\s+TRIGGER/i);
-    expect(sql).not.toMatch(/LANGUAGE\s+plpgsql/i);
+    const persistentSql = sql.replace(
+      /CREATE OR REPLACE FUNCTION crm_legacy_source_fingerprint\(workspace_id text\) RETURNS text[\s\S]*?\$fingerprint\$;/g,
+      "",
+    );
+    expect(persistentSql).not.toMatch(/LANGUAGE\s+plpgsql/i);
+    expect(sql).toContain("DROP FUNCTION crm_legacy_source_fingerprint(text)");
   });
 
   it("refuses to leave an enabled routine without an owner", async () => {

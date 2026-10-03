@@ -8,7 +8,6 @@ import dynamic from "next/dynamic";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
-import type { AggregationType } from "@/generated/prisma";
 
 import { ChartColor, DisplayType } from "@/features/widget/widget.schema";
 import { getChartColors, getChartStrokeColors, getChartTextColors } from "@/constants/chart-colors";
@@ -63,12 +62,12 @@ const RadarChartComponent = dynamic(
 );
 
 type Props = {
-  aggregationType: AggregationType;
-  data: DiagramDataPoint[];
+  currency?: string | null;
+  data: (DiagramDataPoint & { formattedValue?: string })[];
   displayOptions?: WidgetDisplayOptions | null;
 };
 
-export const WidgetChart = observer(({ aggregationType, data, displayOptions }: Props) => {
+export const WidgetChart = observer(({ data, displayOptions, currency }: Props) => {
   const t = useTranslations();
   const { resolvedTheme } = useTheme();
   const configuredBarColors = displayOptions?.barColors?.length ? displayOptions.barColors : [ChartColor.primary1];
@@ -82,7 +81,8 @@ export const WidgetChart = observer(({ aggregationType, data, displayOptions }: 
 
     return {
       label: widgetDataPointLabel(item, t),
-      value: Number(item.value) || 0,
+      value: item.value,
+      formattedValue: item.formattedValue,
       fill: chartColors[colorKey],
       color: chartColors[colorKey],
       labelColor: chartTextColors[colorKey],
@@ -94,7 +94,7 @@ export const WidgetChart = observer(({ aggregationType, data, displayOptions }: 
     : configuredBarColors.map((color) => chartColors[color]);
   const displayType = displayOptions?.displayType ?? DisplayType.verticalBarChart;
   const commonProps = {
-    aggregationType,
+    currency,
     chartData,
     colors,
     gridColor: "var(--border)",
@@ -103,7 +103,7 @@ export const WidgetChart = observer(({ aggregationType, data, displayOptions }: 
     reverseYAxis: displayOptions?.reverseYAxis,
   };
   const labelChartProps = {
-    aggregationType,
+    currency,
     chartData,
     colors,
     textColor: "var(--muted-foreground)",

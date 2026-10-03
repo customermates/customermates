@@ -1,113 +1,111 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-
-import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
-import { EntityType } from "@/generated/prisma";
+import { presetId } from "@/features/records/crm-preset";
+import { SURFACE, recordSurfaceKey } from "@/core/data-view/data-view-keys";
+import { redirectLegacyRecordRoute } from "../records/legacy-record-redirect";
 
 const mocks = vi.hoisted(() => ({
-  activitiesInvoke: vi.fn(),
-  entityInvoke: vi.fn(),
-  getOptionalP13n: vi.fn(),
+  notFound: vi.fn(() => {
+    throw new Error("not found");
+  }),
+  redirect: vi.fn((path: string) => {
+    throw new Error(`redirect:${path}`);
+  }),
   requireAccess: vi.fn(),
+  resolveAccountState: vi.fn(),
 }));
 
-vi.mock("@/components/entity-detail/entity-detail-page-view", () => ({ EntityDetailPageView: () => null }));
-vi.mock("@/core/di", () => ({
-  getGetActivitiesInteractor: () => ({ invoke: mocks.activitiesInvoke }),
-  getGetContactByIdInteractor: () => ({ invoke: mocks.entityInvoke }),
-  getGetDealByIdInteractor: () => ({ invoke: mocks.entityInvoke }),
-  getGetOrganizationByIdInteractor: () => ({ invoke: mocks.entityInvoke }),
-  getGetServiceByIdInteractor: () => ({ invoke: mocks.entityInvoke }),
-  getGetTaskByIdInteractor: () => ({ invoke: mocks.entityInvoke }),
-}));
+vi.mock("next/navigation", () => ({ notFound: mocks.notFound, redirect: mocks.redirect }));
+vi.mock("next-intl/server", () => ({ getLocale: () => Promise.resolve("en") }));
 vi.mock("@/features/auth/next/require", () => ({ requireAccess: mocks.requireAccess }));
-vi.mock("@/features/p13n/next/get-optional-p13n", () => ({ getOptionalP13n: mocks.getOptionalP13n }));
+vi.mock("@/features/auth/next/resolve-account-state", () => ({
+  resolveRequestAccountState: mocks.resolveAccountState,
+}));
 
 type DetailPage = (props: {
   params: Promise<{ id: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) => Promise<unknown>;
 
-const pages: Array<{ entityType: EntityType; load: () => Promise<{ default: DetailPage }> }> = [
-  { entityType: EntityType.contact, load: () => import("../contacts/[id]/page") },
-  { entityType: EntityType.organization, load: () => import("../organizations/[id]/page") },
-  { entityType: EntityType.deal, load: () => import("../deals/[id]/page") },
-  { entityType: EntityType.service, load: () => import("../services/[id]/page") },
-  { entityType: EntityType.task, load: () => import("../tasks/[id]/page") },
+const companyId = "10000000-0000-4000-8000-000000000001";
+const recordId = "00000000-0000-4000-8000-000000000001";
+const pages: Array<{
+  kind: "contact" | "organization" | "deal" | "service" | "task";
+  load: () => Promise<{ default: DetailPage }>;
+}> = [
+  { kind: "contact", load: () => import("../contacts/[id]/page") },
+  { kind: "organization", load: () => import("../organizations/[id]/page") },
+  { kind: "deal", load: () => import("../deals/[id]/page") },
+  { kind: "service", load: () => import("../services/[id]/page") },
+  { kind: "task", load: () => import("../tasks/[id]/page") },
 ];
 
-describe("record timeline view links", () => {
+describe("legacy record detail links", () => {
   beforeEach(() => {
-    mocks.activitiesInvoke.mockReset().mockResolvedValue({ ok: false });
-    mocks.entityInvoke.mockReset().mockResolvedValue({ ok: false });
-    mocks.getOptionalP13n.mockReset().mockResolvedValue(null);
-    mocks.requireAccess.mockReset().mockResolvedValue(undefined);
-  });
-
-  it.each(pages)("loads the linked timeline view for $entityType detail pages", async ({ entityType, load }) => {
-    const id = "00000000-0000-4000-8000-000000000001";
-    const viewId = "00000000-0000-4000-8000-000000000002";
-    const page = (await load()).default;
-
-    await page({
-      params: Promise.resolve({ id }),
-      searchParams: Promise.resolve({ view: viewId, viewSurface: SURFACE.entityTimeline }),
-    });
-
-    expect(mocks.activitiesInvoke).toHaveBeenCalledExactlyOnceWith(
-      expect.objectContaining({
-        p13nId: SURFACE.entityTimeline,
-        viewId,
-        scope: { records: [{ entityType, ids: [id] }] },
-        pagination: { page: 1, pageSize: 25 },
-      }),
-    );
-  });
-
-  it("loads All explicitly instead of falling back to the remembered timeline view", async () => {
-    const page = (await import("../contacts/[id]/page")).default;
-
-    await page({
-      params: Promise.resolve({ id: "00000000-0000-4000-8000-000000000001" }),
-      searchParams: Promise.resolve({ view: ALL_VIEW_KEY, viewSurface: SURFACE.entityTimeline }),
-    });
-
-    expect(mocks.activitiesInvoke).toHaveBeenCalledExactlyOnceWith(
-      expect.objectContaining({ p13nId: SURFACE.entityTimeline, viewId: ALL_VIEW_KEY }),
-    );
+    vi.clearAllMocks();
+    mocks.requireAccess.mockResolvedValue(undefined);
+    mocks.resolveAccountState.mockResolvedValue({ user: { companyId } });
   });
 
   it.each([
-    { label: "missing surface", searchParams: { view: "00000000-0000-4000-8000-000000000002" } },
-    {
-      label: "wrong surface",
-      searchParams: {
-        view: "00000000-0000-4000-8000-000000000002",
-        viewSurface: SURFACE.contacts,
-      },
+    ["contact", SURFACE.contacts],
+    ["organization", SURFACE.organizations],
+    ["deal", SURFACE.deals],
+    ["service", SURFACE.services],
+    ["task", SURFACE.tasks],
+  ] as const)("normalizes a matching historical %s list scope", async (kind, viewSurface) => {
+    await expect(
+      redirectLegacyRecordRoute(kind, undefined, Promise.resolve({ view: "__all__", viewSurface })),
+    ).rejects.toThrow("redirect:");
+    const url = new URL(mocks.redirect.mock.calls[0][0], "http://localhost");
+    expect(url.pathname).toBe(`/en/records/${presetId(companyId, kind)}`);
+    expect(url.searchParams.get("viewSurface")).toBe(recordSurfaceKey(presetId(companyId, kind)));
+    expect(url.searchParams.get("view")).toBe("__all__");
+  });
+
+  it.each([SURFACE.deals, [SURFACE.contacts, SURFACE.contacts]])(
+    "retains foreign or ambiguous legacy markers %j",
+    async (viewSurface) => {
+      await expect(redirectLegacyRecordRoute("contact", undefined, Promise.resolve({ viewSurface }))).rejects.toThrow(
+        "redirect:",
+      );
+      const url = new URL(mocks.redirect.mock.calls[0][0], "http://localhost");
+      expect(url.searchParams.getAll("viewSurface")).toEqual(Array.isArray(viewSurface) ? viewSurface : [viewSurface]);
     },
-    {
-      label: "duplicate surface",
-      searchParams: {
-        view: "00000000-0000-4000-8000-000000000002",
-        viewSurface: [SURFACE.entityTimeline, SURFACE.entityTimeline],
-      },
-    },
-    {
-      label: "duplicate view",
-      searchParams: {
-        view: ["00000000-0000-4000-8000-000000000002", "00000000-0000-4000-8000-000000000003"],
-        viewSurface: SURFACE.entityTimeline,
-      },
-    },
-    { label: "invalid view", searchParams: { view: "not-a-view", viewSurface: SURFACE.entityTimeline } },
-  ])("ignores a $label timeline selection", async ({ searchParams }) => {
+  );
+
+  it.each(pages)("redirects a $kind detail to its stable generic type and retains its view", async ({ kind, load }) => {
+    const page = (await load()).default;
+    await expect(
+      page({
+        params: Promise.resolve({ id: recordId }),
+        searchParams: Promise.resolve({ view: "__all__", viewSurface: "entity-timeline", filter: ["a", "b"] }),
+      }),
+    ).rejects.toThrow("redirect:");
+
+    expect(mocks.requireAccess).toHaveBeenCalledOnce();
+    expect(mocks.redirect).toHaveBeenCalledOnce();
+    const destination = mocks.redirect.mock.calls[0][0];
+    const url = new URL(destination, "http://localhost");
+    expect(url.pathname).toBe(`/en/records/${presetId(companyId, kind)}/${recordId}`);
+    expect(url.searchParams.get("view")).toBe("__all__");
+    expect(url.searchParams.get("viewSurface")).toBe("entity-timeline");
+    expect(url.searchParams.getAll("filter")).toEqual(["a", "b"]);
+  });
+
+  it("rejects a malformed legacy record id before redirecting", async () => {
     const page = (await import("../contacts/[id]/page")).default;
+    await expect(
+      page({ params: Promise.resolve({ id: "not-a-uuid" }), searchParams: Promise.resolve({}) }),
+    ).rejects.toThrow("not found");
+    expect(mocks.redirect).not.toHaveBeenCalled();
+  });
 
-    await page({
-      params: Promise.resolve({ id: "00000000-0000-4000-8000-000000000001" }),
-      searchParams: Promise.resolve(searchParams),
-    });
-
-    expect(mocks.activitiesInvoke).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ viewId: undefined }));
+  it("requires an authenticated workspace before redirecting", async () => {
+    mocks.resolveAccountState.mockResolvedValue({ user: null });
+    const page = (await import("../deals/[id]/page")).default;
+    await expect(
+      page({ params: Promise.resolve({ id: recordId }), searchParams: Promise.resolve({}) }),
+    ).rejects.toThrow("not found");
+    expect(mocks.redirect).not.toHaveBeenCalled();
   });
 });

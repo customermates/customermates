@@ -1,13 +1,11 @@
 import type { GroupValueSums } from "@/core/base/base-get.schema";
-import type { DateBucket } from "./grouping.schema";
 import type { GroupTargetWhere } from "./group-scope";
 import type { GroupableFieldSpec } from "./groupable-field";
+import type { DateBucket } from "./grouping.schema";
 
-import { DEFAULT_DATE_BUCKET, MAX_AXIS_GROUPS, NO_VALUE_GROUP_KEY } from "./grouping.schema";
-import { ENTITY_CUSTOM_FIELD_RELATION } from "./groupable-field";
-import { orderByOptionIndex } from "./option-order";
 import { dateBucketLadder } from "./date-buckets";
 import { groupScopeFragment, withFragment } from "./group-scope";
+import { DEFAULT_DATE_BUCKET, MAX_AXIS_GROUPS, NO_VALUE_GROUP_KEY } from "./grouping.schema";
 
 export type GroupCountRow = { key: string; count: number; sums?: GroupValueSums };
 
@@ -43,23 +41,6 @@ function pickNumericSums(
   return Object.fromEntries(fields.flatMap((field) => (typeof sums[field] === "number" ? [[field, sums[field]]] : [])));
 }
 
-function axisKeys(
-  options: readonly { value: string; index?: number }[],
-  rows: readonly Record<string, unknown>[],
-): string[] {
-  const declared = new Map(orderByOptionIndex(options).map((option, position) => [option.value, position]));
-  const present = rows.flatMap((row) => (row.value === null ? [] : [{ key: String(row.value), rows: rowCount(row) }]));
-
-  return [
-    ...present
-      .filter((row) => declared.has(row.key))
-      .sort((left, right) => (declared.get(left.key) ?? 0) - (declared.get(right.key) ?? 0)),
-    ...present.filter((row) => !declared.has(row.key)).sort((left, right) => right.rows - left.rows),
-  ]
-    .slice(0, MAX_AXIS_GROUPS + 1)
-    .map((row) => row.key);
-}
-
 export async function countGroupRows(runtime: GroupCountRuntime, request: GroupCountRequest): Promise<GroupCountRow[]> {
   const { spec, where } = request;
   const noValueScope = () =>
@@ -77,30 +58,6 @@ export async function countGroupRows(runtime: GroupCountRuntime, request: GroupC
     });
 
   switch (spec.kind) {
-    case "customSingleSelect": {
-      const [rows, noValue] = await Promise.all([
-        runtime.delegate("customFieldValue").groupBy({
-          by: ["value"],
-          where: {
-            companyId: runtime.companyId,
-            columnId: spec.columnId,
-            entityType: spec.entityType,
-            [ENTITY_CUSTOM_FIELD_RELATION[spec.entityType]]: where,
-          },
-          _count: { _all: true },
-        }),
-        runtime.delegate(spec.model).count({ where: withFragment(where, noValueScope()) }),
-      ]);
-
-      const keys = axisKeys(spec.options, rows);
-      const counts = await Promise.all(keys.map((key) => scopedCount(key)));
-
-      return [
-        ...keys.map((key, index) => ({ key, count: counts[index] })),
-        { key: NO_VALUE_GROUP_KEY, count: noValue },
-      ];
-    }
-
     case "enum": {
       const sumFields = request.sumFields ?? [];
       const rows = await runtime.delegate(spec.model).groupBy({

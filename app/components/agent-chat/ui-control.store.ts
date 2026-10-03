@@ -1,10 +1,9 @@
+import { getRecordAction, getRecordNavigationAction } from "@/app/[locale]/(protected)/records/actions";
 import { makeObservable, observable, action } from "mobx";
 
 import type { RootStore } from "@/core/stores/root.store";
 
 import { BaseStore } from "@/core/base/base.store";
-import { ENTITY_URL_SEGMENT } from "@/components/entity-detail/entity-relations";
-import { EntityType } from "@/generated/prisma";
 import {
   agentRouteVisible,
   agentSidebarGroupId,
@@ -33,16 +32,15 @@ export type AgentNavigationOutcome = "navigated" | "blocked" | "timeout";
 
 function resolveAgentNavigationRoute(input: Record<string, unknown>): { path: string; done: string } | null {
   const record = NavigateRecordTargetSchema.safeParse(input);
-  if (record.success) {
-    const segment = ENTITY_URL_SEGMENT[EntityType[record.data.entity]];
-    return { path: `/${segment}/${record.data.recordId}`, done: `Opened the ${record.data.entity} on its page.` };
-  }
+  if (record.success)
+    return { path: `/records/${record.data.typeId}/${record.data.recordId}`, done: "Opened the record on its page." };
+
   const target = findAgentNavigationTarget(String(input.targetId ?? ""));
   return target ? { path: target.route, done: `Navigated to ${target.route}.` } : null;
 }
 
 function describeNavigationInput(input: Record<string, unknown>) {
-  return input.targetId !== undefined ? String(input.targetId) : `${String(input.entity)}:${String(input.recordId)}`;
+  return input.targetId !== undefined ? String(input.targetId) : `${String(input.typeId)}:${String(input.recordId)}`;
 }
 
 function currentAppPathname() {
@@ -67,7 +65,9 @@ function unavailableRouteMessage(path: string) {
 }
 
 export function findAgentTargetElement(targetId: string) {
-  const element = document.getElementById(targetId);
+  const target = findAgentUiTarget(targetId);
+  if (target?.elementId && currentAppPathname() !== target.route) return null;
+  const element = document.getElementById(target?.elementId ?? targetId);
   return element?.isConnected && element.getClientRects().length > 0 ? element : null;
 }
 
@@ -180,7 +180,17 @@ export class AgentUiControlStore extends BaseStore {
         result: `Navigation target ${describeNavigationInput(input)} is not allowed.`,
       };
     }
-    if (!this.canOpen(route.path)) return { ok: false, result: unavailableRouteMessage(route.path) };
+    const record = NavigateRecordTargetSchema.safeParse(input);
+    if (record.success) {
+      const result = await getRecordAction(record.data);
+      if (!result.ok)
+        return { ok: false, result: "The record is unavailable or cannot be read with your current access." };
+    } else if (route.path.startsWith("/records/")) {
+      const navigation = await getRecordNavigationAction();
+      const typeId = route.path.split("/")[2];
+      if (!navigation.types.some((type) => type.id === typeId))
+        return { ok: false, result: unavailableRouteMessage(route.path) };
+    } else if (!this.canOpen(route.path)) return { ok: false, result: unavailableRouteMessage(route.path) };
     if (!this.navigateCallback) return { ok: false, result: "Navigation is not available right now." };
 
     const outcome = await this.navigateCallback(route.path);

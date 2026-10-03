@@ -1,10 +1,10 @@
-import type { Root } from "react-dom/client";
-import type { ColumnDef } from "@tanstack/react-table";
-import type { DragEndEvent } from "@dnd-kit/core";
-import type { ReactNode } from "react";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { BaseDataViewStore } from "@/core/base/base-data-view.store";
 import type { DataViewGroup, GroupingResult } from "@/core/base/grouping/grouping.schema";
+import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
+import type { DragEndEvent } from "@dnd-kit/core";
+import type { ColumnDef } from "@tanstack/react-table";
+import type { ReactNode } from "react";
+import type { Root } from "react-dom/client";
 
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
@@ -20,6 +20,7 @@ const { dndSpy } = vi.hoisted(() => ({
   },
 }));
 
+vi.mock("@/i18n/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 vi.mock("mobx-react-lite", () => ({ observer: <T,>(component: T) => component }));
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, values?: Record<string, unknown>) =>
@@ -63,6 +64,7 @@ vi.mock("@dnd-kit/core", () => ({
     return createElement("div", null, children);
   },
   PointerSensor: function PointerSensor() {},
+  KeyboardSensor: function KeyboardSensor() {},
   useSensor: (sensor: unknown) => ({ sensor }),
   useSensors: (...sensors: unknown[]) => {
     const live = sensors.filter(Boolean);
@@ -124,17 +126,12 @@ const SUMMED_GROUPS: DataViewGroup[] = [
   group({ key: "won", count: 0, label: "WON", weight: 80, valueSums: { totalValue: 0, weightedValue: 0 } }),
 ];
 
-function store(
-  grouping: Partial<GroupingResult>,
-  moveItemBetweenGroups = vi.fn(),
-  isGroupedByDealWeightingColumn = true,
-): BaseDataViewStore<Item> {
+function store(grouping: Partial<GroupingResult>, moveItemBetweenGroups = vi.fn()): BaseDataViewStore<Item> {
   return {
     customColumns: [STORED_COLUMN],
     entityType: "deal",
     hiddenColumns: [],
     isGrouped: true,
-    isGroupedByDealWeightingColumn,
     isRefreshing: false,
     items: ITEMS,
     groupingResult: {
@@ -216,9 +213,19 @@ describe("board drag gating", () => {
   it("registers the pointer sensor and live targets when the server allows the write back", () => {
     render(store({}));
 
-    expect(dndSpy.sensorCounts).toEqual([1]);
+    expect(dndSpy.sensorCounts).toEqual([2]);
     expect(dndSpy.droppables.some((droppable) => droppable.disabled)).toBe(false);
     expect(dndSpy.draggables.some((draggable) => draggable.disabled)).toBe(false);
+  });
+
+  it("keeps protected records fixed even when ordinary records can move", async () => {
+    const moveItemBetweenGroups = vi.fn();
+    const value = store({}, moveItemBetweenGroups);
+    value.canMoveItemBetweenGroups = () => false;
+    render(value);
+    expect(dndSpy.draggables.every((draggable) => draggable.disabled)).toBe(true);
+    await drop("e-1", "won", "new");
+    expect(moveItemBetweenGroups).not.toHaveBeenCalled();
   });
 
   it("moves with the group key the card was rendered in, never a re-derived value", async () => {
@@ -232,11 +239,11 @@ describe("board drag gating", () => {
       fromGroupKey: "new",
       toGroupKey: "won",
       value: "won",
-      destinationValueSums: { totalValue: 200, weightedValue: 160 },
+      destinationValueSums: undefined,
     });
   });
 
-  it("shows the stage probability and projects the weighted sum when the board is grouped by the weighting column", async () => {
+  it("shows a supplied probability and leaves authoritative totals to the backend", async () => {
     const moveItemBetweenGroups = vi.fn();
     render(store({ groups: SUMMED_GROUPS }, moveItemBetweenGroups));
 
@@ -245,20 +252,8 @@ describe("board drag gating", () => {
     await drop("e-1", "won", "new");
 
     expect(moveItemBetweenGroups.mock.calls[0][0]).toMatchObject({
-      destinationValueSums: { totalValue: 200, weightedValue: 160 },
+      destinationValueSums: undefined,
     });
-  });
-
-  it("hides stored option weights and keeps the card's own weighted value when another column is the weighting column", async () => {
-    const moveItemBetweenGroups = vi.fn();
-    render(store({ groups: SUMMED_GROUPS }, moveItemBetweenGroups, false));
-
-    expect(document.body.textContent).not.toContain("80%");
-
-    await drop("e-1", "won", "new");
-
-    expect(moveItemBetweenGroups).toHaveBeenCalledTimes(1);
-    expect(moveItemBetweenGroups.mock.calls[0][0].destinationValueSums).toBeUndefined();
   });
 
   it("ignores a drop back onto the group the card already sits in", async () => {

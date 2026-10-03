@@ -34,9 +34,9 @@ describe("agent interface commands", () => {
     });
   });
 
-  it("sends entity and record id when navigate opens one record's page", () => {
-    expect(toAgentUiCommandInput("navigate", { entity: "deal", recordId: "id", presentation: "drawer" })).toEqual({
-      entity: "deal",
+  it("sends type and record id when navigate opens one record's page", () => {
+    expect(toAgentUiCommandInput("navigate", { typeId: "type-id", recordId: "id", presentation: "drawer" })).toEqual({
+      typeId: "type-id",
       recordId: "id",
     });
   });

@@ -1,7 +1,9 @@
 export abstract class CreateWebhookDeliveryRepo {
-  abstract create(data: { url: string; event: string; requestBody: Record<string, unknown> }[]): Promise<string[]>;
+  abstract create(
+    data: { webhookId?: string; url: string; event: string; requestBody: Record<string, unknown> }[],
+  ): Promise<string[]>;
   abstract createUnscoped(
     companyId: string,
-    data: { url: string; event: string; requestBody: Record<string, unknown> }[],
+    data: { webhookId?: string; url: string; event: string; requestBody: Record<string, unknown> }[],
   ): Promise<string[]>;
 }

@@ -9,12 +9,6 @@ import { REPO_ROOT, walkFiles } from "./walk";
 const read = (path: string) => readFileSync(join(REPO_ROOT, path), "utf8");
 
 const STORE_REPOSITORY: Record<string, string> = {
-  "app/[locale]/(protected)/contacts/components/contacts.store.tsx": "features/contacts/prisma-contact.repository.ts",
-  "app/[locale]/(protected)/organizations/components/organizations.store.tsx":
-    "features/organizations/prisma-organization.repository.ts",
-  "app/[locale]/(protected)/deals/components/deals.store.tsx": "features/deals/prisma-deal.repository.ts",
-  "app/[locale]/(protected)/services/components/services.store.tsx": "features/services/prisma-service.repository.ts",
-  "app/[locale]/(protected)/tasks/components/tasks.store.tsx": "features/tasks/prisma-task.repository.ts",
   "app/[locale]/(protected)/routines/components/routines.store.ts": "ee/routines/prisma-routine.repository.ts",
   "app/[locale]/(protected)/company/components/user/users.store.ts": "features/user/prisma-user.repository.ts",
   "app/[locale]/(protected)/company/components/role/roles.store.tsx": "features/role/prisma-role.repository.ts",
@@ -33,16 +27,6 @@ const STORE_REPOSITORY: Record<string, string> = {
 };
 
 const COLUMN_HOOK_STORE: Record<string, string> = {
-  "app/[locale]/(protected)/contacts/components/use-contact-columns.tsx":
-    "app/[locale]/(protected)/contacts/components/contacts.store.tsx",
-  "app/[locale]/(protected)/organizations/components/use-organization-columns.tsx":
-    "app/[locale]/(protected)/organizations/components/organizations.store.tsx",
-  "app/[locale]/(protected)/deals/components/use-deal-columns.tsx":
-    "app/[locale]/(protected)/deals/components/deals.store.tsx",
-  "app/[locale]/(protected)/services/components/use-service-columns.tsx":
-    "app/[locale]/(protected)/services/components/services.store.tsx",
-  "app/[locale]/(protected)/tasks/components/use-task-columns.tsx":
-    "app/[locale]/(protected)/tasks/components/tasks.store.tsx",
   "app/[locale]/(protected)/routines/components/use-routine-columns.tsx":
     "app/[locale]/(protected)/routines/components/routines.store.ts",
   "app/[locale]/(protected)/company/components/user/use-member-columns.tsx":
@@ -64,11 +48,6 @@ const COLUMN_HOOK_STORE: Record<string, string> = {
 };
 
 const REPOSITORY_MODEL: Record<string, string> = {
-  "features/contacts/prisma-contact.repository.ts": "Contact",
-  "features/organizations/prisma-organization.repository.ts": "Organization",
-  "features/deals/prisma-deal.repository.ts": "Deal",
-  "features/services/prisma-service.repository.ts": "Service",
-  "features/tasks/prisma-task.repository.ts": "Task",
   "ee/routines/prisma-routine.repository.ts": "Routine",
   "features/user/prisma-user.repository.ts": "User",
   "features/role/prisma-role.repository.ts": "UserRole",
@@ -83,7 +62,7 @@ const REPOSITORY_MODEL: Record<string, string> = {
   "ee/calendar/prisma-calendar-events.repository.ts": "CalendarEvent",
 };
 
-const COMPUTED_SORT_REPOSITORIES = ["ee/messaging/activities/prisma-activities.repository.ts"];
+const COMPUTED_SORT_REPOSITORIES: string[] = [];
 
 const MCP_SORT_CLAIMS: Array<{ file: string; claim: string; fields: string[]; repository: string }> = [
   {
@@ -112,12 +91,6 @@ const MCP_SORT_CLAIMS: Array<{ file: string; claim: string; fields: string[]; re
   },
   {
     file: "features/mcp-tools/messaging.mcp-tools.ts",
-    claim: 'sortDescription("at (the event time)")',
-    fields: ["at"],
-    repository: "ee/messaging/activities/prisma-activities.repository.ts",
-  },
-  {
-    file: "features/mcp-tools/messaging.mcp-tools.ts",
     claim: 'sortDescription("name (calendars) or startsAt (events)")',
     fields: ["name"],
     repository: "ee/calendar/prisma-calendar.repository.ts",
@@ -130,13 +103,7 @@ const MCP_SORT_CLAIMS: Array<{ file: string; claim: string; fields: string[]; re
   },
 ];
 
-const RECORD_REPOSITORIES = [
-  "features/contacts/prisma-contact.repository.ts",
-  "features/organizations/prisma-organization.repository.ts",
-  "features/deals/prisma-deal.repository.ts",
-  "features/services/prisma-service.repository.ts",
-  "features/tasks/prisma-task.repository.ts",
-];
+
 
 type SortableEntry = { field: string; resolvedFields: string[]; collate: boolean; nullable: boolean };
 
@@ -324,11 +291,21 @@ describe("every sort option a surface offers is one its repository applies", () 
     },
   );
 
-  it("sorts every record type by name, the example list_records gives", () => {
-    expect(read("features/mcp-tools/entity-generic.mcp-tools.ts")).toContain("built-in field name (name, totalValue");
+  it("keeps the generic activity timeline in stable newest-first order", () => {
+    expect(read("features/mcp-tools/messaging.mcp-tools.ts")).toContain("Results are newest first");
+    expect(read("ee/messaging/activities/record-activity-query.ts")).toContain(
+      "ORDER BY at DESC, kind DESC, id DESC",
+    );
+  });
 
-    for (const repository of RECORD_REPOSITORIES)
-      expect(repositorySortableFields(repository), repository).toContain("name");
+  it("sorts configured fields with database pagination, locale ordering, and stable identity", () => {
+    const query = read("features/records/record-query.ts");
+    expect(query).toContain("query.sort.map");
+    expect(query).toContain("fieldReadPredicate");
+    expect(query).toContain("recordCollation(query.locale)");
+    expect(query).toContain("NULLS LAST");
+    expect(query).toContain("LIMIT ${query.pageSize} OFFSET");
+    expect(query).toContain('ordering.push(Prisma.sql`${record}."createdAt" DESC`, Prisma.sql`${record}."id" ASC`)');
   });
 });
 

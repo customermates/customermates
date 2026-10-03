@@ -1,3 +1,5 @@
+import type { DataViewPolicy } from "./data-view-policy";
+import { validateDataViewAccess } from "./data-view-policy";
 import type { DeleteDataViewData, DeleteDataViewResult } from "./data-view.schema";
 import type { DataViewDto } from "@/core/data-view/data-view-state.schema";
 import type { Validated } from "@/core/validation/validation.utils";
@@ -7,7 +9,7 @@ import { Enforce } from "@/core/decorators/enforce.decorator";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { failNotFound } from "@/core/validation/interactor-failure-server";
+import { fail, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { DeleteDataViewResultSchema, DeleteDataViewSchema } from "./data-view.schema";
 
@@ -25,6 +27,7 @@ export class DeleteDataViewInteractor extends AuthenticatedInteractor<DeleteData
   constructor(
     private repo: DeleteDataViewRepo,
     private selection: DeleteDataViewSelectionRepo,
+    private policy?: DataViewPolicy,
   ) {
     super();
   }
@@ -35,6 +38,9 @@ export class DeleteDataViewInteractor extends AuthenticatedInteractor<DeleteData
   async invoke({ id }: DeleteDataViewData): Validated<DeleteDataViewResult> {
     const view = await this.repo.findOwnedOrNull(id);
     if (!view) return failNotFound(CustomErrorCode.dataViewNotFound, ["id"]);
+
+    const invalid = await validateDataViewAccess(this.policy, view.surfaceKey);
+    if (invalid) return fail(invalid);
 
     const deleted = await this.repo.deleteOwned(id);
 

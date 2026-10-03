@@ -4,7 +4,7 @@ import type { LucideIcon } from "lucide-react";
 
 import { Building2, CheckCircle2, Package, TrendingUp, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { EntityType } from "@/generated/prisma";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 import type { TerminologySelectionMap } from "@/features/entity-terminology/entity-terminology.types";
 

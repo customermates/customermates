@@ -10,6 +10,7 @@ import { REPO_ROOT, walkFiles } from "./walk";
 const ENFORCED = true;
 
 const SPEC_EXEMPT_PATHS = new Set(["/v1/mcp", "/v1/openapi"]);
+const RETIRED_RECORD_PATH = /^\/v1\/(?:contacts|organizations|deals|services|tasks|messaging\/activities\/search)(?:\/|$)/;
 const HTTP_VERBS = new Set(["get", "post", "put", "patch", "delete", "head", "options"]);
 const HTTP_HANDLER_NAMES = new Set(["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]);
 const SCHEMA_PARSE_METHOD_NAMES = new Set(["parse", "safeParse", "parseAsync", "safeParseAsync"]);
@@ -37,13 +38,7 @@ const SAFE_REQUEST_METADATA_MEMBERS = new Set([
   "signal",
   "url",
 ]);
-const BODY_REQUIRED_DELETE_PATHS = new Set([
-  "/v1/contacts/many",
-  "/v1/deals/many",
-  "/v1/organizations/many",
-  "/v1/services/many",
-  "/v1/tasks/many",
-]);
+const BODY_REQUIRED_DELETE_PATHS = new Set<string>();
 
 type JsonReader = {
   line: number;
@@ -459,7 +454,7 @@ function inspectRouteSource(path: string, text: string): Map<string, RouteOperat
   const operations = new Map<string, RouteOperation>();
   const allowedHandlerDeclarations = new Set<ts.Identifier>();
   const specPath = toSpecPath(path);
-  if (SPEC_EXEMPT_PATHS.has(specPath)) return operations;
+  if (SPEC_EXEMPT_PATHS.has(specPath) || RETIRED_RECORD_PATH.test(specPath)) return operations;
 
   const source = ts.createSourceFile(path, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
   const file = path.slice(REPO_ROOT.length + 1);
@@ -599,7 +594,9 @@ function inspectRouteModule(path: string, text: string): Map<string, RouteOperat
 
 function routeOperations(): Map<string, RouteOperation> {
   const operations = new Map<string, RouteOperation>();
-  const routeFiles = walkFiles(join(REPO_ROOT, "app", "api", "v1"), (path) => ROUTE_MODULE_PATTERN.test(path));
+  const routeFiles = ["v1", "v2"].flatMap((version) =>
+    walkFiles(join(REPO_ROOT, "app", "api", version), (path) => ROUTE_MODULE_PATTERN.test(path)),
+  );
 
   for (const path of routeFiles) {
     const text = readFileSync(path, "utf8");
@@ -644,7 +641,10 @@ function orphanedSpecViolations(
 ): string[] {
   return [...documented]
     .filter(([operation]) => !routes.has(operation))
-    .map(([operation]) => `${operation} is in generateOpenApiSpec() but has no route handler under app/api/v1`);
+    .map(
+      ([operation]) =>
+        `${operation} is in generateOpenApiSpec() but has no route handler under the versioned app/api routes`,
+    );
 }
 
 function jsonContractViolations(
@@ -766,7 +766,9 @@ function interactorFailureViolations(file: string, text: string): string[] {
 
 function appRouteFailureViolations(file: string, text: string): string[] {
   return [...text.matchAll(INTERACTOR_FAILURE_BRANCH)]
-    .filter(([, name, statement]) => !new RegExp(`interactorFailure(?:Response|Status)\\(${name}\\.error\\)`).test(statement))
+    .filter(
+      ([, name, statement]) => !new RegExp(`interactorFailure(?:Response|Status)\\(${name}\\.error\\)`).test(statement),
+    )
     .map(([statement]) => `${file} maps a failure without the shared status mapping: ${statement}`);
 }
 
@@ -1217,7 +1219,7 @@ describe("REST route analyzer self-tests", () => {
     ],
     [
       "status 400 literal",
-      "if (!result.ok) return interactorFailureResponse(result.error);\n    if (!ready) return NextResponse.json(\"x\", { status: 400 });",
+      'if (!result.ok) return interactorFailureResponse(result.error);\n    if (!ready) return NextResponse.json("x", { status: 400 });',
       ["probe/route.ts hard-codes status 400"],
     ],
     [
@@ -1266,7 +1268,7 @@ describe("REST route analyzer self-tests", () => {
   });
 });
 
-describe("v1 REST OpenAPI coverage", () => {
+describe("versioned REST OpenAPI coverage", () => {
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("documents every route handler in the OpenAPI spec", () => {
     const undocumented = undocumentedRouteViolations(routeOperations(), specOperations());
     expect(undocumented).toEqual([]);
@@ -1275,6 +1277,12 @@ describe("v1 REST OpenAPI coverage", () => {
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("has a route handler for every spec operation", () => {
     const orphaned = orphanedSpecViolations(routeOperations(), specOperations());
     expect(orphaned).toEqual([]);
+  });
+
+  it("does not advertise the retired entity-specific CRM contract", () => {
+    const spec = generateOpenApiSpec() as { paths?: Record<string, unknown> };
+    expect(Object.keys(spec.paths ?? {}).filter((path) => RETIRED_RECORD_PATH.test(path))).toEqual([]);
+    expect(spec.paths?.["/v2/records/mutate"]).toBeDefined();
   });
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("documents a requestBody for every write-verb operation", () => {
@@ -1298,9 +1306,9 @@ describe("v1 REST OpenAPI coverage", () => {
   });
 
   it("returns every interactor failure through the shared status mapping", () => {
-    const violations = walkFiles(join(REPO_ROOT, "app", "api", "v1"), (path) => ROUTE_MODULE_PATTERN.test(path)).flatMap(
-      (path) => interactorFailureViolations(path.slice(REPO_ROOT.length + 1), readFileSync(path, "utf8")),
-    );
+    const violations = walkFiles(join(REPO_ROOT, "app", "api", "v1"), (path) =>
+      ROUTE_MODULE_PATTERN.test(path),
+    ).flatMap((path) => interactorFailureViolations(path.slice(REPO_ROOT.length + 1), readFileSync(path, "utf8")));
 
     expect(violations).toEqual([]);
   });

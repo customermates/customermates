@@ -1,6 +1,6 @@
 "use client";
 
-import type { EntityType } from "@/generated/prisma";
+import type { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 import { ENTITY_URL_SEGMENT, RELATION_ENTITY_TYPES } from "../entity-relations";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";

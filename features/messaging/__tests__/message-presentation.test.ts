@@ -87,6 +87,7 @@ const BASE: MessagingMessageDto = {
   provider: "google",
   direction: "outbound",
   sender: {
+    records: [],
     attendeeId: "sender",
     identifier: "sender@example.com",
     displayName: "Sender",
@@ -95,6 +96,7 @@ const BASE: MessagingMessageDto = {
   recipients: {
     to: [
       {
+        records: [],
         attendeeId: "recipient",
         identifier: "recipient@example.com",
         displayName: "Recipient",

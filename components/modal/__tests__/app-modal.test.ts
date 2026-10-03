@@ -337,13 +337,13 @@ describe.each([
     expect(testContext.focusReturn.onOpenAutoFocus).toHaveBeenCalledOnce();
   });
 
-  it.each([true, false])("passes controlled targets and open=%s to the shared focus hook", (open) => {
+  it.each([true, false])("defers requested open=%s during SSR while retaining controlled focus targets", (open) => {
     const target = { id: "controlled-target" } as HTMLElement;
     const fallback = { id: "controlled-fallback" } as HTMLElement;
 
     renderFocusModal({ open, focusReturnTarget: target, focusReturnFallback: fallback });
 
-    expect(testContext.useOverlayFocusReturn).toHaveBeenLastCalledWith(open, target, fallback);
+    expect(testContext.useOverlayFocusReturn).toHaveBeenLastCalledWith(false, target, fallback);
   });
 
   it("prefers the store's focus targets and open state over controlled targets", () => {

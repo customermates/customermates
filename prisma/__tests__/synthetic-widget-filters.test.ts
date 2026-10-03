@@ -1,8 +1,14 @@
+import { seedOrganizations } from "../seeds/organizations";
+import { seedContacts } from "../seeds/contacts";
+import { seedServices } from "../seeds/services";
+import { seedDeals } from "../seeds/deals";
+import { seedTasks } from "../seeds/tasks";
+import { seedCustomFields } from "../seeds/custom-fields";
 import type { PrismaClient } from "@/generated/prisma";
 
 import { describe, expect, it, vi } from "vitest";
 
-import { Prisma, WidgetKind } from "@/generated/prisma";
+import { WidgetKind } from "@/generated/prisma";
 
 import { SYNTHETIC_SEED_USER } from "@/core/config/synthetic-seed-user";
 
@@ -35,10 +41,13 @@ describe("synthetic widget filters", () => {
       sharedUserPassword: "test-password",
     } satisfies SeedContext;
 
-    await seedWidgets(context, {
-      customColumnIds: SYNTHETIC_CUSTOM_COLUMN_IDS,
-      customOptionIds: SYNTHETIC_CUSTOM_OPTION_IDS,
-    });
+    const organizations = await seedOrganizations(context);
+    const contacts = await seedContacts(context, organizations.organizations);
+    const services = await seedServices(context);
+    const deals = await seedDeals(context, services);
+    const tasks = await seedTasks(context);
+    const fields = await seedCustomFields(context, { ...organizations, ...contacts, ...services, ...deals, ...tasks });
+    await seedWidgets(context, fields);
 
     const widgets = calls.map(({ create }) => create);
     const widgetIds = widgets.map(({ id }) => id);
@@ -61,35 +70,37 @@ describe("synthetic widget filters", () => {
         id: { startsWith: "15000000-", notIn: widgetIds },
       },
     });
-    expect(widgets.map(({ entityFilters }) => entityFilters)).toEqual([
-      [],
-      [],
+    for (const widget of widgets) {
+      expect(widget).not.toHaveProperty("entityFilters");
+      expect(widget).not.toHaveProperty("dealFilters");
+      expect(widget).not.toHaveProperty("timelineFilters");
+      if (widget.kind === "chart") expect(widget.measure).toBeTruthy();
+      else expect(widget.activityQuery).toBeTruthy();
+    }
+    expect(
+      widgets.slice(2, 4).map(({ measure }) => (measure as { source: { filters: unknown[] } }).source.filters),
+    ).toEqual([
       [
         {
-          field: SYNTHETIC_CUSTOM_COLUMN_IDS.dealStatus,
+          fieldId: SYNTHETIC_CUSTOM_COLUMN_IDS.dealStatus,
           operator: "notIn",
-          value: [SYNTHETIC_CUSTOM_OPTION_IDS.dealStatus.abandoned],
+          value: null,
+          values: [{ kind: "select", value: SYNTHETIC_CUSTOM_OPTION_IDS.dealStatus.abandoned }],
         },
       ],
       [
         {
-          field: SYNTHETIC_CUSTOM_COLUMN_IDS.dealStatus,
+          fieldId: SYNTHETIC_CUSTOM_COLUMN_IDS.dealStatus,
           operator: "notIn",
-          value: [SYNTHETIC_CUSTOM_OPTION_IDS.dealStatus.abandoned],
+          value: null,
+          values: [{ kind: "select", value: SYNTHETIC_CUSTOM_OPTION_IDS.dealStatus.abandoned }],
         },
       ],
-      Prisma.DbNull,
-      Prisma.DbNull,
-      Prisma.DbNull,
     ]);
-    expect(widgets.map(({ timelineFilters }) => timelineFilters)).toEqual([
-      Prisma.DbNull,
-      Prisma.DbNull,
-      Prisma.DbNull,
-      Prisma.DbNull,
-      [{ field: "timelineKind", operator: "in", value: ["changes"] }],
-      [{ field: "timelineKind", operator: "in", value: ["messages"] }],
-      [{ field: "timelineKind", operator: "in", value: ["activities"] }],
+    expect(widgets.slice(4).map(({ activityQuery }) => (activityQuery as { filters: unknown[] }).filters)).toEqual([
+      [{ kind: "source", operator: "in", values: ["audit"] }],
+      [{ kind: "source", operator: "in", values: ["message"] }],
+      [{ kind: "source", operator: "in", values: ["activity", "calendar_event"] }],
     ]);
     expect(widgets.map(({ kind }) => kind)).toEqual([
       WidgetKind.chart,

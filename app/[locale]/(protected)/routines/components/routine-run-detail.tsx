@@ -1,12 +1,12 @@
 "use client";
 
 import type { RoutineRunDto } from "@/ee/routines/routine.schema";
-import type { RoutineModalStore } from "./routine-modal.store";
 import type { RefObject } from "react";
+import type { RoutineModalStore } from "./routine-modal.store";
 
 import { observer } from "mobx-react-lite";
-import { useRef } from "react";
 import { useTranslations } from "next-intl";
+import { useRef } from "react";
 
 import { RoutineRunStatus } from "@/generated/prisma";
 
@@ -15,8 +15,8 @@ import type { AgentChatUiTargets } from "@/app/components/agent-chat/agent-chat-
 import { AgentComposer, AgentConversationLog } from "@/app/components/agent-chat/agent-conversation";
 import { AgentProgressStatus, AgentStatusAnnouncer } from "@/app/components/agent-chat/agent-status-announcer";
 import { useAgentChatConfig } from "@/app/components/agent-chat/use-agent-chat-config";
-import { Alert } from "@/components/shared/alert";
 import { AppChip } from "@/components/chip/app-chip";
+import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { runUserAction } from "@/core/errors/report-application-error";
@@ -78,7 +78,7 @@ export const RoutineRunDetail = observer(({ run, scrollContainerRef, store }: Pr
 
       {stopReason && <Alert color="warning" description={stopReason} />}
 
-      <RoutineRunTriggerCard customColumns={store.customColumnsFor(run.triggerContext?.entityType ?? null)} run={run} />
+      <RoutineRunTriggerCard recordFields={store.recordModel?.fields} run={run} />
 
       {transcriptLoading ? (
         <div className="flex min-h-48 flex-1 items-center justify-center" role="status">

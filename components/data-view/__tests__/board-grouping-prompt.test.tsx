@@ -1,14 +1,11 @@
-import type { Root } from "react-dom/client";
-import type { ReactNode } from "react";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { BaseDataViewStore } from "@/core/base/base-data-view.store";
 import type { GroupableFieldDto } from "@/core/base/grouping/groupable-field";
+import type { ReactNode } from "react";
+import type { Root } from "react-dom/client";
 
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-
-import { CustomColumnType, EntityType } from "@/generated/prisma";
 
 const harness = vi.hoisted(() => ({
   onFieldChange: undefined as ((value: string) => void) | undefined,
@@ -16,6 +13,7 @@ const harness = vi.hoisted(() => ({
   selectValue: undefined as string | undefined,
 }));
 
+vi.mock("@/i18n/navigation", () => ({ useRouter: () => ({ push: harness.openForCreate }) }));
 vi.mock("mobx-react-lite", () => ({ observer: <T,>(component: T) => component }));
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("@/core/stores/root-store.provider", () => ({
@@ -72,7 +70,7 @@ function store(overrides: Partial<BaseDataViewStore<Item>> = {}): BaseDataViewSt
   return {
     canManage: true,
     currentGroupableFieldId: "",
-    entityType: EntityType.deal,
+    schemaSettingsHref: "/company/data-model?typeId=00000000-0000-4000-8000-000000000099",
     groupableFields: [STAGE, CREATED_MONTH],
     setViewOptions: vi.fn(),
     ...overrides,
@@ -150,35 +148,22 @@ describe("board grouping prompt", () => {
   });
 
   it("hides the field select on a surface with nothing to group by", () => {
-    const host = render(store({ entityType: undefined, groupableFields: [] }));
+    const host = render(store({ groupableFields: [] }));
 
     expect(host.querySelector('[data-slot="select"]')).toBeNull();
     expect(host.textContent).toContain("DataView.board.promptTitle");
   });
 
-  it("offers the single-select creation only on an entity surface the user can manage", () => {
-    expect(createButton(render(store({ entityType: undefined })))).toBeNull();
-    expect(createButton(render(store({ canManage: false })))).toBeNull();
+  it("offers field configuration only when schema management is available", () => {
+    expect(createButton(render(store({ schemaSettingsHref: undefined })))).toBeNull();
     expect(createButton(render(store()))).not.toBeNull();
   });
 
-  it("opens the custom column modal on single-select and groups by the saved column", () => {
+  it("opens the configured type settings without changing an unfinished grouping", () => {
     const value = store();
     const host = render(value);
-
     act(() => createButton(host)?.click());
-
-    expect(harness.openForCreate).toHaveBeenCalledOnce();
-    const params = harness.openForCreate.mock.calls[0][0] as {
-      type: CustomColumnType;
-      entityType: EntityType;
-      onSaved: (column: CustomColumnDto) => void;
-    };
-    expect(params.type).toBe(CustomColumnType.singleSelect);
-    expect(params.entityType).toBe(EntityType.deal);
-
-    params.onSaved({ id: "col-new" } as CustomColumnDto);
-
-    expect(value.setViewOptions).toHaveBeenCalledWith({ grouping: { field: "col-new" } });
+    expect(harness.openForCreate).toHaveBeenCalledExactlyOnceWith(value.schemaSettingsHref);
+    expect(value.setViewOptions).not.toHaveBeenCalled();
   });
 });

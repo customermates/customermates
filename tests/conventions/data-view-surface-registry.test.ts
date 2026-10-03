@@ -2,7 +2,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { DATA_VIEW_SURFACE_KEYS, SURFACE, type DataViewSurfaceKey } from "@/core/data-view/data-view-keys";
+import { DATA_VIEW_SURFACE_KEYS, SURFACE, type BuiltinDataViewSurfaceKey } from "@/core/data-view/data-view-keys";
 import { DATA_VIEW_PATHS } from "@/core/data-view/data-view-paths";
 
 const root = process.cwd();
@@ -18,6 +18,13 @@ const pageFiles = filesUnder("app").filter((path) => path.endsWith("/page.tsx"))
 
 const surfaceKeys = new Set<string>(DATA_VIEW_SURFACE_KEYS);
 const surfaceNames = new Map<string, string>(Object.entries(SURFACE).map(([name, key]) => [name, key]));
+const legacyRecordRedirects = [
+  [SURFACE.contacts, "contacts", "contact"],
+  [SURFACE.organizations, "organizations", "organization"],
+  [SURFACE.deals, "deals", "deal"],
+  [SURFACE.services, "services", "service"],
+  [SURFACE.tasks, "tasks", "task"],
+] as const;
 
 // A page hands the read path a surface through readSurfaceParams, and nothing else may invent a key.
 describe("data view surface registry", () => {
@@ -49,19 +56,25 @@ describe("data view surface registry", () => {
           .slice(1, -1)
           .filter((segment) => segment !== "[locale]" && !segment.startsWith("("))
           .join("/")}`;
-        expect(DATA_VIEW_PATHS[key as DataViewSurfaceKey], `${path} saved-view link`).toBe(route);
+        expect(DATA_VIEW_PATHS[key as BuiltinDataViewSurfaceKey], `${path} saved-view link`).toBe(route);
         reached.add(key as string);
       }
     }
 
-    const expected = new Set(Object.values(SURFACE).filter((key) => key !== SURFACE.entityTimeline));
+    const redirected = new Set<string>(legacyRecordRedirects.map(([key]) => key));
+    const expected = new Set(Object.values(SURFACE).filter((key) => key !== SURFACE.entityTimeline && !redirected.has(key)));
     expect([...reached].sort()).toEqual([...expected].sort());
+    for (const [, route, kind] of legacyRecordRedirects) {
+      expect(read(`app/[locale]/(protected)/${route}/page.tsx`)).toContain(
+        `redirectLegacyRecordRoute("${kind}", undefined, searchParams)`,
+      );
+    }
   });
 
   it("mounts the embedded timeline surface from the activities panel rather than from a page", () => {
     expect(DATA_VIEW_PATHS[SURFACE.entityTimeline]).toBeNull();
-    expect(read("features/messaging/activities/activities.store.ts")).toContain(
-      `export const ACTIVITIES_P13N_ID = "${SURFACE.entityTimeline}"`,
+    expect(read("features/messaging/activities/record-activity-views.store.ts")).toContain(
+      "this.p13nId = SURFACE.entityTimeline",
     );
   });
 });

@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { Resource, Action } from "@/generated/prisma";
+import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
@@ -10,14 +12,26 @@ export abstract class GetUnreadThreadCountRepo {
 }
 
 @AllowInDemoMode
-@TenantInteractor()
+@TenantInteractor({
+  permissions: [
+    { resource: Resource.inboxMessages, action: Action.readAll },
+    { resource: Resource.inboxMessages, action: Action.readOwn },
+  ],
+  condition: "OR",
+})
 export class GetUnreadThreadCountInteractor extends AuthenticatedInteractor<void, number> {
-  constructor(private repo: GetUnreadThreadCountRepo) {
+  constructor(
+    private repo: GetUnreadThreadCountRepo,
+    private entitlements: EntitlementService,
+  ) {
     super();
   }
 
   @ValidateOutput(z.number())
-  async invoke(): Promise<{ ok: true; data: number }> {
+  async invoke() {
+    const denied = await this.entitlements.require("messaging");
+    if (denied) return denied;
+
     const count = await this.repo.countUnreadThreadsForCurrentUser();
 
     return { ok: true as const, data: count };

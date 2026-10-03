@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { EntityType } from "@/generated/prisma";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 import { AUDIT_EVENT_ENTITY_TYPE, auditEntityTypeFor, auditEventsForEntityTypes } from "../audit-entity-type";
 import { AUDIT_LOG_EXCLUDED_EVENTS, DomainEvent } from "../domain-events";

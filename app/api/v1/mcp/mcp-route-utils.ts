@@ -7,6 +7,7 @@ import { redactUnexpectedError } from "@/core/errors/redact-unexpected-error";
 import { executeMcpTool, type McpTool } from "@/features/mcp-tools/mcp-tool";
 import { GET_STARTED_PROMPT, MCP_SERVER_INSTRUCTIONS } from "@/features/mcp-tools/server-instructions";
 import { env } from "@/env";
+import { retiredRecordToolMessage } from "@/features/mcp-tools/retired-record-tools";
 
 export type { McpTool, McpToolResult } from "@/features/mcp-tools/mcp-tool";
 
@@ -111,6 +112,35 @@ function resolveToolsetKey(request: Request, knownKeys: string[]): string {
   return [...new Set(requested)].sort().join(",");
 }
 
+const ToolCallEnvelopeSchema = z.object({
+  jsonrpc: z.literal("2.0"),
+  id: z.union([z.string(), z.number()]),
+  method: z.literal("tools/call"),
+  params: z.object({ name: z.string() }),
+});
+
+async function retiredToolResponse(request: Request): Promise<Response | null> {
+  if (request.method !== "POST") return null;
+  let body: unknown;
+  try {
+    body = await request.clone().json();
+  } catch {
+    return null;
+  }
+  const call = ToolCallEnvelopeSchema.safeParse(body);
+  if (!call.success) return null;
+  const message = retiredRecordToolMessage(call.data.params.name);
+  if (!message) return null;
+  return Response.json(
+    {
+      jsonrpc: "2.0",
+      id: call.data.id,
+      result: { ...createTextContent(message, true), _meta: { contractVersion: 2, code: "retired_tool" } },
+    },
+    { headers: { "Cache-Control": "no-store", "Access-Control-Allow-Origin": "*" } },
+  );
+}
+
 export function createMcpRoute(
   toolGroups: Record<string, McpTool[]>,
   alwaysOn: McpTool[] = [],
@@ -139,7 +169,8 @@ export function createMcpRoute(
 
   return async (request: Request) => {
     if (!(await isMcpRequestAuthorized(request))) return unauthorizedChallenge();
-
+    const retired = await retiredToolResponse(request);
+    if (retired) return retired;
     return handlerFor(resolveToolsetKey(request, knownKeys))(request);
   };
 }

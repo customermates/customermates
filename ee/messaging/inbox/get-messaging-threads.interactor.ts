@@ -1,3 +1,4 @@
+import { runInTransaction } from "@/core/decorators/transaction-runner";
 import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
 import type { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
@@ -43,6 +44,6 @@ export class GetMessagingThreadsInteractor extends BaseGetInteractor<MessagingTh
     const denied = await this.entitlements.require("messaging");
     if (denied) return denied;
 
-    return await super.invoke(params);
+    return runInTransaction(() => super.invoke(params), { readOnly: true });
   }
 }

@@ -1,0 +1,42 @@
+import type { Data } from "@/core/validation/validation.utils";
+
+import { z } from "zod";
+
+import {
+  CustomFieldValueSchema,
+  ContactReferenceSchema,
+  OrganizationReferenceSchema,
+  UserReferenceSchema,
+  ServiceReferenceSchema,
+  TaskReferenceSchema,
+  NotesSchema,
+} from "@/core/base/base-entity.schema";
+import { CustomColumnDtoSchema } from "@/core/data-view/column-presentation.schema";
+
+export const DealDtoSchema = z.object({
+  id: z.uuid(),
+  name: z.string(),
+  totalValue: z.number(),
+  totalQuantity: z.number(),
+  weightedValue: z.number().nullable(),
+  notes: NotesSchema,
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  organizations: z.array(OrganizationReferenceSchema),
+  users: z.array(UserReferenceSchema),
+  contacts: z.array(ContactReferenceSchema),
+  services: z.array(ServiceReferenceSchema),
+  tasks: z.array(TaskReferenceSchema),
+  customFieldValues: z
+    .array(CustomFieldValueSchema)
+    .describe(
+      "Custom field values for this deal. Query available custom field configurations via GET /v1/deals/configuration, which returns customColumns with their definitions.",
+    ),
+});
+
+export type DealDto = Data<typeof DealDtoSchema>;
+
+export const DealByIdResponseSchema = z.object({
+  deal: DealDtoSchema.nullable(),
+  customColumns: z.array(CustomColumnDtoSchema),
+});

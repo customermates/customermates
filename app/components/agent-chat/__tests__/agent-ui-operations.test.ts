@@ -1,12 +1,25 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { RootStore } from "@/core/stores/root.store";
 import type { AppMode } from "@/core/config/environment";
 
 import { Resource } from "@/generated/prisma";
-import { AGENT_RECORD_ENTITIES } from "@/ee/agent-chat/ui-operations";
+import { getRecordAction, getRecordNavigationAction } from "@/app/[locale]/(protected)/records/actions";
+vi.mock("@/app/[locale]/(protected)/records/actions", () => ({
+  getRecordAction: vi.fn(),
+  getRecordNavigationAction: vi.fn(),
+}));
+const RECORD_TYPES = [
+  "10000000-0000-4000-8000-000000000001",
+  "10000000-0000-4000-8000-000000000002",
+  "10000000-0000-4000-8000-000000000003",
+  "10000000-0000-4000-8000-000000000004",
+  "10000000-0000-4000-8000-000000000005",
+  "10000000-0000-4000-8000-000000000006",
+];
+beforeEach(() => vi.mocked(getRecordAction).mockResolvedValue({ ok: true, data: {} } as never));
 
-import { AgentUiControlStore } from "../ui-control.store";
+import { AgentUiControlStore, findAgentTargetElement } from "../ui-control.store";
 
 function controlStore({
   appMode = "cloud",
@@ -23,20 +36,20 @@ const CUSTOMER_SUCCESS_READS = Object.values(Resource).filter(
 );
 
 describe("AgentUiControlStore.navigate", () => {
-  it("opens an existing record on its page from entity and record id and propagates a blocked navigation", async () => {
+  it("opens an existing record on its page from type and record id and propagates a blocked navigation", async () => {
     const navigate = vi.fn().mockResolvedValue("navigated");
     const store = controlStore();
     store.registerNavigate(navigate);
 
-    await expect(store.navigate({ entity: "deal", recordId: "00000000-0000-4000-8000-000000000001" })).resolves.toEqual(
-      {
-        ok: true,
-        result: "Opened the deal on its page.",
-      },
-    );
-    expect(navigate).toHaveBeenLastCalledWith("/deals/00000000-0000-4000-8000-000000000001");
+    await expect(
+      store.navigate({ typeId: RECORD_TYPES[0], recordId: "00000000-0000-4000-8000-000000000001" }),
+    ).resolves.toEqual({
+      ok: true,
+      result: "Opened the record on its page.",
+    });
+    expect(navigate).toHaveBeenLastCalledWith(`/records/${RECORD_TYPES[0]}/00000000-0000-4000-8000-000000000001`);
 
-    await expect(store.navigate({ entity: "contact", recordId: "new" })).resolves.toMatchObject({ ok: false });
+    await expect(store.navigate({ typeId: RECORD_TYPES[2], recordId: "new" })).resolves.toMatchObject({ ok: false });
     await expect(
       store.navigate({ entity: "company", recordId: "00000000-0000-4000-8000-000000000001" }),
     ).resolves.toMatchObject({
@@ -46,11 +59,47 @@ describe("AgentUiControlStore.navigate", () => {
 
     navigate.mockResolvedValue("blocked");
     await expect(
-      store.navigate({ entity: "task", recordId: "00000000-0000-4000-8000-000000000002" }),
+      store.navigate({ typeId: RECORD_TYPES[1], recordId: "00000000-0000-4000-8000-000000000002" }),
     ).resolves.toMatchObject({
       ok: false,
       result: "Navigation requires the user to resolve unsaved changes.",
     });
+  });
+
+  it("rechecks record visibility before opening a page and type access before using a list target", async () => {
+    const navigate = vi.fn().mockResolvedValue("navigated");
+    const store = controlStore();
+    store.registerNavigate(navigate);
+    vi.mocked(getRecordAction).mockResolvedValueOnce({ ok: false, error: {} } as never);
+    await expect(
+      store.navigate({ typeId: RECORD_TYPES[0], recordId: "00000000-0000-4000-8000-000000000001" }),
+    ).resolves.toMatchObject({ ok: false });
+    expect(navigate).not.toHaveBeenCalled();
+    vi.mocked(getRecordNavigationAction).mockResolvedValue({
+      companyId: "company",
+      schemaRevision: 1,
+      canManageSchema: false,
+      types: [],
+    });
+    await expect(store.navigate({ targetId: `nav-records:${RECORD_TYPES[0]}` })).resolves.toMatchObject({ ok: false });
+    expect(navigate).not.toHaveBeenCalled();
+    vi.mocked(getRecordNavigationAction).mockResolvedValue({
+      companyId: "company",
+      schemaRevision: 1,
+      canManageSchema: false,
+      types: [
+        {
+          id: RECORD_TYPES[0],
+          label: "Project",
+          pluralLabel: "Projects",
+          icon: "folder",
+          canCreate: false,
+          hasAuthorizationTasks: false,
+        },
+      ],
+    });
+    await expect(store.navigate({ targetId: `nav-records:${RECORD_TYPES[0]}` })).resolves.toMatchObject({ ok: true });
+    expect(navigate).toHaveBeenLastCalledWith(`/records/${RECORD_TYPES[0]}`);
   });
 
   it("never builds a drawer path for any record type", async () => {
@@ -58,10 +107,10 @@ describe("AgentUiControlStore.navigate", () => {
     const store = controlStore();
     store.registerNavigate(navigate);
 
-    for (const entity of AGENT_RECORD_ENTITIES)
-      await store.navigate({ entity, recordId: "00000000-0000-4000-8000-000000000003" });
+    for (const typeId of RECORD_TYPES)
+      await store.navigate({ typeId, recordId: "00000000-0000-4000-8000-000000000003" });
 
-    expect(navigate).toHaveBeenCalledTimes(AGENT_RECORD_ENTITIES.length);
+    expect(navigate).toHaveBeenCalledTimes(RECORD_TYPES.length);
     for (const [path] of navigate.mock.calls) expect(String(path)).not.toContain("?open=");
   });
 
@@ -90,8 +139,9 @@ describe("AgentUiControlStore.navigate", () => {
     const navigate = vi.fn().mockResolvedValue("navigated");
     const withoutDeals = controlStore({ readable: Object.values(Resource).filter((r) => r !== Resource.deals) });
     withoutDeals.registerNavigate(navigate);
+    vi.mocked(getRecordAction).mockResolvedValueOnce({ ok: false, error: {} } as never);
     await expect(
-      withoutDeals.navigate({ entity: "deal", recordId: "00000000-0000-4000-8000-000000000001" }),
+      withoutDeals.navigate({ typeId: RECORD_TYPES[0], recordId: "00000000-0000-4000-8000-000000000001" }),
     ).resolves.toMatchObject({ ok: false });
 
     const selfHosted = controlStore({ appMode: "self-hosted" });
@@ -133,6 +183,13 @@ describe("AgentUiControlStore.highlight", () => {
     });
     return lookup;
   }
+
+  it("resolves shared controls only on their declared record type's page", () => {
+    const search = element(1);
+    onPage(`/en/records/${RECORD_TYPES[0]}`, (id) => (id === "records-search" ? search : null));
+    expect(findAgentTargetElement(`records:${RECORD_TYPES[0]}:search`)).toBe(search);
+    expect(findAgentTargetElement(`records:${RECORD_TYPES[1]}:search`)).toBeNull();
+  });
 
   function onSidebarPage(pathname: string, elements: Record<string, ReturnType<typeof element>>) {
     onPage(pathname, (id) => (id === "sidebar-trigger" ? element(1) : (elements[id] ?? null)));

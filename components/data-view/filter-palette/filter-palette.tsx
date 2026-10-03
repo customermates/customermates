@@ -43,7 +43,9 @@ export const FilterPalette = observer(function FilterPalette({ store }: Props) {
   const field = isRoot ? "" : page.field;
   const operator = isRoot ? undefined : draft.operator;
   const declaredOperators = isRoot ? [] : declaredOperatorsOf(field, store.filterableFields);
-  const pageKind = palettePageKind(resolveFilterValueClass(field, operator, store.customColumns));
+  const pageKind = palettePageKind(
+    resolveFilterValueClass(field, operator, store.filterColumns ?? store.customColumns),
+  );
   const showDateRows = page.kind === "value" && pageKind === "date" && page.editIndex === undefined;
   const usesCommand = isRoot || pageKind === "select" || pageKind === "operatorOnly" || showDateRows;
   const draftFilter = { field, operator, value: draft.value } as Filter;
@@ -105,7 +107,7 @@ export const FilterPalette = observer(function FilterPalette({ store }: Props) {
     if (pageKind === "select") {
       return (
         <PaletteValueSelect
-          customColumns={store.customColumns}
+          customColumns={store.filterColumns ?? store.customColumns}
           filter={draftFilter}
           query={palette.query}
           selected={palette.selectedValues}
@@ -129,7 +131,7 @@ export const FilterPalette = observer(function FilterPalette({ store }: Props) {
         />
       ) : (
         <PaletteValueDateInput
-          customColumns={store.customColumns}
+          customColumns={store.filterColumns ?? store.customColumns}
           field={field}
           isValidFilter={isValidFilter}
           operator={operator}

@@ -1,6 +1,6 @@
 "use client";
 
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
 
 import { useTranslations } from "next-intl";
 
@@ -13,7 +13,9 @@ export function useFilterFieldLabel() {
   const t = useTranslations();
   const { term } = useEntityTerminology();
 
-  return (field: string, customColumns?: CustomColumnDto[]) => {
+  return (field: string, customColumns?: ColumnPresentation[]) => {
+    const presentation = customColumns?.find((column) => column.id === field);
+    if (presentation) return presentation.label;
     if (isCustomField(field))
       return customColumns?.find((column) => column.id === field)?.label ?? t("Common.filters.unavailableValue");
 

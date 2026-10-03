@@ -93,19 +93,19 @@ describe("agent page context", () => {
   it("blocks custom-field mutations that try to manufacture a filter for an Ask AI view request", () => {
     const route = "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update";
     const createColumn = {
-      action: "upsert",
+      action: "apply",
       intent: "create",
       entityType: "contact",
       type: "plain",
       label: "Purchase order number",
     };
 
-    expect(agentViewToolMismatch(route, "manage_custom_columns", createColumn)).toContain(
+    expect(agentViewToolMismatch(route, "configure_record_model", createColumn)).toContain(
       "Use only filter fields returned by manage_data_views config",
     );
-    expect(agentViewToolMismatch(route, "manage_custom_columns", { action: "delete" })).toContain("no change was made");
-    expect(agentViewToolMismatch(route, "manage_custom_columns", { action: "list" })).toBeNull();
-    expect(agentViewToolMismatch("/en/contacts", "manage_custom_columns", createColumn)).toBeNull();
+    expect(agentViewToolMismatch(route, "configure_record_model", { action: "apply" })).toContain("no change was made");
+    expect(agentViewToolMismatch(route, "configure_record_model", { action: "preview" })).toBeNull();
+    expect(agentViewToolMismatch("/en/contacts", "configure_record_model", createColumn)).toBeNull();
   });
 
   it("escapes route attributes without adding another context element", () => {

@@ -6,6 +6,7 @@ import type { OperatorActor } from "@/core/decorators/operator-context";
 
 import { runWithOperator } from "@/core/decorators/operator-context";
 import { runWithoutTenant } from "@/core/decorators/tenant-context";
+import { createCrmPreset, presetId } from "@/features/records/crm-preset";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 
 vi.mock("@/env", () => ({
@@ -17,8 +18,8 @@ vi.mock("@/env", () => ({
   },
 }));
 
-import { OPERATOR_AUDIT_ACTION } from "../operator.schema";
 import type { OperatorRefusal } from "../operator.repo";
+import { OPERATOR_AUDIT_ACTION } from "../operator.schema";
 import { PrismaOperatorRepo } from "../prisma-operator.repository";
 
 const OPERATOR_REFUSALS: OperatorRefusal[] = [
@@ -260,16 +261,54 @@ describeDatabase("operator user administration against a real database", { timeo
       status: "pendingAuthorization",
     });
     const repo = new PrismaOperatorRepo();
-    const pendingTask = await runWithoutTenant(() =>
-      prisma.task.create({
+    const taskType = createCrmPreset(companyId, "EUR").types.find((type) => type.id === presetId(companyId, "task"));
+    if (!taskType) throw new Error("The starter task type is missing");
+    const protectedTask = await runWithoutTenant(async () => {
+      await prisma.recordTypeDefinition.create({
         data: {
           companyId,
-          name: "Pending authorization",
-          relatedUserId: backup.userId,
-          type: "userPendingAuthorization",
+          id: taskType.id,
+          presetKey: "task",
+          label: taskType.label,
+          pluralLabel: taskType.pluralLabel,
+          definition: taskType,
         },
-      }),
+      });
+      await prisma.recordSchemaState.create({ data: { companyId, revision: 1, storageMode: "generic" } });
+      return prisma.crmRecord.create({
+        data: {
+          companyId,
+          typeId: taskType.id,
+          protectedKind: "membershipAuthorization",
+          systemData: { relatedUserId: backup.userId },
+        },
+      });
+    });
+    const linkedTask = await runWithoutTenant(() =>
+      prisma.crmRecord.create({ data: { companyId, typeId: taskType.id } }),
     );
+    const relationId = randomUUID();
+    const protectedLink = await runWithoutTenant(async () => {
+      await prisma.recordRelationshipDefinition.create({
+        data: {
+          companyId,
+          id: relationId,
+          sourceTypeId: taskType.id,
+          targetTypeId: taskType.id,
+          definition: {},
+        },
+      });
+      return prisma.recordLink.create({
+        data: {
+          companyId,
+          relationId,
+          sourceTypeId: taskType.id,
+          sourceId: protectedTask.id,
+          targetTypeId: taskType.id,
+          targetId: linkedTask.id,
+        },
+      });
+    });
 
     await expect(
       runWithOperator(operatorActor(target.userId), () =>
@@ -285,6 +324,24 @@ describeDatabase("operator user administration against a real database", { timeo
     ).resolves.toBe("conflict");
 
     const actor = operatorActor();
+    await expect(
+      runWithOperator(actor, () =>
+        repo.updateUserStatusUnscoped(
+          { userId: backup.userId, status: "active", reason: "Linked protected task must remain intact" },
+          now,
+        ),
+      ),
+    ).resolves.toBe("conflict");
+    await expect(
+      runWithoutTenant(() => prisma.user.findUnique({ where: { id: backup.userId } })),
+    ).resolves.toMatchObject({
+      status: "pendingAuthorization",
+    });
+    await runWithoutTenant(() =>
+      prisma.recordLink.delete({
+        where: { companyId_relationId_id: { companyId, relationId, id: protectedLink.id } },
+      }),
+    );
     await expect(
       runWithOperator(actor, () =>
         repo.updateUserStatusUnscoped(
@@ -311,7 +368,15 @@ describeDatabase("operator user administration against a real database", { timeo
     assertAdmitted(activated);
     expect(activated.status).toBe("active");
     expect(activated.agentCreditActivatedAt).toEqual(now);
-    await expect(runWithoutTenant(() => prisma.task.findUnique({ where: { id: pendingTask.id } }))).resolves.toBeNull();
+    await expect(
+      runWithoutTenant(() =>
+        prisma.crmRecord.findUnique({
+          where: {
+            companyId_typeId_id: { companyId, typeId: taskType.id, id: protectedTask.id },
+          },
+        }),
+      ),
+    ).resolves.toBeNull();
 
     const request = {
       userId: target.userId,

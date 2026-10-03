@@ -1,7 +1,5 @@
-import type { Prisma } from "@/generated/prisma";
-
 import type { SeedContext } from "./context";
-import { fixtureId, relationshipTarget, upsertFixturesById } from "./helpers";
+import { fixtureId, relationshipTarget } from "./helpers";
 import type { ServiceSeedData } from "./services";
 import { SYNTHETIC_SEED_TIMELINE } from "./timeline";
 
@@ -88,14 +86,23 @@ export type DealDefinition = readonly [
   statusIndex: number,
 ];
 
-export type DealFixture = Prisma.DealCreateManyInput & { id: string };
+export type DealFixture = {
+  id: string;
+  companyId: string;
+  name: string;
+  totalQuantity: number;
+  totalValue: number;
+  weightedValue: number;
+  createdAt: Date;
+  updatedAt: Date;
+};
 
 export type DealSeedData = {
   dealDefinitions: readonly DealDefinition[];
   deals: DealFixture[];
 };
 
-export async function seedDeals(context: SeedContext, serviceData: ServiceSeedData): Promise<DealSeedData> {
+export function seedDeals(context: SeedContext, serviceData: ServiceSeedData): Promise<DealSeedData> {
   const dealDefinitions: readonly DealDefinition[] = SYNTHETIC_DEAL_NAMES.map(
     (name, index) =>
       [
@@ -123,22 +130,8 @@ export async function seedDeals(context: SeedContext, serviceData: ServiceSeedDa
       totalValue,
       weightedValue: (totalValue * weight) / 100,
       ...SYNTHETIC_SEED_TIMELINE.deal(index),
-    } satisfies Prisma.DealCreateManyInput;
+    } satisfies DealFixture;
   });
 
-  await upsertFixturesById(deals, (deal) =>
-    context.prisma.deal.upsert({
-      where: { id: deal.id },
-      update: deal,
-      create: deal,
-    }),
-  );
-  await context.prisma.deal.deleteMany({
-    where: {
-      companyId: context.ids.company,
-      id: { startsWith: "80000000-", notIn: deals.map(({ id }) => id) },
-    },
-  });
-
-  return { dealDefinitions, deals };
+  return Promise.resolve({ dealDefinitions, deals });
 }

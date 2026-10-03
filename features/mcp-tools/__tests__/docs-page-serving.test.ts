@@ -46,10 +46,10 @@ describe("docs pages served to agents", () => {
       expect(markdown).not.toContain("<APIPage");
     }
     expect(
-      mcpToolResultText(
-        getDocsPageTool.execute({ slug: "getContactById", locale: "en", source: "api" }) as McpToolResult,
-      ),
-    ).toContain("**Endpoint:** `GET /api/v1/contacts/{id}`, operationId `getContactById`.");
+      mcpToolResultText(getDocsPageTool.execute({ slug: "readRecord", locale: "en", source: "api" }) as McpToolResult),
+    ).toContain("**Endpoint:** `POST /api/v2/records/read`, operationId `readRecord`.");
+    expect(getDocsPageRaw("getContactById", "en", "api")).toBeNull();
+    expect(getDocsPageRaw("createContact", "en", "api")).toBeNull();
   });
 
   it("quotes each REST reference page's description, not the YAML block marker of a folded description", () => {
@@ -65,9 +65,9 @@ describe("docs pages served to agents", () => {
     expect(markers).toEqual([]);
     expect(
       mcpToolResultText(
-        getDocsPageTool.execute({ slug: "createContact", locale: "en", source: "api" }) as McpToolResult,
+        getDocsPageTool.execute({ slug: "mutateRecord", locale: "en", source: "api" }) as McpToolResult,
       ),
-    ).toContain("\n> Creates a new contact. First name and last name are required. All other fields are optional.\n");
+    ).toContain("\n> Version 2 configurable CRM contract. Record references contain both typeId and recordId.");
   });
 
   it("treats inherited object keys as unknown slugs", () => {

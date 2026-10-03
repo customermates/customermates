@@ -1,54 +1,12 @@
-import { activityScopeForRecord } from "@/ee/messaging/activities/activity-scope.schema";
-import { EntityType, Resource } from "@/generated/prisma";
+import { redirectLegacyRecordRoute } from "../../records/legacy-record-redirect";
 
-import { EntityDetailPageView } from "@/components/entity-detail/entity-detail-page-view";
-
-import { readViewIdParam } from "@/core/data-view/next/read-view-id-param";
-import { getGetActivitiesInteractor, getGetDealByIdInteractor } from "@/core/di";
-import { requireAccess } from "@/features/auth/next/require";
-import { ACTIVITIES_P13N_ID } from "@/features/messaging/activities/activities.store";
-import { getOptionalP13n } from "@/features/p13n/next/get-optional-p13n";
-import { DEAL_DETAIL_P13N_ID } from "../components/deal-detail-personalization";
-
-type Props = {
+export default async function LegacyRecordDetailPage({
+  params,
+  searchParams,
+}: {
   params: Promise<{ id: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
-};
-
-export default async function DealDetailPage({ params, searchParams }: Props) {
-  await requireAccess({ resource: Resource.deals });
-
+}) {
   const { id } = await params;
-  const viewId = await readViewIdParam(searchParams);
-
-  const [entityResult, timelineResult, personalizationInitial] = await Promise.all([
-    getGetDealByIdInteractor().invoke({ id }),
-    getGetActivitiesInteractor().invoke({
-      scope: activityScopeForRecord(EntityType.deal, id),
-      pagination: { page: 1, pageSize: 25 },
-      p13nId: ACTIVITIES_P13N_ID,
-      viewId,
-    }),
-    getOptionalP13n(DEAL_DETAIL_P13N_ID),
-  ]);
-  const entity = entityResult.ok ? entityResult.data.deal : null;
-
-  return (
-    <EntityDetailPageView
-      entityInitial={entity && entityResult.ok ? { entity, customColumns: entityResult.data.customColumns } : null}
-      entityType={EntityType.deal}
-      id={id}
-      personalizationInitial={personalizationInitial}
-      timelineInitial={
-        timelineResult.ok
-          ? timelineResult.data
-          : {
-              availableSources: [],
-              items: [],
-              pageLimitReached: false,
-              scopeTruncated: false,
-            }
-      }
-    />
-  );
+  return redirectLegacyRecordRoute("deal", id, searchParams);
 }

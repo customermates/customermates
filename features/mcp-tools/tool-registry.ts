@@ -1,27 +1,29 @@
+import { manageRolesTool } from "@/features/mcp-tools/role.mcp-tools";
 import { manageDataViewsTool } from "@/features/mcp-tools/data-view.mcp-tools";
-import { createContactsTool, updateContactsTool } from "@/features/mcp-tools/contact.mcp-tools";
-import { createDealsTool, updateDealsTool } from "@/features/mcp-tools/deal.mcp-tools";
-import { createOrganizationsTool, updateOrganizationsTool } from "@/features/mcp-tools/organization.mcp-tools";
-import { createServicesTool, updateServicesTool } from "@/features/mcp-tools/service.mcp-tools";
-import { createTasksTool, updateTasksTool } from "@/features/mcp-tools/task.mcp-tools";
+import {
+  discoverRecordTypesV2Tool,
+  getRecordModelV2Tool,
+  configureRecordModelV2Tool,
+  queryRecordsV2Tool,
+  searchRecordsV2Tool,
+  resolveRecordIdentifiersV2Tool,
+  readRecordV2Tool,
+  mutateRecordV2Tool,
+  previewRecordDeletionV2Tool,
+  queryRecordMeasureV2Tool,
+  readRecordOperationV2Tool,
+  cancelRecordOperationV2Tool,
+  resumeRecordOperationV2Tool,
+  manageRecordDetailLayoutV2Tool,
+} from "@/features/mcp-tools/record-model.mcp-tools";
 import { getDocsPageTool, searchDocsTool } from "@/features/mcp-tools/docs.mcp-tools";
 import { getWorkspaceContextTool, listUsersTool } from "@/features/mcp-tools/workspace.mcp-tools";
 import { fetchTool, searchTool } from "@/features/mcp-tools/deep-research.mcp-tools";
-import { manageCustomColumnsTool } from "@/features/mcp-tools/custom-column.mcp-tools";
 import { manageTeamTool, updateWorkspaceSettingsTool } from "@/features/mcp-tools/admin.mcp-tools";
 import { manageWebhooksTool } from "@/features/mcp-tools/webhook.mcp-tools";
 import { manageWidgetsTool } from "@/features/mcp-tools/widget.mcp-tools";
 import { manageRoutinesTool } from "@/features/mcp-tools/routine.mcp-tools";
 import { requestSupportTool } from "@/features/mcp-tools/support.mcp-tools";
-import {
-  deleteRecordsTool,
-  getRecordSchemaTool,
-  getRecordsTool,
-  listRecordsTool,
-  manageRecordLinksTool,
-  searchRecordsTool,
-  updateRecordNotesTool,
-} from "@/features/mcp-tools/entity-generic.mcp-tools";
 import {
   connectMessagingAccountTool,
   discardMessageDraftTool,
@@ -33,6 +35,7 @@ import {
   sendEmailTool,
   updateMessagingThreadTool,
   moveEmailThreadTool,
+  manageConversationRecordsTool,
 } from "@/features/mcp-tools/messaging.mcp-tools";
 import {
   getSocialPostEngagementTool,
@@ -51,26 +54,20 @@ import type { McpTool } from "@/features/mcp-tools/mcp-tool";
 
 export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
   records: [
-    getRecordSchemaTool,
-    listRecordsTool,
-    searchRecordsTool,
-    getRecordsTool,
-    createContactsTool,
-    createOrganizationsTool,
-    createDealsTool,
-    createServicesTool,
-    createTasksTool,
-    updateContactsTool,
-    updateOrganizationsTool,
-    updateDealsTool,
-    updateServicesTool,
-    updateTasksTool,
-    updateRecordNotesTool,
-    manageRecordLinksTool,
-    deleteRecordsTool,
+    discoverRecordTypesV2Tool,
+    getRecordModelV2Tool,
+    queryRecordsV2Tool,
+    searchRecordsV2Tool,
+    resolveRecordIdentifiersV2Tool,
+    readRecordV2Tool,
+    mutateRecordV2Tool,
+    previewRecordDeletionV2Tool,
+    queryRecordMeasureV2Tool,
+    readRecordOperationV2Tool,
   ],
+  "record-model": [configureRecordModelV2Tool, cancelRecordOperationV2Tool, resumeRecordOperationV2Tool],
   workspace: [getWorkspaceContextTool, listUsersTool],
-  views: [manageDataViewsTool],
+  views: [manageDataViewsTool, manageRecordDetailLayoutV2Tool],
   messaging: [
     getMessagingThreadsTool,
     getActivitiesTool,
@@ -81,6 +78,7 @@ export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
     discardMessageDraftTool,
     updateMessagingThreadTool,
     moveEmailThreadTool,
+    manageConversationRecordsTool,
     connectMessagingAccountTool,
   ],
   social: [
@@ -94,11 +92,10 @@ export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
     manageSalesListsTool,
   ],
   docs: [searchDocsTool, getDocsPageTool],
-  "custom-columns": [manageCustomColumnsTool],
   widgets: [manageWidgetsTool],
   routines: [manageRoutinesTool],
   webhooks: [manageWebhooksTool],
-  admin: [updateWorkspaceSettingsTool, manageTeamTool],
+  admin: [updateWorkspaceSettingsTool, manageTeamTool, manageRolesTool],
   support: [requestSupportTool],
 };
 

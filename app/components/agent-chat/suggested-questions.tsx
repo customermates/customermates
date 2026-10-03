@@ -6,7 +6,8 @@ import { observer } from "mobx-react-lite";
 import { useSyncExternalStore } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Compass, Link2, Plus, Search, Sparkles } from "lucide-react";
-import { Action, EntityType, Resource } from "@/generated/prisma";
+import { Action, Resource } from "@/generated/prisma";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 import { suggestionPageId, type SuggestionPageId } from "@/ee/agent-chat/agent-chat.schema";
 import { agentPageActions, agentPageState } from "@/ee/agent-chat/agent-page-actions";
@@ -61,35 +62,25 @@ const AvailableAgentStarterActions = observer(function AvailableAgentStarterActi
   state: explicitState,
   surface = "chat",
 }: Omit<Props, "fallback">) {
-  const { agentChatStore: store, userStore } = useRootStore();
+  const { agentChatStore: store, userStore, recordWorkspaceStore } = useRootStore();
   const { map } = useEntityTerminology();
   const t = useTranslations();
   const locale = useLocale();
   const pathname = usePathname();
 
   const pageId = explicitPageId ?? suggestionPageId(pathname);
-  const pageResource =
-    pageId === "contacts"
-      ? Resource.contacts
-      : pageId === "organizations"
-        ? Resource.organizations
-        : pageId === "deals"
-          ? Resource.deals
-          : pageId === "services"
-            ? Resource.services
-            : pageId === "tasks"
-              ? Resource.tasks
-              : pageId === "routines"
-                ? Resource.routines
-                : null;
+  const navigation = recordWorkspaceStore.navigation;
+  const currentType = pathname.startsWith("/records/")
+    ? navigation?.types.find((type) => type.id === pathname.split("/")[2])
+    : null;
   const canSetupWorkspace =
-    [Resource.contacts, Resource.organizations, Resource.deals, Resource.services, Resource.tasks].every(
-      (resource) => userStore.can(resource, Action.create) && userStore.can(resource, Action.readAll),
-    ) &&
+    navigation?.canManageSchema === true &&
     userStore.can(Resource.company, Action.readOwn) &&
     userStore.can(Resource.company, Action.update);
   const canCreate =
-    pageId === "dashboard" ? canSetupWorkspace : Boolean(pageResource && userStore.can(pageResource, Action.create));
+    pageId === "dashboard"
+      ? canSetupWorkspace
+      : (currentType?.canCreate ?? (pageId === "routines" && userStore.can(Resource.routines, Action.create)));
   const terminology = map();
   let state = explicitState;
   if (!state) {

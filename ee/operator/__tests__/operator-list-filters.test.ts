@@ -1,6 +1,6 @@
 import type { Filter } from "@/core/base/base-get.schema";
-import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
 import type { GroupScope } from "@/core/base/grouping/group-scope";
+import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
 
 import { describe, expect, it, vi } from "vitest";
 
@@ -61,9 +61,9 @@ describe("groupScopeToFilters", () => {
   });
 
   it("refuses the kinds no operator list declares", () => {
-    expect(() => groupScopeToFilters(scope(relationGroupable({ model: "deal", field: "userIds" }), "x"))).toThrow(
-      "Operator lists cannot group by relation (deal.userIds)",
-    );
+    expect(() =>
+      groupScopeToFilters(scope(relationGroupable({ model: "routine", field: "ownerUserId" }), "x")),
+    ).toThrow("Operator lists cannot group by relation (routine.ownerUserId)");
   });
 });
 

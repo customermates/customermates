@@ -1,6 +1,6 @@
 import { DomainEvent } from "./domain-events";
 
-import { EntityType } from "@/generated/prisma";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 export const AUDIT_EVENT_ENTITY_TYPE: Record<DomainEvent, EntityType | null> = {
   [DomainEvent.CONTACT_CREATED]: EntityType.contact,

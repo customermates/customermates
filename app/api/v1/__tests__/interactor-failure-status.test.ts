@@ -6,30 +6,21 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { createZodError } from "@/core/validation/validation.utils";
 
 const interactors = vi.hoisted(() => ({
-  searchDeals: vi.fn(),
   searchUsers: vi.fn(),
   deleteWebhook: vi.fn(),
-  deleteContact: vi.fn(),
-  createContact: vi.fn(),
   invite: vi.fn(),
   searchPeople: vi.fn(),
 }));
 
 vi.mock("@/core/di", () => ({
-  getGetDealsApiInteractor: () => ({ invoke: interactors.searchDeals }),
   getGetUsersApiInteractor: () => ({ invoke: interactors.searchUsers }),
   getDeleteWebhookInteractor: () => ({ invoke: interactors.deleteWebhook }),
-  getDeleteContactInteractor: () => ({ invoke: interactors.deleteContact }),
-  getCreateContactInteractor: () => ({ invoke: interactors.createContact }),
   getCreateRelationRequestInteractor: () => ({ invoke: interactors.invite }),
   getLinkedinSearchSalesPeopleInteractor: () => ({ invoke: interactors.searchPeople }),
 }));
 
-import { POST as searchDeals } from "../deals/search/route";
 import { POST as searchUsers } from "../users/search/route";
 import { DELETE as deleteWebhook } from "../webhooks/[id]/route";
-import { DELETE as deleteContact } from "../contacts/[id]/route";
-import { POST as createContact } from "../contacts/route";
 import { POST as invite } from "../messaging/social-relations/invite/route";
 import { POST as searchPeople } from "../messaging/sales-navigator/search/people/route";
 
@@ -47,13 +38,6 @@ const params = { params: Promise.resolve({ id: ID }) };
 
 const cases = [
   {
-    kind: "validation",
-    status: 400,
-    code: CustomErrorCode.assigneeRequired,
-    spy: interactors.searchDeals,
-    invoke: () => searchDeals(request("deals/search", "POST", {})),
-  },
-  {
     kind: "authentication",
     status: 401,
     code: CustomErrorCode.notAuthenticated,
@@ -66,20 +50,6 @@ const cases = [
     code: CustomErrorCode.permissionDenied,
     spy: interactors.deleteWebhook,
     invoke: () => deleteWebhook(request(`webhooks/${ID}`, "DELETE"), params),
-  },
-  {
-    kind: "not_found",
-    status: 404,
-    code: CustomErrorCode.contactNotFound,
-    spy: interactors.deleteContact,
-    invoke: () => deleteContact(request(`contacts/${ID}`, "DELETE"), params),
-  },
-  {
-    kind: "conflict",
-    status: 409,
-    code: CustomErrorCode.channelAlreadyLinked,
-    spy: interactors.createContact,
-    invoke: () => createContact(request("contacts", "POST", { firstName: "Ada" })),
   },
   {
     kind: "unavailable",

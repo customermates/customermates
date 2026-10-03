@@ -20,7 +20,7 @@ Webhooks lassen andere Systeme auf CRM-Änderungen reagieren, ohne zu pollen.
 **UI:** Um einen Webhook anzulegen, klappen Sie in der Seitenleiste **Mein Unternehmen** auf, öffnen Sie **Webhooks** und fügen Sie mit **Hinzufügen** einen Webhook hinzu (auf schmalen Bildschirmen zeigt die Schaltfläche nur ein Plus-Symbol). Füllen Sie den Dialog **Webhook** aus, tragen Sie die URL ein und klicken Sie auf **Speichern**.
 
 | Feld | Wirkung |
-|---|---|
+| --- | --- |
 | **URL** | Pflichtfeld. Der Endpunkt, der für jedes abonnierte Ereignis einen `POST` erhält. Eine URL ohne Schema wird mit vorangestelltem `https://` gespeichert. |
 | **Beschreibung** | Optional, bis zu 500 Zeichen. Erscheint in der Liste. |
 | **Ereignisse** | Pflichtfeld. Ein oder mehrere Ereignisse aus dem Katalog am Ende dieser Seite. |
@@ -31,12 +31,19 @@ Webhooks lassen andere Systeme auf CRM-Änderungen reagieren, ohne zu pollen.
 
 Um einen Webhook zu ändern, klicken Sie auf seine Zeile, bearbeiten den Dialog und klicken auf **Speichern**. Zum Entfernen klicken Sie oben im Dialog auf das Papierkorb-Symbol (**Löschen**) und bestätigen; seine bisherigen Zustellungen bleiben unter **Letzte Zustellungen** erhalten. Die Liste zeigt für jeden Webhook **URL**, **Beschreibung**, **Ereignisse**, **Status** (**Aktiviert** oder **Deaktiviert**), **Erstellt am** und **Aktualisiert am**. Das Suchfeld durchsucht die URL, die Filter decken Erstellungs- und Änderungsdatum ab.
 
-**MCP:** `manage_webhooks` mit `action: "create"`, dazu `url`, `events[]` und optional `description`, `secret`, `headers`, `bodyTemplate`, `enabled`. Der gehostete Assistent nutzt dasselbe Tool und kann außerdem **Webhooks** oder **Letzte Zustellungen** für Sie öffnen und auf die Schaltfläche **Hinzufügen** zeigen.
+Für Datensatzereignisse wählen Sie den Quelltyp aus und ergänzen bei Bedarf beobachtete Felder, Suchtext sowie Feld- oder Beziehungsfilter. Die Zustellung verwendet den Datensatzzugriff des ausgewählten Eigentümers; standardmäßig ist dies der Ersteller. Nur ein Administrator darf einen anderen Eigentümer auswählen. Migrierte Abonnements können mehrere Quellen behalten.
+
+**MCP:** `manage_webhooks` mit `action: "create"`, dazu `url`, `events[]` und optional `description`, `secret`, `headers`, `bodyTemplate`, `enabled`. Datensatzabonnements benötigen außerdem `expectedSchemaRevision` aus `get_record_model`. `recordTrigger` enthält eine Abfrage mit stabilen Typ- und Feld-IDs und optionalen `changedFieldIds`; null wählt alle zugänglichen Typen. `recordOwnerUserId` legt optional den Eigentümer für die Zustellung fest. Lassen Sie diese Einstellungen bei einem Update weg, um sie zu erhalten; Änderungen an Quelle oder Eigentümer benötigen die aktuelle Schema-Revision. Der gehostete Assistent nutzt dasselbe Tool und kann außerdem **Webhooks** oder **Letzte Zustellungen** für Sie öffnen und auf die Schaltfläche **Hinzufügen** zeigen.
 
 ```json
 {
   "url": "https://hooks.example.com/customermates",
-  "events": ["contact.created", "contact.updated", "deal.updated"],
+  "events": ["record.created", "record.updated"],
+  "expectedSchemaRevision": 3,
+  "recordTrigger": {
+    "query": { "typeId": "<project-type-id>" },
+    "changedFieldIds": []
+  },
   "secret": "nutze-einen-random-string-aus-einem-password-manager",
   "enabled": true
 }
@@ -51,7 +58,7 @@ Verwenden Sie einen HTTPS-Endpunkt. Eine reine `http://`-URL wird für jeden Hos
 Den Zugriff legt die Zeile **API & Webhooks** im Rolleneditor unter **Mein Unternehmen** → **Rollen** fest. Dieselbe Zeile steuert auch **Mein Profil** → **API & Konnektoren**. Eine Rolle, die ihre eigenen API-Keys verwalten darf, darf also auch jeden Webhook im Workspace verwalten.
 
 | Einstellung bei **API & Webhooks** | Was Mitglieder mit dieser Rolle tun können |
-|---|---|
+| --- | --- |
 | **Lesen** **Keine** (Standard für eine neue Rolle) | **Webhooks** und **Letzte Zustellungen** sind in der Seitenleiste ausgeblendet. Wer die Adresse direkt öffnet, landet auf dem Dashboard. |
 | **Lesen** **Alle**, **Verwalten** **Nein** | Beide Seiten öffnen, den Dialog jedes Webhooks schreibgeschützt öffnen und **Ereignis-Details** zu jeder Zustellung öffnen. Im Dialog erscheinen ein gespeichertes **Secret** und jeder Wert unter **Eigene Header** als `********`; die Header-Namen bleiben sichtbar. |
 | **Lesen** **Alle**, **Verwalten** **Ja** | Alles oben Genannte, dazu Webhooks anlegen, bearbeiten und löschen sowie Zustellungen erneut senden. |
@@ -71,7 +78,9 @@ Jede Zustellung ist ein `POST` mit `Content-Type: application/json` und demselbe
     "userId": "<verursacher>",
     "companyId": "<workspace>",
     "entityId": "<betroffener-record>",
-    "payload": { /* event-spezifisch */ }
+    "payload": {
+      /* event-spezifisch */
+    }
   },
   "timestamp": "<iso-8601>"
 }
@@ -79,35 +88,32 @@ Jede Zustellung ist ein `POST` mit `Content-Type: application/json` und demselbe
 
 `userId` ist der User, der den Write verursacht hat, inklusive User, die über einen API-Key handeln. Bei Messaging-Events, die durch eingehende Provider-Aktivität statt durch eine User-Aktion ausgelöst werden, ist `userId` gleich `null`.
 
-Bei `*.updated`-Events umschließt `payload` den vollständigen Record zusammen mit einem `changes`-Objekt. Bei `*.created`- und `*.deleted`-Events ist `payload` der Record selbst.
+Bei aktuellen CRM-Events enthält `data.payload` einen versionierten Datensatzumschlag. Die Referenz umfasst `typeId` und `recordId` und bleibt auch nach einer Umbenennung eindeutig. Legen Sie am Webhook Datensatzquellen fest, um Typen und Felder für die Zustellung auszuwählen.
 
-Beispiel, `contact.updated`:
+Beispiel für `record.updated` bei einem Kontakt, ohne für die Erklärung unnötige Felder:
 
 ```json
 {
-  "event": "contact.updated",
+  "event": "record.updated",
   "data": {
-    "userId": "u_123",
-    "companyId": "c_abc",
-    "entityId": "ct_xyz",
+    "userId": "<ausloesender-user-id>",
+    "companyId": "<workspace-id>",
+    "entityId": "<record-id>",
     "payload": {
-      "contact": {
-        "id": "ct_xyz",
-        "firstName": "Max",
-        "lastName": "Mustermann",
-        "notes": { /* Tiptap-JSON */ },
-        "organizations": [{ "id": "org_1", "name": "Example GmbH" }],
-        "users": [],
-        "deals": [{ "id": "deal_1" }, { "id": "deal_2" }],
-        "customFieldValues": [
-          { "columnId": "col_abc", "value": "Won" }
+      "version": 2,
+      "event": "record.updated",
+      "record": {
+        "ref": { "typeId": "<kontakt-typ-id>", "recordId": "<record-id>" },
+        "schemaRevision": 3,
+        "beforeVersion": 1,
+        "afterVersion": 2,
+        "fields": [
+          {
+            "fieldId": "<vorname-feld-id>",
+            "before": { "value": { "state": "value", "value": { "kind": "text", "value": "Max" } } },
+            "after": { "value": { "state": "value", "value": { "kind": "text", "value": "Maximilian" } } }
+          }
         ]
-      },
-      "changes": {
-        "organizations": {
-          "previous": [],
-          "current": [{ "id": "org_1", "name": "Example GmbH" }]
-        }
       }
     }
   },
@@ -115,15 +121,13 @@ Beispiel, `contact.updated`:
 }
 ```
 
-Die Record-Felder hängen vom Entity-Typ ab. Custom-Columns erscheinen unter `customFieldValues` als `columnId`- und `value`-Paare. Mit `get_record_schema` sehen Sie die Columns, die für einen Entity-Typ in Ihrem Workspace konfiguriert sind.
+Der tatsächliche Datensatzumschlag enthält außerdem IDs, Zeitstempel, Ursache, Zuweisungen, Identitäten und Änderungen an Verknüpfungen. Feldeinträge tragen Anzeigedaten und können statt eines Werts `missing`, `restricted` oder `error` enthalten. Stabile Typ- und Feld-IDs liefert `POST /api/v2/model/discover` oder das MCP-Tool `get_record_model`.
 
-## Das `changes`-Objekt [#the-changes-object]
+## Geänderte Felder [#the-changes-object]
 
-`changes` existiert nur bei `*.updated`-Events. Jeder Key ist ein Record-Feld, dessen Wert sich geändert hat. `previous` ist der Wert vor dem Write, `current` der Wert danach.
+`record.fields` listet geänderte Felder mit Werten für `before` und `after` auf. `record.links`, `record.assignments` und `record.identities` beschreiben weitere geänderte Verbindungen. `record.beforeVersion` und `record.afterVersion` bezeichnen die betroffenen Datensatzversionen. Ein fehlender oder eingeschränkter Wert ist nicht dasselbe wie der Zahlenwert 0.
 
-Skalare und Objekt-Felder melden ihren vollständigen Wert vor und nach der Änderung, verglichen per Deep-Equal. Arrays, deren Elemente eine `id`, `columnId` oder einen `key` tragen (verknüpfte Records, Custom-Column-Werte), melden nur die Elemente, die sich geändert haben: `previous` enthält die geänderten oder entfernten Elemente, `current` die geänderten oder hinzugefügten Elemente, und unveränderte Elemente entfallen. Ein hinzugefügtes Element erscheint deshalb nur unter `current`, ein entferntes nur unter `previous`. Arrays ohne einen solchen Key melden auf beiden Seiten das ganze Array. `createdAt` und `updatedAt` werden nie als Änderung gemeldet.
-
-Wenn ein Write kein Feld ändert, wird das Event unterdrückt. No-op-`*.updated`-Events werden nicht zugestellt.
+Änderungen ohne Wirkung erzeugen kein `record.updated`-Event. Der Payload wird bei der Zustellung gemäß den aktuellen Datensatz- und Berechnungsfeldrechten des Webhook-Eigentümers redigiert.
 
 ## Eigene Header und Body-Vorlagen [#custom-headers-and-body-templates]
 
@@ -164,15 +168,18 @@ Jedes Rezept nennt die URL, die eigenen Header und die Body-Vorlage zum Einfüge
 Startet eine Claude-Code-Routine, wenn sich ein Datensatz ändert. Legen Sie die Routine zuerst unter [claude.ai/code/routines](https://claude.ai/code/routines) an.
 
 <Steps>
-<Step title="API-Trigger hinzufügen">
-Öffnen Sie die Routine, klicken Sie auf **Add another trigger**, wählen Sie **API** und dann **Generate token**. Kopieren Sie URL und Token; das Token wird nur einmal angezeigt und lässt sich später nicht erneut abrufen.
-</Step>
-<Step title="Webhook anlegen">
-Fügen Sie die URL ein, wählen Sie Ihre Ereignisse und tragen Sie die Header und die Vorlage unten ein.
-</Step>
-<Step title="Payload im Routinen-Prompt referenzieren">
-Der Text kommt in einem `routine-fire-payload`-Block an, den die Routine als nicht vertrauenswürdige Daten behandelt. Der Prompt der Routine muss ihn ausdrücklich referenzieren, etwa "handle das im routine-fire-payload-Block beschriebene Ereignis ab", sonst bleibt der Text unbeachtet.
-</Step>
+  <Step title="API-Trigger hinzufügen">
+    Öffnen Sie die Routine, klicken Sie auf **Add another trigger**, wählen Sie **API** und dann **Generate token**.
+    Kopieren Sie URL und Token; das Token wird nur einmal angezeigt und lässt sich später nicht erneut abrufen.
+  </Step>
+  <Step title="Webhook anlegen">
+    Fügen Sie die URL ein, wählen Sie Ihre Ereignisse und tragen Sie die Header und die Vorlage unten ein.
+  </Step>
+  <Step title="Payload im Routinen-Prompt referenzieren">
+    Der Text kommt in einem `routine-fire-payload`-Block an, den die Routine als nicht vertrauenswürdige Daten
+    behandelt. Der Prompt der Routine muss ihn ausdrücklich referenzieren, etwa "handle das im
+    routine-fire-payload-Block beschriebene Ereignis ab", sonst bleibt der Text unbeachtet.
+  </Step>
 </Steps>
 
 Die URL lautet `https://api.anthropic.com/v1/claude_code/routines/<routine-id>/fire`, die Routinen-ID beginnt mit `trig_`.
@@ -260,15 +267,15 @@ Sie können eine Zustellung zusätzlich selbst erneut senden. In **Ereignis-Deta
 
 ## Sind Zustellungen geordnet, und kommen Webhooks in der richtigen Reihenfolge an? [#are-deliveries-ordered]
 
-Zustellungen sind über Ereignisse hinweg nicht strikt geordnet. Zwei `contact.updated`-Events im Millisekundenabstand können in falscher Reihenfolge ankommen. Lösen Sie die Reihenfolge über den `timestamp` im Payload auf oder behandeln Sie Zustellungen als idempotente Nachrichten mit `entityId` als Schlüssel.
+Zustellungen sind über Ereignisse hinweg nicht strikt geordnet. Zwei `record.updated`-Events im Millisekundenabstand können in falscher Reihenfolge ankommen. Nutzen Sie `timestamp` und Datensatzversion zur Reihenfolge oder behandeln Sie Zustellungen als idempotente Nachrichten mit `typeId`, `recordId` und Event-ID als Schlüssel.
 
 ## Warum sind Notizen in Payloads Tiptap-JSON? [#notes-are-json-not-markdown]
 
-Das `notes`-Feld in Payloads ist Tiptap-JSON, dieselbe Struktur, die der Editor speichert. Um es auf Ihrer Seite als Markdown zu rendern, nutzen Sie einen Tiptap-kompatiblen Serializer. In MCP liefert `get_records` mit `include: "withNotes"` die Notes bereits als Markdown serialisiert.
+Das `notes`-Feld in Payloads ist Tiptap-JSON, dieselbe Struktur, die der Editor speichert. Um es auf Ihrer Seite als Markdown zu rendern, nutzen Sie einen Tiptap-kompatiblen Serializer. In MCP liefert `read_crm_record` den konfigurierten Rich-Text-Wert mit `documentJson`; bei Bedarf konvertiert ein passender Serializer das Dokument in Markdown.
 
 ## Was enthalten Delete-Payloads? [#what-do-delete-payloads-contain]
 
-Delete-Events enthalten unter `payload` den vollständigen Record, wie er vor dem Löschen war, nicht nur die id. Die id des betroffenen Records steht zusätzlich in `data.entityId`.
+Bei `record.deleted` enthält `data.payload` ein Version-zwei-Envelope mit der eindeutigen `record.ref`, zulässigen Vorher-Werten und entfernten Beziehungen. `afterVersion` ist null. Quellfilter gelten unmittelbar vor der Entfernung; der aktuelle Zugriff des Eigentümers wird vor der Zustellung erneut geprüft. Die Datensatz-ID steht auch in `data.entityId`; zum Verknüpfen von CRM-Daten verwenden Sie die vollständige Referenz.
 
 ## Wie untersuche ich eine fehlgeschlagene Zustellung? [#how-do-i-debug-a-delivery]
 
@@ -280,12 +287,20 @@ Delete-Events enthalten unter `payload` den vollständigen Record, wie er vor de
 
 ## Welche Ereignisse gibt es? [#which-events-exist]
 
-[[derived.webhooks.events.total]] Events können Sie abonnieren: [[derived.webhooks.events.records]] Record-Events über die fünf Entity-Typen (`created`, `updated` und `deleted` für jeden, etwa `contact.created`) und [[derived.webhooks.events.messaging]] Messaging-Events. Alle nutzen den Umschlag aus [Wie sieht der Payload aus?](#what-does-the-payload-look-like). Routinen können durch dieselben Ereignisse ausgelöst werden, mit Ausnahme von **E-Mail gelöscht** (`messaging.email.deleted`) und **Chat gelöscht** (`messaging.chat.deleted`); **Nachricht gelöscht** (`messaging.message.deleted`) löst Routinen aus; siehe [Routinen](/docs/app-routines#how-do-event-triggers-work).
+Der Katalog akzeptiert [[derived.webhooks.events.total]] Event-Bezeichner: drei aktuelle Datensatz-Events, fünfzehn typspezifische Altbezeichner für bestehende Konfigurationen und [[derived.webhooks.events.messaging]] Messaging-Events. Für einen neuen CRM-Webhook wählen Sie `record.created`, `record.updated` oder `record.deleted` und legen Datensatzquellen mit Typen, Feldern und Filtern fest. Das funktioniert auch für selbst angelegte Typen. Alle nutzen den Umschlag aus [Wie sieht der Payload aus?](#what-does-the-payload-look-like). Routinen können durch dieselben Ereignisse ausgelöst werden, mit Ausnahme von **E-Mail gelöscht** (`messaging.email.deleted`) und **Chat gelöscht** (`messaging.chat.deleted`); **Nachricht gelöscht** (`messaging.message.deleted`) löst Routinen aus; siehe [Routinen](/docs/app-routines#how-do-event-triggers-work).
 
 ### Record-Events [#record-events]
 
 | Event | Wann es feuert | `payload` |
-|---|---|---|
+| --- | --- | --- |
+| `record.created` | Ein Datensatz eines konfigurierten Quelltyps wird erstellt | Datensatzumschlag Version 2 |
+| `record.updated` | Feld, Zuweisung, Identität oder Verknüpfung eines konfigurierten Quelltyps ändert sich | Datensatzumschlag Version 2 mit vorherigen und neuen Werten |
+| `record.deleted` | Ein Datensatz eines konfigurierten Quelltyps wird gelöscht | Datensatzumschlag Version 2 |
+
+Die folgenden typspezifischen Bezeichner bleiben für ältere Konfigurationen erhalten. Sie sind nicht der Vertrag für neue generische Datensatzänderungen oder selbst angelegte Typen; migrieren Sie solche Abonnements auf ein generisches Event mit Datensatzquelle.
+
+| Altes Event | Frühere Bedeutung | Alter `payload` |
+| --- | --- | --- |
 | `contact.created` | Ein Contact wird via UI, API, MCP oder Import erstellt | vollständiger Contact |
 | `contact.updated` | Ein Contact-Feld ändert sich | `contact`, `changes` |
 | `contact.deleted` | Ein Contact wird gelöscht | vollständiger Contact |
@@ -307,7 +322,7 @@ Delete-Events enthalten unter `payload` den vollständigen Record, wie er vor de
 Messaging-Events feuern bei eingehender Provider-Aktivität auf verbundenen Accounts. Die Liste **Ereignisse** bietet sie in jedem Workspace an, sie feuern aber nur, wo verbundene Accounts existieren, und das setzt die Cloud und einen Tarif mit Messaging voraus. `userId` ist `null`. Payloads referenzieren Provider-Records per id (`connectedAccountId`, `provider`, `providerMessageId`, `threadId` und ähnliche), statt CRM-Records einzubetten.
 
 | Event | Wann es feuert |
-|---|---|
+| --- | --- |
 | `messaging.message.received` | Eine Chat-Nachricht oder E-Mail wird ingested |
 | `messaging.message.updated` | Eine ingestete Nachricht wird aktualisiert |
 | `messaging.message.deleted` | Eine ingestete Nachricht wird gelöscht |

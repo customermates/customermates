@@ -1,4 +1,5 @@
-import { EntityType, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 import { WORKSPACE_SECTIONS, type WorkspaceSection } from "@/app/components/navigation/workspace-sections";
 import {
@@ -15,9 +16,17 @@ export type AnchorPage = {
   hiddenUntilDirty?: boolean;
 };
 
-export type AnchorControl = { control: string; description: string; prerequisite?: string };
+export type AnchorControl = {
+  control: string;
+  description: string;
+  prerequisite?: string;
+};
 
-export type ControlPage = { scope: string; route: string; controls: AnchorControl[] };
+export type ControlPage = {
+  scope: string;
+  route: string;
+  controls: AnchorControl[];
+};
 
 export const TOOLBAR_PAGES_WITH_ADD: AnchorPage[] = [
   { scope: "contacts", route: "/contacts", label: "contacts" },
@@ -26,18 +35,35 @@ export const TOOLBAR_PAGES_WITH_ADD: AnchorPage[] = [
   { scope: "services", route: "/services", label: "services" },
   { scope: "tasks", route: "/tasks", label: "tasks" },
   { scope: "routines", route: "/routines", label: "routines" },
-  { scope: "company-members", route: "/company/members", label: "team members" },
+  {
+    scope: "company-members",
+    route: "/company/members",
+    label: "team members",
+  },
   { scope: "company-webhooks", route: "/company/webhooks", label: "webhooks" },
   { scope: "company-roles", route: "/company/roles", label: "roles" },
 ];
 
 export const TOOLBAR_PAGES_WITHOUT_ADD: AnchorPage[] = [
-  { scope: "company-audit-logs", route: "/company/audit-logs", label: "audit log entries" },
-  { scope: "company-webhook-deliveries", route: "/company/webhook-deliveries", label: "webhook deliveries" },
+  {
+    scope: "company-audit-logs",
+    route: "/company/audit-logs",
+    label: "audit log entries",
+  },
+  {
+    scope: "company-webhook-deliveries",
+    route: "/company/webhook-deliveries",
+    label: "webhook deliveries",
+  },
 ];
 
 export const FORM_PAGES: AnchorPage[] = [
-  { scope: "profile-settings", route: "/profile/settings", label: "profile settings form", hiddenUntilDirty: true },
+  {
+    scope: "profile-settings",
+    route: "/profile/settings",
+    label: "profile settings form",
+    hiddenUntilDirty: true,
+  },
   {
     scope: "company-settings",
     route: "/company/settings",
@@ -69,7 +95,12 @@ export const FORM_PAGES: AnchorPage[] = [
     opener: "widget-modal-kind",
     resetOpener: "a widget card",
   },
-  { scope: "routine-modal", route: "/routines", label: "routine dialog (open it first)", opener: "routines-add" },
+  {
+    scope: "routine-modal",
+    route: "/routines",
+    label: "routine dialog (open it first)",
+    opener: "routines-add",
+  },
 ];
 
 export const CONTROL_PAGES: ControlPage[] = [
@@ -89,60 +120,13 @@ export const CONTROL_PAGES: ControlPage[] = [
     scope: "company-settings",
     route: "/company/settings",
     controls: [
-      { control: "currency", description: "Company currency select for deal and service amounts" },
       {
-        control: "deal-stage-field",
-        description: "Deal stage field select that turns on the weighted pipeline forecast",
-      },
-      {
-        control: "stage-weights",
-        description:
-          "Win probability percent per deal stage for the weighted pipeline (choose a deal stage field first; members who can read deals)",
-      },
-      {
-        control: "total-pipeline",
-        description:
-          "Total pipeline value summed over all deals (shown once a deal stage field is chosen, for members who can read deals)",
-      },
-      {
-        control: "weighted-pipeline",
-        description:
-          "Weighted pipeline value from the win probability per deal stage (shown once a deal stage field is chosen, for members who can read deals)",
+        control: "currency",
+        description: "Company currency select for deal and service amounts",
       },
       {
         control: "data-model",
-        description: "Data model section that renames contacts, organizations, deals, services and tasks",
-      },
-    ],
-  },
-  {
-    scope: "terminology",
-    route: "/company/settings",
-    controls: [
-      {
-        control: "contact",
-        description:
-          "Data model select that renames contacts (only for roles with company Manage; others see the name as plain text)",
-      },
-      {
-        control: "organization",
-        description:
-          "Data model select that renames organizations (only for roles with company Manage; others see the name as plain text)",
-      },
-      {
-        control: "deal",
-        description:
-          "Data model select that renames deals (only for roles with company Manage; others see the name as plain text)",
-      },
-      {
-        control: "service",
-        description:
-          "Data model select that renames services (only for roles with company Manage; others see the name as plain text)",
-      },
-      {
-        control: "task",
-        description:
-          "Data model select that renames tasks (only for roles with company Manage; others see the name as plain text)",
+        description: "Link from company settings to the configurable record types, fields and calculations",
       },
     ],
   },
@@ -178,10 +162,22 @@ export const CONTROL_PAGES: ControlPage[] = [
       { control: "first-name", description: "Your first name input" },
       { control: "last-name", description: "Your last name input" },
       { control: "country", description: "Your country select" },
-      { control: "avatar-url", description: "Avatar URL input for your profile picture" },
-      { control: "display-language", description: "Display language select for the app interface" },
-      { control: "formatting-locale", description: "Formatting locale select for dates, numbers and currency" },
-      { control: "theme", description: "Theme select for light, dark or system appearance" },
+      {
+        control: "avatar-url",
+        description: "Avatar URL input for your profile picture",
+      },
+      {
+        control: "display-language",
+        description: "Display language select for the app interface",
+      },
+      {
+        control: "formatting-locale",
+        description: "Formatting locale select for dates, numbers and currency",
+      },
+      {
+        control: "theme",
+        description: "Theme select for light, dark or system appearance",
+      },
     ],
   },
   {
@@ -525,7 +521,12 @@ export const WORKSPACE_NAV_GROUPS: {
   },
 ];
 
-export const STATIC_NAV_PAGES: { key: string; route: string; description: string; labelKey: string }[] = [
+export const STATIC_NAV_PAGES: {
+  key: string;
+  route: string;
+  description: string;
+  labelKey: string;
+}[] = [
   {
     key: "documentation",
     route: "*",
@@ -555,7 +556,9 @@ export const TOOLBAR_SCOPES_WITHOUT_ADD = TOOLBAR_PAGES_WITHOUT_ADD.map((page) =
 export const FORM_SCOPES = FORM_PAGES.map((page) => page.scope);
 
 export const NAV_KEYS = [
-  ...PRIMARY_NAV_PAGES.map((page) => page.key),
+  ...PRIMARY_NAV_PAGES.filter(
+    (page) => !["contacts", "organizations", "deals", "services", "tasks"].includes(page.key),
+  ).map((page) => page.key),
   ...WORKSPACE_NAV_GROUPS.flatMap((group) => [group.section, ...workspaceNavKeys(group.section)]),
   ...STATIC_NAV_PAGES.map((page) => page.key),
 ];

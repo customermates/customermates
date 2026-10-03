@@ -17,6 +17,8 @@ import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { runPrecheck } from "@/core/validation/run-precheck";
 import { RoutineLimitExceededError, type RoutineCountLimit } from "./routine-run-limits";
+import { RecordWriteError } from "@/features/records/record-write.service";
+import { recordWriteFailure } from "@/features/records/mutate-record.interactor";
 
 function mergeRoutineFinalState(previous: RoutineDto, update: UpsertRoutineData): UpsertRoutineData {
   const triggerKind = update.triggerKind ?? previous.triggerKind;
@@ -46,6 +48,19 @@ function mergeRoutineFinalState(previous: RoutineDto, update: UpsertRoutineData)
     triggerEvents: update.triggerEvents ?? previous.triggerEvents,
     changedFields: update.changedFields ?? previous.changedFields,
     triggerFilters: update.triggerFilters ?? previous.triggerFilters,
+    recordTrigger:
+      scheduled || update.recordSources?.length
+        ? null
+        : update.recordTrigger === undefined
+          ? previous.recordTrigger
+          : update.recordTrigger,
+    recordSources: scheduled
+      ? null
+      : update.recordSources !== undefined
+        ? update.recordSources
+        : update.recordTrigger !== undefined
+          ? null
+          : previous.recordSources,
     debounceSeconds: update.debounceSeconds ?? previous.debounceSeconds,
   };
 }
@@ -103,6 +118,7 @@ export class UpsertRoutineInteractor extends AuthenticatedInteractor<UpsertRouti
     try {
       routine = await this.repo.upsertRoutineOrThrow(data, routineLimit);
     } catch (error) {
+      if (error instanceof RecordWriteError) return recordWriteFailure(error);
       if (!(error instanceof RoutineLimitExceededError)) throw error;
       return failConflict(CustomErrorCode.routineLimitReached, ["name"], { limit: error.limit });
     }

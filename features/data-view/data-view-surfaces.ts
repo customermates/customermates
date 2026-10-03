@@ -1,8 +1,9 @@
-import { EntityType, Resource } from "@/generated/prisma";
-import { SURFACE, type DataViewSurfaceKey } from "@/core/data-view/data-view-keys";
+import { Resource } from "@/generated/prisma";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
+import { SURFACE, type BuiltinDataViewSurfaceKey } from "@/core/data-view/data-view-keys";
 import { DATA_VIEW_PATHS } from "@/core/data-view/data-view-paths";
 
-type SurfaceDescriptor = {
+export type SurfaceDescriptor = {
   label: string;
   path: string | null;
   resource?: Resource;
@@ -11,7 +12,7 @@ type SurfaceDescriptor = {
   messaging?: boolean;
 };
 
-export const DATA_VIEW_SURFACES: Record<DataViewSurfaceKey, SurfaceDescriptor> = {
+export const DATA_VIEW_SURFACES: Record<BuiltinDataViewSurfaceKey, SurfaceDescriptor> = {
   [SURFACE.contacts]: {
     label: "Contacts",
     path: DATA_VIEW_PATHS[SURFACE.contacts],
@@ -76,7 +77,10 @@ export const DATA_VIEW_SURFACES: Record<DataViewSurfaceKey, SurfaceDescriptor> =
     resource: Resource.inboxMessages,
     messaging: true,
   },
-  [SURFACE.entityTimeline]: { label: "Record activity timeline", path: DATA_VIEW_PATHS[SURFACE.entityTimeline] },
+  [SURFACE.entityTimeline]: {
+    label: "Record activity timeline",
+    path: DATA_VIEW_PATHS[SURFACE.entityTimeline],
+  },
   [SURFACE.operatorUsers]: {
     label: "Operator users",
     path: DATA_VIEW_PATHS[SURFACE.operatorUsers],

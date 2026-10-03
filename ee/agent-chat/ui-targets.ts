@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { recordUiTarget } from "./record-ui-targets";
 
 import type { AppMode } from "@/core/config/environment";
 import type { Resource } from "@/generated/prisma";
@@ -26,6 +27,7 @@ import {
 
 export type AgentUiTarget = {
   id: string;
+  elementId?: string;
   route: string;
   description: string;
   prerequisite?: string;
@@ -169,6 +171,10 @@ export const AGENT_UI_TARGETS: AgentUiTarget[] = [
   ...CONTROL_PAGES.flatMap(controlTargets),
 ];
 
+const RETIRED_RECORD_UI_ROUTE = /^\/(?:contacts|organizations|deals|services|tasks)(?:\/|$)/;
+
+export const ACTIVE_AGENT_UI_TARGETS = AGENT_UI_TARGETS.filter((target) => !RETIRED_RECORD_UI_ROUTE.test(target.route));
+
 export const AGENT_UI_TARGET_IDS = AGENT_UI_TARGETS.map((target) => target.id) as [string, ...string[]];
 
 function exactTargetIdSchema(ids: readonly string[], label: string) {
@@ -176,7 +182,7 @@ function exactTargetIdSchema(ids: readonly string[], label: string) {
   return z
     .string()
     .max(100)
-    .refine((value) => allowedIds.has(value), `Unknown ${label} target id.`);
+    .refine((value) => allowedIds.has(value) || recordUiTarget(value) !== null, `Unknown ${label} target id.`);
 }
 
 export const UiTargetIdSchema = exactTargetIdSchema(AGENT_UI_TARGET_IDS, "interface");
@@ -187,7 +193,7 @@ export const AGENT_NAV_TARGET_IDS = AGENT_UI_TARGETS.filter((target) => target.r
 export const NavigationUiTargetIdSchema = exactTargetIdSchema(AGENT_NAV_TARGET_IDS, "navigation");
 
 export function findAgentUiTarget(targetId: string) {
-  return AGENT_UI_TARGETS.find((target) => target.id === targetId) ?? null;
+  return AGENT_UI_TARGETS.find((target) => target.id === targetId) ?? recordUiTarget(targetId);
 }
 
 export function findAgentNavigationTarget(targetId: string) {
@@ -229,7 +235,7 @@ const TOOLBAR_SEARCH_TARGET_IDS = new Set(
 );
 
 export function isToolbarSearchTarget(targetId: string) {
-  return TOOLBAR_SEARCH_TARGET_IDS.has(targetId);
+  return TOOLBAR_SEARCH_TARGET_IDS.has(targetId) || recordUiTarget(targetId)?.elementId === "records-search";
 }
 
 export function agentRouteVisible(path: string, appMode: AppMode, canAccess: (resource: Resource) => boolean) {

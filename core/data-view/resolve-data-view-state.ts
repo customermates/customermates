@@ -28,12 +28,7 @@ export type DataViewParamsLayer = {
   grouping?: Grouping | null;
 };
 
-export type DataViewDefaultsLayer = {
-  filters?: Filter[];
-  searchTerm?: string;
-  sortDescriptor?: SortDescriptor;
-  pageSize?: DataViewPageSize;
-};
+export type DataViewDefaultsLayer = DataViewState;
 
 export type ResolvedDataViewState = {
   filters: Filter[];
@@ -82,7 +77,7 @@ export function resolveDataViewState({ params, base, defaults }: ResolveDataView
   return {
     filters: (out.filters as Filter[] | undefined) ?? [],
     searchTerm: searchTerm === "" ? undefined : searchTerm,
-    sortDescriptor: (out.sortDescriptor as SortDescriptor | null | undefined) ?? defaults?.sortDescriptor,
+    sortDescriptor: (out.sortDescriptor as SortDescriptor | null | undefined) ?? defaults?.sortDescriptor ?? undefined,
     pageSize: (out.pageSize as DataViewPageSize | undefined) ?? defaults?.pageSize ?? DEFAULT_DATA_VIEW_PAGE_SIZE,
     viewMode: (out.viewMode as ViewMode | undefined) ?? ViewMode.table,
     grouping: (out.grouping as Grouping | null | undefined) ?? undefined,

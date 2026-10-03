@@ -1,46 +1,80 @@
 import type { FormEvent } from "react";
 import type { RootStore } from "@/core/stores/root.store";
-import type { UpsertRoleData } from "@/features/role/upsert-role.interactor";
-import type { RoleDto } from "@/features/role/get-roles.interactor";
-
-import { action, computed, makeObservable, toJS } from "mobx";
+import type { UpsertRoleData, RoleSystemControls } from "@/features/role/role-management.schema";
+import type { RoleEditorContext } from "@/features/role/role-management.schema";
+import type { RolePermissionsDto as RoleDto } from "@/features/role/role.schema";
+import { action, computed, makeObservable, observable, runInAction, toJS } from "mobx";
 import { Resource, Action } from "@/generated/prisma";
-
-import { deleteRoleAction, upsertRoleAction } from "../../actions";
-
+import { deleteRoleAction, upsertRoleAction, getRoleEditorAction } from "../../actions";
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { reportApplicationError } from "@/core/errors/report-application-error";
 
-function defaultRolePermissions() {
+function defaultRolePermissions(): RoleSystemControls {
   return {
-    contacts: { canManage: "no", readAccess: "own" },
-    deals: { canManage: "no", readAccess: "own" },
-    organizations: { canManage: "no", readAccess: "own" },
-    services: { canManage: "no", readAccess: "own" },
     users: { canManage: "no", readAccess: "own" },
     company: { canManage: "no" },
+    dataModel: { canManage: "no" },
     api: { canManage: "no", readAccess: "none" },
-    tasks: { canManage: "no", readAccess: "own" },
     inboxMessages: { canManage: "no", readAccess: "none" },
     auditLog: { readAccess: "none" },
-    routines: { canManage: "no", readAccess: "own" },
-  } as const;
+    routines: { canManage: "no", readAccess: "none" },
+  };
 }
 
-export class RoleModalStore extends BaseModalStore<UpsertRoleData> {
-  constructor(rootStore: RootStore) {
-    super(
-      rootStore,
-      {
-        name: "",
-        description: "",
-        permissions: defaultRolePermissions(),
-      },
-      Resource.users,
-    );
+type RoleForm = {
+  id?: string;
+  name: string;
+  description: string;
+  permissions: RoleSystemControls;
+  recordGrants: Array<{
+    typeId: string;
+    create: boolean;
+    update: boolean;
+    delete: boolean;
+    readAccess: "none" | "own" | "all";
+  }>;
+};
 
+function roleForm(role?: RoleDto | null): RoleForm {
+  const permissions = defaultRolePermissions();
+  for (const resourceKey of Object.keys(permissions) as Array<keyof typeof permissions>) {
+    const resource = permissions[resourceKey];
+    if (role && "readAccess" in resource) resource.readAccess = "none";
+    if (role?.isSystemRole) {
+      if ("canManage" in resource) resource.canManage = "yes";
+      if ("readAccess" in resource) resource.readAccess = "all";
+    } else {
+      for (const permission of role?.permissions ?? []) {
+        if (permission.resource !== resourceKey) continue;
+        if (
+          "canManage" in resource &&
+          [Action.create, Action.update, Action.delete].some((action) => action === permission.action)
+        )
+          resource.canManage = "yes";
+        if ("readAccess" in resource && permission.action === Action.readAll) resource.readAccess = "all";
+        else if ("readAccess" in resource && resource.readAccess === "none" && permission.action === Action.readOwn)
+          resource.readAccess = "own";
+      }
+    }
+  }
+  return { id: role?.id, name: role?.name ?? "", description: role?.description ?? "", permissions, recordGrants: [] };
+}
+
+export class RoleModalStore extends BaseModalStore<RoleForm> {
+  context: RoleEditorContext | null = null;
+  loadFailed = false;
+  private loadSequence = 0;
+  private sessionGeneration = 0;
+  private lastSubmission: { payload: string; key: string } | null = null;
+
+  constructor(rootStore: RootStore) {
+    super(rootStore, roleForm(), Resource.users);
     makeObservable(this, {
+      context: observable.ref,
+      loadFailed: observable,
       add: action,
+      editRole: action,
       delete: action,
       setRole: action,
       onSubmit: action,
@@ -53,141 +87,171 @@ export class RoleModalStore extends BaseModalStore<UpsertRoleData> {
   }
 
   get isOwnRole() {
-    const signedInRoleId = this.rootStore.userStore.user?.roleId;
-
-    return Boolean(this.form.id) && this.form.id === signedInRoleId;
+    return Boolean(this.form.id) && this.form.id === this.rootStore.userStore.user?.roleId;
   }
-
   get isReadOnly(): boolean {
-    return this.isSystemRole || this.isOwnRole || super.isReadOnly;
+    return this.isSystemRole || this.isOwnRole || !this.context?.canEdit;
   }
-
   get isSystemRole() {
-    if (!this.form.id) return false;
-
-    const role = this.rootStore.rolesStore.items.find((r) => r.id === this.form.id);
-
-    return Boolean(role?.isSystemRole);
+    return Boolean(
+      this.context?.role?.isSystemRole ??
+        this.rootStore.rolesStore.items.find((role) => role.id === this.form.id)?.isSystemRole,
+    );
   }
-
   get isDisabledOrSystemRole() {
     return this.isDisabled;
   }
-
   get hasUsersAssigned() {
-    if (!this.form.id) return false;
-
-    const role = this.rootStore.rolesStore.items.find((item) => item.id === this.form.id);
-
-    return Boolean(role?.hasUsersAssigned);
+    return Boolean(this.rootStore.rolesStore.items.find((role) => role.id === this.form.id)?.hasUsersAssigned);
   }
-
   get canDeleteRole() {
-    return Boolean(this.form.id && !this.isDisabledOrSystemRole && !this.hasUsersAssigned);
+    return Boolean(this.form.id && !this.isLoading && this.context?.canDelete && !this.hasUsersAssigned);
   }
 
   add = () => {
-    this.openWith({
-      id: undefined,
-      name: "",
-      description: "",
-      permissions: defaultRolePermissions(),
-    });
-  };
-
-  delete = async (): Promise<boolean> => {
-    if (!this.form.id) return false;
-
-    this.setIsLoading(true);
-
-    try {
-      const res = await deleteRoleAction({ id: this.form.id });
-      if (!res.ok) {
-        toastZodErrorTree(res.error);
-        return false;
-      }
-
-      await this.rootStore.rolesStore.removeItem(this.form.id);
-      this.close();
-      return true;
-    } finally {
-      this.setIsLoading(false);
-    }
+    this.sessionGeneration += 1;
+    this.context = null;
+    this.lastSubmission = null;
+    this.openWith(roleForm());
+    void this.loadContext();
   };
 
   setRole = (role: RoleDto) => {
-    this.setError(undefined);
+    this.sessionGeneration += 1;
+    this.loadSequence += 1;
+    this.context = null;
+    this.lastSubmission = null;
+    this.onInitOrRefresh(roleForm(role));
+  };
 
-    const permissions: UpsertRoleData["permissions"] = {
-      contacts: { canManage: "no", readAccess: "none" },
-      deals: { canManage: "no", readAccess: "none" },
-      organizations: { canManage: "no", readAccess: "none" },
-      services: { canManage: "no", readAccess: "none" },
-      users: { canManage: "no", readAccess: "own" },
-      company: { canManage: "no" },
-      api: { canManage: "no", readAccess: "none" },
-      tasks: { canManage: "no", readAccess: "none" },
-      inboxMessages: { canManage: "no", readAccess: "none" },
-      auditLog: { readAccess: "none" },
-      routines: { canManage: "no", readAccess: "none" },
-    };
+  editRole = (role: RoleDto) => {
+    this.setRole(role);
+    this.open();
+    void this.loadContext();
+  };
+  protected override prepareToClose() {
+    this.sessionGeneration += 1;
+    this.loadSequence += 1;
+    return true;
+  }
 
-    if (role.isSystemRole) {
-      Object.keys(permissions).forEach((resourceKey) => {
-        const resource = permissions[resourceKey as keyof typeof permissions];
-        if ("canManage" in resource) resource.canManage = "yes";
-        if ("readAccess" in resource) resource.readAccess = "all";
-      });
-    } else {
-      role.permissions.forEach((permission) => {
-        const resourceKey = permission.resource;
-        const resource = permissions[resourceKey];
-
-        if (!resource) return;
-
-        if ("canManage" in resource) {
-          if (
-            permission.action === Action.create ||
-            permission.action === Action.update ||
-            permission.action === Action.delete
-          )
-            resource.canManage = "yes";
-        }
-
-        if ("readAccess" in resource) {
-          if (permission.action === Action.readAll) resource.readAccess = "all";
-          else if (permission.action === Action.readOwn && resource.readAccess === "none") resource.readAccess = "own";
-        }
-      });
-    }
-
-    this.onInitOrRefresh({
-      id: role.id,
-      name: role.name,
-      description: role.description ?? "",
-      permissions,
+  loadContext = async () => {
+    const sequence = ++this.loadSequence;
+    const id = this.form.id;
+    this.setIsLoading(true);
+    runInAction(() => {
+      this.loadFailed = false;
     });
+    try {
+      const result = await getRoleEditorAction({ id });
+      if (sequence !== this.loadSequence || this.form.id !== id || !this.isOpen) return;
+      if (!result.ok) {
+        toastZodErrorTree(result.error);
+        runInAction(() => {
+          this.loadFailed = true;
+        });
+        return;
+      }
+      runInAction(() => {
+        const form = roleForm(result.data.role);
+        form.recordGrants = result.data.types.map((type) => {
+          const actions = result.data.role?.recordGrants?.find((grant) => grant.typeId === type.id)?.actions ?? [];
+          const admin = result.data.role?.isSystemRole;
+          return {
+            typeId: type.id,
+            create: Boolean(admin || actions.includes("create")),
+            update: Boolean(admin || actions.includes("update")),
+            delete: Boolean(admin || actions.includes("delete")),
+            readAccess: admin || actions.includes("readAll") ? "all" : actions.includes("readOwn") ? "own" : "none",
+          };
+        });
+        this.context = result.data;
+        this.onInitOrRefresh(form);
+      });
+    } catch (error) {
+      if (sequence === this.loadSequence) {
+        runInAction(() => {
+          this.loadFailed = true;
+        });
+      }
+      reportApplicationError(error);
+    } finally {
+      if (sequence === this.loadSequence) this.setIsLoading(false);
+    }
+  };
+
+  private submissionKey(payload: unknown): string {
+    const encoded = JSON.stringify(payload);
+    if (this.lastSubmission?.payload !== encoded) this.lastSubmission = { payload: encoded, key: crypto.randomUUID() };
+    return this.lastSubmission.key;
+  }
+
+  delete = async (): Promise<boolean> => {
+    if (!this.isOpen || !this.form.id || !this.context || !this.canDeleteRole) return false;
+    const session = this.sessionGeneration;
+    const isCurrent = () => session === this.sessionGeneration && this.isOpen;
+    this.setIsLoading(true);
+    try {
+      const data = { id: this.form.id, expectedRevision: this.context.schemaRevision };
+      const result = await deleteRoleAction({
+        ...data,
+        idempotencyKey: this.submissionKey({ action: "delete", ...data }),
+      });
+      if (!result.ok) {
+        if (isCurrent()) toastZodErrorTree(result.error);
+        return false;
+      }
+      await this.rootStore.rolesStore.removeItem(data.id);
+      if (isCurrent()) this.close();
+      return true;
+    } finally {
+      if (isCurrent()) this.setIsLoading(false);
+    }
   };
 
   onSubmit = async (event?: FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
-    if (this.isReadOnly) return;
-
+    if (!this.isOpen || this.isReadOnly || this.isLoading || !this.context) return;
+    const session = this.sessionGeneration;
+    const isCurrent = () => session === this.sessionGeneration && this.isOpen;
     this.setIsLoading(true);
-
     try {
-      const res = await upsertRoleAction(toJS(this.form));
-
-      if (res.ok) {
-        const currentRole = this.rootStore.rolesStore.items.find((role) => role.id === res.data.id);
+      const form = toJS(this.form);
+      const permissions = Object.fromEntries(
+        Object.entries(form.permissions).flatMap(([resource, rights]) => {
+          const saved = this.savedState.permissions[resource as keyof RoleSystemControls];
+          const changed = Object.fromEntries(
+            Object.entries(rights).filter(([key, value]) => !form.id || Reflect.get(saved, key) !== value),
+          );
+          return Object.keys(changed).length ? [[resource, changed]] : [];
+        }),
+      ) as UpsertRoleData["permissions"];
+      const data = {
+        ...form,
+        permissions,
+        expectedRevision: this.context.schemaRevision,
+        recordGrants: form.recordGrants.map((grant) => ({
+          typeId: grant.typeId,
+          actions: [
+            ...(grant.create ? [Action.create] : []),
+            ...(grant.update ? [Action.update] : []),
+            ...(grant.delete ? [Action.delete] : []),
+            ...(grant.readAccess === "all" ? [Action.readAll] : grant.readAccess === "own" ? [Action.readOwn] : []),
+          ],
+        })),
+      };
+      const result = await upsertRoleAction({ ...data, idempotencyKey: this.submissionKey(data) });
+      if (result.ok) {
+        const role = result.data.role;
+        const currentRole = this.rootStore.rolesStore.items.find((item) => item.id === role.id);
         await this.rootStore.rolesStore.upsertItem(
-          { ...res.data, hasUsersAssigned: currentRole?.hasUsersAssigned ?? false },
-          { created: !this.form.id },
+          { ...role, hasUsersAssigned: currentRole?.hasUsersAssigned ?? false },
+          { created: !form.id },
         );
-        this.close();
-      } else this.setError(res.error);
+        if (isCurrent()) this.close();
+      } else if (isCurrent()) this.setError(result.error);
     } finally {
-      this.setIsLoading(false);
+      if (isCurrent()) this.setIsLoading(false);
     }
   };
 }

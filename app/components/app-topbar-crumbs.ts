@@ -51,6 +51,31 @@ export function buildAppTopbarCrumbs(
   const parts = segments.slice(1);
 
   const first = parts[0];
+  if (first === "records") {
+    const identity =
+      runtimeIdentity?.scope === "entity" && runtimeIdentity.key === `records:${parts[1]}` ? runtimeIdentity : null;
+    const record = parts[2] && identity?.record?.id === parts[2] ? identity.record : undefined;
+    return {
+      crumbs: [
+        {
+          label: identity?.title ?? t("RecordModel.records"),
+          isLoading: !identity,
+          ...(parts[2] ? { href: `/records/${parts[1]}` } : {}),
+        },
+        ...(parts[2]
+          ? [
+              {
+                label: record?.title ?? t("PageState.loading"),
+                isLoading: !record,
+                isEntity: record?.showAvatar,
+                pictureUrl: record?.pictureUrl,
+              },
+            ]
+          : []),
+      ],
+      section: null,
+    };
+  }
   if (first === "operator" && !operatorConsoleVisible) return { crumbs: [], section: null };
 
   const entry = GROUP_MAP[first];

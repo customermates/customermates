@@ -12,7 +12,7 @@ const migrationsRoot = join(process.cwd(), "prisma/migrations");
 
 function migrationNames() {
   return readdirSync(migrationsRoot, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
+    .filter((entry) => entry.isDirectory() && entry.name < "20261001000000_retire_legacy_crm_storage")
     .map((entry) => entry.name)
     .sort();
 }
@@ -97,7 +97,10 @@ describeDatabase("widget activity-timeline migration", () => {
             AND contype = 'c'
           ORDER BY conname`,
       );
-      expect(checks.rows.map(({ conname }) => conname)).toEqual([]);
+      expect(checks.rows.map(({ conname }) => conname)).toEqual([
+        "Widget_measure_shape_check",
+        "Widget_version_positive_check",
+      ]);
     });
   }, 120_000);
 

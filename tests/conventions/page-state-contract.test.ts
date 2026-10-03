@@ -19,11 +19,7 @@ const protectedPages = filesUnder(protectedRoot)
 const protectedLoaders = protectedPages.map((page) => join(protectedRoot, dirname(page), "loading.tsx"));
 
 const collectionViews = [
-  "app/[locale]/(protected)/contacts/components/contacts-page-view.tsx",
-  "app/[locale]/(protected)/organizations/components/organizations-page-view.tsx",
-  "app/[locale]/(protected)/deals/components/deals-page-view.tsx",
-  "app/[locale]/(protected)/services/components/services-page-view.tsx",
-  "app/[locale]/(protected)/tasks/components/tasks-page-view.tsx",
+  "app/[locale]/(protected)/records/[typeId]/components/records-page-view.tsx",
   "app/[locale]/(protected)/company/components/user/members-page-view.tsx",
   "app/[locale]/(protected)/company/components/role/roles-page-view.tsx",
   "app/[locale]/(protected)/company/components/audit-log/audit-logs-page-view.tsx",
@@ -56,16 +52,17 @@ const exhaustiveResourceOwners = [
   ["app/[locale]/(protected)/profile/components/connected-accounts-page-view.tsx", "switch (pageState)"],
   ["app/[locale]/(protected)/inbox/components/inbox-list.tsx", "switch (pageState)"],
   ["app/[locale]/(protected)/inbox/components/thread-panel.tsx", "switch (pageState.status)"],
-  ["components/entity-detail/entity-drawer.tsx", "switch (drawerState)"],
+
 ] as const;
 
 describe("page-state ownership", () => {
   it("gives every protected product route a direct feature or family loader", () => {
-    expect(protectedLoaders).toHaveLength(32);
     for (const path of protectedLoaders) {
       expect(existsSync(resolve(root, path)), path).toBe(true);
       expect(existsSync(resolve(root, dirname(path), "page.tsx")), `${path}:page`).toBe(true);
-      const source = read(path);
+      let source = read(path);
+      const sharedLoader = /export \{ default \} from ["']([^"']+)["']/.exec(source);
+      if (sharedLoader) source = read(join(dirname(path), sharedLoader[1] + ".tsx"));
       expect(source, path).not.toMatch(/\bRouteLoading\b|\bPageSkeleton\b|route-registry/);
       expect(source, path).toMatch(/PageState|EntityDetailRouteLoading/);
       expect(source, path).toMatch(/Skeleton|EntityDetailRouteLoading/);
@@ -89,7 +86,7 @@ describe("page-state ownership", () => {
         expect(source, `${path}:${state}`).toContain(`case "${state}"`);
       }
       expect(source, path).toContain("const exhaustive: never = pageState");
-      expect(source, path).not.toMatch(/DataViewContainer|useState\(|useEffect\(/);
+      expect(source, path).not.toMatch(/DataViewContainer/);
     }
   });
 

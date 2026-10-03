@@ -8,6 +8,7 @@ import {
   smallestIntervalMinutes,
 } from "@/ee/routines/routine-schedule";
 import { ROUTINE_TIMEZONE, SYNTHETIC_ROUTINES } from "../seeds/routines";
+import { RETIRED_RECORD_TOOLS } from "@/features/mcp-tools/retired-record-tools";
 import { isCustomField } from "@/core/utils/custom-field";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import enMessages from "@/i18n/locales/en.json";
@@ -74,6 +75,17 @@ describe("synthetic routine fixtures", () => {
       expect(routine.name.length, routine.name).toBeLessThanOrEqual(ROUTINE_NAME_MAX_CHARS);
       expect(routine.prompt.length, routine.name).toBeLessThanOrEqual(ROUTINE_PROMPT_MAX_CHARS);
       expect(routine.prompt.trim().length, routine.name).toBeGreaterThan(0);
+    }
+  });
+
+  it("uses current CRM tools and contract discovery in every shipped routine prompt", () => {
+    for (const routine of SYNTHETIC_ROUTINES) {
+      for (const retired of Object.keys(RETIRED_RECORD_TOOLS))
+        expect(new RegExp(`\\b${retired}\\b`).test(routine.prompt), `${routine.name}: ${retired}`).toBe(false);
+      expect(routine.prompt, routine.name).toContain("discover_record_types");
+      expect(routine.prompt, routine.name).toContain("get_record_model");
+      expect(routine.prompt, routine.name).toContain("typeId and recordId");
+      expect(routine.prompt, routine.name).not.toMatch(/aggregationType|groupByType|entityType|customFieldValues/);
     }
   });
 

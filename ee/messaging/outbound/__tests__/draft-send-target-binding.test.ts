@@ -540,7 +540,7 @@ const emailDraftThread = {
       headline: null,
       occupation: null,
       isSelf: false,
-      contact: null,
+      record: null,
     },
   ],
 };

@@ -4,6 +4,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
 
 import { observer } from "mobx-react-lite";
+import { useClientReady } from "@/hooks/use-client-ready";
 
 import type { DataViewView } from "./data-view-state";
 
@@ -27,6 +28,7 @@ export const DataViewContent = observer(function DataViewContent<E extends HasId
   store,
   view,
 }: Props<E>) {
+  const interactive = useClientReady();
   const columnLabel = useColumnLabel();
   const byId = new Map(columns.map((column) => [column.id ?? "", column]));
   const resolvedColumns = store.orderedColumns
@@ -45,7 +47,7 @@ export const DataViewContent = observer(function DataViewContent<E extends HasId
         className="animate-page-result-in motion-reduce:animate-none"
         columns={resolvedColumns}
         store={store}
-        onRowClick={onRowClick}
+        onRowClick={interactive ? onRowClick : undefined}
         onRowHref={rowHref}
       />
     );
@@ -57,7 +59,7 @@ export const DataViewContent = observer(function DataViewContent<E extends HasId
       className="animate-page-result-in motion-reduce:animate-none"
       columns={resolvedColumns}
       store={store}
-      onCardClick={onRowClick}
+      onCardClick={interactive ? onRowClick : undefined}
     />
   );
 });

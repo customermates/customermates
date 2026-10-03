@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
+import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 
 const interactors = vi.hoisted(() => ({ manage: vi.fn() }));
 
@@ -22,13 +22,13 @@ const state = {
 };
 const input = {
   action: "update" as const,
-  surfaceKey: SURFACE.contacts,
+  surfaceKey: "records:10000000-0000-4000-8000-000000000101",
   viewKey: ALL_VIEW_KEY,
   state,
 };
 const output = {
   ...input,
-  link: `/contacts?view=${ALL_VIEW_KEY}`,
+  link: `/records/10000000-0000-4000-8000-000000000101?view=${ALL_VIEW_KEY}`,
 };
 
 type RpcResponse = {
@@ -89,7 +89,7 @@ describe("saved-view MCP HTTP transport", () => {
 
     const listed = await rpc({ jsonrpc: "2.0", id: 2, method: "tools/list" }, sessionId);
     const toolNames = listed.data?.result?.tools?.map(({ name }) => name);
-    expect(toolNames?.toSorted()).toEqual(["fetch", "manage_data_views", "search"]);
+    expect(toolNames?.toSorted()).toEqual(["fetch", "manage_data_views", "manage_record_detail_layout", "search"]);
 
     const called = await rpc(
       {

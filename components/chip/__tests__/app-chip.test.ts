@@ -1,11 +1,12 @@
-import type { ComponentType, ReactNode } from "react";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { CustomFieldValueDto } from "@/core/base/base-entity.schema";
+import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
+import type { ComponentType, ReactNode } from "react";
 
+import { CustomColumnType } from "@/core/data-view/column-presentation.types";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { CustomColumnType, EntityType } from "@/generated/prisma";
 
 const harness = vi.hoisted(() => ({ isTruncated: false }));
 
@@ -26,8 +27,8 @@ vi.mock("@/core/utils/use-copy-to-clipboard", () => ({
   useCopyToClipboard: () => vi.fn(),
 }));
 
-import { AppChip } from "../app-chip";
 import { CustomFieldValue } from "@/components/data-view/custom-columns/custom-field-value";
+import { AppChip } from "../app-chip";
 
 const TestAppChip = AppChip as ComponentType<{
   children?: ReactNode;

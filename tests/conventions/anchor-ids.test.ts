@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { EntityType } from "@/generated/prisma";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -13,7 +13,8 @@ import {
   TOOLBAR_SCOPES_WITHOUT_ADD,
   TRANSFERABLE_SCOPES,
 } from "@/ee/agent-chat/ui-anchors";
-import { AGENT_UI_TARGETS } from "@/ee/agent-chat/ui-targets";
+import { ACTIVE_AGENT_UI_TARGETS } from "@/ee/agent-chat/ui-targets";
+import { recordUiTargets } from "@/ee/agent-chat/record-ui-targets";
 
 import { REPO_ROOT, walkFiles } from "./walk";
 
@@ -40,7 +41,10 @@ const RESERVED_LITERAL_PREFIXES = [
   "global-",
   "mass-",
   "inbox-",
+  "records-",
 ];
+const RETIRED_RECORD_SCOPES = new Set(["contacts", "organizations", "deals", "services", "tasks"]);
+const RETIRED_RECORD_IDS = /^(?:drawer-|entity-|mass-|confirm-)/;
 
 function appGuideFiles(locale: string): string[] {
   return walkFiles(join(REPO_ROOT, "content", "docs", locale), (path) => /app-[a-z-]+\.mdx$/.test(path));
@@ -86,6 +90,8 @@ function codeIds(): Set<string> {
       }
     }
   }
+  for (const suffix of toolbarSuffixes("records", true)) ids.add(`records${suffix}`);
+  ids.add("records-transfer");
   for (const key of NAV_KEYS) ids.add(`nav-${key}`);
   return ids;
 }
@@ -103,8 +109,10 @@ function toolbarSuffixes(scope: string, hasAdd: boolean): string[] {
 
 function expectedDocumentedIds(): Set<string> {
   const ids = new Set<string>();
-  for (const scope of TOOLBAR_SCOPES_WITH_ADD)
+  for (const scope of TOOLBAR_SCOPES_WITH_ADD.filter((scope) => !RETIRED_RECORD_SCOPES.has(scope)))
     for (const suffix of toolbarSuffixes(scope, true)) ids.add(`${scope}${suffix}`);
+  for (const suffix of toolbarSuffixes("records", true)) ids.add(`records${suffix}`);
+  ids.add("records-transfer");
   for (const scope of TOOLBAR_SCOPES_WITHOUT_ADD)
     for (const suffix of toolbarSuffixes(scope, false)) ids.add(`${scope}${suffix}`);
   for (const scope of FORM_SCOPES) for (const suffix of ["-save", "-reset"]) ids.add(`${scope}${suffix}`);
@@ -113,7 +121,8 @@ function expectedDocumentedIds(): Set<string> {
     const text = readFileSync(file, "utf8");
     for (const match of text.matchAll(LITERAL_ID_PATTERN)) {
       const id = match[1] ?? match[2];
-      if (RESERVED_LITERAL_PREFIXES.some((prefix) => id.startsWith(prefix))) ids.add(id);
+      if (RESERVED_LITERAL_PREFIXES.some((prefix) => id.startsWith(prefix)) && !RETIRED_RECORD_IDS.test(id))
+        ids.add(id);
     }
   }
   return ids;
@@ -141,7 +150,11 @@ describe("app-guide anchor id fidelity", () => {
     const allSource = sourceFiles()
       .map((file) => readFileSync(file, "utf8"))
       .join("\n");
-    for (const scope of [...TOOLBAR_SCOPES_WITH_ADD, ...TOOLBAR_SCOPES_WITHOUT_ADD, ...FORM_SCOPES])
+    for (const scope of [
+      ...TOOLBAR_SCOPES_WITH_ADD.filter((scope) => !RETIRED_RECORD_SCOPES.has(scope)),
+      ...TOOLBAR_SCOPES_WITHOUT_ADD,
+      ...FORM_SCOPES,
+    ])
       expect(allSource, `anchorScope "${scope}" not found in source`).toContain(`anchorScope="${scope}"`);
 
     for (const control of ["add", "search", "filter", "display-options", "transfer"])
@@ -172,9 +185,28 @@ describe("app-guide anchor id fidelity", () => {
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("offers the agent only targets that exist in code", () => {
     const inCode = codeIds();
-    const unknown = AGENT_UI_TARGETS.map((target) => target.id)
+    const unknown = ACTIVE_AGENT_UI_TARGETS.map((target) => target.id)
       .filter((id) => !inCode.has(id))
       .sort();
-    expect(unknown, "AGENT_UI_TARGETS references ids that no component renders").toEqual([]);
+    expect(unknown, "ACTIVE_AGENT_UI_TARGETS references ids that no component renders").toEqual([]);
+    const typeId = "00000000-0000-4000-8000-000000000001";
+    const dynamicTargets = recordUiTargets({
+      companyId: "00000000-0000-4000-8000-000000000002",
+      schemaRevision: 1,
+      canManageSchema: true,
+      types: [
+        {
+          id: typeId,
+          label: "Project",
+          pluralLabel: "Projects",
+          icon: "Folder",
+          canCreate: true,
+          hasAuthorizationTasks: false,
+        },
+      ],
+    });
+    expect(dynamicTargets.map((target) => target.id)).toContain(`nav-records:${typeId}`);
+    expect(dynamicTargets.map((target) => target.id)).toContain(`records:${typeId}:add`);
+    expect(dynamicTargets.every((target) => target.route === `/records/${typeId}`)).toBe(true);
   });
 });

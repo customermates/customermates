@@ -78,6 +78,9 @@ export const PUBLIC_ROUTES = [
 ] as const;
 
 export const PROTECTED_ROUTES = [
+  "/records/:typeId",
+  "/records/:typeId/:recordId",
+  "/company/data-model",
   "/auth/mcp-consent",
   "/company/audit-logs",
   "/company/members",

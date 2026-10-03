@@ -72,9 +72,9 @@ vi.mock("@/env", () => ({
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { env } from "@/env";
 
-import { PrismaAgentChatRepo } from "../prisma-agent-chat.repository";
-import { AGENT_MAX_CONCURRENT_RUNS_PER_USER } from "../agent-run-limits";
 import { pendingAgentApprovalToolName } from "../agent-approval";
+import { AGENT_MAX_CONCURRENT_RUNS_PER_USER } from "../agent-run-limits";
+import { PrismaAgentChatRepo } from "../prisma-agent-chat.repository";
 
 const user = createMockUserWithPermissions([]);
 
@@ -334,7 +334,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
             {
               reference: {
                 kind: "dataView",
-                surfaceKey: "contacts-card-store",
+                surfaceKey: "records:10000000-0000-4000-8000-000000000011",
                 viewKey: "11111111-1111-4111-8111-111111111111",
                 requestedAction: "update",
               },
@@ -391,7 +391,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
             context: {
               reference: {
                 kind: "dataView",
-                surfaceKey: "contacts-card-store",
+                surfaceKey: "records:10000000-0000-4000-8000-000000000011",
                 viewKey: "11111111-1111-4111-8111-111111111111",
                 requestedAction: "update",
               },
@@ -948,16 +948,13 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     });
   });
 
-  it("permission-scopes entity signals and reads only the current user's dashboard widgets", async () => {
+  it("reads routine, widget and connected-account signals without consulting retired CRM tables", async () => {
     prismaMock.widget.findFirst.mockResolvedValue({ id: "widget-1" });
     prismaMock.routine.findFirst.mockResolvedValue({ id: "routine-1" });
 
     const signals = await runWithTenant(user, () => new PrismaAgentChatRepo().getSuggestionSignals());
 
-    expect(prismaMock.contact.findFirst).toHaveBeenCalledWith({
-      where: { id: { in: [] }, companyId: user.companyId },
-      select: { id: true },
-    });
+    expect(prismaMock.contact.findFirst).not.toHaveBeenCalled();
     expect(prismaMock.connectedAccount.findFirst).toHaveBeenCalledWith({
       where: { companyId: user.companyId, id: { in: [] } },
       select: { id: true },

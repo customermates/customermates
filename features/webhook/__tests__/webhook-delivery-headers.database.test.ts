@@ -17,10 +17,15 @@ vi.mock("@/env", () => ({ env: deliveryEnv }));
 
 const { prisma } = await import("@/prisma/db");
 const { DeliverWebhookInteractor } = await import("../deliver-webhook.interactor");
-const { PrismaWebhookRepo } = await import("../prisma-webhook.repository");
-const { PrismaWebhookDeliveryRepo } = await import("../prisma-webhook-delivery.repository");
+const { createTestRecordRecipientReader } = await import("@/tests/helpers/record-delivery");
+const { PrismaWebhookDeliveryQueueRepo } = await import("../prisma-webhook-delivery-queue.repository");
+const { WebhookTransport } = await import("../webhook-transport.service");
 
-const deliverWebhook = new DeliverWebhookInteractor(new PrismaWebhookDeliveryRepo(), new PrismaWebhookRepo());
+const deliverWebhook = new DeliverWebhookInteractor(
+  new PrismaWebhookDeliveryQueueRepo(),
+  createTestRecordRecipientReader(),
+  new WebhookTransport(),
+);
 
 type CapturedRequest = { headers: Record<string, string | string[] | undefined>; rawBody: string };
 
@@ -30,6 +35,7 @@ const companyIds: string[] = [];
 let server: Server;
 let baseUrl: string;
 let captured: CapturedRequest[] = [];
+let transientFailures = 0;
 
 const SECRET = "delivery-test-secret";
 
@@ -62,7 +68,7 @@ async function seedWebhook(args: {
 
   await runWithoutTenant(async () => {
     await prisma.company.create({ data: { id: companyId } });
-    await prisma.webhook.create({
+    const webhook = await prisma.webhook.create({
       data: {
         companyId,
         url,
@@ -74,7 +80,7 @@ async function seedWebhook(args: {
       },
     });
     await prisma.webhookDelivery.create({
-      data: { id: deliveryId, companyId, url, event: "contact.created", requestBody: ENVELOPE },
+      data: { id: deliveryId, companyId, webhookId: webhook.id, url, event: "contact.created", requestBody: ENVELOPE },
     });
   });
 
@@ -94,7 +100,13 @@ describeDatabase("outbound webhook custom headers and body template", () => {
       });
       request.on("end", () => {
         captured.push({ headers: request.headers, rawBody: raw });
-        response.writeHead(200, { "Content-Type": "application/json" });
+        if (request.url === "/redirect") {
+          response.writeHead(302, { Location: `${baseUrl}/redirect-target` });
+          response.end();
+          return;
+        }
+        const status = request.url === "/retry" && transientFailures-- > 0 ? 503 : 200;
+        response.writeHead(status, { "Content-Type": "application/json" });
         response.end("{}");
       });
     });
@@ -261,11 +273,11 @@ describeDatabase("outbound webhook custom headers and body template", () => {
     const outcome = await deliver({ companyId, deliveryId, url });
 
     expect(outcome.status).toBe("failed");
-    expect(outcome.responseMessage).toContain("share this URL");
+    expect(outcome.responseMessage).toContain("unavailable");
     expect(captured).toHaveLength(0);
   });
 
-  it("still delivers when webhooks share a URL but none carries overrides", async () => {
+  it("refuses to guess a historical delivery owner even when shared URLs have no overrides", async () => {
     captured = [];
     const companyId = randomUUID();
     const deliveryId = randomUUID();
@@ -288,8 +300,88 @@ describeDatabase("outbound webhook custom headers and body template", () => {
 
     const outcome = await deliver({ companyId, deliveryId, url });
 
-    expect(outcome.status).toBe("success");
+    expect(outcome.status).toBe("failed");
+    expect(captured).toHaveLength(0);
+  });
+
+  it("sends persisted identity and payload once when concurrent workers receive forged or duplicate workflow inputs", async () => {
+    captured = [];
+    const seeded = await seedWebhook({ path: "/duplicates" });
+    const inputs = { ...seeded, url: `${baseUrl}/forged`, requestBody: { forged: true } };
+    const outcomes = await Promise.all([deliverWebhook.invoke(inputs), deliverWebhook.invoke(inputs)]);
+    expect(outcomes.some((outcome) => outcome.status === "success")).toBe(true);
+    expect(captured).toHaveLength(1);
     expect(JSON.parse(captured[0].rawBody)).toEqual(ENVELOPE);
+    expect(captured[0].headers["x-customermates-delivery-id"]).toBe(seeded.deliveryId);
+    expect(await deliver(seeded)).toMatchObject({ status: "success" });
+    expect(captured).toHaveLength(1);
+  });
+
+  it("recovers an expired delivery lease without allowing its old worker to settle the new attempt", async () => {
+    captured = [];
+    const seeded = await seedWebhook({ path: "/recovery" });
+    const queue = new PrismaWebhookDeliveryQueueRepo();
+    const old = await queue.claimUnscoped(seeded.companyId, seeded.deliveryId, new Date());
+    if (old.status !== "claimed") throw new Error("Expected a delivery lease");
+    await runWithoutTenant(() =>
+      prisma.webhookDelivery.update({
+        where: { id: seeded.deliveryId, companyId: seeded.companyId },
+        data: { leaseExpiresAt: new Date(0) },
+      }),
+    );
+    expect(await deliver(seeded)).toMatchObject({ status: "success" });
+    expect(
+      await queue.finishUnscoped({
+        companyId: seeded.companyId,
+        deliveryId: seeded.deliveryId,
+        token: old.token,
+        success: false,
+        statusCode: 500,
+        responseMessage: "Obsolete worker",
+        nextAttemptAt: new Date(),
+      }),
+    ).toBe(false);
+    const row = await runWithoutTenant(() =>
+      prisma.webhookDelivery.findFirstOrThrow({ where: { id: seeded.deliveryId, companyId: seeded.companyId } }),
+    );
+    expect(row).toMatchObject({ status: "success", attempts: 2, nextAttemptAt: null, leaseToken: null });
+    expect(captured).toHaveLength(1);
+  });
+
+  it("persists retry timing and retains the delivery ID across a transient receiver failure", async () => {
+    captured = [];
+    transientFailures = 1;
+    const seeded = await seedWebhook({ path: "/retry" });
+    expect(await deliver(seeded)).toMatchObject({
+      status: "failed",
+      statusCode: 503,
+      nextAttemptAt: expect.any(String),
+    });
+    expect(await deliver(seeded)).toMatchObject({ status: "pending" });
+    expect(captured).toHaveLength(1);
+    await runWithoutTenant(() =>
+      prisma.webhookDelivery.update({
+        where: { id: seeded.deliveryId, companyId: seeded.companyId },
+        data: { nextAttemptAt: new Date(0) },
+      }),
+    );
+    expect(await deliver(seeded)).toMatchObject({ status: "success" });
+    expect(captured).toHaveLength(2);
+    expect(captured.map((request) => request.headers["x-customermates-delivery-id"])).toEqual([
+      seeded.deliveryId,
+      seeded.deliveryId,
+    ]);
+  });
+
+  it("does not follow redirects with a signed payload", async () => {
+    captured = [];
+    const seeded = await seedWebhook({ path: "/redirect" });
+    expect(await deliver(seeded)).toMatchObject({ status: "failed", statusCode: 302 });
+    expect(captured).toHaveLength(1);
+    const row = await runWithoutTenant(() =>
+      prisma.webhookDelivery.findFirstOrThrow({ where: { id: seeded.deliveryId, companyId: seeded.companyId } }),
+    );
+    expect(row.nextAttemptAt).toBeNull();
   });
 
   it("delivers the unchanged envelope when no headers or template are configured", async () => {
@@ -300,6 +392,9 @@ describeDatabase("outbound webhook custom headers and body template", () => {
 
     expect(outcome.status).toBe("success");
     expect(JSON.parse(captured[0].rawBody)).toEqual(ENVELOPE);
-    expect(Object.keys(captured[0].headers).filter((name) => name.startsWith("x-"))).toEqual(["x-webhook-signature"]);
+    expect(Object.keys(captured[0].headers).filter((name) => name.startsWith("x-"))).toEqual([
+      "x-customermates-delivery-id",
+      "x-webhook-signature",
+    ]);
   });
 });

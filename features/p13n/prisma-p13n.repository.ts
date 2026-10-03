@@ -5,6 +5,8 @@ import type { Grouping } from "@/core/base/grouping/grouping.schema";
 import type { UpsertP13nRepo } from "./upsert-p13n.interactor";
 import type { GetP13nRepo } from "./get-p13n.interactor";
 
+import { DATA_VIEW_STATE_FIELDS } from "@/core/data-view/data-view-state.schema";
+import { readStoredPersonalizationState, writePersonalizationState } from "@/features/data-view/data-view-row-mapping";
 import { Prisma } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
@@ -17,13 +19,13 @@ export interface P13nEntry {
   activeViewKey?: string;
   filters?: Filter[];
   searchTerm?: string;
-  sortDescriptor?: SortDescriptor;
+  sortDescriptor?: SortDescriptor | null;
   pagination?: Pick<PaginationRequest, "pageSize">;
   columnWidths?: Record<string, number>;
   columnOrder?: string[];
   hiddenColumns?: string[];
   viewMode?: ViewMode;
-  grouping?: Grouping;
+  grouping?: Grouping | null;
   detailOptions?: EntityDetailOptions;
 }
 
@@ -82,6 +84,7 @@ export class PrismaP13nRepo extends BaseRepository implements GetP13nRepo, Upser
       viewMode: (viewMode as ViewMode | null) ?? undefined,
       grouping: readStoredGrouping(grouping),
       detailOptions: normalizeDetailOptions(detailOptions),
+      ...(Array.isArray(res.viewStateKeys) ? this.explicitViewState(res) : {}),
     };
   }
 
@@ -104,11 +107,28 @@ export class PrismaP13nRepo extends BaseRepository implements GetP13nRepo, Upser
   async upsertP13n({ p13nId, ...data }: RepoArgs<UpsertP13nRepo, "upsertP13n">) {
     const { companyId, id: userId } = this.user;
 
+    const current = p13nId.startsWith("records:")
+      ? await this.prisma.p13n.findUnique({
+          where: { companyId, companyId_userId_p13nId: { companyId, userId, p13nId } },
+        })
+      : null;
+    const currentKeys = current
+      ? Array.isArray(current.viewStateKeys)
+        ? current.viewStateKeys
+        : Object.keys(readStoredPersonalizationState(current))
+      : [];
+    const suppliedKeys = DATA_VIEW_STATE_FIELDS.filter((key) =>
+      key === "pageSize" ? data.pagination !== undefined : data[key] !== undefined,
+    );
+    const viewStateKeys = p13nId.startsWith("records:")
+      ? ([...new Set([...currentKeys, ...suppliedKeys])] as string[])
+      : undefined;
     const createData = {
       companyId,
       userId,
       p13nId,
       activeViewKey: data.activeViewKey ?? null,
+      viewStateKeys,
       filters: data.filters ?? Prisma.JsonNull,
       searchTerm: data.searchTerm ?? null,
       sortDescriptor: data.sortDescriptor ?? Prisma.JsonNull,
@@ -128,6 +148,7 @@ export class PrismaP13nRepo extends BaseRepository implements GetP13nRepo, Upser
       p13nId,
     } as Prisma.P13nUpdateInput;
 
+    if (viewStateKeys) updateData.viewStateKeys = viewStateKeys;
     if (data.activeViewKey !== undefined) updateData.activeViewKey = data.activeViewKey ?? null;
     if (data.filters !== undefined) updateData.filters = data.filters ?? Prisma.JsonNull;
     if (data.searchTerm !== undefined) updateData.searchTerm = data.searchTerm;
@@ -165,6 +186,13 @@ export class PrismaP13nRepo extends BaseRepository implements GetP13nRepo, Upser
       viewMode: (row.viewMode as ViewMode | null) ?? undefined,
       grouping: readStoredGrouping(row.grouping),
       detailOptions: normalizeDetailOptions(row.detailOptions),
+      ...(Array.isArray(row.viewStateKeys) ? this.explicitViewState(row) : {}),
     };
+  }
+  private explicitViewState(row: Parameters<typeof readStoredPersonalizationState>[0]) {
+    const cleared = Object.fromEntries(
+      DATA_VIEW_STATE_FIELDS.map((key) => [key === "pageSize" ? "pagination" : key, undefined]),
+    );
+    return { ...cleared, ...writePersonalizationState(readStoredPersonalizationState(row)) };
   }
 }

@@ -1,11 +1,11 @@
 import { randomUUID } from "node:crypto";
 
 import { createTranslator } from "next-intl";
-import { describe, it, expect, afterAll, beforeAll, vi } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
+import messages from "@/i18n/locales/en.json";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
-import messages from "@/i18n/locales/en.json";
 
 vi.mock("next-intl/server", () => ({
   getLocale: () => Promise.resolve("en"),
@@ -48,7 +48,7 @@ vi.mock("@/features/user/user.service", () => ({
 }));
 
 await import("@/core/di");
-const { createContactsTool } = await import("@/features/mcp-tools/contact.mcp-tools");
+const { mutateRecordV2Tool } = await import("@/features/mcp-tools/record-model.mcp-tools");
 const { executeMcpTool } = await import("@/features/mcp-tools/mcp-tool");
 const { prisma } = await import("@/prisma/db");
 const { runWithoutTenant, runWithTenant } = await import("@/core/decorators/tenant-context");
@@ -56,15 +56,31 @@ const { runInTransaction } = await import("@/core/decorators/transaction-runner"
 const { PrismaAgentChatRepo } = await import("@/ee/agent-chat/prisma-agent-chat.repository");
 const { getAgentAiTools, normalizeAgentAiToolInput } = await import("@/ee/agent-chat/agent-tools");
 const { createAgentToolInputResolver } = await import("@/ee/agent-chat/agent-tool-input");
+const { PrismaRecordRepo } = await import("@/features/records/prisma-record.repository");
+const { createCrmPreset, presetId } = await import("@/features/records/crm-preset");
 
 const company = randomUUID();
 const user = randomUUID();
+const role = randomUUID();
 const tenantUser = createMockUser({ companyId: company, id: user });
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 
 async function createContact(firstName: string) {
-  return executeMcpTool(createContactsTool, [{ contacts: [{ firstName, lastName: "Receipt" }] }]);
+  return executeMcpTool(mutateRecordV2Tool, [
+    {
+      expectedRevision: 1,
+      idempotencyKey: randomUUID(),
+      mutation: {
+        action: "create",
+        typeId: presetId(company, "contact"),
+        fields: [
+          { fieldId: presetId(company, "contact.firstName"), value: { kind: "text", value: firstName } },
+          { fieldId: presetId(company, "contact.lastName"), value: { kind: "text", value: "Receipt" } },
+        ],
+      },
+    },
+  ]);
 }
 
 function executeTool(tools: ReturnType<typeof getAgentAiTools>, name: string, input: unknown, toolCallId: string) {
@@ -77,10 +93,14 @@ describeDatabase("agent tool receipts wrap a real mutation", { timeout: 120_000 
   beforeAll(async () => {
     await runWithoutTenant(async () => {
       await prisma.company.create({ data: { id: company } });
+      await prisma.userRole.create({
+        data: { id: role, companyId: company, name: "Admin", isSystemRole: true },
+      });
       await prisma.user.create({
         data: {
           id: user,
           companyId: company,
+          roleId: role,
           email: `receipts-${user}@example.com`,
           firstName: "Receipt",
           lastName: "Tester",
@@ -88,6 +108,9 @@ describeDatabase("agent tool receipts wrap a real mutation", { timeout: 120_000 
         },
       });
     });
+    await runWithTenant(tenantUser, () =>
+      runInTransaction(() => new PrismaRecordRepo().saveModel(createCrmPreset(company, "EUR"), user)),
+    );
   });
 
   afterAll(async () => {
@@ -102,12 +125,15 @@ describeDatabase("agent tool receipts wrap a real mutation", { timeout: 120_000 
     );
 
     const stored = await runWithoutTenant(() =>
-      prisma.contact.findMany({ where: { companyId: company }, select: { firstName: true } }),
+      prisma.recordValue.findMany({
+        where: { companyId: company, fieldId: presetId(company, "contact.firstName") },
+        select: { textValue: true },
+      }),
     );
 
     expect(outsideTransaction.ok, `outside: ${outsideTransaction.result}`).toBe(true);
     expect(insideTransaction.ok, `inside: ${insideTransaction.result}`).toBe(true);
-    expect(stored.map((contact) => contact.firstName).toSorted()).toEqual(["Inside", "Outside"]);
+    expect(stored.map((value) => value.textValue).toSorted()).toEqual(["Inside", "Outside"]);
   });
 
   it("settles the receipt in the same transaction that commits the mutation", async () => {
@@ -139,7 +165,7 @@ describeDatabase("agent tool receipts wrap a real mutation", { timeout: 120_000 
         turnRequestId,
         companyId: company,
         toolCallId,
-        toolName: "create_contacts",
+        toolName: "mutate_crm_record",
       }),
     );
     expect(claim.state).toBe("claimed");
@@ -160,7 +186,9 @@ describeDatabase("agent tool receipts wrap a real mutation", { timeout: 120_000 
     const [receipt, contacts] = await runWithoutTenant(() =>
       Promise.all([
         prisma.agentToolReceipt.findFirstOrThrow({ where: { turnRequestId, toolCallId } }),
-        prisma.contact.count({ where: { companyId: company, firstName: "Settled" } }),
+        prisma.recordValue.count({
+          where: { companyId: company, fieldId: presetId(company, "contact.firstName"), textValue: "Settled" },
+        }),
       ]),
     );
 
@@ -245,22 +273,42 @@ describeDatabase("agent tool receipts wrap a real mutation", { timeout: 120_000 
     });
     const normalize = vi.fn((name: string, input: unknown) => normalizeAgentAiToolInput(name, input, 6000));
     const resolve = createAgentToolInputResolver(normalize);
-    const raw = { contacts: [{ firstName: "Normalized", lastName: "Replay" }] };
+    const raw = {
+      expectedRevision: 1,
+      idempotencyKey: "receipt-generic-create",
+      mutation: {
+        action: "create",
+        typeId: presetId(company, "contact"),
+        fields: [
+          { fieldId: presetId(company, "contact.firstName"), value: { kind: "text", value: "Normalized" } },
+          { fieldId: presetId(company, "contact.lastName"), value: { kind: "text", value: "Replay" } },
+        ],
+      },
+    };
     const run = async (input: unknown) => {
-      const prepared = await resolve("create_contacts", toolCallId, input);
-      return prepared.ok ? executeTool(tools, "create_contacts", prepared.input, toolCallId) : prepared;
+      const prepared = await resolve("mutate_crm_record", toolCallId, input);
+      return prepared.ok ? executeTool(tools, "mutate_crm_record", prepared.input, toolCallId) : prepared;
     };
 
     const first = await run(raw);
-    await expect(resolve("create_contacts", toolCallId, raw)).resolves.toMatchObject({
+    await expect(resolve("mutate_crm_record", toolCallId, raw)).resolves.toMatchObject({
       ok: true,
-      input: { contacts: [{ firstName: "Normalized", organizationIds: [], userIds: [], dealIds: [], taskIds: [] }] },
+      input: raw,
     });
     const replay = await run(raw);
-    const conflict = await run({ contacts: [{ firstName: "Different", lastName: "Replay" }] });
+    const conflict = await run({
+      ...raw,
+      mutation: {
+        ...raw.mutation,
+        fields: [
+          { fieldId: presetId(company, "contact.firstName"), value: { kind: "text", value: "Different" } },
+          { fieldId: presetId(company, "contact.lastName"), value: { kind: "text", value: "Replay" } },
+        ],
+      },
+    });
     const [count, receipts] = await runWithoutTenant(() =>
       Promise.all([
-        prisma.contact.count({ where: { companyId: company, firstName: "Normalized", lastName: "Replay" } }),
+        prisma.crmRecord.count({ where: { companyId: company, typeId: presetId(company, "contact") } }),
         prisma.agentToolReceipt.findMany({ where: { companyId: company, turnRequestId } }),
       ]),
     );
@@ -269,7 +317,7 @@ describeDatabase("agent tool receipts wrap a real mutation", { timeout: 120_000 
     expect(replay).toEqual(first);
     expect(conflict).toMatchObject({ ok: false });
     expect(normalize).toHaveBeenCalledTimes(1);
-    expect(count).toBe(1);
+    expect(count).toBe(4);
     expect(receipts).toHaveLength(1);
     expect(receipts[0].state).toBe("settled");
   });

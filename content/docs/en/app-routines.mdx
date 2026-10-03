@@ -35,7 +35,7 @@ Each user gets a separate allowance: Starter includes [[commercial.entitlement.s
 ## What are the limits, such as runs per hour and credits per run? [#what-are-the-limits]
 
 | Limit | Value | What happens at the limit |
-|---|---|---|
+| --- | --- | --- |
 | Runs per routine and hour | 4 | Further runs in that hour do not start; a matching event is dropped without a run entry, and a due scheduled run or **Test trigger** run is recorded as **Skipped** |
 | Credits per run | 10 | The run stops at the cap and is recorded as **Partial** |
 | Consecutive failed runs | 3 | The routine pauses itself and shows the reason on its page |
@@ -61,9 +61,9 @@ An event trigger starts a routine when something changes in the app, for example
 
 **Changed fields** applies to update events only. Name the fields you want to watch, for example a deal's value or one of your custom columns, and the routine runs only when one of them actually changed. The control is hidden when no update event is selected, because creations and deletions do not report field-level changes.
 
-**Record filters** restrict the routine to records matching the conditions you set, for example only deals assigned to you. They are not applied to deletions, because the record is already gone by the time the routine starts. Both controls are only offered while all selected events belong to one record type.
+**Record filters** restrict each configured source to matching records. Creation and update filters match the resulting committed state. Deletion filters match the complete state immediately before removal, including fields and relationships; their match is captured in the deletion transaction. Multi-source triggers keep their event names, watched field IDs and filters local to each type.
 
-Leave either control empty to run on every matching event. An event starts a run only for a record or conversation the routine owner can see under their role; with **Assigned** read access, other people's records never trigger it, whatever the filters say. Before a matching event starts a run, Customermates skips it when a run for that routine is already queued or running, then applies the debounce window, then the hourly cap. An event that does not pass these checks leaves no entry in the run list. The owner's access and the filters are checked again when the run starts.
+Leave either control empty to run on every matching event. An event starts a run only for a record or conversation the routine owner can see under their role; with **Assigned** read access, other people's records never trigger it, whatever the filters say. Before a matching event starts a run, Customermates skips it when a run for that routine is already queued or running, then applies the debounce window, then the hourly cap. An event that does not pass these checks leaves no entry in the run list. The owner's current access is checked again when the run starts. Creation and update filters are rechecked against the current record; deletion uses the match captured before removal.
 
 When an event starts a run, Mate is told what happened before your instructions: the event name, the kind of record and its id, which fields changed on an update, and for an inbox event the thread the message belongs to. It can read the record itself from there. It is not given the previous values of the fields that changed.
 
@@ -76,7 +76,7 @@ Open a routine to see its runs, newest first: on a wide screen they sit next to 
 A run opens in **Run details** (**Back** returns to the routine), which shows **Ran as** with the owner's name, the credits it used, what triggered it (**Record**, **Changed fields**, **Conversation**) and, when it stopped early, the reason, for example the credit cap. When the run has finished, the executor can reply below the transcript to continue that conversation with Mate; this spends their credits.
 
 | Status | Meaning |
-|---|---|
+| --- | --- |
 | **Queued** (`queued`) | Waiting for the scheduler to start it |
 | **Running** (`running`) | Mate is working |
 | **Succeeded** (`succeeded`) | The run completed its instruction |
@@ -110,7 +110,7 @@ In a chat, Mate uses `manage_routines` to list routines, read run history, creat
 The **Routines** page has these ids, and Mate can navigate to and highlight these targets:
 
 | Surface | Route | Nav anchor | Toolbar anchors |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Routines | `/routines` | `#nav-routines` | `#routines-add`, `#routines-search`, `#routines-filter`, `#routines-display-options` |
 
 Layout controls inside the display options: `#routines-layout-table`, `#routines-layout-board`. `#routines-add` is rendered only for roles with **Manage** set to **Yes** on **Routines**. Routines have no import and export menu.

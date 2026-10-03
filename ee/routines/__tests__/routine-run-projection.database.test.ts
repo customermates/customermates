@@ -1,5 +1,6 @@
 import type { TenantUser } from "@/features/user/user.schema";
 
+import { presetId } from "@/features/records/crm-preset";
 import { randomUUID } from "node:crypto";
 
 import { Client } from "pg";
@@ -7,7 +8,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { Action, Resource } from "@/generated/prisma";
 
-import { PrismaRoutineRepo } from "../prisma-routine.repository";
+import { createTestRoutineRepo } from "@/tests/helpers/record-delivery";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 import { runWithTenant } from "@/core/decorators/tenant-context";
@@ -80,7 +81,7 @@ describeDatabase("routine run projection on PostgreSQL", () => {
   });
 
   async function runs() {
-    return runWithTenant(viewer, () => new PrismaRoutineRepo().getRoutineRuns(routineId, 10));
+    return runWithTenant(viewer, () => createTestRoutineRepo().getRoutineRuns(routineId, 10));
   }
 
   it("never puts the raw event envelope on the wire", async () => {
@@ -97,6 +98,7 @@ describeDatabase("routine run projection on PostgreSQL", () => {
 
     expect(triggered?.triggerEntityId).toBe(contactId);
     expect(triggered?.triggerContext).toEqual({
+      recordRef: { typeId: presetId(companyId, "contact"), recordId: contactId },
       entityType: "contact",
       threadId: null,
       changedFields: ["firstName"],

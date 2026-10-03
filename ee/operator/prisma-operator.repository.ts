@@ -1,11 +1,12 @@
+import { presetId } from "@/features/records/crm-preset";
 import type { Prisma } from "@/generated/prisma";
-import { ConnectedAccountStatus, Status, SubscriptionPlan, SubscriptionStatus, TaskType } from "@/generated/prisma";
+import { ConnectedAccountStatus, Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { getOperatorActor } from "@/core/decorators/operator-context";
-import { BULK_WRITE_TRANSACTION } from "@/core/decorators/transaction.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
+import { BULK_WRITE_TRANSACTION } from "@/core/decorators/transaction.decorator";
 import { AGENT_CREDIT_MICROCENTS, resolveAgentCreditEntitlement } from "@/ee/agent-chat/agent-credit-policy";
 import { env } from "@/env";
 
@@ -17,23 +18,23 @@ import {
   type CorrectOperatorSubscriptionSnapshotData,
   type CreateAgentCreditAdjustmentData,
   type DeleteOperatorWorkspaceData,
-  type UpdateOperatorSubscriptionTermsData,
-  type GetOperatorWorkspaceStatsData,
-  type OperatorWorkspaceStatsDto,
   type DeleteOperatorWorkspaceResultDto,
+  type GetOperatorWorkspaceStatsData,
   type HostedAiOperatorCompanyDto,
   type HostedAiOperatorOverviewDto,
   type HostedAiUsageTotalsDto,
   type OperatorUserCreditPeriodDto,
   type OperatorUserDetailDto,
   type OperatorUserSummaryDto,
+  type OperatorWorkspaceStatsDto,
+  type OperatorWorkspaceTagsDto,
   type ResetOperatorUserCreditsData,
   type ResetOperatorUserCreditsResultDto,
   type UpdateHostedAiEnterpriseAllowanceData,
+  type UpdateOperatorSubscriptionTermsData,
   type UpdateOperatorUserPlatformAccessData,
   type UpdateOperatorUserStatusData,
   type UpdateOperatorWorkspaceTagsData,
-  type OperatorWorkspaceTagsDto,
 } from "./operator.schema";
 
 function workspaceLabelFor(companyId: string, members: { email: string }[]): string {
@@ -621,6 +622,35 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           if (otherActiveSystemUsers === 0) return "conflict";
         }
 
+        const leavingPending =
+          target.status === Status.pendingAuthorization && data.status !== Status.pendingAuthorization;
+        const protectedTasks = leavingPending
+          ? await this.prisma.crmRecord.findMany({
+              where: {
+                companyId,
+                protectedKind: "membershipAuthorization",
+                systemData: { path: ["relatedUserId"], equals: data.userId },
+              },
+              select: { id: true, typeId: true },
+            })
+          : [];
+        if (protectedTasks.length) {
+          const [state, linked] = await Promise.all([
+            this.prisma.recordSchemaState.findUnique({ where: { companyId }, select: { activeOperationId: true } }),
+            this.prisma.recordLink.findFirst({
+              where: {
+                companyId,
+                OR: protectedTasks.flatMap((task) => [
+                  { sourceTypeId: task.typeId, sourceId: task.id },
+                  { targetTypeId: task.typeId, targetId: task.id },
+                ]),
+              },
+              select: { id: true },
+            }),
+          ]);
+          if (state?.activeOperationId || linked) return "conflict";
+        }
+
         const enteringActive = target.status !== Status.active && data.status === Status.active;
         await this.prisma.user.update({
           where: { id: data.userId, companyId },
@@ -630,14 +660,16 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
             ...(leavingActive ? { agentCreditActivatedAt: null } : {}),
           },
         });
-        if (target.status === Status.pendingAuthorization && data.status !== Status.pendingAuthorization) {
-          await this.prisma.task.deleteMany({
-            where: {
-              companyId,
-              relatedUserId: data.userId,
-              type: TaskType.userPendingAuthorization,
-            },
-          });
+        if (leavingPending) {
+          if (protectedTasks.length) {
+            await this.prisma.crmRecord.deleteMany({
+              where: {
+                companyId,
+                protectedKind: "membershipAuthorization",
+                systemData: { path: ["relatedUserId"], equals: data.userId },
+              },
+            });
+          }
         }
         await this.createAudit({
           action: OPERATOR_AUDIT_ACTION.userStatusUpdate,
@@ -1213,11 +1245,11 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
       }>
     >`
       SELECT
-        (SELECT COUNT(*) FROM "Contact" WHERE "companyId" = ${data.companyId})::int AS "contacts",
-        (SELECT COUNT(*) FROM "Organization" WHERE "companyId" = ${data.companyId})::int AS "organizations",
-        (SELECT COUNT(*) FROM "Deal" WHERE "companyId" = ${data.companyId})::int AS "deals",
-        (SELECT COUNT(*) FROM "Service" WHERE "companyId" = ${data.companyId})::int AS "services",
-        (SELECT COUNT(*) FROM "Task" WHERE "companyId" = ${data.companyId})::int AS "tasks",
+        (SELECT COUNT(*) FROM "CrmRecord" WHERE "companyId" = ${data.companyId} AND "typeId" = ${presetId(data.companyId, "contact")})::int AS "contacts",
+        (SELECT COUNT(*) FROM "CrmRecord" WHERE "companyId" = ${data.companyId} AND "typeId" = ${presetId(data.companyId, "organization")})::int AS "organizations",
+        (SELECT COUNT(*) FROM "CrmRecord" WHERE "companyId" = ${data.companyId} AND "typeId" = ${presetId(data.companyId, "deal")})::int AS "deals",
+        (SELECT COUNT(*) FROM "CrmRecord" WHERE "companyId" = ${data.companyId} AND "typeId" = ${presetId(data.companyId, "service")})::int AS "services",
+        (SELECT COUNT(*) FROM "CrmRecord" WHERE "companyId" = ${data.companyId} AND "typeId" = ${presetId(data.companyId, "task")})::int AS "tasks",
         (SELECT COUNT(*) FROM "MessagingThread" WHERE "companyId" = ${data.companyId})::int AS "messagingThreads",
         (SELECT COUNT(*) FROM "MessagingMessage" WHERE "companyId" = ${data.companyId})::int AS "messagingMessages",
         (SELECT COUNT(*) FROM "AgentConversation" WHERE "companyId" = ${data.companyId})::int AS "agentConversations",

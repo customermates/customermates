@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import type { BaseModalStore } from "@/core/base/base-modal.store";
 import type { AppModalActionProps } from "./app-modal-action";
 
@@ -15,6 +15,7 @@ import { OVERLAY_TOPMOST_LAYER_CLASS } from "@/components/ui/overlay-contract";
 import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
 import { cn } from "@/core/utils/cn";
 import { useIsWiderThan } from "@/hooks/use-media-query";
+import { useClientReady } from "@/hooks/use-client-ready";
 
 import { UnsavedChangesGuard } from "./unsaved-changes-guard";
 import { AppModalAction, APP_MODAL_ACTION_RAIL_CLASS } from "./app-modal-action";
@@ -93,10 +94,13 @@ function AppModalActionRail({ actions }: { actions: readonly AppModalActionProps
 export const AppModal = observer((props: Props) => {
   const { title, actions = [], description, layerClassName, size = "md", children } = props;
   const store = hasStore(props) ? props.store : undefined;
-  const isOpen = hasStore(props) ? props.store.isOpen : props.open;
+  const clientReady = useClientReady();
+  const isOpen = clientReady && (hasStore(props) ? props.store.isOpen : props.open);
   const navigationGuard = store?.rootStore.navigationGuard;
   const releaseFocus = layerClassName === OVERLAY_TOPMOST_LAYER_CLASS ? undefined : releaseFocusToAssistantSurface;
   const isWide = useIsWiderThan("md");
+  const [presentation, setPresentation] = useState({ open: isOpen, wide: isWide });
+  if (presentation.open !== isOpen) setPresentation({ open: isOpen, wide: isOpen ? isWide : presentation.wide });
   const actionCount = actions.length;
   const hasActions = actionCount > 0;
 
@@ -138,7 +142,7 @@ export const AppModal = observer((props: Props) => {
 
   return (
     <>
-      {isWide ? (
+      {presentation.wide ? (
         <Dialog open={isOpen} onOpenChange={handleOpenChange}>
           <DialogContent
             className={cn(

@@ -12,6 +12,7 @@ import { observer } from "mobx-react-lite";
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
+import { runUserAction } from "@/core/errors/report-application-error";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -163,7 +164,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
   }
 
   function handleToggle(uid: string, visible: boolean) {
-    if (uid === "name") return;
+    if (uid === store.primaryColumnId) return;
     const next = new Set(hiddenSet);
     if (visible) next.delete(uid);
     else next.add(uid);
@@ -345,13 +346,28 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
             </Section>
           )}
 
+          {store.resetToSharedDefaults && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() =>
+                runUserAction(async () => {
+                  await store.resetToSharedDefaults?.();
+                  setIsOpen(false);
+                })
+              }
+            >
+              {t("RecordModel.resetDefaults")}
+            </Button>
+          )}
+
           {orderedColumns.length > 0 && (
             <Section label={t("Common.table.fields")}>
               <DndContext collisionDetection={closestCenter} sensors={sensors} onDragEnd={handleDragEnd}>
                 <SortableContext items={orderedColumns.map((c) => c.uid)} strategy={verticalListSortingStrategy}>
                   <div className="flex flex-col gap-0.5">
                     {orderedColumns.map((col) => {
-                      const isPinned = col.uid === "name";
+                      const isPinned = col.uid === store.primaryColumnId;
                       const isVisible = !hiddenSet.has(col.uid);
                       const label = col.label || columnLabel(col.uid);
                       return (

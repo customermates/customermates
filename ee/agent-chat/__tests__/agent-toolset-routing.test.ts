@@ -15,7 +15,7 @@ import {
 import { coreToolNames, onDemandToolsetOfTool, toolNamesOfToolset } from "../agent-toolsets";
 
 const TOOLS = [
-  { name: "list_records", toolset: null },
+  { name: "query_crm_records", toolset: null },
   { name: "search_docs", toolset: null },
   { name: "load_toolset", toolset: null },
   { name: "manage_data_views", toolset: "views" },
@@ -38,7 +38,7 @@ describe("toolset partition", () => {
     for (const toolset of AGENT_ON_DEMAND_TOOLSETS)
       for (const name of toolNamesOfToolset(toolset)) expect(onDemandToolsetOfTool(name)).toBe(toolset);
     for (const name of coreToolNames()) expect(onDemandToolsetOfTool(name)).toBeNull();
-    expect(coreToolNames().size).toBe(24);
+    expect(coreToolNames().size).toBe(16);
     expect(coreToolNames().has("get_activities")).toBe(true);
     expect(coreToolNames().has("manage_data_views")).toBe(false);
     expect(onDemandToolsetOfTool("manage_data_views")).toBe("views");
@@ -46,6 +46,33 @@ describe("toolset partition", () => {
 });
 
 describe("toolsetsForRequest", () => {
+  it("discovers personal detail layout controls in all application locales", () => {
+    for (const text of [
+      "Change my detail layout",
+      "Feld anheften",
+      "Masquer le champ",
+      "Ocultar campo",
+      "Nascondi campo",
+    ])
+      expect(toolsetsForRequest({ text, pageRoute: null }).has("views")).toBe(true);
+    expect(onDemandToolsetOfTool("manage_record_detail_layout")).toBe("views");
+  });
+  it("loads record configuration tools for stable contexts regardless of route or label", () => {
+    for (const reference of [
+      { kind: "dataModel" as const },
+      { kind: "recordType" as const, typeId: "11111111-1111-4111-8111-111111111111" },
+      {
+        kind: "record" as const,
+        typeId: "11111111-1111-4111-8111-111111111111",
+        recordId: "22222222-2222-4222-8222-222222222222",
+      },
+    ]) {
+      expect([
+        ...toolsetsForRequest({ text: "Change this", pageRoute: null, contexts: [{ reference, label: "Renamed" }] }),
+      ]).toEqual(["record-model"]);
+    }
+  });
+
   it("routes by user vocabulary in English and German", () => {
     expect([...toolsetsForRequest({ text: "Reply to the email from ACME", pageRoute: null })]).toEqual(["messaging"]);
     expect([...toolsetsForRequest({ text: "Erstelle eine Routine, die jeden Morgen läuft", pageRoute: null })]).toEqual(
@@ -87,7 +114,7 @@ describe("toolsetsForRequest", () => {
           {
             reference: {
               kind: "dataView",
-              surfaceKey: "contacts-card-store",
+              surfaceKey: "records:10000000-0000-4000-8000-000000000011",
               viewKey: "11111111-1111-4111-8111-111111111111",
               requestedAction: "update",
             },
@@ -119,7 +146,7 @@ describe("toolsetsFromActivities", () => {
 describe("activeAgentToolNames", () => {
   it("starts from the core set plus the requested sets", () => {
     expect(activeAgentToolNames({ tools: TOOLS, initialToolsets: [], messages: [] })).toEqual([
-      "list_records",
+      "query_crm_records",
       "search_docs",
       "load_toolset",
     ]);

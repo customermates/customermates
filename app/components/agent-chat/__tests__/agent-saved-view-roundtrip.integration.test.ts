@@ -5,13 +5,13 @@ import { act, createElement, forwardRef } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createMockUser } from "@/tests/helpers/mock-user";
 import {
   createMockDiModule,
   MOCK_ENV_MODULE,
   MOCK_PRISMA_DB_MODULE,
   MOCK_ZOD_MODULE,
 } from "@/tests/helpers/interactor-test-setup";
+import { createMockUser } from "@/tests/helpers/mock-user";
 
 const user = createMockUser();
 const harness = vi.hoisted(() => ({
@@ -69,7 +69,7 @@ vi.mock("@/core/stores/root-store.provider", () => ({
 }));
 vi.mock("@/i18n/navigation", () => ({
   IntlLink: ({ children, href }: { children?: ReactNode; href: string }) => createElement("a", { href }, children),
-  usePathname: () => "/contacts",
+  usePathname: () => "/records/10000000-0000-4000-8000-000000000101",
 }));
 vi.mock("@/components/shared/app-link", () => {
   const MockAppLink = forwardRef<HTMLAnchorElement, ComponentProps<"a"> & { appearance?: string }>(
@@ -106,26 +106,26 @@ vi.mock("../actions", () => ({
 }));
 
 import { POST } from "@/app/api/agent/messages/route";
-import { AgentActivity } from "../agent-chat-items";
-import { AgentChatStore, type AgentChatItem } from "../agent-chat.store";
 import { SURFACE } from "@/core/data-view/data-view-keys";
-import { SendAgentMessageSchema, type AgentMessagePart } from "@/ee/agent-chat/agent-chat.schema";
 import { describeAgentTool } from "@/ee/agent-chat/agent-activity";
-import type { AgentTranscriptEvent } from "@/ee/agent-chat/agent-turn-transcript";
-import { AgentTurnTranscript } from "@/ee/agent-chat/agent-turn-transcript";
+import { SendAgentMessageSchema, type AgentMessagePart } from "@/ee/agent-chat/agent-chat.schema";
 import { sse } from "@/ee/agent-chat/agent-stream-utils";
 import { getAgentAiTools, type AgentToolDeps } from "@/ee/agent-chat/agent-tools";
+import type { AgentTranscriptEvent } from "@/ee/agent-chat/agent-turn-transcript";
+import { AgentTurnTranscript } from "@/ee/agent-chat/agent-turn-transcript";
 import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
+import { AgentActivity } from "../agent-chat-items";
+import { AgentChatStore, type AgentChatItem } from "../agent-chat.store";
 
 const CONVERSATION_ID = "10000000-0000-4000-8000-000000000001";
 const USER_MESSAGE_ID = "10000000-0000-4000-8000-000000000002";
 const ASSISTANT_MESSAGE_ID = "10000000-0000-4000-8000-000000000003";
 const TOOL_CALL_ID = "view-call";
-const VIEW_ROUTE = `/en/contacts?view=__all__&viewSurface=${SURFACE.contacts}&viewAction=update`;
+const VIEW_ROUTE = `/en/company/members?view=__all__&viewSurface=${SURFACE.users}&viewAction=update`;
 const VIEW_CONTEXT = {
   reference: {
     kind: "dataView",
-    surfaceKey: SURFACE.contacts,
+    surfaceKey: SURFACE.users,
     viewKey: "__all__",
     requestedAction: "update",
   },
@@ -133,11 +133,11 @@ const VIEW_CONTEXT = {
 } as const;
 const TOOL_INPUT = {
   action: "update",
-  surfaceKey: SURFACE.contacts,
+  surfaceKey: SURFACE.users,
   viewKey: "__all__",
   state: { viewMode: "card" },
 } as const;
-const VIEW_HREF = "/contacts?view=__all__";
+const VIEW_HREF = "/company/members?view=__all__";
 
 type StoredMessage = {
   id: string;
@@ -290,8 +290,8 @@ describe("saved-view Assistant round trip", () => {
       ok: true,
       data: {
         action: "update",
-        surfaceKey: SURFACE.contacts,
-        path: "/contacts",
+        surfaceKey: SURFACE.users,
+        path: "/records/10000000-0000-4000-8000-000000000101",
         viewKey: "__all__",
         state: { viewMode: "card" },
         link: VIEW_HREF,

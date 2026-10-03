@@ -1,15 +1,15 @@
 import type { Data } from "../validation/validation.utils";
 
-import { z } from "zod";
 import { Prisma } from "@/generated/prisma";
+import { z } from "zod";
 
 import { FilterOperatorKey, ViewMode } from "./base-query-builder";
 import { normalizeFilterInput } from "./filter-compat";
 
+import { GROUP_PAGE_SIZE_MAX, GroupPageRequestSchema, GroupingSchema } from "@/core/base/grouping/grouping.schema";
+import { CustomColumnDtoSchema } from "@/core/data-view/column-presentation.schema";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { zx } from "@/core/validation/validation.utils";
-import { CustomColumnDtoSchema } from "@/features/custom-column/custom-column.schema";
-import { GROUP_PAGE_SIZE_MAX, GroupPageRequestSchema, GroupingSchema } from "@/core/base/grouping/grouping.schema";
 
 import type { GroupScope } from "@/core/base/grouping/group-scope";
 

@@ -370,6 +370,27 @@ describe("agent client-visible output safety", () => {
     expect(sanitizeAgentVisibleText(unknown)).toBe(unknown);
   });
 
+  it("replays redacted generic list and activity links as inert labels across stream boundaries", () => {
+    const typeId = "00000000-0000-4000-8000-000000000003";
+    const paths = [
+      "/records/[internal reference]?view=[internal reference]",
+      `/records/${typeId}/[internal reference]?view=[internal reference]&viewSurface=entity-timeline`,
+      "/de/records/%5Binternal%20reference%5D/%5Binternal%20reference%5D?view=%5Binternal%20reference%5D&viewSurface=entity-timeline",
+    ];
+    for (const path of paths) {
+      const source = `Open [Saved view](${path}).`;
+      expect(sanitizeAgentVisibleText(source)).toBe("Open Saved view.");
+      for (let split = 0; split <= source.length; split += 1) {
+        const sanitizer = new AgentVisibleTextStreamSanitizer();
+        expect(
+          `${sanitizer.push(source.slice(0, split))}${sanitizer.push(source.slice(split))}${sanitizer.finish()}`,
+        ).toBe("Open Saved view.");
+      }
+    }
+    const external = "[External](https://example.com/records/[internal reference]?view=[internal reference])";
+    expect(sanitizeAgentVisibleText(external)).toBe(external);
+  });
+
   it("removes provider tool protocol and its payload across every chunk boundary", () => {
     const source = [
       "I prepared the first batch.",

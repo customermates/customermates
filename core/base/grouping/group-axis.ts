@@ -1,11 +1,10 @@
-import type { DataViewGroup, DateBucket, Grouping } from "./grouping.schema";
 import type { GroupCountRow } from "./group-count";
 import type { GroupLabel } from "./group-labels";
 import type { GroupableFieldSpec } from "./groupable-field";
+import type { DataViewGroup, DateBucket, Grouping } from "./grouping.schema";
 
-import { DEFAULT_DATE_BUCKET, MAX_AXIS_GROUPS, NO_VALUE_GROUP_KEY } from "./grouping.schema";
 import { dateBucketLadder } from "./date-buckets";
-import { orderByOptionIndex } from "./option-order";
+import { DEFAULT_DATE_BUCKET, MAX_AXIS_GROUPS, NO_VALUE_GROUP_KEY } from "./grouping.schema";
 
 export type ResolvedGrouping = { spec: GroupableFieldSpec; grouping: Grouping };
 
@@ -41,27 +40,6 @@ export function resolveGroupAxis(input: GroupAxisInput): GroupAxis {
   const countByKey = new Map(input.rows.map((row) => [row.key, row]));
 
   switch (spec.kind) {
-    case "customSingleSelect": {
-      const ordered = orderByOptionIndex(spec.options);
-      const declared = new Set(ordered.map((option) => option.value));
-      const groups = ordered.map((option) =>
-        group({
-          key: option.value,
-          row: countByKey.get(option.value),
-          labelKind: "value",
-          label: option.label,
-          color: option.color,
-          weight: option.weight,
-        }),
-      );
-
-      const unavailable = input.rows
-        .filter((row) => row.key !== NO_VALUE_GROUP_KEY && !declared.has(row.key))
-        .map((row) => group({ key: row.key, row, labelKind: "unavailable" }));
-
-      return truncate([...groups, ...unavailable], noValueGroup(countByKey.get(NO_VALUE_GROUP_KEY), true));
-    }
-
     case "enum": {
       const groups = spec.values.map((value) =>
         group({

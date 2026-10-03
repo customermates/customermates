@@ -1,44 +1,24 @@
-import type { EventService } from "../event/event.service";
 import type { Data } from "@/core/validation/validation.utils";
+import type { EventService } from "../event/event.service";
 
+import { Action, Currency, Resource } from "@/generated/prisma";
 import { z } from "zod";
-import { Currency, Resource, Action } from "@/generated/prisma";
 
 import { DomainEvent } from "../event/domain-events";
-import { dealStageWeightSchema } from "../deals/deal-weighting";
 
-import {
-  EntityTerminologyEntrySchema,
-  type EntityTerminologyEntry,
-} from "@/features/entity-terminology/entity-terminology.schema";
-
-import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { type Validated } from "@/core/validation/validation.utils";
-import { Validate } from "@/core/decorators/validate.decorator";
-import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { Transaction } from "@/core/decorators/transaction.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { Transaction } from "@/core/decorators/transaction.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { Validate } from "@/core/decorators/validate.decorator";
+import { type Validated } from "@/core/validation/validation.utils";
 
-export const DealStageWeightSchema = z.object({
-  optionValue: z.string(),
-  weight: dealStageWeightSchema().optional(),
-});
-
-export const UpdateCompanySettingsSchema = z.object({
-  currency: z.enum(Currency).optional(),
-  terminology: z.array(EntityTerminologyEntrySchema).optional(),
-  dealWeightingColumnId: z.string().nullable().optional(),
-  dealStageWeights: z.array(DealStageWeightSchema).optional(),
-});
-
-export type DealStageWeight = Data<typeof DealStageWeightSchema>;
+export const UpdateCompanySettingsSchema = z.strictObject({ currency: z.enum(Currency) });
 
 export type UpdateCompanySettingsData = Data<typeof UpdateCompanySettingsSchema>;
 
 export abstract class UpdateCompanySettingsRepo {
-  abstract updateDetails(args: { currency?: Currency; dealWeightingColumnId?: string | null }): Promise<void>;
-  abstract upsertTerminology(entries: EntityTerminologyEntry[]): Promise<void>;
-  abstract setDealStageWeights(entries: DealStageWeight[]): Promise<void>;
+  abstract updateDetails(args: { currency?: Currency }): Promise<void>;
 }
 
 @TenantInteractor({ resource: Resource.company, action: Action.update })
@@ -57,16 +37,7 @@ export class UpdateCompanySettingsInteractor extends AuthenticatedInteractor<
   @Transaction
   @ValidateOutput(UpdateCompanySettingsSchema)
   async invoke(data: UpdateCompanySettingsData): Validated<UpdateCompanySettingsData> {
-    if (data.terminology?.length) await this.repo.upsertTerminology(data.terminology);
-
-    const details: { currency?: Currency; dealWeightingColumnId?: string | null } = {};
-
-    if (data.currency) details.currency = data.currency;
-    if (data.dealWeightingColumnId !== undefined) details.dealWeightingColumnId = data.dealWeightingColumnId;
-
-    if (Object.keys(details).length > 0) await this.repo.updateDetails(details);
-
-    if (data.dealStageWeights?.length) await this.repo.setDealStageWeights(data.dealStageWeights);
+    await this.repo.updateDetails({ currency: data.currency });
 
     await this.eventService.publish(DomainEvent.COMPANY_UPDATED, {
       entityId: this.companyId,

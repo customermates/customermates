@@ -3,6 +3,7 @@ import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const state = vi.hoisted(() => ({
+  pathname: "/legal-update",
   protectedEnhancementsAllowed: false,
   agentChatEnabled: false,
   agentConfigEnabled: null as boolean | null,
@@ -13,11 +14,12 @@ const state = vi.hoisted(() => ({
   toggleAgentChat: vi.fn(),
 }));
 
-vi.mock("next/navigation", () => ({ usePathname: () => "/legal-update" }));
+vi.mock("next/navigation", () => ({ usePathname: () => state.pathname }));
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({
     agentChatEnabled: state.agentChatEnabled,
     closeAllModals: state.closeAllModals,
+    recordWorkspaceStore: { routeReady: () => true },
     get globalSearchModalStore() {
       state.getGlobalSearchStore();
       return { open: state.openGlobalSearch };
@@ -35,9 +37,6 @@ vi.mock("@/app/components/navigation/protected-enhancements-context", () => ({
   useProtectedEnhancementsAllowed: () => state.protectedEnhancementsAllowed,
 }));
 
-vi.mock("@/components/data-transfer/import-wizard", () => ({
-  ImportWizard: () => "import-wizard",
-}));
 vi.mock("../company/components/feedback/feedback-modal", () => ({
   FeedbackModal: () => "feedback-modal",
 }));
@@ -72,8 +71,11 @@ vi.mock("@/components/ui/sonner", () => ({ Toaster: () => "toaster" }));
 vi.mock("@/app/components/global-search-modal", () => ({
   GlobalSearchModal: () => "global-search-modal",
 }));
-vi.mock("@/components/entity-detail/entity-drawer", () => ({
-  EntityDrawer: () => "entity-drawer",
+vi.mock("@/components/records/legacy-record-drawer-bridge", () => ({
+  LegacyRecordDrawerBridge: () => "legacy-record-drawer-bridge",
+}));
+vi.mock("@/components/records/workspace-record-editor", () => ({
+  WorkspaceRecordEditor: () => "workspace-record-editor",
 }));
 vi.mock("@/components/shared/loading-overlay", () => ({
   LoadingOverlay: () => "loading-overlay",
@@ -93,9 +95,6 @@ vi.mock("@/components/shared/translation-sync", () => ({
 vi.mock("@/app/components/agent-chat/agent-chat", () => ({
   AgentChat: () => "agent-chat",
 }));
-vi.mock("@/components/data-view/custom-columns/custom-column-modal", () => ({
-  CustomColumnModal: () => "custom-column-modal",
-}));
 vi.mock("@/features/messaging/activities/activities-detail-modal", () => ({
   TimelineDetailModal: () => "timeline-detail-modal",
 }));
@@ -106,6 +105,7 @@ let container: HTMLDivElement;
 let root: Root;
 
 beforeEach(() => {
+  state.pathname = "/legal-update";
   state.protectedEnhancementsAllowed = false;
   state.agentChatEnabled = false;
   state.agentConfigEnabled = null;
@@ -133,6 +133,18 @@ async function renderLayout() {
 }
 
 describe("ProtectedLayout account-state boundary", () => {
+  it("retains a modal opened during hydration and closes it when the route or access changes", async () => {
+    state.protectedEnhancementsAllowed = true;
+    state.pathname = "/records/projects";
+    await renderLayout();
+    expect(state.closeAllModals).not.toHaveBeenCalled();
+    state.pathname = "/company/data-model";
+    await renderLayout();
+    expect(state.closeAllModals).toHaveBeenCalledOnce();
+    state.protectedEnhancementsAllowed = false;
+    await renderLayout();
+    expect(state.closeAllModals).toHaveBeenCalledTimes(2);
+  });
   it("mounts only recovery-safe infrastructure without assistant store access when restricted", async () => {
     state.agentChatEnabled = true;
     state.agentConfigEnabled = true;
@@ -147,7 +159,7 @@ describe("ProtectedLayout account-state boundary", () => {
     expect(container.textContent).toContain("translation-sync");
     expect(container.textContent).not.toContain("global-search-modal");
     expect(container.textContent).not.toContain("company-user-modal");
-    expect(container.textContent).not.toContain("entity-drawer");
+    expect(container.textContent).not.toContain("legacy-record-drawer-bridge");
     expect(container.textContent).not.toContain("routine-modal");
     expect(container.textContent).not.toContain("import-wizard");
     expect(container.textContent).not.toContain("agent-chat");
@@ -165,9 +177,9 @@ describe("ProtectedLayout account-state boundary", () => {
 
     expect(container.textContent).toContain("global-search-modal");
     expect(container.textContent).toContain("company-user-modal");
-    expect(container.textContent).toContain("entity-drawer");
+    expect(container.textContent).toContain("legacy-record-drawer-bridge");
     expect(container.textContent).toContain("routine-modal");
-    expect(container.textContent).toContain("import-wizard");
+    expect(container.textContent).not.toContain("import-wizard");
     expect(container.textContent).not.toContain("agent-chat");
     expect(state.getGlobalSearchStore).toHaveBeenCalledOnce();
     expect(state.getAgentChatStore).not.toHaveBeenCalled();

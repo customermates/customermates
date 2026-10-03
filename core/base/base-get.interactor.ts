@@ -1,22 +1,6 @@
-import type { Validated } from "../validation/validation.utils";
-import type { SortableField, SearchableField } from "./base-query-builder";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
-import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
-import type { DataViewChipDto, DataViewState } from "@/core/data-view/data-view-state.schema";
-import type {
-  DataViewDefaultsLayer,
-  DataViewParamsLayer,
-  ResolvedDataViewState,
-} from "@/core/data-view/resolve-data-view-state";
-import type {
-  FilterableField,
-  Filter,
-  GetQueryParams,
-  GroupValueSums,
-  PaginationRequest,
-  PaginationResponse,
-  SortDescriptor,
-} from "./base-get.schema";
+import type { GroupAxis, ResolvedGrouping } from "@/core/base/grouping/group-axis";
+import type { GroupCountRow } from "@/core/base/grouping/group-count";
+import type { GroupLabel } from "@/core/base/grouping/group-labels";
 import type {
   DataViewGroup,
   DateBucket,
@@ -24,27 +8,43 @@ import type {
   Grouping,
   GroupingResult,
 } from "@/core/base/grouping/grouping.schema";
-import type { GroupCountRow } from "@/core/base/grouping/group-count";
-import type { GroupAxis, ResolvedGrouping } from "@/core/base/grouping/group-axis";
-import type { GroupLabel } from "@/core/base/grouping/group-labels";
+import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
+import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
+import type { DataViewChipDto, DataViewState } from "@/core/data-view/data-view-state.schema";
+import type {
+  DataViewDefaultsLayer,
+  DataViewParamsLayer,
+  ResolvedDataViewState,
+} from "@/core/data-view/resolve-data-view-state";
+import type { Validated } from "../validation/validation.utils";
+import type {
+  Filter,
+  FilterableField,
+  GetQueryParams,
+  GroupValueSums,
+  PaginationRequest,
+  PaginationResponse,
+  SortDescriptor,
+} from "./base-get.schema";
+import type { SearchableField, SortableField } from "./base-query-builder";
 
-import type { EntityType } from "@/generated/prisma";
 import type { GroupableFieldDto, GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
+import type { EntityType } from "@/features/records/history/v1/legacy-enums";
 import type { NumericFieldSums, SummableModel } from "./base-repository";
 import type { QueryParamsPrecheckInteractor } from "./query-params-precheck.interactor";
 
-import { env } from "@/env";
+import { resolveGroupAxis, resolveGrouping } from "@/core/base/grouping/group-axis";
+import { groupableFieldDtos } from "@/core/base/grouping/groupable-field";
 import {
   GROUP_PAGE_SIZE_DEFAULT,
   MAX_MATERIALISED_GROUPS,
   NO_VALUE_GROUP_KEY,
 } from "@/core/base/grouping/grouping.schema";
-import { groupableFieldDtos } from "@/core/base/grouping/groupable-field";
-import { resolveGroupAxis, resolveGrouping } from "@/core/base/grouping/group-axis";
-import type { ViewMode } from "./base-query-builder";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import { resolveDataViewState } from "@/core/data-view/resolve-data-view-state";
+import { env } from "@/env";
 import { runPrecheck } from "../validation/run-precheck";
+import type { ViewMode } from "./base-query-builder";
 
 export interface GetResult<T> {
   p13nId?: string;
@@ -99,7 +99,9 @@ export abstract class BaseGetRepo<T> {
     return Promise.resolve(new Map());
   }
   collator(): Pick<Intl.Collator, "compare"> {
-    return { compare: (left, right) => (left < right ? -1 : left > right ? 1 : 0) };
+    return {
+      compare: (left, right) => (left < right ? -1 : left > right ? 1 : 0),
+    };
   }
   abstract validateFilters(args: { filters: Filter[] | undefined; filterableFields: FilterableField[] }): Filter[];
   abstract validateSortDescriptor(args: {
@@ -114,9 +116,18 @@ export abstract class BaseGetRepo<T> {
   }): Promise<NumericFieldSums<F>>;
 }
 
-type BaseQuery = { filters?: Filter[]; searchTerm?: string; sortDescriptor?: SortDescriptor };
+type BaseQuery = {
+  filters?: Filter[];
+  searchTerm?: string;
+  sortDescriptor?: SortDescriptor;
+};
 
-type GroupPage<T> = { key: string; items: T[]; hasMore: boolean; sums: GroupValueSums | undefined };
+type GroupPage<T> = {
+  key: string;
+  items: T[];
+  hasMore: boolean;
+  sums: GroupValueSums | undefined;
+};
 
 type HasId = { id: string };
 
@@ -193,15 +204,26 @@ export abstract class BaseGetInteractor<T> {
       if (!checked.ok) return { ok: false as const, error: checked.error };
     }
 
-    const filters = this.repo.validateFilters({ filters: resolved.filters, filterableFields });
+    const filters = this.repo.validateFilters({
+      filters: resolved.filters,
+      filterableFields,
+    });
     const validSort = (candidate: SortDescriptor | null | undefined) =>
-      this.repo.validateSortDescriptor({ sortDescriptor: candidate ?? undefined, sortableFields, customColumns });
+      this.repo.validateSortDescriptor({
+        sortDescriptor: candidate ?? undefined,
+        sortableFields,
+        customColumns,
+      });
     const sortDescriptor =
       validSort(resolved.sortDescriptor) ??
       validSort(context.base?.sortDescriptor) ??
       validSort(defaults.sortDescriptor);
 
-    const baseQuery: BaseQuery = { filters, searchTerm: resolved.searchTerm, sortDescriptor };
+    const baseQuery: BaseQuery = {
+      filters,
+      searchTerm: resolved.searchTerm,
+      sortDescriptor,
+    };
     const requested = normaliseGroupingRequest(params, resolved);
     const groupableSpecs = await this.repo.getGroupableFields(customColumns);
     const resolvedGrouping = resolveGrouping(requested.grouping, groupableSpecs);
@@ -265,7 +287,10 @@ export abstract class BaseGetInteractor<T> {
   private async fetchFlat(baseQuery: BaseQuery, pagination: PaginationRequest | undefined): Promise<FetchResult<T>> {
     const [items, total] = await Promise.all([
       this.repo.getItems({ ...baseQuery, pagination }),
-      this.repo.getCount({ filters: baseQuery.filters, searchTerm: baseQuery.searchTerm }),
+      this.repo.getCount({
+        filters: baseQuery.filters,
+        searchTerm: baseQuery.searchTerm,
+      }),
     ]);
     return { items, total };
   }
@@ -288,7 +313,10 @@ export abstract class BaseGetInteractor<T> {
         sumFields: this.groupValueSumFields,
         now,
       }),
-      this.repo.getCount({ filters: baseQuery.filters, searchTerm: baseQuery.searchTerm }),
+      this.repo.getCount({
+        filters: baseQuery.filters,
+        searchTerm: baseQuery.searchTerm,
+      }),
     ]);
 
     const labels = await this.repo.resolveGroupLabels(
@@ -312,15 +340,30 @@ export abstract class BaseGetInteractor<T> {
 
     const pages = await Promise.all(
       materialised.map(async (group): Promise<GroupPage<T>> => {
-        const groupScope = { spec, key: group.key, bucket: grouping.bucket, now };
+        const groupScope = {
+          spec,
+          key: group.key,
+          bucket: grouping.bucket,
+          now,
+        };
         const take = page.overrides?.[group.key] ?? page.perGroup ?? GROUP_PAGE_SIZE_DEFAULT;
 
         const [items, sums] = await Promise.all([
-          this.repo.getItems({ ...baseQuery, groupScope, take: take + 1, skip: 0 }),
+          this.repo.getItems({
+            ...baseQuery,
+            groupScope,
+            take: take + 1,
+            skip: 0,
+          }),
           wantsSums ? this.sumDeclaredFields({ ...baseQuery, groupScope }) : Promise.resolve(undefined),
         ]);
 
-        return { key: group.key, items: items.slice(0, take), hasMore: items.length > take, sums };
+        return {
+          key: group.key,
+          items: items.slice(0, take),
+          hasMore: items.length > take,
+          sums,
+        };
       }),
     );
 
@@ -351,8 +394,7 @@ export abstract class BaseGetInteractor<T> {
       grouping: {
         grouping,
         kind: spec.kind,
-        supportsDragWriteBack: spec.kind === "customSingleSelect",
-        ...(spec.kind === "customSingleSelect" ? { columnId: spec.columnId } : {}),
+        supportsDragWriteBack: false,
         partial: true,
         total: 0,
         groups: [
@@ -504,8 +546,7 @@ function assembleGroupedResult<T>(input: {
     grouping: {
       grouping: input.grouping,
       kind: input.spec.kind,
-      supportsDragWriteBack: input.spec.kind === "customSingleSelect",
-      ...(input.spec.kind === "customSingleSelect" ? { columnId: input.spec.columnId } : {}),
+      supportsDragWriteBack: false,
       groups,
       total: input.total,
       ...(input.spec.kind === "relation" ? { membershipTotal } : {}),

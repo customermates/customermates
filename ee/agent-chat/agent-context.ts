@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import type { EntityType } from "@/generated/prisma";
+import type { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 import { AiManageableDataViewSurfaceKeySchema } from "@/core/data-view/ai-manageable-surfaces";
 import { DATA_VIEW_NAME_MAX_LENGTH } from "@/core/data-view/data-view-limits";
@@ -41,10 +41,29 @@ const AgentRecordContextReferenceSchema = z
   })
   .strict();
 
+const AgentDynamicRecordContextReferenceSchema = z
+  .object({ kind: z.literal("record"), typeId: z.uuid(), recordId: z.uuid() })
+  .strict();
+
+const AgentConfigurationContextReferenceSchema = z.union([
+  z.object({ kind: z.literal("dataModel") }).strict(),
+  z.object({ kind: z.literal("recordType"), typeId: z.uuid() }).strict(),
+  z
+    .object({
+      kind: z.literal("recordField"),
+      typeId: z.uuid(),
+      fieldId: z.uuid(),
+    })
+    .strict(),
+  z.object({ kind: z.literal("widget"), widgetId: z.uuid() }).strict(),
+]);
+
 export const AgentContextReferenceSchema = z.union([
   AgentDataViewCreateContextReferenceSchema,
   AgentDataViewUpdateContextReferenceSchema,
   AgentRecordContextReferenceSchema,
+  AgentDynamicRecordContextReferenceSchema,
+  AgentConfigurationContextReferenceSchema,
 ]);
 
 export type AgentContextReference = z.infer<typeof AgentContextReferenceSchema>;
@@ -72,7 +91,15 @@ export type AgentContextAttachment = z.infer<typeof AgentContextAttachmentSchema
 
 export function agentContextAttachmentKey(context: AgentContextAttachment | AgentContextReference): string {
   const reference = "reference" in context ? context.reference : context;
-  if (reference.kind === "record") return `record:${reference.entityType}:${reference.recordId}`;
+  if (reference.kind === "record") {
+    return "typeId" in reference
+      ? `record:v2:${reference.typeId}:${reference.recordId}`
+      : `record:${reference.entityType}:${reference.recordId}`;
+  }
+  if (reference.kind === "dataModel") return "dataModel";
+  if (reference.kind === "recordType") return `recordType:${reference.typeId}`;
+  if (reference.kind === "recordField") return `recordField:${reference.typeId}:${reference.fieldId}`;
+  if (reference.kind === "widget") return `widget:${reference.widgetId}`;
   return [
     "dataView",
     reference.surfaceKey,
@@ -153,21 +180,23 @@ export function agentContextProviderPrefix(contexts: readonly AgentContextAttach
     keys.add(key);
     const reference = parsed.data.reference;
     const attributes =
-      reference.kind === "record"
+      reference.kind === "record" && "entityType" in reference
         ? {
             kind: reference.kind,
             entityType: reference.entityType,
             recordId: reference.recordId,
           }
-        : {
-            kind: reference.kind,
-            surfaceKey: reference.surfaceKey,
-            ...(reference.requestedAction === "update" ? { viewKey: reference.viewKey } : {}),
-            ...(reference.requestedAction === "create" && reference.proposedName
-              ? { proposedName: reference.proposedName }
-              : {}),
-            requestedAction: reference.requestedAction,
-          };
+        : reference.kind === "dataView"
+          ? {
+              kind: reference.kind,
+              surfaceKey: reference.surfaceKey,
+              ...(reference.requestedAction === "update" ? { viewKey: reference.viewKey } : {}),
+              ...(reference.requestedAction === "create" && reference.proposedName
+                ? { proposedName: reference.proposedName }
+                : {}),
+              requestedAction: reference.requestedAction,
+            }
+          : reference;
     blocks.push(
       `<selected_context ${Object.entries(attributes)
         .map(([key, value]) => `${key}="${escapeAttribute(value)}"`)

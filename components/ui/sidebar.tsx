@@ -236,8 +236,9 @@ function SidebarTrigger({ className, onClick, ...props }: React.ComponentProps<t
       size="icon"
       variant="ghost"
       onClick={(event) => {
+        if (props["aria-disabled"] === true || props["aria-disabled"] === "true") return;
         onClick?.(event);
-        toggleSidebar();
+        if (!event.defaultPrevented) toggleSidebar();
       }}
       {...props}
     >

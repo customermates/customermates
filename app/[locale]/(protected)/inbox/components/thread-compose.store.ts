@@ -55,6 +55,9 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
   draftAttachments: File[] = [];
   pendingAttachments: Record<string, File[]> = {};
   newThreadTarget: NewThreadTarget | null = null;
+  sourceContextKey: string | null = null;
+  detachedNewThread = false;
+  private sourceActorId: string | null = null;
 
   private onNewThreadDone: (() => void) | null = null;
   private onNewThreadSent: ((threadId: string | null) => void) | null = null;
@@ -82,6 +85,9 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       draftAttachments: observable,
       pendingAttachments: observable,
       newThreadTarget: observable,
+      sourceContextKey: observable,
+      detachedNewThread: observable,
+      isDetachedNewThread: computed,
       isEmail: computed,
       isLinkedin: computed,
       isNewThread: computed,
@@ -91,6 +97,8 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       removeAttachment: action,
       initialize: action,
       initializeNewThread: action,
+      discardNewThread: action,
+      detachNewThread: action,
       setNewThreadAccount: action,
       send: action,
       saveDraft: action,
@@ -103,6 +111,70 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
   get isNewThread(): boolean {
     return !this.form.threadId && this.newThreadTarget !== null;
   }
+
+  override get hasUnsavedChanges(): boolean {
+    return super.hasUnsavedChanges || this.attachments.length > 0;
+  }
+
+  captureContext = () => {
+    const generation = this.composeGeneration;
+    return () => generation === this.composeGeneration;
+  };
+  captureNavigationDiscard = () => {
+    if (!this.sourceContextKey || !this.isNewThread) return undefined;
+    const isCurrent = this.captureContext();
+    return () => {
+      if (isCurrent()) this.discardNewThread();
+    };
+  };
+  get isDetachedNewThread() {
+    return (
+      this.detachedNewThread &&
+      this.isNewThread &&
+      this.sourceActorId !== null &&
+      this.sourceActorId === this.rootStore.userStore?.user?.id
+    );
+  }
+  detachNewThread = (sourceContextKey: string) => {
+    if (
+      this.sourceContextKey === sourceContextKey &&
+      this.isNewThread &&
+      (this.hasUnsavedChanges || this.isLoading) &&
+      this.sourceActorId !== null &&
+      this.sourceActorId === this.rootStore.userStore?.user?.id
+    ) {
+      this.detachedNewThread = true;
+      return true;
+    }
+    return false;
+  };
+
+  discardNewThread = () => {
+    if (!this.isNewThread || this.isLoading) return;
+    this.composeGeneration += 1;
+    this.newThreadTarget = null;
+    this.sourceContextKey = null;
+    this.sourceActorId = null;
+    this.detachedNewThread = false;
+    this.onNewThreadDone = null;
+    this.onNewThreadSent = null;
+    this.editingDraftId = null;
+    this.editingDraftRevision = null;
+    this.attachments = [];
+    this.draftAttachments = [];
+    this.showCcBcc = false;
+    this.onInitOrRefresh({
+      provider: null,
+      threadId: "",
+      recipients: [],
+      body: "",
+      subject: "",
+      cc: [],
+      bcc: [],
+      linkedinProduct: "classic",
+      inmailSignature: "",
+    });
+  };
 
   get hasComposedContent(): boolean {
     return this.form.body.trim().length > 0 || this.attachments.length > 0;
@@ -184,6 +256,9 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     this.attachments = [];
     this.draftAttachments = [];
     this.newThreadTarget = null;
+    this.sourceContextKey = null;
+    this.sourceActorId = null;
+    this.detachedNewThread = false;
     this.onNewThreadDone = null;
     this.onNewThreadSent = null;
     this.onInitOrRefresh({
@@ -208,6 +283,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
   };
 
   initializeNewThread = (init: {
+    sourceContextKey?: string;
     provider: MessagingProvider;
     connectedAccountId: string;
     recipients: Array<{ identifier: string; displayName: string | null }>;
@@ -221,13 +297,23 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     this.editingDraftRevision = null;
     this.attachments = [];
     this.draftAttachments = [];
-    this.onNewThreadDone = init.onDone ?? null;
+    this.detachedNewThread = false;
+    this.sourceActorId = this.rootStore.userStore?.user?.id ?? null;
+    this.onNewThreadDone = () => {
+      runInAction(() => {
+        this.detachedNewThread = false;
+        this.sourceContextKey = null;
+        this.sourceActorId = null;
+      });
+      init.onDone?.();
+    };
     this.onNewThreadSent = init.onSent ?? null;
     this.newThreadTarget = {
       connectedAccountId: init.connectedAccountId,
       recipients: init.recipients,
       draftThreadId: init.draftThreadId,
     };
+    this.sourceContextKey = init.sourceContextKey ?? null;
     this.onInitOrRefresh({
       provider: init.provider,
       threadId: "",
@@ -247,6 +333,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       attendeeId: value,
       identifier: value,
       displayName: null,
+      records: [],
     });
     const connectedAccountId = this.newThreadTarget?.connectedAccountId ?? detail.thread?.connectedAccountId ?? "";
     const account = this.rootStore.connectedAccountsStore.items.find((item) => item.id === connectedAccountId);
@@ -270,6 +357,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
         attendeeId: "",
         identifier: "",
         displayName: null,
+        records: [],
         isSelf: true,
       },
       recipients: {

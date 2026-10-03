@@ -1,8 +1,9 @@
 import { agentViewRequestTarget } from "./agent-page-context";
 import type { AgentContextAttachment } from "./agent-context";
 
-export const AGENT_CORE_TOOLSETS = ["records", "workspace", "docs", "custom-columns", "support"] as const;
+export const AGENT_CORE_TOOLSETS = ["records", "workspace", "docs", "support"] as const;
 export const AGENT_ON_DEMAND_TOOLSETS = [
+  "record-model",
   "views",
   "messaging",
   "social",
@@ -19,17 +20,49 @@ export type AgentOnDemandToolset = (typeof AGENT_ON_DEMAND_TOOLSETS)[number];
 export const LOAD_TOOLSET_TOOL_NAME = "load_toolset";
 
 export const AGENT_TOOLSET_SUMMARY: Record<AgentOnDemandToolset, string> = {
-  views: "saved views, filters, sorting, grouping and layouts",
+  "record-model": "configure CRM types, fields, relationships, calculations, access presets and operation recovery",
+  views: "saved views, filters, sorting, grouping and personal detail pins, hidden fields and ordering",
   messaging: "inbox, email, chat, calendar and connected messaging accounts",
   social: "LinkedIn, Instagram, posts, profiles, engagement and Sales Navigator",
   widgets: "dashboard widgets",
   webhooks: "webhooks and their deliveries",
   routines: "routines: scheduled or event-driven automations",
-  admin: "team members, terminology, workspace settings and profile",
+  admin: "team members, roles, record access, workspace settings and profile",
 };
 
 const TOOLSET_LEXICON: Record<AgentOnDemandToolset, readonly string[]> = {
+  "record-model": [
+    "record type",
+    "data model",
+    "create a list",
+    "create projects",
+    "calculated field",
+    "rollup",
+    "lookup field",
+    "weighted pipeline",
+    "saved pricing",
+    "datenmodell",
+    "datensatztyp",
+    "berechnetes feld",
+    "modèle de données",
+    "modello dati",
+    "modelo de datos",
+  ],
   views: [
+    "pin field",
+    "pin the",
+    "hide field",
+    "detail layout",
+    "record details",
+    "detailansicht",
+    "feld anheften",
+    "feld ausblenden",
+    "fiche détaillée",
+    "masquer le champ",
+    "vista de detalle",
+    "ocultar campo",
+    "dettagli del record",
+    "nascondi campo",
     "saved view",
     "current view",
     "new view",
@@ -144,6 +177,7 @@ const TOOLSET_LEXICON: Record<AgentOnDemandToolset, readonly string[]> = {
 };
 
 const TOOLSET_ROUTES: Record<AgentOnDemandToolset, readonly string[]> = {
+  "record-model": ["/records", "/company/data-model"],
   views: [],
   messaging: ["/inbox", "/calendar"],
   social: ["/social"],
@@ -198,6 +232,15 @@ export function toolsetsForRequest(args: {
   const matched = new Set<AgentOnDemandToolset>();
   if (agentViewRequestTarget(args.pageRoute).kind === "target") matched.add("views");
   if (args.contexts?.some((context) => context.reference.kind === "dataView")) matched.add("views");
+  if (args.contexts?.some((context) => context.reference.kind === "widget")) matched.add("widgets");
+  if (
+    args.contexts?.some(
+      ({ reference }) =>
+        ["dataModel", "recordType", "recordField", "widget"].includes(reference.kind) ||
+        (reference.kind === "record" && "typeId" in reference),
+    )
+  )
+    matched.add("record-model");
   for (const toolset of AGENT_ON_DEMAND_TOOLSETS) {
     if (TOOLSET_LEXICON[toolset].some((term) => text.includes(term))) matched.add(toolset);
     if (route && TOOLSET_ROUTES[toolset].some((prefix) => route === prefix || route.startsWith(`${prefix}/`)))
@@ -272,8 +315,7 @@ export function activeAgentToolNames(args: {
 export function toolsetIndexSentence(loadedToolsets: readonly string[] = []): string {
   const loaded = AGENT_ON_DEMAND_TOOLSETS.filter((toolset) => loadedToolsets.includes(toolset));
   const loadable = AGENT_ON_DEMAND_TOOLSETS.filter((toolset) => !loadedToolsets.includes(toolset));
-  const always =
-    "Tool sets: records, workspace, documentation, custom fields, interface and support tools are always in your list.";
+  const always = "Tool sets: records, workspace, documentation, interface and support tools are always in your list.";
   const already = loaded.length > 0 ? ` Already loaded for this turn: ${loaded.join(", ")}.` : "";
   if (loadable.length === 0)
     return `${always}${already} Every on-demand set is loaded, so there is nothing left to load.`;

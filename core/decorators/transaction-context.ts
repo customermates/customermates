@@ -9,6 +9,7 @@ type TransactionStore = {
   auditLogBatch: Prisma.AuditLogCreateManyInput[];
   webhookDeliveryBatch: Prisma.WebhookDeliveryCreateManyInput[];
   afterCommit: (() => Promise<void>)[];
+  recordEventWakeups: Set<string>;
   enabledWebhooks: Webhook[] | null;
 };
 

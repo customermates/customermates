@@ -1,21 +1,22 @@
+import { routineContractReview } from "./routine-contract-review";
 import type { RepoArgs } from "@/core/utils/types";
-import type { GetRoutinesRepo } from "./get-routines.interactor";
-import type { GetRoutineRunsRepo } from "./get-routine-runs.interactor";
-import type { AdmittedRoutineRun, TriggerRoutinesRepo } from "./trigger-routines.repo";
-import type { UpsertRoutineRepo } from "./upsert-routine.interactor";
+import { RecordFieldSchema } from "@/features/records/record-model.schema";
 import type { DeleteRoutineRepo } from "./delete-routine.interactor";
+import type { GetRoutineRunsRepo } from "./get-routine-runs.interactor";
+import type { GetRoutinesRepo } from "./get-routines.interactor";
 import type { PauseRoutineRepo } from "./pause-routine.interactor";
-import type { RunRoutineNowRepo } from "./run-routine-now.interactor";
-import type { StartRoutineRunRepo } from "./start-routine-run.interactor";
-import type { SweepDueRoutinesRepo } from "./sweep-due-routines.interactor";
 import type { ReconcileRoutineRunsRepo } from "./reconcile-routine-runs.interactor";
 import type { ReleaseOwnerRoutinesRepo } from "./release-owner-routines.interactor";
 import type { RoutineRunPage } from "./routine-history";
 import type { RoutineDto, RoutineRunDto } from "./routine.schema";
-import type { DeleteCustomColumnRoutineRepo } from "@/features/custom-column/delete-custom-column.interactor";
+import type { RunRoutineNowRepo } from "./run-routine-now.interactor";
+import type { StartRoutineRunRepo } from "./start-routine-run.interactor";
+import type { SweepDueRoutinesRepo } from "./sweep-due-routines.interactor";
+import type { AdmittedRoutineRun, TriggerRoutinesRepo } from "./trigger-routines.repo";
+import type { UpsertRoutineRepo } from "./upsert-routine.interactor";
 
-import type { AgentTurnTerminalCode } from "@/generated/prisma";
 import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
+import type { AgentTurnTerminalCode } from "@/generated/prisma";
 
 import {
   AgentConversationOrigin,
@@ -26,36 +27,34 @@ import {
   Status,
 } from "@/generated/prisma";
 
+import { FilterSchema, type Filter, type GetQueryParams } from "@/core/base/base-get.schema";
 import { BaseRepository } from "@/core/base/base-repository";
+import { dateGroupables, relationGroupables } from "@/core/base/grouping/groupable-field";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
-import { FilterSchema, type Filter, type GetQueryParams } from "@/core/base/base-get.schema";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
-import { routineRunTriggerContext } from "./routine-run-trigger-context";
-import { dateGroupables, relationGroupables } from "@/core/base/grouping/groupable-field";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 import { isAgentTurnStopReason } from "@/ee/agent-chat/agent-turn-request";
+import type { RecordEventSubscriptionRepo } from "@/features/records/record-event-subscription.repo";
+import { RecordWriteError } from "@/features/records/record-write.service";
+import { routineRunTriggerContext } from "./routine-run-trigger-context";
+import { RoutineRecordTriggerSchema } from "./routine.schema";
 
-import { DEFAULT_ROUTINE_TIMEZONE, nextCronOccurrence, parseCronExpression } from "./routine-schedule";
+import {
+  ROUTINE_DISABLED_REASON_ADMIN_PAUSED,
+  ROUTINE_DISABLED_REASON_OWNER_PAUSED,
+  ROUTINE_DISABLED_REASON_OWNER_UNAVAILABLE,
+} from "./routine-disabled-reason";
+import { type RoutineEventAccess } from "./routine-event-access";
+import { carriesChangedFields, changedFieldsOf, matchesChangedFields } from "./routine-event-filter";
 import {
   DEFAULT_ROUTINE_MAX_RUNS_PER_HOUR,
   RoutineLimitExceededError,
   type RoutineCountLimit,
 } from "./routine-run-limits";
 import { routineRunStatusFor, summarizeAssistantParts } from "./routine-run-outcome";
-import { PrismaRoutineEventAccess, type RoutineEventAccess } from "./routine-event-access";
-import {
-  carriesChangedFields,
-  changedFieldsOf,
-  entityTypeForEvents,
-  isRecordChangeEvent,
-  matchesChangedFields,
-} from "./routine-event-filter";
-import {
-  ROUTINE_DISABLED_REASON_ADMIN_PAUSED,
-  ROUTINE_DISABLED_REASON_OWNER_PAUSED,
-  ROUTINE_DISABLED_REASON_OWNER_UNAVAILABLE,
-} from "./routine-disabled-reason";
+import { DEFAULT_ROUTINE_TIMEZONE, nextCronOccurrence, parseCronExpression } from "./routine-schedule";
 
 const ROUTINE_OWNER_SELECT = {
   id: true,
@@ -142,6 +141,11 @@ function routineDto(row: unknown): RoutineDto {
   const routine: RoutineDto = {
     ...stored,
     triggerFilters: storedRoutineFilters(stored.triggerFilters),
+    ...(routineContractReview(stored.prompt).length
+      ? {
+          contractReview: { retiredReferences: routineContractReview(stored.prompt) },
+        }
+      : {}),
   };
   if (routine.owner?.status === Status.active) return routine;
 
@@ -202,11 +206,72 @@ export class PrismaRoutineRepo
     SweepDueRoutinesRepo,
     ReconcileRoutineRunsRepo,
     ReleaseOwnerRoutinesRepo,
-    TriggerRoutinesRepo,
-    DeleteCustomColumnRoutineRepo
+    TriggerRoutinesRepo
 {
-  constructor(private readonly routineEventAccess: RoutineEventAccess = new PrismaRoutineEventAccess()) {
+  constructor(
+    private readonly routineEventAccess: RoutineEventAccess,
+    private readonly subscriptions: RecordEventSubscriptionRepo,
+  ) {
     super();
+  }
+
+  private async withRecordTriggers(rows: RoutineDto[], companyId: string): Promise<RoutineDto[]> {
+    const subscriptions = await this.subscriptions.findCompanyWide(
+      companyId,
+      rows.map((row) => row.id),
+    );
+    const byId = new Map(subscriptions.filter((row) => row.kind === "routine").map((row) => [row.id, row]));
+    return rows.map((row) => {
+      const subscription = byId.get(row.id);
+      return {
+        ...row,
+        recordTrigger: subscription?.query
+          ? RoutineRecordTriggerSchema.parse({
+              query: subscription.query,
+              changedFieldIds: subscription.changedFieldIds,
+            })
+          : null,
+        recordSources: subscription?.sources ?? null,
+      };
+    });
+  }
+
+  private async saveRecordTrigger(
+    routine: { id: string; triggerKind: RoutineTriggerKind; triggerEvents: string[]; enabled: boolean },
+    trigger: RoutineDto["recordTrigger"],
+    sources: RoutineDto["recordSources"],
+    expectedSchemaRevision?: number,
+  ) {
+    const subscriptions = this.subscriptions;
+    const generic =
+      routine.triggerKind === "event" && routine.triggerEvents.some((event) => event.startsWith("record."));
+    if (!generic) {
+      await subscriptions.remove(routine.id);
+      return;
+    }
+    if (
+      (!trigger && !sources?.length) ||
+      (trigger && routine.triggerEvents.some((event) => !event.startsWith("record.")))
+    )
+      throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
+    await subscriptions.save(
+      {
+        id: routine.id,
+        kind: "routine",
+        ownerUserId: this.user.id,
+        typeId: trigger?.query.typeId ?? null,
+        query: trigger?.query ?? null,
+        changedFieldIds: trigger?.changedFieldIds ?? [],
+        sources: sources ?? null,
+        events: routine.triggerEvents.filter((event) => event.startsWith("record.")) as (
+          | "record.created"
+          | "record.updated"
+          | "record.deleted"
+        )[],
+        enabled: routine.enabled,
+      },
+      expectedSchemaRevision,
+    );
   }
 
   getSearchableFields() {
@@ -254,13 +319,14 @@ export class PrismaRoutineRepo
   }
 
   async getItems(params: GetQueryParams) {
-    return this.list({
+    const rows = await this.list({
       model: "routine",
       baseWhere: this.accessWhere("routine"),
       select: ROUTINE_SELECT,
       params,
       map: routineDto,
     });
+    return this.withRecordTriggers(rows, this.companyId);
   }
 
   async getCount(params: GetQueryParams) {
@@ -275,7 +341,7 @@ export class PrismaRoutineRepo
       select: ROUTINE_SELECT,
     });
 
-    return routine ? routineDto(routine) : null;
+    return routine ? (await this.withRecordTriggers([routineDto(routine)], this.companyId))[0] : null;
   }
 
   async getRoutineByIdOrThrow(id: string): Promise<RoutineDto> {
@@ -284,7 +350,7 @@ export class PrismaRoutineRepo
       select: ROUTINE_SELECT,
     });
 
-    return routineDto(routine);
+    return (await this.withRecordTriggers([routineDto(routine)], this.companyId))[0];
   }
 
   async isEligibleRoutineOwner(userId: string): Promise<boolean> {
@@ -381,12 +447,15 @@ export class PrismaRoutineRepo
         where: { id: userId, companyId, status: Status.active },
       })) === 1;
     if (!ownerIsEligible) throw new Error("Routine owner is no longer eligible");
+    if (input.recordTrigger && input.expectedSchemaRevision === undefined)
+      throw new RecordWriteError(CustomErrorCode.recordSchemaChanged, "conflict");
 
     if (id) {
       const existing = await this.prisma.routine.findFirstOrThrow({
         where: { id, companyId, ownerUserId: userId },
         select: ROUTINE_SELECT,
       });
+      const previous = (await this.withRecordTriggers([routineDto(existing)], companyId))[0];
 
       const triggerKind = input.triggerKind ?? existing.triggerKind;
       const scheduled = triggerKind === RoutineTriggerKind.schedule;
@@ -410,10 +479,6 @@ export class PrismaRoutineRepo
       const triggerEvents = input.triggerEvents ?? existing.triggerEvents;
       if (triggerKind === RoutineTriggerKind.event && triggerEvents.length === 0)
         throw new Error("Event routines require at least one trigger event");
-      const existingEntityType = entityTypeForEvents(existing.triggerEvents);
-      const triggerEntityType = entityTypeForEvents(triggerEvents);
-      const recordTypeChanged = input.triggerEvents !== undefined && triggerEntityType !== existingEntityType;
-      const watchesRecordChanges = triggerEntityType !== null && triggerEvents.some(isRecordChangeEvent);
 
       await this.prisma.routine.update({
         where: {
@@ -430,13 +495,8 @@ export class PrismaRoutineRepo
           cronExpression,
           timezone,
           triggerEvents: input.triggerEvents,
-          changedFields: watchesRecordChanges
-            ? recordTypeChanged
-              ? (input.changedFields ?? [])
-              : input.changedFields
-            : [],
-          triggerFilters:
-            triggerEntityType === null ? [] : recordTypeChanged ? (input.triggerFilters ?? []) : input.triggerFilters,
+          changedFields: [],
+          triggerFilters: [],
           debounceSeconds: input.debounceSeconds,
           nextRunAt: enabled && scheduled ? resolveNextRunAt({ cronExpression, timezone }, now) : null,
           disabledReason:
@@ -447,6 +507,21 @@ export class PrismaRoutineRepo
                 : existing.disabledReason,
         },
       });
+
+      await this.saveRecordTrigger(
+        { id, triggerKind, triggerEvents, enabled },
+        input.recordSources?.length
+          ? null
+          : input.recordTrigger === undefined
+            ? previous.recordTrigger
+            : input.recordTrigger,
+        input.recordSources !== undefined
+          ? input.recordSources
+          : input.recordTrigger !== undefined
+            ? null
+            : previous.recordSources,
+        input.expectedSchemaRevision,
+      );
 
       if (input.enabled === false) await this.settleQueuedRunsForRoutine(id, ROUTINE_DISABLED_REASON_OWNER_PAUSED, now);
 
@@ -467,7 +542,6 @@ export class PrismaRoutineRepo
     const triggerEvents = input.triggerEvents ?? [];
     if (triggerKind === RoutineTriggerKind.event && triggerEvents.length === 0)
       throw new Error("Event routines require at least one trigger event");
-    const triggerEntityType = entityTypeForEvents(triggerEvents);
     const created = await this.prisma.routine.create({
       data: {
         companyId,
@@ -479,13 +553,20 @@ export class PrismaRoutineRepo
         cronExpression,
         timezone,
         triggerEvents,
-        changedFields: triggerEntityType && triggerEvents.some(isRecordChangeEvent) ? (input.changedFields ?? []) : [],
-        triggerFilters: triggerEntityType ? (input.triggerFilters ?? []) : [],
+        changedFields: [],
+        triggerFilters: [],
         debounceSeconds: input.debounceSeconds ?? 300,
         nextRunAt: (input.enabled ?? true) && scheduled ? resolveNextRunAt({ cronExpression, timezone }, now) : null,
       },
       select: { id: true },
     });
+
+    await this.saveRecordTrigger(
+      { id: created.id, triggerKind, triggerEvents, enabled: input.enabled ?? true },
+      input.recordTrigger,
+      input.recordSources,
+      input.expectedSchemaRevision,
+    );
 
     return this.getRoutineByIdOrThrow(created.id);
   }
@@ -508,6 +589,7 @@ export class PrismaRoutineRepo
     await this.prisma.routine.delete({
       where: { id, companyId: this.companyId },
     });
+    await this.subscriptions.remove(id);
     if (conversationIds.length > 0) {
       await this.prisma.agentConversation.deleteMany({
         where: {
@@ -534,6 +616,7 @@ export class PrismaRoutineRepo
       },
     });
     await this.settleQueuedRunsForRoutine(routineId, ROUTINE_DISABLED_REASON_ADMIN_PAUSED, now);
+    await this.subscriptions.pause(routineId);
 
     return this.getRoutineByIdOrThrow(routineId);
   }
@@ -713,7 +796,7 @@ export class PrismaRoutineRepo
     });
     if (!run) return null;
 
-    return { ...run, routine: routineDto(run.routine) };
+    return { ...run, routine: (await this.withRecordTriggers([routineDto(run.routine)], run.companyId))[0] };
   }
 
   @BypassTenantGuard
@@ -817,7 +900,9 @@ export class PrismaRoutineRepo
         data: { status: RoutineRunStatus.running, startedAt: args.now },
       });
 
-      return claimed.count === 1 ? { routine: routineDto(run.routine) } : "runNotQueued";
+      return claimed.count === 1
+        ? { routine: (await this.withRecordTriggers([routineDto(run.routine)], identity.companyId))[0] }
+        : "runNotQueued";
     });
   }
 
@@ -929,12 +1014,12 @@ export class PrismaRoutineRepo
   async findCustomColumnLabelsUnscoped(companyId: string, columnIds: string[]): Promise<Record<string, string>> {
     if (columnIds.length === 0) return {};
 
-    const columns = await this.prisma.customColumn.findMany({
+    const columns = await this.prisma.recordFieldDefinition.findMany({
       where: { companyId, id: { in: columnIds } },
-      select: { id: true, label: true },
+      select: { id: true, definition: true },
     });
 
-    return Object.fromEntries(columns.map((column) => [column.id, column.label]));
+    return Object.fromEntries(columns.map((column) => [column.id, RecordFieldSchema.parse(column.definition).label]));
   }
 
   @BypassTenantGuard

@@ -48,6 +48,7 @@ export type StoredViewRow = StoredStateRow & {
 
 export type StoredPersonalizationRow = Omit<StoredStateRow, "pageSize"> & {
   pagination: unknown;
+  viewStateKeys?: unknown;
 };
 
 export type PersonalizationStateWrite = {
@@ -111,8 +112,26 @@ export function readStoredState(row: StoredStateRow): DataViewState {
   return state;
 }
 
-export function readStoredPersonalizationState({ pagination, ...columns }: StoredPersonalizationRow): DataViewState {
-  return readStoredState({ ...columns, pageSize: storedPageSize(pagination) });
+export function readStoredPersonalizationState({
+  pagination,
+  viewStateKeys,
+  ...columns
+}: StoredPersonalizationRow): DataViewState {
+  const state = readStoredState({ ...columns, pageSize: storedPageSize(pagination) });
+  if (!Array.isArray(viewStateKeys)) return state;
+  const keys = new Set(viewStateKeys);
+  const clear: DataViewState = {
+    filters: [],
+    searchTerm: "",
+    sortDescriptor: null,
+    grouping: null,
+    columnOrder: [],
+    columnWidths: {},
+    hiddenColumns: [],
+  };
+  return Object.fromEntries(
+    DATA_VIEW_STATE_FIELDS.filter((key) => keys.has(key)).map((key) => [key, state[key] ?? clear[key]]),
+  );
 }
 
 export function writeStoredState(state: DataViewState): DataViewStateColumns {

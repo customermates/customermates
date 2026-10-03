@@ -239,30 +239,32 @@ describe("inbox reconciliation", () => {
     await store.refresh(true);
     expect(actions.getMessagingThreadAction).toHaveBeenCalledOnce();
   });
-  it("invalidates older reads when a participant contact is linked", async () => {
+  it("invalidates older reads when a participant record is linked", async () => {
     const { store } = setup();
     const before = {
       ...detail(),
       messages: [],
       thread: {
         ...detail().thread,
-        participants: [{ identifier: "sender", contact: null }],
+        participants: [{ identifier: "sender", records: [] }],
       },
     } as unknown as ThreadDetail;
     store.hydrate(before);
     const pending = deferred<ThreadDetail>();
     actions.getMessagingThreadAction.mockReturnValue(pending.promise);
     const refresh = store.refresh(true);
-    const contact = {
-      id: "contact",
-      firstName: "Test",
-      lastName: "Contact",
+    const record = {
+      ref: { typeId: "contact-type", recordId: "contact" },
+      title: "Test Contact",
+      typeLabel: "Contact",
+      typePluralLabel: "Contacts",
       avatarUrl: null,
+      canEdit: true,
     };
-    await store.applyParticipantContact("thread", "sender", contact);
+    await store.applyParticipantRecord("thread", "sender", [record]);
     pending.resolve(before);
     await refresh;
-    expect(store.thread?.participants[0].contact).toEqual(contact);
+    expect(store.thread?.participants[0].records).toEqual([record]);
   });
   it("uses the authoritative list mutation when marking a thread read", async () => {
     const { store } = setup();

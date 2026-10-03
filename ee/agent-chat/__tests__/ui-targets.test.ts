@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { EntityType, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -29,19 +29,8 @@ function componentSource(): string {
     .join("\n");
 }
 
-const TERMINOLOGY_ID_TEMPLATE = "id={`terminology-${entityType}`}";
-
 function rendersLiteralId(source: string, id: string) {
   return [`id="${id}"`, `inputId="${id}"`, `anchorId: "${id}"`].some((form) => source.includes(form));
-}
-
-function rendersTerminologyId(source: string, id: string) {
-  const entityTypes: string[] = Object.values(EntityType);
-  return (
-    id.startsWith("terminology-") &&
-    entityTypes.includes(id.slice("terminology-".length)) &&
-    source.includes(TERMINOLOGY_ID_TEMPLATE)
-  );
 }
 
 const controlTargetIds = CONTROL_PAGES.flatMap((page) =>
@@ -71,7 +60,7 @@ describe("agent interface targets", () => {
 
   it("renders every declared control id as a literal id in a component", () => {
     const source = componentSource();
-    const missing = controlTargetIds.filter((id) => !rendersLiteralId(source, id) && !rendersTerminologyId(source, id));
+    const missing = controlTargetIds.filter((id) => !rendersLiteralId(source, id));
     expect(missing, "control targets that no component renders").toEqual([]);
   });
 
@@ -187,12 +176,10 @@ describe("agent interface targets", () => {
     expect(findAgentUiTarget("invite-modal-send")?.prerequisite).toBe("invite-modal-tab-email");
   });
 
-  it("registers one data model select per entity type", () => {
-    for (const entityType of Object.values(EntityType)) {
-      const target = findAgentUiTarget(`terminology-${entityType}`);
-      expect(target?.route, entityType).toBe("/company/settings");
-      expect(target?.description, entityType).toContain("roles with company Manage");
-    }
+  it("routes record configuration to Data model instead of preset-only settings controls", () => {
+    expect(findAgentUiTarget("company-settings-data-model")?.route).toBe("/company/settings");
+    expect(findAgentUiTarget("nav-company-data-model")?.route).toBe("/company/data-model");
+    expect(findAgentUiTarget("terminology-contact")).toBeNull();
   });
 
   it("points dialog field targets at the control that opens their dialog or tab", () => {
@@ -215,7 +202,7 @@ describe("agent interface targets", () => {
     const describes = (id: string, word: string) =>
       expect(findAgentUiTarget(id)?.description.toLowerCase(), id).toContain(word);
     describes("company-settings-currency", "currency");
-    describes("company-settings-stage-weights", "probability");
+    describes("company-settings-data-model", "calculations");
     describes("company-subscription-manage", "lemon squeezy");
     describes("company-subscription-manage", "invoices");
     describes("profile-settings-display-language", "language");
@@ -252,7 +239,7 @@ describe("agent interface targets", () => {
     expect(findAgentUiTarget("connected-account-visibility")?.description).toContain("Business plan");
     expect(findAgentUiTarget("connected-account-tab-folders")?.description).toContain("accounts with folders");
     expect(findAgentUiTarget("role-modal-delete")?.description).toContain("not for the system role");
-    expect(findAgentUiTarget("company-settings-total-pipeline")?.description).toContain("deal stage field");
+    expect(findAgentUiTarget("company-settings-total-pipeline")).toBeNull();
   });
 
   it("lets navigate resolve only targets with an app route", () => {

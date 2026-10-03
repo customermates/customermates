@@ -46,11 +46,11 @@ We would rather write that down than let the page imply a product we have not bu
 
 The pattern is always the same: Customermates fires a webhook, your automation tool receives it, formats a message, and posts it to Slack. Create the webhook under **Company → Webhooks → New** and choose the events you care about. The payload shape is documented at [Webhooks](/docs/webhooks).
 
-**Deal change notifications.** Subscribe to `deal.created` and `deal.updated` and post to a channel when a deal changes. Deal stage is a single-select custom column rather than a fixed product field, so your workflow reads the column value from the payload and branches on it. That also means you can alert on any custom column, not only stage.
+**Deal change notifications.** Subscribe to `record.created` and `record.updated` for the Deals record type and post to a channel when a deal changes. Stage is a configured select field, so your workflow reads its field value from the record payload and branches on it. The same pattern works for customer-created types.
 
-**New lead alerts.** Subscribe to `contact.created` and notify the team the moment a record lands. Include the fields you care about and a link back to the record.
+**New lead alerts.** Subscribe to `record.created` for the Contacts record type and notify the team when a record lands. Include the fields you care about and a link back to the record.
 
-**Pipeline summary reports.** Webhooks are event-driven, so a digest is a scheduled job in your automation tool (Customermates has no built-in notification or digest feature): run on a cron, call `GET /api/v1/deals`, aggregate, post the summary. The REST API is documented in the [OpenAPI spec](/docs/openapi).
+**Pipeline summary reports.** Webhooks are event-driven, so a digest is a scheduled job in your automation tool: run on a cron, query a configured measure with `POST /api/v2/reports/query`, and post the summary. The REST API is documented in the [OpenAPI spec](/docs/openapi).
 
 **Messaging alerts.** Subscribe to `messaging.message.received` or `messaging.email.received` to route new inbound conversations into Slack. These events require the unified inbox, which is available in Customermates Cloud from Pro; Starter and self-hosted installations have no messaging events.
 
@@ -58,11 +58,11 @@ The pattern is always the same: Customermates fires a webhook, your automation t
 
 The reverse direction runs through the REST API or MCP, again driven by your automation tool.
 
-**Create records from Slack.** A Slack shortcut or slash command triggers your workflow, which calls `POST /api/v1/contacts` with an `x-api-key` header. The same pattern works for organizations, deals, services, and tasks.
+**Create records from Slack.** A Slack shortcut or slash command triggers your workflow, which discovers the type and field IDs with `POST /api/v2/model/discover`, then calls `POST /api/v2/records/mutate` with a create mutation and an `x-api-key` header. The same contract works for the five starter types and customer-created types.
 
-**Update records from Slack.** `PATCH` the record. Relations are a separate concern: they change only through the dedicated links endpoint and the `manage_record_links` MCP tool, never through a plain field update.
+**Update records from Slack.** Call `POST /api/v2/records/mutate` with an update mutation and the record's current version. Use its link or unlink mutation to change a relationship. The MCP equivalent is `mutate_crm_record`.
 
-**Log notes from Slack.** Post the Slack message body onto the record's notes through the API or the `update_record_notes` MCP tool.
+**Log notes from Slack.** Update the record's configured Notes field through the same mutation API or `mutate_crm_record` MCP tool.
 
 **Let an agent do it.** Instead of hand-building each call, point an MCP-speaking agent at `/api/v1/mcp` and let it interpret the Slack message. That is the same [[derived.mcp.tools.total]]-tool surface Claude, ChatGPT, and Gemini use.
 
@@ -114,4 +114,4 @@ It is not on the roadmap as a committed item, and we will not list it here until
 
 ## Get Started
 
-Read [Webhooks](/docs/webhooks) for the event payloads and [n8n](/docs/n8n) for the wiring patterns. Create a webhook in **Company → Webhooks**, point it at your automation tool, add the Slack node, and send your first `deal.updated` message into a channel. From there, everything else on this page is the same pattern with different events.
+Read [Webhooks](/docs/webhooks) for the event payloads and [n8n](/docs/n8n) for the wiring patterns. Create a webhook in **Company → Webhooks**, filter `record.updated` to the Deals type, point it at your automation tool, and send your first deal update into a Slack channel. From there, the same pattern works for other record types and events.

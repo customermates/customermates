@@ -13,12 +13,13 @@ In the sidebar, **My Company** (`#nav-company`) sits in the **Workspace** group 
 
 Routes are relative and carry no language prefix: they work on the address the workspace runs on, and the app adds the user's language, so `/company/subscription` opens `/en/company/subscription` for an English user. For a full link, put the route after the origin of the `url` that `search_docs`, `get_docs_page` and `fetch` return; that origin is the instance's configured `BASE_URL`. Mate's `highlight_element` also takes each navigate target: `nav-company` points at the **My Company** toggle, and every other one at its page's sidebar entry. A sidebar entry can be highlighted only while **My Company** is expanded, which it is by default on its own pages unless the member collapsed it. **Add** targets exist only for roles that can manage the page, and the layout targets only while display options are open. Billing targets appear only for roles with **Company** **Manage**, and a dialog target only while its dialog is open: where a control opens the dialog, it is the target's prerequisite, and Mate asks the user to open it first. Where a row opens the dialog, `list_ui_targets` names that row as the prerequisite (for example `a member row`); rows have no target, so Mate asks the user to click the row.
 
-Subscription is Cloud only. Audit Logs needs **Audit Log** read access **All**, and Webhooks and Recent Deliveries need **API & Webhooks** read access **All**. Every role can read **Company** and at least its own row of **Users & Roles**, so Subscription, Settings, Members and Roles are always listed; the role decides whether their editing controls appear and, on Members, which rows are listed. The built-in **Admin** role sees and can change everything.
+Subscription is Cloud only. Audit Logs needs **Audit Log** read access **All**, and Webhooks and Recent Deliveries need **API & Webhooks** read access **All**. The **Users & Roles** read setting controls whether Members and Roles appear; **Assigned** limits the member list to your own row, and **None** hides both pages. Company read access controls Settings and Subscription. Editing requires the corresponding management permission. The built-in **Admin** role sees and can change everything.
 
 | Page | Route | Navigate target | Highlight targets on the page | Explained in |
 |---|---|---|---|---|
 | **Subscription** | `/company/subscription` | `nav-company-subscription` | `company-subscription-manage`, `company-subscription-refresh`, `company-subscription-plan-picker` | [Subscription](#subscription-tab) |
-| **Settings** | `/company/settings` | `nav-company-settings`, also `nav-company` | `company-settings-currency`, `company-settings-deal-stage-field`, `company-settings-stage-weights`, `company-settings-total-pipeline`, `company-settings-weighted-pipeline`, `company-settings-data-model`, `terminology-contact`, `terminology-organization`, `terminology-deal`, `terminology-service`, `terminology-task`, `company-settings-save`, `company-settings-reset` | [Settings](#settings-tab) |
+| **Settings** | `/company/settings` | `nav-company-settings`, also `nav-company` | `company-settings-currency`, `company-settings-data-model`, `company-settings-save`, `company-settings-reset` | [Settings](#settings-tab) |
+| **Data model** | `/company/data-model` | `#nav-company-data-model` | Configure record types, fields, relationships and calculations | [CRM records](/docs/app-records) |
 | **Members** | `/company/members` | `nav-company-members` | `company-members-add`, `company-members-search`, `company-members-filter`, `company-members-display-options`, `company-members-layout-table`, `company-members-layout-board`; in **Invite User** `invite-modal-tab-link`, `invite-modal-link`, `invite-modal-copy-link`, `invite-modal-tab-email`, `invite-modal-emails`, `invite-modal-send`; in **User** `member-modal-email`, `member-modal-first-name`, `member-modal-last-name`, `member-modal-country`, `member-modal-role`, `member-modal-avatar-url`, `member-modal-status`, `member-modal-save`, `member-modal-reset` | [Members](#members-tab) |
 | **Roles** | `/company/roles` | `nav-company-roles` | `company-roles-add`, `company-roles-display-options`, `company-roles-layout-table`, `company-roles-layout-board`; in the editor `role-modal-save`, `role-modal-reset`, `role-modal-delete` | [Roles](#roles-tab) |
 | **Audit Logs** | `/company/audit-logs` | `nav-company-audit-logs` | `company-audit-logs-search`, `company-audit-logs-filter`, `company-audit-logs-display-options`, `company-audit-logs-layout-table`, `company-audit-logs-layout-board` | [Audit Logs](#audit-logs-tab) |
@@ -167,57 +168,33 @@ On Starter, the Inbox and **My Profile** › **Channels** show **Upgrade to unlo
 
 ## Company settings page [#settings-tab]
 
-The link to company settings opens the **Settings** page, which holds the workspace currency, the weighted pipeline and the Data model, and where you change them. Route `/company/settings`, sidebar id `#nav-company-settings`, on Cloud and self-hosted, with no plan limits.
-
-One form holds three parts, and one **Save** (`#company-settings-save`) in the top bar applies all of them together.
-
-**Save** and **Reset** appear only for roles with **Company** set to **Manage** **Yes**, and **Admin**; everyone else sees the form read-only. **Save** stays disabled until something changes; **Reset** (`#company-settings-reset`) appears once there are unsaved changes and discards them. Every save is recorded in the audit log.
+**My Company → Settings** at `/company/settings` contains the workspace currency and a link to **Data model**.
 
 | Field | What it does |
 |---|---|
-| **Currency** (`#company-settings-currency`) | The workspace currency, chosen from the list of ISO currencies; EUR by default. It formats deal values, service amounts and pipeline totals everywhere in the CRM. It is display only: switching does not convert amounts, the same numbers are shown in the new currency. Custom fields of type Currency keep the currency set on the field. |
-| **Deal stage field** (`#company-settings-deal-stage-field`) | Which Single Select deal field drives the weighted pipeline; the first word follows your name for deals, for example **Opportunity stage field**. **Not configured** turns weighting off. A new workspace starts with its **Stage** field selected. |
-| Win probability per stage (`#company-settings-stage-weights`, the whole list) | A percent input from 0 to 100 next to each option of the chosen field. The **Stage** field of a new workspace starts at Prospecting 10, Qualification 20, Demo 40, Proposal 60, Negotiation 80, Won 100 and Lost 0. |
-| **Total pipeline** (`#company-settings-total-pipeline`), **Weighted pipeline** (`#company-settings-weighted-pipeline`), **Not weighted · no** plus the field name (no id) | Read-only totals; see [Where do I choose or change the deal stage field for weighting, and how do stage probabilities and totals work?](#how-do-stage-probabilities-and-totals-work). |
-| **Data model** (`#company-settings-data-model`, the whole section; one select per record type, `#terminology-contact`, `#terminology-organization`, `#terminology-deal`, `#terminology-service`, `#terminology-task`) | The name each record type carries in the workspace; see [How do I rename record types?](#how-do-i-rename-record-types-in-the-data-model). |
+| **Currency** | Formats amounts in the workspace; switching does not convert amounts. Currency fields with their own configured currency retain that setting. |
 
-**Link:** the link to company settings, the **Settings** page, `/company/settings`. **Mate:** `navigate` and `highlight_element` with `nav-company-settings`, which `nav-company` also opens; `highlight_element` also takes the ids in this table without `#`: `company-settings-stage-weights` and the totals once a stage field is chosen, for members who can read deals, and the `terminology-*` selects, `company-settings-save` and `company-settings-reset` for roles with **Company** **Manage**; the **Not weighted** total has no target.
+The currency selector is `#company-settings-currency`. Members with **Company → Manage** can save a change with `#company-settings-save` or discard an unsaved change with `#company-settings-reset`; other members see the currency read-only. The **Data model** link (`#company-settings-data-model`) opens `/company/data-model`. That separate page owns record types, fields, relationships, stage probabilities, and calculations.
 
-### Who can change the currency, the stage probabilities and the other settings? [#who-can-change-the-currency-and-the-other-settings]
+**Link:** `/company/settings`. **Mate:** `nav-company-settings` opens the page; `company-settings-currency`, `company-settings-data-model`, `company-settings-save`, and `company-settings-reset` identify the available controls.
 
-Every member can open **My Company › Settings**; only roles with **Company** set to **Manage** **Yes**, and **Admin**, can change what is on it. For everyone else the fields are read-only and **Save** and **Reset** are not shown. That covers the currency, the deal stage field, the probabilities and the Data model. Deleting the stage field in its **Edit Field** dialog turns weighting off, so it needs this permission as well as **Manage** on **Deals**. To get one of them changed, ask a member with that role. The hosted assistant can change the currency and the Data model names with `update_workspace_settings`, under the same permission.
+### Who can change the currency and the other settings? [#who-can-change-the-currency-and-the-other-settings]
 
-**Link:** `/company/settings`. **Mate:** `navigate` and `highlight_element` with `nav-company-settings`, then `highlight_element` with `company-settings-currency` for **Currency** and `company-settings-save` for **Save**; members without **Company** **Manage** see the currency read-only and have no **Save** or **Reset** on screen.
+**Company → Manage** controls currency changes on Settings. **Data model → Manage** controls type and field configuration; it can be delegated separately and does not grant access to records or permission to expand role grants. Role administration is required to expand access. The assistant uses `update_workspace_settings` for currency and `configure_record_model` for record configuration, with the same backend checks as the UI.
 
-### Where do I choose or change the deal stage field for weighting, and how do stage probabilities and totals work? [#how-do-stage-probabilities-and-totals-work]
+**Link:** `/company/settings` for currency; `/company/data-model` for CRM configuration.
 
-You choose or change the field used for weighting in **Deal stage field** and set the stage probabilities of the weighted pipeline next to its options. Saving a new stage field or new probabilities recalculates the weighted value of every deal: the deal value times the probability of its current stage. The totals below the probabilities preview unsaved changes in the currency you picked:
+### Where do I change the deal stage field used for weighting, and how do stage probabilities and totals work? [#how-do-stage-probabilities-and-totals-work]
 
-- **Total pipeline**: the value of all deals.
-- **Weighted pipeline**: each stage's total times its probability.
-- **Not weighted · no Stage** (named after your stage field): the value of deals with no stage selected, shown only when it is above zero.
+Open **My Company → Data model**, select **Deals**, and edit its stage select field to set a probability on each option. The shipped **Weighted value** calculation multiplies the calculated deal value by the selected stage probability divided by 100. A zero probability produces zero; a missing probability leaves weighted value absent. Changes to probabilities or calculations go through a dependency preview and recalculate affected records. You can change the formula or make deal value manually entered in the same configuration system. To show pipeline totals, add a Dashboard chart widget that sums **Value** or **Weighted value**, optionally grouped by stage. There is no separate pipeline-total form on Company Settings.
 
-The probability inputs and the totals load only for members who can read deals, and the totals count only the deals that member can read; without deal read access the section shows an error instead. Probabilities can also be edited in the **Probability** column when you edit the stage field itself: editing the field needs **Deals** set to **Manage** **Yes**, and the **Probability** column stays read-only without **Company** set to **Manage** **Yes** (or the **Admin** role). The concept is explained under [weighted pipeline](/docs/concepts#how-does-a-weighted-pipeline-work).
+**Link:** `/company/data-model` for stage metadata and calculations; `/dashboard` for totals. See [weighted pipeline](/docs/concepts#how-does-a-weighted-pipeline-work).
 
-**Link:** `/company/settings`. **Mate:** `navigate` and `highlight_element` with `nav-company-settings`, then `highlight_element` with `company-settings-deal-stage-field` for **Deal stage field** and `company-settings-stage-weights` for the probability list, `company-settings-total-pipeline` for **Total pipeline** and `company-settings-weighted-pipeline` for **Weighted pipeline** (each shown once a stage field is chosen, for members who can read deals); single probability inputs and the **Not weighted** total are not highlight targets, so Mate names them.
+### Can I name Contacts anything I want, and how do I rename record types such as Deals? [#how-do-i-rename-record-types-in-the-data-model]
 
-### How do I rename record types such as Contacts, Organizations or Deals, and can I name them anything I want? [#how-do-i-rename-record-types-in-the-data-model]
+Open **My Company → Data model**, select a type, and open **Type settings**. You can rename any of the five starting types or a customer-created type. Names are editable text, while stable type IDs keep records, links, views, widgets, and API references connected. The same validated configuration operation is available to the assistant through `get_record_model` and `configure_record_model`. A schema manager needs **Data model → Manage**; renaming does not require changing currency.
 
-To rename, choose one preset name for each of the five record types, for example Opportunities instead of Deals; free text is not possible.
-
-| Record type | Select | Available names |
-|---|---|---|
-| Contacts | `#terminology-contact` | Contacts, People, Clients, Leads |
-| Organizations | `#terminology-organization` | Organizations, Companies, Accounts |
-| Deals | `#terminology-deal` | Deals, Opportunities, Projects, Jobs |
-| Services | `#terminology-service` | Services, Products, Offerings, Packages |
-| Tasks | `#terminology-task` | Tasks, To-dos, Action items, Follow-ups |
-
-The choice applies to the whole workspace and appears in each member's display language: in the sidebar, lists, forms and field labels, and in what the assistant reads from `get_workspace_context`. Routes, API and MCP entity names, existing records and their links stay the same, and the role editor keeps the standard names. Below the selection, **How records connect** summarizes the relationships in the chosen names.
-
-`update_workspace_settings` with `target: "company"` changes **Currency** and the Data model names; it needs **Company** set to **Manage** **Yes**, or **Admin**, and runs without an approval prompt in the hosted assistant. No tool chooses the stage field. `manage_custom_columns` can set the probabilities as the `weight` of each option of the stage field; changing a weight needs **Deals** and **Company** both set to **Manage** **Yes**, or **Admin**, while other edits to the field need only **Deals**. Include each option's current weight on every update, because an update replaces the option list and a dropped weight counts as a change. Deleting the stage field with `manage_custom_columns` turns weighting off and also needs **Deals** and **Company** both set to **Manage** **Yes**, or **Admin**.
-
-**Link:** `/company/settings`. **Mate:** `navigate` and `highlight_element` with `nav-company-settings`, then `highlight_element` with `company-settings-data-model` for the **Data model** section, or with the select id in this table without `#` for one record type. The selects exist only for roles with **Company** **Manage**; everyone else sees the names as plain text with no target, so Mate names the record type.
+**Link:** `/company/data-model`. **Mate:** navigate with `nav-company-data-model`; `company-settings-data-model` is the link from Settings.
 
 ## Members page [#members-tab]
 
@@ -273,7 +250,7 @@ Members cannot be deleted; to remove someone, for example a user who left the co
 
 ## Roles page [#roles-tab]
 
-The **Roles** page lists the roles of the workspace. Route `/company/roles`, sidebar id `#nav-company-roles`. A role is a set of permissions that every member with that role gets. Every member can open the list, with the columns **Name**, **Type** and **Description**; **Type** is **System** for the built-in **Admin** role and **Custom** for all others. Creating, editing and deleting roles needs **Users & Roles** set to **Manage** **Yes**, or **Admin**.
+The **Roles** page lists the roles of the workspace. Route `/company/roles`, sidebar id `#nav-company-roles`. A role is a set of permissions that every member with that role gets. Members with **Users & Roles** read access can open the list, with the columns **Name**, **Type** and **Description**; **Type** is **System** for the built-in **Admin** role and **Custom** for all others. Creating, editing and deleting roles needs **Users & Roles** set to **Manage** **Yes**, or **Admin**.
 
 | Action | Where | Anchor id | What happens |
 |---|---|---|---|
@@ -288,22 +265,29 @@ The **Roles** page lists the roles of the workspace. Route `/company/roles`, sid
 
 ### How do I create a custom role in the role editor, for example to restrict a member to assigned records? [#how-does-the-role-editor-work]
 
-A custom role restricts what its members see and change, for example to only the records assigned to them. To create one, use the **Role** editor: it has the fields **Name** (required, up to 255 characters) and **Description** (required, up to 500 characters), plus one row per resource with two columns:
+The **Role** editor has **Name** (required, up to 255 characters) and **Description** (required, up to 500 characters), followed by workspace permissions and **Record types**.
 
-- **Manage**: **Yes** lets the role create, edit and delete that resource; **No** allows none of it. There is no separate switch for create, edit or delete.
-- **Read access**: **All** shows every record in the workspace, **Assigned** only the records the member is an assigned user of, and **None** hides the page and its records. A row without this choice shows a dash.
+Each record type has separate **Create**, **Edit** and **Delete** switches, plus **Read access**:
 
-| Row | Manage | Read access | New role | What it controls |
-|---|---|---|---|---|
-| **API & Webhooks** | Yes, No | All, None | No, None | Read opens **My Profile** › **API & Connectors**, **Webhooks** and **Recent Deliveries**. Manage creates and deletes API keys, adds, edits and deletes webhooks, and resends deliveries. Taking it away does not disable API keys the member already has; set the member **Inactive** to stop them. |
-| **Users & Roles** | Yes, No | All, Assigned | No, Assigned | Read opens **Members** (Assigned: only your own row) and **Roles**. Manage invites, approves and edits members, and creates, edits and deletes roles. |
-| **Company** | Yes, No | No choice, always granted | No | Every role can open **Settings** and **Subscription**. Manage edits Settings, chooses a plan, uses **Manage with Lemon Squeezy** and **Refresh**, and restores an expired subscription. |
-| **Audit Log** | No choice | All, None | None | All opens **Audit Logs** and shows the change history on record pages and in activity timelines. |
-| **Tasks**, **Contacts**, **Organizations**, **Deals**, **Services** | Yes, No | All, Assigned, None | No, Assigned | Read decides whether the sidebar entry appears and which records the member sees. Manage creates, edits and deletes them. |
-| **Inbox messages** (Cloud only) | Yes, No | All, None | No, None | Read opens **Inbox** and **My Profile** › **Channels**, plus social posts and Sales Navigator; threads stay limited to your own and shared accounts. Manage connects channels, sends and drafts. The plan must include messaging as well. |
-| **Routines** (Cloud only) | Yes, No | All, Assigned, None | No, Assigned | All shows every routine, Assigned only the member's own. Manage creates and edits routines; deleting a routine, or pausing someone else's, needs the **Admin** role. |
+- **All** allows reading every record of that type in the workspace.
+- **Assigned** allows reading records assigned to the member.
+- **None** grants no read access. Editing or deleting also requires access to the individual record.
 
-Row names stay the same when the Data model renames record types. On a self-hosted install the **Inbox messages** and **Routines** rows are hidden.
+The list includes customer-created types and uses their current names. Renaming Projects to Initiatives keeps its grants. Archived types remain labeled in the editor. New roles start without record access; grant only the types they need. Embedded entries, such as deal line items, inherit access from their parent and have no separate row.
+
+Workspace permissions retain the familiar **Manage** and **Read access** controls:
+
+| Row | Manage | Read access | What it controls |
+|---|---|---|---|
+| **API & Webhooks** | Yes, No | All, None | Keys, webhooks and deliveries. Existing keys continue to use their owner's current record permissions. |
+| **Users & Roles** | Yes, No | All, Assigned, None | Members and roles. Manage allows role administration; Assigned limits the member list to your own row. |
+| **Company** | Yes, No | No selector | Workspace settings and billing. |
+| **Data model** | Yes, No | No selector | Types, fields, relationships and calculations. This does not grant record access or role administration. |
+| **Audit Log** | No selector | All, None | Audit pages and permitted record history. |
+| **Inbox messages** (Cloud only) | Yes, No | All, None | Messaging features, subject to plan and inbox/account access. |
+| **Routines** (Cloud only) | Yes, No | All, Assigned, None | All routines or the member's own routines. Deleting a routine or pausing someone else's requires Admin. |
+
+A delegated data-model manager can use approved access presets when creating a type. Expanding grants requires role-administration authority. On self-hosted installations, Inbox messages and Routines are hidden. Editing a role's name or its record grants preserves unchanged system permissions.
 
 **Link:** `/company/roles`. **Mate:** `navigate` and `highlight_element` with `nav-company-roles`, then `highlight_element` with `company-roles-add` for a new role; once the editor is open, `role-modal-save` and `role-modal-reset` point at **Save** and **Reset**, and `role-modal-delete` at **Delete** where it is offered. The fields and the permission rows are not highlight targets, so Mate names them.
 
@@ -316,9 +300,9 @@ Every workspace starts with one built-in role, **Admin**, given to the person wh
 ### What are the rules for editing roles, and why can't I edit my own? [#what-are-the-rules-for-editing-roles]
 
 - You cannot edit your own role. Its editor opens read-only with "This role is assigned to you and cannot be edited. Ask another administrator to change it."
-- **Delete** appears only for a custom role that no member has, inactive members included; move everyone to another role first.
+- **Delete** appears only for a custom role that no member has, inactive members included. Move everyone to another role and remove references from access presets before deleting it.
 - Changes apply to every member with the role on their next page load or API call, and they are recorded in the audit log.
-- No assistant or MCP tool creates, edits or deletes roles. `get_workspace_context` lists them with their permissions, and `manage_team` assigns an existing role to a member.
+- `manage_roles` reads, creates, edits and deletes roles through the same validated operations. Read the current role and configuration revision first; save with that revision and an idempotency key. Only supplied permission properties and type grants change; an empty action list revokes that type grant. Deletion requires confirmation in the assistant. `manage_team` assigns an existing role to a member.
 
 **Link:** `/company/roles`. **Mate:** `navigate` and `highlight_element` with `nav-company-roles`; rows have no target, so Mate names them. Once the editor is open, `role-modal-save` points at **Save**, disabled on your own role, and `role-modal-delete` at **Delete** where it is offered.
 
@@ -366,11 +350,11 @@ Reading it needs **Audit Log** read access **All** on your role, or **Admin**; t
 ## Tips for agents
 
 - Every section above closes with its route and the ids Mate can use; for a full link, put the route after the origin of the `url` that `search_docs`, `get_docs_page` and `fetch` return. **Subscription Required** and **Legal documents updated** have no target and Mate is not available there, so pass on their link.
-- `#nav-company` only expands or collapses the sidebar group; it opens no page itself. The hosted assistant's `navigate` opens every page here that the user's role can open through its sidebar id, and `nav-company` itself opens **Settings**; a toolbar id also works and opens its page. For a page the role cannot open, `navigate` refuses instead of landing on the Dashboard. It can highlight the sidebar entries, the toolbar controls, the Subscription buttons and plan cards, the Settings fields, totals, Data model selects and form buttons, and the dialog fields and buttons listed above. `list_ui_targets` lists targets whatever the user's role or plan, so an **Add** or billing target can be missing on screen.
+- `#nav-company` only expands or collapses the sidebar group; it opens no page itself. The hosted assistant's `navigate` opens every page here that the user's role can open through its sidebar id, and `nav-company` itself opens **Settings**; a toolbar id also works and opens its page. For a page the role cannot open, `navigate` refuses instead of landing on the Dashboard. It can highlight the sidebar entries, toolbar controls, Subscription buttons and plan cards, the Settings currency and Data model link, form buttons, and the dialog fields and buttons listed above. `list_ui_targets` lists targets whatever the user's role or plan, so an **Add** or billing target can be missing on screen.
 - Dialog targets (every `invite-modal-*`, `member-modal-*`, `role-modal-*` and `webhook-modal-*` id, and `webhook-delivery-modal-resend`) exist only while their dialog is open. `list_ui_targets` names the prerequisite: `company-members-add` for **Invite User**, `invite-modal-tab-email` for `invite-modal-emails` and `invite-modal-send`, `company-roles-add` for `role-modal-save` and `role-modal-reset`, and `company-webhooks-add` for the webhook fields, `webhook-modal-save` and `webhook-modal-reset`. The **User** dialog, **Event Details**, `role-modal-delete` and `webhook-modal-delete` need a row the user opens, and `list_ui_targets` names that row as the prerequisite (`a member row`, `a delivery row`, `a role row`, `a webhook row`); rows have no target, so ask the user to click it first. Mate cannot click a row, fill a field or submit a dialog.
 - Rows never carry ids. Navigate to a page via its URL (for example `/company/webhooks`) and open a row by clicking it. Edits happen in dialogs, not in a drawer.
-- Prefer [MCP](/docs/mcp) tools over clicking when a tool exists: `update_workspace_settings` changes the currency and the Data model names, `manage_team` invites and updates members, `manage_webhooks` manages webhooks and deliveries, and `get_workspace_context` lists the company settings and the roles with their permissions.
-- No tool reads or changes the subscription, the stage field or the invitation link, and no tool changes role permissions (`get_workspace_context` only reads them). For "which plan are we on" or "how do I cancel", send the user to **My Company** › **Subscription**.
+- Prefer [MCP](/docs/mcp) tools over clicking when a tool exists: `update_workspace_settings` changes currency, `configure_record_model` changes CRM types and calculations, `manage_roles` changes authorized role grants, `manage_team` invites and updates members, and `manage_webhooks` manages webhooks and deliveries.
+- No tool reads or changes the subscription or invitation link. For "which plan are we on" or "how do I cancel", send the user to **My Company** › **Subscription**.
 
 ## Related
 

@@ -13,9 +13,10 @@ type Props = {
   label: string;
   value: ReactNode;
   help?: ReactNode;
+  action?: ReactNode;
 };
 
-export function EntityDetailStaticField({ fieldId, label, value, help }: Props) {
+export function EntityDetailStaticField({ fieldId, label, value, help, action }: Props) {
   const displayValue = value === null || value === undefined || value === "" ? "—" : value;
 
   return (
@@ -24,7 +25,13 @@ export function EntityDetailStaticField({ fieldId, label, value, help }: Props) 
         controlStartAddon={<EntityDetailFieldDragHandle label={label} />}
         help={help}
         label={label}
-        labelEndAddon={<EntityDetailFieldActions fieldId={fieldId} label={label} />}
+        labelEndAddon={
+          <>
+            {action}
+
+            <EntityDetailFieldActions fieldId={fieldId} label={label} />
+          </>
+        }
       >
         <span suppressHydrationWarning className="select-text truncate">
           {displayValue}

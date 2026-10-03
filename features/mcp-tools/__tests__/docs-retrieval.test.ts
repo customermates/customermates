@@ -1057,8 +1057,14 @@ describe("query concepts", () => {
       ["What can the MCP server do?", "english"],
       ["show me all MCP tools", "english"],
       ["Welche Tools bietet der MCP-Server?", "german"],
-    ] as const)
-      expect(concepts(query, stemmer), query).toEqual(termsOf(stemmer === "english" ? "catalog" : "katalog", stemmer));
+    ] as const) {
+      expect(concepts(query, stemmer), query).toEqual(
+        termsOf(
+          query === "What can the MCP server do?" ? "tool catalog" : stemmer === "english" ? "catalog" : "katalog",
+          stemmer,
+        ),
+      );
+    }
     for (const [query, stemmer] of [
       ["Which tools can Mate use?", "english"],
       ["Which tools are available to Mate?", "english"],

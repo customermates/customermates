@@ -153,13 +153,14 @@ export class IntlStore {
     }).format(date);
   }
 
-  formatMonthYear(date: Date | undefined): string {
+  formatMonthYear(date: Date | undefined, options?: { timeZone?: string }): string {
     if (date === undefined) return "";
     if (!this.clientHydrated) return "";
 
     return new Intl.DateTimeFormat(this.formattingLocale, {
       year: "numeric" as const,
       month: "long" as const,
+      ...(options?.timeZone ? { timeZone: options.timeZone } : {}),
     }).format(date);
   }
 

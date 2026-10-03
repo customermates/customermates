@@ -1,6 +1,7 @@
-import { EntityType } from "@/generated/prisma";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 import { extractAuditChanges } from "@/features/audit-log/audit-log-changes";
+import { RecordDeliveryEnvelopeSchema } from "@/features/records/record-delivery.schema";
 
 const ENTITY_TYPE_BY_EVENT_PREFIX: Record<string, EntityType> = {
   contact: EntityType.contact,
@@ -28,9 +29,17 @@ const MESSAGING_ENTITY_KIND: Record<string, RoutineTriggerEntityKind> = {
   "messaging.relation.created": "activity",
 };
 
-export type RoutineTriggerEntityKind = EntityType | "message" | "thread" | "calendar" | "calendarEvent" | "activity";
+export type RoutineTriggerEntityKind =
+  | EntityType
+  | "record"
+  | "message"
+  | "thread"
+  | "calendar"
+  | "calendarEvent"
+  | "activity";
 
 export function entityKindForEvent(event: string): RoutineTriggerEntityKind | null {
+  if (["record.created", "record.updated", "record.deleted"].includes(event)) return "record";
   return entityTypeForEvent(event) ?? MESSAGING_ENTITY_KIND[event] ?? null;
 }
 
@@ -44,14 +53,18 @@ export function entityTypeForEvents(events: readonly string[]): EntityType | nul
 }
 
 export function isRecordChangeEvent(event: string): boolean {
+  if (event === "record.updated") return true;
   return entityTypeForEvent(event) !== null && event.endsWith(".updated");
 }
 
 export function isRecordRemovalEvent(event: string): boolean {
+  if (event === "record.deleted") return true;
   return entityTypeForEvent(event) !== null && event.endsWith(".deleted");
 }
 
 export function carriesChangedFields(eventData: unknown): boolean {
+  const record = RecordDeliveryEnvelopeSchema.safeParse(eventData);
+  if (record.success) return record.data.event === "record.updated";
   if (!eventData || typeof eventData !== "object" || Array.isArray(eventData)) return false;
 
   const { payload } = eventData as { payload?: unknown };
@@ -61,6 +74,8 @@ export function carriesChangedFields(eventData: unknown): boolean {
 }
 
 export function changedFieldsOf(eventData: unknown): string[] {
+  const record = RecordDeliveryEnvelopeSchema.safeParse(eventData);
+  if (record.success) return record.data.record.fields.map((field) => field.fieldId);
   if (!carriesChangedFields(eventData)) return [];
 
   return extractAuditChanges(eventData).map((change) => change.columnId ?? change.field);

@@ -77,6 +77,7 @@ function consoleCallsIn(path: string): ConsoleCall[] {
 function excluded(file: string): boolean {
   return (
     file.startsWith(".source/") ||
+    file.startsWith(".runs/") ||
     file.startsWith("tests/") ||
     file.startsWith("scripts/") ||
     file.startsWith("ee/scripts/") ||

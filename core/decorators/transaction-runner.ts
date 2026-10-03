@@ -14,22 +14,36 @@ class InteractorFailureRollback extends Error {
 
 export async function runInTransaction<T>(
   fn: () => Promise<T>,
-  options?: { companyId?: string; timeout?: number; maxWait?: number },
+  options?: {
+    companyId?: string;
+    timeout?: number;
+    maxWait?: number;
+    readOnly?: boolean;
+  },
 ): Promise<T> {
   const client = getTransactionClient<AppPrismaClient>() ?? prisma;
   if (!client.$transaction) return await fn();
 
-  const txStore: { value: ReturnType<typeof transactionStorage.getStore> } = { value: undefined };
+  const txStore: { value: ReturnType<typeof transactionStorage.getStore> } = {
+    value: undefined,
+  };
 
   const transactionOptions =
-    options?.timeout || options?.maxWait ? { timeout: options.timeout, maxWait: options.maxWait } : undefined;
+    options?.timeout || options?.maxWait || options?.readOnly
+      ? {
+          timeout: options.timeout,
+          maxWait: options.maxWait,
+          ...(options.readOnly ? { isolationLevel: "RepeatableRead" as const } : {}),
+        }
+      : undefined;
 
   let result: T;
   try {
     result = await client.$transaction(async (tx: any) => {
       const store = tenantStorage.getStore();
       const companyId = options?.companyId ?? (store?.bypass || !store?.user ? undefined : store.user.companyId);
-      if (companyId) await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${companyId}, 0))`;
+      if (options?.readOnly) await tx.$executeRaw`SET TRANSACTION READ ONLY`;
+      else if (companyId) await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${companyId}, 0))`;
 
       return await transactionStorage.run(
         {
@@ -37,6 +51,7 @@ export async function runInTransaction<T>(
           auditLogBatch: [],
           webhookDeliveryBatch: [],
           afterCommit: [],
+          recordEventWakeups: new Set(),
           enabledWebhooks: null,
         },
         async () => {

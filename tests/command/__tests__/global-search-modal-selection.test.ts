@@ -1,6 +1,7 @@
+import { recordSearchHit } from "@/tests/helpers/record-search";
 // @vitest-environment jsdom
 
-import type { GlobalSearchResult, GlobalSearchResultItem } from "@/features/search/global-search.interactor";
+import type { RecordSearchResult, RecordSearchHit } from "@/features/records/record-search.schema";
 import type { Root } from "react-dom/client";
 
 import { act, createElement } from "react";
@@ -12,7 +13,10 @@ const harness = vi.hoisted(() => ({ globalSearchModalStore: null as unknown, ope
 
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("@/core/stores/root-store.provider", () => ({
-  useRootStore: () => ({ globalSearchModalStore: harness.globalSearchModalStore }),
+  useRootStore: () => ({
+    globalSearchModalStore: harness.globalSearchModalStore,
+    recordWorkspaceStore: { open: harness.openEntity },
+  }),
 }));
 vi.mock("@/components/entity-detail/hooks/use-entity-drawer-stack", () => ({
   useOpenEntity: () => harness.openEntity,
@@ -23,41 +27,21 @@ vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
 
 import { GlobalSearchModal } from "@/app/components/global-search-modal";
 
-const ALEXEJ: GlobalSearchResultItem = {
-  type: "contact",
-  id: "10000000-0000-4000-8000-000000000001",
-  name: "Alexej Sofr",
-  pictureUrl: null,
-};
-const AMIR: GlobalSearchResultItem = {
-  type: "contact",
-  id: "10000000-0000-4000-8000-000000000002",
-  name: "Amir Haddad",
-  pictureUrl: null,
-};
-const AMIN: GlobalSearchResultItem = {
-  type: "contact",
-  id: "10000000-0000-4000-8000-000000000003",
-  name: "Amin Hassan",
-  pictureUrl: null,
-};
-const TUI: GlobalSearchResultItem = {
-  type: "organization",
-  id: "20000000-0000-4000-8000-000000000001",
-  name: "TUI",
-  pictureUrl: null,
-};
+const ALEXEJ = recordSearchHit("contact", "10000000-0000-4000-8000-000000000001", "Alexej Sofr");
+const AMIR = recordSearchHit("contact", "10000000-0000-4000-8000-000000000002", "Amir Haddad");
+const AMIN = recordSearchHit("contact", "10000000-0000-4000-8000-000000000003", "Amin Hassan");
+const TUI = recordSearchHit("organization", "20000000-0000-4000-8000-000000000001", "TUI");
 
 let container: HTMLDivElement;
 let reactRoot: Root;
 
-function searchStore(recentItems: GlobalSearchResultItem[]) {
+function searchStore(recentItems: RecordSearchHit[]) {
   const store = observable(
     {
       isOpen: true,
       isLoading: false,
       debouncedSearchTerm: "",
-      results: null as GlobalSearchResult | null,
+      results: null as RecordSearchResult | null,
       recentItems,
       form: { searchTerm: "" },
       focusReturnTarget: null,
@@ -138,14 +122,14 @@ afterEach(() => {
 });
 
 describe("GlobalSearchModal highlighted hit", () => {
-  async function openWith(recentItems: GlobalSearchResultItem[]) {
+  async function openWith(recentItems: RecordSearchHit[]) {
     const store = searchStore(recentItems);
     harness.globalSearchModalStore = store;
     await settle(() => reactRoot.render(createElement(GlobalSearchModal)));
     return store;
   }
 
-  async function showResults(store: ReturnType<typeof searchStore>, term: string, results: GlobalSearchResultItem[]) {
+  async function showResults(store: ReturnType<typeof searchStore>, term: string, results: RecordSearchHit[]) {
     for (let length = 1; length <= term.length; length += 1)
       await settle(() => store.onChange("searchTerm", term.slice(0, length)));
     await mutate(() => {
@@ -153,7 +137,7 @@ describe("GlobalSearchModal highlighted hit", () => {
       store.isLoading = true;
     });
     await mutate(() => {
-      store.results = { results };
+      store.results = { results, schemaRevision: 1, nextCursor: null };
       store.isLoading = false;
     });
   }
@@ -179,7 +163,7 @@ describe("GlobalSearchModal highlighted hit", () => {
     press("Enter");
 
     expect(store.pushRecentItem).toHaveBeenCalledWith(AMIN);
-    expect(harness.openEntity).toHaveBeenCalledWith("contact", AMIN.id, null, null);
+    expect(harness.openEntity).toHaveBeenCalledWith(AMIN.ref, null, null);
   });
 
   it("highlights the new first hit when a refined query drops the highlighted one", async () => {

@@ -1,15 +1,13 @@
 "use client";
 
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 
 import { LayoutList } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { CustomColumnType } from "@/generated/prisma";
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useRootStore } from "@/core/stores/root-store.provider";
+import { useRouter } from "@/i18n/navigation";
 
 import { DataViewEmptyState } from "./data-view-empty-state";
 import { useGroupableFieldLabel } from "./use-groupable-field-label";
@@ -20,10 +18,9 @@ type Props<E extends HasId> = {
 
 export const BoardGroupingPrompt = observer(function BoardGroupingPrompt<E extends HasId>({ store }: Props<E>) {
   const t = useTranslations();
-  const { customColumnModalStore } = useRootStore();
+  const router = useRouter();
   const groupableLabel = useGroupableFieldLabel();
-  const entityType = store.entityType;
-  const canCreateField = Boolean(entityType) && store.canManage;
+  const canCreateField = Boolean(store.schemaSettingsHref);
 
   function handleFieldChange(next: string) {
     const entry = store.groupableFields.find((field) => field.id === next);
@@ -31,12 +28,7 @@ export const BoardGroupingPrompt = observer(function BoardGroupingPrompt<E exten
   }
 
   function handleCreateField() {
-    if (!entityType) return;
-    customColumnModalStore.openForCreate({
-      type: CustomColumnType.singleSelect,
-      entityType,
-      onSaved: (column: CustomColumnDto) => store.setViewOptions({ grouping: { field: column.id } }),
-    });
+    if (store.schemaSettingsHref) router.push(store.schemaSettingsHref);
   }
 
   return (

@@ -6,7 +6,6 @@ import { Resource, WebhookDeliveryStatus } from "@/generated/prisma";
 
 import { resendWebhookDeliveryAction } from "../../actions";
 
-import { DomainEvent } from "@/features/event/domain-events";
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
@@ -19,12 +18,9 @@ export class WebhookDeliveryModalStore extends BaseModalStore<WebhookDeliveryDto
       {
         id: "",
         url: "",
-        event: DomainEvent.CONTACT_CREATED,
-        requestBody: {
-          event: DomainEvent.CONTACT_CREATED,
-          data: {} as WebhookDeliveryDto["requestBody"]["data"],
-          timestamp: "",
-        },
+        event: "",
+        requestBody: null,
+        nextAttemptAt: null,
         statusCode: null,
         responseMessage: null,
         success: false,

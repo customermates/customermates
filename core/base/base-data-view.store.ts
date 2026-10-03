@@ -1,36 +1,29 @@
+import type { GetQueryParams } from "@/core/base/base-get.schema";
+import type { GroupableFieldDto } from "@/core/base/grouping/groupable-field";
+import type { GroupPageRequest, Grouping, GroupingResult } from "@/core/base/grouping/grouping.schema";
+import type { ColumnPresentation, CustomColumnDto } from "@/core/data-view/column-presentation.schema";
+import type { DataViewSurfaceKey } from "@/core/data-view/data-view-keys";
+import type { DataViewChipDto, DataViewState } from "@/core/data-view/data-view-state.schema";
 import type { ObservableSet } from "mobx";
 import type { RootStore } from "../stores/root.store";
-import type { Filter, FilterableField, GroupValueSums, PaginationRequest, SortDescriptor } from "./base-get.schema";
 import type { GetResult } from "./base-get.interactor";
-import type { GetQueryParams } from "@/core/base/base-get.schema";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
-import type { DataViewChipDto, DataViewState } from "@/core/data-view/data-view-state.schema";
-import type { DataViewSurfaceKey } from "@/core/data-view/data-view-keys";
-import type { GroupPageRequest, Grouping, GroupingResult } from "@/core/base/grouping/grouping.schema";
-import type { GroupableFieldDto } from "@/core/base/grouping/groupable-field";
+import type { Filter, FilterableField, GroupValueSums, PaginationRequest, SortDescriptor } from "./base-get.schema";
 
-import { makeObservable, observable, computed, action, toJS, runInAction } from "mobx";
 import deepEqual from "fast-deep-equal/es6";
-import { Action, CustomColumnType } from "@/generated/prisma";
+import { action, computed, makeObservable, observable, runInAction, toJS } from "mobx";
 
-import type { Resource, EntityType } from "@/generated/prisma";
+import type { Resource } from "@/generated/prisma";
 
-import { toastZodErrorTree } from "../utils/toast-zod-error-tree";
 import { reportApplicationError } from "../errors/report-application-error";
+import { toastZodErrorTree } from "../utils/toast-zod-error-tree";
 
 import { ViewMode } from "./base-query-builder";
 import { BaseStore } from "./base.store";
 
+import { saveDataViewStateAction, selectDataViewAction } from "@/app/actions";
 import { GROUP_PAGE_SIZE_DEFAULT, encodeGroupingToken, sameGrouping } from "@/core/base/grouping/grouping.schema";
-import {
-  saveDataViewStateAction,
-  selectDataViewAction,
-  getCustomColumnsByEntityTypeAction,
-  bulkDeleteEntitiesAction,
-  bulkUpdateCustomFieldValuesAction,
-  updateEntityCustomFieldValueAction,
-} from "@/app/actions";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
+import { reserveViewStateWrite, type ViewStateWriteIntent } from "@/core/data-view/view-state-persistence";
 
 export const MAX_SELECTION_SIZE = 100;
 
@@ -55,15 +48,6 @@ export type DataViewRefreshMode = "background" | "visible";
 
 type SelectionScope = { filters: Filter[]; searchTerm: string | null };
 
-function readItemValueSums(item: unknown, fields: readonly string[]): GroupValueSums | undefined {
-  const values = item as Record<string, unknown>;
-  const summed = fields.flatMap((field) =>
-    typeof values[field] === "number" ? [[field, values[field]] as const] : [],
-  );
-
-  return summed.length > 0 ? Object.fromEntries(summed) : undefined;
-}
-
 function shiftValueSums(group: GroupValueSums, item: GroupValueSums, sign: 1 | -1): GroupValueSums {
   const fields = new Set([...Object.keys(group), ...Object.keys(item)]);
 
@@ -83,6 +67,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   filterableFields: FilterableField[] = [];
 
   p13nId?: string;
+  resetToSharedDefaults?: () => Promise<void>;
   columnOrder: string[] = [];
   columnWidths: Record<string, number> = {};
   hiddenColumns: string[] = [];
@@ -101,12 +86,11 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   groupCounts: Record<string, number> = {};
   groupValueSums: Record<string, GroupValueSums> = {};
   groupedTakeOverrides: Record<string, number> = {};
-  isBulkMutating = false;
 
   public readonly resource?: Resource;
-  public readonly entityType?: EntityType;
 
   private persistViewStateTimer?: number;
+  private pendingViewStateIntent?: ViewStateWriteIntent;
   private pendingGroupOnly?: string;
   private requestGeneration = 0;
   private viewStateWrites = new Map<string, number>();
@@ -116,12 +100,37 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   private requestState: DataViewRequestState = { status: "uninitialized" };
   private onChangesCallbacks: (() => void | Promise<void>)[] = [];
 
+  schemaSettingsHref?: string;
+  viewPathname?: string;
+  viewSyncToUrl = true;
+  get supportsSelection(): boolean {
+    return false;
+  }
+  get recordLabels(): { singular: string; plural: string } | undefined {
+    return undefined;
+  }
+  get viewTypeLabel(): string | undefined {
+    return undefined;
+  }
+
+  async moveItemBetweenGroups(_params: {
+    item: Entity;
+    optimisticItem: Entity;
+    fromGroupKey: string;
+    toGroupKey: string;
+    value: string | null;
+    destinationValueSums?: GroupValueSums;
+  }): Promise<void> {}
+
   abstract get columnsDefinition(): TableColumn[];
 
-  constructor(rootStore: RootStore, resource?: Resource, entityType?: EntityType) {
+  get primaryColumnId(): string {
+    return "name";
+  }
+
+  constructor(rootStore: RootStore, resource?: Resource) {
     super(rootStore);
     this.resource = resource;
-    this.entityType = entityType;
 
     makeObservable<this, "requestState">(this, {
       requestState: observable.ref,
@@ -157,15 +166,13 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       groupCounts: observable,
       groupValueSums: observable,
       groupedTakeOverrides: observable,
-      isBulkMutating: observable,
 
+      filterColumns: computed,
       orderedColumns: computed,
       visibleColumns: computed,
       sortableColumnIds: computed,
       canManage: computed,
       canExport: computed,
-      canUpdateSelection: computed,
-      canDeleteSelection: computed,
       isDisabled: computed,
       hasSelection: computed,
       selectedCount: computed,
@@ -174,10 +181,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       isSelectionAtLimit: computed,
       currentSelectionScope: computed,
       isSelectionScopeStale: computed,
-      massEditableCustomColumns: computed,
       canBoard: computed,
       isGrouped: computed,
-      isGroupedByDealWeightingColumn: computed,
       groupingKey: computed,
       currentGroupableFieldId: computed,
 
@@ -188,7 +193,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       removeFilterAt: action,
       applyView: action,
       refresh: action,
-      refreshCustomColumns: action,
       upsertItem: action,
       upsertItemLocal: action,
       removeItem: action,
@@ -209,11 +213,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       transferItemBetweenResultGroups: action,
       restoreGroupValueSums: action,
       restoreResultGroups: action,
-      setBulkMutating: action,
-      bulkDelete: action,
-      bulkUpdateCustomField: action,
-      updateCustomFieldValue: action,
-      moveItemBetweenGroups: action,
     });
   }
 
@@ -229,159 +228,20 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     return this.requestState.status === "refreshing";
   }
 
-  setBulkMutating = (next: boolean) => {
-    this.isBulkMutating = next;
-  };
+  canMoveItemBetweenGroups(item: Entity): boolean {
+    return Boolean(item.id);
+  }
 
-  bulkDelete = async (): Promise<boolean> => {
-    const ids = Array.from(this.selectedIds);
-    if (ids.length === 0 || !this.entityType) return false;
-    if (ids.length > MAX_SELECTION_SIZE) {
-      this.toastError("MassActions.limitReached", { values: { limit: MAX_SELECTION_SIZE } });
-      return false;
-    }
-
-    this.setBulkMutating(true);
-    try {
-      const res = await bulkDeleteEntitiesAction({ entityType: this.entityType, ids });
-      if (res && !res.ok) {
-        toastZodErrorTree(res.error);
-        await this.refresh();
-        return false;
-      }
-      this.rootStore.activityTimelines.refreshForMany(this.entityType, ids);
-      this.clearSelection();
-      await this.refresh();
-      return true;
-    } finally {
-      this.setBulkMutating(false);
-    }
-  };
-
-  bulkUpdateCustomField = async (columnId: string, value: string): Promise<boolean> => {
-    const entityIds = Array.from(this.selectedIds);
-    if (entityIds.length === 0 || !this.entityType) return false;
-    if (entityIds.length > MAX_SELECTION_SIZE) {
-      this.toastError("MassActions.limitReached", { values: { limit: MAX_SELECTION_SIZE } });
-      return false;
-    }
-
-    this.setBulkMutating(true);
-    try {
-      const res = await bulkUpdateCustomFieldValuesAction({
-        entityType: this.entityType,
-        entityIds,
-        customFieldValues: [{ columnId, value }],
-      });
-      if (res && !res.ok) {
-        if (!toastZodErrorTree(res.error)) this.toastError("Common.notifications.unexpectedError");
-        await this.refresh();
-        return false;
-      }
-      this.rootStore.activityTimelines.refreshForMany(this.entityType, entityIds);
-      this.clearSelection();
-      await this.refresh();
-      this.toastSuccess("Common.notifications.updated");
-      return true;
-    } finally {
-      this.setBulkMutating(false);
-    }
-  };
-
-  updateCustomFieldValue = async (entityId: string, columnId: string, value: string | null): Promise<boolean> => {
-    const entityType = this.entityType;
-    if (!entityType) return false;
-
-    const res = await updateEntityCustomFieldValueAction({
-      entityType,
-      entityId,
-      customFieldValues: [{ columnId, value }],
-    });
-    if (res?.ok) {
-      await this.upsertItem(res.data as unknown as Entity);
-      return true;
-    }
-    toastZodErrorTree(res?.error);
-    return false;
-  };
-
-  moveItemBetweenGroups = async (params: {
-    item: Entity;
-    optimisticItem: Entity;
-    fromGroupKey: string;
-    toGroupKey: string;
-    value: string | null;
-    destinationValueSums?: GroupValueSums;
-  }): Promise<void> => {
-    const entityType = this.entityType;
-    if (!entityType) return;
-
-    const columnId = this.groupingResult?.columnId;
-
-    if (!columnId || !this.groupingResult?.supportsDragWriteBack) {
-      this.toastError("Common.notifications.unexpectedError");
-      return;
-    }
-
-    const summedFields = [
-      ...new Set([
-        ...Object.values(this.groupValueSums).flatMap((sums) => Object.keys(sums)),
-        ...(this.groupingResult?.groups ?? []).flatMap((group) => Object.keys(group.valueSums ?? {})),
-      ]),
-    ];
-    const itemValueSums = readItemValueSums(params.item, summedFields);
-    const valueSumsBeforeMove = this.groupValueSums;
-    const resultGroupsBeforeMove = this.groupingResult;
-
-    this.upsertItemLocal(params.optimisticItem);
-    this.transferItemBetweenGroups(params.fromGroupKey, params.toGroupKey, itemValueSums, params.destinationValueSums);
-    this.transferItemBetweenResultGroups({
-      itemId: params.item.id,
-      fromGroupKey: params.fromGroupKey,
-      toGroupKey: params.toGroupKey,
-      itemValueSums,
-      destinationValueSums: params.destinationValueSums,
-    });
-
-    const valueSumsAfterMove = this.groupValueSums;
-    const resultGroupsAfterMove = this.groupingResult;
-
-    const revert = () => {
-      this.upsertItemLocal(params.item);
-      this.transferItemBetweenGroups(params.toGroupKey, params.fromGroupKey);
-      this.restoreGroupValueSums(valueSumsBeforeMove, valueSumsAfterMove);
-      this.restoreResultGroups(resultGroupsBeforeMove, resultGroupsAfterMove);
-    };
-
-    try {
-      const res = await updateEntityCustomFieldValueAction({
-        entityType,
-        entityId: params.item.id,
-        customFieldValues: [{ columnId, value: params.value }],
-      });
-      if (res?.ok) await this.upsertItem(res.data as unknown as Entity);
-      else {
-        revert();
-        toastZodErrorTree(res?.error);
-      }
-    } catch (err) {
-      revert();
-      throw err;
-    }
-  };
+  get filterColumns(): ColumnPresentation[] {
+    return this.customColumns;
+  }
 
   get canBoard(): boolean {
-    return this.groupableFields.length > 0 || Boolean(this.entityType);
+    return this.groupableFields.length > 0;
   }
 
   get isGrouped(): boolean {
     return Boolean(this.grouping && this.groupingResult);
-  }
-
-  get isGroupedByDealWeightingColumn(): boolean {
-    const columnId = this.groupingResult?.columnId;
-
-    return columnId !== undefined && columnId === this.rootStore.companyStore.company?.dealWeightingColumnId;
   }
 
   get groupingKey(): string {
@@ -411,18 +271,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     return this.rootStore.userStore.canAccess(this.resource);
   }
 
-  get canUpdateSelection(): boolean {
-    if (!this.resource) return true;
-
-    return this.rootStore.userStore.can(this.resource, Action.update);
-  }
-
-  get canDeleteSelection(): boolean {
-    if (!this.resource) return true;
-
-    return this.rootStore.userStore.can(this.resource, Action.delete);
-  }
-
   get isDisabled(): boolean {
     if (!this.resource) return false;
 
@@ -450,7 +298,10 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   }
 
   get currentSelectionScope(): SelectionScope {
-    return { filters: toJS(this.filters) ?? [], searchTerm: this.searchTerm || null };
+    return {
+      filters: toJS(this.filters) ?? [],
+      searchTerm: this.searchTerm || null,
+    };
   }
 
   get isSelectionScopeStale(): boolean {
@@ -459,18 +310,13 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     return !deepEqual(this.selectedScope, this.currentSelectionScope);
   }
 
-  get massEditableCustomColumns(): CustomColumnDto[] {
-    return this.customColumns.filter((col) =>
-      col.type === CustomColumnType.singleSelect ? col.options.options.length > 0 : true,
-    );
-  }
-
   isItemSelectable(_item: Entity): boolean {
     return true;
   }
 
   setSelectedIds = (keys: Set<string>) => {
     this.selectedIds.clear();
+    this.onSelectionChanged();
     this.selectedScope = undefined;
     [...keys].slice(0, MAX_SELECTION_SIZE).forEach((id) => this.selectedIds.add(id));
     this.rememberSelectionScope();
@@ -484,7 +330,9 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     }
 
     if (this.isSelectionAtLimit) {
-      this.toastError("MassActions.limitReached", { values: { limit: MAX_SELECTION_SIZE } });
+      this.toastError("MassActions.limitReached", {
+        values: { limit: MAX_SELECTION_SIZE },
+      });
       return;
     }
 
@@ -506,21 +354,30 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     missing.slice(0, room).forEach((id) => this.selectedIds.add(id));
     this.rememberSelectionScope();
 
-    if (missing.length > room) this.toastError("MassActions.limitReached", { values: { limit: MAX_SELECTION_SIZE } });
+    if (missing.length > room) {
+      this.toastError("MassActions.limitReached", {
+        values: { limit: MAX_SELECTION_SIZE },
+      });
+    }
   };
 
   keepSelectionInView = (): void => {
     const visible = new Set(this.items.map((item) => item.id));
     for (const id of [...this.selectedIds]) if (!visible.has(id)) this.selectedIds.delete(id);
     this.selectedScope = this.selectedIds.size > 0 ? this.currentSelectionScope : undefined;
+    this.onSelectionChanged();
   };
 
   clearSelection = () => {
     this.selectedIds.clear();
     this.selectedScope = undefined;
+    this.onSelectionChanged();
   };
 
+  protected onSelectionChanged(): void {}
+
   private rememberSelectionScope(): void {
+    this.onSelectionChanged();
     if (this.selectedIds.size === 0) {
       this.selectedScope = undefined;
       return;
@@ -532,14 +389,16 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   get orderedColumns() {
     const columnMap = new Map(this.columnsDefinition.map((col) => [col.uid, col]));
     const orderedUids = new Set(this.columnOrder);
-    const nameColumn = this.columnsDefinition.find((col) => col.uid === "name");
+    const nameColumn = this.columnsDefinition.find((col) => col.uid === this.primaryColumnId);
 
     if (this.columnOrder.length > 0) {
       const columnsFromOrder = this.columnOrder
         .map((uid) => columnMap.get(uid))
-        .filter((column): column is TableColumn => column !== undefined && column.uid !== "name");
+        .filter((column): column is TableColumn => column !== undefined && column.uid !== this.primaryColumnId);
 
-      const columnsNotInOrder = this.columnsDefinition.filter((col) => !orderedUids.has(col.uid) && col.uid !== "name");
+      const columnsNotInOrder = this.columnsDefinition.filter(
+        (col) => !orderedUids.has(col.uid) && col.uid !== this.primaryColumnId,
+      );
 
       const res: TableColumn[] = [];
       if (nameColumn) res.push(nameColumn);
@@ -548,7 +407,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       return res;
     }
 
-    const remainingColumns = this.columnsDefinition.filter((col) => col.uid !== "name");
+    const remainingColumns = this.columnsDefinition.filter((col) => col.uid !== this.primaryColumnId);
 
     const res: TableColumn[] = [];
     if (nameColumn) res.push(nameColumn);
@@ -578,8 +437,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.pagination = args.pagination;
     this.filters = this.withKnownFields(args.filters);
     this.columnWidths = args.columnWidths || {};
-    this.hiddenColumns = (args.hiddenColumns ?? []).filter((uid) => uid !== "name");
-    this.columnOrder = (args.columnOrder ?? []).filter((uid) => uid !== "name");
+    this.hiddenColumns = (args.hiddenColumns ?? []).filter((uid) => uid !== this.primaryColumnId);
+    this.columnOrder = (args.columnOrder ?? []).filter((uid) => uid !== this.primaryColumnId);
     this.viewMode = args.viewMode ?? ViewMode.table;
     this.grouping = args.grouping?.grouping ?? null;
     this.groupingResult = args.grouping;
@@ -607,7 +466,14 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.groupingResult = {
       ...current,
       groups: current.groups.map((group) =>
-        group.key === page.key ? { ...group, itemIds: page.itemIds, hasMore: page.hasMore, materialised: true } : group,
+        group.key === page.key
+          ? {
+              ...group,
+              itemIds: page.itemIds,
+              hasMore: page.hasMore,
+              materialised: true,
+            }
+          : group,
       ),
     };
     this.requestState = { status: "ready" };
@@ -657,7 +523,11 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     missing.slice(0, room).forEach((id) => this.selectedIds.add(id));
     this.rememberSelectionScope();
 
-    if (missing.length > room) this.toastError("MassActions.limitReached", { values: { limit: MAX_SELECTION_SIZE } });
+    if (missing.length > room) {
+      this.toastError("MassActions.limitReached", {
+        values: { limit: MAX_SELECTION_SIZE },
+      });
+    }
   };
 
   resetGroupedTakeOverrides = (): void => {
@@ -712,7 +582,9 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
             count: Math.max(0, group.count - 1),
             itemIds: group.itemIds.filter((id) => id !== args.itemId),
             ...(group.valueSums && args.itemValueSums
-              ? { valueSums: shiftValueSums(group.valueSums, args.itemValueSums, -1) }
+              ? {
+                  valueSums: shiftValueSums(group.valueSums, args.itemValueSums, -1),
+                }
               : {}),
           };
         }
@@ -756,7 +628,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     const groupingBefore = this.groupingKey;
 
     if (updates.columnOrder) {
-      const newColumnOrder = updates.columnOrder.filter((uid) => uid !== "name");
+      const newColumnOrder = updates.columnOrder.filter((uid) => uid !== this.primaryColumnId);
 
       const orderChanged =
         this.columnOrder.length !== newColumnOrder.length ||
@@ -786,7 +658,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     }
 
     if (updates.hiddenColumns) {
-      const filteredHiddenColumns = updates.hiddenColumns.filter((uid) => uid !== "name");
+      const filteredHiddenColumns = updates.hiddenColumns.filter((uid) => uid !== this.primaryColumnId);
       if (!deepEqual(this.hiddenColumns, filteredHiddenColumns)) {
         this.hiddenColumns = filteredHiddenColumns;
         hasChanges = true;
@@ -886,14 +758,18 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     const current = this.filters ?? [];
     if (index < 0 || index >= current.length) return;
 
-    this.setQueryOptions({ filters: current.map((entry, position) => (position === index ? filter : entry)) });
+    this.setQueryOptions({
+      filters: current.map((entry, position) => (position === index ? filter : entry)),
+    });
   };
 
   removeFilterAt = (index: number) => {
     const current = this.filters ?? [];
     if (index < 0 || index >= current.length) return;
 
-    this.setQueryOptions({ filters: current.filter((_, position) => position !== index) });
+    this.setQueryOptions({
+      filters: current.filter((_, position) => position !== index),
+    });
   };
 
   applyView = (viewKey: string): void => {
@@ -912,20 +788,25 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       this.sortDescriptor = state.sortDescriptor ?? undefined;
       this.viewMode = state.viewMode ?? ViewMode.table;
       this.grouping = state.grouping ?? null;
-      this.columnOrder = (state.columnOrder ?? []).filter((uid) => uid !== "name");
+      this.columnOrder = (state.columnOrder ?? []).filter((uid) => uid !== this.primaryColumnId);
       this.columnWidths = state.columnWidths ?? {};
-      this.hiddenColumns = (state.hiddenColumns ?? []).filter((uid) => uid !== "name");
+      this.hiddenColumns = (state.hiddenColumns ?? []).filter((uid) => uid !== this.primaryColumnId);
       this.pagination = this.pagination
-        ? { ...this.pagination, page: 1, pageSize: state.pageSize ?? this.pagination.pageSize }
+        ? {
+            ...this.pagination,
+            page: 1,
+            pageSize: state.pageSize ?? this.pagination.pageSize,
+          }
         : this.pagination;
       this.groupedTakeOverrides = {};
       this.collapsedGroupKeys.clear();
     });
 
     if (this.p13nId && this.viewPersistable) {
-      void selectDataViewAction({ surfaceKey: this.p13nId as DataViewSurfaceKey, viewKey: key }).catch(
-        reportApplicationError,
-      );
+      void selectDataViewAction({
+        surfaceKey: this.p13nId as DataViewSurfaceKey,
+        viewKey: key,
+      }).catch(reportApplicationError);
     }
 
     if (flushed && key === previousKey) void flushed.then(this.refreshResolvedInBackground);
@@ -938,16 +819,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     const known = new Set(this.filterableFields.map((f) => f.field));
     return list.filter((f) => known.has(f.field));
   }
-
-  refreshCustomColumns = async (): Promise<void> => {
-    if (!this.entityType) return;
-
-    const customColumns = await getCustomColumnsByEntityTypeAction({
-      entityType: this.entityType,
-    });
-
-    this.setCustomColumns(customColumns);
-  };
 
   refresh = (): Promise<void> => this.executeRefresh("background");
 
@@ -962,6 +833,18 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     const generation = ++this.requestGeneration;
     const wasInitialized = this.isReady;
     const writeSeqBeforeRequest = this.viewStateWriteSeq;
+    const projectionBeforeRequest = {
+      surfaceKey: this.p13nId,
+      viewKey: this.activeViewKey,
+      columnOrder: toJS(this.columnOrder),
+      columnWidths: toJS(this.columnWidths),
+      hiddenColumns: toJS(this.hiddenColumns),
+    };
+    const pendingProjectionAtStart =
+      !resolveFromServer &&
+      (this.persistViewStateTimer !== undefined ||
+        this.queuedViewStateWrites.has(JSON.stringify([this.p13nId, this.activeViewKey])) ||
+        this.failedViewStateWrites.has(this.activeViewKey));
     const groupPage = this.buildGroupPageRequest();
     const params: GetQueryParams = resolveFromServer
       ? {
@@ -978,7 +861,10 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
             ? { groupPage, pageSize: this.pagination?.pageSize }
             : {
                 pagination: this.pagination
-                  ? { page: this.pagination.page, pageSize: this.pagination.pageSize }
+                  ? {
+                      page: this.pagination.page,
+                      pageSize: this.pagination.pageSize,
+                    }
                   : undefined,
               }),
           viewMode: this.viewMode,
@@ -1020,8 +906,43 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     runInAction(() => {
       const localAllState = this.allViewState;
       const localViews = this.views;
+      const localProjection = {
+        columnOrder: toJS(this.columnOrder),
+        columnWidths: toJS(this.columnWidths),
+        hiddenColumns: toJS(this.hiddenColumns),
+      };
+      const sameProjectionScope =
+        wasInitialized &&
+        projectionBeforeRequest.surfaceKey !== undefined &&
+        projectionBeforeRequest.surfaceKey === this.p13nId &&
+        projectionBeforeRequest.viewKey === this.activeViewKey &&
+        projectionBeforeRequest.surfaceKey === result.p13nId &&
+        projectionBeforeRequest.viewKey === (result.activeViewKey ?? ALL_VIEW_KEY);
+      const keepOrder =
+        sameProjectionScope &&
+        (pendingProjectionAtStart || !deepEqual(localProjection.columnOrder, projectionBeforeRequest.columnOrder));
+      const keepWidths =
+        sameProjectionScope &&
+        (pendingProjectionAtStart || !deepEqual(localProjection.columnWidths, projectionBeforeRequest.columnWidths));
+      const keepHidden =
+        sameProjectionScope &&
+        (pendingProjectionAtStart || !deepEqual(localProjection.hiddenColumns, projectionBeforeRequest.hiddenColumns));
 
+      this.onRefreshAccepted(result);
       this.setItems(result);
+      const available = new Set(this.columnsDefinition.map((column) => column.uid));
+      if (keepOrder)
+        this.columnOrder = localProjection.columnOrder.filter((id) => available.has(id) && id !== this.primaryColumnId);
+      if (keepWidths) {
+        this.columnWidths = Object.fromEntries(
+          Object.entries(localProjection.columnWidths).filter(([id]) => available.has(id)),
+        );
+      }
+      if (keepHidden) {
+        this.hiddenColumns = localProjection.hiddenColumns.filter(
+          (id) => available.has(id) && id !== this.primaryColumnId,
+        );
+      }
       this.restoreViewStateWrittenDuringRequest(writeSeqBeforeRequest, localAllState, localViews);
     });
   };
@@ -1047,7 +968,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     if (options.created && !isLoaded) this.adjustPaginationTotal(1);
     this.requestGeneration += 1;
     if (this.requestState.status !== "uninitialized") this.requestState = { status: "ready" };
-    if (this.entityType) this.rootStore.activityTimelines.refreshForMany(this.entityType, [target.id]);
     await this.executeOnChanges();
   };
 
@@ -1068,7 +988,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.items = items;
     this.requestGeneration += 1;
     if (this.requestState.status !== "uninitialized") this.requestState = { status: "ready" };
-    if (this.entityType) this.rootStore.activityTimelines.refreshForMany(this.entityType, [targetId]);
     await this.executeOnChanges();
   };
 
@@ -1117,6 +1036,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     void this.refreshQuery().catch(() => undefined);
   };
 
+  reloadSavedView = (): Promise<void> => this.executeRefresh(this.isReady ? "visible" : "background", undefined, true);
+
   private refreshResolvedInBackground = (): void => {
     void this.executeRefresh(this.isReady ? "visible" : "background", undefined, true).catch(() => undefined);
   };
@@ -1149,15 +1070,28 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     }
   };
 
+  protected onRefreshAccepted(_result: GetResult<Entity>): void {}
+
+  protected get viewStateWriteOwner(): string | undefined {
+    return undefined;
+  }
+
+  protected canPersistViewState(): boolean {
+    return true;
+  }
+
   protected refreshAction(_params?: GetQueryParams): Promise<GetResult<Entity>> {
     return Promise.reject(new Error("refreshAction must be implemented by entity stores"));
   }
 
   discardPendingViewState = (): void => {
     this.cancelPendingPersist();
+    this.pendingViewStateIntent?.discard();
+    this.pendingViewStateIntent = undefined;
   };
 
   private viewStateWrite: Promise<void> | undefined;
+  private queuedViewStateWrites = new Map<string, number>();
   private failedViewStateWrites = new Set<string>();
 
   settleViewState = async (): Promise<void> => {
@@ -1176,16 +1110,17 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     return true;
   };
 
-  private flushPendingViewState = (): Promise<void> | undefined => {
+  protected flushPendingViewState = (): Promise<void> | undefined => {
     if (!this.cancelPendingPersist()) return undefined;
 
     return this.writeViewState();
   };
 
   private persistViewState = () => {
-    if (!this.p13nId || !this.viewPersistable) return;
+    if (!this.p13nId || !this.viewPersistable || !this.canPersistViewState()) return;
 
-    this.cancelPendingPersist();
+    this.discardPendingViewState();
+    this.pendingViewStateIntent = this.reserveViewStateIntent();
 
     this.persistViewStateTimer = window.setTimeout(() => {
       this.persistViewStateTimer = undefined;
@@ -1193,7 +1128,20 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     }, 1000);
   };
 
+  private reserveViewStateIntent = (): ViewStateWriteIntent | undefined => {
+    const owner = this.viewStateWriteOwner;
+    return owner === undefined
+      ? undefined
+      : reserveViewStateWrite(this.rootStore, JSON.stringify([owner, this.p13nId, this.activeViewKey]));
+  };
+
   private writeViewState = (): Promise<void> => {
+    if (!this.canPersistViewState()) {
+      this.discardPendingViewState();
+      return Promise.resolve();
+    }
+    const intent = this.pendingViewStateIntent ?? this.reserveViewStateIntent();
+    this.pendingViewStateIntent = undefined;
     const viewKey = this.activeViewKey;
     const state: DataViewState = {
       filters: toJS(this.filters) ?? [],
@@ -1208,9 +1156,12 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     };
 
     const surfaceKey = this.p13nId as DataViewSurfaceKey;
-    const persist = () =>
-      saveDataViewStateAction({ surfaceKey, viewKey, state })
+    const ownsWrite = () => this.canPersistViewState() && (!intent || intent.isCurrent());
+    const persist = () => {
+      if (!ownsWrite()) return Promise.resolve();
+      return saveDataViewStateAction({ surfaceKey, viewKey, state })
         .then((res) => {
+          if (!ownsWrite()) return;
           if (!res.ok) {
             this.failedViewStateWrites.add(viewKey);
             toastZodErrorTree(res.error);
@@ -1221,13 +1172,21 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
           this.rememberViewState(viewKey, state);
         })
         .catch((error) => {
+          if (!ownsWrite()) return;
           this.failedViewStateWrites.add(viewKey);
           reportApplicationError(error);
         });
-    const write = this.viewStateWrite ? this.viewStateWrite.then(persist) : persist();
+    };
+    const pendingKey = JSON.stringify([surfaceKey, viewKey]);
+    this.queuedViewStateWrites.set(pendingKey, (this.queuedViewStateWrites.get(pendingKey) ?? 0) + 1);
+    const enqueue = () => (intent ? intent.enqueue(persist) : persist());
+    const write = this.viewStateWrite ? this.viewStateWrite.then(enqueue) : enqueue();
     this.viewStateWrite = write;
     void write.then(() => {
       if (this.viewStateWrite === write) this.viewStateWrite = undefined;
+      const remaining = (this.queuedViewStateWrites.get(pendingKey) ?? 1) - 1;
+      if (remaining > 0) this.queuedViewStateWrites.set(pendingKey, remaining);
+      else this.queuedViewStateWrites.delete(pendingKey);
     });
     return write;
   };

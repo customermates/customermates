@@ -34,16 +34,17 @@ import type { AgentUsageService } from "./agent-usage.service";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 import { AGENT_RUN_LEASE_MS, decideAgentTurnAdmission, type AgentTurnRequestSnapshot } from "./agent-turn-request";
 import { buildAgentSystemPrompt, routineTriggerEventOf } from "./system-prompt";
-import { agentToolDefinitionsForTurn } from "./agent-tools";
+import { agentToolDefinitionsForToolsets, agentToolDefinitionsForTurn } from "./agent-tools";
 import { toolsetsForRequest, toolsetsFromActivities } from "./agent-toolset-routing";
 import { AgentActivityDescriptorSchema, type AgentActivityDescriptor } from "./agent-activity";
 import { conservativeAgentInitialContextBytes } from "./agent-provider-context";
 import { renderAgentSchemaDigest } from "./agent-schema-digest";
 import { agentPageContextPrefix } from "./agent-page-context";
+import { canonicalAgentRecordContexts } from "./agent-context-migration";
 import { AGENT_REPLAY_COUNT, budgetAgentReplayHistory } from "./agent-replay-budget";
 import { isAgentModelKey, resolveAgentModel } from "./model-catalog";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
-import type { GetCustomColumnsRepo } from "@/features/custom-column/get-custom-columns.interactor";
+import type { DiscoverRecordTypesInteractor } from "@/features/records/discover-record-types.interactor";
 import { fail, failConflict, failNotFound, failRateLimit } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
@@ -95,14 +96,15 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     private usageService: AgentUsageService,
     private entitlements: EntitlementService,
     private backgroundTaskService: BackgroundTaskService,
-    private customColumns: GetCustomColumnsRepo,
+    private recordTypes: Pick<DiscoverRecordTypesInteractor, "invoke">,
   ) {
     super();
   }
 
   private async schemaDigest() {
     try {
-      return renderAgentSchemaDigest(await this.customColumns.getCustomColumns());
+      const discovery = await this.recordTypes.invoke({ includeEmbedded: false, page: 1, pageSize: 25 });
+      return discovery.ok ? renderAgentSchemaDigest(discovery.data) : null;
     } catch (error) {
       Sentry.captureException(error);
       return null;
@@ -133,10 +135,13 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
 
     const replay = await this.repo.findAgentTurnRequestForAdmission(data.clientRequestId, now, model.modelId);
     const pageRoute = data.pageContext?.route ?? null;
-    const contexts: AgentContextAttachment[] = data.contexts ?? [];
+    const contexts: AgentContextAttachment[] = canonicalAgentRecordContexts(data.contexts ?? [], this.companyId);
     const contextsChanged =
       replay !== null &&
-      !agentContextAttachmentsEqual(agentContextsFromMessageParts(replay.userMessageParts), contexts);
+      !agentContextAttachmentsEqual(
+        canonicalAgentRecordContexts(agentContextsFromMessageParts(replay.userMessageParts), this.companyId),
+        contexts,
+      );
     const decision = contextsChanged
       ? ({ disposition: "conflict" } as const)
       : decideAgentTurnAdmission(replay?.snapshot ?? null, {
@@ -257,7 +262,10 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       currentText: data.text,
       contexts,
       pageRoute,
-      toolDefinitions: agentToolDefinitionsForTurn({ servingProvider: turnModel.servingProvider, surface }),
+      toolDefinitions: agentToolDefinitionsForToolsets(
+        agentToolDefinitionsForTurn({ servingProvider: turnModel.servingProvider, surface }),
+        [...requestedToolsets],
+      ),
     });
     if (requiredContextBytes === null) throw new Error("The Assistant request context could not be measured safely.");
 
@@ -380,7 +388,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           ...toolsetsForRequest({
             text: partsToText(message.parts),
             pageRoute: null,
-            contexts: agentContextsFromMessageParts(message.parts),
+            contexts: canonicalAgentRecordContexts(agentContextsFromMessageParts(message.parts), this.companyId),
           }),
         ]);
       const toolsets = [...new Set([...requestedToolsets, ...priorToolsets, ...earlierRequestToolsets])];
@@ -389,7 +397,11 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         const text = partsToText(message.parts);
         const current = message.id === userMessageId;
         const selectedContexts =
-          message.role === "user" ? agentContextProviderPrefix(agentContextsFromMessageParts(message.parts)) : "";
+          message.role === "user"
+            ? agentContextProviderPrefix(
+                canonicalAgentRecordContexts(agentContextsFromMessageParts(message.parts), this.companyId),
+              )
+            : "";
         return {
           role: message.role as string,
           prefix: current ? `${pageContext}${selectedContexts}` : selectedContexts,

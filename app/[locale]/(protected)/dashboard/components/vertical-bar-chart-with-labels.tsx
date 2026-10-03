@@ -1,19 +1,18 @@
 "use client";
 
 import type { ChartDataPoint } from "./chart.types";
-import { isCurrencyAggregation } from "@/features/widget/widget-aggregation";
 
 import { Bar, BarChart, LabelList, XAxis, YAxis, Cell } from "recharts";
 import { observer } from "mobx-react-lite";
-import type { AggregationType } from "@/generated/prisma";
+import { useReducedMotion } from "framer-motion";
 
-import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
+import { useChartFormatter } from "./use-chart-formatter";
 import { ChartTooltip } from "@/components/chart/chart-tooltip";
 
 import { DashboardChartContainer } from "./dashboard-chart-container";
 
 type Props = {
-  aggregationType?: AggregationType;
+  currency?: string | null;
   chartData: ChartDataPoint[];
   colors: string[];
   textColor: string;
@@ -22,8 +21,9 @@ type Props = {
 };
 
 export const VerticalBarChartWithLabels = observer(
-  ({ aggregationType, chartData, colors, textColor, reverseXAxis, reverseYAxis }: Props) => {
-    const intlStore = useHydratedIntlStore();
+  ({ currency, chartData, colors, textColor, reverseXAxis, reverseYAxis }: Props) => {
+    const formatValue = useChartFormatter(currency);
+    const reducedMotion = useReducedMotion();
 
     const top = reverseYAxis ? 0 : 20;
     const bottom = reverseYAxis ? 20 : 0;
@@ -35,15 +35,15 @@ export const VerticalBarChartWithLabels = observer(
 
           <YAxis
             hide
-            domain={[0, "dataMax"]}
+            domain={[(minimum: number) => Math.min(0, minimum), (maximum: number) => Math.max(0, maximum)]}
             padding={{ top: 1, bottom: 1 }}
             reversed={Boolean(reverseYAxis)}
             type="number"
           />
 
-          <ChartTooltip aggregationType={aggregationType} />
+          <ChartTooltip currency={currency} />
 
-          <Bar dataKey="value" fill={colors[0]} radius={4}>
+          <Bar dataKey="value" fill={colors[0]} isAnimationActive={reducedMotion === false} radius={4}>
             {chartData.map((entry, index) => {
               return <Cell key={`cell-${index}`} fill={entry.fill} stroke={entry.strokeColor} strokeWidth={1.5} />;
             })}
@@ -70,12 +70,11 @@ export const VerticalBarChartWithLabels = observer(
             />
 
             <LabelList
-              dataKey="value"
+              dataKey={chartData.some((entry) => entry.formattedValue !== undefined) ? "formattedValue" : "value"}
               formatter={(value) => {
+                if (typeof value === "string") return value;
                 const numValue = typeof value === "number" ? value : Number(value) || 0;
-                return isCurrencyAggregation(aggregationType)
-                  ? intlStore.formatCurrency(numValue)
-                  : intlStore.formatNumber(numValue);
+                return formatValue(numValue);
               }}
               position="top"
               style={{ fill: textColor, fontSize: 12 }}

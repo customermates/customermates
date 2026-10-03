@@ -49,9 +49,7 @@ export const getWorkspaceContextTool = {
   title: "Get workspace context",
   description:
     "Use this when starting a session: returns the current user, company, role catalog with permissions, and connected messaging accounts in one call. " +
-    "company.terminology gives the singular and plural label this workspace uses for each record type, keyed by the canonical entity type. " +
-    'Always phrase answers with those labels (for example say "People" when contact.plural is People) and map the words the user types back onto the canonical entity type. ' +
-    "Tool names, filter fields and ids stay canonical regardless of the labels. " +
+    "Discover accessible types and their editable labels with discover_record_types; get_record_model returns their current fields and permissions. " +
     "Each role carries its full permission list; match roleId values from list_users against it. " +
     "Each connected account includes { id, provider, status, emailAddress, displayName, shared, isOwner, lastSyncedAt, linkedinProducts }; " +
     "use the id as connectedAccountId for send_email and send_chat_message and check status before sending. " +
@@ -77,7 +75,6 @@ export const getWorkspaceContextTool = {
           currency: company.currency,
           createdAt: company.createdAt,
           updatedAt: company.updatedAt,
-          terminology: company.terminology.labels,
         },
         roles: rolesResult.data.items,
         connectedAccounts: accountsResult.data,
@@ -105,7 +102,7 @@ export const listUsersTool = {
   description:
     "Use this when you need the workspace members: returns { id, firstName, lastName, email, roleId, status } per user. " +
     "Optional: searchTerm (matches firstName/lastName), filters, sortDescriptor, page, pageSize. " +
-    "Use list_users.items[].id as userId for manage_team update_member and for userIds in record tools; match roleId against get_workspace_context.roles[].id for the role name and permissions.",
+    "Use list_users.items[].id as userId for manage_team update_member and for assignedUserIds in record tools; match roleId against get_workspace_context.roles[].id for the role name and permissions.",
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: ListUsersSchema,
   outputSchema: ListUsersOutputSchema,

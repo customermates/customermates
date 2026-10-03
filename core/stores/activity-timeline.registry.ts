@@ -1,4 +1,4 @@
-import type { EntityType } from "@/generated/prisma";
+import type { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 export interface RegisteredActivityTimeline {
   refreshIfCovers(entityType: EntityType, entityIds: readonly string[]): void;

@@ -79,6 +79,7 @@ const CONFLICT_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.channelAlreadyLinked,
   CustomErrorCode.operatorConflict,
   CustomErrorCode.roleSystemImmutable,
+  CustomErrorCode.roleAccessPresetInUse,
 ]);
 const RATE_LIMIT_FAILURE_CODES = new Set<CustomErrorCode>([CustomErrorCode.unipileRateLimit]);
 const UNAVAILABLE_FAILURE_CODES = new Set<CustomErrorCode>([

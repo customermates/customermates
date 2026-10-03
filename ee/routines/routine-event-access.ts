@@ -1,13 +1,9 @@
-import type { Filter, FilterableField } from "@/core/base/base-get.schema";
-import type { RoutineFilterMatcher } from "./routine-filter-matcher";
+import type { Filter } from "@/core/base/base-get.schema";
 
-import { toCustomColumnDtos } from "@/features/custom-column/custom-column.dto";
-import { Action, EntityType, Resource, Status } from "@/generated/prisma";
+import { Action, Resource, Status } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
-import { FilterFieldKey } from "@/core/types/filter-field-key";
-import { CUSTOM_COLUMN_DEFAULT_OPERATORS, FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 import {
   accessibleConnectedAccountWhere,
   inboxThreadVisibilityWhere,
@@ -16,12 +12,16 @@ import {
 } from "@/ee/messaging/messaging-access";
 import { DomainEvent } from "@/features/event/domain-events";
 
-import { entityTypeForEvent, isRecordRemovalEvent } from "./routine-event-filter";
+import { RecordDeliveryEnvelopeSchema } from "@/features/records/record-delivery.schema";
+import type { RecordQuery } from "@/features/records/record-query.schema";
+import type { RecordRecipientReader } from "@/features/records/record-recipient-reader";
 
 type RoutineEventAccessArgs = {
   event: string;
   entityId: string | null;
   triggerPayload: unknown;
+  recordQuery?: RecordQuery;
+  subscriptionId?: string;
 };
 
 type RoutineEventUser = {
@@ -32,72 +32,6 @@ type RoutineEventUser = {
     permissions: { resource: Resource; action: Action }[];
   } | null;
 };
-
-const RELATED_FILTER_FIELDS: Record<EntityType, Array<{ field: FilterFieldKey; resource: Resource }>> = {
-  [EntityType.contact]: [
-    { field: FilterFieldKey.organizationIds, resource: Resource.organizations },
-    { field: FilterFieldKey.dealIds, resource: Resource.deals },
-    { field: FilterFieldKey.taskIds, resource: Resource.tasks },
-  ],
-  [EntityType.organization]: [
-    { field: FilterFieldKey.contactIds, resource: Resource.contacts },
-    { field: FilterFieldKey.dealIds, resource: Resource.deals },
-    { field: FilterFieldKey.taskIds, resource: Resource.tasks },
-  ],
-  [EntityType.deal]: [
-    { field: FilterFieldKey.contactIds, resource: Resource.contacts },
-    { field: FilterFieldKey.organizationIds, resource: Resource.organizations },
-    { field: FilterFieldKey.serviceIds, resource: Resource.services },
-    { field: FilterFieldKey.taskIds, resource: Resource.tasks },
-  ],
-  [EntityType.service]: [
-    { field: FilterFieldKey.dealIds, resource: Resource.deals },
-    { field: FilterFieldKey.taskIds, resource: Resource.tasks },
-  ],
-  [EntityType.task]: [
-    { field: FilterFieldKey.contactIds, resource: Resource.contacts },
-    { field: FilterFieldKey.organizationIds, resource: Resource.organizations },
-    { field: FilterFieldKey.dealIds, resource: Resource.deals },
-    { field: FilterFieldKey.serviceIds, resource: Resource.services },
-  ],
-};
-
-const INTRINSIC_FILTER_FIELDS = {
-  [EntityType.contact]: [
-    {
-      field: FilterFieldKey.firstName,
-      operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.firstName],
-    },
-    {
-      field: FilterFieldKey.lastName,
-      operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.lastName],
-    },
-  ],
-  [EntityType.organization]: [
-    {
-      field: FilterFieldKey.name,
-      operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.name],
-    },
-  ],
-  [EntityType.deal]: [
-    {
-      field: FilterFieldKey.name,
-      operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.name],
-    },
-  ],
-  [EntityType.service]: [
-    {
-      field: FilterFieldKey.name,
-      operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.name],
-    },
-  ],
-  [EntityType.task]: [
-    {
-      field: FilterFieldKey.name,
-      operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.name],
-    },
-  ],
-} satisfies Record<EntityType, FilterableField[]>;
 
 const MESSAGE_EVENTS = new Set<string>([
   DomainEvent.MESSAGING_MESSAGE_RECEIVED,
@@ -124,18 +58,13 @@ export abstract class RoutineEventAccess {
 }
 
 export class PrismaRoutineEventAccess extends BaseRepository implements RoutineEventAccess {
-  constructor(private readonly filterMatcher?: RoutineFilterMatcher) {
+  constructor(private readonly records: RecordRecipientReader) {
     super();
   }
 
   async matchesCurrentUser(args: RoutineEventAccessArgs & { filters: Filter[] }): Promise<boolean> {
-    if (!(await this.canUserAccess(this.user, args))) return false;
-    if (args.filters.length === 0 || isRecordRemovalEvent(args.event)) return true;
-
-    const entityType = entityTypeForEvent(args.event);
-    if (!entityType || !args.entityId || !this.filterMatcher) return false;
-
-    return this.filterMatcher.matches(entityType, args.entityId, args.filters);
+    if (args.event.startsWith("record.")) return this.matchesRecordEvent(args, this.companyId, this.userId);
+    return args.filters.length === 0 && this.canUserAccess(this.user, args);
   }
 
   @BypassTenantGuard
@@ -146,115 +75,45 @@ export class PrismaRoutineEventAccess extends BaseRepository implements RoutineE
       filters: Filter[];
     },
   ): Promise<boolean> {
+    if (args.event.startsWith("record.")) return this.matchesRecordEvent(args, args.companyId, args.userId);
     const user = await this.findActiveEventUser(args.companyId, args.userId);
     if (!user) return false;
-    if (!(await this.canUserAccess(user, args))) return false;
-    if (args.filters.length === 0 || isRecordRemovalEvent(args.event)) return true;
-
-    const entityType = entityTypeForEvent(args.event);
-    if (!entityType || !args.entityId || !this.filterMatcher) return false;
-
-    const scope = await this.filterScope(user, entityType);
-    return this.filterMatcher.matchesUnscoped(entityType, args.entityId, args.filters, scope);
+    return args.filters.length === 0 && this.canUserAccess(user, args);
   }
 
   @BypassTenantGuard
   async canUserAccessUnscoped(args: RoutineEventAccessArgs & { companyId: string; userId: string }): Promise<boolean> {
+    if (args.event.startsWith("record.")) return this.matchesRecordEvent(args, args.companyId, args.userId);
     const user = await this.findActiveEventUser(args.companyId, args.userId);
 
     return user ? this.canUserAccess(user, args) : false;
   }
 
-  private async filterScope(user: RoutineEventUser, entityType: EntityType) {
-    const customColumns = toCustomColumnDtos(
-      await this.prisma.customColumn.findMany({
-        where: { companyId: user.companyId, entityType },
-        select: {
-          id: true,
-          label: true,
-          type: true,
-          entityType: true,
-          options: true,
-        },
-      }),
+  private async matchesRecordEvent(args: RoutineEventAccessArgs, companyId: string, userId: string) {
+    const parsed = RecordDeliveryEnvelopeSchema.safeParse(args.triggerPayload);
+    if (
+      !parsed.success ||
+      parsed.data.companyId !== companyId ||
+      parsed.data.event !== args.event ||
+      parsed.data.record.ref.recordId !== args.entityId
+    )
+      return false;
+    return (
+      (await this.records.readEvent({
+        companyId,
+        userId,
+        eventId: parsed.data.id,
+        query: args.recordQuery,
+        subscriptionId: args.subscriptionId,
+        recheckSubscriptionSources: true,
+      })) !== null
     );
-    const relationFields = RELATED_FILTER_FIELDS[entityType]
-      .filter(({ resource }) => this.readAccess(user, resource))
-      .map(({ field }) => ({
-        field,
-        operators: FILTER_FIELD_DEFAULT_OPERATORS[field],
-      }));
-    const filterableFields = [
-      ...INTRINSIC_FILTER_FIELDS[entityType],
-      ...relationFields,
-      ...customColumns.map((column) => ({
-        field: column.id,
-        operators: CUSTOM_COLUMN_DEFAULT_OPERATORS[column.type],
-        label: column.label,
-      })),
-      {
-        field: FilterFieldKey.userIds,
-        operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.userIds],
-      },
-      {
-        field: FilterFieldKey.updatedAt,
-        operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.updatedAt],
-      },
-      {
-        field: FilterFieldKey.createdAt,
-        operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.createdAt],
-      },
-    ];
-    const access = this.readAccess(user, this.resourceFor(entityType));
-    const readOwnUserId = access === "all" ? null : user.id;
-
-    return {
-      companyId: user.companyId,
-      readOwnUserId,
-      filterableFields,
-      customColumns,
-    };
   }
 
   private async canUserAccess(user: RoutineEventUser, args: RoutineEventAccessArgs): Promise<boolean> {
-    const entityType = entityTypeForEvent(args.event);
-    if (entityType) return this.canAccessRecord(user, entityType, args);
-
     if (args.event.startsWith("messaging.")) return this.canAccessMessagingEvent(user, args);
 
     return false;
-  }
-
-  private async canAccessRecord(
-    user: RoutineEventUser,
-    entityType: EntityType,
-    args: RoutineEventAccessArgs,
-  ): Promise<boolean> {
-    const resource = this.resourceFor(entityType);
-    const access = this.readAccess(user, resource);
-    if (!access || !args.entityId) return false;
-
-    if (isRecordRemovalEvent(args.event)) {
-      const envelope = this.objectValue(args.triggerPayload);
-      if (envelope?.companyId !== user.companyId) return false;
-
-      const record = this.eventBody(args.triggerPayload);
-      if (!record || this.stringProperty(record, "id") !== args.entityId) return false;
-      if (access === "all") return true;
-
-      const users = record.users;
-      return Array.isArray(users) && users.some((candidate) => this.referenceId(candidate) === user.id);
-    }
-
-    const own = access === "own" ? { users: { some: { userId: user.id } } } : {};
-    const where = { id: args.entityId, companyId: user.companyId, ...own };
-
-    if (entityType === EntityType.contact) return (await this.prisma.contact.count({ where })) > 0;
-    if (entityType === EntityType.organization) return (await this.prisma.organization.count({ where })) > 0;
-    if (entityType === EntityType.deal) return (await this.prisma.deal.count({ where })) > 0;
-    if (entityType === EntityType.service) return (await this.prisma.service.count({ where })) > 0;
-
-    return (await this.prisma.task.count({ where })) > 0;
   }
 
   private async canAccessMessagingEvent(user: RoutineEventUser, args: RoutineEventAccessArgs): Promise<boolean> {
@@ -357,15 +216,6 @@ export class PrismaRoutineEventAccess extends BaseRepository implements RoutineE
     return null;
   }
 
-  private resourceFor(entityType: EntityType): Resource {
-    if (entityType === EntityType.contact) return Resource.contacts;
-    if (entityType === EntityType.organization) return Resource.organizations;
-    if (entityType === EntityType.deal) return Resource.deals;
-    if (entityType === EntityType.service) return Resource.services;
-
-    return Resource.tasks;
-  }
-
   private eventBody(triggerPayload: unknown): Record<string, unknown> | null {
     const envelope = this.objectValue(triggerPayload);
     const payload = envelope?.payload;
@@ -376,13 +226,6 @@ export class PrismaRoutineEventAccess extends BaseRepository implements RoutineE
 
   private objectValue(value: unknown): Record<string, unknown> | null {
     return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
-  }
-
-  private referenceId(value: unknown): string | null {
-    if (!value || typeof value !== "object" || Array.isArray(value)) return null;
-
-    const id = (value as { id?: unknown }).id;
-    return typeof id === "string" ? id : null;
   }
 
   private stringProperty(value: Record<string, unknown>, key: string): string | null {

@@ -58,12 +58,12 @@ const RETIRED_CLAIMS: readonly RetiredClaim[] = [
     authority: "docker-compose.yml",
   },
   {
-    id: "non-xlsx-data-transfer",
+    id: "unsupported-data-transfer-formats",
     pattern:
-      /\b(?:CSV|TSV|ODS|JSON|XML|Google[ -]?(?:Sheets?|Tabellen))[ -]?(?:import(?:er|s)?|export(?:er|s)?|upload|download|Import\w*|Export\w*|Upload|Download|Feldzuordnung)\b|\b(?:import|export|upload|download|importier\w*|exportier\w*|hochlad\w*|herunterlad\w*)[^.!?;|]{0,28}\b(?:CSV|TSV|ODS|Google[ -]?(?:Sheets?|Tabellen))\b|\b(?:CSV|TSV|ODS|Google[ -]?(?:Sheets?|Tabellen))[^.!?;|]{0,28}\b(?:import|export|upload|download|importier\w*|exportier\w*|hochlad\w*|herunterlad\w*)/iu,
+      /\b(?:CSV|TSV|ODS|XML|Google[ -]?(?:Sheets?|Tabellen))[ -]?(?:import(?:er|s)?|export(?:er|s)?|upload|download|Import\w*|Export\w*|Upload|Download|Feldzuordnung)\b|\b(?:import|export|upload|download|importier\w*|exportier\w*|hochlad\w*|herunterlad\w*)[^.!?;|]{0,28}\b(?:CSV|TSV|ODS|XML|Google[ -]?(?:Sheets?|Tabellen))\b|\b(?:CSV|TSV|ODS|XML|Google[ -]?(?:Sheets?|Tabellen))[^.!?;|]{0,28}\b(?:import|export|upload|download|importier\w*|exportier\w*|hochlad\w*|herunterlad\w*)/iu,
     permittedContext: [...NO_OR_EXTERNAL, CONTRASTED],
-    why: "Records transfer as XLSX workbooks only; no other spreadsheet or data format is read or written",
-    authority: "features/data-transfer/import/read-workbook-file.ts, app/api/export/[entityType]/route.ts",
+    why: "Records transfer as XLSX workbooks or schema-aware JSON bundles; CSV, TSV, ODS, XML, and Google Sheets are unsupported",
+    authority: "features/data-transfer/import/import-records.interactor.ts, features/data-transfer/export/export-records.interactor.ts",
   },
   {
     id: "whole-account-data-export",
@@ -140,7 +140,7 @@ const RETIRED_CLAIMS: readonly RetiredClaim[] = [
       /\bCustomermates\b[^.!?;|]{0,48}\b(?:predicts?|forecasts?|prognostiziert|prognostizieren)\b[^.!?;|]{0,48}\b(?:future[ -]?revenue|revenue|sales|pipeline|deal outcomes?|close (?:likelihood|probability|timing|date)|when (?:a )?(?:deal|opportunity)s? (?:will )?close|künftige\w* Umsätze?|Umsätze?|Vertrieb|Pipeline|Deal[- ]?Ergebnisse?|Abschluss(?:wahrscheinlichkeit|zeitpunkt))\b|\bCustomermates\b[^.!?;|]{0,48}\b(?:revenue|sales|pipeline|deal outcomes?|close (?:likelihood|probability|timing|date)|Umsätze?|Vertrieb|Pipeline|Deal[- ]?Ergebnisse?|Abschluss(?:wahrscheinlichkeit|zeitpunkt))\b[^.!?;|]{0,30}\b(?:predict(?:s|ed)?|forecast(?:s|ed)?|prognostiziert)\b|\bnative\b[^.!?;|]{0,24}\b(?:sales|revenue|pipeline|deal)[ -]?(?:forecast(?:ing)?|projection)\b[^.!?;|]{0,24}\b(?:predicts?|forecasts?)\b|\b(?:AI|KI)(?:[- ]+(?:sales|revenue|pipeline|Umsatz|Vertrieb\w*|Pipeline))?[- ]*(?:forecast(?:s|ing)?|Prognose\w*)\b|\b(?:built[- ]?in|native|included|provides?|offers?|calculates?|predicts?|eingebaut\w*|nativ\w*|enthalten|bietet|berechnet|prognostiziert)[^.!?;|]{0,34}\b(?:predictive|AI[- ]?(?:powered|driven)|prädiktiv\w*|KI[- ]?(?:gestützt|basiert)\w*)[^.!?;|]{0,24}\b(?:(?:sales|revenue|pipeline|deal|Umsatz|Vertrieb\w*|Pipeline)[ -]?)?(?:forecast(?:ing)?|projection|Prognose\w*)\b|\b(?:predictive|AI[- ]?(?:powered|driven)|prädiktiv\w*|KI[- ]?(?:gestützt|basiert)\w*)[^.!?;|]{0,24}\b(?:(?:sales|revenue|pipeline|deal|Umsatz|Vertrieb\w*|Pipeline)[ -]?)?(?:forecast(?:ing)?|projection|Prognose\w*)\b[^.!?;|]{0,24}\b(?:included|available|native|provided|offered|enthalten|verfügbar|nativ|angeboten)\b/iu,
     permittedContext: NO_OR_EXTERNAL,
     why: "Customermates calculates deterministic stage-weighted deal and pipeline values but does not predict close likelihood, timing, or revenue",
-    authority: "features/deals/deal-weighting.ts, app/[locale]/(protected)/company/components/company-settings/company-forecasting-section.tsx",
+    authority: "features/records/crm-preset.ts, features/records/record-calculation.service.ts",
   },
   {
     id: "calendar-write-or-booking",

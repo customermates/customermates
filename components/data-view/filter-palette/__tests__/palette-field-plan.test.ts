@@ -1,22 +1,51 @@
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { FilterableField } from "@/core/base/base-get.schema";
+import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 import type { PalettePageKind } from "../palette-field-plan";
 
 import { describe, expect, it } from "vitest";
 
-import { CustomColumnType, EntityType } from "@/generated/prisma";
-import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
-import { FilterFieldKey } from "@/core/types/filter-field-key";
-import { FilterOperatorKey, isStandaloneOperator } from "@/core/base/base-query-builder";
-import { PrismaCustomColumnRepo } from "@/features/custom-column/prisma-custom-column.repository";
 import { resolveFilterValueClass } from "@/components/data-view/filter-modal/filter-value-class";
+import { FilterOperatorKey, isStandaloneOperator } from "@/core/base/base-query-builder";
+import { FilterFieldKey } from "@/core/types/filter-field-key";
+import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
+import { CustomColumnType } from "@/core/data-view/column-presentation.types";
+import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 import { PALETTE_OPERATOR_PREFERENCE, palettePlan } from "../palette-field-plan";
-import { PrismaCompanyRepo } from "@/features/company/prisma-company.repository";
 
-type Expected = { impliedOperator: FilterOperatorKey | undefined; pageKind: PalettePageKind };
+type Expected = {
+  impliedOperator: FilterOperatorKey | undefined;
+  pageKind: PalettePageKind;
+};
 
-const CUSTOM_COLUMN_OPERATORS = new PrismaCustomColumnRepo(new PrismaCompanyRepo()).operatorsByType;
+const numeric = [
+  FilterOperatorKey.equals,
+  FilterOperatorKey.gt,
+  FilterOperatorKey.gte,
+  FilterOperatorKey.lt,
+  FilterOperatorKey.lte,
+  FilterOperatorKey.isNull,
+  FilterOperatorKey.isNotNull,
+];
+const dates = [...numeric, FilterOperatorKey.between];
+const text = [
+  FilterOperatorKey.contains,
+  FilterOperatorKey.equals,
+  FilterOperatorKey.isNull,
+  FilterOperatorKey.isNotNull,
+];
+const CUSTOM_COLUMN_OPERATORS: Record<CustomColumnType, FilterOperatorKey[]> = {
+  currency: numeric,
+  date: dates,
+  dateTime: dates,
+  dateRange: [...dates, FilterOperatorKey.contains],
+  dateTimeRange: [...dates, FilterOperatorKey.contains],
+  email: text,
+  phone: text,
+  link: text,
+  plain: text,
+  singleSelect: [FilterOperatorKey.in, FilterOperatorKey.notIn, FilterOperatorKey.isNull, FilterOperatorKey.isNotNull],
+};
 
 const CUSTOM_COLUMN_IDS: Record<CustomColumnType, string> = {
   [CustomColumnType.currency]: "11111111-1111-4111-8111-111111111111",
@@ -54,10 +83,22 @@ const CUSTOM_COLUMNS = Object.entries(CUSTOM_COLUMN_IDS).map(
 
 const FILTERABLE_FIELDS = [...STANDARD_FIELDS, ...CUSTOM_FIELDS];
 
-const SELECT: Expected = { impliedOperator: FilterOperatorKey.in, pageKind: "select" };
-const TEXT: Expected = { impliedOperator: FilterOperatorKey.contains, pageKind: "text" };
-const RELATIVE_DATE: Expected = { impliedOperator: FilterOperatorKey.inLastDays, pageKind: "date" };
-const OPERATOR_ONLY: Expected = { impliedOperator: undefined, pageKind: "operatorOnly" };
+const SELECT: Expected = {
+  impliedOperator: FilterOperatorKey.in,
+  pageKind: "select",
+};
+const TEXT: Expected = {
+  impliedOperator: FilterOperatorKey.contains,
+  pageKind: "text",
+};
+const RELATIVE_DATE: Expected = {
+  impliedOperator: FilterOperatorKey.inLastDays,
+  pageKind: "date",
+};
+const OPERATOR_ONLY: Expected = {
+  impliedOperator: undefined,
+  pageKind: "operatorOnly",
+};
 
 const EXPECTED_STANDARD: Record<FilterFieldKey, Expected> = {
   [FilterFieldKey.auditSource]: SELECT,
@@ -96,11 +137,26 @@ const EXPECTED_STANDARD: Record<FilterFieldKey, Expected> = {
 };
 
 const EXPECTED_CUSTOM: Record<CustomColumnType, Expected> = {
-  [CustomColumnType.currency]: { impliedOperator: FilterOperatorKey.gte, pageKind: "number" },
-  [CustomColumnType.date]: { impliedOperator: FilterOperatorKey.gte, pageKind: "date" },
-  [CustomColumnType.dateRange]: { impliedOperator: FilterOperatorKey.contains, pageKind: "date" },
-  [CustomColumnType.dateTime]: { impliedOperator: FilterOperatorKey.gte, pageKind: "date" },
-  [CustomColumnType.dateTimeRange]: { impliedOperator: FilterOperatorKey.contains, pageKind: "date" },
+  [CustomColumnType.currency]: {
+    impliedOperator: FilterOperatorKey.gte,
+    pageKind: "number",
+  },
+  [CustomColumnType.date]: {
+    impliedOperator: FilterOperatorKey.gte,
+    pageKind: "date",
+  },
+  [CustomColumnType.dateRange]: {
+    impliedOperator: FilterOperatorKey.contains,
+    pageKind: "date",
+  },
+  [CustomColumnType.dateTime]: {
+    impliedOperator: FilterOperatorKey.gte,
+    pageKind: "date",
+  },
+  [CustomColumnType.dateTimeRange]: {
+    impliedOperator: FilterOperatorKey.contains,
+    pageKind: "date",
+  },
   [CustomColumnType.email]: TEXT,
   [CustomColumnType.link]: TEXT,
   [CustomColumnType.phone]: TEXT,
@@ -120,7 +176,11 @@ describe("palettePlan", () => {
     for (const [field, expected] of Object.entries(EXPECTED_STANDARD)) {
       const plan = planFor(field);
 
-      expect({ field, impliedOperator: plan.impliedOperator, pageKind: plan.pageKind }).toEqual({
+      expect({
+        field,
+        impliedOperator: plan.impliedOperator,
+        pageKind: plan.pageKind,
+      }).toEqual({
         field,
         ...expected,
       });
@@ -132,7 +192,11 @@ describe("palettePlan", () => {
       const field = CUSTOM_COLUMN_IDS[type as CustomColumnType];
       const plan = planFor(field);
 
-      expect({ type, impliedOperator: plan.impliedOperator, pageKind: plan.pageKind }).toEqual({ type, ...expected });
+      expect({
+        type,
+        impliedOperator: plan.impliedOperator,
+        pageKind: plan.pageKind,
+      }).toEqual({ type, ...expected });
     }
   });
 
@@ -176,8 +240,14 @@ describe("palettePlan", () => {
   });
 
   it("walks the preference in order, taking the first operator a field declares", () => {
-    const cases: Array<{ operators: FilterOperatorKey[]; implied: FilterOperatorKey | undefined }> = [
-      { operators: Object.values(FilterOperatorKey), implied: FilterOperatorKey.in },
+    const cases: Array<{
+      operators: FilterOperatorKey[];
+      implied: FilterOperatorKey | undefined;
+    }> = [
+      {
+        operators: Object.values(FilterOperatorKey),
+        implied: FilterOperatorKey.in,
+      },
       {
         operators: [
           FilterOperatorKey.contains,
@@ -191,9 +261,18 @@ describe("palettePlan", () => {
         operators: [FilterOperatorKey.inLastDays, FilterOperatorKey.gte, FilterOperatorKey.equals],
         implied: FilterOperatorKey.inLastDays,
       },
-      { operators: [FilterOperatorKey.gte, FilterOperatorKey.equals], implied: FilterOperatorKey.gte },
-      { operators: [FilterOperatorKey.equals], implied: FilterOperatorKey.equals },
-      { operators: [FilterOperatorKey.lt, FilterOperatorKey.notIn], implied: undefined },
+      {
+        operators: [FilterOperatorKey.gte, FilterOperatorKey.equals],
+        implied: FilterOperatorKey.gte,
+      },
+      {
+        operators: [FilterOperatorKey.equals],
+        implied: FilterOperatorKey.equals,
+      },
+      {
+        operators: [FilterOperatorKey.lt, FilterOperatorKey.notIn],
+        implied: undefined,
+      },
     ];
 
     for (const { operators, implied } of cases) {

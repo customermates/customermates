@@ -8,6 +8,7 @@ export type RuntimeIdentity = {
   title: string;
   pictureUrl: string | null;
   avatarKind: RuntimeAvatarKind | null;
+  record?: { id: string; title: string; pictureUrl: string | null; showAvatar: boolean };
 };
 
 export class LayoutStore {

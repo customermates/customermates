@@ -1,12 +1,16 @@
-import type { DataViewState } from "@/core/data-view/data-view-state.schema";
 import type { DateBucket } from "@/core/base/grouping/grouping.schema";
+import type { DataViewState } from "@/core/data-view/data-view-state.schema";
+import { presetId } from "@/features/records/crm-preset";
 import type { PrismaClient } from "@/generated/prisma";
+import type { LegacyType } from "../record-migrations/v2/legacy-model";
+import { migratePresentationState } from "../record-migrations/v5/state";
+import { syntheticRecordModel } from "./records";
 
-import { SURFACE } from "@/core/data-view/data-view-keys";
 import { FilterOperatorKey, ViewMode } from "@/core/base/base-query-builder";
+import { SURFACE } from "@/core/data-view/data-view-keys";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
-import { MessagingProvider, MessagingThreadState } from "@/generated/prisma";
 import { writeStoredState } from "@/features/data-view/data-view-row-mapping";
+import { MessagingProvider, MessagingThreadState } from "@/generated/prisma";
 
 import type { SeedContext } from "./context";
 import type { CustomFieldSeedData } from "./custom-fields";
@@ -328,7 +332,24 @@ export async function persistSyntheticDataViewFixtures(
 }
 
 export async function seedDataViews(context: SeedContext, customFields: CustomFieldSeedData): Promise<void> {
-  const views = buildSyntheticDataViewFixtures(context, customFields);
+  const { source, presentationModel } = syntheticRecordModel(context, customFields);
+  const kindBySurface: Record<string, LegacyType> = {
+    [SURFACE.contacts]: "contact",
+    [SURFACE.organizations]: "organization",
+    [SURFACE.deals]: "deal",
+    [SURFACE.services]: "service",
+    [SURFACE.tasks]: "task",
+  };
+  const views = buildSyntheticDataViewFixtures(context, customFields).map((view) => {
+    const kind = kindBySurface[view.surfaceKey];
+    return kind
+      ? {
+          ...view,
+          surfaceKey: `records:${presetId(context.ids.company, kind)}`,
+          state: migratePresentationState(source, kind, view.state, presentationModel, false) as DataViewState,
+        }
+      : view;
+  });
 
   await persistSyntheticDataViewFixtures(context.prisma, context.ids.company, views);
 }

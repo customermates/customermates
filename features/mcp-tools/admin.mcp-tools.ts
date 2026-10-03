@@ -24,39 +24,34 @@ import { AdminUpdateUserDetailsSchema } from "@/features/user/upsert/admin-updat
 import { GetUserByIdSchema } from "@/features/user/get/get-user-by-id.interactor";
 import { UpdateCompanySettingsSchema } from "@/features/company/update-company-settings.interactor";
 import { InviteUsersByEmailSchema } from "@/features/company/invite-users-by-email.interactor";
-import { ENTITY_TERMINOLOGY_PRESETS } from "@/features/entity-terminology/entity-terminology.constants";
 
 const countryValues = Object.values(CountryCode);
 const currencyValues = Object.values(Currency);
 const memberStatusValues = AdminUpdateUserDetailsSchema.shape.status.options;
 
-const UpdateWorkspaceSettingsSchema = z.object({
-  target: z
-    .enum(["profile", "company"])
-    .describe(
-      "profile = the authenticated user's own profile, company = the company profile (requires update permission on the company)",
+const UpdateWorkspaceSettingsSchema = z
+  .object({
+    target: z
+      .enum(["profile", "company"])
+      .describe(
+        "profile = the authenticated user's own profile, company = the company profile (requires update permission on the company)",
+      ),
+    firstName: UpdateUserDetailsSchema.shape.firstName.describe("profile target: omit to keep existing"),
+    lastName: UpdateUserDetailsSchema.shape.lastName.describe("profile target: omit to keep existing"),
+    country: UpdateUserDetailsSchema.shape.country.describe(
+      `profile target: ISO country code ${enumHint(countryValues)}. Omit to keep existing.`,
     ),
-  firstName: UpdateUserDetailsSchema.shape.firstName.describe("profile target: omit to keep existing"),
-  lastName: UpdateUserDetailsSchema.shape.lastName.describe("profile target: omit to keep existing"),
-  country: UpdateUserDetailsSchema.shape.country.describe(
-    `profile target: ISO country code ${enumHint(countryValues)}. Omit to keep existing.`,
-  ),
-  avatarUrl: UpdateUserDetailsSchema.shape.avatarUrl.describe(
-    "profile target: HTTPS avatar URL, or '' / null to clear. Omit to keep existing.",
-  ),
-  currency: UpdateCompanySettingsSchema.shape.currency
-    .optional()
-    .describe(`company target: ${enumHint(currencyValues)}. Omit to keep existing.`),
-  terminology: UpdateCompanySettingsSchema.shape.terminology.describe(
-    `company target: optional entity label presets ${JSON.stringify(ENTITY_TERMINOLOGY_PRESETS)}. Pass only the entities to change.`,
-  ),
-});
+    avatarUrl: UpdateUserDetailsSchema.shape.avatarUrl.describe(
+      "profile target: HTTPS avatar URL, or '' / null to clear. Omit to keep existing.",
+    ),
+    currency: UpdateCompanySettingsSchema.shape.currency
+      .optional()
+      .describe(`company target: ${enumHint(currencyValues)}. Omit to keep existing.`),
+  })
+  .strict();
 
-const CompanyWorkspaceSettingsSchema = UpdateCompanySettingsSchema.pick({
+const CompanyWorkspaceSettingsSchema = UpdateCompanySettingsSchema.pick({ currency: true }).required({
   currency: true,
-  terminology: true,
-}).refine((data) => data.currency !== undefined || Boolean(data.terminology?.length), {
-  message: "Company settings need currency or at least one terminology entry.",
 });
 
 const ProfileWorkspaceSettingsSchema = UpdateUserDetailsSchema.pick({
@@ -90,7 +85,7 @@ export const updateWorkspaceSettingsTool = {
   description:
     "Use this when updating the current user's profile or the company profile. " +
     "target profile is a partial update of firstName, lastName, country, avatarUrl; omitted fields keep their current values. " +
-    "target company updates currency and/or the preset names used for contacts, organizations, deals, services, and tasks; requires update permission on the company (Manage on the Company row of the caller's role).",
+    "target company updates currency and requires update permission on the company. Rename record types through configure_record_model using stable type IDs.",
   annotations: {
     readOnlyHint: false,
     destructiveHint: false,
@@ -100,6 +95,8 @@ export const updateWorkspaceSettingsTool = {
   inputSchema: UpdateWorkspaceSettingsSchema,
   outputSchema: UpdateWorkspaceSettingsOutputSchema,
   execute: async (params: z.infer<typeof UpdateWorkspaceSettingsSchema>) => {
+    const input = UpdateWorkspaceSettingsSchema.safeParse(params);
+    if (!input.success) return mcpValidationFailure(input.error);
     if (params.target === "profile") {
       const parsed = ProfileWorkspaceSettingsSchema.safeParse(params);
       if (!parsed.success) return mcpValidationFailure(parsed.error);
@@ -113,12 +110,11 @@ export const updateWorkspaceSettingsTool = {
         }),
       );
     }
-    const parsed = CompanyWorkspaceSettingsSchema.safeParse(params);
+    const parsed = CompanyWorkspaceSettingsSchema.safeParse({ currency: params.currency });
     if (!parsed.success) return mcpValidationFailure(parsed.error);
     return runInteractor(getUpdateCompanySettingsInteractor().invoke(parsed.data), (data) =>
       toonResult({
         ...(data.currency !== undefined ? { currency: data.currency } : {}),
-        ...(data.terminology !== undefined ? { terminology: data.terminology } : {}),
         message: "Company settings updated",
       }),
     );

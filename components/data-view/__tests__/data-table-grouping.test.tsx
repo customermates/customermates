@@ -1,16 +1,18 @@
-import type { Root } from "react-dom/client";
-import type { ColumnDef } from "@tanstack/react-table";
-import type { ReactNode } from "react";
 import type { BaseDataViewStore } from "@/core/base/base-data-view.store";
 import type { DataViewGroup, GroupingResult } from "@/core/base/grouping/grouping.schema";
+import type { ColumnDef } from "@tanstack/react-table";
+import type { ReactNode } from "react";
+import type { Root } from "react-dom/client";
 
-import { act, createElement } from "react";
-import { createRoot } from "react-dom/client";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { act, createElement } from "react";
+import { createRoot } from "react-dom/client";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("mobx-react-lite", () => ({ observer: <T,>(component: T) => component }));
+vi.mock("mobx-react-lite", () => ({
+  observer: <T,>(component: T) => component,
+}));
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, values?: Record<string, unknown>) =>
     values ? `${key}:${Object.values(values).join(",")}` : key,
@@ -36,7 +38,12 @@ import { DataTable } from "../data-table";
 type Item = { id: string; name: string };
 
 const columns: ColumnDef<Item>[] = [
-  { id: "name", accessorKey: "name", header: "Name", cell: ({ row }) => row.original.name },
+  {
+    id: "name",
+    accessorKey: "name",
+    header: "Name",
+    cell: ({ row }) => row.original.name,
+  },
   { id: "email", accessorKey: "email", header: "Email", cell: () => "mail" },
 ];
 
@@ -59,8 +66,20 @@ function group(overrides: Partial<DataViewGroup> & { key: string }): DataViewGro
 }
 
 const GROUPS: DataViewGroup[] = [
-  group({ key: "new", count: 1, label: "New", color: "info", itemIds: ["e-new-1"] }),
-  group({ key: "won", count: 5, label: "Won", itemIds: ["e-won-1", "e-won-2"], hasMore: true }),
+  group({
+    key: "new",
+    count: 1,
+    label: "New",
+    color: "info",
+    itemIds: ["e-new-1"],
+  }),
+  group({
+    key: "won",
+    count: 5,
+    label: "Won",
+    itemIds: ["e-won-1", "e-won-2"],
+    hasMore: true,
+  }),
   group({ key: "__empty__", count: 0, labelKind: "noValue", isNoValue: true }),
 ];
 
@@ -78,9 +97,10 @@ function groupingResult(overrides: Partial<GroupingResult> = {}): GroupingResult
 
 function store(overrides: Partial<BaseDataViewStore<Item>> = {}): BaseDataViewStore<Item> {
   return {
+    primaryColumnId: "name",
     columnsDefinition: [{ uid: "name" }, { uid: "email" }],
     columnWidths: {},
-    entityType: "deal",
+    supportsSelection: true,
     hiddenColumns: [],
     isGrouped: true,
     isGroupCollapsed: () => false,
@@ -187,12 +207,14 @@ describe("grouped table rows", () => {
     expect(loadMoreInGroup).toHaveBeenCalledWith("won");
   });
 
-  it("shows a group's stage probability only when the grouped column is the weighting column", () => {
-    const weighted = groupingResult({ groups: [group({ key: "won", count: 1, label: "Won", weight: 80 })] });
-    const byWeightingColumn = render(store({ groupingResult: weighted, isGroupedByDealWeightingColumn: true }));
-    const byAnotherColumn = render(store({ groupingResult: weighted, isGroupedByDealWeightingColumn: false }));
+  it("renders generic grouping without entity-specific probability checks", () => {
+    const weighted = groupingResult({
+      groups: [group({ key: "won", count: 1, label: "Won", weight: 80 })],
+    });
+    const byWeightingColumn = render(store({ groupingResult: weighted }));
+    const byAnotherColumn = render(store({ groupingResult: weighted }));
 
-    expect(byWeightingColumn.querySelector('[data-slot="group-header-row"]')?.textContent).toBe("Won180%");
+    expect(byWeightingColumn.querySelector('[data-slot="group-header-row"]')?.textContent).toBe("Won1");
     expect(byAnotherColumn.querySelector('[data-slot="group-header-row"]')?.textContent).toBe("Won1");
   });
 

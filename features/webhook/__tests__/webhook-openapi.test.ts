@@ -3,7 +3,7 @@ import { describe, expect, expectTypeOf, it } from "vitest";
 import type { z } from "zod";
 
 import { DomainEvent, type DomainEventMap } from "@/features/event/domain-events";
-import { WebhookEventSchema } from "../webhook.schema";
+import { WebhookCurrentEventSchema as WebhookEventSchema } from "../webhook.schema";
 import { generateOpenApiSpec } from "@/core/openapi/openapi-spec";
 import type { WebhookMessagingMessageReceivedSchema } from "@/ee/messaging/webhooks/message/message-received.openapi";
 import type { WebhookMessagingMessageUpdatedSchema } from "@/ee/messaging/webhooks/message/message-updated.openapi";

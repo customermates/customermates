@@ -22,6 +22,7 @@ export type FilterEntityKind =
 
 export type FilterValueKind =
   | { kind: "entityId"; entity: FilterEntityKind }
+  | { kind: "recordRef" }
   | { kind: "enum"; values: readonly string[] }
   | { kind: "date" }
   | { kind: "event" }
@@ -52,7 +53,7 @@ export const DEFAULT_FILTER_VALUE_KIND: Record<FilterFieldKey, FilterValueKind> 
   [FilterFieldKey.organizationIds]: { kind: "entityId", entity: "organization" },
   [FilterFieldKey.contactIds]: { kind: "entityId", entity: "contact" },
   [FilterFieldKey.taskIds]: { kind: "entityId", entity: "task" },
-  [FilterFieldKey.participantContactId]: { kind: "entityId", entity: "contact" },
+  [FilterFieldKey.participantContactId]: { kind: "recordRef" },
   [FilterFieldKey.ownerUserId]: { kind: "entityId", entity: "user" },
   [FilterFieldKey.timelineThreadId]: { kind: "entityId", entity: "thread" },
   [FilterFieldKey.updatedAt]: { kind: "date" },
@@ -92,6 +93,8 @@ export function describeFilterFieldValue(field: FilterFieldKey): string {
       return `${field} (one of: ${valueKind.values.join(", ")}; operators: ${ops})`;
     case "entityId":
       return `${field} (a ${valueKind.entity} uuid; operators: ${ops})`;
+    case "recordRef":
+      return `${field} (typeId:recordId reference; operators: ${ops})`;
     case "date":
       return `${field} (ISO date string; operators: ${ops})`;
     case "event":

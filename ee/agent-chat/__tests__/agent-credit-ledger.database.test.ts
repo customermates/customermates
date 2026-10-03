@@ -1,3 +1,4 @@
+import { mockRecordDiscovery } from "@/tests/helpers/record-tools";
 import { randomUUID } from "node:crypto";
 
 import { describe, it, expect, afterAll, vi } from "vitest";
@@ -218,7 +219,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: randomUUID(),
       text: "Start a chat",
@@ -281,7 +282,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: randomUUID(),
       text: "Start a long chat",
@@ -343,7 +344,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: randomUUID(),
       text: "Delete something that needs approval",
@@ -411,7 +412,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: randomUUID(),
       text: "Delete something and then die",
@@ -463,7 +464,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: randomUUID(),
       text: "Start provider work and lose its receipt",
@@ -544,7 +545,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: randomUUID(),
       text: "Start a chat",
@@ -583,7 +584,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: randomUUID(),
       text: "Start a chat",
@@ -657,7 +658,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: randomUUID(),
       text: "Start a chat",
@@ -713,7 +714,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: randomUUID(),
       text: "Start a chat",
@@ -786,7 +787,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: randomUUID(),
       text: "Start a chat",
@@ -853,9 +854,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
         usage,
         entitlements as never,
         backgroundTasks() as never,
-        {
-          getCustomColumns: () => Promise.resolve([]),
-        } as never,
+        mockRecordDiscovery(),
       ).invoke({
         clientRequestId: randomUUID(),
         text: "Start a chat",
@@ -899,7 +898,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
         new AgentUsageService(repo),
         entitlements as never,
         backgroundTasks() as never,
-        { getCustomColumns: () => Promise.resolve([]) } as never,
+        mockRecordDiscovery(),
       ).invoke({
         clientRequestId: randomUUID(),
         conversationId,
@@ -943,7 +942,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
         new AgentUsageService(repo),
         entitlements as never,
         backgroundTasks() as never,
-        { getCustomColumns: () => Promise.resolve([]) } as never,
+        mockRecordDiscovery(),
       ).invoke({
         clientRequestId: randomUUID(),
         text: "A separate thread",
@@ -980,7 +979,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
         new AgentUsageService(repo),
         entitlements as never,
         backgroundTasks() as never,
-        { getCustomColumns: () => Promise.resolve([]) } as never,
+        mockRecordDiscovery(),
       ).invoke({
         clientRequestId: randomUUID(),
         text: "Another thread",
@@ -1051,7 +1050,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
         new AgentUsageService(failingRepo),
         entitlements as never,
         backgroundTasks() as never,
-        { getCustomColumns: () => Promise.resolve([]) } as never,
+        mockRecordDiscovery(),
       ).invoke({
         clientRequestId,
         text: "Create an atomic admission",
@@ -1085,7 +1084,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       new AgentUsageService(retryRepo),
       entitlements as never,
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId,
       text: "Create an atomic admission",
