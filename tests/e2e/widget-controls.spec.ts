@@ -1,4 +1,5 @@
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
+import { GRID_BREAKPOINTS, GRID_COLS } from "../../app/[locale]/(protected)/dashboard/components/grid.constants";
 import { DisplayType } from "../../features/widget/widget-display.schema";
 import { presetId } from "../../features/records/crm-preset";
 import { expect, test } from "./fixtures";
@@ -87,9 +88,8 @@ test("persists every chart style, appearance, a copied template, resizing and de
       if (await save.isEnabled()) {
         await save.click();
         await expect(dialog).not.toBeVisible();
-      } else {
-        await page.keyboard.press("Escape");
-      }
+      } else await page.keyboard.press("Escape");
+
       const options = (await read("Complete chart controls"))[0].displayOptions;
       expect(options.displayType).toBe(displayType);
       expect(options.barColors).toContain("default2");
@@ -108,6 +108,52 @@ test("persists every chart style, appearance, a copied template, resizing and de
     const gridItem = page
       .locator(".react-grid-item")
       .filter({ has: page.getByRole("heading", { name: "Complete chart controls", exact: true }) });
+    const grid = page.locator(".react-grid-layout");
+    const gridBounds = await grid.boundingBox();
+    const titleBounds = await gridItem
+      .getByRole("heading", { name: "Complete chart controls", exact: true })
+      .boundingBox();
+    if (!gridBounds || !titleBounds) throw new Error("The desktop widget drag surface is missing");
+    const breakpoint =
+      gridBounds.width >= GRID_BREAKPOINTS.lg
+        ? "lg"
+        : gridBounds.width >= GRID_BREAKPOINTS.md
+          ? "md"
+          : gridBounds.width >= GRID_BREAKPOINTS.sm
+            ? "sm"
+            : "xs";
+    const beforeMove = (await read("Complete chart controls"))[0];
+    const step = (gridBounds.width + 16) / GRID_COLS[breakpoint];
+    const initialBounds = await gridItem.boundingBox();
+    if (!initialBounds) throw new Error("The widget has no rendered geometry");
+    const position = beforeMove.layout?.[breakpoint] ?? {
+      x: Math.round((initialBounds.x - gridBounds.x) / step),
+      y: Math.round((initialBounds.y - gridBounds.y) / 140),
+      w: Math.round((initialBounds.width + 16) / step),
+      h: Math.round((initialBounds.height + 16) / 140),
+    };
+    const direction = position.x + position.w < GRID_COLS[breakpoint] ? 1 : -1;
+    const start = { x: titleBounds.x + titleBounds.width / 2, y: titleBounds.y + titleBounds.height / 2 };
+    await page.mouse.move(start.x, start.y);
+    await page.mouse.down();
+    await page.mouse.move(start.x + direction * step, start.y, { steps: 10 });
+    await expect(gridItem).toHaveClass(/\breact-draggable-dragging\b/);
+    await page.mouse.up();
+    await expect(gridItem).not.toHaveClass(/\breact-draggable-dragging\b/);
+    await expect(dialog).toHaveCount(0);
+    await expect
+      .poll(async () => (await read("Complete chart controls"))[0].layout[breakpoint]?.x)
+      .toBe(position.x + direction);
+    const moved = (await read("Complete chart controls"))[0];
+    expect(moved.layout[breakpoint]).toMatchObject({ y: position.y, w: position.w, h: position.h });
+    expect(moved.version).toBeGreaterThan(beforeMove.version);
+    const movedBounds = await gridItem.boundingBox();
+    if (!movedBounds) throw new Error("The moved widget is not visible");
+    await page.reload();
+    await expect(gridItem).toBeVisible();
+    await expect.poll(async () => (await gridItem.boundingBox())?.x).toBeCloseTo(movedBounds.x, 0);
+    expect((await read("Complete chart controls"))[0].layout).toEqual(moved.layout);
+    await page.screenshot({ path: testInfo.outputPath("widget-moved.png"), animations: "disabled" });
     const handle = gridItem.locator(".react-resizable-handle-se");
     const before = JSON.stringify((await read("Complete chart controls"))[0].layout);
     const bounds = await handle.boundingBox();

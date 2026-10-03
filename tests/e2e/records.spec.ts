@@ -1,3 +1,5 @@
+import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
+import { presetId } from "../../features/records/crm-preset";
 import { randomUUID } from "node:crypto";
 import { test, expect } from "./fixtures";
 
@@ -245,5 +247,91 @@ test("creates a custom list and field through the UI, then persists a decimal re
       contentType: "application/json",
     });
   }
+  expect(errors).toEqual([]);
+});
+
+test("resizes table columns with keyboard controls, restores saved widths and resets the override", async ({
+  page,
+  database,
+  companyId,
+  workspace,
+  isMobile,
+}, testInfo) => {
+  const errors: string[] = [];
+  page.on("pageerror", (error) => {
+    if (error.message !== "ResizeObserver loop completed with undelivered notifications.") errors.push(error.message);
+  });
+  page.on("console", (message) => {
+    if (message.type() === "error") errors.push(message.text());
+  });
+  const typeId = presetId(companyId, "organization");
+  const fieldId = presetId(companyId, "organization.name");
+  await page.goto(`/en/records/${typeId}`);
+  await expect(page.getByRole("button", { name: "Example organization", exact: true })).toBeVisible();
+  const handle = page.getByRole("button", {
+    name: englishMessages.DataView.resizeColumn.replace("{column}", "Name"),
+    exact: true,
+  });
+  const header = page.getByRole("columnheader").filter({ has: handle });
+  const stored = async () =>
+    (
+      await database.query('SELECT "columnWidths" FROM "P13n" WHERE "companyId"=$1 AND "userId"=$2 AND "p13nId"=$3', [
+        companyId,
+        workspace.userId,
+        `records:${typeId}`,
+      ])
+    ).rows[0]?.columnWidths?.[fieldId];
+  await handle.focus();
+  await expect(handle).toBeFocused();
+  await handle.press("Home");
+  await expect(header).toHaveAttribute("style", /(?:^|;)\s*width: 80px;/);
+  await expect.poll(stored).toBe(80);
+  for (const [key, delta] of [
+    ["ArrowRight", 10],
+    ["Shift+ArrowRight", 30],
+    ["ArrowLeft", -10],
+  ] as const) {
+    const bounds = await header.boundingBox();
+    if (!bounds) throw new Error("The resizable table header is missing");
+    const expected = Math.round(Math.max(80, bounds.width + delta) * 100) / 100;
+    await handle.press(key);
+    await expect.poll(stored).toBe(expected);
+    await expect(header).toHaveAttribute("style", new RegExp(`(?:^|;)\\s*width: ${expected}px;`));
+  }
+  const saved = await stored();
+  await page.reload();
+  await expect(handle).toBeVisible();
+  await expect(header).toHaveAttribute("style", new RegExp(`(?:^|;)\\s*width: ${saved}px;`));
+  expect(await stored()).toBe(saved);
+  if (!isMobile) {
+    await handle.focus();
+    const handleBounds = await handle.boundingBox();
+    const headerBounds = await header.boundingBox();
+    if (!handleBounds || !headerBounds) throw new Error("The desktop column resize handle is missing");
+    const x = handleBounds.x + handleBounds.width / 2;
+    const y = handleBounds.y + handleBounds.height / 2;
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.move(x - 40, y, { steps: 5 });
+    await expect(handle).toHaveAttribute("data-state", "resizing");
+    await page.keyboard.press("Escape");
+    await page.mouse.up();
+    await expect(handle).not.toHaveAttribute("data-state", "resizing");
+    expect(await stored()).toBe(saved);
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.move(x - 40, y, { steps: 5 });
+    await page.mouse.up();
+    await expect.poll(stored).toBe(Math.round(Math.max(80, headerBounds.width - 40) * 100) / 100);
+  }
+  await handle.focus();
+  await handle.press("Enter");
+  await expect.poll(stored).toBeUndefined();
+  await expect(header).not.toHaveAttribute("style", /(?:^|;)\s*width:/);
+  await page.reload();
+  await expect(handle).toBeVisible();
+  await expect(header).not.toHaveAttribute("style", /(?:^|;)\s*width:/);
+  expect(await stored()).toBeUndefined();
+  await page.screenshot({ path: testInfo.outputPath("table-column-width-reset.png"), animations: "disabled" });
   expect(errors).toEqual([]);
 });
