@@ -17,15 +17,16 @@ While Mate works, **Stop** replaces **Send**; a message sent meanwhile waits as 
 
 ## What can Mate do without asking, and what asks first? [#what-runs-immediately-and-what-asks-first]
 
-Ordinary CRM work runs as soon as you ask, and the AI assistant does it without asking you first: creating and updating records, notes, and record links; saving and discarding message drafts; sending emails and chat messages; inbox triage including moving email threads and changing a thread's state to unread, open, closed or spam; workspace settings; custom fields; creating and updating saved views, widgets, and webhooks; changing a team member's role or status; generating account-connection links; social invitations and Sales Navigator list changes on a connected account; and routines (listing, creating, updating, pausing, running now). Mate says what it is about to change and reports exactly what changed. A routine Mate creates is saved as a draft unless you explicitly asked for it to be active; the runtime rejects a routine call that does not state this choice. To connect a messaging account, you open the generated link and complete its QR code or sign-in flow yourself; creating the link does not connect the account.
+Ordinary CRM work runs as soon as you ask, and the AI assistant does it without asking you first: creating and updating records, notes, and record links; saving and discarding message drafts; sending emails and chat messages; inbox triage including moving email threads and changing a thread's state to unread, open, closed or spam; workspace settings; adding new custom fields; creating and updating saved views, widgets, and webhooks; changing a team member's role or status; generating account-connection links; social invitations and Sales Navigator list changes on a connected account; and routines (listing, creating, updating, pausing, running now). Mate says what it is about to change and reports exactly what changed. A routine Mate creates is saved as a draft unless you explicitly asked for it to be active; the runtime rejects a routine call that does not state this choice. To connect a messaging account, you open the generated link and complete its QR code or sign-in flow yourself; creating the link does not connect the account.
 
-Only actions that cannot be taken back or that leave your workspace stop for your approval, every single time:
+Only actions that cannot be taken back, that change who can access data, or that leave your workspace stop for your approval, every single time:
 
 | Always asks | Tool and action | Why |
 | --- | --- | --- |
 | Deleting records | `mutate_crm_record` with `delete` or `deleteMany`, after `preview_crm_deletion` | Hard delete, including the previewed cascades |
 | Deleting a saved view | `manage_data_views` with `delete` | Removes the saved view |
-| Destructive data-model changes | `configure_record_model` with `apply` | The preview identifies affected definitions, records and dependencies |
+| Destructive data-model changes, access changes, or replacing an existing field | `configure_record_model` with `apply` | The preview identifies affected definitions, records and dependencies; a replaced field can overwrite stored values |
+| Saving a role | `manage_roles` with `save` | Can widen what the role may read and change |
 | Deleting a widget | `manage_widgets` with `delete` | Removes the dashboard widget |
 | Deleting or resending a webhook | `manage_webhooks` with `delete` or `resend_delivery` | Destroys configuration, or sends a new external request |
 | Deleting a routine | `manage_routines` with `delete` | Removes the routine and its run history |

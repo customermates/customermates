@@ -521,7 +521,6 @@ describe("agent experience contract", () => {
   );
 
   it.each([
-    ["manage_roles", "read", "save", "workspace.read", "roles.manage"],
     ["manage_widgets", "get", "create", "widgets.read", "widgets.create"],
     ["manage_webhooks", "list_deliveries", "create", "workspace.read", "webhooks.manage"],
   ])("classifies %s read and write actions independently", (toolName, readAction, writeAction, readKind, writeKind) => {

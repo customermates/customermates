@@ -15,6 +15,10 @@ const READ_TOOLS = new Set([
   "read_crm_operation",
 ]);
 
+function isNewDefinitionReference(id: unknown): boolean {
+  return typeof id === "string" && id.startsWith("$");
+}
+
 export function recordToolRisk(name: string, input: unknown): RecordToolRisk | null {
   if (READ_TOOLS.has(name)) return "read";
   if (name === "cancel_crm_operation" || name === "resume_crm_operation") return "write";
@@ -32,7 +36,13 @@ export function recordToolRisk(name: string, input: unknown): RecordToolRisk | n
   for (const raw of operations) {
     const operation = object(raw);
     if (operation.operation === "createType") continue;
-    if (operation.operation === "putField" && object(operation.field).archived === false) continue;
+    if (operation.operation === "putField") {
+      // putField replaces the whole definition. Only a new field, named by a temporary
+      // "$" reference, is ordinary work; a concrete id may target an existing field whose
+      // behavior change (for example input to formula) overwrites stored values.
+      const field = object(operation.field);
+      if (field.archived === false && isNewDefinitionReference(field.id)) continue;
+    }
     if (operation.operation === "putActivityPath" && object(operation.activityPath).archived === false) continue;
     if (operation.operation === "putRelationship") {
       const relationship = object(operation.relationship);

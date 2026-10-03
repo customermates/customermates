@@ -50,7 +50,7 @@ describe("role mutation contract", () => {
   });
   it.each([
     ["read", false],
-    ["save", false],
+    ["save", true],
     ["delete", true],
     ["unknown", true],
   ])("keeps %s in the existing approval policy", (action, expected) => {
@@ -62,7 +62,7 @@ describe("role mutation contract", () => {
 
 it.each([
   ["read", "read"],
-  ["save", "write"],
+  ["save", "sensitive"],
   ["delete", "sensitive"],
 ])("describes the role %s action accurately", (action, risk) => {
   expect(describeAgentTool(internalToolIdentity("manage_roles"), { action }).risk).toBe(risk);

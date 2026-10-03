@@ -64,6 +64,22 @@ describe("gated-tools", () => {
     expect(approvalNeeded(routines, {})).toBe(true);
   });
 
+  it("gates role saves like grant changes in the record model, since a save can widen access", () => {
+    const roles = toolByName("manage_roles");
+    expect(approvalNeeded(roles, { action: "read" })).toBe(false);
+    expect(approvalNeeded(roles, { action: "save" })).toBe(true);
+    expect(describeInternalTool("manage_roles", { action: "save" })).toMatchObject({
+      kind: "roles.manage",
+      risk: "sensitive",
+    });
+    expect(
+      approvalNeeded(toolByName("configure_record_model"), {
+        action: "apply",
+        change: { operations: [{ operation: "setTypeGrants" }] },
+      }),
+    ).toBe(true);
+  });
+
   it("fails closed: a tool without annotations is not read-only", () => {
     for (const tool of ALL_MCP_TOOLS.filter((tool) => !tool.annotations)) expect(isReadOnlyTool(tool)).toBe(false);
   });
@@ -187,8 +203,29 @@ describe("gated-tools", () => {
         ],
         "write",
       ],
-      [[{ operation: "putField", field: { archived: false } }], "write"],
-      [[{ operation: "putField", field: { archived: true } }], "sensitive"],
+      [[{ operation: "putField", field: { id: "$priority", archived: false } }], "write"],
+      [[{ operation: "putField", field: { id: "$priority", archived: true } }], "sensitive"],
+      [
+        [
+          {
+            operation: "putField",
+            field: { id: "0d7c4f5e-8f1a-4b8e-9a52-3d0c1f2a7b64", archived: false },
+          },
+        ],
+        "sensitive",
+      ],
+      [[{ operation: "putField", field: { archived: false } }], "sensitive"],
+      [
+        [
+          { operation: "createType", reference: "$project" },
+          { operation: "putField", field: { id: "$budget", archived: false } },
+          {
+            operation: "putField",
+            field: { id: "0d7c4f5e-8f1a-4b8e-9a52-3d0c1f2a7b64", archived: false },
+          },
+        ],
+        "sensitive",
+      ],
       [
         [
           {

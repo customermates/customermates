@@ -23,7 +23,7 @@ const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
     approvalFreeActions: ["list", "invite", "accept", "cancel"],
     readOnlyActions: ["list"],
   },
-  manage_roles: { approvalFreeActions: ["read", "save"], readOnlyActions: ["read"] },
+  manage_roles: { approvalFreeActions: ["read"], readOnlyActions: ["read"] },
   manage_team: { approvalFreeActions: ["update_member"] },
   manage_webhooks: {
     approvalFreeActions: ["list", "get", "list_deliveries", "create", "update"],
