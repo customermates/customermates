@@ -160,3 +160,67 @@ test("persists every chart style, appearance, a copied template, resizing and de
   await expect(page.getByRole("heading", { name: "Edited copied chart", exact: true })).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+test("preserves widget previews and accessible draft confirmations across responsive breakpoint changes", async ({
+  page,
+  database,
+  companyId,
+}) => {
+  const errors: string[] = [];
+  page.on("pageerror", (error) => {
+    if (error.message !== "ResizeObserver loop completed with undelivered notifications.") errors.push(error.message);
+  });
+  page.on("console", (message) => {
+    if (message.type() === "error") errors.push(message.text());
+  });
+  const originalViewport = page.viewportSize();
+  await page.setViewportSize({ width: 1100, height: 900 });
+  await page.goto(`/en/records/${presetId(companyId, "service")}`);
+  await page.locator("#records-add").click();
+  const recordDrawer = page.getByRole("dialog");
+  await recordDrawer.getByRole("textbox", { name: "Name", exact: false }).fill("Responsive preview source");
+  await recordDrawer.getByRole("textbox", { name: "Price", exact: false }).fill("5");
+  await recordDrawer.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(recordDrawer).toHaveCount(0);
+  await page.getByRole("link", { name: "Dashboard", exact: true }).click();
+  const preview = page.locator('[data-widget-editor="linear"] svg.recharts-surface');
+  const guard = page.getByRole("alertdialog", { name: "Unsaved Changes", exact: true });
+  for (const [initialWidth, changedWidth, surface] of [
+    [1100, 600, "dialog"],
+    [600, 1100, "drawer"],
+  ] as const) {
+    await page.setViewportSize({ width: initialWidth, height: 900 });
+    await page.locator("#dashboard-add-widget").click();
+    const widget = page.getByRole("dialog", { name: "Add widget", exact: true });
+    await page.getByRole("dialog").locator("#widget-kind-chart").click();
+    await expect(widget).toHaveAttribute("data-overlay-surface", surface);
+    await widget.getByRole("textbox", { name: "Name", exact: true }).fill("Keep this responsive widget draft");
+    await widget.getByRole("combobox", { name: "Records from", exact: true }).click();
+    await page.getByRole("option", { name: "Services", exact: true }).click();
+    await widget.getByRole("button", { name: "Preview measure", exact: true }).click();
+    await expect(preview).toBeVisible();
+    await widget.getByRole("button", { name: "Close", exact: true }).click();
+    await expect(guard).toBeVisible();
+    await page.setViewportSize({ width: changedWidth, height: 900 });
+    await expect(guard).toBeVisible();
+    await expect(page.locator('[role="alertdialog"]')).not.toHaveAttribute("aria-hidden", "true");
+    await expect(preview).toHaveCount(1);
+    await guard.getByRole("button", { name: "Cancel", exact: true }).click();
+    await expect(guard).toHaveCount(0);
+    await expect(widget).toHaveAttribute("data-overlay-surface", surface);
+    await expect(widget.getByRole("textbox", { name: "Name", exact: true })).toHaveValue(
+      "Keep this responsive widget draft",
+    );
+    await expect(preview).toBeVisible();
+    await widget.getByRole("button", { name: "Close", exact: true }).click();
+    await expect(guard).toBeVisible();
+    await guard.getByRole("button", { name: "Discard", exact: true }).click();
+    await expect(guard).toHaveCount(0);
+    await expect(widget).toHaveCount(0);
+    expect(
+      (await database.query('SELECT COUNT(*)::integer AS count FROM "Widget" WHERE "companyId"=$1', [companyId])).rows,
+    ).toEqual([{ count: 0 }]);
+  }
+  if (originalViewport) await page.setViewportSize(originalViewport);
+  expect(errors).toEqual([]);
+});

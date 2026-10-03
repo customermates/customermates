@@ -1,8 +1,9 @@
 import type { ComponentProps, ComponentType, ReactNode } from "react";
 import type { Root } from "react-dom/client";
 
-import { act, createElement, useState } from "react";
-import { createRoot } from "react-dom/client";
+import { act, createElement, useState, useSyncExternalStore } from "react";
+import { createRoot, hydrateRoot } from "react-dom/client";
+import { renderToString } from "react-dom/server";
 import { observable, runInAction } from "mobx";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -18,7 +19,14 @@ import { OVERLAY_TOPMOST_LAYER_CLASS } from "@/components/ui/overlay-contract";
 const testContext = vi.hoisted(() => ({ isWide: true, rootStore: null as unknown }));
 
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
-vi.mock("@/hooks/use-media-query", () => ({ useIsWiderThan: () => testContext.isWide }));
+vi.mock("@/hooks/use-media-query", () => ({
+  useIsWiderThan: () =>
+    useSyncExternalStore(
+      () => () => undefined,
+      () => testContext.isWide,
+      () => true,
+    ),
+}));
 vi.mock("@/i18n/navigation", () => ({
   IntlLink: ({ children, ...props }: { children: ReactNode; href: string }) => createElement("a", props, children),
 }));
@@ -411,6 +419,30 @@ describe("AppModal confirmations beside the assistant", () => {
 
     expect(document.getElementById("agent-delete-chat-cancel")).toBeNull();
     expect(element("webhook-modal-secret")).toBeTruthy();
+    expect(onClose).not.toHaveBeenCalled();
+  });
+});
+
+describe("AppModal initial hydration", () => {
+  it("uses the client mobile presentation when a server-rendered modal is already open", async () => {
+    testContext.isWide = false;
+    const onClose = vi.fn();
+    const content = createElement(
+      TestAppModal,
+      { open: true, title: "Hydrated modal", onClose },
+      createElement("input", { id: "hydrated-modal-input", "aria-label": "Hydrated draft" }),
+    );
+    const html = renderToString(content);
+    act(() => reactRoot.unmount());
+    container.innerHTML = html;
+    await act(async () => {
+      reactRoot = hydrateRoot(container, content);
+      await Promise.resolve();
+    });
+    await settleOutsideListeners();
+    expect(overlayContent("drawer")).not.toBeNull();
+    expect(overlayContent("dialog")).toBeNull();
+    expect(element("hydrated-modal-input").closest("[aria-hidden='true']")).toBeNull();
     expect(onClose).not.toHaveBeenCalled();
   });
 });

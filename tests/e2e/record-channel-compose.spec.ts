@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import type { Locator } from "@playwright/test";
 import { Buffer } from "node:buffer";
 import { presetId } from "../../features/records/crm-preset";
 import { isDraftThreadId } from "../../ee/messaging/provider";
@@ -15,9 +16,19 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
 }, testInfo) => {
   test.setTimeout(240000);
   const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
+  const browserDiagnostics: string[] = [];
+  const captureError = (message: string) => {
+    if (
+      (testInfo.project.name === "webkit" || testInfo.project.name === "mobile") &&
+      message ===
+        "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set."
+    )
+      browserDiagnostics.push(message);
+    else errors.push(message);
+  };
+  page.on("pageerror", (error) => captureError(error.message));
   page.on("console", (message) => {
-    if (message.type() === "error") errors.push(message.text());
+    if (message.type() === "error") captureError(message.text());
   });
   const post = async (path: string, data: unknown) => {
     const response = await page.request.post(path, { data });
@@ -107,10 +118,41 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
       ],
     );
   }
+  const navigateType = async (id: string) => {
+    const mobileSidebar = page.locator('[data-sidebar="sidebar"][data-mobile="true"]');
+    if (testInfo.project.name === "mobile") await expect(mobileSidebar).toHaveCount(0);
+    const link = page.locator(`[id="nav-records:${id}"]`);
+    if (!(await link.isVisible())) await page.locator("#sidebar-trigger").click();
+    await link.click();
+    await expect(page).toHaveURL(new RegExp(`/en/records/${id}$`));
+    if (testInfo.project.name === "mobile") await expect(mobileSidebar).toHaveCount(0);
+    await expect(page.locator("#sidebar-trigger")).toHaveAttribute("aria-disabled", "false");
+  };
+  const activateCompose = async (button: Locator) => {
+    if (testInfo.project.name === "webkit") await button.press("Enter");
+    else if (testInfo.project.name === "mobile") await button.tap();
+    else await button.click();
+  };
   let activeRecipient = recipients[0];
+  let hasOpenedRecord = false;
   const openRecord = async (index: number) => {
     activeRecipient = recipients[index];
-    await page.goto(`/en/records/${typeId}/${records[index].recordId}`);
+    if (!hasOpenedRecord) {
+      await page.goto(`/en/records/${typeId}/${records[index].recordId}`);
+      hasOpenedRecord = true;
+    } else {
+      await navigateType(typeId);
+      await page
+        .getByRole("row")
+        .filter({ has: page.getByText(`Channel company ${index + 1}`, { exact: true }) })
+        .getByRole("button", { name: `Channel company ${index + 1}`, exact: true })
+        .click();
+      const recordDrawer = page.getByRole("dialog", { name: "Organization", exact: true });
+      await recordDrawer.getByRole("link", { name: "Open page", exact: true }).click();
+      await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}/${records[index].recordId}$`));
+      await expect(recordDrawer).toHaveCount(0);
+    }
+    await expect(page.locator("#sidebar-trigger")).toHaveAttribute("aria-disabled", "false");
   };
   await openRecord(0);
   const channels = page.locator('[data-entity-field="system:channels"]');
@@ -123,7 +165,9 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   };
   if (testInfo.project.name === "chromium") await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await page.bringToFront();
-  await channelRow().getByRole("button", { name: "Copy", exact: true }).click();
+  const copy = channelRow().getByRole("button", { name: "Copy", exact: true });
+  if (testInfo.project.name === "mobile") await copy.tap();
+  else await copy.click();
   await expect(page.getByText(`${recipients[0]} copied to clipboard`, { exact: true })).toBeVisible();
   if (testInfo.project.name === "chromium")
     expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(recipients[0]);
@@ -134,6 +178,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
     { field: "participantContactId", operator: "in", value: [`${typeId}:${records[0].recordId}`] },
   ]);
   await page.reload();
+  await expect(page.locator("#sidebar-trigger")).toHaveAttribute("aria-disabled", "false");
   await expect(page.locator(`[data-thread-id="${threadIds[0]}"]`)).toBeVisible();
   await expect(page.locator(`[data-thread-id="${threadIds[1]}"]`)).not.toBeVisible();
   await openRecord(0);
@@ -141,7 +186,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   const popover = page
     .locator('[data-slot="popover-content"]')
     .filter({ has: page.getByPlaceholder("Subject", { exact: true }) });
-  await start().click();
+  await activateCompose(start());
   await expect(popover).toBeVisible();
   await popover.getByPlaceholder("Subject", { exact: true }).fill("Discarded subject");
   const body = popover.getByRole("textbox", { name: "Write a reply...", exact: true });
@@ -157,7 +202,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await guard.getByRole("button", { name: "Cancel", exact: true }).click();
   await expect(body).toHaveText(draftText);
   await expect(popover.getByPlaceholder("Subject", { exact: true })).toHaveValue("Discarded subject");
-  await start().click();
+  await activateCompose(start());
   await expect(guard).toBeVisible();
   await guard.getByRole("button", { name: "Discard", exact: true }).click();
   await expect(popover).not.toBeVisible();
@@ -169,7 +214,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
     ).rows[0].count,
   ).toBe(0);
 
-  await start().click();
+  await activateCompose(start());
   await expect(body).toHaveText("");
   await expect(popover.getByPlaceholder("Subject", { exact: true })).toHaveValue("");
   await popover
@@ -194,10 +239,11 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
     await popover.getByRole("textbox", { name: label, exact: true }).press("Enter");
   }
   await expect(channelRow().getByRole("button", { name: /Unlink/ })).toHaveCount(0);
-  await channels
-    .locator('[data-record-channel-key="mail:alias-first@example.test"]')
-    .getByRole("button", { name: "Compose Email message", exact: true })
-    .click();
+  await activateCompose(
+    channels
+      .locator('[data-record-channel-key="mail:alias-first@example.test"]')
+      .getByRole("button", { name: "Compose Email message", exact: true }),
+  );
   await expect(guard).toBeVisible();
   await guard.getByRole("button", { name: "Cancel", exact: true }).click();
   await expect(body).toHaveText("Draft belonging to the first company");
@@ -224,7 +270,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   expect(isDraftThreadId(draft.unipileThreadId)).toBe(true);
 
   await openRecord(1);
-  await start().click();
+  await activateCompose(start());
   await expect(body).toHaveText("");
   await popover.getByPlaceholder("Subject", { exact: true }).fill("Local second company delivery");
   await body.fill("Message only for the second company");
@@ -260,6 +306,8 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
       .frameLocator('iframe[title="Email content"]')
       .getByText("Message only for the second company", { exact: true }),
   ).toBeVisible();
+  await expect(page.locator('iframe[title="Email content"]')).toHaveAttribute("sandbox", "allow-same-origin");
+  await expect(page.frameLocator('iframe[title="Email content"]').locator("script")).toHaveCount(0);
   await page.locator("#inbox-thread-state").click();
   await page.getByRole("option", { name: "Closed", exact: true }).click();
   await expect
@@ -274,6 +322,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
     )
     .toBe("closed");
   await page.reload();
+  await expect(page.locator("#sidebar-trigger")).toHaveAttribute("aria-disabled", "false");
   await expect(page.locator("#inbox-thread-state")).toHaveAttribute("aria-label", "Closed");
 
   await openRecord(0);
@@ -304,10 +353,11 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await expect(drawer.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Channel company 1");
   await drawer.getByRole("button", { name: "Customize", exact: true }).click();
   await expect(drawer.getByRole("button", { name: "Hide Channels from details", exact: true })).toBeVisible();
-  await drawer
-    .locator('[data-record-channel-key="mail:first-channel@example.test"]')
-    .getByRole("button", { name: "Compose Email message", exact: true })
-    .press("Enter");
+  await activateCompose(
+    drawer
+      .locator('[data-record-channel-key="mail:first-channel@example.test"]')
+      .getByRole("button", { name: "Compose Email message", exact: true }),
+  );
   await body.fill("Protect this drawer draft");
   await expect(drawer.getByRole("button", { name: /Unlink/ })).toHaveCount(0);
   await expect(drawer.getByRole("button", { name: "Delete", exact: true })).toBeDisabled();
@@ -332,21 +382,17 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await expect(guard).toBeVisible();
   await guard.getByRole("button", { name: "Discard", exact: true }).click();
   await expect(drawer).not.toBeVisible();
-  for (const key of ["contact", "organization"]) {
-    const link = page.locator(`[id="nav-records:${presetId(companyId, key)}"]`);
-    if (!(await link.isVisible())) await page.locator("#sidebar-trigger").click();
-    await link.click();
-    await expect(page).toHaveURL(new RegExp(`/en/records/${presetId(companyId, key)}$`));
-  }
+  for (const key of ["contact", "organization"]) await navigateType(presetId(companyId, key));
   await page
     .getByRole("row")
     .filter({ has: page.getByText("Channel company 1", { exact: true }) })
     .getByRole("button", { name: "Channel company 1", exact: true })
     .click();
-  await drawer
-    .locator('[data-record-channel-key="mail:first-channel@example.test"]')
-    .getByRole("button", { name: "Compose Email message", exact: true })
-    .click();
+  await activateCompose(
+    drawer
+      .locator('[data-record-channel-key="mail:first-channel@example.test"]')
+      .getByRole("button", { name: "Compose Email message", exact: true }),
+  );
   await body.fill("Keep this message when going back");
   await page.goBack();
   const recovered = page.getByRole("dialog", { name: "New message", exact: true });
@@ -361,10 +407,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await expect(guard).toBeVisible();
   await guard.getByRole("button", { name: "Discard", exact: true }).click();
   await expect(recovered).not.toBeVisible();
-  const organizations = page.locator(`[id="nav-records:${typeId}"]`);
-  if (!(await organizations.isVisible())) await page.locator("#sidebar-trigger").click();
-  await organizations.click();
-  await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}$`));
+  await navigateType(typeId);
   await page
     .getByRole("row")
     .filter({ has: page.getByText("Channel company 1", { exact: true }) })
@@ -373,7 +416,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await drawer.getByRole("link", { name: "Open page", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}/${records[0].recordId}$`));
   await expect(drawer).toHaveCount(0);
-  await start().click();
+  await activateCompose(start());
   await body.fill("Keep this full-page history draft");
   await page.goBack();
   await expect(recovered).toBeVisible();
@@ -383,20 +426,17 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await guard.getByRole("button", { name: "Discard", exact: true }).click();
   await expect(recovered).not.toBeVisible();
   expect((await readDrafts()).length).toBe(0);
-  if (new URL(page.url()).pathname !== `/en/records/${typeId}`) {
-    if (!(await organizations.isVisible())) await page.locator("#sidebar-trigger").click();
-    await organizations.click();
-    await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}$`));
-  }
+  if (new URL(page.url()).pathname !== `/en/records/${typeId}`) await navigateType(typeId);
   await page
     .getByRole("row")
     .filter({ has: page.getByText("Channel company 1", { exact: true }) })
     .getByRole("button", { name: "Channel company 1", exact: true })
     .click();
-  await drawer
-    .locator('[data-record-channel-key="mail:first-channel@example.test"]')
-    .getByRole("button", { name: "Compose Email message", exact: true })
-    .click();
+  await activateCompose(
+    drawer
+      .locator('[data-record-channel-key="mail:first-channel@example.test"]')
+      .getByRole("button", { name: "Compose Email message", exact: true }),
+  );
   await body.fill("Explicitly discard before opening the page");
   await drawer.getByRole("link", { name: "Open page", exact: true }).click();
   await expect(guard).toBeVisible();
@@ -419,7 +459,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await drawer.getByRole("link", { name: "Open page", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}/${records[0].recordId}$`));
   await expect(drawer).toHaveCount(0);
-  await start().click();
+  await activateCompose(start());
   await popover.getByPlaceholder("Subject", { exact: true }).fill("Recovered while inbox selected");
   await body.fill("Keep separate from the existing inbox reply");
   await page.goBack();
@@ -452,6 +492,10 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
     path: testInfo.outputPath("record-channel-compose-and-inbox.png"),
     animations: "disabled",
     fullPage: true,
+  });
+  await testInfo.attach("expected-webkit-email-sandbox-diagnostics", {
+    body: Buffer.from(JSON.stringify(browserDiagnostics)),
+    contentType: "application/json",
   });
   expect(errors).toEqual([]);
 });
