@@ -47,6 +47,47 @@ function repo(fullText: DocsFullTextRow[], semantic: DocsSemanticRow[] | null = 
 const INPUT = { query: "check that a webhook came from you", locale: "en" as const, source: "docs" as const };
 
 describe("unified documentation search", () => {
+  it.each([
+    ["en", "How is the weighted pipeline value calculated?", "multiplied by the weight of its current option"],
+    ["de", "Wie wird der gewichtete Pipeline-Wert berechnet?", "multipliziert mit dem Gewicht seiner aktuellen Option"],
+  ] as const)(
+    "keeps the pipeline formula in a query-only two-section excerpt in %s",
+    async (locale, query, formula) => {
+      const own = docsCorpusSections("docs", locale).filter((section) => section.slug === "concepts");
+      const total = own.find((section) => section.anchor === "how-is-a-deals-total-value-calculated");
+      const weighted = own.find((section) => section.anchor === "how-does-a-weighted-pipeline-work");
+      if (!total || !weighted) throw new Error("Missing pipeline calculation documentation");
+      const fetched = await unifiedDocsPageResult(
+        { slug: "concepts", query, locale, source: "docs" },
+        { repo: repo([row(total), row(weighted)]), embed: null, ranker: undefined },
+      );
+      const markdown = (fetched as { structuredContent: { markdown: string } }).structuredContent.markdown;
+      expect(markdown.startsWith(`## ${total.headingPath.at(-1)}`)).toBe(true);
+      expect(markdown).toContain(weighted.headingPath.at(-1));
+      expect(markdown).toContain(formula);
+      expect(markdown).toContain("**Link:** `/company/settings`.");
+      expect(markdown.length).toBeLessThanOrEqual(1_400);
+    },
+  );
+
+  it.each([
+    ["en", "How is the weighted pipeline value calculated?", "multiplied by the weight of its current option"],
+    ["de", "Wie wird der gewichtete Pipeline-Wert berechnet?", "multipliziert mit dem Gewicht seiner aktuellen Option"],
+  ] as const)("fetches the complete pipeline formula and section link in %s", async (locale, query, formula) => {
+    const section = docsCorpusSections("docs", locale).find(
+      (value) => value.slug === "concepts" && value.anchor === "how-does-a-weighted-pipeline-work",
+    );
+    if (!section) throw new Error("Missing weighted-pipeline documentation");
+    const fetched = await unifiedDocsPageResult(
+      { slug: section.slug, anchor: section.anchor, query, locale, source: "docs" },
+      { repo: repo([row(section)]), embed: null, ranker: undefined },
+    );
+    const markdown = (fetched as { structuredContent: { markdown: string } }).structuredContent.markdown;
+    expect(markdown).toContain(formula);
+    expect(markdown).toContain("**Link:** `/company/settings`.");
+    expect(markdown.length).toBeLessThanOrEqual(1_400);
+  });
+
   it("fetches complete stage setup instructions from the section returned by search", async () => {
     const section = docsCorpusSections("docs", "en").find(
       (value) =>

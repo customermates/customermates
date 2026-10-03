@@ -470,9 +470,9 @@ Suche über die Docs; standardmäßig nur die Produkt-Guides (source=docs); mit 
 
 #### `get_docs_page`
 
-Eine Doku-Seite als Markdown inklusive kanonischer URL. App-Routen darin, etwa `/company/subscription`, sind relativ: Ein vollständiger Link ist der Ursprung dieser URL, gefolgt von der Route; dieser Ursprung ist die konfigurierte `BASE_URL` der Instanz. Mit `query` kommt statt der ganzen Seite ein Auszug von etwa 1.400 Zeichen aus dem passendsten Abschnitt (plus einem zweiten Abschnitt, wenn er hineinpasst). Listet bei einem Miss alle gültigen Slugs.
+Eine Doku-Seite als Markdown inklusive kanonischer URL. App-Routen darin, etwa `/company/subscription`, sind relativ: Ein vollständiger Link ist der Ursprung dieser URL, gefolgt von der Route; dieser Ursprung ist die konfigurierte `BASE_URL` der Instanz. Mit einem nicht leeren `anchor` aus der Suche und der ursprünglichen Frage als `query` wird der ausgewählte Abschnitt mit etwa 1.400 Zeichen gelesen. Mit `query` allein wird der passendste Abschnitt gesucht (plus einem zweiten Abschnitt, wenn er hineinpasst). Ohne beide Parameter kommt die ganze Seite. Listet bei einem Miss alle gültigen Slugs.
 
-**Nur lesend.** Pflicht: `slug`. Optional: `query`, `locale`, `source`.
+**Nur lesend.** Pflicht: `slug`. Optional: `anchor`, `query`, `locale`, `source`.
 
 #### `search`
 

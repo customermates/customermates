@@ -468,9 +468,9 @@ Search over the docs; defaults to the product guides (source=docs); pass source=
 
 #### `get_docs_page`
 
-One documentation page as markdown with its canonical URL. App routes in the page, such as `/company/subscription`, are relative: a full link is the origin of that URL followed by the route; that origin is the instance's configured `BASE_URL`. Pass `query` to get a focused excerpt of about 1,400 characters from the best-matching section (plus a second section when it fits) instead of the full page. Lists valid slugs on a miss.
+One documentation page as markdown with its canonical URL. App routes in the page, such as `/company/subscription`, are relative: a full link is the origin of that URL followed by the route; that origin is the instance's configured `BASE_URL`. Pass a nonempty `anchor` returned by search with the original question as `query` to read that selected section in about 1,400 characters. With `query` alone, searches for the best-matching section (plus a second section when it fits). Omit both for the full page. Lists valid slugs on a miss.
 
-**Read-only.** Required: `slug`. Optional: `query`, `locale`, `source`.
+**Read-only.** Required: `slug`. Optional: `anchor`, `query`, `locale`, `source`.
 
 #### `search`
 

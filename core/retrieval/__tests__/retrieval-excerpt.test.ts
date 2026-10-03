@@ -122,6 +122,46 @@ describe("bounded retrieval excerpts", () => {
 });
 
 describe("complete answer blocks in retrieval excerpts", () => {
+  it("centers remaining prose room on a new query term after a retained multi-term introduction", () => {
+    const intro = "Contacts, records and organizations share one workspace. " + "Background context. ".repeat(8);
+    const action = "Export sends records to an Excel workbook.";
+    const restriction = "Only supervisors may use this action.";
+    const paragraph =
+      "Contacts, records and organizations are listed here. " +
+      "Additional background. ".repeat(18) +
+      `${action} ${restriction} ` +
+      "Additional background. ".repeat(4);
+    const excerpt = retrievalExcerpt({
+      markdown: `${intro}\n\n${paragraph}\n\n**Link:** \`/records\`.`,
+      query: "contacts records organizations export",
+      heading: "## Records",
+      maxChars: 700,
+    });
+    expect(excerpt).toContain(intro.trim());
+    expect(excerpt).toContain(`${action} ${restriction}`);
+    expect(excerpt).toContain("**Link:** `/records`.");
+    expect(excerpt.length).toBeLessThanOrEqual(700);
+  });
+
+  it.each(["before", "after"] as const)(
+    "keeps a %s non-query restriction beside a matching action in remaining room",
+    (position) => {
+      const action = "Export sends records to an Excel workbook.";
+      const restriction = "Only supervisors may use this action.";
+      const adjacent = position === "before" ? `${restriction} ${action}` : `${action} ${restriction}`;
+      const paragraph = `${"Additional background. ".repeat(8)}${adjacent} ${"Additional background. ".repeat(14)}`;
+      const excerpt = retrievalExcerpt({
+        markdown: `${"Records have shared list settings. ".repeat(9).slice(0, 300)}\n\n${paragraph}\n\n**Link:** \`/records\`.`,
+        query: "records export",
+        heading: "## Records",
+        maxChars: 700,
+      });
+      expect(excerpt).toContain(adjacent);
+      expect(excerpt).toContain("**Link:** `/records`.");
+      expect(excerpt.length).toBeLessThanOrEqual(700);
+    },
+  );
+
   it("does not let a weaker introduction crowd out a fitting action and its restriction", () => {
     const paragraph =
       "Export sends records to an Excel workbook. Only assigned members may export their own records. " +

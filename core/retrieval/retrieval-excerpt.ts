@@ -3,7 +3,7 @@ import { fold } from "@/core/utils/search-text";
 import { fullTextUnits, fullTextUnitTerms } from "./full-text-query";
 
 type ContextLine = { order: number; text: string };
-type ExcerptUnit = { text: string; context: ContextLine[]; table?: number };
+type ExcerptUnit = { text: string; context: ContextLine[]; table?: number; prose?: boolean };
 
 const SENTENCES = new Intl.Segmenter("und", { granularity: "sentence" });
 const TABLE_SEPARATOR = /^\|\s*:?-+/;
@@ -77,7 +77,7 @@ function unitsIn(markdown: string, maxUnitChars: number, preserveParagraphs: boo
       continue;
     }
     if (preserveParagraphs && [...heading.map(({ text }) => text), line].join("\n").length <= maxUnitChars) {
-      units.push({ text: line, context: heading });
+      units.push({ text: line, context: heading, prose: true });
       continue;
     }
     for (const { segment } of SENTENCES.segment(line))
@@ -108,6 +108,37 @@ function boundedUnit(text: string, length: number): string {
   if (room < 1) return length > 0 ? "…" : "";
   const body = text.slice(firstLine.length + 1).replace(new RegExp(`\\n${opening[1]}\\s*$`), "");
   return `${firstLine}\n${bounded(body, room)}${suffix}`;
+}
+
+function proseWindow(text: string, length: number, score: (value: string) => number): string {
+  const sentences = [...SENTENCES.segment(text)].filter(({ segment }) => segment.trim());
+  if (sentences.length < 2 || length < 1) return "";
+  let best = 0;
+  for (let index = 1; index < sentences.length; index += 1)
+    if (score(sentences[index].segment) > score(sentences[best].segment)) best = index;
+  if (score(sentences[best].segment) <= 0) return "";
+  const span = (first: number, last: number) => {
+    const start =
+      sentences[first].index + sentences[first].segment.length - sentences[first].segment.trimStart().length;
+    const end = sentences[last].index + sentences[last].segment.trimEnd().length;
+    return `${start > 0 ? "… " : ""}${text.slice(start, end)}${end < text.trimEnd().length ? " …" : ""}`;
+  };
+  let first = best;
+  let last = best;
+  if (span(first, last).length > length) return "";
+  while (true) {
+    let changed = false;
+    if (last + 1 < sentences.length && span(first, last + 1).length <= length) {
+      last += 1;
+      changed = true;
+    }
+    if (first > 0 && span(first - 1, last).length <= length) {
+      first -= 1;
+      changed = true;
+    }
+    if (!changed) break;
+  }
+  return span(first, last);
 }
 
 function linkSuffix(links: readonly string[], length: number): string {
@@ -173,7 +204,12 @@ export function retrievalExcerpt(args: {
   const relevant = units.map((_, index) => relevance(index));
   const remaining = new Set(units.map((_, index) => index));
   const picked = new Map<number, string>();
-  if (heading && relevant[0] > 0 && relevant[0] >= Math.max(0, ...relevant)) {
+  if (
+    heading &&
+    relevant[0] > 0 &&
+    (relevant[0] >= Math.max(0, ...relevant) ||
+      units[0].text.length <= ((maxChars - heading.length - suffix.length - 2) * 2) / 3)
+  ) {
     picked.set(0, units[0].text);
     if (render(units, picked, heading).length + suffix.length <= maxChars) {
       remaining.delete(0);
@@ -202,6 +238,28 @@ export function retrievalExcerpt(args: {
       });
     } else {
       picked.delete(index);
+      if (unit.prose && score(index, seen) > 0) {
+        picked.set(index, "");
+        const room = maxChars - render(units, picked, heading).length - suffix.length;
+        picked.delete(index);
+        const body = proseWindow(unit.text, room, (value) => {
+          const folded = fold(value);
+          return terms.reduce(
+            (sum, alternatives, term) =>
+              sum +
+              (!seen.has(term) && alternatives.some((parts) => parts.every((part) => folded.includes(part)))
+                ? weights[term]
+                : 0),
+            0,
+          );
+        });
+        if (body) {
+          picked.set(index, body);
+          terms.forEach((alternatives, term) => {
+            if (alternatives.some((parts) => parts.every((part) => fold(body).includes(part)))) seen.add(term);
+          });
+        }
+      }
       if (picked.size === 0) {
         const context = unit.context.map(({ text }) => text).join("\n");
         const prefix = [heading, context].filter(Boolean).join("\n\n");
