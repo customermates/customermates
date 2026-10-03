@@ -1941,6 +1941,10 @@ test("keeps retained values restricted after a delegated manager converts fields
         const value = editor.locator(`[data-entity-field="${field.id}"]`);
         await expect(value.getByText("Restricted", { exact: true })).toBeVisible();
         await expect(value.locator("input,textarea")).toHaveCount(0);
+        const pinned = editor.locator(`[data-summary-field="${field.id}"]`);
+        if ((await pinned.count()) === 0)
+          await editor.getByRole("button", { name: `Pin ${field.label} to the overview`, exact: true }).click();
+        await expect(pinned.getByText("Restricted", { exact: true })).toBeVisible();
       }
       await reader.page.waitForLoadState("networkidle");
       await reader.page.keyboard.press("Escape");

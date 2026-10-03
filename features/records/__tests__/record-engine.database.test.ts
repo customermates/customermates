@@ -12064,6 +12064,27 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         return recordInvariant(result.data.refs.find((ref) => ref.typeId === typeId));
       };
       const source = await create(sourceType.id, sourceType.primaryFieldId, canary);
+      const deletedSource = await create(sourceType.id, sourceType.primaryFieldId, "Deleted private source");
+      expect(
+        await f.mutation(
+          { action: "delete", ref: deletedSource, expectedVersion: (await f.readRecord(deletedSource)).version },
+          f.admin,
+          randomUUID(),
+          2,
+        ),
+      ).toMatchObject({ ok: true, data: { status: "completed" } });
+      const deletedSourceEvent = recordInvariant(
+        await f.run(() =>
+          prisma.recordEvent.findFirst({
+            where: {
+              companyId: f.company.id,
+              typeId: deletedSource.typeId,
+              recordId: deletedSource.recordId,
+              kind: "record.deleted",
+            },
+          }),
+        ),
+      );
       const summary = await create(summaryType.id, summaryType.primaryFieldId, "Readable summary", [
         { relationId: relation.id, direction: "outgoing", record: source },
       ]);
@@ -12111,6 +12132,63 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       expect(readerAccess.get(sourceType.id)?.access).toBe("none");
       for (const type of model.types.filter((type) => type.id !== sourceType.id))
         expect(readerAccess.get(type.id)?.access).toBe("all");
+      const retainedReader = await runWithoutTenant(async () => {
+        const role = await prisma.userRole.create({
+          data: { companyId: f.company.id, name: "Retained source reader" },
+        });
+        const user = await prisma.user.create({
+          data: {
+            companyId: f.company.id,
+            roleId: role.id,
+            firstName: "Retained",
+            lastName: "Reader",
+            email: `${randomUUID()}@example.test`,
+            status: "active",
+          },
+        });
+        await runWithTenant(f.admin, () =>
+          runInTransaction(async () => {
+            for (const type of model.types.filter((type) => !type.embedded)) {
+              const grants = await f.repo.getGrants();
+              await f.repo.setGrants(type.id, [
+                ...grants
+                  .filter((grant) => grant.typeId === type.id)
+                  .map((grant) => ({ roleId: grant.roleId, actions: grant.actions })),
+                { roleId: role.id, actions: ["readAll"] },
+              ]);
+            }
+          }),
+        );
+        return createMockUser({ ...user, role: { ...role, permissions: [] } });
+      });
+      expect(
+        (await f.readRecord(summary, retainedReader)).fields.find((field) => field.fieldId === total.id)?.result,
+      ).toEqual({ state: "value", value: decimal("37") });
+      expect(
+        await createTestRecordRecipientReader().readEvent({
+          companyId: f.company.id,
+          userId: retainedReader.id,
+          eventId: deletedSourceEvent.id,
+        }),
+      ).not.toBeNull();
+      const originalEvent = recordInvariant(
+        await f.run(() =>
+          prisma.recordEvent.findFirst({
+            where: {
+              companyId: f.company.id,
+              typeId: summary.typeId,
+              recordId: summary.recordId,
+              kind: "record.created",
+            },
+          }),
+        ),
+      );
+      const originalPayload = RecordEventPayloadSchema.parse(originalEvent.payload);
+      for (const field of [total, memo]) {
+        expect(originalPayload.fields.find((entry) => entry.fieldId === field.id)?.after?.sources).toContainEqual(
+          source,
+        );
+      }
       const assertRestricted = async () => {
         const row = await f.readRecord(summary, f.member);
         for (const field of [total, memo])
@@ -12326,6 +12404,128 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       expect(stored.values.find((value) => value.fieldId === total.id)?.decimalValue?.toString()).toBe("37");
       expect(stored.values.find((value) => value.fieldId === memo.id)?.textValue).toBe(canary);
       await assertRestricted();
+      const history = await f.run(
+        async () =>
+          new RecordHistoryReader(f.repo).redact(originalPayload, await f.repo.getModel(), await f.policy.load()),
+        retainedReader,
+      );
+      expect(history).not.toBeNull();
+      for (const field of [total, memo]) {
+        expect(history?.fields.find((entry) => entry.fieldId === field.id)?.after?.value).toEqual({
+          state: "restricted",
+        });
+      }
+      const recipient = createTestRecordRecipientReader();
+      const retainedPolicy = await f.run(() => f.policy.load(), retainedReader);
+      expect(retainedPolicy.allowed(sourceType.id, "readAll")).toBe(true);
+      expect(retainedPolicy.access([sourceType.id]).get(sourceType.id)?.access).toBe("none");
+      expect(
+        await f.run(
+          async () => (await f.policy.load()).canRead(recordInvariant(await f.repo.getRecordCompanyWide(source))),
+          retainedReader,
+        ),
+      ).toBe(false);
+      expect(
+        await recipient.readEvent({
+          companyId: f.company.id,
+          userId: retainedReader.id,
+          eventId: deletedSourceEvent.id,
+        }),
+      ).toBeNull();
+      const envelope = await recipient.readEvent({
+        companyId: f.company.id,
+        userId: retainedReader.id,
+        eventId: originalEvent.id,
+      });
+      expect(envelope).not.toBeNull();
+      for (const field of [total, memo]) {
+        expect(envelope?.record.fields.find((entry) => entry.fieldId === field.id)?.after?.value).toEqual({
+          state: "restricted",
+        });
+      }
+      const query = RecordQuerySchema.parse({
+        typeId: summaryType.id,
+        filters: [{ fieldId: total.id, operator: "eq", value: decimal("37") }],
+      });
+      expect(
+        await recipient.readEvent({
+          companyId: f.company.id,
+          userId: retainedReader.id,
+          eventId: originalEvent.id,
+          query,
+        }),
+      ).toBeNull();
+      const subscription = await subscribeRecordEvents(f, {
+        ownerUserId: retainedReader.id,
+        typeId: summaryType.id,
+        events: ["record.updated"],
+        query: { typeId: summaryType.id, filters: query.filters, relationships: [], relatedFilters: [] },
+      });
+      expect(
+        await f.mutation(
+          {
+            action: "update",
+            ref: summary,
+            expectedVersion: (await f.readRecord(summary)).version,
+            fields: [{ fieldId: summaryType.primaryFieldId, value: textValue("Renamed public summary") }],
+          },
+          f.admin,
+          randomUUID(),
+          3,
+        ),
+      ).toMatchObject({ ok: true, data: { status: "completed" } });
+      expect(
+        await f.run(() =>
+          prisma.recordEventMatch.count({ where: { companyId: f.company.id, subscriptionId: subscription.id } }),
+        ),
+      ).toBe(0);
+      const adminHistory = await f.run(async () =>
+        new RecordHistoryReader(f.repo).redact(originalPayload, await f.repo.getModel(), await f.policy.load()),
+      );
+      expect(adminHistory?.fields.find((entry) => entry.fieldId === total.id)?.after?.value).toEqual({
+        state: "value",
+        value: decimal("37"),
+      });
+      expect(adminHistory?.fields.find((entry) => entry.fieldId === memo.id)?.after?.value).toEqual({
+        state: "value",
+        value: textValue(canary),
+      });
+      const restore = await f.run(() =>
+        f.configure.invoke({
+          expectedRevision: 3,
+          idempotencyKey: randomUUID(),
+          operations: [{ operation: "putType", type: { ...sourceType, archived: false } }],
+        }),
+      );
+      if (!restore.ok) throw new Error("Source restore failed");
+      if (restore.data.status === "pending") {
+        const operationId = restore.data.operationId;
+        let completed = false;
+        for (let step = 0; step < 200; step++) {
+          if ((await f.run(() => f.worker().advance(operationId))).done) {
+            completed = true;
+            break;
+          }
+        }
+        expect(completed).toBe(true);
+      }
+      expect((await f.run(() => f.repo.getModel())).revision).toBe(4);
+      expect(
+        (await f.run(() => f.policy.load(), retainedReader)).access([sourceType.id]).get(sourceType.id)?.access,
+      ).toBe("all");
+      expect(
+        (await f.readRecord(summary, retainedReader)).fields.find((entry) => entry.fieldId === total.id)?.result,
+      ).toEqual({
+        state: "value",
+        value: decimal("37"),
+      });
+      expect(
+        await recipient.readEvent({
+          companyId: f.company.id,
+          userId: retainedReader.id,
+          eventId: deletedSourceEvent.id,
+        }),
+      ).not.toBeNull();
     },
   );
 

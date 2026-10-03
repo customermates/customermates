@@ -300,8 +300,10 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
     );
   }
   previewValue = (field: RecordField): CalculatedValue => {
+    const stored = this.record?.fields.find((value) => value.fieldId === field.id)?.result;
+    if (stored?.state === "restricted") return stored;
     if (field.behavior.kind !== "input" && !(field.behavior.kind === "snapshot" && field.behavior.allowManualOverride))
-      return this.record?.fields.find((value) => value.fieldId === field.id)?.result ?? { state: "missing" };
+      return stored ?? { state: "missing" };
 
     const value = this.scalar(field);
     if (value === null) return { state: "missing" };

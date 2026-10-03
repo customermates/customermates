@@ -54,6 +54,7 @@ export function recordAccessForActor({
   const valid = actor?.id === userId && actor.status === "active" && actor.role?.companyId === companyId;
   const role = valid ? actor.role : null;
   const isAdmin = role?.isSystemRole === true;
+  const activeTypeIds = new Set(model.types.filter((type) => !type.archived).map((type) => type.id));
   const parentOf = (typeId: string) =>
     model.relationships.find(
       (relation) =>
@@ -82,7 +83,7 @@ export function recordAccessForActor({
     );
   };
   const scopeFor = (typeId: string, depth = 0): RecordReadScope => {
-    if (depth > 12) return { userId: userId, access: "none" };
+    if (depth > 12 || !activeTypeIds.has(typeId)) return { userId: userId, access: "none" };
     const access = allowed(typeId, "readAll") ? "all" : allowed(typeId, "readOwn") ? "own" : "none";
     const parent = !isAdmin && parentOf(typeId);
     return {
@@ -100,7 +101,7 @@ export function recordAccessForActor({
     };
   };
   const canRead = async (record: StoredRecord, depth = 0): Promise<boolean> => {
-    if (depth > 12 || !valid || record.companyId !== companyId) return false;
+    if (depth > 12 || !valid || record.companyId !== companyId || !activeTypeIds.has(record.typeId)) return false;
     if (isAdmin) return true;
     const parent = parentOf(record.typeId);
     if (parent) {

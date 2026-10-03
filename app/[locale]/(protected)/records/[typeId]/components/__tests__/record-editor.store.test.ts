@@ -476,6 +476,41 @@ describe("record mutation request ownership", () => {
 });
 
 describe("explicit snapshot capture drafts", () => {
+  it.each(
+    (["input", "snapshot"] as const).flatMap((behavior) =>
+      (["restricted", "missing", "value"] as const).map((state) => ({ behavior, state })),
+    ),
+  )("preserves $state summary visibility for $behavior draft previews", ({ behavior, state }) => {
+    const source = model.fields.find((field) => field.id === id("deal.name"));
+    if (!source) throw new Error("Expected seeded deal name");
+    const field = {
+      ...source,
+      id: randomUUID(),
+      label: "Retained name",
+      behavior:
+        behavior === "input"
+          ? { kind: "input" as const }
+          : {
+              kind: "snapshot" as const,
+              expression: { kind: "field" as const, fieldId: source.id },
+              capture: "explicit" as const,
+              allowManualOverride: true,
+            },
+    };
+    const presentation = { ...context("deal"), model: { ...model, fields: [...model.fields, field] } };
+    const result =
+      state === "value" ? { state: "value" as const, value: { kind: "text" as const, value: "Before" } } : { state };
+    const store = new RecordEditorStore(root, presentation, vi.fn());
+    store.edit(presentation, { ...record(), fields: [...record().fields, { fieldId: field.id, result }] });
+    expect(store.previewValue(field)).toEqual(result);
+    store.onChange(`values.${field.id}`, "Edited preview");
+    expect(store.previewValue(field)).toEqual(
+      state === "restricted"
+        ? { state: "restricted" }
+        : { state: "value", value: { kind: "text", value: "Edited preview" } },
+    );
+  });
+
   it("captures in the same mutation as edited source values and omits a staged manual replacement", async () => {
     const source = model.fields.find((field) => field.id === id("deal.name"));
     if (!source) throw new Error("Expected seeded deal name");

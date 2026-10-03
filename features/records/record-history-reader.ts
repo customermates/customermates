@@ -19,7 +19,7 @@ export class RecordHistoryReader {
     policy: Policy,
     mode: "history" | "delivery" = "history",
   ): Promise<RecordHistoryChanges> {
-    if (!policy.actor || !model.types.some((type) => type.id === payload.ref.typeId)) return null;
+    if (!policy.actor || !model.types.some((type) => type.id === payload.ref.typeId && !type.archived)) return null;
     const owner = await this.records.getRecordCompanyWide(payload.ref);
     const removedAssignedRecord =
       mode === "delivery" &&
