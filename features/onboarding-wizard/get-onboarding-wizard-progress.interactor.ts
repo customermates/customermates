@@ -30,17 +30,9 @@ export class GetOnboardingWizardProgressInteractor {
 
     return runWithTenant(resolution.user, async () => {
       const progress = readOnboardingWizardProgress(await this.repo.findOnboardingWizardProgressOrThrow());
-      if (Object.keys(progress.ai.apiKeyIds).length) {
-        const keys = await this.authService.listApiKeys();
-        const validIds = new Set(
-          keys
-            .filter((key) => key.enabled !== false && (!key.expiresAt || key.expiresAt.getTime() > Date.now()))
-            .map((key) => key.id),
-        );
-        progress.ai.apiKeyIds = Object.fromEntries(
-          Object.entries(progress.ai.apiKeyIds).filter(([, id]) => validIds.has(id)),
-        );
-      }
+      const references = Object.entries(progress.ai.apiKeyIds);
+      const { active } = await this.authService.resolveApiKeyReferences(references.map(([, id]) => id));
+      progress.ai.apiKeyIds = Object.fromEntries(references.filter(([, id]) => active.has(id)));
       return { ok: true as const, data: progress };
     });
   }

@@ -93,8 +93,12 @@ export class OnboardingWizardStore {
           if (saved) runInAction(() => this.applyProgress(saved));
           return false;
         }
+        const kept = new Set(Object.values(result.data.ai.apiKeyIds));
         runInAction(() => {
           this.savedProgress = result.data;
+          this.rootStore.stepAiStore.forgetApiKeyIds(
+            Object.values(snapshot.ai.apiKeyIds).filter((id) => id !== undefined && !kept.has(id)),
+          );
         });
         return true;
       } catch (error) {
@@ -152,6 +156,7 @@ export class OnboardingWizardStore {
     this.setIsSubmitting(true);
     try {
       if (this.userId && !(await this.persistProgress())) return;
+      if (!this.rootStore.stepAiStore.canFinish) return;
       const res = await completeOnboardingWizardAction();
       if (!res.ok) {
         toastZodErrorTree(res.error);

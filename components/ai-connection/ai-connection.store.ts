@@ -135,6 +135,17 @@ export class AiConnectionStore {
     this.savedApiKeyIds = selection.apiKeyIds;
   };
 
+  forgetApiKeyIds = (ids: string[]) => {
+    if (!ids.length) return;
+    const forgotten = new Set(ids);
+    this.savedApiKeyIds = Object.fromEntries(
+      Object.entries(this.savedApiKeyIds).filter(([, id]) => !forgotten.has(id)),
+    ) as AiConnectionSelection["apiKeyIds"];
+    this.credentials = Object.fromEntries(
+      Object.entries(this.credentials).filter(([, credential]) => !forgotten.has(credential.id)),
+    ) as AiConnectionStore["credentials"];
+  };
+
   reset = (force = false) => {
     if (this.isCreating && !force) return;
     this.credentialGeneration += 1;

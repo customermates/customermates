@@ -18,7 +18,7 @@ const user = createMockUser({ onboardingWizardCompletedAt: null });
 const progress = { ...readOnboardingWizardProgress(null), step: "ai" as const };
 const repo = { findOnboardingWizardProgressOrThrow: vi.fn(), saveOnboardingWizardProgress: vi.fn() };
 const guard = { resolveAccountState: vi.fn() };
-const auth = { listApiKeys: vi.fn() };
+const auth = { resolveApiKeyReferences: vi.fn() };
 const read = () => new GetOnboardingWizardProgressInteractor(repo as never, guard as never, auth as never);
 const save = () => new SaveOnboardingWizardProgressInteractor(repo as never, guard as never, auth as never);
 
@@ -28,7 +28,7 @@ beforeEach(() => {
   guard.resolveAccountState.mockResolvedValue({ state: "onboarding", user });
   repo.findOnboardingWizardProgressOrThrow.mockResolvedValue(progress);
   repo.saveOnboardingWizardProgress.mockResolvedValue(true);
-  auth.listApiKeys.mockResolvedValue([]);
+  auth.resolveApiKeyReferences.mockResolvedValue({ active: new Set(), foreign: new Set() });
 });
 
 describe("onboarding progress access and persistence", () => {
@@ -89,15 +89,12 @@ describe("onboarding progress access and persistence", () => {
         apiKeyIds: { cursor: "valid", codex: "expired", gemini: "disabled", claudeCode: "another-user" },
       },
     });
-    auth.listApiKeys.mockResolvedValue([
-      { id: "valid", enabled: true, expiresAt: new Date("2099-01-01") },
-      { id: "expired", enabled: true, expiresAt: new Date(0) },
-      { id: "disabled", enabled: false, expiresAt: null },
-    ]);
+    auth.resolveApiKeyReferences.mockResolvedValue({ active: new Set(["valid"]), foreign: new Set(["another-user"]) });
     expect(await read().invoke()).toMatchObject({ ok: true, data: { ai: { apiKeyIds: { cursor: "valid" } } } });
   });
 
   it("refuses to save an API-key reference from another user", async () => {
+    auth.resolveApiKeyReferences.mockResolvedValue({ active: new Set(), foreign: new Set(["another-user"]) });
     expect(
       await save().invoke({
         userId: user.id,
@@ -105,6 +102,19 @@ describe("onboarding progress access and persistence", () => {
       }),
     ).toMatchObject({ ok: false });
     expect(repo.saveOnboardingWizardProgress).not.toHaveBeenCalled();
+  });
+
+  it("drops the user's own deleted, disabled or expired key references instead of blocking the save", async () => {
+    auth.resolveApiKeyReferences.mockResolvedValue({ active: new Set(["valid"]), foreign: new Set() });
+    const stale = {
+      ...progress,
+      ai: { ...progress.ai, apiKeyIds: { cursor: "valid", codex: "deleted", gemini: "disabled" } },
+    };
+    const pruned = { ...progress, ai: { ...progress.ai, apiKeyIds: { cursor: "valid" } } };
+
+    await expect(save().invoke({ userId: user.id, progress: stale })).resolves.toEqual({ ok: true, data: pruned });
+    expect(auth.resolveApiKeyReferences).toHaveBeenCalledWith(["valid", "deleted", "disabled"]);
+    expect(repo.saveOnboardingWizardProgress).toHaveBeenCalledExactlyOnceWith(pruned);
   });
 
   it("cannot reopen onboarding if completion races the save", async () => {

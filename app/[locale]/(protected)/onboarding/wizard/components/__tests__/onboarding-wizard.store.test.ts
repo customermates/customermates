@@ -16,7 +16,7 @@ import { OnboardingWizardStore, WIZARD_STEPS } from "../onboarding-wizard.store"
 import { AiConnectionStore } from "@/components/ai-connection/ai-connection.store";
 import { readOnboardingWizardProgress } from "@/features/onboarding-wizard/onboarding-wizard-progress.schema";
 
-const rootStore = {} as RootStore;
+const rootStore = { stepAiStore: { canFinish: true } } as RootStore;
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -114,6 +114,54 @@ describe("returning-user onboarding progress", () => {
     expect(store.currentStep).toBe("invite");
     expect(ai.canFinish).toBe(false);
     expect(ai.selection.apiKeyIds).toEqual({});
+  });
+
+  it("recovers when the server drops a stale saved key instead of blocking navigation", async () => {
+    const { store, ai } = persistentStore();
+    const progress = {
+      ...readOnboardingWizardProgress(null),
+      step: "ai" as const,
+      ai: {
+        ...readOnboardingWizardProgress(null).ai,
+        route: { screen: "setup" as const, provider: "cursor" as const },
+        selectedProvider: "cursor" as const,
+        apiKeyIds: { cursor: "deleted-key-id" },
+      },
+    };
+    store.initialize(true, "owner-a", progress);
+    expect(ai.canFinish).toBe(true);
+    actions.saveOnboardingWizardProgressAction.mockImplementation(({ progress: sent }) =>
+      Promise.resolve({ ok: true, data: { ...sent, ai: { ...sent.ai, apiKeyIds: {} } } }),
+    );
+
+    await store.back();
+
+    expect(store.currentStep).toBe("invite");
+    expect(store.savedProgress?.ai.apiKeyIds).toEqual({});
+    expect(ai.hasSavedApiKey).toBe(false);
+    expect(ai.canFinish).toBe(false);
+  });
+
+  it("keeps a key created while an older save was in flight", async () => {
+    const { store, ai } = persistentStore();
+    store.initialize(true, "owner-a");
+    await store.next();
+    ai.selectProvider("cursor");
+    let resolveSave!: (value: unknown) => void;
+    actions.saveOnboardingWizardProgressAction.mockImplementationOnce(
+      ({ progress: sent }) =>
+        new Promise((resolve) => {
+          resolveSave = () => resolve({ ok: true, data: sent });
+        }),
+    );
+    const pending = store.persistProgress();
+    await Promise.resolve();
+    ai.credentials.cursor = { id: "fresh-key-id", key: "synthetic-one-time-value", expiresAt: null };
+    resolveSave(undefined);
+    await pending;
+
+    expect(ai.credential?.id).toBe("fresh-key-id");
+    expect(ai.canFinish).toBe(true);
   });
 
   it("does not let an old account's in-flight save advance a new account", async () => {

@@ -43,21 +43,19 @@ export class SaveOnboardingWizardProgressInteractor {
     if (resolution.user.id !== data.userId) return failAuthorization(CustomErrorCode.permissionDenied);
 
     return runWithTenant(resolution.user, async () => {
-      const ids = Object.values(data.progress.ai.apiKeyIds);
-      if (ids.length) {
-        const keys = await this.authService.listApiKeys();
-        const validIds = new Set(
-          keys
-            .filter((key) => key.enabled !== false && (!key.expiresAt || key.expiresAt.getTime() > Date.now()))
-            .map((key) => key.id),
-        );
-        if (ids.some((id) => !validIds.has(id)))
-          return failAuthorization(CustomErrorCode.permissionDenied, ["progress", "ai", "apiKeyIds"]);
-      }
+      const references = Object.entries(data.progress.ai.apiKeyIds);
+      const { active, foreign } = await this.authService.resolveApiKeyReferences(references.map(([, id]) => id));
+      if (references.some(([, id]) => foreign.has(id)))
+        return failAuthorization(CustomErrorCode.permissionDenied, ["progress", "ai", "apiKeyIds"]);
 
-      const saved = await this.repo.saveOnboardingWizardProgress(data.progress);
+      const progress = {
+        ...data.progress,
+        ai: { ...data.progress.ai, apiKeyIds: Object.fromEntries(references.filter(([, id]) => active.has(id))) },
+      };
+
+      const saved = await this.repo.saveOnboardingWizardProgress(progress);
       if (!saved) return redirectTo("/");
-      return { ok: true as const, data: data.progress };
+      return { ok: true as const, data: progress };
     });
   }
 }
