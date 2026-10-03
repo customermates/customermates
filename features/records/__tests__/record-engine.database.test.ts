@@ -5575,7 +5575,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect((await f.readRecord(ref)).identities).toEqual([]);
   });
 
-  it("shares one indexed channel across types, hides restricted associations, and retains the identity after unlinking", async () => {
+  it("shares one indexed channel across types, hides restricted associations, and deletes the identity after its last association", async () => {
     const f = await fixture();
     const organizationTypeId = f.id("organization");
     const binding = {
@@ -5651,14 +5651,29 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         ),
       ).toMatchObject({ ok: true });
     };
+    const channels = (value = "shared@example.test") =>
+      f.run(() => f.repo.getIdentityChannelsCompanyWide([{ channelClass: "email", value }]));
+    await f.run(() =>
+      runInTransaction(() =>
+        f.repo.setIdentityResolutionCompanyWide(contactIdentity.id, {
+          messagingId: "provider-alias@example.test",
+          displayName: "Cached provider name",
+          profileUrl: "https://example.test/cached",
+        }),
+      ),
+    );
     await unlink(contact);
     expect((await resolve())[0].records.map((record) => record.ref)).toEqual([organization]);
+    expect((await channels()).map((identity) => identity.id)).toEqual([contactIdentity.id]);
     await unlink(organization);
     expect((await resolve())[0].records).toEqual([]);
-    const retained = await f.run(() =>
-      f.repo.getIdentityChannelsCompanyWide([{ channelClass: "email", value: "shared@example.test" }]),
-    );
-    expect(retained.map((identity) => identity.id)).toEqual([contactIdentity.id]);
+    expect(await channels()).toEqual([]);
+    expect(await channels("provider-alias@example.test")).toEqual([]);
+    expect(
+      await runWithoutTenant(() =>
+        prisma.recordIdentityKey.count({ where: { companyId: f.company.id, identityId: contactIdentity.id } }),
+      ),
+    ).toBe(0);
     expect(
       await f.mutation(
         {
@@ -5673,7 +5688,14 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         2,
       ),
     ).toMatchObject({ ok: true });
-    expect((await f.readRecord(contact)).identities?.[0]?.id).toBe(contactIdentity.id);
+    const relinked = recordInvariant((await f.readRecord(contact)).identities?.[0]);
+    expect(relinked.id).not.toBe(contactIdentity.id);
+    expect(relinked).toMatchObject({
+      messagingId: null,
+      displayName: null,
+      profileUrl: null,
+      aliases: ["shared@example.test"],
+    });
     expect(
       await f.mutation(
         {
@@ -5687,13 +5709,125 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ),
     ).toMatchObject({ ok: true });
     expect((await resolve())[0].records).toEqual([]);
-    expect(
-      (
-        await f.run(() =>
-          f.repo.getIdentityChannelsCompanyWide([{ channelClass: "email", value: "shared@example.test" }]),
-        )
-      )[0]?.id,
-    ).toBe(contactIdentity.id);
+    expect(await channels()).toEqual([]);
+  });
+
+  it("deletes orphaned identities on direct and staged record deletion and unlinking, but not on type archive", async () => {
+    const { createRecordStagingRepo } = await import("../record-staging.repository");
+    const f = await fixture();
+    const typeId = f.id("contact");
+    const created = await f.run(() =>
+      f.configure.invoke({
+        expectedRevision: 1,
+        idempotencyKey: randomUUID(),
+        operations: [
+          {
+            operation: "createType",
+            reference: "$archivable",
+            label: "Archivable",
+            pluralLabel: "Archivables",
+            description: "",
+            icon: "list",
+            embedded: false,
+            accessPresetId: null,
+          },
+          {
+            operation: "putCapability",
+            capability: { id: randomUUID(), kind: "channels", typeId: "$archivable", fields: [], enabled: true },
+          },
+        ],
+      }),
+    );
+    expect(created, JSON.stringify(created)).toMatchObject({ ok: true });
+    const archivableModel = await f.run(() => f.repo.getModel());
+    const archivableType = recordInvariant(archivableModel.types.find((item) => item.label === "Archivable"));
+    const refs = Array.from({ length: 4 }, () => ({ typeId, recordId: randomUUID() }));
+    const [shared, sharedPeer, stagedDeleted, stagedUnlinked] = refs;
+    const archived = { typeId: archivableType.id, recordId: randomUUID() };
+    const linkedin = (value: string) => ({
+      provider: "linkedin" as const,
+      value,
+      messagingId: `urn:${value}`,
+      displayName: `${value} cached name`,
+      profileUrl: `https://example.test/${value}`,
+    });
+    await f.run(() =>
+      runInTransaction(async () => {
+        for (const ref of [...refs, archived]) await f.repo.create(ref, []);
+        await f.repo.setIdentities(shared, [linkedin("shared")]);
+        await f.repo.setIdentities(sharedPeer, [linkedin("shared")]);
+        await f.repo.setIdentities(stagedDeleted, [linkedin("staged-deleted")]);
+        await f.repo.setIdentities(stagedUnlinked, [linkedin("staged-unlinked")]);
+        await f.repo.setIdentities(archived, [linkedin("archived")]);
+      }),
+    );
+    const identity = async (value: string) =>
+      (await f.run(() => f.repo.getIdentityChannelsCompanyWide([{ channelClass: "linkedin", value }])))[0];
+    const keyCount = (identityId: string) =>
+      runWithoutTenant(() => prisma.recordIdentityKey.count({ where: { companyId: f.company.id, identityId } }));
+    const sharedIdentity = recordInvariant(await identity("shared"));
+
+    await f.run(() => runInTransaction(() => f.repo.delete(shared)));
+    expect(await identity("urn:shared")).toMatchObject({ id: sharedIdentity.id, displayName: "shared cached name" });
+    await f.run(() => runInTransaction(() => f.repo.delete(sharedPeer)));
+    expect(await identity("shared")).toBeUndefined();
+    expect(await identity("urn:shared")).toBeUndefined();
+    expect(await keyCount(sharedIdentity.id)).toBe(0);
+
+    const stagedIds = [
+      recordInvariant(await identity("staged-deleted")).id,
+      recordInvariant(await identity("staged-unlinked")).id,
+    ];
+    const operationId = randomUUID();
+    await f.run(() =>
+      runInTransaction(() =>
+        f.repo.createOperation({
+          id: operationId,
+          userId: f.admin.id,
+          kind: "mutation",
+          expectedRevision: archivableModel.revision,
+          request: {},
+        }),
+      ),
+    );
+    const staged = createRecordStagingRepo(f.repo, operationId, f.company.id);
+    await f.run(() =>
+      runInTransaction(async () => {
+        await staged.delete(stagedDeleted);
+        await staged.setIdentities(stagedUnlinked, []);
+      }),
+    );
+    expect(await identity("urn:staged-deleted")).toBeDefined();
+    await f.run(() =>
+      runInTransaction(async () => {
+        await f.repo.publishStage(operationId, archivableModel.revision);
+        await f.repo.updateOperation(operationId, { state: "completed" });
+        await f.repo.clearOperationLock(operationId);
+      }),
+    );
+    for (const value of ["staged-deleted", "urn:staged-deleted", "staged-unlinked", "urn:staged-unlinked"])
+      expect(await identity(value)).toBeUndefined();
+    for (const id of stagedIds) expect(await keyCount(id)).toBe(0);
+
+    const archivedIdentity = recordInvariant(await identity("archived"));
+    const archivedResult = await f.run(() =>
+      f.configure.invoke({
+        expectedRevision: archivableModel.revision,
+        idempotencyKey: randomUUID(),
+        operations: [
+          { operation: "putType", type: { ...archivableType, archived: true } },
+          ...archivableModel.capabilities
+            .filter((binding) => binding.kind === "channels" && binding.typeId === archivableType.id)
+            .map((binding) => ({ operation: "putCapability" as const, capability: { ...binding, enabled: false } })),
+          ...archivableModel.activityPaths
+            .filter((path) => path.typeId === archivableType.id)
+            .map((path) => ({ operation: "putActivityPath" as const, activityPath: { ...path, archived: true } })),
+        ],
+      }),
+    );
+    expect(archivedResult, JSON.stringify(archivedResult)).toMatchObject({ ok: true });
+    expect(await identity("urn:archived")).toEqual(archivedIdentity);
+    expect(await f.run(() => f.repo.getIdentitiesCompanyWide(archived))).toEqual([archivedIdentity]);
   });
 
   it("lets schema managers enable Channels without granting record access and preserves associations across disabling", async () => {

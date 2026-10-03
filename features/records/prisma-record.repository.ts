@@ -240,14 +240,25 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
     const known = await this.getIdentityChannelsCompanyWide(keys);
     const rows = identityAssociations(inputs, known);
     const ids = rows.map((row) => row.id);
-    await this.prisma.recordIdentityLink.deleteMany({
+    const removed = await this.prisma.recordIdentityLink.findMany({
       where: {
         companyId: this.companyId,
         typeId: ref.typeId,
         recordId: ref.recordId,
         identityId: { notIn: ids },
       },
+      select: { identityId: true },
     });
+    if (removed.length) {
+      await this.prisma.recordIdentityLink.deleteMany({
+        where: {
+          companyId: this.companyId,
+          typeId: ref.typeId,
+          recordId: ref.recordId,
+          identityId: { in: removed.map((row) => row.identityId) },
+        },
+      });
+    }
     const existing = new Set(known.map((row) => row.id));
     for (const { aliases, ...row } of rows) {
       if (!existing.has(row.id)) {
@@ -274,6 +285,23 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
         skipDuplicates: true,
       });
     }
+    await this.deleteOrphanedIdentities(removed.map((row) => row.identityId));
+  }
+
+  /**
+   * An identity exists only while a record references it. Removing its last association deletes the
+   * canonical row with its aliases and cached provider metadata (messaging ID, display name, profile
+   * URL), so a later record linking the same value starts from a fresh identity. Event history keeps
+   * its own copies, and archived types or disabled Channels keep their associations.
+   */
+  private async deleteOrphanedIdentities(identityIds: string[]): Promise<void> {
+    if (!identityIds.length) return;
+    await this.prisma.$executeRaw(Prisma.sql`
+      DELETE FROM "RecordIdentity" identity
+      WHERE identity."companyId" = ${this.companyId} AND identity.id = ANY(${[...new Set(identityIds)]}::text[])
+        AND NOT EXISTS (SELECT 1 FROM "RecordIdentityLink" association
+          WHERE association."companyId" = identity."companyId" AND association."identityId" = identity.id)
+    `);
   }
 
   async setIdentityResolutionCompanyWide(
@@ -928,6 +956,10 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
   }
 
   async delete(ref: RecordRef): Promise<void> {
+    const identities = await this.prisma.recordIdentityLink.findMany({
+      where: { companyId: this.companyId, typeId: ref.typeId, recordId: ref.recordId },
+      select: { identityId: true },
+    });
     await this.prisma.crmRecord.delete({
       where: {
         companyId: this.companyId,
@@ -938,6 +970,7 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
         },
       },
     });
+    await this.deleteOrphanedIdentities(identities.map((row) => row.identityId));
   }
 
   async setAssignments(ref: RecordRef, userIds: string[]): Promise<void> {
@@ -1465,6 +1498,14 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
       FROM "RecordStageRow" stage WHERE ${stage("event")}
     `);
     await captureRecordEventMatches(this.prisma, this, companyId, { operationId }, true);
+    const detachedIdentities = await this.prisma.$queryRaw<Array<{ identityId: string }>>(Prisma.sql`
+      SELECT DISTINCT association."identityId" FROM "RecordIdentityLink" association JOIN "RecordStageRow" stage
+        ON stage.payload->'ref'->>'typeId' = association."typeId" AND stage.payload->'ref'->>'recordId' = association."recordId"
+      WHERE association."companyId" = ${companyId} AND (
+        (${stage("record")} AND (stage.payload->>'deleted')::boolean)
+        OR (${stage("identity")} AND NOT EXISTS (SELECT 1 FROM jsonb_array_elements(stage.payload->'identities') item(data) WHERE item.data->>'id' = association."identityId"))
+      )
+    `);
     await this.prisma.$executeRaw(
       Prisma.sql`DELETE FROM "CrmRecord" record USING "RecordStageRow" stage WHERE ${stage("record")} AND (stage.payload->>'deleted')::boolean AND record."companyId" = ${companyId} AND record."typeId" = stage.payload->'ref'->>'typeId' AND record.id = stage.payload->'ref'->>'recordId'`,
     );
@@ -1514,6 +1555,7 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
       JOIN "CrmRecord" record ON record."companyId" = ${companyId} AND record."typeId" = stage.payload->'ref'->>'typeId' AND record.id = stage.payload->'ref'->>'recordId'
       WHERE ${stage("identity")} ON CONFLICT ("companyId", "identityId", "typeId", "recordId") DO NOTHING
     `);
+    await this.deleteOrphanedIdentities(detachedIdentities.map((row) => row.identityId));
     await this.prisma.$executeRaw(
       Prisma.sql`DELETE FROM "RecordAssignment" assignment USING "RecordStageRow" stage WHERE ${stage("record")} AND assignment."companyId" = ${companyId} AND assignment."typeId" = stage.payload->'ref'->>'typeId' AND assignment."recordId" = stage.payload->'ref'->>'recordId'`,
     );
