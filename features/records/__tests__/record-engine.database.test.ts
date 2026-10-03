@@ -3060,7 +3060,17 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(await worker.invoke({ companyId: f.company.id, eventId: firstEvent.id })).toEqual({ status: "deferred" });
     expect(await outbox.dueEventsUnscoped(f.company.id, new Date(), 10)).toEqual([secondEvent.id]);
     expect(await worker.invoke({ companyId: f.company.id, eventId: secondEvent.id })).toEqual({ status: "delivered" });
-    expect(await outbox.dueCompaniesUnscoped(new Date(), 100)).toContain(other.company.id);
+    const dueAt = new Date("1900-01-01T00:00:00.000Z");
+    await other.run(() =>
+      prisma.recordEvent.update({
+        where: {
+          companyId: other.company.id,
+          companyId_id: { companyId: other.company.id, id: foreignEvent.id },
+        },
+        data: { nextAttemptAt: dueAt },
+      }),
+    );
+    expect(await outbox.dueCompaniesUnscoped(dueAt, 1)).toEqual([other.company.id]);
     expect(await outbox.findUnscoped(other.company.id, foreignEvent.id)).toMatchObject({
       attempts: 0,
       deliveredAt: null,
