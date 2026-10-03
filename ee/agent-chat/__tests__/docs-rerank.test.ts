@@ -855,3 +855,39 @@ describe("complete record procedures in bounded classifier evidence", () => {
     },
   );
 });
+
+describe("channel connection prerequisites in bounded classifier evidence", () => {
+  it.each([
+    {
+      locale: "en" as const,
+      query: "My initial email connection failed",
+      controls: [
+        "existing channel card",
+        "only its owner",
+        "failed initial connection",
+        "Connect channel",
+        "Reactivate",
+      ],
+    },
+    {
+      locale: "de" as const,
+      query: "Das erste Verbinden meines E-Mail-Kanals schlägt fehl",
+      controls: ["vorhandene Kanal-Karte", "nur der Besitzer", "erste Verbinden", "Kanal verbinden", "Reaktivieren"],
+    },
+  ])("retains both initial and existing channel states in $locale", ({ locale, query, controls }) => {
+    const page = rawDocsManifest.docs[locale]["app-profile"];
+    const section = splitSections({
+      slug: "app-profile",
+      source: "docs",
+      pageTitle: page.title,
+      markdown: page.content,
+    }).find((candidate) => candidate.anchor === "how-do-i-reactivate-resync-or-disconnect-a-channel");
+    expect(section).toBeDefined();
+    if (!section) throw new Error("Expected public channel recovery section");
+    const candidates = Array.from({ length: 120 }, (_, id) => ({ id, section, locale }));
+    const [question] = docsRankSpec(candidates, "docs", query).questions;
+    const evidence = optionEvidence(question.options.s0);
+    for (const control of controls) expect(evidence).toContain(control);
+    expect(evidence.length).toBeLessThanOrEqual(400);
+  });
+});
