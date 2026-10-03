@@ -168,11 +168,12 @@ test("configures an activity path and applies provider, channel, conversation an
     { id: randomUUID(), provider: "mail", name: "Other activity mailbox" },
     { id: randomUUID(), provider: "google", name: "Other activity provider" },
   ];
-  for (const account of accounts)
+  for (const account of accounts) {
     await database.query(
       'INSERT INTO "ConnectedAccount" (id,"companyId","userId","unipileAccountId",provider,status,"hasMessaging","displayName","updatedAt") VALUES ($1,$2,$3,$4,$5,\'ok\',true,$6,NOW())',
       [account.id, companyId, workspace.userId, randomUUID(), account.provider, account.name],
     );
+  }
   const selectedThread = randomUUID();
   const otherThread = randomUUID();
   const wrongAccountThread = randomUUID();
@@ -207,7 +208,7 @@ test("configures an activity path and applies provider, channel, conversation an
     { thread: threads[0], body: oldBody, at: new Date(new Date(day.noon).getTime() - 86400000).toISOString() },
     { thread: threads[0], body: futureBody, at: new Date(new Date(day.noon).getTime() + 86400000).toISOString() },
   ];
-  for (const message of messages)
+  for (const message of messages) {
     await database.query(
       'INSERT INTO "MessagingMessage" (id,"companyId","messagingThreadId","connectedAccountId","unipileMessageId",provider,direction,origin,sender,recipients,"bodyText","sentAt","updatedAt") VALUES ($1,$2,$3,$4,$5,$6,\'inbound\',\'unipile\',$7,$8,$9,$10,NOW())',
       [
@@ -223,6 +224,7 @@ test("configures an activity path and applies provider, channel, conversation an
         message.at,
       ],
     );
+  }
   await page.goto("/en/dashboard");
   await page.locator("#dashboard-add-widget").click();
   await dialog.locator("#widget-kind-activityTimeline").click();
@@ -286,6 +288,47 @@ test("configures an activity path and applies provider, channel, conversation an
   for (const body of [wrongProviderBody, wrongAccountBody, wrongThreadBody, oldBody, futureBody])
     await expect(card.getByText(body, { exact: true })).toHaveCount(0);
   await page.screenshot({ path: testInfo.outputPath("activity-widget-persisted-filters.png"), fullPage: true });
+  const openInInbox = page.getByRole("link", { name: englishMessages.ContactHistory.ariaOpenInInbox, exact: true });
+  const messageDetail = page.getByRole("dialog").filter({ has: openInInbox });
+  const selectedHistoryRow = card.getByRole("button").filter({ hasText: selectedBody });
+  const returnToDashboard = async () => {
+    await expect(page.locator("#sidebar-trigger")).toHaveAttribute("aria-disabled", "false");
+    const dashboard = page.getByRole("link", { name: "Dashboard", exact: true });
+    if (!(await dashboard.isVisible())) await page.locator("#sidebar-trigger").click();
+    await dashboard.click();
+    await expect(page).toHaveURL(/\/en\/dashboard$/);
+    await expect(card.getByText(selectedBody, { exact: true })).toBeVisible();
+  };
+  await selectedHistoryRow.click();
+  await expect(messageDetail.getByText(selectedBody, { exact: true })).toBeVisible();
+  const primaryRecordChip = messageDetail.locator(`a[href="/records/${organizationTypeId}/${organization.id}"]`);
+  await expect(primaryRecordChip).toBeVisible();
+  await primaryRecordChip.click();
+  await expect(page).toHaveURL(new RegExp(`/en/records/${organizationTypeId}/${organization.id}$`));
+  await expect(messageDetail).toHaveCount(0);
+  const organizationName = (
+    await database.query(
+      'SELECT "textValue" FROM "RecordValue" WHERE "companyId"=$1 AND "typeId"=$2 AND "recordId"=$3 AND "fieldId"=$4',
+      [companyId, organizationTypeId, organization.id, presetId(companyId, "organization.name")],
+    )
+  ).rows[0]?.textValue;
+  expect(typeof organizationName).toBe("string");
+  await expect(page.getByRole("main").getByRole("textbox", { name: "Name", exact: false })).toHaveValue(
+    organizationName,
+  );
+  await returnToDashboard();
+  await selectedHistoryRow.click();
+  await expect(messageDetail.getByText(selectedBody, { exact: true })).toBeVisible();
+  await expect(openInInbox).toHaveAttribute("href", `/en/inbox?threadId=${selectedThread}`);
+  await openInInbox.click();
+  await expect(page).toHaveURL(
+    (url) => url.pathname === "/en/inbox" && url.searchParams.get("threadId") === selectedThread,
+  );
+  await expect(messageDetail).toHaveCount(0);
+  await expect(page.getByText(selectedBody, { exact: true })).toBeVisible();
+  await expect(page.locator(`[data-thread-id="${selectedThread}"]`)).toBeVisible();
+  await returnToDashboard();
+  await page.screenshot({ path: testInfo.outputPath("activity-message-inbox-return.png"), fullPage: true });
   await page.goto(`/en/company/data-model?typeId=${organizationTypeId}`);
   await activityRow(connections, pathName).getByRole("button", { name: labels.edit, exact: true }).click();
   await dialog.locator("#includeMessages").uncheck();
