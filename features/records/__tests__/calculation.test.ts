@@ -169,6 +169,39 @@ describe("deterministic record calculations", () => {
     expect(reduceCalculatedValues("max", instants)).toEqual(instants[1]);
   });
 
+  it("keeps an empty rollup currency-neutral in currency arithmetic and comparisons", async () => {
+    const emptyLines: CalculationExpression = {
+      kind: "related",
+      relationId: randomUUID(),
+      direction: "incoming",
+      expression: { kind: "field", fieldId: randomUUID() },
+      reducer: "sum",
+    };
+    expect(await evaluateCalculation(operation("subtract", emptyLines, literal("25", "EUR")), ref, empty)).toEqual(
+      decimalResult("-25", "EUR"),
+    );
+    expect(await evaluateCalculation(operation("add", literal("25", "EUR"), emptyLines), ref, empty)).toEqual(
+      decimalResult("25", "EUR"),
+    );
+    expect(await evaluateCalculation(operation("lessThan", emptyLines, literal("25", "EUR")), ref, empty)).toEqual(
+      valueResult({ kind: "boolean", value: true }),
+    );
+    expect(await evaluateCalculation(operation("divide", emptyLines, literal("25", "EUR")), ref, empty)).toEqual(
+      decimalResult("0"),
+    );
+    expect(reduceCalculatedValues("sum", [decimalResult("0"), decimalResult("10", "EUR")])).toEqual(
+      decimalResult("10", "EUR"),
+    );
+    expect(await evaluateCalculation(operation("subtract", literal("3"), literal("25", "EUR")), ref, empty)).toEqual({
+      state: "error",
+      code: "currency_mismatch",
+    });
+    expect(reduceCalculatedValues("sum", [decimalResult("3"), decimalResult("10", "EUR")])).toEqual({
+      state: "error",
+      code: "currency_mismatch",
+    });
+  });
+
   it("rejects lossy stored decimals", () => {
     expect(isRepresentableDecimal("123456789012345678901234567890.12345678901234567890123456789")).toBe(true);
     expect(isRepresentableDecimal("0.0000000000000000000000000000001")).toBe(false);

@@ -63,11 +63,29 @@ function scalarValue(value: RecordScalar): string | boolean {
   }
 }
 
+// An empty rollup sums to a currency-less zero because no source value names a
+// currency. Zero is neutral in sums, differences and comparisons, so it adopts
+// the other operand's currency there instead of reporting a mismatch.
+function neutralZero(value: Extract<RecordScalar, { kind: "decimal" }>): boolean {
+  return value.currency === null && new ExactDecimal(value.value).isZero();
+}
+
+function alignCurrencies(
+  left: Extract<RecordScalar, { kind: "decimal" }>,
+  right: Extract<RecordScalar, { kind: "decimal" }>,
+): [Extract<RecordScalar, { kind: "decimal" }>, Extract<RecordScalar, { kind: "decimal" }>] {
+  if (left.currency === right.currency) return [left, right];
+  if (neutralZero(left)) return [{ ...left, currency: right.currency }, right];
+  if (neutralZero(right)) return [left, { ...right, currency: left.currency }];
+  return [left, right];
+}
+
 function compare(left: RecordScalar, right: RecordScalar): number | null {
   if (left.kind !== right.kind) return null;
   if (left.kind === "decimal" && right.kind === "decimal") {
-    if (left.currency !== right.currency) return null;
-    return new ExactDecimal(left.value).cmp(right.value);
+    const [a, b] = alignCurrencies(left, right);
+    if (a.currency !== b.currency) return null;
+    return new ExactDecimal(a.value).cmp(b.value);
   }
   if (left.kind === "dateTime" && right.kind === "dateTime") {
     const a = recordInstantMicros(left.value);
@@ -100,9 +118,11 @@ export function reduceCalculatedValues(
   }
   if (scalars.some((value) => value.kind !== "decimal")) return error("type_mismatch");
   const decimals = scalars as Array<Extract<RecordScalar, { kind: "decimal" }>>;
-  if (decimals.some((value) => value.currency !== decimals[0].currency)) return error("currency_mismatch");
+  const currencies = new Set(decimals.filter((value) => !neutralZero(value)).map((value) => value.currency));
+  if (currencies.size > 1) return error("currency_mismatch");
+  const currency = currencies.size ? [...currencies][0] : decimals[0].currency;
   const sum = decimals.reduce((total, value) => total.plus(value.value), new ExactDecimal(0));
-  return decimalResult(reducer === "average" ? sum.div(decimals.length) : sum, decimals[0].currency);
+  return decimalResult(reducer === "average" ? sum.div(decimals.length) : sum, currency);
 }
 
 function operate(
@@ -112,13 +132,14 @@ function operate(
   const failure = propagated(values);
   if (failure) return failure;
   const scalars = values.map((value) => (value as Extract<CalculatedValue, { state: "value" }>).value);
-  const [a, b] = scalars;
+  let [a, b] = scalars;
 
   if (["add", "subtract", "multiply", "divide"].includes(operator)) {
     if (scalars.length !== 2 || a.kind !== "decimal" || b.kind !== "decimal") return error("type_mismatch");
     const left = new ExactDecimal(a.value);
     const right = new ExactDecimal(b.value);
     if (operator === "add" || operator === "subtract") {
+      [a, b] = alignCurrencies(a, b);
       if (a.currency !== b.currency) return error("currency_mismatch");
       return decimalResult(operator === "add" ? left.plus(right) : left.minus(right), a.currency);
     }
@@ -127,6 +148,7 @@ function operate(
       return decimalResult(left.times(right), a.currency ?? b.currency);
     }
     if (right.isZero()) return error("division_by_zero");
+    [a, b] = alignCurrencies(a, b);
     if (b.currency && a.currency !== b.currency) return error("currency_mismatch");
     return decimalResult(left.div(right), b.currency ? null : a.currency);
   }
