@@ -3323,7 +3323,12 @@
     "rangeEnd": "Bis",
     "rangeStart": "Von",
     "record": "Datensatz",
+    "recordConflictFields": "Auch an anderer Stelle geändert: {fields}. Wähle vor dem Speichern, welche Version gelten soll.",
+    "recordReload": "Datensatz neu laden",
+    "recordReloadKeepChanges": "Neu laden und meine Änderungen behalten",
     "records": "Datensätze",
+    "recordStale": "Dieser Datensatz wurde an anderer Stelle geändert. Lade ihn neu, um weiterzubearbeiten.",
+    "recordStaleDraft": "Dieser Datensatz wurde geändert, seit du mit der Bearbeitung begonnen hast. Lade ihn neu, um fortzufahren; deine ungespeicherten Änderungen bleiben erhalten.",
     "reducers": {
       "average": "Durchschnitt",
       "count": "Anzahl",

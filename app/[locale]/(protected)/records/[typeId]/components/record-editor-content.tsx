@@ -29,6 +29,57 @@ import { RecordActivitiesPanel } from "@/features/messaging/activities/record-ac
 import { Alert } from "@/components/shared/alert";
 import { AppLink } from "@/components/shared/app-link";
 
+const RecordEditorRecovery = observer(function RecordEditorRecovery({ store }: { store: RecordEditorStore }) {
+  const t = useTranslations();
+  if (!store.refreshRequired && !store.conflicts.length) return null;
+  const label = (key: string) =>
+    store.fields.find((field) => field.id === key)?.label ??
+    (key === "assignedUserIds"
+      ? t("RecordModel.assignedTo")
+      : key === "identities"
+        ? t("RecordModel.identityChannels")
+        : key === "linkChanges"
+          ? t("RecordModel.relationships")
+          : key);
+  return (
+    <div className="px-6 pb-3">
+      <div className="space-y-2 rounded-md border border-border bg-muted/50 p-3 text-sm" role="status">
+        {store.refreshRequired ? (
+          <>
+            <p>{store.hasUnsavedChanges ? t("RecordModel.recordStaleDraft") : t("RecordModel.recordStale")}</p>
+
+            <Button
+              disabled={store.isLoading}
+              size="sm"
+              type="button"
+              variant="secondary"
+              onClick={() => runUserAction(store.reloadKeepingChanges)}
+            >
+              {store.hasUnsavedChanges ? t("RecordModel.recordReloadKeepChanges") : t("RecordModel.recordReload")}
+            </Button>
+          </>
+        ) : null}
+
+        {store.conflicts.length ? (
+          <>
+            <p>{t("RecordModel.recordConflictFields", { fields: store.conflicts.map(label).join(", ") })}</p>
+
+            <div className="flex flex-wrap gap-2">
+              <Button size="sm" type="button" variant="secondary" onClick={() => store.resolveConflicts("draft")}>
+                {t("RecordModel.staleKeepDraft")}
+              </Button>
+
+              <Button size="sm" type="button" variant="secondary" onClick={() => store.resolveConflicts("latest")}>
+                {t("RecordModel.staleLoadLatest")}
+              </Button>
+            </div>
+          </>
+        ) : null}
+      </div>
+    </div>
+  );
+});
+
 const RecordEditorBody = observer(function RecordEditorBody({
   store,
   layout = "drawer",
@@ -96,13 +147,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
         </div>
       )}
 
-      {store.refreshRequired && (
-        <div className="px-6 pb-3" role="status">
-          <Button type="button" variant="secondary" onClick={() => runUserAction(store.refreshRecord)}>
-            {t("ErrorCard.retry")}
-          </Button>
-        </div>
-      )}
+      <RecordEditorRecovery store={store} />
     </>
   );
   if (layout === "page") {

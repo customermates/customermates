@@ -3323,7 +3323,12 @@
     "rangeEnd": "A",
     "rangeStart": "Da",
     "record": "Record",
+    "recordConflictFields": "Modificato anche altrove: {fields}. Scegli quale versione mantenere prima di salvare.",
+    "recordReload": "Ricarica il record",
+    "recordReloadKeepChanges": "Ricarica e mantieni le mie modifiche",
     "records": "Record",
+    "recordStale": "Questo record è stato modificato altrove. Ricaricalo per continuare a modificarlo.",
+    "recordStaleDraft": "Questo record è cambiato da quando hai iniziato a modificarlo. Ricaricalo per continuare; le modifiche non salvate vengono mantenute.",
     "reducers": {
       "average": "Media",
       "count": "Conteggio",

@@ -3323,7 +3323,12 @@
     "rangeEnd": "Hasta",
     "rangeStart": "Desde",
     "record": "Registro",
+    "recordConflictFields": "También se modificó en otro lugar: {fields}. Elige qué versión conservar antes de guardar.",
+    "recordReload": "Volver a cargar el registro",
+    "recordReloadKeepChanges": "Volver a cargar y conservar mis cambios",
     "records": "Registros",
+    "recordStale": "Este registro se modificó en otro lugar. Vuelve a cargarlo para seguir editando.",
+    "recordStaleDraft": "Este registro cambió desde que empezaste a editarlo. Vuelve a cargarlo para continuar; tus cambios sin guardar se conservan.",
     "reducers": {
       "average": "Media",
       "count": "Recuento",

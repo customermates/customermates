@@ -38,6 +38,8 @@ import {
   getSearchChannelCandidatesInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
+import { redirect } from "next/navigation";
+import { isRedirect, type Redirect } from "@/features/auth/auth-outcome";
 import { z } from "zod";
 import { serializeInteractorFailure, unwrapValidated, type Validated } from "@/core/validation/validation.utils";
 
@@ -80,8 +82,9 @@ export async function getRecordPresentationAction(typeId: string, params: GetQue
 export async function getRecordModelAction(typeIds?: string[]) {
   return unwrapValidated(getGetRecordModelInteractor().invoke({ typeIds }));
 }
-async function serializeConfigurationResult<T>(result: Validated<T>) {
+async function serializeResultWithFailure<T>(result: Validated<T> | Promise<Awaited<Validated<T>> | Redirect>) {
   const resolved = await result;
+  if (isRedirect(resolved)) redirect(resolved.redirect);
   return resolved.ok
     ? resolved
     : {
@@ -91,13 +94,13 @@ async function serializeConfigurationResult<T>(result: Validated<T>) {
       };
 }
 export async function previewRecordConfigurationAction(change: ConfigurationChange) {
-  return serializeConfigurationResult(getPreviewRecordConfigurationInteractor().invoke(change));
+  return serializeResultWithFailure(getPreviewRecordConfigurationInteractor().invoke(change));
 }
 export async function applyRecordConfigurationAction(change: ConfigurationChange) {
-  return serializeConfigurationResult(getApplyRecordConfigurationInteractor().invoke(change));
+  return serializeResultWithFailure(getApplyRecordConfigurationInteractor().invoke(change));
 }
 export async function mutateRecordAction(input: MutateRecordInput) {
-  return serializeResult(getMutateRecordInteractor().invoke(input));
+  return serializeResultWithFailure(getMutateRecordInteractor().invoke(input));
 }
 export async function previewRecordDeletionAction(input: PreviewRecordDeletionInput) {
   return serializeResult(getPreviewRecordDeletionInteractor().invoke(input));

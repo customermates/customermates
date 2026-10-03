@@ -3323,7 +3323,12 @@
     "rangeEnd": "Until",
     "rangeStart": "From",
     "record": "Record",
+    "recordConflictFields": "Also changed elsewhere: {fields}. Choose which version to keep before saving.",
+    "recordReload": "Reload record",
+    "recordReloadKeepChanges": "Reload and keep my changes",
     "records": "Records",
+    "recordStale": "This record changed elsewhere. Reload it to keep editing.",
+    "recordStaleDraft": "This record changed since you started editing. Reload it to continue; your unsaved changes are kept.",
     "reducers": {
       "average": "Average",
       "count": "Count",

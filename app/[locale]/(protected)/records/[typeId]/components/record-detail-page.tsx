@@ -32,17 +32,11 @@ export const RecordDetailPage = observer(function RecordDetailPage({ initial }: 
   });
   const applied = useRef(initial);
   useEffect(() => root.recordWorkspaceStore.subscribe(store.refreshRecord), [root, store]);
-  if (applied.current !== initial) {
+  useEffect(() => {
+    if (applied.current === initial) return;
     applied.current = initial;
-    if (store.hasRelatedDraft) store.setRefreshRequired(true);
-    if (
-      !store.hasUnsavedChanges &&
-      !store.hasRelatedDraft &&
-      initial.model.revision >= store.presentation.model.revision &&
-      (initial.record?.version ?? 0) >= (store.record?.version ?? 0)
-    )
-      store.edit(initial, initial.record);
-  }
+    store.receiveLatest(initial);
+  }, [initial, store]);
   const type = store.presentation.model.types.find((type) => type.id === store.presentation.typeId);
   const title = store.record?.fields.find((field) => field.fieldId === type?.primaryFieldId)?.result;
   const name =

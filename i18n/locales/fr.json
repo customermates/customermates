@@ -3323,7 +3323,12 @@
     "rangeEnd": "Au",
     "rangeStart": "Du",
     "record": "Fiche",
+    "recordConflictFields": "Également modifié ailleurs : {fields}. Choisissez la version à conserver avant d’enregistrer.",
+    "recordReload": "Recharger l’enregistrement",
+    "recordReloadKeepChanges": "Recharger et garder mes modifications",
     "records": "Fiches",
+    "recordStale": "Cet enregistrement a été modifié ailleurs. Rechargez-le pour continuer à le modifier.",
+    "recordStaleDraft": "Cet enregistrement a changé depuis le début de votre modification. Rechargez-le pour continuer ; vos modifications non enregistrées sont conservées.",
     "reducers": {
       "average": "Moyenne",
       "count": "Nombre",

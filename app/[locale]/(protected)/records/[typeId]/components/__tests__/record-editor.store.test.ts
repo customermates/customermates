@@ -10,6 +10,7 @@ const mocks = vi.hoisted(() => ({
   getRecordEditorAction: vi.fn(),
 }));
 vi.mock("../../../actions", () => mocks);
+vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree: vi.fn() }));
 
 import { RecordEditorStore } from "../record-editor.store";
 
@@ -569,5 +570,117 @@ describe("explicit snapshot capture drafts", () => {
     store.edit(presentation, null);
     store.toggleCapture(captured.id);
     expect(store.form.captureFieldIds).toEqual([]);
+  });
+});
+
+describe("record editor stale draft recovery", () => {
+  const nameId = id("deal.name");
+  const conflict = (code: "recordVersionChanged" | "recordSchemaChanged") => ({
+    ok: false,
+    error: { errors: ["The record changed"] },
+    failure: { kind: "conflict", issues: [{ code: "custom", path: [], message: "changed", customCode: code }] },
+  });
+  const withName = (version: number, name: string, extra: RecordDto["fields"] = []): RecordDto => ({
+    ...record(version),
+    fields: [{ fieldId: nameId, result: { state: "value", value: { kind: "text", value: name } } }, ...extra],
+  });
+
+  it.each(["recordVersionChanged", "recordSchemaChanged"] as const)(
+    "keeps the draft after %s and rebases it onto the latest record, surfacing conflicting fields",
+    async (code) => {
+      const store = new RecordEditorStore(root, context("deal"), vi.fn(), true);
+      store.edit(context("deal"), withName(1, "Deal 1"));
+      store.onChange(`values.${nameId}`, "My draft");
+      mocks.mutateRecordAction.mockResolvedValueOnce(conflict(code));
+      await store.onSubmit();
+      expect(store.refreshRequired).toBe(true);
+      expect(store.isReadOnly).toBe(true);
+      expect(store.form.values[nameId]).toBe("My draft");
+
+      mocks.getRecordEditorAction.mockResolvedValueOnce({
+        ok: true,
+        data: { ...context("deal"), record: withName(2, "Someone else") },
+      });
+      await store.reloadKeepingChanges();
+      expect(store.record?.version).toBe(2);
+      expect(store.refreshRequired).toBe(false);
+      expect(store.form.values[nameId]).toBe("My draft");
+      expect(store.conflicts).toEqual([nameId]);
+      expect(store.isReadOnly).toBe(true);
+
+      store.resolveConflicts("draft");
+      expect(store.isReadOnly).toBe(false);
+      mocks.mutateRecordAction.mockResolvedValueOnce({
+        ok: true,
+        data: { status: "completed", refs: [record().ref], schemaRevision: 1 },
+      });
+      mocks.getRecordEditorAction.mockResolvedValueOnce({
+        ok: true,
+        data: { ...context("deal"), record: withName(3, "My draft") },
+      });
+      await store.onSubmit();
+      const retry = mocks.mutateRecordAction.mock.calls[1][0];
+      expect(retry.mutation.expectedVersion).toBe(2);
+      expect(retry.mutation.fields).toEqual([{ fieldId: nameId, value: { kind: "text", value: "My draft" } }]);
+      expect(retry.idempotencyKey).not.toBe(mocks.mutateRecordAction.mock.calls[0][0].idempotencyKey);
+    },
+  );
+
+  it("adopts unrelated server changes without conflicts and can discard a conflicting draft value", async () => {
+    const source = model.fields.find((field) => field.id === nameId);
+    if (!source) throw new Error("Expected seeded deal name");
+    const other = { ...source, id: randomUUID(), label: "Other" };
+    const presentation = { ...context("deal"), model: { ...model, fields: [...model.fields, other] } };
+    const otherValue = (value: string) => ({
+      fieldId: other.id,
+      result: { state: "value" as const, value: { kind: "text" as const, value } },
+    });
+    const store = new RecordEditorStore(root, presentation, vi.fn(), true);
+    store.edit(presentation, withName(1, "Deal 1", [otherValue("Before")]));
+    store.onChange(`values.${nameId}`, "My draft");
+    store.setRefreshRequired(true);
+    mocks.getRecordEditorAction.mockResolvedValueOnce({
+      ok: true,
+      data: { ...presentation, record: withName(2, "Deal 1", [otherValue("Server")]) },
+    });
+    await store.reloadKeepingChanges();
+    expect(store.conflicts).toEqual([]);
+    expect(store.form.values[nameId]).toBe("My draft");
+    expect(store.form.values[other.id]).toBe("Server");
+    expect(store.savedState.values[other.id]).toBe("Server");
+    expect(store.isReadOnly).toBe(false);
+
+    store.onChange(`values.${other.id}`, "Mine");
+    store.setRefreshRequired(true);
+    mocks.getRecordEditorAction.mockResolvedValueOnce({
+      ok: true,
+      data: { ...presentation, record: withName(3, "Deal 1", [otherValue("Server again")]) },
+    });
+    await store.reloadKeepingChanges();
+    expect(store.conflicts).toEqual([other.id]);
+    store.resolveConflicts("latest");
+    expect(store.form.values[other.id]).toBe("Server again");
+    expect(store.form.values[nameId]).toBe("My draft");
+    expect(store.conflicts).toEqual([]);
+  });
+
+  it("flags a newer page payload instead of silently dropping it while a draft is open", () => {
+    const store = new RecordEditorStore(root, context("deal"), vi.fn(), true);
+    store.edit(context("deal"), withName(1, "Deal 1"));
+    store.onChange(`values.${nameId}`, "My draft");
+    store.receiveLatest({ ...context("deal"), record: withName(1, "Deal 1") });
+    expect(store.refreshRequired).toBe(false);
+    store.receiveLatest({ ...context("deal"), record: withName(2, "Someone else") });
+    expect(store.refreshRequired).toBe(true);
+    expect(store.record?.version).toBe(1);
+    expect(store.form.values[nameId]).toBe("My draft");
+
+    const clean = new RecordEditorStore(root, context("deal"), vi.fn(), true);
+    clean.edit(context("deal"), withName(1, "Deal 1"));
+    clean.receiveLatest({ ...context("deal"), record: withName(2, "Someone else") });
+    expect(clean.record?.version).toBe(2);
+    expect(clean.form.values[nameId]).toBe("Someone else");
+    clean.receiveLatest({ ...context("deal"), record: withName(1, "Deal 1") });
+    expect(clean.record?.version).toBe(2);
   });
 });

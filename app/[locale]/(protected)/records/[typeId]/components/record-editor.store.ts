@@ -1,4 +1,5 @@
 import { action, makeObservable, observable, runInAction, toJS } from "mobx";
+import { omit } from "lodash";
 
 import type { RootStore } from "@/core/stores/root.store";
 import type {
@@ -8,12 +9,14 @@ import type {
   RecordRef,
   CalculatedValue,
 } from "@/features/records/record-model.schema";
-import type { RecordEditorContext } from "@/features/records/get-record-editor.interactor";
+import type { RecordEditorContext, RecordEditorResult } from "@/features/records/get-record-editor.interactor";
 import type { RecordLinkChange } from "@/features/records/record-query.schema";
 import type { RecordChoice } from "@/features/records/get-record-choices.interactor";
 import type { RecordIdentityInput } from "@/features/records/record-identity.schema";
 
 import { BaseModalStore } from "@/core/base/base-modal.store";
+import { CustomErrorCode } from "@/core/validation/validation.types";
+import { rebaseModelChangeDraft } from "@/app/[locale]/(protected)/company/data-model/components/model-change-rebase";
 import { recordInputValue } from "@/features/records/record-input-value";
 import { RecordScalarSchema } from "@/features/records/record-model.schema";
 import { mutateRecordAction, getRecordEditorAction } from "../../actions";
@@ -26,6 +29,13 @@ export type RecordDraft = {
   identities: RecordIdentityInput[];
   captureFieldIds: string[];
 };
+function editableFields(presentation: RecordEditorContext) {
+  return presentation.model.fields.filter((field) => field.typeId === presentation.typeId && !field.archived);
+}
+const STALE_WRITE_CODES: ReadonlySet<string> = new Set([
+  CustomErrorCode.recordVersionChanged,
+  CustomErrorCode.recordSchemaChanged,
+]);
 function scalarDraft(value: RecordScalar | null): unknown {
   if (!value) return undefined;
   if (value.kind === "richText") return JSON.parse(value.documentJson);
@@ -43,6 +53,8 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
   } | null = null;
   pendingOperationId: string | null = null;
   refreshRequired = false;
+  /** Field ids (or draft keys) changed both in the draft and on the server since the draft started. */
+  conflicts: string[] = [];
   relatedRevision = 0;
   private requestKey: string | null = null;
   private refreshGeneration = 0;
@@ -78,12 +90,15 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
       presentation: observable.ref,
       pendingOperationId: observable,
       refreshRequired: observable,
+      conflicts: observable.ref,
       relatedRevision: observable,
       parentLink: observable.ref,
       edit: action,
       setPendingOperation: action,
       setRefreshRequired: action,
       toggleCapture: action,
+      rebase: action,
+      resolveConflicts: action,
     });
   }
   get sessionKey() {
@@ -123,15 +138,13 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
     return true;
   }
   get isReadOnly() {
-    if (this.pendingOperationId || this.refreshRequired || this.hasRelatedDraft) return true;
+    if (this.pendingOperationId || this.refreshRequired || this.conflicts.length || this.hasRelatedDraft) return true;
     return this.record !== null
       ? !this.presentation.permittedActions.includes("update")
       : !this.presentation.permittedActions.includes("create");
   }
   get fields() {
-    return this.presentation.model.fields.filter(
-      (field) => field.typeId === this.presentation.typeId && !field.archived,
-    );
+    return editableFields(this.presentation);
   }
   edit = (
     presentation: RecordEditorContext,
@@ -147,8 +160,17 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
     this.pendingDeletion = false;
     this.refreshNotificationPending = false;
     this.refreshRequired = false;
+    this.conflicts = [];
     this.requestKey = null;
-    this.onInitOrRefresh({
+    this.onInitOrRefresh(this.draftFor(presentation, record, parentLink));
+    this.open();
+  };
+  private draftFor(
+    presentation: RecordEditorContext,
+    record: RecordDto | null,
+    parentLink: RecordEditorStore["parentLink"],
+  ): RecordDraft {
+    return {
       id: record?.ref.recordId,
       captureFieldIds: [],
       assignedUserIds:
@@ -173,7 +195,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
             ]
           : [],
       values: Object.fromEntries(
-        this.fields.map((field) => {
+        editableFields(presentation).map((field) => {
           const result = record?.fields.find((value) => value.fieldId === field.id)?.result;
           return [
             field.id,
@@ -187,8 +209,98 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
           ];
         }),
       ),
-    });
-    this.open();
+    };
+  }
+  /**
+   * Receives a newer server copy of the open record (for example a refreshed page payload).
+   * A clean editor adopts it; an editor holding a draft keeps the draft and asks for an
+   * explicit "reload and keep my changes" instead of silently discarding either side.
+   */
+  receiveLatest = (latest: RecordEditorResult) => {
+    if (
+      latest.model.revision < this.presentation.model.revision ||
+      (latest.record?.version ?? 0) < (this.record?.version ?? 0)
+    )
+      return;
+    const newer =
+      latest.model.revision > this.presentation.model.revision ||
+      (latest.record?.version ?? 0) > (this.record?.version ?? 0);
+    if (this.hasRelatedDraft) {
+      this.setRefreshRequired(true);
+      return;
+    }
+    if (this.hasUnsavedChanges) {
+      if (newer) this.setRefreshRequired(true);
+      return;
+    }
+    this.edit(latest, latest.record);
+  };
+  /** Loads the latest record and replays the unsaved draft on top of it. */
+  reloadKeepingChanges = async () => {
+    if (!this.record || this.isLoading || this.pendingOperationId) return;
+    if (!this.hasUnsavedChanges) {
+      await this.refreshRecord();
+      return;
+    }
+    if (this.hasRelatedDraft) {
+      this.setRefreshRequired(true);
+      return;
+    }
+    const generation = ++this.refreshGeneration;
+    const ref = toJS(this.record.ref);
+    this.setIsLoading(true);
+    try {
+      const result = await getRecordEditorAction(ref);
+      if (
+        generation !== this.refreshGeneration ||
+        this.record?.ref.typeId !== ref.typeId ||
+        this.record?.ref.recordId !== ref.recordId
+      )
+        return;
+      if (!result.ok) {
+        this.setError(result.error);
+        return;
+      }
+      if (
+        !result.data.record ||
+        result.data.model.revision < this.presentation.model.revision ||
+        result.data.record.version < this.record.version
+      )
+        return;
+      this.rebase(result.data, result.data.record);
+    } finally {
+      if (generation === this.refreshGeneration) this.setIsLoading(false);
+    }
+  };
+  rebase = (presentation: RecordEditorContext, record: RecordDto) => {
+    const saved = toJS(this.savedState);
+    const draft = toJS(this.form);
+    const latest = this.draftFor(presentation, record, this.parentLink);
+    const values = rebaseModelChangeDraft(saved.values, draft.values, latest.values);
+    const rest = rebaseModelChangeDraft(omit(saved, "values"), omit(draft, "values"), omit(latest, "values"));
+    this.presentation = presentation;
+    this.record = record;
+    this.form = { ...rest.form, values: values.form };
+    this.savedState = { ...rest.savedState, values: values.savedState };
+    this.conflicts = [...values.conflicts, ...rest.conflicts];
+    this.error = undefined;
+    this.requestKey = null;
+    this.refreshRequired = false;
+    this.relatedRevision += 1;
+  };
+  /** Settles fields that changed on both sides after a rebase. */
+  resolveConflicts = (choice: "draft" | "latest") => {
+    if (choice === "latest") {
+      const saved = toJS(this.savedState);
+      const form = toJS(this.form);
+      for (const key of this.conflicts) {
+        if (key in saved.values) form.values[key] = saved.values[key];
+        else if (key in saved) (form as Record<string, unknown>)[key] = (saved as Record<string, unknown>)[key];
+      }
+      this.form = form;
+    }
+    this.conflicts = [];
+    this.requestKey = null;
   };
   reloadAfterNestedChange = async () => {
     if (!this.record || this.hasUnsavedChanges) return;
@@ -374,7 +486,10 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
             },
       });
       if (!result.ok) {
-        if (isCurrent()) this.setError(result.error);
+        if (!isCurrent()) return;
+        if (result.failure?.issues.some((issue) => issue.customCode && STALE_WRITE_CODES.has(issue.customCode)))
+          this.setRefreshRequired(true);
+        this.setError(result.error);
         return;
       }
       if (result.data.status === "pending") {
