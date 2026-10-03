@@ -133,6 +133,18 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
     else if (testInfo.project.name === "mobile") await button.tap();
     else await button.click();
   };
+  const relationCount = model.relationships.filter(
+    (relation: { sourceTypeId: string; targetTypeId: string; archived: boolean }) =>
+      !relation.archived && (relation.sourceTypeId === typeId || relation.targetTypeId === typeId),
+  ).length;
+  expect(relationCount).toBe(3);
+  const waitForRelationshipReads = async (container: Locator) => {
+    const fields = container.locator('[data-entity-field^="relationship:"]');
+    const controls = fields.getByRole("combobox");
+    await expect(controls).toHaveCount(relationCount);
+    for (let index = 0; index < relationCount; index++) await expect(controls.nth(index)).toBeEnabled();
+    await expect(fields.locator('[aria-busy="true"]')).toHaveCount(0);
+  };
   let activeRecipient = recipients[0];
   let hasOpenedRecord = false;
   const openRecord = async (index: number) => {
@@ -148,6 +160,8 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
         .getByRole("button", { name: `Channel company ${index + 1}`, exact: true })
         .click();
       const recordDrawer = page.getByRole("dialog", { name: "Organization", exact: true });
+      // Drain this drawer's reads so the held page responses belong to its newly mounted editor.
+      await waitForRelationshipReads(recordDrawer);
       await recordDrawer.getByRole("link", { name: "Open page", exact: true }).click();
       await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}/${records[index].recordId}$`));
       await expect(recordDrawer).toHaveCount(0);
@@ -155,19 +169,11 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
     await expect(page.locator("#sidebar-trigger")).toHaveAttribute("aria-disabled", "false");
   };
   await openRecord(0);
-  const relationCount = model.relationships.filter(
-    (relation: { sourceTypeId: string; targetTypeId: string; archived: boolean }) =>
-      !relation.archived && (relation.sourceTypeId === typeId || relation.targetTypeId === typeId),
-  ).length;
-  expect(relationCount).toBe(3);
   const channels = page.locator('[data-entity-field="system:channels"]');
   const channelRow = () => channels.locator(`[data-record-channel-key="mail:${activeRecipient}"]`);
   const openInbox = async () => {
     // The following persistence reload must not interrupt the source editor's queued relationship reads.
-    const relationshipControls = page.locator('[data-entity-field^="relationship:"]').getByRole("combobox");
-    await expect(relationshipControls).toHaveCount(relationCount);
-    for (let index = 0; index < relationCount; index++) await expect(relationshipControls.nth(index)).toBeEnabled();
-    await expect(page.locator('[data-entity-field^="relationship:"] [aria-busy="true"]')).toHaveCount(0);
+    await waitForRelationshipReads(page.locator("body"));
     const link = channels.getByRole("link", { name: "Go to inbox", exact: true });
     if (testInfo.project.name === "webkit") await link.press("Enter");
     else if (testInfo.project.name === "mobile") await link.tap();
@@ -183,12 +189,29 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await expect(page.getByText(`${recipients[0]} copied to clipboard`, { exact: true })).toBeVisible();
   if (testInfo.project.name === "chromium")
     expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(recipients[0]);
+  // Inbox first preloads the visible connection-settings shortcut in two steps.
+  // Accept the follow-up response headers before reload; body/cache completion is a separate router concern.
+  const applicationOrigin = new URL(page.url()).origin;
+  const connectionSettingsPrefetch = page.waitForResponse((response) => {
+    const request = response.request();
+    const headers = request.headers();
+    return (
+      new URL(response.url()).origin === applicationOrigin &&
+      new URL(response.url()).pathname === "/en/profile/connected-accounts" &&
+      request.method() === "GET" &&
+      headers["next-router-prefetch"] === "1" &&
+      headers["next-router-state-tree"] !== undefined &&
+      headers["next-router-segment-prefetch"] === undefined
+    );
+  });
   await openInbox();
   await expect(page.locator(`[data-thread-id="${threadIds[0]}"]`)).toBeVisible();
   await expect(page.locator(`[data-thread-id="${threadIds[1]}"]`)).not.toBeVisible();
   expect(decodeGetParams(new URL(page.url()).searchParams).filters).toEqual([
     { field: "participantContactId", operator: "in", value: [`${typeId}:${records[0].recordId}`] },
   ]);
+  const settingsResponse = await connectionSettingsPrefetch;
+  expect(settingsResponse.status()).toBe(200);
   await page.reload();
   await expect(page.locator("#sidebar-trigger")).toHaveAttribute("aria-disabled", "false");
   await expect(page.locator(`[data-thread-id="${threadIds[0]}"]`)).toBeVisible();
