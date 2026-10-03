@@ -49,6 +49,49 @@ function evidenceLines(markdown: string): EvidenceUnit[] {
   });
 }
 
+function completeProcedureCode(markdown: string): { text: string; code: string; start: number; end: number }[] {
+  const blocks: { text: string; code: string; start: number; end: number }[] = [];
+  const titles = new Set<string>();
+  let title = "";
+  let context: string[] = [];
+  let fence: { marker: string; length: number; start: number; lines: string[] } | undefined;
+  for (const [index, line] of markdown.split("\n").entries()) {
+    const marker = /^\s{0,3}(`{3,}|~{3,})(.*)$/u.exec(line);
+    if (fence) {
+      if (marker && marker[1][0] === fence.marker && marker[1].length >= fence.length && !marker[2].trim()) {
+        const code = fence.lines.map(plainLine).filter(Boolean).join(" ");
+        if (title && code) {
+          blocks.push({
+            text: [title, ...context, code].join(" "),
+            code,
+            start: fence.start,
+            end: index,
+          });
+        }
+        fence = undefined;
+        context = [];
+      } else fence.lines.push(line);
+      continue;
+    }
+    if (marker) {
+      fence = {
+        marker: marker[1][0],
+        length: marker[1].length,
+        start: index,
+        lines: [],
+      };
+      continue;
+    }
+    const heading = /^\s*\*\*([^*]+)\*\*\s*$/u.exec(line);
+    if (heading) {
+      title = plainLine(heading[1]);
+      titles.add(title);
+      context = [];
+    } else if (line.trim()) context.push(plainLine(line));
+  }
+  return titles.size >= 2 ? blocks : [];
+}
+
 function fragment(
   text: string,
   maxChars: number,
@@ -282,5 +325,17 @@ export function docsRankEvidence(
     });
     if (text !== unit.text) break;
   }
-  return render();
+  let rendered = render();
+  const blocks = completeProcedureCode(markdown);
+  const lastPickedBlock = Math.max(-1, ...[...picked.keys()].map((index) => units[index].block ?? -1));
+  const hasCompleteCode = blocks.some(
+    ({ code, start, end }) => start <= lastPickedBlock && end >= lastPickedBlock && rendered.includes(code),
+  );
+  if (hasCompleteCode) {
+    for (const block of blocks) {
+      if (block.start <= lastPickedBlock || rendered.includes(block.code)) continue;
+      if (rendered.length + 1 + block.text.length <= maxChars) rendered = `${rendered} ${block.text}`;
+    }
+  }
+  return rendered;
 }

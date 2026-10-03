@@ -2,13 +2,101 @@ import { describe, expect, it } from "vitest";
 
 import { docsRankEvidence } from "../docs-rank-evidence";
 import rawDocsManifest from "@/generated/raw-docs-manifest.json";
-import { splitSections } from "@/features/mcp-tools/docs-sections";
+import { splitSections, unwrapDocsComponents } from "@/features/mcp-tools/docs-sections";
 
 function hasBrokenSurrogate(value: string): boolean {
   return /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u.test(value);
 }
 
 describe("bounded classifier evidence", () => {
+  it("uses unused room for the next complete source-labelled procedure code block", () => {
+    const markdown = unwrapDocsComponents(
+      [
+        '<Steps><Step title="Fetch the files">',
+        "```sh",
+        "curl https://parcelbox.example/compose.yml -o compose.yml",
+        "```",
+        "</Step>",
+        '<Step title="Configure">',
+        "Replace every placeholder before the first start. " +
+          "Each setting is required for this deployment. ".repeat(10),
+        "</Step>",
+        '<Step title="Start">',
+        "```sh",
+        "docker compose up -d",
+        "docker compose logs -f app",
+        "```",
+        "</Step></Steps>",
+      ].join("\n"),
+      () => "",
+    );
+    const excerpt = docsRankEvidence(markdown, "parcelbox", 180, {
+      label: "Install the workspace",
+    });
+    expect(excerpt).toContain("curl https://parcelbox.example/compose.yml -o compose.yml");
+    expect(excerpt).toContain("Start docker compose up -d docker compose logs -f app");
+    expect(excerpt).not.toContain("Each setting");
+    expect(excerpt.length).toBeLessThanOrEqual(180);
+  });
+
+  it("does not detach later fenced commands from a non-fitting source qualification", () => {
+    const qualification = "Only after verifying the backup and the owner approval should this operation run. ".repeat(
+      4,
+    );
+    const markdown = [
+      "**Fetch**",
+      "```sh",
+      "curl https://parcelbox.example/setup",
+      "```",
+      "**Reset**",
+      qualification,
+      "```sh",
+      "destroy-workspace --all",
+      "```",
+    ].join("\n");
+    const excerpt = docsRankEvidence(markdown, "parcelbox", 120);
+    expect(excerpt).toContain("curl https://parcelbox.example/setup");
+    expect(excerpt).not.toContain("destroy-workspace");
+    expect(excerpt.length).toBeLessThanOrEqual(120);
+  });
+
+  it("does not fill unused room with unrelated prose or a partial later code block", () => {
+    const markdown = [
+      "**Fetch**",
+      "```sh",
+      "curl https://parcelbox.example/setup",
+      "```",
+      "Unrelated prose must stay excluded even when it fits.",
+      "**Start**",
+      "```sh",
+      "launch " + "required-argument ".repeat(20),
+      "```",
+    ].join("\n");
+    const excerpt = docsRankEvidence(markdown, "parcelbox", 120);
+    expect(excerpt).toContain("curl https://parcelbox.example/setup");
+    expect(excerpt).not.toContain("Unrelated prose");
+    expect(excerpt).not.toContain("launch");
+    expect(excerpt.length).toBeLessThanOrEqual(120);
+  });
+
+  it("ignores apparent step labels inside code fences when completing a procedure", () => {
+    const markdown = [
+      "```text",
+      "**Fetch**",
+      "parcelbox",
+      "**Start**",
+      "```",
+      "```sh",
+      "launch-workspace",
+      "```",
+      "unrelated prose ".repeat(20),
+    ].join("\n");
+    const excerpt = docsRankEvidence(markdown, "parcelbox", 80);
+    expect(excerpt).toContain("parcelbox");
+    expect(excerpt).not.toContain("launch-workspace");
+    expect(excerpt.length).toBeLessThanOrEqual(80);
+  });
+
   it("keeps a fitting paraphrased consequence even when an outside table row supplies another query word", () => {
     const paragraph = "Closing a request changes its status. This never sends anything to the other side.";
     const excerpt = docsRankEvidence(

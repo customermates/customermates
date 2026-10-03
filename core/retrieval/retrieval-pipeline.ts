@@ -148,6 +148,8 @@ export async function rerankSections(args: {
     const known = new Set(args.candidates.map(({ id }) => id));
     const chosen = [...new Set(ranking?.order ?? [])].filter((id) => known.has(id));
     stopwatch.rerank = chosen.length > 0 ? "used" : "failed";
+    if (ranking?.abstained === true && args.relevance === "kept")
+      return { order: args.candidates.map(({ id }) => id), abstained: true };
     return chosen.length > 0 ? { order: chosen, abstained: ranking?.abstained === true } : null;
   } catch {
     stopwatch.rerank = "failed";

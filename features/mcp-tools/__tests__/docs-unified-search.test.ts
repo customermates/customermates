@@ -261,6 +261,31 @@ describe("unified documentation search", () => {
     expect(api).not.toHaveBeenCalled();
   });
 
+  it("keeps the fused search section when the classifier rejects every answer despite strong lexical evidence", async () => {
+    const rejected = webhooks.at(-1);
+    if (!rejected || rejected === signature) throw new Error("Expected distinct webhook sections");
+    const ranker = vi.fn((_query: string, candidates: readonly RankableSection[]) => {
+      const candidate = candidates.find(({ section }) => section === rejected);
+      if (!candidate) throw new Error("Expected rejected alternative offered to the ranker");
+      return Promise.resolve({ order: [candidate.id], abstained: true });
+    });
+    const deps = {
+      repo: repo([row(signature), row(rejected)]),
+      embed: null,
+      ranker,
+    };
+    const searched = await unifiedDocsSearchResult(INPUT, deps);
+
+    expect(searched.structuredContent.results[0]).toMatchObject({
+      slug: signature.slug,
+      anchor: signature.anchor,
+    });
+    const fetched = await unifiedDocsPageResult({ ...INPUT, slug: signature.slug }, deps);
+    expect((fetched as { text: string }).text.split("\n")[0]).toBe(`## ${signature.headingPath.at(-1)}`);
+    expect((fetched as { text: string }).text).toContain("HMAC-SHA256(secret, rawRequestBody)");
+    expect(ranker).toHaveBeenCalledTimes(2);
+  });
+
   it.each([signature.anchor, signature.headingPath.at(-1)])(
     "keeps the explicitly requested section ahead of a conflicting hosted choice for %s",
     async (query) => {
@@ -300,7 +325,7 @@ describe("unified documentation search", () => {
     const ranker = vi.fn((_query: string, candidates: readonly RankableSection[]) => {
       const candidate = candidates.find(({ section }) => section === last);
       if (!candidate) throw new Error("expected preferred webhook section offered to the ranker");
-      return Promise.resolve({ order: [candidate.id], abstained: true });
+      return Promise.resolve({ order: [candidate.id], abstained: false });
     });
     const page = {
       slug: "webhooks",

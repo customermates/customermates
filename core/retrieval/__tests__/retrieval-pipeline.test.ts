@@ -267,6 +267,50 @@ describe("relevance floor", () => {
 });
 
 describe("section re-rank", () => {
+  it.each(["docs", "wiki"] as const)(
+    "retains fused %s order when relevance keeps results and the classifier abstains",
+    async (corpus) => {
+      const candidates = [candidate(11), candidate(22), candidate(33)];
+      const ranker = vi.fn(() => Promise.resolve({ order: [22, 33], abstained: true }));
+      const ranking = await rerankSections({
+        query: "Which records may a teammate access?",
+        stopwatch: new RetrievalStopwatch(corpus),
+        candidates,
+        ranker,
+        relevance: "kept",
+      });
+
+      expect(ranking).toEqual({ order: [11, 22, 33], abstained: true });
+      expect(keepsResults("kept", ranking)).toBe(true);
+      expect(ranker).toHaveBeenCalledOnce();
+    },
+  );
+
+  it("preserves a positive classifier choice when relevance keeps results", async () => {
+    const ranking = await rerankSections({
+      query: "Which records may a teammate access?",
+      stopwatch: new RetrievalStopwatch("docs"),
+      candidates: [candidate(11), candidate(22), candidate(33)],
+      ranker: () => Promise.resolve({ order: [22, 33], abstained: false }),
+      relevance: "kept",
+    });
+
+    expect(ranking).toEqual({ order: [22, 33], abstained: false });
+  });
+
+  it("empties results when semantic relevance needs a decision and the classifier abstains", async () => {
+    const ranking = await rerankSections({
+      query: "Which records may a teammate access?",
+      stopwatch: new RetrievalStopwatch("docs"),
+      candidates: [candidate(11), candidate(22), candidate(33)],
+      ranker: () => Promise.resolve({ order: [22, 33], abstained: true }),
+      relevance: "rerank",
+    });
+
+    expect(ranking).toEqual({ order: [22, 33], abstained: true });
+    expect(keepsResults("rerank", ranking)).toBe(false);
+  });
+
   it("judges one candidate only when the relevance floor needs a decision and never calls with none", async () => {
     const ranker = vi.fn(() => Promise.resolve({ order: [1], abstained: true }));
     const args = { query: "q", stopwatch: new RetrievalStopwatch("wiki"), ranker };
