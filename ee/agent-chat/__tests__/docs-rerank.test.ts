@@ -891,3 +891,35 @@ describe("channel connection prerequisites in bounded classifier evidence", () =
     expect(evidence.length).toBeLessThanOrEqual(400);
   });
 });
+
+describe("connection renewal evidence", () => {
+  it.each([
+    ["en", "Claude reconnect", "Use it within any 30-day window", "go idle longer and you approve once more"],
+    ["de", "Claude erneute Verbindung", "innerhalb von 30 Tagen", "bleiben Sie länger untätig"],
+  ] as const)("keeps the %s lifetime rule in a 120-option classifier pool", (locale, query, renewal, idle) => {
+    const page = rawDocsManifest.docs[locale]["connect-custom-connector"];
+    const section = splitSections({
+      slug: "connect-custom-connector",
+      source: "docs",
+      pageTitle: page.title,
+      markdown: page.content,
+    }).find(({ anchor }) => anchor === "it-syncs-and-stays-connected");
+    if (!section) throw new Error("Expected public connector lifetime section");
+    const candidates: RankableSection[] = Array.from({ length: 120 }, (_, id) => ({
+      id,
+      locale,
+      section:
+        id === 0
+          ? section
+          : { pageTitle: "Independent workspace section", headingPath: ["Other topic"], text: "Other details." },
+    }));
+    const excerpt = optionEvidence(docsRankSpec(candidates, "docs", query).questions[0].options.s0);
+    expect(excerpt).toContain(renewal);
+    expect(excerpt).toContain(idle);
+    expect(excerpt.length).toBeLessThanOrEqual(400);
+    const full = optionEvidence(docsRankSpec(candidates.slice(0, 1), "docs", query).questions[0].options.s0);
+    expect(full).toContain(renewal);
+    expect(full).toContain(idle);
+    expect(full.length).toBeLessThanOrEqual(800);
+  });
+});

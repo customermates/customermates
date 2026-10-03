@@ -13,6 +13,7 @@ type EvidenceUnit = {
   scope?: string;
   block?: number;
   prose?: boolean;
+  list?: string;
 };
 export type DocsRankEvidenceContext = { label?: string; locale?: LocaleCode };
 
@@ -35,7 +36,14 @@ function plainLine(line: string): string {
 
 function evidenceLines(markdown: string): EvidenceUnit[] {
   let scope: string | undefined;
+  let fence: { marker: string; length: number } | undefined;
   return markdown.split("\n").flatMap<EvidenceUnit>((line, block) => {
+    const marker = /^\s{0,3}(`{3,}|~{3,})(.*)$/u.exec(line);
+    if (marker) {
+      if (!fence) fence = { marker: marker[1][0], length: marker[1].length };
+      else if (marker[1][0] === fence.marker && marker[1].length >= fence.length && !marker[2].trim())
+        fence = undefined;
+    }
     if (/^\s{0,3}(?:#{1,6}\s|`{3,}|~{3,})|^\s*>\s|^\*\*Link:\*\*/u.test(line)) scope = undefined;
     if (/^\*\*Link:\*\*|^ {0,3}(?:`{3,}|~{3,})|^\s*$/u.test(line) || TABLE_DIVIDER.test(line)) return [];
     if (line.trimStart().startsWith("|")) {
@@ -48,11 +56,21 @@ function evidenceLines(markdown: string): EvidenceUnit[] {
       return [{ text: cells.join("; "), context }];
     }
     const text = plainLine(line);
-    const list = /^\s*(?:[-*+]|\d+[.)])\s/u.test(line);
+    const list = /^(\s*)([-*+]|\d+[.)])\s/u.exec(line);
     const prose = !/^\s*(?:#{1,6}\s|>\s|(?:[-*+]|\d+[.)])\s)/u.test(line);
     const ownScope = list ? scope : undefined;
     if (!list) scope = prose && /[:：]$/u.test(text) ? text : undefined;
-    return text ? [{ text, block, prose, ...(ownScope ? { scope: ownScope } : {}) }] : [];
+    return text
+      ? [
+          {
+            text,
+            block,
+            prose,
+            ...(!fence && list ? { list: `${list[1]}${list[2].replace(/^\d+/u, "")}` } : {}),
+            ...(ownScope ? { scope: ownScope } : {}),
+          },
+        ]
+      : [];
   });
 }
 
@@ -159,7 +177,7 @@ export function docsRankEvidence(
   const whole = lines.map(({ text, context }) => [context, text].filter(Boolean).join(": ")).join(" ");
   if (whole.length <= maxChars) return whole;
   const units = lines.flatMap((line) =>
-    line.prose && line.text.length <= maxChars
+    (line.prose || line.list) && line.text.length <= maxChars
       ? [line]
       : [...SENTENCES.segment(line.text)].flatMap(({ segment }) =>
           segment.trim() ? [{ ...line, text: segment.trim() }] : [],
@@ -322,17 +340,16 @@ export function docsRankEvidence(
     const text = fragment(unit.text, room - context.length - (context ? 2 : 0), matcher, active, weights, phrase);
     let body = [context, text].filter(Boolean).join(": ");
     if (!body) continue;
-    if (text === unit.text && unit.prose) {
+    if (text === unit.text && (unit.prose || (unit.list && !hasResidualBodyMatch))) {
+      let block = unit.block;
       for (let nextIndex = index + 1; nextIndex < units.length; nextIndex += 1) {
         const next = units[nextIndex];
-        if (
-          !next.prose ||
-          next.block !== unit.block ||
-          picked.has(nextIndex) ||
-          body.length + 1 + next.text.length > room
-        )
-          break;
+        const contiguous = unit.prose
+          ? next.prose && next.block === unit.block
+          : next.list === unit.list && block !== undefined && next.block === block + 1 && next.scope === unit.scope;
+        if (!contiguous || picked.has(nextIndex) || body.length + 1 + next.text.length > room) break;
         body = `${body} ${next.text}`;
+        block = next.block;
         remaining.delete(nextIndex);
       }
     }

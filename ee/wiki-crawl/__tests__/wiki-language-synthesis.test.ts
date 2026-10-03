@@ -55,6 +55,7 @@ vi.mock("@/i18n/get-translator", () => ({
 
 import { getAgentAiTools, type AgentToolDeps } from "@/ee/agent-chat/agent-tools";
 import { SerializedInteractorFailureSchema } from "@/core/validation/validation.utils";
+import { wikiSourcePlanRepair, wikiSourcePlanRepairContext } from "@/workflows/wiki-topic-plan";
 import { createWikiFromCrawlTool, readWebsiteSourceTool } from "../wiki-crawl-synthesis-tools";
 import { WIKI_SOURCE_RESULT_MAX_CHARS } from "../wiki-source-coverage";
 import {
@@ -536,6 +537,152 @@ describe("single language Wiki synthesis", () => {
       expect(harness.advance).not.toHaveBeenCalled();
     },
   );
+
+  it("repairs translated foundation sources by retaining both reading leads without inventing an offering", async () => {
+    const sources = await harness.sources();
+    const otherId = "00000000-0000-4000-8000-000000000002";
+    harness.sources.mockResolvedValue([
+      ...sources,
+      {
+        ...sources[0],
+        id: otherId,
+        url: "https://example.com/en/help",
+        text: ENGLISH,
+        contentHash: "translated-source",
+        readOffset: ENGLISH.length,
+      },
+    ]);
+    const tool = readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001");
+    const rejected = await executeMcpTool(tool, [
+      {
+        action: "plan",
+        topics: foundations,
+        excluded: [
+          {
+            sourceIds: [otherId],
+            basis: "exact_duplicate",
+            duplicateOfSourceId: SOURCE_ID,
+            reason: "Translated company evidence.",
+          },
+        ],
+      },
+    ]);
+    expect(rejected).toMatchObject({
+      ok: false,
+      failure: {
+        kind: "validation",
+        issues: [
+          expect.objectContaining({
+            customCode: "wikiSourceExclusionDuplicateInvalid",
+            path: ["excluded", 0, "duplicateOfSourceId"],
+          }),
+        ],
+      },
+    });
+    expect(rejected.result).toContain("retain both source IDs in the relevant foundation topics as reading leads");
+    expect(rejected.result).toContain("genuinely redundant offering translations");
+    expect(rejected.result).toContain("exact source and counterpart quotes");
+    const invalidOverlap = await executeMcpTool(tool, [
+      {
+        action: "plan",
+        topics: foundations,
+        excluded: [
+          {
+            sourceIds: [otherId],
+            basis: "overlap",
+            reason: "Translated company evidence.",
+            coveredByTitle: foundations[0].title,
+            coveredByRole: "offering",
+            evidenceQuote: ENGLISH,
+            counterpartSourceId: SOURCE_ID,
+            counterpartQuote: GERMAN,
+          },
+        ],
+      },
+    ]);
+    expect(invalidOverlap).toMatchObject({
+      ok: false,
+      failure: {
+        kind: "validation",
+        issues: [expect.objectContaining({ customCode: "wikiSourceExclusionOverlapInvalid" })],
+      },
+    });
+    const repairedTopics = foundations.map((topic) => ({ ...topic, sourceIds: [SOURCE_ID, otherId] }));
+    const accepted = await executeMcpTool(tool, [{ action: "plan", topics: repairedTopics, excluded: [] }]);
+    expect(accepted).toMatchObject({ ok: true, structuredContent: { topicPlan: repairedTopics } });
+    expect(harness.advance).not.toHaveBeenCalled();
+    expect(harness.create).not.toHaveBeenCalled();
+  });
+
+  it("checkpoints one corrected exclusion while rejecting the remaining invalid source quote", async () => {
+    const sources = await harness.sources();
+    const firstId = "00000000-0000-4000-8000-000000000002";
+    const secondId = "00000000-0000-4000-8000-000000000003";
+    const firstText = "Navigation links to the company homepage and contact details.";
+    const secondText = "Footer links to the privacy notice and legal imprint.";
+    harness.sources.mockResolvedValue([
+      ...sources,
+      ...[
+        { id: firstId, text: firstText },
+        { id: secondId, text: secondText },
+      ].map(({ id, text }) => ({
+        ...sources[0],
+        id,
+        text,
+        contentHash: id,
+        readOffset: text.length,
+      })),
+    ]);
+    const tool = readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001");
+    const draft = {
+      action: "plan" as const,
+      topics: foundations,
+      excluded: [
+        nonSubstantiveExclusion(firstId, "Navigation only.", "Invented navigation sentence."),
+        nonSubstantiveExclusion(secondId, "Footer only.", "Invented footer sentence."),
+      ],
+    };
+    const initial = await executeMcpTool(tool, [draft]);
+    expect(initial).toMatchObject({ ok: false, failure: { kind: "validation" } });
+    if (initial.ok) throw new Error("Both invalid quotations must reject the initial plan");
+    expect(initial.failure.issues).toHaveLength(2);
+    const repairedOne = {
+      ...draft,
+      excluded: [nonSubstantiveExclusion(firstId, "Navigation only.", firstText), draft.excluded[1]],
+    };
+    const remaining = await executeMcpTool(tool, [repairedOne]);
+    expect(remaining).toMatchObject({
+      ok: false,
+      failure: {
+        kind: "validation",
+        issues: [
+          expect.objectContaining({
+            customCode: "wikiSourceExclusionEvidenceInvalid",
+            path: ["excluded", 1, "evidenceQuote"],
+          }),
+        ],
+      },
+    });
+    if (remaining.ok) throw new Error("Partial repair must not accept the plan");
+    expect(remaining.failure.issues).toHaveLength(1);
+    const checkpoint = wikiSourcePlanRepair(repairedOne, remaining);
+    if (!checkpoint) throw new Error("A rejected partial repair must remain checkpointable");
+    const restored = JSON.parse(JSON.stringify(checkpoint));
+    expect(restored.draft).toEqual(repairedOne);
+    expect(restored.draft.excluded[0].evidenceQuote).toBe(firstText);
+    expect(restored.failure.issues[0].path).toEqual(["excluded", 1, "evidenceQuote"]);
+    expect(wikiSourcePlanRepairContext(restored)).toContain("even if other reported issues remain");
+    expect(wikiSourcePlanRepairContext(restored)).toContain("Partial repair is never acceptance");
+    const accepted = await executeMcpTool(tool, [
+      {
+        ...repairedOne,
+        excluded: [repairedOne.excluded[0], nonSubstantiveExclusion(secondId, "Footer only.", secondText)],
+      },
+    ]);
+    expect(accepted).toMatchObject({ ok: true, structuredContent: { topicPlan: foundations } });
+    expect(harness.advance).not.toHaveBeenCalled();
+    expect(harness.create).not.toHaveBeenCalled();
+  });
 
   it("keeps an identical homepage duplicate valid when its anchor supports only foundations", async () => {
     const sources = await harness.sources();

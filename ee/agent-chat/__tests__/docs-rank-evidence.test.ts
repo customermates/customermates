@@ -777,3 +777,113 @@ describe("overlong introductory context cannot displace complete focused evidenc
     expect(excerpt.length).toBeLessThanOrEqual(220);
   });
 });
+
+describe("coherent list evidence", () => {
+  it("retains a following complete renewal rule when a label match selects the device bullet", () => {
+    const device = "Falcon connects on desktop and mobile.";
+    const renewal = "It refreshes automatically. After twenty-seven idle days, authorize it again.";
+    const markdown = [
+      `- ${device}`,
+      `- ${renewal}`,
+      `- ${"Requests keep their owning account's permissions. ".repeat(12)}`,
+    ].join("\n");
+    const excerpt = docsRankEvidence(markdown, "Falcon reconnect", 150, {
+      label: "Falcon connection lifetime",
+      locale: "en",
+    });
+    expect(excerpt).toContain(device);
+    expect(excerpt).toContain(renewal);
+    expect(excerpt).not.toContain("owning account");
+    expect(excerpt.length).toBeLessThanOrEqual(150);
+  });
+
+  it("continues consecutive ordered items and preserves their introductory scope once", () => {
+    const device = "Falcon connects on desktop and mobile.";
+    const renewal = "It refreshes automatically. After twenty-seven idle days, authorize it again.";
+    const markdown = [
+      "Falcon devices:",
+      `1. ${device}`,
+      `2. ${renewal}`,
+      `3. ${"Requests keep their owning account's permissions. ".repeat(12)}`,
+    ].join("\n");
+    const excerpt = docsRankEvidence(markdown, "Falcon reconnect", 150, {
+      label: "Falcon connection lifetime",
+      locale: "en",
+    });
+    expect(excerpt).toContain(device);
+    expect(excerpt).toContain(renewal);
+    expect(excerpt.match(/Falcon devices:/gu)).toHaveLength(1);
+    expect(excerpt).not.toContain("owning account");
+    expect(excerpt.length).toBeLessThanOrEqual(150);
+  });
+
+  it("keeps a matching residual action ahead of a label-backed neighboring bullet", () => {
+    const exportRule = "Download receipts from the Billing menu.";
+    const markdown = [
+      "- Falcon connects on desktop and mobile.",
+      "- It refreshes automatically after a quiet period.",
+      `- ${exportRule}`,
+      `- ${"Requests use the owning account. ".repeat(12)}`,
+    ].join("\n");
+    const excerpt = docsRankEvidence(markdown, "Falcon download receipts", exportRule.length, {
+      label: "Falcon account",
+      locale: "en",
+    });
+    expect(excerpt).toBe(exportRule);
+    expect(excerpt).not.toContain("desktop");
+    expect(excerpt).not.toContain("refreshes");
+    expect(excerpt.length).toBeLessThanOrEqual(exportRule.length);
+  });
+
+  it.each([
+    ["\n\n", "- Never attach this separate list."],
+    ["\n", "A separate paragraph is not a continuation."],
+    ["\n", "| State | Never attach this table. |"],
+    ["\n", "1. Never attach this numbered list."],
+    ["\n", "* Never attach this different bullet list."],
+    ["\n", "  - Never attach this nested list."],
+    ["\n", "## New section\n- Never attach this new section."],
+    ["\n", "```text\n- Never attach this fenced item.\n```"],
+  ])("does not continue a list across the %s/%s boundary", (separator, next) => {
+    const chosen = "Falcon connects on desktop and mobile.";
+    const markdown = `- ${chosen}${separator}${next}\n\n${"Unrelated content without the label. ".repeat(20)}`;
+    const excerpt = docsRankEvidence(markdown, "Falcon reconnect", 150, {
+      label: "Falcon connection lifetime",
+      locale: "en",
+    });
+    expect(excerpt).toContain(chosen);
+    expect(excerpt).not.toContain("Never attach");
+    expect(excerpt).not.toContain("separate paragraph");
+    expect(excerpt.length).toBeLessThanOrEqual(150);
+  });
+
+  it("does not identify consecutive list-like lines inside a code fence as list continuation", () => {
+    const markdown = [
+      "```text",
+      "- Falcon connects on desktop and mobile.",
+      "- Never attach this code line as list context.",
+      "```",
+      "Unrelated outside prose. ".repeat(20),
+    ].join("\n");
+    const excerpt = docsRankEvidence(markdown, "Falcon reconnect", 150, {
+      label: "Falcon connection lifetime",
+      locale: "en",
+    });
+    expect(excerpt).toContain("Falcon connects on desktop and mobile");
+    expect(excerpt).not.toContain("Never attach");
+    expect(excerpt.length).toBeLessThanOrEqual(150);
+  });
+
+  it("does not clip a non-fitting next rule into a misleading fragment", () => {
+    const chosen = "Falcon connects on desktop and mobile.";
+    const next = `Only after ${"checking every required approval and safety condition ".repeat(8)}may it renew.`;
+    const markdown = `- ${chosen}\n- ${next}`;
+    const excerpt = docsRankEvidence(markdown, "Falcon reconnect", chosen.length + 30, {
+      label: "Falcon connection lifetime",
+      locale: "en",
+    });
+    expect(excerpt).toBe(chosen);
+    expect(excerpt).not.toContain("Only after");
+    expect(excerpt.length).toBeLessThanOrEqual(chosen.length + 30);
+  });
+});
