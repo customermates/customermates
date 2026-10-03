@@ -197,17 +197,21 @@ test("paginates and retries record and widget history, restores a personal timel
   await expect(rows).toHaveCount(25);
   await expect(older).toBeVisible();
   expect(await storedView()).toEqual([savedView]);
+  await page.getByRole("tab", { name: "Details", exact: true }).click();
+  await expect(history).toHaveCount(0);
   await expect
     .poll(
       async () =>
         (
           await database.query(
-            'SELECT "activeViewKey" FROM "P13n" WHERE "companyId"=$1 AND "userId"=$2 AND "p13nId"=$3',
+            'SELECT "activeViewKey",filters FROM "P13n" WHERE "companyId"=$1 AND "userId"=$2 AND "p13nId"=$3',
             [companyId, workspace.userId, SURFACE.entityTimeline],
           )
-        ).rows[0]?.activeViewKey,
+        ).rows[0],
     )
-    .toBe(ALL_VIEW_KEY);
+    .toEqual({ activeViewKey: ALL_VIEW_KEY, filters: [] });
+  await page.getByRole("tab", { name: "Activities", exact: true }).click();
+  await expect(rows).toHaveCount(25);
   const copiedHref = await view.getAttribute("href");
   if (!copiedHref) throw new Error("Expected canonical history view link");
   const linkedPage = await page.context().newPage();

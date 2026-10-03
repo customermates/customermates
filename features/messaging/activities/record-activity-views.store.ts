@@ -24,6 +24,7 @@ export class RecordActivityViewsStore extends BaseDataViewStore<ActivityEntryDto
   private generation = 0;
   private loadGeneration = 0;
   private disposed = false;
+  private readonly owner: { userId: string; companyId: string } | undefined;
   initialView?: string;
   constructor(
     root: RootStore,
@@ -32,6 +33,8 @@ export class RecordActivityViewsStore extends BaseDataViewStore<ActivityEntryDto
     viewSyncToUrl = false,
   ) {
     super(root);
+    const user = root.userStore?.user;
+    this.owner = user ? { userId: user.id, companyId: user.companyId } : undefined;
     this.p13nId = SURFACE.entityTimeline;
     this.viewPathname = viewPathname;
     this.viewSyncToUrl = viewSyncToUrl;
@@ -45,6 +48,13 @@ export class RecordActivityViewsStore extends BaseDataViewStore<ActivityEntryDto
   }
   get columnsDefinition() {
     return [];
+  }
+  protected override get viewStateWriteOwner() {
+    return this.owner ? JSON.stringify([this.owner.userId, this.owner.companyId]) : undefined;
+  }
+  protected override canPersistViewState() {
+    const user = this.rootStore.userStore?.user;
+    return Boolean(this.owner && user?.id === this.owner.userId && user.companyId === this.owner.companyId);
   }
   override get filterColumns() {
     return this.columns;
@@ -101,8 +111,10 @@ export class RecordActivityViewsStore extends BaseDataViewStore<ActivityEntryDto
     }
   };
   dispose() {
+    if (this.disposed) return;
+    if (this.canPersistViewState()) void this.flushPendingViewState();
+    else this.discardPendingViewState();
     this.disposed = true;
     this.generation += 1;
-    this.discardPendingViewState();
   }
 }

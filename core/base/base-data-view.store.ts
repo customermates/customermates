@@ -23,6 +23,7 @@ import { BaseStore } from "./base.store";
 import { saveDataViewStateAction, selectDataViewAction } from "@/app/actions";
 import { GROUP_PAGE_SIZE_DEFAULT, encodeGroupingToken, sameGrouping } from "@/core/base/grouping/grouping.schema";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
+import { reserveViewStateWrite, type ViewStateWriteIntent } from "@/core/data-view/view-state-persistence";
 
 export const MAX_SELECTION_SIZE = 100;
 
@@ -89,6 +90,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   public readonly resource?: Resource;
 
   private persistViewStateTimer?: number;
+  private pendingViewStateIntent?: ViewStateWriteIntent;
   private pendingGroupOnly?: string;
   private requestGeneration = 0;
   private viewStateWrites = new Map<string, number>();
@@ -1070,12 +1072,22 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
   protected onRefreshAccepted(_result: GetResult<Entity>): void {}
 
+  protected get viewStateWriteOwner(): string | undefined {
+    return undefined;
+  }
+
+  protected canPersistViewState(): boolean {
+    return true;
+  }
+
   protected refreshAction(_params?: GetQueryParams): Promise<GetResult<Entity>> {
     return Promise.reject(new Error("refreshAction must be implemented by entity stores"));
   }
 
   discardPendingViewState = (): void => {
     this.cancelPendingPersist();
+    this.pendingViewStateIntent?.discard();
+    this.pendingViewStateIntent = undefined;
   };
 
   private viewStateWrite: Promise<void> | undefined;
@@ -1105,9 +1117,10 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   };
 
   private persistViewState = () => {
-    if (!this.p13nId || !this.viewPersistable) return;
+    if (!this.p13nId || !this.viewPersistable || !this.canPersistViewState()) return;
 
-    this.cancelPendingPersist();
+    this.discardPendingViewState();
+    this.pendingViewStateIntent = this.reserveViewStateIntent();
 
     this.persistViewStateTimer = window.setTimeout(() => {
       this.persistViewStateTimer = undefined;
@@ -1115,7 +1128,20 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     }, 1000);
   };
 
+  private reserveViewStateIntent = (): ViewStateWriteIntent | undefined => {
+    const owner = this.viewStateWriteOwner;
+    return owner === undefined
+      ? undefined
+      : reserveViewStateWrite(this.rootStore, JSON.stringify([owner, this.p13nId, this.activeViewKey]));
+  };
+
   private writeViewState = (): Promise<void> => {
+    if (!this.canPersistViewState()) {
+      this.discardPendingViewState();
+      return Promise.resolve();
+    }
+    const intent = this.pendingViewStateIntent ?? this.reserveViewStateIntent();
+    this.pendingViewStateIntent = undefined;
     const viewKey = this.activeViewKey;
     const state: DataViewState = {
       filters: toJS(this.filters) ?? [],
@@ -1130,9 +1156,12 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     };
 
     const surfaceKey = this.p13nId as DataViewSurfaceKey;
-    const persist = () =>
-      saveDataViewStateAction({ surfaceKey, viewKey, state })
+    const ownsWrite = () => this.canPersistViewState() && (!intent || intent.isCurrent());
+    const persist = () => {
+      if (!ownsWrite()) return Promise.resolve();
+      return saveDataViewStateAction({ surfaceKey, viewKey, state })
         .then((res) => {
+          if (!ownsWrite()) return;
           if (!res.ok) {
             this.failedViewStateWrites.add(viewKey);
             toastZodErrorTree(res.error);
@@ -1143,12 +1172,15 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
           this.rememberViewState(viewKey, state);
         })
         .catch((error) => {
+          if (!ownsWrite()) return;
           this.failedViewStateWrites.add(viewKey);
           reportApplicationError(error);
         });
+    };
     const pendingKey = JSON.stringify([surfaceKey, viewKey]);
     this.queuedViewStateWrites.set(pendingKey, (this.queuedViewStateWrites.get(pendingKey) ?? 0) + 1);
-    const write = this.viewStateWrite ? this.viewStateWrite.then(persist) : persist();
+    const enqueue = () => (intent ? intent.enqueue(persist) : persist());
+    const write = this.viewStateWrite ? this.viewStateWrite.then(enqueue) : enqueue();
     this.viewStateWrite = write;
     void write.then(() => {
       if (this.viewStateWrite === write) this.viewStateWrite = undefined;
