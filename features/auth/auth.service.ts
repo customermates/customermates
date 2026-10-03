@@ -17,6 +17,7 @@ import { auth } from "@/core/auth/better-auth";
 import { prisma } from "@/prisma/db";
 import { runWithoutTenant } from "@/core/decorators/tenant-context";
 import { redirectTo } from "./auth-outcome";
+import { approveMcpAuthorizationCodeValue } from "./mcp-authorization-code";
 import { SESSION_HINT_COOKIE_NAME } from "./session-hint";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { env } from "@/env";
@@ -343,7 +344,7 @@ export class AuthService {
 
     await prisma.authVerification.update({
       where: { id: verification.id },
-      data: { identifier: code, value: JSON.stringify({ ...value, requireConsent: false }) },
+      data: { identifier: code, value: JSON.stringify(approveMcpAuthorizationCodeValue(value)) },
     });
 
     await prisma.oauthConsent.upsert({

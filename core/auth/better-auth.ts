@@ -3,6 +3,7 @@ import { oAuthProxy, mcp } from "better-auth/plugins";
 import { apiKey } from "@better-auth/api-key";
 import { nextCookies } from "better-auth/next-js";
 import { betterAuth } from "better-auth/minimal";
+import { APIError, createAuthMiddleware } from "better-auth/api";
 import * as Sentry from "@sentry/nextjs";
 
 import { prisma } from "@/prisma/db";
@@ -13,6 +14,12 @@ import { onboardingIntentFromPath, pathWithOnboardingIntent } from "@/features/c
 import { API_KEY_MAX_EXPIRATION_DAYS, API_KEY_MIN_EXPIRATION_DAYS } from "@/features/api-key/api-key-expiration";
 import { API_KEY_NAME_MAX_LENGTH, API_KEY_NAME_MIN_LENGTH } from "@/features/api-key/api-key-name";
 import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from "@/core/validation/validation.utils";
+import {
+  MCP_LIBRARY_CONSENT_PATH,
+  MCP_TOKEN_PATH,
+  authorizationCodeFromTokenRequest,
+  isApprovedMcpAuthorizationCodeValue,
+} from "@/features/auth/mcp-authorization-code";
 
 const socialProviders = {
   ...(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
@@ -61,6 +68,27 @@ export const auth = betterAuth({
   advanced: {
     cookiePrefix: "app",
     useSecureCookies: baseUrlProtocol === "https",
+  },
+
+  disabledPaths: [MCP_LIBRARY_CONSENT_PATH],
+
+  hooks: {
+    before: createAuthMiddleware(async (ctx) => {
+      if (ctx.path !== MCP_TOKEN_PATH) return;
+
+      const code = authorizationCodeFromTokenRequest(ctx.body);
+      if (code === null) return;
+
+      const verification = code
+        ? await prisma.authVerification.findFirst({ where: { identifier: code }, select: { value: true } })
+        : null;
+      if (isApprovedMcpAuthorizationCodeValue(verification?.value)) return;
+
+      throw new APIError("UNAUTHORIZED", {
+        error: "invalid_grant",
+        error_description: "authorization code was not approved",
+      });
+    }),
   },
 
   rateLimit: {
