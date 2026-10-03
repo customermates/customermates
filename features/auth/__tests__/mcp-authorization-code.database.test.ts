@@ -70,20 +70,29 @@ async function seedAuthorizationCode(args: {
   return code;
 }
 
-async function exchange(args: { code: string; clientId: string; verifier: string }) {
+async function postToken(fields: Record<string, string>, format: "form" | "json" = "form") {
   const { auth } = await import("@/core/auth/better-auth");
   return auth.handler(
     new Request("http://localhost:4000/api/auth/mcp/token", {
       method: "POST",
-      headers: { "content-type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        grant_type: "authorization_code",
-        code: args.code,
-        client_id: args.clientId,
-        redirect_uri: REDIRECT_URI,
-        code_verifier: args.verifier,
-      }),
+      headers: {
+        "content-type": format === "json" ? "application/json" : "application/x-www-form-urlencoded",
+      },
+      body: format === "json" ? JSON.stringify(fields) : new URLSearchParams(fields),
     }),
+  );
+}
+
+async function exchange(args: { code: string; clientId: string; verifier: string }, format?: "form" | "json") {
+  return postToken(
+    {
+      grant_type: "authorization_code",
+      code: args.code,
+      client_id: args.clientId,
+      redirect_uri: REDIRECT_URI,
+      code_verifier: args.verifier,
+    },
+    format,
   );
 }
 
@@ -122,9 +131,12 @@ describeDatabase("MCP authorization codes against the database", { timeout: 120_
     const code = await seedAuthorizationCode({ userId, clientId, verifier, requireConsent: true });
 
     const response = await exchange({ code, clientId, verifier });
+    const json = await exchange({ code, clientId, verifier }, "json");
 
     expect(response.status).toBe(401);
     expect(await response.json()).toMatchObject({ error: "invalid_grant" });
+    expect(json.status).toBe(401);
+    expect(await json.json()).toMatchObject({ error: "invalid_grant" });
     expect(await codeExists(code)).toBe(true);
   });
 
@@ -162,16 +174,24 @@ describeDatabase("MCP authorization codes against the database", { timeout: 120_
     const secondDecision = await service.decideMcpConsent({ consentCode: secondConsentCode, accept: true });
     const secondCode = new URL(secondDecision?.redirectURI ?? "").searchParams.get("code") ?? "";
 
-    const first = await exchange({ code: secondCode, clientId, verifier });
+    const first = await exchange({ code: secondCode, clientId, verifier }, "json");
     expect(first.status).toBe(200);
-    expect(await first.json()).toMatchObject({ token_type: "Bearer", access_token: expect.any(String) });
+    const tokens = await first.json();
+    expect(tokens).toMatchObject({ token_type: "Bearer", access_token: expect.any(String) });
+
+    const refreshed = await postToken({
+      grant_type: "refresh_token",
+      refresh_token: tokens.refresh_token,
+      client_id: clientId,
+    });
+    expect(refreshed.status).toBe(200);
 
     const reused = await exchange({ code: secondCode, clientId, verifier });
     expect(reused.status).toBe(401);
 
     const prisma = await db();
     expect(await prisma.oauthConsent.count({ where: { userId, clientId, consentGiven: true } })).toBe(1);
-    expect(await prisma.oauthAccessToken.count({ where: { userId, clientId } })).toBe(1);
+    expect(await prisma.oauthAccessToken.count({ where: { userId, clientId } })).toBe(2);
   });
 
   it("does not let another user see or decide a pending consent", async () => {

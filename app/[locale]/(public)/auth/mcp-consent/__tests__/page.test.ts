@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   resolveAccountState: vi.fn(),
   getMcpConsentPrompt: vi.fn(),
+  resolveMcpConsentState: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({
@@ -14,6 +15,7 @@ vi.mock("next-intl/server", () => ({ getLocale: () => Promise.resolve("en") }));
 vi.mock("@sentry/nextjs", () => ({}));
 vi.mock("@/core/di", () => ({
   getAuthService: () => ({ getMcpConsentPrompt: mocks.getMcpConsentPrompt }),
+  getRouteGuardService: () => ({ resolveMcpConsentState: mocks.resolveMcpConsentState }),
 }));
 vi.mock("@/features/auth/next/resolve-account-state", () => ({
   resolveRequestAccountState: mocks.resolveAccountState,
@@ -32,6 +34,9 @@ describe("McpConsentPage", () => {
     vi.clearAllMocks();
     mocks.resolveAccountState.mockResolvedValue({ state: "onboarding" });
     mocks.getMcpConsentPrompt.mockResolvedValue(prompt);
+    mocks.resolveMcpConsentState.mockImplementation((resolution: { state: string }) =>
+      Promise.resolve(resolution.state),
+    );
   });
 
   it.each(["allowed", "onboarding"])("renders the validated consent prompt for %s", async (state) => {
@@ -53,6 +58,18 @@ describe("McpConsentPage", () => {
 
       await expect(McpConsentPage({ searchParams: Promise.resolve(params) })).rejects.toThrow(
         `REDIRECT:/en${accountStateRedirect(state)}`,
+      );
+      expect(mocks.getMcpConsentPrompt).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(["legal", "subscription"])(
+    "sends onboarding back to the wizard when the workspace would otherwise be in the %s state",
+    async (blocked) => {
+      mocks.resolveMcpConsentState.mockResolvedValue(blocked);
+
+      await expect(McpConsentPage({ searchParams: Promise.resolve(params) })).rejects.toThrow(
+        `REDIRECT:/en${accountStateRedirect("onboarding")}`,
       );
       expect(mocks.getMcpConsentPrompt).not.toHaveBeenCalled();
     },

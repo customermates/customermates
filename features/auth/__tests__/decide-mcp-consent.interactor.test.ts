@@ -15,7 +15,10 @@ const consent = {
 
 describe("DecideMcpConsentInteractor", () => {
   let authService: { decideMcpConsent: ReturnType<typeof vi.fn> };
-  let routeGuardService: { resolveAccountState: ReturnType<typeof vi.fn> };
+  let routeGuardService: {
+    resolveAccountState: ReturnType<typeof vi.fn>;
+    resolveMcpConsentState: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -27,6 +30,7 @@ describe("DecideMcpConsentInteractor", () => {
     };
     routeGuardService = {
       resolveAccountState: vi.fn().mockResolvedValue({ state: "allowed" }),
+      resolveMcpConsentState: vi.fn((resolution: { state: string }) => Promise.resolve(resolution.state)),
     };
   });
 
@@ -61,6 +65,17 @@ describe("DecideMcpConsentInteractor", () => {
         ok: true,
         data: null,
       });
+      expect(authService.decideMcpConsent).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(["legal", "subscription"])(
+    "fails closed for onboarding when the workspace would otherwise be in the %s state",
+    async (blocked) => {
+      routeGuardService.resolveAccountState.mockResolvedValue({ state: "onboarding" });
+      routeGuardService.resolveMcpConsentState.mockResolvedValue(blocked);
+
+      await expect(createInteractor().invoke(consent)).resolves.toEqual({ ok: true, data: null });
       expect(authService.decideMcpConsent).not.toHaveBeenCalled();
     },
   );
