@@ -1,55 +1,38 @@
-# Mate bundle: final verification at source 88
+# Mate bundle: verification at 70461c70
 
-**Automated local checks and built HTTP passed. Merge readiness remains false.** This packet records product source `b21bd1c32c24f499271203b03ffcbb577ce96850`, base `31d1df14c9185e62f23bf902be3ef518b42ca5b3`, the 88-file freeze `9dc844ba7bbc12fbe7e7c9ad552b3ac2744903f0cf59902ed5c7f2e998292646` and built application `rDwUIFEJs-xqOLrMtVLib`. The new free browser journey and free-resource cleanup passed with the bounds below. KB6e exact-head CI is green; product publication and its new exact-head CI must be verified on the final packet commit. The root owns all recorded executions; this reviewer inspected native artifacts and file hashes without running tests, providers, databases or browser journeys.
+The free local gate and bounded live checks passed at product `70461c70b6ae1fb44d0f4fde5295cce3f2eb6fc6` on Node 24.18.0, and both published PR heads have green checks. The unchanged full live retrieval suite failed 28/30; complete initial-import acceptance remains unverified. Both PRs remain drafts and this packet reports **not ready to merge**.
 
-## Source review and the latest correction
+| Evidence | Result |
+| --- | --- |
+| Typecheck and lint | Passed; lint uses `--max-warnings=0` |
+| Full unfiltered Vitest | 10,569 passed, 0 failed, 20 explicit skips |
+| Migration, workflow bootstrap and repeated seed | Passed in the owned local database |
+| Production build | Passed, build `BivxB_9Y3wvpogF3ZQULz`, 2,768 declared artifacts verified |
+| Built HTTP gate | 18 tests passed; final native event 14 of 14 |
+| Migration matrix | Six cases passed on PostgreSQL 17 with pgvector and PostgreSQL 16 without it: fresh, populated-mainline upgrade and enum-boundary failure recovery |
+| Changed-file architecture review | All 789 union paths retained, including the original 592; 555 reviewed, 221 corrected, 13 justified |
+| Class/AST audit | 723 changed TypeScript/TSX files; no multiple-class files, parse errors or added TypeScript prose comments |
+| Review comments | All 12 product threads resolved and mapped to current source and comparable callers; KB has no threads |
+| Published CI | Product 704: 9 green checks; KB 7fb: 6 green checks; both mergeable and draft |
 
-The neighbor-review matrix preserves all 592 original paths and prior reviews. It covers 775 paths in the original/current union: 182 corrected, 580 reviewed and 13 justified. The current branch has 766 non-packet paths, or 769 with the three derived packet files. Missing present paths, stale hashes and unreviewed paths are zero. All 88 frozen source files match current bytes. The 25-file frontend bridge proves unchanged reviewed bytes; it does not prove a new runtime journey.
+The migration matrix executed at `3ddd40e2`. All 53 migration/schema/pinned-Prisma inputs are byte-identical at 704. Its guarded normal cleanup succeeded. Failed attempt11 remains recorded separately; its connected-session cleanup race is not presented as a six-case pass.
 
-The synthesis boundary now requires bounded per-section evidence quotes. Before atomic persistence, the server verifies that each quote occurs in that page's own cited current source and returns the typed `wikiSourceEvidenceInvalid` failure for invalid evidence. Existing source inventories, citation/fresh-read requirements, single-language generation and output limits remain. Quoted prose examples also receive separate canonical language checks using the existing conservative detector. Technical code is excluded.
+The built UI11 review has 44 native captures and preserves all 18 original scenario groups. It establishes named subsets of create/edit/save/reset/delete, conflict recovery, help text, permissions, actual 390px layouts, pagination, date dividers and dirty-content retention across a local server outage. It does **not** certify every scenario group or every permutation. The detailed classifications and limits are retained in `verification.json` and the independent receipt.
 
-These checks establish exact quote membership and conservative language detection. They do not establish semantic entailment, relevance of every quote, support for every factual clause, complete offering coverage or that evidence lies within the latest returned offset-zero prefix. Short, uppercase and mixed-language fragments can remain indeterminate. No model output is accepted solely because it supplies a structurally valid quote.
+The last full live import, at source56, completed partially with 11 offering pages. Five foundation pages/Operating Guide were missing, and only three of nine independent content criteria passed. Source quotes and financial settlement did not establish semantic faithfulness. The last unchanged full retrieval run passed 27/30 (15 deterministic and 12 hosted), with three hosted families failing. The current fixes have free automated evidence; those old failed live runs remain failures.
 
-## Completed source 88 local evidence
+Current bounded live checks at 704 passed independently: one ordinary Gemini 3.5 chat fully read two existing saved Knowledge Base pages, resolved both native citations and retained unknown commercial details without intake questions. Three metered Jev source-review controls accepted qualified wording and rejected elimination/implementation/mandatory-prerequisite overclaims. Their total measured cost was 39,438 microcents. These controls did not create new pages or exercise a complete durable import. The two summarized historical pages still have previously identified source-qualification errors.
 
-| Check | Native result | Process duration |
-| --- | --- | --- |
-| Typecheck | Passed | 10,488 ms |
-| Lint | Passed | 76,925 ms |
-| Full Vitest | 1,045 files and 10,414 tests passed; 1 file and 20 tests skipped | 654,891 ms |
-| Focused owned-database/boundary checks | 5 files, 92 tests passed | 42,262 ms |
-| Build | Passed; 18 required artifacts verified | 91,493 ms |
-| Built HTTP | 2 files, 18 tests passed | 15,090 ms |
-| Fresh migration | Passed | 1,210 ms |
-| Seed twice | Both passed | 6,678 ms combined |
-| Workflow bootstrap | Passed | 617 ms |
-| Current built browser |23 assertions passed across two own synthetic-user journeys | Native captures |
-| Current owned-free-resource cleanup | Owned browser/server closed; zero-session temporary gate DB dropped and absence verified | Native receipts |
+Production semantic indexing completed the four pending docs chunks, charging 13,215 microcents through native platform reservations and settlements. The subsequent unchanged full 30 retrieval run failed: 28 passed (15 deterministic and 13 hosted), two task/permissions and CRM families failed, native exit 1, with 18 unchanged strict misses. Independent review classified 11 alternate valid choices, 5 material concerns and 2 ambiguous questions; the strict assertions remain failed and no safe immediate backend correction was proved. Financial drain and index completeness are not strict retrieval acceptance. Prior contracts10 remains 27/30; both failed complete runs are preserved.
 
-The recorded process durations are distinct from Vitest's native durations of 654.13 s, 41.68 s and 11.56 s for the full, focused and HTTP runs. The root-owned gate paused providers, set their cap to zero, preserved framework timeouts and used owned local database bindings. The current 92-test focused event is distinct from the owner-reported 120-test precommit focused run. These automated checks do not run the paid acceptance suite.
+The fourteen stages inside the original authorized US$5 batch are settled: actual total US$4.77694117 (477,694,117 microcents), zero batch holds and zero native pending work. US$0.22305883 remains below the ceiling. The checkpoint literally records `paidAuthorizationClosed=false`; no revocation or further paid call is inferred. An independent 21-check audit verifies 665 native/27 external file bindings and all 14 settled stages. Financial drain does not establish semantic/full-import/retrieval acceptance, and historical pre-existing holds were preserved.
 
-The six historical migration paths—PostgreSQL 17 with vector support and PostgreSQL 16 without it, each covering fresh installation, populated-mainline upgrade and enum-commit failure/recovery—remain passing historical evidence. This reviewer checked 84 unchanged authority files, 294 saved migration-history artifacts and 27 historical artifacts. They were **not** rerun as six new source 88 paths, and their exact historical execution head was not recorded. The separate fresh migration, repeated seed and bootstrap rows above actually executed at source 88. Mainline migration history and the old-worker credit deployment window remain preserved.
+Remaining acceptance includes full current retrieval success, successful complete current initial import/all nine content criteria, same-import-turn dirty-editor terminal behavior, a successful native Dashboard setup starter and explicit UI11 limits. The mobile import-status gutter fix is verified separately on build `1cXtOWqEU0GNAFuTOtqfm`: Node 24 typecheck, 48 Wiki DOM tests, zero-warning targeted ESLint and build passed with 576 bound files. Five native captures at actual 390px/1200px CSS widths show equal 24px/40px gutters and no horizontal overflow. Dirty title Reset restores the saved title/toolbar while retaining the alert. The full functional 704 gate and native broader UI11 limits remain separately attributed; final publication-head CI is pending. Complete end-to-end success and merge readiness are not claimed.
 
-## Earlier UI evidence retains its revision
+Historical packets, failures and old pending statements are preserved under `historical_verification`. The old unapproved-US$2 question is historical; the current US$5 authorization is recorded separately. Golden fixtures, strict-suite/helper bytes, retrieval budgets, 1,100ms embedding wait and relevance rules remain unchanged. The owner-authorized initial-import Gemini 3.8 exception supersedes historical one-model wording; ordinary chat, routines and extensions still use Gemini 3.5 with the stored `balanced` identifier.
 
-The source 85 built browser run passed 29 assertions with providers paused and a zero cap. Its dirty-editor observation lasted 40.13 s, including 39.253 s after the marked baseline; cancellation preserved text. The historical 35.118 s source 82 guard fixture is a deterministic test, not an actual streaming replay. Those results remain evidence at their original revisions. The source88 built browser now passes23 readback assertions: onboarding skip, page-type descriptions, clean/dirty toolbar, complete native title/body edits and settled cancellation, Reset/Save/reload, numbered Procedure, keyboard ordering, pinned/single Guide, shared destructive styling, delete cancellation/confirmation,390px mobile no-match/native clear and paused chat Alert/noToday. It uses a separate fresh synthetic account after CLI context/authentication loss. Failed selection, empty-fill and shortcut attempts are preserved; final search acceptance uses verified Home/Shift+End selection and Backspace. The current unnumbered-procedure typed UI error and all console logs were not captured. Actual dirty-editor retention through a live import terminal transition remains **UNVERIFIED**.
+The two owned gate databases were dropped normally with zero connections, no FORCE and verified absence. The paid database remains retained; no dev or preview database was touched. Publish the ordinary packet/layout commit and verify CI on that exact head. Green checks on 704 do not automatically verify a later commit.
 
-## Latest closed live batch remains failed
+Human handoff remains legal/privacy disclosures and customer notice, Exa/TypeSafe AI contractual checks, the owner preview-reset checkpoint and merge approval. No agent preview reset or cleanup is included. Merge product #196 before KB #158; credit contract cleanup waits for old workers to drain. After merge, check hosted embedding latency and relabel verified KB target sections as current.
 
-The last approved US$2 batch ran `import4` and `contracts4` against publication `a3e94197`, using application source `4d4e4af8`, source 85 and build `TgbMauXHO9KOdQoo0C8Xm`. It did not execute the source 88 quote/language correction.
-
-The import created 10 pages from 38 fully read sources using 20 initial Gemini 3.8 rounds. Independent review of each page against its own citations passed **1 of 9** unchanged content checks and failed 8, with 18 findings. Structural completion did not establish faithful content, English examples or complete topic grounding.
-
-The unchanged retrieval suite passed **27 of 30** cases: 15 of 15 deterministic and 12 of 15 hosted families. Fourteen strict query checks missed their required result: 13 were alternate, partial or ambiguous section/domain selections, and 1 was a confirmed deadline fallback. Some alternate sources contain helpful facts, but all fourteen remain failures under the unchanged dedicated-section golds. The full hosted acceptance is not green.
-
-The closed batch accounted for 50,786,156 microcents (**US$0.50786156**) with no remaining held amount: 37,153,129 from import settlement and 13,633,027 from the conservative standalone contracts debit. Contracts receipts comprise 13,080,568 measured and 183,603 estimated microcents. The conservative debit reserves three times the estimated amount (550,809 microcents) and retains the recorded 1,650-microcent excess. Import round totals reconcile the settlement and are not added again. No unused prior allowance transfers to another batch.
-
-A **fresh US$2 request for `import5`/`contracts5` is pending, not authorized and not executed**. Any future paid execution needs explicit approval, current source/build and corpus bindings, a fresh ledger/report namespace, preserved golds and limits, reviewed wrappers, serial admission and conservative settlement before the ceiling. The selected-child serializer and new evidence/language boundary still need actual hosted/content acceptance.
-
-## Documentation, external checks and handoff
-
-KB head `6e97510bfa6462e0e8a11ddc2fae2891c944a86d` has 23 changed paths. It retains the three evidence documents and adds the four-file synthetic clone-transport correction: six local-path fixture clones use `--no-local`, preserving assertions and remotes. The bound native logs show8 of8 local KB checks and33 focused fixture tests passed. Exact-head Ubuntu, macOS, Windows, aggregate CI and repository-policy checks are green. The local-copy race is documented as a supported failure mode; the particular CI failure's garbage-collection cause was not proved. Bundle behavior remains target until merge.
-
-Keep both existing PRs draft. Verify product CI on the final publication head; GitHub and the PR description remain the authority for checks that execute after this packet is committed. Readiness also requires genuine corrected live content/full hosted acceptance and live dirty-editor verification. Retain the human legal/privacy disclosures, customer notice, Exa and TypeSafe AI contractual checks, preview reset checkpoint and merge approval. Merge order remains product PR #196, then KB PR #158. After merge, drain old workers before credit contract cleanup, observe hosted embedding latency against the 1,100 ms wait and relabel verified target documentation as current.
-
-The machine-readable file preserves previous failed runs, successful checks and pending states at their original revisions. `complete_local_gate_passed` is true for the automated/free local gate with the stated coverage limits. `ready_to_merge` is false. The retained paid corpus and historical credit hold were not reset or dropped.
+Machine-readable evidence: [verification.json](./verification.json). Complete file review: [review-matrix.csv](./review-matrix.csv).

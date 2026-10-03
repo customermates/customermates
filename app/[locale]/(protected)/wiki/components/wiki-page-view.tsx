@@ -428,19 +428,21 @@ export const WikiPageView = observer(function WikiPageView({
             </SheetContent>
           </Sheet>
 
-          {initialSetupState.status === "failed" && (
-            <Alert color="danger" description={t("WikiSetup.status.failedBody")} />
-          )}
-
-          {setupActive && hasDocument && (
-            <div aria-live="polite" className="px-6 py-3 text-sm text-muted-foreground">
-              {initialSetupState.progress && initialSetupState.progress.total > 0
-                ? t("WikiSetup.status.readingBody", {
-                    domain: initialSetupState.domain ?? "",
-                    fetched: initialSetupState.progress.fetched,
-                    total: initialSetupState.progress.total,
-                  })
-                : t("WikiSetup.status.workingTitle")}
+          {(initialSetupState.status === "failed" || (setupActive && hasDocument)) && (
+            <div className="mx-auto w-full max-w-6xl px-6 py-3 md:px-10">
+              {initialSetupState.status === "failed" ? (
+                <Alert color="danger" description={t("WikiSetup.status.failedBody")} />
+              ) : (
+                <div aria-live="polite" className="text-sm text-muted-foreground">
+                  {initialSetupState.progress && initialSetupState.progress.total > 0
+                    ? t("WikiSetup.status.readingBody", {
+                        domain: initialSetupState.domain ?? "",
+                        fetched: initialSetupState.progress.fetched,
+                        total: initialSetupState.progress.total,
+                      })
+                    : t("WikiSetup.status.workingTitle")}
+                </div>
+              )}
             </div>
           )}
 
