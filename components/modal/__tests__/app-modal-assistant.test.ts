@@ -1,7 +1,7 @@
 import type { ComponentProps, ComponentType, ReactNode } from "react";
 import type { Root } from "react-dom/client";
 
-import { act, createElement, useState, useSyncExternalStore } from "react";
+import { act, createElement, useRef, useState, useSyncExternalStore } from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
 import { renderToString } from "react-dom/server";
 import { observable, runInAction } from "mobx";
@@ -59,6 +59,42 @@ function AssistantPanel({ children }: { children?: ReactNode }) {
     createElement("textarea", { "aria-label": "Ask", id: "agent-composer" }),
     createElement("button", { id: "agent-send", type: "button" }, "Send"),
     children,
+  );
+}
+
+function ControlledFocusPage({ targetState }: { targetState: "available" | "disabled" | "removed" }) {
+  const [open, setOpen] = useState(false);
+  const opener = useRef<HTMLButtonElement>(null);
+  const fallback = useRef<HTMLButtonElement>(null);
+
+  return createElement(
+    "div",
+    null,
+    targetState !== "removed"
+      ? createElement(
+          "button",
+          {
+            id: "controlled-focus-opener",
+            ref: opener,
+            type: "button",
+            disabled: targetState === "disabled",
+            onClick: () => setOpen(true),
+          },
+          "Open",
+        )
+      : null,
+    createElement("button", { id: "controlled-focus-fallback", ref: fallback, type: "button" }, "Fallback"),
+    createElement(
+      TestAppModal,
+      {
+        open,
+        title: "Controlled focus",
+        onClose: () => setOpen(false),
+        focusReturnTarget: opener.current,
+        focusReturnFallback: fallback.current,
+      },
+      createElement("button", { id: "controlled-focus-close", type: "button", onClick: () => setOpen(false) }, "Close"),
+    ),
   );
 }
 
@@ -356,6 +392,48 @@ describe.each(SURFACES)("AppModal %s beside the assistant", (surface, isWide) =>
     expect(document.activeElement).not.toBe(pageButton);
     expect(document.body.style.pointerEvents).toBe("none");
     expect(pageButton.closest("[aria-hidden='true']")).not.toBeNull();
+  });
+});
+
+describe.each(SURFACES)("AppModal controlled focus on the %s surface", (surface, isWide) => {
+  it.each(["available", "disabled", "removed"] as const)("returns focus with an %s opener", async (targetState) => {
+    testContext.isWide = isWide;
+    act(() => reactRoot.render(createElement(ControlledFocusPage, { targetState: "available" })));
+    const opener = element("controlled-focus-opener") as HTMLButtonElement;
+    const fallback = element("controlled-focus-fallback") as HTMLButtonElement;
+    for (const target of [opener, fallback])
+      vi.spyOn(target, "getClientRects").mockReturnValue([new DOMRect(0, 0, 80, 30)] as unknown as DOMRectList);
+
+    focus(opener);
+    act(() => opener.click());
+    await settleOutsideListeners();
+    expect(overlayContent(surface)?.contains(document.activeElement)).toBe(true);
+    act(() => reactRoot.render(createElement(ControlledFocusPage, { targetState })));
+    const close = element("controlled-focus-close");
+    focus(close);
+    act(() => close.click());
+    await settleOutsideListeners();
+    const closingContent = overlayContent(surface);
+    if (closingContent) {
+      expect(closingContent.getAttribute("data-state")).toBe("closed");
+      const animationName = getComputedStyle(closingContent).animationName;
+      expect(animationName).toMatch(/^[a-zA-Z][a-zA-Z0-9_-]*$/);
+      expect(animationName).not.toBe("none");
+      const animationEnd = new Event("animationend", { bubbles: true });
+      Object.defineProperty(animationEnd, "animationName", { value: animationName });
+      vi.stubGlobal("CSS", { escape: (value: string) => value });
+      try {
+        act(() => {
+          closingContent.dispatchEvent(animationEnd);
+        });
+      } finally {
+        vi.unstubAllGlobals();
+      }
+    }
+    await vi.waitFor(() => {
+      expect(overlayContent(surface)).toBeNull();
+      expect(document.activeElement).toBe(targetState === "available" ? opener : fallback);
+    });
   });
 });
 
