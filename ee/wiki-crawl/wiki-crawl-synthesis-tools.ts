@@ -6,7 +6,11 @@ import { ManageWikiPagesOutputSchema, wikiPageSummary } from "@/features/mcp-too
 import { WIKI_READ_SOURCE_TOOL_NAME } from "@/ee/agent-chat/tool-identity";
 import { getZodParseContext } from "@/core/validation/zod-error-map-server";
 
-import { ReadWebsiteSourceSchema, WikiCrawlSynthesisCreateSchema } from "./wiki-crawl-synthesis.schema";
+import {
+  InitialWikiCrawlSynthesisCreateSchema,
+  ReadWebsiteSourceSchema,
+  WikiCrawlSynthesisCreateSchema,
+} from "./wiki-crawl-synthesis.schema";
 import { WIKI_SYNTHESIS_GROUNDING_INSTRUCTION } from "./wiki-synthesis-grounding";
 import { wikiSourceResultText } from "./wiki-source-result";
 
@@ -33,12 +37,18 @@ export function readWebsiteSourceTool(crawlId: string) {
   };
 }
 
-export function createWikiFromCrawlTool(_locale: string | undefined, crawlId: string) {
+export function createWikiFromCrawlTool(_locale: string | undefined, crawlId: string, initialSynthesis = false) {
+  const inputSchema = initialSynthesis ? InitialWikiCrawlSynthesisCreateSchema : WikiCrawlSynthesisCreateSchema;
   return {
     name: "manage_wiki_pages",
     title: "Create Knowledge Base pages from the website",
     description: [
-      "Create one to five Knowledge Base pages per call from stored website pages. kind knowledge summarises facts; guide is the one Operating Guide; procedure has whenToUse and numbered steps. Cite only the sources that support the facts on each page, including cross-offering use cases. Preserve actual FAQ questions, answers and limitations rather than a list of FAQ topics. Review and supply gaps for every page; the guide records unconfirmed internal qualification, follow-up, approval and handover questions. The server adds the Sources list with fetch dates and the gaps list. Pages are immediately available to Mate and connected AI tools. Create multiple pages together only when their citation-source sets are identical. Use separate create calls for different source sets. Fix every reported evidence issue together; reread every source needed by the entire submitted batch before retrying, then create only after those results are visible in a later provider round.",
+      `Create ${initialSynthesis ? "one Knowledge Base page" : "one to five Knowledge Base pages"} per call from stored website pages. kind knowledge summarises facts; guide is the one Operating Guide; procedure has whenToUse and numbered steps. Cite only the sources that support the facts on each page, including cross-offering use cases. Preserve actual FAQ questions, answers and limitations rather than a list of FAQ topics. Review and supply gaps for every page; the guide records unconfirmed internal qualification, follow-up, approval and handover questions. The server adds the Sources list with fetch dates and the gaps list. Pages are immediately available to Mate and connected AI tools. ${initialSynthesis ? "Create each page in its own call so a rejected page cannot discard another page that passes review." : "Create multiple pages together only when their citation-source sets are identical. Use separate create calls for different source sets."} Fix every reported evidence issue together; reread every source needed by the entire submitted batch before retrying, then create only after those results are visible in a later provider round.`,
+      ...(initialSynthesis
+        ? [
+            "For Voice and Tone, use one to three short supported sections about observed customer-facing wording. Label observations and suggestions; translate examples into the selected language and label them as translations without retaining source-language phrases in parentheses. Do not infer a corpus-wide rule such as avoiding superlatives or add technical capability claims to a style page.",
+          ]
+        : []),
       WIKI_SYNTHESIS_GROUNDING_INSTRUCTION,
     ].join(" "),
     annotations: {
@@ -47,10 +57,10 @@ export function createWikiFromCrawlTool(_locale: string | undefined, crawlId: st
       idempotentHint: false,
       openWorldHint: false,
     },
-    inputSchema: WikiCrawlSynthesisCreateSchema,
+    inputSchema,
     outputSchema: ManageWikiPagesOutputSchema,
     execute: async (params: z.infer<typeof WikiCrawlSynthesisCreateSchema>) => {
-      const parsed = WikiCrawlSynthesisCreateSchema.safeParse(params, await getZodParseContext());
+      const parsed = inputSchema.safeParse(params, await getZodParseContext());
       if (!parsed.success) return mcpValidationFailure(parsed.error);
       return runInteractor(
         getCreateWikiPagesFromCrawlInteractor().invoke({ pages: parsed.data.pages, crawlId }),

@@ -185,6 +185,10 @@ export const WikiCrawlSynthesisCreateSchema = z.object({
   pages: z.array(SynthesisPageSchema).min(1).max(5),
 });
 
+export const InitialWikiCrawlSynthesisCreateSchema = WikiCrawlSynthesisCreateSchema.extend({
+  pages: WikiCrawlSynthesisCreateSchema.shape.pages.max(1),
+});
+
 export const ReadWikiWebsiteSourcesSchema = ReadWebsiteSourceSchema.extend({ crawlId: z.uuid() });
 export const CreateWikiPagesFromCrawlSchema = WikiCrawlSynthesisCreateSchema.omit({ action: true }).extend({
   crawlId: z.uuid(),

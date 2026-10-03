@@ -34,7 +34,7 @@ export function docsRerankChoice(result: ClassifierResult | null): number | null
 }
 
 const RANK_INSTRUCTIONS: Record<RetrievalCorpus, string> = {
-  docs: "The user wrote `latest_user_message`; `agent_query` names the searched detail. Which documentation section directly answers the requested workflow, action and current state? A shared feature name is not enough; Content must support the requested operation and its stated prerequisites rather than a different or opposite operation. Prefer the feature's own procedure or governing rule over an overview, a cross-reference, a consequence elsewhere, or a caveat about another action. A recovery that assumes an unreported failure cause or an existing item does not answer an initial setup question. For navigation, prefer the specific destination over a directory that merely contains it. Judge the section's own heading and bounded Content excerpt; Page context identifies scope. If none answers fully, pick the closest; choose none only if no section answers it at all.",
+  docs: "The user wrote `latest_user_message`; `agent_query` names the searched detail. First identify the requested question kind: meaning or governing facts, a procedure, navigation, or recovery. Do not turn a reported status into an unasked recovery action, or infer an existing item or failure cause. Select the section whose own heading and Content directly establish the requested fact or operation, including its scope and prerequisites. A shared feature name is not enough. For meaning, permissions or record relationships, prefer their direct governing explanation over a downstream calculation, UI identifier list or consequence. For an explicit action, prefer the primary feature procedure over an incidental mention or a client-specific setup recipe with unrequested prerequisites. For navigation, prefer the section introducing the actual destination and its own Link destination label over a parent directory or a cross-reference. Page context identifies scope; its title cannot make unrelated Content answer the question. If several sections repeat a fact, use the section whose own purpose most directly addresses the question kind. If none answers fully, pick the closest; choose none only if no section answers it at all.",
   wiki: "The user wrote `latest_user_message` (in any language) and the assistant searched the Knowledge Base with `agent_query`. Which Knowledge Base section best answers what the user needs? If none answers it fully, pick the closest one; choose none only if no section answers it at all.",
 };
 
@@ -59,13 +59,23 @@ export function docsRankExcerpt(
       ? markdown.slice(leading[0].length)
       : markdown;
   const plainNavigation = navigation.replace(/`/gu, "");
+  const destination = docsRerankPlainText(link.replace(/`\/[^`]+`/gu, "")).replace(/^[\s,.;:]+|[\s,.;:]+$/gu, "");
+  const destinationBudget = Math.max(0, routeBudget - plainNavigation.length - " Destination: ".length);
+  const destinationLabel =
+    destination.length <= destinationBudget
+      ? destination
+      : destinationBudget > 1
+        ? `${destination.slice(0, destinationBudget - 1)}…`
+        : "";
+  const navigationEvidence =
+    plainNavigation && destinationLabel ? `${plainNavigation} Destination: ${destinationLabel}` : plainNavigation;
   const focused = docsRankEvidence(
     body.replace(/^\*\*Link:\*\*.*$/gm, ""),
     query,
-    Math.max(0, maxChars - plainNavigation.length - (plainNavigation ? 1 : 0)),
+    Math.max(0, maxChars - navigationEvidence.length - (navigationEvidence ? 1 : 0)),
     context,
   );
-  return [focused, plainNavigation].filter(Boolean).join(" ");
+  return [focused, navigationEvidence].filter(Boolean).join(" ");
 }
 
 export function docsRankSpec(

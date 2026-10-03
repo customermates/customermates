@@ -30,7 +30,8 @@ assertServableEntry(SHIPPED_AGENT_MODEL_KEY, SHIPPED_AGENT_MODEL);
 export const INITIAL_WIKI_SYNTHESIS_MODEL = {
   ...SHIPPED_AGENT_MODEL,
   modelId: "google/gemini-3.8-flash",
-  thinkingLevel: "medium",
+  maxOutputTokens: 16_384,
+  thinkingLevel: "low",
 } as const satisfies AgentModelEntry;
 
 assertServableEntry("initial Knowledge Base synthesis", INITIAL_WIKI_SYNTHESIS_MODEL);

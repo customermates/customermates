@@ -92,10 +92,24 @@ describe("system prompt", () => {
       wikiCrawlSynthesis: { homepage: "https://help.example.com/", pendingHosts: [], mode: "extend" },
     });
     expect(prompt).toContain("Create knowledge pages only");
+    expect(prompt).toContain("up to five pages per call");
     expect(prompt).toContain("Leave existing guides and procedures unchanged");
     expect(prompt).not.toContain("One Operating Guide draft");
     expect(prompt).not.toContain("Up to six procedure drafts");
     expect(prompt).not.toContain("and say that the Operating Guide and procedures are drafts");
+  });
+
+  it("preserves refresh batching without initial single-page instructions", () => {
+    const prompt = buildAgentSystemPrompt({
+      ...base,
+      wikiHomepageSetup: true,
+      wikiCrawlSynthesis: { homepage: "https://example.com/", pendingHosts: [], mode: "refresh" },
+    });
+    expect(prompt).toContain("up to five pages per call");
+    expect(prompt).toContain("the first create batch must contain supported foundation pages only");
+    expect(prompt).toContain("pages in a batch must have identical citation-source sets");
+    expect(prompt).not.toContain("each create call must contain exactly one page");
+    expect(prompt).not.toContain("the first create call must contain one supported foundation page");
   });
 
   it("gives a crawl synthesis setup turn the stored-source workflow with immediately available pages", () => {
@@ -105,6 +119,11 @@ describe("system prompt", () => {
       wikiCrawlSynthesis: { homepage: "https://example.com/", pendingHosts: ["acme.zendesk.com"] },
     });
     expect(prompt).toContain("Call read_website_source list");
+    expect(prompt).toContain("one page per call");
+    expect(prompt).toContain("the first create call must contain one supported foundation page");
+    expect(prompt).not.toContain("first create batch");
+    expect(prompt).not.toContain("batches should share those sources");
+    expect(prompt).not.toContain("up to five pages per call");
     expect(prompt).toContain("the single Operating Guide (kind guide) LAST");
     expect(prompt).toContain("immediately available to Mate");
     expect(prompt).not.toContain("drafts");
@@ -127,7 +146,7 @@ describe("system prompt", () => {
     );
     expect(prompt).toContain("foundation priority never replaces offering coverage");
     expect(prompt).not.toContain("individual offering and technical-topic knowledge pages FIRST");
-    expect(prompt).toContain("the first create batch must contain supported foundation pages only");
+    expect(prompt).toContain("the first create call must contain one supported foundation page");
     expect(prompt).not.toContain("the first create batch must contain offering pages only");
     expect(prompt).toContain("Read and cite the dedicated source for each offering");
     expect(prompt).toContain("If the offering checklist is empty, create supported foundation pages directly");

@@ -286,6 +286,7 @@ describe("Workspace Wiki admission bootstrap", () => {
       surface,
       wikiHomepageSetup: false,
       wikiCrawlId: null,
+      wikiCrawlMode: null,
       wikiWebsiteSetup: false,
       webSearchEnabled: true,
     });
@@ -467,6 +468,7 @@ describe("Workspace Wiki admission bootstrap", () => {
         surface: "chat",
         wikiHomepageSetup: false,
         wikiCrawlId: null,
+        wikiCrawlMode: null,
         wikiWebsiteSetup: true,
         webSearchEnabled: true,
       });
@@ -621,6 +623,9 @@ describe("Workspace Wiki admission bootstrap", () => {
     expect(result).toMatchObject({ ok: true, data: { disposition: "run" } });
     expect(state.payload().wikiHomepageSetup).toMatchObject({ url });
     expect(state.payload().wikiCrawl).toMatchObject({ homepage: url, mode: "extend" });
+    expect(definitions).toHaveBeenCalledWith(
+      expect.objectContaining({ wikiHomepageSetup: true, wikiCrawlId: "crawl-1", wikiCrawlMode: "extend" }),
+    );
     expect(state.usage.prepareTurn.mock.calls[0][2].model).toEqual(resolveAgentModel());
     expect(state.payload().turnBudget.thinkingLevel).toBe("low");
   });
@@ -640,8 +645,9 @@ describe("Workspace Wiki admission bootstrap", () => {
     expect(admission.model).toEqual(resolveAgentModel("balanced", "initial_wiki_synthesis"));
     expect(admission.model.modelId).toBe("google/gemini-3.8-flash");
     expect(payload.turnBudget.modelSpec).toBe(admission.model.modelId);
-    expect(payload.turnBudget.maxOutputTokens).toBe(resolveAgentModel().maxOutputTokens);
-    expect(payload.turnBudget.thinkingLevel).toBe("medium");
+    expect(payload.turnBudget.maxOutputTokens).toBe(16_384);
+    expect(payload.turnBudget.maxOutputTokens).toBe(admission.model.maxOutputTokens);
+    expect(payload.turnBudget.thinkingLevel).toBe("low");
     expect(payload.turnBudget.servingProvider).toBe(admission.model.servingProvider);
     expect(payload.wikiCatalog).toBeNull();
     expect(payload.wikiHomepageSetup).toMatchObject({
@@ -654,6 +660,7 @@ describe("Workspace Wiki admission bootstrap", () => {
       surface: "chat",
       wikiHomepageSetup: true,
       wikiCrawlId: "crawl-1",
+      wikiCrawlMode: "initial",
       wikiWebsiteSetup: false,
       webSearchEnabled: true,
     });

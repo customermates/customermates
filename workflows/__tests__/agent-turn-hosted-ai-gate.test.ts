@@ -2866,6 +2866,7 @@ describe("agent-turn authoritative tool inputs", () => {
       pageRoute: payload.pageRoute,
       wikiHomepageSetup: false,
       wikiCrawlId: null,
+      wikiCrawlMode: null,
       wikiWebsiteSetup: false,
       webSearchEnabled: undefined,
       surface: "chat",

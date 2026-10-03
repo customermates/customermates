@@ -96,6 +96,48 @@ function execute(tool: unknown, input: unknown, toolCallId = "call-1") {
 }
 
 describe("agent tools", () => {
+  it("keeps initial, extension, refresh and default creation limits identical in definitions and normalization", async () => {
+    const sourceId = "00000000-0000-4000-8000-000000000002";
+    const page = {
+      title: "Refunds",
+      kind: "knowledge",
+      gaps: [],
+      sourceIds: [sourceId],
+      sections: [
+        {
+          heading: "Annual plans",
+          content: "Refunds within 30 days.",
+          evidence: [{ sourceId, quote: "Refunds within 30 days." }],
+        },
+      ],
+    };
+    for (const mode of ["initial", "extend", "refresh", undefined] as const) {
+      const options = {
+        wikiHomepageSetup: true,
+        wikiCrawlId: "00000000-0000-4000-8000-000000000001",
+        wikiCrawlMode: mode,
+        locale: "en",
+        surface: "chat" as const,
+      };
+      const definition = agentToolDefinitionsForTurn({ ...options, servingProvider: "vertex" }).find(
+        ({ name }) => name === "manage_wiki_pages",
+      );
+      const schema = definition?.inputSchema as { properties?: { pages?: { maxItems?: number } } } | undefined;
+      expect(schema?.properties?.pages?.maxItems).toBe(mode === "initial" ? 1 : 5);
+      expect(
+        await normalizeAgentAiToolInput("manage_wiki_pages", { action: "create", pages: [page] }, 6000, options),
+      ).toMatchObject({ ok: true });
+      expect(
+        await normalizeAgentAiToolInput(
+          "manage_wiki_pages",
+          { action: "create", pages: [page, { ...page, title: "Second" }] },
+          6000,
+          options,
+        ),
+      ).toMatchObject({ ok: mode !== "initial" });
+    }
+  });
+
   it("enrolls a mutation in an exactly-once receipt but never an effect it cannot roll back", async () => {
     const enrolled: string[] = [];
     const runExactlyOnce = <T>(toolCallId: string, toolName: string, run: () => Promise<T>) => {

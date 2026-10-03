@@ -341,6 +341,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       surface,
       wikiHomepageSetup: Boolean(wikiHomepageSetup),
       wikiCrawlId: wikiCrawl?.id ?? null,
+      wikiCrawlMode: wikiCrawl?.mode ?? null,
       wikiWebsiteSetup,
       webSearchEnabled: true,
     };

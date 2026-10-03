@@ -60,6 +60,7 @@ import type { AgentToolInputResult } from "./agent-tool-input";
 import { getAgentWebSearchTool } from "./agent-web-search";
 import { hostedWorkspaceContextTool } from "@/features/mcp-tools/workspace.mcp-tools";
 import { localizeWikiPageUrls } from "@/features/wiki/wiki-links";
+import type { WikiWebsiteCrawlMode } from "@/features/wiki/wiki-crawl-mode.schema";
 import { agentViewToolMismatch } from "./agent-page-context";
 import { hostedSectionRankers } from "./docs-rerank";
 import {
@@ -73,6 +74,7 @@ export type AgentToolOptions = {
   webSearchEnabled?: boolean;
   wikiHomepageSetup?: boolean;
   wikiCrawlId?: string | null;
+  wikiCrawlMode?: WikiWebsiteCrawlMode | null;
   wikiWebsiteSetup?: boolean;
   surface?: AgentSurface;
 };
@@ -571,7 +573,7 @@ export function getAgentAiTools(deps: AgentToolDeps, options: AgentToolOptions =
           rankers,
         ),
         manage_wiki_pages: crmTool(
-          createWikiFromCrawlTool(options.locale, options.wikiCrawlId),
+          createWikiFromCrawlTool(options.locale, options.wikiCrawlId, options.wikiCrawlMode === "initial"),
           deps,
           options.surface,
           rankers,
@@ -669,6 +671,7 @@ export function agentToolDefinitionsForTurn(args: {
   webSearchEnabled?: boolean;
   wikiHomepageSetup?: boolean;
   wikiCrawlId?: string | null;
+  wikiCrawlMode?: WikiWebsiteCrawlMode | null;
   wikiWebsiteSetup?: boolean;
 }): AgentTurnToolDefinition[] {
   const panelToolNames = new Set<string>(AGENT_UI_TOOL_NAMES);

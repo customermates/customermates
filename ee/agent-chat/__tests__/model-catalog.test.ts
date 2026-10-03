@@ -26,7 +26,8 @@ describe("benchmark model overlay", () => {
     expect(INITIAL_WIKI_SYNTHESIS_MODEL).toEqual({
       ...SHIPPED_AGENT_MODEL,
       modelId: "google/gemini-3.8-flash",
-      thinkingLevel: "medium",
+      maxOutputTokens: 16_384,
+      thinkingLevel: "low",
     });
     expect(resolveAgentModel("balanced", "chat")).toBe(SHIPPED_AGENT_MODEL);
     expect(resolveAgentModel("balanced", "chat").thinkingLevel).toBe("low");

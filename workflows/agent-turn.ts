@@ -463,6 +463,7 @@ async function executeAgentTool(
     locale: payload.locale,
     wikiHomepageSetup: Boolean(payload.wikiHomepageSetup),
     wikiCrawlId: payload.wikiCrawl?.id ?? null,
+    wikiCrawlMode: payload.wikiCrawl ? (payload.wikiCrawl.mode ?? "initial") : null,
     wikiWebsiteSetup: Boolean(payload.wikiWebsiteSetup),
     webSearchEnabled: payload.webSearchEnabled,
     surface: payload.surface ?? "chat",
@@ -778,6 +779,7 @@ async function normalizeAgentToolInput(
         pageRoute: payload.pageRoute,
         wikiHomepageSetup: Boolean(payload.wikiHomepageSetup),
         wikiCrawlId: payload.wikiCrawl?.id ?? null,
+        wikiCrawlMode: payload.wikiCrawl ? (payload.wikiCrawl.mode ?? "initial") : null,
         wikiWebsiteSetup: Boolean(payload.wikiWebsiteSetup),
         webSearchEnabled: payload.webSearchEnabled,
         surface: payload.surface ?? "chat",
@@ -1222,6 +1224,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       locale: payload.locale,
       wikiHomepageSetup: Boolean(payload.wikiHomepageSetup),
       wikiCrawlId: payload.wikiCrawl?.id ?? null,
+      wikiCrawlMode: payload.wikiCrawl ? (payload.wikiCrawl.mode ?? "initial") : null,
       wikiWebsiteSetup: Boolean(payload.wikiWebsiteSetup),
       webSearchEnabled: payload.webSearchEnabled,
     });

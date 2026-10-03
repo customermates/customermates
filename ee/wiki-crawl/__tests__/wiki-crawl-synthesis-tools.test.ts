@@ -9,7 +9,12 @@ import {
 } from "@/tests/helpers/interactor-test-setup";
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
-vi.mock("@/core/di", () => createMockDiModule(() => createMockUser()));
+const createPages = vi.hoisted(() => vi.fn().mockResolvedValue({ ok: true, data: { items: [] } }));
+
+vi.mock("@/core/di", () => ({
+  ...createMockDiModule(() => createMockUser()),
+  getCreateWikiPagesFromCrawlInteractor: () => ({ invoke: createPages }),
+}));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 
@@ -45,6 +50,49 @@ const input = {
 };
 
 describe("the website-synthesis manage_wiki_pages tool", () => {
+  it("advertises and enforces one initial page before invoking the interactor", async () => {
+    const initial = createWikiFromCrawlTool("en", "00000000-0000-4000-8000-000000000001", true);
+    const twoPages = { ...input, pages: [input.pages[0], { ...input.pages[0], title: "Annual plans" }] };
+    createPages.mockClear();
+
+    expect(initial.inputSchema.safeParse(input).success).toBe(true);
+    expect(initial.inputSchema.safeParse(twoPages).success).toBe(false);
+    expect(initial.description).toContain("Create one Knowledge Base page per call");
+    expect(await initial.execute(twoPages)).toMatchObject({ failure: { kind: "validation" } });
+    expect(createPages).not.toHaveBeenCalled();
+
+    await initial.execute(input);
+    expect(createPages).toHaveBeenCalledExactlyOnceWith({
+      pages: input.pages,
+      crawlId: "00000000-0000-4000-8000-000000000001",
+    });
+  });
+
+  it("preserves the default and extension five-page batch boundary", async () => {
+    const extension = createWikiFromCrawlTool("en", "00000000-0000-4000-8000-000000000001", false);
+    const fivePages = {
+      ...input,
+      pages: Array.from({ length: 5 }, (_, index) => ({ ...input.pages[0], title: `Page ${index + 1}` })),
+    };
+    createPages.mockClear();
+
+    for (const tool of [synthesis, extension]) {
+      expect(tool.inputSchema.safeParse(fivePages).success).toBe(true);
+      expect(tool.inputSchema.safeParse({ ...fivePages, pages: [...fivePages.pages, input.pages[0]] }).success).toBe(
+        false,
+      );
+      await tool.execute(fivePages);
+      expect(await tool.execute({ ...fivePages, pages: [...fivePages.pages, input.pages[0]] })).toMatchObject({
+        failure: { kind: "validation" },
+      });
+    }
+    expect(createPages).toHaveBeenCalledTimes(2);
+    expect(createPages).toHaveBeenLastCalledWith({
+      pages: fivePages.pages,
+      crawlId: "00000000-0000-4000-8000-000000000001",
+    });
+  });
+
   it("shares the Wiki tool's name and output, and accepts only its create action", () => {
     const actions = manageWikiPagesTool.inputSchema.shape.action.options;
 

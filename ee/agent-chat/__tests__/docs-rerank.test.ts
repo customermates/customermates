@@ -939,3 +939,62 @@ describe("connection renewal evidence", () => {
     expect(full.length).toBeLessThanOrEqual(800);
   });
 });
+
+describe("requested documentation question and destination evidence", () => {
+  it("states that a reported status does not imply a recovery request", () => {
+    const instruction = docsRankSpec(RANKABLE, "docs", "A channel reports a status").questions[0].instruction;
+
+    expect(instruction).toMatch(/question kind.*meaning or governing facts.*procedure.*navigation.*recovery/iu);
+    expect(instruction).toMatch(/reported status.*unasked recovery action/iu);
+    expect(instruction).toMatch(/own heading and Content.*requested fact or operation/iu);
+    expect(instruction).toContain("choose none only if no section answers it at all");
+    expect(docsRankState("reported status", "A channel reports a status")).toEqual({
+      latest_user_message: "A channel reports a status",
+      agent_query: "reported status",
+    });
+  });
+
+  it("retains different human destination labels when two sections share the same route", () => {
+    const candidates: RankableSection[] = ["Credential collection", "Workspace directory"].map((label, id) => ({
+      id,
+      section: {
+        pageTitle: "Workspace",
+        headingPath: ["Destination"],
+        text: `Open this destination.\n**Link:** **${label}**, \`/workspace/keys\`. **Mate:** private-command-target`,
+      },
+    }));
+    const options = docsRankSpec(candidates, "docs", "destination page address").questions[0].options;
+
+    expect(options.s0).toContain("Destination: Credential collection");
+    expect(options.s1).toContain("Destination: Workspace directory");
+    for (const option of [options.s0, options.s1]) {
+      expect(option).toContain("Link: /workspace/keys");
+      expect(option).not.toContain("private-command-target");
+      expect(optionEvidence(option).length).toBeLessThanOrEqual(800);
+    }
+  });
+
+  it("keeps own facts and routes inside the unchanged120-candidate evidence envelope", () => {
+    const candidates: RankableSection[] = Array.from({ length: 120 }, (_, id) => ({
+      id,
+      section: {
+        pageTitle: "Records",
+        headingPath: ["Stored relation"],
+        text: `A relation stores quantity.\n**Link:** **${"Destination label ".repeat(30)}**, \`/records\`. **Mate:** private-command-target`,
+      },
+    }));
+    const options = docsRankSpec(candidates, "docs", "relation quantity").questions[0].options;
+    let total = 0;
+
+    expect(Object.keys(options)).toHaveLength(121);
+    for (const { id } of candidates) {
+      const evidence = optionEvidence(options[`s${id}`]);
+      expect(evidence).toContain("A relation stores quantity.");
+      expect(evidence).toContain("Link: /records");
+      expect(evidence).not.toContain("private-command-target");
+      expect(evidence.length).toBeLessThanOrEqual(id < 20 ? 400 : 80);
+      total += evidence.length;
+    }
+    expect(total).toBeLessThanOrEqual(16_000);
+  });
+});

@@ -18,6 +18,7 @@ import {
 import { buildAgentProviderContext, isAgentStepContextWithinBudget } from "../agent-provider-context";
 import {
   SHIPPED_AGENT_MODEL,
+  INITIAL_WIKI_SYNTHESIS_MODEL,
   SHIPPED_AGENT_MODEL_KEY,
   isAgentModelWithinBudgetEnvelope,
   type AgentModelEntry,
@@ -59,6 +60,22 @@ describe("agent turn credit budget", () => {
         }),
       );
     }
+  });
+
+  it("prices the initial synthesis output envelope before admitting a provider round", () => {
+    const model = INITIAL_WIKI_SYNTHESIS_MODEL;
+    const perRound = agentRoundWorstCaseMicrocents(model);
+
+    expect(model.maxOutputTokens).toBe(16_384);
+    expect(model.thinkingLevel).toBe("low");
+    expect(perRound).toBe(15_132_150);
+    expect(resolveAgentTurnBudget({ model, availableMicrocents: perRound - 1 })).toBeNull();
+    expect(resolveAgentTurnBudget({ model, availableMicrocents: perRound })).toMatchObject({
+      maxOutputTokens: 16_384,
+      roundReserveMicrocents: perRound,
+      reservedMicrocents: perRound,
+    });
+    expect(agentRoundWorstCaseMicrocents(SHIPPED_AGENT_MODEL)).toBe(5_602_300);
   });
 
   it("reserves a few rounds ahead rather than a whole worst-case turn", () => {
