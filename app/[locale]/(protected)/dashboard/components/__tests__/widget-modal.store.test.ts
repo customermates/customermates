@@ -1,6 +1,7 @@
 import type { RootStore } from "@/core/stores/root.store";
 import { createCrmPreset } from "@/features/records/crm-preset";
 import { RecordWidgetDtoSchema } from "@/features/widget/record-widget.schema";
+import { RecordActivityWidgetDtoSchema } from "@/features/widget/record-activity-widget.schema";
 import { ChartColor, DisplayType, type WidgetDto } from "@/features/widget/widget.schema";
 import { WidgetKind } from "@/generated/prisma";
 import { randomUUID } from "node:crypto";
@@ -91,6 +92,43 @@ beforeEach(() => {
 });
 
 describe("generic widget modal", () => {
+  it("refreshes an accepted earlier activity widget without replacing a newer chart draft", async () => {
+    const { store, refresh } = setup();
+    store.add();
+    store.startFromKind(WidgetKind.activityTimeline, "Earlier activity");
+    const response = deferred<{ ok: true; data: WidgetDto }>();
+    mocks.upsertRecordActivityWidgetAction.mockReturnValueOnce(response.promise);
+    const save = store.onSubmit();
+    store.close();
+    start(store);
+    store.onChange("name", "Later chart draft");
+    response.resolve({
+      ok: true,
+      data: RecordActivityWidgetDtoSchema.parse({
+        id: randomUUID(),
+        kind: "activityTimeline",
+        contractVersion: 2,
+        version: 1,
+        userId: "member",
+        companyId: "company",
+        name: "Earlier activity",
+        activityQuery: { scope: { typeIds: [], records: [] }, kinds: ["audit"], filters: [] },
+        displayOptions: { showFilters: true },
+        layout: null,
+        isTemplate: false,
+        createdAt: new Date(0),
+        updatedAt: new Date(0),
+        schemaRevision: 1,
+        data: null,
+        status: "unavailable",
+      }),
+    });
+    await save;
+    expect(refresh).toHaveBeenCalledOnce();
+    expect(store.form).toMatchObject({ name: "Later chart draft", kind: "chart" });
+    expect(store.isOpen).toBe(true);
+    expect(store.isLoading).toBe(false);
+  });
   it("offers chart and activity creation from accessible metadata", () => {
     const { store } = setup();
     expect(store.availableKinds).toEqual(["chart", "activityTimeline"]);
@@ -246,7 +284,7 @@ describe("generic widget modal", () => {
     expect(store.isLoading).toBe(false);
   });
   it("does not let a closed session's save replace a new draft", async () => {
-    const { store } = setup(),
+    const { store, refresh } = setup(),
       wait = deferred<{ ok: true; data: WidgetDto }>();
     start(store);
     mocks.upsertRecordWidgetAction.mockReturnValueOnce(wait.promise);
@@ -258,6 +296,25 @@ describe("generic widget modal", () => {
     await submit;
     expect(store.form.name).toBe("New draft");
     expect(store.isOpen).toBe(true);
+    expect(refresh).toHaveBeenCalledOnce();
+  });
+  it("synchronizes an accepted earlier deletion while preserving the new widget draft", async () => {
+    const { store, removeItem } = setup();
+    const old = chart("Earlier saved widget");
+    const response = deferred<{ ok: true; data: { id: string } }>();
+    mocks.getWidgetByIdAction.mockResolvedValueOnce(old);
+    await store.loadById(old.id);
+    mocks.deleteWidgetAction.mockReturnValueOnce(response.promise);
+    const deletion = store.delete();
+    store.close();
+    start(store);
+    store.onChange("name", "Later unsaved widget");
+    response.resolve({ ok: true, data: { id: old.id } });
+    expect(await deletion).toBe(true);
+    expect(removeItem).toHaveBeenCalledWith({ id: old.id });
+    expect(store.form.name).toBe("Later unsaved widget");
+    expect(store.isOpen).toBe(true);
+    expect(store.isLoading).toBe(false);
   });
   it("deletes through the saved id and refreshes the owned collection", async () => {
     const { store, removeItem } = setup(),

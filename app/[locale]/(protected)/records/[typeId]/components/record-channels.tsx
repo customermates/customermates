@@ -34,6 +34,7 @@ type Props = {
   recordChannels: {
     contextKey: string;
     captureContext: () => () => boolean;
+    canCompose: () => boolean;
     channels: RecordIdentityInput[];
     canEdit: boolean;
     remove: (index: number) => void;
@@ -52,7 +53,10 @@ export const RecordChannels = observer(
     const composeRequest = useRef(0);
     const composeOwner = useRef<(() => boolean) | null>(null);
     const canEditChannels = recordChannels.canEdit;
-    const canStartThread = userStore.can(Resource.inboxMessages, Action.create) && rootStore.appMode !== "self-hosted";
+    const canStartThread =
+      recordChannels.canCompose() &&
+      userStore.can(Resource.inboxMessages, Action.create) &&
+      rootStore.appMode !== "self-hosted";
     const identifiers = recordChannels.channels;
     const inboxHref = recordChannels.inboxHref;
     const canOpenInbox = Boolean(
@@ -67,8 +71,9 @@ export const RecordChannels = observer(
       setComposeKey(null);
       return () => {
         composeRequest.current += 1;
+        threadComposeStore.detachNewThread(recordChannels.contextKey);
       };
-    }, [recordChannels.contextKey]);
+    }, [recordChannels.contextKey, threadComposeStore]);
 
     useEffect(() => {
       if (canStartThread) void connectedAccountsStore.ensureLoaded().catch(reportApplicationError);
@@ -87,6 +92,7 @@ export const RecordChannels = observer(
         actorId === userStore.user?.id &&
         userStore.can(Resource.inboxMessages, Action.create) &&
         rootStore.appMode !== "self-hosted" &&
+        recordChannels.canCompose() &&
         !threadComposeStore.isLoading &&
         recordChannels.channels.some(
           (channel) =>
@@ -98,7 +104,9 @@ export const RecordChannels = observer(
       const initialize = () => {
         if (!current()) return;
         const [first] = connectedAccountsStore.usableSendersFor(identifier.provider);
+        let ownsInitializedCompose = () => false;
         threadComposeStore.initializeNewThread({
+          sourceContextKey: recordChannels.contextKey,
           provider: identifier.provider,
           connectedAccountId: first?.id ?? "",
           recipients: [
@@ -108,10 +116,11 @@ export const RecordChannels = observer(
             },
           ],
           onDone: () => {
-            if (request === composeRequest.current && isCurrentRecord()) setComposeKey(null);
+            if (ownsInitializedCompose() && isCurrentRecord() && actorId === userStore.user?.id) setComposeKey(null);
           },
         });
-        composeOwner.current = threadComposeStore.captureContext();
+        ownsInitializedCompose = threadComposeStore.captureContext();
+        composeOwner.current = ownsInitializedCompose;
         setComposeKey(key);
       };
       if (threadComposeStore.hasUnsavedChanges) rootStore.navigationGuard.tryNavigate(initialize);
@@ -177,7 +186,10 @@ export const RecordChannels = observer(
                   }}
                 >
                   <PopoverAnchor asChild>
-                    <div className="border-border bg-card flex items-center gap-3 rounded-md border px-3 py-2">
+                    <div
+                      className="border-border bg-card flex items-center gap-3 rounded-md border px-3 py-2"
+                      data-record-channel-key={channelKey}
+                    >
                       <ProviderIcon className="size-6 shrink-0" />
 
                       <div className="min-w-0 flex-1">

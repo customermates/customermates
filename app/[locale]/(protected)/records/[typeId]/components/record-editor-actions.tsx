@@ -38,6 +38,7 @@ export const RecordEditorActions = observer(function RecordEditorActions({
           disabled={
             deletion.isPreviewing ||
             store.hasUnsavedChanges ||
+            store.hasRelatedDraft ||
             store.isLoading ||
             Boolean(store.pendingOperationId) ||
             store.refreshRequired

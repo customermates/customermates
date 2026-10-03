@@ -2,7 +2,9 @@ import { makeObservable, observable, computed, action, when, type IReactionDispo
 
 import type { BaseFormStore } from "../base/base-form.store";
 
-type NavigationGuardState = Pick<BaseFormStore, "withUnsavedChangesGuard" | "hasUnsavedChanges" | "isLoading">;
+type NavigationGuardState = Pick<BaseFormStore, "withUnsavedChangesGuard" | "hasUnsavedChanges" | "isLoading"> & {
+  captureNavigationDiscard?: () => (() => void) | undefined;
+};
 
 export class NavigationGuardController {
   pendingNavigation: (() => void) | null = null;
@@ -65,10 +67,17 @@ export class NavigationGuardController {
     const navigate = this.pendingNavigation;
     this.pendingNavigation = null;
     if (!navigate) return;
+    const discardCallbacks: Array<() => void> = [];
+    for (const store of this.stores.keys()) {
+      if (!store.withUnsavedChangesGuard || !store.hasUnsavedChanges) continue;
+      const discard = store.captureNavigationDiscard?.();
+      if (discard) discardCallbacks.push(discard);
+    }
 
     this.bypass = true;
     try {
       navigate();
+      for (const discard of discardCallbacks) discard();
     } finally {
       void Promise.resolve().then(() => {
         this.bypass = false;

@@ -30,6 +30,7 @@ vi.mock("@/core/utils/toast-zod-error-tree", () => ({
 vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 
 import { ThreadComposeStore } from "../thread-compose.store";
+import { NavigationGuardController } from "@/core/stores/navigation-guard.controller";
 
 const ACCOUNT_ID = "00000000-0000-4000-8000-000000000001";
 const OTHER_ACCOUNT_ID = "00000000-0000-4000-8000-000000000002";
@@ -107,6 +108,7 @@ function makeHarness(initialMessages: MessagingMessageDto[] = []) {
   };
   const threads = { refreshInBackground: vi.fn() };
   const rootStore = {
+    userStore: { user: { id: "compose-owner", companyId: "company" } },
     connectedAccountsStore: { items: [] },
     localeStore: { getTranslation: (key: string) => key },
     messagingThreadDetailStore: detail,
@@ -831,6 +833,76 @@ describe("ThreadComposeStore draft lifecycle", () => {
 });
 
 describe("ThreadComposeStore new-thread ownership", () => {
+  it("discards a guarded navigation draft but preserves a replacement compose initialized by confirmation", () => {
+    const { store } = makeHarness();
+    const guard = new NavigationGuardController();
+    guard.register(store);
+    const initialize = (recipient: string) =>
+      store.initializeNewThread({
+        provider: MessagingProvider.mail,
+        connectedAccountId: ACCOUNT_ID,
+        recipients: [{ identifier: recipient, displayName: null }],
+        sourceContextKey: "record:owner",
+      });
+    initialize(RECIPIENT);
+    store.onChange("body", "Discard on navigation");
+    const navigate = vi.fn();
+    expect(guard.tryNavigate(navigate)).toBe(false);
+    guard.cancel();
+    expect(store.form.body).toBe("Discard on navigation");
+    expect(guard.tryNavigate(navigate)).toBe(false);
+    guard.confirm();
+    expect(navigate).toHaveBeenCalledOnce();
+    expect(store.sourceContextKey).toBeNull();
+    expect(store.newThreadTarget).toBeNull();
+    initialize(RECIPIENT);
+    store.onChange("body", "Discard only the earlier channel");
+    guard.tryNavigate(() => initialize("replacement@example.com"));
+    guard.confirm();
+    expect(store.form.recipients).toEqual(["replacement@example.com"]);
+    expect(store.newThreadTarget).not.toBeNull();
+    expect(store.sourceContextKey).toBe("record:owner");
+  });
+  it("retains a detached record draft for the same actor and rejects another source or actor", () => {
+    const { store } = makeHarness();
+    store.initializeNewThread({
+      provider: MessagingProvider.mail,
+      connectedAccountId: ACCOUNT_ID,
+      recipients: [{ identifier: RECIPIENT, displayName: null }],
+      sourceContextKey: "record:owner",
+    });
+    expect(store.detachNewThread("record:owner")).toBe(false);
+    store.onChange("body", "Preserve through browser history");
+    expect(store.detachNewThread("record:other")).toBe(false);
+    expect(store.isDetachedNewThread).toBe(false);
+    expect(store.detachNewThread("record:owner")).toBe(true);
+    expect(store.isDetachedNewThread).toBe(true);
+    expect(store.form).toMatchObject({ body: "Preserve through browser history", recipients: [RECIPIENT] });
+    store.rootStore.userStore.user = { id: "other-actor" } as NonNullable<RootStore["userStore"]["user"]>;
+    expect(store.isDetachedNewThread).toBe(false);
+    expect(store.detachNewThread("record:owner")).toBe(false);
+  });
+  it("closes detached recovery only after a successful unchanged draft save", async () => {
+    const { store } = makeHarness();
+    store.initializeNewThread({
+      provider: MessagingProvider.mail,
+      connectedAccountId: ACCOUNT_ID,
+      recipients: [{ identifier: RECIPIENT, displayName: null }],
+      sourceContextKey: "record:owner",
+    });
+    store.onChange("body", "Recovered draft");
+    store.onChange("subject", "Recovered subject");
+    store.detachNewThread("record:owner");
+    actions.saveDraftAction.mockRejectedValueOnce(new Error("Connection lost"));
+    await expect(store.saveDraft()).rejects.toThrow("Connection lost");
+    expect(store.isDetachedNewThread).toBe(true);
+    expect(store.form.body).toBe("Recovered draft");
+    actions.saveDraftAction.mockResolvedValueOnce({ ok: true, data: message({ provider: MessagingProvider.mail }) });
+    await store.saveDraft();
+    expect(store.isDetachedNewThread).toBe(false);
+    expect(store.sourceContextKey).toBeNull();
+    expect(store.hasUnsavedChanges).toBe(false);
+  });
   it("invalidates captured ownership when a different recipient starts a compose session", () => {
     const { store } = makeHarness();
     store.initializeNewThread({ provider: MessagingProvider.mail, connectedAccountId: ACCOUNT_ID, recipients: [] });
@@ -851,6 +923,7 @@ describe("ThreadComposeStore new-thread ownership", () => {
       provider: MessagingProvider.mail,
       connectedAccountId: ACCOUNT_ID,
       recipients: [{ identifier: RECIPIENT, displayName: null }],
+      sourceContextKey: "record:session",
     });
     const current = store.captureContext();
     store.addAttachments([new File(["local"], "local.txt", { type: "text/plain" })]);
@@ -858,6 +931,7 @@ describe("ThreadComposeStore new-thread ownership", () => {
     store.discardNewThread();
     expect(current()).toBe(false);
     expect(store.newThreadTarget).toBeNull();
+    expect(store.sourceContextKey).toBeNull();
     expect(store.form).toMatchObject({ provider: null, recipients: [], body: "", subject: "" });
     expect(store.attachments).toEqual([]);
     expect(store.hasUnsavedChanges).toBe(false);

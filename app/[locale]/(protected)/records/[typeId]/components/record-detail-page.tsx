@@ -34,8 +34,10 @@ export const RecordDetailPage = observer(function RecordDetailPage({ initial }: 
   useEffect(() => root.recordWorkspaceStore.subscribe(store.refreshRecord), [root, store]);
   if (applied.current !== initial) {
     applied.current = initial;
+    if (store.hasRelatedDraft) store.setRefreshRequired(true);
     if (
       !store.hasUnsavedChanges &&
+      !store.hasRelatedDraft &&
       initial.model.revision >= store.presentation.model.revision &&
       (initial.record?.version ?? 0) >= (store.record?.version ?? 0)
     )

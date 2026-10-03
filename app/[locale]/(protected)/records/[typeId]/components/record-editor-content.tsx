@@ -42,6 +42,14 @@ const RecordEditorBody = observer(function RecordEditorBody({
   const deletion = useRecordDeletion({
     sessionKey: store.sessionKey,
     captureSession: store.captureSession,
+    canDelete: () =>
+      store.presentation.permittedActions.includes("delete") &&
+      !store.isLoading &&
+      !store.pendingOperationId &&
+      !store.refreshRequired &&
+      !store.hasRelatedDraft &&
+      !store.hasUnsavedChanges,
+    onMutating: store.setIsLoading,
     onInvalidated: store.rootStore.recordWorkspaceStore.invalidate,
     onDeleted: store.deletionCompleted,
     onPending: (id) => store.setPendingOperation(id, true),
@@ -170,7 +178,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
         <Tabs
           className="flex min-h-0 flex-1 flex-col gap-0"
           value={hasNotes || store.record ? panel : "details"}
-          onValueChange={setPanel}
+          onValueChange={(next) => store.runAfterChannelDraft(() => setPanel(next))}
         >
           {(hasNotes || store.record) && (
             <TabsList

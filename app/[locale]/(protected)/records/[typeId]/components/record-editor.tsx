@@ -9,9 +9,11 @@ import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return"
 import { UnsavedChangesGuard } from "@/components/modal/unsaved-changes-guard";
 import { keepOpenForAssistantSurface, releaseFocusToAssistantSurface } from "@/components/modal/assistant-surface";
 import { RecordEditorContent } from "./record-editor-content";
+import { useRootStore } from "@/core/stores/root-store.provider";
 
 export const RecordEditor = observer(function RecordEditorDrawer({ store }: { store: RecordEditorStore }) {
   const t = useTranslations();
+  const root = useRootStore();
   const focusReturn = useOverlayFocusReturn(store.isOpen, store.focusReturnTarget, store.focusReturnFallback);
   const type = store.presentation.model.types.find((type) => type.id === store.presentation.typeId);
   return (
@@ -20,8 +22,24 @@ export const RecordEditor = observer(function RecordEditorDrawer({ store }: { st
         open={store.isOpen}
         onOpenChange={(open) => {
           if (open) return;
+          const compose = root.threadComposeStore;
+          if (compose.sourceContextKey === store.channelComposeKey && compose.isLoading) return;
+          if (store.hasRelatedDraft) {
+            const isCurrentRecord = store.captureSession();
+            const isCurrentCompose = compose.captureContext();
+            root.navigationGuard.tryNavigate(() => {
+              if (!isCurrentRecord() || !isCurrentCompose() || compose.isLoading) return;
+              compose.discardNewThread();
+              store.resetForm();
+              store.close();
+            });
+            return;
+          }
           if (store.withUnsavedChangesGuard && store.hasUnsavedChanges) store.setIsClosingWithGuard(true);
-          else store.close();
+          else {
+            if (compose.sourceContextKey === store.channelComposeKey) compose.discardNewThread();
+            store.close();
+          }
         }}
       >
         <SheetContent
@@ -47,6 +65,8 @@ export const RecordEditor = observer(function RecordEditorDrawer({ store }: { st
         open={store.isClosingWithGuard}
         onCancel={() => store.setIsClosingWithGuard(false)}
         onConfirm={() => {
+          if (root.threadComposeStore.sourceContextKey === store.channelComposeKey)
+            root.threadComposeStore.discardNewThread();
           store.resetForm();
           store.close();
         }}

@@ -18,19 +18,23 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/core/utils/cn";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 
-const LayoutContext = createContext<RecordDetailLayoutStore | null>(null);
+const LayoutContext = createContext<{
+  layout: RecordDetailLayoutStore;
+  editor: RecordEditorStore;
+} | null>(null);
 
 export const RecordDetailPersonalization = observer(function RecordDetailPersonalization({
   store,
   children,
 }: {
   store: RecordEditorStore;
-  children: ReactNode;
+  children?: ReactNode;
 }) {
   const initial = store.presentation.detailLayout;
   const [layout] = useState(() => (initial ? store.rootStore.recordWorkspaceStore.getDetailLayout(initial) : null));
   const [isPersonalizing, setIsPersonalizing] = useState(false);
   const [previewFieldValues, setPreviewFieldValues] = useState<Record<string, EntityDetailPreviewItem[]>>({});
+  const hasRelatedDraft = store.hasRelatedDraft;
   useEffect(() => {
     if (initial) layout?.hydrate(initial);
   }, [initial, layout]);
@@ -53,24 +57,40 @@ export const RecordDetailPersonalization = observer(function RecordDetailPersona
             applyFieldVisibility: store.record !== null,
             isPersonalizing,
             starredFieldIds: layout.layout.pinnedFields,
-            hiddenFieldIds: layout.layout.hiddenFields,
-            availableFieldIds: layout.state.fields.map((field) => field.id),
+            hiddenFieldIds: hasRelatedDraft
+              ? layout.layout.hiddenFields.filter((id) => id !== "system:channels")
+              : layout.layout.hiddenFields,
+            availableFieldIds: [
+              ...layout.state.fields.map((field) => field.id),
+              ...(hasRelatedDraft ? ["system:channels"] : []),
+            ],
             fieldOrder: layout.layout.fieldOrder,
             columnOrder: layout.layout.fieldOrder,
             previewFieldValues,
-            setIsPersonalizing,
-            toggleStarredField: layout.togglePinned,
-            toggleFieldVisibility: layout.toggleHidden,
-            reorderFields: layout.reorder,
-            reorderColumns: layout.reorder,
+            setIsPersonalizing: (next) => store.runAfterChannelDraft(() => setIsPersonalizing(next)),
+            toggleStarredField: (id) => store.runAfterChannelDraft(() => layout.togglePinned(id)),
+            toggleFieldVisibility: (id) => store.runAfterChannelDraft(() => layout.toggleHidden(id)),
+            reorderFields: (ids) => store.runAfterChannelDraft(() => layout.reorder(ids)),
+            reorderColumns: (ids) => store.runAfterChannelDraft(() => layout.reorder(ids)),
             setPreviewFieldValue,
           }
         : null,
-    [layout, layout?.layout, layout?.state, store.record, isPersonalizing, previewFieldValues, setPreviewFieldValue],
+    [
+      layout,
+      layout?.layout,
+      layout?.state,
+      store,
+      store.record,
+      hasRelatedDraft,
+      isPersonalizing,
+      previewFieldValues,
+      setPreviewFieldValue,
+    ],
   );
+  const layoutContext = useMemo(() => (layout ? { layout, editor: store } : null), [layout, store]);
   if (!value) return children;
   return (
-    <LayoutContext.Provider value={layout}>
+    <LayoutContext.Provider value={layoutContext}>
       <EntityDetailPersonalizationContext.Provider value={value}>
         {children}
       </EntityDetailPersonalizationContext.Provider>
@@ -80,11 +100,13 @@ export const RecordDetailPersonalization = observer(function RecordDetailPersona
 
 const LayoutControls = observer(function LayoutControls({
   layout,
+  editor,
   isPersonalizing,
   setIsPersonalizing,
   compact,
 }: {
   layout: RecordDetailLayoutStore;
+  editor: RecordEditorStore;
   isPersonalizing: boolean;
   setIsPersonalizing: (value: boolean) => void;
   compact: boolean;
@@ -114,7 +136,7 @@ const LayoutControls = observer(function LayoutControls({
           size="sm"
           type="button"
           variant="ghost"
-          onClick={() => runUserAction(layout.reset)}
+          onClick={() => editor.runAfterChannelDraft(() => runUserAction(layout.reset))}
         >
           <RotateCcw className="size-4" />
 
@@ -132,7 +154,12 @@ const LayoutControls = observer(function LayoutControls({
         <span className="flex items-center gap-2 text-xs text-destructive" role="alert">
           {t("RecordModel.detailLayoutSaveFailed")}
 
-          <Button size="sm" type="button" variant="ghost" onClick={() => runUserAction(layout.retry)}>
+          <Button
+            size="sm"
+            type="button"
+            variant="ghost"
+            onClick={() => editor.runAfterChannelDraft(() => runUserAction(layout.retry))}
+          >
             {t("ErrorCard.retry")}
           </Button>
         </span>
@@ -142,19 +169,20 @@ const LayoutControls = observer(function LayoutControls({
 });
 
 export function useRecordDetailLayoutControls(compact = false) {
-  const layout = useContext(LayoutContext);
+  const context = useContext(LayoutContext);
   const { enabled, isPersonalizing, setIsPersonalizing } = useEntityDetailPersonalization();
   return useMemo(
     () =>
-      enabled && layout ? (
+      enabled && context ? (
         <LayoutControls
           compact={compact}
+          editor={context.editor}
           isPersonalizing={isPersonalizing}
-          layout={layout}
+          layout={context.layout}
           setIsPersonalizing={setIsPersonalizing}
         />
       ) : null,
-    [compact, enabled, isPersonalizing, layout, setIsPersonalizing],
+    [compact, enabled, isPersonalizing, context, setIsPersonalizing],
   );
 }
 

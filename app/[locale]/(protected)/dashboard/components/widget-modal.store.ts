@@ -222,15 +222,13 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
 
     try {
       const res = await deleteWidgetAction({ id });
-      if (session !== this.sessionGeneration || !this.isOpen) return false;
       if (!res.ok) {
-        toastZodErrorTree(res.error);
+        if (session === this.sessionGeneration && this.isOpen) toastZodErrorTree(res.error);
         return false;
       }
 
       await this.rootStore.widgetsStore.removeItem(res.data);
-      if (session !== this.sessionGeneration || !this.isOpen) return false;
-      this.close();
+      if (session === this.sessionGeneration && this.isOpen) this.close();
       return true;
     } finally {
       if (session === this.sessionGeneration) this.setIsLoading(false);
@@ -328,12 +326,11 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
           return;
         }
         const result = await upsertRecordActivityWidgetAction(parsed.data);
-        if (session !== this.sessionGeneration || !this.isOpen) return;
         if (!result.ok) {
-          this.setError(result.error);
+          if (session === this.sessionGeneration && this.isOpen) this.setError(result.error);
           return;
         }
-        this.hydrateWidget(result.data, false);
+        if (session === this.sessionGeneration && this.isOpen) this.hydrateWidget(result.data, false);
         await this.rootStore.widgetsStore.refresh();
         if (session === this.sessionGeneration && this.isOpen) this.close();
       } finally {
@@ -352,12 +349,11 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
           return;
         }
         const result = await upsertRecordWidgetAction(parsed.data);
-        if (session !== this.sessionGeneration || !this.isOpen) return;
         if (!result.ok) {
-          this.setError(result.error);
+          if (session === this.sessionGeneration && this.isOpen) this.setError(result.error);
           return;
         }
-        this.hydrateWidget(result.data, false);
+        if (session === this.sessionGeneration && this.isOpen) this.hydrateWidget(result.data, false);
         await this.rootStore.widgetsStore.refresh();
         if (session === this.sessionGeneration && this.isOpen) this.close();
       } finally {

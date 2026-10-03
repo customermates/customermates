@@ -50,6 +50,7 @@ function makeStore(role: RoleDto, signedInRoleId: string | null = null): RoleMod
   } as unknown as RootStore;
   const store = new RoleModalStore(rootStore);
   store.setRole(role);
+  store.open();
   store.context = {
     role,
     schemaRevision: 1,
@@ -191,6 +192,52 @@ describe("RoleModalStore own-role guard", () => {
 });
 
 describe("dynamic role permissions", () => {
+  it("synchronizes an accepted earlier save without replacing a newly opened role draft", async () => {
+    const earlier = makeRole();
+    const later = makeRole({ id: UNHELD_ROLE_ID, name: "Later role" });
+    const store = makeStore(earlier);
+    const response = Promise.withResolvers<unknown>();
+    companyActions.upsertRoleAction.mockReturnValueOnce(response.promise);
+    const save = store.onSubmit();
+    store.close();
+    companyActions.getRoleEditorAction.mockResolvedValueOnce({
+      ok: true,
+      data: { role: later, schemaRevision: 2, types: [], canEdit: true, canDelete: true },
+    });
+    store.editRole(later);
+    await vi.waitFor(() => expect(store.isLoading).toBe(false));
+    store.onChange("name", "Later unsaved draft");
+    response.resolve({ ok: true, data: { role: earlier, schemaRevision: 2 } });
+    await save;
+    expect(store.rootStore.rolesStore.upsertItem).toHaveBeenCalledWith(expect.objectContaining({ id: earlier.id }), {
+      created: false,
+    });
+    expect(store.form).toMatchObject({ id: later.id, name: "Later unsaved draft" });
+    expect(store.isOpen).toBe(true);
+    expect(store.isLoading).toBe(false);
+  });
+
+  it("removes the captured deleted role without closing another role or ending its pending context read", async () => {
+    const earlier = makeRole();
+    const later = makeRole({ id: UNHELD_ROLE_ID, name: "Later role" });
+    const store = makeStore(earlier);
+    const deletion = Promise.withResolvers<unknown>();
+    const loading = Promise.withResolvers<unknown>();
+    companyActions.deleteRoleAction.mockReturnValueOnce(deletion.promise);
+    const remove = store.delete();
+    store.close();
+    companyActions.getRoleEditorAction.mockReturnValueOnce(loading.promise);
+    store.editRole(later);
+    expect(store.isLoading).toBe(true);
+    deletion.resolve({ ok: true, data: {} });
+    expect(await remove).toBe(true);
+    expect(store.rootStore.rolesStore.removeItem).toHaveBeenCalledWith(earlier.id);
+    expect(store.form).toMatchObject({ id: later.id, name: "Later role" });
+    expect(store.isOpen).toBe(true);
+    expect(store.isLoading).toBe(true);
+    loading.resolve({ ok: true, data: { role: later, schemaRevision: 2, types: [], canEdit: true, canDelete: true } });
+    await vi.waitFor(() => expect(store.isLoading).toBe(false));
+  });
   it("loads renamed types and preserves granular rights without granting update or delete", async () => {
     const role = makeRole({
       recordGrants: [{ typeId: "20000000-0000-4000-8000-000000000010", actions: ["create", "readOwn"] }],

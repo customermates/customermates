@@ -49,6 +49,123 @@ const record = (version = 1): RecordDto => ({
 beforeEach(() => vi.resetAllMocks());
 
 describe("record editor persistence", () => {
+  it("does not claim a channel draft belonging to another editor of the same record", () => {
+    const compose = { sourceContextKey: null as string | null, hasUnsavedChanges: true, isLoading: false };
+    const sharedRoot = { ...root, threadComposeStore: compose } as unknown as RootStore;
+    const first = new RecordEditorStore(sharedRoot, context("deal"), vi.fn());
+    const second = new RecordEditorStore(sharedRoot, context("deal"), vi.fn());
+    first.edit(context("deal"), record());
+    second.edit(context("deal"), record());
+    expect(first.sessionKey).toBe(second.sessionKey);
+    expect(first.channelComposeKey).not.toBe(second.channelComposeKey);
+    compose.sourceContextKey = first.channelComposeKey;
+    expect(first.hasRelatedDraft).toBe(true);
+    expect(second.hasRelatedDraft).toBe(false);
+    const next = vi.fn();
+    second.runAfterChannelDraft(next);
+    expect(next).toHaveBeenCalledOnce();
+    expect(compose.sourceContextKey).toBe(first.channelComposeKey);
+  });
+
+  it("guards channel-destroying layout and panel changes, and ignores stale discard confirmations", () => {
+    let pending: (() => void) | undefined;
+    let currentCompose = true;
+    const compose = {
+      sourceContextKey: null as string | null,
+      hasUnsavedChanges: true,
+      isLoading: false,
+      captureContext: () => () => currentCompose,
+      discardNewThread: vi.fn(),
+    };
+    const navigationGuard = { tryNavigate: vi.fn((callback: () => void) => (pending = callback)) };
+    const store = new RecordEditorStore(
+      { ...root, threadComposeStore: compose, navigationGuard } as unknown as RootStore,
+      context("deal"),
+      vi.fn(),
+    );
+    store.edit(context("deal"), record());
+    compose.sourceContextKey = store.channelComposeKey;
+    const next = vi.fn();
+    store.runAfterChannelDraft(next);
+    expect(next).not.toHaveBeenCalled();
+    expect(compose.discardNewThread).not.toHaveBeenCalled();
+    currentCompose = false;
+    pending?.();
+    expect(next).not.toHaveBeenCalled();
+    currentCompose = true;
+    store.runAfterChannelDraft(next);
+    pending?.();
+    expect(compose.discardNewThread).toHaveBeenCalledOnce();
+    expect(next).toHaveBeenCalledOnce();
+    compose.isLoading = true;
+    store.runAfterChannelDraft(next);
+    expect(next).toHaveBeenCalledOnce();
+  });
+  it("retains an owned channel draft and its record session until refresh can safely retry", async () => {
+    const compose = { sourceContextKey: null as string | null, hasUnsavedChanges: true, isLoading: false };
+    const store = new RecordEditorStore(
+      { ...root, threadComposeStore: compose } as unknown as RootStore,
+      context("deal"),
+      vi.fn(),
+      true,
+    );
+    store.edit(context("deal"), record());
+    compose.sourceContextKey = store.channelComposeKey;
+    const session = store.sessionKey;
+    expect(store.hasUnsavedChanges).toBe(false);
+    expect(store.isReadOnly).toBe(true);
+    await store.refreshRecord();
+    expect(mocks.getRecordEditorAction).not.toHaveBeenCalled();
+    expect(store.sessionKey).toBe(session);
+    expect(store.refreshRequired).toBe(true);
+    compose.hasUnsavedChanges = false;
+    mocks.getRecordEditorAction.mockResolvedValue({ ok: true, data: { ...context("deal"), record: record(2) } });
+    await store.refreshRecord();
+    expect(store.record?.version).toBe(2);
+    expect(store.refreshRequired).toBe(false);
+    expect(mocks.mutateRecordAction).not.toHaveBeenCalled();
+  });
+
+  it("does not apply a record read when its owned composer becomes dirty during the request", async () => {
+    const compose = { sourceContextKey: null as string | null, hasUnsavedChanges: false, isLoading: false };
+    const store = new RecordEditorStore(
+      { ...root, threadComposeStore: compose } as unknown as RootStore,
+      context("deal"),
+      vi.fn(),
+      true,
+    );
+    store.edit(context("deal"), record());
+    compose.sourceContextKey = store.channelComposeKey;
+    const session = store.sessionKey;
+    let resolve!: (value: unknown) => void;
+    mocks.getRecordEditorAction.mockReturnValue(
+      new Promise((done) => {
+        resolve = done;
+      }),
+    );
+    const pending = store.refreshRecord();
+    compose.hasUnsavedChanges = true;
+    resolve({ ok: true, data: { ...context("deal"), record: record(2) } });
+    await pending;
+    expect(store.record?.version).toBe(1);
+    expect(store.sessionKey).toBe(session);
+    expect(store.refreshRequired).toBe(true);
+  });
+
+  it("does not block a record read with an unrelated compose source", async () => {
+    const compose = { sourceContextKey: "unrelated", hasUnsavedChanges: true, isLoading: false };
+    const store = new RecordEditorStore(
+      { ...root, threadComposeStore: compose } as unknown as RootStore,
+      context("deal"),
+      vi.fn(),
+      true,
+    );
+    store.edit(context("deal"), record());
+    mocks.getRecordEditorAction.mockResolvedValue({ ok: true, data: { ...context("deal"), record: record(2) } });
+    await store.refreshRecord();
+    expect(store.record?.version).toBe(2);
+    expect(store.isReadOnly).toBe(false);
+  });
   it("keeps identity channels in the form draft and submits only intentional channel changes", async () => {
     const store = new RecordEditorStore(root, context("contact"), vi.fn());
     const person: RecordDto = {

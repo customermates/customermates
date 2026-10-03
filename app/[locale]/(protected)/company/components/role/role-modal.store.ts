@@ -65,6 +65,7 @@ export class RoleModalStore extends BaseModalStore<RoleForm> {
   context: RoleEditorContext | null = null;
   loadFailed = false;
   private loadSequence = 0;
+  private sessionGeneration = 0;
   private lastSubmission: { payload: string; key: string } | null = null;
 
   constructor(rootStore: RootStore) {
@@ -108,6 +109,7 @@ export class RoleModalStore extends BaseModalStore<RoleForm> {
   }
 
   add = () => {
+    this.sessionGeneration += 1;
     this.context = null;
     this.lastSubmission = null;
     this.openWith(roleForm());
@@ -115,6 +117,8 @@ export class RoleModalStore extends BaseModalStore<RoleForm> {
   };
 
   setRole = (role: RoleDto) => {
+    this.sessionGeneration += 1;
+    this.loadSequence += 1;
     this.context = null;
     this.lastSubmission = null;
     this.onInitOrRefresh(roleForm(role));
@@ -125,6 +129,11 @@ export class RoleModalStore extends BaseModalStore<RoleForm> {
     this.open();
     void this.loadContext();
   };
+  protected override prepareToClose() {
+    this.sessionGeneration += 1;
+    this.loadSequence += 1;
+    return true;
+  }
 
   loadContext = async () => {
     const sequence = ++this.loadSequence;
@@ -178,7 +187,9 @@ export class RoleModalStore extends BaseModalStore<RoleForm> {
   }
 
   delete = async (): Promise<boolean> => {
-    if (!this.form.id || !this.context || !this.canDeleteRole) return false;
+    if (!this.isOpen || !this.form.id || !this.context || !this.canDeleteRole) return false;
+    const session = this.sessionGeneration;
+    const isCurrent = () => session === this.sessionGeneration && this.isOpen;
     this.setIsLoading(true);
     try {
       const data = { id: this.form.id, expectedRevision: this.context.schemaRevision };
@@ -187,20 +198,22 @@ export class RoleModalStore extends BaseModalStore<RoleForm> {
         idempotencyKey: this.submissionKey({ action: "delete", ...data }),
       });
       if (!result.ok) {
-        toastZodErrorTree(result.error);
+        if (isCurrent()) toastZodErrorTree(result.error);
         return false;
       }
-      await this.rootStore.rolesStore.removeItem(this.form.id);
-      this.close();
+      await this.rootStore.rolesStore.removeItem(data.id);
+      if (isCurrent()) this.close();
       return true;
     } finally {
-      this.setIsLoading(false);
+      if (isCurrent()) this.setIsLoading(false);
     }
   };
 
   onSubmit = async (event?: FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
-    if (this.isReadOnly || this.isLoading || !this.context) return;
+    if (!this.isOpen || this.isReadOnly || this.isLoading || !this.context) return;
+    const session = this.sessionGeneration;
+    const isCurrent = () => session === this.sessionGeneration && this.isOpen;
     this.setIsLoading(true);
     try {
       const form = toJS(this.form);
@@ -233,12 +246,12 @@ export class RoleModalStore extends BaseModalStore<RoleForm> {
         const currentRole = this.rootStore.rolesStore.items.find((item) => item.id === role.id);
         await this.rootStore.rolesStore.upsertItem(
           { ...role, hasUsersAssigned: currentRole?.hasUsersAssigned ?? false },
-          { created: !this.form.id },
+          { created: !form.id },
         );
-        this.close();
-      } else this.setError(result.error);
+        if (isCurrent()) this.close();
+      } else if (isCurrent()) this.setError(result.error);
     } finally {
-      this.setIsLoading(false);
+      if (isCurrent()) this.setIsLoading(false);
     }
   };
 }

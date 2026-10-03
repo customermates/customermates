@@ -38,6 +38,10 @@ const WorkspaceRecordEditor = dynamic(
   () => import("@/components/records/workspace-record-editor").then((mod) => mod.WorkspaceRecordEditor),
   { ssr: false },
 );
+const RecordComposeRecovery = dynamic(
+  () => import("@/components/records/record-compose-recovery").then((mod) => mod.RecordComposeRecovery),
+  { ssr: false },
+);
 const TimelineDetailModal = dynamic(
   () => import("@/features/messaging/activities/activities-detail-modal").then((mod) => mod.TimelineDetailModal),
   { ssr: false },
@@ -111,6 +115,8 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
           <LegacyRecordDrawerBridge />
 
           <WorkspaceRecordEditor />
+
+          <RecordComposeRecovery />
 
           <FeedbackModal />
 

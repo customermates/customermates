@@ -15,12 +15,16 @@ export function useRecordDeletion({
   sessionKey,
   captureSession,
   onInvalidated,
+  canDelete,
+  onMutating,
 }: {
   onDeleted: () => Promise<void>;
   onPending: (operationId: string) => void;
   sessionKey?: number;
   captureSession?: () => () => boolean;
   onInvalidated?: () => Promise<void>;
+  canDelete?: () => boolean;
+  onMutating?: (value: boolean) => void;
   mutateMany?: (mutation: Extract<RecordMutation, { action: "deleteMany" }>) => Promise<boolean>;
 }) {
   const t = useTranslations();
@@ -45,7 +49,7 @@ export function useRecordDeletion({
     name: string,
     many: boolean,
   ) => {
-    if (isPreviewing) return;
+    if (isPreviewing || canDelete?.() === false) return;
     const requestedGeneration = ++generation.current;
     const sessionIsCurrent = captureSession?.() ?? (() => true);
     const isCurrent = () => mounted.current && generation.current === requestedGeneration && sessionIsCurrent();
@@ -55,7 +59,7 @@ export function useRecordDeletion({
         ? { targets, expectedRevision: schemaRevision }
         : { ...targets[0], expectedRevision: schemaRevision };
       const result = await previewRecordDeletionAction(input);
-      if (!isCurrent()) return;
+      if (!isCurrent() || canDelete?.() === false) return;
       if (!result.ok) {
         toastZodErrorTree(result.error);
         return;
@@ -82,7 +86,7 @@ export function useRecordDeletion({
         message: description,
         successKey: "RecordModel.deletionAccepted",
         onConfirm: async () => {
-          if (!isCurrent()) return false;
+          if (!isCurrent() || canDelete?.() === false) return false;
           if (many && mutateMany) {
             return mutateMany({
               action: "deleteMany",
@@ -92,16 +96,22 @@ export function useRecordDeletion({
           }
           const idempotencyKey = requests.current.get(payloadKey) ?? crypto.randomUUID();
           requests.current.set(payloadKey, idempotencyKey);
-          const result = await mutateRecordAction({
-            expectedRevision: input.expectedRevision,
-            idempotencyKey,
-            mutation: {
-              action: "delete",
-              ref: targets[0].ref,
-              expectedVersion: targets[0].expectedVersion,
-              expectedImpactHash: preview.impactHash,
-            },
-          });
+          onMutating?.(true);
+          let result;
+          try {
+            result = await mutateRecordAction({
+              expectedRevision: input.expectedRevision,
+              idempotencyKey,
+              mutation: {
+                action: "delete",
+                ref: targets[0].ref,
+                expectedVersion: targets[0].expectedVersion,
+                expectedImpactHash: preview.impactHash,
+              },
+            });
+          } finally {
+            if (isCurrent()) onMutating?.(false);
+          }
           if (!result.ok) {
             if (isCurrent()) toastZodErrorTree(result.error);
             return false;

@@ -47,6 +47,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
   private requestKey: string | null = null;
   private refreshGeneration = 0;
   private sessionGeneration = 0;
+  private readonly instanceKey = crypto.randomUUID();
   private pendingDeletion = false;
   private refreshNotificationPending = false;
   constructor(
@@ -88,9 +89,33 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
   get sessionKey() {
     return this.sessionGeneration;
   }
+  get channelComposeKey() {
+    return `${this.instanceKey}:${this.presentation.typeId}:${this.form.id ?? "new"}:${this.sessionKey}`;
+  }
+  get hasRelatedDraft() {
+    const compose = this.rootStore.threadComposeStore;
+    return compose?.sourceContextKey === this.channelComposeKey && (compose.hasUnsavedChanges || compose.isLoading);
+  }
   captureSession = () => {
     const session = this.sessionGeneration;
     return () => this.isOpen && session === this.sessionGeneration;
+  };
+  runAfterChannelDraft = (next: () => void) => {
+    const compose = this.rootStore.threadComposeStore;
+    if (compose?.sourceContextKey !== this.channelComposeKey) {
+      next();
+      return;
+    }
+    if (compose.isLoading) return;
+    const isCurrentRecord = this.captureSession();
+    const isCurrentCompose = compose.captureContext();
+    const proceed = () => {
+      if (!isCurrentRecord() || !isCurrentCompose() || compose.isLoading) return;
+      compose.discardNewThread();
+      next();
+    };
+    if (compose.hasUnsavedChanges) this.rootStore.navigationGuard.tryNavigate(proceed);
+    else proceed();
   };
   protected override prepareToClose() {
     this.sessionGeneration += 1;
@@ -98,7 +123,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
     return true;
   }
   get isReadOnly() {
-    if (this.pendingOperationId || this.refreshRequired) return true;
+    if (this.pendingOperationId || this.refreshRequired || this.hasRelatedDraft) return true;
     return this.record !== null
       ? !this.presentation.permittedActions.includes("update")
       : !this.presentation.permittedActions.includes("create");
@@ -180,6 +205,10 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
   };
   refreshRecord = async () => {
     if (!this.record || this.hasUnsavedChanges) return;
+    if (this.hasRelatedDraft) {
+      this.setRefreshRequired(true);
+      return;
+    }
     const generation = ++this.refreshGeneration;
     const ref = toJS(this.record.ref);
     const result = await getRecordEditorAction(ref);
@@ -190,6 +219,10 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
       this.hasUnsavedChanges
     )
       return;
+    if (this.hasRelatedDraft) {
+      this.setRefreshRequired(true);
+      return;
+    }
     if (result.ok) {
       if (
         result.data.model.revision < this.presentation.model.revision ||

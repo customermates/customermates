@@ -219,7 +219,8 @@ export const RecordIdentityEditor = observer(function RecordIdentityEditor({ sto
         controlStartAddon={<EntityDetailFieldDragHandle label={t("EntityChannels.heading")} />}
         headingEndAddon={<EntityDetailFieldActions fieldId="system:channels" label={t("EntityChannels.heading")} />}
         recordChannels={{
-          contextKey: `${store.presentation.typeId}:${store.form.id ?? "new"}:${store.sessionKey}`,
+          contextKey: store.channelComposeKey,
+          canCompose: () => !store.isLoading && !store.pendingOperationId && !store.refreshRequired,
           captureContext: () => {
             const isCurrentSession = store.captureSession();
             const identities = JSON.stringify(store.form.identities);

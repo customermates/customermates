@@ -30,6 +30,8 @@ const record: RecordDto = {
 let root: Root;
 let container: HTMLElement;
 let session = 1;
+let canDelete = true;
+const onMutating = vi.fn();
 const onDeleted = vi.fn();
 const onPending = vi.fn();
 const onInvalidated = vi.fn();
@@ -42,6 +44,8 @@ function deferred<T>() {
 }
 function Harness({ current }: { current: number }) {
   const deletion = useRecordDeletion({
+    canDelete: () => canDelete,
+    onMutating,
     sessionKey: current,
     captureSession: () => {
       const captured = session;
@@ -76,6 +80,7 @@ beforeEach(() => {
   Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
   vi.clearAllMocks();
   session = 1;
+  canDelete = true;
   onDeleted.mockResolvedValue(undefined);
   onInvalidated.mockResolvedValue(undefined);
   mocks.previewRecordDeletionAction.mockResolvedValue({
@@ -98,6 +103,37 @@ afterEach(() => {
 });
 
 describe("record deletion ownership", () => {
+  it("does not present a deletion preview after an owned channel draft becomes dirty", async () => {
+    const wait = deferred<unknown>();
+    mocks.previewRecordDeletionAction.mockReturnValueOnce(wait.promise);
+    await preview();
+    canDelete = false;
+    await act(async () => {
+      wait.resolve({ ok: true, data: { removedRecords: [], removedLinks: 0, calculations: [], impactHash: "old" } });
+      await wait.promise;
+      await Promise.resolve();
+    });
+    expect(mocks.showConfirmation).not.toHaveBeenCalled();
+    expect((container.querySelector("button") as HTMLButtonElement).disabled).toBe(false);
+  });
+  it("rechecks current draft ownership before a previously approved deletion dispatches", async () => {
+    await preview();
+    canDelete = false;
+    expect(await confirm()).toBe(false);
+    expect(mocks.mutateRecordAction).not.toHaveBeenCalled();
+    expect(onMutating).not.toHaveBeenCalled();
+  });
+  it("holds the editor mutation state until an uncertain deletion request completes", async () => {
+    await preview();
+    const wait = deferred<unknown>();
+    mocks.mutateRecordAction.mockReturnValueOnce(wait.promise);
+    const deletion = confirm();
+    expect(onMutating).toHaveBeenLastCalledWith(true);
+    wait.resolve({ ok: false, error: {} });
+    expect(await deletion).toBe(false);
+    expect(onMutating.mock.calls.map(([value]) => value)).toEqual([true, false]);
+    expect(onDeleted).not.toHaveBeenCalled();
+  });
   it("does not present a deletion preview that belongs to an earlier editor", async () => {
     const wait = deferred<unknown>();
     mocks.previewRecordDeletionAction.mockReturnValueOnce(wait.promise);

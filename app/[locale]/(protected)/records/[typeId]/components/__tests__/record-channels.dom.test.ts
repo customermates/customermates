@@ -2,14 +2,25 @@ import { act, createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { RootStore } from "@/core/stores/root.store";
+import { observable, runInAction } from "mobx";
+import type { RecordEditorStore } from "../record-editor.store";
+import { RecordDetailLayoutStore } from "@/core/stores/record-detail-layout.store";
+import type { RecordDetailLayoutResult } from "@/features/records/record-detail-layout.schema";
 
 const context = vi.hoisted(() => ({ root: null as unknown as RootStore }));
 vi.mock("@/core/stores/root-store.provider", () => ({ useRootStore: () => context.root }));
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("../contact-compose-popover", () => ({ ContactComposePopover: () => null }));
+vi.mock("@/app/[locale]/(protected)/records/actions", () => ({}));
+vi.mock("@/app/actions", () => ({}));
+vi.mock("@/i18n/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 
 import { RecordChannels } from "../record-channels";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { RecordDetailPersonalization } from "../record-detail-personalization";
+import { EntityDetailFields } from "@/components/entity-detail/entity-detail-fields";
+import { RecordComposeRecovery } from "@/components/records/record-compose-recovery";
+import { NavigationGuardController } from "@/core/stores/navigation-guard.controller";
 
 const roots = new Set<Root>();
 beforeEach(() => {
@@ -28,7 +39,8 @@ async function harness() {
   });
   let generation = 0;
   let current = true;
-  const initializeNewThread = vi.fn(() => {
+  let canCompose = true;
+  const initializeNewThread = vi.fn((_input: { onDone?: () => void }) => {
     generation += 1;
   });
   const root = {
@@ -43,6 +55,7 @@ async function harness() {
       hasUnsavedChanges: false,
       initializeNewThread,
       discardNewThread: vi.fn(),
+      detachNewThread: vi.fn(),
       captureContext: () => {
         const captured = generation;
         return () => captured === generation;
@@ -64,7 +77,11 @@ async function harness() {
           recordChannels: {
             contextKey: "record:1",
             captureContext: () => () => current,
-            channels: [{ provider: "mail", value: "person@example.test" }],
+            canCompose: () => canCompose,
+            channels: [
+              { provider: "mail", value: "person@example.test" },
+              { provider: "mail", value: "other@example.test" },
+            ],
             canEdit: false,
             remove: vi.fn(),
             addControl: null,
@@ -74,9 +91,11 @@ async function harness() {
     );
     await Promise.resolve();
   });
-  const start = async () =>
+  const start = async (index = 0) =>
     act(async () => {
-      const button = container.querySelector<HTMLButtonElement>('[aria-label="EntityChannels.ariaStartThread"]');
+      const button = container.querySelectorAll<HTMLButtonElement>('[aria-label="EntityChannels.ariaStartThread"]')[
+        index
+      ];
       if (!button) throw new Error("Missing channel compose button");
       button.click();
       await Promise.resolve();
@@ -94,10 +113,121 @@ async function harness() {
     invalidate: () => {
       current = false;
     },
+    blockRecordMutation: () => {
+      canCompose = false;
+    },
   };
 }
 
 describe("record channel compose request ownership", () => {
+  it("guards detached drafts even when permission or sender loss leaves no mounted compose form", () => {
+    const guard = new NavigationGuardController();
+    const discard = vi.fn();
+    const compose = observable({
+      isDetachedNewThread: true,
+      isLoading: false,
+      withUnsavedChangesGuard: true,
+      hasUnsavedChanges: true,
+      form: { provider: "mail", body: "Keep despite account loss" },
+      captureContext: () => () => true,
+      discardNewThread: discard,
+    });
+    context.root = { appMode: "cloud", threadComposeStore: compose, navigationGuard: guard } as unknown as RootStore;
+    const container = document.createElement("div");
+    document.body.append(container);
+    const view = createRoot(container);
+    roots.add(view);
+    act(() => view.render(createElement(RecordComposeRecovery)));
+    const close = document.querySelector('[data-slot="sheet-close"]') as HTMLButtonElement;
+    expect(guard.isGuarding).toBe(true);
+    act(() => close.click());
+    expect(guard.isPending).toBe(true);
+    expect(discard).not.toHaveBeenCalled();
+    act(() => guard.cancel());
+    expect(compose.form.body).toBe("Keep despite account loss");
+    act(() => close.click());
+    act(() => guard.confirm());
+    expect(discard).toHaveBeenCalledOnce();
+  });
+  it("retains the active Channels field through shared layout refreshes, then applies visibility after completion", () => {
+    const initial: RecordDetailLayoutResult = {
+      typeId: "10000000-0000-4000-8000-000000000001",
+      schemaRevision: 1,
+      hasPersonalization: false,
+      layout: { pinnedFields: [], hiddenFields: [], fieldOrder: ["system:channels"] },
+      fields: [{ id: "system:channels", label: "Channels" }],
+    };
+    const layout = new RecordDetailLayoutStore(initial);
+    const owned = observable({ active: true });
+    const editor = {
+      presentation: { detailLayout: initial },
+      record: {},
+      rootStore: { recordWorkspaceStore: { getDetailLayout: () => layout } },
+      get hasRelatedDraft() {
+        return owned.active;
+      },
+    } as unknown as RecordEditorStore;
+    const container = document.createElement("div");
+    document.body.append(container);
+    const view = createRoot(container);
+    roots.add(view);
+    act(() => {
+      view.render(
+        createElement(
+          RecordDetailPersonalization,
+          { store: editor },
+          createElement(EntityDetailFields, {
+            fields: [
+              {
+                id: "system:channels",
+                label: "Channels",
+                content: createElement("input", { "aria-label": "Owned compose draft", defaultValue: "" }),
+              },
+            ],
+          }),
+        ),
+      );
+    });
+    const input = container.querySelector("input") as HTMLInputElement;
+    input.value = "Keep my channel draft";
+    act(() => {
+      layout.hydrate({ ...initial, layout: { ...initial.layout, hiddenFields: ["system:channels"] }, fields: [] });
+    });
+    expect(container.querySelector("input")).toBe(input);
+    expect(input.value).toBe("Keep my channel draft");
+    act(() => {
+      runInAction(() => {
+        owned.active = false;
+      });
+    });
+    expect(container.querySelector("input")).toBeNull();
+    layout.dispose();
+  });
+  it("does not initialize a recipient when its record mutation begins during account loading", async () => {
+    const h = await harness();
+    await h.start();
+    h.blockRecordMutation();
+    await h.finish();
+    expect(h.root.threadComposeStore.initializeNewThread).not.toHaveBeenCalled();
+    expect(h.root.navigationGuard.tryNavigate).not.toHaveBeenCalled();
+  });
+  it("still completes the active compose after canceling a switch to another channel", async () => {
+    const h = await harness();
+    await h.start();
+    await h.finish();
+    const original = h.root.threadComposeStore.initializeNewThread.mock.calls[0][0];
+    h.root.threadComposeStore.hasUnsavedChanges = true;
+    h.root.navigationGuard.tryNavigate.mockImplementation(() => undefined);
+    await h.start(1);
+    expect(h.root.navigationGuard.tryNavigate).toHaveBeenCalledTimes(1);
+    expect(h.root.threadComposeStore.initializeNewThread).toHaveBeenCalledTimes(1);
+    await act(async () => {
+      original.onDone?.();
+      await Promise.resolve();
+    });
+    expect(document.querySelector('[aria-label="EntityChannels.ariaStartThread"][aria-expanded="true"]')).toBeNull();
+  });
+
   it("does not open a channel after its record session closes", async () => {
     const h = await harness();
     await h.start();
@@ -109,7 +239,7 @@ describe("record channel compose request ownership", () => {
   it("does not replace a newer global compose session after account loading", async () => {
     const h = await harness();
     await h.start();
-    h.root.threadComposeStore.initializeNewThread();
+    h.root.threadComposeStore.initializeNewThread({});
     await h.finish();
     expect(h.root.threadComposeStore.initializeNewThread).toHaveBeenCalledTimes(1);
     expect(h.root.navigationGuard.tryNavigate).not.toHaveBeenCalled();
