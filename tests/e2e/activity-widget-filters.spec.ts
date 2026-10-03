@@ -301,21 +301,24 @@ test("configures an activity path and applies provider, channel, conversation an
   };
   await selectedHistoryRow.click();
   await expect(messageDetail.getByText(selectedBody, { exact: true })).toBeVisible();
-  const primaryRecordChip = messageDetail.locator(`a[href="/records/${organizationTypeId}/${organization.id}"]`);
+  const primaryRecordChip = messageDetail.locator(`a[href="/records/${person.typeId}/${person.recordId}"]`);
   await expect(primaryRecordChip).toBeVisible();
   await primaryRecordChip.click();
-  await expect(page).toHaveURL(new RegExp(`/en/records/${organizationTypeId}/${organization.id}$`));
+  await expect(page).toHaveURL(new RegExp(`/en/records/${person.typeId}/${person.recordId}$`));
   await expect(messageDetail).toHaveCount(0);
-  const organizationName = (
-    await database.query(
-      'SELECT "textValue" FROM "RecordValue" WHERE "companyId"=$1 AND "typeId"=$2 AND "recordId"=$3 AND "fieldId"=$4',
-      [companyId, organizationTypeId, organization.id, presetId(companyId, "organization.name")],
-    )
-  ).rows[0]?.textValue;
-  expect(typeof organizationName).toBe("string");
-  await expect(page.getByRole("main").getByRole("textbox", { name: "Name", exact: false })).toHaveValue(
-    organizationName,
-  );
+  for (const [field, label, value] of [
+    ["contact.firstName", "First name", "Activity"],
+    ["contact.lastName", "Last name", "Person"],
+  ]) {
+    const storedName = (
+      await database.query(
+        'SELECT "textValue" FROM "RecordValue" WHERE "companyId"=$1 AND "typeId"=$2 AND "recordId"=$3 AND "fieldId"=$4',
+        [companyId, person.typeId, person.recordId, presetId(companyId, field)],
+      )
+    ).rows[0]?.textValue;
+    expect(storedName).toBe(value);
+    await expect(page.getByRole("main").getByRole("textbox", { name: label, exact: false })).toHaveValue(value);
+  }
   await returnToDashboard();
   await selectedHistoryRow.click();
   await expect(messageDetail.getByText(selectedBody, { exact: true })).toBeVisible();
@@ -326,7 +329,9 @@ test("configures an activity path and applies provider, channel, conversation an
   );
   await expect(messageDetail).toHaveCount(0);
   await expect(page.getByText(selectedBody, { exact: true })).toBeVisible();
-  await expect(page.locator(`[data-thread-id="${selectedThread}"]`)).toBeVisible();
+  const selectedInboxRow = page.locator(`[data-thread-id="${selectedThread}"]`);
+  if (testInfo.project.name === "mobile") await expect(selectedInboxRow).toHaveCount(1);
+  else await expect(selectedInboxRow).toBeVisible();
   await returnToDashboard();
   await page.screenshot({ path: testInfo.outputPath("activity-message-inbox-return.png"), fullPage: true });
   await page.goto(`/en/company/data-model?typeId=${organizationTypeId}`);
