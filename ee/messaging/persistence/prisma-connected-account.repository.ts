@@ -30,6 +30,8 @@ import type { RefreshInboxRepo } from "../inbox/refresh-inbox.interactor";
 import type { SetSelectedFoldersRepo } from "../connect/set-selected-folders.interactor";
 import type { FindConnectedAccountsByIdsRepo } from "../find-connected-accounts-by-ids.repo";
 import type { RepoArgs } from "@/core/utils/types";
+import type { MessagingFilterOptionsRepo } from "../inbox/get-messaging-filter-options.interactor";
+import type { MessagingFilterOptions } from "../inbox/messaging-filter-options.schema";
 
 import { randomUUID } from "node:crypto";
 
@@ -37,8 +39,9 @@ import { AccountActivityKind, ConnectedAccountStatus, Resource, Status, Subscrip
 
 import { BaseRepository } from "@/core/base/base-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
-import { accessibleConnectedAccountWhere } from "../messaging-access";
-import { accountNeedsAction } from "../provider";
+import { accessibleConnectedAccountWhere, messageVisibilityWhere } from "../messaging-access";
+import { accountNeedsAction, isEmailProvider } from "../provider";
+import { emailFolderFilterValue } from "../inbox/messaging-filter-options.schema";
 
 const BACKFILL_CLAIM_STALE_MS = 15 * 60 * 1000;
 
@@ -69,7 +72,8 @@ export class PrismaConnectedAccountRepo
     DeleteOrphanedUnipileAccountsRepo,
     RefreshInboxRepo,
     SetSelectedFoldersRepo,
-    FindConnectedAccountsByIdsRepo
+    FindConnectedAccountsByIdsRepo,
+    MessagingFilterOptionsRepo
 {
   @BypassTenantGuard
   async createAccountUnscoped(args: RepoArgs<AccountWebhookRepo, "createAccountUnscoped">) {
@@ -482,6 +486,86 @@ export class PrismaConnectedAccountRepo
     return rows
       .map((row) => this.toDto(row, row.user.id === this.userId))
       .sort((a, b) => Number(b.isOwner) - Number(a.isOwner) || b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async listInboxFilterOptions(): Promise<MessagingFilterOptions> {
+    const rows = await this.prisma.connectedAccount.findMany({
+      where: {
+        companyId: this.companyId,
+        status: { not: ConnectedAccountStatus.deleted },
+        hasMessaging: true,
+        OR: [{ userId: this.userId }, { shared: true }, { threads: { some: { sharedToCrm: true } } }],
+      },
+      select: {
+        id: true,
+        provider: true,
+        userId: true,
+        shared: true,
+        displayName: true,
+        emailAddress: true,
+        folders: true,
+        selectedFolderIds: true,
+        foldersSyncedAt: true,
+        user: { select: { firstName: true, lastName: true } },
+      },
+      orderBy: [{ displayName: "asc" }, { id: "asc" }],
+    });
+
+    const individualAccounts = rows.filter((row) => row.userId !== this.userId && !row.shared);
+    const sharedPlacementsByAccount = new Map<string, Set<string>>();
+    if (individualAccounts.length > 0) {
+      const placements = await this.prisma.messagingMessage.groupBy({
+        by: ["connectedAccountId", "folderIds"],
+        where: {
+          companyId: this.companyId,
+          connectedAccountId: { in: individualAccounts.map((row) => row.id) },
+          thread: { is: { companyId: this.companyId, sharedToCrm: true } },
+          ...messageVisibilityWhere(
+            individualAccounts
+              .filter((row) => row.foldersSyncedAt !== null)
+              .map((row) => ({ id: row.id, visibleSet: row.selectedFolderIds })),
+          ),
+        },
+      });
+      for (const placement of placements) {
+        const ids = sharedPlacementsByAccount.get(placement.connectedAccountId) ?? new Set<string>();
+        placement.folderIds.forEach((id) => ids.add(id));
+        sharedPlacementsByAccount.set(placement.connectedAccountId, ids);
+      }
+    }
+
+    const accounts: MessagingFilterOptions["accounts"] = [];
+    const folders: MessagingFilterOptions["folders"] = [];
+    for (const row of rows) {
+      const fullAccountAccess = row.userId === this.userId || row.shared;
+      if (!fullAccountAccess && !sharedPlacementsByAccount.has(row.id)) continue;
+      const label = row.displayName || row.emailAddress || null;
+      const groupLabel =
+        row.emailAddress && row.emailAddress !== label
+          ? row.emailAddress
+          : `${row.user.firstName} ${row.user.lastName}`.trim() || null;
+      accounts.push({ value: row.id, label, groupLabel, provider: row.provider });
+      if (!isEmailProvider(row.provider)) continue;
+
+      const selected = row.foldersSyncedAt ? new Set(row.selectedFolderIds) : null;
+      const sharedPlacements = sharedPlacementsByAccount.get(row.id) ?? new Set<string>();
+      const catalog = EmailFolderSchema.array().catch([]).parse(row.folders);
+      const available = new Map(catalog.map((folder) => [folder.id, folder.name]));
+      if (!fullAccountAccess) for (const id of sharedPlacements) if (!available.has(id)) available.set(id, null);
+
+      for (const [id, name] of available) {
+        if (selected && !selected.has(id)) continue;
+        if (!fullAccountAccess && !sharedPlacements.has(id)) continue;
+        folders.push({
+          value: emailFolderFilterValue(row.id, id),
+          label: name,
+          groupLabel: [label, groupLabel].filter(Boolean).join(" · ") || null,
+          groupKey: row.id,
+          provider: row.provider,
+        });
+      }
+    }
+    return { accounts, folders };
   }
 
   async countAccountsNeedingAction() {

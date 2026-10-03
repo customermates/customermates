@@ -6,7 +6,7 @@ import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 import * as Sentry from "@sentry/node";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { Action, Resource } from "@/generated/prisma";
 
@@ -23,10 +23,8 @@ import { formatRetryAfter } from "../retry-after";
 
 export const MoveEmailThreadSchema = z.object({
   threadId: z.uuid().describe("Email thread id from get_messaging_threads.items[].id"),
-  folderId: z
-    .string()
-    .min(1)
-    .describe("Target folder id from get_messaging_threads thread.folder.moveTargets[].id. Never a folder name"),
+  messageId: z.uuid().optional().describe("Email message id in this thread. Omit to move all eligible emails"),
+  folderId: z.string().min(1).describe("Target id from thread.folder.moveTargets; never a folder name"),
 });
 export type MoveEmailThreadData = Data<typeof MoveEmailThreadSchema>;
 
@@ -106,7 +104,11 @@ export class MoveEmailThreadInteractor extends AuthenticatedInteractor<MoveEmail
     const keptFolderIds = new Set(
       context.folders.filter((entry) => !isMovableEmailFolder(entry)).map((entry) => entry.id),
     );
-    const messages = await this.repo.listThreadMovableMessages(data.threadId);
+    const threadMessages = await this.repo.listThreadMovableMessages(data.threadId);
+    const messages = data.messageId
+      ? threadMessages.filter((message) => message.id === data.messageId)
+      : threadMessages;
+    if (data.messageId && messages.length === 0) return failNotFound(CustomErrorCode.messageNotFound, ["messageId"]);
     const pending = messages.filter(
       (message) =>
         message.folderIds.length > 0 &&
@@ -172,7 +174,7 @@ export class MoveEmailThreadInteractor extends AuthenticatedInteractor<MoveEmail
       data: {
         threadId: thread.id,
         folderId: target.id,
-        folderName: target.name ?? target.id,
+        folderName: target.name?.trim() || (await getTranslations())("Common.unnamed"),
         movedCount,
         skippedCount: messages.length - pending.length,
         failedCount,

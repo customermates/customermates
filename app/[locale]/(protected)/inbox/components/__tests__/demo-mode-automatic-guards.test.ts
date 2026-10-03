@@ -40,6 +40,7 @@ function unreadThread(): MessagingThread {
 function demoRoot(): RootStore {
   return {
     appMode: "demo",
+    threadComposeStore: { getPendingMessages: () => [], getDeliveryStatus: () => undefined },
     localeStore: {
       locale: "en",
       getTranslation: (key: string) => key,
@@ -54,6 +55,7 @@ function demoRoot(): RootStore {
 function readOnlyRoot(): RootStore {
   return {
     appMode: "cloud",
+    threadComposeStore: { getPendingMessages: () => [], getDeliveryStatus: () => undefined },
     localeStore: {
       locale: "en",
       getTranslation: (key: string) => key,

@@ -22,7 +22,12 @@ const CONTEXT = { folders: [], selectedFolderIds: ["inbox"], currentFolderIds: [
 function store() {
   const instance = new MessagingThreadDetailStore({
     messagingThreadsStore: { items: [], refresh: vi.fn().mockResolvedValue(undefined) },
-    threadComposeStore: { form: { threadId: "" }, hasComposedContent: false },
+    threadComposeStore: {
+      form: { threadId: "" },
+      hasComposedContent: false,
+      getPendingMessages: () => [],
+      getDeliveryStatus: () => undefined,
+    },
     loadingOverlayStore: { withLoading: async (fn: () => Promise<void>) => fn() },
     localeStore: { getTranslation: (key: string) => key },
   } as never);
@@ -57,6 +62,25 @@ beforeEach(() => {
 });
 
 describe("moveToFolder reports what actually happened", () => {
+  it("passes the selected email through to the existing move action", async () => {
+    harness.move.mockResolvedValue(result({ movedCount: 1 }));
+    const s = store();
+
+    await s.moveToFolder("archive", "selected-email");
+
+    expect(harness.move).toHaveBeenCalledWith({ threadId: "t1", folderId: "archive", messageId: "selected-email" });
+    expect(harness.getThread).toHaveBeenCalledWith("t1");
+  });
+  it("files older emails even when the representative email already occupies the destination", async () => {
+    harness.move.mockResolvedValue(result({ folderId: "inbox", movedCount: 1, skippedCount: 1 }));
+    const s = store();
+
+    await s.moveToFolder("inbox");
+
+    expect(harness.move).toHaveBeenCalledWith({ threadId: "t1", folderId: "inbox" });
+    expect(harness.getThread).toHaveBeenCalledWith("t1");
+    expect(harness.toastSuccess).toHaveBeenCalledWith("Inbox.folders.moved", expect.anything());
+  });
   it("does not claim a move when nothing was eligible", async () => {
     harness.move.mockResolvedValue(result({ movedCount: 0, skippedCount: 2 }));
     const s = store();

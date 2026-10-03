@@ -13,7 +13,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { AvatarStack } from "@/components/shared/avatar-stack";
-import { CopyableChip } from "@/components/chip/copyable-chip";
+import { CopyableText } from "@/components/shared/copyable-text";
 import { AppChip } from "@/components/chip/app-chip";
 import { CodeBlockAccordion } from "@/components/shared/code-block-accordion";
 
@@ -46,9 +46,7 @@ export const AuditLogModal = observer(() => {
           )}
 
           <InfoRow label={t("AuditLogModal.entityId")}>
-            <CopyableChip size="sm" value={auditLog.entityId} variant="secondary">
-              {auditLog.entityId}
-            </CopyableChip>
+            <CopyableText value={auditLog.entityId} />
           </InfoRow>
 
           <InfoRow label={t("AuditLogModal.userId")}>

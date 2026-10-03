@@ -21,6 +21,7 @@ vi.mock("@/core/di", () => ({
 }));
 vi.mock("@/features/auth/next/require", () => ({ requireAccess: mocks.requireAccess }));
 vi.mock("@/features/p13n/next/get-optional-p13n", () => ({ getOptionalP13n: mocks.getOptionalP13n }));
+vi.mock("@/app/[locale]/(protected)/actions", () => ({ getActivitiesAction: vi.fn() }));
 
 type DetailPage = (props: {
   params: Promise<{ id: string }>;

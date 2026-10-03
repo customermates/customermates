@@ -49,6 +49,7 @@ import { ActivityQueryProvider } from "@/features/messaging/activities/activity-
 import { FilterPalette } from "../filter-palette";
 import { FilterPaletteStore } from "../filter-palette.store";
 import { PaletteValueSelect } from "../palette-value-select";
+import { FilterOptionsProvider } from "@/components/data-view/filter-options-context";
 
 type ActivityQueryProviderProps = ComponentProps<typeof ActivityQueryProvider>;
 
@@ -74,6 +75,53 @@ const FILTERABLE_FIELDS: FilterableField[] = [
     operators: [FilterOperatorKey.gte, FilterOperatorKey.lte, FilterOperatorKey.isNull],
   },
 ];
+
+describe("account-grouped folder choices", () => {
+  const options = [
+    { value: "a-inbox", label: "Inbox", groupKey: "account-a", groupLabel: "Same account label", provider: "mail" },
+    { value: "b-inbox", label: "Inbox", groupKey: "account-b", groupLabel: "Same account label", provider: "mail" },
+    { value: "a-sent", label: "Sent", groupKey: "account-a", groupLabel: "Same account label", provider: "mail" },
+  ];
+  const markup = (query = "") =>
+    renderToStaticMarkup(
+      createElement(
+        FilterOptionsProvider,
+        { fields: [{ field: "emailFolder", operators: [FilterOperatorKey.in], options }] } as ComponentProps<
+          typeof FilterOptionsProvider
+        >,
+        createElement(
+          Command,
+          { shouldFilter: false },
+          createElement(PaletteValueSelect, {
+            filter: { field: "emailFolder", operator: FilterOperatorKey.in, value: [] },
+            customColumns: undefined,
+            selected: ["b-inbox"],
+            query,
+            onToggle: vi.fn(),
+          }),
+        ),
+      ),
+    );
+
+  it("keeps equal account names in distinct headings with simple folder labels", () => {
+    const html = markup();
+    expect(occurrences(html, 'data-filter-option-group="account-a"')).toBe(1);
+    expect(occurrences(html, 'data-filter-option-group="account-b"')).toBe(1);
+    expect(occurrences(html, 'cmdk-group-heading=""')).toBe(2);
+    expect(html).toContain('data-palette-selected="true" data-palette-value="b-inbox"');
+    expect(html).not.toContain("Inbox · Same account label</span>");
+    expect(html.indexOf('data-palette-value="a-sent"')).toBeLessThan(
+      html.indexOf('data-filter-option-group="account-b"'),
+    );
+  });
+
+  it("searches account labels and omits headings with no matching folders", () => {
+    expect(markup("same account label")).toContain('data-filter-option-group="account-b"');
+    const html = markup("sent");
+    expect(html).toContain('data-filter-option-group="account-a"');
+    expect(html).not.toContain('data-filter-option-group="account-b"');
+  });
+});
 
 const CUSTOM_COLUMNS = [
   { id: CURRENCY_COLUMN, label: "Budget", entityType: EntityType.deal, type: CustomColumnType.currency },

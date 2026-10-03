@@ -18,6 +18,7 @@ export const MessagingMessageDtoSchema = MessagingMessageSchema.omit({
   createdAt: true,
   updatedAt: true,
 }).extend({
+  folderIds: MessagingMessageSchema.shape.folderIds.optional(),
   recipients: z.object({
     to: z.array(MessagingAttendeeSchema).default([]),
     cc: z.array(MessagingAttendeeSchema).default([]),

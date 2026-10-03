@@ -6,7 +6,7 @@ import type { OperatorAuditRowDto } from "@/ee/operator/operator-lists.schema";
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 
-import { CopyableChip } from "@/components/chip/copyable-chip";
+import { CopyableText } from "@/components/shared/copyable-text";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
 import { AuditActionLabel, AuditSourceChip } from "../operator-value-labels";
@@ -55,13 +55,7 @@ export function useOperatorAuditColumns(): ColumnDef<OperatorAuditRowDto>[] {
         id: "target",
         header: t("Common.table.columns.target"),
         cell: ({ row }) =>
-          row.original.targetId ? (
-            <CopyableChip size="sm" value={row.original.targetId} variant="secondary">
-              {row.original.targetId}
-            </CopyableChip>
-          ) : (
-            <span className="text-sm">-</span>
-          ),
+          row.original.targetId ? <CopyableText value={row.original.targetId} /> : <span className="text-sm">-</span>,
       },
       {
         id: "reason",

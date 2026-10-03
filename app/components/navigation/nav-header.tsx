@@ -59,9 +59,11 @@ export function NavHeader({
               <span className="flex flex-col min-w-0 flex-1 leading-tight">
                 <span className="truncate font-semibold text-sm">{brandName}</span>
 
-                <span className="flex items-center gap-1 min-h-[18px] min-w-0 max-w-full text-xs text-muted-foreground animate-fade-in group-data-[collapsible=icon]:hidden">
-                  {brandSubtitle}
-                </span>
+                {brandSubtitle && (
+                  <span className="flex items-center gap-1 min-h-[18px] min-w-0 max-w-full text-xs text-muted-foreground animate-fade-in group-data-[collapsible=icon]:hidden">
+                    {brandSubtitle}
+                  </span>
+                )}
               </span>
 
               <NavLinkPendingIndicator />
