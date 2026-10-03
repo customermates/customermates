@@ -1987,7 +1987,7 @@ test("keeps retained values restricted after a delegated manager converts fields
         await expect(pinned.getByText("Restricted", { exact: true })).toBeVisible();
       }
       await reader.page.waitForLoadState("networkidle");
-      await reader.page.keyboard.press("Escape");
+      await editor.getByRole("button", { name: "Close", exact: true }).click();
       await expect(editor).not.toBeVisible();
       if (!(await reader.page.locator("#nav-search").isVisible()))
         await reader.page.locator("#sidebar-trigger").click();
@@ -2006,7 +2006,7 @@ test("keeps retained values restricted after a delegated manager converts fields
           editor.locator(`[data-entity-field="${field.id}"]`).getByText("Restricted", { exact: true }),
         ).toBeVisible();
       await reader.page.waitForLoadState("networkidle");
-      await reader.page.keyboard.press("Escape");
+      await editor.getByRole("button", { name: "Close", exact: true }).click();
       await expect(editor).not.toBeVisible();
       await reader.page.goto("/en/dashboard");
       const card = reader.page
