@@ -19,7 +19,7 @@ import { channelLabelKey, isHandleProvider } from "@/ee/messaging/provider";
 import { getChannelIcon } from "@/ee/messaging/provider-icon";
 import { channelDisplayLabel, channelUrl } from "@/ee/messaging/thread-display";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
-import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
+import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
@@ -182,7 +182,8 @@ export const RecordChannels = observer(
                   key={channelKey}
                   open={composing}
                   onOpenChange={(next) => {
-                    if (!next) closeCompose();
+                    if (next) runUserAction(() => openCompose(identifier, channelKey));
+                    else closeCompose();
                   }}
                 >
                   <PopoverAnchor asChild>
@@ -231,27 +232,25 @@ export const RecordChannels = observer(
 
                         {canStartThread && (
                           <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                aria-expanded={composing}
-                                aria-label={t("EntityChannels.ariaStartThread", {
-                                  provider: providerLabel,
-                                })}
-                                className={cn(
-                                  "text-muted-foreground hover:text-foreground",
-                                  composing && "bg-accent text-foreground",
-                                )}
-                                size="icon-sm"
-                                type="button"
-                                variant="ghost"
-                                onClick={() => {
-                                  if (composing) closeCompose();
-                                  else runUserAction(() => openCompose(identifier, channelKey));
-                                }}
-                              >
-                                <Send className="size-4" />
-                              </Button>
-                            </TooltipTrigger>
+                            <PopoverTrigger asChild>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  aria-expanded={composing}
+                                  aria-label={t("EntityChannels.ariaStartThread", {
+                                    provider: providerLabel,
+                                  })}
+                                  className={cn(
+                                    "text-muted-foreground hover:text-foreground",
+                                    composing && "bg-accent text-foreground",
+                                  )}
+                                  size="icon-sm"
+                                  type="button"
+                                  variant="ghost"
+                                >
+                                  <Send className="size-4" />
+                                </Button>
+                              </TooltipTrigger>
+                            </PopoverTrigger>
 
                             <TooltipContent>{t("EntityChannels.tooltipStartNewThread")}</TooltipContent>
                           </Tooltip>

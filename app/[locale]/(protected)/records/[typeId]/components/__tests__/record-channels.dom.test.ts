@@ -7,10 +7,13 @@ import type { RecordEditorStore } from "../record-editor.store";
 import { RecordDetailLayoutStore } from "@/core/stores/record-detail-layout.store";
 import type { RecordDetailLayoutResult } from "@/features/records/record-detail-layout.schema";
 
-const context = vi.hoisted(() => ({ root: null as unknown as RootStore }));
+const context = vi.hoisted(() => ({ root: null as unknown as RootStore, composeBody: false }));
 vi.mock("@/core/stores/root-store.provider", () => ({ useRootStore: () => context.root }));
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
-vi.mock("../contact-compose-popover", () => ({ ContactComposePopover: () => null }));
+vi.mock("../contact-compose-popover", () => ({
+  ContactComposePopover: () =>
+    context.composeBody ? createElement("input", { "aria-label": "Local compose body" }) : null,
+}));
 vi.mock("@/app/[locale]/(protected)/records/actions", () => ({}));
 vi.mock("@/app/actions", () => ({}));
 vi.mock("@/i18n/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
@@ -24,12 +27,22 @@ import { NavigationGuardController } from "@/core/stores/navigation-guard.contro
 
 const roots = new Set<Root>();
 beforeEach(() => {
+  context.composeBody = false;
+  vi.stubGlobal(
+    "ResizeObserver",
+    class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    },
+  );
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 });
 afterEach(() => {
   for (const root of roots) act(() => root.unmount());
   roots.clear();
   document.body.innerHTML = "";
+  vi.unstubAllGlobals();
 });
 
 async function harness() {
@@ -108,6 +121,7 @@ async function harness() {
   return {
     root,
     view,
+    container,
     start,
     finish,
     invalidate: () => {
@@ -120,6 +134,67 @@ async function harness() {
 }
 
 describe("record channel compose request ownership", () => {
+  it("retains clean composition when its opener receives delayed focus, but dismisses unrelated focus", async () => {
+    context.composeBody = true;
+    const h = await harness();
+    const outside = document.createElement("button");
+    document.body.append(outside);
+    const trigger = h.container.querySelector<HTMLButtonElement>('[aria-label="EntityChannels.ariaStartThread"]');
+    if (!trigger) throw new Error("Missing channel compose button");
+    await h.start();
+    await h.finish();
+    const content = document.querySelector<HTMLElement>('[data-slot="popover-content"][data-state="open"]');
+    if (!content) throw new Error("Missing channel compose popover");
+    const input = content.querySelector<HTMLInputElement>("input");
+    if (!input) throw new Error("Missing channel compose input");
+    expect(h.root.threadComposeStore.initializeNewThread).toHaveBeenCalledOnce();
+    await act(async () => {
+      input.focus();
+      trigger.focus();
+      await Promise.resolve();
+    });
+    expect(trigger.getAttribute("aria-expanded")).toBe("true");
+    expect(document.querySelector('[data-slot="popover-content"][data-state="open"]')).toBe(content);
+    expect(h.root.threadComposeStore.discardNewThread).not.toHaveBeenCalled();
+    expect(trigger.getAttribute("aria-haspopup")).toBe("dialog");
+    expect(trigger.getAttribute("aria-controls")).toBe(content.id);
+    await act(async () => {
+      outside.focus();
+      await Promise.resolve();
+    });
+    expect(trigger.getAttribute("aria-expanded")).toBe("false");
+    expect(h.root.threadComposeStore.discardNewThread).toHaveBeenCalledOnce();
+    expect(document.activeElement).toBe(outside);
+  });
+
+  it("toggles the owned opener once and retains a dirty composition after cancelling close", async () => {
+    context.composeBody = true;
+    const h = await harness();
+    const trigger = h.container.querySelector<HTMLButtonElement>('[aria-label="EntityChannels.ariaStartThread"]');
+    if (!trigger) throw new Error("Missing channel compose button");
+    await h.start();
+    await h.finish();
+    expect(trigger.getAttribute("aria-expanded")).toBe("true");
+    await h.start();
+    expect(trigger.getAttribute("aria-expanded")).toBe("false");
+    expect(h.root.threadComposeStore.discardNewThread).toHaveBeenCalledOnce();
+    await h.start();
+    expect(trigger.getAttribute("aria-expanded")).toBe("true");
+    expect(h.root.threadComposeStore.initializeNewThread).toHaveBeenCalledTimes(2);
+    h.root.threadComposeStore.hasUnsavedChanges = true;
+    h.root.navigationGuard.tryNavigate.mockImplementation(() => undefined);
+    await h.start();
+    expect(h.root.navigationGuard.tryNavigate).toHaveBeenCalledOnce();
+    expect(trigger.getAttribute("aria-expanded")).toBe("true");
+    expect(h.root.threadComposeStore.discardNewThread).toHaveBeenCalledOnce();
+    await act(async () => {
+      h.root.threadComposeStore.initializeNewThread.mock.calls[1][0].onDone?.();
+      await Promise.resolve();
+    });
+    expect(trigger.getAttribute("aria-expanded")).toBe("false");
+    expect(h.root.threadComposeStore.initializeNewThread).toHaveBeenCalledTimes(2);
+  });
+
   it("guards detached drafts even when permission or sender loss leaves no mounted compose form", () => {
     const guard = new NavigationGuardController();
     const discard = vi.fn();
