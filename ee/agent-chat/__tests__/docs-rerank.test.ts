@@ -782,3 +782,76 @@ describe("canonical webhook secret permissions", () => {
     expect(characters).toBeLessThanOrEqual(16_000);
   });
 });
+
+describe("complete record procedures in bounded classifier evidence", () => {
+  it.each([
+    {
+      locale: "en" as const,
+      query: "How do I set up pipeline stages?",
+      anchor: "how-do-i-change-a-deal-stage-or-a-task-status-on-the-board",
+      controls: [
+        "Pipeline stages and task statuses are singleSelect custom columns, not fixed fields",
+        "Edit Field",
+        "Customize",
+        "Edit column",
+        "Manage",
+      ],
+    },
+    {
+      locale: "de" as const,
+      query: "Wie richte ich Pipeline-Phasen ein?",
+      anchor: "how-do-i-change-a-deal-stage-or-a-task-status-on-the-board",
+      controls: [
+        "singleSelect-Custom-Columns, keine festen Felder",
+        "Feld bearbeiten",
+        "Anpassen",
+        "Spalte bearbeiten",
+        "Verwalten",
+      ],
+    },
+    {
+      locale: "en" as const,
+      query: "How do I sort tasks by due date?",
+      anchor: "how-do-i-switch-between-table-and-board-view",
+      controls: [
+        "Date custom column",
+        "Tasks have no built-in due date",
+        "Appearance",
+        "Sort by",
+        "Ascending",
+        "Descending",
+      ],
+    },
+    {
+      locale: "de" as const,
+      query: "Wie sortiere ich Aufgaben nach Fälligkeit?",
+      anchor: "how-do-i-switch-between-table-and-board-view",
+      controls: [
+        "kein eingebautes Fälligkeitsdatum",
+        "Datum-Custom-Column",
+        "Darstellung",
+        "Sortieren nach",
+        "Aufsteigend",
+        "Absteigend",
+      ],
+    },
+  ])(
+    "retains the actual $locale procedure for $query at the existing pool budget",
+    ({ locale, query, anchor, controls }) => {
+      const page = rawDocsManifest.docs[locale]["app-records"];
+      const section = splitSections({
+        slug: "app-records",
+        source: "docs",
+        pageTitle: page.title,
+        markdown: page.content,
+      }).find((candidate) => candidate.anchor === anchor);
+      expect(section).toBeDefined();
+      if (!section) throw new Error("Expected public record procedure section");
+      const candidates = Array.from({ length: 120 }, (_, id) => ({ id, section, locale }));
+      const [question] = docsRankSpec(candidates, "docs", query).questions;
+      const evidence = optionEvidence(question.options.s0);
+      for (const control of controls) expect(evidence).toContain(control);
+      expect(evidence.length).toBeLessThanOrEqual(400);
+    },
+  );
+});

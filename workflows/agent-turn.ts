@@ -17,6 +17,7 @@ import {
   wikiPlanningContext,
   wikiSourcePlanRepair,
   wikiSourcePlanRepairContext,
+  wikiSourcePlanRefusal,
   type WikiSourcePlanRepair,
   wikiPageMatchesTopic,
   wikiSynthesisBatchSharesSources,
@@ -1413,10 +1414,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         shell.name === "read_website_source" &&
         (executionInput as { action?: string }).action === "plan"
       ) {
-        return {
-          ok: false,
-          result: "The source plan is already accepted. Continue its remaining exact titles; do not replace the plan.",
-        };
+        return wikiSourcePlanRefusal(
+          "The source plan is already accepted. Continue its remaining exact titles; do not replace the plan.",
+          payload.turnBudget.maxToolResultChars,
+          "conflict",
+        );
       }
       if (
         wikiSourceInventory &&
@@ -1428,10 +1430,12 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           executionInput as ReadWebsiteSourceInput,
         );
         if (missing.length) {
-          return {
-            ok: false,
-            result: `Retain these distinct offering candidates or explicitly reclassify each cited source with an exact evidence quote: ${wikiPlanningContext(missing)}. No plan was accepted.`,
-          };
+          const refusal = wikiSourcePlanRefusal(
+            `Retain these distinct offering candidates or explicitly reclassify each cited source with an exact evidence quote: ${wikiPlanningContext(missing)}. No plan was accepted.`,
+            payload.turnBudget.maxToolResultChars,
+          );
+          wikiPlanRepair = wikiSourcePlanRepair(executionInput, refusal) ?? wikiPlanRepair;
+          return refusal;
         }
       }
       if (wikiSourceInventory && shell.name === "manage_wiki_pages" && wikiTopicPlanState.topics === null) {
@@ -1705,11 +1709,12 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           wikiPlanningCandidates(executionInput, outcome, wikiSourceInventory),
         );
         if (mergedCandidates.length > WIKI_SYNTHESIS_MAX_PAGES) {
-          return {
-            ok: false,
-            result:
-              "Too many unresolved offering candidates for the sixteen-page import. Complete a supported plan or explicitly reclassify candidates with fresh evidence before adding more topics; no plan was accepted.",
-          };
+          const refusal = wikiSourcePlanRefusal(
+            "Too many unresolved offering candidates for the sixteen-page import. Complete a supported plan or explicitly reclassify candidates with fresh evidence before adding more topics; no plan was accepted.",
+            payload.turnBudget.maxToolResultChars,
+          );
+          wikiPlanRepair = wikiSourcePlanRepair(executionInput, refusal) ?? wikiPlanRepair;
+          return refusal;
         }
         wikiTopicPlanState.candidates = mergedCandidates;
         if (wikiTopicPlanState.candidates.length && wikiTopicPlanState.topics === null)

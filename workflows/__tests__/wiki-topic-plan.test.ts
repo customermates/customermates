@@ -11,6 +11,7 @@ import {
   wikiPlanningContext,
   wikiSourcePlanRepair,
   wikiSourcePlanRepairContext,
+  wikiSourcePlanRefusal,
   wikiPageMatchesTopic,
   wikiSynthesisBatchSharesSources,
 } from "@/workflows/wiki-topic-plan";
@@ -412,5 +413,34 @@ describe("complete rejected source-plan repair checkpoints", () => {
     const repair = wikiSourcePlanRepair(draft, bounded);
     expect(repair?.failure.issues).toEqual(bounded.failure.issues);
     expect(repair?.repairInstructions).toContain("excluded[0].counterpartQuote");
+  });
+});
+
+describe("local source-plan refusals", () => {
+  it("preserves typed repair provenance for known-offering and candidate-limit refusals", () => {
+    for (const message of [
+      "Retain the distinct offering with exact source evidence.",
+      "Too many unresolved candidates.",
+    ]) {
+      const refusal = wikiSourcePlanRefusal(message, 512);
+      expect(refusal).toMatchObject({
+        ok: false,
+        result: message,
+        failure: {
+          kind: "validation",
+          issues: [{ path: ["topics"], customCode: CustomErrorCode.wikiSourcePlanIncomplete }],
+        },
+      });
+      expect(JSON.stringify(refusal).length).toBeLessThanOrEqual(512);
+      expect(
+        wikiSourcePlanRepair({ action: "plan", topics: [offering("Revised topic")] }, refusal)?.draft.topics?.[0].title,
+      ).toBe("Revised topic");
+    }
+  });
+
+  it("keeps an accepted-plan conflict out of the unaccepted-plan repair checkpoint", () => {
+    const refusal = wikiSourcePlanRefusal("The source plan is already accepted.", 512, "conflict");
+    expect(refusal).toMatchObject({ ok: false, failure: { kind: "conflict" } });
+    expect(wikiSourcePlanRepair({ action: "plan", topics: [offering("Replacement topic")] }, refusal)).toBeNull();
   });
 });

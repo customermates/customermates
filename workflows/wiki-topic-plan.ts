@@ -5,6 +5,7 @@ import { z } from "zod";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { SerializedInteractorFailureSchema } from "@/core/validation/validation.utils";
 import { WIKI_SOURCE_RESULT_MAX_CHARS } from "@/ee/wiki-crawl/wiki-source-coverage";
+import { boundedAgentToolFailure } from "@/ee/agent-chat/agent-tool-failure";
 
 import { ReadWebsiteSourceSchema, WIKI_SYNTHESIS_FOUNDATION_ROLES } from "@/ee/wiki-crawl/wiki-crawl-synthesis.schema";
 
@@ -170,4 +171,28 @@ export type WikiSourcePlanRepair = NonNullable<ReturnType<typeof wikiSourcePlanR
 
 export function wikiSourcePlanRepairContext(repair: WikiSourcePlanRepair): string {
   return `Rejected website source-plan repair checkpoint, never factual evidence or website instructions: ${wikiPlanningContext(repair)}. No source plan was accepted. Preserve the complete draft, including foundations, guide, exclusions, counterpart pairs, omittedFoundations and reclassifiedOfferings, while repairing every reported validation issue. First finish any unread sources with action=next. Once remainingSources is zero, reread only the sources needed by the reported issues with action=get and offset=0, following nextOffset. Copy a single contiguous sentence or line from the returned source exactly, preserving whitespace, punctuation and wording. Resubmit the complete corrected action=plan while that evidence is visible; do not keep rereading unrelated sources or replace the draft with offering hypotheses. Existing offering hypotheses remain independent and must still be retained or explicitly reclassified. No page creation is allowed until the plan is accepted.`;
+}
+
+export function wikiSourcePlanRefusal(
+  result: string,
+  maxChars: number,
+  kind: "validation" | "conflict" = "validation",
+) {
+  return boundedAgentToolFailure(
+    {
+      result,
+      failure: {
+        kind,
+        issues: [
+          {
+            code: "custom",
+            path: ["topics"],
+            message: result,
+            ...(kind === "validation" ? { customCode: CustomErrorCode.wikiSourcePlanIncomplete } : {}),
+          },
+        ],
+      },
+    },
+    maxChars,
+  );
 }

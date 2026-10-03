@@ -5309,6 +5309,115 @@ describe("routine browse-or-mutate batch safety", () => {
       expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
     });
 
+    it("replaces an older checkpoint with a local offering-reconciliation refusal after source reads and compaction", async () => {
+      preparePlan();
+      const secondSourceId = "00000000-0000-4000-8000-000000000002";
+      const unusedSourceId = "00000000-0000-4000-8000-000000000003";
+      const secondTopic = { title: "Service B", role: "offering", sourceIds: [secondSourceId] };
+      state.synthesisSources.push(
+        {
+          id: secondSourceId,
+          text: "# Service B\nDistinct verified offering",
+          contentHash: "service-b",
+          readOffset: 100,
+        },
+        { id: unusedSourceId, text: "# Archive\nNo distinct offering", contentHash: "archive", readOffset: 100 },
+      );
+      const originalDraft = { action: "plan", topics: [topic, secondTopic, ...foundationTopics], excluded: [] };
+      const revisedDraft = {
+        action: "plan",
+        topics: [topic, ...foundationTopics],
+        excluded: [
+          {
+            sourceIds: [unusedSourceId],
+            basis: "not_substantive",
+            reason: "Archive scoped in revised draft",
+            evidenceQuote: "No distinct offering",
+          },
+        ],
+      };
+      let executedPlans = 0;
+      state.execute.mockImplementation(
+        withSourceReads((input: { action?: string }) => {
+          if (input.action === "plan" && ++executedPlans === 1) {
+            return {
+              ok: false,
+              result: "Original unaccounted archive source.",
+              failure: {
+                kind: "validation",
+                issues: [{ code: "custom", path: ["topics"], message: "", customCode: "wikiSourcePlanIncomplete" }],
+              },
+            };
+          }
+          return { ok: true, result: "saved" };
+        }),
+      );
+      state.contextFits.mockImplementation(
+        (context: object, messages: unknown, maxBytes: number) =>
+          new TextEncoder().encode(JSON.stringify({ ...context, messages })).byteLength <= maxBytes,
+      );
+      const oversized = "completed:" + "x".repeat(40_000);
+      let runs = 0;
+      state.runTools = async ({ messages, executeAndCompleteTool }) => {
+        if (++runs === 1) {
+          expect(
+            await executeAndCompleteTool("read_website_source", originalDraft, "original-rejection"),
+          ).toMatchObject({ ok: false });
+        } else if (runs === 2) {
+          const before = state.execute.mock.calls.length;
+          expect(
+            await executeAndCompleteTool("read_website_source", revisedDraft, "local-reconciliation-rejection"),
+          ).toMatchObject({
+            ok: false,
+            result: expect.stringContaining("Service B"),
+            failure: { kind: "validation", issues: [{ customCode: "wikiSourcePlanIncomplete", path: ["topics"] }] },
+          });
+          expect(state.execute).toHaveBeenCalledTimes(before);
+          await readFreshSources(executeAndCompleteTool, [unusedSourceId], "after-local-refusal-read");
+        } else if (runs === 3) {
+          const context = JSON.stringify(messages);
+          expect(context).toContain("Rejected website source-plan repair checkpoint");
+          expect(context).toContain("Archive scoped in revised draft");
+          expect(context).toContain("Retain these distinct offering candidates");
+          expect(context).toContain("Service B");
+          expect(context).not.toContain("Original unaccounted archive source");
+          expect(context).not.toContain(oversized);
+          expect(
+            await executeAndCompleteTool(
+              "read_website_source",
+              { ...revisedDraft, topics: [topic, secondTopic, ...foundationTopics] },
+              "accepted-corrected-repair",
+            ),
+          ).toMatchObject({ ok: true });
+          const before = state.execute.mock.calls.length;
+          expect(
+            await executeAndCompleteTool("read_website_source", originalDraft, "accepted-plan-replacement"),
+          ).toMatchObject({ ok: false, failure: { kind: "conflict" } });
+          expect(state.execute).toHaveBeenCalledTimes(before);
+        } else {
+          expect(JSON.stringify(messages)).not.toContain("Rejected website source-plan repair checkpoint");
+          for (const value of [topic, secondTopic]) {
+            await createWithFreshSources(
+              executeAndCompleteTool,
+              { action: "create", pages: [{ ...value, kind: "knowledge" }] },
+              `repaired-page-${value.title}`,
+            );
+          }
+          await createFoundations(executeAndCompleteTool);
+          return finish();
+        }
+        return {
+          finishReason: runs === 3 ? "tool-calls" : "stop",
+          messages: [...messages, { role: "assistant", content: oversized }],
+          steps: [streamedStep(oversized, runs === 3 ? "tool-calls" : "stop")],
+        };
+      };
+      await runAgentTurn({ ...setupPayload, turnBudget: { ...payload.turnBudget, maxContextBytes: 32_000 } });
+      expect(runs).toBe(4);
+      expect(executedPlans).toBe(2);
+      expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
+    });
+
     it("does not silently drop a required repair checkpoint when compaction cannot admit it", async () => {
       preparePlan();
       state.contextFits.mockImplementation(
