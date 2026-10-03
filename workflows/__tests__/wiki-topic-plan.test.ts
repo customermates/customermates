@@ -356,6 +356,40 @@ describe("complete rejected source-plan repair checkpoints", () => {
     ],
   };
 
+  it("uses a typed whole-source scope without changing native quote repair or accepting a forged result", () => {
+    const native = wikiSourcePlanRepair(draft, rejected);
+    expect(native).toEqual({ draft, failure: rejected.failure, repairInstructions: rejected.result });
+    if (!native) throw new Error("Expected native quote repair");
+    expect(wikiSourcePlanRepairContext(native)).toContain("even if other reported issues remain");
+    const wholeOutcome = {
+      ...rejected,
+      reviewScope: "whole_sources",
+      failure: {
+        ...rejected.failure,
+        issues: [
+          {
+            code: "custom",
+            path: ["excluded", 0, "coveredByTitle"],
+            message: "",
+            customCode: CustomErrorCode.wikiSourceExclusionOverlapInvalid,
+          },
+        ],
+      },
+    };
+    const whole = wikiSourcePlanRepair(draft, wholeOutcome);
+    expect(whole?.reviewScope).toBe("whole_sources");
+    expect(whole?.failure.issues).toEqual(wholeOutcome.failure.issues);
+    if (!whole) throw new Error("Expected typed whole-source repair");
+    expect(wikiSourcePlanRepairContext(whole)).toContain("repair ALL reported substantive overlap failures");
+    expect(wikiSourcePlanRepairContext(whole)).not.toContain("even if other reported issues remain");
+    expect(wikiSourcePlanRepair(draft, { ...wholeOutcome, ok: true })).toBeNull();
+    expect(wikiSourcePlanRepair(draft, { ...wholeOutcome, reviewScope: "accepted" })).toBeNull();
+    expect(wikiSourcePlanRepair(draft, { ...wholeOutcome, failure: undefined })).toBeNull();
+    expect(
+      wikiSourcePlanRepair(draft, { ...wholeOutcome, failure: { ...wholeOutcome.failure, kind: "unavailable" } }),
+    ).toBeNull();
+  });
+
   it("retains every schema-valid field and each available typed index without accepting the plan as evidence", () => {
     const snapshot = JSON.stringify({ draft, rejected });
     const repair = wikiSourcePlanRepair(draft, rejected);

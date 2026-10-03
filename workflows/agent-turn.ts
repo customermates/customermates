@@ -24,6 +24,12 @@ import {
 } from "./wiki-topic-plan";
 import { wikiReadSourceEvidence } from "./wiki-source-evidence";
 import {
+  wikiSynthesisCreationRepair,
+  wikiSynthesisCreationRepairMessages,
+  type WikiSynthesisCreationRepair,
+} from "./wiki-synthesis-creation-repair";
+import { WIKI_SYNTHESIS_OWN_QUOTE_INSTRUCTION } from "@/ee/wiki-crawl/wiki-synthesis-grounding";
+import {
   WIKI_SOURCE_PLAN_REPAIR_MAX_REFUSALS,
   wikiSourcePlanRepairMayReset,
   wikiSourcePlanRepairReadGuard,
@@ -44,6 +50,7 @@ import {
   WIKI_SYNTHESIS_REVIEW_MAX_REJECTIONS,
   type WikiSynthesisReviewRequest,
 } from "./wiki-synthesis-review";
+import { prepareWikiSourcePlanReviews } from "./wiki-source-plan-review";
 import { classifierReservationMicrocents } from "@/ee/agent-chat/classifier/classifier-reservation";
 import { serializeInteractorFailure } from "@/core/validation/validation.utils";
 import { boundedAgentToolFailure } from "@/ee/agent-chat/agent-tool-failure";
@@ -554,7 +561,7 @@ async function loadWikiSynthesisReviewContext(payload: AgentTurnWorkflowPayload)
     const coverage = await wikiSourceCoverage(repo, id);
     const savedPages = await repo.listSynthesizedPages(crawl.startedAt, WIKI_SYNTHESIS_MAX_PAGES);
     return {
-      sources: coverage.sources.map(({ id, text, contentHash }) => ({ id, text, contentHash })),
+      sources: coverage.sources.map(({ id, title, text, contentHash }) => ({ id, title, text, contentHash })),
       pending: coverage.pending.length,
       readHashes: [...coverage.readHashes],
       savedPages,
@@ -627,7 +634,7 @@ executeWikiSynthesisReview.maxRetries = 0;
 async function wikiSynthesisReviewFailure(
   payload: AgentTurnWorkflowPayload,
   code: CustomErrorCode,
-  issues: Array<{ path: Array<string | number>; decision?: string }>,
+  issues: Array<{ path: Array<string | number>; decision?: string; values?: Record<string, string | number> }>,
   kind: "validation" | "unavailable" = "validation",
   values: Record<string, string | number> = {},
 ) {
@@ -639,7 +646,7 @@ wikiSynthesisReviewFailure.maxRetries = 0;
 async function formatWikiSynthesisReviewFailure(
   payload: AgentTurnWorkflowPayload,
   code: CustomErrorCode,
-  issues: Array<{ path: Array<string | number>; decision?: string }>,
+  issues: Array<{ path: Array<string | number>; decision?: string; values?: Record<string, string | number> }>,
   kind: "validation" | "unavailable" = "validation",
   values: Record<string, string | number> = {},
 ) {
@@ -648,16 +655,29 @@ async function formatWikiSynthesisReviewFailure(
   const { serializeInteractorFailure } = await import("@/core/validation/validation.utils");
   const { boundedAgentToolFailure } = await import("@/ee/agent-chat/agent-tool-failure");
   const t = await getTranslator(appLocaleOrDefault(payload.locale), "Common.errors");
-  let message = t.raw(code) as string;
-  for (const [key, value] of Object.entries(values)) message = message.replaceAll(`{${key}}`, String(value));
+  let template = t.raw(code) as string;
+  if (code === CustomErrorCode.wikiSourceClaimsUnsupported) template += ` ${WIKI_SYNTHESIS_OWN_QUOTE_INSTRUCTION}`;
+  const messageFor = (issueValues: Record<string, string | number> = {}) => {
+    let message = template;
+    for (const [key, value] of Object.entries({ ...values, ...issueValues }))
+      message = message.replaceAll(`{${key}}`, String(value));
+    return message;
+  };
   const error = new z.ZodError(
-    issues.map(({ path }) => ({ code: "custom" as const, path, message, params: { error: code, kind } })),
+    issues.map(({ path, values: issueValues }) => ({
+      code: "custom" as const,
+      path,
+      message: messageFor(issueValues),
+      params: { error: code, kind },
+    })),
   );
-  const locations = issues
-    .map(({ path, decision }) => `${path.join(".")}${decision ? `: ${decision}` : ""}`)
-    .join("; ");
+  const location = ({ path, decision }: (typeof issues)[number]) =>
+    `${path.join(".")}${decision ? `: ${decision}` : ""}`;
+  const result = issues.some((issue) => issue.values)
+    ? issues.map((issue) => `${location(issue)}. ${messageFor(issue.values)}`).join("; ")
+    : `${issues.map(location).join("; ")}. ${messageFor()}`;
   return boundedAgentToolFailure(
-    { result: `${locations}. ${message}`, failure: serializeInteractorFailure(error, kind) },
+    { result, failure: serializeInteractorFailure(error, kind) },
     payload.turnBudget.maxToolResultChars,
   );
 }
@@ -1306,12 +1326,17 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       candidates: [] as WikiSourceTopic[],
       omittedFoundations: [] as NonNullable<ReadWebsiteSourceInput["omittedFoundations"]>,
     };
+    let wikiPlanReviewRejections = 0;
     let wikiTopicReminders = 0;
     const wikiFreshSources = new Map<string, { toolCallId: string; result: string }>();
     const wikiApprovedReviews = new Set<string>();
     const wikiReviewChargeIndices = new Map<string, number>();
     const wikiReviewRejections = new Map<string, number>();
     let wikiContinuationPrompt: string | null = null;
+    let wikiCreationRepair: WikiSynthesisCreationRepair | null = null;
+    const wikiCreationRepairContexts = new Set<string>();
+    const withWikiCreationRepair = (candidateMessages: readonly ModelMessage[]) =>
+      wikiSynthesisCreationRepairMessages(candidateMessages, wikiCreationRepair, wikiCreationRepairContexts);
     let wikiPlanRepair: WikiSourcePlanRepair | null = null;
     let wikiPlanRepairReads: WikiSourcePlanRepairReads | null = null;
     let wikiPlanRepairReadRefusals = 0;
@@ -1736,6 +1761,24 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
               wikiReviewRejections.set(title, (wikiReviewRejections.get(title) ?? 0) + 1);
             if ([...wikiReviewRejections.values()].some((count) => count >= WIKI_SYNTHESIS_REVIEW_MAX_REJECTIONS))
               providerStop = "turn_error";
+            const retained = wikiSynthesisCreationRepair(
+              create.data,
+              review.request,
+              evaluated.result,
+              payload.turnBudget.maxContextBytes,
+            );
+            if (retained.kind === "size") {
+              providerStop = "turn_error";
+              return wikiSynthesisReviewFailure(payload, CustomErrorCode.wikiSourceReviewTooLarge, decision.issues);
+            }
+            if (retained.kind === "retained") wikiCreationRepair = retained.repair;
+            else {
+              roundFailure ??= toWorkflowFailure(
+                new Error(
+                  "Rejected website creation repair checkpoint does not match its canonical candidate and review.",
+                ),
+              );
+            }
             return wikiSynthesisReviewFailure(payload, CustomErrorCode.wikiSourceClaimsUnsupported, decision.issues);
           }
           wikiApprovedReviews.add(key);
@@ -1762,10 +1805,157 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       auxiliaryCharges.push(...executed.classifierCharges);
       retrievalTimings.push(...(executed.retrievalTimings ?? []));
       let outcome = executed.output;
+      let wikiPlanRepairOutcome: unknown = null;
+      if (
+        wikiSourceInventory &&
+        payload.wikiHomepageSetup &&
+        (payload.wikiCrawl?.mode ?? "initial") === "initial" &&
+        shell.name === "read_website_source" &&
+        (executionInput as ReadWebsiteSourceInput).action === "plan" &&
+        isSuccessfulToolOutcome(outcome) &&
+        (executionInput as ReadWebsiteSourceInput).excluded?.some(({ basis }) => basis === "overlap")
+      ) {
+        outcome = await (async () => {
+          const canonical = await loadWikiSynthesisReviewContext(payload);
+          if (!canonical) {
+            return wikiSynthesisReviewFailure(
+              payload,
+              CustomErrorCode.wikiSourceReviewUnavailable,
+              [{ path: ["excluded"] }],
+              "unavailable",
+            );
+          }
+          if (canonical.pending > 0) {
+            return wikiSynthesisReviewFailure(
+              payload,
+              CustomErrorCode.wikiSourceCoverageRequired,
+              [{ path: ["excluded"] }],
+              "validation",
+              { remainingSources: canonical.pending },
+            );
+          }
+          const prepared = prepareWikiSourcePlanReviews(
+            executionInput as ReadWebsiteSourceInput,
+            new Map(canonical.sources.map((source) => [source.id, source])),
+            appLocaleOrDefault(payload.locale),
+            payload.turnBudget.maxContextBytes,
+          );
+          if (!prepared.ok) {
+            return wikiSynthesisReviewFailure(
+              payload,
+              prepared.reason === "evidence"
+                ? CustomErrorCode.wikiSourceExclusionEvidenceInvalid
+                : CustomErrorCode.wikiSourceReviewTooLarge,
+              prepared.paths.map((path) => ({
+                path,
+                values: {
+                  sourceId: (executionInput as ReadWebsiteSourceInput).excluded?.[Number(path[1])]?.sourceIds[0] ?? "",
+                },
+              })),
+            );
+          }
+          if (wikiPlanReviewRejections >= WIKI_SYNTHESIS_REVIEW_MAX_REJECTIONS) {
+            providerStop = "turn_error";
+            return wikiSynthesisReviewFailure(payload, CustomErrorCode.wikiSourceReviewLimit, [{ path: ["excluded"] }]);
+          }
+          const rejected: Array<{ path: Array<string | number>; pageTitle: string; decision: string }> = [];
+          for (const request of prepared.requests) {
+            const key = JSON.stringify({ spec: request.spec, state: request.state });
+            if (wikiApprovedReviews.has(key)) continue;
+            if (!(await canStartNextHostedAiProviderRound(payload))) {
+              hostedAiStop = true;
+              return wikiSynthesisReviewFailure(
+                payload,
+                CustomErrorCode.wikiSourceReviewUnavailable,
+                request.locations,
+                "unavailable",
+              );
+            }
+            const requiredMicrocents =
+              accruedCostMicrocents() +
+              (unreportedProviderRounds + 1) * payload.turnBudget.roundReserveMicrocents +
+              classifierReservationMicrocents(request.spec, request.state);
+            if (!(await ensureReservation(requiredMicrocents))) {
+              return wikiSynthesisReviewFailure(
+                payload,
+                CustomErrorCode.wikiSourceReviewUnavailable,
+                request.locations,
+                "unavailable",
+              );
+            }
+            cancelled = await readCancellation(payload);
+            if (cancelled || !(await canStartNextHostedAiProviderRound(payload))) {
+              if (!cancelled) hostedAiStop = true;
+              return wikiSynthesisReviewFailure(
+                payload,
+                CustomErrorCode.wikiSourceReviewUnavailable,
+                request.locations,
+                "unavailable",
+              );
+            }
+            const evaluated = await executeWikiSynthesisReview(payload, request);
+            recordWikiSynthesisReviewCharge(auxiliaryCharges, wikiReviewChargeIndices, evaluated);
+            const decision = wikiSynthesisReviewDecision(request, evaluated.result);
+            if (decision.kind === "unavailable") {
+              providerStop = "provider_error";
+              return wikiSynthesisReviewFailure(
+                payload,
+                CustomErrorCode.wikiSourceReviewUnavailable,
+                request.locations,
+                "unavailable",
+              );
+            }
+            if (decision.kind === "rejected") rejected.push(...decision.issues);
+            else wikiApprovedReviews.add(key);
+          }
+          if (rejected.length) {
+            wikiPlanReviewRejections += 1;
+            if (wikiPlanReviewRejections >= WIKI_SYNTHESIS_REVIEW_MAX_REJECTIONS) providerStop = "turn_error";
+            const plan = executionInput as ReadWebsiteSourceInput;
+            wikiPlanRepairOutcome = {
+              ok: false,
+              reviewScope: "whole_sources",
+              result:
+                "Repair all reported substantive overlap failures before a paid resubmission. Exact matching quotations do not establish whole-source coverage; retain every distinct scope and case in the topic plan.",
+              failure: {
+                kind: "validation",
+                issues: rejected.map(({ path }) => ({
+                  code: "custom",
+                  path: [...path],
+                  message: "",
+                  customCode: CustomErrorCode.wikiSourceExclusionOverlapInvalid,
+                })),
+              },
+            };
+            return wikiSynthesisReviewFailure(
+              payload,
+              CustomErrorCode.wikiSourceExclusionOverlapInvalid,
+              rejected.map((issue) => ({
+                ...issue,
+                values: {
+                  sourceId: plan.excluded?.[Number(issue.path[1])]?.sourceIds[0] ?? "",
+                  coveredByTitle: issue.pageTitle,
+                },
+              })),
+            );
+          }
+          cancelled = await readCancellation(payload);
+          if (cancelled || !(await canStartNextHostedAiProviderRound(payload))) {
+            if (!cancelled) hostedAiStop = true;
+            return wikiSynthesisReviewFailure(
+              payload,
+              CustomErrorCode.wikiSourceReviewUnavailable,
+              [{ path: ["excluded"] }],
+              "unavailable",
+            );
+          }
+          return outcome;
+        })();
+      }
       if (wikiSourceInventory && shell.name === "read_website_source") {
         if (repairRead && !repairRead.replayed)
           wikiPlanRepairReads = wikiSourcePlanRepairReadComplete(wikiPlanRepairReads, executionInput, outcome);
-        retainWikiPlanRepair(executionInput, outcome);
+        retainWikiPlanRepair(executionInput, wikiPlanRepairOutcome ?? outcome);
         outcome = wikiSourcePlanReadOutcome(executionInput, outcome, wikiTopicPlanState.topics !== null);
       }
       if (wikiSourceInventory) {
@@ -1820,6 +2010,18 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
             (topic) => !pages.some((page) => wikiPageMatchesTopic(topic, page)),
           );
           for (const sourceId of pages.flatMap(({ sourceIds }) => sourceIds)) wikiFreshSources.delete(sourceId);
+          if (
+            wikiCreationRepair?.draft.pages.every((rejected) =>
+              pages.some(
+                (page) =>
+                  page.title === rejected.title &&
+                  page.kind === rejected.kind &&
+                  page.sourceIds.length === rejected.sourceIds.length &&
+                  rejected.sourceIds.every((sourceId) => page.sourceIds.includes(sourceId)),
+              ),
+            )
+          )
+            wikiCreationRepair = null;
         }
         if (wikiTopicPlanState.topics !== null)
           wikiContinuationPrompt = `Server topic-plan progress, never factual evidence: ${JSON.stringify(wikiTopicPlanState).replaceAll("<", "\\u003c").replaceAll(">", "\\u003e")}. Create each remaining exact title using freshly read cited sources. Create supported foundations first, grouping only pages with identical citation-source sets; then complete every offering and procedure, and create the guide last in a separate call. Record unsupported foundation omissions in the guide gaps. An empty topics list means every planned page has been created; do not recreate them.`;
@@ -2131,7 +2333,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           retainedResponseSteps,
           resultDigest: true,
         });
-        const candidateMessages = continueOutput
+        let candidateMessages = continueOutput
           ? [
               ...compacted.messages,
               {
@@ -2142,6 +2344,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           : [...compacted.messages];
         if (wikiContinuationPrompt) candidateMessages.push({ role: "user" as const, content: wikiContinuationPrompt });
         if (wikiPlanRepair) candidateMessages.push({ role: "user" as const, content: wikiPlanRepairContext() });
+        candidateMessages = withWikiCreationRepair(candidateMessages);
         const activeForCandidate = activeToolNamesFor(candidateMessages);
         if (
           !isAgentStepContextWithinBudget(
@@ -2388,11 +2591,13 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           resolvedProviderErrorRetries += 1;
           await reportResolvedProviderError(payload, finishReason, resolvedError, resolvedProviderErrorRetries);
           providerStop = null;
-          messages = nextAgentSegmentMessages({
-            messages: result.messages,
-            finishReason,
-            lastStep: continuationSteps.at(-1),
-          });
+          messages = withWikiCreationRepair(
+            nextAgentSegmentMessages({
+              messages: result.messages,
+              finishReason,
+              lastStep: continuationSteps.at(-1),
+            }),
+          );
           continue;
         }
         await reportResolvedProviderError(payload, finishReason, resolvedError, resolvedProviderErrorRetries + 1);
@@ -2421,7 +2626,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
               wikiTopicPlanState.topics === null
                 ? `Website setup still needs a source topic plan. Call read_website_source action=plan, accounting for every source in topics or source-specific exclusions, never both, and every supported page role. Retain recognized offering candidates: ${wikiPlanningContext(wikiTopicPlanState.candidates)}; explicitly reclassify each source with an exact evidence quote if unsupported. Distinct dedicated offerings and technical capabilities require their own topics. Routing category does not determine relevance. Never claim completion before the plan and its pages are complete.`
                 : `Website setup still has planned topics to create: ${JSON.stringify(wikiTopicPlanState).replaceAll("<", "\\u003c").replaceAll(">", "\\u003e")}. Reread their cited sources and create each exact planned title before claiming completion: supported foundations first, grouping only pages with identical citation-source sets, then every offering and procedure, and the guide last in a separate call. Record unsupported foundations in the guide gaps. Do not invent facts or recreate completed topics.`;
-            messages = [
+            messages = withWikiCreationRepair([
               ...nextAgentSegmentMessages({
                 messages: result.messages,
                 finishReason,
@@ -2432,7 +2637,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                 content: wikiContinuationPrompt,
               },
               ...(wikiPlanRepair ? [{ role: "user" as const, content: wikiPlanRepairContext() }] : []),
-            ];
+            ]);
             continue;
           }
           if (wikiCoverageReminders >= 2) {
@@ -2444,7 +2649,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           if (!(await ensureReservation(accruedCostMicrocents() + payload.turnBudget.roundReserveMicrocents))) break;
           wikiCoverageReminders += 1;
           wikiContinuationPrompt = `The website import is incomplete: ${remaining} stored source groups still have unread text. Continue read_website_source action=next until remainingSources is zero, then create evidence-based pages for all supported distinct topics. Do not claim completion or pad the page count. Retain these offering planning hypotheses, never factual evidence: ${wikiPlanningContext(wikiTopicPlanState.candidates)}.`;
-          messages = [
+          messages = withWikiCreationRepair([
             ...nextAgentSegmentMessages({
               messages: result.messages,
               finishReason,
@@ -2455,16 +2660,18 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
               content: wikiContinuationPrompt,
             },
             ...(wikiPlanRepair ? [{ role: "user" as const, content: wikiPlanRepairContext() }] : []),
-          ];
+          ]);
           continue;
         }
         if (cancelled || budgetStop || providerStop !== null || roundFailure !== null) break;
 
-        const carried = nextAgentSegmentMessages({
-          messages: result.messages,
-          finishReason,
-          lastStep: continuationSteps.at(-1),
-        });
+        const carried = withWikiCreationRepair(
+          nextAgentSegmentMessages({
+            messages: result.messages,
+            finishReason,
+            lastStep: continuationSteps.at(-1),
+          }),
+        );
         const fitsWhole = isAgentStepContextWithinBudget(
           { ...providerContext, system: instructions },
           carried,
@@ -2502,7 +2709,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       if (pending.length === 0) {
         resolveDeferredRound([]);
         await publishTranscriptEvents(queued.splice(0));
-        messages = resumableMessages;
+        messages = withWikiCreationRepair(resumableMessages);
         continue;
       }
 
@@ -2538,7 +2745,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         pending = pending.filter((call) => !isAgentPanelTool(call.toolName));
         if (pending.length === 0) {
           resolveDeferredRound(resumed.map((entry) => ({ ...entry })));
-          messages = resumableMessages;
+          messages = withWikiCreationRepair(resumableMessages);
           continue;
         }
         appendDeferredOutcomes(resumed);
@@ -2624,7 +2831,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       );
       if (approvedCalls.size > 0) appendDeferredOutcomes(declined);
       else resolveDeferredRound(declined);
-      messages = withApprovalResponses(resumableMessages, outcomes, surface);
+      messages = withWikiCreationRepair(withApprovalResponses(resumableMessages, outcomes, surface));
     }
 
     if (abandoned) {

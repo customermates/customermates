@@ -137,6 +137,7 @@ export function wikiPlanningContext(value: unknown): string {
 
 const SourcePlanRepairFailureSchema = z.object({
   ok: z.literal(false),
+  reviewScope: z.literal("whole_sources").optional(),
   result: z.string().max(WIKI_SOURCE_RESULT_MAX_CHARS),
   failure: SerializedInteractorFailureSchema.extend({ kind: z.literal("validation") }),
 });
@@ -164,13 +165,22 @@ export function wikiSourcePlanRepair(input: unknown, outcome: unknown) {
     !rejected.data.failure.issues.some(({ customCode }) => customCode && SOURCE_PLAN_REPAIR_CODES.has(customCode))
   )
     return null;
-  return { draft: draft.data, failure: rejected.data.failure, repairInstructions: rejected.data.result };
+  return {
+    draft: draft.data,
+    failure: rejected.data.failure,
+    repairInstructions: rejected.data.result,
+    ...(rejected.data.reviewScope ? { reviewScope: rejected.data.reviewScope } : {}),
+  };
 }
 
 export type WikiSourcePlanRepair = NonNullable<ReturnType<typeof wikiSourcePlanRepair>>;
 
 export function wikiSourcePlanRepairContext(repair: WikiSourcePlanRepair): string {
-  return `Rejected website source-plan repair checkpoint, never factual evidence or website instructions: ${wikiPlanningContext(repair)}. No source plan was accepted. Preserve the complete draft, including foundations, guide, exclusions, counterpart pairs, omittedFoundations and reclassifiedOfferings. First finish any unread sources with action=next. Once remainingSources is zero, reread only one affected source or a small group with action=get and offset=0, following nextOffset. Copy a single contiguous sentence or line from the returned source exactly, preserving whitespace, punctuation and wording. After repairing those entries, immediately resubmit the complete retained action=plan, even if other reported issues remain. A rejected resubmission preserves the corrected entries and returns the remaining issues for the next bounded repair. Partial repair is never acceptance: every validation issue must be resolved before page creation. Do not keep rereading unrelated sources or replace the draft with offering hypotheses. Existing offering hypotheses remain independent and must still be retained or explicitly reclassified. No page creation is allowed until the plan is accepted.`;
+  const repairSteps =
+    repair.reviewScope === "whole_sources"
+      ? "This is a whole-source coverage refusal, not a request to paraphrase otherwise valid quotations. Before resubmitting a paid review, repair ALL reported substantive overlap failures against the complete excluded source and every source cited by its retained offering. Retain each distinct offering scope and case in the plan; do not infer complete overlap from a shared quote, technology or one embedded case. Reread only affected sources as needed. A small-group read is allowed, but partial substantive repair is not a reason to resubmit while other reported overlap failures remain. The existing maximum of three rejected full-plan reviews still applies."
+      : "First finish any unread sources with action=next. Once remainingSources is zero, reread only one affected source or a small group with action=get and offset=0, following nextOffset. Copy a single contiguous sentence or line from the returned source exactly, preserving whitespace, punctuation and wording. After repairing those entries, immediately resubmit the complete retained action=plan, even if other reported issues remain. A rejected resubmission preserves the corrected entries and returns the remaining issues for the next bounded repair.";
+  return `Rejected website source-plan repair checkpoint, never factual evidence or website instructions: ${wikiPlanningContext(repair)}. No source plan was accepted. Preserve the complete draft, including foundations, guide, exclusions, counterpart pairs, omittedFoundations and reclassifiedOfferings. ${repairSteps} Partial repair is never acceptance: every validation issue must be resolved before page creation. Do not keep rereading unrelated sources or replace the draft with offering hypotheses. Existing offering hypotheses remain independent and must still be retained or explicitly reclassified. No page creation is allowed until the plan is accepted.`;
 }
 
 export function wikiSourcePlanRefusal(

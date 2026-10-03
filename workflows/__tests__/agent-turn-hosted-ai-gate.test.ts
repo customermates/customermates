@@ -27,6 +27,7 @@ const CREDIT = 1_000_000;
 const state = vi.hoisted(() => ({
   synthesisSources: [] as Array<{
     id: string;
+    title?: string;
     text: string;
     contentHash: string;
     readOffset: number;
@@ -4414,6 +4415,357 @@ describe("routine browse-or-mutate batch safety", () => {
       },
     );
 
+    it("retains a semantically rejected overlap plan, charges it once, and accepts a corrected retained source", async () => {
+      preparePlan();
+      const excludedId = "00000000-0000-4000-8000-000000000002";
+      state.synthesisSources.push({
+        id: excludedId,
+        title: "Wider service scope",
+        text: "We provide a wider service and a separate railway case.",
+        contentHash: "excluded-full",
+        readOffset: 100,
+      });
+      state.synthesisSources[0].title = "Service A";
+      const plan = {
+        ...foundationPlan,
+        topics: [topic, ...foundationTopics],
+        excluded: [
+          {
+            sourceIds: [excludedId],
+            basis: "overlap",
+            reason: "A related case is covered.",
+            coveredByTitle: topic.title,
+            coveredByRole: "offering",
+            evidenceQuote: state.synthesisSources[1].text,
+            counterpartSourceId: planSourceId,
+            counterpartQuote: state.synthesisSources[0].text,
+          },
+        ],
+      };
+      state.semanticReview.mockResolvedValueOnce({
+        result: {
+          model: "jev",
+          costMicrocents: 600,
+          latencyMs: 1,
+          answers: { overlap_0: { type: "choice", choice: "qualified", confidence: 1, probabilities: null } },
+        },
+        charge: { use: "wiki_synthesis_review", model: "jev", costMicrocents: 600, measured: true, answered: true },
+      });
+      state.runTools = async ({ executeAndCompleteTool }) => {
+        const rejected = await executeAndCompleteTool("read_website_source", plan, "overlap-plan");
+        expect(rejected).toMatchObject({
+          ok: false,
+          failure: {
+            kind: "validation",
+            issues: [{ path: ["excluded", 0, "coveredByTitle"], customCode: "wikiSourceExclusionOverlapInvalid" }],
+          },
+        });
+        expect(state.semanticReview).toHaveBeenCalledOnce();
+        const before = state.execute.mock.calls.length;
+        expect(
+          await executeAndCompleteTool(
+            "manage_wiki_pages",
+            { action: "create", pages: [completeSynthesisPage({ ...topic, kind: "knowledge" })] },
+            "rejected-plan-create",
+          ),
+        ).toMatchObject({ ok: false });
+        expect(state.execute).toHaveBeenCalledTimes(before);
+        expect(
+          await executeAndCompleteTool(
+            "read_website_source",
+            {
+              ...plan,
+              excluded: [],
+              topics: [{ ...topic, sourceIds: [planSourceId, excludedId] }, ...foundationTopics],
+            },
+            "corrected-overlap-plan",
+          ),
+        ).toMatchObject({ ok: true });
+        await createWithFreshSources(
+          executeAndCompleteTool,
+          { action: "create", pages: [{ ...topic, sourceIds: [planSourceId, excludedId], kind: "knowledge" }] },
+          "retained-overview",
+        );
+        await createFoundations(executeAndCompleteTool);
+        return finish();
+      };
+      await runAgentTurn(setupPayload);
+      expect(state.finalize).toHaveBeenCalledWith(
+        expect.objectContaining({
+          terminalCode: "completed",
+          usageSettlement: expect.objectContaining({ costMicrocents: 600 }),
+        }),
+      );
+      const [, spec, reviewState] = state.semanticReview.mock.calls[0];
+      expect(spec.id).toBe("wiki_source_plan_review");
+      expect(reviewState.sources[excludedId].text).toBe(state.synthesisSources[1].text);
+    });
+
+    it("returns each overlap source and title in its own indexed localized failure", async () => {
+      preparePlan();
+      const ids = ["00000000-0000-4000-8000-000000000002", "00000000-0000-4000-8000-000000000003"];
+      state.synthesisSources[0].title = "Service A";
+      ids.forEach((id) =>
+        state.synthesisSources.push({
+          id,
+          title: "Distinct service",
+          text: "A distinct source covers an ongoing railway case.",
+          contentHash: id,
+          readOffset: 100,
+        }),
+      );
+      const plan = {
+        ...foundationPlan,
+        topics: [topic, ...foundationTopics],
+        excluded: ids.map((id) => ({
+          sourceIds: [id],
+          basis: "overlap",
+          reason: "Related case",
+          coveredByTitle: topic.title,
+          coveredByRole: "offering",
+          evidenceQuote: state.synthesisSources[1].text,
+          counterpartSourceId: planSourceId,
+          counterpartQuote: state.synthesisSources[0].text,
+        })),
+      };
+      for (let index = 0; index < 2; index += 1) {
+        state.semanticReview.mockResolvedValueOnce({
+          result: {
+            model: "jev",
+            costMicrocents: 600,
+            latencyMs: 1,
+            answers: {
+              [`overlap_${index}`]: { type: "choice", choice: "qualified", confidence: 1, probabilities: null },
+            },
+          },
+          charge: { use: "wiki_synthesis_review", model: "jev", costMicrocents: 600, measured: true, answered: true },
+        });
+      }
+      state.runTools = async ({ executeAndCompleteTool }) => {
+        expect(await executeAndCompleteTool("read_website_source", plan, "two-overlap-plan")).toMatchObject({
+          ok: false,
+          failure: {
+            issues: ids.map((id, index) => ({
+              path: ["excluded", index, "coveredByTitle"],
+              customCode: "wikiSourceExclusionOverlapInvalid",
+              message: expect.stringContaining(id),
+            })),
+          },
+        });
+        expect(state.semanticReview).toHaveBeenCalledTimes(2);
+        expect(
+          await executeAndCompleteTool(
+            "read_website_source",
+            { ...plan, excluded: [], topics: [{ ...topic, sourceIds: [planSourceId, ...ids] }, ...foundationTopics] },
+            "two-overlap-corrected",
+          ),
+        ).toMatchObject({ ok: true });
+        await createWithFreshSources(
+          executeAndCompleteTool,
+          { action: "create", pages: [{ ...topic, sourceIds: [planSourceId, ...ids], kind: "knowledge" }] },
+          "two-retained",
+        );
+        await createFoundations(executeAndCompleteTool);
+        return finish();
+      };
+      await runAgentTurn(setupPayload);
+      if (state.reportFailure.mock.calls.length) throw state.reportFailure.mock.calls[0][1];
+      expect(state.reportFailure).not.toHaveBeenCalled();
+      expect(state.finalize).toHaveBeenCalledWith(
+        expect.objectContaining({
+          terminalCode: "completed",
+          usageSettlement: expect.objectContaining({ costMicrocents: 1200 }),
+        }),
+      );
+    });
+
+    const prepareReviewedOverlapPlan = (count = 1) => {
+      preparePlan();
+      state.synthesisSources[0].title = "Service A";
+      const excludedIds = Array.from(
+        { length: count },
+        (_, index) => `00000000-0000-4000-8000-${String(index + 2).padStart(12, "0")}`,
+      );
+      excludedIds.forEach((id) =>
+        state.synthesisSources.push({
+          id,
+          title: "Wider source scope",
+          text: "The source includes distinct service scope and an ongoing railway case.",
+          contentHash: id,
+          readOffset: 100,
+        }),
+      );
+      return {
+        ...foundationPlan,
+        topics: [topic, ...foundationTopics],
+        excluded: excludedIds.map((id) => ({
+          sourceIds: [id],
+          basis: "overlap",
+          reason: "A related case is covered.",
+          coveredByTitle: topic.title,
+          coveredByRole: "offering",
+          evidenceQuote: state.synthesisSources[1].text,
+          counterpartSourceId: planSourceId,
+          counterpartQuote: state.synthesisSources[0].text,
+        })),
+      };
+    };
+
+    it.each(["credit_limit", "hosted_ai_unavailable"])(
+      "does not start a plan review when its reservation is denied by %s",
+      async (disposition) => {
+        const plan = prepareReviewedOverlapPlan();
+        state.semanticReviewReservation.mockReturnValue(payload.turnBudget.reservedMicrocents);
+        state.extendReservation.mockResolvedValueOnce({ disposition });
+        state.runTools = async ({ executeAndCompleteTool }) => {
+          expect(await executeAndCompleteTool("read_website_source", plan, "plan-review-credit")).toMatchObject({
+            ok: false,
+            failure: { kind: "unavailable" },
+          });
+          return finish();
+        };
+        await runAgentTurn(setupPayload);
+        expect(state.semanticReview).not.toHaveBeenCalled();
+        expect(state.claimSemanticReceipt).not.toHaveBeenCalled();
+        expect(state.finalize).toHaveBeenCalledWith(
+          expect.objectContaining({ terminalCode: "partial", stopReason: disposition }),
+        );
+      },
+    );
+
+    it.each(["cancel", "pause"])(
+      "records the first plan-review charge but does not accept or call the second review after %s",
+      async (reason) => {
+        const plan = prepareReviewedOverlapPlan(2);
+        state.semanticReview.mockImplementationOnce((_use, spec) => {
+          if (reason === "cancel") state.readCancellation.mockResolvedValue(true);
+          else state.gateResults = [false];
+          return Promise.resolve({
+            result: {
+              model: "jev",
+              costMicrocents: 600,
+              latencyMs: 1,
+              answers: {
+                [spec.questions[0].id]: { type: "choice", choice: "supported", confidence: null, probabilities: null },
+              },
+            },
+            charge: { use: "wiki_synthesis_review", model: "jev", costMicrocents: 600, measured: true, answered: true },
+          });
+        });
+        state.runTools = async ({ executeAndCompleteTool }) => {
+          expect(await executeAndCompleteTool("read_website_source", plan, "plan-review-stopped")).toMatchObject({
+            ok: false,
+            failure: { kind: "unavailable" },
+          });
+          return finish();
+        };
+        await runAgentTurn(setupPayload);
+        expect(state.semanticReview).toHaveBeenCalledOnce();
+        expect(state.finalize).toHaveBeenCalledWith(
+          expect.objectContaining({
+            terminalCode: reason === "cancel" ? "cancelled" : "partial",
+            stopReason: reason === "cancel" ? "cancelled" : "hosted_ai_unavailable",
+            usageSettlement: expect.objectContaining({ costMicrocents: 600 }),
+          }),
+        );
+      },
+    );
+
+    it("replays a rejected plan review under a new tool call ID without paying twice", async () => {
+      const plan = prepareReviewedOverlapPlan();
+      state.semanticReview.mockResolvedValueOnce({
+        result: {
+          model: "jev",
+          costMicrocents: 600,
+          latencyMs: 1,
+          answers: { overlap_0: { type: "choice", choice: "qualified", confidence: null, probabilities: null } },
+        },
+        charge: { use: "wiki_synthesis_review", model: "jev", costMicrocents: 600, measured: true, answered: true },
+      });
+      state.runTools = async ({ executeAndCompleteTool }) => {
+        for (const id of ["plan-review-original", "plan-review-replayed"]) {
+          expect(await executeAndCompleteTool("read_website_source", plan, id)).toMatchObject({
+            ok: false,
+            failure: {
+              issues: [{ path: ["excluded", 0, "coveredByTitle"], customCode: "wikiSourceExclusionOverlapInvalid" }],
+            },
+          });
+        }
+        expect(state.semanticReview).toHaveBeenCalledOnce();
+        expect(state.claimSemanticReceipt).toHaveBeenCalledTimes(2);
+        const ids = [planSourceId, ...plan.excluded.flatMap(({ sourceIds }) => sourceIds)];
+        expect(
+          await executeAndCompleteTool(
+            "read_website_source",
+            { ...plan, excluded: [], topics: [{ ...topic, sourceIds: ids }, ...foundationTopics] },
+            "plan-review-replay-corrected",
+          ),
+        ).toMatchObject({ ok: true });
+        await createWithFreshSources(
+          executeAndCompleteTool,
+          { action: "create", pages: [{ ...topic, sourceIds: ids, kind: "knowledge" }] },
+          "plan-review-replay-retained",
+        );
+        await createFoundations(executeAndCompleteTool);
+        return finish();
+      };
+      await runAgentTurn(setupPayload);
+      expect(state.finalize).toHaveBeenCalledWith(
+        expect.objectContaining({
+          terminalCode: "completed",
+          usageSettlement: expect.objectContaining({ costMicrocents: 600 }),
+        }),
+      );
+    });
+
+    it("does not review an overlap plan rejected by native quotation validation", async () => {
+      preparePlan();
+      state.execute.mockResolvedValueOnce({
+        ok: false,
+        failure: {
+          kind: "validation",
+          issues: [
+            {
+              code: "custom",
+              path: ["excluded", 0, "evidenceQuote"],
+              customCode: "wikiSourceExclusionEvidenceInvalid",
+              message: "Invalid exact evidence.",
+            },
+          ],
+        },
+        result: "Invalid exact evidence.",
+      });
+      state.runTools = async ({ executeAndCompleteTool }) => {
+        expect(
+          await executeAndCompleteTool(
+            "read_website_source",
+            {
+              ...foundationPlan,
+              topics: [topic, ...foundationTopics],
+              excluded: [
+                {
+                  sourceIds: [planSourceId],
+                  basis: "overlap",
+                  reason: "Invalid evidence",
+                  coveredByTitle: topic.title,
+                  coveredByRole: "offering",
+                  evidenceQuote: "Invented quote",
+                  counterpartSourceId: planSourceId,
+                  counterpartQuote: "Invented counterpart",
+                },
+              ],
+            },
+            "native-invalid-overlap",
+          ),
+        ).toMatchObject({ ok: false });
+        expect(state.semanticReview).not.toHaveBeenCalled();
+        await executeAndCompleteTool("read_website_source", foundationPlan, "native-recovered-plan");
+        await createFoundations(executeAndCompleteTool);
+        return finish();
+      };
+      await runAgentTurn(setupPayload);
+    });
+
     it("preserves malformed schema issues instead of mislabelling them as a semantic rejection", async () => {
       preparePlan();
       state.runTools = async ({ executeAndCompleteTool }) => {
@@ -5146,6 +5498,329 @@ describe("routine browse-or-mutate batch safety", () => {
       await runAgentTurn({ ...setupPayload, turnBudget: { ...payload.turnBudget, maxContextBytes: 32_000 } });
       expect(runs).toBe(2);
       expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
+    });
+
+    it("retains every rejected creation field through compaction, replaces only its own checkpoint, requires fresh gets and clears only after storage", async () => {
+      preparePlan();
+      state.contextFits.mockImplementation(
+        (context: object, messages: unknown, maxBytes: number) =>
+          new TextEncoder().encode(JSON.stringify({ ...context, messages })).byteLength <= maxBytes,
+      );
+      const reject = (_use: unknown, spec: { questions: Array<{ id: string }> }) =>
+        Promise.resolve({
+          result: {
+            model: "jev",
+            costMicrocents: 0,
+            latencyMs: 1,
+            answers: Object.fromEntries(
+              spec.questions.map(({ id }) => [
+                id,
+                {
+                  type: "choice",
+                  choice: id.endsWith("metadata") ? "unsupported" : "qualified",
+                  confidence: 0.99,
+                  probabilities: null,
+                },
+              ]),
+            ),
+          },
+          charge: { use: "wiki_synthesis_review", model: "jev", costMicrocents: 0, measured: true, answered: true },
+        });
+      state.semanticReview.mockImplementationOnce(reject).mockImplementationOnce(reject);
+      const page = {
+        ...completeSynthesisPage({ ...topic, kind: "knowledge" }),
+        gaps: ["What proves the rejected metadata claim?"],
+      };
+      page.sections = [
+        { ...page.sections[0], heading: "Status", content: "First rejected status claim." },
+        { ...page.sections[0], heading: "Scope", content: "First rejected scope claim." },
+      ];
+      const oversized = "completed:" + "x".repeat(40_000);
+      const foreignContext = {
+        role: "user" as const,
+        content: "Rejected website creation repair checkpoint: unrelated user text",
+      };
+      let runs = 0;
+      state.runTools = async ({ messages, executeAndCompleteTool }) => {
+        if (++runs === 1) {
+          await executeAndCompleteTool(
+            "read_website_source",
+            { ...foundationPlan, topics: [topic, ...foundationTopics] },
+            "creation-repair-plan",
+          );
+          await readFreshSources(executeAndCompleteTool, [planSourceId], "creation-repair-first");
+          const before = state.execute.mock.calls.length;
+          expect(
+            await executeAndCompleteTool(
+              "manage_wiki_pages",
+              { action: "create", pages: [page] },
+              "creation-repair-first-create",
+            ),
+          ).toMatchObject({ ok: false });
+          expect(state.execute).toHaveBeenCalledTimes(before);
+          return {
+            finishReason: "tool-calls",
+            messages: [...messages, { role: "assistant", content: oversized }],
+            steps: [streamedStep(oversized, "tool-calls")],
+          };
+        }
+        const checkpoints = messages.flatMap((message) => {
+          if (!message || typeof message !== "object") return [];
+          const candidate = message as { role?: string; content?: unknown };
+          return candidate.role === "user" &&
+            typeof candidate.content === "string" &&
+            candidate.content.startsWith("Rejected website creation repair checkpoint, never factual evidence")
+            ? [candidate.content]
+            : [];
+        });
+        const text = JSON.stringify(messages);
+        expect(text).not.toContain(oversized);
+        if (runs <= 3) {
+          expect(checkpoints).toHaveLength(1);
+          expect(text).toContain("What proves the rejected metadata claim?");
+          expect(text).toContain("p0_metadata");
+          expect(text).toContain("p0_s0");
+          expect(text).toContain("p0_s1");
+          expect(text).toContain(planSourceId);
+          expect(text).toContain("contentHash");
+          expect(checkpoints[0]).toContain(JSON.stringify(state.synthesisSources[0].text).slice(1, -1));
+          const beforeWrites = state.execute.mock.calls.length;
+          const beforeReviews = state.semanticReview.mock.calls.length;
+          expect(
+            await executeAndCompleteTool(
+              "manage_wiki_pages",
+              { action: "create", pages: [page] },
+              `creation-repair-no-get-${runs}`,
+            ),
+          ).toMatchObject({ ok: false, result: expect.stringContaining("Reread these cited sources") });
+          expect(state.execute).toHaveBeenCalledTimes(beforeWrites);
+          expect(state.semanticReview).toHaveBeenCalledTimes(beforeReviews);
+          await readFreshSources(executeAndCompleteTool, [planSourceId], `creation-repair-real-get-${runs}`);
+        }
+        if (runs === 2) {
+          expect(text).toContain("First rejected status claim.");
+          expect(text).toContain("First rejected scope claim.");
+          page.sections[0].content = "Second rejected status claim.";
+          page.sections[1].content = "Second rejected scope claim.";
+          expect(
+            await executeAndCompleteTool(
+              "manage_wiki_pages",
+              { action: "create", pages: [page] },
+              "creation-repair-second-create",
+            ),
+          ).toMatchObject({ ok: false });
+          return {
+            finishReason: "tool-calls",
+            messages: [...messages, foreignContext, { role: "assistant", content: "Retry narrower claims." }],
+            steps: [streamedStep("Retry narrower claims.", "tool-calls")],
+          };
+        }
+        if (runs === 3) {
+          expect(text).not.toContain("First rejected status claim.");
+          expect(text).not.toContain("First rejected scope claim.");
+          expect(text).toContain("Second rejected status claim.");
+          expect(text).toContain("Second rejected scope claim.");
+          expect(messages).toContainEqual(foreignContext);
+          page.sections[0].content = state.synthesisSources[0].text;
+          page.sections[1].content = state.synthesisSources[0].text;
+          page.gaps = [];
+          expect(
+            await executeAndCompleteTool(
+              "manage_wiki_pages",
+              { action: "create", pages: [page] },
+              "creation-repair-supported-create",
+            ),
+          ).toMatchObject({ ok: true });
+          expect(state.semanticReview).toHaveBeenCalledTimes(3);
+          return {
+            finishReason: "tool-calls",
+            messages: [...messages, { role: "assistant", content: oversized }],
+            steps: [streamedStep(oversized, "tool-calls")],
+          };
+        }
+        expect(checkpoints).toHaveLength(0);
+        expect(text).not.toContain("Second rejected status claim.");
+        expect(text).not.toContain("Second rejected scope claim.");
+        expect(text).toContain("Server topic-plan progress");
+        await createFoundations(executeAndCompleteTool, "creation-repair-complete");
+        return finish();
+      };
+      await runAgentTurn({ ...setupPayload, turnBudget: { ...payload.turnBudget, maxContextBytes: 32_000 } });
+      expect(runs).toBe(4);
+      expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
+    });
+
+    it("stops with the typed size failure when a whole rejected creation checkpoint cannot fit instead of silently dropping it", async () => {
+      preparePlan();
+      state.semanticReview.mockImplementationOnce((_use, spec) =>
+        Promise.resolve({
+          result: {
+            model: "jev",
+            costMicrocents: 0,
+            latencyMs: 1,
+            answers: Object.fromEntries(
+              spec.questions.map(({ id }: { id: string }) => [
+                id,
+                {
+                  type: "choice",
+                  choice: "unsupported",
+                  confidence: 0.99,
+                  probabilities: null,
+                },
+              ]),
+            ),
+          },
+          charge: { use: "wiki_synthesis_review", model: "jev", costMicrocents: 0, measured: true, answered: true },
+        }),
+      );
+      let runs = 0;
+      state.runTools = async ({ executeAndCompleteTool }) => {
+        runs += 1;
+        await executeAndCompleteTool(
+          "read_website_source",
+          { ...foundationPlan, topics: [topic, ...foundationTopics] },
+          "oversized-creation-plan",
+        );
+        await readFreshSources(executeAndCompleteTool, [planSourceId], "oversized-creation");
+        const page = completeSynthesisPage({ ...topic, kind: "knowledge" });
+        page.sections[0].content = "<".repeat(6_000);
+        const before = state.execute.mock.calls.length;
+        const rejected = await executeAndCompleteTool(
+          "manage_wiki_pages",
+          { action: "create", pages: [page] },
+          "oversized-creation-checkpoint",
+        );
+        expect(rejected).toMatchObject({
+          ok: false,
+          failure: {
+            issues: expect.arrayContaining([expect.objectContaining({ customCode: "wikiSourceReviewTooLarge" })]),
+          },
+        });
+        expect(state.execute).toHaveBeenCalledTimes(before);
+        return finish();
+      };
+      await runAgentTurn({ ...setupPayload, turnBudget: { ...payload.turnBudget, maxContextBytes: 32_000 } });
+      expect(runs).toBe(1);
+      expect(state.semanticReview).toHaveBeenCalledOnce();
+      expect(state.finalize).toHaveBeenCalledWith(
+        expect.objectContaining({ terminalCode: "partial", stopReason: "turn_error" }),
+      );
+    });
+
+    it("retains every whole-source overlap refusal through compaction when the bounded public failure collapses indexes", async () => {
+      const plan = prepareReviewedOverlapPlan(6);
+      const excludedIds = plan.excluded.map(({ sourceIds }) => sourceIds[0]);
+      for (let index = 0; index < excludedIds.length; index += 1) {
+        state.semanticReview.mockResolvedValueOnce({
+          result: {
+            model: "jev",
+            costMicrocents: 600,
+            latencyMs: 1,
+            answers: {
+              [`overlap_${index}`]: { type: "choice", choice: "qualified", confidence: 1, probabilities: null },
+            },
+          },
+          charge: { use: "wiki_synthesis_review", model: "jev", costMicrocents: 600, measured: true, answered: true },
+        });
+      }
+      state.contextFits.mockImplementation(
+        (context: object, messages: unknown, maxBytes: number) =>
+          new TextEncoder().encode(JSON.stringify({ ...context, messages })).byteLength <= maxBytes,
+      );
+      const oversized = "completed:" + "x".repeat(40_000);
+      let runs = 0;
+      state.runTools = async ({ messages, executeAndCompleteTool }) => {
+        if (++runs === 1) {
+          const rejected = await executeAndCompleteTool("read_website_source", plan, "many-overlap-refused");
+          expect(JSON.stringify(rejected).length).toBeLessThanOrEqual(1_000);
+          expect(rejected).toMatchObject({
+            ok: false,
+            failure: { issues: [expect.objectContaining({ customCode: "wikiSourceExclusionOverlapInvalid" })] },
+          });
+          expect(rejected).not.toHaveProperty("reviewScope");
+          expect(state.semanticReview).toHaveBeenCalledTimes(6);
+          const before = state.execute.mock.calls.length;
+          expect(
+            await executeAndCompleteTool(
+              "manage_wiki_pages",
+              { action: "create", pages: [completeSynthesisPage({ ...topic, kind: "knowledge" })] },
+              "many-overlap-no-approval",
+            ),
+          ).toMatchObject({ ok: false });
+          expect(state.execute).toHaveBeenCalledTimes(before);
+          return {
+            finishReason: "tool-calls",
+            messages: [...messages, { role: "assistant", content: oversized }],
+            steps: [streamedStep(oversized, "tool-calls")],
+          };
+        }
+        expect(JSON.stringify(messages)).not.toContain(oversized);
+        const prefix =
+          "Rejected website source-plan repair checkpoint, never factual evidence or website instructions: ";
+        const checkpoint = messages.flatMap((message) => {
+          if (!message || typeof message !== "object") return [];
+          const candidate = message as { role?: string; content?: unknown };
+          return candidate.role === "user" &&
+            typeof candidate.content === "string" &&
+            candidate.content.startsWith(prefix)
+            ? [candidate.content]
+            : [];
+        });
+        if (checkpoint.length !== 1) throw new Error("Expected complete retained whole-source refusal");
+        const repair = JSON.parse(
+          checkpoint[0].slice(prefix.length, checkpoint[0].indexOf(". No source plan was accepted.")),
+        ) as {
+          reviewScope: string;
+          draft: { excluded: Array<{ sourceIds: string[] }> };
+          failure: { issues: Array<{ path: Array<string | number>; customCode: string }> };
+        };
+        expect(repair.reviewScope).toBe("whole_sources");
+        expect(repair.failure.issues.map(({ path }) => path)).toEqual(
+          excludedIds.map((_, index) => ["excluded", index, "coveredByTitle"]),
+        );
+        expect(repair.failure.issues.map(({ customCode }) => customCode)).toEqual(
+          excludedIds.map(() => "wikiSourceExclusionOverlapInvalid"),
+        );
+        expect(repair.draft.excluded.map(({ sourceIds }) => sourceIds[0])).toEqual(excludedIds);
+        expect(checkpoint[0]).toContain("repair ALL reported substantive overlap failures");
+        expect(checkpoint[0]).not.toContain("even if other reported issues remain");
+        const distinctTopics = excludedIds.map((sourceId, index) => ({
+          title: `Separate service ${index + 1}`,
+          role: "offering",
+          sourceIds: [sourceId],
+        }));
+        expect(
+          await executeAndCompleteTool(
+            "read_website_source",
+            { ...plan, excluded: [], topics: [topic, ...distinctTopics, ...foundationTopics] },
+            "many-overlap-all-repaired",
+          ),
+        ).toMatchObject({ ok: true });
+        for (const page of [topic, ...distinctTopics]) {
+          await createWithFreshSources(
+            executeAndCompleteTool,
+            { action: "create", pages: [{ ...page, kind: "knowledge" }] },
+            `many-overlap-saved-${page.title}`,
+          );
+        }
+
+        await createFoundations(executeAndCompleteTool, "many-overlap-foundations");
+        return finish();
+      };
+      await runAgentTurn({
+        ...setupPayload,
+        turnBudget: { ...payload.turnBudget, maxContextBytes: 32_000, maxToolResultChars: 1_000 },
+      });
+      if (state.reportFailure.mock.calls.length) throw state.reportFailure.mock.calls[0][1];
+      expect(runs).toBe(2);
+      expect(state.recordRound).toHaveBeenCalledWith(expect.objectContaining({ costMicrocents: 308 }));
+      expect(state.finalize).toHaveBeenCalledWith(
+        expect.objectContaining({
+          terminalCode: "completed",
+          usageSettlement: expect.objectContaining({ costMicrocents: 3_908, costSource: "estimated" }),
+          classifierTrace: expect.objectContaining({ auxiliaryCostMicrocents: 3_600 }),
+        }),
+      );
     });
 
     it("retains the complete rejected source plan and indexed repair instructions through reads and compaction", async () => {

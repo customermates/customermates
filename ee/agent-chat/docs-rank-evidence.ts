@@ -283,7 +283,10 @@ export function docsRankEvidence(
     (total, { unit }) => total + unit.text.length + (unit.context ? unit.context.length + 2 : 0) + 1,
     0,
   );
-  const fallbackIntroBudget = Math.min(introductionBudget, maxChars - focusedChars);
+  const headingMatches = labelMatches.some(Boolean);
+  const fallbackIntroBudget = headingMatches
+    ? Math.min(introductionBudget, maxChars - focusedChars)
+    : introductionBudget;
   const introduction =
     picked.size === 0 &&
     hasResidualBodyMatch &&
@@ -292,7 +295,7 @@ export function docsRankEvidence(
     !matches[openingUnitIndex].some(Boolean) &&
     introductionBudget >= 16 &&
     firstSentence.length > 0 &&
-    matcher.matches(firstSentence).some((hit, index) => hit && labelMatches[index])
+    (!headingMatches || matcher.matches(firstSentence).some((hit, index) => hit && labelMatches[index]))
       ? firstSentence.length <= introductionBudget
         ? firstSentence
         : fallbackIntroBudget >= 64

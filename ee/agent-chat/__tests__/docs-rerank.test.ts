@@ -998,3 +998,38 @@ describe("requested documentation question and destination evidence", () => {
     expect(total).toBeLessThanOrEqual(16_000);
   });
 });
+
+describe("matching opening instructions in a full classifier pool", () => {
+  it("retains the primary German key creation introduction before later success and client setup text", () => {
+    const section = docsCorpusSections("docs", "de").find(
+      (candidate) => candidate.slug === "api-keys" && candidate.anchor === "how-do-i-create-an-api-key",
+    );
+    if (!section) throw new Error("Missing canonical API key creation section.");
+    const candidates: RankableSection[] = Array.from({ length: 120 }, (_, id) => ({
+      id,
+      locale: "de",
+      section:
+        id === 0
+          ? section
+          : {
+              pageTitle: "Unrelated",
+              headingPath: ["History"],
+              text: "Other history.",
+            },
+    }));
+    const [question] = docsRankSpec(candidates, "docs", "Wie erstelle ich einen API-Schlüssel?").questions;
+    const evidence = optionEvidence(question.options.s0);
+    expect(evidence).toContain("Zum Anlegen eines API-Keys öffnen Sie in der Seitenleiste");
+    expect(evidence).toContain("erfolgreich erstellt");
+    expect(evidence.indexOf("Zum Anlegen")).toBeLessThan(evidence.indexOf("erfolgreich erstellt"));
+    expect(evidence).toContain("Link: /profile/api-keys");
+    expect(Object.keys(question.options)).toHaveLength(121);
+    let characters = 0;
+    for (const candidate of candidates) {
+      const excerpt = optionEvidence(question.options[`s${candidate.id}`]);
+      expect(excerpt.length).toBeLessThanOrEqual(candidate.id < 20 ? 400 : 80);
+      characters += excerpt.length;
+    }
+    expect(characters).toBeLessThanOrEqual(16_000);
+  });
+});
