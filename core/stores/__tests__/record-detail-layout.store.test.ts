@@ -162,6 +162,55 @@ describe("record detail personalization saves", () => {
     expect(store.state.schemaRevision).toBe(3);
   });
 
+  it("ignores an obsolete rejected refresh after a newer read succeeds", async () => {
+    const { store, state } = fixture();
+    const old = Promise.withResolvers<unknown>();
+    const latest = {
+      ...state,
+      schemaRevision: 3,
+      layout: { ...state.layout, pinnedFields: ["system:updatedAt"] },
+    };
+    mocks.readRecordDetailLayoutAction
+      .mockReturnValueOnce(old.promise)
+      .mockResolvedValueOnce({ ok: true, data: latest });
+    const pending = store.refresh();
+    await store.refresh();
+    old.reject(new Error("Obsolete layout response failed"));
+    await pending;
+    expect(store.state).toEqual(latest);
+    expect(store.layout).toEqual(latest.layout);
+    expect(store.failed).toBe(false);
+    expect(mocks.report).not.toHaveBeenCalled();
+  });
+
+  it("ignores rejected refreshes after hydration or disposal", async () => {
+    for (const transition of ["hydrate", "dispose"] as const) {
+      const { store, state } = fixture();
+      const old = Promise.withResolvers<unknown>();
+      mocks.readRecordDetailLayoutAction.mockReturnValueOnce(old.promise);
+      const pending = store.refresh();
+      if (transition === "hydrate") store.hydrate({ ...state, schemaRevision: 2 });
+      else store.dispose();
+      old.reject(new Error("Invalidated layout response failed"));
+      await pending;
+      expect(store.failed).toBe(false);
+      expect(mocks.report).not.toHaveBeenCalled();
+    }
+  });
+
+  it("reports a current refresh failure and clears it after recovery", async () => {
+    const { store, state } = fixture();
+    const error = new Error("Current layout read failed");
+    mocks.readRecordDetailLayoutAction.mockRejectedValueOnce(error);
+    await store.refresh();
+    expect(store.failed).toBe(true);
+    expect(store.layout).toEqual(state.layout);
+    expect(mocks.report).toHaveBeenCalledExactlyOnceWith(error);
+    await store.retry();
+    expect(store.failed).toBe(false);
+    expect(store.state).toEqual(state);
+  });
+
   it("blocks an assistant page reload until persistence succeeds and cancels queued writes on disposal", async () => {
     const { store } = fixture();
     const guard = new NavigationGuardController();

@@ -104,11 +104,10 @@ export class RecordDetailLayoutStore {
         }
       });
     } catch (error) {
-      if (!this.disposed) {
-        runInAction(() => {
-          this.failed = true;
-        });
-      }
+      if (this.disposed || generation !== this.generation || request !== this.readRequest) return;
+      runInAction(() => {
+        this.failed = true;
+      });
       reportApplicationError(error);
     }
   };
