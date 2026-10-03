@@ -9,6 +9,8 @@ import {
   wikiMissingOfferingCandidates,
   wikiPlanningCandidates,
   wikiPlanningContext,
+  wikiSourcePlanRepair,
+  wikiSourcePlanRepairContext,
   wikiPageMatchesTopic,
   wikiSynthesisBatchSharesSources,
 } from "@/workflows/wiki-topic-plan";
@@ -306,5 +308,109 @@ describe("retry hypothesis reconciliation", () => {
     expect(text).toContain("\\u003c");
     expect(text).toContain("\\u003e");
     expect(JSON.parse(text)).toEqual(value);
+  });
+});
+
+describe("complete rejected source-plan repair checkpoints", () => {
+  const rejected = {
+    ...failure(CustomErrorCode.wikiSourceExclusionEvidenceInvalid),
+    result: "Repair excluded[0].evidenceQuote and excluded[0].counterpartQuote from exact stored text.",
+    failure: {
+      kind: "validation",
+      issues: ["evidenceQuote", "counterpartQuote"].map((field) => ({
+        code: "custom",
+        path: ["excluded", 0, field],
+        message: "The quotation does not match.",
+        customCode: CustomErrorCode.wikiSourceExclusionEvidenceInvalid,
+      })),
+    },
+  };
+  const draft = {
+    action: "plan",
+    topics: [
+      offering("Retained offering </checkpoint>"),
+      { title: "Company", role: "company_overview", sourceIds: [id(1)] },
+      { title: "Guide", role: "operating_guide", sourceIds: [id(1)] },
+    ],
+    excluded: [
+      {
+        sourceIds: [id(3)],
+        reason: "Overlapping evidence",
+        basis: "overlap",
+        coveredByTitle: "Retained offering </checkpoint>",
+        coveredByRole: "offering",
+        evidenceQuote: "Unverified excluded quotation 🌍",
+        counterpartSourceId: id(1),
+        counterpartQuote: "Unverified retained quotation",
+      },
+    ],
+    omittedFoundations: [{ role: "customers_and_use_cases", reason: "No distinct customer evidence" }],
+    reclassifiedOfferings: [
+      {
+        title: "Earlier candidate",
+        sourceId: id(4),
+        reason: "Not a separate offering",
+        evidenceQuote: "Exact source evidence for this candidate",
+      },
+    ],
+  };
+
+  it("retains every schema-valid field and each available typed index without accepting the plan as evidence", () => {
+    const snapshot = JSON.stringify({ draft, rejected });
+    const repair = wikiSourcePlanRepair(draft, rejected);
+    expect(repair).toEqual({ draft, failure: rejected.failure, repairInstructions: rejected.result });
+    expect(JSON.stringify({ draft, rejected })).toBe(snapshot);
+    if (!repair) throw new Error("Expected a typed source-plan repair checkpoint");
+    const context = wikiSourcePlanRepairContext(JSON.parse(JSON.stringify(repair)));
+    expect(context).toContain("No source plan was accepted");
+    expect(context).toContain("never factual evidence");
+    expect(context).toContain("omittedFoundations");
+    expect(context).toContain("reclassifiedOfferings");
+    expect(context).toContain("counterpartQuote");
+    expect(context).toContain("excluded[0].counterpartQuote");
+    expect(context).not.toContain("</checkpoint>");
+    expect(context).toContain("\\u003c");
+    expect(context).toContain("🌍");
+  });
+
+  it("requires a schema-valid plan and typed validation provenance rather than recognizing error words", () => {
+    for (const outcome of [
+      { ok: true, result: "saved" },
+      { ok: false, result: rejected.result },
+      { ...rejected, failure: { ...rejected.failure, kind: "unavailable" } },
+      { ...rejected, failure: { ...rejected.failure, kind: "authorization" } },
+      {
+        ...rejected,
+        failure: {
+          kind: "validation",
+          issues: [{ code: "custom", path: [], message: "wikiSourceExclusionEvidenceInvalid" }],
+        },
+      },
+      { ...rejected, result: "x".repeat(48_001) },
+    ])
+      expect(wikiSourcePlanRepair(draft, outcome)).toBeNull();
+    for (const input of [
+      { ...draft, action: "get" },
+      { ...draft, topics: undefined },
+      { ...draft, excluded: [{ ...draft.excluded[0], sourceIds: [id(3), id(4)] }] },
+    ])
+      expect(wikiSourcePlanRepair(input, rejected)).toBeNull();
+  });
+
+  it("does not swallow an unexpected failure while reading a trusted Node outcome", () => {
+    const outcome = {
+      ...rejected,
+      get failure() {
+        throw new Error("Unexpected Node outcome corruption");
+      },
+    };
+    expect(() => wikiSourcePlanRepair(draft, outcome)).toThrow("Unexpected Node outcome corruption");
+  });
+
+  it("keeps the existing bounded failure exactly, without inferring lost typed indexes from display text", () => {
+    const bounded = { ...rejected, failure: { ...rejected.failure, issues: [rejected.failure.issues[0]] } };
+    const repair = wikiSourcePlanRepair(draft, bounded);
+    expect(repair?.failure.issues).toEqual(bounded.failure.issues);
+    expect(repair?.repairInstructions).toContain("excluded[0].counterpartQuote");
   });
 });

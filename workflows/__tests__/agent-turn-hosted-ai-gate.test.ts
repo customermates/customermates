@@ -5147,6 +5147,203 @@ describe("routine browse-or-mutate batch safety", () => {
       expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
     });
 
+    it("retains the complete rejected source plan and indexed repair instructions through reads and compaction", async () => {
+      preparePlan();
+      const unusedSourceId = "00000000-0000-4000-8000-000000000002";
+      state.synthesisSources.push({
+        id: unusedSourceId,
+        text: "# Archive\nA verified archival sentence with no distinct offering.",
+        contentHash: "archive",
+        readOffset: 100,
+      });
+      const draft = {
+        action: "plan",
+        topics: [topic, ...foundationTopics],
+        excluded: [
+          {
+            sourceIds: [unusedSourceId],
+            basis: "overlap",
+            reason: "Redundant details",
+            coveredByTitle: topic.title,
+            coveredByRole: "offering",
+            evidenceQuote: "Paraphrased excluded evidence",
+            counterpartSourceId: planSourceId,
+            counterpartQuote: "Paraphrased retained evidence",
+          },
+        ],
+        omittedFoundations: [],
+        reclassifiedOfferings: [
+          {
+            title: "Earlier archival candidate",
+            sourceId: unusedSourceId,
+            reason: "Not a distinct offering",
+            evidenceQuote: "A verified archival sentence with no distinct offering.",
+          },
+        ],
+      };
+      const rejected = {
+        ok: false,
+        result: "Repair excluded[0].evidenceQuote and excluded[0].counterpartQuote from exact stored text.",
+        failure: {
+          kind: "validation",
+          issues: [
+            {
+              code: "custom",
+              path: ["excluded", 0, "evidenceQuote"],
+              message: "",
+              customCode: "wikiSourceExclusionEvidenceInvalid",
+            },
+          ],
+        },
+      };
+      let plans = 0;
+      state.execute.mockImplementation(
+        withSourceReads((input: { action?: string }) => {
+          if (input.action === "plan") {
+            plans += 1;
+            if (plans === 1) return rejected;
+            if (plans === 2) {
+              return {
+                ...rejected,
+                result: "Repair excluded[0].counterpartQuote from exact stored text.",
+                failure: {
+                  ...rejected.failure,
+                  issues: [{ ...rejected.failure.issues[0], path: ["excluded", 0, "counterpartQuote"] }],
+                },
+              };
+            }
+          }
+          return { ok: true, result: "saved" };
+        }),
+      );
+      state.contextFits.mockImplementation(
+        (context: object, messages: unknown, maxBytes: number) =>
+          new TextEncoder().encode(JSON.stringify({ ...context, messages })).byteLength <= maxBytes,
+      );
+      const oversized = "completed:" + "x".repeat(40_000);
+      let runs = 0;
+      state.runTools = async ({ messages, executeAndCompleteTool }) => {
+        if (++runs === 1) {
+          expect(await executeAndCompleteTool("read_website_source", draft, "rejected-complete-plan")).toEqual(
+            rejected,
+          );
+          await readFreshSources(executeAndCompleteTool, [unusedSourceId, planSourceId], "repair-reads");
+          return {
+            finishReason: "stop",
+            messages: [...messages, { role: "assistant", content: oversized }],
+            steps: [streamedStep(oversized, "stop")],
+          };
+        }
+        const text = JSON.stringify(messages);
+        expect(text).not.toContain(oversized);
+        if (runs <= 3) expect(text).toContain("Rejected website source-plan repair checkpoint");
+        expect(text).toContain("company_overview");
+        expect(text).toContain("operating_guide");
+        if (runs <= 3) {
+          expect(text).toContain("omittedFoundations");
+          expect(text).toContain("reclassifiedOfferings");
+          expect(text).toContain("Earlier archival candidate");
+          if (runs === 2) expect(text).toContain("Paraphrased excluded evidence");
+          expect(text).toContain("Paraphrased retained evidence");
+          expect(text).toContain("counterpartSourceId");
+          expect(text).toContain(unusedSourceId);
+          expect(text).toContain("excluded[0].counterpartQuote");
+          expect(text).toContain("wikiSourceExclusionEvidenceInvalid");
+        }
+        const correctedQuote = "A verified archival sentence with no distinct offering.";
+        if (runs === 2) {
+          expect(
+            await executeAndCompleteTool(
+              "read_website_source",
+              { ...draft, excluded: [{ ...draft.excluded[0], evidenceQuote: correctedQuote }] },
+              "partially-repaired-plan",
+            ),
+          ).toMatchObject({ ok: false });
+          await readFreshSources(executeAndCompleteTool, [planSourceId], "counterpart-repair-read");
+          return {
+            finishReason: "stop",
+            messages: [...messages, { role: "assistant", content: oversized }],
+            steps: [streamedStep(oversized, "stop")],
+          };
+        }
+        if (runs === 3) {
+          expect(text).toContain(correctedQuote);
+          expect(text).not.toContain("Paraphrased excluded evidence");
+          expect(
+            await executeAndCompleteTool(
+              "read_website_source",
+              {
+                ...draft,
+                excluded: [
+                  {
+                    sourceIds: [unusedSourceId],
+                    basis: "not_substantive",
+                    reason: "Archive without a distinct offering",
+                    evidenceQuote: correctedQuote,
+                  },
+                ],
+              },
+              "accepted-repair",
+            ),
+          ).toMatchObject({ ok: true });
+          return {
+            finishReason: "tool-calls",
+            messages: [...messages, { role: "assistant", content: oversized }],
+            steps: [streamedStep(oversized, "tool-calls")],
+          };
+        }
+        expect(text).not.toContain("Rejected website source-plan repair checkpoint");
+        expect(text).not.toContain("Paraphrased retained evidence");
+        expect(text).toContain("Server topic-plan progress");
+        await createWithFreshSources(
+          executeAndCompleteTool,
+          { action: "create", pages: [{ ...topic, kind: "knowledge" }] },
+          "repaired-offering",
+        );
+        await createFoundations(executeAndCompleteTool);
+        return finish();
+      };
+      await runAgentTurn({ ...setupPayload, turnBudget: { ...payload.turnBudget, maxContextBytes: 32_000 } });
+      expect(runs).toBe(4);
+      expect(plans).toBe(3);
+      expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
+    });
+
+    it("does not silently drop a required repair checkpoint when compaction cannot admit it", async () => {
+      preparePlan();
+      state.contextFits.mockImplementation(
+        (context: object, messages: unknown, maxBytes: number) =>
+          new TextEncoder().encode(JSON.stringify({ ...context, messages })).byteLength <= maxBytes,
+      );
+      state.execute.mockResolvedValue({
+        ok: false,
+        result: "Exact indexed repair details: " + "r".repeat(35_000),
+        failure: {
+          kind: "validation",
+          issues: [{ code: "custom", path: ["topics"], message: "", customCode: "wikiSourcePlanIncomplete" }],
+        },
+      });
+      const oversized = "completed:" + "x".repeat(40_000);
+      state.runTools = async ({ messages, executeAndCompleteTool }) => {
+        await executeAndCompleteTool(
+          "read_website_source",
+          { ...foundationPlan, topics: [topic, ...foundationTopics] },
+          "large-repair",
+        );
+        return {
+          finishReason: "stop",
+          messages: [...messages, { role: "assistant", content: oversized }],
+          steps: [streamedStep(oversized, "stop")],
+        };
+      };
+      await runAgentTurn({ ...setupPayload, turnBudget: { ...payload.turnBudget, maxContextBytes: 32_000 } });
+      expect(state.providerCalls).toBe(1);
+      expect(state.finalize).toHaveBeenCalledWith(
+        expect.objectContaining({ terminalCode: "partial", stopReason: "turn_error" }),
+      );
+      expect(state.semanticReview).not.toHaveBeenCalled();
+    });
+
     it.each(["wikiSourceCoverageRequired", "wikiSourcePlanIncomplete"])(
       "retains recognized offerings when repairing a %s plan through compaction",
       async (customCode) => {

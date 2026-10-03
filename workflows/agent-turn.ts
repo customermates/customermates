@@ -15,6 +15,9 @@ import {
   wikiMissingOfferingCandidates,
   wikiMergeOfferingCandidates,
   wikiPlanningContext,
+  wikiSourcePlanRepair,
+  wikiSourcePlanRepairContext,
+  type WikiSourcePlanRepair,
   wikiPageMatchesTopic,
   wikiSynthesisBatchSharesSources,
 } from "./wiki-topic-plan";
@@ -1296,6 +1299,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     const wikiReviewChargeIndices = new Map<string, number>();
     const wikiReviewRejections = new Map<string, number>();
     let wikiContinuationPrompt: string | null = null;
+    let wikiPlanRepair: WikiSourcePlanRepair | null = null;
     let providerFailure: WorkflowFailure | null = null;
     let budgetStop = false;
     let hostedAiStop = false;
@@ -1691,6 +1695,10 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       auxiliaryCharges.push(...executed.classifierCharges);
       retrievalTimings.push(...(executed.retrievalTimings ?? []));
       const outcome = executed.output;
+      if (wikiSourceInventory && shell.name === "read_website_source") {
+        const repair = wikiSourcePlanRepair(executionInput, outcome);
+        if (repair) wikiPlanRepair = repair;
+      }
       if (wikiSourceInventory) {
         const mergedCandidates = wikiMergeOfferingCandidates(
           wikiTopicPlanState.candidates,
@@ -1720,6 +1728,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         if (shell.name === "read_website_source" && wikiTopicPlanState.topics === null) {
           const plan = executionInput as ReadWebsiteSourceInput;
           if (plan.action === "plan" && plan.topics) {
+            wikiPlanRepair = null;
             wikiTopicPlanState.topics = plan.topics;
             wikiTopicPlanState.candidates = [];
             wikiTopicPlanState.omittedFoundations = plan.omittedFoundations ?? [];
@@ -2060,6 +2069,8 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
             ]
           : [...compacted.messages];
         if (wikiContinuationPrompt) candidateMessages.push({ role: "user" as const, content: wikiContinuationPrompt });
+        if (wikiPlanRepair)
+          candidateMessages.push({ role: "user" as const, content: wikiSourcePlanRepairContext(wikiPlanRepair) });
         const activeForCandidate = activeToolNamesFor(candidateMessages);
         if (
           !isAgentStepContextWithinBudget(
@@ -2349,6 +2360,9 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                 role: "user" as const,
                 content: wikiContinuationPrompt,
               },
+              ...(wikiPlanRepair
+                ? [{ role: "user" as const, content: wikiSourcePlanRepairContext(wikiPlanRepair) }]
+                : []),
             ];
             continue;
           }
@@ -2371,6 +2385,9 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
               role: "user" as const,
               content: wikiContinuationPrompt,
             },
+            ...(wikiPlanRepair
+              ? [{ role: "user" as const, content: wikiSourcePlanRepairContext(wikiPlanRepair) }]
+              : []),
           ];
           continue;
         }

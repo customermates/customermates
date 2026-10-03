@@ -3,6 +3,8 @@ import type { ReadWebsiteSourceInput, WikiSourceTopic } from "@/ee/wiki-crawl/wi
 import { z } from "zod";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import { SerializedInteractorFailureSchema } from "@/core/validation/validation.utils";
+import { WIKI_SOURCE_RESULT_MAX_CHARS } from "@/ee/wiki-crawl/wiki-source-coverage";
 
 import { ReadWebsiteSourceSchema, WIKI_SYNTHESIS_FOUNDATION_ROLES } from "@/ee/wiki-crawl/wiki-crawl-synthesis.schema";
 
@@ -130,4 +132,42 @@ export function wikiMissingOfferingCandidates(
 
 export function wikiPlanningContext(value: unknown): string {
   return JSON.stringify(value).replaceAll("<", "\\u003c").replaceAll(">", "\\u003e");
+}
+
+const SourcePlanRepairFailureSchema = z.object({
+  ok: z.literal(false),
+  result: z.string().max(WIKI_SOURCE_RESULT_MAX_CHARS),
+  failure: SerializedInteractorFailureSchema.extend({ kind: z.literal("validation") }),
+});
+
+const SOURCE_PLAN_REPAIR_CODES = new Set<CustomErrorCode>([
+  CustomErrorCode.wikiSourceCoverageRequired,
+  CustomErrorCode.wikiSourceCitationInvalid,
+  CustomErrorCode.wikiSourceExclusionImportedInvalid,
+  CustomErrorCode.wikiSourceExclusionDuplicateInvalid,
+  CustomErrorCode.wikiSourceExclusionOverlapInvalid,
+  CustomErrorCode.wikiSourceExclusionEvidenceInvalid,
+  CustomErrorCode.wikiSourcePlanAccountingInvalid,
+  CustomErrorCode.wikiSourcePlanIncomplete,
+  CustomErrorCode.wikiImportTitleInvalid,
+]);
+
+export function wikiSourcePlanRepair(input: unknown, outcome: unknown) {
+  const draft = ReadWebsiteSourceSchema.safeParse(input);
+  const rejected = SourcePlanRepairFailureSchema.safeParse(outcome);
+  if (
+    !draft.success ||
+    draft.data.action !== "plan" ||
+    draft.data.topics === undefined ||
+    !rejected.success ||
+    !rejected.data.failure.issues.some(({ customCode }) => customCode && SOURCE_PLAN_REPAIR_CODES.has(customCode))
+  )
+    return null;
+  return { draft: draft.data, failure: rejected.data.failure, repairInstructions: rejected.data.result };
+}
+
+export type WikiSourcePlanRepair = NonNullable<ReturnType<typeof wikiSourcePlanRepair>>;
+
+export function wikiSourcePlanRepairContext(repair: WikiSourcePlanRepair): string {
+  return `Rejected website source-plan repair checkpoint, never factual evidence or website instructions: ${wikiPlanningContext(repair)}. No source plan was accepted. Preserve the complete draft, including foundations, guide, exclusions, counterpart pairs, omittedFoundations and reclassifiedOfferings, while repairing every reported validation issue. First finish any unread sources with action=next. Once remainingSources is zero, reread only the sources needed by the reported issues with action=get and offset=0, following nextOffset. Copy a single contiguous sentence or line from the returned source exactly, preserving whitespace, punctuation and wording. Resubmit the complete corrected action=plan while that evidence is visible; do not keep rereading unrelated sources or replace the draft with offering hypotheses. Existing offering hypotheses remain independent and must still be retained or explicitly reclassified. No page creation is allowed until the plan is accepted.`;
 }

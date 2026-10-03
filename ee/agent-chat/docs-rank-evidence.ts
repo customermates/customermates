@@ -10,6 +10,7 @@ const TABLE_DIVIDER = /^\s*\|?[-:|\s]+\|\s*$/u;
 type EvidenceUnit = {
   text: string;
   context?: string;
+  scope?: string;
   block?: number;
   prose?: boolean;
 };
@@ -33,9 +34,12 @@ function plainLine(line: string): string {
 }
 
 function evidenceLines(markdown: string): EvidenceUnit[] {
+  let scope: string | undefined;
   return markdown.split("\n").flatMap<EvidenceUnit>((line, block) => {
+    if (/^\s{0,3}(?:#{1,6}\s|`{3,}|~{3,})|^\s*>\s|^\*\*Link:\*\*/u.test(line)) scope = undefined;
     if (/^\*\*Link:\*\*|^ {0,3}(?:`{3,}|~{3,})|^\s*$/u.test(line) || TABLE_DIVIDER.test(line)) return [];
     if (line.trimStart().startsWith("|")) {
+      scope = undefined;
       const [context, ...cells] = line
         .trim()
         .replace(/^\||\|$/gu, "")
@@ -44,8 +48,11 @@ function evidenceLines(markdown: string): EvidenceUnit[] {
       return [{ text: cells.join("; "), context }];
     }
     const text = plainLine(line);
+    const list = /^\s*(?:[-*+]|\d+[.)])\s/u.test(line);
     const prose = !/^\s*(?:#{1,6}\s|>\s|(?:[-*+]|\d+[.)])\s)/u.test(line);
-    return text ? [{ text, block, prose }] : [];
+    const ownScope = list ? scope : undefined;
+    if (!list) scope = prose && /[:：]$/u.test(text) ? text : undefined;
+    return text ? [{ text, block, prose, ...(ownScope ? { scope: ownScope } : {}) }] : [];
   });
 }
 
@@ -166,7 +173,9 @@ export function docsRankEvidence(
     active.some(Boolean) && allBodyMatches.some((hits) => hits.some((hit, index) => hit && active[index]));
   if (active.some(Boolean) && !hasResidualBodyMatch)
     active = active.map((hit, index) => hit || (labelMatches[index] && allBodyMatches.some((hits) => hits[index])));
-  const bodies = units.map(({ text, context: unitContext }) => [unitContext, text].filter(Boolean).join(" "));
+  const bodies = units.map(({ text, context: unitContext, scope }) =>
+    [unitContext, scope, text].filter(Boolean).join(" "),
+  );
   const bodyMatches = allBodyMatches.map((hits) => hits.map((hit, index) => hit && active[index]));
   const matches = bodyMatches.map((hits, index) =>
     hits.some(Boolean) ? hits : matcher.matches(bodies[index]).map((hit, term) => hit && active[term]),
@@ -299,9 +308,17 @@ export function docsRankEvidence(
     const room = maxChars - render().length - (picked.size > 0 || introduction.length > 0 ? 1 : 0);
     if (room < 1 || (picked.size > 0 && room < 16)) break;
     const unit = units[index];
-    const context = unit.context
-      ? fragment(unit.context, Math.min(48, Math.floor(room / 3)), matcher, active, weights, phrase)
-      : "";
+    let ownScope = unit.scope && !render().includes(unit.scope) ? unit.scope : "";
+    const coveredScope = [introduction, ...picked.values()]
+      .filter(Boolean)
+      .find((text) => ownScope.startsWith(`${text} `));
+    if (coveredScope) ownScope = ownScope.slice(coveredScope.length).trim();
+    const scope = ownScope && ownScope.length + 2 + unit.text.length <= room ? ownScope.replace(/[:：]$/u, "") : "";
+    const context =
+      scope ||
+      (unit.context
+        ? fragment(unit.context, Math.min(48, Math.floor(room / 3)), matcher, active, weights, phrase)
+        : "");
     const text = fragment(unit.text, room - context.length - (context ? 2 : 0), matcher, active, weights, phrase);
     let body = [context, text].filter(Boolean).join(": ");
     if (!body) continue;
