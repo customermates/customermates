@@ -3338,6 +3338,7 @@
     "relationshipPath": "A través de registros vinculados",
     "relationshipPathHelp": "Muestra registros a través de relaciones existentes. Edita los vínculos originales para cambiar estos registros.",
     "relationships": "Relaciones",
+    "reloadLists": "Recargar listas",
     "removeGroupSummary": "Eliminar resumen",
     "removeInput": "Eliminar entrada",
     "removeOption": "Eliminar opción",

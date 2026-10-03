@@ -25,6 +25,7 @@ import {
   Repeat,
   ShieldCheck,
   UserCircle,
+  RotateCcw,
 } from "lucide-react";
 import { Resource, Theme as ThemeEnum } from "@/generated/prisma";
 
@@ -326,6 +327,16 @@ const FullAppSidebar = observer(
     ]);
 
     const secondaryItems: NavSecondaryItem[] = [
+      ...(recordWorkspaceStore.navigationRefreshFailed && !restricted
+        ? [
+            {
+              key: "record-navigation-retry",
+              title: t("RecordModel.reloadLists"),
+              icon: RotateCcw,
+              onSelect: () => runUserAction(recordWorkspaceStore.refreshNavigation),
+            },
+          ]
+        : []),
       {
         key: "documentation",
         title: t("UserAvatar.documentation"),

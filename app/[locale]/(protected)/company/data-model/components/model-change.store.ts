@@ -237,13 +237,20 @@ export abstract class ModelChangeStore<Form extends object> extends BaseModalSto
     this.onInitOrRefresh(toJS(this.form));
     this.close();
     const completedSession = this.sessionGeneration;
-    await this.rootStore.recordWorkspaceStore.refreshNavigation();
+    await this.refreshNavigation();
     if (preview) await this.completed(preview, () => completedSession === this.sessionGeneration && !this.isOpen);
   };
   operationStopped = () => {
     this.setPendingOperation(null);
     this.idempotencyKey = null;
     this.setPreview(null);
+  };
+  private refreshNavigation = async () => {
+    try {
+      await this.rootStore.recordWorkspaceStore.refreshNavigation();
+    } catch (error) {
+      reportApplicationError(error);
+    }
   };
   protected afterChange() {
     this.setPreview(null);
@@ -310,7 +317,7 @@ export abstract class ModelChangeStore<Form extends object> extends BaseModalSto
         this.close();
         completedSession = this.sessionGeneration;
       }
-      await this.rootStore.recordWorkspaceStore.refreshNavigation();
+      await this.refreshNavigation();
       await this.completed(
         preview,
         () => completedSession !== null && completedSession === this.sessionGeneration && !this.isOpen,

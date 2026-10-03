@@ -3338,6 +3338,7 @@
     "relationshipPath": "Über verknüpfte Datensätze",
     "relationshipPathHelp": "Zeige Datensätze über bestehende Beziehungen an. Bearbeite die zugrunde liegenden Verknüpfungen, um diese Datensätze zu ändern.",
     "relationships": "Beziehungen",
+    "reloadLists": "Listen neu laden",
     "removeGroupSummary": "Übersicht entfernen",
     "removeInput": "Eingabe entfernen",
     "removeOption": "Option entfernen",

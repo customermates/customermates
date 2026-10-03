@@ -37,7 +37,7 @@ async function mutation(page: Page, current: RecordModel, change: RecordMutation
 }
 
 async function applyPath(page: Page) {
-  const dialog = page.getByRole("dialog");
+  const dialog = page.locator('[data-overlay-surface="dialog"][role="dialog"]');
   await dialog.getByRole("button", { name: labels.preview, exact: true }).click();
   await expect(dialog.getByRole("status").filter({ hasText: "Ready to apply" })).toBeVisible();
   await dialog.getByRole("button", { name: labels.apply, exact: true }).click();
@@ -45,7 +45,7 @@ async function applyPath(page: Page) {
 }
 
 async function chooseMultiple(page: Page, selector: string, value: string) {
-  await page.getByRole("dialog").locator(selector).click();
+  await page.locator('[data-overlay-surface="dialog"][role="dialog"]').locator(selector).click();
   const popover = page.locator('[data-slot="popover-content"][data-state="open"]');
   await popover.getByRole("combobox").fill(value);
   await popover.getByRole("option", { name: value, exact: true }).click();
@@ -54,7 +54,7 @@ async function chooseMultiple(page: Page, selector: string, value: string) {
 }
 
 async function addFilter(page: Page, kind: "provider" | "account" | "thread", index: number, value: string) {
-  await page.getByRole("dialog").locator("#activity-add-filter").click();
+  await page.locator('[data-overlay-surface="dialog"][role="dialog"]').locator("#activity-add-filter").click();
   await page
     .getByRole("option", { name: englishMessages.RecordActivityWidgets.filterKinds[kind], exact: true })
     .click();
@@ -62,14 +62,14 @@ async function addFilter(page: Page, kind: "provider" | "account" | "thread", in
 }
 
 async function previewMessages(page: Page, present: string[], absent: string[] = []) {
-  const dialog = page.getByRole("dialog");
+  const dialog = page.locator('[data-overlay-surface="dialog"][role="dialog"]');
   await dialog.getByRole("button", { name: englishMessages.Dashboard.widgetEditor.preview.title, exact: true }).click();
   for (const body of present) await expect(dialog.getByText(body, { exact: true })).toBeVisible();
   for (const body of absent) await expect(dialog.getByText(body, { exact: true })).toHaveCount(0);
 }
 
 async function todayBound(page: Page, key: "after" | "before", time: string) {
-  await page.getByRole("dialog").locator(`[id="activityQuery.${key}"]`).click();
+  await page.locator('[data-overlay-surface="dialog"][role="dialog"]').locator(`[id="activityQuery.${key}"]`).click();
   const calendar = page.locator('[data-slot="popover-content"][data-state="open"]');
   await calendar.getByRole("button", { name: englishMessages.Common.datePresets.today, exact: true }).click();
   await calendar.locator(`[id="activityQuery.${key}-time"]`).fill(time);
@@ -100,7 +100,7 @@ test("configures an activity path and applies provider, channel, conversation an
   const contactTypeId = presetId(companyId, "contact");
   await page.goto(`/en/company/data-model?typeId=${organizationTypeId}`);
   const connections = page.getByRole("region", { name: labels.activityConnections, exact: true });
-  const dialog = page.getByRole("dialog");
+  const dialog = page.locator('[data-overlay-surface="dialog"][role="dialog"]');
   const seedModel = await model(database, companyId);
   const seededPath = seedModel.activityPaths.find(
     (path) => path.typeId === organizationTypeId && path.label === "Contacts",

@@ -206,6 +206,29 @@ describe("record editor persistence", () => {
       mocks.mutateRecordAction.mock.calls[0][0].idempotencyKey,
     );
   });
+  it("retains a nested-write refresh barrier and notifies the collection once after Retry", async () => {
+    const saved = vi.fn().mockResolvedValue(undefined);
+    const store = new RecordEditorStore(root, context("deal"), saved);
+    store.edit(context("deal"), record());
+    mocks.getRecordEditorAction.mockRejectedValueOnce(new Error("Parent read unavailable"));
+    await expect(store.reloadAfterNestedChange()).rejects.toThrow("Parent read unavailable");
+    expect(store.isReadOnly).toBe(true);
+    expect(store.refreshRequired).toBe(true);
+    expect(store.record?.version).toBe(1);
+    await store.onSubmit();
+    expect(mocks.mutateRecordAction).not.toHaveBeenCalled();
+    expect(saved).not.toHaveBeenCalled();
+    mocks.getRecordEditorAction.mockResolvedValue({ ok: true, data: { ...context("deal"), record: record(2) } });
+    await store.refreshRecord();
+    expect(store.record?.version).toBe(2);
+    expect(store.isReadOnly).toBe(false);
+    expect(store.refreshRequired).toBe(false);
+    expect(store.relatedRevision).toBe(1);
+    expect(saved).toHaveBeenCalledOnce();
+    await store.refreshRecord();
+    expect(saved).toHaveBeenCalledOnce();
+    expect(mocks.mutateRecordAction).not.toHaveBeenCalled();
+  });
 });
 
 describe("record editor refresh ordering", () => {

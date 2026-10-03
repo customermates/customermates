@@ -337,6 +337,71 @@ test("admits an assigned-record writer and separately delegates schema configura
       path: testInfo.outputPath("delegated-schema-without-record-access.png"),
       animations: "disabled",
     });
+    model = await readModel(page);
+    const presetId = randomUUID();
+    expect(
+      await post(page, "/api/v2/model/apply", {
+        expectedRevision: model.revision,
+        idempotencyKey: randomUUID(),
+        operations: [
+          {
+            operation: "putAccessPreset",
+            preset: {
+              id: presetId,
+              label: "Approved assigned writers",
+              archived: false,
+              grants: [{ roleId: saved.role.id, actions: ["create", "readOwn", "update"] }],
+            },
+          },
+        ],
+      }),
+    ).toMatchObject({ status: "completed" });
+    await member.page.goto("/en/company/data-model");
+    await member.page.getByRole("button", { name: englishMessages.RecordModel.createList, exact: true }).click();
+    await creation
+      .getByRole("textbox", { name: englishMessages.RecordModel.name, exact: false })
+      .first()
+      .fill("Approved delegated records");
+    await creation.getByRole("combobox", { name: englishMessages.RecordModel.access, exact: true }).click();
+    await member.page.getByRole("option", { name: "Approved assigned writers", exact: true }).click();
+    await creation.getByRole("button", { name: englishMessages.RecordModel.createList, exact: true }).click();
+    await expect(creation).not.toBeVisible();
+    const approved = (await readModel(page)).types.find(
+      (candidate) => candidate.pluralLabel === "Approved delegated records",
+    );
+    if (!approved) throw new Error("Expected the delegated type with approved grants");
+    await expect(member.page).toHaveURL(new RegExp(`/en/records/${approved.id}$`));
+    expect(
+      (
+        await database.query(
+          'SELECT actions::text[] AS actions FROM "RecordTypeGrant" WHERE "companyId"=$1 AND "typeId"=$2 AND "roleId"=$3',
+          [companyId, approved.id, saved.role.id],
+        )
+      ).rows,
+    ).toEqual([{ actions: ["create", "readOwn", "update"] }]);
+    await member.page.locator("#records-add").click();
+    const approvedDrawer = member.page.getByRole("dialog", { name: approved.label, exact: true });
+    await approvedDrawer.getByRole("textbox", { name: approved.label, exact: false }).fill("Own approved record");
+    await approvedDrawer.getByRole("button", { name: "Save", exact: true }).click();
+    await expect(approvedDrawer).not.toBeVisible();
+    await expect(member.page.getByRole("button", { name: "Own approved record", exact: true })).toBeVisible();
+    const foreign = await mutate(page, {
+      action: "create",
+      typeId: approved.id,
+      fields: [{ fieldId: approved.primaryFieldId, value: { kind: "text", value: "Unassigned approved record" } }],
+      assignedUserIds: [],
+    });
+    expect((await member.page.request.post("/api/v2/records/read", { data: foreign })).status()).toBe(404);
+    const readable = await post(member.page, "/api/v2/records/query", { typeId: approved.id });
+    expect(readable).toMatchObject({ total: 1 });
+    expect(
+      (
+        await database.query(
+          'SELECT assignment."userId",value."textValue" FROM "RecordAssignment" assignment JOIN "RecordValue" value ON value."companyId"=assignment."companyId" AND value."typeId"=assignment."typeId" AND value."recordId"=assignment."recordId" WHERE assignment."companyId"=$1 AND assignment."typeId"=$2 AND value."fieldId"=$3',
+          [companyId, approved.id, approved.primaryFieldId],
+        )
+      ).rows,
+    ).toEqual([{ userId: member.userId, textValue: "Own approved record" }]);
     expect(member.errors).toEqual([]);
   } finally {
     await member.close();
@@ -863,7 +928,11 @@ async function relationshipCreateUi(
 }
 
 async function relationshipEditUi(page: Page, typeId: string, label: string, restore = false) {
-  await page.goto(`/en/company/data-model?typeId=${typeId}`);
+  await page.locator("#records-configure").click();
+  await expect(page).toHaveURL(`/en/company/data-model?typeId=${typeId}`);
+  await expect(
+    page.getByRole("region", { name: englishMessages.RecordModel.relationships, exact: true }),
+  ).toBeVisible();
   if (restore) await page.getByRole("button", { name: englishMessages.RecordModel.showArchived, exact: true }).click();
   const row = page
     .getByRole("region", { name: englishMessages.RecordModel.relationships, exact: true })
@@ -911,6 +980,22 @@ async function relationshipSaveUi(page: Page, typeLabel: string) {
   const editor = page.getByRole("dialog", { name: typeLabel, exact: true });
   await editor.getByRole("button", { name: englishMessages.Common.actions.save, exact: true }).click();
   await expect(editor).not.toBeVisible();
+}
+
+async function relationshipCloseRecordUi(page: Page, typeLabel: string) {
+  while (await page.getByRole("dialog", { name: typeLabel, exact: true }).count()) {
+    const editor = page.getByRole("dialog", { name: typeLabel, exact: true }).last();
+    await expect(editor.locator('[aria-busy="true"]')).toHaveCount(0);
+    const id = await editor.getAttribute("id");
+    if (!id) throw new Error("Expected the owned record drawer's DOM identity");
+    await page.keyboard.press("Escape");
+    const discard = page.getByRole("alertdialog", { name: englishMessages.Common.navigationGuard.title, exact: true });
+    if (await discard.isVisible()) {
+      await discard.getByRole("button", { name: englishMessages.Common.actions.discard, exact: true }).click();
+      await expect(discard).toHaveCount(0);
+    }
+    await expect(page.locator(`[id="${id}"]`)).toHaveCount(0);
+  }
 }
 
 function relationshipOpenName(title: string) {
@@ -1025,7 +1110,7 @@ test("configures self-type singular and many relationships, edits from both ends
       )
     ).rows,
   ).toEqual([{ textValue: "Alpha node" }]);
-  await page.keyboard.press("Escape");
+  await relationshipCloseRecordUi(page, type.label);
 
   const edit = await relationshipEditUi(page, type.id, related.sourceLabel);
   await edit.locator("#archived").check();
@@ -1036,7 +1121,7 @@ test("configures self-type singular and many relationships, edits from both ends
   );
   await relationshipOpenRecordUi(page, type.id, type.label, "Alpha node");
   await expect(relationshipFieldUi(page, type.label, related.id, "outgoing")).toHaveCount(0);
-  await page.keyboard.press("Escape");
+  await relationshipCloseRecordUi(page, type.label);
   const restore = await relationshipEditUi(page, type.id, related.sourceLabel, true);
   await expect(restore.locator("#archived")).not.toBeChecked();
   await relationshipApplyUi(page);
@@ -1046,7 +1131,7 @@ test("configures self-type singular and many relationships, edits from both ends
   await expect(restored.getByRole("button", { name: relationshipOpenName("Beta node"), exact: true })).toBeVisible();
   await expect(restored.getByRole("button", { name: relationshipOpenName("Gamma node"), exact: true })).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("restored-self-relationships.png"), animations: "disabled" });
-  await page.keyboard.press("Escape");
+  await relationshipCloseRecordUi(page, type.label);
 
   let gammaEditor = await relationshipOpenRecordUi(page, type.id, type.label, "Gamma node");
   await gammaEditor.getByRole("button", { name: englishMessages.Common.actions.delete, exact: true }).click();
@@ -1061,7 +1146,7 @@ test("configures self-type singular and many relationships, edits from both ends
       ])
     ).rows,
   ).toEqual([{ id: gamma.recordId }]);
-  await page.keyboard.press("Escape");
+  await relationshipCloseRecordUi(page, type.label);
   await relationshipEditUi(page, type.id, parent.sourceLabel);
   await relationshipOptionUi(page, "onTargetDelete", englishMessages.RecordModel.deletion.unlink);
   await relationshipApplyUi(page);
@@ -1595,6 +1680,26 @@ test("keeps personal views separate from shared defaults and completes their UI 
       ])
     ).rows,
   ).toEqual([]);
+  await page.goto(`/en/company/data-model?typeId=${type.id}`);
+  await page.getByRole("button", { name: englishMessages.RecordModel.sharedDefaults, exact: true }).click();
+  await expect(shared.locator("#type-summary-field-0")).toContainText("Budget");
+  await shared.getByRole("button", { name: englishMessages.RecordModel.removeGroupSummary, exact: true }).click();
+  await expect(shared.locator("#type-summary-field-0")).toHaveCount(0);
+  await shared.getByRole("button", { name: englishMessages.RecordModel.preview, exact: true }).click();
+  await expect(shared.getByRole("status")).toContainText(
+    englishMessages.RecordModel.previewReady.split("{count}")[0]?.trim() ?? "Ready to apply",
+  );
+  await shared.getByRole("button", { name: englishMessages.RecordModel.apply, exact: true }).click();
+  await expect(shared).not.toBeVisible();
+  expect((await readModel(page)).types.find((candidate) => candidate.id === type.id)?.defaults.groupSummaries).toEqual(
+    [],
+  );
+  await page.reload();
+  await page.getByRole("button", { name: englishMessages.RecordModel.sharedDefaults, exact: true }).click();
+  await expect(shared.locator("#type-summary-field-0")).toHaveCount(0);
+  await page.keyboard.press("Escape");
+  await expect(shared).not.toBeVisible();
+  expect(await viewRows(workspace.userId)).toEqual([]);
   expect(errors).toEqual([]);
 });
 

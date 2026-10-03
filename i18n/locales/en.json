@@ -3338,6 +3338,7 @@
     "relationshipPath": "Through linked records",
     "relationshipPathHelp": "Show records reached through existing relationships. Edit the underlying links to change these records.",
     "relationships": "Relationships",
+    "reloadLists": "Reload lists",
     "removeGroupSummary": "Remove summary",
     "removeInput": "Remove input",
     "removeOption": "Remove option",

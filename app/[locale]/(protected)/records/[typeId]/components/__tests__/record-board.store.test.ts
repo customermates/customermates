@@ -215,7 +215,7 @@ describe("generic selection persistence", () => {
     mocks.mutateRecordAction.mockResolvedValue({ ok: true, data: { status: "completed", refs: [item.ref] } });
     mocks.getRecordPresentationAction.mockRejectedValue(new Error("Refresh unavailable"));
     mocks.invalidate.mockImplementation(() => Promise.allSettled([state.refresh()]));
-    await expect(state.bulkUpdateField(id("deal.stage"), null)).rejects.toThrow("Refresh unavailable");
+    await expect(state.bulkUpdateField(id("deal.stage"), null)).resolves.toBe(true);
     expect(state.isBulkMutating).toBe(true);
     expect(state.canRetryBulkRefresh).toBe(true);
     expect(state.isItemSelectable(item)).toBe(false);

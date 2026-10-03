@@ -11,6 +11,7 @@ import type { RecordScalar } from "@/features/records/record-model.schema";
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
 import { recordSurfaceKey } from "@/core/data-view/data-view-keys";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { reportApplicationError } from "@/core/errors/report-application-error";
 import { recordColumns } from "@/features/records/record-columns";
 import { recordColumnPresentation } from "@/features/records/record-presentation";
 import { getRecordPresentationAction, mutateRecordAction, resetRecordViewAction } from "../../actions";
@@ -135,7 +136,13 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
         return false;
       }
       if (result.data.status === "pending") this.setBulkState(false, result.data.operationId);
-      else await this.bulkCompleted();
+      else {
+        try {
+          await this.bulkCompleted();
+        } catch (error) {
+          reportApplicationError(error);
+        }
+      }
       return true;
     } finally {
       this.setBulkState(false);

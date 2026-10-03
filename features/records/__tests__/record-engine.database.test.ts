@@ -10820,6 +10820,98 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(projection).toEqual({ rangeStart: null, rangeEnd: null });
   });
 
+  it("masks distinct restricted totals before sorting and pagination, then orders by readable totals after a fresh grant", async () => {
+    const f = await fixture();
+    const fieldId = f.id("deal.totalValue");
+    expect(f.model.fields.find((field) => field.id === fieldId)?.publishedSummary).toBe(false);
+    const lowService = await f.create("service", "Private low price", [["service.amount", decimal("100")]]);
+    const highService = await f.create("service", "Private high price", [["service.amount", decimal("900")]]);
+    const lowDeal = await f.create("deal", "Visible low total");
+    const highDeal = await f.create("deal", "Visible high total");
+    for (const [deal, service] of [
+      [lowDeal, lowService],
+      [highDeal, highService],
+    ]) {
+      await f.create(
+        "lineItem",
+        "Price contribution",
+        [["lineItem.quantity", decimal("1", null)]],
+        [
+          { relationId: f.id("lineItem.deal"), direction: "outgoing", record: deal },
+          { relationId: f.id("lineItem.service"), direction: "outgoing", record: service },
+        ],
+      );
+    }
+    expect(await f.value(lowDeal, "deal.totalValue")).toEqual({ state: "value", value: decimal("100") });
+    expect(await f.value(highDeal, "deal.totalValue")).toEqual({ state: "value", value: decimal("900") });
+    await f.run(() =>
+      runInTransaction(async () => {
+        await f.repo.setGrants(lowDeal.typeId, [{ roleId: f.memberRole.id, actions: ["readAll"] }]);
+        await prisma.crmRecord.updateMany({
+          where: { companyId: f.company.id, typeId: lowDeal.typeId, id: { in: [lowDeal.recordId, highDeal.recordId] } },
+          data: { createdAt: new Date("2026-09-28T10:00:00.000Z") },
+        });
+      }),
+    );
+    const ordered = async (direction: "asc" | "desc", page = 1, pageSize = 25) => {
+      const result = await f.run(
+        () =>
+          f.query.invoke(
+            RecordQuerySchema.parse({
+              typeId: lowDeal.typeId,
+              fields: [fieldId],
+              sort: [{ fieldId, direction }],
+              page,
+              pageSize,
+            }),
+          ),
+        f.member,
+      );
+      expect(result).toMatchObject({ ok: true, data: { total: 2 } });
+      if (!result.ok) throw result.error;
+      return result.data.records;
+    };
+    const fallback = [lowDeal.recordId, highDeal.recordId].sort();
+    for (const direction of ["asc", "desc"] as const) {
+      const rows = await ordered(direction);
+      expect(rows.map((record) => record.ref.recordId)).toEqual(fallback);
+      for (const row of rows) expect(row.fields).toEqual([{ fieldId, result: { state: "restricted" } }]);
+      const first = await ordered(direction, 1, 1);
+      const second = await ordered(direction, 2, 1);
+      expect([...first, ...second].map((record) => record.ref.recordId)).toEqual(fallback);
+      expect(await ordered(direction, 3, 1)).toEqual([]);
+    }
+    const filters = [
+      { fieldId, operator: "eq", value: decimal("100") },
+      { fieldId, operator: "eq", value: decimal("900") },
+      { fieldId, operator: "ne", value: decimal("100") },
+      { fieldId, operator: "notIn", value: null, values: [decimal("100")] },
+      { fieldId, operator: "empty", value: null },
+      { fieldId, operator: "notEmpty", value: null },
+    ];
+    for (const filter of filters) {
+      expect(
+        await f.run(
+          () => f.query.invoke(RecordQuerySchema.parse({ typeId: lowDeal.typeId, filters: [filter] })),
+          f.member,
+        ),
+      ).toMatchObject({ ok: true, data: { total: 0, records: [] } });
+    }
+    await f.run(() =>
+      runInTransaction(() => f.repo.setGrants(lowService.typeId, [{ roleId: f.memberRole.id, actions: ["readAll"] }])),
+    );
+    const ascending = await ordered("asc");
+    const descending = await ordered("desc");
+    expect(ascending.map((record) => record.ref)).toEqual([lowDeal, highDeal]);
+    expect(descending.map((record) => record.ref)).toEqual([highDeal, lowDeal]);
+    expect(ascending.map((record) => record.fields)).toEqual([
+      [{ fieldId, result: { state: "value", value: decimal("100") } }],
+      [{ fieldId, result: { state: "value", value: decimal("900") } }],
+    ]);
+    expect((await ordered("asc", 1, 1)).map((record) => record.ref)).toEqual([lowDeal]);
+    expect((await ordered("asc", 2, 1)).map((record) => record.ref)).toEqual([highDeal]);
+  });
+
   it("hides restricted calculated inputs in reads, filters and saved snapshots after unlinking", async () => {
     const f = await fixture();
     for (const key of ["deal", "lineItem"]) {

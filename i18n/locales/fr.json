@@ -3338,6 +3338,7 @@
     "relationshipPath": "Via des fiches liées",
     "relationshipPathHelp": "Affiche les fiches accessibles via des relations existantes. Modifiez les liens sous-jacents pour changer ces fiches.",
     "relationships": "Relations",
+    "reloadLists": "Recharger les listes",
     "removeGroupSummary": "Supprimer la synthèse",
     "removeInput": "Supprimer l’entrée",
     "removeOption": "Supprimer l’option",

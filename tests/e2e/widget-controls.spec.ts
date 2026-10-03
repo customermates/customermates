@@ -1,3 +1,4 @@
+import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { DisplayType } from "../../features/widget/widget-display.schema";
 import { presetId } from "../../features/records/crm-preset";
 import { expect, test } from "./fixtures";
@@ -30,6 +31,14 @@ test("persists every chart style, appearance, a copied template, resizing and de
   }
   await page.goto("/en/dashboard");
   await page.locator("#dashboard-add-widget").click();
+  await dialog.locator("#widget-kind-chart").click();
+  await dialog.getByRole("button", { name: englishMessages.Common.actions.back, exact: true }).click();
+  await expect(dialog.locator("#widget-modal-kind")).toBeVisible();
+  await expect(dialog.getByRole("textbox", { name: "Name", exact: false })).toHaveCount(0);
+  await expect(dialog.locator("#widget-kind-chart")).toBeFocused();
+  expect(
+    (await database.query('SELECT COUNT(*)::integer AS count FROM "Widget" WHERE "companyId"=$1', [companyId])).rows,
+  ).toEqual([{ count: 0 }]);
   await dialog.locator("#widget-kind-chart").click();
   await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Complete chart controls");
   await dialog.getByRole("combobox", { name: "Records from", exact: true }).click();
@@ -105,8 +114,10 @@ test("persists every chart style, appearance, a copied template, resizing and de
     if (!bounds) throw new Error("The desktop resize handle is missing");
     await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
     await page.mouse.down();
-    await page.mouse.move(bounds.x + bounds.width / 2 + 140, bounds.y + bounds.height / 2 + 140, { steps: 10 });
+    await page.mouse.move(bounds.x + bounds.width / 2 + 140, bounds.y + bounds.height / 2, { steps: 10 });
+    await expect(gridItem).toHaveClass(/\bresizing\b/);
     await page.mouse.up();
+    await expect(gridItem).not.toHaveClass(/\bresizing\b/);
     await expect.poll(async () => JSON.stringify((await read("Complete chart controls"))[0].layout)).not.toBe(before);
     const after = (await read("Complete chart controls"))[0].layout;
     await page.reload();
@@ -131,6 +142,14 @@ test("persists every chart style, appearance, a copied template, resizing and de
   await edit("Edited copied chart");
   await dialog.getByRole("button", { name: "Delete widget Edited copied chart", exact: true }).click();
   const confirmation = page.getByRole("alertdialog");
+  const beforeCancel = await read("Edited copied chart");
+  const originalBeforeCancel = await read("Complete chart controls");
+  await confirmation.locator("#confirm-delete-cancel").click();
+  await expect(confirmation).toHaveCount(0);
+  await expect(dialog.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Edited copied chart");
+  expect(await read("Edited copied chart")).toEqual(beforeCancel);
+  expect(await read("Complete chart controls")).toEqual(originalBeforeCancel);
+  await dialog.getByRole("button", { name: "Delete widget Edited copied chart", exact: true }).click();
   await confirmation.getByRole("button", { name: "Delete", exact: true }).click();
   await expect(confirmation).not.toBeVisible();
   await expect(dialog).not.toBeVisible();

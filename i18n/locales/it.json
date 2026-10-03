@@ -3338,6 +3338,7 @@
     "relationshipPath": "Tramite record collegati",
     "relationshipPathHelp": "Mostra i record raggiungibili tramite relazioni esistenti. Modifica i collegamenti sottostanti per cambiare questi record.",
     "relationships": "Relazioni",
+    "reloadLists": "Ricarica le liste",
     "removeGroupSummary": "Rimuovi riepilogo",
     "removeInput": "Rimuovi input",
     "removeOption": "Rimuovi opzione",

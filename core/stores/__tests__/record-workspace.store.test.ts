@@ -36,6 +36,51 @@ function fixture() {
 beforeEach(() => vi.resetAllMocks());
 
 describe("workspace record navigation and drawers", () => {
+  it("retains readable navigation on failure and clears recovery after Retry or actor replacement", async () => {
+    const f = fixture();
+    f.store.setNavigation(f.navigation);
+    mocks.getRecordNavigationAction.mockRejectedValueOnce(new Error("Read unavailable"));
+    await expect(f.store.refreshNavigation()).rejects.toThrow("Read unavailable");
+    expect(f.store.navigation).toEqual(f.navigation);
+    expect(f.store.navigationRefreshFailed).toBe(true);
+    f.store.setNavigation({ ...f.navigation });
+    expect(f.store.navigationRefreshFailed).toBe(true);
+    mocks.getRecordNavigationAction.mockResolvedValueOnce({ ...f.navigation, schemaRevision: 2 });
+    await f.store.refreshNavigation();
+    expect(f.store.navigation?.schemaRevision).toBe(2);
+    expect(f.store.navigationRefreshFailed).toBe(false);
+    mocks.getRecordNavigationAction.mockRejectedValueOnce(new Error("Read unavailable"));
+    await expect(f.store.refreshNavigation()).rejects.toThrow("Read unavailable");
+    runInAction(() => {
+      f.userStore.user = { id: randomUUID(), companyId: f.companyId };
+    });
+    expect(f.store.navigationRefreshFailed).toBe(false);
+    expect(f.store.navigation).toBeNull();
+  });
+
+  it("ignores a navigation failure from an older request or actor", async () => {
+    const f = fixture();
+    const older = Promise.withResolvers<RecordNavigation>();
+    mocks.getRecordNavigationAction.mockReturnValueOnce(older.promise).mockResolvedValueOnce(f.navigation);
+    const oldRequest = f.store.refreshNavigation();
+    const rejected = expect(oldRequest).rejects.toThrow("Old failure");
+    await f.store.refreshNavigation();
+    older.reject(new Error("Old failure"));
+    await rejected;
+    expect(f.store.navigationRefreshFailed).toBe(false);
+    expect(f.store.navigation).toEqual(f.navigation);
+    const previousActor = Promise.withResolvers<RecordNavigation>();
+    mocks.getRecordNavigationAction.mockReturnValueOnce(previousActor.promise);
+    const pending = f.store.refreshNavigation();
+    const actorRejected = expect(pending).rejects.toThrow("Previous actor failure");
+    runInAction(() => {
+      f.userStore.user = { id: randomUUID(), companyId: f.companyId };
+    });
+    previousActor.reject(new Error("Previous actor failure"));
+    await actorRejected;
+    expect(f.store.navigationRefreshFailed).toBe(false);
+    expect(f.store.navigation).toBeNull();
+  });
   it("enables global drawers only after the active record surface has hydrated", () => {
     const f = fixture();
     expect(f.store.routeReady("/records/projects")).toBe(false);

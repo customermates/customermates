@@ -59,6 +59,29 @@ function fixture(admin = false) {
 beforeEach(() => vi.resetAllMocks());
 
 describe("configuration editor request ownership", () => {
+  it.each(["immediate", "staged"])(
+    "refreshes the accepted %s configuration after navigation read failure",
+    async (mode) => {
+      const { store, completed, refreshNavigation } = fixture();
+      store.setPreview(preview());
+      refreshNavigation.mockRejectedValueOnce(new Error("Navigation read unavailable"));
+      if (mode === "staged") {
+        store.setPendingOperation(crypto.randomUUID());
+        await store.operationCompleted();
+      } else {
+        actions.applyRecordConfigurationAction.mockResolvedValueOnce({ ok: true, data: { status: "completed" } });
+        await store.onSubmit();
+      }
+      expect(store.isOpen).toBe(false);
+      expect(store.pendingOperationId).toBeNull();
+      expect(refreshNavigation).toHaveBeenCalledOnce();
+      expect(completed).toHaveBeenCalledOnce();
+      expect(completed.mock.calls[0][1]()).toBe(true);
+      expect(actions.applyRecordConfigurationAction).toHaveBeenCalledTimes(mode === "staged" ? 0 : 1);
+      await store.onSubmit();
+      expect(actions.applyRecordConfigurationAction).toHaveBeenCalledTimes(mode === "staged" ? 0 : 1);
+    },
+  );
   it("ignores an old preview without clearing a newer editor's loading state", async () => {
     const { store } = fixture();
     const old = Promise.withResolvers<{

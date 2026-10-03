@@ -1,4 +1,4 @@
-import { action, makeObservable, observable, reaction } from "mobx";
+import { action, makeObservable, observable, reaction, runInAction } from "mobx";
 import type { RootStore } from "./root.store";
 import type { RecordNavigation } from "@/features/records/record-navigation.schema";
 import { RecordEditorStore } from "@/app/[locale]/(protected)/records/[typeId]/components/record-editor.store";
@@ -10,6 +10,7 @@ import { RecordDetailLayoutStore } from "./record-detail-layout.store";
 
 export class RecordWorkspaceStore {
   navigation: RecordNavigation | null = null;
+  navigationRefreshFailed = false;
   editor: RecordEditorStore | null = null;
   isOpening = false;
   private opening = 0;
@@ -21,6 +22,7 @@ export class RecordWorkspaceStore {
   constructor(private root: RootStore) {
     makeObservable(this, {
       navigation: observable.ref,
+      navigationRefreshFailed: observable,
       editor: observable.ref,
       isOpening: observable,
       setNavigation: action,
@@ -53,15 +55,29 @@ export class RecordWorkspaceStore {
   setNavigation = (navigation: RecordNavigation | null) => {
     if (navigation && navigation.companyId !== this.root.userStore.user?.companyId) return;
     if (navigation && this.navigation && navigation.schemaRevision < this.navigation.schemaRevision) return;
+    const recovered = !navigation || !this.navigation || navigation.schemaRevision > this.navigation.schemaRevision;
     this.navigation = navigation;
+    if (recovered) this.navigationRefreshFailed = false;
   };
 
   refreshNavigation = async () => {
     const scope = this.actorScope;
     const request = ++this.navigationRequest;
-    const navigation = await getRecordNavigationAction();
-    if (scope !== this.actorScope || request !== this.navigationRequest) return;
-    this.setNavigation(navigation);
+    try {
+      const navigation = await getRecordNavigationAction();
+      if (scope !== this.actorScope || request !== this.navigationRequest) return;
+      runInAction(() => {
+        this.setNavigation(navigation);
+        if (this.navigation === navigation) this.navigationRefreshFailed = false;
+      });
+    } catch (error) {
+      if (scope === this.actorScope && request === this.navigationRequest) {
+        runInAction(() => {
+          this.navigationRefreshFailed = true;
+        });
+      }
+      throw error;
+    }
   };
 
   setOpening = (opening: boolean) => {

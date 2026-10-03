@@ -165,20 +165,25 @@ export function Editor({ data, onChange, readOnly = false, label }: Props) {
   });
 
   useEffect(() => {
-    if (!editor || data === undefined) return;
+    if (!editor) return;
 
+    const content = data ?? { type: "doc", content: [{ type: "paragraph" }] };
     const currentContent = editor.getJSON();
-    if (JSON.stringify(currentContent) !== JSON.stringify(data)) {
+    if (JSON.stringify(currentContent) !== JSON.stringify(content)) {
       isSettingContentRef.current = true;
-      editor.commands.setContent(data);
+      editor.commands.setContent(content);
       isSettingContentRef.current = false;
     }
   }, [editor, data]);
 
   useEffect(() => {
     if (!editor) return;
-    if (editor.isEditable === !readOnly) return;
-    editor.setEditable(!readOnly);
+    if (editor.isEditable !== !readOnly) editor.setEditable(!readOnly, false);
+    if (readOnly) {
+      setShowBubbleMenu(false);
+      setShowSlashMenu(false);
+      setShowTableMenu(false);
+    }
   }, [editor, readOnly]);
 
   useEffect(() => {
@@ -253,7 +258,7 @@ export function Editor({ data, onChange, readOnly = false, label }: Props) {
 
   return (
     <div className="relative min-h-52">
-      {showBubbleMenu && !showTableMenu && (
+      {showBubbleMenu && !showTableMenu && !readOnly && (
         <BubbleMenu anchorRect={bubbleAnchorRect} editor={editor} onClose={() => setShowBubbleMenu(false)} />
       )}
 
@@ -261,7 +266,7 @@ export function Editor({ data, onChange, readOnly = false, label }: Props) {
         <TableMenu anchorRect={tableAnchorRect} editor={editor} onClose={() => setShowTableMenu(false)} />
       )}
 
-      {showSlashMenu && (
+      {showSlashMenu && !readOnly && (
         <SlashMenu anchorRect={slashAnchorRect} editor={editor} onClose={() => setShowSlashMenu(false)} />
       )}
 

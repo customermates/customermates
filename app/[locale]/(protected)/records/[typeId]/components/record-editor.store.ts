@@ -48,6 +48,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
   private refreshGeneration = 0;
   private sessionGeneration = 0;
   private pendingDeletion = false;
+  private refreshNotificationPending = false;
   constructor(
     root: RootStore,
     presentation: RecordEditorContext,
@@ -119,6 +120,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
     this.parentLink = parentLink;
     this.pendingOperationId = null;
     this.pendingDeletion = false;
+    this.refreshNotificationPending = false;
     this.refreshRequired = false;
     this.requestKey = null;
     this.onInitOrRefresh({
@@ -165,36 +167,9 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
   };
   reloadAfterNestedChange = async () => {
     if (!this.record || this.hasUnsavedChanges) return;
-    const generation = ++this.refreshGeneration;
-    const ref = {
-      typeId: this.record.ref.typeId,
-      recordId: this.record.ref.recordId,
-    };
-    const result = await getRecordEditorAction(ref);
-    if (
-      generation !== this.refreshGeneration ||
-      !this.isOpen ||
-      this.hasUnsavedChanges ||
-      this.record?.ref.typeId !== ref.typeId ||
-      this.record?.ref.recordId !== ref.recordId
-    )
-      return;
-    if (!result.ok) {
-      this.setError(result.error);
-      return;
-    }
-    if (this.hasUnsavedChanges || this.record?.ref.typeId !== ref.typeId || this.record.ref.recordId !== ref.recordId)
-      return;
-    if (
-      result.data.model.revision < this.presentation.model.revision ||
-      (result.data.record?.version ?? 0) < (this.record?.version ?? 0)
-    )
-      return;
-    this.edit(result.data, result.data.record, this.parentLink);
-    runInAction(() => {
-      this.relatedRevision += 1;
-    });
-    await this.onSaved();
+    this.refreshNotificationPending = true;
+    this.setRefreshRequired(true);
+    await this.refreshRecord();
   };
   setPendingOperation = (id: string | null, deletion = false) => {
     this.pendingOperationId = id;
@@ -221,10 +196,12 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
         (result.data.record?.version ?? 0) < (this.record?.version ?? 0)
       )
         return;
+      const notify = this.refreshNotificationPending;
       this.edit(result.data, result.data.record, this.parentLink);
       runInAction(() => {
         this.relatedRevision += 1;
       });
+      if (notify) await this.onSaved();
     } else this.setError(result.error);
   };
   operationCompleted = async () => {
@@ -237,10 +214,13 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
     this.onInitOrRefresh(toJS(this.form));
     this.requestKey = null;
     if (this.keepOpenOnSave && this.record) {
+      this.refreshNotificationPending = true;
       this.setRefreshRequired(true);
       await this.refreshRecord();
-    } else this.close();
-    await this.onSaved();
+    } else {
+      this.close();
+      await this.onSaved();
+    }
   };
   deletionCompleted = async () => {
     this.resetForm();

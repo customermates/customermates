@@ -140,7 +140,9 @@ test("keeps complete application reads, History and a blocked form draft while a
       await route.abort("failed");
     } else await route.continue();
   });
-  await expect(editor.getByRole("alert")).toContainText("Could not load progress. Your draft is retained.");
+  await expect(
+    editor.getByRole("alert").filter({ hasText: "Could not load progress. Your draft is retained." }),
+  ).toBeVisible();
   expect(transportFaults).toBe(1);
   await editor.getByRole("button", { name: "Retry", exact: true }).click();
   await expect(editor.getByRole("status").filter({ hasText: "Existing data remains available" })).toBeVisible();
