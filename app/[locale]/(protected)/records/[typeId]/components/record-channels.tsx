@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import type { RecordIdentityInput } from "@/features/records/record-identity.schema";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Copy, ExternalLink, Send, X } from "lucide-react";
@@ -32,6 +32,8 @@ type Props = {
   controlStartAddon?: ReactNode;
   hideHeading?: boolean;
   recordChannels: {
+    contextKey: string;
+    captureContext: () => () => boolean;
     channels: RecordIdentityInput[];
     canEdit: boolean;
     remove: (index: number) => void;
@@ -47,31 +49,88 @@ export const RecordChannels = observer(
     const { userStore, threadComposeStore, connectedAccountsStore } = rootStore;
     const copy = useCopyToClipboard();
     const [composeKey, setComposeKey] = useState<string | null>(null);
+    const composeRequest = useRef(0);
+    const composeOwner = useRef<(() => boolean) | null>(null);
     const canEditChannels = recordChannels.canEdit;
     const canStartThread = userStore.can(Resource.inboxMessages, Action.create) && rootStore.appMode !== "self-hosted";
     const identifiers = recordChannels.channels;
     const inboxHref = recordChannels.inboxHref;
-    const canOpenInbox = Boolean(inboxHref && identifiers.length > 0 && rootStore.appMode !== "self-hosted");
+    const canOpenInbox = Boolean(
+      inboxHref &&
+        identifiers.length > 0 &&
+        rootStore.appMode !== "self-hosted" &&
+        userStore.canAccess(Resource.inboxMessages),
+    );
+
+    useEffect(() => {
+      composeRequest.current += 1;
+      setComposeKey(null);
+      return () => {
+        composeRequest.current += 1;
+      };
+    }, [recordChannels.contextKey]);
 
     useEffect(() => {
       if (canStartThread) void connectedAccountsStore.ensureLoaded().catch(reportApplicationError);
     }, [canStartThread, connectedAccountsStore]);
 
     async function openCompose(identifier: RecordIdentityInput, key: string) {
+      const request = ++composeRequest.current;
+      const isCurrentRecord = recordChannels.captureContext();
+      const isCurrentCompose = threadComposeStore.captureContext();
+      const actorId = userStore.user?.id;
       await connectedAccountsStore.ensureLoaded();
-      const [first] = connectedAccountsStore.usableSendersFor(identifier.provider);
-      threadComposeStore.initializeNewThread({
-        provider: identifier.provider,
-        connectedAccountId: first?.id ?? "",
-        recipients: [
-          {
-            identifier: identifier.messagingId ?? identifier.value,
-            displayName: identifier.displayName ?? null,
+      const current = () =>
+        request === composeRequest.current &&
+        isCurrentRecord() &&
+        isCurrentCompose() &&
+        actorId === userStore.user?.id &&
+        userStore.can(Resource.inboxMessages, Action.create) &&
+        rootStore.appMode !== "self-hosted" &&
+        !threadComposeStore.isLoading &&
+        recordChannels.channels.some(
+          (channel) =>
+            channel.provider === identifier.provider &&
+            channel.value === identifier.value &&
+            channel.messagingId === identifier.messagingId,
+        );
+      if (!current()) return;
+      const initialize = () => {
+        if (!current()) return;
+        const [first] = connectedAccountsStore.usableSendersFor(identifier.provider);
+        threadComposeStore.initializeNewThread({
+          provider: identifier.provider,
+          connectedAccountId: first?.id ?? "",
+          recipients: [
+            {
+              identifier: identifier.messagingId ?? identifier.value,
+              displayName: identifier.displayName ?? null,
+            },
+          ],
+          onDone: () => {
+            if (request === composeRequest.current && isCurrentRecord()) setComposeKey(null);
           },
-        ],
-        onDone: () => setComposeKey(null),
-      });
-      setComposeKey(key);
+        });
+        composeOwner.current = threadComposeStore.captureContext();
+        setComposeKey(key);
+      };
+      if (threadComposeStore.hasUnsavedChanges) rootStore.navigationGuard.tryNavigate(initialize);
+      else initialize();
+    }
+
+    function closeCompose() {
+      if (threadComposeStore.isLoading) return;
+      const request = composeRequest.current;
+      const isCurrentRecord = recordChannels.captureContext();
+      const ownsCompose = composeOwner.current;
+      const close = () => {
+        if (request !== composeRequest.current || !isCurrentRecord()) return;
+        composeRequest.current += 1;
+        if (ownsCompose?.()) threadComposeStore.discardNewThread();
+        setComposeKey(null);
+      };
+      if (ownsCompose?.() && threadComposeStore.hasUnsavedChanges) rootStore.navigationGuard.tryNavigate(close);
+      else close();
     }
 
     return (
@@ -114,7 +173,7 @@ export const RecordChannels = observer(
                   key={channelKey}
                   open={composing}
                   onOpenChange={(next) => {
-                    if (!next) setComposeKey(null);
+                    if (!next) closeCompose();
                   }}
                 >
                   <PopoverAnchor asChild>
@@ -174,7 +233,7 @@ export const RecordChannels = observer(
                                 type="button"
                                 variant="ghost"
                                 onClick={() => {
-                                  if (composing) setComposeKey(null);
+                                  if (composing) closeCompose();
                                   else runUserAction(() => openCompose(identifier, channelKey));
                                 }}
                               >
@@ -214,7 +273,7 @@ export const RecordChannels = observer(
                     align="start"
                     className="w-(--radix-popover-trigger-width) overflow-hidden p-0"
                     onInteractOutside={(event) => {
-                      if (threadComposeStore.hasComposedContent) event.preventDefault();
+                      if (threadComposeStore.hasUnsavedChanges || threadComposeStore.isLoading) event.preventDefault();
                     }}
                   >
                     <ContactComposePopover provider={identifier.provider} />

@@ -29,6 +29,10 @@ import { channelLabelKey } from "@/ee/messaging/provider";
 import { SelectionOptionsSkeleton } from "@/components/forms/selection-loading";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useClientReady } from "@/hooks/use-client-ready";
+import { encodeGetParams } from "@/core/utils/get-params";
+import { FilterFieldKey } from "@/core/types/filter-field-key";
+import { FilterOperatorKey } from "@/core/base/base-query-builder";
+import { recordReferenceKey } from "@/features/records/record-reference-key";
 
 const SOURCE_HINT_KEYS = {
   conversation: "EntityChannels.addChannel.sourceConversations",
@@ -215,6 +219,23 @@ export const RecordIdentityEditor = observer(function RecordIdentityEditor({ sto
         controlStartAddon={<EntityDetailFieldDragHandle label={t("EntityChannels.heading")} />}
         headingEndAddon={<EntityDetailFieldActions fieldId="system:channels" label={t("EntityChannels.heading")} />}
         recordChannels={{
+          contextKey: `${store.presentation.typeId}:${store.form.id ?? "new"}:${store.sessionKey}`,
+          captureContext: () => {
+            const isCurrentSession = store.captureSession();
+            const identities = JSON.stringify(store.form.identities);
+            return () => isCurrentSession() && identities === JSON.stringify(store.form.identities);
+          },
+          inboxHref: store.record
+            ? `/inbox?${encodeGetParams({
+                filters: [
+                  {
+                    field: FilterFieldKey.participantContactId,
+                    operator: FilterOperatorKey.in,
+                    value: [recordReferenceKey(store.record.ref)],
+                  },
+                ],
+              })}`
+            : undefined,
           channels: store.form.identities,
           canEdit: !store.isDisabled,
           remove: (index) => {

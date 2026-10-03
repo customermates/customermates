@@ -2,6 +2,7 @@ import net from "node:net";
 import http from "node:http";
 import https from "node:https";
 import { syncBuiltinESMExports } from "node:module";
+import { localEmailRequest } from "./local-email-provider.mjs";
 
 const loopback = new Set(["localhost", "127.0.0.1", "::1", "[::1]"]);
 function reject() {
@@ -22,6 +23,8 @@ if (!/^\/crm_e2e(?:_[a-z0-9_]+)?$/.test(new URL(process.env.DATABASE_URL).pathna
   throw new Error("The browser test transport requires an isolated browser test database");
 const originalFetch = globalThis.fetch;
 globalThis.fetch = function (input, init) {
+  const localEmail = localEmailRequest(input, init);
+  if (localEmail) return localEmail;
   validateUrl(typeof input === "string" || input instanceof URL ? input : input.url);
   return originalFetch.call(this, input, init);
 };

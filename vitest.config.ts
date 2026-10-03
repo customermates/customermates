@@ -65,6 +65,7 @@ const domTestFiles = [
   "components/editor/__tests__/email-markdown-editor.test.ts",
   "components/editor/__tests__/editor.dom.test.ts",
   "components/editor/__tests__/editor-menu.dom.test.ts",
+  "app/[locale]/(protected)/records/[typeId]/components/__tests__/record-channels.dom.test.ts",
   "components/modal/__tests__/delete-confirmation-modal.test.ts",
   "components/modal/__tests__/app-modal-assistant.test.ts",
   "components/modal/__tests__/responsive-overlay-assistant.test.ts",

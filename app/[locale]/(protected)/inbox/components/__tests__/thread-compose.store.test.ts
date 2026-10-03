@@ -830,6 +830,55 @@ describe("ThreadComposeStore draft lifecycle", () => {
   );
 });
 
+describe("ThreadComposeStore new-thread ownership", () => {
+  it("invalidates captured ownership when a different recipient starts a compose session", () => {
+    const { store } = makeHarness();
+    store.initializeNewThread({ provider: MessagingProvider.mail, connectedAccountId: ACCOUNT_ID, recipients: [] });
+    const current = store.captureContext();
+    expect(current()).toBe(true);
+    store.initializeNewThread({
+      provider: MessagingProvider.mail,
+      connectedAccountId: OTHER_ACCOUNT_ID,
+      recipients: [{ identifier: RECIPIENT, displayName: null }],
+    });
+    expect(current()).toBe(false);
+    expect(store.form.recipients).toEqual([RECIPIENT]);
+  });
+
+  it("guards an attachment-only draft and clears discarded new-thread state", () => {
+    const { store } = makeHarness();
+    store.initializeNewThread({
+      provider: MessagingProvider.mail,
+      connectedAccountId: ACCOUNT_ID,
+      recipients: [{ identifier: RECIPIENT, displayName: null }],
+    });
+    const current = store.captureContext();
+    store.addAttachments([new File(["local"], "local.txt", { type: "text/plain" })]);
+    expect(store.hasUnsavedChanges).toBe(true);
+    store.discardNewThread();
+    expect(current()).toBe(false);
+    expect(store.newThreadTarget).toBeNull();
+    expect(store.form).toMatchObject({ provider: null, recipients: [], body: "", subject: "" });
+    expect(store.attachments).toEqual([]);
+    expect(store.hasUnsavedChanges).toBe(false);
+  });
+
+  it("does not discard an in-flight new-thread operation or an existing thread", () => {
+    const { store } = makeHarness();
+    store.initializeNewThread({ provider: MessagingProvider.mail, connectedAccountId: ACCOUNT_ID, recipients: [] });
+    store.onChange("body", "Pending delivery");
+    const current = store.captureContext();
+    store.setIsLoading(true);
+    store.discardNewThread();
+    expect(current()).toBe(true);
+    expect(store.form.body).toBe("Pending delivery");
+    store.initialize({ provider: MessagingProvider.mail, threadId: THREAD_ID });
+    store.onChange("body", "Existing reply");
+    store.discardNewThread();
+    expect(store.form).toMatchObject({ threadId: THREAD_ID, body: "Existing reply" });
+  });
+});
+
 describe("ThreadComposeStore email recipient validation", () => {
   beforeEach(() => {
     vi.clearAllMocks();

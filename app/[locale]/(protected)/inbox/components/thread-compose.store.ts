@@ -91,6 +91,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       removeAttachment: action,
       initialize: action,
       initializeNewThread: action,
+      discardNewThread: action,
       setNewThreadAccount: action,
       send: action,
       saveDraft: action,
@@ -103,6 +104,39 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
   get isNewThread(): boolean {
     return !this.form.threadId && this.newThreadTarget !== null;
   }
+
+  override get hasUnsavedChanges(): boolean {
+    return super.hasUnsavedChanges || this.attachments.length > 0;
+  }
+
+  captureContext = () => {
+    const generation = this.composeGeneration;
+    return () => generation === this.composeGeneration;
+  };
+
+  discardNewThread = () => {
+    if (!this.isNewThread || this.isLoading) return;
+    this.composeGeneration += 1;
+    this.newThreadTarget = null;
+    this.onNewThreadDone = null;
+    this.onNewThreadSent = null;
+    this.editingDraftId = null;
+    this.editingDraftRevision = null;
+    this.attachments = [];
+    this.draftAttachments = [];
+    this.showCcBcc = false;
+    this.onInitOrRefresh({
+      provider: null,
+      threadId: "",
+      recipients: [],
+      body: "",
+      subject: "",
+      cc: [],
+      bcc: [],
+      linkedinProduct: "classic",
+      inmailSignature: "",
+    });
+  };
 
   get hasComposedContent(): boolean {
     return this.form.body.trim().length > 0 || this.attachments.length > 0;

@@ -20,6 +20,7 @@ const child = spawn(
       WORKFLOW_LOCAL_BASE_URL: environment.baseUrl,
       WORKFLOW_LOCAL_DATA_DIR: environment.workflowDirectory,
       CRM_LOCAL_TEST_TRANSPORT: "true",
+      UNIPILE_API_KEY: "e2e-local-provider-no-network",
       HOSTED_AI_OPERATOR_CONTROLS_ENABLED: "true",
       HOSTED_AI_PROVIDER_WORK_PAUSED: "true",
       NEXT_TELEMETRY_DISABLED: "1",

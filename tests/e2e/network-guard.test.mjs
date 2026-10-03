@@ -55,3 +55,46 @@ test("fails closed when an inherited environment is not isolated", () => {
     assert.notEqual(result.status, 0);
   }
 });
+
+test("intercepts synthetic email delivery and adoption without accepting other provider requests", async () => {
+  process.env.UNIPILE_API_KEY = "e2e-local-provider-no-network";
+  const account = "e2e_local_00000000-0000-4000-8000-000000000001";
+  const headers = { "X-API-KEY": process.env.UNIPILE_API_KEY, "Content-Type": "application/json" };
+  try {
+    const response = await fetch(`https://api.unipile.com/v2/${account}/emails/send`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        from: { email: "sender@example.test" },
+        to: [{ email: "recipient@example.test" }],
+        subject: "Local delivery",
+        html: "<p>Local only</p>",
+      }),
+    });
+    const { id } = await response.json();
+    assert.match(id, /^e2e_email_/);
+    const stored = await fetch(`https://api.unipile.com/v2/${account}/emails/${id}`, { headers });
+    assert.deepEqual((await stored.json()).to, [{ email: "recipient@example.test" }]);
+    for (const url of [
+      "https://api.unipile.com/v2/real-account/emails/send",
+      `https://api.unipile.com/v2/${account}/accounts`,
+      `https://api.unipile.com/v2/${account}/emails/send?external=true`,
+      `https://api.unipile.com:4433/v2/${account}/emails/send`,
+    ])
+      assert.throws(() => fetch(url, { method: "POST", headers }), /blocked a non-loopback connection/);
+    assert.throws(
+      () => fetch(`https://api.unipile.com/v2/${account}/emails/send`, { method: "POST" }),
+      /blocked a non-loopback connection/,
+    );
+    await assert.rejects(
+      fetch(`https://api.unipile.com/v2/${account}/emails/send`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ from: { email: "sender@example.test" }, to: [{ email: "recipient@example.com" }] }),
+      }),
+      /synthetic fixture mail/,
+    );
+  } finally {
+    delete process.env.UNIPILE_API_KEY;
+  }
+});
