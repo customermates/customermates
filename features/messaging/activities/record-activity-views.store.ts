@@ -7,7 +7,7 @@ import { BaseDataViewStore } from "@/core/base/base-data-view.store";
 import { ACTIVITY_KINDS, type ActivityEntryDto } from "@/ee/messaging/activities/activities.schema";
 import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
 import type { RecordActivitiesInput } from "@/ee/messaging/activities/record-activities.schema";
-import { SURFACE } from "@/core/data-view/data-view-keys";
+import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
 import {
   getRecordActivityPresentationAction,
   getRecordActivitiesAction,
@@ -31,8 +31,15 @@ export class RecordActivityViewsStore extends BaseDataViewStore<ActivityEntryDto
     private record: RecordRef,
     viewPathname?: string,
     viewSyncToUrl = false,
+    initialView?: string,
   ) {
     super(root);
+    this.initialView = initialView;
+    if (initialView) {
+      runInAction(() => {
+        this.activeViewKey = initialView;
+      });
+    }
     const user = root.userStore?.user;
     this.owner = user ? { userId: user.id, companyId: user.companyId } : undefined;
     this.p13nId = SURFACE.entityTimeline;
@@ -44,6 +51,7 @@ export class RecordActivityViewsStore extends BaseDataViewStore<ActivityEntryDto
       loading: observable,
       error: observable,
       load: action,
+      followRequestedView: action,
     });
   }
   get columnsDefinition() {
@@ -109,6 +117,17 @@ export class RecordActivityViewsStore extends BaseDataViewStore<ActivityEntryDto
         if (!this.disposed && request === this.loadGeneration) this.loading = false;
       });
     }
+  };
+  followRequestedView = (viewKey: string | null) => {
+    const key = viewKey ?? ALL_VIEW_KEY;
+    if (this.disposed || key === this.activeViewKey) return;
+    if (!this.isReady) {
+      this.initialView = viewKey ?? undefined;
+      this.activeViewKey = key;
+      void this.load();
+      return;
+    }
+    this.applyView(key);
   };
   dispose() {
     if (this.disposed) return;

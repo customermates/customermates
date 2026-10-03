@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
@@ -29,20 +29,23 @@ export const RecordActivitiesPanel = observer(function RecordActivitiesPanel({
   const viewPathname = `/${locale}/records/${record.typeId}/${record.recordId}`;
   const requestedView =
     viewSyncToUrl && params.get("viewSurface") === SURFACE.entityTimeline ? params.get("view") : null;
-  const store = useMemo(
-    () => new RecordActivityViewsStore(root, record, viewPathname, viewSyncToUrl),
-    [root, record.typeId, record.recordId, requestedView, viewPathname, viewSyncToUrl],
+  const [store] = useState(
+    () => new RecordActivityViewsStore(root, record, viewPathname, viewSyncToUrl, requestedView ?? undefined),
   );
+  const appliedView = useRef(requestedView);
   useEffect(() => {
-    store.initialView = requestedView ?? undefined;
-    if (requestedView) store.activeViewKey = requestedView;
     runUserAction(() => store.load());
     const release = root.recordWorkspaceStore.subscribe(() => store.load());
     return () => {
       release();
       store.dispose();
     };
-  }, [root, store, requestedView]);
+  }, [root, store]);
+  useEffect(() => {
+    if (appliedView.current === requestedView) return;
+    appliedView.current = requestedView;
+    store.followRequestedView(requestedView);
+  }, [store, requestedView]);
   const error = store.error || store.dataRequest.status === "refresh-error";
   return (
     <div className="space-y-3">

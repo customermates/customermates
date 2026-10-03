@@ -3,7 +3,17 @@ import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { RecordActivitiesResult } from "@/ee/messaging/activities/record-activities.schema";
 
-const mocked = vi.hoisted(() => ({ action: vi.fn(), presentation: vi.fn(), listeners: new Set<() => unknown>() }));
+const mocked = vi.hoisted(() => ({
+  action: vi.fn(),
+  presentation: vi.fn(),
+  listeners: new Set<() => unknown>(),
+  params: new URLSearchParams(),
+  paramListeners: new Set<() => void>(),
+}));
+function setParams(params: Record<string, string>) {
+  mocked.params = new URLSearchParams(params);
+  for (const listener of mocked.paramListeners) listener();
+}
 const rootStore = {
   localeStore: { getTranslation: (key: string) => key },
   recordWorkspaceStore: {
@@ -15,8 +25,18 @@ const rootStore = {
     },
   },
 };
-vi.mock("@/app/actions", () => ({ saveDataViewStateAction: vi.fn(), selectDataViewAction: vi.fn() }));
-vi.mock("next/navigation", () => ({ useSearchParams: () => new URLSearchParams() }));
+vi.mock("@/app/actions", () => ({
+  saveDataViewStateAction: vi.fn(),
+  selectDataViewAction: vi.fn(() => Promise.resolve()),
+}));
+vi.mock("next/navigation", async () => {
+  const { useSyncExternalStore } = await import("react");
+  const subscribe = (listener: () => void) => {
+    mocked.paramListeners.add(listener);
+    return () => mocked.paramListeners.delete(listener);
+  };
+  return { useSearchParams: () => useSyncExternalStore(subscribe, () => mocked.params) };
+});
 vi.mock("@/components/data-view/views/data-view-views-rail", () => ({ DataViewViewsRail: () => null }));
 vi.mock("@/components/data-view/header/filter-popover", () => ({ FilterPopover: () => null }));
 vi.mock("next-intl", () => ({ useLocale: () => "en", useTranslations: () => (key: string) => key }));
@@ -85,6 +105,7 @@ beforeEach(() => {
   mocked.action.mockReset();
   mocked.presentation.mockReset();
   mocked.listeners.clear();
+  mocked.params = new URLSearchParams();
   container = document.createElement("div");
   document.body.append(container);
   root = createRoot(container);
@@ -164,5 +185,31 @@ describe("generic record activity requests", () => {
     expect(container.textContent).not.toContain("closed");
     expect(mocked.listeners.size).toBe(1);
     expect(mocked.presentation.mock.calls[1][0].record).toEqual(next);
+  });
+});
+
+describe("record activity view selection from the URL", () => {
+  it("keeps the panel store and applies a URL view change inside the existing store", async () => {
+    const views = ["first", "second"].map((id, position) => ({ id, name: id, position, state: {} }));
+    mocked.params = new URLSearchParams({ viewSurface: "entity-timeline", view: "first" });
+    mocked.presentation
+      .mockResolvedValueOnce({ ...presentation("saved"), views, activeViewKey: "first" })
+      .mockResolvedValueOnce({ ...presentation("second-view"), views, activeViewKey: "second" });
+    await settle(() => root.render(createElement(RecordActivitiesPanel, { record, viewSyncToUrl: true })));
+    expect(mocked.presentation).toHaveBeenCalledTimes(1);
+    expect(mocked.presentation.mock.calls[0][0].params.viewId).toBe("first");
+    expect(container.textContent).toContain("saved");
+    expect(mocked.listeners.size).toBe(1);
+    const listener = [...mocked.listeners][0];
+
+    await settle(() => setParams({ viewSurface: "entity-timeline", view: "first" }));
+    expect(mocked.presentation).toHaveBeenCalledTimes(1);
+
+    await settle(() => setParams({ viewSurface: "entity-timeline", view: "second" }));
+    await act(() => vi.waitFor(() => expect(mocked.presentation).toHaveBeenCalledTimes(2)));
+    expect(mocked.listeners.size).toBe(1);
+    expect([...mocked.listeners][0]).toBe(listener);
+    expect(mocked.presentation.mock.calls[1][0].params.viewId).toBe("second");
+    await act(() => vi.waitFor(() => expect(container.textContent).toContain("second-view")));
   });
 });
