@@ -112,7 +112,10 @@ test("creates a custom list and field through the UI, then persists a decimal re
     linked.rows[0].id,
   ]);
   expect(unlinked.rows).toHaveLength(0);
-  await page.goto(`/en/company/data-model?typeId=${typeId}`);
+  await expect(dialog).toHaveCount(0);
+  await expect(page.locator("#sidebar-trigger")).toHaveAttribute("aria-disabled", "false");
+  await page.getByRole("link", { name: "Configure", exact: true }).and(page.locator("#records-configure")).click();
+  await expect(page).toHaveURL(`/en/company/data-model?typeId=${typeId}`);
   await page.getByRole("button", { name: "Type settings", exact: true }).click();
   const renamed = name.replace("Projects", "Initiatives");
   await dialog.locator("#pluralName").fill(renamed);
@@ -177,7 +180,10 @@ test("creates a custom list and field through the UI, then persists a decimal re
     { fieldId: configured.rows[0].definition.defaults.hiddenColumns[0], aggregation: "sum" },
   ]);
 
-  await page.goto("/en/dashboard");
+  const dashboard = page.locator("#nav-dashboard");
+  if (!(await dashboard.isVisible())) await page.locator("#sidebar-trigger").click();
+  await dashboard.click();
+  await expect(page).toHaveURL("/en/dashboard");
   await page.locator("#dashboard-add-widget").click();
   await dialog.locator("#widget-kind-chart").click();
   const widgetName = `Budget ${name.slice(-8)}`;
@@ -273,6 +279,7 @@ test("resizes table columns with keyboard controls, restores saved widths and re
     exact: true,
   });
   const header = page.getByRole("columnheader").filter({ has: handle });
+  const inlineWidth = () => header.evaluate((node) => (node as HTMLElement).style.width);
   const stored = async () =>
     (
       await database.query('SELECT "columnWidths" FROM "P13n" WHERE "companyId"=$1 AND "userId"=$2 AND "p13nId"=$3', [
@@ -284,7 +291,7 @@ test("resizes table columns with keyboard controls, restores saved widths and re
   await handle.focus();
   await expect(handle).toBeFocused();
   await handle.press("Home");
-  await expect(header).toHaveAttribute("style", /(?:^|;)\s*width: 80px;/);
+  await expect.poll(inlineWidth).toBe("80px");
   await expect.poll(stored).toBe(80);
   for (const [key, delta] of [
     ["ArrowRight", 10],
@@ -296,12 +303,12 @@ test("resizes table columns with keyboard controls, restores saved widths and re
     const expected = Math.round(Math.max(80, bounds.width + delta) * 100) / 100;
     await handle.press(key);
     await expect.poll(stored).toBe(expected);
-    await expect(header).toHaveAttribute("style", new RegExp(`(?:^|;)\\s*width: ${expected}px;`));
+    await expect.poll(inlineWidth).toBe(`${expected}px`);
   }
   const saved = await stored();
   await page.reload();
   await expect(handle).toBeVisible();
-  await expect(header).toHaveAttribute("style", new RegExp(`(?:^|;)\\s*width: ${saved}px;`));
+  await expect.poll(inlineWidth).toBe(`${saved}px`);
   expect(await stored()).toBe(saved);
   if (!isMobile) {
     await handle.focus();
@@ -326,16 +333,16 @@ test("resizes table columns with keyboard controls, restores saved widths and re
     await expect.poll(stored).toBe(draggedWidth);
     await page.reload();
     await expect(handle).toBeVisible();
-    await expect(header).toHaveAttribute("style", new RegExp(`(?:^|;)\\s*width: ${draggedWidth}px;`));
+    await expect.poll(inlineWidth).toBe(`${draggedWidth}px`);
     expect(await stored()).toBe(draggedWidth);
   }
   await handle.focus();
   await handle.press("Enter");
   await expect.poll(stored).toBeUndefined();
-  await expect(header).not.toHaveAttribute("style", /(?:^|;)\s*width:/);
+  await expect.poll(inlineWidth).toBe("");
   await page.reload();
   await expect(handle).toBeVisible();
-  await expect(header).not.toHaveAttribute("style", /(?:^|;)\s*width:/);
+  await expect.poll(inlineWidth).toBe("");
   expect(await stored()).toBeUndefined();
   await page.screenshot({ path: testInfo.outputPath("table-column-width-reset.png"), animations: "disabled" });
   expect(errors).toEqual([]);

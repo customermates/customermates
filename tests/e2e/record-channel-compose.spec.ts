@@ -243,7 +243,11 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   const aliasCompose = aliasRow.getByRole("button", { name: "Compose Email message", exact: true });
   // On a narrow screen, the open composer covers the other channel's trigger.
   // Close through the visible active trigger; desktop also exercises a dirty recipient switch.
-  await activateCompose(testInfo.project.name === "mobile" ? start() : aliasCompose);
+  if (testInfo.project.name === "mobile") await activateCompose(start());
+  else {
+    await aliasCompose.focus();
+    await aliasCompose.press("Enter");
+  }
   await expect(guard).toBeVisible();
   await guard.getByRole("button", { name: "Cancel", exact: true }).click();
   await expect(body).toHaveText("Draft belonging to the first company");
@@ -425,6 +429,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await drawer.getByRole("link", { name: "Open page", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}/${records[0].recordId}$`));
   await expect(drawer).toHaveCount(0);
+  await expect(page.locator("#sidebar-trigger")).toHaveAttribute("aria-disabled", "false");
   await activateCompose(start());
   await body.fill("Keep this full-page history draft");
   await page.goBack();
@@ -468,6 +473,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await drawer.getByRole("link", { name: "Open page", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}/${records[0].recordId}$`));
   await expect(drawer).toHaveCount(0);
+  await expect(page.locator("#sidebar-trigger")).toHaveAttribute("aria-disabled", "false");
   await activateCompose(start());
   await popover.getByPlaceholder("Subject", { exact: true }).fill("Recovered while inbox selected");
   await body.fill("Keep separate from the existing inbox reply");
@@ -490,6 +496,13 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
     bodyText: "Keep separate from the existing inbox reply",
   });
   expect(recoveredDraft.recipients.to.map((item: { identifier: string }) => item.identifier)).toEqual([recipients[0]]);
+  if (testInfo.project.name === "mobile") {
+    await page
+      .getByRole("navigation", { name: "Breadcrumb", exact: true })
+      .getByRole("link", { name: "Inbox", exact: true })
+      .click();
+    await expect(page).toHaveURL((url) => !url.searchParams.has("threadId"));
+  }
   await page.locator(`[data-thread-id="${recoveredDraft.messagingThreadId}"]`).click();
   await page
     .getByRole("region", { name: "Conversation", exact: true })
