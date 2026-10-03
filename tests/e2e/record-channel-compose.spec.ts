@@ -411,6 +411,8 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await recovered.getByRole("button", { name: "More send options", exact: true }).click();
   await page.getByRole("menuitem", { name: "Save as draft", exact: true }).click();
   await expect(recovered).not.toBeVisible();
+  await expect(page.getByRole("region", { name: "Conversation", exact: true }).locator("#inbox-reply-expand")).toBeVisible();
+  await page.getByRole("region", { name: "Conversation", exact: true }).locator("#inbox-reply-expand").click();
   await expect(page.getByRole("region", { name: "Conversation", exact: true }).locator("#inbox-reply-send")).toBeVisible();
   await expect.poll(async () => (await readDrafts()).length).toBe(1);
   const recoveredDraft = (await readDrafts())[0];
