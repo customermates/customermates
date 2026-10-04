@@ -183,12 +183,24 @@ function readProviderReceiptEnvelope(
   };
 }
 
+function providerFailureEnvelope(error: unknown): Record<string, unknown> | null {
+  const seen = new Set<unknown>();
+  let current = gatewayFailureRecord(error);
+  for (let depth = 0; depth < 8 && current && !seen.has(current); depth += 1) {
+    seen.add(current);
+    const cause = gatewayFailureRecord(current.cause);
+    if (cause?.kind === "ai-sdk-workflow-provider-error" && cause.version === 1) return cause;
+    current = cause;
+  }
+  return null;
+}
+
 export function readAgentProviderErrorCharge(
   error: unknown,
   expectedProvider: string,
 ): AgentProviderErrorCharge | null {
-  const cause = gatewayFailureRecord(gatewayFailureRecord(error)?.cause);
-  if (cause?.kind !== "ai-sdk-workflow-provider-error" || cause.version !== 1) return null;
+  const cause = providerFailureEnvelope(error);
+  if (!cause) return null;
   const charge = readProviderReceiptEnvelope(cause, expectedProvider);
   return {
     costMicrocents: charge.costMicrocents,

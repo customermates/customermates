@@ -689,6 +689,16 @@ describe("bounded provider failure charge reading", () => {
     ).toBeNull();
   });
 
+  it("reads the receipt through the runtime's retry-exhaustion wrapper", () => {
+    const wrapped = new Error('Step "doStreamStep" failed after 0 retries: A provider request failed', {
+      cause: failure([metadata("0", false)]),
+    });
+    expect(readAgentProviderErrorCharge(wrapped, "vertex")).toEqual(
+      readAgentProviderErrorCharge(failure([metadata("0", false)]), "vertex"),
+    );
+    expect(readAgentProviderErrorCharge(wrapped, "vertex")).not.toBeNull();
+  });
+
   it("sums separate no-ID receipts instead of deduplicating equal monetary figures", () => {
     expect(readAgentProviderErrorCharge(failure([metadata("0.0005"), metadata("0.0005")]), "vertex")).toEqual({
       costMicrocents: 100_000,
