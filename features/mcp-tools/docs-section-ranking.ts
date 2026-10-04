@@ -3,9 +3,6 @@ import { createHash } from "node:crypto";
 import type { SectionRanker, SectionRanking } from "@/core/retrieval/retrieval-context";
 import type { DocsLocale, DocsSource } from "./docs-manifest";
 
-// One search_docs call and the get_docs_page that follows rank the same query and candidates; a burst
-// of distinct questions (a turn's parallel lookups, or the retrieval contracts) must not evict a
-// ranking before its follow-up excerpt reads it, or every excerpt repeats an identical rerank.
 export const DOCS_RANKING_CACHE_SIZE = 256;
 const rankings = new WeakMap<SectionRanker, Map<string, SectionRanking>>();
 

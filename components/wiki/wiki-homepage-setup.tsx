@@ -55,20 +55,10 @@ export function useWikiSetupFailureBody(state: WikiHomepageSetupState) {
   return state.failureReason ? failedBodies[state.failureReason] : t("WikiSetup.status.failedBody");
 }
 
-/**
- * Identifies what the server-rendered route shows from a setup state: the status and the created pages.
- * Crawl progress (fetched counts, the current URL, per-page statuses) is deliberately excluded, because
- * it is rendered from the polled client state and must never trigger a route refresh.
- */
 export function wikiSetupRouteSignature(state: WikiHomepageSetupState) {
   return JSON.stringify([state.status, state.pageCount ?? state.pages.length, state.pages.map(({ id }) => id)]);
 }
 
-/**
- * Returns the latest setup state while an import is running. Polls the state into client state so the
- * progress view updates in place, and refreshes the route only when the status or the created pages change.
- * A newer server state (after a refresh) always replaces the polled one.
- */
 export function useLiveWikiSetupState(serverState: WikiHomepageSetupState): WikiHomepageSetupState {
   const router = useRouter();
   const { navigationGuard } = useRootStore();
@@ -112,8 +102,6 @@ export function useLiveWikiSetupState(serverState: WikiHomepageSetupState): Wiki
         const nextRouteSignature = wikiSetupRouteSignature(result.data);
         if (nextRouteSignature === knownRoute.current) return;
         knownRoute.current = nextRouteSignature;
-        // The refresh may be deferred while a form is dirty and must survive this poll stopping
-        // (a finished import ends polling), but is dropped once a newer server state has arrived.
         const requestedFrom = serverRoute.current;
         navigationGuard.requestRouteRefreshWhenSafe(() => {
           if (mounted.current && serverRoute.current === requestedFrom) router.refresh();

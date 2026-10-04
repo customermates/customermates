@@ -1596,7 +1596,6 @@ describe("Wiki empty state", () => {
         ],
       },
     };
-    // A fresh state object per render stands in for the hook's own state update after a poll.
     const view = () => createElement(WikiPageView, { initialPage: null, initialSetupState: { ...working }, listPage });
     const { container, root } = await mount(view());
     const content = container.querySelector("[data-page-state-content]");
