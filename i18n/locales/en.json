@@ -3796,6 +3796,7 @@
       "reading": "Reading",
       "readingCount": "Reading pages · {fetched}/{total}",
       "skipped": {
+        "aiUnavailable": "Mate temporarily unavailable",
         "credits": "Out of AI credits",
         "error": "Not written",
         "evidence": "Not enough source evidence",

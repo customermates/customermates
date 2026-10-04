@@ -49,6 +49,7 @@ export function useWikiSetupFailureBody(state: WikiHomepageSetupState) {
     blocked: t("WikiSetup.status.failedBodyBlocked", { domain }),
     unavailable: t("WikiSetup.status.failedBodyUnavailable", { domain }),
     credits: t("Common.errors.agentLimitReached"),
+    aiUnavailable: t("Common.errors.agentServiceUnavailable"),
     synthesis: t("WikiSetup.status.failedBodySynthesis"),
   };
   return state.failureReason ? failedBodies[state.failureReason] : t("WikiSetup.status.failedBody");

@@ -3796,6 +3796,7 @@
       "reading": "Lettura in corso",
       "readingCount": "Lettura delle pagine · {fetched}/{total}",
       "skipped": {
+        "aiUnavailable": "Mate temporaneamente non disponibile",
         "credits": "Crediti IA esauriti",
         "error": "Non scritta",
         "evidence": "Fonti insufficienti",

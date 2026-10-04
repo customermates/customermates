@@ -30,6 +30,8 @@ export type AgentWorkspaceCreditPool = {
   usable: boolean;
 };
 
+export type AgentRetrievalRefusal = "credits" | "unavailable";
+
 export type AgentRetrievalReservation = {
   id: string;
   grant: AgentRetrievalGrant;
@@ -291,6 +293,23 @@ export class AgentUsageService {
       periodStart: state.summary.periodStart,
       periodEnd: state.summary.resetAt,
     };
+  }
+
+  /**
+   * Explains a refused retrieval grant or reservation the way chat admission does: exhausted
+   * allowance or pool headroom is `credits`; a blocked subscription, paused provider work or the
+   * platform spend cap is `unavailable`. It only labels a refusal and never admits work.
+   */
+  async retrievalRefusal(
+    userId: string,
+    worstCaseMicrocents: number,
+    now = new Date(),
+  ): Promise<AgentRetrievalRefusal> {
+    const state = await this.resolveUsageState(userId, now);
+    if (state.summary.blockedReason === "credits_exhausted") return "credits";
+    if (state.summary.blockedReason || !state.user.subscription || !state.summary.plan) return "unavailable";
+    if (!(await this.repo.admitsHostedAiRetrievalUnscoped(now))) return "unavailable";
+    return state.remainingMicrocents < Math.max(1, worstCaseMicrocents) ? "credits" : "unavailable";
   }
 
   async prepareWorkspaceIndexing(companyId: string, now = new Date()): Promise<AgentRetrievalGrant | null> {

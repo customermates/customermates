@@ -23,6 +23,7 @@ export const WIKI_SYNTHESIS_SKIP_REASONS = [
   "review",
   "reviewUnavailable",
   "credits",
+  "aiUnavailable",
   "persistence",
   "error",
 ] as const;

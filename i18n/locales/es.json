@@ -3796,6 +3796,7 @@
       "reading": "Leyendo",
       "readingCount": "Leyendo páginas · {fetched}/{total}",
       "skipped": {
+        "aiUnavailable": "Mate no disponible temporalmente",
         "credits": "Sin créditos de IA",
         "error": "No redactada",
         "evidence": "Pruebas insuficientes en las fuentes",

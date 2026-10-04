@@ -3796,6 +3796,7 @@
       "reading": "Wird gelesen",
       "readingCount": "Seiten lesen · {fetched}/{total}",
       "skipped": {
+        "aiUnavailable": "Mate vorübergehend nicht verfügbar",
         "credits": "Keine KI-Credits mehr",
         "error": "Nicht geschrieben",
         "evidence": "Zu wenig Belege in den Quellen",

@@ -14,7 +14,7 @@ import { WikiPageSummarySchema } from "./wiki.schema";
 import { WikiCrawlTargetProgressSchema, WikiSynthesisTopicProgressSchema } from "./wiki-crawl-progress.schema";
 
 const WikiCrawlPhaseSchema = z.enum(["queued", "discovering", "fetching", "importing", "synthesizing"]);
-const WikiSetupFailureReasonSchema = z.enum(["blocked", "unavailable", "credits", "synthesis"]);
+const WikiSetupFailureReasonSchema = z.enum(["blocked", "unavailable", "credits", "aiUnavailable", "synthesis"]);
 export type WikiSetupFailureReason = Data<typeof WikiSetupFailureReasonSchema>;
 
 export const WikiHomepageSetupStateSchema = z.object({
