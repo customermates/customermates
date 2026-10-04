@@ -14653,6 +14653,65 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     await write({ action: "delete", ref: first, expectedVersion: (await f.readRecord(first)).version });
     expect(await totals(organization)).toEqual([amount("0"), count("0"), count("0")]);
   });
+  it("releases retained snapshot provenance when its relinked source record is deleted", async () => {
+    const f = await fixture();
+    for (const key of ["deal", "lineItem"]) {
+      await f.run(() =>
+        runInTransaction(() => f.repo.setGrants(f.id(key), [{ roleId: f.memberRole.id, actions: ["readAll"] }])),
+      );
+    }
+    const retired = await f.create("service", "Retired private", [["service.amount", decimal("1000")]]);
+    const replacement = await f.create("service", "Replacement", [["service.amount", decimal("800")]]);
+    const deal = await f.create("deal", "Saved price deal");
+    const line = await f.create(
+      "lineItem",
+      "Saved line",
+      [["lineItem.pricingMode", { kind: "select", value: "saved" }]],
+      [
+        { relationId: f.id("lineItem.service"), direction: "outgoing", record: retired },
+        { relationId: f.id("lineItem.deal"), direction: "outgoing", record: deal },
+      ],
+    );
+    expect(
+      await f.mutation({
+        action: "update",
+        ref: line,
+        expectedVersion: (await f.readRecord(line)).version,
+        fields: [],
+        linkChanges: [
+          { action: "unlink", relationId: f.id("lineItem.service"), direction: "outgoing", record: retired },
+          { action: "link", relationId: f.id("lineItem.service"), direction: "outgoing", record: replacement },
+        ],
+      }),
+    ).toMatchObject({ ok: true });
+    expect(await f.value(line, "lineItem.savedPrice", f.member)).toEqual({ state: "restricted" });
+    const dependencies = () =>
+      f.run(() =>
+        prisma.recordValueDependency.count({
+          where: { companyId: f.company.id, sourceTypeId: retired.typeId, sourceId: retired.recordId },
+        }),
+      );
+    expect(await dependencies()).toBeGreaterThan(0);
+    expect(
+      await f.mutation({ action: "delete", ref: retired, expectedVersion: (await f.readRecord(retired)).version }),
+    ).toMatchObject({ ok: true });
+    expect(await dependencies()).toBe(0);
+    expect(await f.value(line, "lineItem.savedPrice", f.member)).toEqual({
+      state: "value",
+      value: decimal("1000"),
+    });
+    const filtered = await f.run(
+      () =>
+        f.query.invoke(
+          RecordQuerySchema.parse({
+            typeId: line.typeId,
+            filters: [{ fieldId: f.id("lineItem.savedPrice"), operator: "eq", value: decimal("1000") }],
+          }),
+        ),
+      f.member,
+    );
+    expect(filtered).toMatchObject({ ok: true, data: { total: 1, records: [{ ref: line }] } });
+  });
 });
 
 describeDatabase("provider avatar updates through the generic engine", { timeout: 30000 }, () => {

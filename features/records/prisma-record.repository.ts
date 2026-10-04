@@ -1015,6 +1015,11 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
   }
 
   async delete(ref: RecordRef): Promise<void> {
+    // Values that captured or retained this record as a source keep no
+    // restriction once it is gone; otherwise they would read as restricted forever.
+    await this.prisma.recordValueDependency.deleteMany({
+      where: { companyId: this.companyId, sourceTypeId: ref.typeId, sourceId: ref.recordId },
+    });
     const identities = await this.prisma.recordIdentityLink.findMany({
       where: { companyId: this.companyId, typeId: ref.typeId, recordId: ref.recordId },
       select: { identityId: true },
@@ -1647,6 +1652,9 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
     );
     await this.prisma.$executeRaw(
       Prisma.sql`INSERT INTO "RecordValueDependency" ("companyId", "typeId", "recordId", "fieldId", "sourceTypeId", "sourceId") SELECT ${companyId}, stage.payload->'ref'->>'typeId', stage.payload->'ref'->>'recordId', stage.payload->>'fieldId', source.ref->>'typeId', source.ref->>'recordId' FROM "RecordStageRow" stage CROSS JOIN LATERAL jsonb_array_elements(stage.payload->'sources') AS source(ref) JOIN "RecordValue" value ON value."companyId" = ${companyId} AND value."typeId" = stage.payload->'ref'->>'typeId' AND value."recordId" = stage.payload->'ref'->>'recordId' AND value."fieldId" = stage.payload->>'fieldId' WHERE ${stage("dependency")} ON CONFLICT DO NOTHING`,
+    );
+    await this.prisma.$executeRaw(
+      Prisma.sql`DELETE FROM "RecordValueDependency" dependency USING "RecordStageRow" stage WHERE ${stage("record")} AND (stage.payload->>'deleted')::boolean AND dependency."companyId" = ${companyId} AND dependency."sourceTypeId" = stage.payload->'ref'->>'typeId' AND dependency."sourceId" = stage.payload->'ref'->>'recordId'`,
     );
     await this.prisma.$executeRaw(
       Prisma.sql`UPDATE "CrmRecord" record SET version = record.version + 1, "updatedAt" = NOW() WHERE record."companyId" = ${companyId} AND EXISTS (SELECT 1 FROM "RecordStageRow" stage WHERE (${stage("value")} OR ${stage("dependency")}) AND stage.payload->'ref'->>'typeId' = record."typeId" AND stage.payload->'ref'->>'recordId' = record.id) AND NOT EXISTS (SELECT 1 FROM "RecordStageRow" stage WHERE ${stage("record")} AND stage.key = record."typeId" || ':' || record.id)`,
