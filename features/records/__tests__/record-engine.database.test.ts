@@ -2184,6 +2184,47 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     ).toBe(0);
   });
 
+  it("ignores watched calculated fields the subscription owner cannot read when matching changes", async () => {
+    const f = await fixture();
+    const service = await f.create("service", "Private catalog", [["service.amount", decimal("50")]]);
+    const deal = await f.create("deal", "Assigned deal");
+    await f.create(
+      "lineItem",
+      "Line",
+      [["lineItem.quantity", decimal("2", null)]],
+      [
+        { relationId: f.id("lineItem.deal"), direction: "outgoing", record: deal },
+        { relationId: f.id("lineItem.service"), direction: "outgoing", record: service },
+      ],
+    );
+    await f.run(() =>
+      runInTransaction(async () => {
+        await f.repo.setAssignments(deal, [f.member.id]);
+        await f.repo.setGrants(deal.typeId, [{ roleId: f.memberRole.id, actions: ["readOwn"] }]);
+      }),
+    );
+    const watch = {
+      typeId: f.id("deal"),
+      events: ["record.updated" as const],
+      changedFieldIds: [f.id("deal.totalValue")],
+    };
+    const restricted = await subscribeRecordEvents(f, { ...watch, ownerUserId: f.member.id });
+    const unrestricted = await subscribeRecordEvents(f, watch);
+    const matches = (subscriptionId: string) =>
+      f.run(() => prisma.recordEventMatch.count({ where: { companyId: f.company.id, subscriptionId } }));
+
+    expect(await f.update(service, [["service.amount", decimal("60")]])).toMatchObject({ ok: true });
+    expect(await matches(unrestricted.id)).toBe(1);
+    expect(await matches(restricted.id)).toBe(0);
+
+    await f.run(() =>
+      runInTransaction(() => f.repo.setGrants(service.typeId, [{ roleId: f.memberRole.id, actions: ["readAll"] }])),
+    );
+    expect(await f.update(service, [["service.amount", decimal("70")]])).toMatchObject({ ok: true });
+    expect(await matches(unrestricted.id)).toBe(2);
+    expect(await matches(restricted.id)).toBe(1);
+  });
+
   it("captures only authorized event subscriptions and preserves routine recursion and changed-field guards", async () => {
     const f = await fixture();
     const foreign = await fixture();

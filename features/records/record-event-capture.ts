@@ -5,7 +5,7 @@ import { recordAccessForActor } from "./record-access";
 import { RecordEventSubscriptionSchema } from "./record-event-subscription.schema";
 import { RecordQuerySchema } from "./record-query.schema";
 import { invalidRecordQueryPart } from "./record-query-validation";
-import { compileRecordQuery } from "./record-query";
+import { compileRecordQuery, fieldReadPredicate } from "./record-query";
 
 export async function captureRecordEventMatches(
   client: AppPrismaClient,
@@ -72,8 +72,26 @@ export async function captureRecordEventMatches(
         const query = RecordQuerySchema.parse(source.query);
         if (invalidRecordQueryPart(query, model)) continue;
         const compiled = compileRecordQuery(companyId, query, model, access);
+        const watched = source.changedFieldIds.flatMap((fieldId) => {
+          const field = model.fields.find(
+            (candidate) => candidate.id === fieldId && candidate.typeId === typeId && !candidate.archived,
+          );
+          return field ? [field] : [];
+        });
+        const watchedRecord = Prisma.raw(`"watched_record"`);
+        const readableChange = watched.length
+          ? Prisma.join(
+              watched.map(
+                (field) =>
+                  Prisma.sql`((event.payload->'changedFieldIds') ?| ARRAY[${field.id}]::text[] AND ${fieldReadPredicate(companyId, field, model, access, watchedRecord)})`,
+              ),
+              " OR ",
+            )
+          : Prisma.sql`FALSE`;
         const changed = source.changedFieldIds.length
-          ? Prisma.sql`(event.kind <> 'record.updated' OR (event.payload->'changedFieldIds') ?| ARRAY[${Prisma.join(source.changedFieldIds)}]::text[])`
+          ? Prisma.sql`(event.kind <> 'record.updated' OR EXISTS (SELECT 1 FROM "CrmRecord" ${watchedRecord}
+              WHERE ${watchedRecord}."companyId" = ${companyId} AND ${watchedRecord}."typeId" = event."typeId"
+                AND ${watchedRecord}.id = event."recordId" AND (${readableChange})))`
           : Prisma.sql`TRUE`;
         await client.$executeRaw(Prisma.sql`
           INSERT INTO "RecordEventMatch" ("companyId", "eventId", "subscriptionId", "subscriptionRevision")
