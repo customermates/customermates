@@ -582,6 +582,24 @@ function expectInvalidRecipients(result: any) {
 describe("SaveDraftInteractor cold-draft target binding", () => {
   beforeEach(() => vi.clearAllMocks());
 
+  it("never saves a chat draft for a teammate without access to the sending account", async () => {
+    const chatThread = {
+      ...emailDraftThread,
+      provider: MessagingProvider.linkedin,
+      unipileThreadId: "provider-chat-thread",
+      participants: [{ ...emailDraftThread.participants[0], attendeeId: "handle", identifier: "handle" }],
+    };
+    const repo = saveDraftRepo({ findThreadByIdOrThrow: vi.fn().mockResolvedValue(chatThread) });
+    const interactor = new SaveDraftInteractor(
+      repo as never,
+      { findUsableAccountByIdOrThrow: vi.fn().mockRejectedValue(new Error("not found")) } as never,
+      mockEntitlementService(),
+    );
+
+    await expect(interactor.invoke({ threadId: chatThread.id, body: "teammate overwrite" })).rejects.toThrow();
+    expect(repo.upsertThreadDraftOrThrow).not.toHaveBeenCalled();
+  });
+
   it("renders email draft HTML before persistence while preserving editable Markdown", async () => {
     const repo = saveDraftRepo();
     const body = "**Review** [project](https://example.com)";

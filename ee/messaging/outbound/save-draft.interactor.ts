@@ -131,10 +131,11 @@ export class SaveDraftInteractor extends AuthenticatedInteractor<SaveDraftData, 
     const thread = resolved.thread;
     const isEmail = isEmailProvider(thread.provider);
 
+    const account = await this.accountRepo.findUsableAccountByIdOrThrow(thread.connectedAccountId);
+
     let sender: MessagingAttendee;
     let bodyHtml: string | null = null;
     if (isEmail) {
-      const account = await this.accountRepo.findUsableAccountByIdOrThrow(thread.connectedAccountId);
       const email = resolveStoredEmailSettings(account.signature, account.signatureFields);
       bodyHtml = renderEmailMarkdown(data.body, email.settings.appearance).html;
       sender = {

@@ -50,6 +50,7 @@ import {
   accessibleFolderStatesWhere,
   inboxThreadVisibilityWhere,
   messageVisibilityWhere,
+  accessibleConnectedAccountWhere,
   threadAccessWhere,
 } from "../messaging-access";
 import { channelClass, classWhere, isDraftThreadId, isEmailProvider, isHandleProvider } from "../provider";
@@ -967,6 +968,7 @@ export class PrismaMessagingRepo
         where: {
           id: args.threadId,
           ...threadAccessWhere(this.companyId, this.userId),
+          connectedAccount: { is: accessibleConnectedAccountWhere(this.companyId, this.userId) },
         },
         select: { id: true, unipileThreadId: true },
       });
@@ -1226,7 +1228,7 @@ export class PrismaMessagingRepo
         id: args.messageId,
         companyId: this.companyId,
         isDraft: true,
-        thread: threadAccessWhere(this.companyId, this.userId),
+        connectedAccount: { is: accessibleConnectedAccountWhere(this.companyId, this.userId) },
       },
       select: { messagingThreadId: true, updatedAt: true },
     });

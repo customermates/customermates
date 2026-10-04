@@ -64,3 +64,7 @@ export function draftThreadRecipientSetsMatch(
   const canonicalRight = [...normalizedRight].sort();
   return canonicalLeft.every((recipient, index) => recipient === canonicalRight[index]);
 }
+
+export function canManageThreadDrafts(thread: { isOwner: boolean; accountShared: boolean } | null): boolean {
+  return Boolean(thread && (thread.isOwner || thread.accountShared));
+}

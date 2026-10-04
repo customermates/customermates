@@ -12,6 +12,7 @@ import { AppChip } from "@/components/chip/app-chip";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { canManageThreadDrafts } from "@/ee/messaging/draft-thread";
 import { isEmailProvider } from "@/ee/messaging/provider";
 import { deriveMessageSender, displayableIdentifier } from "@/ee/messaging/thread-display";
 import { cn } from "@/core/utils/cn";
@@ -49,6 +50,7 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
   const isDeleted = message.isDeleted;
   const isEdited = Boolean(message.editedAt) && !isDeleted;
   const isDraft = message.isDraft;
+  const canManageDraft = canManageThreadDrafts(detail.thread);
   const status = detail.messageStatus[message.id];
   const isSending = status === "sending";
   const isFailed = status === "failed";
@@ -205,60 +207,62 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
             </div>
           )}
 
-          {(isDraft || isFailed || canLoadRemoteImages) && (
+          {((isDraft && canManageDraft) || isFailed || canLoadRemoteImages) && (
             <div className="flex flex-wrap items-center gap-2 px-3 py-1.5">
               {isDraft ? (
-                <span className="flex items-center gap-1">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        aria-label={t("Inbox.compose.draftEdit")}
-                        size="icon-xs"
-                        type="button"
-                        variant="secondary"
-                        onClick={() => compose.loadDraft(message)}
-                      >
-                        <Pencil />
-                      </Button>
-                    </TooltipTrigger>
+                canManageDraft && (
+                  <span className="flex items-center gap-1">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          aria-label={t("Inbox.compose.draftEdit")}
+                          size="icon-xs"
+                          type="button"
+                          variant="secondary"
+                          onClick={() => compose.loadDraft(message)}
+                        >
+                          <Pencil />
+                        </Button>
+                      </TooltipTrigger>
 
-                    <TooltipContent>{t("Inbox.compose.draftEdit")}</TooltipContent>
-                  </Tooltip>
+                      <TooltipContent>{t("Inbox.compose.draftEdit")}</TooltipContent>
+                    </Tooltip>
 
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        aria-label={t("Inbox.compose.draftDiscard")}
-                        disabled={!message.draftRevision}
-                        size="icon-xs"
-                        type="button"
-                        variant="softDestructive"
-                        onClick={() => {
-                          const draftRevision = message.draftRevision;
-                          if (!draftRevision) return;
-                          runUserAction(() => compose.discardDraft(message.id, draftRevision));
-                        }}
-                      >
-                        <Trash2 />
-                      </Button>
-                    </TooltipTrigger>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          aria-label={t("Inbox.compose.draftDiscard")}
+                          disabled={!message.draftRevision}
+                          size="icon-xs"
+                          type="button"
+                          variant="softDestructive"
+                          onClick={() => {
+                            const draftRevision = message.draftRevision;
+                            if (!draftRevision) return;
+                            runUserAction(() => compose.discardDraft(message.id, draftRevision));
+                          }}
+                        >
+                          <Trash2 />
+                        </Button>
+                      </TooltipTrigger>
 
-                    <TooltipContent>{t("Inbox.compose.draftDiscard")}</TooltipContent>
-                  </Tooltip>
+                      <TooltipContent>{t("Inbox.compose.draftDiscard")}</TooltipContent>
+                    </Tooltip>
 
-                  <Button
-                    size="xs"
-                    type="button"
-                    onClick={() => {
-                      compose.loadDraft(message);
-                      runUserAction(() => compose.send());
-                    }}
-                  >
-                    <Send />
+                    <Button
+                      size="xs"
+                      type="button"
+                      onClick={() => {
+                        compose.loadDraft(message);
+                        runUserAction(() => compose.send());
+                      }}
+                    >
+                      <Send />
 
-                    {t("Inbox.compose.draftSendNow")}
-                  </Button>
-                </span>
+                      {t("Inbox.compose.draftSendNow")}
+                    </Button>
+                  </span>
+                )
               ) : isFailed ? (
                 <Button
                   size="xs"
