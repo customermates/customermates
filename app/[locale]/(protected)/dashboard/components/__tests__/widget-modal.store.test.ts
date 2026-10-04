@@ -433,6 +433,22 @@ describe("starter widget gallery", () => {
     displayOptions: { ...displayOptions, displayType },
   });
 
+  it("prefetches templates with the record types so the chooser opens without a layout shift", async () => {
+    mocks.getWidgetGalleryAction.mockResolvedValue({
+      ok: true,
+      data: { schemaRevision: 7, templates: [template(DisplayType.number, null)] },
+    });
+    const { store } = setup();
+    await vi.waitFor(() => expect(store.galleryTemplates).toHaveLength(1));
+    const loaded = store.galleryTemplates;
+    store.add();
+    expect(store.galleryTemplates).toBe(loaded);
+    await vi.waitFor(() => expect(mocks.getWidgetGalleryAction).toHaveBeenCalledTimes(2));
+    expect(store.galleryTemplates).toBe(loaded);
+    store.setRecordTypes(discovery, { schemaRevision: 8, templates: [] });
+    expect(store.galleryTemplates).toEqual([]);
+  });
+
   it("loads the resolved templates and starts an editable draft without the source-type reset", async () => {
     const funnel = template(DisplayType.funnelChart, { path: [], fieldId: stage?.id });
     const area = template(DisplayType.areaChart, { path: [], fieldId: "system:createdAt", dateInterval: "month" });

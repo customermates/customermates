@@ -5,7 +5,7 @@ import { recordActivityFilterCount } from "@/ee/messaging/activities/record-acti
 import type { DiscoveredRecordTypes } from "@/features/records/discover-record-types.interactor";
 import { RecordActivityWidgetInputSchema } from "@/features/widget/record-activity-widget.schema";
 import { RecordWidgetInputSchema } from "@/features/widget/record-widget.schema";
-import type { WidgetGalleryTemplate } from "@/features/widget/widget-gallery";
+import type { WidgetGallery, WidgetGalleryTemplate } from "@/features/widget/widget-gallery";
 import type { CompanyWidget, WidgetDto } from "@/features/widget/widget.schema";
 import { isRecordActivityWidget, isRecordWidget } from "@/features/widget/widget.schema";
 import type { FormEvent } from "react";
@@ -50,6 +50,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
   public companyWideWidgets: CompanyWidget[] = [];
   public galleryTemplates: WidgetGalleryTemplate[] = [];
   private gallerySchemaRevision: number | null = null;
+  private galleryGeneration = 0;
   public expandedSection: WidgetModalSection = "config";
   public expandedFilterField: string | undefined = undefined;
   public creationStep: WidgetCreationStep = "choose";
@@ -202,18 +203,18 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
   };
 
   fetchGallery = async () => {
-    if (this.form.id) return;
-
-    const session = this.sessionGeneration;
-    this.galleryTemplates = [];
-    if (!this.availableKinds.includes(WidgetKind.chart)) return;
-    const result = await getWidgetGalleryAction();
-    if (result.ok && session === this.sessionGeneration && this.isOpen && !this.form.id) {
-      runInAction(() => {
-        this.galleryTemplates = result.data.templates;
-        this.gallerySchemaRevision = result.data.schemaRevision;
-      });
+    const generation = ++this.galleryGeneration;
+    if (!this.availableKinds.includes(WidgetKind.chart)) {
+      this.galleryTemplates = [];
+      return;
     }
+    const result = await getWidgetGalleryAction();
+    if (!result.ok || generation !== this.galleryGeneration) return;
+    runInAction(() => {
+      if (JSON.stringify(result.data.templates) !== JSON.stringify(this.galleryTemplates))
+        this.galleryTemplates = result.data.templates;
+      this.gallerySchemaRevision = result.data.schemaRevision;
+    });
   };
 
   startFromGallery = (template: WidgetGalleryTemplate, name: string) => {
@@ -345,8 +346,15 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     }
   };
 
-  setRecordTypes = (types: DiscoveredRecordTypes) => {
+  setRecordTypes = (types: DiscoveredRecordTypes, gallery?: WidgetGallery) => {
     this.recordTypes = types;
+    if (!gallery) {
+      void this.fetchGallery().catch(reportApplicationError);
+      return;
+    }
+    this.galleryGeneration += 1;
+    this.galleryTemplates = this.availableKinds.includes(WidgetKind.chart) ? gallery.templates : [];
+    this.gallerySchemaRevision = gallery.schemaRevision;
   };
 
   setActivityFilterableFields = (filterableFields: FilterableField[]) => {
