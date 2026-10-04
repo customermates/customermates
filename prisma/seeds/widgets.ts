@@ -1,6 +1,6 @@
 import { Prisma, WidgetKind } from "@/generated/prisma";
-import { migrateActivityQuery } from "../record-migrations/v4/activity-query";
-import { migrateChartMeasure } from "../record-migrations/v5/widgets";
+import { migrateActivityQuery } from "./legacy-conversion/v4/activity-query";
+import { migrateChartMeasure } from "./legacy-conversion/v5/widgets";
 import { syntheticRecordModel } from "./records";
 
 import type { SeedContext } from "./context";

@@ -1,7 +1,6 @@
 import Decimal from "decimal.js";
 import { z } from "zod";
 
-import type { ClientBase } from "pg";
 import type { RecordField, RecordModel, RecordScalar } from "./contract/record-model.schema";
 
 import { createCrmPreset, presetId } from "./contract/crm-preset";
@@ -57,7 +56,7 @@ export const LEGACY_RELATIONSHIPS = [
   },
 ] as const;
 
-const LegacyColumnSchema = z.object({
+export const LegacyColumnSchema = z.object({
   id: z.uuid(),
   entityType: z.enum(LEGACY_TYPES),
   label: z.string(),
@@ -120,28 +119,7 @@ function fieldType(type: LegacyColumn["type"]): RecordField["valueType"] {
   return type;
 }
 
-export async function readLegacyModel(client: ClientBase, companyId: string): Promise<LegacyModel> {
-  const companies = await client.query<{
-    id: string;
-    currency: string;
-    dealWeightingColumnId: string | null;
-  }>('SELECT id, currency, "dealWeightingColumnId" FROM "Company" WHERE id = $1', [companyId]);
-  const company = companies.rows[0];
-  if (!company) throw new Error("Migration workspace does not exist");
-  const columns = z
-    .array(LegacyColumnSchema)
-    .parse(
-      (
-        await client.query(
-          'SELECT id, "entityType", label, type, options, "createdAt", "updatedAt" FROM "CustomColumn" WHERE "companyId" = $1 ORDER BY "createdAt", id',
-          [companyId],
-        )
-      ).rows,
-    );
-  return buildLegacyFixtureModel(companyId, company.currency, company.dealWeightingColumnId, columns);
-}
-
-/** Frozen conversion shared by upgrade fixtures; never queries legacy tables. */
+/** Frozen conversion of legacy-shaped seed and benchmark fixtures; never queries a database. */
 export function buildLegacyFixtureModel(
   companyId: string,
   currency: string,

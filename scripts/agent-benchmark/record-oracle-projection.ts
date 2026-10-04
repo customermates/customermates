@@ -1,6 +1,6 @@
 import { presetId } from "@/features/records/crm-preset";
 import { RETIRED_RECORD_TOOLS } from "@/features/mcp-tools/retired-record-tools";
-import { LEGACY_RELATIONSHIPS } from "@/prisma/record-migrations/v2/legacy-model";
+import { LEGACY_RELATIONSHIPS } from "@/prisma/seeds/legacy-conversion/v2/legacy-model";
 
 type Row = Record<string, unknown>;
 type Snapshot = Record<string, unknown[]>;

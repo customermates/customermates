@@ -1,12 +1,13 @@
 import { randomUUID } from "node:crypto";
-import { readFile, readdir } from "node:fs/promises";
-import { resolve } from "node:path";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { describe, expect, it } from "vitest";
 import { PrismaClient } from "@/generated/prisma";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
-import { createLegacyMigrationDatabase, CRM_CONTRACTION_MIGRATION } from "@/tests/helpers/legacy-migration-database";
-import { LEGACY_CRM_TABLES } from "../record-migrations/v8/tables";
+import {
+  applyConfigurableRecordsMigration,
+  createLegacyMigrationDatabase,
+  LEGACY_CRM_TABLES,
+} from "@/tests/helpers/legacy-migration-database";
 import { createSeedContext, SEED_IDS } from "../seeds/context";
 import { runSyntheticSeed } from "../seeds/run";
 import { presetId } from "@/features/records/crm-preset";
@@ -14,15 +15,11 @@ import { presetId } from "@/features/records/crm-preset";
 const database = getLocalDatabaseTestUrl();
 const suite = database ? describe : describe.skip;
 suite("generic synthetic seed convergence", { timeout: 180000 }, () => {
-  it("seeds twice after physical contraction, preserves recreated links and unrelated records, and removes only stale fixtures", async () => {
+  it("seeds twice after the configurable records migration, preserves recreated links and unrelated records, and removes only stale fixtures", async () => {
     const fixture = await createLegacyMigrationDatabase(database);
     let prisma: PrismaClient | undefined;
     try {
-      const migrations = (await readdir(resolve("prisma/migrations")))
-        .filter((entry) => /^\d+_/.test(entry) && entry >= CRM_CONTRACTION_MIGRATION)
-        .sort();
-      for (const migration of migrations)
-        await fixture.client.query(await readFile(resolve("prisma/migrations", migration, "migration.sql"), "utf8"));
+      await applyConfigurableRecordsMigration(fixture.client);
       prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: fixture.url }) });
       const context = createSeedContext(prisma, {
         seedUserEmail: "max.bergmann@customermates.com",

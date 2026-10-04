@@ -2,8 +2,8 @@ import type { DateBucket } from "@/core/base/grouping/grouping.schema";
 import type { DataViewState } from "@/core/data-view/data-view-state.schema";
 import { presetId } from "@/features/records/crm-preset";
 import type { PrismaClient } from "@/generated/prisma";
-import type { LegacyType } from "../record-migrations/v2/legacy-model";
-import { migratePresentationState } from "../record-migrations/v5/state";
+import type { LegacyType } from "./legacy-conversion/v2/legacy-model";
+import { migratePresentationState } from "./legacy-conversion/v5/state";
 import { syntheticRecordModel } from "./records";
 
 import { FilterOperatorKey, ViewMode } from "@/core/base/base-query-builder";

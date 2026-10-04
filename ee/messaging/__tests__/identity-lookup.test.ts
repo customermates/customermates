@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { identityLookupValue } from "../identity-lookup";
-import { participantLookupValue } from "@/prisma/record-migrations/v3/participant-identities";
 
 describe("participant identity lookup", () => {
   it.each([
@@ -18,11 +17,7 @@ describe("participant identity lookup", () => {
     ["mail", "invalid-address", "invalid-address"],
     ["mail", "  ", null],
     ["linkedin", null, null],
-  ] as const)(
-    "normalizes %s identifier %s identically in the reader, writer and versioned backfill",
-    (provider, value, expected) => {
-      expect(identityLookupValue(provider, value)).toBe(expected);
-      expect(participantLookupValue(provider, value)).toBe(expected);
-    },
-  );
+  ] as const)("normalizes %s identifier %s identically in the reader and writer", (provider, value, expected) => {
+    expect(identityLookupValue(provider, value)).toBe(expected);
+  });
 });

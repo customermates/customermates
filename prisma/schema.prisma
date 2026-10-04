@@ -249,7 +249,6 @@ model Company {
   recordTypeGrants            RecordTypeGrant[]
   recordSchemaState           RecordSchemaState?
   recordSchemaRevisions       RecordSchemaRevision[]
-  recordMigrationCheckpoints  RecordMigrationCheckpoint[]
   recordOperations            RecordOperation[]
   recordStageRows             RecordStageRow[]
   recordMutationReceipts      RecordMutationReceipt[]
@@ -258,7 +257,6 @@ model Company {
   recordEventMatches          RecordEventMatch[]
   recordIdentities            RecordIdentity[]
 }
-
 
 model P13n {
   viewStateKeys    Json?
@@ -772,9 +770,6 @@ enum CountryCode {
   zw
 }
 
-
-
-
 enum Currency {
   eur
   usd
@@ -937,8 +932,6 @@ enum WidgetKind {
   chart
   activityTimeline
 }
-
-
 
 enum SubscriptionStatus {
   trial
@@ -1691,17 +1684,17 @@ model RecordRelationshipDefinition {
 model CrmRecord {
   companyId     String
   typeId        String
-  id            String               @default(uuid())
-  version       Int                  @default(1)
+  id            String                      @default(uuid())
+  version       Int                         @default(1)
   protectedKind String?
   systemData    Json?
-  createdAt     DateTime             @default(now())
-  updatedAt     DateTime             @updatedAt
-  company       Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  type          RecordTypeDefinition @relation(fields: [companyId, typeId], references: [companyId, id], onDelete: Cascade)
+  createdAt     DateTime                    @default(now())
+  updatedAt     DateTime                    @updatedAt
+  company       Company                     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  type          RecordTypeDefinition        @relation(fields: [companyId, typeId], references: [companyId, id], onDelete: Cascade)
   values        RecordValue[]
-  outgoing      RecordLink[]         @relation("RecordLinkSource")
-  incoming      RecordLink[]         @relation("RecordLinkTarget")
+  outgoing      RecordLink[]                @relation("RecordLinkSource")
+  incoming      RecordLink[]                @relation("RecordLinkTarget")
   assignments   RecordAssignment[]
   identities    RecordIdentityLink[]
   threads       MessagingThreadRecordLink[]
@@ -1713,16 +1706,16 @@ model CrmRecord {
 
 model RecordIdentity {
   companyId    String
-  id           String              @default(uuid())
+  id           String               @default(uuid())
   provider     MessagingProvider
   channelClass String
   value        String
   messagingId  String?
   displayName  String?
   profileUrl   String?
-  createdAt    DateTime            @default(now())
-  updatedAt    DateTime            @updatedAt
-  company      Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  company      Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
   keys         RecordIdentityKey[]
   records      RecordIdentityLink[]
 
@@ -1735,7 +1728,7 @@ model RecordIdentityLink {
   identityId String
   typeId     String
   recordId   String
-  createdAt  DateTime        @default(now())
+  createdAt  DateTime       @default(now())
   identity   RecordIdentity @relation(fields: [companyId, identityId], references: [companyId, id], onDelete: Cascade)
   record     CrmRecord      @relation(fields: [companyId, typeId, recordId], references: [companyId, typeId, id], onDelete: Cascade)
 
@@ -1874,17 +1867,6 @@ model RecordSchemaRevision {
   company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   @@id([companyId, revision])
-}
-
-model RecordMigrationCheckpoint {
-  companyId   String
-  version     Int
-  sourceHash  String
-  manifest    Json
-  completedAt DateTime @default(now())
-  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  @@id([companyId, version])
 }
 
 model RecordOperation {

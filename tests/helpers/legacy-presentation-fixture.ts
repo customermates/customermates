@@ -1,10 +1,12 @@
 import { randomUUID } from "node:crypto";
 import type { Client } from "pg";
-import { presetId } from "../../v2/contract/crm-preset";
-import { LEGACY_TYPES } from "../../v2/legacy-model";
+import { presetId } from "@/features/records/crm-preset";
+
+const LEGACY_TYPES = ["contact", "organization", "deal", "service", "task"] as const;
 
 export const timestamps = { createdAt: "2023-01-02T03:04:05.123Z", updatedAt: "2024-02-03T04:05:06.456Z" };
 
+/** A legacy workspace with saved views, personalisation and dashboard widgets on every legacy surface. */
 export async function presentationFixture(
   client: Client,
   probability: 60 | 0 | null = 60,
@@ -136,7 +138,6 @@ export async function presentationFixture(
         filters: "[]",
         sortDescriptor: "{}",
         pagination: JSON.stringify({ page: 2, pageSize: 10 }),
-        viewStateKeys: JSON.stringify(["columnOrder", "filters", "sortDescriptor", "pageSize"]),
         columnWidths: JSON.stringify({ name: 180 }),
       }),
     );

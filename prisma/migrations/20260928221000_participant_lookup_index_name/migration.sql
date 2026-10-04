@@ -1,2 +1,0 @@
-ALTER INDEX "MessagingThreadParticipant_companyId_provider_identityLookup_id"
-  RENAME TO "MessagingThreadParticipant_identity_lookup_idx";

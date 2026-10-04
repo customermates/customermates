@@ -7,9 +7,9 @@ import { validateRecordModel } from "@/features/records/record-model-validation"
 import { RecordCalculationService } from "@/features/records/record-calculation.service";
 import { decodeRecordValue, recordJson } from "@/features/records/record-storage";
 import { identityKeys } from "@/features/records/record-identity";
-import { buildLegacyFixtureModel, legacyFieldScalar, LEGACY_RELATIONSHIPS, type LegacyType } from "@/prisma/record-migrations/v2/legacy-model";
-import { presentationMigrationModel } from "@/prisma/record-migrations/v5/model";
-import { migratePresentationState } from "@/prisma/record-migrations/v5/state";
+import { buildLegacyFixtureModel, legacyFieldScalar, LEGACY_RELATIONSHIPS, type LegacyType } from "@/prisma/seeds/legacy-conversion/v2/legacy-model";
+import { presentationMigrationModel } from "@/prisma/seeds/legacy-conversion/v5/model";
+import { migratePresentationState } from "@/prisma/seeds/legacy-conversion/v5/state";
 import { syntheticCalculationRepo } from "@/prisma/seeds/records";
 import { SURFACE } from "@/core/data-view/data-view-keys";
 

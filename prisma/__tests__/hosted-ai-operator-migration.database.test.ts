@@ -9,6 +9,7 @@ import { describe, expect, it } from "vitest";
 import { SYNTHETIC_SEED_USER } from "@/core/config/synthetic-seed-user";
 import { PrismaClient } from "@/generated/prisma";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
+import { CONFIGURABLE_RECORDS_MIGRATION } from "@/tests/helpers/legacy-migration-database";
 
 import { createSeedContext, SEED_IDS } from "../seeds/context";
 import { seedHostedAiOperatorFixtures, seedLocalHostedAiOperatorAccess } from "../seeds/hosted-ai-operator";
@@ -19,7 +20,7 @@ const migrationsRoot = join(process.cwd(), "prisma/migrations");
 
 function migrationNames() {
   return readdirSync(migrationsRoot, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory() && entry.name < "20261001000000_retire_legacy_crm_storage")
+    .filter((entry) => entry.isDirectory() && entry.name < CONFIGURABLE_RECORDS_MIGRATION)
     .map((entry) => entry.name)
     .sort();
 }

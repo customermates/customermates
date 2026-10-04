@@ -3,7 +3,7 @@ import type { PrismaClient } from "@/generated/prisma";
 import { describe, expect, it } from "vitest";
 
 import { normalizeRecordScalar } from "@/features/records/record-write.service";
-import { legacyFieldScalar } from "../record-migrations/v2/legacy-model";
+import { legacyFieldScalar } from "../seeds/legacy-conversion/v2/legacy-model";
 import { SEED_IDS } from "../seeds/context";
 import { seedCustomFields } from "../seeds/custom-fields";
 import { syntheticRecordModel } from "../seeds/records";

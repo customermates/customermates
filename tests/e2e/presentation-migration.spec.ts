@@ -1,13 +1,8 @@
 import { randomUUID } from "node:crypto";
-import { readFile, readdir } from "node:fs/promises";
-import { resolve } from "node:path";
 import { presetId } from "../../features/records/crm-preset";
-import { migrateRecordWorkspace } from "../../prisma/record-migrations/run";
-import { presentationFixture } from "../../prisma/record-migrations/v5/__tests__/fixture";
-import { finalizeReconciledRecordWorkspace } from "../../prisma/record-migrations/v7/finalize";
-import { prepareLegacyContraction } from "../../prisma/record-migrations/v8/prepare";
 import { copyGenericWorkspace } from "../helpers/copy-generic-workspace";
-import { createLegacyMigrationDatabase,CRM_CONTRACTION_MIGRATION } from "../helpers/legacy-migration-database";
+import { applyConfigurableRecordsMigration, createLegacyMigrationDatabase } from "../helpers/legacy-migration-database";
+import { presentationFixture } from "../helpers/legacy-presentation-fixture";
 import { test as base,expect } from "./fixtures";
 import { removeBrowserWorkspace } from "./workspace";
 
@@ -42,17 +37,7 @@ const test = base.extend({
         'INSERT INTO "Subscription" (id, "companyId", status, "updatedAt") VALUES ($1, $2, \'active\', NOW())',
         [randomUUID(), legacy.companyId],
       );
-      const report = await migrateRecordWorkspace(upgrade.client, legacy.companyId, "backfill", 6);
-      if (!report.ok) throw new Error("Browser legacy migration failed");
-      const reconciliation = await migrateRecordWorkspace(upgrade.client, legacy.companyId, "reconcile", 6);
-      if (!reconciliation.ok) throw new Error("Browser legacy reconciliation failed");
-      await finalizeReconciledRecordWorkspace(upgrade.client, legacy.companyId);
-      await prepareLegacyContraction(upgrade.client);
-      await upgrade.client.query(await readFile(resolve("prisma/migrations", CRM_CONTRACTION_MIGRATION, "migration.sql"), "utf8"));
-      for (const migration of (await readdir(resolve("prisma/migrations")))
-        .filter((entry) => /^\d+_/.test(entry) && entry > CRM_CONTRACTION_MIGRATION)
-        .sort())
-        await upgrade.client.query(await readFile(resolve("prisma/migrations", migration, "migration.sql"), "utf8"));
+      await applyConfigurableRecordsMigration(upgrade.client);
       await copyGenericWorkspace(upgrade.client, database, legacy.companyId);
       await use(workspace);
     } finally {

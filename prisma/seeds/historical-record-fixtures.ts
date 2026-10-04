@@ -2,7 +2,7 @@ import type { PrismaClient } from "@/generated/prisma";
 import { presetId } from "@/features/records/crm-preset";
 import { RecordModelSchema, type RecordScalar } from "@/features/records/record-model.schema";
 import { decodeRecordValue } from "@/features/records/record-storage";
-import type { LegacyType } from "../record-migrations/v2/legacy-model";
+import type { LegacyType } from "./legacy-conversion/v2/legacy-model";
 
 function historicalValue(value: RecordScalar | null): string | null {
   if (!value) return null;

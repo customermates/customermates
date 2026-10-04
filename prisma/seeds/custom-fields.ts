@@ -1,4 +1,4 @@
-import type { LegacyColumn, LegacyType } from "../record-migrations/v2/legacy-model";
+import type { LegacyColumn, LegacyType } from "./legacy-conversion/v2/legacy-model";
 
 import type { ContactSeedData } from "./contacts";
 import type { SeedContext } from "./context";

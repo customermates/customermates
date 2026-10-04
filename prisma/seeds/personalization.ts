@@ -1,7 +1,7 @@
 import { presetId } from "@/features/records/crm-preset";
 import type { PrismaClient } from "@/generated/prisma";
-import type { LegacyType } from "../record-migrations/v2/legacy-model";
-import { migrateDetailState, migratePresentationState } from "../record-migrations/v5/state";
+import type { LegacyType } from "./legacy-conversion/v2/legacy-model";
+import { migrateDetailState, migratePresentationState } from "./legacy-conversion/v5/state";
 import { syntheticRecordModel } from "./records";
 
 import { SURFACE } from "@/core/data-view/data-view-keys";

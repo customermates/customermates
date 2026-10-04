@@ -4,7 +4,6 @@ import { recordInvariant } from "../record-invariant";
 
 import { Prisma } from "@/generated/prisma";
 import { randomUUID } from "node:crypto";
-import { Client } from "pg";
 
 import { afterAll, describe, expect, it, vi } from "vitest";
 
@@ -7425,11 +7424,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     ["telegram", "@person", "person", null],
     ["linkedin", "urn:li:person:123", "person", "urn:li:person:123"],
   ] as const)(
-    "keeps %s ingestion, hydration, filters and migration consistent for %s",
+    "keeps %s ingestion, hydration and filters consistent for %s",
     async (provider, identifier, value, messagingId) => {
       const { PrismaMessagingRepo } = await import("@/ee/messaging/persistence/prisma-messaging.repository");
       const { FilterOperatorKey } = await import("@/core/base/base-query-builder");
-      const { migrateParticipantLookups } = await import("@/prisma/record-migrations/v3/participant-identities");
       const f = await fixture();
       const created = await f.mutation({
         action: "create",
@@ -7498,41 +7496,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       );
       expect(before.identifier).toBe(identifier);
       expect(before.identityLookupValue).toBe(messagingId ?? value);
-      await f.run(() =>
-        prisma.messagingThreadParticipant.update({
-          where: { id: before.id, companyId: f.company.id },
-          data: { identityLookupValue: null, updatedAt: before.updatedAt },
-        }),
-      );
-      const client = new Client({
-        connectionString: getLocalDatabaseTestUrl() ?? undefined,
-      });
-      await client.connect();
-      try {
-        expect(await migrateParticipantLookups(client, f.company.id, "preflight")).toMatchObject({
-          ok: true,
-          count: 1,
-          changed: 1,
-        });
-        expect(await migrateParticipantLookups(client, f.company.id, "reconcile")).toMatchObject({
-          ok: false,
-          mismatches: [before.id],
-        });
-        expect(await migrateParticipantLookups(client, f.company.id, "backfill")).toMatchObject({
-          ok: true,
-          changed: 1,
-        });
-        expect(await migrateParticipantLookups(client, f.company.id, "backfill")).toMatchObject({
-          ok: true,
-          changed: 0,
-        });
-        expect(await migrateParticipantLookups(client, f.company.id, "reconcile")).toMatchObject({
-          ok: true,
-          changed: 0,
-        });
-      } finally {
-        await client.end();
-      }
       expect(
         await f.run(() =>
           prisma.messagingThreadParticipant.findFirstOrThrow({

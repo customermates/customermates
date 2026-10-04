@@ -1,9 +1,9 @@
 import type { ClientBase } from "pg";
-import { LEGACY_CRM_TABLES } from "@/prisma/record-migrations/v8/tables";
+import { LEGACY_CRM_TABLES } from "./legacy-migration-database";
 
-const TABLES = ["Company", "UserRole", "RolePermission", "User", "AuthUser", "Subscription", "RecordSchemaState", "RecordTypeDefinition", "RecordFieldDefinition", "RecordRelationshipDefinition", "RecordSchemaRevision", "CrmRecord", "RecordIdentity", "RecordIdentityKey", "RecordIdentityLink", "RecordValue", "RecordValueDependency", "RecordLink", "RecordAssignment", "RecordTypeGrant", "RecordMigrationCheckpoint", "P13n", "DataView", "Widget", "Routine", "RecordEventSubscription"];
+const TABLES = ["Company", "UserRole", "RolePermission", "User", "AuthUser", "Subscription", "RecordSchemaState", "RecordTypeDefinition", "RecordFieldDefinition", "RecordRelationshipDefinition", "RecordSchemaRevision", "CrmRecord", "RecordIdentity", "RecordIdentityKey", "RecordIdentityLink", "RecordValue", "RecordValueDependency", "RecordLink", "RecordAssignment", "RecordTypeGrant", "P13n", "DataView", "Widget", "Routine", "RecordEventSubscription"];
 
-/** Browser upgrade fixtures are copied only after real SQL contraction; both endpoints are disposable loopback databases. */
+/** Browser upgrade fixtures are copied only after the real SQL migration; both endpoints are disposable loopback databases. */
 export async function copyGenericWorkspace(source: ClientBase, destination: ClientBase, companyId: string) {
   for (const client of [source, destination]) {
     const present = await client.query("SELECT 1 FROM unnest($1::text[]) name WHERE to_regclass(format('%I',name)) IS NOT NULL", [LEGACY_CRM_TABLES]);

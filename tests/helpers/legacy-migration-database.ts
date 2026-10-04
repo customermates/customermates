@@ -1,13 +1,48 @@
 import { randomUUID } from "node:crypto";
-import { readFile, readdir } from "node:fs/promises";
+import { spawn } from "node:child_process";
+import { cp, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { Client, type ClientBase } from "pg";
 import { getLocalDatabaseTestUrl } from "./database-test";
-import { CRM_CONTRACTION_MIGRATION } from "@/prisma/record-migrations/expand";
 
-export { CRM_CONTRACTION_MIGRATION };
+/** The single migration that converts the legacy CRM tables into configurable records. */
+export const CONFIGURABLE_RECORDS_MIGRATION = "20261004000000_configurable_records";
 
-/** Upgrade fixtures use the real pre-contract SQL schema, independently of the current Prisma client. */
+/** Legacy CRM tables removed by the configurable records migration. */
+export const LEGACY_CRM_TABLES = [
+  "Contact",
+  "Organization",
+  "Deal",
+  "Service",
+  "Task",
+  "CustomColumn",
+  "CustomFieldValue",
+  "ContactIdentifier",
+  "ServiceDeal",
+  "ServiceUser",
+  "DealOrganization",
+  "DealUser",
+  "DealContact",
+  "ContactUser",
+  "OrganizationUser",
+  "TaskUser",
+  "TaskContact",
+  "TaskOrganization",
+  "TaskDeal",
+  "TaskService",
+  "ContactOrganization",
+  "EntityTerminology",
+] as const;
+
+export async function migrationNames(filter: (name: string) => boolean = () => true) {
+  return (await readdir(resolve("prisma/migrations"))).filter((entry) => /^\d+_/.test(entry) && filter(entry)).sort();
+}
+
+export async function readMigration(name: string) {
+  return readFile(resolve("prisma/migrations", name, "migration.sql"), "utf8");
+}
+
+/** Upgrade fixtures use the real legacy SQL schema (every migration before the conversion), independently of the Prisma client. */
 export async function createLegacyMigrationDatabase(sourceUrl = getLocalDatabaseTestUrl(), applyMigrations = true) {
   if (!sourceUrl) throw new Error("Legacy migration verification requires a disposable loopback database");
   const source = new URL(sourceUrl);
@@ -29,17 +64,64 @@ export async function createLegacyMigrationDatabase(sourceUrl = getLocalDatabase
   try {
     await client.connect();
     await client.query("SET TIME ZONE 'UTC'");
-    const migrations = (await readdir(resolve("prisma/migrations")))
-      .filter((entry) => /^\d+_/.test(entry) && entry < CRM_CONTRACTION_MIGRATION)
-      .sort();
     if (applyMigrations)
-      for (const migration of migrations)
-        await client.query(await readFile(resolve("prisma/migrations", migration, "migration.sql"), "utf8"));
-    return { client, url: url.toString(), close };
+      for (const migration of await migrationNames((entry) => entry < CONFIGURABLE_RECORDS_MIGRATION))
+        await client.query(await readMigration(migration));
+    return { client, url: url.toString(), name, close };
   } catch (error) {
     await close();
     throw error;
   }
+}
+
+/** Applies the configurable records migration (and any later migration) as plain SQL, without the Prisma ledger. */
+export async function applyConfigurableRecordsMigration(client: ClientBase, { later = true } = {}) {
+  for (const migration of await migrationNames((entry) =>
+    later ? entry >= CONFIGURABLE_RECORDS_MIGRATION : entry === CONFIGURABLE_RECORDS_MIGRATION,
+  ))
+    await client.query(await readMigration(migration));
+}
+
+/**
+ * Runs `prisma migrate deploy` against a disposable database with a temporary copy of the selected migrations,
+ * so the Prisma ledger records exactly what a deployment of that repository state would.
+ */
+export async function deployMigrations(url: string, include: (name: string) => boolean = () => true) {
+  const scratch = resolve(".runs/migration-tests");
+  await mkdir(scratch, { recursive: true });
+  const directory = await mkdtemp(resolve(scratch, "deploy-"));
+  try {
+    const migrations = resolve(directory, "migrations");
+    await mkdir(migrations);
+    for (const entry of await migrationNames(include))
+      await cp(resolve("prisma/migrations", entry), resolve(migrations, entry), { recursive: true });
+    await cp(resolve("prisma/migrations/migration_lock.toml"), resolve(migrations, "migration_lock.toml"));
+    const config = resolve(directory, "prisma.config.ts");
+    await writeFile(
+      config,
+      `export default { schema: ${JSON.stringify(resolve("prisma/schema.prisma"))}, migrations: { path: ${JSON.stringify(migrations)} }, datasource: { url: ${JSON.stringify(url)} } };\n`,
+      { mode: 0o600 },
+    );
+    return await prismaCli(["migrate", "deploy", "--config", config], url);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+}
+
+/** Runs a Prisma CLI command against a disposable database and resolves with its exit code and output. */
+export function prismaCli(args: string[], url: string, onSpawn?: (pid: number) => void) {
+  return new Promise<{ code: number | null; output: string }>((complete, reject) => {
+    const child = spawn(process.execPath, [resolve("node_modules/prisma/build/index.js"), ...args], {
+      env: { ...process.env, DATABASE_URL: url, DIRECT_URL: url, PRISMA_HIDE_UPDATE_MESSAGE: "1" },
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    let output = "";
+    child.stdout.on("data", (chunk) => (output += chunk));
+    child.stderr.on("data", (chunk) => (output += chunk));
+    if (child.pid) onSpawn?.(child.pid);
+    child.once("error", reject);
+    child.once("exit", (code) => complete({ code, output }));
+  });
 }
 
 /** Parameterized fixture writes only: this is never imported by application interactors. */

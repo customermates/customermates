@@ -11,8 +11,8 @@ import {
   legacyFieldScalar,
   type LegacyModel,
   type LegacyType,
-} from "../record-migrations/v2/legacy-model";
-import { presentationMigrationModel } from "../record-migrations/v5/model";
+} from "./legacy-conversion/v2/legacy-model";
+import { presentationMigrationModel } from "./legacy-conversion/v5/model";
 import type { SeedContext } from "./context";
 import type { SyntheticSeedData } from "./run";
 import type { CustomFieldSeedData } from "./custom-fields";

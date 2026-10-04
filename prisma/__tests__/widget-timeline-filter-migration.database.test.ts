@@ -6,13 +6,14 @@ import { Client } from "pg";
 import { describe, expect, it } from "vitest";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
+import { CONFIGURABLE_RECORDS_MIGRATION } from "@/tests/helpers/legacy-migration-database";
 
 const WIDGET_KIND_MIGRATION = "20260808160000_widget_activity_timeline";
 const migrationsRoot = join(process.cwd(), "prisma/migrations");
 
 function migrationNames() {
   return readdirSync(migrationsRoot, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory() && entry.name < "20261001000000_retire_legacy_crm_storage")
+    .filter((entry) => entry.isDirectory() && entry.name < CONFIGURABLE_RECORDS_MIGRATION)
     .map((entry) => entry.name)
     .sort();
 }
@@ -97,10 +98,7 @@ describeDatabase("widget activity-timeline migration", () => {
             AND contype = 'c'
           ORDER BY conname`,
       );
-      expect(checks.rows.map(({ conname }) => conname)).toEqual([
-        "Widget_measure_shape_check",
-        "Widget_version_positive_check",
-      ]);
+      expect(checks.rows.map(({ conname }) => conname)).toEqual([]);
     });
   }, 120_000);
 
