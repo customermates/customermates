@@ -1,0 +1,713 @@
+{
+  "scope": "Continuation acceptance of PR #203 on the SSH machine after merging main with #196 (squash 321464311).",
+  "testedCommit": "72f3f306effeb4d23e63ab11facb18a9039dd4cd",
+  "testedTree": "0132df59e429721f886d7cd3a65fef405357608a",
+  "mergeCommit": "67ddeb5a5",
+  "mainCommit": "321464311",
+  "testOnlyFollowUps": ["d1a6a95a7", "ac7fb3733", "b5f1f6fa8"],
+  "runtime": {
+    "host": "Ubuntu 24.04 x86_64, 8 vCPU (AMD EPYC-Milan), 31 GiB",
+    "node": "24.18.0",
+    "yarn": "1.22.22",
+    "postgres": ["17.8 (pgvector 0.8.1 image)", "16.15 (postgres:16-alpine)"],
+    "buildId": "jq2JhbrdYLZwrx71vVl16",
+    "sharedHostLoadNote": "other sessions used the host; load averages 5-25 during runs"
+  },
+  "gates": [
+    {
+      "name": "assert",
+      "exitCode": 0,
+      "seconds": 0
+    },
+    {
+      "name": "migrate1",
+      "exitCode": 0,
+      "seconds": 2
+    },
+    {
+      "name": "seed1",
+      "exitCode": 0,
+      "seconds": 14
+    },
+    {
+      "name": "migrate2",
+      "exitCode": 0,
+      "seconds": 1
+    },
+    {
+      "name": "seed2",
+      "exitCode": 0,
+      "seconds": 11
+    },
+    {
+      "name": "bootstrap",
+      "exitCode": 0,
+      "seconds": 1
+    },
+    {
+      "name": "rawdocs",
+      "exitCode": 0,
+      "seconds": 1
+    },
+    {
+      "name": "catalog",
+      "exitCode": 0,
+      "seconds": 12
+    },
+    {
+      "name": "openapi",
+      "exitCode": 0,
+      "seconds": 6
+    },
+    {
+      "name": "generated-clean",
+      "exitCode": 0,
+      "seconds": 0
+    },
+    {
+      "name": "typecheck",
+      "exitCode": 0,
+      "seconds": 11
+    },
+    {
+      "name": "lint",
+      "exitCode": 0,
+      "seconds": 201
+    },
+    {
+      "name": "i18n",
+      "exitCode": 0,
+      "seconds": 1
+    },
+    {
+      "name": "conventions",
+      "exitCode": 0,
+      "seconds": 34
+    },
+    {
+      "name": "vitest",
+      "exitCode": 1,
+      "seconds": 790
+    },
+    {
+      "name": "e2e-migrate",
+      "exitCode": 0,
+      "seconds": 2
+    },
+    {
+      "name": "e2e-seed1",
+      "exitCode": 0,
+      "seconds": 14
+    },
+    {
+      "name": "e2e-seed2",
+      "exitCode": 0,
+      "seconds": 11
+    },
+    {
+      "name": "e2e-bootstrap",
+      "exitCode": 0,
+      "seconds": 1
+    },
+    {
+      "name": "build",
+      "exitCode": 0,
+      "seconds": 255
+    },
+    {
+      "name": "list",
+      "exitCode": 0,
+      "seconds": 3
+    },
+    {
+      "name": "playwright",
+      "exitCode": 1,
+      "seconds": 7385
+    },
+    {
+      "name": "pg16-migrate1",
+      "exitCode": 0,
+      "seconds": 3
+    },
+    {
+      "name": "pg16-seed1",
+      "exitCode": 0,
+      "seconds": 15
+    },
+    {
+      "name": "pg16-migrate2",
+      "exitCode": 0,
+      "seconds": 1
+    },
+    {
+      "name": "pg16-seed2",
+      "exitCode": 0,
+      "seconds": 12
+    },
+    {
+      "name": "pg16-subset",
+      "exitCode": 1,
+      "seconds": 341
+    },
+    {
+      "name": "scale-migrate",
+      "exitCode": 0,
+      "seconds": 2
+    },
+    {
+      "name": "scale-seed",
+      "exitCode": 0,
+      "seconds": 13
+    },
+    {
+      "name": "scale-sql-seed",
+      "exitCode": 0,
+      "seconds": 241
+    },
+    {
+      "name": "scale-sql-measure",
+      "exitCode": 0,
+      "seconds": 13
+    },
+    {
+      "name": "scale-engine",
+      "exitCode": 0,
+      "seconds": 127
+    }
+  ],
+  "application": {
+    "total": 9456,
+    "passed": 9434,
+    "failed": 2,
+    "skipped": 20,
+    "files": 978,
+    "databaseFiles": 80,
+    "databaseCases": 687,
+    "failures": [
+      {
+        "file": "ee/operator/__tests__/prisma-operator.repository.database.test.ts",
+        "name": "PrismaOperatorRepo against a real database grants and revokes platform access, counting active operators in every workspace",
+        "status": "failed",
+        "ms": 14760,
+        "resolution": "main-owned test: LOCK TABLE inside a 5 s transaction waits under parallel suite load; passes on the final head run; reported, not changed"
+      },
+      {
+        "file": "features/records/__tests__/record-engine.database.test.ts",
+        "name": "provider avatar updates through the generic engine stages more than 1000 direct owners without failing optional inbound enrichment",
+        "status": "failed",
+        "ms": 5077,
+        "resolution": "setup transaction used Prisma's 5 s default for >1000-row inserts and a mid-file disconnect; fixed in d1a6a95a7 and 0e90214a6; final head run passed"
+      }
+    ],
+    "skips": [
+      {
+        "file": "tests/conventions/hub-reachability.test.ts",
+        "name": "hub pagination and rendered reachability answers a signed-out request for a path no route serves with a 404, and keeps protected routes behind sign-in"
+      },
+      {
+        "file": "tests/conventions/hub-reachability.test.ts",
+        "name": "hub pagination and rendered reachability answers every proxy-detected missing page with a server-rendered 404, not a soft 404"
+      },
+      {
+        "file": "tests/conventions/hub-reachability.test.ts",
+        "name": "hub pagination and rendered reachability permanently sends unprefixed content paths to the default locale and negotiates only the root"
+      },
+      {
+        "file": "tests/conventions/hub-reachability.test.ts",
+        "name": "hub pagination and rendered reachability crawls the production server output, metadata, semantic pagination outcomes, sitemap, and every localized detail route"
+      },
+      {
+        "file": "tests/conventions/sitemap-reachability.test.ts",
+        "name": "sitemap reachability submits only URLs that answer 200 and point their canonical at themselves"
+      },
+      {
+        "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+        "name": "documentation retrieval exact regression contracts answers a page-link question with a section whose link line names that page"
+      },
+      {
+        "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+        "name": "documentation retrieval exact regression contracts answers task and permission questions with the section that handles them and that section's link line"
+      },
+      {
+        "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+        "name": "documentation retrieval exact regression contracts answers where-is and take-me-to questions with the section that introduces that page, and its link line"
+      },
+      {
+        "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+        "name": "documentation retrieval exact regression contracts matches the user's words to the docs' words for sharing, change history, trial end and mailboxes"
+      },
+      {
+        "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+        "name": "documentation retrieval exact regression contracts keeps a question that uses link as a verb on the relationships section, not on a section of record-page links"
+      },
+      {
+        "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+        "name": "documentation retrieval exact regression contracts keeps a question about the link between two records on the relationships section"
+      },
+      {
+        "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+        "name": "documentation retrieval exact regression contracts keeps questions about sharing a view or a filter with a colleague off the channel-sharing section"
+      },
+      {
+        "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+        "name": "documentation retrieval exact regression contracts answers common CRM question families with the section that handles them, whatever words the question uses"
+      },
+      {
+        "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+        "name": "documentation retrieval exact regression contracts answers a page-address question with a German page compound through that page's link line"
+      },
+      {
+        "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+        "name": "documentation retrieval exact regression contracts keeps responsibility and deal-worth questions off the plans table, and sort questions off the theme and signature"
+      },
+      {
+        "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+        "name": "documentation retrieval exact regression contracts keeps a question about a new column off the section that adds records"
+      },
+      {
+        "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+        "name": "documentation retrieval exact regression contracts puts the requested detail inside the bounded agent-visible prefix"
+      },
+      {
+        "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+        "name": "documentation retrieval exact regression contracts excerpts the section search_docs names, with that section's own link line"
+      },
+      {
+        "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+        "name": "documentation retrieval exact regression contracts answers a channel status question with the instruction to reactivate the channel"
+      },
+      {
+        "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+        "name": "documentation retrieval exact regression contracts keeps the definition of the read access a who-sees-what question names"
+      }
+    ]
+  },
+  "browser": {
+    "files": 38,
+    "combinations": 280,
+    "projects": ["chromium", "firefox", "webkit", "mobile"],
+    "retries": 0,
+    "workers": 1,
+    "stats": {
+      "startTime": "2026-10-04T13:46:34.234Z",
+      "duration": 7383203.678,
+      "expected": 275,
+      "skipped": 0,
+      "unexpected": 5,
+      "flaky": 0
+    },
+    "failures": [
+      {
+        "file": "pricing.spec.ts",
+        "title": "edits duplicate embedded items, live and saved prices, and weighted totals through the generic UI",
+        "project": "mobile",
+        "status": "failed",
+        "resolution": "timed out selecting a stage under load average above 12 after all financial assertions passed; passed twice in isolation on b5f1f6fa8"
+      },
+      {
+        "file": "record-channel-compose.spec.ts",
+        "title": "opens a list-qualified inbox and preserves, saves, edits and sends channel drafts locally",
+        "project": "chromium",
+        "status": "failed",
+        "resolution": "main's #196 browser-history guard now asks before Back discards a draft; spec follows the guard in b5f1f6fa8; passed in all four profiles"
+      },
+      {
+        "file": "record-channel-compose.spec.ts",
+        "title": "opens a list-qualified inbox and preserves, saves, edits and sends channel drafts locally",
+        "project": "firefox",
+        "status": "failed",
+        "resolution": "main's #196 browser-history guard now asks before Back discards a draft; spec follows the guard in b5f1f6fa8; passed in all four profiles"
+      },
+      {
+        "file": "record-channel-compose.spec.ts",
+        "title": "opens a list-qualified inbox and preserves, saves, edits and sends channel drafts locally",
+        "project": "webkit",
+        "status": "failed",
+        "resolution": "main's #196 browser-history guard now asks before Back discards a draft; spec follows the guard in b5f1f6fa8; passed in all four profiles"
+      },
+      {
+        "file": "record-channel-compose.spec.ts",
+        "title": "opens a list-qualified inbox and preserves, saves, edits and sends channel drafts locally",
+        "project": "mobile",
+        "status": "failed",
+        "resolution": "main's #196 browser-history guard now asks before Back discards a draft; spec follows the guard in b5f1f6fa8; passed in all four profiles"
+      }
+    ]
+  },
+  "postgres16": {
+    "total": 416,
+    "passed": 412,
+    "failed": 4,
+    "failures": [
+      {
+        "file": "prisma/__tests__/configurable-records-migration.database.test.ts",
+        "name": "configurable records migration refuses malformed data with grouped counts, leaves everything unchanged and deploys after resolve and repair",
+        "resolution": "PostgreSQL 16 image lacks pgvector, so the optional vector columns were reported as drift; test expects exactly those columns since ac7fb3733"
+      },
+      {
+        "file": "prisma/__tests__/configurable-records-migration.database.test.ts",
+        "name": "configurable records migration installs an empty database without drift and deploys against a ledger with squashed historical migrations",
+        "resolution": "PostgreSQL 16 image lacks pgvector, so the optional vector columns were reported as drift; test expects exactly those columns since ac7fb3733"
+      },
+      {
+        "file": "features/records/__tests__/record-engine.database.test.ts",
+        "name": "configurable record engine bounds display lookups of an identifier shared by over 10,000 records after applying readability",
+        "resolution": "bulk setup transaction hit Prisma's 5 s default; explicit setup timeout in d1a6a95a7"
+      },
+      {
+        "file": "features/records/__tests__/record-engine.database.test.ts",
+        "name": "provider avatar updates through the generic engine stages more than 1000 direct owners without failing optional inbound enrichment",
+        "resolution": "bulk setup transaction hit Prisma's 5 s default; explicit setup timeout in d1a6a95a7"
+      }
+    ],
+    "rerun": "187/187 passed on b5f1f6fa8 (affected files)"
+  },
+  "reruns": {
+    "commit": "b5f1f6fa8",
+    "channelCompose": {
+      "firefox": "1 passed (1.2m)",
+      "webkit": "1 passed (1.6m)",
+      "mobile": "1 passed (1.3m)",
+      "chromium": "1 passed (1.0m)"
+    },
+    "pricingMobile": ["1 passed (1.3m)", "1 passed (1.3m)"],
+    "databasePg16": {
+      "total": 187,
+      "passed": 187,
+      "failed": 0
+    },
+    "databasePg17": {
+      "total": 187,
+      "passed": 186,
+      "failed": 1
+    },
+    "recordEngineLifecycle": {
+      "commit": "0e90214a6",
+      "cause": "first describe's afterAll disconnected the shared Prisma client used by the provider-avatar describe",
+      "earlyDisconnectRemovedRuns": ["175/175", "175/175", "175/175"],
+      "fixedRuns": ["175/175", "175/175"]
+    }
+  },
+  "scale": {
+    "sql": {
+      "mode": "measure",
+      "cpu": "AMD EPYC-Milan Processor",
+      "cores": 8,
+      "memoryGiB": 31,
+      "postgres": "17.8 (Debian 17.8-1.pgdg12+1)",
+      "results": [
+        {
+          "name": "filtered_sorted_list",
+          "rows": 20,
+          "medianMs": 221.9,
+          "p95Ms": 249.9,
+          "minMs": 211.8,
+          "maxMs": 249.9
+        },
+        {
+          "name": "record_detail_values",
+          "rows": 20,
+          "medianMs": 0.7,
+          "p95Ms": 3.1,
+          "minMs": 0.7,
+          "maxMs": 3.1
+        },
+        {
+          "name": "grouped_sum",
+          "rows": 1000,
+          "medianMs": 168.8,
+          "p95Ms": 176.3,
+          "minMs": 153.4,
+          "maxMs": 176.3
+        },
+        {
+          "name": "text_search_one_type",
+          "rows": 25,
+          "medianMs": 89.3,
+          "p95Ms": 117.3,
+          "minMs": 84.4,
+          "maxMs": 117.3
+        },
+        {
+          "name": "global_search_all_types",
+          "rows": 26,
+          "medianMs": 582.2,
+          "p95Ms": 640.4,
+          "minMs": 566.7,
+          "maxMs": 640.4
+        }
+      ]
+    },
+    "engine": {
+      "measurements": [
+        {
+          "name": "engine_filtered_sorted_list",
+          "samples": 30,
+          "warmups": 3,
+          "medianMs": 461.5,
+          "p95Ms": 515.4,
+          "minMs": 423,
+          "maxMs": 535.7
+        },
+        {
+          "name": "engine_record_detail",
+          "samples": 30,
+          "warmups": 3,
+          "medianMs": 20.3,
+          "p95Ms": 28.3,
+          "minMs": 16.1,
+          "maxMs": 30.9
+        },
+        {
+          "name": "engine_grouped_measure",
+          "samples": 30,
+          "warmups": 3,
+          "medianMs": 1213.2,
+          "p95Ms": 1312.7,
+          "minMs": 1119.2,
+          "maxMs": 1332.1
+        },
+        {
+          "name": "engine_global_search",
+          "samples": 30,
+          "warmups": 3,
+          "medianMs": 620.5,
+          "p95Ms": 665.5,
+          "minMs": 576.7,
+          "maxMs": 671.6
+        },
+        {
+          "name": "engine_write_with_title_calculation",
+          "samples": 30,
+          "warmups": 3,
+          "medianMs": 103.5,
+          "p95Ms": 128.3,
+          "minMs": 90,
+          "maxMs": 142.3
+        },
+        {
+          "name": "engine_export_20_records_500_links",
+          "samples": 5,
+          "warmups": 3,
+          "medianMs": 629.4,
+          "p95Ms": 660.4,
+          "minMs": 594.6,
+          "maxMs": 660.4
+        },
+        {
+          "name": "engine_import_20_record_updates",
+          "samples": 5,
+          "warmups": 3,
+          "medianMs": 1343.5,
+          "p95Ms": 1531.5,
+          "minMs": 1324.3,
+          "maxMs": 1531.5
+        }
+      ],
+      "stagedOperation": {
+        "fanout": 600,
+        "admissionMs": 52.9,
+        "stageAndPublishMs": 23539.5,
+        "advances": 29,
+        "completeReadsVerified": true,
+        "pausedWriteRejected": true
+      }
+    },
+    "note": "Local SQL/interactor measurements on a shared VM; not hosted capacity claims."
+  },
+  "finalHeadApplication": {
+    "commit": "0e90214a6",
+    "freshDatabase": true,
+    "total": 9456,
+    "passed": 9436,
+    "failed": 0,
+    "skipped": 20,
+    "skips": [
+      {
+        "file": "tests/conventions/hub-reachability.test.ts",
+        "name": "hub pagination and rendered reachability answers a signed-out request for a path no route serves with a 404, and keeps protected routes behind sign-in"
+      },
+      {
+        "file": "tests/conventions/hub-reachability.test.ts",
+        "name": "hub pagination and rendered reachability answers every proxy-detected missing page with a server-rendered 404, not a soft 404"
+      },
+      {
+        "file": "tests/conventions/hub-reachability.test.ts",
+        "name": "hub pagination and rendered reachability permanently sends unprefixed content paths to the default locale and negotiates only the root"
+      },
+      {
+        "file": "tests/conventions/hub-reachability.test.ts",
+        "name": "hub pagination and rendered reachability crawls the production server output, metadata, semantic pagination outcomes, sitemap, and every localized detail route"
+      },
+      {
+        "file": "tests/conventions/sitemap-reachability.test.ts",
+        "name": "sitemap reachability submits only URLs that answer 200 and point their canonical at themselves"
+      },
+      {
+        "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+        "name": "documentation retrieval exact regression contracts answers a page-link question with a section whose link line names that page"
+      },
+      {
+        "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+        "name": "documentation retrieval exact regression contracts answers task and permission questions with the section that handles them and that section's link line"
+      },
+      {
+        "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+        "name": "documentation retrieval exact regression contracts answers where-is and take-me-to questions with the section that introduces that page, and its link line"
+      },
+      {
+        "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+        "name": "documentation retrieval exact regression contracts matches the user's words to the docs' words for sharing, change history, trial end and mailboxes"
+      },
+      {
+        "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+        "name": "documentation retrieval exact regression contracts keeps a question that uses link as a verb on the relationships section, not on a section of record-page links"
+      },
+      {
+        "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+        "name": "documentation retrieval exact regression contracts keeps a question about the link between two records on the relationships section"
+      },
+      {
+        "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+        "name": "documentation retrieval exact regression contracts keeps questions about sharing a view or a filter with a colleague off the channel-sharing section"
+      },
+      {
+        "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+        "name": "documentation retrieval exact regression contracts answers common CRM question families with the section that handles them, whatever words the question uses"
+      },
+      {
+        "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+        "name": "documentation retrieval exact regression contracts answers a page-address question with a German page compound through that page's link line"
+      },
+      {
+        "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+        "name": "documentation retrieval exact regression contracts keeps responsibility and deal-worth questions off the plans table, and sort questions off the theme and signature"
+      },
+      {
+        "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+        "name": "documentation retrieval exact regression contracts keeps a question about a new column off the section that adds records"
+      },
+      {
+        "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+        "name": "documentation retrieval exact regression contracts puts the requested detail inside the bounded agent-visible prefix"
+      },
+      {
+        "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+        "name": "documentation retrieval exact regression contracts excerpts the section search_docs names, with that section's own link line"
+      },
+      {
+        "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+        "name": "documentation retrieval exact regression contracts answers a channel status question with the instruction to reactivate the channel"
+      },
+      {
+        "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+        "name": "documentation retrieval exact regression contracts keeps the definition of the read access a who-sees-what question names"
+      }
+    ]
+  },
+  "reviewFollowUps": {
+    "commits": ["c5df364f3", "862ad61c4"],
+    "roleAndWikiTests": "35/35 passed",
+    "preDeployQueryOnProductionCopy": "2 webhooks: stays disabled (inactive creator kept as owner)"
+  },
+  "testedSourceNote": "Browser matrix, PostgreSQL 16 and scale ran on 72f3f306e (application code identical to the pushed head except c5df364f3 role persistence and docs/test-only commits); the full application suite ran on 0e90214a6; affected specs and tests were rerun after each change.",
+  "ownerDirectedException": {
+    "authorizedBy": "owner (this PR's requester)",
+    "operation": "yarn db:use-live-data for migration rehearsal (normally incident-only)",
+    "system": "isolated loopback PostgreSQL 17.8 + pgvector container on the SSH development VM",
+    "operatorOfImport": "owner, via hidden prompt (agent held no Production credential)",
+    "imports": 2,
+    "artifacts": "sanitized local databases and private aggregate files outside the repository",
+    "productionWrites": 0,
+    "destruction": "superseded copies dropped and private files shredded; remaining copies destroyed after verification"
+  },
+  "productionRehearsal": {
+    "note": "Aggregate results only; no customer records, identifiers or screenshots are published.",
+    "preUpgradeSnapshot": {
+      "postgres": "17.8",
+      "ledgerMigrations": 115,
+      "latestMigration": "20260907154802_add_webhook_headers_and_body_template",
+      "workspaces": 144,
+      "retiredTypeScriptChainPreflight": "refused 11 of 144 workspaces (258 scheme-less links, 4 page sizes, 12 dangling view references, 1 deleted-option filter, 2 dormant-workspace webhooks)",
+      "firstSqlAttempt": "refused cleanly on 34 empty timeline filter lists (SQL defect, fixed); nothing changed",
+      "final": {
+        "deploySeconds": 23,
+        "secondDeploy": "no pending migrations",
+        "interruption": "pg_terminate_backend mid-run left legacy data unchanged; resolve --rolled-back + deploy succeeded with identical table fingerprints",
+        "postgres16": "byte-identical generic table fingerprints"
+      }
+    },
+    "postIssue196Snapshot": {
+      "postgres": "17.8",
+      "extensions": ["pg_trgm", "vector"],
+      "ledgerMigrations": 116,
+      "latestMigration": "20260908120100_mate_bundle (checksum equals main)",
+      "workspaces": 145,
+      "importer": "fixed importer restored extensions; zero usable credentials",
+      "deploySeconds": 25,
+      "reconciliation": {
+        "records": {
+          "contact": 3869,
+          "organization": 2279,
+          "deal": 546,
+          "service": 244,
+          "task": 1191,
+          "lineItem": 433
+        },
+        "unexplainedDiscrepancies": 0,
+        "links": 5704,
+        "assignments": 2836,
+        "identities": 5229,
+        "dealFinancialsExact": 546,
+        "customValues": 32319,
+        "documentedLinkConversions": 258,
+        "multiValueLinkListsExact": 746,
+        "notes": {
+          "legacyNonNull": 4865,
+          "values": 4340,
+          "jsonNullToMissing": 525
+        },
+        "protectedTasks": 1,
+        "legacyTablesRemaining": 0
+      },
+      "issue196DataUnchanged": [
+        "WikiPage",
+        "WikiPageChunk (incl. embeddings)",
+        "WikiWebsiteCrawl",
+        "WikiSourceDocument",
+        "DocsChunk",
+        "AgentUsageEvent",
+        "AgentCreditAdjustment",
+        "HostedAiPlatformUsage",
+        "HostedAiPlatformReservation",
+        "RoutineRun",
+        "AgentConversation",
+        "wiki RolePermission"
+      ],
+      "legacyVersusMigratedUi": {
+        "workspace": "largest by contacts (anonymized)",
+        "listTotalsEqual": {
+          "contact": true,
+          "organization": true,
+          "deal": true,
+          "service": true,
+          "task": true
+        },
+        "dealValuesAndStagesMatch": true,
+        "observations": [
+          "migrated view order follows the converted personal sort",
+          "numeric cells use monospaced numerals"
+        ]
+      }
+    }
+  },
+  "limitations": [
+    "Interactor read latencies on this shared VM are higher than the previous workstation's recorded values; local measurements, not capacity claims.",
+    "Live hosted docs-retrieval contracts (15) and shipped-model behavior were not exercised; paid calls not authorized.",
+    "Trial/grace lifecycle jobs do not remove a pending member's protected authorization task (needs an administrator update).",
+    "Main's operator platform-access test can wait on a User table lock under parallel load; #196 classifier tests require AI_GATEWAY_API_KEY to be empty.",
+    "Unreachable terminology approval rule kept for historical transcript labels.",
+    "Importer refuses when Production has an extension unavailable locally (safe failure before export).",
+    "Vercel preview database of this branch may hold the retired migration chain and needs a reset before the preview deploys."
+  ]
+}
