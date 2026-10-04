@@ -20,7 +20,7 @@ import { extractWikiSourceDocument } from "./website-source-extract";
 
 const MAX_SITEMAP_FETCHES = 6;
 const MAX_PENDING_HOSTS = 3;
-const PAGE_TYPES = ["text/html", "application/xhtml+xml", "text/plain", "text/markdown"] as const;
+export const WIKI_CRAWL_PAGE_TYPES = ["text/html", "application/xhtml+xml", "text/plain", "text/markdown"] as const;
 const XML_TYPES = ["application/xml", "text/xml", "application/rss+xml"] as const;
 const TEXT_TYPES = ["text/plain", "text/markdown"] as const;
 
@@ -69,7 +69,7 @@ export async function discoverWikiWebsite(input: {
   if (rootRules.unreachable) return { status: "unavailable" };
   if (!(await robots.allows(homepage.url))) return { status: "blocked" };
 
-  const home = await fetchText(homepage.url, input.scope, PAGE_TYPES, robots);
+  const home = await fetchText(homepage.url, input.scope, WIKI_CRAWL_PAGE_TYPES, robots);
   if (!home) return { status: "unavailable" };
   const homeDocument = extractWikiSourceDocument(home.body, home.url, home.contentType);
   const homeUrl = home.url;
@@ -128,7 +128,7 @@ export async function fetchWikiSource(
   robots: WikiCrawlRobots,
 ): Promise<WikiFetchedSource | null> {
   if (!(await robots.allows(url))) return null;
-  const resource = await fetchText(url, scope, PAGE_TYPES, robots);
+  const resource = await fetchText(url, scope, WIKI_CRAWL_PAGE_TYPES, robots);
   if (!resource) return null;
   const document = extractWikiSourceDocument(resource.body, resource.url, resource.contentType);
   const text = wikiSourceText(document);

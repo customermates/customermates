@@ -5,7 +5,7 @@ import { AGENT_UI_TOOL_NAMES } from "@/ee/agent-chat/agent-ui-command";
 import { AGENT_HOSTED_TOOL_ANNOTATIONS } from "@/ee/agent-chat/agent-tools";
 import { LOAD_TOOLSET_TOOL_NAME } from "@/ee/agent-chat/agent-toolset-routing";
 import { isReadOnlyAgentToolCall } from "@/ee/agent-chat/gated-tools";
-import { AGENT_WEB_SEARCH_TOOL_NAME } from "@/ee/agent-chat/agent-web-search";
+import { AGENT_WEB_PAGE_TOOL_NAME } from "@/ee/agent-chat/tool-identity";
 import { ManageDataViewsSchema } from "@/features/data-view/manage-data-views.schema";
 import { ALL_MCP_TOOLS } from "@/features/mcp-tools/tool-registry";
 
@@ -51,7 +51,7 @@ describe("benchmark read-call predicate", () => {
     const names = [
       ...ALL_MCP_TOOLS.map((tool) => tool.name),
       ...Object.keys(AGENT_HOSTED_TOOL_ANNOTATIONS),
-      AGENT_WEB_SEARCH_TOOL_NAME,
+      AGENT_WEB_PAGE_TOOL_NAME,
       LOAD_TOOLSET_TOOL_NAME,
       "list_ui_targets",
       "a_tool_this_build_does_not_define",
@@ -63,7 +63,8 @@ describe("benchmark read-call predicate", () => {
       ),
     );
     expect(mismatches).toEqual([]);
-    expect(isReadCall({ name: AGENT_WEB_SEARCH_TOOL_NAME, input: { query: "news" } })).toBe(true);
+    expect(isReadCall({ name: AGENT_WEB_PAGE_TOOL_NAME, input: { url: "https://example.com/pricing" } })).toBe(true);
+    expect(isReadCall({ name: "web_search", input: { query: "news" } })).toBe(false);
   });
 
   it("fails closed on writes, write actions, missing actions and unknown tools", () => {

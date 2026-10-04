@@ -50,13 +50,13 @@ import {
 import { AgentTourSchema } from "./agent-tours";
 import { NavigateInputSchema } from "./ui-operations";
 import type { AgentApprovalContextResolution } from "./agent-external-approval-context";
-import { internalToolIdentity, WIKI_WEBSITE_IMPORT_TOOL_NAME } from "./tool-identity";
+import { AGENT_WEB_PAGE_TOOL_NAME, internalToolIdentity, WIKI_WEBSITE_IMPORT_TOOL_NAME } from "./tool-identity";
 import { importWebsiteTool } from "@/ee/wiki-crawl/wiki-import-tool";
 import { providerWireInputSchema } from "./provider-safe-json-schema";
 import { ANALYZE_RECORDS_DESCRIPTION, AnalyzeRecordsSchema, analyzeRecords } from "./agent-analysis";
 import { env } from "@/env";
 import type { AgentToolInputResult } from "./agent-tool-input";
-import { getAgentWebSearchTool } from "./agent-web-search";
+import { AGENT_WEB_PAGE_DESCRIPTION, ReadWebPageSchema, readAgentWebPage } from "./agent-web-page";
 import { hostedWorkspaceContextTool } from "@/features/mcp-tools/workspace.mcp-tools";
 import { localizeWikiPageUrls } from "@/features/wiki/wiki-links";
 import { agentViewToolMismatch } from "./agent-page-context";
@@ -64,7 +64,6 @@ import { hostedSectionRankers } from "./docs-rerank";
 
 export type AgentToolOptions = {
   locale?: string;
-  webSearchEnabled?: boolean;
   wikiWebsiteSetup?: boolean;
   surface?: AgentSurface;
 };
@@ -511,7 +510,22 @@ export const AGENT_HOSTED_TOOL_ANNOTATIONS: Readonly<Record<string, Record<strin
     destructiveHint: false,
     openWorldHint: false,
   },
+  [AGENT_WEB_PAGE_TOOL_NAME]: {
+    readOnlyHint: true,
+    idempotentHint: true,
+    destructiveHint: false,
+    openWorldHint: true,
+  },
 };
+
+function readWebPageTool(deps: AgentToolDeps, options: AgentToolOptions) {
+  return tool({
+    description: AGENT_WEB_PAGE_DESCRIPTION,
+    inputSchema: providerSafeSchema(ReadWebPageSchema),
+    execute: (input) =>
+      runSafely(() => readAgentWebPage(input, deps.resultMaxChars, { locale: options.locale }), deps.resultMaxChars),
+  });
+}
 
 function loadToolsetTool() {
   return tool({
@@ -556,7 +570,7 @@ export function getAgentAiTools(deps: AgentToolDeps, options: AgentToolOptions =
       ...(options.surface === "routine" ? {} : uiTools(deps)),
       [LOAD_TOOLSET_TOOL_NAME]: loadToolsetTool(),
       [ANALYZE_RECORDS_TOOL_NAME]: analyzeRecordsTool(deps),
-      ...(options.webSearchEnabled ? { web_search: getAgentWebSearchTool() } : {}),
+      [AGENT_WEB_PAGE_TOOL_NAME]: readWebPageTool(deps, options),
       ...(isWikiWebsiteSetupTurn(options) ? wikiWebsiteSetupTools(deps, options, rankers) : {}),
       request_support: tool({
         description:
@@ -635,7 +649,6 @@ export function agentToolDefinitionsForTurn(args: {
   servingProvider: string;
   surface: AgentSurface;
   locale?: string;
-  webSearchEnabled?: boolean;
   wikiWebsiteSetup?: boolean;
 }): AgentTurnToolDefinition[] {
   const panelToolNames = new Set<string>(AGENT_UI_TOOL_NAMES);

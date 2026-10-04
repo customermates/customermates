@@ -7,7 +7,6 @@ import {
   isAgentModelWithinBudgetEnvelope,
 } from "./model-catalog";
 import { resolveModelPricing } from "./model-pricing";
-import { AGENT_WEB_SEARCH_WORST_CASE_MICROCENTS } from "./agent-web-search";
 import { AGENT_MICROCENTS_PER_USD } from "@/core/commercial/agent-credits";
 
 export const AGENT_RESERVATION_ROUNDS_AHEAD = 2;
@@ -81,16 +80,10 @@ export function agentFundedRetryCount(args: {
   return Math.min(args.maxRetries, Math.max(0, Math.floor(args.remainingMicrocents / args.roundReserveMicrocents) - 1));
 }
 
-export function agentWebSearchReserveMicrocents(remainingSearches: number): number {
-  if (!Number.isSafeInteger(remainingSearches) || remainingSearches < 1) return 0;
-  return remainingSearches * AGENT_WEB_SEARCH_WORST_CASE_MICROCENTS;
-}
-
 export function resolveAgentTurnBudget(args: {
   model: AgentModelEntry;
   availableMicrocents: number;
   requiredContextBytes?: number;
-  webSearchReserveMicrocents?: number;
 }): AgentTurnBudget | null {
   const entry = args.model;
   if (!Number.isSafeInteger(args.availableMicrocents) || args.availableMicrocents < 1) return null;
@@ -115,10 +108,7 @@ export function resolveAgentTurnBudget(args: {
     inferenceRegion: entry.inferenceRegion,
     reservedMicrocents: Math.min(
       args.availableMicrocents,
-      Math.max(
-        firstRoundReserveMicrocents * AGENT_RESERVATION_ROUNDS_AHEAD,
-        firstRoundReserveMicrocents + (args.webSearchReserveMicrocents ?? 0),
-      ),
+      firstRoundReserveMicrocents * AGENT_RESERVATION_ROUNDS_AHEAD,
     ),
     roundReserveMicrocents,
     maxOutputTokens: entry.maxOutputTokens,

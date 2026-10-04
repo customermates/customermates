@@ -603,7 +603,7 @@ describe("the shipped tool catalog on the Google wire", () => {
     const changes = changesForShippedCatalog();
 
     expect(summarizeGoogleSchemaChanges(changes)).toEqual({
-      "$schema:removed": 54,
+      "$schema:removed": 55,
       "additionalProperties:removed": 41,
       "anyOf:collapsed": 37,
       "anyOf:merged": 42,

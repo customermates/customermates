@@ -40,7 +40,12 @@ describe("contextual activity labels", () => {
     ["manage_data_views", { action: "create", name: "My customers" }, "My customers"],
     ["manage_custom_columns", { action: "upsert", label: "Customer tier" }, "Customer tier"],
     ["search_records", { searchTerm: "Acme" }, "Acme"],
-    ["web_search", { query: "Acme products" }, "Acme products"],
+    [
+      "read_web_page",
+      { url: "https://user:secret@acme.example.com/products?session=private#pricing", query: "pricing" },
+      "acme.example.com/products",
+    ],
+    ["read_web_page", { url: "acme.example.com/about" }, "acme.example.com/about"],
     ["search_docs", { query: "import contacts" }, "import contacts"],
     [
       "import_website",
@@ -51,6 +56,19 @@ describe("contextual activity labels", () => {
     ],
   ])("uses known display fields for %s", (tool, input, name) => {
     expect(activity(tool, input).context).toEqual({ labels: [name] });
+  });
+
+  it("labels a page read by its host and path only, and stays generic for an address it cannot parse", () => {
+    const descriptor = activity("read_web_page", {
+      url: "https://name:private-password@www.example.org/team/?token=private-token#private-fragment",
+      query: "private question",
+    });
+    expect(descriptor.kind).toBe("web.page");
+    expect(descriptor.context).toEqual({ labels: ["www.example.org/team/"] });
+    expect(JSON.stringify(descriptor)).not.toMatch(/private-/);
+    expect(agentActivityCopy(descriptor, t).running).toBe("Reading the web page · www.example.org/team/");
+    for (const url of ["javascript:alert(1)", "file:///etc/passwd", "", 42])
+      expect(activity("read_web_page", { url }).context).toBeUndefined();
   });
 
   it("keeps unavailable names generic and never guesses from identifiers or unrelated payloads", () => {

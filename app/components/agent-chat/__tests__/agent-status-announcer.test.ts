@@ -90,7 +90,7 @@ describe("AgentStatusAnnouncer", () => {
           kind: "activity",
           id: "read-1",
           activity: {
-            kind: "web.search",
+            kind: "web.page",
             affectedResources: [],
             risk: "read",
           },
@@ -99,7 +99,7 @@ describe("AgentStatusAnnouncer", () => {
       ],
     });
 
-    expect(markup).toContain("AgentChat.activity.state.web.search.running");
+    expect(markup).toContain("AgentChat.activity.state.web.page.running");
   });
   it("does not announce a historical result hydrated into a closed assistant", () => {
     const historical = renderStatus({

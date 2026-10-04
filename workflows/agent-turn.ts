@@ -41,18 +41,12 @@ import type { AgentAiToolDefinition, AgentToolOptions } from "@/ee/agent-chat/ag
 import { getAgentProviderOptions } from "@/ee/agent-chat/agent-provider-options";
 import {
   agentBatchContainsWebCall,
+  agentWebPageCallLimit,
+  agentWebSourcesFooter,
+  collectAgentWebSources,
   isAgentWebTool,
   isSuccessfulAgentWebResult,
 } from "@/ee/agent-chat/agent-web-policy";
-import {
-  AGENT_WEB_SEARCH_TOOL_NAME,
-  AGENT_WEB_SEARCH_WORST_CASE_MICROCENTS,
-  agentWebSearchCallLimit,
-  agentWebSearchCallsInStep,
-  agentWebSearchChargeableCallsInStep,
-  agentWebSourcesFooter,
-  collectAgentWebSources,
-} from "@/ee/agent-chat/agent-web-search";
 import { userWebsiteHomepage } from "@/ee/agent-chat/user-website-homepages";
 import { buildAgentUsageSettlement, usageToTokenCounts } from "@/ee/agent-chat/agent-usage-settlement";
 import { computeCostMicrocents } from "@/ee/agent-chat/model-pricing";
@@ -88,7 +82,6 @@ import { createAgentToolInputResolver, type AgentToolInputResult } from "@/ee/ag
 import { resolveAgentApprovalContext } from "@/ee/agent-chat/agent-external-approval-context";
 import {
   agentFundedRetryCount,
-  agentWebSearchReserveMicrocents,
   isAgentContextWithinBudget,
   resolveAgentToolResultMaxChars,
 } from "@/ee/agent-chat/agent-budget-policy";
@@ -136,7 +129,6 @@ export type AgentTurnWorkflowPayload = {
   recordToolOutputs?: boolean;
   wikiWebsiteSetup?: { userHomepages: string[] };
   wikiCatalog?: string | null;
-  webSearchEnabled?: boolean;
 };
 
 export type AgentTurnSurface = "chat" | "routine";
@@ -394,7 +386,6 @@ async function executeAgentTool(
   const tools = getAgentAiTools(backgroundToolDeps(payload, grant), {
     locale: payload.locale,
     wikiWebsiteSetup: Boolean(payload.wikiWebsiteSetup),
-    webSearchEnabled: payload.webSearchEnabled,
     surface: payload.surface ?? "chat",
   }) as Record<
     string,
@@ -481,7 +472,6 @@ async function normalizeAgentToolInput(
         locale: payload.locale,
         pageRoute: payload.pageRoute,
         wikiWebsiteSetup: Boolean(payload.wikiWebsiteSetup),
-        webSearchEnabled: payload.webSearchEnabled,
         surface: payload.surface ?? "chat",
       },
     );
@@ -929,7 +919,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     const shells = await loadAgentToolShells(surface, payload.turnBudget.servingProvider, {
       locale: payload.locale,
       wikiWebsiteSetup: Boolean(payload.wikiWebsiteSetup),
-      webSearchEnabled: payload.webSearchEnabled,
     });
     const writable = getWritable();
 
@@ -947,7 +936,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       schemaDigest: payload.schemaDigest ?? null,
       triggerEvent: routineTriggerEventOf(payload.messages.findLast((message) => message.role === "user")?.text),
       wikiWebsiteSetup: Boolean(payload.wikiWebsiteSetup),
-      webSearchEnabled: payload.webSearchEnabled,
     });
     const toolDefinitions = shells.map(
       ({ annotations: _annotations, gated: _gated, toolset: _toolset, ...definition }) => definition,
@@ -981,9 +969,8 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     const completedTools: ({ toolCallId: string; toolName: string } & ({ output: unknown } | { threw: true }))[] = [];
     let performedWrite = false;
     let browsed = false;
-    let webSearchCalls = 0;
-    let webSearchOvershoot = false;
-    const webSearchCallLimit = agentWebSearchCallLimit(surface);
+    let webPageReads = 0;
+    const webPageReadLimit = agentWebPageCallLimit(surface);
     const webSources = new Set<string>();
 
     const continuationSteps: AgentContinuationStep[] = [];
@@ -1101,6 +1088,20 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     ) => {
       const prepared = await resolveToolInput(shell.name, toolCallId, input);
       if (!prepared.ok) return prepared;
+      const webRead = isAgentWebTool(shell.name);
+      if (webRead && isUnattendedSurface(surface) && performedWrite) {
+        return {
+          ok: false,
+          result: "This routine already changed data, so it cannot read web pages any more. Nothing was read.",
+        };
+      }
+      if (webRead && webPageReads >= webPageReadLimit) {
+        return {
+          ok: false,
+          result: `The limit of ${webPageReadLimit} page reads per ${isUnattendedSurface(surface) ? "run" : "reply"} is reached. Answer from what you already have. Nothing was read.`,
+        };
+      }
+      if (webRead) webPageReads += 1;
       const readOnly = isReadOnlyAgentToolCall(shell.name, shell, prepared.input);
       let executionInput = prepared.input;
       if (payload.wikiWebsiteSetup && shell.name === WIKI_WEBSITE_IMPORT_TOOL_NAME) {
@@ -1145,6 +1146,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       auxiliaryCharges.push(...executed.classifierCharges);
       retrievalTimings.push(...(executed.retrievalTimings ?? []));
       const outcome = executed.output;
+      if (webRead && isSuccessfulAgentWebResult(outcome)) browsed = true;
       if (!readOnly && isSuccessfulToolOutcome(outcome)) performedWrite = true;
       return outcome;
     };
@@ -1171,20 +1173,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       else if (extension.disposition === "hosted_ai_unavailable") hostedAiStop = true;
       else roundFailure ??= toWorkflowFailure(new Error("Agent usage reservation is no longer available."));
       return false;
-    };
-
-    const webSearchAffordable = async () => {
-      const remaining = webSearchCallLimit - webSearchCalls;
-      if (remaining < 1) return false;
-      const requiredMicrocents =
-        accruedCostMicrocents() +
-        payload.turnBudget.roundReserveMicrocents +
-        agentWebSearchReserveMicrocents(remaining);
-      if (requiredMicrocents <= reservedMicrocents) return true;
-      const extension = await ensureTurnReservation(payload, requiredMicrocents);
-      if (extension.disposition !== "extended") return false;
-      reservedMicrocents = extension.reservedMicrocents;
-      return true;
     };
 
     const applyRound = async (step: AgentRoundResult) => {
@@ -1247,10 +1235,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           outcomesByCallId.set(part.toolCallId, {
             toolCallId: part.toolCallId,
             toolName: part.toolName,
-            ...(part.type === "tool-error" ||
-            (isAgentWebTool(part.toolName) && !isSuccessfulAgentWebResult(part.output))
-              ? { threw: true as const }
-              : { output: part.output }),
+            ...(part.type === "tool-error" ? { threw: true as const } : { output: part.output }),
           });
         }
         const outcomes = [...outcomesByCallId.values()];
@@ -1272,9 +1257,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         } catch (error) {
           roundFailure ??= toWorkflowFailure(error);
         }
-        webSearchCalls += agentWebSearchCallsInStep(step);
-        if (webSearchCalls > webSearchCallLimit) webSearchOvershoot = true;
-        const chargeableSearches = agentWebSearchChargeableCallsInStep(step, isSuccessfulAgentWebResult);
         const hasTokenUsage = Object.values(roundTokens).some((count) => count > 0);
         const servedCharge = readAgentServedCharge(step.providerMetadata, payload.turnBudget.servingProvider);
         const charge =
@@ -1300,44 +1282,30 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                   payload.turnBudget.servingProvider,
                   payload.turnBudget.inferenceRegion,
                 );
-        const provenNotBilled = charge.outcome === "notBilled" && chargeableSearches === 0;
         const standaloneCostMicrocents =
           charge.outcome === "measured"
             ? charge.charge.costMicrocents
             : charge.outcome === "notBilled"
-              ? Math.max(gatewayDebitMicrocents ?? 0, chargeableSearches * AGENT_WEB_SEARCH_WORST_CASE_MICROCENTS)
-              : Math.max(
-                  gatewayDebitMicrocents ?? 0,
-                  estimatedInferenceMicrocents +
-                    (hasPositiveGatewayDebit ? 0 : chargeableSearches * AGENT_WEB_SEARCH_WORST_CASE_MICROCENTS),
-                );
+              ? Math.max(gatewayDebitMicrocents ?? 0, 0)
+              : Math.max(gatewayDebitMicrocents ?? 0, estimatedInferenceMicrocents);
 
-        const roundSearchFallbackMicrocents =
-          roundCharge?.currentAttemptOutcome === "notBilled"
-            ? chargeableSearches * AGENT_WEB_SEARCH_WORST_CASE_MICROCENTS
-            : 0;
         const aggregateCostMicrocents = roundCharge
           ? roundCharge.measured
-            ? roundCharge.costMicrocents + roundSearchFallbackMicrocents
+            ? roundCharge.costMicrocents
             : Math.max(roundCharge.costMicrocents, remainingReservationMicrocents)
           : standaloneCostMicrocents;
         const safeAggregateCost = Number.isSafeInteger(aggregateCostMicrocents);
         const costMicrocents = Math.min(Number.MAX_SAFE_INTEGER, aggregateCostMicrocents);
         const measured = roundCharge
-          ? roundCharge.measured && roundSearchFallbackMicrocents === 0 && safeAggregateCost
-          : charge.outcome === "measured" || provenNotBilled;
+          ? roundCharge.measured && safeAggregateCost
+          : charge.outcome === "measured" || charge.outcome === "notBilled";
         const unreadableReason = roundCharge
           ? !safeAggregateCost
             ? "the provider reported an unrepresentable aggregate cost"
-            : (roundCharge.unreadableReason ??
-              (roundSearchFallbackMicrocents > 0
-                ? "the gateway reported billed search work without a usable current debit"
-                : undefined))
+            : roundCharge.unreadableReason
           : charge.outcome === "unreadable"
             ? charge.reason
-            : charge.outcome === "notBilled" && !provenNotBilled
-              ? "the gateway reported billed search work without a usable total debit"
-              : undefined;
+            : undefined;
 
         tokens = addTokens(tokens, roundTokens);
         ledger.push({
@@ -1571,21 +1539,14 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           )
             throw AGENT_CONTEXT_COMPACTION_REQUIRED;
           if (!(await canStartNextHostedAiProviderRound(payload))) throw hostedAiPaused;
-          if (webSearchOvershoot) {
-            return {
-              activeTools: activeTools.filter((toolName) => !isAgentWebTool(toolName)),
-              toolChoice: "none" as const,
-              maxRetries: fundedRetryCount(),
-            };
-          }
-          const webSearchPermitted =
-            activeTools.includes(AGENT_WEB_SEARCH_TOOL_NAME) &&
-            !(isUnattendedSurface(surface) && performedWrite) &&
-            (await webSearchAffordable());
-          const maxRetries = webSearchPermitted ? 0 : fundedRetryCount();
+          const webPageReadPermitted =
+            webPageReads < webPageReadLimit && !(isUnattendedSurface(surface) && performedWrite);
+          const maxRetries = fundedRetryCount();
           return {
-            activeTools: webSearchPermitted ? activeTools : activeTools.filter((toolName) => !isAgentWebTool(toolName)),
-            ...(payload.webSearchEnabled || maxRetries < AGENT_MODEL_DEFAULT_MAX_RETRIES ? { maxRetries } : {}),
+            activeTools: webPageReadPermitted
+              ? activeTools
+              : activeTools.filter((toolName) => !isAgentWebTool(toolName)),
+            ...(maxRetries < AGENT_MODEL_DEFAULT_MAX_RETRIES ? { maxRetries } : {}),
           };
         },
         telemetry: {

@@ -155,7 +155,7 @@ describe("managed Wiki retrieval tools", () => {
       const markdown = "A clear voice 🌍.\n".repeat(1_000);
       calls.get.mockResolvedValue({ ok: true, data: { ...page, markdown } });
       const deps = dependencies();
-      const tools = getAgentAiTools(deps, { surface, webSearchEnabled: false });
+      const tools = getAgentAiTools(deps, { surface });
       expect(tools.fetch).toBeUndefined();
       const first = await execute(tools.manage_wiki_pages, {
         action: "get",
@@ -232,7 +232,6 @@ describe("managed Wiki retrieval tools", () => {
       );
       const tools = getAgentAiTools(dependencies(), {
         surface,
-        webSearchEnabled: false,
       });
 
       expect(tools.fetch).toBeUndefined();
@@ -314,7 +313,6 @@ describe("managed Wiki retrieval tools", () => {
       deps.requestApproval = requestApproval;
       const tools = getAgentAiTools(deps, {
         surface,
-        webSearchEnabled: false,
       });
 
       const read = await execute(tools.manage_wiki_pages, {
@@ -352,7 +350,7 @@ describe("managed Wiki retrieval tools", () => {
   );
 
   it("uses the runtime-v2 hosted Wiki tools and keeps the public deep-research pair external", () => {
-    const options = { surface: "chat" as const, webSearchEnabled: false };
+    const options = { surface: "chat" as const };
     const tools = getAgentAiTools(dependencies(), options);
     const description = (tools.manage_wiki_pages as { description?: string }).description ?? "";
 
@@ -367,7 +365,7 @@ describe("managed Wiki retrieval tools", () => {
 
   it("returns a denied read without leaking Markdown through the agent wrapper", async () => {
     calls.get.mockRejectedValue(new ForbiddenError("Wiki Read denied"));
-    const tools = getAgentAiTools(dependencies(), { webSearchEnabled: false });
+    const tools = getAgentAiTools(dependencies(), {});
     const result = await execute(tools.manage_wiki_pages, {
       action: "get",
       id: PAGE_ID,
@@ -387,7 +385,7 @@ describe("managed Wiki retrieval tools", () => {
       ok: true,
       data: [{ id: "account-1", provider: "email", status: "connected" }],
     });
-    const options = { webSearchEnabled: false };
+    const options = {};
     const tools = getAgentAiTools(dependencies(), options);
     const definition = getAgentAiToolDefinitions(undefined, options).find(
       ({ name }) => name === "get_workspace_context",

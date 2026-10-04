@@ -51,7 +51,10 @@ import { WIKI_REFERENCE_MAX_BYTES, agentWikiReferenceBytes, serializeAgentWikiCa
 import { SHIPPED_AGENT_MODEL } from "../model-catalog";
 import { buildAgentSystemPrompt } from "../system-prompt";
 import { AGENT_UI_TARGETS, unopenedUiPrerequisite } from "../ui-targets";
+import { isReadOnlyAgentToolCall, requiresApproval } from "../gated-tools";
+import { internalToolIdentity } from "../tool-identity";
 import {
+  AGENT_HOSTED_TOOL_ANNOTATIONS,
   AGENT_UI_TOOL_NAMES,
   describeAgentAiTools,
   hasNonTransactionalEffect,
@@ -159,7 +162,7 @@ describe("agent tools", () => {
       expect(hasNonTransactionalEffect(name), name).toBe(false);
   });
 
-  it("exposes the MCP registry without the deep-research pair, plus the interface tools, load_toolset and analyze_records", () => {
+  it("exposes the MCP registry without the deep-research pair, plus the interface tools, load_toolset, analyze_records and read_web_page", () => {
     const names = Object.keys(getAgentAiTools(deps()));
     const deepResearch = new Set(MCP_ALWAYS_ON_TOOLS.map((agentTool) => agentTool.name));
     const expected = new Set([
@@ -167,15 +170,49 @@ describe("agent tools", () => {
       ...AGENT_UI_TOOL_NAMES,
       "load_toolset",
       ANALYZE_RECORDS_TOOL_NAME,
+      "read_web_page",
     ]);
 
     expect(names.toSorted()).toEqual([...expected].toSorted());
+    expect(names).not.toContain("web_search");
     expect(names).not.toContain("search");
     expect(names).not.toContain("fetch");
     expect(names).toContain("load_toolset");
     expect(names).not.toContain("click_ui_target");
     expect(names.filter((name) => name === "request_support")).toHaveLength(1);
     expect(names.every((name) => !name.startsWith("discover_"))).toBe(true);
+  });
+
+  it("offers read_web_page on every surface and provider as a read-only, open-world tool that needs no approval", async () => {
+    for (const surface of ["chat", "routine"] as const) {
+      for (const servingProvider of ["vertex", "ovh"]) {
+        const definition = agentToolDefinitionsForTurn({ servingProvider, surface }).find(
+          ({ name }) => name === "read_web_page",
+        );
+        expect(definition, `${surface} ${servingProvider}`).toMatchObject({ toolset: null });
+        expect(definition?.type).toBeUndefined();
+        expect(JSON.stringify(definition?.inputSchema)).toContain('"url"');
+        expect(definition?.description).toContain("There is no web search");
+      }
+    }
+    expect(AGENT_HOSTED_TOOL_ANNOTATIONS.read_web_page).toEqual({
+      readOnlyHint: true,
+      idempotentHint: true,
+      destructiveHint: false,
+      openWorldHint: true,
+    });
+    expect(
+      requiresApproval(
+        internalToolIdentity("read_web_page"),
+        { annotations: AGENT_HOSTED_TOOL_ANNOTATIONS.read_web_page },
+        { url: "https://example.com/" },
+      ),
+    ).toBe(false);
+    expect(isReadOnlyAgentToolCall("read_web_page", {}, { url: "https://example.com/" })).toBe(true);
+    await expect(normalizeAgentAiToolInput("read_web_page", { url: "" }, 6000)).resolves.toMatchObject({ ok: false });
+    await expect(
+      normalizeAgentAiToolInput("read_web_page", { url: " https://example.com/pricing ", query: "plans" }, 6000),
+    ).resolves.toEqual({ ok: true, input: { url: "https://example.com/pricing", query: "plans" } });
   });
 
   it("completes more than sixteen sequential tool rounds inside the extended turn", async () => {
@@ -303,14 +340,9 @@ describe("agent tools", () => {
     expect(funded?.maxOutputTokens).toBe(model.maxOutputTokens);
   });
 
-  it.each([
-    ["chat", false],
-    ["routine", false],
-    ["chat", true],
-    ["routine", true],
-  ] as const)(
-    "admits a full Unicode catalog on %s with the supported prompt limit on every catalog model (web search %s)",
-    (surface, webSearchEnabled) => {
+  it.each(["chat", "routine"] as const)(
+    "admits a full Unicode catalog on %s with the supported prompt limit and the page reader on every catalog model",
+    (surface) => {
       const catalog = serializeAgentWikiCatalog({
         guide: {
           id: "00000000-0000-4000-8000-000000000099",
@@ -356,10 +388,10 @@ describe("agent tools", () => {
           const label = `${model.modelId} catalog=${Boolean(wikiCatalog)} website=${wikiWebsiteSetup}`;
           const toolDefinitions = getAgentAiToolDefinitions(model.servingProvider, {
             surface,
-            webSearchEnabled,
             wikiWebsiteSetup,
           });
-          expect(toolDefinitions.some(({ name }) => name === "web_search")).toBe(webSearchEnabled);
+          expect(toolDefinitions.some(({ name }) => name === "read_web_page")).toBe(true);
+          expect(toolDefinitions.some(({ name }) => name === "web_search")).toBe(false);
           expect(
             toolDefinitions.some(({ name }) => name === "import_website"),
             label,
@@ -369,7 +401,6 @@ describe("agent tools", () => {
               userName: "Test",
               locale: "en",
               surface,
-              webSearchEnabled,
               wikiWebsiteSetup,
             }),
             currentText: "x".repeat(surface === "routine" ? 5000 : 20000),

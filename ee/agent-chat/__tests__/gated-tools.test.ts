@@ -96,9 +96,10 @@ describe("gated-tools", () => {
   });
 
   it("counts toolset loading, web access and UI target listing as reads, and an unknown unannotated tool as a write", () => {
-    for (const name of ["load_toolset", "web_search", "list_ui_targets"])
+    for (const name of ["load_toolset", "read_web_page", "list_ui_targets"])
       expect(isReadOnlyAgentToolCall(name, {}, { toolset: "messaging" })).toBe(true);
     expect(isReadOnlyAgentToolCall("some_future_tool", {}, {})).toBe(false);
+    expect(isReadOnlyAgentToolCall("web_search", {}, { query: "news" })).toBe(false);
   });
 
   it("fails closed: a tool outside the policy map always requires approval", () => {

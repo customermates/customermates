@@ -239,9 +239,9 @@ describe("agent continuation context compaction", () => {
     expect(compacted.checkpointBytes).toBe(0);
   });
 
-  it("drops provider-executed search calls and results from retained steps while keeping local tool pairs", () => {
+  it("drops provider-executed tool calls and results from retained steps while keeping local tool pairs", () => {
     const searchCall = (id: string) =>
-      ({ type: "tool-call", toolCallId: id, toolName: "web_search", input: {}, providerExecuted: true }) as const;
+      ({ type: "tool-call", toolCallId: id, toolName: "provider_lookup", input: {}, providerExecuted: true }) as const;
     const result = (id: string, toolName: string) =>
       ({ type: "tool-result", toolCallId: id, toolName, output: { type: "json", value: { ok: true } } }) as const;
     const readCall = { type: "tool-call", toolCallId: "read-1", toolName: "list_users", input: {} } as const;
@@ -259,14 +259,14 @@ describe("agent continuation context compaction", () => {
         withMessages(
           [
             { role: "assistant", content: [searchCall("web-1"), readCall] },
-            { role: "tool", content: [result("web-1", "web_search"), result("read-1", "list_users")] },
+            { role: "tool", content: [result("web-1", "provider_lookup"), result("read-1", "list_users")] },
           ],
           "tool-calls",
         ),
         withMessages(
           [
             { role: "assistant", content: [searchCall("web-2"), partial] },
-            { role: "tool", content: [result("web-2", "web_search")] },
+            { role: "tool", content: [result("web-2", "provider_lookup")] },
           ],
           "length",
         ),

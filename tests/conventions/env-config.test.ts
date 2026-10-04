@@ -293,10 +293,10 @@ describe("hosted-AI control configuration", () => {
       expect(() => resolveStrictBoolean("HOSTED_AI_PROVIDER_WORK_PAUSED", invalid)).toThrow(/"true" or "false"/);
   });
 
-  it("ships hosted Mate's docs re-rank and web search on, with no switch to leave them off", () => {
+  it("ships hosted Mate's docs re-rank and page reader on, with no switch to leave them off", () => {
     const template = readFileSync(new URL("../../.env.cloud.template", import.meta.url), "utf8");
 
-    expect(template).not.toMatch(/AGENT_DOCS_RERANK|AGENT_WEB_SEARCH/);
+    expect(template).not.toMatch(/AGENT_DOCS_RERANK|AGENT_WEB_SEARCH|AGENT_WEB_PAGE/);
   });
 });
 

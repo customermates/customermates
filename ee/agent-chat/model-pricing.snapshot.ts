@@ -11,7 +11,6 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 1000000,
       maxCompletionTokens: 65000,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "14",
       prompt: [
         {
           costUsdPerToken: "0.00000033",
@@ -41,7 +40,6 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 1000000,
       maxCompletionTokens: 64000,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "14",
       prompt: [
         {
           costUsdPerToken: "0.00000165",
@@ -71,7 +69,6 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 1000000,
       maxCompletionTokens: 64000,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "14",
       prompt: [
         {
           costUsdPerToken: "0.000000825",
@@ -101,7 +98,6 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 1000000,
       maxCompletionTokens: 65536,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "14",
       prompt: [
         {
           costUsdPerToken: "0.000000825",
@@ -131,7 +127,6 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 1000000,
       maxCompletionTokens: 65000,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "14",
       prompt: [
         {
           costUsdPerToken: "0.000000275",
@@ -161,7 +156,6 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 1050000,
       maxCompletionTokens: 128000,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "0",
       prompt: [
         {
           costUsdPerToken: "0.0000002",
@@ -214,7 +208,6 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 1050000,
       maxCompletionTokens: 128000,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "0",
       prompt: [
         {
           costUsdPerToken: "0.000002",
@@ -268,7 +261,6 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 1050000,
       maxCompletionTokens: 128000,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "0",
       prompt: [
         {
           costUsdPerToken: "0.000005",
@@ -322,7 +314,6 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 400000,
       maxCompletionTokens: 128000,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "0",
       prompt: [
         {
           costUsdPerToken: "0.00000005",
@@ -352,7 +343,6 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 400000,
       maxCompletionTokens: 128000,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "0",
       prompt: [
         {
           costUsdPerToken: "0.00000025",
@@ -382,7 +372,6 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 400000,
       maxCompletionTokens: 128000,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "0",
       prompt: [
         {
           costUsdPerToken: "0.00000075",
@@ -412,7 +401,6 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 400000,
       maxCompletionTokens: 128000,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "0",
       prompt: [
         {
           costUsdPerToken: "0.0000002",
@@ -442,7 +430,6 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 200000,
       maxCompletionTokens: 64000,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "10",
       prompt: [
         {
           costUsdPerToken: "0.0000011",
@@ -472,7 +459,6 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 1000000,
       maxCompletionTokens: 128000,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "10",
       prompt: [
         {
           costUsdPerToken: "0.0000022",
@@ -502,7 +488,6 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 1000000,
       maxCompletionTokens: 128000,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "10",
       prompt: [
         {
           costUsdPerToken: "0.0000055",
@@ -532,7 +517,6 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 1000000,
       maxCompletionTokens: 128000,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "0",
       prompt: [
         {
           costUsdPerToken: "0.00000019",
@@ -562,7 +546,6 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 1000000,
       maxCompletionTokens: 128000,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "0",
       prompt: [
         {
           costUsdPerToken: "0.00000174",
@@ -592,7 +575,6 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 1000000,
       maxCompletionTokens: 131000,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "0",
       prompt: [
         {
           costUsdPerToken: "0.00000015",
@@ -622,7 +604,6 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 1000000,
       maxCompletionTokens: 1000000,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "0",
       prompt: [
         {
           costUsdPerToken: "0.0000014",
@@ -652,7 +633,6 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 256000,
       maxCompletionTokens: 32768,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "0",
       prompt: [
         {
           costUsdPerToken: "0.00000095",
@@ -682,7 +662,6 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 256000,
       maxCompletionTokens: 256000,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "0",
       prompt: [
         {
           costUsdPerToken: "0.0000005",
@@ -712,7 +691,6 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 256000,
       maxCompletionTokens: 256000,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "0",
       prompt: [
         {
           costUsdPerToken: "0.0000005",
@@ -742,7 +720,6 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 32000,
       maxCompletionTokens: null,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "0",
       prompt: [
         {
           costUsdPerToken: "0.000000042",
@@ -772,7 +749,6 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 262144,
       maxCompletionTokens: 262144,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "0",
       prompt: [
         {
           costUsdPerToken: "0.00000047",
@@ -802,7 +778,6 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 262144,
       maxCompletionTokens: 262144,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "0",
       prompt: [
         {
           costUsdPerToken: "0.00000071",
@@ -832,7 +807,6 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 131072,
       maxCompletionTokens: 131072,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "0",
       prompt: [
         {
           costUsdPerToken: "0.00000009",
@@ -862,7 +836,6 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 131072,
       maxCompletionTokens: 131072,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "0",
       prompt: [
         {
           costUsdPerToken: "0.0000001",
@@ -892,7 +865,6 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 262144,
       maxCompletionTokens: 262144,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "0",
       prompt: [
         {
           costUsdPerToken: "0.00000007",

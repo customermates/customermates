@@ -57,12 +57,9 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { GetWikiCatalogInteractor } from "@/features/wiki/get-wiki-catalog.interactor";
 import type { UserService } from "@/features/user/user.service";
 import { AppErrorCode, appErrorDetails } from "@/core/errors/app-errors";
-import { agentWebSearchReserveMicrocents } from "./agent-budget-policy";
 import { agentMicrocentsFromStorage } from "./agent-credit-policy";
-import { agentWebSearchCallLimit } from "./agent-web-search";
 import { serializeAgentWikiCatalog } from "./agent-wiki-context";
 import { userWebsiteHomepages } from "./user-website-homepages";
-import { agentServingProviderUsesGateway } from "./ovh-ai-endpoints-catalog";
 
 type AdmittedAgentRun = { disposition: "run"; externalRunId: string } & Omit<AgentRunContext, "appBaseUrl">;
 type AgentInvocationMode = "interactive" | "routine";
@@ -276,7 +273,6 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     if (requestedModelKey !== null && !isAgentModelKey(requestedModelKey))
       return fail(CustomErrorCode.agentModelUnavailable, ["modelKey"]);
     const turnModel = resolveAgentModel(requestedModelKey);
-    const webSearchEnabled = agentServingProviderUsesGateway(turnModel.servingProvider);
     const locale = data.locale ?? resolveUserLocale(user);
     let wikiCatalog: string | null = null;
     let wikiWebsiteSetup = false;
@@ -296,7 +292,6 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       locale,
       surface,
       wikiWebsiteSetup,
-      webSearchEnabled,
     };
 
     const userName = `${user.firstName} ${user.lastName}`.trim();
@@ -310,7 +305,6 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         triggerEvent: routineTriggerEventOf(data.text),
         schemaDigest,
         wikiWebsiteSetup,
-        webSearchEnabled,
       }),
       currentText: data.text,
       contexts,
@@ -332,9 +326,6 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
             ? null
             : agentMicrocentsFromStorage(conversation.creditCeilingMicrocents, "Routine run credit ceiling")
           : null,
-      webSearchReserveMicrocents: webSearchEnabled
-        ? agentWebSearchReserveMicrocents(agentWebSearchCallLimit(surface))
-        : 0,
     });
     const reservation = creditAdmission.reservation;
     if (!reservation) {
@@ -521,7 +512,6 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
             }
           : {}),
         wikiCatalog,
-        webSearchEnabled,
       });
       await this.repo.recordAgentTurnExternalRun(turnRequestId, runId, externalRunId);
 

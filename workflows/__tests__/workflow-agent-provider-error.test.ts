@@ -535,14 +535,14 @@ describe("WorkflowAgent durable provider failure evidence", () => {
               {
                 type: "tool-call",
                 toolCallId: "public-provider-tool",
-                toolName: "web_search",
+                toolName: "provider_lookup",
                 input: "{}",
                 providerExecuted: true,
               },
               {
                 type: "tool-result",
                 toolCallId: "public-provider-tool",
-                toolName: "web_search",
+                toolName: "provider_lookup",
                 result: transportError,
                 isError: true,
               },
@@ -561,9 +561,9 @@ describe("WorkflowAgent durable provider failure evidence", () => {
         maxRetries: 0,
         stopWhen: isStepCount(1),
         tools: {
-          web_search: tool({
+          provider_lookup: tool({
             type: "provider",
-            id: "gateway.exa_search",
+            id: "gateway.provider_lookup",
             args: { type: "auto", numResults: 1 },
             isProviderExecuted: true,
             inputSchema: jsonSchema({ type: "object", properties: {}, additionalProperties: false }),
@@ -624,14 +624,14 @@ describe("WorkflowAgent durable provider failure evidence", () => {
             {
               type: "tool-call",
               toolCallId: "public-provider-tool",
-              toolName: "web_search",
+              toolName: "provider_lookup",
               input: "{}",
               providerExecuted: true,
             },
             {
               type: "tool-result",
               toolCallId: "public-provider-tool",
-              toolName: "web_search",
+              toolName: "provider_lookup",
               result: plainError,
               isError: true,
             },
@@ -650,9 +650,9 @@ describe("WorkflowAgent durable provider failure evidence", () => {
       maxRetries: 0,
       stopWhen: isStepCount(1),
       tools: {
-        web_search: tool({
+        provider_lookup: tool({
           type: "provider",
-          id: "gateway.exa_search",
+          id: "gateway.provider_lookup",
           args: { type: "auto", numResults: 1 },
           isProviderExecuted: true,
           inputSchema: jsonSchema({ type: "object", properties: {}, additionalProperties: false }),

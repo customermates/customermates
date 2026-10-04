@@ -353,10 +353,10 @@
           }
         },
         "web": {
-          "search": {
-            "done": "Web wurde durchsucht",
-            "error": "Web konnte nicht durchsucht werden",
-            "running": "Web wird durchsucht"
+          "page": {
+            "done": "Webseite wurde gelesen",
+            "error": "Webseite konnte nicht gelesen werden",
+            "running": "Webseite wird gelesen"
           }
         },
         "webhooks": {

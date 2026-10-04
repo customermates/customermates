@@ -353,10 +353,10 @@
           }
         },
         "web": {
-          "search": {
-            "done": "Ricerca sul web completata",
-            "error": "Impossibile effettuare la ricerca sul web",
-            "running": "Ricerca sul web"
+          "page": {
+            "done": "Pagina web letta",
+            "error": "Impossibile leggere la pagina web",
+            "running": "Lettura della pagina web"
           }
         },
         "webhooks": {

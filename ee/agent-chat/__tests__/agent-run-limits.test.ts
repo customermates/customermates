@@ -79,8 +79,14 @@ describe("credit-bounded durable continuation", () => {
     ).toEqual(["call-1", "call-2"]);
   });
 
-  it("carries a provider-executed search call and its result into the next segment's messages", () => {
-    const call = { type: "tool-call", toolCallId: "web-1", toolName: "web_search", input: {}, providerExecuted: true };
+  it("carries a provider-executed tool call and its result into the next segment's messages", () => {
+    const call = {
+      type: "tool-call",
+      toolCallId: "web-1",
+      toolName: "provider_lookup",
+      input: {},
+      providerExecuted: true,
+    };
     const output = { results: [{ url: "https://example.com/" }] };
     const partial = { type: "text", text: "Partial" };
     const step = toAgentContinuationStep(
@@ -88,7 +94,7 @@ describe("credit-bounded durable continuation", () => {
         finishReason: "length",
         content: [call, { ...call, type: "tool-result", output }, partial],
       },
-      [{ toolCallId: "web-1", toolName: "web_search", output }],
+      [{ toolCallId: "web-1", toolName: "provider_lookup", output }],
     );
 
     expect(step.response.messages).toEqual([
@@ -96,7 +102,12 @@ describe("credit-bounded durable continuation", () => {
       {
         role: "tool",
         content: [
-          { type: "tool-result", toolCallId: "web-1", toolName: "web_search", output: { type: "json", value: output } },
+          {
+            type: "tool-result",
+            toolCallId: "web-1",
+            toolName: "provider_lookup",
+            output: { type: "json", value: output },
+          },
         ],
       },
     ]);

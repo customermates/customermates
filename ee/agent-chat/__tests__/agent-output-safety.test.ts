@@ -763,13 +763,13 @@ describe("agent client-visible output safety", () => {
     );
   });
 
-  it("drops an activity of an unknown kind, such as a removed website read", () => {
+  it.each(["web.read", "web.search"])("drops an activity of a retired kind such as %s", (kind) => {
     const parts = clientSafeAgentMessageParts([
       {
         type: "activity",
         id: "removed-web-read",
         activity: {
-          kind: "web.read",
+          kind,
           affectedResources: [],
           risk: "read",
           sourceDomain: "customermates.com",

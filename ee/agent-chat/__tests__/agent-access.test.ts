@@ -49,7 +49,7 @@ const MESSAGE_ID = "00000000-0000-4000-8000-000000000002";
 const CLIENT_REQUEST_ID = "00000000-0000-4000-8000-000000000003";
 const messagePage = (messages: unknown[]) => ({ messages, nextCursor: null });
 
-function usageService(webSearchEnabled = true) {
+function usageService() {
   const summary = {
     creditsUsed: 0,
     creditsRemaining: 500,
@@ -76,7 +76,6 @@ function usageService(webSearchEnabled = true) {
           maxOutputTokens: 2048,
           maxContextBytes: 200_000,
           maxToolResultChars: 6_000,
-          webSearchEnabled,
         },
       },
     }),
@@ -516,7 +515,6 @@ describe("agent access", () => {
         model: SHIPPED_AGENT_MODEL,
         requiredContextBytes: expect.any(Number),
         creditCeilingMicrocents: expected,
-        webSearchReserveMicrocents: 2_400_000,
       });
       expect(repo.admitAgentTurnOrThrow).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -691,7 +689,6 @@ describe("agent access", () => {
       model: SHIPPED_AGENT_MODEL,
       requiredContextBytes: expect.any(Number),
       creditCeilingMicrocents: null,
-      webSearchReserveMicrocents: 3_600_000,
     });
     expect(repo.admitAgentTurnOrThrow).toHaveBeenCalledWith(
       expect.not.objectContaining({ routineRunId: expect.anything() }),
@@ -767,7 +764,6 @@ describe("agent access", () => {
         model: SHIPPED_AGENT_MODEL,
         requiredContextBytes: expect.any(Number),
         creditCeilingMicrocents: null,
-        webSearchReserveMicrocents: 3_600_000,
       });
     },
   );
@@ -822,7 +818,6 @@ describe("agent access", () => {
       model: SHIPPED_AGENT_MODEL,
       requiredContextBytes: expect.any(Number),
       creditCeilingMicrocents: null,
-      webSearchReserveMicrocents: 3_600_000,
     });
     expect(usage.prepareTurn).toHaveBeenCalledTimes(1);
   });

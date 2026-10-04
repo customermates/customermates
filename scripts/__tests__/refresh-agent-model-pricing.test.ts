@@ -50,7 +50,6 @@ describe("OVH pricing refresh", () => {
       contextLength: 131072,
       maxCompletionTokens: 131072,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "0",
       prompt: [{ costUsdPerToken: "0.00000009" }],
       completion: [{ costUsdPerToken: "0.00000047" }],
       inputCacheRead: [{ costUsdPerToken: "0" }],

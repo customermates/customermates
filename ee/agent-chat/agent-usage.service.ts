@@ -259,7 +259,6 @@ export class AgentUsageService {
       model: AgentModelEntry;
       requiredContextBytes?: number;
       creditCeilingMicrocents?: number | null;
-      webSearchReserveMicrocents?: number;
     },
   ): Promise<{
     summary: AgentUsageSummary;
@@ -284,7 +283,6 @@ export class AgentUsageService {
       model: options.model,
       availableMicrocents,
       requiredContextBytes: options.requiredContextBytes,
-      webSearchReserveMicrocents: options.webSearchReserveMicrocents,
     });
     if (!budget) {
       return {

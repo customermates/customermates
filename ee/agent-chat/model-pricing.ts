@@ -20,7 +20,6 @@ const EndpointSchema = z.object({
   contextLength: z.number().int().positive(),
   maxCompletionTokens: z.number().int().positive().nullable(),
   requestUsd: UsdRateSchema,
-  webSearchUsdPerThousandCalls: UsdRateSchema,
   prompt: z.array(TierSchema).min(1),
   completion: z.array(TierSchema).min(1),
   inputCacheRead: z.array(TierSchema).min(1),

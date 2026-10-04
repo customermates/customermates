@@ -1,7 +1,12 @@
 import type { AgentToolIdentity } from "./tool-identity";
 
 import { LOAD_TOOLSET_TOOL_NAME } from "./agent-toolset-routing";
-import { agentToolIdentityKey, internalToolIdentity, isInternalToolIdentity } from "./tool-identity";
+import {
+  AGENT_WEB_PAGE_TOOL_NAME,
+  agentToolIdentityKey,
+  internalToolIdentity,
+  isInternalToolIdentity,
+} from "./tool-identity";
 
 export function isReadOnlyTool(tool: { annotations?: Record<string, boolean> }) {
   return tool.annotations?.readOnlyHint === true;
@@ -94,7 +99,12 @@ export function isApprovalRelevantValue(value: unknown) {
 }
 
 export function isReadOnlyAgentToolCall(name: string, tool: { annotations?: Record<string, boolean> }, input: unknown) {
-  if (isReadOnlyTool(tool) || name === "web_search" || name === "list_ui_targets" || name === LOAD_TOOLSET_TOOL_NAME)
+  if (
+    isReadOnlyTool(tool) ||
+    name === AGENT_WEB_PAGE_TOOL_NAME ||
+    name === "list_ui_targets" ||
+    name === LOAD_TOOLSET_TOOL_NAME
+  )
     return true;
   const action =
     input && typeof input === "object" && !Array.isArray(input) ? (input as { action?: unknown }).action : undefined;

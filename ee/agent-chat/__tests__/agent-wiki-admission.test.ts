@@ -187,7 +187,6 @@ describe("Workspace Wiki admission bootstrap", () => {
       userName: payload.userName,
       locale: payload.locale,
       surface,
-      webSearchEnabled: true,
     });
     expect(systemPrompt).not.toContain("Current workspace guidance");
     const admission = state.usage.prepareTurn.mock.calls[0][2];
@@ -209,7 +208,6 @@ describe("Workspace Wiki admission bootstrap", () => {
       locale: "en",
       surface,
       wikiWebsiteSetup: false,
-      webSearchEnabled: true,
     });
   });
 
@@ -267,7 +265,6 @@ describe("Workspace Wiki admission bootstrap", () => {
         userName: payload.userName,
         locale: payload.locale,
         surface,
-        webSearchEnabled: true,
       });
       expect(systemPrompt.stable).toContain("follow useful Knowledge Base links");
       expect(systemPrompt.stable).toContain("Report gaps or conflicts");
@@ -387,14 +384,12 @@ describe("Workspace Wiki admission bootstrap", () => {
         locale: "en",
         surface: "chat",
         wikiWebsiteSetup: true,
-        webSearchEnabled: true,
       });
       const systemPrompt = buildAgentSystemPrompt({
         userName: payload.userName,
         locale: payload.locale,
         surface: "chat",
         wikiWebsiteSetup: true,
-        webSearchEnabled: true,
       });
       expect(systemPrompt).toContain("import_website");
       expect(admission.requiredContextBytes).toBe(

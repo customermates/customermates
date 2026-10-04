@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { sanitizeAgentPlainText } from "./agent-output-safety";
-import { WIKI_WEBSITE_IMPORT_TOOL_NAME } from "./tool-identity";
+import { AGENT_WEB_PAGE_TOOL_NAME, WIKI_WEBSITE_IMPORT_TOOL_NAME } from "./tool-identity";
 
 function record(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
@@ -16,6 +16,12 @@ function websiteLabel(value: unknown) {
   } catch {
     return undefined;
   }
+}
+
+function webPageLabel(value: unknown) {
+  if (typeof value !== "string") return undefined;
+  const address = value.trim();
+  return websiteLabel(/^[a-z][a-z\d+.-]*:/i.test(address) ? address : `https://${address}`);
 }
 
 function label(value: unknown) {
@@ -82,7 +88,8 @@ export function agentToolInputContext(toolName: string, input: unknown) {
   if (toolName === "manage_wiki_pages")
     return context(data.action === "create" ? namedItems(data.pages) : [data.title ?? data.query]);
   if (toolName === WIKI_WEBSITE_IMPORT_TOOL_NAME) return context([websiteLabel(data.url)]);
-  if (toolName === "web_search" || toolName === "search_docs") return context([data.query]);
+  if (toolName === AGENT_WEB_PAGE_TOOL_NAME) return context([webPageLabel(data.url)]);
+  if (toolName === "search_docs") return context([data.query]);
   if (toolName === "search_records" || toolName === "list_records") return context([data.searchTerm]);
   if (["manage_routines", "manage_widgets", "manage_data_views"].includes(toolName))
     return context([data.name ?? data.title]);

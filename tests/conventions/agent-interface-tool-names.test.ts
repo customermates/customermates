@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 import { AGENT_PANEL_TOOL_NAMES } from "@/ee/agent-chat/agent-ui-command";
 import { ANALYSIS_MAX_BYTES, ANALYSIS_MAX_READS, ANALYSIS_MAX_ROWS } from "@/ee/agent-chat/agent-analysis";
 import { ANALYZE_RECORDS_TOOL_NAME, LOAD_TOOLSET_TOOL_NAME } from "@/ee/agent-chat/agent-toolset-routing";
+import { AGENT_WEB_PAGE_TOOL_NAME } from "@/ee/agent-chat/tool-identity";
 import { CONTENT_LOCALES } from "@/i18n/locale-registry";
 
 const root = process.cwd();
@@ -29,8 +30,8 @@ describe("agent interface tool names in the assistant documentation", () => {
   it.each(assistantPages)("names the tools only Mate has and the analysis limits in $locale", ({ locale, path }) => {
     const source = read(path);
     const onlyMate = {
-      en: `plus four interface tools, \`${LOAD_TOOLSET_TOOL_NAME}\` and \`${ANALYZE_RECORDS_TOOL_NAME}\`, which only Mate has.`,
-      de: `dafür mit vier Oberflächen-Tools, \`${LOAD_TOOLSET_TOOL_NAME}\` und \`${ANALYZE_RECORDS_TOOL_NAME}\`, die nur Mate hat.`,
+      en: `plus four interface tools, \`${LOAD_TOOLSET_TOOL_NAME}\`, \`${ANALYZE_RECORDS_TOOL_NAME}\` and the page reader \`${AGENT_WEB_PAGE_TOOL_NAME}\`, which only Mate has.`,
+      de: `dafür mit vier Oberflächen-Tools, \`${LOAD_TOOLSET_TOOL_NAME}\`, \`${ANALYZE_RECORDS_TOOL_NAME}\` und dem Seitenleser \`${AGENT_WEB_PAGE_TOOL_NAME}\`, die nur Mate hat.`,
     }[locale];
     const reads = { en: "It runs up to ten reads", de: "Es führt bis zu zehn Lesezugriffe" }[locale];
     const limits = {
