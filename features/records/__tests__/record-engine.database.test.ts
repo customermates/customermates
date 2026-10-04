@@ -15295,6 +15295,67 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       await failure(f.run(() => f.query.invoke(RecordQuerySchema.parse({ typeId: randomUUID() })), f.member)),
     ).toBe(404);
   });
+  it("returns requested relationship and path summaries from a single record read", async () => {
+    const f = await fixture();
+    const organization = await f.create("organization", "Linked holding");
+    const service = await f.create("service", "Path service");
+    const deal = await f.create(
+      "deal",
+      "Summarized deal",
+      [],
+      [{ relationId: f.id("deal.organizations"), direction: "outgoing", record: organization }],
+    );
+    await f.create(
+      "lineItem",
+      "Line",
+      [],
+      [
+        { relationId: f.id("lineItem.deal"), direction: "outgoing", record: deal },
+        { relationId: f.id("lineItem.service"), direction: "outgoing", record: service },
+      ],
+    );
+    expect(await f.run(() => f.read.invoke(deal))).toMatchObject({ ok: true, data: { relationships: [] } });
+    const request = {
+      ...deal,
+      includeRelationships: [{ relationId: f.id("deal.organizations"), direction: "outgoing" as const, limit: 3 }],
+      includePaths: [{ pathId: f.id("deal.services.path"), limit: 3 }],
+    };
+    expect(await f.run(() => f.read.invoke(request))).toMatchObject({
+      ok: true,
+      data: {
+        relationships: [
+          {
+            relationId: f.id("deal.organizations"),
+            direction: "outgoing",
+            readableCount: 1,
+            hasMore: false,
+            records: [{ ref: organization, title: { state: "value", value: textValue("Linked holding") } }],
+          },
+        ],
+        relationshipPaths: [{ pathId: f.id("deal.services.path"), readableCount: 1, records: [{ ref: service }] }],
+      },
+    });
+    await f.run(() =>
+      runInTransaction(() => f.repo.setGrants(deal.typeId, [{ roleId: f.memberRole.id, actions: ["readAll"] }])),
+    );
+    const restricted = await f.run(() => f.read.invoke(request), f.member);
+    expect(restricted).toMatchObject({
+      ok: true,
+      data: {
+        relationships: [{ readableCount: 0, records: [] }],
+        relationshipPaths: [{ readableCount: 0, records: [] }],
+      },
+    });
+    expect(JSON.stringify(restricted)).not.toContain("Linked holding");
+    expect(
+      await f.run(() =>
+        f.read.invoke({
+          ...deal,
+          includeRelationships: [{ relationId: f.id("contact.organizations"), direction: "outgoing", limit: 3 }],
+        }),
+      ),
+    ).toMatchObject({ ok: false });
+  });
 });
 
 describeDatabase("provider avatar updates through the generic engine", { timeout: 30000 }, () => {

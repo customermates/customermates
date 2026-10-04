@@ -34,10 +34,15 @@ import { z } from "zod";
 import { CommonApiResponses, ConflictApiResponse, NotFoundApiResponse } from "@/core/api/interactor-handler";
 import { GenericRecordWidgetInputSchema, GenericRecordWidgetDtoSchema } from "@/features/widget/record-widget.schema";
 import { RecordWidgetReadSchema } from "@/features/widget/get-record-widgets.interactor";
-import { RecordModelSchema, RecordRefSchema, RecordDtoSchema } from "./record-model.schema";
+import { RecordModelSchema, RecordDtoSchema } from "./record-model.schema";
 import { GetModelSchema } from "./configure-records.interactor";
 import { ConfigurationContractSchema, ConfigurationPreviewSchema } from "./configuration.schema";
-import { RecordQuerySchema, MutateRecordSchema, RecordOperationResultSchema } from "./record-query.schema";
+import {
+  RecordQuerySchema,
+  MutateRecordSchema,
+  RecordOperationResultSchema,
+  RecordReadSchema,
+} from "./record-query.schema";
 import { RecordQueryResultSchema } from "./record-query-result.schema";
 import { RecordMeasureSchema, RecordMeasureResultSchema } from "./record-measure.schema";
 import { RecordOperationInputSchema, RecordOperationStatusSchema } from "./record-operation.interactor";
@@ -228,7 +233,7 @@ export const recordApiPaths = {
     ),
   },
   "/v2/records/read": {
-    post: operation("readRecord", "Read one record", RecordRefSchema, RecordDtoSchema),
+    post: operation("readRecord", "Read one record", RecordReadSchema, RecordDtoSchema),
   },
   "/v2/records/query": {
     post: operation("queryRecords", "Query records", RecordQuerySchema, RecordQueryResultSchema),

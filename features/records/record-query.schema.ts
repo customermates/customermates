@@ -119,6 +119,20 @@ export const RecordQuerySchema = z
   .strict();
 export type RecordQuery = z.infer<typeof RecordQuerySchema>;
 
+export const RecordReadSchema = RecordRefSchema.extend({
+  includeRelationships: z
+    .array(RecordRelationshipSelectionSchema)
+    .max(32)
+    .optional()
+    .describe("Relationship summaries to return in relationships, as in query_crm_records. Omitted returns none."),
+  includePaths: z
+    .array(RecordPathSelectionSchema)
+    .max(32)
+    .optional()
+    .describe("Declared relationship paths to summarize in relationshipPaths. Omitted returns none."),
+}).strict();
+export type RecordRead = z.infer<typeof RecordReadSchema>;
+
 export const RecordLinkChangeSchema = z
   .object({
     action: z.enum(["link", "unlink"]),
