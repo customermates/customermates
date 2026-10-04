@@ -33,6 +33,10 @@ export function wikiPagePath(id: string): string {
   return `/wiki?page=${id.toLowerCase()}`;
 }
 
+export function wikiPageMarkdownLink(title: string, id: string): string {
+  return `[${title.replace(/[\\[\]]/g, "\\$&")}](${wikiPagePath(id)})`;
+}
+
 export function wikiPageUrl(baseUrl: string, id: string): string {
   const base = normalizedBaseUrl(baseUrl);
   if (!base) throw new Error("Knowledge Base base URL must be HTTP(S).");

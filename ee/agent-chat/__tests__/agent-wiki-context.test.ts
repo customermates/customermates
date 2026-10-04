@@ -23,6 +23,7 @@ import {
 } from "@/ee/agent-chat/agent-wiki-context";
 import { WIKI_REFERENCE_MATERIAL_RULE } from "@/features/mcp-tools/server-instructions";
 import { agentSystemPromptParts } from "@/ee/agent-chat/system-prompt";
+import { sanitizeAgentVisibleText } from "@/ee/agent-chat/agent-output-safety";
 
 const OVERSIZED_PATH_ID = "00000000-0000-4000-8000-0000000000ff";
 vi.mock("@/features/wiki/wiki-links", async (importOriginal) => {
@@ -31,6 +32,10 @@ vi.mock("@/features/wiki/wiki-links", async (importOriginal) => {
     ...actual,
     wikiPagePath: (id: string) =>
       id === OVERSIZED_PATH_ID ? `${actual.wikiPagePath(id)}&${"x".repeat(10_000)}` : actual.wikiPagePath(id),
+    wikiPageMarkdownLink: (title: string, id: string) =>
+      id === OVERSIZED_PATH_ID
+        ? `${actual.wikiPageMarkdownLink(title, id)}${"x".repeat(10_000)}`
+        : actual.wikiPageMarkdownLink(title, id),
   };
 });
 
@@ -363,6 +368,35 @@ describe("Workspace Wiki provider context", () => {
   });
 });
 
+it("gives every page a citation link that survives the visible-text safety filter", () => {
+  const text = serializeAgentWikiCatalog({
+    items: [
+      {
+        id: "00000000-0000-4000-8000-000000000001",
+        title: "RESA SAP Data Import",
+        excerpt: "Transfers data into SAP.",
+        url: "u",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ],
+    total: 1,
+    page: 1,
+    nextPage: null,
+    truncated: false,
+  });
+  const [item] = JSON.parse(text ?? "null").wiki.items;
+  expect(item).toEqual({
+    id: "00000000-0000-4000-8000-000000000001",
+    cite: "[RESA SAP Data Import](/wiki?page=00000000-0000-4000-8000-000000000001)",
+    excerpt: "Transfers data into SAP.",
+  });
+  expect(sanitizeAgentVisibleText(`RESA moves data into SAP ${item.cite}.`)).toBe(
+    `RESA moves data into SAP ${item.cite}.`,
+  );
+  expect(agentWikiReferenceBlock(text)).toContain("Cite a page by copying its cite link exactly.");
+});
+
 it("bounds ten worst-case escaped Unicode entries without dropping IDs or pagination", () => {
   const items = Array.from({ length: 10 }, (_, index) => ({
     id: `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
@@ -384,7 +418,7 @@ it("bounds ten worst-case escaped Unicode entries without dropping IDs or pagina
   });
   const result = JSON.parse(text ?? "null").wiki;
   expect(result.items.map((item: { id: string }) => item.id)).toEqual(items.map((item) => item.id));
-  expect(result.items[0].url).toBe(`/wiki?page=${items[0].id}`);
+  expect(result.items[0].cite.endsWith(`](/wiki?page=${items[0].id})`)).toBe(true);
   expect(result).toMatchObject({
     total: 15,
     page: 1,
@@ -463,11 +497,12 @@ it("keeps a worst-case Operating Guide, procedure index and catalog inside the r
   expect(new TextEncoder().encode(wiki.guide.markdown).byteLength).toBeGreaterThanOrEqual(1_000);
   expect(guideMarkdown.startsWith(wiki.guide.markdown)).toBe(true);
   expect(wiki.guide.nextOffset).toBe(wiki.guide.markdown.length);
-  expect(wiki.guide.url).toBe(`/wiki?page=${id(99)}`);
+  expect(wiki.guide.cite.endsWith(`](/wiki?page=${id(99)})`)).toBe(true);
   expect(wiki.procedures.total).toBe(25);
   expect(wiki.procedures.truncated).toBe(true);
   expect(wiki.procedures.items.length).toBeGreaterThan(0);
-  expect(wiki.procedures.items[0]).toMatchObject({ id: id(100), url: `/wiki?page=${id(100)}` });
+  expect(wiki.procedures.items[0].id).toBe(id(100));
+  expect(wiki.procedures.items[0].cite.endsWith(`](/wiki?page=${id(100)})`)).toBe(true);
 });
 
 it("emits the reference for a Wiki that holds only a guide or procedures", () => {
@@ -523,18 +558,31 @@ describe("Workspace Wiki reference degradation", () => {
     nextPage: 2,
     truncated: true,
   });
+  type Cited = { cite: string };
   type Reference = {
     wiki: {
-      guide?: { markdown: string; title: string; nextOffset: number | null };
-      procedures?: { items: { title: string; whenToUse: string }[]; truncated: boolean; more?: string };
-      items: { title: string; excerpt: string }[];
+      guide?: Cited & { markdown: string; title: string; nextOffset: number | null };
+      procedures?: { items: (Cited & { title: string; whenToUse: string })[]; truncated: boolean; more?: string };
+      items: (Cited & { title: string; excerpt: string })[];
     };
   };
+  const titled = <T extends Cited>(entry: T) => ({
+    ...entry,
+    title: entry.cite.slice(1, entry.cite.lastIndexOf("](")),
+  });
   const reference = (scale: number, overrides?: Parameters<typeof sized>[1]) => {
     const text = serializeAgentWikiCatalog(sized(scale, overrides));
     expect(text).not.toBeNull();
     expect(agentWikiReferenceBytes(text)).toBeLessThanOrEqual(WIKI_REFERENCE_MAX_BYTES);
-    return JSON.parse(text ?? "null") as Reference;
+    const { wiki } = JSON.parse(text ?? "null") as Reference;
+    return {
+      wiki: {
+        ...wiki,
+        guide: wiki.guide && titled(wiki.guide),
+        procedures: wiki.procedures && { ...wiki.procedures, items: wiki.procedures.items.map(titled) },
+        items: wiki.items.map(titled),
+      },
+    };
   };
 
   it("keeps the 6,000-byte reference bound", () => {

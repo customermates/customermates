@@ -259,7 +259,7 @@ describe("Workspace Wiki admission bootstrap", () => {
         };
       };
       expect(serialized.wiki.items.map(({ id }) => id)).toEqual(firstTen.map(({ id }) => id));
-      expect(Object.keys(serialized.wiki.items[0])).toEqual(["id", "title", "url", "excerpt"]);
+      expect(Object.keys(serialized.wiki.items[0])).toEqual(["id", "cite", "excerpt"]);
       expect(serialized.wiki).toMatchObject({ total: 11, nextPage: 2, truncated: true });
       expect(serialized.wiki).not.toHaveProperty("relevantPages");
 

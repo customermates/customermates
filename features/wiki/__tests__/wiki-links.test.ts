@@ -5,6 +5,7 @@ import {
   parseWikiPageHref,
   parseWikiPageReference,
   wikiPageFetchId,
+  wikiPageMarkdownLink,
   wikiPagePath,
   wikiPageUrl,
 } from "../wiki-links";
@@ -21,6 +22,11 @@ describe("Wiki deep-link contract", () => {
       id: ID,
       path: `/wiki?page=${ID}`,
     });
+  });
+
+  it("renders a Markdown link whose title cannot break out of the link text", () => {
+    expect(wikiPageMarkdownLink("Refunds", ID)).toBe(`[Refunds](/wiki?page=${ID})`);
+    expect(wikiPageMarkdownLink("Plans [beta] \\ more", ID)).toBe(`[Plans \\[beta\\] \\\\ more](/wiki?page=${ID})`);
   });
 
   it("generates stable UUID paths, public URLs, and fetch ids", () => {

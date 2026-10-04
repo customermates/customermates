@@ -14,7 +14,7 @@ import { classifierReservationMicrocents } from "@/ee/agent-chat/classifier/clas
 import { JEV_MODEL_ID } from "@/ee/agent-chat/classifier/jev-runner";
 import { INITIAL_WIKI_SYNTHESIS_MODEL, SHIPPED_AGENT_MODEL } from "@/ee/agent-chat/model-catalog";
 import { wikiLanguageConflicts } from "@/features/wiki/wiki-language";
-import { wikiPagePath } from "@/features/wiki/wiki-links";
+import { wikiPageMarkdownLink } from "@/features/wiki/wiki-links";
 import { hasInvalidWikiPageLinks } from "@/features/wiki/wiki-markdown-links";
 import { WIKI_TITLE_MAX_LENGTH, WIKI_WHEN_TO_USE_MAX_LENGTH, wikiPageKindIssue } from "@/features/wiki/wiki.schema";
 import { getTranslator } from "@/i18n/get-translator";
@@ -413,7 +413,7 @@ export class WikiWebsiteSynthesisService {
     const guideLinks =
       topic.role === "operating_guide" && savedPages.length > 0
         ? [
-            `## ${t("pagesHeading")}\n\n${savedPages.map(({ title, pageId }) => `- [${title}](${wikiPagePath(pageId)})`).join("\n")}`,
+            `## ${t("pagesHeading")}\n\n${savedPages.map(({ title, pageId }) => `- ${wikiPageMarkdownLink(title, pageId)}`).join("\n")}`,
           ]
         : [];
     const markdown = [
