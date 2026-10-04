@@ -47,6 +47,7 @@
   --color-secondary: var(--secondary);
   --color-selected: var(--selected);
   --color-tooltip: var(--tooltip);
+  --color-tooltip-foreground: var(--tooltip-foreground);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
@@ -334,12 +335,12 @@
      --muted             a subdued surface, relative to whatever it sits on
      --accent            hover, moves toward the foreground
      --selected          selected rows and items
-     --tooltip           the one overlay that carries no rim, so its fill must clear
-                         every rung on its own: it steps away from the extreme, like
-                         the ladder does, and never inverts out of its own theme
      (--secondary is NOT a wash: see the note below)
      --placeholder       skeleton fill
    Alphas remain theme-specific so state stays legible on the compressed dark ladder.
+
+   Tooltips use a dedicated white surface and dark foreground in both themes. Shared
+   hints, their arrows and chart readouts use this pair independently of the host theme.
 
    --muted is a wash, not a rung. "Subdued" is inherently relative to the host, and a
    host can be two rungs away: pinned to the canvas rung it read as a gentle stripe on a
@@ -388,7 +389,8 @@
   --secondary: var(--card);
   --secondary-foreground: #000000;
   --selected: rgb(0 0 0 / 5.5%);
-  --tooltip: #d6d6dd;
+  --tooltip: #ffffff;
+  --tooltip-foreground: #000000;
   --muted: rgb(0 0 0 / 5.1%);
   --muted-foreground: #656567;
   --placeholder: rgb(0 0 0 / 7%);
@@ -454,7 +456,8 @@
   --secondary: var(--card);
   --secondary-foreground: #fafafa;
   --selected: rgb(255 255 255 / 5.5%);
-  --tooltip: #303036;
+  --tooltip: #ffffff;
+  --tooltip-foreground: #000000;
   --muted: rgb(255 255 255 / 4.5%);
   --muted-foreground: #a1a1a8;
   --placeholder: rgb(255 255 255 / 7%);

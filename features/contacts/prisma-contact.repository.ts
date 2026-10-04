@@ -9,7 +9,7 @@ import type { CreateContactRepo } from "./upsert/create-contact.repo";
 import type { UpdateContactRepo } from "./upsert/update-contact.repo";
 import type { DeleteContactRepo } from "./delete/delete-contact.repo";
 import type { FindContactsByIdsRepo } from "./find-contacts-by-ids.repo";
-import type { StartChatContactRepo } from "@/ee/messaging/outbound/start-chat.interactor";
+import type { StartChatContactRepo } from "@/ee/messaging/outbound/start-chat-contact.repo";
 import type { ActivityContactRepo } from "@/ee/messaging/activities/activity-contact.repo";
 import type { ModifyRelationContactRepo } from "@/features/relations/modify-relation-contact.repo";
 import type { ContactIdentifierOwnersRepo } from "./contact-identifier-owners.repo";

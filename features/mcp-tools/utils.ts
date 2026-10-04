@@ -174,7 +174,7 @@ export const FILTER_OPERATOR_GROUPS = {
     FilterOperatorKey.lte,
   ],
   multiValue: [FilterOperatorKey.in, FilterOperatorKey.notIn, FilterOperatorKey.between],
-  relativeWindow: [FilterOperatorKey.inLastDays],
+  relativeWindow: [FilterOperatorKey.inLastDays, FilterOperatorKey.notInLastDays],
   noValue: [
     FilterOperatorKey.isNull,
     FilterOperatorKey.isNotNull,

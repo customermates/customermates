@@ -54,7 +54,7 @@ describe("MessagingThreadsStore refresh command", () => {
     const failure = new Error("offline");
     harness.refreshInboxAction.mockResolvedValue({
       ok: true,
-      data: { rateLimited: false },
+      data: { rateLimited: false, retryAfterSeconds: null, reconnectAccounts: 0, failedAccounts: 0 },
     });
     harness.getMessagingThreadsAction.mockRejectedValue(failure);
 
@@ -70,7 +70,7 @@ describe("MessagingThreadsStore refresh command", () => {
     let finishRefresh: () => void = () => undefined;
     harness.refreshInboxAction.mockResolvedValue({
       ok: true,
-      data: { rateLimited: false },
+      data: { rateLimited: false, retryAfterSeconds: null, reconnectAccounts: 0, failedAccounts: 0 },
     });
     harness.getMessagingThreadsAction.mockImplementation(
       () =>
@@ -94,6 +94,34 @@ describe("MessagingThreadsStore refresh command", () => {
     expect(harness.toastSuccess).toHaveBeenCalledWith("Inbox.refreshDone", expect.anything());
     expect(harness.toastError).not.toHaveBeenCalled();
     expect(store.unreadThreadCount).toBe(4);
+  });
+});
+
+describe("MessagingThreadsStore refresh outcome", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+    harness.getUnreadThreadCountAction.mockResolvedValue(0);
+    harness.getMessagingThreadsAction.mockResolvedValue({
+      items: [],
+      pagination: { page: 1, pageSize: 25, total: 0, totalPages: 0 },
+    });
+  });
+
+  it("never claims success when channels need reconnecting or failed to sync", async () => {
+    const store = new MessagingThreadsStore(rootStore());
+    harness.refreshInboxAction.mockResolvedValue({
+      ok: true,
+      data: { rateLimited: false, retryAfterSeconds: null, reconnectAccounts: 2, failedAccounts: 1 },
+    });
+
+    await store.refreshInbox();
+
+    expect(harness.toastSuccess).not.toHaveBeenCalled();
+    expect(harness.toastError).toHaveBeenCalledWith(
+      "Inbox.refreshNeedsReconnect",
+      expect.objectContaining({ action: expect.objectContaining({ label: "ConnectedAccountsCard.title" }) }),
+    );
+    expect(harness.toastError).toHaveBeenCalledWith("Inbox.refreshPartial", expect.anything());
   });
 });
 

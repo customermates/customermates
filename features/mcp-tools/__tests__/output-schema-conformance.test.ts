@@ -170,6 +170,7 @@ function arrange() {
           id: "00000000-0000-4000-8000-000000000074",
           direction: "inbound",
           sender: participant,
+          recipients: { to: [], cc: [], bcc: [] },
           subject: "Pilot",
           bodyText: "Sounds good",
           isDraft: false,

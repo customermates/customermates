@@ -17,6 +17,7 @@ const folder = (id: string, name: string, role: string | null) => ({
 });
 
 const context: ThreadFolderContext = {
+  canMove: true,
   currentFolderIds: ["inbox"],
   selectedFolderIds: ["inbox"],
   folders: [
@@ -45,6 +46,13 @@ describe("threadFolder move targets offered to an agent", () => {
 
   it("offers nothing on a provider whose mail cannot be filed", () => {
     expect(threadFolder(context, "google")?.moveTargets).toEqual([]);
+  });
+
+  it("reports the location but offers no targets to a teammate without access to the whole account", () => {
+    const shared = threadFolder({ ...context, canMove: false }, "mail");
+
+    expect(shared?.name).toBe("INBOX");
+    expect(shared?.moveTargets).toEqual([]);
   });
 
   it("still reports the current folder on a provider that cannot be filed", () => {

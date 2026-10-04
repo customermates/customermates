@@ -11,6 +11,7 @@ import {
   getGetActivityRecordOptionsInteractor,
   getGetCalendarsInteractor,
   getGetMyConnectedAccountsInteractor,
+  getGetMessagingFilterOptionsInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 import { unwrapValidated } from "@/core/validation/validation.utils";
@@ -29,6 +30,10 @@ export async function getActivityRecordOptionsAction(input: ActivityRecordOption
 
 export async function getConnectedAccountsAction() {
   return unwrapValidated(getGetMyConnectedAccountsInteractor().invoke());
+}
+
+export async function getMessagingFilterOptionsAction() {
+  return unwrapValidated(getGetMessagingFilterOptionsInteractor().invoke());
 }
 
 export async function getCalendarsAction(params?: GetQueryParams) {

@@ -92,4 +92,14 @@ describe("UnexpectedErrorToaster demo warning", () => {
     expect(warning).toHaveBeenCalledWith("ErrorCard.transportInterrupted");
     expect(captureException).not.toHaveBeenCalled();
   });
+  it("preserves a send recovery action on a handled transport interruption", () => {
+    container = document.createElement("div");
+    document.body.append(container);
+    root = createRoot(container);
+    act(() => root?.render(createElement(UnexpectedErrorToaster)));
+    const options = { action: { label: "Retry", onClick: vi.fn() } };
+    reportApplicationError(new TypeError("Failed to fetch"), options);
+    expect(warning).toHaveBeenCalledExactlyOnceWith("ErrorCard.transportInterrupted", options);
+    expect(captureException).not.toHaveBeenCalled();
+  });
 });

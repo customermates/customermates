@@ -33,7 +33,7 @@ Rules are AND-combined. For OR logic, run two queries and merge client-side, or 
 
 ## Which operators exist?
 
-Seventeen filter operators exist; each expects a single value, an array or no value:
+Each filter operator expects a single value, an array or no value:
 
 | Operator | Expects | Works on | Example value |
 |---|---|---|---|
@@ -43,16 +43,16 @@ Seventeen filter operators exist; each expects a single value, an array or no va
 | `gt`, `gte`, `lt`, `lte` | single | dates (built-in and custom date columns) and currency columns | `"2024-01-01"`, `100` |
 | `in`, `notIn` | array | relationship fields, id, enum and select fields, and single-select columns | `["id1", "id2"]` |
 | `between` | array of 2 | dates only (built-in and custom date columns) | `["2024-01-01", "2024-12-31"]` |
-| `inLastDays` | single (positive integer) | built-in date fields such as `createdAt` and `updatedAt` | `30` |
+| `inLastDays`, `notInLastDays` | single (positive integer) | built-in date fields such as `createdAt` and `updatedAt` | `30` |
 | `isNull`, `isNotNull` | no value | custom columns only | (none) |
 | `hasNone`, `hasSome` | no value | relationship fields, messaging-thread `draft` | (none) |
 | `hasUnset`, `allSet` | no value | messaging-thread `participants` | (none) |
 
 ### Which date operators exist, for example for the last 7 days? [#which-date-operators-exist]
 
-Built-in date fields such as `createdAt` and `updatedAt` accept `gt`, `gte`, `lt`, `lte`, `between`, and `inLastDays`. Use `inLastDays` with a positive integer number of days for a rolling window from the start of the day N days ago until now, for example `{ "field": "createdAt", "operator": "inLastDays", "value": 7 }` for records created in the last week. In the app, the 7, 30, 90 and 365 day choices and **Custom range…** set `inLastDays`.
+Built-in date fields such as `createdAt` and `updatedAt` accept `gt`, `gte`, `lt`, `lte`, `between`, `inLastDays` and `notInLastDays`. Use `inLastDays` with a positive integer number of days to include timestamps at or after the start of the day N days ago, for example `{ "field": "createdAt", "operator": "inLastDays", "value": 7 }` for records created in the last week. In the app, the 7, 30, 90 and 365 day choices and **Custom range…** set `inLastDays`. **Older than…** sets `notInLastDays`, which matches timestamps strictly before that same day-start cutoff. Multiple conditions combine with AND and remain relative when saved.
 
-Custom Date and Date & Time columns accept `gt`, `gte`, `lt`, `lte`, `between`, `isNull` and `isNotNull`, but not `inLastDays`; Date Range and Date & Time Range columns also accept `contains` for a date inside the range.
+Custom Date and Date & Time columns accept `gt`, `gte`, `lt`, `lte`, `between`, `isNull` and `isNotNull`, but neither relative day operator; Date Range and Date & Time Range columns also accept `contains` for a date inside the range.
 
 ### Which operators work on text fields?
 
@@ -83,6 +83,8 @@ The `field` value is whatever `get_record_schema` returns under `filterableField
 - Custom column ids. Use the column's UUID as the field; a singleSelect column accepts only `in`, `notIn`, `isNull` and `isNotNull` and filters on its option values.
 
 Some fields cannot be filtered: a deal's value, quantity and weighted value and a service's price can only be sorted, and a contact's channel identifiers, such as the email address, are found with `searchTerm`. Always call `get_record_schema` first if you are not sure what is filterable. The error for an unknown field lists every available field with its allowed operators.
+
+Inbox lists also expose `connectedAccountId`, account-specific `emailFolder`, `lastMessageDirection`, `lastMessageSentAt` and `lastMessageAt`. First call `get_messaging_threads` without filters (or `manage_data_views` with `action: "config"`, the Inbox surface and `section: "filters"`), then copy the exact `filterableFields.options[].value` for an account or folder. `emailFolder` accepts `in` and `notIn`; each folder reference includes its account. Folder options provide `groupKey` (account identity) and `groupLabel` (heading), allowing separate groups even when two accounts have the same display name. `lastMessageDirection` accepts `inbound`/`outbound` with `in`/`notIn` and ignores drafts, hidden/deleted messages and system events. `lastMessageSentAt` applies date filters to that same latest actual message. Combine `notInLastDays` with value 3 and `inLastDays` with value 7 on this field for messages three to seven days old; these may be combined with account, folder and direction filters. `lastMessageAt` filters last activity and includes draft activity. See [Inbox filters](/docs/app-inbox#how-do-i-search-filter-or-refresh-the-inbox).
 
 ## Examples
 

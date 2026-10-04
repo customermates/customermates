@@ -15,7 +15,7 @@ vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 
 import { ProcessEmailDeleteWebhookInteractor } from "../email/process-email-delete-webhook.interactor";
-import { UnipileRequestError } from "../../messaging.service";
+import { UnipileRequestError } from "../../unipile-request-error";
 import { DeferredWebhookError } from "@/core/errors/app-errors";
 
 const account = {

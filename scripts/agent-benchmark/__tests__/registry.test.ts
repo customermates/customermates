@@ -10,11 +10,11 @@ import { benchmarkCaseModelSelection, MERGE_CHECK_DEFAULT_CAP_USD, mergeCheckMin
 import { BENCHMARK_CASES } from "../fixtures";
 
 describe("unified benchmark registry", () => {
-  it("contains the complete 72-case, 79-turn suite plus 130 held-out cases without duplicate ids", () => {
+  it("contains the complete 74-case, 81-turn suite plus 130 held-out cases without duplicate ids", () => {
     const suite = BENCHMARK_CASES.filter((definition) => definition.heldout !== true);
     const heldout = BENCHMARK_CASES.filter((definition) => definition.heldout === true);
-    expect(suite).toHaveLength(72);
-    expect(suite.reduce((total, definition) => total + definition.prompts.length, 0)).toBe(79);
+    expect(suite).toHaveLength(74);
+    expect(suite.reduce((total, definition) => total + definition.prompts.length, 0)).toBe(81);
     expect(heldout).toHaveLength(130);
     expect(heldout.reduce((total, definition) => total + definition.prompts.length, 0)).toBe(150);
     expect(new Set(BENCHMARK_CASES.map((definition) => definition.id)).size).toBe(BENCHMARK_CASES.length);
@@ -41,8 +41,10 @@ describe("unified benchmark registry", () => {
       "R51",
       "R52",
       "R53",
+      "V53",
+      "V54",
     ]);
-    expect(required.reduce((total, definition) => total + definition.prompts.length, 0)).toBe(20);
+    expect(required.reduce((total, definition) => total + definition.prompts.length, 0)).toBe(22);
   });
 
   it("covers view context and preserves the explicit fast-model pin contract", () => {

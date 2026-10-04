@@ -1,6 +1,6 @@
 const PLAIN_DECIMAL_NUMBER = /^-?\d+(?:\.\d+)?$/u;
 
-const NUMBER_VALUE_EXEMPT_OPERATORS = new Set(["inLastDays"]);
+const NUMBER_VALUE_EXEMPT_OPERATORS = new Set(["inLastDays", "notInLastDays"]);
 
 const EXPONENTIAL_NUMBER = /^(-?)(\d+)(?:\.(\d+))?[eE]([+-]?\d+)$/u;
 

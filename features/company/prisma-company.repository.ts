@@ -12,7 +12,7 @@ import type { GetBillingPortalUrlRepo } from "@/ee/subscription/get-billing-port
 import type { RouteGuardCompanyRepo } from "@/features/auth/route-guard.service";
 import type { AdminUpdateUserSubscriptionRepo } from "@/features/user/upsert/admin-update-user-details.interactor";
 import type { EntitlementSubscriptionRepo } from "@/ee/subscription/entitlement.service";
-import type { CreateAuthLinkSubscriptionRepo } from "@/ee/messaging/connect/create-auth-link.interactor";
+import type { CreateAuthLinkSubscriptionRepo } from "@/ee/messaging/connect/create-auth-link-subscription.repo";
 import type { UpsertRoutineSubscriptionRepo } from "@/ee/routines/upsert-routine.interactor";
 import type { RegisterUserCompanyRepo } from "@/features/user/register/register-user.interactor";
 import type { GetDealWeightingColumnRepo } from "./get-deal-weighting-column.repo";

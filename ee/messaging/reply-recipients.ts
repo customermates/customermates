@@ -37,7 +37,14 @@ export function deriveReplyRecipients(
 
   const to = new Set<string>();
   for (const p of participants) if (p.identifier && !p.isSelf && !self.has(p.identifier)) to.add(p.identifier);
-  if (to.size === 0) for (const p of participants) if (p.identifier) to.add(p.identifier);
+  if (to.size === 0) {
+    const visiblyAddressed = new Set<string>();
+    for (const m of messages) {
+      if (!m.isDraft)
+        for (const r of [...m.recipients.to, ...m.recipients.cc]) if (r.identifier) visiblyAddressed.add(r.identifier);
+    }
+    for (const p of participants) if (p.identifier && visiblyAddressed.has(p.identifier)) to.add(p.identifier);
+  }
 
   return { to: [...to], cc: [] };
 }

@@ -1,5 +1,5 @@
 import { createElement } from "react";
-import { toast } from "sonner";
+import { toast, type ExternalToast } from "sonner";
 
 type ErrorNode = { errors?: string[]; properties?: Record<string, unknown>; items?: unknown[] };
 
@@ -19,13 +19,13 @@ function flattenZodErrorTree(tree: unknown): FlattenedError[] {
   return out;
 }
 
-export function toastZodErrorTree(tree: unknown): boolean {
+export function toastZodErrorTree(tree: unknown, options?: ExternalToast): boolean {
   const messages = flattenZodErrorTree(tree);
   if (messages.length === 0) return false;
 
   const unique = Array.from(new Set(messages.map(({ message }) => message)));
 
-  if (unique.length === 1) toast.error(unique[0]);
+  if (unique.length === 1) toast.error(unique[0], ...(options ? [options] : []));
   else {
     toast.error(
       createElement(
@@ -33,6 +33,7 @@ export function toastZodErrorTree(tree: unknown): boolean {
         { className: "flex flex-col gap-1.5 text-xs" },
         unique.map((text, i) => createElement("div", { key: i }, text)),
       ),
+      ...(options ? [options] : []),
     );
   }
 

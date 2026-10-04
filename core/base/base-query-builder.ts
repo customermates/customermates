@@ -56,6 +56,7 @@ export enum FilterOperatorKey {
   hasUnset = "hasUnset",
   allSet = "allSet",
   inLastDays = "inLastDays",
+  notInLastDays = "notInLastDays",
 }
 
 type LogicalGroup<T> = { OR: T[] } | { AND: Array<{ OR: T[] }> };
@@ -92,6 +93,10 @@ const RELATION_FIELD_MAPPING: Record<FilterFieldKey, string> = {
   [FilterFieldKey.ownerUserId]: "ownerUserId",
   [FilterFieldKey.participants]: "participants",
   [FilterFieldKey.connectedAccountId]: "connectedAccountId",
+  [FilterFieldKey.emailFolder]: "emailFolder",
+  [FilterFieldKey.lastMessageDirection]: "lastMessageDirection",
+  [FilterFieldKey.lastMessageSentAt]: "lastMessageSentAt",
+  [FilterFieldKey.lastMessageAt]: "lastMessageAt",
   [FilterFieldKey.calendarId]: "calendarId",
   [FilterFieldKey.startsAt]: "startsAt",
   [FilterFieldKey.plan]: "plan",
@@ -457,6 +462,8 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
         return { gte: filter.value[0], lte: filter.value[1] };
       case FilterOperatorKey.inLastDays:
         return { gte: startOfDay(subDays(new Date(), Number(filter.value))) };
+      case FilterOperatorKey.notInLastDays:
+        return { lt: startOfDay(subDays(new Date(), Number(filter.value))) };
       case FilterOperatorKey.isNull:
         return null;
       case FilterOperatorKey.isNotNull:
@@ -687,7 +694,7 @@ function isFilterValueWellFormed(filter: Filter, fieldOperators: FilterOperatorK
 
   const rawValue: unknown = "value" in filter ? filter.value : undefined;
 
-  if (filter.operator === FilterOperatorKey.inLastDays) {
+  if (filter.operator === FilterOperatorKey.inLastDays || filter.operator === FilterOperatorKey.notInLastDays) {
     const n = Number(rawValue);
     return Number.isInteger(n) && n > 0;
   }
