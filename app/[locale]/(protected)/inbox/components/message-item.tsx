@@ -198,7 +198,7 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
             </div>
           )}
 
-          {(isDraft || isFailed) && (
+          {(isDraft || (isFailed && compose.canRetry(message.id))) && (
             <div
               data-message-actions
               className={cn("flex flex-wrap items-center gap-2", isEmail ? "px-3.5 pt-1 pb-3" : "px-3 py-1.5")}
@@ -259,7 +259,7 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
                     {t("Inbox.compose.draftSendNow")}
                   </Button>
                 </span>
-              ) : isFailed ? (
+              ) : isFailed && compose.canRetry(message.id) ? (
                 <Button
                   size="xs"
                   type="button"

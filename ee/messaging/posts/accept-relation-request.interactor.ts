@@ -8,7 +8,6 @@ import type { FindUsableAccountRepo } from "../persistence/find-usable-account.r
 import type { RelationRequestResult } from "./social-posts.schema";
 
 import { z } from "zod";
-import { getLocale } from "next-intl/server";
 
 import { Resource, Action } from "@/generated/prisma";
 
@@ -16,7 +15,7 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { isSocialProvider } from "../provider";
-import { formatRetryAfter } from "../retry-after";
+import { retryAfterPhrase } from "../retry-after.server";
 import { RelationRequestResultSchema } from "./social-posts.schema";
 
 export const AcceptRelationRequestSchema = z.object({
@@ -52,7 +51,7 @@ export class AcceptRelationRequestInteractor extends AuthenticatedInteractor<
       accountId: account.unipileAccountId,
       invitationId: data.invitationId,
     });
-    if (!res.ok) return fail(res.error, [], { retryAfter: formatRetryAfter(await getLocale(), res.retryAfterSeconds) });
+    if (!res.ok) return fail(res.error, [], { retryAfter: await retryAfterPhrase(res.retryAfterSeconds) });
 
     return { ok: true as const, data: res.data };
   }

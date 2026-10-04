@@ -471,7 +471,7 @@ export const sendChatMessageTool = {
   name: "send_chat_message",
   title: "Send chat message",
   description:
-    "Use this when sending a real chat message (LinkedIn, WhatsApp, and other connected chat accounts). SIDE EFFECT: delivers a real message that cannot be recalled. " +
+    "Use this when sending a real chat message (LinkedIn, WhatsApp, and other connected chat accounts). SIDE EFFECT: sends a real message that cannot be recalled. " +
     "Show your user the recipient and the exact text and get their go-ahead before calling; use save_message_draft when they have not approved wording. " +
     "Exactly one mode: pass threadId to send text into that existing thread, " +
     "or omit threadId to start a new chat, which requires connectedAccountId from get_workspace_context.connectedAccounts[].id (check its status is ok) and attendeeIdentifiers " +
@@ -495,7 +495,8 @@ export const sendChatMessageTool = {
     if (threadId) {
       return runInteractor(
         getSendChatMessageInteractor().invoke({ ...params, threadId }),
-        () => `Message sent in thread ${threadId}`,
+        () =>
+          `Message sent in thread ${threadId}; the provider accepted it, delivery to the recipient is not confirmed`,
         () => ({ sent: true, threadId }),
       );
     }
@@ -503,7 +504,8 @@ export const sendChatMessageTool = {
     if (!startChat.success) return mcpValidationFailure(startChat.error);
     return runInteractor(
       getStartChatInteractor().invoke(startChat.data),
-      (data) => (data.threadId ? `Chat started, thread ${data.threadId}` : "Chat started"),
+      (data) =>
+        `${data.threadId ? `Chat started, thread ${data.threadId}` : "Chat started"}; the provider accepted the message, delivery is not confirmed`,
       (data) => ({ sent: true, threadId: data.threadId ?? null }),
     );
   },
@@ -531,8 +533,11 @@ export const sendEmailTool = {
     runInteractor(
       getSendEmailInteractor().invoke(params),
       (data) => {
-        if (params.threadId) return `Reply sent in thread ${params.threadId}`;
-        return data?.messagingThreadId ? `Email sent, thread ${data.messagingThreadId}` : "Email sent";
+        const accepted = "the provider accepted it for sending; delivery to recipients is not confirmed";
+        if (params.threadId) return `Reply sent in thread ${params.threadId}; ${accepted}`;
+        return data?.messagingThreadId
+          ? `Email sent, thread ${data.messagingThreadId}; ${accepted}`
+          : `Email sent; ${accepted}. It appears in the inbox once the provider syncs the Sent copy`;
       },
       (data) => ({ sent: true, threadId: params.threadId ?? data?.messagingThreadId ?? null }),
     ),
@@ -546,7 +551,7 @@ export const saveMessageDraftTool = {
     "recipients are email addresses or one chat handle. Email-only subject/cc/bcc are supported; recipients: [] allows Cc-only or Bcc-only email with at least one cc/bcc address. Explicit recipients also sets reply To. " +
     "Saving replaces the thread's one draft. The enabled signature is appended at send time; never add a sign-off/signature to body. " +
     "Use get_messaging_threads with the draft filter to find drafts. Returns draftMessageId, draftRevision and threadId for later send/discard. " +
-    "Never use send_email/send_chat_message when asked to draft; they deliver immediately.",
+    "Never use send_email/send_chat_message when asked to draft; they send immediately.",
   annotations: {
     readOnlyHint: false,
     idempotentHint: true,
@@ -669,7 +674,10 @@ export const moveEmailThreadTool = {
         `Moved ${data.movedCount} message(s) of thread ${params.threadId} to ${data.folderName}` +
         (data.failedCount > 0 ? `; ${data.failedCount} could not be moved` : "") +
         (data.skippedCount > 0 ? `; ${data.skippedCount} left in place` : "") +
-        (data.rateLimited ? "; stopped early on a provider rate limit, retry the rest later" : ""),
+        (data.rateLimited
+          ? `; stopped early on a provider rate limit, retry the rest ${data.retryAfter ?? "later"}`
+          : "") +
+        (data.stoppedMessage ? `; stopped early: ${data.stoppedMessage}` : ""),
       (data) => data,
     ),
 };

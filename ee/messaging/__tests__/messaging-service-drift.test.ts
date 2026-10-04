@@ -63,17 +63,17 @@ describe("MessagingService boundary validation", () => {
     expect(Sentry.captureException).not.toHaveBeenCalled();
   });
 
-  it("sendEmail throws a ZodError when the response misses id or message_id", async () => {
+  it("reports an accepted send it cannot read as unconfirmed rather than failed", async () => {
     stubFetch({ object: "EmailSent" });
 
-    const call = new MessagingService().sendEmail({
+    const result = await new MessagingService().sendEmail({
       accountId: "acc_1",
       to: [{ email: "a@b.c" }],
       subject: "s",
       body: "<p>hi</p>",
     });
 
-    await expect(call).rejects.toBeInstanceOf(z.ZodError);
+    expect(result).toEqual({ ok: false, error: CustomErrorCode.unipileSendUnconfirmed });
   });
 });
 
@@ -397,6 +397,7 @@ describe("getAccount consumer drift policies", () => {
       messagingService as any,
       repo as any,
       backgroundTaskService as any,
+      { publish: vi.fn().mockResolvedValue(undefined) } as any,
     );
 
     await interactor.invoke({ type: "account.reconnect", account_id: "acc_uni-1" });
@@ -422,6 +423,7 @@ describe("getAccount consumer drift policies", () => {
       messagingService as any,
       repo as any,
       backgroundTaskService as any,
+      { publish: vi.fn().mockResolvedValue(undefined) } as any,
     );
 
     await expect(interactor.invoke({ type: "account.reconnect", account_id: "acc_uni-1" })).rejects.toThrow("500");

@@ -72,6 +72,42 @@ describeDatabase("outbound Bcc retention on PostgreSQL", () => {
     await client.end();
   });
 
+  it("never writes the Bcc onto a received copy of a message I Bcc'd to myself", async () => {
+    const repo = new PrismaMessagingRepo();
+    const providerMessageId = `<self-bcc-${accountId}@example.invalid>`;
+    await runWithTenant(owner, () =>
+      repo.persistOutboundMessageOrThrow({
+        connectedAccountId: accountId,
+        message: {
+          ...message([]),
+          unipileMessageId: `received-${accountId}`,
+          providerMessageId,
+          direction: MessagingMessageDirection.inbound,
+          sender: attendee("owner@example.invalid"),
+        },
+      }),
+    );
+
+    await runWithTenant(owner, () =>
+      repo.persistOutboundMessageOrThrow({
+        connectedAccountId: accountId,
+        message: {
+          ...message(["owner@example.invalid"]),
+          unipileMessageId: `sent-self-${accountId}`,
+          providerMessageId,
+        },
+      }),
+    );
+
+    const rows = await client.query(
+      'SELECT "direction", "recipients" FROM "MessagingMessage" WHERE "connectedAccountId" = $1 AND "providerMessageId" = $2',
+      [accountId, providerMessageId],
+    );
+    expect(rows.rows.length).toBeGreaterThan(0);
+    for (const row of rows.rows.filter((r: { direction: string }) => r.direction === "inbound"))
+      expect(row.recipients.bcc).toEqual([]);
+  });
+
   it("restores the owner's Bcc on a Sent copy that was ingested before the send was adopted", async () => {
     const repo = new PrismaMessagingRepo();
     await runWithTenant(owner, () =>
@@ -85,9 +121,10 @@ describeDatabase("outbound Bcc retention on PostgreSQL", () => {
       }),
     );
 
-    const stored = await client.query('SELECT "recipients" FROM "MessagingMessage" WHERE "connectedAccountId" = $1', [
-      accountId,
-    ]);
+    const stored = await client.query(
+      'SELECT "recipients" FROM "MessagingMessage" WHERE "connectedAccountId" = $1 AND "unipileMessageId" = $2',
+      [accountId, `sent-${accountId}`],
+    );
     expect(stored.rows).toHaveLength(1);
     expect(stored.rows[0].recipients.bcc.map((r: { identifier: string }) => r.identifier)).toEqual([
       "hidden@example.invalid",

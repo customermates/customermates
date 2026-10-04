@@ -191,6 +191,14 @@ export class MessagingThreadDetailStore extends BaseStore {
             retryAfter: result.data.retryAfter ?? "",
           },
         });
+      } else if (result.data.stoppedMessage) {
+        this.toastError("Inbox.folders.moveStopped", {
+          values: {
+            folder: result.data.folderName,
+            moved: String(result.data.movedCount),
+            reason: result.data.stoppedMessage,
+          },
+        });
       } else if (result.data.failedCount > 0) {
         this.toastError("Inbox.folders.movePartial", {
           values: {

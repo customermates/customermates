@@ -58,6 +58,7 @@ type PendingDelivery = {
   message: MessagingMessageDto;
   files: File[];
   status: "sending" | "failed";
+  retryable?: boolean;
   send: (attachments: SendAttachment[] | undefined) => Promise<DeliveryResult>;
   onSent?: (threadId: string | null) => void;
 };
@@ -391,20 +392,27 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
         onClick: () => runUserAction(() => this.retrySend(id)),
       },
     };
+    const finalOptions = { ...options, action: undefined };
 
-    const failed = () =>
+    const failed = (retryable: boolean) =>
       runInAction(() => {
-        const next = { ...delivery, status: "failed" as const };
+        const next = { ...delivery, status: "failed" as const, retryable };
         this.pendingDeliveries.set(id, next);
         this.displayDelivery(next);
       });
 
+    let dispatched = false;
+    let delivered = false;
     try {
       const attachments = delivery.files.length ? await Promise.all(delivery.files.map(toAttachmentInput)) : undefined;
+      dispatched = true;
       const result = await delivery.send(attachments);
       if (!result.ok) {
-        failed();
-        if (!toastZodErrorTree(result.error, options)) toast.error(this.t("ErrorCard.unexpectedError"), options);
+        const retryable = "retryable" in result && result.retryable === true;
+        const toastOptions = retryable ? options : finalOptions;
+        failed(retryable);
+        if (!toastZodErrorTree(result.error, toastOptions))
+          toast.error(this.t("ErrorCard.unexpectedError"), toastOptions);
         return;
       }
 
@@ -424,6 +432,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
           detail.clearMessageStatus(id);
         }
       });
+      delivered = true;
       this.rootStore.messagingThreadsStore.refreshInBackground();
       toast.success(this.t("Inbox.compose.messageSent"), {
         id: toastId,
@@ -433,10 +442,19 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       });
       runUserAction(() => runInAction(() => delivery.onSent?.(sentThreadId)));
     } catch (error) {
-      failed();
-      reportApplicationError(error, options);
+      if (delivered) {
+        reportApplicationError(error);
+        return;
+      }
+      failed(!dispatched);
+      reportApplicationError(
+        error,
+        dispatched ? { ...finalOptions, description: this.t("Inbox.compose.sendOutcomeUnknown") } : options,
+      );
     }
   };
+
+  canRetry = (messageId: string): boolean => this.pendingDeliveries.get(messageId)?.retryable !== false;
 
   send = async (): Promise<void> => {
     if (this.isLoading) return;

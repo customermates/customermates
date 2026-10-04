@@ -29232,7 +29232,7 @@
             }
           },
           "409": {
-            "description": "Conflict",
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
             "content": {
               "application/json": {
                 "schema": {
@@ -33908,7 +33908,7 @@
             }
           },
           "409": {
-            "description": "Conflict",
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
             "content": {
               "application/json": {
                 "schema": {
@@ -34034,6 +34034,16 @@
           },
           "404": {
             "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
             "content": {
               "application/json": {
                 "schema": {
@@ -36969,6 +36979,16 @@
               }
             }
           },
+          "409": {
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Unavailable",
             "content": {
@@ -37753,6 +37773,16 @@
               }
             }
           },
+          "409": {
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Unavailable",
             "content": {
@@ -38314,6 +38344,16 @@
               }
             }
           },
+          "409": {
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Unavailable",
             "content": {
@@ -38792,6 +38832,16 @@
           },
           "404": {
             "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
             "content": {
               "application/json": {
                 "schema": {
@@ -39818,6 +39868,16 @@
               }
             }
           },
+          "409": {
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Unavailable",
             "content": {
@@ -40465,6 +40525,16 @@
               }
             }
           },
+          "409": {
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Unavailable",
             "content": {
@@ -40655,6 +40725,16 @@
           },
           "404": {
             "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
             "content": {
               "application/json": {
                 "schema": {
@@ -40886,6 +40966,16 @@
           },
           "404": {
             "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
             "content": {
               "application/json": {
                 "schema": {
@@ -41388,6 +41478,16 @@
               }
             }
           },
+          "409": {
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Unavailable",
             "content": {
@@ -41528,6 +41628,16 @@
           },
           "404": {
             "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
             "content": {
               "application/json": {
                 "schema": {
@@ -41965,6 +42075,16 @@
               }
             }
           },
+          "409": {
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Unavailable",
             "content": {
@@ -42106,6 +42226,16 @@
           },
           "404": {
             "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
             "content": {
               "application/json": {
                 "schema": {
@@ -42259,6 +42389,16 @@
               }
             }
           },
+          "409": {
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Unavailable",
             "content": {
@@ -42396,6 +42536,16 @@
           },
           "404": {
             "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
             "content": {
               "application/json": {
                 "schema": {

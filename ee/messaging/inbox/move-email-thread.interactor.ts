@@ -6,7 +6,7 @@ import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 import * as Sentry from "@sentry/node";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 
 import { Action, Resource } from "@/generated/prisma";
 
@@ -19,7 +19,7 @@ import { fail, failNotFound } from "@/core/validation/interactor-failure-server"
 
 import { isFileableEmailProvider } from "../provider";
 import { isEmailMoveTarget, isMovableEmailFolder } from "../email-folders";
-import { formatRetryAfter } from "../retry-after";
+import { retryAfterPhrase } from "../retry-after.server";
 
 export const MoveEmailThreadSchema = z.object({
   threadId: z.uuid().describe("Email thread id from get_messaging_threads.items[].id"),
@@ -27,6 +27,27 @@ export const MoveEmailThreadSchema = z.object({
   folderId: z.string().min(1).describe("Target id from thread.folder.moveTargets; never a folder name"),
 });
 export type MoveEmailThreadData = Data<typeof MoveEmailThreadSchema>;
+
+function moveStopMessage(t: Awaited<ReturnType<typeof getTranslations>>, code: CustomErrorCode): string {
+  switch (code) {
+    case CustomErrorCode.unipileDisconnectedAccount:
+      return t("Common.errors.unipileDisconnectedAccount");
+    case CustomErrorCode.unipileAccountRestricted:
+      return t("Common.errors.unipileAccountRestricted");
+    case CustomErrorCode.unipileRequestTimeout:
+      return t("Common.errors.unipileRequestTimeout");
+    case CustomErrorCode.unipileServiceUnavailable:
+      return t("Common.errors.unipileServiceUnavailable");
+    case CustomErrorCode.unipileProviderError:
+      return t("Common.errors.unipileProviderError");
+    case CustomErrorCode.unipileFeatureUnavailable:
+      return t("Common.errors.unipileFeatureUnavailable");
+    case CustomErrorCode.unipileInvalidRequest:
+      return t("Common.errors.unipileInvalidRequest");
+    default:
+      return t("Common.errors.unipileUnknown");
+  }
+}
 
 export const MoveEmailThreadResultSchema = z.object({
   threadId: z.string(),
@@ -38,6 +59,8 @@ export const MoveEmailThreadResultSchema = z.object({
   hiddenFromInbox: z.boolean(),
   rateLimited: z.boolean(),
   retryAfter: z.string().optional(),
+  stoppedReason: z.string().optional(),
+  stoppedMessage: z.string().optional(),
 });
 export type MoveEmailThreadResult = Data<typeof MoveEmailThreadResultSchema>;
 
@@ -120,6 +143,7 @@ export class MoveEmailThreadInteractor extends AuthenticatedInteractor<MoveEmail
     let failedCount = 0;
     let rateLimited = false;
     let retryAfter: string | undefined;
+    let stoppedReason: CustomErrorCode | undefined;
 
     for (const message of pending) {
       const moved = await this.messagingService.moveEmail({
@@ -131,7 +155,7 @@ export class MoveEmailThreadInteractor extends AuthenticatedInteractor<MoveEmail
       if (!moved.ok) {
         if (movedCount === 0 && failedCount === 0) {
           return fail(moved.error, [], {
-            retryAfter: formatRetryAfter(await getLocale(), moved.retryAfterSeconds),
+            retryAfter: await retryAfterPhrase(moved.retryAfterSeconds),
           });
         }
 
@@ -139,7 +163,14 @@ export class MoveEmailThreadInteractor extends AuthenticatedInteractor<MoveEmail
 
         if (moved.error === CustomErrorCode.unipileRateLimit) {
           rateLimited = true;
-          retryAfter = formatRetryAfter(await getLocale(), moved.retryAfterSeconds);
+          retryAfter = await retryAfterPhrase(moved.retryAfterSeconds);
+          break;
+        }
+        if (
+          moved.error !== CustomErrorCode.unipileProviderRejected &&
+          moved.error !== CustomErrorCode.unipileResourceNotFound
+        ) {
+          stoppedReason = moved.error;
           break;
         }
 
@@ -147,6 +178,7 @@ export class MoveEmailThreadInteractor extends AuthenticatedInteractor<MoveEmail
       }
 
       let applied: { id: string } | null = null;
+      let localError = false;
       try {
         applied = await this.repo.moveEmailMessageUnscoped({
           companyId: thread.companyId,
@@ -163,11 +195,18 @@ export class MoveEmailThreadInteractor extends AuthenticatedInteractor<MoveEmail
             connectedAccountId: thread.connectedAccountId,
           },
         });
+        localError = true;
       }
 
-      if (applied) movedCount += 1;
-      else failedCount += 1;
+      if (!applied && !localError) {
+        Sentry.captureMessage("Email moved at the provider but not locally; the webhook will reconcile it", {
+          level: "warning",
+          tags: { connectedAccountId: thread.connectedAccountId },
+        });
+      }
+      movedCount += 1;
     }
+    const t = stoppedReason ? await getTranslations() : null;
 
     return {
       ok: true as const,
@@ -180,6 +219,12 @@ export class MoveEmailThreadInteractor extends AuthenticatedInteractor<MoveEmail
         failedCount,
         rateLimited,
         ...(retryAfter ? { retryAfter } : {}),
+        ...(stoppedReason && t
+          ? {
+              stoppedReason,
+              stoppedMessage: moveStopMessage(t, stoppedReason),
+            }
+          : {}),
         hiddenFromInbox: movedCount > 0 && !context.selectedFolderIds.includes(target.id),
       },
     };

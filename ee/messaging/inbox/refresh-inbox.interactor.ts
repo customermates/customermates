@@ -16,16 +16,19 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
 import { getRetryAfterSeconds, isUnipileRateLimit } from "../messaging.service";
+import { accountNeedsReconnect } from "../account-health";
 
 export const RefreshInboxResultSchema = z.object({
   rateLimited: z.boolean(),
   retryAfterSeconds: z.number().nullable(),
+  reconnectAccounts: z.number().int(),
+  failedAccounts: z.number().int(),
 });
 export type RefreshInboxResult = z.infer<typeof RefreshInboxResultSchema>;
 
 export abstract class RefreshInboxRepo {
   abstract listAccountsForRefresh(): Promise<
-    { id: string; unipileAccountId: string; status: ConnectedAccountStatus }[]
+    { id: string; userId: string; unipileAccountId: string; status: ConnectedAccountStatus }[]
   >;
   abstract claimBackfillUnscoped(unipileAccountId: string): Promise<string | null>;
   abstract releaseBackfillClaimUnscoped(unipileAccountId: string, token: string, complete: boolean): Promise<void>;
@@ -52,8 +55,14 @@ export class RefreshInboxInteractor extends AuthenticatedInteractor<void, Refres
 
     let rateLimited = false;
     let retryAfterSeconds: number | null = null;
+    let reconnectAccounts = 0;
+    let failedAccounts = 0;
 
     for (const account of accounts) {
+      if (accountNeedsReconnect(account)) {
+        if (account.userId === this.userId) reconnectAccounts += 1;
+        else failedAccounts += 1;
+      }
       if (account.status !== "ok") continue;
 
       const token = await this.repo.claimBackfillUnscoped(account.unipileAccountId);
@@ -77,12 +86,13 @@ export class RefreshInboxInteractor extends AuthenticatedInteractor<void, Refres
           }
         }
       } catch (err) {
+        failedAccounts += 1;
         Sentry.captureException(err);
       } finally {
         await this.repo.releaseBackfillClaimUnscoped(account.unipileAccountId, token, true);
       }
     }
 
-    return { ok: true as const, data: { rateLimited, retryAfterSeconds } };
+    return { ok: true as const, data: { rateLimited, retryAfterSeconds, reconnectAccounts, failedAccounts } };
   }
 }

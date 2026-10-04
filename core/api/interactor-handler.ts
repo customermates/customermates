@@ -65,6 +65,14 @@ export const ConflictApiResponse = {
 } as const;
 
 export const MessagingProviderApiResponses = {
+  "409": {
+    description: "Conflict, such as a provider rejection or a disconnected or restricted channel",
+    content: {
+      "application/json": {
+        schema: ErrorResponseSchema,
+      },
+    },
+  },
   "422": {
     description: "Unavailable",
     content: {

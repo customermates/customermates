@@ -209,6 +209,21 @@ describe("agent saved-view management", () => {
     expect(grouping.ok && grouping.data.items).toHaveLength(3);
   });
 
+  it("tells an agent which inbox date field means the last actual message", async () => {
+    const subject = setup();
+    const dates = [FilterOperatorKey.inLastDays, FilterOperatorKey.notInLastDays];
+    subject.sources[SURFACE.messagingThreads].getFilterableFields.mockResolvedValue([
+      { field: "lastMessageSentAt", operators: dates },
+      { field: "lastMessageAt", operators: dates },
+    ] as never);
+
+    const discovery = await subject.run({ action: "config", surfaceKey: SURFACE.messagingThreads, section: "filters" });
+
+    const items = (discovery.ok ? discovery.data.items : []) as Array<{ field: string; description?: string }>;
+    expect(items.find((item) => item.field === "lastMessageSentAt")?.description).toMatch(/ignores drafts/);
+    expect(items.find((item) => item.field === "lastMessageAt")?.description).toMatch(/including saved drafts/);
+  });
+
   it("discovers scoped inbox choices and preserves folder references when saving a personal view", async () => {
     const subject = setup();
     const folder = JSON.stringify(["00000000-0000-4000-8000-000000000001", "inbox"]);
@@ -238,6 +253,7 @@ describe("agent saved-view management", () => {
         operators: ["in", "notIn"],
         options,
         values: [folder],
+        description: expect.stringContaining("account-qualified"),
       },
     ]);
     const filters = [

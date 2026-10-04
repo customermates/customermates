@@ -8,14 +8,13 @@ import type { LinkedinSaveToSalesListResult } from "./sales-navigator.schema";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
-import { getLocale } from "next-intl/server";
 
 import { Resource, Action, MessagingProvider } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { formatRetryAfter } from "../retry-after";
+import { retryAfterPhrase } from "../retry-after.server";
 import { SalesListKindSchema, LinkedinSaveToSalesListResultSchema } from "./sales-navigator.schema";
 
 export const LinkedinSaveToSalesListSchema = z.object({
@@ -58,7 +57,7 @@ export class LinkedinSaveToSalesListInteractor extends AuthenticatedInteractor<
       listId: data.listId,
       providerId: data.providerId,
     });
-    if (!res.ok) return fail(res.error, [], { retryAfter: formatRetryAfter(await getLocale(), res.retryAfterSeconds) });
+    if (!res.ok) return fail(res.error, [], { retryAfter: await retryAfterPhrase(res.retryAfterSeconds) });
 
     return { ok: true as const, data: res.data };
   }

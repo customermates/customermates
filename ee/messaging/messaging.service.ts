@@ -119,7 +119,7 @@ const UNIPILE_ERROR_CODES: Record<string, CustomErrorCode> = {
   "provider/invalid_authorization": CustomErrorCode.unipileDisconnectedAccount,
   "provider/invalid_credentials": CustomErrorCode.unipileDisconnectedAccount,
   "provider/unknown_authentication_context": CustomErrorCode.unipileDisconnectedAccount,
-  "api/account_restricted": CustomErrorCode.unipileDisconnectedAccount,
+  "api/account_restricted": CustomErrorCode.unipileAccountRestricted,
   "provider/insufficient_permissions": CustomErrorCode.unipileResourceNotFound,
   "api/internal_error": CustomErrorCode.unipileServiceUnavailable,
   "api/proxy_error": CustomErrorCode.unipileServiceUnavailable,
@@ -197,7 +197,9 @@ export function unipileErrorCode(err: UnipileRequestError): CustomErrorCode {
   if (err.status === 429) return CustomErrorCode.unipileRateLimit;
   if (type.endsWith("/resource_not_found")) return CustomErrorCode.unipileResourceNotFound;
   if (UNIPILE_ERROR_CODES[type]) return UNIPILE_ERROR_CODES[type];
-  if (type.startsWith("provider/")) return CustomErrorCode.unipileProviderError;
+  if (type.startsWith("provider/"))
+    return err.status >= 500 ? CustomErrorCode.unipileProviderError : CustomErrorCode.unipileProviderRejected;
+  if (err.status === 404) return CustomErrorCode.unipileResourceNotFound;
 
   return err.status >= 500 ? CustomErrorCode.unipileServiceUnavailable : CustomErrorCode.unipileUnknown;
 }
@@ -264,7 +266,10 @@ function normalizeLinkedinCompanyProfile(raw: unknown): SocialProfile {
 }
 
 export function isUnipileDisconnectedAccount(err: unknown): err is UnipileRequestError {
-  return err instanceof UnipileRequestError && unipileErrorCode(err) === CustomErrorCode.unipileDisconnectedAccount;
+  if (!(err instanceof UnipileRequestError)) return false;
+
+  const code = unipileErrorCode(err);
+  return code === CustomErrorCode.unipileDisconnectedAccount || code === CustomErrorCode.unipileAccountRestricted;
 }
 
 export function isUnipileResourceNotFound(err: unknown): boolean {
@@ -395,6 +400,13 @@ export class MessagingService {
     return this.sdkInstance;
   }
 
+  private mapSendError(source: unknown): { ok: false; error: CustomErrorCode; retryAfterSeconds?: number } {
+    if (!(source instanceof z.ZodError)) return this.mapError(source);
+
+    Sentry.captureException(source, { tags: { kind: "unipile-send-response-unreadable" } });
+    return { ok: false, error: CustomErrorCode.unipileSendUnconfirmed };
+  }
+
   private mapError(source: unknown): { ok: false; error: CustomErrorCode; retryAfterSeconds?: number } {
     if (!(source instanceof UnipileRequestError)) throw source;
 
@@ -407,9 +419,16 @@ export class MessagingService {
     } else if (
       UNIPILE_BAD_IMPL_TYPES.has(type) ||
       UNIPILE_PERMANENT_TYPES.has(type) ||
+      unipileErrorCode(source) === CustomErrorCode.unipileUnknown ||
       (source.status >= 500 && !UNIPILE_TRANSIENT_5XX_TYPES.has(type))
     )
       Sentry.captureException(source, { tags: unipileDiagnostics(source) });
+    else if (unipileErrorCode(source) === CustomErrorCode.unipileProviderRejected) {
+      Sentry.captureMessage("Unipile provider rejected a request", {
+        level: "warning",
+        tags: unipileDiagnostics(source),
+      });
+    }
 
     const error = unipileErrorCode(source);
 
@@ -839,7 +858,7 @@ export class MessagingService {
 
       return { ok: true, data: { messageId } };
     } catch (err) {
-      return this.mapError(err);
+      return this.mapSendError(err);
     }
   }
 
@@ -886,7 +905,7 @@ export class MessagingService {
 
       return { ok: true, data: { chatId: data.chat_id ?? null, messageId } };
     } catch (err) {
-      return this.mapError(err);
+      return this.mapSendError(err);
     }
   }
 
@@ -932,7 +951,7 @@ export class MessagingService {
 
       return { ok: true, data: { id: data.id, messageId: data.message_id ?? null } };
     } catch (err) {
-      return this.mapError(err);
+      return this.mapSendError(err);
     }
   }
 

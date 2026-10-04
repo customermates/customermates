@@ -7,7 +7,7 @@ vi.mock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env, UNIPILE_API_KEY: "test-
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { createZodError, interactorFailureKind } from "@/core/validation/validation.utils";
 
-import { UnipileRequestError, unipileErrorCode } from "../messaging.service";
+import { UnipileRequestError, isUnipileDisconnectedAccount, unipileErrorCode } from "../messaging.service";
 
 describe("a timeout is not a rejection", () => {
   it("maps a client timeout to the timeout code rather than the generic rejection", () => {
@@ -44,6 +44,34 @@ describe("a permission refusal is not a provider outage", () => {
       CustomErrorCode.unipileProviderError,
     );
   });
+
+  it("treats a provider's 4xx refusal as a permanent rejection, not an outage", () => {
+    const rejected = new UnipileRequestError(
+      422,
+      "provider/unprocessable_entity",
+      JSON.stringify({
+        type: "provider/unprocessable_entity",
+        detail: "Please verify the email content and try again.",
+      }),
+    );
+    expect(unipileErrorCode(rejected)).toBe(CustomErrorCode.unipileProviderRejected);
+    expect(unipileErrorCode(new UnipileRequestError(405, "provider/method_not_allowed", ""))).toBe(
+      CustomErrorCode.unipileProviderRejected,
+    );
+  });
+
+  it("treats a missing resource without an error type as not found", () => {
+    expect(unipileErrorCode(new UnipileRequestError(404, null, "Not Found"))).toBe(
+      CustomErrorCode.unipileResourceNotFound,
+    );
+  });
+
+  it("names a restricted account so nobody is told to reconnect it, and stops webhook retries on it", () => {
+    const err = new UnipileRequestError(403, "api/account_restricted", "");
+
+    expect(unipileErrorCode(err)).toBe(CustomErrorCode.unipileAccountRestricted);
+    expect(isUnipileDisconnectedAccount(err)).toBe(true);
+  });
 });
 
 describe("a provider failure reaches API clients with the kind they branch on", () => {
@@ -59,7 +87,9 @@ describe("a provider failure reaches API clients with the kind they branch on", 
       new UnipileRequestError(403, "provider/insufficient_permissions", ""),
       "not_found",
     ],
-    ["a disconnected account", new UnipileRequestError(401, "provider/invalid_credentials", ""), "validation"],
+    ["a disconnected account", new UnipileRequestError(401, "provider/invalid_credentials", ""), "conflict"],
+    ["a provider rejection", new UnipileRequestError(422, "provider/unprocessable_entity", ""), "conflict"],
+    ["a restricted account", new UnipileRequestError(403, "api/account_restricted", ""), "conflict"],
   ])("classifies %s as %s", (_label, err, kind) => {
     const error = createZodError("Provider failure", [], { error: unipileErrorCode(err) });
 

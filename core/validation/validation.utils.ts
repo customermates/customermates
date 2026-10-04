@@ -80,13 +80,33 @@ const CONFLICT_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.channelAlreadyLinked,
   CustomErrorCode.operatorConflict,
   CustomErrorCode.roleSystemImmutable,
+  CustomErrorCode.unipileProviderRejected,
+  CustomErrorCode.unipileDisconnectedAccount,
+  CustomErrorCode.unipileAccountRestricted,
+  CustomErrorCode.unipileFeatureUnavailable,
+  CustomErrorCode.unipileUnknown,
 ]);
 const RATE_LIMIT_FAILURE_CODES = new Set<CustomErrorCode>([CustomErrorCode.unipileRateLimit]);
 const UNAVAILABLE_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.unipileProviderError,
   CustomErrorCode.unipileRequestTimeout,
   CustomErrorCode.unipileServiceUnavailable,
+  CustomErrorCode.unipileSendUnconfirmed,
 ]);
+const RETRYABLE_FAILURE_CODES = new Set<CustomErrorCode>([
+  CustomErrorCode.unipileRateLimit,
+  CustomErrorCode.unipileProviderError,
+  CustomErrorCode.unipileServiceUnavailable,
+]);
+
+export function interactorFailureCodes(error: z.ZodError): CustomErrorCode[] {
+  return error.issues.map(issueCustomCode).filter((code): code is CustomErrorCode => Boolean(code));
+}
+
+export function isRetryableFailure(error: z.ZodError): boolean {
+  const codes = interactorFailureCodes(error);
+  return codes.length > 0 && codes.every((code) => RETRYABLE_FAILURE_CODES.has(code));
+}
 
 function issueCustomCode(issue: $ZodIssue): CustomErrorCode | null {
   const candidate = issue.code === "custom" ? issue.params?.error : undefined;

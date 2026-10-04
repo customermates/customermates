@@ -6,7 +6,6 @@ import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 import * as Sentry from "@sentry/node";
-import { getLocale } from "next-intl/server";
 
 import { Action, Resource, MessagingThreadType } from "@/generated/prisma";
 
@@ -20,7 +19,7 @@ import { buildEmailMessage } from "../unipile.mappers";
 import { UnipileMessageSchema, UnipileEmailSchema } from "../unipile.schema";
 import { isEmailProvider } from "../provider";
 import { isUnipileRateLimit, getRetryAfterSeconds } from "../messaging.service";
-import { formatRetryAfter } from "../retry-after";
+import { retryAfterPhrase } from "../retry-after.server";
 
 const Schema = z.object({ threadId: z.uuid() });
 type ResyncThreadData = Data<typeof Schema>;
@@ -105,7 +104,7 @@ export class ResyncThreadInteractor extends AuthenticatedInteractor<ResyncThread
         });
       }
 
-      const retryAfter = rateLimited ? formatRetryAfter(await getLocale(), getRetryAfterSeconds(err)) : undefined;
+      const retryAfter = rateLimited ? await retryAfterPhrase(getRetryAfterSeconds(err)) : undefined;
 
       return {
         ok: true as const,

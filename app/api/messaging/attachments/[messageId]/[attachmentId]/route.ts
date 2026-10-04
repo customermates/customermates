@@ -4,11 +4,14 @@ import { NextResponse } from "next/server";
 
 import { handleError, interactorFailureResponse } from "@/core/api/interactor-handler";
 import { getGetMessageAttachmentInteractor } from "@/core/di";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 import {
   getRetryAfterSeconds,
   getUnipileStatus,
   isUnipileRateLimit,
   isUnipileResourceNotFound,
+  UnipileRequestError,
+  unipileErrorCode,
 } from "@/ee/messaging/messaging.service";
 
 export async function GET(
@@ -39,6 +42,18 @@ export async function GET(
 
     if (isUnipileResourceNotFound(err)) return NextResponse.json("Attachment not found", { status: 404 });
 
+    if (err instanceof UnipileRequestError) {
+      switch (unipileErrorCode(err)) {
+        case CustomErrorCode.unipileDisconnectedAccount:
+          return NextResponse.json("Reconnect the channel to load this attachment", { status: 409 });
+        case CustomErrorCode.unipileAccountRestricted:
+          return NextResponse.json("The provider has restricted this channel", { status: 409 });
+        case CustomErrorCode.unipileRequestTimeout:
+          return NextResponse.json("The provider did not answer in time", { status: 504 });
+        case CustomErrorCode.unipileProviderRejected:
+          return NextResponse.json("The provider refused this attachment", { status: 422 });
+      }
+    }
     if (getUnipileStatus(err) !== null) return NextResponse.json("Attachment provider unavailable", { status: 502 });
 
     return handleError(err);

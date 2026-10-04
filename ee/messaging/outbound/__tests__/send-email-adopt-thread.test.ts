@@ -17,7 +17,7 @@ vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 vi.mock("next-intl/server", () => ({
-  getTranslations: () => Promise.resolve((key: string) => key),
+  getTranslations: () => Promise.resolve(Object.assign((key: string) => key, { raw: (key: string) => key })),
   getLocale: () => Promise.resolve("en"),
 }));
 vi.mock("../../inbox/inbox.schema", async (importActual) => ({
@@ -152,6 +152,48 @@ describe("SendEmailInteractor new-thread adoption", () => {
     expect(call.message.recipients.bcc.map((r: { identifier: string }) => r.identifier)).toEqual([
       "provider@example.com",
     ]);
+  });
+
+  it("asks for a reconnect instead of contacting the provider when the account lost its credentials", async () => {
+    const service = { sendEmail: vi.fn(), getEmail: vi.fn() };
+    const interactor = new SendEmailInteractor(
+      makeRepo() as never,
+      {
+        findUsableAccountByIdOrThrow: vi.fn().mockResolvedValue({ ...(account as object), status: "credentials" }),
+      } as never,
+      service as never,
+      mockEntitlementService(),
+    );
+
+    const result: any = await interactor.invoke(input);
+
+    expect(result.ok).toBe(false);
+    expect(JSON.stringify(result.error.issues)).toContain("unipileDisconnectedAccount");
+    expect(service.sendEmail).not.toHaveBeenCalled();
+  });
+
+  it("tells the caller the send is unconfirmed when the provider accepted it but recording it failed", async () => {
+    const service = {
+      sendEmail: vi.fn().mockResolvedValue({ ok: true, data: { id: "u-1", messageId: "m-1" } }),
+      getEmail: vi.fn(),
+    };
+    const repo = makeRepo();
+    repo.findThreadByIdOrThrow.mockResolvedValue({
+      id: PERSISTED_THREAD_ID,
+      connectedAccountId: ACCOUNT_ID,
+      unipileThreadId: "t-1",
+      provider: MessagingProvider.google,
+      type: "email",
+    });
+    repo.findLatestEmailReplyReferenceForThread.mockResolvedValue(null);
+    repo.findRecentOutboundDuplicate.mockResolvedValue(null);
+    repo.persistOutboundMessageOrThrow.mockRejectedValue(new Error("database unavailable"));
+
+    const result: any = await makeInteractor(repo, service).invoke({ ...input, threadId: PERSISTED_THREAD_ID });
+
+    expect(service.sendEmail).toHaveBeenCalledOnce();
+    expect(result.ok).toBe(false);
+    expect(JSON.stringify(result.error.issues)).toContain("unipileSendUnconfirmed");
   });
 
   it("returns null without a retry when fetching the sent email fails", async () => {

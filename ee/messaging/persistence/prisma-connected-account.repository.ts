@@ -606,7 +606,7 @@ export class PrismaConnectedAccountRepo
         companyId: this.companyId,
         OR: [{ userId: this.userId }, { shared: true }],
       },
-      select: { id: true, unipileAccountId: true, status: true },
+      select: { id: true, userId: true, unipileAccountId: true, status: true },
     });
   }
 

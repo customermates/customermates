@@ -17,6 +17,7 @@ const harness = vi.hoisted(() => ({
   sendDraft: vi.fn(),
   getDeliveryStatus: () => undefined,
   retrySend: vi.fn(),
+  canRetry: vi.fn((_id: string) => true),
   messageStatus: {} as Record<string, string>,
   timelineEntry: null as ActivityEntryDto | null,
   accounts: [] as Array<{
@@ -526,5 +527,14 @@ describe("Inbox and activity consumers", () => {
     expect(container.querySelector("iframe")?.closest(".ring-destructive\\/50")).not.toBeNull();
     act(() => button("Inbox.compose.retry").click());
     expect(harness.retrySend).toHaveBeenCalledWith(BASE.id);
+  });
+
+  it("keeps the failure styling but offers no retry when retrying cannot help", () => {
+    harness.messageStatus[BASE.id] = "failed";
+    harness.canRetry.mockReturnValueOnce(false).mockReturnValueOnce(false);
+    render(createElement(MessageItem, { message: BASE, isMine: true, accountOwner: null }));
+
+    expect(container.querySelector("iframe")?.closest(".ring-destructive\\/50")).not.toBeNull();
+    expect(container.textContent).not.toContain("Inbox.compose.retry");
   });
 });

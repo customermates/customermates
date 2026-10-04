@@ -1216,12 +1216,7 @@ export const getResyncConnectedAccountInteractor = () =>
   );
 
 export const getReconnectConnectedAccountInteractor = () =>
-  new ReconnectConnectedAccountInteractor(
-    getConnectedAccountRepo(),
-    getMessagingService(),
-    getEventService(),
-    getEntitlementService(),
-  );
+  new ReconnectConnectedAccountInteractor(getConnectedAccountRepo(), getMessagingService(), getEntitlementService());
 
 export const getDeleteAccountsForPlanInteractor = () =>
   new DeleteAccountsForPlanInteractor(
@@ -1347,6 +1342,7 @@ export const getProcessAccountReconnectWebhookInteractor = () =>
     getMessagingService(),
     getConnectedAccountRepo(),
     getBackgroundTaskService(),
+    getEventService(),
   );
 export const getProcessAccountRemoveWebhookInteractor = () =>
   new ProcessAccountRemoveWebhookInteractor(getConnectedAccountRepo());

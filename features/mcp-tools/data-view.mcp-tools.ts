@@ -72,7 +72,8 @@ export const manageDataViewsTool = {
     "Discover authorized pages with surfaces. Start config at overview, then page filters/sorting/grouping; narrow query/page after truncation. " +
     "List returns paged summaries; pass viewKey to read current state immediately before update. Create requires name/state and selects it; update patches only supplied keys, so omit name unless the user requested renaming and include only changed state keys. Select remembers a view. " +
     "Clear filters with [], search with an empty string, and sort/grouping with null; filters are ANDed. Timeline views accept only filters and sortDescriptor. Use only filter fields returned by config for that surface; never create a custom column to manufacture a missing saved-view filter. If the requested field is absent, report that it is unavailable and leave the view unchanged. Custom-column option ids come from get_record_schema. " +
-    "For Inbox, connectedAccountId includes all visible folders. To select an account's Inbox or another folder, use emailFolder with its exact account-qualified config option. Check every requested condition against the saved state before reporting success. " +
+    "For Inbox, connectedAccountId includes all visible folders. To select an account's Inbox or another folder, use emailFolder with its exact account-qualified config option. Follow config field descriptions. Relative dates (last N days, over N days ago, N-M days ago) use inLastDays/notInLastDays with whole days, never absolute dates. " +
+    "Check every requested condition against the saved state before reporting success. " +
     "Deleting a view is IRREVERSIBLE and never deletes records; All (__all__) cannot be renamed or deleted. Use the returned link rather than constructing one.",
   annotations: {
     readOnlyHint: false,

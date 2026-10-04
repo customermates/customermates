@@ -348,7 +348,7 @@ describe("MoveEmailThreadInteractor safety", () => {
     if (result.ok) expect(result.data.skippedCount).toBe(1);
   });
 
-  it("counts a local write that throws as failed rather than as moved", async () => {
+  it("counts an email the provider moved as moved even when the local write fails", async () => {
     const parts = setup({
       messages: [{ id: "a", unipileMessageId: "old-a", folderIds: ["inbox"] }],
       moveResults: [{ ok: true, data: { id: "new-a", folderIds: ["archive"] } }],
@@ -359,9 +359,34 @@ describe("MoveEmailThreadInteractor safety", () => {
 
     expect(result.ok).toBe(true);
     if (result.ok) {
-      expect(result.data.movedCount).toBe(0);
-      expect(result.data.failedCount).toBe(1);
+      expect(result.data.movedCount).toBe(1);
+      expect(result.data.failedCount).toBe(0);
     }
+  });
+
+  it("stops at a disconnected channel and says why instead of counting the rest as failed", async () => {
+    const parts = setup({
+      messages: [
+        { id: "a", unipileMessageId: "a", folderIds: ["inbox"] },
+        { id: "b", unipileMessageId: "b", folderIds: ["inbox"] },
+        { id: "c", unipileMessageId: "c", folderIds: ["inbox"] },
+      ],
+      moveResults: [
+        { ok: true, data: { id: "new-a", folderIds: ["archive"] } },
+        { ok: false, error: CustomErrorCode.unipileDisconnectedAccount },
+      ],
+    });
+
+    const result = await invoke(parts);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.movedCount).toBe(1);
+      expect(result.data.failedCount).toBe(1);
+      expect(result.data.stoppedReason).toBe(CustomErrorCode.unipileDisconnectedAccount);
+      expect(result.data.stoppedMessage).toBeTruthy();
+    }
+    expect(parts.messagingService.moveEmail).toHaveBeenCalledTimes(2);
   });
 });
 

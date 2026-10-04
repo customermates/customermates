@@ -1564,6 +1564,7 @@ export class PrismaMessagingRepo
       const duplicate = args.message.providerMessageId
         ? await this.prisma.messagingMessage.findFirst({
             where: {
+              companyId: this.companyId,
               connectedAccountId: args.connectedAccountId,
               providerMessageId: args.message.providerMessageId,
               isDraft: false,
@@ -1589,11 +1590,12 @@ export class PrismaMessagingRepo
     return (await this.keepOutboundBcc(existing, args.message)) as unknown as MessagingMessage;
   }
 
-  private async keepOutboundBcc<T extends { id: string; recipients: unknown }>(
+  private async keepOutboundBcc<T extends { id: string; recipients: unknown; direction: MessagingMessageDirection }>(
     row: T,
     message: IngestMessage,
   ): Promise<T> {
     const stored = row.recipients as { bcc?: unknown[] } | null;
+    if (row.direction !== MessagingMessageDirection.outbound) return row;
     if (message.recipients.bcc.length === 0 || (stored?.bcc?.length ?? 0) > 0) return row;
 
     const recipients = { ...(stored ?? {}), bcc: message.recipients.bcc };

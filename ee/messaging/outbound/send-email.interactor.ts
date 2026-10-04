@@ -15,7 +15,6 @@ import type { FindUsableAccountRepo } from "../persistence/find-usable-account.r
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
-import { getLocale } from "next-intl/server";
 import * as Sentry from "@sentry/node";
 
 import { Resource, Action, MessagingMessageDirection, MessagingMessageOrigin } from "@/generated/prisma";
@@ -25,9 +24,10 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { formatRetryAfter } from "../retry-after";
+import { retryAfterPhrase } from "../retry-after.server";
 import { isUnipileResourceNotFound, isUnipileTimeout } from "../messaging.service";
 import { isDraftThreadId } from "../provider";
+import { accountNeedsReconnect } from "../account-health";
 import {
   DraftRevisionSchema,
   draftRevisionMatches,
@@ -198,6 +198,7 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
       }
       account = await this.accountRepo.findUsableAccountByIdOrThrow(data.connectedAccountId);
     }
+    if (accountNeedsReconnect(account)) return fail(CustomErrorCode.unipileDisconnectedAccount, []);
 
     const draft = data.draftMessageId ? await this.repo.findDraftById({ messageId: data.draftMessageId }) : null;
     if (data.draftMessageId && !draft) return failNotFound(CustomErrorCode.draftMessageNotFound);
@@ -263,96 +264,101 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
 
     if (!res.ok) {
       return fail(res.error, [], {
-        retryAfter: formatRetryAfter(await getLocale(), res.retryAfterSeconds),
+        retryAfter: await retryAfterPhrase(res.retryAfterSeconds),
       });
     }
 
-    if (!thread) {
-      const adopted = await this.adoptSentEmail(account, res.data.id, data.bcc ?? []);
+    try {
+      if (!thread) {
+        const adopted = await this.adoptSentEmail(account, res.data.id, data.bcc ?? []);
+        if (draft && data.draftRevision) {
+          try {
+            await this.repo.discardDraftAfterSend({
+              messageId: draft.id,
+              expectedUpdatedAt: draftUpdatedAtFromRevision(data.draftRevision),
+            });
+          } catch (err) {
+            Sentry.captureException(err, { tags: { kind: "draft-discard-failure" } });
+          }
+        }
+        return adopted;
+      }
+
+      let attachmentsMeta: AttachmentMeta[] = [];
+      if (data.attachments?.length) {
+        const sent = await this.messagingService.getEmailAttachments({
+          accountId: account.unipileAccountId,
+          emailId: res.data.id,
+        });
+        if (sent.ok) attachmentsMeta = toAttachmentsMeta(sent.data);
+      }
+
+      const sender: MessagingAttendee = {
+        ...EMPTY_ATTENDEE,
+        attendeeId: account.emailAddress ?? "",
+        identifier: (account.emailAddress ?? "").toLowerCase(),
+        displayName: account.displayName,
+        isSelf: true,
+      };
+      const markSelf = (attendee: MessagingAttendee): MessagingAttendee =>
+        attendee.identifier === sender.identifier ? { ...attendee, isSelf: true } : attendee;
+      const recipients = {
+        to: data.to.map((attendee) => markSelf(emailRecipient(attendee.identifier, attendee.display_name))),
+        cc: (data.cc ?? []).map((email) => markSelf(emailRecipient(email))),
+        bcc: (data.bcc ?? []).map((email) => markSelf(emailRecipient(email))),
+      };
+
       if (draft && data.draftRevision) {
-        try {
-          await this.repo.discardDraftAfterSend({
-            messageId: draft.id,
-            expectedUpdatedAt: draftUpdatedAtFromRevision(data.draftRevision),
-          });
-        } catch (err) {
-          Sentry.captureException(err, { tags: { kind: "draft-discard-failure" } });
+        const converted = await this.repo.convertDraftToSent({
+          messageId: draft.id,
+          expectedUpdatedAt: draftUpdatedAtFromRevision(data.draftRevision),
+          unipileMessageId: res.data.id,
+          providerMessageId: res.data.messageId,
+          sender,
+          recipients,
+          subject: data.subject,
+          bodyText: outgoingBody,
+          bodyHtml: outgoingHtml,
+          attachmentsMeta,
+          sentAt,
+        });
+
+        if (converted) {
+          await this.repo.restoreDraftSummaryIfPresent({ messageId: draft.id });
+          return { ok: true as const, data: toMessagingMessageDto(converted) };
         }
       }
-      return adopted;
-    }
 
-    let attachmentsMeta: AttachmentMeta[] = [];
-    if (data.attachments?.length) {
-      const sent = await this.messagingService.getEmailAttachments({
-        accountId: account.unipileAccountId,
-        emailId: res.data.id,
+      const persisted = await this.repo.persistOutboundMessageOrThrow({
+        connectedAccountId: account.id,
+        message: {
+          unipileMessageId: res.data.id,
+          providerMessageId: res.data.messageId,
+          provider: thread.provider,
+          direction: MessagingMessageDirection.outbound,
+          origin: MessagingMessageOrigin.unipile,
+          sender,
+          recipients,
+          subject: data.subject,
+          bodyText: outgoingBody,
+          bodyHtml: outgoingHtml,
+          attachmentsMeta,
+          isEvent: false,
+          isDeleted: false,
+          isHidden: false,
+          sentAt,
+          reactions: [],
+          unipileThreadId: thread.unipileThreadId,
+          threadType: thread.type,
+        },
       });
-      if (sent.ok) attachmentsMeta = toAttachmentsMeta(sent.data);
+      if (draft) await this.repo.restoreDraftSummaryIfPresent({ messageId: draft.id });
+
+      return { ok: true as const, data: toMessagingMessageDto(persisted) };
+    } catch (err) {
+      Sentry.captureException(err, { tags: { kind: "sent-message-not-recorded" } });
+      return fail(CustomErrorCode.unipileSendUnconfirmed, []);
     }
-
-    const sender: MessagingAttendee = {
-      ...EMPTY_ATTENDEE,
-      attendeeId: account.emailAddress ?? "",
-      identifier: (account.emailAddress ?? "").toLowerCase(),
-      displayName: account.displayName,
-      isSelf: true,
-    };
-    const markSelf = (attendee: MessagingAttendee): MessagingAttendee =>
-      attendee.identifier === sender.identifier ? { ...attendee, isSelf: true } : attendee;
-    const recipients = {
-      to: data.to.map((attendee) => markSelf(emailRecipient(attendee.identifier, attendee.display_name))),
-      cc: (data.cc ?? []).map((email) => markSelf(emailRecipient(email))),
-      bcc: (data.bcc ?? []).map((email) => markSelf(emailRecipient(email))),
-    };
-
-    if (draft && data.draftRevision) {
-      const converted = await this.repo.convertDraftToSent({
-        messageId: draft.id,
-        expectedUpdatedAt: draftUpdatedAtFromRevision(data.draftRevision),
-        unipileMessageId: res.data.id,
-        providerMessageId: res.data.messageId,
-        sender,
-        recipients,
-        subject: data.subject,
-        bodyText: outgoingBody,
-        bodyHtml: outgoingHtml,
-        attachmentsMeta,
-        sentAt,
-      });
-
-      if (converted) {
-        await this.repo.restoreDraftSummaryIfPresent({ messageId: draft.id });
-        return { ok: true as const, data: toMessagingMessageDto(converted) };
-      }
-    }
-
-    const persisted = await this.repo.persistOutboundMessageOrThrow({
-      connectedAccountId: account.id,
-      message: {
-        unipileMessageId: res.data.id,
-        providerMessageId: res.data.messageId,
-        provider: thread.provider,
-        direction: MessagingMessageDirection.outbound,
-        origin: MessagingMessageOrigin.unipile,
-        sender,
-        recipients,
-        subject: data.subject,
-        bodyText: outgoingBody,
-        bodyHtml: outgoingHtml,
-        attachmentsMeta,
-        isEvent: false,
-        isDeleted: false,
-        isHidden: false,
-        sentAt,
-        reactions: [],
-        unipileThreadId: thread.unipileThreadId,
-        threadType: thread.type,
-      },
-    });
-    if (draft) await this.repo.restoreDraftSummaryIfPresent({ messageId: draft.id });
-
-    return { ok: true as const, data: toMessagingMessageDto(persisted) };
   }
 
   private async adoptSentEmail(

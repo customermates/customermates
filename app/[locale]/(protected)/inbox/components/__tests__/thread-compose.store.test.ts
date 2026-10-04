@@ -735,7 +735,7 @@ describe("ThreadComposeStore draft lifecycle", () => {
     expect(errors.reportApplicationError).toHaveBeenCalledOnce();
   });
 
-  it.each(["reply", "new", "retry"])("reports a rejected %s send once and keeps its recovery state", async (kind) => {
+  it.each(["reply", "new", "retry"])("reports a rejected %s send once as possibly sent", async (kind) => {
     const failure = new Error("offline");
     actions.sendEmailAction.mockRejectedValue(failure);
     const draft = message({
@@ -765,7 +765,7 @@ describe("ThreadComposeStore draft lifecycle", () => {
 
     expect(errors.reportApplicationError).toHaveBeenCalledExactlyOnceWith(
       failure,
-      expect.objectContaining({ action: expect.objectContaining({ onClick: expect.any(Function) }) }),
+      expect.objectContaining({ action: undefined, description: expect.stringContaining("sendOutcomeUnknown") }),
     );
     expect(store.isLoading).toBe(false);
     if (kind === "new") {
@@ -1016,7 +1016,12 @@ describe("ThreadComposeStore background delivery", () => {
   });
 
   it("shows a late rate limit and retries the original cold draft from another conversation", async () => {
-    const rateLimit = { ok: false as const, error: { errors: ["Rate limit reached. Try again shortly."] } };
+    const rateLimit = {
+      ok: false as const,
+      error: { errors: ["Rate limit reached. Try again shortly."] },
+      code: "unipileRateLimit",
+      retryable: true,
+    };
     const pending = deferred<typeof rateLimit>();
     actions.sendEmailAction.mockReturnValueOnce(pending.promise).mockResolvedValueOnce({ ok: true, data: null });
     const draft = message({ provider: MessagingProvider.google, messagingThreadId: DRAFT_THREAD_ID });
@@ -1068,6 +1073,34 @@ describe("ThreadComposeStore background delivery", () => {
       action: undefined,
       description: undefined,
     });
+  });
+});
+
+describe("ThreadComposeStore send failures that retrying cannot fix", () => {
+  it.each([
+    ["a permanent provider rejection", "unipileProviderRejected"],
+    ["a timeout whose outcome is unknown", "unipileRequestTimeout"],
+  ])("offers no retry after %s", async (_label, code) => {
+    const failure = { ok: false as const, error: { errors: ["Synthetic failure"] }, code };
+    actions.sendEmailAction.mockResolvedValueOnce(failure);
+    const callsBefore = actions.sendEmailAction.mock.calls.length;
+    const draft = message({ provider: MessagingProvider.google, messagingThreadId: DRAFT_THREAD_ID });
+    const { detail, store } = makeHarness([draft]);
+    detail.thread.id = DRAFT_THREAD_ID;
+    detail.thread.unipileThreadId = "draft_synthetic";
+    store.initializeNewThread({
+      provider: MessagingProvider.google,
+      connectedAccountId: ACCOUNT_ID,
+      recipients: [{ identifier: RECIPIENT, displayName: null }],
+      draftThreadId: DRAFT_THREAD_ID,
+    });
+
+    await store.sendDraft(draft);
+
+    expect(toastZodErrorTree).toHaveBeenCalledWith(failure.error, expect.objectContaining({ action: undefined }));
+    expect(store.getDeliveryStatus(DRAFT_ID)).toBe("failed");
+    expect(store.canRetry(DRAFT_ID)).toBe(false);
+    expect(actions.sendEmailAction.mock.calls.length - callsBefore).toBe(1);
   });
 });
 
