@@ -74,15 +74,25 @@ export function compileRecordMeasure(
     pathReadable = Prisma.sql`NOT COALESCE(${group}.blocked, FALSE)`;
   }
   const groupType = model.types.find((type) => type.id === typeId && !type.archived);
-  const groupField = measure.groupBy
-    ? model.fields.find(
-        (candidate) =>
-          candidate.typeId === typeId &&
-          candidate.id === (measure.groupBy?.fieldId ?? groupType?.primaryFieldId) &&
-          !candidate.archived,
-      )
-    : undefined;
-  if (measure.groupBy && !groupField) throw new RecordWriteError(CustomErrorCode.recordValueInvalid);
+  const systemField = measure.groupBy?.fieldId?.startsWith("system:") ? measure.groupBy.fieldId : null;
+  const groupField =
+    measure.groupBy && !systemField
+      ? model.fields.find(
+          (candidate) =>
+            candidate.typeId === typeId &&
+            candidate.id === (measure.groupBy?.fieldId ?? groupType?.primaryFieldId) &&
+            !candidate.archived,
+        )
+      : undefined;
+  if (measure.groupBy && !groupField && !systemField) throw new RecordWriteError(CustomErrorCode.recordValueInvalid);
+  const interval = measure.groupBy?.dateInterval;
+  if (
+    interval &&
+    !(systemField
+      ? systemField !== "system:assignedTo"
+      : groupField && measure.groupBy?.fieldId && ["date", "dateTime"].includes(groupField.valueType))
+  )
+    throw new RecordWriteError(CustomErrorCode.recordMeasureDateIntervalInvalid);
   const groupByRecord = measure.groupBy?.fieldId === null;
   const groupFilter = measure.groupBy?.filter;
   const groupSelection = hasRecordMeasureGroupFilter(measure)
@@ -90,17 +100,43 @@ export function compileRecordMeasure(
     : Prisma.sql`TRUE`;
   const groupReadable = groupField
     ? Prisma.sql`(${pathReadable} AND ${fieldReadPredicate(companyId, groupField, model, access, group)})`
-    : Prisma.sql`TRUE`;
+    : systemField
+      ? Prisma.sql`(${pathReadable})`
+      : Prisma.sql`TRUE`;
   const groupFailed = groupField ? Prisma.sql`COALESCE(group_value.state = 'error', FALSE)` : Prisma.sql`FALSE`;
-  const groupValue = groupField
-    ? Prisma.sql`CASE WHEN ${groupReadable} AND group_value.state = 'value' THEN ${scalarJson(groupField, Prisma.sql`group_value`)} ELSE NULL END`
-    : Prisma.sql`NULL::jsonb`;
-  const groupState = groupField
-    ? Prisma.sql`CASE WHEN NOT (${groupReadable}) THEN 'restricted' ELSE COALESCE(group_value.state, 'missing') END`
-    : Prisma.sql`'missing'`;
+  const bucket = (instant: Prisma.Sql) =>
+    Prisma.sql`jsonb_build_object('kind', 'date', 'value', to_char(date_trunc(${interval}::text, ${instant}), 'YYYY-MM-DD'))`;
+  const zoned = (instant: Prisma.Sql) =>
+    Prisma.sql`((${instant} AT TIME ZONE 'UTC') AT TIME ZONE ${measure.groupBy?.timeZone ?? "UTC"}::text)`;
+  let groupValue = Prisma.sql`NULL::jsonb`;
+  let groupState = Prisma.sql`'missing'`;
   if (groupField) {
+    const scalar =
+      interval && groupField.valueType === "date"
+        ? bucket(Prisma.sql`group_value."instantValue"`)
+        : interval
+          ? bucket(zoned(Prisma.sql`group_value."instantValue"`))
+          : scalarJson(groupField, Prisma.sql`group_value`);
+    groupValue = Prisma.sql`CASE WHEN ${groupReadable} AND group_value.state = 'value' THEN ${scalar} ELSE NULL END`;
+    groupState = Prisma.sql`CASE WHEN NOT (${groupReadable}) THEN 'restricted' ELSE COALESCE(group_value.state, 'missing') END`;
     joins.push(
       Prisma.sql`LEFT JOIN "RecordValue" group_value ON group_value."companyId" = ${companyId} AND group_value."typeId" = ${typeId} AND group_value."recordId" = ${group}.id AND group_value."fieldId" = ${groupField.id}`,
+    );
+  } else if (systemField === "system:assignedTo") {
+    groupValue = Prisma.sql`CASE WHEN ${groupReadable} AND group_assignment."userId" IS NOT NULL THEN jsonb_build_object('kind', 'member', 'value', group_assignment."userId") ELSE NULL END`;
+    groupState = Prisma.sql`CASE WHEN NOT (${groupReadable}) THEN 'restricted' WHEN group_assignment."userId" IS NULL THEN 'missing' ELSE 'value' END`;
+    joins.push(
+      Prisma.sql`LEFT JOIN "RecordAssignment" group_assignment ON group_assignment."companyId" = ${companyId} AND group_assignment."typeId" = ${typeId} AND group_assignment."recordId" = ${group}.id`,
+    );
+  } else if (systemField) {
+    const instant = Prisma.sql`group_record.${Prisma.raw(systemField === "system:createdAt" ? '"createdAt"' : '"updatedAt"')}`;
+    const scalar = interval
+      ? bucket(zoned(instant))
+      : Prisma.sql`jsonb_build_object('kind', 'dateTime', 'value', to_char(${instant}, 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"'))`;
+    groupValue = Prisma.sql`CASE WHEN ${groupReadable} AND ${instant} IS NOT NULL THEN ${scalar} ELSE NULL END`;
+    groupState = Prisma.sql`CASE WHEN NOT (${groupReadable}) THEN 'restricted' WHEN ${instant} IS NULL THEN 'missing' ELSE 'value' END`;
+    joins.push(
+      Prisma.sql`LEFT JOIN "CrmRecord" group_record ON group_record."companyId" = ${companyId} AND group_record."typeId" = ${typeId} AND group_record.id = ${group}.id`,
     );
   }
   if (field) {
@@ -126,7 +162,7 @@ export function compileRecordMeasure(
   } as const;
   const aggregate = Prisma.sql`${Prisma.raw(operators[measure.aggregation])}(value)`;
   return Prisma.sql`WITH eligible AS (${eligible}), contributions AS (
-    SELECT DISTINCT grain.id, ${groupByRecord ? Prisma.sql`${group}.id` : Prisma.sql`NULL::text`} AS "groupRecordId", ${groupByRecord ? Prisma.sql`${group}."typeId"` : Prisma.sql`NULL::text`} AS "groupTypeId", ${groupField ? Prisma.sql`${groupField.id}::text` : Prisma.sql`NULL::text`} AS "groupFieldId",
+    SELECT DISTINCT grain.id, ${groupByRecord ? Prisma.sql`${group}.id` : Prisma.sql`NULL::text`} AS "groupRecordId", ${groupByRecord ? Prisma.sql`${group}."typeId"` : Prisma.sql`NULL::text`} AS "groupTypeId", ${groupField ? Prisma.sql`${groupField.id}::text` : systemField ? Prisma.sql`${systemField}::text` : Prisma.sql`NULL::text`} AS "groupFieldId",
       ${groupState} AS "groupState", ${groupValue} AS "groupValue", ${amountState} AS state, ${amountValue} AS value, ${amountCurrency} AS currency
     FROM eligible JOIN "CrmRecord" grain ON grain."companyId" = ${companyId} AND grain."typeId" = ${measure.source.typeId} AND grain.id = eligible.id ${joins.length ? Prisma.join(joins, " ") : Prisma.empty}
     WHERE ${groupSelection}

@@ -15,6 +15,7 @@ export enum CustomErrorCode {
   recordDependencies = "recordDependencies",
   recordCalculationBudget = "recordCalculationBudget",
   recordProtected = "recordProtected",
+  recordMeasureDateIntervalInvalid = "recordMeasureDateIntervalInvalid",
 
   agentApprovalUnavailable = "agentApprovalUnavailable",
   agentConversationNotFound = "agentConversationNotFound",

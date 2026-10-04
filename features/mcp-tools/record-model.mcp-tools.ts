@@ -196,7 +196,7 @@ export const queryRecordMeasureV2Tool = {
   name: "query_crm_measure",
   title: "Calculate a report measure",
   description:
-    "Version 2. Aggregate one contribution per source record at an explicit grain. Grouping across relationships uses full attribution, so group totals can exceed the distinct overall total. Use line items as the source for service contributions and quantities. Restricted inputs stay restricted; mixed currencies return an error.",
+    "Version 2. Aggregate one contribution per source record at an explicit grain. Grouping across relationships or by system:assignedTo uses full attribution, so group totals can exceed the distinct overall total. For a time series, group by a date or dateTime field, system:createdAt or system:updatedAt with groupBy.dateInterval (day, week, month, quarter or year; ISO weeks start Monday) and an IANA groupBy.timeZone; only periods with records are returned, in chronological order. Use line items as the source for service contributions and quantities. Restricted inputs stay restricted; mixed currencies return an error.",
   inputSchema: RecordMeasureSchema,
   outputSchema: RecordMeasureResultSchema,
   annotations: read,

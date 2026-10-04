@@ -13759,14 +13759,44 @@
                                   "fieldId": {
                                     "anyOf": [
                                       {
-                                        "type": "string",
-                                        "format": "uuid",
-                                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                        "anyOf": [
+                                          {
+                                            "type": "string",
+                                            "format": "uuid",
+                                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                          },
+                                          {
+                                            "type": "string",
+                                            "enum": [
+                                              "system:createdAt",
+                                              "system:updatedAt",
+                                              "system:assignedTo"
+                                            ]
+                                          }
+                                        ]
                                       },
                                       {
                                         "type": "null"
                                       }
+                                    ],
+                                    "description": "A field ID on the terminal type, system:createdAt, system:updatedAt or system:assignedTo, or null to group by each terminal record. Assignee groups use full attribution: a record with several assignees contributes to each."
+                                  },
+                                  "dateInterval": {
+                                    "description": "Bucket a date or dateTime field, system:createdAt or system:updatedAt into calendar periods. Rejected for any other grouping. Weeks start on Monday (ISO). Each group label is the bucket start as a date (YYYY-MM-DD); groups are returned in chronological order and only periods with records appear. Records without a date form the missing group. Every bucket counts toward groupLimit; raise it up to 1000 for long daily series.",
+                                    "type": "string",
+                                    "enum": [
+                                      "day",
+                                      "week",
+                                      "month",
+                                      "quarter",
+                                      "year"
                                     ]
+                                  },
+                                  "timeZone": {
+                                    "description": "IANA time zone that dateTime values and system timestamps are bucketed in. Requires dateInterval; defaults to UTC. Date-only values are calendar dates and never shift.",
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 64
                                   },
                                   "filter": {
                                     "description": "Limit the terminal records that appear as groups using the same validated filters as record queries. Every path step requires access. Overall totals still use source filters; repeat relevant filters there to limit both contributions and groups.",
@@ -14407,6 +14437,7 @@
                           },
                           "groupLimit": {
                             "default": 100,
+                            "description": "Maximum number of groups, including the missing group. A measure with more groups fails instead of truncating.",
                             "type": "integer",
                             "minimum": 1,
                             "maximum": 1000
@@ -16194,14 +16225,44 @@
                                     "fieldId": {
                                       "anyOf": [
                                         {
-                                          "type": "string",
-                                          "format": "uuid",
-                                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                          "anyOf": [
+                                            {
+                                              "type": "string",
+                                              "format": "uuid",
+                                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                            },
+                                            {
+                                              "type": "string",
+                                              "enum": [
+                                                "system:createdAt",
+                                                "system:updatedAt",
+                                                "system:assignedTo"
+                                              ]
+                                            }
+                                          ]
                                         },
                                         {
                                           "type": "null"
                                         }
+                                      ],
+                                      "description": "A field ID on the terminal type, system:createdAt, system:updatedAt or system:assignedTo, or null to group by each terminal record. Assignee groups use full attribution: a record with several assignees contributes to each."
+                                    },
+                                    "dateInterval": {
+                                      "description": "Bucket a date or dateTime field, system:createdAt or system:updatedAt into calendar periods. Rejected for any other grouping. Weeks start on Monday (ISO). Each group label is the bucket start as a date (YYYY-MM-DD); groups are returned in chronological order and only periods with records appear. Records without a date form the missing group. Every bucket counts toward groupLimit; raise it up to 1000 for long daily series.",
+                                      "type": "string",
+                                      "enum": [
+                                        "day",
+                                        "week",
+                                        "month",
+                                        "quarter",
+                                        "year"
                                       ]
+                                    },
+                                    "timeZone": {
+                                      "description": "IANA time zone that dateTime values and system timestamps are bucketed in. Requires dateInterval; defaults to UTC. Date-only values are calendar dates and never shift.",
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 64
                                     },
                                     "filter": {
                                       "description": "Limit the terminal records that appear as groups using the same validated filters as record queries. Every path step requires access. Overall totals still use source filters; repeat relevant filters there to limit both contributions and groups.",
@@ -17451,6 +17512,7 @@
                             },
                             "groupLimit": {
                               "default": 100,
+                              "description": "Maximum number of groups, including the missing group. A measure with more groups fails instead of truncating.",
                               "type": "integer",
                               "minimum": 1,
                               "maximum": 1000
@@ -18097,9 +18159,21 @@
                                       "fieldId": {
                                         "anyOf": [
                                           {
-                                            "type": "string",
-                                            "format": "uuid",
-                                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                            "anyOf": [
+                                              {
+                                                "type": "string",
+                                                "format": "uuid",
+                                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                              },
+                                              {
+                                                "type": "string",
+                                                "enum": [
+                                                  "system:createdAt",
+                                                  "system:updatedAt",
+                                                  "system:assignedTo"
+                                                ]
+                                              }
+                                            ]
                                           },
                                           {
                                             "type": "null"
@@ -26813,14 +26887,44 @@
                                     "fieldId": {
                                       "anyOf": [
                                         {
-                                          "type": "string",
-                                          "format": "uuid",
-                                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                          "anyOf": [
+                                            {
+                                              "type": "string",
+                                              "format": "uuid",
+                                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                            },
+                                            {
+                                              "type": "string",
+                                              "enum": [
+                                                "system:createdAt",
+                                                "system:updatedAt",
+                                                "system:assignedTo"
+                                              ]
+                                            }
+                                          ]
                                         },
                                         {
                                           "type": "null"
                                         }
+                                      ],
+                                      "description": "A field ID on the terminal type, system:createdAt, system:updatedAt or system:assignedTo, or null to group by each terminal record. Assignee groups use full attribution: a record with several assignees contributes to each."
+                                    },
+                                    "dateInterval": {
+                                      "description": "Bucket a date or dateTime field, system:createdAt or system:updatedAt into calendar periods. Rejected for any other grouping. Weeks start on Monday (ISO). Each group label is the bucket start as a date (YYYY-MM-DD); groups are returned in chronological order and only periods with records appear. Records without a date form the missing group. Every bucket counts toward groupLimit; raise it up to 1000 for long daily series.",
+                                      "type": "string",
+                                      "enum": [
+                                        "day",
+                                        "week",
+                                        "month",
+                                        "quarter",
+                                        "year"
                                       ]
+                                    },
+                                    "timeZone": {
+                                      "description": "IANA time zone that dateTime values and system timestamps are bucketed in. Requires dateInterval; defaults to UTC. Date-only values are calendar dates and never shift.",
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 64
                                     },
                                     "filter": {
                                       "description": "Limit the terminal records that appear as groups using the same validated filters as record queries. Every path step requires access. Overall totals still use source filters; repeat relevant filters there to limit both contributions and groups.",
@@ -28070,6 +28174,7 @@
                             },
                             "groupLimit": {
                               "default": 100,
+                              "description": "Maximum number of groups, including the missing group. A measure with more groups fails instead of truncating.",
                               "type": "integer",
                               "minimum": 1,
                               "maximum": 1000
@@ -28716,9 +28821,21 @@
                                       "fieldId": {
                                         "anyOf": [
                                           {
-                                            "type": "string",
-                                            "format": "uuid",
-                                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                            "anyOf": [
+                                              {
+                                                "type": "string",
+                                                "format": "uuid",
+                                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                              },
+                                              {
+                                                "type": "string",
+                                                "enum": [
+                                                  "system:createdAt",
+                                                  "system:updatedAt",
+                                                  "system:assignedTo"
+                                                ]
+                                              }
+                                            ]
                                           },
                                           {
                                             "type": "null"
@@ -37428,14 +37545,44 @@
                                           "fieldId": {
                                             "anyOf": [
                                               {
-                                                "type": "string",
-                                                "format": "uuid",
-                                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                                "anyOf": [
+                                                  {
+                                                    "type": "string",
+                                                    "format": "uuid",
+                                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                                  },
+                                                  {
+                                                    "type": "string",
+                                                    "enum": [
+                                                      "system:createdAt",
+                                                      "system:updatedAt",
+                                                      "system:assignedTo"
+                                                    ]
+                                                  }
+                                                ]
                                               },
                                               {
                                                 "type": "null"
                                               }
+                                            ],
+                                            "description": "A field ID on the terminal type, system:createdAt, system:updatedAt or system:assignedTo, or null to group by each terminal record. Assignee groups use full attribution: a record with several assignees contributes to each."
+                                          },
+                                          "dateInterval": {
+                                            "description": "Bucket a date or dateTime field, system:createdAt or system:updatedAt into calendar periods. Rejected for any other grouping. Weeks start on Monday (ISO). Each group label is the bucket start as a date (YYYY-MM-DD); groups are returned in chronological order and only periods with records appear. Records without a date form the missing group. Every bucket counts toward groupLimit; raise it up to 1000 for long daily series.",
+                                            "type": "string",
+                                            "enum": [
+                                              "day",
+                                              "week",
+                                              "month",
+                                              "quarter",
+                                              "year"
                                             ]
+                                          },
+                                          "timeZone": {
+                                            "description": "IANA time zone that dateTime values and system timestamps are bucketed in. Requires dateInterval; defaults to UTC. Date-only values are calendar dates and never shift.",
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 64
                                           },
                                           "filter": {
                                             "description": "Limit the terminal records that appear as groups using the same validated filters as record queries. Every path step requires access. Overall totals still use source filters; repeat relevant filters there to limit both contributions and groups.",
@@ -38685,6 +38832,7 @@
                                   },
                                   "groupLimit": {
                                     "default": 100,
+                                    "description": "Maximum number of groups, including the missing group. A measure with more groups fails instead of truncating.",
                                     "type": "integer",
                                     "minimum": 1,
                                     "maximum": 1000
@@ -39331,9 +39479,21 @@
                                             "fieldId": {
                                               "anyOf": [
                                                 {
-                                                  "type": "string",
-                                                  "format": "uuid",
-                                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                                  "anyOf": [
+                                                    {
+                                                      "type": "string",
+                                                      "format": "uuid",
+                                                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                                    },
+                                                    {
+                                                      "type": "string",
+                                                      "enum": [
+                                                        "system:createdAt",
+                                                        "system:updatedAt",
+                                                        "system:assignedTo"
+                                                      ]
+                                                    }
+                                                  ]
                                                 },
                                                 {
                                                   "type": "null"
@@ -57553,14 +57713,44 @@
                           "fieldId": {
                             "anyOf": [
                               {
-                                "type": "string",
-                                "format": "uuid",
-                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "enum": [
+                                      "system:createdAt",
+                                      "system:updatedAt",
+                                      "system:assignedTo"
+                                    ]
+                                  }
+                                ]
                               },
                               {
                                 "type": "null"
                               }
+                            ],
+                            "description": "A field ID on the terminal type, system:createdAt, system:updatedAt or system:assignedTo, or null to group by each terminal record. Assignee groups use full attribution: a record with several assignees contributes to each."
+                          },
+                          "dateInterval": {
+                            "description": "Bucket a date or dateTime field, system:createdAt or system:updatedAt into calendar periods. Rejected for any other grouping. Weeks start on Monday (ISO). Each group label is the bucket start as a date (YYYY-MM-DD); groups are returned in chronological order and only periods with records appear. Records without a date form the missing group. Every bucket counts toward groupLimit; raise it up to 1000 for long daily series.",
+                            "type": "string",
+                            "enum": [
+                              "day",
+                              "week",
+                              "month",
+                              "quarter",
+                              "year"
                             ]
+                          },
+                          "timeZone": {
+                            "description": "IANA time zone that dateTime values and system timestamps are bucketed in. Requires dateInterval; defaults to UTC. Date-only values are calendar dates and never shift.",
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 64
                           },
                           "filter": {
                             "description": "Limit the terminal records that appear as groups using the same validated filters as record queries. Every path step requires access. Overall totals still use source filters; repeat relevant filters there to limit both contributions and groups.",
@@ -58201,6 +58391,7 @@
                   },
                   "groupLimit": {
                     "default": 100,
+                    "description": "Maximum number of groups, including the missing group. A measure with more groups fails instead of truncating.",
                     "type": "integer",
                     "minimum": 1,
                     "maximum": 1000
@@ -58585,9 +58776,21 @@
                           "fieldId": {
                             "anyOf": [
                               {
-                                "type": "string",
-                                "format": "uuid",
-                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "enum": [
+                                      "system:createdAt",
+                                      "system:updatedAt",
+                                      "system:assignedTo"
+                                    ]
+                                  }
+                                ]
                               },
                               {
                                 "type": "null"
@@ -88839,6 +89042,7 @@
                         "recordDependencies",
                         "recordCalculationBudget",
                         "recordProtected",
+                        "recordMeasureDateIntervalInvalid",
                         "agentApprovalUnavailable",
                         "agentConversationNotFound",
                         "agentLimitReached",
