@@ -3225,6 +3225,7 @@
     "descending": "Décroissant",
     "description": "Description",
     "detailLayoutIncompatible": "Une présentation personnelle des détails utilise encore ce champ ou cette relation. Modifiez ou réinitialisez cette présentation avant de changer la définition.",
+    "detailLayoutReadFailed": "Impossible de charger votre mise en page enregistrée.",
     "detailLayoutSaveFailed": "Impossible d’enregistrer les modifications de la disposition.",
     "directRelationship": "Relation directe",
     "edit": "Modifier",

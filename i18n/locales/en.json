@@ -3225,6 +3225,7 @@
     "descending": "Descending",
     "description": "Description",
     "detailLayoutIncompatible": "A personal detail layout still uses this field or connection. Update or reset that layout before changing the definition.",
+    "detailLayoutReadFailed": "Your saved layout could not be loaded.",
     "detailLayoutSaveFailed": "Layout changes could not be saved.",
     "directRelationship": "Direct relationship",
     "edit": "Edit",

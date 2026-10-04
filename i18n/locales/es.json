@@ -3225,6 +3225,7 @@
     "descending": "Descendente",
     "description": "Descripción",
     "detailLayoutIncompatible": "Un diseño de detalles personal todavía usa este campo o relación. Actualiza o restablece ese diseño antes de cambiar la definición.",
+    "detailLayoutReadFailed": "No se pudo cargar tu diseño guardado.",
     "detailLayoutSaveFailed": "No se pudieron guardar los cambios de diseño.",
     "directRelationship": "Relación directa",
     "edit": "Editar",

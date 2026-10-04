@@ -226,4 +226,58 @@ describe("record detail personalization saves", () => {
     await vi.advanceTimersByTimeAsync(1000);
     expect(mocks.saveRecordDetailLayoutAction).toHaveBeenCalledOnce();
   });
+
+  it("labels a failed read separately from a failed save", async () => {
+    const { store } = fixture();
+    mocks.readRecordDetailLayoutAction.mockResolvedValueOnce({ ok: false, error: { errors: ["unavailable"] } });
+    await store.refresh();
+    expect(store.readFailed).toBe(true);
+    expect(store.saveFailed).toBe(false);
+    mocks.saveRecordDetailLayoutAction.mockRejectedValueOnce(new Error("Response lost"));
+    store.togglePinned("system:createdAt");
+    await store.flush();
+    expect(store.saveFailed).toBe(true);
+  });
+
+  it("surfaces a rejected save globally and lets the user discard it to unblock assistant reloads", async () => {
+    const { state } = fixture();
+    const notifications = { saveFailed: vi.fn(), saveRecovered: vi.fn() };
+    const store = new RecordDetailLayoutStore(state, notifications);
+    stores.push(store);
+    const guard = new NavigationGuardController();
+    guard.register(store);
+    mocks.saveRecordDetailLayoutAction.mockResolvedValueOnce({ ok: false, error: { errors: ["stale"] } });
+    store.togglePinned("system:createdAt");
+    const reload = vi.fn();
+    guard.requestRouteRefreshWhenSafe(reload);
+    await store.flush();
+    expect(notifications.saveFailed).toHaveBeenCalledExactlyOnceWith(store);
+    expect(store.saveFailed).toBe(true);
+    expect(guard.isRouteRefreshBlocked).toBe(true);
+    expect(reload).not.toHaveBeenCalled();
+    store.discard();
+    expect(store.layout).toEqual(state.layout);
+    expect(store.dirty).toBe(false);
+    expect(store.saveFailed).toBe(false);
+    expect(notifications.saveRecovered).toHaveBeenCalledWith(store);
+    expect(guard.isRouteRefreshBlocked).toBe(false);
+    expect(reload).toHaveBeenCalledOnce();
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(mocks.saveRecordDetailLayoutAction).toHaveBeenCalledOnce();
+  });
+
+  it("dismisses the global failure notice once a retry persists the choice", async () => {
+    const { state } = fixture();
+    const notifications = { saveFailed: vi.fn(), saveRecovered: vi.fn() };
+    const store = new RecordDetailLayoutStore(state, notifications);
+    stores.push(store);
+    mocks.saveRecordDetailLayoutAction.mockRejectedValueOnce(new Error("Response lost"));
+    store.togglePinned("system:createdAt");
+    await store.flush();
+    expect(notifications.saveFailed).toHaveBeenCalledOnce();
+    expect(notifications.saveRecovered).not.toHaveBeenCalled();
+    await store.retry();
+    expect(store.dirty).toBe(false);
+    expect(notifications.saveRecovered).toHaveBeenCalledOnce();
+  });
 });

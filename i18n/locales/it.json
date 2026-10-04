@@ -3225,6 +3225,7 @@
     "descending": "Decrescente",
     "description": "Descrizione",
     "detailLayoutIncompatible": "Un layout personale dei dettagli utilizza ancora questo campo o collegamento. Aggiorna o reimposta il layout prima di modificare la definizione.",
+    "detailLayoutReadFailed": "Impossibile caricare il layout salvato.",
     "detailLayoutSaveFailed": "Impossibile salvare le modifiche al layout.",
     "directRelationship": "Relazione diretta",
     "edit": "Modifica",

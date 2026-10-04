@@ -1,4 +1,4 @@
-import { action, makeObservable, observable, runInAction } from "mobx";
+import { action, computed, makeObservable, observable, runInAction } from "mobx";
 import type {
   RecordDetailLayout,
   RecordDetailLayoutResult,
@@ -8,6 +8,11 @@ import { readRecordDetailLayoutAction, saveRecordDetailLayoutAction } from "@/ap
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 
+export type RecordDetailLayoutNotifications = {
+  saveFailed: (store: RecordDetailLayoutStore) => void;
+  saveRecovered: (store: RecordDetailLayoutStore) => void;
+};
+
 export class RecordDetailLayoutStore {
   readonly withUnsavedChangesGuard = false;
   readonly hasUnsavedChanges = false;
@@ -15,7 +20,11 @@ export class RecordDetailLayoutStore {
   layout: RecordDetailLayout;
   dirty = false;
   isSaving = false;
-  failed = false;
+  saveFailed = false;
+  readFailed = false;
+  get failed() {
+    return this.saveFailed || this.readFailed;
+  }
   get isLoading() {
     return this.dirty || this.isSaving;
   }
@@ -27,7 +36,10 @@ export class RecordDetailLayoutStore {
   private unconfirmed: { request: SaveRecordDetailLayoutInput; generation: number } | null = null;
   private running: Promise<void> | null = null;
 
-  constructor(initial: RecordDetailLayoutResult) {
+  constructor(
+    initial: RecordDetailLayoutResult,
+    private readonly notifications?: RecordDetailLayoutNotifications,
+  ) {
     this.state = initial;
     this.layout = initial.layout;
     makeObservable(this, {
@@ -35,9 +47,12 @@ export class RecordDetailLayoutStore {
       layout: observable.ref,
       dirty: observable,
       isSaving: observable,
-      failed: observable,
+      saveFailed: observable,
+      readFailed: observable,
+      failed: computed,
       hydrate: action,
       change: action,
+      discard: action,
     });
   }
 
@@ -47,7 +62,8 @@ export class RecordDetailLayoutStore {
     this.generation += 1;
     this.state = value;
     this.layout = value.layout;
-    this.failed = false;
+    this.saveFailed = false;
+    this.readFailed = false;
   };
 
   change = (layout: RecordDetailLayout | null) => {
@@ -91,25 +107,40 @@ export class RecordDetailLayoutStore {
       if (this.disposed || generation !== this.generation || request !== this.readRequest) return;
       if (!result.ok) {
         runInAction(() => {
-          this.failed = true;
+          this.readFailed = true;
         });
         return;
       }
       runInAction(() => {
         if (result.data.schemaRevision < this.state.schemaRevision) return;
         this.state = result.data;
+        this.readFailed = false;
         if (!this.dirty) {
           this.layout = result.data.layout;
-          this.failed = false;
+          this.saveFailed = false;
         }
       });
     } catch (error) {
       if (this.disposed || generation !== this.generation || request !== this.readRequest) return;
       runInAction(() => {
-        this.failed = true;
+        this.readFailed = true;
       });
       reportApplicationError(error);
     }
+  };
+
+  discard = () => {
+    if (this.disposed || this.isSaving) return;
+    if (this.timer) clearTimeout(this.timer);
+    this.timer = null;
+    this.generation += 1;
+    this.desired = null;
+    this.unconfirmed = null;
+    this.dirty = false;
+    this.saveFailed = false;
+    this.layout = this.state.layout;
+    this.notifications?.saveRecovered(this);
+    void this.refresh();
   };
 
   retry = async () => {
@@ -132,7 +163,7 @@ export class RecordDetailLayoutStore {
     this.generation += 1;
     runInAction(() => {
       this.isSaving = true;
-      this.failed = false;
+      this.saveFailed = false;
     });
     try {
       while (!this.disposed && (this.desired || this.unconfirmed)) {
@@ -154,13 +185,15 @@ export class RecordDetailLayoutStore {
         this.unconfirmed = null;
         if (!result.ok) {
           runInAction(() => {
-            this.failed = true;
+            this.saveFailed = true;
           });
           toastZodErrorTree(result.error);
+          this.notifications?.saveFailed(this);
           return;
         }
         runInAction(() => {
           this.state = result.data;
+          this.readFailed = false;
           if (this.desired?.generation === pending.generation) {
             this.desired = null;
             this.dirty = false;
@@ -168,11 +201,13 @@ export class RecordDetailLayoutStore {
           }
         });
       }
+      if (!this.disposed) this.notifications?.saveRecovered(this);
     } catch (error) {
       if (!this.disposed) {
         runInAction(() => {
-          this.failed = true;
+          this.saveFailed = true;
         });
+        this.notifications?.saveFailed(this);
       }
       reportApplicationError(error);
     } finally {

@@ -150,9 +150,9 @@ const LayoutControls = observer(function LayoutControls({
         </span>
       )}
 
-      {layout.failed && (
+      {layout.failed && !layout.isSaving && (
         <span className="flex items-center gap-2 text-xs text-destructive" role="alert">
-          {t("RecordModel.detailLayoutSaveFailed")}
+          {layout.saveFailed ? t("RecordModel.detailLayoutSaveFailed") : t("RecordModel.detailLayoutReadFailed")}
 
           <Button
             size="sm"
@@ -162,6 +162,12 @@ const LayoutControls = observer(function LayoutControls({
           >
             {t("ErrorCard.retry")}
           </Button>
+
+          {layout.saveFailed && (
+            <Button size="sm" type="button" variant="ghost" onClick={() => editor.runAfterChannelDraft(layout.discard)}>
+              {t("Common.actions.discard")}
+            </Button>
+          )}
         </span>
       )}
     </div>

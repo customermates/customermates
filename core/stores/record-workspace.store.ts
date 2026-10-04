@@ -6,7 +6,8 @@ import { getRecordEditorAction, getRecordNavigationAction } from "@/app/[locale]
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import type { RecordDetailLayoutResult } from "@/features/records/record-detail-layout.schema";
-import { RecordDetailLayoutStore } from "./record-detail-layout.store";
+import { RecordDetailLayoutStore, type RecordDetailLayoutNotifications } from "./record-detail-layout.store";
+import { toast } from "sonner";
 
 export class RecordWorkspaceStore {
   navigation: RecordNavigation | null = null;
@@ -118,10 +119,25 @@ export class RecordWorkspaceStore {
     for (const result of results) if (result.status === "rejected") reportApplicationError(result.reason);
   };
 
+  private readonly layoutNotifications: RecordDetailLayoutNotifications = {
+    saveFailed: (layout) => {
+      const t = this.root.localeStore.getTranslation;
+      toast.error(t("RecordModel.detailLayoutSaveFailed"), {
+        id: `record-detail-layout:${layout.state.typeId}`,
+        duration: Infinity,
+        action: { label: t("ErrorCard.retry"), onClick: () => runUserAction(layout.retry) },
+        cancel: { label: t("Common.actions.discard"), onClick: layout.discard },
+      });
+    },
+    saveRecovered: (layout) => {
+      toast.dismiss(`record-detail-layout:${layout.state.typeId}`);
+    },
+  };
+
   getDetailLayout = (initial: RecordDetailLayoutResult) => {
     let layout = this.detailLayouts.get(initial.typeId);
     if (!layout) {
-      layout = new RecordDetailLayoutStore(initial);
+      layout = new RecordDetailLayoutStore(initial, this.layoutNotifications);
       this.detailLayouts.set(initial.typeId, layout);
       this.root.navigationGuard.register(layout);
     }

@@ -3225,6 +3225,7 @@
     "descending": "Absteigend",
     "description": "Beschreibung",
     "detailLayoutIncompatible": "Eine persönliche Detailansicht verwendet dieses Feld oder diese Verknüpfung noch. Aktualisiere die Ansicht oder setze sie zurück, bevor du die Definition änderst.",
+    "detailLayoutReadFailed": "Dein gespeichertes Layout konnte nicht geladen werden.",
     "detailLayoutSaveFailed": "Layoutänderungen konnten nicht gespeichert werden.",
     "directRelationship": "Direkte Beziehung",
     "edit": "Bearbeiten",
