@@ -16,6 +16,7 @@ import { FormIsoDatePicker } from "@/components/forms/form-iso-date-picker";
 import { useAppForm } from "@/components/forms/form-context";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { toLocalIso } from "@/components/forms/iso-date-values";
 import { getUsersAction } from "../../company/actions";
 
 const ScalarInput = observer(({ field, id, label }: { field: RecordFilterField; id: string; label?: string }) => {
@@ -86,7 +87,7 @@ export const RecordWidgetFieldFilters = observer(
             : field.valueType === "select"
               ? (field.options[0]?.id ?? "")
               : field.valueType === "date" || field.valueType === "dateRange"
-                ? new Date().toISOString().slice(0, 10)
+                ? toLocalIso(new Date(), true)
                 : field.valueType === "dateTime" || field.valueType === "dateTimeRange"
                   ? new Date().toISOString()
                   : "",

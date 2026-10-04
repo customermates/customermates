@@ -15,6 +15,9 @@ import { FormIsoDatePicker } from "@/components/forms/form-iso-date-picker";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { toLocalIso } from "@/components/forms/iso-date-values";
+import { useRootStore } from "@/core/stores/root-store.provider";
+import { Currency } from "@/generated/prisma";
 import { getUsersAction } from "../../actions";
 import {
   expressionAt,
@@ -47,6 +50,7 @@ export const CalculationInput = observer(function CalculationInput({
 }) {
   const t = useTranslations();
   const form = useAppForm();
+  const { companyStore } = useRootStore();
   const disabled = form?.isDisabled ?? false;
   const [selection, setSelection] = useState<ExpressionPath>([]);
   const selected = expressionAt(value, selection);
@@ -115,11 +119,15 @@ export const CalculationInput = observer(function CalculationInput({
   };
   const literalValue = (kind: string): RecordScalar | null => {
     if (kind === "missing") return null;
-    if (kind === "currency" || kind === "decimal")
-      return { kind: "decimal", value: "0", currency: kind === "currency" ? "EUR" : null };
+    if (kind === "currency" || kind === "decimal") {
+      return {
+        kind: "decimal",
+        value: "0",
+        currency: kind === "currency" ? (companyStore.company?.currency ?? Currency.eur).toUpperCase() : null,
+      };
+    }
     if (kind === "boolean") return { kind, value: false };
-    if (kind === "date" || kind === "dateTime")
-      return { kind, value: kind === "date" ? new Date().toISOString().slice(0, 10) : new Date().toISOString() };
+    if (kind === "date" || kind === "dateTime") return { kind, value: toLocalIso(new Date(), kind === "date") };
     if (kind === "range") return { kind, start: null, end: null };
     if (kind === "textList") return { kind, value: [""] };
     if (kind === "richText")

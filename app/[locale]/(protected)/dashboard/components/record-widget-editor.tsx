@@ -15,8 +15,9 @@ import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item"
 import { FormInput } from "@/components/forms/form-input";
 import { FormSelect } from "@/components/forms/form-select";
 import { Button } from "@/components/ui/button";
-import { runUserAction } from "@/core/errors/report-application-error";
+import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { getRecordModelAction } from "../../records/actions";
 import { discoverWidgetRecordTypesAction, previewRecordWidgetAction } from "../actions";
 import { isRecordWidgetForm } from "./record-widget-form";
@@ -27,6 +28,8 @@ import {
   RecordWidgetRelatedFilters,
   widgetRelationshipChoices,
 } from "./record-widget-filters";
+
+const AUTO_PREVIEW_DELAY_MS = 600;
 
 function useWidgetModel(store: WidgetModalStore) {
   const form = store.form;
@@ -105,6 +108,60 @@ export const RecordWidgetEditor = observer(
         previewGeneration.current += 1;
       };
     }, [form, previewKey, model?.revision, store.isOpen]);
+    const runMeasurePreview = async (explicit: boolean) => {
+      const current = store.form;
+      if (!isRecordWidgetForm(current)) return;
+      const previewed = JSON.stringify(current.measure);
+      const generation = ++previewGeneration.current;
+      const isCurrent = () => generation === previewGeneration.current;
+      setLoading(true);
+      setPreviewError(false);
+      try {
+        const parsed = RecordMeasureSchema.safeParse(current.measure);
+        if (!parsed.success) {
+          setPreviewError(true);
+          toastZodErrorTree(z.treeifyError(parsed.error));
+          return;
+        }
+        const result = await store.runPreview(() => previewRecordWidgetAction(parsed.data));
+        if (!result || !isCurrent()) return;
+        if (!result.ok) {
+          setPreviewError(true);
+          if (explicit) toastZodErrorTree(result.error);
+          return;
+        }
+        if (model && result.data.schemaRevision !== model.revision) {
+          retry();
+          return;
+        }
+        setPreview({ key: previewed, result: result.data });
+        if (explicit || store.hasUnsavedChanges) store.onChange("expectedRevision", result.data.schemaRevision);
+      } catch (error) {
+        if (isCurrent()) {
+          setPreviewError(true);
+          if (explicit) throw error;
+        }
+      } finally {
+        if (isCurrent()) setLoading(false);
+      }
+    };
+    const autoPreviewKey =
+      (section === "preview" || section === "all") &&
+      previewKey &&
+      model &&
+      store.isOpen &&
+      RecordMeasureSchema.safeParse(JSON.parse(previewKey)).success
+        ? `${model.revision}:${previewKey}`
+        : null;
+    const debouncedAutoPreviewKey = useDebouncedValue(autoPreviewKey, AUTO_PREVIEW_DELAY_MS);
+    const runAutoPreview = useRef(runMeasurePreview);
+    useEffect(() => {
+      runAutoPreview.current = runMeasurePreview;
+    });
+    useEffect(() => {
+      if (!debouncedAutoPreviewKey || debouncedAutoPreviewKey !== autoPreviewKey) return;
+      runAutoPreview.current(false).catch(reportApplicationError);
+    }, [debouncedAutoPreviewKey, autoPreviewKey]);
     if (!isRecordWidgetForm(form)) return null;
     const measure = form.measure;
     const key = JSON.stringify(measure);
@@ -152,42 +209,7 @@ export const RecordWidgetEditor = observer(
           disabled={loading || !model}
           type="button"
           variant="secondary"
-          onClick={() =>
-            runUserAction(async () => {
-              const generation = ++previewGeneration.current;
-              const isCurrent = () => generation === previewGeneration.current;
-              setLoading(true);
-              setPreviewError(false);
-              try {
-                const parsed = RecordMeasureSchema.safeParse(measure);
-                if (!parsed.success) {
-                  setPreviewError(true);
-                  toastZodErrorTree(z.treeifyError(parsed.error));
-                  return;
-                }
-                const result = await store.runPreview(() => previewRecordWidgetAction(parsed.data));
-                if (!result || !isCurrent()) return;
-                if (!result.ok) {
-                  setPreviewError(true);
-                  toastZodErrorTree(result.error);
-                  return;
-                }
-                if (model && result.data.schemaRevision !== model.revision) {
-                  retry();
-                  return;
-                }
-                setPreview({ key, result: result.data });
-                store.onChange("expectedRevision", result.data.schemaRevision);
-              } catch (error) {
-                if (isCurrent()) {
-                  setPreviewError(true);
-                  throw error;
-                }
-              } finally {
-                if (isCurrent()) setLoading(false);
-              }
-            })
-          }
+          onClick={() => runUserAction(() => runMeasurePreview(true))}
         >
           {loading ? t("Loading.text") : t("RecordWidgets.preview")}
         </Button>

@@ -83,6 +83,9 @@ vi.mock("@/components/forms/form-autocomplete-avatar", () => ({ FormAutocomplete
 vi.mock("@/components/forms/form-iso-date-picker", () => ({ FormIsoDatePicker: () => null }));
 vi.mock("@/app/[locale]/(protected)/company/actions", () => ({ getUsersAction: vi.fn() }));
 vi.mock("next/dynamic", () => ({ default: () => () => null }));
+vi.mock("@/core/stores/root-store.provider", () => ({
+  useRootStore: () => ({ companyStore: { company: { currency: "usd" } } }),
+}));
 import { CalculationInput } from "../calculation-input";
 
 const company = "6487f9fb-7b10-439a-b783-9d3da8184b14";
@@ -202,5 +205,28 @@ describe("calculation editor interactions", () => {
     ))
       expect(control.disabled).toBe(true);
     expect(container.textContent).toContain("Add input");
+  });
+});
+
+describe("calculation literal defaults", () => {
+  const originalTimeZone = process.env.TZ;
+  afterEach(() => {
+    vi.useRealTimers();
+    process.env.TZ = originalTimeZone;
+  });
+
+  it("seeds a currency literal with the workspace currency", async () => {
+    mount(createElement(Harness, { typeId: id("deal"), initial: { kind: "literal", value: null } }));
+    await choose("expression.literalKind", "currency");
+    expect(latest).toEqual({ kind: "literal", value: { kind: "decimal", value: "0", currency: "USD" } });
+  });
+
+  it("seeds a date literal with today's local calendar date rather than the UTC date", async () => {
+    process.env.TZ = "Asia/Tokyo";
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-03-01T20:00:00.000Z"));
+    mount(createElement(Harness, { typeId: id("deal"), initial: { kind: "literal", value: null } }));
+    await choose("expression.literalKind", "date");
+    expect(latest).toEqual({ kind: "literal", value: { kind: "date", value: "2026-03-02" } });
   });
 });

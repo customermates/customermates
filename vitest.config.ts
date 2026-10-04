@@ -21,6 +21,7 @@ const domTestFiles = [
   "app/[locale]/(static)/contact/__tests__/contact-form.test.ts",
   "app/**/company/components/company-settings/__tests__/company-settings-form.test.ts",
   "app/**/dashboard/components/__tests__/widget-chart.test.ts",
+  "app/**/dashboard/components/__tests__/record-widget-preview.dom.test.ts",
   "app/[locale]/(protected)/__tests__/protected-layout.test.ts",
   "app/components/agent-chat/__tests__/use-activity-group-state.test.ts",
   "app/components/agent-chat/__tests__/agent-chat-items.dom.test.ts",
