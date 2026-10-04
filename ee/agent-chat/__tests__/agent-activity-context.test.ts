@@ -40,6 +40,8 @@ describe("contextual activity labels", () => {
     ["manage_data_views", { action: "create", name: "My customers" }, "My customers"],
     ["manage_custom_columns", { action: "upsert", label: "Customer tier" }, "Customer tier"],
     ["search_records", { searchTerm: "Acme" }, "Acme"],
+    ["search_crm_records", { searchTerm: "Northwind" }, "Northwind"],
+    ["query_crm_records", { typeId: "00000000-0000-4000-8000-000000000001", search: "Atlas" }, "Atlas"],
     ["web_search", { query: "Acme products" }, "Acme products"],
     ["search_docs", { query: "import contacts" }, "import contacts"],
     [

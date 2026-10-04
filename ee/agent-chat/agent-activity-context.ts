@@ -83,6 +83,8 @@ export function agentToolInputContext(toolName: string, input: unknown) {
     return context(data.action === "create" ? namedItems(data.pages) : [data.title ?? data.query]);
   if (toolName === WIKI_WEBSITE_IMPORT_TOOL_NAME) return context([websiteLabel(data.url)]);
   if (toolName === "web_search" || toolName === "search_docs") return context([data.query]);
+  if (toolName === "search_crm_records") return context([data.searchTerm]);
+  if (toolName === "query_crm_records") return context([data.search]);
   if (toolName === "search_records" || toolName === "list_records") return context([data.searchTerm]);
   if (["manage_routines", "manage_widgets", "manage_data_views"].includes(toolName))
     return context([data.name ?? data.title]);
