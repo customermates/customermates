@@ -231,6 +231,7 @@ describeDatabase("operator data view keying on PostgreSQL", () => {
       ["starter", 0],
       ["pro", 0],
       ["business", 0],
+      ["max", 0],
       ["enterprise", 0],
       [NO_VALUE_GROUP_KEY, 2],
     ]);

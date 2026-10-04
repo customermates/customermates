@@ -79,7 +79,7 @@ async function seedWorkspaceWithoutSubscription(domain: string) {
 
 async function seedWorkspace(args: {
   domain: string;
-  plan: "starter" | "pro" | "business" | "enterprise";
+  plan: "starter" | "pro" | "business" | "max" | "enterprise";
   status: "trial" | "active" | "cancelled" | "expired" | "pastDue" | "unPaid";
   members: Array<{
     status?: "active" | "inactive";
@@ -263,7 +263,14 @@ describeDatabase("operator user list against a real database", { timeout: 120_00
     const byPlan = await runWithoutTenant(async () =>
       repo.countByGroup({ spec: await groupableSpec(repo, "plan"), params }),
     );
-    expect(countsByKey(byPlan)).toEqual({ starter: 1, pro: 0, business: 0, enterprise: 3, [NO_VALUE_GROUP_KEY]: 1 });
+    expect(countsByKey(byPlan)).toEqual({
+      starter: 1,
+      pro: 0,
+      business: 0,
+      max: 0,
+      enterprise: 3,
+      [NO_VALUE_GROUP_KEY]: 1,
+    });
 
     const bySubscription = await runWithoutTenant(async () =>
       repo.countByGroup({ spec: await groupableSpec(repo, "subscriptionStatus"), params }),
@@ -286,6 +293,7 @@ describeDatabase("operator user list against a real database", { timeout: 120_00
       starter: 0,
       pro: 0,
       business: 0,
+      max: 0,
       enterprise: 3,
       [NO_VALUE_GROUP_KEY]: 1,
     });
@@ -466,6 +474,7 @@ describeDatabase("operator workspace list against a real database", { timeout: 1
       starter: 1,
       pro: 0,
       business: 1,
+      max: 0,
       enterprise: 0,
       [NO_VALUE_GROUP_KEY]: 1,
     });

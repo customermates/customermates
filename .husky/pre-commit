@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 yarn run lint --max-warnings=0
-tsc --noEmit
+node --max-old-space-size=8192 node_modules/typescript/bin/tsc --noEmit
 
 if ! git diff --quiet; then
   echo ""

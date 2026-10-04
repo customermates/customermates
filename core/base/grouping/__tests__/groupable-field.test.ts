@@ -194,7 +194,7 @@ describe("enum and date groupables", () => {
         field: "plan",
         model: "user",
         column: "plan",
-        values: ["starter", "pro", "business", "enterprise"],
+        values: ["starter", "pro", "business", "max", "enterprise"],
         nullable: true,
         labelKey: "Common.table.columns.plan",
         valueLabelKey: GROUPING_ENUM.user.plan.valueLabelKey,
