@@ -11,7 +11,7 @@ import { afterAll, describe, expect, it, vi } from "vitest";
 import type { RecordActivitiesInput } from "@/ee/messaging/activities/record-activities.schema";
 import type { ConfigurationChange } from "../configuration.schema";
 import type { RecordEventSubscriptionDefinition } from "../record-event-subscription.schema";
-import type { RecordRef, RecordScalar } from "../record-model.schema";
+import type { CalculationExpression, RecordRef, RecordScalar } from "../record-model.schema";
 import type { RecordMutation } from "../record-query.schema";
 import type { RecordSearch } from "../record-search.schema";
 
@@ -14475,6 +14475,183 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       data: { results: [{ ref: organization }] },
     });
     expect(match.ok && match.data.results).toHaveLength(1);
+  });
+  it("refreshes nested multi-hop rollups when inner records change, unlink or disappear", async () => {
+    const f = await fixture();
+    const pipelineId = randomUUID();
+    const lineCountId = randomUUID();
+    const contactCountId = randomUUID();
+    const nested = (
+      relationId: string,
+      direction: "incoming" | "outgoing",
+      expression: CalculationExpression,
+      reducer: "sum" | "count",
+    ): CalculationExpression => ({
+      kind: "related",
+      relationId: f.id("deal.organizations"),
+      direction: "incoming",
+      expression: { kind: "related", relationId, direction, expression, reducer },
+      reducer: "sum",
+    });
+    const base = {
+      typeId: f.id("organization"),
+      required: false,
+      archived: false,
+      publishedSummary: false,
+      options: [],
+      position: 100,
+    };
+    await f.run(() =>
+      runInTransaction(() =>
+        f.repo.saveModel(
+          {
+            ...f.model,
+            revision: 2,
+            fields: [
+              ...f.model.fields,
+              {
+                ...base,
+                id: pipelineId,
+                label: "Pipeline",
+                valueType: "currency",
+                behavior: {
+                  kind: "rollup",
+                  expression: nested(
+                    f.id("lineItem.deal"),
+                    "incoming",
+                    { kind: "field", fieldId: f.id("lineItem.amount") },
+                    "sum",
+                  ),
+                },
+              },
+              {
+                ...base,
+                id: lineCountId,
+                label: "Line count",
+                valueType: "number",
+                behavior: {
+                  kind: "rollup",
+                  expression: nested(
+                    f.id("lineItem.deal"),
+                    "incoming",
+                    { kind: "literal", value: { kind: "decimal", value: "1", currency: null } },
+                    "count",
+                  ),
+                },
+              },
+              {
+                ...base,
+                id: contactCountId,
+                label: "Deal contacts",
+                valueType: "number",
+                behavior: {
+                  kind: "rollup",
+                  expression: nested(
+                    f.id("deal.contacts"),
+                    "outgoing",
+                    { kind: "field", fieldId: f.id("contact.firstName") },
+                    "count",
+                  ),
+                },
+              },
+            ],
+          },
+          f.admin.id,
+        ),
+      ),
+    );
+    const write = async (mutation: RecordMutation) => {
+      const result = await f.mutation(mutation, f.admin, randomUUID(), 2);
+      expect(result, JSON.stringify(result)).toMatchObject({ ok: true, data: { status: "completed" } });
+      if (!result.ok || result.data.status !== "completed") throw new Error("Multi-hop fixture write failed");
+      return result.data.refs;
+    };
+    const create = async (
+      type: string,
+      name: string,
+      values: Array<[string, RecordScalar]> = [],
+      links: Extract<RecordMutation, { action: "create" }>["links"] = [],
+    ) =>
+      recordInvariant(
+        (
+          await write({
+            action: "create",
+            typeId: f.id(type),
+            fields: [
+              { fieldId: f.id(`${type}.name`), value: textValue(name) },
+              ...values.map(([key, value]) => ({ fieldId: f.id(key), value })),
+            ],
+            links,
+          })
+        ).find((ref) => ref.typeId === f.id(type)),
+      );
+    const totals = async (ref: RecordRef) => {
+      const fields = (await f.readRecord(ref)).fields;
+      return [pipelineId, lineCountId, contactCountId].map(
+        (fieldId) => recordInvariant(fields.find((field) => field.fieldId === fieldId)).result,
+      );
+    };
+    const count = (value: string) => ({ state: "value", value: decimal(value, null) });
+    const amount = (value: string) => ({ state: "value", value: decimal(value) });
+    const service = await create("service", "Hourly", [["service.amount", decimal("100")]]);
+    const organization = await create("organization", "Holding");
+    const deal = (name: string) =>
+      create(
+        "deal",
+        name,
+        [],
+        [{ relationId: f.id("deal.organizations"), direction: "outgoing", record: organization }],
+      );
+    const line = (target: RecordRef, quantity: string) =>
+      create(
+        "lineItem",
+        "Line",
+        [["lineItem.quantity", decimal(quantity, null)]],
+        [
+          { relationId: f.id("lineItem.deal"), direction: "outgoing", record: target },
+          { relationId: f.id("lineItem.service"), direction: "outgoing", record: service },
+        ],
+      );
+    expect(await totals(organization)).toEqual([amount("0"), count("0"), count("0")]);
+    const first = await deal("First");
+    expect(await totals(organization)).toEqual([amount("0"), count("0"), count("0")]);
+    const removed = await line(first, "2");
+    expect(await totals(organization)).toEqual([amount("200"), count("1"), count("0")]);
+    const kept = await line(first, "1");
+    expect(await totals(organization)).toEqual([amount("300"), count("2"), count("0")]);
+    await write({
+      action: "update",
+      ref: kept,
+      expectedVersion: (await f.readRecord(kept)).version,
+      fields: [{ fieldId: f.id("lineItem.quantity"), value: decimal("4", null) }],
+    });
+    expect(await totals(organization)).toEqual([amount("600"), count("2"), count("0")]);
+    await write({ action: "delete", ref: removed, expectedVersion: (await f.readRecord(removed)).version });
+    expect(await totals(organization)).toEqual([amount("400"), count("1"), count("0")]);
+    const contact = recordInvariant(
+      (
+        await write({
+          action: "create",
+          typeId: f.id("contact"),
+          fields: [{ fieldId: f.id("contact.firstName"), value: textValue("Buyer") }],
+          links: [{ relationId: f.id("deal.contacts"), direction: "incoming", record: first }],
+        })
+      ).find((ref) => ref.typeId === f.id("contact")),
+    );
+    expect(await totals(organization)).toEqual([amount("400"), count("1"), count("1")]);
+    await write({ action: "unlink", relationId: f.id("deal.contacts"), source: first, target: contact });
+    expect(await totals(organization)).toEqual([amount("400"), count("1"), count("0")]);
+    await write({ action: "link", relationId: f.id("deal.contacts"), source: first, target: contact });
+    expect(await totals(organization)).toEqual([amount("400"), count("1"), count("1")]);
+    await write({ action: "delete", ref: contact, expectedVersion: (await f.readRecord(contact)).version });
+    expect(await totals(organization)).toEqual([amount("400"), count("1"), count("0")]);
+    const second = await deal("Second");
+    await line(second, "3");
+    expect(await totals(organization)).toEqual([amount("700"), count("2"), count("0")]);
+    await write({ action: "unlink", relationId: f.id("deal.organizations"), source: second, target: organization });
+    expect(await totals(organization)).toEqual([amount("400"), count("1"), count("0")]);
+    await write({ action: "delete", ref: first, expectedVersion: (await f.readRecord(first)).version });
+    expect(await totals(organization)).toEqual([amount("0"), count("0"), count("0")]);
   });
 });
 

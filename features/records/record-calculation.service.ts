@@ -12,7 +12,10 @@ export const SYNCHRONOUS_RECORD_LIMIT = 500;
 export const recordKey = (ref: RecordRef) => `${ref.typeId}:${ref.recordId}`;
 
 type PathStep = { relationId: string; direction: "outgoing" | "incoming" };
-type Source = { typeId: string; fieldId: string; path: PathStep[] };
+// fieldId is null for a membership source: the set of records reached by a
+// path is itself an input, so adding, unlinking or deleting a record at any
+// step must recalculate the owner even when no field value changed.
+type Source = { typeId: string; fieldId: string | null; path: PathStep[] };
 export type CalculationRecordRepo = Pick<
   RecordRepo,
   "getRecordCompanyWide" | "getValueDependencies" | "linkedRecordsCompanyWide" | "setValue" | "setValueDependencies"
@@ -32,12 +35,12 @@ export function calculationSources(
     return expression.arguments.flatMap((argument) => calculationSources(argument, typeId, model, path));
   const relation = model.relationships.find((candidate) => candidate.id === expression.relationId);
   if (!relation) return [];
-  return calculationSources(
-    expression.expression,
-    expression.direction === "outgoing" ? relation.targetTypeId : relation.sourceTypeId,
-    model,
-    [...path, { relationId: relation.id, direction: expression.direction }],
-  );
+  const targetTypeId = expression.direction === "outgoing" ? relation.targetTypeId : relation.sourceTypeId;
+  const next = [...path, { relationId: relation.id, direction: expression.direction }];
+  return [
+    { typeId: targetTypeId, fieldId: null, path: next },
+    ...calculationSources(expression.expression, targetTypeId, model, next),
+  ];
 }
 
 export class RecordCalculationService {
@@ -110,8 +113,12 @@ export class RecordCalculationService {
       const definition = recordInvariant(fields.get(fieldId));
       if (definition.behavior.kind === "input") continue;
       const targets = new Map([...dirty].filter(([, ref]) => ref.typeId === definition.typeId));
-      for (const source of calculationSources(definition.behavior.expression, definition.typeId, model)) {
-        if (!source.path.length) continue;
+      const walks = new Map(
+        calculationSources(definition.behavior.expression, definition.typeId, model)
+          .filter((source) => source.path.length)
+          .map((source) => [JSON.stringify([source.typeId, source.path]), source] as const),
+      );
+      for (const source of walks.values()) {
         let frontier = [...dirty.values()].filter((ref) => ref.typeId === source.typeId);
         for (const step of [...source.path].reverse()) {
           const next = new Map<string, RecordRef>();
