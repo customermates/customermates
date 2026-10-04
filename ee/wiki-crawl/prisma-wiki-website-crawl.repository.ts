@@ -366,17 +366,13 @@ export class PrismaWikiWebsiteCrawlRepo
   }
 
   async claimSynthesisTopic(crawlId: string, index: number, staleBefore: Date) {
-    const claimed = await this.prisma.$executeRaw(Prisma.sql`
-      UPDATE "WikiWebsiteCrawl"
-      SET "topics" = jsonb_set("topics", ARRAY[${index}::text],
-            ("topics" -> ${index}::int) || jsonb_build_object('status', 'writing', 'claimedAt', ${new Date().toISOString()}::text)),
-          "updatedAt" = CURRENT_TIMESTAMP
-      WHERE "id" = ${crawlId} AND "companyId" = ${this.companyId} AND "status" = 'synthesizing'
-        AND (("topics" -> ${index}::int ->> 'status') = 'pending'
-          OR (("topics" -> ${index}::int ->> 'status') = 'writing'
-            AND ("topics" -> ${index}::int ->> 'claimedAt') < ${staleBefore.toISOString()}::text))
-    `);
-    return claimed === 1;
+    return this.updateSynthesisTopic(crawlId, index, (topic) => {
+      const stale =
+        topic.status === "writing" && topic.claimedAt !== undefined && new Date(topic.claimedAt) < staleBefore;
+      return topic.status === "pending" || stale
+        ? { ...topic, status: "writing", claimedAt: new Date().toISOString() }
+        : null;
+    });
   }
 
   async settleSynthesisTopic(
@@ -384,15 +380,29 @@ export class PrismaWikiWebsiteCrawlRepo
     index: number,
     outcome: Pick<StoredWikiSynthesisTopic, "status" | "pageId" | "skipReason">,
   ) {
-    const settled = await this.prisma.$executeRaw(Prisma.sql`
-      UPDATE "WikiWebsiteCrawl"
-      SET "topics" = jsonb_set("topics", ARRAY[${index}::text],
-            (("topics" -> ${index}::int) - 'claimedAt') || ${JSON.stringify(outcome)}::jsonb),
-          "updatedAt" = CURRENT_TIMESTAMP
-      WHERE "id" = ${crawlId} AND "companyId" = ${this.companyId}
-        AND ("topics" -> ${index}::int ->> 'status') = 'writing'
-    `);
-    return settled === 1;
+    return this.updateSynthesisTopic(crawlId, index, ({ claimedAt: _claimedAt, ...topic }) =>
+      topic.status === "writing" ? { ...topic, ...outcome } : null,
+    );
+  }
+
+  private async updateSynthesisTopic(
+    crawlId: string,
+    index: number,
+    update: (topic: StoredWikiSynthesisTopic) => StoredWikiSynthesisTopic | null,
+  ) {
+    const crawl = await this.prisma.wikiWebsiteCrawl.findFirst({
+      where: { id: crawlId, companyId: this.companyId, status: "synthesizing" },
+      select: { topics: true, updatedAt: true },
+    });
+    const topics = parseStoredWikiSynthesisTopics(crawl?.topics);
+    const next = topics?.[index] ? update(topics[index]) : null;
+    if (!crawl || !topics || !next) return false;
+    topics[index] = next;
+    const { count } = await this.prisma.wikiWebsiteCrawl.updateMany({
+      where: { id: crawlId, companyId: this.companyId, updatedAt: crawl.updatedAt },
+      data: { topics: topics as Prisma.InputJsonValue },
+    });
+    return count === 1;
   }
 
   async markImported(pageId: string, source: WikiImportProvenance) {
