@@ -31,9 +31,17 @@ Webhooks let other systems react to CRM changes without polling.
 
 To change a webhook, click its row, edit the dialog and click **Save**. To remove it, click the trash icon (**Delete**) at the top of the dialog and confirm; its past deliveries stay under **Recent Deliveries**. The list shows each webhook's **URL**, **Description**, **Events**, **Status** (**Enabled** or **Disabled**), **Created at** and **Updated at**. The search box matches the URL, and the filters cover the creation and update dates.
 
+**MCP:** `manage_webhooks` with `action: "create"`, plus `url`, `events[]`, and optional `description`, `secret`, `headers`, `bodyTemplate`, `enabled`. The hosted assistant uses the same tool, and it can also open **Webhooks** or **Recent Deliveries** for you and point at the **Add** button.
+
+Use an HTTPS endpoint. A plain `http://` URL is accepted for any host as long as the webhook has no custom headers. A webhook with custom headers must use `https://`, or `http://` on `localhost`, `127.0.0.1` or `::1`, because headers usually carry a credential. This rule is checked when you save and again before every delivery.
+
+**Link:** `/company/webhooks`. **Mate:** `navigate` and `highlight_element` with `nav-company-webhooks`, then `highlight_element` with `company-webhooks-add` for **Add** (present only with **Manage** **Yes** on **API & Webhooks**). In the **Webhook** dialog, opened with **Add** (prerequisite `company-webhooks-add`) or a row, `webhook-modal-url`, `webhook-modal-description`, `webhook-modal-events`, `webhook-modal-secret`, `webhook-modal-headers`, `webhook-modal-body-template` and `webhook-modal-enabled` highlight the fields in the table above, read-only without **Manage**; `webhook-modal-save`, `webhook-modal-reset` and `webhook-modal-delete` highlight **Save**, **Reset** and **Delete** for roles with **Manage**. The list controls are on [My Company](/docs/app-company#webhooks-tab).
+
+## Which records trigger a webhook, and whose access does a delivery use? [#record-event-sources]
+
 For record events, choose the source type under **Records from**, then optionally select watched fields, search text, and field or relationship filters. Delivery uses the record access of the selected owner; the creator is the default. Only an administrator can select another owner. Existing migrated subscriptions can retain several sources.
 
-**MCP:** `manage_webhooks` with `action: "create"`, plus `url`, `events[]`, and optional `description`, `secret`, `headers`, `bodyTemplate`, `enabled`. Record subscriptions also require `expectedSchemaRevision` from `get_record_model`. Set `recordTrigger` to a query with stable type and field IDs and optional `changedFieldIds`; null selects all accessible types. `recordOwnerUserId` optionally selects the delivery owner. On update, omit these settings to preserve them; changing a trigger or owner requires the current schema revision. The hosted assistant uses the same tool, and it can also open **Webhooks** or **Recent Deliveries** for you and point at the **Add** button.
+**MCP:** record subscriptions in `manage_webhooks` also require `expectedSchemaRevision` from `get_record_model`. Set `recordTrigger` to a query with stable type and field IDs and optional `changedFieldIds`; null selects all accessible types. `recordOwnerUserId` optionally selects the delivery owner. On update, omit these settings to preserve them; changing a trigger or owner requires the current schema revision.
 
 ```json
 {
@@ -49,9 +57,7 @@ For record events, choose the source type under **Records from**, then optionall
 }
 ```
 
-Use an HTTPS endpoint. A plain `http://` URL is accepted for any host as long as the webhook has no custom headers. A webhook with custom headers must use `https://`, or `http://` on `localhost`, `127.0.0.1` or `::1`, because headers usually carry a credential. This rule is checked when you save and again before every delivery.
-
-**Link:** `/company/webhooks`. **Mate:** `navigate` and `highlight_element` with `nav-company-webhooks`, then `highlight_element` with `company-webhooks-add` for **Add** (present only with **Manage** **Yes** on **API & Webhooks**). In the **Webhook** dialog, opened with **Add** (prerequisite `company-webhooks-add`) or a row, `webhook-modal-url`, `webhook-modal-description`, `webhook-modal-events`, `webhook-modal-secret`, `webhook-modal-headers`, `webhook-modal-body-template` and `webhook-modal-enabled` highlight the fields in the table above, read-only without **Manage**; `webhook-modal-save`, `webhook-modal-reset` and `webhook-modal-delete` highlight **Save**, **Reset** and **Delete** for roles with **Manage**. The list controls are on [My Company](/docs/app-company#webhooks-tab).
+**Link:** `/company/webhooks`. **Mate:** reads the type and field IDs with `get_record_model`, then uses `manage_webhooks`.
 
 ## Who can see and change webhooks?
 
@@ -125,7 +131,7 @@ Example, `record.updated` for a contact, with unrelated fields omitted:
 
 The actual record envelope also carries IDs, timestamps, cause information, assignments, identities and link changes. Field entries include display metadata and may show `missing`, `restricted`, or `error` instead of a value. Use `POST /api/v2/model/discover` or the `get_record_model` MCP tool to resolve stable type and field IDs.
 
-## Changed fields [#the-changes-object]
+## The `changes` object: changed fields [#the-changes-object]
 
 `record.fields` lists changed fields with `before` and `after` values; `record.links`, `record.assignments`, and `record.identities` describe other changed connections. `record.beforeVersion` and `record.afterVersion` identify the record versions involved. A missing or restricted field is not the same as zero.
 

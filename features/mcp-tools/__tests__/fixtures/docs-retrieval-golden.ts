@@ -98,7 +98,7 @@ export const GOLDEN_QUESTIONS: GoldenQuestion[] = [
   { locale: "en", query: "tenant isolation", slug: "architecture-security", heading: "Tenancy" },
   { locale: "en", query: "how is data encrypted at rest", slug: "architecture-security", heading: "at rest" },
   { locale: "en", query: "report a security vulnerability", slug: "architecture-security", heading: "vulnerabilit" },
-  { locale: "en", query: "which record types exist", slug: "concepts", heading: "five record types" },
+  { locale: "en", query: "which record types exist", slug: "concepts", heading: "record types exist" },
   {
     locale: "en",
     query: "what is a custom column",

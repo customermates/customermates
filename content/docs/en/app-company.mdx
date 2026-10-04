@@ -184,7 +184,7 @@ The currency selector is `#company-settings-currency`. Members with **Company â†
 
 **Link:** `/company/settings` for currency; `/company/data-model` for CRM configuration.
 
-### Where do I change the deal stage field used for weighting, and how do stage probabilities and totals work? [#how-do-stage-probabilities-and-totals-work]
+### Where do I set stage probabilities for weighting, and how do totals work? [#how-do-stage-probabilities-and-totals-work]
 
 Open **My Company â†’ Data model**, select **Deals**, and edit its stage select field to set a probability on each option. The shipped **Weighted value** calculation multiplies the calculated deal value by the selected stage probability divided by 100. A zero probability produces zero; a missing probability leaves weighted value absent. Changes to probabilities or calculations go through a dependency preview and recalculate affected records. You can change the formula or make deal value manually entered in the same configuration system. To show pipeline totals, add a Dashboard chart widget that sums **Value** or **Weighted value**, optionally grouped by stage. There is no separate pipeline-total form on Company Settings.
 

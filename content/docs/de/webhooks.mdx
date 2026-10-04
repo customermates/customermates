@@ -31,9 +31,17 @@ Webhooks lassen andere Systeme auf CRM-Änderungen reagieren, ohne zu pollen.
 
 Um einen Webhook zu ändern, klicken Sie auf seine Zeile, bearbeiten den Dialog und klicken auf **Speichern**. Zum Entfernen klicken Sie oben im Dialog auf das Papierkorb-Symbol (**Löschen**) und bestätigen; seine bisherigen Zustellungen bleiben unter **Letzte Zustellungen** erhalten. Die Liste zeigt für jeden Webhook **URL**, **Beschreibung**, **Ereignisse**, **Status** (**Aktiviert** oder **Deaktiviert**), **Erstellt am** und **Aktualisiert am**. Das Suchfeld durchsucht die URL, die Filter decken Erstellungs- und Änderungsdatum ab.
 
+**MCP:** `manage_webhooks` mit `action: "create"`, dazu `url`, `events[]` und optional `description`, `secret`, `headers`, `bodyTemplate`, `enabled`. Der gehostete Assistent nutzt dasselbe Tool und kann außerdem **Webhooks** oder **Letzte Zustellungen** für Sie öffnen und auf die Schaltfläche **Hinzufügen** zeigen.
+
+Verwenden Sie einen HTTPS-Endpunkt. Eine reine `http://`-URL wird für jeden Host akzeptiert, solange der Webhook keine eigenen Header hat. Ein Webhook mit eigenen Headern muss `https://` verwenden oder `http://` auf `localhost`, `127.0.0.1` oder `::1`, da Header in der Regel ein Credential tragen. Diese Regel wird beim Speichern und erneut vor jeder Zustellung geprüft.
+
+**Link:** `/company/webhooks`. **Mate:** `navigate` und `highlight_element` mit `nav-company-webhooks`, danach `highlight_element` mit `company-webhooks-add` für **Hinzufügen** (nur vorhanden mit **Verwalten** **Ja** bei **API & Webhooks**). Im Dialog **Webhook**, geöffnet über **Hinzufügen** (Voraussetzung `company-webhooks-add`) oder eine Zeile, heben `webhook-modal-url`, `webhook-modal-description`, `webhook-modal-events`, `webhook-modal-secret`, `webhook-modal-headers`, `webhook-modal-body-template` und `webhook-modal-enabled` die Felder der Tabelle oben hervor, ohne **Verwalten** schreibgeschützt; `webhook-modal-save`, `webhook-modal-reset` und `webhook-modal-delete` heben **Speichern**, **Zurücksetzen** und **Löschen** für Rollen mit **Verwalten** hervor. Die Listen-Controls stehen unter [Mein Unternehmen](/docs/app-company#webhooks-tab).
+
+## Welche Datensätze lösen einen Webhook aus, und mit wessen Zugriff wird zugestellt? [#record-event-sources]
+
 Für Datensatzereignisse wählen Sie den Quelltyp aus und ergänzen bei Bedarf beobachtete Felder, Suchtext sowie Feld- oder Beziehungsfilter. Die Zustellung verwendet den Datensatzzugriff des ausgewählten Eigentümers; standardmäßig ist dies der Ersteller. Nur ein Administrator darf einen anderen Eigentümer auswählen. Migrierte Abonnements können mehrere Quellen behalten.
 
-**MCP:** `manage_webhooks` mit `action: "create"`, dazu `url`, `events[]` und optional `description`, `secret`, `headers`, `bodyTemplate`, `enabled`. Datensatzabonnements benötigen außerdem `expectedSchemaRevision` aus `get_record_model`. `recordTrigger` enthält eine Abfrage mit stabilen Typ- und Feld-IDs und optionalen `changedFieldIds`; null wählt alle zugänglichen Typen. `recordOwnerUserId` legt optional den Eigentümer für die Zustellung fest. Lassen Sie diese Einstellungen bei einem Update weg, um sie zu erhalten; Änderungen an Quelle oder Eigentümer benötigen die aktuelle Schema-Revision. Der gehostete Assistent nutzt dasselbe Tool und kann außerdem **Webhooks** oder **Letzte Zustellungen** für Sie öffnen und auf die Schaltfläche **Hinzufügen** zeigen.
+**MCP:** Datensatzabonnements in `manage_webhooks` benötigen außerdem `expectedSchemaRevision` aus `get_record_model`. `recordTrigger` enthält eine Abfrage mit stabilen Typ- und Feld-IDs und optionalen `changedFieldIds`; null wählt alle zugänglichen Typen. `recordOwnerUserId` legt optional den Eigentümer für die Zustellung fest. Lassen Sie diese Einstellungen bei einem Update weg, um sie zu erhalten; Änderungen an Quelle oder Eigentümer benötigen die aktuelle Schema-Revision.
 
 ```json
 {
@@ -49,9 +57,7 @@ Für Datensatzereignisse wählen Sie den Quelltyp aus und ergänzen bei Bedarf b
 }
 ```
 
-Verwenden Sie einen HTTPS-Endpunkt. Eine reine `http://`-URL wird für jeden Host akzeptiert, solange der Webhook keine eigenen Header hat. Ein Webhook mit eigenen Headern muss `https://` verwenden oder `http://` auf `localhost`, `127.0.0.1` oder `::1`, da Header in der Regel ein Credential tragen. Diese Regel wird beim Speichern und erneut vor jeder Zustellung geprüft.
-
-**Link:** `/company/webhooks`. **Mate:** `navigate` und `highlight_element` mit `nav-company-webhooks`, danach `highlight_element` mit `company-webhooks-add` für **Hinzufügen** (nur vorhanden mit **Verwalten** **Ja** bei **API & Webhooks**). Im Dialog **Webhook**, geöffnet über **Hinzufügen** (Voraussetzung `company-webhooks-add`) oder eine Zeile, heben `webhook-modal-url`, `webhook-modal-description`, `webhook-modal-events`, `webhook-modal-secret`, `webhook-modal-headers`, `webhook-modal-body-template` und `webhook-modal-enabled` die Felder der Tabelle oben hervor, ohne **Verwalten** schreibgeschützt; `webhook-modal-save`, `webhook-modal-reset` und `webhook-modal-delete` heben **Speichern**, **Zurücksetzen** und **Löschen** für Rollen mit **Verwalten** hervor. Die Listen-Controls stehen unter [Mein Unternehmen](/docs/app-company#webhooks-tab).
+**Link:** `/company/webhooks`. **Mate:** liest mit `get_record_model` die Typ- und Feld-IDs und nutzt dann `manage_webhooks`.
 
 ## Wer kann Webhooks sehen und ändern? [#who-can-see-and-change-webhooks]
 
@@ -125,7 +131,7 @@ Beispiel für `record.updated` bei einem Kontakt, ohne für die Erklärung unnö
 
 Der tatsächliche Datensatzumschlag enthält außerdem IDs, Zeitstempel, Ursache, Zuweisungen, Identitäten und Änderungen an Verknüpfungen. Feldeinträge tragen Anzeigedaten und können statt eines Werts `missing`, `restricted` oder `error` enthalten. Stabile Typ- und Feld-IDs liefert `POST /api/v2/model/discover` oder das MCP-Tool `get_record_model`.
 
-## Geänderte Felder [#the-changes-object]
+## Das `changes`-Objekt: geänderte Felder [#the-changes-object]
 
 `record.fields` listet geänderte Felder mit Werten für `before` und `after` auf. `record.links`, `record.assignments` und `record.identities` beschreiben weitere geänderte Verbindungen. `record.beforeVersion` und `record.afterVersion` bezeichnen die betroffenen Datensatzversionen. Ein fehlender oder eingeschränkter Wert ist nicht dasselbe wie der Zahlenwert 0.
 

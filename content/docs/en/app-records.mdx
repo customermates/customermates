@@ -9,6 +9,8 @@ Customermates starts with Contacts, Organizations, Deals, Services, and Tasks. A
 
 Every type has a list at `/records/<typeId>` and a record page at `/records/<typeId>/<recordId>`. The type ID remains stable when the label changes. Selecting a row opens an editor drawer; the record URL opens its full page. **Add** opens the same editor with an empty record. A record has fields, linked records, Notes, and Activities. The sidebar lists the types you can read. Existing `/contacts`, `/organizations`, `/deals`, `/services`, and `/tasks` links redirect to their configured types.
 
+The detail page opens with an overview of the fields that matter most; every field carries a pin control that adds it to or removes it from that overview. **Customize** also lets you hide fields or drag them into another order, and **Done** ends it. These choices are per person on top of the type's shared defaults.
+
 The sidebar's **Add** button (`#nav-add`) opens a type picker. The record editor keeps unsaved edits when the assistant is opened. A reader only sees fields and calculated values allowed by their permissions.
 
 **Link:** the **Contacts** list, `/contacts`, redirects to its record type at `/records/<typeId>`; the other original list URLs also redirect. **Mate:** discover the type with `get_record_model` or `list_ui_targets`; navigate using `nav-records:<typeId>` and highlight `records:<typeId>:add`.

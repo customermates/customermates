@@ -9,6 +9,8 @@ Customermates startet mit Kontakten, Organisationen, Deals, Services und Aufgabe
 
 Jeder Typ hat eine Liste unter `/records/<typeId>` und eine Datensatzseite unter `/records/<typeId>/<recordId>`. Die Typ-ID bleibt beim Umbenennen gleich. Ein Klick auf eine Zeile öffnet den Editor-Drawer; die Datensatz-URL öffnet die vollständige Seite. **Hinzufügen** öffnet den Editor für einen neuen Datensatz. Zu Datensätzen gehören Felder, verknüpfte Datensätze, Notizen und Aktivitäten. Die Sidebar zeigt lesbare Typen. Die bisherigen URLs `/contacts`, `/organizations`, `/deals`, `/services` und `/tasks` leiten zu den konfigurierten Typen weiter.
 
+Die Detailseite öffnet mit einer Übersicht der wichtigsten Felder; jedes Feld hat eine Anheften-Steuerung, die es der Übersicht hinzufügt oder daraus entfernt. **Anpassen** blendet außerdem Felder aus oder ordnet sie per Ziehen neu, **Fertig** beendet den Modus. Diese Einstellungen gelten pro Person zusätzlich zu den gemeinsamen Vorgaben des Typs.
+
 **Hinzufügen** in der Sidebar (`#nav-add`) öffnet die Typauswahl. Beim Öffnen des Assistenten bleibt ein ungespeicherter Entwurf erhalten. Berechnete Werte erscheinen nur, wenn die Berechtigungen dies erlauben.
 
 **Link:** die Liste **Kontakte**, `/contacts`, leitet zu `/records/<typeId>` weiter; die anderen bisherigen Listen-URLs ebenso. **Mate:** Typ über `get_record_model` oder `list_ui_targets` finden; mit `nav-records:<typeId>` navigieren und `records:<typeId>:add` hervorheben.

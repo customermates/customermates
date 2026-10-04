@@ -87,7 +87,7 @@ Contacts linked to a particular organization:
 
 Records with no accessible link through that relationship use `"operator":"none"` and `"recordIds":null`. For a date field before July 2024, use a typed `date` value with `lt`. For a select field, use `in` and its option IDs in `values`. Combine these in the same query to require both conditions.
 
-## Should I use searchTerm or a filter? [#free-text-search-or-a-filter]
+## Should I use searchTerm (free-text search) or a filter? [#free-text-search-or-a-filter]
 
 Use `search` when any readable searchable text field may contain the phrase. The current record query calls this property `search`; older entity APIs called it `searchTerm`. Use `filters` when the exact field or comparison matters. Search and filters are combined with AND. Identity channels can participate in search only for a type with the protected person-identity capability and with the reader's applicable access; they are not ordinary email fields.
 

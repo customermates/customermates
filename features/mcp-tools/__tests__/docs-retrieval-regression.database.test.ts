@@ -860,17 +860,21 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
 
   it("keeps the formula a calculation question asks for, and the link line of the section that states it", async () => {
     for (const [locale, query, formula] of [
-      ["en", "How is the weighted pipeline value calculated?", "multiplied by the weight of its current option"],
+      [
+        "en",
+        "How is the weighted pipeline value calculated?",
+        "Weighted deal value = deal value × stage probability / 100",
+      ],
       [
         "de",
         "Wie wird der gewichtete Pipeline-Wert berechnet?",
-        "multipliziert mit dem Gewicht seiner aktuellen Option",
+        "Gewichteter Deal-Wert = Deal-Wert × Phasenwahrscheinlichkeit / 100",
       ],
     ] as const) {
       const excerpt = await excerptOf("concepts", query, locale);
       expect(excerpt, query).toContain(formula);
       expect(
-        excerpt.split("\n").some((line) => line.startsWith("**Link:**") && line.includes("`/company/settings`")),
+        excerpt.split("\n").some((line) => line.startsWith("**Link:**") && line.includes("`/company/data-model`")),
         query,
       ).toBe(true);
       expect(excerpt.length, query).toBeLessThanOrEqual(1400);
