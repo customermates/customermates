@@ -16,22 +16,19 @@ export const SHIPPED_AGENT_MODEL_KEY = "balanced";
 export type AgentModelKey = typeof SHIPPED_AGENT_MODEL_KEY;
 
 export const SHIPPED_AGENT_MODEL = {
-  modelId: "google/gemini-3.5-flash-lite",
-  servingProvider: "vertex",
+  modelId: "ovh/Qwen3.8-27B",
+  servingProvider: "ovh",
   inferenceRegion: "eu",
   maxOutputTokens: 8192,
   maxContextTokens: 66_000,
   maxToolResultChars: 6000,
-  thinkingLevel: "low",
 } as const satisfies AgentModelEntry;
 
 assertServableEntry(SHIPPED_AGENT_MODEL_KEY, SHIPPED_AGENT_MODEL);
 
 export const INITIAL_WIKI_SYNTHESIS_MODEL = {
   ...SHIPPED_AGENT_MODEL,
-  modelId: "google/gemini-3.8-flash",
   maxOutputTokens: 16_384,
-  thinkingLevel: "low",
 } as const satisfies AgentModelEntry;
 
 assertServableEntry("initial Knowledge Base synthesis", INITIAL_WIKI_SYNTHESIS_MODEL);

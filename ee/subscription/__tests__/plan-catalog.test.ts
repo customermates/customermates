@@ -62,7 +62,7 @@ describe("commercial plan catalog", () => {
       includedRoutinesPerUser: 1,
       sharedAccounts: false,
       hostedAiUsageMultiplier: 1,
-      hostedAiCreditsPerActiveUser: 200,
+      hostedAiCreditsPerActiveUser: 800,
     });
     expect(getPlanDefinition("max").entitlements).toEqual({
       agentChat: true,
@@ -71,7 +71,7 @@ describe("commercial plan catalog", () => {
       includedRoutinesPerUser: "unlimited",
       sharedAccounts: true,
       hostedAiUsageMultiplier: 20,
-      hostedAiCreditsPerActiveUser: 4_000,
+      hostedAiCreditsPerActiveUser: 16_000,
     });
     expect(getPlanDefinition("pro").entitlements.includedAccountsPerUser).toBe(1);
     expect(getPlanDefinition("business").entitlements.includedAccountsPerUser).toBe(3);
@@ -79,13 +79,13 @@ describe("commercial plan catalog", () => {
     expect(getPlanDefinition("pro").entitlements.includedRoutinesPerUser).toBe(5);
     expect(getPlanDefinition("business").entitlements.includedRoutinesPerUser).toBe("unlimited");
     expect(getPlanDefinition("enterprise").entitlements.includedRoutinesPerUser).toBe("unlimited");
-    expect(getPlanDefinition("pro").entitlements.hostedAiCreditsPerActiveUser).toBe(600);
-    expect(getPlanDefinition("business").entitlements.hostedAiCreditsPerActiveUser).toBe(2_000);
+    expect(getPlanDefinition("pro").entitlements.hostedAiCreditsPerActiveUser).toBe(2_400);
+    expect(getPlanDefinition("business").entitlements.hostedAiCreditsPerActiveUser).toBe(8_000);
     expect(getPlanDefinition("enterprise").entitlements.hostedAiCreditsPerActiveUser).toBe("contract");
   });
 
   it("derives every self-serve allowance from the one base and the plan multiplier", () => {
-    expect(HOSTED_AI_BASE_CREDITS_PER_ACTIVE_USER).toBe(200);
+    expect(HOSTED_AI_BASE_CREDITS_PER_ACTIVE_USER).toBe(800);
     expect(
       PURCHASABLE_PLAN_IDS.map((plan) => [
         plan,
@@ -93,14 +93,14 @@ describe("commercial plan catalog", () => {
         getPlanDefinition(plan).entitlements.hostedAiCreditsPerActiveUser,
       ]),
     ).toEqual([
-      ["starter", 1, 200],
-      ["pro", 3, 600],
-      ["business", 10, 2_000],
-      ["max", 20, 4_000],
+      ["starter", 1, 800],
+      ["pro", 3, 2_400],
+      ["business", 10, 8_000],
+      ["max", 20, 16_000],
     ]);
     expect(getPlanDefinition("enterprise").entitlements.hostedAiUsageMultiplier).toBe("contract");
     expect(CLOUD_TRIAL_HOSTED_AI_USAGE_MULTIPLIER).toBe(3);
-    expect(CLOUD_TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER).toBe(600);
+    expect(CLOUD_TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER).toBe(2_400);
   });
 
   it("keeps Max a self-serve per-seat offer above Business and below sales-led Enterprise", () => {

@@ -490,7 +490,7 @@ describe("StartRoutineRunInteractor", () => {
       expect.objectContaining({
         routineRunId: RUN_ID,
         title: "Daily digest",
-        creditCeilingMicrocents: 10_000_000,
+        creditCeilingMicrocents: 40_000_000,
       }),
     );
     expect(sendAgentMessage.invokeRoutine).toHaveBeenCalledWith(expect.objectContaining({ clientRequestId: RUN_ID }));
@@ -498,12 +498,12 @@ describe("StartRoutineRunInteractor", () => {
   });
 
   it.each([
-    ["starter", 10_000_000],
-    ["pro", 10_000_000],
-    ["business", 10_000_000],
-    ["max", 20_000_000],
-    ["enterprise", 10_000_000],
-    [null, 10_000_000],
+    ["starter", 40_000_000],
+    ["pro", 40_000_000],
+    ["business", 40_000_000],
+    ["max", 80_000_000],
+    ["enterprise", 40_000_000],
+    [null, 40_000_000],
   ] as const)("caps a %s workspace's routine run at its plan's per-run ceiling", async (plan, ceiling) => {
     const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures({ run: { plan } });
     const interactor = new StartRoutineRunInteractor(
@@ -579,7 +579,7 @@ describe("StartRoutineRunInteractor", () => {
     await interactor.invoke({ routineRunId: RUN_ID });
 
     expect(conversations.createAndLinkRoutineConversationForRun).toHaveBeenCalledWith(
-      expect.objectContaining({ title: "Claimed name", creditCeilingMicrocents: 10_000_000 }),
+      expect.objectContaining({ title: "Claimed name", creditCeilingMicrocents: 40_000_000 }),
     );
     expect(sendAgentMessage.invokeRoutine).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -719,7 +719,7 @@ describe("StartRoutineRunInteractor", () => {
     await interactor.invoke({ routineRunId: RUN_ID });
 
     expect(conversations.createAndLinkRoutineConversationForRun).toHaveBeenCalledWith(
-      expect.objectContaining({ creditCeilingMicrocents: 10_000_000 }),
+      expect.objectContaining({ creditCeilingMicrocents: 40_000_000 }),
     );
   });
 

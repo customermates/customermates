@@ -22,7 +22,7 @@ export type PlanEntitlements = {
   hostedAiCreditsPerActiveUser: number | "contract" | null;
 };
 
-export const HOSTED_AI_BASE_CREDITS_PER_ACTIVE_USER = 200;
+export const HOSTED_AI_BASE_CREDITS_PER_ACTIVE_USER = 800;
 
 function hostedAiUsage<const Multiplier extends number>(multiplier: Multiplier) {
   return {

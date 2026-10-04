@@ -118,7 +118,6 @@ describe("unified benchmark registry", () => {
         },
       });
       expect(pinned.modelConfig.modelId).not.toBe(shippedModel.modelId);
-      expect(pinned.modelConfig.servingProvider).toBe(shippedModel.servingProvider);
       expect(pinned.modelConfig.inferenceRegion).toBe(shippedModel.inferenceRegion);
     }
     expect(benchmarkCaseModelSelection("S1", armById("flash-lite-medium"))).toMatchObject({

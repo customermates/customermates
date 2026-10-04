@@ -1,4 +1,5 @@
 import { readAgentProviderCharge, readGatewayCostMicrocents } from "./gateway-cost";
+import { agentServingProviderUsesGateway } from "./ovh-ai-endpoints-catalog";
 
 export type AgentProviderErrorCharge = {
   costMicrocents: number;
@@ -130,10 +131,36 @@ function currentProviderReceipt(value: unknown, expectedProvider: string): Provi
   };
 }
 
+function isSingleAttemptWithoutReceipt(envelope: Record<string, unknown>) {
+  const attempts = envelope.attempts;
+  if (!Array.isArray(attempts)) return false;
+  if (!("currentAttempt" in envelope)) return attempts.length === 1 && attempts[0] === null;
+  const current = gatewayFailureRecord(envelope.currentAttempt);
+  const errorAttempts = current?.errorAttempts;
+  return (
+    attempts.length === 0 &&
+    current !== null &&
+    !("finishMetadata" in current) &&
+    Array.isArray(errorAttempts) &&
+    errorAttempts.length === 1 &&
+    errorAttempts[0] === null
+  );
+}
+
+function rejectedBeforeGenerationWithoutGateway(envelope: Record<string, unknown>, expectedProvider: string) {
+  if (agentServingProviderUsesGateway(expectedProvider)) return false;
+  const status = envelope.statusCode;
+  if (typeof status !== "number" || status < 400 || status >= 500 || status === 408) return false;
+  if (envelope.providerFailure === false || envelope.incompleteAttempts === true) return false;
+  return isSingleAttemptWithoutReceipt(envelope);
+}
+
 function readProviderReceiptEnvelope(
   envelope: Record<string, unknown>,
   expectedProvider: string,
 ): AgentProviderRoundCharge {
+  if (rejectedBeforeGenerationWithoutGateway(envelope, expectedProvider))
+    return { costMicrocents: 0, measured: true, currentAttemptOutcome: "notBilled" };
   const attempts = envelope.attempts;
   const extended = "currentAttempt" in envelope;
   const validAttempts =

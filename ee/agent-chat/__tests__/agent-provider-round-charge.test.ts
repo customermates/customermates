@@ -168,3 +168,44 @@ describe("provider request and stream receipt aggregation", () => {
     expect(round({ ...envelope([], { finishMetadata: metadata("0.0005") }), version: 2 })).toBeNull();
   });
 });
+
+describe("OVHcloud rejections before generation", () => {
+  function ovhError(envelopeValue: Record<string, unknown>) {
+    return Object.assign(new Error("A provider request failed before complete usage was available."), {
+      cause: envelopeValue,
+    });
+  }
+
+  it.each([400, 401, 403, 404, 422, 429])(
+    "releases the round of a single OVH request rejected with %i before generating",
+    (statusCode) => {
+      const single = { kind: "ai-sdk-workflow-provider-error", version: 1, attempts: [null], statusCode };
+      expect(readAgentProviderErrorCharge(ovhError(single), "ovh")).toEqual({ costMicrocents: 0, measured: true });
+      expect(
+        readAgentProviderErrorCharge(ovhError(envelope([], { errorAttempts: [null] }, { statusCode })), "ovh"),
+      ).toEqual({ costMicrocents: 0, measured: true });
+    },
+  );
+
+  it.each([408, 500, 503, undefined])("keeps an OVH failure with status %s unreadable", (statusCode) => {
+    const single = { kind: "ai-sdk-workflow-provider-error", version: 1, attempts: [null], statusCode };
+    expect(readAgentProviderErrorCharge(ovhError(single), "ovh")).toMatchObject({ measured: false });
+  });
+
+  it("keeps an OVH rejection after an earlier attempt, a partial stream or incomplete attempts unreadable", () => {
+    const statusCode = 400;
+    for (const value of [
+      { kind: "ai-sdk-workflow-provider-error", version: 1, attempts: [null, null], statusCode },
+      envelope([null], { errorAttempts: [null] }, { statusCode }),
+      envelope([], { finishMetadata: null, errorAttempts: [null] }, { statusCode }),
+      envelope([], { errorAttempts: [null] }, { statusCode, incompleteAttempts: true }),
+      envelope([], { errorAttempts: [null] }, { statusCode, providerFailure: false }),
+    ])
+      expect(readAgentProviderErrorCharge(ovhError(value), "ovh")).toMatchObject({ measured: false });
+  });
+
+  it("leaves a Gateway rejection on the Gateway receipt rule", () => {
+    const single = { kind: "ai-sdk-workflow-provider-error", version: 1, attempts: [null], statusCode: 400 };
+    expect(readAgentProviderErrorCharge(ovhError(single), "vertex")).toMatchObject({ measured: false });
+  });
+});

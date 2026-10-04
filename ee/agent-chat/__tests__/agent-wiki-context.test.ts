@@ -10,6 +10,7 @@ import {
 } from "@/ee/agent-chat/agent-provider-context";
 import { AGENT_REPLAY_COUNT, agentReplayWorstCaseMessageChars } from "@/ee/agent-chat/agent-replay-budget";
 import { SHIPPED_AGENT_MODEL } from "@/ee/agent-chat/model-catalog";
+import { createOvhLanguageModel } from "@/ee/agent-chat/ovh-ai-endpoints";
 import {
   AGENT_WIKI_MORE_PROCEDURES_HINT,
   AGENT_WIKI_REFERENCE_CLOSE,
@@ -254,7 +255,7 @@ describe("Workspace Wiki provider context", () => {
     expect(withWiki).toBe((withoutWiki ?? 0) + agentWikiReferenceBytes(catalog));
   });
 
-  it.each([SHIPPED_AGENT_MODEL])(
+  it.each([{ modelId: "google/gemini-3.5-flash-lite", servingProvider: "vertex", inferenceRegion: "eu" as const }])(
     "serializes the $servingProvider Gateway request with the reference inside the system prompt",
     async ({ modelId, servingProvider, inferenceRegion }) => {
       const requests: Record<string, unknown>[] = [];
@@ -324,6 +325,65 @@ describe("Workspace Wiki provider context", () => {
       expect(JSON.stringify(request.prompt)).not.toMatch(/tool-call|tool-result|function-call|function-result/);
     },
   );
+
+  it("serializes the shipped OVHcloud request with the reference inside the system message and no Gateway block", async () => {
+    const bodies: Record<string, unknown>[] = [];
+    const model = createOvhLanguageModel(SHIPPED_AGENT_MODEL.modelId, {
+      apiKey: "test-ovh-key",
+      fetch: (_url, init) => {
+        bodies.push(JSON.parse(String(init?.body)) as Record<string, unknown>);
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              id: "chatcmpl-test",
+              object: "chat.completion",
+              created: 1_790_000_000,
+              model: "Qwen3.8-27B",
+              choices: [{ index: 0, message: { role: "assistant", content: "ok" }, finish_reason: "stop" }],
+              usage: { prompt_tokens: 1, completion_tokens: 1, total_tokens: 2 },
+            }),
+            { status: 200, headers: { "content-type": "application/json" } },
+          ),
+        );
+      },
+    });
+    const context = buildAgentProviderContext(
+      "Trusted system instructions",
+      [{ role: "user", text: "Draft a reply" }],
+      [],
+      catalog,
+    );
+
+    await generateText({
+      model,
+      system: context.system,
+      messages: context.messages,
+      tools: {
+        get_workspace_context: tool({
+          description: "Read workspace context.",
+          inputSchema: jsonSchema({ type: "object", properties: {}, additionalProperties: false }),
+        }),
+      },
+      providerOptions: getAgentProviderOptions(
+        SHIPPED_AGENT_MODEL.servingProvider,
+        SHIPPED_AGENT_MODEL.inferenceRegion,
+      ),
+    });
+
+    expect(bodies).toHaveLength(1);
+    const body = bodies[0] as {
+      model: string;
+      messages: Array<{ role: string; content: unknown }>;
+      tools: Array<{ function: { name: string } }>;
+    };
+    expect(body.model).toBe("Qwen3.8-27B");
+    expect(body).not.toHaveProperty("providerOptions");
+    expect(JSON.stringify(body)).not.toContain("gateway");
+    expect(body.tools.map(({ function: fn }) => fn.name)).toEqual(["get_workspace_context"]);
+    expect(body.messages.map(({ role }) => role)).toEqual(["system", "user"]);
+    expect(body.messages[0]?.content).toBe(`Trusted system instructions\n\n${agentWikiReferenceBlock(catalog)}`);
+    expect(JSON.stringify(body.messages)).not.toMatch(/tool-call|tool-result|function-call|function-result/);
+  });
 
   it("uses the newly supplied catalog on each turn without retaining a previous excerpt", () => {
     const updated = catalog.replace("Use a clear voice", "Use the edited voice");

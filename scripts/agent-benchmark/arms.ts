@@ -144,6 +144,7 @@ function ovh(
 
 export const BENCHMARK_ARMS: readonly BenchmarkArm[] = [
   shipped(),
+  google("gemini-flash-lite-low", "google/gemini-3.5-flash-lite", "low", "Gemini 3.5 Flash-Lite, thinking low (shipped until the OVHcloud switch)"),
   google("flash-lite-minimal", "google/gemini-3.5-flash-lite", "minimal", "Gemini 3.5 Flash-Lite, thinking minimal, 8192 output"),
   google("flash-lite-medium", "google/gemini-3.5-flash-lite", "medium", "Gemini 3.5 Flash-Lite, thinking medium"),
   google("flash-lite-high", "google/gemini-3.5-flash-lite", "high", "Gemini 3.5 Flash-Lite, thinking high"),
@@ -151,6 +152,7 @@ export const BENCHMARK_ARMS: readonly BenchmarkArm[] = [
   google("flash-medium", "google/gemini-3.5-flash", "medium", "Gemini 3.5 Flash, thinking medium"),
   google("flash36-low", "google/gemini-3.6-flash", "low", "Gemini 3.6 Flash, thinking low"),
   google("flash38-low", "google/gemini-3.8-flash", "low", "Gemini 3.8 Flash, thinking low"),
+  google("gemini-flash38-import", "google/gemini-3.8-flash", "low", "Gemini 3.8 Flash, thinking low, 16384 output (initial import model until the OVHcloud switch)", { maxOutputTokens: 16_384 }),
   google("flash-lite31-low", "google/gemini-3.1-flash-lite", "low", "Gemini 3.1 Flash-Lite, thinking low"),
   openai("luna-none", "openai/gpt-5.6-luna", "none", "GPT-5.6 Luna, reasoning none"),
   openai("luna-low", "openai/gpt-5.6-luna", "low", "GPT-5.6 Luna, reasoning low"),
@@ -173,7 +175,6 @@ export const BENCHMARK_ARMS: readonly BenchmarkArm[] = [
   hosted("kimi-k27-code", "moonshotai/kimi-k2.7-code", "baseten", "moonshot", undefined, "Kimi K2.7 Code (Baseten)"),
   hosted("mistral-large-3", "mistral/mistral-large-3", "mistral", "mistral", undefined, "Mistral Large 3"),
   hosted("qwen3-coder-next", "alibaba/qwen3-coder-next", "bedrock", "alibaba", undefined, "Qwen3 Coder Next (Bedrock)"),
-  ovh("ovh-qwen38-27b", "Qwen3.8-27B", undefined, "Qwen3.8 27B (OVHcloud AI Endpoints, EU)"),
   ovh("ovh-qwen38-27b-none", "Qwen3.8-27B", "none", "Qwen3.8 27B, reasoning none (OVHcloud AI Endpoints, EU)"),
   ovh("ovh-qwen38-27b-low", "Qwen3.8-27B", "low", "Qwen3.8 27B, reasoning low (OVHcloud AI Endpoints, EU)"),
   ovh("ovh-qwen35-397b", "Qwen3.5-397B-A17B", undefined, "Qwen3.5 397B-A17B (OVHcloud AI Endpoints, EU)"),

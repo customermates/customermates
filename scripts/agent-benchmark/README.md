@@ -31,6 +31,10 @@ yarn next start -p 4107
 
 The `shipped` control resolves through `SHIPPED_AGENT_MODEL`, the single production runtime configuration used
 by the Assistant. The overlay contains only the experimental arms, so it cannot replace or drift from that control.
+The shipped control is Qwen3.8 27B on OVHcloud AI Endpoints (EU, OVH's default reasoning), so every run needs
+`OVH_AI_ENDPOINTS_API_KEY` as well as `AI_GATEWAY_API_KEY`, which retrieval and the Gateway arms still use. The previous
+shipped configuration stays comparable as `gemini-flash-lite-low` (Gemini 3.5 Flash-Lite, Vertex EU, thinking low) and
+`gemini-flash38-import` (the former initial website-import model, Gemini 3.8 Flash with 16,384 output tokens).
 
 `WORKFLOW_LOCAL_BASE_URL` and `WORKFLOW_LOCAL_DATA_DIR` must be exported for the server. The benchmark bootstrap preserves
 an explicit data directory or defaults the CLI to the same absolute `.next/workflow-data` directory that Next uses. The

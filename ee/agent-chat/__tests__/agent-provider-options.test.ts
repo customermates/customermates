@@ -3,7 +3,17 @@ import { getAgentProviderOptions } from "../agent-provider-options";
 import { SHIPPED_AGENT_MODEL } from "../model-catalog";
 
 describe("Agent provider options", () => {
-  it.each([SHIPPED_AGENT_MODEL])("preserves the serving provider and inference region for $modelId", (model) => {
+  it("serves the shipped model directly from OVHcloud AI Endpoints, with no Gateway routing block", () => {
+    expect(SHIPPED_AGENT_MODEL).toMatchObject({ servingProvider: "ovh", inferenceRegion: "eu" });
+    expect(getAgentProviderOptions(SHIPPED_AGENT_MODEL.servingProvider, SHIPPED_AGENT_MODEL.inferenceRegion)).toEqual({
+      openai: {},
+    });
+  });
+
+  it.each([
+    { modelId: "google/gemini-3.5-flash-lite", servingProvider: "vertex", inferenceRegion: "eu" as const },
+    { modelId: "openai/gpt-5.6-luna", servingProvider: "azure", inferenceRegion: null },
+  ])("preserves the serving provider and inference region for Gateway model $modelId", (model) => {
     expect(getAgentProviderOptions(model.servingProvider, model.inferenceRegion)).toEqual({
       gateway: {
         only: [model.servingProvider],

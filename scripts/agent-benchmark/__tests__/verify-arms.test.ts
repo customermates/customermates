@@ -40,7 +40,7 @@ describe("verify-arms", () => {
 
     const results = await verifyArms(
       [
-        armById("ovh-qwen38-27b"),
+        armById("shipped"),
         armById("ovh-gpt-oss-120b-low"),
         armById("ovh-mistral-small-32"),
       ],
@@ -51,7 +51,7 @@ describe("verify-arms", () => {
       "https://oai.endpoints.kepler.ai.cloud.ovh.net/v1/models",
     );
     expect(results[0]).toEqual({
-      arm: "ovh-qwen38-27b",
+      arm: "shipped",
       modelId: "ovh/Qwen3.8-27B",
       provider: "ovh",
       eligible: true,
@@ -75,7 +75,7 @@ describe("verify-arms", () => {
 
   it("excludes OVH arms when the OVH catalog cannot be read", async () => {
     const fetcher = vi.fn<typeof fetch>(() => Promise.resolve(json({}, 503)));
-    const [result] = await verifyArms([armById("ovh-qwen38-27b")], fetcher);
+    const [result] = await verifyArms([armById("shipped")], fetcher);
     expect(result).toMatchObject({
       eligible: false,
       reason: "OVH catalog 503",

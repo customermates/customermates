@@ -422,6 +422,19 @@ describe("agent tools", () => {
     },
   );
 
+  it("sends OpenAI-compatible providers tool schemas without a dialect, unbounded integer limits or literal unions", () => {
+    const wire = JSON.stringify(getAgentAiToolDefinitions(SHIPPED_AGENT_MODEL.servingProvider, { surface: "chat" }));
+    expect(wire).not.toContain('"$schema"');
+    expect(wire).not.toContain(String(Number.MAX_SAFE_INTEGER));
+    expect(wire).not.toMatch(
+      /"anyOf":\[\{"type":"string","const":"[^"]*"\}(?:,\{"type":"string","const":"[^"]*"\})*\]/,
+    );
+    const listRecords = getAgentAiToolDefinitions("ovh").find(({ name }) => name === "list_records");
+    expect(JSON.stringify(listRecords?.inputSchema)).toContain(
+      '"operator":{"type":"string","enum":["equals","contains","startsWith","gt","gte","lt","lte"]}',
+    );
+  });
+
   it("publishes the preferred custom-field option shape to the hosted provider", () => {
     const definition = getAgentAiToolDefinitions().find(({ name }) => name === "manage_custom_columns");
     const schema = definition?.inputSchema as { properties?: Record<string, unknown> } | undefined;

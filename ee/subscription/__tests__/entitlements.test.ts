@@ -15,10 +15,10 @@ const FUTURE = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
 describe("hosted AI plan entitlements", () => {
   it("defines the monthly per-user allowance for every paid plan", () => {
-    expect(getEntitlements(SubscriptionPlan.starter).hostedAiCreditsPerActiveUser).toBe(200);
-    expect(getEntitlements(SubscriptionPlan.pro).hostedAiCreditsPerActiveUser).toBe(600);
-    expect(getEntitlements(SubscriptionPlan.business).hostedAiCreditsPerActiveUser).toBe(2_000);
-    expect(getEntitlements(SubscriptionPlan.max).hostedAiCreditsPerActiveUser).toBe(4_000);
+    expect(getEntitlements(SubscriptionPlan.starter).hostedAiCreditsPerActiveUser).toBe(800);
+    expect(getEntitlements(SubscriptionPlan.pro).hostedAiCreditsPerActiveUser).toBe(2_400);
+    expect(getEntitlements(SubscriptionPlan.business).hostedAiCreditsPerActiveUser).toBe(8_000);
+    expect(getEntitlements(SubscriptionPlan.max).hostedAiCreditsPerActiveUser).toBe(16_000);
     expect(getEntitlements(SubscriptionPlan.enterprise).hostedAiCreditsPerActiveUser).toBe("contract");
   });
 
@@ -28,7 +28,7 @@ describe("hosted AI plan entitlements", () => {
     expect(getEntitlements(SubscriptionPlan.business).hostedAiUsageMultiplier).toBe(10);
     expect(getEntitlements(SubscriptionPlan.max).hostedAiUsageMultiplier).toBe(20);
     expect(getEntitlements(SubscriptionPlan.enterprise).hostedAiUsageMultiplier).toBe("contract");
-    expect(TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER).toBe(600);
+    expect(TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER).toBe(2_400);
   });
 
   it("gives Max everything Business has plus more connected accounts", () => {

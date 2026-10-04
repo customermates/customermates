@@ -82,7 +82,8 @@ describe("agent model budget boundary", () => {
     const instrumentation = readFileSync(`${REPO_ROOT}/instrumentation.ts`, "utf8");
     expect(instrumentation).toContain("installAgentLanguageModelResolver()");
     const synthesis = readFileSync(`${REPO_ROOT}/ee/wiki-crawl/wiki-synthesis-model.ts`, "utf8");
-    expect(synthesis).toContain("model: resolveAgentLanguageModel(args.model.modelId) ?? args.model.modelId");
+    expect(synthesis).toContain("languageModel = resolveAgentLanguageModel(args.model.modelId) ?? args.model.modelId");
+    expect(synthesis).toContain("model: languageModel,");
   });
 
   it("addresses models by gateway id from the catalog rather than by a hardcoded string", () => {

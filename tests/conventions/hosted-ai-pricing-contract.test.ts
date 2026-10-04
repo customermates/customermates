@@ -49,7 +49,7 @@ describe("hosted AI pricing contract", () => {
   );
 
   it("derives every self-serve allowance from one base and a per-plan multiplier", () => {
-    expect(HOSTED_AI_BASE_CREDITS_PER_ACTIVE_USER).toBe(200);
+    expect(HOSTED_AI_BASE_CREDITS_PER_ACTIVE_USER).toBe(800);
     const multipliers = Object.fromEntries(
       PLAN_IDS.map((plan) => [plan, PLAN_CATALOG[plan].entitlements.hostedAiUsageMultiplier]),
     );
@@ -116,6 +116,7 @@ describe("hosted AI pricing contract", () => {
     const starterShare = (routineMaxCreditsPerRun("starter") / HOSTED_AI_BASE_CREDITS_PER_ACTIVE_USER) * 100;
     const maxShare = (routineMaxCreditsPerRun("max") / HOSTED_AI_BASE_CREDITS_PER_ACTIVE_USER) * 100;
     expect([starterShare, maxShare]).toEqual([5, 10]);
+    expect([routineMaxCreditsPerRun("starter"), routineMaxCreditsPerRun("max")]).toEqual([40, 80]);
 
     for (const docs of [assistantEn, routinesEn]) {
       expect(docs).toContain(`${starterShare}% of a Starter allowance`);

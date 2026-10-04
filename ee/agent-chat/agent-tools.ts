@@ -209,38 +209,71 @@ const PROVIDER_SAFE_FORMAT_PATTERNS: Record<string, string | undefined> = {
 
 const CANONICAL_UUID_PATTERN_MARK = "[0-9a-fA-F]{8}-";
 
-function providerSafeSchema<TSchema extends z.ZodType>(inputSchema: TSchema) {
-  return jsonSchema<z.infer<TSchema>>(
-    z.toJSONSchema(inputSchema as never, {
-      io: "input",
-      target: "draft-07",
-      override: (ctx) => {
-        const schema = ctx.jsonSchema as {
-          pattern?: string;
-          format?: string;
-          const?: unknown;
-          title?: unknown;
-        };
-        if (schema.const !== undefined && schema.title === String(schema.const)) delete schema.title;
-        if (typeof schema.pattern === "string" && UNSUPPORTED_PATTERN.test(schema.pattern)) delete schema.pattern;
-        if (typeof schema.pattern === "string" && schema.pattern.includes(CANONICAL_UUID_PATTERN_MARK))
-          schema.pattern = AGENT_WIRE_UUID_PATTERN;
+type WireSchemaNode = {
+  pattern?: string;
+  format?: string;
+  const?: unknown;
+  title?: unknown;
+  type?: unknown;
+  enum?: unknown[];
+  anyOf?: unknown[];
+  minimum?: unknown;
+  maximum?: unknown;
+};
 
-        const format = schema.format;
-        delete schema.format;
-        if (schema.pattern === undefined && format !== undefined) {
-          const fallback = PROVIDER_SAFE_FORMAT_PATTERNS[format];
-          if (fallback) schema.pattern = fallback;
-        }
-      },
-    }) as never,
-    {
-      validate: async (value) => {
-        const result = await inputSchema.safeParseAsync(value);
-        return result.success ? { success: true, value: result.data } : { success: false, error: result.error };
-      },
-    },
+function stringConstValue(member: unknown): string | undefined {
+  if (typeof member !== "object" || member === null) return undefined;
+  const node = member as WireSchemaNode;
+  if (node.type !== "string" || typeof node.const !== "string") return undefined;
+  const extraKeys = Object.keys(node).filter(
+    (key) => key !== "type" && key !== "const" && !(key === "title" && node.title === node.const),
   );
+  return extraKeys.length === 0 ? node.const : undefined;
+}
+
+function collapseStringConstUnion(schema: WireSchemaNode) {
+  if (!Array.isArray(schema.anyOf) || schema.anyOf.length === 0 || schema.type !== undefined) return;
+  const values = schema.anyOf.map(stringConstValue);
+  if (!values.every((value): value is string => value !== undefined)) return;
+  delete schema.anyOf;
+  schema.type = "string";
+  schema.enum = values;
+}
+
+function withoutSchemaDialect(document: Record<string, unknown>) {
+  const rest = { ...document };
+  delete rest.$schema;
+  return rest;
+}
+
+function providerSafeSchema<TSchema extends z.ZodType>(inputSchema: TSchema) {
+  const document = z.toJSONSchema(inputSchema as never, {
+    io: "input",
+    target: "draft-07",
+    override: (ctx) => {
+      const schema = ctx.jsonSchema as WireSchemaNode;
+      if (schema.const !== undefined && schema.title === String(schema.const)) delete schema.title;
+      if (schema.maximum === Number.MAX_SAFE_INTEGER) delete schema.maximum;
+      if (schema.minimum === Number.MIN_SAFE_INTEGER) delete schema.minimum;
+      collapseStringConstUnion(schema);
+      if (typeof schema.pattern === "string" && UNSUPPORTED_PATTERN.test(schema.pattern)) delete schema.pattern;
+      if (typeof schema.pattern === "string" && schema.pattern.includes(CANONICAL_UUID_PATTERN_MARK))
+        schema.pattern = AGENT_WIRE_UUID_PATTERN;
+
+      const format = schema.format;
+      delete schema.format;
+      if (schema.pattern === undefined && format !== undefined) {
+        const fallback = PROVIDER_SAFE_FORMAT_PATTERNS[format];
+        if (fallback) schema.pattern = fallback;
+      }
+    },
+  }) as Record<string, unknown>;
+  return jsonSchema<z.infer<TSchema>>(withoutSchemaDialect(document) as never, {
+    validate: async (value) => {
+      const result = await inputSchema.safeParseAsync(value);
+      return result.success ? { success: true, value: result.data } : { success: false, error: result.error };
+    },
+  });
 }
 
 const HighlightElementSchema = z.object({

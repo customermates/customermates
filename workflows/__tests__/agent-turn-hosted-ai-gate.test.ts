@@ -4053,7 +4053,7 @@ describe("agent-turn rounds on a provider without receipts", () => {
     };
   }
 
-  it("prices an OVH round from its tokens as an expected estimate, without gateway options or an unreadable-receipt warning", async () => {
+  it("prices an OVH round from its reported tokens as a measured charge, without gateway options or an unreadable-receipt warning", async () => {
     state.runTools = ({ messages }) =>
       Promise.resolve({ finishReason: "stop", messages, steps: [ovhStep(1_000, 200)] });
 
@@ -4067,7 +4067,7 @@ describe("agent-turn rounds on a provider without receipts", () => {
           model: "ovh/Qwen3.8-27B",
           costMicrocents: 110_800,
           chargedMicrocents: 110_800,
-          costSource: "estimated",
+          costSource: "measured",
           policyBreach: false,
         }),
       }),
@@ -4092,6 +4092,45 @@ describe("agent-turn rounds on a provider without receipts", () => {
       "agent-turn",
       expect.stringContaining("reported no token usage"),
       expect.anything(),
+    );
+  });
+
+  it.each([401, 403, 400])(
+    "releases the reservation when OVH rejects the round with %i before generating",
+    async (statusCode) => {
+      state.runTools = () =>
+        Promise.reject(
+          new Error("Provider request failed", {
+            cause: { kind: "ai-sdk-workflow-provider-error", version: 1, attempts: [null], statusCode },
+          }),
+        );
+      await runAgentTurn(ovhPayload);
+      expect(state.recordRound).not.toHaveBeenCalled();
+      expect(state.finalize).toHaveBeenCalledWith(
+        expect.objectContaining({
+          stopReason: "provider_error",
+          usageSettlement: expect.objectContaining({ costMicrocents: 0, chargedMicrocents: 0, costSource: "measured" }),
+        }),
+      );
+    },
+  );
+
+  it("charges the reservation when an OVH round fails with a server error that may have generated", async () => {
+    state.runTools = () =>
+      Promise.reject(
+        new Error("Provider request failed", {
+          cause: { kind: "ai-sdk-workflow-provider-error", version: 1, attempts: [null], statusCode: 500 },
+        }),
+      );
+    await runAgentTurn(ovhPayload);
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        stopReason: "provider_error",
+        usageSettlement: expect.objectContaining({
+          costMicrocents: ovhPayload.turnBudget.reservedMicrocents,
+          costSource: "estimated",
+        }),
+      }),
     );
   });
 

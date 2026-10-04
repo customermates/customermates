@@ -45,7 +45,7 @@ const SOURCES: WikiSourceRecord[] = [
     fetchedAt: new Date("2026-10-01T00:00:00.000Z"),
   },
 ];
-const CHARGE = { model: "google/gemini-3.8-flash", inputTokens: 10, costMicrocents: 500, costSource: "measured" };
+const CHARGE = { model: "ovh/Qwen3.8-27B", inputTokens: 10, costMicrocents: 500, costSource: "measured" };
 
 function harness(mode: WikiCrawlRecord["mode"] = "initial") {
   let crawl = {
@@ -187,7 +187,11 @@ describe("website Knowledge Base synthesis", () => {
     const { service, crawl } = harness();
     model.generate.mockResolvedValueOnce(plan(FULL_PLAN));
     expect(await service.plan("crawl-1")).toBe(6);
-    expect(model.generate.mock.calls[0][0].model.modelId).toBe("google/gemini-3.8-flash");
+    expect(model.generate.mock.calls[0][0].model).toMatchObject({
+      modelId: "ovh/Qwen3.8-27B",
+      servingProvider: "ovh",
+      maxOutputTokens: 16_384,
+    });
     expect(crawl().topics).toEqual([
       { title: "Company overview", role: "company_overview", sourceIds: [id(1)], status: "pending" },
       { title: "Customers", role: "customers_and_use_cases", sourceIds: [id(1)], status: "pending" },
@@ -202,7 +206,11 @@ describe("website Knowledge Base synthesis", () => {
     const { service, crawl } = harness("extend");
     model.generate.mockResolvedValueOnce(plan(FULL_PLAN));
     expect(await service.plan("crawl-1")).toBe(2);
-    expect(model.generate.mock.calls[0][0].model.modelId).toBe("google/gemini-3.5-flash-lite");
+    expect(model.generate.mock.calls[0][0].model).toMatchObject({
+      modelId: "ovh/Qwen3.8-27B",
+      servingProvider: "ovh",
+      maxOutputTokens: 8192,
+    });
     expect(crawl().topics?.map(({ title, role }) => [title, role])).toEqual([
       ["Scheduling", "offering"],
       ["company overview", "offering"],

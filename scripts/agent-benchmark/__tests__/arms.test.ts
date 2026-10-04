@@ -48,6 +48,25 @@ describe("benchmark arms", () => {
     expect(new Set(fingerprints).size).toBe(fingerprints.length);
   });
 
+  it("keeps the previous Gemini configuration available as comparison arms", () => {
+    expect(modelEntry(armById("gemini-flash-lite-low"))).toEqual({
+      modelId: "google/gemini-3.5-flash-lite",
+      servingProvider: "vertex",
+      inferenceRegion: "eu",
+      maxOutputTokens: 8192,
+      maxContextTokens: 66_000,
+      maxToolResultChars: 6000,
+      thinkingLevel: "low",
+    });
+    expect(modelEntry(armById("gemini-flash38-import"))).toMatchObject({
+      modelId: "google/gemini-3.8-flash",
+      servingProvider: "vertex",
+      inferenceRegion: "eu",
+      maxOutputTokens: 16_384,
+      thinkingLevel: "low",
+    });
+  });
+
   it("keeps explicit experimental arms in the local benchmark overlay", () => {
     const experimental = armById("flash-lite-medium");
 
@@ -60,12 +79,10 @@ describe("benchmark arms", () => {
   it("adds OVHcloud AI Endpoints arms as servable EU entries in the overlay", () => {
     const ovhArms = BENCHMARK_ARMS.filter((arm) => arm.servingProvider === "ovh");
 
-    expect(ovhArms.map((arm) => arm.modelId).sort()).toEqual([
+    expect([...new Set(ovhArms.map((arm) => arm.modelId))].sort()).toEqual([
       "ovh/Mistral-Small-3.2-24B-Instruct-2506",
       "ovh/Qwen3-Coder-30B-A3B-Instruct",
       "ovh/Qwen3.5-397B-A17B",
-      "ovh/Qwen3.8-27B",
-      "ovh/Qwen3.8-27B",
       "ovh/Qwen3.8-27B",
       "ovh/gpt-oss-120b",
     ]);
@@ -77,9 +94,11 @@ describe("benchmark arms", () => {
         modelContextLength(arm.modelId, "ovh", "eu"),
       );
     }
+    expect(armById("shipped")).toMatchObject({ family: "ovh", modelId: "ovh/Qwen3.8-27B" });
+    expect(armById("shipped").reasoningEffort).toBeUndefined();
     expect(armById("ovh-gpt-oss-120b-low").reasoningEffort).toBe("low");
     expect(
       loadBenchmarkModelOverlay({ LOCAL_AGENT_BENCHMARK: "true", AGENT_BENCHMARK_ARMS: benchmarkArmsOverlayJson(ovhArms) }),
-    ).toHaveProperty("bench:ovh-qwen38-27b", expect.objectContaining({ servingProvider: "ovh" }));
+    ).toHaveProperty("bench:ovh-qwen38-27b-low", expect.objectContaining({ servingProvider: "ovh" }));
   });
 });

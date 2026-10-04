@@ -1,4 +1,10 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { describe, expect, it } from "vitest";
+
+import { HOSTED_AI_BASE_CREDITS_PER_ACTIVE_USER } from "@/core/commercial/plan-catalog";
+import { routineMaxCreditsPerRun } from "@/ee/routines/routine-run-limits";
 
 import {
   AGENT_RESERVATION_ROUNDS_AHEAD,
@@ -52,11 +58,41 @@ describe("reservation floor", () => {
     expect(AGENT_RESERVATION_ROUNDS_AHEAD).toBe(2);
   });
 
-  it("reserves at most six credits per round for the shipped model and admits a user holding that much", () => {
+  it("reserves under one percent of a Starter allowance per round and admits a user holding that much", () => {
     const perRound = agentRoundWorstCaseMicrocents(SHIPPED_AGENT_MODEL);
-    expect(perRound).toBeLessThanOrEqual(6_000_000);
-    expect(perRound).toBeGreaterThanOrEqual(2_000_000);
+    const starterMicrocents = HOSTED_AI_BASE_CREDITS_PER_ACTIVE_USER * 1_000_000;
+    expect(perRound).toBe(7_383_748);
+    expect(perRound).toBeLessThan(starterMicrocents / 100);
     expect(resolveAgentTurnBudget({ model: SHIPPED_AGENT_MODEL, availableMicrocents: perRound })).not.toBeNull();
     expect(resolveAgentTurnBudget({ model: SHIPPED_AGENT_MODEL, availableMicrocents: perRound - 1 })).toBeNull();
+  });
+
+  it("states the shipped reservation in the assistant docs as shares of the Starter and Pro allowances", () => {
+    const perRound = agentRoundWorstCaseMicrocents(SHIPPED_AGENT_MODEL);
+    const starterMicrocents = HOSTED_AI_BASE_CREDITS_PER_ACTIVE_USER * 1_000_000;
+    const share = (allowanceMicrocents: number, rounds: number) =>
+      ((perRound * rounds * 100) / allowanceMicrocents).toFixed(1);
+    const perRoundShare = share(starterMicrocents, 1);
+    const totalShare = share(starterMicrocents, AGENT_RESERVATION_ROUNDS_AHEAD);
+    const proShare = share(starterMicrocents * 3, 1);
+    expect([perRoundShare, totalShare, proShare]).toEqual(["0.9", "1.8", "0.3"]);
+
+    const en = readFileSync(join(process.cwd(), "content/docs/en/app-assistant.mdx"), "utf8");
+    const de = readFileSync(join(process.cwd(), "content/docs/de/app-assistant.mdx"), "utf8");
+    expect(en).toContain(`${perRoundShare}% of a Starter allowance per round and ${totalShare}% in total`);
+    expect(en).toContain(`when less than ${perRoundShare}% of a Starter allowance remains`);
+    expect(en).toContain(`about ${proShare}% per round on Pro`);
+    const comma = (value: string) => value.replace(".", ",");
+    expect(de).toContain(
+      `${comma(perRoundShare)} % eines Starter-Kontingents pro Runde und ${comma(totalShare)} % insgesamt`,
+    );
+    expect(de).toContain(`wenn weniger als ${comma(perRoundShare)} % eines Starter-Kontingents übrig sind`);
+    expect(de).toContain(`bei Pro etwa ${comma(proShare)} % pro Runde`);
+  });
+
+  it("fits several shipped rounds into a routine run's credit ceiling", () => {
+    const perRound = agentRoundWorstCaseMicrocents(SHIPPED_AGENT_MODEL);
+    expect(Math.floor((routineMaxCreditsPerRun("starter") * 1_000_000) / perRound)).toBe(5);
+    expect(Math.floor((routineMaxCreditsPerRun("max") * 1_000_000) / perRound)).toBe(10);
   });
 });

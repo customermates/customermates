@@ -160,7 +160,6 @@ type RoundLedgerEntry = {
   costMicrocents: number;
   measured: boolean;
   unreadableReason?: string;
-  tokenPriced?: boolean;
 };
 
 type AgentTurnUsageOutcome = {
@@ -232,7 +231,7 @@ function usageSettlementForTurn(payload: AgentTurnWorkflowPayload, outcome: Agen
   const unreadableReason =
     outcome.ledger.find((entry) => entry.unreadableReason)?.unreadableReason ??
     (unreportedProviderRounds > 0 ? "an attempted provider round reported no usage evidence" : null);
-  const anomalousRounds = outcome.ledger.filter((entry) => !entry.measured && !entry.tokenPriced).length;
+  const anomalousRounds = outcome.ledger.filter((entry) => !entry.measured).length;
   if (anomalousRounds > 0 || unreportedProviderRounds > 0) {
     void reportWarning(
       WORKFLOW_NAME,
@@ -1298,7 +1297,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         const costMicrocents = Math.min(Number.MAX_SAFE_INTEGER, aggregateCostMicrocents);
         const measured = roundCharge
           ? roundCharge.measured && safeAggregateCost
-          : charge.outcome === "measured" || charge.outcome === "notBilled";
+          : charge.outcome === "measured" || charge.outcome === "notBilled" || tokenPriced;
         const unreadableReason = roundCharge
           ? !safeAggregateCost
             ? "the provider reported an unrepresentable aggregate cost"
@@ -1313,7 +1312,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           costMicrocents,
           measured,
           unreadableReason,
-          ...(tokenPriced && !roundCharge ? { tokenPriced: true } : {}),
         });
         unreportedProviderRounds = Math.max(0, unreportedProviderRounds - 1);
 

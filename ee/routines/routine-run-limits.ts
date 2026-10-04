@@ -1,8 +1,11 @@
-import type { PlanId } from "@/core/commercial/plan-catalog";
+import { HOSTED_AI_BASE_CREDITS_PER_ACTIVE_USER, type PlanId } from "@/core/commercial/plan-catalog";
 
 export const DEFAULT_ROUTINE_MAX_RUNS_PER_HOUR = 4;
 
-export const DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN = 10;
+export const ROUTINE_RUN_CREDIT_CEILING_PERCENT_OF_BASE = 5;
+
+export const DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN =
+  (HOSTED_AI_BASE_CREDITS_PER_ACTIVE_USER * ROUTINE_RUN_CREDIT_CEILING_PERCENT_OF_BASE) / 100;
 
 export const ROUTINE_RUN_CREDIT_CEILING_MULTIPLIER = {
   starter: 1,

@@ -133,6 +133,7 @@ describe("OVHcloud AI Endpoints catalog entries", () => {
     expect(() =>
       assertServableEntry("qwen35", entry({ modelId: "ovh/Qwen3.5-397B-A17B", reasoningEffort: "low" })),
     ).toThrow('reasoning effort "low"');
+    expect(() => assertServableEntry("qwen", entry({ reasoningEffort: "high" }))).toThrow('reasoning effort "high"');
     expect(() => assertServableEntry("qwen", entry({ thinkingLevel: "low" }))).toThrow("thinking level");
   });
 

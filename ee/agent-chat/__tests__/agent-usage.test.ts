@@ -76,13 +76,13 @@ function makeRepo(
         subscriptionStatus: subscription.status,
         periodStart: new Date("2026-07-15T10:30:00.000Z"),
         periodEnd: new Date("2026-08-15T10:30:00.000Z"),
-        limitMicrocents: 1_000 * CREDIT,
+        limitMicrocents: 4_800 * CREDIT,
         usedMicrocents:
           overrides.poolUsedMicrocents ?? (overrides.usedMicrocents ?? 0) + (overrides.unassignedMicrocents ?? 0),
         unassignedMicrocents: overrides.unassignedMicrocents ?? 0,
         memberLimitMicrocents: {
-          "user-1": 500 * CREDIT,
-          "user-2": 500 * CREDIT,
+          "user-1": 2_400 * CREDIT,
+          "user-2": 2_400 * CREDIT,
         } as Record<string, number>,
         usable: true,
       }),
@@ -99,14 +99,14 @@ function makeRepo(
 
 describe("AgentUsageService summary", () => {
   it("exposes exact microcent usage and billing-anniversary dates", async () => {
-    const service = new AgentUsageService(makeRepo({ usedMicrocents: 123_456_789, recentTurnMicrocents: 753_412 }));
+    const service = new AgentUsageService(makeRepo({ usedMicrocents: 493_827_156, recentTurnMicrocents: 753_412 }));
 
     const summary = await service.getUsageSummary("user-1", NOW);
 
     expect(summary).toEqual({
-      creditsUsed: 123.456789,
-      creditsRemaining: 476.543211,
-      creditsLimit: 600,
+      creditsUsed: 493.827156,
+      creditsRemaining: 1_906.172844,
+      creditsLimit: 2_400,
       usedPct: 21,
       plan: SubscriptionPlan.pro,
       periodStart: new Date("2026-07-15T10:30:00.000Z"),
@@ -118,7 +118,7 @@ describe("AgentUsageService summary", () => {
   });
 
   it("is not exhausted while a fraction of a credit remains", async () => {
-    const service = new AgentUsageService(makeRepo({ usedMicrocents: 600 * CREDIT - 1 }));
+    const service = new AgentUsageService(makeRepo({ usedMicrocents: 2_400 * CREDIT - 1 }));
 
     const summary = await service.getUsageSummary("user-1", NOW);
 
@@ -129,15 +129,15 @@ describe("AgentUsageService summary", () => {
   it("clamps a downgrade immediately when prior-period usage exceeds the new ceiling", async () => {
     const service = new AgentUsageService(
       makeRepo({
-        usedMicrocents: 250 * CREDIT,
+        usedMicrocents: 1_000 * CREDIT,
         subscription: { plan: SubscriptionPlan.starter },
       }),
     );
 
     const summary = await service.getUsageSummary("user-1", NOW);
 
-    expect(summary.creditsUsed).toBe(250);
-    expect(summary.creditsLimit).toBe(200);
+    expect(summary.creditsUsed).toBe(1_000);
+    expect(summary.creditsLimit).toBe(800);
     expect(summary.creditsRemaining).toBe(0);
     expect(summary.usedPct).toBe(100);
     expect(summary.blockedReason).toBe("credits_exhausted");
@@ -158,8 +158,8 @@ describe("AgentUsageService summary", () => {
 
     const summary = await service.getUsageSummary("user-1", NOW);
 
-    expect(summary.creditsLimit).toBe(600);
-    expect(summary.creditsRemaining).toBe(599);
+    expect(summary.creditsLimit).toBe(2_400);
+    expect(summary.creditsRemaining).toBe(2_399);
     expect(summary.usageMultiplier).toBe(3);
   });
 
@@ -195,8 +195,8 @@ describe("AgentUsageService summary", () => {
 
     await expect(service.getUsageSummary("user-1", NOW)).resolves.toMatchObject({
       creditsUsed: 100,
-      creditsLimit: 575,
-      creditsRemaining: 475,
+      creditsLimit: 2_375,
+      creditsRemaining: 2_275,
       blockedReason: null,
     });
   });
@@ -213,8 +213,8 @@ describe("AgentUsageService summary", () => {
 
     expect(summary).toMatchObject({
       creditsUsed: 100,
-      creditsLimit: 675,
-      creditsRemaining: 575,
+      creditsLimit: 2_475,
+      creditsRemaining: 2_375,
     });
     expect(summary).not.toHaveProperty("adjustments");
     expect(summary).not.toHaveProperty("reason");
@@ -276,12 +276,12 @@ describe("AgentUsageService summary", () => {
 
 describe("AgentUsageService retrieval refusal", () => {
   it("labels exhausted allowance as credits", async () => {
-    const service = new AgentUsageService(makeRepo({ usedMicrocents: 600 * CREDIT }));
+    const service = new AgentUsageService(makeRepo({ usedMicrocents: 2_400 * CREDIT }));
     await expect(service.retrievalRefusal("user-1", CREDIT, NOW)).resolves.toBe("credits");
   });
 
   it("labels a reservation larger than the remaining headroom as credits", async () => {
-    const service = new AgentUsageService(makeRepo({ usedMicrocents: 599 * CREDIT }));
+    const service = new AgentUsageService(makeRepo({ usedMicrocents: 2_399 * CREDIT }));
     await expect(service.retrievalRefusal("user-1", 2 * CREDIT, NOW)).resolves.toBe("credits");
   });
 
@@ -307,7 +307,7 @@ describe("AgentUsageService retrieval refusal", () => {
 describe("AgentUsageService admission and ledger", () => {
   it("admits and bounds a final fully reservable turn", async () => {
     const required = agentRoundWorstCaseMicrocents(MODEL);
-    const service = new AgentUsageService(makeRepo({ usedMicrocents: 600 * CREDIT - required }));
+    const service = new AgentUsageService(makeRepo({ usedMicrocents: 2_400 * CREDIT - required }));
 
     const admission = await service.prepareTurn("user-1", NOW, {
       model: MODEL,
@@ -319,7 +319,7 @@ describe("AgentUsageService admission and ledger", () => {
 
   it("does not start a round when the remaining credits cannot cover its hard provider ceiling", async () => {
     const required = agentRoundWorstCaseMicrocents(MODEL);
-    const service = new AgentUsageService(makeRepo({ usedMicrocents: 600 * CREDIT - required + 1 }));
+    const service = new AgentUsageService(makeRepo({ usedMicrocents: 2_400 * CREDIT - required + 1 }));
 
     const admission = await service.prepareTurn("user-1", NOW, {
       model: MODEL,
@@ -331,7 +331,7 @@ describe("AgentUsageService admission and ledger", () => {
   });
 
   it("does not reserve when the allowance is exhausted", async () => {
-    const service = new AgentUsageService(makeRepo({ usedMicrocents: 600 * CREDIT }));
+    const service = new AgentUsageService(makeRepo({ usedMicrocents: 2_400 * CREDIT }));
 
     const admission = await service.prepareTurn("user-1", NOW, {
       model: MODEL,
@@ -364,7 +364,7 @@ describe("AgentUsageService admission and ledger", () => {
         reservedMicrocents: admission.reservation?.reservedMicrocents,
         planSnapshot: SubscriptionPlan.pro,
         subscriptionStatusSnapshot: SubscriptionStatus.active,
-        allowanceMicrocentsSnapshot: 600 * CREDIT,
+        allowanceMicrocentsSnapshot: 2_400 * CREDIT,
         periodStart: new Date("2026-07-15T10:30:00.000Z"),
         periodEnd: new Date("2026-08-15T10:30:00.000Z"),
       }),
@@ -767,7 +767,7 @@ describe("AgentUsageService admission and ledger", () => {
   });
 
   it("grants Wiki indexing to the workspace while its pooled allowance has headroom", async () => {
-    const repo = makeRepo({ usedMicrocents: 999 * CREDIT });
+    const repo = makeRepo({ usedMicrocents: 4_799 * CREDIT });
     const service = new AgentUsageService(repo);
 
     await expect(service.prepareWorkspaceIndexing("company-1", NOW)).resolves.toEqual({
@@ -776,7 +776,7 @@ describe("AgentUsageService admission and ledger", () => {
       userId: null,
       planSnapshot: SubscriptionPlan.pro,
       subscriptionStatusSnapshot: SubscriptionStatus.active,
-      allowanceMicrocentsSnapshot: 1_000 * CREDIT,
+      allowanceMicrocentsSnapshot: 4_800 * CREDIT,
       periodStart: new Date("2026-07-15T10:30:00.000Z"),
       periodEnd: new Date("2026-08-15T10:30:00.000Z"),
     });
@@ -785,7 +785,7 @@ describe("AgentUsageService admission and ledger", () => {
   });
 
   it("stops Wiki indexing once the workspace has committed its pooled allowance", async () => {
-    const exhausted = new AgentUsageService(makeRepo({ usedMicrocents: 1_000 * CREDIT }));
+    const exhausted = new AgentUsageService(makeRepo({ usedMicrocents: 4_800 * CREDIT }));
     await expect(exhausted.prepareWorkspaceIndexing("company-1", NOW)).resolves.toBeNull();
 
     const unusable = makeRepo();
@@ -810,7 +810,7 @@ describe("AgentUsageService admission and ledger", () => {
       purpose: "wikiRetrieval",
       companyId: "company-1",
       userId: "user-1",
-      allowanceMicrocentsSnapshot: 600 * CREDIT,
+      allowanceMicrocentsSnapshot: 2_400 * CREDIT,
     });
   });
 
@@ -939,21 +939,21 @@ describe("AgentUsageService admission and ledger", () => {
     ).getUsageSummary("user-1", NOW);
 
     expect(summary).toMatchObject({
-      creditsUsed: 70,
-      creditsRemaining: 530,
-      creditsLimit: 600,
+      creditsUsed: 60,
+      creditsRemaining: 2_340,
+      creditsLimit: 2_400,
     });
   });
 
   it("never offers a member more than the workspace pool has left", async () => {
     const summary = await new AgentUsageService(
-      makeRepo({ usedMicrocents: 0, poolUsedMicrocents: 990 * CREDIT }),
+      makeRepo({ usedMicrocents: 0, poolUsedMicrocents: 4_790 * CREDIT }),
     ).getUsageSummary("user-1", NOW);
 
     expect(summary).toMatchObject({
       creditsUsed: 0,
       creditsRemaining: 10,
-      creditsLimit: 600,
+      creditsLimit: 2_400,
     });
   });
 

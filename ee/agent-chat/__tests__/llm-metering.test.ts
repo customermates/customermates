@@ -119,8 +119,8 @@ describe("usageToTokenCounts", () => {
 });
 
 describe("model catalog + pricing coverage", () => {
-  it("addresses every catalog model by its gateway-namespaced id", () => {
-    expect([SHIPPED_AGENT_MODEL].map((entry) => entry.modelId)).toEqual(["google/gemini-3.5-flash-lite"]);
+  it("addresses every catalog model by its provider-namespaced id", () => {
+    expect([SHIPPED_AGENT_MODEL].map((entry) => entry.modelId)).toEqual(["ovh/Qwen3.8-27B"]);
   });
 
   it("refuses to price an unpinned model instead of falling back to a spend cap", () => {
@@ -136,9 +136,9 @@ describe("model catalog + pricing coverage", () => {
         SHIPPED_AGENT_MODEL.inferenceRegion,
       ),
     ).toEqual({
-      inputPerMTok: 0.33,
-      outputPerMTok: 2.75,
-      cacheReadPerMTok: 0.033,
+      inputPerMTok: 0.47,
+      outputPerMTok: 3.19,
+      cacheReadPerMTok: 0,
       cacheWritePerMTok: 0,
     });
   });

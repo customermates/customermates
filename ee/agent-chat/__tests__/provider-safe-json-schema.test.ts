@@ -522,7 +522,8 @@ describe("the shipped tool catalog on the Google wire", () => {
     const declared = JSON.stringify(declaredTools);
 
     expect(declaredTools.length).toBeGreaterThanOrEqual(46);
-    for (const keyword of ["$schema", "oneOf", "const", "exclusiveMinimum", "additionalProperties"])
+    expect(declared).not.toContain('"$schema"');
+    for (const keyword of ["oneOf", "const", "exclusiveMinimum", "additionalProperties"])
       expect(declared, keyword).toContain(`"${keyword}"`);
     expect(declared).toContain('"type":"null"');
   });
@@ -603,12 +604,10 @@ describe("the shipped tool catalog on the Google wire", () => {
     const changes = changesForShippedCatalog();
 
     expect(summarizeGoogleSchemaChanges(changes)).toEqual({
-      "$schema:removed": 55,
       "additionalProperties:removed": 41,
       "anyOf:collapsed": 37,
-      "anyOf:merged": 42,
       "const:removed": 5,
-      "const:rewritten": 172,
+      "const:rewritten": 16,
       "enum:removed": 18,
       "exclusiveMinimum:rewritten": 12,
       "nullable:collapsed": 10,

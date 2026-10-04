@@ -38,7 +38,7 @@ describe("agent turn credit budget", () => {
   it("pins the shipped model to its ZDR-compatible provider and configured inference region", () => {
     expect(SHIPPED_AGENT_MODEL_KEY).toBe("balanced");
     expect({ provider: BALANCED.servingProvider, region: BALANCED.inferenceRegion }).toEqual({
-      provider: "vertex",
+      provider: "ovh",
       region: "eu",
     });
   });
@@ -65,15 +65,17 @@ describe("agent turn credit budget", () => {
     const perRound = agentRoundWorstCaseMicrocents(model);
 
     expect(model.maxOutputTokens).toBe(16_384);
-    expect(model.thinkingLevel).toBe("low");
-    expect(perRound).toBe(15_132_150);
+    expect(model.modelId).toBe(SHIPPED_AGENT_MODEL.modelId);
+    expect(model).not.toHaveProperty("reasoningEffort");
+    expect(model).not.toHaveProperty("thinkingLevel");
+    expect(perRound).toBe(9_996_996);
     expect(resolveAgentTurnBudget({ model, availableMicrocents: perRound - 1 })).toBeNull();
     expect(resolveAgentTurnBudget({ model, availableMicrocents: perRound })).toMatchObject({
       maxOutputTokens: 16_384,
       roundReserveMicrocents: perRound,
       reservedMicrocents: perRound,
     });
-    expect(agentRoundWorstCaseMicrocents(SHIPPED_AGENT_MODEL)).toBe(5_602_300);
+    expect(agentRoundWorstCaseMicrocents(SHIPPED_AGENT_MODEL)).toBe(7_383_748);
   });
 
   it("reserves a few rounds ahead rather than a whole worst-case turn", () => {
@@ -85,7 +87,7 @@ describe("agent turn credit budget", () => {
   });
 
   it("keeps the round worst case in exact microcents, without a whole-credit round-up or minimum", () => {
-    expect(agentRoundWorstCaseMicrocents(BALANCED)).toBe(5_602_300);
+    expect(agentRoundWorstCaseMicrocents(BALANCED)).toBe(7_383_748);
     expect(Number.isSafeInteger(agentRoundWorstCaseMicrocents(NANO))).toBe(true);
     expect(agentRoundWorstCaseMicrocents(NANO) % CREDIT).not.toBe(0);
   });

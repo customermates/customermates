@@ -1561,7 +1561,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         providerStartedAt: startedAt,
         planSnapshot: "pro",
         subscriptionStatusSnapshot: "active",
-        allowanceMicrocentsSnapshot: 600_000_000,
+        allowanceMicrocentsSnapshot: 2_400_000_000,
         periodStart: new Date("2026-07-15T10:30:00.000Z"),
         periodEnd: new Date("2026-08-15T10:30:00.000Z"),
       },
@@ -2237,7 +2237,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       },
     });
     prismaMock.agentUsageEvent.findMany.mockResolvedValue([
-      { state: "settled", reservedMicrocents: 0n, chargedMicrocents: 595_000_000n },
+      { state: "settled", reservedMicrocents: 0n, chargedMicrocents: 2_395_000_000n },
     ]);
 
     try {
