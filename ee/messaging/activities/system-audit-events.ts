@@ -1,5 +1,6 @@
 import { DomainEvent } from "@/features/event/domain-events";
 import { extractAuditChanges } from "@/features/audit-log/audit-log-changes";
+import { WIKI_PAGE_AUDIT_EVENTS } from "@/features/wiki/wiki-audit-events";
 
 export const SYSTEM_ACTIVITY_AUDIT_EVENTS = [
   DomainEvent.USER_REGISTERED,
@@ -27,9 +28,17 @@ export const SYSTEM_ACTIVITY_AUDIT_EVENTS = [
   DomainEvent.RECORDS_EXPORTED,
 ] as const;
 
-const systemEvents = new Set<string>(SYSTEM_ACTIVITY_AUDIT_EVENTS);
+export const WIKI_ACTIVITY_AUDIT_EVENTS = WIKI_PAGE_AUDIT_EVENTS;
 
-export function isSystemActivityAuditEvent(event: string): event is (typeof SYSTEM_ACTIVITY_AUDIT_EVENTS)[number] {
+const systemEvents = new Set<string>([...SYSTEM_ACTIVITY_AUDIT_EVENTS, ...WIKI_ACTIVITY_AUDIT_EVENTS]);
+
+export function systemActivityAuditEvents(canReadWiki: boolean): string[] {
+  return [...SYSTEM_ACTIVITY_AUDIT_EVENTS, ...(canReadWiki ? WIKI_ACTIVITY_AUDIT_EVENTS : [])];
+}
+
+export function isSystemActivityAuditEvent(
+  event: string,
+): event is (typeof SYSTEM_ACTIVITY_AUDIT_EVENTS)[number] | (typeof WIKI_ACTIVITY_AUDIT_EVENTS)[number] {
   return systemEvents.has(event);
 }
 

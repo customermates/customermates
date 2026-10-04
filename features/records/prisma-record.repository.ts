@@ -30,7 +30,7 @@ import type { RecordGroupRow } from "./record-group-query";
 import { compileRecordGroups } from "./record-group-query";
 import { resolveRecordGrouping } from "./record-grouping";
 import { RecordGroupingResultSchema } from "./record-grouping.schema";
-import { MAX_AXIS_GROUPS } from "@/core/base/grouping/grouping.schema";
+import { MAX_AXIS_GROUPS, NO_VALUE_GROUP_KEY } from "@/core/base/grouping/grouping.schema";
 import { RecordWriteError } from "./record-write.service";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { RecordMeasure } from "./record-measure.schema";
@@ -835,9 +835,11 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
       ),
     );
     if (rows.some((row) => row.restricted)) throw new RecordWriteError(CustomErrorCode.permissionDenied);
-    if (rows.some((row) => row.groupCount > MAX_AXIS_GROUPS))
+    if (rows.some((row) => row.overflowWithRecords))
       throw new RecordWriteError(CustomErrorCode.recordCalculationBudget);
-    const groups = query.groupPage?.only ? rows.filter((row) => row.key === query.groupPage?.only) : rows;
+    let valueGroups = 0;
+    const axisRows = rows.filter((row) => row.key === NO_VALUE_GROUP_KEY || ++valueGroups <= MAX_AXIS_GROUPS);
+    const groups = query.groupPage?.only ? axisRows.filter((row) => row.key === query.groupPage?.only) : axisRows;
     if (!groups.length) throw new RecordWriteError(CustomErrorCode.recordValueInvalid);
     const ids = [...new Set(groups.flatMap((group) => group.itemIds))];
     if (ids.length > 1000) throw new RecordWriteError(CustomErrorCode.recordCalculationBudget);

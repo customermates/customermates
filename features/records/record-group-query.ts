@@ -28,6 +28,7 @@ export type RecordGroupRow = {
   total: number;
   membershipTotal: number;
   groupCount: number;
+  overflowWithRecords: boolean;
   restricted: boolean;
   summaries: RecordGroupingResult["groups"][number]["summaries"] | null;
 };
@@ -244,6 +245,10 @@ export function compileRecordGroups(
       page_axis.materialised, (SELECT COUNT(*)::integer FROM source) AS total,
       (SELECT COUNT(*)::integer FROM members) AS "membershipTotal",
       (SELECT COUNT(*)::integer FROM axis WHERE key <> ${NO_VALUE_GROUP_KEY}) AS "groupCount",
+      COALESCE((SELECT BOOL_OR(ranked.count > 0) FROM (
+        SELECT axis.count, ROW_NUMBER() OVER (ORDER BY position, metadata->>'label' COLLATE ${recordCollation(query.locale)}, key) AS ordinal
+        FROM axis WHERE key <> ${NO_VALUE_GROUP_KEY}
+      ) ranked WHERE ranked.ordinal > ${MAX_AXIS_GROUPS}), FALSE) AS "overflowWithRecords",
       COALESCE((SELECT BOOL_OR(restricted) FROM members), FALSE) AS restricted
     FROM page_axis LEFT JOIN page_ids ON page_ids.key = page_axis.key
     ORDER BY page_axis.position, page_axis.metadata->>'label' COLLATE ${recordCollation(query.locale)}, page_axis.key`;

@@ -66,6 +66,7 @@ const domTestFiles = [
   "components/entity-detail/__tests__/entity-detail-summary.test.ts",
   "components/entity-detail/__tests__/entity-detail-layout.test.ts",
   "components/entity-detail/__tests__/entity-detail-visibility.test.tsx",
+  "components/entity-detail/__tests__/entity-detail-panels.dom.test.ts",
   "components/marketing/__tests__/browser-frame.test.tsx",
   "components/marketing/__tests__/homepage-hero-sequence.test.tsx",
   "components/forms/__tests__/form-context.test.ts",

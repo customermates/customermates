@@ -43,6 +43,46 @@ export type UnifiedDocsSearch = {
 
 type RankedSection = { section: DocsSection; chunkOrdinal: number };
 
+const EXACT_TOOL_NAME = /\b[a-z][a-z0-9]*(?:_[a-z0-9]+){2,}\b/;
+const TOOL_CATALOG_QUESTION =
+  /\b(?:which|what|welche) (?:\w+ )?tools\b.*\b(?:mcp|server|provides?|provided|offers?|offered|exposes?|exposed|available|exist|bietet|gibt|verfugbar)\b|\b(?:list|all|alle|liste) (?:of |der )?(?:the )?(?:mcp )?tools\b|\bwhat can (?:the )?(?:mcp(?: server)?|server) do\b|\bwas kann (?:der )?(?:mcp(?: server)?|server)\b/;
+const ASSISTANT_WORD = /\b(?:mate|assistant|assistent\w*)\b/;
+const TOOL_CATALOG_ANCHOR = "tool-catalog";
+
+export function pinnedDocsSections(query: string, scope: Omit<DocsScope, "buildHash">): DocsSection[] {
+  const sections = scope.sources
+    .flatMap((source) => docsCorpusSections(source, scope.locale))
+    .filter((section) => scope.slug === undefined || section.slug === scope.slug);
+  const tool = query.match(EXACT_TOOL_NAME)?.[0];
+  if (tool) {
+    const named = sections.filter(
+      (section) => section.headingPath.at(-1)?.includes(tool) || section.text.includes(`#### \`${tool}\``),
+    );
+    if (named.length > 0) return named;
+  }
+  const folded = fold(query)
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .trim();
+  if (TOOL_CATALOG_QUESTION.test(folded) && !ASSISTANT_WORD.test(folded))
+    return sections.filter((section) => section.anchor === TOOL_CATALOG_ANCHOR);
+  return [];
+}
+
+function leadWithPinned(ranked: readonly RankedSection[], pinned: readonly DocsSection[]): RankedSection[] {
+  if (pinned.length === 0) return [...ranked];
+  const keys = new Set(pinned.map(docsSectionKey));
+  return [
+    ...pinned.map(
+      (section) =>
+        ranked.find((entry) => docsSectionKey(entry.section) === docsSectionKey(section)) ?? {
+          section,
+          chunkOrdinal: 0,
+        },
+    ),
+    ...ranked.filter((entry) => !keys.has(docsSectionKey(entry.section))),
+  ];
+}
+
 function rowKey(row: DocsSectionRow): string {
   return docsSectionKey({
     source: row.source,
@@ -132,12 +172,14 @@ async function fusedSections(
   limits: { fullText: number; semantic: number },
 ): Promise<{ sections: RankedSection[]; relevance: RelevanceVerdict }> {
   const units = fullTextUnits(query);
+  const pinned = pinnedDocsSections(query, scope);
   if (!stored) {
     return {
-      sections: inMemorySections({ ...scope, buildHash: "" }, units, limits.fullText),
+      sections: leadWithPinned(inMemorySections({ ...scope, buildHash: "" }, units, limits.fullText), pinned),
       relevance: "kept",
     };
   }
+  const pinnedByKey = new Map(pinned.map((section) => [docsSectionKey(section), section]));
   const storedScope = { ...scope, buildHash: stored.buildHash };
   const rows = new Map<string, DocsSectionRow>();
   const remember = (found: readonly DocsSectionRow[], replace: boolean) => {
@@ -151,6 +193,7 @@ async function fusedSections(
       const found = await deps.repo.fullTextSections(storedScope, units, limits.fullText);
       return {
         keys: remember(found, false),
+        pinned: [...pinnedByKey.keys()],
         coverage: Math.max(0, ...found.map(({ coverage }) => coverage)),
       };
     },
@@ -169,7 +212,9 @@ async function fusedSections(
   const sections = fused.ranked.flatMap((key) => {
     const row = rows.get(key);
     const section = row ? rowSection(scope.locale, row, stored) : undefined;
-    return row && section ? [{ section, chunkOrdinal: row.chunkOrdinal }] : [];
+    if (row && section) return [{ section, chunkOrdinal: row.chunkOrdinal }];
+    const pinnedSection = pinnedByKey.get(key);
+    return pinnedSection ? [{ section: pinnedSection, chunkOrdinal: 0 }] : [];
   });
   return { sections, relevance: fused.relevance };
 }
@@ -252,9 +297,16 @@ async function selectedDocsSections(
       relevance,
     });
     if (!keepsResults(relevance, ranking)) return { pages: [], total: 0, chosen: null };
-    const picked = (ranking?.order ?? [])
-      .flatMap((id) => candidates.find((candidate) => candidate.id === id)?.section ?? [])
-      .slice(0, DOCS_RERANK_RETURNED) as DocsSection[];
+    const pinned = pinnedDocsSections(input.query, { locale: input.locale, sources });
+    const pinnedKeys = new Set(pinned.map(docsSectionKey));
+    const picked = [
+      ...pinned,
+      ...(
+        (ranking?.order ?? []).flatMap(
+          (id) => candidates.find((candidate) => candidate.id === id)?.section ?? [],
+        ) as DocsSection[]
+      ).filter((section) => !pinnedKeys.has(docsSectionKey(section))),
+    ].slice(0, DOCS_RERANK_RETURNED);
     chosen = picked.length > 0 ? picked : null;
   }
 

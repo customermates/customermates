@@ -470,6 +470,61 @@ describe("unified documentation search", () => {
   });
 });
 
+describe("exact tool and tool-catalog questions", () => {
+  const firstHit = (result: Awaited<ReturnType<typeof unifiedDocsSearchResult>>) =>
+    result.structuredContent.results.map(({ slug, anchor }) => `${slug}#${anchor}`)[0];
+
+  it("leads with the section documenting an exact snake_case tool name, ahead of the fused and re-ranked order", async () => {
+    const records = docsCorpusSections("docs", "en").find(
+      (section) => section.slug === "mcp" && section.text.includes("#### `query_crm_records`"),
+    );
+    if (!records) throw new Error("The MCP catalog lost its query_crm_records entry.");
+    const ranker = vi.fn((_query: string, candidates: readonly RankableSection[]) =>
+      Promise.resolve({
+        order: candidates.filter(({ section }) => (section as DocsSection).slug === "webhooks").map(({ id }) => id),
+        abstained: false,
+      }),
+    );
+
+    const result = await unifiedDocsSearchResult(
+      { query: "what does query_crm_records return", locale: "en", source: "docs" },
+      { repo: repo([row(webhooks[0]), row(signature)]), embed: null, ranker },
+    );
+
+    expect(firstHit(result)).toBe(`mcp#${records.anchor}`);
+    expect(result.structuredContent.results.some(({ slug }) => slug === "webhooks")).toBe(true);
+  });
+
+  it.each([
+    ["en", "What can the MCP server do?"],
+    ["en", "show me all MCP tools"],
+    ["de", "Welche Tools bietet der MCP-Server?"],
+    ["de", "Was kann der MCP Server?"],
+  ] as const)("answers %s %j with the MCP tool catalog", async (locale, query) => {
+    const result = await unifiedDocsSearchResult(
+      { query, locale, source: "docs" },
+      { repo: repo([row(webhooks[0])]), embed: null, ranker: undefined },
+    );
+    expect(firstHit(result)).toBe("mcp#tool-catalog");
+  });
+
+  it("keeps the catalog question pinned when the stored index is unavailable, but not for assistant tool questions", async () => {
+    const offline = repo([]);
+    offline.storedBuild.mockResolvedValue(null as never);
+    const catalog = await unifiedDocsSearchResult(
+      { query: "list of mcp tools", locale: "en", source: "docs" },
+      { repo: offline, embed: null, ranker: undefined },
+    );
+    expect(firstHit(catalog)).toBe("mcp#tool-catalog");
+
+    const assistantTools = await unifiedDocsSearchResult(
+      { query: "Which tools can Mate use?", locale: "en", source: "docs" },
+      { repo: repo([row(assistant[0])]), embed: null, ranker: undefined },
+    );
+    expect(firstHit(assistantTools)).not.toBe("mcp#tool-catalog");
+  });
+});
+
 describe("search and page section coherence", () => {
   it("uses the same global candidate set and chosen section for a page read instead of reranking only that page", async () => {
     const sections = docsCorpusSections("docs", "en");

@@ -10,8 +10,15 @@ import { RecordEditorStore } from "./record-editor.store";
 import { RecordEditor } from "./record-editor";
 import { RecordEditorContent } from "./record-editor-content";
 import { useRecordRouteReady } from "@/components/records/use-record-route-ready";
+import { recordPanelsP13nId } from "./record-panels-personalization";
 
-export const RecordDetailPage = observer(function RecordDetailPage({ initial }: { initial: RecordEditorResult }) {
+export const RecordDetailPage = observer(function RecordDetailPage({
+  initial,
+  panelLayoutInitial,
+}: {
+  initial: RecordEditorResult;
+  panelLayoutInitial?: Readonly<Record<string, number>>;
+}) {
   useRecordRouteReady();
   const root = useRootStore();
   const t = useTranslations();
@@ -65,5 +72,17 @@ export const RecordDetailPage = observer(function RecordDetailPage({ initial }: 
     });
     return () => root.layoutStore.clearRuntimeIdentity("entity", key);
   }, [initial.typeId, root, type?.pluralLabel, recordId, name, pictureUrl, avatar]);
-  return <RecordEditorContent layout="page" renderEditor={(child) => <RecordEditor store={child} />} store={store} />;
+  const panelLayout = {
+    initial: panelLayoutInitial,
+    p13nId: root.appMode === "demo" ? undefined : recordPanelsP13nId(initial.typeId),
+    persistenceScope: root.userStore?.user?.id ?? "anonymous",
+  };
+  return (
+    <RecordEditorContent
+      layout="page"
+      panelLayout={panelLayout}
+      renderEditor={(child) => <RecordEditor store={child} />}
+      store={store}
+    />
+  );
 });

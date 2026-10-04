@@ -9,7 +9,7 @@ import type { ActivityKind } from "./activities.schema";
 import type { RecordActivitiesInput } from "./record-activities.schema";
 import { LEGACY_RECORD_KINDS } from "@/features/records/legacy-record-history";
 import { presetId } from "@/features/records/crm-preset";
-import { SYSTEM_ACTIVITY_AUDIT_EVENTS } from "./system-audit-events";
+import { systemActivityAuditEvents } from "./system-audit-events";
 
 export type RecordActivityIndexRow = {
   id: string;
@@ -110,6 +110,7 @@ export function compileRecordActivityIndex(
   model: RecordModel,
   access: RecordAccessMap,
   available: ActivityKind[],
+  canReadWiki = false,
 ): Prisma.Sql {
   const scope = compileRecordActivityScope(companyId, userId, input, model, access);
   const scoped = input.scope.records.length > 0 || input.scope.typeIds.length > 0;
@@ -205,7 +206,7 @@ export function compileRecordActivityIndex(
   if (enabled("audit") && !accountOrProviderFilter && !includedThread) {
     if (!scoped && recordFilters.every(({ filter }) => filter.operator === "notIn" || filter.operator === "hasNone")) {
       branches.push(Prisma.sql`SELECT event.id, 'audit'::text AS kind, event."createdAt" AS at FROM "AuditLog" event
-        WHERE event."companyId" = ${companyId} AND event.event IN (${Prisma.join(SYSTEM_ACTIVITY_AUDIT_EVENTS)})`);
+        WHERE event."companyId" = ${companyId} AND event.event IN (${Prisma.join(systemActivityAuditEvents(canReadWiki))})`);
     }
     branches.push(Prisma.sql`SELECT event.id, 'record'::text AS kind, event."createdAt" AS at FROM "RecordEvent" event
     JOIN history_scope scope ON scope."typeId" = event."typeId" AND scope.id = event."recordId"

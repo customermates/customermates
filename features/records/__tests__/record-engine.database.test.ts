@@ -10510,8 +10510,9 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
 
   it("uses controlled locale ordering before pagination and rejects group requests beyond the declared budget", async () => {
     const f = await fixture();
+    const deals: RecordRef[] = [];
     for (const name of ["Zahlung", "Umzug", "Überprüfung", "Change Management", "CRM Setup", "CI Pipeline"])
-      await f.create("deal", name);
+      deals.push(await f.create("deal", name));
     const page = await f.run(() =>
       f.query.invoke(
         RecordQuerySchema.parse({
@@ -10556,16 +10557,31 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         ),
       ),
     );
-    expect(
-      await f.run(() =>
+    const groupByStage = () =>
+      f.run(() =>
         f.query.invoke(
           RecordQuerySchema.parse({
             typeId: f.id("deal"),
             grouping: { field: field.id },
           }),
         ),
+      );
+    expect(await groupByStage()).toMatchObject({ ok: true });
+    const stale = recordInvariant(deals[0]);
+    expect(
+      await f.mutation(
+        {
+          action: "update",
+          ref: stale,
+          expectedVersion: (await f.readRecord(stale)).version,
+          fields: [{ fieldId: field.id, value: { kind: "select", value: "option-50" } }],
+        },
+        f.admin,
+        randomUUID(),
+        2,
       ),
-    ).toMatchObject({ ok: false });
+    ).toMatchObject({ ok: true });
+    expect(await groupByStage()).toMatchObject({ ok: false });
   });
 
   it("keeps saved relationship filters, group totals and assignment filters consistent", async () => {

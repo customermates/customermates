@@ -1,6 +1,6 @@
 import { recordReadPredicate } from "@/features/records/record-query";
 import { BaseRepository } from "@/core/base/base-repository";
-import { Prisma } from "@/generated/prisma";
+import { Action, Prisma, Resource } from "@/generated/prisma";
 import type { RecordActivitiesRepo, RecordActivityActor } from "./record-activities.repo";
 import type { RecordActivitiesInput } from "./record-activities.schema";
 import type { RecordModel } from "@/features/records/record-model.schema";
@@ -19,11 +19,20 @@ import { readRecordModelSnapshot } from "@/features/records/record-model-snapsho
 import type { RecordRef } from "@/features/records/record-model.schema";
 import { presetId } from "@/features/records/crm-preset";
 import { LEGACY_RECORD_KINDS } from "@/features/records/legacy-record-history";
+import { WIKI_PAGE_AUDIT_EVENTS } from "@/features/wiki/wiki-audit-events";
 
 export class PrismaRecordActivitiesRepo extends BaseRepository implements RecordActivitiesRepo {
   index(input: RecordActivitiesInput, model: RecordModel, access: RecordAccessMap, available: ActivityKind[]) {
     return this.prisma.$queryRaw<RecordActivityIndexRow[]>(
-      compileRecordActivityIndex(this.companyId, this.userId, input, model, access, available),
+      compileRecordActivityIndex(
+        this.companyId,
+        this.userId,
+        input,
+        model,
+        access,
+        available,
+        this.hasPermission(Resource.wiki, Action.readAll),
+      ),
     );
   }
 
@@ -61,7 +70,11 @@ export class PrismaRecordActivitiesRepo extends BaseRepository implements Record
   async auditLogsCompanyWide(ids: string[]) {
     if (!ids.length) return [];
     const rows = await this.prisma.auditLog.findMany({
-      where: { companyId: this.companyId, id: { in: ids } },
+      where: {
+        companyId: this.companyId,
+        id: { in: ids },
+        ...(this.hasPermission(Resource.wiki, Action.readAll) ? {} : { event: { notIn: [...WIKI_PAGE_AUDIT_EVENTS] } }),
+      },
     });
     const actors = await this.prisma.user.findMany({
       where: {

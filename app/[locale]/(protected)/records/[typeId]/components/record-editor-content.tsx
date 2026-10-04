@@ -23,7 +23,7 @@ import { RecordDetailOverview } from "./record-detail-overview";
 import { RecordDetailSummary } from "./record-detail-summary";
 import { RecordEditorFields } from "./record-editor-fields";
 import { RecordEditorActions, RecordPageActions } from "./record-editor-actions";
-import { EntityDetailPanels } from "@/components/entity-detail/entity-detail-panels";
+import { EntityDetailPanels, type EntityDetailPanelLayout } from "@/components/entity-detail/entity-detail-panels";
 import { useRecordDeletion } from "./use-record-deletion";
 import { RecordActivitiesPanel } from "@/features/messaging/activities/record-activities-panel";
 import { Alert } from "@/components/shared/alert";
@@ -95,10 +95,12 @@ const RecordEditorRecovery = observer(function RecordEditorRecovery({ store }: {
 const RecordEditorBody = observer(function RecordEditorBody({
   store,
   layout = "drawer",
+  panelLayout,
   renderEditor,
 }: {
   store: RecordEditorStore;
   layout?: "drawer" | "page";
+  panelLayout?: EntityDetailPanelLayout;
   renderEditor: (child: RecordEditorStore) => ReactNode;
 }) {
   const t = useTranslations();
@@ -212,6 +214,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
               </div>
             ) : undefined
           }
+          panelLayout={panelLayout}
           summary={<RecordDetailSummary store={store} />}
         />
       </AppForm>
@@ -327,6 +330,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
 export const RecordEditorContent = observer(function RecordEditorContent(props: {
   store: RecordEditorStore;
   layout?: "drawer" | "page";
+  panelLayout?: EntityDetailPanelLayout;
   renderEditor: (child: RecordEditorStore) => ReactNode;
 }) {
   return (
