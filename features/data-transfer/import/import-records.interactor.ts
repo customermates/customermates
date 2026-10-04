@@ -1,7 +1,7 @@
-import type { RecordRepo } from "@/features/records/record.repo";
+import type { RecordRepo, StoredRecord } from "@/features/records/record.repo";
 import type { RecordAccessPolicy } from "@/features/records/record-access";
 import type { RecordWriteService } from "@/features/records/record-write.service";
-import type { RecordField, RecordScalar } from "@/features/records/record-model.schema";
+import type { CalculatedValue, RecordField, RecordScalar } from "@/features/records/record-model.schema";
 import type { Validated } from "@/core/validation/validation.utils";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -19,13 +19,23 @@ import {
 import type { ImportRecordsInput, ImportRecordsResult } from "@/features/data-transfer/record-transfer.schema";
 import { recordRequestHash, recordWriteFailure } from "@/features/records/mutate-record.interactor";
 import { RecordJournal } from "@/features/records/record-journal";
+import { decodeRecordValue } from "@/features/records/record-storage";
+import { sameRecordResult } from "@/features/records/record-write.service";
+import { valueResult } from "@/features/records/calculation";
 
+type ImportRow = ImportRecordsInput["document"]["records"][number];
+type Assignment = { fieldId: string; value: RecordScalar | null };
+
+// Splits an exported row into writable assignments and captured values that
+// cannot be written. An update import may carry captured values unchanged; any
+// other captured value makes the document invalid.
 function inputAssignments(
-  row: ImportRecordsInput["document"]["records"][number],
+  row: ImportRow,
   fields: RecordField[],
-): Array<{ fieldId: string; value: RecordScalar | null }> | null {
+): { assignments: Assignment[]; captured: Array<{ field: RecordField; result: CalculatedValue }> } | null {
   const definitions = new Map(fields.map((field) => [field.id, field]));
-  const assignments: Array<{ fieldId: string; value: RecordScalar | null }> = [];
+  const assignments: Assignment[] = [];
+  const captured: Array<{ field: RecordField; result: CalculatedValue }> = [];
   const seen = new Set<string>();
   for (const entry of row.fields) {
     const field = definitions.get(entry.fieldId);
@@ -34,8 +44,8 @@ function inputAssignments(
     if (field.behavior.kind === "snapshot") {
       if (entry.result.state === "restricted" || entry.result.state === "error") return null;
       if (entry.result.state === "value") {
-        if (!field.behavior.allowManualOverride) return null;
-        assignments.push({ fieldId: field.id, value: entry.result.value });
+        if (field.behavior.allowManualOverride) assignments.push({ fieldId: field.id, value: entry.result.value });
+        else captured.push({ field, result: entry.result });
       }
       continue;
     }
@@ -47,7 +57,14 @@ function inputAssignments(
     });
   }
   if (fields.some((field) => field.behavior.kind === "input" && !seen.has(field.id))) return null;
-  return assignments;
+  return { assignments, captured };
+}
+
+function storedResult(record: StoredRecord, field: RecordField): CalculatedValue {
+  return decodeRecordValue(
+    record.values.find((value) => value.fieldId === field.id),
+    field,
+  );
 }
 
 @TenantInteractor()
@@ -103,17 +120,24 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportRecor
           }
           return current?.id === type.id && steps <= 12 ? steps : null;
         };
-        const assignments = new Map<string, Array<{ fieldId: string; value: RecordScalar | null }>>();
-        const rows = new Map<string, (typeof document.records)[number]>();
+        const assignments = new Map<string, Assignment[]>();
+        const captured = new Map<string, Array<{ field: RecordField; result: CalculatedValue }>>();
+        const rows = new Map<string, ImportRow>();
         for (const row of document.records) {
-          if (depth(row.ref.typeId) === null || row.schemaRevision !== model.revision || row.protectedKind)
+          if (
+            depth(row.ref.typeId) === null ||
+            row.schemaRevision !== model.revision ||
+            (row.protectedKind && input.mode === "create")
+          )
             return fail(CustomErrorCode.recordValueInvalid);
           const key = recordKey(row.ref);
           if (assignments.has(key)) return fail(CustomErrorCode.recordValueInvalid);
           const fields = model.fields.filter((field) => field.typeId === row.ref.typeId && !field.archived);
           const values = inputAssignments(row, fields);
-          if (!values) return fail(CustomErrorCode.recordValueInvalid);
-          assignments.set(key, values);
+          if (!values || (values.captured.length && input.mode === "create"))
+            return fail(CustomErrorCode.recordValueInvalid);
+          assignments.set(key, values.assignments);
+          captured.set(key, values.captured);
           rows.set(key, row);
         }
         const links = new Set<string>();
@@ -153,6 +177,7 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportRecor
           const currency = (await this.company.getDetails()).currency;
           const journal = new RecordJournal(this.records, model);
           const writer = this.writer.withRepository(journal.repository);
+          let skipped = 0;
           for (const row of orderedRows) {
             const existing = await this.records.getRecordCompanyWide(row.ref);
             const parent = parentLinks.get(recordKey(row.ref));
@@ -187,6 +212,19 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportRecor
               );
             } else {
               if (!existing) return failNotFound(CustomErrorCode.recordNotFound);
+              const key = recordKey(row.ref);
+              if (
+                (captured.get(key) ?? []).some(
+                  ({ field, result }) => !sameRecordResult(storedResult(existing, field), result),
+                )
+              )
+                return fail(CustomErrorCode.recordReadOnlyField);
+              if (row.protectedKind || existing.protectedKind) {
+                if (!(await this.unchanged(row, existing, assignments.get(key) ?? [], model.fields)))
+                  return failAuthorization(CustomErrorCode.recordProtected);
+                skipped += 1;
+                continue;
+              }
               await writer.apply(
                 {
                   action: "update",
@@ -225,7 +263,7 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportRecor
           });
           const data: ImportRecordsResult = {
             created: input.mode === "create" ? document.records.length : 0,
-            updated: input.mode === "update" ? document.records.length : 0,
+            updated: input.mode === "update" ? document.records.length - skipped : 0,
             linked,
             schemaRevision: model.revision,
           };
@@ -237,5 +275,29 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportRecor
       },
       { timeout: 120_000 },
     );
+  }
+
+  // A protected row is maintained by a system workflow. An update import may
+  // carry it back exactly as exported, but never change it.
+  private async unchanged(
+    row: ImportRow,
+    existing: StoredRecord,
+    assignments: Assignment[],
+    fields: RecordField[],
+  ): Promise<boolean> {
+    const sorted = (values: string[]) => JSON.stringify([...values].sort());
+    if (sorted(row.assignedUserIds) !== sorted(existing.assignments.map((assignment) => assignment.userId)))
+      return false;
+    for (const assignment of assignments) {
+      const field = fields.find((candidate) => candidate.id === assignment.fieldId);
+      if (!field) return false;
+      if (!sameRecordResult(storedResult(existing, field), valueResult(assignment.value))) return false;
+    }
+    if (row.identities) {
+      const keys = (identities: Array<{ provider: string; value: string }>) =>
+        sorted(identities.map((identity) => `${identity.provider}:${identity.value}`));
+      if (keys(row.identities) !== keys(await this.records.getIdentitiesCompanyWide(row.ref))) return false;
+    }
+    return true;
   }
 }

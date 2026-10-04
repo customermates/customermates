@@ -14838,6 +14838,155 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     expect(await names(f.id("deal"), { fieldId: closedAt, operator: "eq", value: instant })).toEqual(["Won"]);
   });
+  it("round-trips exports with embedded rows, protected rows and captured values through an update import", async () => {
+    const f = await fixture();
+    const importer = new ImportRecordsInteractor(
+      f.repo,
+      f.policy,
+      new RecordWriteService(f.repo, f.policy, new RecordCalculationService(f.repo)),
+      { getDetails: () => Promise.resolve({ currency: "EUR" }) },
+    );
+    const exporter = new ExportRecordsInteractor(f.repo, f.policy);
+    const exportAll = async (type: string) => {
+      const exported = await f.run(() =>
+        exporter.invoke({ typeId: f.id(type), filters: [], relationships: [], sort: [] }),
+      );
+      if (!exported.ok) throw exported.error;
+      return exported.data;
+    };
+    const reimport = (document: Awaited<ReturnType<typeof exportAll>>) =>
+      f.run(() => importer.invoke({ document, mode: "update", idempotencyKey: randomUUID() }));
+
+    const service = await f.create("service", "Round trip catalog", [["service.amount", decimal("50")]]);
+    const deal = await f.create("deal", "Round trip deal");
+    const line = await f.create(
+      "lineItem",
+      "Line",
+      [["lineItem.quantity", decimal("2", null)]],
+      [
+        { relationId: f.id("lineItem.deal"), direction: "outgoing", record: deal },
+        { relationId: f.id("lineItem.service"), direction: "outgoing", record: service },
+      ],
+    );
+    expect(await f.update(line, [["lineItem.pricingMode", { kind: "select", value: "saved" }]])).toMatchObject({
+      ok: true,
+    });
+    const deals = await exportAll("deal");
+    expect(deals.records.map((row) => row.ref)).toEqual(expect.arrayContaining([deal, line]));
+    expect(deals.records.find((row) => row.ref.recordId === line.recordId)?.assignedUserIds).toEqual([]);
+    const dealResult = await reimport(deals);
+    expect(dealResult, JSON.stringify(dealResult)).toMatchObject({ ok: true, data: { updated: 2, linked: 0 } });
+    expect(await f.value(deal, "deal.totalValue")).toEqual({ state: "value", value: decimal("100") });
+
+    await f.run(() =>
+      prisma.user.update({
+        where: { companyId: f.company.id, id: f.member.id },
+        data: { status: "pendingAuthorization" },
+      }),
+    );
+    await f.run(
+      () => getMembershipTaskService().registered(f.member.id),
+      createMockUser({ ...f.member, status: "pendingAuthorization" }),
+    );
+    const ordinary = await f.create("task", "Ordinary task");
+    const tasks = await exportAll("task");
+    const protectedRow = recordInvariant(tasks.records.find((row) => row.protectedKind === "membershipAuthorization"));
+    const protectedVersion = protectedRow.version;
+    const taskResult = await reimport(tasks);
+    expect(taskResult, JSON.stringify(taskResult)).toMatchObject({ ok: true, data: { updated: 1 } });
+    expect((await f.run(() => f.repo.getRecordCompanyWide(protectedRow.ref)))?.version).toBe(protectedVersion);
+    expect((await f.run(() => f.repo.getRecordCompanyWide(ordinary)))?.version).toBeGreaterThan(1);
+    const renamedTasks = await exportAll("task");
+    const changed = await reimport({
+      ...renamedTasks,
+      records: renamedTasks.records.map((row) =>
+        row.protectedKind
+          ? {
+              ...row,
+              fields: row.fields.map((field) =>
+                field.fieldId === f.id("task.name")
+                  ? { ...field, result: { state: "value" as const, value: textValue("Changed protected task") } }
+                  : field,
+              ),
+            }
+          : row,
+      ),
+    });
+    expect(changed).toMatchObject({
+      ok: false,
+      error: { issues: [expect.objectContaining({ params: expect.objectContaining({ error: "recordProtected" }) })] },
+    });
+    expect(await f.value(protectedRow.ref, "task.name")).toEqual(
+      recordInvariant(protectedRow.fields.find((field) => field.fieldId === f.id("task.name"))).result,
+    );
+
+    const captured = randomUUID();
+    await f.run(() =>
+      runInTransaction(() =>
+        f.repo.saveModel(
+          {
+            ...f.model,
+            revision: 2,
+            fields: [
+              ...f.model.fields,
+              {
+                id: captured,
+                typeId: f.id("organization"),
+                label: "Name at creation",
+                valueType: "text",
+                behavior: {
+                  kind: "snapshot",
+                  capture: "create",
+                  expression: { kind: "field", fieldId: f.id("organization.name") },
+                },
+                required: false,
+                archived: false,
+                publishedSummary: false,
+                options: [],
+                position: 100,
+              },
+            ],
+          },
+          f.admin.id,
+        ),
+      ),
+    );
+    expect(
+      await f.mutation(
+        {
+          action: "create",
+          typeId: f.id("organization"),
+          fields: [{ fieldId: f.id("organization.name"), value: textValue("Captured name") }],
+        },
+        f.admin,
+        randomUUID(),
+        2,
+      ),
+    ).toMatchObject({ ok: true });
+    const organizations = await exportAll("organization");
+    const organization = recordInvariant(organizations.records[0]);
+    expect(organization.fields.find((field) => field.fieldId === captured)?.result).toEqual({
+      state: "value",
+      value: textValue("Captured name"),
+    });
+    expect(await reimport(organizations)).toMatchObject({ ok: true, data: { updated: 1 } });
+    const overwritten = await reimport({
+      ...(await exportAll("organization")),
+      records: (await exportAll("organization")).records.map((row) => ({
+        ...row,
+        fields: row.fields.map((field) =>
+          field.fieldId === captured
+            ? { ...field, result: { state: "value" as const, value: textValue("Forged") } }
+            : field,
+        ),
+      })),
+    });
+    expect(overwritten).toMatchObject({ ok: false });
+    expect((await f.readRecord(organization.ref)).fields.find((field) => field.fieldId === captured)?.result).toEqual({
+      state: "value",
+      value: textValue("Captured name"),
+    });
+  });
 });
 
 describeDatabase("provider avatar updates through the generic engine", { timeout: 30000 }, () => {

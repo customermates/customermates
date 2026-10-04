@@ -3,11 +3,12 @@ import { recordInvariant } from "./record-invariant";
 
 import { createHash, randomUUID } from "node:crypto";
 
+import Decimal from "decimal.js";
 import { z } from "zod";
 
 import type { RecordAccessPolicy } from "./record-access";
 import type { RecordRepo, StoredRecord } from "./record.repo";
-import type { RecordModel, RecordRef, RecordScalar, RecordField } from "./record-model.schema";
+import type { CalculatedValue, RecordModel, RecordRef, RecordScalar, RecordField } from "./record-model.schema";
 import type { RecordMutation } from "./record-query.schema";
 import type { InteractorFailureKind } from "@/core/validation/validation.utils";
 
@@ -20,6 +21,7 @@ import { RecordCalculationService, recordKey, SYNCHRONOUS_RECORD_LIMIT } from ".
 import type { RecordIdentityInput } from "./record-identity.schema";
 import { identityKeys, normalizedIdentity, normalizedIdentityAssociation } from "./record-identity";
 import { channelClass } from "@/ee/messaging/provider";
+import { canonicalRecordJson } from "./record-json";
 
 type Policy = Awaited<ReturnType<RecordAccessPolicy["load"]>>;
 export { RecordWriteError } from "./record-write-error";
@@ -61,6 +63,20 @@ export function normalizeRecordScalar(value: RecordScalar | null, field: RecordF
     return { kind: "richText", documentJson: JSON.stringify(parsed.data) };
   }
   return value;
+}
+
+function comparableResult(result: CalculatedValue): unknown {
+  if (result.state !== "value") return result;
+  const value = result.value;
+  if (value.kind === "decimal") return { ...value, value: new Decimal(value.value).toFixed() };
+  if (value.kind === "richText") return { kind: value.kind, document: JSON.parse(value.documentJson) as unknown };
+  return value;
+}
+
+// Compares a stored result with a written one independent of decimal notation
+// and document key order, so a value carried back unchanged is recognized.
+export function sameRecordResult(left: CalculatedValue, right: CalculatedValue): boolean {
+  return canonicalRecordJson(comparableResult(left)) === canonicalRecordJson(comparableResult(right));
 }
 
 export class RecordWriteService {
@@ -432,10 +448,12 @@ export class RecordWriteService {
     } else if (mutation.action === "update") {
       const row = await editable(mutation.ref);
       if (row.version !== mutation.expectedVersion) reject(CustomErrorCode.recordVersionChanged, "conflict");
-      if (mutation.assignedUserIds) {
-        if (type(mutation.ref.typeId).parentRelationshipId)
+      // Records that inherit access from a parent never carry assignments, so an
+      // empty assignment list (as exported for embedded rows) is a no-op.
+      if (mutation.assignedUserIds && type(mutation.ref.typeId).parentRelationshipId) {
+        if (mutation.assignedUserIds.length)
           reject(CustomErrorCode.recordValueInvalid, "validation", ["assignedUserIds"]);
-
+      } else if (mutation.assignedUserIds) {
         if (!(await this.policy.validAssignees(policy.actor, mutation.assignedUserIds, policy.canAssignOthers)))
           reject(CustomErrorCode.permissionDenied, "authorization");
         await this.records.setAssignments(mutation.ref, mutation.assignedUserIds);
