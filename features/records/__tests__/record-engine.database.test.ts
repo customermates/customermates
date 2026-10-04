@@ -1214,7 +1214,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
 
   afterAll(async () => {
     await runWithoutTenant(() => prisma.company.deleteMany({ where: { id: { in: companies } } }));
-  });
+  }, 120000);
 
   it("captures event-time filter matches and rejects obsolete subscription revisions at delivery", async () => {
     const f = await fixture();
