@@ -79,7 +79,7 @@ export class QueryRecordsInteractor extends AuthenticatedInteractor<RecordQuery,
         if (!model.types.some((type) => type.id === query.typeId && !type.archived))
           return failNotFound(CustomErrorCode.recordTypeNotFound);
         const access = policy.access(model.types.filter((type) => !type.archived).map((type) => type.id));
-        if (access.get(query.typeId)?.access === "none") return failAuthorization(CustomErrorCode.permissionDenied);
+        if (access.get(query.typeId)?.access === "none") return failNotFound(CustomErrorCode.recordTypeNotFound);
         const invalid = invalidRecordQueryPart(query, model);
         if (invalid) return fail(CustomErrorCode.recordValueInvalid, [invalid]);
         try {

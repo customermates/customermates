@@ -37,12 +37,11 @@ export class QueryRecordMeasureInteractor extends AuthenticatedInteractor<Record
           this.policy.load(),
           this.company.getDetails(),
         ]);
+        if (!policy.actor) return failAuthorization(CustomErrorCode.permissionDenied);
         if (
-          !policy.actor ||
+          !model.types.some((type) => type.id === measure.source.typeId && !type.archived) ||
           (!policy.allowed(measure.source.typeId, "readAll") && !policy.allowed(measure.source.typeId, "readOwn"))
         )
-          return failAuthorization(CustomErrorCode.permissionDenied);
-        if (!model.types.some((type) => type.id === measure.source.typeId && !type.archived))
           return failNotFound(CustomErrorCode.recordTypeNotFound);
         if (!recordMeasureIsValid(measure, model)) return fail(CustomErrorCode.recordValueInvalid);
         try {

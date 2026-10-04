@@ -14102,7 +14102,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       error: {
         issues: expect.arrayContaining([
           expect.objectContaining({
-            params: expect.objectContaining({ kind: "authorization" }),
+            params: expect.objectContaining({ kind: "not_found", error: CustomErrorCode.recordTypeNotFound }),
           }),
         ]),
       },
@@ -15261,6 +15261,39 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     ).invoke({ companyId: f.company.id, eventId: match.eventId });
     expect(await f.run(() => prisma.routineRun.count({ where: { companyId: f.company.id, routineId } }))).toBe(1);
     expect(dispatch).toHaveBeenCalledTimes(1);
+  });
+  it("reports unreadable record types as not found for queries, reports and single reads alike", async () => {
+    const f = await fixture();
+    const service = await f.create("service", "Hidden catalog", [["service.amount", decimal("5")]]);
+    const failure = async (
+      result: Promise<{ ok: true } | { ok: false; error: Parameters<typeof interactorFailureStatus>[0] }>,
+    ) => {
+      const resolved = await result;
+      return resolved.ok ? 200 : interactorFailureStatus(resolved.error);
+    };
+    expect(await failure(f.run(() => f.read.invoke(service), f.member))).toBe(404);
+    expect(
+      await failure(f.run(() => f.query.invoke(RecordQuerySchema.parse({ typeId: service.typeId })), f.member)),
+    ).toBe(404);
+    expect(
+      await failure(
+        f.run(
+          () =>
+            f.measure.invoke(
+              RecordMeasureSchema.parse({
+                source: { typeId: service.typeId },
+                aggregation: "sum",
+                valueFieldId: f.id("service.amount"),
+                groupBy: null,
+              }),
+            ),
+          f.member,
+        ),
+      ),
+    ).toBe(404);
+    expect(
+      await failure(f.run(() => f.query.invoke(RecordQuerySchema.parse({ typeId: randomUUID() })), f.member)),
+    ).toBe(404);
   });
 });
 
