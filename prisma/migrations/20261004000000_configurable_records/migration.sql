@@ -4348,7 +4348,8 @@ WHERE value."recordId" IS NULL
 HAVING count(*) > 0;
 
 -- Deal totals against the legacy line items (the v2 reconciliation query; the weighted value uses the
--- legacy option weight of the deal's stage value).
+-- legacy option weight of the deal's stage value, read as JavaScript read it, and is computed exactly: the
+-- retired check divided by 100 with PostgreSQL's rounded division and refused fractional weights).
 INSERT INTO crm_upgrade_mismatch
 SELECT 'values:deal.totals', count(*) FROM (
   WITH totals AS (
@@ -4359,7 +4360,7 @@ SELECT 'values:deal.totals', count(*) FROM (
     LEFT JOIN "Service" service ON service."companyId" = deal."companyId" AND service.id = line."serviceId"
     GROUP BY deal."companyId", deal.id
   ), expected AS (
-    SELECT totals.*, totals.value * (option.value ->> 'weight')::numeric / 100 AS weighted
+    SELECT totals.*, totals.value * crm_upgrade.js_num(crm_upgrade.js_parse_number((option.value ->> 'weight')::numeric))::numeric * 0.01 AS weighted
     FROM totals
     JOIN "Company" company ON company.id = totals."companyId"
     LEFT JOIN "CustomFieldValue" stage ON stage."companyId" = totals."companyId" AND stage."dealId" = totals.id AND stage."columnId" = company."dealWeightingColumnId"

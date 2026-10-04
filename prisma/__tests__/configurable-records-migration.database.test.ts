@@ -749,6 +749,28 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
     expect(f.webhook).toBeTruthy();
   });
 
+  it("weights deal values with fractional probabilities exactly", async () => {
+    const { client } = await legacyDatabase();
+    const f = await populateLegacyWorkspace(client);
+    await client.query(
+      `UPDATE "CustomColumn" SET options = jsonb_set(options, '{options,0,weight}', '33.333333333333336') WHERE id = $1`,
+      [f.columns.stage],
+    );
+    await client.query('UPDATE "Service" SET amount = 200.01 WHERE id = $1', [f.services.b]);
+    await applyConfigurableRecordsMigration(client);
+    // (2 x 1000 + 3 x 200.01) x 33.333333333333336 / 100, without rounding (rounded division gives ...736).
+    expect(await decimal(client, f, "deal", f.deals.weighted, "deal.totalValue")).toEqual({
+      state: "value",
+      value: "2600.03",
+      currency: "EUR",
+    });
+    expect(await decimal(client, f, "deal", f.deals.weighted, "deal.weightedValue")).toEqual({
+      state: "value",
+      value: "866.6766666666667360008",
+      currency: "EUR",
+    });
+  });
+
   it("applies the documented repairs and reconciles them", async () => {
     const { client } = await legacyDatabase();
     const f = await populateLegacyWorkspace(client);

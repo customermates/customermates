@@ -55,6 +55,7 @@ The retired multi-step upgrade refused the following data. This migration conver
 - Custom column labels with surrounding whitespace are converted (trimmed from revision 3 on); the retired upgrade refused them through a consistency check between its separately committed steps, which cannot drift in one transaction.
 - The migration bookkeeping table `RecordMigrationCheckpoint` and the legacy `custom_field_range_*` functions are not kept.
 - Grant actions are stored in enum order.
+- The weighted value check of the reconciliation is exact (`× 0.01`) and reads the probability as JavaScript did. The retired check divided by 100 with PostgreSQL's rounded division, so a fractional probability such as 33.333333333333336 failed its own reconciliation although the converted value was exact.
 
 ## Refusals
 
