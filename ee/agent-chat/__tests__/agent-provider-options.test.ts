@@ -18,6 +18,13 @@ describe("Agent provider options", () => {
 
   it("omits the inference region for a model without one instead of sending a global scope", () => {
     expect(getAgentProviderOptions("azure", null).gateway).not.toHaveProperty("inferenceRegion");
-    expect(getAgentProviderOptions("vertex", "eu").gateway.inferenceRegion).toEqual({ scope: "zone", geoRegion: "eu" });
+    expect(getAgentProviderOptions("vertex", "eu").gateway?.inferenceRegion).toEqual({
+      scope: "zone",
+      geoRegion: "eu",
+    });
+  });
+
+  it("sends an OVHcloud AI Endpoints round no gateway routing, caching or store flag", () => {
+    expect(getAgentProviderOptions("ovh", "eu")).toEqual({ openai: { parallelToolCalls: false } });
   });
 });

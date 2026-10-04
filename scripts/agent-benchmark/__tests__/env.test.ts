@@ -18,6 +18,19 @@ describe("benchmark environment", () => {
     expect(requireLocalBenchmarkEnvironment(base).appUrl).toBe("http://localhost:4107");
   });
 
+  it("requires the OVH key only when an OVH arm is selected", () => {
+    const ovhArm = { servingProvider: "ovh" };
+    const gatewayArm = { servingProvider: "vertex" };
+    expect(requireLocalBenchmarkEnvironment(base, [gatewayArm]).appUrl).toBe("http://localhost:4107");
+    expect(() => requireLocalBenchmarkEnvironment(base, [gatewayArm, ovhArm])).toThrow(/OVH_AI_ENDPOINTS_API_KEY/);
+    expect(() => requireLocalBenchmarkEnvironment({ ...base, OVH_AI_ENDPOINTS_API_KEY: "XXX" }, [ovhArm])).toThrow(
+      /OVH_AI_ENDPOINTS_API_KEY/,
+    );
+    expect(requireLocalBenchmarkEnvironment({ ...base, OVH_AI_ENDPOINTS_API_KEY: "ovh-key" }, [ovhArm]).appUrl).toBe(
+      "http://localhost:4107",
+    );
+  });
+
   it("refuses to start without the workflow base url, which otherwise stalls a campaign", () => {
     expect(() => requireLocalBenchmarkEnvironment({ ...base, WORKFLOW_LOCAL_BASE_URL: undefined })).toThrow(
       /WORKFLOW_LOCAL_BASE_URL=http:\/\/localhost:4107/,

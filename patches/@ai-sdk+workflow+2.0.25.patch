@@ -1,8 +1,8 @@
 diff --git a/node_modules/@ai-sdk/workflow/dist/index.js b/node_modules/@ai-sdk/workflow/dist/index.js
-index 954fb39..6e05ca1 100644
+index 954fb39..ebf381a 100644
 --- a/node_modules/@ai-sdk/workflow/dist/index.js
 +++ b/node_modules/@ai-sdk/workflow/dist/index.js
-@@ -246,253 +246,553 @@ function resolveSerializableTools(tools) {
+@@ -246,253 +246,559 @@ function resolveSerializableTools(tools) {
  }
  
  // src/do-stream-step.ts
@@ -403,8 +403,14 @@ index 954fb39..6e05ca1 100644
 +            ? AbortSignal.timeout(timeout)
 +            : AbortSignal.any([options.abortSignal, AbortSignal.timeout(timeout)]);
 +    // Resolve model inside step (must happen here for serialization boundary)
++    // A host may register a resolver for string ids that it serves without the
++    // AI Gateway. It runs here, inside the step, so the durable argument stays
++    // the serializable id and no credential crosses the step boundary. A
++    // resolver that returns undefined keeps the gateway resolution unchanged.
++    const hostModelResolver = globalThis[Symbol.for('ai-sdk.workflow.resolveLanguageModel')];
 +    const model = typeof modelInit === 'string'
-+        ? gateway.languageModel(modelInit)
++        ? (typeof hostModelResolver === 'function' ? hostModelResolver(modelInit) : undefined) ??
++            gateway.languageModel(modelInit)
 +        : modelInit;
 +    // Reconstruct tools from serializable definitions with Ajv validation.
 +    // Tools are serialized before crossing the step boundary because zod schemas
@@ -792,7 +798,7 @@ index 954fb39..6e05ca1 100644
  doStreamStep.maxRetries = 0;
  function upsertTextContentPart({
    content,
-@@ -746,6 +1046,29 @@ async function* streamTextIterator({
+@@ -746,6 +1052,29 @@ async function* streamTextIterator({
          runtimeContext: currentRuntimeContext,
          toolsContext: currentToolsContext
        });
@@ -822,7 +828,7 @@ index 954fb39..6e05ca1 100644
        await ((_j = telemetryDispatcher.onLanguageModelCallEnd) == null ? void 0 : _j.call(telemetryDispatcher, {
          callId: step.callId,
          provider: (_g = (_f = step.model) == null ? void 0 : _f.provider) != null ? _g : "unknown",
-@@ -762,9 +1085,10 @@ async function* streamTextIterator({
+@@ -762,9 +1091,10 @@ async function* streamTextIterator({
        lastStep = step;
        lastStepWasToolCalls = false;
        const finishReason = finish == null ? void 0 : finish.finishReason;
@@ -834,7 +840,7 @@ index 954fb39..6e05ca1 100644
          lastStepWasToolCalls = true;
          const assistantContent = getAssistantMessageContent(step);
          const includedToolCallIds = new Set(
-@@ -792,7 +1116,9 @@ async function* streamTextIterator({
+@@ -792,7 +1122,9 @@ async function* streamTextIterator({
            role: "tool",
            content: toolResults
          });
@@ -845,7 +851,7 @@ index 954fb39..6e05ca1 100644
            const stopConditionList = Array.isArray(stopConditions) ? stopConditions : [stopConditions];
            if (stopConditionList.some((test) => test({ steps }))) {
              done = true;
-@@ -934,144 +1260,155 @@ function normalizeStepForTelemetry(step) {
+@@ -934,144 +1266,155 @@ function normalizeStepForTelemetry(step) {
    };
  }
  function buildStepResult(raw, toolCalls, finish, opts) {
@@ -1137,7 +1143,7 @@ index 954fb39..6e05ca1 100644
    const content = [];
    for (const part of step.content) {
 diff --git a/node_modules/@ai-sdk/workflow/src/do-stream-step.ts b/node_modules/@ai-sdk/workflow/src/do-stream-step.ts
-index 1712672..d082d0b 100644
+index 1712672..8a96ae3 100644
 --- a/node_modules/@ai-sdk/workflow/src/do-stream-step.ts
 +++ b/node_modules/@ai-sdk/workflow/src/do-stream-step.ts
 @@ -142,6 +142,7 @@ export interface DoStreamStepRawResult {
@@ -1368,7 +1374,27 @@ index 1712672..d082d0b 100644
  export async function doStreamStep(
    conversationPrompt: LanguageModelV4Prompt,
    modelInit: LanguageModel,
-@@ -230,10 +444,13 @@ export async function doStreamStep(
+@@ -188,9 +402,18 @@ export async function doStreamStep(
+         : AbortSignal.any([options.abortSignal, AbortSignal.timeout(timeout)]);
+ 
+   // Resolve model inside step (must happen here for serialization boundary)
++  // A host may register a resolver for string ids that it serves without the
++  // AI Gateway. It runs here, inside the step, so the durable argument stays
++  // the serializable id and no credential crosses the step boundary. A
++  // resolver that returns undefined keeps the gateway resolution unchanged.
++  const hostModelResolver = (globalThis as Record<symbol, unknown>)[
++    Symbol.for('ai-sdk.workflow.resolveLanguageModel')
++  ];
+   const model: LanguageModel =
+     typeof modelInit === 'string'
+-      ? gateway.languageModel(modelInit)
++      ? ((typeof hostModelResolver === 'function'
++          ? (hostModelResolver as (modelId: string) => LanguageModel | undefined)(modelInit)
++          : undefined) ?? gateway.languageModel(modelInit))
+       : modelInit;
+ 
+   // Reconstruct tools from serializable definitions with Ajv validation.
+@@ -230,10 +453,13 @@ export async function doStreamStep(
      maxRetries: options?.maxRetries,
      abortSignal,
    });
@@ -1384,7 +1410,7 @@ index 1712672..d082d0b 100644
            model,
            // streamModelCall expects Prompt (ModelMessage[]) but we pass the
            // pre-converted LanguageModelV4Prompt. standardizePrompt inside
-@@ -257,8 +474,14 @@ export async function doStreamStep(
+@@ -257,8 +483,14 @@ export async function doStreamStep(
            stopSequences: options?.stopSequences,
            seed: options?.seed,
            repairToolCall: options?.repairToolCall,
@@ -1401,7 +1427,7 @@ index 1712672..d082d0b 100644
  
        return stream;
      } catch (error) {
-@@ -266,7 +489,7 @@ export async function doStreamStep(
+@@ -266,7 +498,7 @@ export async function doStreamStep(
          return undefined;
        }
  
@@ -1410,7 +1436,7 @@ index 1712672..d082d0b 100644
      }
    })();
  
-@@ -292,16 +515,30 @@ export async function doStreamStep(
+@@ -292,16 +524,30 @@ export async function doStreamStep(
    let warnings: unknown[] | undefined;
    let terminalError: unknown;
    let hasTerminalError = false;
@@ -1443,7 +1469,7 @@ index 1712672..d082d0b 100644
  
      for await (const part of modelStream) {
        switch (part.type) {
-@@ -418,7 +655,7 @@ export async function doStreamStep(
+@@ -418,7 +664,7 @@ export async function doStreamStep(
              providerExecutedToolResults.set(errorPart.toolCallId, {
                toolCallId: errorPart.toolCallId,
                toolName: errorPart.toolName,
@@ -1452,7 +1478,7 @@ index 1712672..d082d0b 100644
                isError: true,
              });
            }
-@@ -442,27 +679,38 @@ export async function doStreamStep(
+@@ -442,27 +688,38 @@ export async function doStreamStep(
            break;
        }
  
@@ -1509,7 +1535,7 @@ index 1712672..d082d0b 100644
        }
      }
    } catch (error) {
-@@ -470,7 +718,23 @@ export async function doStreamStep(
+@@ -470,7 +727,23 @@ export async function doStreamStep(
        return { aborted: true };
      }
  
@@ -1534,7 +1560,7 @@ index 1712672..d082d0b 100644
    } finally {
      writer?.releaseLock();
    }
-@@ -482,6 +746,14 @@ export async function doStreamStep(
+@@ -482,6 +755,14 @@ export async function doStreamStep(
      return { aborted: true };
    }
  
@@ -1549,7 +1575,7 @@ index 1712672..d082d0b 100644
    return {
      toolCalls,
      finish,
-@@ -490,6 +762,7 @@ export async function doStreamStep(
+@@ -490,6 +771,7 @@ export async function doStreamStep(
        reasoning: reasoningParts,
        responseMetadata,
        warnings,

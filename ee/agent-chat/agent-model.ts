@@ -1,4 +1,5 @@
 import { lowestModelPromptTierBoundary, resolveModelPricing, type ModelInferenceRegion } from "./model-pricing";
+import { assertOvhModelEntry } from "./ovh-ai-endpoints-catalog";
 
 export const AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS = 2_500;
 export const AGENT_CONTEXT_BYTES_PER_TOKEN = 3;
@@ -33,6 +34,7 @@ export function isAgentModelWithinBudgetEnvelope(entry: AgentModelEntry) {
 }
 
 export function assertServableEntry(label: string, entry: AgentModelEntry) {
+  assertOvhModelEntry(label, entry);
   resolveModelPricing(
     entry.modelId,
     agentModelWorstCasePromptTokens(entry),

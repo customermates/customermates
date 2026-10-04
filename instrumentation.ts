@@ -23,6 +23,11 @@ export async function register() {
     } satisfies Sentry.NodeOptions);
   }
 
+  if (env.NEXT_RUNTIME === "nodejs") {
+    const { installAgentLanguageModelResolver } = await import("@/ee/agent-chat/ovh-ai-endpoints");
+    installAgentLanguageModelResolver();
+  }
+
   if (env.NEXT_RUNTIME === "nodejs" && env.WORKFLOW_TARGET_WORLD) {
     try {
       const { getWorld } = await import("workflow/runtime");

@@ -46,6 +46,7 @@ import {
   type MergeCheckFailure,
 } from "./gate";
 import { judgeArtifact, judgeVerdictIsComplete } from "./judge";
+import { verifyArms, type ArmVerification } from "./verify-arms";
 import { validateJudgePreflight } from "./judge-preflight";
 import {
   benchmarkReportDirectoryName,
@@ -58,7 +59,6 @@ import {
 
 const RUNS_DIR = resolve(process.cwd(), "scripts/agent-benchmark/.runs");
 const REPORTS_DIR = resolve(process.cwd(), "scripts/agent-benchmark/reports");
-const GATEWAY_MODELS_URL = "https://ai-gateway.vercel.sh/v1/models";
 
 type Flags = Record<string, string | boolean>;
 
@@ -82,38 +82,6 @@ function parseArgs(argv: string[]): { command: string; flags: Flags } {
 function list(flag: string | boolean | undefined, fallback: string[]): string[] {
   if (typeof flag !== "string" || !flag.trim()) return fallback;
   return flag.split(",").map((value) => value.trim()).filter(Boolean);
-}
-
-type ArmVerification = { arm: string; modelId: string; provider: string; eligible: boolean; hasZdr: boolean | null; hasNoTraining: boolean | null; reason: string | null; promptUsd: string | null; completionUsd: string | null };
-
-async function verifyArms(arms: readonly BenchmarkArm[]): Promise<ArmVerification[]> {
-  const results: ArmVerification[] = [];
-  for (const arm of arms) {
-    const response = await fetch(`${GATEWAY_MODELS_URL}/${arm.modelId}/endpoints`);
-    if (!response.ok) {
-      results.push({ arm: arm.id, modelId: arm.modelId, provider: arm.servingProvider, eligible: false, hasZdr: null, hasNoTraining: null, reason: `gateway ${response.status}`, promptUsd: null, completionUsd: null });
-      continue;
-    }
-    const body = (await response.json()) as { data?: { endpoints?: { provider_name?: string; name?: string; has_zdr?: boolean; has_no_training?: boolean; pricing?: { prompt?: string; completion?: string } }[] } };
-    const endpoint = body.data?.endpoints?.find((candidate) => (candidate.provider_name ?? candidate.name) === arm.servingProvider);
-    if (!endpoint) {
-      results.push({ arm: arm.id, modelId: arm.modelId, provider: arm.servingProvider, eligible: false, hasZdr: null, hasNoTraining: null, reason: "provider no longer serves the model", promptUsd: null, completionUsd: null });
-      continue;
-    }
-    const eligible = endpoint.has_zdr === true && endpoint.has_no_training === true;
-    results.push({
-      arm: arm.id,
-      modelId: arm.modelId,
-      provider: arm.servingProvider,
-      eligible,
-      hasZdr: endpoint.has_zdr ?? null,
-      hasNoTraining: endpoint.has_no_training ?? null,
-      reason: eligible ? null : "endpoint reports no ZDR or no prompt-training opt-out",
-      promptUsd: endpoint.pricing?.prompt ?? null,
-      completionUsd: endpoint.pricing?.completion ?? null,
-    });
-  }
-  return results;
 }
 
 async function withPool<T>(run: (pool: Pool) => Promise<T>): Promise<T> {
@@ -360,9 +328,9 @@ async function main() {
   }
 
   if (command === "run") {
-    const env = requireLocalBenchmarkEnvironment();
-    const campaignId = String(flags.campaign ?? "");
     const armIds = list(flags.arms, defaultBenchmarkArmIds());
+    const env = requireLocalBenchmarkEnvironment(process.env, armIds.map(armById));
+    const campaignId = String(flags.campaign ?? "");
     const suite = BENCHMARK_CASES.filter((definition) => definition.heldout !== true);
     const defaultCases = armIds.length === 1 && armIds[0] === "shipped"
       ? suite
@@ -397,7 +365,7 @@ async function main() {
 
   if (command === "check") {
     const suite = BENCHMARK_CASES.filter((definition) => definition.heldout !== true);
-    const env = requireLocalBenchmarkEnvironment();
+    const env = requireLocalBenchmarkEnvironment(process.env, defaultBenchmarkArmIds().map(armById));
     const sourceAtStart = benchmarkSourceIdentity({ refresh: true });
     if (sourceAtStart.sourceDirty)
       throw new Error(

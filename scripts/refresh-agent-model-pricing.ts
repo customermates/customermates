@@ -1,6 +1,14 @@
 import { writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+import {
+  OVH_AI_ENDPOINTS_ATTESTATION,
+  OVH_AI_ENDPOINTS_MODELS_URL,
+  OVH_MODEL_ID_PREFIX,
+  OVH_SERVING_PROVIDER,
+} from "@/ee/agent-chat/ovh-ai-endpoints-catalog";
 
 const GATEWAY_ENDPOINTS_URL = "https://ai-gateway.vercel.sh/v1/models";
 const SNAPSHOT_PATH = join(process.cwd(), "ee/agent-chat/model-pricing.snapshot.ts");
@@ -37,6 +45,61 @@ const PINNED = [
   pin("alibaba/qwen3-coder-next", "bedrock", null),
   pin("typesafe-ai/jev", "digitalocean", null),
 ];
+
+// OVHcloud AI Endpoints is served directly, so its prices come from OVH's own
+// public catalog rather than the Gateway. Each pin is the native OVH id.
+const OVH_PINNED = [
+  "Qwen3.8-27B",
+  "Qwen3.5-397B-A17B",
+  "gpt-oss-120b",
+  "Mistral-Small-3.2-24B-Instruct-2506",
+  "Qwen3-Coder-30B-A3B-Instruct",
+];
+
+type OvhCatalogModel = {
+  id: string;
+  pricing?: Record<string, unknown>;
+  context_length?: unknown;
+  max_completion_tokens?: unknown;
+};
+
+function ovhRate(pricing: Record<string, unknown>, key: string, nativeModelId: string): string {
+  const rate = pricing[key];
+  if (typeof rate !== "string" || !/^\d+(\.\d+)?$/.test(rate))
+    throw new Error(`OVH model ${nativeModelId} is unpriceable: missing ${key}`);
+  return rate;
+}
+
+export function ovhPricingEndpoint(nativeModelId: string, catalog: { data?: OvhCatalogModel[] }) {
+  const model = catalog.data?.find((candidate) => candidate.id === nativeModelId);
+  if (!model) throw new Error(`OVH catalog no longer contains ${nativeModelId}`);
+  const pricing = model.pricing ?? {};
+  if (pricing.currency_unit !== "USD")
+    throw new Error(`OVH model ${nativeModelId} is priced in ${String(pricing.currency_unit)}, not USD`);
+  if (typeof model.context_length !== "number" || !Number.isSafeInteger(model.context_length) || model.context_length < 1)
+    throw new Error(`OVH model ${nativeModelId} reports no usable context length`);
+  const maxCompletionTokens =
+    typeof model.max_completion_tokens === "number" &&
+    Number.isSafeInteger(model.max_completion_tokens) &&
+    model.max_completion_tokens > 0
+      ? model.max_completion_tokens
+      : null;
+
+  return {
+    modelId: `${OVH_MODEL_ID_PREFIX}${nativeModelId}`,
+    providerNativeModelId: nativeModelId,
+    provider: OVH_SERVING_PROVIDER,
+    inferenceRegion: OVH_AI_ENDPOINTS_ATTESTATION.inferenceRegion,
+    contextLength: model.context_length,
+    maxCompletionTokens,
+    requestUsd: ovhRate(pricing, "request", nativeModelId),
+    webSearchUsdPerThousandCalls: "0",
+    prompt: [{ costUsdPerToken: ovhRate(pricing, "prompt", nativeModelId) }],
+    completion: [{ costUsdPerToken: ovhRate(pricing, "completion", nativeModelId) }],
+    inputCacheRead: [{ costUsdPerToken: ovhRate(pricing, "input_cache_reads", nativeModelId) }],
+    inputCacheWrite: [{ costUsdPerToken: ovhRate(pricing, "input_cache_writes", nativeModelId) }],
+  };
+}
 
 type CatalogTier = { cost: string; min?: number; max?: number };
 type CatalogPricing = Record<string, string | CatalogTier[] | unknown>;
@@ -129,8 +192,16 @@ async function main() {
     });
   }
 
+  const ovhResponse = await fetch(OVH_AI_ENDPOINTS_MODELS_URL);
+  if (!ovhResponse.ok) throw new Error(`OVH returned ${ovhResponse.status} for the model catalog`);
+  const ovhCatalog = (await ovhResponse.json()) as { data?: OvhCatalogModel[] };
+  for (const nativeModelId of OVH_PINNED) {
+    console.log(`pinning ${OVH_MODEL_ID_PREFIX}${nativeModelId} on ${OVH_SERVING_PROVIDER} (${OVH_AI_ENDPOINTS_ATTESTATION.inferenceRegion})`);
+    endpoints.push(ovhPricingEndpoint(nativeModelId, ovhCatalog));
+  }
+
   const snapshot = {
-    source: `${GATEWAY_ENDPOINTS_URL} and ${GATEWAY_ENDPOINTS_URL}/{model}/endpoints`,
+    source: `${GATEWAY_ENDPOINTS_URL} and ${GATEWAY_ENDPOINTS_URL}/{model}/endpoints; ${OVH_AI_ENDPOINTS_MODELS_URL}`,
     fetchedAt: new Date().toISOString().replace(/\.\d{3}Z$/, "Z"),
     endpoints,
   };
@@ -140,4 +211,5 @@ async function main() {
   console.log(`Refreshed pricing for ${endpoints.length} endpoint(s).`);
 }
 
-await main();
+const invokedPath = process.argv[1];
+if (invokedPath && resolve(invokedPath) === fileURLToPath(import.meta.url)) await main();

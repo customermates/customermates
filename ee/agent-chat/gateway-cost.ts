@@ -1,3 +1,5 @@
+import { agentServingProviderUsesGateway } from "./ovh-ai-endpoints-catalog";
+
 const MICROCENT_DECIMALS = 8;
 
 export type AgentProviderCharge = {
@@ -10,6 +12,8 @@ export type AgentProviderChargeReading =
   | { outcome: "measured"; charge: AgentProviderCharge }
   | { outcome: "notBilled" }
   | { outcome: "unreadable"; reason: string };
+
+export type AgentServedChargeReading = AgentProviderChargeReading | { outcome: "tokenPriced" };
 
 function record(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
@@ -96,4 +100,15 @@ export function readAgentProviderCharge(metadata: unknown, expectedProvider: str
       generationId: typeof gateway.generationId === "string" ? gateway.generationId : null,
     },
   };
+}
+
+export function readAgentServedCharge(metadata: unknown, servingProvider: string): AgentServedChargeReading {
+  if (agentServingProviderUsesGateway(servingProvider)) return readAgentProviderCharge(metadata, servingProvider);
+  if (record(record(metadata)?.gateway)) {
+    return {
+      outcome: "unreadable",
+      reason: `the gateway reported a receipt for "${servingProvider}", which is served without the gateway`,
+    };
+  }
+  return { outcome: "tokenPriced" };
 }

@@ -76,7 +76,8 @@ import { benchmarkToolOutputPart } from "@/ee/agent-chat/benchmark-tool-output";
 import { agentAuxiliaryCharge, buildAgentTurnClassifierTrace } from "@/ee/agent-chat/agent-classifier-trace";
 import { getAgentChatRepo, getBackgroundTaskService } from "@/core/di";
 import { internalToolIdentity, WIKI_WEBSITE_IMPORT_TOOL_NAME } from "@/ee/agent-chat/tool-identity";
-import { readAgentProviderCharge, readGatewayCostMicrocents } from "@/ee/agent-chat/gateway-cost";
+import type { readAgentProviderCharge } from "@/ee/agent-chat/gateway-cost";
+import { readAgentServedCharge, readGatewayCostMicrocents } from "@/ee/agent-chat/gateway-cost";
 import {
   readAgentProviderErrorCharge,
   readAgentProviderRateLimit,
@@ -168,6 +169,7 @@ type RoundLedgerEntry = {
   costMicrocents: number;
   measured: boolean;
   unreadableReason?: string;
+  tokenPriced?: boolean;
 };
 
 type AgentTurnUsageOutcome = {
@@ -239,10 +241,11 @@ function usageSettlementForTurn(payload: AgentTurnWorkflowPayload, outcome: Agen
   const unreadableReason =
     outcome.ledger.find((entry) => entry.unreadableReason)?.unreadableReason ??
     (unreportedProviderRounds > 0 ? "an attempted provider round reported no usage evidence" : null);
-  if (!measured && (outcome.ledger.length > 0 || unreportedProviderRounds > 0)) {
+  const anomalousRounds = outcome.ledger.filter((entry) => !entry.measured && !entry.tokenPriced).length;
+  if (anomalousRounds > 0 || unreportedProviderRounds > 0) {
     void reportWarning(
       WORKFLOW_NAME,
-      `Agent usage settled from modelled cost because the provider charge was unreadable (${unreadableReason ?? "no reason"}) for ${outcome.ledger.filter((entry) => !entry.measured).length + unreportedProviderRounds} of ${outcome.ledger.length + unreportedProviderRounds} rounds on ${payload.turnBudget.modelSpec}.`,
+      `Agent usage settled from modelled cost because the provider charge was unreadable (${unreadableReason ?? "no reason"}) for ${anomalousRounds + unreportedProviderRounds} of ${outcome.ledger.length + unreportedProviderRounds} rounds on ${payload.turnBudget.modelSpec}.`,
       payload.tenant,
     );
   }
@@ -1274,14 +1277,22 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         webSearchCalls += agentWebSearchCallsInStep(step);
         if (webSearchCalls > webSearchCallLimit) webSearchOvershoot = true;
         const chargeableSearches = agentWebSearchChargeableCallsInStep(step, isSuccessfulAgentWebResult);
-        const charge = readAgentProviderCharge(step.providerMetadata, payload.turnBudget.servingProvider);
+        const hasTokenUsage = Object.values(roundTokens).some((count) => count > 0);
+        const servedCharge = readAgentServedCharge(step.providerMetadata, payload.turnBudget.servingProvider);
+        const charge =
+          servedCharge.outcome === "tokenPriced" && !hasTokenUsage
+            ? ({
+                outcome: "unreadable",
+                reason: "the provider reported no token usage for a round it issues no receipt for",
+              } as const)
+            : servedCharge;
+        const tokenPriced = charge.outcome === "tokenPriced";
         const roundCharge = readAgentProviderRoundCharge(step.providerMetadata, payload.turnBudget.servingProvider);
         const gatewayDebitMicrocents = readGatewayCostMicrocents(step.providerMetadata);
         const hasPositiveGatewayDebit = (gatewayDebitMicrocents ?? 0) > 0;
-        const hasTokenUsage = Object.values(roundTokens).some((count) => count > 0);
         const remainingReservationMicrocents = Math.max(0, reservedMicrocents - accruedCostMicrocents());
         const estimatedInferenceMicrocents =
-          charge.outcome !== "unreadable"
+          charge.outcome === "measured" || charge.outcome === "notBilled"
             ? 0
             : !hasPositiveGatewayDebit && !hasTokenUsage
               ? Math.max(1, Math.min(payload.turnBudget.roundReserveMicrocents, remainingReservationMicrocents))
@@ -1331,7 +1342,13 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
               : undefined;
 
         tokens = addTokens(tokens, roundTokens);
-        ledger.push({ tokens: roundTokens, costMicrocents, measured, unreadableReason });
+        ledger.push({
+          tokens: roundTokens,
+          costMicrocents,
+          measured,
+          unreadableReason,
+          ...(tokenPriced && !roundCharge ? { tokenPriced: true } : {}),
+        });
         unreportedProviderRounds = Math.max(0, unreportedProviderRounds - 1);
 
         const roundOutcome = await persistRound(payload, {

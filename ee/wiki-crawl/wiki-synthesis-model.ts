@@ -10,8 +10,9 @@ import {
 } from "@/ee/agent-chat/agent-model";
 import { getAgentProviderOptions } from "@/ee/agent-chat/agent-provider-options";
 import { googleThinkingProviderOptions } from "@/ee/agent-chat/agent-thinking-options";
-import { readAgentProviderCharge } from "@/ee/agent-chat/gateway-cost";
+import { readAgentServedCharge } from "@/ee/agent-chat/gateway-cost";
 import { computeCostMicrocents } from "@/ee/agent-chat/model-pricing";
+import { resolveAgentLanguageModel } from "@/ee/agent-chat/ovh-ai-endpoints";
 
 const TIMEOUT_MS = 90_000;
 
@@ -74,7 +75,7 @@ export async function generateWikiSynthesisObject<T>(args: {
   const inputTokens = promptTokens(args.system, args.prompt);
   try {
     const result = await generateText({
-      model: args.model.modelId,
+      model: resolveAgentLanguageModel(args.model.modelId) ?? args.model.modelId,
       system: args.system,
       prompt: args.prompt,
       output: Output.object({ schema: args.schema }),
@@ -87,9 +88,9 @@ export async function generateWikiSynthesisObject<T>(args: {
       },
     });
     const usage = result.usage;
-    const reading = readAgentProviderCharge(result.providerMetadata, args.model.servingProvider);
+    const reading = readAgentServedCharge(result.providerMetadata, args.model.servingProvider);
     const charge: AgentRetrievalCharge =
-      reading.outcome === "unreadable"
+      reading.outcome === "unreadable" || reading.outcome === "tokenPriced"
         ? estimatedCharge(
             args.model,
             usage.inputTokens ?? inputTokens,

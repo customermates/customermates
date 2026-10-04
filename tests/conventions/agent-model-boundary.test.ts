@@ -9,6 +9,9 @@ const MODEL_CALL_PATTERN =
   /\b(?:streamText|generateText|generateObject|streamObject|embed|embedMany)\s*\(|\bnew\s+(?:Agent|WorkflowAgent|ToolLoopAgent)\s*\(/;
 const PROVIDER_FACTORY_PATTERN =
   /\b(?:createOpenAI|createAnthropic|createGoogleGenerativeAI|createGateway|createProviderRegistry|customProvider|wrapProvider)\s*\(/;
+// The one audited module that builds a provider model outside the AI Gateway.
+// It reads its key at call time inside the step that makes the model call.
+const APPROVED_PROVIDER_FACTORY_FILES = ["ee/agent-chat/ovh-ai-endpoints.ts"];
 const APPROVED_MODEL_CALL_FILES = [
   "ee/wiki-crawl/wiki-synthesis-model.ts",
   "ee/wiki-retrieval/wiki-embedding-model.ts",
@@ -53,8 +56,27 @@ describe("agent model budget boundary", () => {
     expect(workflow).toContain("agentAuxiliaryCharge(auxiliaryCharges).costMicrocents");
   });
 
-  it("never constructs a provider instance, so no api key can reach a durable step argument", () => {
-    expect(matchingProductionFiles(PROVIDER_FACTORY_PATTERN)).toEqual([]);
+  it("constructs a provider instance only in the audited direct-provider module, so no api key can reach a durable step argument", () => {
+    expect(matchingProductionFiles(PROVIDER_FACTORY_PATTERN)).toEqual(APPROVED_PROVIDER_FACTORY_FILES);
+
+    const ovh = readFileSync(`${REPO_ROOT}/ee/agent-chat/ovh-ai-endpoints.ts`, "utf8");
+    expect(ovh.match(/\bcreateOpenAI\s*\(/g)).toHaveLength(1);
+    expect(ovh).toContain("baseURL: OVH_AI_ENDPOINTS_BASE_URL");
+    expect(ovh).toContain(".chat(nativeModelId)");
+    expect(ovh).toContain("env.OVH_AI_ENDPOINTS_API_KEY");
+
+    // Model instances are built inside the step from the string id: the turn
+    // never imports the factory, the patched workflow resolves through the
+    // registered resolver, and the server registers it at startup.
+    const workflow = readFileSync(`${REPO_ROOT}/workflows/agent-turn.ts`, "utf8");
+    expect(workflow).not.toContain("ovh-ai-endpoints\"");
+    const patch = readFileSync(`${REPO_ROOT}/patches/@ai-sdk+workflow+2.0.25.patch`, "utf8");
+    expect(patch).toContain("Symbol.for('ai-sdk.workflow.resolveLanguageModel')");
+    expect(ovh).toContain('Symbol.for("ai-sdk.workflow.resolveLanguageModel")');
+    const instrumentation = readFileSync(`${REPO_ROOT}/instrumentation.ts`, "utf8");
+    expect(instrumentation).toContain("installAgentLanguageModelResolver()");
+    const synthesis = readFileSync(`${REPO_ROOT}/ee/wiki-crawl/wiki-synthesis-model.ts`, "utf8");
+    expect(synthesis).toContain("model: resolveAgentLanguageModel(args.model.modelId) ?? args.model.modelId");
   });
 
   it("addresses models by gateway id from the catalog rather than by a hardcoded string", () => {
@@ -71,6 +93,7 @@ describe("agent model budget boundary", () => {
     expect(options).toContain('caching: "auto"');
     expect(options).toContain("parallelToolCalls: false");
     expect(options).toContain("store: false");
+    expect(options).toContain("if (!agentServingProviderUsesGateway(servingProvider))");
     expect(workflow).toContain("...googleThinkingProviderOptions(payload.turnBudget)");
   });
 

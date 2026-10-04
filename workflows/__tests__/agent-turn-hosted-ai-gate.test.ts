@@ -38,6 +38,7 @@ const state = vi.hoisted(() => ({
   reconcile: vi.fn(),
   close: vi.fn(),
   reportFailure: vi.fn(),
+  reportWarning: vi.fn(() => Promise.resolve()),
   toolLoadFailure: false,
   providerOptions: null as unknown,
   maxRetries: undefined as number | undefined,
@@ -395,7 +396,7 @@ vi.mock("@/i18n/locale-registry", async (importOriginal) => ({
 }));
 vi.mock("../capture-failure", () => ({
   reportFailure: state.reportFailure,
-  reportWarning: () => Promise.resolve(),
+  reportWarning: state.reportWarning,
   toWorkflowFailure: (error: unknown) => error,
 }));
 
@@ -438,6 +439,7 @@ beforeEach(() => {
   state.providerCalls = 0;
   state.writes = [];
   state.toolLoadFailure = false;
+  state.reportWarning.mockClear();
   state.providerOptions = null;
   state.maxRetries = undefined;
   state.instructions = [];
@@ -4361,5 +4363,104 @@ describe("agent-turn rate-limited provider requests", () => {
       expect(sleeps()).toEqual([]);
       expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ stopReason: "provider_error" }));
     });
+  });
+});
+
+describe("agent-turn rounds on a provider without receipts", () => {
+  const ovhPayload: AgentTurnWorkflowPayload = {
+    ...payload,
+    turnBudget: {
+      ...payload.turnBudget,
+      modelSpec: "ovh/Qwen3.8-27B",
+      servingProvider: "ovh",
+      inferenceRegion: "eu",
+    },
+  };
+
+  function ovhStep(inputTokens: number, outputTokens: number) {
+    const step = streamedStep("A reply.", "stop", outputTokens);
+    return {
+      ...step,
+      usage: {
+        ...step.usage,
+        inputTokens,
+        totalTokens: inputTokens + outputTokens,
+        inputTokenDetails: { noCacheTokens: inputTokens, cacheReadTokens: 0, cacheWriteTokens: 0 },
+      },
+      providerMetadata: { openai: { acceptedPredictionTokens: 0, rejectedPredictionTokens: 0 } },
+    };
+  }
+
+  it("prices an OVH round from its tokens as an expected estimate, without gateway options or an unreadable-receipt warning", async () => {
+    state.runTools = ({ messages }) =>
+      Promise.resolve({ finishReason: "stop", messages, steps: [ovhStep(1_000, 200)] });
+
+    await runAgentTurn(ovhPayload);
+
+    expect(state.providerOptions).toEqual({ openai: { parallelToolCalls: false } });
+    expect(state.recordRound).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ costMicrocents: 110_800 }));
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        usageSettlement: expect.objectContaining({
+          model: "ovh/Qwen3.8-27B",
+          costMicrocents: 110_800,
+          chargedMicrocents: 110_800,
+          costSource: "estimated",
+          policyBreach: false,
+        }),
+      }),
+    );
+    expect(state.reportWarning).not.toHaveBeenCalledWith(
+      "agent-turn",
+      expect.stringContaining("unreadable"),
+      expect.anything(),
+    );
+  });
+
+  it("still treats an OVH round that reports no tokens as unreadable and charges its round reserve", async () => {
+    state.runTools = ({ messages }) =>
+      Promise.resolve({ finishReason: "stop", messages, steps: [{ ...ovhStep(0, 0), content: [] }] });
+
+    await runAgentTurn(ovhPayload);
+
+    expect(state.recordRound).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ costMicrocents: ovhPayload.turnBudget.roundReserveMicrocents }),
+    );
+    expect(state.reportWarning).toHaveBeenCalledWith(
+      "agent-turn",
+      expect.stringContaining("reported no token usage"),
+      expect.anything(),
+    );
+  });
+
+  it("flags a gateway receipt on an OVH round instead of trusting it", async () => {
+    state.runTools = ({ messages }) =>
+      Promise.resolve({
+        finishReason: "stop",
+        messages,
+        steps: [
+          {
+            ...ovhStep(1_000, 200),
+            providerMetadata: {
+              gateway: {
+                gatewayCost: "0.0007",
+                cost: "0.0007",
+                routing: {
+                  finalProvider: "ovh",
+                  modelAttempts: [{ providerAttempts: [{ provider: "ovh", credentialType: "system", success: true }] }],
+                },
+              },
+            },
+          },
+        ],
+      });
+
+    await runAgentTurn(ovhPayload);
+
+    expect(state.reportWarning).toHaveBeenCalledWith(
+      "agent-turn",
+      expect.stringContaining("which is served without the gateway"),
+      expect.anything(),
+    );
   });
 });

@@ -168,7 +168,7 @@ Commands (`yarn agent:benchmark <command>`):
 
 - `arms`, `cases`: list arms and cases. Counts always come from this live registry rather than a number copied into
   documentation.
-- `verify-arms`: read the Gateway endpoint listing and record which arms report ZDR and no-training; excluded arms never run.
+- `verify-arms`: read the Gateway endpoint listing and record which arms report ZDR and no-training; excluded arms never run. OVHcloud AI Endpoints arms (`ovh-*`, served directly with `servingProvider: "ovh"`) never query the Gateway: they are eligible from the recorded attestation `OVH_AI_ENDPOINTS_ATTESTATION` in `ee/agent-chat/ovh-ai-endpoints-catalog.ts` while the model is still listed in OVH's public `/v1/models` catalog. Running an OVH arm also needs `OVH_AI_ENDPOINTS_API_KEY` in the environment of the application server and the CLI.
 - `check --label pr-182-final --cap 20`: create (or, with `--campaign`, resume) a one-repetition merge run over every
   case with the shipped control resolved from `SHIPPED_AGENT_MODEL`. The model-pinning contract R49
   selects the benchmark-only overlay model `bench:flash-low` (Gemini 3.5 Flash on Vertex EU, a different model from the

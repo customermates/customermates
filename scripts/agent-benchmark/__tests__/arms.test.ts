@@ -3,6 +3,9 @@ import { describe, expect, it } from "vitest";
 import type { AgentModelEntry } from "@/ee/agent-chat/model-catalog";
 
 import { SHIPPED_AGENT_MODEL, SHIPPED_AGENT_MODEL_KEY } from "@/ee/agent-chat/model-catalog";
+import { agentModelWorstCasePromptTokens, assertServableEntry } from "@/ee/agent-chat/agent-model";
+import { loadBenchmarkModelOverlay } from "@/ee/agent-chat/benchmark-model-registry";
+import { modelContextLength } from "@/ee/agent-chat/model-pricing";
 
 import {
   armById,
@@ -52,5 +55,29 @@ describe("benchmark arms", () => {
     expect(benchmarkModelEntries([experimental])).toEqual([
       expect.objectContaining({ key: "bench:flash-lite-medium", thinkingLevel: "medium", maxOutputTokens: 8192 }),
     ]);
+  });
+
+  it("adds OVHcloud AI Endpoints arms as servable EU entries in the overlay", () => {
+    const ovhArms = BENCHMARK_ARMS.filter((arm) => arm.servingProvider === "ovh");
+
+    expect(ovhArms.map((arm) => arm.modelId).sort()).toEqual([
+      "ovh/Mistral-Small-3.2-24B-Instruct-2506",
+      "ovh/Qwen3-Coder-30B-A3B-Instruct",
+      "ovh/Qwen3.5-397B-A17B",
+      "ovh/Qwen3.8-27B",
+      "ovh/gpt-oss-120b",
+    ]);
+    for (const arm of ovhArms) {
+      expect(arm).toMatchObject({ family: "ovh", inferenceRegion: "eu" });
+      expect(arm.thinkingLevel).toBeUndefined();
+      expect(() => assertServableEntry(arm.id, modelEntry(arm))).not.toThrow();
+      expect(agentModelWorstCasePromptTokens(modelEntry(arm)) + arm.maxOutputTokens).toBeLessThan(
+        modelContextLength(arm.modelId, "ovh", "eu"),
+      );
+    }
+    expect(armById("ovh-gpt-oss-120b-low").reasoningEffort).toBe("low");
+    expect(
+      loadBenchmarkModelOverlay({ LOCAL_AGENT_BENCHMARK: "true", AGENT_BENCHMARK_ARMS: benchmarkArmsOverlayJson(ovhArms) }),
+    ).toHaveProperty("bench:ovh-qwen38-27b", expect.objectContaining({ servingProvider: "ovh" }));
   });
 });

@@ -3,8 +3,18 @@ import type { BenchmarkModelEntry } from "@/ee/agent-chat/benchmark-model-regist
 
 import { SHIPPED_AGENT_MODEL, SHIPPED_AGENT_MODEL_KEY } from "@/ee/agent-chat/model-catalog";
 import { BENCHMARK_MODEL_KEY_PREFIX } from "@/ee/agent-chat/benchmark-model-registry";
+import { OVH_MODEL_ID_PREFIX, OVH_SERVING_PROVIDER } from "@/ee/agent-chat/ovh-ai-endpoints-catalog";
 
-type BenchmarkFamily = "google" | "openai" | "anthropic" | "deepseek" | "zai" | "moonshot" | "mistral" | "alibaba";
+type BenchmarkFamily =
+  | "google"
+  | "openai"
+  | "anthropic"
+  | "deepseek"
+  | "zai"
+  | "moonshot"
+  | "mistral"
+  | "alibaba"
+  | "ovh";
 
 export type BenchmarkArm = AgentModelEntry & {
   id: string;
@@ -24,6 +34,7 @@ const FAMILY_BY_MODEL_VENDOR = {
   moonshotai: "moonshot",
   mistral: "mistral",
   alibaba: "alibaba",
+  ovh: "ovh",
 } as const satisfies Record<string, BenchmarkFamily>;
 
 function benchmarkFamily(modelId: string): BenchmarkFamily {
@@ -108,6 +119,29 @@ function hosted(
   };
 }
 
+// OVHcloud AI Endpoints arms are served directly, not through the Gateway
+// (servingProvider "ovh", region "eu"). The shared envelope fits every OVH
+// model's context window (131k or 262k tokens). Qwen3.x thinking models run
+// with OVH's default reasoning behavior; only gpt-oss accepts reasoning_effort.
+function ovh(
+  id: string,
+  nativeModelId: string,
+  reasoningEffort: AgentReasoningEffort | undefined,
+  label: string,
+): BenchmarkArm {
+  return {
+    id,
+    label,
+    modelId: `${OVH_MODEL_ID_PREFIX}${nativeModelId}`,
+    servingProvider: OVH_SERVING_PROVIDER,
+    inferenceRegion: "eu",
+    maxOutputTokens: 8192,
+    ...ENVELOPE,
+    ...(reasoningEffort ? { reasoningEffort } : {}),
+    family: "ovh",
+  };
+}
+
 export const BENCHMARK_ARMS: readonly BenchmarkArm[] = [
   shipped(),
   google("flash-lite-minimal", "google/gemini-3.5-flash-lite", "minimal", "Gemini 3.5 Flash-Lite, thinking minimal, 8192 output"),
@@ -139,6 +173,11 @@ export const BENCHMARK_ARMS: readonly BenchmarkArm[] = [
   hosted("kimi-k27-code", "moonshotai/kimi-k2.7-code", "baseten", "moonshot", undefined, "Kimi K2.7 Code (Baseten)"),
   hosted("mistral-large-3", "mistral/mistral-large-3", "mistral", "mistral", undefined, "Mistral Large 3"),
   hosted("qwen3-coder-next", "alibaba/qwen3-coder-next", "bedrock", "alibaba", undefined, "Qwen3 Coder Next (Bedrock)"),
+  ovh("ovh-qwen38-27b", "Qwen3.8-27B", undefined, "Qwen3.8 27B (OVHcloud AI Endpoints, EU)"),
+  ovh("ovh-qwen35-397b", "Qwen3.5-397B-A17B", undefined, "Qwen3.5 397B-A17B (OVHcloud AI Endpoints, EU)"),
+  ovh("ovh-gpt-oss-120b-low", "gpt-oss-120b", "low", "gpt-oss-120b, reasoning low (OVHcloud AI Endpoints, EU)"),
+  ovh("ovh-mistral-small-32", "Mistral-Small-3.2-24B-Instruct-2506", undefined, "Mistral Small 3.2 24B (OVHcloud AI Endpoints, EU)"),
+  ovh("ovh-qwen3-coder-30b", "Qwen3-Coder-30B-A3B-Instruct", undefined, "Qwen3 Coder 30B-A3B (OVHcloud AI Endpoints, EU)"),
 ];
 
 export function armById(id: string): BenchmarkArm {

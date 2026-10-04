@@ -1,5 +1,6 @@
 export const MODEL_PRICING_SNAPSHOT = {
-  source: "https://ai-gateway.vercel.sh/v1/models and https://ai-gateway.vercel.sh/v1/models/{model}/endpoints",
+  source:
+    "https://ai-gateway.vercel.sh/v1/models and https://ai-gateway.vercel.sh/v1/models/{model}/endpoints; https://oai.endpoints.kepler.ai.cloud.ovh.net/v1/models",
   fetchedAt: "2026-09-13T13:55:33Z",
   endpoints: [
     {
@@ -755,6 +756,156 @@ export const MODEL_PRICING_SNAPSHOT = {
       inputCacheRead: [
         {
           costUsdPerToken: "0.000000042",
+        },
+      ],
+      inputCacheWrite: [
+        {
+          costUsdPerToken: "0",
+        },
+      ],
+    },
+    {
+      modelId: "ovh/Qwen3.8-27B",
+      providerNativeModelId: "Qwen3.8-27B",
+      provider: "ovh",
+      inferenceRegion: "eu",
+      contextLength: 262144,
+      maxCompletionTokens: 262144,
+      requestUsd: "0",
+      webSearchUsdPerThousandCalls: "0",
+      prompt: [
+        {
+          costUsdPerToken: "0.00000047",
+        },
+      ],
+      completion: [
+        {
+          costUsdPerToken: "0.00000319",
+        },
+      ],
+      inputCacheRead: [
+        {
+          costUsdPerToken: "0",
+        },
+      ],
+      inputCacheWrite: [
+        {
+          costUsdPerToken: "0",
+        },
+      ],
+    },
+    {
+      modelId: "ovh/Qwen3.5-397B-A17B",
+      providerNativeModelId: "Qwen3.5-397B-A17B",
+      provider: "ovh",
+      inferenceRegion: "eu",
+      contextLength: 262144,
+      maxCompletionTokens: 262144,
+      requestUsd: "0",
+      webSearchUsdPerThousandCalls: "0",
+      prompt: [
+        {
+          costUsdPerToken: "0.00000071",
+        },
+      ],
+      completion: [
+        {
+          costUsdPerToken: "0.00000425",
+        },
+      ],
+      inputCacheRead: [
+        {
+          costUsdPerToken: "0",
+        },
+      ],
+      inputCacheWrite: [
+        {
+          costUsdPerToken: "0",
+        },
+      ],
+    },
+    {
+      modelId: "ovh/gpt-oss-120b",
+      providerNativeModelId: "gpt-oss-120b",
+      provider: "ovh",
+      inferenceRegion: "eu",
+      contextLength: 131072,
+      maxCompletionTokens: 131072,
+      requestUsd: "0",
+      webSearchUsdPerThousandCalls: "0",
+      prompt: [
+        {
+          costUsdPerToken: "0.00000009",
+        },
+      ],
+      completion: [
+        {
+          costUsdPerToken: "0.00000047",
+        },
+      ],
+      inputCacheRead: [
+        {
+          costUsdPerToken: "0",
+        },
+      ],
+      inputCacheWrite: [
+        {
+          costUsdPerToken: "0",
+        },
+      ],
+    },
+    {
+      modelId: "ovh/Mistral-Small-3.2-24B-Instruct-2506",
+      providerNativeModelId: "Mistral-Small-3.2-24B-Instruct-2506",
+      provider: "ovh",
+      inferenceRegion: "eu",
+      contextLength: 131072,
+      maxCompletionTokens: 131072,
+      requestUsd: "0",
+      webSearchUsdPerThousandCalls: "0",
+      prompt: [
+        {
+          costUsdPerToken: "0.0000001",
+        },
+      ],
+      completion: [
+        {
+          costUsdPerToken: "0.00000031",
+        },
+      ],
+      inputCacheRead: [
+        {
+          costUsdPerToken: "0",
+        },
+      ],
+      inputCacheWrite: [
+        {
+          costUsdPerToken: "0",
+        },
+      ],
+    },
+    {
+      modelId: "ovh/Qwen3-Coder-30B-A3B-Instruct",
+      providerNativeModelId: "Qwen3-Coder-30B-A3B-Instruct",
+      provider: "ovh",
+      inferenceRegion: "eu",
+      contextLength: 262144,
+      maxCompletionTokens: 262144,
+      requestUsd: "0",
+      webSearchUsdPerThousandCalls: "0",
+      prompt: [
+        {
+          costUsdPerToken: "0.00000007",
+        },
+      ],
+      completion: [
+        {
+          costUsdPerToken: "0.00000026",
+        },
+      ],
+      inputCacheRead: [
+        {
+          costUsdPerToken: "0",
         },
       ],
       inputCacheWrite: [

@@ -62,6 +62,7 @@ import { agentMicrocentsFromStorage } from "./agent-credit-policy";
 import { agentWebSearchCallLimit } from "./agent-web-search";
 import { serializeAgentWikiCatalog } from "./agent-wiki-context";
 import { userWebsiteHomepages } from "./user-website-homepages";
+import { agentServingProviderUsesGateway } from "./ovh-ai-endpoints-catalog";
 
 type AdmittedAgentRun = { disposition: "run"; externalRunId: string } & Omit<AgentRunContext, "appBaseUrl">;
 type AgentInvocationMode = "interactive" | "routine";
@@ -275,6 +276,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     if (requestedModelKey !== null && !isAgentModelKey(requestedModelKey))
       return fail(CustomErrorCode.agentModelUnavailable, ["modelKey"]);
     const turnModel = resolveAgentModel(requestedModelKey);
+    const webSearchEnabled = agentServingProviderUsesGateway(turnModel.servingProvider);
     const locale = data.locale ?? resolveUserLocale(user);
     let wikiCatalog: string | null = null;
     let wikiWebsiteSetup = false;
@@ -294,7 +296,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       locale,
       surface,
       wikiWebsiteSetup,
-      webSearchEnabled: true,
+      webSearchEnabled,
     };
 
     const userName = `${user.firstName} ${user.lastName}`.trim();
@@ -308,7 +310,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         triggerEvent: routineTriggerEventOf(data.text),
         schemaDigest,
         wikiWebsiteSetup,
-        webSearchEnabled: true,
+        webSearchEnabled,
       }),
       currentText: data.text,
       contexts,
@@ -330,7 +332,9 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
             ? null
             : agentMicrocentsFromStorage(conversation.creditCeilingMicrocents, "Routine run credit ceiling")
           : null,
-      webSearchReserveMicrocents: agentWebSearchReserveMicrocents(agentWebSearchCallLimit(surface)),
+      webSearchReserveMicrocents: webSearchEnabled
+        ? agentWebSearchReserveMicrocents(agentWebSearchCallLimit(surface))
+        : 0,
     });
     const reservation = creditAdmission.reservation;
     if (!reservation) {
@@ -517,7 +521,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
             }
           : {}),
         wikiCatalog,
-        webSearchEnabled: true,
+        webSearchEnabled,
       });
       await this.repo.recordAgentTurnExternalRun(turnRequestId, runId, externalRunId);
 

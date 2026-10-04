@@ -3,6 +3,7 @@ import "dotenv/config";
 import { isAbsolute } from "node:path";
 
 import { assertLocalDatabaseEnvironment } from "../local-database-safety";
+import { OVH_SERVING_PROVIDER } from "@/ee/agent-chat/ovh-ai-endpoints-catalog";
 
 const LOOPBACK_HOSTS = new Set(["localhost", "127.0.0.1", "[::1]", "::1"]);
 const DEPLOYMENT_MARKERS = ["VERCEL", "VERCEL_ENV", "VERCEL_URL", "VERCEL_DEPLOYMENT_ID", "VERCEL_PROJECT_ID"];
@@ -26,8 +27,17 @@ function loopbackUrl(value: string | undefined, label: string, protocols: readon
   return url;
 }
 
+function configuredKey(value: string | undefined): string {
+  const trimmed = value?.trim() ?? "";
+  return trimmed === "XXX" ? "" : trimmed;
+}
+
+// `arms` are the arms this command will run. A directly served provider needs
+// its own key on the application server; the CLI checks it is configured only
+// when such an arm is selected, so Gateway-only runs need nothing new.
 export function requireLocalBenchmarkEnvironment(
   environment: Record<string, string | undefined> = process.env,
+  arms: readonly { servingProvider: string }[] = [],
 ): BenchmarkEnvironment {
   if (environment.RUN_AGENT_BENCHMARK !== "true") throw new Error("Set RUN_AGENT_BENCHMARK=true to run the agent benchmark.");
   for (const marker of DEPLOYMENT_MARKERS)
@@ -39,6 +49,8 @@ export function requireLocalBenchmarkEnvironment(
 
   const gatewayApiKey = environment.AI_GATEWAY_API_KEY?.trim() ?? "";
   if (!gatewayApiKey || gatewayApiKey === "XXX") throw new Error("AI_GATEWAY_API_KEY is required for paid benchmark work.");
+  if (arms.some((arm) => arm.servingProvider === OVH_SERVING_PROVIDER) && !configuredKey(environment.OVH_AI_ENDPOINTS_API_KEY))
+    throw new Error("OVH_AI_ENDPOINTS_API_KEY is required to run an OVHcloud AI Endpoints benchmark arm.");
 
   const workflowBaseUrl = environment.WORKFLOW_LOCAL_BASE_URL?.trim() ?? "";
   if (!workflowBaseUrl)
