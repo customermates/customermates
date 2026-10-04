@@ -44,7 +44,20 @@ export const RecordWidgetDtoSchema = z
     updatedAt: z.date(),
     data: RecordMeasureResultSchema.nullable(),
     status: z.enum(["ready", "unavailable"]),
-    groupOptions: z.array(z.object({ id: z.string(), label: z.string(), color: z.string().nullable() }).strict()),
+    groupOptions: z.array(
+      z
+        .object({
+          id: z.string(),
+          label: z.string(),
+          color: z.string().nullable(),
+          probability: z
+            .string()
+            .nullable()
+            .optional()
+            .describe("The option's probability attribute as a decimal string; 0 marks a closed-lost stage."),
+        })
+        .strict(),
+    ),
   })
   .strict();
 export type RecordWidgetDto = z.infer<typeof RecordWidgetDtoSchema>;

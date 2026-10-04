@@ -3525,6 +3525,7 @@
     "filterOperator": "Condizione",
     "filterUntil": "Fino a",
     "filterValue": "Valore",
+    "funnelClosedStage": "{label}: {value}, una fase persa mostrata fuori dall’imbuto.",
     "funnelTooltip": "{value} ({conversion} del passaggio precedente)",
     "group": "Raggruppa per",
     "groupFilterHelp": "Scegli quali record vengono mostrati come gruppi. Il totale complessivo continua a usare i filtri di origine qui sopra.",
@@ -3586,6 +3587,7 @@
     "unplacedGroups": "Alcuni record sono riservati o non è stato possibile calcolarli e non vengono mostrati.",
     "value": "Campo del valore",
     "weekOf": "Settimana del {date}",
+    "weekShort": "Sett. {week} {year}",
     "withoutDate": "{count, plural, one {# record non ha una data e non viene mostrato.} other {# record non hanno una data e non vengono mostrati.}}",
     "withoutValue": "{count, plural, one {# record non ha un valore e non viene mostrato.} other {# record non hanno un valore e non vengono mostrati.}}"
   },

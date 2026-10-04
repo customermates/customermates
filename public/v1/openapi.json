@@ -18856,6 +18856,17 @@
                                     "type": "null"
                                   }
                                 ]
+                              },
+                              "probability": {
+                                "description": "The option's probability attribute as a decimal string; 0 marks a closed-lost stage.",
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
                               }
                             },
                             "required": [
@@ -29523,6 +29534,17 @@
                                     "type": "null"
                                   }
                                 ]
+                              },
+                              "probability": {
+                                "description": "The option's probability attribute as a decimal string; 0 marks a closed-lost stage.",
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
                               }
                             },
                             "required": [
@@ -40178,6 +40200,17 @@
                                       "type": "string"
                                     },
                                     "color": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string"
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    },
+                                    "probability": {
+                                      "description": "The option's probability attribute as a decimal string; 0 marks a closed-lost stage.",
                                       "anyOf": [
                                         {
                                           "type": "string"

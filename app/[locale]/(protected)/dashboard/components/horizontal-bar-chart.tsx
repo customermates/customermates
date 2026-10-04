@@ -19,10 +19,11 @@ type Props = {
   textColor: string;
   reverseXAxis?: boolean;
   reverseYAxis?: boolean;
+  allowDecimals?: boolean;
 };
 
 export const HorizontalBarChart = observer(
-  ({ currency, chartData, colors, gridColor, textColor, reverseXAxis, reverseYAxis }: Props) => {
+  ({ currency, chartData, colors, gridColor, textColor, reverseXAxis, reverseYAxis, allowDecimals = true }: Props) => {
     const formatValue = useChartFormatter(currency);
     const reducedMotion = useReducedMotion();
 
@@ -30,6 +31,7 @@ export const HorizontalBarChart = observer(
       <DashboardChartContainer>
         <BarChart data={chartData} layout="vertical">
           <XAxis
+            allowDecimals={allowDecimals}
             domain={[(minimum: number) => Math.min(0, minimum), (maximum: number) => Math.max(0, maximum)]}
             padding={{ right: 1, left: 1 }}
             reversed={Boolean(reverseXAxis)}

@@ -71,9 +71,10 @@ type Props = {
   currency?: string | null;
   data: (DiagramDataPoint & { formattedValue?: string; axisLabel?: string; detail?: string; missing?: boolean })[];
   displayOptions?: WidgetDisplayOptions | null;
+  integerValues?: boolean;
 };
 
-export const WidgetChart = observer(({ data, displayOptions, currency }: Props) => {
+export const WidgetChart = observer(({ data, displayOptions, currency, integerValues = false }: Props) => {
   const t = useTranslations();
   const { resolvedTheme } = useTheme();
   const configuredBarColors = displayOptions?.barColors?.length ? displayOptions.barColors : [ChartColor.primary1];
@@ -110,6 +111,7 @@ export const WidgetChart = observer(({ data, displayOptions, currency }: Props) 
     textColor: "var(--muted-foreground)",
     reverseXAxis: displayOptions?.reverseXAxis,
     reverseYAxis: displayOptions?.reverseYAxis,
+    allowDecimals: !integerValues,
   };
   const labelChartProps = {
     currency,

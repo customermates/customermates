@@ -17,6 +17,7 @@ vi.mock("../dashboard-chart-container", () => ({
 }));
 
 import { AreaTimeChart } from "../area-time-chart";
+import { HorizontalBarChart } from "../horizontal-bar-chart";
 import { FunnelChart } from "../funnel-chart";
 
 let root: Root;
@@ -44,6 +45,50 @@ afterEach(() => {
 });
 
 describe("time series and funnel charts", () => {
+  it.each([
+    [false, ["0", "1", "2", "3"]],
+    [true, ["0", "0.75", "1.5", "2.25", "3"]],
+  ])("uses whole-number value ticks unless decimals are allowed (%s)", async (allowDecimals, expected) => {
+    const series = [point("Ada", 3), point("Bo", 2), point("Cy", 1)];
+    await act(async () => {
+      root.render(
+        createElement("div", null, [
+          createElement(AreaTimeChart, {
+            key: "area",
+            currency: null,
+            chartData: series,
+            colors: ["#336699"],
+            strokeColors: ["#224466"],
+            gridColor: "var(--border)",
+            textColor: "var(--muted-foreground)",
+            allowDecimals,
+          }),
+          createElement(HorizontalBarChart, {
+            key: "bars",
+            currency: null,
+            chartData: series,
+            colors: ["#336699"],
+            gridColor: "var(--border)",
+            textColor: "var(--muted-foreground)",
+            allowDecimals,
+          }),
+        ]),
+      );
+      await Promise.resolve();
+    });
+    const ticks = (selector: string) =>
+      [...container.querySelectorAll(`${selector} text`)].map((tick) => tick.textContent);
+    const [area, bars] = [...container.querySelectorAll(".recharts-surface")];
+    expect(area && bars).toBeTruthy();
+    expect([...area.querySelectorAll(".recharts-yAxis-tick-labels text")].map((tick) => tick.textContent)).toEqual(
+      expected,
+    );
+    expect([...bars.querySelectorAll(".recharts-xAxis-tick-labels text")].map((tick) => tick.textContent)).toEqual(
+      expected,
+    );
+    expect(ticks(".recharts-yAxis-tick-labels").length).toBeGreaterThan(0);
+  });
+
   it("draws an area with short axis labels and breaks the line at missing periods", async () => {
     await act(async () => {
       root.render(

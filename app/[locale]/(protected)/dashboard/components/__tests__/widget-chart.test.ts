@@ -141,6 +141,13 @@ describe("WidgetChart", () => {
     expect(call.props.chartData).toMatchObject([{ label: "January 2026", axisLabel: "Jan 26", missing: true }]);
   });
 
+  it("asks value axes for whole-number ticks only when the series holds integers", () => {
+    expect(renderChart(DisplayType.verticalBarChart, { integerValues: true }).props.allowDecimals).toBe(false);
+    expect(renderChart(DisplayType.horizontalBarChart, { integerValues: true }).props.allowDecimals).toBe(false);
+    expect(renderChart(DisplayType.areaChart, { integerValues: true }).props.allowDecimals).toBe(false);
+    expect(renderChart(DisplayType.verticalBarChart).props.allowDecimals).toBe(true);
+  });
+
   it("renders funnels with each step's group color and conversion detail", () => {
     const call = renderChart(DisplayType.funnelChart, {
       data: [

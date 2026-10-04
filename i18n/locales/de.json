@@ -3525,6 +3525,7 @@
     "filterOperator": "Bedingung",
     "filterUntil": "Bis",
     "filterValue": "Wert",
+    "funnelClosedStage": "{label}: {value}, eine verlorene Phase außerhalb des Trichters.",
     "funnelTooltip": "{value} ({conversion} des vorherigen Schritts)",
     "group": "Gruppieren nach",
     "groupFilterHelp": "Wähle aus, welche Datensätze als Gruppen angezeigt werden. Die Gesamtsumme verwendet weiterhin die Quellfilter oben.",
@@ -3586,6 +3587,7 @@
     "unplacedGroups": "Einige Datensätze sind eingeschränkt oder konnten nicht berechnet werden und werden nicht angezeigt.",
     "value": "Wertefeld",
     "weekOf": "Woche ab {date}",
+    "weekShort": "KW {week} {year}",
     "withoutDate": "{count, plural, one {# Datensatz hat kein Datum und wird nicht angezeigt.} other {# Datensätze haben kein Datum und werden nicht angezeigt.}}",
     "withoutValue": "{count, plural, one {# Datensatz hat keinen Wert und wird nicht angezeigt.} other {# Datensätze haben keinen Wert und werden nicht angezeigt.}}"
   },

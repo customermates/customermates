@@ -33,6 +33,29 @@ export function fillTimeSeries<T>(
   return filled;
 }
 
+export function isoWeek(start: string): { week: number; year: number } {
+  const date = new Date(`${start}T00:00:00.000Z`);
+  const thursday = new Date(date);
+  thursday.setUTCDate(date.getUTCDate() + 3 - ((date.getUTCDay() + 6) % 7));
+  const year = thursday.getUTCFullYear();
+  return { week: Math.floor((thursday.getTime() - Date.UTC(year, 0, 1)) / 86400000 / 7) + 1, year };
+}
+
+export function closedLostOptionIds(options: Array<{ id: string; probability?: string | null }>): Set<string> {
+  if (!options.some((option) => option.probability !== undefined && option.probability !== null)) return new Set();
+  return new Set(
+    options
+      .filter(
+        (option) => option.probability !== undefined && option.probability !== null && Number(option.probability) === 0,
+      )
+      .map((option) => option.id),
+  );
+}
+
+export function isIntegerSeries(values: number[]): boolean {
+  return values.every((value) => Number.isInteger(value));
+}
+
 export function bucketQuarter(start: string): number {
   return Math.floor((Number(start.slice(5, 7)) - 1) / 3) + 1;
 }

@@ -3525,6 +3525,7 @@
     "filterOperator": "Condition",
     "filterUntil": "Until",
     "filterValue": "Value",
+    "funnelClosedStage": "{label}: {value}, a lost stage shown outside the funnel.",
     "funnelTooltip": "{value} ({conversion} of the previous step)",
     "group": "Group by",
     "groupFilterHelp": "Choose which records appear as groups. The overall total still uses the source filters above.",
@@ -3586,6 +3587,7 @@
     "unplacedGroups": "Some records are restricted or could not be calculated and are not shown.",
     "value": "Value field",
     "weekOf": "Week of {date}",
+    "weekShort": "W{week} {year}",
     "withoutDate": "{count, plural, one {# record has no date and is not shown.} other {# records have no date and are not shown.}}",
     "withoutValue": "{count, plural, one {# record has no value and is not shown.} other {# records have no value and are not shown.}}"
   },

@@ -2,6 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import {
   bucketQuarter,
+  closedLostOptionIds,
+  isIntegerSeries,
+  isoWeek,
   fillTimeSeries,
   funnelConversions,
   orderFunnelSteps,
@@ -80,5 +83,27 @@ describe("widget series helpers", () => {
     expect(shareOfTotal(5, 0)).toBeNull();
     expect(shareOfTotal(-1, 20)).toBeNull();
     expect(shareOfTotal(null, 20)).toBeNull();
+  });
+
+  it("numbers ISO weeks by the year that owns their Thursday", () => {
+    expect(isoWeek("2025-12-29")).toEqual({ week: 1, year: 2026 });
+    expect(isoWeek("2026-01-05")).toEqual({ week: 2, year: 2026 });
+    expect(isoWeek("2026-12-28")).toEqual({ week: 53, year: 2026 });
+    expect(isoWeek("2027-01-04")).toEqual({ week: 1, year: 2027 });
+  });
+
+  it("treats zero-probability options as lost only when the field carries probabilities", () => {
+    expect([
+      ...closedLostOptionIds([
+        { id: "open", probability: "30" },
+        { id: "won", probability: "100" },
+        { id: "lost", probability: "0" },
+        { id: "abandoned", probability: "0.0" },
+        { id: "unrated" },
+      ]),
+    ]).toEqual(["lost", "abandoned"]);
+    expect(closedLostOptionIds([{ id: "a" }, { id: "b", probability: null }]).size).toBe(0);
+    expect(isIntegerSeries([0, 2, 3])).toBe(true);
+    expect(isIntegerSeries([0, 2.5])).toBe(false);
   });
 });

@@ -18,6 +18,9 @@ import { WidgetNumber } from "./widget-number";
 import {
   RANKED_TABLE_ROW_LIMIT,
   bucketQuarter,
+  closedLostOptionIds,
+  isIntegerSeries,
+  isoWeek,
   fillTimeSeries,
   funnelConversions,
   orderFunnelSteps,
@@ -62,6 +65,13 @@ export function RecordWidgetChart({
       ...(currency ? { currency } : {}),
       maximumFractionDigits: 20,
     }).format(value as unknown as number);
+  const bucketYears = new Set(
+    (data?.groups ?? []).flatMap((group) =>
+      group.label.state === "value" && group.label.value.kind === "date"
+        ? [String(group.label.value.value).slice(0, 4)]
+        : [],
+    ),
+  );
   const formatBucket = (start: string, short: boolean): string => {
     const date = new Date(`${start}T00:00:00.000Z`);
     const year = date.getUTCFullYear();
@@ -70,15 +80,18 @@ export function RecordWidgetChart({
     if (interval === "month") {
       return new Intl.DateTimeFormat(locale, {
         month: short ? "short" : "long",
-        year: short ? "2-digit" : "numeric",
+        year: "numeric",
         timeZone: "UTC",
       }).format(date);
     }
+    if (interval === "week" && short) return t("RecordWidgets.weekShort", isoWeek(start));
     const formatted = new Intl.DateTimeFormat(locale, {
-      ...(short ? { month: "short", day: "numeric" } : { dateStyle: "medium" }),
+      ...(short
+        ? { month: "short", day: "numeric", ...(bucketYears.size > 1 ? { year: "numeric" } : {}) }
+        : { dateStyle: "medium" }),
       timeZone: "UTC",
     }).format(date);
-    return interval === "week" && !short ? t("RecordWidgets.weekOf", { date: formatted }) : formatted;
+    return interval === "week" ? t("RecordWidgets.weekOf", { date: formatted }) : formatted;
   };
   const format = (result: CalculatedValue): string => {
     if (result.state !== "value")
@@ -209,13 +222,20 @@ export function RecordWidgetChart({
   }
 
   if (displayType === DisplayType.funnelChart) {
-    const optionOrder = groupOptions.map((option) => option.id);
-    const steps = rows.flatMap((row) => (row.optionId ? [{ optionId: row.optionId, item: row }] : []));
+    const lost = closedLostOptionIds(groupOptions);
+    const optionOrder = groupOptions.filter((option) => !lost.has(option.id)).map((option) => option.id);
+    const steps = rows.flatMap((row) =>
+      row.optionId && !lost.has(row.optionId) ? [{ optionId: row.optionId, item: row }] : [],
+    );
     const unassigned = data.groups.filter((group) => group.label.state === "missing");
     const missingCount = unassigned.reduce((sum, group) => sum + (group.count ?? 0), 0);
     if (missingCount > 0) notes.push(t("RecordWidgets.withoutValue", { count: missingCount }));
     if (data.groups.some((group) => group.label.state === "restricted" || group.label.state === "error"))
       notes.push(t("RecordWidgets.unplacedGroups"));
+    for (const option of groupOptions.filter((candidate) => lost.has(candidate.id))) {
+      const row = rows.find((candidate) => candidate.optionId === option.id);
+      if (row) notes.push(t("RecordWidgets.funnelClosedStage", { label: row.label, value: row.formatted }));
+    }
     const ordered = orderFunnelSteps(steps, optionOrder, fillsWithZero).map(({ optionId, item }) => {
       if (item) return item;
       const option = groupOptions.find((candidate) => candidate.id === optionId);
@@ -263,6 +283,17 @@ export function RecordWidgetChart({
           currency={currency}
           data={[DisplayType.areaChart, DisplayType.funnelChart].includes(displayType) ? seriesPoints : dataPoints}
           displayOptions={displayOptions}
+          integerValues={
+            measure.aggregation === "count" ||
+            (currency === null &&
+              measure.aggregation !== "average" &&
+              isIntegerSeries(
+                ([DisplayType.areaChart, DisplayType.funnelChart].includes(displayType)
+                  ? seriesPoints
+                  : dataPoints
+                ).map((entry) => entry.value),
+              ))
+          }
         />
       </div>
     );

@@ -3525,6 +3525,7 @@
     "filterOperator": "Condition",
     "filterUntil": "Jusqu’au",
     "filterValue": "Valeur",
+    "funnelClosedStage": "{label} : {value}, une étape perdue affichée hors de l’entonnoir.",
     "funnelTooltip": "{value} ({conversion} de l’étape précédente)",
     "group": "Grouper par",
     "groupFilterHelp": "Choisissez les enregistrements affichés comme groupes. Le total général utilise toujours les filtres de source ci-dessus.",
@@ -3586,6 +3587,7 @@
     "unplacedGroups": "Certains enregistrements sont restreints ou n’ont pas pu être calculés et ne sont pas affichés.",
     "value": "Champ de valeur",
     "weekOf": "Semaine du {date}",
+    "weekShort": "S{week} {year}",
     "withoutDate": "{count, plural, one {# enregistrement n’a pas de date et n’est pas affiché.} other {# enregistrements n’ont pas de date et ne sont pas affichés.}}",
     "withoutValue": "{count, plural, one {# enregistrement n’a pas de valeur et n’est pas affiché.} other {# enregistrements n’ont pas de valeur et ne sont pas affichés.}}"
   },

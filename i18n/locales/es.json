@@ -3525,6 +3525,7 @@
     "filterOperator": "Condición",
     "filterUntil": "Hasta",
     "filterValue": "Valor",
+    "funnelClosedStage": "{label}: {value}, una etapa perdida que se muestra fuera del embudo.",
     "funnelTooltip": "{value} ({conversion} del paso anterior)",
     "group": "Agrupar por",
     "groupFilterHelp": "Elige qué registros aparecen como grupos. El total general sigue usando los filtros de origen de arriba.",
@@ -3586,6 +3587,7 @@
     "unplacedGroups": "Algunos registros están restringidos o no se pudieron calcular y no se muestran.",
     "value": "Campo de valor",
     "weekOf": "Semana del {date}",
+    "weekShort": "Sem. {week} {year}",
     "withoutDate": "{count, plural, one {# registro no tiene fecha y no se muestra.} other {# registros no tienen fecha y no se muestran.}}",
     "withoutValue": "{count, plural, one {# registro no tiene valor y no se muestra.} other {# registros no tienen valor y no se muestran.}}"
   },

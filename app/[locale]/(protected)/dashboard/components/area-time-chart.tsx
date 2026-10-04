@@ -20,10 +20,21 @@ type Props = {
   textColor: string;
   reverseXAxis?: boolean;
   reverseYAxis?: boolean;
+  allowDecimals?: boolean;
 };
 
 export const AreaTimeChart = observer(
-  ({ currency, chartData, colors, strokeColors, gridColor, textColor, reverseXAxis, reverseYAxis }: Props) => {
+  ({
+    currency,
+    chartData,
+    colors,
+    strokeColors,
+    gridColor,
+    textColor,
+    reverseXAxis,
+    reverseYAxis,
+    allowDecimals = true,
+  }: Props) => {
     const formatValue = useChartFormatter(currency);
     const reducedMotion = useReducedMotion();
     const axisLabels = new Map(chartData.map((point) => [point.label, point.axisLabel ?? point.label]));
@@ -43,6 +54,7 @@ export const AreaTimeChart = observer(
           />
 
           <YAxis
+            allowDecimals={allowDecimals}
             domain={[(minimum: number) => Math.min(0, minimum), (maximum: number) => Math.max(0, maximum)]}
             padding={{ top: 1, bottom: 1 }}
             reversed={Boolean(reverseYAxis)}

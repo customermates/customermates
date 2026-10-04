@@ -645,10 +645,19 @@ describeDatabase("time-bucketed record measures", () => {
       [DisplayType.verticalBarChart, byMonth],
     ];
     for (const [displayType, groupBy] of accepted) {
-      expect(await save(displayType, groupBy), displayType).toMatchObject({
+      const saved = await save(displayType, groupBy);
+      expect(saved, displayType).toMatchObject({
         ok: true,
         data: { displayOptions: { displayType }, status: "ready" },
       });
+      if (displayType === DisplayType.funnelChart && saved.ok) {
+        expect(saved.data.groupOptions).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ id: f.id("deal.stage.won"), probability: "100" }),
+            expect.objectContaining({ id: f.id("deal.stage.lost"), probability: "0" }),
+          ]),
+        );
+      }
     }
     const rejected: Array<[DisplayType, RecordMeasure["groupBy"]]> = [
       [DisplayType.number, byStage],

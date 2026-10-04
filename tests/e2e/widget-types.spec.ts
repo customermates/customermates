@@ -268,6 +268,14 @@ async function save(page: Page) {
   await expect(dialog).toHaveCount(0);
 }
 
+async function expectWholeTicks(widget: Locator, axis: "xAxis" | "yAxis") {
+  const ticks = widget.locator(`.recharts-${axis}-tick-labels text`);
+  await expect(ticks.first()).toBeVisible();
+  const values = await ticks.allTextContents();
+  expect(values.length).toBeGreaterThan(1);
+  for (const value of values) expect(value, values.join(", ")).toMatch(/^\d+$/);
+}
+
 async function expectNoHorizontalOverflow(page: Page) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(overflow).toBeLessThanOrEqual(0);
@@ -317,7 +325,8 @@ test("builds, edits and renders number, time series, ranked table and funnel wid
     await page.getByRole("option", { name: "Value", exact: true }).click();
     const type = (displayType: string) => dialog.locator(`[id="display-type-${displayType}"]`);
     await expect(type("number")).toBeEnabled();
-    for (const displayType of ["areaChart", "rankedTable", "funnelChart"]) await expect(type(displayType)).toBeDisabled();
+    for (const displayType of ["areaChart", "rankedTable", "funnelChart"])
+      await expect(type(displayType)).toBeDisabled();
     await expect(dialog.locator('label[for="display-type-areaChart"]')).toContainText(
       "Group by a date field and choose a time interval.",
     );
@@ -373,6 +382,8 @@ test("builds, edits and renders number, time series, ranked table and funnel wid
     const widget = card(page, "Deals closed");
     await expect(widget.locator("svg.recharts-surface")).toBeVisible();
     await expect.poll(() => definitionList(widget)).toEqual(months);
+    await expectWholeTicks(widget, "yAxis");
+    await expect(widget.locator(".recharts-xAxis-tick-labels text").first()).toHaveText("Jan 2026");
     await expect(widget.locator('[data-slot="widget-chart-notes"]')).toHaveText(
       `${DEALS.length - dated.length} records have no date and are not shown.`,
     );
@@ -383,10 +394,14 @@ test("builds, edits and renders number, time series, ranked table and funnel wid
     await expect
       .poll(async () => (await readWidget(database, companyId, "Deals closed")).measure)
       .toMatchObject({ groupBy: { dateInterval: "quarter", timeZone: TIME_ZONE } });
-    await expect.poll(() => definitionList(widget)).toEqual([
-      ["Q1 2026", "3"],
-      ["Q2 2026", "1"],
-    ]);
+    await expect
+      .poll(() => definitionList(widget))
+      .toEqual([
+        ["Q1 2026", "3"],
+        ["Q2 2026", "1"],
+      ]);
+    await expect(widget.locator(".recharts-xAxis-tick-labels text")).toHaveText(["Q1 2026", "Q2 2026"]);
+    await expectWholeTicks(widget, "yAxis");
   });
 
   await test.step("rank every deal by value with shares and a truncation summary", async () => {
@@ -410,7 +425,7 @@ test("builds, edits and renders number, time series, ranked table and funnel wid
     await expect(dialog).toHaveCount(0);
   });
 
-  await test.step("order stage steps as configured with step conversion", async () => {
+  await test.step("order forward stage steps with conversion and keep the lost stage outside", async () => {
     await startChart(page, "Stage funnel", "Deals");
     await selectOption(page, "Group by", "Stage");
     await dialog.locator('[id="display-type-funnelChart"]').check();
@@ -418,8 +433,9 @@ test("builds, edits and renders number, time series, ranked table and funnel wid
     const saved = await readWidget(database, companyId, "Stage funnel");
     expect(saved.displayOptions.displayType).toBe("funnelChart");
     expect(saved.measure).toMatchObject({ groupBy: { path: [], fieldId: id("deal.stage") } });
-    const counts = STAGES.map((stage) => DEALS.filter((deal) => deal.stage === stage).length);
-    const expected = STAGES.map((stage, index) => [
+    const steps = STAGES.filter((stage) => stage !== "lost");
+    const counts = steps.map((stage) => DEALS.filter((deal) => deal.stage === stage).length);
+    const expected = steps.map((stage, index) => [
       STAGE_LABELS[stage],
       index === 0
         ? String(counts[index])
@@ -433,10 +449,13 @@ test("builds, edits and renders number, time series, ranked table and funnel wid
       "Qualified",
       "Proposal",
       "Won",
-      "Lost",
       String(counts[0]),
       `${counts[1]} · ${percent(counts[1] / counts[0])}`,
     ]);
+    expect(await widget.locator(".recharts-yAxis-tick-labels text").allTextContents()).not.toContain("Lost");
+    await expect(widget.locator('[data-slot="widget-chart-notes"]')).toHaveText(
+      `Lost: ${DEALS.filter((deal) => deal.stage === "lost").length}, a lost stage shown outside the funnel.`,
+    );
   });
 
   await page.reload();
@@ -561,12 +580,15 @@ test("adds every starter template resolved against the model and keeps them edit
 
   const tasks = card(page, "Open tasks per assignee");
   await expect(tasks.locator("svg.recharts-surface")).toBeVisible();
-  await expect.poll(async () => Object.fromEntries(await definitionList(tasks))).toEqual({
-    "Browser Administrator": "3",
-    "Nora Second": "2",
-    [englishMessages.Diagrams.noGroup]: "1",
-  });
+  await expect
+    .poll(async () => Object.fromEntries(await definitionList(tasks)))
+    .toEqual({
+      "Browser Administrator": "3",
+      "Nora Second": "2",
+      [englishMessages.Diagrams.noGroup]: "1",
+    });
   expect(secondUserId).toBeTruthy();
+  await expectWholeTicks(tasks, "xAxis");
   await expect(tasks).toContainText("Overall: 5");
   await expect(tasks).toContainText("A record can appear in several groups.");
 

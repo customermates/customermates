@@ -8,7 +8,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ChartColor, DisplayType } from "@/features/widget/widget.schema";
 
-const chartMocks = vi.hoisted(() => ({ calls: [] as Array<Record<string, unknown>> }));
+const chartMocks = vi.hoisted(() => ({ calls: [] as Array<Record<string, unknown>>, locale: "en-US" }));
 
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, values?: Record<string, unknown>) =>
@@ -16,7 +16,7 @@ vi.mock("next-intl", () => ({
 }));
 vi.mock("next-themes", () => ({ useTheme: () => ({ resolvedTheme: "light" }) }));
 vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
-  useHydratedIntlStore: () => ({ formattingLocale: "en-US" }),
+  useHydratedIntlStore: () => ({ formattingLocale: chartMocks.locale }),
 }));
 vi.mock("../widget-chart", () => ({
   WidgetChart: (props: Record<string, unknown>) => {
@@ -84,6 +84,7 @@ function result(total: RecordMeasureResult["total"], groups: RecordMeasureResult
 }
 
 beforeEach(() => {
+  chartMocks.locale = "en-US";
   Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
   container = document.createElement("div");
   document.body.append(container);
@@ -168,10 +169,10 @@ describe("record widget display types", () => {
         formattedValue,
       ]),
     ).toEqual([
-      ["January 2026", "Jan 26", 5, false, "€5.00"],
-      ["February 2026", "Feb 26", 0, false, "€0.00"],
-      ["March 2026", "Mar 26", 0, false, "€0.00"],
-      ["April 2026", "Apr 26", 2, false, "€2.00"],
+      ["January 2026", "Jan 2026", 5, false, "€5.00"],
+      ["February 2026", "Feb 2026", 0, false, "€0.00"],
+      ["March 2026", "Mar 2026", 0, false, "€0.00"],
+      ["April 2026", "Apr 2026", 2, false, "€2.00"],
     ]);
     expect(view.querySelector('[data-slot="widget-chart-notes"]')?.textContent).toBe(
       'RecordWidgets.withoutDate{"count":3}',
@@ -238,6 +239,100 @@ describe("record widget display types", () => {
     expect(steps[3].formattedValue).toBe('RecordWidgets.funnelTooltip{"value":"2","conversion":"50%"}');
     expect(view.querySelector('[data-slot="widget-chart-notes"]')?.textContent).toBe(
       'RecordWidgets.withoutValue{"count":6}',
+    );
+  });
+
+  it("labels periods unambiguously in English and German", () => {
+    const periods = (dateInterval: "day" | "week" | "month" | "quarter", starts: string[]) => {
+      render({
+        displayOptions: { displayType: DisplayType.areaChart },
+        measure: measure({ path: [], fieldId: CLOSE, dateInterval }, "count"),
+        data: result(
+          { count: starts.length, result: plain(String(starts.length)) },
+          starts.map((start) => group(day(start), plain("1"))),
+        ),
+      });
+      return (chartMocks.calls[0].data as Array<{ axisLabel: string; label: string }>).map(({ axisLabel, label }) => [
+        axisLabel,
+        label,
+      ]);
+    };
+    expect(periods("month", ["2026-01-01"])).toEqual([["Jan 2026", "January 2026"]]);
+    expect(periods("quarter", ["2026-10-01"])).toEqual([
+      ['RecordWidgets.quarterLabel{"quarter":4,"year":2026}', 'RecordWidgets.quarterLabel{"quarter":4,"year":2026}'],
+    ]);
+    expect(periods("week", ["2026-12-28", "2027-01-04"]).map(([axis]) => axis)).toEqual([
+      'RecordWidgets.weekShort{"week":53,"year":2026}',
+      'RecordWidgets.weekShort{"week":1,"year":2027}',
+    ]);
+    expect(periods("day", ["2026-01-05"])).toEqual([["Jan 5", "Jan 5, 2026"]]);
+    expect(periods("day", ["2026-12-31", "2027-01-01"]).map(([axis]) => axis)).toEqual(["Dec 31, 2026", "Jan 1, 2027"]);
+    chartMocks.locale = "de-DE";
+    expect(periods("month", ["2026-01-01"])).toEqual([["Jan. 2026", "Januar 2026"]]);
+    expect(periods("day", ["2026-01-05"])).toEqual([["5. Jan.", "05.01.2026"]]);
+    expect(periods("day", ["2026-12-31", "2027-01-01"]).map(([axis]) => axis)).toEqual([
+      "31. Dez. 2026",
+      "1. Jan. 2027",
+    ]);
+  });
+
+  it("asks for whole-number axes only for counts and integer series without currency", () => {
+    const groupBy = { path: [], fieldId: CLOSE, dateInterval: "month" as const };
+    const integers = (
+      aggregation: "count" | "sum" | "average",
+      value: (amount: string) => RecordMeasureResult["groups"][number]["result"],
+    ) => {
+      render({
+        displayOptions: { displayType: DisplayType.areaChart },
+        measure: measure(groupBy, aggregation),
+        data: result({ count: 3, result: value("3") }, [
+          group(day("2026-01-01"), value("1"), 1),
+          group(day("2026-02-01"), value("2"), 2),
+        ]),
+      });
+      return chartMocks.calls[0].integerValues;
+    };
+    expect(integers("count", plain)).toBe(true);
+    expect(integers("sum", plain)).toBe(true);
+    expect(integers("sum", euro)).toBe(false);
+    expect(integers("average", plain)).toBe(false);
+    render({
+      displayOptions: { displayType: DisplayType.horizontalBarChart },
+      measure: measure({ path: [], fieldId: STAGE }, "sum"),
+      data: result({ count: 2, result: plain("2.5") }, [
+        group(option("a"), plain("1.5")),
+        group(option("b"), plain("1")),
+      ]),
+    });
+    expect(chartMocks.calls[0].integerValues).toBe(false);
+  });
+
+  it("keeps lost stages out of the funnel and only converts between forward steps", () => {
+    const groupOptions = [
+      ["New", "10"],
+      ["Qualified", "25"],
+      ["Won", "100"],
+      ["Lost", "0"],
+    ].map(([label, probability]) => ({ id: label, label, color: null, probability }));
+    const view = render({
+      displayOptions: { displayType: DisplayType.funnelChart },
+      groupOptions,
+      measure: measure({ path: [], fieldId: STAGE }, "count"),
+      data: result({ count: 15, result: plain("15") }, [
+        group(option("Lost"), plain("1"), 1),
+        group(option("New"), plain("8"), 8),
+        group(option("Qualified"), plain("4"), 4),
+        group(option("Won"), plain("2"), 2),
+      ]),
+    });
+    const steps = chartMocks.calls[0].data as Array<Record<string, unknown>>;
+    expect(steps.map(({ label, detail }) => [label, detail])).toEqual([
+      ["New", "8"],
+      ["Qualified", "4 · 50%"],
+      ["Won", "2 · 50%"],
+    ]);
+    expect(view.querySelector('[data-slot="widget-chart-notes"]')?.textContent).toBe(
+      'RecordWidgets.funnelClosedStage{"label":"Lost","value":"1"}',
     );
   });
 });

@@ -66,6 +66,18 @@ export class RecordWidgetReader {
     const model = await this.records.getModel();
     const fieldId = data.groups.find((group) => group.fieldId)?.fieldId;
     const field = model.fields.find((candidate) => candidate.id === fieldId && !candidate.archived);
-    return field?.options.map(({ id, label, color }) => ({ id, label, color })) ?? [];
+    return (
+      field?.options.map(({ id, label, color, attributes }) => {
+        const probability = attributes.find((attribute) => attribute.key === "probability")?.value;
+        return {
+          id,
+          label,
+          color,
+          ...(probability?.kind === "decimal" && typeof probability.value === "string"
+            ? { probability: probability.value }
+            : {}),
+        };
+      }) ?? []
+    );
   }
 }
