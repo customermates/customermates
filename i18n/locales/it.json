@@ -1221,7 +1221,6 @@
       "customFieldInvalidSingleSelect": "Il valore della scelta singola non è valido. Deve essere una delle opzioni consentite: {validValues}.",
       "customFieldInvalidUrl": "L'URL non è valido. Deve rispettare il formato di un URL (ad esempio https://example.com). Per più URL, separali con una virgola (ad esempio https://example.com, https://example.org).",
       "dataViewAllNameImmutable": "La vista Tutte non può essere rinominata. Ometti name e aggiorna solo le impostazioni richieste in state. Consulta config per le impostazioni supportate e list per lo stato attuale prima di riprovare.",
-      "dataViewLayoutReadOnly": "Ordine, larghezza e visibilità delle colonne si possono modificare solo nell'app. Ometti columnOrder, columnWidths e hiddenColumns, oppure inviali esattamente come li ha restituiti list.",
       "dataViewNotFound": "Questa vista salvata non è stata trovata.",
       "dataViewUpdateEmpty": "Indica un nome o almeno un'impostazione della vista da aggiornare.",
       "dealNotFound": "ID trattativa non trovato o non accessibile.",

@@ -37,7 +37,6 @@ export enum CustomErrorCode {
   passwordInvalid = "passwordInvalid",
   dataViewNotFound = "dataViewNotFound",
   dataViewAllNameImmutable = "dataViewAllNameImmutable",
-  dataViewLayoutReadOnly = "dataViewLayoutReadOnly",
   dataViewUpdateEmpty = "dataViewUpdateEmpty",
   emailNotVerified = "emailNotVerified",
   invalidCredentials = "invalidCredentials",

@@ -1221,7 +1221,6 @@
       "customFieldInvalidSingleSelect": "The single select value is invalid. Must be one of the allowed options: {validValues}.",
       "customFieldInvalidUrl": "The URL value is invalid. Must be a valid URL format (e.g., https://example.com). For multiple URLs, separate by comma (e.g., https://example.com, https://example.org).",
       "dataViewAllNameImmutable": "The All view cannot be renamed. Omit name and update only the requested state settings. Read config for supported settings and list for the current state before retrying.",
-      "dataViewLayoutReadOnly": "Column order, column widths and hidden columns can only be changed in the app. Omit columnOrder, columnWidths and hiddenColumns, or send them exactly as list returned them.",
       "dataViewNotFound": "This saved view was not found.",
       "dataViewUpdateEmpty": "Provide a name or at least one view setting to update.",
       "dealNotFound": "Deal ID not found or not accessible.",

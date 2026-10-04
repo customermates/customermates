@@ -840,7 +840,7 @@ export const DYNAMIC_KEY_SITES = [
   "features/messaging/activities/audit-detail.tsx :: t.has :: Common.userStatuses.${String(value)}",
   "features/messaging/activities/audit-detail.tsx :: t.has :: LegalDocumentNotice.documents.${document}",
   "features/messaging/activities/record-audit-detail.tsx :: t :: Common.events.${entry.event}",
-  "features/records/record-detail-layout.interactor.ts :: t :: RecordModel.${column.label}",
+  "features/records/record-detail-layout-reader.ts :: t :: RecordModel.${column.label}",
   "features/records/workspace-record-preset.ts :: t :: Common.defaultData.${preset.entityType}.columnLabel",
   "features/records/workspace-record-preset.ts :: t :: Common.defaultData.${preset.entityType}.options.${option.key}",
   "features/records/workspace-record-preset.ts :: t :: RecordModel.priceModes.${option.id}",
