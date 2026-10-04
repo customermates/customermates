@@ -10,7 +10,6 @@ const JEV_SERVING_PROVIDER = "typesafe-ai";
 export const JEV_PRICING_PROVIDER = "digitalocean";
 export const JEV_DEADLINE_MS = 800;
 
-/** Why an evaluation produced no usable answer; transient kinds are worth a delayed retry. */
 export type ClassifierFailure = "timeout" | "rateLimited" | "unavailable" | "rejected" | "invalidAnswers" | "network";
 
 export class JevRequestError extends Error {

@@ -222,9 +222,6 @@ export function readAgentProviderRoundCharge(
 
 export type AgentProviderRateLimit = { retryAfterMs: number | null };
 
-// A provider request rejected with HTTP 429 before any response stream began,
-// in a single attempt the SDK did not retry. Nothing was generated, so no
-// provider tool such as web search ran for it.
 export function readAgentProviderRateLimit(error: unknown): AgentProviderRateLimit | null {
   const envelope = providerFailureEnvelope(error);
   if (!envelope || envelope.statusCode !== 429 || "currentAttempt" in envelope) return null;

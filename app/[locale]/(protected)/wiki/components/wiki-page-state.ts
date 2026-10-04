@@ -4,7 +4,6 @@ type Input = {
   isNavigating: boolean;
   missing: boolean;
   hasDocument: boolean;
-  /** A website import is running and no Knowledge Base page exists yet; pages always win over setup progress. */
   setupActive: boolean;
 };
 

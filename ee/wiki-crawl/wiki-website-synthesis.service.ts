@@ -64,8 +64,6 @@ const TOPIC_TAKEN = new Error("Knowledge Base synthesis topic was settled by ano
 const TOPIC_CLAIM_STALE_MS = 20 * 60 * 1_000;
 const TOPIC_WAIT_MS = 12 * 60 * 1_000;
 const TOPIC_POLL_MS = 2_000;
-// Jev answers in about a second; a rate limit, timeout or outage while topics are reviewed in
-// parallel is transient, so those failures wait before the next attempt instead of retrying at once.
 const REVIEW_RETRY_DELAYS_MS = [2_000, 6_000] as const;
 const TRANSIENT_REVIEW_FAILURES = new Set<ClassifierFailure | "unanswered">([
   "rateLimited",

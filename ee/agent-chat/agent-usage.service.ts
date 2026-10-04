@@ -295,11 +295,6 @@ export class AgentUsageService {
     };
   }
 
-  /**
-   * Explains a refused retrieval grant or reservation the way chat admission does: exhausted
-   * allowance or pool headroom is `credits`; a blocked subscription, paused provider work or the
-   * platform spend cap is `unavailable`. It only labels a refusal and never admits work.
-   */
   async retrievalRefusal(
     userId: string,
     worstCaseMicrocents: number,

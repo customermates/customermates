@@ -204,10 +204,6 @@ function withoutWwwLabel(hostname: string, registrableDomain: string): string {
   return parsePublicPageUrl(`https://${rest}/`)?.registrableDomain === registrableDomain ? rest : hostname;
 }
 
-/**
- * Identity of a crawl URL: `canonicalCrawlUrl` with a single leading `www.` label removed, so the apex and
- * `www.` forms of one site collapse to one page. It is a dedupe key, never a URL to fetch.
- */
 export function crawlDedupeKey(value: string): string | null {
   const canonical = canonicalCrawlUrl(value);
   const page = canonical ? parsePublicPageUrl(canonical) : null;
@@ -217,10 +213,6 @@ export function crawlDedupeKey(value: string): string | null {
   return url.toString();
 }
 
-/**
- * Moves a URL onto the homepage's host when the two differ only by a leading `www.` label, so a site that
- * links both forms is read through the one form its homepage was actually served from.
- */
 export function alignCrawlUrlHost(value: string, homepage: string): string {
   const page = parsePublicPageUrl(value);
   const home = parsePublicPageUrl(homepage);

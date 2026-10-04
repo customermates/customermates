@@ -51,7 +51,6 @@ function StatusIcon({ status }: { status: ProgressStatus }) {
 
 type Props = {
   state: WikiHomepageSetupState;
-  /** Hides the pages-read count and the duplicated current-URL line, as the Knowledge Base view does. */
   hideReadCount?: boolean;
 };
 

@@ -93,7 +93,6 @@ export const WikiPageView = observer(function WikiPageView({
   const canManage = store.canManage;
   const setupState = useLiveWikiSetupState(initialSetupState);
   const importRunning = setupState.status === "working";
-  // Server-rendered facts only, so a poll that finds new pages keeps the current view until the refresh lands.
   const hasPages =
     listPage.total > 0 || pinnedPage !== null || initialPage !== null || initialSetupState.pages.length > 0;
 
