@@ -54,30 +54,36 @@ The retired multi-step upgrade refused the following data. This migration conver
 Repairs that disable or change an automation are reported as notices at the end of the migration (`Configurable record upgrade repair: Webhook webhook_disabled x2 (<ids>)`). Deployment logs may not show notices, so list the affected automations on the production database (read-only) before deploying:
 
 ```sql
-SELECT 'Routine' AS kind, r."companyId", r.id, r.enabled, r."triggerKind"
+SELECT 'Routine' AS kind, r."companyId", r.id,
+  CASE WHEN r."triggerKind"::text <> 'event' THEN 'legacy events dropped' ELSE 'disabled (owner unavailable)' END AS change
 FROM "Routine" r
 WHERE EXISTS (SELECT 1 FROM unnest(r."triggerEvents") e WHERE e ~ '^(contact|organization|deal|service|task)\.(created|updated|deleted)$')
   AND (r."triggerKind"::text <> 'event' OR (r.enabled AND NOT EXISTS (
     SELECT 1 FROM "User" u WHERE u."companyId" = r."companyId" AND u.id = r."ownerUserId" AND u.status::text = 'active')))
 UNION ALL
-SELECT 'Webhook', w."companyId", w.id, w.enabled, NULL
+SELECT 'Webhook', w."companyId", w.id,
+  CASE
+    WHEN owner.creator IS NULL AND admin.id IS NOT NULL THEN 'owner set to the oldest active administrator'
+    WHEN owner.creator IS NULL THEN CASE WHEN w.enabled THEN 'disabled, no subscription' ELSE 'stays disabled, no subscription' END
+    WHEN w.enabled THEN 'disabled (inactive creator kept as owner)'
+    ELSE 'stays disabled (inactive creator kept as owner)'
+  END
 FROM "Webhook" w
 CROSS JOIN LATERAL (
   SELECT CASE WHEN count(DISTINCT a."userId") = 1 THEN min(a."userId") END AS creator
   FROM "AuditLog" a JOIN "User" u ON u.id = a."userId" AND u."companyId" = a."companyId"
   WHERE a."companyId" = w."companyId" AND a."entityId" = w.id AND a.event = 'webhook.created'
 ) owner
-WHERE w.enabled AND EXISTS (SELECT 1 FROM unnest(w.events) e WHERE e ~ '^(contact|organization|deal|service|task)\.(created|updated|deleted)$')
-  AND CASE
-    WHEN owner.creator IS NOT NULL THEN NOT EXISTS (
-      SELECT 1 FROM "User" u WHERE u."companyId" = w."companyId" AND u.id = owner.creator AND u.status::text = 'active')
-    ELSE NOT EXISTS (
-      SELECT 1 FROM "User" u JOIN "UserRole" role ON role.id = u."roleId" AND role."isSystemRole"
-      WHERE u."companyId" = w."companyId" AND u.status::text = 'active')
-  END;
+LEFT JOIN LATERAL (
+  SELECT u.id FROM "User" u JOIN "UserRole" role ON role.id = u."roleId" AND role."isSystemRole"
+  WHERE u."companyId" = w."companyId" AND u.status::text = 'active' ORDER BY u."createdAt", u.id LIMIT 1
+) admin ON true
+WHERE EXISTS (SELECT 1 FROM unnest(w.events) e WHERE e ~ '^(contact|organization|deal|service|task)\.(created|updated|deleted)$')
+  AND (owner.creator IS NULL OR NOT EXISTS (
+    SELECT 1 FROM "User" u WHERE u."companyId" = w."companyId" AND u.id = owner.creator AND u.status::text = 'active'));
 ```
 
-The query mirrors the migration's owner rules, so it lists exactly the enabled automations the upgrade will disable or change.
+The query mirrors the migration's owner and event rules and lists every routine and webhook the upgrade disables, re-owns or strips of leftover events, with the change it makes; scheduled routines are listed whether or not they are enabled.
 
 ## Intentional differences from the retired upgrade
 
