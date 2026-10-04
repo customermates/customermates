@@ -193,13 +193,21 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
       : Prisma.empty;
     const record = Prisma.sql`record`;
     const readable = access
-      ? Prisma.sql`AND (${Prisma.join(
-          (readableTypeIds ?? []).map(
-            (typeId) =>
-              Prisma.sql`(record."typeId" = ${typeId} AND ${recordReadPredicate(this.companyId, recordInvariant(access.get(typeId)), record)})`,
-          ),
-          " OR ",
-        )})`
+      ? Prisma.sql`AND EXISTS (
+          SELECT 1 FROM (
+            SELECT * FROM "CrmRecord" candidate
+            WHERE candidate."companyId" = association."companyId"
+              AND candidate."typeId" = association."typeId" AND candidate.id = association."recordId"
+            LIMIT 1
+          ) record
+          WHERE ${Prisma.join(
+            (readableTypeIds ?? []).map(
+              (typeId) =>
+                Prisma.sql`(record."typeId" = ${typeId} AND ${recordReadPredicate(this.companyId, recordInvariant(access.get(typeId)), record)})`,
+            ),
+            " OR ",
+          )}
+        )`
       : Prisma.empty;
     const rows = await this.prisma.$queryRaw<
       Array<{ channelClass: string; value: string; identityId: string; typeId: string; recordId: string }>
@@ -215,8 +223,6 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
       CROSS JOIN LATERAL (
         SELECT association."typeId", association."recordId"
         FROM "RecordIdentityLink" association
-        JOIN "CrmRecord" record ON record."companyId" = association."companyId"
-          AND record."typeId" = association."typeId" AND record.id = association."recordId"
         WHERE association."companyId" = identity_key."companyId"
           AND association."identityId" = identity_key."identityId"
           ${typeConstraint}
