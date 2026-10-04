@@ -13694,6 +13694,11 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       state: "failed",
       errorCode: "worker_failed",
     });
+    expect(await f.run(() => f.cancel.invoke({ operationId }))).toMatchObject({ ok: false });
+    expect(await f.run(() => f.status.invoke({ operationId }))).toMatchObject({
+      ok: true,
+      data: { state: "failed", errorCode: "worker_failed" },
+    });
     expect(
       await f.run(() =>
         prisma.recordStageRow.count({

@@ -83,7 +83,10 @@ export class CancelRecordOperationInteractor extends AuthenticatedInteractor<
     const [operation, policy] = await Promise.all([this.records.getOperation(input.operationId), this.policy.load()]);
     if (!operation || !policy.actor || (!policy.isAdmin && operation.userId !== this.userId))
       return failNotFound(CustomErrorCode.recordNotFound);
-    if (operation.state === "completed") return failConflict(CustomErrorCode.recordVersionChanged);
+    // Only work that has not finished can be cancelled. Relabeling a failed or
+    // completed operation would hide its real outcome.
+    if (operation.state === "completed" || operation.state === "failed")
+      return failConflict(CustomErrorCode.recordVersionChanged);
     if (operation.state !== "cancelled") {
       await this.records.updateOperation(operation.id, {
         state: "cancelled",
