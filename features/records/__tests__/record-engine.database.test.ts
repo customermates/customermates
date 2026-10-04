@@ -6260,19 +6260,22 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       const owned = { typeId, recordId: randomUUID() };
       const key = { channelClass: "email", value: "heavily-shared@example.test" };
       await f.run(() =>
-        runInTransaction(async () => {
-          const tx = transactionStorage.getStore()?.client as typeof prisma;
-          await f.repo.create(owned, [f.member.id]);
-          await f.repo.setIdentities(owned, [{ provider: "mail", value: key.value }]);
-          const identity = recordInvariant((await f.repo.getIdentitiesCompanyWide(owned))[0]);
-          await tx.$executeRaw`INSERT INTO "CrmRecord" ("companyId", "typeId", id, "updatedAt")
+        runInTransaction(
+          async () => {
+            const tx = transactionStorage.getStore()?.client as typeof prisma;
+            await f.repo.create(owned, [f.member.id]);
+            await f.repo.setIdentities(owned, [{ provider: "mail", value: key.value }]);
+            const identity = recordInvariant((await f.repo.getIdentitiesCompanyWide(owned))[0]);
+            await tx.$executeRaw`INSERT INTO "CrmRecord" ("companyId", "typeId", id, "updatedAt")
           SELECT ${f.company.id}, ${typeId}, gen_random_uuid()::text, NOW() FROM generate_series(1, 10050)`;
-          await tx.$executeRaw`INSERT INTO "RecordIdentityLink" ("companyId", "identityId", "typeId", "recordId")
+            await tx.$executeRaw`INSERT INTO "RecordIdentityLink" ("companyId", "identityId", "typeId", "recordId")
           SELECT ${f.company.id}, ${identity.id}, record."typeId", record.id FROM "CrmRecord" record
           WHERE record."companyId" = ${f.company.id} AND record."typeId" = ${typeId}
           ON CONFLICT DO NOTHING`;
-          await f.repo.setGrants(typeId, [{ roleId: f.memberRole.id, actions: ["readOwn"] }]);
-        }),
+            await f.repo.setGrants(typeId, [{ roleId: f.memberRole.id, actions: ["readOwn"] }]);
+          },
+          { timeout: 60000 },
+        ),
       );
       await expect(f.run(() => f.repo.getIdentityOwnersCompanyWide([key]))).rejects.toMatchObject({
         code: CustomErrorCode.recordCalculationBudget,
@@ -15378,23 +15381,26 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
       ),
     ).toMatchObject({ ok: true, data: { status: "completed" } });
     await f.run(() =>
-      runInTransaction(async () => {
-        const tx = transactionStorage.getStore()?.client as typeof prisma;
-        await f.repo.create(organization, []);
-        await f.repo.setIdentities(organization, [{ provider: "google", value: "filtered-avatar@example.test" }]);
-        const identity = recordInvariant((await f.repo.getIdentitiesCompanyWide(organization))[0]);
-        await tx.crmRecord.createMany({
-          data: extraIds.map((id) => ({ companyId: f.company.id, typeId: organization.typeId, id })),
-        });
-        await tx.recordIdentityLink.createMany({
-          data: extraIds.map((recordId) => ({
-            companyId: f.company.id,
-            identityId: identity.id,
-            typeId: organization.typeId,
-            recordId,
-          })),
-        });
-      }),
+      runInTransaction(
+        async () => {
+          const tx = transactionStorage.getStore()?.client as typeof prisma;
+          await f.repo.create(organization, []);
+          await f.repo.setIdentities(organization, [{ provider: "google", value: "filtered-avatar@example.test" }]);
+          const identity = recordInvariant((await f.repo.getIdentitiesCompanyWide(organization))[0]);
+          await tx.crmRecord.createMany({
+            data: extraIds.map((id) => ({ companyId: f.company.id, typeId: organization.typeId, id })),
+          });
+          await tx.recordIdentityLink.createMany({
+            data: extraIds.map((recordId) => ({
+              companyId: f.company.id,
+              identityId: identity.id,
+              typeId: organization.typeId,
+              recordId,
+            })),
+          });
+        },
+        { timeout: 60000 },
+      ),
     );
     const background = { dispatch: vi.fn().mockResolvedValue(undefined) };
     const service = new ProviderAvatarService(new PrismaRecordRepo(f.company.id), f.company.id, background);
@@ -15568,73 +15574,81 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
         data: { status: "completed", schemaRevision: 2 },
       });
       await f.run(() =>
-        runInTransaction(async () => {
-          const tx = transactionStorage.getStore()?.client as typeof prisma;
-          await f.repo.create(ref, []);
-          await f.repo.create(organization, []);
-          await f.repo.create(unrelatedService, []);
-          await f.repo.setValue(
-            unrelatedService,
-            f.id("service.name"),
-            { state: "value", value: textValue("Stable") },
-            2,
-          );
-          await f.repo.setValue(unrelatedService, unrelatedFormulaId, { state: "value", value: textValue("Stale") }, 2);
-          await f.repo.setValue(
-            organization,
-            relatedFieldId,
-            { state: "value", value: textValue("https://example.test/old.png") },
-            2,
-          );
-          await tx.recordLink.create({
-            data: {
-              companyId: f.company.id,
-              id: randomUUID(),
-              relationId,
-              sourceTypeId: organization.typeId,
-              sourceId: organization.recordId,
-              targetTypeId: ref.typeId,
-              targetId: ref.recordId,
-            },
-          });
-          await f.repo.setIdentities(ref, [{ provider: "google", value: "large-avatar@example.test" }]);
-          const identity = recordInvariant((await f.repo.getIdentitiesCompanyWide(ref))[0]);
-          await tx.crmRecord.createMany({
-            data: extraIds.map((id) => ({
-              companyId: f.company.id,
-              typeId: ref.typeId,
-              id,
-            })),
-          });
-          await tx.recordIdentityLink.createMany({
-            data: extraIds.map((recordId) => ({
-              companyId: f.company.id,
-              identityId: identity.id,
-              typeId: ref.typeId,
-              recordId,
-            })),
-          });
-          await tx.recordValue.createMany({
-            data: extraIds.map((recordId) => ({
-              companyId: f.company.id,
-              typeId: ref.typeId,
-              recordId,
+        runInTransaction(
+          async () => {
+            const tx = transactionStorage.getStore()?.client as typeof prisma;
+            await f.repo.create(ref, []);
+            await f.repo.create(organization, []);
+            await f.repo.create(unrelatedService, []);
+            await f.repo.setValue(
+              unrelatedService,
+              f.id("service.name"),
+              { state: "value", value: textValue("Stable") },
+              2,
+            );
+            await f.repo.setValue(
+              unrelatedService,
+              unrelatedFormulaId,
+              { state: "value", value: textValue("Stale") },
+              2,
+            );
+            await f.repo.setValue(
+              organization,
+              relatedFieldId,
+              { state: "value", value: textValue("https://example.test/old.png") },
+              2,
+            );
+            await tx.recordLink.create({
+              data: {
+                companyId: f.company.id,
+                id: randomUUID(),
+                relationId,
+                sourceTypeId: organization.typeId,
+                sourceId: organization.recordId,
+                targetTypeId: ref.typeId,
+                targetId: ref.recordId,
+              },
+            });
+            await f.repo.setIdentities(ref, [{ provider: "google", value: "large-avatar@example.test" }]);
+            const identity = recordInvariant((await f.repo.getIdentitiesCompanyWide(ref))[0]);
+            await tx.crmRecord.createMany({
+              data: extraIds.map((id) => ({
+                companyId: f.company.id,
+                typeId: ref.typeId,
+                id,
+              })),
+            });
+            await tx.recordIdentityLink.createMany({
+              data: extraIds.map((recordId) => ({
+                companyId: f.company.id,
+                identityId: identity.id,
+                typeId: ref.typeId,
+                recordId,
+              })),
+            });
+            await tx.recordValue.createMany({
+              data: extraIds.map((recordId) => ({
+                companyId: f.company.id,
+                typeId: ref.typeId,
+                recordId,
+                fieldId,
+                state: "value",
+                textValue: "https://example.test/old.png",
+                schemaRevision: 2,
+              })),
+            });
+            await f.repo.setValue(
+              ref,
               fieldId,
-              state: "value",
-              textValue: "https://example.test/old.png",
-              schemaRevision: 2,
-            })),
-          });
-          await f.repo.setValue(
-            ref,
-            fieldId,
-            {
-              state: "value",
-              value: textValue("https://example.test/old.png"),
-            },
-            2,
-          );
-        }),
+              {
+                state: "value",
+                value: textValue("https://example.test/old.png"),
+              },
+              2,
+            );
+          },
+          { timeout: 60000 },
+        ),
       );
       const { PrismaMessagingRepo } = await import("@/ee/messaging/persistence/prisma-messaging.repository");
       const { BackgroundTaskService } = await import("@/core/utils/background-task.service");
