@@ -11,7 +11,7 @@ import type { WikiSynthesisSkipReason } from "@/features/wiki/wiki-crawl-progres
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { classifyMetered } from "@/ee/agent-chat/classifier/metered";
 import { classifierReservationMicrocents } from "@/ee/agent-chat/classifier/classifier-reservation";
-import { JEV_MODEL_ID } from "@/ee/agent-chat/classifier/jev-runner";
+import { JEV_MODEL_ID, type ClassifierFailure } from "@/ee/agent-chat/classifier/jev-runner";
 import { INITIAL_WIKI_SYNTHESIS_MODEL, SHIPPED_AGENT_MODEL } from "@/ee/agent-chat/model-catalog";
 import { wikiLanguageConflicts } from "@/features/wiki/wiki-language";
 import { wikiPageMarkdownLink } from "@/features/wiki/wiki-links";
@@ -64,6 +64,15 @@ const TOPIC_TAKEN = new Error("Knowledge Base synthesis topic was settled by ano
 const TOPIC_CLAIM_STALE_MS = 20 * 60 * 1_000;
 const TOPIC_WAIT_MS = 12 * 60 * 1_000;
 const TOPIC_POLL_MS = 2_000;
+// Jev answers in about a second; a rate limit, timeout or outage while topics are reviewed in
+// parallel is transient, so those failures wait before the next attempt instead of retrying at once.
+const REVIEW_RETRY_DELAYS_MS = [2_000, 6_000] as const;
+const TRANSIENT_REVIEW_FAILURES = new Set<ClassifierFailure | "unanswered">([
+  "rateLimited",
+  "unavailable",
+  "timeout",
+  "network",
+]);
 
 type Sources = { list: WikiSourceRecord[]; byId: Map<string, WikiSourceRecord>; keys: Map<string, string> };
 type Metered<T> = { value: T; charge: AgentRetrievalCharge | null };
@@ -468,22 +477,26 @@ export class WikiWebsiteSynthesisService {
     locale: AppLocale,
   ): Promise<ReviewOutcome> {
     const request = wikiSynthesisReviewRequest(candidate, sources, locale);
-    if (!request) return { kind: "unavailable" };
-    for (let attempt = 0; attempt < 2; attempt += 1) {
+    if (!request) {
+      this.warnings.push(`Website import review for ${JEV_MODEL_ID} does not fit its context, even as cited passages.`);
+      return { kind: "unavailable" };
+    }
+    const failures: Array<ClassifierFailure | "unanswered"> = [];
+    for (let attempt = 0; attempt <= REVIEW_RETRY_DELAYS_MS.length; attempt += 1) {
       const result = await this.metered(
         crawl,
         classifierReservationMicrocents(request.spec, request.state),
         JEV_MODEL_ID,
         async () => {
-          const { result: answer, charge } = await classifyMetered(
-            "wiki_synthesis_review",
-            request.spec,
-            request.state,
-            "jev",
-            { timeoutMs: WIKI_SYNTHESIS_REVIEW_TIMEOUT_MS },
-          );
+          const {
+            result: answer,
+            charge,
+            failure,
+          } = await classifyMetered("wiki_synthesis_review", request.spec, request.state, "jev", {
+            timeoutMs: WIKI_SYNTHESIS_REVIEW_TIMEOUT_MS,
+          });
           return {
-            value: wikiSynthesisReviewDecision(request, answer),
+            value: { decision: wikiSynthesisReviewDecision(request, answer), failure },
             charge: charge && {
               model: JEV_MODEL_ID,
               inputTokens: 0,
@@ -494,9 +507,17 @@ export class WikiWebsiteSynthesisService {
         },
       );
       if (!result.ok) return { kind: "refused", reason: result.reason };
-      if (result.value.kind !== "unavailable") return result.value;
+      if (result.value.decision.kind !== "unavailable") return result.value.decision;
+      const failure = result.value.failure ?? "unanswered";
+      failures.push(failure);
+      const delay = REVIEW_RETRY_DELAYS_MS[attempt];
+      if (delay === undefined) break;
+      if (TRANSIENT_REVIEW_FAILURES.has(failure)) await new Promise((resolve) => setTimeout(resolve, delay));
+      else if (failures.length >= 2) break;
     }
-    this.warnings.push(`Website import review by ${JEV_MODEL_ID} was unanswered twice.`);
+    this.warnings.push(
+      `Website import review by ${JEV_MODEL_ID} was unanswered after ${failures.length} attempts (${failures.join(", ")}).`,
+    );
     return { kind: "unavailable" };
   }
 

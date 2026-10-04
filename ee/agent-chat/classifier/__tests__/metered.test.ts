@@ -127,6 +127,31 @@ describe("metered classifier calls", () => {
     expect(charges).toEqual([expected]);
   });
 
+  it.each([
+    [429, "rateLimited"],
+    [503, "unavailable"],
+    [400, "rejected"],
+  ] as const)("names why an answered-with-%i evaluation produced nothing", async (status, failure) => {
+    const { failure: reported } = await classifyMetered("wiki_synthesis_review", SPEC, STATE, "jev", {
+      apiKey: "k",
+      fetch: reply({}, status),
+    });
+    expect(reported).toBe(failure);
+  });
+
+  it("names a timed-out and a malformed evaluation", async () => {
+    const timedOut = await classifyMetered("wiki_synthesis_review", SPEC, STATE, "jev", {
+      apiKey: "k",
+      fetch: () => Promise.reject(Object.assign(new Error("timed out"), { name: "TimeoutError" })),
+    });
+    expect(timedOut.failure).toBe("timeout");
+    const malformed = await classifyMetered("wiki_synthesis_review", SPEC, STATE, "jev", {
+      apiKey: "k",
+      fetch: reply({ answers: { unknown: {} } }),
+    });
+    expect(malformed.failure).toBe("invalidAnswers");
+  });
+
   it("charges a pinned-price estimate when the call fails after it was sent", async () => {
     const { value, charges } = await collectClassifierCharges(() =>
       classifyMetered("docs_rerank", SPEC, STATE, "jev", { apiKey: "k", fetch: reply({}, 503) }),
@@ -137,6 +162,7 @@ describe("metered classifier calls", () => {
     expect(value).toEqual({
       result: null,
       charge: { use: "docs_rerank", model: "jev", costMicrocents: estimate, measured: false, answered: false },
+      failure: "unavailable",
     });
     expect(charges).toHaveLength(1);
   });

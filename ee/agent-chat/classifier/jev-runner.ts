@@ -10,6 +10,21 @@ const JEV_SERVING_PROVIDER = "typesafe-ai";
 export const JEV_PRICING_PROVIDER = "digitalocean";
 export const JEV_DEADLINE_MS = 800;
 
+/** Why an evaluation produced no usable answer; transient kinds are worth a delayed retry. */
+export type ClassifierFailure = "timeout" | "rateLimited" | "unavailable" | "rejected" | "invalidAnswers" | "network";
+
+export class JevRequestError extends Error {
+  constructor(readonly failure: ClassifierFailure) {
+    super(`the evaluation endpoint failed: ${failure}`);
+  }
+}
+
+export function classifierFailureOf(error: unknown): ClassifierFailure {
+  if (error instanceof JevRequestError) return error.failure;
+  if (error instanceof Error && (error.name === "TimeoutError" || error.name === "AbortError")) return "timeout";
+  return "network";
+}
+
 export type JevRunnerOptions = {
   apiKey: string;
   authMethod?: "api-key" | "oidc";
@@ -51,10 +66,14 @@ export async function runJev(
     body: JSON.stringify(jevRequestBody(spec, state)),
     signal: AbortSignal.timeout(options.timeoutMs ?? JEV_DEADLINE_MS),
   });
-  if (!response.ok) throw new Error(`the evaluation endpoint answered ${response.status}`);
+  if (!response.ok) {
+    throw new JevRequestError(
+      response.status === 429 ? "rateLimited" : response.status >= 500 ? "unavailable" : "rejected",
+    );
+  }
   const body = (await response.json()) as { answers?: unknown; providerMetadata?: unknown };
   const answers = parseClassifierAnswers(spec, body.answers);
-  if (!answers) throw new Error("the evaluation endpoint returned answers that do not match the spec");
+  if (!answers) throw new JevRequestError("invalidAnswers");
   const charge = readAgentProviderCharge(body.providerMetadata, JEV_SERVING_PROVIDER);
   return {
     model: "jev",
