@@ -100,6 +100,7 @@ function harness(mode: WikiCrawlRecord["mode"] = "initial") {
   const usage = {
     prepareRetrieval: vi.fn(() => Promise.resolve({ purpose: "wikiSynthesis" })),
     reserveRetrieval: vi.fn(() => Promise.resolve({ id: "reservation", reservedMicrocents: 1_000 })),
+    retrievalRefusal: vi.fn(() => Promise.resolve("credits" as "credits" | "unavailable")),
     settleRetrieval: vi.fn(({ charge }: { charge: unknown }) => {
       settled.push(charge);
       return Promise.resolve();
@@ -400,6 +401,28 @@ describe("website Knowledge Base synthesis", () => {
     expect(model.generate).toHaveBeenCalledTimes(1);
     expect(crawl().topics?.[0]).toMatchObject({ status: "skipped", skipReason: "credits" });
     expect(crawl()).toMatchObject({ status: "failed", failureReason: "credits" });
+  });
+
+  it("reports hosted AI as unavailable, not as missing credits, when the refusal is not about credits", async () => {
+    const { run, usage, crawl } = harness("extend");
+    model.generate.mockResolvedValueOnce(plan([{ title: "Scheduling", role: "offering", sources: ["s2"] }]));
+    usage.reserveRetrieval
+      .mockResolvedValueOnce({ id: "plan", reservedMicrocents: 1_000 })
+      .mockResolvedValue(null as never);
+    usage.retrievalRefusal.mockResolvedValue("unavailable");
+    await run();
+    expect(model.generate).toHaveBeenCalledTimes(1);
+    expect(crawl().topics?.[0]).toMatchObject({ status: "skipped", skipReason: "aiUnavailable" });
+    expect(crawl()).toMatchObject({ status: "failed", failureReason: "aiUnavailable" });
+  });
+
+  it("reports the real refusal when no plan can be reserved", async () => {
+    const { run, usage, crawl } = harness("extend");
+    usage.prepareRetrieval.mockResolvedValue(null as never);
+    usage.retrievalRefusal.mockResolvedValue("unavailable");
+    await run();
+    expect(model.generate).not.toHaveBeenCalled();
+    expect(crawl()).toMatchObject({ status: "failed", failureReason: "aiUnavailable", topics: [] });
   });
 
   it("settles every reserved model and review call with a charge, never as free usage", async () => {

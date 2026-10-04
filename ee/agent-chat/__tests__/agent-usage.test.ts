@@ -272,6 +272,36 @@ describe("AgentUsageService summary", () => {
   });
 });
 
+describe("AgentUsageService retrieval refusal", () => {
+  it("labels exhausted allowance as credits", async () => {
+    const service = new AgentUsageService(makeRepo({ usedMicrocents: 500 * CREDIT }));
+    await expect(service.retrievalRefusal("user-1", CREDIT, NOW)).resolves.toBe("credits");
+  });
+
+  it("labels a reservation larger than the remaining headroom as credits", async () => {
+    const service = new AgentUsageService(makeRepo({ usedMicrocents: 499 * CREDIT }));
+    await expect(service.retrievalRefusal("user-1", 2 * CREDIT, NOW)).resolves.toBe("credits");
+  });
+
+  it("labels an unavailable subscription as unavailable, not credits", async () => {
+    const service = new AgentUsageService(
+      makeRepo({ user: { status: Status.inactive, agentCreditActivatedAt: null } }),
+    );
+    await expect(service.retrievalRefusal("user-1", CREDIT, NOW)).resolves.toBe("unavailable");
+  });
+
+  it("labels paused provider work or the platform cap as unavailable while credits remain", async () => {
+    const repo = makeRepo();
+    repo.admitsHostedAiRetrievalUnscoped.mockResolvedValue(false);
+    await expect(new AgentUsageService(repo).retrievalRefusal("user-1", CREDIT, NOW)).resolves.toBe("unavailable");
+  });
+
+  it("labels a refusal with headroom left as unavailable", async () => {
+    const service = new AgentUsageService(makeRepo());
+    await expect(service.retrievalRefusal("user-1", CREDIT, NOW)).resolves.toBe("unavailable");
+  });
+});
+
 describe("AgentUsageService admission and ledger", () => {
   it("admits and bounds a final fully reservable turn", async () => {
     const required = agentRoundWorstCaseMicrocents(MODEL);

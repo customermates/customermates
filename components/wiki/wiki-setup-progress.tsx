@@ -105,6 +105,7 @@ export function WikiSetupProgress({ state }: { state: WikiHomepageSetupState }) 
     review: t("WikiSetup.crawlProgress.skipped.review"),
     reviewUnavailable: t("WikiSetup.crawlProgress.skipped.reviewUnavailable"),
     credits: t("WikiSetup.crawlProgress.skipped.credits"),
+    aiUnavailable: t("WikiSetup.crawlProgress.skipped.aiUnavailable"),
     persistence: t("WikiSetup.crawlProgress.skipped.persistence"),
     error: t("WikiSetup.crawlProgress.skipped.error"),
   };
