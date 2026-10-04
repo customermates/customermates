@@ -769,7 +769,7 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     });
   });
 
-  it("claims a synthesis topic once, reclaims only a stale claim and settles it once", async () => {
+  it("lets a redelivered step resume a written topic but settles it only once", async () => {
     const crawlId = await startCrawl();
     const topic = { title: "Scheduling", role: "offering", sourceIds: [randomUUID()], status: "pending" };
     await client.query(
@@ -778,15 +778,13 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     );
     await runWithTenant(user, async () => {
       const repo = new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo());
-      const past = new Date(Date.now() - 60_000);
-      expect(
-        await Promise.all([repo.claimSynthesisTopic(crawlId, 0, past), repo.claimSynthesisTopic(crawlId, 0, past)]),
-      ).toEqual(expect.arrayContaining([true, false]));
-      expect(await repo.claimSynthesisTopic(crawlId, 0, new Date(Date.now() + 60_000))).toBe(true);
+      expect(await repo.settleSynthesisTopic(crawlId, 0, { status: "skipped", skipReason: "error" })).toBe(false);
+      expect(await repo.startSynthesisTopic(crawlId, 0)).toBe(true);
+      expect(await repo.startSynthesisTopic(crawlId, 0)).toBe(true);
       const pageId = randomUUID();
       expect(await repo.settleSynthesisTopic(crawlId, 0, { status: "created", pageId })).toBe(true);
       expect(await repo.settleSynthesisTopic(crawlId, 0, { status: "skipped", skipReason: "error" })).toBe(false);
-      expect(await repo.claimSynthesisTopic(crawlId, 0, new Date(Date.now() + 60_000))).toBe(false);
+      expect(await repo.startSynthesisTopic(crawlId, 0)).toBe(false);
       const crawl = await repo.getCrawl(crawlId);
       expect(crawl?.topics).toEqual([
         { ...topic, status: "created", pageId },

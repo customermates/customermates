@@ -92,7 +92,7 @@ describe("robots.txt", () => {
         "Sitemap: https://example.com/sitemap_index.xml",
       ].join("\n"),
     );
-    expect(rules.blocked).toBe(false);
+    expect(rules.allows("/")).toBe(true);
     expect(rules.allows("/pricing")).toBe(true);
     expect(rules.allows("/private/team")).toBe(false);
     expect(rules.allows("/private/help/faq")).toBe(true);
@@ -103,9 +103,10 @@ describe("robots.txt", () => {
   });
 
   it("falls back to the wildcard group and treats a missing file as allow-all", () => {
-    expect(parseRobots("User-agent: *\nDisallow: /").blocked).toBe(true);
-    expect(parseRobots("User-agent: Googlebot\nDisallow: /").blocked).toBe(false);
-    expect(parseRobots(null)).toMatchObject({ blocked: false, crawlDelayMs: 0, sitemaps: [] });
+    expect(parseRobots("User-agent: *\nDisallow: /").allows("/")).toBe(false);
+    expect(parseRobots("User-agent: Googlebot\nDisallow: /").allows("/")).toBe(true);
+    expect(parseRobots(null)).toMatchObject({ unreachable: false, crawlDelayMs: 0, sitemaps: [] });
+    expect(parseRobots(null).allows("/")).toBe(true);
   });
 
   it("matches a pathological wildcard pattern in linear time", () => {
@@ -138,20 +139,16 @@ describe("robots.txt", () => {
   });
 
   it("treats an unreachable robots.txt as disallow-all and a missing one as allow-all, per RFC 9309", () => {
-    expect(robotsFromFetch({ ok: false, reason: "unavailable", status: 503 })).toMatchObject({
-      blocked: true,
-      unreachable: true,
-    });
+    expect(robotsFromFetch({ ok: false, reason: "unavailable", status: 503 })).toMatchObject({ unreachable: true });
     expect(robotsFromFetch({ ok: false, reason: "unavailable", status: 500 }).allows("/help")).toBe(false);
-    expect(robotsFromFetch({ ok: false, reason: "timeout" }).blocked).toBe(true);
-    expect(robotsFromFetch({ ok: false, reason: "blocked_address" }).blocked).toBe(true);
+    expect(robotsFromFetch({ ok: false, reason: "timeout" }).unreachable).toBe(true);
+    expect(robotsFromFetch({ ok: false, reason: "blocked_address" }).unreachable).toBe(true);
     for (const status of [400, 401, 403, 404, 410, 429])
-      expect(robotsFromFetch({ ok: false, reason: "unavailable", status }).blocked).toBe(false);
-    expect(robotsFromFetch({ ok: false, reason: "redirect_limit" }).blocked).toBe(false);
-    expect(robotsFromFetch({ ok: true, body: "User-agent: *\nDisallow: /" })).toMatchObject({
-      blocked: true,
-      unreachable: false,
-    });
+      expect(robotsFromFetch({ ok: false, reason: "unavailable", status }).allows("/")).toBe(true);
+    expect(robotsFromFetch({ ok: false, reason: "redirect_limit" }).allows("/")).toBe(true);
+    const disallowed = robotsFromFetch({ ok: true, body: "User-agent: *\nDisallow: /" });
+    expect(disallowed.unreachable).toBe(false);
+    expect(disallowed.allows("/")).toBe(false);
   });
 
   it("parses a robots.txt cut at 500 KiB up to its last complete line instead of disallowing everything", () => {
@@ -160,7 +157,7 @@ describe("robots.txt", () => {
       body: "User-agent: *\nDisallow: /private\nDisallow: /par",
       truncated: true,
     });
-    expect(truncated.blocked).toBe(false);
+    expect(truncated.allows("/")).toBe(true);
     expect(truncated.allows("/private/page")).toBe(false);
     expect(truncated.allows("/partners")).toBe(true);
     expect(
@@ -386,8 +383,6 @@ describe("website discovery and fetching", () => {
       id: "00000000-0000-4000-8000-000000000001",
       category: "product" as const,
       fetchedAt: new Date("2026-10-01T00:00:00.000Z"),
-      readAt: null,
-      readOffset: 0,
     });
     const copy = { source: ({ url, date }: { url: string; date: string }) => `${url} ${date}`, faqHeading: "FAQs" };
     expect(wikiImportedMarkdown(stored(second), copy)).toEqual(wikiImportedMarkdown(stored(first), copy));

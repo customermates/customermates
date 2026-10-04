@@ -45,13 +45,13 @@ afterEach(() => {
 });
 
 describe("agent message admission route", () => {
-  it("strips the internal-only Wiki setup field at the public API boundary", async () => {
+  it("maps a conflicting request to a 409 response", async () => {
     invoke.mockResolvedValue({
       ok: true,
       data: { disposition: "conflict", clientRequestId, retryAllowed: false },
     });
 
-    const response = await POST(request({ wikiHomepageSetupUrl: "https://example.com/" }));
+    const response = await POST(request());
 
     expect(response.status).toBe(409);
     expect(invoke).toHaveBeenCalledWith({ clientRequestId, text: "Hello", retry: false });

@@ -37,7 +37,6 @@ const workingState = {
   status: "working" as const,
   homepage: "https://example.com/",
   domain: "example.com",
-  conversationId: null,
   pages: [],
 };
 

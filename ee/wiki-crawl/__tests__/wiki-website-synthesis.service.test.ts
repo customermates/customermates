@@ -70,9 +70,10 @@ function harness(mode: WikiCrawlRecord["mode"] = "initial") {
     listSources: vi.fn(() => Promise.resolve(SOURCES)),
     findImportedPage: vi.fn(() => Promise.resolve(null)),
     listPageTitles: vi.fn(() => Promise.resolve([] as string[])),
-    claimSynthesisTopic: vi.fn((_id: string, index: number) => {
+    startSynthesisTopic: vi.fn((_id: string, index: number) => {
       const topic = crawl.topics?.[index];
-      if (crawl.status !== "synthesizing" || topic?.status !== "pending") return Promise.resolve(false);
+      if (crawl.status !== "synthesizing" || (topic?.status !== "pending" && topic?.status !== "writing"))
+        return Promise.resolve(false);
       crawl = {
         ...crawl,
         topics: (crawl.topics ?? []).map((t, i) => (i === index ? { ...t, status: "writing" as const } : t)),
@@ -318,6 +319,20 @@ describe("website Knowledge Base synthesis", () => {
     crawl().status = "completed";
     expect(await service.plan("crawl-1")).toBe(0);
     expect(model.generate).not.toHaveBeenCalled();
+  });
+
+  it("lets a redelivered step finish a topic its killed first attempt left writing, and saves it once", async () => {
+    const { service, crawl, created } = harness("extend");
+    model.generate
+      .mockResolvedValueOnce(plan([{ title: "Scheduling", role: "offering", sources: ["s2"] }]))
+      .mockResolvedValue(draft());
+    await service.plan("crawl-1");
+    const topics = crawl().topics ?? [];
+    crawl().topics = topics.map((topic) => ({ ...topic, status: "writing" as const }));
+    await service.writeTopic("crawl-1", 0);
+    await service.writeTopic("crawl-1", 0);
+    expect(crawl().topics?.[0]).toMatchObject({ status: "created" });
+    expect(created).toHaveLength(1);
   });
 
   it("records a visible persistence failure and settles a failed import when nothing was saved", async () => {

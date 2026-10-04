@@ -26,9 +26,10 @@ export const WIKI_SYNTHESIS_SKIP_REASONS = [
   "persistence",
   "error",
 ] as const;
+export const WIKI_SYNTHESIS_TOPIC_STATUSES = ["pending", "writing", "created", "skipped"] as const;
 export const WikiSynthesisTopicProgressSchema = z.object({
   title: z.string().min(1).max(200),
-  status: z.enum(["pending", "writing", "created", "skipped"]),
+  status: z.enum(WIKI_SYNTHESIS_TOPIC_STATUSES),
   skipReason: z.enum(WIKI_SYNTHESIS_SKIP_REASONS).optional(),
 });
 export type WikiSynthesisTopicProgress = Data<typeof WikiSynthesisTopicProgressSchema>;

@@ -46,7 +46,6 @@ describe("OnboardingWizardPage authentication detours", () => {
         status: "idle",
         homepage: null,
         domain: null,
-        conversationId: null,
         pages: [],
       },
     });
@@ -156,7 +155,6 @@ describe("OnboardingWizardPage authentication detours", () => {
       status: "working",
       homepage: "https://example.com/",
       domain: "example.com",
-      conversationId: "conversation-1",
       pages: [],
     };
     mocks.getWikiHomepageSetupState.mockResolvedValue({

@@ -300,28 +300,6 @@ function backgroundToolDeps(payload: AgentTurnWorkflowPayload, grant: ToolApprov
     createSupportTicket: (_toolCallId, subject, body) =>
       createAgentSupportTicket(payload.conversationId, subject, body),
     runExactlyOnce: async (toolCallId, toolName, run) => {
-      if (toolName === "read_website_source") {
-        return runInTransaction(
-          async () => {
-            const receipt = await repo.claimAgentToolReceiptUnscoped({
-              turnRequestId: payload.turnRequestId,
-              companyId: payload.companyId,
-              toolCallId,
-              toolName,
-            });
-            if (receipt.state === "settled") return receipt.resultJson as Awaited<ReturnType<typeof run>>;
-            const result = await run();
-            await repo.settleAgentToolReceiptUnscoped({
-              turnRequestId: payload.turnRequestId,
-              companyId: payload.companyId,
-              toolCallId,
-              resultJson: result as Prisma.InputJsonValue,
-            });
-            return result;
-          },
-          { companyId: payload.companyId },
-        );
-      }
       const receipt = await repo.claimAgentToolReceiptUnscoped({
         turnRequestId: payload.turnRequestId,
         companyId: payload.companyId,

@@ -365,14 +365,10 @@ export class PrismaWikiWebsiteCrawlRepo
     return this.pages.listPageTitles();
   }
 
-  async claimSynthesisTopic(crawlId: string, index: number, staleBefore: Date) {
-    return this.updateSynthesisTopic(crawlId, index, (topic) => {
-      const stale =
-        topic.status === "writing" && topic.claimedAt !== undefined && new Date(topic.claimedAt) < staleBefore;
-      return topic.status === "pending" || stale
-        ? { ...topic, status: "writing", claimedAt: new Date().toISOString() }
-        : null;
-    });
+  async startSynthesisTopic(crawlId: string, index: number) {
+    return this.updateSynthesisTopic(crawlId, index, (topic) =>
+      topic.status === "pending" || topic.status === "writing" ? { ...topic, status: "writing" } : null,
+    );
   }
 
   async settleSynthesisTopic(
@@ -380,7 +376,7 @@ export class PrismaWikiWebsiteCrawlRepo
     index: number,
     outcome: Pick<StoredWikiSynthesisTopic, "status" | "pageId" | "skipReason">,
   ) {
-    return this.updateSynthesisTopic(crawlId, index, ({ claimedAt: _claimedAt, ...topic }) =>
+    return this.updateSynthesisTopic(crawlId, index, (topic) =>
       topic.status === "writing" ? { ...topic, ...outcome } : null,
     );
   }

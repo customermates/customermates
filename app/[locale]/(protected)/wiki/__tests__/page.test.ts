@@ -61,7 +61,6 @@ beforeEach(() => {
       status: "idle",
       homepage: null,
       domain: null,
-      conversationId: null,
       pages: [],
     },
   });

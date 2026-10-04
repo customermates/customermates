@@ -3,11 +3,7 @@ import type { WikiSourceRecord } from "./wiki-website-crawl.service";
 const PASSAGE_MAX_CHARACTERS = 480;
 const SOURCE_MAX_PASSAGES = 3;
 
-type PlanningPassage = { offset: number; text: string };
-
-export function wikiSourcePlanningPassages(
-  sources: Pick<WikiSourceRecord, "id" | "text">[],
-): Map<string, PlanningPassage[]> {
+export function wikiSourcePlanningPassages(sources: Pick<WikiSourceRecord, "id" | "text">[]): Map<string, string[]> {
   const candidates = sources.map((source) => {
     const passages = [
       ...source.text.matchAll(/^(?![ \t]*#{1,6}\s)[^\n]+(?:\n(?!\n|[ \t]*#{1,6}\s)[^\n]+)*/gmu),
@@ -29,25 +25,23 @@ export function wikiSourcePlanningPassages(
       }
       text = text.trimEnd();
       if (text.length < 20) return [];
-      return [{ offset: match.index + match[0].indexOf(paragraph), text }];
+      return [text];
     });
     return { id: source.id, passages };
   });
   const key = (text: string) => text.toLowerCase().replace(/\s+/gu, " ");
   const frequency = new Map<string, number>();
-  for (const { passages } of candidates) {
-    for (const value of new Set(passages.map(({ text }) => key(text))))
-      frequency.set(value, (frequency.get(value) ?? 0) + 1);
-  }
+  for (const { passages } of candidates)
+    for (const value of new Set(passages.map(key))) frequency.set(value, (frequency.get(value) ?? 0) + 1);
 
   return new Map(
-    candidates.map(({ id, passages }): [string, PlanningPassage[]] => {
-      const unique = new Map<string, PlanningPassage>();
-      for (const passage of passages) if (!unique.has(key(passage.text))) unique.set(key(passage.text), passage);
+    candidates.map(({ id, passages }): [string, string[]] => {
+      const unique = new Map<string, string>();
+      for (const passage of passages) if (!unique.has(key(passage))) unique.set(key(passage), passage);
       return [
         id,
         [...unique.values()]
-          .sort((left, right) => (frequency.get(key(left.text)) ?? 0) - (frequency.get(key(right.text)) ?? 0))
+          .sort((left, right) => (frequency.get(key(left)) ?? 0) - (frequency.get(key(right)) ?? 0))
           .slice(0, SOURCE_MAX_PASSAGES),
       ];
     }),

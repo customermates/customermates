@@ -5,12 +5,8 @@ import type { AppLocale } from "@/i18n/locale-registry";
 import type { WikiWebsiteCrawlRepo } from "./wiki-website-crawl.repo";
 import type { WikiCrawlRecord, WikiSourceRecord } from "./wiki-website-crawl.service";
 import type { WikiSynthesisCandidate, WikiSynthesisReviewDecision } from "./wiki-synthesis-review";
-import type {
-  StoredWikiSynthesisTopic,
-  WikiSynthesisDraft,
-  WikiSynthesisRole,
-  WikiSynthesisSkipReason,
-} from "./wiki-synthesis.schema";
+import type { StoredWikiSynthesisTopic, WikiSynthesisDraft, WikiSynthesisRole } from "./wiki-synthesis.schema";
+import type { WikiSynthesisSkipReason } from "@/features/wiki/wiki-crawl-progress.schema";
 
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { classifyMetered } from "@/ee/agent-chat/classifier/metered";
@@ -53,7 +49,6 @@ import {
 const PAGE_SOURCE_BUDGET_CHARACTERS = 120_000;
 const INVENTORY_ENTRY_MAX_CHARACTERS = 2_000;
 const WIKI_SYNTHESIS_MAX_REPAIRS = 2;
-const TOPIC_CLAIM_STALE_MS = 20 * 60 * 1_000;
 const REQUIRED_ROLES = [...WIKI_SYNTHESIS_FOUNDATION_ROLES, "operating_guide"] as const;
 const ROLE_ORDER: Record<WikiSynthesisRole, number> = {
   company_overview: 0,
@@ -160,12 +155,12 @@ export class WikiWebsiteSynthesisService {
     const inventory = sources.list.map((source, index) =>
       encodeJson({
         key: `s${index + 1}`,
+        imported: imported.has(source.id),
         url: source.url,
         title: source.title,
         category: source.category,
         headings: (headings.get(source.id) ?? []).slice(0, 12),
-        passages: (passages.get(source.id) ?? []).map(({ text }) => text),
-        imported: imported.has(source.id),
+        passages: passages.get(source.id) ?? [],
       }).slice(0, INVENTORY_ENTRY_MAX_CHARACTERS),
     );
     const system = [
@@ -257,7 +252,7 @@ export class WikiWebsiteSynthesisService {
     const crawl = await this.load(crawlId);
     const topic = crawl.topics?.[index];
     if (crawl.status !== "synthesizing" || !topic) return;
-    if (!(await this.repo.claimSynthesisTopic(crawlId, index, new Date(Date.now() - TOPIC_CLAIM_STALE_MS)))) return;
+    if (!(await this.repo.startSynthesisTopic(crawlId, index))) return;
 
     let outcome: TopicOutcome;
     try {
@@ -415,7 +410,7 @@ export class WikiWebsiteSynthesisService {
         ? [`## ${t("gapsHeading")}\n\n${candidate.gaps.map((gap) => `- ${gap}`).join("\n")}`]
         : []),
     ].join("\n\n");
-    if (hasInvalidWikiPageLinks(markdown, env.BASE_URL)) return { kind: "skipped", reason: "evidence" };
+    if (hasInvalidWikiPageLinks(markdown, env.BASE_URL)) return { kind: "skipped", reason: "generation" };
     const procedure =
       candidate.kind === "procedure" &&
       wikiPageKindIssue({ kind: "procedure", whenToUse: candidate.whenToUse ?? null, markdown }) === null;
@@ -471,7 +466,7 @@ export class WikiWebsiteSynthesisService {
   async settle(crawlId: string): Promise<void> {
     const crawl = await this.load(crawlId);
     if (crawl.status !== "synthesizing") return;
-    const topics = (crawl.topics ?? []).map(({ claimedAt: _claimedAt, ...topic }) =>
+    const topics = (crawl.topics ?? []).map((topic) =>
       topic.status === "pending" || topic.status === "writing"
         ? { ...topic, status: "skipped" as const, skipReason: "error" as const }
         : topic,

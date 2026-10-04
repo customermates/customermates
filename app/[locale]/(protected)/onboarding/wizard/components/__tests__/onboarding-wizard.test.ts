@@ -4,7 +4,6 @@ import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-s
 import type { ReactNode } from "react";
 
 import { createElement } from "react";
-import { observable } from "mobx";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -16,8 +15,6 @@ const testContext = vi.hoisted(() => ({
     canStart?: boolean;
     disabled?: boolean;
   },
-  embeddedSelectConversation: vi.fn(),
-  wikiSetupChatStore: null as Record<string, unknown> | null,
   completeWikiStep: vi.fn(),
 }));
 
@@ -34,39 +31,6 @@ vi.mock("next-intl", () => ({
       : key,
 }));
 vi.mock("@/i18n/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
-vi.mock("@/app/components/agent-chat/agent-chat-store-context", () => ({
-  AgentChatStoreProvider: ({ children }: { children: ReactNode }) => children,
-}));
-vi.mock("@/app/components/agent-chat/agent-route-reload", () => ({ AgentRouteReloadBridge: () => null }));
-vi.mock("@/app/components/agent-chat/agent-conversation", () => ({
-  AgentConversationLog: ({
-    readOnly,
-    renderLinksAsText,
-    showProgressStatus,
-    scrollable = true,
-    className,
-  }: {
-    readOnly?: boolean;
-    renderLinksAsText?: boolean;
-    showProgressStatus?: boolean;
-    scrollable?: boolean;
-    className?: string;
-  }) =>
-    createElement(
-      "div",
-      {
-        className,
-        "data-agent-conversation": true,
-        "data-links-as-text": renderLinksAsText,
-        "data-read-only": readOnly,
-        "data-scrollable": scrollable,
-      },
-      showProgressStatus ? createElement("div", { "data-agent-progress": true }) : null,
-    ),
-}));
-vi.mock("@/app/components/agent-chat/agent-status-announcer", () => ({
-  AgentStatusAnnouncer: () => createElement("div", { "data-agent-announcer": true }),
-}));
 vi.mock("@/components/ui/tooltip", () => ({
   TooltipProvider: ({ children }: { children: ReactNode }) => children,
 }));
@@ -114,19 +78,8 @@ function renderWizard(
   wikiSetupState?: WikiHomepageSetupState,
 ): string {
   const store = new OnboardingWizardStore({} as RootStore);
-  const wikiSetupChatStore = observable({
-    conversationId: null as string | null,
-    conversationLoadError: false,
-    conversationLoadPendingId: null as string | null,
-    isWorking: false,
-    routeSyncStatus: "idle",
-    markRouteSyncComplete: vi.fn(),
-    selectConversationForEmbeddedViewer: testContext.embeddedSelectConversation,
-  });
-  testContext.wikiSetupChatStore = wikiSetupChatStore;
   testContext.rootStore = {
     onboardingWizardStore: store,
-    wikiSetupChatStore,
   } as unknown as RootStore;
 
   return renderToStaticMarkup(
@@ -143,11 +96,9 @@ function renderWizard(
 beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   vi.clearAllMocks();
-  testContext.embeddedSelectConversation.mockResolvedValue(undefined);
   testContext.completeWikiStep.mockResolvedValue({ ok: true, data: { completed: true } });
   testContext.rootStore = null;
   testContext.wikiProps = null;
-  testContext.wikiSetupChatStore = null;
 });
 
 describe("OnboardingWizard", () => {

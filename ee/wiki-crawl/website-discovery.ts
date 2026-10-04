@@ -38,7 +38,6 @@ export type RobotsRules = {
   allows: (path: string) => boolean;
   sitemaps: string[];
   crawlDelayMs: number;
-  blocked: boolean;
   unreachable: boolean;
 };
 
@@ -86,7 +85,6 @@ const DISALLOW_ALL: RobotsRules = {
   allows: () => false,
   sitemaps: [],
   crawlDelayMs: 0,
-  blocked: true,
   unreachable: true,
 };
 
@@ -155,7 +153,6 @@ export function parseRobots(text: string | null): RobotsRules {
     allows,
     sitemaps,
     crawlDelayMs: Math.min(WIKI_CRAWL_MAX_CRAWL_DELAY_MS, Math.max(0, ...delays)),
-    blocked: !allows("/"),
     unreachable: false,
   };
 }

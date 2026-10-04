@@ -7,7 +7,7 @@ vi.mock("ai", async (importOriginal) => ({ ...(await importOriginal<typeof ai>()
 
 import { INITIAL_WIKI_SYNTHESIS_MODEL } from "@/ee/agent-chat/model-catalog";
 
-import { generateWikiSynthesisObject } from "../wiki-synthesis-model";
+import { generateWikiSynthesisObject, wikiSynthesisWorstCaseMicrocents } from "../wiki-synthesis-model";
 
 function failure(statusCode: number) {
   return new ai.APICallError({ message: "failed", url: "https://gateway.invalid", requestBodyValues: {}, statusCode });
@@ -44,19 +44,20 @@ describe("generateWikiSynthesisObject", () => {
     },
   );
 
-  it.each([408, 500, 503])(
-    "charges the attempted input when a %i failure may have reached the model",
-    async (status) => {
-      rejectWith(failure(status));
-      const { output, charge } = await call();
-      expect(output).toBeNull();
-      expect(charge).toMatchObject({ costSource: "estimated", inputTokens: expect.any(Number) });
-      expect(charge?.costMicrocents).toBeGreaterThan(0);
-    },
-  );
+  it.each([408, 500, 503])("charges the worst case when a %i failure may have reached the model", async (status) => {
+    rejectWith(failure(status));
+    const { output, charge } = await call();
+    expect(output).toBeNull();
+    expect(charge).toMatchObject({
+      costSource: "estimated",
+      costMicrocents: wikiSynthesisWorstCaseMicrocents(INITIAL_WIKI_SYNTHESIS_MODEL, "system", "prompt"),
+    });
+  });
 
-  it("charges the attempted input when the request fails without a status", async () => {
+  it("charges the worst case when the request fails without a status", async () => {
     rejectWith(new Error("socket hang up"));
-    expect((await call()).charge?.costMicrocents).toBeGreaterThan(0);
+    expect((await call()).charge?.costMicrocents).toBe(
+      wikiSynthesisWorstCaseMicrocents(INITIAL_WIKI_SYNTHESIS_MODEL, "system", "prompt"),
+    );
   });
 });

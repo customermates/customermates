@@ -17,13 +17,12 @@ vi.mock("next-intl/server", () => ({
 import { deleteWikiPageAction, startWikiHomepageSetupAction, updateWikiPageAction } from "../actions";
 
 const CLIENT_REQUEST_ID = "00000000-0000-4000-8000-000000000001";
-const CONVERSATION_ID = "00000000-0000-4000-8000-000000000002";
 
 beforeEach(() => vi.clearAllMocks());
 
 describe("startWikiHomepageSetupAction", () => {
   it("leaves an omitted locale for the interactor to resolve and returns its started setup", async () => {
-    const started = { conversationId: CONVERSATION_ID, homepage: "https://example.com/", domain: "example.com" };
+    const started = { homepage: "https://example.com/", domain: "example.com", mode: "initial" };
     mocks.start.mockResolvedValue({ ok: true, data: started });
 
     await expect(
@@ -36,7 +35,10 @@ describe("startWikiHomepageSetupAction", () => {
   });
 
   it("preserves the browser or selected Wiki language instead of replacing it with the route locale", async () => {
-    mocks.start.mockResolvedValue({ ok: true, data: { conversationId: null } });
+    mocks.start.mockResolvedValue({
+      ok: true,
+      data: { homepage: "https://example.com/", domain: "example.com", mode: "initial" },
+    });
     await startWikiHomepageSetupAction({ homepage: "example.com", clientRequestId: CLIENT_REQUEST_ID, locale: "de" });
     expect(mocks.start).toHaveBeenCalledExactlyOnceWith({
       homepage: "example.com",

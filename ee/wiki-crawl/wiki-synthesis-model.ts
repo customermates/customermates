@@ -98,7 +98,11 @@ export async function generateWikiSynthesisObject<T>(args: {
     const usage = NoObjectGeneratedError.isInstance(error) ? error.usage : undefined;
     return {
       output: null,
-      charge: estimatedCharge(args.model, usage?.inputTokens ?? inputTokens, usage?.outputTokens ?? 0),
+      charge: estimatedCharge(
+        args.model,
+        usage?.inputTokens ?? inputTokens,
+        usage?.outputTokens ?? args.model.maxOutputTokens,
+      ),
     };
   }
 }
