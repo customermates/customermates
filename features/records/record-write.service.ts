@@ -382,7 +382,22 @@ export class RecordWriteService {
           !(await this.policy.validAssignees(policy.actor, [value.value], policy.canAssignOthers))
         )
           reject(CustomErrorCode.permissionDenied, "authorization");
-        await this.records.setValue(ref, field.id, valueResult(value), model.revision);
+        const next = valueResult(value);
+        // Writing back the stored value is a no-op. Skipping it keeps the
+        // provenance of a retained or captured value, which would otherwise be
+        // reset to a manual entry visible to readers of the record alone.
+        if (
+          existing &&
+          sameRecordResult(
+            decodeRecordValue(
+              existing.values.find((stored) => stored.fieldId === field.id),
+              field,
+            ),
+            next,
+          )
+        )
+          continue;
+        await this.records.setValue(ref, field.id, next, model.revision);
         await this.records.setValueDependencies(ref, field.id, []);
         changedFields.add(field.id);
       }

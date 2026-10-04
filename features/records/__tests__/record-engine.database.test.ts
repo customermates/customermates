@@ -14987,6 +14987,59 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       value: textValue("Captured name"),
     });
   });
+  it("keeps retained and captured provenance through an export and update-import round trip", async () => {
+    const f = await fixture();
+    for (const key of ["deal", "lineItem"]) {
+      await f.run(() =>
+        runInTransaction(() => f.repo.setGrants(f.id(key), [{ roleId: f.memberRole.id, actions: ["readAll"] }])),
+      );
+    }
+    const privateSource = await f.create("service", "Private source", [["service.amount", decimal("700")]]);
+    const retained = await f.create("deal", "Retained derived title");
+    await f.run(() =>
+      runInTransaction(() => f.repo.setValueDependencies(retained, f.id("deal.name"), [privateSource])),
+    );
+    const priced = await f.create("deal", "Priced deal");
+    const line = await f.create(
+      "lineItem",
+      "Saved line",
+      [["lineItem.pricingMode", { kind: "select", value: "saved" }]],
+      [
+        { relationId: f.id("lineItem.deal"), direction: "outgoing", record: priced },
+        { relationId: f.id("lineItem.service"), direction: "outgoing", record: privateSource },
+      ],
+    );
+    expect(await f.value(retained, "deal.name", f.member)).toEqual({ state: "restricted" });
+    expect(await f.value(line, "lineItem.savedPrice", f.member)).toEqual({ state: "restricted" });
+    const exported = await f.run(() =>
+      new ExportRecordsInteractor(f.repo, f.policy).invoke({
+        typeId: f.id("deal"),
+        filters: [],
+        relationships: [],
+        sort: [],
+      }),
+    );
+    if (!exported.ok) throw exported.error;
+    const imported = await f.run(() =>
+      new ImportRecordsInteractor(
+        f.repo,
+        f.policy,
+        new RecordWriteService(f.repo, f.policy, new RecordCalculationService(f.repo)),
+        { getDetails: () => Promise.resolve({ currency: "EUR" }) },
+      ).invoke({ document: exported.data, mode: "update", idempotencyKey: randomUUID() }),
+    );
+    expect(imported, JSON.stringify(imported)).toMatchObject({ ok: true, data: { updated: 3 } });
+    expect(await f.run(() => f.repo.getValueDependencies(retained, f.id("deal.name")))).toEqual([privateSource]);
+    expect(await f.run(() => f.repo.getValueDependencies(line, f.id("lineItem.savedPrice")))).toEqual([privateSource]);
+    expect(await f.value(retained, "deal.name", f.member)).toEqual({ state: "restricted" });
+    expect(await f.value(line, "lineItem.savedPrice", f.member)).toEqual({ state: "restricted" });
+    expect(await f.value(line, "lineItem.savedPrice")).toEqual({ state: "value", value: decimal("700") });
+    expect(await f.update(retained, [["deal.name", textValue("Rewritten title")]])).toMatchObject({ ok: true });
+    expect(await f.value(retained, "deal.name", f.member)).toEqual({
+      state: "value",
+      value: textValue("Rewritten title"),
+    });
+  });
 });
 
 describeDatabase("provider avatar updates through the generic engine", { timeout: 30000 }, () => {
