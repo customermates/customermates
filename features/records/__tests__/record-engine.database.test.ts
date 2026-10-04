@@ -6170,6 +6170,45 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     },
   );
 
+  it("fills only missing provider metadata when start chat resolves a shared identity", async () => {
+    const { StartChatRecordChannelRepo } = await import("../start-chat-record-channel.repository");
+    const f = await fixture();
+    const first = { typeId: f.id("contact"), recordId: randomUUID() };
+    const second = { typeId: first.typeId, recordId: randomUUID() };
+    await f.run(() =>
+      runInTransaction(async () => {
+        await f.repo.create(first, []);
+        await f.repo.create(second, []);
+        await f.repo.setIdentities(first, [
+          { provider: "linkedin", value: "shared-chat", displayName: "Registered name" },
+        ]);
+        await f.repo.setIdentities(second, [{ provider: "linkedin", value: "shared-chat" }]);
+      }),
+    );
+    const identity = recordInvariant((await f.run(() => f.repo.getIdentitiesCompanyWide(second)))[0]);
+    const versions = [(await f.readRecord(first)).version, (await f.readRecord(second)).version];
+    const channels = new StartChatRecordChannelRepo(f.repo, f.policy, undefined as never);
+    const save = (messagingId: string, displayName: string | null, profileUrl: string | null) =>
+      f.run(() => channels.saveResolvedContactChannel({ id: identity.id, messagingId, displayName, profileUrl }));
+    const current = async () => recordInvariant((await f.run(() => f.repo.getIdentitiesCompanyWide(first)))[0]);
+    await save("urn:resolved-chat", "Provider name", "https://example.test/resolved");
+    expect(await current()).toMatchObject({
+      messagingId: "urn:resolved-chat",
+      displayName: "Registered name",
+      profileUrl: "https://example.test/resolved",
+    });
+    await save("urn:other-chat", "Other name", "https://example.test/other");
+    expect(await current()).toMatchObject({
+      messagingId: "urn:resolved-chat",
+      displayName: "Registered name",
+      profileUrl: "https://example.test/resolved",
+    });
+    expect(
+      await f.run(() => f.repo.getIdentityChannelsCompanyWide([{ channelClass: "linkedin", value: "urn:other-chat" }])),
+    ).toEqual([]);
+    expect([(await f.readRecord(first)).version, (await f.readRecord(second)).version]).toEqual(versions);
+  });
+
   it("preserves personal detail choices across shared defaults and resets to future defaults", async () => {
     const f = await fixture();
     const type = recordInvariant(f.model.types.find((type) => type.id === f.id("organization")));

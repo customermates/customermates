@@ -344,13 +344,19 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
       },
     });
     if (!row) return;
-    if (input.messagingId) {
+    const data = {
+      ...(!row.messagingId && input.messagingId ? { messagingId: input.messagingId } : {}),
+      ...(!row.displayName && input.displayName ? { displayName: input.displayName } : {}),
+      ...(!row.profileUrl && input.profileUrl ? { profileUrl: input.profileUrl } : {}),
+    };
+    if (!Object.keys(data).length) return;
+    if (data.messagingId) {
       await this.prisma.recordIdentityKey.createMany({
         data: [
           {
             companyId: this.companyId,
             channelClass: row.channelClass,
-            value: input.messagingId,
+            value: data.messagingId,
             identityId,
           },
         ],
@@ -362,7 +368,7 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
           companyId_channelClass_value: {
             companyId: this.companyId,
             channelClass: row.channelClass,
-            value: input.messagingId,
+            value: data.messagingId,
           },
         },
       });
@@ -374,7 +380,7 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
         companyId: this.companyId,
         companyId_id: { companyId: this.companyId, id: identityId },
       },
-      data: input,
+      data,
     });
   }
   private readonly assignmentSelect = {

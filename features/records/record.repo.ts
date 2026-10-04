@@ -81,6 +81,7 @@ export interface RecordRepo {
     take: number,
     typeIds: string[],
   ): Promise<RecordRef[]>;
+  /** Fills only missing provider metadata; a shared identity's registered values are never overwritten. */
   setIdentityResolutionCompanyWide(
     identityId: string,
     input: Pick<RecordIdentityInput, "messagingId" | "displayName" | "profileUrl">,

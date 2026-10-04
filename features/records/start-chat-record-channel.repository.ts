@@ -71,8 +71,8 @@ export class StartChatRecordChannelRepo extends BaseRepository implements StartC
       if (!editable) return;
       await this.records.setIdentityResolutionCompanyWide(args.id, {
         messagingId: args.messagingId,
-        displayName: args.displayName ?? row.displayName,
-        profileUrl: args.profileUrl ?? row.profileUrl,
+        displayName: args.displayName,
+        profileUrl: args.profileUrl,
       });
     });
   }
