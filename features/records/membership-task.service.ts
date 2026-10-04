@@ -46,7 +46,7 @@ export class MembershipTaskService extends UserAccessor {
       const remove = member.status !== "pendingAuthorization" && existing.length > 0;
       if (!create && !remove) return;
       const policy = await this.policy.load();
-      if (this.userId !== userId && !policy.allowedSystem("users", "update"))
+      if (!(create && this.userId === userId) && !policy.allowedSystem("users", "update"))
         throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
       if (state.activeOperationId) throw new RecordWriteError(CustomErrorCode.recordWritePaused, "conflict");
       if (existing.length > SYNCHRONOUS_RECORD_LIMIT)

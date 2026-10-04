@@ -1,12 +1,9 @@
 import type { EmailService } from "@/features/email/email.service";
 import type { ReleaseOwnerRoutinesInteractor } from "@/ee/routines/release-owner-routines.interactor";
-import type { EventService } from "@/features/event/event.service";
-import type { TenantUser } from "@/features/user/user.schema";
 
 import type { User } from "@/generated/prisma";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
-import { publishUserDeactivated } from "./publish-user-deactivated";
 
 import TrialInactivationNotice from "@/components/emails/trial-inactivation-notice";
 import { getEmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
@@ -17,7 +14,7 @@ import { env } from "@/env";
 export abstract class DeactivateTrialUsersAndSendNoticeRepo {
   abstract findUsersWithTrialEndedBetween6And7Days(): Promise<User[]>;
   abstract claimTrialInactivationNoticeSent(args: { userId: string; sentAt: Date }): Promise<boolean>;
-  abstract deactivateUserOrThrow(userId: string): Promise<TenantUser>;
+  abstract deactivateUserOrThrow(userId: string): Promise<void>;
 }
 
 @SystemInteractor
@@ -26,7 +23,6 @@ export class DeactivateTrialUsersAndSendNoticeInteractor {
     private repo: DeactivateTrialUsersAndSendNoticeRepo,
     private emailService: EmailService,
     private releaseOwnerRoutines: ReleaseOwnerRoutinesInteractor,
-    private eventService: EventService,
   ) {}
 
   async invoke(): Promise<void> {
@@ -36,9 +32,8 @@ export class DeactivateTrialUsersAndSendNoticeInteractor {
       const claimed = await this.repo.claimTrialInactivationNoticeSent({ userId: user.id, sentAt: new Date() });
       if (!claimed) continue;
 
-      const deactivated = await this.repo.deactivateUserOrThrow(user.id);
+      await this.repo.deactivateUserOrThrow(user.id);
       await this.releaseOwnerRoutines.invoke({ companyId: user.companyId, ownerUserId: user.id });
-      await publishUserDeactivated(this.eventService, deactivated);
 
       const locale = resolveUserLocale(user);
       const contactHref = `${env.BASE_URL}/contact`;

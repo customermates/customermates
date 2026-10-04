@@ -648,13 +648,12 @@ export class PrismaUserRepo
       select: { companyId: true },
     });
 
-    return this.withCompanyTransaction(companyId, () =>
-      this.prisma.user.update({
+    await this.withCompanyTransaction(companyId, async () => {
+      await this.prisma.user.update({
         where: { id: userId, companyId },
         data: { status: Status.inactive, agentCreditActivatedAt: null },
-        select: this.tenantUserSelect,
-      }),
-    );
+      });
+    });
   }
 
   @BypassTenantGuard

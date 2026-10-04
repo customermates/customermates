@@ -42,9 +42,6 @@ const { PrismaRecordRepo } = await import("../prisma-record.repository");
 const { ExportRecordsInteractor } = await import("@/features/data-transfer/export/export-records.interactor");
 const { ImportRecordsInteractor } = await import("@/features/data-transfer/import/import-records.interactor");
 const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
-const { DeactivateUsersAfterSubscriptionGracePeriodInteractor } = await import(
-  "@/ee/lifecycle/deactivate-users-after-subscription-grace-period.interactor"
-);
 const { RecordAccessPolicy } = await import("../record-access");
 const { RecordCalculationService } = await import("../record-calculation.service");
 const { RecordWriteService, RecordWriteError } = await import("../record-write.service");
@@ -4469,44 +4466,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     } finally {
       await runWithoutTenant(() => prisma.authUser.delete({ where: { id: authUser.id } }));
     }
-  });
-
-  it("resolves a pending member's authorization task when a lifecycle job deactivates them", async () => {
-    const f = await fixture();
-    await f.run(() =>
-      prisma.user.update({
-        where: { companyId: f.company.id, id: f.member.id },
-        data: { status: "pendingAuthorization" },
-      }),
-    );
-    await f.run(() => getMembershipTaskService().registered(f.member.id));
-    const tasks = () =>
-      f.run(() =>
-        prisma.crmRecord.count({ where: { companyId: f.company.id, protectedKind: "membershipAuthorization" } }),
-      );
-    expect(await tasks()).toBe(1);
-    const pending = await f.run(() =>
-      prisma.user.findUniqueOrThrow({ where: { companyId: f.company.id, id: f.member.id } }),
-    );
-    const send = vi.fn().mockResolvedValue(undefined);
-    const users = new PrismaUserRepo();
-    await new DeactivateUsersAfterSubscriptionGracePeriodInteractor(
-      {
-        findUsersPastSubscriptionGracePeriod: () => Promise.resolve([pending]),
-        deactivateUserOrThrow: (userId: string) => users.deactivateUserOrThrow(userId),
-      },
-      { send } as never,
-      { invoke: vi.fn().mockResolvedValue(undefined) } as never,
-      getEventService(),
-    ).invoke();
-
-    expect(
-      await f.run(() => prisma.user.findUniqueOrThrow({ where: { companyId: f.company.id, id: f.member.id } })),
-    ).toMatchObject({
-      status: "inactive",
-    });
-    expect(await tasks()).toBe(0);
-    expect(send).toHaveBeenCalledOnce();
   });
 
   it("resolves membership tasks atomically through the real member update and supports repeated events", async () => {

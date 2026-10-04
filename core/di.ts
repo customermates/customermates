@@ -1223,7 +1223,6 @@ export const getDeactivateTrialUsersAndSendNoticeInteractor = () =>
     getUserRepo(),
     getEmailService(),
     getReleaseOwnerRoutinesInteractor(),
-    getEventService(),
   );
 
 export const getDeactivateUsersAfterSubscriptionGracePeriodInteractor = () =>
@@ -1231,7 +1230,6 @@ export const getDeactivateUsersAfterSubscriptionGracePeriodInteractor = () =>
     getUserRepo(),
     getEmailService(),
     getReleaseOwnerRoutinesInteractor(),
-    getEventService(),
   );
 
 export const getDeleteConnectedAccountsForExpiredTrialsInteractor = () =>
