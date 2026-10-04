@@ -36,6 +36,22 @@ function estimatedCharge(model: AgentModelEntry, inputTokens: number, outputToke
   };
 }
 
+const GATEWAY_REJECTIONS = new Set([
+  "GatewayAuthenticationError",
+  "GatewayForbiddenError",
+  "GatewayInvalidRequestError",
+  "GatewayModelNotFoundError",
+  "GatewayNotFoundError",
+  "GatewayRateLimitError",
+]);
+
+function rejectedBeforeGeneration(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  if (GATEWAY_REJECTIONS.has(error.name)) return true;
+  const status = "statusCode" in error ? error.statusCode : null;
+  return typeof status === "number" && status >= 400 && status < 500 && status !== 408;
+}
+
 export function wikiSynthesisWorstCaseMicrocents(model: AgentModelEntry, system: string, prompt: string): number {
   return estimatedCharge(model, promptTokens(system, prompt), model.maxOutputTokens).costMicrocents;
 }
@@ -45,7 +61,7 @@ export async function generateWikiSynthesisObject<T>(args: {
   schema: z.ZodType<T>;
   system: string;
   prompt: string;
-}): Promise<{ output: T | null; charge: AgentRetrievalCharge }> {
+}): Promise<{ output: T | null; charge: AgentRetrievalCharge | null }> {
   const inputTokens = promptTokens(args.system, args.prompt);
   try {
     const result = await generateText({
@@ -78,6 +94,7 @@ export async function generateWikiSynthesisObject<T>(args: {
           };
     return { output: result.output, charge };
   } catch (error) {
+    if (rejectedBeforeGeneration(error)) return { output: null, charge: null };
     const usage = NoObjectGeneratedError.isInstance(error) ? error.usage : undefined;
     return {
       output: null,
