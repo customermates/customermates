@@ -148,7 +148,8 @@ export class MutateThreadRecordsInteractor extends AuthenticatedInteractor<
       if (input.action === "link" && !existed && (await this.links.listLinks(input.threadId, 100)).length >= 100)
         return failConflict(CustomErrorCode.recordCalculationBudget);
       if (existed !== (input.action === "link")) {
-        await this.links[input.action](input.threadId, input.ref);
+        if (input.action === "link") await this.links.link(input.threadId, input.ref);
+        else await this.links.unlink(input.threadId, input.ref);
         await this.links.audit(input.threadId, input.ref, input.action);
       }
       const data = { ref: input.ref, linked: input.action === "link", schemaRevision: model.revision };
