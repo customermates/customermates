@@ -365,10 +365,20 @@ export class PrismaWikiWebsiteCrawlRepo
     return this.pages.listPageTitles();
   }
 
-  async startSynthesisTopic(crawlId: string, index: number) {
-    return this.updateSynthesisTopic(crawlId, index, (topic) =>
-      topic.status === "pending" || topic.status === "writing" ? { ...topic, status: "writing" } : null,
-    );
+  async storePlannedTopics(crawlId: string, topics: StoredWikiSynthesisTopic[], failureReason: string | null) {
+    await this.prisma.wikiWebsiteCrawl.updateMany({
+      where: { id: crawlId, companyId: this.companyId, status: "synthesizing", topics: { equals: Prisma.DbNull } },
+      data: crawlPatch({ topics, ...(failureReason ? { failureReason } : {}) }),
+    });
+  }
+
+  async claimSynthesisTopic(crawlId: string, index: number, staleBefore: Date) {
+    return this.updateSynthesisTopic(crawlId, index, (topic) => {
+      const stale = topic.status === "writing" && (!topic.claimedAt || new Date(topic.claimedAt) < staleBefore);
+      return topic.status === "pending" || stale
+        ? { ...topic, status: "writing", claimedAt: new Date().toISOString() }
+        : null;
+    });
   }
 
   async settleSynthesisTopic(
@@ -376,7 +386,7 @@ export class PrismaWikiWebsiteCrawlRepo
     index: number,
     outcome: Pick<StoredWikiSynthesisTopic, "status" | "pageId" | "skipReason">,
   ) {
-    return this.updateSynthesisTopic(crawlId, index, (topic) =>
+    return this.updateSynthesisTopic(crawlId, index, ({ claimedAt: _claimedAt, ...topic }) =>
       topic.status === "writing" ? { ...topic, ...outcome } : null,
     );
   }

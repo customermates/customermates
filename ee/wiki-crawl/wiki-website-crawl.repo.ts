@@ -46,7 +46,12 @@ export abstract class WikiWebsiteCrawlRepo {
   abstract deleteEarlierSources(crawlId: string): Promise<void>;
   abstract findImportedPage(sourceUrl: string): Promise<WikiImportedPage | null>;
   abstract listPageTitles(): Promise<string[]>;
-  abstract startSynthesisTopic(crawlId: string, index: number): Promise<boolean>;
+  abstract storePlannedTopics(
+    crawlId: string,
+    topics: StoredWikiSynthesisTopic[],
+    failureReason: string | null,
+  ): Promise<void>;
+  abstract claimSynthesisTopic(crawlId: string, index: number, staleBefore: Date): Promise<boolean>;
   abstract settleSynthesisTopic(
     crawlId: string,
     index: number,

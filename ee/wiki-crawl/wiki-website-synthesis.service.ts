@@ -60,6 +60,9 @@ const ROLE_ORDER: Record<WikiSynthesisRole, number> = {
   operating_guide: 6,
 };
 const TOPIC_TAKEN = new Error("Knowledge Base synthesis topic was settled by another delivery.");
+const TOPIC_CLAIM_STALE_MS = 20 * 60 * 1_000;
+const TOPIC_WAIT_MS = 12 * 60 * 1_000;
+const TOPIC_POLL_MS = 2_000;
 
 type Sources = { list: WikiSourceRecord[]; byId: Map<string, WikiSourceRecord>; keys: Map<string, string> };
 type Metered<T> = { value: T; charge: AgentRetrievalCharge | null };
@@ -181,11 +184,12 @@ export class WikiWebsiteSynthesisService {
     const plan = await this.generate(crawl, WikiSynthesisPlanSchema, system, prompt);
     const topics =
       plan.ok && plan.value ? await this.normalizePlan(crawl, sources, plan.value.topics, existingTitles) : [];
-    await this.repo.updateCrawl(crawlId, {
+    await this.repo.storePlannedTopics(
+      crawlId,
       topics,
-      ...(topics.length === 0 ? { failureReason: plan.ok ? "synthesis" : "credits" } : {}),
-    });
-    return topics.length;
+      topics.length === 0 ? (plan.ok ? "synthesis" : "credits") : null,
+    );
+    return (await this.load(crawlId)).topics?.length ?? 0;
   }
 
   private async normalizePlan(
@@ -252,7 +256,10 @@ export class WikiWebsiteSynthesisService {
     const crawl = await this.load(crawlId);
     const topic = crawl.topics?.[index];
     if (crawl.status !== "synthesizing" || !topic) return;
-    if (!(await this.repo.startSynthesisTopic(crawlId, index))) return;
+    if (!(await this.repo.claimSynthesisTopic(crawlId, index, new Date(Date.now() - TOPIC_CLAIM_STALE_MS)))) {
+      await this.waitForTopic(crawlId, index);
+      return;
+    }
 
     let outcome: TopicOutcome;
     try {
@@ -278,6 +285,15 @@ export class WikiWebsiteSynthesisService {
       if (error === TOPIC_TAKEN) return;
     }
     await this.repo.settleSynthesisTopic(crawlId, index, { status: "skipped", skipReason: "persistence" });
+  }
+
+  private async waitForTopic(crawlId: string, index: number) {
+    const deadline = Date.now() + TOPIC_WAIT_MS;
+    while (Date.now() < deadline) {
+      const crawl = await this.load(crawlId);
+      if (crawl.status !== "synthesizing" || crawl.topics?.[index]?.status !== "writing") return;
+      await new Promise((resolve) => setTimeout(resolve, TOPIC_POLL_MS));
+    }
   }
 
   private async synthesizeTopic(crawl: WikiCrawlRecord, topic: StoredWikiSynthesisTopic): Promise<TopicOutcome> {
@@ -466,7 +482,7 @@ export class WikiWebsiteSynthesisService {
   async settle(crawlId: string): Promise<void> {
     const crawl = await this.load(crawlId);
     if (crawl.status !== "synthesizing") return;
-    const topics = (crawl.topics ?? []).map((topic) =>
+    const topics = (crawl.topics ?? []).map(({ claimedAt: _claimedAt, ...topic }) =>
       topic.status === "pending" || topic.status === "writing"
         ? { ...topic, status: "skipped" as const, skipReason: "error" as const }
         : topic,

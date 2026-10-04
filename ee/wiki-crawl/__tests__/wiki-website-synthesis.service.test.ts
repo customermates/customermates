@@ -70,19 +70,29 @@ function harness(mode: WikiCrawlRecord["mode"] = "initial") {
     listSources: vi.fn(() => Promise.resolve(SOURCES)),
     findImportedPage: vi.fn(() => Promise.resolve(null)),
     listPageTitles: vi.fn(() => Promise.resolve([] as string[])),
-    startSynthesisTopic: vi.fn((_id: string, index: number) => {
+    storePlannedTopics: vi.fn((_id: string, topics: StoredWikiSynthesisTopic[], failureReason: string | null) => {
+      if (crawl.status === "synthesizing" && crawl.topics === null)
+        crawl = { ...crawl, topics, ...(failureReason ? { failureReason } : {}) };
+      return Promise.resolve();
+    }),
+    claimSynthesisTopic: vi.fn((_id: string, index: number, staleBefore: Date) => {
       const topic = crawl.topics?.[index];
-      if (crawl.status !== "synthesizing" || (topic?.status !== "pending" && topic?.status !== "writing"))
-        return Promise.resolve(false);
+      const stale = topic?.status === "writing" && (!topic.claimedAt || new Date(topic.claimedAt) < staleBefore);
+      if (crawl.status !== "synthesizing" || (topic?.status !== "pending" && !stale)) return Promise.resolve(false);
       crawl = {
         ...crawl,
-        topics: (crawl.topics ?? []).map((t, i) => (i === index ? { ...t, status: "writing" as const } : t)),
+        topics: (crawl.topics ?? []).map((t, i) =>
+          i === index ? { ...t, status: "writing" as const, claimedAt: new Date().toISOString() } : t,
+        ),
       };
       return Promise.resolve(true);
     }),
     settleSynthesisTopic: vi.fn((_id: string, index: number, outcome: Partial<StoredWikiSynthesisTopic>) => {
       if (crawl.topics?.[index]?.status !== "writing") return Promise.resolve(false);
-      crawl = { ...crawl, topics: crawl.topics.map((t, i) => (i === index ? { ...t, ...outcome } : t)) };
+      crawl = {
+        ...crawl,
+        topics: crawl.topics.map(({ claimedAt: _claimedAt, ...t }, i) => (i === index ? { ...t, ...outcome } : t)),
+      };
       return Promise.resolve(true);
     }),
   };
@@ -321,18 +331,52 @@ describe("website Knowledge Base synthesis", () => {
     expect(model.generate).not.toHaveBeenCalled();
   });
 
-  it("lets a redelivered step finish a topic its killed first attempt left writing, and saves it once", async () => {
+  it("resumes a topic whose writer stopped long ago, and saves it once", async () => {
     const { service, crawl, created } = harness("extend");
     model.generate
       .mockResolvedValueOnce(plan([{ title: "Scheduling", role: "offering", sources: ["s2"] }]))
       .mockResolvedValue(draft());
     await service.plan("crawl-1");
-    const topics = crawl().topics ?? [];
-    crawl().topics = topics.map((topic) => ({ ...topic, status: "writing" as const }));
+    const abandoned = new Date(Date.now() - 60 * 60 * 1_000).toISOString();
+    crawl().topics = (crawl().topics ?? []).map((topic) => ({
+      ...topic,
+      status: "writing" as const,
+      claimedAt: abandoned,
+    }));
     await service.writeTopic("crawl-1", 0);
     await service.writeTopic("crawl-1", 0);
     expect(crawl().topics?.[0]).toMatchObject({ status: "created" });
     expect(created).toHaveLength(1);
+  });
+
+  it("never writes a topic twice while another delivery is writing it", async () => {
+    const { service, crawl, created } = harness("extend");
+    model.generate.mockResolvedValueOnce(plan([{ title: "Scheduling", role: "offering", sources: ["s2"] }]));
+    await service.plan("crawl-1");
+    crawl().topics = (crawl().topics ?? []).map((topic) => ({
+      ...topic,
+      status: "writing" as const,
+      claimedAt: new Date().toISOString(),
+    }));
+    crawl().status = "completed";
+    await service.writeTopic("crawl-1", 0);
+    expect(model.generate).toHaveBeenCalledTimes(1);
+    expect(created).toHaveLength(0);
+  });
+
+  it("keeps one stored plan when two deliveries plan concurrently", async () => {
+    const { service, crawl } = harness("extend");
+    model.generate
+      .mockResolvedValueOnce(plan([{ title: "Scheduling", role: "offering", sources: ["s2"] }]))
+      .mockResolvedValueOnce(
+        plan([
+          { title: "Dispatch", role: "offering", sources: ["s2"] },
+          { title: "Routing", role: "offering", sources: ["s2"] },
+        ]),
+      );
+    const counts = await Promise.all([service.plan("crawl-1"), service.plan("crawl-1")]);
+    expect(crawl().topics?.map(({ title }) => title)).toEqual(["Scheduling"]);
+    expect(counts).toEqual([1, 1]);
   });
 
   it("records a visible persistence failure and settles a failed import when nothing was saved", async () => {

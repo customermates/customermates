@@ -54,6 +54,7 @@ const StoredWikiSynthesisTopicSchema = z.object({
   status: z.enum(WIKI_SYNTHESIS_TOPIC_STATUSES),
   pageId: z.uuid().optional(),
   skipReason: z.enum(WIKI_SYNTHESIS_SKIP_REASONS).optional(),
+  claimedAt: z.iso.datetime().optional(),
 });
 export type StoredWikiSynthesisTopic = z.infer<typeof StoredWikiSynthesisTopicSchema>;
 
