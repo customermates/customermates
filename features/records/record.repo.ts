@@ -59,11 +59,6 @@ export interface RecordRepo {
     keys: Array<{ channelClass: string; value: string }>,
   ): Promise<RecordIdentity[]>;
   stageIdentityChannelsCompanyWide(operationId: string, identities: RecordIdentity[]): Promise<void>;
-  /**
-   * Without `limitPerKey`, returns every owner and fails with the calculation budget beyond 10,000 rows.
-   * With it, returns at most `limitPerKey + 1` owners per key so display callers can mark further records
-   * without failing. `access` applies record readability before any count or limit.
-   */
   getIdentityOwnersCompanyWide(
     keys: Array<{ channelClass: string; value: string }>,
     typeIds?: string[],
@@ -82,13 +77,11 @@ export interface RecordRepo {
     take: number,
     typeIds: string[],
   ): Promise<RecordRef[]>;
-  /** Fills only missing provider metadata; a shared identity's registered values are never overwritten. */
   setIdentityResolutionCompanyWide(
     identityId: string,
     input: Pick<RecordIdentityInput, "messagingId" | "displayName" | "profileUrl">,
   ): Promise<void>;
   setIdentities(ref: RecordRef, inputs: RecordIdentityInput[]): Promise<void>;
-  /** The actor of the latest record event that changed each field, keyed by `typeId:recordId:fieldId`. */
   getLastFieldWritersCompanyWide(targets: Array<{ ref: RecordRef; fieldId: string }>): Promise<Map<string, string>>;
   getModel(): Promise<RecordModel>;
   searchRecords(

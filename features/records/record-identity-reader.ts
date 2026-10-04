@@ -12,11 +12,9 @@ import type { RecordModel } from "./record-model.schema";
 export type IdentityLookup = Pick<RecordIdentityInput, "provider" | "value">;
 export type IdentityMatch = IdentityLookup & {
   records: RecordIdentityReference[];
-  /** Set when a bounded display lookup omitted further readable records sharing this identifier. */
   moreRecords?: true;
 };
 
-/** Readable records returned per identifier for display; one heavily shared identifier must not fail a page. */
 export const IDENTITY_MATCH_DISPLAY_LIMIT = 20;
 
 export function identityReference(
@@ -43,10 +41,6 @@ export class RecordIdentityReader {
     private policy: RecordAccessPolicy,
   ) {}
 
-  /**
-   * Display lookups are bounded per identifier and mark omitted records with `moreRecords`. Pass
-   * `complete` when every readable owner is required; that mode fails with the calculation budget instead.
-   */
   async resolve(
     identifiers: IdentityLookup[],
     typeIds?: string[],

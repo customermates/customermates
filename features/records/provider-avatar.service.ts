@@ -103,11 +103,6 @@ function avatarSourceTypeIds(model: RecordModel): string[] {
 
 type AvatarCandidate = { ref: RecordRef; fieldId: string; hasValue: boolean };
 
-/**
- * A provider picture may replace an image only when the field is empty or its value is itself provider-derived:
- * the latest record event changing it came from messaging, or no event ever changed it (values carried over
- * from the provider-only contact avatar). A value a person or integration entered stays untouched.
- */
 async function replaceableAvatars(records: RecordRepo, candidates: AvatarCandidate[]): Promise<AvatarCandidate[]> {
   const writers = await records.getLastFieldWritersCompanyWide(candidates.filter((candidate) => candidate.hasValue));
   return candidates.filter((candidate) => {

@@ -317,12 +317,6 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
     await this.deleteOrphanedIdentities(removed.map((row) => row.identityId));
   }
 
-  /**
-   * An identity exists only while a record references it. Removing its last association deletes the
-   * canonical row with its aliases and cached provider metadata (messaging ID, display name, profile
-   * URL), so a later record linking the same value starts from a fresh identity. Event history keeps
-   * its own copies, and archived types or disabled Channels keep their associations.
-   */
   private async deleteOrphanedIdentities(identityIds: string[]): Promise<void> {
     if (!identityIds.length) return;
     await this.prisma.$executeRaw(Prisma.sql`
