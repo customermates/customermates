@@ -19,6 +19,7 @@ vi.mock("@/ee/agent-chat/classifier/metered", () => ({
 import type { StoredWikiSynthesisTopic } from "../wiki-synthesis.schema";
 import type { WikiCrawlRecord, WikiSourceRecord } from "../wiki-website-crawl.service";
 
+import { WIKI_SYNTHESIS_REVIEW_MODEL } from "../wiki-synthesis-review";
 import { WikiWebsiteSynthesisService } from "../wiki-website-synthesis.service";
 
 const id = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
@@ -142,7 +143,7 @@ const verdict =
   (choice: "supported" | "qualified" | "unsupported") => (_use: unknown, spec: { questions: Array<{ id: string }> }) =>
     Promise.resolve({
       result: {
-        model: "jev",
+        model: WIKI_SYNTHESIS_REVIEW_MODEL,
         answers: Object.fromEntries(
           spec.questions.map(({ id: question }) => [
             question,
@@ -151,13 +152,20 @@ const verdict =
               choice: question === "page" ? "supported" : choice,
               probabilities: null,
               confidence: null,
+              runnerUps: [],
             },
           ]),
         ),
         costMicrocents: 50,
         latencyMs: 1,
       },
-      charge: { use: "wiki_synthesis_review", model: "jev", costMicrocents: 50, measured: true, answered: true },
+      charge: {
+        use: "wiki_synthesis_review",
+        model: WIKI_SYNTHESIS_REVIEW_MODEL,
+        costMicrocents: 50,
+        measured: true,
+        answered: true,
+      },
     });
 
 const FULL_PLAN = [
@@ -278,7 +286,7 @@ describe("website Knowledge Base synthesis", () => {
     model.review.mockImplementation((_use: unknown, spec: { questions: Array<{ id: string }> }) =>
       Promise.resolve({
         result: {
-          model: "jev",
+          model: WIKI_SYNTHESIS_REVIEW_MODEL,
           answers: Object.fromEntries(
             spec.questions.map(({ id: question }) => [
               question,
@@ -287,13 +295,20 @@ describe("website Knowledge Base synthesis", () => {
                 choice: question === "s1" ? "unsupported" : "supported",
                 probabilities: null,
                 confidence: null,
+                runnerUps: [],
               },
             ]),
           ),
           costMicrocents: 50,
           latencyMs: 1,
         },
-        charge: { use: "wiki_synthesis_review", model: "jev", costMicrocents: 50, measured: true, answered: true },
+        charge: {
+          use: "wiki_synthesis_review",
+          model: WIKI_SYNTHESIS_REVIEW_MODEL,
+          costMicrocents: 50,
+          measured: true,
+          answered: true,
+        },
       }),
     );
     await run();
@@ -351,7 +366,7 @@ describe("website Knowledge Base synthesis", () => {
         ["created", undefined],
       ]);
       expect(service.drainWarnings()).toContain(
-        "Website import review by typesafe-ai/jev was unanswered after 3 attempts (rateLimited, rateLimited, rateLimited).",
+        `Website import review by ${WIKI_SYNTHESIS_REVIEW_MODEL} was unanswered after 3 attempts (rateLimited, rateLimited, rateLimited).`,
       );
     } finally {
       vi.useRealTimers();

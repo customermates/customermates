@@ -11,6 +11,11 @@ import {
 import { SHIPPED_AGENT_MODEL } from "../model-catalog";
 import { BENCHMARK_ARMS } from "@/scripts/agent-benchmark/arms";
 import { JEV_MODEL_ID, JEV_PRICING_PROVIDER } from "../classifier/jev-runner";
+import {
+  OVH_CLASSIFIER_INFERENCE_REGION,
+  OVH_CLASSIFIER_MODEL_SETTINGS,
+  OVH_CLASSIFIER_PRICING_PROVIDER,
+} from "../classifier/ovh-runner";
 
 const GATEWAY_ID = "openai/gpt-5.6-luna";
 const NATIVE_ID = "gpt-5.6-luna";
@@ -32,7 +37,16 @@ describe("pinned pricing snapshot", () => {
     const armPins = BENCHMARK_ARMS.map((arm) =>
       pinKey({ modelId: arm.modelId, provider: arm.servingProvider, inferenceRegion: arm.inferenceRegion }),
     );
-    const classifierPins = [pinKey({ modelId: JEV_MODEL_ID, provider: JEV_PRICING_PROVIDER, inferenceRegion: null })];
+    const classifierPins = [
+      pinKey({ modelId: JEV_MODEL_ID, provider: JEV_PRICING_PROVIDER, inferenceRegion: null }),
+      ...Object.keys(OVH_CLASSIFIER_MODEL_SETTINGS).map((modelId) =>
+        pinKey({
+          modelId,
+          provider: OVH_CLASSIFIER_PRICING_PROVIDER,
+          inferenceRegion: OVH_CLASSIFIER_INFERENCE_REGION,
+        }),
+      ),
+    ];
     expect(new Set(pinned).size).toBe(pinned.length);
     expect(pinned).toEqual(expect.arrayContaining(catalogPins));
     expect(pinned).toEqual(expect.arrayContaining(armPins));

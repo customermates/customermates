@@ -105,7 +105,7 @@ function abstainingRanker(query: string, corpus: RetrievalCorpus, seen: { none: 
   const ranker = hostedSectionRankers(query)?.(corpus);
   if (!ranker) throw new Error("The hosted re-rank is unavailable: set APP_MODE to cloud and AI_GATEWAY_API_KEY.");
   const wrapped: SectionRanker = async (rankQuery: string, candidates: readonly RankableSection[]) => {
-    const maximum = Math.max(1, 3 * estimateClassifierCostMicrocents(docsRankSpec(candidates, corpus, rankQuery), docsRankState(rankQuery, docsRankUserMessage(query))));
+    const maximum = Math.max(1, 3 * estimateClassifierCostMicrocents(docsRankSpec(candidates, corpus, rankQuery), docsRankState(rankQuery, docsRankUserMessage(query)), "jev"));
     const { value } = await budget.run(
       maximum,
       () => collectClassifierCharges(() => ranker(rankQuery, candidates)),

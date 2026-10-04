@@ -13,6 +13,7 @@ const PROVIDER_FACTORY_PATTERN =
 // It reads its key at call time inside the step that makes the model call.
 const APPROVED_PROVIDER_FACTORY_FILES = ["ee/agent-chat/ovh-ai-endpoints.ts"];
 const APPROVED_MODEL_CALL_FILES = [
+  "ee/agent-chat/classifier/ovh-runner.ts",
   "ee/wiki-crawl/wiki-synthesis-model.ts",
   "ee/wiki-retrieval/wiki-embedding-model.ts",
   "workflows/agent-turn.ts",
@@ -44,7 +45,7 @@ describe("agent model budget boundary", () => {
   });
 
   it("reaches the classifier runners only through the metered entry point that charges the turn", () => {
-    const unmeteredClassifierCall = /\b(?:classifyAttempt|runJev)\s*\(/;
+    const unmeteredClassifierCall = /\b(?:classifyAttempt|runJev|runOvhClassifier)\s*\(/;
     const outsideClassifier = (path: string) => !path.startsWith("ee/agent-chat/classifier/");
 
     expect(matchingProductionFiles(unmeteredClassifierCall).filter(outsideClassifier)).toEqual([]);
@@ -54,6 +55,11 @@ describe("agent model budget boundary", () => {
     ]);
     const workflow = readFileSync(`${REPO_ROOT}/workflows/agent-turn.ts`, "utf8");
     expect(workflow).toContain("agentAuxiliaryCharge(auxiliaryCharges).costMicrocents");
+
+    const runner = readFileSync(`${REPO_ROOT}/ee/agent-chat/classifier/ovh-runner.ts`, "utf8");
+    expect(runner).toContain("model: createOvhLanguageModel(options.model, {");
+    expect(runner).toContain("maxRetries: 0");
+    expect(runner).not.toMatch(/ai-gateway\.vercel\.sh/);
   });
 
   it("constructs a provider instance only in the audited direct-provider module, so no api key can reach a durable step argument", () => {

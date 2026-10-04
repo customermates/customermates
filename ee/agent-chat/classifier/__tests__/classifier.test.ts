@@ -131,8 +131,14 @@ describe("Jev runner", () => {
     expect(result.model).toBe("jev");
     expect(result.costMicrocents).toBe(1600);
     expect(result.answers).toEqual({
-      intent: { type: "choice", choice: "write", probabilities: { read: 0.1, write: 0.9 }, confidence: 0.88 },
-      scope: { type: "choice", choice: "team", probabilities: null, confidence: 0.93 },
+      intent: {
+        type: "choice",
+        choice: "write",
+        probabilities: { read: 0.1, write: 0.9 },
+        confidence: 0.88,
+        runnerUps: [],
+      },
+      scope: { type: "choice", choice: "team", probabilities: null, confidence: 0.93, runnerUps: [] },
     });
   });
 
@@ -157,7 +163,7 @@ describe("Jev runner", () => {
 
 describe("classifyAttempt", () => {
   it("runs Jev and reports the request as sent", async () => {
-    const attempt = await classifyAttempt(SPEC, STATE, { apiKey: "k", fetch: replyWith(JEV_BODY) });
+    const attempt = await classifyAttempt(SPEC, STATE, "jev", { apiKey: "k", fetch: replyWith(JEV_BODY) });
 
     expect(attempt.requested).toBe(true);
     expect(attempt.result?.answers.intent).toMatchObject({ choice: "write" });
@@ -174,7 +180,7 @@ describe("classifyAttempt", () => {
     ],
     ["a network failure", () => Promise.reject(new TypeError("fetch failed")), "network"],
   ] as const)("returns null on %s from Jev and names why", async (_label, fetchImpl, failure) => {
-    expect(await classifyAttempt(SPEC, STATE, { apiKey: "k", fetch: fetchImpl })).toEqual({
+    expect(await classifyAttempt(SPEC, STATE, "jev", { apiKey: "k", fetch: fetchImpl })).toEqual({
       result: null,
       requested: true,
       failure,
@@ -187,14 +193,14 @@ describe("classifyAttempt", () => {
         init?.signal?.addEventListener("abort", () => reject(new Error("aborted")));
       });
 
-    expect((await classifyAttempt(SPEC, STATE, { apiKey: "k", fetch: slow, timeoutMs: 10 })).result).toBeNull();
+    expect((await classifyAttempt(SPEC, STATE, "jev", { apiKey: "k", fetch: slow, timeoutMs: 10 })).result).toBeNull();
   });
 
   it("authenticates with the deployment's OIDC token when no API key is configured", async () => {
     oidc.token.mockResolvedValue("oidc-token");
     const fetchMock = vi.fn(replyWith(JEV_BODY));
 
-    const attempt = await classifyAttempt(SPEC, STATE, { fetch: fetchMock });
+    const attempt = await classifyAttempt(SPEC, STATE, "jev", { fetch: fetchMock });
 
     expect(attempt.requested).toBe(true);
     const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
@@ -208,14 +214,17 @@ describe("classifyAttempt", () => {
     oidc.token.mockRejectedValue(new Error("no OIDC token outside Vercel"));
     const fetchMock = vi.fn(replyWith(JEV_BODY));
 
-    expect(await classifyAttempt(SPEC, STATE, { fetch: fetchMock })).toEqual({ result: null, requested: false });
+    expect(await classifyAttempt(SPEC, STATE, "jev", { fetch: fetchMock })).toEqual({ result: null, requested: false });
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it("returns null for a malformed spec without calling any model", async () => {
     const fetchMock = vi.fn(replyWith(JEV_BODY));
 
-    const attempt = await classifyAttempt({ id: "empty", questions: [] }, STATE, { apiKey: "k", fetch: fetchMock });
+    const attempt = await classifyAttempt({ id: "empty", questions: [] }, STATE, "jev", {
+      apiKey: "k",
+      fetch: fetchMock,
+    });
 
     expect(attempt).toEqual({ result: null, requested: false });
     expect(fetchMock).not.toHaveBeenCalled();

@@ -1,3 +1,5 @@
+import type { ClassifierModel } from "./models";
+
 type ClassifierJson = string | number | boolean | null | ClassifierJson[] | { [key: string]: ClassifierJson };
 
 export type ClassifierState = { [key: string]: ClassifierJson };
@@ -7,6 +9,7 @@ type ClassifierQuestion = {
   type: "choice";
   instruction: string;
   options: Readonly<Record<string, string>>;
+  runnerUps?: number;
 };
 
 export type ClassifierSpec = {
@@ -19,9 +22,10 @@ type ClassifierAnswer = {
   choice: string;
   probabilities: Record<string, number> | null;
   confidence: number | null;
+  runnerUps: string[];
 };
 
-export type ClassifierModel = "jev";
+export type { ClassifierModel };
 
 export type ClassifierResult = {
   model: ClassifierModel;
@@ -46,6 +50,11 @@ export function classifierSpecProblems(spec: ClassifierSpec): string[] {
     if (keys.length < 2 || keys.length > MAX_CHOICE_OPTIONS)
       problems.push(`choice "${question.id}" needs 2 to ${MAX_CHOICE_OPTIONS} options`);
     if (keys.some((key) => !key.trim())) problems.push(`choice "${question.id}" has an empty option key`);
+    if (
+      question.runnerUps !== undefined &&
+      (!Number.isSafeInteger(question.runnerUps) || question.runnerUps < 1 || question.runnerUps >= keys.length)
+    )
+      problems.push(`choice "${question.id}" asks for an impossible number of runner-ups`);
   }
   return problems;
 }
@@ -66,14 +75,24 @@ function probabilityRecord(value: unknown, allowedKeys: readonly string[]): Reco
 }
 
 function parseClassifierAnswer(question: ClassifierQuestion, raw: unknown): ClassifierAnswer | null {
-  if (!raw || typeof raw !== "object") return null;
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
   const answer = raw as Record<string, unknown>;
-  if (answer.type !== question.type) return null;
+  if (answer.type !== undefined && answer.type !== question.type) return null;
   const keys = Object.keys(question.options);
   if (typeof answer.choice !== "string" || !keys.includes(answer.choice)) return null;
   const probabilities = answer.probabilities === undefined ? null : probabilityRecord(answer.probabilities, keys);
   if (answer.probabilities !== undefined && probabilities === null) return null;
-  return { type: "choice", choice: answer.choice, probabilities, confidence: unitInterval(answer.confidence) };
+  const listed = Array.isArray(answer.runner_ups) ? answer.runner_ups : [];
+  const runnerUps = [...new Set(listed.filter((key): key is string => typeof key === "string" && keys.includes(key)))]
+    .filter((key) => key !== answer.choice)
+    .slice(0, question.runnerUps ?? 0);
+  return {
+    type: "choice",
+    choice: answer.choice,
+    probabilities,
+    confidence: unitInterval(answer.confidence),
+    runnerUps,
+  };
 }
 
 export function parseClassifierAnswers(spec: ClassifierSpec, raw: unknown): Record<string, ClassifierAnswer> | null {

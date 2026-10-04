@@ -2,6 +2,8 @@ import type { ClassifierResult, ClassifierSpec, ClassifierState } from "./spec";
 
 import { readAgentProviderCharge } from "../gateway-cost";
 
+import { ClassifierRequestError, httpClassifierFailure } from "./failure";
+
 import { parseClassifierAnswers } from "./spec";
 
 export const JEV_EVALUATE_URL = "https://ai-gateway.vercel.sh/v1/evaluate";
@@ -9,20 +11,6 @@ export const JEV_MODEL_ID = "typesafe-ai/jev";
 const JEV_SERVING_PROVIDER = "typesafe-ai";
 export const JEV_PRICING_PROVIDER = "digitalocean";
 export const JEV_DEADLINE_MS = 800;
-
-export type ClassifierFailure = "timeout" | "rateLimited" | "unavailable" | "rejected" | "invalidAnswers" | "network";
-
-export class JevRequestError extends Error {
-  constructor(readonly failure: ClassifierFailure) {
-    super(`the evaluation endpoint failed: ${failure}`);
-  }
-}
-
-export function classifierFailureOf(error: unknown): ClassifierFailure {
-  if (error instanceof JevRequestError) return error.failure;
-  if (error instanceof Error && (error.name === "TimeoutError" || error.name === "AbortError")) return "timeout";
-  return "network";
-}
 
 export type JevRunnerOptions = {
   apiKey: string;
@@ -65,14 +53,11 @@ export async function runJev(
     body: JSON.stringify(jevRequestBody(spec, state)),
     signal: AbortSignal.timeout(options.timeoutMs ?? JEV_DEADLINE_MS),
   });
-  if (!response.ok) {
-    throw new JevRequestError(
-      response.status === 429 ? "rateLimited" : response.status >= 500 ? "unavailable" : "rejected",
-    );
-  }
+  if (!response.ok) throw new ClassifierRequestError(httpClassifierFailure(response.status));
+
   const body = (await response.json()) as { answers?: unknown; providerMetadata?: unknown };
   const answers = parseClassifierAnswers(spec, body.answers);
-  if (!answers) throw new JevRequestError("invalidAnswers");
+  if (!answers) throw new ClassifierRequestError("invalidAnswers");
   const charge = readAgentProviderCharge(body.providerMetadata, JEV_SERVING_PROVIDER);
   return {
     model: "jev",

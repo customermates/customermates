@@ -1,17 +1,18 @@
 import type { ClassifierModel, ClassifierResult, ClassifierSpec, ClassifierState } from "./spec";
-import type { ClassifierFailure } from "./jev-runner";
+import type { ClassifierFailure } from "./failure";
+import type { ClassifierUse } from "./models";
 import type { ClassifyOptions } from "./index";
 
 import { AsyncLocalStorage } from "node:async_hooks";
 
 import { env } from "@/env";
 
-import { computeCostMicrocents, type TokenCounts } from "../model-pricing";
-
 import { classifyAttempt } from "./index";
-import { JEV_MODEL_ID, JEV_PRICING_PROVIDER, jevRequestBody } from "./jev-runner";
+import { computeCostMicrocents } from "../model-pricing";
 
-type ClassifierUse = "docs_rerank" | "wiki_rerank" | "wiki_synthesis_review";
+import { JEV_MODEL_ID, JEV_PRICING_PROVIDER, jevRequestBody } from "./jev-runner";
+import { CLASSIFIER_MODELS } from "./models";
+import { classifierMaxOutputTokens, classifierTokenCostMicrocents, ovhClassifierRequestBytes } from "./ovh-runner";
 
 export type ClassifierCharge = {
   use: ClassifierUse;
@@ -22,6 +23,10 @@ export type ClassifierCharge = {
 };
 
 const ESTIMATE_BYTES_PER_TOKEN = 3;
+
+function estimatedTokens(text: string) {
+  return Math.ceil(Buffer.byteLength(text, "utf8") / ESTIMATE_BYTES_PER_TOKEN);
+}
 
 const collector = new AsyncLocalStorage<ClassifierCharge[]>();
 
@@ -34,21 +39,32 @@ export async function collectClassifierCharges<T>(
 }
 
 export function hostedDocsRerankModel(): ClassifierModel | null {
-  return env.APP_MODE === "self-hosted" ? null : "jev";
+  return env.APP_MODE === "self-hosted" ? null : CLASSIFIER_MODELS.docs_rerank;
 }
 
-function estimatedTokens(text: string) {
-  return Math.ceil(Buffer.byteLength(text, "utf8") / ESTIMATE_BYTES_PER_TOKEN);
-}
-
-export function estimateClassifierCostMicrocents(spec: ClassifierSpec, state: ClassifierState): number {
-  const tokens: TokenCounts = {
-    inputTokens: estimatedTokens(JSON.stringify(jevRequestBody(spec, state))),
-    outputTokens: 0,
-    cacheReadTokens: 0,
-    cacheWriteTokens: 0,
-  };
-  return computeCostMicrocents(JEV_MODEL_ID, tokens, JEV_PRICING_PROVIDER, null);
+export function estimateClassifierCostMicrocents(
+  spec: ClassifierSpec,
+  state: ClassifierState,
+  model: ClassifierModel,
+): number {
+  if (model === "jev") {
+    return computeCostMicrocents(
+      JEV_MODEL_ID,
+      {
+        inputTokens: estimatedTokens(JSON.stringify(jevRequestBody(spec, state))),
+        outputTokens: 0,
+        cacheReadTokens: 0,
+        cacheWriteTokens: 0,
+      },
+      JEV_PRICING_PROVIDER,
+      null,
+    );
+  }
+  return classifierTokenCostMicrocents(
+    model,
+    Math.ceil(ovhClassifierRequestBytes(spec, state, model) / ESTIMATE_BYTES_PER_TOKEN),
+    classifierMaxOutputTokens(spec),
+  );
 }
 
 export async function classifyMetered(
@@ -58,13 +74,13 @@ export async function classifyMetered(
   model: ClassifierModel,
   options: ClassifyOptions = {},
 ): Promise<{ result: ClassifierResult | null; charge: ClassifierCharge | null; failure?: ClassifierFailure }> {
-  const attempt = await classifyAttempt(spec, state, options);
+  const attempt = await classifyAttempt(spec, state, model, options);
   if (!attempt.requested) return { result: null, charge: null };
-  const measured = attempt.result?.costMicrocents ?? null;
+  const measured = attempt.result?.costMicrocents ?? attempt.costMicrocents ?? null;
   const charge: ClassifierCharge = {
     use,
     model,
-    costMicrocents: measured ?? estimateClassifierCostMicrocents(spec, state),
+    costMicrocents: measured ?? estimateClassifierCostMicrocents(spec, state, model),
     measured: measured !== null,
     answered: attempt.result !== null,
   };

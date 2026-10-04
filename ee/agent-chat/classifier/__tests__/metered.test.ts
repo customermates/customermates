@@ -79,7 +79,7 @@ describe("metered classifier calls", () => {
   it("reserves the complete UTF-8 request with the shared provider token envelope before spending", () => {
     const state = { message: "A conditional recommendation. 😀".repeat(200) };
     const bytes = Buffer.byteLength(JSON.stringify(jevRequestBody(SPEC, state)), "utf8");
-    expect(classifierReservationMicrocents(SPEC, state)).toBe(
+    expect(classifierReservationMicrocents(SPEC, state, "jev")).toBe(
       computeCostMicrocents(
         JEV_MODEL_ID,
         {
@@ -92,7 +92,9 @@ describe("metered classifier calls", () => {
         null,
       ),
     );
-    expect(classifierReservationMicrocents(SPEC, state)).toBeGreaterThan(estimateClassifierCostMicrocents(SPEC, state));
+    expect(classifierReservationMicrocents(SPEC, state, "jev")).toBeGreaterThan(
+      estimateClassifierCostMicrocents(SPEC, state, "jev"),
+    );
   });
 
   it.each([200, 503])(
@@ -108,7 +110,7 @@ describe("metered classifier calls", () => {
         {
           use: "wiki_synthesis_review",
           model: "jev",
-          costMicrocents: status === 200 ? 1600 : estimateClassifierCostMicrocents(SPEC, STATE),
+          costMicrocents: status === 200 ? 1600 : estimateClassifierCostMicrocents(SPEC, STATE, "jev"),
           measured: status === 200,
           answered: status === 200,
         },
@@ -157,7 +159,7 @@ describe("metered classifier calls", () => {
       classifyMetered("docs_rerank", SPEC, STATE, "jev", { apiKey: "k", fetch: reply({}, 503) }),
     );
 
-    const estimate = estimateClassifierCostMicrocents(SPEC, STATE);
+    const estimate = estimateClassifierCostMicrocents(SPEC, STATE, "jev");
     expect(estimate).toBeGreaterThan(0);
     expect(value).toEqual({
       result: null,
@@ -179,7 +181,7 @@ describe("metered classifier calls", () => {
     const expected = {
       use: "docs_rerank",
       model: "jev",
-      costMicrocents: proven ? 0 : estimateClassifierCostMicrocents(SPEC, STATE),
+      costMicrocents: proven ? 0 : estimateClassifierCostMicrocents(SPEC, STATE, "jev"),
       measured: proven,
       answered: true,
     };
@@ -200,7 +202,7 @@ describe("metered classifier calls", () => {
     const bytes = Buffer.byteLength(JSON.stringify(jevRequestBody(SPEC, STATE)), "utf8");
     const tokens = { inputTokens: Math.ceil(bytes / 3), outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 };
 
-    expect(estimateClassifierCostMicrocents(SPEC, STATE)).toBe(
+    expect(estimateClassifierCostMicrocents(SPEC, STATE, "jev")).toBe(
       computeCostMicrocents(JEV_MODEL_ID, tokens, JEV_PRICING_PROVIDER, null),
     );
     expect(computeCostMicrocents(JEV_MODEL_ID, { ...tokens, inputTokens: 1_000_000 }, JEV_PRICING_PROVIDER, null)).toBe(

@@ -11,7 +11,7 @@ import type { WikiSynthesisSkipReason } from "@/features/wiki/wiki-crawl-progres
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { classifyMetered } from "@/ee/agent-chat/classifier/metered";
 import { classifierReservationMicrocents } from "@/ee/agent-chat/classifier/classifier-reservation";
-import { JEV_MODEL_ID, type ClassifierFailure } from "@/ee/agent-chat/classifier/jev-runner";
+import type { ClassifierFailure } from "@/ee/agent-chat/classifier/failure";
 import { INITIAL_WIKI_SYNTHESIS_MODEL, SHIPPED_AGENT_MODEL } from "@/ee/agent-chat/model-catalog";
 import { wikiLanguageConflicts } from "@/features/wiki/wiki-language";
 import { wikiPageMarkdownLink } from "@/features/wiki/wiki-links";
@@ -30,6 +30,7 @@ import {
   invalidWikiSynthesisEvidence,
   wikiSynthesisReviewDecision,
   wikiSynthesisReviewRequest,
+  WIKI_SYNTHESIS_REVIEW_MODEL,
   WIKI_SYNTHESIS_REVIEW_TIMEOUT_MS,
 } from "./wiki-synthesis-review";
 import {
@@ -476,27 +477,29 @@ export class WikiWebsiteSynthesisService {
   ): Promise<ReviewOutcome> {
     const request = wikiSynthesisReviewRequest(candidate, sources, locale);
     if (!request) {
-      this.warnings.push(`Website import review for ${JEV_MODEL_ID} does not fit its context, even as cited passages.`);
+      this.warnings.push(
+        `Website import review for ${WIKI_SYNTHESIS_REVIEW_MODEL} does not fit its context, even as cited passages.`,
+      );
       return { kind: "unavailable" };
     }
     const failures: Array<ClassifierFailure | "unanswered"> = [];
     for (let attempt = 0; attempt <= REVIEW_RETRY_DELAYS_MS.length; attempt += 1) {
       const result = await this.metered(
         crawl,
-        classifierReservationMicrocents(request.spec, request.state),
-        JEV_MODEL_ID,
+        classifierReservationMicrocents(request.spec, request.state, WIKI_SYNTHESIS_REVIEW_MODEL),
+        WIKI_SYNTHESIS_REVIEW_MODEL,
         async () => {
           const {
             result: answer,
             charge,
             failure,
-          } = await classifyMetered("wiki_synthesis_review", request.spec, request.state, "jev", {
+          } = await classifyMetered("wiki_synthesis_review", request.spec, request.state, WIKI_SYNTHESIS_REVIEW_MODEL, {
             timeoutMs: WIKI_SYNTHESIS_REVIEW_TIMEOUT_MS,
           });
           return {
             value: { decision: wikiSynthesisReviewDecision(request, answer), failure },
             charge: charge && {
-              model: JEV_MODEL_ID,
+              model: WIKI_SYNTHESIS_REVIEW_MODEL,
               inputTokens: 0,
               costMicrocents: charge.costMicrocents,
               costSource: charge.measured ? ("measured" as const) : ("estimated" as const),
@@ -514,7 +517,7 @@ export class WikiWebsiteSynthesisService {
       else if (failures.length >= 2) break;
     }
     this.warnings.push(
-      `Website import review by ${JEV_MODEL_ID} was unanswered after ${failures.length} attempts (${failures.join(", ")}).`,
+      `Website import review by ${WIKI_SYNTHESIS_REVIEW_MODEL} was unanswered after ${failures.length} attempts (${failures.join(", ")}).`,
     );
     return { kind: "unavailable" };
   }

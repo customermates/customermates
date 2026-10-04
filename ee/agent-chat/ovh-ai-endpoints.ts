@@ -15,7 +15,7 @@ export const AGENT_LANGUAGE_MODEL_RESOLVER = Symbol.for("ai-sdk.workflow.resolve
 
 type AgentLanguageModelResolver = (modelId: string) => AgentDirectLanguageModel | undefined;
 
-function configuredApiKey(value: string | undefined): string | null {
+export function configuredOvhApiKey(value: string | undefined): string | null {
   const trimmed = value?.trim();
   return trimmed && trimmed !== "XXX" ? trimmed : null;
 }
@@ -25,7 +25,7 @@ export function createOvhLanguageModel(
   options: { apiKey?: string; fetch?: typeof fetch } = {},
 ): AgentDirectLanguageModel {
   const nativeModelId = ovhNativeModelId(modelId);
-  const apiKey = configuredApiKey(options.apiKey ?? env.OVH_AI_ENDPOINTS_API_KEY);
+  const apiKey = configuredOvhApiKey(options.apiKey ?? env.OVH_AI_ENDPOINTS_API_KEY);
   if (!apiKey) throw new Error("OVH_AI_ENDPOINTS_API_KEY is required to serve an OVHcloud AI Endpoints model.");
 
   return createOpenAI({

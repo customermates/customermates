@@ -127,7 +127,12 @@ describe("OVHcloud AI Endpoints catalog entries", () => {
     expect(() =>
       assertServableEntry("gpt-oss", entry({ modelId: "ovh/gpt-oss-120b", reasoningEffort: "none" })),
     ).toThrow('reasoning effort "none"');
-    expect(() => assertServableEntry("qwen", entry({ reasoningEffort: "low" }))).toThrow('reasoning effort "low"');
+    expect(() => assertServableEntry("qwen", entry({ reasoningEffort: "low" }))).not.toThrow();
+    expect(() => assertServableEntry("qwen", entry({ reasoningEffort: "none" }))).not.toThrow();
+    expect(() => assertServableEntry("qwen", entry({ reasoningEffort: "xhigh" }))).toThrow('reasoning effort "xhigh"');
+    expect(() =>
+      assertServableEntry("qwen35", entry({ modelId: "ovh/Qwen3.5-397B-A17B", reasoningEffort: "low" })),
+    ).toThrow('reasoning effort "low"');
     expect(() => assertServableEntry("qwen", entry({ thinkingLevel: "low" }))).toThrow("thinking level");
   });
 

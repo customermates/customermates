@@ -225,6 +225,7 @@ function cachedRanker(
         estimateClassifierCostMicrocents(
           docsRankSpec(candidates, corpus, rankQuery),
           docsRankState(rankQuery, docsRankUserMessage(query)),
+          "jev",
         ),
     );
     const started = performance.now();

@@ -171,7 +171,7 @@ export function createLiveDocsRetrievalContracts(repo: DocsChunkRepo) {
     if (!model) throw new Error("The hosted documentation re-ranker is unavailable.");
     const spec = docsRankSpec(candidates, "docs", query);
     const state = docsRankState(query, docsRankUserMessage(query));
-    const maximum = Math.max(1, 3 * estimateClassifierCostMicrocents(spec, state));
+    const maximum = Math.max(1, 3 * estimateClassifierCostMicrocents(spec, state, model));
     const trace: RankTrace = {
       query,
       candidateCount: candidates.length,

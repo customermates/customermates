@@ -1,17 +1,21 @@
 import type { AppLocale } from "@/i18n/locale-registry";
 import type { ClassifierResult, ClassifierSpec, ClassifierState } from "@/ee/agent-chat/classifier";
 
-import { jevRequestBody, JEV_MODEL_ID, JEV_PRICING_PROVIDER } from "@/ee/agent-chat/classifier/jev-runner";
-import { modelContextLength } from "@/ee/agent-chat/model-pricing";
+import { CLASSIFIER_MODELS } from "@/ee/agent-chat/classifier/models";
+import {
+  classifierContextTokens,
+  classifierMaxOutputTokens,
+  ovhClassifierRequestBytes,
+} from "@/ee/agent-chat/classifier/ovh-runner";
 import {
   AGENT_MIN_BYTES_PER_PROVIDER_TOKEN,
   AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS,
 } from "@/ee/agent-chat/agent-model";
-import { serializedAgentContextBytes } from "@/ee/agent-chat/agent-budget-policy";
 
 import { WIKI_SYNTHESIS_OWN_QUOTE_INSTRUCTION } from "./wiki-synthesis-grounding";
 
 export const WIKI_SYNTHESIS_REVIEW_TIMEOUT_MS = 30_000;
+export const WIKI_SYNTHESIS_REVIEW_MODEL = CLASSIFIER_MODELS.wiki_synthesis_review;
 
 export type WikiSynthesisCandidate = {
   title: string;
@@ -88,12 +92,13 @@ export function wikiSynthesisReviewPassages(text: string, quotes: readonly strin
   return merged.map(({ start, end }) => ({ start, end, text: text.slice(start, end) }));
 }
 
-function fitsJev(spec: ClassifierSpec, state: ClassifierState) {
-  const bytes = serializedAgentContextBytes(jevRequestBody(spec, state));
+function fitsReviewModel(spec: ClassifierSpec, state: ClassifierState) {
+  const bytes = ovhClassifierRequestBytes(spec, state, WIKI_SYNTHESIS_REVIEW_MODEL);
   return (
-    bytes !== null &&
-    Math.ceil(bytes / AGENT_MIN_BYTES_PER_PROVIDER_TOKEN) + AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS <=
-      modelContextLength(JEV_MODEL_ID, JEV_PRICING_PROVIDER, null)
+    Math.ceil(bytes / AGENT_MIN_BYTES_PER_PROVIDER_TOKEN) +
+      AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS +
+      classifierMaxOutputTokens(spec) <=
+    classifierContextTokens(WIKI_SYNTHESIS_REVIEW_MODEL)
   );
 }
 
@@ -134,7 +139,7 @@ export function wikiSynthesisReviewRequest(
     return source ? [[id, source] as const] : [];
   });
   const state: ClassifierState = { locale, candidates, sources: Object.fromEntries(cited) };
-  if (fitsJev(spec, state)) return { spec, state, sections };
+  if (fitsReviewModel(spec, state)) return { spec, state, sections };
 
   state.sources = Object.fromEntries(
     cited.map(([id, source]) => {
@@ -144,14 +149,14 @@ export function wikiSynthesisReviewRequest(
       return [id, { passages: wikiSynthesisReviewPassages(source.text, quotes) }];
     }),
   );
-  return fitsJev(spec, state) ? { spec, state, sections } : null;
+  return fitsReviewModel(spec, state) ? { spec, state, sections } : null;
 }
 
 export function wikiSynthesisReviewDecision(
   request: ReviewRequest,
   result: ClassifierResult | null,
 ): WikiSynthesisReviewDecision {
-  if (!result || result.model !== "jev") return { kind: "unavailable" };
+  if (!result || result.model !== WIKI_SYNTHESIS_REVIEW_MODEL) return { kind: "unavailable" };
   const issues: WikiSynthesisReviewIssue[] = [];
   for (const [index, question] of request.spec.questions.entries()) {
     const answer = result.answers[question.id];

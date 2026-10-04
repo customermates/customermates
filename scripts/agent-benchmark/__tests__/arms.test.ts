@@ -65,6 +65,8 @@ describe("benchmark arms", () => {
       "ovh/Qwen3-Coder-30B-A3B-Instruct",
       "ovh/Qwen3.5-397B-A17B",
       "ovh/Qwen3.8-27B",
+      "ovh/Qwen3.8-27B",
+      "ovh/Qwen3.8-27B",
       "ovh/gpt-oss-120b",
     ]);
     for (const arm of ovhArms) {
