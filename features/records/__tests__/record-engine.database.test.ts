@@ -1704,6 +1704,88 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     ).toMatchObject({ webhookId: null, recordEventId: event.id });
   });
 
+  it("shows and resends a messaging delivery from its stored body, but never a retired record body", async () => {
+    const f = await fixture();
+    const hook = await f.run(() =>
+      getUpsertWebhookInteractor().invoke({
+        url: "https://receiver.example.test/messaging-resend",
+        events: ["messaging.message.received"],
+      }),
+    );
+    if (!hook.ok) throw new Error(JSON.stringify(hook.error));
+    const body = {
+      event: "messaging.message.received",
+      data: {
+        userId: null,
+        companyId: f.company.id,
+        entityId: "message-1",
+        payload: { connectedAccountId: "account-1", threadId: "thread-1" },
+      },
+      timestamp: "2026-04-22T10:00:00.000Z",
+    };
+    const [messaging, retired] = await f.run(() =>
+      Promise.all([
+        prisma.webhookDelivery.create({
+          data: {
+            companyId: f.company.id,
+            webhookId: hook.data.id,
+            url: "https://receiver.example.test/messaging-resend",
+            event: "messaging.message.received",
+            requestBody: body,
+            status: "failed",
+            success: false,
+            nextAttemptAt: null,
+          },
+        }),
+        prisma.webhookDelivery.create({
+          data: {
+            companyId: f.company.id,
+            webhookId: hook.data.id,
+            url: "https://receiver.example.test/messaging-resend",
+            event: "contact.created",
+            requestBody: { event: "contact.created", data: { payload: { firstName: "Hidden" } } },
+            status: "success",
+            success: true,
+            nextAttemptAt: null,
+          },
+        }),
+      ]),
+    );
+    const repo = new PrismaWebhookDeliveryRepo(createTestRecordRecipientReader());
+    const items = await f.run(() => repo.getItems({}));
+    expect(items.find((item) => item.id === messaging.id)?.requestBody).toEqual(body);
+    expect(items.find((item) => item.id === retired.id)?.requestBody).toBeNull();
+    const dispatch = vi.fn().mockResolvedValue(undefined);
+    const resend = new ResendWebhookDeliveryInteractor(
+      repo,
+      { dispatch } as never,
+      new ValidateWebhookDeliveryIdsInteractor(repo),
+    );
+    const response = await f.run(() => resend.invoke({ id: messaging.id }));
+    if (!response.ok) throw new Error(JSON.stringify(response.error));
+    expect(
+      await f.run(() => prisma.webhookDelivery.findFirst({ where: { companyId: f.company.id, id: response.data } })),
+    ).toMatchObject({
+      webhookId: hook.data.id,
+      event: "messaging.message.received",
+      recordEventId: null,
+      requestBody: body,
+      status: "pending",
+    });
+    expect(dispatch).toHaveBeenCalledExactlyOnceWith("deliver-webhook", {
+      deliveryId: response.data,
+      companyId: f.company.id,
+    });
+    const post = vi.fn().mockResolvedValue({ success: true, statusCode: 200, responseMessage: "OK" });
+    expect(
+      await new DeliverWebhookInteractor(new PrismaWebhookDeliveryQueueRepo(), createTestRecordRecipientReader(), {
+        post,
+      }).invoke({ companyId: f.company.id, deliveryId: response.data }),
+    ).toMatchObject({ status: "success" });
+    expect(post).toHaveBeenCalledWith(expect.objectContaining({ requestBody: body }));
+    expect(await f.run(() => resend.invoke({ id: retired.id }))).toMatchObject({ ok: false });
+  });
+
   it("resends a record event as a separate delivery without copying the old authorized body", async () => {
     const f = await fixture();
     await f.run(() =>

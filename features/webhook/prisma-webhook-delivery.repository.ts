@@ -18,6 +18,17 @@ import { type GetQueryParams } from "@/core/base/base-get.schema";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 
+/**
+ * A messaging delivery carries no record reference, so its stored body is the event itself and
+ * may be shown and resent. Record deliveries are re-read under current access instead, and a
+ * retired type-specific record body is never replayed.
+ */
+function storedMessagingBody(event: string, requestBody: Prisma.JsonValue): Record<string, unknown> | null {
+  if (!event.startsWith("messaging.")) return null;
+  if (!requestBody || typeof requestBody !== "object" || Array.isArray(requestBody)) return null;
+  return requestBody as Record<string, unknown>;
+}
+
 export class PrismaWebhookDeliveryRepo
   extends BaseRepository<Prisma.WebhookDeliveryWhereInput>
   implements
@@ -88,7 +99,9 @@ export class PrismaWebhookDeliveryRepo
     deliveredAt: Date | null;
     createdAt: Date;
   }): Promise<WebhookDeliveryDto> {
-    let requestBody: Record<string, unknown> | null = null;
+    let requestBody: Record<string, unknown> | null = delivery.recordEventId
+      ? null
+      : storedMessagingBody(delivery.event, delivery.requestBody);
     if (delivery.recordEventId) {
       const envelope = await this.recordReader.readEvent({
         companyId: this.companyId,
@@ -133,15 +146,30 @@ export class PrismaWebhookDeliveryRepo
     const { companyId } = this.user;
     const original = await this.prisma.webhookDelivery.findFirst({ where: { id, companyId } });
     if (!original) return { status: "missing" };
-    if (!original.recordEventId) return { status: "unavailable" };
     if (
       (original.status !== WebhookDeliveryStatus.success && original.status !== WebhookDeliveryStatus.failed) ||
       original.nextAttemptAt
     )
       return { status: "unavailable" };
-    if (!original.webhookId || !original.subscriptionRevision) return { status: "unavailable" };
+    if (!original.webhookId) return { status: "unavailable" };
     const webhook = await this.prisma.webhook.findFirst({ where: { companyId, id: original.webhookId } });
     if (!webhook?.enabled || !webhook.events.includes(original.event)) return { status: "unavailable" };
+    if (!original.recordEventId) {
+      const storedBody = storedMessagingBody(original.event, original.requestBody);
+      if (!storedBody) return { status: "unavailable" };
+      const retry = await this.prisma.webhookDelivery.create({
+        data: {
+          companyId,
+          webhookId: webhook.id,
+          url: webhook.url,
+          event: original.event,
+          requestBody: storedBody as Prisma.InputJsonValue,
+        },
+        select: { id: true },
+      });
+      return { status: "created", id: retry.id };
+    }
+    if (!original.subscriptionRevision) return { status: "unavailable" };
     const subscription = await this.prisma.recordEventSubscription.findFirst({
       where: { companyId, id: webhook.id, kind: "webhook", enabled: true },
     });
