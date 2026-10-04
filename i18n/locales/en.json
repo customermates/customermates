@@ -1351,6 +1351,7 @@
       "widgetDealAggregationNotAllowedForTask": "Deal aggregation types are not allowed for Task element type.",
       "widgetDealFiltersNotAllowedForDealEntityType": "Deal filters are not allowed when element type is Deal.",
       "widgetDealQuantityOnlyForService": "Deal quantity aggregation is only allowed for Service element type.",
+      "widgetDisplayTypeUnsupported": "This chart style does not fit the selected grouping. Choose another style or change the grouping.",
       "widgetGroupByEntityTypeNotAllowedForCount": "Grouping by element type itself is not allowed when aggregation type is count.",
       "widgetGroupByTypeMustMatchEntityType": "Group by type must match the chart's element type.",
       "widgetKindImmutable": "A widget's type cannot be changed after it is created.",
@@ -1974,11 +1975,21 @@
       "title": "Recent activity"
     },
     "addCard": "Add widget",
+    "displayTypeRequirements": {
+      "grouping": "Choose a grouping to rank groups.",
+      "noGrouping": "Set Group by to No grouping to show one number.",
+      "singleChoice": "Group by a single-choice field, such as a stage.",
+      "timeInterval": "Group by a date field and choose a time interval."
+    },
     "displayTypes": {
+      "areaChart": "Area over time",
       "doughnutChart": "Doughnut Chart",
+      "funnelChart": "Funnel",
       "horizontalBarChart": "Horizontal Bar Chart",
       "horizontalBarChartWithLabels": "Horizontal Bar Chart with Labels",
+      "number": "Number",
       "radarChart": "Radar Chart",
+      "rankedTable": "Ranked table",
       "verticalBarChart": "Vertical Bar Chart",
       "verticalBarChartWithLabels": "Vertical Bar Chart with Labels"
     },
@@ -3488,14 +3499,25 @@
     "filterOperator": "Condition",
     "filterUntil": "Until",
     "filterValue": "Value",
+    "funnelTooltip": "{value} ({conversion} of the previous step)",
     "group": "Group by",
     "groupFilterHelp": "Choose which records appear as groups. The overall total still uses the source filters above.",
     "groupFilters": "Group filters",
     "groupFilterSummary": "Groups are filtered. The overall total includes all matching source records.",
     "groupPath": "Follow relationships",
     "groupRecord": "Each record",
+    "interval": "Time interval",
+    "intervals": {
+      "day": "Day",
+      "month": "Month",
+      "none": "Exact value",
+      "quarter": "Quarter",
+      "week": "Week (starts Monday)",
+      "year": "Year"
+    },
     "loadingSchema": "Loading fields…",
     "measure": "Measure",
+    "noRecordsInPeriod": "No records",
     "operators": {
       "between": "Between",
       "contains": "Contains",
@@ -3516,6 +3538,15 @@
     "preview": "Preview measure",
     "previewFailed": "The preview could not be loaded. Try again.",
     "previewHelp": "Preview uses current records and your access.",
+    "quarterLabel": "Q{quarter} {year}",
+    "ranked": {
+      "group": "Group",
+      "more": "+ {count} more",
+      "rank": "#",
+      "share": "Share",
+      "value": "Value"
+    },
+    "recordCount": "{count, plural, one {# record} other {# records}}",
     "relatedAny": "At least one accessible linked record matches",
     "relatedFilterHelp": "All conditions in a linked-record filter apply to the same record. Only records you can access are considered.",
     "relatedMatch": "Linked records",
@@ -3525,7 +3556,12 @@
     "signedChart": "Negative values are shown as a list. Choose a bar chart to plot them.",
     "source": "Records from",
     "unavailable": "This measure is unavailable. Review its configuration or access.",
-    "value": "Value field"
+    "unavailableMember": "Unavailable user",
+    "unplacedGroups": "Some records are restricted or could not be calculated and are not shown.",
+    "value": "Value field",
+    "weekOf": "Week of {date}",
+    "withoutDate": "{count, plural, one {# record has no date and is not shown.} other {# records have no date and are not shown.}}",
+    "withoutValue": "{count, plural, one {# record has no value and is not shown.} other {# records have no value and are not shown.}}"
   },
   "ResetPassword": {
     "cta": "Reset password",

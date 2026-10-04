@@ -14,9 +14,16 @@ const chartMocks = vi.hoisted(() => ({
 
 vi.mock("next/dynamic", () => ({
   default: () => {
-    const chart = ["vertical", "horizontal", "verticalWithLabels", "horizontalWithLabels", "doughnut", "radar"][
-      chartMocks.nextDynamicIndex++
-    ];
+    const chart = [
+      "vertical",
+      "horizontal",
+      "verticalWithLabels",
+      "horizontalWithLabels",
+      "area",
+      "funnel",
+      "doughnut",
+      "radar",
+    ][chartMocks.nextDynamicIndex++];
 
     return (props: Record<string, unknown>) => {
       chartMocks.calls.push({ chart, props });
@@ -113,6 +120,7 @@ describe("WidgetChart", () => {
     [DisplayType.horizontalBarChartWithLabels, "horizontalWithLabels"],
     [DisplayType.doughnutChart, "doughnut"],
     [DisplayType.radarChart, "radar"],
+    [DisplayType.areaChart, "area"],
   ])("renders %s through the expected chart implementation", (displayType, expectedChart) => {
     const call = renderChart(displayType);
 
@@ -122,6 +130,29 @@ describe("WidgetChart", () => {
       reverseXAxis: true,
       reverseYAxis: true,
     });
+  });
+
+  it("colors a time series with the configured color and passes period details through", () => {
+    const call = renderChart(DisplayType.areaChart, {
+      data: [{ labelKind: "literal", label: "January 2026", axisLabel: "Jan 26", missing: true, value: 0 }],
+    });
+    expect(call.props.colors).toEqual(["fill-danger2", "fill-secondary1"]);
+    expect(call.props.strokeColors).toEqual(["stroke-danger2", "stroke-secondary1"]);
+    expect(call.props.chartData).toMatchObject([{ label: "January 2026", axisLabel: "Jan 26", missing: true }]);
+  });
+
+  it("renders funnels with each step's group color and conversion detail", () => {
+    const call = renderChart(DisplayType.funnelChart, {
+      data: [
+        { labelKind: "literal", label: "New", optionColor: "success", value: 4, detail: "4" },
+        { labelKind: "literal", label: "Won", value: 1, detail: "1 · 25%" },
+      ],
+    });
+    expect(call.chart).toBe("funnel");
+    expect(call.props.chartData).toMatchObject([
+      { label: "New", fill: "fill-success1", detail: "4" },
+      { label: "Won", fill: "fill-secondary1", detail: "1 · 25%" },
+    ]);
   });
 
   it.each(["EUR", "USD", null])("forwards the %s formatting currency to the chart", (currency) => {

@@ -1,6 +1,7 @@
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { GRID_BREAKPOINTS, GRID_COLS } from "../../app/[locale]/(protected)/dashboard/components/grid.constants";
 import { DisplayType } from "../../features/widget/widget-display.schema";
+import { widgetDisplayRequirement } from "../../features/widget/widget-display-rules";
 import { presetId } from "../../features/records/crm-preset";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 
@@ -68,7 +69,7 @@ test("persists every chart style, appearance, a copied template, resizing and de
     await opener.press("Enter");
     await expect(dialog.getByRole("textbox", { name: "Name", exact: false })).toHaveValue(name);
   };
-  for (const displayType of Object.values(DisplayType)) {
+  for (const displayType of Object.values(DisplayType).filter((type) => widgetDisplayRequirement(type) === null)) {
     await test.step(`save and reload ${displayType}`, async () => {
       await edit("Complete chart controls");
       await dialog.locator(`[id="display-type-${displayType}"]`).check();

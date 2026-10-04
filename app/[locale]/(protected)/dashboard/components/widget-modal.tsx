@@ -32,6 +32,9 @@ import { getChartColors } from "@/constants/chart-colors";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import type { ChartColor } from "@/features/widget/widget.schema";
 import { DisplayType } from "@/features/widget/widget.schema";
+import type { RecordModel } from "@/features/records/record-model.schema";
+import type { WidgetDisplayRequirement } from "@/features/widget/widget-display-rules";
+import { widgetDisplayTypeIssue } from "@/features/widget/widget-display-rules";
 
 import { runUserAction } from "@/core/errors/report-application-error";
 import { RecordWidgetEditor } from "./record-widget-editor";
@@ -107,7 +110,7 @@ export const WidgetModal = observer(() => {
     requestAnimationFrame(() => document.getElementById(`widget-kind-${selectedKind}`)?.focus());
   }
   function renderDataSettings() {
-    const appearance = (
+    const appearance = (model?: RecordModel | null) => (
       <section
         aria-label={t("Dashboard.widgetEditor.tabs.appearance")}
         className="space-y-4"
@@ -115,19 +118,29 @@ export const WidgetModal = observer(() => {
       >
         <h3 className="text-sm font-medium">{t("Dashboard.widgetEditor.tabs.appearance")}</h3>
 
-        {renderAppearanceSettings()}
+        {renderAppearanceSettings(model)}
       </section>
     );
     return form.kind === WidgetKind.chart ? (
       <RecordWidgetEditor appearance={appearance} section="all" store={widgetModalStore} />
     ) : (
-      <RecordActivityWidgetEditor appearance={appearance} section="all" store={widgetModalStore} />
+      <RecordActivityWidgetEditor appearance={appearance()} section="all" store={widgetModalStore} />
     );
   }
 
+  function groupColorsApply() {
+    if (form.kind !== WidgetKind.chart) return false;
+    const displayType = form.displayOptions?.displayType ?? DisplayType.verticalBarChart;
+    return (
+      Boolean(form.measure.groupBy?.fieldId) &&
+      !form.measure.groupBy?.dateInterval &&
+      ![DisplayType.number, DisplayType.areaChart, DisplayType.rankedTable].includes(displayType)
+    );
+  }
   function renderColorPicker() {
     if (form.kind !== WidgetKind.chart) return null;
-    if (Boolean(form.measure.groupBy?.fieldId) && form.displayOptions?.useGroupColors !== false) return null;
+    if (form.displayOptions?.displayType === DisplayType.number) return null;
+    if (groupColorsApply() && form.displayOptions?.useGroupColors !== false) return null;
 
     return (
       <div className="space-y-1.5">
@@ -194,20 +207,33 @@ export const WidgetModal = observer(() => {
     );
   }
 
-  function renderChartAppearance() {
+  function renderChartAppearance(model?: RecordModel | null) {
     if (form.kind !== WidgetKind.chart) return null;
+    const measure = form.measure;
     const displayType = form.displayOptions?.displayType ?? DisplayType.verticalBarChart;
-    const supportsAxes = displayType !== DisplayType.doughnutChart && displayType !== DisplayType.radarChart;
+    const supportsAxes = ![
+      DisplayType.doughnutChart,
+      DisplayType.radarChart,
+      DisplayType.number,
+      DisplayType.rankedTable,
+      DisplayType.funnelChart,
+    ].includes(displayType);
+    const unavailable: Partial<Record<DisplayType, WidgetDisplayRequirement>> = {};
+    for (const type of Object.values(DisplayType)) {
+      const requirement = widgetDisplayTypeIssue(type, measure, model);
+      if (requirement) unavailable[type] = requirement;
+    }
 
     return (
       <div className="flex min-w-0 flex-col gap-4">
         <WidgetDisplayTypePicker
           disabled={isDisabled}
+          unavailable={unavailable}
           value={displayType}
           onValueChange={(next) => widgetModalStore.onChange("displayOptions.displayType", next)}
         />
 
-        {Boolean(form.measure.groupBy?.fieldId) && (
+        {groupColorsApply() && (
           <FormSwitch id="displayOptions.useGroupColors" label={t("Common.inputs.displayOptions.useGroupColors")} />
         )}
 
@@ -228,10 +254,10 @@ export const WidgetModal = observer(() => {
     );
   }
 
-  function renderAppearanceSettings() {
+  function renderAppearanceSettings(model?: RecordModel | null) {
     return (
       <div className="flex min-w-0 flex-col gap-6">
-        {renderChartAppearance()}
+        {renderChartAppearance(model)}
 
         <FormSwitch
           id="displayOptions.showFilters"

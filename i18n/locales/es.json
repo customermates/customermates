@@ -1351,6 +1351,7 @@
       "widgetDealAggregationNotAllowedForTask": "Los tipos de agregación de oportunidades no están permitidos para el tipo de elemento Tarea.",
       "widgetDealFiltersNotAllowedForDealEntityType": "Los filtros de oportunidad no están permitidos cuando el tipo de elemento es Oportunidad.",
       "widgetDealQuantityOnlyForService": "La agregación de cantidad de oportunidades solo está permitida para el tipo de elemento Servicio.",
+      "widgetDisplayTypeUnsupported": "Este estilo de gráfico no encaja con la agrupación seleccionada. Elige otro estilo o cambia la agrupación.",
       "widgetGroupByEntityTypeNotAllowedForCount": "No se permite agrupar por tipo de elemento cuando el tipo de agregación es el recuento.",
       "widgetGroupByTypeMustMatchEntityType": "El tipo de agrupación debe coincidir con el tipo de elemento del gráfico.",
       "widgetKindImmutable": "El tipo de un widget no se puede cambiar después de crearlo.",
@@ -1974,11 +1975,21 @@
       "title": "Actividad reciente"
     },
     "addCard": "Añadir widget",
+    "displayTypeRequirements": {
+      "grouping": "Elige una agrupación para clasificar los grupos.",
+      "noGrouping": "Establece Agrupar por en Sin agrupación para mostrar un número.",
+      "singleChoice": "Agrupa por un campo de selección única, como una etapa.",
+      "timeInterval": "Agrupa por un campo de fecha y elige un intervalo de tiempo."
+    },
     "displayTypes": {
+      "areaChart": "Área en el tiempo",
       "doughnutChart": "Gráfico de anillo",
+      "funnelChart": "Embudo",
       "horizontalBarChart": "Gráfico de barras horizontal",
       "horizontalBarChartWithLabels": "Gráfico de barras horizontal con etiquetas",
+      "number": "Número",
       "radarChart": "Gráfico radar",
+      "rankedTable": "Tabla de clasificación",
       "verticalBarChart": "Gráfico de barras vertical",
       "verticalBarChartWithLabels": "Gráfico de barras vertical con etiquetas"
     },
@@ -3488,14 +3499,25 @@
     "filterOperator": "Condición",
     "filterUntil": "Hasta",
     "filterValue": "Valor",
+    "funnelTooltip": "{value} ({conversion} del paso anterior)",
     "group": "Agrupar por",
     "groupFilterHelp": "Elige qué registros aparecen como grupos. El total general sigue usando los filtros de origen de arriba.",
     "groupFilters": "Filtros de grupos",
     "groupFilterSummary": "Los grupos están filtrados. El total general incluye todos los registros de origen que coinciden.",
     "groupPath": "Seguir relaciones",
     "groupRecord": "Cada registro",
+    "interval": "Intervalo de tiempo",
+    "intervals": {
+      "day": "Día",
+      "month": "Mes",
+      "none": "Valor exacto",
+      "quarter": "Trimestre",
+      "week": "Semana (empieza el lunes)",
+      "year": "Año"
+    },
     "loadingSchema": "Cargando campos…",
     "measure": "Medida",
+    "noRecordsInPeriod": "Sin registros",
     "operators": {
       "between": "Entre",
       "contains": "Contiene",
@@ -3516,6 +3538,15 @@
     "preview": "Vista previa de la medida",
     "previewFailed": "No se pudo cargar la vista previa. Inténtalo de nuevo.",
     "previewHelp": "La vista previa usa los registros actuales y tus permisos.",
+    "quarterLabel": "T{quarter} {year}",
+    "ranked": {
+      "group": "Grupo",
+      "more": "+ {count} más",
+      "rank": "#",
+      "share": "Parte",
+      "value": "Valor"
+    },
+    "recordCount": "{count, plural, one {# registro} other {# registros}}",
     "relatedAny": "Coincide al menos un registro vinculado accesible",
     "relatedFilterHelp": "Todas las condiciones de un filtro de registros vinculados se aplican al mismo registro. Solo se consideran los registros a los que tienes acceso.",
     "relatedMatch": "Registros vinculados",
@@ -3525,7 +3556,12 @@
     "signedChart": "Los valores negativos se muestran en una lista. Elige un gráfico de barras para representarlos.",
     "source": "Registros de",
     "unavailable": "Esta medida no está disponible. Revisa su configuración o los permisos.",
-    "value": "Campo de valor"
+    "unavailableMember": "Usuario no disponible",
+    "unplacedGroups": "Algunos registros están restringidos o no se pudieron calcular y no se muestran.",
+    "value": "Campo de valor",
+    "weekOf": "Semana del {date}",
+    "withoutDate": "{count, plural, one {# registro no tiene fecha y no se muestra.} other {# registros no tienen fecha y no se muestran.}}",
+    "withoutValue": "{count, plural, one {# registro no tiene valor y no se muestra.} other {# registros no tienen valor y no se muestran.}}"
   },
   "ResetPassword": {
     "cta": "Restablecer la contraseña",

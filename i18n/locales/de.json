@@ -1351,6 +1351,7 @@
       "widgetDealAggregationNotAllowedForTask": "Deal-Aggregationstypen sind für den Elementtyp Aufgabe nicht erlaubt.",
       "widgetDealFiltersNotAllowedForDealEntityType": "Deal-Filter sind nicht erlaubt, wenn der Elementtyp Deal ist.",
       "widgetDealQuantityOnlyForService": "Deal-Mengen-Aggregation ist nur für den Elementtyp Service erlaubt.",
+      "widgetDisplayTypeUnsupported": "Dieser Diagrammstil passt nicht zur gewählten Gruppierung. Wähle einen anderen Stil oder ändere die Gruppierung.",
       "widgetGroupByEntityTypeNotAllowedForCount": "Gruppierung nach dem Elementtyp selbst ist nicht erlaubt, wenn der Aggregationstyp Anzahl ist.",
       "widgetGroupByTypeMustMatchEntityType": "Gruppierungstyp muss mit dem Elementtyp des Diagramms übereinstimmen.",
       "widgetKindImmutable": "Der Typ eines Widgets kann nach dem Erstellen nicht geändert werden.",
@@ -1974,11 +1975,21 @@
       "title": "Letzte Aktivität"
     },
     "addCard": "Widget hinzufügen",
+    "displayTypeRequirements": {
+      "grouping": "Wähle eine Gruppierung, um Gruppen zu ranken.",
+      "noGrouping": "Setze Gruppieren nach auf Keine Gruppierung, um eine Zahl anzuzeigen.",
+      "singleChoice": "Gruppiere nach einem Einfachauswahlfeld, etwa einer Phase.",
+      "timeInterval": "Gruppiere nach einem Datumsfeld und wähle ein Zeitintervall."
+    },
     "displayTypes": {
+      "areaChart": "Fläche im Zeitverlauf",
       "doughnutChart": "Ringdiagramm",
+      "funnelChart": "Trichter",
       "horizontalBarChart": "Horizontales Balkendiagramm",
       "horizontalBarChartWithLabels": "Horizontales Balkendiagramm mit Beschriftungen",
+      "number": "Kennzahl",
       "radarChart": "Radardiagramm",
+      "rankedTable": "Rangliste",
       "verticalBarChart": "Vertikales Balkendiagramm",
       "verticalBarChartWithLabels": "Vertikales Balkendiagramm mit Beschriftungen"
     },
@@ -3488,14 +3499,25 @@
     "filterOperator": "Bedingung",
     "filterUntil": "Bis",
     "filterValue": "Wert",
+    "funnelTooltip": "{value} ({conversion} des vorherigen Schritts)",
     "group": "Gruppieren nach",
     "groupFilterHelp": "Wähle aus, welche Datensätze als Gruppen angezeigt werden. Die Gesamtsumme verwendet weiterhin die Quellfilter oben.",
     "groupFilters": "Gruppenfilter",
     "groupFilterSummary": "Gruppen sind gefiltert. Die Gesamtsumme enthält alle passenden Quelldatensätze.",
     "groupPath": "Beziehungen folgen",
     "groupRecord": "Jeder Datensatz",
+    "interval": "Zeitintervall",
+    "intervals": {
+      "day": "Tag",
+      "month": "Monat",
+      "none": "Genauer Wert",
+      "quarter": "Quartal",
+      "week": "Woche (ab Montag)",
+      "year": "Jahr"
+    },
     "loadingSchema": "Felder werden geladen…",
     "measure": "Kennzahl",
+    "noRecordsInPeriod": "Keine Datensätze",
     "operators": {
       "between": "Zwischen",
       "contains": "Enthält",
@@ -3516,6 +3538,15 @@
     "preview": "Kennzahl prüfen",
     "previewFailed": "Die Vorschau konnte nicht geladen werden. Versuche es erneut.",
     "previewHelp": "Die Vorschau verwendet aktuelle Datensätze und deine Zugriffsrechte.",
+    "quarterLabel": "Q{quarter} {year}",
+    "ranked": {
+      "group": "Gruppe",
+      "more": "+ {count} weitere",
+      "rank": "#",
+      "share": "Anteil",
+      "value": "Wert"
+    },
+    "recordCount": "{count, plural, one {# Datensatz} other {# Datensätze}}",
     "relatedAny": "Mindestens ein zugänglicher verknüpfter Datensatz trifft zu",
     "relatedFilterHelp": "Alle Bedingungen eines Filters für verknüpfte Datensätze gelten für denselben Datensatz. Nur Datensätze, auf die du Zugriff hast, werden berücksichtigt.",
     "relatedMatch": "Verknüpfte Datensätze",
@@ -3525,7 +3556,12 @@
     "signedChart": "Negative Werte werden als Liste angezeigt. Wähle ein Balkendiagramm zur Darstellung.",
     "source": "Datensätze aus",
     "unavailable": "Diese Kennzahl ist nicht verfügbar. Prüfe Konfiguration und Zugriff.",
-    "value": "Wertefeld"
+    "unavailableMember": "Nicht verfügbare Person",
+    "unplacedGroups": "Einige Datensätze sind eingeschränkt oder konnten nicht berechnet werden und werden nicht angezeigt.",
+    "value": "Wertefeld",
+    "weekOf": "Woche ab {date}",
+    "withoutDate": "{count, plural, one {# Datensatz hat kein Datum und wird nicht angezeigt.} other {# Datensätze haben kein Datum und werden nicht angezeigt.}}",
+    "withoutValue": "{count, plural, one {# Datensatz hat keinen Wert und wird nicht angezeigt.} other {# Datensätze haben keinen Wert und werden nicht angezeigt.}}"
   },
   "ResetPassword": {
     "cta": "Passwort zurücksetzen",

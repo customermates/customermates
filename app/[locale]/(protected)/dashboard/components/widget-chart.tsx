@@ -50,6 +50,12 @@ const HorizontalBarChartWithLabels = dynamic(
     })),
   { ssr: false },
 );
+const AreaTimeChart = dynamic(() => import("./area-time-chart").then((mod) => ({ default: mod.AreaTimeChart })), {
+  ssr: false,
+});
+const FunnelChart = dynamic(() => import("./funnel-chart").then((mod) => ({ default: mod.FunnelChart })), {
+  ssr: false,
+});
 const DoughnutChart = dynamic(() => import("./doughnut-chart").then((mod) => ({ default: mod.DoughnutChart })), {
   ssr: false,
 });
@@ -63,7 +69,7 @@ const RadarChartComponent = dynamic(
 
 type Props = {
   currency?: string | null;
-  data: (DiagramDataPoint & { formattedValue?: string })[];
+  data: (DiagramDataPoint & { formattedValue?: string; axisLabel?: string; detail?: string; missing?: boolean })[];
   displayOptions?: WidgetDisplayOptions | null;
 };
 
@@ -83,6 +89,9 @@ export const WidgetChart = observer(({ data, displayOptions, currency }: Props) 
       label: widgetDataPointLabel(item, t),
       value: item.value,
       formattedValue: item.formattedValue,
+      axisLabel: item.axisLabel,
+      detail: item.detail,
+      missing: item.missing,
       fill: chartColors[colorKey],
       color: chartColors[colorKey],
       labelColor: chartTextColors[colorKey],
@@ -112,6 +121,16 @@ export const WidgetChart = observer(({ data, displayOptions, currency }: Props) 
   };
 
   switch (displayType) {
+    case DisplayType.areaChart:
+      return (
+        <AreaTimeChart
+          {...commonProps}
+          colors={configuredBarColors.map((color) => chartColors[color])}
+          strokeColors={configuredBarColors.map((color) => chartStrokeColors[color])}
+        />
+      );
+    case DisplayType.funnelChart:
+      return <FunnelChart chartData={chartData} currency={currency} textColor="var(--muted-foreground)" />;
     case DisplayType.horizontalBarChart:
       return <HorizontalBarChart {...commonProps} />;
     case DisplayType.verticalBarChartWithLabels:

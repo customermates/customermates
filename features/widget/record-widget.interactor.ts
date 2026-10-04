@@ -11,10 +11,11 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
-import { failAuthorization, failConflict, failNotFound } from "@/core/validation/interactor-failure-server";
+import { fail, failAuthorization, failConflict, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { recordRequestHash } from "@/features/records/mutate-record.interactor";
 import { RecordWidgetInputSchema } from "./record-widget.schema";
+import { widgetDisplayTypeIssue } from "./widget-display-rules";
 
 @TenantInteractor()
 export class UpsertRecordWidgetInteractor extends AuthenticatedInteractor<RecordWidgetInput, RecordWidgetDto> {
@@ -53,6 +54,8 @@ export class UpsertRecordWidgetInteractor extends AuthenticatedInteractor<Record
         }
         const data = await this.measures.invoke(input.measure);
         if (!data.ok) return data;
+        if (widgetDisplayTypeIssue(input.displayOptions.displayType, input.measure, await this.records.getModel()))
+          return fail(CustomErrorCode.widgetDisplayTypeUnsupported, ["displayOptions", "displayType"]);
         const row = await this.widgets.save(input, input.id ?? randomUUID());
         await this.records.saveReceipt(input.idempotencyKey, this.userId, hash, { widgetId: row.id });
         return { ok: true as const, data: await this.reader.read(row) };

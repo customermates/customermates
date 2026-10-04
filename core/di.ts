@@ -37,6 +37,7 @@ import { UpsertRecordActivityWidgetInteractor } from "@/features/widget/record-a
 import { RecordActivityWidgetReader } from "@/features/widget/record-activity-widget-reader";
 import { UpsertRecordWidgetInteractor } from "@/features/widget/record-widget.interactor";
 import { RecordWidgetReader } from "@/features/widget/record-widget-reader";
+import { PreviewRecordWidgetInteractor } from "@/features/widget/preview-record-widget.interactor";
 import { wikiWebsiteNetwork } from "@/ee/wiki-crawl/wiki-website-network";
 /**
  * Application dependency injection - single source of truth for everything wired
@@ -1517,7 +1518,9 @@ export const getGetRecordPresentationInteractor = () =>
   );
 
 export const getRecordWidgetRepo = () => new PrismaRecordWidgetRepo();
-export const getRecordWidgetReader = () => new RecordWidgetReader(getRecordRepo(), getQueryRecordMeasureInteractor());
+export const getRecordWidgetReader = () =>
+  new RecordWidgetReader(getRecordRepo(), getQueryRecordMeasureInteractor(), getUserRepo());
+export const getPreviewRecordWidgetInteractor = () => new PreviewRecordWidgetInteractor(getRecordWidgetReader());
 export const getUpsertRecordWidgetInteractor = () =>
   new UpsertRecordWidgetInteractor(
     getRecordWidgetRepo(),

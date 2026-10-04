@@ -79,6 +79,7 @@ export enum CustomErrorCode {
   widgetDealFiltersNotAllowedForDealEntityType = "widgetDealFiltersNotAllowedForDealEntityType",
   widgetDealAggregationNotAllowedForTask = "widgetDealAggregationNotAllowedForTask",
   widgetKindImmutable = "widgetKindImmutable",
+  widgetDisplayTypeUnsupported = "widgetDisplayTypeUnsupported",
   taskOnlyCustomTasksCanBeDeleted = "taskOnlyCustomTasksCanBeDeleted",
   taskNameCannotBeChangedForSystemTasks = "taskNameCannotBeChangedForSystemTasks",
   organizationNotFound = "organizationNotFound",
