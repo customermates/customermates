@@ -28,6 +28,8 @@ SET LOCAL extra_float_digits = 1;
 SET LOCAL lock_timeout = '60s';
 -- Helper functions reference each other regardless of definition order.
 SET LOCAL check_function_bodies = off;
+-- Many small statements run per workspace; just-in-time compilation would cost far more than it saves.
+SET LOCAL jit = off;
 
 -- This file supersedes an unreleased chain of CRM migrations. A database that applied any part of that
 -- chain has generic storage already and must be restored to its legacy baseline instead.
@@ -2825,8 +2827,11 @@ CREATE TEMP TABLE crm_upgrade_workspace (
   model jsonb,
   presentation_model jsonb
 ) ON COMMIT DROP;
+CREATE TEMP TABLE crm_upgrade_field (
+  company_id text NOT NULL, field_id text NOT NULL, field jsonb NOT NULL, PRIMARY KEY (company_id, field_id)
+) ON COMMIT DROP;
 CREATE TEMP TABLE crm_upgrade_value (
-  company_id text NOT NULL, value_id text NOT NULL, type_id text NOT NULL, record_id text, field_id text NOT NULL,
+  company_id text NOT NULL, value_id text PRIMARY KEY, type_id text NOT NULL, record_id text, field_id text NOT NULL,
   scalar jsonb, code text, created_at timestamp(3) NOT NULL, updated_at timestamp(3) NOT NULL, raw text, repaired boolean NOT NULL
 ) ON COMMIT DROP;
 CREATE TEMP TABLE crm_upgrade_presentation (
@@ -2898,6 +2903,25 @@ BEGIN
     RETURN '{"code":"missing_select_option"}'::jsonb;
   END IF;
   RETURN jsonb_build_object('scalar', v_scalar, 'repaired', v_repaired);
+END
+$$;
+
+-- Optional timing of the upgrade steps (SET crm_upgrade.debug = on), printed as notices.
+CREATE TEMP TABLE crm_upgrade_timing (step text NOT NULL, milliseconds numeric NOT NULL) ON COMMIT DROP;
+CREATE FUNCTION crm_upgrade.timing(p_step text, p_since timestamptz) RETURNS void
+LANGUAGE sql AS $$
+  INSERT INTO crm_upgrade_timing SELECT p_step, extract(epoch FROM clock_timestamp() - p_since) * 1000
+  WHERE current_setting('crm_upgrade.debug', true) = 'on'
+$$;
+CREATE FUNCTION crm_upgrade.report_timing(p_section text) RETURNS void
+LANGUAGE plpgsql AS $$
+DECLARE
+  v_row record;
+BEGIN
+  FOR v_row IN SELECT step, round(sum(milliseconds)) AS total, count(*) AS calls FROM crm_upgrade_timing GROUP BY step ORDER BY sum(milliseconds) DESC LOOP
+    RAISE NOTICE '% timing: % % ms (% calls)', p_section, v_row.step, v_row.total, v_row.calls;
+  END LOOP;
+  DELETE FROM crm_upgrade_timing;
 END
 $$;
 
@@ -2988,25 +3012,32 @@ DECLARE
   v_state text;
   v_message text;
   v_context text;
+  v_tick timestamptz := clock_timestamp();
 BEGIN
   FOR v_workspace IN SELECT id, currency::text AS currency FROM "Company" ORDER BY id LOOP
     v_ws_id := v_workspace.id;
     v_ws_currency := upper(v_workspace.currency);
+    v_tick := clock_timestamp();
     v_ws_model := crm_upgrade.legacy_model(v_ws_id);
+    PERFORM crm_upgrade.timing('legacy_model', v_tick); v_tick := clock_timestamp();
     v_ws_presentation := crm_upgrade.presentation_model(v_ws_id, v_ws_model);
+    PERFORM crm_upgrade.timing('presentation_model', v_tick); v_tick := clock_timestamp();
     PERFORM crm_upgrade.presentation_model_issues(v_ws_id, v_ws_presentation);
+    PERFORM crm_upgrade.timing('model_issues', v_tick); v_tick := clock_timestamp();
     INSERT INTO crm_upgrade_workspace (company_id, currency, actor_id, model, presentation_model)
     SELECT v_ws_id, v_ws_currency, COALESCE((
       SELECT member.id FROM "User" member JOIN "UserRole" role ON role."companyId" = v_ws_id AND role.id = member."roleId"
       WHERE member."companyId" = v_ws_id AND role."isSystemRole" AND member.status = 'active' ORDER BY member.id LIMIT 1
     ), 'system:record-migration:v2'), v_ws_model, v_ws_presentation;
 
+    PERFORM crm_upgrade.timing('workspace_row', v_tick); v_tick := clock_timestamp();
     -- v2 preflight: source prices and line quantities must be exact, representable decimals.
     PERFORM crm_upgrade.issue(v_ws_id, 'Service', 'amount', 'unrepresentable_decimal')
       FROM "Service" WHERE "companyId" = v_ws_id AND NOT crm_upgrade.is_representable(amount::text::numeric);
     PERFORM crm_upgrade.issue(v_ws_id, 'ServiceDeal', 'quantity', 'unrepresentable_decimal')
       FROM "ServiceDeal" WHERE "companyId" = v_ws_id AND NOT crm_upgrade.is_representable(quantity::text::numeric);
 
+    PERFORM crm_upgrade.timing('decimals', v_tick); v_tick := clock_timestamp();
     -- v2 preflight: every link, line item and assignment must join records (and members) of the same workspace.
     PERFORM crm_upgrade.issue(v_ws_id, link.source_table, 'endpoints', 'cross_workspace_reference') FROM (
       SELECT 'ContactOrganization' AS source_table FROM "ContactOrganization" l WHERE l."companyId" = v_ws_id
@@ -3037,51 +3068,26 @@ BEGIN
         AND (NOT EXISTS (SELECT 1 FROM "Task" s WHERE s.id = l."taskId" AND s."companyId" = v_ws_id) OR NOT EXISTS (SELECT 1 FROM "User" u WHERE u.id = l."userId" AND u."companyId" = v_ws_id))
     ) AS link;
 
+    PERFORM crm_upgrade.timing('links', v_tick); v_tick := clock_timestamp();
     -- Record grants are keyed by the workspace role; a permission row naming another workspace's role
     -- cannot become a grant (the retired upgrade failed on the foreign key instead).
     PERFORM crm_upgrade.issue(v_ws_id, 'RolePermission', 'roleId', 'cross_workspace_reference')
       FROM "RolePermission" p WHERE p."companyId" = v_ws_id AND p.resource::text IN ('contacts', 'organizations', 'deals', 'services', 'tasks')
         AND NOT EXISTS (SELECT 1 FROM "UserRole" r WHERE r.id = p."roleId" AND r."companyId" = v_ws_id);
 
-    -- v2 preflight: custom values must belong to a known column of the same type, reference exactly one
-    -- record of that type in the same workspace, and convert to a typed value.
-    INSERT INTO crm_upgrade_value (company_id, value_id, type_id, record_id, field_id, scalar, code, created_at, updated_at, raw, repaired)
-    SELECT v_ws_id, v.id, field.value ->> 'typeId', COALESCE(v."contactId", v."organizationId", v."dealId", v."serviceId", v."taskId"), v."columnId",
-      NULLIF(staged_scalar.result -> 'scalar', 'null'::jsonb), staged_scalar.result ->> 'code', v."createdAt", v."updatedAt", v.value, COALESCE((staged_scalar.result ->> 'repaired')::boolean, false)
-    FROM "CustomFieldValue" v
-    JOIN "CustomColumn" c ON c.id = v."columnId" AND c."companyId" = v_ws_id AND c.type = v.type AND c."entityType" = v."entityType"
-    JOIN LATERAL (SELECT f.value FROM jsonb_array_elements(v_ws_model -> 'fields') AS f(value) WHERE f.value ->> 'id' = v."columnId" LIMIT 1) AS field ON true
-    CROSS JOIN LATERAL (SELECT crm_upgrade.legacy_field_scalar(v.value, field.value, v_ws_currency) AS result) AS staged_scalar
-    WHERE v."companyId" = v_ws_id;
-    PERFORM crm_upgrade.issue(v_ws_id, 'CustomFieldValue', problem.field, problem.code) FROM (
-      SELECT 'columnId' AS field, 'field_definition_mismatch' AS code FROM "CustomFieldValue" v
-        WHERE v."companyId" = v_ws_id AND NOT EXISTS (SELECT 1 FROM crm_upgrade_value s WHERE s.company_id = v_ws_id AND s.value_id = v.id)
-      UNION ALL
-      SELECT 'record', 'invalid_record_reference' FROM "CustomFieldValue" v JOIN crm_upgrade_value s ON s.company_id = v_ws_id AND s.value_id = v.id
-        WHERE v."companyId" = v_ws_id
-          AND (num_nonnulls(v."contactId", v."organizationId", v."dealId", v."serviceId", v."taskId") <> 1
-            OR (CASE v."entityType"::text WHEN 'contact' THEN v."contactId" WHEN 'organization' THEN v."organizationId" WHEN 'deal' THEN v."dealId" WHEN 'service' THEN v."serviceId" ELSE v."taskId" END) IS NULL)
-      UNION ALL
-      SELECT 'record', 'cross_workspace_reference' FROM "CustomFieldValue" v JOIN crm_upgrade_value s ON s.company_id = v_ws_id AND s.value_id = v.id
-        WHERE v."companyId" = v_ws_id
-          AND NOT CASE v."entityType"::text
-            WHEN 'contact' THEN EXISTS (SELECT 1 FROM "Contact" r WHERE r."companyId" = v_ws_id AND r.id = v."contactId")
-            WHEN 'organization' THEN EXISTS (SELECT 1 FROM "Organization" r WHERE r."companyId" = v_ws_id AND r.id = v."organizationId")
-            WHEN 'deal' THEN EXISTS (SELECT 1 FROM "Deal" r WHERE r."companyId" = v_ws_id AND r.id = v."dealId")
-            WHEN 'service' THEN EXISTS (SELECT 1 FROM "Service" r WHERE r."companyId" = v_ws_id AND r.id = v."serviceId")
-            ELSE EXISTS (SELECT 1 FROM "Task" r WHERE r."companyId" = v_ws_id AND r.id = v."taskId") END
-      UNION ALL
-      SELECT 'value', s.code FROM crm_upgrade_value s WHERE s.company_id = v_ws_id AND s.code IS NOT NULL
-      UNION ALL
-      SELECT 'value', 'duplicate_field_value' FROM "CustomFieldValue" v WHERE v."companyId" = v_ws_id
-        GROUP BY v."columnId", COALESCE(v."contactId", v."organizationId", v."dealId", v."serviceId", v."taskId") HAVING count(*) > 1
-    ) AS problem;
+    PERFORM crm_upgrade.timing('grants', v_tick); v_tick := clock_timestamp();
+    -- The workspace's fields, for the set-based custom value checks after this loop.
+    INSERT INTO crm_upgrade_field (company_id, field_id, field)
+    SELECT v_ws_id, f.value ->> 'id', f.value FROM jsonb_array_elements(v_ws_model -> 'fields') WITH ORDINALITY AS f(value, ordinality)
+    ORDER BY f.ordinality ON CONFLICT DO NOTHING;
 
+    PERFORM crm_upgrade.timing('fields', v_tick); v_tick := clock_timestamp();
     -- v2 preflight: a pending membership authorisation task must name a member of the workspace.
     PERFORM crm_upgrade.issue(v_ws_id, 'Task', 'relatedUserId', 'invalid_protected_task_owner')
       FROM "Task" t WHERE t."companyId" = v_ws_id AND t.type = 'userPendingAuthorization'
         AND NOT EXISTS (SELECT 1 FROM "User" u WHERE u.id = t."relatedUserId" AND u."companyId" = v_ws_id);
 
+    PERFORM crm_upgrade.timing('protected_tasks', v_tick); v_tick := clock_timestamp();
     -- v2 identity preflight: canonical, well-formed channel identities with unique lookup keys.
     PERFORM crm_upgrade.issue(v_ws_id, 'ContactIdentifier', problem.field, problem.code) FROM (
       SELECT 'contactId' AS field, 'cross_workspace_reference' AS code FROM "ContactIdentifier" i
@@ -3110,6 +3116,7 @@ BEGIN
       ) AS duplicate ON duplicate."channelClass" = source."channelClass" AND duplicate.value = source.value
     ) AS problem;
 
+    PERFORM crm_upgrade.timing('identities', v_tick); v_tick := clock_timestamp();
     -- A model that fails validation cannot drive the presentation conversion; its issues are reported already.
     IF EXISTS (SELECT 1 FROM crm_upgrade_issue i WHERE i.company_id = v_ws_id AND i.source_table IN ('CustomColumn', 'Company')) THEN
       CONTINUE;
@@ -3142,6 +3149,7 @@ BEGIN
       VALUES (v_ws_id, 'Widget', v_row_data ->> 'id', v_row_data ->> 'userId', v_row_data, v_row_data || v_converted, '[]');
     END LOOP;
 
+    PERFORM crm_upgrade.timing('activity_widgets', v_tick); v_tick := clock_timestamp();
     -- v5: list views (DataView), list and detail personalisation (P13n) and chart widgets.
     FOREACH v_ws_kind IN ARRAY ARRAY['contact', 'organization', 'deal', 'service', 'task'] LOOP
       FOR v_row_data IN SELECT to_jsonb(v) FROM "DataView" v WHERE v."companyId" = v_ws_id AND v."surfaceKey" = v_ws_kind || 's-card-store' ORDER BY v.id LOOP
@@ -3184,12 +3192,14 @@ BEGIN
       END IF;
     END LOOP;
 
+    PERFORM crm_upgrade.timing('presentation_conversion', v_tick); v_tick := clock_timestamp();
     -- v5: presentation rows must belong to workspace members and reference existing records and members.
     PERFORM crm_upgrade.issue(v_ws_id, p.source_table, 'userId', 'foreign_presentation_owner')
       FROM crm_upgrade_presentation p WHERE p.company_id = v_ws_id
         AND NOT EXISTS (SELECT 1 FROM "User" u WHERE u."companyId" = v_ws_id AND u.id = p.user_id);
     PERFORM crm_upgrade.reference_issues(v_ws_id, v_ws_presentation, p.scopes, p.source_table)
       FROM crm_upgrade_presentation p WHERE p.company_id = v_ws_id AND jsonb_array_length(p.scopes) > 0;
+    PERFORM crm_upgrade.timing('owners_references', v_tick); v_tick := clock_timestamp();
     -- v5: converted keys must not collide with existing generic presentation rows.
     PERFORM crm_upgrade.issue(v_ws_id, 'DataView', 'id', 'presentation_target_collision')
       FROM "DataView" v WHERE v."companyId" = v_ws_id AND v."surfaceKey" IN (SELECT 'records:' || crm_upgrade.preset_id(v_ws_id, k) FROM unnest(ARRAY['contact', 'organization', 'deal', 'service', 'task']) AS k);
@@ -3199,6 +3209,7 @@ BEGIN
     PERFORM crm_upgrade.issue(v_ws_id, 'P13n', 'p13nId', 'presentation_target_collision')
       FROM crm_upgrade_presentation p JOIN "P13n" other ON other."companyId" = v_ws_id AND other."userId" = p.user_id AND other."p13nId" = p.target ->> 'p13nId' AND other.id <> p.row_id
       WHERE p.company_id = v_ws_id AND p.source_table = 'P13n';
+    PERFORM crm_upgrade.timing('collisions', v_tick); v_tick := clock_timestamp();
     -- Documented repair: an active list view that does not resolve to a converted view of the same member
     -- and surface falls back to the default (All) view.
     WITH unresolved AS (
@@ -3213,6 +3224,7 @@ BEGIN
     UPDATE crm_upgrade_presentation p SET target = p.target || '{"activeViewKey":null}'::jsonb
       FROM unresolved WHERE p.company_id = v_ws_id AND p.source_table = 'P13n' AND p.row_id = unresolved.row_id;
 
+    PERFORM crm_upgrade.timing('active_views', v_tick); v_tick := clock_timestamp();
     -- v6: routines and webhooks subscribing to legacy record events.
     FOR v_trigger_row IN
       SELECT 'Webhook' AS source_table, w.id, w.events, w.enabled, NULL::text AS owner_user_id, NULL::text AS trigger_kind, ARRAY[]::text[] AS changed_fields, NULL::jsonb AS trigger_filters
@@ -3244,13 +3256,52 @@ BEGIN
       END;
     END LOOP;
 
+    PERFORM crm_upgrade.timing('triggers', v_tick); v_tick := clock_timestamp();
     -- v8: legacy terminology presets must exist in the label catalogue.
     v_locale := COALESCE((SELECT u."displayLanguage"::text FROM "User" u WHERE u."companyId" = v_ws_id ORDER BY u."createdAt", u.id LIMIT 1), 'en');
     PERFORM crm_upgrade.issue(v_ws_id, 'EntityTerminology', 'presetKey', 'unsupported_terminology')
       FROM "EntityTerminology" t WHERE t."companyId" = v_ws_id
         AND COALESCE(v_catalog -> v_locale, v_catalog -> 'en') #> ARRAY[t."entityType"::text, t."presetKey"] IS NULL;
+    PERFORM crm_upgrade.timing('terminology', v_tick); v_tick := clock_timestamp();
   END LOOP;
 
+  -- v2 preflight (all workspaces at once): custom values must belong to a known column of the same type,
+  -- reference exactly one record of that type in the same workspace, and convert to a typed value.
+  v_tick := clock_timestamp();
+  ANALYZE crm_upgrade_field, crm_upgrade_workspace;
+  INSERT INTO crm_upgrade_value (company_id, value_id, type_id, record_id, field_id, scalar, code, created_at, updated_at, raw, repaired)
+  SELECT v."companyId", v.id, field.field ->> 'typeId', COALESCE(v."contactId", v."organizationId", v."dealId", v."serviceId", v."taskId"), v."columnId",
+    NULLIF(staged_scalar.result -> 'scalar', 'null'::jsonb), staged_scalar.result ->> 'code', v."createdAt", v."updatedAt", v.value, COALESCE((staged_scalar.result ->> 'repaired')::boolean, false)
+  FROM "CustomFieldValue" v
+  JOIN crm_upgrade_workspace w ON w.company_id = v."companyId"
+  JOIN "CustomColumn" c ON c.id = v."columnId" AND c."companyId" = v."companyId" AND c.type = v.type AND c."entityType" = v."entityType"
+  JOIN crm_upgrade_field field ON field.company_id = v."companyId" AND field.field_id = v."columnId"
+  CROSS JOIN LATERAL (SELECT crm_upgrade.legacy_field_scalar(v.value, field.field, w.currency) AS result) AS staged_scalar;
+  ANALYZE crm_upgrade_value;
+  PERFORM crm_upgrade.issue(problem.company_id, 'CustomFieldValue', problem.field, problem.code) FROM (
+    SELECT v."companyId" AS company_id, 'columnId' AS field, 'field_definition_mismatch' AS code FROM "CustomFieldValue" v
+      WHERE NOT EXISTS (SELECT 1 FROM crm_upgrade_value s WHERE s.value_id = v.id)
+    UNION ALL
+    SELECT v."companyId", 'record', 'invalid_record_reference' FROM "CustomFieldValue" v JOIN crm_upgrade_value s ON s.value_id = v.id
+      WHERE num_nonnulls(v."contactId", v."organizationId", v."dealId", v."serviceId", v."taskId") <> 1
+        OR (CASE v."entityType"::text WHEN 'contact' THEN v."contactId" WHEN 'organization' THEN v."organizationId" WHEN 'deal' THEN v."dealId" WHEN 'service' THEN v."serviceId" ELSE v."taskId" END) IS NULL
+    UNION ALL
+    SELECT v."companyId", 'record', 'cross_workspace_reference' FROM "CustomFieldValue" v JOIN crm_upgrade_value s ON s.value_id = v.id
+      WHERE NOT CASE v."entityType"::text
+          WHEN 'contact' THEN EXISTS (SELECT 1 FROM "Contact" r WHERE r."companyId" = v."companyId" AND r.id = v."contactId")
+          WHEN 'organization' THEN EXISTS (SELECT 1 FROM "Organization" r WHERE r."companyId" = v."companyId" AND r.id = v."organizationId")
+          WHEN 'deal' THEN EXISTS (SELECT 1 FROM "Deal" r WHERE r."companyId" = v."companyId" AND r.id = v."dealId")
+          WHEN 'service' THEN EXISTS (SELECT 1 FROM "Service" r WHERE r."companyId" = v."companyId" AND r.id = v."serviceId")
+          ELSE EXISTS (SELECT 1 FROM "Task" r WHERE r."companyId" = v."companyId" AND r.id = v."taskId") END
+    UNION ALL
+    SELECT s.company_id, 'value', s.code FROM crm_upgrade_value s WHERE s.code IS NOT NULL
+    UNION ALL
+    SELECT v."companyId", 'value', 'duplicate_field_value' FROM "CustomFieldValue" v
+      GROUP BY v."companyId", v."columnId", COALESCE(v."contactId", v."organizationId", v."dealId", v."serviceId", v."taskId") HAVING count(*) > 1
+  ) AS problem;
+  PERFORM crm_upgrade.timing('custom_values', v_tick);
+
+  v_tick := clock_timestamp();
   -- v8: timeline views (any workspace) referencing legacy record types.
   FOR v_timeline IN
     SELECT 'DataView' AS source_table, v.id, v."companyId", v.filters FROM "DataView" v WHERE v."surfaceKey" = 'entity-timeline' AND v.filters IS NOT NULL AND v.filters <> 'null'::jsonb
@@ -3267,6 +3318,8 @@ BEGIN
         PERFORM crm_upgrade.raise_internal(v_timeline.source_table || ' timeline view conversion', v_state, v_message, v_context);
     END;
   END LOOP;
+  PERFORM crm_upgrade.timing('timeline_views', v_tick);
+  PERFORM crm_upgrade.report_timing('validation');
 END
 $validate$;
 

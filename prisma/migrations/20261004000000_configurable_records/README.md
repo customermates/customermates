@@ -80,5 +80,6 @@ Rehearse on a disposable copy of the production database before deploying:
 1. Restore the copy into a disposable PostgreSQL database of the production major version.
 2. Run `prisma migrate deploy` against it and keep the log.
 3. On a refusal, follow the recovery steps on the copy until the deployment succeeds; apply the same corrections to production before deploying there.
+4. Optionally run the file with `psql --single-transaction --set ON_ERROR_STOP=1` after `SET crm_upgrade.debug = on` (for example `PGOPTIONS='-c crm_upgrade.debug=on'`) to print the duration of every validation step as notices.
 
-The migration holds the locks above for its whole transaction, so CRM writes wait until it finishes. On the rehearsal hardware a workspace with 50,000 contacts, 20,000 deals, 40,000 line items and 70,000 custom values converted in about three minutes.
+The migration holds the locks above for its whole transaction, so CRM writes wait until it finishes. It disables just-in-time compilation for its transaction (`SET LOCAL jit = off`): the conversion runs many small statements per workspace, and compiling each of them cost minutes on databases with default settings. On the development host, 135 workspaces with 28,000 custom values, 3,400 identifiers and 11,000 webhook deliveries convert in about 22 seconds, and one workspace with 50,000 contacts, 20,000 deals, 40,000 line items and 70,000 custom values in about three minutes.
