@@ -719,6 +719,12 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
       await save(manager.id, { canManage: "no", readAccess: "all" });
       expect(await wikiActions(manager.id)).toEqual(["readAll"]);
 
+      await save(manager.id, { canManage: "yes" });
+      expect(await wikiActions(manager.id)).toEqual(["create", "readAll", "update", "delete"]);
+
+      await save(manager.id, { canManage: "no", readAccess: "all" });
+      expect(await wikiActions(manager.id)).toEqual(["readAll"]);
+
       await save(manager.id, { canManage: "no", readAccess: "none" });
       expect(await wikiActions(manager.id)).toEqual([]);
     } finally {

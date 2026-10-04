@@ -121,6 +121,8 @@ export class PrismaRoleRepo
         changedActions.push(Action.create, Action.update, Action.delete);
       if (("readAccess" in permission && permission.readAccess !== undefined) || isManageOnlyResource)
         changedActions.push(Action.readOwn, Action.readAll);
+      else if (resource === Resource.wiki && "canManage" in permission && permission.canManage === "yes")
+        changedActions.push(Action.readAll);
       if (changedActions.length) {
         await this.prisma.rolePermission.deleteMany({
           where: { companyId, roleId: savedRole.id, resource, action: { in: changedActions } },
