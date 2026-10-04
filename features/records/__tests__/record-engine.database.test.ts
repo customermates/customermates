@@ -14912,6 +14912,58 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       value: textValue("Captured name"),
     });
   });
+  it("answers update imports of unreadable protected records as not found, revealing no stored values", async () => {
+    const f = await fixture();
+    const importer = new ImportRecordsInteractor(
+      f.repo,
+      f.policy,
+      new RecordWriteService(f.repo, f.policy, new RecordCalculationService(f.repo)),
+      { getDetails: () => Promise.resolve({ currency: "EUR" }) },
+    );
+    const exporter = new ExportRecordsInteractor(f.repo, f.policy);
+    const exportAll = async (type: string) => {
+      const exported = await f.run(() =>
+        exporter.invoke({ typeId: f.id(type), filters: [], relationships: [], sort: [] }),
+      );
+      if (!exported.ok) throw exported.error;
+      return exported.data;
+    };
+    const pending = await f.run(() =>
+      prisma.user.create({
+        data: {
+          companyId: f.company.id,
+          roleId: f.memberRole.id,
+          firstName: "Pending",
+          lastName: "Member",
+          email: `${randomUUID()}@example.test`,
+          status: "pendingAuthorization",
+        },
+      }),
+    );
+    await f.run(() => getMembershipTaskService().registered(pending.id));
+    const tasks = await exportAll("task");
+    const protectedRow = recordInvariant(tasks.records.find((row) => row.protectedKind === "membershipAuthorization"));
+    await f.run(() =>
+      runInTransaction(async () => {
+        await f.repo.setGrants(f.id("task"), [{ roleId: f.memberRole.id, actions: ["readOwn", "update"] }]);
+      }),
+    );
+    const asMember = (document: typeof tasks) =>
+      f.run(() => importer.invoke({ document, mode: "update", idempotencyKey: randomUUID() }), f.member);
+    const notFound = {
+      ok: false,
+      error: { issues: [expect.objectContaining({ params: expect.objectContaining({ error: "recordNotFound" }) })] },
+    };
+    expect(await asMember({ ...tasks, records: [protectedRow], links: [] })).toMatchObject(notFound);
+    expect(
+      await asMember({
+        ...tasks,
+        records: [{ ...protectedRow, assignedUserIds: [f.member.id] }],
+        links: [],
+      }),
+    ).toMatchObject(notFound);
+  });
+
   it("keeps retained and captured provenance through an export and update-import round trip", async () => {
     const f = await fixture();
     for (const key of ["deal", "lineItem"]) {

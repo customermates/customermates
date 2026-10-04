@@ -217,7 +217,7 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportRecor
                 { createRecordId: row.ref.recordId },
               );
             } else {
-              if (!existing) return failNotFound(CustomErrorCode.recordNotFound);
+              if (!existing || !(await policy.canRead(existing))) return failNotFound(CustomErrorCode.recordNotFound);
               const key = recordKey(row.ref);
               if (
                 (captured.get(key) ?? []).some(
