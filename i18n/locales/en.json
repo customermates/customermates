@@ -1225,6 +1225,7 @@
       "recordConfigurationInvalid": "Review the fields and relationships in this configuration.",
       "recordDependencies": "Update the dependent fields, views, widgets, or bindings first.",
       "recordIdempotencyConflict": "This request key was used for another change. Start a new request.",
+      "recordIdUnavailable": "This record ID belongs to an earlier record. Import the record with a new ID.",
       "recordNotFound": "This record is unavailable.",
       "recordProtected": "This record is managed by a system workflow.",
       "recordReadOnlyField": "This field is calculated. Change its definition to enter values manually.",

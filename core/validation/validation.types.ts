@@ -10,6 +10,7 @@ export enum CustomErrorCode {
   recordWritePaused = "recordWritePaused",
   recordReadOnlyField = "recordReadOnlyField",
   recordIdempotencyConflict = "recordIdempotencyConflict",
+  recordIdUnavailable = "recordIdUnavailable",
   recordRelationConflict = "recordRelationConflict",
   recordDependencies = "recordDependencies",
   recordCalculationBudget = "recordCalculationBudget",

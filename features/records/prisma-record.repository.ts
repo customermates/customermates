@@ -1014,6 +1014,20 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
     });
   }
 
+  async hasRecordHistoryCompanyWide(ref: RecordRef): Promise<boolean> {
+    const [event, audit] = await Promise.all([
+      this.prisma.recordEvent.findFirst({
+        where: { companyId: this.companyId, typeId: ref.typeId, recordId: ref.recordId },
+        select: { id: true },
+      }),
+      this.prisma.auditLog.findFirst({
+        where: { companyId: this.companyId, entityId: ref.recordId },
+        select: { id: true },
+      }),
+    ]);
+    return Boolean(event || audit);
+  }
+
   async delete(ref: RecordRef): Promise<void> {
     // Values that captured or retained this record as a source keep no
     // restriction once it is gone; otherwise they would read as restricted forever.

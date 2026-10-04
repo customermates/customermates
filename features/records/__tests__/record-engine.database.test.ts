@@ -15040,6 +15040,67 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       value: textValue("Rewritten title"),
     });
   });
+  it("refuses to import a client-chosen ID that carries a deleted record's history", async () => {
+    const f = await fixture();
+    const original = await f.create("service", "Deleted history source", [["service.amount", decimal("9")]]);
+    await f.update(original, [["service.amount", decimal("11")]]);
+    const exported = await f.run(() =>
+      new ExportRecordsInteractor(f.repo, f.policy).invoke({
+        typeId: f.id("service"),
+        filters: [],
+        relationships: [],
+        sort: [],
+      }),
+    );
+    if (!exported.ok) throw exported.error;
+    expect(
+      await f.mutation({ action: "delete", ref: original, expectedVersion: (await f.readRecord(original)).version }),
+    ).toMatchObject({ ok: true });
+    const history = () =>
+      f.run(() =>
+        prisma.recordEvent.count({
+          where: { companyId: f.company.id, typeId: original.typeId, recordId: original.recordId },
+        }),
+      );
+    const before = await history();
+    expect(before).toBeGreaterThan(0);
+    const importer = new ImportRecordsInteractor(
+      f.repo,
+      f.policy,
+      new RecordWriteService(f.repo, f.policy, new RecordCalculationService(f.repo)),
+      { getDetails: () => Promise.resolve({ currency: "EUR" }) },
+    );
+    const reused = await f.run(() =>
+      importer.invoke({ document: exported.data, mode: "create", idempotencyKey: randomUUID() }),
+    );
+    expect(reused).toMatchObject({
+      ok: false,
+      error: {
+        issues: [
+          expect.objectContaining({
+            path: ["document", "records", 0, "ref", "recordId"],
+            params: expect.objectContaining({ error: CustomErrorCode.recordIdUnavailable, kind: "conflict" }),
+          }),
+        ],
+      },
+    });
+    expect(JSON.stringify(reused)).not.toContain("Deleted history source");
+    expect(await f.run(() => f.repo.getRecordCompanyWide(original))).toBeNull();
+    expect(await history()).toBe(before);
+    const fresh = randomUUID();
+    expect(
+      await f.run(() =>
+        importer.invoke({
+          document: {
+            ...exported.data,
+            records: exported.data.records.map((row) => ({ ...row, ref: { ...row.ref, recordId: fresh } })),
+          },
+          mode: "create",
+          idempotencyKey: randomUUID(),
+        }),
+      ),
+    ).toMatchObject({ ok: true, data: { created: 1 } });
+  });
 });
 
 describeDatabase("provider avatar updates through the generic engine", { timeout: 30000 }, () => {

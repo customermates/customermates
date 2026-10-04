@@ -51,6 +51,7 @@ export interface RecordActorRepo {
 
 export interface RecordRepo {
   getIdentitiesCompanyWide(ref: RecordRef): Promise<RecordIdentity[]>;
+  hasRecordHistoryCompanyWide(ref: RecordRef): Promise<boolean>;
   getRecordIdentitiesCompanyWide(typeId: string, recordIds: string[]): Promise<Map<string, RecordIdentity[]>>;
   getIdentityChannelsCompanyWide(keys: Array<{ channelClass: string; value: string }>): Promise<RecordIdentity[]>;
   getStagedIdentityChannelsCompanyWide(

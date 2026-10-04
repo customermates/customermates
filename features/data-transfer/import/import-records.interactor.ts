@@ -183,6 +183,17 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportRecor
             const parent = parentLinks.get(recordKey(row.ref));
             if (input.mode === "create") {
               if (existing) return failConflict(CustomErrorCode.recordVersionChanged);
+              // History is keyed by record ID, so a reused ID of a deleted record
+              // would adopt that record's timeline. Report only the conflict.
+              if (await this.records.hasRecordHistoryCompanyWide(row.ref)) {
+                return failConflict(CustomErrorCode.recordIdUnavailable, [
+                  "document",
+                  "records",
+                  document.records.indexOf(row),
+                  "ref",
+                  "recordId",
+                ]);
+              }
               await writer.apply(
                 {
                   action: "create",

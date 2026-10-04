@@ -1225,6 +1225,7 @@
       "recordConfigurationInvalid": "Vérifie les champs et les relations de cette configuration.",
       "recordDependencies": "Mets d’abord à jour les champs, vues, widgets ou associations dépendants.",
       "recordIdempotencyConflict": "Cette clé de requête a été utilisée pour une autre modification. Crée une nouvelle requête.",
+      "recordIdUnavailable": "Cet identifiant appartenait déjà à un enregistrement précédent. Importe l’enregistrement avec un nouvel identifiant.",
       "recordNotFound": "Cet enregistrement est indisponible.",
       "recordProtected": "Cet enregistrement est géré par un processus système.",
       "recordReadOnlyField": "Ce champ est calculé. Modifie sa définition pour saisir des valeurs manuellement.",

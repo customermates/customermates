@@ -1225,6 +1225,7 @@
       "recordConfigurationInvalid": "Controlla i campi e le relazioni di questa configurazione.",
       "recordDependencies": "Aggiorna prima i campi, le viste, i widget o le associazioni dipendenti.",
       "recordIdempotencyConflict": "Questa chiave di richiesta è stata usata per un’altra modifica. Crea una nuova richiesta.",
+      "recordIdUnavailable": "Questo ID apparteneva già a un record precedente. Importa il record con un nuovo ID.",
       "recordNotFound": "Questo record non è disponibile.",
       "recordProtected": "Questo record è gestito da un processo di sistema.",
       "recordReadOnlyField": "Questo campo è calcolato. Modifica la definizione per inserire valori manualmente.",

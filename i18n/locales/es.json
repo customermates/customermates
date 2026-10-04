@@ -1225,6 +1225,7 @@
       "recordConfigurationInvalid": "Revisa los campos y las relaciones de esta configuración.",
       "recordDependencies": "Actualiza primero los campos, las vistas, los widgets o las asociaciones dependientes.",
       "recordIdempotencyConflict": "Esta clave de solicitud se usó para otro cambio. Inicia una nueva solicitud.",
+      "recordIdUnavailable": "Este ID ya perteneció a un registro anterior. Importa el registro con un ID nuevo.",
       "recordNotFound": "Este registro no está disponible.",
       "recordProtected": "Este registro está gestionado por un proceso del sistema.",
       "recordReadOnlyField": "Este campo se calcula. Cambia su definición para introducir valores manualmente.",
