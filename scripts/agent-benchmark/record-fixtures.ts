@@ -113,7 +113,7 @@ export async function benchmarkRecordSnapshot(prisma: PrismaClient, companyId: s
   const model = readRecordModelSnapshot((await prisma.recordSchemaRevision.findUniqueOrThrow({ where: { companyId_revision: { companyId, revision: state.revision } } })).snapshot);
   const records = await prisma.crmRecord.findMany({ where: { companyId }, include: { values: true }, orderBy: { id: "asc" } });
   const links = await prisma.recordLink.findMany({ where: { companyId }, orderBy: { id: "asc" } });
-  const assignments = await prisma.recordAssignment.findMany({ where: { companyId } });
+  const assignments = await prisma.recordAssignment.findMany({ where: { companyId }, orderBy: [{ typeId: "asc" }, { recordId: "asc" }, { userId: "asc" }] });
   const identities = await prisma.recordIdentity.findMany({ where: { companyId }, include: { records: true }, orderBy: { id: "asc" } });
   const result: Record<string, unknown[]> = {};
   result["generic:model"] = [model];
