@@ -20,7 +20,8 @@ describe("manage_routines trigger events", () => {
 
   it("offers and accepts only events that are still emitted", () => {
     const description = shape.triggerEvents.description ?? "";
-    for (const event of ROUTINE_TRIGGER_EVENTS) expect(description).toContain(event);
+    for (const event of ROUTINE_TRIGGER_EVENTS)
+      expect(shape.triggerEvents.safeParse([event]).success, event).toBe(true);
     for (const event of WEBHOOK_LEGACY_EVENTS) {
       expect(description).not.toContain(event);
       expect(shape.triggerEvents.safeParse([event]).success, event).toBe(false);

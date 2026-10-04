@@ -64,7 +64,6 @@ const domTestFiles = [
   "components/data-view/filter-palette/__tests__/filter-palette-pages.test.tsx",
   "components/entity-detail/__tests__/entity-detail-personalization.test.ts",
   "components/entity-detail/__tests__/entity-detail-summary.test.ts",
-  "components/entity-detail/__tests__/entity-detail-layout.test.ts",
   "components/entity-detail/__tests__/entity-detail-visibility.test.tsx",
   "components/entity-detail/__tests__/entity-detail-panels.dom.test.ts",
   "components/marketing/__tests__/browser-frame.test.tsx",
