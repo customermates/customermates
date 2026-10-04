@@ -62,6 +62,7 @@
     "@unipile/sdk": "2.41.0",
     "@vercel/analytics": "^1.5.0",
     "@vercel/kv": "3.0.0",
+    "@vercel/oidc": "3.2.0",
     "@workflow/world-postgres": "5.0.0-beta.36",
     "ai": "7.0.94",
     "better-auth": "1.6.23",

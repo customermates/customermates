@@ -2,6 +2,9 @@ import type { ClassifierSpec } from "../spec";
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+const oidc = vi.hoisted(() => ({ token: vi.fn() }));
+vi.mock("@vercel/oidc", () => ({ getVercelOidcToken: oidc.token }));
+
 import { classifyAttempt } from "..";
 import { JEV_DEADLINE_MS, JEV_EVALUATE_URL, jevRequestBody, runJev } from "../jev-runner";
 import { classifierSpecProblems } from "../spec";
@@ -120,7 +123,11 @@ describe("Jev runner", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
     expect(url).toBe(JEV_EVALUATE_URL);
-    expect(init.headers).toEqual({ Authorization: "Bearer test-key", "Content-Type": "application/json" });
+    expect(init.headers).toEqual({
+      Authorization: "Bearer test-key",
+      "ai-gateway-auth-method": "api-key",
+      "Content-Type": "application/json",
+    });
     expect(result.model).toBe("jev");
     expect(result.costMicrocents).toBe(1600);
     expect(result.answers).toEqual({
@@ -178,6 +185,28 @@ describe("classifyAttempt", () => {
       });
 
     expect((await classifyAttempt(SPEC, STATE, { apiKey: "k", fetch: slow, timeoutMs: 10 })).result).toBeNull();
+  });
+
+  it("authenticates with the deployment's OIDC token when no API key is configured", async () => {
+    oidc.token.mockResolvedValue("oidc-token");
+    const fetchMock = vi.fn(replyWith(JEV_BODY));
+
+    const attempt = await classifyAttempt(SPEC, STATE, { fetch: fetchMock });
+
+    expect(attempt.requested).toBe(true);
+    const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(init.headers).toMatchObject({
+      Authorization: "Bearer oidc-token",
+      "ai-gateway-auth-method": "oidc",
+    });
+  });
+
+  it("does not call Jev without an API key or an OIDC token", async () => {
+    oidc.token.mockRejectedValue(new Error("no OIDC token outside Vercel"));
+    const fetchMock = vi.fn(replyWith(JEV_BODY));
+
+    expect(await classifyAttempt(SPEC, STATE, { fetch: fetchMock })).toEqual({ result: null, requested: false });
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it("returns null for a malformed spec without calling any model", async () => {

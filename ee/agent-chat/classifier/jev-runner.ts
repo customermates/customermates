@@ -12,6 +12,7 @@ export const JEV_DEADLINE_MS = 800;
 
 export type JevRunnerOptions = {
   apiKey: string;
+  authMethod?: "api-key" | "oidc";
   fetch?: typeof fetch;
   timeoutMs?: number;
   now?: () => number;
@@ -42,7 +43,11 @@ export async function runJev(
   const started = now();
   const response = await (options.fetch ?? fetch)(JEV_EVALUATE_URL, {
     method: "POST",
-    headers: { Authorization: `Bearer ${options.apiKey}`, "Content-Type": "application/json" },
+    headers: {
+      Authorization: `Bearer ${options.apiKey}`,
+      "ai-gateway-auth-method": options.authMethod ?? "api-key",
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify(jevRequestBody(spec, state)),
     signal: AbortSignal.timeout(options.timeoutMs ?? JEV_DEADLINE_MS),
   });
