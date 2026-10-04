@@ -27,7 +27,11 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { useNavigationGuard } from "@/components/modal/use-navigation-guard";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRouter } from "@/i18n/navigation";
-import { EMPTY_WIKI_HOMEPAGE_SETUP_STATE, useRefreshWhileWikiSetupWorks } from "@/components/wiki/wiki-homepage-setup";
+import {
+  EMPTY_WIKI_HOMEPAGE_SETUP_STATE,
+  useRefreshWhileWikiSetupWorks,
+  useWikiSetupFailureBody,
+} from "@/components/wiki/wiki-homepage-setup";
 import { WikiSetupProgress } from "@/components/wiki/wiki-setup-progress";
 import { wikiPagePath } from "@/features/wiki/wiki-links";
 import { ResizablePanelGroup } from "@/components/layout/resizable-panels";
@@ -115,6 +119,7 @@ export const WikiPageView = observer(function WikiPageView({
     setupActive,
   });
   useRefreshWhileWikiSetupWorks(initialSetupState);
+  const setupFailedBody = useWikiSetupFailureBody(initialSetupState);
   const tryNavigate = useCallback(
     (navigate: () => void) => rootStore.navigationGuard.tryNavigate(navigate),
     [rootStore],
@@ -399,7 +404,7 @@ export const WikiPageView = observer(function WikiPageView({
           {(initialSetupState.status === "failed" || (setupActive && hasDocument)) && (
             <div className="mx-auto w-full max-w-6xl px-6 py-3 md:px-10">
               {initialSetupState.status === "failed" ? (
-                <Alert color="danger" description={t("WikiSetup.status.failedBody")} />
+                <Alert color="danger" description={setupFailedBody} />
               ) : (
                 <div aria-live="polite" className="text-sm text-muted-foreground">
                   {initialSetupState.progress && initialSetupState.progress.total > 0

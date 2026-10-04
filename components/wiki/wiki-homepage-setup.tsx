@@ -42,6 +42,18 @@ export const EMPTY_WIKI_HOMEPAGE_SETUP_STATE: WikiHomepageSetupState = {
   domain: null,
   pages: [],
 };
+export function useWikiSetupFailureBody(state: WikiHomepageSetupState) {
+  const t = useTranslations();
+  const domain = state.domain ?? state.homepage ?? "";
+  const failedBodies: Record<WikiSetupFailureReason, string> = {
+    blocked: t("WikiSetup.status.failedBodyBlocked", { domain }),
+    unavailable: t("WikiSetup.status.failedBodyUnavailable", { domain }),
+    credits: t("Common.errors.agentLimitReached"),
+    synthesis: t("WikiSetup.status.failedBodySynthesis"),
+  };
+  return state.failureReason ? failedBodies[state.failureReason] : t("WikiSetup.status.failedBody");
+}
+
 export function useRefreshWhileWikiSetupWorks(state: WikiHomepageSetupState) {
   const router = useRouter();
   const { navigationGuard } = useRootStore();
@@ -118,6 +130,7 @@ export const WikiHomepageSetup = observer(function WikiHomepageSetup({
   }, [initialState, store]);
 
   useRefreshWhileWikiSetupWorks(state);
+  const failedBody = useWikiSetupFailureBody(state);
 
   useEffect(() => {
     if (retrying) homepageInput.current?.focus();
@@ -180,13 +193,6 @@ export const WikiHomepageSetup = observer(function WikiHomepageSetup({
     const failed = state.status === "failed";
     const domain = state.domain ?? state.homepage ?? "";
     const workingBody = t("WikiSetup.status.workingBody", { domain });
-    const failedBodies: Record<WikiSetupFailureReason, string> = {
-      blocked: t("WikiSetup.status.failedBodyBlocked", { domain }),
-      unavailable: t("WikiSetup.status.failedBodyUnavailable", { domain }),
-      credits: t("Common.errors.agentLimitReached"),
-      synthesis: t("WikiSetup.status.failedBodySynthesis"),
-    };
-    const failedBody = state.failureReason ? failedBodies[state.failureReason] : t("WikiSetup.status.failedBody");
     const completedBody = state.homepage
       ? t("WikiSetup.status.completedBodyOnboarding")
       : t("WikiSetup.status.completedExistingBody");

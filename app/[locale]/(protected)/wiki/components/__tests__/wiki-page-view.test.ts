@@ -189,6 +189,8 @@ vi.mock("@/components/ui/button", () => ({
 }));
 vi.mock("@/components/wiki/wiki-homepage-setup", () => ({
   useRefreshWhileWikiSetupWorks: harness.refreshWhileSetupWorks,
+  useWikiSetupFailureBody: (state: { failureReason?: string | null }) =>
+    state.failureReason ? `WikiSetup.status.failedBody.${state.failureReason}` : "WikiSetup.status.failedBody",
   EMPTY_WIKI_HOMEPAGE_SETUP_STATE: {
     status: "idle",
     homepage: null,
@@ -1557,10 +1559,11 @@ describe("Wiki empty state", () => {
           domain: "example.com",
           pages: [page],
           refreshable: true,
+          failureReason: "unavailable",
         },
       }),
     );
-    expect(container.querySelector('[role="alert"]')?.textContent).toContain("WikiSetup.status.failedBody");
+    expect(container.querySelector('[role="alert"]')?.textContent).toContain("WikiSetup.status.failedBody.unavailable");
     expect(container.querySelector("[data-editor-readonly]")).not.toBeNull();
     expect(harness.refreshWhileSetupWorks).toHaveBeenLastCalledWith(expect.objectContaining({ status: "failed" }));
     const actions = (harness.topBar as ReactElement<{ onRefreshFromWebsite?: () => void }>).props;
