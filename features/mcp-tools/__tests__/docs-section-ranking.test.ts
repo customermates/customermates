@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { RankableSection, SectionRanker, SectionRanking } from "@/core/retrieval/retrieval-context";
 
-import { stableDocsRanker } from "../docs-section-ranking";
+import { DOCS_RANKING_CACHE_SIZE, stableDocsRanker } from "../docs-section-ranking";
 
 const candidates: RankableSection[] = [
   { id: 0, locale: "en", section: { pageTitle: "Guide", headingPath: ["Create"], text: "Create the record." } },
@@ -53,6 +53,15 @@ describe("stable documentation selection", () => {
     expect(ranker).toHaveBeenCalledTimes(2);
   });
 
+  it("keeps a burst of distinct searches cached until each follow-up excerpt asks again", async () => {
+    const ranker = vi.fn<SectionRanker>().mockResolvedValue({ order: [0, 1], abstained: false });
+    const wrapped = memo(ranker);
+    const queries = Array.from({ length: 120 }, (_, index) => `question ${index}`);
+    for (const query of queries) await wrapped(query, candidates);
+    for (const query of queries) await wrapped(query, candidates);
+    expect(ranker).toHaveBeenCalledTimes(queries.length);
+  });
+
   it("isolates query, locale, source, build, candidate order and body changes", async () => {
     const ranker = vi.fn<SectionRanker>().mockResolvedValue({ order: [0], abstained: false });
     await memo(ranker)("create record", candidates);
@@ -83,11 +92,12 @@ describe("stable documentation selection", () => {
   it("bounds the retained entries per ranker", async () => {
     const ranker = vi.fn<SectionRanker>().mockResolvedValue({ order: [0], abstained: false });
     const wrapped = memo(ranker);
-    for (let index = 0; index < 65; index += 1) await wrapped(`query ${index}`, candidates);
-    await wrapped("query 64", candidates);
-    expect(ranker).toHaveBeenCalledTimes(65);
+    const size = DOCS_RANKING_CACHE_SIZE;
+    for (let index = 0; index <= size; index += 1) await wrapped(`query ${index}`, candidates);
+    await wrapped(`query ${size}`, candidates);
+    expect(ranker).toHaveBeenCalledTimes(size + 1);
     await wrapped("query 0", candidates);
-    expect(ranker).toHaveBeenCalledTimes(66);
+    expect(ranker).toHaveBeenCalledTimes(size + 2);
   });
 
   it("uses the first completed successful classification during a concurrent miss", async () => {
