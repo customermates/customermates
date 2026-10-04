@@ -91,7 +91,7 @@ export function compileMessagingRecordQuery(
           reference
             ? [
                 Prisma.sql`(thread."connectedAccountId" = ${reference.accountId} AND EXISTS (SELECT 1 FROM "MessagingMessage" message
-                  WHERE message."companyId" = ${companyId} AND message."messagingThreadId" = thread.id AND ${messageVisible}
+                  WHERE message."messagingThreadId" = thread.id AND message."companyId" = thread."companyId" AND ${messageVisible}
                     AND ${reference.folderId} = ANY(message."folderIds")))`,
               ]
             : [],
@@ -134,7 +134,7 @@ export function compileMessagingRecordQuery(
     const match = selected.length ? Prisma.sql`${field} IN (${Prisma.join(selected)})` : Prisma.sql`FALSE`;
     return [filter.operator === FilterOperatorKey.notIn ? Prisma.sql`NOT (${match})` : match];
   });
-  if (lastMessageFilters.length) filters.push(lastActualMessageCondition(companyId, lastMessageFilters, now));
+  if (lastMessageFilters.length) filters.push(lastActualMessageCondition(lastMessageFilters, now));
   const term = params.searchTerm?.trim();
   if (term) {
     const pattern = `%${term.replace(/[\\%_]/g, "\\$&")}%`;
@@ -159,7 +159,7 @@ function values(filter: Filter): string[] {
   return selected;
 }
 
-function lastActualMessageCondition(companyId: string, filters: Filter[], now: Date): Prisma.Sql {
+function lastActualMessageCondition(filters: Filter[], now: Date): Prisma.Sql {
   const validDirections: string[] = Object.values(MessagingMessageDirection);
   let directions = validDirections;
   const conditions: Prisma.Sql[] = [];
@@ -178,7 +178,7 @@ function lastActualMessageCondition(companyId: string, filters: Filter[], now: D
   return Prisma.sql`EXISTS (SELECT 1 FROM (
       SELECT message.direction, message."sentAt"
       FROM "MessagingMessage" message
-      WHERE message."companyId" = ${companyId} AND message."messagingThreadId" = thread.id
+      WHERE message."messagingThreadId" = thread.id AND message."companyId" = thread."companyId"
         AND message."connectedAccountId" = thread."connectedAccountId"
         AND NOT message."isDraft" AND NOT message."isHidden" AND NOT message."isDeleted" AND NOT message."isEvent"
         AND (account."foldersSyncedAt" IS NULL OR cardinality(message."folderIds") = 0
