@@ -101,6 +101,22 @@ function avatarSourceTypeIds(model: RecordModel): string[] {
   ];
 }
 
+type AvatarCandidate = { ref: RecordRef; fieldId: string; hasValue: boolean };
+
+/**
+ * A provider picture may replace an image only when the field is empty or its value is itself provider-derived:
+ * the latest record event changing it came from messaging, or no event ever changed it (values carried over
+ * from the provider-only contact avatar). A value a person or integration entered stays untouched.
+ */
+async function replaceableAvatars(records: RecordRepo, candidates: AvatarCandidate[]): Promise<AvatarCandidate[]> {
+  const writers = await records.getLastFieldWritersCompanyWide(candidates.filter((candidate) => candidate.hasValue));
+  return candidates.filter((candidate) => {
+    if (!candidate.hasValue) return true;
+    const writer = writers.get(`${candidate.ref.typeId}:${candidate.ref.recordId}:${candidate.fieldId}`);
+    return writer === undefined || writer === ACTOR;
+  });
+}
+
 export class ProviderAvatarService {
   constructor(
     private records: RecordRepo,
@@ -153,7 +169,7 @@ export class ProviderAvatarService {
           });
           return;
         }
-        const targets: Array<{ ref: RecordRef; fieldId: string }> = [];
+        const candidates: AvatarCandidate[] = [];
         for (const ref of refs) {
           if (
             !model.types.some((type) => type.id === ref.typeId && !type.archived) ||
@@ -180,8 +196,12 @@ export class ProviderAvatarService {
             field,
           );
           if (previous.state !== "value" || previous.value.kind !== "text" || previous.value.value !== pictureUrl)
-            targets.push({ ref, fieldId: field.id });
+            candidates.push({ ref, fieldId: field.id, hasValue: previous.state === "value" });
         }
+        const targets = (await replaceableAvatars(this.records, candidates)).map(({ ref, fieldId }) => ({
+          ref,
+          fieldId,
+        }));
         if (!targets.length) return;
         if ((await this.records.getState())?.activeOperationId)
           throw new DeferredWebhookError("CRM avatar enrichment waits for the workspace change to complete");
@@ -294,6 +314,7 @@ export class ProviderAvatarService {
               BATCH,
               avatarSourceTypeIds(model),
             );
+            const candidates: AvatarCandidate[] = [];
             for (const ref of refs) {
               if (
                 !model.types.some((type) => type.id === ref.typeId && !type.archived) ||
@@ -326,9 +347,12 @@ export class ProviderAvatarService {
                 previous.value.value === request.pictureUrl
               )
                 continue;
+              candidates.push({ ref, fieldId: field.id, hasValue: previous.state === "value" });
+            }
+            for (const { ref, fieldId } of await replaceableAvatars(this.records, candidates)) {
               await journal.repository.setValue(
                 ref,
-                field.id,
+                fieldId,
                 {
                   state: "value",
                   value: { kind: "text", value: request.pictureUrl },

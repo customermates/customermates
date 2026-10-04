@@ -87,6 +87,8 @@ export interface RecordRepo {
     input: Pick<RecordIdentityInput, "messagingId" | "displayName" | "profileUrl">,
   ): Promise<void>;
   setIdentities(ref: RecordRef, inputs: RecordIdentityInput[]): Promise<void>;
+  /** The actor of the latest record event that changed each field, keyed by `typeId:recordId:fieldId`. */
+  getLastFieldWritersCompanyWide(targets: Array<{ ref: RecordRef; fieldId: string }>): Promise<Map<string, string>>;
   getModel(): Promise<RecordModel>;
   searchRecords(
     request: { search: RecordSearch; includeEmbedded?: boolean } | { refs: RecordRef[] },

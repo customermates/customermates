@@ -14865,6 +14865,46 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
       ).toBe(publishedEvents);
     },
   );
+  it("never replaces an image a person entered, but refreshes empty and provider-derived images", async () => {
+    const f = await fixture();
+    const { ProviderAvatarService } = await import("../provider-avatar.service");
+    const create = async (avatarUrl?: string) => {
+      const result = await f.mutation({
+        action: "create",
+        typeId: f.id("contact"),
+        fields: [
+          { fieldId: f.id("contact.firstName"), value: textValue("Shared avatar") },
+          ...(avatarUrl ? [{ fieldId: f.id("contact.avatarUrl"), value: textValue(avatarUrl) }] : []),
+        ],
+        identities: [{ provider: "google", value: "shared-avatar@example.test" }],
+      });
+      if (!result.ok || result.data.status !== "completed") throw new Error("Avatar fixture failed");
+      return recordInvariant(result.data.refs[0]);
+    };
+    const entered = await create("https://example.test/entered.png");
+    const empty = await create();
+    const background = { dispatch: vi.fn().mockResolvedValue(undefined) };
+    const service = new ProviderAvatarService(new PrismaRecordRepo(f.company.id), f.company.id, background);
+    const avatar = (ref: RecordRef) => f.value(ref, "contact.avatarUrl");
+    await service.synchronize("google", "shared-avatar@example.test", "https://example.test/provider.png");
+    expect(await avatar(entered)).toEqual({ state: "value", value: textValue("https://example.test/entered.png") });
+    expect(await avatar(empty)).toEqual({ state: "value", value: textValue("https://example.test/provider.png") });
+    await service.synchronize("google", "shared-avatar@example.test", "https://example.test/rotated.png");
+    expect(await avatar(entered)).toEqual({ state: "value", value: textValue("https://example.test/entered.png") });
+    expect(await avatar(empty)).toEqual({ state: "value", value: textValue("https://example.test/rotated.png") });
+    expect(
+      await f.mutation({
+        action: "update",
+        ref: empty,
+        expectedVersion: (await f.readRecord(empty)).version,
+        fields: [{ fieldId: f.id("contact.avatarUrl"), value: textValue("https://example.test/chosen.png") }],
+      }),
+    ).toMatchObject({ ok: true });
+    await service.synchronize("google", "shared-avatar@example.test", "https://example.test/later.png");
+    expect(await avatar(empty)).toEqual({ state: "value", value: textValue("https://example.test/chosen.png") });
+    expect(background.dispatch).not.toHaveBeenCalled();
+  });
+
   it("uses renamed identity bindings, recalculates dependents and leaves unchanged inputs alone", async () => {
     const f = await fixture();
     const { ProviderAvatarService } = await import("../provider-avatar.service");

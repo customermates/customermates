@@ -333,6 +333,30 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
     `);
   }
 
+  async getLastFieldWritersCompanyWide(targets: Array<{ ref: RecordRef; fieldId: string }>) {
+    const writers = new Map<string, string>();
+    if (!targets.length) return writers;
+    const rows = await this.prisma.$queryRaw<
+      Array<{ typeId: string; recordId: string; fieldId: string; actorId: string }>
+    >(Prisma.sql`
+      SELECT target."typeId", target."recordId", target."fieldId", writer."actorId"
+      FROM (VALUES ${Prisma.join(
+        targets.map(
+          (target) => Prisma.sql`(${target.ref.typeId}::text, ${target.ref.recordId}::text, ${target.fieldId}::text)`,
+        ),
+      )}) AS target("typeId", "recordId", "fieldId")
+      CROSS JOIN LATERAL (
+        SELECT event."actorId" FROM "RecordEvent" event
+        WHERE event."companyId" = ${this.companyId} AND event."typeId" = target."typeId" AND event."recordId" = target."recordId"
+          AND event.payload->'changedFieldIds' @> jsonb_build_array(target."fieldId")
+        ORDER BY event."createdAt" DESC, event.id DESC
+        LIMIT 1
+      ) writer
+    `);
+    for (const row of rows) writers.set(`${row.typeId}:${row.recordId}:${row.fieldId}`, row.actorId);
+    return writers;
+  }
+
   async setIdentityResolutionCompanyWide(
     identityId: string,
     input: Pick<RecordIdentityInput, "messagingId" | "displayName" | "profileUrl">,
