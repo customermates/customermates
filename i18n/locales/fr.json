@@ -3795,6 +3795,7 @@
       "read": "Lue",
       "reading": "Lecture en cours",
       "readingCount": "Lecture des pages · {fetched}/{total}",
+      "readingStep": "Lecture des pages du site",
       "skipped": {
         "aiUnavailable": "Mate temporairement indisponible",
         "credits": "Crédits IA épuisés",
@@ -3829,6 +3830,7 @@
     "languageLabel": "Langue de la base de connaissances",
     "start": "Créer ma base de connaissances",
     "status": {
+      "backgroundBanner": "Mate continue de créer des pages de la base de connaissances en arrière-plan. Les nouvelles pages apparaissent ici dès qu'elles sont prêtes.",
       "completedBodyOnboarding": "Mate a créé vos pages initiales avec des faits issus du site web. Vous pourrez les vérifier plus tard dans la base de connaissances et confirmer tout ce qui est indiqué comme point à confirmer.",
       "completedExistingBody": "Votre base de connaissances contient déjà des pages. Poursuivez l’intégration ou vérifiez le contenu existant.",
       "completedTitle": "Votre base de connaissances de départ est prête",
@@ -3839,7 +3841,6 @@
       "failedTitle": "La configuration n’a pas abouti",
       "noContentBody": "Mate n'a trouvé aucune information exploitable pour des pages de la base de connaissances. Vous pouvez essayer un autre site web ou continuer et ajouter des pages plus tard.",
       "noContentTitle": "Aucune page de la base de connaissances n’a été créée",
-      "readingBody": "Mate a lu {fetched} pages sur {total} sur {domain}.",
       "workingBody": "Mate lit {domain} et transforme les informations issues de ces sources en contenu pour votre base de connaissances. Vous pouvez passer à l’étape suivante pendant son travail.",
       "workingBodyWiki": "Mate lit {domain} et crée la base de connaissances. Vous pourrez revenir plus tard pour consulter les pages terminées.",
       "workingTitle": "Mate découvre votre entreprise"

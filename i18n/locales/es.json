@@ -3795,6 +3795,7 @@
       "read": "Leída",
       "reading": "Leyendo",
       "readingCount": "Leyendo páginas · {fetched}/{total}",
+      "readingStep": "Leyendo páginas del sitio",
       "skipped": {
         "aiUnavailable": "Mate no disponible temporalmente",
         "credits": "Sin créditos de IA",
@@ -3829,6 +3830,7 @@
     "languageLabel": "Idioma de la base de conocimientos",
     "start": "Crear mi base de conocimientos",
     "status": {
+      "backgroundBanner": "Mate sigue creando páginas de la base de conocimientos en segundo plano. Las nuevas páginas aparecen aquí en cuanto están listas.",
       "completedBodyOnboarding": "Mate ha creado tus páginas iniciales con datos respaldados por el sitio web. Podrás revisarlas más tarde en la base de conocimientos y confirmar lo que esté marcado como pendiente de confirmar.",
       "completedExistingBody": "Tu base de conocimientos ya contiene páginas. Continúa la incorporación o revisa el contenido existente.",
       "completedTitle": "Tu base de conocimientos inicial está lista",
@@ -3839,7 +3841,6 @@
       "failedTitle": "La configuración no terminó",
       "noContentBody": "Mate no encontró información útil para páginas de la base de conocimiento. Puedes probar con otro sitio web o continuar y añadir páginas más tarde.",
       "noContentTitle": "No se crearon páginas de la base de conocimientos",
-      "readingBody": "Mate ha leído {fetched} de {total} páginas de {domain}.",
       "workingBody": "Mate está leyendo {domain} e incorporando información con fuentes a tu base de conocimientos. Puedes continuar con el siguiente paso mientras trabaja.",
       "workingBodyWiki": "Mate está leyendo {domain} y creando la base de conocimientos. Puedes volver más tarde para ver las páginas terminadas.",
       "workingTitle": "Mate está conociendo tu empresa"

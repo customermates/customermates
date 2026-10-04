@@ -3795,6 +3795,7 @@
       "read": "Gelesen",
       "reading": "Wird gelesen",
       "readingCount": "Seiten lesen · {fetched}/{total}",
+      "readingStep": "Website-Seiten lesen",
       "skipped": {
         "aiUnavailable": "Mate vorübergehend nicht verfügbar",
         "credits": "Keine KI-Credits mehr",
@@ -3829,6 +3830,7 @@
     "languageLabel": "Wissensdatenbank-Sprache",
     "start": "Wissensdatenbank erstellen",
     "status": {
+      "backgroundBanner": "Mate erstellt im Hintergrund weitere Wissensdatenbank-Seiten. Neue Seiten erscheinen hier, sobald sie fertig sind.",
       "completedBodyOnboarding": "Mate hat deine Startseiten mit belegten Website-Fakten erstellt. Du kannst sie später in der Wissensdatenbank prüfen und alles bestätigen, was als noch zu klären markiert ist.",
       "completedExistingBody": "Deine Wissensdatenbank enthält bereits Seiten. Fahre mit dem Onboarding fort oder prüfe die vorhandenen Inhalte.",
       "completedTitle": "Deine erste Wissensdatenbank ist bereit",
@@ -3839,7 +3841,6 @@
       "failedTitle": "Einrichtung nicht abgeschlossen",
       "noContentBody": "Mate hat keine verwertbaren Informationen für Wissensdatenbank-Seiten gefunden. Du kannst eine andere Website versuchen oder fortfahren und später Seiten hinzufügen.",
       "noContentTitle": "Es wurden keine Wissensdatenbank-Seiten erstellt",
-      "readingBody": "Mate hat {fetched} von {total} Seiten auf {domain} gelesen.",
       "workingBody": "Mate liest {domain} und überträgt Informationen aus diesen Quellen in deine Wissensdatenbank. Du kannst mit dem nächsten Schritt fortfahren, während Mate arbeitet.",
       "workingBodyWiki": "Mate liest {domain} und erstellt die Wissensdatenbank. Du kannst später zurückkehren, um die fertigen Seiten zu sehen.",
       "workingTitle": "Mate lernt dein Unternehmen kennen"

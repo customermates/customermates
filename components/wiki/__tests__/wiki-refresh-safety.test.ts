@@ -1,4 +1,4 @@
-import { act, createElement } from "react";
+import { act, createElement, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -31,7 +31,7 @@ vi.mock("@/components/editor/editor.utils", () => ({
   serializeJSONToMarkdown: () => "",
 }));
 
-import { useRefreshWhileWikiSetupWorks } from "../wiki-homepage-setup";
+import { useLiveWikiSetupState } from "../wiki-homepage-setup";
 
 const workingState = {
   status: "working" as const,
@@ -40,15 +40,27 @@ const workingState = {
   pages: [],
 };
 
+const rendered: { status: string; fetched?: number }[] = [];
+let mounts = 0;
+
 function Poller({ working }: { working: boolean }) {
-  useRefreshWhileWikiSetupWorks(working ? workingState : { ...workingState, status: "completed" });
+  const state = useLiveWikiSetupState(working ? workingState : { ...workingState, status: "completed" });
+  useEffect(() => {
+    mounts += 1;
+  }, []);
+  rendered.push({ status: state.status, fetched: state.progress?.fetched });
   return null;
 }
 
 beforeEach(() => {
   vi.useFakeTimers();
   vi.clearAllMocks();
-  harness.getState.mockResolvedValue({ ok: true, data: { ...workingState, progress: { fetched: 1, total: 2 } } });
+  rendered.length = 0;
+  mounts = 0;
+  harness.getState.mockResolvedValue({
+    ok: true,
+    data: { ...workingState, pageCount: 1, progress: { fetched: 1, total: 2 } },
+  });
   vi.spyOn(document, "visibilityState", "get").mockReturnValue("visible");
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 });
@@ -58,6 +70,69 @@ afterEach(() => {
 });
 
 describe("Wiki polling safety", () => {
+  it("updates crawl progress in client state without refreshing the route or remounting", async () => {
+    harness.rootStore = { navigationGuard: new NavigationGuardController() };
+    harness.getState.mockResolvedValue({ ok: true, data: { ...workingState, progress: { fetched: 1, total: 3 } } });
+    const root = createRoot(document.createElement("div"));
+    try {
+      act(() => root.render(createElement(Poller, { working: true })));
+      await act(() => vi.advanceTimersByTimeAsync(2500));
+      expect(rendered.at(-1)).toEqual({ status: "working", fetched: 1 });
+      harness.getState.mockResolvedValue({
+        ok: true,
+        data: {
+          ...workingState,
+          progress: { fetched: 2, total: 3, currentUrl: "https://example.com/about" },
+        },
+      });
+      await act(() => vi.advanceTimersByTimeAsync(2500));
+      expect(rendered.at(-1)).toEqual({ status: "working", fetched: 2 });
+      const renders = rendered.length;
+      await act(() => vi.advanceTimersByTimeAsync(5000));
+      expect(rendered).toHaveLength(renders);
+      expect(harness.refresh).not.toHaveBeenCalled();
+      expect(mounts).toBe(1);
+    } finally {
+      act(() => root.unmount());
+    }
+  });
+
+  it("refreshes once when a poll sees the import finish, even after polling stops behind a dirty form", async () => {
+    const navigationGuard = new NavigationGuardController();
+    harness.rootStore = { navigationGuard };
+    const store = new WikiPageStore(
+      harness.rootStore as unknown as RootStore,
+      {
+        id: "10000000-0000-4000-8000-000000000001",
+        title: "Saved",
+        markdown: "Body",
+        kind: "knowledge",
+        whenToUse: null,
+
+        createdAt: new Date("2026-09-29"),
+        updatedAt: new Date("2026-09-29"),
+      },
+      vi.fn(),
+    );
+    navigationGuard.register(store);
+    store.onChange("title", "Unsaved title");
+    harness.getState.mockResolvedValue({ ok: true, data: { ...workingState, status: "completed" } });
+    const root = createRoot(document.createElement("div"));
+    try {
+      act(() => root.render(createElement(Poller, { working: true })));
+      await act(() => vi.advanceTimersByTimeAsync(2500));
+      expect(rendered.at(-1)?.status).toBe("completed");
+      expect(harness.refresh).not.toHaveBeenCalled();
+      await act(() => vi.advanceTimersByTimeAsync(5000));
+      expect(harness.getState).toHaveBeenCalledOnce();
+      store.resetDocument();
+      expect(harness.refresh).toHaveBeenCalledOnce();
+    } finally {
+      act(() => root.unmount());
+      navigationGuard.unregister(store);
+    }
+  });
+
   it("refreshes for growing saved-page totals after the five summaries are unchanged", async () => {
     harness.rootStore = { navigationGuard: new NavigationGuardController() };
     harness.getState.mockResolvedValue({ ok: true, data: { ...workingState, pageCount: 6 } });
@@ -203,7 +278,10 @@ describe("Wiki polling safety", () => {
       await act(() => vi.advanceTimersByTimeAsync(2500));
       expect(harness.refresh).toHaveBeenCalledTimes(1);
       store.onChange("title", "Unsaved manual title");
-      harness.getState.mockResolvedValue({ ok: true, data: { ...workingState, progress: { fetched: 2, total: 2 } } });
+      harness.getState.mockResolvedValue({
+        ok: true,
+        data: { ...workingState, pageCount: 2, progress: { fetched: 2, total: 2 } },
+      });
       await act(() => vi.advanceTimersByTimeAsync(7500));
       expect(harness.refresh).toHaveBeenCalledTimes(1);
       expect(store.form.title).toBe("Unsaved manual title");

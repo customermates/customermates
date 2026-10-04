@@ -8,7 +8,7 @@ import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-s
 import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, useTransition } from "react";
 import { observer } from "mobx-react-lite";
 import { reaction } from "mobx";
-import { BookOpen, ChevronDown, Plus, Sparkles } from "lucide-react";
+import { BookOpen, ChevronDown, Loader2, Plus, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
@@ -29,7 +29,7 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { useRouter } from "@/i18n/navigation";
 import {
   EMPTY_WIKI_HOMEPAGE_SETUP_STATE,
-  useRefreshWhileWikiSetupWorks,
+  useLiveWikiSetupState,
   useWikiSetupFailureBody,
 } from "@/components/wiki/wiki-homepage-setup";
 import { WikiSetupProgress } from "@/components/wiki/wiki-setup-progress";
@@ -91,8 +91,11 @@ export const WikiPageView = observer(function WikiPageView({
   });
   const initialPanelSizes = readStoredPanelSizes(columnWidths, WIKI_PANEL_LAYOUT_ID, WIKI_PANEL_IDS, false);
   const canManage = store.canManage;
-  const setupActive = initialSetupState.status === "working";
-  const setupDomain = setupActive ? initialSetupState.domain : null;
+  const setupState = useLiveWikiSetupState(initialSetupState);
+  const importRunning = setupState.status === "working";
+  // Server-rendered facts only, so a poll that finds new pages keeps the current view until the refresh lands.
+  const hasPages =
+    listPage.total > 0 || pinnedPage !== null || initialPage !== null || initialSetupState.pages.length > 0;
 
   useLayoutEffect(() => {
     store.receiveServerPage(initialPage, requestedPageId);
@@ -116,10 +119,10 @@ export const WikiPageView = observer(function WikiPageView({
     isNavigating,
     missing,
     hasDocument,
-    setupActive,
+    setupActive: importRunning && !hasPages,
   });
-  useRefreshWhileWikiSetupWorks(initialSetupState);
-  const setupFailedBody = useWikiSetupFailureBody(initialSetupState);
+  const setupFailedBody = useWikiSetupFailureBody(setupState);
+  const setupFailed = canManage && setupState.status === "failed";
   const tryNavigate = useCallback(
     (navigate: () => void) => rootStore.navigationGuard.tryNavigate(navigate),
     [rootStore],
@@ -155,7 +158,7 @@ export const WikiPageView = observer(function WikiPageView({
     () =>
       isNavigating ? null : (
         <WikiPageActions
-          canCreate={!setupActive}
+          canCreate
           canManage={canManage}
           formId={formId}
           hasDocument={hasDocument}
@@ -165,7 +168,7 @@ export const WikiPageView = observer(function WikiPageView({
           onReload={reload}
         />
       ),
-    [canManage, cancelCreate, create, formId, hasDocument, isNavigating, reload, setupActive, store],
+    [canManage, cancelCreate, create, formId, hasDocument, isNavigating, reload, store],
   );
   useSetTopBarActions(topBar);
   const kindLabels: Record<WikiPageKind, string> = {
@@ -214,9 +217,11 @@ export const WikiPageView = observer(function WikiPageView({
     case "setup":
       documentBody = (
         <PageState
-          action={<WikiSetupProgress state={initialSetupState} />}
+          action={<WikiSetupProgress hideReadCount state={setupState} />}
           background={<WikiPageSkeleton documentOnly animated={false} />}
-          description={setupDomain ? t("WikiSetup.status.workingBodyWiki", { domain: setupDomain }) : undefined}
+          description={
+            setupState.domain ? t("WikiSetup.status.workingBodyWiki", { domain: setupState.domain }) : undefined
+          }
           icon={Sparkles}
           state="empty"
           title={t("WikiSetup.status.workingTitle")}
@@ -401,21 +406,21 @@ export const WikiPageView = observer(function WikiPageView({
             </SheetContent>
           </Sheet>
 
-          {((canManage && initialSetupState.status === "failed") || (setupActive && hasDocument)) && (
-            <div className="mx-auto w-full max-w-6xl px-6 py-3 md:px-10">
-              {initialSetupState.status === "failed" ? (
-                <Alert color="danger" description={setupFailedBody} />
-              ) : (
-                <div aria-live="polite" className="text-sm text-muted-foreground">
-                  {initialSetupState.progress && initialSetupState.progress.total > 0
-                    ? t("WikiSetup.status.readingBody", {
-                        domain: initialSetupState.domain ?? "",
-                        fetched: initialSetupState.progress.fetched,
-                        total: initialSetupState.progress.total,
-                      })
-                    : t("WikiSetup.status.workingTitle")}
-                </div>
-              )}
+          {importRunning && pageState !== "setup" && (
+            <div className="mx-auto w-full max-w-6xl px-6 pt-3 md:px-10" data-wiki-import-banner="">
+              <Alert
+                aria-live="polite"
+                className="py-2"
+                description={t("WikiSetup.status.backgroundBanner")}
+                icon={<Loader2 className="animate-spin motion-reduce:animate-none" />}
+                role="status"
+              />
+            </div>
+          )}
+
+          {setupFailed && (
+            <div className="mx-auto w-full max-w-6xl px-6 pt-3 md:px-10">
+              <Alert color={hasPages ? "warning" : "danger"} description={setupFailedBody} />
             </div>
           )}
 

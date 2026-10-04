@@ -32,7 +32,8 @@ const harness = vi.hoisted(() => ({
   loadConfig: vi.fn(),
   selectConversation: vi.fn(),
   openWithDraft: vi.fn(),
-  refreshWhileSetupWorks: vi.fn(),
+  liveSetupState: null as null | Record<string, unknown>,
+  useLiveSetupState: vi.fn((state: Record<string, unknown>) => harness.liveSetupState ?? state),
   p13nUpsert: vi.fn(),
   startSetup: vi.fn(),
   createWikiPages: vi.fn(),
@@ -188,7 +189,7 @@ vi.mock("@/components/ui/button", () => ({
   },
 }));
 vi.mock("@/components/wiki/wiki-homepage-setup", () => ({
-  useRefreshWhileWikiSetupWorks: harness.refreshWhileSetupWorks,
+  useLiveWikiSetupState: harness.useLiveSetupState,
   useWikiSetupFailureBody: (state: { failureReason?: string | null }) =>
     state.failureReason ? `WikiSetup.status.failedBody.${state.failureReason}` : "WikiSetup.status.failedBody",
   EMPTY_WIKI_HOMEPAGE_SETUP_STATE: {
@@ -350,6 +351,7 @@ beforeEach(() => {
   harness.realStore = false;
   harness.realFormSelect = false;
   harness.pageChanged = null;
+  harness.liveSetupState = null;
   harness.tryNavigate.mockImplementation((navigate: () => void) => {
     navigate();
     return true;
@@ -875,7 +877,7 @@ describe("Wiki document view", () => {
       ),
     );
     expect(store.form.title).toBe("Unsaved manual title");
-    expect(harness.refreshWhileSetupWorks).toHaveBeenLastCalledWith(expect.objectContaining({ status: "completed" }));
+    expect(harness.useLiveSetupState).toHaveBeenLastCalledWith(expect.objectContaining({ status: "completed" }));
     act(() => store.resetDocument());
     expect(store.form.title).toBe(remote.title);
     expect(store.form.markdown).toBe(remote.markdown);
@@ -1428,7 +1430,7 @@ describe("Wiki empty state", () => {
     expect(harness.store.startCreate).toHaveBeenCalledExactlyOnceWith();
   });
 
-  it("hides every New page entry point while homepage setup is active", async () => {
+  it("keeps New page available while the first website import runs", async () => {
     configure(true, true, true);
     const { container } = await mount(
       createElement(WikiPageView, {
@@ -1443,14 +1445,15 @@ describe("Wiki empty state", () => {
       }),
     );
     const { container: topBar } = await mount(harness.topBar);
+    const newPage = topBar.querySelector<HTMLButtonElement>('[aria-label="Wiki.newPage"]');
 
-    expect(container.textContent).not.toContain("Wiki.newPage");
-    expect(topBar.querySelector('[aria-label="Wiki.newPage"]')).toBeNull();
-    expect(harness.store.startCreate).not.toHaveBeenCalled();
     expect(container.querySelector('[data-testid="wiki-setup-crawl-progress"]')).not.toBeNull();
+    expect(newPage).not.toBeNull();
+    act(() => newPage?.click());
+    expect(harness.store.startCreate).toHaveBeenCalledOnce();
   });
 
-  it("does not offer a competing manual page while Mate is unavailable during setup", async () => {
+  it("shows setup progress instead of the manual fallback while Mate is unavailable during setup", async () => {
     configure(true, true, false);
     const { container } = await mount(
       createElement(WikiPageView, {
@@ -1466,8 +1469,9 @@ describe("Wiki empty state", () => {
     );
     const { container: topBar } = await mount(harness.topBar);
 
+    expect(container.querySelector('[data-testid="wiki-setup-crawl-progress"]')).not.toBeNull();
     expect(container.textContent).not.toContain("Wiki.newPage");
-    expect(topBar.querySelector('[aria-label="Wiki.newPage"]')).toBeNull();
+    expect(topBar.querySelector('[aria-label="Wiki.newPage"]')).not.toBeNull();
   });
 
   it("keeps the manual fallback until Mate availability has loaded", async () => {
@@ -1523,27 +1527,114 @@ describe("Wiki empty state", () => {
     expect(harness.startSetup).not.toHaveBeenCalled();
   });
 
-  it("polls a refresh while retaining the selected document and displays reading progress", async () => {
+  it("shows a background import banner above the selected document without a pages-read count", async () => {
     configure(true, true, true);
     harness.store.form = { ...page };
     harness.store.hasUnsavedChanges = true;
     const { container } = await mount(
       createElement(WikiPageView, {
         initialPage: page,
-        listPage,
+        listPage: populatedList,
         initialSetupState: {
           status: "working",
           homepage: "https://example.com/",
           domain: "example.com",
-          pages: [],
+          pages: [page],
           progress: { fetched: 2, total: 4 },
         },
       }),
     );
-    expect(harness.refreshWhileSetupWorks).toHaveBeenLastCalledWith(expect.objectContaining({ status: "working" }));
+    expect(harness.useLiveSetupState).toHaveBeenLastCalledWith(expect.objectContaining({ status: "working" }));
     expect(container.querySelector("[data-editor-readonly]")).not.toBeNull();
-    expect(container.textContent).toContain("WikiSetup.status.readingBody");
+    const banner = container.querySelector('[data-wiki-import-banner] [role="status"]');
+    expect(banner?.textContent).toContain("WikiSetup.status.backgroundBanner");
+    expect(container.querySelector('[role="alert"]')).toBeNull();
+    expect(container.textContent).not.toContain("WikiSetup.status.readingBody");
+    expect(container.textContent).not.toContain("WikiSetup.crawlProgress.readingCount");
+    expect(container.querySelector('[data-testid="wiki-setup-crawl-progress"]')).toBeNull();
     expect(harness.store.resetForm).not.toHaveBeenCalled();
+  });
+
+  it("shows existing pages instead of the setup view while an import runs", async () => {
+    configure(true, true, true);
+    const { container } = await mount(
+      createElement(WikiPageView, {
+        initialPage: null,
+        listPage: populatedList,
+        initialSetupState: {
+          status: "working",
+          homepage: "https://example.com/",
+          domain: "example.com",
+          pages: [page],
+          progress: { fetched: 2, total: 4 },
+        },
+      }),
+    );
+    const { container: topBar } = await mount(harness.topBar);
+
+    expect(container.querySelector(`nav a[href="/wiki?page=${page.id}"]`)).not.toBeNull();
+    expect(container.textContent).not.toContain("WikiSetup.status.workingTitle");
+    expect(container.querySelector('[data-testid="wiki-setup-crawl-progress"]')).toBeNull();
+    expect(container.querySelector("[data-wiki-import-banner]")?.textContent).toContain(
+      "WikiSetup.status.backgroundBanner",
+    );
+    expect(topBar.querySelector('[aria-label="Wiki.newPage"]')).not.toBeNull();
+  });
+
+  it("updates setup progress from polled client state in place and drops the banner once the import ends", async () => {
+    configure(true, true, true);
+    const working = {
+      status: "working" as const,
+      homepage: "https://example.com/",
+      domain: "example.com",
+      pages: [],
+      crawlPhase: "fetching" as const,
+      progress: {
+        fetched: 1,
+        total: 3,
+        currentUrl: "https://example.com/about",
+        pages: [
+          { url: "https://example.com/", status: "read" as const },
+          { url: "https://example.com/about", status: "reading" as const },
+        ],
+      },
+    };
+    // A fresh state object per render stands in for the hook's own state update after a poll.
+    const view = () => createElement(WikiPageView, { initialPage: null, initialSetupState: { ...working }, listPage });
+    const { container, root } = await mount(view());
+    const content = container.querySelector("[data-page-state-content]");
+    const progress = container.querySelector('[data-testid="wiki-setup-crawl-progress"]');
+    expect(content).not.toBeNull();
+    expect(progress).not.toBeNull();
+    expect(container.textContent).toContain("WikiSetup.crawlProgress.readingStep");
+    expect(container.textContent).not.toContain("WikiSetup.crawlProgress.readingCount");
+
+    harness.liveSetupState = {
+      ...working,
+      progress: {
+        ...working.progress,
+        fetched: 2,
+        currentUrl: "https://example.com/pricing",
+        pages: [...working.progress.pages, { url: "https://example.com/pricing", status: "reading" as const }],
+      },
+    };
+    act(() => root.render(view()));
+    expect(container.querySelector("[data-page-state-content]")).toBe(content);
+    expect(container.querySelector('[data-testid="wiki-setup-crawl-progress"]')).toBe(progress);
+    expect(container.textContent).toContain("https://example.com/pricing");
+    expect(harness.refresh).not.toHaveBeenCalled();
+
+    harness.liveSetupState = null;
+    act(() =>
+      root.render(
+        createElement(WikiPageView, {
+          initialPage: page,
+          initialSetupState: { ...working, status: "completed", pages: [page] },
+          listPage: populatedList,
+        }),
+      ),
+    );
+    expect(container.querySelector("[data-wiki-import-banner]")).toBeNull();
   });
 
   it("does not show an import failure to a reader who cannot retry it", async () => {
@@ -1566,7 +1657,7 @@ describe("Wiki empty state", () => {
     expect(container.querySelector('[role="alert"]')).toBeNull();
   });
 
-  it("shows an import failure alongside the preserved document without a refresh action", async () => {
+  it("shows a partial import failure as a non-blocking warning alongside the preserved document", async () => {
     configure(true, true, true);
     harness.store.form = { ...page };
     const { container } = await mount(
@@ -1583,11 +1674,33 @@ describe("Wiki empty state", () => {
         },
       }),
     );
-    expect(container.querySelector('[role="alert"]')?.textContent).toContain("WikiSetup.status.failedBody.unavailable");
+    const alert = container.querySelector('[role="alert"]');
+    expect(alert?.textContent).toContain("WikiSetup.status.failedBody.unavailable");
+    expect(alert?.className).toContain("border-warning/30");
+    expect(alert?.className).not.toContain("border-destructive/30");
     expect(container.querySelector("[data-editor-readonly]")).not.toBeNull();
-    expect(harness.refreshWhileSetupWorks).toHaveBeenLastCalledWith(expect.objectContaining({ status: "failed" }));
+    expect(harness.useLiveSetupState).toHaveBeenLastCalledWith(expect.objectContaining({ status: "failed" }));
     const actions = (harness.topBar as ReactElement<{ onRefreshFromWebsite?: () => void }>).props;
     expect(actions.onRefreshFromWebsite).toBeUndefined();
+  });
+
+  it("keeps the danger alert for an import that failed without creating any page", async () => {
+    configure(true, true, true);
+    const { container } = await mount(
+      createElement(WikiPageView, {
+        initialPage: null,
+        listPage,
+        initialSetupState: {
+          status: "failed",
+          homepage: "https://example.com/",
+          domain: "example.com",
+          pages: [],
+          failureReason: "unavailable",
+        },
+      }),
+    );
+    expect(container.querySelector('[role="alert"]')?.className).toContain("border-destructive/30");
+    expect(container.textContent).toContain("Wiki.emptyTitle");
   });
 
   it("shows setup progress to every manager", async () => {
@@ -1611,8 +1724,9 @@ describe("Wiki empty state", () => {
     expect(container.textContent).not.toContain("Wiki.emptyTitle");
     expect(container.textContent).not.toContain("Wiki.newPage");
     expect(container.querySelector('[data-testid="empty-page-agent-suggestions"]')).toBeNull();
-    expect(topBar.querySelector('[aria-label="Wiki.newPage"]')).toBeNull();
-    expect(harness.refreshWhileSetupWorks).toHaveBeenLastCalledWith(expect.objectContaining({ status: "working" }));
+    expect(container.querySelector("[data-wiki-import-banner]")).toBeNull();
+    expect(topBar.querySelector('[aria-label="Wiki.newPage"]')).not.toBeNull();
+    expect(harness.useLiveSetupState).toHaveBeenLastCalledWith(expect.objectContaining({ status: "working" }));
   });
 });
 

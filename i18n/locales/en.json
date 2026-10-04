@@ -3795,6 +3795,7 @@
       "read": "Read",
       "reading": "Reading",
       "readingCount": "Reading pages · {fetched}/{total}",
+      "readingStep": "Reading website pages",
       "skipped": {
         "aiUnavailable": "Mate temporarily unavailable",
         "credits": "Out of AI credits",
@@ -3829,6 +3830,7 @@
     "languageLabel": "Knowledge Base language",
     "start": "Build my Knowledge Base",
     "status": {
+      "backgroundBanner": "Mate is still creating Knowledge Base pages in the background. New pages appear here as they're ready.",
       "completedBodyOnboarding": "Mate created your starter pages with cited website facts. You can review them later in the Knowledge Base and confirm anything marked as a gap.",
       "completedExistingBody": "Your Knowledge Base already contains pages. Continue onboarding or review the existing content.",
       "completedTitle": "Your starter Knowledge Base is ready",
@@ -3839,7 +3841,6 @@
       "failedTitle": "Setup did not finish",
       "noContentBody": "Mate found no usable information for Knowledge Base pages. You can try another website or continue and add pages later.",
       "noContentTitle": "No Knowledge Base pages were created",
-      "readingBody": "Mate has read {fetched} of {total} pages from {domain}.",
       "workingBody": "Mate is reading {domain} and turning sourced information into your Knowledge Base. You can continue to the next step while it works.",
       "workingBodyWiki": "Mate is reading {domain} and building the Knowledge Base. You can return later to see the finished pages.",
       "workingTitle": "Mate is learning about your company"
