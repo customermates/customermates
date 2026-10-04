@@ -14712,6 +14712,127 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     expect(filtered).toMatchObject({ ok: true, data: { total: 1, records: [{ ref: line }] } });
   });
+  it("keeps missing and other-currency values for not-equal filters exactly like notIn", async () => {
+    const f = await fixture();
+    const closedAt = randomUUID();
+    await f.run(() =>
+      runInTransaction(() =>
+        f.repo.saveModel(
+          {
+            ...f.model,
+            revision: 2,
+            fields: [
+              ...f.model.fields,
+              {
+                id: closedAt,
+                typeId: f.id("deal"),
+                label: "Closed at",
+                valueType: "dateTime",
+                behavior: { kind: "input" },
+                required: false,
+                archived: false,
+                publishedSummary: false,
+                options: [],
+                position: 100,
+              },
+            ],
+          },
+          f.admin.id,
+        ),
+      ),
+    );
+    const select = (key: string): RecordScalar => ({ kind: "select", value: f.id(`deal.stage.${key}`) });
+    const write = (type: string, name: string, values: Array<[string, RecordScalar]>) =>
+      f.mutation(
+        {
+          action: "create",
+          typeId: f.id(type),
+          fields: [
+            { fieldId: f.id(`${type}.name`), value: textValue(name) },
+            ...values.map(([fieldId, value]) => ({ fieldId, value })),
+          ],
+        },
+        f.admin,
+        randomUUID(),
+        2,
+      );
+    for (const [name, values] of [
+      ["New", [[f.id("deal.stage"), select("new")]]],
+      ["Unstaged", []],
+      ["Won", [[f.id("deal.stage"), select("won")]]],
+    ] as Array<[string, Array<[string, RecordScalar]>]>)
+      expect(await write("deal", name, values)).toMatchObject({ ok: true });
+    for (const [name, amount] of [
+      ["Ten euros", decimal("10")],
+      ["Ten dollars", decimal("10", "USD")],
+      ["Twenty euros", decimal("20")],
+    ] as Array<[string, RecordScalar]>)
+      expect(await write("service", name, [[f.id("service.amount"), amount]])).toMatchObject({ ok: true });
+    const names = async (typeId: string, filter: Record<string, unknown>) => {
+      const result = await f.run(() =>
+        f.query.invoke(RecordQuerySchema.parse({ typeId, filters: [filter], sort: [] })),
+      );
+      if (!result.ok) throw result.error;
+      return result.data.records
+        .map(
+          (record) =>
+            recordInvariant(
+              record.fields.find(
+                (field) => field.fieldId === f.id(`${typeId === f.id("deal") ? "deal" : "service"}.name`),
+              ),
+            ).result,
+        )
+        .map((result) => (result.state === "value" && result.value.kind === "text" ? result.value.value : null))
+        .sort();
+    };
+    const stage = { fieldId: f.id("deal.stage") };
+    expect(await names(f.id("deal"), { ...stage, operator: "ne", value: select("new") })).toEqual(["Unstaged", "Won"]);
+    expect(await names(f.id("deal"), { ...stage, operator: "notIn", value: null, values: [select("new")] })).toEqual([
+      "Unstaged",
+      "Won",
+    ]);
+    const amount = { fieldId: f.id("service.amount") };
+    expect(await names(f.id("service"), { ...amount, operator: "ne", value: decimal("10") })).toEqual([
+      "Ten dollars",
+      "Twenty euros",
+    ]);
+    expect(
+      await names(f.id("service"), { ...amount, operator: "notIn", value: null, values: [decimal("10")] }),
+    ).toEqual(["Ten dollars", "Twenty euros"]);
+    expect(await names(f.id("service"), { ...amount, operator: "eq", value: decimal("10") })).toEqual(["Ten euros"]);
+    const deals = await f.run(() => f.query.invoke(RecordQuerySchema.parse({ typeId: f.id("deal") })));
+    if (!deals.ok) throw deals.error;
+    const won = recordInvariant(
+      deals.data.records.find((record) =>
+        record.fields.some(
+          (field) =>
+            field.fieldId === f.id("deal.stage") &&
+            field.result.state === "value" &&
+            field.result.value.kind === "select" &&
+            field.result.value.value === f.id("deal.stage.won"),
+        ),
+      ),
+    ).ref;
+    await f.run(() =>
+      runInTransaction(() =>
+        f.repo.setValue(
+          won,
+          closedAt,
+          { state: "value", value: { kind: "dateTime", value: "2026-03-01T10:00:00+02:00" } },
+          2,
+        ),
+      ),
+    );
+    const instant = { kind: "dateTime" as const, value: "2026-03-01T08:00:00Z" };
+    expect(await names(f.id("deal"), { fieldId: closedAt, operator: "ne", value: instant })).toEqual([
+      "New",
+      "Unstaged",
+    ]);
+    expect(await names(f.id("deal"), { fieldId: closedAt, operator: "notIn", value: null, values: [instant] })).toEqual(
+      ["New", "Unstaged"],
+    );
+    expect(await names(f.id("deal"), { fieldId: closedAt, operator: "eq", value: instant })).toEqual(["Won"]);
+  });
 });
 
 describeDatabase("provider avatar updates through the generic engine", { timeout: 30000 }, () => {

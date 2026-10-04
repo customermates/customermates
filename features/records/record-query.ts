@@ -158,7 +158,8 @@ function temporalFilter(filter: RecordQuery["filters"][number], start: Prisma.Sq
   if (!filter.value) throw new Error("Date comparison requires a point");
   if (filter.operator === "contains")
     return Prisma.sql`(${start} <= ${scalarParameter(filter.value)} AND ${end} >= ${scalarParameter(filter.value)})`;
-  const operators = { eq: "=", ne: "<>", gt: ">", gte: ">=", lt: "<", lte: "<=" } as const;
+  if (filter.operator === "ne") return Prisma.sql`NOT COALESCE(${start} = ${scalarParameter(filter.value)}, FALSE)`;
+  const operators = { eq: "=", gt: ">", gte: ">=", lt: "<", lte: "<=" } as const;
   if (!(filter.operator in operators)) throw new Error("Date filter must be validated before compilation");
   const expression = ["lt", "lte"].includes(filter.operator) ? end : start;
   return Prisma.sql`${expression} ${Prisma.raw(operators[filter.operator as keyof typeof operators])} ${scalarParameter(filter.value)}`;
@@ -326,20 +327,19 @@ export function compileRecordQuery(
     }
     const operators = {
       eq: "=",
-      ne: "<>",
+      ne: "=",
       gt: ">",
       gte: ">=",
       lt: "<",
       lte: "<=",
     } as const;
-    conditions.push(
-      Prisma.sql`${expression} ${Prisma.raw(operators[filter.operator])} ${scalarParameter(filter.value)}`,
-    );
-    if (filter.value.kind === "decimal" && filter.value.currency) {
-      conditions.push(
-        Prisma.sql`EXISTS (SELECT 1 FROM "RecordValue" value WHERE value."companyId" = ${companyId} AND value."typeId" = ${query.typeId} AND value."recordId" = ${record}."id" AND value."fieldId" = ${field.id} AND value."currency" = ${filter.value.currency})`,
-      );
-    }
+    const currency =
+      filter.value.kind === "decimal" && filter.value.currency
+        ? Prisma.sql`AND EXISTS (SELECT 1 FROM "RecordValue" value WHERE value."companyId" = ${companyId} AND value."typeId" = ${query.typeId} AND value."recordId" = ${record}."id" AND value."fieldId" = ${field.id} AND value."currency" = ${filter.value.currency})`
+        : Prisma.empty;
+    const comparison = Prisma.sql`(${expression} ${Prisma.raw(operators[filter.operator])} ${scalarParameter(filter.value)} ${currency})`;
+    // Like notIn, ne keeps records whose value is missing or in another currency.
+    conditions.push(filter.operator === "ne" ? Prisma.sql`NOT COALESCE(${comparison}, FALSE)` : comparison);
   }
   for (const [index, filter] of query.relationships.entries()) {
     const relation = model.relationships.find((relation) => relation.id === filter.relationId && !relation.archived);
