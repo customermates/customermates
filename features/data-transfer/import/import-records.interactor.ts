@@ -26,9 +26,6 @@ import { valueResult } from "@/features/records/calculation";
 type ImportRow = ImportRecordsInput["document"]["records"][number];
 type Assignment = { fieldId: string; value: RecordScalar | null };
 
-// Splits an exported row into writable assignments and captured values that
-// cannot be written. An update import may carry captured values unchanged; any
-// other captured value makes the document invalid.
 function inputAssignments(
   row: ImportRow,
   fields: RecordField[],
@@ -183,8 +180,6 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportRecor
             const parent = parentLinks.get(recordKey(row.ref));
             if (input.mode === "create") {
               if (existing) return failConflict(CustomErrorCode.recordVersionChanged);
-              // History is keyed by record ID, so a reused ID of a deleted record
-              // would adopt that record's timeline. Report only the conflict.
               if (await this.records.hasRecordHistoryCompanyWide(row.ref)) {
                 return failConflict(CustomErrorCode.recordIdUnavailable, [
                   "document",
@@ -288,8 +283,6 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportRecor
     );
   }
 
-  // A protected row is maintained by a system workflow. An update import may
-  // carry it back exactly as exported, but never change it.
   private async unchanged(
     row: ImportRow,
     existing: StoredRecord,

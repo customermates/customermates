@@ -1029,8 +1029,6 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
   }
 
   async delete(ref: RecordRef): Promise<void> {
-    // Values that captured or retained this record as a source keep no
-    // restriction once it is gone; otherwise they would read as restricted forever.
     await this.prisma.recordValueDependency.deleteMany({
       where: { companyId: this.companyId, sourceTypeId: ref.typeId, sourceId: ref.recordId },
     });

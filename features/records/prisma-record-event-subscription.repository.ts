@@ -14,9 +14,6 @@ import type { RecordEventSubscriptionRepo } from "./record-event-subscription.re
 import { recordAccessForActor } from "./record-access";
 import { canonicalRecordJson } from "./record-json";
 
-// Deliveries and routine admissions are bound to a subscription revision. Only
-// changes to who receives an event and which events match invalidate them;
-// enabling, disabling and presentation edits of the owning hook keep it.
 function deliveryDefinition(subscription: RecordEventSubscriptionDefinition) {
   return canonicalRecordJson({
     kind: subscription.kind,

@@ -338,7 +338,6 @@ export function compileRecordQuery(
         ? Prisma.sql`AND EXISTS (SELECT 1 FROM "RecordValue" value WHERE value."companyId" = ${companyId} AND value."typeId" = ${query.typeId} AND value."recordId" = ${record}."id" AND value."fieldId" = ${field.id} AND value."currency" = ${filter.value.currency})`
         : Prisma.empty;
     const comparison = Prisma.sql`(${expression} ${Prisma.raw(operators[filter.operator])} ${scalarParameter(filter.value)} ${currency})`;
-    // Like notIn, ne keeps records whose value is missing or in another currency.
     conditions.push(filter.operator === "ne" ? Prisma.sql`NOT COALESCE(${comparison}, FALSE)` : comparison);
   }
   for (const [index, filter] of query.relationships.entries()) {

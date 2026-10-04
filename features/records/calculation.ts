@@ -33,9 +33,6 @@ export function decimalResult(input: Decimal.Value, currency: string | null = nu
   return valueResult({ kind: "decimal", value: decimal.toFixed(), currency });
 }
 
-// Averages and day differences are inherently fractional (1/3, 1/24), so they
-// are rounded half-up to the stored scale. Other arithmetic stays exact and
-// reports out_of_range instead of rounding silently.
 const STORED_DECIMAL_SCALE = 30;
 function roundedResult(input: Decimal, currency: string | null = null): CalculatedValue {
   return decimalResult(input.toDecimalPlaces(STORED_DECIMAL_SCALE, Decimal.ROUND_HALF_UP), currency);
@@ -71,9 +68,6 @@ function scalarValue(value: RecordScalar): string | boolean {
   }
 }
 
-// An empty rollup sums to a currency-less zero because no source value names a
-// currency. Zero is neutral in sums, differences and comparisons, so it adopts
-// the other operand's currency there instead of reporting a mismatch.
 function neutralZero(value: Extract<RecordScalar, { kind: "decimal" }>): boolean {
   return value.currency === null && new ExactDecimal(value.value).isZero();
 }

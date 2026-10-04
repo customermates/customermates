@@ -12,9 +12,6 @@ export const SYNCHRONOUS_RECORD_LIMIT = 500;
 export const recordKey = (ref: RecordRef) => `${ref.typeId}:${ref.recordId}`;
 
 type PathStep = { relationId: string; direction: "outgoing" | "incoming" };
-// fieldId is null for a membership source: the set of records reached by a
-// path is itself an input, so adding, unlinking or deleting a record at any
-// step must recalculate the owner even when no field value changed.
 type Source = { typeId: string; fieldId: string | null; path: PathStep[] };
 export type CalculationRecordRepo = Pick<
   RecordRepo,

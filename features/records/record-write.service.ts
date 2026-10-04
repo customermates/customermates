@@ -73,8 +73,6 @@ function comparableResult(result: CalculatedValue): unknown {
   return value;
 }
 
-// Compares a stored result with a written one independent of decimal notation
-// and document key order, so a value carried back unchanged is recognized.
 export function sameRecordResult(left: CalculatedValue, right: CalculatedValue): boolean {
   return canonicalRecordJson(comparableResult(left)) === canonicalRecordJson(comparableResult(right));
 }
@@ -383,9 +381,6 @@ export class RecordWriteService {
         )
           reject(CustomErrorCode.permissionDenied, "authorization");
         const next = valueResult(value);
-        // Writing back the stored value is a no-op. Skipping it keeps the
-        // provenance of a retained or captured value, which would otherwise be
-        // reset to a manual entry visible to readers of the record alone.
         if (
           existing &&
           sameRecordResult(
@@ -463,8 +458,6 @@ export class RecordWriteService {
     } else if (mutation.action === "update") {
       const row = await editable(mutation.ref);
       if (row.version !== mutation.expectedVersion) reject(CustomErrorCode.recordVersionChanged, "conflict");
-      // Records that inherit access from a parent never carry assignments, so an
-      // empty assignment list (as exported for embedded rows) is a no-op.
       if (mutation.assignedUserIds && type(mutation.ref.typeId).parentRelationshipId) {
         if (mutation.assignedUserIds.length)
           reject(CustomErrorCode.recordValueInvalid, "validation", ["assignedUserIds"]);
