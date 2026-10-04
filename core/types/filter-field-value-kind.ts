@@ -67,6 +67,10 @@ export const DEFAULT_FILTER_VALUE_KIND: Record<FilterFieldKey, FilterValueKind> 
   [FilterFieldKey.participants]: { kind: "linkStatus" },
   [FilterFieldKey.draft]: { kind: "draftStatus" },
   [FilterFieldKey.connectedAccountId]: { kind: "entityId", entity: "connectedAccount" },
+  [FilterFieldKey.emailFolder]: { kind: "string" },
+  [FilterFieldKey.lastMessageDirection]: { kind: "enum", values: ["inbound", "outbound"] },
+  [FilterFieldKey.lastMessageSentAt]: { kind: "date" },
+  [FilterFieldKey.lastMessageAt]: { kind: "date" },
   [FilterFieldKey.calendarId]: { kind: "string" },
   [FilterFieldKey.startsAt]: { kind: "date" },
   [FilterFieldKey.plan]: { kind: "enum", values: enumValues(SubscriptionPlan) },
@@ -81,6 +85,20 @@ export const DEFAULT_FILTER_VALUE_KIND: Record<FilterFieldKey, FilterValueKind> 
   [FilterFieldKey.firstName]: { kind: "string" },
   [FilterFieldKey.lastName]: { kind: "string" },
 };
+
+export const FILTER_FIELD_AGENT_NOTES: Partial<Record<FilterFieldKey, string>> = {
+  [FilterFieldKey.lastMessageSentAt]:
+    "Date of the latest actual sent or received message; ignores drafts, hidden or deleted messages and system events. Use for last message, last received or sent, or no reply for N days; N to M days ago is notInLastDays N plus inLastDays M.",
+  [FilterFieldKey.lastMessageAt]:
+    "Last activity, including saved drafts. Use only when the user asks about activity, not about the last message.",
+  [FilterFieldKey.lastMessageDirection]:
+    "inbound means received and outbound means sent, judged on the same latest actual message; draft-only conversations match neither.",
+  [FilterFieldKey.emailFolder]:
+    "Copy an exact account-qualified option value, a JSON [accountId,folderId] string; connectedAccountId alone covers all visible folders. in matches a conversation with a visible message in any selected folder.",
+};
+
+export const filterFieldAgentNote = (field: string): string | undefined =>
+  (FILTER_FIELD_AGENT_NOTES as Record<string, string | undefined>)[field];
 
 export const filterValueKind = (field: string): FilterValueKind | undefined =>
   (DEFAULT_FILTER_VALUE_KIND as Record<string, FilterValueKind | undefined>)[field];

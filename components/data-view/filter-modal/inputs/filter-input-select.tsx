@@ -9,6 +9,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { nextFilterSelection } from "./filter-selection";
+import { filterSelectGroups } from "./filter-select-groups";
 import { useFilterSelectItems } from "./use-filter-select-items";
 
 import { AppChip } from "@/components/chip/app-chip";
@@ -237,32 +238,45 @@ export const FilterInputSelect = observer(({ customColumns, filter, id, isValidF
               <CommandEmpty>{t("Common.inputs.emptyContent")}</CommandEmpty>
             )}
 
-            {!asyncLoading && !optionError && filteredItems.length > 0 && (
-              <CommandGroup>
-                {filteredItems.map((item) => {
-                  const selected = selectedKeys.includes(item.key);
-                  const optionDisabledByLimit = !selected && selectionLimitReached;
-                  return (
-                    <CommandItem
-                      key={item.key}
-                      className={cn(selected && "bg-accent")}
-                      data-selected={selected}
-                      disabled={isDisabled || optionDisabledByLimit}
-                      value={item.key}
-                      onSelect={() => toggle(item.key)}
-                    >
-                      {item.startContent}
+            {!asyncLoading &&
+              !optionError &&
+              filteredItems.length > 0 &&
+              filterSelectGroups(filteredItems).map((group) => (
+                <CommandGroup
+                  key={group.key}
+                  data-filter-option-group={group.key || undefined}
+                  heading={
+                    group.label ? (
+                      <span className="block truncate" title={group.label}>
+                        {group.label}
+                      </span>
+                    ) : undefined
+                  }
+                >
+                  {group.items.map((item) => {
+                    const selected = selectedKeys.includes(item.key);
+                    const optionDisabledByLimit = !selected && selectionLimitReached;
+                    return (
+                      <CommandItem
+                        key={item.key}
+                        className={cn(selected && "bg-accent")}
+                        data-selected={selected}
+                        disabled={isDisabled || optionDisabledByLimit}
+                        value={item.key}
+                        onSelect={() => toggle(item.key)}
+                      >
+                        {item.startContent}
 
-                      {item.color ? (
-                        <AppChip variant={item.color}>{item.textValue}</AppChip>
-                      ) : (
-                        <span>{item.textValue}</span>
-                      )}
-                    </CommandItem>
-                  );
-                })}
-              </CommandGroup>
-            )}
+                        {item.color ? (
+                          <AppChip variant={item.color}>{item.textValue}</AppChip>
+                        ) : (
+                          <span>{item.optionLabel ?? item.textValue}</span>
+                        )}
+                      </CommandItem>
+                    );
+                  })}
+                </CommandGroup>
+              ))}
           </CommandList>
         </Command>
 

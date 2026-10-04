@@ -7894,6 +7894,13 @@
                                       "additionalProperties": false
                                     }
                                   },
+                                  "folderIds": {
+                                    "default": [],
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  },
                                   "draftRevision": {
                                     "anyOf": [
                                       {
@@ -24355,6 +24362,13 @@
                                                   "additionalProperties": false
                                                 }
                                               },
+                                              "folderIds": {
+                                                "default": [],
+                                                "type": "array",
+                                                "items": {
+                                                  "type": "string"
+                                                }
+                                              },
                                               "draftRevision": {
                                                 "anyOf": [
                                                   {
@@ -34974,6 +34988,13 @@
                                                   "additionalProperties": false
                                                 }
                                               },
+                                              "folderIds": {
+                                                "default": [],
+                                                "type": "array",
+                                                "items": {
+                                                  "type": "string"
+                                                }
+                                              },
                                               "draftRevision": {
                                                 "anyOf": [
                                                   {
@@ -45587,6 +45608,13 @@
                                                           "value"
                                                         ],
                                                         "additionalProperties": false
+                                                      }
+                                                    },
+                                                    "folderIds": {
+                                                      "default": [],
+                                                      "type": "array",
+                                                      "items": {
+                                                        "type": "string"
                                                       }
                                                     },
                                                     "draftRevision": {
@@ -59954,9 +59982,18 @@
                               "type": "string"
                             },
                             "operator": {
-                              "type": "string",
-                              "const": "inLastDays",
-                              "title": "inLastDays"
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "inLastDays",
+                                  "title": "inLastDays"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "notInLastDays",
+                                  "title": "notInLastDays"
+                                }
+                              ]
                             },
                             "value": {
                               "type": "integer",
@@ -67654,7 +67691,7 @@
       "post": {
         "operationId": "getMessagingThreads",
         "summary": "Get messaging threads",
-        "description": "Retrieves a list of inbox message threads with optional search, sorting, and pagination.",
+        "description": "Retrieves inbox threads with search, sorting, pagination and shared filter syntax. Filters include connectedAccountId, emailFolder (in/notIn), lastMessageDirection (inbound/outbound), lastMessageSentAt (last actual message date) and lastMessageAt (activity including drafts). Use caller-scoped filterableFields.options; folder values encode [account UUID, provider folder ID] as a JSON string and groupKey identifies the account heading. Folder membership matches visible placements. Last direction/date exclude drafts, hidden/deleted messages and system events. Filters combine with AND; lastMessageSentAt inLastDays 7 plus notInLastDays 3 finds messages from three to seven days ago, using the standard start-of-day cutoff.",
         "tags": [
           "messaging"
         ],
@@ -67842,9 +67879,18 @@
                               "type": "string"
                             },
                             "operator": {
-                              "type": "string",
-                              "const": "inLastDays",
-                              "title": "inLastDays"
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "inLastDays",
+                                  "title": "inLastDays"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "notInLastDays",
+                                  "title": "notInLastDays"
+                                }
+                              ]
                             },
                             "value": {
                               "type": "integer",
@@ -69135,6 +69181,13 @@
                         "additionalProperties": false
                       }
                     },
+                    "folderIds": {
+                      "default": [],
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
                     "draftRevision": {
                       "anyOf": [
                         {
@@ -69216,7 +69269,7 @@
             }
           },
           "409": {
-            "description": "Conflict",
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
             "content": {
               "application/json": {
                 "schema": {
@@ -69450,9 +69503,18 @@
                               "type": "string"
                             },
                             "operator": {
-                              "type": "string",
-                              "const": "inLastDays",
-                              "title": "inLastDays"
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "inLastDays",
+                                  "title": "inLastDays"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "notInLastDays",
+                                  "title": "notInLastDays"
+                                }
+                              ]
                             },
                             "value": {
                               "type": "integer",
@@ -70507,9 +70569,18 @@
                                 "type": "string"
                               },
                               "operator": {
-                                "type": "string",
-                                "const": "inLastDays",
-                                "title": "inLastDays"
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "const": "inLastDays",
+                                    "title": "inLastDays"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "notInLastDays",
+                                    "title": "notInLastDays"
+                                  }
+                                ]
                               },
                               "value": {
                                 "type": "integer",
@@ -70627,12 +70698,55 @@
                                 "hasSome",
                                 "hasUnset",
                                 "allSet",
-                                "inLastDays"
+                                "inLastDays",
+                                "notInLastDays"
                               ]
                             }
                           },
                           "label": {
                             "type": "string"
+                          },
+                          "options": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "value": {
+                                  "type": "string"
+                                },
+                                "label": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "groupLabel": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "groupKey": {
+                                  "type": "string"
+                                },
+                                "provider": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "value",
+                                "label"
+                              ],
+                              "additionalProperties": false
+                            }
                           }
                         },
                         "required": [
@@ -71122,9 +71236,18 @@
                               "type": "string"
                             },
                             "operator": {
-                              "type": "string",
-                              "const": "inLastDays",
-                              "title": "inLastDays"
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "inLastDays",
+                                  "title": "inLastDays"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "notInLastDays",
+                                  "title": "notInLastDays"
+                                }
+                              ]
                             },
                             "value": {
                               "type": "integer",
@@ -72179,9 +72302,18 @@
                                 "type": "string"
                               },
                               "operator": {
-                                "type": "string",
-                                "const": "inLastDays",
-                                "title": "inLastDays"
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "const": "inLastDays",
+                                    "title": "inLastDays"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "notInLastDays",
+                                    "title": "notInLastDays"
+                                  }
+                                ]
                               },
                               "value": {
                                 "type": "integer",
@@ -72299,12 +72431,55 @@
                                 "hasSome",
                                 "hasUnset",
                                 "allSet",
-                                "inLastDays"
+                                "inLastDays",
+                                "notInLastDays"
                               ]
                             }
                           },
                           "label": {
                             "type": "string"
+                          },
+                          "options": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "value": {
+                                  "type": "string"
+                                },
+                                "label": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "groupLabel": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "groupKey": {
+                                  "type": "string"
+                                },
+                                "provider": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "value",
+                                "label"
+                              ],
+                              "additionalProperties": false
+                            }
                           }
                         },
                         "required": [
@@ -72882,7 +73057,7 @@
       "post": {
         "operationId": "sendEmail",
         "summary": "Send an email",
-        "description": "Sends a real email (or reply) from a connected email account. Provide either threadId (reply; takes precedence if both are given) or connectedAccountId (new email). cc and bcc are plain email strings, unlike `to` which uses the `{ identifier }` object form. The connected account's enabled signature is appended automatically, and its email appearance is applied to plain-text and Markdown bodies. Explicit HTML remains caller-controlled. Set bodyFormat when the body is explicitly plain text, Markdown, or HTML. When delivering a saved draft, pass both draftMessageId and its opaque draftRevision so a newer edit cannot be consumed.",
+        "description": "Sends a real email (or reply) from a connected email account. Provide either threadId (reply; takes precedence if both are given) or connectedAccountId (new email). At least one recipient is required across to, cc and bcc; use to: [] for Cc-only or Bcc-only email. cc and bcc are plain email strings, unlike `to` which uses the `{ identifier }` object form. Never promote hidden Bcc recipients into To or Cc. The connected account's enabled signature is appended automatically, and its email appearance is applied to plain-text and Markdown bodies. Explicit HTML remains caller-controlled. Set bodyFormat when the body is explicitly plain text, Markdown, or HTML. When delivering a saved draft, pass both draftMessageId and its opaque draftRevision so a newer edit cannot be consumed.",
         "tags": [
           "messaging"
         ],
@@ -73726,6 +73901,13 @@
                             "additionalProperties": false
                           }
                         },
+                        "folderIds": {
+                          "default": [],
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
                         "draftRevision": {
                           "anyOf": [
                             {
@@ -73812,7 +73994,7 @@
             }
           },
           "409": {
-            "description": "Conflict",
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
             "content": {
               "application/json": {
                 "schema": {
@@ -73946,6 +74128,16 @@
               }
             }
           },
+          "409": {
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Unavailable",
             "content": {
@@ -73983,7 +74175,7 @@
       "post": {
         "operationId": "saveDraft",
         "summary": "Save a message draft",
-        "description": "Saves or updates the draft reply on a thread for the current user to review and send from the inbox. Local only; nothing is delivered. subject, cc, and bcc apply to email threads. There is one draft per thread; saving again replaces it.",
+        "description": "Saves or updates the draft reply on a thread for the current user to review and send from the inbox. Local only; nothing is delivered. subject, cc, and bcc apply to email threads. An explicit recipients array overrides To; use [] for Cc-only or Bcc-only email. Omit recipients to retain the thread-derived primary recipients. There is one draft per thread; saving again replaces it.",
         "tags": [
           "messaging"
         ],
@@ -74013,6 +74205,15 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "recipients": {
+                    "description": "Primary recipients to preserve with the draft. Required when threadId is omitted; use [] for Cc-only or Bcc-only email",
+                    "maxItems": 100,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
                   "subject": {
                     "type": "string",
                     "maxLength": 998
@@ -74873,6 +75074,13 @@
                         "additionalProperties": false
                       }
                     },
+                    "folderIds": {
+                      "default": [],
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
                     "draftRevision": {
                       "anyOf": [
                         {
@@ -74970,7 +75178,7 @@
       "post": {
         "operationId": "saveNewThreadDraft",
         "summary": "Save a draft for a new conversation",
-        "description": "Saves a draft for a conversation that does not exist yet, so it can be reviewed and sent from the inbox. Provide connectedAccountId and recipients; a local draft thread is created and appears in the inbox with the draft filter. Local only; nothing is delivered, and the provider conversation is created when the draft is sent. subject, cc, and bcc apply to email accounts. Reusing the same account and recipient updates the existing draft instead of creating a second one.",
+        "description": "Saves a draft for a conversation that does not exist yet, so it can be reviewed and sent from the inbox. Provide connectedAccountId and recipients; a local draft thread is created and appears in the inbox with the draft filter. Local only; nothing is delivered, and the provider conversation is created when the draft is sent. subject, cc, and bcc apply to email accounts. Email needs at least one recipient across recipients, cc and bcc; use recipients: [] for Cc-only or Bcc-only email. Hidden Bcc recipients are never public thread participants. Reusing the same account and primary recipient set updates the existing draft; drafts without primary recipients also distinguish Cc and Bcc recipient groups.",
         "tags": [
           "messaging"
         ],
@@ -74993,7 +75201,6 @@
                     "description": "Connected account the future conversation will send from"
                   },
                   "recipients": {
-                    "minItems": 1,
                     "maxItems": 100,
                     "type": "array",
                     "items": {
@@ -75862,6 +76069,13 @@
                           "value"
                         ],
                         "additionalProperties": false
+                      }
+                    },
+                    "folderIds": {
+                      "default": [],
+                      "type": "array",
+                      "items": {
+                        "type": "string"
                       }
                     },
                     "draftRevision": {
@@ -77059,6 +77273,16 @@
               }
             }
           },
+          "409": {
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Unavailable",
             "content": {
@@ -77843,6 +78067,16 @@
               }
             }
           },
+          "409": {
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Unavailable",
             "content": {
@@ -78404,6 +78638,16 @@
               }
             }
           },
+          "409": {
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Unavailable",
             "content": {
@@ -78882,6 +79126,16 @@
           },
           "404": {
             "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
             "content": {
               "application/json": {
                 "schema": {
@@ -79908,6 +80162,16 @@
               }
             }
           },
+          "409": {
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Unavailable",
             "content": {
@@ -80555,6 +80819,16 @@
               }
             }
           },
+          "409": {
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Unavailable",
             "content": {
@@ -80745,6 +81019,16 @@
           },
           "404": {
             "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
             "content": {
               "application/json": {
                 "schema": {
@@ -80976,6 +81260,16 @@
           },
           "404": {
             "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
             "content": {
               "application/json": {
                 "schema": {
@@ -81478,6 +81772,16 @@
               }
             }
           },
+          "409": {
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Unavailable",
             "content": {
@@ -81618,6 +81922,16 @@
           },
           "404": {
             "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
             "content": {
               "application/json": {
                 "schema": {
@@ -82055,6 +82369,16 @@
               }
             }
           },
+          "409": {
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Unavailable",
             "content": {
@@ -82196,6 +82520,16 @@
           },
           "404": {
             "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
             "content": {
               "application/json": {
                 "schema": {
@@ -82349,6 +82683,16 @@
               }
             }
           },
+          "409": {
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Unavailable",
             "content": {
@@ -82486,6 +82830,16 @@
           },
           "404": {
             "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
             "content": {
               "application/json": {
                 "schema": {
@@ -88189,7 +88543,6 @@
             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
           },
           "to": {
-            "minItems": 1,
             "maxItems": 100,
             "type": "array",
             "items": {
@@ -88207,7 +88560,8 @@
               "required": [
                 "identifier"
               ]
-            }
+            },
+            "description": "Primary recipients. Use [] for Cc-only or Bcc-only email"
           },
           "cc": {
             "maxItems": 100,
@@ -88924,6 +89278,7 @@
                         "wikiProcedureNeedsSteps",
                         "wikiHomepageSetupStartFailed",
                         "threadNotFound",
+                        "messageNotFound",
                         "emailFolderNotFound",
                         "emailFolderNotMovable",
                         "emailFolderMoveUnsupported",
@@ -88974,6 +89329,8 @@
                         "activityPageOutOfRange",
                         "messageContentRequired",
                         "sendEmailTargetRequired",
+                        "emailRecipientsRequired",
+                        "draftToRecipientsLocked",
                         "draftMessageNotFound",
                         "draftThreadNotSent",
                         "subjectRequired",
@@ -88992,6 +89349,10 @@
                         "unipileRequestTimeout",
                         "unipileDisconnectedAccount",
                         "unipileUnknown",
+                        "unipileProviderRejected",
+                        "unipileAccountRestricted",
+                        "unipileSendUnconfirmed",
+                        "unipileSendOutcomeUnknown",
                         "operatorConflict",
                         "operatorCreditPrecision",
                         "operatorCreditNonzero",
@@ -89011,6 +89372,9 @@
                   ],
                   "additionalProperties": false
                 }
+              },
+              "retryable": {
+                "type": "boolean"
               }
             },
             "required": [
@@ -90340,6 +90704,13 @@
                     "additionalProperties": false
                   }
                 },
+                "folderIds": {
+                  "default": [],
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
                 "draftRevision": {
                   "anyOf": [
                     {
@@ -90505,12 +90876,16 @@
                     "items": {
                       "type": "string"
                     }
+                  },
+                  "canMove": {
+                    "type": "boolean"
                   }
                 },
                 "required": [
                   "folders",
                   "selectedFolderIds",
-                  "currentFolderIds"
+                  "currentFolderIds",
+                  "canMove"
                 ],
                 "additionalProperties": false
               },

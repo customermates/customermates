@@ -1,5 +1,5 @@
 import type { RepoArgs } from "@/core/utils/types";
-import type { CreateAuthLinkSubscriptionRepo } from "@/ee/messaging/connect/create-auth-link.interactor";
+import type { CreateAuthLinkSubscriptionRepo } from "@/ee/messaging/connect/create-auth-link-subscription.repo";
 import type { UpsertRoutineSubscriptionRepo } from "@/ee/routines/upsert-routine-subscription.repo";
 import type { CreateCheckoutCompanyRepo } from "@/ee/subscription/create-checkout-session.interactor";
 import type { EntitlementSubscriptionRepo } from "@/ee/subscription/entitlement.service";

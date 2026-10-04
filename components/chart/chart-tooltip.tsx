@@ -24,7 +24,8 @@ type TooltipContentProps = {
   }>;
 };
 
-const BASE_CLASS = "rounded-md border border-border bg-popover px-3 py-2 text-popover-foreground shadow-lg";
+const BASE_CLASS =
+  "rounded-md border border-tooltip-foreground/10 bg-tooltip px-3 py-2 text-tooltip-foreground shadow-lg";
 
 const TooltipContent = observer((props: TooltipContentProps) => {
   const { active, currency, label, payload } = props;
@@ -82,7 +83,7 @@ const TooltipContent = observer((props: TooltipContentProps) => {
               <div className="flex items-center gap-2 min-w-0">
                 {color && <div className="size-2 rounded-full shrink-0" style={{ backgroundColor: color }} />}
 
-                {name && <span className="text-muted-foreground truncate">{String(name)}</span>}
+                {name && <span className="text-tooltip-foreground/65 truncate">{String(name)}</span>}
               </div>
 
               <span className="font-medium tabular-nums whitespace-nowrap">
@@ -93,10 +94,10 @@ const TooltipContent = observer((props: TooltipContentProps) => {
         })}
       </div>
 
-      <div className="my-2 border-t border-border" />
+      <div className="my-2 border-t border-tooltip-foreground/10" />
 
       <div className="flex items-center justify-between gap-4 text-sm">
-        <span className="text-muted-foreground">{t("Diagrams.total")}</span>
+        <span className="text-tooltip-foreground/65">{t("Diagrams.total")}</span>
 
         <span className="font-semibold tabular-nums whitespace-nowrap">{format(total)}</span>
       </div>

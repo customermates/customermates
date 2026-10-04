@@ -4,7 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 
-import { sanitizeHtml } from "@/components/shared/sanitize-html";
+import DOMPurify from "dompurify";
+
 import { HTML_QUOTE_HIDE_CSS, htmlContainsQuote } from "@/ee/messaging/email-quote";
 
 type Props = {
@@ -15,10 +16,9 @@ type Props = {
 
 const FRAME_CSS = `
   html, body { margin: 0; padding: 0; }
+  html { background: #ffffff; color: #1a1a1a; }
   body {
     padding: 12px 16px;
-    background: #ffffff;
-    color: #1a1a1a;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     font-size: 14px;
     line-height: 1.5;
@@ -68,15 +68,25 @@ export function EmailFrame({ html, showRemoteImages = false, presentation = "ema
   }, [isComposer, resolvedTheme]);
 
   const { srcDoc, hasQuote } = useMemo(() => {
-    const sanitized = mounted ? sanitizeHtml(html) : "";
-    const containsQuote = mounted && htmlContainsQuote(sanitized);
+    const sanitized = mounted
+      ? DOMPurify.sanitize(html, { WHOLE_DOCUMENT: true, RETURN_DOM: true, ADD_ATTR: ["text"] })
+      : undefined;
+    const sanitizedRoot = sanitized && sanitized instanceof HTMLElement ? sanitized : undefined;
+    const containsQuote = mounted && htmlContainsQuote(sanitizedRoot?.outerHTML ?? "");
     const csp = `default-src 'none'; style-src 'unsafe-inline'; font-src data:; img-src data:${showRemoteImages ? " https:" : ""};`;
     const quoteCss = containsQuote && !showQuoted ? `<style>${HTML_QUOTE_HIDE_CSS}</style>` : "";
     const composerCss = isComposer
       ? `<style>html { color-scheme: ${resolvedTheme === "dark" ? "dark" : "light"}; background: transparent; } body { padding: 0; background: transparent; } body, table, td, [data-customermates-email-markdown] { color: ${foreground} !important; } body > :last-child { margin-bottom: 0 !important; }</style>`
       : "";
+    const headContent = `<meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="${csp}"><base target="_blank"><style>${FRAME_CSS}</style>${composerCss}${quoteCss}`;
+    const head = sanitizedRoot?.querySelector("head");
+    let frameHtml = `<html><head>${headContent}</head><body></body></html>`;
+    if (sanitizedRoot && head) {
+      head.insertAdjacentHTML("afterbegin", headContent);
+      frameHtml = sanitizedRoot.outerHTML;
+    }
     return {
-      srcDoc: `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="${csp}"><base target="_blank"><style>${FRAME_CSS}</style>${composerCss}${quoteCss}</head><body>${sanitized}</body></html>`,
+      srcDoc: `<!doctype html>${frameHtml}`,
       hasQuote: containsQuote,
     };
   }, [html, showRemoteImages, mounted, showQuoted, isComposer, foreground, resolvedTheme]);

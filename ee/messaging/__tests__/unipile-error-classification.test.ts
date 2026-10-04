@@ -4,12 +4,8 @@ import { MOCK_ENV_MODULE } from "@/tests/helpers/interactor-test-setup";
 
 vi.mock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env, UNIPILE_API_KEY: "test-key" } }));
 
-import {
-  UnipileRequestError,
-  isUnipileProviderUnprocessable,
-  isUnipileSourceForbidden,
-  isUnipileTimeout,
-} from "../messaging.service";
+import { isUnipileProviderUnprocessable, isUnipileSourceForbidden, isUnipileTimeout } from "../messaging.service";
+import { UnipileRequestError } from "../unipile-request-error";
 
 function unprocessable(detail: string): UnipileRequestError {
   return new UnipileRequestError(

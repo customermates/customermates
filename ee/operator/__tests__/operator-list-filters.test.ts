@@ -220,6 +220,28 @@ describe("planOperatorAuditFilters", () => {
 
     expect(planOperatorAuditFilters([own, negatedWorkspace]).workspaceIds).toEqual(["w1"]);
   });
+
+  it("retains both relative age bounds and recomputes their day cutoffs", () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    try {
+      const filters: Filter[] = [
+        { field: "createdAt", operator: FilterOperatorKey.notInLastDays, value: 3 },
+        { field: "createdAt", operator: FilterOperatorKey.inLastDays, value: 7 },
+      ];
+      vi.setSystemTime(new Date(2026, 8, 11, 12));
+      expect(planOperatorAuditFilters(filters).createdAt).toEqual([
+        { lt: new Date(2026, 8, 8) },
+        { gte: new Date(2026, 8, 4) },
+      ]);
+      vi.setSystemTime(new Date(2026, 8, 12, 12));
+      expect(planOperatorAuditFilters(filters).createdAt).toEqual([
+        { lt: new Date(2026, 8, 9) },
+        { gte: new Date(2026, 8, 5) },
+      ]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });
 
 describe("operatorCollator", () => {

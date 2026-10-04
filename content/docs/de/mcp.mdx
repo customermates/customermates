@@ -332,7 +332,7 @@ Pflicht: `threadId`, `state`.
 
 Eine E-Mail-Konversation beim Anbieter in einen anderen Postfachordner verschieben.
 
-Pflicht: `threadId`, `folderId`.
+Pflicht: `threadId`, `folderId`. Optional: `messageId`.
 
 #### `manage_conversation_records`
 
@@ -616,7 +616,7 @@ Tarife lehnen auf demselben Weg ab. Messaging-, Kalender- und Social-Tools brauc
 - **Backend-Regeln gelten für jeden Aufrufer.** Gemeinsame Operationen prüfen Mandant, aktuellen Datensatzzugriff, Schema-Rechte, erwartete Revisionen und Transaktionsintegrität. MCP-Metadaten leiten den Client an, gewähren aber keine Rechte.
 - **Löschfolgen vorher prüfen.** Eine Löschung kann abhängige Datensätze dauerhaft entfernen. Die konkrete Vorschau mit dem Nutzer bestätigen und ihren Hash übergeben. Geänderte Abhängigkeiten oder Versionen erfordern eine neue Vorschau.
 - **Dieselbe Anfrage wiederholen.** Nach verlorener Antwort Schlüssel und Nutzdaten beibehalten. Eine andere Änderung braucht einen neuen Schlüssel. Für vorbereitete Vorgänge den Status lesen, statt erneut anzulegen.
-- **Nachrichten als Entwürfe vorbereiten.** `save_message_draft` hält die Nachricht zur Prüfung in der Inbox. `send_email` und `send_chat_message` stellen sofort zu; externe Clients müssen erforderliche Bestätigungen vorher einholen.
+- **Nachrichten als Entwürfe vorbereiten.** `save_message_draft` hält die Nachricht zur Prüfung in der Inbox. `send_email` und `send_chat_message` senden sofort; externe Clients müssen erforderliche Bestätigungen vorher einholen. Erfolg bedeutet, dass der Anbieter die Nachricht angenommen hat, nicht dass sie beim Empfänger angekommen ist. Ein Fehler sagt, ob ein neuer Versuch helfen kann, und sein strukturiertes Ergebnis enthält nur dann `retryable: true`: Nach einer Zeitüberschreitung oder einem Anbieterfehler beim Senden zuerst die Konversation prüfen, bevor erneut gesendet wird.
 - **Aktuelle Schemas verwenden.** `tools/list` beschreibt erlaubte Argumente. Kundenschemas liefern stabile IDs und erlaubte Operationen; Namen und Beschreibungen setzen keine Regeln außer Kraft.
 
 ## Häufige Fragen [#frequently-asked-questions]

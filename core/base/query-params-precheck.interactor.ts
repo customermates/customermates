@@ -71,7 +71,14 @@ export class QueryParamsPrecheckInteractor {
             return;
           }
 
-          await this.checkFilterValue(filter, i, entityType, ctx);
+          if (field.options && "value" in filter && typeof filter.value !== "number") {
+            validateEnumValue(
+              filter.value,
+              field.options.map((option) => option.value),
+              ctx,
+              ["filters", i, "value"],
+            );
+          } else await this.checkFilterValue(filter, i, entityType, ctx);
         }),
       );
     }
@@ -112,7 +119,7 @@ export class QueryParamsPrecheckInteractor {
   ) {
     if (!("value" in filter)) return;
     if (filter.operator === FilterOperatorKey.contains) return;
-    if (filter.operator === FilterOperatorKey.inLastDays) return;
+    if (typeof filter.value === "number") return;
 
     const path = ["filters", filterIndex, "value"];
     const valueKind = filterValueKind(filter.field);

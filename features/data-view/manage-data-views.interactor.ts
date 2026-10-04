@@ -37,7 +37,7 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
-import { filterValueKind, TIMELINE_KIND_VIEW_VALUES } from "@/core/types/filter-field-value-kind";
+import { filterFieldAgentNote, filterValueKind, TIMELINE_KIND_VIEW_VALUES } from "@/core/types/filter-field-value-kind";
 import { fail, failAuthorization, failNotFound } from "@/core/validation/interactor-failure-server";
 import { runPrecheck } from "@/core/validation/run-precheck";
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -148,6 +148,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
         const valueKind = filterValueKind(field.field);
         const values =
           config.filterValues?.get(field.field) ??
+          field.options?.map((option) => option.value) ??
           (field.field === FilterFieldKey.timelineKind.toString()
             ? TIMELINE_KIND_VIEW_VALUES
             : valueKind?.kind === "enum"
@@ -155,7 +156,8 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
               : valueKind?.kind === "event"
                 ? Object.values(DomainEvent)
                 : undefined);
-        return { ...field, ...(values ? { values } : {}) };
+        const description = filterFieldAgentNote(field.field);
+        return { ...field, ...(values ? { values } : {}), ...(description ? { description } : {}) };
       });
       const sortableFields = [
         ...config.sortableFields.map(({ field }) => ({ field })),

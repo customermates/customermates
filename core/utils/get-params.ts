@@ -8,6 +8,7 @@ import { normalizeFilter } from "../base/filter-compat";
 const DEFAULT_PAGE = 1;
 const DEFAULT_PAGE_SIZE = 25;
 const VALID_PAGE_SIZES = [5, 10, 25, 100];
+const JSON_LIST_PREFIX = "json:";
 
 export const GET_PARAM_KEYS = [
   "filters",
@@ -152,7 +153,10 @@ function serializeFilterValue(op: FilterOperatorKey, value: unknown): string | u
     case FilterOperatorKey.between: {
       const arr = Array.isArray(value) ? value : value !== undefined && value !== null ? [value] : [];
 
-      return arr.map((x) => String(x)).join(",");
+      const values = arr.map((x) => String(x));
+      return values.some((entry) => entry.includes(",") || entry.startsWith(JSON_LIST_PREFIX))
+        ? `${JSON_LIST_PREFIX}${JSON.stringify(values)}`
+        : values.join(",");
     }
     case FilterOperatorKey.isNull:
     case FilterOperatorKey.isNotNull:
@@ -162,6 +166,7 @@ function serializeFilterValue(op: FilterOperatorKey, value: unknown): string | u
     case FilterOperatorKey.allSet:
       return undefined;
     case FilterOperatorKey.inLastDays:
+    case FilterOperatorKey.notInLastDays:
       return value === undefined || value === null ? undefined : String(value);
     default:
       return value === undefined || value === null ? undefined : String(value);
@@ -190,7 +195,7 @@ function decodeFilterToken(token: string): Filter | undefined {
       case FilterOperatorKey.in:
       case FilterOperatorKey.notIn:
       case FilterOperatorKey.between:
-        value = rest ? rest.split(",") : [];
+        value = decodeListValue(rest);
         break;
       case FilterOperatorKey.isNull:
       case FilterOperatorKey.isNotNull:
@@ -199,14 +204,15 @@ function decodeFilterToken(token: string): Filter | undefined {
         value = undefined;
         break;
       case FilterOperatorKey.hasNone:
-        if (rest) return { field, operator: FilterOperatorKey.notIn, value: rest.split(",") };
+        if (rest) return { field, operator: FilterOperatorKey.notIn, value: decodeListValue(rest) };
         value = undefined;
         break;
       case FilterOperatorKey.hasSome:
-        if (rest) return { field, operator: FilterOperatorKey.in, value: rest.split(",") };
+        if (rest) return { field, operator: FilterOperatorKey.in, value: decodeListValue(rest) };
         value = undefined;
         break;
       case FilterOperatorKey.inLastDays:
+      case FilterOperatorKey.notInLastDays:
         value = rest ? Number(rest) : undefined;
         break;
       default:
@@ -217,4 +223,12 @@ function decodeFilterToken(token: string): Filter | undefined {
   } catch {
     return undefined;
   }
+}
+
+function decodeListValue(token: string): string[] {
+  if (!token.startsWith(JSON_LIST_PREFIX)) return token ? token.split(",") : [];
+  const parsed: unknown = JSON.parse(token.slice(JSON_LIST_PREFIX.length));
+  if (!Array.isArray(parsed) || parsed.some((entry) => typeof entry !== "string"))
+    throw new Error("Invalid filter list token");
+  return parsed as string[];
 }

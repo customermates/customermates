@@ -77,10 +77,11 @@ export const manageDataViewsTool = {
   name: "manage_data_views",
   title: "Manage personal saved views",
   description:
-    "Read and change personal saved views on supported workspace pages; operator-console views are outside this tool. " +
-    "Use surfaces to discover authorized pages, including customer-defined record types. Dynamic surface keys contain stable type IDs. Select filters use stable option IDs from configuration, not editable labels. For config, start with section overview, then page filters, sorting, grouping or appearance; narrow with query and retry a narrower page after any truncation. " +
-    "List without viewKey returns paged summaries; pass an exact viewKey to read its current state immediately before update. Create requires name and state and selects the new view; update patches only supplied name/state keys, so omit name unless the user requested a rename and include only changed state keys; select remembers a view. " +
-    "Clear filters with [], search with an empty string, and sort/grouping with null; filters are ANDed. Timeline views accept only filters and sortDescriptor. Use only filter fields returned by config for that surface; never create a custom column to manufacture a missing saved-view filter. If the requested field is absent, report that it is unavailable and leave the view unchanged. Record option IDs come from get_record_model. " +
+    "Manage personal saved views on supported workspace pages; operator-console views are excluded. " +
+    "Discover authorized pages with surfaces, including customer-defined record types; dynamic surface keys contain stable type IDs. Select filters use stable option IDs from config, not editable labels. Start config at overview, then page filters/sorting/grouping/appearance; narrow query/page after truncation. " +
+    "List returns paged summaries; pass viewKey to read current state immediately before update. Create requires name/state and selects it; update patches only supplied keys, so omit name unless the user requested renaming and include only changed state keys. Select remembers a view. " +
+    "Clear filters with [], search with an empty string, and sort/grouping with null; filters are ANDed. Timeline views accept only filters and sortDescriptor. Use only filter fields config returns for that surface, following their descriptions; never create a custom column to manufacture a missing saved-view filter. If the requested field is absent, report that it is unavailable and leave the view unchanged. Record option IDs come from get_record_model. " +
+    "Relative days (last N, over N ago, N-M ago) use whole-day inLastDays/notInLastDays, never absolute dates. Verify every requested condition in the saved state before reporting success. " +
     "Deleting a view is IRREVERSIBLE and never deletes records; All (__all__) cannot be renamed or deleted. Use the returned link rather than constructing one.",
   annotations: {
     readOnlyHint: false,

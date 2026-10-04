@@ -8,7 +8,7 @@ import { action, makeObservable, observable, runInAction } from "mobx";
 import { Action, Resource } from "@/generated/prisma";
 
 import { getMessagingThreadAction, updateThreadAction, resyncThreadAction, moveEmailThreadAction } from "../actions";
-import { isEmailProvider } from "@/ee/messaging/provider";
+import { isDraftThreadId, isEmailProvider } from "@/ee/messaging/provider";
 import { MESSAGING_RATE_LIMITS_DOCS_PATH } from "./lazy-media";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
@@ -89,10 +89,17 @@ export class MessagingThreadDetailStore extends BaseStore {
     this.refreshGeneration += 1;
     this.unavailableThreadId = null;
     this.thread = detail?.thread ?? null;
-    this.messages = detail?.messages ?? [];
+    const pending = detail ? this.rootStore.threadComposeStore.getPendingMessages(detail.thread.id) : [];
+    const pendingIds = new Set(pending.map((message) => message.id));
+    this.messages = [...(detail?.messages ?? []).filter((message) => !pendingIds.has(message.id)), ...pending];
     this.accountOwners = detail?.accountOwners ?? {};
     this.folderContext = detail?.folderContext ?? null;
-    this.messageStatus = {};
+    this.messageStatus = Object.fromEntries(
+      pending.map((message) => [
+        message.id,
+        this.rootStore.threadComposeStore.getDeliveryStatus(message.id) ?? "sending",
+      ]),
+    );
     this.loadingOlder = false;
 
     const thread = detail?.thread;
@@ -111,7 +118,19 @@ export class MessagingThreadDetailStore extends BaseStore {
     )
       return;
     const composer = this.rootStore.threadComposeStore;
-    if (composer.form.threadId === thread.id && composer.hasComposedContent) return;
+    const hasUnsavedReply = () => {
+      const coldTarget = composer.newThreadTarget;
+      const matchesColdThread = coldTarget
+        ? !composer.form.threadId &&
+          isDraftThreadId(thread.unipileThreadId) &&
+          (!coldTarget.draftThreadId || coldTarget.draftThreadId === thread.id)
+        : false;
+      return (
+        (composer.form.threadId === thread.id || matchesColdThread) &&
+        (composer.hasUnsavedChanges || composer.hasComposedContent)
+      );
+    };
+    if (hasUnsavedReply()) return;
     const generation = ++this.refreshGeneration;
     const detail = await getMessagingThreadAction(thread.id);
     if (
@@ -120,7 +139,7 @@ export class MessagingThreadDetailStore extends BaseStore {
       this.sharingPending ||
       (background && this.loadingOlder) ||
       Object.keys(this.messageStatus).length > 0 ||
-      (composer.form.threadId === thread.id && composer.hasComposedContent)
+      hasUnsavedReply()
     )
       return;
     runInAction(() => {
@@ -148,17 +167,17 @@ export class MessagingThreadDetailStore extends BaseStore {
     });
   };
 
-  moveToFolder = async (folderId: string): Promise<void> => {
+  moveToFolder = async (folderId: string, messageId?: string): Promise<void> => {
     const thread = this.thread;
     const context = this.folderContext;
-    if (!thread || !context || this.movingThreadIds.has(thread.id) || context.currentFolderIds.includes(folderId))
-      return;
+    if (!thread || !context?.canMove || this.movingThreadIds.has(thread.id)) return;
 
     this.movingThreadIds.add(thread.id);
     try {
       const result = await moveEmailThreadAction({
         threadId: thread.id,
         folderId,
+        ...(messageId ? { messageId } : {}),
       });
       if (!result.ok) {
         toastZodErrorTree(result.error);
@@ -170,6 +189,14 @@ export class MessagingThreadDetailStore extends BaseStore {
           values: {
             folder: result.data.folderName,
             retryAfter: result.data.retryAfter ?? "",
+          },
+        });
+      } else if (result.data.stoppedMessage) {
+        this.toastError("Inbox.folders.moveStopped", {
+          values: {
+            folder: result.data.folderName,
+            moved: String(result.data.movedCount),
+            reason: result.data.stoppedMessage,
           },
         });
       } else if (result.data.failedCount > 0) {
@@ -252,7 +279,7 @@ export class MessagingThreadDetailStore extends BaseStore {
 
   resyncThread = async (): Promise<void> => {
     const thread = this.thread;
-    if (!thread) return;
+    if (!thread || isDraftThreadId(thread.unipileThreadId)) return;
 
     await this.rootStore.loadingOverlayStore.withLoading(async () => {
       const result = await resyncThreadAction(thread.id);
@@ -272,6 +299,7 @@ export class MessagingThreadDetailStore extends BaseStore {
     const thread = this.thread;
     if (
       !thread ||
+      isDraftThreadId(thread.unipileThreadId) ||
       this.rootStore.appMode === "demo" ||
       !this.rootStore.userStore.can(Resource.inboxMessages, Action.update) ||
       this.loadingOlder ||

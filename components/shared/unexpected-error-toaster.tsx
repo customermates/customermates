@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect } from "react";
-import { toast } from "sonner";
+import { toast, type ExternalToast } from "sonner";
 import { useTranslations } from "next-intl";
 
 import { AppLink } from "@/components/shared/app-link";
@@ -25,14 +25,14 @@ function isNoise(error: unknown): boolean {
   return false;
 }
 
-function useApplicationErrorHandler(): (error: unknown) => void {
+function useApplicationErrorHandler(): (error: unknown, options?: ExternalToast) => void {
   const t = useTranslations();
 
   return useCallback(
-    (error: unknown) => {
+    (error: unknown, options?: ExternalToast) => {
       if (isNoise(error)) return;
       if (isClientTransportError(error)) {
-        toast.warning(t("ErrorCard.transportInterrupted"));
+        toast.warning(t("ErrorCard.transportInterrupted"), ...(options ? [options] : []));
         return;
       }
       if (isDemoEnvironment()) {
@@ -44,10 +44,11 @@ function useApplicationErrorHandler(): (error: unknown) => void {
               </AppLink>
             ),
           }),
+          ...(options ? [options] : []),
         );
         return;
       }
-      toast.error(t("ErrorCard.unexpectedError"));
+      toast.error(t("ErrorCard.unexpectedError"), ...(options ? [options] : []));
     },
     [t],
   );

@@ -9,7 +9,6 @@ import type { MessagingAttendee } from "../messaging.schema";
 import type { MessagingService, StartChatSpecifics } from "../messaging.service";
 
 import * as Sentry from "@sentry/node";
-import { getLocale } from "next-intl/server";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 
@@ -40,12 +39,13 @@ import {
   isHandleProvider,
   type LinkedinProduct,
 } from "../provider";
-import { formatRetryAfter } from "../retry-after";
+import { retryAfterPhrase } from "../retry-after.server";
 import { EMPTY_ATTENDEE, buildChatAttendee } from "../unipile.mappers";
 import { UnipileInboxSchema } from "../unipile.schema";
 import { SendAttachmentSchema } from "./send-email.interactor";
 
 import type { FindUsableAccountRepo } from "../persistence/find-usable-account.repo";
+import { accountNeedsReconnect } from "../account-health";
 
 export const LinkedinProductSchema = z.enum(LINKEDIN_PRODUCTS);
 
@@ -141,6 +141,7 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
     if (denied) return denied;
 
     const account = await this.accountRepo.findUsableAccountByIdOrThrow(data.connectedAccountId);
+    if (accountNeedsReconnect(account)) return fail(CustomErrorCode.unipileDisconnectedAccount, []);
     const draft = data.draftMessageId ? await this.threadRepo.findDraftById({ messageId: data.draftMessageId }) : null;
     if (data.draftMessageId && !draft) return failNotFound(CustomErrorCode.draftMessageNotFound);
     if (draft && (!data.draftRevision || !draftRevisionMatches(draft.updatedAt, data.draftRevision)))
@@ -159,7 +160,7 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
 
     if (!attendees.ok) {
       return fail(attendees.error, [], {
-        retryAfter: formatRetryAfter(await getLocale(), attendees.retryAfterSeconds),
+        retryAfter: await retryAfterPhrase(attendees.retryAfterSeconds),
       });
     }
 
@@ -179,7 +180,7 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
       specifics: this.buildSpecifics(data),
     });
 
-    if (!res.ok) return fail(res.error, [], { retryAfter: formatRetryAfter(await getLocale(), res.retryAfterSeconds) });
+    if (!res.ok) return fail(res.error, [], { retryAfter: await retryAfterPhrase(res.retryAfterSeconds) });
 
     let threadId: string | null = null;
 

@@ -330,7 +330,7 @@ Required: `threadId`, `state`.
 
 Move an email conversation into another mailbox folder at the provider.
 
-Required: `threadId`, `folderId`.
+Required: `threadId`, `folderId`. Optional: `messageId`.
 
 #### `manage_conversation_records`
 
@@ -614,7 +614,7 @@ Plans refuse the same way. Messaging, calendar and social tools need a plan with
 - **Backend rules apply to every caller.** The shared operations enforce tenant scope, current record access, schema permissions, expected revisions and transaction integrity. MCP annotations guide the client; they do not grant permission.
 - **Preview destructive effects.** Deletion can permanently remove cascading records. Confirm the concrete preview with the user, then pass its impact hash. A changed dependency or version requires a fresh preview.
 - **Retry the same request.** Preserve the idempotency key and payload after a lost response. A different change requires a new key. Use operation status for staged work instead of issuing another create.
-- **Prepare messages as drafts.** `save_message_draft` keeps the message in the inbox for review. `send_email` and `send_chat_message` deliver immediately; external clients must handle the applicable confirmation before calling them.
+- **Prepare messages as drafts.** `save_message_draft` keeps the message in the inbox for review. `send_email` and `send_chat_message` send immediately; external clients must handle the applicable confirmation before calling them. Success means the provider accepted the message, not that it reached the recipient. A failure states whether retrying can help, and its structured result carries `retryable: true` only then: after a timeout or a provider error during sending, check the conversation before sending again.
 - **Use the live schemas.** `tools/list` describes supported argument shapes. Customer schemas supply the stable IDs and permitted operations; labels and descriptions cannot override policy.
 
 ## Frequently asked questions

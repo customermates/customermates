@@ -9,9 +9,11 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { isRedirect } from "@/features/auth/auth-outcome";
-import { serializeInteractorFailure } from "../validation/validation.utils";
+import { interactorFailureCodes, isRetryableFailure, serializeInteractorFailure } from "../validation/validation.utils";
 
-type ActionResult<T> = { ok: true; data: T } | { ok: false; error: $ZodErrorTree<unknown> };
+type ActionResult<T> =
+  | { ok: true; data: T }
+  | { ok: false; error: $ZodErrorTree<unknown>; code?: string; retryable?: boolean };
 
 export type TypedActionResult<T> = { ok: true; data: T } | { ok: false; failure: SerializedInteractorFailure };
 
@@ -30,9 +32,12 @@ export async function serializeResult<T>(
   if (isRedirect(resolved)) redirect(resolved.redirect);
   if (resolved.ok) return resolved;
 
+  const [code] = interactorFailureCodes(resolved.error);
   return {
     ok: false,
     error: z.treeifyError(resolved.error),
+    ...(code ? { code } : {}),
+    ...(isRetryableFailure(resolved.error) ? { retryable: true } : {}),
   };
 }
 

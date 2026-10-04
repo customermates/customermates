@@ -7,7 +7,7 @@ import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 
 import { AppChip } from "@/components/chip/app-chip";
-import { CopyableChip } from "@/components/chip/copyable-chip";
+import { CopyableText } from "@/components/shared/copyable-text";
 import { AvatarStack } from "@/components/shared/avatar-stack";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
@@ -39,11 +39,7 @@ export function useAuditLogColumns(): ColumnDef<AuditLogDto>[] {
       {
         id: "entityId",
         header: t("Common.table.columns.entityId"),
-        cell: ({ row }) => (
-          <CopyableChip size="sm" value={row.original.entityId} variant="secondary">
-            {row.original.entityId}
-          </CopyableChip>
-        ),
+        cell: ({ row }) => <CopyableText value={row.original.entityId} />,
       },
       {
         id: "user",

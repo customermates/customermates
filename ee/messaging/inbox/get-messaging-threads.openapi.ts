@@ -8,7 +8,8 @@ import { CommonApiResponses, NotFoundApiResponse } from "@/core/api/interactor-h
 export const getMessagingThreadsOperation: ZodOpenApiOperationObject = {
   operationId: "getMessagingThreads",
   summary: "Get messaging threads",
-  description: "Retrieves a list of inbox message threads with optional search, sorting, and pagination.",
+  description:
+    "Retrieves inbox threads with search, sorting, pagination and shared filter syntax. Filters include connectedAccountId, emailFolder (in/notIn), lastMessageDirection (inbound/outbound), lastMessageSentAt (last actual message date) and lastMessageAt (activity including drafts). Use caller-scoped filterableFields.options; folder values encode [account UUID, provider folder ID] as a JSON string and groupKey identifies the account heading. Folder membership matches visible placements. Last direction/date exclude drafts, hidden/deleted messages and system events. Filters combine with AND; lastMessageSentAt inLastDays 7 plus notInLastDays 3 finds messages from three to seven days ago, using the standard start-of-day cutoff.",
   tags: ["messaging"],
   security: [{ apiKeyAuth: [] }],
   requestBody: {

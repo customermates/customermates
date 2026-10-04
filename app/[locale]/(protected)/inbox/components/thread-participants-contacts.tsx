@@ -21,6 +21,7 @@ import {
 } from "@/ee/messaging/thread-display";
 import { SelectionOptionsSkeleton } from "@/components/forms/selection-loading";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { CopyableAddress } from "./copyable-address";
 
 type ManagerProps = {
   participants: MessagingAttendee[];
@@ -206,9 +207,7 @@ export const ThreadPeopleManager = observer(({ participants, provider, canManage
               <div className="min-w-0 flex-1">
                 <div className="truncate text-sm font-medium">{label}</div>
 
-                {subtitle && subtitle !== label && (
-                  <div className="text-muted-foreground truncate text-xs">{subtitle}</div>
-                )}
+                {subtitle && <CopyableAddress className="text-muted-foreground max-w-full" value={subtitle} />}
               </div>
             </div>
 

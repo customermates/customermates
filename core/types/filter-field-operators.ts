@@ -18,6 +18,7 @@ const dateOperators = [
   FilterOperatorKey.lte,
   FilterOperatorKey.between,
   FilterOperatorKey.inLastDays,
+  FilterOperatorKey.notInLastDays,
 ];
 
 const scalarSelectOperators = [FilterOperatorKey.in, FilterOperatorKey.notIn];
@@ -71,6 +72,10 @@ export const FILTER_FIELD_DEFAULT_OPERATORS: Record<FilterFieldKey, FilterOperat
   [FilterFieldKey.state]: scalarSelectOperators,
   [FilterFieldKey.draft]: draftOperators,
   [FilterFieldKey.connectedAccountId]: scalarSelectOperators,
+  [FilterFieldKey.emailFolder]: scalarSelectOperators,
+  [FilterFieldKey.lastMessageDirection]: scalarSelectOperators,
+  [FilterFieldKey.lastMessageSentAt]: dateOperators,
+  [FilterFieldKey.lastMessageAt]: dateOperators,
   [FilterFieldKey.calendarId]: scalarSelectOperators,
   [FilterFieldKey.startsAt]: dateOperators,
   [FilterFieldKey.plan]: scalarSelectOperators,

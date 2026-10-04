@@ -194,6 +194,152 @@ describeDatabase("draft lifecycle persistence on PostgreSQL", () => {
     expect(count.rows[0].count).toBe(1);
   });
 
+  it("keeps Bcc-only cold draft targets separate and never creates public Bcc participants", async () => {
+    const repo = new PrismaMessagingRepo();
+    const hidden = `private-${randomUUID()}@example.invalid`;
+    const create = (cc: string[], bcc: string[]) =>
+      runWithTenant(tenant, () =>
+        repo.findOrCreateDraftThread({
+          connectedAccountId: accountId,
+          provider: MessagingProvider.google,
+          recipients: [],
+          cc,
+          bcc,
+        }),
+      );
+    const first = await create([], [hidden]);
+    const repeated = await create([], [hidden.toUpperCase(), hidden]);
+    const copy = await create([hidden], []);
+    const other = await create([], [`other-${randomUUID()}@example.invalid`]);
+    expect(repeated.id).toBe(first.id);
+    expect(new Set([first.id, copy.id, other.id]).size).toBe(3);
+    const participants = await client.query(
+      'SELECT "identifier" FROM "MessagingThreadParticipant" WHERE "messagingThreadId" = ANY($1::text[])',
+      [[first.id, copy.id, other.id]],
+    );
+    expect(participants.rows).toEqual([]);
+    const draft = await runWithTenant(tenant, () =>
+      repo.upsertThreadDraftOrThrow({
+        threadId: first.id,
+        connectedAccountId: accountId,
+        provider: MessagingProvider.google,
+        sender: attendee(ownerEmail, true),
+        subject: "Private review",
+        bodyText: "Draft",
+        recipients: { to: [], cc: [], bcc: [attendee(hidden)] },
+      }),
+    );
+    const target = await runWithTenant(tenant, () => repo.findDraftById({ messageId: draft.id }));
+    expect(target).toEqual(
+      expect.objectContaining({
+        recipientIdentifiers: [],
+        ccIdentifiers: [],
+        bccIdentifiers: [hidden],
+      }),
+    );
+    const read = await runWithTenant(tenant, () => repo.listMessagesForThread(first.id));
+    expect(read.messages[0].recipients).toEqual({ to: [], cc: [], bcc: [attendee(hidden)] });
+  });
+
+  it.each(["address", "role"])(
+    "updates an empty-To draft identity atomically after a secondary %s edit",
+    async (change) => {
+      const repo = new PrismaMessagingRepo();
+      const initialAddress = `initial-${randomUUID()}@example.invalid`;
+      const editedAddress = change === "role" ? initialAddress : `edited-${randomUUID()}@example.invalid`;
+      const initial = { cc: [] as string[], bcc: [initialAddress] };
+      const edited = change === "role" ? { cc: [editedAddress], bcc: [] } : { cc: [], bcc: [editedAddress] };
+      const create = (groups: { cc: string[]; bcc: string[] }) =>
+        runWithTenant(tenant, () =>
+          repo.findOrCreateDraftThread({
+            connectedAccountId: accountId,
+            provider: MessagingProvider.google,
+            recipients: [],
+            ...groups,
+          }),
+        );
+      const save = (threadId: string, groups: { cc: string[]; bcc: string[] }, bodyText: string) =>
+        runWithTenant(tenant, () =>
+          repo.upsertThreadDraftOrThrow({
+            threadId,
+            connectedAccountId: accountId,
+            provider: MessagingProvider.google,
+            sender: attendee(ownerEmail, true),
+            subject: "Private target edit",
+            bodyText,
+            recipients: {
+              to: [],
+              cc: groups.cc.map((email) => attendee(email)),
+              bcc: groups.bcc.map((email) => attendee(email)),
+            },
+          }),
+        );
+      const thread = await create(initial);
+      const originalDraft = await save(thread.id, initial, "Original target");
+      const editedDraft = await save(thread.id, edited, "Edited target");
+      expect(editedDraft.id).toBe(originalDraft.id);
+      const stored = await client.query('SELECT "unipileThreadId" FROM "MessagingThread" WHERE "id" = $1', [thread.id]);
+      expect(stored.rows[0].unipileThreadId).toBe(draftThreadProviderId(MessagingProvider.google, [], edited));
+      expect((await create(edited)).id).toBe(thread.id);
+      const upper = {
+        cc: edited.cc.map((email) => email.toUpperCase()),
+        bcc: edited.bcc.map((email) => email.toUpperCase()),
+      };
+      expect((await create(upper)).id).toBe(thread.id);
+      const newOriginal = await create(initial);
+      expect(newOriginal.id).not.toBe(thread.id);
+      await save(newOriginal.id, initial, "New original target");
+      const reread = await runWithTenant(tenant, () => repo.listMessagesForThread(thread.id));
+      expect(reread.messages[0].bodyText).toBe("Edited target");
+      expect(reread.messages[0].recipients).toEqual({
+        to: [],
+        cc: edited.cc.map((email) => attendee(email)),
+        bcc: edited.bcc.map((email) => attendee(email)),
+      });
+    },
+  );
+
+  it("rolls back content and private identity when an edited cold target already has another draft", async () => {
+    const repo = new PrismaMessagingRepo();
+    const firstAddress = `first-${randomUUID()}@example.invalid`;
+    const secondAddress = `second-${randomUUID()}@example.invalid`;
+    const create = (address: string) =>
+      runWithTenant(tenant, () =>
+        repo.findOrCreateDraftThread({
+          connectedAccountId: accountId,
+          provider: MessagingProvider.google,
+          recipients: [],
+          bcc: [address],
+        }),
+      );
+    const save = (threadId: string, address: string, bodyText: string) =>
+      runWithTenant(tenant, () =>
+        repo.upsertThreadDraftOrThrow({
+          threadId,
+          connectedAccountId: accountId,
+          provider: MessagingProvider.google,
+          sender: attendee(ownerEmail, true),
+          subject: "Collision",
+          bodyText,
+          recipients: { to: [], cc: [], bcc: [attendee(address)] },
+        }),
+      );
+    const first = await create(firstAddress);
+    const second = await create(secondAddress);
+    await save(first.id, firstAddress, "First draft");
+    await save(second.id, secondAddress, "Second draft");
+    await expect(save(first.id, secondAddress, "Conflicting edit")).rejects.toMatchObject({ code: "P2002" });
+    for (const [thread, address, body] of [
+      [first, firstAddress, "First draft"],
+      [second, secondAddress, "Second draft"],
+    ] as const) {
+      const read = await runWithTenant(tenant, () => repo.listMessagesForThread(thread.id));
+      expect(read.messages[0].bodyText).toBe(body);
+      expect(read.messages[0].recipients.bcc).toEqual([attendee(address)]);
+      expect((await create(address)).id).toBe(thread.id);
+    }
+  });
+
   it("canonicalizes a multi-recipient draft with indexed identities and group semantics", async () => {
     const first = `multi-a-${randomUUID()}@example.invalid`;
     const second = `multi-b-${randomUUID()}@example.invalid`;

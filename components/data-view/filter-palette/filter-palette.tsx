@@ -16,6 +16,7 @@ import { FilterOperatorKey as OperatorKey, isStandaloneOperator } from "@/core/b
 import { PaletteOperatorMenu } from "@/components/data-view/filter-palette/palette-operator-menu";
 import { hasValidFilterConfiguration } from "@/components/data-view/table-view.utils";
 import { resolveFilterValueClass } from "@/components/data-view/filter-modal/filter-value-class";
+import { FilterOptionsProvider } from "@/components/data-view/filter-options-context";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { declaredOperatorsOf, palettePageKind } from "./palette-field-plan";
@@ -145,49 +146,51 @@ export const FilterPalette = observer(function FilterPalette({ store }: Props) {
   }
 
   return (
-    <AppForm store={palette}>
-      <div ref={paletteRef} className="flex min-h-0 flex-col" onKeyDownCapture={handleKeyDownCapture}>
-        {!isRoot && (
-          <div className="flex shrink-0 items-center gap-1.5 px-2 pt-2 pb-1">
-            <Button
-              aria-label={t("Common.actions.back")}
-              className="text-muted-foreground hover:text-foreground"
-              id="filter-palette-back"
-              size="icon-sm"
-              type="button"
-              variant="ghost"
-              onClick={palette.pop}
-            >
-              <ChevronLeftIcon />
-            </Button>
+    <FilterOptionsProvider fields={store.filterableFields}>
+      <AppForm store={palette}>
+        <div ref={paletteRef} className="flex min-h-0 flex-col" onKeyDownCapture={handleKeyDownCapture}>
+          {!isRoot && (
+            <div className="flex shrink-0 items-center gap-1.5 px-2 pt-2 pb-1">
+              <Button
+                aria-label={t("Common.actions.back")}
+                className="text-muted-foreground hover:text-foreground"
+                id="filter-palette-back"
+                size="icon-sm"
+                type="button"
+                variant="ghost"
+                onClick={palette.pop}
+              >
+                <ChevronLeftIcon />
+              </Button>
 
-            <PaletteOperatorMenu current={operator} operators={declaredOperators} onSelect={handleHeaderOperator} />
-          </div>
-        )}
-
-        {usesCommand ? (
-          <Command
-            loop
-            className="h-auto! min-h-0 overflow-visible bg-transparent"
-            label={t("Common.filters.palette.title")}
-            shouldFilter={isRoot || pageKind !== "select"}
-          >
-            <div className="shrink-0" id="filter-palette-search">
-              <CommandInput
-                autoFocus={!isRoot}
-                placeholder={isRoot ? t("Common.filters.palette.addFilter") : t("Common.table.search")}
-                value={palette.query}
-                onKeyDown={handleInputKeyDown}
-                onValueChange={palette.setQuery}
-              />
+              <PaletteOperatorMenu current={operator} operators={declaredOperators} onSelect={handleHeaderOperator} />
             </div>
+          )}
 
-            {renderPage()}
-          </Command>
-        ) : (
-          renderPage()
-        )}
-      </div>
-    </AppForm>
+          {usesCommand ? (
+            <Command
+              loop
+              className="h-auto! min-h-0 overflow-visible bg-transparent"
+              label={t("Common.filters.palette.title")}
+              shouldFilter={isRoot || pageKind !== "select"}
+            >
+              <div className="shrink-0" id="filter-palette-search">
+                <CommandInput
+                  autoFocus={!isRoot}
+                  placeholder={isRoot ? t("Common.filters.palette.addFilter") : t("Common.table.search")}
+                  value={palette.query}
+                  onKeyDown={handleInputKeyDown}
+                  onValueChange={palette.setQuery}
+                />
+              </div>
+
+              {renderPage()}
+            </Command>
+          ) : (
+            renderPage()
+          )}
+        </div>
+      </AppForm>
+    </FilterOptionsProvider>
   );
 });

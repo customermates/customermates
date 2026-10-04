@@ -13,6 +13,7 @@ import {
   type FilterSelectItem,
   useFilterSelectItems,
 } from "@/components/data-view/filter-modal/inputs/use-filter-select-items";
+import { resolveFilterDateGranularity } from "@/components/data-view/filter-modal/filter-value-class";
 import { SelectionValueSkeleton } from "@/components/forms/selection-loading";
 import { FilterOperatorKey, isStandaloneOperator } from "@/core/base/base-query-builder";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
@@ -66,13 +67,15 @@ export const FilterChipValue = observer(
       );
     }
 
-    if (filter.operator === FilterOperatorKey.inLastDays) {
+    if (filter.operator === FilterOperatorKey.inLastDays || filter.operator === FilterOperatorKey.notInLastDays) {
       const count = Number("value" in filter ? filter.value : 0) || 0;
       return (
         <>
           {prefix}
 
-          {t("Common.filters.daysPreset", { count })}
+          {filter.operator === FilterOperatorKey.notInLastDays
+            ? t("Common.filters.daysCount", { count })
+            : t("Common.filters.daysPreset", { count })}
         </>
       );
     }
@@ -94,7 +97,10 @@ export const FilterChipValue = observer(
     const labels = values.map((value) => {
       const dateParse = z.iso.datetime().safeParse(value);
       if (dateParse.success) {
-        const normalized = dateParse.data.endsWith("Z") ? dateParse.data.slice(0, -1) : dateParse.data;
+        const normalized =
+          resolveFilterDateGranularity(filter.field, customColumns) === "day" && dateParse.data.endsWith("Z")
+            ? dateParse.data.slice(0, -1)
+            : dateParse.data;
         return intlStore.formatNumericalShortDate(new Date(normalized));
       }
       const resolved = findLabelForValue(value, items);

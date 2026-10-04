@@ -216,6 +216,7 @@ import { SetConnectedAccountSignatureInteractor } from "@/ee/messaging/connect/s
 import { SetConnectedAccountVisibilityInteractor } from "@/ee/messaging/connect/set-connected-account-visibility.interactor";
 import { SetSelectedFoldersInteractor } from "@/ee/messaging/connect/set-selected-folders.interactor";
 import { GetMessageAttachmentInteractor } from "@/ee/messaging/inbox/get-message-attachment.interactor";
+import { GetMessagingFilterOptionsInteractor } from "@/ee/messaging/inbox/get-messaging-filter-options.interactor";
 import { GetMessagingThreadInteractor } from "@/ee/messaging/inbox/get-messaging-thread.interactor";
 import { GetMessagingThreadsInteractor } from "@/ee/messaging/inbox/get-messaging-threads.interactor";
 import { GetUnreadThreadCountInteractor } from "@/ee/messaging/inbox/get-unread-thread-count.interactor";
@@ -883,12 +884,7 @@ export const getResyncConnectedAccountInteractor = () =>
   );
 
 export const getReconnectConnectedAccountInteractor = () =>
-  new ReconnectConnectedAccountInteractor(
-    getConnectedAccountRepo(),
-    getMessagingService(),
-    getEventService(),
-    getEntitlementService(),
-  );
+  new ReconnectConnectedAccountInteractor(getConnectedAccountRepo(), getMessagingService(), getEntitlementService());
 
 export const getDeleteAccountsForPlanInteractor = () =>
   new DeleteAccountsForPlanInteractor(
@@ -1014,6 +1010,7 @@ export const getProcessAccountReconnectWebhookInteractor = () =>
     getMessagingService(),
     getConnectedAccountRepo(),
     getBackgroundTaskService(),
+    getEventService(),
   );
 export const getProcessAccountRemoveWebhookInteractor = () =>
   new ProcessAccountRemoveWebhookInteractor(getConnectedAccountRepo());
@@ -1156,6 +1153,9 @@ export const getMutateThreadRecordsInteractor = () =>
 
 export const getGetMessagingThreadInteractor = () =>
   new GetMessagingThreadInteractor(getMessagingRepo(), getConnectedAccountRepo(), getEntitlementService());
+
+export const getGetMessagingFilterOptionsInteractor = () =>
+  new GetMessagingFilterOptionsInteractor(getConnectedAccountRepo(), getEntitlementService());
 
 export const getGetMessageAttachmentInteractor = () =>
   new GetMessageAttachmentInteractor(getMessagingRepo(), getMessagingService(), getEntitlementService());

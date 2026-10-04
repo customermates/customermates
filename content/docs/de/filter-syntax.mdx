@@ -36,7 +36,7 @@ Ein Feldfilter enthält `fieldId`, `operator`, einen typisierten Skalar `value` 
 
 ## Welche Operatoren gibt es? [#which-operators-exist]
 
-Der Datensatzvertrag unterstützt 14 Feldoperatoren. Feldtyp und Verhalten bestimmen, welche davon gültig sind; inkompatible Kombinationen weist das Backend zurück.
+Der Datensatzvertrag unterstützt 15 Feldoperatoren. Feldtyp und Verhalten bestimmen, welche davon gültig sind; inkompatible Kombinationen weist das Backend zurück.
 
 | Operatoren | Bedeutung |
 |---|---|
@@ -45,14 +45,14 @@ Der Datensatzvertrag unterstützt 14 Feldoperatoren. Feldtyp und Verhalten besti
 | `gt`, `gte`, `lt`, `lte` | Vergleich unterstützter Zahlen und Daten |
 | `in`, `notIn` | Mitgliedschaft in `values` mit höchstens 100 typisierten Werten |
 | `between` | Einschließlich beider Datumsgrenzen aus zwei Werten |
-| `inLastDays` | Relatives Fenster mit positiver ganzer Tageszahl |
+| `inLastDays`, `notInLastDays` | Relatives Fenster mit positiver ganzer Tageszahl; `notInLastDays` findet Werte strikt vor diesem Fenster |
 | `empty`, `notEmpty` | Fehlender oder vorhandener Wert; `value` ist `null` |
 
 `eq` vergleicht Text exakt; `contains` und `startsWith` ignorieren Großschreibung. Währungsvergleiche verlangen eine passende Währung. Fehlend, null, eingeschränkt und Berechnungsfehler sind verschiedene Zustände; ein eingeschränktes Ergebnis darf über Filtern oder Sortieren keine verborgenen Eingaben preisgeben.
 
 ### Welche Datums-Operatoren gibt es, etwa für die letzten 7 Tage? [#which-date-operators-exist]
 
-Datums- und Zeitfelder unterstützen passende Vergleiche und `between`. Systemdaten verwenden `system:createdAt` und `system:updatedAt` als Feld-IDs. `inLastDays` erwartet einen Dezimal-Skalar ohne Währung, etwa `{"kind":"decimal","value":"7","currency":null}`. Relative Fenster nutzen die Uhr der Abfrage; gespeicherte Berechnungen ändern sich nicht unbemerkt mit der Zeit.
+Datums- und Zeitfelder unterstützen passende Vergleiche und `between`. Systemdaten verwenden `system:createdAt` und `system:updatedAt` als Feld-IDs. `inLastDays` und `notInLastDays` erwarten einen Dezimal-Skalar ohne Währung, etwa `{"kind":"decimal","value":"7","currency":null}`. `inLastDays` umfasst Werte ab dem Beginn des Tages vor N Tagen; `notInLastDays` (**Älter als…** in der App) findet Werte strikt vor dieser Grenze, sodass `notInLastDays` 3 zusammen mit `inLastDays` 7 Werte von vor drei bis sieben Tagen findet. Relative Fenster nutzen die Uhr der Abfrage; gespeicherte Berechnungen ändern sich nicht unbemerkt mit der Zeit.
 
 ### Welche Operatoren wirken auf Textfelder? [#which-operators-work-on-text-fields]
 
@@ -71,6 +71,8 @@ Verwenden Sie die Feld-ID aus `get_record_model` und niemals die veränderbare B
 ## Welche Feldnamen kann ich nutzen? [#which-field-names-can-i-use]
 
 Verwenden Sie stabile Feld-IDs aus `get_record_model`. Die Systemschlüssel `system:createdAt`, `system:updatedAt` und `system:assignedTo` stehen zur Verfügung, sofern unterstützt. Beziehungen verwenden ihre Definitions-IDs in `relationships` statt Namen wie `organizationIds`. Umbenannte Felder, Typen und Beziehungen behalten ihre IDs; gespeicherte Ansichten und KI-Abfragen bleiben gültig.
+
+Inbox-Listen bieten außerdem `connectedAccountId`, kontospezifische `emailFolder`, `lastMessageDirection`, `lastMessageSentAt` und `lastMessageAt`. Rufen Sie zuerst `get_messaging_threads` ohne Filter auf (oder `manage_data_views` mit `action: "config"`, der Inbox-Oberfläche und `section: "filters"`) und übernehmen Sie den exakten `filterableFields.options[].value` für Konto oder Ordner. `emailFolder` erlaubt `in` und `notIn`; jede Ordnerreferenz enthält ihr Konto. Ordneroptionen liefern `groupKey` als Kontoidentität und `groupLabel` als Überschrift, damit Konten auch bei gleichem Anzeigenamen getrennte Gruppen bleiben. `lastMessageDirection` erlaubt `inbound`/`outbound` mit `in`/`notIn` und ignoriert Entwürfe, ausgeblendete oder gelöschte Nachrichten und Systemereignisse. `lastMessageSentAt` filtert das Datum derselben letzten tatsächlichen Nachricht. Kombinieren Sie `notInLastDays` mit Wert 3 und `inLastDays` mit Wert 7 auf diesem Feld für drei bis sieben Tage alte Nachrichten; Konto-, Ordner- und Richtungsfilter lassen sich zusätzlich kombinieren. `lastMessageAt` filtert die letzte Aktivität einschließlich Entwürfen. Siehe [Inbox-Filter](/docs/app-inbox#how-do-i-search-filter-or-refresh-the-inbox).
 
 ## Beispiele [#examples]
 

@@ -6,7 +6,7 @@ import {
 import { getRecordChoicesAction } from "@/app/[locale]/(protected)/records/actions";
 import { resolveSearchReferencesAction } from "@/app/[locale]/(protected)/search/actions";
 import type { GetResult } from "@/core/base/base-get.interactor";
-import type { Filter, GetQueryParams } from "@/core/base/base-get.schema";
+import type { Filter, FilterOption, GetQueryParams } from "@/core/base/base-get.schema";
 import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
 import type { RecordRef } from "@/features/records/record-model.schema";
 import { parseRecordReferenceKey, recordReferenceKey } from "@/features/records/record-reference-key";
@@ -25,7 +25,11 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 
-import { getCalendarsAction, getConnectedAccountsAction } from "@/app/[locale]/(protected)/actions";
+import {
+  getCalendarsAction,
+  getConnectedAccountsAction,
+  getMessagingFilterOptionsAction,
+} from "@/app/[locale]/(protected)/actions";
 import { getUsersAction, resolveUserOptionsAction } from "@/app/[locale]/(protected)/company/actions";
 import { SUBSCRIPTION_STATUS_COLOR_MAP } from "@/app/[locale]/(protected)/company/components/subscription/subscription-panel";
 import {
@@ -36,6 +40,7 @@ import {
   getOperatorWorkspacesAction,
   getOperatorWorkspaceTagsAction,
 } from "@/app/[locale]/(protected)/operator/actions";
+import { useFilterOptions } from "@/components/data-view/filter-options-context";
 import { isCustomField } from "@/components/data-view/table-view.utils";
 import { Avatar } from "@/components/ui/avatar";
 import { type ChipColor } from "@/constants/chip-colors";
@@ -54,6 +59,9 @@ export type FilterSelectItem = {
   key: string;
   value: string;
   textValue: string;
+  optionLabel?: string;
+  groupKey?: string;
+  groupLabel?: string;
   color?: ChipColor;
   startContent?: React.ReactNode;
 };
@@ -77,6 +85,23 @@ function renderAvatar(name: string, src?: string | null) {
 function renderProviderIcon(provider: string, label: string) {
   const ProviderIcon = getProviderIcon(provider as MessagingProvider);
   return <ProviderIcon aria-label={label} className="size-4 shrink-0" />;
+}
+
+function scopedOptionItems(options: FilterOption[], field: string, t: Translate): FilterSelectItem[] {
+  return options.map((option) => {
+    const providerLabel = option.provider ? t(`Common.providers.${option.provider}`) : "";
+    const label =
+      option.label || (field === FilterFieldKey.emailFolder.toString() ? t("Common.unnamed") : providerLabel);
+    return {
+      key: option.value,
+      value: option.value,
+      textValue: option.groupLabel ? `${label} · ${option.groupLabel}` : label,
+      ...(field === FilterFieldKey.emailFolder.toString() && option.groupKey
+        ? { optionLabel: label, groupKey: option.groupKey, groupLabel: option.groupLabel || providerLabel }
+        : {}),
+      startContent: option.provider ? renderProviderIcon(option.provider, providerLabel) : undefined,
+    };
+  });
 }
 
 const RecordOptionIdSchema = z.uuid();
@@ -231,6 +256,22 @@ export function filterOptionSources(
             }),
         })),
     },
+    [FilterFieldKey.emailFolder]: {
+      getItems: () =>
+        getMessagingFilterOptionsAction().then((options) => ({
+          items: scopedOptionItems(options.folders, FilterFieldKey.emailFolder, t),
+        })),
+    },
+    [FilterFieldKey.lastMessageDirection]: {
+      items: () =>
+        ["inbound", "outbound"].map((direction) => ({
+          key: direction,
+          value: direction,
+          textValue: t(`Inbox.lastMessageDirections.${direction}`),
+        })),
+    },
+    [FilterFieldKey.lastMessageSentAt]: NO_FILTER_OPTIONS,
+    [FilterFieldKey.lastMessageAt]: NO_FILTER_OPTIONS,
     [FilterFieldKey.calendarId]: {
       getItems: (params) =>
         getCalendarsAction(params).then((res) => ({
@@ -340,6 +381,7 @@ export function useFilterSelectItems(
   const hasActivityQuery = activityQuery !== null;
 
   const { field } = filter;
+  const scopedOptions = useFilterOptions(field);
   const fieldKey = field as FilterFieldKey;
   const value = "value" in filter ? filter.value : undefined;
   const isCustom = isCustomField(field);
@@ -394,10 +436,11 @@ export function useFilterSelectItems(
       };
     }
     if (isCustom) return NO_FILTER_OPTIONS;
+    if (scopedOptions) return { items: () => scopedOptionItems(scopedOptions, field, t) };
 
     const enumValue = filterFieldKeyOf(field);
     return enumValue ? filterOptionSources(t, activityQueryRef)[enumValue] : NO_FILTER_OPTIONS;
-  }, [field, isCustom, t, timelineScopeKey, referenceTypeId, presentationType]);
+  }, [field, isCustom, t, timelineScopeKey, referenceTypeId, presentationType, scopedOptions]);
 
   const getItems = source && "getItems" in source ? source.getItems : undefined;
 

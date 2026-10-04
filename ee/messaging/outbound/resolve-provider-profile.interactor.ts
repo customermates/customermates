@@ -5,7 +5,6 @@ import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { MessagingService } from "../messaging.service";
 import type { FindUsableAccountRepo } from "../persistence/find-usable-account.repo";
 
-import { getLocale } from "next-intl/server";
 import { z } from "zod";
 
 import { Action, MessagingProvider, Resource } from "@/generated/prisma";
@@ -16,7 +15,7 @@ import { Write } from "@/core/decorators/write.decorator";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { normalizeChannelValue } from "@/features/records/channel-value";
 import { getProviderProfileUrl, isHandleProvider } from "../provider";
-import { formatRetryAfter } from "../retry-after";
+import { retryAfterPhrase } from "../retry-after.server";
 
 const Schema = z.object({
   connectedAccountId: z.uuid(),
@@ -63,7 +62,7 @@ export class ResolveProviderProfileInteractor extends AuthenticatedInteractor<
       accountId: account.unipileAccountId,
       identifier: data.identifier,
     });
-    if (!res.ok) return fail(res.error, [], { retryAfter: formatRetryAfter(await getLocale(), res.retryAfterSeconds) });
+    if (!res.ok) return fail(res.error, [], { retryAfter: await retryAfterPhrase(res.retryAfterSeconds) });
 
     const profileUrl =
       res.data.profileUrl ?? getProviderProfileUrl(account.provider, res.data.publicIdentifier ?? data.identifier);

@@ -41,6 +41,7 @@ const ThreadFolderContextSchema = z.object({
   folders: z.array(EmailFolderSchema),
   selectedFolderIds: z.array(z.string()),
   currentFolderIds: z.array(z.string()),
+  canMove: z.boolean(),
 });
 export type ThreadFolderContext = z.infer<typeof ThreadFolderContextSchema>;
 
@@ -106,9 +107,23 @@ export class GetMessagingThreadInteractor extends AuthenticatedInteractor<
     if (!isEmailProvider(thread.provider)) return null;
 
     const context = await this.accountRepo.findFolderContextById(thread.connectedAccountId);
-    if (!context) return null;
+    if (context) {
+      const placements = await this.repo.listThreadFolderPlacements(thread.id);
+      return { ...context, currentFolderIds: threadEmailFolderIds(placements, context.folders), canMove: true };
+    }
+    if (!thread.sharedToCrm) return null;
 
     const placements = await this.repo.listThreadFolderPlacements(thread.id);
-    return { ...context, currentFolderIds: threadEmailFolderIds(placements, context.folders) };
+    const shared = await this.accountRepo.findSharedThreadFolderContext(thread.id, [
+      ...new Set(placements.flatMap((placement) => placement.folderIds)),
+    ]);
+    if (!shared) return null;
+
+    const visible = new Set(shared.selectedFolderIds);
+    const visiblePlacements = placements.map((placement) => ({
+      ...placement,
+      folderIds: placement.folderIds.filter((id) => visible.has(id)),
+    }));
+    return { ...shared, currentFolderIds: threadEmailFolderIds(visiblePlacements, shared.folders), canMove: false };
   }
 }

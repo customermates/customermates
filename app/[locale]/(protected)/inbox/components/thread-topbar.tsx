@@ -15,7 +15,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActionsOverride } from "@/app/components/topbar-actions-context";
 import { runUserAction } from "@/core/errors/report-application-error";
 
-import { ThreadFolderChip } from "./thread-folder-chip";
+import { ThreadFolderMenu } from "./thread-folder-menu";
 import { ThreadSettings } from "./thread-settings";
 import { ThreadStatePicker } from "./thread-state-picker";
 
@@ -48,6 +48,8 @@ export const ThreadTopBar = observer(({ thread }: Props) => {
     () => (
       <TooltipProvider>
         <div className="flex items-center gap-1">
+          <ThreadFolderMenu />
+
           {canUpdate && (
             <Tooltip>
               <TooltipTrigger asChild>
@@ -74,8 +76,6 @@ export const ThreadTopBar = observer(({ thread }: Props) => {
             sharedToCrm={thread.sharedToCrm}
             threadId={thread.id}
           />
-
-          <ThreadFolderChip />
 
           <ThreadStatePicker state={thread.state} />
         </div>

@@ -32,6 +32,7 @@ import { DIAGRAM_SYSTEM_LABEL_KEYS, DisplayType } from "@/features/widget/widget
 import {
   ConnectedAccountStatus,
   MessagingProvider,
+  MessagingMessageDirection,
   MessagingThreadState,
   Resource,
   RoutineRunStatus,
@@ -315,6 +316,9 @@ const COLOR_KEYS = CHIP_COLORS.map((color) => `Common.colors.${color}`);
 const CUSTOM_COLUMN_TYPE_KEYS = Object.values(CustomColumnType).map(
   (columnType) => `Common.customColumnTypes.${columnType}`,
 );
+const LAST_MESSAGE_DIRECTION_KEYS = Object.values(MessagingMessageDirection).map(
+  (direction) => `Inbox.lastMessageDirections.${direction}`,
+);
 const THREAD_STATE_KEYS = Object.values(MessagingThreadState).map((state) => `Inbox.threadStates.${state}`);
 const WEBHOOK_DELIVERY_STATUS_KEYS = Object.values(WebhookDeliveryStatus).map(
   (status) => `WebhookDeliveryModal.deliveryStatus.${status}`,
@@ -596,6 +600,7 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
     ],
   ],
   ["Inbox.threadStates.${*}", THREAD_STATE_KEYS],
+  ["Inbox.lastMessageDirections.${*}", LAST_MESSAGE_DIRECTION_KEYS],
   ["OnboardingWizard.ai.choices.${*}", ONBOARDING_CHOICE_KEYS],
   ["OnboardingWizard.ai.install.instruction.${*}", ONBOARDING_INSTALL_KEYS],
   ["OnboardingWizard.ai.methods.${*}.description", onboardingMethodKeys("description")],
@@ -777,11 +782,13 @@ export const DYNAMIC_KEY_SITES = [
   "components/data-view/filter-modal/inputs/filter-input-iso-date.tsx :: t :: Common.datePresets.${preset.key}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Common.events.${event}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Common.providers.${account.provider}",
+  "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Common.providers.${option.provider}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Common.providers.${provider}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Common.providers.${result.thread.provider}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Common.providers.${thread.provider}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Common.userStatuses.${status}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: EntityTimeline.types.${type}",
+  "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Inbox.lastMessageDirections.${direction}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Inbox.threadStates.${state}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Subscription.planNames.${plan}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Subscription.status.${status}",
@@ -868,7 +875,7 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
     1,
   ],
   ["app/[locale]/(protected)/inbox/components/attachment-classify.ts :: t :: typeLabelKey", 2],
-  ["app/[locale]/(protected)/inbox/components/message-item.tsx :: t :: labelKey", 1],
+  ["app/[locale]/(protected)/inbox/components/email-message-header.tsx :: t :: labelKey", 1],
   ["app/[locale]/(protected)/inbox/components/thread-row.tsx :: t :: PREVIEW_KIND_LABEL[thread.previewKind]", 1],
   [
     'app/[locale]/(protected)/onboarding/wizard/components/step-profile.tsx :: t.rich :: isInvited ? "OnboardingForm.invitedAgreeToTerms" : "OnboardingForm.agreeToTerms"',

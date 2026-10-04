@@ -36,7 +36,7 @@ Use `in` to match any of several values of one field. To express OR across diffe
 
 ## Which operators exist?
 
-The record query contract supports 14 field operators. The type and behavior of a field determine which are valid; the backend rejects incompatible combinations.
+The record query contract supports 15 field operators. The type and behavior of a field determine which are valid; the backend rejects incompatible combinations.
 
 | Operators | Meaning |
 |---|---|
@@ -45,14 +45,14 @@ The record query contract supports 14 field operators. The type and behavior of 
 | `gt`, `gte`, `lt`, `lte` | Ordered comparison on supported numbers and dates |
 | `in`, `notIn` | Membership in `values`, at most 100 typed values |
 | `between` | Inclusive date interval supplied as two values |
-| `inLastDays` | Relative window using a positive whole-day count |
+| `inLastDays`, `notInLastDays` | Relative window using a positive whole-day count; `notInLastDays` matches values strictly before that window |
 | `empty`, `notEmpty` | Missing versus present value; `value` is `null` |
 
 `eq` on text is exact; `contains` and `startsWith` ignore case. Currency comparisons require a matching currency. Missing, zero, restricted, and calculation-error values are distinct; a restricted result cannot be used to infer hidden inputs through filtering or sorting.
 
 ### Which date operators exist, for example for the last 7 days? [#which-date-operators-exist]
 
-Date and date-time fields support appropriate ordered comparisons and `between`. System dates use `system:createdAt` and `system:updatedAt` as field IDs. `inLastDays` takes a decimal scalar without currency, such as `{"kind":"decimal","value":"7","currency":null}`. Relative windows use the query clock; stored calculations do not silently change with time.
+Date and date-time fields support appropriate ordered comparisons and `between`. System dates use `system:createdAt` and `system:updatedAt` as field IDs. `inLastDays` and `notInLastDays` take a decimal scalar without currency, such as `{"kind":"decimal","value":"7","currency":null}`. `inLastDays` includes values at or after the start of the day N days ago; `notInLastDays` (**Older than…** in the app) matches values strictly before that cutoff, so `notInLastDays` 3 plus `inLastDays` 7 finds values from three to seven days ago. Relative windows use the query clock; stored calculations do not silently change with time.
 
 ### Which operators work on text fields?
 
@@ -69,6 +69,8 @@ Use the field's ID from `get_record_model`, never its editable label. An input, 
 ## Which field names can I use?
 
 Use stable field IDs from `get_record_model`. The system keys `system:createdAt`, `system:updatedAt`, and `system:assignedTo` are available where supported. Relationships use their definition IDs in `relationships` rather than names such as `organizationIds`. A renamed field, type, or relationship keeps its ID, so saved views and AI queries remain valid.
+
+Inbox lists also expose `connectedAccountId`, account-specific `emailFolder`, `lastMessageDirection`, `lastMessageSentAt` and `lastMessageAt`. First call `get_messaging_threads` without filters (or `manage_data_views` with `action: "config"`, the Inbox surface and `section: "filters"`), then copy the exact `filterableFields.options[].value` for an account or folder. `emailFolder` accepts `in` and `notIn`; each folder reference includes its account. Folder options provide `groupKey` (account identity) and `groupLabel` (heading), allowing separate groups even when two accounts have the same display name. `lastMessageDirection` accepts `inbound`/`outbound` with `in`/`notIn` and ignores drafts, hidden/deleted messages and system events. `lastMessageSentAt` applies date filters to that same latest actual message. Combine `notInLastDays` with value 3 and `inLastDays` with value 7 on this field for messages three to seven days old; these may be combined with account, folder and direction filters. `lastMessageAt` filters last activity and includes draft activity. See [Inbox filters](/docs/app-inbox#how-do-i-search-filter-or-refresh-the-inbox).
 
 ## Examples
 

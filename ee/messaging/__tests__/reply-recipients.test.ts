@@ -23,17 +23,74 @@ function message(over: {
   sender: MessagingAttendee;
   to?: MessagingAttendee[];
   cc?: MessagingAttendee[];
+  bcc?: MessagingAttendee[];
   isDraft?: boolean;
 }) {
   return {
     direction: over.direction,
     isDraft: over.isDraft ?? false,
     sender: over.sender,
-    recipients: { to: over.to ?? [], cc: over.cc ?? [], bcc: [] },
+    recipients: { to: over.to ?? [], cc: over.cc ?? [], bcc: over.bcc ?? [] },
   };
 }
 
 describe("deriveReplyRecipients", () => {
+  it("never automatically copies Bcc recipients into reply To or Cc", () => {
+    const inbound = deriveReplyRecipients(
+      [],
+      [
+        message({
+          direction: "inbound",
+          sender: attendee("sender@example.test"),
+          to: [attendee("me@example.test", true)],
+          cc: [attendee("copy@example.test")],
+          bcc: [attendee("hidden@example.test")],
+        }),
+      ],
+    );
+    expect(inbound).toEqual({ to: ["sender@example.test"], cc: ["copy@example.test"] });
+    const bccOnly = deriveReplyRecipients(
+      [],
+      [
+        message({
+          direction: "outbound",
+          sender: attendee("me@example.test", true),
+          bcc: [attendee("hidden@example.test")],
+        }),
+      ],
+    );
+    expect(bccOnly).toEqual({ to: [], cc: [] });
+  });
+  it("leaves To empty instead of addressing myself after a Bcc-only send", () => {
+    const result = deriveReplyRecipients(
+      [attendee("me@example.test", true)],
+      [
+        message({
+          direction: "outbound",
+          sender: attendee("me@example.test", true),
+          bcc: [attendee("hidden@example.test")],
+        }),
+      ],
+    );
+
+    expect(result).toEqual({ to: [], cc: [] });
+  });
+
+  it("keeps my own address for a note I sent to myself", () => {
+    const result = deriveReplyRecipients(
+      [attendee("me@example.test", true)],
+      [
+        message({
+          direction: "outbound",
+          sender: attendee("me@example.test", true),
+          to: [attendee("me@example.test", true)],
+        }),
+      ],
+    );
+
+    expect(result).toEqual({ to: ["me@example.test"], cc: [] });
+  });
+
   it("replies all to the last inbound, keeping Cc and excluding own addresses", () => {
     const result = deriveReplyRecipients(
       [attendee("ben@gmx.de"), attendee("mail@customermates.com")],

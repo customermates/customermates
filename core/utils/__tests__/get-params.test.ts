@@ -32,6 +32,31 @@ describe("filter URL parameters", () => {
     ]);
   });
 
+  it.each([FilterOperatorKey.in, FilterOperatorKey.notIn] as const)(
+    "preserves account folder references for %s after a real URL round trip",
+    (operator) => {
+      const accountId = "b1b2c3d4-1234-4123-8123-123456789abc";
+      const filters: Filter[] = [
+        {
+          field: FilterFieldKey.emailFolder,
+          operator,
+          value: [JSON.stringify([accountId, "inbox"]), JSON.stringify([accountId, 'Projects, München:50%/"α"'])],
+        },
+      ];
+      const url = new URL(`https://example.invalid/inbox?${encodeGetParams({ filters }).toString()}`);
+      expect(decodeGetParams(url.searchParams).filters).toEqual(filters);
+    },
+  );
+
+  it("preserves list values that start with the encoded-list marker", () => {
+    const filters: Filter[] = [{ field: "status", operator: FilterOperatorKey.in, value: ['json:["open"]'] }];
+    expect(decodeGetParams(new URLSearchParams(encodeGetParams({ filters }).toString())).filters).toEqual(filters);
+  });
+
+  it.each(["json:[1]", "json:{}", "json:["])("ignores a malformed encoded list %s", (value) => {
+    expect(decodeGetParams(new URLSearchParams({ filters: `emailFolder:in:${value}` })).filters).toEqual([]);
+  });
+
   it("round trips relation existence filters without a value token", () => {
     const filters: Filter[] = [
       { field: FilterFieldKey.userIds, operator: FilterOperatorKey.hasNone },
