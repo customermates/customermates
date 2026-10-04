@@ -41,7 +41,7 @@ yarn db:provision
 cp .env.cloud.template .env
 ```
 
-Set `DATABASE_URL` and `DIRECT_URL` in the new ignored `.env` to this worktree provisioner's loopback URLs. Generate a new local `BETTER_AUTH_SECRET`. Set `APP_MODE=cloud`, `HOSTED_AI_OPERATOR_CONTROLS_ENABLED=true`, `HOSTED_AI_PROVIDER_WORK_PAUSED=true` and `NEXT_TELEMETRY_DISABLED=1`. Leave real provider/model credentials absent, and clear the placeholder `NEXT_PUBLIC_SENTRY_DSN`. Do not copy an existing workstation `.env` or use hosted/demo/production databases.
+Set `DATABASE_URL` and `DIRECT_URL` in the new ignored `.env` to this worktree provisioner's loopback URLs. Generate a new local `BETTER_AUTH_SECRET`. Set `APP_MODE=cloud`, `HOSTED_AI_OPERATOR_CONTROLS_ENABLED=true`, `HOSTED_AI_PROVIDER_WORK_PAUSED=true` and `NEXT_TELEMETRY_DISABLED=1`. Leave real provider/model credentials absent, and clear the placeholders `NEXT_PUBLIC_SENTRY_DSN` and `AI_GATEWAY_API_KEY` (a non-empty gateway key changes the offline classifier tests). Do not copy an existing workstation `.env` or use hosted/demo/production databases.
 
 ```sh
 yarn install --frozen-lockfile
