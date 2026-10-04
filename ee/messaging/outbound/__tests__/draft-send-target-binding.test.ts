@@ -610,14 +610,14 @@ function saveDraftInteractor(repo: any) {
   );
 }
 
-function expectInvalidRecipients(result: any) {
+function expectLockedToRecipients(result: any) {
   expect(result.ok).toBe(false);
   expect(result.error.issues).toEqual(
     expect.arrayContaining([
       expect.objectContaining({
         path: ["recipients"],
         params: expect.objectContaining({
-          error: CustomErrorCode.invalidChannelValue,
+          error: CustomErrorCode.draftToRecipientsLocked,
         }),
       }),
     ]),
@@ -645,7 +645,7 @@ describe("SaveDraftInteractor cold-draft target binding", () => {
     expect(repo.upsertThreadDraftOrThrow.mock.calls[0][0].bodyHtml).not.toContain("data-customermates-signature");
   });
 
-  it("rejects changing recipients on an existing cold-draft shell", async () => {
+  it("explains that a saved new message keeps its To recipients", async () => {
     const repo = saveDraftRepo();
 
     const result = await saveDraftInteractor(repo).invoke({
@@ -655,7 +655,7 @@ describe("SaveDraftInteractor cold-draft target binding", () => {
       body: "Updated draft",
     });
 
-    expectInvalidRecipients(result);
+    expectLockedToRecipients(result);
     expect(repo.findOrCreateDraftThread).not.toHaveBeenCalled();
     expect(repo.upsertThreadDraftOrThrow).not.toHaveBeenCalled();
   });

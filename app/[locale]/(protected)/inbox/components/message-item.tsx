@@ -146,7 +146,7 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
               senderName={resolvedName}
               onLoadRemoteImages={canLoadRemoteImages ? () => setShowRemoteImages(true) : undefined}
               onMove={
-                userStore.can(Resource.inboxMessages, Action.update)
+                userStore.can(Resource.inboxMessages, Action.update) && detail.folderContext?.canMove
                   ? (folderId) => runUserAction(() => detail.moveToFolder(folderId, message.id))
                   : undefined
               }

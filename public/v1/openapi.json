@@ -54497,12 +54497,16 @@
                     "items": {
                       "type": "string"
                     }
+                  },
+                  "canMove": {
+                    "type": "boolean"
                   }
                 },
                 "required": [
                   "folders",
                   "selectedFolderIds",
-                  "currentFolderIds"
+                  "currentFolderIds",
+                  "canMove"
                 ],
                 "additionalProperties": false
               },

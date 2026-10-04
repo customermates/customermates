@@ -60,6 +60,36 @@ describe("deriveReplyRecipients", () => {
     );
     expect(bccOnly).toEqual({ to: [], cc: [] });
   });
+  it("leaves To empty instead of addressing myself after a Bcc-only send", () => {
+    const result = deriveReplyRecipients(
+      [attendee("me@example.test", true)],
+      [
+        message({
+          direction: "outbound",
+          sender: attendee("me@example.test", true),
+          bcc: [attendee("hidden@example.test")],
+        }),
+      ],
+    );
+
+    expect(result).toEqual({ to: [], cc: [] });
+  });
+
+  it("keeps my own address for a note I sent to myself", () => {
+    const result = deriveReplyRecipients(
+      [attendee("me@example.test", true)],
+      [
+        message({
+          direction: "outbound",
+          sender: attendee("me@example.test", true),
+          to: [attendee("me@example.test", true)],
+        }),
+      ],
+    );
+
+    expect(result).toEqual({ to: ["me@example.test"], cc: [] });
+  });
+
   it("replies all to the last inbound, keeping Cc and excluding own addresses", () => {
     const result = deriveReplyRecipients(
       [attendee("ben@gmx.de"), attendee("mail@customermates.com")],

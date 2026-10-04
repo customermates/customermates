@@ -1173,6 +1173,7 @@
       "demoMode": "This action is not available in demo mode. Sign in to access all features.",
       "draftMessageNotFound": "That draft could not be found. It may have already been sent or discarded.",
       "draftThreadNotSent": "This draft has no conversation yet. Send it from the inbox.",
+      "draftToRecipientsLocked": "A saved new message keeps its To recipients. Discard the draft and start a new message to address someone else.",
       "duplicateChannel": "This channel is listed more than once. Add each email address, phone number, or handle only once.",
       "duplicateOutboundSuppressed": "An identical message was sent to this thread moments ago. Change the text or wait a minute before retrying.",
       "duplicateWebhookEvents": "Duplicate events are not allowed.",

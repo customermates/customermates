@@ -69,6 +69,7 @@ beforeEach(() => {
     folders: [folder("inbox", "Inbox"), folder("archive", "Archive"), folder("sent", "Sent", "SENT")],
     currentFolderIds: ["archive"],
     selectedFolderIds: ["inbox", "archive", "sent"],
+    canMove: true,
   };
 });
 
@@ -104,6 +105,12 @@ describe("ThreadFolderMenu", () => {
     harness.provider = "google";
     expect(render()).toBe("");
     harness.context = null;
+    expect(render()).toBe("");
+  });
+
+  it("offers no move action to a teammate who only reads a shared conversation", () => {
+    harness.context = { ...(harness.context as object), canMove: false };
+
     expect(render()).toBe("");
   });
 });

@@ -207,7 +207,7 @@ export class SaveDraftInteractor extends AuthenticatedInteractor<SaveDraftData, 
       ) {
         return {
           ok: false,
-          failure: fail(CustomErrorCode.invalidChannelValue, ["recipients"]),
+          failure: fail(CustomErrorCode.draftToRecipientsLocked, ["recipients"]),
         };
       }
 

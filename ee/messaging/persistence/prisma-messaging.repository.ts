@@ -1768,7 +1768,10 @@ export class PrismaMessagingRepo
         where,
         orderBy: { sentAt: "asc" },
       });
-      const messages = this.redactBcc(rows, canViewBcc) as unknown as MessagingMessage[];
+      const messages = this.redactBcc(
+        this.limitFolderIds(rows, canViewBcc, folderStates),
+        canViewBcc,
+      ) as unknown as MessagingMessage[];
       await this.hydrateMessageSenderContacts(messages, accessibleThread);
 
       return { messages, total: messages.length };
@@ -1783,7 +1786,9 @@ export class PrismaMessagingRepo
       take: pageSize,
     });
 
-    const messages = (this.redactBcc(rows, canViewBcc) as unknown as MessagingMessage[]).reverse();
+    const messages = (
+      this.redactBcc(this.limitFolderIds(rows, canViewBcc, folderStates), canViewBcc) as unknown as MessagingMessage[]
+    ).reverse();
     await this.hydrateMessageSenderContacts(messages, accessibleThread);
 
     return { messages, total };
@@ -1819,6 +1824,17 @@ export class PrismaMessagingRepo
       const better = bestName.get(message.sender.attendeeId) || (single && hasLetter(thread.name) ? thread.name : "");
       if (better) message.sender.displayName = better;
     });
+  }
+
+  private limitFolderIds<T extends { folderIds: string[] }>(
+    rows: T[],
+    canViewAllFolders: boolean,
+    folderStates: { visibleSet: string[] }[],
+  ): T[] {
+    if (canViewAllFolders || folderStates.length === 0) return rows;
+
+    const visible = new Set(folderStates[0].visibleSet);
+    return rows.map((row) => ({ ...row, folderIds: row.folderIds.filter((id) => visible.has(id)) }));
   }
 
   private redactBcc<T extends { recipients: unknown; direction: MessagingMessageDirection }>(

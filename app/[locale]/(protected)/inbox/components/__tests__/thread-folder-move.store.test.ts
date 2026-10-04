@@ -17,7 +17,7 @@ vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree: vi.fn()
 
 const { MessagingThreadDetailStore } = await import("../messaging-thread-detail.store");
 
-const CONTEXT = { folders: [], selectedFolderIds: ["inbox"], currentFolderIds: ["inbox"] };
+const CONTEXT = { folders: [], selectedFolderIds: ["inbox"], currentFolderIds: ["inbox"], canMove: true };
 
 function store() {
   const instance = new MessagingThreadDetailStore({
@@ -71,6 +71,15 @@ describe("moveToFolder reports what actually happened", () => {
     expect(harness.move).toHaveBeenCalledWith({ threadId: "t1", folderId: "archive", messageId: "selected-email" });
     expect(harness.getThread).toHaveBeenCalledWith("t1");
   });
+  it("never asks the provider to move mail for a reader of a shared conversation", async () => {
+    const s = store();
+    s.folderContext = { ...CONTEXT, canMove: false } as never;
+
+    await s.moveToFolder("archive", "selected-email");
+
+    expect(harness.move).not.toHaveBeenCalled();
+  });
+
   it("files older emails even when the representative email already occupies the destination", async () => {
     harness.move.mockResolvedValue(result({ folderId: "inbox", movedCount: 1, skippedCount: 1 }));
     const s = store();

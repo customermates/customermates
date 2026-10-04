@@ -170,7 +170,7 @@ export class MessagingThreadDetailStore extends BaseStore {
   moveToFolder = async (folderId: string, messageId?: string): Promise<void> => {
     const thread = this.thread;
     const context = this.folderContext;
-    if (!thread || !context || this.movingThreadIds.has(thread.id)) return;
+    if (!thread || !context?.canMove || this.movingThreadIds.has(thread.id)) return;
 
     this.movingThreadIds.add(thread.id);
     try {

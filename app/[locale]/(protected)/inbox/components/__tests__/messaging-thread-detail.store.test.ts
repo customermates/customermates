@@ -24,6 +24,7 @@ function detail(id = "thread", messages = [{ id: "message" }]): ThreadDetail {
       folders: [],
       currentFolderIds: ["inbox"],
       selectedFolderIds: ["inbox"],
+      canMove: true,
     },
   } as unknown as ThreadDetail;
 }

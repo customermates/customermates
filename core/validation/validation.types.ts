@@ -129,6 +129,7 @@ export enum CustomErrorCode {
   messageContentRequired = "messageContentRequired",
   sendEmailTargetRequired = "sendEmailTargetRequired",
   emailRecipientsRequired = "emailRecipientsRequired",
+  draftToRecipientsLocked = "draftToRecipientsLocked",
   draftMessageNotFound = "draftMessageNotFound",
   draftThreadNotSent = "draftThreadNotSent",
   subjectRequired = "subjectRequired",

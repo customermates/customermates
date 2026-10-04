@@ -25,7 +25,7 @@ export const ThreadFolderMenu = observer(() => {
   const intlStore = useHydratedIntlStore();
   const context = detail.folderContext;
   const thread = detail.thread;
-  if (!context || !thread || !userStore.can(Resource.inboxMessages, Action.update)) return null;
+  if (!context?.canMove || !thread || !userStore.can(Resource.inboxMessages, Action.update)) return null;
 
   const targets = emailMoveTargets(context.folders, thread.provider)
     .map((entry) => ({ id: entry.id, name: entry.name?.trim() || t("Common.unnamed") }))

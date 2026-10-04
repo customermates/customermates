@@ -1173,6 +1173,7 @@
       "demoMode": "Cette action n’est pas disponible en mode démo. Connectez-vous pour accéder à toutes les fonctionnalités.",
       "draftMessageNotFound": "Ce brouillon est introuvable. Il a peut-être déjà été envoyé ou supprimé.",
       "draftThreadNotSent": "Ce brouillon n'a pas encore de conversation. Envoyez-le depuis la boîte de réception.",
+      "draftToRecipientsLocked": "Un nouveau message enregistré conserve ses destinataires À. Supprimez le brouillon et commencez un nouveau message pour écrire à quelqu’un d’autre.",
       "duplicateChannel": "Ce canal figure plusieurs fois. N’ajoutez chaque adresse e-mail, numéro de téléphone ou identifiant qu’une seule fois.",
       "duplicateOutboundSuppressed": "Un message identique vient d'être envoyé dans cette conversation. Modifiez le texte ou attendez une minute avant de réessayer.",
       "duplicateWebhookEvents": "Les évènements en double ne sont pas autorisés.",

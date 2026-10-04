@@ -39,7 +39,7 @@ import { AccountActivityKind, ConnectedAccountStatus, Resource, Status, Subscrip
 
 import { BaseRepository } from "@/core/base/base-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
-import { accessibleConnectedAccountWhere, messageVisibilityWhere } from "../messaging-access";
+import { accessibleConnectedAccountWhere, messageVisibilityWhere, threadAccessWhere } from "../messaging-access";
 import { accountNeedsAction, isEmailProvider } from "../provider";
 import { emailFolderFilterValue } from "../inbox/messaging-filter-options.schema";
 
@@ -399,6 +399,24 @@ export class PrismaConnectedAccountRepo
     return {
       folders: EmailFolderSchema.array().catch([]).parse(row.folders),
       selectedFolderIds: row.selectedFolderIds,
+    };
+  }
+
+  async findSharedThreadFolderContext(threadId: string, folderIds: string[]) {
+    const thread = await this.prisma.messagingThread.findFirst({
+      where: { id: threadId, ...threadAccessWhere(this.companyId, this.userId), sharedToCrm: true },
+      select: { connectedAccount: { select: { folders: true, selectedFolderIds: true, foldersSyncedAt: true } } },
+    });
+    const row = thread?.connectedAccount;
+    if (!row || row.foldersSyncedAt === null) return null;
+
+    const visible = new Set(folderIds.filter((id) => row.selectedFolderIds.includes(id)));
+    return {
+      folders: EmailFolderSchema.array()
+        .catch([])
+        .parse(row.folders)
+        .filter((folder) => visible.has(folder.id)),
+      selectedFolderIds: [...visible],
     };
   }
 

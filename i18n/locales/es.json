@@ -1173,6 +1173,7 @@
       "demoMode": "Esta acción no está disponible en el modo de demostración. Inicia sesión para acceder a todas las funciones.",
       "draftMessageNotFound": "No se ha encontrado ese borrador. Puede que ya se haya enviado o descartado.",
       "draftThreadNotSent": "Este borrador aún no tiene conversación. Envíalo desde la bandeja de entrada.",
+      "draftToRecipientsLocked": "Un mensaje nuevo guardado mantiene sus destinatarios en Para. Descarta el borrador y empieza un mensaje nuevo para escribir a otra persona.",
       "duplicateChannel": "Este canal aparece más de una vez. Añade cada dirección de correo, número de teléfono o identificador una sola vez.",
       "duplicateOutboundSuppressed": "Hace un momento se envió un mensaje idéntico a esta conversación. Cambia el texto o espera un minuto antes de reintentar.",
       "duplicateWebhookEvents": "No se permiten eventos duplicados.",
