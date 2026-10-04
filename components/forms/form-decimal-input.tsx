@@ -47,7 +47,7 @@ export const FormDecimalInput = observer(function FormDecimalInput({
 
   const raw = store?.getValue(id);
   const stored = raw === undefined || raw === null ? "" : String(raw);
-  const formatted = intlStore.formatDecimal(stored);
+  const formatted = intlStore.formatDecimalForEditing(stored);
 
   const [focused, setFocused] = useState(false);
   const [text, setText] = useState(formatted);
@@ -90,9 +90,7 @@ export const FormDecimalInput = observer(function FormDecimalInput({
             commit(event.target.value);
           }}
           onFocus={() => {
-            if (isReadOnly) return;
-            setText(intlStore.formatDecimalForEditing(stored));
-            setFocused(true);
+            if (!isReadOnly) setFocused(true);
           }}
         />
 

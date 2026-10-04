@@ -83,10 +83,19 @@ describe("FormDecimalInput", () => {
     expect(typeof onChange.mock.lastCall?.[1]).toBe("string");
   });
 
-  it("displays a stored canonical decimal with locale separators and its exact precision", () => {
-    expect(render("de-DE", "1234.50").input.value).toBe("1.234,50");
-    expect(render("en-US", "1234.50").input.value).toBe("1,234.50");
-    expect(render("de-DE", "12345678901234567890.123456789").input.value).toBe("12.345.678.901.234.567.890,123456789");
+  it("displays a stored canonical decimal with the locale decimal separator and its exact precision", () => {
+    expect(render("de-DE", "1234.50").input.value).toBe("1234,50");
+    expect(render("en-US", "1234.50").input.value).toBe("1234.50");
+    expect(render("de-DE", "12345678901234567890.123456789").input.value).toBe("12345678901234567890,123456789");
+  });
+
+  it("keeps the displayed value on focus so a selection made by the user or browser is replaced by typing", () => {
+    const { input } = render("en-US", "2000");
+    input.focus();
+    input.setSelectionRange(0, input.value.length);
+    act(() => input.dispatchEvent(new FocusEvent("focusin", { bubbles: true })));
+    expect(input.value).toBe("2000");
+    expect([input.selectionStart, input.selectionEnd]).toEqual([0, 4]);
   });
 
   it("keeps unparseable text so validation can reject it instead of silently clearing the value", () => {
