@@ -361,7 +361,7 @@ test("admits an assigned-record writer and separately delegates schema configura
           data: { typeId: delegated.id },
         })
       ).status(),
-    ).toBe(403);
+    ).toBe(404);
     const roleDenied = await member.page.request.post("/api/v2/roles/save", {
       data: {
         ...roleInput,

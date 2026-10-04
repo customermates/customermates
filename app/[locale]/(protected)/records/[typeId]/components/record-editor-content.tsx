@@ -44,7 +44,19 @@ const RecordEditorRecovery = observer(function RecordEditorRecovery({ store }: {
   return (
     <div className="px-6 pb-3">
       <div className="space-y-2 rounded-md border border-border bg-muted/50 p-3 text-sm" role="status">
-        {store.refreshRequired ? (
+        {store.refreshRequired && !store.staleChange ? (
+          <Button
+            disabled={store.isLoading}
+            size="sm"
+            type="button"
+            variant="secondary"
+            onClick={() => runUserAction(store.refreshRecord)}
+          >
+            {t("ErrorCard.retry")}
+          </Button>
+        ) : null}
+
+        {store.refreshRequired && store.staleChange ? (
           <>
             <p>{store.hasUnsavedChanges ? t("RecordModel.recordStaleDraft") : t("RecordModel.recordStale")}</p>
 

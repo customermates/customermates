@@ -53,6 +53,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
   } | null = null;
   pendingOperationId: string | null = null;
   refreshRequired = false;
+  staleChange = false;
   conflicts: string[] = [];
   relatedRevision = 0;
   private requestKey: string | null = null;
@@ -89,12 +90,14 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
       presentation: observable.ref,
       pendingOperationId: observable,
       refreshRequired: observable,
+      staleChange: observable,
       conflicts: observable.ref,
       relatedRevision: observable,
       parentLink: observable.ref,
       edit: action,
       setPendingOperation: action,
       setRefreshRequired: action,
+      markStale: action,
       toggleCapture: action,
       rebase: action,
       restoreDraft: action,
@@ -160,6 +163,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
     this.pendingDeletion = false;
     this.refreshNotificationPending = false;
     this.refreshRequired = false;
+    this.staleChange = false;
     this.conflicts = [];
     this.requestKey = null;
     this.onInitOrRefresh(this.draftFor(presentation, record, parentLink));
@@ -225,7 +229,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
       return;
     }
     if (this.hasUnsavedChanges) {
-      if (newer) this.setRefreshRequired(true);
+      if (newer) this.markStale();
       return;
     }
     this.edit(latest, latest.record);
@@ -280,6 +284,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
     this.error = undefined;
     this.requestKey = null;
     this.refreshRequired = false;
+    this.staleChange = false;
     this.relatedRevision += 1;
   };
   restoreDraft = (
@@ -318,6 +323,10 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
   };
   setRefreshRequired = (required: boolean) => {
     this.refreshRequired = required;
+  };
+  markStale = () => {
+    this.staleChange = true;
+    this.refreshRequired = true;
   };
   refreshRecord = async () => {
     if (!this.record || this.hasUnsavedChanges) return;
@@ -492,7 +501,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
       if (!result.ok) {
         if (!isCurrent()) return;
         if (result.failure?.issues.some((issue) => issue.customCode && STALE_WRITE_CODES.has(issue.customCode)))
-          this.setRefreshRequired(true);
+          this.markStale();
         this.setError(result.error);
         return;
       }

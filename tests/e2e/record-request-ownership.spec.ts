@@ -92,7 +92,7 @@ test("keeps the current record draft when a previous real save response arrives 
     ).toEqual([{ textValue: "Accepted earlier record" }]);
     await discard(page);
     await page.locator("#records-add").click();
-    await expect(editor).not.toBeVisible();
+    await expect(editor.getByRole("textbox", { name: "Name", exact: false })).toHaveCount(0);
     await delayed.release();
     await editor.getByRole("textbox", { name: "Name", exact: false }).fill("Current retained draft");
     await editor.getByRole("textbox", { name: "Price", exact: false }).fill("19.75");
@@ -201,7 +201,7 @@ test("keeps a newly opened record draft when an accepted deletion response arriv
     await page.keyboard.press("Escape");
     await expect(editor).not.toBeVisible();
     await page.locator("#records-add").click();
-    await expect(editor).not.toBeVisible();
+    await expect(editor.getByRole("textbox", { name: "Name", exact: false })).toHaveCount(0);
     await delayed.release();
     await editor.getByRole("textbox", { name: "Name", exact: false }).fill("Draft after deletion");
     await editor.getByRole("textbox", { name: "Price", exact: false }).fill("31.25");

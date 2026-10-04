@@ -120,6 +120,7 @@ describe("record editor persistence", () => {
     expect(mocks.getRecordEditorAction).not.toHaveBeenCalled();
     expect(store.sessionKey).toBe(session);
     expect(store.refreshRequired).toBe(true);
+    expect(store.staleChange).toBe(false);
     compose.hasUnsavedChanges = false;
     mocks.getRecordEditorAction.mockResolvedValue({ ok: true, data: { ...context("deal"), record: record(2) } });
     await store.refreshRecord();
@@ -595,6 +596,7 @@ describe("record editor stale draft recovery", () => {
       mocks.mutateRecordAction.mockResolvedValueOnce(conflict(code));
       await store.onSubmit();
       expect(store.refreshRequired).toBe(true);
+      expect(store.staleChange).toBe(true);
       expect(store.isReadOnly).toBe(true);
       expect(store.form.values[nameId]).toBe("My draft");
 
@@ -605,6 +607,7 @@ describe("record editor stale draft recovery", () => {
       await store.reloadKeepingChanges();
       expect(store.record?.version).toBe(2);
       expect(store.refreshRequired).toBe(false);
+      expect(store.staleChange).toBe(false);
       expect(store.form.values[nameId]).toBe("My draft");
       expect(store.conflicts).toEqual([nameId]);
       expect(store.isReadOnly).toBe(true);
