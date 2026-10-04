@@ -1,3 +1,4 @@
+import type { UpdateWidgetLayoutsRepo } from "./update-widget-layouts.repo";
 import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
@@ -26,10 +27,6 @@ export const SavedWidgetLayoutSchema = z.object({
   layout: WidgetLayoutSchema,
 });
 export type SavedWidgetLayout = Data<typeof SavedWidgetLayoutSchema>;
-
-export abstract class UpdateWidgetLayoutsRepo {
-  abstract updateWidgetLayouts(args: UpdateWidgetLayoutsData): Promise<SavedWidgetLayout[]>;
-}
 
 @TenantInteractor()
 export class UpdateWidgetLayoutsInteractor extends AuthenticatedInteractor<

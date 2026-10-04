@@ -1,5 +1,5 @@
 import type { DomainEventMap } from "@/features/event/domain-events";
-import type { CreateAuditLogRepo } from "@/features/event/event.service";
+import type { CreateAuditLogRepo } from "@/features/event/create-audit-log.repo";
 import type { RepoArgs } from "@/core/utils/types";
 import type { LegalAuditRecord } from "@/features/legal/legal-audit.schema";
 import type { LegalAuditRepo } from "@/features/legal/legal-audit.repo";

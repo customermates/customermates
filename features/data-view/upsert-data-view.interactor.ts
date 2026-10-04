@@ -1,7 +1,8 @@
+import type { UpsertDataViewRepo } from "./upsert-data-view.repo";
 import type { DataViewPolicy } from "./data-view-policy";
 import { validateDataViewAccess } from "./data-view-policy";
-import type { DataViewDto, DataViewState } from "@/core/data-view/data-view-state.schema";
-import type { ActiveViewKeyRepo } from "./select-data-view.interactor";
+import type { DataViewDto } from "@/core/data-view/data-view-state.schema";
+import type { ActiveViewKeyRepo } from "./active-view-key.repo";
 import type { UpsertDataViewData } from "./data-view.schema";
 import type { Validated } from "@/core/validation/validation.utils";
 
@@ -17,23 +18,6 @@ import { UpsertDataViewSchema } from "./data-view.schema";
 
 type UpdateDataViewData = Extract<UpsertDataViewData, { id: string }>;
 type CreateDataViewData = Exclude<UpsertDataViewData, { id: string }>;
-
-export abstract class UpsertDataViewRepo {
-  abstract findOwnedOrNull(id: string): Promise<DataViewDto | null>;
-  abstract nextPosition(surfaceKey: string): Promise<number>;
-  abstract createView(args: {
-    surfaceKey: string;
-    name: string;
-    position: number;
-    state: DataViewState;
-  }): Promise<DataViewDto>;
-  abstract updateOwned(args: {
-    id: string;
-    name?: string;
-    position?: number;
-    state?: DataViewState;
-  }): Promise<DataViewDto | null>;
-}
 
 @TenantInteractor()
 export class UpsertDataViewInteractor extends AuthenticatedInteractor<UpsertDataViewData, DataViewDto> {

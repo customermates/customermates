@@ -1,3 +1,4 @@
+import type { UpsertWebhookRepo } from "./upsert-webhook.repo";
 import {
   RecordTriggerDefinitionSchema,
   RecordTriggerSourceSchema,
@@ -81,12 +82,6 @@ export const UpsertWebhookSchema = z
       ctx.addIssue({ code: "custom", path: ["events"], params: { error: CustomErrorCode.webhookEventsRequired } });
   });
 export type UpsertWebhookData = Data<typeof UpsertWebhookSchema>;
-
-export abstract class UpsertWebhookRepo {
-  abstract upsertWebhookOrThrow(args: UpsertWebhookData): Promise<WebhookDto>;
-  abstract getWebhookByIdOrThrow(id: string): Promise<WebhookDto>;
-  abstract getWebhookById(id: string): Promise<WebhookDto | null>;
-}
 
 @TenantInteractor({ resource: Resource.api, action: Action.update })
 export class UpsertWebhookInteractor extends AuthenticatedInteractor<UpsertWebhookData, WebhookDto> {

@@ -13,7 +13,7 @@ import type { RunRoutineNowRepo } from "./run-routine-now.interactor";
 import type { StartRoutineRunRepo } from "./start-routine-run.repo";
 import type { SweepDueRoutinesRepo } from "./sweep-due-routines.interactor";
 import type { AdmittedRoutineRun, TriggerRoutinesRepo } from "./trigger-routines.repo";
-import type { UpsertRoutineRepo } from "./upsert-routine.interactor";
+import type { UpsertRoutineRepo } from "./upsert-routine.repo";
 
 import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
 import type { AgentTurnTerminalCode } from "@/generated/prisma";

@@ -1,3 +1,4 @@
+import type { UpdateCompanySettingsRepo } from "./update-company-settings.repo";
 import type { Data } from "@/core/validation/validation.utils";
 import type { EventService } from "../event/event.service";
 
@@ -16,10 +17,6 @@ import { type Validated } from "@/core/validation/validation.utils";
 export const UpdateCompanySettingsSchema = z.strictObject({ currency: z.enum(Currency) });
 
 export type UpdateCompanySettingsData = Data<typeof UpdateCompanySettingsSchema>;
-
-export abstract class UpdateCompanySettingsRepo {
-  abstract updateDetails(args: { currency?: Currency }): Promise<void>;
-}
 
 @TenantInteractor({ resource: Resource.company, action: Action.update })
 export class UpdateCompanySettingsInteractor extends AuthenticatedInteractor<

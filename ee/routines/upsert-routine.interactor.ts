@@ -1,6 +1,7 @@
+import type { UpsertRoutineSubscriptionRepo } from "./upsert-routine-subscription.repo";
+import type { UpsertRoutineRepo } from "./upsert-routine.repo";
 import type { RoutineDto, RoutineValidationData, UpsertRoutineData } from "./routine.schema";
 import type { Validated } from "@/core/validation/validation.utils";
-import type { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 import type { EventService } from "@/features/event/event.service";
 
 import { Action, Resource, RoutineTriggerKind } from "@/generated/prisma";
@@ -16,7 +17,7 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { runPrecheck } from "@/core/validation/run-precheck";
-import { RoutineLimitExceededError, type RoutineCountLimit } from "./routine-run-limits";
+import { RoutineLimitExceededError } from "./routine-run-limits";
 import { RecordWriteError } from "@/features/records/record-write.service";
 import { recordWriteFailure } from "@/features/records/mutate-record.interactor";
 
@@ -63,20 +64,6 @@ function mergeRoutineFinalState(previous: RoutineDto, update: UpsertRoutineData)
           : previous.recordSources,
     debounceSeconds: update.debounceSeconds ?? previous.debounceSeconds,
   };
-}
-
-export abstract class UpsertRoutineRepo {
-  abstract upsertRoutineOrThrow(args: UpsertRoutineData, routineLimit?: RoutineCountLimit): Promise<RoutineDto>;
-  abstract getRoutineByIdOrThrow(id: string): Promise<RoutineDto>;
-  abstract isEligibleRoutineOwner(userId: string): Promise<boolean>;
-}
-
-export abstract class UpsertRoutineSubscriptionRepo {
-  abstract getSubscriptionOrThrow(): Promise<{
-    status: SubscriptionStatus;
-    trialEndDate: Date | null;
-    plan: SubscriptionPlan;
-  }>;
 }
 
 @TenantInteractor({

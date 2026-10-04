@@ -1,3 +1,4 @@
+import { TestStore, type Item } from "./fixtures/data-view-autosave-test-store";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { GetResult } from "../base-get.interactor";
@@ -23,13 +24,10 @@ vi.mock("@/app/actions", () => ({
 vi.mock("../../utils/toast-zod-error-tree", () => ({ toastZodErrorTree }));
 vi.mock("@/app/[locale]/(protected)/records/actions", () => ({}));
 
-import { BaseDataViewStore } from "../base-data-view.store";
 import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
 import { FilterOperatorKey, ViewMode } from "../base-query-builder";
 import { RecordActivityViewsStore } from "@/features/messaging/activities/record-activity-views.store";
 import type { RecordActivityPresentation } from "@/ee/messaging/activities/get-record-activity-presentation.interactor";
-
-type Item = { id: string };
 
 const VIEW_ID = "9d3a4a0e-0e34-4d7f-9f4a-2f7a2c9c1a11";
 
@@ -45,21 +43,6 @@ const VIEW: DataViewChipDto = {
   position: 0,
   state: { filters: [filter("open")] },
 };
-
-class TestStore extends BaseDataViewStore<Item> {
-  requestedParams: (GetQueryParams | undefined)[] = [];
-  nextRefresh?: () => Promise<GetResult<Item>>;
-  availableColumns = [{ uid: "name" }, { uid: "stage" }];
-
-  get columnsDefinition() {
-    return this.availableColumns;
-  }
-
-  protected refreshAction(params?: GetQueryParams): Promise<GetResult<Item>> {
-    this.requestedParams.push(params);
-    return this.nextRefresh ? this.nextRefresh() : Promise.resolve(serverEcho(params));
-  }
-}
 
 function deferred<T>(): { promise: Promise<T>; resolve: (value: T) => void } {
   let resolve!: (value: T) => void;
@@ -108,6 +91,8 @@ function hydrated(): TestStore {
   store.requestedParams = [];
   return store;
 }
+
+TestStore.echo = serverEcho;
 
 class TestHistoryStore extends RecordActivityViewsStore {
   protected override refreshAction(params?: GetQueryParams): Promise<RecordActivityPresentation> {

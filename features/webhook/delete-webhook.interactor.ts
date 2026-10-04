@@ -1,3 +1,4 @@
+import type { DeleteWebhookRepo } from "./delete-webhook.repo";
 import type { WebhookDto } from "./webhook.schema";
 import type { EventService } from "@/features/event/event.service";
 import type { Data } from "@/core/validation/validation.utils";
@@ -19,10 +20,6 @@ const Schema = z.object({
   id: z.uuid(),
 });
 export type DeleteWebhookData = Data<typeof Schema>;
-
-export abstract class DeleteWebhookRepo {
-  abstract deleteWebhookOrThrow(id: string): Promise<WebhookDto>;
-}
 
 @TenantInteractor({ resource: Resource.api, action: Action.delete })
 export class DeleteWebhookInteractor extends AuthenticatedInteractor<DeleteWebhookData, string> {

@@ -1,7 +1,8 @@
+import type { ThreadAccountOwnersRepo } from "./thread-account-owners.repo";
+import type { GetMessagingThreadRepo } from "./get-messaging-thread.repo";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { failNotFound } from "@/core/validation/interactor-failure-server";
-import type { MessagingMessage, MessagingThread } from "../messaging.schema";
-import type { EmailFolder } from "../email-folders";
+import type { MessagingThread } from "../messaging.schema";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
@@ -51,22 +52,6 @@ export const GetMessagingThreadResultSchema = z.object({
   folderContext: ThreadFolderContextSchema.nullable(),
 });
 type GetMessagingThreadResult = z.infer<typeof GetMessagingThreadResultSchema>;
-
-export abstract class GetMessagingThreadRepo {
-  abstract findThreadById(id: string): Promise<MessagingThread | null>;
-  abstract listMessagesForThread(
-    threadId: string,
-    opts?: { page?: number; pageSize?: number },
-  ): Promise<{ messages: MessagingMessage[]; total: number }>;
-  abstract listThreadFolderPlacements(threadId: string): Promise<{ folderIds: string[]; sentAt: Date }[]>;
-}
-
-export abstract class ThreadAccountOwnersRepo {
-  abstract listAccountOwnersByIds(accountIds: string[]): Promise<Record<string, AccountOwnerDto>>;
-  abstract findFolderContextById(
-    accountId: string,
-  ): Promise<{ folders: EmailFolder[]; selectedFolderIds: string[] } | null>;
-}
 
 @AllowInDemoMode
 @TenantInteractor({

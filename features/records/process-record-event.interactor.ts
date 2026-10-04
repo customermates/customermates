@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { RecordEvent } from "@/generated/prisma";
-import type { RecordEventOutboxRepo, RecordEventAdmission } from "./record-event-outbox.repo";
+import type { RecordEventOutboxRepo } from "./record-event-outbox.repo";
+import type { RecordEventAdmission } from "./record-event-admission";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";

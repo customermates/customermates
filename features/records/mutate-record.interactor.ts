@@ -16,7 +16,7 @@ import { MutateRecordSchema, RecordOperationResultSchema } from "./record-query.
 import type { RecordWriteService } from "./record-write.service";
 import { RecordWriteError } from "./record-write.service";
 import { RecordJournal } from "./record-journal";
-import { CalculationBudgetExceeded } from "./record-calculation.service";
+import { CalculationBudgetExceeded } from "./calculation-budget-exceeded";
 import { currentRoutineContext } from "@/core/decorators/routine-context";
 import { canonicalRecordJson } from "./record-json";
 

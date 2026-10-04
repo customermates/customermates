@@ -1,7 +1,8 @@
+import type { SelectDataViewRepo } from "./select-data-view.repo";
+import type { ActiveViewKeyRepo } from "./active-view-key.repo";
 import type { DataViewPolicy } from "./data-view-policy";
 import { validateDataViewAccess } from "./data-view-policy";
 import type { SelectDataViewData, SelectDataViewResult } from "./data-view.schema";
-import type { DataViewDto } from "@/core/data-view/data-view-state.schema";
 import type { Validated } from "@/core/validation/validation.utils";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -11,14 +12,6 @@ import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import { fail, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { SelectDataViewResultSchema, SelectDataViewSchema } from "./data-view.schema";
-
-export abstract class ActiveViewKeyRepo {
-  abstract upsertP13n(data: { p13nId: string; activeViewKey: string }): Promise<unknown>;
-}
-
-export abstract class SelectDataViewRepo {
-  abstract findOwnedOrNull(id: string): Promise<DataViewDto | null>;
-}
 
 @TenantInteractor()
 export class SelectDataViewInteractor extends AuthenticatedInteractor<SelectDataViewData, SelectDataViewResult> {

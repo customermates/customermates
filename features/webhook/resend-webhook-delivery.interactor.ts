@@ -1,3 +1,4 @@
+import type { GetWebhookDeliveryByIdRepo } from "./get-webhook-delivery-by-id.repo";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import type { Validated } from "@/core/validation/validation.utils";
 import type { ValidateWebhookDeliveryIdsInteractor } from "@/core/validation/validators/validate-webhook-delivery-ids.interactor";
@@ -15,18 +16,6 @@ const Schema = z.object({
   id: z.uuid(),
 });
 export type ResendWebhookDeliveryData = z.infer<typeof Schema>;
-
-export abstract class GetWebhookDeliveryByIdRepo {
-  abstract createRetryById(
-    id: string,
-  ): Promise<
-    | { status: "created"; id: string }
-    | { status: "missing" }
-    | { status: "unavailable" }
-    | { status: "stale" }
-    | { status: "forbidden" }
-  >;
-}
 
 @TenantInteractor({ resource: Resource.api, action: Action.create })
 export class ResendWebhookDeliveryInteractor extends AuthenticatedInteractor<ResendWebhookDeliveryData, string> {

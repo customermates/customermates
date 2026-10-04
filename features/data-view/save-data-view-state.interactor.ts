@@ -1,7 +1,7 @@
+import type { AllTabStateRepo } from "./all-tab-state.repo";
+import type { DataViewStateWriteRepo } from "./data-view-state-write.repo";
 import type { DataViewPolicy } from "./data-view-policy";
 import { validateDataViewAccess } from "./data-view-policy";
-import type { DataViewState } from "@/core/data-view/data-view-state.schema";
-import type { PersonalizationStateWrite } from "./data-view-row-mapping";
 import type { SaveDataViewStateData, SaveDataViewStateResult } from "./data-view.schema";
 import type { Validated } from "@/core/validation/validation.utils";
 
@@ -15,16 +15,6 @@ import { fail, failNotFound } from "@/core/validation/interactor-failure-server"
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { readPersonalizationState, writePersonalizationState } from "./data-view-row-mapping";
 import { SaveDataViewStateResultSchema, SaveDataViewStateSchema } from "./data-view.schema";
-
-export abstract class DataViewStateWriteRepo {
-  abstract updateOwnedState(args: { id: string; surfaceKey: string; state: DataViewState }): Promise<boolean>;
-}
-
-export abstract class AllTabStateRepo {
-  abstract upsertP13n(
-    data: PersonalizationStateWrite & { p13nId: string },
-  ): Promise<PersonalizationStateWrite & { p13nId: string }>;
-}
 
 @TenantInteractor()
 export class SaveDataViewStateInteractor extends AuthenticatedInteractor<

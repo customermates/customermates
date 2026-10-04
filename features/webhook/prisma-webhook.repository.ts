@@ -7,11 +7,11 @@ import { RecordWriteError } from "@/features/records/record-write.service";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { RepoArgs } from "@/core/utils/types";
 import type { GetWebhooksRepo } from "@/features/webhook/get-webhooks.repo";
-import type { UpsertWebhookRepo } from "./upsert-webhook.interactor";
-import type { DeleteWebhookRepo } from "./delete-webhook.interactor";
+import type { UpsertWebhookRepo } from "./upsert-webhook.repo";
+import type { DeleteWebhookRepo } from "./delete-webhook.repo";
 import type { FindWebhooksByIdsRepo } from "./find-webhooks-by-ids.repo";
 import type { WebhookDto } from "./webhook.schema";
-import type { GetWebhooksForEventRepo } from "@/features/event/event.service";
+import type { GetWebhooksForEventRepo } from "@/features/event/get-webhooks-for-event.repo";
 import type { GetWebhookByIdRepo } from "./get-webhook-by-id.interactor";
 
 import { Action, Prisma, Resource } from "@/generated/prisma";

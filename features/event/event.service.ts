@@ -1,3 +1,5 @@
+import type { CreateAuditLogRepo } from "./create-audit-log.repo";
+import type { GetWebhooksForEventRepo } from "./get-webhooks-for-event.repo";
 import type { DomainEventMap, DomainEvent } from "./domain-events";
 
 import type { DomainEventListener } from "./domain-event.listener";
@@ -14,25 +16,6 @@ import { currentRoutineContext } from "@/core/decorators/routine-context";
 import { carriesChangedFields, changedFieldsOf, matchesChangedFields } from "@/ee/routines/routine-event-filter";
 import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
 import { env } from "@/env";
-
-export abstract class GetWebhooksForEventRepo {
-  abstract getWebhooksForEvent(event: string): Promise<{ id: string; url: string; events: string[] }[]>;
-  abstract getWebhooksForEventUnscoped(
-    event: string,
-    companyId: string,
-  ): Promise<{ id: string; url: string; events: string[] }[]>;
-}
-
-export abstract class CreateAuditLogRepo {
-  abstract log(data: { event: string; eventData: Record<string, unknown>; entityId: string }): Promise<void>;
-  abstract logUnscoped(data: {
-    event: string;
-    eventData: Record<string, unknown>;
-    entityId: string;
-    userId: string;
-    companyId: string;
-  }): Promise<void>;
-}
 
 type ScopedEventData<E extends DomainEvent> = Omit<DomainEventMap[E], "userId" | "companyId">;
 

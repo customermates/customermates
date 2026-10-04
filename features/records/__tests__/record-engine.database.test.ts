@@ -45,15 +45,15 @@ const { RecordAccessPolicy } = await import("../record-access");
 const { RecordCalculationService } = await import("../record-calculation.service");
 const { RecordWriteService, RecordWriteError } = await import("../record-write.service");
 const { RecordOperationService } = await import("../record-operation.service");
-const { CancelRecordOperationInteractor, GetRecordOperationInteractor } = await import(
-  "../record-operation.interactor"
-);
+const { CancelRecordOperationInteractor } = await import("../cancel-record-operation.interactor");
+const { GetRecordOperationInteractor } = await import("../get-record-operation.interactor");
 const { MutateRecordInteractor } = await import("../mutate-record.interactor");
-const { GetRecordInteractor, QueryRecordsInteractor } = await import("../query-records.interactor");
+const { QueryRecordsInteractor } = await import("../query-records.interactor");
+const { GetRecordInteractor } = await import("../get-record.interactor");
 const { GetRecordEditorInteractor } = await import("../get-record-editor.interactor");
-const { RecordDetailLayoutReader, ReadRecordDetailLayoutInteractor, SaveRecordDetailLayoutInteractor } = await import(
-  "../record-detail-layout.interactor"
-);
+const { SaveRecordDetailLayoutInteractor } = await import("../record-detail-layout.interactor");
+const { RecordDetailLayoutReader } = await import("../record-detail-layout-reader");
+const { ReadRecordDetailLayoutInteractor } = await import("../read-record-detail-layout.interactor");
 const { PrismaP13nRepo } = await import("@/features/p13n/prisma-p13n.repository");
 const { SearchRecordsInteractor } = await import("../search-records.interactor");
 const { ResolveRecordSearchInteractor } = await import("../resolve-record-search.interactor");
@@ -66,8 +66,9 @@ const { RecordMeasureSchema } = await import("../record-measure.schema");
 const { RecordQuerySchema } = await import("../record-query.schema");
 const { RecordConfigurationService, calculationDependencyHash } = await import("../configuration.service");
 const { ConfigureRecordsProviderInteractor } = await import("../configure-records-provider.interactor");
-const { ApplyRecordConfigurationInteractor, PreviewRecordConfigurationInteractor, RecordConfigurationWriter } =
-  await import("../configure-records.interactor");
+const { ApplyRecordConfigurationInteractor } = await import("../configure-records.interactor");
+const { PreviewRecordConfigurationInteractor } = await import("../preview-record-configuration.interactor");
+const { RecordConfigurationWriter } = await import("../record-configuration-writer");
 const { createCrmPreset, presetId } = await import("../crm-preset");
 const { RecordEventPayloadSchema } = await import("../record-event.schema");
 const { RecordRevisionChangeSchema } = await import("../record-revision.schema");
@@ -82,7 +83,7 @@ const { ValidateWebhookDeliveryIdsInteractor } = await import(
   "@/core/validation/validators/validate-webhook-delivery-ids.interactor"
 );
 const { RecordRoutineAdmission } = await import("@/ee/routines/record-routine-admission");
-const { PrismaRoutineEventAccess } = await import("@/ee/routines/routine-event-access");
+const { PrismaRoutineEventAccess } = await import("@/ee/routines/prisma-routine-event-access");
 const { ProcessRecordEventInteractor } = await import("../process-record-event.interactor");
 const { ProcessDueRecordEventsInteractor } = await import("../process-due-record-events.interactor");
 const { PrismaRecordEventOutboxRepo } = await import("../prisma-record-event-outbox.repository");
@@ -124,12 +125,12 @@ const { manageDataViewsTool } = await import("@/features/mcp-tools/data-view.mcp
 const { manageRecordDetailLayoutV2Tool } = await import("@/features/mcp-tools/record-model.mcp-tools");
 
 const { PrismaRecordWidgetRepo } = await import("@/features/widget/prisma-record-widget.repository");
-const { RecordWidgetReader, UpsertRecordWidgetInteractor } = await import("@/features/widget/record-widget.interactor");
+const { UpsertRecordWidgetInteractor } = await import("@/features/widget/record-widget.interactor");
+const { RecordWidgetReader } = await import("@/features/widget/record-widget-reader");
 
 const { PrismaRecordActivityWidgetRepo } = await import("@/features/widget/prisma-record-activity-widget.repository");
-const { RecordActivityWidgetReader, UpsertRecordActivityWidgetInteractor } = await import(
-  "@/features/widget/record-activity-widget.interactor"
-);
+const { UpsertRecordActivityWidgetInteractor } = await import("@/features/widget/record-activity-widget.interactor");
+const { RecordActivityWidgetReader } = await import("@/features/widget/record-activity-widget-reader");
 const { RecordActivityQuerySchema } = await import("@/ee/messaging/activities/record-activities.schema");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;

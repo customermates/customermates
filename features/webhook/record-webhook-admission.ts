@@ -2,7 +2,7 @@ import type { RecordEvent } from "@/generated/prisma";
 import { BaseRepository } from "@/core/base/base-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
-import type { RecordEventAdmission } from "@/features/records/record-event-outbox.repo";
+import type { RecordEventAdmission } from "@/features/records/record-event-admission";
 import type { RecordRecipientReader } from "@/features/records/record-recipient-reader";
 
 export class RecordWebhookAdmission extends BaseRepository implements RecordEventAdmission {

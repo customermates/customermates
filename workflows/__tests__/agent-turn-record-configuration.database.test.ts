@@ -39,24 +39,22 @@ const state = vi.hoisted(() => ({
 }));
 
 vi.mock("@ai-sdk/workflow", () => ({
-  WorkflowAgent: class {
-    constructor(
-      private readonly options: {
-        prepareStep: (input: { messages: unknown[] }) => Promise<{ activeTools?: string[] }>;
-        onStepEnd: (step: unknown) => Promise<void>;
-        onToolExecutionEnd: (event: unknown) => void;
-        instructions: string;
-        tools: Record<string, WorkflowTool>;
-      },
-    ) {}
+  WorkflowAgent: function WorkflowAgent(options: {
+    prepareStep: (input: { messages: unknown[] }) => Promise<{ activeTools?: string[] }>;
+    onStepEnd: (step: unknown) => Promise<void>;
+    onToolExecutionEnd: (event: unknown) => void;
+    instructions: string;
+    tools: Record<string, WorkflowTool>;
+  }) {
+    return { stream };
 
-    async stream({ messages }: { messages: unknown[] }): Promise<StreamResult> {
+    async function stream({ messages }: { messages: unknown[] }): Promise<StreamResult> {
       if (!state.script) throw new Error("The deterministic provider script is missing.");
       const replay = [...messages];
       const steps: unknown[] = [];
       const prepare = async () => {
-        const prepared = await this.options.prepareStep({
-          messages: [{ role: "system", content: this.options.instructions }, ...replay],
+        const prepared = await options.prepareStep({
+          messages: [{ role: "system", content: options.instructions }, ...replay],
         });
         expect(prepared.activeTools).toContain("configure_record_model");
         state.providerCalls++;
@@ -65,17 +63,17 @@ vi.mock("@ai-sdk/workflow", () => ({
       let result: StreamResult;
       try {
         result = await state.script({
-          tools: this.options.tools,
+          tools: options.tools,
           messages: replay,
           call: async (name, input, id) => {
-            const tool = this.options.tools[name];
+            const tool = options.tools[name];
             if (!tool?.execute) throw new Error(`Tool ${name} cannot execute.`);
             expect(await tool.needsApproval(input, { toolCallId: id })).toBe(false);
             const output = await tool.execute(input, { toolCallId: id });
             const retry = state.calls.some((call) => call.id === id);
             state.calls.push({ name, id, input, output });
             if (retry) return output;
-            this.options.onToolExecutionEnd({ success: true, toolCall: { toolCallId: id, toolName: name }, output });
+            options.onToolExecutionEnd({ success: true, toolCall: { toolCallId: id, toolName: name }, output });
             const call = { type: "tool-call", toolCallId: id, toolName: name, input };
             replay.push(
               { role: "assistant", content: [call] },
@@ -88,7 +86,7 @@ vi.mock("@ai-sdk/workflow", () => ({
             );
             const step = round([call], "tool-calls");
             steps.push(step);
-            await this.options.onStepEnd(step);
+            await options.onStepEnd(step);
             await prepare();
             return output;
           },
@@ -135,31 +133,33 @@ vi.mock("@/env", () => ({
   },
 }));
 vi.mock("@/features/user/user.service", () => ({
-  UserService: class {
-    getUserOrThrow() {
-      if (!state.actor) throw new Error("The synthetic authenticated user is missing.");
-      return Promise.resolve(state.actor);
-    }
+  UserService: function UserService() {
+    return {
+      getUserOrThrow() {
+        if (!state.actor) throw new Error("The synthetic authenticated user is missing.");
+        return Promise.resolve(state.actor);
+      },
 
-    getActiveUserOrThrow() {
-      return this.getUserOrThrow();
-    }
-    getActiveTenantUserOrThrow() {
-      return this.getUserOrThrow();
-    }
-    getActiveUserByIdOrThrow(id: string) {
-      if (state.actor?.id !== id) throw new Error("Unexpected authenticated user.");
-      return this.getUserOrThrow();
-    }
-    hasPermissionForUser() {
-      return true;
-    }
-    hasPermission() {
-      return Promise.resolve(true);
-    }
-    hasPermissionOrThrow() {
-      return Promise.resolve();
-    }
+      getActiveUserOrThrow() {
+        return this.getUserOrThrow();
+      },
+      getActiveTenantUserOrThrow() {
+        return this.getUserOrThrow();
+      },
+      getActiveUserByIdOrThrow(id: string) {
+        if (state.actor?.id !== id) throw new Error("Unexpected authenticated user.");
+        return this.getUserOrThrow();
+      },
+      hasPermissionForUser() {
+        return true;
+      },
+      hasPermission() {
+        return Promise.resolve(true);
+      },
+      hasPermissionOrThrow() {
+        return Promise.resolve();
+      },
+    };
   },
 }));
 vi.mock("@/workflows/capture-failure", async (importOriginal) => ({

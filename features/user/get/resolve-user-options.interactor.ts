@@ -1,3 +1,4 @@
+import type { ResolveUserOptionsRepo } from "./resolve-user-options.repo";
 import { z } from "zod";
 import { Action, Resource } from "@/generated/prisma";
 import type { Validated } from "@/core/validation/validation.utils";
@@ -11,9 +12,6 @@ import { runInTransaction } from "@/core/decorators/transaction-runner";
 export const ResolveUserOptionsSchema = z.object({ ids: z.array(z.uuid()).max(100) }).strict();
 export type ResolveUserOptionsInput = z.infer<typeof ResolveUserOptionsSchema>;
 export type UserOption = { id: string; firstName: string; lastName: string; avatarUrl: string | null };
-export abstract class ResolveUserOptionsRepo {
-  abstract resolveUserOptions(ids: string[]): Promise<UserOption[]>;
-}
 
 @AllowInDemoMode
 @TenantInteractor({

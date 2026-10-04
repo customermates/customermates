@@ -1,5 +1,5 @@
 import type { GetWebhookDeliveriesRepo } from "@/features/webhook/get-webhook-deliveries.repo";
-import type { GetWebhookDeliveryByIdRepo } from "./resend-webhook-delivery.interactor";
+import type { GetWebhookDeliveryByIdRepo } from "./get-webhook-delivery-by-id.repo";
 import type { FindWebhookDeliveriesByIdsRepo } from "./find-webhook-deliveries-by-ids.repo";
 import type { CreateWebhookDeliveryRepo } from "@/features/webhook/create-webhook-delivery.repo";
 import type { RecordRecipientReader } from "@/features/records/record-recipient-reader";

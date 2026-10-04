@@ -1,4 +1,4 @@
-import type { StartChatContactRepo } from "@/ee/messaging/outbound/start-chat.interactor";
+import type { StartChatContactRepo } from "@/ee/messaging/outbound/start-chat-contact.repo";
 import type { RepoArgs } from "@/core/utils/types";
 import type { RecordRepo } from "./record.repo";
 import type { RecordAccessPolicy } from "./record-access";

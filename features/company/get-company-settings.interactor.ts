@@ -1,3 +1,4 @@
+import type { GetCompanySettingsRepo } from "./get-company-settings.repo";
 import { Action, Currency, Resource } from "@/generated/prisma";
 import { z } from "zod";
 import type { Company } from "@/generated/prisma";
@@ -8,9 +9,6 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
 const OutputSchema = z.object({ id: z.string(), currency: z.enum(Currency), createdAt: z.date(), updatedAt: z.date() });
 export type CompanySettings = Company;
-export abstract class GetCompanySettingsRepo {
-  abstract getDetails(): Promise<Company>;
-}
 
 @AllowInDemoMode
 @TenantInteractor({ resource: Resource.company, action: Action.readOwn })

@@ -1,3 +1,4 @@
+import type { UpsertP13nRepo } from "./upsert-p13n.repo";
 import type { P13nEntry } from "./prisma-p13n.repository";
 import type { Data } from "@/core/validation/validation.utils";
 
@@ -33,10 +34,6 @@ const Schema = z.object({
   detailOptions: EntityDetailOptionsSchema.nullish(),
 });
 export type UpsertP13nData = Data<typeof Schema>;
-
-export abstract class UpsertP13nRepo {
-  abstract upsertP13n(data: UpsertP13nData): Promise<P13nEntry>;
-}
 
 @TenantInteractor()
 export class UpsertP13nInteractor extends AuthenticatedInteractor<UpsertP13nData, P13nEntry> {

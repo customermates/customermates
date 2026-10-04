@@ -3,7 +3,8 @@ import { PrismaRecordRepo } from "@/features/records/prisma-record.repository";
 import { PrismaRecordEventSubscriptionRepo } from "@/features/records/prisma-record-event-subscription.repository";
 import { RecordRecipientReader } from "@/features/records/record-recipient-reader";
 import { PrismaRoutineRepo } from "@/ee/routines/prisma-routine.repository";
-import { PrismaRoutineEventAccess, type RoutineEventAccess } from "@/ee/routines/routine-event-access";
+import { type RoutineEventAccess } from "@/ee/routines/routine-event-access";
+import { PrismaRoutineEventAccess } from "@/ee/routines/prisma-routine-event-access";
 
 export const createTestRecordRecipientReader = () =>
   new RecordRecipientReader((companyId) => new PrismaRecordRepo(companyId));

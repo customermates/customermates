@@ -1,3 +1,4 @@
+import type { GetDataViewsRepo } from "./get-data-views.repo";
 import type { DataViewPolicy } from "./data-view-policy";
 import { validateDataViewAccess } from "./data-view-policy";
 import { fail } from "@/core/validation/interactor-failure-server";
@@ -13,10 +14,6 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { DataViewDtoSchema } from "@/core/data-view/data-view-state.schema";
 import { GetDataViewsSchema } from "./data-view.schema";
-
-export abstract class GetDataViewsRepo {
-  abstract listDataViews(surfaceKey: string): Promise<DataViewDto[]>;
-}
 
 @AllowInDemoMode
 @TenantInteractor()

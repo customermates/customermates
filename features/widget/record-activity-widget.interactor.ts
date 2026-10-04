@@ -1,3 +1,4 @@
+import type { RecordActivityWidgetReader } from "./record-activity-widget-reader";
 import { randomUUID } from "node:crypto";
 import type { RecordRepo } from "@/features/records/record.repo";
 import type { RecordAccessPolicy } from "@/features/records/record-access";
@@ -6,7 +7,6 @@ import type {
   RecordActivityWidgetInput,
   RecordActivityWidgetDto,
   RecordActivityWidgetRepo,
-  StoredRecordActivityWidget,
 } from "./record-activity-widget.schema";
 import type { Validated } from "@/core/validation/validation.utils";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -17,29 +17,6 @@ import { failAuthorization, failConflict, failNotFound } from "@/core/validation
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { recordRequestHash } from "@/features/records/mutate-record.interactor";
 import { RecordActivityWidgetInputSchema } from "./record-activity-widget.schema";
-
-export class RecordActivityWidgetReader {
-  constructor(
-    private records: RecordRepo,
-    private activities: GetRecordActivitiesInteractor,
-  ) {}
-
-  read(row: StoredRecordActivityWidget): Promise<RecordActivityWidgetDto> {
-    return runInTransaction(
-      async () => {
-        const result = await this.activities.invoke({ ...row.activityQuery, cursor: null, limit: 25 });
-        const state = await this.records.getState();
-        return {
-          ...row,
-          schemaRevision: state?.revision ?? 0,
-          data: result.ok ? result.data : null,
-          status: result.ok ? "ready" : "unavailable",
-        };
-      },
-      { readOnly: true, timeout: 30000 },
-    );
-  }
-}
 
 @TenantInteractor()
 export class UpsertRecordActivityWidgetInteractor extends AuthenticatedInteractor<

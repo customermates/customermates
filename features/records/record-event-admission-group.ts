@@ -1,5 +1,5 @@
 import type { RecordEvent } from "@/generated/prisma";
-import type { RecordEventAdmission } from "./record-event-outbox.repo";
+import type { RecordEventAdmission } from "./record-event-admission";
 
 export class RecordEventAdmissionGroup implements RecordEventAdmission {
   constructor(private readonly consumers: readonly RecordEventAdmission[]) {

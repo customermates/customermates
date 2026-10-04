@@ -109,7 +109,8 @@ try {
     },
   });
   const query = new queries.QueryRecordsInteractor(repo, policy);
-  const read = new queries.GetRecordInteractor(repo, policy);
+  const { GetRecordInteractor } = await import("../features/records/get-record.interactor");
+  const read = new GetRecordInteractor(repo, policy);
   const measure = new measures.QueryRecordMeasureInteractor(repo, policy, company);
   const search = new searches.SearchRecordsInteractor(repo, policy);
   const exporter = new exports.ExportRecordsInteractor(repo, policy);
@@ -252,9 +253,8 @@ try {
   let stagedOperation: Record<string, number | boolean> | null = null;
   if (values.staged) {
     const { RecordConfigurationService } = await import("../features/records/configuration.service");
-    const { ApplyRecordConfigurationInteractor, RecordConfigurationWriter } = await import(
-      "../features/records/configure-records.interactor"
-    );
+    const { ApplyRecordConfigurationInteractor } = await import("../features/records/configure-records.interactor");
+    const { RecordConfigurationWriter } = await import("../features/records/record-configuration-writer");
     const { ConfigurationChangeSchema } = await import("../features/records/configuration.schema");
     const { RecordOperationService } = await import("../features/records/record-operation.service");
     const configurations = new RecordConfigurationService(repo);

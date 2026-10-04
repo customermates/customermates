@@ -1,11 +1,11 @@
 import type { RecordRevisionChange } from "@/features/records/record-revision.schema";
 import { z } from "zod";
 import type { UpsertRoleRepo } from "./upsert-role.repo";
-import type { DeleteRoleRepo } from "./delete-role.interactor";
+import type { DeleteRoleRepo } from "./delete-role.repo";
 import type { RecordRepo } from "@/features/records/record.repo";
 import type { RecordAccessPolicy } from "@/features/records/record-access";
 import type { RecordConfigurationService } from "@/features/records/configuration.service";
-import type { RecordConfigurationWriter } from "@/features/records/configure-records.interactor";
+import type { RecordConfigurationWriter } from "@/features/records/record-configuration-writer";
 import type { ConfigurationChange } from "@/features/records/configuration.schema";
 import type { EventService } from "@/features/event/event.service";
 import type { Validated } from "@/core/validation/validation.utils";

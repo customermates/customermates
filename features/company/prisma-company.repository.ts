@@ -1,6 +1,6 @@
 import type { RepoArgs } from "@/core/utils/types";
 import type { CreateAuthLinkSubscriptionRepo } from "@/ee/messaging/connect/create-auth-link.interactor";
-import type { UpsertRoutineSubscriptionRepo } from "@/ee/routines/upsert-routine.interactor";
+import type { UpsertRoutineSubscriptionRepo } from "@/ee/routines/upsert-routine-subscription.repo";
 import type { CreateCheckoutCompanyRepo } from "@/ee/subscription/create-checkout-session.interactor";
 import type { EntitlementSubscriptionRepo } from "@/ee/subscription/entitlement.service";
 import type { GetBillingPortalUrlRepo } from "@/ee/subscription/get-billing-portal-url.interactor";
@@ -9,11 +9,11 @@ import type { RefreshSubscriptionRepo } from "@/ee/subscription/refresh-subscrip
 import type { SubscriptionRepo } from "@/ee/subscription/subscription.service";
 import type { RouteGuardCompanyRepo } from "@/features/auth/route-guard.service";
 import type { InviteTokenRepo } from "@/features/company/invite-token-validation.interactor";
-import type { RegisterUserCompanyRepo } from "@/features/user/register/register-user.interactor";
-import type { AdminUpdateUserSubscriptionRepo } from "@/features/user/upsert/admin-update-user-details.interactor";
-import type { GetCompanySettingsRepo } from "./get-company-settings.interactor";
+import type { RegisterUserCompanyRepo } from "@/features/user/register/register-user-company.repo";
+import type { AdminUpdateUserSubscriptionRepo } from "@/features/user/upsert/admin-update-user-subscription.repo";
+import type { GetCompanySettingsRepo } from "./get-company-settings.repo";
 import type { GetOrCreateInviteTokenRepo } from "./get-or-create-invite-token.interactor";
-import type { UpdateCompanySettingsRepo } from "./update-company-settings.interactor";
+import type { UpdateCompanySettingsRepo } from "./update-company-settings.repo";
 
 import { ConversionEventType, SubscriptionStatus } from "@/generated/prisma";
 

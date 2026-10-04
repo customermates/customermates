@@ -6,7 +6,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 
-import { PrismaRoutineEventAccess } from "../routine-event-access";
+import { PrismaRoutineEventAccess } from "../prisma-routine-event-access";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;

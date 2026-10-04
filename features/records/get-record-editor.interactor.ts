@@ -15,7 +15,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { recordWriteFailure } from "./mutate-record.interactor";
 import { recordDto } from "./query-records.interactor";
 import { resolveRecordPath } from "./record-relationship-path";
-import type { RecordDetailLayoutReader } from "./record-detail-layout.interactor";
+import type { RecordDetailLayoutReader } from "./record-detail-layout-reader";
 import type { RecordDetailLayoutResult } from "./record-detail-layout.schema";
 
 export const GetRecordEditorSchema = z.object({ typeId: z.uuid(), recordId: z.uuid().optional() }).strict();

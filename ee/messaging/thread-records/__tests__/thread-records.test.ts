@@ -6,7 +6,8 @@ import type { RecordRepo } from "@/features/records/record.repo";
 import type { RecordAccessPolicy } from "@/features/records/record-access";
 import { createCrmPreset, presetId } from "@/features/records/crm-preset";
 import { recordRequestHash } from "@/features/records/mutate-record.interactor";
-import { MutateThreadRecordsInteractor, ReadThreadRecordsInteractor } from "../thread-records.interactor";
+import { MutateThreadRecordsInteractor } from "../thread-records.interactor";
+import { ReadThreadRecordsInteractor } from "../read-thread-records.interactor";
 
 const user = createMockUser();
 vi.mock("@/env", () => MOCK_ENV_MODULE);

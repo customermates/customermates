@@ -11,12 +11,8 @@ import type { RecordRepo } from "./record.repo";
 import type { RecordModel, RecordRef } from "./record-model.schema";
 import { RecordRefSchema } from "./record-model.schema";
 import { RecordJournal } from "./record-journal";
-import {
-  CalculationBudgetExceeded,
-  RecordCalculationService,
-  calculationSources,
-  recordKey,
-} from "./record-calculation.service";
+import { RecordCalculationService, calculationSources, recordKey } from "./record-calculation.service";
+import { CalculationBudgetExceeded } from "./calculation-budget-exceeded";
 import { createRecordStagingRepo } from "./record-staging.repository";
 import { decodeRecordValue } from "./record-storage";
 import { validateRecordModel } from "./record-model-validation";

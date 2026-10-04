@@ -15,12 +15,12 @@ import type { CompleteOnboardingWizardRepo } from "@/features/onboarding-wizard/
 import type { FindUsersByIdsRepo } from "@/features/user/find-users-by-ids.repo";
 import type { GetUserByIdRepo } from "@/features/user/get/get-user-by-id.interactor";
 import type { GetUsersRepo } from "@/features/user/get/get-users.repo";
-import type { RegisterUserRepo } from "@/features/user/register/register-user.interactor";
-import type { AdminUpdateUserDetailsRepo } from "@/features/user/upsert/admin-update-user-details.interactor";
+import type { RegisterUserRepo } from "@/features/user/register/register-user.repo";
+import type { AdminUpdateUserDetailsRepo } from "@/features/user/upsert/admin-update-user-details.repo";
 import type { UpdateUserDetailsRepo } from "@/features/user/upsert/update-user-details.interactor";
 import type { Prisma } from "@/generated/prisma";
 import type { CountActiveUsersRepo } from "./count-active-users.repo";
-import type { ResolveUserOptionsRepo } from "./get/resolve-user-options.interactor";
+import type { ResolveUserOptionsRepo } from "./get/resolve-user-options.repo";
 import type { FindUserRepo } from "./user.service";
 
 import { ConversionEventType, Status, SubscriptionStatus } from "@/generated/prisma";

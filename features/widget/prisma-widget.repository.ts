@@ -10,7 +10,7 @@ import type { WidgetCompatibilityRepo } from "./get-widget-compatibility.interac
 import type { GetWidgetsRepo } from "./get-widgets.interactor";
 import { RecordActivityWidgetDtoSchema } from "./record-activity-widget.schema";
 import { RecordWidgetDtoSchema } from "./record-widget.schema";
-import type { UpdateWidgetLayoutsRepo } from "./update-widget-layouts.interactor";
+import type { UpdateWidgetLayoutsRepo } from "./update-widget-layouts.repo";
 import type { WidgetDto, WidgetLayout } from "./widget.schema";
 
 import { Action, Prisma, Resource, WidgetKind } from "@/generated/prisma";

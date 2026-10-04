@@ -1,7 +1,8 @@
+import type { DeleteDataViewSelectionRepo } from "./delete-data-view-selection.repo";
+import type { DeleteDataViewRepo } from "./delete-data-view.repo";
 import type { DataViewPolicy } from "./data-view-policy";
 import { validateDataViewAccess } from "./data-view-policy";
 import type { DeleteDataViewData, DeleteDataViewResult } from "./data-view.schema";
-import type { DataViewDto } from "@/core/data-view/data-view-state.schema";
 import type { Validated } from "@/core/validation/validation.utils";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -12,15 +13,6 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { fail, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { DeleteDataViewResultSchema, DeleteDataViewSchema } from "./data-view.schema";
-
-export abstract class DeleteDataViewRepo {
-  abstract findOwnedOrNull(id: string): Promise<DataViewDto | null>;
-  abstract deleteOwned(id: string): Promise<boolean>;
-}
-
-export abstract class DeleteDataViewSelectionRepo {
-  abstract clearActiveViewKeyIfMatches(data: { p13nId: string; expectedActiveViewKey: string }): Promise<boolean>;
-}
 
 @TenantInteractor()
 export class DeleteDataViewInteractor extends AuthenticatedInteractor<DeleteDataViewData, DeleteDataViewResult> {

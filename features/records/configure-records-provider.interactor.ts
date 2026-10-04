@@ -3,10 +3,8 @@ import { z } from "zod";
 import type { Validated } from "@/core/validation/validation.utils";
 import type { ConfigurationPreview } from "./configuration.schema";
 import type { RecordOperationResult } from "./record-query.schema";
-import type {
-  ApplyRecordConfigurationInteractor,
-  PreviewRecordConfigurationInteractor,
-} from "./configure-records.interactor";
+import type { ApplyRecordConfigurationInteractor } from "./configure-records.interactor";
+import type { PreviewRecordConfigurationInteractor } from "./preview-record-configuration.interactor";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";

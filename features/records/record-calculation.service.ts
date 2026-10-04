@@ -1,3 +1,4 @@
+import { CalculationBudgetExceeded } from "./calculation-budget-exceeded";
 import { recordInvariant } from "./record-invariant";
 
 import type { CalculationContext } from "./calculation";
@@ -17,7 +18,6 @@ export type CalculationRecordRepo = Pick<
   RecordRepo,
   "getRecordCompanyWide" | "getValueDependencies" | "linkedRecordsCompanyWide" | "setValue" | "setValueDependencies"
 >;
-export class CalculationBudgetExceeded extends Error {}
 
 export function calculationSources(
   expression: CalculationExpression,

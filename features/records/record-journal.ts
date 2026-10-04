@@ -6,7 +6,8 @@ import { RecordJournalEntrySchema } from "./record-event.schema";
 import { compareRecordKey } from "./record-json";
 import { calculationDependencyHash } from "./configuration.service";
 import { expressionFieldDependencies } from "./record-model-validation";
-import { CalculationBudgetExceeded, recordKey, SYNCHRONOUS_RECORD_LIMIT } from "./record-calculation.service";
+import { recordKey, SYNCHRONOUS_RECORD_LIMIT } from "./record-calculation.service";
+import { CalculationBudgetExceeded } from "./calculation-budget-exceeded";
 import { decodeRecordValue } from "./record-storage";
 import { recordInvariant } from "./record-invariant";
 

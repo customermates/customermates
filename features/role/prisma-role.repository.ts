@@ -1,8 +1,8 @@
 import type { RepoArgs } from "@/core/utils/types";
 import type { UpsertRoleRepo } from "@/features/role/upsert-role.repo";
 import type { GetRolesRepo } from "@/features/role/get-roles.repo";
-import type { DeleteRoleRepo } from "./delete-role.interactor";
-import type { UpdateUserRoleRepo } from "@/features/user/upsert/admin-update-user-details.interactor";
+import type { DeleteRoleRepo } from "./delete-role.repo";
+import type { UpdateUserRoleRepo } from "@/features/user/upsert/update-user-role.repo";
 import type { FindRolesByIdsRepo } from "./find-roles-by-ids.repo";
 
 import { Action, Resource } from "@/generated/prisma";

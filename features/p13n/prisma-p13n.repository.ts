@@ -2,7 +2,7 @@ import type { RepoArgs } from "@/core/utils/types";
 import type { Filter, SortDescriptor, PaginationRequest } from "@/core/base/base-get.schema";
 import type { ViewMode } from "@/core/base/base-query-builder";
 import type { Grouping } from "@/core/base/grouping/grouping.schema";
-import type { UpsertP13nRepo } from "./upsert-p13n.interactor";
+import type { UpsertP13nRepo } from "./upsert-p13n.repo";
 import type { GetP13nRepo } from "./get-p13n.interactor";
 
 import { DATA_VIEW_STATE_FIELDS } from "@/core/data-view/data-view-state.schema";

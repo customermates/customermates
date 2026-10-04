@@ -18,7 +18,7 @@ import { ProcessDueRecordEventsInteractor } from "@/features/records/process-due
 import { ProcessRecordEventInteractor } from "@/features/records/process-record-event.interactor";
 import { ProviderAvatarService } from "@/features/records/provider-avatar.service";
 import { RecordEventAdmissionGroup } from "@/features/records/record-event-admission-group";
-import type { RecordEventAdmission } from "@/features/records/record-event-outbox.repo";
+import type { RecordEventAdmission } from "@/features/records/record-event-admission";
 import { RecordHistoryReader } from "@/features/records/record-history-reader";
 import { RecordIdentityReader } from "@/features/records/record-identity-reader";
 import { RecordRecipientReader } from "@/features/records/record-recipient-reader";
@@ -29,14 +29,14 @@ import { SweepRecordDeliveriesInteractor } from "@/features/records/sweep-record
 import { PrismaWebhookDeliveryQueueRepo } from "@/features/webhook/prisma-webhook-delivery-queue.repository";
 import { RecordWebhookAdmission } from "@/features/webhook/record-webhook-admission";
 import { WebhookTransport } from "@/features/webhook/webhook-transport.service";
-import { GetRecordWidgetInteractor, GetRecordWidgetsInteractor } from "@/features/widget/get-record-widgets.interactor";
+import { GetRecordWidgetsInteractor } from "@/features/widget/get-record-widgets.interactor";
+import { GetRecordWidgetInteractor } from "@/features/widget/get-record-widget.interactor";
 import { PrismaRecordActivityWidgetRepo } from "@/features/widget/prisma-record-activity-widget.repository";
 import { PrismaRecordWidgetRepo } from "@/features/widget/prisma-record-widget.repository";
-import {
-  RecordActivityWidgetReader,
-  UpsertRecordActivityWidgetInteractor,
-} from "@/features/widget/record-activity-widget.interactor";
-import { RecordWidgetReader, UpsertRecordWidgetInteractor } from "@/features/widget/record-widget.interactor";
+import { UpsertRecordActivityWidgetInteractor } from "@/features/widget/record-activity-widget.interactor";
+import { RecordActivityWidgetReader } from "@/features/widget/record-activity-widget-reader";
+import { UpsertRecordWidgetInteractor } from "@/features/widget/record-widget.interactor";
+import { RecordWidgetReader } from "@/features/widget/record-widget-reader";
 import { wikiWebsiteNetwork } from "@/ee/wiki-crawl/wiki-website-network";
 /**
  * Application dependency injection - single source of truth for everything wired
@@ -78,7 +78,7 @@ import { PrismaRoutineRepo } from "@/ee/routines/prisma-routine.repository";
 import { PruneRoutineRunsInteractor } from "@/ee/routines/prune-routine-runs.interactor";
 import { ReconcileRoutineRunsInteractor } from "@/ee/routines/reconcile-routine-runs.interactor";
 import { ReleaseOwnerRoutinesInteractor } from "@/ee/routines/release-owner-routines.interactor";
-import { PrismaRoutineEventAccess } from "@/ee/routines/routine-event-access";
+import { PrismaRoutineEventAccess } from "@/ee/routines/prisma-routine-event-access";
 import { RunRoutineNowInteractor } from "@/ee/routines/run-routine-now.interactor";
 import { StartRoutineRunInteractor } from "@/ee/routines/start-routine-run.interactor";
 import { SweepDueRoutinesInteractor } from "@/ee/routines/sweep-due-routines.interactor";
@@ -89,12 +89,10 @@ import { PrismaDataViewRepo } from "@/features/data-view/prisma-data-view.reposi
 import { PrismaP13nRepo } from "@/features/p13n/prisma-p13n.repository";
 import { RecordConfigurationService } from "@/features/records/configuration.service";
 import { ConfigureRecordsProviderInteractor } from "@/features/records/configure-records-provider.interactor";
-import {
-  ApplyRecordConfigurationInteractor,
-  GetRecordModelInteractor,
-  PreviewRecordConfigurationInteractor,
-  RecordConfigurationWriter,
-} from "@/features/records/configure-records.interactor";
+import { ApplyRecordConfigurationInteractor } from "@/features/records/configure-records.interactor";
+import { RecordConfigurationWriter } from "@/features/records/record-configuration-writer";
+import { PreviewRecordConfigurationInteractor } from "@/features/records/preview-record-configuration.interactor";
+import { GetRecordModelInteractor } from "@/features/records/get-record-model.interactor";
 import { DiscoverRecordTypesInteractor } from "@/features/records/discover-record-types.interactor";
 import { GetRecordChoicesInteractor } from "@/features/records/get-record-choices.interactor";
 import { GetRecordEditorInteractor } from "@/features/records/get-record-editor.interactor";
@@ -105,19 +103,16 @@ import { PreviewRecordDeletionInteractor } from "@/features/records/preview-reco
 import { PrismaMembershipTaskRepo } from "@/features/records/prisma-membership-task.repository";
 import { PrismaRecordRepo } from "@/features/records/prisma-record.repository";
 import { QueryRecordMeasureInteractor } from "@/features/records/query-record-measure.interactor";
-import { GetRecordInteractor, QueryRecordsInteractor } from "@/features/records/query-records.interactor";
+import { QueryRecordsInteractor } from "@/features/records/query-records.interactor";
+import { GetRecordInteractor } from "@/features/records/get-record.interactor";
 import { RecordAccessPolicy } from "@/features/records/record-access";
 import { RecordCalculationService } from "@/features/records/record-calculation.service";
-import {
-  ReadRecordDetailLayoutInteractor,
-  RecordDetailLayoutReader,
-  SaveRecordDetailLayoutInteractor,
-} from "@/features/records/record-detail-layout.interactor";
-import {
-  CancelRecordOperationInteractor,
-  GetRecordOperationInteractor,
-  ResumeRecordOperationInteractor,
-} from "@/features/records/record-operation.interactor";
+import { SaveRecordDetailLayoutInteractor } from "@/features/records/record-detail-layout.interactor";
+import { RecordDetailLayoutReader } from "@/features/records/record-detail-layout-reader";
+import { ReadRecordDetailLayoutInteractor } from "@/features/records/read-record-detail-layout.interactor";
+import { ResumeRecordOperationInteractor } from "@/features/records/record-operation.interactor";
+import { GetRecordOperationInteractor } from "@/features/records/get-record-operation.interactor";
+import { CancelRecordOperationInteractor } from "@/features/records/cancel-record-operation.interactor";
 import { RecordOperationService } from "@/features/records/record-operation.service";
 import { RecordWriteService } from "@/features/records/record-write.service";
 import { PrismaRoleRepo } from "@/features/role/prisma-role.repository";
@@ -1582,8 +1577,6 @@ export const getManageDataViewsInteractor = () =>
     getRecordViewPolicy(),
     getResetDataViewStateInteractor(),
   );
-import {
-  ReadThreadRecordsInteractor,
-  MutateThreadRecordsInteractor,
-} from "@/ee/messaging/thread-records/thread-records.interactor";
+import { MutateThreadRecordsInteractor } from "@/ee/messaging/thread-records/thread-records.interactor";
+import { ReadThreadRecordsInteractor } from "@/ee/messaging/thread-records/read-thread-records.interactor";
 import { PrismaThreadRecordsRepo } from "@/ee/messaging/thread-records/prisma-thread-records.repository";

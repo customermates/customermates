@@ -1,5 +1,6 @@
+import type { RegisterUserCompanyRepo } from "./register-user-company.repo";
+import type { RegisterUserRepo } from "./register-user.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
-import type { TenantUser } from "@/features/user/user.service";
 import type { AuthService } from "@/features/auth/auth.service";
 import type { EventService } from "@/features/event/event.service";
 import type { RouteGuardService } from "@/features/auth/route-guard.service";
@@ -72,23 +73,6 @@ type RegistrationContext = {
   adAttribution?: RegistrationAdAttribution[];
   target: RegistrationTarget;
 };
-
-export abstract class RegisterUserRepo {
-  abstract findAuthUserCompanyIdUnscoped(userId: string): Promise<string | null | undefined>;
-  abstract findAuthUserCompanyIdForUpdateUnscoped(userId: string): Promise<string | null | undefined>;
-  abstract findCurrentUserUnscoped(email: string): Promise<TenantUser | null>;
-  abstract bindAuthUserToCompanyOrThrowUnscoped(args: { authUserId: string; companyId: string }): Promise<void>;
-  abstract createCompanyAndUser(
-    args: RegisterUserData & {
-      adAttribution?: RegistrationAdAttribution[];
-    },
-  ): Promise<TenantUser>;
-  abstract registerExistingCompany(args: RegisterUserData & { companyId: string }): Promise<TenantUser>;
-}
-
-export abstract class RegisterUserCompanyRepo {
-  abstract existsUnscoped(companyId: string): Promise<boolean>;
-}
 
 @SystemInteractor
 export class RegisterUserInteractor {

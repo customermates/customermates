@@ -1,9 +1,10 @@
+import type { RecordWidgetReader } from "./record-widget-reader";
 import { randomUUID } from "node:crypto";
 
 import type { RecordRepo } from "@/features/records/record.repo";
 import type { RecordAccessPolicy } from "@/features/records/record-access";
 import type { QueryRecordMeasureInteractor } from "@/features/records/query-record-measure.interactor";
-import type { RecordWidgetInput, RecordWidgetDto, RecordWidgetRepo, StoredRecordWidget } from "./record-widget.schema";
+import type { RecordWidgetInput, RecordWidgetDto, RecordWidgetRepo } from "./record-widget.schema";
 import type { Validated } from "@/core/validation/validation.utils";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -14,32 +15,6 @@ import { failAuthorization, failConflict, failNotFound } from "@/core/validation
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { recordRequestHash } from "@/features/records/mutate-record.interactor";
 import { RecordWidgetInputSchema } from "./record-widget.schema";
-
-export class RecordWidgetReader {
-  constructor(
-    private records: RecordRepo,
-    private measures: QueryRecordMeasureInteractor,
-  ) {}
-
-  read(row: StoredRecordWidget): Promise<RecordWidgetDto> {
-    return runInTransaction(
-      async () => {
-        const result = await this.measures.invoke(row.measure);
-        if (!result.ok) return { ...row, status: "unavailable" as const, data: null, groupOptions: [] };
-        const model = await this.records.getModel();
-        const fieldId = result.data.groups.find((group) => group.fieldId)?.fieldId;
-        const field = model.fields.find((candidate) => candidate.id === fieldId && !candidate.archived);
-        return {
-          ...row,
-          status: "ready" as const,
-          data: result.data,
-          groupOptions: field?.options.map(({ id, label, color }) => ({ id, label, color })) ?? [],
-        };
-      },
-      { readOnly: true, timeout: 30000 },
-    );
-  }
-}
 
 @TenantInteractor()
 export class UpsertRecordWidgetInteractor extends AuthenticatedInteractor<RecordWidgetInput, RecordWidgetDto> {

@@ -1,3 +1,4 @@
+import { TestQueryBuilder } from "./fixtures/multiple-filters-per-field-test-query-builder";
 import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 import type { RootStore } from "@/core/stores/root.store";
 import type { GetResult } from "../base-get.interactor";
@@ -21,7 +22,7 @@ import { decodeGetParams, encodeGetParams } from "@/core/utils/get-params";
 import { CustomColumnType } from "@/core/data-view/column-presentation.types";
 import { EntityType } from "@/features/records/history/v1/legacy-enums";
 import { BaseDataViewStore } from "../base-data-view.store";
-import { BaseQueryBuilder, defaultValidateFilters, FilterOperatorKey, ViewMode } from "../base-query-builder";
+import { defaultValidateFilters, FilterOperatorKey, ViewMode } from "../base-query-builder";
 
 type Item = { id: string };
 
@@ -51,22 +52,15 @@ const CUSTOM_COLUMNS = [
   },
 ] as unknown as CustomColumnDto[];
 
+TestQueryBuilder.filterableFields = FILTERABLE_FIELDS;
+TestQueryBuilder.customColumns = CUSTOM_COLUMNS;
+
 const statusFilter = (value: string): Filter =>
   ({
     field: FilterFieldKey.status,
     operator: FilterOperatorKey.in,
     value: [value],
   }) as Filter;
-
-class TestQueryBuilder extends BaseQueryBuilder<Record<string, unknown>> {
-  override getFilterableFields(): Promise<FilterableField[]> {
-    return Promise.resolve(FILTERABLE_FIELDS);
-  }
-
-  override getCustomColumns(): Promise<CustomColumnDto[]> {
-    return Promise.resolve(CUSTOM_COLUMNS);
-  }
-}
 
 class TestStore extends BaseDataViewStore<Item> {
   get columnsDefinition() {
