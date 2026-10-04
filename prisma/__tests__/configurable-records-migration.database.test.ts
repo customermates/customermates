@@ -957,6 +957,55 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
     expect(await rows(client, 'SELECT id FROM "RecordEventSubscription" WHERE id=$1', [f.webhook])).toEqual([]);
   });
 
+  it("keeps routines of unavailable owners disabled and drops leftover legacy events of scheduled routines", async () => {
+    const { client } = await legacyDatabase();
+    const f = await populateLegacyWorkspace(client);
+    await client.query('UPDATE "Routine" SET "ownerUserId" = $2, enabled = true WHERE id = $1', [
+      f.routine,
+      f.member.id,
+    ]);
+    await client.query("UPDATE \"User\" SET status = 'inactive' WHERE id = $1", [f.member.id]);
+    const orphaned = randomUUID();
+    const switched = randomUUID();
+    await client.query(
+      `INSERT INTO "Routine" (id, "companyId", "ownerUserId", name, prompt, enabled, "triggerKind", "cronExpression", "triggerEvents", "changedFields", "triggerFilters", "updatedAt")
+       VALUES ($1, $3, NULL, 'Orphaned', 'Inspect.', false, 'event', NULL, ARRAY['contact.updated'], ARRAY['firstName'], '[]', now()),
+              ($2, $3, $4, 'Switched', 'Inspect.', true, 'schedule', '0 9 * * *', ARRAY['deal.created', 'messaging.message.received'], ARRAY[]::text[], '[]', now())`,
+      [orphaned, switched, f.companyId, f.admin.id],
+    );
+    await applyConfigurableRecordsMigration(client);
+    expect(
+      await rows(
+        client,
+        'SELECT id, enabled, "disabledReason", "triggerEvents", "changedFields" FROM "Routine" WHERE id = ANY($1) ORDER BY name',
+        [[f.routine, orphaned, switched]],
+      ),
+    ).toEqual([
+      { id: orphaned, enabled: false, disabledReason: null, triggerEvents: ["record.updated"], changedFields: [] },
+      {
+        id: switched,
+        enabled: true,
+        disabledReason: null,
+        triggerEvents: ["messaging.message.received"],
+        changedFields: [],
+      },
+      {
+        id: f.routine,
+        enabled: false,
+        disabledReason: "ownerUnavailable",
+        triggerEvents: ["messaging.message.received", "record.updated"],
+        changedFields: [],
+      },
+    ]);
+    expect(
+      await rows(
+        client,
+        'SELECT id, "ownerUserId", enabled FROM "RecordEventSubscription" WHERE id = ANY($1) ORDER BY id',
+        [[f.routine, orphaned, switched]],
+      ),
+    ).toEqual([{ id: f.routine, ownerUserId: f.member.id, enabled: false }]);
+  });
+
   it("refuses malformed data with grouped counts, leaves everything unchanged and deploys after resolve and repair", async () => {
     const database = await legacyDatabase(false);
     expect((await deployMigrations(database.url, legacyOnly)).code).toBe(0);

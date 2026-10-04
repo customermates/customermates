@@ -60,7 +60,6 @@ describeDatabase("a routine whose owner becomes unavailable", { timeout: 120_000
       .join("\n");
 
     expect(sql).not.toMatch(/CREATE\s+TRIGGER/i);
-    // The configurable records upgrade defines transaction-scoped helpers in its own schema and drops them.
     const persistentSql = sql.replace(/CREATE FUNCTION crm_upgrade\.[\s\S]*?\$\$;/g, "");
     expect(persistentSql).not.toMatch(/LANGUAGE\s+plpgsql/i);
     expect(sql).toContain("DROP SCHEMA crm_upgrade;");

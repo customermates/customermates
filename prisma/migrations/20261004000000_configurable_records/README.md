@@ -48,6 +48,36 @@ The retired multi-step upgrade refused the following data. This migration conver
 4. **Unknown active views.** A list personalisation whose active view is not a converted view of the same member and surface returns to the default view (`activeViewKey = null`).
 5. **Deleted select options in filters.** Option values that no longer exist are removed from `in`/`notIn` filters on select fields (views, widgets and routines). A `notIn` left empty is dropped (no record holds a deleted option); an `in` left empty stays and still matches nothing.
 6. **Webhook owners.** A webhook whose creator (the single `webhook.created` audit row) is inactive keeps that creator as its subscription owner but is disabled. Without a provable creator, the oldest active system-role member becomes the owner; without one, the webhook is disabled and gets no subscription. No arbitrary other user is chosen.
+7. **Routine owners.** A routine with legacy record events whose owner is inactive keeps that owner and a disabled subscription; a routine whose owner was deleted gets no subscription. An enabled routine in either state is disabled with `disabledReason = ownerUnavailable`, as main disables routines of unavailable owners. Assigning an active owner later re-subscribes it.
+8. **Scheduled routines with legacy events.** Main keeps a routine's previous trigger events when it is switched to a schedule, and a schedule never reads them. Those leftover legacy events are dropped; other events, the schedule and the enabled state are unchanged.
+
+Repairs that disable or change an automation are reported as notices at the end of the migration (`Configurable record upgrade repair: Webhook webhook_disabled x2 (<ids>)`). Deployment logs may not show notices, so list the affected automations on the production database (read-only) before deploying:
+
+```sql
+SELECT 'Routine' AS kind, r."companyId", r.id, r.enabled, r."triggerKind"
+FROM "Routine" r
+WHERE EXISTS (SELECT 1 FROM unnest(r."triggerEvents") e WHERE e ~ '^(contact|organization|deal|service|task)\.(created|updated|deleted)$')
+  AND (r."triggerKind"::text <> 'event' OR (r.enabled AND NOT EXISTS (
+    SELECT 1 FROM "User" u WHERE u."companyId" = r."companyId" AND u.id = r."ownerUserId" AND u.status::text = 'active')))
+UNION ALL
+SELECT 'Webhook', w."companyId", w.id, w.enabled, NULL
+FROM "Webhook" w
+CROSS JOIN LATERAL (
+  SELECT CASE WHEN count(DISTINCT a."userId") = 1 THEN min(a."userId") END AS creator
+  FROM "AuditLog" a JOIN "User" u ON u.id = a."userId" AND u."companyId" = a."companyId"
+  WHERE a."companyId" = w."companyId" AND a."entityId" = w.id AND a.event = 'webhook.created'
+) owner
+WHERE w.enabled AND EXISTS (SELECT 1 FROM unnest(w.events) e WHERE e ~ '^(contact|organization|deal|service|task)\.(created|updated|deleted)$')
+  AND CASE
+    WHEN owner.creator IS NOT NULL THEN NOT EXISTS (
+      SELECT 1 FROM "User" u WHERE u."companyId" = w."companyId" AND u.id = owner.creator AND u.status::text = 'active')
+    ELSE NOT EXISTS (
+      SELECT 1 FROM "User" u JOIN "UserRole" role ON role.id = u."roleId" AND role."isSystemRole"
+      WHERE u."companyId" = w."companyId" AND u.status::text = 'active')
+  END;
+```
+
+The query mirrors the migration's owner rules, so it lists exactly the enabled automations the upgrade will disable or change.
 
 ## Intentional differences from the retired upgrade
 
@@ -59,7 +89,7 @@ The retired multi-step upgrade refused the following data. This migration conver
 
 ## Refusals
 
-Refusal codes name the owning table and field, for example `CustomFieldValue.value invalid_typed_value x3` or `Widget.configuration unresolved_presentation_field x1`. Empty and null presentation state (`[]`, `{}`, JSON `null`, SQL `NULL`) converts as the retired upgrade did; for example an empty timeline filter list stays empty. Refusals include malformed or unrepresentable decimals, dates and ranges, invalid emails, phone numbers and URLs, unknown select options, invalid column options and definitions, references to records, members, accounts or threads of another (or no) workspace, duplicate custom values or identity keys, noncanonical identities, unsupported legacy filters, sorts, groupings and widget measures, unknown terminology presets, and routines with legacy events but a schedule trigger or an inactive owner.
+Refusal codes name the owning table and field, for example `CustomFieldValue.value invalid_typed_value x3` or `Widget.configuration unresolved_presentation_field x1`. Empty and null presentation state (`[]`, `{}`, JSON `null`, SQL `NULL`) converts as the retired upgrade did; for example an empty timeline filter list stays empty. Refusals include malformed or unrepresentable decimals, dates and ranges, invalid emails, phone numbers and URLs, unknown select options, invalid column options and definitions, references to records, members, accounts or threads of another (or no) workspace, duplicate custom values or identity keys, noncanonical identities, unsupported legacy filters, sorts, groupings and widget measures and unknown terminology presets.
 
 ## Internal errors
 

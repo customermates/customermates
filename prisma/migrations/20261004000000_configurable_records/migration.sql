@@ -70,6 +70,9 @@ ANALYZE "Company", "User", "UserRole", "RolePermission", "Contact", "Organizatio
 CREATE SCHEMA crm_upgrade;
 CREATE TEMP TABLE crm_upgrade_issue (company_id text, source_table text NOT NULL, field text NOT NULL, code text NOT NULL) ON COMMIT DROP;
 CREATE TEMP TABLE crm_upgrade_repair (company_id text NOT NULL, source_table text NOT NULL, row_id text, kind text NOT NULL, detail text) ON COMMIT DROP;
+-- Untouched routine trigger state, so routine repairs are recounted from the legacy rows after conversion.
+CREATE TEMP TABLE crm_upgrade_routine_source ON COMMIT DROP AS
+  SELECT id, "companyId" AS company_id, "triggerEvents" AS events, enabled, "ownerUserId" AS owner_user_id, "triggerKind"::text AS trigger_kind FROM "Routine";
 
 -- ---------------------------------------------------------------------------------------------
 -- Helper functions. They live in the transaction-scoped schema "crm_upgrade" and are dropped in
@@ -2745,10 +2748,14 @@ BEGIN
       'changedFieldIds', v_changed, 'events', to_jsonb(v_kind_events)));
   END LOOP;
   IF p_source_table = 'Routine' THEN
+    -- A routine whose owner was deactivated or deleted is kept, as main keeps it: the conversion keeps it
+    -- disabled (owner unavailable), with a disabled subscription for an inactive owner and none for a
+    -- deleted owner, so a later owner change re-subscribes it.
     v_owner_id := p_source_row ->> 'owner_user_id';
-    IF (v_owner_id IS NULL) IS NOT FALSE THEN PERFORM crm_upgrade.fail('unresolved_trigger_owner'); END IF;
-    IF (NOT EXISTS (SELECT 1 FROM "User" u WHERE u."companyId" = p_company_id AND u.id = v_owner_id AND u.status::text = 'active')) IS NOT FALSE THEN
-      PERFORM crm_upgrade.fail('inactive_trigger_owner');
+    v_owner_active := v_owner_id IS NOT NULL AND EXISTS (SELECT 1 FROM "User" u WHERE u."companyId" = p_company_id AND u.id = v_owner_id AND u.status::text = 'active');
+    IF NOT v_owner_active THEN
+      IF v_enabled THEN PERFORM crm_upgrade.repair(p_company_id, 'Routine', v_row_id, 'routine_disabled'); END IF;
+      v_enabled := false;
     END IF;
   ELSE
     SELECT CASE WHEN count(*) = 1 THEN min(creator."userId") END INTO v_owner_id FROM (
@@ -3241,8 +3248,16 @@ BEGIN
         CONTINUE;
       END IF;
       IF NOT EXISTS (SELECT 1 FROM unnest(v_trigger_row.events) AS e WHERE e ~ '^(contact|organization|deal|service|task)\.(created|updated|deleted)$') THEN CONTINUE; END IF;
+      -- A scheduled routine never reads its trigger events; main keeps old events when a routine is switched
+      -- to a schedule. Those leftover legacy events are dropped instead of refusing the upgrade.
       IF v_trigger_row.source_table = 'Routine' AND v_trigger_row.trigger_kind IS DISTINCT FROM 'event' THEN
-        PERFORM crm_upgrade.issue(v_ws_id, 'Routine', 'triggerKind', 'legacy_event_on_scheduled_routine');
+        PERFORM crm_upgrade.repair(v_ws_id, 'Routine', v_trigger_row.id, 'scheduled_routine_events_dropped');
+        INSERT INTO crm_upgrade_trigger (company_id, source_table, row_id, result)
+        VALUES (v_ws_id, 'Routine', v_trigger_row.id, jsonb_build_object(
+          'targetEvents', to_jsonb(ARRAY(SELECT e FROM unnest(v_trigger_row.events) WITH ORDINALITY AS u(e, n)
+            WHERE e !~ '^(contact|organization|deal|service|task)\.(created|updated|deleted)$' ORDER BY n)),
+          'enabled', v_trigger_row.enabled,
+          'subscription', 'null'::jsonb));
         CONTINUE;
       END IF;
       BEGIN
@@ -3979,7 +3994,9 @@ UPDATE "P13n" preference SET filters = t.filters FROM crm_upgrade_timeline t WHE
 UPDATE "Webhook" webhook SET events = ARRAY(SELECT jsonb_array_elements_text(t.result -> 'targetEvents')), enabled = (t.result ->> 'enabled')::boolean
 FROM crm_upgrade_trigger t WHERE t.source_table = 'Webhook' AND webhook.id = t.row_id;
 UPDATE "Routine" routine SET "triggerEvents" = ARRAY(SELECT jsonb_array_elements_text(t.result -> 'targetEvents')),
-  "changedFields" = ARRAY[]::text[], "triggerFilters" = '[]'::jsonb
+  "changedFields" = ARRAY[]::text[], "triggerFilters" = '[]'::jsonb,
+  enabled = (t.result ->> 'enabled')::boolean,
+  "disabledReason" = CASE WHEN routine.enabled AND NOT (t.result ->> 'enabled')::boolean THEN 'ownerUnavailable' ELSE routine."disabledReason" END
 FROM crm_upgrade_trigger t WHERE t.source_table = 'Routine' AND routine.id = t.row_id;
 INSERT INTO "RecordEventSubscription" ("companyId", id, kind, "ownerUserId", "typeId", events, "changedFieldIds", query, sources, revision, enabled)
 SELECT t.company_id, t.row_id, t.result #>> '{subscription,kind}', t.result #>> '{subscription,ownerUserId}', NULL,
@@ -4497,6 +4514,18 @@ SELECT 'repairs:dropped_column_references', abs(recorded.total - expected.total)
        WHERE f.value ->> 'id' = reference.key AND f.value ->> 'typeId' = crm_upgrade.preset_id(p.company_id, substring(COALESCE(p.original ->> 'surfaceKey', p.original ->> 'p13nId') FROM '^([a-z]+?)s?-')))) AS expected
 WHERE recorded.total <> expected.total;
 
+-- Routines kept but disabled because their owner is unavailable, and scheduled routines whose leftover
+-- legacy events were dropped, recounted from the legacy rows.
+INSERT INTO crm_upgrade_mismatch
+SELECT 'repairs:routines', abs(recorded.total - expected.total) FROM
+  (SELECT count(*) AS total FROM crm_upgrade_repair WHERE kind IN ('routine_disabled', 'scheduled_routine_events_dropped')) AS recorded,
+  (SELECT count(*) AS total FROM crm_upgrade_routine_source r
+   WHERE EXISTS (SELECT 1 FROM unnest(r.events) e WHERE e ~ '^(contact|organization|deal|service|task)\.(created|updated|deleted)$')
+     AND (r.trigger_kind <> 'event'
+       OR (r.enabled AND NOT EXISTS (SELECT 1 FROM "User" u WHERE u."companyId" = r.company_id AND u.id = r.owner_user_id AND u.status::text = 'active')))
+  ) AS expected
+WHERE recorded.total <> expected.total;
+
 DO $$
 DECLARE
   v_summary text;
@@ -4506,6 +4535,21 @@ BEGIN
     RAISE EXCEPTION 'Configurable record upgrade reconciliation failed: %', v_summary
       USING HINT = 'Nothing was changed. Report this failure; the converted data did not match the legacy source.';
   END IF;
+END
+$$;
+
+-- Report every repair that disables or changes an automation, so the operator can follow up.
+DO $$
+DECLARE
+  v_row record;
+BEGIN
+  FOR v_row IN
+    SELECT source_table, kind, count(*) AS total, string_agg(row_id, ', ' ORDER BY row_id) AS ids
+    FROM crm_upgrade_repair WHERE kind IN ('webhook_disabled', 'webhook_owner_unresolved', 'routine_disabled', 'scheduled_routine_events_dropped')
+    GROUP BY source_table, kind ORDER BY source_table, kind
+  LOOP
+    RAISE NOTICE 'Configurable record upgrade repair: % % x% (%)', v_row.source_table, v_row.kind, v_row.total, v_row.ids;
+  END LOOP;
 END
 $$;
 
