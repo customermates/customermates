@@ -2033,6 +2033,32 @@
         "title": "Mit einer Vorlage starten"
       }
     },
+    "widgetGallery": {
+      "description": "Fertige Widgets für dein aktuelles Datenmodell. Du kannst vor dem Speichern alles anpassen.",
+      "templates": {
+        "dealsByStage": {
+          "description": "Deals je Phase in Phasenreihenfolge, mit Umwandlung von Schritt zu Schritt.",
+          "name": "Deals nach Phase"
+        },
+        "openPipeline": {
+          "description": "Gesamtwert der Deals, die weder gewonnen noch verloren sind.",
+          "name": "Offene Pipeline"
+        },
+        "openTasksPerAssignee": {
+          "description": "Aufgaben, die nicht erledigt oder archiviert sind, gezählt je zugewiesener Person.",
+          "name": "Offene Aufgaben pro zuständiger Person"
+        },
+        "topOrganizationsByRevenue": {
+          "description": "Gewonnener Dealwert je verknüpfter Organisation, als Rangliste mit Anteil an der Gesamtsumme.",
+          "name": "Top-Organisationen nach Umsatz"
+        },
+        "wonValuePerMonth": {
+          "description": "Wert gewonnener Deals pro Monat, nach dem ersten Datumsfeld des Deals oder dem Erstellungsdatum.",
+          "name": "Gewonnener Wert pro Monat"
+        }
+      },
+      "title": "Startwidgets"
+    },
     "widgetKinds": {
       "activityTimeline": "Aktivitätsverlauf",
       "chart": "Diagramm"

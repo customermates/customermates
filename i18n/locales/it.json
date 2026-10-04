@@ -2033,6 +2033,32 @@
         "title": "Parti da un modello"
       }
     },
+    "widgetGallery": {
+      "description": "Widget pronti per il tuo modello di dati attuale. Puoi modificare tutto prima di salvare.",
+      "templates": {
+        "dealsByStage": {
+          "description": "Trattative in ogni fase, nell’ordine delle fasi, con la conversione tra i passaggi.",
+          "name": "Trattative per fase"
+        },
+        "openPipeline": {
+          "description": "Valore totale delle trattative né vinte né perse.",
+          "name": "Pipeline aperta"
+        },
+        "openTasksPerAssignee": {
+          "description": "Attività non completate né archiviate, conteggiate per ogni utente assegnato.",
+          "name": "Attività aperte per assegnatario"
+        },
+        "topOrganizationsByRevenue": {
+          "description": "Valore delle trattative vinte per organizzazione collegata, in classifica con la quota sul totale.",
+          "name": "Organizzazioni principali per fatturato"
+        },
+        "wonValuePerMonth": {
+          "description": "Valore delle trattative vinte al mese, in base al primo campo data della trattativa o alla data di creazione.",
+          "name": "Valore vinto al mese"
+        }
+      },
+      "title": "Widget iniziali"
+    },
     "widgetKinds": {
       "activityTimeline": "Cronologia attività",
       "chart": "Grafico"

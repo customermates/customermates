@@ -2033,6 +2033,32 @@
         "title": "Empezar con una plantilla"
       }
     },
+    "widgetGallery": {
+      "description": "Widgets listos para tu modelo de datos actual. Puedes editarlo todo antes de guardar.",
+      "templates": {
+        "dealsByStage": {
+          "description": "Oportunidades en cada etapa, en el orden de las etapas, con la conversión entre pasos.",
+          "name": "Oportunidades por etapa"
+        },
+        "openPipeline": {
+          "description": "Valor total de las oportunidades que no están ganadas ni perdidas.",
+          "name": "Pipeline abierto"
+        },
+        "openTasksPerAssignee": {
+          "description": "Tareas que no están completadas ni archivadas, contadas por cada usuario asignado.",
+          "name": "Tareas abiertas por responsable"
+        },
+        "topOrganizationsByRevenue": {
+          "description": "Valor de las oportunidades ganadas por organización vinculada, clasificado con su parte del total.",
+          "name": "Principales organizaciones por ingresos"
+        },
+        "wonValuePerMonth": {
+          "description": "Valor de las oportunidades ganadas por mes, según el primer campo de fecha de la oportunidad o la fecha de creación.",
+          "name": "Valor ganado por mes"
+        }
+      },
+      "title": "Widgets iniciales"
+    },
     "widgetKinds": {
       "activityTimeline": "Cronología de actividad",
       "chart": "Gráfico"

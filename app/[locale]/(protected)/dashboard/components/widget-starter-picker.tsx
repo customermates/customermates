@@ -1,6 +1,7 @@
 "use client";
 
 import type { CompanyWidget } from "@/features/widget/widget.schema";
+import type { WidgetGalleryTemplate } from "@/features/widget/widget-gallery";
 
 import { useTranslations } from "next-intl";
 import { Activity, ChartNoAxesColumnIncreasing } from "lucide-react";
@@ -10,11 +11,14 @@ import { IconContainer } from "@/components/shared/icon-container";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/core/utils/cn";
+import { ChartTypeIllustration } from "./widget-display-type-picker";
 
 type Props = {
   availableKinds: WidgetKind[];
   disabled?: boolean;
+  gallery: WidgetGalleryTemplate[];
   templates: CompanyWidget[];
+  onSelectGalleryTemplate: (template: WidgetGalleryTemplate) => void;
   onSelectKind: (kind: WidgetKind) => void;
   onSelectTemplate: (id: string) => void;
 };
@@ -24,7 +28,15 @@ const KIND_ICON = {
   [WidgetKind.activityTimeline]: Activity,
 };
 
-export function WidgetStarterPicker({ availableKinds, disabled, templates, onSelectKind, onSelectTemplate }: Props) {
+export function WidgetStarterPicker({
+  availableKinds,
+  disabled,
+  gallery,
+  templates,
+  onSelectGalleryTemplate,
+  onSelectKind,
+  onSelectTemplate,
+}: Props) {
   const t = useTranslations();
 
   return (
@@ -61,6 +73,46 @@ export function WidgetStarterPicker({ availableKinds, disabled, templates, onSel
           );
         })}
       </section>
+
+      {gallery.length > 0 && (
+        <section aria-labelledby="widget-gallery-heading" className="space-y-3">
+          <div className="space-y-1">
+            <h3 className="text-sm font-medium" id="widget-gallery-heading">
+              {t("Dashboard.widgetGallery.title")}
+            </h3>
+
+            <p className="text-xs leading-relaxed text-muted-foreground">{t("Dashboard.widgetGallery.description")}</p>
+          </div>
+
+          <div className="grid gap-2 sm:grid-cols-2">
+            {gallery.map((template) => (
+              <button
+                key={template.key}
+                className={cn(
+                  "interactive-surface flex min-w-0 items-center gap-3 rounded-lg border border-border p-3 text-left",
+                  "hover:border-primary/60 hover:bg-primary/5 focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-ring/50",
+                )}
+                disabled={disabled}
+                id={`widget-gallery-${template.key}`}
+                type="button"
+                onClick={() => onSelectGalleryTemplate(template)}
+              >
+                <ChartTypeIllustration className="h-10 w-14 shrink-0" type={template.displayOptions.displayType} />
+
+                <span className="min-w-0 flex-1 space-y-1">
+                  <span className="block truncate text-sm font-medium text-foreground">
+                    {t(`Dashboard.widgetGallery.templates.${template.key}.name`)}
+                  </span>
+
+                  <span className="block text-xs leading-relaxed text-muted-foreground">
+                    {t(`Dashboard.widgetGallery.templates.${template.key}.description`)}
+                  </span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
 
       {templates.length > 0 && (
         <section aria-labelledby="widget-template-heading" className="space-y-3">

@@ -2033,6 +2033,32 @@
         "title": "Start from a template"
       }
     },
+    "widgetGallery": {
+      "description": "Ready-made widgets for your current data model. You can edit everything before saving.",
+      "templates": {
+        "dealsByStage": {
+          "description": "Deals in each stage, in stage order, with step-to-step conversion.",
+          "name": "Deals by stage"
+        },
+        "openPipeline": {
+          "description": "Total value of deals that are neither won nor lost.",
+          "name": "Open pipeline"
+        },
+        "openTasksPerAssignee": {
+          "description": "Tasks that are not done or archived, counted for each assigned user.",
+          "name": "Open tasks per assignee"
+        },
+        "topOrganizationsByRevenue": {
+          "description": "Won deal value per linked organization, ranked with each share of the total.",
+          "name": "Top organizations by revenue"
+        },
+        "wonValuePerMonth": {
+          "description": "Value of won deals per month, by the first deal date field or the creation date.",
+          "name": "Won value per month"
+        }
+      },
+      "title": "Starter widgets"
+    },
     "widgetKinds": {
       "activityTimeline": "Activity timeline",
       "chart": "Chart"

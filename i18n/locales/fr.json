@@ -2033,6 +2033,32 @@
         "title": "Partir d'un modèle"
       }
     },
+    "widgetGallery": {
+      "description": "Des widgets prêts à l’emploi pour votre modèle de données actuel. Vous pouvez tout modifier avant d’enregistrer.",
+      "templates": {
+        "dealsByStage": {
+          "description": "Les affaires de chaque étape, dans l’ordre des étapes, avec la conversion d’une étape à l’autre.",
+          "name": "Affaires par étape"
+        },
+        "openPipeline": {
+          "description": "Valeur totale des affaires ni gagnées ni perdues.",
+          "name": "Pipeline ouvert"
+        },
+        "openTasksPerAssignee": {
+          "description": "Tâches ni terminées ni archivées, comptées pour chaque utilisateur assigné.",
+          "name": "Tâches ouvertes par responsable"
+        },
+        "topOrganizationsByRevenue": {
+          "description": "Valeur des affaires gagnées par organisation liée, classée avec sa part du total.",
+          "name": "Principales organisations par chiffre d’affaires"
+        },
+        "wonValuePerMonth": {
+          "description": "Valeur des affaires gagnées par mois, selon le premier champ de date de l’affaire ou la date de création.",
+          "name": "Valeur gagnée par mois"
+        }
+      },
+      "title": "Widgets de départ"
+    },
     "widgetKinds": {
       "activityTimeline": "Chronologie des activités",
       "chart": "Graphique"

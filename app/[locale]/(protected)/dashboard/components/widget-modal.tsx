@@ -314,7 +314,14 @@ export const WidgetModal = observer(() => {
                 <WidgetStarterPicker
                   availableKinds={widgetModalStore.availableKinds}
                   disabled={isDisabled}
+                  gallery={widgetModalStore.galleryTemplates}
                   templates={companyWideWidgets}
+                  onSelectGalleryTemplate={(template) =>
+                    widgetModalStore.startFromGallery(
+                      template,
+                      t(`Dashboard.widgetGallery.templates.${template.key}.name`),
+                    )
+                  }
                   onSelectKind={(kind) => widgetModalStore.startFromKind(kind, t("Dashboard.activityWidget.title"))}
                   onSelectTemplate={(id) => runUserAction(() => widgetModalStore.loadTemplate(id))}
                 />
