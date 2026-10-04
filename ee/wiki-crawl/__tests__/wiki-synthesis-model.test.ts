@@ -33,14 +33,14 @@ beforeEach(() => {
 describe("generateWikiSynthesisObject", () => {
   it.each([400, 401, 403, 429])("charges nothing when the gateway rejects the request with %i", async (status) => {
     rejectWith(failure(status));
-    expect(await call()).toEqual({ output: null, charge: null });
+    expect(await call()).toMatchObject({ output: null, charge: null, failure: expect.stringContaining("failed") });
   });
 
   it.each(["GatewayAuthenticationError", "GatewayRateLimitError"])(
     "charges nothing when the gateway reports a %s",
     async (name) => {
       rejectWith(Object.assign(new Error("rejected"), { name }));
-      expect(await call()).toEqual({ output: null, charge: null });
+      expect(await call()).toMatchObject({ output: null, charge: null, failure: expect.stringContaining("failed") });
     },
   );
 

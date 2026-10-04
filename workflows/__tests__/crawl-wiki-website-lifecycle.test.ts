@@ -14,6 +14,8 @@ const state = vi.hoisted(() => ({
   settle: vi.fn(),
   failWorkflowUnscoped: vi.fn(),
   reportFailure: vi.fn(),
+  reportWarning: vi.fn(),
+  warnings: [] as string[][],
 }));
 
 vi.mock("workflow", () => ({ getWorkflowMetadata: () => ({ workflowRunId: "run-owner" }) }));
@@ -32,12 +34,18 @@ vi.mock("@/core/di", () => ({
     importSources: state.importSources,
     finish: state.finish,
   }),
-  getWikiWebsiteSynthesisService: () => ({ plan: state.plan, writeTopic: state.writeTopic, settle: state.settle }),
+  getWikiWebsiteSynthesisService: () => ({
+    plan: state.plan,
+    writeTopic: state.writeTopic,
+    settle: state.settle,
+    drainWarnings: () => state.warnings.shift() ?? [],
+  }),
   getFailWikiWebsiteCrawlInteractor: () => ({ invoke: state.failWorkflowUnscoped }),
 }));
 vi.mock("../capture-failure", () => ({
   toWorkflowFailure: (error: Error) => ({ name: error.name, message: error.message, stack: error.stack }),
   reportFailure: state.reportFailure,
+  reportWarning: state.reportWarning,
 }));
 
 import { crawlWikiWebsite } from "../crawl-wiki-website";
@@ -63,6 +71,8 @@ beforeEach(() => {
   state.settle.mockResolvedValue(undefined);
   state.failWorkflowUnscoped.mockResolvedValue(undefined);
   state.reportFailure.mockResolvedValue(undefined);
+  state.reportWarning.mockResolvedValue(undefined);
+  state.warnings = [];
 });
 
 describe("Website import workflow owner lifecycle", () => {
@@ -131,6 +141,15 @@ describe("Website import workflow owner lifecycle", () => {
     expect(state.discover).not.toHaveBeenCalled();
     expect(state.failWorkflowUnscoped).not.toHaveBeenCalled();
     expect(state.reportFailure).not.toHaveBeenCalled();
+  });
+
+  it("reports content-free model warnings from planning and page steps", async () => {
+    state.warnings = [["Website import model call failed: GatewayRateLimitError HTTP 429."], [], ["review unanswered"]];
+    await crawlWikiWebsite(payload);
+    expect(state.reportWarning.mock.calls.map(([, message]) => message)).toEqual([
+      "Website import model call failed: GatewayRateLimitError HTTP 429.",
+      "review unanswered",
+    ]);
   });
 
   it("keeps all authorized work tenant-scoped, imports after every read batch, then writes each planned page", async () => {

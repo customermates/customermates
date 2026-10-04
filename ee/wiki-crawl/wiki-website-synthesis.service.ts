@@ -83,11 +83,17 @@ function pageKind(role: WikiSynthesisRole, whenToUse: string): WikiSynthesisCand
 }
 
 export class WikiWebsiteSynthesisService {
+  private readonly warnings: string[] = [];
+
   constructor(
     private repo: WikiWebsiteCrawlRepo,
     private usage: Pick<AgentUsageService, "prepareRetrieval" | "reserveRetrieval" | "settleRetrieval">,
     private createPages: Pick<CreateWikiPagesInteractor, "invoke">,
   ) {}
+
+  drainWarnings(): string[] {
+    return this.warnings.splice(0);
+  }
 
   private async load(crawlId: string) {
     const crawl = await this.repo.getCrawl(crawlId);
@@ -136,7 +142,8 @@ export class WikiWebsiteSynthesisService {
         wikiSynthesisWorstCaseMicrocents(model, system, prompt),
         model.modelId,
         async () => {
-          const { output, charge } = await generateWikiSynthesisObject({ model, schema, system, prompt });
+          const { output, charge, failure } = await generateWikiSynthesisObject({ model, schema, system, prompt });
+          if (failure) this.warnings.push(failure);
           return { value: output, charge };
         },
       );
@@ -476,6 +483,7 @@ export class WikiWebsiteSynthesisService {
       if (!result.ok) return null;
       if (result.value.kind !== "unavailable") return result.value;
     }
+    this.warnings.push(`Website import review by ${JEV_MODEL_ID} was unanswered twice.`);
     return { kind: "unavailable" };
   }
 

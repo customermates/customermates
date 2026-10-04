@@ -9,7 +9,7 @@ import {
 } from "@/core/di";
 import { runAsBackgroundTenant } from "@/core/decorators/background-tenant";
 
-import { reportFailure, toWorkflowFailure } from "./capture-failure";
+import { reportFailure, reportWarning, toWorkflowFailure } from "./capture-failure";
 
 const WORKFLOW_NAME = "crawl-wiki-website";
 
@@ -46,16 +46,20 @@ async function finishWikiWebsiteStep(payload: CrawlWikiWebsiteWorkflowPayload): 
   await runAsBackgroundTenant(payload.userId, () => getWikiWebsiteCrawlService().finish(payload.crawlId));
 }
 
-async function planWikiWebsiteStep(payload: CrawlWikiWebsiteWorkflowPayload): Promise<number> {
+async function planWikiWebsiteStep(
+  payload: CrawlWikiWebsiteWorkflowPayload,
+): Promise<{ topics: number; warnings: string[] }> {
   "use step";
-  return runAsBackgroundTenant(payload.userId, () => getWikiWebsiteSynthesisService().plan(payload.crawlId));
+  const service = getWikiWebsiteSynthesisService();
+  const topics = await runAsBackgroundTenant(payload.userId, () => service.plan(payload.crawlId));
+  return { topics, warnings: service.drainWarnings() };
 }
 
-async function writeWikiTopicStep(payload: CrawlWikiWebsiteWorkflowPayload, index: number): Promise<void> {
+async function writeWikiTopicStep(payload: CrawlWikiWebsiteWorkflowPayload, index: number): Promise<string[]> {
   "use step";
-  await runAsBackgroundTenant(payload.userId, () =>
-    getWikiWebsiteSynthesisService().writeTopic(payload.crawlId, index),
-  );
+  const service = getWikiWebsiteSynthesisService();
+  await runAsBackgroundTenant(payload.userId, () => service.writeTopic(payload.crawlId, index));
+  return service.drainWarnings();
 }
 
 async function settleWikiWebsiteStep(payload: CrawlWikiWebsiteWorkflowPayload): Promise<void> {
@@ -85,8 +89,12 @@ export async function crawlWikiWebsite(payload: CrawlWikiWebsiteWorkflowPayload)
     for (let batch = 0; batch < batches; batch += 1) await fetchWikiWebsiteBatchStep(payload, batch);
     await importWikiWebsiteStep(payload);
     await finishWikiWebsiteStep(payload);
-    const topics = await planWikiWebsiteStep(payload);
-    for (let index = 0; index < topics; index += 1) await writeWikiTopicStep(payload, index);
+    const planned = await planWikiWebsiteStep(payload);
+    for (const warning of planned.warnings) await reportWarning(WORKFLOW_NAME, warning, payload.tenant);
+    for (let index = 0; index < planned.topics; index += 1) {
+      for (const warning of await writeWikiTopicStep(payload, index))
+        await reportWarning(WORKFLOW_NAME, warning, payload.tenant);
+    }
     await settleWikiWebsiteStep(payload);
   } catch (err) {
     try {

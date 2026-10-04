@@ -52,6 +52,15 @@ function rejectedBeforeGeneration(error: unknown): boolean {
   return typeof status === "number" && status >= 400 && status < 500 && status !== 408;
 }
 
+function synthesisFailure(model: string, error: unknown): string {
+  const name = error instanceof Error ? error.name : typeof error;
+  const status =
+    typeof error === "object" && error !== null && "statusCode" in error && typeof error.statusCode === "number"
+      ? ` HTTP ${error.statusCode}`
+      : "";
+  return `Website import model call to ${model} failed: ${name}${status}.`;
+}
+
 export function wikiSynthesisWorstCaseMicrocents(model: AgentModelEntry, system: string, prompt: string): number {
   return estimatedCharge(model, promptTokens(system, prompt), model.maxOutputTokens).costMicrocents;
 }
@@ -61,7 +70,7 @@ export async function generateWikiSynthesisObject<T>(args: {
   schema: z.ZodType<T>;
   system: string;
   prompt: string;
-}): Promise<{ output: T | null; charge: AgentRetrievalCharge | null }> {
+}): Promise<{ output: T | null; charge: AgentRetrievalCharge | null; failure?: string }> {
   const inputTokens = promptTokens(args.system, args.prompt);
   try {
     const result = await generateText({
@@ -94,10 +103,12 @@ export async function generateWikiSynthesisObject<T>(args: {
           };
     return { output: result.output, charge };
   } catch (error) {
-    if (rejectedBeforeGeneration(error)) return { output: null, charge: null };
+    const failure = synthesisFailure(args.model.modelId, error);
+    if (rejectedBeforeGeneration(error)) return { output: null, charge: null, failure };
     const usage = NoObjectGeneratedError.isInstance(error) ? error.usage : undefined;
     return {
       output: null,
+      failure,
       charge: estimatedCharge(
         args.model,
         usage?.inputTokens ?? inputTokens,
