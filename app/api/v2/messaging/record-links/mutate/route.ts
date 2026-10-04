@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { getMutateThreadRecordsInteractor } from "@/core/di";
-import { handleError, interactorFailureResponse } from "@/core/api/interactor-handler";
+import { handleError, interactorFailureResponse } from "@/core/api/v2-interactor-handler";
 import { mapRequestJsonError } from "@/core/api/request-json-error";
 
 export async function POST(request: NextRequest) {

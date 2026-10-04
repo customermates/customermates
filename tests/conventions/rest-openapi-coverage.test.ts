@@ -458,7 +458,10 @@ function inspectRouteSource(path: string, text: string): Map<string, RouteOperat
 
   const source = ts.createSourceFile(path, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
   const file = path.slice(REPO_ROOT.length + 1);
-  const hasExactHandleErrorImport = hasExactValueImport(source, "@/core/api/interactor-handler", "handleError");
+  const errorBoundary = path.startsWith(`${join(REPO_ROOT, "app", "api", "v2")}/`)
+    ? "@/core/api/v2-interactor-handler"
+    : "@/core/api/interactor-handler";
+  const hasExactHandleErrorImport = hasExactValueImport(source, errorBoundary, "handleError");
   const hasExactMapperImport = hasExactValueImport(source, "@/core/api/request-json-error", "mapRequestJsonError");
   const setOperation = (name: string, node: ts.Node, operation: RouteOperation) => {
     if (!HTTP_HANDLER_NAMES.has(name)) return;

@@ -31,7 +31,7 @@ import type { ZodOpenApiOperationObject } from "zod-openapi";
 
 import { z } from "zod";
 
-import { CommonApiResponses, ConflictApiResponse, NotFoundApiResponse } from "@/core/api/interactor-handler";
+import { V2ApiResponses } from "@/core/api/v2-interactor-handler";
 import { GenericRecordWidgetInputSchema, GenericRecordWidgetDtoSchema } from "@/features/widget/record-widget.schema";
 import { RecordWidgetReadSchema } from "@/features/widget/get-record-widgets.interactor";
 import { RecordModelSchema, RecordDtoSchema } from "./record-model.schema";
@@ -74,9 +74,7 @@ function operation(
         description: "The operation was accepted or completed.",
         content: { "application/json": { schema: output } },
       },
-      ...CommonApiResponses,
-      ...ConflictApiResponse,
-      ...NotFoundApiResponse,
+      ...V2ApiResponses,
     },
   };
 }
