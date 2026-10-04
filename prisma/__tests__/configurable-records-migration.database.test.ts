@@ -66,7 +66,12 @@ async function legacySnapshot(client: Client) {
   return snapshot;
 }
 
-async function noDrift(url: string) {
+const OPTIONAL_VECTOR_COLUMNS = [
+  'ALTER TABLE "DocsChunk" ADD COLUMN     "embedding" vector(768);',
+  'ALTER TABLE "WikiPageChunk" ADD COLUMN     "embedding" vector(768);',
+];
+
+async function schemaDrift(url: string) {
   const scratch = resolve(".runs/migration-tests");
   await mkdir(scratch, { recursive: true });
   const directory = await mkdtemp(resolve(scratch, "diff-"));
@@ -76,7 +81,7 @@ async function noDrift(url: string) {
       config,
       `export default { schema: ${JSON.stringify(resolve("prisma/schema.prisma"))}, datasource: { url: ${JSON.stringify(url)} } };\n`,
     );
-    return await prismaCli(
+    const result = await prismaCli(
       [
         "migrate",
         "diff",
@@ -85,12 +90,28 @@ async function noDrift(url: string) {
         "--from-config-datasource",
         "--to-schema",
         resolve("prisma/schema.prisma"),
-        "--exit-code",
+        "--script",
       ],
       url,
     );
+    expect(result.code).toBe(0);
+    return result.output
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => /^(ALTER|CREATE|DROP|COMMENT)\b/.test(line));
   } finally {
     await rm(directory, { recursive: true, force: true });
+  }
+}
+
+async function expectSchemaMatchesModel(url: string) {
+  const client = new Client({ connectionString: url });
+  await client.connect();
+  try {
+    const vector = await client.query("SELECT 1 FROM pg_available_extensions WHERE name = 'vector'");
+    expect(await schemaDrift(url)).toEqual(vector.rowCount ? [] : OPTIONAL_VECTOR_COLUMNS);
+  } finally {
+    await client.end();
   }
 }
 
@@ -1109,7 +1130,7 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
     const second = await deployMigrations(database.url);
     expect(second.code).toBe(0);
     expect(second.output).toContain("No pending migrations to apply");
-    expect((await noDrift(database.url)).code).toBe(0);
+    await expectSchemaMatchesModel(database.url);
   });
 
   it("rolls back completely when the migration backend is terminated, then succeeds on retry", async () => {
@@ -1163,7 +1184,7 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
   it("installs an empty database without drift and deploys against a ledger with squashed historical migrations", async () => {
     const empty = await legacyDatabase(false);
     expect((await deployMigrations(empty.url)).code).toBe(0);
-    expect((await noDrift(empty.url)).code).toBe(0);
+    await expectSchemaMatchesModel(empty.url);
     expect((await deployMigrations(empty.url)).output).toContain("No pending migrations to apply");
 
     const production = await legacyDatabase(false);
@@ -1190,7 +1211,7 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
         f.companyId,
       ]),
     ).toEqual([{ storageMode: "generic" }]);
-    expect((await noDrift(production.url)).code).toBe(0);
+    await expectSchemaMatchesModel(production.url);
   });
 
   it("refuses to run on a database that already has generic record storage", async () => {
