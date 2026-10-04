@@ -32,6 +32,7 @@ function fakeRequest(capture: (options: RequestOptions) => void) {
         statusCode: 200,
         statusMessage: "OK",
         resume: () => undefined,
+        destroy: () => undefined,
       });
       queueMicrotask(() => onResponse(response as unknown as IncomingMessage));
     };
@@ -68,6 +69,7 @@ const ENVELOPE = { event: "contact.created", data: { entityId: "e-1" }, timestam
 let server: Server;
 let port: number;
 let received: Received[] = [];
+let slowClosed = false;
 
 const repo = { markSuccessUnscoped: vi.fn(), markFailedUnscoped: vi.fn() };
 const configRepo = {
@@ -99,6 +101,15 @@ beforeAll(async () => {
   server = createServer((request, response) => {
     received.push({ url: request.url, host: request.headers.host, userAgent: request.headers["user-agent"] });
     request.resume();
+    if (request.url === "/slow") {
+      response.writeHead(200, { "Content-Type": "application/json" });
+      const timer = setInterval(() => response.write(" "), 100);
+      response.on("close", () => {
+        clearInterval(timer);
+        slowClosed = true;
+      });
+      return;
+    }
     if (request.url === "/redirect") {
       response.writeHead(302, { Location: `http://127.0.0.1:${port}/landing` });
       response.end();
@@ -192,6 +203,36 @@ describe("webhook delivery destinations in cloud mode", () => {
     expect(Object.keys(captured[0].headers ?? {}).map((name) => name.toLowerCase())).not.toContain("host");
     await expect(lookupCall(captured[0].lookup, true)).resolves.toEqual([{ address: "93.184.216.34", family: 4 }]);
     await expect(lookupCall(captured[0].lookup, false)).resolves.toEqual({ address: "93.184.216.34", family: 4 });
+    expect(state.lookup).toHaveBeenCalledTimes(1);
+  });
+
+  it("closes the connection once the status arrives instead of draining an endless body", async () => {
+    state.env.WEBHOOK_ALLOW_PRIVATE_DESTINATIONS = true;
+    slowClosed = false;
+    const started = Date.now();
+
+    const outcome = await deliver(`http://127.0.0.1:${port}/slow`);
+
+    expect(outcome.status).toBe("success");
+    expect(Date.now() - started).toBeLessThan(2000);
+    await vi.waitFor(() => expect(slowClosed).toBe(true), { timeout: 2000 });
+  });
+
+  it("offers every validated address to the connection so a failing first address can fall back", async () => {
+    state.lookup.mockResolvedValueOnce([
+      { address: "2606:4700:4700::1111", family: 6 },
+      { address: "93.184.216.34", family: 4 },
+    ]);
+    const captured: RequestOptions[] = [];
+    state.fakeHttp = (options) => captured.push(options);
+
+    const outcome = await deliver("http://dual.example.com/hook");
+
+    expect(outcome.status).toBe("success");
+    await expect(lookupCall(captured[0].lookup, true)).resolves.toEqual([
+      { address: "2606:4700:4700::1111", family: 6 },
+      { address: "93.184.216.34", family: 4 },
+    ]);
     expect(state.lookup).toHaveBeenCalledTimes(1);
   });
 

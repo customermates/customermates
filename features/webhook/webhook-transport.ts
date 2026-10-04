@@ -13,7 +13,7 @@ type SingleLookupCallback = (error: NodeJS.ErrnoException | null, address: strin
 
 export function pinnedLookup(destination: WebhookDestination): LookupFunction {
   return (_hostname, options, callback) => {
-    if (options.all) return callback(null, [{ address: destination.address, family: destination.family }]);
+    if (options.all) return callback(null, destination.addresses);
 
     (callback as unknown as SingleLookupCallback)(null, destination.address, destination.family);
   };
@@ -44,8 +44,8 @@ export function sendPinnedWebhookRequest(args: {
         headers: { ...args.headers, "Content-Length": String(Buffer.byteLength(args.body)) },
       },
       (response) => {
-        response.resume();
         resolve({ statusCode: response.statusCode ?? 0, statusMessage: response.statusMessage ?? "" });
+        response.destroy();
       },
     );
 

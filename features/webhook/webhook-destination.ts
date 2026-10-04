@@ -5,7 +5,11 @@ import { env } from "@/env";
 
 export const WEBHOOK_DESTINATION_NOT_ALLOWED_MESSAGE = "Destination not allowed";
 
-export type WebhookDestination = { address: string; family: 4 | 6 };
+export type WebhookAddress = { address: string; family: 4 | 6 };
+
+export type WebhookDestination = WebhookAddress & {
+  addresses: WebhookAddress[];
+};
 
 export type PrivateDestinationPolicyInput = {
   appMode: "cloud" | "demo" | "self-hosted";
@@ -177,18 +181,24 @@ export async function resolveWebhookDestination(
 
   if (literalFamily === 4 || literalFamily === 6) {
     if (!allowPrivateDestinations && isNonPublicAddress(hostname)) return null;
-    return { address: hostname, family: literalFamily };
+    return {
+      address: hostname,
+      family: literalFamily,
+      addresses: [{ address: hostname, family: literalFamily }],
+    };
   }
 
   if (!allowPrivateDestinations && isLocalWebhookHostname(hostname)) return null;
 
   const records = await lookup(hostname, { all: true, verbatim: true });
-  const addresses = records.filter(
-    (record): record is WebhookDestination => record.family === 4 || record.family === 6,
-  );
+  const addresses = records.filter((record): record is WebhookAddress => record.family === 4 || record.family === 6);
 
   if (addresses.length === 0 || addresses.length !== records.length) return null;
   if (!allowPrivateDestinations && addresses.some((record) => isNonPublicAddress(record.address))) return null;
 
-  return { address: addresses[0].address, family: addresses[0].family };
+  return {
+    address: addresses[0].address,
+    family: addresses[0].family,
+    addresses: addresses.map(({ address, family }) => ({ address, family })),
+  };
 }

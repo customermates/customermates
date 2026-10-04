@@ -167,7 +167,7 @@ describe("resolveWebhookDestination", () => {
     dns.lookup.mockReset();
   });
 
-  it("returns the first resolved address when every record is public", async () => {
+  it("returns every resolved address, first one preferred, when every record is public", async () => {
     dns.lookup.mockResolvedValueOnce([
       { address: "93.184.216.34", family: 4 },
       { address: "2606:2800:220:1:248:1893:25c8:1946", family: 6 },
@@ -176,6 +176,10 @@ describe("resolveWebhookDestination", () => {
     await expect(resolveWebhookDestination("https://hooks.example.com/x", false)).resolves.toEqual({
       address: "93.184.216.34",
       family: 4,
+      addresses: [
+        { address: "93.184.216.34", family: 4 },
+        { address: "2606:2800:220:1:248:1893:25c8:1946", family: 6 },
+      ],
     });
     expect(dns.lookup).toHaveBeenCalledWith("hooks.example.com", { all: true, verbatim: true });
   });
@@ -208,6 +212,7 @@ describe("resolveWebhookDestination", () => {
     await expect(resolveWebhookDestination("http://n8n:5678/webhook", true)).resolves.toEqual({
       address: "172.18.0.5",
       family: 4,
+      addresses: [{ address: "172.18.0.5", family: 4 }],
     });
   });
 
@@ -217,8 +222,13 @@ describe("resolveWebhookDestination", () => {
     await expect(resolveWebhookDestination("https://8.8.8.8/x", false)).resolves.toEqual({
       address: "8.8.8.8",
       family: 4,
+      addresses: [{ address: "8.8.8.8", family: 4 }],
     });
-    await expect(resolveWebhookDestination("http://[::1]:9/x", true)).resolves.toEqual({ address: "::1", family: 6 });
+    await expect(resolveWebhookDestination("http://[::1]:9/x", true)).resolves.toEqual({
+      address: "::1",
+      family: 6,
+      addresses: [{ address: "::1", family: 6 }],
+    });
     expect(dns.lookup).not.toHaveBeenCalled();
   });
 
