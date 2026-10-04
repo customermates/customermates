@@ -627,6 +627,39 @@ function expectLockedToRecipients(result: any) {
 describe("SaveDraftInteractor cold-draft target binding", () => {
   beforeEach(() => vi.clearAllMocks());
 
+  it("checks the sending account once when saving a new conversation draft", async () => {
+    const repo = saveDraftRepo({ findOrCreateDraftThread: vi.fn().mockResolvedValue(emailDraftThread) });
+    const accountRepo = { findUsableAccountByIdOrThrow: vi.fn().mockResolvedValue(emailAccount) };
+    const interactor = new SaveDraftInteractor(repo as never, accountRepo as never, mockEntitlementService());
+
+    const result = await interactor.invoke({
+      connectedAccountId: EMAIL_ACCOUNT_ID,
+      recipients: [EMAIL_RECIPIENT],
+      body: "Hello",
+    });
+
+    expect(result.ok).toBe(true);
+    expect(accountRepo.findUsableAccountByIdOrThrow).toHaveBeenCalledOnce();
+  });
+
+  it("never saves a chat draft for a teammate without access to the sending account", async () => {
+    const chatThread = {
+      ...emailDraftThread,
+      provider: MessagingProvider.linkedin,
+      unipileThreadId: "provider-chat-thread",
+      participants: [{ ...emailDraftThread.participants[0], attendeeId: "handle", identifier: "handle" }],
+    };
+    const repo = saveDraftRepo({ findThreadByIdOrThrow: vi.fn().mockResolvedValue(chatThread) });
+    const interactor = new SaveDraftInteractor(
+      repo as never,
+      { findUsableAccountByIdOrThrow: vi.fn().mockRejectedValue(new Error("not found")) } as never,
+      mockEntitlementService(),
+    );
+
+    await expect(interactor.invoke({ threadId: chatThread.id, body: "teammate overwrite" })).rejects.toThrow();
+    expect(repo.upsertThreadDraftOrThrow).not.toHaveBeenCalled();
+  });
+
   it("renders email draft HTML before persistence while preserving editable Markdown", async () => {
     const repo = saveDraftRepo();
     const body = "**Review** [project](https://example.com)";

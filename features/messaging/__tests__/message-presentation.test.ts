@@ -19,6 +19,7 @@ const harness = vi.hoisted(() => ({
   retrySend: vi.fn(),
   canRetry: vi.fn((_id: string) => true),
   messageStatus: {} as Record<string, string>,
+  thread: { isOwner: true, accountShared: false } as { isOwner: boolean; accountShared: boolean } | null,
   timelineEntry: null as ActivityEntryDto | null,
   accounts: [] as Array<{
     id: string;
@@ -34,7 +35,11 @@ vi.mock("next-intl", () => ({
 vi.mock("@/core/utils/use-copy-to-clipboard", () => ({ useCopyToClipboard: () => harness.clipboard }));
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({
-    messagingThreadDetailStore: { messageStatus: harness.messageStatus },
+    messagingThreadDetailStore: {
+      messageStatus: harness.messageStatus,
+      thread: harness.thread,
+      movingThreadIds: new Set(),
+    },
     threadComposeStore: {
       ...harness,
       draftAttachments: [],
@@ -160,6 +165,7 @@ function button(label: string): HTMLButtonElement {
 beforeEach(() => {
   vi.clearAllMocks();
   harness.messageStatus = {};
+  harness.thread = { isOwner: true, accountShared: false };
   harness.timelineEntry = null;
   harness.accounts = [];
   vi.stubGlobal(
@@ -513,6 +519,16 @@ describe("Inbox and activity consumers", () => {
     expect(harness.send).not.toHaveBeenCalled();
     act(() => button("Inbox.compose.draftDiscard").click());
     expect(harness.discardDraft).toHaveBeenCalledWith(message.id, message.draftRevision);
+  });
+
+  it("offers no draft actions to a teammate who only reads a shared conversation", () => {
+    harness.thread = { isOwner: false, accountShared: false };
+    const message = { ...BASE, isDraft: true, draftRevision: "2026-09-05T12:00:00.000Z" };
+    render(createElement(MessageItem, { message, isMine: true, accountOwner: null }));
+
+    for (const label of ["Inbox.compose.draftEdit", "Inbox.compose.draftDiscard"])
+      expect(container.querySelector(`button[aria-label="${label}"]`)).toBeNull();
+    expect(container.textContent).not.toContain("Inbox.compose.draftSendNow");
   });
 
   it("preserves Inbox failure styling and retry action", () => {

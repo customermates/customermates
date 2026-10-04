@@ -589,7 +589,10 @@ export const discardMessageDraftTool = {
   execute: (params: z.infer<typeof DiscardDraftSchema>) =>
     runInteractor(
       getDiscardDraftInteractor().invoke(params),
-      (data) => (data.threadId ? `Draft discarded from thread ${data.threadId}` : "No draft found for that message id"),
+      (data) =>
+        data.threadId
+          ? `Draft discarded from thread ${data.threadId}`
+          : "Nothing was discarded: no draft you can manage has that message id and revision",
       (data) => ({ discarded: Boolean(data.threadId), threadId: data.threadId ?? null }),
     ),
 };

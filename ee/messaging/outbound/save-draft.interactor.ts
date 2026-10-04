@@ -111,8 +111,10 @@ export abstract class SaveDraftRepo {
   }): Promise<MessagingMessage>;
 }
 
+type UsableAccount = Awaited<ReturnType<FindUsableAccountRepo["findUsableAccountByIdOrThrow"]>>;
+
 type ResolvedDraftThread =
-  | { ok: true; thread: MessagingThread; recipients: string[] }
+  | { ok: true; thread: MessagingThread; recipients: string[]; account?: UsableAccount }
   | { ok: false; failure: Validated<MessagingMessageDto> };
 
 function draftRecipient(identifier: string): MessagingAttendee {
@@ -147,10 +149,12 @@ export class SaveDraftInteractor extends AuthenticatedInteractor<SaveDraftData, 
     )
       return fail(CustomErrorCode.emailRecipientsRequired, ["recipients"]);
 
+    const account =
+      resolved.account ?? (await this.accountRepo.findUsableAccountByIdOrThrow(thread.connectedAccountId));
+
     let sender: MessagingAttendee;
     let bodyHtml: string | null = null;
     if (isEmail) {
-      const account = await this.accountRepo.findUsableAccountByIdOrThrow(thread.connectedAccountId);
       const email = resolveStoredEmailSettings(account.signature, account.signatureFields);
       bodyHtml = renderEmailMarkdown(data.body, email.settings.appearance).html;
       sender = {
@@ -237,6 +241,6 @@ export class SaveDraftInteractor extends AuthenticatedInteractor<SaveDraftData, 
       ...(recipients.length === 0 ? { cc: data.cc, bcc: data.bcc } : {}),
     });
 
-    return { ok: true, thread, recipients };
+    return { ok: true, thread, recipients, account };
   }
 }

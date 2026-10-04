@@ -12,6 +12,7 @@ import { Action, Resource } from "@/generated/prisma";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { canManageThreadDrafts } from "@/ee/messaging/draft-thread";
 import { isEmailProvider } from "@/ee/messaging/provider";
 import { deriveMessageSender, displayableIdentifier } from "@/ee/messaging/thread-display";
 import { cn } from "@/core/utils/cn";
@@ -51,6 +52,7 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
   const isDeleted = message.isDeleted;
   const isEdited = Boolean(message.editedAt) && !isDeleted;
   const isDraft = message.isDraft;
+  const canManageDraft = canManageThreadDrafts(detail.thread);
   const status = compose.getDeliveryStatus(message.id) ?? detail.messageStatus[message.id];
   const isSending = status === "sending";
   const isFailed = status === "failed";
@@ -198,7 +200,7 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
             </div>
           )}
 
-          {(isDraft || (isFailed && compose.canRetry(message.id))) && (
+          {((isDraft && canManageDraft) || (isFailed && compose.canRetry(message.id))) && (
             <div
               data-message-actions
               className={cn("flex flex-wrap items-center gap-2", isEmail ? "px-3.5 pt-1 pb-3" : "px-3 py-1.5")}
