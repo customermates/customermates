@@ -20,7 +20,7 @@ type OvhModelCapabilities = {
 
 export const OVH_AI_ENDPOINTS_MODELS: Readonly<Record<string, OvhModelCapabilities>> = {
   "gpt-oss-120b": { reasoningEfforts: ["low", "medium", "high"] },
-  "Qwen3.8-27B": { reasoningEfforts: [] },
+  "Qwen3.8-27B": { reasoningEfforts: ["none", "low", "medium"] },
   "Qwen3.5-397B-A17B": { reasoningEfforts: [] },
   "Mistral-Small-3.2-24B-Instruct-2506": { reasoningEfforts: [] },
   "Qwen3-Coder-30B-A3B-Instruct": { reasoningEfforts: [] },

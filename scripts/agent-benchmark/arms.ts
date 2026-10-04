@@ -174,6 +174,8 @@ export const BENCHMARK_ARMS: readonly BenchmarkArm[] = [
   hosted("mistral-large-3", "mistral/mistral-large-3", "mistral", "mistral", undefined, "Mistral Large 3"),
   hosted("qwen3-coder-next", "alibaba/qwen3-coder-next", "bedrock", "alibaba", undefined, "Qwen3 Coder Next (Bedrock)"),
   ovh("ovh-qwen38-27b", "Qwen3.8-27B", undefined, "Qwen3.8 27B (OVHcloud AI Endpoints, EU)"),
+  ovh("ovh-qwen38-27b-none", "Qwen3.8-27B", "none", "Qwen3.8 27B, reasoning none (OVHcloud AI Endpoints, EU)"),
+  ovh("ovh-qwen38-27b-low", "Qwen3.8-27B", "low", "Qwen3.8 27B, reasoning low (OVHcloud AI Endpoints, EU)"),
   ovh("ovh-qwen35-397b", "Qwen3.5-397B-A17B", undefined, "Qwen3.5 397B-A17B (OVHcloud AI Endpoints, EU)"),
   ovh("ovh-gpt-oss-120b-low", "gpt-oss-120b", "low", "gpt-oss-120b, reasoning low (OVHcloud AI Endpoints, EU)"),
   ovh("ovh-mistral-small-32", "Mistral-Small-3.2-24B-Instruct-2506", undefined, "Mistral Small 3.2 24B (OVHcloud AI Endpoints, EU)"),
