@@ -25,7 +25,7 @@ Only actions that cannot be taken back, that change who can access data, or that
 | --- | --- | --- |
 | Deleting records | `mutate_crm_record` with `delete` or `deleteMany`, after `preview_crm_deletion` | Hard delete, including the previewed cascades |
 | Deleting a saved view | `manage_data_views` with `delete` | Removes the saved view |
-| Destructive data-model changes, access changes, or replacing an existing field | `configure_record_model` with `apply` | The preview identifies affected definitions, records and dependencies; a replaced field can overwrite stored values |
+| Destructive data-model changes, access changes, or replacing an existing field, relationship or activity path | `configure_record_model` with `apply` | The preview identifies affected definitions, records and dependencies; a replaced field can overwrite stored values, and a replaced relationship or activity path changes how existing records connect |
 | Saving a role | `manage_roles` with `save` | Can widen what the role may read and change |
 | Deleting a widget | `manage_widgets` with `delete` | Removes the dashboard widget |
 | Deleting or resending a webhook | `manage_webhooks` with `delete` or `resend_delivery` | Destroys configuration, or sends a new external request |

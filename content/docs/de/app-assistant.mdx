@@ -25,7 +25,7 @@ Nur Aktionen, die sich nicht rückgängig machen lassen, Zugriffe auf Daten änd
 | --- | --- | --- |
 | Datensätze löschen | `mutate_crm_record` mit `delete` oder `deleteMany`, nach `preview_crm_deletion` | Endgültige Löschung einschließlich der angezeigten Kaskaden |
 | Gespeicherte Ansicht löschen | `manage_data_views` mit `delete` | Entfernt die gespeicherte Ansicht |
-| Destruktive Datenmodelländerungen, Zugriffsänderungen oder Ersetzen eines bestehenden Felds | `configure_record_model` mit `apply` | Die Vorschau zeigt betroffene Definitionen, Datensätze und Abhängigkeiten; ein ersetztes Feld kann gespeicherte Werte überschreiben |
+| Destruktive Datenmodelländerungen, Zugriffsänderungen oder Ersetzen eines bestehenden Felds, einer Beziehung oder eines Aktivitätspfads | `configure_record_model` mit `apply` | Die Vorschau zeigt betroffene Definitionen, Datensätze und Abhängigkeiten; ein ersetztes Feld kann gespeicherte Werte überschreiben, und eine ersetzte Beziehung oder ein ersetzter Aktivitätspfad ändert, wie bestehende Datensätze verbunden sind |
 | Rolle speichern | `manage_roles` mit `save` | Kann erweitern, was die Rolle lesen und ändern darf |
 | Widget löschen | `manage_widgets` mit `delete` | Entfernt das Dashboard-Widget |
 | Webhook löschen oder Zustellung erneut senden | `manage_webhooks` mit `delete` oder `resend_delivery` | Zerstört Konfiguration oder sendet eine neue externe Anfrage |
