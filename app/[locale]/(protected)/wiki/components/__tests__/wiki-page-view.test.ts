@@ -1546,6 +1546,26 @@ describe("Wiki empty state", () => {
     expect(harness.store.resetForm).not.toHaveBeenCalled();
   });
 
+  it("does not show an import failure to a reader who cannot retry it", async () => {
+    configure(false, true, true);
+    harness.store.form = { ...page };
+    const { container } = await mount(
+      createElement(WikiPageView, {
+        initialPage: page,
+        listPage,
+        initialSetupState: {
+          status: "failed",
+          homepage: "https://example.com/",
+          domain: "example.com",
+          pages: [page],
+          refreshable: true,
+          failureReason: "synthesis",
+        },
+      }),
+    );
+    expect(container.querySelector('[role="alert"]')).toBeNull();
+  });
+
   it("shows an import failure alongside the preserved document without a refresh action", async () => {
     configure(true, true, true);
     harness.store.form = { ...page };

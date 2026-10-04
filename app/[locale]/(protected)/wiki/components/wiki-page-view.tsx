@@ -401,7 +401,7 @@ export const WikiPageView = observer(function WikiPageView({
             </SheetContent>
           </Sheet>
 
-          {(initialSetupState.status === "failed" || (setupActive && hasDocument)) && (
+          {((canManage && initialSetupState.status === "failed") || (setupActive && hasDocument)) && (
             <div className="mx-auto w-full max-w-6xl px-6 py-3 md:px-10">
               {initialSetupState.status === "failed" ? (
                 <Alert color="danger" description={setupFailedBody} />
