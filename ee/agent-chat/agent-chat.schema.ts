@@ -26,36 +26,41 @@ export const AgentPageContextSchema = z.object({
 });
 
 const [firstAppLocale, ...otherAppLocales] = APP_LOCALES;
-const AgentAppLocaleSchema = z.enum([firstAppLocale, ...otherAppLocales]);
+export const AgentAppLocaleSchema = z.enum([firstAppLocale, ...otherAppLocales]);
 
-export const SendAgentMessageSchema = z
-  .object({
-    conversationId: z.uuid().optional(),
-    clientRequestId: z.uuid(),
-    text: z.string().min(1).max(20000),
-    contexts: AgentContextAttachmentsSchema.optional(),
-    pageContext: AgentPageContextSchema.optional(),
-    modelKey: z.string().min(1).max(50).optional(),
-    locale: AgentAppLocaleSchema.optional(),
-    retry: z.boolean().default(false),
-  })
-  .superRefine((data, refinement) => {
-    const selectedView = data.contexts?.find((context) => context.reference.kind === "dataView");
-    if (!selectedView || selectedView.reference.kind !== "dataView") return;
-    const target = agentViewRequestTarget(data.pageContext?.route);
-    const reference = selectedView.reference;
-    const matches =
-      target.kind === "target" &&
-      target.action === reference.requestedAction &&
-      target.surfaceKey === reference.surfaceKey &&
-      (reference.requestedAction === "create" || target.viewKey === reference.viewKey);
-    if (matches) return;
-    refinement.addIssue({
-      code: "custom",
-      message: "The selected data view context must match the exact page target.",
-      path: ["contexts"],
-    });
+const SendAgentMessageObjectSchema = z.object({
+  conversationId: z.uuid().optional(),
+  clientRequestId: z.uuid(),
+  text: z.string().min(1).max(20000),
+  contexts: AgentContextAttachmentsSchema.optional(),
+  pageContext: AgentPageContextSchema.optional(),
+  modelKey: z.string().min(1).max(50).optional(),
+  locale: AgentAppLocaleSchema.optional(),
+  retry: z.boolean().default(false),
+});
+
+function refineSelectedViewContext(
+  data: { contexts?: AgentContextAttachment[]; pageContext?: { route: string } },
+  refinement: z.RefinementCtx,
+) {
+  const selectedView = data.contexts?.find((context) => context.reference.kind === "dataView");
+  if (!selectedView || selectedView.reference.kind !== "dataView") return;
+  const target = agentViewRequestTarget(data.pageContext?.route);
+  const reference = selectedView.reference;
+  const matches =
+    target.kind === "target" &&
+    target.action === reference.requestedAction &&
+    target.surfaceKey === reference.surfaceKey &&
+    (reference.requestedAction === "create" || target.viewKey === reference.viewKey);
+  if (matches) return;
+  refinement.addIssue({
+    code: "custom",
+    message: "The selected data view context must match the exact page target.",
+    path: ["contexts"],
   });
+}
+
+export const SendAgentMessageSchema = SendAgentMessageObjectSchema.superRefine(refineSelectedViewContext);
 
 export type SendAgentMessageData = Data<typeof SendAgentMessageSchema>;
 
@@ -84,7 +89,12 @@ function includes<T extends string>(values: readonly T[], value: unknown): value
 
 export function clientSafeAgentMessageParts(
   value: unknown,
-  options: { sanitizeText?: boolean; stripLegacyUserContext?: boolean; allowContext?: boolean } = {},
+  options: {
+    sanitizeText?: boolean;
+    stripLegacyUserContext?: boolean;
+    wikiBaseUrl?: string;
+    allowContext?: boolean;
+  } = {},
 ): AgentMessagePart[] {
   if (!Array.isArray(value)) return [];
 
@@ -99,7 +109,9 @@ export function clientSafeAgentMessageParts(
       return [
         {
           type: "text",
-          text: options.sanitizeText ? sanitizeAgentVisibleText(withoutLegacyContext) : withoutLegacyContext,
+          text: options.sanitizeText
+            ? sanitizeAgentVisibleText(withoutLegacyContext, options.wikiBaseUrl)
+            : withoutLegacyContext,
         },
       ];
     }
@@ -165,6 +177,7 @@ export const AgentDataCountsSchema = z.object({
   services: z.boolean(),
   tasks: z.boolean(),
   routines: z.boolean(),
+  wiki: z.boolean(),
   widgets: z.boolean(),
   connectedAccounts: z.boolean(),
 });
@@ -189,6 +202,7 @@ export const SUGGESTION_PAGE_IDS = [
   "deals",
   "services",
   "routines",
+  "wiki",
   "connected-accounts",
   "default",
 ] as const;

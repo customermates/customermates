@@ -2,13 +2,7 @@ import { fail, failConflict, failNotFound } from "@/core/validation/interactor-f
 import type { ValidateThreadIdsInteractor } from "@/core/validation/validators/validate-thread-ids.interactor";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
-import type {
-  MessagingAttendee,
-  MessagingMessage,
-  MessagingThread,
-  IngestMessage,
-  AttachmentMeta,
-} from "../messaging.schema";
+import type { MessagingAttendee } from "../messaging.schema";
 import type { MessagingMessageDto } from "../inbox/inbox.schema";
 import type { MessagingService } from "../messaging.service";
 import type { FindUsableAccountRepo } from "../persistence/find-usable-account.repo";
@@ -31,12 +25,12 @@ import {
   draftRevisionMatches,
   draftUpdatedAtFromRevision,
   hasCompleteDraftBinding,
-  type DraftThreadTarget,
 } from "../draft-thread";
 import { retryAfterPhrase } from "../retry-after.server";
 import { toMessagingMessageDto } from "../inbox/inbox.schema";
 import { EMPTY_ATTENDEE } from "../unipile.mappers";
 import { SendAttachmentSchema } from "./send-email.interactor";
+import type { SendChatMessageRepo } from "./send-chat-message.repo";
 
 export const DUPLICATE_OUTBOUND_WINDOW_MS = 60_000;
 
@@ -67,35 +61,6 @@ export const SendChatMessageSchema = BaseSendChatMessageSchema.superRefine((d, c
   }
 });
 export type SendChatMessageData = Data<typeof SendChatMessageSchema>;
-
-export abstract class SendChatMessageRepo {
-  abstract findThreadByIdOrThrow(threadId: string): Promise<MessagingThread>;
-  abstract findSelfAttendeeForThread(threadId: string): Promise<MessagingAttendee | null>;
-  abstract findDraftById(args: { messageId: string }): Promise<DraftThreadTarget | null>;
-  abstract restoreDraftSummaryIfPresent(args: { messageId: string }): Promise<void>;
-  abstract findRecentOutboundDuplicate(args: {
-    messagingThreadId: string;
-    bodyText: string;
-    windowMs: number;
-  }): Promise<string | null>;
-  abstract persistOutboundMessageOrThrow(args: {
-    connectedAccountId: string;
-    message: IngestMessage;
-  }): Promise<MessagingMessage>;
-  abstract convertDraftToSent(args: {
-    messageId: string;
-    expectedUpdatedAt: Date;
-    unipileMessageId: string;
-    providerMessageId: string | null;
-    sender: MessagingAttendee;
-    recipients: { to: MessagingAttendee[]; cc: MessagingAttendee[]; bcc: MessagingAttendee[] };
-    subject: string | null;
-    bodyText: string | null;
-    bodyHtml: string | null;
-    attachmentsMeta: AttachmentMeta[];
-    sentAt: Date;
-  }): Promise<MessagingMessage | null>;
-}
 
 @TenantInteractor({ resource: Resource.inboxMessages, action: Action.create })
 export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatMessageData, MessagingMessageDto> {

@@ -102,8 +102,11 @@ beforeEach(() => {
   root = createRoot(container);
 });
 
-afterEach(() => {
-  act(() => root.unmount());
+afterEach(async () => {
+  await act(async () => {
+    root.unmount();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
   container.remove();
   document.body.innerHTML = "";
   vi.clearAllMocks();

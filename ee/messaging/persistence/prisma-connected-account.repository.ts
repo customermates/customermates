@@ -2,12 +2,12 @@ import type { MessagingProvider, Prisma } from "@/generated/prisma";
 
 import type { GetMyConnectedAccountsRepo } from "../connect/get-my-connected-accounts.interactor";
 import type { CountChannelsNeedingActionRepo } from "../connect/count-channels-needing-action.interactor";
-import type { CreateHostedAuthLinkRepo } from "../connect/create-auth-link.interactor";
-import type { ThreadAccountOwnersRepo } from "../inbox/get-messaging-thread.interactor";
-import type { MoveEmailThreadAccountRepo } from "../inbox/move-email-thread.interactor";
+import type { CreateHostedAuthLinkRepo } from "../connect/create-hosted-auth-link.repo";
+import type { ThreadAccountOwnersRepo } from "../inbox/thread-account-owners.repo";
+import type { MoveEmailThreadAccountRepo } from "../inbox/move-email-thread-account.repo";
 import type { DeleteConnectedAccountRepo } from "../connect/delete-connected-account.interactor";
 import type { ResyncConnectedAccountRepo } from "../connect/resync-connected-account.interactor";
-import type { ReconnectConnectedAccountRepo } from "../connect/reconnect-connected-account.interactor";
+import type { ReconnectConnectedAccountRepo } from "../connect/reconnect-connected-account.repo";
 import type { SetConnectedAccountVisibilityRepo } from "../connect/set-connected-account-visibility.interactor";
 import type { SetConnectedAccountSignatureRepo } from "../connect/set-connected-account-signature.interactor";
 import type { AccountWebhookRepo } from "../webhooks/account/account-webhook.repo";
@@ -26,11 +26,11 @@ import type { DeleteAccountsForPlanConnectedAccountRepo } from "../connect/delet
 import type { DeleteConnectedAccountsForExpiredTrialsRepo } from "@/ee/lifecycle/delete-connected-accounts-for-expired-trials.interactor";
 import type { DeleteConnectedAccountsForInactiveOwnersRepo } from "@/ee/lifecycle/delete-connected-accounts-for-inactive-owners.interactor";
 import type { DeleteOrphanedUnipileAccountsRepo } from "@/ee/lifecycle/delete-orphaned-unipile-accounts.interactor";
-import type { RefreshInboxRepo } from "../inbox/refresh-inbox.interactor";
+import type { RefreshInboxRepo } from "../inbox/refresh-inbox.repo";
 import type { SetSelectedFoldersRepo } from "../connect/set-selected-folders.interactor";
 import type { FindConnectedAccountsByIdsRepo } from "../find-connected-accounts-by-ids.repo";
 import type { RepoArgs } from "@/core/utils/types";
-import type { MessagingFilterOptionsRepo } from "../inbox/get-messaging-filter-options.interactor";
+import type { MessagingFilterOptionsRepo } from "../inbox/messaging-filter-options.repo";
 import type { MessagingFilterOptions } from "../inbox/messaging-filter-options.schema";
 
 import { randomUUID } from "node:crypto";

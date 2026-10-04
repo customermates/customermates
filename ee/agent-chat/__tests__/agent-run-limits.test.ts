@@ -50,6 +50,58 @@ describe("credit-bounded durable continuation", () => {
     expect(summarizeAgentContinuationStep(step)[0]?.status).toBe("error");
   });
 
+  it("orders tool results by the round's calls, whatever order they settled in", () => {
+    const step = toAgentContinuationStep(
+      {
+        finishReason: "tool-calls",
+        content: [
+          { type: "text", text: "Deleting both." },
+          { type: "tool-call", toolCallId: "call-1", toolName: "delete_records", input: { ids: ["ada"] } },
+          { type: "tool-call", toolCallId: "call-2", toolName: "delete_records", input: { ids: ["bob"] } },
+        ],
+      },
+      [
+        {
+          toolCallId: "call-2",
+          toolName: "delete_records",
+          output: { ok: false, cancelled: true, result: "declined" },
+        },
+        { toolCallId: "call-1", toolName: "delete_records", output: { ok: true, result: "deleted" } },
+      ],
+    );
+    const tool = step.response.messages.find((message) => message.role === "tool");
+
+    expect((tool?.content as { toolCallId: string }[]).map((part) => part.toolCallId)).toEqual(["call-1", "call-2"]);
+    expect(
+      step.content
+        .filter((part) => (part as { type?: string }).type === "tool-result")
+        .map((part) => (part as { toolCallId: string }).toolCallId),
+    ).toEqual(["call-1", "call-2"]);
+  });
+
+  it("carries a provider-executed search call and its result into the next segment's messages", () => {
+    const call = { type: "tool-call", toolCallId: "web-1", toolName: "web_search", input: {}, providerExecuted: true };
+    const output = { results: [{ url: "https://example.com/" }] };
+    const partial = { type: "text", text: "Partial" };
+    const step = toAgentContinuationStep(
+      {
+        finishReason: "length",
+        content: [call, { ...call, type: "tool-result", output }, partial],
+      },
+      [{ toolCallId: "web-1", toolName: "web_search", output }],
+    );
+
+    expect(step.response.messages).toEqual([
+      { role: "assistant", content: [call, partial] },
+      {
+        role: "tool",
+        content: [
+          { type: "tool-result", toolCallId: "web-1", toolName: "web_search", output: { type: "json", value: output } },
+        ],
+      },
+    ]);
+  });
+
   it("continues when a model keeps failing the same way", () => {
     const failing = () => round("create_contacts", { name: "x" }, { ok: false, result: "not allowed" });
     const steps = Array.from({ length: 40 }, failing);

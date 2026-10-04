@@ -1,16 +1,15 @@
+import type { GetOperatorUsersRepo } from "./get-operator-users.repo";
 import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type { OperatorUserRowDto } from "../operator-lists.schema";
 
-import { BaseGetInteractor, BaseGetRepo } from "@/core/base/base-get.interactor";
+import { BaseGetInteractor } from "@/core/base/base-get.interactor";
 import { GetQueryParamsSchema, createGetResultSchema } from "@/core/base/base-get.schema";
 import { Enforce } from "@/core/decorators/enforce.decorator";
 import { OperatorInteractor } from "@/core/decorators/operator-interactor.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
 import { OperatorUserRowDtoSchema } from "../operator-lists.schema";
-
-export abstract class GetOperatorUsersRepo extends BaseGetRepo<OperatorUserRowDto> {}
 
 @OperatorInteractor
 export class GetOperatorUsersInteractor extends BaseGetInteractor<OperatorUserRowDto> {

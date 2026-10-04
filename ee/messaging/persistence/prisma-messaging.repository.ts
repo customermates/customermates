@@ -18,20 +18,20 @@ import type {
   IngestMessage,
 } from "../messaging.schema";
 
-import type { GetMessagingThreadRepo } from "../inbox/get-messaging-thread.interactor";
-import type { ResyncThreadRepo } from "../inbox/resync-thread.interactor";
-import type { MoveEmailThreadRepo } from "../inbox/move-email-thread.interactor";
+import type { GetMessagingThreadRepo } from "../inbox/get-messaging-thread.repo";
+import type { ResyncThreadRepo } from "../inbox/resync-thread.repo";
+import type { MoveEmailThreadRepo } from "../inbox/move-email-thread.repo";
 import type { GetUnreadThreadCountRepo } from "../inbox/get-unread-thread-count.interactor";
 import type { UpdateThreadRepo } from "../thread-state/update-thread.interactor";
 import type { MessagingIngestRepo } from "../ingest/messaging-ingest.repo";
 import type { RepoArgs } from "@/core/utils/types";
-import type { SendChatMessageRepo } from "../outbound/send-chat-message.interactor";
-import type { SendEmailRepo } from "../outbound/send-email.interactor";
-import type { StartChatThreadRepo } from "../outbound/start-chat.interactor";
-import type { SaveDraftRepo } from "../outbound/save-draft.interactor";
+import type { SendChatMessageRepo } from "../outbound/send-chat-message.repo";
+import type { SendEmailRepo } from "../outbound/send-email.repo";
+import type { StartChatThreadRepo } from "../outbound/start-chat-thread.repo";
+import type { SaveDraftRepo } from "../outbound/save-draft.repo";
 import type { DiscardDraftRepo } from "../outbound/discard-draft.interactor";
 import type { GetMessageAttachmentMetaRepo } from "../inbox/get-message-attachment.interactor";
-import type { GetMessagingThreadsRepo } from "../inbox/get-messaging-threads.interactor";
+import type { GetMessagingThreadsRepo } from "@/ee/messaging/inbox/get-messaging-threads.repo";
 import type { FindThreadsByIdsRepo } from "../find-threads-by-ids.repo";
 import type { ChannelCandidateDto } from "../inbox/search-channel-candidates.interactor";
 import type { SearchChannelCandidatesRepo } from "../inbox/search-channel-candidates.interactor";
@@ -70,6 +70,7 @@ import { identifierKey } from "@/features/contacts/upsert/validate-identifiers";
 import { parseEmailFolderFilterValue } from "../inbox/messaging-filter-options.schema";
 
 type MappedThreadRow = ReturnType<PrismaMessagingRepo["mapThreadRow"]>;
+type ThreadRow = Prisma.MessagingThreadGetPayload<{ select: PrismaMessagingRepo["threadSelect"] }>;
 type ConvertDraftToSentArgs = {
   messageId: string;
   expectedUpdatedAt: Date;
@@ -586,15 +587,15 @@ export class PrismaMessagingRepo
         where: { ...baseWhere, id: { in: page.map(({ id }) => id) } },
         select: this.threadSelect,
       });
-      const byId = new Map(rows.map((row) => [row.id, this.mapThreadRow(row)]));
-      return this.hydrateThreadContacts(
+      const byId = new Map(rows.map((row) => [row.id, row]));
+      return this.mapThreadRows(
         page.flatMap(({ id }) => {
           const row = byId.get(id);
           return row ? [row] : [];
         }),
       );
     }
-    const threads = await this.list({
+    const rows = await this.list({
       model: "messagingThread",
       baseWhere,
       select: this.threadSelect,
@@ -605,14 +606,10 @@ export class PrismaMessagingRepo
           direction: "desc",
         },
       },
-      map: (
-        row: Prisma.MessagingThreadGetPayload<{
-          select: PrismaMessagingRepo["threadSelect"];
-        }>,
-      ) => this.mapThreadRow(row),
+      map: (row: ThreadRow) => row,
     });
 
-    return this.hydrateThreadContacts(threads);
+    return this.mapThreadRows(rows);
   }
 
   async getCount(params: GetQueryParams) {
@@ -919,7 +916,7 @@ export class PrismaMessagingRepo
       select: this.threadSelect,
     });
 
-    const [hydrated] = await this.hydrateThreadContacts([this.mapThreadRow(row)]);
+    const [hydrated] = await this.mapThreadRows([row]);
     return hydrated;
   }
 
@@ -930,7 +927,7 @@ export class PrismaMessagingRepo
     });
     if (!row) return null;
 
-    const [hydrated] = await this.hydrateThreadContacts([this.mapThreadRow(row)]);
+    const [hydrated] = await this.mapThreadRows([row]);
     return hydrated;
   }
 
@@ -995,11 +992,28 @@ export class PrismaMessagingRepo
     return new Set(threads.map((thread) => thread.id));
   }
 
-  private mapThreadRow(
-    row: Prisma.MessagingThreadGetPayload<{
-      select: PrismaMessagingRepo["threadSelect"];
-    }>,
-  ) {
+  private async mapThreadRows(rows: ThreadRow[]) {
+    const draftLed = rows.filter((row) => row.messages[0]?.isDraft).map((row) => row.id);
+    const latestSent = await Promise.all(
+      draftLed.map((threadId) =>
+        this.prisma.messagingMessage.findFirst({
+          where: { messagingThreadId: threadId, companyId: this.companyId, isDraft: false, isHidden: false },
+          orderBy: [{ sentAt: "desc" }, { id: "desc" }],
+          select: { direction: true },
+        }),
+      ),
+    );
+    const sentFromSelfBehindDraft = new Map(
+      draftLed.map((threadId, index) => {
+        const sent = latestSent[index];
+        return [threadId, sent ? sent.direction === MessagingMessageDirection.outbound : null] as const;
+      }),
+    );
+
+    return this.hydrateThreadContacts(rows.map((row) => this.mapThreadRow(row, sentFromSelfBehindDraft.get(row.id))));
+  }
+
+  private mapThreadRow(row: ThreadRow, sentFromSelfBehindDraft?: boolean | null) {
     const { messages, participants, connectedAccount, lastMessagePreview, lastMessageIsSender, ...rest } = row;
     const last = messages[0];
     const previewSource =
@@ -1037,6 +1051,11 @@ export class PrismaMessagingRepo
       lastMessageFromSelf: last
         ? last.direction === MessagingMessageDirection.outbound
         : (lastMessageIsSender ?? false),
+      lastSentMessageFromSelf: last?.isDraft
+        ? (sentFromSelfBehindDraft ?? null)
+        : last
+          ? last.direction === MessagingMessageDirection.outbound
+          : (lastMessageIsSender ?? false),
       lastMessageSenderName: (last?.sender as unknown as MessagingAttendee | null)?.displayName?.trim() || null,
       lastMessageSenderIdentifier: (last?.sender as unknown as MessagingAttendee | null)?.identifier ?? null,
     };

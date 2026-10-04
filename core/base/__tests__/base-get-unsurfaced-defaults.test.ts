@@ -1,65 +1,21 @@
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import { StubRepo } from "./fixtures/base-get-unsurfaced-defaults-stub-repo";
+import { ProbeInteractor } from "./fixtures/base-get-unsurfaced-defaults-probe-interactor";
+
 import type { DataViewStateRepo, SurfaceViewState } from "@/core/data-view/data-view-state.repo";
-import type { Filter, FilterableField, GetQueryParams, SortDescriptor } from "../base-get.schema";
+import type { GetQueryParams } from "../base-get.schema";
 
 import { describe, expect, it, vi } from "vitest";
 
-import { BaseGetInteractor, BaseGetRepo } from "../base-get.interactor";
 import { SURFACE } from "@/core/data-view/data-view-keys";
 
 vi.mock("@/core/validation/run-precheck", () => ({
   runPrecheck: (data: unknown) => Promise.resolve({ ok: true, data }),
 }));
 
-type Item = { id: string };
-
 const SURFACE_DEFAULTS: GetQueryParams = {
   sortDescriptor: { field: "createdAt", direction: "desc" },
   pagination: { page: 1, pageSize: 25 },
 };
-
-class StubRepo extends BaseGetRepo<Item> {
-  itemCalls: GetQueryParams[] = [];
-
-  getItems(params: GetQueryParams): Promise<Item[]> {
-    this.itemCalls.push(params);
-    return Promise.resolve([]);
-  }
-
-  getCount(): Promise<number> {
-    return Promise.resolve(0);
-  }
-
-  getSortableFields() {
-    return [{ field: "createdAt", resolvedFields: ["createdAt"] }];
-  }
-
-  getSearchableFields() {
-    return [];
-  }
-
-  getFilterableFields(): Promise<FilterableField[]> {
-    return Promise.resolve([]);
-  }
-
-  getCustomColumns(): Promise<CustomColumnDto[]> {
-    return Promise.resolve([]);
-  }
-
-  validateFilters({ filters }: { filters: Filter[] | undefined }): Filter[] {
-    return filters ?? [];
-  }
-
-  validateSortDescriptor({ sortDescriptor }: { sortDescriptor: SortDescriptor | undefined }) {
-    return sortDescriptor;
-  }
-
-  sumNumericFields<F extends string>(): Promise<Partial<Record<F, number | null>>> {
-    return Promise.resolve({} as Partial<Record<F, number | null>>);
-  }
-}
-
-class ProbeInteractor extends BaseGetInteractor<Item> {}
 
 const emptySurface: SurfaceViewState = { activeViewKey: null, views: [], allState: {} };
 

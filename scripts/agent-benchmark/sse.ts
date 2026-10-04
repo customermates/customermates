@@ -2,9 +2,12 @@ export type SseFrame = { type: string; seq?: number } & Record<string, unknown>;
 
 export type SseTiming = {
   firstFrameMs: number | null;
+  firstOutputMs?: number | null;
   firstDeltaMs: number | null;
   lastFrameMs: number | null;
 };
+
+const OUTPUT_FRAMES = new Set(["delta", "activity", "approval_request", "ui_command"]);
 
 export function benchmarkServerSourceError(
   expectedSourceCommit: string,
@@ -24,6 +27,7 @@ export async function readSseFrames(
   const frames: SseFrame[] = [];
   const timing: SseTiming = {
     firstFrameMs: null,
+    firstOutputMs: null,
     firstDeltaMs: null,
     lastFrameMs: null,
   };
@@ -46,6 +50,7 @@ export async function readSseFrames(
       const frame = JSON.parse(dataLine.slice(6)) as SseFrame;
       const elapsed = Date.now() - startedAt;
       timing.firstFrameMs ??= elapsed;
+      if (OUTPUT_FRAMES.has(frame.type)) timing.firstOutputMs ??= elapsed;
       if (frame.type === "delta") timing.firstDeltaMs ??= elapsed;
       timing.lastFrameMs = elapsed;
       frames.push(frame);

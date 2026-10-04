@@ -6,10 +6,11 @@ type LocaleCapabilities = {
   flagCode: string;
   validationTag: string;
   lowercaseEntityLabelsInSentences: boolean;
-  docsStemmer: DocsStemmer;
+  textSearchConfig: TextSearchConfig;
+  iso6393: string;
 };
 
-export type DocsStemmer = "english" | "german";
+export type TextSearchConfig = "english" | "german" | "french" | "italian" | "spanish";
 
 export const LOCALE_REGISTRY = {
   en: {
@@ -20,7 +21,8 @@ export const LOCALE_REGISTRY = {
     flagCode: "us",
     validationTag: "en",
     lowercaseEntityLabelsInSentences: true,
-    docsStemmer: "english",
+    textSearchConfig: "english",
+    iso6393: "eng",
   },
   de: {
     offeredAsDisplayLanguage: true,
@@ -30,7 +32,8 @@ export const LOCALE_REGISTRY = {
     flagCode: "de",
     validationTag: "de",
     lowercaseEntityLabelsInSentences: false,
-    docsStemmer: "german",
+    textSearchConfig: "german",
+    iso6393: "deu",
   },
   fr: {
     offeredAsDisplayLanguage: true,
@@ -40,7 +43,8 @@ export const LOCALE_REGISTRY = {
     flagCode: "fr",
     validationTag: "fr",
     lowercaseEntityLabelsInSentences: true,
-    docsStemmer: "english",
+    textSearchConfig: "french",
+    iso6393: "fra",
   },
   it: {
     offeredAsDisplayLanguage: true,
@@ -50,7 +54,8 @@ export const LOCALE_REGISTRY = {
     flagCode: "it",
     validationTag: "it",
     lowercaseEntityLabelsInSentences: true,
-    docsStemmer: "english",
+    textSearchConfig: "italian",
+    iso6393: "ita",
   },
   es: {
     offeredAsDisplayLanguage: true,
@@ -60,7 +65,8 @@ export const LOCALE_REGISTRY = {
     flagCode: "es",
     validationTag: "es",
     lowercaseEntityLabelsInSentences: true,
-    docsStemmer: "english",
+    textSearchConfig: "spanish",
+    iso6393: "spa",
   },
 } as const satisfies Record<string, LocaleCapabilities>;
 
@@ -136,8 +142,10 @@ export function flagCodeFor(locale: LocaleCode): string {
   return LOCALE_REGISTRY[locale].flagCode;
 }
 
-export function docsStemmerFor(locale: unknown): DocsStemmer {
-  return isLocaleCode(locale) ? LOCALE_REGISTRY[locale].docsStemmer : LOCALE_REGISTRY[DEFAULT_LOCALE].docsStemmer;
+export function textSearchConfigFor(locale: unknown): TextSearchConfig {
+  return isLocaleCode(locale)
+    ? LOCALE_REGISTRY[locale].textSearchConfig
+    : LOCALE_REGISTRY[DEFAULT_LOCALE].textSearchConfig;
 }
 
 function localeFromLanguageTag<Locale extends LocaleCode>(value: string, locales: readonly Locale[]): Locale | null {

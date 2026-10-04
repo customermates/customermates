@@ -9,10 +9,7 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { MessagingFilterOptionsSchema } from "./messaging-filter-options.schema";
-
-export abstract class MessagingFilterOptionsRepo {
-  abstract listInboxFilterOptions(): Promise<MessagingFilterOptions>;
-}
+import type { MessagingFilterOptionsRepo } from "./messaging-filter-options.repo";
 
 @AllowInDemoMode
 @TenantInteractor({

@@ -7,16 +7,32 @@ import {
   FILTER_SYNTAX,
   SORT_SYNTAX,
   formatDatesInResponse,
+  fetchMcpPage,
   mcpPage,
   mcpPageSize,
+  McpPageOutputShape,
+  planMcpPageFetch,
   mcpInteractorFailure,
   runInteractor,
   customMcpFailure,
   CONTACT_KEY_FIELD_NOTE,
+  nameMatchNote,
+  nameQueryOf,
 } from "./utils";
 import type { McpToolFailureResult } from "./mcp-tool";
+import type { CustomFieldValueDto } from "@/core/base/base-entity.schema";
+import type { GroupableFieldDto } from "@/core/base/grouping/groupable-field";
 
 import { FilterSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
+import {
+  DateBucketSchema,
+  NO_VALUE_GROUP_KEY,
+  decodeGroupingToken,
+  encodeGroupingToken,
+  type DataViewGroup,
+  type GroupingResult,
+} from "@/core/base/grouping/grouping.schema";
+import { createZodError } from "@/core/validation/validation.utils";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { parseMarkdownToJSON, serializeJSONToMarkdown } from "@/components/editor/editor.utils";
 import { entityListExecutors, entityNameExtractors } from "@/features/search/entity-list-executors";
@@ -60,9 +76,7 @@ export function stripUntrustedNotesMarkers(markdown: string) {
     .trim();
 }
 
-const EntitySchema = z
-  .enum(["contact", "organization", "deal", "service", "task"])
-  .describe("Entity type (one of: contact, organization, deal, service, task)");
+const EntitySchema = z.enum(["contact", "organization", "deal", "service", "task"]).describe("Entity type");
 
 const RelationSchema = z
   .enum(["organizations", "contacts", "deals", "services", "tasks", "users"])
@@ -76,10 +90,10 @@ const RelationSchema = z
   );
 
 const RecordSchemaInputSchema = z.object({
-  entity: EntitySchema.optional().describe(
-    "Entity type (one of: contact, organization, deal, service, task). Omit to get all five schemas in one call.",
-  ),
+  entity: EntitySchema.optional().describe("Entity type. Omit to get all five schemas in one call."),
 });
+
+const ListRecordsIncludeSchema = z.enum(["owners", "links", "customFields", "dates"]);
 
 const ListRecordsSchema = z.object({
   entity: EntitySchema,
@@ -90,6 +104,33 @@ const ListRecordsSchema = z.object({
   ),
   page: mcpPage(),
   pageSize: mcpPageSize(25),
+  groupBy: z
+    .object({
+      field: z
+        .string()
+        .min(1)
+        .describe(
+          "A single-select custom-column id (for example Status), a relation such as userIds (owners), organizationIds or contactIds, or createdAt or updatedAt",
+        ),
+      bucket: DateBucketSchema.optional().describe(
+        "day, week or month (the default); only for createdAt and updatedAt",
+      ),
+    })
+    .optional()
+    .describe(
+      "Count matching records per value of one field instead of listing them: groups carry key, label and count, and for deals the totalValue and weightedValue sums. A record with several owners counts in each owner's group. " +
+        "createdAt and updatedAt group by day for the last 7 days, by week for the last 7 weeks or by month for the last 12 months, up to and including the current one; " +
+        'older records fall in one "before <date>" group, later ones in one "from <date> on" group, and groupNote says so when either holds records.',
+    ),
+  include: z
+    .array(ListRecordsIncludeSchema)
+    .max(4)
+    .optional()
+    .describe(
+      "Fields to add to each item: owners adds userIds; links adds the ids of the linked records (contactIds, organizationIds, dealIds, serviceIds, taskIds, whichever the entity has). " +
+        "In userIds and the link arrays an empty array means none you can see is linked; a missing key means you cannot read that relation. " +
+        "customFields adds customFieldValues [{columnId, value}], a single-select value being its option id; dates adds createdAt and updatedAt. Ignored with groupBy.",
+    ),
 });
 
 const SearchRecordsSchema = z.object({
@@ -157,8 +198,10 @@ const UpdateRecordNotesSchema = z.object({
 
 const ManageRecordLinksSchema = z.object({
   action: z
-    .enum(["add", "remove"])
-    .describe("add = link the ids to the relationship; remove = unlink the ids from the relationship"),
+    .enum(["add", "remove", "set"])
+    .describe(
+      "add = link the ids; remove = unlink the ids; set = make the ids the complete list, unlinking every other linked record in one call",
+    ),
   entity: EntitySchema,
   sourceId: z
     .string()
@@ -170,7 +213,7 @@ const ManageRecordLinksSchema = z.object({
     .min(1)
     .max(100)
     .describe(
-      "Record UUIDs to add to (link) or remove from (unlink) the source entity's relationship. Unlike sourceId, contact channel keys are not accepted here: resolve them to ids with search_records or get_records first.",
+      "Record UUIDs to link, unlink, or (set) keep as the complete list of the source entity's relationship. Unlike sourceId, contact channel keys are not accepted here: resolve them to ids with search_records or get_records first.",
     ),
 });
 
@@ -203,18 +246,58 @@ const ListRecordsOutputSchema = z.object({
     })
     .optional()
     .describe(
-      "Present when a name search matched several records and selecting only one for a write requires clarification",
+      "Present on a list result, not a grouped one, whose name search or name filter matched several records; selecting only one for a write requires clarification",
     ),
   sums: z
     .record(z.string(), z.number())
     .optional()
-    .describe("Per numeric column: total across every matching record, not just this page"),
-  page: z.number(),
-  pageSize: z.number(),
+    .describe(
+      "Per summable column: the total across every matching record, not just this page. Built-in columns use their own name; a custom currency column uses its custom-column id",
+    ),
+  ...McpPageOutputShape,
+  pageSize: McpPageOutputShape.pageSize.describe(
+    "The page size asked for; every page but the last holds exactly this many records, and a grouped result echoes it with items empty",
+  ),
+  groupedBy: z
+    .string()
+    .optional()
+    .describe("The grouping used: the field, followed by :day, :week or :month when it is a date"),
+  groups: z
+    .array(
+      z.object({
+        key: z.string(),
+        label: z.string(),
+        count: z.number(),
+        sums: z.record(z.string(), z.number()).optional(),
+      }),
+    )
+    .optional()
+    .describe("Present with groupBy: one entry per value of the grouped field, and items is empty"),
+  groupsIncomplete: z
+    .literal(true)
+    .optional()
+    .describe("Present when only some groups, or the sums of only some groups, are listed; groupNote says which"),
+  groupNote: z.string().optional(),
   items: z.array(
     z
-      .looseObject({ id: z.string(), name: z.string().nullable() })
-      .describe("Deal items add totalValue, totalQuantity, weightedValue; service items add amount."),
+      .looseObject({
+        id: z.string(),
+        name: z.string().nullable(),
+        userIds: z.array(z.string()).optional(),
+        contactIds: z.array(z.string()).optional(),
+        organizationIds: z.array(z.string()).optional(),
+        dealIds: z.array(z.string()).optional(),
+        serviceIds: z.array(z.string()).optional(),
+        taskIds: z.array(z.string()).optional(),
+        customFieldValues: z.array(z.object({ columnId: z.string(), value: z.string().nullish() })).optional(),
+        createdAt: z.string().optional(),
+        updatedAt: z.string().optional(),
+      })
+      .describe(
+        "Deal items add totalValue, totalQuantity, weightedValue; service items add amount. " +
+          "With include, owners adds userIds, links the linked record ids the entity has, customFields customFieldValues, and dates createdAt and updatedAt; " +
+          "userIds and each link key are left out for a relation you cannot read.",
+      ),
   ),
   filters: z.array(z.unknown()).optional(),
 });
@@ -224,8 +307,9 @@ const SearchRecordsOutputSchema = z.object({
   results: z.array(
     z.object({
       entity: EntitySchema,
-      items: z.array(z.object({ id: z.string(), name: z.string().nullable() })),
       total: z.number().optional(),
+      nameMatchNote: z.string().optional(),
+      items: z.array(z.object({ id: z.string(), name: z.string().nullable() })),
       error: z.string().optional(),
     }),
   ),
@@ -249,9 +333,10 @@ const UpdateRecordNotesOutputSchema = z.object({
 });
 
 const ManageRecordLinksOutputSchema = z.object({
-  action: z.enum(["add", "remove"]),
+  action: z.enum(["add", "remove", "set"]),
   relation: RelationSchema,
   requested: z.number(),
+  changed: z.number().describe("Links this call actually added or removed; 0 means nothing changed"),
   before: z.number().describe("Linked ids in the relationship before the call"),
   after: z.number().describe("Linked ids in the relationship after the call"),
 });
@@ -269,6 +354,54 @@ const singularLabels: Record<Entity, string> = {
   service: "service",
   task: "task",
 };
+
+type ListRecordsInclude = z.infer<typeof ListRecordsIncludeSchema>;
+
+export const linkIdKeys = {
+  contacts: "contactIds",
+  organizations: "organizationIds",
+  deals: "dealIds",
+  services: "serviceIds",
+  tasks: "taskIds",
+} as const;
+
+export const listedLinks: Record<Entity, readonly (keyof typeof linkIdKeys)[]> = {
+  contact: ["organizations", "deals", "tasks"],
+  organization: ["contacts", "deals", "tasks"],
+  deal: ["contacts", "organizations", "services", "tasks"],
+  service: ["deals", "tasks"],
+  task: ["contacts", "organizations", "deals", "services"],
+};
+
+function referenceIds(references: unknown): string[] {
+  return Array.isArray(references) ? references.map((reference: { id: string }) => reference.id) : [];
+}
+
+function readableRelations(groupableFields: readonly GroupableFieldDto[] | undefined): ReadonlySet<string> {
+  return new Set((groupableFields ?? []).filter((field) => field.kind === "relation").map((field) => field.id));
+}
+
+function includedItemFields(
+  entity: Entity,
+  item: any,
+  include: readonly ListRecordsInclude[] | undefined,
+  readable: ReadonlySet<string>,
+) {
+  const wanted = new Set(include);
+  const links = listedLinks[entity].filter((relation) => readable.has(linkIdKeys[relation]));
+  return {
+    ...(wanted.has("owners") && readable.has("userIds") && { userIds: referenceIds(item.users) }),
+    ...(wanted.has("links") &&
+      Object.fromEntries(links.map((relation) => [linkIdKeys[relation], referenceIds(item[relation])]))),
+    ...(wanted.has("customFields") && {
+      customFieldValues: ((item.customFieldValues ?? []) as CustomFieldValueDto[]).map(({ columnId, value }) => ({
+        columnId,
+        value,
+      })),
+    }),
+    ...(wanted.has("dates") && formatDatesInResponse({ createdAt: item.createdAt, updatedAt: item.updatedAt })),
+  };
+}
 
 const configurationExecutors: Record<Entity, () => Promise<{ ok: true; data: unknown }>> = {
   contact: () => getGetContactsConfigurationInteractor().invoke(),
@@ -357,24 +490,110 @@ export const getRecordSchemaTool = {
   },
 };
 
+function groupLabel(group: DataViewGroup, oldestWindowStart: string | undefined) {
+  if (group.label !== undefined) return group.label;
+  if (group.key === NO_VALUE_GROUP_KEY || group.isNoValue) return "No value";
+  if (group.bucketRole === "earlier" && oldestWindowStart) return `before ${oldestWindowStart}`;
+  if (group.bucketRole === "later" && group.bucketStart) return `from ${group.bucketStart} on`;
+  return group.bucketStart ?? group.key;
+}
+
+function dateWindowNote(grouping: GroupingResult, oldestWindowStart: string | undefined) {
+  const catchAll = grouping.groups.filter(
+    (group) => group.count > 0 && (group.bucketRole === "earlier" || group.bucketRole === "later"),
+  );
+  if (catchAll.length === 0) return [];
+
+  const windows = grouping.groups.filter((group) => group.bucketRole === "window").length;
+  const collects = catchAll.map(
+    (group) => `"${groupLabel(group, oldestWindowStart)}" collects every ${group.bucketRole} record`,
+  );
+  return [
+    `Only the last ${windows} ${grouping.grouping.bucket}s, up to and including the current one, have a group each; ${collects.join(" and ")}.`,
+  ];
+}
+
+function groupedListResult(
+  entity: Entity,
+  groupBy: NonNullable<z.infer<typeof ListRecordsSchema>["groupBy"]>,
+  page: number,
+  pageSize: number,
+  data: {
+    items: unknown[];
+    pagination?: { total?: number };
+    valueSums?: Record<string, number | null>;
+    grouping?: GroupingResult;
+    groupableFields?: { id: string; label?: string }[];
+  },
+) {
+  const grouping = data.grouping;
+  if (!grouping) {
+    const groupable = (data.groupableFields ?? []).map((field) =>
+      field.label ? `${field.id} (${field.label})` : field.id,
+    );
+    const text = `${singularLabels[entity]} records cannot be grouped by ${groupBy.field}. Groupable fields: ${groupable.join(", ") || "none"}.`;
+    return mcpInteractorFailure(createZodError(text, ["groupBy", "field"]), "validation", text);
+  }
+
+  const total = data.pagination?.total ?? grouping.total;
+  const oldestWindowStart = grouping.groups
+    .flatMap((group) => (group.bucketRole === "window" && group.bucketStart ? [group.bucketStart] : []))
+    .toSorted()[0];
+  const shown = grouping.groups.filter((group) => group.count > 0);
+  const groups = shown.map((group) => ({
+    key: group.key,
+    label: groupLabel(group, oldestWindowStart),
+    count: group.count,
+    ...(group.valueSums ? { sums: group.valueSums } : {}),
+  }));
+  const partialSums = groups.some((group) => group.sums) && groups.some((group) => !group.sums);
+  const missingGroups = grouping.overflow?.withRecords === true;
+  const notes = [
+    ...(grouping.membershipTotal !== undefined && grouping.membershipTotal > total
+      ? ["A record in several groups counts in each of them, so the group counts add up to more than total."]
+      : []),
+    ...(partialSums
+      ? ["Per-group sums cover the first 25 groups; filter to one group for the sums of the others."]
+      : []),
+    ...(missingGroups
+      ? [`Only ${groups.length} groups are listed; filter on ${groupBy.field} to count the others.`]
+      : []),
+    ...dateWindowNote(grouping, oldestWindowStart),
+  ];
+
+  return toonResult({
+    total,
+    ...(data.valueSums && Object.keys(data.valueSums).length > 0 ? { sums: data.valueSums } : {}),
+    page,
+    pageSize,
+    groupedBy: encodeGroupingToken(grouping.grouping),
+    ...(missingGroups || partialSums ? { groupsIncomplete: true as const } : {}),
+    ...(notes.length > 0 ? { groupNote: notes.join(" ") } : {}),
+    groups,
+    items: [],
+  });
+}
+
 export const listRecordsTool = {
   name: "list_records",
   title: "List records",
   description:
     "Use this when you need to search, filter, sort, or count records of a single entity type. " +
-    "Required: entity. Optional: searchTerm, filters, sortDescriptor, page, pageSize (1-100, default 25). " +
+    "Required: entity. Optional: searchTerm, filters, sortDescriptor, page, pageSize (1-100, default 25), groupBy, include. " +
     "Returns total first (matching records across all pages; use it for counts), then id and name per item; " +
     "deal items add totalValue, totalQuantity and weightedValue, service items add amount. " +
-    "When the entity has numeric columns it also returns sums: the total of each numeric column across " +
-    "every record matching the filters, not just the current page. Read sums directly instead of adding " +
-    "up items, which would only cover one page. For deals sums holds totalValue (pipeline), totalQuantity " +
-    "and weightedValue (pipeline weighted by each stage's win probability). " +
-    "When a name search matches several records, writeTargetGuidance has status ambiguous: ask the user to choose before changing only one result, even when one item exactly equals the search term. " +
+    "include adds fields to every item, leaving out any relation you cannot read: owners adds userIds, links the linked record ids such as dealIds and taskIds, " +
+    "customFields the customFieldValues [{columnId, value}] and dates createdAt and updatedAt. " +
+    "Such items are long, so read them through analyze_records where it is offered, or with pageSize 5 when reading them directly. " +
+    "For deals and custom currency columns it also returns sums: each total across every record matching the filters, " +
+    "not just the current page, so read sums instead of adding up items. For deals sums holds totalValue (pipeline) " +
+    "and weightedValue (weighted by each stage's win probability); a currency column's sum is keyed by its " +
+    "custom-column id from get_record_schema, not its label. Service amount and deal totalQuantity are not in sums; single-select, text and date custom columns are not summable, so filter by those instead. " +
+    "For a breakdown per status, owner, organization or created/updated month, pass groupBy instead of paging through items: one call returns up to 50 groups plus No value with their counts and, for deals, the totalValue and weightedValue sums of up to 25 of them. " +
+    "When a name search without groupBy matches several records, writeTargetGuidance has status ambiguous: ask the user to choose before changing only one result, even when one item exactly equals the search term. " +
     "The current page's items are the canonical candidates. If total exceeds items.length, narrow the search or review more pages first. If candidate names are identical, call get_records for their ids and ask with safe distinguishing fields; never expose raw ids. " +
     "An explicit request to change every match may proceed. " +
-    "Numeric columns of the record are summable; single-select and other custom fields are not, so filter " +
-    "or group by those instead. " +
-    "Use get_records (batched, pass many ids in one call) to fetch full field/custom-column values.",
+    "Use get_records, with many ids per call, for full field and custom-column values.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
   inputSchema: ListRecordsSchema,
   outputSchema: ListRecordsOutputSchema,
@@ -385,19 +604,49 @@ export const listRecordsTool = {
     sortDescriptor,
     page,
     pageSize,
+    groupBy,
+    include,
   }: z.infer<typeof ListRecordsSchema>) => {
-    const result = await entityListExecutors[entity]({
-      searchTerm,
-      filters,
-      sortDescriptor,
-      pagination: { page, pageSize },
-    });
+    const query = { searchTerm, filters, sortDescriptor };
+    if (groupBy) {
+      const decoded = decodeGroupingToken(groupBy.field) ?? groupBy;
+      if (decoded.bucket && groupBy.bucket && decoded.bucket !== groupBy.bucket) {
+        const text = `groupBy.field ${groupBy.field} already names the bucket ${decoded.bucket}; drop bucket, or send field ${decoded.field} with bucket ${groupBy.bucket}.`;
+        return mcpInteractorFailure(createZodError(text, ["groupBy", "bucket"]), "validation", text);
+      }
+      const bucket = groupBy.bucket ?? decoded.bucket;
+      const requested = { field: decoded.field, ...(bucket ? { bucket } : {}) };
+      const plan = planMcpPageFetch(page, pageSize);
+      const grouping = { grouping: requested, groupPage: { perGroup: 1, includeValueSums: true } };
+      const grouped = await entityListExecutors[entity]({
+        ...query,
+        pagination: { page: plan.page, pageSize: plan.pageSize },
+        ...grouping,
+      });
+      if (!grouped.ok) return mcpInteractorFailure(grouped.error);
+      return groupedListResult(entity, requested, page, pageSize, grouped.data);
+    }
+
+    const result = await fetchMcpPage({ page, pageSize }, (pagination) =>
+      entityListExecutors[entity]({ ...query, pagination }),
+    );
     if (!result.ok) return mcpInteractorFailure(result.error);
 
+    const readable = readableRelations(result.data.groupableFields);
+    const items = result.data.items.map((item: any) => ({
+      id: item.id,
+      name: entityNameExtractors[entity](item),
+      ...(item.totalValue !== undefined && { totalValue: item.totalValue }),
+      ...(item.totalQuantity !== undefined && { totalQuantity: item.totalQuantity }),
+      ...(item.weightedValue != null && { weightedValue: item.weightedValue }),
+      ...(item.amount !== undefined && { amount: item.amount }),
+      ...includedItemFields(entity, item, include, readable),
+    }));
     const total = result.data.pagination?.total ?? result.data.items.length;
+
     return toonResult({
       total,
-      ...(searchTerm && total > 1
+      ...(nameQueryOf(searchTerm, filters) && total > 1
         ? {
             writeTargetGuidance: {
               status: "ambiguous" as const,
@@ -411,14 +660,7 @@ export const listRecordsTool = {
         : {}),
       page,
       pageSize,
-      items: result.data.items.map((item: any) => ({
-        id: item.id,
-        name: entityNameExtractors[entity](item),
-        ...(item.totalValue !== undefined && { totalValue: item.totalValue }),
-        ...(item.totalQuantity !== undefined && { totalQuantity: item.totalQuantity }),
-        ...(item.weightedValue != null && { weightedValue: item.weightedValue }),
-        ...(item.amount !== undefined && { amount: item.amount }),
-      })),
+      items,
       ...(filters ? { filters } : {}),
     });
   },
@@ -448,13 +690,16 @@ export const searchRecordsTool = {
           pagination: { page: 1, pageSize },
         });
         if (!result.ok) return { entity, items: [], error: z.prettifyError(result.error) };
+        const items = result.data.items.slice(0, limitPerEntity).map((item: any) => ({
+          id: item.id,
+          name: entityNameExtractors[entity](item),
+        }));
+        const note = nameMatchNote(searchTerm, items);
         return {
           entity,
-          items: result.data.items.slice(0, limitPerEntity).map((item: any) => ({
-            id: item.id,
-            name: entityNameExtractors[entity](item),
-          })),
           total: result.data.pagination?.total ?? result.data.items.length,
+          ...(note ? { nameMatchNote: note } : {}),
+          items,
         };
       }),
     );
@@ -563,17 +808,59 @@ export const updateRecordNotesTool = {
   },
 };
 
+function recordLinksResultText(result: {
+  action: "add" | "remove" | "set";
+  entity: string;
+  sourceId: string;
+  relation: string;
+  requested: number;
+  added: number;
+  removed: number;
+  before: number;
+  after: number;
+  kept: number;
+  keptOutsideAccess: number;
+}): string {
+  const { action, entity, sourceId, relation, requested, added, removed, before, after, kept, keptOutsideAccess } =
+    result;
+  const counts = `(was ${before}, now ${after})`;
+  if (action === "add") {
+    if (added === 0)
+      return `Nothing was linked: all ${requested} ${relation} were already linked to ${entity} ${sourceId} ${counts}`;
+    return `Linked ${added} of ${requested} ${relation} to ${entity} ${sourceId} ${counts}`;
+  }
+  if (action === "remove") {
+    const keptNote =
+      keptOutsideAccess > 0
+        ? `; ${keptOutsideAccess} of the ids ${keptOutsideAccess === 1 ? "links a record" : "link records"} outside your access, so ${keptOutsideAccess === 1 ? "that link was" : "those links were"} kept`
+        : "";
+    if (removed === 0 && keptOutsideAccess > 0)
+      return `Nothing was unlinked from ${entity} ${sourceId}${keptNote} ${counts}`;
+    if (removed === 0)
+      return `Nothing was unlinked: none of the ${requested} ids is linked as ${relation} of ${entity} ${sourceId} ${counts}. Check that the ids are the linked ${relation}, not the ${entity} itself.`;
+    return `Unlinked ${removed} of ${requested} ${relation} from ${entity} ${sourceId}${keptNote} ${counts}`;
+  }
+  const keptNote =
+    kept === 0
+      ? ""
+      : `; ${kept} other ${kept === 1 ? "link was kept because it points" : "links were kept because they point"} to records outside your access`;
+  if (added === 0 && removed === 0 && kept === 0)
+    return `Nothing changed: the ${relation} of ${entity} ${sourceId} already were exactly the ${requested} given ids ${counts}`;
+  if (added === 0 && removed === 0)
+    return `Nothing changed: the ${relation} of ${entity} ${sourceId} already held the ${requested} given ids${keptNote} ${counts}`;
+  return `Set the ${relation} of ${entity} ${sourceId} to the ${requested} given ids: linked ${added}, unlinked ${removed}${keptNote} ${counts}`;
+}
+
 export const manageRecordLinksTool = {
   name: "manage_record_links",
   title: "Manage record links",
   description:
-    "Use this when you need to add or remove links between records. " +
-    "Required: action (add or remove), entity, sourceId, relation, ids. " +
-    "Other links stay untouched; remove never deletes the related record. " +
-    "Allowed pairs: contact -> organizations|users|deals|tasks; organization -> contacts|users|deals|tasks; " +
-    "deal -> organizations|users|contacts|services|tasks; service -> users|deals|tasks; " +
-    "task -> users|contacts|organizations|deals|services. " +
-    "deal -> services adds with quantity 1 (use update_deals for exact quantities). " +
+    "Use this when you need to add, remove or replace links between records. " +
+    "Required: action (add, remove or set), entity, sourceId, relation, ids. " +
+    "add and remove leave the relation's other links as they are; set makes ids the complete list, so moving a record to a new owner or parent is one call. " +
+    "Links to records outside your access are always kept. remove and set never delete the related record. " +
+    "relation lists the allowed entity and relation pairs. " +
+    "deal -> services adds new services with quantity 1 and keeps the quantity of services that stay (use update_deals for exact quantities). " +
     "Idempotent: adding a linked id or removing an unlinked id is a no-op. " +
     "If an error message mentions the field `mode`, it refers to this tool's `action` argument.",
   annotations: { readOnlyHint: false, idempotentHint: true, destructiveHint: false, openWorldHint: false },
@@ -582,11 +869,23 @@ export const manageRecordLinksTool = {
   execute: ({ action, entity, sourceId, relation, ids }: z.infer<typeof ManageRecordLinksSchema>) =>
     runInteractor(
       getModifyEntityRelationInteractor().invoke({ entity, sourceId, relation, mode: action, ids }),
-      ({ requested, before, after }) =>
-        action === "add"
-          ? `Linked ${requested} ${relation} to ${entity} ${sourceId} (was ${before}, now ${after})`
-          : `Unlinked ${requested} ${relation} from ${entity} ${sourceId} (was ${before}, now ${after})`,
-      ({ requested, before, after }) => ({ action, relation, requested, before, after }),
+      (data) =>
+        recordLinksResultText({
+          ...data,
+          action,
+          entity,
+          sourceId,
+          relation,
+          kept: action === "set" ? Math.max(0, data.after - new Set(ids).size) : 0,
+        }),
+      ({ requested, added, removed, before, after }) => ({
+        action,
+        relation,
+        requested,
+        changed: added + removed,
+        before,
+        after,
+      }),
     ),
 };
 

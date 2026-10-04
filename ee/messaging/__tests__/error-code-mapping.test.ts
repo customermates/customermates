@@ -7,7 +7,8 @@ vi.mock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env, UNIPILE_API_KEY: "test-
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { createZodError, interactorFailureKind } from "@/core/validation/validation.utils";
 
-import { UnipileRequestError, isUnipileDisconnectedAccount, unipileErrorCode } from "../messaging.service";
+import { isUnipileDisconnectedAccount, unipileErrorCode } from "../messaging.service";
+import { UnipileRequestError } from "../unipile-request-error";
 
 describe("a timeout is not a rejection", () => {
   it("maps a client timeout to the timeout code rather than the generic rejection", () => {

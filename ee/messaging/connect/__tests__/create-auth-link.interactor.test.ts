@@ -33,7 +33,7 @@ vi.mock("next-intl/server", () => ({
 import * as Sentry from "@sentry/node";
 
 import { CreateAuthLinkInteractor } from "../create-auth-link.interactor";
-import { UnipileRequestError } from "../../messaging.service";
+import { UnipileRequestError } from "../../unipile-request-error";
 import { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 const TRIAL_ACTIVE = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);

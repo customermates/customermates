@@ -88,7 +88,7 @@ Create the key in Customermates under **My Profile → API & Connectors** with *
 
 ## What are the common gotchas?
 
-- **Relationship arrays over REST**: sending `null` or `[]` for a relation array such as `organizationIds` clears every link of that kind; omit the field to leave links untouched. Over MCP, use `manage_record_links` to add or remove single links.
+- **Relationship arrays over REST**: sending `null` or `[]` for a relation array such as `organizationIds` clears every link of that kind; omit the field to leave links untouched. Over MCP, use `manage_record_links` to add or remove single links, or `set` to replace a relation's links in one call.
 - **Batch size**: Customermates sets no request rate limit on API keys, but the `/many` endpoints take at most 100 records per request, so split larger jobs. Connected messaging channels have per-provider read and send limits; see [Messaging rate limits](/docs/messaging-rate-limits).
 - **Webhook ordering**: deliveries are not strictly ordered. Treat them as idempotent messages keyed by `entityId`, and use the payload `timestamp` to order them.
 

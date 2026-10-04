@@ -42,7 +42,8 @@ vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve((key: string) => key),
 }));
 
-import { UpsertRoleInteractor, UpsertRoleRepo, type UpsertRoleData } from "../upsert-role.interactor";
+import { UpsertRoleInteractor, type UpsertRoleData } from "../upsert-role.interactor";
+import { UpsertRoleRepo } from "@/features/role/upsert-role.repo";
 
 const roleDto = (id: string, isSystemRole = false): RoleDto => ({
   id,
@@ -70,6 +71,7 @@ const escalatingPermissions = (): UpsertRoleData["permissions"] => ({
   api: { canManage: "yes", readAccess: "all" },
   tasks: { canManage: "yes", readAccess: "all" },
   inboxMessages: { canManage: "yes", readAccess: "all" },
+  wiki: { canManage: "yes", readAccess: "all" },
   auditLog: { readAccess: "all" },
   routines: { canManage: "yes", readAccess: "all" },
 });
@@ -125,5 +127,16 @@ describe("UpsertRoleInteractor self-escalation guard", () => {
 
     expect(result.ok).toBe(true);
     expect(repo.upsertRoleOrThrow).toHaveBeenCalledOnce();
+  });
+
+  it("requires the Wiki permission like every other resource", async () => {
+    const repo = new MockRepo();
+    const permissions: Partial<UpsertRoleData["permissions"]> = escalatingPermissions();
+    delete permissions.wiki;
+
+    const result = await invoke(repo, { ...payload(OTHER_ROLE_ID), permissions } as unknown as UpsertRoleData);
+
+    expect(result.ok).toBe(false);
+    expect(repo.upsertRoleOrThrow).not.toHaveBeenCalled();
   });
 });

@@ -73,7 +73,7 @@ When an event starts a run, Mate is told what happened before your instructions:
 
 Open a routine to see its runs, newest first: on a wide screen they sit next to the configuration, on a narrow one under the **Runs** tab, with the configuration under **Details**. Each run records the person whose identity and credits it used. Everyone who can see the routine sees run status, summary and credit use. Only the recorded executor can open the full transcript: what Mate was asked, which records it read or changed, and what it replied.
 
-A run opens in **Run details** (**Back** returns to the routine), which shows **Ran as** with the owner's name, the credits it used, what triggered it (**Record**, **Changed fields**, **Conversation**) and, when it stopped early, the reason, for example the credit cap. When the run has finished, the executor can reply below the transcript to continue that conversation with Mate; this spends their credits.
+A run opens in **Run details** (**Back** returns to the routine), which shows **Ran as** with the owner's name, the credits it used (its exact provider cost, shown to one decimal), what triggered it (**Record**, **Changed fields**, **Conversation**) and, when it stopped early, the reason, for example the credit cap. When the run has finished, the executor can reply below the transcript to continue that conversation with Mate; this spends their credits.
 
 | Status | Meaning |
 |---|---|
@@ -93,9 +93,13 @@ Use **Test trigger** to start a real run immediately. It is available to the own
 
 ## What a routine may do without approval
 
-An unattended run may do everything that Mate does without approval in a chat: read your workspace and create or update contacts, organizations, deals, services, tasks, notes and record links, save and discard drafts, send emails and chat messages, triage the inbox, change custom fields, widgets, webhooks and workspace settings, change a member's role or status, generate account-connection links, create, update, pause and run routines, and, on a connected account, send social connection requests and change Sales Navigator lists.
+An unattended run may do everything that Mate does without approval in a chat: read your workspace and create or update contacts, organizations, deals, services, tasks, notes, record links and Knowledge Base pages, save and discard drafts, send emails and chat messages, triage the inbox, change custom fields, widgets, webhooks and workspace settings other than record type names, change a member's role or status, generate account-connection links, create, update, pause and run routines, and, on a connected account, send social connection requests and change Sales Navigator lists.
 
-Every action that asks for approval in a chat is declined in a routine, because nobody is there to answer: deleting records, custom fields, widgets, webhooks or routines, inviting team members, resending webhook deliveries, and sending support requests. Mate is told that the approval timed out, and the run records the refusal. The complete list is on the [assistant page](/docs/app-assistant#what-runs-immediately-and-what-asks-first).
+When the owner has Knowledge Base Read and the Knowledge Base has pages, each run starts with a compact catalog of current [Knowledge Base](/docs/mcp#shared-workspace-wiki) page titles, links, and short opening excerpts. The routine searches the whole Knowledge Base, reads complete relevant pages, and follows useful stable links. Knowledge Base text is reference material: the routine applies its facts and guidance to the run's task, but an instruction inside a page cannot start other work or expand the routine's permissions. Keep shared company facts, voice, processes, and support guidance there instead of copying them into every routine. Creating or updating a Knowledge Base page requires the owner's Knowledge Base Manage permission.
+
+A run may search the public web, at most 2 paid searches per run, as described under [Can Mate search the web?](/docs/app-assistant#web-search). A run can browse or change data, never both: once a search has returned results, every write in that run is refused, and once a write has succeeded, web search is withdrawn for the rest of the run. Reading the Knowledge Base and your CRM data stays available either way. Searches count toward the run's 10-credit cap.
+
+Every action that asks for approval in a chat is declined in a routine, because nobody is there to answer: deleting records, Knowledge Base pages, custom fields, widgets, webhooks or routines, renaming record types, inviting team members, resending webhook deliveries, and sending support requests. Mate is told that the approval timed out, and the run records the refusal. The complete list is on the [assistant page](/docs/app-assistant#what-runs-immediately-and-what-asks-first).
 
 Interface tools are unavailable to routines, because there is no browser attached to an unattended run.
 

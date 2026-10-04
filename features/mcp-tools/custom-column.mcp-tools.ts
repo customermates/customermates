@@ -4,14 +4,7 @@ import deepEqual from "fast-deep-equal/es6";
 import { z } from "zod";
 import { EntityType, CustomColumnType, Currency } from "@/generated/prisma";
 
-import {
-  customMcpFailure,
-  enumHint,
-  mcpInteractorFailure,
-  mcpMessageFailure,
-  mcpValidationFailure,
-  toonResult,
-} from "./utils";
+import { customMcpFailure, mcpInteractorFailure, mcpMessageFailure, mcpValidationFailure, toonResult } from "./utils";
 import type { McpToolFailureResult } from "./mcp-tool";
 
 import {
@@ -24,9 +17,6 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { OptionSchema, type UpsertCustomColumnData } from "@/features/custom-column/upsert-custom-column.interactor";
 import { CHIP_COLORS } from "@/constants/chip-colors";
 import { DATE_DISPLAY_FORMATS } from "@/constants/date-format";
-
-const entityTypeValues = Object.values(EntityType);
-const customColumnTypeValues = Object.values(CustomColumnType);
 
 const ToolOptionSchema = OptionSchema.partial({
   value: true,
@@ -57,8 +47,8 @@ const UpsertCustomColumnToolSchema = z.object({
     .describe(
       "Existing column id to UPDATE; omit to CREATE. Passing an id also requires intent=update. On update, label, type and entityType are immutable.",
     ),
-  type: z.enum(CustomColumnType).describe(`Column type ${enumHint(customColumnTypeValues)}`),
-  entityType: z.enum(EntityType).describe(`Entity type ${enumHint(entityTypeValues)}`),
+  type: z.enum(CustomColumnType).describe("Column type"),
+  entityType: z.enum(EntityType).describe("Entity type"),
   label: z
     .string()
     .min(1)
@@ -83,7 +73,7 @@ const UpsertCustomColumnToolSchema = z.object({
         .min(1)
         .optional()
         .describe(
-          "Legacy singleSelect shape. Prefer top-level selectOptions. REPLACES the full option list. A label is enough for a new option; value, color, isDefault and index are filled in when omitted. Keep an existing option's value to preserve its records.",
+          "Legacy singleSelect shape; prefer top-level selectOptions. REPLACES the full option list; a new option needs only a label. Keep an existing option's value to preserve its records.",
         ),
     })
     .nullable()
@@ -130,28 +120,23 @@ const ManageCustomColumnsSchema = z.object({
   action: z
     .enum(["list", "upsert", "delete"])
     .describe(
-      "list = read columns (optional entityType); upsert = create a column with intent create, entityType, type, label and selectOptions for singleSelect, or update one with intent update plus its existing id, entityType, type and unchanged label (entityType and type are required on every upsert and must match the stored column); delete = id.",
+      "list = read columns (optional entityType); upsert = create (intent create, entityType, type, label, plus selectOptions for singleSelect) or update (intent update, the existing id, and the stored entityType, type and label); delete = id.",
     ),
   entityType: z
     .enum(EntityType)
     .optional()
-    .describe(
-      `Entity type ${enumHint(entityTypeValues)}. Required for upsert. Optional for list to restrict to one entity type.`,
-    ),
+    .describe("Entity type. Required for upsert. Optional for list to restrict to one entity type."),
   id: z
     .uuid()
     .nullable()
     .optional()
     .describe(
-      "Custom column id. Required for delete. On upsert: omit to CREATE, pass an existing id to UPDATE (label, type and entityType are then immutable). null is accepted only with intent=create and is normalized to omission.",
+      "Custom column id. Required for delete. On upsert: omit to CREATE, pass an existing id to UPDATE. null is accepted only with intent=create and treated as omitted.",
     ),
   intent: CustomColumnMutationIntentSchema.optional().describe(
-    "upsert only. Use create with no id for a new column. UPDATE requires intent=update plus an existing id. Omitted intent is accepted only for backwards-compatible CREATE calls without an id.",
+    "upsert only: create with no id, or update with an existing id. Omitting intent is accepted only for a legacy CREATE without an id.",
   ),
-  type: z
-    .enum(CustomColumnType)
-    .optional()
-    .describe(`Column type ${enumHint(customColumnTypeValues)}. Required for upsert.`),
+  type: z.enum(CustomColumnType).optional().describe("Column type. Required for upsert."),
   label: z
     .string()
     .min(1)
@@ -164,7 +149,7 @@ const ManageCustomColumnsSchema = z.object({
     "Preferred for singleSelect upserts. Pass the complete option list directly. Do not also pass legacy options.options.",
   ),
   options: UpsertCustomColumnToolSchema.shape.options.describe(
-    "upsert only. Type-specific config. plain: omit. date*: {displayFormat?}. currency: {currency}. link/email/phone: {color, allowMultiple}. Legacy singleSelect clients may use options.options; prefer top-level selectOptions.",
+    "upsert only. Type-specific config. plain: omit. date*: {displayFormat?}. currency: {currency}. link/email/phone: {color, allowMultiple}. For singleSelect use top-level selectOptions.",
   ),
 });
 
@@ -219,8 +204,8 @@ export const manageCustomColumnsTool = {
     "Use this when you need to list, create, update, or delete custom columns on an entity type. " +
     "Do not create or change a custom column only to make an unsupported manage_data_views filter possible; report the unavailable saved-view filter instead. " +
     "action list returns { id, label, type, entityType, options } per column. " +
-    "action upsert requires type, entityType, label. For CREATE, use intent=create and OMIT id (a null id is normalized to omission only for explicit creates; legacy callers may omit intent only when id is also omitted). For UPDATE, intent=update and an existing id are both required; mismatched intent/id pairs are rejected without writing. Label, type and entityType are immutable through this tool, so create a new column instead of repurposing an existing one. " +
-    'For singleSelect, prefer top-level selectOptions; for example {"action":"upsert","intent":"create","entityType":"contact","type":"singleSelect","label":"Priority","selectOptions":[{"label":"High"}]}. Legacy options.options remains accepted, but never pass both. The list REPLACES every option: keep an existing option\'s stable value uuid to preserve stored records, use a fresh uuid for new options; dropping one deletes its stored values. ' +
+    "action upsert requires type, entityType, label: for CREATE pass intent=create and OMIT id; for UPDATE pass intent=update and the existing id; a mismatched intent/id pair is rejected without writing. Label, type and entityType are immutable, so create a new column instead of repurposing one. " +
+    'For singleSelect, prefer top-level selectOptions; for example {"action":"upsert","intent":"create","entityType":"contact","type":"singleSelect","label":"Priority","selectOptions":[{"label":"High"}]}. Never also pass legacy options.options. The list REPLACES every option: keep an existing option\'s value uuid to preserve its records, use a fresh uuid for a new one; dropping one deletes its stored values. ' +
     "action delete is IRREVERSIBLE and removes the column plus ALL values stored against it; deleting the company's deal weighting column turns weighting off and also requires update permission on the company.",
   annotations: {
     readOnlyHint: false,

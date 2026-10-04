@@ -72,14 +72,19 @@ export const FilterSchema = z.preprocess(
       })
       .strict()
       .meta({ title: "Relationship existence filter" }),
-    z.object({
-      field: z.string(),
-      operator: z.enum([FilterOperatorKey.inLastDays, FilterOperatorKey.notInLastDays]),
-      value: z.preprocess(
-        (value) => (typeof value === "number" || typeof value === "string" ? value : Number.NaN),
-        z.coerce.number().int().positive(),
-      ),
-    }),
+    z
+      .object({
+        field: z.string(),
+        operator: z.union([
+          z.literal(FilterOperatorKey.inLastDays).meta({ title: "inLastDays" }),
+          z.literal(FilterOperatorKey.notInLastDays).meta({ title: "notInLastDays" }),
+        ]),
+        value: z.preprocess(
+          (value) => (typeof value === "number" || typeof value === "string" ? value : Number.NaN),
+          z.coerce.number().int().positive(),
+        ),
+      })
+      .meta({ title: "Relative window filter" }),
   ]),
 );
 export type Filter = Data<typeof FilterSchema>;

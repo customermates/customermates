@@ -20,12 +20,15 @@ export function toModelMessages(messages: ReplayMessage[]): ModelMessage[] {
   return mapped;
 }
 
-export function sse(seq: number, type: string, payload: Record<string, unknown> = {}) {
+export function sse(seq: number, type: string, payload: Record<string, unknown> = {}, wikiBaseUrl?: string) {
   const safePayload =
     type === "message_replay"
       ? {
           ...(typeof payload.messageId === "string" ? { messageId: payload.messageId } : {}),
-          parts: clientSafeAgentMessageParts(payload.parts, { sanitizeText: true }),
+          parts: clientSafeAgentMessageParts(payload.parts, {
+            sanitizeText: true,
+            wikiBaseUrl,
+          }),
           ...(typeof payload.createdAt === "string" ? { createdAt: payload.createdAt } : {}),
         }
       : payload;

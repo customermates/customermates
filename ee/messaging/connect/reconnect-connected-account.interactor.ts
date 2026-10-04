@@ -1,5 +1,4 @@
 import type { MessagingService } from "../messaging.service";
-import type { ConnectedAccount } from "@/generated/prisma";
 import type { Redirect } from "@/features/auth/auth-outcome";
 import type { Data } from "@/core/validation/validation.utils";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
@@ -18,17 +17,15 @@ import { redirectTo } from "@/features/auth/auth-outcome";
 import { signHostedAuthState } from "../webhook-signature";
 import { fail } from "@/core/validation/interactor-failure-server";
 import { retryAfterPhrase } from "../retry-after.server";
-import { UnipileRequestError, unipileErrorCode } from "../messaging.service";
+import { unipileErrorCode } from "../messaging.service";
+import { UnipileRequestError } from "../unipile-request-error";
 import { env } from "@/env";
+import type { ReconnectConnectedAccountRepo } from "./reconnect-connected-account.repo";
 
 const HOSTED_AUTH_EXPIRY_MINUTES = 30;
 
 const Schema = z.object({ id: z.uuid() });
 type ReconnectConnectedAccountData = Data<typeof Schema>;
-
-export abstract class ReconnectConnectedAccountRepo {
-  abstract findAccountByIdOrThrow(id: string): Promise<ConnectedAccount>;
-}
 
 @TenantInteractor({ resource: Resource.inboxMessages, action: Action.update })
 export class ReconnectConnectedAccountInteractor extends UserAccessor {

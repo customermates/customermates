@@ -66,6 +66,11 @@
         "widgets": {
           "configure": "Bereit, Dashboard-Widgets zu ändern",
           "delete": "Bereit, ein Dashboard-Widget endgültig zu löschen"
+        },
+        "workspace": {
+          "configure": "Bereit, diese Wissensdatenbank-Seite endgültig zu löschen",
+          "settings": "Bereit, Workspace-Einstellungen einschließlich der Datensatztyp-Namen zu ändern",
+          "terminology": "Bereit, Datensatztypen für den gesamten Workspace umzubenennen"
         }
       },
       "cancelled": "Gestoppt",
@@ -104,6 +109,8 @@
         "webhookResend": "Die ausgewählte Webhook-Zustellung erneut senden",
         "webhookUpdate": "Ausgewählten Webhook ändern"
       },
+      "contextMore": "{labels} (+{count})",
+      "contextual": "{action} · {context}",
       "countedRecordInResource": "1 Datensatz für {resource}",
       "countedResource": "{count} {resource}",
       "countedSingular": "1 {resource}",
@@ -121,7 +128,8 @@
         "services": "Leistungen",
         "tasks": "Aufgaben",
         "terminology": "Workspace-Begriffe",
-        "widgets": "Dashboard-Widgets"
+        "widgets": "Dashboard-Widgets",
+        "wiki": "Wissensdatenbank-Seiten"
       },
       "resourceSingular": {
         "contacts": "Kontakt",
@@ -131,7 +139,8 @@
         "services": "Leistung",
         "tasks": "Aufgabe",
         "terminology": "Workspace-Begriff",
-        "widgets": "Dashboard-Widget"
+        "widgets": "Dashboard-Widget",
+        "wiki": "Wissensdatenbank-Seite"
       },
       "state": {
         "accounts": {
@@ -242,6 +251,11 @@
           }
         },
         "records": {
+          "analyze": {
+            "done": "{resource} wurden ausgewertet",
+            "error": "{resource} konnten nicht ausgewertet werden",
+            "running": "{resource} werden ausgewertet"
+          },
           "create": {
             "done": "{count, plural, one {{target} wurde erstellt} other {{target} wurden erstellt}}",
             "error": "{count, plural, one {{target} konnte nicht erstellt werden} other {{target} konnten nicht erstellt werden}}",
@@ -338,6 +352,13 @@
             "running": "Gespeicherte Ansichten werden geprüft"
           }
         },
+        "web": {
+          "search": {
+            "done": "Web wurde durchsucht",
+            "error": "Web konnte nicht durchsucht werden",
+            "running": "Web wird durchsucht"
+          }
+        },
         "webhooks": {
           "manage": {
             "done": "Webhook-Aktion abgeschlossen",
@@ -408,12 +429,12 @@
       "cancelled": "Abgebrochen",
       "reject": "Abgelehnt",
       "rejectAction": "Abbrechen",
-      "resuming": "Entscheidung gespeichert – Mate macht weiter…",
+      "resuming": "Entscheidung gespeichert. Mate macht weiter…",
       "retryResume": "Mate konnte noch nicht fortfahren. Wiederhole dieselbe Entscheidung.",
       "timeout": "Zeit abgelaufen, keine Antwort",
       "title": "Mate möchte ausführen:"
     },
-    "askAi": "KI fragen",
+    "askAi": "Mate fragen",
     "askAiWorking": "Mate arbeitet",
     "context": {
       "addAria": "Kontext hinzufügen",
@@ -449,8 +470,8 @@
       },
       "contact": "Kontakt aufnehmen",
       "planAndReset": "{plan}-Tarif · Zurücksetzung am {resetAt}",
-      "recentTurn": "{credits, plural, one {Letzte Anfrage: # Credit} other {Letzte Anfrage: # Credits}}",
-      "remaining": "{remaining, number} von {limit, number} Credits verbleibend",
+      "recentTurn": "{credits, plural, one {Letzte Anfrage: {amount} Credit} other {Letzte Anfrage: {amount} Credits}}",
+      "remaining": "{credits, plural, one {{remaining} von {limit} Credits verbleibend} other {{remaining} von {limit} Credits verbleibend}}",
       "resetShort": "Zurücksetzung am {resetAt}",
       "usage": "{pct} % der monatlichen gehosteten KI-Credits verbraucht",
       "viewPlans": "Tarife ansehen"
@@ -478,6 +499,7 @@
       "hostedAiUnavailable": "Die gehostete KI ist vorübergehend nicht verfügbar. Bitte versuche es später erneut.",
       "policyBreach": "Der KI-Anbieter hat das reservierte Credit-Budget überschritten, daher wurde der Lauf gestoppt. Es wurde keine weitere Anbieterarbeit gestartet.",
       "providerError": "Der KI-Anbieter hat einen Fehler zurückgegeben, bevor ich fertig war. Es wurde nichts weiter geändert. Bitte versuche es erneut.",
+      "sourcesHeading": "Quellen",
       "turnError": "Ich konnte diese Anfrage nicht abschließen. Bitte versuche es erneut."
     },
     "send": "Senden",
@@ -536,11 +558,11 @@
             },
             "first-contact": {
               "label": "Ersten Kontakt erstellen",
-              "prompt": "Hilf mir, meinen ersten Kontakt zu erstellen. Frage nur die nötigen Angaben ab."
+              "prompt": "Hilf mir, meinen ersten echten Kontakt aus bestätigten Fakten in meiner Wissensdatenbank, meinem Arbeitsbereich oder meinen Angaben zu erstellen. Frage nach der Person und nur nach fehlenden Pflichtangaben; erstelle keinen Beispielkontakt und keinen Kontakt aus einem Testimonial."
             },
             "setup-contacts": {
               "label": "Kontakte einrichten",
-              "prompt": "Hilf mir, eine minimale Kontaktstruktur für mein Unternehmen zu planen und anzulegen. Frage zuerst nach meinem Anwendungsfall."
+              "prompt": "Konfiguriere nützliche Kontaktfelder und Ansichten anhand meiner Wissensdatenbank und meines Arbeitsbereichs. Erstelle keine Beispielkontakte und mache aus öffentlichen Testimonials keine Kontakte. Frage nur nach fehlenden Entscheidungen."
             }
           }
         },
@@ -566,7 +588,7 @@
             },
             "setup": {
               "label": "Workspace einrichten",
-              "prompt": "Hilf mir, Customermates für mein Unternehmen einzurichten. Stelle zuerst wenige gezielte Fragen, bevor du Änderungen vorschlägst."
+              "prompt": "Konfiguriere meinen Arbeitsbereich anhand meiner Wissensdatenbank und der vorhandenen CRM-Fakten. Richte nützliche Felder, Ansichten und Einstellungen ein, ohne Beispieldatensätze anzulegen. Mache aus öffentlichen Fallstudien oder Testimonials keine Kontakte, Organisationen oder Deals und erfinde keine Preise, Budgets oder aktuellen Deal-Phasen. Frage nur nach fehlenden Entscheidungen."
             },
             "tour": {
               "label": "Plattform kennenlernen",
@@ -596,11 +618,11 @@
             },
             "first-deal": {
               "label": "Ersten Deal erstellen",
-              "prompt": "Hilf mir, meinen ersten Deal zu erstellen und passende Organisationen, Kontakte und Leistungen zu verknüpfen."
+              "prompt": "Hilf mir, meinen ersten echten Deal aus einer bestätigten Verkaufschance zu erstellen, die ich benenne. Nutze meine Wissensdatenbank und meinen Arbeitsbereich, verknüpfe nur bestätigte Organisationen, Kontakte und Leistungen und frage vor dem Anlegen nach fehlenden Pflichtangaben wie Betrag oder aktueller Phase."
             },
             "setup-pipeline": {
               "label": "Pipeline einrichten",
-              "prompt": "Hilf mir, eine minimale Vertriebspipeline zu planen, und schlage danach passende Felder und Beispiel-Deals vor."
+              "prompt": "Konfiguriere eine einfache Vertriebspipeline anhand meiner Wissensdatenbank und meines Arbeitsbereichs. Erstelle keine Beispiel-Deals und behandle öffentliche Fallstudien nicht als aktuelle Verkaufschancen. Frage nur nach fehlenden Pipeline-Entscheidungen; erfinde keine Deal-Beträge, Budgets oder aktuellen Phasen."
             }
           }
         },
@@ -630,7 +652,7 @@
             },
             "default-setup": {
               "label": "Hilf mir bei der Einrichtung",
-              "prompt": "Hilf mir, Customermates für mein Unternehmen einzurichten. Stelle mir zuerst ein paar gezielte Fragen, bevor du Änderungen vorschlägst."
+              "prompt": "Konfiguriere mein CRM anhand meiner Wissensdatenbank und der vorhandenen Fakten im Arbeitsbereich. Richte nützliche Felder, Ansichten und Einstellungen ein, ohne Beispieldatensätze anzulegen. Mache aus öffentlichen Fallstudien oder Testimonials keine Kontakte, Organisationen oder Deals und erfinde keine Preise, Budgets oder aktuellen Deal-Phasen. Frage nur nach fehlenden Entscheidungen."
             }
           }
         },
@@ -682,7 +704,7 @@
           "empty": {
             "first-organization": {
               "label": "Erste Organisation erstellen",
-              "prompt": "Hilf mir, meine erste Organisation zu erstellen und passende Personen oder Deals zu verknüpfen."
+              "prompt": "Hilf mir, meine erste echte Organisation aus bestätigten Fakten in meiner Wissensdatenbank, meinem Arbeitsbereich oder meinen Angaben zu erstellen. Frage nach der Organisation und nur nach fehlenden Pflichtangaben. Verknüpfe nur bestätigte Personen oder Deals; erfinde keine Kundenbeziehung."
             },
             "organizations-tour": {
               "label": "Organisationen kennenlernen",
@@ -690,7 +712,7 @@
             },
             "setup-organizations": {
               "label": "Organisationen einrichten",
-              "prompt": "Hilf mir, eine minimale Organisationsstruktur für mein Unternehmen zu planen und anzulegen. Frage zuerst nach meinem Anwendungsfall."
+              "prompt": "Konfiguriere nützliche Organisationsfelder und Ansichten anhand meiner Wissensdatenbank und meines Arbeitsbereichs. Erstelle keine Beispielorganisationen und behandle öffentliche Fallstudien nicht als aktuelle Geschäftsbeziehungen. Frage nur nach fehlenden Entscheidungen."
             }
           }
         },
@@ -698,7 +720,7 @@
           "data": {
             "create-routine": {
               "label": "Routine erstellen",
-              "prompt": "Hilf mir, eine Routine zu erstellen. Frage, was ich automatisieren möchte, und empfiehl dann, ob sie nach Zeitplan oder durch ein Ereignis ausgelöst werden soll."
+              "prompt": "Nutze meine Wissensdatenbank und vorhandene Routinen, um eine sinnvolle Automatisierung zu finden. Frage nur bei unklarem Auslöser oder Ablauf nach und erstelle sie dann."
             },
             "routine-health": {
               "label": "Meine Routinen prüfen",
@@ -712,7 +734,7 @@
           "empty": {
             "first-routine": {
               "label": "Meine erste Routine erstellen",
-              "prompt": "Hilf mir, meine erste Routine zu erstellen. Frage, was ich automatisieren möchte, und empfiehl dann, ob sie nach Zeitplan oder durch ein Ereignis ausgelöst werden soll."
+              "prompt": "Nutze meine Wissensdatenbank und meinen Arbeitsbereich, um eine nützliche erste Routine vorzuschlagen. Frage nur bei unklarem Auslöser oder Ablauf nach und erstelle sie dann."
             },
             "routine-ideas": {
               "label": "Nützliche Routinen vorschlagen",
@@ -742,7 +764,7 @@
           "empty": {
             "first-service": {
               "label": "Erstes Angebot erstellen",
-              "prompt": "Hilf mir, meine erste Leistung oder mein erstes Produkt mit passendem Namen und Preis zu erstellen."
+              "prompt": "Hilf mir, meine erste echte Leistung oder mein erstes echtes Produkt anhand meiner Wissensdatenbank und meines Arbeitsbereichs zu erstellen. Frage nur nach der Auswahl und fehlenden Pflichtangaben. Wenn der erforderliche Preis unbekannt ist, frage vor dem Anlegen; schätze keinen Preis und verwende keinen Platzhalter."
             },
             "services-tour": {
               "label": "Angebote kennenlernen",
@@ -750,7 +772,7 @@
             },
             "setup-services": {
               "label": "Angebot einrichten",
-              "prompt": "Hilf mir, eine minimale Auswahl an Leistungen oder Produkten für mein Unternehmen zu definieren und nach meiner Prüfung anzulegen."
+              "prompt": "Erstelle nur echte Leistungen oder Produkte, die meine Wissensdatenbank beschreibt, und vermeide Duplikate im Arbeitsbereich. Verwende bestätigte Preise. Wenn ein erforderlicher Preis oder eine andere kaufmännische Pflichtangabe unbekannt ist, frage vor dem Anlegen der Leistung; erfinde keinen Preis und verwende keinen Platzhalter."
             }
           }
         },
@@ -772,15 +794,45 @@
           "empty": {
             "first-task": {
               "label": "Erste Aufgabe erstellen",
-              "prompt": "Hilf mir, meine erste Aufgabe zu erstellen und mit den passenden Datensätzen zu verknüpfen."
+              "prompt": "Hilf mir, meine erste echte Aufgabe zu erstellen, die ich benenne, und nutze dafür meine Wissensdatenbank und meinen Arbeitsbereich. Verknüpfe nur bestätigte Datensätze und frage nur nach fehlenden Pflichtentscheidungen. Erfinde keine Aufgabe, Zuständigen oder Fälligkeiten."
             },
             "setup-tasks": {
               "label": "Workflow einrichten",
-              "prompt": "Hilf mir, einen minimalen Aufgaben-Workflow zu planen, und schlage passende Felder und erste Aufgaben vor."
+              "prompt": "Konfiguriere einen minimalen Aufgaben-Workflow mit nützlichen Feldern und Ansichten anhand meiner Wissensdatenbank und meines Arbeitsbereichs. Erstelle keine Beispielaufgaben und erfinde keine Zuständigen oder Fälligkeiten. Frage nur nach fehlenden Workflow-Entscheidungen."
             },
             "tasks-tour": {
               "label": "Aufgaben kennenlernen",
               "prompt": "Zeige mir Aufgaben und erkläre ihre Verbindung zu Kontakten, Organisationen, Deals und Leistungen."
+            }
+          }
+        },
+        "wiki": {
+          "data": {
+            "create-wiki-page": {
+              "label": "Wissensdatenbank-Seite erstellen",
+              "prompt": "Erstelle eine nützliche Seite aus überprüftem Wissen im Arbeitsbereich oder zu einer klaren Lücke. Vermeide Duplikate und frage nur nach fehlenden Fakten."
+            },
+            "wiki-gaps": {
+              "label": "Wissenslücken finden",
+              "prompt": "Prüfe unsere Wissensdatenbank und nenne die wichtigsten fehlenden, veralteten oder widersprüchlichen Informationen. Nimm keine Änderungen vor."
+            },
+            "wiki-summary": {
+              "label": "Wissensdatenbank zusammenfassen",
+              "prompt": "Fasse unsere Wissensdatenbank zusammen, einschließlich der enthaltenen Unternehmensprozesse, Produktinformationen, Supportleitlinien und Sprachrichtlinien."
+            }
+          },
+          "empty": {
+            "first-wiki-page": {
+              "label": "Aus meiner Website erstellen",
+              "prompt": "Erstelle meine Wissensdatenbank aus meiner Unternehmenswebsite."
+            },
+            "wiki-structure": {
+              "label": "Wissensdatenbank-Struktur vorschlagen",
+              "prompt": "Prüfe meine Wissensdatenbank und meinen Arbeitsbereich, erkenne fehlendes Unternehmenswissen und erstelle nützliche Seiten ohne Duplikate. Frage nur bei Bedarf nach einer Website."
+            },
+            "wiki-tour": {
+              "label": "Wissensdatenbank kennenlernen",
+              "prompt": "Erkläre, wie Mate, Routinen und verbundene KI-Tools die Wissensdatenbank verwenden, einschließlich Links und Berechtigungen. Nimm keine Änderungen vor."
             }
           }
         }
@@ -919,6 +971,7 @@
       "emails": "E-Mail-Adressen",
       "headers": "Eigene Header",
       "isNewCompany": "Erste Person im Workspace",
+      "markdown": "Markdown",
       "postalCode": "Postleitzahl",
       "prompt": "Anweisungen",
       "recipientEmail": "Gesendet an",
@@ -1039,6 +1092,7 @@
       "warning": "Gelb"
     },
     "company": "Unternehmen",
+    "creditsBelowMinimum": "<{amount}",
     "customColumnTypes": {
       "currency": "Währung",
       "date": "Datum",
@@ -1142,6 +1196,7 @@
       "agentConversationNotFound": "Diese Unterhaltung wurde nicht gefunden oder ist nicht mehr zugänglich.",
       "agentLimitReached": "Es sind nicht genügend KI-Credits übrig, um eine weitere Anfrage zu starten.",
       "agentModelUnavailable": "Dieses Assistant-Modell ist nicht verfügbar.",
+      "agentServiceUnavailable": "Die gehostete KI ist vorübergehend nicht verfügbar. Bitte versuche es später erneut.",
       "agentTurnAlreadyRunning": "Eine andere Assistenten-Anfrage wird bereits ausgeführt.",
       "apiKeyMaxExpiration": "Die Ablaufzeit des API-Schlüssels darf 365 Tage nicht überschreiten.",
       "apiKeyMinExpiration": "Die Ablaufzeit des API-Schlüssels muss mindestens 1 Tag betragen.",
@@ -1167,6 +1222,7 @@
       "customFieldInvalidSingleSelect": "Der Single-Select-Wert ist ungültig. Muss eine der erlaubten Optionen sein: {validValues}.",
       "customFieldInvalidUrl": "Der URL-Wert ist ungültig. Muss ein gültiges URL-Format haben (z.B. https://example.com). Bei mehreren URLs durch Komma trennen (z.B. https://example.com, https://example.org).",
       "dataViewAllNameImmutable": "Die Ansicht Alle kann nicht umbenannt werden. Lasse name weg und ändere nur die angeforderten Einstellungen in state. Lies vor einem erneuten Versuch config für unterstützte Einstellungen und list für den aktuellen Zustand.",
+      "dataViewLayoutReadOnly": "Spaltenreihenfolge, Spaltenbreiten und ausgeblendete Spalten lassen sich nur in der App ändern. Lasse columnOrder, columnWidths und hiddenColumns weg oder sende sie genau so, wie list sie zurückgegeben hat.",
       "dataViewNotFound": "Diese gespeicherte Ansicht wurde nicht gefunden.",
       "dataViewUpdateEmpty": "Gib einen Namen oder mindestens eine Ansichtseinstellung an, die aktualisiert werden soll.",
       "dealNotFound": "Deal-ID nicht gefunden oder nicht zugänglich.",
@@ -1215,6 +1271,9 @@
       "operatorAllowanceMissing": "Für diesen Workspace ist noch kein vertraglich vereinbartes Enterprise-Kontingent hinterlegt, daher lassen sich Credits nicht korrigieren. Hinterlege das Kontingent zuerst in der Workspace-Liste.",
       "operatorConflict": "Die Änderung wurde abgelehnt. Der Datensatz hat sich seit dem Laden der Liste möglicherweise geändert, oder der Workspace lässt sie derzeit nicht zu. Lade neu und prüfe den aktuellen Stand.",
       "operatorConnectedAccountsActive": "Dieser Workspace hat noch verbundene Messaging-Konten. Trenne sie zuerst, damit die Anbieterkonten freigegeben werden, und lösche den Workspace dann.",
+      "operatorCreditNonzero": "Gib eine Credit-Korrektur größer oder kleiner als null ein.",
+      "operatorCreditPeriodInvalid": "Der Korrekturzeitraum muss nach seinem Beginn enden.",
+      "operatorCreditPrecision": "Verwende höchstens eine Nachkommastelle für die Credit-Korrektur.",
       "operatorTrialEndRequired": "Ein Testende kann nicht entfernt, sondern nur verschoben werden. Ein Löschen würde den Arbeitsbereich in einer Testphase belassen, die nie abläuft.",
       "operatorUnavailable": "Die gewünschte Korrektur ist für die aktuelle Kontokonfiguration nicht verfügbar.",
       "organizationNotFound": "Organisations-ID nicht gefunden oder nicht zugänglich.",
@@ -1290,7 +1349,16 @@
       "widgetKindImmutable": "Der Typ eines Widgets kann nach dem Erstellen nicht geändert werden.",
       "widgetNotFound": "Widget-ID nicht gefunden oder nicht zugänglich.",
       "widgetTaskCanOnlyGroupByCustomColumn": "Aufgaben können nur nach benutzerdefinierten Spalten gruppiert werden, nicht nach Elementtypen.",
-      "widgetWeightedValueNotAllowedForService": "Gewichtete Wert-Aggregation ist für den Elementtyp Service nicht erlaubt."
+      "widgetWeightedValueNotAllowedForService": "Gewichtete Wert-Aggregation ist für den Elementtyp Service nicht erlaubt.",
+      "wikiGuideExists": "Diese Wissensdatenbank hat bereits einen Betriebsleitfaden. Aktualisiere stattdessen den vorhandenen Leitfaden.",
+      "wikiHomepageSetupStartFailed": "Mate konnte die Wissensdatenbank-Einrichtung nicht starten. Bitte versuche es erneut.",
+      "wikiNotEmpty": "Diese Aktion erfordert eine leere Wissensdatenbank.",
+      "wikiPageConflict": "Diese Wissensdatenbank-Seite wurde geändert, nachdem du sie geöffnet hast. Lade sie neu und versuche es erneut.",
+      "wikiPageNotFound": "Wissensdatenbank-Seite nicht gefunden oder nicht zugänglich.",
+      "wikiPagePinned": "Der Betriebsleitfaden bleibt an erster Stelle. Verschiebe eine andere Seite.",
+      "wikiPageUpdateEmpty": "Gib mindestens ein Feld an, um die Seite zu aktualisieren.",
+      "wikiProcedureNeedsSteps": "Ein Verfahren braucht nummerierte Schritte.",
+      "wikiWhenToUseRequired": "Ein Verfahren braucht eine kurze Beschreibung, wann es gilt."
     },
     "events": {
       "company": {
@@ -1383,6 +1451,11 @@
         "created": "Webhook erstellt",
         "deleted": "Webhook gelöscht",
         "updated": "Webhook aktualisiert"
+      },
+      "wiki_page": {
+        "created": "Wissensdatenbank-Seite erstellt",
+        "deleted": "Wissensdatenbank-Seite gelöscht",
+        "updated": "Wissensdatenbank-Seite aktualisiert"
       }
     },
     "filters": {
@@ -2210,6 +2283,7 @@
     "formatting": "Formatierung",
     "heading1": "Überschrift 1",
     "heading2": "Überschrift 2",
+    "heading3": "Überschrift 3",
     "image": "Bild",
     "imageUrlPrompt": "Bild-URL eingeben",
     "italic": "Kursiv",
@@ -2855,6 +2929,7 @@
     "search": "Suchen",
     "settings": "Einstellungen",
     "subscription": "Abonnement",
+    "wiki": "Wissensdatenbank",
     "workspace": "Workspace"
   },
   "NotFoundPage": {
@@ -2896,8 +2971,7 @@
         "codex": "Codex",
         "cursor": "Cursor",
         "gemini": "Gemini",
-        "openai": "ChatGPT & Codex",
-        "skip": "Später einrichten"
+        "openai": "ChatGPT & Codex"
       },
       "connector": {
         "chatgptDescription": "Füge Customermates in der ChatGPT-Desktop-App als Streamable-HTTP-MCP-Server hinzu. Die Anmeldung erfolgt über OAuth.",
@@ -2980,10 +3054,6 @@
         "setup": {
           "apiKeySubtitle": "Erstelle einen API-Key und folge dann der Anleitung für {provider}.",
           "title": "{provider} verbinden"
-        },
-        "skip": {
-          "subtitle": "Du kannst das Onboarding jetzt abschließen und später in deinem Profil eine KI verbinden.",
-          "title": "KI später einrichten"
         }
       }
     },
@@ -3003,23 +3073,36 @@
         "link": "Link teilen"
       }
     },
+    "milestones": {
+      "ai": "KI-Tools",
+      "invite": "Team",
+      "profile": "Du",
+      "wiki": "Wissen"
+    },
     "next": "Weiter",
     "progress": "Schritt {current} von {total}",
     "progressLabel": "Fortschritt der Einrichtung",
     "steps": {
       "ai": {
-        "subtitle": "Wähle eine KI aus, die du jetzt verbinden möchtest. Weitere kannst du später hinzufügen.",
-        "title": "KI verbinden"
+        "subtitle": "Wähle ein KI-Tool und verbinde es mit deinem Arbeitsbereich und eurem Unternehmenswissen. Verbinde jetzt eines, ergänze später weitere oder überspringe diesen Schritt.",
+        "title": "Verbinde die KI, die du schon nutzt"
       },
       "invite": {
-        "subtitle": "Teile einen Link oder verschicke E-Mail-Einladungen.",
-        "title": "Team einladen"
+        "subtitle": "Lade andere über einen gemeinsamen Link oder einzelne E-Mails ein. Du kannst auch allein weitermachen und dein Team später einladen.",
+        "title": "Hol dein Team dazu"
       },
       "profile": {
-        "invitedSubtitle": "Vervollständige dein Profil, um Zugang zum eingeladenen Workspace anzufordern.",
-        "subtitle": "Erzähle uns, wer du bist, damit wir deinen Workspace einrichten können.",
-        "title": "Dein Profil"
+        "invitedSubtitle": "Vervollständige dein Profil, um Zugang zum Arbeitsbereich anzufragen, zu dem du eingeladen wurdest.",
+        "subtitle": "Ergänze deinen Namen und dein Land, damit dein Team dich erkennt. Diese Angaben gehören zu deinem Profil und lassen sich später ändern.",
+        "title": "Mach diesen Arbeitsbereich zu deinem"
+      },
+      "wiki": {
+        "subtitle": "Starte mit eurer Unternehmenswebsite. Mate erstellt aus überprüfbaren Informationen gemeinsame, bearbeitbare Seiten in der Wissensdatenbank – mit Quellen und offenen Fragen zur Prüfung.",
+        "title": "Gib Mate dein Unternehmenswissen"
       }
+    },
+    "wiki": {
+      "skip": "Nicht jetzt"
     }
   },
   "OperatorAudit": {
@@ -3115,7 +3198,7 @@
   "OperatorUsers": {
     "adjustment": {
       "deltaLabel": "Vorzeichenbehaftete Credit-Korrektur",
-      "deltaPlaceholder": "Zum Beispiel 500 oder -100",
+      "deltaPlaceholder": "Zum Beispiel 500, 2,5 oder -100",
       "expiresAt": "Diese Korrektur gilt nur für die aktuelle Periode und verfällt am {date}."
     },
     "confirm": {
@@ -3140,7 +3223,7 @@
     "emptyTitle": "Keine Benutzer passen zu diesen Filtern",
     "modal": {
       "access": "Zugriff",
-      "adjustmentConfirm": "Korrektur von {value} Credits für {name} anwenden?",
+      "adjustmentConfirm": "{credits, plural, one {Korrektur von {amount} Credit für {name} anwenden?} other {Korrektur von {amount} Credits für {name} anwenden?}}",
       "identity": "{person} · {email}"
     },
     "navigation": "Benutzer",
@@ -3258,6 +3341,9 @@
     "resetPasswordCta": "Zurücksetzen",
     "title": "Passwort zurücksetzen"
   },
+  "ResizablePanels": {
+    "resize": "Größe von {before} und {after} ändern. Ziehen oder Pfeiltasten verwenden; durch Doppeltippen oder die Eingabetaste zurücksetzen."
+  },
   "RoleModal": {
     "manageAccess": "Verwalten",
     "no": "Nein",
@@ -3278,7 +3364,8 @@
       "routines": "Routinen",
       "services": "Services",
       "tasks": "Aufgaben",
-      "users": "Benutzer & Rollen"
+      "users": "Benutzer & Rollen",
+      "wiki": "Wissensdatenbank"
     },
     "systemAlert": "Dies ist eine System-Rolle und kann nicht bearbeitet oder gelöscht werden.",
     "systemDescription": "Voller Zugriff auf alle Funktionen und Einstellungen. Kann nicht geändert oder gelöscht werden.",
@@ -3505,7 +3592,7 @@
     "manageWithLemonSqueezy": "Verwalten mit Lemon Squeezy",
     "picker": {
       "connectedAccountsPerUser": "{accounts, plural, one {# verbundenes Konto pro Nutzer} other {# verbundene Konten pro Nutzer}}",
-      "creditNote": "Credits für den gehosteten KI-Assistenten werden monatlich erneuert; nicht genutzte Credits werden nicht übertragen. Externe MCP-Clients nutzen deinen eigenen KI-Anbieter und verbrauchen diese Credits nicht.",
+      "creditNote": "Credits für den gehosteten KI-Assistenten werden monatlich erneuert; nicht genutzte Credits werden nicht übertragen. Jede Anfrage wird mit ihren genauen Anbieterkosten berechnet und auf eine Nachkommastelle angezeigt. Externe MCP-Clients rechnen die Modellnutzung über deinen eigenen KI-Anbieter ab. Serverseitige semantische Suchen können gehostete KI-Credits verbrauchen.",
       "features": {
         "business": ["Alles aus Pro", "Geteilte Konten und priorisierter Support"],
         "pro": ["Alles aus Starter", "Einheitlicher Posteingang"],
@@ -3677,5 +3764,114 @@
     "emptyBody": "Füge einen Webhook hinzu, um Workspace-Ereignisse an deine Systeme zu senden.",
     "emptyTitle": "Noch keine Webhooks",
     "title": "Webhooks"
+  },
+  "Wiki": {
+    "conflict": "Diese Seite wurde geändert. Deine Änderungen sind noch vorhanden. Lade die neueste Version, um fortzufahren.",
+    "copyLink": "Seitenlink kopieren",
+    "delete": "Seite löschen",
+    "document": "Dokument",
+    "emptyBody": "Gib Mate und verbundenen KI-Tools das Unternehmenswissen, die Prozesse und Leitlinien, die sie benötigen.",
+    "emptyBodyReadOnly": "Es wurden noch keine Wissensdatenbank-Seiten erstellt.",
+    "emptyTitle": "Deine Wissensdatenbank ist leer",
+    "kind": {
+      "guide": "Betriebsleitfaden",
+      "guideDescription": "Gemeinsame Regeln und Tonalität für jede Anfrage. Einer pro Workspace.",
+      "guideExists": "Ein Betriebsleitfaden ist bereits vorhanden. Bearbeite ihn, um die gemeinsamen Regeln zu ändern.",
+      "guideHelp": "Der Betriebsleitfaden legt fest, wie Mate und verbundene KI-Tools arbeiten sollen: Tonalität, Regeln und Grenzen. Setze die wichtigsten Regeln an den Anfang; Mate liest diesen Teil bei jeder Anfrage. Einer pro Workspace.",
+      "knowledge": "Wissen",
+      "knowledgeDescription": "Unternehmensfakten und Informationen zum Nachschlagen.",
+      "knowledgeHelp": "Für Unternehmensfakten, Produkte, Dienstleistungen oder häufige Fragen. Mate und verbundene KI-Tools finden diese Seiten, wenn sie für eine Frage relevant sind.",
+      "label": "Seitentyp",
+      "procedure": "Verfahren",
+      "procedureDescription": "Schritte für wiederkehrende Aufgaben bei passenden Anfragen.",
+      "procedureHelp": "Für wiederkehrende Aufgaben wie das Onboarding eines Kunden. Schreibe nummerierte Schritte und beschreibe unter „Wann verwenden“ die passende Anfrage. Mate und verbundene KI-Tools folgen den Schritten, wenn diese Anfrage auftritt."
+    },
+    "linkPage": "Wissensdatenbank-Seite verlinken…",
+    "loadFailed": "Die Seiten konnten nicht geladen werden.",
+    "newPage": "Neue Seite",
+    "next": "Weiter",
+    "noResults": "Keine passenden Seiten.",
+    "onThisPage": "Auf dieser Seite",
+    "page": "Seite {current} von {total}",
+    "pageActions": "Seitenaktionen",
+    "pagesLabel": "Wissensdatenbank-Seiten",
+    "pageTitle": "Seitentitel",
+    "previous": "Zurück",
+    "reload": "Seite neu laden",
+    "search": "Seiten suchen…",
+    "unavailableBody": "Diese Seite wurde gelöscht oder du hast keinen Zugriff. Wähle eine andere Seite.",
+    "unavailableTitle": "Seite nicht verfügbar",
+    "untitled": "Unbenannte Seite",
+    "websiteImport": {
+      "faqHeading": "Häufig gestellte Fragen",
+      "source": "Quelle: {url} · abgerufen am {date}"
+    },
+    "whenToUse": {
+      "label": "Wann verwenden",
+      "placeholder": "Verwenden, wenn eine Kundin eine Erstattung oder die Kündigung eines bezahlten Plans möchte."
+    }
+  },
+  "WikiSetup": {
+    "continue": "Weiter",
+    "continueBackground": "Weiter, während Mate arbeitet",
+    "crawlProgress": {
+      "created": "Erstellt",
+      "discovering": "Website-Seiten werden gesucht",
+      "failed": "Übersprungen",
+      "found": "{count} Seiten gefunden",
+      "pending": "Wartet",
+      "read": "Gelesen",
+      "reading": "Wird gelesen",
+      "readingCount": "Seiten lesen · {fetched}/{total}",
+      "skipped": {
+        "credits": "Keine KI-Credits mehr",
+        "error": "Nicht geschrieben",
+        "evidence": "Zu wenig Belege in den Quellen",
+        "generation": "Nicht geschrieben",
+        "persistence": "Konnte nicht gespeichert werden",
+        "review": "Nicht durch die Quellen gedeckt",
+        "reviewUnavailable": "Prüfung nicht verfügbar"
+      },
+      "steps": "3 Schritte",
+      "title": "Fortschritt des Website-Imports",
+      "writing": "Wird geschrieben",
+      "writingCount": "Seiten schreiben · {created}/{total}",
+      "writingStep": "Wissensdatenbank-Seiten schreiben"
+    },
+    "generated": {
+      "gapsHeading": "Noch zu klären",
+      "pagesHeading": "Seiten der Wissensdatenbank",
+      "roles": {
+        "company_overview": "Unternehmensüberblick",
+        "customers_and_use_cases": "Kunden und Anwendungsfälle",
+        "operating_guide": "Betriebsleitfaden",
+        "sales_messaging": "Verkaufsargumente und FAQ",
+        "voice_and_tone": "Sprache und Tonalität"
+      },
+      "sourcesHeading": "Quellen"
+    },
+    "homepageLabel": "Unternehmenswebsite",
+    "homepagePlaceholder": "https://beispiel.de",
+    "languageDescription": "Standardmäßig wird die Browsersprache verwendet. Wenn Wissensdatenbank-Seiten vorhanden sind, bestimmt deren Sprache die Auswahl.",
+    "languageLabel": "Wissensdatenbank-Sprache",
+    "start": "Wissensdatenbank erstellen",
+    "status": {
+      "completedBodyOnboarding": "Mate hat deine Startseiten mit belegten Website-Fakten erstellt. Du kannst sie später in der Wissensdatenbank prüfen und alles bestätigen, was als noch zu klären markiert ist.",
+      "completedExistingBody": "Deine Wissensdatenbank enthält bereits Seiten. Fahre mit dem Onboarding fort oder prüfe die vorhandenen Inhalte.",
+      "completedTitle": "Deine erste Wissensdatenbank ist bereit",
+      "failedBody": "Die Einrichtung wurde beendet, bevor alle Seiten fertig waren. Bereits erstellte Seiten bleiben erhalten. Du kannst fortfahren und sie in der Wissensdatenbank prüfen.",
+      "failedBodyBlocked": "{domain} erlaubt in der robots.txt kein automatisches Lesen, daher wurde nichts importiert. Du kannst Seiten stattdessen selbst anlegen.",
+      "failedBodySynthesis": "Die Website wurde gelesen, aber Mate konnte die Seiten nicht schreiben. Versuche es erneut. Bereits erstellte Seiten bleiben verfügbar.",
+      "failedBodyUnavailable": "Mate konnte {domain} nicht lesen. Prüfe die Adresse oder fahre fort und lege Seiten später an.",
+      "failedTitle": "Einrichtung nicht abgeschlossen",
+      "noContentBody": "Mate hat keine verwertbaren Informationen für Wissensdatenbank-Seiten gefunden. Du kannst eine andere Website versuchen oder fortfahren und später Seiten hinzufügen.",
+      "noContentTitle": "Es wurden keine Wissensdatenbank-Seiten erstellt",
+      "readingBody": "Mate hat {fetched} von {total} Seiten auf {domain} gelesen.",
+      "workingBody": "Mate liest {domain} und überträgt Informationen aus diesen Quellen in deine Wissensdatenbank. Du kannst mit dem nächsten Schritt fortfahren, während Mate arbeitet.",
+      "workingBodyWiki": "Mate liest {domain} und erstellt die Wissensdatenbank. Du kannst später zurückkehren, um die fertigen Seiten zu sehen.",
+      "workingTitle": "Mate lernt dein Unternehmen kennen"
+    },
+    "tryAnother": "Andere Website versuchen",
+    "unavailable": "Die Einrichtung mit Mate ist derzeit nicht verfügbar. Du kannst später in der Wissensdatenbank Seiten erstellen."
   }
 }

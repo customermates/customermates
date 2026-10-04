@@ -60,6 +60,7 @@ describeDatabase("agent assistant migration", { timeout: 120_000 }, () => {
       );
 
       expect(checks.rows.map((row) => row.conname)).toEqual([
+        "AgentConversation_credit_ceiling_microcents_valid",
         "AgentCreditAdjustment_actor_id_valid",
         "AgentCreditAdjustment_delta_bounded_nonzero",
         "AgentCreditAdjustment_operation_id_valid",
@@ -72,6 +73,7 @@ describeDatabase("agent assistant migration", { timeout: 120_000 }, () => {
         "AgentUsageEvent_released_state_uncharged",
         "AgentUsageEvent_reserved_state_unsettled",
         "AgentUsageEvent_terminal_state_settled",
+        "AgentUsageEvent_user_or_workspace_charge",
       ]);
     });
   });
@@ -83,7 +85,7 @@ describeDatabase("agent assistant migration", { timeout: 120_000 }, () => {
       const insert = (values: string) =>
         client.query(
           `INSERT INTO "AgentUsageEvent"
-             ("id","companyId","userId","reservedCredits","chargedCredits","allowanceCreditsSnapshot",
+             ("id","companyId","userId","reservedMicrocents","chargedMicrocents","allowanceMicrocentsSnapshot",
               "planSnapshot","subscriptionStatusSnapshot","periodStart","periodEnd","state","settledAt")
            VALUES (${values})`,
         );
@@ -193,6 +195,7 @@ describeDatabase("agent assistant migration", { timeout: 120_000 }, () => {
       expect(costColumns.rows).toEqual([
         { table_name: "AgentRunRound", data_type: "bigint" },
         { table_name: "AgentUsageEvent", data_type: "bigint" },
+        { table_name: "HostedAiPlatformUsage", data_type: "bigint" },
       ]);
     });
   });

@@ -1,8 +1,7 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
-import type { MessagingAttendee, MessagingMessage, MessagingThread } from "../messaging.schema";
+import type { MessagingAttendee, MessagingThread } from "../messaging.schema";
 import type { MessagingMessageDto } from "../inbox/inbox.schema";
-import type { MessagingProvider } from "@/generated/prisma";
 import type { FindUsableAccountRepo } from "../persistence/find-usable-account.repo";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
@@ -22,6 +21,7 @@ import { renderEmailMarkdown } from "./render-signature";
 import { draftThreadRecipientSetsMatch, normalizeDraftThreadRecipients } from "../draft-thread";
 import { MessagingMessageDtoSchema, toMessagingMessageDto } from "../inbox/inbox.schema";
 import { EMPTY_ATTENDEE } from "../unipile.mappers";
+import type { SaveDraftRepo } from "./save-draft.repo";
 
 const DraftRecipientsSchema = z.array(z.string().min(1)).max(100).describe("Recipients to preserve with the draft");
 
@@ -84,32 +84,6 @@ export const SaveDraftSchema = BaseSaveDraftSchema.superRefine((d, ctx) => {
   }
 });
 export type SaveDraftData = Data<typeof SaveDraftSchema>;
-
-export abstract class SaveDraftRepo {
-  abstract findThreadByIdOrThrow(threadId: string): Promise<MessagingThread>;
-  abstract findOrCreateDraftThread(args: {
-    connectedAccountId: string;
-    provider: MessagingProvider;
-    recipients: string[];
-    cc?: string[];
-    bcc?: string[];
-  }): Promise<MessagingThread>;
-  abstract findSelfAttendeeForThread(threadId: string): Promise<MessagingAttendee | null>;
-  abstract upsertThreadDraftOrThrow(args: {
-    threadId: string;
-    connectedAccountId: string;
-    provider: MessagingProvider;
-    sender: MessagingAttendee;
-    subject: string | null;
-    bodyText: string;
-    bodyHtml?: string | null;
-    recipients: {
-      to: MessagingAttendee[];
-      cc: MessagingAttendee[];
-      bcc: MessagingAttendee[];
-    };
-  }): Promise<MessagingMessage>;
-}
 
 type UsableAccount = Awaited<ReturnType<FindUsableAccountRepo["findUsableAccountByIdOrThrow"]>>;
 

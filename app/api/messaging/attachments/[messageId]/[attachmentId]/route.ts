@@ -10,9 +10,9 @@ import {
   getUnipileStatus,
   isUnipileRateLimit,
   isUnipileResourceNotFound,
-  UnipileRequestError,
   unipileErrorCode,
 } from "@/ee/messaging/messaging.service";
+import { UnipileRequestError } from "@/ee/messaging/unipile-request-error";
 
 export async function GET(
   _req: NextRequest,

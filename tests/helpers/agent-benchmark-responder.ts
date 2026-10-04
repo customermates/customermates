@@ -1,3 +1,4 @@
+import { prismaAgentChatRepoDependencies } from "@/tests/helpers/prisma-agent-chat-repo";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import {
   getCancelAgentTurnInteractor,
@@ -34,7 +35,7 @@ export function expireAgentRunLeaseAs(
 ) {
   const user = createMockUser({ companyId: actor.companyId, id: actor.userId });
   return runWithTenant(user, () =>
-    new PrismaAgentChatRepo().normalizeExpiredAgentRunLease(
+    new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).normalizeExpiredAgentRunLease(
       new Date(Date.now() + AGENT_RUN_LEASE_MS * 2),
       modelId,
     ),

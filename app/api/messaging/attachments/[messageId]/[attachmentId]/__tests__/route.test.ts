@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { describe, expect, it, vi } from "vitest";
 
-import { UnipileRequestError } from "@/ee/messaging/messaging.service";
+import { UnipileRequestError } from "@/ee/messaging/unipile-request-error";
 
 const attachment = vi.hoisted(() => ({ invoke: vi.fn() }));
 

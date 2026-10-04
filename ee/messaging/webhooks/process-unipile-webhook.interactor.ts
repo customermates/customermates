@@ -9,12 +9,8 @@ import type { UnipileWebhookEnvelope } from "../unipile.schema";
 
 import { UnipileWebhookEnvelopeSchema } from "../unipile.schema";
 import { DeferredWebhookError, UnmappableWebhookPayloadError } from "@/core/errors/app-errors";
-import {
-  isUnipileDisconnectedAccount,
-  isUnipileProviderUnprocessable,
-  isUnipileTimeout,
-  UnipileRequestError,
-} from "../messaging.service";
+import { isUnipileDisconnectedAccount, isUnipileProviderUnprocessable, isUnipileTimeout } from "../messaging.service";
+import { UnipileRequestError } from "../unipile-request-error";
 
 export type UnipileWebhookHandlerMap = Partial<
   Record<string, { invoke(envelope: UnipileWebhookEnvelope): Promise<void> }>

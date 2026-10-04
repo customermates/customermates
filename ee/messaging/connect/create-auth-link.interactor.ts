@@ -1,6 +1,5 @@
 import type { MessagingService } from "../messaging.service";
 import type { Redirect } from "@/features/auth/auth-outcome";
-import type { SubscriptionStatus } from "@/generated/prisma";
 import type { EntitlementService, EntitlementDenialCode } from "@/ee/subscription/entitlement.service";
 
 import { headers } from "next/headers";
@@ -21,9 +20,12 @@ import { env } from "@/env";
 
 import { fail } from "@/core/validation/interactor-failure-server";
 import { retryAfterPhrase } from "../retry-after.server";
-import { UnipileRequestError, unipileErrorCode } from "../messaging.service";
+import { unipileErrorCode } from "../messaging.service";
+import { UnipileRequestError } from "../unipile-request-error";
 import { signHostedAuthState } from "../webhook-signature";
 import { CONNECT_CHANNELS, CONNECT_CHANNEL_KEYS } from "./connect-channels";
+import type { CreateHostedAuthLinkRepo } from "./create-hosted-auth-link.repo";
+import type { CreateAuthLinkSubscriptionRepo } from "./create-auth-link-subscription.repo";
 
 const HOSTED_AUTH_EXPIRY_MINUTES = 30;
 
@@ -34,18 +36,6 @@ type ConnectDenialCode = "upgradeToBusinessForMoreAccounts" | "accountLimitReach
 
 type Denial = { key: `ConnectedAccountsCard.${ConnectDenialCode}`; code: ConnectDenialCode };
 type CreateAuthLinkFailure = { ok: false; error: z.ZodError; code?: ConnectDenialCode | EntitlementDenialCode };
-
-export abstract class CreateHostedAuthLinkRepo {
-  abstract countActiveAccountsForUser(): Promise<number>;
-}
-
-export abstract class CreateAuthLinkSubscriptionRepo {
-  abstract getSubscriptionOrThrow(): Promise<{
-    status: SubscriptionStatus;
-    trialEndDate: Date | null;
-    plan: SubscriptionPlan;
-  }>;
-}
 
 @TenantInteractor({ resource: Resource.inboxMessages, action: Action.create })
 export class CreateAuthLinkInteractor extends UserAccessor {

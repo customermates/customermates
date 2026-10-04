@@ -1,4 +1,3 @@
-import type { ConnectedAccountStatus } from "@/generated/prisma";
 import type { Validated } from "@/core/validation/validation.utils";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { PrepareBackfillInteractor } from "../ingest/backfill/prepare-backfill.interactor";
@@ -17,6 +16,7 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
 import { getRetryAfterSeconds, isUnipileRateLimit } from "../messaging.service";
 import { accountNeedsReconnect } from "../account-health";
+import type { RefreshInboxRepo } from "./refresh-inbox.repo";
 
 export const RefreshInboxResultSchema = z.object({
   rateLimited: z.boolean(),
@@ -25,14 +25,6 @@ export const RefreshInboxResultSchema = z.object({
   failedAccounts: z.number().int(),
 });
 export type RefreshInboxResult = z.infer<typeof RefreshInboxResultSchema>;
-
-export abstract class RefreshInboxRepo {
-  abstract listAccountsForRefresh(): Promise<
-    { id: string; userId: string; unipileAccountId: string; status: ConnectedAccountStatus }[]
-  >;
-  abstract claimBackfillUnscoped(unipileAccountId: string): Promise<string | null>;
-  abstract releaseBackfillClaimUnscoped(unipileAccountId: string, token: string, complete: boolean): Promise<void>;
-}
 
 @TenantInteractor({ resource: Resource.inboxMessages, action: Action.update })
 export class RefreshInboxInteractor extends AuthenticatedInteractor<void, RefreshInboxResult> {

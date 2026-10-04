@@ -27,6 +27,8 @@ Jeder Datensatz hat `id`, `createdAt`, `updatedAt` und unterstützt Markdown-`no
 
 Beziehungen sind typisiert und many-to-many: Ein Kontakt kann zu mehreren Organisationen gehören, und ein Deal kann mehrere Services mit Mengen tragen. Ein Kontakt gehört zu null oder mehr Organisationen, Deals und Nutzern. Ein Deal gehört zu null oder mehr Kontakten, Organisationen und Services (mit Mengen), plus zugewiesenen Nutzern.
 
+Datensätze verknüpfen sich mit anderen Datensätzen über beschriftete Relations-Felder im Formular. Wählen Sie die Datensätze, dann speichern Sie. Über MCP fügt `manage_record_links` einzelne Verknüpfungen hinzu, entfernt sie oder ersetzt die Verknüpfungen einer Beziehung in einem Aufruf.
+
 | Von zu | Beispiel |
 |---|---|
 | Kontakt zu Organisation | "Max arbeitet bei Initech" |

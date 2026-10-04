@@ -56,12 +56,13 @@ const exhaustiveResourceOwners = [
   ["app/[locale]/(protected)/profile/components/connected-accounts-page-view.tsx", "switch (pageState)"],
   ["app/[locale]/(protected)/inbox/components/inbox-list.tsx", "switch (pageState)"],
   ["app/[locale]/(protected)/inbox/components/thread-panel.tsx", "switch (pageState.status)"],
+  ["app/[locale]/(protected)/wiki/components/wiki-page-view.tsx", "switch (pageState)"],
   ["components/entity-detail/entity-drawer.tsx", "switch (drawerState)"],
 ] as const;
 
 describe("page-state ownership", () => {
   it("gives every protected product route a direct feature or family loader", () => {
-    expect(protectedLoaders).toHaveLength(32);
+    expect(protectedLoaders).toHaveLength(33);
     for (const path of protectedLoaders) {
       expect(existsSync(resolve(root, path)), path).toBe(true);
       expect(existsSync(resolve(root, dirname(path), "page.tsx")), `${path}:page`).toBe(true);

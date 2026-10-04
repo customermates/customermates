@@ -1375,10 +1375,17 @@
                               "type": "string"
                             },
                             "operator": {
-                              "type": "string",
-                              "enum": [
-                                "inLastDays",
-                                "notInLastDays"
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "inLastDays",
+                                  "title": "inLastDays"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "notInLastDays",
+                                  "title": "notInLastDays"
+                                }
                               ]
                             },
                             "value": {
@@ -1391,7 +1398,8 @@
                             "field",
                             "operator",
                             "value"
-                          ]
+                          ],
+                          "title": "Relative window filter"
                         }
                       ],
                       "type": "object"
@@ -2433,10 +2441,17 @@
                                 "type": "string"
                               },
                               "operator": {
-                                "type": "string",
-                                "enum": [
-                                  "inLastDays",
-                                  "notInLastDays"
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "const": "inLastDays",
+                                    "title": "inLastDays"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "notInLastDays",
+                                    "title": "notInLastDays"
+                                  }
                                 ]
                               },
                               "value": {
@@ -2450,7 +2465,8 @@
                               "operator",
                               "value"
                             ],
-                            "additionalProperties": false
+                            "additionalProperties": false,
+                            "title": "Relative window filter"
                           }
                         ],
                         "type": "object"
@@ -6750,10 +6766,17 @@
                               "type": "string"
                             },
                             "operator": {
-                              "type": "string",
-                              "enum": [
-                                "inLastDays",
-                                "notInLastDays"
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "inLastDays",
+                                  "title": "inLastDays"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "notInLastDays",
+                                  "title": "notInLastDays"
+                                }
                               ]
                             },
                             "value": {
@@ -6766,7 +6789,8 @@
                             "field",
                             "operator",
                             "value"
-                          ]
+                          ],
+                          "title": "Relative window filter"
                         }
                       ],
                       "type": "object"
@@ -7808,10 +7832,17 @@
                                 "type": "string"
                               },
                               "operator": {
-                                "type": "string",
-                                "enum": [
-                                  "inLastDays",
-                                  "notInLastDays"
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "const": "inLastDays",
+                                    "title": "inLastDays"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "notInLastDays",
+                                    "title": "notInLastDays"
+                                  }
                                 ]
                               },
                               "value": {
@@ -7825,7 +7856,8 @@
                               "operator",
                               "value"
                             ],
-                            "additionalProperties": false
+                            "additionalProperties": false,
+                            "title": "Relative window filter"
                           }
                         ],
                         "type": "object"
@@ -12003,10 +12035,17 @@
                               "type": "string"
                             },
                             "operator": {
-                              "type": "string",
-                              "enum": [
-                                "inLastDays",
-                                "notInLastDays"
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "inLastDays",
+                                  "title": "inLastDays"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "notInLastDays",
+                                  "title": "notInLastDays"
+                                }
                               ]
                             },
                             "value": {
@@ -12019,7 +12058,8 @@
                             "field",
                             "operator",
                             "value"
-                          ]
+                          ],
+                          "title": "Relative window filter"
                         }
                       ],
                       "type": "object"
@@ -13061,10 +13101,17 @@
                                 "type": "string"
                               },
                               "operator": {
-                                "type": "string",
-                                "enum": [
-                                  "inLastDays",
-                                  "notInLastDays"
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "const": "inLastDays",
+                                    "title": "inLastDays"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "notInLastDays",
+                                    "title": "notInLastDays"
+                                  }
                                 ]
                               },
                               "value": {
@@ -13078,7 +13125,8 @@
                               "operator",
                               "value"
                             ],
-                            "additionalProperties": false
+                            "additionalProperties": false,
+                            "title": "Relative window filter"
                           }
                         ],
                         "type": "object"
@@ -17185,10 +17233,17 @@
                               "type": "string"
                             },
                             "operator": {
-                              "type": "string",
-                              "enum": [
-                                "inLastDays",
-                                "notInLastDays"
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "inLastDays",
+                                  "title": "inLastDays"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "notInLastDays",
+                                  "title": "notInLastDays"
+                                }
                               ]
                             },
                             "value": {
@@ -17201,7 +17256,8 @@
                             "field",
                             "operator",
                             "value"
-                          ]
+                          ],
+                          "title": "Relative window filter"
                         }
                       ],
                       "type": "object"
@@ -18243,10 +18299,17 @@
                                 "type": "string"
                               },
                               "operator": {
-                                "type": "string",
-                                "enum": [
-                                  "inLastDays",
-                                  "notInLastDays"
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "const": "inLastDays",
+                                    "title": "inLastDays"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "notInLastDays",
+                                    "title": "notInLastDays"
+                                  }
                                 ]
                               },
                               "value": {
@@ -18260,7 +18323,8 @@
                               "operator",
                               "value"
                             ],
-                            "additionalProperties": false
+                            "additionalProperties": false,
+                            "title": "Relative window filter"
                           }
                         ],
                         "type": "object"
@@ -22259,10 +22323,17 @@
                               "type": "string"
                             },
                             "operator": {
-                              "type": "string",
-                              "enum": [
-                                "inLastDays",
-                                "notInLastDays"
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "inLastDays",
+                                  "title": "inLastDays"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "notInLastDays",
+                                  "title": "notInLastDays"
+                                }
                               ]
                             },
                             "value": {
@@ -22275,7 +22346,8 @@
                             "field",
                             "operator",
                             "value"
-                          ]
+                          ],
+                          "title": "Relative window filter"
                         }
                       ],
                       "type": "object"
@@ -23317,10 +23389,17 @@
                                 "type": "string"
                               },
                               "operator": {
-                                "type": "string",
-                                "enum": [
-                                  "inLastDays",
-                                  "notInLastDays"
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "const": "inLastDays",
+                                    "title": "inLastDays"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "notInLastDays",
+                                    "title": "notInLastDays"
+                                  }
                                 ]
                               },
                               "value": {
@@ -23334,7 +23413,8 @@
                               "operator",
                               "value"
                             ],
-                            "additionalProperties": false
+                            "additionalProperties": false,
+                            "title": "Relative window filter"
                           }
                         ],
                         "type": "object"
@@ -26522,10 +26602,17 @@
                               "type": "string"
                             },
                             "operator": {
-                              "type": "string",
-                              "enum": [
-                                "inLastDays",
-                                "notInLastDays"
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "inLastDays",
+                                  "title": "inLastDays"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "notInLastDays",
+                                  "title": "notInLastDays"
+                                }
                               ]
                             },
                             "value": {
@@ -26538,7 +26625,8 @@
                             "field",
                             "operator",
                             "value"
-                          ]
+                          ],
+                          "title": "Relative window filter"
                         }
                       ],
                       "type": "object"
@@ -27954,10 +28042,17 @@
                               "type": "string"
                             },
                             "operator": {
-                              "type": "string",
-                              "enum": [
-                                "inLastDays",
-                                "notInLastDays"
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "inLastDays",
+                                  "title": "inLastDays"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "notInLastDays",
+                                  "title": "notInLastDays"
+                                }
                               ]
                             },
                             "value": {
@@ -27970,7 +28065,8 @@
                             "field",
                             "operator",
                             "value"
-                          ]
+                          ],
+                          "title": "Relative window filter"
                         }
                       ],
                       "type": "object"
@@ -29553,10 +29649,17 @@
                               "type": "string"
                             },
                             "operator": {
-                              "type": "string",
-                              "enum": [
-                                "inLastDays",
-                                "notInLastDays"
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "inLastDays",
+                                  "title": "inLastDays"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "notInLastDays",
+                                  "title": "notInLastDays"
+                                }
                               ]
                             },
                             "value": {
@@ -29569,7 +29672,8 @@
                             "field",
                             "operator",
                             "value"
-                          ]
+                          ],
+                          "title": "Relative window filter"
                         }
                       ],
                       "type": "object"
@@ -30611,10 +30715,17 @@
                                 "type": "string"
                               },
                               "operator": {
-                                "type": "string",
-                                "enum": [
-                                  "inLastDays",
-                                  "notInLastDays"
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "const": "inLastDays",
+                                    "title": "inLastDays"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "notInLastDays",
+                                    "title": "notInLastDays"
+                                  }
                                 ]
                               },
                               "value": {
@@ -30628,7 +30739,8 @@
                               "operator",
                               "value"
                             ],
-                            "additionalProperties": false
+                            "additionalProperties": false,
+                            "title": "Relative window filter"
                           }
                         ],
                         "type": "object"
@@ -31270,10 +31382,17 @@
                               "type": "string"
                             },
                             "operator": {
-                              "type": "string",
-                              "enum": [
-                                "inLastDays",
-                                "notInLastDays"
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "inLastDays",
+                                  "title": "inLastDays"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "notInLastDays",
+                                  "title": "notInLastDays"
+                                }
                               ]
                             },
                             "value": {
@@ -31286,7 +31405,8 @@
                             "field",
                             "operator",
                             "value"
-                          ]
+                          ],
+                          "title": "Relative window filter"
                         }
                       ],
                       "type": "object"
@@ -32328,10 +32448,17 @@
                                 "type": "string"
                               },
                               "operator": {
-                                "type": "string",
-                                "enum": [
-                                  "inLastDays",
-                                  "notInLastDays"
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "const": "inLastDays",
+                                    "title": "inLastDays"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "notInLastDays",
+                                    "title": "notInLastDays"
+                                  }
                                 ]
                               },
                               "value": {
@@ -32345,7 +32472,8 @@
                               "operator",
                               "value"
                             ],
-                            "additionalProperties": false
+                            "additionalProperties": false,
+                            "title": "Relative window filter"
                           }
                         ],
                         "type": "object"
@@ -52304,6 +52432,17 @@
             "default": false,
             "type": "boolean"
           },
+          "lastSentMessageFromSelf": {
+            "default": null,
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "lastMessageSenderName": {
             "default": null,
             "anyOf": [
@@ -52395,45 +52534,6 @@
                   "properties": {
                     "field": {
                       "type": "string",
-                      "const": "timelineThreadId"
-                    },
-                    "operator": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "const": "in",
-                          "title": "in"
-                        },
-                        {
-                          "type": "string",
-                          "const": "notIn",
-                          "title": "notIn"
-                        }
-                      ]
-                    },
-                    "value": {
-                      "minItems": 1,
-                      "maxItems": 50,
-                      "type": "array",
-                      "items": {
-                        "type": "string",
-                        "format": "uuid",
-                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                      }
-                    }
-                  },
-                  "required": [
-                    "field",
-                    "operator",
-                    "value"
-                  ],
-                  "additionalProperties": false
-                },
-                {
-                  "type": "object",
-                  "properties": {
-                    "field": {
-                      "type": "string",
                       "const": "provider"
                     },
                     "operator": {
@@ -52471,7 +52571,15 @@
                   "properties": {
                     "field": {
                       "type": "string",
-                      "const": "connectedAccountId"
+                      "enum": [
+                        "timelineThreadId",
+                        "connectedAccountId",
+                        "contactIds",
+                        "organizationIds",
+                        "dealIds",
+                        "serviceIds",
+                        "taskIds"
+                      ]
                     },
                     "operator": {
                       "anyOf": [
@@ -52506,364 +52614,38 @@
                   "additionalProperties": false
                 },
                 {
-                  "oneOf": [
-                    {
-                      "type": "object",
-                      "properties": {
-                        "field": {
-                          "type": "string",
-                          "const": "contactIds"
-                        },
-                        "operator": {
-                          "anyOf": [
-                            {
-                              "type": "string",
-                              "const": "in",
-                              "title": "in"
-                            },
-                            {
-                              "type": "string",
-                              "const": "notIn",
-                              "title": "notIn"
-                            }
-                          ]
-                        },
-                        "value": {
-                          "minItems": 1,
-                          "maxItems": 50,
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "format": "uuid",
-                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                          }
-                        }
-                      },
-                      "required": [
-                        "field",
-                        "operator",
-                        "value"
-                      ],
-                      "additionalProperties": false
+                  "type": "object",
+                  "properties": {
+                    "field": {
+                      "type": "string",
+                      "enum": [
+                        "contactIds",
+                        "organizationIds",
+                        "dealIds",
+                        "serviceIds",
+                        "taskIds"
+                      ]
                     },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "field": {
+                    "operator": {
+                      "anyOf": [
+                        {
                           "type": "string",
-                          "const": "contactIds"
+                          "const": "hasSome",
+                          "title": "hasSome"
                         },
-                        "operator": {
-                          "anyOf": [
-                            {
-                              "type": "string",
-                              "const": "hasSome",
-                              "title": "hasSome"
-                            },
-                            {
-                              "type": "string",
-                              "const": "hasNone",
-                              "title": "hasNone"
-                            }
-                          ]
+                        {
+                          "type": "string",
+                          "const": "hasNone",
+                          "title": "hasNone"
                         }
-                      },
-                      "required": [
-                        "field",
-                        "operator"
-                      ],
-                      "additionalProperties": false
+                      ]
                     }
+                  },
+                  "required": [
+                    "field",
+                    "operator"
                   ],
-                  "type": "object"
-                },
-                {
-                  "oneOf": [
-                    {
-                      "type": "object",
-                      "properties": {
-                        "field": {
-                          "type": "string",
-                          "const": "organizationIds"
-                        },
-                        "operator": {
-                          "anyOf": [
-                            {
-                              "type": "string",
-                              "const": "in",
-                              "title": "in"
-                            },
-                            {
-                              "type": "string",
-                              "const": "notIn",
-                              "title": "notIn"
-                            }
-                          ]
-                        },
-                        "value": {
-                          "minItems": 1,
-                          "maxItems": 50,
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "format": "uuid",
-                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                          }
-                        }
-                      },
-                      "required": [
-                        "field",
-                        "operator",
-                        "value"
-                      ],
-                      "additionalProperties": false
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "field": {
-                          "type": "string",
-                          "const": "organizationIds"
-                        },
-                        "operator": {
-                          "anyOf": [
-                            {
-                              "type": "string",
-                              "const": "hasSome",
-                              "title": "hasSome"
-                            },
-                            {
-                              "type": "string",
-                              "const": "hasNone",
-                              "title": "hasNone"
-                            }
-                          ]
-                        }
-                      },
-                      "required": [
-                        "field",
-                        "operator"
-                      ],
-                      "additionalProperties": false
-                    }
-                  ],
-                  "type": "object"
-                },
-                {
-                  "oneOf": [
-                    {
-                      "type": "object",
-                      "properties": {
-                        "field": {
-                          "type": "string",
-                          "const": "dealIds"
-                        },
-                        "operator": {
-                          "anyOf": [
-                            {
-                              "type": "string",
-                              "const": "in",
-                              "title": "in"
-                            },
-                            {
-                              "type": "string",
-                              "const": "notIn",
-                              "title": "notIn"
-                            }
-                          ]
-                        },
-                        "value": {
-                          "minItems": 1,
-                          "maxItems": 50,
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "format": "uuid",
-                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                          }
-                        }
-                      },
-                      "required": [
-                        "field",
-                        "operator",
-                        "value"
-                      ],
-                      "additionalProperties": false
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "field": {
-                          "type": "string",
-                          "const": "dealIds"
-                        },
-                        "operator": {
-                          "anyOf": [
-                            {
-                              "type": "string",
-                              "const": "hasSome",
-                              "title": "hasSome"
-                            },
-                            {
-                              "type": "string",
-                              "const": "hasNone",
-                              "title": "hasNone"
-                            }
-                          ]
-                        }
-                      },
-                      "required": [
-                        "field",
-                        "operator"
-                      ],
-                      "additionalProperties": false
-                    }
-                  ],
-                  "type": "object"
-                },
-                {
-                  "oneOf": [
-                    {
-                      "type": "object",
-                      "properties": {
-                        "field": {
-                          "type": "string",
-                          "const": "serviceIds"
-                        },
-                        "operator": {
-                          "anyOf": [
-                            {
-                              "type": "string",
-                              "const": "in",
-                              "title": "in"
-                            },
-                            {
-                              "type": "string",
-                              "const": "notIn",
-                              "title": "notIn"
-                            }
-                          ]
-                        },
-                        "value": {
-                          "minItems": 1,
-                          "maxItems": 50,
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "format": "uuid",
-                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                          }
-                        }
-                      },
-                      "required": [
-                        "field",
-                        "operator",
-                        "value"
-                      ],
-                      "additionalProperties": false
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "field": {
-                          "type": "string",
-                          "const": "serviceIds"
-                        },
-                        "operator": {
-                          "anyOf": [
-                            {
-                              "type": "string",
-                              "const": "hasSome",
-                              "title": "hasSome"
-                            },
-                            {
-                              "type": "string",
-                              "const": "hasNone",
-                              "title": "hasNone"
-                            }
-                          ]
-                        }
-                      },
-                      "required": [
-                        "field",
-                        "operator"
-                      ],
-                      "additionalProperties": false
-                    }
-                  ],
-                  "type": "object"
-                },
-                {
-                  "oneOf": [
-                    {
-                      "type": "object",
-                      "properties": {
-                        "field": {
-                          "type": "string",
-                          "const": "taskIds"
-                        },
-                        "operator": {
-                          "anyOf": [
-                            {
-                              "type": "string",
-                              "const": "in",
-                              "title": "in"
-                            },
-                            {
-                              "type": "string",
-                              "const": "notIn",
-                              "title": "notIn"
-                            }
-                          ]
-                        },
-                        "value": {
-                          "minItems": 1,
-                          "maxItems": 50,
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "format": "uuid",
-                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                          }
-                        }
-                      },
-                      "required": [
-                        "field",
-                        "operator",
-                        "value"
-                      ],
-                      "additionalProperties": false
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "field": {
-                          "type": "string",
-                          "const": "taskIds"
-                        },
-                        "operator": {
-                          "anyOf": [
-                            {
-                              "type": "string",
-                              "const": "hasSome",
-                              "title": "hasSome"
-                            },
-                            {
-                              "type": "string",
-                              "const": "hasNone",
-                              "title": "hasNone"
-                            }
-                          ]
-                        }
-                      },
-                      "required": [
-                        "field",
-                        "operator"
-                      ],
-                      "additionalProperties": false
-                    }
-                  ],
-                  "type": "object"
+                  "additionalProperties": false
                 }
               ]
             },
@@ -56271,45 +56053,6 @@
                   "properties": {
                     "field": {
                       "type": "string",
-                      "const": "timelineThreadId"
-                    },
-                    "operator": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "const": "in",
-                          "title": "in"
-                        },
-                        {
-                          "type": "string",
-                          "const": "notIn",
-                          "title": "notIn"
-                        }
-                      ]
-                    },
-                    "value": {
-                      "minItems": 1,
-                      "maxItems": 50,
-                      "type": "array",
-                      "items": {
-                        "type": "string",
-                        "format": "uuid",
-                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                      }
-                    }
-                  },
-                  "required": [
-                    "field",
-                    "operator",
-                    "value"
-                  ],
-                  "additionalProperties": false
-                },
-                {
-                  "type": "object",
-                  "properties": {
-                    "field": {
-                      "type": "string",
                       "const": "provider"
                     },
                     "operator": {
@@ -56347,7 +56090,15 @@
                   "properties": {
                     "field": {
                       "type": "string",
-                      "const": "connectedAccountId"
+                      "enum": [
+                        "timelineThreadId",
+                        "connectedAccountId",
+                        "contactIds",
+                        "organizationIds",
+                        "dealIds",
+                        "serviceIds",
+                        "taskIds"
+                      ]
                     },
                     "operator": {
                       "anyOf": [
@@ -56382,364 +56133,38 @@
                   "additionalProperties": false
                 },
                 {
-                  "oneOf": [
-                    {
-                      "type": "object",
-                      "properties": {
-                        "field": {
-                          "type": "string",
-                          "const": "contactIds"
-                        },
-                        "operator": {
-                          "anyOf": [
-                            {
-                              "type": "string",
-                              "const": "in",
-                              "title": "in"
-                            },
-                            {
-                              "type": "string",
-                              "const": "notIn",
-                              "title": "notIn"
-                            }
-                          ]
-                        },
-                        "value": {
-                          "minItems": 1,
-                          "maxItems": 50,
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "format": "uuid",
-                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                          }
-                        }
-                      },
-                      "required": [
-                        "field",
-                        "operator",
-                        "value"
-                      ],
-                      "additionalProperties": false
+                  "type": "object",
+                  "properties": {
+                    "field": {
+                      "type": "string",
+                      "enum": [
+                        "contactIds",
+                        "organizationIds",
+                        "dealIds",
+                        "serviceIds",
+                        "taskIds"
+                      ]
                     },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "field": {
+                    "operator": {
+                      "anyOf": [
+                        {
                           "type": "string",
-                          "const": "contactIds"
+                          "const": "hasSome",
+                          "title": "hasSome"
                         },
-                        "operator": {
-                          "anyOf": [
-                            {
-                              "type": "string",
-                              "const": "hasSome",
-                              "title": "hasSome"
-                            },
-                            {
-                              "type": "string",
-                              "const": "hasNone",
-                              "title": "hasNone"
-                            }
-                          ]
+                        {
+                          "type": "string",
+                          "const": "hasNone",
+                          "title": "hasNone"
                         }
-                      },
-                      "required": [
-                        "field",
-                        "operator"
-                      ],
-                      "additionalProperties": false
+                      ]
                     }
+                  },
+                  "required": [
+                    "field",
+                    "operator"
                   ],
-                  "type": "object"
-                },
-                {
-                  "oneOf": [
-                    {
-                      "type": "object",
-                      "properties": {
-                        "field": {
-                          "type": "string",
-                          "const": "organizationIds"
-                        },
-                        "operator": {
-                          "anyOf": [
-                            {
-                              "type": "string",
-                              "const": "in",
-                              "title": "in"
-                            },
-                            {
-                              "type": "string",
-                              "const": "notIn",
-                              "title": "notIn"
-                            }
-                          ]
-                        },
-                        "value": {
-                          "minItems": 1,
-                          "maxItems": 50,
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "format": "uuid",
-                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                          }
-                        }
-                      },
-                      "required": [
-                        "field",
-                        "operator",
-                        "value"
-                      ],
-                      "additionalProperties": false
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "field": {
-                          "type": "string",
-                          "const": "organizationIds"
-                        },
-                        "operator": {
-                          "anyOf": [
-                            {
-                              "type": "string",
-                              "const": "hasSome",
-                              "title": "hasSome"
-                            },
-                            {
-                              "type": "string",
-                              "const": "hasNone",
-                              "title": "hasNone"
-                            }
-                          ]
-                        }
-                      },
-                      "required": [
-                        "field",
-                        "operator"
-                      ],
-                      "additionalProperties": false
-                    }
-                  ],
-                  "type": "object"
-                },
-                {
-                  "oneOf": [
-                    {
-                      "type": "object",
-                      "properties": {
-                        "field": {
-                          "type": "string",
-                          "const": "dealIds"
-                        },
-                        "operator": {
-                          "anyOf": [
-                            {
-                              "type": "string",
-                              "const": "in",
-                              "title": "in"
-                            },
-                            {
-                              "type": "string",
-                              "const": "notIn",
-                              "title": "notIn"
-                            }
-                          ]
-                        },
-                        "value": {
-                          "minItems": 1,
-                          "maxItems": 50,
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "format": "uuid",
-                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                          }
-                        }
-                      },
-                      "required": [
-                        "field",
-                        "operator",
-                        "value"
-                      ],
-                      "additionalProperties": false
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "field": {
-                          "type": "string",
-                          "const": "dealIds"
-                        },
-                        "operator": {
-                          "anyOf": [
-                            {
-                              "type": "string",
-                              "const": "hasSome",
-                              "title": "hasSome"
-                            },
-                            {
-                              "type": "string",
-                              "const": "hasNone",
-                              "title": "hasNone"
-                            }
-                          ]
-                        }
-                      },
-                      "required": [
-                        "field",
-                        "operator"
-                      ],
-                      "additionalProperties": false
-                    }
-                  ],
-                  "type": "object"
-                },
-                {
-                  "oneOf": [
-                    {
-                      "type": "object",
-                      "properties": {
-                        "field": {
-                          "type": "string",
-                          "const": "serviceIds"
-                        },
-                        "operator": {
-                          "anyOf": [
-                            {
-                              "type": "string",
-                              "const": "in",
-                              "title": "in"
-                            },
-                            {
-                              "type": "string",
-                              "const": "notIn",
-                              "title": "notIn"
-                            }
-                          ]
-                        },
-                        "value": {
-                          "minItems": 1,
-                          "maxItems": 50,
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "format": "uuid",
-                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                          }
-                        }
-                      },
-                      "required": [
-                        "field",
-                        "operator",
-                        "value"
-                      ],
-                      "additionalProperties": false
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "field": {
-                          "type": "string",
-                          "const": "serviceIds"
-                        },
-                        "operator": {
-                          "anyOf": [
-                            {
-                              "type": "string",
-                              "const": "hasSome",
-                              "title": "hasSome"
-                            },
-                            {
-                              "type": "string",
-                              "const": "hasNone",
-                              "title": "hasNone"
-                            }
-                          ]
-                        }
-                      },
-                      "required": [
-                        "field",
-                        "operator"
-                      ],
-                      "additionalProperties": false
-                    }
-                  ],
-                  "type": "object"
-                },
-                {
-                  "oneOf": [
-                    {
-                      "type": "object",
-                      "properties": {
-                        "field": {
-                          "type": "string",
-                          "const": "taskIds"
-                        },
-                        "operator": {
-                          "anyOf": [
-                            {
-                              "type": "string",
-                              "const": "in",
-                              "title": "in"
-                            },
-                            {
-                              "type": "string",
-                              "const": "notIn",
-                              "title": "notIn"
-                            }
-                          ]
-                        },
-                        "value": {
-                          "minItems": 1,
-                          "maxItems": 50,
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "format": "uuid",
-                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                          }
-                        }
-                      },
-                      "required": [
-                        "field",
-                        "operator",
-                        "value"
-                      ],
-                      "additionalProperties": false
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "field": {
-                          "type": "string",
-                          "const": "taskIds"
-                        },
-                        "operator": {
-                          "anyOf": [
-                            {
-                              "type": "string",
-                              "const": "hasSome",
-                              "title": "hasSome"
-                            },
-                            {
-                              "type": "string",
-                              "const": "hasNone",
-                              "title": "hasNone"
-                            }
-                          ]
-                        }
-                      },
-                      "required": [
-                        "field",
-                        "operator"
-                      ],
-                      "additionalProperties": false
-                    }
-                  ],
-                  "type": "object"
+                  "additionalProperties": false
                 }
               ]
             },
@@ -57107,6 +56532,17 @@
             "default": false,
             "type": "boolean"
           },
+          "lastSentMessageFromSelf": {
+            "default": null,
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "lastMessageSenderName": {
             "default": null,
             "anyOf": [
@@ -57142,6 +56578,7 @@
           "accountShared",
           "isOwner",
           "lastMessageFromSelf",
+          "lastSentMessageFromSelf",
           "lastMessageSenderName",
           "createdAt",
           "updatedAt"

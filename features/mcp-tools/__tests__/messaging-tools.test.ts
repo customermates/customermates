@@ -381,3 +381,110 @@ describe("email body exposure", () => {
     expect(text).toContain("New mention of Customermates");
   });
 });
+
+describe("get_messaging_threads list rows", () => {
+  it("say whether the latest sent message went out from the connected account, so answered threads are not read as waiting", async () => {
+    const thread = (id: string, lastSentMessageFromSelf: boolean) => ({
+      id,
+      connectedAccountId: "66666666-6666-4666-8666-666666666666",
+      provider: "gmail",
+      type: "single",
+      name: null,
+      subject: `Thread ${id}`,
+      preview: "preview",
+      state: "read",
+      lastMessageAt: new Date("2026-09-01T06:55:15.000Z"),
+      lastMessageFromSelf: true,
+      lastSentMessageFromSelf,
+      participants: [],
+      sharedToCrm: false,
+      isOwner: true,
+    });
+    spies.getMessagingThreads.mockResolvedValue({
+      ok: true,
+      data: { items: [thread("answered", true), thread("waiting", false)], pagination: { total: 2 } },
+    });
+
+    const result = await getMessagingThreadsTool.execute(getMessagingThreadsTool.inputSchema.parse({}));
+
+    expect(result).toMatchObject({
+      structuredContent: {
+        items: [
+          { id: "answered", lastSentMessageFromSelf: true },
+          { id: "waiting", lastSentMessageFromSelf: false },
+        ],
+      },
+    });
+    const [first] = (result as { structuredContent: Record<string, unknown[]> }).structuredContent.items;
+    expect(first).not.toHaveProperty("lastMessageFromSelf");
+    expect(getMessagingThreadsTool.description).toContain("lastSentMessageFromSelf");
+    expect(getMessagingThreadsTool.description).toContain("null when nothing has been sent yet");
+  });
+});
+
+describe("page sizes that are not offered", () => {
+  it("report the activity page limit from the page asked for, not from the offered page read behind it", async () => {
+    const items = Array.from({ length: 10 }, (_, index) => ({
+      kind: "audit",
+      id: `a${index}`,
+      at: new Date(),
+      records: {},
+    }));
+    spies.getActivities.mockResolvedValue({
+      ok: true,
+      data: {
+        availableSources: [],
+        items,
+        pageLimitReached: false,
+        scopeTruncated: false,
+        pagination: { page: 28, pageSize: 10, total: 400, totalPages: 40 },
+      },
+    });
+
+    const result = await getActivitiesTool.execute(getActivitiesTool.inputSchema.parse({ page: 40, pageSize: 7 }));
+
+    expect(spies.getActivities).toHaveBeenCalledTimes(1);
+    expect(spies.getActivities).toHaveBeenCalledWith(
+      expect.objectContaining({ pagination: { page: 28, pageSize: 10 } }),
+    );
+    expect(result).toMatchObject({
+      structuredContent: { page: 40, pageSize: 7, total: 400, pageLimitReached: true },
+    });
+    expect((result as { structuredContent: Record<string, unknown[]> }).structuredContent.items).toEqual(
+      items.slice(3, 10).map((item) => ({ ...item, at: item.at.toISOString() })),
+    );
+  });
+
+  it("leave the page limit unset while the pages asked for still cover every activity", async () => {
+    spies.getActivities.mockResolvedValue({
+      ok: true,
+      data: {
+        availableSources: [],
+        items: [],
+        pageLimitReached: false,
+        scopeTruncated: false,
+        pagination: { page: 28, pageSize: 10, total: 280, totalPages: 28 },
+      },
+    });
+
+    const result = await getActivitiesTool.execute(getActivitiesTool.inputSchema.parse({ page: 40, pageSize: 7 }));
+
+    expect(result).toMatchObject({ structuredContent: { pageLimitReached: false } });
+  });
+
+  it("pass a thread detail's page size straight through, since the thread reader takes any size", async () => {
+    spies.getMessagingThread.mockResolvedValue({
+      ok: true,
+      data: { thread: { id: "t1", participants: [], sharedToCrm: false, isOwner: true }, messages: [], total: 0 },
+    });
+    const threadId = "55555555-5555-4555-8555-555555555555";
+
+    const result = await getMessagingThreadsTool.execute(
+      getMessagingThreadsTool.inputSchema.parse({ threadId, page: 3, pageSize: 7 }),
+    );
+
+    expect(spies.getMessagingThread).toHaveBeenCalledTimes(1);
+    expect(spies.getMessagingThread).toHaveBeenCalledWith({ threadId, page: 3, pageSize: 7 });
+    expect(result).toMatchObject({ structuredContent: { page: 3, pageSize: 7 } });
+  });
+});

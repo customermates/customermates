@@ -4,7 +4,7 @@ import { MOCK_ENV_MODULE } from "@/tests/helpers/interactor-test-setup";
 vi.mock("@/env", () => MOCK_ENV_MODULE);
 
 import { SUGGESTION_PAGE_IDS, suggestionPageId } from "../agent-chat.schema";
-import { agentPageActions } from "../agent-page-actions";
+import { agentPageActions, WIKI_WEBSITE_SETUP_ACTION_ID } from "../agent-page-actions";
 import { APP_LOCALES } from "@/i18n/locale-registry";
 import { createTranslator } from "next-intl";
 
@@ -28,6 +28,7 @@ describe("suggestionPageId", () => {
     expect(suggestionPageId("/inbox")).toBe("inbox");
     expect(suggestionPageId("/dashboard")).toBe("dashboard");
     expect(suggestionPageId("/routines")).toBe("routines");
+    expect(suggestionPageId("/wiki")).toBe("wiki");
   });
 
   it("maps the connected-accounts profile page despite the profile prefix", () => {
@@ -47,6 +48,23 @@ describe("suggestionPageId", () => {
 });
 
 describe("suggestion catalogs", () => {
+  it("uses existing knowledge before asking for workspace setup details", () => {
+    const t = translatorFor("en");
+    for (const [pageId, actionId] of [
+      ["dashboard", "setup"],
+      ["contacts", "setup-contacts"],
+      ["organizations", "setup-organizations"],
+      ["deals", "setup-pipeline"],
+      ["services", "setup-services"],
+      ["routines", "first-routine"],
+      ["wiki", "wiki-structure"],
+    ] as const) {
+      const action = agentPageActions(pageId, "empty", t, "en").find(({ id }) => id === actionId);
+      expect(action?.prompt).toMatch(/Knowledge Base/);
+      expect(action?.prompt).not.toMatch(/Ask me a few focused questions|Ask about my use case first/);
+    }
+  });
+
   it.each(APP_LOCALES)("%s catalog returns exactly three usable actions for every page and state", (locale) => {
     for (const pageId of SUGGESTION_PAGE_IDS) {
       for (const state of ["data", "empty"] as const) {
@@ -55,7 +73,8 @@ describe("suggestion catalogs", () => {
         expect(actions, `${pageId}.${state}`).toHaveLength(3);
         for (const action of actions) {
           expect(action.label.length, `${pageId}.${state}.label`).toBeGreaterThan(0);
-          expect(action.prompt.length, `${pageId}.${state}.prompt`).toBeGreaterThan(0);
+          if (action.id !== WIKI_WEBSITE_SETUP_ACTION_ID)
+            expect(action.prompt.length, `${pageId}.${state}.prompt`).toBeGreaterThan(0);
         }
       }
     }

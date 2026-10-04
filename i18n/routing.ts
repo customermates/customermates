@@ -113,6 +113,7 @@ export const PROTECTED_ROUTES = [
   "/tasks/:id",
   "/test/error",
   "/test/overlays",
+  "/wiki",
 ] as const;
 
 export const CONTENT_ROUTES = [

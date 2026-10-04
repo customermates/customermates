@@ -2,16 +2,19 @@ import { z } from "zod";
 
 import {
   customMcpFailure,
+  fetchMcpPage,
   filtersDescription,
   formatDatesInResponse,
   MCP_PAGE_SIZE_DESCRIPTION,
   mcpInteractorFailure,
   mcpPage,
   mcpPageSize,
+  McpPageOutputShape,
   mcpValidationFailure,
   runInteractor,
   sortDescription,
   toonResult,
+  type McpPageSize,
 } from "./utils";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -19,7 +22,7 @@ import { threadFolder } from "./thread-folder";
 import { MoveEmailThreadSchema } from "@/ee/messaging/inbox/move-email-thread.interactor";
 
 import { FilterableFieldSchema, GetQueryParamsSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
-import { filterFieldsHint } from "@/core/types/filter-field-value-kind";
+import { filterFieldAgentNote, filterFieldsHint } from "@/core/types/filter-field-value-kind";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { isRedirect } from "@/features/auth/auth-outcome";
 import { CONNECT_CHANNEL_KEYS } from "@/ee/messaging/connect/connect-channels";
@@ -77,8 +80,7 @@ const GetMessagingThreadsSchema = z.object({
         FilterFieldKey.lastMessageSentAt,
         FilterFieldKey.lastMessageAt,
       ]),
-    ) +
-      " Use scoped options; folders are JSON [accountId,folderId] grouped by account. Last direction/date exclude drafts/deleted/events. AND notInLastDays:3 + inLastDays:7; last activity includes drafts.",
+    ),
   ),
   sortDescriptor: SortDescriptorSchema.optional().describe(sortDescription("lastMessageAt")),
 });
@@ -97,7 +99,7 @@ const messageRecipientOutput = MessagingAttendeeSchema.pick({ identifier: true, 
 
 const GetMessagingThreadsOutputSchema = z
   .looseObject({
-    filterableFields: z.array(FilterableFieldSchema).optional(),
+    filterableFields: z.array(FilterableFieldSchema.extend({ description: z.string().optional() })).optional(),
     thread: z
       .looseObject({
         id: z.string(),
@@ -126,6 +128,9 @@ const GetMessagingThreadsOutputSchema = z
         }),
       )
       .optional(),
+    total: z.number().optional(),
+    page: z.number().optional(),
+    pageSize: z.number().optional(),
   })
   .describe("Detail mode returns thread plus messages; list mode returns items.");
 
@@ -135,7 +140,7 @@ const GetActivitiesOutputSchema = z.looseObject({
   pageLimitReached: z.unknown(),
   scopeTruncated: z.unknown(),
   total: z.number(),
-  page: z.number(),
+  ...McpPageOutputShape,
 });
 
 function withoutRawMessageHtml<T>(entry: T): T {
@@ -155,9 +160,12 @@ const GetCalendarsOutputSchema = z
     items: z.array(z.looseObject({})).optional(),
     total: z.number().optional(),
     page: z.number().optional(),
+    pageSize: z.number().optional(),
     id: z.string().optional().describe("Present on event detail when eventId is set"),
   })
-  .describe("List modes return items with total and page; eventId returns the event fields at the top level.");
+  .describe(
+    "List modes return items with total, page and pageSize; eventId returns the event fields at the top level.",
+  );
 
 const SendChatMessageOutputSchema = z.object({ sent: z.literal(true), threadId: z.string().nullable() });
 const SendEmailOutputSchema = z.object({ sent: z.literal(true), threadId: z.string().nullable() });
@@ -183,7 +191,9 @@ export const getMessagingThreadsTool = {
   name: "get_messaging_threads",
   title: "Get messaging threads",
   description:
-    "Read accessible inbox threads; page paginates lists and threadId messages (newest first, isDraft flags drafts). Detail messages include senderIdentifier and separate To/Cc/Bcc recipient groups for draft editing or sending. Bcc is returned only for outgoing mail with whole-account access; never promote it into To, Cc or public participants. Lists return scoped filterableFields and up to 50 participants. Empty threads need drafts; participants:hasUnset finds people without CRM links.",
+    "Read the inbox: no threadId lists threads across connected accounts; threadId returns its participants and a page of messages (page 1 newest, isDraft marks drafts, To/Cc/Bcc separate; Bcc only on outgoing mail with whole-account access, never move it into To, Cc or participants). " +
+    "Rows: id, name/subject/preview, state, lastMessageAt, lastSentMessageFromSelf (true: we sent last, no reply since; false: they wrote last; null when nothing has been sent yet), participants capped at 50 (isLinked=false: not a CRM contact yet; filter participants with hasUnset), plus scoped filterableFields; follow their options and descriptions. " +
+    "Bodies only in detail; lists skip threads without messages unless they hold a draft.",
   annotations: {
     readOnlyHint: true,
     idempotentHint: true,
@@ -259,25 +269,27 @@ export const getMessagingThreadsTool = {
             })),
             total: data.total,
             page,
+            pageSize,
           }),
         ),
       );
     }
     return runInteractor(
-      getGetMessagingThreadsApiInteractor().invoke(
-        GetQueryParamsSchema.parse({
-          searchTerm,
-          filters,
-          sortDescriptor,
-          pagination: { page, pageSize },
-        }),
+      fetchMcpPage({ page, pageSize }, (pagination) =>
+        getGetMessagingThreadsApiInteractor().invoke(
+          GetQueryParamsSchema.parse({ searchTerm, filters, sortDescriptor, pagination }),
+        ),
       ),
       (data) =>
         toonResult(
           formatDatesInResponse({
             total: data.pagination?.total ?? data.items.length,
             page,
-            filterableFields: data.filterableFields,
+            pageSize,
+            filterableFields: data.filterableFields?.map((field) => {
+              const description = filterFieldAgentNote(field.field);
+              return description ? { ...field, description } : field;
+            }),
             items: data.items.map((thread) => ({
               id: thread.id,
               connectedAccountId: thread.connectedAccountId,
@@ -288,6 +300,7 @@ export const getMessagingThreadsTool = {
               preview: thread.preview,
               state: thread.state,
               lastMessageAt: thread.lastMessageAt,
+              lastSentMessageFromSelf: thread.lastSentMessageFromSelf,
               participantCount: thread.participants.length,
               participants: thread.participants.slice(0, LIST_PARTICIPANT_LIMIT).map((p) => ({
                 displayName: p.displayName,
@@ -345,25 +358,25 @@ export const getActivitiesTool = {
   outputSchema: GetActivitiesOutputSchema,
   execute: ({ page, pageSize, scope, filters, sortDescriptor }: z.infer<typeof GetActivitiesSchema>) =>
     runInteractor(
-      getGetActivitiesApiInteractor().invoke(
-        ActivitiesApiParamsSchema.parse({
-          pagination: { page, pageSize },
-          scope,
-          filters,
-          sortDescriptor,
-        }),
+      fetchMcpPage({ page, pageSize }, (pagination) =>
+        getGetActivitiesApiInteractor().invoke(
+          ActivitiesApiParamsSchema.parse({ pagination, scope, filters, sortDescriptor }),
+        ),
       ),
-      (data) =>
-        toonResult(
+      (data) => {
+        const total = data.pagination?.total ?? data.items.length;
+        return toonResult(
           formatDatesInResponse({
             availableSources: data.availableSources,
-            total: data.pagination?.total ?? data.items.length,
+            total,
             page,
+            pageSize,
             items: data.items.map(withoutRawMessageHtml),
-            pageLimitReached: data.pageLimitReached,
+            pageLimitReached: page >= ACTIVITY_MAX_PAGE && total > page * pageSize,
             scopeTruncated: data.scopeTruncated,
           }),
-        ),
+        );
+      },
     ),
 };
 
@@ -425,33 +438,37 @@ export const getCalendarsTool = {
       return toonResult({ ...formatDatesInResponse(result.data) });
     }
 
-    const params = GetQueryParamsSchema.parse({
-      searchTerm,
-      filters,
-      sortDescriptor,
-      pagination: { page, pageSize },
-    });
+    const params = (pagination: { page: number; pageSize: McpPageSize }) =>
+      GetQueryParamsSchema.parse({ searchTerm, filters, sortDescriptor, pagination });
 
     if (list === "events") {
-      return runInteractor(getGetCalendarEventsApiInteractor().invoke(params), (data) =>
+      return runInteractor(
+        fetchMcpPage({ page, pageSize }, (pagination) =>
+          getGetCalendarEventsApiInteractor().invoke(params(pagination)),
+        ),
+        (data) =>
+          toonResult(
+            formatDatesInResponse({
+              total: data.pagination?.total ?? data.items.length,
+              page,
+              pageSize,
+              items: data.items,
+            }),
+          ),
+      );
+    }
+
+    return runInteractor(
+      fetchMcpPage({ page, pageSize }, (pagination) => getGetCalendarsApiInteractor().invoke(params(pagination))),
+      (data) =>
         toonResult(
           formatDatesInResponse({
             total: data.pagination?.total ?? data.items.length,
             page,
+            pageSize,
             items: data.items,
           }),
         ),
-      );
-    }
-
-    return runInteractor(getGetCalendarsApiInteractor().invoke(params), (data) =>
-      toonResult(
-        formatDatesInResponse({
-          total: data.pagination?.total ?? data.items.length,
-          page,
-          items: data.items,
-        }),
-      ),
     );
   },
 };

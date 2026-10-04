@@ -1,13 +1,7 @@
 import { fail, failConflict, failNotFound } from "@/core/validation/interactor-failure-server";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
-import type {
-  AttachmentMeta,
-  MessagingAttendee,
-  MessagingMessage,
-  MessagingThread,
-  IngestMessage,
-} from "../messaging.schema";
+import type { AttachmentMeta, MessagingAttendee, MessagingThread } from "../messaging.schema";
 import type { MessagingMessageDto } from "../inbox/inbox.schema";
 import type { ConnectedAccount } from "@/generated/prisma";
 import type { MessagingService } from "../messaging.service";
@@ -34,13 +28,13 @@ import {
   draftThreadRecipientSetsMatch,
   draftUpdatedAtFromRevision,
   hasCompleteDraftBinding,
-  type DraftThreadTarget,
 } from "../draft-thread";
 import { composeEmailBodies } from "./email-signature";
 import { resolveStoredEmailSettings } from "../email-settings";
 import { MessagingMessageDtoSchema, toMessagingMessageDto } from "../inbox/inbox.schema";
 import { EMPTY_ATTENDEE, buildEmailMessage, toAttachmentsMeta } from "../unipile.mappers";
 import { UnipileEmailSchema } from "../unipile.schema";
+import type { SendEmailRepo } from "./send-email.repo";
 
 const DUPLICATE_OUTBOUND_WINDOW_MS = 60_000;
 const ADOPT_EMAIL_TIMEOUT_MS = 5_000;
@@ -119,40 +113,6 @@ export const SendEmailSchema = z
     }
   });
 export type SendEmailData = Data<typeof SendEmailSchema>;
-
-export abstract class SendEmailRepo {
-  abstract findThreadByIdOrThrow(threadId: string): Promise<MessagingThread>;
-  abstract findLatestEmailReplyReferenceForThread(threadId: string): Promise<string | null>;
-  abstract findDraftById(args: { messageId: string }): Promise<DraftThreadTarget | null>;
-  abstract discardDraftAfterSend(args: { messageId: string; expectedUpdatedAt: Date }): Promise<void>;
-  abstract restoreDraftSummaryIfPresent(args: { messageId: string }): Promise<void>;
-  abstract findRecentOutboundDuplicate(args: {
-    messagingThreadId: string;
-    bodyText: string;
-    windowMs: number;
-  }): Promise<string | null>;
-  abstract persistOutboundMessageOrThrow(args: {
-    connectedAccountId: string;
-    message: IngestMessage;
-  }): Promise<MessagingMessage>;
-  abstract convertDraftToSent(args: {
-    messageId: string;
-    expectedUpdatedAt: Date;
-    unipileMessageId: string;
-    providerMessageId: string | null;
-    sender: MessagingAttendee;
-    recipients: {
-      to: MessagingAttendee[];
-      cc: MessagingAttendee[];
-      bcc: MessagingAttendee[];
-    };
-    subject: string | null;
-    bodyText: string | null;
-    bodyHtml: string | null;
-    attachmentsMeta: AttachmentMeta[];
-    sentAt: Date;
-  }): Promise<MessagingMessage | null>;
-}
 
 function emailRecipient(email: string, displayName?: string | null): MessagingAttendee {
   return {

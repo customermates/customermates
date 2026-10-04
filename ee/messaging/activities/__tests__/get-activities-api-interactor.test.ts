@@ -30,7 +30,8 @@ import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 
 import { ActivitiesApiParamsSchema } from "../activities.schema";
-import { GetActivitiesInteractor, GetActivitiesRepo } from "../get-activities.interactor";
+import { GetActivitiesInteractor } from "../get-activities.interactor";
+import { GetActivitiesRepo } from "@/ee/messaging/activities/get-activities.repo";
 
 class MockActivitiesRepo extends GetActivitiesRepo {
   sumNumericFields<F extends string>(): Promise<Partial<Record<F, number | null>>> {

@@ -27,6 +27,8 @@ import {
   ARTIFACT_SCHEMA_VERSION,
   benchmarkCaseModelSelection,
   benchmarkSourceIdentity,
+  MERGE_CHECK_DEFAULT_CAP_USD,
+  mergeCheckMinimumCapUsd,
   persist,
   runEpisode,
 } from "./episode";
@@ -361,9 +363,10 @@ async function main() {
     const env = requireLocalBenchmarkEnvironment();
     const campaignId = String(flags.campaign ?? "");
     const armIds = list(flags.arms, defaultBenchmarkArmIds());
+    const suite = BENCHMARK_CASES.filter((definition) => definition.heldout !== true);
     const defaultCases = armIds.length === 1 && armIds[0] === "shipped"
-      ? BENCHMARK_CASES
-      : BENCHMARK_CASES.filter((definition) => definition.comparative !== false);
+      ? suite
+      : suite.filter((definition) => definition.comparative !== false);
     const caseIds = list(flags.cases, defaultCases.map((definition) => definition.id)) as CaseId[];
     const reps = Number(flags.reps ?? 1);
     const runtimeVariant = benchmarkPathSegment(
@@ -393,6 +396,7 @@ async function main() {
   }
 
   if (command === "check") {
+    const suite = BENCHMARK_CASES.filter((definition) => definition.heldout !== true);
     const env = requireLocalBenchmarkEnvironment();
     const sourceAtStart = benchmarkSourceIdentity({ refresh: true });
     if (sourceAtStart.sourceDirty)
@@ -400,7 +404,20 @@ async function main() {
         "Agent benchmark merge checks require a clean Git worktree so their evidence is attributable.",
       );
     const label = benchmarkPathSegment(flags.label, "merge-check", "label");
-    const cap = Number(flags.cap ?? 10);
+    const cap = Number(flags.cap ?? MERGE_CHECK_DEFAULT_CAP_USD);
+    const minimum = mergeCheckMinimumCapUsd(
+      suite.map((definition) => definition.id),
+      armById(defaultBenchmarkArmIds()[0]!),
+    );
+    const assertMergeCheckCap = (capUsd: number) => {
+      if (Number.isFinite(capUsd) && capUsd >= minimum.capUsd) return;
+      throw new Error(
+        `The merge check needs a campaign cap of at least $${Math.ceil(minimum.capUsd)}, not $${capUsd}: ` +
+          `${minimum.caseId} reserves $${minimum.capUsd.toFixed(2)} up front and would otherwise be skipped. ` +
+          `Pass --cap ${MERGE_CHECK_DEFAULT_CAP_USD} or more.`,
+      );
+    };
+    if (typeof flags.campaign !== "string") assertMergeCheckCap(cap);
     const runtimeVariant = benchmarkPathSegment(
       flags.variant,
       "merge",
@@ -408,9 +425,9 @@ async function main() {
     );
     const db = await createBenchmarkDb(env.databaseUrl, env.appUrl);
     const result = await withPool(async (pool) => {
-      const campaign = typeof flags.campaign === "string"
-        ? await loadCampaign(pool, flags.campaign)
-        : await createCampaign(pool, label, cap);
+      const resumed = typeof flags.campaign === "string" ? await loadCampaign(pool, flags.campaign) : null;
+      assertMergeCheckCap(resumed?.capUsd ?? cap);
+      const campaign = resumed ?? (await createCampaign(pool, label, cap));
       console.log(`campaign ${campaign.id}`);
       const failures = await runMatrix({
         pool,
@@ -418,7 +435,7 @@ async function main() {
         appUrl: env.appUrl,
         campaign,
         armIds: defaultBenchmarkArmIds(),
-        caseIds: BENCHMARK_CASES.map((definition) => definition.id),
+        caseIds: suite.map((definition) => definition.id),
         reps: 1,
         runtimeVariant,
         excluded: new Set(),
@@ -426,14 +443,14 @@ async function main() {
       const episodes = await campaignEpisodes(pool, campaign.id);
       const matrixIssues = exactMatrixIssues(
         episodes,
-        BENCHMARK_CASES.map((definition) => definition.id),
+        suite.map((definition) => definition.id),
         runtimeVariant,
         "shipped",
       );
       for (const reason of matrixIssues)
         failures.push({
           arm: "shipped",
-          caseId: BENCHMARK_CASES[0]!.id,
+          caseId: suite[0]!.id,
           repetition: 1,
           reason: `matrix incomplete: ${reason}`,
         });
@@ -444,7 +461,7 @@ async function main() {
       )
         failures.push({
           arm: "shipped",
-          caseId: BENCHMARK_CASES[0]!.id,
+          caseId: suite[0]!.id,
           repetition: 1,
           reason:
             "source changed while the merge check was running; rebuild and start a fresh campaign from a clean tree",
@@ -454,8 +471,8 @@ async function main() {
     await db.prisma.$disconnect();
     await persistMergeCheckSummary(resolve(RUNS_DIR, result.campaign.id), {
       status: result.failures.length ? "failed" : "passed",
-      expectedCases: BENCHMARK_CASES.length,
-      expectedTurns: BENCHMARK_CASES.reduce((total, definition) => total + definition.prompts.length, 0),
+      expectedCases: suite.length,
+      expectedTurns: suite.reduce((total, definition) => total + definition.prompts.length, 0),
       runtimeVariant,
       sourceCommit: sourceAtStart.sourceCommit,
       failures: result.failures,
@@ -483,7 +500,7 @@ async function main() {
         console.error(`- ${failure.arm} ${failure.caseId} r${failure.repetition}: ${failure.reason}`);
       throw new Error(`Agent benchmark merge check failed for campaign ${result.campaign.id}.`);
     }
-    console.log(`merge check passed: ${BENCHMARK_CASES.length} cases in campaign ${result.campaign.id}`);
+    console.log(`merge check passed: ${suite.length} cases in campaign ${result.campaign.id}`);
     return;
   }
 
@@ -610,7 +627,7 @@ async function main() {
     return;
   }
 
-  console.log("Commands: arms | cases | overlay | verify-arms | check [--label L] [--cap USD] [--campaign ID] [--variant merge] | campaign --label L --cap USD | status --campaign ID | run --campaign ID [--arms a,b (default: shipped)] [--cases S1,S2] [--reps N] [--variant current] | recover --campaign ID --arm A --case C --repetition N --variant V | judge --campaign ID | report --campaign ID [--label L]");
+  console.log("Commands: arms | cases | overlay | verify-arms | check [--label L] [--cap USD, default 20] [--campaign ID] [--variant merge] | campaign --label L --cap USD | status --campaign ID | run --campaign ID [--arms a,b (default: shipped)] [--cases S1,S2] [--reps N] [--variant current] | recover --campaign ID --arm A --case C --repetition N --variant V | judge --campaign ID | report --campaign ID [--label L]");
 }
 
 main()

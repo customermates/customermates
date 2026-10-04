@@ -53,6 +53,12 @@ describe("resolveSeparatorLabel", () => {
 });
 
 describe("MessageDateSeparator hydration safety", () => {
+  it("does not render an empty optional today chip before hydration", () => {
+    intlStore.rendersZonedValues = false;
+
+    expect(renderToStaticMarkup(createElement(MessageDateSeparator, { date: new Date(), hideToday: true }))).toBe("");
+  });
+
   it("renders no clock- or timezone-dependent text before the client has hydrated", () => {
     intlStore.rendersZonedValues = false;
 

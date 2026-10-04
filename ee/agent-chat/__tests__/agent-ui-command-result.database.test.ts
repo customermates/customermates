@@ -1,3 +1,4 @@
+import { prismaAgentChatRepoDependencies } from "@/tests/helpers/prisma-agent-chat-repo";
 import type { TenantUser } from "@/features/user/user.schema";
 
 import { randomUUID } from "node:crypto";
@@ -49,7 +50,7 @@ describeDatabase("agent ui command results against PostgreSQL", () => {
   it("records a repeated command result, which is what a second navigation in one turn does", async () => {
     const record = (result: string) =>
       asTenant(() =>
-        new PrismaAgentChatRepo().recordUiCommandResult({
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).recordUiCommandResult({
           conversationId,
           commandId,
           name: "navigate",

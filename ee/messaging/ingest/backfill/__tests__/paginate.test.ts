@@ -4,7 +4,7 @@ import { MOCK_ENV_MODULE } from "@/tests/helpers/interactor-test-setup";
 vi.mock("@/env", () => MOCK_ENV_MODULE);
 
 import { paginateStep, UNIPILE_MAX_LIMIT } from "../paginate";
-import { UnipileRequestError } from "../../../messaging.service";
+import { UnipileRequestError } from "../../../unipile-request-error";
 
 function page(count: number, nextCursor?: string) {
   return { data: Array.from({ length: count }, (_, index) => ({ id: `${index}` })), next_cursor: nextCursor };

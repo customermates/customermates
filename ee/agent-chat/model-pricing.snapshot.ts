@@ -733,5 +733,35 @@ export const MODEL_PRICING_SNAPSHOT = {
         },
       ],
     },
+    {
+      modelId: "typesafe-ai/jev",
+      providerNativeModelId: "jev",
+      provider: "digitalocean",
+      inferenceRegion: null,
+      contextLength: 32000,
+      maxCompletionTokens: null,
+      requestUsd: "0",
+      webSearchUsdPerThousandCalls: "0",
+      prompt: [
+        {
+          costUsdPerToken: "0.000000042",
+        },
+      ],
+      completion: [
+        {
+          costUsdPerToken: "0",
+        },
+      ],
+      inputCacheRead: [
+        {
+          costUsdPerToken: "0.000000042",
+        },
+      ],
+      inputCacheWrite: [
+        {
+          costUsdPerToken: "0",
+        },
+      ],
+    },
   ],
 } as const;

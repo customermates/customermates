@@ -12,6 +12,7 @@ import { MessagesScrollContainer } from "@/components/scroll/messages-scroll-con
 
 import { Button } from "@/components/ui/button";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
 import { ActionTooltip, chatUiCopy } from "./chat-ui";
 import { AgentActivity, AgentChatItemView, consecutiveActivityItems, isWorkingActivityGroup } from "./agent-chat-items";
@@ -25,12 +26,14 @@ import { UsageRing } from "./usage-ring";
 import { useAgentChatStore, useAgentChatUiTargets } from "./agent-chat-store-context";
 
 export const AgentConversationLog = observer(function AgentConversationLog({
+  className = "px-3",
   readOnly = false,
   scrollContainerRef,
   scrollFooterRef,
   scrollable = true,
   userLabel,
 }: {
+  className?: string;
   readOnly?: boolean;
   scrollContainerRef?: RefObject<HTMLElement | null>;
   scrollFooterRef?: RefObject<HTMLElement | null>;
@@ -38,12 +41,15 @@ export const AgentConversationLog = observer(function AgentConversationLog({
   userLabel?: string;
 }) {
   const store = useAgentChatStore();
+  const intlStore = useHydratedIntlStore();
   const t = useTranslations();
   const copy = chatUiCopy(t);
+  const firstDate = store.items.find((item) => item.at)?.at;
+  const hasMultipleDays = store.items.some((item) => item.at && firstDate && !isSameDay(firstDate, item.at));
 
   return (
     <MessagesScrollContainer
-      className="px-3"
+      className={className}
       jumpToLatestLabel={copy.jumpToLatest}
       latestItemKey={store.items.at(-1)?.id}
       loadOlderLabel={copy.loadOlderMessages}
@@ -63,11 +69,13 @@ export const AgentConversationLog = observer(function AgentConversationLog({
 
         {store.items.map((item, index) => {
           const prev = store.items[index - 1];
-          const showSeparator = item.at && (!prev?.at || !isSameDay(prev.at, item.at));
+          const showSeparator = intlStore.rendersZonedValues && item.at && (!prev?.at || !isSameDay(prev.at, item.at));
 
           return (
             <Fragment key={item.id}>
-              {showSeparator && item.at && <MessageDateSeparator date={item.at} />}
+              {showSeparator && item.at && (
+                <MessageDateSeparator date={item.at} hideToday={!store.olderMessagesCursor && !hasMultipleDays} />
+              )}
 
               {item.kind === "activity" ? (
                 prev?.kind === "activity" ? null : (

@@ -20,7 +20,7 @@ import {
   threadAccessWhere,
 } from "../messaging-access";
 
-import type { GetActivitiesRepo } from "./get-activities.interactor";
+import type { GetActivitiesRepo } from "@/ee/messaging/activities/get-activities.repo";
 import type { ActivityThreadOptionsData, ActivityThreadOptionsRepo } from "./get-activity-thread-options.interactor";
 
 import type { ActivityQuery, ActivityRelationshipRule } from "./timeline-filters";
@@ -40,6 +40,7 @@ import {
 import { TERMINOLOGY_ENTITY_RESOURCE } from "@/features/entity-terminology/entity-terminology.constants";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { toMessagingMessageDto } from "../inbox/inbox.schema";
+import { WIKI_PAGE_AUDIT_EVENTS } from "@/features/wiki/wiki-audit-events";
 
 type UnresolvedRecordRef = { entityType: EntityType; id: string };
 
@@ -62,7 +63,7 @@ type ContactSourceTargets = {
   threadNegative: Prisma.MessagingThreadWhereInput;
 };
 
-type ContactIdentifierTarget = {
+export type ContactIdentifierTarget = {
   contactId: string;
   provider: MessagingProvider;
   value: string;
@@ -188,15 +189,6 @@ function messageIdentifiers(
       counterparts.map((participant) => participant.identifier).filter((value): value is string => Boolean(value)),
     ),
   ].map((value) => ({ provider, value }));
-}
-
-export abstract class ActivityContactRepo {
-  abstract resolveContactIdsForEntityTypeCompanyWide(args: {
-    entityType: EntityType;
-    entityIds?: string[];
-    limit: number;
-  }): Promise<string[]>;
-  abstract findContactIdentifierTargetsCompanyWide(contactIds: string[]): Promise<ContactIdentifierTarget[]>;
 }
 
 type ThreadLabelInput = {
@@ -1068,7 +1060,11 @@ export class PrismaActivitiesRepo
   }
 
   private auditLogWhere(auditWhere: Prisma.AuditLogWhereInput | undefined): Prisma.AuditLogWhereInput {
-    return { companyId: this.companyId, ...(auditWhere ?? {}) };
+    if (this.hasPermission(Resource.wiki, Action.readAll)) return { companyId: this.companyId, ...(auditWhere ?? {}) };
+    return {
+      companyId: this.companyId,
+      AND: [{ event: { notIn: [...WIKI_PAGE_AUDIT_EVENTS] } }, ...(auditWhere ? [auditWhere] : [])],
+    };
   }
 
   private async messageWhere(args: {

@@ -76,6 +76,23 @@ afterEach(() => {
 });
 
 describe("MessagesScrollContainer latest-item following", () => {
+  it("follows rapid content growth without restarting a smooth scroll", () => {
+    render("assistant-1", "Assistant response");
+    const region = container.querySelector<HTMLElement>('[role="region"]');
+    const content = region?.firstElementChild;
+    if (!region || !content) throw new Error("expected scroll content");
+    const setHeight = setScrollMetrics(region, { height: 500, top: 300, viewport: 200 });
+    const scrollTo = vi.fn();
+    region.scrollTo = scrollTo;
+
+    for (const height of [550, 600, 650]) {
+      setHeight(height);
+      triggerResize(content);
+      expect(region.scrollTop).toBe(height);
+    }
+    expect(scrollTo).not.toHaveBeenCalled();
+  });
+
   it("follows a newly rendered approval even when no resize callback arrives", () => {
     render("assistant-1", "Assistant response");
     const region = container.querySelector<HTMLElement>('[role="region"]');

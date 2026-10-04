@@ -1,15 +1,22 @@
 import { describe, expect, it } from "vitest";
 
+import { SHIPPED_AGENT_MODEL, SHIPPED_AGENT_MODEL_KEY } from "@/ee/agent-chat/model-catalog";
+
 import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
 
 import { armById } from "../arms";
-import { benchmarkCaseModelSelection } from "../episode";
+import { worstCaseEpisodeUsd } from "../campaign";
+import { benchmarkCaseModelSelection, MERGE_CHECK_DEFAULT_CAP_USD, mergeCheckMinimumCapUsd } from "../episode";
 import { BENCHMARK_CASES } from "../fixtures";
 
 describe("unified benchmark registry", () => {
-  it("contains the complete 54-case, 60-turn suite without duplicate ids", () => {
-    expect(BENCHMARK_CASES).toHaveLength(54);
-    expect(BENCHMARK_CASES.reduce((total, definition) => total + definition.prompts.length, 0)).toBe(60);
+  it("contains the complete 74-case, 81-turn suite plus 130 held-out cases without duplicate ids", () => {
+    const suite = BENCHMARK_CASES.filter((definition) => definition.heldout !== true);
+    const heldout = BENCHMARK_CASES.filter((definition) => definition.heldout === true);
+    expect(suite).toHaveLength(74);
+    expect(suite.reduce((total, definition) => total + definition.prompts.length, 0)).toBe(81);
+    expect(heldout).toHaveLength(130);
+    expect(heldout.reduce((total, definition) => total + definition.prompts.length, 0)).toBe(150);
     expect(new Set(BENCHMARK_CASES.map((definition) => definition.id)).size).toBe(BENCHMARK_CASES.length);
   });
 
@@ -33,10 +40,11 @@ describe("unified benchmark registry", () => {
       "R50",
       "R51",
       "R52",
+      "R53",
       "V53",
       "V54",
     ]);
-    expect(required.reduce((total, definition) => total + definition.prompts.length, 0)).toBe(21);
+    expect(required.reduce((total, definition) => total + definition.prompts.length, 0)).toBe(22);
   });
 
   it("covers view context and preserves the explicit fast-model pin contract", () => {
@@ -95,11 +103,26 @@ describe("unified benchmark registry", () => {
     });
     expect(byId.get("V40")?.prompts[0]).toContain("set the search text to View");
     expect(byId.get("V40")?.prompts[0]).toContain("group them by creation month");
-    expect(byId.get("R49")?.contexts).toEqual([{ modelKey: "fast" }, { modelKey: "omit" }]);
-    expect(benchmarkCaseModelSelection("R49", armById("shipped"))).toMatchObject({
-      modelKey: "fast",
-      modelConfig: { modelId: "openai/gpt-5-nano", servingProvider: "azure" },
-    });
+    expect(byId.get("R49")?.contexts).toEqual([{ modelKey: "bench:flash-low" }, { modelKey: "omit" }]);
+    const shippedModel = SHIPPED_AGENT_MODEL;
+    for (const arm of ["shipped", "flash-lite-medium"]) {
+      const pinned = benchmarkCaseModelSelection("R49", armById(arm));
+      expect(pinned).toEqual({
+        modelKey: "bench:flash-low",
+        modelConfig: {
+          modelId: "google/gemini-3.5-flash",
+          servingProvider: "vertex",
+          inferenceRegion: "eu",
+          maxOutputTokens: 8192,
+          maxContextTokens: 66_000,
+          maxToolResultChars: 6000,
+          thinkingLevel: "low",
+        },
+      });
+      expect(pinned.modelConfig.modelId).not.toBe(shippedModel.modelId);
+      expect(pinned.modelConfig.servingProvider).toBe(shippedModel.servingProvider);
+      expect(pinned.modelConfig.inferenceRegion).toBe(shippedModel.inferenceRegion);
+    }
     expect(benchmarkCaseModelSelection("S1", armById("flash-lite-medium"))).toMatchObject({
       modelKey: "bench:flash-lite-medium",
       modelConfig: {
@@ -107,5 +130,26 @@ describe("unified benchmark registry", () => {
         thinkingLevel: "medium",
       },
     });
+  });
+
+  it("sizes the merge check's default cap above the largest single-episode reservation, which R49's pinned model sets", () => {
+    const suite = BENCHMARK_CASES.filter((definition) => definition.heldout !== true);
+    const shipped = armById("shipped");
+    const minimum = mergeCheckMinimumCapUsd(
+      suite.map((definition) => definition.id),
+      shipped,
+    );
+    const r49 = suite.find((definition) => definition.id === "R49");
+    if (!r49) throw new Error("expected R49 in the merge suite");
+
+    expect(minimum.caseId).toBe("R49");
+    expect(minimum.capUsd).toBeCloseTo(
+      worstCaseEpisodeUsd({ ...shipped, ...benchmarkCaseModelSelection("R49", shipped).modelConfig }, r49.prompts.length),
+      9,
+    );
+    expect(minimum.capUsd).toBeGreaterThan(10);
+    expect(minimum.capUsd).toBeLessThanOrEqual(MERGE_CHECK_DEFAULT_CAP_USD);
+    expect(MERGE_CHECK_DEFAULT_CAP_USD).toBe(20);
+    expect(() => mergeCheckMinimumCapUsd([], shipped)).toThrow("A merge check needs at least one case.");
   });
 });

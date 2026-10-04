@@ -2,7 +2,7 @@ import { fail, failNotFound } from "@/core/validation/interactor-failure-server"
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import type { ConnectedAccount } from "@/generated/prisma";
-import type { IngestMessage, MessagingAttendee, MessagingMessage } from "../messaging.schema";
+import type { MessagingAttendee } from "../messaging.schema";
 import type { MessagingService, StartChatSpecifics } from "../messaging.service";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
@@ -36,7 +36,6 @@ import {
   draftThreadRecipientSetsMatch,
   draftUpdatedAtFromRevision,
   hasCompleteDraftBinding,
-  type DraftThreadTarget,
 } from "../draft-thread";
 import { retryAfterPhrase } from "../retry-after.server";
 import { EMPTY_ATTENDEE, buildChatAttendee } from "../unipile.mappers";
@@ -45,6 +44,8 @@ import { SendAttachmentSchema } from "./send-email.interactor";
 
 import type { FindUsableAccountRepo } from "../persistence/find-usable-account.repo";
 import { accountNeedsReconnect } from "../account-health";
+import type { StartChatContactRepo } from "./start-chat-contact.repo";
+import type { StartChatThreadRepo } from "./start-chat-thread.repo";
 
 export const LinkedinProductSchema = z.enum(LINKEDIN_PRODUCTS);
 
@@ -107,28 +108,6 @@ export const StartChatInputSchema = BaseStartChatInputSchema.superRefine((d, ctx
 export type StartChatData = Data<typeof StartChatInputSchema>;
 
 export type StartChatResult = { threadId: string | null };
-
-export abstract class StartChatContactRepo {
-  abstract findContactChannelCompanyWide(args: {
-    provider: MessagingProvider;
-    identifier: string;
-  }): Promise<{ id: string; messagingId: string | null; displayName: string | null; profileUrl: string | null } | null>;
-  abstract saveResolvedContactChannel(args: {
-    id: string;
-    messagingId: string;
-    displayName: string | null;
-    profileUrl: string | null;
-  }): Promise<void>;
-}
-
-export abstract class StartChatThreadRepo {
-  abstract findDraftById(args: { messageId: string }): Promise<DraftThreadTarget | null>;
-  abstract discardDraftAfterSend(args: { messageId: string; expectedUpdatedAt: Date }): Promise<void>;
-  abstract persistOutboundMessageOrThrow(args: {
-    connectedAccountId: string;
-    message: IngestMessage;
-  }): Promise<MessagingMessage>;
-}
 
 type ResolvedAttendees =
   | { ok: true; ids: string[]; attendees: MessagingAttendee[] }

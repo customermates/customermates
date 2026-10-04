@@ -1,7 +1,7 @@
 import type { ReactElement, ReactNode } from "react";
 import type { Root } from "react-dom/client";
 
-import { Children, act, createElement, isValidElement } from "react";
+import { act, Children, createElement, isValidElement } from "react";
 import { createRoot } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -16,6 +16,9 @@ const harness = vi.hoisted(() => ({
   isPersonalizing: false,
   setIsPersonalizing: vi.fn(),
   starredFieldIds: [] as string[],
+  columnWidths: {} as Record<string, number>,
+  setColumnWidths: vi.fn(),
+  p13nArgs: vi.fn(),
   drawerStack: [] as { entityType: string; id: string }[],
   useAgentRecordContext: vi.fn(),
 }));
@@ -79,6 +82,17 @@ vi.mock("@/components/entity-detail/entity-notes-panel", () => ({
   EntityNotesPanel: () => createElement("div", { "data-notes-panel": true }),
 }));
 
+vi.mock("@/components/shared/use-p13n-column-widths", () => ({
+  useP13nColumnWidths: (args: Record<string, unknown>) => {
+    harness.p13nArgs(args);
+    return {
+      columnWidths: harness.columnWidths,
+      commitColumnWidths: harness.setColumnWidths,
+      setColumnWidths: harness.setColumnWidths,
+    };
+  },
+}));
+
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({
     agentChatStore: {},
@@ -111,22 +125,33 @@ import { EntityDetailLayout } from "../entity-detail-layout";
 
 type DetailState = "loading" | "not-found" | "error" | "content";
 
-function layout(
-  state: DetailState,
-  {
+type RenderOptions = {
+  canManage?: boolean;
+  isEditingCustomField?: boolean;
+  masterData?: ReactNode;
+  panelLayout?: {
+    initial?: Record<string, number>;
+    p13nId?: string;
+    persistenceScope: string;
+  };
+  serverSnapshotApplied?: boolean;
+  showNotesPanel?: boolean;
+  summary?: ReactNode;
+};
+
+const roots: Root[] = [];
+const containers: HTMLElement[] = [];
+
+function createState(state: DetailState, options: RenderOptions = {}) {
+  const {
     canManage = false,
     isEditingCustomField = false,
+    masterData = createElement("div", { "data-master-data": true }),
+    panelLayout,
     serverSnapshotApplied = true,
     showNotesPanel = true,
     summary,
-  }: {
-    canManage?: boolean;
-    isEditingCustomField?: boolean;
-    serverSnapshotApplied?: boolean;
-    showNotesPanel?: boolean;
-    summary?: ReactNode;
-  } = {},
-) {
+  } = options;
   const entityId = "contact-1";
   const store: Record<string, any> = {
     canManage,
@@ -149,37 +174,38 @@ function layout(
     toggleEditingCustomField: vi.fn(),
   };
 
-  const element = createElement(EntityDetailLayout, {
+  const node = createElement(EntityDetailLayout, {
     canDelete: true,
     entityId,
     entityType: EntityType.contact,
     fallbackTitle: "Contact",
     historyPanel: createElement("div", { "data-history": true }),
     identity: { name: "Ada Lovelace" },
-    masterData: createElement("div", { "data-master-data": true }),
+    masterData,
+    panelLayout,
     serverSnapshotApplied,
     showNotesPanel,
     store: store as never,
     summary,
   });
 
-  return { element, store };
+  return { node, store };
 }
 
-function renderState(state: DetailState, options: Parameters<typeof layout>[1] = {}) {
-  const { element, store } = layout(state, options);
+function renderState(state: DetailState, options: RenderOptions = {}) {
+  const { node, store } = createState(state, options);
+  const html = renderToStaticMarkup(node);
 
-  return { html: renderToStaticMarkup(element), store };
+  return { html, store };
 }
 
-const roots: Root[] = [];
-
-function mountContent(options: Parameters<typeof layout>[1] = {}) {
+function mountContent(options: RenderOptions = {}) {
   const container = document.createElement("div");
   document.body.append(container);
+  containers.push(container);
   const root = createRoot(container);
   roots.push(root);
-  act(() => root.render(layout("content", options).element));
+  act(() => root.render(createState("content", options).node));
 
   return container;
 }
@@ -203,6 +229,22 @@ function setSwitcherDisplay(container: HTMLElement, display: string) {
   });
 }
 
+async function mountState(state: DetailState, options: RenderOptions = {}) {
+  const { node, store } = createState(state, options);
+  const container = document.createElement("div");
+  document.body.append(container);
+  containers.push(container);
+  const root = createRoot(container);
+  roots.push(root);
+
+  await act(async () => {
+    root.render(node);
+    await Promise.resolve();
+  });
+
+  return { container, store };
+}
+
 function findElementByProp(node: ReactNode, property: string, value: unknown): ReactElement | undefined {
   if (!isValidElement(node)) return undefined;
   if ((node.props as Record<string, unknown>)[property] === value) return node;
@@ -219,6 +261,7 @@ function findElementByProp(node: ReactNode, property: string, value: unknown): R
 describe("EntityDetailLayout", () => {
   afterEach(() => {
     act(() => roots.splice(0).forEach((root) => root.unmount()));
+    containers.splice(0);
     document.body.replaceChildren();
     vi.unstubAllGlobals();
   });
@@ -231,6 +274,12 @@ describe("EntityDetailLayout", () => {
     harness.isPersonalizing = false;
     harness.starredFieldIds = [];
     harness.drawerStack = [];
+    harness.columnWidths = {};
+    harness.setColumnWidths.mockImplementation(
+      (value: Record<string, number> | ((current: Record<string, number>) => Record<string, number>)) => {
+        harness.columnWidths = typeof value === "function" ? value(harness.columnWidths) : value;
+      },
+    );
   });
 
   it.each([
@@ -288,7 +337,7 @@ describe("EntityDetailLayout", () => {
     });
   });
 
-  it("keeps one details tree and one notes tree while exposing compact panel tabs and the wide three-column grid", () => {
+  it("keeps compact pre-mount markup stable and renders the activities panel shell before hydration", () => {
     harness.canReadHistory = true;
 
     const { html } = renderState("content");
@@ -303,6 +352,8 @@ describe("EntityDetailLayout", () => {
     expect(html).toContain('data-detail-grid="true"');
     expect(html).toContain('data-detail-panel="details"');
     expect(html).toContain('data-detail-panel="notes"');
+    expect(html).toContain('data-detail-panel="activities"');
+    expect(html).not.toContain('data-history="true"');
     const switcherClasses = html.match(/data-detail-panel-switcher="true" class="([^"]+)"/)?.[1].split(" ");
     expect(switcherClasses).not.toContain("border-t");
     const tabClasses = html.match(/role="tab"[^>]*class="([^"]+)"/)?.[1].split(" ") ?? [];
@@ -311,7 +362,99 @@ describe("EntityDetailLayout", () => {
     expect(html).toContain("EntityDetail.overview");
     expect(html).toContain("EntityDetail.sections.notes");
     expect(html).toContain("EntityTimeline.types.activities");
-    expect(html).toContain("@6xl/detail:grid-cols-[minmax(0,3fr)_minmax(0,2fr)_360px]");
+    expect(html).toContain("@6xl/detail:grid-cols-[var(--panel-grid-template)]");
+    expect(html).toContain("--panel-grid-template:minmax(0, 3fr) 1px minmax(0, 2fr) 1px 360px");
+    expect(html.match(/role="separator"/g)).toHaveLength(2);
+  });
+
+  it("hydrates the permitted activity panel and both wide-layout separators", async () => {
+    harness.canReadHistory = true;
+
+    const { container } = await mountState("content");
+
+    expect(container.querySelectorAll('[data-detail-panel="details"]')).toHaveLength(1);
+    expect(container.querySelectorAll('[data-detail-panel="notes"]')).toHaveLength(1);
+    expect(container.querySelectorAll('[data-detail-panel="activities"]')).toHaveLength(1);
+    expect(container.querySelectorAll('[role="separator"]')).toHaveLength(2);
+    expect(
+      container.querySelector<HTMLElement>("[data-detail-grid]")?.style.getPropertyValue("--panel-grid-template"),
+    ).toBe("minmax(0, 3fr) 1px minmax(0, 2fr) 1px 360px");
+  });
+
+  it("gives a history reader the same template and layout key before and after hydration", async () => {
+    harness.canReadHistory = true;
+    harness.columnWidths = {
+      "panel:details-notes-activities:details": 450,
+      "panel:details-notes-activities:notes": 300,
+      "panel:details-notes-activities:activities": 250,
+    };
+    const expected = "minmax(320px, 450fr) 1px minmax(280px, 300fr) 1px minmax(320px, 250fr)";
+
+    const { html } = renderState("content");
+    const { container } = await mountState("content");
+
+    expect(html).toContain(`--panel-grid-template:${expected}`);
+    expect(
+      container.querySelector<HTMLElement>("[data-detail-grid]")?.style.getPropertyValue("--panel-grid-template"),
+    ).toBe(expected);
+    expect(container.querySelector('[data-detail-panel="activities"] [data-history="true"]')).not.toBeNull();
+  });
+
+  it("initializes and persists three-panel widths under the layout namespace without remounting unsaved content", async () => {
+    harness.canReadHistory = true;
+    harness.columnWidths = {
+      unrelated: 77,
+      "panel:details-notes-activities:details": 450,
+      "panel:details-notes-activities:notes": 300,
+      "panel:details-notes-activities:activities": 250,
+    };
+    const unsavedMasterData = createElement("input", {
+      "data-unsaved-field": true,
+      defaultValue: "saved value",
+    });
+    const { container } = await mountState("content", {
+      masterData: unsavedMasterData,
+      panelLayout: {
+        initial: harness.columnWidths,
+        p13nId: "contact-detail",
+        persistenceScope: "user-1",
+      },
+    });
+    const grid = container.querySelector<HTMLElement>("[data-detail-grid]");
+    const field = container.querySelector<HTMLInputElement>("[data-unsaved-field]");
+    const firstSeparator = container.querySelector<HTMLButtonElement>('[role="separator"]');
+
+    expect(harness.p13nArgs).toHaveBeenLastCalledWith({
+      initial: harness.columnWidths,
+      p13nId: "contact-detail",
+      persistenceScope: "user-1",
+    });
+    expect(grid?.style.getPropertyValue("--panel-grid-template")).toBe(
+      "minmax(320px, 450fr) 1px minmax(280px, 300fr) 1px minmax(320px, 250fr)",
+    );
+    expect(field).not.toBeNull();
+    expect(firstSeparator).not.toBeNull();
+
+    if (!field || !firstSeparator) throw new Error("Expected mounted panels");
+    field.value = "unsaved edit";
+    await act(async () => {
+      firstSeparator.dispatchEvent(
+        new KeyboardEvent("keydown", {
+          bubbles: true,
+          key: "ArrowRight",
+        }),
+      );
+      await Promise.resolve();
+    });
+
+    expect(container.querySelector("[data-unsaved-field]")).toBe(field);
+    expect(field.value).toBe("unsaved edit");
+    expect(harness.setColumnWidths).toHaveBeenCalledOnce();
+    expect(harness.columnWidths.unrelated).toBe(77);
+    expect(harness.columnWidths["panel:details-notes-activities:details"]).toBeTypeOf("number");
+    expect(harness.columnWidths["panel:details-notes-activities:notes"]).toBeTypeOf("number");
+    expect(harness.columnWidths["panel:details-notes-activities:activities"]).toBeTypeOf("number");
+    expect(Object.keys(harness.columnWidths).some((key) => key.startsWith("panel:details-notes:"))).toBe(false);
   });
 
   it.each([

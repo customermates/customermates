@@ -9,9 +9,7 @@ import { cn } from "@/core/utils/cn";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 
 import { ScrollReturnButton } from "./scroll-return-button";
-import { prefersReducedMotion, scrollToAnchor } from "./use-scroll-return";
-
-const AUTO_FOLLOW_SETTLE_MS = 1000;
+import { scrollToAnchor } from "./use-scroll-return";
 
 type Props = {
   className?: string;
@@ -44,8 +42,6 @@ export function MessagesScrollContainer({
   const contentRef = useRef<HTMLDivElement>(null);
   const loadOlderButtonRef = useRef<HTMLButtonElement>(null);
   const stickToBottom = useRef(true);
-  const autoFollowing = useRef(false);
-  const autoFollowTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const topReachInFlight = useRef(false);
   const scrollVersion = useRef(0);
   const [isAwayFromLatest, setIsAwayFromLatest] = useState(false);
@@ -87,21 +83,8 @@ export function MessagesScrollContainer({
       setScrollFooterHeight((currentHeight) => (currentHeight === nextHeight ? currentHeight : nextHeight));
     };
 
-    const releaseFollow = () => {
-      autoFollowing.current = false;
-      if (autoFollowTimer.current) clearTimeout(autoFollowTimer.current);
-      autoFollowTimer.current = null;
-    };
     const followBottom = () => {
-      if (prefersReducedMotion()) {
-        el.scrollTop = el.scrollHeight;
-        return;
-      }
-
-      autoFollowing.current = true;
-      if (autoFollowTimer.current) clearTimeout(autoFollowTimer.current);
-      autoFollowTimer.current = setTimeout(releaseFollow, AUTO_FOLLOW_SETTLE_MS);
-      el.scrollTo({ behavior: "smooth", top: el.scrollHeight });
+      el.scrollTop = el.scrollHeight;
     };
     const observer = new ResizeObserver(() => {
       syncFooterHeight();
@@ -112,16 +95,8 @@ export function MessagesScrollContainer({
     observer.observe(content);
     if (el !== content) observer.observe(el);
     if (footer && footer !== content && footer !== el) observer.observe(footer);
-    el.addEventListener("wheel", releaseFollow, { passive: true });
-    el.addEventListener("touchmove", releaseFollow, { passive: true });
-    el.addEventListener("keydown", releaseFollow);
-
     return () => {
       observer.disconnect();
-      if (autoFollowTimer.current) clearTimeout(autoFollowTimer.current);
-      el.removeEventListener("wheel", releaseFollow);
-      el.removeEventListener("touchmove", releaseFollow);
-      el.removeEventListener("keydown", releaseFollow);
     };
   }, [getScrollElement, scrollable, scrollFooterRef, usesExternalScroll]);
 
@@ -160,13 +135,6 @@ export function MessagesScrollContainer({
     if (!el) return;
     const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 120;
 
-    if (autoFollowing.current && !isNearBottom) {
-      setIsAwayFromLatest(false);
-      return;
-    }
-
-    autoFollowing.current = false;
-
     stickToBottom.current = isNearBottom;
     setIsAwayFromLatest(!isNearBottom);
 
@@ -186,7 +154,6 @@ export function MessagesScrollContainer({
     if (!el) return;
 
     stickToBottom.current = true;
-    autoFollowing.current = false;
     setIsAwayFromLatest(false);
     scrollToAnchor(el, "bottom");
     requestAnimationFrame(() => el.focus({ preventScroll: true }));

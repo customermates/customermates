@@ -50,6 +50,12 @@ export const SerializedInteractorFailureSchema = z.object({
 
 export type SerializedInteractorFailure = z.infer<typeof SerializedInteractorFailureSchema>;
 
+export function serializedFailureErrorTree(failure: SerializedInteractorFailure) {
+  return z.treeifyError(
+    new z.ZodError(failure.issues.map(({ path, message }) => ({ code: "custom" as const, path, message }))),
+  );
+}
+
 const AUTHENTICATION_FAILURE_CODES = new Set<CustomErrorCode>([CustomErrorCode.notAuthenticated]);
 const AUTHORIZATION_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.userInactive,
@@ -74,6 +80,7 @@ const NOT_FOUND_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.userNotFound,
   CustomErrorCode.webhookDeliveryNotFound,
   CustomErrorCode.webhookNotFound,
+  CustomErrorCode.wikiPageNotFound,
   CustomErrorCode.widgetNotFound,
 ]);
 const CONFLICT_FAILURE_CODES = new Set<CustomErrorCode>([
@@ -85,6 +92,9 @@ const CONFLICT_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.unipileAccountRestricted,
   CustomErrorCode.unipileFeatureUnavailable,
   CustomErrorCode.unipileUnknown,
+  CustomErrorCode.wikiGuideExists,
+  CustomErrorCode.wikiNotEmpty,
+  CustomErrorCode.wikiPageConflict,
 ]);
 const RATE_LIMIT_FAILURE_CODES = new Set<CustomErrorCode>([CustomErrorCode.unipileRateLimit]);
 const UNAVAILABLE_FAILURE_CODES = new Set<CustomErrorCode>([

@@ -95,20 +95,6 @@ describe("AiConnectionStore routing", () => {
     expect(store.selectedTool).toBe("claudeDesktop");
     expect(store.canFinish).toBe(false);
   });
-
-  it("uses Skip as an optional terminal path and restores the provider chooser on Back", () => {
-    const store = makeStore();
-
-    store.selectSkip();
-
-    expect(store.route).toEqual({ screen: "skip" });
-    expect(store.canFinish).toBe(true);
-
-    store.backToProviders();
-
-    expect(store.route).toEqual({ screen: "providers" });
-    expect(store.canFinish).toBe(false);
-  });
 });
 
 describe("AiConnectionStore API-key lifecycle", () => {
@@ -198,7 +184,6 @@ describe("AiConnectionStore API-key lifecycle", () => {
     expect(profileActions.createApiKeyAction).toHaveBeenCalledTimes(1);
 
     store.backToProviders();
-    store.selectSkip();
     store.selectProvider("openai");
 
     expect(store.route).toEqual({ screen: "setup", provider: "gemini" });

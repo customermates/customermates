@@ -1,0 +1,391 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { AjvJsonSchemaValidator } from "@modelcontextprotocol/sdk/validation/ajv";
+import {
+  getParseErrorMessage,
+  normalizeObjectSchema,
+  safeParseAsync,
+} from "@modelcontextprotocol/sdk/server/zod-compat.js";
+import { toJsonSchemaCompat } from "@modelcontextprotocol/sdk/server/zod-json-schema-compat.js";
+
+import { createMockUser } from "@/tests/helpers/mock-user";
+import { MOCK_ENV_MODULE, createMockDiModule, MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-test-setup";
+
+const mockUser = createMockUser();
+
+const spies = vi.hoisted(() => ({
+  listDeals: vi.fn(),
+  getUsers: vi.fn(),
+  getMessagingThreads: vi.fn(),
+  getMessagingThread: vi.fn(),
+  getActivities: vi.fn(),
+  getCalendars: vi.fn(),
+  getCalendarEvents: vi.fn(),
+  getRoutines: vi.fn(),
+  getWebhooks: vi.fn(),
+  getWebhookDeliveries: vi.fn(),
+}));
+
+vi.mock("@/env", () => MOCK_ENV_MODULE);
+vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
+vi.mock("@/core/di", () => ({
+  ...createMockDiModule(() => mockUser),
+  getGetUsersApiInteractor: () => ({ invoke: spies.getUsers }),
+  getGetMessagingThreadsApiInteractor: () => ({ invoke: spies.getMessagingThreads }),
+  getGetMessagingThreadInteractor: () => ({ invoke: spies.getMessagingThread }),
+  getGetActivitiesApiInteractor: () => ({ invoke: spies.getActivities }),
+  getGetCalendarsApiInteractor: () => ({ invoke: spies.getCalendars }),
+  getGetCalendarEventsApiInteractor: () => ({ invoke: spies.getCalendarEvents }),
+  getGetRoutinesApiInteractor: () => ({ invoke: spies.getRoutines }),
+  getGetWebhooksApiInteractor: () => ({ invoke: spies.getWebhooks }),
+  getGetWebhookDeliveriesApiInteractor: () => ({ invoke: spies.getWebhookDeliveries }),
+}));
+vi.mock("@/features/search/entity-list-executors", () => ({
+  entityListExecutors: { deal: spies.listDeals },
+  entityNameExtractors: { deal: (item: { name: string }) => item.name },
+}));
+
+import { executeMcpTool, type McpTool } from "../mcp-tool";
+import { McpPageOutputShape } from "../utils";
+import { listRecordsTool } from "../entity-generic.mcp-tools";
+import { listUsersTool } from "../workspace.mcp-tools";
+import { getActivitiesTool, getCalendarsTool, getMessagingThreadsTool } from "../messaging.mcp-tools";
+import { manageRoutinesTool } from "../routine.mcp-tools";
+import { manageWebhooksTool } from "../webhook.mcp-tools";
+
+const ada = "00000000-0000-4000-8000-00000000000a";
+const threadId = "00000000-0000-4000-8000-000000000071";
+const accountId = "00000000-0000-4000-8000-000000000072";
+const sentAt = new Date("2026-09-01T06:55:15.000Z");
+
+const participant = {
+  attendeeId: "attendee-1",
+  displayName: "Jane Doe",
+  identifier: "jane@example.com",
+  isSelf: false,
+  contact: { id: "00000000-0000-4000-8000-000000000073", firstName: "Jane", lastName: "Doe" },
+};
+
+const thread = {
+  id: threadId,
+  connectedAccountId: accountId,
+  provider: "gmail",
+  type: "single",
+  name: null,
+  subject: "Pilot",
+  preview: "Sounds good",
+  state: "read",
+  lastMessageAt: sentAt,
+  lastMessageFromSelf: false,
+  lastSentMessageFromSelf: false,
+  participants: [participant],
+  sharedToCrm: false,
+  isOwner: true,
+};
+
+const deal = {
+  id: "00000000-0000-4000-8000-000000000081",
+  name: "Rollout",
+  totalValue: 1000,
+  totalQuantity: 2,
+  notes: { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "Kept out of the rows" }] }] },
+  createdAt: sentAt,
+  updatedAt: sentAt,
+  organizations: [{ id: "00000000-0000-4000-8000-000000000082", name: "Northwind" }],
+  users: [{ id: ada, firstName: "Ada", lastName: "Tester", avatarUrl: null, email: "ada@example.com" }],
+  contacts: [{ id: "00000000-0000-4000-8000-000000000073", firstName: "Jane", lastName: "Doe", avatarUrl: null }],
+  services: [{ id: "00000000-0000-4000-8000-000000000083", name: "Onboarding", amount: 500, quantity: 2 }],
+  tasks: [],
+  customFieldValues: [
+    { columnId: "00000000-0000-4000-8000-000000000084", value: "00000000-0000-4000-8000-000000000085" },
+    { columnId: "00000000-0000-4000-8000-000000000086", value: null },
+  ],
+};
+
+function page<T>(items: T[]) {
+  return { ok: true, data: { items, pagination: { page: 1, pageSize: 25, total: items.length, totalPages: 1 } } };
+}
+
+function arrange() {
+  spies.listDeals.mockImplementation((params: { grouping?: unknown }) =>
+    Promise.resolve({
+      ok: true,
+      data: {
+        items: params.grouping ? [] : [{ ...deal, weightedValue: 500 }],
+        pagination: { total: 2 },
+        valueSums: { totalValue: 3000, weightedValue: 1500 },
+        groupableFields: ["contactIds", "organizationIds", "serviceIds", "taskIds", "userIds"].map((id) => ({
+          id,
+          grouping: { field: id },
+          kind: "relation",
+          labelKey: id,
+          supportsDragWriteBack: false,
+        })),
+        ...(params.grouping
+          ? {
+              grouping: {
+                grouping: { field: "userIds" },
+                kind: "relation",
+                supportsDragWriteBack: false,
+                total: 2,
+                membershipTotal: 3,
+                groups: [
+                  {
+                    key: ada,
+                    count: 2,
+                    labelKind: "value",
+                    label: "Ada Tester",
+                    isNoValue: false,
+                    materialised: false,
+                    itemIds: [],
+                    hasMore: false,
+                    valueSums: { totalValue: 3000, weightedValue: 1500 },
+                  },
+                ],
+              },
+            }
+          : {}),
+      },
+    }),
+  );
+  spies.getUsers.mockResolvedValue(
+    page([
+      {
+        id: ada,
+        firstName: "Ada",
+        lastName: "Tester",
+        email: "ada@example.com",
+        roleId: null,
+        status: "active",
+        createdAt: sentAt,
+      },
+    ]),
+  );
+  spies.getMessagingThreads.mockResolvedValue(page([thread]));
+  spies.getMessagingThread.mockResolvedValue({
+    ok: true,
+    data: {
+      thread,
+      messages: [
+        {
+          id: "00000000-0000-4000-8000-000000000074",
+          direction: "inbound",
+          sender: participant,
+          recipients: { to: [], cc: [], bcc: [] },
+          subject: "Pilot",
+          bodyText: "Sounds good",
+          isDraft: false,
+          draftRevision: null,
+          attachmentsMeta: [],
+          sentAt,
+          editedAt: null,
+        },
+      ],
+      total: 1,
+      accountOwners: {},
+      folderContext: null,
+    },
+  });
+  spies.getActivities.mockResolvedValue({
+    ok: true,
+    data: {
+      availableSources: [],
+      items: [{ kind: "audit", id: "activity-1", at: sentAt, records: {} }],
+      pagination: { page: 1, pageSize: 25, total: 1, totalPages: 1 },
+      pageLimitReached: false,
+      scopeTruncated: false,
+    },
+  });
+  spies.getCalendars.mockResolvedValue(page([{ id: "calendar-1", name: "Work" }]));
+  spies.getCalendarEvents.mockResolvedValue(page([{ id: "event-1", title: "Kickoff", startsAt: sentAt }]));
+  spies.getRoutines.mockResolvedValue(page([{ id: "routine-1", name: "Digest" }]));
+  spies.getWebhooks.mockResolvedValue(
+    page([
+      {
+        id: "webhook-1",
+        url: "https://example.com/hook",
+        description: null,
+        events: ["contact.created"],
+        enabled: true,
+        createdAt: sentAt,
+        updatedAt: sentAt,
+      },
+    ]),
+  );
+  spies.getWebhookDeliveries.mockResolvedValue(page([{ id: "delivery-1", createdAt: sentAt }]));
+}
+
+async function sdkOutputViolations(tool: McpTool, args: Record<string, unknown>) {
+  const executed = await executeMcpTool(tool, [tool.inputSchema.parse(args)]);
+  if (!executed.ok) throw new Error(executed.result);
+  if (!executed.structuredContent) throw new Error(`${tool.name} returned no structured content`);
+
+  const outputSchema = normalizeObjectSchema(tool.outputSchema);
+  if (!outputSchema) throw new Error(`${tool.name} declares no object output schema`);
+
+  const server = await safeParseAsync(outputSchema, executed.structuredContent);
+  const published = JSON.parse(
+    JSON.stringify(toJsonSchemaCompat(outputSchema, { strictUnions: true, pipeStrategy: "output" })),
+  );
+  const client = new AjvJsonSchemaValidator().getValidator(published)(
+    JSON.parse(JSON.stringify(executed.structuredContent)),
+  );
+
+  return {
+    structuredContent: executed.structuredContent,
+    server: server.success ? null : getParseErrorMessage(server.error),
+    client: client.valid ? null : client.errorMessage,
+  };
+}
+
+beforeEach(() => {
+  vi.clearAllMocks();
+  arrange();
+});
+
+describe("tool results pass the MCP SDK output validation on the server and in the client", () => {
+  it.each([
+    ["list_records", listRecordsTool, { entity: "deal" }],
+    ["list_records grouped", listRecordsTool, { entity: "deal", groupBy: { field: "userIds" } }],
+    ["list_records served at a page size that is not offered", listRecordsTool, { entity: "deal", pageSize: 50 }],
+    [
+      "list_records with every include value",
+      listRecordsTool,
+      { entity: "deal", include: ["owners", "links", "customFields", "dates"] },
+    ],
+    [
+      "list_records grouped served at a page size that is not offered",
+      listRecordsTool,
+      { entity: "deal", pageSize: 50, groupBy: { field: "userIds" } },
+    ],
+    ["list_users", listUsersTool, {}],
+    ["list_users served at a page size that is not offered", listUsersTool, { pageSize: 50 }],
+    ["get_messaging_threads list served at a page size that is not offered", getMessagingThreadsTool, { pageSize: 7 }],
+    [
+      "get_messaging_threads detail served at a page size that is not offered",
+      getMessagingThreadsTool,
+      { threadId, pageSize: 7 },
+    ],
+    ["get_activities served at a page size that is not offered", getActivitiesTool, { pageSize: 7 }],
+    ["get_calendars calendars served at a page size that is not offered", getCalendarsTool, { pageSize: 7 }],
+    [
+      "get_calendars events served at a page size that is not offered",
+      getCalendarsTool,
+      { list: "events", pageSize: 7 },
+    ],
+    [
+      "manage_routines list served at a page size that is not offered",
+      manageRoutinesTool,
+      { action: "list", pageSize: 7 },
+    ],
+    [
+      "manage_webhooks list served at a page size that is not offered",
+      manageWebhooksTool,
+      { action: "list", pageSize: 7 },
+    ],
+    [
+      "manage_webhooks list_deliveries served at a page size that is not offered",
+      manageWebhooksTool,
+      { action: "list_deliveries", pageSize: 7 },
+    ],
+  ] as const)("%s", async (_case, tool, args) => {
+    const outcome = await sdkOutputViolations(tool as McpTool, args);
+
+    expect({ server: outcome.server, client: outcome.client }).toEqual({ server: null, client: null });
+    expect(outcome.structuredContent).toMatchObject({ page: 1, pageSize: "pageSize" in args ? args.pageSize : 25 });
+    expect(outcome.structuredContent).not.toHaveProperty("requestedPageSize");
+    expect(outcome.structuredContent).not.toHaveProperty("pageSizeNote");
+  });
+
+  it("asks each list reader only for an offered page size, and hands a thread detail its size unchanged", async () => {
+    const calls: [McpTool, Record<string, unknown>][] = [
+      [listRecordsTool, { entity: "deal", pageSize: 50 }],
+      [listRecordsTool, { entity: "deal", page: 2, pageSize: 60, groupBy: { field: "userIds" } }],
+      [listUsersTool, { pageSize: 50 }],
+      [getMessagingThreadsTool, { pageSize: 7 }],
+      [getMessagingThreadsTool, { threadId, pageSize: 7 }],
+      [getActivitiesTool, { pageSize: 7 }],
+      [getCalendarsTool, { pageSize: 7 }],
+      [getCalendarsTool, { list: "events", pageSize: 7 }],
+      [manageRoutinesTool, { action: "list", pageSize: 7 }],
+      [manageWebhooksTool, { action: "list", pageSize: 7 }],
+      [manageWebhooksTool, { action: "list_deliveries", pageSize: 7 }],
+    ];
+    for (const [tool, args] of calls) await executeMcpTool(tool, [tool.inputSchema.parse(args)]);
+    const paginations = (spy: ReturnType<typeof vi.fn>) =>
+      spy.mock.calls.map(([params]) => (params as { pagination: unknown }).pagination);
+
+    expect(paginations(spies.listDeals)).toEqual([
+      { page: 1, pageSize: 100 },
+      { page: 1, pageSize: 100 },
+    ]);
+    expect(paginations(spies.getUsers)).toEqual([{ page: 1, pageSize: 100 }]);
+    for (const spy of [
+      spies.getMessagingThreads,
+      spies.getActivities,
+      spies.getCalendars,
+      spies.getCalendarEvents,
+      spies.getWebhooks,
+      spies.getWebhookDeliveries,
+    ])
+      expect(paginations(spy)).toEqual([{ page: 1, pageSize: 10 }]);
+    expect(spies.getRoutines).toHaveBeenCalledWith(expect.objectContaining({ page: 1, pageSize: 10 }));
+    expect(spies.getMessagingThread).toHaveBeenCalledWith({ threadId, page: 1, pageSize: 7 });
+  });
+
+  it("declares the fields include adds, so a client sees them in the published output schema", async () => {
+    const outcome = await sdkOutputViolations(listRecordsTool, {
+      entity: "deal",
+      include: ["owners", "links", "customFields", "dates"],
+    });
+    const outputSchema = normalizeObjectSchema(listRecordsTool.outputSchema);
+    if (!outputSchema) throw new Error("list_records declares no object output schema");
+    const published = toJsonSchemaCompat(outputSchema, {
+      strictUnions: true,
+      pipeStrategy: "output",
+    }) as { properties: { items: { items: { properties: Record<string, unknown>; required?: string[] } } } };
+    const item = published.properties.items.items;
+
+    expect(outcome.structuredContent.items).toEqual([
+      expect.objectContaining({
+        userIds: [ada],
+        taskIds: [],
+        createdAt: "2026-09-01T06:55:15.000Z",
+        customFieldValues: deal.customFieldValues,
+      }),
+    ]);
+    expect(Object.keys(item.properties)).toEqual(
+      expect.arrayContaining(["userIds", "dealIds", "taskIds", "customFieldValues", "createdAt", "updatedAt"]),
+    );
+    expect(item.required).toEqual(["id", "name"]);
+  });
+
+  it("reports the page and the page size asked for on a grouped list_records call", async () => {
+    const outcome = await sdkOutputViolations(listRecordsTool, {
+      entity: "deal",
+      page: 2,
+      pageSize: 50,
+      groupBy: { field: "userIds" },
+    });
+
+    expect(outcome.structuredContent).toMatchObject({ page: 2, pageSize: 50 });
+    expect(outcome.structuredContent).not.toHaveProperty("requestedPageSize");
+  });
+
+  it("publishes the grouped page-size note only on list_records, the one paged tool that groups", () => {
+    const publishedPageSize = (tool: McpTool) => {
+      const outputSchema = normalizeObjectSchema(tool.outputSchema);
+      if (!outputSchema) throw new Error(`${tool.name} declares no object output schema`);
+      const published = toJsonSchemaCompat(outputSchema, { strictUnions: true, pipeStrategy: "output" }) as {
+        properties: { pageSize: { description?: string } };
+      };
+      return published.properties.pageSize.description;
+    };
+    const shared = McpPageOutputShape.pageSize.description;
+
+    expect(publishedPageSize(listRecordsTool as McpTool)).toBe(
+      `${shared}, and a grouped result echoes it with items empty`,
+    );
+    for (const tool of [listUsersTool, getActivitiesTool] as McpTool[])
+      expect([tool.name, publishedPageSize(tool)]).toEqual([tool.name, shared]);
+  });
+});

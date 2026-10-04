@@ -1,6 +1,4 @@
 import type { MessagingService } from "../messaging.service";
-import type { EmailFolder } from "../email-folders";
-import type { MessagingProvider } from "@/generated/prisma";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
@@ -20,6 +18,8 @@ import { fail, failNotFound } from "@/core/validation/interactor-failure-server"
 import { isFileableEmailProvider } from "../provider";
 import { isEmailMoveTarget, isMovableEmailFolder } from "../email-folders";
 import { retryAfterPhrase } from "../retry-after.server";
+import type { MoveEmailThreadAccountRepo } from "./move-email-thread-account.repo";
+import type { MoveEmailThreadRepo } from "./move-email-thread.repo";
 
 export const MoveEmailThreadSchema = z.object({
   threadId: z.uuid().describe("Email thread id from get_messaging_threads.items[].id"),
@@ -63,38 +63,6 @@ export const MoveEmailThreadResultSchema = z.object({
   stoppedMessage: z.string().optional(),
 });
 export type MoveEmailThreadResult = Data<typeof MoveEmailThreadResultSchema>;
-
-type MoveThread = {
-  id: string;
-  connectedAccountId: string;
-  provider: MessagingProvider;
-  companyId: string;
-  unipileAccountId: string;
-};
-
-type MovableMessage = {
-  id: string;
-  unipileMessageId: string;
-  folderIds: string[];
-};
-
-export abstract class MoveEmailThreadAccountRepo {
-  abstract findFolderContextById(
-    accountId: string,
-  ): Promise<{ folders: EmailFolder[]; selectedFolderIds: string[] } | null>;
-}
-
-export abstract class MoveEmailThreadRepo {
-  abstract findThreadForMoveOrThrow(threadId: string): Promise<MoveThread>;
-  abstract listThreadMovableMessages(threadId: string): Promise<MovableMessage[]>;
-  abstract moveEmailMessageUnscoped(args: {
-    companyId: string;
-    connectedAccountId: string;
-    unipileMessageId: string;
-    newUnipileMessageId: string;
-    folderIds: string[];
-  }): Promise<{ id: string } | null>;
-}
 
 @TenantInteractor({ resource: Resource.inboxMessages, action: Action.update })
 export class MoveEmailThreadInteractor extends AuthenticatedInteractor<MoveEmailThreadData, MoveEmailThreadResult> {
