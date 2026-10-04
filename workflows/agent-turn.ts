@@ -56,7 +56,6 @@ import {
 import { userWebsiteHomepage } from "@/ee/agent-chat/user-website-homepages";
 import { buildAgentUsageSettlement, usageToTokenCounts } from "@/ee/agent-chat/agent-usage-settlement";
 import { computeCostMicrocents } from "@/ee/agent-chat/model-pricing";
-import { agentMicrocentsToCredits } from "@/core/commercial/agent-credits";
 import { createAgentSupportTicket } from "@/ee/agent-chat/agent-support-ticket";
 import { describeAgentTool } from "@/ee/agent-chat/agent-activity";
 import {
@@ -891,7 +890,6 @@ async function finalizeTurn(payload: AgentTurnWorkflowPayload, outcome: AgentTur
         assistantMessageId: committed.assistantMessage.id,
         affectedResources: committed.affectedResources,
         hasSuccessfulMutation: outcome.hasSuccessfulMutation,
-        creditsUsed: agentMicrocentsToCredits(committed.chargedMicrocents),
         numTurns: outcome.ledger.length,
         errorMessage: committed.terminalCode === "policyBreach" ? "policy_breach" : null,
         replayed: false,

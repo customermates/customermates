@@ -6,6 +6,8 @@ import { describe, expect, it } from "vitest";
 import { REPO_ROOT, walkFiles } from "./walk";
 
 const SERVER_ONLY_KEY_PATTERN = /model|token|microcent|usd|dollar|provider|pricing/i;
+const RAW_CREDIT_KEY_PATTERN = /credit/i;
+const RAW_CREDIT_SOURCE_PATTERN = /creditsUsed|creditsRemaining|creditsLimit|recentTurnCredits|formatAgentCredits/;
 const SERVER_ONLY_SOURCE_PATTERN = /microcent|costUsd|inferenceCost|PerMTok|modelSpec|servingProvider/;
 
 function readRepoFile(repoPath: string) {
@@ -34,14 +36,50 @@ function agentChatClientFiles() {
 }
 
 describe("agent client payload boundary", () => {
-  it("keeps model identifiers, dollars and tokens out of the credit summary the browser receives", () => {
+  it("keeps model identifiers, dollars, tokens and raw credit amounts out of the usage view the browser receives", () => {
     const keys = objectLiteralKeys(
       readRepoFile("ee/agent-chat/agent-usage.service.ts"),
-      "export const AgentUsageSummarySchema = z.object(",
+      "export const AgentUsageViewSchema = z.object(",
     );
 
-    expect(keys.length).toBeGreaterThan(5);
-    expect(keys.filter((key) => SERVER_ONLY_KEY_PATTERN.test(key))).toEqual([]);
+    expect(keys).toEqual([
+      "hasAllowance",
+      "usedPct",
+      "multiplier",
+      "plan",
+      "resetAt",
+      "recentTurnPct",
+      "blockedReason",
+    ]);
+    expect(keys.filter((key) => SERVER_ONLY_KEY_PATTERN.test(key) || RAW_CREDIT_KEY_PATTERN.test(key))).toEqual([]);
+  });
+
+  it("sends the agent config usage as the percentage view, never the credit summary", () => {
+    const config = readRepoFile("ee/agent-chat/get-agent-config.interactor.ts");
+
+    expect(config).toContain("usage: AgentUsageViewSchema,");
+    expect(config).toContain("usage: toAgentUsageView(usage),");
+    expect(config).not.toContain("AgentUsageSummarySchema");
+  });
+
+  it("emits no raw credit amount in the turn stream the browser reads", () => {
+    const stream = readRepoFile("ee/agent-chat/agent-durable-stream.ts");
+    const turnDone = stream.slice(stream.indexOf('type: "turn_done";'));
+    const open = turnDone.indexOf("{");
+    const keys = [...turnDone.slice(open, turnDone.indexOf("};", open)).matchAll(/^\s+([A-Za-z]\w*)\??:/gm)].map(
+      (match) => match[1],
+    );
+
+    expect(keys).toContain("numTurns");
+    expect(keys.filter((key) => RAW_CREDIT_KEY_PATTERN.test(key))).toEqual([]);
+  });
+
+  it("never reads a raw credit amount in the chat browser bundle", () => {
+    const offending = agentChatClientFiles()
+      .filter((path) => RAW_CREDIT_SOURCE_PATTERN.test(readFileSync(path, "utf8")))
+      .map((path) => relative(REPO_ROOT, path));
+
+    expect(offending).toEqual([]);
   });
 
   it("never names a catalog model in a browser bundle", () => {

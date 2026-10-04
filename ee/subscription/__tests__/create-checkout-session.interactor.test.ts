@@ -12,6 +12,7 @@ const COMPANY_ID = "00000000-0000-4000-8000-000000000001";
 const mockUser = createMockUser({ companyId: COMPANY_ID });
 const request = vi.hoisted(() => ({
   origin: "https://feat-inbox.customermates.com",
+  maxVariantId: undefined as string | undefined,
 }));
 
 vi.mock("@/env", () => ({
@@ -22,6 +23,9 @@ vi.mock("@/env", () => ({
     LEMONSQUEEZY_VARIANT_ID_STARTER: "2001",
     LEMONSQUEEZY_VARIANT_ID_PRO: "2002",
     LEMONSQUEEZY_VARIANT_ID_BUSINESS: "2003",
+    get LEMONSQUEEZY_VARIANT_ID_MAX() {
+      return request.maxVariantId;
+    },
   },
 }));
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
@@ -57,6 +61,7 @@ function makeUserRepo() {
 beforeEach(() => {
   vi.clearAllMocks();
   request.origin = "https://feat-inbox.customermates.com";
+  request.maxVariantId = undefined;
 });
 
 describe("CreateCheckoutSessionInteractor", () => {
@@ -114,6 +119,38 @@ describe("CreateCheckoutSessionInteractor", () => {
       error: { issues: [{ params: { error: "enterpriseCheckoutUnavailable" } }] },
     });
     expect(subscriptionService.createCheckoutOrThrow).not.toHaveBeenCalled();
+  });
+
+  it("refuses Max checkout gracefully while its variant is not configured", async () => {
+    const subscriptionService = makeSubscriptionService();
+    const interactor = new CreateCheckoutSessionInteractor(
+      subscriptionService as never,
+      makeCheckoutRepo() as never,
+      makeUserRepo() as never,
+    );
+
+    await expect(interactor.invoke({ plan: "max", cadence: "monthly" } as never)).resolves.toMatchObject({
+      ok: false,
+      error: { issues: [{ params: { error: "planCheckoutUnavailable" } }] },
+    });
+    expect(subscriptionService.createCheckoutOrThrow).not.toHaveBeenCalled();
+  });
+
+  it("opens Max checkout once its variant is configured", async () => {
+    request.maxVariantId = "2004";
+    const subscriptionService = makeSubscriptionService();
+    const interactor = new CreateCheckoutSessionInteractor(
+      subscriptionService as never,
+      makeCheckoutRepo() as never,
+      makeUserRepo() as never,
+    );
+
+    const result = await interactor.invoke({ plan: "max", cadence: "monthly" } as never);
+
+    expect(result).toMatchObject({ redirect: "https://checkout.example.com" });
+    expect(subscriptionService.createCheckoutOrThrow).toHaveBeenCalledWith(
+      expect.objectContaining({ offer: expect.objectContaining({ id: "max:monthly", unitPriceMinor: 14_900 }) }),
+    );
   });
 
   it("rejects annual checkout before calling the provider", async () => {

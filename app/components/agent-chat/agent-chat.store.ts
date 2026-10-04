@@ -2,7 +2,7 @@ import { AgentActivityContextSchema } from "@/ee/agent-chat/agent-activity-conte
 import { makeObservable, observable, action, computed, reaction, runInAction } from "mobx";
 
 import type { RootStore } from "@/core/stores/root.store";
-import type { AgentUsageSummary } from "@/ee/agent-chat/agent-usage.service";
+import type { AgentUsageView } from "@/ee/agent-chat/agent-usage.service";
 import type { AgentMessageTurn } from "@/ee/agent-chat/agent-history";
 import {
   clientSafeAgentMessageParts,
@@ -265,7 +265,7 @@ export class AgentChatStore extends BaseStore {
   isOpen = false;
   isExpanded = false;
   enabled: boolean | null = null;
-  usage: AgentUsageSummary | null = null;
+  usage: AgentUsageView | null = null;
   counts: AgentDataCounts | null = null;
   conversationId: string | null = null;
   private readonly persistOpenState: boolean;

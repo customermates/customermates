@@ -45,12 +45,12 @@ The link to billing is the **Subscription** page: it shows the plan, status, sea
 
 | Field | What it shows |
 |---|---|
-| **Plan** | The current plan, **Starter**, **Pro**, **Business** or **Enterprise**, with a status chip. Read-only: it is synced from billing and changes through the plan picker or the customer portal. |
+| **Plan** | The current plan, **Starter**, **Pro**, **Business**, **Max** or **Enterprise**, with a status chip. Read-only: it is synced from billing and changes through the plan picker or the customer portal. |
 | **Trial ends** | The date the free trial ends. Shown only while the status is **Trial**. |
 | **Current period ends** | The end of the current billing period, synced from Lemon Squeezy: the renewal date, or after a cancellation the date the subscription ends. Shown once billing has set it. |
 | **Active seats** | The number of billed seats. Before the first checkout it shows the number of **Active** members. The note below reads "You pay per active user. Seat changes are prorated on your next invoice." |
 
-The top bar holds **Refresh** (`#company-subscription-refresh`) and **Manage with Lemon Squeezy** (`#company-subscription-manage`), and the plan picker below the fields carries `#company-subscription-plan-picker`. Plan prices and allowances are under [Which plans are there?](#which-plans-are-there); the hosted AI credits per plan are under [Plans and credits](/docs/app-assistant#plans-and-credits).
+The top bar holds **Refresh** (`#company-subscription-refresh`) and **Manage with Lemon Squeezy** (`#company-subscription-manage`), and the plan picker below the fields carries `#company-subscription-plan-picker`. Plan prices and allowances are under [Which plans are there?](#which-plans-are-there); the Mate usage per plan is under [Plans and usage](/docs/app-assistant#plans-and-credits).
 
 **Link:** the link to the **Subscription** page, `/company/subscription`. **Mate:** `navigate` and `highlight_element` with `nav-company-subscription`; `highlight_element` also takes `company-subscription-refresh`, `company-subscription-manage` and `company-subscription-plan-picker`, each shown only to roles that manage billing, in the subscription state that offers it. The fields are not highlight targets, so Mate names them. On self-hosted, `list_ui_targets` still offers the targets, but the page redirects to the Dashboard.
 
@@ -81,22 +81,23 @@ The chip under the Customermates name in the sidebar shows the plan name while t
 
 ### Which plans are there, and what are their prices? [#which-plans-are-there]
 
-Customermates Cloud has four plans, **Starter**, **Pro**, **Business** and **Enterprise**, and a free trial of [[commercial.trial.days]] days with Pro features.
+Customermates Cloud has five plans, **Starter**, **Pro**, **Business**, **Max** and **Enterprise**, and a free trial of [[commercial.trial.days]] days with Pro features.
 
 | Plan | Price per seat and month | Connected accounts per user | Routines per user | Inbox and messaging | Shared accounts |
 |---|---|---|---|---|---|
 | Starter | [[commercial.price.starter.monthly]] | [[commercial.entitlement.starter.includedAccountsPerUser]] | [[commercial.entitlement.starter.includedRoutinesPerUser]] | No | No |
 | Pro | [[commercial.price.pro.monthly]] | [[commercial.entitlement.pro.includedAccountsPerUser]] | [[commercial.entitlement.pro.includedRoutinesPerUser]] | Yes | No |
 | Business | [[commercial.price.business.monthly]] | [[commercial.entitlement.business.includedAccountsPerUser]] | [[commercial.entitlement.business.includedRoutinesPerUser]] | Yes | Yes |
+| Max | [[commercial.price.max.monthly]] | [[commercial.entitlement.max.includedAccountsPerUser]] | [[commercial.entitlement.max.includedRoutinesPerUser]] | Yes | Yes |
 | Enterprise | On request | [[commercial.entitlement.enterprise.includedAccountsPerUser]] | [[commercial.entitlement.enterprise.includedRoutinesPerUser]] | Yes | Yes |
 
-Every plan includes the full CRM, the audit log, the API, the MCP server and the hosted assistant. Starter, Pro and Business are billed monthly per seat, in euros; there is no other billing interval. Hosted AI credits per active user and month: Starter 200, Pro 500, Business 1,200, Enterprise as contracted, and 500 during the trial. Each request is charged its exact provider cost and shown to one decimal; see [How many credits does each plan include?](/docs/app-assistant#plans-and-credits).
+Every plan includes the full CRM, the audit log, the API, the MCP server and the hosted assistant. Starter, Pro, Business and Max are billed monthly per seat, in euros; there is no other billing interval. Mate usage per active user and month, as a multiple of the Starter allowance: Starter 1x, Pro 3x, Business 10x, Max 20x, Enterprise as contracted, and 3x during the trial. Business gives the most usage per euro. Max also doubles the per-run limit for routines and adds priority support and early access to beta features. Each request counts its exact provider cost, and the app shows usage as a percentage of your monthly allowance; see [How much Mate usage does each plan include?](/docs/app-assistant#plans-and-credits).
 
 **Link:** `/company/subscription`. **Mate:** `navigate` and `highlight_element` with `nav-company-subscription`, then `highlight_element` with `company-subscription-plan-picker` for the plan cards while the picker is shown; the target outlines all cards, so Mate names the plan.
 
 ### How do I choose, upgrade or change a plan? [#how-do-i-choose-or-change-a-plan]
 
-To choose, upgrade or change a plan, use the plan picker, or **Manage with Lemon Squeezy** after the first checkout. While the workspace has no Lemon Squeezy subscription yet, which in practice means during the trial, roles that can manage Company see the plan picker below the fields: cards for **Starter**, **Pro** and **Business**, the last one marked **Most popular**. Each card shows the price per user and month, the features, the connected accounts per user (left out when a plan includes no connected accounts, as on Starter), the routines per user, and the hosted AI credits per active user and month.
+To choose, upgrade or change a plan, use the plan picker, or **Manage with Lemon Squeezy** after the first checkout. While the workspace has no Lemon Squeezy subscription yet, which in practice means during the trial, roles that can manage Company see the plan picker below the fields: cards for **Starter**, **Pro**, **Business** and **Max**, with **Business** marked **Recommended**. Each card shows the price per user and month, the features, the connected accounts per user (left out when a plan includes no connected accounts, as on Starter), the routines per user, and the Mate usage per active user and month as a multiple of Starter. While checkout for a plan is not yet available, its card is shown greyed out and marked **Not yet available**, and choosing it is refused with "Checkout for this plan is not available yet. Contact us to switch to it."
 
 Clicking a card opens the Lemon Squeezy checkout for as many seats as the workspace has **Active** members. After payment, Lemon Squeezy returns you to the **Subscription** page, and the plan, status and seats update once Lemon Squeezy confirms the payment. Checkout adds no second trial: billing starts at checkout, even when trial days are left.
 
@@ -128,7 +129,7 @@ When the status is **Unpaid** or **Expired**, or the trial has passed its end da
 
 | Who | What the page offers |
 |---|---|
-| Roles that can manage Company, and **Admin**, on Starter, Pro or Business | The plan picker to start a new checkout, plus **Contact Support** |
+| Roles that can manage Company, and **Admin**, on Starter, Pro, Business or Max | The plan picker to start a new checkout, plus **Contact Support** |
 | The same roles on Enterprise | A note that the workspace is billed manually, **Contact Support** and **Retry** |
 | Everyone else | "A company administrator must restore the subscription", **Contact Support** and **Retry** |
 
@@ -376,4 +377,4 @@ Reading it needs **Audit Log** read access **All** on your role, or **Admin**; t
 
 - [Webhooks](/docs/webhooks)
 - [App guide, Profile](/docs/app-profile)
-- [Plans and credits](/docs/app-assistant#plans-and-credits)
+- [Plans and Mate usage](/docs/app-assistant#plans-and-credits)

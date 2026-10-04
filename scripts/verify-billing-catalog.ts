@@ -46,7 +46,12 @@ async function verify() {
     );
 
   for (const offer of COMMERCIAL_OFFERS) {
-    const variantId = bindings.byOffer[offer.id].checkoutVariantId;
+    const binding = bindings.byOffer[offer.id];
+    if (!binding) {
+      console.log(`skipped ${offer.id}: no checkout variant configured`);
+      continue;
+    }
+    const variantId = binding.checkoutVariantId;
     const variantResult = await getVariant(variantId);
     if (variantResult.error)
       throw new Error(`${offer.id}: failed to read the configured variant`);

@@ -156,14 +156,12 @@ type StoredMessage = {
 const CONFIG = {
   enabled: true as const,
   usage: {
-    creditsUsed: 0,
-    creditsRemaining: 500,
-    creditsLimit: 500,
+    hasAllowance: true,
     usedPct: 0,
+    multiplier: 3,
     plan: "pro" as const,
-    periodStart: new Date("2026-09-01T00:00:00.000Z"),
     resetAt: new Date("2026-10-01T00:00:00.000Z"),
-    recentTurnCredits: 0,
+    recentTurnPct: 0,
     blockedReason: null,
   },
   counts: {
@@ -243,7 +241,6 @@ function stream(events: readonly AgentTranscriptEvent[]) {
         assistantMessageId: ASSISTANT_MESSAGE_ID,
         affectedResources: [],
         hasSuccessfulMutation: true,
-        creditsUsed: 1,
         numTurns: 1,
         errorMessage: null,
         replayed: false,

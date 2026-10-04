@@ -6,13 +6,17 @@ import {
   SubscriptionPlan as SubscriptionPlanEnum,
 } from "@/generated/prisma";
 
-import type { Subscription, SubscriptionStatus, SubscriptionPlan } from "@/generated/prisma";
+import type { SubscriptionStatus, SubscriptionPlan } from "@/generated/prisma";
+import type { GetSubscriptionRepo } from "./get-subscription.repo";
 import type { CountActiveUsersRepo } from "@/features/user/count-active-users.repo";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { PURCHASABLE_PLAN_IDS, type PurchasablePlanId } from "@/core/commercial/plan-catalog";
+
+import { checkoutUnavailablePlans } from "./lemon-squeezy-bindings";
 
 const OutputSchema = z.object({
   status: z.enum(SubscriptionStatusEnum),
@@ -23,11 +27,8 @@ const OutputSchema = z.object({
   currentPeriodEnd: z.date().nullable(),
   hasBillingPortal: z.boolean(),
   hasActiveSubscription: z.boolean(),
+  checkoutUnavailablePlans: z.array(z.enum(PURCHASABLE_PLAN_IDS)),
 });
-
-export abstract class GetSubscriptionRepo {
-  abstract getSubscriptionOrThrow(): Promise<Subscription>;
-}
 
 export type SubscriptionDto = {
   status: SubscriptionStatus;
@@ -38,6 +39,7 @@ export type SubscriptionDto = {
   currentPeriodEnd: Date | null;
   hasBillingPortal: boolean;
   hasActiveSubscription: boolean;
+  checkoutUnavailablePlans: PurchasablePlanId[];
 };
 
 @AllowInDemoMode
@@ -68,6 +70,7 @@ export class GetSubscriptionInteractor extends AuthenticatedInteractor<void, Sub
         currentPeriodEnd: subscription.currentPeriodEnd,
         hasBillingPortal: subscription.plan !== SubscriptionPlanEnum.enterprise && Boolean(subscription.lemonSqueezyId),
         hasActiveSubscription: Boolean(subscription.lemonSqueezyId),
+        checkoutUnavailablePlans: checkoutUnavailablePlans(),
       },
     };
   }

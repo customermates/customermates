@@ -9,6 +9,7 @@ import type { Data } from "@/core/validation/validation.utils";
 import {
   AGENT_RETRIEVAL_RESERVATION_TTL_MS,
   agentMicrocentsToCredits,
+  agentUsageMultiplier,
   memberCreditHeadroomMicrocents,
   resolveAgentCreditEntitlement,
   workspaceIndexingShareMicrocents,
@@ -73,10 +74,45 @@ export const AgentUsageSummarySchema = z.object({
   periodStart: z.date(),
   resetAt: z.date(),
   recentTurnCredits: z.number().nullable(),
+  usageMultiplier: z.number().nullable(),
   blockedReason: AgentUsageBlockedReasonSchema.nullable(),
 });
 
 export type AgentUsageSummary = Data<typeof AgentUsageSummarySchema>;
+
+export const AgentUsageViewSchema = z.object({
+  hasAllowance: z.boolean(),
+  usedPct: z.number(),
+  multiplier: z.number().nullable(),
+  plan: z.enum(SubscriptionPlan).nullable(),
+  resetAt: z.date(),
+  recentTurnPct: z.number().nullable(),
+  blockedReason: AgentUsageBlockedReasonSchema.nullable(),
+});
+
+export type AgentUsageView = Data<typeof AgentUsageViewSchema>;
+
+function allowanceSharePct(part: number, whole: number): number {
+  if (whole <= 0 || part <= 0) return 0;
+  const pct = Math.min(100, (part / whole) * 100);
+  return Math.max(0.01, Math.round(pct * 100) / 100);
+}
+
+export function toAgentUsageView(summary: AgentUsageSummary): AgentUsageView {
+  const hasAllowance = summary.creditsLimit > 0;
+  return {
+    hasAllowance,
+    usedPct: allowanceSharePct(summary.creditsUsed, summary.creditsLimit),
+    multiplier: summary.usageMultiplier,
+    plan: summary.plan,
+    resetAt: summary.resetAt,
+    recentTurnPct:
+      summary.recentTurnCredits === null || !hasAllowance
+        ? null
+        : allowanceSharePct(summary.recentTurnCredits, summary.creditsLimit),
+    blockedReason: summary.blockedReason,
+  };
+}
 
 export type AgentTurnCreditReservation = {
   reservedMicrocents: number;
@@ -136,6 +172,7 @@ export class AgentUsageService {
           periodStart: period.start,
           resetAt: period.resetAt,
           recentTurnCredits: null,
+          usageMultiplier: null,
           blockedReason: "subscription_unavailable",
         },
       };
@@ -205,6 +242,7 @@ export class AgentUsageService {
         resetAt: entitlement.resetAt,
         recentTurnCredits:
           usage.recentTurnMicrocents === null ? null : agentMicrocentsToCredits(usage.recentTurnMicrocents),
+        usageMultiplier: agentUsageMultiplier(entitlementInput),
         blockedReason,
       },
     };

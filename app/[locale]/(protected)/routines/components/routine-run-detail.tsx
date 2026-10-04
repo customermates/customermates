@@ -73,9 +73,11 @@ export const RoutineRunDetail = observer(({ run, scrollContainerRef, store }: Pr
 
         <span className="text-subdued text-xs">{t("RoutineDetail.ranAs", { owner: run.executedByName })}</span>
 
-        <span className="text-subdued ml-auto text-xs">
-          {`${t("RoutineDetail.credits")}: ${intlStore.formatAgentCredits(run.chargedCredits).amount}`}
-        </span>
+        {run.chargedPct !== null && (
+          <span className="text-subdued ml-auto text-xs tabular-nums">
+            {t("RoutineDetail.usageShare", { used: intlStore.formatAllowanceShare(run.chargedPct) })}
+          </span>
+        )}
       </div>
 
       {stopReason && <Alert color="warning" description={stopReason} />}

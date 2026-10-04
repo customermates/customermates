@@ -6,6 +6,7 @@ import { createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 const prismaMock = vi.hoisted(() => ({
   routineRun: { findMany: vi.fn() },
   agentTurnRequest: { findMany: vi.fn() },
+  agentUsageEvent: { findMany: vi.fn() },
 }));
 
 vi.mock("@/prisma/db", () => ({ prisma: prismaMock }));
@@ -32,6 +33,7 @@ function storedRun(args: { id: string; conversationId: string | null; turnReques
     startedAt: createdAt,
     finishedAt: createdAt,
     terminalCode: "partial",
+    chargedMicrocents: 5_000_000n,
     summary: "The initial run stopped early.",
     error: null,
     createdAt,
@@ -42,6 +44,7 @@ function storedRun(args: { id: string; conversationId: string | null; turnReques
 describe("PrismaRoutineRepo run projection", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    prismaMock.agentUsageEvent.findMany.mockResolvedValue([]);
   });
 
   it("bulk-loads only the visible runs' linked turn requests", async () => {
@@ -107,5 +110,33 @@ describe("PrismaRoutineRepo run projection", () => {
     const result = await runWithTenant(user, () => new PrismaRoutineRepo().getRoutineRuns("routine-1", 10));
 
     expect(result.runs[0]?.stopReason).toBeNull();
+  });
+
+  it("reports each run's charge as a share of the allowance it ran against", async () => {
+    prismaMock.routineRun.findMany.mockResolvedValue([
+      storedRun({ id: "run-1", conversationId: "conversation-1", turnRequestId: "turn-1" }),
+      {
+        ...storedRun({ id: "run-2", conversationId: "conversation-2", turnRequestId: "turn-2" }),
+        chargedMicrocents: 1n,
+      },
+      storedRun({ id: "run-3", conversationId: null, turnRequestId: null }),
+    ]);
+    prismaMock.agentTurnRequest.findMany.mockResolvedValue([]);
+    prismaMock.agentUsageEvent.findMany.mockResolvedValue([
+      { turnRequestId: "turn-1", allowanceMicrocentsSnapshot: 200_000_000n },
+      { turnRequestId: "turn-2", allowanceMicrocentsSnapshot: 4_000_000_000n },
+    ]);
+
+    const result = await runWithTenant(user, () => new PrismaRoutineRepo().getRoutineRuns("routine-1", 10));
+
+    expect(prismaMock.agentUsageEvent.findMany).toHaveBeenCalledWith({
+      where: { turnRequestId: { in: ["turn-1", "turn-2"] }, companyId: user.companyId, purpose: "turn" },
+      select: { turnRequestId: true, allowanceMicrocentsSnapshot: true },
+    });
+    expect(result.runs.map(({ id, chargedCredits, chargedPct }) => ({ id, chargedCredits, chargedPct }))).toEqual([
+      { id: "run-1", chargedCredits: 5, chargedPct: 2.5 },
+      { id: "run-2", chargedCredits: 0.000001, chargedPct: 0.01 },
+      { id: "run-3", chargedCredits: 5, chargedPct: null },
+    ]);
   });
 });

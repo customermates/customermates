@@ -9,13 +9,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { RoutineRunStatus, RoutineTriggerKind } from "@/generated/prisma";
 
 vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string, values?: { owner?: string }) =>
-    values?.owner === undefined ? key : `${key}:${values.owner}`,
+  useTranslations: () => (key: string, values?: { owner?: string; used?: string }) =>
+    values?.used !== undefined ? `${key}:${values.used}` : values?.owner === undefined ? key : `${key}:${values.owner}`,
 }));
 vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
   useHydratedIntlStore: () => ({
     formatRelativeTime: () => "just now",
-    formatAgentCredits: (credits: number) => ({ credits, amount: credits === 0.75 ? "0.8" : String(credits) }),
+    formatAllowanceShare: (pct: number) => `${pct}%`,
   }),
 }));
 vi.mock("@/core/errors/report-application-error", () => ({
@@ -58,6 +58,7 @@ function makeRun(overrides: Partial<RoutineRunDto> = {}): RoutineRunDto {
     terminalCode: "completed",
     stopReason: null,
     chargedCredits: 0.75,
+    chargedPct: 0.38,
     summary: "Done",
     error: null,
     createdAt: new Date("2026-09-08T09:00:00Z"),
@@ -131,7 +132,8 @@ describe("RoutineRunsPane rendered states", () => {
     expect(container.querySelector("#routine-run-run-2")).not.toBeNull();
     const ids = [...container.querySelectorAll<HTMLElement>("[id]")].map(({ id }) => id);
     expect(new Set(ids).size).toBe(ids.length);
-    expect(container.textContent).toContain("RoutineDetail.credits: 0.8");
+    expect(container.textContent).toContain("RoutineDetail.usageShare:0.38%");
+    expect(container.textContent).not.toContain("0.75");
   });
 
   it("opens an active run without a conversation and leaves restricted transcripts disabled", () => {

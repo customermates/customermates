@@ -45,12 +45,12 @@ Der Link zur Abrechnung ist die Seite **Abonnement**: Sie zeigt Tarif, Status, N
 
 | Feld | Was es zeigt |
 |---|---|
-| **Plan** | Den aktuellen Tarif, **Starter**, **Pro**, **Business** oder **Enterprise**, mit einem Status-Chip. Schreibgeschützt: Er wird mit der Abrechnung synchronisiert und ändert sich über die Tarifauswahl oder das Kundenportal. |
+| **Plan** | Den aktuellen Tarif, **Starter**, **Pro**, **Business**, **Max** oder **Enterprise**, mit einem Status-Chip. Schreibgeschützt: Er wird mit der Abrechnung synchronisiert und ändert sich über die Tarifauswahl oder das Kundenportal. |
 | **Testphase endet** | Das Enddatum der kostenlosen Testphase. Nur sichtbar, solange der Status **Testphase** ist. |
 | **Ende des aktuellen Abrechnungszeitraums** | Das Ende des laufenden Abrechnungszeitraums, synchronisiert von Lemon Squeezy: das Verlängerungsdatum oder nach einer Kündigung das Datum, an dem das Abonnement endet. Sichtbar, sobald die Abrechnung es gesetzt hat. |
 | **Aktive Nutzerplätze** | Die Zahl der abgerechneten Nutzerplätze. Vor dem ersten Checkout zeigt sie die Zahl der Mitglieder mit Status **Aktiv**. Der Hinweis darunter lautet „Du zahlst pro aktivem Nutzer. Änderungen an den Nutzerplätzen werden anteilig mit der nächsten Rechnung verrechnet.“ |
 
-Die obere Leiste enthält **Aktualisieren** (`#company-subscription-refresh`) und **Verwalten mit Lemon Squeezy** (`#company-subscription-manage`), und die Tarifauswahl unter den Feldern trägt `#company-subscription-plan-picker`. Tarifpreise und Kontingente stehen unter [Welche Tarife gibt es?](#which-plans-are-there), die Credits für die gehostete KI je Tarif unter [Wie viele Credits enthält jeder Tarif?](/docs/app-assistant#plans-and-credits).
+Die obere Leiste enthält **Aktualisieren** (`#company-subscription-refresh`) und **Verwalten mit Lemon Squeezy** (`#company-subscription-manage`), und die Tarifauswahl unter den Feldern trägt `#company-subscription-plan-picker`. Tarifpreise und Kontingente stehen unter [Welche Tarife gibt es?](#which-plans-are-there), die Mate-Nutzung je Tarif unter [Wie viel Mate-Nutzung enthält jeder Tarif?](/docs/app-assistant#plans-and-credits).
 
 **Link:** der Link zur Seite **Abonnement**, `/company/subscription`. **Mate:** `navigate` und `highlight_element` mit `nav-company-subscription`; `highlight_element` nimmt außerdem `company-subscription-refresh`, `company-subscription-manage` und `company-subscription-plan-picker` an, jeweils nur für Rollen sichtbar, die die Abrechnung verwalten dürfen, und nur im Abonnementstatus, der sie anbietet. Die Felder sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen. Selbstgehostet bietet `list_ui_targets` die Ziele weiterhin an, die Seite leitet aber zum Dashboard um.
 
@@ -81,22 +81,23 @@ Der Chip unter dem Namen Customermates in der Sidebar zeigt den Tarifnamen, sola
 
 ### Welche Tarife gibt es, und welche Preise haben sie? [#which-plans-are-there]
 
-Customermates Cloud hat vier Tarife, **Starter**, **Pro**, **Business** und **Enterprise**, und eine kostenlose Testphase von [[commercial.trial.days]] Tagen mit Pro-Funktionen.
+Customermates Cloud hat fünf Tarife, **Starter**, **Pro**, **Business**, **Max** und **Enterprise**, und eine kostenlose Testphase von [[commercial.trial.days]] Tagen mit Pro-Funktionen.
 
 | Tarif | Preis pro Nutzerplatz und Monat | Verbundene Konten pro Nutzer | Routinen pro Nutzer | Posteingang und Messaging | Geteilte Konten |
 |---|---|---|---|---|---|
 | Starter | [[commercial.price.starter.monthly]] | [[commercial.entitlement.starter.includedAccountsPerUser]] | [[commercial.entitlement.starter.includedRoutinesPerUser]] | Nein | Nein |
 | Pro | [[commercial.price.pro.monthly]] | [[commercial.entitlement.pro.includedAccountsPerUser]] | [[commercial.entitlement.pro.includedRoutinesPerUser]] | Ja | Nein |
 | Business | [[commercial.price.business.monthly]] | [[commercial.entitlement.business.includedAccountsPerUser]] | [[commercial.entitlement.business.includedRoutinesPerUser]] | Ja | Ja |
+| Max | [[commercial.price.max.monthly]] | [[commercial.entitlement.max.includedAccountsPerUser]] | [[commercial.entitlement.max.includedRoutinesPerUser]] | Ja | Ja |
 | Enterprise | Auf Anfrage | [[commercial.entitlement.enterprise.includedAccountsPerUser]] | [[commercial.entitlement.enterprise.includedRoutinesPerUser]] | Ja | Ja |
 
-Jeder Tarif enthält das vollständige CRM, das Audit-Log, die API, den MCP-Server und den gehosteten Assistenten. Starter, Pro und Business werden monatlich pro Nutzerplatz in Euro abgerechnet; einen anderen Abrechnungszeitraum gibt es nicht. Credits für gehostete KI pro aktivem Nutzer und Monat: Starter 200, Pro 500, Business 1.200, Enterprise nach Vertrag und 500 während der Testphase. Jede Anfrage wird mit ihren genauen Anbieterkosten abgerechnet und auf eine Nachkommastelle angezeigt; siehe [Wie viele Credits enthält jeder Tarif?](/docs/app-assistant#plans-and-credits).
+Jeder Tarif enthält das vollständige CRM, das Audit-Log, die API, den MCP-Server und den gehosteten Assistenten. Starter, Pro, Business und Max werden monatlich pro Nutzerplatz in Euro abgerechnet; einen anderen Abrechnungszeitraum gibt es nicht. Mate-Nutzung pro aktivem Nutzer und Monat als Vielfaches des Starter-Kontingents: Starter 1x, Pro 3x, Business 10x, Max 20x, Enterprise nach Vertrag und 3x während der Testphase. Business bietet die meiste Nutzung pro Euro. Max verdoppelt außerdem das Limit pro Routinenlauf und enthält priorisierten Support und frühen Zugang zu Beta-Funktionen. Jede Anfrage zählt mit ihren genauen Anbieterkosten, und die App zeigt die Nutzung als Prozentanteil Ihres Monatskontingents; siehe [Wie viel Mate-Nutzung enthält jeder Tarif?](/docs/app-assistant#plans-and-credits).
 
 **Link:** `/company/subscription`. **Mate:** `navigate` und `highlight_element` mit `nav-company-subscription`, danach `highlight_element` mit `company-subscription-plan-picker` für die Tarifkarten, solange die Tarifauswahl angezeigt wird; das Ziel umrahmt alle Karten, deshalb nennt Mate den Tarif beim Namen.
 
 ### Wie wähle oder wechsle ich einen Tarif, etwa für ein Upgrade? [#how-do-i-choose-or-change-a-plan]
 
-Um einen Tarif zu wählen oder zu wechseln, auch für ein Upgrade, nutzen Sie die Tarifauswahl oder nach dem ersten Checkout **Verwalten mit Lemon Squeezy**. Solange der Workspace noch kein Lemon-Squeezy-Abonnement hat, in der Praxis also während der Testphase, sehen Rollen, die Unternehmen verwalten dürfen, unter den Feldern die Tarifauswahl: Karten für **Starter**, **Pro** und **Business**, die letzte mit **Am beliebtesten** markiert. Jede Karte zeigt den Preis pro Nutzer und Monat, die Funktionen, die verbundenen Konten pro Nutzer (die Zeile entfällt, wenn ein Tarif keine verbundenen Konten enthält, wie bei Starter), die Routinen pro Nutzer sowie die Credits für die gehostete KI pro aktivem Nutzer und Monat.
+Um einen Tarif zu wählen oder zu wechseln, auch für ein Upgrade, nutzen Sie die Tarifauswahl oder nach dem ersten Checkout **Verwalten mit Lemon Squeezy**. Solange der Workspace noch kein Lemon-Squeezy-Abonnement hat, in der Praxis also während der Testphase, sehen Rollen, die Unternehmen verwalten dürfen, unter den Feldern die Tarifauswahl: Karten für **Starter**, **Pro**, **Business** und **Max**, dabei **Business** mit **Empfohlen** markiert. Jede Karte zeigt den Preis pro Nutzer und Monat, die Funktionen, die verbundenen Konten pro Nutzer (die Zeile entfällt, wenn ein Tarif keine verbundenen Konten enthält, wie bei Starter), die Routinen pro Nutzer sowie die Mate-Nutzung pro aktivem Nutzer und Monat als Vielfaches von Starter. Solange der Checkout für einen Tarif noch nicht verfügbar ist, erscheint seine Karte ausgegraut mit **Noch nicht verfügbar**, und eine Auswahl wird mit „Der Checkout für diesen Tarif ist noch nicht verfügbar. Kontaktiere uns, um zu wechseln.“ abgelehnt.
 
 Ein Klick auf eine Karte öffnet den Lemon-Squeezy-Checkout für so viele Nutzerplätze, wie der Workspace Mitglieder mit Status **Aktiv** hat. Nach der Zahlung führt Lemon Squeezy Sie auf die Seite **Abonnement** zurück, und Tarif, Status und Nutzerplätze aktualisieren sich, sobald Lemon Squeezy die Zahlung bestätigt. Der Checkout fügt keine zweite Testphase hinzu: Die Abrechnung beginnt mit dem Checkout, auch wenn noch Testtage übrig sind.
 
@@ -128,7 +129,7 @@ Ist der Status **Unbezahlt** oder **Abgelaufen** oder hat die Testphase ihr Endd
 
 | Wer | Was die Seite anbietet |
 |---|---|
-| Rollen, die Unternehmen verwalten dürfen, und **Admin**, bei Starter, Pro oder Business | Die Tarifauswahl für einen neuen Checkout sowie **Support kontaktieren** |
+| Rollen, die Unternehmen verwalten dürfen, und **Admin**, bei Starter, Pro, Business oder Max | Die Tarifauswahl für einen neuen Checkout sowie **Support kontaktieren** |
 | Dieselben Rollen bei Enterprise | Einen Hinweis, dass der Workspace manuell abgerechnet wird, **Support kontaktieren** und **Erneut versuchen** |
 | Alle anderen | „Ein Unternehmensadministrator muss das Abonnement wiederherstellen.“, **Support kontaktieren** und **Erneut versuchen** |
 
@@ -376,4 +377,4 @@ Zum Lesen braucht Ihre Rolle Leserecht **Alle** auf **Audit-Log** oder die Rolle
 
 - [Webhooks](/docs/webhooks)
 - [App-Guide, Profil](/docs/app-profile)
-- [Tarife und Credits](/docs/app-assistant#plans-and-credits)
+- [Tarife und Mate-Nutzung](/docs/app-assistant#plans-and-credits)

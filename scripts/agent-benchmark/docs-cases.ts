@@ -44,10 +44,10 @@ export const DOCS_CASES: readonly DocsCase[] = [
   },
   {
     id: "D4",
-    title: "Docs: AI credits in the Business plan",
+    title: "Docs: Mate usage in the Business plan",
     actor: "driver",
-    prompts: ["How many hosted AI credits per active user and month come with the Business plan?"],
-    judgeFacts: ["Business includes 1,200 hosted AI credits per active user and month"],
+    prompts: ["How much Mate usage per active user and month comes with the Business plan?"],
+    judgeFacts: ["Business includes 10x the Starter Mate usage allowance per active user and month"],
   },
   {
     id: "D5",
@@ -90,11 +90,11 @@ export const DOCS_CASES: readonly DocsCase[] = [
   },
   {
     id: "D10",
-    title: "Docs (DE): AI credits in the Pro plan",
+    title: "Docs (DE): Mate usage in the Pro plan",
     actor: "driver",
-    prompts: ["Wie viele KI-Credits pro aktivem Nutzer und Monat sind im Pro-Tarif enthalten?"],
+    prompts: ["Wie viel Mate-Nutzung pro aktivem Nutzer und Monat ist im Pro-Tarif enthalten?"],
     contexts: GERMAN,
-    judgeFacts: ["Der Pro-Tarif enthält 500 Credits für gehostete KI pro aktivem Nutzer und Monat"],
+    judgeFacts: ["Der Pro-Tarif enthält das 3-fache (3x) des Starter-Kontingents an Mate-Nutzung pro aktivem Nutzer und Monat"],
   },
 ];
 
@@ -112,8 +112,8 @@ export const DOCS_CASE_ORACLES: Readonly<Record<DocsCaseId, DocsOracle>> = {
     passes: (text) => /X-Webhook-Signature/i.test(text) && /HMAC[\s-]?SHA-?256/i.test(text),
   },
   D4: {
-    gold: "business-1200-credits",
-    passes: (text) => /\b1[,.  ]?200\b/.test(text),
+    gold: "business-10x-usage",
+    passes: (text) => /\b10\s?(?:x|×)|\b10-fach|\bten times\b/i.test(text),
   },
   D5: {
     gold: "approval-30-minutes",
@@ -141,8 +141,8 @@ export const DOCS_CASE_ORACLES: Readonly<Record<DocsCaseId, DocsOracle>> = {
     passes: (text) => /X-Webhook-Signature/i.test(text) && /HMAC[\s-]?SHA-?256/i.test(text),
   },
   D10: {
-    gold: "pro-500-credits",
-    passes: (text) => /Pro\b[^\n]{0,120}\b500\b|\b500\b[^\n]{0,120}\bPro\b/i.test(text),
+    gold: "pro-3x-usage",
+    passes: (text) => /Pro\b[^\n]{0,120}\b3\s?(?:x|×|-fach)|\b3\s?(?:x|×|-fach)[^\n]{0,120}\bPro\b/i.test(text),
   },
 };
 

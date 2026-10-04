@@ -44,14 +44,15 @@ describe("GetAgentConfigInteractor", () => {
   };
   const usageService = {
     getUsageSummary: vi.fn().mockResolvedValue({
-      creditsUsed: 0,
-      creditsRemaining: 500,
-      creditsLimit: 500,
-      usedPct: 0,
+      creditsUsed: 30,
+      creditsRemaining: 570,
+      creditsLimit: 600,
+      usedPct: 5,
       plan: "pro",
-      periodStart: new Date(),
-      resetAt: new Date(),
+      periodStart: new Date("2026-08-01T00:00:00.000Z"),
+      resetAt: new Date("2026-09-01T00:00:00.000Z"),
       recentTurnCredits: null,
+      usageMultiplier: 3,
       blockedReason: null,
     }),
   };
@@ -75,6 +76,15 @@ describe("GetAgentConfigInteractor", () => {
 
     expect(result.ok).toBe(true);
     expect(result.data.counts).toEqual(COUNTS);
+    expect(result.data.usage).toEqual({
+      hasAllowance: true,
+      usedPct: 5,
+      multiplier: 3,
+      plan: "pro",
+      resetAt: new Date("2026-09-01T00:00:00.000Z"),
+      recentTurnPct: null,
+      blockedReason: null,
+    });
     expect(result.data).not.toHaveProperty("preAuthorizedTools");
     expect(usageService.getUsageSummary).toHaveBeenCalledWith(mockUser.id);
     expect(mockUser.role?.isSystemRole).toBe(false);

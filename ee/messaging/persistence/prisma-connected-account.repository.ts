@@ -2,7 +2,7 @@ import type { MessagingProvider, Prisma } from "@/generated/prisma";
 
 import type { GetMyConnectedAccountsRepo } from "../connect/get-my-connected-accounts.interactor";
 import type { CountChannelsNeedingActionRepo } from "../connect/count-channels-needing-action.interactor";
-import type { CreateHostedAuthLinkRepo } from "../connect/create-auth-link.interactor";
+import type { CreateHostedAuthLinkRepo } from "../connect/create-hosted-auth-link.repo";
 import type { ThreadAccountOwnersRepo } from "../inbox/get-messaging-thread.interactor";
 import type { MoveEmailThreadAccountRepo } from "../inbox/move-email-thread.interactor";
 import type { DeleteConnectedAccountRepo } from "../connect/delete-connected-account.interactor";

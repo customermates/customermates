@@ -127,6 +127,22 @@ describe("CreateAuthLinkInteractor", () => {
     expect(messagingService.createAuthLink).not.toHaveBeenCalled();
   });
 
+  it("lets a max plan connect up to ten accounts and then reports its limit", async () => {
+    const under = makeInteractor(
+      makeRepo({ status: "active", trialEndDate: null, plan: "max", activeAccountsForUser: 9 }),
+    );
+    expect(((await under.interactor.invoke({ channel: "google" })) as any).ok).not.toBe(false);
+
+    const atCap = makeInteractor(
+      makeRepo({ status: "active", trialEndDate: null, plan: "max", activeAccountsForUser: 10 }),
+    );
+    const result: any = await atCap.interactor.invoke({ channel: "google" });
+
+    expect(result.ok).toBe(false);
+    expect(result.code).toBe("accountLimitReached");
+    expect(atCap.messagingService.createAuthLink).not.toHaveBeenCalled();
+  });
+
   it("lets a business plan under its included cap proceed", async () => {
     const repo = makeRepo({
       status: "active",

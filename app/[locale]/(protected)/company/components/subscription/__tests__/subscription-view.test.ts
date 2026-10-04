@@ -45,6 +45,7 @@ const subscription = (overrides: Partial<SubscriptionDto> = {}): SubscriptionDto
   quantity: 3,
   status: SubscriptionStatus.active,
   trialEndDate: null,
+  checkoutUnavailablePlans: [],
   ...overrides,
 });
 

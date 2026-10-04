@@ -464,16 +464,16 @@
     "credits": {
       "blocked": {
         "configuration_unavailable": "The hosted Assistant is temporarily unavailable. Your history remains accessible.",
-        "credits_exhausted": "You have used this month's hosted AI credits. New requests resume on {resetAt}; your history remains accessible.",
+        "credits_exhausted": "You have used this month's Mate usage. New requests resume on {resetAt}; your history remains accessible.",
         "self_hosted": "The hosted Assistant is cloud-only. Self-hosted workspaces can continue to use external MCP clients with their own AI provider.",
         "subscription_unavailable": "A current cloud subscription is required for new hosted Assistant requests. Your history remains accessible."
       },
       "contact": "Contact us",
-      "planAndReset": "{plan} plan · resets {resetAt}",
-      "recentTurn": "{credits, plural, one {Last turn used {amount} credit} other {Last turn used {amount} credits}}",
-      "remaining": "{credits, plural, one {{remaining} of {limit} credits remaining} other {{remaining} of {limit} credits remaining}}",
-      "resetShort": "Resets {resetAt}",
-      "usage": "{pct}% of monthly hosted AI credits used",
+      "plan": "{plan} plan",
+      "planWithMultiplier": "{plan} plan · {multiplier}x Mate usage",
+      "recentTurn": "Last request used {used}",
+      "usage": "{used} of monthly Mate usage used",
+      "usedOfMonthly": "{used} of monthly Mate usage used · resets {resetAt}",
       "viewPlans": "View plans"
     },
     "errors": {
@@ -1277,6 +1277,7 @@
       "passwordInvalid": "Password must be between 8 and 128 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.",
       "passwordMismatch": "Passwords must match.",
       "permissionDenied": "This action is not available with your current permissions.",
+      "planCheckoutUnavailable": "Checkout for this plan is not available yet. Contact us to switch to it.",
       "privacyAcknowledgementRequired": "Please confirm that you have read the Privacy Policy.",
       "relationNotAllowed": "Relation '{relation}' is not allowed on {entity}. Allowed relations: {allowed}.",
       "roleAssignedCannotDelete": "A role assigned to users cannot be deleted.",
@@ -3358,7 +3359,6 @@
     "title": "Administrator controls"
   },
   "RoutineDetail": {
-    "credits": "Credits",
     "empty": {
       "event": {
         "actions": {
@@ -3422,7 +3422,8 @@
     "triggerChangedFields": "Changed fields",
     "triggerChangedFieldsMore": "and more",
     "triggerRecord": "Record",
-    "triggerThread": "Conversation"
+    "triggerThread": "Conversation",
+    "usageShare": "{used} of monthly Mate usage"
   },
   "RoutineModal": {
     "at": "at",
@@ -3563,10 +3564,17 @@
     "managedExternallyNote": "This workspace is on an Enterprise plan billed by invoice. Contact your account manager to make changes.",
     "manageWithLemonSqueezy": "Manage with Lemon Squeezy",
     "picker": {
+      "checkoutUnavailable": "Not yet available",
       "connectedAccountsPerUser": "{accounts, plural, one {# connected account per user} other {# connected accounts per user}}",
-      "creditNote": "Hosted AI credits refresh monthly; unused credits do not roll over. Each request is charged its exact provider cost, shown to one decimal. External MCP clients bill model use through your own AI provider. Server-side semantic searches can consume hosted AI credits.",
+      "creditNote": "Mate usage is shown as a multiple of the Starter allowance (Starter 1x, Pro 3x, Business 10x, Max 20x) and refreshes monthly; unused usage does not roll over. Each request counts its exact provider cost. External MCP clients bill model use through your own AI provider. Server-side semantic searches can count toward Mate usage.",
       "features": {
         "business": ["Everything in Pro", "Shared accounts and priority support"],
+        "max": [
+          "Everything in Business",
+          "Priority support",
+          "Early access to beta features",
+          "Twice the per-run limit for routines"
+        ],
         "pro": ["Everything in Starter", "Unified inbox"],
         "starter": [
           "Full CRM: contacts, deals, organizations, tasks",
@@ -3575,9 +3583,9 @@
           "MCP server access"
         ]
       },
-      "hostedAiCredits": "{credits, number} hosted AI credits per active user / month",
-      "mostPopular": "Most popular",
+      "hostedAiUsage": "{multiplier}x Mate usage per active user / month",
       "perUserMonth": "per user / month",
+      "recommended": "Recommended",
       "routinesPerUser": "{routines, plural, one {# routine per user} other {# routines per user}}",
       "unlimitedRoutinesPerUser": "Unlimited routines per user"
     },
@@ -3585,6 +3593,7 @@
     "planNames": {
       "business": "Business",
       "enterprise": "Enterprise",
+      "max": "Max",
       "pro": "Pro",
       "starter": "Starter"
     },

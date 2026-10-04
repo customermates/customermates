@@ -2,13 +2,13 @@
 
 import { useTranslations } from "next-intl";
 
-import type { AgentUsageSummary } from "@/ee/agent-chat/agent-usage.service";
+import type { AgentUsageView } from "@/ee/agent-chat/agent-usage.service";
 
 import { useRouter } from "@/i18n/navigation";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { Button } from "@/components/ui/button";
 
-export function CreditBlockedNotice({ usage }: { usage: AgentUsageSummary }) {
+export function CreditBlockedNotice({ usage }: { usage: AgentUsageView }) {
   const intlStore = useHydratedIntlStore();
   const t = useTranslations();
   const router = useRouter();

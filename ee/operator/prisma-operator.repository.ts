@@ -177,7 +177,7 @@ function emptyUserSummary(): OperatorUserSummaryDto {
     platformOperators: 0,
     verifiedAuthUsers: 0,
     byStatus: { active: 0, inactive: 0, pendingAuthorization: 0 },
-    byPlan: { starter: 0, pro: 0, business: 0, enterprise: 0, missing: 0 },
+    byPlan: { starter: 0, pro: 0, business: 0, max: 0, enterprise: 0, missing: 0 },
     bySubscriptionStatus: {
       trial: 0,
       active: 0,

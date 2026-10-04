@@ -55,7 +55,6 @@ function completedReplayStream(data: Extract<SendAgentMessageResult, { dispositi
           assistantMessageId: data.assistantMessage.id,
           affectedResources: data.affectedResources,
           hasSuccessfulMutation: hasSuccessfulAgentMutation(replayParts),
-          creditsUsed: 0,
           numTurns: 0,
           errorMessage: null,
           replayed: true,

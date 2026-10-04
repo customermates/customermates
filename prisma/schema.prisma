@@ -1575,6 +1575,7 @@ enum SubscriptionPlan {
   starter
   pro
   business
+  max
   enterprise
 }
 

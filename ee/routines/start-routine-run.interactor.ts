@@ -18,7 +18,7 @@ import { composeRoutinePrompt } from "./routine-prompt";
 import { changedFieldsOf } from "./routine-event-filter";
 import { isCustomField } from "@/core/utils/custom-field";
 import { isRoutineRunErrorCode, type RoutineRunErrorCode, type RoutineRunReason } from "./routine-run-outcome";
-import { DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN, DEFAULT_ROUTINE_MAX_RUNS_PER_HOUR } from "./routine-run-limits";
+import { DEFAULT_ROUTINE_MAX_RUNS_PER_HOUR, routineMaxCreditsPerRun } from "./routine-run-limits";
 import { agentCreditsToMicrocents } from "@/ee/agent-chat/agent-credit-policy";
 
 const Schema = z.object({ routineRunId: z.uuid() });
@@ -163,7 +163,7 @@ export class StartRoutineRunInteractor extends AuthenticatedInteractor<StartRout
       conversationId,
       title: routine.name,
       now,
-      creditCeilingMicrocents: agentCreditsToMicrocents(DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN),
+      creditCeilingMicrocents: agentCreditsToMicrocents(routineMaxCreditsPerRun(run.plan)),
     });
 
     let sent;

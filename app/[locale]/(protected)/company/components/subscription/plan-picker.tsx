@@ -11,6 +11,7 @@ import {
   formatCommercialAmount,
   PLAN_CATALOG,
   PURCHASABLE_PLAN_IDS,
+  RECOMMENDED_PLAN_ID,
   type AvailableBillingCadence,
   type PurchasablePlanId,
 } from "@/core/commercial/plan-catalog";
@@ -22,10 +23,11 @@ export type SelectableOffer = {
 
 type Props = {
   isLoading?: boolean;
+  unavailablePlans?: readonly PurchasablePlanId[];
   onSelect: (offer: SelectableOffer) => void;
 };
 
-export const PlanPicker = observer(function PlanPicker({ isLoading, onSelect }: Props) {
+export const PlanPicker = observer(function PlanPicker({ isLoading, unavailablePlans = [], onSelect }: Props) {
   const t = useTranslations();
   const intlStore = useHydratedIntlStore();
   const locale = intlStore.resolvedFormattingLanguageTag;
@@ -35,14 +37,15 @@ export const PlanPicker = observer(function PlanPicker({ isLoading, onSelect }: 
   }
 
   return (
-    <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-3" id="company-subscription-plan-picker">
+    <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2" id="company-subscription-plan-picker">
       {PURCHASABLE_PLAN_IDS.map((plan) => {
-        const featured = plan === "business";
+        const featured = plan === RECOMMENDED_PLAN_ID;
+        const checkoutUnavailable = unavailablePlans.includes(plan);
         const offer = PLAN_CATALOG[plan].offers.monthly;
         const selection: SelectableOffer = { plan, cadence: offer.cadence };
         const accountAllowance = PLAN_CATALOG[plan].entitlements.includedAccountsPerUser;
         const routineAllowance = PLAN_CATALOG[plan].entitlements.includedRoutinesPerUser;
-        const credits = PLAN_CATALOG[plan].entitlements.hostedAiCreditsPerActiveUser;
+        const multiplier = PLAN_CATALOG[plan].entitlements.hostedAiUsageMultiplier;
         const features = t.raw(`Subscription.picker.features.${plan}`) as string[];
         const renderedFeatures = [
           ...features,
@@ -52,7 +55,7 @@ export const PlanPicker = observer(function PlanPicker({ isLoading, onSelect }: 
           routineAllowance === "unlimited"
             ? t("Subscription.picker.unlimitedRoutinesPerUser")
             : t("Subscription.picker.routinesPerUser", { routines: routineAllowance }),
-          ...(typeof credits === "number" ? [t("Subscription.picker.hostedAiCredits", { credits })] : []),
+          ...(typeof multiplier === "number" ? [t("Subscription.picker.hostedAiUsage", { multiplier })] : []),
         ];
 
         return (
@@ -62,14 +65,19 @@ export const PlanPicker = observer(function PlanPicker({ isLoading, onSelect }: 
               "interactive-surface flex flex-col gap-3 rounded-xl border bg-card p-4 text-left disabled:pointer-events-none disabled:opacity-50",
               featured ? "border-2 border-primary" : "border-border",
             )}
-            disabled={isLoading}
+            data-plan={plan}
+            disabled={isLoading || checkoutUnavailable}
             type="button"
             onClick={() => handleCardClick(selection)}
           >
             <span className="flex items-center justify-between gap-2">
               <span className="text-sm font-semibold">{t(`Subscription.planNames.${plan}`)}</span>
 
-              {featured && <AppChip variant="info">{t("Subscription.picker.mostPopular")}</AppChip>}
+              {featured && <AppChip variant="info">{t("Subscription.picker.recommended")}</AppChip>}
+
+              {checkoutUnavailable && (
+                <AppChip variant="secondary">{t("Subscription.picker.checkoutUnavailable")}</AppChip>
+              )}
             </span>
 
             <span className="flex items-baseline gap-1">
@@ -93,7 +101,7 @@ export const PlanPicker = observer(function PlanPicker({ isLoading, onSelect }: 
         );
       })}
 
-      <p className="text-muted-foreground text-xs sm:col-span-3">{t("Subscription.picker.creditNote")}</p>
+      <p className="text-muted-foreground text-xs sm:col-span-2">{t("Subscription.picker.creditNote")}</p>
     </div>
   );
 });

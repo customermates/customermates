@@ -1,6 +1,7 @@
 import type { MessagingService } from "../messaging.service";
 import type { Redirect } from "@/features/auth/auth-outcome";
-import type { SubscriptionStatus } from "@/generated/prisma";
+import type { CreateHostedAuthLinkRepo } from "./create-hosted-auth-link.repo";
+import type { CreateAuthLinkSubscriptionRepo } from "./create-auth-link-subscription.repo";
 import type { EntitlementService, EntitlementDenialCode } from "@/ee/subscription/entitlement.service";
 
 import { headers } from "next/headers";
@@ -30,18 +31,6 @@ type ConnectDenialCode = "upgradeToBusinessForMoreAccounts" | "accountLimitReach
 
 type Denial = { key: `ConnectedAccountsCard.${ConnectDenialCode}`; code: ConnectDenialCode };
 type CreateAuthLinkFailure = { ok: false; error: z.ZodError; code?: ConnectDenialCode | EntitlementDenialCode };
-
-export abstract class CreateHostedAuthLinkRepo {
-  abstract countActiveAccountsForUser(): Promise<number>;
-}
-
-export abstract class CreateAuthLinkSubscriptionRepo {
-  abstract getSubscriptionOrThrow(): Promise<{
-    status: SubscriptionStatus;
-    trialEndDate: Date | null;
-    plan: SubscriptionPlan;
-  }>;
-}
 
 @TenantInteractor({ resource: Resource.inboxMessages, action: Action.create })
 export class CreateAuthLinkInteractor extends UserAccessor {
@@ -90,7 +79,7 @@ export class CreateAuthLinkInteractor extends UserAccessor {
 
     if ((await this.repo.countActiveAccountsForUser()) < included) return null;
 
-    if (subscription.plan === SubscriptionPlan.business)
+    if (subscription.plan === SubscriptionPlan.business || subscription.plan === SubscriptionPlan.max)
       return { key: "ConnectedAccountsCard.accountLimitReached", code: "accountLimitReached" };
 
     return {

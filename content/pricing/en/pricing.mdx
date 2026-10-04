@@ -23,7 +23,7 @@ pricing:
       - "MCP access: connect an external AI client such as Claude, ChatGPT, or Gemini"
       - REST API, webhooks & interfaces for your own n8n
       - "[[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user: let Mate work on a schedule or when a record changes"
-      - "Hosted-AI plan allowance: 200 credits per active user (usable when Mate is enabled)"
+      - "Mate usage: 1x per active user, the base allowance (usable when Mate is enabled)"
   - plan: pro
     title: Pro
     description: CRM + unified inbox. Includes your [[commercial.trial.days]]-day free trial.
@@ -38,11 +38,11 @@ pricing:
       - "[[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user included"
       - "[[commercial.entitlement.pro.includedRoutinesPerUser]] routines per user: let Mate work on a schedule or when a record changes"
       - Read-only calendar access & LinkedIn Sales Navigator
-      - "Hosted-AI plan allowance: 500 credits per active user (usable when Mate is enabled)"
+      - "Mate usage: 3x Starter per active user (usable when Mate is enabled)"
   - plan: business
     title: Business
     description: For teams
-    badge: Most popular
+    badge: Recommended
     featured: true
     buttonText: Start free trial
     buttonHref: /auth/signup
@@ -57,7 +57,21 @@ pricing:
       - "Shared accounts: team-wide inbox visibility"
       - One team-wide timeline across every channel
       - Priority support
-      - "Hosted-AI plan allowance: 1,200 credits per active user (usable when Mate is enabled)"
+      - "Mate usage: 10x Starter per active user, the most usage per euro (usable when Mate is enabled)"
+  - plan: max
+    title: Max
+    description: For heavy Mate users
+    buttonText: Start free trial
+    buttonHref: /auth/signup
+    buttonColor: default
+    buttonVariant: bordered
+    features:
+      - Everything in Business
+      - "[[commercial.entitlement.max.includedAccountsPerUser]] connected accounts per user included"
+      - "Mate usage: 20x Starter per active user (usable when Mate is enabled)"
+      - Twice the per-run limit for routines
+      - Priority support
+      - Early access to beta features
   - plan: enterprise
     title: Enterprise
     description: Custom scope & support
@@ -71,7 +85,7 @@ pricing:
       - Done-for-you setup
       - "Connected accounts per user: [[commercial.entitlement.enterprise.includedAccountsPerUser]] (fair use); SSO & white-label are not implemented and require contracted work"
       - Dedicated support & custom terms
-      - Finite, contract-configured hosted-AI allowance per active user/month (usable when Mate is enabled)
+      - "Mate usage: custom, contract-configured per active user/month (usable when Mate is enabled)"
 
 comparison:
   customValue: Custom
@@ -91,6 +105,10 @@ comparison:
       button: Start free trial
       buttonHref: /auth/signup
       featured: true
+    max:
+      name: Max
+      button: Start free trial
+      buttonHref: /auth/signup
     enterprise:
       name: Enterprise
       button: Contact us
@@ -100,6 +118,8 @@ comparison:
     rows:
       - label: Price per user/month
         catalogFact: monthlyPrice
+      - label: Mate usage per active user (multiple of Starter)
+        catalogFact: hostedAiUsage
   - title: Messaging
     rows:
       - label: Unified inbox
@@ -112,16 +132,19 @@ comparison:
         starter: false
         pro: true
         business: true
+        max: true
         enterprise: true
       - label: Social post tracking
         starter: false
         pro: true
         business: true
+        max: true
         enterprise: true
       - label: LinkedIn Sales Navigator
         starter: false
         pro: true
         business: true
+        max: true
         enterprise: true
   - title: Core CRM
     rows:
@@ -131,31 +154,37 @@ comparison:
         starter: true
         pro: true
         business: true
+        max: true
         enterprise: true
       - label: Custom fields, roles & permissions
         starter: true
         pro: true
         business: true
+        max: true
         enterprise: true
       - label: Linked records & notes
         starter: true
         pro: true
         business: true
+        max: true
         enterprise: true
       - label: REST API & webhooks
         starter: true
         pro: true
         business: true
+        max: true
         enterprise: true
       - label: MCP access for an external AI client
         starter: true
         pro: true
         business: true
+        max: true
         enterprise: true
       - label: Interfaces for an external n8n instance
         starter: true
         pro: true
         business: true
+        max: true
         enterprise: true
   - title: Enterprise
     rows:
@@ -163,27 +192,38 @@ comparison:
         starter: false
         pro: false
         business: false
+        max: false
         enterprise: "On request"
       - label: White-label (not yet built, by agreement)
         starter: false
         pro: false
         business: false
+        max: false
         enterprise: "On request"
       - label: Contracted custom-agent workflow (not built in)
         starter: false
         pro: false
         business: false
+        max: false
         enterprise: "On request"
       - label: Contracted lead-data workflow (not built in)
         starter: false
         pro: false
         business: false
+        max: false
         enterprise: "On request"
       - label: Support
         starter: "Community & email"
         pro: "Community & email"
         business: "Priority"
+        max: "Priority"
         enterprise: "Dedicated"
+      - label: Early access to beta features
+        starter: false
+        pro: false
+        business: false
+        max: true
+        enterprise: "On request"
 
 faq:
   title: Frequently asked questions
@@ -205,13 +245,13 @@ faq:
     content: "We offer the core CRM functionality most teams need, combined with MCP access for external AI clients, open APIs, and interfaces for a separate n8n instance. That gives you an agentic open-source CRM with flexible extensions and clear product boundaries."
   - id: pricing-faq-6
     title: What counts as a connected account?
-    content: "A connected account is one linked mailbox, LinkedIn, WhatsApp, Instagram, or Telegram profile that belongs to a single user. Pro includes [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, Business includes [[commercial.entitlement.business.includedAccountsPerUser]] per user, and Enterprise is [[commercial.entitlement.enterprise.includedAccountsPerUser]] under fair use. If you need more than [[commercial.entitlement.business.includedAccountsPerUser]] accounts per user, Enterprise is the right plan."
+    content: "A connected account is one linked mailbox, LinkedIn, WhatsApp, Instagram, or Telegram profile that belongs to a single user. Pro includes [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, Business includes [[commercial.entitlement.business.includedAccountsPerUser]] per user, Max includes [[commercial.entitlement.max.includedAccountsPerUser]] per user, and Enterprise is [[commercial.entitlement.enterprise.includedAccountsPerUser]] under fair use. If you need more than [[commercial.entitlement.max.includedAccountsPerUser]] accounts per user, Enterprise is the right plan."
   - id: pricing-faq-7
     title: How does monthly billing work?
     content: "You pay per active user. When you add or remove users, the change is prorated on your next invoice. Plan upgrades apply immediately with a prorated charge for the remainder of the billing period, and downgrades apply immediately with the unused portion credited."
   - id: pricing-faq-8
-    title: How do hosted AI credits work?
-    content: "Every cloud plan includes a Mate entitlement and a hosted-AI allowance. Credits are used only when Mate is enabled in the hosted environment: hosted AI processing in Customermates then uses credits. Usage follows the actual provider cost, including model calls and server-side semantic retrieval. One credit equals US$0.01, and requests can use fractions of a credit. Paid allowances reset monthly; unused credits do not roll over. Every active trial user has a 500-credit plan allowance. Active members’ allowances form the shared workspace pool; each member also has an individual allocation. New paid seats receive an exact prorated allowance for the remaining billing period. Upgrades increase the current allowance immediately; downgrades reduce it immediately. External MCP clients use your own AI provider for model calls. Server-side semantic retrieval can consume Customermates credits, including through MCP. Mate is cloud-only. There are no top-ups or automatic overage charges."
+    title: How does Mate usage work?
+    content: "Every cloud plan includes a Mate entitlement and a monthly Mate usage allowance per active user, stated as a multiple of the Starter allowance: Starter 1x, Pro 3x, Business 10x, Max 20x, and Enterprise as contracted. Business gives the most usage per euro. Usage counts only when Mate is enabled in the hosted environment: hosted AI processing in Customermates then counts toward it. Usage follows the actual provider cost, including model calls and server-side semantic retrieval, so a simple question uses a small share and a multi-step request more. In the app, the Mate meter shows how much of the monthly allowance is used as a percentage. Paid allowances reset monthly; unused usage does not roll over. Every active trial user has the Pro allowance of 3x. Active members’ allowances form the shared workspace pool; each member also has an individual allocation. New paid seats receive an exact prorated allowance for the remaining billing period. Upgrades increase the current allowance immediately; downgrades reduce it immediately. External MCP clients use your own AI provider for model calls. Server-side semantic retrieval can count toward Mate usage, including through MCP. Mate is cloud-only. There are no top-ups or automatic overage charges."
 
 cta:
   action: Ready to get started?

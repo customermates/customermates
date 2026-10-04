@@ -7,6 +7,7 @@ import {
   getEntitlements,
   isSubscriptionExpired,
   isSubscriptionUsable,
+  TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER,
 } from "../entitlements";
 
 const PAST = new Date(Date.now() - 24 * 60 * 60 * 1000);
@@ -15,15 +16,42 @@ const FUTURE = new Date(Date.now() + 24 * 60 * 60 * 1000);
 describe("hosted AI plan entitlements", () => {
   it("defines the monthly per-user allowance for every paid plan", () => {
     expect(getEntitlements(SubscriptionPlan.starter).hostedAiCreditsPerActiveUser).toBe(200);
-    expect(getEntitlements(SubscriptionPlan.pro).hostedAiCreditsPerActiveUser).toBe(500);
-    expect(getEntitlements(SubscriptionPlan.business).hostedAiCreditsPerActiveUser).toBe(1200);
+    expect(getEntitlements(SubscriptionPlan.pro).hostedAiCreditsPerActiveUser).toBe(600);
+    expect(getEntitlements(SubscriptionPlan.business).hostedAiCreditsPerActiveUser).toBe(2_000);
+    expect(getEntitlements(SubscriptionPlan.max).hostedAiCreditsPerActiveUser).toBe(4_000);
     expect(getEntitlements(SubscriptionPlan.enterprise).hostedAiCreditsPerActiveUser).toBe("contract");
+  });
+
+  it("states every allowance as a multiple of Starter", () => {
+    expect(getEntitlements(SubscriptionPlan.starter).hostedAiUsageMultiplier).toBe(1);
+    expect(getEntitlements(SubscriptionPlan.pro).hostedAiUsageMultiplier).toBe(3);
+    expect(getEntitlements(SubscriptionPlan.business).hostedAiUsageMultiplier).toBe(10);
+    expect(getEntitlements(SubscriptionPlan.max).hostedAiUsageMultiplier).toBe(20);
+    expect(getEntitlements(SubscriptionPlan.enterprise).hostedAiUsageMultiplier).toBe("contract");
+    expect(TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER).toBe(600);
+  });
+
+  it("gives Max everything Business has plus more connected accounts", () => {
+    const business = getEntitlements(SubscriptionPlan.business);
+    const max = getEntitlements(SubscriptionPlan.max);
+
+    expect(max).toMatchObject({
+      agentChat: business.agentChat,
+      messaging: business.messaging,
+      sharedAccounts: true,
+      includedRoutinesPerUser: "unlimited",
+      includedAccountsPerUser: 10,
+    });
+    expect(business.includedAccountsPerUser).toBe(3);
   });
 
   it("does not grant hosted processing to self-hosted installations", () => {
     expect(
       getEffectiveEntitlements({ appMode: "self-hosted", plan: SubscriptionPlan.business })
         .hostedAiCreditsPerActiveUser,
+    ).toBeNull();
+    expect(
+      getEffectiveEntitlements({ appMode: "self-hosted", plan: SubscriptionPlan.max }).hostedAiUsageMultiplier,
     ).toBeNull();
   });
 });

@@ -464,16 +464,16 @@
     "credits": {
       "blocked": {
         "configuration_unavailable": "El Asistente alojado no está disponible temporalmente. El historial sigue estando accesible.",
-        "credits_exhausted": "Ha agotado los créditos de IA alojada de este mes. Las nuevas solicitudes se reanudarán el {resetAt}; su historial sigue disponible.",
+        "credits_exhausted": "Ha agotado el uso de Mate de este mes. Las nuevas solicitudes se reanudarán el {resetAt}; su historial sigue disponible.",
         "self_hosted": "El Asistente alojado solo está disponible en la nube. Los espacios de trabajo autoalojados pueden seguir utilizando clientes MCP externos con su propio proveedor de IA.",
         "subscription_unavailable": "Para realizar nuevas solicitudes al Asistente alojado se necesita una suscripción cloud vigente. Su historial sigue disponible."
       },
       "contact": "Contactar con nosotros",
-      "planAndReset": "Plan {plan} · se restablece {resetAt}",
-      "recentTurn": "{credits, plural, one {Última consulta: {amount} crédito} other {Última consulta: {amount} créditos}}",
-      "remaining": "{credits, plural, one {Queda {remaining} de {limit} créditos} other {Quedan {remaining} de {limit} créditos}}",
-      "resetShort": "Se restablece {resetAt}",
-      "usage": "{pct} % de los créditos mensuales de IA alojada consumidos",
+      "plan": "Plan {plan}",
+      "planWithMultiplier": "Plan {plan} · {multiplier}x uso de Mate",
+      "recentTurn": "Última consulta: {used}",
+      "usage": "{used} del uso mensual de Mate consumido",
+      "usedOfMonthly": "{used} del uso mensual de Mate consumido · se restablece {resetAt}",
       "viewPlans": "Ver planes"
     },
     "errors": {
@@ -1277,6 +1277,7 @@
       "passwordInvalid": "La contraseña debe tener entre 8 y 128 caracteres e incluir al menos una mayúscula, una minúscula, un número y un carácter especial.",
       "passwordMismatch": "Las contraseñas deben coincidir.",
       "permissionDenied": "Esta acción no está disponible con tus permisos actuales.",
+      "planCheckoutUnavailable": "El pago de este plan aún no está disponible. Contáctanos para cambiar a él.",
       "privacyAcknowledgementRequired": "Confirma que has leído la Política de privacidad.",
       "relationNotAllowed": "La relación '{relation}' no está permitida en {entity}. Relaciones permitidas: {allowed}.",
       "roleAssignedCannotDelete": "No se puede eliminar un rol asignado a usuarios.",
@@ -3358,7 +3359,6 @@
     "title": "Controles de administración"
   },
   "RoutineDetail": {
-    "credits": "Créditos",
     "empty": {
       "event": {
         "actions": {
@@ -3422,7 +3422,8 @@
     "triggerChangedFields": "Campos modificados",
     "triggerChangedFieldsMore": "y más",
     "triggerRecord": "Registro",
-    "triggerThread": "Conversación"
+    "triggerThread": "Conversación",
+    "usageShare": "{used} del uso mensual de Mate"
   },
   "RoutineModal": {
     "at": "a las",
@@ -3563,10 +3564,17 @@
     "managedExternallyNote": "El plan Enterprise de este espacio de trabajo se abona mediante factura. Contacta con tu gestor de cuenta para hacer cambios.",
     "manageWithLemonSqueezy": "Gestionar con Lemon Squeezy",
     "picker": {
+      "checkoutUnavailable": "Aún no disponible",
       "connectedAccountsPerUser": "{accounts, plural, one {# cuenta conectada por usuario} other {# cuentas conectadas por usuario}}",
-      "creditNote": "Los créditos de IA alojada se renuevan cada mes; los créditos no utilizados no se acumulan. Cada consulta se cobra por su coste exacto del proveedor y se muestra con un decimal. Los clientes MCP externos facturan el uso del modelo a través de tu propio proveedor de IA. Las búsquedas semánticas del servidor pueden consumir créditos de IA alojada.",
+      "creditNote": "El uso de Mate se indica como múltiplo de la asignación de Starter (Starter 1x, Pro 3x, Business 10x, Max 20x) y se renueva cada mes; el uso no consumido no se acumula. Cada consulta cuenta su coste exacto del proveedor. Los clientes MCP externos facturan el uso del modelo a través de tu propio proveedor de IA. Las búsquedas semánticas del servidor pueden contar para el uso de Mate.",
       "features": {
         "business": ["Todo lo de Pro", "Cuentas compartidas y soporte prioritario"],
+        "max": [
+          "Todo lo de Business",
+          "Soporte prioritario",
+          "Acceso anticipado a funciones beta",
+          "El doble de límite por ejecución de rutina"
+        ],
         "pro": ["Todo lo de Starter", "Bandeja de entrada unificada"],
         "starter": [
           "CRM completo: contactos, oportunidades, organizaciones y tareas",
@@ -3575,9 +3583,9 @@
           "Acceso al servidor MCP"
         ]
       },
-      "hostedAiCredits": "{credits, number} créditos de IA alojada por usuario activo / mes",
-      "mostPopular": "El más popular",
+      "hostedAiUsage": "{multiplier}x uso de Mate por usuario activo / mes",
       "perUserMonth": "por usuario / mes",
+      "recommended": "Recomendado",
       "routinesPerUser": "{routines, plural, one {# rutina por usuario} other {# rutinas por usuario}}",
       "unlimitedRoutinesPerUser": "Rutinas ilimitadas por usuario"
     },
@@ -3585,6 +3593,7 @@
     "planNames": {
       "business": "Business",
       "enterprise": "Enterprise",
+      "max": "Max",
       "pro": "Pro",
       "starter": "Starter"
     },

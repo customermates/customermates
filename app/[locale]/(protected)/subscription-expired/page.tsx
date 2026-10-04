@@ -4,6 +4,7 @@ import { SubscriptionExpiredView } from "./components/subscription-expired-view"
 
 import { requireAccountState } from "@/features/auth/next/require";
 import { isSubscriptionExpired } from "@/ee/subscription/entitlements";
+import { checkoutUnavailablePlans } from "@/ee/subscription/lemon-squeezy-bindings";
 import { CenteredCardPage } from "@/components/shared/centered-card-page";
 import { resolveSubscriptionRecoveryPath } from "@/features/auth/subscription-recovery";
 
@@ -15,7 +16,10 @@ export default async function SubscriptionExpiredPage() {
 
   return (
     <CenteredCardPage className="animate-page-result-in motion-reduce:animate-none">
-      <SubscriptionExpiredView recoveryPath={resolveSubscriptionRecoveryPath(user, subscription.plan)} />
+      <SubscriptionExpiredView
+        recoveryPath={resolveSubscriptionRecoveryPath(user, subscription.plan)}
+        unavailablePlans={checkoutUnavailablePlans()}
+      />
     </CenteredCardPage>
   );
 }

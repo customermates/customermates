@@ -464,16 +464,16 @@
     "credits": {
       "blocked": {
         "configuration_unavailable": "L’Assistente ospitato non è al momento disponibile. La cronologia resta accessibile.",
-        "credits_exhausted": "I crediti AI in hosting di questo mese sono esauriti. Le nuove richieste riprenderanno il {resetAt}; la cronologia resta accessibile.",
+        "credits_exhausted": "L'utilizzo di Mate di questo mese è esaurito. Le nuove richieste riprenderanno il {resetAt}; la cronologia resta accessibile.",
         "self_hosted": "L’Assistente ospitato è disponibile solo nel cloud. Le aree di lavoro self-hosted possono continuare a usare client MCP esterni con il proprio provider di IA.",
         "subscription_unavailable": "Per nuove richieste all’Assistente in hosting è necessario un abbonamento cloud attivo. La cronologia resta accessibile."
       },
       "contact": "Contattaci",
-      "planAndReset": "Piano {plan} · azzeramento {resetAt}",
-      "recentTurn": "{credits, plural, one {Ultima richiesta: {amount} credito} other {Ultima richiesta: {amount} crediti}}",
-      "remaining": "{credits, plural, one {{remaining} di {limit} crediti rimanenti} other {{remaining} di {limit} crediti rimanenti}}",
-      "resetShort": "Azzeramento {resetAt}",
-      "usage": "Utilizzato il {pct}% dei crediti AI mensili in hosting",
+      "plan": "Piano {plan}",
+      "planWithMultiplier": "Piano {plan} · utilizzo di Mate {multiplier}x",
+      "recentTurn": "Ultima richiesta: {used}",
+      "usage": "Utilizzato il {used} dell'utilizzo mensile di Mate",
+      "usedOfMonthly": "Utilizzato il {used} dell'utilizzo mensile di Mate · azzeramento {resetAt}",
       "viewPlans": "Vedi i piani"
     },
     "errors": {
@@ -1277,6 +1277,7 @@
       "passwordInvalid": "La password deve contenere tra 8 e 128 caratteri e includere almeno una lettera maiuscola, una minuscola, un numero e un carattere speciale.",
       "passwordMismatch": "Le password devono coincidere.",
       "permissionDenied": "Questa azione non è disponibile con le tue autorizzazioni attuali.",
+      "planCheckoutUnavailable": "Il pagamento per questo piano non è ancora disponibile. Contattaci per passare a questo piano.",
       "privacyAcknowledgementRequired": "Conferma di aver letto l’Informativa sulla privacy.",
       "relationNotAllowed": "La relazione '{relation}' non è consentita su {entity}. Relazioni consentite: {allowed}.",
       "roleAssignedCannotDelete": "Un ruolo assegnato agli utenti non può essere eliminato.",
@@ -3358,7 +3359,6 @@
     "title": "Controlli di amministrazione"
   },
   "RoutineDetail": {
-    "credits": "Crediti",
     "empty": {
       "event": {
         "actions": {
@@ -3422,7 +3422,8 @@
     "triggerChangedFields": "Campi modificati",
     "triggerChangedFieldsMore": "e altri",
     "triggerRecord": "Record",
-    "triggerThread": "Conversazione"
+    "triggerThread": "Conversazione",
+    "usageShare": "{used} dell'utilizzo mensile di Mate"
   },
   "RoutineModal": {
     "at": "alle",
@@ -3563,10 +3564,17 @@
     "managedExternallyNote": "Questa area di lavoro usa un piano Enterprise con pagamento tramite fattura. Contatta il tuo account manager per apportare modifiche.",
     "manageWithLemonSqueezy": "Gestisci con Lemon Squeezy",
     "picker": {
+      "checkoutUnavailable": "Non ancora disponibile",
       "connectedAccountsPerUser": "{accounts, plural, one {# account collegato per utente} other {# account collegati per utente}}",
-      "creditNote": "I crediti IA in hosting si rinnovano ogni mese; i crediti non utilizzati non vengono trasferiti al mese successivo. Ogni richiesta viene addebitata al suo costo esatto presso il provider e mostrata con un decimale. I client MCP esterni fatturano i modelli tramite il tuo provider di IA. Le ricerche semantiche lato server possono consumare crediti IA in hosting.",
+      "creditNote": "L'utilizzo di Mate è espresso come multiplo della dotazione Starter (Starter 1x, Pro 3x, Business 10x, Max 20x) e si rinnova ogni mese; l'utilizzo non consumato non viene trasferito al mese successivo. Ogni richiesta conta il suo costo esatto presso il provider. I client MCP esterni fatturano i modelli tramite il tuo provider di IA. Le ricerche semantiche lato server possono contare nell'utilizzo di Mate.",
       "features": {
         "business": ["Tutto ciò che c'è in Pro", "Account condivisi e assistenza prioritaria"],
+        "max": [
+          "Tutto ciò che c'è in Business",
+          "Assistenza prioritaria",
+          "Accesso anticipato alle funzionalità beta",
+          "Limite per esecuzione di routine raddoppiato"
+        ],
         "pro": ["Tutto ciò che c'è in Starter", "Posta in arrivo unificata"],
         "starter": [
           "CRM completo: contatti, trattative, organizzazioni, attività",
@@ -3575,9 +3583,9 @@
           "Accesso al server MCP"
         ]
       },
-      "hostedAiCredits": "{credits, number} crediti IA in hosting per utente attivo / mese",
-      "mostPopular": "Il più scelto",
+      "hostedAiUsage": "Utilizzo di Mate {multiplier}x per utente attivo / mese",
       "perUserMonth": "per utente / mese",
+      "recommended": "Consigliato",
       "routinesPerUser": "{routines, plural, one {# routine per utente} other {# routine per utente}}",
       "unlimitedRoutinesPerUser": "Routine illimitate per utente"
     },
@@ -3585,6 +3593,7 @@
     "planNames": {
       "business": "Business",
       "enterprise": "Enterprise",
+      "max": "Max",
       "pro": "Pro",
       "starter": "Starter"
     },

@@ -86,6 +86,12 @@ describe("GetSubscriptionInteractor", () => {
     expect(result.data).toMatchObject({ plan: "pro", status: "active", activeUsers: 3, hasActiveSubscription: true });
   });
 
+  it("lists the plans whose checkout is not configured so the picker can disable them", async () => {
+    const result = await runWithTenant(readOnlyMember(), () => makeSubscription().invoke());
+
+    expect(result.data.checkoutUnavailablePlans).toEqual(["max"]);
+  });
+
   it("says a billing portal exists without reaching the billing provider", async () => {
     const result = await runWithTenant(readOnlyMember(), () => makeSubscription().invoke());
 

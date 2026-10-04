@@ -8,7 +8,7 @@ import { type Data, type Validated } from "@/core/validation/validation.utils";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import type { AgentUsageService } from "./agent-usage.service";
-import { AgentUsageSummarySchema } from "./agent-usage.service";
+import { AgentUsageViewSchema, toAgentUsageView } from "./agent-usage.service";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 
 import { AgentConversationSummarySchema, AgentDataCountsSchema } from "./agent-chat.schema";
@@ -18,7 +18,7 @@ const OutputSchema = z.discriminatedUnion("enabled", [
   z.object({ enabled: z.literal(false) }),
   z.object({
     enabled: z.literal(true),
-    usage: AgentUsageSummarySchema,
+    usage: AgentUsageViewSchema,
     counts: AgentDataCountsSchema,
     conversationId: z.string().nullable(),
     conversations: z.array(AgentConversationSummarySchema),
@@ -60,7 +60,7 @@ export class GetAgentConfigInteractor extends AuthenticatedInteractor<void, Agen
       ok: true as const,
       data: {
         enabled: true as const,
-        usage,
+        usage: toAgentUsageView(usage),
         counts,
         conversationId: conversation?.id ?? null,
         conversations: conversationPage.conversations,

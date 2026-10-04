@@ -1,5 +1,5 @@
 import type { RoutineDto } from "./routine.schema";
-import type { RoutineRunStatus as RoutineRunStatusType } from "@/generated/prisma";
+import type { RoutineRunStatus as RoutineRunStatusType, SubscriptionPlan } from "@/generated/prisma";
 
 export abstract class StartRoutineRunRepo {
   abstract findRoutineRunForStartUnscoped(routineRunId: string): Promise<{
@@ -10,6 +10,7 @@ export abstract class StartRoutineRunRepo {
     triggerEvent: string | null;
     triggerEntityId: string | null;
     triggerPayload: unknown;
+    plan: SubscriptionPlan | null;
     routine: RoutineDto;
   } | null>;
   abstract claimQueuedRoutineRunForOwnerUnscoped(args: {
