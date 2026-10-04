@@ -15220,6 +15220,48 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(post).toHaveBeenCalledTimes(1);
     expect(await f.run(() => resend.invoke({ id: delivery.id }))).toMatchObject({ ok: false });
   });
+  it("admits record routines by their subscription fields and ignores legacy changed-field names", async () => {
+    const f = await fixture();
+    await f.run(() =>
+      prisma.subscription.create({ data: { companyId: f.company.id, status: "active", plan: "enterprise" } }),
+    );
+    const created = await f.run(() =>
+      getUpsertRoutineInteractor().invoke({
+        name: "Price watch",
+        prompt: "Inspect this record. Do not change it.",
+        triggerKind: "event" as const,
+        triggerEvents: ["record.updated" as const],
+        recordTrigger: {
+          query: { typeId: f.id("service"), filters: [], relationships: [] },
+          changedFieldIds: [f.id("service.amount")],
+        },
+        expectedSchemaRevision: 1,
+        debounceSeconds: 0,
+      }),
+    );
+    if (!created.ok) throw new Error("Routine creation failed");
+    const routineId = created.data.id;
+    await f.run(() =>
+      prisma.routine.updateMany({
+        where: { companyId: f.company.id, id: routineId },
+        data: { changedFields: ["amount"] },
+      }),
+    );
+    const service = await f.create("service", "Watched price", [["service.amount", decimal("5")]]);
+    expect(await f.update(service, [["service.amount", decimal("7")]])).toMatchObject({ ok: true });
+    const match = recordInvariant(
+      await f.run(() =>
+        prisma.recordEventMatch.findFirst({ where: { companyId: f.company.id, subscriptionId: routineId } }),
+      ),
+    );
+    const dispatch = vi.fn().mockResolvedValue(undefined);
+    await new ProcessRecordEventInteractor(
+      new PrismaRecordEventOutboxRepo(),
+      new RecordRoutineAdmission(createTestRoutineRepo(), { dispatch } as never, createTestRecordRecipientReader()),
+    ).invoke({ companyId: f.company.id, eventId: match.eventId });
+    expect(await f.run(() => prisma.routineRun.count({ where: { companyId: f.company.id, routineId } }))).toBe(1);
+    expect(dispatch).toHaveBeenCalledTimes(1);
+  });
 });
 
 describeDatabase("provider avatar updates through the generic engine", { timeout: 30000 }, () => {

@@ -1099,7 +1099,11 @@ export class PrismaRoutineRepo
           expected.updatedAt.getTime() !== routine.updatedAt.getTime()
         )
           continue;
+        // Record events are matched against the subscription's watched field
+        // IDs when they are captured. Legacy changed-field names never name a
+        // record field ID, so they must not veto a matched record event.
         if (
+          !args.event.startsWith("record.") &&
           carriesChangedFields(args.triggerPayload) &&
           !matchesChangedFields(routine.changedFields, changedFieldsOf(args.triggerPayload))
         )
