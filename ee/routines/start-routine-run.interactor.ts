@@ -183,7 +183,8 @@ export class StartRoutineRunInteractor extends AuthenticatedInteractor<StartRout
       return { ok: true as const, data: { started: false, reason: blocked } };
     }
 
-    if (!(await this.matchesTrigger(routine, run.triggerEvent, run.triggerEntityId, run.triggerPayload))) {
+    const trigger = await this.currentTrigger(routine, run.triggerEvent, run.triggerEntityId, run.triggerPayload);
+    if (!trigger) {
       await this.repo.settleRoutineRunUnscoped({
         routineRunId: run.id,
         routineId: routine.id,
@@ -217,8 +218,8 @@ export class StartRoutineRunInteractor extends AuthenticatedInteractor<StartRout
           routineName: routine.name,
           triggerEvent: run.triggerEvent,
           triggerEntityId: run.triggerEntityId,
-          triggerPayload: run.triggerPayload,
-          changedFieldLabels: await this.resolveChangedFieldLabels(run.companyId, run.triggerPayload),
+          triggerPayload: trigger.payload,
+          changedFieldLabels: await this.resolveChangedFieldLabels(run.companyId, trigger.payload),
         }),
         retry: false,
       });
@@ -269,16 +270,16 @@ export class StartRoutineRunInteractor extends AuthenticatedInteractor<StartRout
     return { ok: true as const, data: { started: true } };
   }
 
-  private async matchesTrigger(
+  private async currentTrigger(
     routine: RoutineDto,
     triggerEvent: string | null,
     triggerEntityId: string | null,
     triggerPayload: unknown,
-  ): Promise<boolean> {
+  ): Promise<{ payload: unknown } | null> {
     const filters = routine.triggerFilters;
-    if (!triggerEvent) return true;
+    if (!triggerEvent) return { payload: triggerPayload };
 
-    return this.eventAccess.matchesCurrentUser({
+    return this.eventAccess.currentUserTrigger({
       event: triggerEvent,
       entityId: triggerEntityId,
       triggerPayload,

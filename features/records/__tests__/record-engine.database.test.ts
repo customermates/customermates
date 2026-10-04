@@ -1437,8 +1437,12 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       subscriptionId: routineId,
     };
     expect(await f.run(() => access.matchesCurrentUser(args))).toBe(true);
+    expect(await f.run(() => access.currentUserTrigger(args))).toMatchObject({
+      payload: { version: 2, id: match.eventId, record: { ref: service } },
+    });
     expect(await f.update(service, [["service.amount", decimal("5")]])).toMatchObject({ ok: true });
     expect(await f.run(() => access.matchesCurrentUser(args))).toBe(false);
+    expect(await f.run(() => access.currentUserTrigger(args))).toBeNull();
     expect(
       await f.run(() =>
         prisma.recordEventMatch.count({

@@ -22,6 +22,8 @@ function routineTriggerRepoStub() {
 function routineEventAccessStub() {
   return {
     matchesCurrentUser: () => Promise.resolve(true),
+    currentUserTrigger: ({ triggerPayload }: { triggerPayload: unknown }) =>
+      Promise.resolve({ payload: triggerPayload }),
     matchesUserUnscoped: () => Promise.resolve(true),
     canUserAccessUnscoped: () => Promise.resolve(true),
   };

@@ -43,8 +43,13 @@ const MESSAGE_EVENTS = new Set<string>([
 ]);
 const CHAT_EVENTS = new Set<string>([DomainEvent.MESSAGING_CHAT_UPDATED, DomainEvent.MESSAGING_CHAT_DELETED]);
 
+export type CurrentRoutineTrigger = { payload: unknown };
+
 export abstract class RoutineEventAccess {
   abstract matchesCurrentUser(args: RoutineEventAccessArgs & { filters: Filter[] }): Promise<boolean>;
+  abstract currentUserTrigger(
+    args: RoutineEventAccessArgs & { filters: Filter[] },
+  ): Promise<CurrentRoutineTrigger | null>;
   abstract matchesUserUnscoped(
     args: RoutineEventAccessArgs & {
       companyId: string;
@@ -63,8 +68,19 @@ export class PrismaRoutineEventAccess extends BaseRepository implements RoutineE
   }
 
   async matchesCurrentUser(args: RoutineEventAccessArgs & { filters: Filter[] }): Promise<boolean> {
-    if (args.event.startsWith("record.")) return this.matchesRecordEvent(args, this.companyId, this.userId);
-    return args.filters.length === 0 && this.canUserAccess(this.user, args);
+    return (await this.currentUserTrigger(args)) !== null;
+  }
+
+  async currentUserTrigger(
+    args: RoutineEventAccessArgs & { filters: Filter[] },
+  ): Promise<CurrentRoutineTrigger | null> {
+    if (args.event.startsWith("record.")) {
+      const envelope = await this.readRecordEvent(args, this.companyId, this.userId);
+      return envelope ? { payload: envelope } : null;
+    }
+    return args.filters.length === 0 && (await this.canUserAccess(this.user, args))
+      ? { payload: args.triggerPayload }
+      : null;
   }
 
   @BypassTenantGuard
@@ -90,6 +106,10 @@ export class PrismaRoutineEventAccess extends BaseRepository implements RoutineE
   }
 
   private async matchesRecordEvent(args: RoutineEventAccessArgs, companyId: string, userId: string) {
+    return (await this.readRecordEvent(args, companyId, userId)) !== null;
+  }
+
+  private async readRecordEvent(args: RoutineEventAccessArgs, companyId: string, userId: string) {
     const parsed = RecordDeliveryEnvelopeSchema.safeParse(args.triggerPayload);
     if (
       !parsed.success ||
@@ -97,17 +117,15 @@ export class PrismaRoutineEventAccess extends BaseRepository implements RoutineE
       parsed.data.event !== args.event ||
       parsed.data.record.ref.recordId !== args.entityId
     )
-      return false;
-    return (
-      (await this.records.readEvent({
-        companyId,
-        userId,
-        eventId: parsed.data.id,
-        query: args.recordQuery,
-        subscriptionId: args.subscriptionId,
-        recheckSubscriptionSources: true,
-      })) !== null
-    );
+      return null;
+    return this.records.readEvent({
+      companyId,
+      userId,
+      eventId: parsed.data.id,
+      query: args.recordQuery,
+      subscriptionId: args.subscriptionId,
+      recheckSubscriptionSources: true,
+    });
   }
 
   private async canUserAccess(user: RoutineEventUser, args: RoutineEventAccessArgs): Promise<boolean> {

@@ -30,6 +30,7 @@ function routineTriggerRepoStub() {
 function routineEventAccessStub() {
   return {
     matchesCurrentUser: vi.fn().mockResolvedValue(true),
+    currentUserTrigger: vi.fn().mockResolvedValue(null),
     matchesUserUnscoped: vi.fn().mockResolvedValue(true),
     canUserAccessUnscoped: vi.fn().mockResolvedValue(true),
   };
