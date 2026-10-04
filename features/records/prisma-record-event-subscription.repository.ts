@@ -12,6 +12,22 @@ import { recordEventSubscriptionIsValid } from "./record-event-subscription-vali
 import type { RecordRepo } from "./record.repo";
 import type { RecordEventSubscriptionRepo } from "./record-event-subscription.repo";
 import { recordAccessForActor } from "./record-access";
+import { canonicalRecordJson } from "./record-json";
+
+// Deliveries and routine admissions are bound to a subscription revision. Only
+// changes to who receives an event and which events match invalidate them;
+// enabling, disabling and presentation edits of the owning hook keep it.
+function deliveryDefinition(subscription: RecordEventSubscriptionDefinition) {
+  return canonicalRecordJson({
+    kind: subscription.kind,
+    ownerUserId: subscription.ownerUserId,
+    typeId: subscription.typeId,
+    events: [...subscription.events].sort(),
+    changedFieldIds: [...subscription.changedFieldIds].sort(),
+    query: subscription.query,
+    sources: subscription.sources ?? null,
+  });
+}
 
 export class PrismaRecordEventSubscriptionRepo extends BaseRepository implements RecordEventSubscriptionRepo {
   constructor(private readonly records: RecordRepo) {
@@ -52,7 +68,10 @@ export class PrismaRecordEventSubscriptionRepo extends BaseRepository implements
         : policy.allowedSystem("api", "update");
     if (!permitted || (!policy.isAdmin && input.ownerUserId !== this.userId))
       throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
-    if (state?.activeOperationId) throw new RecordWriteError(CustomErrorCode.recordWritePaused, "conflict");
+    const [previous] = await this.findCompanyWide(companyId, [input.id]);
+    const definitionChanged = !previous || deliveryDefinition(previous) !== deliveryDefinition(input);
+    if (state?.activeOperationId && (definitionChanged || (input.enabled && !previous?.enabled)))
+      throw new RecordWriteError(CustomErrorCode.recordWritePaused, "conflict");
     if (expectedSchemaRevision !== undefined && expectedSchemaRevision !== model.revision)
       throw new RecordWriteError(CustomErrorCode.recordSchemaChanged, "conflict");
     if (!recordEventSubscriptionIsValid(input, model))
@@ -71,7 +90,7 @@ export class PrismaRecordEventSubscriptionRepo extends BaseRepository implements
     await this.prisma.recordEventSubscription.upsert({
       where: { companyId, companyId_id: { companyId, id } },
       create: { companyId, id, revision, ...stored },
-      update: { companyId, ...stored, revision: { increment: 1 } },
+      update: { companyId, ...stored, ...(definitionChanged ? { revision: { increment: 1 } } : {}) },
     });
   }
 

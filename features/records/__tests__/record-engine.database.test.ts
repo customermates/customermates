@@ -1590,7 +1590,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ok: true,
       data: { enabled: false, recordOwnerUserId: f.admin.id },
     });
-    expect(await subscription()).toMatchObject({ enabled: false, revision: 3 });
+    expect(await subscription()).toMatchObject({ enabled: false, revision: 2 });
     expect(await f.run(() => getDeleteWebhookInteractor().invoke({ id: webhook.id }))).toMatchObject({ ok: true });
     expect(await subscription()).toBeNull();
     expect(
@@ -1882,7 +1882,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       await f.run(() =>
         getUpsertWebhookInteractor().invoke({
           id: hook.data.id,
-          recordTrigger: null,
+          recordTrigger: {
+            query: { typeId: f.id("service"), filters: [], relationships: [] },
+            changedFieldIds: [],
+          },
           expectedSchemaRevision: 1,
         }),
       ),
@@ -15100,6 +15103,122 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         }),
       ),
     ).toMatchObject({ ok: true, data: { created: 1 } });
+  });
+  it("keeps admitted record deliveries across presentation edits and invalidates them only for trigger changes", async () => {
+    const f = await fixture();
+    const hook = await f.run(() =>
+      getUpsertWebhookInteractor().invoke({
+        url: "https://receiver.example.test/stable",
+        events: ["record.created"],
+        expectedSchemaRevision: 1,
+      }),
+    );
+    if (!hook.ok) throw new Error("Webhook fixture failed");
+    const record = await f.create("service", "Stable delivery");
+    const event = recordInvariant(
+      await f.run(() =>
+        prisma.recordEvent.findFirst({ where: { companyId: f.company.id, recordId: record.recordId } }),
+      ),
+    );
+    const reader = createTestRecordRecipientReader();
+    await new ProcessRecordEventInteractor(
+      new PrismaRecordEventOutboxRepo(),
+      new RecordWebhookAdmission(reader, { dispatch: vi.fn().mockResolvedValue(undefined) } as never),
+    ).invoke({ companyId: f.company.id, eventId: event.id });
+    const delivery = recordInvariant(
+      await f.run(() =>
+        prisma.webhookDelivery.findFirst({ where: { companyId: f.company.id, recordEventId: event.id } }),
+      ),
+    );
+    const subscription = () =>
+      f.run(() => prisma.recordEventSubscription.findFirst({ where: { companyId: f.company.id, id: hook.data.id } }));
+    for (const edit of [
+      { description: "Renamed receiver" },
+      { secret: "rotated-signing-secret" },
+      { headers: { "x-receiver-team": "crm" } },
+      { events: ["record.created" as const, "messaging.chat.updated" as const] },
+    ]) {
+      expect(await f.run(() => getUpsertWebhookInteractor().invoke({ id: hook.data.id, ...edit }))).toMatchObject({
+        ok: true,
+      });
+    }
+    expect(await subscription()).toMatchObject({ revision: 1, enabled: true });
+    const post = vi.fn().mockResolvedValue({ success: true, statusCode: 200, responseMessage: "OK" });
+    const deliver = new DeliverWebhookInteractor(new PrismaWebhookDeliveryQueueRepo(), reader, { post });
+    expect(await deliver.invoke({ deliveryId: delivery.id, companyId: f.company.id })).toMatchObject({
+      status: "success",
+    });
+    expect(post).toHaveBeenCalledTimes(1);
+    expect(post.mock.calls[0][0]).toMatchObject({
+      secret: "rotated-signing-secret",
+      headers: { "x-receiver-team": "crm" },
+    });
+    const repo = new PrismaWebhookDeliveryRepo(reader);
+    const resend = new ResendWebhookDeliveryInteractor(
+      repo,
+      { dispatch: vi.fn().mockResolvedValue(undefined) } as never,
+      new ValidateWebhookDeliveryIdsInteractor(repo),
+    );
+    const resent = await f.run(() => resend.invoke({ id: delivery.id }));
+    expect(resent).toMatchObject({ ok: true });
+    if (!resent.ok) throw new Error("Resend failed");
+
+    const operationId = randomUUID();
+    await f.run(() =>
+      runInTransaction(() =>
+        f.repo.createOperation({
+          id: operationId,
+          userId: f.admin.id,
+          kind: "mutation",
+          expectedRevision: 1,
+          request: {
+            expectedRevision: 1,
+            idempotencyKey: randomUUID(),
+            mutation: {
+              action: "update",
+              ref: record,
+              expectedVersion: 1,
+              fields: [{ fieldId: f.id("service.name"), value: textValue("Paused") }],
+            },
+          },
+        }),
+      ),
+    );
+    expect(await f.run(() => getUpsertWebhookInteractor().invoke({ id: hook.data.id, enabled: false }))).toMatchObject({
+      ok: true,
+      data: { enabled: false },
+    });
+    expect(await subscription()).toMatchObject({ revision: 1, enabled: false });
+    expect(
+      await f.run(() =>
+        getUpsertWebhookInteractor().invoke({
+          id: hook.data.id,
+          recordTrigger: { query: { typeId: f.id("service"), filters: [], relationships: [] }, changedFieldIds: [] },
+          expectedSchemaRevision: 1,
+        }),
+      ),
+    ).toMatchObject({ ok: false });
+    expect(await f.run(() => f.cancel.invoke({ operationId }))).toMatchObject({ ok: true });
+    expect(await f.run(() => getUpsertWebhookInteractor().invoke({ id: hook.data.id, enabled: true }))).toMatchObject({
+      ok: true,
+    });
+    expect(await subscription()).toMatchObject({ revision: 1, enabled: true });
+    expect(
+      await f.run(() =>
+        getUpsertWebhookInteractor().invoke({
+          id: hook.data.id,
+          recordTrigger: { query: { typeId: f.id("service"), filters: [], relationships: [] }, changedFieldIds: [] },
+          expectedSchemaRevision: 1,
+        }),
+      ),
+    ).toMatchObject({ ok: true });
+    expect(await subscription()).toMatchObject({ revision: 2 });
+    expect(await deliver.invoke({ deliveryId: resent.data, companyId: f.company.id })).toMatchObject({
+      status: "failed",
+      statusCode: 422,
+    });
+    expect(post).toHaveBeenCalledTimes(1);
+    expect(await f.run(() => resend.invoke({ id: delivery.id }))).toMatchObject({ ok: false });
   });
 });
 
