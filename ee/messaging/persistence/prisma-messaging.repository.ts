@@ -1574,10 +1574,10 @@ export class PrismaMessagingRepo
 
       if (!duplicate) throw new Error("Outbound message deduplicated without a persisted row");
 
-      return duplicate as unknown as MessagingMessage;
+      return (await this.keepOutboundBcc(duplicate, args.message)) as unknown as MessagingMessage;
     }
 
-    if (!result.isEcho) return result.message;
+    if (!result.isEcho) return this.keepOutboundBcc(result.message, args.message);
 
     const existing = await this.findMessageByUnipileIdUnscoped({
       connectedAccountId: args.connectedAccountId,
@@ -1586,7 +1586,22 @@ export class PrismaMessagingRepo
 
     if (!existing) throw new Error("Outbound message echoed without a persisted row");
 
-    return existing;
+    return (await this.keepOutboundBcc(existing, args.message)) as unknown as MessagingMessage;
+  }
+
+  private async keepOutboundBcc<T extends { id: string; recipients: unknown }>(
+    row: T,
+    message: IngestMessage,
+  ): Promise<T> {
+    const stored = row.recipients as { bcc?: unknown[] } | null;
+    if (message.recipients.bcc.length === 0 || (stored?.bcc?.length ?? 0) > 0) return row;
+
+    const recipients = { ...(stored ?? {}), bcc: message.recipients.bcc };
+    await this.prisma.messagingMessage.update({
+      where: { id: row.id, companyId: this.companyId },
+      data: { recipients: recipients as Prisma.InputJsonValue },
+    });
+    return { ...row, recipients };
   }
 
   private async reconcileOutboundChatEcho(args: {

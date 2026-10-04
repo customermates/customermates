@@ -122,6 +122,38 @@ describe("SendEmailInteractor new-thread adoption", () => {
     expect(call.message.direction).toBe(MessagingMessageDirection.outbound);
   });
 
+  it("keeps the owner's Bcc when the provider's Sent copy omits it", async () => {
+    const service = {
+      sendEmail: vi.fn().mockResolvedValue({ ok: true, data: { id: "u-1", messageId: "m-1" } }),
+      getEmail: vi.fn().mockResolvedValue({ ...sentEmail, to: [] }),
+    };
+    const repo = makeRepo();
+    await makeInteractor(repo, service).invoke({ ...input, to: [], bcc: ["Hidden@Example.com", "me@example.com"] });
+
+    const call = repo.persistOutboundMessageOrThrow.mock.calls[0][0];
+    expect(call.message.recipients.to).toEqual([]);
+    expect(
+      call.message.recipients.bcc.map((r: { identifier: string; isSelf: boolean }) => [r.identifier, r.isSelf]),
+    ).toEqual([
+      ["hidden@example.com", false],
+      ["me@example.com", true],
+    ]);
+  });
+
+  it("prefers the Bcc the provider reports for its own Sent copy", async () => {
+    const service = {
+      sendEmail: vi.fn().mockResolvedValue({ ok: true, data: { id: "u-1", messageId: "m-1" } }),
+      getEmail: vi.fn().mockResolvedValue({ ...sentEmail, bcc: [{ email: "provider@example.com" }] }),
+    };
+    const repo = makeRepo();
+    await makeInteractor(repo, service).invoke({ ...input, bcc: ["typed@example.com"] });
+
+    const call = repo.persistOutboundMessageOrThrow.mock.calls[0][0];
+    expect(call.message.recipients.bcc.map((r: { identifier: string }) => r.identifier)).toEqual([
+      "provider@example.com",
+    ]);
+  });
+
   it("returns null without a retry when fetching the sent email fails", async () => {
     const service = {
       sendEmail: vi.fn().mockResolvedValue({ ok: true, data: { id: "u-1", messageId: "m-1" } }),

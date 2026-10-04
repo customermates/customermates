@@ -268,7 +268,7 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
     }
 
     if (!thread) {
-      const adopted = await this.adoptSentEmail(account, res.data.id);
+      const adopted = await this.adoptSentEmail(account, res.data.id, data.bcc ?? []);
       if (draft && data.draftRevision) {
         try {
           await this.repo.discardDraftAfterSend({
@@ -355,7 +355,11 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
     return { ok: true as const, data: toMessagingMessageDto(persisted) };
   }
 
-  private async adoptSentEmail(account: ConnectedAccount, emailId: string): Validated<MessagingMessageDto | null> {
+  private async adoptSentEmail(
+    account: ConnectedAccount,
+    emailId: string,
+    submittedBcc: string[],
+  ): Validated<MessagingMessageDto | null> {
     try {
       const raw = await this.fetchSentEmail(account.unipileAccountId, emailId);
       const parsed = UnipileEmailSchema.safeParse(raw);
@@ -367,6 +371,13 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
         sentFolderIds: account.sentFolderIds,
       });
       if (!message) return { ok: true as const, data: null };
+      if (message.recipients.bcc.length === 0 && submittedBcc.length > 0) {
+        const self = (account.emailAddress ?? "").toLowerCase();
+        message.recipients.bcc = submittedBcc.map((email) => {
+          const recipient = emailRecipient(email);
+          return { ...recipient, isSelf: recipient.identifier === self };
+        });
+      }
 
       const persisted = await this.repo.persistOutboundMessageOrThrow({
         connectedAccountId: account.id,
