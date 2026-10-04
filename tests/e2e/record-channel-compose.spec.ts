@@ -506,19 +506,20 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
       .getByRole("button", { name: "Compose Email message", exact: true }),
   );
   await body.fill("Keep this message when going back");
-  await page.goBack();
   const recovered = page.getByRole("dialog", { name: "New message", exact: true });
-  await expect(recovered).toBeVisible();
-  const recoveredBody = recovered.getByRole("textbox", { name: "Write a reply...", exact: true });
-  await expect(recoveredBody).toHaveText("Keep this message when going back");
-  await recovered.getByRole("button", { name: "Close", exact: true }).click();
+  const draftUrl = page.url();
+  await page.goBack();
   await expect(guard).toBeVisible();
   await guard.getByRole("button", { name: "Cancel", exact: true }).click();
-  await expect(recoveredBody).toHaveText("Keep this message when going back");
-  await recovered.getByRole("button", { name: "Close", exact: true }).click();
+  await expect(page).toHaveURL(draftUrl);
+  await expect(drawer).toBeVisible();
+  await expect(body).toHaveText("Keep this message when going back");
+  await expect(recovered).toHaveCount(0);
+  await page.goBack();
   await expect(guard).toBeVisible();
   await guard.getByRole("button", { name: "Discard", exact: true }).click();
-  await expect(recovered).not.toBeVisible();
+  await expect(drawer).not.toBeVisible();
+  await expect(recovered).toHaveCount(0);
   await navigateType(typeId);
   await page
     .getByRole("row")
@@ -531,14 +532,18 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await expect(page.locator("#sidebar-trigger")).toHaveAttribute("aria-disabled", "false");
   await activateCompose(start());
   await body.fill("Keep this full-page history draft");
+  const recordPageUrl = page.url();
   await page.goBack();
-  await expect(recovered).toBeVisible();
-  await expect(recoveredBody).toHaveText("Keep this full-page history draft");
-  await recovered.getByRole("button", { name: "Close", exact: true }).click();
+  await expect(guard).toBeVisible();
+  await guard.getByRole("button", { name: "Cancel", exact: true }).click();
+  await expect(page).toHaveURL(recordPageUrl);
+  await expect(body).toHaveText("Keep this full-page history draft");
+  await page.goBack();
   await expect(guard).toBeVisible();
   await guard.getByRole("button", { name: "Discard", exact: true }).click();
-  await expect(recovered).not.toBeVisible();
-  expect((await readDrafts()).length).toBe(0);
+  await expect(page).not.toHaveURL(recordPageUrl);
+  await expect(recovered).toHaveCount(0);
+  await expect.poll(async () => (await readDrafts()).length).toBe(0);
   if (new URL(page.url()).pathname !== `/en/records/${typeId}`) await navigateType(typeId);
   await page
     .getByRole("row")
@@ -576,15 +581,18 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await activateCompose(start());
   await popover.getByPlaceholder("Subject", { exact: true }).fill("Recovered while inbox selected");
   await body.fill("Keep separate from the existing inbox reply");
+  const draftPageUrl = page.url();
   await page.goBack();
-  await expect(recovered).toBeVisible();
-  await expect(recoveredBody).toHaveText("Keep separate from the existing inbox reply");
-  await expect(recovered.locator("#inbox-reply-send")).toHaveCount(1);
-  await expect(page.locator("#inbox-reply-send")).toHaveCount(1);
-  await expect(page.locator("#inbox-reply-expand")).toHaveCount(0);
-  await recovered.getByRole("button", { name: "More send options", exact: true }).click();
+  await expect(guard).toBeVisible();
+  await guard.getByRole("button", { name: "Cancel", exact: true }).click();
+  await expect(page).toHaveURL(draftPageUrl);
+  await expect(body).toHaveText("Keep separate from the existing inbox reply");
+  await popover.getByRole("button", { name: "More send options", exact: true }).click();
   await page.getByRole("menuitem", { name: "Save as draft", exact: true }).click();
-  await expect(recovered).not.toBeVisible();
+  await expect.poll(async () => (await readDrafts()).length).toBe(1);
+  await page.goBack();
+  await expect(guard).not.toBeVisible();
+  await expect(recovered).toHaveCount(0);
   await expect(page.locator("#inbox-reply-expand")).toBeVisible();
   await page.locator("#inbox-reply-expand").click();
   await expect(page.locator("#inbox-reply-send")).toBeVisible();
