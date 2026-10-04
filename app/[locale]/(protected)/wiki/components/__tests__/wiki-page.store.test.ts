@@ -306,6 +306,26 @@ describe("Wiki document editing", () => {
     expect(store.hasUnsavedChanges).toBe(true);
   });
 
+  it("shows a new page's field error on that field", async () => {
+    actions.create.mockResolvedValue({
+      ok: false,
+      failure: {
+        kind: "validation",
+        issues: [{ code: "custom", path: ["pages", 0, "whenToUse"], message: "When to use is required" }],
+      },
+    });
+    const store = new WikiPageStore(rootStore(), page, vi.fn());
+    store.startCreate();
+    store.onChange("title", "Book a demo");
+    store.onChange("kind", "procedure");
+    store.onChange("markdown", "1. Ask for the company size");
+
+    await store.onSubmit();
+
+    expect(store.error).toEqual({ errors: [], properties: { whenToUse: { errors: ["When to use is required"] } } });
+    expect(store.creating).toBe(true);
+  });
+
   it("does not mutate for read-only users", async () => {
     const store = new WikiPageStore(rootStore(false), page, vi.fn());
     store.startCreate();

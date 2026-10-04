@@ -241,8 +241,13 @@ export class WikiPageStore extends BaseFormStore<WikiPageForm> {
             (issue) =>
               issue.customCode === CustomErrorCode.wikiPageConflict || issue.path.includes("expectedUpdatedAt"),
           );
+        const issues = result.failure.issues.map((issue) =>
+          issue.path[0] === "pages" && typeof issue.path[1] === "number"
+            ? { ...issue, path: issue.path.slice(2) }
+            : issue,
+        );
         this.setConflict(conflict);
-        this.setError(conflict ? undefined : serializedFailureErrorTree(result.failure));
+        this.setError(conflict ? undefined : serializedFailureErrorTree({ ...result.failure, issues }));
         return;
       }
 
