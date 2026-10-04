@@ -1,9 +1,6 @@
-export const MIN_COLUMN_WIDTH = 80;
-const COLUMN_RESIZE_KEYBOARD_STEP = 10;
-const COLUMN_RESIZE_KEYBOARD_LARGE_STEP = 30;
-const TOUCH_RESET_DOUBLE_TAP_MS = 400;
+import { resizeKeyboardStep, roundResizeSize as roundWidth } from "@/components/shared/resize-interaction";
 
-const roundWidth = (width: number) => Math.round(width * 100) / 100;
+export const MIN_COLUMN_WIDTH = 80;
 
 export function beginColumnResize({
   columnId,
@@ -49,7 +46,7 @@ export function shouldCommitColumnResize(session: ColumnResizeSession) {
 }
 
 export function keyboardColumnWidth(renderedWidth: number, key: string, largeStep = false) {
-  const step = largeStep ? COLUMN_RESIZE_KEYBOARD_LARGE_STEP : COLUMN_RESIZE_KEYBOARD_STEP;
+  const step = resizeKeyboardStep(largeStep);
 
   if (key === "ArrowLeft") return roundWidth(Math.max(MIN_COLUMN_WIDTH, renderedWidth - step));
   if (key === "ArrowRight") return roundWidth(renderedWidth + step);
@@ -59,12 +56,6 @@ export function keyboardColumnWidth(renderedWidth: number, key: string, largeSte
 
 export function withoutColumnWidth(widths: Record<string, number>, columnId: string) {
   return Object.fromEntries(Object.entries(widths).filter(([uid]) => uid !== columnId));
-}
-
-export function isTouchResetDoubleTap(previousTapAt: number | undefined, currentTapAt: number) {
-  if (previousTapAt === undefined) return false;
-  const elapsed = currentTapAt - previousTapAt;
-  return elapsed > 0 && elapsed <= TOUCH_RESET_DOUBLE_TAP_MS;
 }
 
 export function columnResizeLabel(columnId: string, header: unknown, configuredLabel?: string) {

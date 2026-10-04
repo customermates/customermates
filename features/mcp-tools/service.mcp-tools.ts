@@ -1,11 +1,9 @@
 import { z } from "zod";
 
 import {
-  CUSTOM_COLUMN_PREREQ,
   CUSTOM_FIELDS_MERGE_NOTE,
   CreatedRecordsOutputSchema,
   toonResult,
-  IDEMPOTENT_NOTE,
   UpdatedRecordsOutputSchema,
   forbidNullFields,
   relationsViaLinkNote,
@@ -39,8 +37,7 @@ export const createServicesTool = {
     "Required per item: name, amount (must be > 0). " +
     "Optional per item: notes, userIds, dealIds, taskIds, customFieldValues. " +
     "You can pass userIds/dealIds/taskIds directly in create so linked services are created in one call. " +
-    CUSTOM_COLUMN_PREREQ +
-    " Returns the list of created service ids and names.",
+    "Returns the list of created service ids and names.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
   inputSchema: CreateServicesSchema,
   outputSchema: CreatedRecordsOutputSchema,
@@ -59,9 +56,7 @@ export const updateServicesTool = {
     "Optional per item: name, amount, notes, customFieldValues. " +
     relationsViaLinkNote("users, deals, tasks") +
     " " +
-    CUSTOM_FIELDS_MERGE_NOTE +
-    " " +
-    IDEMPOTENT_NOTE,
+    CUSTOM_FIELDS_MERGE_NOTE,
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: UpdateServicesSchema,
   outputSchema: UpdatedRecordsOutputSchema,

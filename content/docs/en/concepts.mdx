@@ -27,6 +27,8 @@ A deal's `totalValue` and `totalQuantity` are derived from linked services: `tot
 
 Relationships are typed and many-to-many: a contact can belong to several organizations, and a deal can carry several services with quantities. A contact belongs to zero or more organizations, deals, and users. A deal belongs to zero or more contacts, organizations, and services (with quantities), plus assignees.
 
+Records link to other records through labeled relation fields inside the form. Pick the records, then save. Over MCP, `manage_record_links` adds or removes single links, or replaces a relation's links in one call.
+
 | From to | Example |
 |---|---|
 | Contact to Organization | "Max works at Initech" |

@@ -8,6 +8,7 @@ import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { createMockUserWithPermissions } from "@/tests/helpers/mock-user";
+import { WIKI_PAGE_AUDIT_EVENTS } from "@/features/wiki/wiki-audit-events";
 
 const { fake } = vi.hoisted(() => {
   const calls: Record<string, { op: string; args: any }[]> = {
@@ -335,5 +336,40 @@ describe("PrismaActivitiesRepo source permissions", () => {
       accountActivity: called("accountActivity"),
       calendarEvent: called("calendarEvent"),
     }).toEqual(expected);
+  });
+});
+
+describe("PrismaActivitiesRepo Wiki audit visibility", () => {
+  it.each(["getItems", "getCount"] as const)(
+    "excludes Wiki payloads from %s for an audit-only viewer",
+    async (method) => {
+      const user = createMockUserWithPermissions([{ resource: Resource.auditLog, action: Action.readAll }]);
+
+      await runWithTenant(user, async () => {
+        const repo = messagingRepo();
+        if (method === "getItems") await repo.getItems({});
+        else await repo.getCount({});
+      });
+
+      const where = whereOf("auditLog", method === "getItems" ? "findMany" : "count");
+      expect(where.companyId).toBe(user.companyId);
+      expect(where.AND).toContainEqual({ event: { notIn: [...WIKI_PAGE_AUDIT_EVENTS] } });
+    },
+  );
+
+  it.each(["getItems", "getCount"] as const)("reveals Wiki payloads through %s only with Wiki Read", async (method) => {
+    const user = createMockUserWithPermissions([
+      { resource: Resource.auditLog, action: Action.readAll },
+      { resource: Resource.wiki, action: Action.readAll },
+    ]);
+
+    await runWithTenant(user, async () => {
+      const repo = messagingRepo();
+      if (method === "getItems") await repo.getItems({});
+      else await repo.getCount({});
+    });
+
+    const where = whereOf("auditLog", method === "getItems" ? "findMany" : "count");
+    expect(where).toEqual({ companyId: user.companyId });
   });
 });

@@ -190,6 +190,16 @@ export function findAgentUiTarget(targetId: string) {
   return AGENT_UI_TARGETS.find((target) => target.id === targetId) ?? null;
 }
 
+export function unopenedUiPrerequisite(targetId: string, openedBefore: readonly string[] = []): string | null {
+  const prerequisite = findAgentUiTarget(targetId)?.prerequisite;
+  if (!prerequisite || !findAgentUiTarget(prerequisite)) return null;
+  return openedBefore.includes(prerequisite) ? null : prerequisite;
+}
+
+export function uiPrerequisiteRefusal(targetId: string, prerequisite: string): string {
+  return `${targetId} is inside ${prerequisite}, which the user must open first, so nothing was shown. Highlight ${prerequisite} and tell the user to open it, or run start_tour with ${prerequisite} as the step before ${targetId}.`;
+}
+
 export function findAgentNavigationTarget(targetId: string) {
   const target = findAgentUiTarget(targetId);
   return target?.route.startsWith("/") ? target : null;

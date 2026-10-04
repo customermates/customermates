@@ -29,6 +29,7 @@ import {
   TrendingUp,
   UserCircle,
   Users,
+  BookOpen,
 } from "lucide-react";
 import { Resource, Theme as ThemeEnum } from "@/generated/prisma";
 
@@ -221,6 +222,13 @@ const FullAppSidebar = observer(
               href: "/dashboard",
               icon: LayoutGrid,
               visible: true,
+            },
+            {
+              key: "wiki",
+              title: t("NavigationBar.wiki"),
+              href: "/wiki",
+              icon: BookOpen,
+              visible: canAccess(Resource.wiki),
             },
             {
               key: "inbox",
@@ -451,7 +459,9 @@ const FullAppSidebar = observer(
             assistantBusy={assistantBusy}
             assistantBusyLabel={assistantBusyLabel}
             assistantLabel={
-              rootStore.agentChatEnabled && rootStore.agentChatStore.enabled === true ? t("AgentChat.askAi") : undefined
+              rootStore.agentChatEnabled && (restricted || rootStore.agentChatStore.enabled === true)
+                ? t("AgentChat.askAi")
+                : undefined
             }
             assistantShortcut="⌘J"
             brandName="Customermates"

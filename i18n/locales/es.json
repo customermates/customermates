@@ -66,6 +66,11 @@
         "widgets": {
           "configure": "Listo para cambiar los widgets del panel",
           "delete": "Listo para eliminar de forma permanente un widget del panel"
+        },
+        "workspace": {
+          "configure": "Listo para eliminar de forma permanente esta página de la base de conocimientos",
+          "settings": "Listo para cambiar la configuración del espacio de trabajo, incluidos los nombres de los tipos de registro",
+          "terminology": "Listo para renombrar tipos de registro en todo el espacio de trabajo"
         }
       },
       "cancelled": "Detenido",
@@ -104,6 +109,8 @@
         "webhookResend": "Reenviar la entrega de webhook seleccionada",
         "webhookUpdate": "Modificar el webhook seleccionado"
       },
+      "contextMore": "{labels} (+{count})",
+      "contextual": "{action} · {context}",
       "countedRecordInResource": "1 registro en {resource}",
       "countedResource": "{count} {resource}",
       "countedSingular": "1 {resource}",
@@ -121,7 +128,8 @@
         "services": "servicios",
         "tasks": "tareas",
         "terminology": "terminología del espacio de trabajo",
-        "widgets": "widgets del Dashboard"
+        "widgets": "widgets del Dashboard",
+        "wiki": "páginas de la base de conocimientos"
       },
       "resourceSingular": {
         "contacts": "contacto",
@@ -131,7 +139,8 @@
         "services": "servicio",
         "tasks": "tarea",
         "terminology": "término del espacio de trabajo",
-        "widgets": "widget del dashboard"
+        "widgets": "widget del dashboard",
+        "wiki": "página de la base de conocimientos"
       },
       "state": {
         "accounts": {
@@ -242,6 +251,11 @@
           }
         },
         "records": {
+          "analyze": {
+            "done": "Análisis de {resource} completado",
+            "error": "Error al analizar {resource}",
+            "running": "Analizando {resource}"
+          },
           "create": {
             "done": "{count, plural, one {Creación de {target} completada} other {Creación de {target} completada}}",
             "error": "{count, plural, one {Error al crear {target}} other {Error al crear {target}}}",
@@ -338,6 +352,13 @@
             "running": "Revisando las vistas guardadas"
           }
         },
+        "web": {
+          "search": {
+            "done": "Búsqueda web completada",
+            "error": "No se pudo buscar en la web",
+            "running": "Buscando en la web"
+          }
+        },
         "webhooks": {
           "manage": {
             "done": "Acción de webhook completada",
@@ -408,12 +429,12 @@
       "cancelled": "Cancelado",
       "reject": "Rechazado",
       "rejectAction": "Cancelar",
-      "resuming": "Decisión guardada — Mate continúa…",
+      "resuming": "Decisión guardada. Mate continúa…",
       "retryResume": "Mate aún no pudo continuar. Reintenta la misma decisión.",
       "timeout": "Tiempo agotado sin respuesta",
       "title": "Mate quiere ejecutar:"
     },
-    "askAi": "Preguntar a la IA",
+    "askAi": "Preguntar a Mate",
     "askAiWorking": "Mate está trabajando",
     "context": {
       "addAria": "Añadir contexto",
@@ -449,8 +470,8 @@
       },
       "contact": "Contactar con nosotros",
       "planAndReset": "Plan {plan} · se restablece {resetAt}",
-      "recentTurn": "{credits, plural, one {Última consulta: # crédito} other {Última consulta: # créditos}}",
-      "remaining": "Quedan {remaining, number} de {limit, number} créditos",
+      "recentTurn": "{credits, plural, one {Última consulta: {amount} crédito} other {Última consulta: {amount} créditos}}",
+      "remaining": "{credits, plural, one {Queda {remaining} de {limit} créditos} other {Quedan {remaining} de {limit} créditos}}",
       "resetShort": "Se restablece {resetAt}",
       "usage": "{pct} % de los créditos mensuales de IA alojada consumidos",
       "viewPlans": "Ver planes"
@@ -478,6 +499,7 @@
       "hostedAiUnavailable": "La IA alojada no está disponible temporalmente. Inténtalo de nuevo más tarde.",
       "policyBreach": "El proveedor de IA superó el presupuesto de créditos reservado, por lo que se detuvo la ejecución. No se inició ningún trabajo adicional del proveedor.",
       "providerError": "El proveedor de IA devolvió un error antes de que pudiera terminar. No se cambió nada más. Inténtalo de nuevo.",
+      "sourcesHeading": "Fuentes",
       "turnError": "No he podido completar esa solicitud. Inténtalo de nuevo."
     },
     "send": "Enviar",
@@ -536,11 +558,11 @@
             },
             "first-contact": {
               "label": "Crear mi primer contacto",
-              "prompt": "Ayúdame a crear mi primer contacto. Pregunta solo por los datos que necesites."
+              "prompt": "Ayúdame a crear mi primer contacto real con datos confirmados de mi base de conocimientos, el espacio de trabajo o lo que te indique. Pregunta qué persona es y solo por los datos obligatorios que falten; no crees un contacto de ejemplo ni uno a partir de un testimonio."
             },
             "setup-contacts": {
               "label": "Configurar los contactos",
-              "prompt": "Ayúdame a diseñar y crear una configuración mínima de contactos para mi negocio. Pregunta primero por mi caso de uso."
+              "prompt": "Configura campos y vistas de contactos útiles a partir de mi base de conocimientos y el espacio de trabajo. No crees contactos de ejemplo ni conviertas testimonios públicos en contactos. Pregunta solo por decisiones pendientes."
             }
           }
         },
@@ -566,7 +588,7 @@
             },
             "setup": {
               "label": "Configurar mi espacio de trabajo",
-              "prompt": "Ayúdame a configurar Customermates para mi negocio. Hazme unas pocas preguntas concretas antes de proponer cambios."
+              "prompt": "Configura mi espacio de trabajo a partir de mi base de conocimientos y los datos existentes del CRM. Crea campos, vistas y ajustes útiles sin añadir registros de ejemplo. No conviertas casos de estudio o testimonios públicos en contactos, organizaciones u oportunidades, ni inventes precios, presupuestos o etapas actuales de oportunidades. Pregunta solo por decisiones pendientes."
             },
             "tour": {
               "label": "Enséñame la aplicación",
@@ -596,11 +618,11 @@
             },
             "first-deal": {
               "label": "Crear mi primera oportunidad",
-              "prompt": "Ayúdame a crear mi primera oportunidad y a vincular la organización, los contactos y los servicios adecuados."
+              "prompt": "Ayúdame a crear mi primera oportunidad real a partir de una oportunidad confirmada que yo identifique. Usa mi base de conocimientos y el espacio de trabajo, vincula únicamente organizaciones, contactos y servicios confirmados y pregunta por los datos obligatorios que falten, como el importe o la etapa actual, antes de crearla."
             },
             "setup-pipeline": {
               "label": "Configurar mi pipeline",
-              "prompt": "Ayúdame a diseñar un pipeline de ventas mínimo para mi negocio y propón después los campos y las oportunidades de ejemplo que crear."
+              "prompt": "Configura un pipeline de ventas sencillo a partir de mi base de conocimientos y el espacio de trabajo. No crees oportunidades de ejemplo ni trates casos de estudio públicos como oportunidades actuales. Pregunta solo por decisiones pendientes del pipeline; nunca inventes importes, presupuestos o etapas actuales."
             }
           }
         },
@@ -630,7 +652,7 @@
             },
             "default-setup": {
               "label": "Ayúdame a configurar mi CRM",
-              "prompt": "Ayúdame a configurar Customermates para mi negocio. Hazme unas pocas preguntas concretas antes de proponer cambios."
+              "prompt": "Configura mi CRM a partir de mi base de conocimientos y los datos existentes del espacio de trabajo. Crea campos, vistas y ajustes útiles sin añadir registros de ejemplo. No conviertas casos de estudio o testimonios públicos en contactos, organizaciones u oportunidades, ni inventes precios, presupuestos o etapas actuales de oportunidades. Pregunta solo por decisiones pendientes."
             }
           }
         },
@@ -682,7 +704,7 @@
           "empty": {
             "first-organization": {
               "label": "Crear mi primera organización",
-              "prompt": "Ayúdame a crear mi primera organización y a conectar las personas u oportunidades adecuadas."
+              "prompt": "Ayúdame a crear mi primera organización real con datos confirmados de mi base de conocimientos, el espacio de trabajo o lo que te indique. Pregunta qué organización es y solo por los datos obligatorios que falten. Vincula únicamente personas u oportunidades confirmadas; no inventes una relación de cliente."
             },
             "organizations-tour": {
               "label": "Descubrir cómo funcionan las organizaciones",
@@ -690,7 +712,7 @@
             },
             "setup-organizations": {
               "label": "Configurar las organizaciones",
-              "prompt": "Ayúdame a diseñar y crear una configuración mínima de organizaciones para mi negocio. Pregunta primero por mi caso de uso."
+              "prompt": "Configura campos y vistas de organizaciones útiles a partir de mi base de conocimientos y el espacio de trabajo. No crees organizaciones de ejemplo ni trates casos de estudio públicos como relaciones comerciales actuales. Pregunta solo por decisiones pendientes."
             }
           }
         },
@@ -698,7 +720,7 @@
           "data": {
             "create-routine": {
               "label": "Crear una rutina",
-              "prompt": "Ayúdame a crear una rutina. Pregunta qué quiero automatizar y luego recomienda si debería ejecutarse según una programación o activarse por un evento."
+              "prompt": "Usa mi base de conocimientos y las rutinas existentes para decidir qué automatizar. Pregunta solo si el desencadenante o la acción no están claros y luego créala."
             },
             "routine-health": {
               "label": "Revisar mis rutinas",
@@ -712,7 +734,7 @@
           "empty": {
             "first-routine": {
               "label": "Crear mi primera rutina",
-              "prompt": "Ayúdame a crear mi primera rutina. Pregunta qué quiero automatizar y luego recomienda si debería ejecutarse según una programación o activarse por un evento."
+              "prompt": "Usa mi base de conocimientos y el espacio de trabajo para proponer una primera rutina útil. Pregunta solo si el desencadenante o la acción no están claros y luego créala."
             },
             "routine-ideas": {
               "label": "Sugerir rutinas útiles",
@@ -742,7 +764,7 @@
           "empty": {
             "first-service": {
               "label": "Crear mi primera oferta",
-              "prompt": "Ayúdame a crear mi primer servicio o producto con el nombre y el precio adecuados."
+              "prompt": "Ayúdame a crear mi primer servicio o producto real a partir de mi base de conocimientos y el espacio de trabajo. Pregunta solo qué oferta elegir y por los datos obligatorios que falten. Si su precio obligatorio es desconocido, pregunta antes de crearlo; nunca adivines un precio ni uses un valor provisional."
             },
             "services-tour": {
               "label": "Descubrir cómo funcionan las ofertas",
@@ -750,7 +772,7 @@
             },
             "setup-services": {
               "label": "Configurar mis ofertas",
-              "prompt": "Ayúdame a definir un conjunto mínimo de servicios o productos para mi negocio y créalos tras revisarlos."
+              "prompt": "Crea únicamente servicios o productos reales documentados en mi base de conocimientos, evitando duplicados en el espacio de trabajo. Usa precios confirmados. Si falta un precio obligatorio u otro dato comercial obligatorio, pregunta antes de crear esa oferta; nunca inventes un precio ni uses un valor provisional."
             }
           }
         },
@@ -772,15 +794,45 @@
           "empty": {
             "first-task": {
               "label": "Crear mi primera tarea",
-              "prompt": "Ayúdame a crear mi primera tarea y a conectarla con los registros adecuados."
+              "prompt": "Ayúdame a crear mi primera tarea real que yo identifique, usando mi base de conocimientos y el espacio de trabajo. Vincula solo registros confirmados y pregunta solo por las decisiones obligatorias que falten. No inventes una tarea, un responsable o una fecha de vencimiento."
             },
             "setup-tasks": {
               "label": "Configurar mi flujo de trabajo",
-              "prompt": "Ayúdame a diseñar un flujo de tareas mínimo para mi negocio y propón los campos y las primeras tareas que crear."
+              "prompt": "Configura un flujo de tareas mínimo con campos y vistas útiles a partir de mi base de conocimientos y el espacio de trabajo. No crees tareas de ejemplo ni inventes responsables o fechas de vencimiento. Pregunta solo por decisiones pendientes del flujo de trabajo."
             },
             "tasks-tour": {
               "label": "Descubrir cómo funcionan las tareas",
               "prompt": "Enséñame las tareas y explícame cómo se conectan con contactos, organizaciones, oportunidades y servicios."
+            }
+          }
+        },
+        "wiki": {
+          "data": {
+            "create-wiki-page": {
+              "label": "Crear una página de la base de conocimientos",
+              "prompt": "Crea una página útil a partir de información verificada del espacio de trabajo o de una carencia clara. Evita duplicados y pregunta solo por los datos pendientes."
+            },
+            "wiki-gaps": {
+              "label": "Encontrar vacíos de conocimiento",
+              "prompt": "Revisa nuestra base de conocimientos del espacio de trabajo e identifica la información más importante que falte, esté desactualizada o sea contradictoria. No hagas cambios."
+            },
+            "wiki-summary": {
+              "label": "Resumir la base de conocimientos",
+              "prompt": "Resume nuestra base de conocimientos del espacio de trabajo, incluidos los procesos, el conocimiento de producto, las guías de soporte y las guías de voz que contiene."
+            }
+          },
+          "empty": {
+            "first-wiki-page": {
+              "label": "Crear desde mi sitio web",
+              "prompt": "Crea mi base de conocimientos a partir del sitio web de mi empresa."
+            },
+            "wiki-structure": {
+              "label": "Sugerir una estructura para la base de conocimientos",
+              "prompt": "Revisa mi base de conocimientos y el espacio de trabajo, detecta información pendiente y crea páginas útiles sin duplicados. Pide un sitio web solo si lo necesitas."
+            },
+            "wiki-tour": {
+              "label": "Aprender cómo funciona la base de conocimientos",
+              "prompt": "Explica cómo Mate, las rutinas y las herramientas de IA conectadas utilizan la base de conocimientos del espacio de trabajo, incluidos los enlaces y permisos. No hagas cambios."
             }
           }
         }
@@ -919,6 +971,7 @@
       "emails": "Direcciones de correo",
       "headers": "Cabeceras personalizadas",
       "isNewCompany": "Primera persona del espacio",
+      "markdown": "Markdown",
       "postalCode": "Código postal",
       "prompt": "Instrucciones",
       "recipientEmail": "Enviado a",
@@ -1039,6 +1092,7 @@
       "warning": "Amarillo"
     },
     "company": "Empresa",
+    "creditsBelowMinimum": "<{amount}",
     "customColumnTypes": {
       "currency": "Moneda",
       "date": "Fecha",
@@ -1142,6 +1196,7 @@
       "agentConversationNotFound": "No se encontró esta conversación o ya no es accesible.",
       "agentLimitReached": "No quedan suficientes créditos de IA para iniciar otra solicitud.",
       "agentModelUnavailable": "Ese modelo del Asistente no está disponible.",
+      "agentServiceUnavailable": "La IA alojada no está disponible temporalmente. Inténtalo de nuevo más tarde.",
       "agentTurnAlreadyRunning": "Ya se está ejecutando otra solicitud del asistente.",
       "apiKeyMaxExpiration": "La caducidad de una clave de API no puede superar los 365 días.",
       "apiKeyMinExpiration": "La caducidad de una clave de API debe ser de al menos 1 día.",
@@ -1167,6 +1222,7 @@
       "customFieldInvalidSingleSelect": "El valor de selección única no es válido. Debe ser una de las opciones permitidas: {validValues}.",
       "customFieldInvalidUrl": "La URL no es válida. Debe respetar el formato de una URL (por ejemplo https://example.com). Para varias URL, sepáralas con una coma (por ejemplo https://example.com, https://example.org).",
       "dataViewAllNameImmutable": "La vista Todas no se puede renombrar. Omite name y actualiza solo los ajustes solicitados en state. Consulta config para los ajustes compatibles y list para el estado actual antes de reintentar.",
+      "dataViewLayoutReadOnly": "El orden, el ancho y la visibilidad de las columnas solo se pueden cambiar en la aplicación. Omite columnOrder, columnWidths y hiddenColumns, o envíalos exactamente como los devolvió list.",
       "dataViewNotFound": "No se encontró esta vista guardada.",
       "dataViewUpdateEmpty": "Indica un nombre o al menos un ajuste de vista para actualizar.",
       "dealNotFound": "ID de oportunidad no encontrado o no accesible.",
@@ -1212,6 +1268,9 @@
       "operatorAllowanceMissing": "Este espacio de trabajo aún no tiene un cupo Enterprise contratado, por lo que no se pueden corregir los créditos. Define primero el cupo en la lista de espacios de trabajo.",
       "operatorConflict": "El cambio fue rechazado. Puede que el registro haya cambiado desde que se cargó la lista, o que el espacio de trabajo no lo permita ahora mismo. Recarga y revisa el estado actual.",
       "operatorConnectedAccountsActive": "Este espacio de trabajo todavía tiene cuentas de mensajería conectadas. Desconéctalas primero para liberar las cuentas del proveedor y elimina después el espacio de trabajo.",
+      "operatorCreditNonzero": "Introduce un ajuste de créditos mayor o menor que cero.",
+      "operatorCreditPeriodInvalid": "El periodo del ajuste debe terminar después de su inicio.",
+      "operatorCreditPrecision": "Usa como máximo un decimal para el ajuste de créditos.",
       "operatorTrialEndRequired": "La fecha de fin de prueba no se puede quitar, solo mover. Borrarla dejaría el espacio de trabajo en una prueba que nunca caduca.",
       "operatorUnavailable": "La corrección solicitada no está disponible para la configuración actual de la cuenta.",
       "organizationNotFound": "ID de organización no encontrado o no accesible.",
@@ -1284,7 +1343,16 @@
       "widgetKindImmutable": "El tipo de un widget no se puede cambiar después de crearlo.",
       "widgetNotFound": "ID de widget no encontrado o no accesible.",
       "widgetTaskCanOnlyGroupByCustomColumn": "Las tareas solo se pueden agrupar por columnas personalizadas, no por tipos de elemento.",
-      "widgetWeightedValueNotAllowedForService": "La agregación de valor ponderado no está permitida para el tipo de elemento Servicio."
+      "widgetWeightedValueNotAllowedForService": "La agregación de valor ponderado no está permitida para el tipo de elemento Servicio.",
+      "wikiGuideExists": "Esta base de conocimientos ya tiene una guía operativa. Actualiza la guía existente.",
+      "wikiHomepageSetupStartFailed": "Mate no pudo iniciar la configuración de la base de conocimientos. Inténtalo de nuevo.",
+      "wikiNotEmpty": "Esta acción requiere que la base de conocimientos esté vacía.",
+      "wikiPageConflict": "Esta página de la base de conocimientos cambió después de que la abrieras. Vuelve a cargarla e inténtalo de nuevo.",
+      "wikiPageNotFound": "Página de la base de conocimientos no encontrada o no accesible.",
+      "wikiPagePinned": "La guía operativa permanece en primer lugar. Mueva otra página.",
+      "wikiPageUpdateEmpty": "Indica al menos un campo para actualizar la página.",
+      "wikiProcedureNeedsSteps": "Un procedimiento necesita pasos numerados.",
+      "wikiWhenToUseRequired": "Un procedimiento necesita una breve descripción de cuándo usarlo."
     },
     "events": {
       "company": {
@@ -1377,6 +1445,11 @@
         "created": "Webhook creado",
         "deleted": "Webhook eliminado",
         "updated": "Webhook actualizado"
+      },
+      "wiki_page": {
+        "created": "Página de la base de conocimientos creada",
+        "deleted": "Página de la base de conocimientos eliminada",
+        "updated": "Página de la base de conocimientos actualizada"
       }
     },
     "filters": {
@@ -2196,6 +2269,7 @@
     "formatting": "Formato",
     "heading1": "Título 1",
     "heading2": "Título 2",
+    "heading3": "Título 3",
     "image": "Imagen",
     "imageUrlPrompt": "Introduce la URL de la imagen",
     "italic": "Cursiva",
@@ -2827,6 +2901,7 @@
     "search": "Buscar",
     "settings": "Ajustes",
     "subscription": "Suscripción",
+    "wiki": "Base de conocimientos",
     "workspace": "Espacio de trabajo"
   },
   "NotFoundPage": {
@@ -2868,8 +2943,7 @@
         "codex": "Codex",
         "cursor": "Cursor",
         "gemini": "Gemini",
-        "openai": "ChatGPT & Codex",
-        "skip": "Omitir por ahora"
+        "openai": "ChatGPT & Codex"
       },
       "connector": {
         "chatgptDescription": "En la aplicación de escritorio de ChatGPT, añade Customermates como servidor MCP Streamable HTTP. La autenticación usa OAuth.",
@@ -2952,10 +3026,6 @@
         "setup": {
           "apiKeySubtitle": "Crea una clave de API y sigue la configuración preparada para {provider}.",
           "title": "Conectar {provider}"
-        },
-        "skip": {
-          "subtitle": "Puedes terminar ahora la incorporación y conectar una IA desde tu perfil cuando quieras.",
-          "title": "Configurar una IA más tarde"
         }
       }
     },
@@ -2975,23 +3045,36 @@
         "link": "Compartir el enlace"
       }
     },
+    "milestones": {
+      "ai": "Herramientas IA",
+      "invite": "Equipo",
+      "profile": "Tú",
+      "wiki": "Conocimiento"
+    },
     "next": "Siguiente",
     "progress": "Paso {current} de {total}",
     "progressLabel": "Progreso de la configuración inicial",
     "steps": {
       "ai": {
-        "subtitle": "Elige cuál conectar ahora. Podrás añadir las demás más adelante.",
-        "title": "Conecta tu IA"
+        "subtitle": "Elige una herramienta de IA para conectarla a tu espacio de trabajo y al conocimiento de tu empresa. Conecta una ahora, añade otras más adelante o salta este paso.",
+        "title": "Conecta la IA que ya utilizas"
       },
       "invite": {
-        "subtitle": "Comparte un enlace o envía invitaciones por correo.",
-        "title": "Invita a tu equipo"
+        "subtitle": "Invita a tus compañeros con un enlace compartido o invitaciones individuales por correo. También puedes continuar por tu cuenta e invitarlos más adelante.",
+        "title": "Incorpora a tu equipo"
       },
       "profile": {
-        "invitedSubtitle": "Completa tu perfil para solicitar acceso al espacio de trabajo de la invitación.",
-        "subtitle": "Cuéntanos quién eres para que podamos configurar tu espacio de trabajo.",
-        "title": "Tu perfil"
+        "invitedSubtitle": "Completa tu perfil para solicitar acceso al espacio de trabajo al que te han invitado.",
+        "subtitle": "Añade tu nombre y país para que tu equipo te reconozca. Estos datos formarán parte de tu perfil y podrás modificarlos más adelante.",
+        "title": "Haz tuyo este espacio de trabajo"
+      },
+      "wiki": {
+        "subtitle": "Empieza por el sitio web de tu empresa. Mate convierte la información verificable en páginas compartidas y editables de la base de conocimientos, con fuentes y aspectos por aclarar.",
+        "title": "Comparte con Mate el conocimiento de tu empresa"
       }
+    },
+    "wiki": {
+      "skip": "Ahora no"
     }
   },
   "OperatorAudit": {
@@ -3087,7 +3170,7 @@
   "OperatorUsers": {
     "adjustment": {
       "deltaLabel": "Corrección de créditos con signo",
-      "deltaPlaceholder": "Por ejemplo, 500 o -100",
+      "deltaPlaceholder": "Por ejemplo, 500, 2,5 o -100",
       "expiresAt": "Esta corrección se aplica solo al periodo actual y caduca el {date}."
     },
     "confirm": {
@@ -3112,7 +3195,7 @@
     "emptyTitle": "Ningún usuario coincide con estos filtros",
     "modal": {
       "access": "Acceso",
-      "adjustmentConfirm": "¿Aplicar una corrección de {value} créditos a {name}?",
+      "adjustmentConfirm": "{credits, plural, one {¿Aplicar una corrección de {amount} crédito a {name}?} other {¿Aplicar una corrección de {amount} créditos a {name}?}}",
       "identity": "{person} · {email}"
     },
     "navigation": "Usuarios",
@@ -3230,6 +3313,9 @@
     "resetPasswordCta": "Restablecer",
     "title": "Restablece tu contraseña"
   },
+  "ResizablePanels": {
+    "resize": "Redimensiona {before} y {after}. Arrastra o usa las flechas; toca dos veces o pulsa Intro para restablecer."
+  },
   "RoleModal": {
     "manageAccess": "Gestión",
     "no": "No",
@@ -3250,7 +3336,8 @@
       "routines": "Rutinas",
       "services": "Servicios",
       "tasks": "Tareas",
-      "users": "Usuarios y roles"
+      "users": "Usuarios y roles",
+      "wiki": "Base de conocimientos del espacio de trabajo"
     },
     "systemAlert": "Este es un rol del sistema y no se puede editar ni eliminar.",
     "systemDescription": "Acceso completo a todas las funciones y ajustes. No se puede modificar ni eliminar.",
@@ -3477,7 +3564,7 @@
     "manageWithLemonSqueezy": "Gestionar con Lemon Squeezy",
     "picker": {
       "connectedAccountsPerUser": "{accounts, plural, one {# cuenta conectada por usuario} other {# cuentas conectadas por usuario}}",
-      "creditNote": "Los créditos de IA alojada se renuevan cada mes; los créditos no utilizados no se acumulan. Los clientes MCP externos utilizan tu propio proveedor de IA y no consumen estos créditos.",
+      "creditNote": "Los créditos de IA alojada se renuevan cada mes; los créditos no utilizados no se acumulan. Cada consulta se cobra por su coste exacto del proveedor y se muestra con un decimal. Los clientes MCP externos facturan el uso del modelo a través de tu propio proveedor de IA. Las búsquedas semánticas del servidor pueden consumir créditos de IA alojada.",
       "features": {
         "business": ["Todo lo de Pro", "Cuentas compartidas y soporte prioritario"],
         "pro": ["Todo lo de Starter", "Bandeja de entrada unificada"],
@@ -3649,5 +3736,114 @@
     "emptyBody": "Añade un webhook para enviar los eventos del espacio de trabajo a tus sistemas.",
     "emptyTitle": "Aún no hay webhooks",
     "title": "Webhooks"
+  },
+  "Wiki": {
+    "conflict": "Esta página ha cambiado. Tus cambios siguen aquí. Recarga para usar la versión más reciente.",
+    "copyLink": "Copiar enlace de la página",
+    "delete": "Eliminar página",
+    "document": "Documento",
+    "emptyBody": "Proporciona a Mate y a las herramientas de IA conectadas el conocimiento, los procesos y las pautas que necesitan.",
+    "emptyBodyReadOnly": "Aún no se han creado páginas de la base de conocimientos.",
+    "emptyTitle": "La base de conocimientos de tu espacio de trabajo está vacía",
+    "kind": {
+      "guide": "Guía operativa",
+      "guideDescription": "Reglas y tono comunes para cada solicitud. Una por espacio de trabajo.",
+      "guideExists": "Ya existe una guía operativa. Edita esa página para cambiar las reglas comunes.",
+      "guideHelp": "La guía operativa define cómo deben trabajar Mate y las herramientas de IA conectadas: tono, reglas y límites. Pon las reglas clave al principio; Mate lee esa parte en cada solicitud. Una por espacio de trabajo.",
+      "knowledge": "Conocimiento",
+      "knowledgeDescription": "Datos de la empresa e información para consultar cuando haga falta.",
+      "knowledgeHelp": "Para datos de la empresa, productos, servicios o preguntas frecuentes. Mate y las herramientas de IA conectadas encuentran estas páginas cuando una pregunta las necesita.",
+      "label": "Tipo de página",
+      "procedure": "Procedimiento",
+      "procedureDescription": "Pasos para una tarea recurrente, aplicados a solicitudes coincidentes.",
+      "procedureHelp": "Para tareas recurrentes, como la incorporación de clientes. Escribe pasos numerados y describe la solicitud correspondiente en «Cuándo usarlo». Mate y las herramientas de IA conectadas los siguen cuando surge esa solicitud."
+    },
+    "linkPage": "Enlazar una página de la base de conocimientos…",
+    "loadFailed": "No se pudieron cargar las páginas.",
+    "newPage": "Nueva página",
+    "next": "Siguiente",
+    "noResults": "No hay páginas coincidentes.",
+    "onThisPage": "En esta página",
+    "page": "Página {current} de {total}",
+    "pageActions": "Acciones de la página",
+    "pagesLabel": "Páginas de la base de conocimientos",
+    "pageTitle": "Título de la página",
+    "previous": "Anterior",
+    "reload": "Recargar página",
+    "search": "Buscar páginas…",
+    "unavailableBody": "Esta página se eliminó o no tienes acceso. Elige otra página.",
+    "unavailableTitle": "Página no disponible",
+    "untitled": "Página sin título",
+    "websiteImport": {
+      "faqHeading": "Preguntas frecuentes",
+      "source": "Fuente: {url} · consultada el {date}"
+    },
+    "whenToUse": {
+      "label": "Cuándo usarlo",
+      "placeholder": "Usar cuando un cliente pide un reembolso o cancelar un plan de pago."
+    }
+  },
+  "WikiSetup": {
+    "continue": "Continuar",
+    "continueBackground": "Continuar mientras Mate trabaja",
+    "crawlProgress": {
+      "created": "Creada",
+      "discovering": "Buscando páginas del sitio",
+      "failed": "Omitida",
+      "found": "{count} páginas encontradas",
+      "pending": "En espera",
+      "read": "Leída",
+      "reading": "Leyendo",
+      "readingCount": "Leyendo páginas · {fetched}/{total}",
+      "skipped": {
+        "credits": "Sin créditos de IA",
+        "error": "No redactada",
+        "evidence": "Pruebas insuficientes en las fuentes",
+        "generation": "No redactada",
+        "persistence": "No se pudo guardar",
+        "review": "No respaldada por las fuentes",
+        "reviewUnavailable": "Revisión no disponible"
+      },
+      "steps": "3 pasos",
+      "title": "Progreso de importación del sitio",
+      "writing": "Escribiendo",
+      "writingCount": "Escribiendo páginas · {created}/{total}",
+      "writingStep": "Redactando páginas de la base de conocimiento"
+    },
+    "generated": {
+      "gapsHeading": "Aspectos por confirmar",
+      "pagesHeading": "Páginas de la base de conocimiento",
+      "roles": {
+        "company_overview": "Resumen de la empresa",
+        "customers_and_use_cases": "Clientes y casos de uso",
+        "operating_guide": "Guía operativa",
+        "sales_messaging": "Mensajes de venta y preguntas frecuentes",
+        "voice_and_tone": "Voz y tono"
+      },
+      "sourcesHeading": "Fuentes"
+    },
+    "homepageLabel": "Sitio web de la empresa",
+    "homepagePlaceholder": "https://ejemplo.com",
+    "languageDescription": "Se usa el idioma del navegador de forma predeterminada. Si la base de conocimientos ya contiene páginas, su idioma determina la selección.",
+    "languageLabel": "Idioma de la base de conocimientos",
+    "start": "Crear mi base de conocimientos",
+    "status": {
+      "completedBodyOnboarding": "Mate ha creado tus páginas iniciales con datos respaldados por el sitio web. Podrás revisarlas más tarde en la base de conocimientos y confirmar lo que esté marcado como pendiente de confirmar.",
+      "completedExistingBody": "Tu base de conocimientos ya contiene páginas. Continúa la incorporación o revisa el contenido existente.",
+      "completedTitle": "Tu base de conocimientos inicial está lista",
+      "failedBody": "La configuración se detuvo antes de que todas las páginas estuvieran listas. Las páginas ya creadas siguen disponibles. Puedes continuar y revisarlas en la base de conocimientos.",
+      "failedBodyBlocked": "{domain} no permite la lectura automática en su robots.txt, así que no se importó nada. Puedes crear las páginas tú mismo.",
+      "failedBodySynthesis": "Se leyó el sitio web, pero Mate no pudo escribir las páginas. Inténtalo de nuevo. Las páginas ya creadas siguen disponibles.",
+      "failedBodyUnavailable": "Mate no pudo leer {domain}. Revisa la dirección o continúa y añade páginas más tarde.",
+      "failedTitle": "La configuración no terminó",
+      "noContentBody": "Mate no encontró información útil para páginas de la base de conocimiento. Puedes probar con otro sitio web o continuar y añadir páginas más tarde.",
+      "noContentTitle": "No se crearon páginas de la base de conocimientos",
+      "readingBody": "Mate ha leído {fetched} de {total} páginas de {domain}.",
+      "workingBody": "Mate está leyendo {domain} e incorporando información con fuentes a tu base de conocimientos. Puedes continuar con el siguiente paso mientras trabaja.",
+      "workingBodyWiki": "Mate está leyendo {domain} y creando la base de conocimientos. Puedes volver más tarde para ver las páginas terminadas.",
+      "workingTitle": "Mate está conociendo tu empresa"
+    },
+    "tryAnother": "Probar otro sitio",
+    "unavailable": "La configuración con Mate no está disponible ahora. Puedes crear páginas más adelante desde la base de conocimientos."
   }
 }

@@ -2,16 +2,19 @@ import { z } from "zod";
 
 import {
   customMcpFailure,
+  fetchMcpPage,
   filtersDescription,
   formatDatesInResponse,
   MCP_PAGE_SIZE_DESCRIPTION,
   mcpInteractorFailure,
   mcpPage,
   mcpPageSize,
+  McpPageOutputShape,
   mcpValidationFailure,
   runInteractor,
   sortDescription,
   toonResult,
+  type McpPageSize,
 } from "./utils";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -103,6 +106,9 @@ const GetMessagingThreadsOutputSchema = z
         }),
       )
       .optional(),
+    total: z.number().optional(),
+    page: z.number().optional(),
+    pageSize: z.number().optional(),
   })
   .describe("Detail mode returns thread plus messages; list mode returns items.");
 
@@ -112,7 +118,7 @@ const GetActivitiesOutputSchema = z.looseObject({
   pageLimitReached: z.unknown(),
   scopeTruncated: z.unknown(),
   total: z.number(),
-  page: z.number(),
+  ...McpPageOutputShape,
 });
 
 function withoutRawMessageHtml<T>(entry: T): T {
@@ -132,9 +138,12 @@ const GetCalendarsOutputSchema = z
     items: z.array(z.looseObject({})).optional(),
     total: z.number().optional(),
     page: z.number().optional(),
+    pageSize: z.number().optional(),
     id: z.string().optional().describe("Present on event detail when eventId is set"),
   })
-  .describe("List modes return items with total and page; eventId returns the event fields at the top level.");
+  .describe(
+    "List modes return items with total, page and pageSize; eventId returns the event fields at the top level.",
+  );
 
 const SendChatMessageOutputSchema = z.object({ sent: z.literal(true), threadId: z.string().nullable() });
 const SendEmailOutputSchema = z.object({ sent: z.literal(true), threadId: z.string().nullable() });
@@ -161,7 +170,7 @@ export const getMessagingThreadsTool = {
   title: "Get messaging threads",
   description:
     "Use this when reading the inbox: without threadId lists message threads across connected accounts; with threadId returns that thread's detail (full participants plus a page of messages, drafts flagged isDraft, page 1 is the most recent). " +
-    "List rows carry id, name/subject/preview, state, lastMessageAt, and participants (displayName, identifier, provider, isSelf, isLinked, linked CRM contact) capped at 50; message bodies appear only in detail mode. " +
+    "List rows carry id, name/subject/preview, state, lastMessageAt, lastSentMessageFromSelf (true when the latest sent message went out from the connected account, so the other side has not written since; false when the other side wrote last; null when nothing has been sent yet and the thread holds only a draft; an unsent draft never counts), and participants (displayName, identifier, provider, isSelf, isLinked, linked CRM contact) capped at 50; message bodies appear only in detail mode. " +
     "List mode omits threads that have no messages yet (unless they hold a draft); detail by threadId returns any thread. " +
     "A participant with isLinked=false is NOT yet a CRM contact; filter `participants` with the `hasUnset` operator to find threads that have such people.",
   annotations: {
@@ -224,24 +233,23 @@ export const getMessagingThreadsTool = {
             })),
             total: data.total,
             page,
+            pageSize,
           }),
         ),
       );
     }
     return runInteractor(
-      getGetMessagingThreadsApiInteractor().invoke(
-        GetQueryParamsSchema.parse({
-          searchTerm,
-          filters,
-          sortDescriptor,
-          pagination: { page, pageSize },
-        }),
+      fetchMcpPage({ page, pageSize }, (pagination) =>
+        getGetMessagingThreadsApiInteractor().invoke(
+          GetQueryParamsSchema.parse({ searchTerm, filters, sortDescriptor, pagination }),
+        ),
       ),
       (data) =>
         toonResult(
           formatDatesInResponse({
             total: data.pagination?.total ?? data.items.length,
             page,
+            pageSize,
             items: data.items.map((thread) => ({
               id: thread.id,
               connectedAccountId: thread.connectedAccountId,
@@ -252,6 +260,7 @@ export const getMessagingThreadsTool = {
               preview: thread.preview,
               state: thread.state,
               lastMessageAt: thread.lastMessageAt,
+              lastSentMessageFromSelf: thread.lastSentMessageFromSelf,
               participantCount: thread.participants.length,
               participants: thread.participants.slice(0, LIST_PARTICIPANT_LIMIT).map((p) => ({
                 displayName: p.displayName,
@@ -309,25 +318,25 @@ export const getActivitiesTool = {
   outputSchema: GetActivitiesOutputSchema,
   execute: ({ page, pageSize, scope, filters, sortDescriptor }: z.infer<typeof GetActivitiesSchema>) =>
     runInteractor(
-      getGetActivitiesApiInteractor().invoke(
-        ActivitiesApiParamsSchema.parse({
-          pagination: { page, pageSize },
-          scope,
-          filters,
-          sortDescriptor,
-        }),
+      fetchMcpPage({ page, pageSize }, (pagination) =>
+        getGetActivitiesApiInteractor().invoke(
+          ActivitiesApiParamsSchema.parse({ pagination, scope, filters, sortDescriptor }),
+        ),
       ),
-      (data) =>
-        toonResult(
+      (data) => {
+        const total = data.pagination?.total ?? data.items.length;
+        return toonResult(
           formatDatesInResponse({
             availableSources: data.availableSources,
-            total: data.pagination?.total ?? data.items.length,
+            total,
             page,
+            pageSize,
             items: data.items.map(withoutRawMessageHtml),
-            pageLimitReached: data.pageLimitReached,
+            pageLimitReached: page >= ACTIVITY_MAX_PAGE && total > page * pageSize,
             scopeTruncated: data.scopeTruncated,
           }),
-        ),
+        );
+      },
     ),
 };
 
@@ -389,33 +398,37 @@ export const getCalendarsTool = {
       return toonResult({ ...formatDatesInResponse(result.data) });
     }
 
-    const params = GetQueryParamsSchema.parse({
-      searchTerm,
-      filters,
-      sortDescriptor,
-      pagination: { page, pageSize },
-    });
+    const params = (pagination: { page: number; pageSize: McpPageSize }) =>
+      GetQueryParamsSchema.parse({ searchTerm, filters, sortDescriptor, pagination });
 
     if (list === "events") {
-      return runInteractor(getGetCalendarEventsApiInteractor().invoke(params), (data) =>
+      return runInteractor(
+        fetchMcpPage({ page, pageSize }, (pagination) =>
+          getGetCalendarEventsApiInteractor().invoke(params(pagination)),
+        ),
+        (data) =>
+          toonResult(
+            formatDatesInResponse({
+              total: data.pagination?.total ?? data.items.length,
+              page,
+              pageSize,
+              items: data.items,
+            }),
+          ),
+      );
+    }
+
+    return runInteractor(
+      fetchMcpPage({ page, pageSize }, (pagination) => getGetCalendarsApiInteractor().invoke(params(pagination))),
+      (data) =>
         toonResult(
           formatDatesInResponse({
             total: data.pagination?.total ?? data.items.length,
             page,
+            pageSize,
             items: data.items,
           }),
         ),
-      );
-    }
-
-    return runInteractor(getGetCalendarsApiInteractor().invoke(params), (data) =>
-      toonResult(
-        formatDatesInResponse({
-          total: data.pagination?.total ?? data.items.length,
-          page,
-          items: data.items,
-        }),
-      ),
     );
   },
 };

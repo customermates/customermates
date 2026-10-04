@@ -5,12 +5,15 @@ import { TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER } from "@/ee/subscription/entit
 
 import {
   agentCreditPeriodForAnchor,
-  agentCreditsForStartedProviderCost,
-  prorateAgentCreditsForSeat,
+  agentMicrocentsFromStorage,
+  memberCreditHeadroomMicrocents,
+  prorateAgentAllowanceForSeat,
   resolveAgentCreditEntitlement,
   workspaceAgentCreditRate,
+  workspaceIndexingShareMicrocents,
 } from "../agent-credit-policy";
 
+const CREDIT = 1_000_000;
 const ACTIVE = SubscriptionStatus.active;
 const NOW = new Date("2026-08-06T12:00:00.000Z");
 
@@ -66,7 +69,7 @@ describe("agent credit entitlements", () => {
     [SubscriptionPlan.pro, 500],
     [SubscriptionPlan.business, 1200],
   ])("grants %s plan credits", (plan, limit) => {
-    expect(entitlement({ plan }).limit).toBe(limit);
+    expect(entitlement({ plan }).limitMicrocents).toBe(limit * CREDIT);
   });
 
   it("gives every trial user the full Pro-sized allowance without seat proration", () => {
@@ -77,24 +80,27 @@ describe("agent credit entitlements", () => {
       activeSeatAt: new Date("2026-08-06T11:59:00.000Z"),
     });
 
-    expect(result.limit).toBe(TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER);
+    expect(result.limitMicrocents).toBe(TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER * CREDIT);
     expect(result.blockedReason).toBeNull();
   });
 
   it("fails closed when Enterprise has no contracted figure", () => {
     const result = entitlement({ plan: SubscriptionPlan.enterprise });
 
-    expect(result.limit).toBe(0);
+    expect(result.limitMicrocents).toBe(0);
     expect(result.blockedReason).toBe("enterprise_allowance_missing");
   });
 
   it("uses the finite Enterprise allowance", () => {
-    expect(entitlement({ plan: SubscriptionPlan.enterprise, enterpriseCreditsPerUser: 3400 }).limit).toBe(3400);
+    expect(entitlement({ plan: SubscriptionPlan.enterprise, enterpriseCreditsPerUser: 3400 }).limitMicrocents).toBe(
+      3400 * CREDIT,
+    );
   });
 
   it("applies signed current-period adjustments after seat proration", () => {
-    expect(entitlement({ adjustmentCredits: 75 }).limit).toBe(575);
-    expect(entitlement({ adjustmentCredits: -75 }).limit).toBe(425);
+    expect(entitlement({ adjustmentMicrocents: 75 * CREDIT }).limitMicrocents).toBe(575 * CREDIT);
+    expect(entitlement({ adjustmentMicrocents: -75 * CREDIT }).limitMicrocents).toBe(425 * CREDIT);
+    expect(entitlement({ adjustmentMicrocents: 2_500_000 }).limitMicrocents).toBe(502_500_000);
   });
 
   it("applies signed current-period adjustments to trial allowances", () => {
@@ -103,13 +109,13 @@ describe("agent credit entitlements", () => {
       trialEndDate: new Date("2026-08-13T12:00:00.000Z"),
     } as const;
 
-    expect(entitlement({ ...trial, adjustmentCredits: 75 }).limit).toBe(575);
-    expect(entitlement({ ...trial, adjustmentCredits: -75 }).limit).toBe(425);
+    expect(entitlement({ ...trial, adjustmentMicrocents: 75 * CREDIT }).limitMicrocents).toBe(575 * CREDIT);
+    expect(entitlement({ ...trial, adjustmentMicrocents: -75 * CREDIT }).limitMicrocents).toBe(425 * CREDIT);
   });
 
   it("does not let an adjustment bypass missing Enterprise configuration", () => {
-    expect(entitlement({ plan: SubscriptionPlan.enterprise, adjustmentCredits: 75 })).toMatchObject({
-      limit: 0,
+    expect(entitlement({ plan: SubscriptionPlan.enterprise, adjustmentMicrocents: 75 * CREDIT })).toMatchObject({
+      limitMicrocents: 0,
       blockedReason: "enterprise_allowance_missing",
     });
   });
@@ -125,17 +131,17 @@ describe("agent credit entitlements", () => {
     ).toBe("subscription_unavailable");
   });
 
-  it("prorates newly activated paid seats to a whole credit", () => {
+  it("prorates newly activated paid seats to the next whole microcent, not a whole credit", () => {
     const period = {
       start: new Date("2026-08-01T00:00:00.000Z"),
       resetAt: new Date("2026-09-01T00:00:00.000Z"),
     };
 
-    expect(prorateAgentCreditsForSeat(500, new Date("2026-08-16T12:00:00.000Z"), period)).toBe(250);
-    expect(prorateAgentCreditsForSeat(200, new Date("2026-08-31T23:59:00.000Z"), period)).toBe(1);
+    expect(prorateAgentAllowanceForSeat(500 * CREDIT, new Date("2026-08-16T12:00:00.000Z"), period)).toBe(250 * CREDIT);
+    expect(prorateAgentAllowanceForSeat(200 * CREDIT, new Date("2026-08-31T23:59:00.000Z"), period)).toBe(4_481);
   });
 
-  it("keeps whole-credit proration exact for a large finite Enterprise allowance", () => {
+  it("keeps microcent proration exact for a large finite Enterprise allowance", () => {
     const period = {
       start: new Date("2026-08-01T00:00:00.000Z"),
       resetAt: new Date("2026-09-01T00:00:00.000Z"),
@@ -146,16 +152,16 @@ describe("agent credit entitlements", () => {
     const remainingMs = BigInt(period.resetAt.getTime() - activeSeatAt.getTime());
     const expected = Number((BigInt(allowance) * remainingMs + periodMs - 1n) / periodMs);
 
-    expect(prorateAgentCreditsForSeat(allowance, activeSeatAt, period)).toBe(expected);
+    expect(prorateAgentAllowanceForSeat(allowance, activeSeatAt, period)).toBe(expected);
   });
 
   it("fails closed when an active paid seat has no usable activation timestamp", () => {
     expect(entitlement({ activeSeatAt: null })).toMatchObject({
-      limit: 0,
+      limitMicrocents: 0,
       blockedReason: "subscription_unavailable",
     });
     expect(entitlement({ activeSeatAt: new Date("2026-08-06T12:00:01.000Z") })).toMatchObject({
-      limit: 0,
+      limitMicrocents: 0,
       blockedReason: "subscription_unavailable",
     });
   });
@@ -166,8 +172,8 @@ describe("agent credit entitlements", () => {
     const business = entitlement({ plan: SubscriptionPlan.business, activeSeatAt });
     const starter = entitlement({ plan: SubscriptionPlan.starter, activeSeatAt });
 
-    expect(business.limit).toBeGreaterThan(pro.limit);
-    expect(starter.limit).toBeLessThan(pro.limit);
+    expect(business.limitMicrocents).toBeGreaterThan(pro.limitMicrocents);
+    expect(starter.limitMicrocents).toBeLessThan(pro.limitMicrocents);
   });
 });
 
@@ -209,35 +215,17 @@ describe("workspace credit rate", () => {
   });
 });
 
-describe("agent credit settlement", () => {
-  it("charges one credit for any started provider turn below one cent", () => {
-    expect(agentCreditsForStartedProviderCost(0)).toBe(1);
-    expect(agentCreditsForStartedProviderCost(999_999)).toBe(1);
+describe("stored microcents", () => {
+  it("reads BigInt ledger columns exactly", () => {
+    expect(agentMicrocentsFromStorage(753_412n, "usage")).toBe(753_412);
+    expect(agentMicrocentsFromStorage(-2_500_000n, "adjustment")).toBe(-2_500_000);
+    expect(agentMicrocentsFromStorage(null, "usage")).toBe(0);
   });
 
-  it("rounds every started cent upward", () => {
-    expect(agentCreditsForStartedProviderCost(1_000_000)).toBe(1);
-    expect(agentCreditsForStartedProviderCost(1_000_001)).toBe(2);
-    expect(agentCreditsForStartedProviderCost(9_999_999)).toBe(10);
-  });
-});
-
-describe("agentCreditsForStartedProviderCost boundaries", () => {
-  it.each([
-    [0, 1],
-    [1, 1],
-    [999_999, 1],
-    [1_000_000, 1],
-    [1_000_001, 2],
-    [1_999_999, 2],
-    [2_000_000, 2],
-    [2_000_001, 3],
-  ])("charges %i microcents as %i credits", (cost, credits) => {
-    expect(agentCreditsForStartedProviderCost(cost)).toBe(credits);
-  });
-
-  it.each([[-1], [1.5], [Number.NaN], [Number.POSITIVE_INFINITY]])("rejects %s", (cost) => {
-    expect(() => agentCreditsForStartedProviderCost(cost)).toThrow();
+  it("refuses a stored amount beyond the exact integer range", () => {
+    expect(() => agentMicrocentsFromStorage(BigInt(Number.MAX_SAFE_INTEGER) + 2n, "usage")).toThrow(
+      "usage is invalid.",
+    );
   });
 });
 
@@ -283,5 +271,52 @@ describe("agentCreditPeriodForAnchor month-end and leap-year anchors", () => {
     const monthly = period("2026-01-15T10:00:00.000Z", "2026-07-20T00:00:00.000Z");
     expect(monthly.start).toEqual(new Date("2026-07-15T10:00:00.000Z"));
     expect(monthly.resetAt).toEqual(new Date("2026-08-15T10:00:00.000Z"));
+  });
+});
+
+describe("workspace indexing share", () => {
+  it("splits unassigned indexing usage by allowance, rounding each share up", () => {
+    const pool = 1_000 * CREDIT;
+    expect(
+      workspaceIndexingShareMicrocents({
+        unassignedMicrocents: 100 * CREDIT,
+        memberLimitMicrocents: 500 * CREDIT,
+        poolLimitMicrocents: pool,
+      }),
+    ).toBe(50 * CREDIT);
+    const shares = [333 * CREDIT, 333 * CREDIT, 334 * CREDIT].map((memberLimitMicrocents) =>
+      workspaceIndexingShareMicrocents({ unassignedMicrocents: 7, memberLimitMicrocents, poolLimitMicrocents: pool }),
+    );
+    expect(shares).toEqual([3, 3, 3]);
+    expect(shares.reduce((total, share) => total + share, 0)).toBeGreaterThanOrEqual(7);
+    for (const empty of [
+      { unassignedMicrocents: 0, memberLimitMicrocents: 1, poolLimitMicrocents: 1 },
+      { unassignedMicrocents: 5, memberLimitMicrocents: 0, poolLimitMicrocents: 1 },
+      { unassignedMicrocents: 5, memberLimitMicrocents: 1, poolLimitMicrocents: 0 },
+    ])
+      expect(workspaceIndexingShareMicrocents(empty)).toBe(0);
+  });
+
+  it("stays exact for allowances whose product exceeds a double", () => {
+    expect(
+      workspaceIndexingShareMicrocents({
+        unassignedMicrocents: 9_000_000_000_000,
+        memberLimitMicrocents: 9_000_000_000_001,
+        poolLimitMicrocents: 9_000_000_000_001,
+      }),
+    ).toBe(9_000_000_000_000);
+  });
+
+  it("bounds a member by both their own allowance and what the workspace pool has left", () => {
+    const headroom = (memberUsedMicrocents: number, poolUsedMicrocents: number) =>
+      memberCreditHeadroomMicrocents({
+        memberLimitMicrocents: 500,
+        memberUsedMicrocents,
+        poolLimitMicrocents: 1_000,
+        poolUsedMicrocents,
+      });
+    expect(headroom(100, 100)).toBe(400);
+    expect(headroom(100, 950)).toBe(50);
+    expect(headroom(600, 700)).toBe(0);
   });
 });

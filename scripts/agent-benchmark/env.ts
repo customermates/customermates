@@ -2,6 +2,8 @@ import "dotenv/config";
 
 import { isAbsolute } from "node:path";
 
+import { assertLocalDatabaseEnvironment } from "../local-database-safety";
+
 const LOOPBACK_HOSTS = new Set(["localhost", "127.0.0.1", "[::1]", "::1"]);
 const DEPLOYMENT_MARKERS = ["VERCEL", "VERCEL_ENV", "VERCEL_URL", "VERCEL_DEPLOYMENT_ID", "VERCEL_PROJECT_ID"];
 
@@ -33,9 +35,7 @@ export function requireLocalBenchmarkEnvironment(
 
   const app = loopbackUrl(environment.BASE_URL, "BASE_URL", ["http:"]);
   if (app.username || app.password) throw new Error("BASE_URL must not carry credentials.");
-  const database = loopbackUrl(environment.DIRECT_URL ?? environment.DATABASE_URL, "DATABASE_URL", ["postgres:", "postgresql:"]);
-  for (const key of ["hostaddr", "service", "servicefile", "passfile", "options"])
-    if (database.searchParams.has(key)) throw new Error("The benchmark database URL must not override its host.");
+  const databaseUrl = requireLocalBenchmarkDatabase(environment);
 
   const gatewayApiKey = environment.AI_GATEWAY_API_KEY?.trim() ?? "";
   if (!gatewayApiKey || gatewayApiKey === "XXX") throw new Error("AI_GATEWAY_API_KEY is required for paid benchmark work.");
@@ -60,13 +60,19 @@ export function requireLocalBenchmarkEnvironment(
 
   return {
     appUrl: app.origin,
-    databaseUrl: database.href,
+    databaseUrl,
     gatewayApiKey,
     workflowDataDir,
   };
 }
 
 export function requireLocalBenchmarkDatabase(environment: Record<string, string | undefined> = process.env): string {
-  const database = loopbackUrl(environment.DIRECT_URL ?? environment.DATABASE_URL, "DATABASE_URL", ["postgres:", "postgresql:"]);
-  return database.href;
+  for (const marker of DEPLOYMENT_MARKERS)
+    if (environment[marker] !== undefined) throw new Error("The agent benchmark is forbidden in a deployment environment.");
+  const selected = assertLocalDatabaseEnvironment(environment);
+  const database = loopbackUrl(environment.DATABASE_URL, "DATABASE_URL", ["postgres:", "postgresql:"]);
+  const direct = new URL(selected);
+  if ((database.port || "5432") !== (direct.port || "5432") || database.pathname !== direct.pathname)
+    throw new Error("DATABASE_URL and DIRECT_URL must address the same local database.");
+  return direct.href;
 }

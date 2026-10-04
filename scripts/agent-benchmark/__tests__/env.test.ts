@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { resolve } from "node:path";
 
-import { requireLocalBenchmarkEnvironment } from "../env";
+import { requireLocalBenchmarkEnvironment, requireLocalBenchmarkDatabase } from "../env";
 
 const base = {
   RUN_AGENT_BENCHMARK: "true",
@@ -60,4 +60,22 @@ describe("benchmark environment", () => {
       requireLocalBenchmarkEnvironment({ ...base, DATABASE_URL: "postgresql://user:pw@db.example.com:5432/app" }),
     ).toThrow(/loopback host/);
   });
+  it("validates the actual Prisma database even when a local DIRECT_URL is present", () => {
+    const direct = base.DATABASE_URL;
+    expect(() => requireLocalBenchmarkDatabase({ ...base, DIRECT_URL: direct, DATABASE_URL: "postgresql://user:pw@db.example.com:5432/app" })).toThrow(/loopback host/);
+    expect(() => requireLocalBenchmarkEnvironment({ ...base, DIRECT_URL: direct, DATABASE_URL: "postgresql://user:pw@db.example.com:5432/app" })).toThrow(/loopback host/);
+  });
+
+  it.each(["host", "hostaddr", "service", "options"])("rejects %s routing overrides for either database URL", (key) => {
+    for (const field of ["DATABASE_URL", "DIRECT_URL"])
+      expect(() => requireLocalBenchmarkDatabase({ ...base, [field]: `${base.DATABASE_URL}?${key}=remote` })).toThrow(/query parameters/);
+  });
+
+  it("rejects libpq routing, deployment markers and different fixture/Prisma databases", () => {
+    expect(() => requireLocalBenchmarkDatabase({ ...base, PGHOST: "remote" })).toThrow(/PGHOST/);
+    expect(() => requireLocalBenchmarkDatabase({ ...base, VERCEL_ENV: "production" })).toThrow(/deployment environment/);
+    expect(() => requireLocalBenchmarkDatabase({ ...base, DIRECT_URL: base.DATABASE_URL.replace("customermates", "other") })).toThrow(/same local database/);
+    expect(() => requireLocalBenchmarkDatabase({ ...base, DATABASE_URL: undefined, DIRECT_URL: base.DATABASE_URL })).toThrow(/valid URL/);
+  });
+
 });

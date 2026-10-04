@@ -1,3 +1,4 @@
+import type { GetWebhookDeliveriesRepo } from "./get-webhook-deliveries.repo";
 import type { DomainEvent, DomainEventMap } from "@/features/event/domain-events";
 import type { GetResult } from "@/core/base/base-get.interactor";
 import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
@@ -9,7 +10,6 @@ import { Resource, Action } from "@/generated/prisma";
 
 import type { WebhookDeliveryStatus } from "@/generated/prisma";
 
-import { BaseGetRepo } from "@/core/base/base-get.interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { BaseGetInteractor } from "@/core/base/base-get.interactor";
 import { GetQueryParamsSchema, type GetQueryParams, createGetResultSchema } from "@/core/base/base-get.schema";
@@ -46,8 +46,6 @@ const OutputSchema = z.object({
   deliveredAt: z.date().nullable(),
   createdAt: z.date(),
 });
-
-export abstract class GetWebhookDeliveriesRepo extends BaseGetRepo<WebhookDeliveryDto> {}
 
 @AllowInDemoMode
 @TenantInteractor({ resource: Resource.api, action: Action.readAll })

@@ -1,11 +1,9 @@
 import { z } from "zod";
 
 import {
-  CUSTOM_COLUMN_PREREQ,
   CUSTOM_FIELDS_MERGE_NOTE,
   CreatedRecordsOutputSchema,
   toonResult,
-  IDEMPOTENT_NOTE,
   NO_NULL_WIPE_WARNING,
   UpdatedRecordsOutputSchema,
   forbidNullFields,
@@ -41,8 +39,7 @@ export const createDealsTool = {
     "Required per item: name. " +
     "Optional per item: notes, organizationIds, userIds, contactIds, services (array of { serviceId, quantity }), taskIds, customFieldValues. " +
     "You can pass organizationIds/userIds/contactIds/services/taskIds directly in create so linked deals are created in one call. " +
-    CUSTOM_COLUMN_PREREQ +
-    " Returns the list of created deal ids and names.",
+    "Returns the list of created deal ids and names.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
   inputSchema: CreateDealsSchema,
   outputSchema: CreatedRecordsOutputSchema,
@@ -63,9 +60,7 @@ export const updateDealsTool = {
     " `services` REPLACES the deal's full service set and is the only place to set quantities: when provided, services not listed are removed, so omit the field to leave services untouched, or read the current services then write the full list. Use manage_record_links to add or remove a service (added with quantity 1) without touching the rest. " +
     NO_NULL_WIPE_WARNING +
     " " +
-    CUSTOM_FIELDS_MERGE_NOTE +
-    " " +
-    IDEMPOTENT_NOTE,
+    CUSTOM_FIELDS_MERGE_NOTE,
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: UpdateDealsSchema,
   outputSchema: UpdatedRecordsOutputSchema,

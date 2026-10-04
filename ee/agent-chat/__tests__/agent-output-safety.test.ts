@@ -64,6 +64,115 @@ const SAVED_VIEW_STREAMING_CASES = (() => {
 })();
 
 describe("agent client-visible output safety", () => {
+  const wikiBaseUrl = "https://app.customermates.com";
+
+  it("preserves local Wiki citations across every stream split while redacting bare identifiers", () => {
+    const id = "00000000-0000-4000-8000-000000000001";
+    const source = `Read [Voice](/wiki?page=${id}) and [Support](/de/wiki?page=${id}). Bare ${id}. ${"Safe prose. ".repeat(10)} [/wiki?page=${id}](/wiki?page=${id}) Raw /wiki?page=${id} and \`/wiki?page=${id}\``;
+    const expected = source.replace(`Bare ${id}`, "Bare [internal reference]");
+    expect(sanitizeAgentVisibleText(source)).toBe(expected);
+    for (let split = 0; split <= source.length; split += 1) {
+      const sanitizer = new AgentVisibleTextStreamSanitizer();
+      expect(
+        `${sanitizer.push(source.slice(0, split))}${sanitizer.push(source.slice(split))}${sanitizer.finish()}`,
+      ).toBe(expected);
+    }
+    const sanitizer = new AgentVisibleTextStreamSanitizer();
+    expect([...source].map((character) => sanitizer.push(character)).join("") + sanitizer.finish()).toBe(expected);
+    expect(
+      clientSafeAgentMessageParts([{ type: "text", text: source }], {
+        sanitizeText: true,
+      }),
+    ).toEqual([{ type: "text", text: expected }]);
+  });
+
+  it.each([
+    `/wiki?page=00000000-0000-4000-8000-000000000001`,
+    `/de/wiki?page=00000000-0000-4000-8000-000000000001`,
+    `${wikiBaseUrl}/wiki?page=00000000-0000-4000-8000-000000000001`,
+    `${wikiBaseUrl}/de/wiki?page=00000000-0000-4000-8000-000000000001`,
+  ])("preserves the canonical Wiki citation %s across every stream split", (path) => {
+    const source = `Read [Page](${path}).`;
+    expect(sanitizeAgentVisibleText(source, wikiBaseUrl)).toBe(source);
+    for (let split = 0; split <= source.length; split += 1) {
+      const sanitizer = new AgentVisibleTextStreamSanitizer(wikiBaseUrl);
+      expect(
+        `${sanitizer.push(source.slice(0, split))}${sanitizer.push(source.slice(split))}${sanitizer.finish()}`,
+      ).toBe(source);
+    }
+  });
+
+  it("normalizes a provider-added to: prefix on otherwise canonical Wiki links", () => {
+    const id = "00000000-0000-4000-8000-000000000001";
+    const source = `Created [Company Overview](to:/wiki?page=${id}).`;
+    const expected = `Created [Company Overview](/wiki?page=${id}).`;
+
+    expect(sanitizeAgentVisibleText(source, wikiBaseUrl)).toBe(expected);
+    for (let split = 0; split <= source.length; split += 1) {
+      const sanitizer = new AgentVisibleTextStreamSanitizer(wikiBaseUrl);
+      expect(
+        `${sanitizer.push(source.slice(0, split))}${sanitizer.push(source.slice(split))}${sanitizer.finish()}`,
+      ).toBe(expected);
+    }
+    const sanitizer = new AgentVisibleTextStreamSanitizer(wikiBaseUrl);
+    expect([...source].map((character) => sanitizer.push(character)).join("") + sanitizer.finish()).toBe(expected);
+  });
+
+  it("does not normalize a to: prefix on noncanonical Wiki links", () => {
+    const id = "00000000-0000-4000-8000-000000000001";
+    for (const href of [
+      `to:/wiki?page=${id}&other=true`,
+      `to:https://example.com/wiki?page=${id}`,
+      `to:/pt/wiki?page=${id}`,
+    ]) {
+      const result = sanitizeAgentVisibleText(`[Page](${href})`, wikiBaseUrl);
+      expect(result).toBe("Page");
+      expect(result).not.toContain(id);
+    }
+  });
+
+  it("does not exempt external, noncanonical, or incomplete Wiki citations from ID redaction", () => {
+    const id = "00000000-0000-4000-8000-000000000001";
+    for (const [path, identifier] of [
+      [`https://example.com/wiki?page=${id}`, id],
+      [`https://例子.公司/wiki?page=${id}`, id],
+      [`https://example.com/path)/wiki?page=${id}`, id],
+      [`/other-/wiki?page=${id}`, id],
+      [`//example.com/wiki?page=${id}`, id],
+      [`/pt/wiki?page=${id}`, id],
+      [`/contacts?id=${id}`, id],
+      [`/wiki?page=${id}&other=true`, id],
+      [`/wiki?page=${id}#fragment`, id],
+      [`/WIKI?page=${id}`, id],
+      [`/wiki?PAGE=${id}`, id],
+      [`/EN/wiki?page=${id}`, id],
+      ["/wiki?page=10000000-0000-9000-8000-000000000001", "10000000-0000-9000-8000-000000000001"],
+      ["/wiki?page=10000000-0000-4000-c000-000000000001", "10000000-0000-4000-c000-000000000001"],
+    ]) {
+      expect(sanitizeAgentVisibleText(`[Link](${path})`, wikiBaseUrl)).not.toContain(identifier);
+      const source = `${path}${" ".repeat(64 - `/wiki?page=${id}`.length)}`;
+      const expected = sanitizeAgentVisibleText(source, wikiBaseUrl);
+      for (let split = 0; split <= source.length; split += 1) {
+        const sanitizer = new AgentVisibleTextStreamSanitizer(wikiBaseUrl);
+        expect(
+          `${sanitizer.push(source.slice(0, split))}${sanitizer.push(source.slice(split))}${sanitizer.finish()}`,
+        ).toBe(expected);
+      }
+      const sanitizer = new AgentVisibleTextStreamSanitizer(wikiBaseUrl);
+      expect([...source].map((character) => sanitizer.push(character)).join("") + sanitizer.finish()).toBe(expected);
+    }
+
+    expect(sanitizeAgentVisibleText("[Link](/wiki?page=00000000-0000-4")).toContain("[internal reference]");
+  });
+
+  it("preserves ordinary code delimiters without exposing incomplete private fences", () => {
+    expect(sanitizeAgentVisibleText("Use `plain text`")).toBe("Use `plain text`");
+    expect(sanitizeAgentVisibleText("```text\nPlain text\n```")).toBe("```text\nPlain text\n```");
+    expect(new AgentVisibleTextStreamSanitizer().push("Safe ```analys")).not.toContain("```");
+    expect(sanitizeAgentVisibleText("Safe ```analys")).toBe("Safe ```analys");
+    expect(sanitizeAgentVisibleText("Safe ```analysis\nprivate")).toBe("Safe ");
+  });
+
   it("redacts private model output without removing the user-facing answer", () => {
     const secret = `sk-proj-${"x".repeat(120)}`;
     const source = [
@@ -319,6 +428,24 @@ describe("agent client-visible output safety", () => {
       }
     }
   });
+
+  it.each(["plain", "?no-view=", "&no-view="])(
+    "preserves a long %s token beside saved-view links at provider chunk boundaries",
+    (kind) => {
+      const viewId = "00000000-0000-4000-8000-000000000001";
+      const token = `${"x".repeat(20_000)}${kind === "plain" ? "" : kind}${"y".repeat(20_000)}`;
+      const source = `${token} Open /contacts?view=${viewId}. Raw ${viewId}. End.`;
+      const expected = `${token} Open /contacts?view=[internal reference]. Raw [internal reference]. End.`;
+      expect(sanitizeAgentVisibleText(source)).toBe(expected);
+      for (const split of [1, source.indexOf("?view=") + 6, source.indexOf(viewId) + 1, source.length - 1]) {
+        const sanitizer = new AgentVisibleTextStreamSanitizer();
+        const visible =
+          sanitizer.push(source.slice(0, split)) + sanitizer.push(source.slice(split)) + sanitizer.finish();
+        expect(visible, `${kind} split ${split}`).toBe(expected);
+        expect(visible).not.toContain(viewId);
+      }
+    },
+  );
 
   it.each(SAVED_VIEW_STREAMING_CASES.map((source, sourceIndex) => ({ source, sourceIndex })))(
     "sanitizes saved-view text consistently across every provider chunk boundary: case $sourceIndex",
@@ -634,6 +761,25 @@ describe("agent client-visible output safety", () => {
     expect(serialized).not.toMatch(
       /page_context|00000000|never-show|rawArguments|rawResult|resultPreview|reasoning|tool_result|provider_metadata|gpt-5\.6|321/,
     );
+  });
+
+  it("drops an activity of an unknown kind, such as a removed website read", () => {
+    const parts = clientSafeAgentMessageParts([
+      {
+        type: "activity",
+        id: "removed-web-read",
+        activity: {
+          kind: "web.read",
+          affectedResources: [],
+          risk: "read",
+          sourceDomain: "customermates.com",
+          sourcePage: "customermates.com/public/overview",
+        },
+        status: "done",
+      },
+    ]);
+
+    expect(parts).toEqual([]);
   });
 
   it("sanitizes and bounds titles while removing legacy route envelopes", () => {

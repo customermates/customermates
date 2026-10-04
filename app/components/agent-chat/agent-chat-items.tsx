@@ -18,6 +18,7 @@ import { useSteadyLabel } from "./use-steady-label";
 import { useAgentChatStore, useAgentChatUiTargets } from "./agent-chat-store-context";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
 import { AppLink } from "@/components/shared/app-link";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -117,28 +118,17 @@ export const AgentChatItemView = observer(function AgentChatItemView({
 
   if (item.kind === "turn_interrupted") {
     return (
-      <div
-        className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs"
-        data-testid="agent-turn-interrupted"
-        role="alert"
-      >
-        {t("AgentChat.ui.turnInterrupted")}
-      </div>
+      <Alert color="warning" data-testid="agent-turn-interrupted" description={t("AgentChat.ui.turnInterrupted")} />
     );
   }
 
   if (item.kind === "turn_error") {
     const copy = chatUiCopy(t);
     return (
-      <div
-        className="flex items-center justify-between gap-3 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs"
-        role="alert"
-      >
-        <span>{copy.turnFailed}</span>
-
+      <Alert color="danger" description={copy.turnFailed}>
         {!readOnly && (
           <Button
-            className="shrink-0"
+            className="mt-2"
             disabled={store.isWorking || Boolean(store.usage?.blockedReason) || !store.canRetryFailedTurn(item)}
             size="sm"
             variant="secondary"
@@ -150,7 +140,7 @@ export const AgentChatItemView = observer(function AgentChatItemView({
             {copy.retryTurn}
           </Button>
         )}
-      </div>
+      </Alert>
     );
   }
 
@@ -221,6 +211,30 @@ export function isWorkingActivityGroup(items: AgentChatItem[], start: number, is
   return start > items.findLastIndex((item) => item.kind === "user");
 }
 
+type ActivityItem = Extract<AgentChatItem, { kind: "activity" }>;
+
+export function compactActivityItems(items: ActivityItem[]) {
+  const rows: Array<ActivityItem & { repetitions: number }> = [];
+  for (const item of items) {
+    const previous = rows.at(-1);
+    const canGroup =
+      item.activity.risk === "read" &&
+      item.activity.kind === "generic" &&
+      (item.status === "done" || item.status === "running");
+    if (
+      canGroup &&
+      previous &&
+      (previous.status === "done" || previous.status === "running") &&
+      previous.turnKey === item.turnKey &&
+      JSON.stringify(previous.activity) === JSON.stringify(item.activity)
+    ) {
+      previous.repetitions += 1;
+      if (item.status === "running") previous.status = "running";
+    } else rows.push({ ...item, repetitions: 1 });
+  }
+  return rows;
+}
+
 export const AgentActivity = observer(function AgentActivity({
   isWorking,
   isTrailing,
@@ -231,15 +245,28 @@ export const AgentActivity = observer(function AgentActivity({
   items: Extract<AgentChatItem, { kind: "activity" }>[];
 }) {
   const t = useTranslations();
+  const rows = compactActivityItems(items);
+  const activityCopy = (item: (typeof rows)[number]) => {
+    const copy = agentActivityCopy(item.activity, t, terminology);
+    return item.activity.kind === "generic" && item.repetitions > 1
+      ? {
+          ...copy,
+          done: agentActivityGroupSummary(
+            Array.from({ length: item.repetitions }, () => "done" as const),
+            t,
+          ),
+        }
+      : copy;
+  };
   const uiCopy = chatUiCopy(t);
   const terminology = useAgentActivityTerminology();
   const hasRunning = items.some((item) => item.status === "running");
   const isPending = isWorking && isTrailing;
   const hasError = items.some((item) => item.status === "error");
+  const hasCancelled = items.some((item) => item.status === "cancelled");
+  const hasDetails = rows.length > 1;
   const isRecovering = isWorking && hasError;
   const isActive = hasRunning || isRecovering || isPending;
-  const hasCancelled = items.some((item) => item.status === "cancelled");
-  const hasDetails = items.length > 1;
   const { open, setOpen, elapsedSeconds } = useActivityGroupState({
     hasError: hasError && !isRecovering,
     hasRunning: isActive,
@@ -247,29 +274,38 @@ export const AgentActivity = observer(function AgentActivity({
     startedAt: items[0]?.at,
   });
 
-  const firstCopy = items[0] ? agentActivityCopy(items[0].activity, t, terminology) : null;
+  const firstCopy = rows[0] ? activityCopy(rows[0]) : null;
   const settledSummary =
-    items.length === 1 && firstCopy
+    rows.length === 1 && firstCopy
       ? hasError
         ? firstCopy.error
         : hasCancelled
           ? firstCopy.cancelled
           : firstCopy.done
       : agentActivityGroupSummary(
-          items.map((item) => item.status),
+          rows.map((item) => item.status),
           t,
         );
   const runningItem = items.findLast((item) => item.status === "running" || (isRecovering && item.status === "error"));
   const runningLabel = runningItem ? agentActivityCopy(runningItem.activity, t, terminology).running : uiCopy.thinking;
   const liveSummary =
     hasDetails && !hasError && !hasCancelled && elapsedSeconds !== null
-      ? uiCopy.stepsTook(items.length, elapsedSeconds)
+      ? uiCopy.stepsTook(rows.length, elapsedSeconds)
       : settledSummary;
   const summary = useSteadyLabel(isActive ? runningLabel : liveSummary);
   const viewHref = items.findLast((item) => {
     if (item.status !== "done" || item.activity.kind !== "views.configure") return false;
     return dataViewNavigationHref(item.activity.viewHref) !== null;
   })?.activity.viewHref;
+  const statusIcon = isActive ? (
+    <Loader2 aria-hidden="true" className="size-3.5 animate-spin motion-reduce:animate-none" />
+  ) : hasError ? (
+    <X aria-hidden="true" className="size-3.5 text-destructive" />
+  ) : hasCancelled ? (
+    <Square aria-hidden="true" className="size-3.5" />
+  ) : (
+    <Check aria-hidden="true" className="size-3.5" />
+  );
 
   return (
     <Collapsible aria-live="off" className="group py-1" data-testid="agent-activity" open={open} onOpenChange={setOpen}>
@@ -280,17 +316,9 @@ export const AgentActivity = observer(function AgentActivity({
               className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 rounded-md text-xs text-muted-foreground transition-colors outline-none select-none hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50"
               type="button"
             >
-              {isActive ? (
-                <Loader2 aria-hidden="true" className="size-3.5 animate-spin" />
-              ) : hasError ? (
-                <X aria-hidden="true" className="size-3.5 text-destructive" />
-              ) : hasCancelled ? (
-                <Square aria-hidden="true" className="size-3.5" />
-              ) : (
-                <Check aria-hidden="true" className="size-3.5" />
-              )}
+              {statusIcon}
 
-              <span className="flex-1 text-left">{summary}</span>
+              <span className="min-w-0 flex-1 text-left [overflow-wrap:anywhere]">{summary}</span>
 
               <ChevronDown
                 aria-hidden="true"
@@ -299,18 +327,15 @@ export const AgentActivity = observer(function AgentActivity({
             </button>
           </CollapsibleTrigger>
         ) : (
-          <div className="flex min-w-0 flex-1 items-center gap-2 text-xs text-muted-foreground">
-            {isActive ? (
-              <Loader2 aria-hidden="true" className="size-3.5 animate-spin" />
-            ) : hasError ? (
-              <X aria-hidden="true" className="size-3.5 text-destructive" />
-            ) : hasCancelled ? (
-              <Square aria-hidden="true" className="size-3.5" />
-            ) : (
-              <Check aria-hidden="true" className="size-3.5" />
+          <div
+            className={cn(
+              "flex min-w-0 flex-1 items-center gap-2 text-xs text-muted-foreground",
+              hasError && !isRecovering && "text-destructive",
             )}
+          >
+            {statusIcon}
 
-            <span className="flex-1 text-left">{summary}</span>
+            <span className="min-w-0 flex-1 text-left [overflow-wrap:anywhere]">{summary}</span>
           </div>
         )}
 
@@ -325,8 +350,8 @@ export const AgentActivity = observer(function AgentActivity({
 
       {hasDetails && (
         <CollapsibleContent className="mt-3 space-y-3 pl-4 [&>*]:fade-in-0 [&>*]:slide-in-from-top-2 [&>*]:animate-in [&>*]:duration-300 [&>*]:motion-reduce:animate-none">
-          {items.map((item) => {
-            const copy = agentActivityCopy(item.activity, t, terminology);
+          {rows.map((item) => {
+            const copy = activityCopy(item);
             const status = isRecovering && item.status === "error" ? "running" : item.status;
             const label =
               status === "running"
@@ -349,7 +374,10 @@ export const AgentActivity = observer(function AgentActivity({
                 )}
               >
                 {status === "running" ? (
-                  <Loader2 aria-hidden="true" className="mt-0.5 size-3.5 shrink-0 animate-spin" />
+                  <Loader2
+                    aria-hidden="true"
+                    className="mt-0.5 size-3.5 shrink-0 animate-spin motion-reduce:animate-none"
+                  />
                 ) : status === "error" ? (
                   <X aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
                 ) : status === "cancelled" ? (
@@ -358,7 +386,7 @@ export const AgentActivity = observer(function AgentActivity({
                   <Check aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
                 )}
 
-                <span className="min-w-0 text-foreground">{label}</span>
+                <span className="min-w-0 [overflow-wrap:anywhere]">{label}</span>
               </div>
             );
           })}

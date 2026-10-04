@@ -2,14 +2,14 @@ import type { CustomColumnDto } from "@/features/custom-column/custom-column.sch
 import type { RepoArgs } from "@/core/utils/types";
 import type { GetWidgetFilterableFieldsOrganizationRepo } from "../widget/get-widget-filterable-fields.interactor";
 import type { GetCompanyWideOrganizationRepo } from "./get-company-wide-organization.repo";
-import type { GetOrganizationsRepo } from "./get/get-organizations.interactor";
+import type { GetOrganizationsRepo } from "@/features/organizations/get/get-organizations.repo";
 import type { GetConfigurationRepo } from "@/core/base/base-get-configuration.interactor";
 import type { GetOrganizationByIdRepo } from "./get/get-organization-by-id.interactor";
 import type { CreateOrganizationRepo } from "./upsert/create-organization.repo";
 import type { UpdateOrganizationRepo } from "./upsert/update-organization.repo";
 import type { DeleteOrganizationRepo } from "./delete/delete-organization.repo";
 import type { FindOrganizationsByIdsRepo } from "./find-organizations-by-ids.repo";
-import type { ModifyRelationOrganizationRepo } from "@/features/relations/modify-entity-relation.interactor";
+import type { ModifyRelationOrganizationRepo } from "@/features/relations/modify-relation-organization.repo";
 
 import { EntityType, Resource } from "@/generated/prisma";
 

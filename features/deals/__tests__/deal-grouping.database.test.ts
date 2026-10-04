@@ -369,6 +369,6 @@ describeDatabase("a relation axis wider than the cap", () => {
     });
 
     expect(axis.groups).toHaveLength(MAX_AXIS_GROUPS);
-    expect(axis.overflow).toEqual({ shown: MAX_AXIS_GROUPS });
+    expect(axis.overflow).toEqual({ shown: MAX_AXIS_GROUPS, withRecords: true });
   });
 });

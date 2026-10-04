@@ -35,7 +35,7 @@ describe("parseOpenParam", () => {
     expect(parseOpenParam("bogus:1,contact:new,:x,deal:")).toEqual([{ entityType: EntityType.contact, id: "new" }]);
   });
 
-  it("accepts every entity type reachable from the sidebar Add flow", () => {
+  it("accepts every entity type supported by the shared entity drawer", () => {
     const raw = "contact:new,organization:new,deal:new,service:new,task:new";
     expect(parseOpenParam(raw).map((entry) => entry.entityType)).toEqual([
       EntityType.contact,

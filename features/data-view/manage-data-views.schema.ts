@@ -28,16 +28,20 @@ export const AgentDataViewStateSchema = z
   .strict();
 export type AgentDataViewState = Data<typeof AgentDataViewStateSchema>;
 
+export const DATA_VIEW_LAYOUT_FIELDS = ["columnOrder", "columnWidths", "hiddenColumns"] as const;
+
+export const AgentDataViewUpdateStateSchema = AgentDataViewStateSchema.extend({
+  columnOrder: DataViewStateWireSchema.shape.columnOrder,
+  columnWidths: DataViewStateWireSchema.shape.columnWidths,
+  hiddenColumns: DataViewStateWireSchema.shape.hiddenColumns,
+}).strict();
+export type AgentDataViewUpdateState = Data<typeof AgentDataViewUpdateStateSchema>;
+
 export const DataViewConfigSectionSchema = z.enum(["overview", "filters", "sorting", "grouping"]);
 export type DataViewConfigSection = z.infer<typeof DataViewConfigSectionSchema>;
 
 export const ManageDataViewPageSchema = z.coerce.number().int().min(1).max(10_000);
-export const ManageDataViewPageSizeSchema = z.coerce
-  .number()
-  .int()
-  .min(1)
-  .max(25)
-  .transform((value): 5 | 10 | 25 => (value <= 5 ? 5 : value <= 10 ? 10 : 25));
+export const ManageDataViewPageSizeSchema = z.coerce.number().int().min(1).max(25);
 export const ManageDataViewQuerySchema = z.string().trim().min(1).max(100).optional();
 
 const surface = { surfaceKey: AiManageableDataViewSurfaceKeySchema };
@@ -53,7 +57,7 @@ const UpdateDataViewSchema = z
     ...surface,
     viewKey: ViewKeySchema,
     name: z.string().trim().min(1).max(DATA_VIEW_NAME_MAX_LENGTH).optional(),
-    state: AgentDataViewStateSchema.optional(),
+    state: AgentDataViewUpdateStateSchema.optional(),
   })
   .strict()
   .superRefine((data, ctx) => {

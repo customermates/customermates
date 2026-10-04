@@ -216,6 +216,47 @@ describeDatabase("saved views through MCP and the real page query", () => {
     expect(all.ok && all.data.views?.map(({ id }) => id)).toContain(viewId);
   });
 
+  it("accepts the listed state echoed back through the tool, applying changed keys and refusing a layout change", async () => {
+    const listItem = async () => {
+      const listed = await run({ action: "list", surfaceKey: SURFACE.contacts, viewKey: viewId });
+      return (
+        (listed.ok && listed.structuredContent?.items) as Array<{ name: string; state: Record<string, unknown> }>
+      )[0];
+    };
+    const before = await listItem();
+    expect(before.state).toMatchObject({ columnWidths: { name: 240 }, hiddenColumns: ["createdAt"] });
+
+    const unchanged = await run({
+      action: "update",
+      surfaceKey: SURFACE.contacts,
+      viewKey: viewId,
+      name: before.name,
+      state: before.state,
+    });
+    expect(unchanged.ok, unchanged.result).toBe(true);
+    expect(await listItem()).toEqual(before);
+
+    const echoed = await run({
+      action: "update",
+      surfaceKey: SURFACE.contacts,
+      viewKey: viewId,
+      name: before.name,
+      state: { ...before.state, searchTerm: "Echoed" },
+    });
+    expect(echoed.ok, echoed.result).toBe(true);
+    expect(await listItem()).toEqual({ ...before, state: { ...before.state, searchTerm: "Echoed" } });
+
+    const layout = await run({
+      action: "update",
+      surfaceKey: SURFACE.contacts,
+      viewKey: viewId,
+      state: { ...before.state, hiddenColumns: [] },
+    });
+    expect(layout.ok).toBe(false);
+    expect(layout.result).toContain("can only be changed in the app");
+    expect((await listItem()).state).toMatchObject({ searchTerm: "Echoed", hiddenColumns: ["createdAt"] });
+  });
+
   it("rejects invented fields without corrupting persistence, then deletes the view without deleting records", async () => {
     const invalid = await run({
       action: "update",

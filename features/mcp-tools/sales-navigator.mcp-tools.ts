@@ -2,7 +2,14 @@ import type { SalesCompany, SalesList, SalesListItem } from "@/ee/messaging/sale
 
 import { z } from "zod";
 
-import { formatDatesInResponse, mcpValidationFailure, runInteractor, toonResult } from "./utils";
+import {
+  formatDatesInResponse,
+  mcpValidationFailure,
+  providerTotal,
+  ProviderTotalSchema,
+  runInteractor,
+  toonResult,
+} from "./utils";
 
 import { SalesCompanySchema } from "@/ee/messaging/sales-navigator/sales-navigator.schema";
 import { LinkedinListSalesListsSchema } from "@/ee/messaging/sales-navigator/linkedin-list-sales-lists.interactor";
@@ -168,7 +175,7 @@ function formatSalesCompany(company: SalesCompany) {
 
 const salesPageOutput = z.looseObject({
   items: z.array(z.looseObject({})),
-  total: z.number(),
+  total: ProviderTotalSchema,
   next_offset: z.number().nullable(),
 });
 
@@ -178,7 +185,7 @@ const SalesSearchParametersOutputSchema = salesPageOutput;
 const ManageSalesListsOutputSchema = z
   .looseObject({
     items: z.array(z.looseObject({})).optional(),
-    total: z.number().optional(),
+    total: ProviderTotalSchema,
     next_offset: z.number().nullable().optional(),
     listId: z.string().optional(),
     providerId: z.string().optional(),
@@ -204,7 +211,7 @@ export const searchSalesLeadsTool = {
     const format = (data: { data: SalesListItem[]; total_count?: number | null }) =>
       toonResult(
         formatDatesInResponse({
-          total: data.total_count ?? data.data.length,
+          ...providerTotal(data.total_count),
           next_offset: data.data.length ? (params.offset ?? 0) + data.data.length : null,
           items: data.data.map(formatSalesListItem),
         }),
@@ -250,7 +257,7 @@ export const searchSalesCompaniesTool = {
     const format = (data: { data: unknown[]; total_count?: number | null }) =>
       toonResult(
         formatDatesInResponse({
-          total: data.total_count ?? data.data.length,
+          ...providerTotal(data.total_count),
           next_offset: data.data.length ? (params.offset ?? 0) + data.data.length : null,
           items: data.data.map((item) => formatSalesCompany(SalesCompanySchema.parse(item))),
         }),
@@ -304,7 +311,7 @@ export const getSalesSearchParametersTool = {
       (data) =>
         toonResult(
           formatDatesInResponse({
-            total: data.total_count ?? data.data.length,
+            ...providerTotal(data.total_count),
             next_offset: data.data.length ? (params.offset ?? 0) + data.data.length : null,
             items: data.data.map((parameter) => ({ id: parameter.id, name: parameter.name })),
           }),
@@ -338,7 +345,7 @@ export const manageSalesListsTool = {
         (data) =>
           toonResult(
             formatDatesInResponse({
-              total: data.total_count ?? data.data.length,
+              ...providerTotal(data.total_count),
               next_offset: data.data.length ? (params.offset ?? 0) + data.data.length : null,
               items: data.data.map(formatSalesList),
             }),
@@ -351,7 +358,7 @@ export const manageSalesListsTool = {
       return runInteractor(getLinkedinBrowseSalesListInteractor().invoke(parsed.data), (data) =>
         toonResult(
           formatDatesInResponse({
-            total: data.total_count ?? data.data.length,
+            ...providerTotal(data.total_count),
             next_offset: data.data.length ? (parsed.data.offset ?? 0) + data.data.length : null,
             items: data.data.map(formatSalesListItem),
           }),

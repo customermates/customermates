@@ -16,6 +16,8 @@ import type {
 import type { JudgeVerdict } from "./judge";
 import type { SseFrame, SseTiming } from "./sse";
 import type { AgentContextAttachment } from "@/ee/agent-chat/agent-context";
+import type { BenchmarkToolOutputPart } from "@/ee/agent-chat/benchmark-tool-output";
+import type { AgentTurnClassifierTrace } from "@/ee/agent-chat/agent-classifier-trace";
 import type { AgentModelEntry } from "@/ee/agent-chat/model-catalog";
 
 import { runWithoutTenant } from "@/core/decorators/tenant-context";
@@ -24,10 +26,13 @@ import {
   agentContextsFromMessageParts,
 } from "@/ee/agent-chat/agent-context";
 import { agentToolOutcomeStatus } from "@/ee/agent-chat/agent-durable-stream";
+import { isAgentTurnClassifierTrace } from "@/ee/agent-chat/agent-classifier-trace";
 import { AGENT_PANEL_TOOL_NAMES, isAgentPanelTool,
 } from "@/ee/agent-chat/agent-ui-command";
 import { AGENT_RUN_LEASE_MS } from "@/ee/agent-chat/agent-turn-request";
+import { agentMicrocentsFromStorage, agentMicrocentsToCredits } from "@/ee/agent-chat/agent-credit-policy";
 import { resolveAgentModel } from "@/ee/agent-chat/model-catalog";
+import { BENCHMARK_MODEL_KEY_PREFIX } from "@/ee/agent-chat/benchmark-model-registry";
 import {
   cancelAgentTurnAs,
   expireAgentRunLeaseAs,
@@ -35,7 +40,7 @@ import {
   respondToUiCommandAs,
 } from "@/tests/helpers/agent-benchmark-responder";
 
-import { armModelKey } from "./arms";
+import { armById, armModelKey, benchmarkModelEntries } from "./arms";
 import { resolveBenchmarkRuntimeSource } from "./build-source";
 import {
   completeEpisode,
@@ -53,6 +58,7 @@ import { BENCHMARK_CASES,
 } from "./fixtures";
 import { mintBenchmarkSession } from "./session";
 import { benchmarkServerSourceError, readSseFrames } from "./sse";
+import { usageFollowsRoute } from "./usage-route";
 
 const TURN_TIMEOUT_MS = 15 * 60 * 1000;
 const MICROCENTS_PER_USD = 100_000_000;
@@ -138,10 +144,14 @@ export type EpisodeArtifact = {
   mergeRequired: boolean;
   turns: TurnRecord[];
   observed: ObservedTurn[];
+  toolOutputs?: (RecordedToolOutput | null)[][];
   metrics: { turns: { id: string; status: string; terminalCode: string | null; stopReason: string | null; modelSpec: string | null; servingProvider: string | null; createdAt: string; providerStartedAt: string | null; terminalAt: string | null;
+      classifierTrace?: AgentTurnClassifierTrace | null;
     }[]; rounds: RoundMetric[];
   };
+  classifier?: EpisodeClassifierSummary;
   usage: { turnRequestId: string | null; costMicrocents: string; costSource: string; chargedCredits: number; state: string; model: string;
+    purpose?: string;
   }[];
   usd: number;
   measuredShare: number;
@@ -156,6 +166,66 @@ export type EpisodeArtifact = {
   capturedAt: string;
   judge?: JudgeVerdict;
 };
+
+type RecordedToolOutput = Omit<BenchmarkToolOutputPart, "type">;
+
+type EpisodeClassifierSummary = {
+  docsRerankCalls: number;
+  docsRerankAnswered: number;
+  docsRerankFired: boolean;
+  costMicrocents: number;
+  measured: boolean;
+};
+
+export function episodeClassifierSummary(
+  traces: readonly (AgentTurnClassifierTrace | null | undefined)[],
+): EpisodeClassifierSummary {
+  const present = traces.filter((trace): trace is AgentTurnClassifierTrace => Boolean(trace));
+  const docsRerankCalls = present.reduce((total, trace) => total + (trace.docsRerank?.calls ?? 0), 0);
+  const docsRerankAnswered = present.reduce((total, trace) => total + (trace.docsRerank?.answered ?? 0), 0);
+  return {
+    docsRerankCalls,
+    docsRerankAnswered,
+    docsRerankFired: docsRerankAnswered > 0,
+    costMicrocents: present.reduce((total, trace) => total + trace.auxiliaryCostMicrocents, 0),
+    measured: present.every((trace) => trace.auxiliaryMeasured),
+  };
+}
+
+export function turnAccountingBalanced(args: {
+  rounds: readonly { roundIndex: number; costMicrocents: bigint }[];
+  usage: readonly { state: string; costSource: string; costMicrocents: string }[];
+  terminal: Record<string, unknown> | null | undefined;
+  terminalCode: string;
+  classifierTrace: AgentTurnClassifierTrace | null;
+}): boolean {
+  const roundCost = args.rounds.reduce((total, round) => total + round.costMicrocents, 0n);
+  const expectedCost = roundCost + BigInt(args.classifierTrace?.auxiliaryCostMicrocents ?? 0);
+  const [event] = args.usage;
+  return (
+    Number(args.terminal?.numTurns) === args.rounds.length &&
+    args.rounds.every((round, roundIndex) => round.roundIndex === roundIndex) &&
+    args.usage.length === 1 &&
+    event?.state === "settled" &&
+    (event.costSource !== "measured" || BigInt(event.costMicrocents) === expectedCost) &&
+    String(args.terminal?.terminalCode ?? "") === args.terminalCode
+  );
+}
+
+export function recordedToolOutputs(
+  roundParts: readonly Record<string, unknown>[],
+): (RecordedToolOutput | null)[] {
+  const outputs = new Map<string, RecordedToolOutput>();
+  for (const part of roundParts) {
+    if (part.type !== "benchmark-tool-output" || typeof part.toolCallId !== "string")
+      continue;
+    const { type: _type, ...recorded } = part as BenchmarkToolOutputPart;
+    outputs.set(part.toolCallId, recorded);
+  }
+  return roundParts
+    .filter((part) => part.type === "tool-call")
+    .map((part) => outputs.get(String(part.toolCallId)) ?? null);
+}
 
 export type EpisodeRequest = {
   db: BenchmarkDb;
@@ -178,7 +248,7 @@ export function benchmarkSourceIdentity(options?: { refresh?: boolean }) {
   return cachedSourceIdentity;
 }
 
-function approvalPolicy(
+export function approvalPolicy(
   definition: BenchmarkCase, override?: "approve" | "reject",
 ): "approve" | "reject" | "ignore" {
   return definition.driver?.approval ?? override ?? "reject";
@@ -250,7 +320,7 @@ async function respondToApproval(
   );
 }
 
-async function runTurn(input: {
+export async function runTurn(input: {
   db: BenchmarkDb;
   appUrl: string;
   cookie: string;
@@ -274,7 +344,7 @@ async function runTurn(input: {
     prompt: input.prompt,
     conversationId: input.conversationId,
     status: 0,
-    timing: { firstFrameMs: null, firstDeltaMs: null, lastFrameMs: null },
+    timing: { firstFrameMs: null, firstOutputMs: null, firstDeltaMs: null, lastFrameMs: null },
     wallMs: 0,
     terminal: null,
     request: {
@@ -471,6 +541,7 @@ async function runTurn(input: {
         .join("");
       record.timing = {
         firstFrameMs: first.timing.firstFrameMs ?? resumed.timing.firstFrameMs,
+        firstOutputMs: first.timing.firstOutputMs ?? resumed.timing.firstOutputMs ?? null,
         firstDeltaMs: first.timing.firstDeltaMs ?? resumed.timing.firstDeltaMs,
         lastFrameMs: resumed.timing.lastFrameMs ?? first.timing.lastFrameMs,
       };
@@ -506,6 +577,7 @@ async function observeEpisode(db: BenchmarkDb, fixture: Fixture) {
     }),
   );
   const observed: ObservedTurn[] = [];
+  const toolOutputs: (RecordedToolOutput | null)[][] = [];
   const metrics: EpisodeArtifact["metrics"] = { turns: [], rounds: [] };
   for (const turn of turns) {
     const assistant = turn.messages.filter(
@@ -566,6 +638,7 @@ async function observeEpisode(db: BenchmarkDb, fixture: Fixture) {
           roundIndex,
         } as ObservedTurn["tools"][number];
       });
+    toolOutputs.push(recordedToolOutputs(rawParts.map(({ part }) => part)));
     const approvals = await runWithoutTenant(() =>
       db.prisma.agentApproval.findMany({
         where: {
@@ -596,6 +669,7 @@ async function observeEpisode(db: BenchmarkDb, fixture: Fixture) {
       createdAt: turn.createdAt.toISOString(),
       providerStartedAt: turn.providerStartedAt?.toISOString() ?? null,
       terminalAt: turn.terminalAt?.toISOString() ?? null,
+      classifierTrace: isAgentTurnClassifierTrace(turn.classifierTrace) ? turn.classifierTrace : null,
     });
     for (const round of turn.rounds)
       metrics.rounds.push({
@@ -620,14 +694,18 @@ async function observeEpisode(db: BenchmarkDb, fixture: Fixture) {
   return {
     turns,
     observed,
+    toolOutputs,
     metrics,
     usage: usage.map((event) => ({
       turnRequestId: event.turnRequestId,
       costMicrocents: event.costMicrocents.toString(),
       costSource: event.costSource,
-      chargedCredits: event.chargedCredits,
+      chargedCredits: agentMicrocentsToCredits(
+        agentMicrocentsFromStorage(event.chargedMicrocents, "Benchmark usage charge"),
+      ),
       state: event.state,
       model: event.model,
+      purpose: event.purpose,
     })),
   };
 }
@@ -724,6 +802,14 @@ function turnModelKey(
   return index === 0 ? campaignModelKey : undefined;
 }
 
+function benchmarkModelConfig(modelKey: string): AgentModelEntry {
+  if (!modelKey.startsWith(BENCHMARK_MODEL_KEY_PREFIX)) return resolveAgentModel(modelKey);
+  const [entry] = benchmarkModelEntries([armById(modelKey.slice(BENCHMARK_MODEL_KEY_PREFIX.length))]);
+  if (!entry) throw new Error(`Benchmark model "${modelKey}" names the shipped arm.`);
+  const { key: _key, ...config } = entry;
+  return config;
+}
+
 export function benchmarkCaseModelSelection(
   caseId: CaseId,
   arm: BenchmarkArm,
@@ -747,8 +833,26 @@ export function benchmarkCaseModelSelection(
             : {}),
           ...(arm.thinkingLevel ? { thinkingLevel: arm.thinkingLevel } : {}),
         }
-      : resolveAgentModel(modelKey);
+      : benchmarkModelConfig(modelKey);
   return { modelKey, modelConfig };
+}
+
+export const MERGE_CHECK_DEFAULT_CAP_USD = 20;
+
+export function mergeCheckMinimumCapUsd(
+  caseIds: readonly CaseId[],
+  arm: BenchmarkArm,
+): { capUsd: number; caseId: CaseId } {
+  let largest: { capUsd: number; caseId: CaseId } | null = null;
+  for (const caseId of caseIds) {
+    const definition = BENCHMARK_CASES.find((entry) => entry.id === caseId);
+    if (!definition) throw new Error(`Unknown case ${caseId}.`);
+    const { modelConfig } = benchmarkCaseModelSelection(caseId, arm);
+    const capUsd = worstCaseEpisodeUsd({ ...arm, ...modelConfig }, definition.prompts.length);
+    if (!largest || capUsd > largest.capUsd) largest = { capUsd, caseId };
+  }
+  if (!largest) throw new Error("A merge check needs at least one case.");
+  return largest;
 }
 
 function withIntegrityChecks(
@@ -883,7 +987,8 @@ export async function runEpisode(
     request.db.prisma,
     fixture.actorUserId,
   );
-  let conversationId: string | null = null;
+  // A case with seeded history continues the conversation its fixture created.
+  let conversationId: string | null = definition.history?.length ? (fixture.ids["history-conversation"] ?? null) : null;
   for (const [index, prompt] of definition.prompts.entries()) {
     const context = resolveBenchmarkTurnContext(
       definition,
@@ -916,8 +1021,13 @@ export async function runEpisode(
     ...turn,
     streamEvents: artifact.turns[index]?.streamEvents ?? [],
   }));
+  if (observation.toolOutputs.some((turn) => turn.some(Boolean)))
+    artifact.toolOutputs = observation.toolOutputs;
   artifact.metrics = observation.metrics;
   artifact.usage = observation.usage;
+  artifact.classifier = episodeClassifierSummary(
+    observation.metrics.turns.map((turn) => turn.classifierTrace),
+  );
   const submittedPrompts = observation.turns.flatMap((turn) =>
     turn.messages
       .filter((message) => message.role === "user")
@@ -936,27 +1046,17 @@ export async function runEpisode(
   );
   const accountingBalanced =
     observation.turns.length > 0 &&
-    observation.turns.every((turn, index) => {
-      const rounds = turn.rounds;
-      const event = observation.usage.filter(
-        (usage) => usage.turnRequestId === turn.id,
-      );
-      const terminal = artifact.turns[index]?.terminal;
-      const measuredCost = rounds.reduce(
-        (total, round) => total + round.costMicrocents,
-        0n,
-      );
-      return (
-        Number(terminal?.numTurns) === rounds.length &&
-        rounds.every((round, roundIndex) => round.roundIndex === roundIndex) &&
-        event.length === 1 &&
-        event[0]?.state === "settled" &&
-        (event[0]?.costSource !== "measured" ||
-          BigInt(event[0].costMicrocents) === measuredCost) &&
-        String(terminal?.terminalCode ?? "") ===
-          String(turn.terminalCode ?? turn.status)
-      );
-    });
+    observation.turns.every((turn, index) =>
+      turnAccountingBalanced({
+        rounds: turn.rounds,
+        usage: observation.usage.filter(
+          (usage) => usage.turnRequestId === turn.id,
+        ),
+        terminal: artifact.turns[index]?.terminal,
+        terminalCode: String(turn.terminalCode ?? turn.status),
+        classifierTrace: observation.metrics.turns[index]?.classifierTrace ?? null,
+      }),
+    );
   const streamSequenceUnique = artifact.turns.every(
     (turn) =>
       turn.frameSeqs.length === turn.frameCount &&
@@ -997,9 +1097,7 @@ export async function runEpisode(
               round.servingProvider === effectiveModelConfig.servingProvider,
           ),
       ) &&
-      observation.usage.every(
-        (event) => event.model === effectiveModelConfig.modelId,
-      ),
+      usageFollowsRoute(observation.usage, effectiveModelConfig.modelId),
     allTurnsTerminal:
       observation.turns.length > 0 &&
       observation.turns.every((turn) => turn.terminalAt !== null),

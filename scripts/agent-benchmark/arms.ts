@@ -1,15 +1,8 @@
-import type {
-  AgentModelEntry,
-  AgentReasoningEffort,
-  AgentThinkingLevel,
-  BenchmarkModelEntry,
-} from "@/ee/agent-chat/model-catalog";
+import type { AgentModelEntry, AgentReasoningEffort, AgentThinkingLevel } from "@/ee/agent-chat/model-catalog";
+import type { BenchmarkModelEntry } from "@/ee/agent-chat/benchmark-model-registry";
 
-import {
-  BENCHMARK_MODEL_KEY_PREFIX,
-  MODEL_CATALOG,
-  SHIPPED_AGENT_MODEL_KEY,
-} from "@/ee/agent-chat/model-catalog";
+import { SHIPPED_AGENT_MODEL, SHIPPED_AGENT_MODEL_KEY } from "@/ee/agent-chat/model-catalog";
+import { BENCHMARK_MODEL_KEY_PREFIX } from "@/ee/agent-chat/benchmark-model-registry";
 
 type BenchmarkFamily = "google" | "openai" | "anthropic" | "deepseek" | "zai" | "moonshot" | "mistral" | "alibaba";
 
@@ -41,7 +34,7 @@ function benchmarkFamily(modelId: string): BenchmarkFamily {
 }
 
 function shipped(): BenchmarkArm {
-  const model: AgentModelEntry = MODEL_CATALOG[SHIPPED_AGENT_MODEL_KEY];
+  const model: AgentModelEntry = SHIPPED_AGENT_MODEL;
   return {
     id: "shipped",
     label: `${model.modelId}, ${SHIPPED_AGENT_MODEL_KEY} catalog configuration (shipped)`,
@@ -130,7 +123,7 @@ export const BENCHMARK_ARMS: readonly BenchmarkArm[] = [
   openai("luna-medium", "openai/gpt-5.6-luna", "medium", "GPT-5.6 Luna, reasoning medium"),
   openai("terra-low", "openai/gpt-5.6-terra", "low", "GPT-5.6 Terra, reasoning low"),
   openai("sol-low", "openai/gpt-5.6-sol", "low", "GPT-5.6 Sol, reasoning low"),
-  openai("nano-low", "openai/gpt-5-nano", "low", "GPT-5 Nano, reasoning low (the fast catalog key)"),
+  openai("nano-low", "openai/gpt-5-nano", "low", "GPT-5 Nano, reasoning low"),
   openai("gpt5-mini-low", "openai/gpt-5-mini", "low", "GPT-5 Mini, reasoning low"),
   openai("gpt54-mini-low", "openai/gpt-5.4-mini", "low", "GPT-5.4 Mini, reasoning low"),
   openai("gpt54-nano-low", "openai/gpt-5.4-nano", "low", "GPT-5.4 Nano, reasoning low"),

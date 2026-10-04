@@ -5,6 +5,7 @@ import type { AppLocale } from "@/i18n/locale-registry";
 
 import { COUNTRY_CODES } from "@/constants/countries";
 import { agentCreditPeriodForAnchor } from "@/ee/agent-chat/agent-credit-policy";
+import { SHIPPED_AGENT_MODEL } from "@/ee/agent-chat/model-catalog";
 import { APP_LOCALES } from "@/i18n/locale-registry";
 
 import type { SeedContext } from "./context";
@@ -129,21 +130,21 @@ export const SYNTHETIC_HOSTED_AI_ORDINARY_USER = {
 
 export const SYNTHETIC_HOSTED_AI_USAGE = {
   released: {
-    chargedCredits: 0,
+    chargedMicrocents: 0n,
     costMicrocents: 0n,
-    reservedCredits: 10,
+    reservedMicrocents: 10_000_000n,
     state: "released",
   },
   reserved: {
-    chargedCredits: 0,
+    chargedMicrocents: 0n,
     costMicrocents: 0n,
-    reservedCredits: 25,
+    reservedMicrocents: 25_000_000n,
     state: "reserved",
   },
   settled: {
-    chargedCredits: 18,
-    costMicrocents: 18_000_000n,
-    reservedCredits: 40,
+    chargedMicrocents: 17_634_210n,
+    costMicrocents: 17_634_210n,
+    reservedMicrocents: 40_000_000n,
     state: "settled",
   },
 } as const;
@@ -254,9 +255,9 @@ export async function seedHostedAiOperatorFixtures(context: SeedContext, now = n
   });
 
   const commonUsage = {
-    allowanceCreditsSnapshot: 500,
+    allowanceMicrocentsSnapshot: 500_000_000n,
     companyId: ids.hostedAiFixtureCompany,
-    model: "openai/gpt-5-nano",
+    model: SHIPPED_AGENT_MODEL.modelId,
     periodEnd,
     periodStart,
     planSnapshot: "enterprise" as const,

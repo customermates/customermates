@@ -9,7 +9,7 @@ vi.mock("@/env", () => ({
 }));
 
 import { usageToTokenCounts } from "../agent-usage-settlement";
-import { MODEL_CATALOG } from "../model-catalog";
+import { SHIPPED_AGENT_MODEL } from "../model-catalog";
 import { resolveModelPricing } from "../model-pricing";
 
 describe("usageToTokenCounts", () => {
@@ -120,10 +120,7 @@ describe("usageToTokenCounts", () => {
 
 describe("model catalog + pricing coverage", () => {
   it("addresses every catalog model by its gateway-namespaced id", () => {
-    expect(Object.values(MODEL_CATALOG).map((entry) => entry.modelId)).toEqual([
-      "openai/gpt-5-nano",
-      "google/gemini-3.5-flash-lite",
-    ]);
+    expect([SHIPPED_AGENT_MODEL].map((entry) => entry.modelId)).toEqual(["google/gemini-3.5-flash-lite"]);
   });
 
   it("refuses to price an unpinned model instead of falling back to a spend cap", () => {
@@ -133,10 +130,10 @@ describe("model catalog + pricing coverage", () => {
   it("prices the configured agent model from the pinned snapshot", () => {
     expect(
       resolveModelPricing(
-        MODEL_CATALOG.balanced.modelId,
+        SHIPPED_AGENT_MODEL.modelId,
         0,
-        MODEL_CATALOG.balanced.servingProvider,
-        MODEL_CATALOG.balanced.inferenceRegion,
+        SHIPPED_AGENT_MODEL.servingProvider,
+        SHIPPED_AGENT_MODEL.inferenceRegion,
       ),
     ).toEqual({
       inputPerMTok: 0.33,

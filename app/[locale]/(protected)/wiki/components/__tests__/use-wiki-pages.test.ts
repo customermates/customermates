@@ -1,0 +1,178 @@
+import type { Root } from "react-dom/client";
+import type { WikiPageListResult } from "@/features/wiki/wiki.schema";
+
+import { act, createElement } from "react";
+import { createRoot } from "react-dom/client";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+const actions = vi.hoisted(() => ({ list: vi.fn(), search: vi.fn(), move: vi.fn() }));
+vi.mock("../../actions", () => ({
+  getWikiPagesAction: actions.list,
+  searchWikiPagesAction: actions.search,
+  moveWikiPageAction: actions.move,
+}));
+vi.mock("@/core/errors/report-application-error", () => ({ reportApplicationError: vi.fn() }));
+
+import { useWikiPages } from "../use-wiki-pages";
+
+const initial: WikiPageListResult = { items: [], total: 90, page: 1, pageSize: 25 };
+let state: ReturnType<typeof useWikiPages>;
+let root: Root;
+let container: HTMLElement;
+function Harness() {
+  state = useWikiPages(initial);
+  return null;
+}
+
+beforeEach(() => {
+  (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+  vi.useFakeTimers();
+  actions.list.mockReset().mockResolvedValue({ ok: true, data: { ...initial, page: 2 } });
+  actions.search.mockReset();
+  actions.move.mockReset();
+  container = document.createElement("div");
+  document.body.append(container);
+  root = createRoot(container);
+  act(() => root.render(createElement(Harness)));
+});
+afterEach(() => {
+  act(() => root.unmount());
+  container.remove();
+  vi.useRealTimers();
+});
+
+async function search(query: string) {
+  act(() => state.search(query));
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(500);
+  });
+}
+
+describe("Wiki navigation search", () => {
+  it("uses server-side tenant search instead of filtering the loaded page", async () => {
+    actions.search.mockResolvedValue({ ok: true, data: { ...initial, total: 1 } });
+    await search("support workflow");
+    expect(actions.search).toHaveBeenCalledExactlyOnceWith({ query: "support workflow", page: 1, pageSize: 25 });
+    expect(state.result.total).toBe(1);
+    expect(state.loading).toBe(false);
+  });
+
+  it("ignores outdated results after a new search has started", async () => {
+    let oldResult!: (value: unknown) => void;
+    actions.search.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          oldResult = resolve;
+        }),
+    );
+    actions.search.mockResolvedValueOnce({ ok: true, data: { ...initial, total: 2 } });
+    await search("old");
+    await search("new");
+    await act(async () => {
+      oldResult({ ok: true, data: { ...initial, total: 50 } });
+      await Promise.resolve();
+    });
+    expect(state.result.total).toBe(2);
+  });
+
+  it("paginates server-side and returns to the original list when search clears", async () => {
+    await act(async () => {
+      state.setPage(2);
+      await Promise.resolve();
+    });
+    expect(actions.list).toHaveBeenCalledWith({ page: 2, pageSize: 25 });
+    actions.search.mockResolvedValue({ ok: true, data: { ...initial, total: 1 } });
+    await search("voice");
+    expect(state.page).toBe(1);
+    await search("");
+    expect(state.result).toBe(initial);
+  });
+
+  it("uses continuation rather than a partial total to enable the next page", async () => {
+    actions.search.mockResolvedValueOnce({
+      ok: true,
+      data: { ...initial, total: 30, totalIsExact: false, hasMore: true },
+    });
+    await search("policy");
+    actions.search.mockResolvedValueOnce({
+      ok: true,
+      data: {
+        ...initial,
+        page: 2,
+        total: 51,
+        totalIsExact: false,
+        hasMore: true,
+      },
+    });
+    await act(async () => {
+      state.setPage(2);
+      await Promise.resolve();
+    });
+    expect(state.hasMore).toBe(true);
+    expect(state.totalIsExact).toBe(false);
+    actions.search.mockResolvedValueOnce({
+      ok: true,
+      data: {
+        ...initial,
+        page: 3,
+        total: 60,
+        totalIsExact: true,
+        hasMore: false,
+      },
+    });
+    await act(async () => {
+      state.setPage(3);
+      await Promise.resolve();
+    });
+    expect(state.hasMore).toBe(false);
+    expect(state.totalIsExact).toBe(true);
+  });
+
+  it("shows failures and retries without losing the query", async () => {
+    actions.search.mockResolvedValueOnce({ ok: false, error: { errors: ["Unavailable"] } });
+    await search("voice");
+    expect(state.failed).toBe(true);
+    actions.search.mockResolvedValueOnce({ ok: true, data: { ...initial, total: 1 } });
+    await act(async () => {
+      state.retry();
+      await Promise.resolve();
+    });
+    expect(state.failed).toBe(false);
+    expect(state.query).toBe("voice");
+  });
+  it("reloads persisted ordering and blocks duplicate moves", async () => {
+    let finish!: (value: unknown) => void;
+    actions.move.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+    );
+    let pending: ReturnType<typeof state.move> | undefined;
+    act(() => {
+      pending = state.move("a", "b", "after");
+    });
+    expect(state.reordering).toBe(true);
+    expect(await state.move("b", "a", "before")).toBeNull();
+    expect(actions.move).toHaveBeenCalledExactlyOnceWith({ id: "a", targetId: "b", placement: "after" });
+    await act(async () => {
+      finish({ ok: true, data: true });
+      expect(await pending).toMatchObject({ ok: true });
+    });
+    expect(actions.list).toHaveBeenCalledWith({ page: 1, pageSize: 25 });
+    expect(state.reordering).toBe(false);
+  });
+
+  it("preserves visible ordering on a rejected move and disables moves during search", async () => {
+    actions.move.mockResolvedValue({ ok: false, error: { errors: ["Denied"] } });
+    await act(async () => {
+      expect(await state.move("a", "b", "before")).toMatchObject({ ok: false });
+    });
+    expect(state.result).toBe(initial);
+    expect(actions.list).not.toHaveBeenCalled();
+    actions.search.mockResolvedValue({ ok: true, data: initial });
+    await search("pricing");
+    expect(await state.move("a", "b", "after")).toBeNull();
+    expect(actions.move).toHaveBeenCalledTimes(1);
+  });
+});

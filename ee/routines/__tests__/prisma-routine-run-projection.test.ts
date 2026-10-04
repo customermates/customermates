@@ -32,7 +32,6 @@ function storedRun(args: { id: string; conversationId: string | null; turnReques
     startedAt: createdAt,
     finishedAt: createdAt,
     terminalCode: "partial",
-    chargedCredits: 1,
     summary: "The initial run stopped early.",
     error: null,
     createdAt,
