@@ -1,6 +1,6 @@
 import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
-import { test, expect } from "./fixtures";
+import { test, expect, isBenignPageError } from "./fixtures";
 
 test("delivers a custom-record event to a loopback receiver and retries a transient failure", async ({
   page,
@@ -27,7 +27,7 @@ test("delivers a custom-record event to a loopback receiver and retries a transi
   const receiverUrl = `http://127.0.0.1:${(receiver.address() as AddressInfo).port}/project-events`;
   const errors: string[] = [];
   page.on("pageerror", (error) => {
-    if (error.message !== "ResizeObserver loop completed with undelivered notifications.") errors.push(error.message);
+    if (!isBenignPageError(error.message)) errors.push(error.message);
   });
   try {
     await page.goto("/en/company/data-model");
@@ -126,7 +126,7 @@ test("delivers only deleted records that matched the webhook filter before remov
   const receiverUrl = `http://127.0.0.1:${(receiver.address() as AddressInfo).port}/deleted-projects`;
   const errors: string[] = [];
   page.on("pageerror", (error) => {
-    if (error.message !== "ResizeObserver loop completed with undelivered notifications.") errors.push(error.message);
+    if (!isBenignPageError(error.message)) errors.push(error.message);
   });
   try {
     await page.goto("/en/company/data-model");

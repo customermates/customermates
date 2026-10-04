@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { Page } from "@playwright/test";
 import { RecordModelSchema, type RecordModel } from "../../features/records/record-model.schema";
-import { expect, test } from "./fixtures";
+import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 async function choose(page: Page, label: string, option: string) {
   await page.getByRole("dialog").getByRole("combobox", { name: label, exact: true }).click();
@@ -46,10 +46,10 @@ async function list(page: Page, typeId: string) {
 function collectErrors(page: Page) {
   const errors: string[] = [];
   page.on("pageerror", (error) => {
-    if (error.message !== "ResizeObserver loop completed with undelivered notifications.") errors.push(error.message);
+    if (!isBenignPageError(error.message)) errors.push(error.message);
   });
   page.on("console", (message) => {
-    if (message.type() === "error") errors.push(message.text());
+    if (isAppConsoleError(message)) errors.push(message.text());
   });
   return errors;
 }

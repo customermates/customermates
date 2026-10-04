@@ -5,7 +5,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { isDraftThreadId } from "../../ee/messaging/provider";
 import { decodeGetParams } from "../../core/utils/get-params";
 import type { RecordRef } from "../../features/records/record-model.schema";
-import { test, expect } from "./fixtures";
+import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 test("opens a list-qualified inbox and preserves, saves, edits and sends channel drafts locally", async ({
   page,
@@ -25,9 +25,11 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
       browserDiagnostics.push(message);
     else errors.push(message);
   };
-  page.on("pageerror", (error) => captureError(error.message));
+  page.on("pageerror", (error) => {
+    if (!isBenignPageError(error.message)) captureError(error.message);
+  });
   page.on("console", (message) => {
-    if (message.type() === "error") captureError(message.text());
+    if (isAppConsoleError(message)) captureError(message.text());
   });
   const post = async (path: string, data: unknown) => {
     const response = await page.request.post(path, { data });

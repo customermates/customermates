@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
-import { expect, test } from "./fixtures";
+import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 test("returns to a valid relationship, path and embedded page after deleting its last row", async ({
   page,
@@ -12,10 +12,10 @@ test("returns to a valid relationship, path and embedded page after deleting its
   const id = (key: string) => presetId(companyId, key);
   const errors: string[] = [];
   page.on("pageerror", (error) => {
-    if (error.message !== "ResizeObserver loop completed with undelivered notifications.") errors.push(error.message);
+    if (!isBenignPageError(error.message)) errors.push(error.message);
   });
   page.on("console", (message) => {
-    if (message.type() === "error") errors.push(message.text());
+    if (isAppConsoleError(message)) errors.push(message.text());
   });
   const post = async (path: string, data: unknown) => {
     const response = await page.request.post(path, { data });

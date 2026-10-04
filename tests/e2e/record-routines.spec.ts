@@ -1,4 +1,4 @@
-import { test, expect } from "./fixtures";
+import { test, expect, isBenignPageError } from "./fixtures";
 
 test("persists a routine for a customer-created type and matches only its configured record changes", async ({
   page,
@@ -8,7 +8,7 @@ test("persists a routine for a customer-created type and matches only its config
   test.setTimeout(240000);
   const errors: string[] = [];
   page.on("pageerror", (error) => {
-    if (error.message !== "ResizeObserver loop completed with undelivered notifications.") errors.push(error.message);
+    if (!isBenignPageError(error.message)) errors.push(error.message);
   });
   await page.goto("/en/company/data-model");
   await page.getByRole("button", { name: "Create list", exact: true }).click();

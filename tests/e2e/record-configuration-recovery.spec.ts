@@ -9,7 +9,7 @@ import {
 import { RecordModelSchema, type RecordModel } from "../../features/records/record-model.schema";
 import { RecordOperationResultSchema } from "../../features/records/record-query.schema";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
-import { expect, test } from "./fixtures";
+import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 const labels = englishMessages.RecordModel;
 const recovery = {
@@ -24,10 +24,10 @@ const recovery = {
 function collectErrors(page: Page) {
   const errors: string[] = [];
   page.on("pageerror", (error) => {
-    if (error.message !== "ResizeObserver loop completed with undelivered notifications.") errors.push(error.message);
+    if (!isBenignPageError(error.message)) errors.push(error.message);
   });
   page.on("console", (message) => {
-    if (message.type() === "error") errors.push(message.text());
+    if (isAppConsoleError(message)) errors.push(message.text());
   });
   return errors;
 }

@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { test, expect } from "./fixtures";
+import { test, expect, isBenignPageError } from "./fixtures";
 
 test("configures a role for a new type, preserves granular rights after rename and deletes the unused role", async ({
   page,
@@ -9,7 +9,7 @@ test("configures a role for a new type, preserves granular rights after rename a
   test.setTimeout(240000);
   const errors: string[] = [];
   page.on("pageerror", (error) => {
-    if (error.message !== "ResizeObserver loop completed with undelivered notifications.") errors.push(error.message);
+    if (!isBenignPageError(error.message)) errors.push(error.message);
   });
   await page.goto("/en/company/data-model");
   await page.getByRole("button", { name: "Create list", exact: true }).click();

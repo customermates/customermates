@@ -14,7 +14,7 @@ import { RecordOperationResultSchema } from "../../features/records/record-query
 import { RecordMeasureResultSchema } from "../../features/records/record-measure.schema";
 import { presetId } from "../../features/records/crm-preset";
 import { localE2eEnvironment } from "./local-environment";
-import { expect, test } from "./fixtures";
+import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 import { createBrowserWorkspace, removeBrowserWorkspace } from "./workspace";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { RecordIdentityReferenceSchema } from "../../features/records/record-identity-reference.schema";
@@ -115,10 +115,10 @@ async function secondaryUser(
   const page = await context.newPage();
   const errors: string[] = [];
   page.on("pageerror", (error) => {
-    if (error.message !== "ResizeObserver loop completed with undelivered notifications.") errors.push(error.message);
+    if (!isBenignPageError(error.message)) errors.push(error.message);
   });
   page.on("console", (message) => {
-    if (message.type() === "error") errors.push(message.text());
+    if (isAppConsoleError(message)) errors.push(message.text());
   });
   return {
     page,
@@ -894,10 +894,10 @@ test("keeps shared Inbox participants permission-scoped across genuine readers a
 function relationshipCaptureErrors(page: Page) {
   const errors: string[] = [];
   page.on("pageerror", (error) => {
-    if (error.message !== "ResizeObserver loop completed with undelivered notifications.") errors.push(error.message);
+    if (!isBenignPageError(error.message)) errors.push(error.message);
   });
   page.on("console", (message) => {
-    if (message.type() === "error") errors.push(message.text());
+    if (isAppConsoleError(message)) errors.push(message.text());
   });
   return errors;
 }

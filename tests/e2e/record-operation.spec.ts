@@ -1,7 +1,7 @@
 import { writeFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
-import { test, expect } from "./fixtures";
+import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
 import { RecordQueryResultSchema } from "../../features/records/record-query-result.schema";
 
 test("keeps complete application reads, History and a blocked form draft while a high-fan-out update publishes", async ({
@@ -104,10 +104,10 @@ test("keeps complete application reads, History and a blocked form draft while a
   let transportFaults = 0;
   for (const browserPage of [page, draft]) {
     browserPage.on("pageerror", (error) => {
-      if (error.message !== "ResizeObserver loop completed with undelivered notifications.") errors.push(error.message);
+      if (!isBenignPageError(error.message)) errors.push(error.message);
     });
     browserPage.on("console", (message) => {
-      if (message.type() !== "error") return;
+      if (!isAppConsoleError(message)) return;
       if (
         browserPage === page &&
         transportFaults === 1 &&
@@ -185,10 +185,10 @@ test("keeps complete application reads, History and a blocked form draft while a
   await draft.screenshot({ path: testInfo.outputPath("draft-during-recalculation.png"), animations: "disabled" });
   const readPage = await context.newPage();
   readPage.on("pageerror", (error) => {
-    if (error.message !== "ResizeObserver loop completed with undelivered notifications.") errors.push(error.message);
+    if (!isBenignPageError(error.message)) errors.push(error.message);
   });
   readPage.on("console", (message) => {
-    if (message.type() === "error") errors.push(message.text());
+    if (isAppConsoleError(message)) errors.push(message.text());
   });
   const readMain = readPage.getByRole("main");
   const history = readMain.locator('[data-detail-panel="activities"]');

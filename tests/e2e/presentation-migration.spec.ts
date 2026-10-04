@@ -3,7 +3,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { copyGenericWorkspace } from "../helpers/copy-generic-workspace";
 import { applyConfigurableRecordsMigration, createLegacyMigrationDatabase } from "../helpers/legacy-migration-database";
 import { presentationFixture } from "../helpers/legacy-presentation-fixture";
-import { test as base,expect } from "./fixtures";
+import { test as base, expect, isBenignPageError } from "./fixtures";
 import { removeBrowserWorkspace } from "./workspace";
 
 const test = base.extend({
@@ -54,7 +54,7 @@ test("opens migrated saved views, personal details and financial widgets with pe
   test.setTimeout(240000);
   const errors: string[] = [];
   page.on("pageerror", (error) => {
-    if (error.message !== "ResizeObserver loop completed with undelivered notifications.") errors.push(error.message);
+    if (!isBenignPageError(error.message)) errors.push(error.message);
   });
   const typeId = presetId(companyId, "deal");
   await page.goto(`/en/records/${typeId}`);

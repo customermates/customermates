@@ -1,4 +1,4 @@
-import { test, expect } from "./fixtures";
+import { test, expect, isBenignPageError } from "./fixtures";
 import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
 
@@ -48,7 +48,7 @@ test("persists a webhook for a customer-created type with an explicit owner and 
   test.setTimeout(240000);
   const errors: string[] = [];
   page.on("pageerror", (error) => {
-    if (error.message !== "ResizeObserver loop completed with undelivered notifications.") errors.push(error.message);
+    if (!isBenignPageError(error.message)) errors.push(error.message);
   });
   await page.goto("/en/company/data-model");
   await page.getByRole("button", { name: "Create list", exact: true }).click();

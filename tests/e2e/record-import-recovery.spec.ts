@@ -4,7 +4,7 @@ import type { Client } from "pg";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordExportSchema, type RecordExport } from "../../features/data-transfer/record-transfer.schema";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
-import { test, expect } from "./fixtures";
+import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 async function importState(database: Client, companyId: string, typeId: string, recordIds: string[]) {
   const result = await database.query(
@@ -27,10 +27,10 @@ test("rejects malformed and invalid typed imports without partial records and ac
     if (new URL(request.url()).pathname === "/api/v2/records/import") importRequests.push(request.url());
   });
   page.on("pageerror", (error) => {
-    if (error.message !== "ResizeObserver loop completed with undelivered notifications.") errors.push(error.message);
+    if (!isBenignPageError(error.message)) errors.push(error.message);
   });
   page.on("console", (message) => {
-    if (message.type() !== "error") return;
+    if (!isAppConsoleError(message)) return;
     if (
       expectedImportRejection &&
       message.location().url.endsWith("/api/v2/records/import") &&

@@ -1,4 +1,4 @@
-import { test, expect } from "./fixtures";
+import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
 import { APP_LOCALES } from "../../i18n/locale-registry";
 import { APP_LOCALE_COOKIE_NAME } from "../../i18n/locale-preference";
@@ -27,11 +27,11 @@ test("renders the configurable record surface in all application locales and bot
       await page.addInitScript((preference) => window.localStorage.setItem("theme", preference), theme);
       const errors: string[] = [];
       page.on("pageerror", (error) => {
-        if (error.message !== "ResizeObserver loop completed with undelivered notifications.")
+        if (!isBenignPageError(error.message))
           errors.push(error.message);
       });
       page.on("console", (message) => {
-        if (message.type() === "error") errors.push(message.text());
+        if (isAppConsoleError(message)) errors.push(message.text());
       });
       await page.goto(`/${locale}/records/${typeId}`);
       await expect(page.locator("html")).toHaveAttribute("lang", locale);

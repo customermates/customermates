@@ -1,4 +1,4 @@
-import { test, expect } from "./fixtures";
+import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
 
 test("edits duplicate embedded items, live and saved prices, and weighted totals through the generic UI", async ({
@@ -9,10 +9,10 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
   test.setTimeout(240000);
   const errors: string[] = [];
   page.on("pageerror", (error) => {
-    if (error.message !== "ResizeObserver loop completed with undelivered notifications.") errors.push(error.message);
+    if (!isBenignPageError(error.message)) errors.push(error.message);
   });
   page.on("console", (message) => {
-    if (message.type() === "error") errors.push(message.text());
+    if (isAppConsoleError(message)) errors.push(message.text());
   });
   const dialogs = page.getByRole("dialog");
   const typeId = (key: string) => presetId(companyId, key);

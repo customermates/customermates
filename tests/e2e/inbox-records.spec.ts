@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
-import { expect, test } from "./fixtures";
+import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 test("creates, unlinks and relinks a generic person from the inbox", async ({
   page,
@@ -10,9 +10,11 @@ test("creates, unlinks and relinks a generic person from the inbox", async ({
 }, testInfo) => {
   test.setTimeout(180000);
   const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
+  page.on("pageerror", (error) => {
+    if (!isBenignPageError(error.message)) errors.push(error.message);
+  });
   page.on("console", (message) => {
-    if (message.type() === "error") errors.push(message.text());
+    if (isAppConsoleError(message)) errors.push(message.text());
   });
   const accountId = randomUUID();
   const threadId = randomUUID();

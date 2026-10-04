@@ -106,4 +106,5 @@ export const test = base.extend<Fixtures>({
     { auto: true, timeout: 180000 },
   ],
 });
+export { isAppConsoleError, isBenignPageError } from "./browser-noise";
 export { expect };

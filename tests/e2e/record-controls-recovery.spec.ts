@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { Client } from "pg";
 import type { Page, Locator, Request, Route, TestInfo } from "@playwright/test";
-import { test, expect } from "./fixtures";
+import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
 import {
   RecordModelSchema,
@@ -397,11 +397,11 @@ function transportEvidence(page: Page) {
   const expectedTransport: string[] = [];
   const faults: Array<{ label: string; pathname: string; resourceErrorAccepted: boolean }> = [];
   page.on("pageerror", (error) => {
-    if (error.message !== "ResizeObserver loop completed with undelivered notifications.")
+    if (!isBenignPageError(error.message))
       unexpected.push(error.message);
   });
   page.on("console", (message) => {
-    if (message.type() !== "error") return;
+    if (!isAppConsoleError(message)) return;
     let pathname: string | null = null;
     try {
       pathname = new URL(message.location().url).pathname;

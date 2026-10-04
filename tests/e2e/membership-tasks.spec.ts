@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
-import { expect, test } from "./fixtures";
+import { expect, test, isBenignPageError } from "./fixtures";
 
 test("resolves a protected task through member approval and rejects ordinary record edits", async ({
   page,
@@ -30,7 +30,7 @@ test("resolves a protected task through member approval and rejects ordinary rec
   );
   const errors: string[] = [];
   page.on("pageerror", (error) => {
-    if (error.message !== "ResizeObserver loop completed with undelivered notifications.") errors.push(error.message);
+    if (!isBenignPageError(error.message)) errors.push(error.message);
   });
   await page.goto(`/en/records/${typeId}`);
   await page.getByRole("button", { name: title, exact: true }).click();

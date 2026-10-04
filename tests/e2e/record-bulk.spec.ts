@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { RecordOperationResultSchema } from "../../features/records/record-query.schema";
-import { test, expect } from "./fixtures";
+import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
 
 test("selects records, bulk-edits exact decimals, previews cascades, and deletes only the selected records", async ({
@@ -13,10 +13,10 @@ test("selects records, bulk-edits exact decimals, previews cascades, and deletes
   const priceId = presetId(companyId, "service.amount");
   const errors: string[] = [];
   page.on("pageerror", (error) => {
-    if (error.message !== "ResizeObserver loop completed with undelivered notifications.") errors.push(error.message);
+    if (!isBenignPageError(error.message)) errors.push(error.message);
   });
   page.on("console", (message) => {
-    if (message.type() === "error") errors.push(message.text());
+    if (isAppConsoleError(message)) errors.push(message.text());
   });
   await page.goto(`/en/records/${typeId}`);
   const dialog = page.getByRole("dialog");
@@ -151,10 +151,10 @@ test("retains off-view selections, keeps visible rows, clears selection and clea
   const discountId = randomUUID();
   const errors: string[] = [];
   page.on("pageerror", (error) => {
-    if (error.message !== "ResizeObserver loop completed with undelivered notifications.") errors.push(error.message);
+    if (!isBenignPageError(error.message)) errors.push(error.message);
   });
   page.on("console", (message) => {
-    if (message.type() === "error") errors.push(message.text());
+    if (isAppConsoleError(message)) errors.push(message.text());
   });
   const post = async (path: string, data: unknown) => {
     const response = await page.request.post(path, { data });

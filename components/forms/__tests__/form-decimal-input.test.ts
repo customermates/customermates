@@ -93,7 +93,9 @@ describe("FormDecimalInput", () => {
     const { input } = render("en-US", "2000");
     input.focus();
     input.setSelectionRange(0, input.value.length);
-    act(() => input.dispatchEvent(new FocusEvent("focusin", { bubbles: true })));
+    act(() => {
+      input.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
+    });
     expect(input.value).toBe("2000");
     expect([input.selectionStart, input.selectionEnd]).toEqual([0, 4]);
   });

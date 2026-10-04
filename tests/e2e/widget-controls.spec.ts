@@ -2,7 +2,7 @@ import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { GRID_BREAKPOINTS, GRID_COLS } from "../../app/[locale]/(protected)/dashboard/components/grid.constants";
 import { DisplayType } from "../../features/widget/widget-display.schema";
 import { presetId } from "../../features/records/crm-preset";
-import { expect, test } from "./fixtures";
+import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 test("persists every chart style, appearance, a copied template, resizing and deletion through the unified builder", async ({
   page,
@@ -13,10 +13,10 @@ test("persists every chart style, appearance, a copied template, resizing and de
   test.setTimeout(240000);
   const errors: string[] = [];
   page.on("pageerror", (error) => {
-    if (error.message !== "ResizeObserver loop completed with undelivered notifications.") errors.push(error.message);
+    if (!isBenignPageError(error.message)) errors.push(error.message);
   });
   page.on("console", (message) => {
-    if (message.type() === "error") errors.push(message.text());
+    if (isAppConsoleError(message)) errors.push(message.text());
   });
   const dialog = page.getByRole("dialog");
   await page.goto(`/en/records/${presetId(companyId, "service")}`);
@@ -217,10 +217,10 @@ test("preserves widget previews and accessible draft confirmations across respon
 }) => {
   const errors: string[] = [];
   page.on("pageerror", (error) => {
-    if (error.message !== "ResizeObserver loop completed with undelivered notifications.") errors.push(error.message);
+    if (!isBenignPageError(error.message)) errors.push(error.message);
   });
   page.on("console", (message) => {
-    if (message.type() === "error") errors.push(message.text());
+    if (isAppConsoleError(message)) errors.push(message.text());
   });
   const originalViewport = page.viewportSize();
   await page.setViewportSize({ width: 1100, height: 900 });

@@ -10,7 +10,7 @@ import {
 } from "../../features/records/record-query.schema";
 import type { RecordActivityQuery } from "../../ee/messaging/activities/record-activities.schema";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
-import { test, expect } from "./fixtures";
+import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 const labels = englishMessages.RecordModel;
 
@@ -100,10 +100,10 @@ test("configures an activity path and applies provider, channel, conversation an
   test.setTimeout(300000);
   const errors: string[] = [];
   page.on("pageerror", (error) => {
-    if (error.message !== "ResizeObserver loop completed with undelivered notifications.") errors.push(error.message);
+    if (!isBenignPageError(error.message)) errors.push(error.message);
   });
   page.on("console", (message) => {
-    if (message.type() === "error") errors.push(message.text());
+    if (isAppConsoleError(message)) errors.push(message.text());
   });
   const organizationTypeId = presetId(companyId, "organization");
   const contactTypeId = presetId(companyId, "contact");

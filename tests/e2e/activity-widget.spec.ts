@@ -1,4 +1,4 @@
-import { test, expect } from "./fixtures";
+import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 test("creates a custom-type activity widget, previews history, edits it and preserves assistant drafts", async ({
   page,
@@ -7,11 +7,11 @@ test("creates a custom-type activity widget, previews history, edits it and pres
 }, testInfo) => {
   const errors: string[] = [];
   page.on("pageerror", (error) => {
-    if (error.message !== "ResizeObserver loop completed with undelivered notifications.") errors.push(error.message);
+    if (!isBenignPageError(error.message)) errors.push(error.message);
   });
   page.on("console", (message) => {
     if (
-      message.type() === "error" ||
+      isAppConsoleError(message) ||
       message.text().includes("changing from uncontrolled") ||
       message.text().includes("changing from controlled")
     )

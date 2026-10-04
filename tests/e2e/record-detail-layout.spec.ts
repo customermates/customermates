@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { test, expect } from "./fixtures";
+import { test, expect, isBenignPageError } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
 
 test("persists personal detail pins, visibility and keyboard order without losing the record draft", async ({
@@ -10,7 +10,7 @@ test("persists personal detail pins, visibility and keyboard order without losin
   test.setTimeout(180000);
   const errors: string[] = [];
   page.on("pageerror", (error) => {
-    if (error.message !== "ResizeObserver loop completed with undelivered notifications.") errors.push(error.message);
+    if (!isBenignPageError(error.message)) errors.push(error.message);
   });
   const typeId = presetId(companyId, "organization");
   const nameId = presetId(companyId, "organization.name");

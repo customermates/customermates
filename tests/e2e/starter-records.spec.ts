@@ -1,4 +1,4 @@
-import { test, expect } from "./fixtures";
+import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
 
 test("creates, edits, connects, assigns, reloads, and deletes all five starter types without legacy storage", async ({
@@ -10,10 +10,10 @@ test("creates, edits, connects, assigns, reloads, and deletes all five starter t
   test.setTimeout(240000);
   const errors: string[] = [];
   page.on("pageerror", (error) => {
-    if (error.message !== "ResizeObserver loop completed with undelivered notifications.") errors.push(error.message);
+    if (!isBenignPageError(error.message)) errors.push(error.message);
   });
   page.on("console", (message) => {
-    if (message.type() === "error") errors.push(message.text());
+    if (isAppConsoleError(message)) errors.push(message.text());
   });
   const dialog = page.getByRole("dialog");
   const navigateToType = async (typeId: string) => {

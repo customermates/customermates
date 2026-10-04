@@ -9,7 +9,7 @@ import { RecordMeasureResultSchema } from "../../features/records/record-measure
 import { ConfigurationPreviewSchema } from "../../features/records/configuration.schema";
 import { ManageDataViewsResultSchema } from "../../features/data-view/manage-data-views.schema";
 import { localE2eEnvironment } from "./local-environment";
-import { test, expect } from "./fixtures";
+import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 const DiscoverySchema = z.object({
   contractVersion: z.literal(2),
@@ -42,10 +42,10 @@ test("configures a type, formula, saved view and widget over authenticated MCP a
   };
   const errors: string[] = [];
   page.on("pageerror", (error) => {
-    if (error.message !== "ResizeObserver loop completed with undelivered notifications.") errors.push(error.message);
+    if (!isBenignPageError(error.message)) errors.push(error.message);
   });
   page.on("console", (message) => {
-    if (message.type() === "error") errors.push(message.text());
+    if (isAppConsoleError(message)) errors.push(message.text());
   });
   try {
     await client.connect(transport);

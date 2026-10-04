@@ -1,7 +1,7 @@
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { presetId } from "../../features/records/crm-preset";
 import { randomUUID } from "node:crypto";
-import { test, expect } from "./fixtures";
+import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 test("creates a custom list and field through the UI, then persists a decimal record across reloads", async ({
   page,
@@ -14,10 +14,10 @@ test("creates a custom list and field through the UI, then persists a decimal re
   page.on("pageerror", (error) => {
     if (error.message === "ResizeObserver loop completed with undelivered notifications.")
       resizeNotices.push(page.url());
-    else errors.push(error.message);
+    else if (!isBenignPageError(error.message)) errors.push(error.message);
   });
   page.on("console", (message) => {
-    if (message.type() === "error") errors.push(message.text());
+    if (isAppConsoleError(message)) errors.push(message.text());
   });
   const name = `Projects ${randomUUID().slice(0, 8)}`;
   const recordName = `Office expansion ${name.slice(-8)}`;
@@ -265,10 +265,10 @@ test("resizes table columns with keyboard controls, restores saved widths and re
 }, testInfo) => {
   const errors: string[] = [];
   page.on("pageerror", (error) => {
-    if (error.message !== "ResizeObserver loop completed with undelivered notifications.") errors.push(error.message);
+    if (!isBenignPageError(error.message)) errors.push(error.message);
   });
   page.on("console", (message) => {
-    if (message.type() === "error") errors.push(message.text());
+    if (isAppConsoleError(message)) errors.push(message.text());
   });
   const typeId = presetId(companyId, "organization");
   const fieldId = presetId(companyId, "organization.name");
