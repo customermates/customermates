@@ -1,5 +1,6 @@
 import type { AgentToolIdentity } from "./tool-identity";
 
+import { LOAD_TOOLSET_TOOL_NAME } from "./agent-toolset-routing";
 import { agentToolIdentityKey, internalToolIdentity, isInternalToolIdentity } from "./tool-identity";
 import { recordToolRisk } from "./record-tool-risk";
 
@@ -8,7 +9,7 @@ export function isReadOnlyTool(tool: { annotations?: Record<string, boolean> }) 
 }
 
 type AgentApprovalPolicy =
-  | { approvalFree: true }
+  | { approvalFree: true; approvalRequiredFields?: readonly string[] }
   | { inputRisk: (input: unknown) => "read" | "write" | "sensitive" | null }
   | { approvalFreeActions: readonly string[]; readOnlyActions?: readonly string[] };
 
@@ -18,6 +19,7 @@ const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
   cancel_crm_operation: { approvalFree: true },
   resume_crm_operation: { approvalFree: true },
   connect_messaging_account: { approvalFree: true },
+  import_website: { approvalFree: true },
   discard_message_draft: { approvalFree: true },
   manage_social_relations: {
     approvalFreeActions: ["list", "invite", "accept", "cancel"],
@@ -46,6 +48,10 @@ const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
     approvalFreeActions: ["list", "runs", "create", "update", "pause", "run_now"],
     readOnlyActions: ["list", "runs"],
   },
+  manage_wiki_pages: {
+    approvalFreeActions: ["list", "search", "get", "create", "update"],
+    readOnlyActions: ["list", "search", "get"],
+  },
   move_email_thread: { approvalFree: true },
   linkedin_manage_sales_lists: {
     approvalFreeActions: ["list", "browse", "save"],
@@ -55,7 +61,7 @@ const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
   send_chat_message: { approvalFree: true },
   send_email: { approvalFree: true },
   update_messaging_thread: { approvalFree: true },
-  update_workspace_settings: { approvalFree: true },
+  update_workspace_settings: { approvalFree: true, approvalRequiredFields: ["terminology"] },
 };
 
 const AGENT_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = Object.fromEntries(
@@ -84,6 +90,21 @@ export function readOnlyActionsForTool(identity: AgentToolIdentity): readonly st
   return policy && "readOnlyActions" in policy ? (policy.readOnlyActions ?? null) : null;
 }
 
+export function isApprovalRelevantValue(value: unknown) {
+  if (value === undefined || value === null) return false;
+  return !Array.isArray(value) || value.length > 0;
+}
+
+export function isReadOnlyAgentToolCall(name: string, tool: { annotations?: Record<string, boolean> }, input: unknown) {
+  if (isReadOnlyTool(tool) || name === "web_search" || name === "list_ui_targets" || name === LOAD_TOOLSET_TOOL_NAME)
+    return true;
+  const policy = policyFor(internalToolIdentity(name));
+  if (policy && "inputRisk" in policy) return policy.inputRisk(input) === "read";
+  const action =
+    input && typeof input === "object" && !Array.isArray(input) ? (input as { action?: unknown }).action : undefined;
+  return typeof action === "string" && Boolean(readOnlyActionsForTool(internalToolIdentity(name))?.includes(action));
+}
+
 export function requiresApproval(
   identity: AgentToolIdentity,
   tool: { annotations?: Record<string, boolean> },
@@ -94,10 +115,11 @@ export function requiresApproval(
 
   const policy = policyFor(identity);
   if (!policy) return true;
-  if ("approvalFree" in policy) return false;
+  const fields = input && typeof input === "object" && !Array.isArray(input) ? (input as Record<string, unknown>) : {};
+  if ("approvalFree" in policy)
+    return (policy.approvalRequiredFields ?? []).some((field) => isApprovalRelevantValue(fields[field]));
   if ("inputRisk" in policy) return !["read", "write"].includes(policy.inputRisk(input) ?? "sensitive");
 
-  const action =
-    input && typeof input === "object" && !Array.isArray(input) ? (input as { action?: unknown }).action : undefined;
+  const action = fields.action;
   return typeof action !== "string" || !policy.approvalFreeActions.includes(action);
 }

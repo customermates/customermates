@@ -1,3 +1,4 @@
+import { prismaAgentChatRepoDependencies } from "@/tests/helpers/prisma-agent-chat-repo";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { Status } from "@/generated/prisma";
@@ -7,6 +8,8 @@ const prismaMock = vi.hoisted(() => ({
   $transaction: vi.fn(),
   $executeRaw: vi.fn(),
   $queryRaw: vi.fn(),
+  hostedAiPlatformReservation: { create: vi.fn(), findUnique: vi.fn(), findMany: vi.fn(), deleteMany: vi.fn() },
+  hostedAiPlatformUsage: { upsert: vi.fn() },
   agentConversation: {
     create: vi.fn(),
     findFirst: vi.fn(),
@@ -21,6 +24,8 @@ const prismaMock = vi.hoisted(() => ({
   service: { findFirst: vi.fn() },
   task: { findFirst: vi.fn() },
   routine: { findFirst: vi.fn() },
+  wikiPage: { findFirst: vi.fn() },
+  wikiWebsiteCrawl: { findFirst: vi.fn() },
   widget: { findFirst: vi.fn() },
   connectedAccount: { findFirst: vi.fn() },
   user: { count: vi.fn(), findUnique: vi.fn() },
@@ -56,7 +61,8 @@ const prismaMock = vi.hoisted(() => ({
     create: vi.fn(),
     updateMany: vi.fn(),
   },
-  agentCreditAdjustment: { aggregate: vi.fn() },
+  agentCreditAdjustment: { aggregate: vi.fn(), findMany: vi.fn() },
+  company: { findUnique: vi.fn() },
 }));
 
 vi.mock("@/prisma/db", () => ({ prisma: prismaMock }));
@@ -98,9 +104,26 @@ function storedTurn(overrides: Record<string, unknown> = {}) {
   };
 }
 
+const rawSql = (call: readonly unknown[]) => (call[0] as TemplateStringsArray).join("?");
+
+function mockRawQueries(globalCommitment: { settledCostMicrocents: bigint; activeReservedMicrocents: bigint } | null) {
+  prismaMock.$queryRaw.mockImplementation((strings: TemplateStringsArray) => {
+    const sql = strings.join("?");
+    if (sql.includes('FROM "AgentCreditAdjustment"')) return Promise.resolve([]);
+    if (sql.includes('AS "memberMicrocents"'))
+      return Promise.resolve([{ memberMicrocents: 0n, workspaceMicrocents: 0n }]);
+    return Promise.resolve(globalCommitment ? [globalCommitment] : []);
+  });
+}
+
 describe("PrismaAgentChatRepo tenant boundaries", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    prismaMock.wikiWebsiteCrawl.findFirst.mockResolvedValue(null);
+    prismaMock.hostedAiPlatformReservation.findMany.mockResolvedValue([]);
+    prismaMock.hostedAiPlatformReservation.findUnique.mockResolvedValue(null);
+    prismaMock.hostedAiPlatformReservation.deleteMany.mockResolvedValue({ count: 0 });
+    mockRawQueries(null);
     env.HOSTED_AI_OPERATOR_CONTROLS_ENABLED = false;
     env.HOSTED_AI_PROVIDER_WORK_PAUSED = false;
     env.HOSTED_AI_MONTHLY_SPEND_CAP_MICROCENTS = null;
@@ -108,14 +131,31 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.$executeRaw.mockResolvedValue(undefined);
     prismaMock.user.count.mockResolvedValue(1);
     prismaMock.agentCreditAdjustment.aggregate.mockResolvedValue({
-      _sum: { creditDelta: null },
+      _sum: { deltaMicrocents: null },
+    });
+    prismaMock.agentCreditAdjustment.findMany.mockResolvedValue([]);
+    prismaMock.company.findUnique.mockImplementation(async () => {
+      const seat = (await prismaMock.user.findUnique()) as {
+        id: string;
+        status: string;
+        agentCreditActivatedAt: Date | null;
+        company: { subscription: unknown };
+      } | null;
+      if (!seat) return null;
+      return {
+        subscription: seat.company.subscription,
+        users:
+          seat.status === Status.active ? [{ id: seat.id, agentCreditActivatedAt: seat.agentCreditActivatedAt }] : [],
+      };
     });
   });
 
   it("scopes conversation lookup to the active company and user", async () => {
     prismaMock.agentConversation.findFirst.mockResolvedValue(null);
 
-    await runWithTenant(user, () => new PrismaAgentChatRepo().findConversation("conversation-1"));
+    await runWithTenant(user, () =>
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).findConversation("conversation-1"),
+    );
 
     expect(prismaMock.agentConversation.findFirst).toHaveBeenCalledWith({
       where: {
@@ -130,7 +170,9 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
   it("limits mutable conversation lookup to user-origin chats", async () => {
     prismaMock.agentConversation.findFirst.mockResolvedValue(null);
 
-    await runWithTenant(user, () => new PrismaAgentChatRepo().findUserConversation("conversation-1"));
+    await runWithTenant(user, () =>
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).findUserConversation("conversation-1"),
+    );
 
     expect(prismaMock.agentConversation.findFirst).toHaveBeenCalledWith({
       where: {
@@ -146,7 +188,12 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
   it("allows interactive access to owned user chats and terminal routine runs, but not retrying the linked routine turn", async () => {
     prismaMock.agentConversation.findFirst.mockResolvedValue(null);
 
-    await runWithTenant(user, () => new PrismaAgentChatRepo().findInteractiveConversation("conversation-1", "turn-1"));
+    await runWithTenant(user, () =>
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).findInteractiveConversation(
+        "conversation-1",
+        "turn-1",
+      ),
+    );
 
     expect(prismaMock.agentConversation.findFirst).toHaveBeenCalledWith({
       where: {
@@ -179,7 +226,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     });
 
     await runWithTenant(user, () =>
-      new PrismaAgentChatRepo().createAgentConversationForRun({
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).createAgentConversationForRun({
         conversationId: "conversation-1",
         title: '<page_context route="/private"/>Import failed apiKey=never-show',
         now: new Date("2026-08-06T10:00:00.000Z"),
@@ -194,7 +241,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         title: "Import failed apiKey=[redacted]",
         modelKey: null,
         origin: "user",
-        creditCeiling: null,
+        creditCeilingMicrocents: null,
         selectedAt: new Date("2026-08-06T10:00:00.000Z"),
       },
       select: { id: true },
@@ -209,12 +256,12 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     const now = new Date("2026-09-04T12:00:00.000Z");
 
     await runWithTenant(user, () =>
-      new PrismaAgentChatRepo().createAndLinkRoutineConversationForRun({
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).createAndLinkRoutineConversationForRun({
         routineRunId: "routine-run-1",
         conversationId: "conversation-1",
         title: "CRM hygiene",
         now,
-        creditCeiling: 3,
+        creditCeilingMicrocents: 2_500_000,
       }),
     );
 
@@ -226,7 +273,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         title: "CRM hygiene",
         modelKey: null,
         origin: "routine",
-        creditCeiling: 3,
+        creditCeilingMicrocents: 2_500_000,
         selectedAt: now,
       },
       select: { id: true },
@@ -253,7 +300,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
 
     await expect(
       runWithTenant(user, () =>
-        new PrismaAgentChatRepo().createAndLinkRoutineConversationForRun({
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).createAndLinkRoutineConversationForRun({
           routineRunId: "routine-run-1",
           conversationId: "conversation-1",
           title: "CRM hygiene",
@@ -268,7 +315,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.agentConversation.deleteMany.mockResolvedValue({ count: 1 });
 
     await runWithTenant(user, () =>
-      new PrismaAgentChatRepo().releaseUnstartedRoutineConversationForRetry({
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).releaseUnstartedRoutineConversationForRetry({
         routineRunId: "routine-run-1",
         conversationId: "conversation-1",
       }),
@@ -298,6 +345,11 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
   });
 
   it("atomically admits a fenced turn into the conversation that already holds its lease", async () => {
+    prismaMock.wikiWebsiteCrawl.findFirst.mockResolvedValue({
+      status: "synthesizing",
+      clientRequestId: "request-1",
+      homepageUrl: "https://example.com/",
+    });
     prismaMock.agentRunLease.updateMany.mockResolvedValue({ count: 1 });
     prismaMock.agentUsageEvent.findFirst.mockResolvedValue({
       id: "reservation-1",
@@ -317,7 +369,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     ]);
 
     const result = await runWithTenant(user, () =>
-      new PrismaAgentChatRepo().admitAgentTurnOrThrow({
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).admitAgentTurnOrThrow({
         conversationId: "conversation-1",
         title: '<page_context route="/private"/>Import failed apiKey=never-show',
         runId: "run-1",
@@ -427,7 +479,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
 
     await expect(
       runWithTenant(user, () =>
-        new PrismaAgentChatRepo().admitAgentTurnOrThrow({
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).admitAgentTurnOrThrow({
           conversationId: "conversation-1",
           title: "Hello",
           runId: "run-expired",
@@ -458,7 +510,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
 
     await expect(
       runWithTenant(user, () =>
-        new PrismaAgentChatRepo().admitAgentTurnOrThrow({
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).admitAgentTurnOrThrow({
           conversationId: "conversation-1",
           title: "Hello",
           runId: "run-inactive",
@@ -489,7 +541,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
 
     await expect(
       runWithTenant(user, () =>
-        new PrismaAgentChatRepo().admitAgentTurnOrThrow({
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).admitAgentTurnOrThrow({
           conversationId: "conversation-1",
           title: "Hello",
           runId: "run-missing",
@@ -529,7 +581,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.agentMessage.findMany.mockResolvedValue([]);
 
     await runWithTenant(user, () =>
-      new PrismaAgentChatRepo().admitAgentTurnOrThrow({
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).admitAgentTurnOrThrow({
         conversationId: "conversation-1",
         title: null,
         runId: "run-2",
@@ -593,7 +645,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.agentMessage.findMany.mockResolvedValue([]);
 
     await runWithTenant(user, () =>
-      new PrismaAgentChatRepo().admitAgentTurnOrThrow({
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).admitAgentTurnOrThrow({
         conversationId: "conversation-1",
         title: "CRM hygiene",
         runId: "agent-run-1",
@@ -643,7 +695,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
 
     await expect(
       runWithTenant(user, () =>
-        new PrismaAgentChatRepo().admitAgentTurnOrThrow({
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).admitAgentTurnOrThrow({
           conversationId: "conversation-1",
           title: "CRM hygiene",
           runId: "agent-run-1",
@@ -683,7 +735,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.agentMessage.findMany.mockResolvedValue([]);
 
     await runWithTenant(user, () =>
-      new PrismaAgentChatRepo().admitAgentTurnOrThrow({
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).admitAgentTurnOrThrow({
         conversationId: "conversation-1",
         title: "Continue CRM hygiene",
         runId: "agent-run-2",
@@ -715,7 +767,9 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
   it("scopes retry message lookup through the owning active conversation", async () => {
     prismaMock.agentMessage.findFirst.mockResolvedValue(null);
 
-    await runWithTenant(user, () => new PrismaAgentChatRepo().findUserMessage("message-1"));
+    await runWithTenant(user, () =>
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).findUserMessage("message-1"),
+    );
 
     expect(prismaMock.agentMessage.findFirst).toHaveBeenCalledWith({
       where: {
@@ -756,7 +810,9 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.agentMessage.findMany.mockResolvedValue([]);
 
     const result = await runWithTenant(user, () =>
-      new PrismaAgentChatRepo().listConversationPage({ archived: false }).then((page) => page.conversations),
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies())
+        .listConversationPage({ archived: false })
+        .then((page) => page.conversations),
     );
 
     expect(result[0]?.preview).toBe("Opened [internal reference].");
@@ -786,7 +842,9 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.agentMessage.findMany.mockResolvedValue([]);
 
     const result = await runWithTenant(user, () =>
-      new PrismaAgentChatRepo().listConversationPage({ archived: false }).then((page) => page.conversations),
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies())
+        .listConversationPage({ archived: false })
+        .then((page) => page.conversations),
     );
 
     expect(result[0]).toMatchObject({
@@ -799,7 +857,9 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.agentConversation.findMany.mockResolvedValue([]);
     prismaMock.agentMessage.findMany.mockResolvedValue([]);
 
-    await runWithTenant(user, () => new PrismaAgentChatRepo().listConversationPage({ archived: false }));
+    await runWithTenant(user, () =>
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).listConversationPage({ archived: false }),
+    );
 
     expect(prismaMock.agentConversation.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -811,7 +871,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
   it("never opens a routine run as the chat's default conversation", async () => {
     prismaMock.agentConversation.findFirst.mockResolvedValue(null);
 
-    await runWithTenant(user, () => new PrismaAgentChatRepo().findMyConversation());
+    await runWithTenant(user, () => new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).findMyConversation());
 
     expect(prismaMock.agentConversation.findFirst).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -830,7 +890,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     }));
     prismaMock.agentConversation.findMany.mockResolvedValueOnce(rows).mockResolvedValueOnce([]);
     prismaMock.agentMessage.findMany.mockResolvedValue([]);
-    const repo = new PrismaAgentChatRepo();
+    const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
 
     const first = await runWithTenant(user, () => repo.listConversationPage({ archived: false }));
 
@@ -868,7 +928,9 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     }));
     prismaMock.agentMessage.findMany.mockResolvedValue(rows);
 
-    const result = await runWithTenant(user, () => new PrismaAgentChatRepo().listMessagePage("conversation-1", "52"));
+    const result = await runWithTenant(user, () =>
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).listMessagePage("conversation-1", "52"),
+    );
 
     expect(result.messages).toHaveLength(50);
     expect(result.messages[0]?.sequence).toBe(2n);
@@ -910,7 +972,9 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.agentConversation.deleteMany.mockResolvedValue({ count: 1 });
 
     await expect(
-      runWithTenant(user, () => new PrismaAgentChatRepo().deleteArchivedConversation("conversation-1")),
+      runWithTenant(user, () =>
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).deleteArchivedConversation("conversation-1"),
+      ),
     ).resolves.toBe(true);
     expect(prismaMock.agentConversation.deleteMany).toHaveBeenCalledWith({
       where: {
@@ -929,10 +993,14 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       .mockResolvedValueOnce({ id: "turn-1" });
 
     await expect(
-      runWithTenant(user, () => new PrismaAgentChatRepo().archiveConversation("conversation-1")),
+      runWithTenant(user, () =>
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).archiveConversation("conversation-1"),
+      ),
     ).resolves.toBe(false);
     await expect(
-      runWithTenant(user, () => new PrismaAgentChatRepo().deleteArchivedConversation("conversation-1")),
+      runWithTenant(user, () =>
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).deleteArchivedConversation("conversation-1"),
+      ),
     ).resolves.toBe(false);
 
     expect(prismaMock.agentConversation.updateMany).not.toHaveBeenCalled();
@@ -952,7 +1020,9 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.widget.findFirst.mockResolvedValue({ id: "widget-1" });
     prismaMock.routine.findFirst.mockResolvedValue({ id: "routine-1" });
 
-    const signals = await runWithTenant(user, () => new PrismaAgentChatRepo().getSuggestionSignals());
+    const signals = await runWithTenant(user, () =>
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).getSuggestionSignals(),
+    );
 
     expect(prismaMock.contact.findFirst).not.toHaveBeenCalled();
     expect(prismaMock.connectedAccount.findFirst).toHaveBeenCalledWith({
@@ -963,12 +1033,17 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       where: { id: { in: [] }, companyId: user.companyId },
       select: { id: true },
     });
+    expect(prismaMock.wikiPage.findFirst).toHaveBeenCalledWith({
+      where: { companyId: user.companyId, id: { in: [] } },
+      select: { id: true },
+    });
     expect(prismaMock.widget.findFirst).toHaveBeenCalledWith({
       where: { companyId: user.companyId, userId: user.id },
       select: { id: true },
     });
     expect(signals.widgets).toBe(true);
     expect(signals.routines).toBe(true);
+    expect(signals.wiki).toBe(false);
   });
 
   it("persists an assistant reply only after atomically claiming an active conversation", async () => {
@@ -976,7 +1051,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.agentMessage.create.mockResolvedValue({ id: "message-1" });
     const parts = [{ type: "text", text: "Done." }];
 
-    await new PrismaAgentChatRepo().createAssistantMessageOrThrowUnscoped({
+    await new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).createAssistantMessageOrThrowUnscoped({
       conversationId: "conversation-1",
       companyId: user.companyId,
       userId: user.id,
@@ -1011,7 +1086,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.agentConversation.updateMany.mockResolvedValue({ count: 0 });
 
     await expect(
-      new PrismaAgentChatRepo().createAssistantMessageOrThrowUnscoped({
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).createAssistantMessageOrThrowUnscoped({
         conversationId: "conversation-1",
         companyId: user.companyId,
         userId: user.id,
@@ -1024,7 +1099,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
   it("scopes the runner's approval poll to the expected owner", async () => {
     prismaMock.agentApproval.findFirst.mockResolvedValue(null);
 
-    await new PrismaAgentChatRepo().findApprovalDecisionUnscoped({
+    await new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).findApprovalDecisionUnscoped({
       conversationId: "conversation-1",
       requestId: "request-1",
       companyId: user.companyId,
@@ -1048,7 +1123,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       id: "conversation-1",
     });
 
-    await new PrismaAgentChatRepo().createPendingApprovalRequestOrThrowUnscoped({
+    await new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).createPendingApprovalRequestOrThrowUnscoped({
       conversationId: "conversation-1",
       requestId: "request-1",
       toolName: "create_contacts",
@@ -1078,7 +1153,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.agentApproval.updateMany.mockResolvedValue({ count: 1 });
 
     const result = await runWithTenant(user, () =>
-      new PrismaAgentChatRepo().resolvePendingApprovalRequest({
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).resolvePendingApprovalRequest({
         conversationId: "conversation-1",
         requestId: "request-1",
         decision: "approve",
@@ -1105,7 +1180,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     });
 
     const result = await runWithTenant(user, () =>
-      new PrismaAgentChatRepo().resolvePendingApprovalRequest({
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).resolvePendingApprovalRequest({
         conversationId: "conversation-1",
         requestId: "request-1",
         decision: "approve",
@@ -1131,14 +1206,14 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     });
 
     const sameDecision = await runWithTenant(user, () =>
-      new PrismaAgentChatRepo().resolvePendingApprovalRequest({
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).resolvePendingApprovalRequest({
         conversationId: "conversation-1",
         requestId: "request-1",
         decision: "approve",
       }),
     );
     const oppositeDecision = await runWithTenant(user, () =>
-      new PrismaAgentChatRepo().resolvePendingApprovalRequest({
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).resolvePendingApprovalRequest({
         conversationId: "conversation-1",
         requestId: "request-1",
         decision: "reject",
@@ -1168,7 +1243,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.agentApproval.updateMany.mockResolvedValue({ count: 0 });
 
     const result = await runWithTenant(user, () =>
-      new PrismaAgentChatRepo().resolvePendingApprovalRequest({
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).resolvePendingApprovalRequest({
         conversationId: "conversation-1",
         requestId: "request-1",
         decision: "approve",
@@ -1187,7 +1262,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     });
 
     const result = await runWithTenant(user, () =>
-      new PrismaAgentChatRepo().resolvePendingApprovalRequest({
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).resolvePendingApprovalRequest({
         conversationId: "conversation-1",
         requestId: "request-1",
         decision: "approve",
@@ -1201,7 +1276,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
   it("scopes UI result consumption to the expected owner", async () => {
     prismaMock.agentUiCommandResult.findFirst.mockResolvedValue(null);
 
-    await new PrismaAgentChatRepo().takeUiCommandResultUnscoped({
+    await new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).takeUiCommandResultUnscoped({
       conversationId: "conversation-1",
       commandId: "command-1",
       companyId: user.companyId,
@@ -1222,7 +1297,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
 
   it("looks the UI result up by a tenant-scoped key so the update branch cannot cross companies", async () => {
     await runWithTenant(user, () =>
-      new PrismaAgentChatRepo().recordUiCommandResult({
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).recordUiCommandResult({
         conversationId: "conversation-1",
         commandId: "command-1",
         name: "navigate",
@@ -1261,7 +1336,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.agentRunLease.createMany.mockResolvedValue({ count: 0 });
 
     const claimed = await runWithTenant(user, () =>
-      new PrismaAgentChatRepo().claimAgentRunLease({
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).claimAgentRunLease({
         conversationId: "conversation-1",
         runId: "run-2",
         expiresAt: new Date("2026-08-06T11:00:00.000Z"),
@@ -1289,7 +1364,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.agentRunLease.count.mockResolvedValue(AGENT_MAX_CONCURRENT_RUNS_PER_USER);
 
     const claimed = await runWithTenant(user, () =>
-      new PrismaAgentChatRepo().claimAgentRunLease({
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).claimAgentRunLease({
         conversationId: "conversation-4",
         runId: "run-4",
         expiresAt: new Date("2026-08-06T11:00:00.000Z"),
@@ -1333,7 +1408,11 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.agentTurnRequest.updateMany.mockResolvedValue({ count: 1 });
 
     const replay = await runWithTenant(user, () =>
-      new PrismaAgentChatRepo().findAgentTurnRequestForAdmission("request-1", now, "claude-test"),
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).findAgentTurnRequestForAdmission(
+        "request-1",
+        now,
+        "claude-test",
+      ),
     );
 
     expect(replay?.snapshot).toMatchObject({
@@ -1382,7 +1461,11 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.agentRunLease.deleteMany.mockResolvedValue({ count: 1 });
 
     const replay = await runWithTenant(user, () =>
-      new PrismaAgentChatRepo().findAgentTurnRequestForAdmission("request-1", now, "claude-test"),
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).findAgentTurnRequestForAdmission(
+        "request-1",
+        now,
+        "claude-test",
+      ),
     );
 
     expect(replay?.snapshot).toMatchObject({
@@ -1425,13 +1508,13 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     });
     prismaMock.agentUsageEvent.findFirst.mockResolvedValue({
       id: "reservation-1",
-      reservedCredits: 5,
+      reservedMicrocents: 5_000_000n,
     });
     prismaMock.agentUsageEvent.findMany.mockResolvedValue([]);
     prismaMock.agentUsageEvent.updateMany.mockResolvedValue({ count: 1 });
 
     try {
-      await new PrismaAgentChatRepo().markAgentTurnProviderStartedUnscoped({
+      await new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).markAgentTurnProviderStartedUnscoped({
         turnRequestId: "turn-1",
         conversationId: "conversation-1",
         companyId: user.companyId,
@@ -1475,7 +1558,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         providerStartedAt: startedAt,
         planSnapshot: "pro",
         subscriptionStatusSnapshot: "active",
-        allowanceCreditsSnapshot: 500,
+        allowanceMicrocentsSnapshot: 500_000_000,
         periodStart: new Date("2026-07-15T10:30:00.000Z"),
         periodEnd: new Date("2026-08-15T10:30:00.000Z"),
       },
@@ -1505,7 +1588,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       });
 
       await expect(
-        new PrismaAgentChatRepo().markAgentTurnProviderStartedUnscoped({
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).markAgentTurnProviderStartedUnscoped({
           turnRequestId: "turn-1",
           conversationId: "conversation-1",
           companyId: user.companyId,
@@ -1526,11 +1609,37 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     },
   );
 
+  it("refuses provider start when the user moved to another company", async () => {
+    prismaMock.agentRunLease.updateMany.mockResolvedValue({ count: 1 });
+    prismaMock.user.findUnique.mockResolvedValue({
+      id: user.id,
+      companyId: "another-company",
+      status: Status.active,
+      createdAt: new Date("2026-01-15T10:30:00.000Z"),
+      agentCreditActivatedAt: new Date("2026-01-15T10:30:00.000Z"),
+      company: { subscription: null },
+    });
+
+    await expect(
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).markAgentTurnProviderStartedUnscoped({
+        turnRequestId: "turn-1",
+        conversationId: "conversation-1",
+        companyId: user.companyId,
+        userId: user.id,
+        runId: "run-1",
+      }),
+    ).resolves.toBe(false);
+
+    expect(prismaMock.agentUsageEvent.findFirst).not.toHaveBeenCalled();
+    expect(prismaMock.agentTurnRequest.updateMany).not.toHaveBeenCalled();
+    expect(prismaMock.agentUsageEvent.updateMany).not.toHaveBeenCalled();
+  });
+
   it("fails provider start before the model call when the exact lease is absent", async () => {
     prismaMock.agentRunLease.updateMany.mockResolvedValue({ count: 0 });
 
     await expect(
-      new PrismaAgentChatRepo().markAgentTurnProviderStartedUnscoped({
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).markAgentTurnProviderStartedUnscoped({
         turnRequestId: "turn-1",
         conversationId: "conversation-1",
         companyId: user.companyId,
@@ -1553,7 +1662,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
 
     try {
       await expect(
-        new PrismaAgentChatRepo().markAgentTurnProviderStartedUnscoped({
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).markAgentTurnProviderStartedUnscoped({
           turnRequestId: "turn-1",
           conversationId: "conversation-1",
           companyId: user.companyId,
@@ -1599,7 +1708,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
 
     const result = await (async () => {
       try {
-        return await new PrismaAgentChatRepo().finalizeAgentTurnOrThrowUnscoped({
+        return await new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).finalizeAgentTurnOrThrowUnscoped({
           turnRequestId: "turn-1",
           conversationId: "conversation-1",
           companyId: user.companyId,
@@ -1617,8 +1726,8 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
             cacheWriteTokens: 2,
             costMicrocents: 123,
             costSource: "measured" as const,
-            reservedCredits: 1,
-            chargedCredits: 1,
+            reservedMicrocents: 1_000_000,
+            chargedMicrocents: 1_000_000,
             state: "settled",
             policyBreach: false,
           },
@@ -1641,7 +1750,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         companyId: user.companyId,
         userId: user.id,
         state: "reserved",
-        reservedCredits: 1,
+        reservedMicrocents: 1_000_000,
       },
       data: {
         state: "settled",
@@ -1652,7 +1761,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         cacheWriteTokens: 2,
         costMicrocents: 123,
         costSource: "measured",
-        chargedCredits: 1,
+        chargedMicrocents: 1_000_000,
         policyBreach: false,
         settledAt: completedAt,
       },
@@ -1710,30 +1819,32 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.agentTurnRequest.updateMany.mockResolvedValue({ count: 1 });
     prismaMock.agentRunLease.deleteMany.mockResolvedValue({ count: 1 });
 
-    const result = await new PrismaAgentChatRepo().finalizeAgentTurnOrThrowUnscoped({
-      turnRequestId: "turn-1",
-      conversationId: "conversation-1",
-      companyId: user.companyId,
-      userId: user.id,
-      runId: "run-1",
-      parts: [{ type: "text", text: "Done" }],
-      terminalCode: "completed",
-      stopReason: null,
-      affectedResources: [],
-      usageSettlement: {
-        model: "claude-test",
-        inputTokens: 1,
-        outputTokens: 1,
-        cacheReadTokens: 0,
-        cacheWriteTokens: 0,
-        costMicrocents: 1,
-        costSource: "measured",
-        reservedCredits: 1,
-        chargedCredits: 1,
-        state: "settled",
-        policyBreach: true,
+    const result = await new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).finalizeAgentTurnOrThrowUnscoped(
+      {
+        turnRequestId: "turn-1",
+        conversationId: "conversation-1",
+        companyId: user.companyId,
+        userId: user.id,
+        runId: "run-1",
+        parts: [{ type: "text", text: "Done" }],
+        terminalCode: "completed",
+        stopReason: null,
+        affectedResources: [],
+        usageSettlement: {
+          model: "claude-test",
+          inputTokens: 1,
+          outputTokens: 1,
+          cacheReadTokens: 0,
+          cacheWriteTokens: 0,
+          costMicrocents: 1,
+          costSource: "measured",
+          reservedMicrocents: 1_000_000,
+          chargedMicrocents: 1_000_000,
+          state: "settled",
+          policyBreach: true,
+        },
       },
-    });
+    );
 
     expect(result).toMatchObject({
       terminalCode: "policyBreach",
@@ -1753,7 +1864,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.agentTurnRequest.findFirst.mockResolvedValue(storedTurn());
 
     await expect(
-      new PrismaAgentChatRepo().finalizeAgentTurnOrThrowUnscoped({
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).finalizeAgentTurnOrThrowUnscoped({
         turnRequestId: "turn-1",
         conversationId: "conversation-1",
         companyId: user.companyId,
@@ -1771,8 +1882,8 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
           cacheWriteTokens: 0,
           costMicrocents: 1,
           costSource: "measured" as const,
-          reservedCredits: 1,
-          chargedCredits: 1,
+          reservedMicrocents: 1_000_000,
+          chargedMicrocents: 1_000_000,
           state: "settled",
           policyBreach: false,
         },
@@ -1784,7 +1895,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
 
   it("rejects a non-boolean budget-policy marker at the finalization boundary", async () => {
     await expect(
-      new PrismaAgentChatRepo().finalizeAgentTurnOrThrowUnscoped({
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).finalizeAgentTurnOrThrowUnscoped({
         turnRequestId: "turn-1",
         conversationId: "conversation-1",
         companyId: user.companyId,
@@ -1802,8 +1913,8 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
           cacheWriteTokens: 0,
           costMicrocents: 1,
           costSource: "measured" as const,
-          reservedCredits: 1,
-          chargedCredits: 1,
+          reservedMicrocents: 1_000_000,
+          chargedMicrocents: 1_000_000,
           state: "settled",
           policyBreach: "yes" as never,
         },
@@ -1837,7 +1948,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.agentRunLease.deleteMany.mockResolvedValue({ count: 1 });
 
     try {
-      await new PrismaAgentChatRepo().finalizeAgentTurnOrThrowUnscoped({
+      await new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).finalizeAgentTurnOrThrowUnscoped({
         turnRequestId: "turn-1",
         conversationId: "conversation-1",
         companyId: user.companyId,
@@ -1888,7 +1999,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
 
   it("rejects a canonical reply that becomes blank after client-safe sanitization", async () => {
     await expect(
-      new PrismaAgentChatRepo().finalizeAgentTurnOrThrowUnscoped({
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).finalizeAgentTurnOrThrowUnscoped({
         turnRequestId: "turn-1",
         conversationId: "conversation-1",
         companyId: user.companyId,
@@ -1915,7 +2026,9 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.agentTurnRequest.updateMany.mockResolvedValue({ count: 1 });
     prismaMock.agentRunLease.deleteMany.mockResolvedValue({ count: 1 });
 
-    await runWithTenant(user, () => new PrismaAgentChatRepo().normalizeExpiredAgentRunLease(now, "claude-test"));
+    await runWithTenant(user, () =>
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).normalizeExpiredAgentRunLease(now, "claude-test"),
+    );
 
     expect(prismaMock.agentUsageEvent.updateMany).toHaveBeenCalledWith({
       where: {
@@ -1925,7 +2038,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         state: "reserved",
         providerStartedAt: null,
       },
-      data: { state: "released", chargedCredits: 0, settledAt: now },
+      data: { state: "released", chargedMicrocents: 0, settledAt: now },
     });
     expect(prismaMock.agentTurnRequest.updateMany).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -1944,13 +2057,15 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     );
     prismaMock.agentUsageEvent.findFirst.mockResolvedValue({
       id: "reservation-1",
-      reservedCredits: 6,
+      reservedMicrocents: 6_000_000n,
     });
     prismaMock.agentUsageEvent.updateMany.mockResolvedValue({ count: 1 });
     prismaMock.agentTurnRequest.updateMany.mockResolvedValue({ count: 1 });
     prismaMock.agentRunLease.deleteMany.mockResolvedValue({ count: 1 });
 
-    await runWithTenant(user, () => new PrismaAgentChatRepo().normalizeExpiredAgentRunLease(now, "claude-test"));
+    await runWithTenant(user, () =>
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).normalizeExpiredAgentRunLease(now, "claude-test"),
+    );
 
     expect(prismaMock.agentUsageEvent.updateMany).toHaveBeenCalledWith({
       where: {
@@ -1964,7 +2079,8 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         model: "claude-test",
         costMicrocents: 0,
         costSource: "estimated",
-        chargedCredits: 6,
+        reservedMicrocents: 6_000_000,
+        chargedMicrocents: 6_000_000,
         settledAt: now,
       },
     });
@@ -1984,7 +2100,9 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.agentUsageEvent.updateMany.mockResolvedValue({ count: 1 });
     prismaMock.agentRunLease.deleteMany.mockResolvedValue({ count: 1 });
 
-    const result = await new PrismaAgentChatRepo().releasePreProviderAdmissionOrThrowUnscoped({
+    const result = await new PrismaAgentChatRepo(
+      ...prismaAgentChatRepoDependencies(),
+    ).releasePreProviderAdmissionOrThrowUnscoped({
       userId: user.id,
       companyId: user.companyId,
       runId: "run-2",
@@ -2002,7 +2120,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       },
       data: {
         state: "released",
-        chargedCredits: 0,
+        chargedMicrocents: 0,
         settledAt: expect.any(Date),
       },
     });
@@ -2019,7 +2137,9 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
   it("preserves admission state when the chat transaction may have committed", async () => {
     prismaMock.agentTurnRequest.findFirst.mockResolvedValue({ id: "turn-2" });
 
-    const result = await new PrismaAgentChatRepo().releasePreProviderAdmissionOrThrowUnscoped({
+    const result = await new PrismaAgentChatRepo(
+      ...prismaAgentChatRepoDependencies(),
+    ).releasePreProviderAdmissionOrThrowUnscoped({
       userId: user.id,
       companyId: user.companyId,
       runId: "run-2",
@@ -2039,7 +2159,9 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       prismaMock.agentUsageEvent.findFirst.mockResolvedValue(usage);
       prismaMock.agentRunLease.deleteMany.mockResolvedValue({ count: 0 });
 
-      const result = await new PrismaAgentChatRepo().releasePreProviderAdmissionOrThrowUnscoped({
+      const result = await new PrismaAgentChatRepo(
+        ...prismaAgentChatRepoDependencies(),
+      ).releasePreProviderAdmissionOrThrowUnscoped({
         userId: user.id,
         companyId: user.companyId,
         runId: "run-2",
@@ -2061,7 +2183,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.agentUsageEvent.updateMany.mockResolvedValue({ count: 0 });
 
     await expect(
-      new PrismaAgentChatRepo().releasePreProviderAdmissionOrThrowUnscoped({
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).releasePreProviderAdmissionOrThrowUnscoped({
         userId: user.id,
         companyId: user.companyId,
         runId: "run-2",
@@ -2079,7 +2201,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     });
 
     await expect(
-      new PrismaAgentChatRepo().releasePreProviderAdmissionOrThrowUnscoped({
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).releasePreProviderAdmissionOrThrowUnscoped({
         userId: user.id,
         companyId: user.companyId,
         runId: "run-2",
@@ -2112,20 +2234,20 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       },
     });
     prismaMock.agentUsageEvent.findMany.mockResolvedValue([
-      { state: "settled", reservedCredits: 0, chargedCredits: 495 },
+      { state: "settled", reservedMicrocents: 0n, chargedMicrocents: 495_000_000n },
     ]);
 
     try {
       await expect(
-        new PrismaAgentChatRepo().reserveUsageEventUnscoped({
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).reserveUsageEventUnscoped({
           id: "run-stale-plan",
           companyId: user.companyId,
           userId: user.id,
           sessionId: "run-stale-plan",
-          reservedCredits: 6,
+          reservedMicrocents: 6_000_000,
           planSnapshot: "business",
           subscriptionStatusSnapshot: "active",
-          allowanceCreditsSnapshot: 1200,
+          allowanceMicrocentsSnapshot: 1200_000_000,
           periodStart: new Date("2026-08-01T00:00:00.000Z"),
           periodEnd: new Date("2026-09-01T00:00:00.000Z"),
         }),
@@ -2170,19 +2292,19 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       },
     });
     prismaMock.agentUsageEvent.findMany.mockResolvedValue([]);
-    prismaMock.$queryRaw.mockResolvedValue([{ settledCostMicrocents: 0n, activeReservedCredits: 1n }]);
+    mockRawQueries({ settledCostMicrocents: 0n, activeReservedMicrocents: 1_000_000n });
 
     try {
       await expect(
-        new PrismaAgentChatRepo().reserveUsageEventUnscoped({
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).reserveUsageEventUnscoped({
           id: "reservation-global-cap",
           companyId: user.companyId,
           userId: user.id,
           sessionId: "session-global-cap",
-          reservedCredits: 2,
+          reservedMicrocents: 2_000_000,
           planSnapshot: "pro",
           subscriptionStatusSnapshot: "active",
-          allowanceCreditsSnapshot: 500,
+          allowanceMicrocentsSnapshot: 500_000_000,
           periodStart: new Date("2026-07-15T10:30:00.000Z"),
           periodEnd: new Date("2026-08-15T10:30:00.000Z"),
         }),
@@ -2191,31 +2313,33 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       vi.useRealTimers();
     }
 
-    expect(prismaMock.$queryRaw).toHaveBeenCalledOnce();
+    expect(
+      prismaMock.$queryRaw.mock.calls.filter((call) => rawSql(call).includes('"activeReservedMicrocents"')),
+    ).toHaveLength(1);
     expect(prismaMock.agentUsageEvent.create).not.toHaveBeenCalled();
   });
 
   it("refuses to extend a routine reservation past its persisted conversation ceiling", async () => {
     prismaMock.agentUsageEvent.findFirst.mockResolvedValue({
       id: "reservation-routine",
-      reservedCredits: 2,
+      reservedMicrocents: 2_000_000n,
       periodStart: new Date("2026-07-15T10:30:00.000Z"),
       periodEnd: new Date("2026-08-15T10:30:00.000Z"),
-      allowanceCreditsSnapshot: 500,
+      allowanceMicrocentsSnapshot: 500_000_000n,
       turnRequest: {
         conversation: {
-          creditCeiling: 2,
+          creditCeilingMicrocents: 2_000_000n,
           routineRuns: [{ id: "routine-run-1" }],
         },
       },
     });
 
     await expect(
-      new PrismaAgentChatRepo().extendUsageReservationUnscoped({
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).extendUsageReservationUnscoped({
         turnRequestId: "turn-routine",
         companyId: user.companyId,
         userId: user.id,
-        requiredCredits: 3,
+        requiredMicrocents: 3_000_000,
       }),
     ).resolves.toEqual({ disposition: "credit_limit" });
 
@@ -2230,13 +2354,13 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     vi.setSystemTime(now);
     prismaMock.agentUsageEvent.findFirst.mockResolvedValue({
       id: "reservation-routine",
-      reservedCredits: 1,
+      reservedMicrocents: 1_000_000n,
       periodStart: new Date("2026-07-15T10:30:00.000Z"),
       periodEnd: new Date("2026-08-15T10:30:00.000Z"),
-      allowanceCreditsSnapshot: 500,
+      allowanceMicrocentsSnapshot: 500_000_000n,
       turnRequest: {
         conversation: {
-          creditCeiling: 2,
+          creditCeilingMicrocents: 2_000_000n,
           routineRuns: [{ id: "routine-run-1" }],
         },
       },
@@ -2263,13 +2387,13 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
 
     try {
       await expect(
-        new PrismaAgentChatRepo().extendUsageReservationUnscoped({
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).extendUsageReservationUnscoped({
           turnRequestId: "turn-routine",
           companyId: user.companyId,
           userId: user.id,
-          requiredCredits: 2,
+          requiredMicrocents: 2_000_000,
         }),
-      ).resolves.toEqual({ disposition: "extended", reservedCredits: 2 });
+      ).resolves.toEqual({ disposition: "extended", reservedMicrocents: 2_000_000 });
     } finally {
       vi.useRealTimers();
     }
@@ -2280,7 +2404,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         companyId: user.companyId,
         state: "reserved",
       },
-      data: expect.objectContaining({ reservedCredits: 2 }),
+      data: expect.objectContaining({ reservedMicrocents: 2_000_000 }),
     });
   });
 
@@ -2290,11 +2414,11 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     vi.setSystemTime(now);
     prismaMock.agentUsageEvent.findFirst.mockResolvedValue({
       id: "reservation-chat",
-      reservedCredits: 1,
+      reservedMicrocents: 1_000_000n,
       periodStart: new Date("2026-07-15T10:30:00.000Z"),
       periodEnd: new Date("2026-08-15T10:30:00.000Z"),
-      allowanceCreditsSnapshot: 500,
-      turnRequest: { conversation: { creditCeiling: 2, routineRuns: [] } },
+      allowanceMicrocentsSnapshot: 500_000_000n,
+      turnRequest: { conversation: { creditCeilingMicrocents: 2_000_000n, routineRuns: [] } },
     });
     prismaMock.user.findUnique.mockResolvedValue({
       id: user.id,
@@ -2318,13 +2442,13 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
 
     try {
       await expect(
-        new PrismaAgentChatRepo().extendUsageReservationUnscoped({
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).extendUsageReservationUnscoped({
           turnRequestId: "turn-chat",
           companyId: user.companyId,
           userId: user.id,
-          requiredCredits: 3,
+          requiredMicrocents: 3_000_000,
         }),
-      ).resolves.toEqual({ disposition: "extended", reservedCredits: 3 });
+      ).resolves.toEqual({ disposition: "extended", reservedMicrocents: 3_000_000 });
     } finally {
       vi.useRealTimers();
     }
@@ -2335,7 +2459,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         companyId: user.companyId,
         state: "reserved",
       },
-      data: expect.objectContaining({ reservedCredits: 3 }),
+      data: expect.objectContaining({ reservedMicrocents: 3_000_000 }),
     });
   });
 
@@ -2347,11 +2471,11 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     env.HOSTED_AI_MONTHLY_SPEND_CAP_MICROCENTS = 2_000_000n;
     prismaMock.agentUsageEvent.findFirst.mockResolvedValue({
       id: "reservation-chat",
-      reservedCredits: 1,
+      reservedMicrocents: 1_000_000n,
       periodStart: new Date("2026-07-15T10:30:00.000Z"),
       periodEnd: new Date("2026-08-15T10:30:00.000Z"),
-      allowanceCreditsSnapshot: 500,
-      turnRequest: { conversation: { creditCeiling: null, routineRuns: [] } },
+      allowanceMicrocentsSnapshot: 500_000_000n,
+      turnRequest: { conversation: { creditCeilingMicrocents: null, routineRuns: [] } },
     });
     prismaMock.user.findUnique.mockResolvedValue({
       id: user.id,
@@ -2371,15 +2495,15 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       },
     });
     prismaMock.agentUsageEvent.findMany.mockResolvedValue([]);
-    prismaMock.$queryRaw.mockResolvedValue([{ settledCostMicrocents: 0n, activeReservedCredits: 0n }]);
+    mockRawQueries({ settledCostMicrocents: 0n, activeReservedMicrocents: 0n });
 
     try {
       await expect(
-        new PrismaAgentChatRepo().extendUsageReservationUnscoped({
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).extendUsageReservationUnscoped({
           turnRequestId: "turn-chat",
           companyId: user.companyId,
           userId: user.id,
-          requiredCredits: 3,
+          requiredMicrocents: 3_000_000,
         }),
       ).resolves.toEqual({ disposition: "hosted_ai_unavailable" });
     } finally {
@@ -2392,19 +2516,19 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
   it("fails closed when a reservation is not bound to a turn conversation", async () => {
     prismaMock.agentUsageEvent.findFirst.mockResolvedValue({
       id: "reservation-unbound",
-      reservedCredits: 2,
+      reservedMicrocents: 2_000_000n,
       periodStart: new Date("2026-07-15T10:30:00.000Z"),
       periodEnd: new Date("2026-08-15T10:30:00.000Z"),
-      allowanceCreditsSnapshot: 500,
+      allowanceMicrocentsSnapshot: 500_000_000n,
       turnRequest: null,
     });
 
     await expect(
-      new PrismaAgentChatRepo().extendUsageReservationUnscoped({
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).extendUsageReservationUnscoped({
         turnRequestId: "turn-missing",
         companyId: user.companyId,
         userId: user.id,
-        requiredCredits: 3,
+        requiredMicrocents: 3_000_000,
       }),
     ).resolves.toEqual({ disposition: "turn_error" });
 
@@ -2438,7 +2562,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     });
     prismaMock.agentUsageEvent.findFirst.mockResolvedValue({
       id: "reservation-paused",
-      reservedCredits: 4,
+      reservedMicrocents: 4_000_000n,
       periodStart: new Date("2026-07-15T10:30:00.000Z"),
       periodEnd: new Date("2026-08-15T10:30:00.000Z"),
     });
@@ -2446,7 +2570,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
 
     try {
       await expect(
-        new PrismaAgentChatRepo().canStartNextHostedAiProviderRoundUnscoped({
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).canStartNextHostedAiProviderRoundUnscoped({
           turnRequestId: "turn-paused",
           companyId: user.companyId,
           userId: user.id,
@@ -2461,7 +2585,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
 
   it("releases only a matching reserved usage event without deleting its billing record", async () => {
     const releasedAt = new Date("2026-08-10T00:00:00.000Z");
-    await new PrismaAgentChatRepo().releaseUsageReservationUnscoped({
+    await new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).releaseUsageReservationUnscoped({
       id: "run-2",
       userId: user.id,
       companyId: user.companyId,
@@ -2475,7 +2599,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         companyId: user.companyId,
         state: "reserved",
       },
-      data: { state: "released", chargedCredits: 0, settledAt: releasedAt },
+      data: { state: "released", chargedMicrocents: 0, settledAt: releasedAt },
     });
   });
 
@@ -2484,7 +2608,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.agentTurnRequest.findFirst.mockResolvedValue({ id: "turn-1" });
 
     const cancelling = await runWithTenant(user, () =>
-      new PrismaAgentChatRepo().requestAgentTurnCancellation({
+      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).requestAgentTurnCancellation({
         conversationId: "conversation-1",
       }),
     );

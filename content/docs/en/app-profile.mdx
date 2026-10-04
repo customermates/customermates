@@ -127,6 +127,8 @@ Picking an entry sends the current browser tab to a secure connection page, not 
 - **Account already connected**: this account is already connected by a member of your workspace. If that is someone else, ask them to share it with the workspace instead of connecting it twice.
 - **Invalid credentials**, **Link expired**, **Verification failed**, **Account disconnected** or **Channel connection failed**: start again from **Connect channel**.
 
+An initial connection error needs another attempt from **Connect channel**; for **Error** on an existing channel’s card, its owner uses **Reactivate**.
+
 **Link:** `/profile/connected-accounts`. **Mate:** `navigate` and `highlight_element` with `nav-profile-connected-accounts`, then `highlight_element` with `profile-connected-accounts-connect`; the nine menu entries have no id, so Mate names them.
 
 ### How many channels can I connect?
@@ -190,7 +192,7 @@ While **Add a signature** is on, the saved signature is added below every email 
 
 ### How do I reactivate, resync or disconnect a channel?
 
-Open the channel from its card. The actions sit in the channel dialog and appear only for the owner:
+Open an existing channel card; only its owner sees **Reactivate** and the other actions. Retry a failed initial connection from **Connect channel** instead:
 
 - **Reactivate** (for **Reconnect needed**, **Permission issue**, **Error** or **Stopped**): sends the tab to the connection page for the same account (valid for 30 minutes) and brings you back to **Channels**.
 - **Resync** (for **Connected** or **Connecting**): re-imports the history in the background, which usually takes 1 to 3 minutes.

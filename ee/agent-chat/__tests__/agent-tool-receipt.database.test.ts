@@ -54,6 +54,7 @@ const { prisma } = await import("@/prisma/db");
 const { runWithoutTenant, runWithTenant } = await import("@/core/decorators/tenant-context");
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
 const { PrismaAgentChatRepo } = await import("@/ee/agent-chat/prisma-agent-chat.repository");
+const { prismaAgentChatRepoDependencies } = await import("@/tests/helpers/prisma-agent-chat-repo");
 const { getAgentAiTools, normalizeAgentAiToolInput } = await import("@/ee/agent-chat/agent-tools");
 const { createAgentToolInputResolver } = await import("@/ee/agent-chat/agent-tool-input");
 const { PrismaRecordRepo } = await import("@/features/records/prisma-record.repository");
@@ -137,7 +138,7 @@ describeDatabase("agent tool receipts wrap a real mutation", { timeout: 120_000 
   });
 
   it("settles the receipt in the same transaction that commits the mutation", async () => {
-    const repo = new PrismaAgentChatRepo();
+    const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
     const conversationId = randomUUID();
     const turnRequestId = randomUUID();
     const toolCallId = randomUUID();
@@ -208,7 +209,10 @@ describeDatabase("agent tool receipts wrap a real mutation", { timeout: 120_000 
       resultMaxChars: 6000,
     });
     const normalized = await normalizeAgentAiToolInput("list_users", { searchTerm: "Receipt" }, 6000);
-    expect(normalized).toEqual({ ok: true, input: { searchTerm: "Receipt", page: 1, pageSize: 25 } });
+    expect(normalized).toEqual({
+      ok: true,
+      input: { searchTerm: "Receipt", page: 1, pageSize: 25 },
+    });
     if (!normalized.ok) throw new Error("Read normalization failed.");
 
     const unnormalized = await executeTool(tools, "list_users", { searchTerm: "Receipt" }, randomUUID());
@@ -223,7 +227,7 @@ describeDatabase("agent tool receipts wrap a real mutation", { timeout: 120_000 
   });
 
   it("normalizes a mutation once and replays its receipt without a second write", async () => {
-    const repo = new PrismaAgentChatRepo();
+    const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
     const conversationId = randomUUID();
     const turnRequestId = randomUUID();
     const toolCallId = randomUUID();

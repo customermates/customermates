@@ -24,10 +24,8 @@ vi.mock("@/core/di", () => ({
 
 import { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import {
-  GetMessagingThreadsInteractor,
-  GetMessagingThreadsRepo,
-} from "@/ee/messaging/inbox/get-messaging-threads.interactor";
+import { GetMessagingThreadsInteractor } from "@/ee/messaging/inbox/get-messaging-threads.interactor";
+import { GetMessagingThreadsRepo } from "@/ee/messaging/inbox/get-messaging-threads.repo";
 
 import { POST } from "../route";
 

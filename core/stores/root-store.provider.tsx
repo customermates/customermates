@@ -8,11 +8,12 @@ import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interac
 import type { RoutingLocale } from "@/i18n/locale-registry";
 import type { RecordNavigation } from "@/features/records/record-navigation.schema";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useLayoutEffect, useState } from "react";
 
 import { RootStore } from "@/core/stores/root.store";
 import { NavigationGuardProvider } from "@/core/stores/navigation-guard.context";
 import type { AppMode } from "@/core/config/environment";
+import { initializeNavigationHistoryGuard } from "@/components/modal/navigation-history-guard";
 
 const RootStoreContext = createContext<RootStore | null>(null);
 
@@ -45,6 +46,9 @@ function createRootStore(agentChatEnabled: boolean, appMode: AppMode, initialSta
 
 export function RootStoreProvider({ agentChatEnabled, appMode, children, initialState }: Props) {
   const [rootStore] = useState(() => createRootStore(agentChatEnabled, appMode, initialState));
+  useLayoutEffect(() => {
+    initializeNavigationHistoryGuard();
+  }, []);
 
   useEffect(() => {
     rootStore.intlStore.markClientHydrated();

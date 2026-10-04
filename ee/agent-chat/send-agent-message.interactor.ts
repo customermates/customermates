@@ -13,7 +13,7 @@ import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import { env } from "@/env";
 
 import { resolveUserLocale } from "@/i18n/user-locale";
-import { AgentConversationOrigin } from "@/generated/prisma";
+import { Action, AgentConversationOrigin, Resource } from "@/generated/prisma";
 
 import {
   SendAgentMessageSchema,
@@ -33,7 +33,7 @@ import type { AgentRunContext } from "./agent-run-context";
 import type { AgentUsageService } from "./agent-usage.service";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 import { AGENT_RUN_LEASE_MS, decideAgentTurnAdmission, type AgentTurnRequestSnapshot } from "./agent-turn-request";
-import { buildAgentSystemPrompt, routineTriggerEventOf } from "./system-prompt";
+import { agentSystemPromptParts, routineTriggerEventOf } from "./system-prompt";
 import { agentToolDefinitionsForToolsets, agentToolDefinitionsForTurn } from "./agent-tools";
 import { toolsetsForRequest, toolsetsFromActivities } from "./agent-toolset-routing";
 import { AgentActivityDescriptorSchema, type AgentActivityDescriptor } from "./agent-activity";
@@ -42,13 +42,29 @@ import { renderAgentSchemaDigest } from "./agent-schema-digest";
 import { agentPageContextPrefix } from "./agent-page-context";
 import { canonicalAgentRecordContexts } from "./agent-context-migration";
 import { AGENT_REPLAY_COUNT, budgetAgentReplayHistory } from "./agent-replay-budget";
-import { isAgentModelKey, resolveAgentModel } from "./model-catalog";
+import { isAgentModelKey, resolveAgentModel, SHIPPED_AGENT_MODEL_KEY } from "./model-catalog";
+import { BENCHMARK_MODEL_KEY_PREFIX } from "./benchmark-model-registry";
+import { recordsBenchmarkToolOutputs } from "./benchmark-tool-output";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import type { DiscoverRecordTypesInteractor } from "@/features/records/discover-record-types.interactor";
-import { fail, failConflict, failNotFound, failRateLimit } from "@/core/validation/interactor-failure-server";
+import {
+  fail,
+  failConflict,
+  failNotFound,
+  failRateLimit,
+  failUnavailable,
+} from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import type { GetWikiCatalogInteractor } from "@/features/wiki/get-wiki-catalog.interactor";
+import type { UserService } from "@/features/user/user.service";
+import { AppErrorCode, appErrorDetails } from "@/core/errors/app-errors";
+import { agentWebSearchReserveMicrocents } from "./agent-budget-policy";
+import { agentMicrocentsFromStorage } from "./agent-credit-policy";
+import { agentWebSearchCallLimit } from "./agent-web-search";
+import { serializeAgentWikiCatalog } from "./agent-wiki-context";
+import { userWebsiteHomepages } from "./user-website-homepages";
 
-type AdmittedAgentRun = { disposition: "run"; externalRunId: string } & AgentRunContext;
+type AdmittedAgentRun = { disposition: "run"; externalRunId: string } & Omit<AgentRunContext, "appBaseUrl">;
 type AgentInvocationMode = "interactive" | "routine";
 
 export type SendAgentMessageResult =
@@ -97,8 +113,18 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     private entitlements: EntitlementService,
     private backgroundTaskService: BackgroundTaskService,
     private recordTypes: Pick<DiscoverRecordTypesInteractor, "invoke">,
+    private wikiCatalog: Pick<GetWikiCatalogInteractor, "invoke">,
+    private userService?: Pick<UserService, "hasPermission">,
+    private wikiCrawls?: {
+      findLatestCrawl(): Promise<{ pendingHosts: string[] } | null>;
+    },
   ) {
     super();
+  }
+
+  private async wikiWebsiteSetupAvailable() {
+    if (!this.userService || env.APP_MODE === "demo") return false;
+    return this.userService.hasPermission(Resource.wiki, Action.create);
   }
 
   private async schemaDigest() {
@@ -158,6 +184,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       const safeParts = assistantMessage
         ? clientSafeAgentMessageParts(assistantMessage.parts, {
             sanitizeText: true,
+            wikiBaseUrl: env.BASE_URL,
           })
         : [];
       if (!assistantMessage || !terminalCode || !hasRenderableAgentMessageParts(safeParts)) {
@@ -222,6 +249,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
 
     if (mode === "routine" && decision.disposition === "retry")
       return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
+
     if (mode === "routine" && !data.conversationId)
       return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
@@ -237,45 +265,87 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       : null;
     if ((decision.disposition === "retry" || data.conversationId) && !conversation)
       return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
+
     if (mode === "routine" && conversation?.origin !== AgentConversationOrigin.routine)
       return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
-    const surface = mode === "routine" ? "routine" : "chat";
+    const surface: "routine" | "chat" = mode === "routine" ? "routine" : "chat";
 
-    const requestedModelKey = conversation?.modelKey ?? data.modelKey ?? null;
+    const storedModelKey = conversation?.modelKey ?? null;
+    const retiredModelKey =
+      storedModelKey !== null &&
+      !storedModelKey.startsWith(BENCHMARK_MODEL_KEY_PREFIX) &&
+      !isAgentModelKey(storedModelKey);
+    const requestedModelKey = retiredModelKey ? SHIPPED_AGENT_MODEL_KEY : (storedModelKey ?? data.modelKey ?? null);
     if (requestedModelKey !== null && !isAgentModelKey(requestedModelKey))
       return fail(CustomErrorCode.agentModelUnavailable, ["modelKey"]);
     const turnModel = resolveAgentModel(requestedModelKey);
+    const locale = data.locale ?? resolveUserLocale(user);
+    let wikiCatalog: string | null = null;
+    let wikiWebsiteSetup = false;
+    try {
+      const result = await this.wikiCatalog.invoke({ page: 1 });
+      if (!result.ok) return result;
+      wikiCatalog = serializeAgentWikiCatalog(result.data);
+      const wikiEmpty = result.data.total === 0 && !result.data.guide && !result.data.procedures?.total;
+      wikiWebsiteSetup =
+        mode === "interactive" &&
+        (wikiEmpty || ((await this.wikiCrawls?.findLatestCrawl())?.pendingHosts.length ?? 0) > 0) &&
+        (await this.wikiWebsiteSetupAvailable());
+    } catch (error) {
+      if (appErrorDetails(error)?.code !== AppErrorCode.permissionDenied) throw error;
+    }
+    const toolOptions = {
+      locale,
+      surface,
+      wikiWebsiteSetup,
+      webSearchEnabled: true,
+    };
 
     const userName = `${user.firstName} ${user.lastName}`.trim();
-    const locale = data.locale ?? resolveUserLocale(user);
     const requestedToolsets = toolsetsForRequest({ text: data.text, pageRoute, contexts });
     const schemaDigest = await this.schemaDigest();
     const requiredContextBytes = conservativeAgentInitialContextBytes({
-      systemPrompt: buildAgentSystemPrompt({
+      systemPrompt: agentSystemPromptParts({
         userName,
         locale,
         surface,
         triggerEvent: routineTriggerEventOf(data.text),
         schemaDigest,
+        wikiWebsiteSetup,
+        webSearchEnabled: true,
       }),
       currentText: data.text,
       contexts,
       pageRoute,
       toolDefinitions: agentToolDefinitionsForToolsets(
-        agentToolDefinitionsForTurn({ servingProvider: turnModel.servingProvider, surface }),
+        agentToolDefinitionsForTurn({
+          servingProvider: turnModel.servingProvider,
+          ...toolOptions,
+        }),
         [...requestedToolsets],
       ),
+      wikiCatalog,
     });
     if (requiredContextBytes === null) throw new Error("The Assistant request context could not be measured safely.");
 
     const creditAdmission = await this.usageService.prepareTurn(user.id, now, {
       model: turnModel,
       requiredContextBytes,
-      creditCeiling: mode === "routine" ? (conversation?.creditCeiling ?? null) : null,
+      creditCeilingMicrocents:
+        mode === "routine" && conversation
+          ? conversation.creditCeilingMicrocents === null
+            ? null
+            : agentMicrocentsFromStorage(conversation.creditCeilingMicrocents, "Routine run credit ceiling")
+          : null,
+      webSearchReserveMicrocents: agentWebSearchReserveMicrocents(agentWebSearchCallLimit(surface)),
     });
     const reservation = creditAdmission.reservation;
-    if (!reservation) return failRateLimit(CustomErrorCode.agentLimitReached);
+    if (!reservation) {
+      return creditAdmission.summary.blockedReason === "credits_exhausted"
+        ? failRateLimit(CustomErrorCode.agentLimitReached)
+        : failUnavailable(CustomErrorCode.agentServiceUnavailable);
+    }
 
     const runId = randomUUID();
     const reservationId = randomUUID();
@@ -313,7 +383,16 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
 
         return "claimed" as const;
       });
-      if (claimed === "not-admitted") return failRateLimit(CustomErrorCode.agentLimitReached);
+      if (claimed === "not-admitted") {
+        await this.repo.releasePreProviderAdmissionOrThrowUnscoped({
+          companyId: user.companyId,
+          userId: user.id,
+          runId,
+          reservationId,
+        });
+        if (conversationIsNew) await this.repo.deleteUnusedAgentConversation(conversationId);
+        return failUnavailable(CustomErrorCode.agentServiceUnavailable);
+      }
       if (claimed === "at-user-limit") {
         if (mode === "routine") {
           return {
@@ -437,6 +516,20 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         surface,
         toolsets,
         ...(schemaDigest ? { schemaDigest } : {}),
+        ...(recordsBenchmarkToolOutputs(process.env) ? { recordToolOutputs: true } : {}),
+        ...(wikiWebsiteSetup
+          ? {
+              wikiWebsiteSetup: {
+                userHomepages: userWebsiteHomepages(
+                  admission.recentMessages
+                    .filter((message) => message.role === "user")
+                    .map((message) => partsToText(message.parts)),
+                ),
+              },
+            }
+          : {}),
+        wikiCatalog,
+        webSearchEnabled: true,
       });
       await this.repo.recordAgentTurnExternalRun(turnRequestId, runId, externalRunId);
 

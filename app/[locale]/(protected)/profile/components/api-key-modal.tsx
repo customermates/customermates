@@ -133,11 +133,9 @@ export const ApiKeyModal = observer(() => {
         ? t("OnboardingWizard.ai.screen.claude.title")
         : aiConnectionStore.route.screen === "openai"
           ? t("OnboardingWizard.ai.screen.openai.title")
-          : aiConnectionStore.route.screen === "skip"
-            ? t("OnboardingWizard.ai.screen.skip.title")
-            : t("OnboardingWizard.ai.screen.setup.title", {
-                provider: t(`OnboardingWizard.ai.choices.${aiConnectionStore.route.provider}`),
-              });
+          : t("OnboardingWizard.ai.screen.setup.title", {
+              provider: t(`OnboardingWizard.ai.choices.${aiConnectionStore.route.provider}`),
+            });
 
   const title = isView
     ? viewingKey?.name?.trim() || t("ApiKeysCard.unnamed")

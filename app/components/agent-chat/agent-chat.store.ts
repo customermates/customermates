@@ -1,3 +1,4 @@
+import { AgentActivityContextSchema } from "@/ee/agent-chat/agent-activity-context";
 import { makeObservable, observable, action, computed, reaction, runInAction } from "mobx";
 
 import type { RootStore } from "@/core/stores/root.store";
@@ -441,7 +442,9 @@ export class AgentChatStore extends BaseStore {
     pageRoute?: string;
   }) => {
     this.isHistoryOpen = false;
-    this.addComposerContext(context, pageRoute, draft, { replaceOldestAtLimit: true });
+    this.addComposerContext(context, pageRoute, draft, {
+      replaceOldestAtLimit: true,
+    });
     this.open();
   };
 
@@ -518,7 +521,10 @@ export class AgentChatStore extends BaseStore {
   };
 
   markRouteSyncComplete = () => {
-    if (this.routeSyncStatus === "refreshing") this.routeSyncStatus = "idle";
+    if (this.routeSyncStatus !== "refreshing") return;
+    this.routeSyncStatus = "idle";
+    if (!this.hasPendingRouteReload && !this.isWorking && !this.queuedPrompt && this.streamStatus === "finalizing")
+      this.streamStatus = "idle";
   };
 
   close = () => {
@@ -756,13 +762,14 @@ export class AgentChatStore extends BaseStore {
   }
 
   selectConversation = async (id: string) => {
-    if (this.isWorking || this.historyMutationPending) return;
+    if (this.historyMutationPending) return;
     if (this.conversationId === id && !this.conversationLoadError) {
       runInAction(() => {
         this.isHistoryOpen = false;
       });
       return;
     }
+    if (this.isWorking) return;
     await this.loadConversation(id);
   };
 
@@ -1763,7 +1770,12 @@ export class AgentChatStore extends BaseStore {
 
   private rejoinBusyConversation = async (
     conversationId: string,
-    resend: { text: string; messageId: string; pageRoute: string; contexts: AgentContextAttachment[] },
+    resend: {
+      text: string;
+      messageId: string;
+      pageRoute: string;
+      contexts: AgentContextAttachment[];
+    },
     resendAfterReattach = true,
   ) => {
     const loadVersion = this.conversationLoadVersion;
@@ -2184,35 +2196,45 @@ export class AgentChatStore extends BaseStore {
     loadVersion: number;
     allowRecoveryError: boolean;
   }) => {
-    const snapshot = await withDeadline(
-      getAgentConversationAction(conversationId),
-      AGENT_TERMINAL_RECONCILE_TIMEOUT_MS,
-    ).catch(() => null);
-    if (
-      generation !== this.activeTurnGeneration ||
-      loadVersion !== this.conversationLoadVersion ||
-      conversationId !== this.conversationId
-    )
-      return;
+    const attempts = allowRecoveryError ? AGENT_RECONNECT_SNAPSHOT_FAILURE_LIMIT : 1;
+    for (let attempt = 0; attempt < attempts; attempt += 1) {
+      if (attempt > 0) await waitFor(AGENT_STREAM_RECONNECT_DELAYS_MS[attempt - 1] ?? 5000);
+      if (
+        generation !== this.activeTurnGeneration ||
+        loadVersion !== this.conversationLoadVersion ||
+        conversationId !== this.conversationId
+      )
+        return;
 
-    const assistantMessage = snapshot?.messages.find(
-      (message) => message.role === "assistant" && message.id === assistantMessageId,
-    );
-    const parts = assistantMessage ? clientSafeAgentMessageParts(assistantMessage.parts) : [];
-    if (assistantMessage && hasRenderableAgentMessageParts(parts)) {
-      runInAction(() => {
-        const userIndex = this.items.findLastIndex((item) => item.kind === "user");
-        if (userIndex < 0) return;
-        this.items = this.items.slice(0, userIndex + 1);
-        this.loadedMessageIds.delete(assistantMessage.id);
-        this.persistedAssistantMessageIds.delete(assistantMessage.id);
-        this.recordReplayedMutations(parts);
-        this.appendMessages([assistantMessage]);
-        this.clearStreaming();
-      });
-      return;
+      const snapshot = await withDeadline(
+        getAgentConversationAction(conversationId),
+        AGENT_TERMINAL_RECONCILE_TIMEOUT_MS,
+      ).catch(() => null);
+      if (
+        generation !== this.activeTurnGeneration ||
+        loadVersion !== this.conversationLoadVersion ||
+        conversationId !== this.conversationId
+      )
+        return;
+
+      const assistantMessage = snapshot?.messages.find(
+        (message) => message.role === "assistant" && message.id === assistantMessageId,
+      );
+      const parts = assistantMessage ? clientSafeAgentMessageParts(assistantMessage.parts) : [];
+      if (assistantMessage && hasRenderableAgentMessageParts(parts)) {
+        runInAction(() => {
+          const userIndex = this.items.findLastIndex((item) => item.kind === "user");
+          if (userIndex < 0) return;
+          this.items = this.items.slice(0, userIndex + 1);
+          this.loadedMessageIds.delete(assistantMessage.id);
+          this.persistedAssistantMessageIds.delete(assistantMessage.id);
+          this.recordReplayedMutations(parts);
+          this.appendMessages([assistantMessage]);
+          this.clearStreaming();
+        });
+        return;
+      }
     }
-
     if (!allowRecoveryError) return;
 
     runInAction(() => this.markActiveTurnRecoveryFailed());
@@ -2460,6 +2482,13 @@ export class AgentChatStore extends BaseStore {
           );
           if (activity) {
             activity.status = event.status === "cancelled" ? "cancelled" : event.isError ? "error" : "done";
+            const context = AgentActivityContextSchema.safeParse(event.context);
+            if (activity.status === "done" && context.success && !activity.activity.context) {
+              activity.activity = {
+                ...activity.activity,
+                context: context.data,
+              };
+            }
             const viewHref = activity.status === "done" ? dataViewNavigationHref(event.viewHref) : null;
             if (viewHref) activity.activity = { ...activity.activity, viewHref };
             if (activity.status === "done" && activity.activity.risk !== "read") {

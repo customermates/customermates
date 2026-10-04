@@ -19,10 +19,10 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { cn } from "@/core/utils/cn";
 import type { Prisma } from "@/generated/prisma";
 
+import { isResizeDoubleTap } from "@/components/shared/resize-interaction";
 import {
   beginColumnResize,
   columnResizeLabel,
-  isTouchResetDoubleTap,
   keyboardColumnWidth,
   MIN_COLUMN_WIDTH,
   shouldCommitColumnResize,
@@ -153,7 +153,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
 
     if (session.pointerType !== "touch" || session.hasMoved) return;
     const previousTap = lastTouchTapRef.current;
-    if (previousTap?.columnId === session.columnId && isTouchResetDoubleTap(previousTap.at, event.timeStamp)) {
+    if (previousTap?.columnId === session.columnId && isResizeDoubleTap(previousTap.at, event.timeStamp)) {
       lastTouchTapRef.current = undefined;
       resetColumnWidth(session.columnId);
       return;

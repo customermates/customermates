@@ -1,14 +1,14 @@
+import type { DataViewGroup, DateBucket, GroupOverflow, Grouping } from "./grouping.schema";
 import type { GroupCountRow } from "./group-count";
 import type { GroupLabel } from "./group-labels";
 import type { GroupableFieldSpec } from "./groupable-field";
-import type { DataViewGroup, DateBucket, Grouping } from "./grouping.schema";
 
 import { dateBucketLadder } from "./date-buckets";
 import { DEFAULT_DATE_BUCKET, MAX_AXIS_GROUPS, NO_VALUE_GROUP_KEY } from "./grouping.schema";
 
 export type ResolvedGrouping = { spec: GroupableFieldSpec; grouping: Grouping };
 
-export type GroupAxis = { groups: DataViewGroup[]; overflow?: { shown: number } };
+export type GroupAxis = { groups: DataViewGroup[]; overflow?: GroupOverflow };
 
 export type GroupAxisInput = {
   spec: GroupableFieldSpec;
@@ -130,9 +130,10 @@ function noValueGroup(row: GroupCountRow | undefined, always: boolean): DataView
 function truncate(groups: DataViewGroup[], noValue: DataViewGroup | undefined, beyondCap = false): GroupAxis {
   const capped = groups.slice(0, MAX_AXIS_GROUPS);
   const truncated = beyondCap || capped.length < groups.length;
+  const withRecords = beyondCap || groups.slice(MAX_AXIS_GROUPS).some((group) => group.count > 0);
 
   return {
     groups: noValue ? [...capped, noValue] : capped,
-    ...(truncated ? { overflow: { shown: capped.length } } : {}),
+    ...(truncated ? { overflow: { shown: capped.length, withRecords } } : {}),
   };
 }

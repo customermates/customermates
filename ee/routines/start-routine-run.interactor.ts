@@ -1,8 +1,9 @@
+import type { StartRoutineRunRepo } from "./start-routine-run.repo";
+import type { StartRoutineConversationRepo } from "./start-routine-conversation.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { RoutineDto } from "./routine.schema";
 import type { SendAgentMessageInteractor, SendAgentMessageResult } from "@/ee/agent-chat/send-agent-message.interactor";
 import type { RoutineEventAccess } from "./routine-event-access";
-import type { RoutineRunStatus as RoutineRunStatusType } from "@/generated/prisma";
 
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
@@ -19,6 +20,7 @@ import { isCustomField } from "@/core/utils/custom-field";
 import { isRoutineRunErrorCode, type RoutineRunErrorCode, type RoutineRunReason } from "./routine-run-outcome";
 import { DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN, DEFAULT_ROUTINE_MAX_RUNS_PER_HOUR } from "./routine-run-limits";
 import { RecordQuerySchema } from "@/features/records/record-query.schema";
+import { agentCreditsToMicrocents } from "@/ee/agent-chat/agent-credit-policy";
 
 const Schema = z.object({ routineRunId: z.uuid() });
 
@@ -58,49 +60,6 @@ function startFailureReason(error: z.ZodError): RoutineRunErrorCode | "startFail
 export type StartRoutineRunData = Data<typeof Schema>;
 
 export type StartRoutineRunOutcome = { started: boolean; reason?: StartRoutineRunReason };
-
-export abstract class StartRoutineRunRepo {
-  abstract findRoutineRunForStartUnscoped(routineRunId: string): Promise<{
-    id: string;
-    companyId: string;
-    executedByUserId: string;
-    status: RoutineRunStatusType;
-    triggerEvent: string | null;
-    triggerEntityId: string | null;
-    triggerPayload: unknown;
-    routine: RoutineDto;
-  } | null>;
-  abstract claimQueuedRoutineRunForOwnerUnscoped(args: {
-    routineRunId: string;
-    executedByUserId: string;
-    now: Date;
-  }): Promise<{ routine: RoutineDto } | "runNotQueued" | "triggerChanged">;
-  abstract countRecentRoutineRunsUnscoped(routineId: string, since: Date): Promise<number>;
-  abstract findCustomColumnLabelsUnscoped(companyId: string, columnIds: string[]): Promise<Record<string, string>>;
-  abstract settleRoutineRunUnscoped(args: {
-    routineRunId: string;
-    routineId: string;
-    expectedStatus: RoutineRunStatusType;
-    status: RoutineRunStatusType;
-    error?: string | null;
-    now: Date;
-  }): Promise<boolean>;
-}
-
-export abstract class StartRoutineConversationRepo {
-  abstract createAndLinkRoutineConversationForRun(args: {
-    routineRunId: string;
-    conversationId: string;
-    title: string | null;
-    now: Date;
-    creditCeiling?: number | null;
-  }): Promise<void>;
-  abstract releaseUnstartedRoutineConversationForRetry(args: {
-    routineRunId: string;
-    conversationId: string;
-  }): Promise<void>;
-  abstract deleteUnusedAgentConversation(conversationId: string): Promise<void>;
-}
 
 @TenantInteractor({
   permissions: [
@@ -206,7 +165,7 @@ export class StartRoutineRunInteractor extends AuthenticatedInteractor<StartRout
       conversationId,
       title: routine.name,
       now,
-      creditCeiling: DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN,
+      creditCeilingMicrocents: agentCreditsToMicrocents(DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN),
     });
 
     let sent;

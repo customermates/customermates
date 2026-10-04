@@ -15,14 +15,20 @@ import {
 
 const mockUser = createMockUser();
 
-vi.mock("@/env", () => MOCK_ENV_MODULE);
+vi.mock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env } }));
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
-vi.mock("@sentry/nextjs", () => ({ captureException: vi.fn(), setTag: vi.fn(), setUser: vi.fn() }));
+vi.mock("@sentry/nextjs", () => ({
+  captureException: vi.fn(),
+  setTag: vi.fn(),
+  setUser: vi.fn(),
+}));
 vi.mock("next-intl/server", () => ({
   getTranslations: () => {
-    const translator = Object.assign((key: string) => key, { raw: (key: string) => `localized:${key}` });
+    const translator = Object.assign((key: string) => key, {
+      raw: (key: string) => `localized:${key}`,
+    });
     return Promise.resolve(translator);
   },
   getLocale: () => Promise.resolve("en"),
@@ -137,11 +143,24 @@ const ACCEPTED_TODAY: [string, unknown][] = [
   ["linkedin_search_sales_leads", { connectedAccountId: UUID, filters: { network_distance: [1, 2, "GROUP"] } }],
   [
     "linkedin_search_sales_leads",
-    { connectedAccountId: UUID, filters: { company_headcount: [{ min: 51, max: 200 }] } },
+    {
+      connectedAccountId: UUID,
+      filters: { network_distance: [1, 2, "GROUP"] },
+    },
+  ],
+  [
+    "linkedin_search_sales_leads",
+    {
+      connectedAccountId: UUID,
+      filters: { company_headcount: [{ min: 51, max: 200 }] },
+    },
   ],
   [
     "linkedin_search_sales_companies",
-    { connectedAccountId: UUID, filters: { annual_revenue: { min: 0.5, max: 2.5, currency: "USD" } } },
+    {
+      connectedAccountId: UUID,
+      filters: { annual_revenue: { min: 0.5, max: 2.5, currency: "USD" } },
+    },
   ],
   ["get_social_posts", { connectedAccountId: UUID, authorIdentifier: "x", limit: 5, offset: 1 }],
   ["get_workspace_context", {}],
@@ -153,6 +172,9 @@ const ACCEPTED_TODAY: [string, unknown][] = [
     { action: "create", surfaceKey: "records:10000000-0000-4000-8000-000000000101", name: "Leads", state: {} },
   ],
   ["send_email", { connectedAccountId: UUID, subject: "s", body: "b", to: [{ identifier: "ada@example.com" }] }],
+  ["analyze_records", { reads: [{ tool: "list_records", input: { entity: "deal" } }], code: "(data) => data" }],
+  ["analyze_records", { reads: [{ tool: "list_records", input: '{"entity":"deal"}' }], code: "(data) => data" }],
+  ["analyze_records", { reads: [{ tool: "get_activities" }], code: "(data) => data" }],
 ];
 
 const REJECTED_TODAY: [string, unknown][] = [
@@ -173,6 +195,7 @@ const REJECTED_TODAY: [string, unknown][] = [
     },
   ],
   ["send_email", { connectedAccountId: "nope", subject: "s", body: "b", to: [{ identifier: "a@b.com" }] }],
+  ["analyze_records", { reads: [{ tool: "list_records", input: [{ entity: "deal" }] }], code: "(data) => data" }],
 ];
 
 const declaredTools = getAgentAiToolDefinitions();
@@ -219,15 +242,25 @@ describe("the Google function-declaration dialect", () => {
       $schema: "http://json-schema.org/draft-07/schema#",
       type: "object",
       properties: {
-        a: { type: "array", items: { type: "string", format: "uuid", uniqueItems: true } },
-        b: { type: "object", propertyNames: { pattern: "^x" }, patternProperties: { "^y": { type: "string" } } },
+        a: {
+          type: "array",
+          items: { type: "string", format: "uuid", uniqueItems: true },
+        },
+        b: {
+          type: "object",
+          propertyNames: { pattern: "^x" },
+          patternProperties: { "^y": { type: "string" } },
+        },
       },
       additionalProperties: false,
     });
 
     expect(result.schema).toEqual({
       type: "object",
-      properties: { a: { type: "array", items: { type: "string" } }, b: { type: "object" } },
+      properties: {
+        a: { type: "array", items: { type: "string" } },
+        b: { type: "object" },
+      },
     });
   });
 
@@ -236,8 +269,13 @@ describe("the Google function-declaration dialect", () => {
       anyOf: [{ type: "string" }, { type: "number" }],
     });
     expect(
-      googleSafeJsonSchema({ anyOf: [{ type: "boolean" }], oneOf: [{ type: "string" }, { type: "number" }] }).schema,
-    ).toEqual({ anyOf: [{ type: "boolean" }, { type: "string" }, { type: "number" }] });
+      googleSafeJsonSchema({
+        anyOf: [{ type: "boolean" }],
+        oneOf: [{ type: "string" }, { type: "number" }],
+      }).schema,
+    ).toEqual({
+      anyOf: [{ type: "boolean" }, { type: "string" }, { type: "number" }],
+    });
   });
 
   it("re-expresses a string const as the single-value enum Google understands", () => {
@@ -248,8 +286,66 @@ describe("the Google function-declaration dialect", () => {
     });
   });
 
+  it("merges a union of string literals into one enum that admits exactly the same values", () => {
+    const declared = {
+      description: "Operator",
+      anyOf: [
+        { type: "string", const: "in", title: "in" },
+        { type: "string", const: "notIn", title: "notIn" },
+        { type: "string", enum: ["in", "between"] },
+      ],
+    };
+    const result = googleSafeJsonSchema(declared);
+
+    expect(result.schema).toEqual({ type: "string", description: "Operator", enum: ["in", "notIn", "between"] });
+    expect(result.changes.filter(({ loosened }) => loosened)).toEqual([]);
+    const before = new Ajv().compile(declared);
+    const after = new Ajv().compile(result.schema as never);
+    for (const value of ["in", "notIn", "between", "equals", "", 1, null])
+      expect(after(value), String(value)).toBe(before(value));
+  });
+
+  it("keeps a union of literals whose branches carry more than their value, or that admits null", () => {
+    expect(
+      googleSafeJsonSchema({
+        anyOf: [
+          { type: "string", const: "a", title: "Alpha" },
+          { type: "string", const: "b" },
+        ],
+      }).schema,
+    ).toEqual({
+      anyOf: [
+        { type: "string", title: "Alpha", enum: ["a"] },
+        { type: "string", enum: ["b"] },
+      ],
+    });
+    expect(
+      googleSafeJsonSchema({
+        anyOf: [{ type: "string", const: "a" }, { type: "string", const: "b" }, { type: "null" }],
+      }).schema,
+    ).toEqual({
+      anyOf: [
+        { type: "string", nullable: true, description: 'Allowed values: "a".' },
+        { type: "string", enum: ["b"] },
+      ],
+    });
+  });
+
+  it("drops a title that only repeats the single value it names", () => {
+    expect(googleSafeJsonSchema({ type: "string", title: "inLastDays", const: "inLastDays" }).schema).toEqual({
+      type: "string",
+      enum: ["inLastDays"],
+    });
+  });
+
   it("keeps the numeric type and names the values when it drops a non-string enum", () => {
-    expect(googleSafeJsonSchema({ description: "Radius", type: "number", enum: [1, 5, 10] }).schema).toEqual({
+    expect(
+      googleSafeJsonSchema({
+        description: "Radius",
+        type: "number",
+        enum: [1, 5, 10],
+      }).schema,
+    ).toEqual({
       type: "number",
       description: "Radius Allowed values: 1, 5, 10.",
       minimum: 1,
@@ -260,7 +356,13 @@ describe("the Google function-declaration dialect", () => {
   it("leaves a description that already names every dropped value alone", () => {
     const description = "Results per page (one of: 5, 10, 25, 100). Default 10.";
 
-    expect(googleSafeJsonSchema({ description, type: "number", enum: [5, 10, 25, 100] }).schema).toEqual({
+    expect(
+      googleSafeJsonSchema({
+        description,
+        type: "number",
+        enum: [5, 10, 25, 100],
+      }).schema,
+    ).toEqual({
       type: "number",
       description,
       minimum: 5,
@@ -341,15 +443,24 @@ describe("the Google function-declaration dialect", () => {
   });
 
   it("drops an enum that would stop nullable admitting null", () => {
-    const single = googleSafeJsonSchema({ anyOf: [{ type: "string", enum: ["a", "b"] }, { type: "null" }] });
+    const single = googleSafeJsonSchema({
+      anyOf: [{ type: "string", enum: ["a", "b"] }, { type: "null" }],
+    });
 
-    expect(single.schema).toEqual({ type: "string", nullable: true, description: 'Allowed values: "a", "b".' });
+    expect(single.schema).toEqual({
+      type: "string",
+      nullable: true,
+      description: 'Allowed values: "a", "b".',
+    });
     expect(new Ajv().compile(single.schema as never)(null)).toBe(true);
     expect(new Ajv().compile({ type: "string", enum: ["a"], nullable: true })(null)).toBe(false);
   });
 
   it("leaves a union that already admits null unconstrained rather than nullable", () => {
-    const result = googleSafeJsonSchema({ description: "Markdown content", anyOf: [{}, { type: "null" }] });
+    const result = googleSafeJsonSchema({
+      description: "Markdown content",
+      anyOf: [{}, { type: "null" }],
+    });
 
     expect(result.schema).toEqual({ description: "Markdown content" });
     expect(new Ajv().compile(result.schema as never)(null)).toBe(true);
@@ -358,15 +469,23 @@ describe("the Google function-declaration dialect", () => {
 
   it("splices a nested bare union into its parent union", () => {
     expect(
-      googleSafeJsonSchema({ anyOf: [{ type: "boolean" }, { anyOf: [{ type: "string" }, { type: "number" }] }] })
-        .schema,
-    ).toEqual({ anyOf: [{ type: "boolean" }, { type: "string" }, { type: "number" }] });
+      googleSafeJsonSchema({
+        anyOf: [{ type: "boolean" }, { anyOf: [{ type: "string" }, { type: "number" }] }],
+      }).schema,
+    ).toEqual({
+      anyOf: [{ type: "boolean" }, { type: "string" }, { type: "number" }],
+    });
   });
 
   it("never emits an empty enum, an empty union, or a tuple items", () => {
     expect(googleSafeJsonSchema({ type: "string", enum: [null] }).schema).toEqual({ type: "string", nullable: true });
     expect(googleSafeJsonSchema({ anyOf: [{ type: "null" }] }).schema).toEqual({});
-    expect(googleSafeJsonSchema({ type: "array", items: [{ type: "string" }, { type: "number" }] }).schema).toEqual({
+    expect(
+      googleSafeJsonSchema({
+        type: "array",
+        items: [{ type: "string" }, { type: "number" }],
+      }).schema,
+    ).toEqual({
       type: "array",
     });
   });
@@ -388,7 +507,9 @@ describe("the Google function-declaration dialect", () => {
     const document = {
       $schema: "http://json-schema.org/draft-07/schema#",
       type: "object",
-      properties: { a: { anyOf: [{ type: "string", const: "x" }, { type: "null" }] } },
+      properties: {
+        a: { anyOf: [{ type: "string", const: "x" }, { type: "null" }] },
+      },
     };
     const before = JSON.stringify(document);
     googleSafeJsonSchema(document);
@@ -408,7 +529,10 @@ describe("serving-provider routing", () => {
   });
 
   it("hands every other provider the caller's own document, by reference", () => {
-    const document = { $schema: "http://json-schema.org/draft-07/schema#", oneOf: [{ type: "string" }] };
+    const document = {
+      $schema: "http://json-schema.org/draft-07/schema#",
+      oneOf: [{ type: "string" }],
+    };
 
     expect(providerWireInputSchema(document, "azure")).toBe(document);
     expect(providerWireInputSchema(document, undefined)).toBe(document);
@@ -503,22 +627,23 @@ describe("the shipped tool catalog on the Google wire", () => {
     const changes = changesForShippedCatalog();
 
     expect(summarizeGoogleSchemaChanges(changes)).toEqual({
-      "$schema:removed": 50,
+      "$schema:removed": 52,
       "additionalProperties:removed": 208,
       "anyOf:collapsed": 178,
+      "anyOf:merged": 24,
       "const:removed": 5,
       "const:rewritten": 134,
       "enum:removed": 18,
       "exclusiveMinimum:rewritten": 13,
       "nullable:rewritten": 161,
-      "propertyNames:removed": 3,
+      "propertyNames:removed": 4,
       "oneOf:rewritten": 10,
     });
     expect(summarizeGoogleSchemaChanges(changes.filter((change) => change.loosened))).toEqual({
       "additionalProperties:removed": 208,
       "const:removed": 5,
       "enum:removed": 18,
-      "propertyNames:removed": 3,
+      "propertyNames:removed": 4,
       "oneOf:rewritten": 10,
     });
   });
@@ -560,11 +685,11 @@ describe("the authoritative input gate", () => {
     );
 
     const coerced = await normalizeAgentAiToolInput("list_users", { searchTerm: "Ada", pageSize: "25" }, 400);
-    const rounded = await normalizeAgentAiToolInput("list_users", { searchTerm: "Ada", pageSize: 7 }, 400);
+    const exact = await normalizeAgentAiToolInput("list_users", { searchTerm: "Ada", pageSize: 7 }, 400);
     const rejected = await normalizeAgentAiToolInput("list_users", { searchTerm: "Ada", pageSize: 0 }, 400);
 
     expect(coerced).toEqual({ ok: true, input: { searchTerm: "Ada", page: 1, pageSize: 25 } });
-    expect(rounded).toEqual({ ok: true, input: { searchTerm: "Ada", page: 1, pageSize: 10 } });
+    expect(exact).toEqual({ ok: true, input: { searchTerm: "Ada", page: 1, pageSize: 7 } });
     expect(rejected.ok).toBe(false);
   });
 
@@ -614,12 +739,16 @@ describe("the transform on the wire", () => {
   it("is asked for by serving provider where the workflow builds its tool shells", () => {
     const source = readFileSync(join(REPO_ROOT, "workflows", "agent-turn.ts"), "utf8");
 
-    expect(source).toContain("agentToolDefinitionsForTurn({ surface, servingProvider })");
-    expect(source).toContain("loadAgentToolShells(surface, payload.turnBudget.servingProvider)");
+    expect(source).toContain("return agentToolDefinitionsForTurn({");
+    expect(source).toContain("surface,");
+    expect(source).toContain("servingProvider,");
+    expect(source).toContain("...options,");
+    expect(source).toContain("loadAgentToolShells(surface, payload.turnBudget.servingProvider, {");
     expect(source).not.toContain("getAgentAiToolDefinitions()");
 
     const admission = readFileSync(join(REPO_ROOT, "ee", "agent-chat", "send-agent-message.interactor.ts"), "utf8");
-    expect(admission).toContain("agentToolDefinitionsForTurn({ servingProvider: turnModel.servingProvider, surface })");
+    expect(admission).toContain("agentToolDefinitionsForTurn({");
+    expect(admission).toContain("servingProvider: turnModel.servingProvider");
     expect(admission).not.toContain("getAgentAiToolDefinitions()");
   });
 });
@@ -647,7 +776,12 @@ describe("empty enum members, which Google rejects outright", () => {
     const probe = { target: "company", avatarUrl: "" };
     expect(ajv.compile(before.inputSchema as object)(probe)).toBe(true);
     expect(accepts(probe), "the transform must never tighten").toBe(true);
-    expect(accepts({ target: "company", avatarUrl: "https://example.invalid/a.png" })).toBe(true);
+    expect(
+      accepts({
+        target: "company",
+        avatarUrl: "https://example.invalid/a.png",
+      }),
+    ).toBe(true);
     expect(accepts({ target: "company", avatarUrl: null })).toBe(true);
   });
 });

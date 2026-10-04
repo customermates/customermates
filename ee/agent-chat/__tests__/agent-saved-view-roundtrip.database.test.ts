@@ -53,6 +53,7 @@ const { prisma } = await import("@/prisma/db");
 const { describeAgentTool } = await import("@/ee/agent-chat/agent-activity");
 const { GetAgentConversationInteractor } = await import("@/ee/agent-chat/get-agent-conversation.interactor");
 const { PrismaAgentChatRepo } = await import("@/ee/agent-chat/prisma-agent-chat.repository");
+const { prismaAgentChatRepoDependencies } = await import("@/tests/helpers/prisma-agent-chat-repo");
 const { SendAgentMessageInteractor } = await import("@/ee/agent-chat/send-agent-message.interactor");
 const { getAgentAiTools } = await import("@/ee/agent-chat/agent-tools");
 const { AgentTurnTranscript } = await import("@/ee/agent-chat/agent-turn-transcript");
@@ -141,7 +142,7 @@ describeDatabase("saved-view Assistant persistence round trip", { timeout: 120_0
   });
 
   it("persists and hydrates the selected view context and completed saved-view activity", async () => {
-    const repo = new PrismaAgentChatRepo();
+    const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
     const clientRequestId = randomUUID();
     const toolCallId = randomUUID();
     const backgroundTasks = {
@@ -156,6 +157,13 @@ describeDatabase("saved-view Assistant persistence round trip", { timeout: 120_0
       entitlements,
       backgroundTasks as never,
       mockRecordDiscovery(),
+      {
+        invoke: () =>
+          Promise.resolve({
+            ok: true as const,
+            data: { items: [], total: 0, page: 1, nextPage: null, truncated: false },
+          }),
+      },
     ).invoke({
       clientRequestId,
       text: "Show this view as cards",

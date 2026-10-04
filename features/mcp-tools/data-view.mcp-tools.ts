@@ -48,7 +48,7 @@ export const ManageDataViewsToolSchema = z
       "Config and summary-list only. 1-indexed page; default 1. Ignored when list has an exact viewKey.",
     ),
     pageSize: ManageDataViewPageSizeSchema.optional().describe(
-      "Config and summary-list only. Results per page, 1-25, rounded up to 5, 10 or 25; default 10. Ignored for an exact viewKey.",
+      "Config and summary-list only. Results per page, 1-25, served exactly; default 10. Ignored for an exact viewKey.",
     ),
     query: ManageDataViewQuerySchema.describe(
       "Config and summary-list only. Narrow by an exact or partial field id, label, view id or view name after a truncated or broad result. Ignored for an exact viewKey.",
@@ -63,7 +63,7 @@ export const ManageDataViewsToolSchema = z
         "reset only: remove personal overrides for these keys, restoring shared type defaults. Only dynamic record surfaces support reset.",
       ),
     state: AgentDataViewStateSchema.optional().describe(
-      "Call config first. Create: initial state. Update: call list immediately before every update with the exact viewKey; include only keys the user asked to change. Arrays replace. Never copy old conversation/full state.",
+      "Call config first. Create: initial state. Update: call list immediately before every update with the exact viewKey; include only keys the user asked to change. Keys equal to the listed value are no-ops. Arrays replace. Never copy old conversation/full state.",
     ),
   })
   .strict()

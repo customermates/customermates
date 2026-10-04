@@ -52,7 +52,7 @@ const exhaustiveResourceOwners = [
   ["app/[locale]/(protected)/profile/components/connected-accounts-page-view.tsx", "switch (pageState)"],
   ["app/[locale]/(protected)/inbox/components/inbox-list.tsx", "switch (pageState)"],
   ["app/[locale]/(protected)/inbox/components/thread-panel.tsx", "switch (pageState.status)"],
-
+  ["app/[locale]/(protected)/wiki/components/wiki-page-view.tsx", "switch (pageState)"],
 ] as const;
 
 describe("page-state ownership", () => {

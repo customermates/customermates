@@ -16,6 +16,7 @@ const input = {
     dataModel: { canManage: "no" },
     api: { canManage: "no", readAccess: "none" },
     inboxMessages: { canManage: "no", readAccess: "none" },
+    wiki: { canManage: "no", readAccess: "all" },
     auditLog: { readAccess: "none" },
     routines: { canManage: "no", readAccess: "none" },
   },
@@ -34,6 +35,15 @@ describe("role mutation contract", () => {
       UpsertRoleSchema.safeParse({
         ...input,
         permissions: { ...input.permissions, contacts: { canManage: "yes", readAccess: "all" } },
+      }).success,
+    ).toBe(false);
+  });
+  it("carries the Knowledge Base permission group with read none or all", () => {
+    expect(UpsertRoleSchema.parse(input).permissions.wiki).toEqual({ canManage: "no", readAccess: "all" });
+    expect(
+      UpsertRoleSchema.safeParse({
+        ...input,
+        permissions: { ...input.permissions, wiki: { canManage: "yes", readAccess: "own" } },
       }).success,
     ).toBe(false);
   });

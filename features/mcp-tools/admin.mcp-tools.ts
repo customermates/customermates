@@ -1,9 +1,7 @@
 import { z } from "zod";
-import { CountryCode, Currency } from "@/generated/prisma";
 
 import {
   customMcpFailure,
-  enumHint,
   mcpInteractorFailure,
   mcpMessageFailure,
   mcpValidationFailure,
@@ -25,10 +23,6 @@ import { GetUserByIdSchema } from "@/features/user/get/get-user-by-id.interactor
 import { UpdateCompanySettingsSchema } from "@/features/company/update-company-settings.interactor";
 import { InviteUsersByEmailSchema } from "@/features/company/invite-users-by-email.interactor";
 
-const countryValues = Object.values(CountryCode);
-const currencyValues = Object.values(Currency);
-const memberStatusValues = AdminUpdateUserDetailsSchema.shape.status.options;
-
 const UpdateWorkspaceSettingsSchema = z
   .object({
     target: z
@@ -38,15 +32,13 @@ const UpdateWorkspaceSettingsSchema = z
       ),
     firstName: UpdateUserDetailsSchema.shape.firstName.describe("profile target: omit to keep existing"),
     lastName: UpdateUserDetailsSchema.shape.lastName.describe("profile target: omit to keep existing"),
-    country: UpdateUserDetailsSchema.shape.country.describe(
-      `profile target: ISO country code ${enumHint(countryValues)}. Omit to keep existing.`,
-    ),
+    country: UpdateUserDetailsSchema.shape.country.describe("profile target: ISO country code. Omit to keep existing."),
     avatarUrl: UpdateUserDetailsSchema.shape.avatarUrl.describe(
       "profile target: HTTPS avatar URL, or '' / null to clear. Omit to keep existing.",
     ),
     currency: UpdateCompanySettingsSchema.shape.currency
       .optional()
-      .describe(`company target: ${enumHint(currencyValues)}. Omit to keep existing.`),
+      .describe("company target: currency code. Omit to keep existing."),
   })
   .strict();
 
@@ -136,7 +128,7 @@ const ManageTeamSchema = z.object({
     .describe("update_member action: new role id from get_workspace_context roles. Omit to keep the current role."),
   status: AdminUpdateUserDetailsSchema.shape.status
     .optional()
-    .describe(`update_member action: ${enumHint(memberStatusValues)}. Omit to keep the current status.`),
+    .describe("update_member action: new status. Omit to keep the current status."),
 });
 
 const UpdateMemberSchema = z.object({

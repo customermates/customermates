@@ -1,13 +1,13 @@
 import type { RepoArgs } from "@/core/utils/types";
-import type { UpsertRoleRepo } from "./upsert-role.interactor";
-import type { GetRolesRepo } from "./get-roles.interactor";
+import type { UpsertRoleRepo } from "@/features/role/upsert-role.repo";
+import type { GetRolesRepo } from "@/features/role/get-roles.repo";
 import type { DeleteRoleRepo } from "./delete-role.interactor";
 import type { UpdateUserRoleRepo } from "@/features/user/upsert/admin-update-user-details.interactor";
 import type { FindRolesByIdsRepo } from "./find-roles-by-ids.repo";
 
-import { Action } from "@/generated/prisma";
+import { Action, Resource } from "@/generated/prisma";
 
-import type { Prisma, Resource } from "@/generated/prisma";
+import type { Prisma } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
 import { Transaction } from "@/core/decorators/transaction.decorator";
@@ -133,6 +133,8 @@ export class PrismaRoleRepo
           { roleId: savedRole.id, companyId, resource, action: Action.update },
           { roleId: savedRole.id, companyId, resource, action: Action.delete },
         );
+        if (resource === Resource.wiki)
+          permissions.push({ roleId: savedRole.id, companyId, resource, action: Action.readAll });
       }
 
       if (isManageOnlyResource) {

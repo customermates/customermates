@@ -1,13 +1,6 @@
 import type { GroupAxis, ResolvedGrouping } from "@/core/base/grouping/group-axis";
 import type { GroupCountRow } from "@/core/base/grouping/group-count";
-import type { GroupLabel } from "@/core/base/grouping/group-labels";
-import type {
-  DataViewGroup,
-  DateBucket,
-  GroupPageRequest,
-  Grouping,
-  GroupingResult,
-} from "@/core/base/grouping/grouping.schema";
+import type { DataViewGroup, GroupPageRequest, Grouping, GroupingResult } from "@/core/base/grouping/grouping.schema";
 import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
 import type { DataViewChipDto, DataViewState } from "@/core/data-view/data-view-state.schema";
@@ -26,11 +19,11 @@ import type {
   PaginationResponse,
   SortDescriptor,
 } from "./base-get.schema";
-import type { SearchableField, SortableField } from "./base-query-builder";
+import type { BaseGetRepo } from "./base-get.repo";
 
 import type { GroupableFieldDto, GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
 import type { EntityType } from "@/features/records/history/v1/legacy-enums";
-import type { NumericFieldSums, SummableModel } from "./base-repository";
+import type { SummableModel } from "./base-repository";
 import type { QueryParamsPrecheckInteractor } from "./query-params-precheck.interactor";
 
 import { resolveGroupAxis, resolveGrouping } from "@/core/base/grouping/group-axis";
@@ -44,6 +37,7 @@ import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import { resolveDataViewState } from "@/core/data-view/resolve-data-view-state";
 import { env } from "@/env";
 import { runPrecheck } from "../validation/run-precheck";
+import { acceptSingleValueEquals } from "./filter-compat";
 import type { ViewMode } from "./base-query-builder";
 
 export interface GetResult<T> {
@@ -68,52 +62,6 @@ export interface GetResult<T> {
   activeViewKey?: string;
   allState?: DataViewState;
   viewPersistable?: boolean;
-}
-
-export abstract class BaseGetRepo<T> {
-  abstract getItems(params: GetQueryParams): Promise<T[]>;
-  abstract getCount(params: GetQueryParams): Promise<number>;
-  abstract getSortableFields(): SortableField[];
-  abstract getSearchableFields(): SearchableField[];
-  abstract getFilterableFields(): Promise<FilterableField[]>;
-  abstract getCustomColumns(): Promise<CustomColumnDto[]>;
-  customColumnsOnce(): Promise<CustomColumnDto[]> {
-    return this.getCustomColumns();
-  }
-  filterableFieldsOnce(): Promise<FilterableField[]> {
-    return this.getFilterableFields();
-  }
-  getGroupableFields(_customColumns?: readonly CustomColumnDto[]): Promise<GroupableFieldSpec[]> {
-    return Promise.resolve([]);
-  }
-  countByGroup(_args: {
-    spec: GroupableFieldSpec;
-    params: GetQueryParams;
-    bucket?: DateBucket;
-    sumFields?: readonly string[];
-    now?: string;
-  }): Promise<GroupCountRow[]> {
-    throw new Error("countByGroup is not implemented on this repository");
-  }
-  resolveGroupLabels(_spec: GroupableFieldSpec, _keys: readonly string[]): Promise<Map<string, GroupLabel>> {
-    return Promise.resolve(new Map());
-  }
-  collator(): Pick<Intl.Collator, "compare"> {
-    return {
-      compare: (left, right) => (left < right ? -1 : left > right ? 1 : 0),
-    };
-  }
-  abstract validateFilters(args: { filters: Filter[] | undefined; filterableFields: FilterableField[] }): Filter[];
-  abstract validateSortDescriptor(args: {
-    sortDescriptor: SortDescriptor | undefined;
-    sortableFields: SortableField[];
-    customColumns?: CustomColumnDto[];
-  }): SortDescriptor | undefined;
-  abstract sumNumericFields<F extends string>(opts: {
-    model: SummableModel;
-    fields: readonly F[];
-    params: GetQueryParams;
-  }): Promise<NumericFieldSums<F>>;
 }
 
 type BaseQuery = {
@@ -182,13 +130,17 @@ export abstract class BaseGetInteractor<T> {
       this.repo.customColumnsOnce(),
     ]);
     const sortableFields = this.repo.getSortableFields();
+    const requestedFilters = acceptSingleValueEquals(
+      resolved.filters,
+      this.queryParamsPrecheckFilterableFields ?? filterableFields,
+    );
 
     if (this.mode === "api") {
       const precheck = this.queryParamsPrecheck;
       if (!precheck) throw new Error("api mode requires a queryParamsPrecheck");
 
       const checked = await runPrecheck(
-        { filters: resolved.filters, sortDescriptor: resolved.sortDescriptor },
+        { filters: requestedFilters, sortDescriptor: resolved.sortDescriptor },
         (data, ctx) =>
           precheck.invoke(
             {
@@ -205,7 +157,7 @@ export abstract class BaseGetInteractor<T> {
     }
 
     const filters = this.repo.validateFilters({
-      filters: resolved.filters,
+      filters: requestedFilters,
       filterableFields,
     });
     const validSort = (candidate: SortDescriptor | null | undefined) =>

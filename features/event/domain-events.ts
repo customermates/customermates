@@ -9,6 +9,7 @@ import type { ServiceDto } from "@/features/records/history/v1/service.schema";
 import type { TaskDto } from "@/features/records/history/v1/task.schema";
 import type { RoleDto } from "@/features/role/role.schema";
 import type { WebhookEventPayload } from "@/features/webhook/webhook-event-payload";
+import type { WikiPageDto } from "@/features/wiki/wiki.schema";
 
 import type { CountryCode, Currency, MessagingProvider, Status } from "@/generated/prisma";
 import type { EntityType } from "@/features/records/history/v1/legacy-enums";
@@ -38,6 +39,9 @@ export enum DomainEvent {
   WEBHOOK_CREATED = "webhook.created",
   WEBHOOK_UPDATED = "webhook.updated",
   WEBHOOK_DELETED = "webhook.deleted",
+  WIKI_PAGE_CREATED = "wiki_page.created",
+  WIKI_PAGE_UPDATED = "wiki_page.updated",
+  WIKI_PAGE_DELETED = "wiki_page.deleted",
   CUSTOM_COLUMN_CREATED = "custom_column.created",
   CUSTOM_COLUMN_UPDATED = "custom_column.updated",
   CUSTOM_COLUMN_DELETED = "custom_column.deleted",
@@ -255,6 +259,27 @@ export type DomainEventMap = {
     companyId: string;
     entityId: string;
     payload: WebhookEventPayload;
+  };
+  [DomainEvent.WIKI_PAGE_CREATED]: {
+    userId: string;
+    companyId: string;
+    entityId: string;
+    payload: WikiPageDto;
+  };
+  [DomainEvent.WIKI_PAGE_UPDATED]: {
+    userId: string;
+    companyId: string;
+    entityId: string;
+    payload: {
+      wikiPage: WikiPageDto;
+      changes: Record<string, { previous: unknown; current: unknown }>;
+    };
+  };
+  [DomainEvent.WIKI_PAGE_DELETED]: {
+    userId: string;
+    companyId: string;
+    entityId: string;
+    payload: WikiPageDto;
   };
   [DomainEvent.CUSTOM_COLUMN_CREATED]: {
     userId: string;

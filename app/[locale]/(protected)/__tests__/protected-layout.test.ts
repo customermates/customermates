@@ -7,6 +7,7 @@ const state = vi.hoisted(() => ({
   protectedEnhancementsAllowed: false,
   agentChatEnabled: false,
   agentConfigEnabled: null as boolean | null,
+  agentOpen: false,
   closeAllModals: vi.fn(),
   getGlobalSearchStore: vi.fn(),
   getAgentChatStore: vi.fn(),
@@ -28,6 +29,7 @@ vi.mock("@/core/stores/root-store.provider", () => ({
       state.getAgentChatStore();
       return {
         enabled: state.agentConfigEnabled,
+        isOpen: state.agentOpen,
         toggle: state.toggleAgentChat,
       };
     },
@@ -109,6 +111,8 @@ beforeEach(() => {
   state.protectedEnhancementsAllowed = false;
   state.agentChatEnabled = false;
   state.agentConfigEnabled = null;
+  state.agentOpen = false;
+  state.pathname = "/legal-update";
   state.closeAllModals.mockClear();
   state.getGlobalSearchStore.mockClear();
   state.getAgentChatStore.mockClear();

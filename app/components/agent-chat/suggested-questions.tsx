@@ -5,12 +5,12 @@ import type { ReactNode } from "react";
 import { observer } from "mobx-react-lite";
 import { useSyncExternalStore } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Compass, Link2, Plus, Search, Sparkles } from "lucide-react";
+import { Compass, Globe2, Link2, Plus, Search, Sparkles } from "lucide-react";
 import { Action, Resource } from "@/generated/prisma";
 import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 import { suggestionPageId, type SuggestionPageId } from "@/ee/agent-chat/agent-chat.schema";
-import { agentPageActions, agentPageState } from "@/ee/agent-chat/agent-page-actions";
+import { agentPageActions, agentPageState, WIKI_WEBSITE_SETUP_ACTION_ID } from "@/ee/agent-chat/agent-page-actions";
 
 import { usePathname } from "@/i18n/navigation";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -28,6 +28,7 @@ const SUGGESTION_ICONS = [
 ] as const;
 
 function suggestionIcon(id: string) {
+  if (id === WIKI_WEBSITE_SETUP_ACTION_ID) return Globe2;
   return SUGGESTION_ICONS.find((candidate) => candidate.match.test(id))?.icon ?? Sparkles;
 }
 
@@ -80,7 +81,9 @@ const AvailableAgentStarterActions = observer(function AvailableAgentStarterActi
   const canCreate =
     pageId === "dashboard"
       ? canSetupWorkspace
-      : (currentType?.canCreate ?? (pageId === "routines" && userStore.can(Resource.routines, Action.create)));
+      : (currentType?.canCreate ??
+        ((pageId === "routines" && userStore.can(Resource.routines, Action.create)) ||
+          (pageId === "wiki" && userStore.can(Resource.wiki, Action.create))));
   const terminology = map();
   let state = explicitState;
   if (!state) {
@@ -108,21 +111,20 @@ const AvailableAgentStarterActions = observer(function AvailableAgentStarterActi
   const buttons = ([1, 2, 3] as const).map((index) => {
     const action = actions[index - 1];
     if (!action) return null;
-    const question = action.label;
-    const prompt = action.prompt;
     const Icon = suggestionIcon(action.id);
 
     return (
       <Button
         key={index}
         className="h-auto gap-1.5 rounded-full px-3 py-2 text-xs font-normal whitespace-normal"
+        data-agent-focus-return={surface === "page" ? "" : undefined}
         size="sm"
         variant="secondary"
-        onClick={() => choose(prompt)}
+        onClick={() => choose(action.prompt)}
       >
         <Icon aria-hidden="true" className="size-3.5" />
 
-        {question}
+        {action.label}
       </Button>
     );
   });

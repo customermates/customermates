@@ -1,3 +1,4 @@
+import { prismaAgentChatRepoDependencies } from "@/tests/helpers/prisma-agent-chat-repo";
 import { randomUUID } from "node:crypto";
 
 import { afterAll, describe, expect, it, vi } from "vitest";
@@ -18,6 +19,7 @@ vi.mock("@/env", () => ({
 }));
 
 import type { OperatorRefusal } from "../operator.repo";
+import { PrismaAgentChatRepo } from "@/ee/agent-chat/prisma-agent-chat.repository";
 import { PrismaOperatorRepo } from "../prisma-operator.repository";
 
 const OPERATOR_REFUSALS: OperatorRefusal[] = [
@@ -87,7 +89,7 @@ afterAll(async () => {
 
 describeDatabase("operator workspace channel history", { timeout: 120_000 }, () => {
   it("reports the monthly peak of simultaneously connected channels with their identifiers", async () => {
-    const repo = new PrismaOperatorRepo();
+    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
     const companyId = randomUUID();
     companyIds.push(companyId);
     const userId = randomUUID();
@@ -181,7 +183,7 @@ describeDatabase("operator workspace channel history", { timeout: 120_000 }, () 
   });
 
   it("marks a month approximate when a disconnect was never recorded", async () => {
-    const repo = new PrismaOperatorRepo();
+    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
     const companyId = randomUUID();
     companyIds.push(companyId);
     const userId = randomUUID();
@@ -218,7 +220,7 @@ describeDatabase("operator workspace channel history", { timeout: 120_000 }, () 
   });
 
   it("returns no channel months for a workspace that never connected one", async () => {
-    const repo = new PrismaOperatorRepo();
+    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
     const companyId = randomUUID();
     companyIds.push(companyId);
 

@@ -1,96 +1,30 @@
+import { StubRepo } from "./fixtures/base-get-value-sums-stub-repo";
+import { SummingInteractor } from "./fixtures/base-get-value-sums-summing-interactor";
+
 import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
-import type { Filter, FilterableField, GetQueryParams, SortDescriptor } from "../base-get.schema";
+import type { GetQueryParams } from "../base-get.schema";
 
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { EntityType } from "@/features/records/history/v1/legacy-enums";
-
-import { BaseGetInteractor, BaseGetRepo } from "../base-get.interactor";
-
-type Item = { id: string; totalValue: number };
-
-class StubRepo extends BaseGetRepo<Item> {
-  sumCalls: GetQueryParams[] = [];
-
-  constructor(private sums: Record<string, number>) {
-    super();
-  }
-
-  getItems(): Promise<Item[]> {
-    return Promise.resolve([{ id: "one", totalValue: 10 }]);
-  }
-
-  getCount(): Promise<number> {
-    return Promise.resolve(1);
-  }
-
-  getSortableFields() {
-    return [];
-  }
-
-  getSearchableFields() {
-    return [];
-  }
-
-  getFilterableFields(): Promise<FilterableField[]> {
-    return Promise.resolve([]);
-  }
-
-  getCustomColumns(): Promise<CustomColumnDto[]> {
-    return Promise.resolve([]);
-  }
-
-  validateFilters(): Filter[] {
-    return [];
-  }
-
-  validateSortDescriptor(): SortDescriptor | undefined {
-    return undefined;
-  }
-
-  sumNumericFields<F extends string>(opts: { params: GetQueryParams }): Promise<Partial<Record<F, number | null>>> {
-    this.sumCalls.push(opts.params);
-    return Promise.resolve(this.sums as Partial<Record<F, number | null>>);
-  }
-}
-
-class SummingInteractor extends BaseGetInteractor<Item> {
-  constructor(repo: StubRepo, fields: readonly string[]) {
-    super(
-      repo,
-      {
-        loadSurfaceState: vi.fn().mockResolvedValue({ activeViewKey: null, views: [], allState: {} }),
-      },
-      "interactive",
-      EntityType.deal,
-      undefined,
-      undefined,
-      undefined,
-      fields,
-    );
-  }
-}
-
-async function run(fields: readonly string[], sums: Record<string, number>, params: GetQueryParams = {}) {
-  const repo = new StubRepo(sums);
+async function run(
+  fields: readonly string[],
+  sums: Record<string, number>,
+  params: GetQueryParams = {},
+  customColumns: CustomColumnDto[] = [],
+) {
+  const repo = new StubRepo(sums, customColumns);
   const result = await new SummingInteractor(repo, fields).invoke(params);
   return { repo, result };
 }
 
 describe("BaseGetInteractor declared value sums", () => {
   it("returns totals for the whole filtered query, not the page", async () => {
-    const { result } = await run(["totalValue", "weightedValue"], {
-      totalValue: 1965900,
-      weightedValue: 763150,
-    });
+    const { result } = await run(["totalValue", "weightedValue"], { totalValue: 1965900, weightedValue: 763150 });
 
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.data.items).toHaveLength(1);
-    expect(result.data.valueSums).toEqual({
-      totalValue: 1965900,
-      weightedValue: 763150,
-    });
+    expect(result.data.valueSums).toEqual({ totalValue: 1965900, weightedValue: 763150 });
   });
 
   it("sums under the same search and filters the list ran with", async () => {
@@ -101,9 +35,7 @@ describe("BaseGetInteractor declared value sums", () => {
   });
 
   it("omits a field the aggregate could not measure", async () => {
-    const { result } = await run(["totalValue", "weightedValue"], {
-      totalValue: 10,
-    });
+    const { result } = await run(["totalValue", "weightedValue"], { totalValue: 10 });
 
     if (!result.ok) return;
     expect(result.data.valueSums).toEqual({ totalValue: 10 });

@@ -1,3 +1,5 @@
+import { prismaAgentChatRepoDependencies } from "@/tests/helpers/prisma-agent-chat-repo";
+import { AGENT_CREDIT_MICROCENTS } from "@/core/commercial/agent-credits";
 import { randomUUID } from "node:crypto";
 
 import { decode } from "@toon-format/toon";
@@ -371,10 +373,10 @@ async function fixture(): Promise<AgentTurnWorkflowPayload> {
         turnRequestId,
         state: "reserved",
         model: "google/gemini-3.5-flash-lite",
-        reservedCredits: 100,
+        reservedMicrocents: 100_000_000,
         planSnapshot: "business",
         subscriptionStatusSnapshot: "active",
-        allowanceCreditsSnapshot: 100,
+        allowanceMicrocentsSnapshot: 100_000_000,
         periodStart: now,
         periodEnd: new Date(now.getTime() + 86_400_000),
         providerStartedAt: now,
@@ -402,8 +404,8 @@ async function fixture(): Promise<AgentTurnWorkflowPayload> {
       modelSpec: "google/gemini-3.5-flash-lite",
       servingProvider: "vertex",
       inferenceRegion: "eu",
-      reservedCredits: 100,
-      roundReserveCredits: 2,
+      reservedMicrocents: 100 * AGENT_CREDIT_MICROCENTS,
+      roundReserveMicrocents: 2 * AGENT_CREDIT_MICROCENTS,
       maxOutputTokens: 100,
       maxContextTokens: 100_000,
       maxContextBytes: 400_000,
@@ -649,7 +651,7 @@ describeDatabase("scripted assistant configuration uses production tools and per
     state.wake = async () => {
       const requestId = `${payload.turnRequestId}:archive-memo`;
       const resolved = await runWithTenant(required(state.actor), () =>
-        new PrismaAgentChatRepo().resolvePendingApprovalRequest({
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).resolvePendingApprovalRequest({
           conversationId: payload.conversationId,
           requestId,
           decision: "reject",

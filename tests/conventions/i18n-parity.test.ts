@@ -95,6 +95,14 @@ const ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS = new Set([
   "it:OperatorWorkspaces.modal.identity",
   "fr:OperatorWorkspaces.stats.threads",
   "fr:RecordActivityWidgets.filterKinds.thread",
+  "de:AgentChat.activity.contextual",
+  "es:AgentChat.activity.contextual",
+  "fr:AgentChat.activity.contextual",
+  "it:AgentChat.activity.contextual",
+  "de:AgentChat.activity.contextMore",
+  "es:AgentChat.activity.contextMore",
+  "fr:AgentChat.activity.contextMore",
+  "it:AgentChat.activity.contextMore",
   "de:AgentChat.activity.countedResource",
   "es:AgentChat.activity.countedResource",
   "fr:AgentChat.activity.countedResource",
@@ -251,6 +259,16 @@ describe("i18n parity", () => {
       icuStructure("{count, plural, other {#}}", "en"),
     );
     expect(icuStructure("<strong>{name}</strong>", "en")).not.toBe(icuStructure("{name}<strong></strong>", "en"));
+  });
+
+  it("keeps localized application copy free of em dashes", () => {
+    const offenders: string[] = [];
+    for (const locale of ROUTING_LOCALES) {
+      for (const [key, value] of loadLocaleLeaves(locale)) {
+        if (value.includes("—")) offenders.push(`${locale}:${key}`);
+      }
+    }
+    expect(offenders, `application copy contains em dashes:\n${offenders.join("\n")}`).toEqual([]);
   });
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("has every default-locale leaf key in every routing locale", () => {

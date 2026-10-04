@@ -30,6 +30,7 @@ const COUNTS = {
   services: false,
   tasks: true,
   routines: true,
+  wiki: false,
   widgets: false,
   connectedAccounts: false,
 };

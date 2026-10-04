@@ -74,7 +74,7 @@ Der Status-Chip neben **Plan** zeigt einen von sechs Status. Die App setzt **Tes
 | **Unbezahlt** | Lemon Squeezy meldet das Abonnement als unbezahlt | Jede Seite leitet zu **Abonnement erforderlich** um |
 | **Abgelaufen** | Das Abonnement ist beendet | Jede Seite leitet zu **Abonnement erforderlich** um |
 
-Eine Testphase, deren Enddatum ohne Checkout verstrichen ist, gilt ebenfalls als abgelaufen. Abgelehnte Aktionen bei Messaging und Kanälen melden „Das Verbinden von Kanälen erfordert ein aktives Abonnement oder eine noch nicht abgelaufene Testphase.“ Der gehostete Assistent wird dagegen abgeschaltet, sodass **KI fragen** aus der Sidebar verschwindet.
+Eine Testphase, deren Enddatum ohne Checkout verstrichen ist, gilt ebenfalls als abgelaufen. Abgelehnte Aktionen bei Messaging und Kanälen melden „Das Verbinden von Kanälen erfordert ein aktives Abonnement oder eine noch nicht abgelaufene Testphase.“ Der gehostete Assistent wird dagegen abgeschaltet, sodass **Mate fragen** aus der Sidebar verschwindet.
 
 Der Chip unter dem Namen Customermates in der Sidebar zeigt den Tarifnamen, solange der Status **Aktiv** ist, sonst den Tarif mit seinem Status, zum Beispiel **Pro · Testphase · noch 3 Tage**, **noch 1 Tag** oder **endet heute**. Er ist grün, wird bei 3 oder weniger Testtagen gelb und ist bei jedem anderen Status rot. Ein Klick öffnet **Mein Unternehmen › Abonnement**. Self-Hosted-Installationen zeigen keinen Chip.
 
@@ -91,7 +91,7 @@ Customermates Cloud hat vier Tarife, **Starter**, **Pro**, **Business** und **En
 | Business | [[commercial.price.business.monthly]] | [[commercial.entitlement.business.includedAccountsPerUser]] | [[commercial.entitlement.business.includedRoutinesPerUser]] | Ja | Ja |
 | Enterprise | Auf Anfrage | [[commercial.entitlement.enterprise.includedAccountsPerUser]] | [[commercial.entitlement.enterprise.includedRoutinesPerUser]] | Ja | Ja |
 
-Jeder Tarif enthält das vollständige CRM, das Audit-Log, die API, den MCP-Server und den gehosteten Assistenten. Starter, Pro und Business werden monatlich pro Nutzerplatz in Euro abgerechnet; einen anderen Abrechnungszeitraum gibt es nicht. Credits für gehostete KI pro aktivem Nutzer und Monat: Starter 200, Pro 500, Business 1.200, Enterprise nach Vertrag und 500 während der Testphase; siehe [Wie viele Credits enthält jeder Tarif?](/docs/app-assistant#plans-and-credits).
+Jeder Tarif enthält das vollständige CRM, das Audit-Log, die API, den MCP-Server und den gehosteten Assistenten. Starter, Pro und Business werden monatlich pro Nutzerplatz in Euro abgerechnet; einen anderen Abrechnungszeitraum gibt es nicht. Credits für gehostete KI pro aktivem Nutzer und Monat: Starter 200, Pro 500, Business 1.200, Enterprise nach Vertrag und 500 während der Testphase. Jede Anfrage wird mit ihren genauen Anbieterkosten abgerechnet und auf eine Nachkommastelle angezeigt; siehe [Wie viele Credits enthält jeder Tarif?](/docs/app-assistant#plans-and-credits).
 
 **Link:** `/company/subscription`. **Mate:** `navigate` und `highlight_element` mit `nav-company-subscription`, danach `highlight_element` mit `company-subscription-plan-picker` für die Tarifkarten, solange die Tarifauswahl angezeigt wird; das Ziel umrahmt alle Karten, deshalb nennt Mate den Tarif beim Namen.
 
@@ -133,7 +133,7 @@ Ist der Status **Unbezahlt** oder **Abgelaufen** oder hat die Testphase ihr Endd
 | Dieselben Rollen bei Enterprise | Einen Hinweis, dass der Workspace manuell abgerechnet wird, **Support kontaktieren** und **Erneut versuchen** |
 | Alle anderen | „Ein Unternehmensadministrator muss das Abonnement wiederherstellen.“, **Support kontaktieren** und **Erneut versuchen** |
 
-**Support kontaktieren** öffnet eine E-Mail an den Customermates-Support mit dem Betreff „Abonnement-Anfrage“; **Erneut versuchen** lädt die Seite neu. Sobald das Abonnement wieder nutzbar ist, leitet die Seite zu **Mein Unternehmen** › **Abonnement** weiter. Solange sie angezeigt wird, prüfen **Suchen**, **KI fragen** und **Hinzufügen** in der Sidebar nur den Zugang erneut.
+**Support kontaktieren** öffnet eine E-Mail an den Customermates-Support mit dem Betreff „Abonnement-Anfrage“; **Erneut versuchen** lädt die Seite neu. Sobald das Abonnement wieder nutzbar ist, leitet die Seite zu **Mein Unternehmen** › **Abonnement** weiter. Solange sie angezeigt wird, prüfen **Suchen**, **Mate fragen** und **Hinzufügen** in der Sidebar nur den Zugang erneut.
 
 Ein täglicher Job um 09:00 UTC führt nach dem Ende einer Testphase ohne Checkout diese Schritte aus:
 

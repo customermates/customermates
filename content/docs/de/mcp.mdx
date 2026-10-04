@@ -72,9 +72,55 @@ Der Server stellt beim Verbinden Anweisungen bereit. Ob ein Client sie an das Mo
 
 ## Server-Instructions, Prompts und Toolsets [#server-instructions-prompts-and-toolsets]
 
-Der Server sendet beim Verbinden Hinweise zum Ablauf: zuerst das Schema lesen, IDs vor dem Schreiben suchen, Datensätze und Beziehungen über `mutate_crm_record` ändern und vor dem Löschen oder Senden die Bestätigung der Nutzerin oder des Nutzers einholen und dabei die genauen Datensätze oder Empfänger nennen. Diese Hinweise bilden keine serverseitig erzwungene Freigabe. Prüfen Sie, wie der gewählte Client die Anweisungen an das Modell weitergibt und Bestätigungen behandelt, bevor Sie Schreib-, Lösch- oder Messaging-Zugriff gewähren. In Clients mit MCP-Prompt-Unterstützung kann ein eingebauter Get-Started-Prompt den Workspace für den Einstieg zusammenfassen.
+Der Server sendet beim Verbinden Hinweise zum Ablauf: zuerst das Schema lesen, IDs vor dem Schreiben suchen, Datensätze und Beziehungen über `mutate_crm_record` ändern und vor dem Löschen oder Senden die Bestätigung der Nutzerin oder des Nutzers einholen und dabei die genauen Datensätze oder Empfänger nennen. Diese Hinweise bilden keine serverseitig erzwungene Freigabe. Prüfen Sie, wie der gewählte Client die Anweisungen an das Modell weitergibt und Bestätigungen behandelt, bevor Sie Schreib-, Lösch- oder Messaging-Zugriff gewähren. In Clients mit MCP-Prompt-Unterstützung kann ein eingebauter Get-Started-Prompt den Workspace für den Einstieg zusammenfassen; er wird angeboten, wenn die Toolsets `workspace` und `records` beide aktiv sind.
 
 Die volle [[derived.mcp.tools.total]]-Tool-Oberfläche ist der Standard. Hängen Sie `?toolsets=` an die Endpoint-URL, um sie einzugrenzen, zum Beispiel `/api/v1/mcp?toolsets=records,messaging`. Keys und Details stehen unter [Eingrenzen mit ?toolsets=](/docs/mcp#narrowing-with-toolsets).
+
+## Gemeinsame Wissensdatenbank [#shared-workspace-wiki]
+
+Halten Sie CRM-Abläufe, die Sprache Ihres Unternehmens, Produktwissen und Support-Antworten unter **Wissensdatenbank** fest, direkt unter **Dashboard** in der Seitenleiste. Dieselben zugriffsgeschützten Seiten stehen Menschen im CRM, Mate, Cloud-Routinen und verbundenen MCP-Clients zur Verfügung. Manuelle Seiten funktionieren in Cloud- und Self-Hosted-Workspaces.
+
+### Seiten schreiben und verknüpfen [#write-and-link-pages]
+
+Wählen Sie **Neue Seite**, geben Sie einen Titel ein und schreiben Sie direkt im visuellen Editor. Er bietet dieselbe Formatierung wie CRM-Notizen. Wählen Sie anschließend **Speichern**; Änderungen werden nicht automatisch gespeichert. **Zurücksetzen** verwirft ungespeicherte Änderungen. Über die Seitenliste wechseln Sie Dokumente oder suchen in Titeln und Inhalten.
+
+Eine leere Wissensdatenbank bietet **Neue Seite** für manuelles Schreiben und **Aus meiner Website erstellen**, um bei verfügbarem gehostetem Mate einen Website-Import im Chat zu starten. Verwenden Sie für jede Seite einen klaren, spezifischen Titel, damit Menschen und Agents sie finden.
+
+Über die Link-Funktion des Editors finden Sie andere Wissensdatenbank-Seiten. Alternativ wählen Sie **Seitenlink kopieren** unter **Seitenaktionen**. Es sind gewöhnliche Markdown-Links; beim Umbenennen bleibt die Adresse erhalten. Ein separater Index oder zusätzliche Verknüpfungsmetadaten sind nicht nötig.
+
+Wissensdatenbank-Leserechte erlauben das Anzeigen von Seiten. Wissensdatenbank-Verwaltungsrechte erlauben das Anlegen, Bearbeiten und Löschen und schließen Leserechte ein. Ändert eine andere Person oder ein Agent die Seite vor Ihrem Speichern, wird Ihr veralteter Speicherstand abgelehnt. Ihre Änderungen bleiben sichtbar, damit Sie sie mit der aktuellen Seite abgleichen können. Löschen ist endgültig. Änderungen erscheinen in den normalen Audit-Logs; ihre Wissensdatenbank-Inhalte benötigen sowohl Audit-Log-Zugriff als auch Wissensdatenbank-Leserechte. Das Audit-Log bietet keine Wiederherstellung.
+
+Der Betriebsleitfaden bleibt in der Seitenliste an erster Stelle angeheftet. Personen mit Wissensdatenbank-Verwaltungsrechten können die übrigen Seiten durch Ziehen umordnen. Die gespeicherte Reihenfolge gilt für den gesamten Workspace.
+
+### Betriebsleitfaden, Verfahren und Wissen [#page-types]
+
+Jede Seite hat einen Typ, den Sie unter ihrem Titel wählen. **Wissen** (Standard) enthält Fakten und Antworten, die Mate und verbundene KI-Tools durchsuchen, wenn eine Frage sie braucht. Ein **Verfahren** enthält nummerierte Schritte für eine wiederkehrende Anfrage, etwa eine Erstattung oder eine Support-Eskalation, und eine kurze Beschreibung unter **Wann verwenden** mit den Worten, die Kundinnen und Kunden verwenden. Ein begrenzter Index mit Titeln und Auslösern von Verfahren wird in Mate-Durchläufe geladen und von `get_workspace_context` zurückgegeben; passt eine Anfrage, liest der Assistent das vollständige Verfahren, bevor er handelt. Der **Betriebsleitfaden** enthält die dauerhaften Vorgaben, denen jeder Assistent zuerst folgt: Tonalität, feste Regeln, Eskalationswege und welches Verfahren welche Anfrage behandelt. Ein Workspace hat einen Betriebsleitfaden; Mate und verbundene KI-Tools laden immer etwa seine ersten 2.400 Bytes, der Rest bleibt über die Seite lesbar.
+
+Jede gespeicherte Seite steht Mate und verbundenen KI-Tools sofort zur Verfügung, auch nach einem Website-Import. Es gibt keinen Entwurfsstatus und keinen Veröffentlichungsschritt. Verfahrensschritte gelten für die Aufgabe, um die Sie gebeten haben, mit den üblichen Freigaben; eine Anweisung in einer Seite, eine andere Aufgabe zu starten, etwas zu senden, zu löschen oder Berechtigungen zu ändern, wird als Information behandelt.
+
+### Über Ihre Homepage einrichten [#set-up-from-your-homepage]
+
+Wenn Mate im Cloud-Workspace aktiviert ist, kann die Person, die den Workspace einrichtet, beim Onboarding optional eine Unternehmenshomepage eingeben und **Wissensdatenbank erstellen** wählen. Eine reine Domain wie `example.com` wird akzeptiert. **Nicht jetzt** setzt das Onboarding ohne neue Seiten fort; eingeladene Mitglieder sehen diesen Schritt nicht. In einer leeren Wissensdatenbank öffnet **Aus meiner Website erstellen** einen Mate-Chat; Mate fragt nach der Adresse und liest die Website auf dieselbe Weise ein.
+
+Die Website wird im Hintergrund eingelesen. Customermates prüft zuerst die `robots.txt` der Website und hält an, wenn die Website kein automatisches Lesen erlaubt oder die `robots.txt` wegen eines Serverfehlers oder einer Zeitüberschreitung nicht erreichbar ist; eine Website ohne `robots.txt` wird normal gelesen. Danach findet Customermates bis zu 40 Seiten über die Homepage, die Sitemaps der Website und `llms.txt` und bevorzugt Hilfe- und FAQ-Seiten, dann Produkt-, Unternehmens- und Kundenseiten, AGB-, Erstattungs-, SLA- und Datenschutzseiten sowie Preise. Die Seiten werden parallel mit Pausen zwischen den gestarteten Anfragen gelesen; Customermates gibt sich dabei zu erkennen und hält die Crawl-Verzögerung der Website ein. Der Wissensdatenbank-Schritt zeigt die Importphasen und die Anzahl gelesener Seiten direkt in der üblichen Chat-Fortschrittsanzeige. Sobald Mate schreibt, erscheint dort die Unterhaltung als schreibgeschützte Ansicht in einem begrenzten, scrollbaren Bereich. Der Fortschritt wird nach einem Neuladen wiederhergestellt.
+
+Schlägt das Lesen einer einzelnen Seite fehl, überspringt der Import sie und verarbeitet die lesbaren Seiten weiter. Ist keine Quellseite lesbar, meldet er die Website als nicht verfügbar und startet keine KI-Texterstellung.
+
+Jeder Import verwendet eine Sprache. Vorhandene Wissensdatenbank-Seiten bestimmen die vorherrschende Sprache. Bei einer leeren Wissensdatenbank ist im Onboarding die Browsersprache voreingestellt; Sie können eine andere unterstützte Sprache wählen. Übersetzte Fassungen desselben Themas sollen keine getrennten Sprachkopien erzeugen. Hilfe-, FAQ-, Preis- und Richtlinienseiten, deren Sprache sicher dieser Auswahl entspricht, werden im Wortlaut als Wissensdatenbank-Seiten übernommen, mit ihren Überschriften und Frage-Antwort-Paaren und am Ende mit Quelladresse und Lesedatum. Andere Quellseiten dienen Mate als Grundlage für Übersetzungen oder Zusammenfassungen in der gewählten Sprache. Danach öffnet Mate eine sichtbare Unterhaltung mit dem Titel **Wissensdatenbank einrichten**. Vor dem Schreiben und vor dem Abschluss muss Mate jede eigenständige gespeicherte Quelle vollständig lesen, sofern nicht genau diese Inhaltsfassung bereits als importierte Seite vorliegt; ein Anfangsauszug oder ein älterer Import genügt nicht. Identische Quellinhalte teilen diesen Lesestatus. Der vollständige Inhalt jeder zitierten Quelle muss dennoch gelesen worden sein. Mate ordnet die Inhalte nach Themen und erstellt eigenständige, gehaltvolle Seiten, soweit die Quellen dies tragen, ohne feste Zielanzahl oder doppelte Sprachfassungen. Bei der Ersteinrichtung entstehen außerdem ein Betriebsleitfaden und Abläufe für wiederkehrende Anfragen, die die Website beschreibt, etwa Erstattungen oder Kündigungen. Jede geschriebene Seite nennt ihre Quellen und offene Fragen, etwa wer Ausnahmen genehmigt. Alle gespeicherten Seiten sind sofort nutzbar. Das Lesen der Website und die Spracherkennung rufen keinen KI-Anbieter auf. Das Schreiben durch Mate und die Wissensdatenbank-Indexierung verbrauchen Ihre normalen KI-Credits.
+
+Hilfecenter auf einer anderen Website, etwa ein gehostetes Helpdesk, werden aufgelistet, aber nicht gelesen. Um eines hinzuzufügen, nennen Sie Mate die Adresse im Chat; Mate importiert es in die bestehende Wissensdatenbank. Ergänzte Hilfecenter-Inhalte verwenden die Wissensdatenbank-Sprache. Mate kann übersetzte Wissensseiten erstellen, ohne Betriebsleitfaden oder Verfahren zu ersetzen. Wissensdatenbank-Seiten haben keine Schaltfläche zur Website-Aktualisierung. Quelladressen und Lesedaten bleiben für Quellenangaben und die Wiederaufnahme von Importen erhalten. Der Quelltext bleibt während des 24-stündigen Wiederholungsfensters und während einer aktiven Synthese verfügbar. Ein späterer Import entfernt ältere Quelltexte, sobald beide Bedingungen nicht mehr gelten.
+
+Seiten, die eine Anmeldung verlangen oder von Browser-Skripten abhängen, sind unter Umständen nicht lesbar. Prüfen Sie importierte und geschriebene Seiten, bevor Sie sich darauf verlassen; es sind gewöhnliche, bearbeitbare Wissensdatenbank-Dokumente. Mate und Routinen können unabhängig davon das Web durchsuchen. Der öffentliche MCP-Endpunkt bietet Abruf und Bearbeitung der Wissensdatenbank, nicht den Website-Import.
+
+### Die Wissensdatenbank mit einem KI-Client lesen [#read-the-wiki-from-an-ai-client]
+
+Verbundene KI-Clients lesen dieselben aktuellen Seiten über diesen MCP-Endpunkt. Beginnen Sie mit `get_workspace_context`: Auf der ersten Seite enthält `wiki.guide` den Betriebsleitfaden (etwa seine ersten 2.400 Bytes und ein `nextOffset` für den Rest), `wiki.procedures` listet Verfahren mit ihrem `whenToUse`, und `wiki.items` enthält zehn Titel von Wissensseiten, stabile URLs und kurze Anfangsauszüge. Übergeben Sie `wiki.nextPage` als `wikiPage`, um fortzufahren. Die Ressource `customermates://wiki/catalog?page=1` liefert denselben Inhalt.
+
+Suchen Sie mit dem standardisierten schreibgeschützten Tool `search` nach relevanten Inhalten. Verwenden Sie anschließend `fetch` mit der zurückgegebenen ID `wiki:<uuid>` oder der exakten URL. Wissensdatenbank-Markdown wird in begrenzten Abschnitten mit kanonischer Quell-URL geliefert; wiederholen Sie `fetch` mit `nextOffset` als `offset`, bis der Wert null ist. Ein Offset gilt nur für das Tool, das ihn geliefert hat: Setzen Sie einen `fetch`-Abruf mit `fetch` fort und einen `manage_wiki_pages`-Abruf mit `manage_wiki_pages`; ändert sich `updatedAt` zwischen zwei Abschnitten, beginnen Sie wieder bei Offset 0. Links zwischen Wissensdatenbank-Seiten sind absolut und können direkt wieder an `fetch` übergeben werden. Clients mit MCP-Resource-Unterstützung können den paginierten Katalog und die Seiten-Templates außerdem über `resources/list` und `resources/templates/list` entdecken. Jeder Wissensdatenbank-Treffer von `search` enthält außerdem ein hervorgehobenes `snippet`, den Überschriftenpfad des gefundenen Abschnitts in `section` und einen `offset`: Übergeben Sie diesen `offset` an `fetch`, um die Seite direkt bei der Antwort zu öffnen, und nutzen Sie Offset 0 oder die zurückgegebene `outline` für den Kontext davor. Die Wissensdatenbank-Suche findet die Wörter der Anfrage im Volltext, einschließlich Beugungsformen auf Englisch, Deutsch, Spanisch, Französisch und Italienisch. Hat Ihr Konto KI-Credits, sucht sie zusätzlich nach Bedeutung und findet Seiten also auch dann, wenn die Frage anders formuliert oder in einer anderen Sprache gestellt ist; ein Anfrage-Embedding wird nur berechnet, wenn eine Suche es verwendet, und zwar der Person, deren Suche es gestartet hat, auch wenn die gleichzeitig laufende identische Suche einer anderen Person es verwendet. Der Wissensdatenbank-Index wird aus dem gemeinsamen Workspace-Kontingent bezahlt, der Index der öffentlichen Dokumentation von Customermates. Externe Clients bezahlen ihren Modellanbieter getrennt von diesen serverseitigen Suchkosten. Ohne Credits und bei Self-Hosting ist sie reine Volltextsuche. In beiden Fällen steht eine Seite mit einem gesuchten Code oder Kennzeichen wie `E-4012` oder `OPS-1182` vorn, unabhängig von Trennzeichen und Groß- und Kleinschreibung, und ein falsch geschriebenes Wort, das auf keiner Wissensdatenbank-Seite vorkommt, wird anhand der Wörter Ihrer Wissensdatenbank korrigiert: Die Treffer stammen aus der korrigierten Anfrage, die `search` in `didYouMean` zurückgibt. `manage_wiki_pages` mit `action: "search"` liefert dieselben Felder und zusätzlich `retrieval` (`semantic` oder `keyword`) mit Offsets für das eigene `get`; `action: "get"` verwendet dasselbe schreibgeschützte Fortsetzungsmuster. Separate Aktionen `create` und `update` erstellen oder bearbeiten Seiten, wenn Ihre Rolle Wissensdatenbank-Verwaltungsrechte hat. Lesen erfordert Wissensdatenbank-Leserechte; Änderungen erscheinen im normalen Audit-Log.
+
+Die Server-Anweisungen fordern verbundene Agents zuerst auf, `get_workspace_context` aufzurufen, dem Betriebsleitfaden zu folgen und ein Verfahren, dessen `whenToUse` passt, vor dem Handeln zu lesen. Außerdem fordern sie Agents auf, relevante Wissensdatenbank-Seiten zu suchen und zu lesen, bevor sie Unternehmensfakten, Abläufe, Tonalität, Produkt- oder Support-Vorgaben verwenden, nützlichen Links zu folgen und die exakt zurückgegebenen URLs zu zitieren; `search` und `fetch` kennzeichnen Verfahrens- und Leitfadenseiten mit ihrem `kind`. MCP-Clients entscheiden selbst, ob sie Resources und Serveranweisungen an ihr Modell weitergeben; deshalb kann kein Server diese Abrufe bei jedem beliebigen Client erzwingen. Falls Ihr Client diese Hinweise ignoriert, ergänzen Sie dieselbe Abrufanweisung in seinen dauerhaften Anweisungen. Die Dokumentation selbst bleibt im CRM, damit jeder unterstützte Client die aktuelle maßgebliche Fassung abruft.
+
+Wenn sich die Tool-Liste ändert, aktualisieren oder veröffentlichen Sie den ChatGPT-Connector neu: In einem Enterprise- oder Edu-Workspace wählt ein Admin beim bestehenden Connector **Aktualisieren** und prüft seine Aktionen, in Business-Workspaces wird der Connector neu erstellt und veröffentlicht. Bis dahin behält ChatGPT die zuvor freigegebenen Tools und Serveranweisungen, etwa eine Liste ohne `manage_wiki_pages`. Aufrufe von `search` und `fetch` nutzen immer das aktuelle Serververhalten.
 
 ## Wie die Tool-Oberfläche gebaut ist [#how-the-tool-surface-is-shaped]
 
@@ -97,7 +143,7 @@ Beide liegen an derselben Basis-URL. MCP nutzt `/api/v1/mcp`, die OpenAPI-Spezif
 
 ## Welche Tools bietet der MCP-Server? Tool-Katalog [#tool-catalog]
 
-Customermates bietet [[derived.mcp.tools.total]] MCP-Tools, standardmäßig alle aktiviert. Sie decken konfigurierbare Datensätze, Datenmodell-Verwaltung, Workspace, Ansichten, Messaging, Social Posts, Dokumentation, Widgets, Routinen, Webhooks, Administration und Support ab.
+Customermates bietet [[derived.mcp.tools.total]] MCP-Tools, standardmäßig alle aktiviert. Sie decken konfigurierbare Datensätze, Datenmodell-Verwaltung, Workspace, Ansichten, die Wissensdatenbank, Messaging, Social Posts, Dokumentation und Deep Research, Widgets, Routinen, Webhooks, Administration und Support ab.
 
 Der MCP-Server kann Schemata finden, Datensätze abfragen und ändern, Felder und Berechnungen konfigurieren, Ansichten und Widgets verwalten sowie berechtigte Workspace- und Messaging-Tools verwenden. Lesen Sie vor dem Aufruf die passende Tool-Gruppe unten.
 
@@ -108,7 +154,7 @@ Der MCP-Server kann Schemata finden, Datensätze abfragen und ändern, Felder un
 {/* mcp-catalog:flags */}
 **Nur lesend:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
 
-**Kann Daten löschen:** `mutate_crm_record`, `manage_data_views`, `discard_message_draft`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_webhooks`, `manage_roles`
+**Kann Daten löschen:** `mutate_crm_record`, `manage_data_views`, `manage_wiki_pages`, `discard_message_draft`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_webhooks`, `manage_roles`
 {/* /mcp-catalog */}
 
 Das volle JSON-Schema jedes Tools liegt live an `POST /api/v1/mcp` mit `method: "tools/list"`.
@@ -118,6 +164,8 @@ Das volle JSON-Schema jedes Tools liegt live an `POST /api/v1/mcp` mit `method: 
 Die [[derived.mcp.tools.groups.records]] Datensatz-Tools bedienen die fünf Starttypen und selbst angelegte Typen. Zuerst den Typ ermitteln und sein aktuelles Schema lesen, dann Datensätze abfragen oder ändern. Nur die für den Auftrag benötigten Schemas laden; der Tool-Katalog wächst nicht mit jedem Kundenfeld.
 
 Jede Datensatzreferenz enthält `typeId` und `recordId`. Abfrage, Suche und Aggregation sind getrennt: `query_crm_records` liest einen Typ seitenweise, `search_crm_records` findet zugängliche Datensätze, `query_crm_measure` berechnet Summen über alle Treffer. Eine Seite ist keine vollständige Gesamtsumme. Mehrdeutige Suchtreffer vor einer Änderung klären.
+
+`query_crm_records` nimmt eine `pageSize` von 1 bis 500 und liefert genau so viele Datensätze pro Seite. Die übrigen seitenweisen Tools wie `list_users`, `get_messaging_threads` und `get_calendars` begrenzen die Größe auf 100: `pageSize` akzeptiert jede ganze Zahl von 1 bis 100 und liefert genau so viele Datensätze pro Seite, nur die letzte kann weniger enthalten; `page` zählt in dieser Größe, Seite 2 bei `pageSize` 50 enthält also die Datensätze 51 bis 100, und das Ergebnis nennt beide.
 
 `read_crm_record` liefert aktuelle Datensatz- und Schemaversionen. Eingabefelder über typisierte Zuweisungen in `mutate_crm_record` ändern; für Beziehungen dessen link/unlink-Aktionen verwenden. Kanäle können für jeden konfigurierten Typ aktiviert werden. Sie verwenden indexierte Identitätsverknüpfungen; ein normales E-Mail-Feld wird nicht zum Identitätsschlüssel. Ein übergebenes `identities`-Array ersetzt die Kanalliste; ohne dieses Feld bleibt sie erhalten.
 
@@ -188,9 +236,9 @@ Einen dauerhaften Vorgang über operationId bis zum Abschluss, Fehler oder Abbru
 {/* mcp-catalog:workspace */}
 #### `get_workspace_context`
 
-Aktuellen Nutzer, Workspace-Währung, Rollenkatalog mit Berechtigungen und zugängliche verbundene Nachrichtenkonten lesen. Typnamen separat mit discover_record_types ermitteln und die benötigte Konfiguration mit get_record_model abrufen.
+Aktuellen Nutzer, Workspace-Währung, Rollenkatalog mit Berechtigungen, zugängliche verbundene Nachrichtenkonten sowie den Betriebsleitfaden der Wissensdatenbank, ihr Verzeichnis der Abläufe mit ihrem Einsatzfall und eine zugriffsgefilterte Liste der Wissensseiten (`wikiPage` blättert weiter; fehlt ohne Wissensdatenbank-Leserechte) in einem Call lesen. Der natürliche erste Call einer Session. Typnamen separat mit discover_record_types ermitteln und die benötigte Konfiguration mit get_record_model abrufen.
 
-**Nur lesend.** Keine Argumente.
+**Nur lesend.** Optional: `wikiPage`.
 
 #### `list_users`
 
@@ -213,6 +261,16 @@ Persönliche gespeicherte Ansichten entdecken, prüfen, erstellen, ändern, ausw
 Persönliches Datensatz-Layout anhand stabiler Typ- und Feld-IDs lesen, speichern oder zurücksetzen. Read liefert zugängliche Felder, angeheftete und ausgeblendete Felder, Reihenfolge und Konfigurationsrevision. Save benötigt das vollständige Layout, expectedRevision und einen idempotencyKey. Reset entfernt die persönliche Anpassung, sodass wieder die gemeinsamen Typ-Standards gelten. Datensätze und Einstellungen anderer Benutzer bleiben unverändert. Gemeinsame Standards werden mit configure_record_model geändert.
 
 Pflicht: `typeId`, `action`. Optional: `expectedRevision`, `idempotencyKey`, `layout`.
+{/* /mcp-catalog */}
+
+### Wissensdatenbank [#workspace-wiki]
+
+{/* mcp-catalog:wiki */}
+#### `manage_wiki_pages`
+
+Wissensdatenbank-Seiten auflisten, suchen, lesen, anlegen, aktualisieren oder dauerhaft löschen, jeweils eine Wissensseite, ein Ablauf mit Einsatzfall oder der eine Betriebsleitfaden. Updates und Löschungen benötigen den neuesten updatedAt-Wert; Create kann atomar eine leere Wissensdatenbank voraussetzen.
+
+**Kann Daten löschen.** Pflicht: `action`. Optional: `id`, `query`, `offset`, `page`, `pages`, `requireEmpty`, `expectedUpdatedAt`, `title`, `markdown`, `kind`, `whenToUse`.
 {/* /mcp-catalog */}
 
 ### Messaging [#messaging]
@@ -383,27 +441,27 @@ Für ein Unternehmen rufen Sie `get_social_profile` mit `profileType=company` un
 {/* mcp-catalog:docs */}
 #### `search_docs`
 
-Volltextsuche über die Docs; standardmäßig nur die Produkt-Guides (source=docs); mit source=api oder all auch die REST-API-Referenz. Liefert bis zu 5 Seiten, jeweils mit Slug, Source, Titel, URL, dem passendsten Abschnitt samt Anker und einem Snippet, dazu die Gesamtzahl. App-Routen in einem Snippet, etwa `/company/subscription`, sind relativ: Ein vollständiger Link ist der Ursprung der URL dieser Seite, gefolgt von der Route; dieser Ursprung ist die konfigurierte `BASE_URL` der Instanz.
+Suche über die Docs; standardmäßig nur die Produkt-Guides (source=docs); mit source=api oder all auch die REST-API-Referenz. Findet die Wörter der Anfrage im Volltext und mit KI-Credits auch nach Bedeutung. Liefert bis zu 5 Seiten, jeweils mit Slug, Source, Titel, URL, dem passendsten Abschnitt samt Anker und einem Snippet, dazu die Gesamtzahl. App-Routen in einem Snippet, etwa `/company/subscription`, sind relativ: Ein vollständiger Link ist der Ursprung der URL dieser Seite, gefolgt von der Route; dieser Ursprung ist die konfigurierte `BASE_URL` der Instanz.
 
 **Nur lesend.** Pflicht: `query`. Optional: `locale`, `source`.
 
 #### `get_docs_page`
 
-Eine Doku-Seite als Markdown inklusive kanonischer URL. App-Routen darin, etwa `/company/subscription`, sind relativ: Ein vollständiger Link ist der Ursprung dieser URL, gefolgt von der Route; dieser Ursprung ist die konfigurierte `BASE_URL` der Instanz. Mit `query` kommt statt der ganzen Seite ein Auszug von etwa 1.400 Zeichen aus dem passendsten Abschnitt (plus einem zweiten Abschnitt, wenn er hineinpasst). Listet bei einem Miss alle gültigen Slugs.
+Eine Doku-Seite als Markdown inklusive kanonischer URL. App-Routen darin, etwa `/company/subscription`, sind relativ: Ein vollständiger Link ist der Ursprung dieser URL, gefolgt von der Route; dieser Ursprung ist die konfigurierte `BASE_URL` der Instanz. Mit einem nicht leeren `anchor` aus der Suche und der ursprünglichen Frage als `query` wird der ausgewählte Abschnitt mit etwa 1.400 Zeichen gelesen. Mit `query` allein wird der passendste Abschnitt gesucht (plus einem zweiten Abschnitt, wenn er hineinpasst). Ohne beide Parameter kommt die ganze Seite. Listet bei einem Miss alle gültigen Slugs.
 
-**Nur lesend.** Pflicht: `slug`. Optional: `query`, `locale`, `source`.
+**Nur lesend.** Pflicht: `slug`. Optional: `anchor`, `query`, `locale`, `source`.
 
 #### `search`
 
-ChatGPT-Deep-Research-Suche über zugängliche CRM-Datensätze und öffentliche Dokumentation. Interaktive Agenten sollten search_crm_records oder search_docs bevorzugen. Ergebnis-IDs unverändert an fetch übergeben; Datensatz-IDs haben die Form `record:<typeId>:<recordId>`. App-Routen in der abgerufenen Dokumentation wie `/company/subscription` sind relativ; verwende den Ursprung der Seiten-URL, also die konfigurierte `BASE_URL` der Instanz.
+Schreibgeschützte Suche in Wissensdatenbank-Inhalten, zugänglichen CRM-Datensätzen und Produktdokumentation. Wissensdatenbank-Treffer passen im Volltext zu den Wörtern der Anfrage und mit KI-Credits auch nach Bedeutung und sprachübergreifend; Seiten mit einem gesuchten Code oder Kennzeichen stehen vorn. Wissensdatenbank-Treffer liefern eine stabile `wiki:<uuid>`-ID mit einem hervorgehobenen `snippet`, dem gefundenen `section` und dessen `offset` für `fetch`; Datensatz-IDs haben die Form `record:<typeId>:<recordId>`. Kommt ein falsch geschriebenes Wort auf keiner Wissensdatenbank-Seite vor, wird es anhand der Wörter der Wissensdatenbank korrigiert, und `didYouMean` liefert die korrigierte Anfrage, aus der die Treffer stammen. Kompatibel mit ChatGPT-Unternehmenswissen und Deep Research; interaktive Agenten sollten für Datensätze und Docs search_crm_records oder search_docs bevorzugen. Ergebnis-IDs unverändert an fetch übergeben. App-Routen in den Docs, die `fetch` liefert, etwa `/company/subscription`, sind relativ: Ein vollständiger Link ist der Ursprung der URL des Ergebnisses, gefolgt von der Route; dieser Ursprung ist die konfigurierte `BASE_URL` der Instanz.
 
 **Nur lesend.** Pflicht: `query`.
 
 #### `fetch`
 
-Ein Suchergebnis über `record:<typeId>:<recordId>` oder `doc:<locale>:<slug>` laden. Datensatzzugriff wird erneut geprüft. App-Routen in der abgerufenen Dokumentation wie `/company/subscription` sind relativ; verwende den Ursprung der Seiten-URL, also die konfigurierte `BASE_URL` der Instanz.
+Lädt einen Treffer aus `search` über seine unveränderte ID: `wiki:<uuid>` oder die exakt zurückgegebene Wissensdatenbank-URL, `record:<typeId>:<recordId>` oder `doc:<locale>:<slug>`. Wissensdatenbank-Markdown kommt in begrenzten Abschnitten: Mit dem `offset` eines Suchtreffers direkt beim gefundenen Abschnitt öffnen und mit `nextOffset` fortfahren, bis der Wert null ist. Bei Offset 0 liefert eine Seite, die länger als ein Abschnitt ist, zusätzlich eine `outline` ihrer Überschriften H1 bis H3 mit Offsets. Interne Wissensdatenbank-Links sind absolut und direkt abrufbar. Wissensdatenbank-Inhalte benötigen Wissensdatenbank-Leserechte, und Datensatzzugriff wird erneut geprüft. App-Routen in einem Docs-Ergebnis, etwa `/company/subscription`, sind relativ: Ein vollständiger Link ist der Ursprung seiner URL, gefolgt von der Route; dieser Ursprung ist die konfigurierte `BASE_URL` der Instanz.
 
-**Nur lesend.** Pflicht: `id`.
+**Nur lesend.** Pflicht: `id`. Optional: `offset`.
 {/* /mcp-catalog */}
 
 ### Datenmodell [#record-model]
@@ -512,7 +570,7 @@ Alle [[derived.mcp.tools.total]] Tools sind standardmäßig an. Um nur einen Tei
 <BASE_URL>/api/v1/mcp?toolsets=records,messaging
 ```
 
-Keys: records, workspace, views, messaging, social, docs, record-model, widgets, routines, webhooks, admin, support. Kein Parameter heißt alles; unbekannte Keys werden ignoriert, und eine Liste ohne erkannten Key liefert die volle Oberfläche. `search` und `fetch` sind immer an, damit Deep-Research-Connectors auch auf einer eingegrenzten Oberfläche funktionieren.
+Keys: records, workspace, views, wiki, messaging, social, docs, record-model, widgets, routines, webhooks, admin, support. Kein Parameter heißt alles; unbekannte Keys werden ignoriert, und eine Liste ohne erkannten Key liefert die volle Oberfläche. `search` und `fetch` sind immer an, damit Deep-Research-Connectors auch auf einer eingegrenzten Oberfläche funktionieren.
 
 ### Wenn ein Aufruf abgelehnt wird [#when-a-call-is-refused]
 
@@ -574,7 +632,7 @@ Für Claude im Web, mobil und als Desktop-App, ChatGPT, Claude Code, Codex, Curs
 Keinen bestimmten. Der MCP-Endpoint und API-Keys funktionieren in jedem Tarif, während der Testphase und auf selbst gehosteten Instanzen. Der Tarif ändert, was einige Tools erlauben: Die Messaging-, Kalender- und Social-Tools brauchen einen Tarif mit Messaging, ab Pro in der Cloud, und lehnen in Starter oder selbst gehostet mit einer Tarif-Meldung ab; das Verbinden eines Messaging-Kontos endet am Kontolimit pro Nutzer des Tarifs; `manage_routines` lehnt eine neue Routine ab, sobald der Aufrufer das Routinenlimit des Tarifs erreicht hat; und Aktivitäts-Widgets lassen ohne Messaging Nachrichten und Kalendertermine weg. Siehe [Wenn ein Aufruf abgelehnt wird](/docs/mcp#when-a-call-is-refused). Endet die Testphase oder bleibt eine Zahlung aus, pausiert zuerst die Web-App, während API-Keys und MCP-Verbindungen weiterarbeiten, bis die Mitglieder auf **Inaktiv** gesetzt werden; siehe [was passiert, wenn die Testphase endet](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails).
 </FaqItem>
 <FaqItem question="Kann ich die Zahl der Tools reduzieren, die ein Client sieht?">
-Ja. `?toolsets=` mit einer kommagetrennten Liste von Gruppen-Keys (`records`, `workspace`, `views`, `messaging`, `social`, `docs`, `record-model`, `widgets`, `routines`, `webhooks`, `admin`, `support`) an die Endpoint-URL anhängen, dann werden nur diese Tools angeboten. Die beiden Connector-Tools `search` und `fetch` bleiben immer aktiv.
+Ja. `?toolsets=` mit einer kommagetrennten Liste von Gruppen-Keys (`records`, `workspace`, `views`, `wiki`, `messaging`, `social`, `docs`, `record-model`, `widgets`, `routines`, `webhooks`, `admin`, `support`) an die Endpoint-URL anhängen, dann werden nur diese Tools angeboten. Die beiden Connector-Tools `search` und `fetch` bleiben immer aktiv.
 </FaqItem>
 <FaqItem question="Woran erkenne ich gefährliche Tools?">
 

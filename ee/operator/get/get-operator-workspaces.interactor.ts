@@ -1,16 +1,15 @@
+import type { GetOperatorWorkspacesRepo } from "./get-operator-workspaces.repo";
 import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type { OperatorWorkspaceRowDto } from "../operator-lists.schema";
 
-import { BaseGetInteractor, BaseGetRepo } from "@/core/base/base-get.interactor";
+import { BaseGetInteractor } from "@/core/base/base-get.interactor";
 import { GetQueryParamsSchema, createGetResultSchema } from "@/core/base/base-get.schema";
 import { Enforce } from "@/core/decorators/enforce.decorator";
 import { OperatorInteractor } from "@/core/decorators/operator-interactor.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
 import { OperatorWorkspaceRowDtoSchema } from "../operator-lists.schema";
-
-export abstract class GetOperatorWorkspacesRepo extends BaseGetRepo<OperatorWorkspaceRowDto> {}
 
 @OperatorInteractor
 export class GetOperatorWorkspacesInteractor extends BaseGetInteractor<OperatorWorkspaceRowDto> {

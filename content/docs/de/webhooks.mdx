@@ -55,13 +55,15 @@ Verwenden Sie einen HTTPS-Endpunkt. Eine reine `http://`-URL wird für jeden Hos
 
 ## Wer kann Webhooks sehen und ändern? [#who-can-see-and-change-webhooks]
 
-Den Zugriff legt die Zeile **API & Webhooks** im Rolleneditor unter **Mein Unternehmen** → **Rollen** fest. Dieselbe Zeile steuert auch **Mein Profil** → **API & Konnektoren**. Eine Rolle, die ihre eigenen API-Keys verwalten darf, darf also auch jeden Webhook im Workspace verwalten.
+Den Zugriff legt die Zeile **API & Webhooks** im Rolleneditor unter **Mein Unternehmen** → **Rollen** fest. Gespeicherte **Secret**- und **Eigene Header**-Werte sehen im Dialog nur die Rolle **Admin** oder Rollen mit **Verwalten** **Ja** bei **API & Webhooks**. **Lesen** **Alle** allein zeigt `********`.
 
 | Einstellung bei **API & Webhooks** | Was Mitglieder mit dieser Rolle tun können |
 | --- | --- |
 | **Lesen** **Keine** (Standard für eine neue Rolle) | **Webhooks** und **Letzte Zustellungen** sind in der Seitenleiste ausgeblendet. Wer die Adresse direkt öffnet, landet auf dem Dashboard. |
 | **Lesen** **Alle**, **Verwalten** **Nein** | Beide Seiten öffnen, den Dialog jedes Webhooks schreibgeschützt öffnen und **Ereignis-Details** zu jeder Zustellung öffnen. Im Dialog erscheinen ein gespeichertes **Secret** und jeder Wert unter **Eigene Header** als `********`; die Header-Namen bleiben sichtbar. |
-| **Lesen** **Alle**, **Verwalten** **Ja** | Alles oben Genannte, dazu Webhooks anlegen, bearbeiten und löschen sowie Zustellungen erneut senden. |
+| **Lesen** **Alle**, **Verwalten** **Ja** | Beide Seiten öffnen, gespeicherte **Secret**- und **Eigene Header**-Werte im Webhook-Dialog sehen; Webhooks anlegen, bearbeiten und löschen sowie Zustellungen erneut senden. |
+
+Dieselbe Zeile steuert auch **Mein Profil** → **API & Konnektoren**. Eine Rolle, die ihre eigenen API-Keys verwalten darf, darf also auch jeden Webhook im Workspace verwalten.
 
 Die Rolle **Admin** darf alles. Webhooks sind an keinen Tarif gebunden und funktionieren in jedem Cloud-Tarif sowie in einer selbstgehosteten Installation. Dieselben Berechtigungen gelten für `manage_webhooks` über MCP und im gehosteten Assistenten. Im gehosteten Assistenten fragt das Löschen eines Webhooks oder das erneute Senden einer Zustellung vorher nach Ihrer Freigabe.
 

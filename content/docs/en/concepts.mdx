@@ -29,6 +29,8 @@ Relationships are definitions between configured types. Each direction has its o
 
 The link between a deal and a service is stored as a line record with its own quantity. The same service can appear twice on one deal with different quantities or saved prices.
 
+In the record form, a relationship appears as a labeled relation field. Pick the records, then save.
+
 The backend enforces endpoint types, workspace ownership, cardinality, duplicate prevention, and deletion behavior. A multi-record lookup or rollup must choose an aggregation such as sum or count. MCP clients use `mutate_crm_record` with stable relation IDs from `get_record_model` to link or unlink. Every record reference contains both `typeId` and `recordId`.
 
 ## What are custom columns, and which field types are there? [#what-are-custom-columns]

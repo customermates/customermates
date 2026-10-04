@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import type { AgentModelEntry } from "@/ee/agent-chat/model-catalog";
 
-import { MODEL_CATALOG, SHIPPED_AGENT_MODEL_KEY } from "@/ee/agent-chat/model-catalog";
+import { SHIPPED_AGENT_MODEL, SHIPPED_AGENT_MODEL_KEY } from "@/ee/agent-chat/model-catalog";
 
 import {
   armById,
@@ -30,7 +30,7 @@ describe("benchmark arms", () => {
   it("uses the production model catalog entry as the shipped control", () => {
     const shipped = armById("shipped");
 
-    expect(modelEntry(shipped)).toEqual(MODEL_CATALOG[SHIPPED_AGENT_MODEL_KEY]);
+    expect(modelEntry(shipped)).toEqual(SHIPPED_AGENT_MODEL);
     expect(armModelKey(shipped)).toBe(SHIPPED_AGENT_MODEL_KEY);
     expect(benchmarkModelEntries([shipped])).toEqual([]);
     expect(JSON.parse(benchmarkArmsOverlayJson([shipped]))).toEqual([]);

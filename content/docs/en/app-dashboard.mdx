@@ -58,7 +58,7 @@ To change a widget, click it, or click one of its filter chips to open the edito
 
 The sidebar is the same on every screen; its controls are documented here because the Dashboard is where you land.
 
-Entries sit in three groups: **Overview** (**Dashboard**, plus **Inbox** and **Routines** on Cloud), **CRM** (accessible configured record types, including customer-created types, under their workspace labels) and **Workspace** (**My Profile** and **My Company**). An entry your role cannot read is hidden, a group with no visible entries disappears, and opening a hidden page by its URL brings you back to the Dashboard. **My Profile** and **My Company** only expand or collapse; their sub-entries open the pages and carry their own ids: `#nav-profile-settings`, `#nav-profile-connected-accounts`, `#nav-profile-api-keys`, `#nav-company-subscription`, `#nav-company-settings`, `#nav-company-data-model`, `#nav-company-members`, `#nav-company-roles`, `#nav-company-audit-logs`, `#nav-company-webhooks` and `#nav-company-webhook-deliveries`. Mate can navigate to each of them your role can open (for any other it tells you that your role cannot open it), but highlight one only while its group is expanded, which it is by default on that group's own pages. Three entries show a number: **Inbox** counts unread conversations, the tasks entry shows members who manage **Users & Roles** how many **Approve User** tasks are open, and **Channels** counts channels that need attention.
+Entries sit in three groups: **Overview** (**Dashboard** and **Knowledge Base**, plus **Inbox** and **Routines** on Cloud), **CRM** (accessible configured record types, including customer-created types, under their workspace labels) and **Workspace** (**My Profile** and **My Company**). An entry your role cannot read is hidden, a group with no visible entries disappears, and opening a hidden page by its URL brings you back to the Dashboard. **My Profile** and **My Company** only expand or collapse; their sub-entries open the pages and carry their own ids: `#nav-profile-settings`, `#nav-profile-connected-accounts`, `#nav-profile-api-keys`, `#nav-company-subscription`, `#nav-company-settings`, `#nav-company-data-model`, `#nav-company-members`, `#nav-company-roles`, `#nav-company-audit-logs`, `#nav-company-webhooks` and `#nav-company-webhook-deliveries`. Mate can navigate to each of them your role can open (for any other it tells you that your role cannot open it), but highlight one only while its group is expanded, which it is by default on that group's own pages. Three entries show a number: **Inbox** counts unread conversations, the tasks entry shows members who manage **Users & Roles** how many **Approve User** tasks are open, and **Channels** counts channels that need attention.
 
 | Action | Where | Anchor id | What happens |
 | --- | --- | --- | --- |
@@ -69,7 +69,7 @@ Entries sit in three groups: **Overview** (**Dashboard**, plus **Inbox** and **R
 | Create a record | Top of sidebar | `#nav-add` | Opens the record type picker |
 | Open documentation | Sidebar footer | `#nav-documentation` | Opens `/docs` |
 | Send feedback | Sidebar footer | `#nav-feedback` | Opens the feedback dialog |
-| Ask AI | Top of sidebar, when Mate is available | `#nav-assistant` | **Ask AI** opens or closes the [assistant](/docs/app-assistant) panel (also Cmd/Ctrl+J) |
+| Ask Mate | Top of sidebar when Mate is enabled, also visible during onboarding | `#nav-assistant` | **Ask Mate** opens or closes the [AI assistant](/docs/app-assistant) panel (also Cmd/Ctrl+J); during onboarding it rechecks account state and returns to the permitted route |
 | Plan and status | Under the brand name, Cloud only | none | Shows the plan, or the plan with its status, for example **Pro · Trial · 5 days left**; green, amber with 3 or fewer trial days left, red for **Past Due**, **Unpaid**, **Cancelled** or **Expired**; opens **My Company › Subscription** |
 | Verify your email | Under the brand name | none | **Email not verified** is shown until you confirm your address; opens **My Profile › Settings** |
 | Personal settings | Workspace group | `#nav-profile` | **My Profile** expands or collapses **Settings**, **Channels** and **API & Connectors**; see [My Profile](/docs/app-profile) |
@@ -80,9 +80,9 @@ Entries sit in three groups: **Overview** (**Dashboard**, plus **Inbox** and **R
 
 ## What happens on first run?
 
-New accounts land in the [onboarding wizard](/docs/app-onboarding) at `/onboarding/wizard` before they see the Dashboard. It has three steps: your profile, team invites, and connecting an AI client. Only the invite step carries the stable ids `#onboarding-next` and `#onboarding-back`.
+New accounts land in the [onboarding wizard](/docs/app-onboarding) at `/onboarding/wizard` before they see the Dashboard. It has four steps: your profile, Knowledge Base, team invites, and connecting an AI client. The owner can skip website import, invitations, and an AI connection; invited members see only their profile. Only the invite step carries the stable ids `#onboarding-next` and `#onboarding-back`.
 
-**Link:** the onboarding wizard, `/onboarding/wizard`, until onboarding is finished; afterwards the **Dashboard** page, `/dashboard`. **Mate:** not available during onboarding, so it can only give the wizard's link; on the Dashboard, `navigate` and `highlight_element` with `nav-dashboard`.
+**Link:** the onboarding wizard, `/onboarding/wizard`, until onboarding is finished; afterwards the **Dashboard** page, `/dashboard`. **Mate:** the wizard controls are not highlight targets; website setup displays the read-only conversation inline. On the Dashboard, `navigate` and `highlight_element` with `nav-dashboard`.
 
 ## Tips for agents
 

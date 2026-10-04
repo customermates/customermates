@@ -24,6 +24,7 @@ import { manageWebhooksTool } from "@/features/mcp-tools/webhook.mcp-tools";
 import { manageWidgetsTool } from "@/features/mcp-tools/widget.mcp-tools";
 import { manageRoutinesTool } from "@/features/mcp-tools/routine.mcp-tools";
 import { requestSupportTool } from "@/features/mcp-tools/support.mcp-tools";
+import { manageWikiPagesTool } from "@/features/mcp-tools/wiki.mcp-tools";
 import {
   connectMessagingAccountTool,
   discardMessageDraftTool,
@@ -68,6 +69,7 @@ export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
   "record-model": [configureRecordModelV2Tool, cancelRecordOperationV2Tool, resumeRecordOperationV2Tool],
   workspace: [getWorkspaceContextTool, listUsersTool],
   views: [manageDataViewsTool, manageRecordDetailLayoutV2Tool],
+  wiki: [manageWikiPagesTool],
   messaging: [
     getMessagingThreadsTool,
     getActivitiesTool,

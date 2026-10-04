@@ -1046,6 +1046,7 @@
                                       "api",
                                       "auditLog",
                                       "inboxMessages",
+                                      "wiki",
                                       "routines"
                                     ]
                                   },
@@ -1340,6 +1341,26 @@
                         },
                         "additionalProperties": false
                       },
+                      "wiki": {
+                        "type": "object",
+                        "properties": {
+                          "canManage": {
+                            "type": "string",
+                            "enum": [
+                              "yes",
+                              "no"
+                            ]
+                          },
+                          "readAccess": {
+                            "type": "string",
+                            "enum": [
+                              "none",
+                              "all"
+                            ]
+                          }
+                        },
+                        "additionalProperties": false
+                      },
                       "auditLog": {
                         "type": "object",
                         "properties": {
@@ -1500,6 +1521,7 @@
                                   "api",
                                   "auditLog",
                                   "inboxMessages",
+                                  "wiki",
                                   "routines"
                                 ]
                               },
@@ -88110,6 +88132,17 @@
             "default": false,
             "type": "boolean"
           },
+          "lastSentMessageFromSelf": {
+            "default": null,
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "lastMessageSenderName": {
             "default": null,
             "anyOf": [
@@ -90748,6 +90781,17 @@
             "default": false,
             "type": "boolean"
           },
+          "lastSentMessageFromSelf": {
+            "default": null,
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "lastMessageSenderName": {
             "default": null,
             "anyOf": [
@@ -90783,6 +90827,7 @@
           "accountShared",
           "isOwner",
           "lastMessageFromSelf",
+          "lastSentMessageFromSelf",
           "lastMessageSenderName",
           "createdAt",
           "updatedAt"

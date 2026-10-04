@@ -1,5 +1,6 @@
 import { CLOUD_TRIAL } from "@/core/commercial/plan-catalog";
 import type { RepoArgs } from "@/core/utils/types";
+import type { CompleteOnboardingWikiStepRepo } from "@/features/onboarding-wizard/complete-onboarding-wiki-step.repo";
 import type { DeactivateTrialUsersAndSendNoticeRepo } from "@/ee/lifecycle/deactivate-trial-users-and-send-notice.interactor";
 import type { DeactivateUsersAfterSubscriptionGracePeriodRepo } from "@/ee/lifecycle/deactivate-users-after-subscription-grace-period.interactor";
 import type { ExpireAdAttributionRepo } from "@/ee/lifecycle/expire-ad-attribution.interactor";
@@ -13,7 +14,7 @@ import type { WithdrawAdAttributionRepo } from "@/features/acquisition/withdraw-
 import type { CompleteOnboardingWizardRepo } from "@/features/onboarding-wizard/complete-onboarding-wizard.interactor";
 import type { FindUsersByIdsRepo } from "@/features/user/find-users-by-ids.repo";
 import type { GetUserByIdRepo } from "@/features/user/get/get-user-by-id.interactor";
-import type { GetUsersRepo } from "@/features/user/get/get-users.interactor";
+import type { GetUsersRepo } from "@/features/user/get/get-users.repo";
 import type { RegisterUserRepo } from "@/features/user/register/register-user.interactor";
 import type { AdminUpdateUserDetailsRepo } from "@/features/user/upsert/admin-update-user-details.interactor";
 import type { UpdateUserDetailsRepo } from "@/features/user/upsert/update-user-details.interactor";
@@ -53,6 +54,7 @@ export class PrismaUserRepo
     DeleteAccountsForPlanUserRepo,
     CountActiveUsersRepo,
     CompleteOnboardingWizardRepo,
+    CompleteOnboardingWikiStepRepo,
     WebhookUserRepo,
     SendLegalDocumentNoticesRepo,
     ExpireAdAttributionRepo,
@@ -83,6 +85,7 @@ export class PrismaUserRepo
       agreeToTerms: true,
       lastActiveAt: true,
       onboardingWizardCompletedAt: true,
+      onboardingWikiStepCompletedAt: true,
       createdAt: true,
       updatedAt: true,
       role: {
@@ -238,6 +241,20 @@ export class PrismaUserRepo
     await this.prisma.user.updateMany({
       data: { onboardingWizardCompletedAt: new Date() },
       where: { id: args.userId, companyId },
+    });
+  }
+
+  async markOnboardingWikiStepCompleted(
+    args: RepoArgs<CompleteOnboardingWikiStepRepo, "markOnboardingWikiStepCompleted">,
+  ) {
+    const { companyId } = this.user;
+    await this.prisma.user.updateMany({
+      data: { onboardingWikiStepCompletedAt: new Date() },
+      where: {
+        id: args.userId,
+        companyId,
+        onboardingWikiStepCompletedAt: null,
+      },
     });
   }
 

@@ -1,0 +1,1592 @@
+diff --git a/node_modules/@ai-sdk/workflow/dist/index.js b/node_modules/@ai-sdk/workflow/dist/index.js
+index 954fb39..6e05ca1 100644
+--- a/node_modules/@ai-sdk/workflow/dist/index.js
++++ b/node_modules/@ai-sdk/workflow/dist/index.js
+@@ -246,253 +246,525 @@ function resolveSerializableTools(tools) {
+ }
+ 
+ // src/do-stream-step.ts
+-async function doStreamStep(conversationPrompt, modelInit, writable, serializedTools, options) {
+-  "use step";
+-  var _a, _b, _c, _d, _e, _f;
+-  const timeout = (options == null ? void 0 : options.timeoutAt) == null ? void 0 : options.timeoutAt - Date.now();
+-  if (((_a = options == null ? void 0 : options.abortSignal) == null ? void 0 : _a.aborted) || timeout != null && timeout <= 0) {
+-    return { aborted: true };
+-  }
+-  const abortSignal = timeout == null ? options == null ? void 0 : options.abortSignal : (options == null ? void 0 : options.abortSignal) == null ? AbortSignal.timeout(timeout) : AbortSignal.any([options.abortSignal, AbortSignal.timeout(timeout)]);
+-  const model = typeof modelInit === "string" ? gateway.languageModel(modelInit) : modelInit;
+-  const toolInputLifecycleEvents = [];
+-  const tools = serializedTools ? resolveSerializableTools(serializedTools) : void 0;
+-  const output = (options == null ? void 0 : options.responseFormat) == null ? void 0 : {
+-    name: "workflow",
+-    responseFormat: Promise.resolve(options.responseFormat),
+-    async parseCompleteOutput() {
+-      throw new Error(
+-        "WorkflowAgent does not use streamModelCall output parsing."
+-      );
+-    },
+-    async parsePartialOutput() {
+-      return void 0;
+-    },
+-    createElementStreamTransform() {
+-      return void 0;
++function gatewayFailureRecord(value) {
++    return value !== null && typeof value === "object" && !Array.isArray(value)
++        ? value
++        : null;
++}
++function boundedGatewayFailureMetadata(value) {
++    const gateway = gatewayFailureRecord(gatewayFailureRecord(value)?.gateway);
++    if (!gateway)
++        return null;
++    const projected = {};
++    for (const field of ["gatewayCost", "cost", "surchargeCost", "upstreamInferenceCost"]) {
++        if (field in gateway)
++            projected[field] = typeof gateway[field] === "string" && gateway[field].length <= 96 && /^\d+(\.\d+)?$/.test(gateway[field]) ? gateway[field] : null;
+     }
+-  };
+-  const { retry } = prepareRetries({
+-    maxRetries: options == null ? void 0 : options.maxRetries,
+-    abortSignal
+-  });
+-  const modelStream = await (async () => {
+-    try {
+-      const { stream } = await retry(
+-        () => streamModelCall({
+-          model,
+-          // streamModelCall expects Prompt (ModelMessage[]) but we pass the
+-          // pre-converted LanguageModelV4Prompt. standardizePrompt inside
+-          // streamModelCall handles both formats.
+-          messages: conversationPrompt,
+-          allowSystemInMessages: true,
+-          tools,
+-          toolChoice: options == null ? void 0 : options.toolChoice,
+-          includeRawChunks: options == null ? void 0 : options.includeRawChunks,
+-          providerOptions: options == null ? void 0 : options.providerOptions,
+-          abortSignal,
+-          headers: options == null ? void 0 : options.headers,
+-          reasoning: options == null ? void 0 : options.reasoning,
+-          output,
+-          maxOutputTokens: options == null ? void 0 : options.maxOutputTokens,
+-          temperature: options == null ? void 0 : options.temperature,
+-          topP: options == null ? void 0 : options.topP,
+-          topK: options == null ? void 0 : options.topK,
+-          presencePenalty: options == null ? void 0 : options.presencePenalty,
+-          frequencyPenalty: options == null ? void 0 : options.frequencyPenalty,
+-          stopSequences: options == null ? void 0 : options.stopSequences,
+-          seed: options == null ? void 0 : options.seed,
+-          repairToolCall: options == null ? void 0 : options.repairToolCall
+-        })
+-      );
+-      return stream;
+-    } catch (error) {
+-      if ((abortSignal == null ? void 0 : abortSignal.aborted) && isAbortError(error)) {
+-        return void 0;
+-      }
+-      throw error;
++    if ("serviceTier" in gateway)
++        projected.serviceTier = true;
++    if (typeof gateway.generationId === "string" && gateway.generationId.length > 0 && gateway.generationId.length <= 128)
++        projected.generationId = gateway.generationId;
++    const routing = gatewayFailureRecord(gateway.routing);
++    if (routing) {
++        const modelAttempts = routing.modelAttempts;
++        projected.routing = {
++            finalProvider: typeof routing.finalProvider === "string" && routing.finalProvider.length <= 64 ? routing.finalProvider : null,
++            modelAttempts: Array.isArray(modelAttempts) && modelAttempts.length <= 16
++                ? modelAttempts.map((modelAttempt) => {
++                    const model = gatewayFailureRecord(modelAttempt);
++                    const attempts = model?.providerAttempts;
++                    return {
++                        providerAttempts: Array.isArray(attempts) && attempts.length <= 16
++                            ? attempts.map((attempt) => {
++                                const parsed = gatewayFailureRecord(attempt);
++                                return {
++                                    success: typeof parsed?.success === "boolean" ? parsed.success : null,
++                                    provider: typeof parsed?.provider === "string" && parsed.provider.length <= 64 ? parsed.provider : null,
++                                    credentialType: typeof parsed?.credentialType === "string" && parsed.credentialType.length <= 64
++                                        ? parsed.credentialType
++                                        : null,
++                                };
++                            })
++                            : null,
++                    };
++                })
++                : null,
++        };
+     }
+-  })();
+-  if (modelStream == null) {
+-    return { aborted: true };
+-  }
+-  const toolCalls = [];
+-  const providerExecutedToolResults = /* @__PURE__ */ new Map();
+-  let finish;
+-  const content = [];
+-  const textPartIndexes = /* @__PURE__ */ new Map();
+-  const reasoningParts = [];
+-  let responseMetadata;
+-  let warnings;
+-  let terminalError;
+-  let hasTerminalError = false;
+-  const ongoingToolCallToolNames = /* @__PURE__ */ new Map();
+-  const writer = writable == null ? void 0 : writable.getWriter();
+-  try {
+-    await (writer == null ? void 0 : writer.write({ type: "reset-step" }));
+-    for await (const part of modelStream) {
+-      switch (part.type) {
+-        case "tool-input-start":
+-          ongoingToolCallToolNames.set(part.id, part.toolName);
+-          if (((_b = serializedTools == null ? void 0 : serializedTools[part.toolName]) == null ? void 0 : _b.hasOnInputStart) || ((_c = serializedTools == null ? void 0 : serializedTools[part.toolName]) == null ? void 0 : _c.hasOnInputDelta) || ((_d = serializedTools == null ? void 0 : serializedTools[part.toolName]) == null ? void 0 : _d.hasOnInputAvailable)) {
+-            toolInputLifecycleEvents.push(["start", part.id, part.toolName]);
+-          }
+-          break;
+-        case "tool-input-delta": {
+-          const toolName = ongoingToolCallToolNames.get(part.id);
+-          if (toolName != null && ((_e = serializedTools == null ? void 0 : serializedTools[toolName]) == null ? void 0 : _e.hasOnInputDelta)) {
+-            toolInputLifecycleEvents.push(["delta", part.id, part.delta]);
+-          }
+-          break;
++    const metadata = { gateway: projected };
++    return JSON.stringify(metadata).length <= 16_384 ? metadata : null;
++}
++function gatewayFailureMarked(value, name) {
++    const object = gatewayFailureRecord(value);
++    const marker = Symbol.for(name);
++    return object !== null && marker in object && object[marker] === true;
++}
++function gatewayFailureAttemptMetadata(error) {
++    const seen = new Set();
++    let current = error;
++    for (let depth = 0; depth < 8; depth += 1) {
++        const object = gatewayFailureRecord(current);
++        if (!object || seen.has(current))
++            return null;
++        seen.add(current);
++        if (gatewayFailureMarked(current, "vercel.ai.error.AI_APICallError")) {
++            const body = object.responseBody;
++            if (typeof body !== "string" || body.length > 65_536)
++                return null;
++            try {
++                return boundedGatewayFailureMetadata(gatewayFailureRecord(JSON.parse(body))?.providerMetadata);
++            }
++            catch {
++                return null;
++            }
+         }
+-        case "text-start":
+-          upsertTextContentPart({
+-            content,
+-            textPartIndexes,
+-            id: part.id,
+-            providerMetadata: part.providerMetadata
+-          });
+-          break;
+-        case "text-delta":
+-          upsertTextContentPart({
+-            content,
+-            textPartIndexes,
+-            id: part.id,
+-            textDelta: part.text,
+-            providerMetadata: part.providerMetadata
+-          });
+-          break;
+-        case "text-end":
+-          upsertTextContentPart({
+-            content,
+-            textPartIndexes,
+-            id: part.id,
+-            providerMetadata: part.providerMetadata
+-          });
+-          textPartIndexes.delete(part.id);
+-          break;
+-        case "reasoning-delta":
+-          reasoningParts.push({ text: part.text });
+-          break;
+-        case "file":
+-          content.push({
+-            type: "file",
+-            data: part.file.base64,
+-            mediaType: part.file.mediaType,
+-            ...part.providerMetadata != null ? { providerMetadata: part.providerMetadata } : {}
+-          });
+-          break;
+-        case "source":
+-          content.push(part);
+-          break;
+-        case "tool-call": {
+-          const toolCallPart = part;
+-          const toolCallIndex = toolCalls.length;
+-          const lifecycleToolName = ongoingToolCallToolNames.get(
+-            toolCallPart.toolCallId
+-          );
+-          ongoingToolCallToolNames.delete(toolCallPart.toolCallId);
+-          if (lifecycleToolName != null && ((_f = serializedTools == null ? void 0 : serializedTools[lifecycleToolName]) == null ? void 0 : _f.hasOnInputAvailable)) {
+-            toolInputLifecycleEvents.push([
+-              "available",
+-              toolCallPart.toolCallId
+-            ]);
+-          }
+-          toolCalls.push({
+-            type: "tool-call",
+-            toolCallId: toolCallPart.toolCallId,
+-            toolName: toolCallPart.toolName,
+-            input: toolCallPart.input,
+-            providerExecuted: toolCallPart.providerExecuted,
+-            providerMetadata: toolCallPart.providerMetadata,
+-            title: toolCallPart.title,
+-            toolMetadata: toolCallPart.toolMetadata,
+-            dynamic: toolCallPart.dynamic,
+-            invalid: toolCallPart.invalid,
+-            error: toolCallPart.error
+-          });
+-          content.push({ type: "tool-call", toolCallIndex });
+-          break;
++        current = object.cause;
++    }
++    return null;
++}
++function gatewayFailureTransportStatus(error) {
++    const seen = new Set();
++    let current = error;
++    for (let depth = 0; depth < 8; depth += 1) {
++        const object = gatewayFailureRecord(current);
++        if (!object || seen.has(current))
++            return {};
++        seen.add(current);
++        if (gatewayFailureMarked(current, "vercel.ai.gateway.error") ||
++            gatewayFailureMarked(current, "vercel.ai.error.AI_APICallError")) {
++            return {
++                ...(typeof object.statusCode === "number" && Number.isInteger(object.statusCode) && object.statusCode >= 100 && object.statusCode <= 599
++                    ? { statusCode: object.statusCode }
++                    : {}),
++                ...(typeof object.isRetryable === "boolean" ? { isRetryable: object.isRetryable } : {}),
++            };
++        }
++        if (gatewayFailureMarked(current, "vercel.ai.error.AI_RetryError")) {
++            const errors = object.errors;
++            if (!Array.isArray(errors) || errors.length === 0 || errors.length > 16)
++                return {};
++            current = errors.at(-1);
+         }
+-        case "tool-result":
+-          if (part.providerExecuted) {
+-            providerExecutedToolResults.set(part.toolCallId, {
+-              toolCallId: part.toolCallId,
+-              toolName: part.toolName,
+-              result: part.output,
+-              isError: false
++        else
++            current = object.cause;
++    }
++    return {};
++}
++function preserveGatewayFailure(error, receipt) {
++    if (receipt) {
++        const providerFailure = receipt.providerFailure !== false;
++        const transport = providerFailure ? gatewayFailureTransportStatus(error) : {};
++        const message = !providerFailure
++            ? "A workflow stream could not be completed."
++            : transport.statusCode === undefined
++                ? "A provider request failed before complete usage was available."
++                : `A provider request failed before complete usage was available (HTTP ${transport.statusCode}).`;
++        const failure = new Error(message, { cause: { ...receipt, ...transport } });
++        failure.name = providerFailure ? "AI_WorkflowProviderError" : "AI_WorkflowStreamError";
++        return failure;
++    }
++    const seen = new Set();
++    let current = error;
++    for (let depth = 0; depth < 8; depth += 1) {
++        const object = gatewayFailureRecord(current);
++        if (!object || seen.has(current))
++            return error;
++        seen.add(current);
++        const retry = gatewayFailureMarked(current, "vercel.ai.error.AI_RetryError");
++        if (retry ||
++            gatewayFailureMarked(current, "vercel.ai.gateway.error") ||
++            gatewayFailureMarked(current, "vercel.ai.error.AI_APICallError")) {
++            const errors = retry ? object.errors : [current];
++            const attempts = Array.isArray(errors) && errors.length > 0 && errors.length <= 16
++                ? errors.map(gatewayFailureAttemptMetadata)
++                : [null];
++            const transport = gatewayFailureTransportStatus(current);
++            const message = transport.statusCode === undefined
++                ? "A provider request failed before complete usage was available."
++                : `A provider request failed before complete usage was available (HTTP ${transport.statusCode}).`;
++            const failure = new Error(message, {
++                cause: { ...(receipt ?? { kind: "ai-sdk-workflow-provider-error", version: 1, attempts }), ...transport },
+             });
+-          }
+-          break;
+-        case "tool-error": {
+-          const errorPart = part;
+-          if (errorPart.providerExecuted) {
+-            providerExecutedToolResults.set(errorPart.toolCallId, {
+-              toolCallId: errorPart.toolCallId,
+-              toolName: errorPart.toolName,
+-              result: errorPart.error,
+-              isError: true
++            failure.name = "AI_WorkflowProviderError";
++            return failure;
++        }
++        current = object.cause;
++    }
++    return error;
++}
++function gatewayFailureErrorAttempts(error) {
++    const preserved = preserveGatewayFailure(error);
++    if (preserved === error)
++        return [null];
++    const cause = gatewayFailureRecord(gatewayFailureRecord(preserved)?.cause);
++    const attempts = cause?.kind === "ai-sdk-workflow-provider-error" && cause.version === 1 ? cause.attempts : null;
++    return Array.isArray(attempts) && attempts.length > 0 && attempts.length <= 16
++        ? attempts.map(boundedGatewayFailureMetadata)
++        : [null];
++}
++function gatewayFailureEnvelope(priorAttempts, incompleteAttempts, finish, errorAttempts, providerFailure) {
++    if (priorAttempts.length === 0 && !incompleteAttempts && errorAttempts.length === 0)
++        return undefined;
++    return {
++        kind: "ai-sdk-workflow-provider-error",
++        version: 1,
++        attempts: priorAttempts,
++        ...(providerFailure === undefined ? {} : { providerFailure }),
++        ...(incompleteAttempts ? { incompleteAttempts: true } : {}),
++        currentAttempt: {
++            ...(finish?.providerMetadata !== undefined
++                ? { finishMetadata: boundedGatewayFailureMetadata(finish.providerMetadata) }
++                : {}),
++            ...(errorAttempts.length > 0 ? { errorAttempts } : {}),
++        },
++    };
++}
++async function doStreamStep(conversationPrompt, modelInit, writable, serializedTools, options) {
++    'use step';
++    const timeout = options?.timeoutAt == null ? undefined : options.timeoutAt - Date.now();
++    // AbortSignal.timeout(0) does not abort synchronously. Check the deadline
++    // explicitly so an expired call never reaches the model, including when a
++    // durable step is retried after the original timeout has elapsed.
++    if (options?.abortSignal?.aborted || (timeout != null && timeout <= 0)) {
++        return { aborted: true };
++    }
++    const abortSignal = timeout == null
++        ? options?.abortSignal
++        : options?.abortSignal == null
++            ? AbortSignal.timeout(timeout)
++            : AbortSignal.any([options.abortSignal, AbortSignal.timeout(timeout)]);
++    // Resolve model inside step (must happen here for serialization boundary)
++    const model = typeof modelInit === 'string'
++        ? gateway.languageModel(modelInit)
++        : modelInit;
++    // Reconstruct tools from serializable definitions with Ajv validation.
++    // Tools are serialized before crossing the step boundary because zod schemas
++    // contain functions that can't be serialized by the workflow runtime.
++    const toolInputLifecycleEvents = [];
++    const tools = serializedTools
++        ? resolveSerializableTools(serializedTools)
++        : undefined;
++    // streamModelCall derives the model responseFormat from its output spec.
++    // WorkflowAgent parses output outside the model-call helper, so this minimal
++    // output spec only carries the responseFormat across the step boundary.
++    const output = options?.responseFormat == null
++        ? undefined
++        : {
++            name: 'workflow',
++            responseFormat: Promise.resolve(options.responseFormat),
++            async parseCompleteOutput() {
++                throw new Error('WorkflowAgent does not use streamModelCall output parsing.');
++            },
++            async parsePartialOutput() {
++                return undefined;
++            },
++            createElementStreamTransform() {
++                return undefined;
++            },
++        };
++    // streamModelCall handles prompt standardization, tool preparation,
++    // model.doStream(), and stream part transformation. Retries are applied
++    // around the model dispatch because streamModelCall itself does not retry.
++    const { retry } = prepareRetries({
++        maxRetries: options?.maxRetries,
++        abortSignal,
++    });
++    const failedProviderAttempts = [];
++    let incompleteProviderAttempts = false;
++    const modelStream = await (async () => {
++        try {
++            const { stream } = await retry(async () => {
++                try {
++                    return await streamModelCall({
++                        model,
++                        // streamModelCall expects Prompt (ModelMessage[]) but we pass the
++                        // pre-converted LanguageModelV4Prompt. standardizePrompt inside
++                        // streamModelCall handles both formats.
++                        messages: conversationPrompt,
++                        allowSystemInMessages: true,
++                        tools,
++                        toolChoice: options?.toolChoice,
++                        includeRawChunks: options?.includeRawChunks,
++                        providerOptions: options?.providerOptions,
++                        abortSignal,
++                        headers: options?.headers,
++                        reasoning: options?.reasoning,
++                        output,
++                        maxOutputTokens: options?.maxOutputTokens,
++                        temperature: options?.temperature,
++                        topP: options?.topP,
++                        topK: options?.topK,
++                        presencePenalty: options?.presencePenalty,
++                        frequencyPenalty: options?.frequencyPenalty,
++                        stopSequences: options?.stopSequences,
++                        seed: options?.seed,
++                        repairToolCall: options?.repairToolCall,
++                    });
++                }
++                catch (error) {
++                    if (failedProviderAttempts.length < 15)
++                        failedProviderAttempts.push(gatewayFailureAttemptMetadata(error));
++                    else
++                        incompleteProviderAttempts = true;
++                    throw error;
++                }
+             });
+-          }
+-          break;
++            return stream;
+         }
+-        case "model-call-end":
+-          finish = {
+-            finishReason: part.finishReason,
+-            rawFinishReason: part.rawFinishReason,
+-            usage: part.usage,
+-            providerMetadata: part.providerMetadata
+-          };
+-          break;
+-        case "model-call-start":
+-          warnings = part.warnings;
+-          break;
+-        case "model-call-response-metadata":
+-          responseMetadata = part;
+-          break;
+-      }
+-      if (writer) {
+-        if (part.type === "tool-approval-request") {
+-          await writer.write({
+-            type: "tool-approval-request",
+-            approvalId: part.approvalId,
+-            toolCallId: part.toolCall.toolCallId,
+-            ...part.signature != null ? { signature: part.signature } : {}
+-          });
+-        } else {
+-          await writer.write(part);
++        catch (error) {
++            if (abortSignal?.aborted && isAbortError(error)) {
++                return undefined;
++            }
++            throw preserveGatewayFailure(error);
+         }
+-      }
+-      if (part.type === "error" && !hasTerminalError) {
+-        terminalError = part.error;
+-        hasTerminalError = true;
+-      }
++    })();
++    if (modelStream == null) {
++        return { aborted: true };
+     }
+-  } catch (error) {
+-    if ((abortSignal == null ? void 0 : abortSignal.aborted) && isAbortError(error)) {
+-      return { aborted: true };
++    // Consume the stream: capture data and write to writable in real-time
++    const toolCalls = [];
++    const providerExecutedToolResults = new Map();
++    let finish;
++    // Minimal aggregation — only what buildStepResult needs outside the step.
++    const content = [];
++    const textPartIndexes = new Map();
++    const reasoningParts = [];
++    let responseMetadata;
++    let warnings;
++    let terminalError;
++    let hasTerminalError = false;
++    const currentErrorAttempts = [];
++    let sinkFailed = false;
++    const captureCurrentError = (error) => {
++        for (const attempt of gatewayFailureErrorAttempts(error)) {
++            if (currentErrorAttempts.length < 16)
++                currentErrorAttempts.push(attempt);
++            else
++                incompleteProviderAttempts = true;
++        }
++    };
++    const ongoingToolCallToolNames = new Map();
++    // Acquire writer once before the loop to avoid per-chunk lock overhead
++    let writer;
++    try {
++        // A workflow step can be retried after already writing partial output.
++        // Reset the current UI step before every attempt so a retry invalidates
++        // chunks left behind by an earlier execution.
++        try {
++            writer = writable?.getWriter();
++            await writer?.write({ type: 'reset-step' });
++        }
++        catch (error) {
++            sinkFailed = true;
++            throw error;
++        }
++        for await (const part of modelStream) {
++            switch (part.type) {
++                case 'tool-input-start':
++                    ongoingToolCallToolNames.set(part.id, part.toolName);
++                    if (serializedTools?.[part.toolName]?.hasOnInputStart ||
++                        serializedTools?.[part.toolName]?.hasOnInputDelta ||
++                        serializedTools?.[part.toolName]?.hasOnInputAvailable) {
++                        toolInputLifecycleEvents.push(['start', part.id, part.toolName]);
++                    }
++                    break;
++                case 'tool-input-delta': {
++                    const toolName = ongoingToolCallToolNames.get(part.id);
++                    if (toolName != null &&
++                        serializedTools?.[toolName]?.hasOnInputDelta) {
++                        toolInputLifecycleEvents.push(['delta', part.id, part.delta]);
++                    }
++                    break;
++                }
++                case 'text-start':
++                    upsertTextContentPart({
++                        content,
++                        textPartIndexes,
++                        id: part.id,
++                        providerMetadata: part.providerMetadata,
++                    });
++                    break;
++                case 'text-delta':
++                    upsertTextContentPart({
++                        content,
++                        textPartIndexes,
++                        id: part.id,
++                        textDelta: part.text,
++                        providerMetadata: part.providerMetadata,
++                    });
++                    break;
++                case 'text-end':
++                    upsertTextContentPart({
++                        content,
++                        textPartIndexes,
++                        id: part.id,
++                        providerMetadata: part.providerMetadata,
++                    });
++                    textPartIndexes.delete(part.id);
++                    break;
++                case 'reasoning-delta':
++                    reasoningParts.push({ text: part.text });
++                    break;
++                case 'file':
++                    content.push({
++                        type: 'file',
++                        data: part.file.base64,
++                        mediaType: part.file.mediaType,
++                        ...(part.providerMetadata != null
++                            ? { providerMetadata: part.providerMetadata }
++                            : {}),
++                    });
++                    break;
++                case 'source':
++                    content.push(part);
++                    break;
++                case 'tool-call': {
++                    // parseToolCall adds dynamic/invalid/error at runtime
++                    const toolCallPart = part;
++                    const toolCallIndex = toolCalls.length;
++                    const lifecycleToolName = ongoingToolCallToolNames.get(toolCallPart.toolCallId);
++                    ongoingToolCallToolNames.delete(toolCallPart.toolCallId);
++                    if (lifecycleToolName != null &&
++                        serializedTools?.[lifecycleToolName]?.hasOnInputAvailable) {
++                        toolInputLifecycleEvents.push([
++                            'available',
++                            toolCallPart.toolCallId,
++                        ]);
++                    }
++                    toolCalls.push({
++                        type: 'tool-call',
++                        toolCallId: toolCallPart.toolCallId,
++                        toolName: toolCallPart.toolName,
++                        input: toolCallPart.input,
++                        providerExecuted: toolCallPart.providerExecuted,
++                        providerMetadata: toolCallPart.providerMetadata,
++                        title: toolCallPart.title,
++                        toolMetadata: toolCallPart.toolMetadata,
++                        dynamic: toolCallPart.dynamic,
++                        invalid: toolCallPart.invalid,
++                        error: toolCallPart.error,
++                    });
++                    content.push({ type: 'tool-call', toolCallIndex });
++                    break;
++                }
++                case 'tool-result':
++                    if (part.providerExecuted) {
++                        providerExecutedToolResults.set(part.toolCallId, {
++                            toolCallId: part.toolCallId,
++                            toolName: part.toolName,
++                            result: part.output,
++                            isError: false,
++                        });
++                    }
++                    break;
++                case 'tool-error': {
++                    const errorPart = part;
++                    if (errorPart.providerExecuted) {
++                        providerExecutedToolResults.set(errorPart.toolCallId, {
++                            toolCallId: errorPart.toolCallId,
++                            toolName: errorPart.toolName,
++                            result: preserveGatewayFailure(errorPart.error),
++                            isError: true,
++                        });
++                    }
++                    break;
++                }
++                case 'model-call-end':
++                    finish = {
++                        finishReason: part.finishReason,
++                        rawFinishReason: part.rawFinishReason,
++                        usage: part.usage,
++                        providerMetadata: part.providerMetadata,
++                    };
++                    break;
++                case 'model-call-start':
++                    warnings = part.warnings;
++                    break;
++                case 'model-call-response-metadata':
++                    responseMetadata = part;
++                    break;
++            }
++            if (part.type === 'error') {
++                captureCurrentError(part.error);
++                if (!hasTerminalError) {
++                    terminalError = preserveGatewayFailure(part.error);
++                    hasTerminalError = true;
++                }
++            }
++            // Write to writable in real-time
++            if (writer) {
++                try {
++                    if (part.type === 'tool-approval-request') {
++                        await writer.write({
++                            type: 'tool-approval-request',
++                            approvalId: part.approvalId,
++                            toolCallId: part.toolCall.toolCallId,
++                            ...(part.signature != null ? { signature: part.signature } : {}),
++                        });
++                    }
++                    else if (part.type === 'error') {
++                        await writer.write({ ...part, error: preserveGatewayFailure(part.error) });
++                    }
++                    else if (part.type === 'tool-error' &&
++                        part.providerExecuted === true) {
++                        await writer.write({ ...part, error: preserveGatewayFailure(part.error) });
++                    }
++                    else {
++                        await writer.write(part);
++                    }
++                }
++                catch (error) {
++                    sinkFailed = true;
++                    throw error;
++                }
++            }
++        }
+     }
+-    throw error;
+-  } finally {
+-    writer == null ? void 0 : writer.releaseLock();
+-  }
+-  if ((abortSignal == null ? void 0 : abortSignal.aborted) || (options == null ? void 0 : options.timeoutAt) != null && options.timeoutAt <= Date.now()) {
+-    return { aborted: true };
+-  }
+-  return {
+-    toolCalls,
+-    finish,
+-    raw: {
+-      content,
+-      reasoning: reasoningParts,
+-      responseMetadata,
+-      warnings
+-    },
+-    providerExecutedToolResults,
+-    toolInputLifecycleEvents,
+-    ...hasTerminalError ? { terminalError } : {}
+-  };
++    catch (error) {
++        if (abortSignal?.aborted && isAbortError(error)) {
++            return { aborted: true };
++        }
++        const preserved = preserveGatewayFailure(error);
++        const cause = gatewayFailureRecord(gatewayFailureRecord(preserved)?.cause);
++        const providerFailure = !sinkFailed && preserved !== error && cause?.kind === "ai-sdk-workflow-provider-error" && cause.version === 1;
++        if (!providerFailure &&
++            failedProviderAttempts.length === 0 &&
++            !incompleteProviderAttempts &&
++            finish?.providerMetadata === undefined &&
++            currentErrorAttempts.length === 0)
++            throw error;
++        if (providerFailure)
++            captureCurrentError(error);
++        else if (currentErrorAttempts.length < 16)
++            currentErrorAttempts.push(null);
++        else
++            incompleteProviderAttempts = true;
++        throw preserveGatewayFailure(error, gatewayFailureEnvelope(failedProviderAttempts, incompleteProviderAttempts, finish, currentErrorAttempts, providerFailure));
++    }
++    finally {
++        writer?.releaseLock();
++    }
++    if (abortSignal?.aborted ||
++        (options?.timeoutAt != null && options.timeoutAt <= Date.now())) {
++        return { aborted: true };
++    }
++    const providerReceipt = gatewayFailureEnvelope(failedProviderAttempts, incompleteProviderAttempts, finish, currentErrorAttempts, hasTerminalError ? true : undefined);
++    return {
++        toolCalls,
++        finish,
++        raw: {
++            content,
++            reasoning: reasoningParts,
++            responseMetadata,
++            warnings,
++            ...(providerReceipt ? { providerReceipt } : {}),
++        },
++        providerExecutedToolResults,
++        toolInputLifecycleEvents,
++        ...(hasTerminalError ? { terminalError } : {}),
++    };
+ }
++
+ doStreamStep.maxRetries = 0;
+ function upsertTextContentPart({
+   content,
+@@ -746,6 +1018,29 @@ async function* streamTextIterator({
+         runtimeContext: currentRuntimeContext,
+         toolsContext: currentToolsContext
+       });
++      if (hasTerminalError || ((finish == null ? void 0 : finish.finishReason) !== "stop" && (finish == null ? void 0 : finish.finishReason) !== "tool-calls")) {
++        for (const call of step.toolCalls) {
++          if (!call.providerExecuted) continue;
++          const result = providerExecutedToolResults.get(call.toolCallId);
++          if (!result) continue;
++          const common = {
++            toolCallId: call.toolCallId,
++            toolName: call.toolName,
++            input: call.input,
++            providerExecuted: true,
++            ...call.dynamic === true ? { dynamic: true } : {}
++          };
++          if (result.isError) {
++            step.content.push({ type: "tool-error", ...common, error: result.result });
++          } else {
++            const output = { type: "tool-result", ...common, output: result.result };
++            step.content.push(output);
++            step.toolResults.push(output);
++            if (call.dynamic === true) step.dynamicToolResults.push(output);
++            else step.staticToolResults.push(output);
++          }
++        }
++      }
+       await ((_j = telemetryDispatcher.onLanguageModelCallEnd) == null ? void 0 : _j.call(telemetryDispatcher, {
+         callId: step.callId,
+         provider: (_g = (_f = step.model) == null ? void 0 : _f.provider) != null ? _g : "unknown",
+@@ -762,9 +1057,10 @@ async function* streamTextIterator({
+       lastStep = step;
+       lastStepWasToolCalls = false;
+       const finishReason = finish == null ? void 0 : finish.finishReason;
++      const providerToolResultsEndStep = finishReason === "stop" && providerExecutedToolResults.size > 0;
+       if (hasTerminalError) {
+         done = true;
+-      } else if (finishReason === "tool-calls") {
++      } else if (finishReason === "tool-calls" || providerToolResultsEndStep) {
+         lastStepWasToolCalls = true;
+         const assistantContent = getAssistantMessageContent(step);
+         const includedToolCallIds = new Set(
+@@ -792,7 +1088,9 @@ async function* streamTextIterator({
+           role: "tool",
+           content: toolResults
+         });
+-        if (stopConditions) {
++        if (providerToolResultsEndStep) {
++          done = true;
++        } else if (stopConditions) {
+           const stopConditionList = Array.isArray(stopConditions) ? stopConditions : [stopConditions];
+           if (stopConditionList.some((test) => test({ steps }))) {
+             done = true;
+@@ -934,144 +1232,155 @@ function normalizeStepForTelemetry(step) {
+   };
+ }
+ function buildStepResult(raw, toolCalls, finish, opts) {
+-  var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k;
+-  const {
+-    content: rawContent,
+-    reasoning: reasoningParts,
+-    responseMetadata,
+-    warnings
+-  } = raw;
+-  const reasoningText = reasoningParts.map((r) => r.text).join("") || void 0;
+-  const validToolCallsByIndex = new Map(
+-    toolCalls.flatMap(
+-      (tc, index) => tc.invalid ? [] : [
+-        [
+-          index,
+-          {
+-            type: "tool-call",
+-            toolCallId: tc.toolCallId,
+-            toolName: tc.toolName,
+-            input: tc.input,
+-            ...tc.providerExecuted != null ? { providerExecuted: tc.providerExecuted } : {},
+-            ...tc.title != null ? { title: tc.title } : {},
+-            ...tc.toolMetadata != null ? { toolMetadata: tc.toolMetadata } : {},
+-            ...tc.dynamic ? { dynamic: true } : {},
+-            ...tc.providerExecuted ? { providerExecuted: true } : {},
+-            ...tc.providerMetadata != null ? { providerMetadata: tc.providerMetadata } : {}
+-          }
+-        ]
+-      ]
+-    )
+-  );
+-  const validToolCalls = [...validToolCallsByIndex.values()];
+-  const content = [];
+-  const files = [];
+-  const sources = [];
+-  let text = "";
+-  for (const part of rawContent) {
+-    switch (part.type) {
+-      case "text":
+-        text += part.text;
+-        content.push({
+-          type: "text",
+-          text: part.text,
+-          ...part.providerMetadata != null ? { providerMetadata: part.providerMetadata } : {}
+-        });
+-        break;
+-      case "file": {
+-        const file = new DefaultGeneratedFile({
+-          data: part.data,
+-          mediaType: part.mediaType,
+-          providerMetadata: part.providerMetadata
+-        });
+-        files.push(file);
+-        content.push({
+-          type: "file",
+-          file,
+-          ...part.providerMetadata != null ? { providerMetadata: part.providerMetadata } : {}
+-        });
+-        break;
+-      }
+-      case "source":
+-        sources.push(part);
+-        content.push(part);
+-        break;
+-      case "tool-call": {
+-        const toolCall = validToolCallsByIndex.get(part.toolCallIndex);
+-        if (toolCall != null) {
+-          content.push(toolCall);
++    const { content: rawContent, reasoning: reasoningParts, responseMetadata, warnings, } = raw;
++    const reasoningText = reasoningParts.map(r => r.text).join('') || undefined;
++    const validToolCallsByIndex = new Map(toolCalls.flatMap((tc, index) => tc.invalid
++        ? []
++        : [
++            [
++                index,
++                {
++                    type: 'tool-call',
++                    toolCallId: tc.toolCallId,
++                    toolName: tc.toolName,
++                    input: tc.input,
++                    ...(tc.providerExecuted != null
++                        ? { providerExecuted: tc.providerExecuted }
++                        : {}),
++                    ...(tc.title != null ? { title: tc.title } : {}),
++                    ...(tc.toolMetadata != null
++                        ? { toolMetadata: tc.toolMetadata }
++                        : {}),
++                    ...(tc.dynamic ? { dynamic: true } : {}),
++                    ...(tc.providerExecuted ? { providerExecuted: true } : {}),
++                    ...(tc.providerMetadata != null
++                        ? { providerMetadata: tc.providerMetadata }
++                        : {}),
++                },
++            ],
++        ]));
++    const validToolCalls = [...validToolCallsByIndex.values()];
++    const content = [];
++    const files = [];
++    const sources = [];
++    let text = '';
++    for (const part of rawContent) {
++        switch (part.type) {
++            case 'text':
++                text += part.text;
++                content.push({
++                    type: 'text',
++                    text: part.text,
++                    ...(part.providerMetadata != null
++                        ? { providerMetadata: part.providerMetadata }
++                        : {}),
++                });
++                break;
++            case 'file': {
++                const file = new DefaultGeneratedFile({
++                    data: part.data,
++                    mediaType: part.mediaType,
++                    providerMetadata: part.providerMetadata,
++                });
++                files.push(file);
++                content.push({
++                    type: 'file',
++                    file,
++                    ...(part.providerMetadata != null
++                        ? { providerMetadata: part.providerMetadata }
++                        : {}),
++                });
++                break;
++            }
++            case 'source':
++                sources.push(part);
++                content.push(part);
++                break;
++            case 'tool-call': {
++                const toolCall = validToolCallsByIndex.get(part.toolCallIndex);
++                if (toolCall != null) {
++                    content.push(toolCall);
++                }
++                break;
++            }
+         }
+-        break;
+-      }
+     }
+-  }
+-  return {
+-    callId: "workflow-agent",
+-    stepNumber: opts.stepNumber,
+-    model: {
+-      provider: (_b = (_a = responseMetadata == null ? void 0 : responseMetadata.modelId) == null ? void 0 : _a.split(":")[0]) != null ? _b : "unknown",
+-      modelId: (_c = responseMetadata == null ? void 0 : responseMetadata.modelId) != null ? _c : "unknown"
+-    },
+-    functionId: void 0,
+-    metadata: void 0,
+-    runtimeContext: (_d = opts.runtimeContext) != null ? _d : {},
+-    toolsContext: (_e = opts.toolsContext) != null ? _e : {},
+-    content,
+-    text,
+-    reasoning: reasoningParts.map((r) => ({
+-      type: "reasoning",
+-      text: r.text
+-    })),
+-    reasoningText,
+-    files,
+-    sources,
+-    toolCalls: validToolCalls,
+-    staticToolCalls: validToolCalls.filter((tc) => tc.dynamic !== true),
+-    dynamicToolCalls: validToolCalls.filter((tc) => tc.dynamic),
+-    toolResults: [],
+-    staticToolResults: [],
+-    dynamicToolResults: [],
+-    finishReason: (_f = finish == null ? void 0 : finish.finishReason) != null ? _f : "other",
+-    rawFinishReason: finish == null ? void 0 : finish.rawFinishReason,
+-    usage: (_g = finish == null ? void 0 : finish.usage) != null ? _g : {
+-      inputTokens: 0,
+-      inputTokenDetails: {
+-        noCacheTokens: void 0,
+-        cacheReadTokens: void 0,
+-        cacheWriteTokens: void 0
+-      },
+-      outputTokens: 0,
+-      outputTokenDetails: {
+-        textTokens: void 0,
+-        reasoningTokens: void 0
+-      },
+-      totalTokens: 0
+-    },
+-    performance: {
+-      effectiveOutputTokensPerSecond: 0,
+-      outputTokensPerSecond: void 0,
+-      inputTokensPerSecond: void 0,
+-      effectiveTotalTokensPerSecond: 0,
+-      stepTimeMs: 0,
+-      responseTimeMs: 0,
+-      toolExecutionMs: {},
+-      timeToFirstOutputMs: void 0
+-    },
+-    warnings,
+-    request: {
+-      body: "",
+-      messages: []
+-      // TODO implement step request messages
+-    },
+-    response: {
+-      id: (_h = responseMetadata == null ? void 0 : responseMetadata.id) != null ? _h : "unknown",
+-      timestamp: (_i = responseMetadata == null ? void 0 : responseMetadata.timestamp) != null ? _i : /* @__PURE__ */ new Date(),
+-      modelId: (_j = responseMetadata == null ? void 0 : responseMetadata.modelId) != null ? _j : "unknown",
+-      messages: []
+-    },
+-    providerMetadata: (_k = finish == null ? void 0 : finish.providerMetadata) != null ? _k : {}
+-  };
++    return {
++        callId: 'workflow-agent',
++        stepNumber: opts.stepNumber,
++        model: {
++            provider: responseMetadata?.modelId?.split(':')[0] ?? 'unknown',
++            modelId: responseMetadata?.modelId ?? 'unknown',
++        },
++        functionId: undefined,
++        metadata: undefined,
++        runtimeContext: opts.runtimeContext ?? {},
++        toolsContext: opts.toolsContext ?? {},
++        content,
++        text,
++        reasoning: reasoningParts.map(r => ({
++            type: 'reasoning',
++            text: r.text,
++        })),
++        reasoningText,
++        files,
++        sources,
++        toolCalls: validToolCalls,
++        staticToolCalls: validToolCalls.filter(tc => tc.dynamic !== true),
++        dynamicToolCalls: validToolCalls.filter(tc => tc.dynamic),
++        toolResults: [],
++        staticToolResults: [],
++        dynamicToolResults: [],
++        finishReason: finish?.finishReason ?? 'other',
++        rawFinishReason: finish?.rawFinishReason,
++        usage: finish?.usage ??
++            {
++                inputTokens: 0,
++                inputTokenDetails: {
++                    noCacheTokens: undefined,
++                    cacheReadTokens: undefined,
++                    cacheWriteTokens: undefined,
++                },
++                outputTokens: 0,
++                outputTokenDetails: {
++                    textTokens: undefined,
++                    reasoningTokens: undefined,
++                },
++                totalTokens: 0,
++            },
++        performance: {
++            effectiveOutputTokensPerSecond: 0,
++            outputTokensPerSecond: undefined,
++            inputTokensPerSecond: undefined,
++            effectiveTotalTokensPerSecond: 0,
++            stepTimeMs: 0,
++            responseTimeMs: 0,
++            toolExecutionMs: {},
++            timeToFirstOutputMs: undefined,
++        },
++        warnings,
++        request: {
++            body: '',
++            messages: [], // TODO implement step request messages
++        },
++        response: {
++            id: responseMetadata?.id ?? 'unknown',
++            timestamp: responseMetadata?.timestamp ?? new Date(),
++            modelId: responseMetadata?.modelId ?? 'unknown',
++            messages: [],
++        },
++        providerMetadata: raw.providerReceipt
++            ? {
++                ...(finish?.providerMetadata ?? {}),
++                workflow: {
++                    ...finish?.providerMetadata?.workflow,
++                    providerReceipt: raw.providerReceipt,
++                },
++            }
++            : finish?.providerMetadata ?? {},
++    };
+ }
++
+ function getAssistantMessageContent(step) {
+   const content = [];
+   for (const part of step.content) {
+diff --git a/node_modules/@ai-sdk/workflow/src/do-stream-step.ts b/node_modules/@ai-sdk/workflow/src/do-stream-step.ts
+index 1712672..d082d0b 100644
+--- a/node_modules/@ai-sdk/workflow/src/do-stream-step.ts
++++ b/node_modules/@ai-sdk/workflow/src/do-stream-step.ts
+@@ -142,6 +142,7 @@ export interface DoStreamStepRawResult {
+   reasoning: Array<{ text: string }>;
+   responseMetadata?: { id?: string; timestamp?: Date; modelId?: string };
+   warnings?: unknown[];
++  providerReceipt?: JSONObject;
+ }
+ 
+ export type DoStreamStepResult =
+@@ -161,6 +162,191 @@ export type DoStreamStepResult =
+       terminalError?: unknown;
+     };
+ 
++function gatewayFailureRecord(value: unknown): Record<string, unknown> | null {
++  return value !== null && typeof value === "object" && !Array.isArray(value)
++    ? (value as Record<string, unknown>)
++    : null;
++}
++
++function boundedGatewayFailureMetadata(value: unknown): Record<string, unknown> | null {
++  const gateway = gatewayFailureRecord(gatewayFailureRecord(value)?.gateway);
++  if (!gateway) return null;
++  const projected: Record<string, unknown> = {};
++  for (const field of ["gatewayCost", "cost", "surchargeCost", "upstreamInferenceCost"] as const) {
++    if (field in gateway)
++      projected[field] = typeof gateway[field] === "string" && gateway[field].length <= 96 && /^\d+(\.\d+)?$/.test(gateway[field]) ? gateway[field] : null;
++  }
++  if ("serviceTier" in gateway) projected.serviceTier = true;
++  if (typeof gateway.generationId === "string" && gateway.generationId.length > 0 && gateway.generationId.length <= 128)
++    projected.generationId = gateway.generationId;
++  const routing = gatewayFailureRecord(gateway.routing);
++  if (routing) {
++    const modelAttempts = routing.modelAttempts;
++    projected.routing = {
++      finalProvider:
++        typeof routing.finalProvider === "string" && routing.finalProvider.length <= 64 ? routing.finalProvider : null,
++      modelAttempts:
++        Array.isArray(modelAttempts) && modelAttempts.length <= 16
++          ? modelAttempts.map((modelAttempt) => {
++              const model = gatewayFailureRecord(modelAttempt);
++              const attempts = model?.providerAttempts;
++              return {
++                providerAttempts:
++                  Array.isArray(attempts) && attempts.length <= 16
++                    ? attempts.map((attempt) => {
++                        const parsed = gatewayFailureRecord(attempt);
++                        return {
++                          success: typeof parsed?.success === "boolean" ? parsed.success : null,
++                          provider:
++                            typeof parsed?.provider === "string" && parsed.provider.length <= 64 ? parsed.provider : null,
++                          credentialType:
++                            typeof parsed?.credentialType === "string" && parsed.credentialType.length <= 64
++                              ? parsed.credentialType
++                              : null,
++                        };
++                      })
++                    : null,
++              };
++            })
++          : null,
++    };
++  }
++  const metadata = { gateway: projected };
++  return JSON.stringify(metadata).length <= 16_384 ? metadata : null;
++}
++
++function gatewayFailureMarked(value: unknown, name: string): boolean {
++  const object = gatewayFailureRecord(value);
++  const marker = Symbol.for(name);
++  return object !== null && marker in object && object[marker as keyof typeof object] === true;
++}
++
++function gatewayFailureAttemptMetadata(error: unknown): Record<string, unknown> | null {
++  const seen = new Set<unknown>();
++  let current = error;
++  for (let depth = 0; depth < 8; depth += 1) {
++    const object = gatewayFailureRecord(current);
++    if (!object || seen.has(current)) return null;
++    seen.add(current);
++    if (gatewayFailureMarked(current, "vercel.ai.error.AI_APICallError")) {
++      const body = object.responseBody;
++      if (typeof body !== "string" || body.length > 65_536) return null;
++      try {
++        return boundedGatewayFailureMetadata(gatewayFailureRecord(JSON.parse(body))?.providerMetadata);
++      } catch {
++        return null;
++      }
++    }
++    current = object.cause;
++  }
++  return null;
++}
++
++function gatewayFailureTransportStatus(error: unknown): { statusCode?: number; isRetryable?: boolean } {
++  const seen = new Set<unknown>();
++  let current = error;
++  for (let depth = 0; depth < 8; depth += 1) {
++    const object = gatewayFailureRecord(current);
++    if (!object || seen.has(current)) return {};
++    seen.add(current);
++    if (
++      gatewayFailureMarked(current, "vercel.ai.gateway.error") ||
++      gatewayFailureMarked(current, "vercel.ai.error.AI_APICallError")
++    ) {
++      return {
++        ...(typeof object.statusCode === "number" && Number.isInteger(object.statusCode) && object.statusCode >= 100 && object.statusCode <= 599
++          ? { statusCode: object.statusCode }
++          : {}),
++        ...(typeof object.isRetryable === "boolean" ? { isRetryable: object.isRetryable } : {}),
++      };
++    }
++    if (gatewayFailureMarked(current, "vercel.ai.error.AI_RetryError")) {
++      const errors = object.errors;
++      if (!Array.isArray(errors) || errors.length === 0 || errors.length > 16) return {};
++      current = errors.at(-1);
++    } else current = object.cause;
++  }
++  return {};
++}
++
++function preserveGatewayFailure(error: unknown, receipt?: JSONObject): unknown {
++  if (receipt) {
++    const providerFailure = receipt.providerFailure !== false;
++    const transport = providerFailure ? gatewayFailureTransportStatus(error) : {};
++    const message = !providerFailure
++      ? "A workflow stream could not be completed."
++      : transport.statusCode === undefined
++        ? "A provider request failed before complete usage was available."
++        : `A provider request failed before complete usage was available (HTTP ${transport.statusCode}).`;
++    const failure = new Error(message, { cause: { ...receipt, ...transport } });
++    failure.name = providerFailure ? "AI_WorkflowProviderError" : "AI_WorkflowStreamError";
++    return failure;
++  }
++  const seen = new Set<unknown>();
++  let current = error;
++  for (let depth = 0; depth < 8; depth += 1) {
++    const object = gatewayFailureRecord(current);
++    if (!object || seen.has(current)) return error;
++    seen.add(current);
++    const retry = gatewayFailureMarked(current, "vercel.ai.error.AI_RetryError");
++    if (
++      retry ||
++      gatewayFailureMarked(current, "vercel.ai.gateway.error") ||
++      gatewayFailureMarked(current, "vercel.ai.error.AI_APICallError")
++    ) {
++      const errors = retry ? object.errors : [current];
++      const attempts =
++        Array.isArray(errors) && errors.length > 0 && errors.length <= 16
++          ? errors.map(gatewayFailureAttemptMetadata)
++          : [null];
++      const transport = gatewayFailureTransportStatus(current);
++      const message = transport.statusCode === undefined
++        ? "A provider request failed before complete usage was available."
++        : `A provider request failed before complete usage was available (HTTP ${transport.statusCode}).`;
++      const failure = new Error(message, {
++        cause: { ...(receipt ?? { kind: "ai-sdk-workflow-provider-error", version: 1, attempts }), ...transport },
++      });
++      failure.name = "AI_WorkflowProviderError";
++      return failure;
++    }
++    current = object.cause;
++  }
++  return error;
++}
++
++function gatewayFailureErrorAttempts(error: unknown): Array<Record<string, unknown> | null> {
++  const preserved = preserveGatewayFailure(error);
++  if (preserved === error) return [null];
++  const cause = gatewayFailureRecord(gatewayFailureRecord(preserved)?.cause);
++  const attempts = cause?.kind === "ai-sdk-workflow-provider-error" && cause.version === 1 ? cause.attempts : null;
++  return Array.isArray(attempts) && attempts.length > 0 && attempts.length <= 16
++    ? attempts.map(boundedGatewayFailureMetadata)
++    : [null];
++}
++
++function gatewayFailureEnvelope(
++  priorAttempts: Array<Record<string, unknown> | null>,
++  incompleteAttempts: boolean,
++  finish: StreamFinish | undefined,
++  errorAttempts: Array<Record<string, unknown> | null>,
++  providerFailure: boolean | undefined,
++): JSONObject | undefined {
++  if (priorAttempts.length === 0 && !incompleteAttempts && errorAttempts.length === 0) return undefined;
++  return {
++    kind: "ai-sdk-workflow-provider-error",
++    version: 1,
++    attempts: priorAttempts,
++    ...(providerFailure === undefined ? {} : { providerFailure }),
++    ...(incompleteAttempts ? { incompleteAttempts: true } : {}),
++    currentAttempt: {
++      ...(finish?.providerMetadata !== undefined
++        ? { finishMetadata: boundedGatewayFailureMetadata(finish.providerMetadata) }
++        : {}),
++      ...(errorAttempts.length > 0 ? { errorAttempts } : {}),
++    },
++  } as JSONObject;
++}
++
+ export async function doStreamStep(
+   conversationPrompt: LanguageModelV4Prompt,
+   modelInit: LanguageModel,
+@@ -230,10 +416,13 @@ export async function doStreamStep(
+     maxRetries: options?.maxRetries,
+     abortSignal,
+   });
++  const failedProviderAttempts: Array<Record<string, unknown> | null> = [];
++  let incompleteProviderAttempts = false;
+   const modelStream = await (async () => {
+     try {
+-      const { stream } = await retry(() =>
+-        streamModelCall({
++      const { stream } = await retry(async () => {
++        try {
++          return await streamModelCall({
+           model,
+           // streamModelCall expects Prompt (ModelMessage[]) but we pass the
+           // pre-converted LanguageModelV4Prompt. standardizePrompt inside
+@@ -257,8 +446,14 @@ export async function doStreamStep(
+           stopSequences: options?.stopSequences,
+           seed: options?.seed,
+           repairToolCall: options?.repairToolCall,
+-        }),
+-      );
++          });
++        } catch (error) {
++          if (failedProviderAttempts.length < 15)
++            failedProviderAttempts.push(gatewayFailureAttemptMetadata(error));
++          else incompleteProviderAttempts = true;
++          throw error;
++        }
++      });
+ 
+       return stream;
+     } catch (error) {
+@@ -266,7 +461,7 @@ export async function doStreamStep(
+         return undefined;
+       }
+ 
+-      throw error;
++      throw preserveGatewayFailure(error);
+     }
+   })();
+ 
+@@ -292,16 +487,30 @@ export async function doStreamStep(
+   let warnings: unknown[] | undefined;
+   let terminalError: unknown;
+   let hasTerminalError = false;
++  const currentErrorAttempts: Array<Record<string, unknown> | null> = [];
++  let sinkFailed = false;
++  const captureCurrentError = (error: unknown) => {
++    for (const attempt of gatewayFailureErrorAttempts(error)) {
++      if (currentErrorAttempts.length < 16) currentErrorAttempts.push(attempt);
++      else incompleteProviderAttempts = true;
++    }
++  };
+   const ongoingToolCallToolNames = new Map<string, string>();
+ 
+   // Acquire writer once before the loop to avoid per-chunk lock overhead
+-  const writer = writable?.getWriter();
++  let writer: WritableStreamDefaultWriter<ModelCallStreamPart<ToolSet>> | undefined;
+ 
+   try {
+     // A workflow step can be retried after already writing partial output.
+     // Reset the current UI step before every attempt so a retry invalidates
+     // chunks left behind by an earlier execution.
+-    await writer?.write({ type: 'reset-step' });
++    try {
++      writer = writable?.getWriter();
++      await writer?.write({ type: 'reset-step' });
++    } catch (error) {
++      sinkFailed = true;
++      throw error;
++    }
+ 
+     for await (const part of modelStream) {
+       switch (part.type) {
+@@ -418,7 +627,7 @@ export async function doStreamStep(
+             providerExecutedToolResults.set(errorPart.toolCallId, {
+               toolCallId: errorPart.toolCallId,
+               toolName: errorPart.toolName,
+-              result: errorPart.error,
++              result: preserveGatewayFailure(errorPart.error),
+               isError: true,
+             });
+           }
+@@ -442,27 +651,38 @@ export async function doStreamStep(
+           break;
+       }
+ 
+-      // Write to writable in real-time
+-      if (writer) {
+-        if (part.type === 'tool-approval-request') {
+-          await writer.write({
+-            type: 'tool-approval-request',
+-            approvalId: part.approvalId,
+-            toolCallId: part.toolCall.toolCallId,
+-            ...(part.signature != null ? { signature: part.signature } : {}),
+-          });
+-        } else {
+-          await writer.write(part);
++      if (part.type === 'error') {
++        captureCurrentError(part.error);
++        if (!hasTerminalError) {
++          terminalError = preserveGatewayFailure(part.error);
++          hasTerminalError = true;
+         }
+       }
+ 
+-      if (part.type === 'error' && !hasTerminalError) {
+-        // Retain the first model error as step data. Throwing here would make
+-        // the durable workflow runtime retry the model step and normalize the
+-        // original value before WorkflowAgent can surface it. Continue
+-        // consuming so the existing finish reason and usage are preserved.
+-        terminalError = part.error;
+-        hasTerminalError = true;
++      // Write to writable in real-time
++      if (writer) {
++        try {
++          if (part.type === 'tool-approval-request') {
++            await writer.write({
++              type: 'tool-approval-request',
++              approvalId: part.approvalId,
++              toolCallId: part.toolCall.toolCallId,
++              ...(part.signature != null ? { signature: part.signature } : {}),
++            });
++          } else if (part.type === 'error') {
++            await writer.write({ ...part, error: preserveGatewayFailure(part.error) });
++          } else if (
++            part.type === 'tool-error' &&
++            (part as typeof part & { providerExecuted?: boolean }).providerExecuted === true
++          ) {
++            await writer.write({ ...part, error: preserveGatewayFailure(part.error) });
++          } else {
++            await writer.write(part);
++          }
++        } catch (error) {
++          sinkFailed = true;
++          throw error;
++        }
+       }
+     }
+   } catch (error) {
+@@ -470,7 +690,23 @@ export async function doStreamStep(
+       return { aborted: true };
+     }
+ 
+-    throw error;
++    const preserved = preserveGatewayFailure(error);
++    const cause = gatewayFailureRecord(gatewayFailureRecord(preserved)?.cause);
++    const providerFailure = !sinkFailed && preserved !== error && cause?.kind === "ai-sdk-workflow-provider-error" && cause.version === 1;
++    if (
++      !providerFailure &&
++      failedProviderAttempts.length === 0 &&
++      !incompleteProviderAttempts &&
++      finish?.providerMetadata === undefined &&
++      currentErrorAttempts.length === 0
++    ) throw error;
++    if (providerFailure) captureCurrentError(error);
++    else if (currentErrorAttempts.length < 16) currentErrorAttempts.push(null);
++    else incompleteProviderAttempts = true;
++    throw preserveGatewayFailure(
++      error,
++      gatewayFailureEnvelope(failedProviderAttempts, incompleteProviderAttempts, finish, currentErrorAttempts, providerFailure),
++    );
+   } finally {
+     writer?.releaseLock();
+   }
+@@ -482,6 +718,14 @@ export async function doStreamStep(
+     return { aborted: true };
+   }
+ 
++  const providerReceipt = gatewayFailureEnvelope(
++    failedProviderAttempts,
++    incompleteProviderAttempts,
++    finish,
++    currentErrorAttempts,
++    hasTerminalError ? true : undefined,
++  );
++
+   return {
+     toolCalls,
+     finish,
+@@ -490,6 +734,7 @@ export async function doStreamStep(
+       reasoning: reasoningParts,
+       responseMetadata,
+       warnings,
++      ...(providerReceipt ? { providerReceipt } : {}),
+     },
+     providerExecutedToolResults,
+     toolInputLifecycleEvents,
+diff --git a/node_modules/@ai-sdk/workflow/src/stream-text-iterator.ts b/node_modules/@ai-sdk/workflow/src/stream-text-iterator.ts
+index b311675..cbe9e73 100644
+--- a/node_modules/@ai-sdk/workflow/src/stream-text-iterator.ts
++++ b/node_modules/@ai-sdk/workflow/src/stream-text-iterator.ts
+@@ -391,6 +391,36 @@ export async function* streamTextIterator({
+         toolsContext: currentToolsContext,
+       });
+ 
++      // Terminal responses do not enter local tool execution. Preserve work
++      // already performed by the provider before onStepEnd, including when
++      // output is truncated or the stream ends with an error.
++      if (
++        hasTerminalError ||
++        (finish?.finishReason !== 'stop' && finish?.finishReason !== 'tool-calls')
++      ) {
++        for (const call of step.toolCalls) {
++          if (!call.providerExecuted) continue;
++          const result = providerExecutedToolResults.get(call.toolCallId);
++          if (!result) continue;
++          const common = {
++            toolCallId: call.toolCallId,
++            toolName: call.toolName,
++            input: call.input,
++            providerExecuted: true as const,
++            ...(call.dynamic === true ? { dynamic: true as const } : {}),
++          };
++          if (result.isError) {
++            step.content.push({ type: 'tool-error', ...common, error: result.result });
++          } else {
++            const output = { type: 'tool-result' as const, ...common, output: result.result };
++            step.content.push(output);
++            step.toolResults.push(output);
++            if (call.dynamic === true) step.dynamicToolResults.push(output);
++            else step.staticToolResults.push(output);
++          }
++        }
++      }
++
+       await telemetryDispatcher.onLanguageModelCallEnd?.({
+         callId: step.callId,
+         provider: step.model?.provider ?? 'unknown',
+@@ -411,13 +441,18 @@ export async function* streamTextIterator({
+       lastStepWasToolCalls = false;
+ 
+       const finishReason = finish?.finishReason;
++      const providerToolResultsEndStep =
++        finishReason === 'stop' && providerExecutedToolResults.size > 0;
+ 
+       if (hasTerminalError) {
+         // The error crossed the durable step boundary as data. End the loop
+         // without throwing so WorkflowAgent can preserve the existing
+         // resolved-result contract and expose the original value.
+         done = true;
+-      } else if (finishReason === 'tool-calls') {
++      } else if (
++        finishReason === 'tool-calls' ||
++        providerToolResultsEndStep
++      ) {
+         lastStepWasToolCalls = true;
+ 
+         const assistantContent = getAssistantMessageContent(step);
+@@ -462,7 +497,9 @@ export async function* streamTextIterator({
+           content: toolResults,
+         });
+ 
+-        if (stopConditions) {
++        if (providerToolResultsEndStep) {
++          done = true;
++        } else if (stopConditions) {
+           const stopConditionList = Array.isArray(stopConditions)
+             ? stopConditions
+             : [stopConditions];
+@@ -808,7 +845,15 @@ function buildStepResult(
+       modelId: responseMetadata?.modelId ?? 'unknown',
+       messages: [],
+     },
+-    providerMetadata: finish?.providerMetadata ?? {},
++    providerMetadata: raw.providerReceipt
++      ? {
++          ...(finish?.providerMetadata ?? {}),
++          workflow: {
++            ...(finish?.providerMetadata?.workflow as Record<string, unknown> | undefined),
++            providerReceipt: raw.providerReceipt,
++          },
++        }
++      : finish?.providerMetadata ?? {},
+   } as StepResult<ToolSet, any>;
+ }
+ 

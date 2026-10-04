@@ -46,7 +46,11 @@ vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
   useEntityTerminology: () => ({ singular: (entity: string) => entity }),
 }));
 vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
-  useHydratedIntlStore: () => ({ formatDayMonth: () => "1 Oct", formatTime: () => "09:00" }),
+  useHydratedIntlStore: () => ({
+    formatDayMonth: () => "1 Oct",
+    formatTime: () => "09:00",
+    formatAgentCredits: (credits: number) => ({ credits, amount: String(credits) }),
+  }),
 }));
 
 import type { AgentChatStore } from "@/app/components/agent-chat/agent-chat.store";

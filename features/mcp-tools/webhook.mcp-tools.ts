@@ -4,7 +4,7 @@ import { RecordTriggerDefinitionSchema } from "@/features/records/record-event-s
 import {
   customMcpFailure,
   encodeToToon,
-  enumHint,
+  fetchMcpPage,
   filtersDescription,
   formatDatesInResponse,
   MCP_PAGE_SIZE_DESCRIPTION,
@@ -71,10 +71,7 @@ const CreateWebhookSchema = z.object({
   ...recordWebhookFields,
   url: zx.secureUrl().describe("Endpoint that will receive event POST requests (https recommended)"),
   description: z.string().optional().describe("Human-readable note about what this webhook does"),
-  events: z
-    .array(WebhookCurrentEventSchema)
-    .min(1)
-    .describe(`Event types to subscribe to. Each value ${enumHint(WebhookCurrentEventSchema.options)}`),
+  events: z.array(WebhookCurrentEventSchema).min(1).describe("Event types to subscribe to."),
   secret: z.string().optional().describe("Shared secret used to sign outgoing requests"),
   headers: z
     .record(z.string(), z.string())
@@ -98,11 +95,7 @@ const UpdateWebhookSchema = z.object({
   id: z.uuid(),
   url: zx.secureUrl().optional(),
   description: z.string().optional(),
-  events: z
-    .array(WebhookCurrentEventSchema)
-    .min(1)
-    .optional()
-    .describe(`REPLACES the subscribed events. Each value ${enumHint(WebhookCurrentEventSchema.options)}`),
+  events: z.array(WebhookCurrentEventSchema).min(1).optional().describe("REPLACES the subscribed events."),
   secret: z
     .string()
     .nullable()
@@ -171,9 +164,7 @@ const ManageWebhooksSchema = z.object({
     .array(WebhookCurrentEventSchema)
     .min(1)
     .optional()
-    .describe(
-      `Required for create; on update REPLACES the subscribed events. Each value ${enumHint(WebhookCurrentEventSchema.options)}`,
-    ),
+    .describe("Required for create; on update REPLACES the subscribed events."),
   secret: z
     .string()
     .nullable()
@@ -221,6 +212,7 @@ const ManageWebhooksOutputSchema = z
     items: z.array(z.looseObject({ id: z.string() })).optional(),
     total: z.number().optional(),
     page: z.number().optional(),
+    pageSize: z.number().optional(),
     id: z.string().optional(),
     url: z.string().optional(),
     events: z.array(z.string()).optional(),
@@ -253,12 +245,14 @@ export const manageWebhooksTool = {
       const parsed = ListWebhooksSchema.safeParse(params);
       if (!parsed.success) return mcpValidationFailure(parsed.error);
       return runInteractor(
-        getGetWebhooksApiInteractor().invoke({
-          searchTerm: parsed.data.searchTerm,
-          filters: parsed.data.filters,
-          sortDescriptor: parsed.data.sortDescriptor,
-          pagination: { page: parsed.data.page, pageSize: parsed.data.pageSize },
-        }),
+        fetchMcpPage({ page: parsed.data.page, pageSize: parsed.data.pageSize }, (pagination) =>
+          getGetWebhooksApiInteractor().invoke({
+            searchTerm: parsed.data.searchTerm,
+            filters: parsed.data.filters,
+            sortDescriptor: parsed.data.sortDescriptor,
+            pagination,
+          }),
+        ),
         (data) => {
           const items = formatDatesInResponse(
             data.items.map((webhook) => ({
@@ -273,7 +267,12 @@ export const manageWebhooksTool = {
               updatedAt: webhook.updatedAt,
             })),
           );
-          const payload = { total: data.pagination?.total ?? items.length, page: parsed.data.page, items };
+          const payload = {
+            total: data.pagination?.total ?? items.length,
+            page: parsed.data.page,
+            pageSize: parsed.data.pageSize,
+            items,
+          };
           return { text: encodeToToon(payload), structuredContent: payload };
         },
       );
@@ -355,16 +354,19 @@ export const manageWebhooksTool = {
         ];
       }
       return runInteractor(
-        getGetWebhookDeliveriesApiInteractor().invoke({
-          searchTerm: parsed.data.searchTerm,
-          filters,
-          sortDescriptor: parsed.data.sortDescriptor,
-          pagination: { page: parsed.data.page, pageSize: parsed.data.pageSize },
-        }),
+        fetchMcpPage({ page: parsed.data.page, pageSize: parsed.data.pageSize }, (pagination) =>
+          getGetWebhookDeliveriesApiInteractor().invoke({
+            searchTerm: parsed.data.searchTerm,
+            filters,
+            sortDescriptor: parsed.data.sortDescriptor,
+            pagination,
+          }),
+        ),
         (data) =>
           toonResult({
             total: data.pagination?.total ?? data.items.length,
             page: parsed.data.page,
+            pageSize: parsed.data.pageSize,
             items: formatDatesInResponse(data.items),
           }),
       );

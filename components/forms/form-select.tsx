@@ -10,6 +10,7 @@ import { useTranslations } from "next-intl";
 import { AppChip } from "@/components/chip/app-chip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FormLabel } from "./form-label";
+import { FormControlRow } from "./form-control-row";
 import { cn } from "@/core/utils/cn";
 
 import { useAppForm } from "./form-context";
@@ -22,6 +23,7 @@ export type FormSelectItem = {
   disabled?: boolean;
   color?: ChipColor;
   startContent?: ReactNode;
+  description?: ReactNode;
 };
 
 type Props = {
@@ -41,6 +43,7 @@ type Props = {
   value?: string;
   onValueChange?: (value: string) => void;
   labelEndAddon?: ReactNode;
+  endContent?: ReactNode;
   ariaLabel?: string;
 };
 
@@ -62,6 +65,7 @@ export const FormSelect = observer(
     value: controlledValue,
     onValueChange,
     labelEndAddon,
+    endContent,
     ariaLabel,
   }: Props) => {
     const t = useTranslations();
@@ -105,32 +109,43 @@ export const FormSelect = observer(
             !canEdit ? undefined : (next) => (onValueChange ? onValueChange(next) : store?.onChange(id, next))
           }
         >
-          <SelectTrigger
-            aria-busy={optionsLoading || undefined}
-            aria-invalid={hasError}
-            aria-label={resolvedLabel ? undefined : ariaLabel}
-            aria-readonly={isReadOnly || undefined}
-            className={cn("w-full", className, isReadOnly && "[&>svg:last-child]:hidden")}
-            id={domId}
-          >
-            <SelectValue placeholder={placeholder ?? " "}>
-              {optionsLoading && !selectedItem ? (
-                <SelectionValueSkeleton />
-              ) : selectedItem ? (
-                selectedItem.color ? (
-                  <AppChip variant={selectedItem.color}>{selectedItem.label}</AppChip>
-                ) : (
-                  <>
-                    {selectedItem.startContent}
+          <FormControlRow>
+            <SelectTrigger
+              aria-busy={optionsLoading || undefined}
+              aria-invalid={hasError}
+              aria-label={resolvedLabel ? undefined : ariaLabel}
+              aria-readonly={isReadOnly || undefined}
+              className={cn(
+                "w-full",
+                className,
+                endContent && "relative pr-16 [&>svg:last-child]:absolute [&>svg:last-child]:right-3",
+                isReadOnly && "[&>svg:last-child]:hidden",
+              )}
+              id={domId}
+            >
+              <SelectValue placeholder={placeholder ?? " "}>
+                {optionsLoading && !selectedItem ? (
+                  <SelectionValueSkeleton />
+                ) : selectedItem ? (
+                  selectedItem.color ? (
+                    <AppChip variant={selectedItem.color}>{selectedItem.label}</AppChip>
+                  ) : (
+                    <>
+                      {selectedItem.startContent}
 
-                    <span>{selectedItem.label}</span>
-                  </>
-                )
-              ) : hasUnresolvedValue ? (
-                <span className="text-muted-foreground">{t("Common.inputs.unavailableSelection")}</span>
-              ) : null}
-            </SelectValue>
-          </SelectTrigger>
+                      <span>{selectedItem.label}</span>
+                    </>
+                  )
+                ) : hasUnresolvedValue ? (
+                  <span className="text-muted-foreground">{t("Common.inputs.unavailableSelection")}</span>
+                ) : null}
+              </SelectValue>
+            </SelectTrigger>
+
+            {endContent && (
+              <div className="absolute right-8 top-1/2 -translate-y-1/2 flex items-center">{endContent}</div>
+            )}
+          </FormControlRow>
 
           <SelectContent>
             {optionsLoading ? (
@@ -142,10 +157,18 @@ export const FormSelect = observer(
                     {item.color ? (
                       <AppChip variant={item.color}>{item.label}</AppChip>
                     ) : (
-                      <span className="flex items-center gap-2">
+                      <span className={cn("flex items-center gap-2", item.description && "items-start")}>
                         {item.startContent}
 
-                        {item.label}
+                        <span className="flex flex-col gap-0.5">
+                          <span>{item.label}</span>
+
+                          {item.description && (
+                            <span className="max-w-64 whitespace-normal text-xs text-muted-foreground">
+                              {item.description}
+                            </span>
+                          )}
+                        </span>
                       </span>
                     )}
                   </SelectItem>

@@ -2,14 +2,14 @@ import { describe, expect, it } from "vitest";
 
 import { CONTENT_LOCALES, type ContentLocale } from "@/i18n/locale-registry";
 
-import { getDocsPageRaw, getDocsPageTool, listDocsSlugs } from "../docs.mcp-tools";
+import { getDocsPageRaw, listDocsSlugs, docsPageResult } from "../docs.mcp-tools";
 import { mcpToolResultText, type McpToolResult } from "../mcp-tool";
 
 import { env } from "@/env";
 import { generateOpenApiSpec } from "@/core/openapi/openapi-spec";
 
 function getPage(args: { slug: string; locale?: ContentLocale }) {
-  return mcpToolResultText(getDocsPageTool.execute({ locale: "en", source: "docs", ...args }) as McpToolResult);
+  return mcpToolResultText(docsPageResult({ locale: "en", source: "docs", ...args }) as McpToolResult);
 }
 
 describe("docs pages served to agents", () => {
@@ -46,7 +46,7 @@ describe("docs pages served to agents", () => {
       expect(markdown).not.toContain("<APIPage");
     }
     expect(
-      mcpToolResultText(getDocsPageTool.execute({ slug: "readRecord", locale: "en", source: "api" }) as McpToolResult),
+      mcpToolResultText(docsPageResult({ slug: "readRecord", locale: "en", source: "api" }) as McpToolResult),
     ).toContain("**Endpoint:** `POST /api/v2/records/read`, operationId `readRecord`.");
     expect(getDocsPageRaw("getContactById", "en", "api")).toBeNull();
     expect(getDocsPageRaw("createContact", "en", "api")).toBeNull();
@@ -64,9 +64,7 @@ describe("docs pages served to agents", () => {
     expect(pages.length).toBeGreaterThan(0);
     expect(markers).toEqual([]);
     expect(
-      mcpToolResultText(
-        getDocsPageTool.execute({ slug: "mutateRecord", locale: "en", source: "api" }) as McpToolResult,
-      ),
+      mcpToolResultText(docsPageResult({ slug: "mutateRecord", locale: "en", source: "api" }) as McpToolResult),
     ).toContain("\n> Version 2 configurable CRM contract. Record references contain both typeId and recordId.");
   });
 

@@ -62,9 +62,12 @@ describe("entity terminology catalogs", () => {
     }
   });
 
-  it.each(Object.entries(catalogs))("keeps %s onboarding at Profile, Invite, and AI only", (_locale, messages) => {
-    expect(Object.keys(messages.OnboardingWizard.steps)).toEqual(["ai", "invite", "profile"]);
-  });
+  it.each(Object.entries(catalogs))(
+    "keeps %s onboarding at Profile, Wiki, Invite, and AI only",
+    (_locale, messages) => {
+      expect(Object.keys(messages.OnboardingWizard.steps)).toEqual(["ai", "invite", "profile", "wiki"]);
+    },
+  );
 
   it.each(Object.entries(catalogs))("keeps %s workspace copy terminology-aware", (_locale, messages) => {
     for (const aggregation of ["count", "sum", "average", "min", "max"] as const)

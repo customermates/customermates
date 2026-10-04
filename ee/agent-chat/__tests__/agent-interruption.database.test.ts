@@ -1,3 +1,4 @@
+import { prismaAgentChatRepoDependencies } from "@/tests/helpers/prisma-agent-chat-repo";
 import { randomUUID } from "node:crypto";
 
 import { Client } from "pg";
@@ -44,9 +45,10 @@ describeDatabase("interrupted agent attempts against PostgreSQL", () => {
     const reservationId = randomUUID();
     await client.query(
       `INSERT INTO "AgentUsageEvent"
-       ("id","companyId","userId","state","reservedCredits","chargedCredits",
-        "planSnapshot","subscriptionStatusSnapshot","allowanceCreditsSnapshot","periodStart","periodEnd")
-       VALUES ($1,$2,$3,'reserved',7,0,'pro','active',1000,CURRENT_TIMESTAMP,
+       ("id","companyId","userId","state","reservedMicrocents",
+        "planSnapshot","subscriptionStatusSnapshot","allowanceMicrocentsSnapshot",
+        "periodStart","periodEnd")
+       VALUES ($1,$2,$3,'reserved',6500000,'pro','active',1000000000,CURRENT_TIMESTAMP,
                CURRENT_TIMESTAMP + INTERVAL '1 month')`,
       [reservationId, companyId, userId],
     );
@@ -110,9 +112,10 @@ describeDatabase("interrupted agent attempts against PostgreSQL", () => {
     );
     await client.query(
       `INSERT INTO "AgentUsageEvent"
-       ("id","companyId","userId","turnRequestId","state","reservedCredits","chargedCredits",
-        "planSnapshot","subscriptionStatusSnapshot","allowanceCreditsSnapshot","periodStart","periodEnd","providerStartedAt")
-       VALUES ($1,$2,$3,$4,'reserved',7,0,'pro','active',1000,CURRENT_TIMESTAMP,
+       ("id","companyId","userId","turnRequestId","state","reservedMicrocents",
+        "planSnapshot","subscriptionStatusSnapshot","allowanceMicrocentsSnapshot",
+        "periodStart","periodEnd","providerStartedAt")
+       VALUES ($1,$2,$3,$4,'reserved',6500000,'pro','active',1000000000,CURRENT_TIMESTAMP,
                CURRENT_TIMESTAMP + INTERVAL '1 month',$5)`,
       [randomUUID(), companyId, userId, turnRequestId, providerStartedAt],
     );
@@ -134,7 +137,8 @@ describeDatabase("interrupted agent attempts against PostgreSQL", () => {
   async function snapshot(turnRequestId: string) {
     const result = await client.query(
       `SELECT t."status", t."terminalAt", t."terminalCode", t."assistantMessageId",
-              u."state", u."reservedCredits", u."chargedCredits", u."settledAt", u."providerStartedAt",
+              u."state", u."reservedMicrocents"::int AS "reservedMicrocents",
+              u."chargedMicrocents"::int AS "chargedMicrocents", u."settledAt", u."providerStartedAt",
               (SELECT COUNT(*)::int FROM "AgentRunLease" l WHERE l."companyId" = t."companyId") AS leases,
               (SELECT COUNT(*)::int FROM "AgentRunRound" r WHERE r."turnRequestId" = t.id) AS rounds
        FROM "AgentTurnRequest" t JOIN "AgentUsageEvent" u ON u."turnRequestId" = t.id
@@ -146,7 +150,7 @@ describeDatabase("interrupted agent attempts against PostgreSQL", () => {
 
   beforeAll(async () => {
     const { PrismaAgentChatRepo } = await import("../prisma-agent-chat.repository");
-    repo = new PrismaAgentChatRepo();
+    repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
     await client.connect();
     await client.query('INSERT INTO "Company" ("id","updatedAt") VALUES ($1,CURRENT_TIMESTAMP)', [companyId]);
     await client.query(
@@ -182,8 +186,8 @@ describeDatabase("interrupted agent attempts against PostgreSQL", () => {
     expect(await snapshot(turn.turnRequestId)).toMatchObject({
       status: "failed",
       state: "released",
-      chargedCredits: 0,
-      reservedCredits: 7,
+      chargedMicrocents: 0,
+      reservedMicrocents: 6_500_000,
       terminalAt: expect.any(Date),
       settledAt: expect.any(Date),
       leases: 0,
@@ -199,8 +203,8 @@ describeDatabase("interrupted agent attempts against PostgreSQL", () => {
     expect(await snapshot(turn.turnRequestId)).toMatchObject({
       status: "uncertain",
       state: "retained",
-      chargedCredits: 7,
-      reservedCredits: 7,
+      chargedMicrocents: 6_500_000,
+      reservedMicrocents: 6_500_000,
       terminalAt: expect.any(Date),
       settledAt: expect.any(Date),
       leases: 0,
@@ -267,7 +271,8 @@ describeDatabase("interrupted agent attempts against PostgreSQL", () => {
       [assistantMessageId, turn.turnRequestId],
     );
     await client.query(
-      `UPDATE "AgentUsageEvent" SET state = 'settled', "chargedCredits" = 2, "costSource" = 'measured',
+      `UPDATE "AgentUsageEvent" SET state = 'settled', "chargedMicrocents" = 1500000,
+       "costSource" = 'measured',
        "settledAt" = CURRENT_TIMESTAMP WHERE "turnRequestId" = $1`,
       [turn.turnRequestId],
     );
@@ -281,7 +286,7 @@ describeDatabase("interrupted agent attempts against PostgreSQL", () => {
     expect(before).toMatchObject({
       status: "completed",
       state: "settled",
-      chargedCredits: 2,
+      chargedMicrocents: 1_500_000,
       assistantMessageId,
     });
   });
@@ -364,10 +369,10 @@ describeDatabase("interrupted agent attempts against PostgreSQL", () => {
       cancellationRequestedAt: expect.any(Date),
     });
     const reservation = await client.query(
-      'SELECT state, "chargedCredits", "settledAt" FROM "AgentUsageEvent" WHERE id = $1 AND "companyId" = $2',
+      'SELECT state, "chargedMicrocents"::int AS "chargedMicrocents", "settledAt" FROM "AgentUsageEvent" WHERE id = $1 AND "companyId" = $2',
       [reservationId, companyId],
     );
-    expect(reservation.rows[0]).toEqual({ state: "reserved", chargedCredits: 0, settledAt: null });
+    expect(reservation.rows[0]).toEqual({ state: "reserved", chargedMicrocents: 0, settledAt: null });
     const lease = await client.query(
       'SELECT "runId" FROM "AgentRunLease" WHERE "conversationId" = $1 AND "companyId" = $2',
       [conversationId, companyId],

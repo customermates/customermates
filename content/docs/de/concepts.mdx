@@ -29,7 +29,9 @@ Beziehungen verbinden konfigurierte Typen. Jede Richtung hat eine eigene Bezeich
 
 Der Link zwischen einem Deal und einem Service wird als eigene Position mit Menge gespeichert. Derselbe Service kann in einem Deal zweimal mit unterschiedlichen Mengen oder gespeicherten Preisen vorkommen.
 
-Das Backend prüft Typen, Workspace, Kardinalität, Duplikate und Löschverhalten. Bei mehreren verknüpften Datensätzen braucht ein Lookup oder Rollup eine Aggregation wie Summe oder Anzahl. MCP-Clients verknüpfen über `mutate_crm_record` mit stabilen Beziehungs-IDs aus `get_record_model`. Jede Referenz enthält `typeId` und `recordId`.
+Im Datensatzformular erscheint eine Beziehung als beschriftetes Relations-Feld. Wählen Sie die Datensätze, dann speichern Sie.
+
+Das Backend prüft Typen, Workspace, Kardinalität, Duplikate und Löschverhalten. Bei mehreren verknüpften Datensätzen braucht ein Lookup oder Rollup eine Aggregation wie Summe oder Anzahl. MCP-Clients verknüpfen oder entfernen Links über `mutate_crm_record` mit stabilen Beziehungs-IDs aus `get_record_model`. Jede Referenz enthält `typeId` und `recordId`.
 
 ## Was sind benutzerdefinierte Felder (Custom Columns), und welche Feldtypen gibt es? [#what-are-custom-columns]
 

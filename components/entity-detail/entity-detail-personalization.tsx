@@ -6,9 +6,11 @@ import type { P13nEntry } from "@/features/p13n/prisma-p13n.repository";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 
-import { upsertP13nAction } from "@/app/actions";
-import { reportApplicationError } from "@/core/errors/report-application-error";
-import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import {
+  flushP13nPersistence,
+  latestP13nSnapshot,
+  scheduleP13nPersistence,
+} from "@/components/shared/p13n-persistence-channel";
 import { reconcileAvailableIds, reconcileColumnOrder } from "./entity-detail-personalization.utils";
 
 export type EntityDetailPersonalizationConfig = {
@@ -74,59 +76,7 @@ type PersonalizationSnapshot = {
   columnOrder: string[];
 };
 
-type PersistenceChannel = {
-  latest: PersonalizationSnapshot;
-  pending: PersonalizationSnapshot | null;
-  queue: Promise<void>;
-  timer: number | null;
-};
-
-const persistenceChannels = new Map<string, PersistenceChannel>();
-
-function flushPersistence(channelKey: string) {
-  const channel = persistenceChannels.get(channelKey);
-  if (!channel) return;
-
-  if (channel.timer !== null) {
-    window.clearTimeout(channel.timer);
-    channel.timer = null;
-  }
-
-  const snapshot = channel.pending;
-  channel.pending = null;
-  if (!snapshot) return;
-
-  channel.queue = channel.queue
-    .then(async () => {
-      const result = await upsertP13nAction(snapshot);
-      if (!result.ok) toastZodErrorTree(result.error);
-    })
-    .catch(reportApplicationError);
-}
-
-function schedulePersistence(channelKey: string, snapshot: PersonalizationSnapshot) {
-  let channel = persistenceChannels.get(channelKey);
-  if (!channel) {
-    channel = {
-      latest: snapshot,
-      pending: null,
-      queue: Promise.resolve(),
-      timer: null,
-    };
-    persistenceChannels.set(channelKey, channel);
-  }
-
-  channel.latest = snapshot;
-  channel.pending = snapshot;
-  if (channel.timer !== null) window.clearTimeout(channel.timer);
-  channel.timer = window.setTimeout(() => flushPersistence(channelKey), 700);
-}
-
-export function resetEntityDetailPersonalizationPersistenceForTests() {
-  for (const channel of persistenceChannels.values()) if (channel.timer !== null) window.clearTimeout(channel.timer);
-
-  persistenceChannels.clear();
-}
+const PERSONALIZATION_PERSISTENCE_DELAY_MS = 700;
 
 export function EntityDetailPersonalizationProvider({
   children,
@@ -138,7 +88,9 @@ export function EntityDetailPersonalizationProvider({
 }: ProviderProps) {
   const p13nId = config?.p13nId;
   const persistenceChannelKey = p13nId ? `${persistenceScope}:${p13nId}` : undefined;
-  const latestSnapshot = persistenceChannelKey ? persistenceChannels.get(persistenceChannelKey)?.latest : undefined;
+  const latestSnapshot = persistenceChannelKey
+    ? latestP13nSnapshot<PersonalizationSnapshot>(persistenceChannelKey)
+    : undefined;
   const storedOptions = latestSnapshot?.detailOptions ?? initial?.detailOptions;
   const [isPersonalizing, setIsPersonalizing] = useState(false);
   const initialHiddenFieldIds = reconcileAvailableIds(storedOptions?.hiddenFieldIds ?? [], config?.availableFieldIds);
@@ -214,12 +166,12 @@ export function EntityDetailPersonalizationProvider({
     if (stamp === lastPersistenceStamp.current) return;
 
     lastPersistenceStamp.current = stamp;
-    schedulePersistence(persistenceChannelKey, snapshot);
+    scheduleP13nPersistence(persistenceChannelKey, snapshot, PERSONALIZATION_PERSISTENCE_DELAY_MS);
   }, [columnOrder, fieldOrder, hiddenFieldIds, p13nId, persistenceChannelKey, starredFieldIds]);
 
   useEffect(
     () => () => {
-      if (persistenceChannelKey) flushPersistence(persistenceChannelKey);
+      if (persistenceChannelKey) flushP13nPersistence(persistenceChannelKey);
     },
     [persistenceChannelKey],
   );

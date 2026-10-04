@@ -10,6 +10,9 @@ vi.mock("@/core/di", () => ({
   getGetRecordInteractor: () => ({ invoke: calls.read }),
   getGetRecordModelInteractor: () => ({ invoke: calls.schema }),
   getResolveRecordSearchInteractor: () => ({ invoke: calls.resolve }),
+  getSearchExternalizedWikiPagesInteractor: () => ({
+    invoke: () => Promise.resolve({ ok: true, data: { items: [], total: 0, page: 1, pageSize: 5 } }),
+  }),
 }));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("next-intl/server", () => ({
@@ -17,7 +20,7 @@ vi.mock("next-intl/server", () => ({
 }));
 vi.mock("@/env", () => ({ env: { BASE_URL: "http://localhost:4105" } }));
 vi.mock("../docs.mcp-tools", () => ({
-  searchDocsRaw: () => ({ results: [] }),
+  searchDocsHits: () => Promise.resolve([]),
   getDocsPageRaw: () => null,
   listDocsSlugs: () => [],
 }));

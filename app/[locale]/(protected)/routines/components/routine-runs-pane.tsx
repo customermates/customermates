@@ -5,9 +5,10 @@ import type { RoutineModalStore } from "./routine-modal.store";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { CircleAlert, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 import { AppChip } from "@/components/chip/app-chip";
+import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -35,7 +36,7 @@ function RoutineRunRow({ run, store }: { run: RoutineRunDto; store: RoutineModal
 
           {run.chargedCredits > 0 && (
             <span className="text-subdued shrink-0 text-xs font-normal">
-              {`${t("RoutineDetail.credits")}: ${run.chargedCredits}`}
+              {`${t("RoutineDetail.credits")}: ${intlStore.formatAgentCredits(run.chargedCredits).amount}`}
             </span>
           )}
         </span>
@@ -114,19 +115,21 @@ export const RoutineRunsPane = observer(({ store }: { store: RoutineModalStore }
           <Spinner aria-label={t("PageState.loading")} />
         </div>
       ) : store.runsRequestState === "error" ? (
-        <div className="flex min-h-64 flex-col items-center justify-center gap-3 px-6 text-center" role="alert">
-          <CircleAlert aria-hidden="true" className="size-8 text-destructive" />
-
-          <div className="max-w-md space-y-1">
-            <h4 className="text-sm font-medium">{t("RoutineDetail.runsLoadErrorTitle")}</h4>
-
-            <p className="text-subdued text-sm">{t("RoutineDetail.runsLoadErrorDescription")}</p>
-          </div>
-
-          <Button size="sm" type="button" variant="secondary" onClick={() => runUserAction(store.retryLoadRuns)}>
+        <Alert
+          color="danger"
+          description={t("RoutineDetail.runsLoadErrorDescription")}
+          title={t("RoutineDetail.runsLoadErrorTitle")}
+        >
+          <Button
+            className="mt-2"
+            size="sm"
+            type="button"
+            variant="secondary"
+            onClick={() => runUserAction(store.retryLoadRuns)}
+          >
             {t("ErrorCard.retry")}
           </Button>
-        </div>
+        </Alert>
       ) : store.runs.length === 0 ? (
         <RoutineEmptyState store={store} />
       ) : (

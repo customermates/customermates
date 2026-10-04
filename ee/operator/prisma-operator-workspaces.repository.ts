@@ -3,7 +3,7 @@ import type { DateBucket } from "@/core/base/grouping/grouping.schema";
 import type { GroupCountRow } from "@/core/base/grouping/group-count";
 import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
 import type { OperatorWorkspaceRowDto } from "./operator-lists.schema";
-import type { GetOperatorWorkspacesRepo } from "./get/get-operator-workspaces.interactor";
+import type { GetOperatorWorkspacesRepo } from "@/ee/operator/get/get-operator-workspaces.repo";
 
 import type { Prisma } from "@/generated/prisma";
 

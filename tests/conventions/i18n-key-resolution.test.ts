@@ -46,6 +46,7 @@ import {
 import { CustomColumnType } from "@/core/data-view/column-presentation.types";
 import { TaskType } from "@/features/records/history/v1/legacy-enums";
 import { ROUTING_LOCALES } from "@/i18n/locale-registry";
+import { WIKI_PAGE_KINDS } from "@/features/wiki/wiki.schema";
 
 const ENTITY_TERMINOLOGY_KEYS = Object.entries(ENTITY_TERMINOLOGY_PRESETS).flatMap(([entityType, presets]) =>
   presets.flatMap((preset) =>
@@ -141,6 +142,7 @@ const DATE_BUCKET_KEYS = [
   "Common.dateBuckets.week",
 ] as const;
 const TASK_TYPE_KEYS = Object.values(TaskType).map((type) => `Common.taskTypes.${type}`);
+const WIKI_PAGE_KIND_KEYS = WIKI_PAGE_KINDS.map((kind) => `Wiki.kind.${kind}`);
 const DATE_PRESET_KEYS = [
   "Common.datePresets.endTime",
   "Common.datePresets.inAMonth",
@@ -384,8 +386,10 @@ const DEFAULT_DATA_OPTION_KEYS = [
   "Common.defaultData.task.options.onHold",
   "Common.defaultData.task.options.open",
 ] as const;
-const ONBOARDING_STEP_TITLE_KEYS = ["profile", "invite", "ai"].map((step) => `OnboardingWizard.steps.${step}.title`);
-const ONBOARDING_STEP_SUBTITLE_KEYS = ["profile", "invite", "ai"].map(
+const ONBOARDING_STEP_TITLE_KEYS = ["profile", "wiki", "invite", "ai"].map(
+  (step) => `OnboardingWizard.steps.${step}.title`,
+);
+const ONBOARDING_STEP_SUBTITLE_KEYS = ["profile", "wiki", "invite", "ai"].map(
   (step) => `OnboardingWizard.steps.${step}.subtitle`,
 );
 const ONBOARDING_CHOICE_KEYS = [
@@ -397,7 +401,6 @@ const ONBOARDING_CHOICE_KEYS = [
   "cursor",
   "gemini",
   "openai",
-  "skip",
 ].map((choice) => `OnboardingWizard.ai.choices.${choice}`);
 const MCP_TOOL_KEYS = ["claudeCode", "claudeDesktop", "codex", "cursor", "gemini"] as const;
 const ONBOARDING_INSTALL_KEYS = MCP_TOOL_KEYS.map((tool) => `OnboardingWizard.ai.install.instruction.${tool}`);
@@ -420,6 +423,7 @@ const AGENT_ACTIVITY_RESOURCE_KEYS = [
   "AgentChat.activity.resource.tasks",
   "AgentChat.activity.resource.terminology",
   "AgentChat.activity.resource.widgets",
+  "AgentChat.activity.resource.wiki",
 ];
 const AGENT_ACTIVITY_LABEL_KEYS = [
   "AgentChat.activity.label.preview",
@@ -442,6 +446,7 @@ const AGENT_ACTIVITY_RESOURCE_SINGULAR_KEYS = [
   "AgentChat.activity.resourceSingular.tasks",
   "AgentChat.activity.resourceSingular.terminology",
   "AgentChat.activity.resourceSingular.widgets",
+  "AgentChat.activity.resourceSingular.wiki",
 ];
 const AGENT_ACTIVITY_STATE_KEYS = AGENT_ACTIVITY_KINDS.flatMap((kind) =>
   (["done", "error", "running"] as const).map((state) => `AgentChat.activity.state.${kind}.${state}`),
@@ -496,6 +501,12 @@ const AGENT_SUGGESTION_KEYS = [
   "AgentChat.suggestions.pages.routines.empty.first-routine",
   "AgentChat.suggestions.pages.routines.empty.routine-ideas",
   "AgentChat.suggestions.pages.routines.empty.routines-tour",
+  "AgentChat.suggestions.pages.wiki.data.create-wiki-page",
+  "AgentChat.suggestions.pages.wiki.data.wiki-gaps",
+  "AgentChat.suggestions.pages.wiki.data.wiki-summary",
+  "AgentChat.suggestions.pages.wiki.empty.first-wiki-page",
+  "AgentChat.suggestions.pages.wiki.empty.wiki-structure",
+  "AgentChat.suggestions.pages.wiki.empty.wiki-tour",
   "AgentChat.suggestions.pages.services.data.create-service",
   "AgentChat.suggestions.pages.services.data.service-gaps",
   "AgentChat.suggestions.pages.services.data.services-summary",
@@ -598,6 +609,7 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["OnboardingWizard.steps.${*}.subtitle", ONBOARDING_STEP_SUBTITLE_KEYS],
   ["OnboardingWizard.steps.${*}.title", ONBOARDING_STEP_TITLE_KEYS],
   ["RoleModal.resources.${*}", ROLE_RESOURCE_KEYS],
+  ["Wiki.kind.${*}", WIKI_PAGE_KIND_KEYS],
   ["Subscription.picker.features.${*}", SUBSCRIPTION_FEATURE_KEYS],
   ["Subscription.planNames.${*}", SUBSCRIPTION_PLAN_KEYS],
   ["Subscription.status.${*}", SUBSCRIPTION_STATUS_KEYS],
@@ -788,6 +800,7 @@ export const DYNAMIC_KEY_SITES = [
   "components/shared/channel-icon-stack.tsx :: t :: Common.providers.${channelLabelKey(provider)}",
   "components/shared/locale-menu.tsx :: t :: Common.locales.${currentLocale}",
   "components/shared/locale-menu.tsx :: t :: Common.locales.${locale}",
+  "components/wiki/wiki-homepage-setup.tsx :: t :: Common.locales.${locale}",
   "core/validation/zod-error-map-server.ts :: t.raw :: Common.errors.${code}",
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.approval.${activity.kind}",
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.label.${name}",
@@ -817,6 +830,7 @@ export const DYNAMIC_KEY_SITES = [
   "features/messaging/activities/audit-detail.tsx :: t :: AccountRemovalReason.${String(value)}",
   "features/messaging/activities/audit-detail.tsx :: t :: Common.customColumnTypes.${String(value)}",
   "features/messaging/activities/audit-detail.tsx :: t :: Common.events.${entry.event}",
+  "features/messaging/activities/audit-detail.tsx :: t :: Wiki.kind.${kind.data}",
   "features/messaging/activities/audit-detail.tsx :: t :: Common.providers.${String(value)}",
   "features/messaging/activities/audit-detail.tsx :: t :: Common.userStatuses.${String(value)}",
   "features/messaging/activities/audit-detail.tsx :: t :: LegalDocumentNotice.documents.${document}",
@@ -833,6 +847,10 @@ export const DYNAMIC_KEY_SITES = [
 ];
 
 const NONLITERAL_T_CALL_SITES = new Map<string, number>([
+  ['ee/agent-chat/agent-page-actions.ts :: t :: terminologyMessageKey(entityType, "", form)', 1],
+  ["ee/agent-chat/agent-page-actions.ts :: t :: terminologyMessageKey(entityType, preset, form)", 1],
+  ["core/validation/interactor-failure-server.ts :: t.raw :: code", 1],
+  ["features/mcp-tools/mcp-tool.ts :: t.raw :: customCode", 1],
   [
     'app/[locale]/(protected)/records/[typeId]/components/record-editor-fields.tsx :: t :: captureStaged ? "RecordModel.captureOnSave" : "RecordModel.captureValue"',
     1,

@@ -10,6 +10,7 @@ export const RoleSystemControlsSchema = z
     dataModel: z.object({ canManage: z.enum(["yes", "no"]) }).strict(),
     api: z.object({ canManage: z.enum(["yes", "no"]), readAccess: z.enum(["none", "all"]) }).strict(),
     inboxMessages: z.object({ canManage: z.enum(["yes", "no"]), readAccess: z.enum(["none", "all"]) }).strict(),
+    wiki: z.object({ canManage: z.enum(["yes", "no"]), readAccess: z.enum(["none", "all"]) }).strict(),
     auditLog: z.object({ readAccess: z.enum(["none", "all"]) }).strict(),
     routines: z.object({ canManage: z.enum(["yes", "no"]), readAccess: z.enum(["none", "own", "all"]) }).strict(),
   })
@@ -23,6 +24,7 @@ export const RoleSystemPermissionsSchema = z
     dataModel: RoleSystemControlsSchema.shape.dataModel.partial().optional(),
     api: RoleSystemControlsSchema.shape.api.partial().optional(),
     inboxMessages: RoleSystemControlsSchema.shape.inboxMessages.partial().optional(),
+    wiki: RoleSystemControlsSchema.shape.wiki.partial().optional(),
     auditLog: RoleSystemControlsSchema.shape.auditLog.partial().optional(),
     routines: RoleSystemControlsSchema.shape.routines.partial().optional(),
   })

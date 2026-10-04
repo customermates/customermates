@@ -1,6 +1,6 @@
 import type { RecordRevisionChange } from "@/features/records/record-revision.schema";
 import { z } from "zod";
-import type { UpsertRoleRepo } from "./upsert-role.interactor";
+import type { UpsertRoleRepo } from "./upsert-role.repo";
 import type { DeleteRoleRepo } from "./delete-role.interactor";
 import type { RecordRepo } from "@/features/records/record.repo";
 import type { RecordAccessPolicy } from "@/features/records/record-access";

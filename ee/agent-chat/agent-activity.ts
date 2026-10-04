@@ -1,14 +1,15 @@
 import { z } from "zod";
+import { AgentActivityContextSchema, agentToolInputContext } from "./agent-activity-context";
 import { SurfaceKeySchema, ViewKeySchema } from "@/core/data-view/data-view-identity.schema";
 import { dataViewNavigationHref } from "@/core/data-view/data-view-links";
 
-import { approvalFreeActionsForTool, readOnlyActionsForTool } from "./gated-tools";
+import { approvalFreeActionsForTool, isApprovalRelevantValue, readOnlyActionsForTool } from "./gated-tools";
 import { recordToolRisk } from "./record-tool-risk";
 import type { AgentToolIdentity } from "./tool-identity";
-import { internalToolIdentity, isInternalToolIdentity } from "./tool-identity";
+import { internalToolIdentity, isInternalToolIdentity, WIKI_WEBSITE_IMPORT_TOOL_NAME } from "./tool-identity";
 
 import { sanitizeAgentPlainText } from "./agent-output-safety";
-import { LOAD_TOOLSET_TOOL_NAME } from "./agent-toolset-routing";
+import { ANALYZE_RECORDS_TOOL_NAME, LOAD_TOOLSET_TOOL_NAME } from "./agent-toolset-routing";
 
 const ViewMutationActionSchema = z.enum(["create", "update", "select", "delete", "reset"]);
 const DataViewNavigationHrefSchema = z
@@ -39,7 +40,9 @@ export const AGENT_ACTIVITY_KINDS = [
   "widgets.configure",
   "docs.search",
   "docs.read",
+  "web.search",
   "records.read",
+  "records.analyze",
   "records.create",
   "records.update",
   "records.delete",
@@ -80,6 +83,7 @@ export const AGENT_ACTIVITY_RESOURCES = [
   "widgets",
   "terminology",
   "messages",
+  "wiki",
 ] as const;
 
 export type AgentActivityResource = (typeof AGENT_ACTIVITY_RESOURCES)[number];
@@ -144,6 +148,7 @@ export const AgentActivityDescriptorSchema = z.preprocess(
       risk: z.enum(["read", "write", "sensitive"]),
       count: z.number().int().min(1).max(100).optional(),
       consequence: AgentActivityConsequenceSchema.optional(),
+      context: AgentActivityContextSchema.optional(),
       viewSurfaceKey: SurfaceKeySchema.optional(),
       viewAction: ViewMutationActionSchema.optional(),
       viewKey: ViewKeySchema.optional(),
@@ -244,6 +249,17 @@ function isMultiplexedRead(toolName: string, details: Record<string, unknown>): 
   return Boolean(action && readOnlyActionsForTool(internalToolIdentity(toolName))?.includes(action));
 }
 
+function analysisResource(details: Record<string, unknown>): AgentActivityResource | undefined {
+  const reads = Array.isArray(details.reads) ? details.reads : [];
+  const first = reads[0] as { input?: unknown } | undefined;
+  if (typeof first?.input !== "string") return entityResource(first?.input);
+  try {
+    return entityResource(JSON.parse(first.input));
+  } catch {
+    return undefined;
+  }
+}
+
 function multiplexedRisk(toolName: string, details: Record<string, unknown>): "write" | "sensitive" {
   const approvalFree = approvalFreeActionsForTool(internalToolIdentity(toolName));
   const action = actionValue(details);
@@ -251,6 +267,12 @@ function multiplexedRisk(toolName: string, details: Record<string, unknown>): "w
 }
 
 export function describeAgentTool(identity: AgentToolIdentity, input: unknown): AgentActivityDescriptor {
+  const activity = describeAgentToolAction(identity, input);
+  const context = isInternalToolIdentity(identity) ? agentToolInputContext(identity.name, input) : undefined;
+  return context ? { ...activity, context } : activity;
+}
+
+function describeAgentToolAction(identity: AgentToolIdentity, input: unknown): AgentActivityDescriptor {
   if (!isInternalToolIdentity(identity)) return descriptor("generic", undefined, "sensitive");
 
   const toolName = identity.name;
@@ -281,11 +303,36 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
 
   if (toolName === "list_ui_targets") return descriptor("interface.inspect", undefined, "read");
   if (toolName === LOAD_TOOLSET_TOOL_NAME) return descriptor("tools.load", undefined, "read");
+  if (toolName === ANALYZE_RECORDS_TOOL_NAME) return descriptor("records.analyze", analysisResource(details), "read");
   if (toolName === "get_workspace_context") return descriptor("workspace.inspect", undefined, "read");
   if (toolName === "navigate" || toolName === "highlight_element")
     return descriptor("interface.navigate", undefined, "read");
   if (toolName === "configure_view") return descriptor("interface.interact", undefined, "read");
   if (toolName === "start_tour") return descriptor("interface.tour", undefined, "read");
+  if (toolName === "web_search") return descriptor("web.search", undefined, "read");
+  if (toolName === WIKI_WEBSITE_IMPORT_TOOL_NAME) return descriptor("records.create", "wiki", "write");
+  if (toolName === "manage_wiki_pages") {
+    const action = actionValue(details);
+    if (isMultiplexedRead(toolName, details)) return descriptor("records.read", "wiki", "read");
+    if (action === "create") {
+      const count = boundedCount(details.pages);
+      return {
+        ...descriptor("records.create", "wiki", "write"),
+        ...(count ? { count } : {}),
+      };
+    }
+    if (action === "update") return { ...descriptor("records.update", "wiki", "write"), count: 1 };
+    if (action === "delete") {
+      return {
+        ...descriptor("records.delete", "wiki", "sensitive", ["wiki"], {
+          action: "records.delete",
+          count: 1,
+        }),
+        count: 1,
+      };
+    }
+    return descriptor("workspace.configure", "wiki", multiplexedRisk(toolName, details));
+  }
   if (toolName === "request_support") {
     return descriptor("support.escalate", undefined, "sensitive", [], {
       action: "support.request",
@@ -383,7 +430,8 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
         : updatesTerminology && details.currency === undefined
           ? "workspace.terminology"
           : "workspace.settings";
-    return descriptor(kind, undefined, "write", updatesTerminology ? ["terminology"] : []);
+    const risk = isApprovalRelevantValue(details.terminology) ? "sensitive" : "write";
+    return descriptor(kind, undefined, risk, updatesTerminology ? ["terminology"] : []);
   }
   if (toolName === "manage_roles") {
     const action = actionValue(details);
@@ -567,6 +615,9 @@ export const AGENT_APPROVAL_COPY_KINDS: readonly AgentActivityKind[] = [
   "routines.delete",
   "views.configure",
   "views.delete",
+  "workspace.settings",
+  "workspace.terminology",
+  "workspace.configure",
 ];
 
 function countedResourceCopy(
@@ -727,6 +778,15 @@ export function agentActivityCopy(
   const detail =
     agentConsequenceDetail(activity, t, resource, hasCustomTerminology) ??
     (resource ? resource.charAt(0).toUpperCase() + resource.slice(1) : undefined);
+  const context = activity.context
+    ? activity.context.additionalCount
+      ? t("AgentChat.activity.contextMore", {
+          labels: activity.context.labels.join(", "),
+          count: activity.context.additionalCount,
+        })
+      : activity.context.labels.join(", ")
+    : undefined;
+  const contextual = (action: string) => (context ? t("AgentChat.activity.contextual", { action, context }) : action);
   const state = (name: "running" | "done" | "error") =>
     t(`AgentChat.activity.state.${activity.kind}.${name}`, {
       count: activity.count ?? 0,
@@ -743,11 +803,11 @@ export function agentActivityCopy(
     : state("running");
 
   return {
-    running: state("running"),
-    approval,
-    done: state("done"),
-    error: state("error"),
-    cancelled: t("AgentChat.activity.cancelled"),
+    running: contextual(state("running")),
+    approval: contextual(approval),
+    done: contextual(state("done")),
+    error: contextual(state("error")),
+    cancelled: contextual(t("AgentChat.activity.cancelled")),
     ...(detail ? { detail } : {}),
   };
 }

@@ -1,6 +1,6 @@
-import type { FilterableField } from "@/core/base/base-get.schema";
-import type { SearchableField, SortableField } from "@/core/base/base-query-builder";
+import type { SortableField } from "@/core/base/base-query-builder";
 import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
+import type { DataViewConfigurationRepo } from "./data-view-configuration.repo";
 import type { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
 import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
@@ -18,6 +18,7 @@ import type { SaveDataViewStateInteractor } from "./save-data-view-state.interac
 import type { SelectDataViewInteractor } from "./select-data-view.interactor";
 import type { UpsertDataViewInteractor } from "./upsert-data-view.interactor";
 
+import equal from "fast-deep-equal/es6";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { ViewMode } from "@/core/base/base-query-builder";
 import { resolveGrouping } from "@/core/base/grouping/group-axis";
@@ -47,15 +48,6 @@ import type { Resource } from "@/generated/prisma";
 import { Action } from "@/generated/prisma";
 import { DATA_VIEW_SURFACES, type SurfaceDescriptor } from "./data-view-surfaces";
 import { ManageDataViewsResultSchema, ManageDataViewsSchema } from "./manage-data-views.schema";
-
-export abstract class DataViewConfigurationRepo {
-  abstract getSearchableFields(): SearchableField[];
-  abstract getSortableFields(): SortableField[];
-  abstract getFilterableFields(): Promise<FilterableField[]>;
-  abstract getCustomColumns(): Promise<CustomColumnDto[]>;
-  abstract getGroupableFields(customColumns?: readonly CustomColumnDto[]): Promise<GroupableFieldSpec[]>;
-  setMessagingSourcesEnabled?(enabled: boolean): void;
-}
 
 export type DataViewConfigurationSources = Record<
   Exclude<BuiltinAiManageableDataViewSurfaceKey, typeof SURFACE.entityTimeline>,
@@ -361,17 +353,37 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
 
     if (data.viewKey === ALL_VIEW_KEY && data.name !== undefined)
       return fail(CustomErrorCode.dataViewAllNameImmutable, ["name"]);
+    const currentState = owned?.state ?? surfaceState.allState;
+    const name = data.name !== undefined && data.name !== owned?.name ? data.name : undefined;
 
-    if (data.state !== undefined) {
-      const checked = await this.validateState(data.surfaceKey, data.state);
+    const changed = Object.entries(data.state ?? {}).filter(
+      ([field, value]) => !equal(value, currentState[field as keyof typeof currentState]),
+    );
+    const state = changed.length > 0 ? (Object.fromEntries(changed) as AgentDataViewState) : undefined;
+
+    if (name === undefined && state === undefined) {
+      return {
+        ok: true,
+        data: {
+          action: data.action,
+          ...(owned ?? { state: currentState }),
+          ...location,
+          viewKey: data.viewKey,
+          link: this.link(descriptor.path, data.viewKey),
+        },
+      };
+    }
+
+    if (state !== undefined) {
+      const checked = await this.validateState(data.surfaceKey, state);
       if (!checked.ok) return checked;
     }
     if (owned) {
       const result = await this.upsert.invoke({
         id: owned.id,
         surfaceKey: data.surfaceKey,
-        ...(data.name !== undefined ? { name: data.name } : {}),
-        ...(data.state !== undefined ? { state: data.state } : {}),
+        ...(name !== undefined ? { name } : {}),
+        ...(state !== undefined ? { state } : {}),
       });
       if (!result.ok) return result;
       return {
@@ -388,7 +400,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
     const result = await this.saveState.invoke({
       surfaceKey: data.surfaceKey,
       viewKey: ALL_VIEW_KEY,
-      state: data.state ?? {},
+      state: state ?? {},
     });
     if (!result.ok) return result;
     const savedAllState = result.data;

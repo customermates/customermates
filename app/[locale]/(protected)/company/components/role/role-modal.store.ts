@@ -17,6 +17,7 @@ function defaultRolePermissions(): RoleSystemControls {
     dataModel: { canManage: "no" },
     api: { canManage: "no", readAccess: "none" },
     inboxMessages: { canManage: "no", readAccess: "none" },
+    wiki: { canManage: "no", readAccess: "all" },
     auditLog: { readAccess: "none" },
     routines: { canManage: "no", readAccess: "none" },
   };
@@ -58,6 +59,7 @@ function roleForm(role?: RoleDto | null): RoleForm {
       }
     }
   }
+  if (permissions.wiki.canManage === "yes") permissions.wiki.readAccess = "all";
   return { id: role?.id, name: role?.name ?? "", description: role?.description ?? "", permissions, recordGrants: [] };
 }
 
@@ -254,4 +256,8 @@ export class RoleModalStore extends BaseModalStore<RoleForm> {
       if (isCurrent()) this.setIsLoading(false);
     }
   };
+
+  protected override afterChange(id: string, value: unknown): void {
+    if (id === "permissions.wiki.canManage" && value === "yes") this.form.permissions.wiki.readAccess = "all";
+  }
 }

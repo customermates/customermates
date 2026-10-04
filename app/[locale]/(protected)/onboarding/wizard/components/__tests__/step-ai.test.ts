@@ -97,7 +97,7 @@ beforeEach(() => {
 });
 
 describe("StepAi provider chooser", () => {
-  it("renders four provider-first buttons with Back and Skip but no Finish", () => {
+  it("renders four provider-first buttons with Back and Finish", () => {
     const html = renderStep(makeStore());
     const providerButtons = buttons(html).filter((button) => button.includes("data-provider="));
 
@@ -109,20 +109,18 @@ describe("StepAi provider chooser", () => {
       "gemini",
     ]);
     expect(providerButtons.join(" ")).not.toMatch(/connector|api.?key|mcp/i);
-    const skipButton = buttonContaining(html, "OnboardingWizard.ai.choices.skip");
+    const finishButton = buttonContaining(html, "OnboardingWizard.finish");
 
-    expect(skipButton).not.toContain("data-provider=");
-    expect(skipButton).toContain('data-size="default"');
-    expect(skipButton).toContain('data-variant="default"');
-    expect(skipButton).toContain("h-9");
-    expect(skipButton).not.toContain("h-auto");
-    expect(html).not.toContain("OnboardingWizard.finish");
+    expect(finishButton).not.toContain("data-provider=");
+    expect(finishButton).toContain('data-variant="default"');
+    expectButtonDisabled(finishButton, false);
+    expect(html).not.toContain("OnboardingWizard.ai.choices.skip");
     expect(buttonContaining(html, "OnboardingWizard.back")).toContain('data-variant="secondary"');
     const footer = html.match(/<div[^>]*data-slot="card-footer"[^>]*>/)?.[0];
 
     expect(footer).toContain("justify-end");
     expect(footer).not.toContain("justify-between");
-    expect(html.indexOf("OnboardingWizard.back")).toBeLessThan(html.indexOf("OnboardingWizard.ai.choices.skip"));
+    expect(html.indexOf("OnboardingWizard.back")).toBeLessThan(html.indexOf("OnboardingWizard.finish"));
   });
 
   it("does not leave a provider looking selected when returning to the chooser", () => {
@@ -330,19 +328,5 @@ describe("StepAi ChatGPT and Codex setup", () => {
 
     expectButtonDisabled(buttonContaining(submittingHtml, "OnboardingWizard.finish"), true);
     expect(submittingHtml).not.toContain("OnboardingWizard.ai.install.expiryNote");
-  });
-
-  it("confirms Skip as a terminal choice with a way Back", () => {
-    const store = makeStore();
-    store.selectSkip();
-
-    const html = renderStep(store);
-
-    expect(html).toContain("OnboardingWizard.ai.screen.skip.title");
-    expect(html).toContain("OnboardingWizard.ai.screen.skip.subtitle");
-    expect(html).not.toContain("OnboardingWizard.ai.skipHint");
-    expect(html).not.toContain("OnboardingWizard.ai.screen.back");
-    expect(buttonContaining(html, "OnboardingWizard.back")).toContain('data-variant="secondary"');
-    expectButtonDisabled(buttonContaining(html, "OnboardingWizard.finish"), false);
   });
 });

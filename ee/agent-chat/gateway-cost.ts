@@ -27,21 +27,28 @@ function decimalUsdToMicrocents(value: unknown): number | null {
 }
 
 function isZeroDecimal(value: unknown) {
-  return decimalUsdToMicrocents(value) === 0;
+  return typeof value === "string" && /^0+(\.0+)?$/.test(value);
 }
 
-function succeededProviderAttempts(routing: Record<string, unknown>) {
-  const modelAttempts = Array.isArray(routing.modelAttempts) ? routing.modelAttempts : [];
+function succeededProviderAttempts(routing: Record<string, unknown>): Record<string, unknown>[] | null {
+  if (!Array.isArray(routing.modelAttempts)) return null;
 
-  return modelAttempts
-    .flatMap((modelAttempt) => {
-      const attempts = record(modelAttempt)?.providerAttempts;
-      return Array.isArray(attempts) ? attempts : [];
-    })
-    .flatMap((attempt) => {
+  const succeeded: Record<string, unknown>[] = [];
+  for (const modelAttempt of routing.modelAttempts) {
+    const model = record(modelAttempt);
+    if (!model || !Array.isArray(model.providerAttempts)) return null;
+
+    for (const attempt of model.providerAttempts) {
       const parsed = record(attempt);
-      return parsed && parsed.success === true ? [parsed] : [];
-    });
+      if (!parsed || typeof parsed.success !== "boolean") return null;
+      if (parsed.success) succeeded.push(parsed);
+    }
+  }
+  return succeeded;
+}
+
+export function readGatewayCostMicrocents(metadata: unknown): number | null {
+  return decimalUsdToMicrocents(record(record(metadata)?.gateway)?.gatewayCost);
 }
 
 export function readAgentProviderCharge(metadata: unknown, expectedProvider: string): AgentProviderChargeReading {
@@ -54,7 +61,16 @@ export function readAgentProviderCharge(metadata: unknown, expectedProvider: str
   if (!routing) return { outcome: "unreadable", reason: "the gateway reported no routing metadata" };
 
   const attempts = succeededProviderAttempts(routing);
-  if (attempts.length === 0) return { outcome: "notBilled" };
+  if (attempts === null)
+    return { outcome: "unreadable", reason: "the gateway reported incomplete serving-attempt metadata" };
+  if (attempts.length === 0) {
+    const hasUnattributedCharge = ["gatewayCost", "cost", "surchargeCost", "upstreamInferenceCost"].some(
+      (field) => field in gateway && !isZeroDecimal(gateway[field]),
+    );
+    return hasUnattributedCharge
+      ? { outcome: "unreadable", reason: "the gateway reported a charge without a successful serving attempt" }
+      : { outcome: "notBilled" };
+  }
 
   if (attempts.some((attempt) => attempt.credentialType !== "system"))
     return { outcome: "unreadable", reason: "the model was served on a credential this platform does not bill" };
@@ -66,7 +82,10 @@ export function readAgentProviderCharge(metadata: unknown, expectedProvider: str
   if (gateway.upstreamInferenceCost !== undefined && !isZeroDecimal(gateway.upstreamInferenceCost))
     return { outcome: "unreadable", reason: "the gateway reported an upstream cost this platform cannot attribute" };
 
-  const costMicrocents = decimalUsdToMicrocents(gateway.inferenceCost ?? gateway.cost);
+  const hasGatewayCost = "gatewayCost" in gateway;
+  if (!hasGatewayCost && !isZeroDecimal(gateway.surchargeCost))
+    return { outcome: "unreadable", reason: "the gateway reported no authoritative total cost" };
+  const costMicrocents = decimalUsdToMicrocents(hasGatewayCost ? gateway.gatewayCost : gateway.cost);
   if (costMicrocents === null) return { outcome: "unreadable", reason: "the gateway reported no usable cost figure" };
 
   return {

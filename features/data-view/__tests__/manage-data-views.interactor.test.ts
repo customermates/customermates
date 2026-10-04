@@ -232,12 +232,22 @@ describe("agent saved-view management", () => {
     expect(secondPage.ok && secondPage.data.items).toHaveLength(5);
     if (secondPage.ok) for (const item of secondPage.data.items ?? []) expect(item).not.toHaveProperty("state");
 
-    const roundedPageSize = await subject.run({
+    const exactPageSize = await subject.run({
       action: "list",
       surfaceKey: SURFACE.users,
       pageSize: 6,
     } as never);
-    expect(roundedPageSize.ok && roundedPageSize.data).toMatchObject({ pageSize: 10, totalPages: 2 });
+    expect(exactPageSize.ok && exactPageSize.data).toMatchObject({ pageSize: 6, totalPages: 2 });
+    expect(exactPageSize.ok && exactPageSize.data.items).toHaveLength(6);
+
+    const lastPage = await subject.run({
+      action: "list",
+      surfaceKey: SURFACE.users,
+      page: 2,
+      pageSize: 7,
+    } as never);
+    expect(lastPage.ok && lastPage.data).toMatchObject({ page: 2, pageSize: 7, totalPages: 2 });
+    expect(lastPage.ok && lastPage.data.items).toHaveLength(5);
 
     const narrowed = await subject.run({
       action: "list",
@@ -413,6 +423,80 @@ describe("agent saved-view management", () => {
         sortDescriptor: null,
       },
       link: `/company/members?view=${VIEW_ID}`,
+    });
+  });
+
+  it("accepts the full listed state echoed back and applies only the keys that changed", async () => {
+    const subject = setup();
+    subject.surfaceState.views[0].state = {
+      ...subject.surfaceState.views[0].state,
+      columnOrder: ["name", "createdAt"],
+      hiddenColumns: ["updatedAt"],
+    } as never;
+    const listed = await subject.run({ action: "list", surfaceKey: SURFACE.users, viewKey: VIEW_ID });
+    const item = (listed.ok && listed.data.items?.[0]) as { name: string; state: Record<string, unknown> };
+    expect(item.state).toMatchObject({ columnOrder: ["name", "createdAt"], hiddenColumns: ["updatedAt"] });
+
+    const result = await subject.run({
+      action: "update",
+      surfaceKey: SURFACE.users,
+      viewKey: VIEW_ID,
+      name: item.name,
+      state: { ...item.state, searchTerm: "new", viewMode: ViewMode.card } as AgentDataViewState,
+    });
+
+    expect(result.ok).toBe(true);
+    expect(subject.upsert.invoke).toHaveBeenCalledWith({
+      id: VIEW_ID,
+      surfaceKey: SURFACE.users,
+      state: { searchTerm: "new", viewMode: ViewMode.card },
+    });
+  });
+
+  it("treats an unchanged echo of the listed state as a no-op without writing or reading configuration", async () => {
+    const subject = setup();
+    subject.sources[SURFACE.users].getCustomColumns.mockRejectedValue(new Error("configuration unavailable"));
+    const [view] = subject.surfaceState.views;
+
+    const named = await subject.run({
+      action: "update",
+      surfaceKey: SURFACE.users,
+      viewKey: VIEW_ID,
+      name: view.name,
+      state: view.state as AgentDataViewState,
+    });
+    expect(named.ok && named.data).toMatchObject({
+      action: "update",
+      viewKey: VIEW_ID,
+      name: view.name,
+      state: view.state,
+      link: `/company/members?view=${VIEW_ID}`,
+    });
+
+    const all = await subject.run({
+      action: "update",
+      surfaceKey: SURFACE.users,
+      viewKey: ALL_VIEW_KEY,
+      state: { pageSize: 25 },
+    });
+    expect(all.ok && all.data).toMatchObject({ viewKey: ALL_VIEW_KEY, state: { pageSize: 25 } });
+    expect(subject.upsert.invoke).not.toHaveBeenCalled();
+    expect(subject.save.invoke).not.toHaveBeenCalled();
+  });
+
+  it("applies a changed column layout through the same changed-keys patch", async () => {
+    const subject = setup();
+    const result = await subject.run({
+      action: "update",
+      surfaceKey: SURFACE.users,
+      viewKey: VIEW_ID,
+      state: { ...subject.surfaceState.views[0].state, hiddenColumns: ["createdAt"] } as AgentDataViewState,
+    });
+    expect(result.ok).toBe(true);
+    expect(subject.upsert.invoke).toHaveBeenCalledWith({
+      id: VIEW_ID,
+      surfaceKey: SURFACE.users,
+      state: { hiddenColumns: ["createdAt"] },
     });
   });
 

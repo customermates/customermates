@@ -2,7 +2,7 @@ import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { describe, expect, it } from "vitest";
 import { resolveGroupAxis, resolveGrouping } from "../group-axis";
 import { dateGroupable, enumGroupable, relationGroupable } from "../groupable-field";
-import { NO_VALUE_GROUP_KEY } from "../grouping.schema";
+import { MAX_AXIS_GROUPS, NO_VALUE_GROUP_KEY } from "../grouping.schema";
 
 const collator = new Intl.Collator("en");
 describe("system grouping axes", () => {
@@ -37,5 +37,20 @@ describe("system grouping axes", () => {
     expect(resolveGrouping({ field: FilterFieldKey.createdAt, bucket: "invalid" as never }, [spec])).toMatchObject({
       grouping: { field: FilterFieldKey.createdAt, bucket: "month" },
     });
+  });
+  it("reports a truncated relation axis as holding records past the cap", () => {
+    const rows = Array.from({ length: MAX_AXIS_GROUPS + 3 }, (_unused, index) => ({ key: `u${index}`, count: 1 }));
+    const axis = resolveGroupAxis({
+      spec: relationGroupable({ model: "routine", field: "ownerUserId" }),
+      rows,
+      labels: new Map(rows.map((row) => [row.key, { label: row.key }])),
+      collator,
+    });
+    expect(axis.groups).toHaveLength(MAX_AXIS_GROUPS);
+    expect(axis.overflow).toEqual({ shown: MAX_AXIS_GROUPS, withRecords: true });
+  });
+  it("does not report overflow for an axis within the cap", () => {
+    const spec = enumGroupable({ model: "user", field: "status" });
+    expect(resolveGroupAxis({ spec, rows: [], labels: new Map(), collator }).overflow).toBeUndefined();
   });
 });

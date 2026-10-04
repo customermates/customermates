@@ -4,6 +4,7 @@ import type { RoleDto } from "@/features/role/get-roles.interactor";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { RoleDtoSchema } from "@/features/role/role.schema";
+import { Action, Resource } from "@/generated/prisma";
 
 const companyActions = vi.hoisted(() => ({
   deleteRoleAction: vi.fn(),
@@ -304,4 +305,37 @@ it("does not expand partial system permissions when only the role name changes",
   companyActions.upsertRoleAction.mockResolvedValue({ ok: true, data: { role, schemaRevision: 2 } });
   await store.onSubmit();
   expect(companyActions.upsertRoleAction).toHaveBeenCalledWith(expect.objectContaining({ permissions: {} }));
+});
+
+describe("RoleModalStore Wiki permissions", () => {
+  it("defaults a new custom role to Wiki Read without Manage", () => {
+    const store = makeStore(makeRole());
+
+    store.add();
+
+    expect(store.form.permissions.wiki).toEqual({ canManage: "no", readAccess: "all" });
+  });
+
+  it("makes Wiki Read all when Manage is granted", () => {
+    const store = makeStore(makeRole());
+
+    store.onChange("permissions.wiki.readAccess", "none");
+    store.onChange("permissions.wiki.canManage", "yes");
+
+    expect(store.form.permissions.wiki).toEqual({ canManage: "yes", readAccess: "all" });
+  });
+
+  it("normalizes a persisted Wiki manager to Read even if the stored grants are inconsistent", () => {
+    const store = makeStore(
+      makeRole({
+        permissions: [
+          { id: "wiki-create", resource: Resource.wiki, action: Action.create },
+          { id: "wiki-update", resource: Resource.wiki, action: Action.update },
+          { id: "wiki-delete", resource: Resource.wiki, action: Action.delete },
+        ],
+      }),
+    );
+
+    expect(store.form.permissions.wiki).toEqual({ canManage: "yes", readAccess: "all" });
+  });
 });

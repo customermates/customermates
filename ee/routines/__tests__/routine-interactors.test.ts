@@ -575,7 +575,7 @@ describe("StartRoutineRunInteractor", () => {
       expect.objectContaining({
         routineRunId: RUN_ID,
         title: "Daily digest",
-        creditCeiling: 10,
+        creditCeilingMicrocents: 10_000_000,
       }),
     );
     expect(sendAgentMessage.invokeRoutine).toHaveBeenCalledWith(expect.objectContaining({ clientRequestId: RUN_ID }));
@@ -636,7 +636,7 @@ describe("StartRoutineRunInteractor", () => {
     await interactor.invoke({ routineRunId: RUN_ID });
 
     expect(conversations.createAndLinkRoutineConversationForRun).toHaveBeenCalledWith(
-      expect.objectContaining({ title: "Claimed name", creditCeiling: 10 }),
+      expect.objectContaining({ title: "Claimed name", creditCeilingMicrocents: 10_000_000 }),
     );
     expect(sendAgentMessage.invokeRoutine).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -776,7 +776,7 @@ describe("StartRoutineRunInteractor", () => {
     await interactor.invoke({ routineRunId: RUN_ID });
 
     expect(conversations.createAndLinkRoutineConversationForRun).toHaveBeenCalledWith(
-      expect.objectContaining({ creditCeiling: 10 }),
+      expect.objectContaining({ creditCeilingMicrocents: 10_000_000 }),
     );
   });
 
@@ -1120,7 +1120,7 @@ describe("ReconcileRoutineRunsInteractor", () => {
         status: "succeeded",
         terminalCode: "completed",
         settled: true,
-        chargedCredits: 3,
+        chargedMicrocents: 3_000_000,
         summary: "There are 42 contacts.",
       }),
       findOrphanedRunningRoutineRunsUnscoped: vi.fn().mockResolvedValue([]),
@@ -1135,7 +1135,7 @@ describe("ReconcileRoutineRunsInteractor", () => {
     expect(repo.settleRoutineRunUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
         status: "succeeded",
-        chargedCredits: 3,
+        chargedMicrocents: 3_000_000,
         summary: "There are 42 contacts.",
       }),
     );
@@ -1182,7 +1182,7 @@ describe("ReconcileRoutineRunsInteractor", () => {
         status: "failed",
         terminalCode: "error",
         settled: true,
-        chargedCredits: 1,
+        chargedMicrocents: 1_000_000,
         summary: null,
       }),
       findOrphanedRunningRoutineRunsUnscoped: vi.fn().mockResolvedValue([]),
@@ -1212,7 +1212,7 @@ describe("ReconcileRoutineRunsInteractor", () => {
         status: "failed",
         terminalCode: "error",
         settled: true,
-        chargedCredits: 1,
+        chargedMicrocents: 1_000_000,
         summary: null,
       }),
       findOrphanedRunningRoutineRunsUnscoped: vi.fn().mockResolvedValue([]),
@@ -1241,7 +1241,7 @@ describe("ReconcileRoutineRunsInteractor", () => {
         status: "failed",
         terminalCode: "error",
         settled: true,
-        chargedCredits: 1,
+        chargedMicrocents: 1_000_000,
         summary: null,
       }),
       findOrphanedRunningRoutineRunsUnscoped: vi.fn().mockResolvedValue([]),
@@ -1270,7 +1270,7 @@ describe("ReconcileRoutineRunsInteractor", () => {
         status: "running",
         terminalCode: null,
         settled: false,
-        chargedCredits: 0,
+        chargedMicrocents: 0,
         summary: null,
       }),
       findOrphanedRunningRoutineRunsUnscoped: vi.fn().mockResolvedValue([]),

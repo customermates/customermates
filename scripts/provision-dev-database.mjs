@@ -8,7 +8,7 @@ import { basename, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const POSTGRES_MAJOR = 17;
-export const POSTGRES_IMAGE = `postgres:${POSTGRES_MAJOR}-alpine`;
+export const POSTGRES_IMAGE = `pgvector/pgvector:0.8.1-pg${POSTGRES_MAJOR}-bookworm`;
 
 const DATABASE_NAME = "customermates";
 const DATABASE_PASSWORD = "postgres";
