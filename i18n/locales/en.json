@@ -1267,6 +1267,7 @@
       "userSelfAdminUpdateForbidden": "You cannot update your own account through team administration.",
       "webhookBodyTemplateInvalid": "The body template must produce a valid JSON object.",
       "webhookDeliveryNotFound": "Webhook delivery ID not found or not accessible.",
+      "webhookDestinationNotAllowed": "This destination is not allowed. Use a public address.",
       "webhookEventsRequired": "Select at least one event.",
       "webhookHeaderNameInvalid": "Header names may only contain letters, digits and HTTP token characters.",
       "webhookHeaderNameReserved": "This header is set automatically and cannot be overridden.",

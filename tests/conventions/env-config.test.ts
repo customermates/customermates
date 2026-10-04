@@ -294,6 +294,31 @@ describe("hosted-AI control configuration", () => {
   });
 });
 
+describe("webhook destination configuration", () => {
+  const envSource = readFileSync(new URL("../../env.ts", import.meta.url), "utf8");
+  const cloudTemplate = readFileSync(new URL("../../.env.cloud.template", import.meta.url), "utf8");
+  const selfHostTemplate = readFileSync(new URL("../../.env.selfhost.template", import.meta.url), "utf8");
+  const compose = readFileSync(new URL("../../docker-compose.yml", import.meta.url), "utf8");
+
+  it.each(["WEBHOOK_ALLOW_PRIVATE_DESTINATIONS", "WEBHOOK_BLOCK_PRIVATE_DESTINATIONS"])(
+    "parses %s as a strict boolean",
+    (name) => {
+      expect(envSource).toMatch(new RegExp(`${name}: resolveStrictBoolean\\(\\s*"${name}",\\s*process\\.env\\.${name},`, "u"));
+    },
+  );
+
+  it("keeps private webhook destinations refused in the cloud template", () => {
+    expect(cloudTemplate).toMatch(/^WEBHOOK_ALLOW_PRIVATE_DESTINATIONS="false"$/mu);
+    expect(cloudTemplate).not.toMatch(/^WEBHOOK_BLOCK_PRIVATE_DESTINATIONS=/mu);
+  });
+
+  it("offers the self-hosted opt-in block without enabling it and passes it to the app", () => {
+    expect(selfHostTemplate).toMatch(/^# WEBHOOK_BLOCK_PRIVATE_DESTINATIONS=true$/mu);
+    expect(selfHostTemplate).not.toMatch(/^WEBHOOK_ALLOW_PRIVATE_DESTINATIONS=/mu);
+    expect(compose).toContain("WEBHOOK_BLOCK_PRIVATE_DESTINATIONS: ${WEBHOOK_BLOCK_PRIVATE_DESTINATIONS:-}");
+  });
+});
+
 describe("self-hosted configuration", () => {
   const template = readFileSync(new URL("../../.env.selfhost.template", import.meta.url), "utf8");
   const compose = readFileSync(new URL("../../docker-compose.yml", import.meta.url), "utf8");

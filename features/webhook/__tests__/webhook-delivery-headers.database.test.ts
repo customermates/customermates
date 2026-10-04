@@ -11,6 +11,7 @@ const deliveryEnv = vi.hoisted(() => ({
   APP_MODE: "cloud",
   DATABASE_URL: process.env.DATABASE_URL,
   NODE_ENV: "test",
+  WEBHOOK_ALLOW_PRIVATE_DESTINATIONS: true,
 }));
 
 vi.mock("@/env", () => ({ env: deliveryEnv }));

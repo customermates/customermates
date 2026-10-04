@@ -70,6 +70,7 @@ Registrieren Sie sich, wählen Sie **Neuen Workspace erstellen** und schließen 
 - `RESEND_API_KEY`, `RESEND_OPERATOR_EMAIL`: E-Mail-Versand; `RESEND_API_KEY` darf nicht leer sein. Siehe [Wie richte ich E-Mail mit Resend ein?](#how-do-i-set-up-email-with-resend-and-can-i-use-smtp).
 - `APP_MODE`: bleibt `self-hosted`; die Compose-Datei setzt diesen Wert für die App selbst.
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `AZURE_AD_CLIENT_ID`, `AZURE_AD_CLIENT_SECRET`: optional und in der Vorlage auskommentiert, siehe [Können sich Nutzer mit Google oder Microsoft anmelden?](#can-users-sign-in-with-google-or-microsoft).
+- `WEBHOOK_BLOCK_PRIVATE_DESTINATIONS`: optional und in der Vorlage auskommentiert. Webhooks erreichen standardmäßig auch Dienste im eigenen Netz, etwa `http://n8n:5678`; mit `true` werden Loopback-, private und Link-Local-Ziele wie in Customermates Cloud abgelehnt. Siehe [Webhooks](/docs/webhooks).
 
 Halten Sie `.env` aus der Versionsverwaltung heraus. Änderungen wenden Sie mit `docker compose up -d` an.
 

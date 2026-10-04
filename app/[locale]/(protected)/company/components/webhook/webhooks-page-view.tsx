@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import type { GetResult } from "@/core/base/base-get.interactor";
 import type { WebhookDto } from "@/features/webhook/webhook.schema";
 
-import { formatWebhookHeaderLines } from "@/features/webhook/webhook-headers";
+import { formatWebhookHeaderLines } from "@/features/webhook/webhook-header-lines";
 import { observer } from "mobx-react-lite";
 import { useCallback, useMemo } from "react";
 import { useTranslations } from "next-intl";

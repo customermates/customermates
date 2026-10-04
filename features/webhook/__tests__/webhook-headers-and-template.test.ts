@@ -1,4 +1,12 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+const testEnv = vi.hoisted(() => ({
+  APP_MODE: "cloud" as "cloud" | "demo" | "self-hosted",
+  WEBHOOK_ALLOW_PRIVATE_DESTINATIONS: true,
+  WEBHOOK_BLOCK_PRIVATE_DESTINATIONS: false,
+}));
+
+vi.mock("@/env", () => ({ env: testEnv }));
 
 import {
   WEBHOOK_HEADER_MAX_COUNT,
@@ -105,8 +113,28 @@ describe("WebhookHeadersSchema", () => {
 });
 
 describe("allowsCredentialedHeaders", () => {
+  afterEach(() => {
+    testEnv.APP_MODE = "cloud";
+    testEnv.WEBHOOK_ALLOW_PRIVATE_DESTINATIONS = true;
+    testEnv.WEBHOOK_BLOCK_PRIVATE_DESTINATIONS = false;
+  });
+
   it.each(["https://hooks.example.com/x", "http://localhost:3000/x", "http://127.0.0.1:9/x"])("allows %s", (url) => {
     expect(allowsCredentialedHeaders(url)).toBe(true);
+  });
+
+  it.each([
+    ["cloud", false, false],
+    ["demo", false, false],
+    ["self-hosted", false, true],
+  ] as const)("refuses loopback http in %s mode when private destinations are not allowed", (mode, allow, block) => {
+    testEnv.APP_MODE = mode;
+    testEnv.WEBHOOK_ALLOW_PRIVATE_DESTINATIONS = allow;
+    testEnv.WEBHOOK_BLOCK_PRIVATE_DESTINATIONS = block;
+
+    expect(allowsCredentialedHeaders("http://localhost:3000/x")).toBe(false);
+    expect(allowsCredentialedHeaders("http://127.0.0.1:9/x")).toBe(false);
+    expect(allowsCredentialedHeaders("https://hooks.example.com/x")).toBe(true);
   });
 
   it.each(["http://hooks.example.com/x", "http://10.0.0.5/x", "ftp://example.com", "not a url"])(

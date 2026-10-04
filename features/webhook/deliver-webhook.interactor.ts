@@ -5,8 +5,15 @@ import { Enforce } from "@/core/decorators/enforce.decorator";
 
 import { renderWebhookBody } from "./webhook-body-template";
 import { allowsCredentialedHeaders } from "./webhook-headers";
+import {
+  WEBHOOK_DESTINATION_NOT_ALLOWED_MESSAGE,
+  allowsPrivateWebhookDestinations,
+  resolveWebhookDestination,
+} from "./webhook-destination";
+import { sendPinnedWebhookRequest } from "./webhook-transport";
 
 const HTTP_TIMEOUT_MS = 5000;
+const UNRESOLVABLE_HOST_CODES = new Set(["ENOTFOUND", "EAI_AGAIN", "ENODATA"]);
 
 const Schema = z.object({
   deliveryId: z.uuid(),
@@ -147,12 +154,29 @@ export class DeliverWebhookInteractor {
     const timeoutId = setTimeout(() => controller.abort(), HTTP_TIMEOUT_MS);
 
     try {
+      const url = new URL(args.url);
+      const destination = await abortable(
+        resolveWebhookDestination(url, allowsPrivateWebhookDestinations()),
+        controller.signal,
+      );
+
+      if (!destination) {
+        return {
+          success: false,
+          statusCode: WEBHOOK_PREFLIGHT_FAILURE_STATUS,
+          responseMessage: WEBHOOK_DESTINATION_NOT_ALLOWED_MESSAGE,
+        };
+      }
+
       const signature = args.secret ? await this.signWebhookPayload(args.secret, body) : null;
 
-      const response = await fetch(args.url, {
-        method: "POST",
+      const response = await sendPinnedWebhookRequest({
+        url,
+        destination,
         signal: controller.signal,
         headers: {
+          Accept: "*/*",
+          "User-Agent": "node",
           ...args.headers,
           "Content-Type": "application/json",
           ...(signature && { "X-Webhook-Signature": signature }),
@@ -160,15 +184,16 @@ export class DeliverWebhookInteractor {
         body,
       });
 
-      return { success: response.ok, statusCode: response.status, responseMessage: response.statusText };
+      if (response.statusCode >= 300 && response.statusCode < 400)
+        return { success: false, statusCode: response.statusCode, responseMessage: "Redirect not followed" };
+
+      return {
+        success: response.statusCode >= 200 && response.statusCode < 300,
+        statusCode: response.statusCode,
+        responseMessage: response.statusMessage,
+      };
     } catch (error) {
-      const responseMessage =
-        error instanceof Error && error.name === "AbortError"
-          ? `Request timed out after ${HTTP_TIMEOUT_MS}ms`
-          : error instanceof Error
-            ? error.message
-            : "Network error";
-      return { success: false, statusCode: null, responseMessage };
+      return { success: false, statusCode: null, responseMessage: describeNetworkError(error) };
     } finally {
       clearTimeout(timeoutId);
     }
@@ -186,4 +211,23 @@ export class DeliverWebhookInteractor {
       .map((b) => b.toString(16).padStart(2, "0"))
       .join("");
   }
+}
+
+function abortable<T>(promise: Promise<T>, signal: AbortSignal): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const onAbort = () => reject(new DOMException("The operation was aborted", "AbortError"));
+    if (signal.aborted) return onAbort();
+
+    signal.addEventListener("abort", onAbort, { once: true });
+    promise.then(resolve, reject).finally(() => signal.removeEventListener("abort", onAbort));
+  });
+}
+
+function describeNetworkError(error: unknown): string {
+  if (error instanceof Error && error.name === "AbortError") return `Request timed out after ${HTTP_TIMEOUT_MS}ms`;
+
+  const code = error instanceof Error ? (error as NodeJS.ErrnoException).code : undefined;
+  if (code && UNRESOLVABLE_HOST_CODES.has(code)) return "Host could not be resolved";
+
+  return "Network error";
 }
