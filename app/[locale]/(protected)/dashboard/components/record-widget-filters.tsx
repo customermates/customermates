@@ -142,7 +142,7 @@ export const RecordWidgetFieldFilters = observer(
                     operator,
                     value: ["empty", "notEmpty", "in", "notIn", "between"].includes(operator)
                       ? null
-                      : operator === "inLastDays"
+                      : operator === "inLastDays" || operator === "notInLastDays"
                         ? { kind: "decimal", value: "30", currency: null }
                         : defaults(field),
                     ...(["in", "notIn", "between"].includes(operator)
@@ -158,7 +158,7 @@ export const RecordWidgetFieldFilters = observer(
 
                   <ScalarInput field={field} id={`${filterId}.values[1]`} label={t("RecordWidgets.filterUntil")} />
                 </div>
-              ) : filter.operator === "inLastDays" ? (
+              ) : filter.operator === "inLastDays" || filter.operator === "notInLastDays" ? (
                 <FormInput id={`${filterId}.value.value`} inputMode="numeric" label={t("RecordWidgets.filterDays")} />
               ) : many ? (
                 <div className="space-y-2">

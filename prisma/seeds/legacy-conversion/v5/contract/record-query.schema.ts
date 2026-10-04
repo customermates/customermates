@@ -24,9 +24,10 @@ export const RecordFilterSchema = z
         "notIn",
         "between",
         "inLastDays",
+        "notInLastDays",
       ])
       .describe(
-        "between uses two inclusive date endpoints in values; inLastDays uses a positive whole day count in value as a decimal without currency. Range contains tests a point; gt/gte test its start, lt/lte its end. Relative windows begin at UTC midnight that many days before the query clock, including later dates.",
+        "between uses two inclusive date endpoints in values; inLastDays and notInLastDays use a positive whole day count in value as a decimal without currency. Range contains tests a point; gt/gte test its start, lt/lte its end. Relative windows begin at UTC midnight that many days before the query clock: inLastDays includes later dates, notInLastDays matches only earlier ones.",
       ),
     value: RecordScalarSchema.nullable(),
     values: z.array(RecordScalarSchema).max(100).optional(),

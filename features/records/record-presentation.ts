@@ -223,10 +223,13 @@ export function presentationQuery(
           : "notEmpty",
         value: null,
       });
-    } else if (filter.operator === FilterOperatorKey.inLastDays) {
+    } else if (
+      filter.operator === FilterOperatorKey.inLastDays ||
+      filter.operator === FilterOperatorKey.notInLastDays
+    ) {
       filters.push({
         fieldId: field.id,
-        operator: "inLastDays",
+        operator: filter.operator,
         value: { kind: "decimal", value: String(filter.value), currency: null },
       });
     } else if (

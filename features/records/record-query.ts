@@ -139,9 +139,10 @@ function scalarParameter(value: RecordScalar): Prisma.Sql {
 }
 
 function temporalFilter(filter: RecordQuery["filters"][number], start: Prisma.Sql, end = start): Prisma.Sql {
-  if (filter.operator === "inLastDays") {
+  if (filter.operator === "inLastDays" || filter.operator === "notInLastDays") {
     if (filter.value?.kind !== "decimal") throw new Error("Relative date filter requires a day count");
-    return Prisma.sql`${end} >= date_trunc('day', transaction_timestamp() AT TIME ZONE 'UTC') - ${filter.value.value}::integer * INTERVAL '1 day'`;
+    const cutoff = Prisma.sql`date_trunc('day', transaction_timestamp() AT TIME ZONE 'UTC') - ${filter.value.value}::integer * INTERVAL '1 day'`;
+    return filter.operator === "inLastDays" ? Prisma.sql`${end} >= ${cutoff}` : Prisma.sql`${end} < ${cutoff}`;
   }
   if (filter.operator === "between") {
     const [from, until] = filter.values ?? [];
@@ -288,7 +289,7 @@ export function compileRecordQuery(
       );
       continue;
     }
-    if (filter.operator === "between" || filter.operator === "inLastDays")
+    if (filter.operator === "between" || filter.operator === "inLastDays" || filter.operator === "notInLastDays")
       throw new Error("Temporal operator requires a date field");
     if (filter.operator === "in" || filter.operator === "notIn") {
       const choices = (filter.values ?? []).map((value) => {

@@ -58,6 +58,7 @@ describe("generic record presentation filters", () => {
       { field: relationship, operator: Operator.notIn, value: [related] },
       { field: "system:assignedTo", operator: Operator.in, value: [member] },
       { field: "system:updatedAt", operator: Operator.inLastDays, value: 30 },
+      { field: "system:createdAt", operator: Operator.notInLastDays, value: 3 },
     ];
     expect(recordViewStateIsValid(id("deal"), { filters }, model, "EUR")).toBe(true);
     const query = presentationQuery(id("deal"), fields, { filters }, "EUR", model.relationships);
@@ -67,6 +68,11 @@ describe("generic record presentation filters", () => {
     expect(query.filters).toEqual([
       { fieldId: "system:assignedTo", operator: "in", value: null, values: [{ kind: "member", value: member }] },
       { fieldId: "system:updatedAt", operator: "inLastDays", value: { kind: "decimal", value: "30", currency: null } },
+      {
+        fieldId: "system:createdAt",
+        operator: "notInLastDays",
+        value: { kind: "decimal", value: "3", currency: null },
+      },
     ]);
   });
 
@@ -125,13 +131,13 @@ describe("generic record presentation filters", () => {
   });
 
   it.each(["0", "-1", "0.5", "365001"])("rejects invalid or excessive relative windows %s", (value) => {
-    const query = RecordQuerySchema.parse({
-      typeId: id("deal"),
-      filters: [
-        { fieldId: "system:createdAt", operator: "inLastDays", value: { kind: "decimal", value, currency: null } },
-      ],
-    });
-    expect(invalidRecordQueryPart(query, model)).toBe("filters");
+    for (const operator of ["inLastDays", "notInLastDays"] as const) {
+      const query = RecordQuerySchema.parse({
+        typeId: id("deal"),
+        filters: [{ fieldId: "system:createdAt", operator, value: { kind: "decimal", value, currency: null } }],
+      });
+      expect(invalidRecordQueryPart(query, model)).toBe("filters");
+    }
   });
 
   it("retains all fifty saved filters without silently dropping conditions", () => {

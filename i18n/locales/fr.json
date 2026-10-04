@@ -3539,6 +3539,7 @@
       "ne": "Est différent de",
       "notEmpty": "N’est pas vide",
       "notIn": "N’est pas parmi",
+      "notInLastDays": "Plus ancien que (jours)",
       "startsWith": "Commence par"
     },
     "overall": "Total : {value}",

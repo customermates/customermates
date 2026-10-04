@@ -3539,6 +3539,7 @@
       "ne": "Does not equal",
       "notEmpty": "Is not empty",
       "notIn": "Is not one of",
+      "notInLastDays": "Older than (days)",
       "startsWith": "Starts with"
     },
     "overall": "Overall: {value}",

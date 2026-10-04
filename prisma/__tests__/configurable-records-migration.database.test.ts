@@ -420,6 +420,7 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
       filters: [
         { field: "system:assignedTo", operator: "in", value: [f.admin.id] },
         { field: id("deal.totalValue"), operator: "gt", value: "100" },
+        { field: "system:updatedAt", operator: "notInLastDays", value: 3 },
       ],
       sortDescriptor: { field: id("deal.name"), direction: "asc" },
       grouping: { field: f.columns.stage },

@@ -8,13 +8,13 @@ export function recordFilterOperators(
 ): RecordQuery["filters"][number]["operator"][] {
   if (field.valueType === "richText") return [];
   if (["dateRange", "dateTimeRange"].includes(field.valueType))
-    return ["contains", "gt", "gte", "lt", "lte", "between", "inLastDays", "empty", "notEmpty"];
+    return ["contains", "gt", "gte", "lt", "lte", "between", "inLastDays", "notInLastDays", "empty", "notEmpty"];
   const operators: RecordQuery["filters"][number]["operator"][] = ["eq", "ne", "empty", "notEmpty"];
   if (!field.multiple) operators.push("in", "notIn");
   if (["text", "email", "phone", "url"].includes(field.valueType)) operators.push("contains", "startsWith");
   if (!field.multiple && ["number", "currency", "date", "dateTime"].includes(field.valueType))
     operators.push("gt", "gte", "lt", "lte");
-  if (["date", "dateTime"].includes(field.valueType)) operators.push("between", "inLastDays");
+  if (["date", "dateTime"].includes(field.valueType)) operators.push("between", "inLastDays", "notInLastDays");
   return operators;
 }
 

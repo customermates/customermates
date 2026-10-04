@@ -1840,12 +1840,12 @@ CREATE FUNCTION crm_upgrade.filter_operators(value_type text, multiple boolean) 
 LANGUAGE sql IMMUTABLE AS $$
   SELECT CASE
     WHEN value_type = 'richText' THEN ARRAY[]::text[]
-    WHEN value_type IN ('dateRange', 'dateTimeRange') THEN ARRAY['contains', 'gt', 'gte', 'lt', 'lte', 'between', 'inLastDays', 'empty', 'notEmpty']
+    WHEN value_type IN ('dateRange', 'dateTimeRange') THEN ARRAY['contains', 'gt', 'gte', 'lt', 'lte', 'between', 'inLastDays', 'notInLastDays', 'empty', 'notEmpty']
     ELSE ARRAY['eq', 'ne', 'empty', 'notEmpty']
       || CASE WHEN NOT multiple THEN ARRAY['in', 'notIn'] ELSE ARRAY[]::text[] END
       || CASE WHEN value_type IN ('text', 'email', 'phone', 'url') THEN ARRAY['contains', 'startsWith'] ELSE ARRAY[]::text[] END
       || CASE WHEN NOT multiple AND value_type IN ('number', 'currency', 'date', 'dateTime') THEN ARRAY['gt', 'gte', 'lt', 'lte'] ELSE ARRAY[]::text[] END
-      || CASE WHEN value_type IN ('date', 'dateTime') THEN ARRAY['between', 'inLastDays'] ELSE ARRAY[]::text[] END
+      || CASE WHEN value_type IN ('date', 'dateTime') THEN ARRAY['between', 'inLastDays', 'notInLastDays'] ELSE ARRAY[]::text[] END
   END
 $$;
 
@@ -1859,7 +1859,7 @@ DECLARE
   v_second jsonb;
 BEGIN
   IF v_operator IN ('empty', 'notEmpty') THEN RETURN true; END IF;
-  IF v_operator = 'inLastDays' THEN
+  IF v_operator IN ('inLastDays', 'notInLastDays') THEN
     RETURN COALESCE((p_filter #>> '{value,kind}' = 'decimal' AND p_filter #> '{value,currency}' = 'null'::jsonb AND p_filter #>> '{value,value}' ~ '^[0-9]+$'
       AND (p_filter #>> '{value,value}')::numeric > 0 AND (p_filter #>> '{value,value}')::numeric <= 365000), false);
   END IF;
@@ -2005,7 +2005,7 @@ END
 $$;
 
 -- LegacyFilterSchema (v5/filters.ts) for one element: preprocess (hasSome/hasNone with arrays become
--- in/notIn; finite numbers become decimal strings except for inLastDays) and the strict union.
+-- in/notIn; finite numbers become decimal strings except for inLastDays and notInLastDays) and the strict union.
 -- Returns the parsed filter or NULL when zod would reject it.
 CREATE FUNCTION crm_upgrade.legacy_filter_parse(p_input jsonb) RETURNS jsonb
 LANGUAGE plpgsql IMMUTABLE AS $$
@@ -2018,7 +2018,7 @@ BEGIN
   IF jsonb_typeof(v_filter -> 'value') = 'array' AND v_filter ->> 'operator' IN ('hasSome', 'hasNone') THEN
     v_filter := v_filter || jsonb_build_object('operator', CASE WHEN v_filter ->> 'operator' = 'hasSome' THEN 'in' ELSE 'notIn' END);
   END IF;
-  IF v_filter -> 'operator' IS DISTINCT FROM '"inLastDays"'::jsonb AND v_filter ? 'value' THEN
+  IF v_filter ->> 'operator' IS DISTINCT FROM 'inLastDays' AND v_filter ->> 'operator' IS DISTINCT FROM 'notInLastDays' AND v_filter ? 'value' THEN
     IF jsonb_typeof(v_filter -> 'value') = 'array' THEN
       v_filter := v_filter || jsonb_build_object('value', (SELECT COALESCE(jsonb_agg(crm_upgrade.legacy_filter_canonical(v.value) ORDER BY v.ordinality), '[]'::jsonb)
         FROM jsonb_array_elements(v_filter -> 'value') WITH ORDINALITY AS v(value, ordinality)));
@@ -2042,7 +2042,7 @@ BEGIN
   ELSIF v_operator IN ('isNull', 'isNotNull', 'hasSome', 'hasNone') THEN
     IF (SELECT array_agg(key ORDER BY key) FROM jsonb_object_keys(v_filter) AS key) = ARRAY['field', 'operator'] THEN RETURN v_filter; END IF;
     RETURN NULL;
-  ELSIF v_operator = 'inLastDays' THEN
+  ELSIF v_operator IN ('inLastDays', 'notInLastDays') THEN
     IF ((SELECT array_agg(key ORDER BY key) FROM jsonb_object_keys(v_filter) AS key) <> ARRAY['field', 'operator', 'value']) IS NOT FALSE THEN RETURN NULL; END IF;
     v_number := crm_upgrade.js_to_number(v_filter -> 'value');
     IF (v_number IS NULL OR v_number <> floor(v_number) OR v_number <= 0 OR v_number > 365000) IS NOT FALSE THEN RETURN NULL; END IF;
@@ -2197,8 +2197,8 @@ BEGIN
       IF (v_operator IN ('hasSome', 'hasNone') AND v_key <> 'system:assignedTo') IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_scalar_existence_filter'); END IF;
       v_result_filters := v_result_filters || jsonb_build_array(jsonb_build_object('fieldId', v_key,
         'operator', CASE WHEN v_operator IN ('isNull', 'hasNone') THEN 'empty' ELSE 'notEmpty' END, 'value', NULL));
-    ELSIF v_operator = 'inLastDays' THEN
-      v_result_filters := v_result_filters || jsonb_build_array(jsonb_build_object('fieldId', v_key, 'operator', 'inLastDays',
+    ELSIF v_operator IN ('inLastDays', 'notInLastDays') THEN
+      v_result_filters := v_result_filters || jsonb_build_array(jsonb_build_object('fieldId', v_key, 'operator', v_operator,
         'value', crm_upgrade.scalar_decimal((v_filter ->> 'value'), NULL)));
     ELSIF v_operator IN ('in', 'notIn', 'between') THEN
       v_result_filters := v_result_filters || jsonb_build_array(jsonb_build_object('fieldId', v_key, 'operator', v_operator, 'value', NULL,

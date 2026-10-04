@@ -12,7 +12,7 @@ export function temporalFilterIsValid(filter: RecordQuery["filters"][number], ty
   const pointType = type === "dateRange" ? "date" : type === "dateTimeRange" ? "dateTime" : type;
   const point = (value: RecordScalar | null | undefined) => value && scalarMatchesType(value, pointType);
   if (["empty", "notEmpty"].includes(filter.operator)) return true;
-  if (filter.operator === "inLastDays") {
+  if (filter.operator === "inLastDays" || filter.operator === "notInLastDays") {
     return (
       filter.value?.kind === "decimal" &&
       filter.value.currency === null &&

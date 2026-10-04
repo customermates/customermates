@@ -284,6 +284,7 @@ export async function populateLegacyWorkspace(client: ClientBase, { currency = "
           filters: [
             { field: "userIds", operator: "in", value: [admin.id] },
             { field: "totalValue", operator: "gt", value: 100 },
+            { field: "updatedAt", operator: "notInLastDays", value: 3 },
           ],
           sortDescriptor: { field: "name", direction: "asc" },
           grouping: { field: columns.stage },

@@ -11114,6 +11114,27 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         value: decimal("1", null),
       }),
     ).toMatchObject({ ok: true, data: { total: 1 } });
+    expect(
+      await select({
+        fieldId,
+        operator: "notInLastDays",
+        value: decimal("1", null),
+      }),
+    ).toMatchObject({ ok: true, data: { total: 1 } });
+    expect(
+      await select({
+        fieldId: "system:updatedAt",
+        operator: "notInLastDays",
+        value: decimal("1", null),
+      }),
+    ).toMatchObject({ ok: true, data: { total: 0 } });
+    expect(
+      await select({
+        fieldId: "system:updatedAt",
+        operator: "notInLastDays",
+        value: decimal("0", null),
+      }),
+    ).toMatchObject({ ok: false });
     if (!created.ok || created.data.status !== "completed") throw new Error("Range fixture failed");
     const ref = recordInvariant(created.data.refs.find((ref) => ref.typeId === f.id("organization")));
     expect((await f.readRecord(ref)).fields.find((field) => field.fieldId === fieldId)?.result).toEqual({

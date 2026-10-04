@@ -17,7 +17,7 @@ export const LegacyFilterSchema = z.preprocess(
     const filter = { ...input } as Record<string, unknown>;
     if (Array.isArray(filter.value) && (filter.operator === "hasSome" || filter.operator === "hasNone"))
       filter.operator = filter.operator === "hasSome" ? "in" : "notIn";
-    if (filter.operator !== "inLastDays") {
+    if (filter.operator !== "inLastDays" && filter.operator !== "notInLastDays") {
       const canonical = (value: unknown) =>
         typeof value === "number" && Number.isFinite(value) ? new Decimal(String(value)).toFixed() : value;
       if (Array.isArray(filter.value)) filter.value = filter.value.map(canonical);
@@ -30,7 +30,11 @@ export const LegacyFilterSchema = z.preprocess(
     z.object({ field: Text, operator: z.enum(["in", "notIn", "between"]), value: z.array(Text).max(100) }).strict(),
     z.object({ field: Text, operator: NoValueOperator }).strict(),
     z
-      .object({ field: Text, operator: z.literal("inLastDays"), value: z.coerce.number().int().positive().max(365000) })
+      .object({
+        field: Text,
+        operator: z.enum(["inLastDays", "notInLastDays"]),
+        value: z.coerce.number().int().positive().max(365000),
+      })
       .strict(),
   ]),
 );
@@ -119,10 +123,10 @@ export function migrationQueryFilter(
         operator: filter.operator === "isNull" || filter.operator === "hasNone" ? "empty" : "notEmpty",
         value: null,
       });
-    } else if (filter.operator === "inLastDays") {
+    } else if (filter.operator === "inLastDays" || filter.operator === "notInLastDays") {
       result.filters.push({
         fieldId: filter.field,
-        operator: "inLastDays",
+        operator: filter.operator,
         value: { kind: "decimal", value: String(filter.value), currency: null },
       });
     } else if (filter.operator === "in" || filter.operator === "notIn" || filter.operator === "between") {
