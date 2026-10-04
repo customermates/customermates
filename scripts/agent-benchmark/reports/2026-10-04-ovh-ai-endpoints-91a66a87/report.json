@@ -1,0 +1,1347 @@
+{
+  "report": {
+    "campaignId": "91a66a87-861c-41aa-8126-b17aff2445ac",
+    "generatedAt": "2026-10-04T16:50:41.013Z",
+    "cohort": {
+      "schemaVersion": "5",
+      "fixtureVersion": "chat-benchmark-fixture-v7",
+      "sourceCommits": [
+        "2ead1f0cc5d73ae69b015b3775e024882b8253f5"
+      ],
+      "hasDirtyArtifacts": false
+    },
+    "arms": [
+      {
+        "arm": "shipped",
+        "label": "google/gemini-3.5-flash-lite, balanced catalog configuration (shipped)",
+        "runtimeVariant": "screen",
+        "sourceCommit": "2ead1f0cc5d73ae69b015b3775e024882b8253f5",
+        "sourceDirty": false,
+        "episodes": 66,
+        "distinctCases": 66,
+        "coverage": [
+          "A1:r1",
+          "A2:r1",
+          "A3:r1",
+          "A4:r1",
+          "B1:r1",
+          "B2:r1",
+          "B3:r1",
+          "B4:r1",
+          "B5:r1",
+          "C25:r1",
+          "C26:r1",
+          "C27:r1",
+          "C28:r1",
+          "C29:r1",
+          "C30:r1",
+          "C31:r1",
+          "C32:r1",
+          "C33:r1",
+          "C34:r1",
+          "C35:r1",
+          "C36:r1",
+          "D10:r1",
+          "D1:r1",
+          "D2:r1",
+          "D3:r1",
+          "D4:r1",
+          "D5:r1",
+          "D6:r1",
+          "D7:r1",
+          "D8:r1",
+          "D9:r1",
+          "H10:r1",
+          "H11:r1",
+          "H12:r1",
+          "H9:r1",
+          "M5:r1",
+          "M6:r1",
+          "M7:r1",
+          "M8:r1",
+          "N13:r1",
+          "N14:r1",
+          "N15:r1",
+          "N16:r1",
+          "N17:r1",
+          "N18:r1",
+          "N19:r1",
+          "N20:r1",
+          "N21:r1",
+          "N22:r1",
+          "N23:r1",
+          "N24:r1",
+          "R47:r1",
+          "R48:r1",
+          "R53:r1",
+          "S1:r1",
+          "S2:r1",
+          "S3:r1",
+          "S4:r1",
+          "U44:r1",
+          "U45:r1",
+          "U46:r1",
+          "V37:r1",
+          "V38:r1",
+          "V39:r1",
+          "V40:r1",
+          "V41:r1"
+        ],
+        "skipped": 0,
+        "contractEpisodes": 17,
+        "contractPassed": 16,
+        "passRate": 0.9545454545454546,
+        "passAt3": null,
+        "judgeMean": 4.549090909090911,
+        "judgeComplete": 55,
+        "judgeEligible": 55,
+        "judgeDisagreementShare": 0.12727272727272726,
+        "usdPerEpisode": 0.013642039090909096,
+        "usdPerTurn": 0.012505202500000005,
+        "creditsPerTurn": 1.2505202499999999,
+        "costPerSuccessfulTask": 0.014291660000000006,
+        "measuredShare": 0.9696969696969697,
+        "cacheReadShare": 0.6719954779630659,
+        "cacheWriteShare": 0,
+        "roundsPerTurn": 3.2222222222222223,
+        "ttftP50Ms": 7654,
+        "ttftP95Ms": 20720,
+        "firstOutputP50Ms": 2594,
+        "firstOutputP95Ms": 4921,
+        "wallP50Ms": 8675,
+        "wallP95Ms": 21636,
+        "lengthFinishShare": 0,
+        "incompleteTurnShare": 0.027777777777777776,
+        "neverSolvedCases": [
+          "M7",
+          "N19",
+          "R48"
+        ],
+        "retrievalLatency": [
+          {
+            "corpus": "docs",
+            "calls": 13,
+            "totalP50Ms": 1847,
+            "totalP95Ms": 2346,
+            "fullTextP95Ms": 65,
+            "embeddingP95Ms": 1296,
+            "rerankP95Ms": 1534,
+            "embeddingUsedShare": 0.8461538461538461,
+            "embeddingTimeoutShare": 0.15384615384615385,
+            "rerankUsedShare": 1
+          }
+        ],
+        "wikiRerankCallsPerTurn": 0,
+        "classifierUsdPerTurn": 0.00006399333333333334,
+        "classifierCostShare": 0.005117336831077571,
+        "docsToolCallsPerTurn": 0.3055555555555556,
+        "docsRerankCallsPerTurn": 0.18055555555555555
+      },
+      {
+        "arm": "ovh-qwen38-27b",
+        "label": "Qwen3.8 27B (OVHcloud AI Endpoints, EU)",
+        "runtimeVariant": "screen",
+        "sourceCommit": "2ead1f0cc5d73ae69b015b3775e024882b8253f5",
+        "sourceDirty": false,
+        "episodes": 66,
+        "distinctCases": 66,
+        "coverage": [
+          "A1:r1",
+          "A2:r1",
+          "A3:r1",
+          "A4:r1",
+          "B1:r1",
+          "B2:r1",
+          "B3:r1",
+          "B4:r1",
+          "B5:r1",
+          "C25:r1",
+          "C26:r1",
+          "C27:r1",
+          "C28:r1",
+          "C29:r1",
+          "C30:r1",
+          "C31:r1",
+          "C32:r1",
+          "C33:r1",
+          "C34:r1",
+          "C35:r1",
+          "C36:r1",
+          "D10:r1",
+          "D1:r1",
+          "D2:r1",
+          "D3:r1",
+          "D4:r1",
+          "D5:r1",
+          "D6:r1",
+          "D7:r1",
+          "D8:r1",
+          "D9:r1",
+          "H10:r1",
+          "H11:r1",
+          "H12:r1",
+          "H9:r1",
+          "M5:r1",
+          "M6:r1",
+          "M7:r1",
+          "M8:r1",
+          "N13:r1",
+          "N14:r1",
+          "N15:r1",
+          "N16:r1",
+          "N17:r1",
+          "N18:r1",
+          "N19:r1",
+          "N20:r1",
+          "N21:r1",
+          "N22:r1",
+          "N23:r1",
+          "N24:r1",
+          "R47:r1",
+          "R48:r1",
+          "R53:r1",
+          "S1:r1",
+          "S2:r1",
+          "S3:r1",
+          "S4:r1",
+          "U44:r1",
+          "U45:r1",
+          "U46:r1",
+          "V37:r1",
+          "V38:r1",
+          "V39:r1",
+          "V40:r1",
+          "V41:r1"
+        ],
+        "skipped": 0,
+        "contractEpisodes": 17,
+        "contractPassed": 17,
+        "passRate": 0.9545454545454546,
+        "passAt3": null,
+        "judgeMean": 4.7254545454545465,
+        "judgeComplete": 55,
+        "judgeEligible": 55,
+        "judgeDisagreementShare": 0.01818181818181818,
+        "usdPerEpisode": 0.05234829106060605,
+        "usdPerTurn": 0.047985933472222214,
+        "creditsPerTurn": 4.79859334722222,
+        "costPerSuccessfulTask": 0.05484106682539682,
+        "measuredShare": 0.07575757575757576,
+        "cacheReadShare": 0,
+        "cacheWriteShare": 0,
+        "roundsPerTurn": 3.3472222222222223,
+        "ttftP50Ms": 18692,
+        "ttftP95Ms": 69351,
+        "firstOutputP50Ms": 7132,
+        "firstOutputP95Ms": 44217,
+        "wallP50Ms": 21055,
+        "wallP95Ms": 71480,
+        "lengthFinishShare": 0,
+        "incompleteTurnShare": 0,
+        "neverSolvedCases": [
+          "C25",
+          "C26",
+          "M7"
+        ],
+        "retrievalLatency": [
+          {
+            "corpus": "docs",
+            "calls": 10,
+            "totalP50Ms": 1620,
+            "totalP95Ms": 2425,
+            "fullTextP95Ms": 128,
+            "embeddingP95Ms": 930,
+            "rerankP95Ms": 2061,
+            "embeddingUsedShare": 1,
+            "embeddingTimeoutShare": 0,
+            "rerankUsedShare": 1
+          }
+        ],
+        "wikiRerankCallsPerTurn": 0,
+        "classifierUsdPerTurn": 0.00004775972222222222,
+        "classifierCostShare": 0.0009952858841407984,
+        "docsToolCallsPerTurn": 0.2638888888888889,
+        "docsRerankCallsPerTurn": 0.1388888888888889
+      },
+      {
+        "arm": "ovh-qwen35-397b",
+        "label": "Qwen3.5 397B-A17B (OVHcloud AI Endpoints, EU)",
+        "runtimeVariant": "screen",
+        "sourceCommit": "2ead1f0cc5d73ae69b015b3775e024882b8253f5",
+        "sourceDirty": false,
+        "episodes": 66,
+        "distinctCases": 66,
+        "coverage": [
+          "A1:r1",
+          "A2:r1",
+          "A3:r1",
+          "A4:r1",
+          "B1:r1",
+          "B2:r1",
+          "B3:r1",
+          "B4:r1",
+          "B5:r1",
+          "C25:r1",
+          "C26:r1",
+          "C27:r1",
+          "C28:r1",
+          "C29:r1",
+          "C30:r1",
+          "C31:r1",
+          "C32:r1",
+          "C33:r1",
+          "C34:r1",
+          "C35:r1",
+          "C36:r1",
+          "D10:r1",
+          "D1:r1",
+          "D2:r1",
+          "D3:r1",
+          "D4:r1",
+          "D5:r1",
+          "D6:r1",
+          "D7:r1",
+          "D8:r1",
+          "D9:r1",
+          "H10:r1",
+          "H11:r1",
+          "H12:r1",
+          "H9:r1",
+          "M5:r1",
+          "M6:r1",
+          "M7:r1",
+          "M8:r1",
+          "N13:r1",
+          "N14:r1",
+          "N15:r1",
+          "N16:r1",
+          "N17:r1",
+          "N18:r1",
+          "N19:r1",
+          "N20:r1",
+          "N21:r1",
+          "N22:r1",
+          "N23:r1",
+          "N24:r1",
+          "R47:r1",
+          "R48:r1",
+          "R53:r1",
+          "S1:r1",
+          "S2:r1",
+          "S3:r1",
+          "S4:r1",
+          "U44:r1",
+          "U45:r1",
+          "U46:r1",
+          "V37:r1",
+          "V38:r1",
+          "V39:r1",
+          "V40:r1",
+          "V41:r1"
+        ],
+        "skipped": 0,
+        "contractEpisodes": 17,
+        "contractPassed": 17,
+        "passRate": 0.8333333333333334,
+        "passAt3": null,
+        "judgeMean": 4.234545454545454,
+        "judgeComplete": 55,
+        "judgeEligible": 55,
+        "judgeDisagreementShare": 0.09090909090909091,
+        "usdPerEpisode": 0.07625358212121217,
+        "usdPerTurn": 0.06989911694444448,
+        "creditsPerTurn": 6.9899116944444435,
+        "costPerSuccessfulTask": 0.0915042985454546,
+        "measuredShare": 0.06818181818181818,
+        "cacheReadShare": 0,
+        "cacheWriteShare": 0,
+        "roundsPerTurn": 3.361111111111111,
+        "ttftP50Ms": 4312,
+        "ttftP95Ms": 12827,
+        "firstOutputP50Ms": 3138,
+        "firstOutputP95Ms": 8424,
+        "wallP50Ms": 12430,
+        "wallP95Ms": 31095,
+        "lengthFinishShare": 0,
+        "incompleteTurnShare": 0,
+        "neverSolvedCases": [
+          "B5",
+          "C26",
+          "C32",
+          "C36",
+          "D5",
+          "D6",
+          "H12",
+          "M6",
+          "M7",
+          "N18",
+          "N19"
+        ],
+        "retrievalLatency": [
+          {
+            "corpus": "docs",
+            "calls": 13,
+            "totalP50Ms": 1820,
+            "totalP95Ms": 2498,
+            "fullTextP95Ms": 38,
+            "embeddingP95Ms": 1072,
+            "rerankP95Ms": 2087,
+            "embeddingUsedShare": 1,
+            "embeddingTimeoutShare": 0,
+            "rerankUsedShare": 1
+          }
+        ],
+        "wikiRerankCallsPerTurn": 0,
+        "classifierUsdPerTurn": 0.00006045319444444444,
+        "classifierCostShare": 0.0008648634930895104,
+        "docsToolCallsPerTurn": 0.2222222222222222,
+        "docsRerankCallsPerTurn": 0.18055555555555555
+      }
+    ],
+    "comparisons": [
+      {
+        "arm": "screen/ovh-qwen35-397b",
+        "control": "screen/shipped",
+        "cases": 66,
+        "wins": 1,
+        "losses": 9,
+        "ties": 56,
+        "meanDifference": -0.12121212121212122,
+        "p": 0.021484375,
+        "holmP": 0.04296875,
+        "floor": 0.001953125
+      },
+      {
+        "arm": "screen/ovh-qwen38-27b",
+        "control": "screen/shipped",
+        "cases": 66,
+        "wins": 2,
+        "losses": 2,
+        "ties": 62,
+        "meanDifference": 0,
+        "p": 1,
+        "holmP": 1,
+        "floor": 0.125
+      }
+    ],
+    "caseMatrix": {
+      "A1": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "A2": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "A3": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "A4": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "B1": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "B2": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "B3": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "B4": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "B5": {
+        "screen/ovh-qwen35-397b": "0/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "C25": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "0/1",
+        "screen/shipped": "1/1"
+      },
+      "C26": {
+        "screen/ovh-qwen35-397b": "0/1",
+        "screen/ovh-qwen38-27b": "0/1",
+        "screen/shipped": "1/1"
+      },
+      "C27": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "C28": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "C29": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "C30": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "C31": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "C32": {
+        "screen/ovh-qwen35-397b": "0/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "C33": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "C34": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "C35": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "C36": {
+        "screen/ovh-qwen35-397b": "0/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "D1": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "D10": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "D2": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "D3": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "D4": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "D5": {
+        "screen/ovh-qwen35-397b": "0/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "D6": {
+        "screen/ovh-qwen35-397b": "0/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "D7": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "D8": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "D9": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "H10": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "H11": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "H12": {
+        "screen/ovh-qwen35-397b": "0/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "H9": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "M5": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "M6": {
+        "screen/ovh-qwen35-397b": "0/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "M7": {
+        "screen/ovh-qwen35-397b": "0/1",
+        "screen/ovh-qwen38-27b": "0/1",
+        "screen/shipped": "0/1"
+      },
+      "M8": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "N13": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "N14": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "N15": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "N16": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "N17": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "N18": {
+        "screen/ovh-qwen35-397b": "0/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "N19": {
+        "screen/ovh-qwen35-397b": "0/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "0/1"
+      },
+      "N20": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "N21": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "N22": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "N23": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "N24": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "R43": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "R47": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "R48": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "0/1"
+      },
+      "R50": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "R51": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "R52": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "R53": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "S1": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "S2": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "S3": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "S4": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "U44": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "U45": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "U46": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "V37": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "V38": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "V39": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "V40": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "V41": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      },
+      "V42": {
+        "screen/ovh-qwen35-397b": "1/1",
+        "screen/ovh-qwen38-27b": "1/1",
+        "screen/shipped": "1/1"
+      }
+    },
+    "uniformlyFailingChecks": [
+      "all-113-names-in-order"
+    ],
+    "judgeModels": [
+      {
+        "model": "anthropic/claude-opus-5",
+        "judged": 165,
+        "episodes": 165,
+        "mean": 4.45212121212121
+      },
+      {
+        "model": "openai/gpt-5.6-sol",
+        "judged": 165,
+        "episodes": 165,
+        "mean": 4.553939393939394
+      }
+    ],
+    "skippedEpisodes": [],
+    "suiteCoverage": {
+      "episodes": 213,
+      "distinctCases": 71,
+      "turns": 231,
+      "skippedEpisodes": 0,
+      "comparativeEpisodes": 198,
+      "comparativeCases": 66,
+      "comparativeTurns": 216,
+      "strictCases": 17
+    },
+    "mergeCheck": null,
+    "totalUsd": 14.3585007,
+    "comparativeCaseCount": 66
+  },
+  "selection": {
+    "defaultArm": {
+      "arm": "shipped",
+      "label": "google/gemini-3.5-flash-lite, balanced catalog configuration (shipped)",
+      "runtimeVariant": "screen",
+      "sourceCommit": "2ead1f0cc5d73ae69b015b3775e024882b8253f5",
+      "sourceDirty": false,
+      "episodes": 66,
+      "distinctCases": 66,
+      "coverage": [
+        "A1:r1",
+        "A2:r1",
+        "A3:r1",
+        "A4:r1",
+        "B1:r1",
+        "B2:r1",
+        "B3:r1",
+        "B4:r1",
+        "B5:r1",
+        "C25:r1",
+        "C26:r1",
+        "C27:r1",
+        "C28:r1",
+        "C29:r1",
+        "C30:r1",
+        "C31:r1",
+        "C32:r1",
+        "C33:r1",
+        "C34:r1",
+        "C35:r1",
+        "C36:r1",
+        "D10:r1",
+        "D1:r1",
+        "D2:r1",
+        "D3:r1",
+        "D4:r1",
+        "D5:r1",
+        "D6:r1",
+        "D7:r1",
+        "D8:r1",
+        "D9:r1",
+        "H10:r1",
+        "H11:r1",
+        "H12:r1",
+        "H9:r1",
+        "M5:r1",
+        "M6:r1",
+        "M7:r1",
+        "M8:r1",
+        "N13:r1",
+        "N14:r1",
+        "N15:r1",
+        "N16:r1",
+        "N17:r1",
+        "N18:r1",
+        "N19:r1",
+        "N20:r1",
+        "N21:r1",
+        "N22:r1",
+        "N23:r1",
+        "N24:r1",
+        "R47:r1",
+        "R48:r1",
+        "R53:r1",
+        "S1:r1",
+        "S2:r1",
+        "S3:r1",
+        "S4:r1",
+        "U44:r1",
+        "U45:r1",
+        "U46:r1",
+        "V37:r1",
+        "V38:r1",
+        "V39:r1",
+        "V40:r1",
+        "V41:r1"
+      ],
+      "skipped": 0,
+      "contractEpisodes": 17,
+      "contractPassed": 16,
+      "passRate": 0.9545454545454546,
+      "passAt3": null,
+      "judgeMean": 4.549090909090911,
+      "judgeComplete": 55,
+      "judgeEligible": 55,
+      "judgeDisagreementShare": 0.12727272727272726,
+      "usdPerEpisode": 0.013642039090909096,
+      "usdPerTurn": 0.012505202500000005,
+      "creditsPerTurn": 1.2505202499999999,
+      "costPerSuccessfulTask": 0.014291660000000006,
+      "measuredShare": 0.9696969696969697,
+      "cacheReadShare": 0.6719954779630659,
+      "cacheWriteShare": 0,
+      "roundsPerTurn": 3.2222222222222223,
+      "ttftP50Ms": 7654,
+      "ttftP95Ms": 20720,
+      "firstOutputP50Ms": 2594,
+      "firstOutputP95Ms": 4921,
+      "wallP50Ms": 8675,
+      "wallP95Ms": 21636,
+      "lengthFinishShare": 0,
+      "incompleteTurnShare": 0.027777777777777776,
+      "neverSolvedCases": [
+        "M7",
+        "N19",
+        "R48"
+      ],
+      "retrievalLatency": [
+        {
+          "corpus": "docs",
+          "calls": 13,
+          "totalP50Ms": 1847,
+          "totalP95Ms": 2346,
+          "fullTextP95Ms": 65,
+          "embeddingP95Ms": 1296,
+          "rerankP95Ms": 1534,
+          "embeddingUsedShare": 0.8461538461538461,
+          "embeddingTimeoutShare": 0.15384615384615385,
+          "rerankUsedShare": 1
+        }
+      ],
+      "wikiRerankCallsPerTurn": 0,
+      "classifierUsdPerTurn": 0.00006399333333333334,
+      "classifierCostShare": 0.005117336831077571,
+      "docsToolCallsPerTurn": 0.3055555555555556,
+      "docsRerankCallsPerTurn": 0.18055555555555555
+    },
+    "deepArm": null,
+    "reasoning": [
+      "screen/ovh-qwen38-27b: ineligible (zdr/no-training true, measured 8 %, exact repetition coverage true, complete judges 55/55, current clean source true)",
+      "screen/ovh-qwen35-397b: ineligible (zdr/no-training true, measured 7 %, exact repetition coverage true, complete judges 55/55, current clean source true)",
+      "screen/shipped: below the speed floor (wall p50 8.7 s, TTFT p50 7.7 s)",
+      "no other arm passes the quality floor; the best arm ships because it costs 1.3 credits per turn",
+      "deep mode omitted: it would be the default arm"
+    ]
+  },
+  "armsVerified": {
+    "verifiedAt": "2026-10-04T14:22:03.970Z",
+    "results": [
+      {
+        "arm": "shipped",
+        "modelId": "google/gemini-3.5-flash-lite",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000003",
+        "completionUsd": "0.0000025"
+      },
+      {
+        "arm": "flash-lite-minimal",
+        "modelId": "google/gemini-3.5-flash-lite",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000003",
+        "completionUsd": "0.0000025"
+      },
+      {
+        "arm": "flash-lite-medium",
+        "modelId": "google/gemini-3.5-flash-lite",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000003",
+        "completionUsd": "0.0000025"
+      },
+      {
+        "arm": "flash-lite-high",
+        "modelId": "google/gemini-3.5-flash-lite",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000003",
+        "completionUsd": "0.0000025"
+      },
+      {
+        "arm": "flash-low",
+        "modelId": "google/gemini-3.5-flash",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000015",
+        "completionUsd": "0.000009"
+      },
+      {
+        "arm": "flash-medium",
+        "modelId": "google/gemini-3.5-flash",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000015",
+        "completionUsd": "0.000009"
+      },
+      {
+        "arm": "flash36-low",
+        "modelId": "google/gemini-3.6-flash",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000075",
+        "completionUsd": "0.00000375"
+      },
+      {
+        "arm": "flash38-low",
+        "modelId": "google/gemini-3.8-flash",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000075",
+        "completionUsd": "0.00000375"
+      },
+      {
+        "arm": "flash-lite31-low",
+        "modelId": "google/gemini-3.1-flash-lite",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000025",
+        "completionUsd": "0.0000015"
+      },
+      {
+        "arm": "luna-none",
+        "modelId": "openai/gpt-5.6-luna",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000002",
+        "completionUsd": "0.0000012"
+      },
+      {
+        "arm": "luna-low",
+        "modelId": "openai/gpt-5.6-luna",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000002",
+        "completionUsd": "0.0000012"
+      },
+      {
+        "arm": "luna-medium",
+        "modelId": "openai/gpt-5.6-luna",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000002",
+        "completionUsd": "0.0000012"
+      },
+      {
+        "arm": "terra-low",
+        "modelId": "openai/gpt-5.6-terra",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.000002",
+        "completionUsd": "0.000012"
+      },
+      {
+        "arm": "sol-low",
+        "modelId": "openai/gpt-5.6-sol",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.000005",
+        "completionUsd": "0.00003"
+      },
+      {
+        "arm": "nano-low",
+        "modelId": "openai/gpt-5-nano",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000005",
+        "completionUsd": "0.0000004"
+      },
+      {
+        "arm": "gpt5-mini-low",
+        "modelId": "openai/gpt-5-mini",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000025",
+        "completionUsd": "0.000002"
+      },
+      {
+        "arm": "gpt54-mini-low",
+        "modelId": "openai/gpt-5.4-mini",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000075",
+        "completionUsd": "0.0000045"
+      },
+      {
+        "arm": "gpt54-nano-low",
+        "modelId": "openai/gpt-5.4-nano",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000002",
+        "completionUsd": "0.00000125"
+      },
+      {
+        "arm": "haiku45",
+        "modelId": "anthropic/claude-haiku-4.5",
+        "provider": "bedrock",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.000001",
+        "completionUsd": "0.000005"
+      },
+      {
+        "arm": "sonnet5-low",
+        "modelId": "anthropic/claude-sonnet-5",
+        "provider": "bedrock",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.000002",
+        "completionUsd": "0.00001"
+      },
+      {
+        "arm": "sonnet5-medium",
+        "modelId": "anthropic/claude-sonnet-5",
+        "provider": "bedrock",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.000002",
+        "completionUsd": "0.00001"
+      },
+      {
+        "arm": "opus5-low",
+        "modelId": "anthropic/claude-opus-5",
+        "provider": "bedrock",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.000005",
+        "completionUsd": "0.000025"
+      },
+      {
+        "arm": "deepseek-flash-high",
+        "modelId": "deepseek/deepseek-v4-flash",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000019",
+        "completionUsd": "0.00000051"
+      },
+      {
+        "arm": "deepseek-pro-high",
+        "modelId": "deepseek/deepseek-v4-pro",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000174",
+        "completionUsd": "0.00000348"
+      },
+      {
+        "arm": "glm53-flash-low",
+        "modelId": "zai/glm-5.3-flash",
+        "provider": "baseten",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000015",
+        "completionUsd": "0.0000005"
+      },
+      {
+        "arm": "glm53-flash-high",
+        "modelId": "zai/glm-5.3-flash",
+        "provider": "baseten",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000015",
+        "completionUsd": "0.0000005"
+      },
+      {
+        "arm": "glm53-low",
+        "modelId": "zai/glm-5.3",
+        "provider": "baseten",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000014",
+        "completionUsd": "0.0000044"
+      },
+      {
+        "arm": "kimi-k27-code",
+        "modelId": "moonshotai/kimi-k2.7-code",
+        "provider": "baseten",
+        "eligible": false,
+        "hasZdr": null,
+        "hasNoTraining": null,
+        "reason": "provider no longer serves the model",
+        "promptUsd": null,
+        "completionUsd": null
+      },
+      {
+        "arm": "mistral-large-3",
+        "modelId": "mistral/mistral-large-3",
+        "provider": "mistral",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000005",
+        "completionUsd": "0.0000015"
+      },
+      {
+        "arm": "qwen3-coder-next",
+        "modelId": "alibaba/qwen3-coder-next",
+        "provider": "bedrock",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000005",
+        "completionUsd": "0.0000012"
+      },
+      {
+        "arm": "ovh-qwen38-27b",
+        "modelId": "ovh/Qwen3.8-27B",
+        "provider": "ovh",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000047",
+        "completionUsd": "0.00000319",
+        "attestation": "https://www.ovhcloud.com/en/public-cloud/ai-endpoints/"
+      },
+      {
+        "arm": "ovh-qwen35-397b",
+        "modelId": "ovh/Qwen3.5-397B-A17B",
+        "provider": "ovh",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000071",
+        "completionUsd": "0.00000425",
+        "attestation": "https://www.ovhcloud.com/en/public-cloud/ai-endpoints/"
+      },
+      {
+        "arm": "ovh-gpt-oss-120b-low",
+        "modelId": "ovh/gpt-oss-120b",
+        "provider": "ovh",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000009",
+        "completionUsd": "0.00000047",
+        "attestation": "https://www.ovhcloud.com/en/public-cloud/ai-endpoints/"
+      },
+      {
+        "arm": "ovh-mistral-small-32",
+        "modelId": "ovh/Mistral-Small-3.2-24B-Instruct-2506",
+        "provider": "ovh",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000001",
+        "completionUsd": "0.00000031",
+        "attestation": "https://www.ovhcloud.com/en/public-cloud/ai-endpoints/"
+      },
+      {
+        "arm": "ovh-qwen3-coder-30b",
+        "modelId": "ovh/Qwen3-Coder-30B-A3B-Instruct",
+        "provider": "ovh",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000007",
+        "completionUsd": "0.00000026",
+        "attestation": "https://www.ovhcloud.com/en/public-cloud/ai-endpoints/"
+      }
+    ]
+  }
+}
