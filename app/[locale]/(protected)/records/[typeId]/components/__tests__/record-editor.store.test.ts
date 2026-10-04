@@ -587,6 +587,25 @@ describe("record editor stale draft recovery", () => {
     fields: [{ fieldId: nameId, result: { state: "value", value: { kind: "text", value: name } } }, ...extra],
   });
 
+  it("keeps a new-record draft editable after the schema changes underneath it", async () => {
+    const store = new RecordEditorStore(root, context("deal"), vi.fn(), true);
+    store.edit(context("deal"), null);
+    store.onChange(`values.${nameId}`, "New deal draft");
+    mocks.mutateRecordAction.mockResolvedValueOnce(conflict("recordSchemaChanged"));
+    await store.onSubmit();
+    expect(store.staleChange).toBe(true);
+    expect(store.isReadOnly).toBe(true);
+
+    mocks.getRecordEditorAction.mockResolvedValueOnce({ ok: true, data: { ...context("deal"), record: null } });
+    await store.reloadKeepingChanges();
+    expect(mocks.getRecordEditorAction).toHaveBeenLastCalledWith({ typeId: context("deal").typeId });
+    expect(store.staleChange).toBe(false);
+    expect(store.refreshRequired).toBe(false);
+    expect(store.isReadOnly).toBe(false);
+    expect(store.record).toBeNull();
+    expect(store.form.values[nameId]).toBe("New deal draft");
+  });
+
   it.each(["recordVersionChanged", "recordSchemaChanged"] as const)(
     "keeps the draft after %s and rebases it onto the latest record, surfacing conflicting fields",
     async (code) => {

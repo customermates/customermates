@@ -235,7 +235,11 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
     this.edit(latest, latest.record);
   };
   reloadKeepingChanges = async () => {
-    if (!this.record || this.isLoading || this.pendingOperationId) return;
+    if (this.isLoading || this.pendingOperationId) return;
+    if (!this.record) {
+      await this.reloadCreateContext();
+      return;
+    }
     if (!this.hasUnsavedChanges) {
       await this.refreshRecord();
       return;
@@ -270,7 +274,23 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
       if (generation === this.refreshGeneration) this.setIsLoading(false);
     }
   };
-  rebase = (presentation: RecordEditorContext, record: RecordDto) => {
+  private reloadCreateContext = async () => {
+    const generation = ++this.refreshGeneration;
+    const typeId = this.presentation.typeId;
+    this.setIsLoading(true);
+    try {
+      const result = await getRecordEditorAction({ typeId });
+      if (generation !== this.refreshGeneration || this.record || this.presentation.typeId !== typeId) return;
+      if (!result.ok) {
+        this.setError(result.error);
+        return;
+      }
+      this.rebase(result.data, null);
+    } finally {
+      if (generation === this.refreshGeneration) this.setIsLoading(false);
+    }
+  };
+  rebase = (presentation: RecordEditorContext, record: RecordDto | null) => {
     const saved = toJS(this.savedState);
     const draft = toJS(this.form);
     const latest = this.draftFor(presentation, record, this.parentLink);
