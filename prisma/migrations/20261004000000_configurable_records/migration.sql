@@ -161,7 +161,7 @@ LANGUAGE plpgsql IMMUTABLE AS $$
 DECLARE
   v_number double precision;
 BEGIN
-  IF p_document IS NULL THEN RETURN NULL; END IF;
+  IF (p_document IS NULL) IS NOT FALSE THEN RETURN NULL; END IF;
   CASE jsonb_typeof(p_document)
     WHEN 'number' THEN
       v_number := crm_upgrade.js_parse_number(p_document::text::numeric);
@@ -234,7 +234,7 @@ $$;
 CREATE FUNCTION crm_upgrade.js_to_number(p_value jsonb) RETURNS double precision
 LANGUAGE plpgsql IMMUTABLE AS $$
 BEGIN
-  IF p_value IS NULL THEN RETURN NULL; END IF;
+  IF (p_value IS NULL) IS NOT FALSE THEN RETURN NULL; END IF;
   CASE jsonb_typeof(p_value)
     WHEN 'number' THEN RETURN crm_upgrade.js_parse_number(p_value::text::numeric);
     WHEN 'boolean' THEN RETURN CASE WHEN p_value = 'true'::jsonb THEN 1 ELSE 0 END;
@@ -333,7 +333,7 @@ $$;
 -- Decimal values the record engine can store exactly: finite, |x| < 1e35, at most 30 decimals.
 CREATE FUNCTION crm_upgrade.is_representable(value numeric) RETURNS boolean
 LANGUAGE sql IMMUTABLE AS $$
-  SELECT value IS NOT NULL AND value <> 'NaN'::numeric AND abs(value) < 1e35 AND scale(trim_scale(value)) <= 30
+  SELECT COALESCE((value IS NOT NULL AND value <> 'NaN'::numeric AND abs(value) < 1e35 AND scale(trim_scale(value)) <= 30), false)
 $$;
 
 -- new Decimal(x).toFixed(): plain notation without trailing zeros.
@@ -369,21 +369,21 @@ BEGIN
       v_position := v_position + 1;
       CONTINUE;
     END IF;
-    IF substr(p_value, v_position + 1, 2) !~ '^[0-9A-Fa-f]{2}$' THEN RETURN NULL; END IF;
+    IF (substr(p_value, v_position + 1, 2) !~ '^[0-9A-Fa-f]{2}$') IS NOT FALSE THEN RETURN NULL; END IF;
     v_first := ('x' || lpad(substr(p_value, v_position + 1, 2), 8, '0'))::bit(32)::integer;
-    IF v_first = 0 THEN RETURN NULL; END IF;
+    IF (v_first = 0) IS NOT FALSE THEN RETURN NULL; END IF;
     IF v_first < 128 THEN
       v_result := v_result || chr(v_first);
       v_position := v_position + 3;
       CONTINUE;
     END IF;
     v_width := CASE WHEN v_first >= 240 AND v_first < 248 THEN 4 WHEN v_first >= 224 AND v_first < 240 THEN 3 WHEN v_first >= 192 AND v_first < 224 THEN 2 ELSE 0 END;
-    IF v_width = 0 THEN RETURN NULL; END IF;
+    IF (v_width = 0) IS NOT FALSE THEN RETURN NULL; END IF;
     v_bytes := set_byte('\x00'::bytea, 0, v_first);
     FOR v_index IN 1..v_width - 1 LOOP
-      IF substr(p_value, v_position + v_index * 3, 1) <> '%' OR substr(p_value, v_position + v_index * 3 + 1, 2) !~ '^[0-9A-Fa-f]{2}$' THEN RETURN NULL; END IF;
+      IF (substr(p_value, v_position + v_index * 3, 1) <> '%' OR substr(p_value, v_position + v_index * 3 + 1, 2) !~ '^[0-9A-Fa-f]{2}$') IS NOT FALSE THEN RETURN NULL; END IF;
       v_next := ('x' || lpad(substr(p_value, v_position + v_index * 3 + 1, 2), 8, '0'))::bit(32)::integer;
-      IF v_next < 128 OR v_next >= 192 THEN RETURN NULL; END IF;
+      IF (v_next < 128 OR v_next >= 192) IS NOT FALSE THEN RETURN NULL; END IF;
       v_bytes := v_bytes || set_byte('\x00'::bytea, 0, v_next);
     END LOOP;
     BEGIN
@@ -540,7 +540,7 @@ DECLARE
   v_phone text;
   v_handle text;
 BEGIN
-  IF v_value IS NULL OR v_value = '' THEN RETURN NULL; END IF;
+  IF (v_value IS NULL OR v_value = '') IS NOT FALSE THEN RETURN NULL; END IF;
   IF p_provider IN ('mail', 'google', 'outlook') THEN
     RETURN CASE WHEN crm_upgrade.is_email(v_value) THEN lower(v_value) ELSE v_value END;
   END IF;
@@ -581,7 +581,7 @@ DECLARE
   v_input text := p_part;
   v_result numeric := 0;
 BEGIN
-  IF v_input = '' THEN RETURN NULL; END IF;
+  IF (v_input = '') IS NOT FALSE THEN RETURN NULL; END IF;
   IF length(v_input) >= 2 AND lower(left(v_input, 2)) = '0x' THEN
     v_radix := 16;
     v_input := substr(v_input, 3);
@@ -590,7 +590,7 @@ BEGIN
     v_input := substr(v_input, 2);
   END IF;
   IF v_input = '' THEN RETURN 0; END IF;
-  IF (v_radix = 10 AND v_input !~ '^[0-9]+$') OR (v_radix = 16 AND v_input !~ '^[0-9A-Fa-f]+$') OR (v_radix = 8 AND v_input !~ '^[0-7]+$') THEN
+  IF ((v_radix = 10 AND v_input !~ '^[0-9]+$') OR (v_radix = 16 AND v_input !~ '^[0-9A-Fa-f]+$') OR (v_radix = 8 AND v_input !~ '^[0-7]+$')) IS NOT FALSE THEN
     RETURN NULL;
   END IF;
   FOR v_index IN 1..length(v_input) LOOP
@@ -611,19 +611,19 @@ DECLARE
   v_number numeric;
 BEGIN
   IF v_parts[array_length(v_parts, 1)] = '' THEN
-    IF array_length(v_parts, 1) = 1 THEN RETURN NULL; END IF;
+    IF (array_length(v_parts, 1) = 1) IS NOT FALSE THEN RETURN NULL; END IF;
     v_parts := v_parts[1:array_length(v_parts, 1) - 1];
   END IF;
   v_last := v_parts[array_length(v_parts, 1)];
-  IF NOT (v_last <> '' AND v_last ~ '^[0-9]+$') AND crm_upgrade.url_ipv4_number(v_last) IS NULL THEN RETURN NULL; END IF;
-  IF array_length(v_parts, 1) > 4 THEN RETURN false; END IF;
+  IF (NOT (v_last <> '' AND v_last ~ '^[0-9]+$') AND crm_upgrade.url_ipv4_number(v_last) IS NULL) IS NOT FALSE THEN RETURN NULL; END IF;
+  IF (array_length(v_parts, 1) > 4) IS NOT FALSE THEN RETURN false; END IF;
   FOREACH v_last IN ARRAY v_parts LOOP
     v_number := crm_upgrade.url_ipv4_number(v_last);
-    IF v_number IS NULL THEN RETURN false; END IF;
+    IF (v_number IS NULL) IS NOT FALSE THEN RETURN false; END IF;
     v_numbers := v_numbers || v_number;
   END LOOP;
   FOR v_index IN 1..array_length(v_numbers, 1) - 1 LOOP
-    IF v_numbers[v_index] > 255 THEN RETURN false; END IF;
+    IF (v_numbers[v_index] > 255) IS NOT FALSE THEN RETURN false; END IF;
   END LOOP;
   RETURN v_numbers[array_length(v_numbers, 1)] < 256::numeric ^ (5 - array_length(v_numbers, 1));
 END
@@ -644,16 +644,16 @@ DECLARE
   v_hex text;
 BEGIN
   IF substr(p_input, 1, 1) = ':' THEN
-    IF substr(p_input, 2, 1) <> ':' THEN RETURN false; END IF;
+    IF (substr(p_input, 2, 1) <> ':') IS NOT FALSE THEN RETURN false; END IF;
     v_pointer := 3;
     v_pieces := 1;
     v_compress := 1;
   END IF;
   WHILE v_pointer <= v_total LOOP
-    IF v_pieces = 8 THEN RETURN false; END IF;
+    IF (v_pieces = 8) IS NOT FALSE THEN RETURN false; END IF;
     v_c := substr(p_input, v_pointer, 1);
     IF v_c = ':' THEN
-      IF v_compress IS NOT NULL THEN RETURN false; END IF;
+      IF (v_compress IS NOT NULL) IS NOT FALSE THEN RETURN false; END IF;
       v_pointer := v_pointer + 1;
       v_pieces := v_pieces + 1;
       v_compress := v_pieces;
@@ -666,9 +666,9 @@ BEGIN
     END LOOP;
     v_c := substr(p_input, v_pointer, 1);
     IF v_pointer <= v_total AND v_c = '.' THEN
-      IF v_length = 0 THEN RETURN false; END IF;
+      IF (v_length = 0) IS NOT FALSE THEN RETURN false; END IF;
       v_pointer := v_pointer - v_length;
-      IF v_pieces > 6 THEN RETURN false; END IF;
+      IF (v_pieces > 6) IS NOT FALSE THEN RETURN false; END IF;
       v_numbers_seen := 0;
       WHILE v_pointer <= v_total LOOP
         v_ipv4_piece := NULL;
@@ -679,27 +679,27 @@ BEGIN
             RETURN false;
           END IF;
         END IF;
-        IF v_pointer > v_total OR substr(p_input, v_pointer, 1) !~ '^[0-9]$' THEN RETURN false; END IF;
+        IF (v_pointer > v_total OR substr(p_input, v_pointer, 1) !~ '^[0-9]$') IS NOT FALSE THEN RETURN false; END IF;
         WHILE v_pointer <= v_total AND substr(p_input, v_pointer, 1) ~ '^[0-9]$' LOOP
           IF v_ipv4_piece IS NULL THEN
             v_ipv4_piece := substr(p_input, v_pointer, 1)::integer;
-          ELSIF v_ipv4_piece = 0 THEN
+          ELSIF (v_ipv4_piece = 0) IS NOT FALSE THEN
             RETURN false;
           ELSE
             v_ipv4_piece := v_ipv4_piece * 10 + substr(p_input, v_pointer, 1)::integer;
           END IF;
-          IF v_ipv4_piece > 255 THEN RETURN false; END IF;
+          IF (v_ipv4_piece > 255) IS NOT FALSE THEN RETURN false; END IF;
           v_pointer := v_pointer + 1;
         END LOOP;
         v_numbers_seen := v_numbers_seen + 1;
         IF v_numbers_seen = 2 OR v_numbers_seen = 4 THEN v_pieces := v_pieces + 1; END IF;
       END LOOP;
-      IF v_numbers_seen <> 4 THEN RETURN false; END IF;
+      IF (v_numbers_seen <> 4) IS NOT FALSE THEN RETURN false; END IF;
       EXIT;
     ELSIF v_pointer <= v_total AND v_c = ':' THEN
       v_pointer := v_pointer + 1;
-      IF v_pointer > v_total THEN RETURN false; END IF;
-    ELSIF v_pointer <= v_total THEN
+      IF (v_pointer > v_total) IS NOT FALSE THEN RETURN false; END IF;
+    ELSIF (v_pointer <= v_total) IS NOT FALSE THEN
       RETURN false;
     END IF;
     v_pieces := v_pieces + 1;
@@ -707,7 +707,7 @@ BEGIN
   IF v_compress IS NOT NULL THEN
     RETURN true;
   END IF;
-  RETURN v_pieces = 8;
+  RETURN COALESCE((v_pieces = 8), false);
 END
 $$;
 
@@ -730,7 +730,7 @@ DECLARE
   v_delta bigint;
   v_out_length integer;
 BEGIN
-  IF p_input ~ '[^\x01-\x7F]' THEN RETURN NULL; END IF;
+  IF (p_input ~ '[^\x01-\x7F]') IS NOT FALSE THEN RETURN NULL; END IF;
   v_basic := length(p_input) - position('-' IN reverse(p_input));
   IF position('-' IN p_input) = 0 THEN v_basic := 0; END IF;
   FOR v_index IN 1..v_basic LOOP
@@ -742,17 +742,17 @@ BEGIN
     v_w := 1;
     v_k := 36;
     LOOP
-      IF v_pointer > length(p_input) THEN RETURN NULL; END IF;
+      IF (v_pointer > length(p_input)) IS NOT FALSE THEN RETURN NULL; END IF;
       v_c := substr(p_input, v_pointer, 1);
       v_pointer := v_pointer + 1;
       v_digit := CASE WHEN v_c ~ '^[0-9]$' THEN ascii(v_c) - 22 WHEN v_c ~ '^[A-Z]$' THEN ascii(v_c) - 65 WHEN v_c ~ '^[a-z]$' THEN ascii(v_c) - 97 ELSE 36 END;
-      IF v_digit >= 36 THEN RETURN NULL; END IF;
+      IF (v_digit >= 36) IS NOT FALSE THEN RETURN NULL; END IF;
       v_i := v_i + v_digit * v_w;
-      IF v_i > 2147483647 THEN RETURN NULL; END IF;
+      IF (v_i > 2147483647) IS NOT FALSE THEN RETURN NULL; END IF;
       v_t := CASE WHEN v_k <= v_bias THEN 1 WHEN v_k >= v_bias + 26 THEN 26 ELSE v_k - v_bias END;
       EXIT WHEN v_digit < v_t;
       v_w := v_w * (36 - v_t);
-      IF v_w > 2147483647 THEN RETURN NULL; END IF;
+      IF (v_w > 2147483647) IS NOT FALSE THEN RETURN NULL; END IF;
       v_k := v_k + 36;
     END LOOP;
     v_out_length := coalesce(array_length(v_output, 1), 0) + 1;
@@ -765,7 +765,7 @@ BEGIN
     END LOOP;
     v_bias := v_k + (36 * v_delta) / (v_delta + 38);
     v_n := v_n + (v_i / v_out_length)::integer;
-    IF v_n > 1114111 THEN RETURN NULL; END IF;
+    IF (v_n > 1114111) IS NOT FALSE THEN RETURN NULL; END IF;
     v_i := v_i % v_out_length;
     v_output := v_output[1:v_i] || v_n || v_output[v_i + 1:];
     v_i := v_i + 1;
@@ -1066,10 +1066,10 @@ BEGIN
   v_length := coalesce(array_length(v_classes, 1), 0);
   IF v_length = 0 THEN RETURN true; END IF;
   IF v_classes[1] = 'L' OR NOT ('R' = ANY (v_classes) OR 'AN' = ANY (v_classes)) THEN
-    RETURN NOT ('R' = ANY (v_classes[1:v_length - 1]) OR 'AN' = ANY (v_classes[1:v_length - 1]));
+    RETURN COALESCE((NOT ('R' = ANY (v_classes[1:v_length - 1]) OR 'AN' = ANY (v_classes[1:v_length - 1]))), false);
   END IF;
-  RETURN NOT 'L' = ANY (v_classes) AND v_classes[v_length] IN ('R', 'EN', 'AN')
-    AND NOT ('EN' = ANY (v_classes) AND 'AN' = ANY (v_classes));
+  RETURN COALESCE((NOT 'L' = ANY (v_classes) AND v_classes[v_length] IN ('R', 'EN', 'AN')
+    AND NOT ('EN' = ANY (v_classes) AND 'AN' = ANY (v_classes))), false);
 END
 $$;
 
@@ -1087,8 +1087,8 @@ DECLARE
   v_original text;
 BEGIN
   IF left(p_input, 1) = '[' THEN
-    IF right(p_input, 1) <> ']' THEN RETURN false; END IF;
-    RETURN crm_upgrade.url_ipv6_valid(substr(p_input, 2, length(p_input) - 2));
+    IF (right(p_input, 1) <> ']') IS NOT FALSE THEN RETURN false; END IF;
+    RETURN COALESCE((crm_upgrade.url_ipv6_valid(substr(p_input, 2, length(p_input) - 2))), false);
   END IF;
   -- Percent-decode, then UTF-8 decode (invalid sequences become U+FFFD, which UTS #46 disallows).
   WHILE v_position <= length(p_input) LOOP
@@ -1100,7 +1100,7 @@ BEGIN
       v_position := v_position + 1;
     END IF;
   END LOOP;
-  IF position('\x00'::bytea IN v_bytes) > 0 THEN RETURN false; END IF;
+  IF (position('\x00'::bytea IN v_bytes) > 0) IS NOT FALSE THEN RETURN false; END IF;
   BEGIN
     v_domain := convert_from(v_bytes, 'UTF8');
   EXCEPTION WHEN character_not_in_repertoire OR untranslatable_character OR invalid_parameter_value THEN
@@ -1112,13 +1112,13 @@ BEGIN
     v_decoded := NULL;
     v_original := v_label;
     IF v_label ~ '[^\x01-\x7F]' THEN
-      IF NOT crm_upgrade.url_unicode_label_valid(v_label) THEN RETURN false; END IF;
+      IF (NOT crm_upgrade.url_unicode_label_valid(v_label)) IS NOT FALSE THEN RETURN false; END IF;
       v_label := lower(regexp_replace(v_label, '[^\x01-\x7F]', 'a', 'g'));
     ELSE
       v_label := lower(v_label);
       IF left(v_label, 4) = 'xn--' THEN
         v_decoded := crm_upgrade.punycode_decode(substr(v_label, 5));
-        IF v_decoded IS NULL OR v_decoded !~ '[^\x01-\x7F]' OR NOT crm_upgrade.url_unicode_label_valid(v_decoded) THEN
+        IF (v_decoded IS NULL OR v_decoded !~ '[^\x01-\x7F]' OR NOT crm_upgrade.url_unicode_label_valid(v_decoded)) IS NOT FALSE THEN
           RETURN false;
         END IF;
       END IF;
@@ -1127,16 +1127,16 @@ BEGIN
     v_ascii_domain := v_ascii_domain || v_label || '.';
   END LOOP;
   -- A domain with right-to-left letters or Arabic digits applies the bidirectional rule to every label.
-  IF EXISTS (SELECT 1 FROM unnest(v_unicode_labels) AS l(label), regexp_split_to_table(l.label, '') AS c(ch)
+  IF (EXISTS (SELECT 1 FROM unnest(v_unicode_labels) AS l(label), regexp_split_to_table(l.label, '') AS c(ch)
       WHERE crm_upgrade.host_bidi_class(ascii(c.ch)) IN ('R', 'AN'))
-    AND EXISTS (SELECT 1 FROM unnest(v_unicode_labels) AS l(label) WHERE NOT crm_upgrade.url_bidi_label_valid(l.label)) THEN
+    AND EXISTS (SELECT 1 FROM unnest(v_unicode_labels) AS l(label) WHERE NOT crm_upgrade.url_bidi_label_valid(l.label))) IS NOT FALSE THEN
     RETURN false;
   END IF;
   v_ascii_domain := left(v_ascii_domain, length(v_ascii_domain) - 1);
-  IF v_ascii_domain = '' THEN RETURN false; END IF;
+  IF (v_ascii_domain = '') IS NOT FALSE THEN RETURN false; END IF;
   -- Forbidden domain code points.
-  IF v_ascii_domain ~ '[\x01-\x1F\x20#/:<>?@\[\\\]^|%\x7F]' THEN RETURN false; END IF;
-  RETURN COALESCE(crm_upgrade.url_ipv4_valid(v_ascii_domain), true);
+  IF (v_ascii_domain ~ '[\x01-\x1F\x20#/:<>?@\[\\\]^|%\x7F]') IS NOT FALSE THEN RETURN false; END IF;
+  RETURN COALESCE((COALESCE(crm_upgrade.url_ipv4_valid(v_ascii_domain), true)), false);
 END
 $$;
 
@@ -1154,7 +1154,7 @@ DECLARE
   v_c text;
   v_index integer;
 BEGIN
-  IF v_input !~* '^https?:' THEN RETURN false; END IF;
+  IF (v_input !~* '^https?:') IS NOT FALSE THEN RETURN false; END IF;
   v_rest := regexp_replace(substr(v_input, position(':' IN v_input) + 1), '^[/\\]+', '');
   v_authority := substring(v_rest FROM '^[^/?#\\]*');
   IF position('@' IN v_authority) > 0 THEN
@@ -1162,7 +1162,7 @@ BEGIN
   ELSE
     v_hostport := v_authority;
   END IF;
-  IF v_hostport = '' THEN RETURN false; END IF;
+  IF (v_hostport = '') IS NOT FALSE THEN RETURN false; END IF;
   v_index := 1;
   WHILE v_index <= length(v_hostport) LOOP
     v_c := substr(v_hostport, v_index, 1);
@@ -1171,20 +1171,20 @@ BEGIN
     v_host := v_host || v_c;
     v_index := v_index + 1;
   END LOOP;
-  IF v_host = '' THEN RETURN false; END IF;
+  IF (v_host = '') IS NOT FALSE THEN RETURN false; END IF;
   IF v_index <= length(v_hostport) THEN
     v_port := substr(v_hostport, v_index + 1);
-    IF v_port !~ '^[0-9]*$' THEN RETURN false; END IF;
-    IF v_port <> '' AND v_port::numeric > 65535 THEN RETURN false; END IF;
+    IF (v_port !~ '^[0-9]*$') IS NOT FALSE THEN RETURN false; END IF;
+    IF (v_port <> '' AND v_port::numeric > 65535) IS NOT FALSE THEN RETURN false; END IF;
   END IF;
-  RETURN crm_upgrade.url_host_valid(v_host);
+  RETURN COALESCE((crm_upgrade.url_host_valid(v_host)), false);
 END
 $$;
 
 -- z.url({ protocol: /^https?$/ }).max(2000)
 CREATE FUNCTION crm_upgrade.is_zod_http_url(raw text) RETURNS boolean
 LANGUAGE sql IMMUTABLE AS $$
-  SELECT raw IS NOT NULL AND crm_upgrade.is_http_url(crm_upgrade.js_trim(raw)) AND crm_upgrade.js_len(crm_upgrade.js_trim(raw)) <= 2000
+  SELECT COALESCE((raw IS NOT NULL AND crm_upgrade.is_http_url(crm_upgrade.js_trim(raw)) AND crm_upgrade.js_len(crm_upgrade.js_trim(raw)) <= 2000), false)
 $$;
 
 -- Raise a conversion refusal. Callers record the code against the owning legacy table; row
@@ -1407,7 +1407,7 @@ $$;
 -- LegacyOptionsSchema.safeParse(options ?? {}) (v2/legacy-model.ts): strict top level, permissive items.
 CREATE FUNCTION crm_upgrade.legacy_options_valid(options jsonb) RETURNS boolean
 LANGUAGE sql IMMUTABLE AS $$
-  SELECT CASE WHEN options IS NULL OR options = 'null'::jsonb THEN true
+  SELECT COALESCE((CASE WHEN options IS NULL OR options = 'null'::jsonb THEN true
     WHEN jsonb_typeof(options) <> 'object' THEN false
     ELSE NOT EXISTS (SELECT 1 FROM jsonb_object_keys(options) AS key WHERE key NOT IN ('currency', 'allowMultiple', 'color', 'displayFormat', 'options'))
       AND (NOT options ? 'currency' OR jsonb_typeof(options -> 'currency') = 'string')
@@ -1426,7 +1426,7 @@ LANGUAGE sql IMMUTABLE AS $$
           OR (item.value ? 'weight' AND (jsonb_typeof(item.value -> 'weight') <> 'number'
             OR crm_upgrade.js_parse_number((item.value ->> 'weight')::numeric) NOT BETWEEN 0 AND 100))
       )))
-  END
+  END), false)
 $$;
 
 -- buildLegacyFixtureModel (v2/legacy-model.ts): the CRM preset without the unused stage field,
@@ -1705,11 +1705,11 @@ DECLARE
   v_step jsonb;
   v_relation jsonb;
 BEGIN
-  IF jsonb_typeof(p_path) <> 'array' OR jsonb_array_length(p_path) = 0 OR jsonb_array_length(p_path) > 6 THEN RETURN NULL; END IF;
+  IF (jsonb_typeof(p_path) <> 'array' OR jsonb_array_length(p_path) = 0 OR jsonb_array_length(p_path) > 6) IS NOT FALSE THEN RETURN NULL; END IF;
   FOR v_step IN SELECT value FROM jsonb_array_elements(p_path) LOOP
     SELECT r.value INTO v_relation FROM jsonb_array_elements(p_model -> 'relationships') AS r(value)
       WHERE r.value ->> 'id' = v_step ->> 'relationId' AND NOT (r.value ->> 'archived')::boolean LIMIT 1;
-    IF v_relation IS NULL OR (CASE WHEN v_step ->> 'direction' = 'outgoing' THEN v_relation ->> 'sourceTypeId' ELSE v_relation ->> 'targetTypeId' END) IS DISTINCT FROM p_type_id THEN
+    IF (v_relation IS NULL OR (CASE WHEN v_step ->> 'direction' = 'outgoing' THEN v_relation ->> 'sourceTypeId' ELSE v_relation ->> 'targetTypeId' END) IS DISTINCT FROM p_type_id) IS NOT FALSE THEN
       RETURN NULL;
     END IF;
     p_type_id := CASE WHEN v_step ->> 'direction' = 'outgoing' THEN v_relation ->> 'targetTypeId' ELSE v_relation ->> 'sourceTypeId' END;
@@ -1729,25 +1729,25 @@ DECLARE
   v_parts text[];
 BEGIN
   IF v_key LIKE 'path:%' AND crm_upgrade.is_uuid(substr(v_key, 6)) THEN
-    RETURN NOT v_bucket AND EXISTS (SELECT 1 FROM jsonb_array_elements(p_model -> 'types') AS t(value), jsonb_array_elements(COALESCE(t.value -> 'relationshipPaths', '[]')) AS p(value)
+    RETURN COALESCE((NOT v_bucket AND EXISTS (SELECT 1 FROM jsonb_array_elements(p_model -> 'types') AS t(value), jsonb_array_elements(COALESCE(t.value -> 'relationshipPaths', '[]')) AS p(value)
       WHERE t.value ->> 'id' = p_type_id AND p.value ->> 'id' = substr(v_key, 6) AND NOT (p.value ->> 'archived')::boolean
-        AND crm_upgrade.resolve_path(p_type_id, p.value -> 'path', p_model) IS NOT NULL);
+        AND crm_upgrade.resolve_path(p_type_id, p.value -> 'path', p_model) IS NOT NULL)), false);
   END IF;
   v_parts := string_to_array(v_key, ':');
   IF v_parts[1] = 'relationship' AND array_length(v_parts, 1) = 3 AND crm_upgrade.is_uuid(v_parts[2]) AND v_parts[3] IN ('outgoing', 'incoming') THEN
     SELECT r.value INTO v_relation FROM jsonb_array_elements(p_model -> 'relationships') AS r(value)
       WHERE r.value ->> 'id' = v_parts[2] AND NOT (r.value ->> 'archived')::boolean LIMIT 1;
-    RETURN v_relation IS NOT NULL AND NOT v_bucket
-      AND (CASE WHEN v_parts[3] = 'outgoing' THEN v_relation ->> 'sourceTypeId' ELSE v_relation ->> 'targetTypeId' END) = p_type_id;
+    RETURN COALESCE((v_relation IS NOT NULL AND NOT v_bucket
+      AND (CASE WHEN v_parts[3] = 'outgoing' THEN v_relation ->> 'sourceTypeId' ELSE v_relation ->> 'targetTypeId' END) = p_type_id), false);
   END IF;
-  IF v_key = 'system:assignedTo' THEN RETURN NOT v_bucket; END IF;
+  IF v_key = 'system:assignedTo' THEN RETURN COALESCE((NOT v_bucket), false); END IF;
   IF v_key IN ('system:createdAt', 'system:updatedAt') THEN RETURN true; END IF;
   SELECT f.value INTO v_field FROM jsonb_array_elements(p_model -> 'fields') AS f(value)
     WHERE f.value ->> 'typeId' = p_type_id AND f.value ->> 'id' = v_key AND NOT (f.value ->> 'archived')::boolean LIMIT 1;
-  IF v_field IS NULL OR COALESCE((v_field ->> 'multiple')::boolean, false) THEN RETURN false; END IF;
+  IF (v_field IS NULL OR COALESCE((v_field ->> 'multiple')::boolean, false)) IS NOT FALSE THEN RETURN false; END IF;
   IF v_field ->> 'valueType' IN ('date', 'dateTime', 'dateRange', 'dateTimeRange') THEN RETURN true; END IF;
-  IF v_bucket THEN RETURN false; END IF;
-  RETURN v_field ->> 'valueType' IN ('select', 'boolean', 'member');
+  IF (v_bucket) IS NOT FALSE THEN RETURN false; END IF;
+  RETURN COALESCE((v_field ->> 'valueType' IN ('select', 'boolean', 'member')), false);
 END
 $$;
 
@@ -1758,27 +1758,27 @@ DECLARE
   v_kind text := p_scalar ->> 'kind';
   v_allowed text[];
 BEGIN
-  IF p_scalar IS NULL OR jsonb_typeof(p_scalar) <> 'object' THEN RETURN false; END IF;
+  IF (p_scalar IS NULL OR jsonb_typeof(p_scalar) <> 'object') IS NOT FALSE THEN RETURN false; END IF;
   v_allowed := CASE v_kind
     WHEN 'text' THEN ARRAY['kind', 'value'] WHEN 'textList' THEN ARRAY['kind', 'value'] WHEN 'decimal' THEN ARRAY['kind', 'value', 'currency']
     WHEN 'boolean' THEN ARRAY['kind', 'value'] WHEN 'date' THEN ARRAY['kind', 'value'] WHEN 'dateTime' THEN ARRAY['kind', 'value']
     WHEN 'range' THEN ARRAY['kind', 'start', 'end'] WHEN 'select' THEN ARRAY['kind', 'value'] WHEN 'member' THEN ARRAY['kind', 'value']
     WHEN 'richText' THEN ARRAY['kind', 'documentJson'] END;
-  IF v_allowed IS NULL OR EXISTS (SELECT 1 FROM jsonb_object_keys(p_scalar) AS key WHERE key <> ALL (v_allowed)) THEN RETURN false; END IF;
+  IF (v_allowed IS NULL OR EXISTS (SELECT 1 FROM jsonb_object_keys(p_scalar) AS key WHERE key <> ALL (v_allowed))) IS NOT FALSE THEN RETURN false; END IF;
   CASE v_kind
-    WHEN 'text' THEN RETURN jsonb_typeof(p_scalar -> 'value') = 'string' AND crm_upgrade.js_len(p_scalar ->> 'value') <= 100000;
-    WHEN 'textList' THEN RETURN jsonb_typeof(p_scalar -> 'value') = 'array' AND jsonb_array_length(p_scalar -> 'value') BETWEEN 1 AND 100
-      AND NOT EXISTS (SELECT 1 FROM jsonb_array_elements(p_scalar -> 'value') AS item(value) WHERE jsonb_typeof(item.value) <> 'string' OR crm_upgrade.js_len(item.value #>> '{}') > 100000);
-    WHEN 'decimal' THEN RETURN jsonb_typeof(p_scalar -> 'value') = 'string' AND p_scalar ->> 'value' ~ '^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$' AND length(p_scalar ->> 'value') <= 128
-      AND p_scalar ? 'currency' AND (p_scalar -> 'currency' = 'null'::jsonb OR (jsonb_typeof(p_scalar -> 'currency') = 'string' AND p_scalar ->> 'currency' ~ '^[A-Z]{3}$'));
-    WHEN 'boolean' THEN RETURN jsonb_typeof(p_scalar -> 'value') = 'boolean';
-    WHEN 'date' THEN RETURN jsonb_typeof(p_scalar -> 'value') = 'string' AND (crm_upgrade.is_iso_date(p_scalar ->> 'value') OR crm_upgrade.is_iso_datetime(p_scalar ->> 'value'));
-    WHEN 'dateTime' THEN RETURN jsonb_typeof(p_scalar -> 'value') = 'string' AND crm_upgrade.is_iso_datetime(p_scalar ->> 'value');
-    WHEN 'range' THEN RETURN p_scalar ? 'start' AND p_scalar ? 'end'
-      AND jsonb_typeof(p_scalar -> 'start') IN ('string', 'null') AND jsonb_typeof(p_scalar -> 'end') IN ('string', 'null');
-    WHEN 'select' THEN RETURN jsonb_typeof(p_scalar -> 'value') = 'string' AND crm_upgrade.js_len(p_scalar ->> 'value') BETWEEN 1 AND 200;
-    WHEN 'member' THEN RETURN jsonb_typeof(p_scalar -> 'value') = 'string' AND crm_upgrade.is_uuid(p_scalar ->> 'value');
-    WHEN 'richText' THEN RETURN jsonb_typeof(p_scalar -> 'documentJson') = 'string' AND crm_upgrade.js_len(p_scalar ->> 'documentJson') <= 1000000;
+    WHEN 'text' THEN RETURN COALESCE((jsonb_typeof(p_scalar -> 'value') = 'string' AND crm_upgrade.js_len(p_scalar ->> 'value') <= 100000), false);
+    WHEN 'textList' THEN RETURN COALESCE((jsonb_typeof(p_scalar -> 'value') = 'array' AND jsonb_array_length(p_scalar -> 'value') BETWEEN 1 AND 100
+      AND NOT EXISTS (SELECT 1 FROM jsonb_array_elements(p_scalar -> 'value') AS item(value) WHERE jsonb_typeof(item.value) <> 'string' OR crm_upgrade.js_len(item.value #>> '{}') > 100000)), false);
+    WHEN 'decimal' THEN RETURN COALESCE((jsonb_typeof(p_scalar -> 'value') = 'string' AND p_scalar ->> 'value' ~ '^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$' AND length(p_scalar ->> 'value') <= 128
+      AND p_scalar ? 'currency' AND (p_scalar -> 'currency' = 'null'::jsonb OR (jsonb_typeof(p_scalar -> 'currency') = 'string' AND p_scalar ->> 'currency' ~ '^[A-Z]{3}$'))), false);
+    WHEN 'boolean' THEN RETURN COALESCE((jsonb_typeof(p_scalar -> 'value') = 'boolean'), false);
+    WHEN 'date' THEN RETURN COALESCE((jsonb_typeof(p_scalar -> 'value') = 'string' AND (crm_upgrade.is_iso_date(p_scalar ->> 'value') OR crm_upgrade.is_iso_datetime(p_scalar ->> 'value'))), false);
+    WHEN 'dateTime' THEN RETURN COALESCE((jsonb_typeof(p_scalar -> 'value') = 'string' AND crm_upgrade.is_iso_datetime(p_scalar ->> 'value')), false);
+    WHEN 'range' THEN RETURN COALESCE((p_scalar ? 'start' AND p_scalar ? 'end'
+      AND jsonb_typeof(p_scalar -> 'start') IN ('string', 'null') AND jsonb_typeof(p_scalar -> 'end') IN ('string', 'null')), false);
+    WHEN 'select' THEN RETURN COALESCE((jsonb_typeof(p_scalar -> 'value') = 'string' AND crm_upgrade.js_len(p_scalar ->> 'value') BETWEEN 1 AND 200), false);
+    WHEN 'member' THEN RETURN COALESCE((jsonb_typeof(p_scalar -> 'value') = 'string' AND crm_upgrade.is_uuid(p_scalar ->> 'value')), false);
+    WHEN 'richText' THEN RETURN COALESCE((jsonb_typeof(p_scalar -> 'documentJson') = 'string' AND crm_upgrade.js_len(p_scalar ->> 'documentJson') <= 1000000), false);
   END CASE;
   RETURN false;
 END
@@ -1794,27 +1794,27 @@ DECLARE
   v_end_value text;
 BEGIN
   IF p_multiple THEN
-    RETURN v_kind = 'textList' AND p_value_type IN ('text', 'email', 'phone', 'url') AND NOT EXISTS (
+    RETURN COALESCE((v_kind = 'textList' AND p_value_type IN ('text', 'email', 'phone', 'url') AND NOT EXISTS (
       SELECT 1 FROM jsonb_array_elements(p_scalar -> 'value') AS item(value)
-      WHERE NOT crm_upgrade.scalar_matches_type(crm_upgrade.scalar_text(item.value #>> '{}'), p_value_type, false, p_date_parse));
+      WHERE NOT crm_upgrade.scalar_matches_type(crm_upgrade.scalar_text(item.value #>> '{}'), p_value_type, false, p_date_parse))), false);
   END IF;
   CASE p_value_type
-    WHEN 'number' THEN RETURN v_kind = 'decimal' AND p_scalar -> 'currency' = 'null'::jsonb AND crm_upgrade.is_representable_text(p_scalar ->> 'value');
-    WHEN 'currency' THEN RETURN v_kind = 'decimal' AND p_scalar -> 'currency' <> 'null'::jsonb AND crm_upgrade.is_representable_text(p_scalar ->> 'value');
-    WHEN 'email' THEN RETURN v_kind = 'text' AND crm_upgrade.is_email(crm_upgrade.js_trim(p_scalar ->> 'value'));
-    WHEN 'url' THEN RETURN v_kind = 'text' AND crm_upgrade.is_http_url(p_scalar ->> 'value');
-    WHEN 'phone' THEN RETURN v_kind = 'text' AND crm_upgrade.is_e164(crm_upgrade.js_trim(p_scalar ->> 'value'));
+    WHEN 'number' THEN RETURN COALESCE((v_kind = 'decimal' AND p_scalar -> 'currency' = 'null'::jsonb AND crm_upgrade.is_representable_text(p_scalar ->> 'value')), false);
+    WHEN 'currency' THEN RETURN COALESCE((v_kind = 'decimal' AND p_scalar -> 'currency' <> 'null'::jsonb AND crm_upgrade.is_representable_text(p_scalar ->> 'value')), false);
+    WHEN 'email' THEN RETURN COALESCE((v_kind = 'text' AND crm_upgrade.is_email(crm_upgrade.js_trim(p_scalar ->> 'value'))), false);
+    WHEN 'url' THEN RETURN COALESCE((v_kind = 'text' AND crm_upgrade.is_http_url(p_scalar ->> 'value')), false);
+    WHEN 'phone' THEN RETURN COALESCE((v_kind = 'text' AND crm_upgrade.is_e164(crm_upgrade.js_trim(p_scalar ->> 'value'))), false);
     WHEN 'dateRange', 'dateTimeRange' THEN
-      IF v_kind <> 'range' THEN RETURN false; END IF;
+      IF (v_kind <> 'range') IS NOT FALSE THEN RETURN false; END IF;
       v_start_value := p_scalar ->> 'start';
       v_end_value := p_scalar ->> 'end';
-      IF (v_start_value IS NOT NULL AND NOT (crm_upgrade.is_iso_datetime(v_start_value) OR (p_value_type = 'dateRange' AND crm_upgrade.is_iso_date(v_start_value))))
-        OR (v_end_value IS NOT NULL AND NOT (crm_upgrade.is_iso_datetime(v_end_value) OR (p_value_type = 'dateRange' AND crm_upgrade.is_iso_date(v_end_value)))) THEN
+      IF ((v_start_value IS NOT NULL AND NOT (crm_upgrade.is_iso_datetime(v_start_value) OR (p_value_type = 'dateRange' AND crm_upgrade.is_iso_date(v_start_value))))
+        OR (v_end_value IS NOT NULL AND NOT (crm_upgrade.is_iso_datetime(v_end_value) OR (p_value_type = 'dateRange' AND crm_upgrade.is_iso_date(v_end_value))))) IS NOT FALSE THEN
         RETURN false;
       END IF;
-      RETURN v_start_value IS NULL OR v_end_value IS NULL OR v_start_value = '' OR v_end_value = ''
-        OR crm_upgrade.iso_micros(v_start_value, p_date_parse) <= crm_upgrade.iso_micros(v_end_value, p_date_parse);
-    ELSE RETURN v_kind = p_value_type;
+      RETURN COALESCE((v_start_value IS NULL OR v_end_value IS NULL OR v_start_value = '' OR v_end_value = ''
+        OR crm_upgrade.iso_micros(v_start_value, p_date_parse) <= crm_upgrade.iso_micros(v_end_value, p_date_parse)), false);
+    ELSE RETURN COALESCE((v_kind = p_value_type), false);
   END CASE;
 END
 $$;
@@ -1823,8 +1823,8 @@ $$;
 CREATE FUNCTION crm_upgrade.is_representable_text(p_value text) RETURNS boolean
 LANGUAGE plpgsql IMMUTABLE AS $$
 BEGIN
-  IF p_value IS NULL OR p_value !~ '^[+-]?([0-9]+\.?[0-9]*|\.[0-9]+)([eE][+-]?[0-9]+)?$' THEN RETURN false; END IF;
-  RETURN crm_upgrade.is_representable(p_value::numeric);
+  IF (p_value IS NULL OR p_value !~ '^[+-]?([0-9]+\.?[0-9]*|\.[0-9]+)([eE][+-]?[0-9]+)?$') IS NOT FALSE THEN RETURN false; END IF;
+  RETURN COALESCE((crm_upgrade.is_representable(p_value::numeric)), false);
 EXCEPTION WHEN numeric_value_out_of_range OR invalid_text_representation OR program_limit_exceeded THEN
   RETURN false;
 END
@@ -1855,20 +1855,20 @@ DECLARE
 BEGIN
   IF v_operator IN ('empty', 'notEmpty') THEN RETURN true; END IF;
   IF v_operator = 'inLastDays' THEN
-    RETURN p_filter #>> '{value,kind}' = 'decimal' AND p_filter #> '{value,currency}' = 'null'::jsonb AND p_filter #>> '{value,value}' ~ '^[0-9]+$'
-      AND (p_filter #>> '{value,value}')::numeric > 0 AND (p_filter #>> '{value,value}')::numeric <= 365000;
+    RETURN COALESCE((p_filter #>> '{value,kind}' = 'decimal' AND p_filter #> '{value,currency}' = 'null'::jsonb AND p_filter #>> '{value,value}' ~ '^[0-9]+$'
+      AND (p_filter #>> '{value,value}')::numeric > 0 AND (p_filter #>> '{value,value}')::numeric <= 365000), false);
   END IF;
   IF v_operator = 'between' THEN
-    IF NOT p_filter ? 'values' OR jsonb_array_length(p_filter -> 'values') <> 2 THEN RETURN false; END IF;
+    IF (NOT p_filter ? 'values' OR jsonb_array_length(p_filter -> 'values') <> 2) IS NOT FALSE THEN RETURN false; END IF;
     v_first := p_filter -> 'values' -> 0;
     v_second := p_filter -> 'values' -> 1;
-    RETURN v_first ->> 'kind' = v_point_type AND v_second ->> 'kind' = v_point_type AND v_first ->> 'kind' IN ('date', 'dateTime')
-      AND crm_upgrade.iso_micros(v_first ->> 'value', false) <= crm_upgrade.iso_micros(v_second ->> 'value', false);
+    RETURN COALESCE((v_first ->> 'kind' = v_point_type AND v_second ->> 'kind' = v_point_type AND v_first ->> 'kind' IN ('date', 'dateTime')
+      AND crm_upgrade.iso_micros(v_first ->> 'value', false) <= crm_upgrade.iso_micros(v_second ->> 'value', false)), false);
   END IF;
   IF v_operator IN ('in', 'notIn') THEN
-    RETURN p_filter ? 'values' AND NOT EXISTS (SELECT 1 FROM jsonb_array_elements(p_filter -> 'values') AS v(value) WHERE v.value ->> 'kind' IS DISTINCT FROM v_point_type);
+    RETURN COALESCE((p_filter ? 'values' AND NOT EXISTS (SELECT 1 FROM jsonb_array_elements(p_filter -> 'values') AS v(value) WHERE v.value ->> 'kind' IS DISTINCT FROM v_point_type)), false);
   END IF;
-  RETURN jsonb_typeof(p_filter -> 'value') = 'object' AND p_filter #>> '{value,kind}' = v_point_type;
+  RETURN COALESCE((jsonb_typeof(p_filter -> 'value') = 'object' AND p_filter #>> '{value,kind}' = v_point_type), false);
 END
 $$;
 
@@ -1892,54 +1892,54 @@ BEGIN
     v_operator := v_filter ->> 'operator';
     IF v_filter ->> 'fieldId' IN ('system:createdAt', 'system:updatedAt', 'system:assignedTo') THEN
       IF v_filter ->> 'fieldId' = 'system:assignedTo' THEN
-        IF v_operator <> ALL (ARRAY['eq', 'ne', 'in', 'notIn', 'empty', 'notEmpty']) THEN RETURN false; END IF;
+        IF (v_operator <> ALL (ARRAY['eq', 'ne', 'in', 'notIn', 'empty', 'notEmpty'])) IS NOT FALSE THEN RETURN false; END IF;
         IF v_operator IN ('empty', 'notEmpty') THEN CONTINUE; END IF;
         v_values_list := CASE WHEN v_operator IN ('in', 'notIn') THEN v_filter -> 'values'
           WHEN jsonb_typeof(v_filter -> 'value') = 'object' THEN jsonb_build_array(v_filter -> 'value') END;
-        IF v_values_list IS NULL OR EXISTS (SELECT 1 FROM jsonb_array_elements(v_values_list) AS v(value) WHERE v.value ->> 'kind' <> 'member') THEN RETURN false; END IF;
+        IF (v_values_list IS NULL OR EXISTS (SELECT 1 FROM jsonb_array_elements(v_values_list) AS v(value) WHERE v.value ->> 'kind' <> 'member')) IS NOT FALSE THEN RETURN false; END IF;
       ELSE
-        IF v_operator <> ALL (crm_upgrade.filter_operators('dateTime', false)) OR NOT crm_upgrade.temporal_filter_valid(v_filter, 'dateTime') THEN RETURN false; END IF;
+        IF (v_operator <> ALL (crm_upgrade.filter_operators('dateTime', false)) OR NOT crm_upgrade.temporal_filter_valid(v_filter, 'dateTime')) IS NOT FALSE THEN RETURN false; END IF;
       END IF;
       CONTINUE;
     END IF;
     SELECT f.value INTO v_field FROM jsonb_array_elements(p_model -> 'fields') AS f(value)
       WHERE f.value ->> 'typeId' = v_type_id AND NOT (f.value ->> 'archived')::boolean AND f.value ->> 'id' = v_filter ->> 'fieldId' LIMIT 1;
-    IF v_field IS NULL OR v_operator <> ALL (crm_upgrade.filter_operators(v_field ->> 'valueType', COALESCE((v_field ->> 'multiple')::boolean, false))) THEN RETURN false; END IF;
+    IF (v_field IS NULL OR v_operator <> ALL (crm_upgrade.filter_operators(v_field ->> 'valueType', COALESCE((v_field ->> 'multiple')::boolean, false)))) IS NOT FALSE THEN RETURN false; END IF;
     IF v_field ->> 'valueType' IN ('date', 'dateTime', 'dateRange', 'dateTimeRange') THEN
-      IF NOT crm_upgrade.temporal_filter_valid(v_filter, v_field ->> 'valueType') THEN RETURN false; END IF;
+      IF (NOT crm_upgrade.temporal_filter_valid(v_filter, v_field ->> 'valueType')) IS NOT FALSE THEN RETURN false; END IF;
       CONTINUE;
     END IF;
     IF v_operator IN ('contains', 'startsWith') THEN
-      IF v_filter #>> '{value,kind}' IS DISTINCT FROM 'text' OR v_field ->> 'valueType' NOT IN ('text', 'email', 'phone', 'url') THEN RETURN false; END IF;
+      IF (v_filter #>> '{value,kind}' IS DISTINCT FROM 'text' OR v_field ->> 'valueType' NOT IN ('text', 'email', 'phone', 'url')) IS NOT FALSE THEN RETURN false; END IF;
       CONTINUE;
     END IF;
     v_values_list := COALESCE(v_filter -> 'values', CASE WHEN jsonb_typeof(v_filter -> 'value') = 'object' THEN jsonb_build_array(v_filter -> 'value') ELSE '[]'::jsonb END);
-    IF v_field ->> 'valueType' = 'select' AND EXISTS (SELECT 1 FROM jsonb_array_elements(v_values_list) AS v(value)
-      WHERE v.value ->> 'kind' <> 'select' OR NOT EXISTS (SELECT 1 FROM jsonb_array_elements(v_field -> 'options') AS o(value) WHERE o.value ->> 'id' = v.value ->> 'value')) THEN
+    IF (v_field ->> 'valueType' = 'select' AND EXISTS (SELECT 1 FROM jsonb_array_elements(v_values_list) AS v(value)
+      WHERE v.value ->> 'kind' <> 'select' OR NOT EXISTS (SELECT 1 FROM jsonb_array_elements(v_field -> 'options') AS o(value) WHERE o.value ->> 'id' = v.value ->> 'value'))) IS NOT FALSE THEN
       RETURN false;
     END IF;
     IF v_operator IN ('in', 'notIn') THEN
-      IF NOT v_filter ? 'values' OR EXISTS (SELECT 1 FROM jsonb_array_elements(v_filter -> 'values') AS v(value)
-        WHERE NOT crm_upgrade.scalar_matches_type(v.value, v_field ->> 'valueType', false, false)) THEN RETURN false; END IF;
+      IF (NOT v_filter ? 'values' OR EXISTS (SELECT 1 FROM jsonb_array_elements(v_filter -> 'values') AS v(value)
+        WHERE NOT crm_upgrade.scalar_matches_type(v.value, v_field ->> 'valueType', false, false))) IS NOT FALSE THEN RETURN false; END IF;
       CONTINUE;
     END IF;
-    IF v_operator NOT IN ('empty', 'notEmpty') AND (jsonb_typeof(v_filter -> 'value') IS DISTINCT FROM 'object'
-      OR NOT crm_upgrade.scalar_matches_type(v_filter -> 'value', v_field ->> 'valueType', false, false)) THEN
+    IF (v_operator NOT IN ('empty', 'notEmpty') AND (jsonb_typeof(v_filter -> 'value') IS DISTINCT FROM 'object'
+      OR NOT crm_upgrade.scalar_matches_type(v_filter -> 'value', v_field ->> 'valueType', false, false))) IS NOT FALSE THEN
       RETURN false;
     END IF;
   END LOOP;
   FOR v_sort IN SELECT value FROM jsonb_array_elements(COALESCE(p_query -> 'sort', '[]')) LOOP
     IF v_sort ->> 'fieldId' IN ('system:createdAt', 'system:updatedAt') THEN CONTINUE; END IF;
-    IF NOT EXISTS (SELECT 1 FROM jsonb_array_elements(p_model -> 'fields') AS f(value)
+    IF (NOT EXISTS (SELECT 1 FROM jsonb_array_elements(p_model -> 'fields') AS f(value)
       WHERE f.value ->> 'typeId' = v_type_id AND NOT (f.value ->> 'archived')::boolean AND f.value ->> 'id' = v_sort ->> 'fieldId'
-        AND f.value ->> 'valueType' NOT IN ('richText', 'dateRange', 'dateTimeRange')) THEN
+        AND f.value ->> 'valueType' NOT IN ('richText', 'dateRange', 'dateTimeRange'))) IS NOT FALSE THEN
       RETURN false;
     END IF;
   END LOOP;
   FOR v_filter IN SELECT value FROM jsonb_array_elements(COALESCE(p_query -> 'relationships', '[]')) LOOP
     SELECT r.value INTO v_relation FROM jsonb_array_elements(p_model -> 'relationships') AS r(value)
       WHERE r.value ->> 'id' = v_filter ->> 'relationId' AND NOT (r.value ->> 'archived')::boolean LIMIT 1;
-    IF v_relation IS NULL OR (CASE WHEN v_filter ->> 'direction' = 'outgoing' THEN v_relation ->> 'sourceTypeId' ELSE v_relation ->> 'targetTypeId' END) <> v_type_id THEN
+    IF (v_relation IS NULL OR (CASE WHEN v_filter ->> 'direction' = 'outgoing' THEN v_relation ->> 'sourceTypeId' ELSE v_relation ->> 'targetTypeId' END) <> v_type_id) IS NOT FALSE THEN
       RETURN false;
     END IF;
   END LOOP;
@@ -1948,15 +1948,15 @@ BEGIN
     FOR v_step IN SELECT value FROM jsonb_array_elements(v_related -> 'path') LOOP
       SELECT r.value INTO v_relation FROM jsonb_array_elements(p_model -> 'relationships') AS r(value)
         WHERE r.value ->> 'id' = v_step ->> 'relationId' AND NOT (r.value ->> 'archived')::boolean LIMIT 1;
-      IF v_relation IS NULL OR (CASE WHEN v_step ->> 'direction' = 'outgoing' THEN v_relation ->> 'sourceTypeId' ELSE v_relation ->> 'targetTypeId' END) <> v_current_type THEN
+      IF (v_relation IS NULL OR (CASE WHEN v_step ->> 'direction' = 'outgoing' THEN v_relation ->> 'sourceTypeId' ELSE v_relation ->> 'targetTypeId' END) <> v_current_type) IS NOT FALSE THEN
         RETURN false;
       END IF;
       v_current_type := CASE WHEN v_step ->> 'direction' = 'outgoing' THEN v_relation ->> 'targetTypeId' ELSE v_relation ->> 'sourceTypeId' END;
-      IF NOT EXISTS (SELECT 1 FROM jsonb_array_elements(p_model -> 'types') AS t(value) WHERE t.value ->> 'id' = v_current_type AND NOT (t.value ->> 'archived')::boolean) THEN
+      IF (NOT EXISTS (SELECT 1 FROM jsonb_array_elements(p_model -> 'types') AS t(value) WHERE t.value ->> 'id' = v_current_type AND NOT (t.value ->> 'archived')::boolean)) IS NOT FALSE THEN
         RETURN false;
       END IF;
     END LOOP;
-    IF NOT crm_upgrade.query_valid(jsonb_build_object('typeId', v_current_type, 'filters', v_related -> 'filters', 'relationships', COALESCE(v_related -> 'relationships', '[]')), p_model) THEN
+    IF (NOT crm_upgrade.query_valid(jsonb_build_object('typeId', v_current_type, 'filters', v_related -> 'filters', 'relationships', COALESCE(v_related -> 'relationships', '[]')), p_model)) IS NOT FALSE THEN
       RETURN false;
     END IF;
   END LOOP;
@@ -1971,27 +1971,27 @@ DECLARE
   v_filter jsonb;
   v_related jsonb;
 BEGIN
-  IF jsonb_array_length(COALESCE(p_query -> 'filters', '[]')) > 50 OR jsonb_array_length(COALESCE(p_query -> 'relationships', '[]')) > 50
-    OR jsonb_array_length(COALESCE(p_query -> 'relatedFilters', '[]')) > 16 OR jsonb_array_length(COALESCE(p_query -> 'sort', '[]')) > 5 THEN
+  IF (jsonb_array_length(COALESCE(p_query -> 'filters', '[]')) > 50 OR jsonb_array_length(COALESCE(p_query -> 'relationships', '[]')) > 50
+    OR jsonb_array_length(COALESCE(p_query -> 'relatedFilters', '[]')) > 16 OR jsonb_array_length(COALESCE(p_query -> 'sort', '[]')) > 5) IS NOT FALSE THEN
     RETURN false;
   END IF;
   FOR v_filter IN SELECT value FROM jsonb_array_elements(COALESCE(p_query -> 'filters', '[]')) LOOP
-    IF NOT (crm_upgrade.is_uuid(v_filter ->> 'fieldId') OR v_filter ->> 'fieldId' IN ('system:createdAt', 'system:updatedAt', 'system:assignedTo')) THEN RETURN false; END IF;
-    IF v_filter -> 'value' <> 'null'::jsonb AND NOT crm_upgrade.scalar_valid(v_filter -> 'value') THEN RETURN false; END IF;
-    IF v_filter ? 'values' AND (jsonb_array_length(v_filter -> 'values') > 100 OR EXISTS (
-      SELECT 1 FROM jsonb_array_elements(v_filter -> 'values') AS v(value) WHERE NOT crm_upgrade.scalar_valid(v.value))) THEN
+    IF (NOT (crm_upgrade.is_uuid(v_filter ->> 'fieldId') OR v_filter ->> 'fieldId' IN ('system:createdAt', 'system:updatedAt', 'system:assignedTo'))) IS NOT FALSE THEN RETURN false; END IF;
+    IF (v_filter -> 'value' <> 'null'::jsonb AND NOT crm_upgrade.scalar_valid(v_filter -> 'value')) IS NOT FALSE THEN RETURN false; END IF;
+    IF (v_filter ? 'values' AND (jsonb_array_length(v_filter -> 'values') > 100 OR EXISTS (
+      SELECT 1 FROM jsonb_array_elements(v_filter -> 'values') AS v(value) WHERE NOT crm_upgrade.scalar_valid(v.value)))) IS NOT FALSE THEN
       RETURN false;
     END IF;
   END LOOP;
   FOR v_filter IN SELECT value FROM jsonb_array_elements(COALESCE(p_query -> 'sort', '[]')) LOOP
-    IF NOT (crm_upgrade.is_uuid(v_filter ->> 'fieldId') OR v_filter ->> 'fieldId' IN ('system:createdAt', 'system:updatedAt', 'system:assignedTo')) THEN RETURN false; END IF;
+    IF (NOT (crm_upgrade.is_uuid(v_filter ->> 'fieldId') OR v_filter ->> 'fieldId' IN ('system:createdAt', 'system:updatedAt', 'system:assignedTo'))) IS NOT FALSE THEN RETURN false; END IF;
   END LOOP;
   FOR v_filter IN SELECT value FROM jsonb_array_elements(COALESCE(p_query -> 'relationships', '[]')) LOOP
-    IF v_filter -> 'recordIds' <> 'null'::jsonb AND jsonb_array_length(v_filter -> 'recordIds') > 100 THEN RETURN false; END IF;
+    IF (v_filter -> 'recordIds' <> 'null'::jsonb AND jsonb_array_length(v_filter -> 'recordIds') > 100) IS NOT FALSE THEN RETURN false; END IF;
   END LOOP;
   FOR v_related IN SELECT value FROM jsonb_array_elements(COALESCE(p_query -> 'relatedFilters', '[]')) LOOP
-    IF jsonb_array_length(v_related -> 'path') NOT BETWEEN 1 AND 6 OR (v_related ? 'recordIds' AND jsonb_array_length(v_related -> 'recordIds') > 100)
-      OR NOT crm_upgrade.query_parse_valid(jsonb_build_object('filters', v_related -> 'filters', 'relationships', COALESCE(v_related -> 'relationships', '[]'))) THEN
+    IF (jsonb_array_length(v_related -> 'path') NOT BETWEEN 1 AND 6 OR (v_related ? 'recordIds' AND jsonb_array_length(v_related -> 'recordIds') > 100)
+      OR NOT crm_upgrade.query_parse_valid(jsonb_build_object('filters', v_related -> 'filters', 'relationships', COALESCE(v_related -> 'relationships', '[]')))) IS NOT FALSE THEN
       RETURN false;
     END IF;
   END LOOP;
@@ -2009,7 +2009,7 @@ DECLARE
   v_operator text;
   v_number double precision;
 BEGIN
-  IF jsonb_typeof(v_filter) <> 'object' THEN RETURN NULL; END IF;
+  IF (jsonb_typeof(v_filter) <> 'object') IS NOT FALSE THEN RETURN NULL; END IF;
   IF jsonb_typeof(v_filter -> 'value') = 'array' AND v_filter ->> 'operator' IN ('hasSome', 'hasNone') THEN
     v_filter := v_filter || jsonb_build_object('operator', CASE WHEN v_filter ->> 'operator' = 'hasSome' THEN 'in' ELSE 'notIn' END);
   END IF;
@@ -2021,7 +2021,7 @@ BEGIN
       v_filter := v_filter || jsonb_build_object('value', crm_upgrade.legacy_filter_canonical(v_filter -> 'value'));
     END IF;
   END IF;
-  IF jsonb_typeof(v_filter -> 'field') IS DISTINCT FROM 'string' OR jsonb_typeof(v_filter -> 'operator') IS DISTINCT FROM 'string' THEN RETURN NULL; END IF;
+  IF (jsonb_typeof(v_filter -> 'field') IS DISTINCT FROM 'string' OR jsonb_typeof(v_filter -> 'operator') IS DISTINCT FROM 'string') IS NOT FALSE THEN RETURN NULL; END IF;
   v_operator := v_filter ->> 'operator';
   IF v_operator IN ('equals', 'contains', 'startsWith', 'gt', 'gte', 'lt', 'lte') THEN
     IF (SELECT array_agg(key ORDER BY key) FROM jsonb_object_keys(v_filter) AS key) = ARRAY['field', 'operator', 'value'] AND jsonb_typeof(v_filter -> 'value') = 'string' THEN
@@ -2038,9 +2038,9 @@ BEGIN
     IF (SELECT array_agg(key ORDER BY key) FROM jsonb_object_keys(v_filter) AS key) = ARRAY['field', 'operator'] THEN RETURN v_filter; END IF;
     RETURN NULL;
   ELSIF v_operator = 'inLastDays' THEN
-    IF (SELECT array_agg(key ORDER BY key) FROM jsonb_object_keys(v_filter) AS key) <> ARRAY['field', 'operator', 'value'] THEN RETURN NULL; END IF;
+    IF ((SELECT array_agg(key ORDER BY key) FROM jsonb_object_keys(v_filter) AS key) <> ARRAY['field', 'operator', 'value']) IS NOT FALSE THEN RETURN NULL; END IF;
     v_number := crm_upgrade.js_to_number(v_filter -> 'value');
-    IF v_number IS NULL OR v_number <> floor(v_number) OR v_number <= 0 OR v_number > 365000 THEN RETURN NULL; END IF;
+    IF (v_number IS NULL OR v_number <> floor(v_number) OR v_number <= 0 OR v_number > 365000) IS NOT FALSE THEN RETURN NULL; END IF;
     RETURN v_filter || jsonb_build_object('value', v_number::bigint);
   END IF;
   RETURN NULL;
@@ -2078,10 +2078,10 @@ DECLARE
   v_item record;
 BEGIN
   IF p_raw IS NULL OR p_raw = 'null'::jsonb THEN RETURN '[]'::jsonb; END IF;
-  IF jsonb_typeof(p_raw) <> 'array' OR jsonb_array_length(p_raw) > 50 THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
+  IF (jsonb_typeof(p_raw) <> 'array' OR jsonb_array_length(p_raw) > 50) IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
   FOR v_item IN SELECT value, ordinality FROM jsonb_array_elements(p_raw) WITH ORDINALITY ORDER BY ordinality LOOP
     v_parsed := crm_upgrade.legacy_filter_parse(v_item.value);
-    IF v_parsed IS NULL THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
+    IF (v_parsed IS NULL) IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
   END LOOP;
   FOR v_item IN SELECT value, ordinality FROM jsonb_array_elements(p_raw) WITH ORDINALITY ORDER BY ordinality LOOP
     v_parsed := crm_upgrade.legacy_filter_parse(v_item.value);
@@ -2124,7 +2124,7 @@ BEGIN
     RETURN jsonb_build_object('kind', CASE WHEN p_value_type IN ('date', 'dateRange') THEN 'date' ELSE 'dateTime' END, 'value', p_raw);
   END IF;
   IF p_value_type = 'boolean' THEN
-    IF p_raw NOT IN ('true', 'false') THEN PERFORM crm_upgrade.fail('invalid_boolean_filter'); END IF;
+    IF (p_raw NOT IN ('true', 'false')) IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_boolean_filter'); END IF;
     RETURN jsonb_build_object('kind', 'boolean', 'value', p_raw = 'true');
   END IF;
   RETURN crm_upgrade.scalar_text(p_raw);
@@ -2163,10 +2163,10 @@ BEGIN
       v_direction := v_parts[3];
     END IF;
     IF v_path_id IS NOT NULL OR v_relation_id IS NOT NULL THEN
-      IF v_operator NOT IN ('in', 'notIn', 'hasSome', 'hasNone') THEN PERFORM crm_upgrade.fail('invalid_relationship_filter'); END IF;
+      IF (v_operator NOT IN ('in', 'notIn', 'hasSome', 'hasNone')) IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_relationship_filter'); END IF;
       v_record_ids := NULL;
       IF v_operator IN ('in', 'notIn') THEN
-        IF EXISTS (SELECT 1 FROM jsonb_array_elements(v_filter -> 'value') AS v(value) WHERE NOT crm_upgrade.is_uuid(v.value #>> '{}')) THEN
+        IF (EXISTS (SELECT 1 FROM jsonb_array_elements(v_filter -> 'value') AS v(value) WHERE NOT crm_upgrade.is_uuid(v.value #>> '{}'))) IS NOT FALSE THEN
           PERFORM crm_upgrade.fail('invalid_presentation_configuration');
         END IF;
         v_record_ids := v_filter -> 'value';
@@ -2178,7 +2178,7 @@ BEGIN
       ELSE
         SELECT p.value -> 'path' INTO v_path FROM jsonb_array_elements(p_model -> 'types') AS t(value), jsonb_array_elements(COALESCE(t.value -> 'relationshipPaths', '[]')) AS p(value)
           WHERE t.value ->> 'id' = p_type_id AND p.value ->> 'id' = v_path_id LIMIT 1;
-        IF v_path IS NULL THEN PERFORM crm_upgrade.fail('unresolved_relationship_path'); END IF;
+        IF (v_path IS NULL) IS NOT FALSE THEN PERFORM crm_upgrade.fail('unresolved_relationship_path'); END IF;
         v_result_related := v_result_related || jsonb_build_array(jsonb_build_object('path', v_path, 'operator', v_generic_operator, 'filters', '[]'::jsonb, 'relationships', '[]'::jsonb)
           || CASE WHEN v_record_ids IS NOT NULL THEN jsonb_build_object('recordIds', v_record_ids) ELSE '{}'::jsonb END);
       END IF;
@@ -2187,9 +2187,9 @@ BEGIN
     v_field := NULL;
     SELECT f.value INTO v_field FROM jsonb_array_elements(p_model -> 'fields') AS f(value) WHERE f.value ->> 'typeId' = p_type_id AND f.value ->> 'id' = v_key LIMIT 1;
     v_value_type := COALESCE(v_field ->> 'valueType', CASE WHEN v_key IN ('system:createdAt', 'system:updatedAt') THEN 'dateTime' WHEN v_key = 'system:assignedTo' THEN 'member' END);
-    IF v_value_type IS NULL THEN PERFORM crm_upgrade.fail('unresolved_filter_field'); END IF;
+    IF (v_value_type IS NULL) IS NOT FALSE THEN PERFORM crm_upgrade.fail('unresolved_filter_field'); END IF;
     IF v_operator IN ('isNull', 'isNotNull', 'hasSome', 'hasNone') THEN
-      IF v_operator IN ('hasSome', 'hasNone') AND v_key <> 'system:assignedTo' THEN PERFORM crm_upgrade.fail('invalid_scalar_existence_filter'); END IF;
+      IF (v_operator IN ('hasSome', 'hasNone') AND v_key <> 'system:assignedTo') IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_scalar_existence_filter'); END IF;
       v_result_filters := v_result_filters || jsonb_build_array(jsonb_build_object('fieldId', v_key,
         'operator', CASE WHEN v_operator IN ('isNull', 'hasNone') THEN 'empty' ELSE 'notEmpty' END, 'value', NULL));
     ELSIF v_operator = 'inLastDays' THEN
@@ -2215,8 +2215,8 @@ $$;
 CREATE FUNCTION crm_upgrade.assert_query(p_query jsonb, p_model jsonb, p_code text) RETURNS void
 LANGUAGE plpgsql AS $$
 BEGIN
-  IF NOT crm_upgrade.query_parse_valid(p_query) THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
-  IF NOT crm_upgrade.query_valid(p_query, p_model) THEN PERFORM crm_upgrade.fail(p_code); END IF;
+  IF (NOT crm_upgrade.query_parse_valid(p_query)) IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
+  IF (NOT crm_upgrade.query_valid(p_query, p_model)) IS NOT FALSE THEN PERFORM crm_upgrade.fail(p_code); END IF;
 END
 $$;
 
@@ -2291,7 +2291,7 @@ BEGIN
     END IF;
     PERFORM crm_upgrade.fail('unresolved_presentation_field');
   END IF;
-  IF NOT EXISTS (SELECT 1 FROM crm_upgrade.record_columns(crm_upgrade.preset_id(p_company_id, p_kind), p_model) AS c WHERE c.id = v_mapped) THEN
+  IF (NOT EXISTS (SELECT 1 FROM crm_upgrade.record_columns(crm_upgrade.preset_id(p_company_id, p_kind), p_model) AS c WHERE c.id = v_mapped)) IS NOT FALSE THEN
     PERFORM crm_upgrade.fail(p_unavailable_code);
   END IF;
   RETURN v_mapped;
@@ -2307,15 +2307,15 @@ DECLARE
   v_mapped text;
   v_item jsonb;
 BEGIN
-  IF jsonb_typeof(p_raw) <> 'array' OR (p_max_length IS NOT NULL AND jsonb_array_length(p_raw) > p_max_length)
-    OR EXISTS (SELECT 1 FROM jsonb_array_elements(p_raw) AS v(value) WHERE jsonb_typeof(v.value) <> 'string') THEN
+  IF (jsonb_typeof(p_raw) <> 'array' OR (p_max_length IS NOT NULL AND jsonb_array_length(p_raw) > p_max_length)
+    OR EXISTS (SELECT 1 FROM jsonb_array_elements(p_raw) AS v(value) WHERE jsonb_typeof(v.value) <> 'string')) IS NOT FALSE THEN
     PERFORM crm_upgrade.fail('invalid_presentation_configuration');
   END IF;
   FOR v_item IN SELECT value FROM jsonb_array_elements(p_raw) WITH ORDINALITY AS v(value, ordinality) ORDER BY ordinality LOOP
     v_mapped := crm_upgrade.presentation_key(p_company_id, p_kind, v_item #>> '{}', p_model, p_owner_table, p_owner_id, p_location, p_unavailable_code);
     IF v_mapped IS NOT NULL THEN v_result := v_result || v_mapped; END IF;
   END LOOP;
-  IF (SELECT count(DISTINCT v) FROM unnest(v_result) AS v) <> coalesce(array_length(v_result, 1), 0) THEN PERFORM crm_upgrade.fail(p_duplicate_code); END IF;
+  IF ((SELECT count(DISTINCT v) FROM unnest(v_result) AS v) <> coalesce(array_length(v_result, 1), 0)) IS NOT FALSE THEN PERFORM crm_upgrade.fail(p_duplicate_code); END IF;
   RETURN to_jsonb(v_result);
 END
 $$;
@@ -2355,10 +2355,10 @@ BEGIN
   v_filters := crm_upgrade.migrate_query_filter(p_company_id, p_kind, v_legacy_filters, p_model, p_currency);
   v_sort := p_source_row -> 'sortDescriptor';
   IF v_sort <> 'null'::jsonb THEN
-    IF jsonb_typeof(v_sort) <> 'object' THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
+    IF (jsonb_typeof(v_sort) <> 'object') IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
     IF v_sort <> '{}'::jsonb THEN
-      IF (SELECT array_agg(key ORDER BY key) FROM jsonb_object_keys(v_sort) AS key) <> ARRAY['direction', 'field']
-        OR jsonb_typeof(v_sort -> 'field') <> 'string' OR v_sort ->> 'direction' NOT IN ('asc', 'desc') OR jsonb_typeof(v_sort -> 'direction') <> 'string' THEN
+      IF ((SELECT array_agg(key ORDER BY key) FROM jsonb_object_keys(v_sort) AS key) <> ARRAY['direction', 'field']
+        OR jsonb_typeof(v_sort -> 'field') <> 'string' OR v_sort ->> 'direction' NOT IN ('asc', 'desc') OR jsonb_typeof(v_sort -> 'direction') <> 'string') IS NOT FALSE THEN
         PERFORM crm_upgrade.fail('invalid_presentation_configuration');
       END IF;
       v_order_field := crm_upgrade.presentation_key(p_company_id, p_kind, v_sort ->> 'field', p_model, p_owner_table, v_owner_id, 'sortDescriptor', 'unsupported_presentation_column');
@@ -2371,9 +2371,9 @@ BEGIN
   END IF;
   v_group_spec := p_source_row -> 'grouping';
   IF v_group_spec <> 'null'::jsonb THEN
-    IF jsonb_typeof(v_group_spec) <> 'object' OR EXISTS (SELECT 1 FROM jsonb_object_keys(v_group_spec) AS key WHERE key NOT IN ('field', 'bucket'))
+    IF (jsonb_typeof(v_group_spec) <> 'object' OR EXISTS (SELECT 1 FROM jsonb_object_keys(v_group_spec) AS key WHERE key NOT IN ('field', 'bucket'))
       OR jsonb_typeof(v_group_spec -> 'field') IS DISTINCT FROM 'string' OR crm_upgrade.js_len(v_group_spec ->> 'field') NOT BETWEEN 1 AND 200
-      OR (v_group_spec ? 'bucket' AND (jsonb_typeof(v_group_spec -> 'bucket') <> 'string' OR v_group_spec ->> 'bucket' NOT IN ('day', 'week', 'month'))) THEN
+      OR (v_group_spec ? 'bucket' AND (jsonb_typeof(v_group_spec -> 'bucket') <> 'string' OR v_group_spec ->> 'bucket' NOT IN ('day', 'week', 'month')))) IS NOT FALSE THEN
       PERFORM crm_upgrade.fail('invalid_presentation_configuration');
     END IF;
     v_mapped := crm_upgrade.presentation_key(p_company_id, p_kind, v_group_spec ->> 'field', p_model, p_owner_table, v_owner_id, 'grouping', 'unsupported_presentation_column');
@@ -2381,7 +2381,7 @@ BEGIN
       v_output := v_output || '{"grouping":null,"groupingColumnId":null}'::jsonb;
     ELSE
       v_group_spec := v_group_spec || jsonb_build_object('field', v_mapped);
-      IF NOT crm_upgrade.grouping_valid(v_type_id, v_group_spec, p_model) THEN PERFORM crm_upgrade.fail('invalid_grouping'); END IF;
+      IF (NOT crm_upgrade.grouping_valid(v_type_id, v_group_spec, p_model)) IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_grouping'); END IF;
       v_output := v_output || jsonb_build_object('grouping', v_group_spec, 'groupingColumnId', CASE WHEN crm_upgrade.is_uuid(v_mapped) THEN to_jsonb(v_mapped) ELSE 'null'::jsonb END);
     END IF;
   ELSE
@@ -2406,25 +2406,25 @@ BEGIN
       ) AS h GROUP BY h.id) AS c));
   END IF;
   IF p_source_row -> 'columnWidths' <> 'null'::jsonb THEN
-    IF jsonb_typeof(p_source_row -> 'columnWidths') <> 'object' THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
+    IF (jsonb_typeof(p_source_row -> 'columnWidths') <> 'object') IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
     FOR v_entry IN SELECT key, value FROM jsonb_each(p_source_row -> 'columnWidths') LOOP
-      IF jsonb_typeof(v_entry.value) <> 'number' THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
+      IF (jsonb_typeof(v_entry.value) <> 'number') IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
       v_number := crm_upgrade.js_parse_number(v_entry.value::text::numeric);
-      IF v_number IN ('Infinity'::float8, '-Infinity'::float8) OR v_number < 0 THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
+      IF (v_number IN ('Infinity'::float8, '-Infinity'::float8) OR v_number < 0) IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
     END LOOP;
     FOR v_entry IN SELECT key, value FROM jsonb_each(p_source_row -> 'columnWidths') LOOP
       v_mapped := crm_upgrade.presentation_key(p_company_id, p_kind, v_entry.key, p_model, p_owner_table, v_owner_id, 'columnWidths', 'unsupported_presentation_column');
       IF v_mapped IS NULL THEN CONTINUE; END IF;
-      IF v_widths ? v_mapped THEN PERFORM crm_upgrade.fail('duplicate_column_after_mapping'); END IF;
+      IF (v_widths ? v_mapped) IS NOT FALSE THEN PERFORM crm_upgrade.fail('duplicate_column_after_mapping'); END IF;
       v_widths := v_widths || jsonb_build_object(v_mapped, crm_upgrade.js_json(v_entry.value));
     END LOOP;
     v_output := v_output || jsonb_build_object('columnWidths', v_widths);
   END IF;
-  IF p_source_row -> 'searchTerm' <> 'null'::jsonb AND crm_upgrade.js_len(p_source_row ->> 'searchTerm') > 200 THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
-  IF p_source_row -> 'viewMode' <> 'null'::jsonb AND p_source_row ->> 'viewMode' NOT IN ('table', 'card') THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
+  IF (p_source_row -> 'searchTerm' <> 'null'::jsonb AND crm_upgrade.js_len(p_source_row ->> 'searchTerm') > 200) IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
+  IF (p_source_row -> 'viewMode' <> 'null'::jsonb AND p_source_row ->> 'viewMode' NOT IN ('table', 'card')) IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
   IF p_personalization AND p_source_row -> 'pagination' <> 'null'::jsonb THEN
     v_page_size := p_source_row #> '{pagination,pageSize}';
-    IF jsonb_typeof(p_source_row -> 'pagination') <> 'object' OR jsonb_typeof(v_page_size) IS DISTINCT FROM 'number' THEN
+    IF (jsonb_typeof(p_source_row -> 'pagination') <> 'object' OR jsonb_typeof(v_page_size) IS DISTINCT FROM 'number') IS NOT FALSE THEN
       PERFORM crm_upgrade.fail('invalid_presentation_configuration');
     END IF;
     v_number := crm_upgrade.js_parse_number(v_page_size::text::numeric);
@@ -2448,8 +2448,8 @@ BEGIN
   v_query := v_filters || jsonb_build_object('typeId', v_type_id,
     'sort', CASE WHEN jsonb_typeof(v_output -> 'sortDescriptor') = 'object' AND v_output #> '{sortDescriptor,field}' IS NOT NULL
       THEN jsonb_build_array(jsonb_build_object('fieldId', v_output #> '{sortDescriptor,field}', 'direction', v_output #> '{sortDescriptor,direction}')) ELSE '[]'::jsonb END);
-  IF NOT crm_upgrade.query_parse_valid(v_query) THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
-  IF NOT crm_upgrade.query_valid(v_query, p_model) THEN PERFORM crm_upgrade.fail('invalid_view_query'); END IF;
+  IF (NOT crm_upgrade.query_parse_valid(v_query)) IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
+  IF (NOT crm_upgrade.query_valid(v_query, p_model)) IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_view_query'); END IF;
   RETURN jsonb_build_object('output', v_output, 'query', v_filters || jsonb_build_object('typeId', v_type_id));
 END
 $$;
@@ -2469,10 +2469,10 @@ BEGIN
       'columnOrder', NULL, 'unsupported_detail_field', 'duplicate_detail_field_after_mapping'));
   END IF;
   IF v_detail <> 'null'::jsonb THEN
-    IF jsonb_typeof(v_detail) <> 'object' OR EXISTS (SELECT 1 FROM jsonb_object_keys(v_detail) AS k WHERE k NOT IN ('starredFieldIds', 'collapsedSectionIds', 'hiddenFieldIds', 'fieldOrder'))
+    IF (jsonb_typeof(v_detail) <> 'object' OR EXISTS (SELECT 1 FROM jsonb_object_keys(v_detail) AS k WHERE k NOT IN ('starredFieldIds', 'collapsedSectionIds', 'hiddenFieldIds', 'fieldOrder'))
       OR NOT v_detail ? 'starredFieldIds' OR NOT v_detail ? 'collapsedSectionIds'
       OR EXISTS (SELECT 1 FROM jsonb_each(v_detail) AS e WHERE jsonb_typeof(e.value) <> 'array'
-        OR EXISTS (SELECT 1 FROM jsonb_array_elements(e.value) AS v(value) WHERE jsonb_typeof(v.value) <> 'string')) THEN
+        OR EXISTS (SELECT 1 FROM jsonb_array_elements(e.value) AS v(value) WHERE jsonb_typeof(v.value) <> 'string'))) IS NOT FALSE THEN
       PERFORM crm_upgrade.fail('invalid_presentation_configuration');
     END IF;
     v_converted := v_detail;
@@ -2491,8 +2491,8 @@ $$;
 -- RecordMeasureSchema.parse validity of the measure parts the conversion produces.
 CREATE FUNCTION crm_upgrade.measure_parse_valid(measure jsonb) RETURNS boolean
 LANGUAGE sql IMMUTABLE AS $$
-  SELECT crm_upgrade.query_parse_valid(measure -> 'source')
-    AND (measure #> '{groupBy,filter}' IS NULL OR crm_upgrade.query_parse_valid(measure #> '{groupBy,filter}'))
+  SELECT COALESCE((crm_upgrade.query_parse_valid(measure -> 'source')
+    AND (measure #> '{groupBy,filter}' IS NULL OR crm_upgrade.query_parse_valid(measure #> '{groupBy,filter}'))), false)
 $$;
 
 -- migrateChartMeasure (v5/widgets.ts). row is to_jsonb of the legacy Widget row.
@@ -2515,19 +2515,19 @@ DECLARE
   v_measure jsonb;
   v_terminal text;
 BEGIN
-  IF v_kind NOT IN ('contact', 'organization', 'deal', 'service', 'task') OR v_kind IS NULL
+  IF (v_kind NOT IN ('contact', 'organization', 'deal', 'service', 'task') OR v_kind IS NULL
     OR v_aggregation IS NULL OR v_aggregation NOT IN ('count', 'dealValue', 'dealWeightedValue', 'dealQuantity')
-    OR v_group_type IS NULL OR v_group_type NOT IN ('none', 'customColumn', 'contact', 'organization', 'deal', 'service') THEN
+    OR v_group_type IS NULL OR v_group_type NOT IN ('none', 'customColumn', 'contact', 'organization', 'deal', 'service')) IS NOT FALSE THEN
     PERFORM crm_upgrade.fail('invalid_presentation_configuration');
   END IF;
   v_entity := crm_upgrade.migrate_query_filter(p_company_id, v_kind,
     crm_upgrade.migrate_filters(p_company_id, v_kind, p_source_row -> 'entityFilters', p_model, false, 'Widget', v_owner_id), p_model, p_currency);
   v_deals := crm_upgrade.migrate_query_filter(p_company_id, 'deal',
     crm_upgrade.migrate_filters(p_company_id, 'deal', p_source_row -> 'dealFilters', p_model, false, 'Widget', v_owner_id), p_model, p_currency);
-  IF (NOT v_is_count AND v_kind = 'task') OR (v_aggregation = 'dealQuantity' AND v_kind <> 'service') OR (v_aggregation = 'dealWeightedValue' AND v_kind = 'service') THEN
+  IF ((NOT v_is_count AND v_kind = 'task') OR (v_aggregation = 'dealQuantity' AND v_kind <> 'service') OR (v_aggregation = 'dealWeightedValue' AND v_kind = 'service')) IS NOT FALSE THEN
     PERFORM crm_upgrade.fail('unsupported_legacy_widget_measure');
   END IF;
-  IF v_group_type NOT IN ('none', 'customColumn') AND (v_group_type <> v_kind OR v_is_count) THEN PERFORM crm_upgrade.fail('invalid_legacy_widget_group'); END IF;
+  IF (v_group_type NOT IN ('none', 'customColumn') AND (v_group_type <> v_kind OR v_is_count)) IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_legacy_widget_group'); END IF;
   v_source_type := CASE WHEN v_is_count THEN v_kind WHEN v_kind = 'service' THEN 'lineItem' ELSE 'deal' END;
   v_entity_path := CASE WHEN v_source_type = v_kind THEN '[]'::jsonb ELSE jsonb_build_array(jsonb_build_object(
     'relationId', crm_upgrade.preset_id(p_company_id, CASE WHEN v_kind = 'service' THEN 'lineItem.service' ELSE 'deal.' || v_kind || 's' END), 'direction', 'outgoing')) END;
@@ -2548,7 +2548,7 @@ BEGIN
   IF v_group_type = 'customColumn' THEN
     SELECT f.value INTO v_field FROM jsonb_array_elements(p_model -> 'fields') AS f(value)
       WHERE f.value ->> 'id' = p_source_row ->> 'groupByCustomColumnId' AND f.value ->> 'typeId' = crm_upgrade.preset_id(p_company_id, v_kind) AND f.value ->> 'valueType' = 'select' LIMIT 1;
-    IF v_field IS NULL THEN PERFORM crm_upgrade.fail('unresolved_widget_group_field'); END IF;
+    IF (v_field IS NULL) IS NOT FALSE THEN PERFORM crm_upgrade.fail('unresolved_widget_group_field'); END IF;
   END IF;
   -- RecordMeasureSchema.parse output: query defaults (filters/relationships) and groupLimit.
   v_measure := jsonb_build_object(
@@ -2563,19 +2563,19 @@ BEGIN
   IF v_measure #> '{groupBy,fieldId}' IS NULL AND v_measure -> 'groupBy' <> 'null'::jsonb THEN
     v_measure := jsonb_set(v_measure, '{groupBy,fieldId}', 'null'::jsonb);
   END IF;
-  IF NOT crm_upgrade.measure_parse_valid(v_measure) THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
+  IF (NOT crm_upgrade.measure_parse_valid(v_measure)) IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
   -- recordMeasureIsValid
-  IF NOT crm_upgrade.query_valid(v_measure -> 'source', p_model) THEN PERFORM crm_upgrade.fail('invalid_migrated_widget_measure'); END IF;
+  IF (NOT crm_upgrade.query_valid(v_measure -> 'source', p_model)) IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_migrated_widget_measure'); END IF;
   IF v_measure -> 'groupBy' <> 'null'::jsonb THEN
     v_terminal := CASE WHEN jsonb_array_length(v_entity_path) = 0 THEN v_measure #>> '{source,typeId}' ELSE crm_upgrade.resolve_path(v_measure #>> '{source,typeId}', v_entity_path, p_model) END;
-    IF v_terminal IS NULL THEN PERFORM crm_upgrade.fail('invalid_migrated_widget_measure'); END IF;
-    IF v_measure #> '{groupBy,filter}' IS NOT NULL AND NOT crm_upgrade.query_valid((v_measure #> '{groupBy,filter}') || jsonb_build_object('typeId', v_terminal), p_model) THEN
+    IF (v_terminal IS NULL) IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_migrated_widget_measure'); END IF;
+    IF (v_measure #> '{groupBy,filter}' IS NOT NULL AND NOT crm_upgrade.query_valid((v_measure #> '{groupBy,filter}') || jsonb_build_object('typeId', v_terminal), p_model)) IS NOT FALSE THEN
       PERFORM crm_upgrade.fail('invalid_migrated_widget_measure');
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM jsonb_array_elements(p_model -> 'fields') AS f(value)
+    IF (NOT EXISTS (SELECT 1 FROM jsonb_array_elements(p_model -> 'fields') AS f(value)
       WHERE f.value ->> 'typeId' = v_terminal AND NOT (f.value ->> 'archived')::boolean
         AND f.value ->> 'id' = COALESCE(v_measure #>> '{groupBy,fieldId}', (SELECT t.value ->> 'primaryFieldId' FROM jsonb_array_elements(p_model -> 'types') AS t(value) WHERE t.value ->> 'id' = v_terminal))
-        AND NOT COALESCE((f.value ->> 'multiple')::boolean, false) AND f.value ->> 'valueType' NOT IN ('richText', 'dateRange', 'dateTimeRange')) THEN
+        AND NOT COALESCE((f.value ->> 'multiple')::boolean, false) AND f.value ->> 'valueType' NOT IN ('richText', 'dateRange', 'dateTimeRange'))) IS NOT FALSE THEN
       PERFORM crm_upgrade.fail('invalid_migrated_widget_measure');
     END IF;
   END IF;
@@ -2587,11 +2587,11 @@ $$;
 CREATE FUNCTION crm_upgrade.measure_through(p_path jsonb, p_filter jsonb, p_model jsonb) RETURNS jsonb
 LANGUAGE plpgsql AS $$
 BEGIN
-  IF jsonb_array_length(COALESCE(p_filter -> 'relatedFilters', '[]')) > 0 AND EXISTS (
+  IF (jsonb_array_length(COALESCE(p_filter -> 'relatedFilters', '[]')) > 0 AND EXISTS (
     SELECT 1 FROM jsonb_array_elements(p_path) AS s(value)
     WHERE NOT EXISTS (SELECT 1 FROM jsonb_array_elements(p_model -> 'relationships') AS r(value)
       WHERE r.value ->> 'id' = s.value ->> 'relationId'
-        AND (CASE WHEN s.value ->> 'direction' = 'outgoing' THEN r.value ->> 'sourceCardinality' ELSE r.value ->> 'targetCardinality' END) = 'one')) THEN
+        AND (CASE WHEN s.value ->> 'direction' = 'outgoing' THEN r.value ->> 'sourceCardinality' ELSE r.value ->> 'targetCardinality' END) = 'one'))) IS NOT FALSE THEN
     PERFORM crm_upgrade.fail('ambiguous_nested_relationship_filter');
   END IF;
   RETURN jsonb_build_array(jsonb_build_object('path', p_path, 'operator', 'any', 'filters', p_filter -> 'filters', 'relationships', p_filter -> 'relationships'))
@@ -2603,14 +2603,14 @@ $$;
 -- WidgetDisplayOptionsSchema (strict).
 CREATE FUNCTION crm_upgrade.widget_display_valid(options jsonb) RETURNS boolean
 LANGUAGE sql IMMUTABLE AS $$
-  SELECT jsonb_typeof(options) = 'object'
+  SELECT COALESCE((jsonb_typeof(options) = 'object'
     AND NOT EXISTS (SELECT 1 FROM jsonb_object_keys(options) AS k WHERE k NOT IN ('barColors', 'displayType', 'reverseXAxis', 'reverseYAxis', 'useGroupColors', 'showLegend', 'showFilters'))
     AND options ->> 'displayType' IN ('verticalBarChart', 'horizontalBarChart', 'verticalBarChartWithLabels', 'horizontalBarChartWithLabels', 'doughnutChart', 'radarChart')
     AND jsonb_typeof(options -> 'displayType') = 'string'
     AND (NOT options ? 'barColors' OR (jsonb_typeof(options -> 'barColors') = 'array' AND NOT EXISTS (SELECT 1 FROM jsonb_array_elements(options -> 'barColors') AS c(value)
       WHERE jsonb_typeof(c.value) <> 'string' OR c.value #>> '{}' NOT IN ('default1', 'default2', 'default3', 'primary1', 'primary2', 'primary3', 'secondary1', 'secondary2',
         'secondary3', 'success1', 'success2', 'success3', 'warning1', 'warning2', 'warning3', 'danger1', 'danger2', 'danger3'))))
-    AND NOT EXISTS (SELECT 1 FROM jsonb_each(options) AS e WHERE e.key IN ('reverseXAxis', 'reverseYAxis', 'useGroupColors', 'showLegend', 'showFilters') AND jsonb_typeof(e.value) <> 'boolean')
+    AND NOT EXISTS (SELECT 1 FROM jsonb_each(options) AS e WHERE e.key IN ('reverseXAxis', 'reverseYAxis', 'useGroupColors', 'showLegend', 'showFilters') AND jsonb_typeof(e.value) <> 'boolean')), false)
 $$;
 
 -- migrateActivityQuery (v4/activity-query.ts): legacy timeline filters to the generic activity query.
@@ -2626,12 +2626,12 @@ DECLARE
   v_kinds jsonb;
 BEGIN
   IF p_legacy IS NULL OR p_legacy = 'null'::jsonb THEN p_legacy := '[]'; END IF;
-  IF jsonb_typeof(p_legacy) <> 'array' OR jsonb_array_length(p_legacy) > 20 OR EXISTS (
+  IF (jsonb_typeof(p_legacy) <> 'array' OR jsonb_array_length(p_legacy) > 20 OR EXISTS (
     SELECT 1 FROM jsonb_array_elements(p_legacy) AS f(value)
     WHERE jsonb_typeof(f.value) <> 'object' OR EXISTS (SELECT 1 FROM jsonb_object_keys(f.value) AS k WHERE k NOT IN ('field', 'operator', 'value'))
       OR jsonb_typeof(f.value -> 'field') IS DISTINCT FROM 'string' OR jsonb_typeof(f.value -> 'operator') IS DISTINCT FROM 'string'
       OR f.value ->> 'operator' NOT IN ('in', 'notIn', 'hasSome', 'hasNone')
-      OR (f.value ? 'value' AND (jsonb_typeof(f.value -> 'value') <> 'array' OR EXISTS (SELECT 1 FROM jsonb_array_elements(f.value -> 'value') AS v(value) WHERE jsonb_typeof(v.value) <> 'string')))) THEN
+      OR (f.value ? 'value' AND (jsonb_typeof(f.value -> 'value') <> 'array' OR EXISTS (SELECT 1 FROM jsonb_array_elements(f.value -> 'value') AS v(value) WHERE jsonb_typeof(v.value) <> 'string'))))) IS NOT FALSE THEN
     PERFORM crm_upgrade.fail('unsupported_activity_configuration');
   END IF;
   FOR v_item IN SELECT value FROM jsonb_array_elements(p_legacy) WITH ORDINALITY AS f(value, ordinality) ORDER BY ordinality LOOP
@@ -2639,19 +2639,19 @@ BEGIN
     v_operator := v_item ->> 'operator';
     v_record_type := CASE v_field WHEN 'contactIds' THEN 'contact' WHEN 'organizationIds' THEN 'organization' WHEN 'dealIds' THEN 'deal' WHEN 'serviceIds' THEN 'service' WHEN 'taskIds' THEN 'task' END;
     v_presence := v_operator IN ('hasSome', 'hasNone');
-    IF v_presence AND (v_record_type IS NULL OR v_item ? 'value') THEN PERFORM crm_upgrade.fail('unsupported_activity_configuration'); END IF;
-    IF NOT v_presence AND (NOT v_item ? 'value' OR jsonb_array_length(v_item -> 'value') = 0) THEN PERFORM crm_upgrade.fail('unsupported_activity_configuration'); END IF;
+    IF (v_presence AND (v_record_type IS NULL OR v_item ? 'value')) IS NOT FALSE THEN PERFORM crm_upgrade.fail('unsupported_activity_configuration'); END IF;
+    IF (NOT v_presence AND (NOT v_item ? 'value' OR jsonb_array_length(v_item -> 'value') = 0)) IS NOT FALSE THEN PERFORM crm_upgrade.fail('unsupported_activity_configuration'); END IF;
     IF v_record_type IS NOT NULL THEN
-      IF jsonb_array_length(COALESCE(v_item -> 'value', '[]')) > 50 OR EXISTS (SELECT 1 FROM jsonb_array_elements(COALESCE(v_item -> 'value', '[]')) AS v(value) WHERE NOT crm_upgrade.is_uuid(v.value #>> '{}')) THEN
+      IF (jsonb_array_length(COALESCE(v_item -> 'value', '[]')) > 50 OR EXISTS (SELECT 1 FROM jsonb_array_elements(COALESCE(v_item -> 'value', '[]')) AS v(value) WHERE NOT crm_upgrade.is_uuid(v.value #>> '{}'))) IS NOT FALSE THEN
         PERFORM crm_upgrade.fail('unsupported_activity_configuration');
       END IF;
       v_filters := v_filters || jsonb_build_array(jsonb_build_object('kind', 'record', 'typeId', crm_upgrade.preset_id(p_company_id, v_record_type), 'operator', v_operator,
         'recordIds', COALESCE(v_item -> 'value', '[]'::jsonb)));
       CONTINUE;
     END IF;
-    IF v_operator NOT IN ('in', 'notIn') THEN PERFORM crm_upgrade.fail('unsupported_activity_configuration'); END IF;
+    IF (v_operator NOT IN ('in', 'notIn')) IS NOT FALSE THEN PERFORM crm_upgrade.fail('unsupported_activity_configuration'); END IF;
     IF v_field = 'timelineKind' THEN
-      IF EXISTS (SELECT 1 FROM jsonb_array_elements_text(v_item -> 'value') AS v(value) WHERE v.value NOT IN ('changes', 'messages', 'activities', 'audit', 'message', 'activity', 'calendar_event')) THEN
+      IF (EXISTS (SELECT 1 FROM jsonb_array_elements_text(v_item -> 'value') AS v(value) WHERE v.value NOT IN ('changes', 'messages', 'activities', 'audit', 'message', 'activity', 'calendar_event'))) IS NOT FALSE THEN
         PERFORM crm_upgrade.fail('unsupported_activity_configuration');
       END IF;
       SELECT jsonb_agg(k.kind ORDER BY k.first) INTO v_kinds FROM (
@@ -2663,13 +2663,13 @@ BEGIN
         GROUP BY a.kind) AS k;
       v_filters := v_filters || jsonb_build_array(jsonb_build_object('kind', 'source', 'operator', v_operator, 'values', v_kinds));
     ELSIF v_field = 'provider' THEN
-      IF v_operator <> 'in' OR jsonb_array_length(v_item -> 'value') > 7 OR EXISTS (SELECT 1 FROM jsonb_array_elements_text(v_item -> 'value') AS v(value)
-        WHERE v.value NOT IN ('google', 'outlook', 'mail', 'linkedin', 'whatsapp', 'instagram', 'telegram')) THEN
+      IF (v_operator <> 'in' OR jsonb_array_length(v_item -> 'value') > 7 OR EXISTS (SELECT 1 FROM jsonb_array_elements_text(v_item -> 'value') AS v(value)
+        WHERE v.value NOT IN ('google', 'outlook', 'mail', 'linkedin', 'whatsapp', 'instagram', 'telegram'))) IS NOT FALSE THEN
         PERFORM crm_upgrade.fail('unsupported_activity_configuration');
       END IF;
       v_filters := v_filters || jsonb_build_array(jsonb_build_object('kind', 'provider', 'operator', 'in', 'values', v_item -> 'value'));
     ELSIF v_field IN ('connectedAccountId', 'timelineThreadId') THEN
-      IF jsonb_array_length(v_item -> 'value') > 50 OR EXISTS (SELECT 1 FROM jsonb_array_elements_text(v_item -> 'value') AS v(value) WHERE NOT crm_upgrade.is_uuid(v.value)) THEN
+      IF (jsonb_array_length(v_item -> 'value') > 50 OR EXISTS (SELECT 1 FROM jsonb_array_elements_text(v_item -> 'value') AS v(value) WHERE NOT crm_upgrade.is_uuid(v.value))) IS NOT FALSE THEN
         PERFORM crm_upgrade.fail('unsupported_activity_configuration');
       END IF;
       v_filters := v_filters || jsonb_build_array(jsonb_build_object('kind', CASE WHEN v_field = 'connectedAccountId' THEN 'account' ELSE 'thread' END,
@@ -2728,11 +2728,11 @@ BEGIN
       v_changed := '[]';
       FOREACH v_field IN ARRAY v_changed_fields LOOP
         v_mapped := crm_upgrade.migrate_column_key(p_company_id, v_kind, v_field, p_legacy_model);
-        IF v_mapped IS NULL THEN PERFORM crm_upgrade.fail('unresolved_presentation_field'); END IF;
+        IF (v_mapped IS NULL) IS NOT FALSE THEN PERFORM crm_upgrade.fail('unresolved_presentation_field'); END IF;
         v_changed := v_changed || to_jsonb(v_mapped);
       END LOOP;
-      IF EXISTS (SELECT 1 FROM jsonb_array_elements_text(v_changed) AS c(id) WHERE NOT EXISTS (SELECT 1 FROM jsonb_array_elements(p_model -> 'fields') AS f(value)
-        WHERE f.value ->> 'id' = c.id AND f.value ->> 'typeId' = crm_upgrade.preset_id(p_company_id, v_kind) AND NOT (f.value ->> 'archived')::boolean)) THEN
+      IF (EXISTS (SELECT 1 FROM jsonb_array_elements_text(v_changed) AS c(id) WHERE NOT EXISTS (SELECT 1 FROM jsonb_array_elements(p_model -> 'fields') AS f(value)
+        WHERE f.value ->> 'id' = c.id AND f.value ->> 'typeId' = crm_upgrade.preset_id(p_company_id, v_kind) AND NOT (f.value ->> 'archived')::boolean))) IS NOT FALSE THEN
         PERFORM crm_upgrade.fail('unresolved_trigger_field');
       END IF;
     ELSE
@@ -2744,8 +2744,8 @@ BEGIN
   END LOOP;
   IF p_source_table = 'Routine' THEN
     v_owner_id := p_source_row ->> 'owner_user_id';
-    IF v_owner_id IS NULL THEN PERFORM crm_upgrade.fail('unresolved_trigger_owner'); END IF;
-    IF NOT EXISTS (SELECT 1 FROM "User" u WHERE u."companyId" = p_company_id AND u.id = v_owner_id AND u.status::text = 'active') THEN
+    IF (v_owner_id IS NULL) IS NOT FALSE THEN PERFORM crm_upgrade.fail('unresolved_trigger_owner'); END IF;
+    IF (NOT EXISTS (SELECT 1 FROM "User" u WHERE u."companyId" = p_company_id AND u.id = v_owner_id AND u.status::text = 'active')) IS NOT FALSE THEN
       PERFORM crm_upgrade.fail('inactive_trigger_owner');
     END IF;
   ELSE
@@ -2763,7 +2763,7 @@ BEGIN
       v_enabled := false;
     END IF;
   END IF;
-  IF v_owner_id IS NOT NULL AND NOT crm_upgrade.is_uuid(v_owner_id) THEN PERFORM crm_upgrade.fail('invalid_legacy_trigger'); END IF;
+  IF (v_owner_id IS NOT NULL AND NOT crm_upgrade.is_uuid(v_owner_id)) IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_legacy_trigger'); END IF;
   SELECT array_agg(DISTINCT g ORDER BY g) INTO v_generic_events FROM jsonb_array_elements(v_sources) AS s(value), jsonb_array_elements_text(s.value -> 'events') AS g;
   SELECT array_agg(t.event ORDER BY t.first) INTO v_target_events FROM (
     SELECT e.event, min(e.ordinality) AS first FROM unnest(v_system_events || v_generic_events) WITH ORDINALITY AS e(event, ordinality) GROUP BY e.event) AS t;
@@ -2782,31 +2782,32 @@ LANGUAGE plpgsql AS $$
 DECLARE
   v_item jsonb;
 BEGIN
-  IF jsonb_typeof(p_filters) <> 'array' OR jsonb_array_length(p_filters) > 20 OR EXISTS (
+  IF (jsonb_typeof(p_filters) <> 'array' OR jsonb_array_length(p_filters) > 20 OR EXISTS (
     SELECT 1 FROM jsonb_array_elements(p_filters) AS f(value)
     WHERE jsonb_typeof(f.value) <> 'object' OR EXISTS (SELECT 1 FROM jsonb_object_keys(f.value) AS k WHERE k NOT IN ('field', 'operator', 'value'))
       OR jsonb_typeof(f.value -> 'field') IS DISTINCT FROM 'string' OR jsonb_typeof(f.value -> 'operator') IS DISTINCT FROM 'string'
       OR f.value ->> 'operator' NOT IN ('in', 'notIn', 'hasSome', 'hasNone')
-      OR (f.value ? 'value' AND (jsonb_typeof(f.value -> 'value') <> 'array' OR EXISTS (SELECT 1 FROM jsonb_array_elements(f.value -> 'value') AS v(value) WHERE jsonb_typeof(v.value) <> 'string')))) THEN
+      OR (f.value ? 'value' AND (jsonb_typeof(f.value -> 'value') <> 'array' OR EXISTS (SELECT 1 FROM jsonb_array_elements(f.value -> 'value') AS v(value) WHERE jsonb_typeof(v.value) <> 'string'))))) IS NOT FALSE THEN
     PERFORM crm_upgrade.fail('invalid_timeline_view');
   END IF;
   PERFORM crm_upgrade.migrate_activity_query(p_company_id, COALESCE((SELECT jsonb_agg(f.value ORDER BY f.ordinality)
     FROM jsonb_array_elements(p_filters) WITH ORDINALITY AS f(value, ordinality) WHERE f.value ->> 'field' NOT LIKE 'records:%'), '[]'::jsonb));
   FOR v_item IN SELECT value FROM jsonb_array_elements(p_filters) AS f(value) WHERE f.value ->> 'field' LIKE 'records:%' LOOP
-    IF NOT crm_upgrade.is_uuid(substr(v_item ->> 'field', 9))
+    IF (NOT crm_upgrade.is_uuid(substr(v_item ->> 'field', 9))
       OR (v_item ->> 'operator' IN ('in', 'notIn')) <> (jsonb_array_length(COALESCE(v_item -> 'value', '[]')) > 0)
-      OR EXISTS (SELECT 1 FROM jsonb_array_elements_text(COALESCE(v_item -> 'value', '[]')) AS v(value) WHERE NOT crm_upgrade.is_uuid(v.value)) THEN
+      OR EXISTS (SELECT 1 FROM jsonb_array_elements_text(COALESCE(v_item -> 'value', '[]')) AS v(value) WHERE NOT crm_upgrade.is_uuid(v.value))) IS NOT FALSE THEN
       PERFORM crm_upgrade.fail('invalid_timeline_view');
     END IF;
   END LOOP;
-  RETURN (SELECT jsonb_agg(CASE f.value ->> 'field'
+  -- An empty list stays an empty list (the retired upgrade rewrote it unchanged).
+  RETURN COALESCE((SELECT jsonb_agg(CASE f.value ->> 'field'
       WHEN 'contactIds' THEN f.value || jsonb_build_object('field', 'records:' || crm_upgrade.preset_id(p_company_id, 'contact'))
       WHEN 'organizationIds' THEN f.value || jsonb_build_object('field', 'records:' || crm_upgrade.preset_id(p_company_id, 'organization'))
       WHEN 'dealIds' THEN f.value || jsonb_build_object('field', 'records:' || crm_upgrade.preset_id(p_company_id, 'deal'))
       WHEN 'serviceIds' THEN f.value || jsonb_build_object('field', 'records:' || crm_upgrade.preset_id(p_company_id, 'service'))
       WHEN 'taskIds' THEN f.value || jsonb_build_object('field', 'records:' || crm_upgrade.preset_id(p_company_id, 'task'))
       ELSE f.value END ORDER BY f.ordinality)
-    FROM jsonb_array_elements(p_filters) WITH ORDINALITY AS f(value, ordinality));
+    FROM jsonb_array_elements(p_filters) WITH ORDINALITY AS f(value, ordinality)), '[]'::jsonb);
 END
 $$;
 
@@ -2900,7 +2901,21 @@ BEGIN
 END
 $$;
 
--- Runs one conversion step; a refusal (or any unexpected error) becomes an issue of the owning table.
+-- Re-raises an unexpected error of a conversion step as an internal failure. Only validated data refusals
+-- (SQLSTATE CRM01) become issue codes; anything else is a defect of the upgrade and must not be reported as a
+-- data problem. The message keeps the SQLSTATE, the error text and the PL/pgSQL call chain; error texts of
+-- data exceptions (class 22) are omitted because they can quote a value, and the DETAIL is never included.
+CREATE FUNCTION crm_upgrade.raise_internal(p_step text, p_state text, p_message text, p_context text) RETURNS void
+LANGUAGE plpgsql AS $$
+BEGIN
+  RAISE EXCEPTION 'Configurable record upgrade internal error in % (SQLSTATE %): %', p_step, p_state,
+    CASE WHEN left(p_state, 2) = '22' THEN 'data exception' ELSE p_message END
+    USING ERRCODE = 'CRM02', HINT = 'Nothing was changed. This is not a problem of the legacy data; report it with this message.',
+      DETAIL = 'Context: ' || COALESCE(regexp_replace(p_context, '\s+', ' ', 'g'), '');
+END
+$$;
+
+-- Runs one conversion step; a validated refusal (CRM01) becomes an issue of the owning table.
 CREATE FUNCTION crm_upgrade.try_presentation(p_company_id text, p_source_table text, p_code_override text, p_statement text, VARIADIC p_arguments jsonb[]) RETURNS jsonb
 LANGUAGE plpgsql AS $$
 DECLARE
@@ -2913,10 +2928,15 @@ EXCEPTION
     PERFORM crm_upgrade.issue(p_company_id, p_source_table, 'configuration', COALESCE(p_code_override, SQLERRM));
     RETURN NULL;
   WHEN OTHERS THEN
-    -- Unexpected errors are reported by code only; their messages could quote row contents.
-    IF current_setting('crm_upgrade.debug', true) = 'on' THEN RAISE NOTICE 'unconvertible configuration: %', SQLERRM; END IF;
-    PERFORM crm_upgrade.issue(p_company_id, p_source_table, 'configuration', COALESCE(p_code_override, 'unconvertible_configuration'));
-    RETURN NULL;
+    DECLARE
+      v_state text;
+      v_message text;
+      v_context text;
+    BEGIN
+      GET STACKED DIAGNOSTICS v_state = RETURNED_SQLSTATE, v_message = MESSAGE_TEXT, v_context = PG_EXCEPTION_CONTEXT;
+      PERFORM crm_upgrade.raise_internal(p_source_table || ' conversion', v_state, v_message, v_context);
+      RETURN NULL;
+    END;
 END
 $$;
 
@@ -2925,8 +2945,8 @@ CREATE FUNCTION crm_upgrade.activity_display_options(p_options jsonb) RETURNS js
 LANGUAGE plpgsql AS $$
 BEGIN
   IF p_options IS NULL OR p_options = 'null'::jsonb THEN p_options := '{}'; END IF;
-  IF jsonb_typeof(p_options) <> 'object' OR EXISTS (SELECT 1 FROM jsonb_object_keys(p_options) AS k WHERE k <> 'showFilters')
-    OR (p_options ? 'showFilters' AND jsonb_typeof(p_options -> 'showFilters') <> 'boolean') THEN
+  IF (jsonb_typeof(p_options) <> 'object' OR EXISTS (SELECT 1 FROM jsonb_object_keys(p_options) AS k WHERE k <> 'showFilters')
+    OR (p_options ? 'showFilters' AND jsonb_typeof(p_options -> 'showFilters') <> 'boolean')) IS NOT FALSE THEN
     PERFORM crm_upgrade.fail('unsupported_activity_configuration');
   END IF;
   RETURN jsonb_build_object('showFilters', COALESCE(p_options -> 'showFilters', 'true'::jsonb));
@@ -2941,7 +2961,7 @@ DECLARE
   v_display jsonb := CASE WHEN p_source_row -> 'displayOptions' IS NULL OR p_source_row -> 'displayOptions' = 'null'::jsonb THEN '{"displayType":"verticalBarChart"}'::jsonb ELSE p_source_row -> 'displayOptions' END;
   v_scopes jsonb := jsonb_build_array(v_measure -> 'source');
 BEGIN
-  IF NOT crm_upgrade.widget_display_valid(v_display) THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
+  IF (NOT crm_upgrade.widget_display_valid(v_display)) IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
   IF v_measure #> '{groupBy,filter}' IS NOT NULL THEN
     v_scopes := v_scopes || jsonb_build_array((v_measure #> '{groupBy,filter}') || jsonb_build_object('typeId',
       COALESCE(crm_upgrade.resolve_path(v_measure #>> '{source,typeId}', v_measure #> '{groupBy,path}', p_model), v_measure #>> '{source,typeId}')));
@@ -2965,6 +2985,9 @@ DECLARE
   v_terminology record;
   v_catalog jsonb := '{"de": {"contact": {"client": {"plural": "Kunden", "singular": "Kunde"}, "contact": {"plural": "Kontakte", "singular": "Kontakt"}, "lead": {"plural": "Leads", "singular": "Lead"}, "person": {"plural": "Personen", "singular": "Person"}}, "deal": {"deal": {"plural": "Deals", "singular": "Deal"}, "job": {"plural": "Aufträge", "singular": "Auftrag"}, "opportunity": {"plural": "Chancen", "singular": "Chance"}, "project": {"plural": "Projekte", "singular": "Projekt"}}, "organization": {"account": {"plural": "Accounts", "singular": "Account"}, "company": {"plural": "Unternehmen", "singular": "Unternehmen"}, "organization": {"plural": "Organisationen", "singular": "Organisation"}}, "service": {"offering": {"plural": "Leistungen", "singular": "Leistung"}, "package": {"plural": "Pakete", "singular": "Paket"}, "product": {"plural": "Produkte", "singular": "Produkt"}, "service": {"plural": "Services", "singular": "Service"}}, "task": {"actionItem": {"plural": "Action Items", "singular": "Action Item"}, "followUp": {"plural": "Follow-ups", "singular": "Follow-up"}, "task": {"plural": "Aufgaben", "singular": "Aufgabe"}, "todo": {"plural": "To-dos", "singular": "To-do"}}}, "en": {"contact": {"client": {"plural": "Clients", "singular": "Client"}, "contact": {"plural": "Contacts", "singular": "Contact"}, "lead": {"plural": "Leads", "singular": "Lead"}, "person": {"plural": "People", "singular": "Person"}}, "deal": {"deal": {"plural": "Deals", "singular": "Deal"}, "job": {"plural": "Jobs", "singular": "Job"}, "opportunity": {"plural": "Opportunities", "singular": "Opportunity"}, "project": {"plural": "Projects", "singular": "Project"}}, "organization": {"account": {"plural": "Accounts", "singular": "Account"}, "company": {"plural": "Companies", "singular": "Company"}, "organization": {"plural": "Organizations", "singular": "Organization"}}, "service": {"offering": {"plural": "Offerings", "singular": "Offering"}, "package": {"plural": "Packages", "singular": "Package"}, "product": {"plural": "Products", "singular": "Product"}, "service": {"plural": "Services", "singular": "Service"}}, "task": {"actionItem": {"plural": "Action items", "singular": "Action item"}, "followUp": {"plural": "Follow-ups", "singular": "Follow-up"}, "task": {"plural": "Tasks", "singular": "Task"}, "todo": {"plural": "To-dos", "singular": "To-do"}}}, "es": {"contact": {"client": {"plural": "Clientes", "singular": "Cliente"}, "contact": {"plural": "Contactos", "singular": "Contacto"}, "lead": {"plural": "Leads", "singular": "Lead"}, "person": {"plural": "Personas", "singular": "Persona"}}, "deal": {"deal": {"plural": "Oportunidades", "singular": "Oportunidad"}, "job": {"plural": "Trabajos", "singular": "Trabajo"}, "opportunity": {"plural": "Oportunidades comerciales", "singular": "Oportunidad comercial"}, "project": {"plural": "Proyectos", "singular": "Proyecto"}}, "organization": {"account": {"plural": "Cuentas", "singular": "Cuenta"}, "company": {"plural": "Empresas", "singular": "Empresa"}, "organization": {"plural": "Organizaciones", "singular": "Organización"}}, "service": {"offering": {"plural": "Ofertas", "singular": "Oferta"}, "package": {"plural": "Paquetes", "singular": "Paquete"}, "product": {"plural": "Productos", "singular": "Producto"}, "service": {"plural": "Servicios", "singular": "Servicio"}}, "task": {"actionItem": {"plural": "Acciones", "singular": "Acción"}, "followUp": {"plural": "Seguimientos", "singular": "Seguimiento"}, "task": {"plural": "Tareas", "singular": "Tarea"}, "todo": {"plural": "Pendientes", "singular": "Pendiente"}}}, "fr": {"contact": {"client": {"plural": "Clients", "singular": "Client"}, "contact": {"plural": "Contacts", "singular": "Contact"}, "lead": {"plural": "Prospects", "singular": "Prospect"}, "person": {"plural": "Personnes", "singular": "Personne"}}, "deal": {"deal": {"plural": "Affaires", "singular": "Affaire"}, "job": {"plural": "Missions", "singular": "Mission"}, "opportunity": {"plural": "Opportunités", "singular": "Opportunité"}, "project": {"plural": "Projets", "singular": "Projet"}}, "organization": {"account": {"plural": "Comptes", "singular": "Compte"}, "company": {"plural": "Entreprises", "singular": "Entreprise"}, "organization": {"plural": "Organisations", "singular": "Organisation"}}, "service": {"offering": {"plural": "Offres", "singular": "Offre"}, "package": {"plural": "Forfaits", "singular": "Forfait"}, "product": {"plural": "Produits", "singular": "Produit"}, "service": {"plural": "Services", "singular": "Service"}}, "task": {"actionItem": {"plural": "Actions", "singular": "Action"}, "followUp": {"plural": "Relances", "singular": "Relance"}, "task": {"plural": "Tâches", "singular": "Tâche"}, "todo": {"plural": "À faire", "singular": "Élément à faire"}}}, "it": {"contact": {"client": {"plural": "Clienti", "singular": "Cliente"}, "contact": {"plural": "Contatti", "singular": "Contatto"}, "lead": {"plural": "Lead", "singular": "Lead"}, "person": {"plural": "Persone", "singular": "Persona"}}, "deal": {"deal": {"plural": "Trattative", "singular": "Trattativa"}, "job": {"plural": "Lavori", "singular": "Lavoro"}, "opportunity": {"plural": "Opportunità", "singular": "Opportunità"}, "project": {"plural": "Progetti", "singular": "Progetto"}}, "organization": {"account": {"plural": "Account", "singular": "Account"}, "company": {"plural": "Aziende", "singular": "Azienda"}, "organization": {"plural": "Organizzazioni", "singular": "Organizzazione"}}, "service": {"offering": {"plural": "Offerte", "singular": "Offerta"}, "package": {"plural": "Pacchetti", "singular": "Pacchetto"}, "product": {"plural": "Prodotti", "singular": "Prodotto"}, "service": {"plural": "Servizi", "singular": "Servizio"}}, "task": {"actionItem": {"plural": "Azioni", "singular": "Azione"}, "followUp": {"plural": "Follow-up", "singular": "Follow-up"}, "task": {"plural": "Attività", "singular": "Attività"}, "todo": {"plural": "Cose da fare", "singular": "Cosa da fare"}}}}'::jsonb;
   v_locale text;
+  v_state text;
+  v_message text;
+  v_context text;
 BEGIN
   FOR v_workspace IN SELECT id, currency::text AS currency FROM "Company" ORDER BY id LOOP
     v_ws_id := v_workspace.id;
@@ -3215,7 +3238,9 @@ BEGIN
         VALUES (v_ws_id, v_trigger_row.source_table, v_trigger_row.id, crm_upgrade.migrate_trigger(v_ws_id, v_trigger_row.source_table, to_jsonb(v_trigger_row), v_ws_presentation, v_ws_model, v_ws_currency));
       EXCEPTION
         WHEN SQLSTATE 'CRM01' THEN PERFORM crm_upgrade.issue(v_ws_id, v_trigger_row.source_table, 'trigger', SQLERRM);
-        WHEN OTHERS THEN PERFORM crm_upgrade.issue(v_ws_id, v_trigger_row.source_table, 'trigger', 'unconvertible_configuration');
+        WHEN OTHERS THEN
+          GET STACKED DIAGNOSTICS v_state = RETURNED_SQLSTATE, v_message = MESSAGE_TEXT, v_context = PG_EXCEPTION_CONTEXT;
+          PERFORM crm_upgrade.raise_internal(v_trigger_row.source_table || ' trigger conversion', v_state, v_message, v_context);
       END;
     END LOOP;
 
@@ -3235,8 +3260,11 @@ BEGIN
     BEGIN
       INSERT INTO crm_upgrade_timeline (source_table, row_id, filters)
       VALUES (v_timeline.source_table, v_timeline.id, crm_upgrade.migrate_timeline_filters(v_timeline."companyId", v_timeline.filters));
-    EXCEPTION WHEN SQLSTATE 'CRM01' OR OTHERS THEN
-      PERFORM crm_upgrade.issue(v_timeline."companyId", v_timeline.source_table, 'filters', 'invalid_timeline_view');
+    EXCEPTION
+      WHEN SQLSTATE 'CRM01' THEN PERFORM crm_upgrade.issue(v_timeline."companyId", v_timeline.source_table, 'filters', 'invalid_timeline_view');
+      WHEN OTHERS THEN
+        GET STACKED DIAGNOSTICS v_state = RETURNED_SQLSTATE, v_message = MESSAGE_TEXT, v_context = PG_EXCEPTION_CONTEXT;
+        PERFORM crm_upgrade.raise_internal(v_timeline.source_table || ' timeline view conversion', v_state, v_message, v_context);
     END;
   END LOOP;
 END

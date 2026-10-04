@@ -7,7 +7,12 @@ import { afterAll, describe, expect, it } from "vitest";
 import { identityLookupValue } from "@/ee/messaging/identity-lookup";
 import { presetId } from "@/features/records/crm-preset";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
-import { LEGACY_TIMESTAMPS, populateLegacyWorkspace, type LegacyWorkspace } from "@/tests/helpers/legacy-crm-fixture";
+import {
+  addEmptyLegacyStates,
+  LEGACY_TIMESTAMPS,
+  populateLegacyWorkspace,
+  type LegacyWorkspace,
+} from "@/tests/helpers/legacy-crm-fixture";
 import {
   applyConfigurableRecordsMigration,
   CONFIGURABLE_RECORDS_MIGRATION,
@@ -535,6 +540,213 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
       ]),
     ).toEqual([]);
     expect(await rows(client, "SELECT nspname FROM pg_namespace WHERE nspname = 'crm_upgrade'")).toEqual([]);
+  });
+
+  it("converts empty and null legacy states exactly as the retired upgrade did", async () => {
+    const { client } = await legacyDatabase();
+    const f = await populateLegacyWorkspace(client);
+    const empty = await addEmptyLegacyStates(client, f);
+    const id = (key: string) => presetId(f.companyId, key);
+    await applyConfigurableRecordsMigration(client);
+
+    // Timeline views: an empty list stays empty, JSON null and SQL NULL stay as they were.
+    const timeline = async (table: string, rowId: string) =>
+      (
+        await rows<{ filters: unknown; isNull: boolean }>(
+          client,
+          `SELECT filters, filters IS NULL AS "isNull" FROM "${table}" WHERE id=$1`,
+          [rowId],
+        )
+      )[0];
+    expect(await timeline("DataView", empty.timelines.viewEmpty)).toEqual({ filters: [], isNull: false });
+    expect(await timeline("DataView", empty.timelines.viewJsonNull)).toEqual({ filters: null, isNull: false });
+    expect(await timeline("DataView", empty.timelines.viewSqlNull)).toEqual({ filters: null, isNull: true });
+    expect(await timeline("P13n", empty.timelines.preferenceEmpty)).toEqual({ filters: [], isNull: false });
+    expect(await timeline("P13n", empty.timelines.preferenceJsonNull)).toEqual({ filters: null, isNull: false });
+    expect(await timeline("P13n", empty.timelines.preferenceSqlNull)).toEqual({ filters: null, isNull: true });
+
+    // List views and personalisation with empty state keep it; introduced columns start hidden.
+    const introducedContact = [id("contact.firstName"), id("contact.lastName"), id("contact.avatarUrl")];
+    expect(
+      (
+        await rows(
+          client,
+          'SELECT "surfaceKey", filters, "sortDescriptor", grouping, "columnOrder", "columnWidths", "hiddenColumns" FROM "DataView" WHERE id=$1',
+          [empty.views.empty],
+        )
+      )[0],
+    ).toEqual({
+      surfaceKey: `records:${id("contact")}`,
+      filters: [],
+      sortDescriptor: {},
+      grouping: null,
+      columnOrder: [],
+      columnWidths: {},
+      hiddenColumns: introducedContact,
+    });
+    expect(
+      (
+        await rows(
+          client,
+          'SELECT "surfaceKey", filters, "sortDescriptor", "columnOrder", "columnWidths", "hiddenColumns" FROM "DataView" WHERE id=$1',
+          [empty.views.nulls],
+        )
+      )[0],
+    ).toEqual({
+      surfaceKey: `records:${id("organization")}`,
+      filters: null,
+      sortDescriptor: null,
+      columnOrder: null,
+      columnWidths: null,
+      hiddenColumns: null,
+    });
+    expect(
+      (
+        await rows(
+          client,
+          'SELECT "p13nId", filters, "sortDescriptor", pagination, "columnOrder", "columnWidths", "hiddenColumns", "viewStateKeys" FROM "P13n" WHERE id=$1',
+          [empty.preferences.empty],
+        )
+      )[0],
+    ).toEqual({
+      p13nId: `records:${id("contact")}`,
+      filters: [],
+      sortDescriptor: {},
+      pagination: null,
+      columnOrder: [],
+      columnWidths: {},
+      hiddenColumns: introducedContact,
+      viewStateKeys: ["filters", "sortDescriptor", "viewMode", "columnOrder", "columnWidths", "hiddenColumns"],
+    });
+    expect(
+      (
+        await rows(
+          client,
+          'SELECT "p13nId", filters, "columnOrder", "hiddenColumns", "viewStateKeys" FROM "P13n" WHERE id=$1',
+          [empty.preferences.nulls],
+        )
+      )[0],
+    ).toEqual({
+      p13nId: `records:${id("task")}`,
+      filters: null,
+      columnOrder: null,
+      hiddenColumns: null,
+      viewStateKeys: ["viewMode"],
+    });
+    expect(
+      (
+        await rows(client, 'SELECT "p13nId", "columnOrder", "detailOptions" FROM "P13n" WHERE id=$1', [
+          empty.preferences.detail,
+        ])
+      )[0],
+    ).toEqual({
+      p13nId: `record-detail:${id("deal")}`,
+      columnOrder: [],
+      detailOptions: null,
+    });
+
+    // Widgets.
+    expect(
+      (
+        await rows(client, 'SELECT measure, "displayOptions", layout FROM "Widget" WHERE id=$1', [empty.widgets.chart])
+      )[0],
+    ).toEqual({
+      measure: {
+        source: { typeId: id("contact"), filters: [], relationships: [], relatedFilters: [] },
+        aggregation: "count",
+        valueFieldId: null,
+        groupBy: null,
+        groupLimit: 1000,
+      },
+      displayOptions: { displayType: "verticalBarChart" },
+      layout: {},
+    });
+    const emptyActivity = {
+      scope: { records: [], typeIds: [] },
+      kinds: ["audit", "message", "activity", "calendar_event"],
+      filters: [],
+    };
+    for (const widget of [empty.widgets.timeline, empty.widgets.timelineNull]) {
+      expect(
+        (await rows(client, 'SELECT "activityQuery", "displayOptions" FROM "Widget" WHERE id=$1', [widget]))[0],
+      ).toEqual({
+        activityQuery: emptyActivity,
+        displayOptions: { showFilters: true },
+      });
+    }
+
+    // Triggers: an event routine with empty watch lists subscribes; a scheduled routine and a webhook
+    // without legacy record events stay as they are.
+    expect(
+      await rows(client, 'SELECT events, sources FROM "RecordEventSubscription" WHERE id=$1', [empty.routine]),
+    ).toEqual([
+      {
+        events: ["record.created"],
+        sources: [
+          {
+            query: { typeId: id("deal"), filters: [], relationships: [], relatedFilters: [] },
+            changedFieldIds: [],
+            events: ["record.created"],
+          },
+        ],
+      },
+    ]);
+    expect(
+      await rows(client, 'SELECT id FROM "RecordEventSubscription" WHERE id = ANY($1)', [
+        [empty.scheduled, empty.webhook],
+      ]),
+    ).toEqual([]);
+    expect(await rows(client, 'SELECT events, headers, enabled FROM "Webhook" WHERE id=$1', [empty.webhook])).toEqual([
+      { events: [], headers: {}, enabled: true },
+    ]);
+
+    // Columns without options and notes with empty documents.
+    for (const columnId of Object.values(empty.columns)) {
+      expect(
+        (
+          await rows<{ definition: { options: unknown; behavior: unknown; multiple: boolean } }>(
+            client,
+            'SELECT definition FROM "RecordFieldDefinition" WHERE id=$1',
+            [columnId],
+          )
+        )[0].definition,
+      ).toMatchObject({
+        options: [],
+        behavior: { kind: "input" },
+        multiple: false,
+      });
+    }
+    const note = async (recordId: string) =>
+      (
+        await rows(client, 'SELECT state, "jsonValue" FROM "RecordValue" WHERE "recordId"=$1 AND "fieldId"=$2', [
+          recordId,
+          id("organization.notes"),
+        ])
+      )[0];
+    expect(await note(empty.notes.emptyObject)).toEqual({ state: "value", jsonValue: {} });
+    expect(await note(empty.notes.jsonNull)).toEqual({ state: "missing", jsonValue: null });
+  });
+
+  it("reports an unexpected failure as an internal error, never as a data issue", async () => {
+    const { client } = await legacyDatabase();
+    const f = await populateLegacyWorkspace(client);
+    // Simulated defect: the webhook owner lookup can no longer read the audit history.
+    await client.query('ALTER TABLE "AuditLog" RENAME COLUMN "userId" TO "actorUserId"');
+    const before = await legacySnapshot(client);
+    const failure = await client.query(await readMigration(CONFIGURABLE_RECORDS_MIGRATION)).then(
+      () => null,
+      (error: Error & { code?: string; detail?: string }) => error,
+    );
+    expect(failure?.code).toBe("CRM02");
+    expect(failure?.message).toBe(
+      "Configurable record upgrade internal error in Webhook trigger conversion (SQLSTATE 42703): column audit.userId does not exist",
+    );
+    expect(failure?.detail).toContain("crm_upgrade.migrate_trigger");
+    expect(failure?.message).not.toContain("refused");
+    expect(failure?.message).not.toContain("unconvertible");
+    expect(await legacySnapshot(client)).toEqual(before);
+    expect(await rows(client, "SELECT to_regclass('\"CrmRecord\"') AS table")).toEqual([{ table: null }]);
+    expect(f.webhook).toBeTruthy();
   });
 
   it("applies the documented repairs and reconciles them", async () => {

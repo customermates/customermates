@@ -58,7 +58,11 @@ The retired multi-step upgrade refused the following data. This migration conver
 
 ## Refusals
 
-Refusal codes name the owning table and field, for example `CustomFieldValue.value invalid_typed_value x3` or `Widget.configuration unresolved_presentation_field x1`. They include malformed or unrepresentable decimals, dates and ranges, invalid emails, phone numbers and URLs, unknown select options, invalid column options and definitions, references to records, members, accounts or threads of another (or no) workspace, duplicate custom values or identity keys, noncanonical identities, unsupported legacy filters, sorts, groupings and widget measures, unknown terminology presets, and routines with legacy events but a schedule trigger or an inactive owner.
+Refusal codes name the owning table and field, for example `CustomFieldValue.value invalid_typed_value x3` or `Widget.configuration unresolved_presentation_field x1`. Empty and null presentation state (`[]`, `{}`, JSON `null`, SQL `NULL`) converts as the retired upgrade did; for example an empty timeline filter list stays empty. Refusals include malformed or unrepresentable decimals, dates and ranges, invalid emails, phone numbers and URLs, unknown select options, invalid column options and definitions, references to records, members, accounts or threads of another (or no) workspace, duplicate custom values or identity keys, noncanonical identities, unsupported legacy filters, sorts, groupings and widget measures, unknown terminology presets, and routines with legacy events but a schedule trigger or an inactive owner.
+
+## Internal errors
+
+Only validated data refusals become the grouped `Table.field code xCOUNT` report. Any other failure during a conversion step is a defect of the migration, not of the data, and is raised as `Configurable record upgrade internal error in <step> (SQLSTATE <code>): <message>` with error code `CRM02` and the PL/pgSQL call chain as detail. Messages of data exceptions (SQLSTATE class 22) are replaced by `data exception` because they can quote a value. Report such errors; they cannot be fixed by changing legacy data.
 
 ## Recovery
 
@@ -76,6 +80,5 @@ Rehearse on a disposable copy of the production database before deploying:
 1. Restore the copy into a disposable PostgreSQL database of the production major version.
 2. Run `prisma migrate deploy` against it and keep the log.
 3. On a refusal, follow the recovery steps on the copy until the deployment succeeds; apply the same corrections to production before deploying there.
-4. Optionally run with `SET crm_upgrade.debug = on` in the session (for example via `psql`) to print the error message of an unexpected conversion failure as a notice. Those messages may quote row contents and must not be shared.
 
 The migration holds the locks above for its whole transaction, so CRM writes wait until it finishes. On the rehearsal hardware a workspace with 50,000 contacts, 20,000 deals, 40,000 line items and 70,000 custom values converted in about three minutes.
