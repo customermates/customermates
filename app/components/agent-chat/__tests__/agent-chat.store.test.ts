@@ -122,8 +122,8 @@ function root(
     terminologyStore: refreshStore(),
     messagingThreadsStore: refreshStore(),
     agentUiControlStore: {
-      navigate: vi.fn().mockResolvedValue({ ok: true, result: "Navigated to /contacts." }),
-      highlight: vi.fn().mockReturnValue({ ok: true, result: "Highlighted contacts-add." }),
+      navigate: vi.fn().mockResolvedValue({ ok: true, result: "Navigated to /routines." }),
+      highlight: vi.fn().mockReturnValue({ ok: true, result: "Highlighted routines-add." }),
       startGuidedTour: vi.fn().mockReturnValue({ ok: true, result: "Tour started." }),
       ...uiOverrides,
     },
@@ -1637,7 +1637,7 @@ describe("AgentChatStore", () => {
       type: "ui_command",
       commandId: "cursor-command",
       name: "navigate",
-      input: { targetId: "nav-contacts" },
+      input: { targetId: "nav-routines" },
     };
     actionsMock.getAgentConversationAction
       .mockResolvedValueOnce({
@@ -2306,7 +2306,7 @@ describe("AgentChatStore", () => {
       type: "ui_command",
       commandId: "command-1",
       name: "navigate",
-      input: { targetId: "nav-contacts" },
+      input: { targetId: "nav-routines" },
     });
 
     await vi.waitFor(() =>
@@ -2353,14 +2353,14 @@ describe("AgentChatStore", () => {
       type: "ui_command",
       commandId: "contacts",
       name: "navigate",
-      input: { targetId: "nav-contacts" },
+      input: { targetId: "nav-routines" },
     });
     handleEvent({
       seq: 2,
       type: "ui_command",
       commandId: "deals",
       name: "navigate",
-      input: { targetId: "nav-deals" },
+      input: { targetId: "nav-dashboard" },
     });
 
     await vi.waitFor(() => expect(navigate).toHaveBeenCalledOnce());
@@ -2396,14 +2396,14 @@ describe("AgentChatStore", () => {
       type: "ui_command",
       commandId: "contacts",
       name: "navigate",
-      input: { targetId: "nav-contacts" },
+      input: { targetId: "nav-routines" },
     });
     handleEvent({
       seq: 2,
       type: "ui_command",
       commandId: "deals",
       name: "navigate",
-      input: { targetId: "nav-deals" },
+      input: { targetId: "nav-dashboard" },
     });
 
     await vi.advanceTimersByTimeAsync(3000);
@@ -2445,11 +2445,11 @@ describe("AgentChatStore", () => {
       type: "ui_command",
       commandId: "command-race",
       name: "navigate",
-      input: { targetId: "nav-contacts" },
+      input: { targetId: "nav-routines" },
     });
     await vi.waitFor(() => expect(navigate).toHaveBeenCalledOnce());
     store.conversationId = "00000000-0000-4000-8000-000000000002";
-    resolveNavigation({ ok: true, result: "Navigated to /contacts." });
+    resolveNavigation({ ok: true, result: "Navigated to /routines." });
 
     await vi.waitFor(() =>
       expect(actionsMock.respondToUiCommandAction).toHaveBeenCalledWith({
@@ -2457,7 +2457,7 @@ describe("AgentChatStore", () => {
         commandId: "command-race",
         name: "navigate",
         ok: true,
-        result: "Navigated to /contacts.",
+        result: "Navigated to /routines.",
       }),
     );
   });
@@ -2475,7 +2475,7 @@ describe("AgentChatStore", () => {
       type: "ui_command",
       commandId: "command-2",
       name: "click_ui_target",
-      input: { targetId: "contacts-display-options" },
+      input: { targetId: "routines-display-options" },
     });
     await Promise.resolve();
 
@@ -6323,8 +6323,8 @@ describe("AgentUiControlStore", () => {
       scrollIntoView = vi.fn();
     }
     const elements = new Map([
-      ["nav-contacts", new FakeHTMLElement()],
-      ["contacts-search", new FakeHTMLElement()],
+      ["nav-routines", new FakeHTMLElement()],
+      ["routines-search", new FakeHTMLElement()],
     ]);
     vi.stubGlobal("HTMLElement", FakeHTMLElement);
     vi.stubGlobal("document", {
@@ -6343,12 +6343,12 @@ describe("AgentUiControlStore", () => {
       await expect(
         store.startGuidedTour([
           {
-            targetId: "nav-contacts",
-            note: "Contacts are the people you work with.",
+            targetId: "nav-routines",
+            note: "Routines run your saved instructions.",
           },
-          { targetId: "contacts-add", note: "Add a contact from here." },
+          { targetId: "routines-add", note: "Add a routine from here." },
           {
-            targetId: "contacts-search",
+            targetId: "routines-search",
             note: "Search narrows the current list.",
           },
         ]),
@@ -6361,7 +6361,7 @@ describe("AgentUiControlStore", () => {
       store.previousStep();
       await vi.advanceTimersByTimeAsync(2500);
       expect(store.active?.stepIndex).toBe(0);
-      expect(store.active?.targetId).toBe("nav-contacts");
+      expect(store.active?.targetId).toBe("nav-routines");
     } finally {
       vi.unstubAllGlobals();
     }
@@ -6598,10 +6598,10 @@ describe("AgentUiControlStore", () => {
     });
     expect(navigate).not.toHaveBeenCalled();
 
-    await expect(store.navigate({ targetId: "nav-contacts" })).resolves.toEqual({
+    await expect(store.navigate({ targetId: "nav-routines" })).resolves.toEqual({
       ok: true,
-      result: "Navigated to /contacts.",
+      result: "Navigated to /routines.",
     });
-    expect(navigate).toHaveBeenCalledWith("/contacts");
+    expect(navigate).toHaveBeenCalledWith("/routines");
   });
 });

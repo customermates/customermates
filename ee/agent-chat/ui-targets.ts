@@ -175,7 +175,7 @@ const RETIRED_RECORD_UI_ROUTE = /^\/(?:contacts|organizations|deals|services|tas
 
 export const ACTIVE_AGENT_UI_TARGETS = AGENT_UI_TARGETS.filter((target) => !RETIRED_RECORD_UI_ROUTE.test(target.route));
 
-export const AGENT_UI_TARGET_IDS = AGENT_UI_TARGETS.map((target) => target.id) as [string, ...string[]];
+export const AGENT_UI_TARGET_IDS = ACTIVE_AGENT_UI_TARGETS.map((target) => target.id) as [string, ...string[]];
 
 function exactTargetIdSchema(ids: readonly string[], label: string) {
   const allowedIds = new Set(ids);
@@ -187,7 +187,7 @@ function exactTargetIdSchema(ids: readonly string[], label: string) {
 
 export const UiTargetIdSchema = exactTargetIdSchema(AGENT_UI_TARGET_IDS, "interface");
 
-export const AGENT_NAV_TARGET_IDS = AGENT_UI_TARGETS.filter((target) => target.route.startsWith("/")).map(
+export const AGENT_NAV_TARGET_IDS = ACTIVE_AGENT_UI_TARGETS.filter((target) => target.route.startsWith("/")).map(
   (target) => target.id,
 ) as [string, ...string[]];
 export const NavigationUiTargetIdSchema = exactTargetIdSchema(AGENT_NAV_TARGET_IDS, "navigation");

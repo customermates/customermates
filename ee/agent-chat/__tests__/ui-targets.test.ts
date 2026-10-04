@@ -8,6 +8,7 @@ import { REPO_ROOT, walkFiles } from "@/tests/conventions/walk";
 
 import { CONTROL_PAGES, FORM_PAGES } from "../ui-anchors";
 import {
+  ACTIVE_AGENT_UI_TARGETS,
   AGENT_UI_TARGETS,
   NavigationUiTargetIdSchema,
   UiTargetIdSchema,
@@ -39,6 +40,17 @@ const controlTargetIds = CONTROL_PAGES.flatMap((page) =>
 const formTargetIds = FORM_PAGES.flatMap((page) => [`${page.scope}-save`, `${page.scope}-reset`]);
 
 describe("agent interface targets", () => {
+  it("accepts only active interface targets, never the retired fixed record pages", () => {
+    for (const id of ["nav-contacts", "contacts-add", "deals-search", "tasks-filter"]) {
+      expect(findAgentUiTarget(id), id).not.toBeNull();
+      expect(UiTargetIdSchema.safeParse(id).success, id).toBe(false);
+      expect(NavigationUiTargetIdSchema.safeParse(id).success, id).toBe(false);
+    }
+    for (const target of ACTIVE_AGENT_UI_TARGETS) expect(UiTargetIdSchema.safeParse(target.id).success).toBe(true);
+    expect(NavigationUiTargetIdSchema.safeParse("nav-dashboard").success).toBe(true);
+    expect(UiTargetIdSchema.safeParse("records:10000000-0000-4000-8000-000000000101:add").success).toBe(true);
+  });
+
   it("registers every target id once", () => {
     const ids = AGENT_UI_TARGETS.map((target) => target.id);
     expect(ids.filter((id, index) => ids.indexOf(id) !== index)).toEqual([]);
@@ -243,9 +255,10 @@ describe("agent interface targets", () => {
   });
 
   it("lets navigate resolve only targets with an app route", () => {
-    for (const target of AGENT_UI_TARGETS) {
+    for (const target of AGENT_UI_TARGETS)
+      expect(findAgentNavigationTarget(target.id) !== null, target.id).toBe(target.route.startsWith("/"));
+    for (const target of ACTIVE_AGENT_UI_TARGETS) {
       const routable = target.route.startsWith("/");
-      expect(findAgentNavigationTarget(target.id) !== null, target.id).toBe(routable);
       expect(NavigationUiTargetIdSchema.safeParse(target.id).success, target.id).toBe(routable);
       expect(UiTargetIdSchema.safeParse(target.id).success, target.id).toBe(true);
     }

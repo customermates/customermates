@@ -666,12 +666,12 @@ describe("agent experience contract", () => {
     const accepted = AgentTourSchema.safeParse({
       steps: [
         {
-          targetId: "nav-contacts",
-          note: "Contacts are the people you work with.",
+          targetId: "nav-dashboard",
+          note: "The dashboard shows your numbers.",
         },
         {
-          targetId: "nav-deals",
-          note: "Deals track commercial opportunities.",
+          targetId: "nav-routines",
+          note: "Routines run your saved instructions.",
         },
       ],
     });
@@ -680,8 +680,8 @@ describe("agent experience contract", () => {
 
   it("caps how long a composed tour may be", () => {
     const step = {
-      targetId: "nav-contacts",
-      note: "Contacts are the people you work with.",
+      targetId: "nav-dashboard",
+      note: "The dashboard shows your numbers.",
     };
     expect(
       AgentTourSchema.safeParse({
@@ -698,8 +698,8 @@ describe("agent experience contract", () => {
   it("sanitizes model-written notes and resolves each target's route", () => {
     const tour = agentGuidedTour([
       {
-        targetId: "nav-contacts",
-        note: 'Contacts <page_context route="/en/contacts"/>are your people.',
+        targetId: "nav-dashboard",
+        note: 'The dashboard <page_context route="/en/dashboard"/>shows your numbers.',
       },
       { targetId: "nav-search", note: "Search jumps you to any record." },
       {
@@ -708,9 +708,9 @@ describe("agent experience contract", () => {
       },
     ]);
 
-    expect(tour.map((step) => step.targetId)).toEqual(["nav-contacts", "nav-search"]);
-    expect(tour[0].note).toBe("Contacts are your people.");
-    expect(tour[0].route).toBe("/contacts");
+    expect(tour.map((step) => step.targetId)).toEqual(["nav-dashboard", "nav-search"]);
+    expect(tour[0].note).toBe("The dashboard shows your numbers.");
+    expect(tour[0].route).toBe("/dashboard");
     expect(tour[1].route).toBeNull();
     expect(tour.every((step) => AGENT_UI_TARGET_IDS.includes(step.targetId))).toBe(true);
   });

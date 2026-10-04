@@ -604,8 +604,10 @@ describe("agent tools", () => {
     const tools = getAgentAiTools(deps());
     const validate = schemaOf(tools.navigate).validate;
 
-    expect(await validate?.({ targetId: "nav-contacts" })).toMatchObject({ success: true });
+    expect(await validate?.({ targetId: "nav-dashboard" })).toMatchObject({ success: true });
     for (const targetId of [
+      "nav-contacts",
+      "nav-deals",
       "javascript:alert(1)",
       "https://example.com",
       "//example.com",
@@ -1027,8 +1029,8 @@ describe("agent tools", () => {
         "start_tour",
         {
           steps: [
-            { targetId: "nav-contacts", note: " Contacts " },
-            { targetId: "contacts-add", note: " Add " },
+            { targetId: "nav-routines", note: " Routines " },
+            { targetId: "routines-add", note: " Add " },
           ],
         },
         6000,
@@ -1037,8 +1039,8 @@ describe("agent tools", () => {
       ok: true,
       input: {
         steps: [
-          { targetId: "nav-contacts", note: "Contacts" },
-          { targetId: "contacts-add", note: "Add" },
+          { targetId: "nav-routines", note: "Routines" },
+          { targetId: "routines-add", note: "Add" },
         ],
       },
     });
@@ -1047,8 +1049,8 @@ describe("agent tools", () => {
         "start_tour",
         {
           steps: [
-            { targetId: "nav-contacts", note: "   " },
-            { targetId: "contacts-add", note: " Add " },
+            { targetId: "nav-routines", note: "   " },
+            { targetId: "routines-add", note: " Add " },
           ],
         },
         6000,
