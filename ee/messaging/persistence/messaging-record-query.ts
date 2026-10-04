@@ -68,7 +68,7 @@ export function compileMessagingRecordQuery(
   const participant = (
     predicate: Prisma.Sql,
   ) => Prisma.sql`EXISTS (SELECT 1 FROM "MessagingThreadParticipant" participant
-    WHERE participant."companyId" = ${companyId} AND participant."messagingThreadId" = thread.id AND NOT participant."isSelf"
+    WHERE participant."messagingThreadId" = thread.id AND participant."companyId" = thread."companyId" AND NOT participant."isSelf"
       AND participant.identifier IS NOT NULL AND trim(participant.identifier) <> '' AND ${predicate})`;
   const messageVisible = Prisma.sql`NOT message."isHidden" AND (account."foldersSyncedAt" IS NULL OR cardinality(message."folderIds") = 0 OR message."folderIds" && account."selectedFolderIds")`;
   const now = new Date();
@@ -121,7 +121,7 @@ export function compileMessagingRecordQuery(
       return [filter.operator === FilterOperatorKey.notIn ? Prisma.sql`NOT ${match}` : match];
     }
     if (fieldKey === FilterFieldKey.draft) {
-      const match = Prisma.sql`EXISTS (SELECT 1 FROM "MessagingMessage" message WHERE message."companyId" = ${companyId} AND message."messagingThreadId" = thread.id AND message."isDraft")`;
+      const match = Prisma.sql`EXISTS (SELECT 1 FROM "MessagingMessage" message WHERE message."messagingThreadId" = thread.id AND message."companyId" = thread."companyId" AND message."isDraft")`;
       return [filter.operator === FilterOperatorKey.hasNone ? Prisma.sql`NOT ${match}` : match];
     }
     const field =
@@ -139,14 +139,14 @@ export function compileMessagingRecordQuery(
   if (term) {
     const pattern = `%${term.replace(/[\\%_]/g, "\\$&")}%`;
     filters.push(Prisma.sql`(thread.subject ILIKE ${pattern} OR thread.name ILIKE ${pattern}
-      OR EXISTS (SELECT 1 FROM "MessagingMessage" message WHERE message."companyId" = ${companyId} AND message."messagingThreadId" = thread.id AND ${messageVisible} AND message."bodyText" ILIKE ${pattern})
-      OR EXISTS (SELECT 1 FROM "MessagingThreadParticipant" participant WHERE participant."companyId" = ${companyId} AND participant."messagingThreadId" = thread.id AND (participant."displayName" ILIKE ${pattern} OR participant.identifier ILIKE ${pattern})))`);
+      OR EXISTS (SELECT 1 FROM "MessagingMessage" message WHERE message."messagingThreadId" = thread.id AND message."companyId" = thread."companyId" AND ${messageVisible} AND message."bodyText" ILIKE ${pattern})
+      OR EXISTS (SELECT 1 FROM "MessagingThreadParticipant" participant WHERE participant."messagingThreadId" = thread.id AND participant."companyId" = thread."companyId" AND (participant."displayName" ILIKE ${pattern} OR participant.identifier ILIKE ${pattern})))`);
   }
   const query = Prisma.sql`FROM "MessagingThread" thread
     JOIN "ConnectedAccount" account ON account."companyId" = ${companyId} AND account.id = thread."connectedAccountId"
     WHERE thread."companyId" = ${companyId} AND (account."userId" = ${userId} OR account.shared OR thread."sharedToCrm")
-      AND (thread."lastMessageAt" IS NOT NULL OR EXISTS (SELECT 1 FROM "MessagingMessage" message WHERE message."companyId" = ${companyId} AND message."messagingThreadId" = thread.id AND message."isDraft"))
-      AND (account."foldersSyncedAt" IS NULL OR EXISTS (SELECT 1 FROM "MessagingMessage" message WHERE message."companyId" = ${companyId} AND message."messagingThreadId" = thread.id AND ${messageVisible}))
+      AND (thread."lastMessageAt" IS NOT NULL OR EXISTS (SELECT 1 FROM "MessagingMessage" message WHERE message."messagingThreadId" = thread.id AND message."companyId" = thread."companyId" AND message."isDraft"))
+      AND (account."foldersSyncedAt" IS NULL OR EXISTS (SELECT 1 FROM "MessagingMessage" message WHERE message."messagingThreadId" = thread.id AND message."companyId" = thread."companyId" AND ${messageVisible}))
       AND (${filters.length ? Prisma.join(filters, " AND ") : Prisma.sql`TRUE`})`;
   if (query.values.length > 12000) throw new RecordWriteError(CustomErrorCode.recordCalculationBudget);
   return query;
