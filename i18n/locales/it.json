@@ -1294,12 +1294,10 @@
       "widgetDealAggregationNotAllowedForTask": "I tipi di aggregazione delle trattative non sono consentiti per il tipo di elemento Attività.",
       "widgetDealFiltersNotAllowedForDealEntityType": "I filtri sulle trattative non sono consentiti quando il tipo di elemento è Trattativa.",
       "widgetDealQuantityOnlyForService": "L'aggregazione della quantità delle trattative è consentita solo per il tipo di elemento Servizio.",
-      "widgetGroupByCustomColumnIdRequired": "L'ID della colonna personalizzata è obbligatorio quando si raggruppa per colonna personalizzata.",
       "widgetGroupByEntityTypeNotAllowedForCount": "Il raggruppamento per tipo di elemento non è consentito quando il tipo di aggregazione è il conteggio.",
       "widgetGroupByTypeMustMatchEntityType": "Il tipo di raggruppamento deve corrispondere al tipo di elemento del grafico.",
       "widgetKindImmutable": "Il tipo di un widget non può essere modificato dopo la creazione.",
       "widgetNotFound": "ID widget non trovato o non accessibile.",
-      "widgetTaskCanOnlyGroupByCustomColumn": "Le attività possono essere raggruppate solo per colonne personalizzate, non per tipi di elemento.",
       "widgetWeightedValueNotAllowedForService": "L'aggregazione del valore ponderato non è consentita per il tipo di elemento Servizio."
     },
     "events": {
@@ -2260,20 +2258,6 @@
           "singular": "Cosa da fare"
         }
       }
-    },
-    "relationships": {
-      "contactDealSummary": "Le voci «{contacts}» sono coinvolte nelle voci «{deals}».",
-      "contactOrganizationSummary": "Le voci «{contacts}» lavorano presso le voci «{organizations}».",
-      "dataModelLabel": "Il tuo modello di dati: scegli i nomi usati dal tuo team; le relazioni restano invariate.",
-      "dealServiceSummary": "Le voci «{deals}» includono voci «{services}».",
-      "howRecordsConnect": "Come si collegano i record",
-      "include": "includono",
-      "involvedIn": "sono coinvolti in",
-      "linkedTo": "sono collegati a",
-      "organizationDealSummary": "Le voci «{organizations}» sono collegate alle voci «{deals}».",
-      "selectLabel": "Nome per {entity}",
-      "taskScope": "Le voci «{tasks}» possono essere collegate a qualsiasi record di questo modello.",
-      "workAt": "lavorano presso"
     }
   },
   "EntityTimeline": {

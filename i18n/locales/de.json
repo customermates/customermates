@@ -1294,12 +1294,10 @@
       "widgetDealAggregationNotAllowedForTask": "Deal-Aggregationstypen sind für den Elementtyp Aufgabe nicht erlaubt.",
       "widgetDealFiltersNotAllowedForDealEntityType": "Deal-Filter sind nicht erlaubt, wenn der Elementtyp Deal ist.",
       "widgetDealQuantityOnlyForService": "Deal-Mengen-Aggregation ist nur für den Elementtyp Service erlaubt.",
-      "widgetGroupByCustomColumnIdRequired": "Benutzerdefinierte Spalten-ID ist erforderlich, wenn nach benutzerdefinierter Spalte gruppiert wird.",
       "widgetGroupByEntityTypeNotAllowedForCount": "Gruppierung nach dem Elementtyp selbst ist nicht erlaubt, wenn der Aggregationstyp Anzahl ist.",
       "widgetGroupByTypeMustMatchEntityType": "Gruppierungstyp muss mit dem Elementtyp des Diagramms übereinstimmen.",
       "widgetKindImmutable": "Der Typ eines Widgets kann nach dem Erstellen nicht geändert werden.",
       "widgetNotFound": "Widget-ID nicht gefunden oder nicht zugänglich.",
-      "widgetTaskCanOnlyGroupByCustomColumn": "Aufgaben können nur nach benutzerdefinierten Spalten gruppiert werden, nicht nach Elementtypen.",
       "widgetWeightedValueNotAllowedForService": "Gewichtete Wert-Aggregation ist für den Elementtyp Service nicht erlaubt."
     },
     "events": {
@@ -2260,20 +2258,6 @@
           "singular": "To-do"
         }
       }
-    },
-    "relationships": {
-      "contactDealSummary": "{contacts} sind an Datensätzen vom Typ „{deals}“ beteiligt.",
-      "contactOrganizationSummary": "{contacts} arbeiten bei Datensätzen vom Typ „{organizations}“.",
-      "dataModelLabel": "Dein Datenmodell: Wähle die Bezeichnungen, die dein Team verwendet; die Beziehungen bleiben unverändert.",
-      "dealServiceSummary": "{deals} enthalten Datensätze vom Typ „{services}“.",
-      "howRecordsConnect": "So sind Datensätze verknüpft",
-      "include": "enthalten",
-      "involvedIn": "sind beteiligt an",
-      "linkedTo": "sind verknüpft mit",
-      "organizationDealSummary": "{organizations} sind mit Datensätzen vom Typ „{deals}“ verknüpft.",
-      "selectLabel": "Bezeichnung für {entity}",
-      "taskScope": "{tasks} können mit jedem Datensatz in diesem Modell verknüpft werden.",
-      "workAt": "arbeiten bei"
     }
   },
   "EntityTimeline": {

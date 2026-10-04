@@ -19,7 +19,6 @@ function genericRecordEventsByType(events: readonly string[]) {
   return byType;
 }
 
-/** The events a seeded routine or webhook is stored with: authored type-specific events become generic ones. */
 export function liveSeedEvents(events: readonly string[]): string[] {
   const generic = [...new Set([...genericRecordEventsByType(events).values()].flatMap((set) => [...set]))].sort();
   return [...new Set([...events.filter((event) => !LEGACY_RECORD_EVENT.test(event)), ...generic])];

@@ -1294,12 +1294,10 @@
       "widgetDealAggregationNotAllowedForTask": "Los tipos de agregación de oportunidades no están permitidos para el tipo de elemento Tarea.",
       "widgetDealFiltersNotAllowedForDealEntityType": "Los filtros de oportunidad no están permitidos cuando el tipo de elemento es Oportunidad.",
       "widgetDealQuantityOnlyForService": "La agregación de cantidad de oportunidades solo está permitida para el tipo de elemento Servicio.",
-      "widgetGroupByCustomColumnIdRequired": "El ID de columna personalizada es obligatorio al agrupar por columna personalizada.",
       "widgetGroupByEntityTypeNotAllowedForCount": "No se permite agrupar por tipo de elemento cuando el tipo de agregación es el recuento.",
       "widgetGroupByTypeMustMatchEntityType": "El tipo de agrupación debe coincidir con el tipo de elemento del gráfico.",
       "widgetKindImmutable": "El tipo de un widget no se puede cambiar después de crearlo.",
       "widgetNotFound": "ID de widget no encontrado o no accesible.",
-      "widgetTaskCanOnlyGroupByCustomColumn": "Las tareas solo se pueden agrupar por columnas personalizadas, no por tipos de elemento.",
       "widgetWeightedValueNotAllowedForService": "La agregación de valor ponderado no está permitida para el tipo de elemento Servicio."
     },
     "events": {
@@ -2260,20 +2258,6 @@
           "singular": "Pendiente"
         }
       }
-    },
-    "relationships": {
-      "contactDealSummary": "Los elementos «{contacts}» participan en los elementos «{deals}».",
-      "contactOrganizationSummary": "Los elementos «{contacts}» trabajan en los elementos «{organizations}».",
-      "dataModelLabel": "Tu modelo de datos: elige los nombres que usa tu equipo; las relaciones no cambian.",
-      "dealServiceSummary": "Los elementos «{deals}» incluyen elementos «{services}».",
-      "howRecordsConnect": "Cómo se conectan los registros",
-      "include": "incluyen",
-      "involvedIn": "participan en",
-      "linkedTo": "están vinculados a",
-      "organizationDealSummary": "Los elementos «{organizations}» están vinculados a los elementos «{deals}».",
-      "selectLabel": "Nombre para {entity}",
-      "taskScope": "Los elementos «{tasks}» pueden vincularse a cualquier registro de este modelo.",
-      "workAt": "trabajan en"
     }
   },
   "EntityTimeline": {

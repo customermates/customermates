@@ -18,11 +18,6 @@ import { type GetQueryParams } from "@/core/base/base-get.schema";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 
-/**
- * A messaging delivery carries no record reference, so its stored body is the event itself and
- * may be shown and resent. Record deliveries are re-read under current access instead, and a
- * retired type-specific record body is never replayed.
- */
 function storedMessagingBody(event: string, requestBody: Prisma.JsonValue): Record<string, unknown> | null {
   if (!event.startsWith("messaging.")) return null;
   if (!requestBody || typeof requestBody !== "object" || Array.isArray(requestBody)) return null;

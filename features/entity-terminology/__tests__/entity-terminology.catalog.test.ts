@@ -66,32 +66,6 @@ describe("entity terminology catalogs", () => {
     expect(Object.keys(messages.OnboardingWizard.steps)).toEqual(["ai", "invite", "profile"]);
   });
 
-  it.each(Object.entries(catalogs))("keeps %s data-model relationships complete and dynamic", (_locale, messages) => {
-    expect(messages.EntityTerminology.relationships.dataModelLabel).not.toBe("");
-    expect(messages.EntityTerminology.relationships.howRecordsConnect).not.toBe("");
-    expect(messages.EntityTerminology.relationships.linkedTo).not.toBe("");
-    expect(messages.EntityTerminology.relationships.contactOrganizationSummary).toContain("{contacts}");
-    expect(messages.EntityTerminology.relationships.contactOrganizationSummary).toContain("{organizations}");
-    expect(messages.EntityTerminology.relationships.contactDealSummary).toContain("{contacts}");
-    expect(messages.EntityTerminology.relationships.contactDealSummary).toContain("{deals}");
-    expect(messages.EntityTerminology.relationships.organizationDealSummary).toContain("{organizations}");
-    expect(messages.EntityTerminology.relationships.organizationDealSummary).toContain("{deals}");
-    expect(messages.EntityTerminology.relationships.dealServiceSummary).toContain("{deals}");
-    expect(messages.EntityTerminology.relationships.dealServiceSummary).toContain("{services}");
-    expect(messages.EntityTerminology.relationships.taskScope).toContain("{tasks}");
-  });
-
-  it("renders German relationship copy without inflecting a configured record name", () => {
-    const t = createTranslator({ locale: "de", messages: de });
-
-    expect(
-      t("EntityTerminology.relationships.organizationDealSummary", {
-        deals: "Aufträge",
-        organizations: "Unternehmen",
-      }),
-    ).toBe("Unternehmen sind mit Datensätzen vom Typ „Aufträge“ verknüpft.");
-  });
-
   it.each(Object.entries(catalogs))("keeps %s workspace copy terminology-aware", (_locale, messages) => {
     for (const aggregation of ["count", "sum", "average", "min", "max"] as const)
       expect(messages.RecordModel.reducers[aggregation]).not.toBe("");

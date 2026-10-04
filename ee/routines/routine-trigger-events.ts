@@ -5,9 +5,6 @@ import { DomainEvent } from "@/features/event/domain-events";
 
 const NON_TRIGGERING_EVENTS = [DomainEvent.MESSAGING_EMAIL_DELETED, DomainEvent.MESSAGING_CHAT_DELETED] as const;
 
-/**
- * Events a routine can be created or updated with: only events the platform still emits.
- */
 export const RoutineTriggerEventSchema = WebhookCurrentEventSchema.exclude([...NON_TRIGGERING_EVENTS]);
 
 export const ROUTINE_TRIGGER_EVENTS = RoutineTriggerEventSchema.options;
@@ -18,10 +15,6 @@ export function isRoutineTriggerEvent(value: string): value is RoutineTriggerEve
   return (ROUTINE_TRIGGER_EVENTS as readonly string[]).includes(value);
 }
 
-/**
- * Events that can appear on stored routines and their run history, including the retired
- * type-specific entity events. Use only to decode what is already stored, never for input.
- */
 export const StoredRoutineTriggerEventSchema = WebhookEventSchema.exclude([...NON_TRIGGERING_EVENTS]);
 
 export const STORED_ROUTINE_TRIGGER_EVENTS = StoredRoutineTriggerEventSchema.options;

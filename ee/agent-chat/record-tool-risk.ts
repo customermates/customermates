@@ -37,9 +37,6 @@ export function recordToolRisk(name: string, input: unknown): RecordToolRisk | n
     const operation = object(raw);
     if (operation.operation === "createType") continue;
     if (operation.operation === "putField") {
-      // putField replaces the whole definition. Only a new field, named by a temporary
-      // "$" reference, is ordinary work; a concrete id may target an existing field whose
-      // behavior change (for example input to formula) overwrites stored values.
       const field = object(operation.field);
       if (field.archived === false && isNewDefinitionReference(field.id)) continue;
     }

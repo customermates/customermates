@@ -201,12 +201,6 @@ export const SORT_SYNTAX = {
   ],
 };
 
-export const FILTER_FIELD_DESCRIPTION =
-  "Array of filter rules, AND-combined. Each rule is { field, operator, value? }. " +
-  `Operators with one string value: ${FILTER_OPERATOR_GROUPS.singleValue.join(", ")}; with a string array: ${FILTER_OPERATOR_GROUPS.multiValue.join(", ")} (between needs exactly two); with a positive integer of days: ${FILTER_OPERATOR_GROUPS.relativeWindow.join(", ")}; without a value: ${FILTER_OPERATOR_GROUPS.noValue.join(", ")}. ` +
-  'Example: [{"field":"name","operator":"contains","value":"acme"},{"field":"createdAt","operator":"inLastDays","value":30}]. ' +
-  "Call get_record_schema to see all filterable fields.";
-
 export const filtersDescription = (filterableFields: string) =>
   "Array of filter rules, AND-combined. Each rule is { field, operator, value? }. " +
   "Use only the operators listed in each field's hint; value-less operators take no value. " +
@@ -219,30 +213,6 @@ export const sortDescription = (sortableFields: string) =>
 export function enumHint(values: readonly string[]): string {
   return `(one of: ${values.join(", ")})`;
 }
-
-export function forbidNullFields<T extends z.ZodObject<z.ZodRawShape>>(schema: T, fields: readonly string[]) {
-  return schema.superRefine((value, ctx) => {
-    if (!value || typeof value !== "object") return;
-    const record = value as Record<string, unknown>;
-    for (const field of fields) {
-      if (record[field] === null) {
-        ctx.addIssue({
-          code: "custom",
-          path: [field],
-          message:
-            `Refusing to set '${field}' to null because that would wipe the relationship. ` +
-            `Omit the field to keep existing links, pass [] to explicitly clear, ` +
-            `or use manage_record_links to remove specific ids.`,
-        });
-      }
-    }
-  });
-}
-
-export const NO_NULL_WIPE_WARNING =
-  "NEVER pass null on relationship arrays; it would wipe existing links. " +
-  "Omit the field to keep existing, pass [] to explicitly clear all, " +
-  "or use manage_record_links to remove specific ids.";
 
 export async function runInteractor<T>(
   result: InteractorResult<T>,
@@ -260,25 +230,3 @@ export async function runInteractor<T>(
 export function toonResult(payload: Record<string, unknown>): McpToolResult {
   return { text: encodeToToon(payload), structuredContent: payload };
 }
-
-export const CreatedRecordsOutputSchema = z.object({
-  items: z.array(z.object({ id: z.string(), name: z.string() })).describe("The created records, in input order"),
-});
-
-export const UpdatedRecordsOutputSchema = z.object({ updated: z.number() });
-
-export const CUSTOM_COLUMN_PREREQ = "Prereq: call get_record_schema for custom-column ids.";
-
-export const CUSTOM_FIELDS_MERGE_NOTE =
-  "customFieldValues is a per-column merge: only columns you include change; to clear one pass { columnId, value: null }. " +
-  "A date or dateTime value is an instant: send ISO 8601 carrying the offset of the time the user named, for example 2026-09-14T09:00:00+02:00 for 09:00 Europe/Berlin; a trailing Z means UTC, so never append it to a local time.";
-
-export const IDEMPOTENT_NOTE = "Idempotent: same payload produces the same state.";
-
-export const relationsViaLinkNote = (relations: string) =>
-  `Relations (${relations}) are NOT changed here - add or remove them with manage_record_links so existing links are preserved.`;
-
-export const CONTACT_KEY_FIELD_NOTE =
-  "For contacts, this may instead be a channel the contact owns: an email (e.g. 'jane@example.com'), " +
-  "a phone (e.g. '+491234567890'), or 'provider:value' for a handle where provider is one of linkedin, telegram, " +
-  "instagram (e.g. 'linkedin:john-doe').";

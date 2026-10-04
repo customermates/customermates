@@ -3,14 +3,7 @@ import { z } from "zod";
 
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 
-import {
-  FILTER_FIELD_DESCRIPTION,
-  FILTER_OPERATORS,
-  FILTER_SYNTAX,
-  mcpOptionalPageSize,
-  mcpPageSize,
-  roundMcpPageSize,
-} from "../utils";
+import { FILTER_OPERATORS, FILTER_SYNTAX, mcpOptionalPageSize, mcpPageSize, roundMcpPageSize } from "../utils";
 
 describe("page size", () => {
   it("rounds any 1-100 integer up to the nearest supported size and applies the default", () => {
@@ -42,7 +35,6 @@ describe("filter syntax", () => {
   it("lists every filter operator the query builder supports, exactly once", () => {
     expect([...FILTER_OPERATORS].toSorted()).toEqual(Object.values(FilterOperatorKey).toSorted());
     expect(new Set(FILTER_OPERATORS).size).toBe(FILTER_OPERATORS.length);
-    for (const operator of Object.values(FilterOperatorKey)) expect(FILTER_FIELD_DESCRIPTION).toContain(operator);
     expect(Object.values(FILTER_SYNTAX.operators).flat().toSorted()).toEqual(
       Object.values(FilterOperatorKey).toSorted(),
     );

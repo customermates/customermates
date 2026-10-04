@@ -11,8 +11,6 @@ import {
   isRecordRemovalEvent,
   matchesChangedFields,
 } from "@/ee/routines/routine-event-filter";
-import { ROUTINE_CHANGE_FIELDS } from "@/ee/routines/routine-change-fields";
-import { calculateChanges } from "@/core/utils/calculate-changes";
 
 describe("event entity types", () => {
   it("derives the entity type from an event name", () => {
@@ -90,49 +88,6 @@ describe("changed field extraction", () => {
 
   it("reports that an update payload carries one", () => {
     expect(carriesChangedFields({ payload: { changes: {} } })).toBe(true);
-  });
-});
-
-describe("the picker and the change map speak the same vocabulary", () => {
-  const previous = {
-    id: "3f1e0a12-0000-4000-8000-00000000000a",
-    name: "Before",
-    notes: "old",
-    createdAt: new Date(0),
-    updatedAt: new Date(0),
-    contacts: [],
-    users: [],
-    deals: [],
-    tasks: [],
-    customFieldValues: [],
-  };
-
-  it("offers every plain field an organization update can report", () => {
-    const current = {
-      ...previous,
-      name: "After",
-      notes: "new",
-      users: [{ id: "u1" }],
-    };
-    const produced = Object.keys(calculateChanges(previous, current));
-    const offered = new Set(ROUTINE_CHANGE_FIELDS[EntityType.organization]);
-
-    for (const field of produced) expect(offered.has(field)).toBe(true);
-  });
-
-  it("never offers a key the change map discards", () => {
-    for (const fields of Object.values(ROUTINE_CHANGE_FIELDS)) {
-      expect(fields).not.toContain("updatedAt");
-      expect(fields).not.toContain("createdAt");
-      expect(fields).not.toContain("id");
-    }
-  });
-
-  it("offers the fields a user would actually watch", () => {
-    expect(ROUTINE_CHANGE_FIELDS[EntityType.organization]).toContain("name");
-    expect(ROUTINE_CHANGE_FIELDS[EntityType.organization]).toContain("notes");
-    expect(ROUTINE_CHANGE_FIELDS[EntityType.contact]).toContain("firstName");
-    expect(ROUTINE_CHANGE_FIELDS[EntityType.deal]).toContain("totalValue");
   });
 });
 

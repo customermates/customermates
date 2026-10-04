@@ -137,7 +137,6 @@ const UpsertRoutineFieldsSchema = z.object({
   debounceSeconds: z.number().int().min(0).max(86_400).optional(),
 });
 
-/** The merged final state: an unchanged stored routine may still carry a retired trigger event. */
 export type RoutineValidationData = Omit<z.output<typeof UpsertRoutineFieldsSchema>, "triggerEvents"> & {
   triggerEvents?: z.output<typeof StoredRoutineTriggerEventSchema>[];
 };
