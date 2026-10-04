@@ -2,7 +2,7 @@ diff --git a/node_modules/@ai-sdk/workflow/dist/index.js b/node_modules/@ai-sdk/
 index 954fb39..6e05ca1 100644
 --- a/node_modules/@ai-sdk/workflow/dist/index.js
 +++ b/node_modules/@ai-sdk/workflow/dist/index.js
-@@ -246,253 +246,525 @@ function resolveSerializableTools(tools) {
+@@ -246,253 +246,553 @@ function resolveSerializableTools(tools) {
  }
  
  // src/do-stream-step.ts
@@ -246,6 +246,33 @@ index 954fb39..6e05ca1 100644
 +    }
 +    return null;
 +}
++function gatewayFailureRetryAfter(value) {
++    const seen = new Set();
++    let current = value;
++    for (let depth = 0; depth < 8; depth += 1) {
++        const object = gatewayFailureRecord(current);
++        if (!object || seen.has(current))
++            return {};
++        seen.add(current);
++        const headers = gatewayFailureMarked(current, "vercel.ai.error.AI_APICallError")
++            ? gatewayFailureRecord(object.responseHeaders)
++            : null;
++        if (headers) {
++            const retryAfterMs = typeof headers["retry-after-ms"] === "string" ? parseFloat(headers["retry-after-ms"]) : NaN;
++            const retryAfter = typeof headers["retry-after"] === "string" ? headers["retry-after"] : null;
++            const ms = !Number.isNaN(retryAfterMs)
++                ? retryAfterMs
++                : retryAfter === null
++                    ? NaN
++                    : !Number.isNaN(parseFloat(retryAfter))
++                        ? parseFloat(retryAfter) * 1000
++                        : Date.parse(retryAfter) - Date.now();
++            return Number.isFinite(ms) && ms >= 0 && ms <= 60_000 ? { retryAfterMs: Math.ceil(ms) } : {};
++        }
++        current = object.cause;
++    }
++    return {};
++}
 +function gatewayFailureTransportStatus(error) {
 +    const seen = new Set();
 +    let current = error;
@@ -261,6 +288,7 @@ index 954fb39..6e05ca1 100644
 +                    ? { statusCode: object.statusCode }
 +                    : {}),
 +                ...(typeof object.isRetryable === "boolean" ? { isRetryable: object.isRetryable } : {}),
++                ...gatewayFailureRetryAfter(current),
 +            };
 +        }
 +        if (gatewayFailureMarked(current, "vercel.ai.error.AI_RetryError")) {
@@ -764,7 +792,7 @@ index 954fb39..6e05ca1 100644
  doStreamStep.maxRetries = 0;
  function upsertTextContentPart({
    content,
-@@ -746,6 +1018,29 @@ async function* streamTextIterator({
+@@ -746,6 +1046,29 @@ async function* streamTextIterator({
          runtimeContext: currentRuntimeContext,
          toolsContext: currentToolsContext
        });
@@ -794,7 +822,7 @@ index 954fb39..6e05ca1 100644
        await ((_j = telemetryDispatcher.onLanguageModelCallEnd) == null ? void 0 : _j.call(telemetryDispatcher, {
          callId: step.callId,
          provider: (_g = (_f = step.model) == null ? void 0 : _f.provider) != null ? _g : "unknown",
-@@ -762,9 +1057,10 @@ async function* streamTextIterator({
+@@ -762,9 +1085,10 @@ async function* streamTextIterator({
        lastStep = step;
        lastStepWasToolCalls = false;
        const finishReason = finish == null ? void 0 : finish.finishReason;
@@ -806,7 +834,7 @@ index 954fb39..6e05ca1 100644
          lastStepWasToolCalls = true;
          const assistantContent = getAssistantMessageContent(step);
          const includedToolCallIds = new Set(
-@@ -792,7 +1088,9 @@ async function* streamTextIterator({
+@@ -792,7 +1116,9 @@ async function* streamTextIterator({
            role: "tool",
            content: toolResults
          });
@@ -817,7 +845,7 @@ index 954fb39..6e05ca1 100644
            const stopConditionList = Array.isArray(stopConditions) ? stopConditions : [stopConditions];
            if (stopConditionList.some((test) => test({ steps }))) {
              done = true;
-@@ -934,144 +1232,155 @@ function normalizeStepForTelemetry(step) {
+@@ -934,144 +1260,155 @@ function normalizeStepForTelemetry(step) {
    };
  }
  function buildStepResult(raw, toolCalls, finish, opts) {
@@ -1120,7 +1148,7 @@ index 1712672..d082d0b 100644
  }
  
  export type DoStreamStepResult =
-@@ -161,6 +162,191 @@ export type DoStreamStepResult =
+@@ -161,6 +162,219 @@ export type DoStreamStepResult =
        terminalError?: unknown;
      };
  
@@ -1204,7 +1232,34 @@ index 1712672..d082d0b 100644
 +  return null;
 +}
 +
-+function gatewayFailureTransportStatus(error: unknown): { statusCode?: number; isRetryable?: boolean } {
++function gatewayFailureRetryAfter(value: unknown): { retryAfterMs?: number } {
++  const seen = new Set<unknown>();
++  let current = value;
++  for (let depth = 0; depth < 8; depth += 1) {
++    const object = gatewayFailureRecord(current);
++    if (!object || seen.has(current)) return {};
++    seen.add(current);
++    const headers = gatewayFailureMarked(current, "vercel.ai.error.AI_APICallError")
++      ? gatewayFailureRecord(object.responseHeaders)
++      : null;
++    if (headers) {
++      const retryAfterMs = typeof headers["retry-after-ms"] === "string" ? parseFloat(headers["retry-after-ms"]) : NaN;
++      const retryAfter = typeof headers["retry-after"] === "string" ? headers["retry-after"] : null;
++      const ms = !Number.isNaN(retryAfterMs)
++        ? retryAfterMs
++        : retryAfter === null
++          ? NaN
++          : !Number.isNaN(parseFloat(retryAfter))
++            ? parseFloat(retryAfter) * 1000
++            : Date.parse(retryAfter) - Date.now();
++      return Number.isFinite(ms) && ms >= 0 && ms <= 60_000 ? { retryAfterMs: Math.ceil(ms) } : {};
++    }
++    current = object.cause;
++  }
++  return {};
++}
++
++function gatewayFailureTransportStatus(error: unknown): { statusCode?: number; isRetryable?: boolean; retryAfterMs?: number } {
 +  const seen = new Set<unknown>();
 +  let current = error;
 +  for (let depth = 0; depth < 8; depth += 1) {
@@ -1220,6 +1275,7 @@ index 1712672..d082d0b 100644
 +          ? { statusCode: object.statusCode }
 +          : {}),
 +        ...(typeof object.isRetryable === "boolean" ? { isRetryable: object.isRetryable } : {}),
++        ...gatewayFailureRetryAfter(current),
 +      };
 +    }
 +    if (gatewayFailureMarked(current, "vercel.ai.error.AI_RetryError")) {
@@ -1312,7 +1368,7 @@ index 1712672..d082d0b 100644
  export async function doStreamStep(
    conversationPrompt: LanguageModelV4Prompt,
    modelInit: LanguageModel,
-@@ -230,10 +416,13 @@ export async function doStreamStep(
+@@ -230,10 +444,13 @@ export async function doStreamStep(
      maxRetries: options?.maxRetries,
      abortSignal,
    });
@@ -1328,7 +1384,7 @@ index 1712672..d082d0b 100644
            model,
            // streamModelCall expects Prompt (ModelMessage[]) but we pass the
            // pre-converted LanguageModelV4Prompt. standardizePrompt inside
-@@ -257,8 +446,14 @@ export async function doStreamStep(
+@@ -257,8 +474,14 @@ export async function doStreamStep(
            stopSequences: options?.stopSequences,
            seed: options?.seed,
            repairToolCall: options?.repairToolCall,
@@ -1345,7 +1401,7 @@ index 1712672..d082d0b 100644
  
        return stream;
      } catch (error) {
-@@ -266,7 +461,7 @@ export async function doStreamStep(
+@@ -266,7 +489,7 @@ export async function doStreamStep(
          return undefined;
        }
  
@@ -1354,7 +1410,7 @@ index 1712672..d082d0b 100644
      }
    })();
  
-@@ -292,16 +487,30 @@ export async function doStreamStep(
+@@ -292,16 +515,30 @@ export async function doStreamStep(
    let warnings: unknown[] | undefined;
    let terminalError: unknown;
    let hasTerminalError = false;
@@ -1387,7 +1443,7 @@ index 1712672..d082d0b 100644
  
      for await (const part of modelStream) {
        switch (part.type) {
-@@ -418,7 +627,7 @@ export async function doStreamStep(
+@@ -418,7 +655,7 @@ export async function doStreamStep(
              providerExecutedToolResults.set(errorPart.toolCallId, {
                toolCallId: errorPart.toolCallId,
                toolName: errorPart.toolName,
@@ -1396,7 +1452,7 @@ index 1712672..d082d0b 100644
                isError: true,
              });
            }
-@@ -442,27 +651,38 @@ export async function doStreamStep(
+@@ -442,27 +679,38 @@ export async function doStreamStep(
            break;
        }
  
@@ -1453,7 +1509,7 @@ index 1712672..d082d0b 100644
        }
      }
    } catch (error) {
-@@ -470,7 +690,23 @@ export async function doStreamStep(
+@@ -470,7 +718,23 @@ export async function doStreamStep(
        return { aborted: true };
      }
  
@@ -1478,7 +1534,7 @@ index 1712672..d082d0b 100644
    } finally {
      writer?.releaseLock();
    }
-@@ -482,6 +718,14 @@ export async function doStreamStep(
+@@ -482,6 +746,14 @@ export async function doStreamStep(
      return { aborted: true };
    }
  
@@ -1493,7 +1549,7 @@ index 1712672..d082d0b 100644
    return {
      toolCalls,
      finish,
-@@ -490,6 +734,7 @@ export async function doStreamStep(
+@@ -490,6 +762,7 @@ export async function doStreamStep(
        reasoning: reasoningParts,
        responseMetadata,
        warnings,

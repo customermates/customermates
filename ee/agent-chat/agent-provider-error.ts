@@ -219,3 +219,19 @@ export function readAgentProviderRoundCharge(
   if (envelope?.kind !== "ai-sdk-workflow-provider-error" || envelope.version !== 1) return null;
   return readProviderReceiptEnvelope(envelope, expectedProvider);
 }
+
+export type AgentProviderRateLimit = { retryAfterMs: number | null };
+
+// A provider request rejected with HTTP 429 before any response stream began,
+// in a single attempt the SDK did not retry. Nothing was generated, so no
+// provider tool such as web search ran for it.
+export function readAgentProviderRateLimit(error: unknown): AgentProviderRateLimit | null {
+  const envelope = providerFailureEnvelope(error);
+  if (!envelope || envelope.statusCode !== 429 || "currentAttempt" in envelope) return null;
+  if (!Array.isArray(envelope.attempts) || envelope.attempts.length !== 1) return null;
+  const retryAfterMs = envelope.retryAfterMs;
+  return {
+    retryAfterMs:
+      typeof retryAfterMs === "number" && Number.isSafeInteger(retryAfterMs) && retryAfterMs >= 0 ? retryAfterMs : null,
+  };
+}

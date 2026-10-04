@@ -399,6 +399,7 @@ vi.mock("../capture-failure", () => ({
   toWorkflowFailure: (error: unknown) => error,
 }));
 
+import { sleep } from "workflow";
 import { runAgentTurn, type AgentTurnWorkflowPayload } from "../agent-turn";
 import { approvalDenialReason } from "@/ee/agent-chat/agent-approval-resume";
 import { AGENT_WIKI_REFERENCE_CLOSE, agentWikiSystemPrompt } from "@/ee/agent-chat/agent-wiki-context";
@@ -4136,6 +4137,229 @@ describe("routine browse-or-mutate batch safety", () => {
 
       expect(result).toMatchObject({ ok: true });
       expect(state.execute).toHaveBeenCalledOnce();
+    });
+  });
+});
+
+describe("agent-turn rate-limited provider requests", () => {
+  const notBilled = {
+    gateway: {
+      gatewayCost: "0",
+      cost: "0",
+      routing: {
+        finalProvider: "vertex",
+        modelAttempts: [{ providerAttempts: [{ provider: "vertex", credentialType: "system", success: false }] }],
+      },
+    },
+  };
+  const billed = {
+    gateway: {
+      gatewayCost: "0.0005",
+      cost: "0.0005",
+      routing: {
+        finalProvider: "vertex",
+        modelAttempts: [{ providerAttempts: [{ provider: "vertex", credentialType: "system", success: true }] }],
+      },
+    },
+  };
+
+  const providerRejection = (statusCode: number, extra: Record<string, unknown> = {}) =>
+    new Error(`A provider request failed before complete usage was available (HTTP ${statusCode}).`, {
+      cause: {
+        kind: "ai-sdk-workflow-provider-error",
+        version: 1,
+        attempts: [notBilled],
+        statusCode,
+        isRetryable: true,
+        ...extra,
+      },
+    });
+  const rateLimited = (extra: Record<string, unknown> = {}) => providerRejection(429, extra);
+  const reply = () => ({
+    finishReason: "stop",
+    messages: [],
+    steps: [{ ...streamedStep("Done.", "stop"), providerMetadata: billed }],
+  });
+  const sleeps = () => vi.mocked(sleep).mock.calls.map(([duration]) => duration);
+
+  beforeEach(() => {
+    vi.mocked(sleep).mockClear();
+  });
+
+  it("retries a request-time 429 after its Retry-After wait and completes the turn", async () => {
+    let attempts = 0;
+    state.runTools = () =>
+      attempts++ === 0 ? Promise.reject(rateLimited({ retryAfterMs: 3_000 })) : Promise.resolve(reply());
+
+    await runAgentTurn(payload);
+
+    expect(state.providerCalls).toBe(2);
+    expect(sleeps()).toEqual([3_000]);
+    expect(state.reportFailure).not.toHaveBeenCalled();
+    expect(state.extendReservation).not.toHaveBeenCalled();
+    expect(state.recordRound).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ costMicrocents: 50_000 }));
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        terminalCode: "completed",
+        stopReason: null,
+        usageSettlement: expect.objectContaining({ costMicrocents: 50_000, costSource: "measured" }),
+      }),
+    );
+  });
+
+  it("caps a long Retry-After wait", async () => {
+    let attempts = 0;
+    state.runTools = () =>
+      attempts++ === 0 ? Promise.reject(rateLimited({ retryAfterMs: 45_000 })) : Promise.resolve(reply());
+
+    await runAgentTurn(payload);
+
+    expect(sleeps()).toEqual([10_000]);
+    expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ stopReason: null }));
+  });
+
+  it("stops a persistent 429 after two backed-off retries with the existing provider error", async () => {
+    const last = rateLimited();
+    let attempts = 0;
+    state.runTools = () => Promise.reject(++attempts === 3 ? last : rateLimited());
+
+    await runAgentTurn(payload);
+
+    expect(state.providerCalls).toBe(3);
+    expect(sleeps()).toEqual([2_000, 4_000]);
+    expect(state.reportFailure).toHaveBeenCalledExactlyOnceWith("agent-turn", last, payload.tenant);
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        terminalCode: "partial",
+        stopReason: "provider_error",
+        usageSettlement: expect.objectContaining({ costMicrocents: 0, costSource: "measured" }),
+      }),
+    );
+    expect(JSON.stringify(state.writes)).toContain("localized:AgentChat.runner.providerError");
+  });
+
+  it.each([
+    ["a 503 rejection", () => providerRejection(503)],
+    ["a 429 the SDK already retried", () => rateLimited({ attempts: [notBilled, notBilled, notBilled] })],
+    [
+      "a 429 after the response stream began",
+      () => rateLimited({ attempts: [], currentAttempt: { errorAttempts: [notBilled] } }),
+    ],
+    [
+      "a 429 without the durable provider receipt",
+      () =>
+        Object.assign(new Error("rate limited"), { [Symbol.for("vercel.ai.gateway.error")]: true, statusCode: 429 }),
+    ],
+  ])("does not retry %s", async (_label, error) => {
+    state.runTools = () => Promise.reject(error());
+
+    await runAgentTurn(payload);
+
+    expect(state.providerCalls).toBe(1);
+    expect(sleeps()).toEqual([]);
+    expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ stopReason: "provider_error" }));
+  });
+
+  it.each([
+    [3 * CREDIT, 1],
+    [4 * CREDIT, 2],
+    [6 * CREDIT, 3],
+  ])(
+    "funds 429 retries from %i microcents of reserved headroom (%i provider calls)",
+    async (reservedMicrocents, calls) => {
+      state.runTools = () => Promise.reject(rateLimited());
+
+      await runAgentTurn({ ...payload, turnBudget: { ...payload.turnBudget, reservedMicrocents } });
+
+      expect(state.providerCalls).toBe(calls);
+      expect(state.extendReservation).not.toHaveBeenCalled();
+      expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ stopReason: "provider_error" }));
+    },
+  );
+
+  it("stops on cancellation observed during the wait without another provider request", async () => {
+    state.readCancellation.mockResolvedValueOnce(false).mockResolvedValue(true);
+    state.runTools = () => Promise.reject(rateLimited());
+
+    await runAgentTurn(payload);
+
+    expect(state.providerCalls).toBe(1);
+    expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ stopReason: "cancelled" }));
+  });
+
+  it("resumes a mid-segment 429 from the recorded rounds without running a tool again", async () => {
+    state.definitions = [{ name: "list_users", description: "list_users", inputSchema: { type: "object" } }];
+    state.normalize.mockImplementation((_name, input) => Promise.resolve({ ok: true, input }));
+    const seen: string[] = [];
+    state.runTools = async ({ messages, executeAndCompleteTool, completeStepAndPrepareNext }) => {
+      seen.push(JSON.stringify(messages));
+      if (seen.length > 1) return reply();
+      await executeAndCompleteTool("list_users", {}, "call-1");
+      await completeStepAndPrepareNext(streamedToolCallStep("list_users", "call-1", {}));
+      throw rateLimited();
+    };
+
+    await runAgentTurn(payload);
+
+    expect(seen).toHaveLength(2);
+    expect(seen[1]).toContain("call-1");
+    expect(state.execute).toHaveBeenCalledOnce();
+    expect(sleeps()).toEqual([2_000]);
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({ terminalCode: "completed", stopReason: null }),
+    );
+  });
+
+  describe("with web search offered", () => {
+    beforeEach(() => {
+      state.definitions = [
+        {
+          name: "web_search",
+          description: "web_search",
+          inputSchema: { type: "object" },
+          type: "provider",
+          id: "gateway.exa_search",
+          isProviderExecuted: true,
+        },
+        { name: "list_users", description: "list_users", inputSchema: { type: "object" } },
+      ];
+    });
+
+    it("retries a request-time 429 although the round allows the SDK no retry", async () => {
+      const prepared: unknown[] = [];
+      state.runTools = (options) => {
+        prepared.push(options.prepared);
+        return prepared.length === 1 ? Promise.reject(rateLimited()) : Promise.resolve(reply());
+      };
+
+      await runAgentTurn({ ...payload, webSearchEnabled: true });
+
+      expect(prepared).toEqual([
+        expect.objectContaining({ maxRetries: 0, activeTools: expect.arrayContaining(["web_search"]) }),
+        expect.objectContaining({ maxRetries: 0 }),
+      ]);
+      expect(state.finalize).toHaveBeenCalledWith(
+        expect.objectContaining({ terminalCode: "completed", stopReason: null }),
+      );
+    });
+
+    it("does not retry a 429 that ends a round whose step already ran web search", async () => {
+      let attempts = 0;
+      state.runTools = () => {
+        attempts += 1;
+        return Promise.reject(
+          rateLimited({
+            attempts: [],
+            currentAttempt: { finishMetadata: { gateway: { ...billed.gateway, gatewayToolCalls: { exa_search: 1 } } } },
+          }),
+        );
+      };
+
+      await runAgentTurn({ ...payload, webSearchEnabled: true });
+
+      expect(attempts).toBe(1);
+      expect(sleeps()).toEqual([]);
+      expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ stopReason: "provider_error" }));
     });
   });
 });
