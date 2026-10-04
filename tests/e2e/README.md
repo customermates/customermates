@@ -26,7 +26,7 @@ Important behavior:
 - Deal line items are embedded records. Duplicate services, exact quantities, live catalog prices and explicitly captured saved prices are supported. Deal quantity/value are rollups; weighted value uses stage probability. Missing probability differs from zero.
 - Formula, lookup, rollup and snapshot definitions are validated backend configuration. Calculation errors are visible. Aggregation uses record identity and a declared grain; equal amounts are not duplicate records.
 - Schema configuration, role administration, record access and publishing a restricted summary are separate authorities. Derived-value restrictions apply to queries, widgets, exports, history and deliveries, including retained values after manual/snapshot conversion and source archive.
-- A normalized channel identifier is indexed and may have associations with several records/types. Removing an association must not delete another association or silently grant inbox access. Conversation links and declared activity paths remain explicit.
+- A normalized channel identifier is indexed and may have associations with several records/types. Removing an association must not delete another association or silently grant inbox access. Removing the last association deletes the canonical identity with its aliases and cached provider metadata; disabling Channels or archiving a type keeps associations for restoration. Conversation links and declared activity paths remain explicit.
 - Application identity, authentication, memberships, provider connections and protected membership-task operations remain system responsibilities. Ordinary fields and renamed types cannot bypass those constraints.
 - Large operations retain the previous complete readable state, pause CRM writes and publish a complete revision atomically. Failure, cancellation and retry must not leak partial values or repeat accepted mutations.
 - Legacy CRUD implementations are removed. Remaining legacy names should be justified as presets, migration logic, redirects or historical read-only decoders. Do not remove preservation code simply because active CRUD is generic.
@@ -104,9 +104,10 @@ node --env-file=.env --env-file=.runs/record-review/db.env node_modules/.bin/pri
 node --env-file=.env --env-file=.runs/record-review/db.env node_modules/.bin/tsx prisma/seed.ts
 node --env-file=.env --env-file=.runs/record-review/db.env node_modules/.bin/prisma migrate deploy
 node --env-file=.env --env-file=.runs/record-review/db.env node_modules/.bin/tsx prisma/seed.ts
+node --env-file=.env --env-file=.runs/record-review/db.env node_modules/.bin/bootstrap
+yarn raw-docs:generate
 yarn docs:generate-catalog
 yarn openapi:generate
-yarn raw-docs:generate
 yarn typecheck
 yarn lint
 yarn i18n:audit
