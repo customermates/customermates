@@ -115,8 +115,13 @@ describeDatabase("inbox filters on PostgreSQL", () => {
 
   beforeAll(async () => {
     await client.connect();
-    for (const id of [companyId, foreignCompanyId])
+    for (const id of [companyId, foreignCompanyId]) {
       await client.query('INSERT INTO "Company" (id,"updatedAt") VALUES ($1,NOW())', [id]);
+      await client.query(
+        'INSERT INTO "UserRole" (id,name,"isSystemRole","companyId","updatedAt") VALUES ($1,\'Admin\',TRUE,$1,NOW())',
+        [id],
+      );
+    }
 
     for (const [id, company] of [
       [userId, companyId],
@@ -124,7 +129,7 @@ describeDatabase("inbox filters on PostgreSQL", () => {
       [foreignUserId, foreignCompanyId],
     ]) {
       await client.query(
-        'INSERT INTO "User" (id,email,"firstName","lastName","companyId","updatedAt") VALUES ($1,$2,\'Filter\',\'Fixture\',$3,NOW())',
+        'INSERT INTO "User" (id,email,"firstName","lastName","companyId","roleId",status,"updatedAt") VALUES ($1,$2,\'Filter\',\'Fixture\',$3,$3,\'active\',NOW())',
         [id, `${id}@example.invalid`, company],
       );
     }

@@ -40,15 +40,20 @@ describeDatabase("Bcc visibility on PostgreSQL", () => {
 
   beforeAll(async () => {
     await client.connect();
-    for (const id of [companyId, otherCompanyId])
+    for (const id of [companyId, otherCompanyId]) {
       await client.query('INSERT INTO "Company" ("id", "updatedAt") VALUES ($1, CURRENT_TIMESTAMP)', [id]);
+      await client.query(
+        'INSERT INTO "UserRole" ("id", "name", "isSystemRole", "companyId", "updatedAt") VALUES ($1, $2, TRUE, $1, CURRENT_TIMESTAMP)',
+        [id, "Admin"],
+      );
+    }
     for (const [id, tenantId] of [
       [ownerId, companyId],
       [colleagueId, companyId],
       [outsiderId, otherCompanyId],
     ]) {
       await client.query(
-        'INSERT INTO "User" ("id", "email", "firstName", "lastName", "companyId", "updatedAt") VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)',
+        'INSERT INTO "User" ("id", "email", "firstName", "lastName", "companyId", "roleId", "status", "updatedAt") VALUES ($1, $2, $3, $4, $5, $5, \'active\', CURRENT_TIMESTAMP)',
         [id, `bcc-${id}@example.invalid`, "Bcc", "Test", tenantId],
       );
     }
