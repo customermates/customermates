@@ -138,7 +138,7 @@ What that looks like in practice. A user opens Claude and types:
 
 > "Create a contact for Sarah Lee at Northwind, VP Sales. Link her to the Northwind organization. Add a deal for €25,000 at Discovery stage. Create a task for me to send her the proposal."
 
-Claude reads the MCP tool list, identifies `create_contacts`, `manage_record_links`, `create_deals`, and `create_tasks`. It runs them in sequence, returns the new records, and confirms what it did. No webhook configuration, no Zapier, no admin work.
+Claude reads the MCP tool list, looks up the contact, deal, and task types with `discover_record_types` and `get_record_model`, and finds Northwind with `search_crm_records`. It then runs `mutate_crm_record` in sequence to create the contact, link her to Northwind, create the deal, and create the task, returns the new records, and confirms what it did. No webhook configuration, no Zapier, no admin work.
 
 That is the third path: not building a CRM with Claude Code, not connecting Claude to a CRM through a paid connector, but using a CRM that was designed for Claude (and ChatGPT, and Gemini) to operate from day one.
 

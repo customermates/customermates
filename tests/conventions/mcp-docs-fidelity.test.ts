@@ -203,6 +203,21 @@ describe("MCP tool catalog fidelity", () => {
     expect(stale).toEqual([]);
   });
 
+  it("keeps marketing pages in every locale free of retired CRM tool names", async () => {
+    const { RETIRED_RECORD_TOOLS } = await import("@/features/mcp-tools/retired-record-tools");
+    const stale: string[] = [];
+    for (const collection of ["blog-posts", "compare-pages", "feature-pages"]) {
+      const files = walkFiles(join(REPO_ROOT, "content", collection), (path) => path.endsWith(".mdx"));
+      expect(files.length, collection).toBeGreaterThan(0);
+      for (const file of files) {
+        const text = readFileSync(file, "utf8");
+        for (const name of Object.keys(RETIRED_RECORD_TOOLS))
+          if (new RegExp(`\\b${name}\\b`).test(text)) stale.push(`${file.slice(REPO_ROOT.length + 1)}: ${name}`);
+      }
+    }
+    expect(stale, stale.join("\n")).toEqual([]);
+  });
+
   it("registers each active tool once with complete metadata and excludes retired write contracts", async () => {
     const { RETIRED_RECORD_TOOLS } = await import("@/features/mcp-tools/retired-record-tools");
     expect(registeredToolNames().size).toBe(activeTools.length);

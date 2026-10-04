@@ -139,9 +139,9 @@ For founder-led teams or 1-15 person companies, the smart-CRM choice in 2026 is 
 
 To make the argument concrete: a smart CRM should let you point your AI assistant at the CRM and get useful work done. Here is what that looks like in Customermates without writing integration code.
 
-**Read the CRM.** "Show me the deals that haven't moved in 30 days, grouped by owner." Claude reads via `list_records` and `get_records` MCP tools, returns a structured table.
+**Read the CRM.** "Show me the deals that haven't moved in 30 days, grouped by owner." Claude reads via the `query_crm_records` and `read_crm_record` MCP tools and returns a structured table.
 
-**Write to the CRM.** "Create a contact for Jane Smith at Acme, Director of Sales, link to the Acme organization, and add a follow-up task for me." `create_contacts`, `manage_record_links`, `create_tasks` in one turn. Tasks have no due dates or reminders, so put the date in the task title or a custom date column.
+**Write to the CRM.** "Create a contact for Jane Smith at Acme, Director of Sales, link to the Acme organization, and add a follow-up task for me." `mutate_crm_record` creates the contact, links it to the organization, and adds the task in one turn. Tasks have no due dates or reminders, so put the date in the task title or a custom date column.
 
 **Run a workflow.** "For every meeting on my calendar tomorrow, pull the linked CRM record and draft a one-page brief." Claude orchestrates over MCP, reading the connected calendar (read-only, from Pro) and the records. Customermates does not schedule or send anything at a set time; for that you use a cloud routine or an external scheduler.
 
