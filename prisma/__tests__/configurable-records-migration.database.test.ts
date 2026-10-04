@@ -727,6 +727,60 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
     expect(await note(empty.notes.jsonNull)).toEqual({ state: "missing", jsonValue: null });
   });
 
+  it("keeps Knowledge Base pages, permissions, audit history and resized detail panels written after the mate bundle", async () => {
+    const { client } = await legacyDatabase();
+    const f = await populateLegacyWorkspace(client);
+    const pageId = randomUUID();
+    const panelWidths = {
+      "panel:master-notes-history:master": 40,
+      "panel:master-notes-history:notes": 35,
+      "panel:master-notes-history:history": 25,
+    };
+    for (const action of ["readAll", "update"]) {
+      await client.query(
+        'INSERT INTO "RolePermission" (id, "roleId", "companyId", resource, action) VALUES ($1, $2, $3, $4, $5)',
+        [randomUUID(), f.memberRole.id, f.companyId, "wiki", action],
+      );
+    }
+    await client.query(
+      'INSERT INTO "WikiPage" (id, "companyId", title, markdown, kind, "updatedAt") VALUES ($1, $2, $3, $4, $5, NOW())',
+      [pageId, f.companyId, "Operating Guide", "# Operating Guide\n\nCall every new lead within a day.", "guide"],
+    );
+    await client.query(
+      'INSERT INTO "AuditLog" (id, event, "eventData", "companyId", "userId", "entityId") VALUES ($1, $2, $3, $4, $5, $6)',
+      [randomUUID(), "wiki_page.created", { title: "Operating Guide" }, f.companyId, f.admin.id, pageId],
+    );
+    const panelRow = randomUUID();
+    await client.query(
+      'INSERT INTO "P13n" (id, "userId", "companyId", "p13nId", "columnOrder", "hiddenColumns", "columnWidths", "updatedAt") VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())',
+      [panelRow, f.member.id, f.companyId, "deal-detail", [], [], panelWidths],
+    );
+    const mateState = async () => ({
+      pages: await rows(client, 'SELECT to_jsonb(p) AS row FROM "WikiPage" p WHERE "companyId"=$1', [f.companyId]),
+      permissions: await rows(
+        client,
+        'SELECT resource::text, action::text FROM "RolePermission" WHERE "roleId"=$1 AND resource::text=$2 ORDER BY action',
+        [f.memberRole.id, "wiki"],
+      ),
+      audit: await rows(client, 'SELECT to_jsonb(a) AS row FROM "AuditLog" a WHERE "entityId"=$1', [pageId]),
+    });
+    const before = await mateState();
+    expect(before.permissions).toHaveLength(2);
+
+    await applyConfigurableRecordsMigration(client);
+
+    expect(await mateState()).toEqual(before);
+    expect(
+      await rows(client, 'SELECT "p13nId", "columnWidths", "detailOptions" FROM "P13n" WHERE id=$1', [panelRow]),
+    ).toEqual([
+      {
+        p13nId: `record-detail:${presetId(f.companyId, "deal")}`,
+        columnWidths: panelWidths,
+        detailOptions: null,
+      },
+    ]);
+  });
+
   it("reports an unexpected failure as an internal error, never as a data issue", async () => {
     const { client } = await legacyDatabase();
     const f = await populateLegacyWorkspace(client);
