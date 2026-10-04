@@ -5,13 +5,7 @@ import { z } from "zod";
 import { MessagingProvider, MessagingThreadType } from "@/generated/prisma";
 import { EntityType } from "@/features/records/history/v1/legacy-enums";
 import { CalendarEventSchema } from "@/ee/calendar/calendar.schema";
-import {
-  GetQueryParamsApiSchema,
-  GetQueryParamsSchema,
-  PaginationRequestSchema,
-  createApiGetResultSchema,
-  DataViewResultFields,
-} from "@/core/base/base-get.schema";
+import { createApiGetResultSchema, DataViewResultFields } from "@/core/base/base-get.schema";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
@@ -21,7 +15,6 @@ import { MessagingMessageDtoSchema } from "../inbox/inbox.schema";
 import { MessagingProviderSchema } from "../messaging.schema";
 import { AuditChangeSchema } from "@/features/audit-log/audit-log-changes";
 import { ACTIVITY_RELATED_RECORD_LIMIT } from "./activity-record-refs";
-import { ACTIVITY_MAX_PAGE, ActivityScopeSchema } from "./activity-scope.schema";
 import { RecordRefSchema } from "@/features/records/record-model.schema";
 import { RecordHistoryChangesSchema } from "@/features/records/record-event.schema";
 
@@ -234,55 +227,12 @@ export const ActivityFiltersSchema = z
   })
   .describe("At most one rule per field; combine alternatives within one membership rule.");
 
-const ActivitiesPaginationSchema = PaginationRequestSchema.extend({
-  page: z.number().int().min(1),
-});
-
-function refineActivityPage(data: { pagination?: { page?: number } }, ctx: z.RefinementCtx) {
-  const page = data.pagination?.page;
-
-  if (page !== undefined && page > ACTIVITY_MAX_PAGE) {
-    ctx.addIssue({
-      code: "custom",
-      params: { error: CustomErrorCode.activityPageOutOfRange },
-      path: ["pagination", "page"],
-    });
-  }
-}
-
 export const ActivityThreadOptionDtoSchema = z.object({
   id: z.uuid(),
   label: z.string(),
   provider: z.string(),
 });
 export type ActivityThreadOptionDto = z.infer<typeof ActivityThreadOptionDtoSchema>;
-
-export const ActivitiesParamsSchema = GetQueryParamsSchema.pick({
-  filters: true,
-  sortDescriptor: true,
-  p13nId: true,
-  viewId: true,
-})
-  .extend({
-    filters: ActivityFiltersSchema.optional(),
-    pagination: ActivitiesPaginationSchema.optional(),
-    scope: ActivityScopeSchema.optional(),
-  })
-  .superRefine(refineActivityPage);
-export type ActivitiesParams = z.infer<typeof ActivitiesParamsSchema>;
-
-export const ActivitiesApiParamsSchema = GetQueryParamsApiSchema.pick({
-  filters: true,
-  sortDescriptor: true,
-})
-  .extend({
-    filters: ActivityFiltersSchema.optional(),
-    pagination: ActivitiesPaginationSchema.optional(),
-    scope: ActivityScopeSchema.optional(),
-  })
-  .strict()
-  .superRefine(refineActivityPage);
-export type ActivitiesApiParams = z.infer<typeof ActivitiesApiParamsSchema>;
 
 export const ActivitiesResultSchema = createApiGetResultSchema(ActivityEntryDtoSchema).extend({
   filters: ActivityFiltersSchema.optional(),

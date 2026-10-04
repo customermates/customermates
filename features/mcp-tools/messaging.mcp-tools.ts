@@ -192,9 +192,9 @@ export const getMessagingThreadsTool = {
   title: "Get messaging threads",
   description:
     "Use this when reading the inbox: without threadId lists message threads across connected accounts; with threadId returns that thread's detail (full participants plus a page of messages, drafts flagged isDraft, page 1 is the most recent). " +
-    "List rows carry id, name/subject/preview, state, lastMessageAt, and participants (displayName, identifier, provider, isSelf, isLinked, linked CRM contact) capped at 50; message bodies appear only in detail mode. " +
+    "List rows carry id, name/subject/preview, state, lastMessageAt, and participants (displayName, identifier, provider, isSelf, isLinked, records: the readable CRM records of any type sharing that identifier, at most 20 per participant) capped at 50; message bodies appear only in detail mode. " +
     "List mode omits threads that have no messages yet (unless they hold a draft); detail by threadId returns any thread. " +
-    "A participant with isLinked=false is NOT yet a CRM contact; filter `participants` with the `hasUnset` operator to find threads that have such people.",
+    "A participant with isLinked=false matches no readable CRM record yet; filter `participants` with the `hasUnset` operator to find threads that have such people.",
   annotations: {
     readOnlyHint: true,
     idempotentHint: true,
