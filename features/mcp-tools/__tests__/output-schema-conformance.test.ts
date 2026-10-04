@@ -21,6 +21,7 @@ const spies = vi.hoisted(() => ({
   getRoutines: vi.fn(),
   getWebhooks: vi.fn(),
   getWebhookDeliveries: vi.fn(),
+  queryMeasure: vi.fn(),
 }));
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
@@ -35,6 +36,7 @@ vi.mock("@/core/di", () => ({
   getGetRoutinesApiInteractor: () => ({ invoke: spies.getRoutines }),
   getGetWebhooksApiInteractor: () => ({ invoke: spies.getWebhooks }),
   getGetWebhookDeliveriesApiInteractor: () => ({ invoke: spies.getWebhookDeliveries }),
+  getQueryRecordMeasureInteractor: () => ({ invoke: spies.queryMeasure }),
 }));
 
 import { executeMcpTool, type McpTool } from "../mcp-tool";
@@ -43,6 +45,7 @@ import { listUsersTool } from "../workspace.mcp-tools";
 import { getCalendarsTool, getMessagingThreadsTool } from "../messaging.mcp-tools";
 import { manageRoutinesTool } from "../routine.mcp-tools";
 import { manageWebhooksTool } from "../webhook.mcp-tools";
+import { queryRecordMeasureV2Tool } from "../record-model.mcp-tools";
 
 const ada = "00000000-0000-4000-8000-00000000000a";
 const threadId = "00000000-0000-4000-8000-000000000071";
@@ -210,6 +213,82 @@ describe("tool results pass the MCP SDK output validation on the server and in t
     expect(outcome.structuredContent).toMatchObject({ page: 1, pageSize: "pageSize" in args ? args.pageSize : 25 });
     expect(outcome.structuredContent).not.toHaveProperty("requestedPageSize");
     expect(outcome.structuredContent).not.toHaveProperty("pageSizeNote");
+  });
+
+  it("validates time-series and assignee measure results against the published schema", async () => {
+    const typeId = "00000000-0000-4000-8000-000000000081";
+    const fieldId = "00000000-0000-4000-8000-000000000082";
+    const count = (value: string) => ({ state: "value", value: { kind: "decimal", value, currency: null } });
+    spies.queryMeasure.mockResolvedValue({
+      ok: true,
+      data: {
+        schemaRevision: 3,
+        attribution: "full",
+        total: { count: 4, result: count("4") },
+        groups: [
+          {
+            record: null,
+            fieldId,
+            label: { state: "value", value: { kind: "date", value: "2026-12-28" } },
+            count: 2,
+            result: count("2"),
+          },
+          {
+            record: null,
+            fieldId,
+            label: { state: "value", value: { kind: "date", value: "2027-01-04" } },
+            count: 1,
+            result: count("1"),
+          },
+          { record: null, fieldId: null, label: { state: "missing" }, count: 1, result: count("1") },
+        ],
+      },
+    });
+    const input = {
+      source: { typeId },
+      aggregation: "count",
+      valueFieldId: null,
+      groupBy: { path: [], fieldId, dateInterval: "week", timeZone: "Europe/Berlin" },
+      groupLimit: 1000,
+    };
+    const outcome = await sdkOutputViolations(queryRecordMeasureV2Tool as McpTool, input);
+    expect({ server: outcome.server, client: outcome.client }).toEqual({ server: null, client: null });
+    expect(spies.queryMeasure).toHaveBeenCalledWith(
+      expect.objectContaining({
+        groupBy: expect.objectContaining({ dateInterval: "week", timeZone: "Europe/Berlin" }),
+      }),
+    );
+    spies.queryMeasure.mockResolvedValue({
+      ok: true,
+      data: {
+        schemaRevision: 3,
+        attribution: "full",
+        total: { count: 2, result: count("2") },
+        groups: [
+          {
+            record: null,
+            fieldId: "system:assignedTo",
+            label: { state: "value", value: { kind: "member", value: ada } },
+            count: 2,
+            result: count("2"),
+          },
+        ],
+      },
+    });
+    const assignees = await sdkOutputViolations(queryRecordMeasureV2Tool as McpTool, {
+      ...input,
+      groupBy: { path: [], fieldId: "system:assignedTo" },
+    });
+    expect({ server: assignees.server, client: assignees.client }).toEqual({ server: null, client: null });
+    expect(() =>
+      queryRecordMeasureV2Tool.inputSchema.parse({
+        ...input,
+        groupBy: { ...input.groupBy, dateInterval: "fortnight" },
+      }),
+    ).toThrow();
+    expect(() =>
+      queryRecordMeasureV2Tool.inputSchema.parse({ ...input, groupBy: { ...input.groupBy, timeZone: "+02:00" } }),
+    ).toThrow();
   });
 
   it("asks each list reader only for an offered page size, and hands a thread detail its size unchanged", async () => {

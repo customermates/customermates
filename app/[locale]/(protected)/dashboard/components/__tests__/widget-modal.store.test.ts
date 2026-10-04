@@ -15,6 +15,7 @@ const mocks = vi.hoisted(() => ({
   getWidgetByIdAction: vi.fn(),
   upsertRecordWidgetAction: vi.fn(),
   upsertRecordActivityWidgetAction: vi.fn(),
+  getWidgetGalleryAction: vi.fn(),
 }));
 vi.mock("../../actions", () => mocks);
 const model = createCrmPreset(randomUUID(), "EUR");
@@ -89,6 +90,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   mocks.getCompanyWidgetsAction.mockResolvedValue({ ok: true, data: { widgets: [] } });
   mocks.getWidgetByIdAction.mockResolvedValue(null);
+  mocks.getWidgetGalleryAction.mockResolvedValue({ ok: true, data: { schemaRevision: 1, templates: [] } });
 });
 
 describe("generic widget modal", () => {
@@ -413,5 +415,51 @@ describe("widget preview ownership", () => {
     store.onChange("activityQuery.kinds", ["audit"]);
     wait.resolve("Old activity list");
     expect(await preview).toBeUndefined();
+  });
+});
+
+describe("starter widget gallery", () => {
+  const deal = model.types.find((type) => type.label === "Deal");
+  const stage = model.fields.find((field) => field.typeId === deal?.id && field.valueType === "select");
+  const template = (displayType: DisplayType, groupBy: object | null) => ({
+    key: displayType === DisplayType.areaChart ? ("wonValuePerMonth" as const) : ("dealsByStage" as const),
+    measure: {
+      source: { typeId: deal?.id ?? "", filters: [], relationships: [] },
+      aggregation: "count" as const,
+      valueFieldId: null,
+      groupBy,
+      groupLimit: 100,
+    },
+    displayOptions: { ...displayOptions, displayType },
+  });
+
+  it("loads the resolved templates and starts an editable draft without the source-type reset", async () => {
+    const funnel = template(DisplayType.funnelChart, { path: [], fieldId: stage?.id });
+    const area = template(DisplayType.areaChart, { path: [], fieldId: "system:createdAt", dateInterval: "month" });
+    mocks.getWidgetGalleryAction.mockResolvedValue({
+      ok: true,
+      data: { schemaRevision: 7, templates: [funnel, area] },
+    });
+    const { store } = setup();
+    store.add();
+    await vi.waitFor(() => expect(store.galleryTemplates).toHaveLength(2));
+    expect(store.form.kind === "chart" && store.form.measure.source.typeId).not.toBe(deal?.id);
+    store.startFromGallery(store.galleryTemplates[0], "Deals by stage");
+    expect(store.creationStep).toBe("configure");
+    expect(store.form).toMatchObject({
+      name: "Deals by stage",
+      expectedRevision: 7,
+      displayOptions: { displayType: DisplayType.funnelChart },
+      measure: { aggregation: "count", groupBy: { path: [], fieldId: stage?.id } },
+    });
+    expect(store.hasUnsavedChanges).toBe(false);
+    store.setCreationStep("choose");
+    store.startFromGallery(store.galleryTemplates[1], "Won value per month");
+    expect(store.form).toMatchObject({
+      displayOptions: { displayType: DisplayType.areaChart },
+      measure: { groupBy: { dateInterval: "month", timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone } },
+    });
+    store.onChange("measure.aggregation", "sum");
+    expect(store.form.kind === "chart" && store.form.measure.aggregation).toBe("sum");
   });
 });
