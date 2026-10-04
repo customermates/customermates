@@ -10,20 +10,14 @@ export type AgentProviderOptions = {
     disallowPromptTraining: true;
     caching: "auto";
   };
-  openai: { parallelToolCalls: false; store?: false };
+  openai: { parallelToolCalls?: false; store?: false };
 };
 
 export function getAgentProviderOptions(
   servingProvider: string,
   inferenceRegion: AgentModelEntry["inferenceRegion"] = null,
 ): AgentProviderOptions {
-  if (!agentServingProviderUsesGateway(servingProvider)) {
-    return {
-      openai: {
-        parallelToolCalls: false,
-      },
-    };
-  }
+  if (!agentServingProviderUsesGateway(servingProvider)) return { openai: {} };
 
   return {
     gateway: {

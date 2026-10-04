@@ -4397,7 +4397,7 @@ describe("agent-turn rounds on a provider without receipts", () => {
 
     await runAgentTurn(ovhPayload);
 
-    expect(state.providerOptions).toEqual({ openai: { parallelToolCalls: false } });
+    expect(state.providerOptions).toEqual({ openai: {} });
     expect(state.recordRound).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ costMicrocents: 110_800 }));
     expect(state.finalize).toHaveBeenCalledWith(
       expect.objectContaining({

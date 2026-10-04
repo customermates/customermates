@@ -25,6 +25,6 @@ describe("Agent provider options", () => {
   });
 
   it("sends an OVHcloud AI Endpoints round no gateway routing, caching or store flag", () => {
-    expect(getAgentProviderOptions("ovh", "eu")).toEqual({ openai: { parallelToolCalls: false } });
+    expect(getAgentProviderOptions("ovh", "eu")).toEqual({ openai: {} });
   });
 });

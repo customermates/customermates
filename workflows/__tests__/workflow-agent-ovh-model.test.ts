@@ -121,9 +121,9 @@ describe("WorkflowAgent on an OVHcloud AI Endpoints model id", () => {
       model: "Qwen3.8-27B",
       stream: true,
       stream_options: { include_usage: true },
-      parallel_tool_calls: false,
       max_tokens: 256,
     });
+    expect(firstBody).not.toHaveProperty("parallel_tool_calls");
     expect(firstBody).not.toHaveProperty("store");
     expect(firstBody.tools).toEqual([
       expect.objectContaining({ type: "function", function: expect.objectContaining({ name: "lookup_contact" }) }),

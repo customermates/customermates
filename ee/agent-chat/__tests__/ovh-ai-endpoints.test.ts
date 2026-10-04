@@ -60,7 +60,7 @@ describe("OVHcloud AI Endpoints model construction", () => {
     const result = await model.doGenerate({
       prompt: [{ role: "user", content: [{ type: "text", text: "Hi" }] }],
       maxOutputTokens: 64,
-      providerOptions: { openai: { parallelToolCalls: false } },
+      providerOptions: { openai: {} },
     });
 
     expect(fetcher).toHaveBeenCalledOnce();
@@ -68,7 +68,8 @@ describe("OVHcloud AI Endpoints model construction", () => {
     expect(String(url)).toBe("https://oai.endpoints.kepler.ai.cloud.ovh.net/v1/chat/completions");
     expect(new Headers(init?.headers).get("authorization")).toBe(`Bearer ${OVH_KEY}`);
     const body = JSON.parse(String(init?.body)) as Record<string, unknown>;
-    expect(body).toMatchObject({ model: "Qwen3.8-27B", max_tokens: 64, parallel_tool_calls: false });
+    expect(body).toMatchObject({ model: "Qwen3.8-27B", max_tokens: 64 });
+    expect(body).not.toHaveProperty("parallel_tool_calls");
     expect(body).not.toHaveProperty("store");
     expect(result.usage.inputTokens.total).toBe(12);
     expect(result.usage.outputTokens.total).toBe(3);
