@@ -198,6 +198,42 @@ export function canonicalCrawlUrl(value: string): string | null {
   return url.toString();
 }
 
+function withoutWwwLabel(hostname: string, registrableDomain: string): string {
+  if (!hostname.startsWith("www.") || hostname === registrableDomain) return hostname;
+  const rest = hostname.slice("www.".length);
+  return parsePublicPageUrl(`https://${rest}/`)?.registrableDomain === registrableDomain ? rest : hostname;
+}
+
+/**
+ * Identity of a crawl URL: `canonicalCrawlUrl` with a single leading `www.` label removed, so the apex and
+ * `www.` forms of one site collapse to one page. It is a dedupe key, never a URL to fetch.
+ */
+export function crawlDedupeKey(value: string): string | null {
+  const canonical = canonicalCrawlUrl(value);
+  const page = canonical ? parsePublicPageUrl(canonical) : null;
+  if (!canonical || !page) return null;
+  const url = new URL(canonical);
+  url.hostname = withoutWwwLabel(url.hostname, page.registrableDomain);
+  return url.toString();
+}
+
+/**
+ * Moves a URL onto the homepage's host when the two differ only by a leading `www.` label, so a site that
+ * links both forms is read through the one form its homepage was actually served from.
+ */
+export function alignCrawlUrlHost(value: string, homepage: string): string {
+  const page = parsePublicPageUrl(value);
+  const home = parsePublicPageUrl(homepage);
+  if (!page || !home || page.registrableDomain !== home.registrableDomain) return value;
+  const url = new URL(page.url);
+  const homeHost = new URL(home.url).hostname;
+  if (url.hostname === homeHost) return page.url;
+  const domain = page.registrableDomain;
+  if (withoutWwwLabel(url.hostname, domain) !== withoutWwwLabel(homeHost, domain)) return page.url;
+  url.hostname = homeHost;
+  return url.toString();
+}
+
 function decodedPath(path: string): string {
   try {
     return decodeURIComponent(path);
@@ -232,16 +268,18 @@ export function rankWikiCrawlTargets(input: {
 }): WikiCrawlTarget[] {
   const maxPages = input.maxPages ?? WIKI_CRAWL_MAX_PAGES;
   const homepage = canonicalCrawlUrl(input.homepage);
+  const homeKey = homepage ? crawlDedupeKey(homepage) : null;
   const homeLocale = homepage ? localeSegment(homepage) : null;
   const seen = new Map<string, { candidate: WikiCrawlCandidate; order: number }>();
   input.candidates.forEach((candidate, order) => {
-    const url = canonicalCrawlUrl(candidate.url);
-    if (!url || url === homepage) return;
+    const url = canonicalCrawlUrl(homepage ? alignCrawlUrlHost(candidate.url, homepage) : candidate.url);
+    const key = url ? crawlDedupeKey(url) : null;
+    if (!url || !key || key === homeKey) return;
     const path = new URL(url).pathname.toLowerCase();
     if (isSkippedCrawlPath(path) || !input.allows(url)) return;
-    const known = seen.get(url);
+    const known = seen.get(key);
     if (!known || SOURCE_RANK[candidate.source] < SOURCE_RANK[known.candidate.source])
-      seen.set(url, { candidate: { ...candidate, url, title: candidate.title ?? known?.candidate.title }, order });
+      seen.set(key, { candidate: { ...candidate, url, title: candidate.title ?? known?.candidate.title }, order });
   });
   const locale = input.locale.slice(0, 2).toLowerCase();
   const score = ({ candidate, order }: { candidate: WikiCrawlCandidate; order: number }) => {
