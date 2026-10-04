@@ -1,7 +1,7 @@
 import type { GetWikiWebsiteCrawlStateRepo } from "./get-wiki-website-crawl-state.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { GetWikiPagesRepo } from "@/features/wiki/get-wiki-pages.repo";
-import type { WikiCrawlTargetProgress } from "./wiki-crawl-progress.schema";
+import type { WikiCrawlTargetProgress, WikiSynthesisTopicProgress } from "./wiki-crawl-progress.schema";
 
 import { z } from "zod";
 import { Action, Resource } from "@/generated/prisma";
@@ -15,6 +15,7 @@ import { WikiCrawlTargetProgressSchema, WikiSynthesisTopicProgressSchema } from 
 
 const WikiCrawlPhaseSchema = z.enum(["queued", "discovering", "fetching", "importing", "synthesizing"]);
 const WikiSetupFailureReasonSchema = z.enum(["blocked", "unavailable", "credits", "synthesis"]);
+export type WikiSetupFailureReason = Data<typeof WikiSetupFailureReasonSchema>;
 
 export const WikiHomepageSetupStateSchema = z.object({
   status: z.enum(["idle", "working", "completed", "noContent", "failed"]),
@@ -49,7 +50,7 @@ export type WikiWebsiteCrawlState = {
   fetched: number;
   failed: number;
   targets: WikiCrawlTargetProgress[] | null;
-  topics: Array<{ title: string; status: "pending" | "created" | "skipped" }> | null;
+  topics: WikiSynthesisTopicProgress[] | null;
   failureReason: string | null;
 };
 
@@ -61,8 +62,6 @@ function failureReason(crawl: WikiWebsiteCrawlState) {
 
 function progressOf(crawl: WikiWebsiteCrawlState) {
   const pages = crawl.targets?.map(({ url, status }) => ({ url, status }));
-  const writingIndex =
-    crawl.status === "synthesizing" ? (crawl.topics?.findIndex(({ status }) => status === "pending") ?? -1) : -1;
   return {
     fetched: crawl.fetched,
     total: crawl.discovered,
@@ -75,12 +74,7 @@ function progressOf(crawl: WikiWebsiteCrawlState) {
         }
       : {}),
     ...(crawl.topics
-      ? {
-          topics: crawl.topics.map(({ title, status }, index) => ({
-            title,
-            status: index === writingIndex ? ("writing" as const) : status,
-          })),
-        }
+      ? { topics: crawl.topics.map(({ title, status, skipReason }) => ({ title, status, skipReason })) }
       : {}),
   };
 }

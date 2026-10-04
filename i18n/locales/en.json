@@ -3795,14 +3795,31 @@
       "read": "Read",
       "reading": "Reading",
       "readingCount": "Reading pages · {fetched}/{total}",
+      "skipped": {
+        "credits": "Out of AI credits",
+        "error": "Not written",
+        "evidence": "Not enough source evidence",
+        "generation": "Not written",
+        "persistence": "Could not be saved",
+        "review": "Not supported by the sources",
+        "reviewUnavailable": "Review unavailable"
+      },
       "steps": "3 steps",
       "title": "Website import progress",
       "writing": "Writing",
-      "writingCount": "Writing pages · {created}/{total}"
+      "writingCount": "Writing pages · {created}/{total}",
+      "writingStep": "Writing Knowledge Base pages"
     },
     "generated": {
       "gapsHeading": "Gaps to confirm",
       "pagesHeading": "Knowledge Base pages",
+      "roles": {
+        "company_overview": "Company overview",
+        "customers_and_use_cases": "Customers and use cases",
+        "operating_guide": "Operating Guide",
+        "sales_messaging": "Sales messaging and FAQs",
+        "voice_and_tone": "Voice and tone"
+      },
       "sourcesHeading": "Sources"
     },
     "homepageLabel": "Company website",

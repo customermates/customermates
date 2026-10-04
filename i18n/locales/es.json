@@ -3795,14 +3795,31 @@
       "read": "Leída",
       "reading": "Leyendo",
       "readingCount": "Leyendo páginas · {fetched}/{total}",
+      "skipped": {
+        "credits": "Sin créditos de IA",
+        "error": "No redactada",
+        "evidence": "Pruebas insuficientes en las fuentes",
+        "generation": "No redactada",
+        "persistence": "No se pudo guardar",
+        "review": "No respaldada por las fuentes",
+        "reviewUnavailable": "Revisión no disponible"
+      },
       "steps": "3 pasos",
       "title": "Progreso de importación del sitio",
       "writing": "Escribiendo",
-      "writingCount": "Escribiendo páginas · {created}/{total}"
+      "writingCount": "Escribiendo páginas · {created}/{total}",
+      "writingStep": "Redactando páginas de la base de conocimiento"
     },
     "generated": {
       "gapsHeading": "Aspectos por confirmar",
       "pagesHeading": "Páginas de la base de conocimiento",
+      "roles": {
+        "company_overview": "Resumen de la empresa",
+        "customers_and_use_cases": "Clientes y casos de uso",
+        "operating_guide": "Guía operativa",
+        "sales_messaging": "Mensajes de venta y preguntas frecuentes",
+        "voice_and_tone": "Voz y tono"
+      },
       "sourcesHeading": "Fuentes"
     },
     "homepageLabel": "Sitio web de la empresa",

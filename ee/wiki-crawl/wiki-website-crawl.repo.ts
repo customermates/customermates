@@ -1,5 +1,6 @@
 import type { WikiCrawlTarget } from "./website-discovery";
 import type { WikiCrawlTargetStatus } from "@/features/wiki/wiki-crawl-progress.schema";
+import type { StoredWikiSynthesisTopic } from "./wiki-synthesis.schema";
 import type {
   WikiCrawlStatus,
   WikiCrawlRecord,
@@ -44,6 +45,13 @@ export abstract class WikiWebsiteCrawlRepo {
   abstract countImportedPages(since: Date): Promise<number>;
   abstract deleteEarlierSources(crawlId: string): Promise<void>;
   abstract findImportedPage(sourceUrl: string): Promise<WikiImportedPage | null>;
+  abstract listPageTitles(): Promise<string[]>;
+  abstract claimSynthesisTopic(crawlId: string, index: number, staleBefore: Date): Promise<boolean>;
+  abstract settleSynthesisTopic(
+    crawlId: string,
+    index: number,
+    outcome: Pick<StoredWikiSynthesisTopic, "status" | "pageId" | "skipReason">,
+  ): Promise<boolean>;
   abstract markImported(
     pageId: string,
     source: {

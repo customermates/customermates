@@ -1,6 +1,9 @@
 "use client";
 
-import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
+import type {
+  WikiHomepageSetupState,
+  WikiSetupFailureReason,
+} from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
 
 import { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
@@ -177,16 +180,13 @@ export const WikiHomepageSetup = observer(function WikiHomepageSetup({
     const failed = state.status === "failed";
     const domain = state.domain ?? state.homepage ?? "";
     const workingBody = t("WikiSetup.status.workingBody", { domain });
-    const failedBody =
-      state.failureReason === "blocked"
-        ? t("WikiSetup.status.failedBodyBlocked", { domain })
-        : state.failureReason === "unavailable"
-          ? t("WikiSetup.status.failedBodyUnavailable", { domain })
-          : state.failureReason === "credits"
-            ? t("Common.errors.agentLimitReached")
-            : state.failureReason === "synthesis"
-              ? t("WikiSetup.status.failedBodySynthesis")
-              : t("WikiSetup.status.failedBody");
+    const failedBodies: Record<WikiSetupFailureReason, string> = {
+      blocked: t("WikiSetup.status.failedBodyBlocked", { domain }),
+      unavailable: t("WikiSetup.status.failedBodyUnavailable", { domain }),
+      credits: t("Common.errors.agentLimitReached"),
+      synthesis: t("WikiSetup.status.failedBodySynthesis"),
+    };
+    const failedBody = state.failureReason ? failedBodies[state.failureReason] : t("WikiSetup.status.failedBody");
     const completedBody = state.homepage
       ? t("WikiSetup.status.completedBodyOnboarding")
       : t("WikiSetup.status.completedExistingBody");

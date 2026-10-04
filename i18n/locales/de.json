@@ -3795,14 +3795,31 @@
       "read": "Gelesen",
       "reading": "Wird gelesen",
       "readingCount": "Seiten lesen · {fetched}/{total}",
+      "skipped": {
+        "credits": "Keine KI-Credits mehr",
+        "error": "Nicht geschrieben",
+        "evidence": "Zu wenig Belege in den Quellen",
+        "generation": "Nicht geschrieben",
+        "persistence": "Konnte nicht gespeichert werden",
+        "review": "Nicht durch die Quellen gedeckt",
+        "reviewUnavailable": "Prüfung nicht verfügbar"
+      },
       "steps": "3 Schritte",
       "title": "Fortschritt des Website-Imports",
       "writing": "Wird geschrieben",
-      "writingCount": "Seiten schreiben · {created}/{total}"
+      "writingCount": "Seiten schreiben · {created}/{total}",
+      "writingStep": "Wissensdatenbank-Seiten schreiben"
     },
     "generated": {
       "gapsHeading": "Noch zu klären",
       "pagesHeading": "Seiten der Wissensdatenbank",
+      "roles": {
+        "company_overview": "Unternehmensüberblick",
+        "customers_and_use_cases": "Kunden und Anwendungsfälle",
+        "operating_guide": "Betriebsleitfaden",
+        "sales_messaging": "Verkaufsargumente und FAQ",
+        "voice_and_tone": "Sprache und Tonalität"
+      },
       "sourcesHeading": "Quellen"
     },
     "homepageLabel": "Unternehmenswebsite",

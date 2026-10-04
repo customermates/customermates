@@ -254,6 +254,7 @@ ALTER TABLE "AgentUsageEvent"
   DROP COLUMN "reservedCredits",
   DROP COLUMN "chargedCredits",
   DROP COLUMN "allowanceCreditsSnapshot",
+  ALTER COLUMN "allowanceMicrocentsSnapshot" DROP DEFAULT,
   ADD CONSTRAINT "AgentUsageEvent_amounts_nonnegative" CHECK (
     "reservedMicrocents" >= 0 AND "chargedMicrocents" >= 0 AND "allowanceMicrocentsSnapshot" >= 0
     AND "inputTokens" >= 0 AND "outputTokens" >= 0 AND "cacheReadTokens" >= 0

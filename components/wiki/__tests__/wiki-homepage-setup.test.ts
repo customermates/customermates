@@ -134,7 +134,7 @@ describe("WikiHomepageSetup", () => {
       }
       if (crawlPhase === "importing" || crawlPhase === "synthesizing") {
         expect(progress?.querySelector('[aria-current="step"]')?.textContent).toContain(
-          "WikiSetup.crawlProgress.writingCount 0 0",
+          "WikiSetup.crawlProgress.writingStep",
         );
       }
       expect(container.querySelector('textarea, input, [role="log"]')).toBeNull();

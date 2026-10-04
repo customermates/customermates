@@ -2,7 +2,11 @@
 
 import type { LucideIcon } from "lucide-react";
 import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
-import type { WikiCrawlTargetStatus, WikiSynthesisTopicProgress } from "@/features/wiki/wiki-crawl-progress.schema";
+import type {
+  WikiCrawlTargetStatus,
+  WikiSynthesisSkipReason,
+  WikiSynthesisTopicProgress,
+} from "@/features/wiki/wiki-crawl-progress.schema";
 
 import { Check, ChevronDown, Circle, Loader2, Minus, X } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -78,14 +82,32 @@ export function WikiSetupProgress({ state }: { state: WikiHomepageSetupState }) 
         : hasError
           ? "failed"
           : "pending";
+  const topicsSettled =
+    topics.length > 0 && topics.every((topic) => topic.status === "created" || topic.status === "skipped");
   const writingStatus: ProgressStatus = writing
     ? "reading"
-    : topics.length > 0 && topics.every((topic) => topic.status === "created" || topic.status === "skipped")
-      ? "read"
-      : state.status === "failed" && readingComplete
-        ? "failed"
-        : "pending";
-  const writingSummary = t("WikiSetup.crawlProgress.writingCount", { created: createdTopics, total: topics.length });
+    : topicsSettled
+      ? createdTopics > 0
+        ? "read"
+        : "failed"
+      : state.status === "completed"
+        ? "read"
+        : state.status === "failed" && readingComplete
+          ? "failed"
+          : "pending";
+  const writingSummary =
+    topics.length > 0
+      ? t("WikiSetup.crawlProgress.writingCount", { created: createdTopics, total: topics.length })
+      : t("WikiSetup.crawlProgress.writingStep");
+  const skipLabels: Record<WikiSynthesisSkipReason, string> = {
+    generation: t("WikiSetup.crawlProgress.skipped.generation"),
+    evidence: t("WikiSetup.crawlProgress.skipped.evidence"),
+    review: t("WikiSetup.crawlProgress.skipped.review"),
+    reviewUnavailable: t("WikiSetup.crawlProgress.skipped.reviewUnavailable"),
+    credits: t("WikiSetup.crawlProgress.skipped.credits"),
+    persistence: t("WikiSetup.crawlProgress.skipped.persistence"),
+    error: t("WikiSetup.crawlProgress.skipped.error"),
+  };
   const summary = discovering
     ? t("WikiSetup.crawlProgress.discovering")
     : reading
@@ -205,12 +227,18 @@ export function WikiSetupProgress({ state }: { state: WikiHomepageSetupState }) 
                 {topics.map((topic) => (
                   <li
                     key={topic.title}
-                    aria-label={`${topicStatusLabels[topic.status]}: ${topic.title}`}
+                    aria-label={`${topic.skipReason ? skipLabels[topic.skipReason] : topicStatusLabels[topic.status]}: ${topic.title}`}
                     className="flex items-start gap-2 [&>svg]:mt-0.5"
                   >
                     <StatusIcon status={TOPIC_PROGRESS_STATUS[topic.status]} />
 
-                    <span className="min-w-0 [overflow-wrap:anywhere]">{topic.title}</span>
+                    <span className="min-w-0 [overflow-wrap:anywhere]">
+                      {topic.title}
+
+                      {topic.skipReason ? (
+                        <span className="ml-2 text-muted-foreground">{skipLabels[topic.skipReason]}</span>
+                      ) : null}
+                    </span>
                   </li>
                 ))}
               </ul>

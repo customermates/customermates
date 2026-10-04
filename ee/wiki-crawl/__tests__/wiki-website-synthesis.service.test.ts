@@ -69,6 +69,21 @@ function harness(mode: WikiCrawlRecord["mode"] = "initial") {
     }),
     listSources: vi.fn(() => Promise.resolve(SOURCES)),
     findImportedPage: vi.fn(() => Promise.resolve(null)),
+    listPageTitles: vi.fn(() => Promise.resolve([] as string[])),
+    claimSynthesisTopic: vi.fn((_id: string, index: number) => {
+      const topic = crawl.topics?.[index];
+      if (crawl.status !== "synthesizing" || topic?.status !== "pending") return Promise.resolve(false);
+      crawl = {
+        ...crawl,
+        topics: crawl.topics!.map((t, i) => (i === index ? { ...t, status: "writing" as const } : t)),
+      };
+      return Promise.resolve(true);
+    }),
+    settleSynthesisTopic: vi.fn((_id: string, index: number, outcome: Partial<StoredWikiSynthesisTopic>) => {
+      if (crawl.topics?.[index]?.status !== "writing") return Promise.resolve(false);
+      crawl = { ...crawl, topics: crawl.topics.map((t, i) => (i === index ? { ...t, ...outcome } : t)) };
+      return Promise.resolve(true);
+    }),
   };
   const settled: unknown[] = [];
   const usage = {
@@ -151,19 +166,23 @@ describe("website Knowledge Base synthesis", () => {
   it("normalizes the plan: known sources only, one page per foundation, foundations first, guide last", async () => {
     const { service, crawl } = harness();
     model.generate.mockResolvedValueOnce(plan(FULL_PLAN));
-    expect(await service.plan("crawl-1")).toBe(4);
+    expect(await service.plan("crawl-1")).toBe(6);
+    expect(model.generate.mock.calls[0][0].model.modelId).toBe("google/gemini-3.8-flash");
     expect(crawl().topics).toEqual([
       { title: "Company overview", role: "company_overview", sourceIds: [id(1)], status: "pending" },
       { title: "Customers", role: "customers_and_use_cases", sourceIds: [id(1)], status: "pending" },
+      { title: "Sales messaging and FAQs", role: "sales_messaging", sourceIds: [id(1)], status: "pending" },
+      { title: "Voice and tone", role: "voice_and_tone", sourceIds: [id(1)], status: "pending" },
       { title: "Scheduling", role: "offering", sourceIds: [id(2)], status: "pending" },
       { title: "Operating Guide", role: "operating_guide", sourceIds: [id(1)], status: "pending" },
     ]);
   });
 
-  it("plans only offerings and procedures for a help-centre extension", async () => {
+  it("plans only offerings and procedures for a help-centre extension, on the ordinary model", async () => {
     const { service, crawl } = harness("extend");
     model.generate.mockResolvedValueOnce(plan(FULL_PLAN));
     expect(await service.plan("crawl-1")).toBe(2);
+    expect(model.generate.mock.calls[0][0].model.modelId).toBe("google/gemini-3.5-flash-lite");
     expect(crawl().topics?.map(({ title, role }) => [title, role])).toEqual([
       ["Scheduling", "offering"],
       ["company overview", "offering"],
@@ -192,14 +211,24 @@ describe("website Knowledge Base synthesis", () => {
     expect(final.topics?.map(({ title, status, skipReason }) => [title, status, skipReason])).toEqual([
       ["Company overview", "created", undefined],
       ["Customers", "skipped", "review"],
+      ["Sales messaging and FAQs", "created", undefined],
+      ["Voice and tone", "created", undefined],
       ["Scheduling", "created", undefined],
       ["Operating Guide", "created", undefined],
     ]);
-    expect(created.map(({ title }) => title)).toEqual(["Company overview", "Scheduling", "Operating Guide"]);
-    expect(created[2].kind).toBe("guide");
-    expect(created[2].markdown).toContain(`[Company overview](/wiki?page=${id(101)})`);
-    expect(created[2].markdown).toContain("## Sources");
-    expect(created[2].markdown).toContain("## Gaps to confirm");
+    expect(created.map(({ title }) => title)).toEqual([
+      "Company overview",
+      "Sales messaging and FAQs",
+      "Voice and tone",
+      "Scheduling",
+      "Operating Guide",
+    ]);
+    const guide = created[4];
+    expect(guide.kind).toBe("guide");
+    expect(guide.markdown).toContain(`[Company overview](/wiki?page=${id(101)})`);
+    expect(guide.markdown).toContain(`[Scheduling](/wiki?page=${id(104)})`);
+    expect(guide.markdown).toContain("## Sources");
+    expect(guide.markdown).toContain("## Gaps to confirm");
   });
 
   it("repairs a draft whose evidence is not exact source text before reviewing it", async () => {
@@ -283,6 +312,14 @@ describe("website Knowledge Base synthesis", () => {
     expect(crawl().status).toBe("completed");
   });
 
+  it("ignores a closed crawl and never re-plans or re-writes it", async () => {
+    const { service, crawl } = harness("refresh");
+    await service.settle("crawl-1");
+    crawl().status = "completed";
+    expect(await service.plan("crawl-1")).toBe(0);
+    expect(model.generate).not.toHaveBeenCalled();
+  });
+
   it("records a visible persistence failure and settles a failed import when nothing was saved", async () => {
     const { run, createPages, crawl } = harness("extend");
     model.generate
@@ -323,6 +360,6 @@ describe("website Knowledge Base synthesis", () => {
     model.generate.mockResolvedValue({ output: null, charge: CHARGE });
     await run();
     expect(model.generate).toHaveBeenCalledTimes(2);
-    expect(crawl()).toMatchObject({ status: "failed", failureReason: "synthesis", topics: null });
+    expect(crawl()).toMatchObject({ status: "failed", failureReason: "synthesis", topics: [] });
   });
 });

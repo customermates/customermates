@@ -1935,7 +1935,7 @@ model AgentUsageEvent {
   policyBreach                Boolean              @default(false)
   planSnapshot                SubscriptionPlan
   subscriptionStatusSnapshot  SubscriptionStatus
-  allowanceMicrocentsSnapshot BigInt               @default(0)
+  allowanceMicrocentsSnapshot BigInt
   periodStart                 DateTime
   periodEnd                   DateTime
   providerStartedAt           DateTime?

@@ -85,27 +85,15 @@ describe("GetWikiHomepageSetupStateInteractor", () => {
     expect(importing).toMatchObject({ ok: true, data: { progress: { currentUrl: null } } });
   });
 
-  it("marks the first pending topic as writing while synthesis runs", async () => {
+  it("reports each planned page with its stored status and skip reason", async () => {
     const topics = [
       { title: "Company overview", status: "created" as const },
-      { title: "Voice and tone", status: "skipped" as const },
-      { title: "Consulting", status: "pending" as const },
+      { title: "Voice and tone", status: "skipped" as const, skipReason: "review" as const },
+      { title: "Consulting", status: "writing" as const },
       { title: "Operating Guide", status: "pending" as const },
     ];
     const result = await state({ ...CRAWL, status: "synthesizing", topics });
-    expect(result).toMatchObject({
-      ok: true,
-      data: {
-        progress: {
-          topics: [
-            { title: "Company overview", status: "created" },
-            { title: "Voice and tone", status: "skipped" },
-            { title: "Consulting", status: "writing" },
-            { title: "Operating Guide", status: "pending" },
-          ],
-        },
-      },
-    });
+    expect(result).toMatchObject({ ok: true, data: { progress: { topics } } });
     if (result.ok) expect(WikiHomepageSetupStateSchema.safeParse(result.data).success).toBe(true);
   });
 

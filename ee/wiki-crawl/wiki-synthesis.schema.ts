@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { WIKI_SYNTHESIS_SKIP_REASONS } from "@/features/wiki/wiki-crawl-progress.schema";
 import { WIKI_TITLE_MAX_LENGTH } from "@/features/wiki/wiki.schema";
 
 export const WIKI_SYNTHESIS_MAX_PAGES = 16;
@@ -47,15 +48,8 @@ export const WikiSynthesisDraftSchema = z.object({
 });
 export type WikiSynthesisDraft = z.infer<typeof WikiSynthesisDraftSchema>;
 
-export const WikiSynthesisTopicStatusSchema = z.enum(["pending", "created", "skipped"]);
-export const WikiSynthesisSkipReasonSchema = z.enum([
-  "evidence",
-  "review",
-  "reviewUnavailable",
-  "credits",
-  "persistence",
-  "guideExists",
-]);
+export const WikiSynthesisTopicStatusSchema = z.enum(["pending", "writing", "created", "skipped"]);
+export const WikiSynthesisSkipReasonSchema = z.enum(WIKI_SYNTHESIS_SKIP_REASONS);
 export type WikiSynthesisSkipReason = z.infer<typeof WikiSynthesisSkipReasonSchema>;
 
 export const StoredWikiSynthesisTopicSchema = z.object({
@@ -65,6 +59,7 @@ export const StoredWikiSynthesisTopicSchema = z.object({
   status: WikiSynthesisTopicStatusSchema,
   pageId: z.uuid().optional(),
   skipReason: WikiSynthesisSkipReasonSchema.optional(),
+  claimedAt: z.iso.datetime().optional(),
 });
 export type StoredWikiSynthesisTopic = z.infer<typeof StoredWikiSynthesisTopicSchema>;
 

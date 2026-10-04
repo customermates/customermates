@@ -692,23 +692,12 @@ export class PrismaWikiPageRepo
     });
   }
 
-  async countSynthesizedPages(since: Date) {
-    return this.prisma.wikiPage.count({
-      where: {
-        companyId: this.companyId,
-        createdAt: { gte: since },
-        sourceUrl: null,
-      },
+  async listPageTitles() {
+    const pages = await this.prisma.wikiPage.findMany({
+      where: { companyId: this.companyId },
+      select: { title: true },
     });
-  }
-
-  async listSynthesizedPages(since: Date, limit: number) {
-    return this.prisma.wikiPage.findMany({
-      where: { companyId: this.companyId, createdAt: { gte: since }, sourceUrl: null },
-      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
-      take: limit,
-      select: { id: true, title: true },
-    });
+    return pages.map(({ title }) => title);
   }
 
   async markImported(pageId: string, source: WikiImportProvenance) {

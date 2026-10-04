@@ -3795,14 +3795,31 @@
       "read": "Letta",
       "reading": "Lettura in corso",
       "readingCount": "Lettura delle pagine · {fetched}/{total}",
+      "skipped": {
+        "credits": "Crediti IA esauriti",
+        "error": "Non scritta",
+        "evidence": "Fonti insufficienti",
+        "generation": "Non scritta",
+        "persistence": "Impossibile salvare",
+        "review": "Non supportata dalle fonti",
+        "reviewUnavailable": "Verifica non disponibile"
+      },
       "steps": "3 passaggi",
       "title": "Avanzamento dell’importazione del sito",
       "writing": "In scrittura",
-      "writingCount": "Scrittura delle pagine · {created}/{total}"
+      "writingCount": "Scrittura delle pagine · {created}/{total}",
+      "writingStep": "Scrittura delle pagine della knowledge base"
     },
     "generated": {
       "gapsHeading": "Aspetti da confermare",
       "pagesHeading": "Pagine della knowledge base",
+      "roles": {
+        "company_overview": "Panoramica aziendale",
+        "customers_and_use_cases": "Clienti e casi d’uso",
+        "operating_guide": "Guida operativa",
+        "sales_messaging": "Messaggi di vendita e FAQ",
+        "voice_and_tone": "Voce e tono"
+      },
       "sourcesHeading": "Fonti"
     },
     "homepageLabel": "Sito web dell’azienda",

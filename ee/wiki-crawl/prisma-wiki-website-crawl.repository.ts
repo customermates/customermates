@@ -15,7 +15,7 @@ import { WIKI_CRAWL_ACTIVE_STATUSES } from "./wiki-website-crawl.service";
 import { parseStoredWikiCrawlTargets } from "./wiki-crawl-target.schema";
 import { parseWikiCrawlMode } from "@/features/wiki/wiki-crawl-mode.schema";
 import { parseStoredWikiSourceMetadata } from "./wiki-source-metadata.schema";
-import { parseStoredWikiSynthesisTopics } from "./wiki-synthesis.schema";
+import { parseStoredWikiSynthesisTopics, type StoredWikiSynthesisTopic } from "./wiki-synthesis.schema";
 
 const CRAWL_SELECT = {
   id: true,
@@ -279,7 +279,7 @@ export class PrismaWikiWebsiteCrawlRepo
 
   async saveSource(
     crawlId: string,
-    source: Omit<WikiSourceRecord, "id" | "fetchedAt" | "readAt" | "readOffset"> & {
+    source: Omit<WikiSourceRecord, "id" | "fetchedAt"> & {
       canonicalUrl: string;
     },
   ) {
@@ -320,7 +320,7 @@ export class PrismaWikiWebsiteCrawlRepo
         update: {
           ...data,
           companyId: this.companyId,
-          ...(changed ? { readOffset: 0, readAt: null, importClaimedAt: null } : {}),
+          ...(changed ? { importClaimedAt: null } : {}),
         },
       });
     });
@@ -359,6 +359,40 @@ export class PrismaWikiWebsiteCrawlRepo
 
   async findImportedPage(sourceUrl: string) {
     return this.pages.findImportedPage(sourceUrl);
+  }
+
+  async listPageTitles() {
+    return this.pages.listPageTitles();
+  }
+
+  async claimSynthesisTopic(crawlId: string, index: number, staleBefore: Date) {
+    const claimed = await this.prisma.$executeRaw(Prisma.sql`
+      UPDATE "WikiWebsiteCrawl"
+      SET "topics" = jsonb_set("topics", ARRAY[${index}::text],
+            ("topics" -> ${index}::int) || jsonb_build_object('status', 'writing', 'claimedAt', ${new Date().toISOString()}::text)),
+          "updatedAt" = CURRENT_TIMESTAMP
+      WHERE "id" = ${crawlId} AND "companyId" = ${this.companyId} AND "status" = 'synthesizing'
+        AND (("topics" -> ${index}::int ->> 'status') = 'pending'
+          OR (("topics" -> ${index}::int ->> 'status') = 'writing'
+            AND ("topics" -> ${index}::int ->> 'claimedAt') < ${staleBefore.toISOString()}::text))
+    `);
+    return claimed === 1;
+  }
+
+  async settleSynthesisTopic(
+    crawlId: string,
+    index: number,
+    outcome: Pick<StoredWikiSynthesisTopic, "status" | "pageId" | "skipReason">,
+  ) {
+    const settled = await this.prisma.$executeRaw(Prisma.sql`
+      UPDATE "WikiWebsiteCrawl"
+      SET "topics" = jsonb_set("topics", ARRAY[${index}::text],
+            (("topics" -> ${index}::int) - 'claimedAt') || ${JSON.stringify(outcome)}::jsonb),
+          "updatedAt" = CURRENT_TIMESTAMP
+      WHERE "id" = ${crawlId} AND "companyId" = ${this.companyId}
+        AND ("topics" -> ${index}::int ->> 'status') = 'writing'
+    `);
+    return settled === 1;
   }
 
   async markImported(pageId: string, source: WikiImportProvenance) {

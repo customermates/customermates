@@ -1,9 +1,9 @@
 import type { z } from "zod";
+import type { AgentModelEntry } from "@/ee/agent-chat/model-catalog";
 import type { AgentRetrievalCharge } from "@/ee/agent-chat/agent-usage.service";
 
 import { generateText, NoObjectGeneratedError, Output } from "ai";
 
-import { INITIAL_WIKI_SYNTHESIS_MODEL } from "@/ee/agent-chat/model-catalog";
 import {
   AGENT_MIN_BYTES_PER_PROVIDER_TOKEN,
   AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS,
@@ -13,8 +13,7 @@ import { googleThinkingProviderOptions } from "@/ee/agent-chat/agent-thinking-op
 import { readAgentProviderCharge } from "@/ee/agent-chat/gateway-cost";
 import { computeCostMicrocents } from "@/ee/agent-chat/model-pricing";
 
-const MODEL = INITIAL_WIKI_SYNTHESIS_MODEL;
-const TIMEOUT_MS = 180_000;
+const TIMEOUT_MS = 90_000;
 
 function promptTokens(system: string, prompt: string) {
   return (
@@ -23,25 +22,26 @@ function promptTokens(system: string, prompt: string) {
   );
 }
 
-function estimatedCharge(inputTokens: number, outputTokens: number): AgentRetrievalCharge {
+function estimatedCharge(model: AgentModelEntry, inputTokens: number, outputTokens: number): AgentRetrievalCharge {
   return {
-    model: MODEL.modelId,
+    model: model.modelId,
     inputTokens,
     costMicrocents: computeCostMicrocents(
-      MODEL.modelId,
+      model.modelId,
       { inputTokens, outputTokens, cacheReadTokens: 0, cacheWriteTokens: 0 },
-      MODEL.servingProvider,
-      MODEL.inferenceRegion,
+      model.servingProvider,
+      model.inferenceRegion,
     ),
     costSource: "estimated",
   };
 }
 
-export function wikiSynthesisWorstCaseMicrocents(system: string, prompt: string): number {
-  return estimatedCharge(promptTokens(system, prompt), MODEL.maxOutputTokens).costMicrocents;
+export function wikiSynthesisWorstCaseMicrocents(model: AgentModelEntry, system: string, prompt: string): number {
+  return estimatedCharge(model, promptTokens(system, prompt), model.maxOutputTokens).costMicrocents;
 }
 
 export async function generateWikiSynthesisObject<T>(args: {
+  model: AgentModelEntry;
   schema: z.ZodType<T>;
   system: string;
   prompt: string;
@@ -49,25 +49,29 @@ export async function generateWikiSynthesisObject<T>(args: {
   const inputTokens = promptTokens(args.system, args.prompt);
   try {
     const result = await generateText({
-      model: MODEL.modelId,
+      model: args.model.modelId,
       system: args.system,
       prompt: args.prompt,
       output: Output.object({ schema: args.schema }),
-      maxOutputTokens: MODEL.maxOutputTokens,
-      maxRetries: 1,
+      maxOutputTokens: args.model.maxOutputTokens,
+      maxRetries: 0,
       abortSignal: AbortSignal.timeout(TIMEOUT_MS),
       providerOptions: {
-        ...getAgentProviderOptions(MODEL.servingProvider, MODEL.inferenceRegion),
-        ...googleThinkingProviderOptions(MODEL),
+        ...getAgentProviderOptions(args.model.servingProvider, args.model.inferenceRegion),
+        ...googleThinkingProviderOptions(args.model),
       },
     });
     const usage = result.usage;
-    const reading = readAgentProviderCharge(result.providerMetadata, MODEL.servingProvider);
+    const reading = readAgentProviderCharge(result.providerMetadata, args.model.servingProvider);
     const charge: AgentRetrievalCharge =
       reading.outcome === "unreadable"
-        ? estimatedCharge(usage.inputTokens ?? inputTokens, usage.outputTokens ?? MODEL.maxOutputTokens)
+        ? estimatedCharge(
+            args.model,
+            usage.inputTokens ?? inputTokens,
+            usage.outputTokens ?? args.model.maxOutputTokens,
+          )
         : {
-            model: MODEL.modelId,
+            model: args.model.modelId,
             inputTokens: usage.inputTokens ?? inputTokens,
             costMicrocents: reading.outcome === "measured" ? reading.charge.costMicrocents : 0,
             costSource: "measured",
@@ -75,6 +79,9 @@ export async function generateWikiSynthesisObject<T>(args: {
     return { output: result.output, charge };
   } catch (error) {
     const usage = NoObjectGeneratedError.isInstance(error) ? error.usage : undefined;
-    return { output: null, charge: estimatedCharge(usage?.inputTokens ?? inputTokens, usage?.outputTokens ?? 0) };
+    return {
+      output: null,
+      charge: estimatedCharge(args.model, usage?.inputTokens ?? inputTokens, usage?.outputTokens ?? 0),
+    };
   }
 }

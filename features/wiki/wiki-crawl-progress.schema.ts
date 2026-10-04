@@ -17,8 +17,19 @@ export const WikiCrawlTargetProgressSchema = z.object({
 });
 export type WikiCrawlTargetProgress = Data<typeof WikiCrawlTargetProgressSchema>;
 
+export const WIKI_SYNTHESIS_SKIP_REASONS = [
+  "generation",
+  "evidence",
+  "review",
+  "reviewUnavailable",
+  "credits",
+  "persistence",
+  "error",
+] as const;
 export const WikiSynthesisTopicProgressSchema = z.object({
   title: z.string().min(1).max(200),
   status: z.enum(["pending", "writing", "created", "skipped"]),
+  skipReason: z.enum(WIKI_SYNTHESIS_SKIP_REASONS).optional(),
 });
 export type WikiSynthesisTopicProgress = Data<typeof WikiSynthesisTopicProgressSchema>;
+export type WikiSynthesisSkipReason = (typeof WIKI_SYNTHESIS_SKIP_REASONS)[number];
