@@ -1,6 +1,20 @@
+import type { PlanId } from "@/core/commercial/plan-catalog";
+
 export const DEFAULT_ROUTINE_MAX_RUNS_PER_HOUR = 4;
 
 export const DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN = 10;
+
+export const ROUTINE_RUN_CREDIT_CEILING_MULTIPLIER = {
+  starter: 1,
+  pro: 1,
+  business: 1,
+  max: 2,
+  enterprise: 1,
+} as const satisfies Record<PlanId, number>;
+
+export function routineMaxCreditsPerRun(plan: PlanId | null): number {
+  return DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN * (plan ? ROUTINE_RUN_CREDIT_CEILING_MULTIPLIER[plan] : 1);
+}
 
 export const ROUTINE_CONSECUTIVE_FAILURE_LIMIT = 3;
 

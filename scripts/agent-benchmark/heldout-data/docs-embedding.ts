@@ -506,7 +506,7 @@ export const DOCS_EMBEDDING_HELDOUT: readonly DocsHeldoutItem[] = [
     slug: "app-company",
     anchors: ["app-company#which-plans-are-there"],
     alternatives: ["app-assistant#plans-and-credits"],
-    fact: "Starter €12, Pro €29 and Business €69 per seat and month, Enterprise on request; they differ in connected accounts, routines, messaging and hosted AI credits (200, 500, 1,200 per user and month).",
+    fact: "Starter €12, Pro €29, Business €69 and Max €149 per seat and month, Enterprise on request; they differ in connected accounts, routines, messaging and Mate usage (1x, 3x, 10x and 20x the Starter allowance per user and month).",
   },
   {
     id: "de-it-03",

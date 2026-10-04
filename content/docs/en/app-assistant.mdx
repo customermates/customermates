@@ -1,6 +1,6 @@
 ---
-title: "Mate, the In-App Assistant: Approvals, Credits and Limits"
-description: "How Mate works in Customermates Cloud: what runs at once, what asks for approval, how credits are charged per plan, and how Mate guides you through the app."
+title: "Mate, the In-App Assistant: Approvals, Usage and Limits"
+description: "How Mate works in Customermates Cloud: what runs at once, what asks for approval, how usage is counted per plan, and how Mate guides you through the app."
 ---
 
 **Mate** is the AI assistant built into Customermates Cloud. Ask it about your workspace or the product, have it change data, or let it show you around the app. Self-hosted deployments have no hosted assistant; they connect external AI clients through the [MCP server](/docs/mcp) with your own provider.
@@ -43,13 +43,13 @@ Keep company facts, processes, voice and support guidance in the [Knowledge Base
 
 The Operating Guide stays pinned first; people with Knowledge Base Edit can drag the other pages into a shared order. With Create or Edit you can ask Mate to write pages; deleting one needs Knowledge Base Delete and your approval. [Routines](/docs/app-routines) use the same pages, so you do not copy them into prompts.
 
-Apart from [web search](#web-search), Mate reads public pages only to import your company website. In an empty Knowledge Base, **Build from my website** starts a chat: Mate asks for your address and runs the import described in [Set up from your homepage](/docs/mcp#set-up-from-your-homepage), copying help, pricing and policy pages word for word and then writing knowledge pages, an Operating Guide and procedures. Pages are usable as soon as they are saved. Mate imports only an address you wrote, and a help centre on another site only when you name it. This needs Knowledge Base Create and uses your normal credits; pages behind a sign-in or blocking automated access may be skipped.
+Apart from [web search](#web-search), Mate reads public pages only to import your company website. In an empty Knowledge Base, **Build from my website** starts a chat: Mate asks for your address and runs the import described in [Set up from your homepage](/docs/mcp#set-up-from-your-homepage), copying help, pricing and policy pages word for word and then writing knowledge pages, an Operating Guide and procedures. Pages are usable as soon as they are saved. Mate imports only an address you wrote, and a help centre on another site only when you name it. This needs Knowledge Base Create and uses your normal Mate allowance; pages behind a sign-in or blocking automated access may be skipped.
 
 ## Can Mate search the web? [#web-search]
 
 Yes, when your workspace, Knowledge Base and this documentation do not hold the answer, for example a company's latest announcement. Searches run through Exa, a US web search provider, via the Vercel AI Gateway, so Exa is a subprocessor for this feature. Exa receives only the query Mate writes, which may include names or terms from your request or records, and returns up to three results with up to 1,000 characters each. Mate treats web text as evidence, never as an instruction or approval, and a reply that used it ends with a **Sources** list.
 
-A reply may start at most 3 paid searches, a [routine](/docs/app-routines) run at most 2; after that, Mate answers from what it found. Several searches requested in one step all run and are charged, so the last step can go above the cap. A search costs about one credit on top of the model cost. Before a round that may search, Mate reserves 1.2 credits per search still allowed (up to 3.6 in a chat, 2.4 in a routine run); when your credits or a routine's 10-credit cap cannot cover that, the round runs without web search.
+A reply may start at most 3 paid searches, a [routine](/docs/app-routines) run at most 2; after that, Mate answers from what it found. Several searches requested in one step all run and are charged, so the last step can go above the cap. A search costs about 0.5% of a Starter allowance on top of the model cost. Before a round that may search, Mate reserves 0.6% of a Starter allowance per search still allowed (up to 1.8% in a chat, 1.2% in a routine run); when your remaining allowance or a routine run's cap cannot cover that, the round runs without web search.
 
 ## Which tools can Mate use? [#which-tools-can-mate-use]
 
@@ -61,7 +61,7 @@ Mate can configure lists, fields, calculations and role access within your permi
 
 Both searches match the words of your query, including inflected forms in English, German, Spanish, French and Italian, and match by meaning, so a question phrased differently or in another language still finds the page. For the match by meaning, an embedding model run by Google through the Vercel AI Gateway receives only the search query. A small classifier then re-ranks the best sections: the Jev model, run by TypeSafe AI in the US through the Vercel AI Gateway with zero data retention requested, which receives your latest message, the query and excerpts of the sections being ranked, never CRM records. A page containing a queried code or identifier comes first, and misspellings are corrected from the words in your Knowledge Base. If either service is slow or fails, the search keeps its plain order. Pages of one Knowledge Base search keep their order for up to five minutes, so paging does not repeat or skip results.
 
-The match by meaning costs a small fraction of a credit, charged to the person whose search created it; identical searches in one workspace at the same moment share it, so you can be charged when only a colleague's search used it. See [credits](#credits). Without credits and when self-hosted, the search is full text only, with the same typo correction. External MCP clients get the same search without the re-ranking.
+The match by meaning costs a tiny share of an allowance, charged to the person whose search created it; identical searches in one workspace at the same moment share it, so you can be charged when only a colleague's search used it. See [credits](#credits). Without an allowance and when self-hosted, the search is full text only, with the same typo correction. External MCP clients get the same search without the re-ranking.
 
 ## How does Mate operate the interface, and can it click buttons for me? [#how-does-mate-operate-the-interface]
 
@@ -79,28 +79,29 @@ Ask Mate to set up your workspace and it creates lists, fields, relationships, m
 
 Long requests continue on their own through a bounded number of steps, keeping a compact digest of finished work, so setup and audit tasks normally finish without a manual "continue". If a cost, context, error or runtime limit is reached, finished changes stay, the activity list shows what ran, and your next request picks up from the current workspace.
 
-## How many credits does each plan include? [#plans-and-credits]
+## How much Mate usage does each plan include? [#plans-and-credits]
 
-Each active user gets a monthly allowance of hosted AI credits; one credit is one US cent of measured provider cost.
+Each active user gets a monthly allowance of Mate usage, stated as a multiple of the Starter allowance; every request counts its exact measured provider cost against it. Business gives the most usage per euro.
 
-| Plan | Price per seat and month | Hosted AI credits per active user and month | Routines per user |
+| Plan | Price per seat and month | Mate usage per active user and month | Routines per user |
 | --- | --- | --- | --- |
-| Starter | [[commercial.price.starter.monthly]] | 200 | [[commercial.entitlement.starter.includedRoutinesPerUser]] |
-| Pro | [[commercial.price.pro.monthly]] | 500 | [[commercial.entitlement.pro.includedRoutinesPerUser]] |
-| Business | [[commercial.price.business.monthly]] | 1,200 | [[commercial.entitlement.business.includedRoutinesPerUser]] |
+| Starter | [[commercial.price.starter.monthly]] | 1x (the base allowance) | [[commercial.entitlement.starter.includedRoutinesPerUser]] |
+| Pro | [[commercial.price.pro.monthly]] | 3x | [[commercial.entitlement.pro.includedRoutinesPerUser]] |
+| Business | [[commercial.price.business.monthly]] | 10x | [[commercial.entitlement.business.includedRoutinesPerUser]] |
+| Max | [[commercial.price.max.monthly]] | 20x | [[commercial.entitlement.max.includedRoutinesPerUser]] |
 | Enterprise | On request | As contracted | [[commercial.entitlement.enterprise.includedRoutinesPerUser]] |
 
-The free trial runs for [[commercial.trial.days]] days with Pro features and 500 credits per active user. The allowance period starts at the moment the workspace was created and repeats monthly at that day and time in UTC (the last day in a shorter month), whatever your billing date; paid allowances reset monthly, and unused credits do not roll over. Only members with status **Active** count as seats and receive credits; a seat activated mid-period on a paid plan gets an exact prorated share. Routines spend their owner's credits. External MCP clients bill model use through your own AI provider, although search by meaning can still use hosted credits.
+The free trial runs for [[commercial.trial.days]] days with Pro features and the Pro allowance of 3x per active user. The allowance period starts at the moment the workspace was created and repeats monthly at that day and time in UTC (the last day in a shorter month), whatever your billing date; paid allowances reset monthly, and unused usage does not roll over. Only members with status **Active** count as seats and receive an allowance; a seat activated mid-period on a paid plan gets an exact prorated share. Routines use their owner's allowance. External MCP clients bill model use through your own AI provider, although search by meaning can still count toward Mate usage.
 
-Credits exist only during the trial or while the subscription is **Active**; otherwise the allowance is 0 and **Ask Mate** disappears from the sidebar. Mate cannot read or change your plan or billing; it can open [Billing](app:settings/billing), and [Workspace settings](/docs/app-company) explains who can change it.
+An allowance exists only during the trial or while the subscription is **Active**; otherwise it is 0 and **Ask Mate** disappears from the sidebar. Mate cannot read or change your plan or billing; it can open [Billing](app:settings/billing), and [Workspace settings](/docs/app-company) explains who can change it.
 
-## How is a request charged, and what happens when the credits run out? [#credits]
+## How is a request charged, and what happens when the allowance runs out? [#credits]
 
-The ring next to **Send** fills with the share of your monthly allowance used; hover or click it for the remaining credits, plan, reset date and what the last request used. Each request is charged its exact measured provider cost, searches and ranking included, with no rounding or minimum: a request costing $0.0075 uses 0.75 credits. A simple question usually costs less than one credit, a multi-step request more, and a routine run is capped at 10 credits. The meter rounds to one decimal and shows `<0.1` for charges below 0.05.
+The ring next to **Send** fills with the share of your monthly allowance used; hover or click it for that share as a percentage with the reset date, the plan with its usage multiple, and the share the last request used. It is hidden when your allowance is 0. Each request counts its exact measured provider cost, searches and ranking included, with no rounding or minimum. A simple question usually uses less than 0.5% of a Starter allowance, a multi-step request more, and a routine run is capped at 5% of a Starter allowance (10% on Max). The meter shows shares of your own allowance, with one decimal below 10%, and `<0.1%` for a use below 0.1%.
 
-Keeping the Knowledge Base search index current is charged to the workspace, shared among active members in proportion to their allowance. Every request and indexing step reserves its worst-case cost first and runs only if it fits both your own allowance and the workspace's combined one. With the default model a request reserves 5.6 credits per round and 11.2 in total, topped up as it goes, so it cannot start with less than 5.6 credits left even if the meter shows a remainder. Unused reservations are released once usage is measured, so the meter can dip and recover during a request.
+Keeping the Knowledge Base search index current is charged to the workspace, shared among active members in proportion to their allowance. Every request and indexing step reserves its worst-case cost first and runs only if it fits both your own allowance and the workspace's combined one. With the default model a request reserves 2.8% of a Starter allowance per round and 5.6% in total, topped up as it goes, so it cannot start with less than 2.8% of a Starter allowance left even if the meter shows a remainder; on a larger plan that is a smaller share of your allowance. Unused reservations are released once usage is measured, so the meter can dip and recover during a request.
 
-When the allowance is used up, new requests pause until the reset date and your history stays readable. The message box is replaced by a notice with **View plans**, which opens [Billing](app:settings/billing); the same notice appears when the subscription grants no credits. If the hosted Assistant is temporarily unavailable, for example on an Enterprise workspace without a contracted allowance, the button is **Contact us** and emails the Customermates team.
+When the allowance is used up, new requests pause until the reset date and your history stays readable. The message box is replaced by a notice with **View plans**, which opens [Billing](app:settings/billing); the same notice appears when the subscription grants no allowance. If the hosted Assistant is temporarily unavailable, for example on an Enterprise workspace without a contracted allowance, the button is **Contact us** and emails the Customermates team.
 
 ## Chat history [#chat-history]
 

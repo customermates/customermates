@@ -4,12 +4,24 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { REGISTERED_LOCALES } from "@/i18n/locale-registry";
+import {
+  CLOUD_TRIAL,
+  CLOUD_TRIAL_HOSTED_AI_USAGE_MULTIPLIER,
+  HOSTED_AI_BASE_CREDITS_PER_ACTIVE_USER,
+  PLAN_CATALOG,
+  PLAN_IDS,
+  PURCHASABLE_PLAN_IDS,
+  RECOMMENDED_PLAN_ID,
+} from "@/core/commercial/plan-catalog";
+import { routineMaxCreditsPerRun } from "@/ee/routines/routine-run-limits";
 
 const ROOT = process.cwd();
 
 function read(path: string) {
   return readFileSync(join(ROOT, path), "utf8");
 }
+
+const PLAN_CATALOG_NAMES = { starter: "Starter", pro: "Pro", business: "Business", max: "Max" } as const;
 
 function markdownFiles(directory: string): string[] {
   return readdirSync(join(ROOT, directory), { withFileTypes: true }).flatMap((entry) => {
@@ -23,6 +35,8 @@ describe("hosted AI pricing contract", () => {
   const pricingDe = read("content/pricing/de/pricing.mdx");
   const assistantEn = read("content/docs/en/app-assistant.mdx");
   const assistantDe = read("content/docs/de/app-assistant.mdx");
+  const routinesEn = read("content/docs/en/app-routines.mdx");
+  const routinesDe = read("content/docs/de/app-routines.mdx");
   const localeFiles = Object.fromEntries(
     REGISTERED_LOCALES.map((locale) => [locale, read(`i18n/locales/${locale}.json`)]),
   );
@@ -34,34 +48,110 @@ describe("hosted AI pricing contract", () => {
     ]),
   );
 
-  it("publishes exact per-active-user allowances in English and German", () => {
+  it("derives every self-serve allowance from one base and a per-plan multiplier", () => {
+    expect(HOSTED_AI_BASE_CREDITS_PER_ACTIVE_USER).toBe(200);
+    const multipliers = Object.fromEntries(
+      PLAN_IDS.map((plan) => [plan, PLAN_CATALOG[plan].entitlements.hostedAiUsageMultiplier]),
+    );
+    expect(multipliers).toEqual({ starter: 1, pro: 3, business: 10, max: 20, enterprise: "contract" });
+    for (const plan of PURCHASABLE_PLAN_IDS) {
+      expect(PLAN_CATALOG[plan].entitlements.hostedAiCreditsPerActiveUser).toBe(
+        HOSTED_AI_BASE_CREDITS_PER_ACTIVE_USER * PLAN_CATALOG[plan].entitlements.hostedAiUsageMultiplier,
+      );
+    }
+    expect(CLOUD_TRIAL_HOSTED_AI_USAGE_MULTIPLIER).toBe(PLAN_CATALOG[CLOUD_TRIAL.plan].entitlements.hostedAiUsageMultiplier);
+  });
+
+  it("keeps Business the best usage per euro and recommends it", () => {
+    const usagePerEuro = PURCHASABLE_PLAN_IDS.map((plan) => ({
+      plan,
+      value:
+        PLAN_CATALOG[plan].entitlements.hostedAiUsageMultiplier / PLAN_CATALOG[plan].offers.monthly.unitPriceMinor,
+    })).sort((left, right) => right.value - left.value);
+
+    expect(usagePerEuro.map(({ plan }) => plan)).toEqual(["business", "max", "pro", "starter"]);
+    expect(RECOMMENDED_PLAN_ID).toBe("business");
     for (const pricing of [pricingEn, pricingDe]) {
-      expect(pricing).toMatch(/200[^\n]*(active user|aktivem Nutzer)/i);
-      expect(pricing).toMatch(/500[^\n]*(active user|aktivem Nutzer)/i);
-      expect(pricing).toMatch(/1[,.]200[^\n]*(active user|aktivem Nutzer)/i);
+      const business = pricing.slice(pricing.indexOf("  - plan: business"), pricing.indexOf("  - plan: max"));
+      expect(business).toMatch(/badge: (Recommended|Empfohlen)\n/);
+      expect(business).toContain("featured: true");
+      expect(pricing).not.toMatch(/Most popular|Beliebteste Wahl|Am beliebtesten/);
+    }
+    for (const source of Object.values(localeFiles)) {
+      const picker = (JSON.parse(source) as { Subscription: { picker: Record<string, unknown> } }).Subscription.picker;
+      expect(picker).toHaveProperty("recommended");
+      expect(picker).not.toHaveProperty("mostPopular");
+    }
+  });
+
+  it("publishes each plan's catalog multiplier, never raw credit amounts, in pricing, docs and the picker", () => {
+    for (const pricing of [pricingEn, pricingDe]) {
+      for (const plan of PURCHASABLE_PLAN_IDS) {
+        const start = pricing.indexOf(`  - plan: ${plan}\n`);
+        const card = pricing.slice(start, pricing.indexOf("  - plan: ", start + 1));
+        const multiplier = PLAN_CATALOG[plan].entitlements.hostedAiUsageMultiplier;
+        expect(card, `${plan} card`).toMatch(new RegExp(`Mate[- ](?:usage|Nutzung): ${multiplier}x`));
+      }
+      expect(pricing).toMatch(/Starter 1x, Pro 3x, Business 10x, Max 20x/);
+      expect(pricing).not.toMatch(/\d[\d.,]*\s*(?:credits|Credits)\b/);
     }
 
-    expect(locales).toContain("{credits, number}");
+    for (const assistant of [assistantEn, assistantDe]) {
+      for (const plan of PURCHASABLE_PLAN_IDS) {
+        const multiplier = PLAN_CATALOG[plan].entitlements.hostedAiUsageMultiplier;
+        expect(assistant).toMatch(
+          new RegExp(`\\| ${PLAN_CATALOG_NAMES[plan]} \\| \\[\\[commercial\\.price\\.${plan}\\.monthly\\]\\] \\| ${multiplier}x`),
+        );
+      }
+      expect(assistant).not.toMatch(/\d[\d.,]*\s*(?:credits|Credits)\b/);
+    }
+
+    for (const source of Object.values(localeFiles)) {
+      expect(source).toContain("{multiplier}x");
+      expect(source).not.toContain("{credits, number}");
+    }
+  });
+
+  it("states the routine per-run cap as a share of the Starter allowance", () => {
+    const starterShare = (routineMaxCreditsPerRun("starter") / HOSTED_AI_BASE_CREDITS_PER_ACTIVE_USER) * 100;
+    const maxShare = (routineMaxCreditsPerRun("max") / HOSTED_AI_BASE_CREDITS_PER_ACTIVE_USER) * 100;
+    expect([starterShare, maxShare]).toEqual([5, 10]);
+
+    for (const docs of [assistantEn, routinesEn]) {
+      expect(docs).toContain(`${starterShare}% of a Starter allowance`);
+      expect(docs).toMatch(new RegExp(`${maxShare}% on Max`));
+    }
+    for (const docs of [assistantDe, routinesDe]) {
+      expect(docs).toContain(`${starterShare} % eines Starter-Kontingents`);
+      expect(docs).toMatch(new RegExp(`${maxShare} % bei Max`));
+    }
   });
 
   it("explains trial, monthly reset, no rollover, and external MCP separation", () => {
-    expect(pricingEn).toMatch(/every active trial user has a 500-credit plan allowance/i);
-    expect(pricingDe).toMatch(/Jeder aktive Nutzer in der Testphase hat ein Tarifkontingent von 500 Credits/i);
-    expect(pricingEn).toContain("Paid allowances reset monthly; unused credits do not roll over.");
+    const trialMultiplier = CLOUD_TRIAL_HOSTED_AI_USAGE_MULTIPLIER;
+    expect(pricingEn).toContain(`Every active trial user has the Pro allowance of ${trialMultiplier}x.`);
+    expect(pricingDe).toContain(`Jeder aktive Nutzer in der Testphase hat das Pro-Kontingent von ${trialMultiplier}x.`);
+    expect(assistantEn).toContain(`with Pro features and the Pro allowance of ${trialMultiplier}x per active user`);
+    expect(assistantDe).toContain(`mit Pro-Funktionen und dem Pro-Kontingent von ${trialMultiplier}x pro aktivem Nutzer`);
+    expect(pricingEn).toContain("Paid allowances reset monthly; unused usage does not roll over.");
     expect(pricingDe).toContain(
-      "Bezahlte Kontingente werden monatlich zurückgesetzt; nicht genutzte Credits werden nicht übertragen.",
+      "Bezahlte Kontingente werden monatlich zurückgesetzt; nicht genutzte Nutzung wird nicht übertragen.",
     );
-    expect(assistantEn).toContain("paid allowances reset monthly, and unused credits do not roll over.");
+    expect(assistantEn).toContain("paid allowances reset monthly, and unused usage does not roll over.");
     expect(assistantDe).toContain(
-      "bezahlte Kontingente werden monatlich zurückgesetzt und nicht genutzte Credits werden nicht übertragen.",
+      "bezahlte Kontingente werden monatlich zurückgesetzt und nicht genutzte Nutzung wird nicht übertragen.",
     );
     expect(subscriptionCreditNotes).toEqual({
-      en: "Hosted AI credits refresh monthly; unused credits do not roll over. Each request is charged its exact provider cost, shown to one decimal. External MCP clients bill model use through your own AI provider. Server-side semantic searches can consume hosted AI credits.",
-      de: "Credits für den gehosteten KI-Assistenten werden monatlich erneuert; nicht genutzte Credits werden nicht übertragen. Jede Anfrage wird mit ihren genauen Anbieterkosten berechnet und auf eine Nachkommastelle angezeigt. Externe MCP-Clients rechnen die Modellnutzung über deinen eigenen KI-Anbieter ab. Serverseitige semantische Suchen können gehostete KI-Credits verbrauchen.",
-      es: "Los créditos de IA alojada se renuevan cada mes; los créditos no utilizados no se acumulan. Cada consulta se cobra por su coste exacto del proveedor y se muestra con un decimal. Los clientes MCP externos facturan el uso del modelo a través de tu propio proveedor de IA. Las búsquedas semánticas del servidor pueden consumir créditos de IA alojada.",
-      fr: "Les crédits IA hébergés sont renouvelés chaque mois ; les crédits non utilisés ne sont pas reportés. Chaque demande est facturée à son coût exact chez le fournisseur, affiché avec une décimale. Les clients MCP externes facturent les modèles via votre propre fournisseur d'IA. Les recherches sémantiques côté serveur peuvent consommer des crédits IA hébergés.",
-      it: "I crediti IA in hosting si rinnovano ogni mese; i crediti non utilizzati non vengono trasferiti al mese successivo. Ogni richiesta viene addebitata al suo costo esatto presso il provider e mostrata con un decimale. I client MCP esterni fatturano i modelli tramite il tuo provider di IA. Le ricerche semantiche lato server possono consumare crediti IA in hosting.",
+      en: "Mate usage is shown as a multiple of the Starter allowance (Starter 1x, Pro 3x, Business 10x, Max 20x) and refreshes monthly; unused usage does not roll over. Each request counts its exact provider cost. External MCP clients bill model use through your own AI provider. Server-side semantic searches can count toward Mate usage.",
+      de: "Die Mate-Nutzung wird als Vielfaches des Starter-Kontingents angegeben (Starter 1x, Pro 3x, Business 10x, Max 20x) und monatlich erneuert; nicht genutzte Nutzung wird nicht übertragen. Jede Anfrage zählt mit ihren genauen Anbieterkosten. Externe MCP-Clients rechnen die Modellnutzung über deinen eigenen KI-Anbieter ab. Serverseitige semantische Suchen können zur Mate-Nutzung zählen.",
+      es: "El uso de Mate se indica como múltiplo de la asignación de Starter (Starter 1x, Pro 3x, Business 10x, Max 20x) y se renueva cada mes; el uso no consumido no se acumula. Cada consulta cuenta su coste exacto del proveedor. Los clientes MCP externos facturan el uso del modelo a través de tu propio proveedor de IA. Las búsquedas semánticas del servidor pueden contar para el uso de Mate.",
+      fr: "L'usage Mate est exprimé en multiple de l'allocation Starter (Starter 1x, Pro 3x, Business 10x, Max 20x) et se renouvelle chaque mois ; l'usage non consommé n'est pas reporté. Chaque demande compte son coût exact chez le fournisseur. Les clients MCP externes facturent les modèles via votre propre fournisseur d'IA. Les recherches sémantiques côté serveur peuvent compter dans l'usage Mate.",
+      it: "L'utilizzo di Mate è espresso come multiplo della dotazione Starter (Starter 1x, Pro 3x, Business 10x, Max 20x) e si rinnova ogni mese; l'utilizzo non consumato non viene trasferito al mese successivo. Ogni richiesta conta il suo costo esatto presso il provider. I client MCP esterni fatturano i modelli tramite il tuo provider di IA. Le ricerche semantiche lato server possono contare nell'utilizzo di Mate.",
     });
+    const catalogMultipliers = PURCHASABLE_PLAN_IDS.map(
+      (plan) => `${PLAN_CATALOG_NAMES[plan]} ${PLAN_CATALOG[plan].entitlements.hostedAiUsageMultiplier}x`,
+    ).join(", ");
+    for (const note of Object.values(subscriptionCreditNotes)) expect(note).toContain(catalogMultipliers);
     expect(`${pricingEn}\n${assistantEn}`).not.toMatch(/annual(?:ly)? billing|billed annually/i);
     expect(`${pricingDe}\n${assistantDe}`).not.toMatch(/jährliche(?:n|r)? Abrechnung/i);
     expect(Object.values(subscriptionCreditNotes).join("\n")).not.toMatch(

@@ -89,6 +89,7 @@ const initialState: RootStoreInitialState = {
     currentPeriodEnd: null,
     hasBillingPortal: false,
     hasActiveSubscription: true,
+    checkoutUnavailablePlans: [],
   },
 };
 

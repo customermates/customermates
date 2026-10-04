@@ -14,14 +14,16 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { resolveRequestOrigin } from "@/core/config/environment";
 import { redirectTo } from "@/features/auth/auth-outcome";
 import { env } from "@/env";
-import { getCommercialOfferOrThrow } from "@/core/commercial/plan-catalog";
+import { getCommercialOfferOrThrow, PURCHASABLE_PLAN_IDS } from "@/core/commercial/plan-catalog";
 import { failUnavailable } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { CreateCheckoutCompanyRepo } from "./create-checkout-session.repo";
 import { settingsHref } from "@/app/components/navigation/settings-routes";
 
+import { isOfferCheckoutAvailable } from "./lemon-squeezy-bindings";
+
 const Schema = z.object({
-  plan: z.enum([SubscriptionPlan.starter, SubscriptionPlan.pro, SubscriptionPlan.business]),
+  plan: z.enum(PURCHASABLE_PLAN_IDS),
   cadence: z.literal("monthly"),
 });
 export type CreateCheckoutSessionData = Data<typeof Schema>;
@@ -44,6 +46,8 @@ export class CreateCheckoutSessionInteractor extends UserAccessor {
       return failUnavailable(CustomErrorCode.enterpriseCheckoutUnavailable, ["plan"]);
 
     const offer = getCommercialOfferOrThrow(data.plan, data.cadence);
+    if (!isOfferCheckoutAvailable(offer)) return failUnavailable(CustomErrorCode.planCheckoutUnavailable, ["plan"]);
+
     const activeUsersCount = await this.userRepo.countActiveUsers();
 
     const requestOrigin = (await headers()).get("origin") ?? env.BASE_URL;

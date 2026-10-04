@@ -142,7 +142,6 @@ export type AgentTurnTerminalEvent =
         assistantMessageId: string;
         affectedResources: AgentActivityResource[];
         hasSuccessfulMutation: boolean;
-        creditsUsed: number;
         numTurns: number;
         errorMessage: string | null;
         replayed: boolean;

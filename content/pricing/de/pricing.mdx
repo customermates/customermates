@@ -23,7 +23,7 @@ pricing:
       - "MCP-Zugriff: externen KI-Client wie Claude, ChatGPT oder Gemini verbinden"
       - REST-API, Webhooks & Schnittstellen für Ihr eigenes n8n
       - "[[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Nutzer: Mate arbeitet nach Zeitplan oder wenn sich ein Datensatz ändert"
-      - "Tarifkontingent für gehostete KI: 200 Credits pro aktivem Nutzer (nutzbar, wenn Mate aktiviert ist)"
+      - "Mate-Nutzung: 1x pro aktivem Nutzer, das Basiskontingent (nutzbar, wenn Mate aktiviert ist)"
   - plan: pro
     title: Pro
     description: CRM + einheitlicher Posteingang. Inklusive kostenloser Testphase von [[commercial.trial.days]] Tagen.
@@ -38,11 +38,11 @@ pricing:
       - "[[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Nutzer inklusive"
       - "[[commercial.entitlement.pro.includedRoutinesPerUser]] Routinen pro Nutzer: Mate arbeitet nach Zeitplan oder wenn sich ein Datensatz ändert"
       - Kalenderzugriff (nur lesend) & LinkedIn Sales Navigator
-      - "Tarifkontingent für gehostete KI: 500 Credits pro aktivem Nutzer (nutzbar, wenn Mate aktiviert ist)"
+      - "Mate-Nutzung: 3x Starter pro aktivem Nutzer (nutzbar, wenn Mate aktiviert ist)"
   - plan: business
     title: Business
     description: Für Teams
-    badge: Beliebteste Wahl
+    badge: Empfohlen
     featured: true
     buttonText: Kostenlos testen
     buttonHref: /auth/signup
@@ -57,7 +57,21 @@ pricing:
       - "Geteilte Konten: ganze verbundene Konten für das Team sichtbar"
       - Ein teamweiter Verlauf über alle Kanäle
       - Priorisierter Support
-      - "Tarifkontingent für gehostete KI: 1.200 Credits pro aktivem Nutzer (nutzbar, wenn Mate aktiviert ist)"
+      - "Mate-Nutzung: 10x Starter pro aktivem Nutzer, die meiste Nutzung pro Euro (nutzbar, wenn Mate aktiviert ist)"
+  - plan: max
+    title: Max
+    description: Für intensive Mate-Nutzung
+    buttonText: Kostenlos testen
+    buttonHref: /auth/signup
+    buttonColor: default
+    buttonVariant: bordered
+    features:
+      - Alles aus Business
+      - "[[commercial.entitlement.max.includedAccountsPerUser]] verbundene Konten pro Nutzer inklusive"
+      - "Mate-Nutzung: 20x Starter pro aktivem Nutzer (nutzbar, wenn Mate aktiviert ist)"
+      - Doppeltes Limit pro Routinenlauf
+      - Priorisierter Support
+      - Früher Zugang zu Beta-Funktionen
   - plan: enterprise
     title: Enterprise
     description: Individueller Umfang & Support
@@ -71,7 +85,7 @@ pricing:
       - Einrichtung durch uns
       - "Verbundene Konten pro Nutzer: [[commercial.entitlement.enterprise.includedAccountsPerUser]] (Fair Use); SSO & White-Label sind nicht implementiert und erfordern Vertragsarbeit"
       - Dedizierter Support & individuelle Konditionen
-      - Vertraglich festgelegtes KI-Credit-Kontingent pro aktivem Nutzer/Monat (nutzbar, wenn Mate aktiviert ist)
+      - "Mate-Nutzung: individuell, vertraglich festgelegt pro aktivem Nutzer/Monat (nutzbar, wenn Mate aktiviert ist)"
 
 comparison:
   customValue: Individuell
@@ -91,6 +105,10 @@ comparison:
       button: Kostenlos testen
       buttonHref: /auth/signup
       featured: true
+    max:
+      name: Max
+      button: Kostenlos testen
+      buttonHref: /auth/signup
     enterprise:
       name: Enterprise
       button: Kontakt aufnehmen
@@ -100,6 +118,8 @@ comparison:
     rows:
       - label: Preis pro Nutzer/Monat
         catalogFact: monthlyPrice
+      - label: Mate-Nutzung pro aktivem Nutzer (Vielfaches von Starter)
+        catalogFact: hostedAiUsage
   - title: Messaging
     rows:
       - label: Einheitlicher Posteingang
@@ -112,16 +132,19 @@ comparison:
         starter: false
         pro: true
         business: true
+        max: true
         enterprise: true
       - label: Social-Post-Tracking
         starter: false
         pro: true
         business: true
+        max: true
         enterprise: true
       - label: LinkedIn Sales Navigator
         starter: false
         pro: true
         business: true
+        max: true
         enterprise: true
   - title: CRM-Kern
     rows:
@@ -131,31 +154,37 @@ comparison:
         starter: true
         pro: true
         business: true
+        max: true
         enterprise: true
       - label: Eigene Felder, Rollen & Rechte
         starter: true
         pro: true
         business: true
+        max: true
         enterprise: true
       - label: Verknüpfte Datensätze & Notizen
         starter: true
         pro: true
         business: true
+        max: true
         enterprise: true
       - label: REST-API & Webhooks
         starter: true
         pro: true
         business: true
+        max: true
         enterprise: true
       - label: MCP-Zugriff für einen externen KI-Client
         starter: true
         pro: true
         business: true
+        max: true
         enterprise: true
       - label: Schnittstellen für eine externe n8n-Instanz
         starter: true
         pro: true
         business: true
+        max: true
         enterprise: true
   - title: Enterprise
     rows:
@@ -163,27 +192,38 @@ comparison:
         starter: false
         pro: false
         business: false
+        max: false
         enterprise: "Auf Anfrage"
       - label: White-Label (noch nicht gebaut, nach Vereinbarung)
         starter: false
         pro: false
         business: false
+        max: false
         enterprise: "Auf Anfrage"
       - label: Vertraglicher Agenten-Workflow (nicht eingebaut)
         starter: false
         pro: false
         business: false
+        max: false
         enterprise: "Auf Anfrage"
       - label: Vertraglicher Lead-Daten-Workflow (nicht eingebaut)
         starter: false
         pro: false
         business: false
+        max: false
         enterprise: "Auf Anfrage"
       - label: Support
         starter: "Community & E-Mail"
         pro: "Community & E-Mail"
         business: "Priorisiert"
+        max: "Priorisiert"
         enterprise: "Dediziert"
+      - label: Früher Zugang zu Beta-Funktionen
+        starter: false
+        pro: false
+        business: false
+        max: true
+        enterprise: "Auf Anfrage"
 
 faq:
   title: Häufig gestellte Fragen
@@ -205,13 +245,13 @@ faq:
     content: "Wir bieten die CRM-Kernfunktionen, die die meisten Teams wirklich brauchen, kombiniert mit MCP-Zugriff für externe KI-Clients, offenen APIs und Schnittstellen für eine separate n8n-Instanz. So erhalten Sie ein agentisches Open-Source-CRM mit flexiblen Erweiterungen und klaren Produktgrenzen."
   - id: pricing-faq-6
     title: Was zählt als verbundenes Konto?
-    content: "Ein verbundenes Konto ist ein verknüpftes Postfach oder ein LinkedIn-, WhatsApp-, Instagram- oder Telegram-Profil, das einem einzelnen Nutzer gehört. Pro enthält [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Nutzer, Business enthält [[commercial.entitlement.business.includedAccountsPerUser]] pro Nutzer, und Enterprise ist im Rahmen von Fair Use [[commercial.entitlement.enterprise.includedAccountsPerUser]]. Wenn Sie mehr als [[commercial.entitlement.business.includedAccountsPerUser]] Konten pro Nutzer brauchen, ist Enterprise der passende Tarif."
+    content: "Ein verbundenes Konto ist ein verknüpftes Postfach oder ein LinkedIn-, WhatsApp-, Instagram- oder Telegram-Profil, das einem einzelnen Nutzer gehört. Pro enthält [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Nutzer, Business enthält [[commercial.entitlement.business.includedAccountsPerUser]] pro Nutzer, Max enthält [[commercial.entitlement.max.includedAccountsPerUser]] pro Nutzer, und Enterprise ist im Rahmen von Fair Use [[commercial.entitlement.enterprise.includedAccountsPerUser]]. Wenn Sie mehr als [[commercial.entitlement.max.includedAccountsPerUser]] Konten pro Nutzer brauchen, ist Enterprise der passende Tarif."
   - id: pricing-faq-7
     title: Wie funktioniert die monatliche Abrechnung?
     content: "Sie zahlen pro aktivem Nutzer. Wenn Sie Nutzer hinzufügen oder entfernen, wird die Änderung anteilig mit der nächsten Rechnung verrechnet. Tarif-Upgrades gelten sofort mit anteiliger Berechnung für den Rest des Abrechnungszeitraums, Downgrades gelten sofort und der nicht genutzte Anteil wird gutgeschrieben."
   - id: pricing-faq-8
-    title: Wie funktionieren Credits für den gehosteten KI-Assistenten?
-    content: "Alle Cloud-Tarife umfassen eine Mate-Berechtigung und ein gehostetes KI-Kontingent. Credits werden nur verbraucht, wenn Mate in der gehosteten Umgebung aktiviert ist. Dann nutzt die gehostete KI-Verarbeitung in Customermates Credits. Der Verbrauch folgt den tatsächlichen Anbieter-Kosten, einschließlich Modellaufrufen und serverseitiger semantischer Suche. Ein Credit entspricht 0,01 US-Dollar; Anfragen können Bruchteile eines Credits verbrauchen. Bezahlte Kontingente werden monatlich zurückgesetzt; nicht genutzte Credits werden nicht übertragen. Jeder aktive Nutzer in der Testphase hat ein Tarifkontingent von 500 Credits. Die Kontingente aktiver Mitglieder bilden den gemeinsamen Workspace-Pool; jedes Mitglied hat außerdem eine individuelle Zuteilung. Neue bezahlte Plätze erhalten für den verbleibenden Abrechnungszeitraum ein exakt anteiliges Kontingent. Upgrades erhöhen das aktuelle Kontingent sofort, Downgrades senken es sofort. Externe MCP-Clients nutzen Ihren eigenen KI-Anbieter für Modellaufrufe. Serverseitige semantische Suche kann auch über MCP Customermates-Credits verbrauchen. Mate ist nur in der Cloud vorgesehen. Es gibt keine Aufladungen oder automatischen Mehrkosten."
+    title: Wie funktioniert die Mate-Nutzung?
+    content: "Alle Cloud-Tarife umfassen eine Mate-Berechtigung und ein monatliches Kontingent für die Mate-Nutzung pro aktivem Nutzer, angegeben als Vielfaches des Starter-Kontingents: Starter 1x, Pro 3x, Business 10x, Max 20x und Enterprise nach Vertrag. Business bietet die meiste Nutzung pro Euro. Nutzung fällt nur an, wenn Mate in der gehosteten Umgebung aktiviert ist. Dann zählt die gehostete KI-Verarbeitung in Customermates zur Nutzung. Der Verbrauch folgt den tatsächlichen Anbieter-Kosten, einschließlich Modellaufrufen und serverseitiger semantischer Suche; eine einfache Frage verbraucht nur einen kleinen Anteil, eine mehrstufige Anfrage mehr. In der App zeigt der Mate-Zähler in Prozent, wie viel des Monatskontingents verbraucht ist. Bezahlte Kontingente werden monatlich zurückgesetzt; nicht genutzte Nutzung wird nicht übertragen. Jeder aktive Nutzer in der Testphase hat das Pro-Kontingent von 3x. Die Kontingente aktiver Mitglieder bilden den gemeinsamen Workspace-Pool; jedes Mitglied hat außerdem eine individuelle Zuteilung. Neue bezahlte Plätze erhalten für den verbleibenden Abrechnungszeitraum ein exakt anteiliges Kontingent. Upgrades erhöhen das aktuelle Kontingent sofort, Downgrades senken es sofort. Externe MCP-Clients nutzen Ihren eigenen KI-Anbieter für Modellaufrufe. Serverseitige semantische Suche kann auch über MCP zur Mate-Nutzung zählen. Mate ist nur in der Cloud vorgesehen. Es gibt keine Aufladungen oder automatischen Mehrkosten."
 
 cta:
   action: Bereit loszulegen?

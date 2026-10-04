@@ -11,8 +11,8 @@ describe("aggregateOfferSchema", () => {
     expect(offer).toMatchObject({
       "@type": "AggregateOffer",
       lowPrice: "12",
-      highPrice: "69",
-      offerCount: "3",
+      highPrice: "149",
+      offerCount: "4",
       priceCurrency: "EUR",
     });
   });
@@ -22,7 +22,7 @@ describe("aggregateOfferSchema", () => {
       const offer = aggregateOfferSchema({ locale });
 
       expect(offer?.lowPrice, `lowPrice for ${locale}`).toBe("12");
-      expect(offer?.highPrice, `highPrice for ${locale}`).toBe("69");
+      expect(offer?.highPrice, `highPrice for ${locale}`).toBe("149");
     }
   });
 });

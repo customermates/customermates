@@ -1,6 +1,7 @@
 "use client";
 
 import type { SubscriptionRecoveryPath } from "@/features/auth/subscription-recovery";
+import type { PurchasablePlanId } from "@/core/commercial/plan-catalog";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
@@ -16,7 +17,12 @@ import { PlanPicker } from "@/app/[locale]/(protected)/settings/(workspace)/comp
 import { runUserAction } from "@/core/errors/report-application-error";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
-const SubscriptionExpiredViewContent = observer(({ recoveryPath }: { recoveryPath: SubscriptionRecoveryPath }) => {
+type Props = {
+  recoveryPath: SubscriptionRecoveryPath;
+  unavailablePlans?: readonly PurchasablePlanId[];
+};
+
+const SubscriptionExpiredViewContent = observer(({ recoveryPath, unavailablePlans = [] }: Props) => {
   const t = useTranslations();
   const { subscriptionExpiredStore, loadingOverlayStore } = useRootStore();
   const description =
@@ -36,6 +42,7 @@ const SubscriptionExpiredViewContent = observer(({ recoveryPath }: { recoveryPat
         {recoveryPath === "selfServiceCheckout" ? (
           <PlanPicker
             isLoading={loadingOverlayStore.isLoading}
+            unavailablePlans={unavailablePlans}
             onSelect={(plan) => runUserAction(() => subscriptionExpiredStore.handleSubscribe(plan))}
           />
         ) : null}

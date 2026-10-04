@@ -6,6 +6,7 @@ import { TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER } from "@/ee/subscription/entit
 import {
   agentCreditPeriodForAnchor,
   agentMicrocentsFromStorage,
+  agentUsageMultiplier,
   memberCreditHeadroomMicrocents,
   prorateAgentAllowanceForSeat,
   resolveAgentCreditEntitlement,
@@ -66,8 +67,9 @@ describe("agent credit periods", () => {
 describe("agent credit entitlements", () => {
   it.each([
     [SubscriptionPlan.starter, 200],
-    [SubscriptionPlan.pro, 500],
-    [SubscriptionPlan.business, 1200],
+    [SubscriptionPlan.pro, 600],
+    [SubscriptionPlan.business, 2_000],
+    [SubscriptionPlan.max, 4_000],
   ])("grants %s plan credits", (plan, limit) => {
     expect(entitlement({ plan }).limitMicrocents).toBe(limit * CREDIT);
   });
@@ -98,9 +100,9 @@ describe("agent credit entitlements", () => {
   });
 
   it("applies signed current-period adjustments after seat proration", () => {
-    expect(entitlement({ adjustmentMicrocents: 75 * CREDIT }).limitMicrocents).toBe(575 * CREDIT);
-    expect(entitlement({ adjustmentMicrocents: -75 * CREDIT }).limitMicrocents).toBe(425 * CREDIT);
-    expect(entitlement({ adjustmentMicrocents: 2_500_000 }).limitMicrocents).toBe(502_500_000);
+    expect(entitlement({ adjustmentMicrocents: 75 * CREDIT }).limitMicrocents).toBe(675 * CREDIT);
+    expect(entitlement({ adjustmentMicrocents: -75 * CREDIT }).limitMicrocents).toBe(525 * CREDIT);
+    expect(entitlement({ adjustmentMicrocents: 2_500_000 }).limitMicrocents).toBe(602_500_000);
   });
 
   it("applies signed current-period adjustments to trial allowances", () => {
@@ -109,8 +111,8 @@ describe("agent credit entitlements", () => {
       trialEndDate: new Date("2026-08-13T12:00:00.000Z"),
     } as const;
 
-    expect(entitlement({ ...trial, adjustmentMicrocents: 75 * CREDIT }).limitMicrocents).toBe(575 * CREDIT);
-    expect(entitlement({ ...trial, adjustmentMicrocents: -75 * CREDIT }).limitMicrocents).toBe(425 * CREDIT);
+    expect(entitlement({ ...trial, adjustmentMicrocents: 75 * CREDIT }).limitMicrocents).toBe(675 * CREDIT);
+    expect(entitlement({ ...trial, adjustmentMicrocents: -75 * CREDIT }).limitMicrocents).toBe(525 * CREDIT);
   });
 
   it("does not let an adjustment bypass missing Enterprise configuration", () => {
@@ -191,8 +193,9 @@ describe("workspace credit rate", () => {
 
   it("reports the plan rate for a paid workspace", () => {
     expect(rate({ plan: SubscriptionPlan.starter })).toBe(200);
-    expect(rate({ plan: SubscriptionPlan.pro })).toBe(500);
-    expect(rate({ plan: SubscriptionPlan.business })).toBe(1_200);
+    expect(rate({ plan: SubscriptionPlan.pro })).toBe(600);
+    expect(rate({ plan: SubscriptionPlan.business })).toBe(2_000);
+    expect(rate({ plan: SubscriptionPlan.max })).toBe(4_000);
   });
 
   it("reports the trial rate whatever the plan says, until the trial ends", () => {
@@ -318,5 +321,39 @@ describe("workspace indexing share", () => {
     expect(headroom(100, 100)).toBe(400);
     expect(headroom(100, 950)).toBe(50);
     expect(headroom(600, 700)).toBe(0);
+  });
+});
+
+describe("agentUsageMultiplier", () => {
+  const multiplier = (overrides: Partial<Parameters<typeof agentUsageMultiplier>[0]> = {}) =>
+    agentUsageMultiplier({
+      appMode: "cloud",
+      plan: SubscriptionPlan.pro,
+      status: ACTIVE,
+      trialEndDate: null,
+      now: NOW,
+      ...overrides,
+    });
+
+  it("reports each paid plan's multiple of Starter", () => {
+    expect(multiplier({ plan: SubscriptionPlan.starter })).toBe(1);
+    expect(multiplier({ plan: SubscriptionPlan.pro })).toBe(3);
+    expect(multiplier({ plan: SubscriptionPlan.business })).toBe(10);
+    expect(multiplier({ plan: SubscriptionPlan.max })).toBe(20);
+  });
+
+  it("reports the trial's Pro multiple and nothing for contracts, lapsed trials or self-hosting", () => {
+    const live = { status: SubscriptionStatus.trial, trialEndDate: new Date("2026-08-20T12:00:00.000Z") };
+    expect(multiplier({ ...live, plan: SubscriptionPlan.business })).toBe(3);
+    expect(multiplier({ plan: SubscriptionPlan.enterprise })).toBeNull();
+    expect(
+      multiplier({ status: SubscriptionStatus.trial, trialEndDate: new Date("2026-08-01T12:00:00.000Z") }),
+    ).toBeNull();
+    expect(multiplier({ status: SubscriptionStatus.cancelled })).toBeNull();
+    expect(multiplier({ appMode: "self-hosted" })).toBeNull();
+  });
+
+  it("grants the Max allowance from the same base", () => {
+    expect(entitlement({ plan: SubscriptionPlan.max }).limitMicrocents).toBe(4_000 * CREDIT);
   });
 });

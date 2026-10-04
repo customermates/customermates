@@ -93,7 +93,7 @@ export class CreateAuthLinkInteractor extends UserAccessor {
 
     if ((await this.repo.countActiveAccountsForUser()) < included) return null;
 
-    if (subscription.plan === SubscriptionPlan.business)
+    if (subscription.plan === SubscriptionPlan.business || subscription.plan === SubscriptionPlan.max)
       return { key: "ConnectedAccountsCard.accountLimitReached", code: "accountLimitReached" };
 
     return {

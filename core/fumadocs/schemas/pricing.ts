@@ -9,6 +9,7 @@ const manualPricingRowSchema = z.object({
   starter: z.union([z.boolean(), z.string()]),
   pro: z.union([z.boolean(), z.string()]),
   business: z.union([z.boolean(), z.string()]),
+  max: z.union([z.boolean(), z.string()]),
   enterprise: z.union([z.boolean(), z.string()]),
 });
 
@@ -16,6 +17,7 @@ const catalogPricingRowSchema = z.object({
   label: z.string(),
   catalogFact: z.enum([
     "monthlyPrice",
+    "hostedAiUsage",
     "messaging",
     "includedAccountsPerUser",
     "includedRoutinesPerUser",
@@ -81,6 +83,7 @@ export const comparisonTablePlansSchema = z.object({
   starter: comparisonTablePlanSchema,
   pro: comparisonTablePlanSchema,
   business: comparisonTablePlanSchema,
+  max: comparisonTablePlanSchema,
   enterprise: comparisonTablePlanSchema,
 });
 

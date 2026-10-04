@@ -12,7 +12,7 @@ vi.mock("@/env", () => ({
   },
 }));
 
-import { AgentUsageService } from "../agent-usage.service";
+import { AgentUsageService, AgentUsageViewSchema, toAgentUsageView } from "../agent-usage.service";
 import { type AgentUsageRepo } from "@/ee/agent-chat/agent-usage.repo";
 import { agentRoundWorstCaseMicrocents } from "../agent-budget-policy";
 import { buildAgentUsageSettlement } from "../agent-usage-settlement";
@@ -105,19 +105,20 @@ describe("AgentUsageService summary", () => {
 
     expect(summary).toEqual({
       creditsUsed: 123.456789,
-      creditsRemaining: 376.543211,
-      creditsLimit: 500,
-      usedPct: 25,
+      creditsRemaining: 476.543211,
+      creditsLimit: 600,
+      usedPct: 21,
       plan: SubscriptionPlan.pro,
       periodStart: new Date("2026-07-15T10:30:00.000Z"),
       resetAt: new Date("2026-08-15T10:30:00.000Z"),
       recentTurnCredits: 0.753412,
+      usageMultiplier: 3,
       blockedReason: null,
     });
   });
 
   it("is not exhausted while a fraction of a credit remains", async () => {
-    const service = new AgentUsageService(makeRepo({ usedMicrocents: 500 * CREDIT - 1 }));
+    const service = new AgentUsageService(makeRepo({ usedMicrocents: 600 * CREDIT - 1 }));
 
     const summary = await service.getUsageSummary("user-1", NOW);
 
@@ -142,7 +143,7 @@ describe("AgentUsageService summary", () => {
     expect(summary.blockedReason).toBe("credits_exhausted");
   });
 
-  it("gives live trial seats the full 500-credit allowance", async () => {
+  it("gives live trial seats the full Pro-sized 3x allowance", async () => {
     const service = new AgentUsageService(
       makeRepo({
         usedMicrocents: CREDIT,
@@ -157,8 +158,9 @@ describe("AgentUsageService summary", () => {
 
     const summary = await service.getUsageSummary("user-1", NOW);
 
-    expect(summary.creditsLimit).toBe(500);
-    expect(summary.creditsRemaining).toBe(499);
+    expect(summary.creditsLimit).toBe(600);
+    expect(summary.creditsRemaining).toBe(599);
+    expect(summary.usageMultiplier).toBe(3);
   });
 
   it("fails closed for Enterprise without an internal allowance", async () => {
@@ -193,8 +195,8 @@ describe("AgentUsageService summary", () => {
 
     await expect(service.getUsageSummary("user-1", NOW)).resolves.toMatchObject({
       creditsUsed: 100,
-      creditsLimit: 475,
-      creditsRemaining: 375,
+      creditsLimit: 575,
+      creditsRemaining: 475,
       blockedReason: null,
     });
   });
@@ -211,8 +213,8 @@ describe("AgentUsageService summary", () => {
 
     expect(summary).toMatchObject({
       creditsUsed: 100,
-      creditsLimit: 575,
-      creditsRemaining: 475,
+      creditsLimit: 675,
+      creditsRemaining: 575,
     });
     expect(summary).not.toHaveProperty("adjustments");
     expect(summary).not.toHaveProperty("reason");
@@ -274,12 +276,12 @@ describe("AgentUsageService summary", () => {
 
 describe("AgentUsageService retrieval refusal", () => {
   it("labels exhausted allowance as credits", async () => {
-    const service = new AgentUsageService(makeRepo({ usedMicrocents: 500 * CREDIT }));
+    const service = new AgentUsageService(makeRepo({ usedMicrocents: 600 * CREDIT }));
     await expect(service.retrievalRefusal("user-1", CREDIT, NOW)).resolves.toBe("credits");
   });
 
   it("labels a reservation larger than the remaining headroom as credits", async () => {
-    const service = new AgentUsageService(makeRepo({ usedMicrocents: 499 * CREDIT }));
+    const service = new AgentUsageService(makeRepo({ usedMicrocents: 599 * CREDIT }));
     await expect(service.retrievalRefusal("user-1", 2 * CREDIT, NOW)).resolves.toBe("credits");
   });
 
@@ -305,7 +307,7 @@ describe("AgentUsageService retrieval refusal", () => {
 describe("AgentUsageService admission and ledger", () => {
   it("admits and bounds a final fully reservable turn", async () => {
     const required = agentRoundWorstCaseMicrocents(MODEL);
-    const service = new AgentUsageService(makeRepo({ usedMicrocents: 500 * CREDIT - required }));
+    const service = new AgentUsageService(makeRepo({ usedMicrocents: 600 * CREDIT - required }));
 
     const admission = await service.prepareTurn("user-1", NOW, {
       model: MODEL,
@@ -317,7 +319,7 @@ describe("AgentUsageService admission and ledger", () => {
 
   it("does not start a round when the remaining credits cannot cover its hard provider ceiling", async () => {
     const required = agentRoundWorstCaseMicrocents(MODEL);
-    const service = new AgentUsageService(makeRepo({ usedMicrocents: 500 * CREDIT - required + 1 }));
+    const service = new AgentUsageService(makeRepo({ usedMicrocents: 600 * CREDIT - required + 1 }));
 
     const admission = await service.prepareTurn("user-1", NOW, {
       model: MODEL,
@@ -329,7 +331,7 @@ describe("AgentUsageService admission and ledger", () => {
   });
 
   it("does not reserve when the allowance is exhausted", async () => {
-    const service = new AgentUsageService(makeRepo({ usedMicrocents: 500 * CREDIT }));
+    const service = new AgentUsageService(makeRepo({ usedMicrocents: 600 * CREDIT }));
 
     const admission = await service.prepareTurn("user-1", NOW, {
       model: MODEL,
@@ -362,7 +364,7 @@ describe("AgentUsageService admission and ledger", () => {
         reservedMicrocents: admission.reservation?.reservedMicrocents,
         planSnapshot: SubscriptionPlan.pro,
         subscriptionStatusSnapshot: SubscriptionStatus.active,
-        allowanceMicrocentsSnapshot: 500 * CREDIT,
+        allowanceMicrocentsSnapshot: 600 * CREDIT,
         periodStart: new Date("2026-07-15T10:30:00.000Z"),
         periodEnd: new Date("2026-08-15T10:30:00.000Z"),
       }),
@@ -808,7 +810,7 @@ describe("AgentUsageService admission and ledger", () => {
       purpose: "wikiRetrieval",
       companyId: "company-1",
       userId: "user-1",
-      allowanceMicrocentsSnapshot: 500 * CREDIT,
+      allowanceMicrocentsSnapshot: 600 * CREDIT,
     });
   });
 
@@ -937,9 +939,9 @@ describe("AgentUsageService admission and ledger", () => {
     ).getUsageSummary("user-1", NOW);
 
     expect(summary).toMatchObject({
-      creditsUsed: 60,
-      creditsRemaining: 440,
-      creditsLimit: 500,
+      creditsUsed: 70,
+      creditsRemaining: 530,
+      creditsLimit: 600,
     });
   });
 
@@ -951,7 +953,7 @@ describe("AgentUsageService admission and ledger", () => {
     expect(summary).toMatchObject({
       creditsUsed: 0,
       creditsRemaining: 10,
-      creditsLimit: 500,
+      creditsLimit: 600,
     });
   });
 
@@ -972,5 +974,45 @@ describe("AgentUsageService admission and ledger", () => {
       userId: "user-1",
       releasedAt: NOW,
     });
+  });
+});
+
+describe("toAgentUsageView", () => {
+  const summary = {
+    creditsUsed: 123.456789,
+    creditsRemaining: 476.543211,
+    creditsLimit: 600,
+    usedPct: 21,
+    plan: SubscriptionPlan.pro,
+    periodStart: new Date("2026-07-15T10:30:00.000Z"),
+    resetAt: new Date("2026-08-15T10:30:00.000Z"),
+    recentTurnCredits: 0.753412,
+    usageMultiplier: 3,
+    blockedReason: null,
+  };
+
+  it("gives the browser shares of the allowance and the plan multiple, never raw credit amounts", () => {
+    const view = toAgentUsageView(summary);
+
+    expect(view).toEqual({
+      hasAllowance: true,
+      usedPct: 20.58,
+      multiplier: 3,
+      plan: SubscriptionPlan.pro,
+      resetAt: new Date("2026-08-15T10:30:00.000Z"),
+      recentTurnPct: 0.13,
+      blockedReason: null,
+    });
+    expect(AgentUsageViewSchema.parse(view)).toEqual(view);
+    expect(Object.keys(view).filter((key) => /credit/i.test(key))).toEqual([]);
+    expect(JSON.stringify(view)).not.toMatch(/123\.45|476\.54|"600"|:600\b|0\.7534/);
+  });
+
+  it("keeps a tiny non-zero turn visible and hides the share without an allowance", () => {
+    expect(toAgentUsageView({ ...summary, recentTurnCredits: 0.000001 }).recentTurnPct).toBe(0.01);
+    expect(toAgentUsageView({ ...summary, creditsUsed: 900 }).usedPct).toBe(100);
+    expect(
+      toAgentUsageView({ ...summary, creditsLimit: 0, creditsRemaining: 0, blockedReason: "subscription_unavailable" }),
+    ).toMatchObject({ hasAllowance: false, usedPct: 0, recentTurnPct: null });
   });
 });

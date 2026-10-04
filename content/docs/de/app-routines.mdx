@@ -1,9 +1,9 @@
 ---
 title: "Routinen: Geplante und ereignisgesteuerte Assistenzläufe"
-description: "Routinen führen Mate nach Zeitplan oder bei Datensatzänderungen aus, mit den Credits des Eigentümers, Limits, Laufstatus und Freigaben."
+description: "Routinen führen Mate nach Zeitplan oder bei Datensatzänderungen aus, mit dem Mate-Kontingent des Eigentümers, Limits, Laufstatus und Freigaben."
 ---
 
-Eine Routine ist eine gespeicherte Anweisung plus ein Auslöser. Greift der Auslöser, öffnet Customermates eine neue Assistenten-Unterhaltung, sendet Ihre Anweisung und lässt Mate selbstständig arbeiten. Routinen gibt es nur in Customermates Cloud, weil sie gehostete KI-Credits aus dem Monatskontingent des Eigentümers verbrauchen.
+Eine Routine ist eine gespeicherte Anweisung plus ein Auslöser. Greift der Auslöser, öffnet Customermates eine neue Assistenten-Unterhaltung, sendet Ihre Anweisung und lässt Mate selbstständig arbeiten. Routinen gibt es nur in Customermates Cloud, weil sie das monatliche Mate-Kontingent des Eigentümers nutzen.
 
 Wer Routinen sieht, richtet sich nach der Zeile **Routinen** der jeweiligen Rolle unter [Rollen](app:settings/roles): **Lesen** mit **Alle** zeigt jede Routine im Workspace, **Zugewiesen** nur die eigenen, und **Keine** blendet [Routinen](app:routines) aus. Anlegen erfordert **Erstellen**, eigene Routinen bearbeiten **Bearbeiten**. Alle, die eine Routine sehen, sehen die Zusammenfassungen ihrer Läufe; das vollständige Transkript bleibt bei der Person, unter deren Identität der Lauf ausgeführt wurde.
 
@@ -17,20 +17,20 @@ Wer Routinen sieht, richtet sich nach der Zeile **Routinen** der jeweiligen Roll
 - **Anweisungen**: was Mate bei jedem Lauf erhält, bis zu 5.000 Zeichen. Schreiben Sie sie so, wie Sie im Chat fragen würden.
 - **Auslöser**: **Nach Zeitplan** oder **Wenn sich etwas ändert** für ein oder mehrere Ereignisse, etwa einen aktualisierten Deal.
 
-Wer eine Routine anlegt, wird ihr Eigentümer. Nur der Eigentümer kann Anweisungen oder Auslöser ändern, die Routine zwischen **Aktiv** und **Pausiert** umschalten oder **Auslöser testen** verwenden, denn jeder Lauf nutzt Identität, Zugriff und KI-Credits des Eigentümers. Andere sehen die Routine schreibgeschützt.
+Wer eine Routine anlegt, wird ihr Eigentümer. Nur der Eigentümer kann Anweisungen oder Auslöser ändern, die Routine zwischen **Aktiv** und **Pausiert** umschalten oder **Auslöser testen** verwenden, denn jeder Lauf nutzt Identität, Zugriff und Mate-Kontingent des Eigentümers. Andere sehen die Routine schreibgeschützt.
 
 Mitglieder mit der Rolle **Admin** können jede Routine pausieren (**Routine pausieren**) oder löschen, die Routine einer anderen Person aber nicht bearbeiten, testen oder ausführen. Löschen erfordert auch bei der eigenen Routine **Admin**, verschiebt die Routine in den [Papierkorb](/docs/app-trash), wo sie bis zur Wiederherstellung nicht läuft, und wird abgelehnt, solange ein Lauf läuft (**Warte, bis der aktive Lauf beendet ist, bevor du diese Routine löschst.**). Erst das endgültige Löschen aus dem Papierkorb entfernt auch ihren Laufverlauf. Wird ein Eigentümer unter [Mitglieder](app:settings/members) auf **Inaktiv** gesetzt, pausieren seine Routinen sofort, wartende oder laufende Läufe enden als **Blockiert**, und die Routinen bleiben pausiert und schreibgeschützt, bis ein Admin sie löscht oder der Eigentümer wieder aktiv ist und sie erneut einschaltet.
 
 ## Wie viele Routinen enthält mein Tarif? [#how-many-routines-does-my-plan-include]
 
-Jeder Nutzer hat ein eigenes Kontingent: Starter enthält [[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Nutzer, Pro [[commercial.entitlement.pro.includedRoutinesPerUser]] und Business sowie Enterprise [[commercial.entitlement.business.includedRoutinesPerUser]]. Eine Routine zu pausieren gibt keinen Platz frei; eine gelöschte Routine behält ihren Platz, solange sie im [Papierkorb](/docs/app-trash) liegt, und gibt ihn erst beim endgültigen Löschen frei. Am Limit wird eine neue Routine mit einem Hinweis auf ein Upgrade unter [Abrechnung](app:settings/billing) abgelehnt. Das Limit wird nur beim Anlegen geprüft, deshalb bleiben Routinen über dem Limit eines kleineren Tarifs nach einem Downgrade erhalten. Die Credits, aus denen die Läufe schöpfen, stehen unter [Tarife und Credits](/docs/app-assistant#plans-and-credits).
+Jeder Nutzer hat ein eigenes Kontingent: Starter enthält [[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Nutzer, Pro [[commercial.entitlement.pro.includedRoutinesPerUser]] und Business, Max sowie Enterprise [[commercial.entitlement.business.includedRoutinesPerUser]]. Eine Routine zu pausieren gibt keinen Platz frei; eine gelöschte Routine behält ihren Platz, solange sie im [Papierkorb](/docs/app-trash) liegt, und gibt ihn erst beim endgültigen Löschen frei. Am Limit wird eine neue Routine mit einem Hinweis auf ein Upgrade unter [Abrechnung](app:settings/billing) abgelehnt. Das Limit wird nur beim Anlegen geprüft, deshalb bleiben Routinen über dem Limit eines kleineren Tarifs nach einem Downgrade erhalten. Das Kontingent, aus dem die Läufe schöpfen, steht unter [Tarife und Mate-Nutzung](/docs/app-assistant#plans-and-credits).
 
-## Welche Limits gelten, etwa für Läufe pro Stunde und Credits pro Lauf? [#what-are-the-limits]
+## Welche Limits gelten, etwa für Läufe pro Stunde und Nutzung pro Lauf? [#what-are-the-limits]
 
 | Limit | Wert | Am Limit |
 | --- | --- | --- |
 | Läufe pro Routine und Stunde | 4 | Ein passendes Ereignis wird ohne Eintrag verworfen; ein fälliger geplanter Lauf oder ein Lauf über **Auslöser testen** wird als **Übersprungen** erfasst |
-| Credits pro Lauf | 10 | Der Lauf stoppt und wird als **Teilweise** erfasst |
+| Nutzung pro Lauf | 5 % eines Starter-Kontingents; 10 % bei Max | Der Lauf stoppt und wird als **Teilweise** erfasst |
 | Aufeinanderfolgende fehlgeschlagene Läufe | 3 | Die Routine pausiert sich selbst und zeigt den Grund; der Eigentümer schaltet sie wieder ein, sobald die Ursache behoben ist |
 | Kürzestes Zeitplan-Intervall | 15 Minuten | Ein häufigerer Zeitplan wird beim Speichern abgelehnt |
 | Laufverlauf | 90 Tage | Ältere Läufe werden entfernt |
@@ -48,7 +48,7 @@ Einen Zeitplan, der zu keinem Muster passt, etwa nur werktags, und eine andere Z
 
 Wählen Sie unter **Ereignisse** ein oder mehrere Ereignisse: jedes Datensatz- und Messaging-Ereignis, das ein [Webhook](/docs/webhooks#which-events-exist) abonnieren kann, außer E-Mail gelöscht und Chat gelöscht. Änderungen in der App, in einem Mate-Chat, über die API oder über MCP lösen Routinen aus; Änderungen eines Routinenlaufs nie, Routinen können sich also weder verketten noch in einer Schleife laufen.
 
-Zwei optionale Controls verhindern, dass eine Routine Credits für Fälle ausgibt, die Sie nicht interessieren:
+Zwei optionale Controls verhindern, dass eine Routine ihr Kontingent für Fälle nutzt, die Sie nicht interessieren:
 
 - **Geänderte Felder** (nur Aktualisierungs-Ereignisse): Die Routine läuft nur, wenn sich eines dieser Felder tatsächlich geändert hat. Ohne gewähltes Aktualisierungs-Ereignis ist das Control ausgeblendet.
 - **Datensatzfilter**: Nur passende Datensätze zählen. Erstellungen und Änderungen werden am gespeicherten Ergebnis geprüft, Löschungen am vollständigen Datensatz unmittelbar vor der Entfernung, einschließlich seiner Beziehungen.
@@ -59,19 +59,19 @@ Mate erfährt vor Ihren Anweisungen, was passiert ist: das Ereignis, die Art des
 
 ## Was bedeuten die Läufe und ihre Status? [#what-do-the-runs-and-their-statuses-mean]
 
-Öffnen Sie eine Routine, um ihre **Läufe** zu sehen, die neuesten zuerst: auf einem breiten Bildschirm neben der Konfiguration, auf einem schmalen hinter dem Umschalter **Details** und **Läufe**. Ein Klick auf einen Lauf öffnet **Details zum Lauf**: **Ausgeführt als** mit dem Namen des Eigentümers, die verbrauchten Credits (genaue Anbieterkosten auf eine Nachkommastelle), der Auslöser (**Datensatz**, **Geänderte Felder**, **Unterhaltung**) und, wenn der Lauf vorzeitig gestoppt hat, der Grund. Nur die Person, unter deren Identität er lief, kann das vollständige Transkript öffnen und nach Ende des Laufs darunter antworten, um die Unterhaltung mit Mate fortzusetzen; das verbraucht ihre Credits.
+Öffnen Sie eine Routine, um ihre **Läufe** zu sehen, die neuesten zuerst: auf einem breiten Bildschirm neben der Konfiguration, auf einem schmalen hinter dem Umschalter **Details** und **Läufe**. Ein Klick auf einen Lauf öffnet **Details zum Lauf**: **Ausgeführt als** mit dem Namen des Eigentümers, der verbrauchte Anteil am monatlichen Mate-Kontingent des Eigentümers (genaue Anbieterkosten, in Prozent angezeigt), der Auslöser (**Datensatz**, **Geänderte Felder**, **Unterhaltung**) und, wenn der Lauf vorzeitig gestoppt hat, der Grund. Nur die Person, unter deren Identität er lief, kann das vollständige Transkript öffnen und nach Ende des Laufs darunter antworten, um die Unterhaltung mit Mate fortzusetzen; das verbraucht ihr Kontingent.
 
 | Status | Bedeutung |
 | --- | --- |
 | **In Warteschlange** | Wartet auf den Planer |
 | **Läuft** | Mate arbeitet |
 | **Erfolgreich** | Der Lauf hat seine Anweisung abgeschlossen |
-| **Teilweise** | Vorzeitig gestoppt, etwa an der Obergrenze von 10 Credits oder weil eine Richtlinie eine Aktion abgelehnt hat |
+| **Teilweise** | Vorzeitig gestoppt, etwa an der Obergrenze pro Lauf oder weil eine Richtlinie eine Aktion abgelehnt hat |
 | **Fehlgeschlagen** | Endete mit einem Fehler oder ohne verwertbares Ergebnis |
 | **Übersprungen** | Wartete, ist aber nicht gestartet: Die Routine war pausiert, die Stundenobergrenze war erreicht, der Datensatz passte nicht mehr zu den Filtern oder zum Zugriff des Eigentümers, der Auslöser wurde geändert, der Lauf wurde gestoppt oder der Assistent war mit einem anderen Lauf beschäftigt |
-| **Blockiert** | Mate konnte nicht starten, etwa weil der Eigentümer keine Credits mehr hat oder nicht mehr aktiv ist |
+| **Blockiert** | Mate konnte nicht starten, etwa weil das Kontingent des Eigentümers aufgebraucht ist oder er nicht mehr aktiv ist |
 
-**Auslöser testen** startet sofort einen echten Lauf. Er steht dem Eigentümer einer aktiven geplanten Routine ohne ungespeicherte Änderungen zur Verfügung, verbraucht KI-Credits und kann Daten ändern. Ereignis-Routinen brauchen ein echtes passendes Ereignis, deshalb ist er für sie deaktiviert.
+**Auslöser testen** startet sofort einen echten Lauf. Er steht dem Eigentümer einer aktiven geplanten Routine ohne ungespeicherte Änderungen zur Verfügung, verbraucht Mate-Kontingent und kann Daten ändern. Ereignis-Routinen brauchen ein echtes passendes Ereignis, deshalb ist er für sie deaktiviert.
 
 ## Was eine Routine ohne Freigabe darf [#what-a-routine-may-do-without-approval]
 
@@ -81,7 +81,7 @@ Jede Aktion, die in einem Chat eine Freigabe verlangt, wird abgelehnt, weil niem
 
 Kann der Eigentümer die [Wissensdatenbank](/docs/mcp#shared-workspace-wiki) lesen und enthält sie Seiten, beginnt jeder Lauf mit einem kurzen Katalog ihrer Seiten; die Routine durchsucht und liest relevante Seiten und wendet ihre Fakten an, doch eine Anweisung auf einer Seite kann keine andere Arbeit starten und die Berechtigungen der Routine nicht erweitern. Halten Sie gemeinsame Fakten, Tonalität und Abläufe dort, statt sie in jeder Routine zu wiederholen. Seiten schreiben erfordert beim Eigentümer **Erstellen** oder **Bearbeiten** für die Wissensdatenbank.
 
-Ein Lauf darf das öffentliche Web durchsuchen, höchstens 2 kostenpflichtige Suchen pro Lauf, wie unter [Kann Mate im Web suchen?](/docs/app-assistant#web-search) beschrieben. Ein Lauf kann im Web suchen oder Daten ändern, nie beides: Nach einer Suche mit Ergebnissen wird jeder Schreibvorgang abgelehnt, und nach einem gelungenen Schreibvorgang wird die Websuche entzogen. Wissensdatenbank und CRM-Daten bleiben lesbar. Suchen zählen zur Obergrenze von 10 Credits.
+Ein Lauf darf das öffentliche Web durchsuchen, höchstens 2 kostenpflichtige Suchen pro Lauf, wie unter [Kann Mate im Web suchen?](/docs/app-assistant#web-search) beschrieben. Ein Lauf kann im Web suchen oder Daten ändern, nie beides: Nach einer Suche mit Ergebnissen wird jeder Schreibvorgang abgelehnt, und nach einem gelungenen Schreibvorgang wird die Websuche entzogen. Wissensdatenbank und CRM-Daten bleiben lesbar. Suchen zählen zur Obergrenze pro Lauf.
 
 ## Wie verwaltet Mate Routinen? [#how-does-mate-manage-routines]
 

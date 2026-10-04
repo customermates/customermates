@@ -34,9 +34,9 @@ function RoutineRunRow({ run, store }: { run: RoutineRunDto; store: RoutineModal
             {run.triggerEvent ? t(`Common.events.${run.triggerEvent}`) : t(`RoutineTriggerKind.${run.triggerKind}`)}
           </span>
 
-          {run.chargedCredits > 0 && (
-            <span className="text-subdued shrink-0 text-xs font-normal">
-              {`${t("RoutineDetail.credits")}: ${intlStore.formatAgentCredits(run.chargedCredits).amount}`}
+          {run.chargedPct !== null && run.chargedPct > 0 && (
+            <span className="text-subdued shrink-0 text-xs font-normal tabular-nums">
+              {t("RoutineDetail.usageShare", { used: intlStore.formatAllowanceShare(run.chargedPct) })}
             </span>
           )}
         </span>
