@@ -28,6 +28,8 @@ export const RecordDetailPage = observer(function RecordDetailPage({ initial }: 
       },
     );
     editor.edit(initial, initial.record);
+    const handoff = root.recordWorkspaceStore.takeDraftHandoff(initial.record?.ref);
+    if (handoff && initial.record) editor.restoreDraft(handoff, initial, initial.record);
     return editor;
   });
   const applied = useRef(initial);

@@ -1,6 +1,9 @@
-import { action, makeObservable, observable, reaction, runInAction } from "mobx";
+import { action, makeObservable, observable, reaction, runInAction, toJS } from "mobx";
 import type { RootStore } from "./root.store";
 import type { RecordNavigation } from "@/features/records/record-navigation.schema";
+import type { RecordDto, RecordRef } from "@/features/records/record-model.schema";
+import type { RecordEditorContext } from "@/features/records/get-record-editor.interactor";
+import type { RecordDraft } from "@/app/[locale]/(protected)/records/[typeId]/components/record-editor.store";
 import { RecordEditorStore } from "@/app/[locale]/(protected)/records/[typeId]/components/record-editor.store";
 import { getRecordEditorAction, getRecordNavigationAction } from "@/app/[locale]/(protected)/records/actions";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
@@ -8,6 +11,15 @@ import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import type { RecordDetailLayoutResult } from "@/features/records/record-detail-layout.schema";
 import { RecordDetailLayoutStore, type RecordDetailLayoutNotifications } from "./record-detail-layout.store";
 import { toast } from "sonner";
+
+export type RecordDraftHandoff = {
+  presentation: RecordEditorContext;
+  record: RecordDto;
+  savedState: RecordDraft;
+  form: RecordDraft;
+};
+
+const recordKey = (ref: RecordRef) => `${ref.typeId}:${ref.recordId}`;
 
 export class RecordWorkspaceStore {
   navigation: RecordNavigation | null = null;
@@ -19,6 +31,7 @@ export class RecordWorkspaceStore {
   private listeners = new Set<() => Promise<void>>();
   private readyRoutes = observable.map<string, number>();
   private detailLayouts = new Map<string, RecordDetailLayoutStore>();
+  private draftHandoff: { key: string; draft: RecordDraftHandoff } | null = null;
 
   constructor(private root: RootStore) {
     makeObservable(this, {
@@ -40,6 +53,7 @@ export class RecordWorkspaceStore {
           this.root.navigationGuard.unregister(layout);
         }
         this.detailLayouts.clear();
+        this.draftHandoff = null;
         this.close();
         this.setEditor(null);
         this.setNavigation(null);
@@ -112,6 +126,27 @@ export class RecordWorkspaceStore {
 
   routeReady = (pathname: string) =>
     (!pathname.startsWith("/records/") && pathname !== "/company/data-model") || this.readyRoutes.has(pathname);
+
+  handOffDraft = (editor: RecordEditorStore) => {
+    this.draftHandoff =
+      editor.record && editor.hasUnsavedChanges
+        ? {
+            key: recordKey(editor.record.ref),
+            draft: {
+              presentation: editor.presentation,
+              record: editor.record,
+              savedState: toJS(editor.savedState),
+              form: toJS(editor.form),
+            },
+          }
+        : null;
+  };
+
+  takeDraftHandoff = (ref: RecordRef | undefined) => {
+    const handoff = this.draftHandoff;
+    this.draftHandoff = null;
+    return handoff && ref && handoff.key === recordKey(ref) ? handoff.draft : null;
+  };
 
   invalidate = async () => {
     await Promise.all([...this.detailLayouts.values()].map((layout) => layout.refresh()));

@@ -16,7 +16,7 @@ import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { IntlLink } from "@/i18n/navigation";
+import { IntlLink, useRouter } from "@/i18n/navigation";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { RecordDetailPersonalization, RecordDetailLayoutControls } from "./record-detail-personalization";
 import { RecordDetailOverview } from "./record-detail-overview";
@@ -91,6 +91,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
 }) {
   const t = useTranslations();
   const params = useSearchParams();
+  const router = useRouter();
   const [panel, setPanel] = useState("details");
   const id = useId();
   const deletion = useRecordDeletion({
@@ -108,6 +109,23 @@ const RecordEditorBody = observer(function RecordEditorBody({
     onDeleted: store.deletionCompleted,
     onPending: (id) => store.setPendingOperation(id, true),
   });
+  const openPage = () => {
+    const ref = store.record?.ref;
+    if (!ref) return;
+    const root = store.rootStore;
+    const href = `/records/${ref.typeId}/${ref.recordId}`;
+    if (store.isLoading || store.pendingOperationId) {
+      root.navigationGuard.tryNavigate(() => router.push(href));
+      return;
+    }
+    store.setWithUnsavedChangesGuard(false);
+    root.navigationGuard.tryNavigate(() => {
+      root.recordWorkspaceStore.handOffDraft(store);
+      store.resetForm();
+      router.push(href);
+    });
+    store.setWithUnsavedChangesGuard(true);
+  };
   const type = store.presentation.model.types.find((type) => type.id === store.presentation.typeId);
 
   const title = store.record?.fields.find((field) => field.fieldId === type?.primaryFieldId)?.result;
@@ -212,7 +230,15 @@ const RecordEditorBody = observer(function RecordEditorBody({
 
           {store.record && (
             <Button asChild size="sm" variant="ghost">
-              <IntlLink href={`/records/${store.record.ref.typeId}/${store.record.ref.recordId}`}>
+              <IntlLink
+                data-navigation-guard-handled=""
+                href={`/records/${store.record.ref.typeId}/${store.record.ref.recordId}`}
+                onClick={(event) => {
+                  if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+                  event.preventDefault();
+                  store.runAfterChannelDraft(openPage);
+                }}
+              >
                 <Maximize2 className="size-4" />
 
                 {t("RecordModel.openPage")}

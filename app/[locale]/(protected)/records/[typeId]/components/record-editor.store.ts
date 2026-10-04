@@ -1,5 +1,5 @@
 import { action, makeObservable, observable, runInAction, toJS } from "mobx";
-import { omit } from "lodash";
+import { cloneDeep, omit } from "lodash";
 
 import type { RootStore } from "@/core/stores/root.store";
 import type {
@@ -97,6 +97,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
       setRefreshRequired: action,
       toggleCapture: action,
       rebase: action,
+      restoreDraft: action,
       resolveConflicts: action,
     });
   }
@@ -280,6 +281,17 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
     this.requestKey = null;
     this.refreshRequired = false;
     this.relatedRevision += 1;
+  };
+  restoreDraft = (
+    draft: { presentation: RecordEditorContext; record: RecordDto; savedState: RecordDraft; form: RecordDraft },
+    latest: RecordEditorContext,
+    latestRecord: RecordDto,
+  ) => {
+    this.presentation = draft.presentation;
+    this.record = draft.record;
+    this.savedState = cloneDeep(draft.savedState);
+    this.form = cloneDeep(draft.form);
+    this.rebase(latest, latestRecord);
   };
   resolveConflicts = (choice: "draft" | "latest") => {
     if (choice === "latest") {

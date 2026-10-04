@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { toJS } from "mobx";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { RootStore } from "@/core/stores/root.store";
 import type { RecordDto } from "@/features/records/record-model.schema";
@@ -682,5 +683,40 @@ describe("record editor stale draft recovery", () => {
     expect(clean.form.values[nameId]).toBe("Someone else");
     clean.receiveLatest({ ...context("deal"), record: withName(1, "Deal 1") });
     expect(clean.record?.version).toBe(2);
+  });
+});
+
+describe("record editor draft handoff to the full page", () => {
+  const nameId = id("deal.name");
+  const named = (version: number, name: string): RecordDto => ({
+    ...record(version),
+    fields: [{ fieldId: nameId, result: { state: "value", value: { kind: "text", value: name } } }],
+  });
+
+  it("carries a drawer draft into the page editor and rebases it onto the page's newer record", () => {
+    const drawer = new RecordEditorStore(root, context("deal"), vi.fn());
+    drawer.edit(context("deal"), named(1, "Deal 1"));
+    drawer.onChange(`values.${nameId}`, "Drawer draft");
+    const handoff = {
+      presentation: drawer.presentation,
+      record: drawer.record as RecordDto,
+      savedState: toJS(drawer.savedState),
+      form: toJS(drawer.form),
+    };
+
+    const same = new RecordEditorStore(root, context("deal"), vi.fn(), true);
+    same.edit(context("deal"), named(1, "Deal 1"));
+    same.restoreDraft(handoff, context("deal"), named(1, "Deal 1"));
+    expect(same.form.values[nameId]).toBe("Drawer draft");
+    expect(same.hasUnsavedChanges).toBe(true);
+    expect(same.conflicts).toEqual([]);
+    expect(same.record?.version).toBe(1);
+
+    const newer = new RecordEditorStore(root, context("deal"), vi.fn(), true);
+    newer.edit(context("deal"), named(2, "Someone else"));
+    newer.restoreDraft(handoff, context("deal"), named(2, "Someone else"));
+    expect(newer.form.values[nameId]).toBe("Drawer draft");
+    expect(newer.record?.version).toBe(2);
+    expect(newer.conflicts).toEqual([nameId]);
   });
 });

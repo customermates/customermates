@@ -10,6 +10,7 @@ const mocks = vi.hoisted(() => ({ getRecordEditorAction: vi.fn(), getRecordNavig
 vi.mock("@/app/[locale]/(protected)/records/actions", () => mocks);
 
 import { RecordWorkspaceStore } from "../record-workspace.store";
+import type { RecordEditorStore } from "@/app/[locale]/(protected)/records/[typeId]/components/record-editor.store";
 
 function fixture() {
   const companyId = randomUUID();
@@ -167,5 +168,26 @@ describe("workspace record navigation and drawers", () => {
     expect(recordNavigationKey("/records/type-a/record-a")).toBe("records:type-a");
     expect(recordNavigationKey("/records/type-b")).toBe("records:type-b");
     expect(recordNavigationKey("/company/data-model")).toBe("company");
+  });
+});
+
+describe("record draft handoff", () => {
+  it("hands a dirty drawer draft to the page for the same record exactly once", () => {
+    const f = fixture();
+    const ref = { typeId: f.context.typeId, recordId: randomUUID() };
+    const editor = {
+      record: { ref, version: 3 },
+      presentation: f.context,
+      hasUnsavedChanges: true,
+      savedState: { values: { a: "saved" } },
+      form: { values: { a: "draft" } },
+    } as unknown as RecordEditorStore;
+    f.store.handOffDraft(editor);
+    expect(f.store.takeDraftHandoff({ ...ref, recordId: randomUUID() })).toBeNull();
+    f.store.handOffDraft(editor);
+    expect(f.store.takeDraftHandoff(ref)).toMatchObject({ form: { values: { a: "draft" } }, record: { version: 3 } });
+    expect(f.store.takeDraftHandoff(ref)).toBeNull();
+    f.store.handOffDraft({ ...editor, hasUnsavedChanges: false } as unknown as RecordEditorStore);
+    expect(f.store.takeDraftHandoff(ref)).toBeNull();
   });
 });

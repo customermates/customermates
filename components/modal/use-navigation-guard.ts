@@ -34,7 +34,7 @@ export function useNavigationGuard(store: BaseFormStore, enabled = true): void {
 
       const target = event.target as HTMLElement | null;
       const anchor = target?.closest("a");
-      if (!anchor) return;
+      if (!anchor || anchor.hasAttribute("data-navigation-guard-handled")) return;
       const innerInteractive = target?.closest('button, [role="button"]');
       if (innerInteractive && innerInteractive !== anchor && anchor.contains(innerInteractive)) return;
       const href = anchor.getAttribute("href");
