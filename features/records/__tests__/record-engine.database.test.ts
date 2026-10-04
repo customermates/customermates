@@ -1214,7 +1214,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
 
   afterAll(async () => {
     await runWithoutTenant(() => prisma.company.deleteMany({ where: { id: { in: companies } } }));
-    await prisma.$disconnect();
   });
 
   it("captures event-time filter matches and rejects obsolete subscription revisions at delivery", async () => {
@@ -16221,4 +16220,8 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
       ).toBe(0);
     },
   );
+});
+
+afterAll(async () => {
+  await prisma.$disconnect();
 });
