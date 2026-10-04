@@ -324,6 +324,62 @@ describe("website Knowledge Base synthesis", () => {
     expect(crawl().status).toBe("completed");
   });
 
+  it("waits and retries a rate-limited review, and names the failures when it stays unanswered", async () => {
+    vi.useFakeTimers();
+    try {
+      const { run, crawl, service } = harness("extend");
+      model.generate
+        .mockResolvedValueOnce(
+          plan([
+            { title: "Scheduling", role: "offering", sources: ["s2"] },
+            { title: "Dispatch", role: "offering", sources: ["s2"] },
+          ]),
+        )
+        .mockResolvedValue(draft());
+      let reviews = 0;
+      model.review.mockImplementation((use: unknown, spec: { questions: Array<{ id: string }> }) =>
+        ++reviews <= 3
+          ? Promise.resolve({ result: null, charge: null, failure: "rateLimited" })
+          : verdict("supported")(use, spec),
+      );
+      const done = run();
+      await vi.runAllTimersAsync();
+      await done;
+      expect(reviews).toBe(4);
+      expect(crawl().topics?.map(({ status, skipReason }) => [status, skipReason])).toEqual([
+        ["skipped", "reviewUnavailable"],
+        ["created", undefined],
+      ]);
+      expect(service.drainWarnings()).toContain(
+        "Website import review by typesafe-ai/jev was unanswered after 3 attempts (rateLimited, rateLimited, rateLimited).",
+      );
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("recovers a review after one transient failure", async () => {
+    vi.useFakeTimers();
+    try {
+      const { run, crawl } = harness("extend");
+      model.generate
+        .mockResolvedValueOnce(plan([{ title: "Scheduling", role: "offering", sources: ["s2"] }]))
+        .mockResolvedValue(draft());
+      let reviews = 0;
+      model.review.mockImplementation((use: unknown, spec: { questions: Array<{ id: string }> }) =>
+        ++reviews === 1
+          ? Promise.resolve({ result: null, charge: null, failure: "timeout" })
+          : verdict("supported")(use, spec),
+      );
+      const done = run();
+      await vi.runAllTimersAsync();
+      await done;
+      expect(crawl().topics?.[0]).toMatchObject({ status: "created" });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("ignores a closed crawl and never re-plans or re-writes it", async () => {
     const { service, crawl } = harness("refresh");
     await service.settle("crawl-1");
