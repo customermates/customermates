@@ -75,7 +75,7 @@ function harness(mode: WikiCrawlRecord["mode"] = "initial") {
       if (crawl.status !== "synthesizing" || topic?.status !== "pending") return Promise.resolve(false);
       crawl = {
         ...crawl,
-        topics: crawl.topics!.map((t, i) => (i === index ? { ...t, status: "writing" as const } : t)),
+        topics: (crawl.topics ?? []).map((t, i) => (i === index ? { ...t, status: "writing" as const } : t)),
       };
       return Promise.resolve(true);
     }),
