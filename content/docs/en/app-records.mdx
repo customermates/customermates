@@ -39,7 +39,7 @@ Each record type has its own route and its own toolbar ids, prefixed with the ty
 
 Inside each **Appearance** popover, the layout controls are `#{type}-layout-table` and `#{type}-layout-board`: `#contacts-layout-table`, `#contacts-layout-board`, `#organizations-layout-table`, `#organizations-layout-board`, `#deals-layout-table`, `#deals-layout-board`, `#services-layout-table`, `#services-layout-board`, `#tasks-layout-table`, `#tasks-layout-board`. Every id in this section is a target the hosted assistant can navigate to or highlight, the layout ids only while **Appearance** is open.
 
-Who sees which control depends on the role's row for that record type ([roles](/docs/app-company#how-does-the-role-editor-work)): **Read access** **Assigned** or **All** shows the sidebar entry, the list, search and **Export**, where **Assigned** limits them to records you are assigned to, and **Manage** **Yes** adds **Add**, **Add from file**, bulk **Update** and **Delete selected**, and **Save** and **Delete** on the record page.
+Which of these controls a member sees depends on the role's row for that record type; the [role editor](/docs/app-company#how-does-the-role-editor-work) explains **Read access** and **Manage**.
 
 **Link:** the **Contacts** page, `/contacts` (likewise `/organizations`, `/deals`, `/services`, `/tasks`). **Mate:** `navigate` and `highlight_element` with `nav-contacts` (or `nav-{type}`); `{type}-add`, `{type}-search`, `{type}-filter`, `{type}-display-options` and `{type}-transfer` are highlight targets, and `{type}-layout-table` and `{type}-layout-board` once **Appearance** is open; the saved-view tabs, the selection bar, **Update** and **Delete selected** are not, so Mate names them.
 
