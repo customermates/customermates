@@ -80,7 +80,7 @@ const GetMessagingThreadsSchema = z.object({
         FilterFieldKey.lastMessageSentAt,
         FilterFieldKey.lastMessageAt,
       ]),
-    ),
+    ) + " Of the last-message fields, only lastMessageAt counts drafts.",
   ),
   sortDescriptor: SortDescriptorSchema.optional().describe(sortDescription("lastMessageAt")),
 });
@@ -193,7 +193,7 @@ export const getMessagingThreadsTool = {
   description:
     "Read the inbox: no threadId lists threads across connected accounts; threadId returns its participants and a page of messages (page 1 newest, isDraft marks drafts, To/Cc/Bcc separate; Bcc only on outgoing mail with whole-account access, never move it into To, Cc or participants). " +
     "Rows: id, name/subject/preview, state, lastMessageAt, lastSentMessageFromSelf (true: we sent last, no reply since; false: they wrote last; null when nothing has been sent yet), participants capped at 50 (isLinked=false: not a CRM contact yet; filter participants with hasUnset), plus scoped filterableFields; follow their options and descriptions. " +
-    "Bodies only in detail; lists skip threads without messages unless they hold a draft.",
+    "Lists skip threads without messages unless they hold a draft.",
   annotations: {
     readOnlyHint: true,
     idempotentHint: true,

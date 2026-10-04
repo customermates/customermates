@@ -4,7 +4,7 @@ vi.mock("server-only", () => ({}));
 vi.mock("next/navigation", () => ({ redirect: vi.fn() }));
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { createZodError } from "@/core/validation/validation.utils";
+import { createZodError, serializeInteractorFailure } from "@/core/validation/validation.utils";
 
 import { serializeResult } from "../action-result";
 
@@ -37,5 +37,16 @@ describe("serializeResult", () => {
 
     expect(result).not.toHaveProperty("code");
     expect(result).not.toHaveProperty("retryable");
+  });
+});
+
+describe("serializeInteractorFailure", () => {
+  it("tells MCP agents and row actions when a retry can help", () => {
+    expect(serializeInteractorFailure(failure(CustomErrorCode.unipileRateLimit).error)).toMatchObject({
+      retryable: true,
+    });
+    expect(serializeInteractorFailure(failure(CustomErrorCode.unipileSendOutcomeUnknown).error)).not.toHaveProperty(
+      "retryable",
+    );
   });
 });

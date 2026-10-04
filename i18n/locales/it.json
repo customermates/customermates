@@ -1323,6 +1323,7 @@
       "unipileRateLimit": "Questo canale ha raggiunto il suo limite per ora. Puoi riprovare {retryAfter}. Maggiori informazioni su https://customermates.com/docs/messaging-rate-limits.",
       "unipileRequestTimeout": "La richiesta è scaduta. L'azione potrebbe essere comunque andata a buon fine, verifica prima di riprovare.",
       "unipileResourceNotFound": "Impossibile trovare il destinatario o la conversazione su questo canale.",
+      "unipileSendOutcomeUnknown": "Il provider ha segnalato un errore, ma il messaggio potrebbe essere stato inviato. Controlla la conversazione prima di inviarlo di nuovo.",
       "unipileSendUnconfirmed": "Il provider ha accettato il messaggio, ma Customermates non è riuscito a registrarlo. Controlla la conversazione prima di inviarlo di nuovo.",
       "unipileServiceUnavailable": "Il servizio di messaggistica è temporaneamente non disponibile. Riprova tra poco.",
       "unipileUnknown": "Qualcosa è andato storto tra Customermates e il provider. Riprovare senza modifiche probabilmente non servirà; contatta il supporto se succede di nuovo.",

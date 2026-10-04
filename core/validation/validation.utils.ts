@@ -46,6 +46,7 @@ export const SerializedInteractorIssueSchema = z.object({
 export const SerializedInteractorFailureSchema = z.object({
   kind: InteractorFailureKindSchema,
   issues: z.array(SerializedInteractorIssueSchema).min(1),
+  retryable: z.boolean().optional(),
 });
 
 export type SerializedInteractorFailure = z.infer<typeof SerializedInteractorFailureSchema>;
@@ -102,6 +103,7 @@ const UNAVAILABLE_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.unipileRequestTimeout,
   CustomErrorCode.unipileServiceUnavailable,
   CustomErrorCode.unipileSendUnconfirmed,
+  CustomErrorCode.unipileSendOutcomeUnknown,
 ]);
 const RETRYABLE_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.unipileRateLimit,
@@ -168,6 +170,7 @@ export function serializeInteractorFailure(
 ): SerializedInteractorFailure {
   return {
     kind,
+    ...(isRetryableFailure(error) ? { retryable: true } : {}),
     issues: error.issues.map((issue) => {
       const customCode = issueCustomCode(issue) ?? undefined;
 

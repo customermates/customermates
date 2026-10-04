@@ -162,6 +162,7 @@ export enum CustomErrorCode {
   unipileProviderRejected = "unipileProviderRejected",
   unipileAccountRestricted = "unipileAccountRestricted",
   unipileSendUnconfirmed = "unipileSendUnconfirmed",
+  unipileSendOutcomeUnknown = "unipileSendOutcomeUnknown",
   operatorConflict = "operatorConflict",
   operatorCreditPrecision = "operatorCreditPrecision",
   operatorCreditNonzero = "operatorCreditNonzero",

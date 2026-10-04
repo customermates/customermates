@@ -378,7 +378,13 @@ export class MessagingService {
   }
 
   private mapSendError(source: unknown): { ok: false; error: CustomErrorCode; retryAfterSeconds?: number } {
-    if (!(source instanceof z.ZodError)) return this.mapError(source);
+    if (!(source instanceof z.ZodError)) {
+      const mapped = this.mapError(source);
+      return mapped.error === CustomErrorCode.unipileServiceUnavailable ||
+        mapped.error === CustomErrorCode.unipileProviderError
+        ? { ok: false, error: CustomErrorCode.unipileSendOutcomeUnknown }
+        : mapped;
+    }
 
     Sentry.captureException(source, { tags: { kind: "unipile-send-response-unreadable" } });
     return { ok: false, error: CustomErrorCode.unipileSendUnconfirmed };
