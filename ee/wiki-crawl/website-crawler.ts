@@ -8,6 +8,7 @@ import { fetchWebsiteResource } from "./website-fetch";
 import { parsePublicPageUrl } from "@/features/wiki/wiki-homepage";
 
 import {
+  alignCrawlUrlHost,
   isExternalHelpHost,
   parseLlmsTxt,
   parseSitemap,
@@ -71,6 +72,7 @@ export async function discoverWikiWebsite(input: {
   const home = await fetchText(homepage.url, input.scope, PAGE_TYPES, robots);
   if (!home) return { status: "unavailable" };
   const homeDocument = extractWikiSourceDocument(home.body, home.url, home.contentType);
+  const homeUrl = home.url;
   const candidates: WikiCrawlCandidate[] = homeDocument.links.map((link) => ({ ...link, source: "link" }));
   const pendingHosts = new Set<string>();
   for (const link of homeDocument.links) {
@@ -99,6 +101,7 @@ export async function discoverWikiWebsite(input: {
     sitemapUrls += parsed.urls.length;
   }
 
+  for (const candidate of candidates) candidate.url = alignCrawlUrlHost(candidate.url, homeUrl);
   const allowed = new Set<string>();
   for (const candidate of candidates) {
     const target = parsePublicPageUrl(candidate.url);
@@ -108,7 +111,7 @@ export async function discoverWikiWebsite(input: {
     if (await robots.allows(target.url)) allowed.add(target.url);
   }
   const targets = rankWikiCrawlTargets({
-    homepage: homepage.url,
+    homepage: homeUrl,
     candidates: candidates.filter((candidate) => {
       const target = parsePublicPageUrl(candidate.url);
       return target ? allowed.has(target.url) : false;

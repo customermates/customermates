@@ -17,7 +17,7 @@ import { appLocaleOrDefault } from "@/i18n/locale-registry";
 
 import type { WikiWebsiteNetwork } from "./wiki-website-network";
 import { wikiWebsiteNetwork } from "./wiki-website-network";
-import { canonicalCrawlUrl } from "./website-discovery";
+import { crawlDedupeKey } from "./website-discovery";
 import { parseStoredWikiCrawlTargets } from "./wiki-crawl-target.schema";
 
 export const WIKI_CRAWL_FETCH_BATCH = 5;
@@ -226,7 +226,7 @@ export class WikiWebsiteCrawlService extends UserAccessor {
               await this.repo.updateTargetStatus(crawlId, target.url, "failed");
               return;
             }
-            const canonicalUrl = source ? canonicalCrawlUrl(source.url) : null;
+            const canonicalUrl = source ? crawlDedupeKey(source.url) : null;
             if (source && canonicalUrl) {
               await this.repo.saveSource(crawlId, {
                 ...source,

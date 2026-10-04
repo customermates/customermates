@@ -21,6 +21,7 @@ import { getTranslator } from "@/i18n/get-translator";
 import { appLocaleOrDefault } from "@/i18n/locale-registry";
 import { env } from "@/env";
 
+import { crawlDedupeKey } from "./website-discovery";
 import { wikiSourceHeadings } from "./wiki-source-inventory";
 import { wikiSourcePlanningPassages } from "./wiki-source-planning-passages";
 import { wikiSynthesisSectionMarkdown } from "./wiki-synthesis-markdown";
@@ -215,7 +216,9 @@ export class WikiWebsiteSynthesisService {
   ): Promise<StoredWikiSynthesisTopic[]> {
     const initial = crawl.mode === "initial";
     const singular = new Set<WikiSynthesisRole>(REQUIRED_ROLES);
-    const homepage = sources.list.find((source) => source.url === crawl.homepageUrl) ?? sources.list[0];
+    const homeKey = crawlDedupeKey(crawl.homepageUrl);
+    const homepage =
+      sources.list.find((source) => homeKey !== null && crawlDedupeKey(source.url) === homeKey) ?? sources.list[0];
     const taken = new Set(existingTitles.map((title) => title.trim().toLocaleLowerCase()));
     const roles = new Set<WikiSynthesisRole>();
     const topics: StoredWikiSynthesisTopic[] = [];
