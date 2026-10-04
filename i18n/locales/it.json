@@ -1991,7 +1991,7 @@
       "promptBody": "Scegli un campo per cui raggruppare. Ogni valore diventa una colonna della board.",
       "promptTitle": "Scegli come raggruppare questa board"
     },
-    "boardKeyboardInstructions": "Premi Spazio per selezionare un record. Usa le frecce sinistra e destra per scegliere un gruppo, poi premi Spazio per spostarlo. Premi Esc per annullare.",
+    "boardKeyboardInstructions": "Premi Invio per aprire un record e Spazio per selezionarlo. Usa le frecce sinistra e destra per scegliere un gruppo, poi premi Spazio per spostarlo. Premi Esc per annullare.",
     "boardMoveCancelled": "Spostamento annullato.",
     "boardMoveRequested": "Spostamento in {group} richiesto.",
     "boardMoveTarget": "Sposta il record in {group}.",
@@ -2000,6 +2000,7 @@
     "dragToReorder": "Trascina per riordinare",
     "expandGroup": "Espandi il gruppo {group}",
     "groupOverflow": "Vengono mostrati solo {count} gruppi",
+    "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
     "noValue": "Nessun valore",
     "resizeColumn": "Ridimensiona la colonna «{column}». Trascina o usa i tasti freccia; tocca due volte o premi Invio per ripristinare.",
     "resizeHint": "Trascina per ridimensionare. Fai doppio clic per ripristinare.",
@@ -2494,8 +2495,9 @@
       "linkRecord": "Collega record",
       "linkUpdateFailed": "Impossibile aggiornare il collegamento al record",
       "noRecords": "Nessun record collegato",
-      "openRecord": "Apri record",
-      "unlinkRecord": "Scollega record"
+      "openRecordNamed": "Apri record: {name}",
+      "unlinkRecord": "Scollega record",
+      "unlinkRecordNamed": "Scollega record: {name}"
     },
     "previewAudio": "🎵 Audio",
     "previewFile": "📄 Allegato",

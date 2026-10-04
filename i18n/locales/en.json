@@ -1991,7 +1991,7 @@
       "promptBody": "Pick a field to group by. Each value becomes a column on the board.",
       "promptTitle": "Choose how to group this board"
     },
-    "boardKeyboardInstructions": "Press Space to pick up a record. Use the left and right arrow keys to choose a group, then press Space to move it. Press Escape to cancel.",
+    "boardKeyboardInstructions": "Press Enter to open a record. Press Space to pick it up. Use the left and right arrow keys to choose a group, then press Space to move it. Press Escape to cancel.",
     "boardMoveCancelled": "Move cancelled.",
     "boardMoveRequested": "Move to {group} requested.",
     "boardMoveTarget": "Move record to {group}.",
@@ -2000,6 +2000,7 @@
     "dragToReorder": "Drag to reorder",
     "expandGroup": "Expand group {group}",
     "groupOverflow": "Only {count} groups are shown",
+    "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
     "noValue": "No value",
     "resizeColumn": "Resize {column} column. Drag or use arrow keys to resize; double-tap or press Enter to reset.",
     "resizeHint": "Drag to resize. Double-click to reset.",
@@ -2494,8 +2495,9 @@
       "linkRecord": "Link record",
       "linkUpdateFailed": "Couldn't update the record link",
       "noRecords": "No linked records",
-      "openRecord": "Open record",
-      "unlinkRecord": "Unlink record"
+      "openRecordNamed": "Open record: {name}",
+      "unlinkRecord": "Unlink record",
+      "unlinkRecordNamed": "Unlink record: {name}"
     },
     "previewAudio": "🎵 Audio",
     "previewFile": "📄 Attachment",

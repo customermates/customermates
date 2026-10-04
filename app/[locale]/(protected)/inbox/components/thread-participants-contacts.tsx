@@ -216,7 +216,7 @@ export const ThreadPeopleManager = observer(({ participants, provider, canManage
               {matches.map((record) => (
                 <div key={`${record.ref.typeId}:${record.ref.recordId}`} className="flex w-full items-center gap-1">
                   <Button
-                    aria-label={`${t("Inbox.participants.openRecord")}: ${record.title}`}
+                    aria-label={t("Inbox.participants.openRecordNamed", { name: record.title })}
                     className="h-7 min-w-0 flex-1 justify-start gap-1 px-2 text-xs"
                     type="button"
                     variant="secondary"
@@ -231,7 +231,7 @@ export const ThreadPeopleManager = observer(({ participants, provider, canManage
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button
-                          aria-label={`${t("Inbox.participants.unlinkRecord")}: ${record.title}`}
+                          aria-label={t("Inbox.participants.unlinkRecordNamed", { name: record.title })}
                           className="size-7"
                           disabled={store.pending}
                           size="icon-sm"

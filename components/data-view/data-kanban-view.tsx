@@ -2,7 +2,7 @@
 
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
 import type { ColumnDef } from "@tanstack/react-table";
-import type { ReactNode } from "react";
+import type { KeyboardEvent as ReactKeyboardEvent, ReactNode } from "react";
 
 import { useId, useRef } from "react";
 
@@ -61,6 +61,8 @@ type Props<E extends HasCustomFieldValues> = {
   className?: string;
 };
 
+const KANBAN_KEYBOARD_CODES = { start: ["Space"], cancel: ["Escape"], end: ["Space", "Enter"] };
+
 function patchCustomFieldValue<E extends HasCustomFieldValues>(item: E, columnId: string, value: unknown): E {
   const existing = item.customFieldValues ?? [];
   const others = existing.filter((cfv) => cfv.columnId !== columnId);
@@ -94,6 +96,9 @@ function KanbanCard({
   });
 
   const style = transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined;
+  const { onKeyDown: dragKeyDown, ...dragPointerListeners } = (listeners ?? {}) as {
+    onKeyDown?: (event: ReactKeyboardEvent<HTMLElement>) => void;
+  };
 
   return (
     <Card
@@ -111,13 +116,20 @@ function KanbanCard({
         e.stopPropagation();
       }}
       onKeyDown={(event) => {
-        if (draggable || (!onClick && !href) || event.target !== event.currentTarget) return;
-        if (event.key !== "Enter" && event.key !== " ") return;
+        const opens =
+          (onClick || href) &&
+          event.target === event.currentTarget &&
+          !isDragging &&
+          (event.key === "Enter" || (!draggable && event.key === " "));
+        if (!opens) {
+          if (draggable) dragKeyDown?.(event);
+          return;
+        }
         event.preventDefault();
         if (onClick) onClick();
         else if (href) navigateToHref(href);
       }}
-      {...(draggable ? listeners : {})}
+      {...(draggable ? dragPointerListeners : {})}
       {...(draggable ? attributes : onClick || href ? { role: "button", tabIndex: 0 } : {})}
     >
       {href && !isDragging && (
@@ -175,7 +187,7 @@ const KanbanColumn = observer(function KanbanColumn({
   const { setNodeRef } = useDroppable({ id, disabled: !droppable });
 
   const countLabel = recordLabels
-    ? `${count} ${count === 1 ? recordLabels.singular : recordLabels.plural}`
+    ? t("DataView.kanbanCount", { count, singular: recordLabels.singular, plural: recordLabels.plural })
     : String(count);
   const rateLabel = t("Common.stageProbability");
 
@@ -270,6 +282,7 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
   });
   const keyboardSensor = useSensor(KeyboardSensor, {
     coordinateGetter: kanbanKeyboardCoordinates,
+    keyboardCodes: KANBAN_KEYBOARD_CODES,
   });
   const sensors = useSensors(
     supportsDragWriteBack ? pointerSensor : null,

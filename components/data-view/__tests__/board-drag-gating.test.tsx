@@ -17,6 +17,8 @@ const { dndSpy } = vi.hoisted(() => ({
     sensorCounts: [] as number[],
     droppables: [] as { id: string; disabled: boolean }[],
     draggables: [] as { id: string; disabled: boolean }[],
+    dragKeyDown: vi.fn(),
+    sensorOptions: [] as unknown[],
   },
 }));
 
@@ -65,7 +67,10 @@ vi.mock("@dnd-kit/core", () => ({
   },
   PointerSensor: function PointerSensor() {},
   KeyboardSensor: function KeyboardSensor() {},
-  useSensor: (sensor: unknown) => ({ sensor }),
+  useSensor: (sensor: unknown, options?: unknown) => {
+    dndSpy.sensorOptions.push(options);
+    return { sensor };
+  },
   useSensors: (...sensors: unknown[]) => {
     const live = sensors.filter(Boolean);
     dndSpy.sensorCounts.push(live.length);
@@ -73,7 +78,13 @@ vi.mock("@dnd-kit/core", () => ({
   },
   useDraggable: ({ id, disabled }: { id: string; disabled?: boolean }) => {
     dndSpy.draggables.push({ id, disabled: Boolean(disabled) });
-    return { attributes: {}, listeners: {}, setNodeRef: () => undefined, transform: null, isDragging: false };
+    return {
+      attributes: { role: "button", tabIndex: 0 },
+      listeners: { onKeyDown: dndSpy.dragKeyDown },
+      setNodeRef: () => undefined,
+      transform: null,
+      isDragging: false,
+    };
   },
   useDroppable: ({ id, disabled }: { id: string; disabled?: boolean }) => {
     dndSpy.droppables.push({ id: String(id), disabled: Boolean(disabled) });
@@ -150,13 +161,13 @@ function store(grouping: Partial<GroupingResult>, moveItemBetweenGroups = vi.fn(
 
 const roots = new Set<Root>();
 
-function render(value: BaseDataViewStore<Item>): void {
+function render(value: BaseDataViewStore<Item>, onCardClick?: (item: Item) => void): void {
   const host = document.createElement("div");
   document.body.append(host);
   const root = createRoot(host);
   roots.add(root);
   act(() => {
-    root.render(createElement(DataKanbanView<Item>, { columns, store: value }) as ReactNode);
+    root.render(createElement(DataKanbanView<Item>, { columns, store: value, onCardClick }) as ReactNode);
   });
 }
 
@@ -166,6 +177,8 @@ beforeEach(() => {
   dndSpy.sensorCounts = [];
   dndSpy.droppables = [];
   dndSpy.draggables = [];
+  dndSpy.dragKeyDown.mockReset();
+  dndSpy.sensorOptions = [];
 });
 
 afterEach(() => {
@@ -185,6 +198,30 @@ async function drop(activeId: string, overId: string, groupKey: string): Promise
     await Promise.resolve(dndSpy.onDragEnd?.(dropEvent(activeId, overId, groupKey)));
   });
 }
+
+describe("board card keyboard access", () => {
+  const press = (card: Element, key: string) =>
+    act(() => {
+      card.dispatchEvent(new KeyboardEvent("keydown", { key, code: key === " " ? "Space" : key, bubbles: true }));
+    });
+
+  it("opens a draggable card with Enter and leaves Space to pick it up", () => {
+    const open = vi.fn();
+    render(store({}), open);
+    const card = document.querySelector('[data-item-id="e-1"]');
+    if (!card) throw new Error("Expected a rendered card");
+    expect(card.getAttribute("tabindex")).toBe("0");
+    press(card, "Enter");
+    expect(open).toHaveBeenCalledExactlyOnceWith(ITEMS[0]);
+    expect(dndSpy.dragKeyDown).not.toHaveBeenCalled();
+    press(card, " ");
+    expect(open).toHaveBeenCalledOnce();
+    expect(dndSpy.dragKeyDown).toHaveBeenCalledOnce();
+    expect(dndSpy.sensorOptions).toContainEqual(
+      expect.objectContaining({ keyboardCodes: { start: ["Space"], cancel: ["Escape"], end: ["Space", "Enter"] } }),
+    );
+  });
+});
 
 describe("board drag gating", () => {
   it("names its drag context from a render-stable id, so the server and client agree on the card descriptions", () => {

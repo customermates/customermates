@@ -1991,7 +1991,7 @@
       "promptBody": "Choisissez un champ de regroupement. Chaque valeur devient une colonne du board.",
       "promptTitle": "Choisissez comment regrouper ce board"
     },
-    "boardKeyboardInstructions": "Appuyez sur Espace pour saisir un enregistrement. Utilisez les flèches gauche et droite pour choisir un groupe, puis Espace pour le déplacer. Échap annule le déplacement.",
+    "boardKeyboardInstructions": "Appuyez sur Entrée pour ouvrir un enregistrement et sur Espace pour le saisir. Utilisez les flèches gauche et droite pour choisir un groupe, puis Espace pour le déplacer. Échap annule le déplacement.",
     "boardMoveCancelled": "Déplacement annulé.",
     "boardMoveRequested": "Déplacement vers {group} demandé.",
     "boardMoveTarget": "Déplacer l’enregistrement vers {group}.",
@@ -2000,6 +2000,7 @@
     "dragToReorder": "Faire glisser pour réorganiser",
     "expandGroup": "Développer le groupe {group}",
     "groupOverflow": "Seuls {count} groupes sont affichés",
+    "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
     "noValue": "Aucune valeur",
     "resizeColumn": "Redimensionnez la colonne « {column} ». Faites glisser ou utilisez les touches fléchées ; touchez deux fois ou appuyez sur Entrée pour réinitialiser.",
     "resizeHint": "Faites glisser pour redimensionner. Double-cliquez pour réinitialiser.",
@@ -2494,8 +2495,9 @@
       "linkRecord": "Lier une fiche",
       "linkUpdateFailed": "Impossible de mettre à jour le lien vers l’enregistrement",
       "noRecords": "Aucune fiche liée",
-      "openRecord": "Ouvrir la fiche",
-      "unlinkRecord": "Délier la fiche"
+      "openRecordNamed": "Ouvrir la fiche : {name}",
+      "unlinkRecord": "Délier la fiche",
+      "unlinkRecordNamed": "Délier la fiche : {name}"
     },
     "previewAudio": "🎵 Audio",
     "previewFile": "📄 Pièce jointe",

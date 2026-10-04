@@ -108,7 +108,7 @@ export const ThreadRecords = observer(({ threadId }: { threadId: string }) => {
           {store.detail?.records.map((record, index) => (
             <div key={recordSearchKey(record)} className="flex items-center gap-1">
               <Button
-                aria-label={`${t("Inbox.participants.openRecord")}: ${recordSearchLabel(record, t)}`}
+                aria-label={t("Inbox.participants.openRecordNamed", { name: recordSearchLabel(record, t) })}
                 className="min-w-0 flex-1 justify-start"
                 data-thread-record-open=""
                 size="sm"
@@ -122,7 +122,7 @@ export const ThreadRecords = observer(({ threadId }: { threadId: string }) => {
 
               {record.canUnlink && (
                 <Button
-                  aria-label={`${t("Inbox.participants.unlinkRecord")}: ${recordSearchLabel(record, t)}`}
+                  aria-label={t("Inbox.participants.unlinkRecordNamed", { name: recordSearchLabel(record, t) })}
                   disabled={store.pending}
                   size="icon-sm"
                   variant="ghost"

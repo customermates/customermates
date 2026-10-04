@@ -1991,7 +1991,7 @@
       "promptBody": "Elige un campo por el que agrupar. Cada valor se convierte en una columna del tablero.",
       "promptTitle": "Elige cómo agrupar este tablero"
     },
-    "boardKeyboardInstructions": "Pulsa Espacio para seleccionar un registro. Usa las flechas izquierda y derecha para elegir un grupo y pulsa Espacio para moverlo. Pulsa Escape para cancelar.",
+    "boardKeyboardInstructions": "Pulsa Intro para abrir un registro y Espacio para seleccionarlo. Usa las flechas izquierda y derecha para elegir un grupo y pulsa Espacio para moverlo. Pulsa Escape para cancelar.",
     "boardMoveCancelled": "Movimiento cancelado.",
     "boardMoveRequested": "Movimiento a {group} solicitado.",
     "boardMoveTarget": "Mover registro a {group}.",
@@ -2000,6 +2000,7 @@
     "dragToReorder": "Arrastrar para reordenar",
     "expandGroup": "Expandir el grupo {group}",
     "groupOverflow": "Solo se muestran {count} grupos",
+    "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
     "noValue": "Sin valor",
     "resizeColumn": "Redimensiona la columna {column}. Arrastra o usa las teclas de flecha; toca dos veces o pulsa Intro para restablecer.",
     "resizeHint": "Arrastra para redimensionar. Haz doble clic para restablecer.",
@@ -2494,8 +2495,9 @@
       "linkRecord": "Vincular registro",
       "linkUpdateFailed": "No se pudo actualizar el vínculo con el registro",
       "noRecords": "Sin registros vinculados",
-      "openRecord": "Abrir registro",
-      "unlinkRecord": "Desvincular registro"
+      "openRecordNamed": "Abrir registro: {name}",
+      "unlinkRecord": "Desvincular registro",
+      "unlinkRecordNamed": "Desvincular registro: {name}"
     },
     "previewAudio": "🎵 Audio",
     "previewFile": "📄 Archivo adjunto",

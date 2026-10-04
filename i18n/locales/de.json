@@ -1991,7 +1991,7 @@
       "promptBody": "Wähle ein Feld zum Gruppieren. Jeder Wert wird zu einer Spalte auf dem Board.",
       "promptTitle": "Wähle, wie dieses Board gruppiert wird"
     },
-    "boardKeyboardInstructions": "Drücke die Leertaste, um einen Datensatz aufzunehmen. Wähle mit den Pfeiltasten links und rechts eine Gruppe und drücke die Leertaste zum Verschieben. Escape bricht ab.",
+    "boardKeyboardInstructions": "Drücke die Eingabetaste, um einen Datensatz zu öffnen, und die Leertaste, um ihn aufzunehmen. Wähle mit den Pfeiltasten links und rechts eine Gruppe und drücke die Leertaste zum Verschieben. Escape bricht ab.",
     "boardMoveCancelled": "Verschieben abgebrochen.",
     "boardMoveRequested": "Verschieben nach {group} angefordert.",
     "boardMoveTarget": "Datensatz nach {group} verschieben.",
@@ -2000,6 +2000,7 @@
     "dragToReorder": "Zum Neuanordnen ziehen",
     "expandGroup": "Gruppe {group} ausklappen",
     "groupOverflow": "Es werden nur {count} Gruppen angezeigt",
+    "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
     "noValue": "Kein Wert",
     "resizeColumn": "Größe der Spalte „{column}“ ändern. Ziehe oder verwende die Pfeiltasten; doppeltippe oder drücke zum Zurücksetzen die Eingabetaste.",
     "resizeHint": "Zum Ändern der Größe ziehen. Zum Zurücksetzen doppelklicken.",
@@ -2494,8 +2495,9 @@
       "linkRecord": "Datensatz verknüpfen",
       "linkUpdateFailed": "Eintragsverknüpfung konnte nicht aktualisiert werden",
       "noRecords": "Keine verknüpften Datensätze",
-      "openRecord": "Datensatz öffnen",
-      "unlinkRecord": "Datensatzverknüpfung entfernen"
+      "openRecordNamed": "Datensatz öffnen: {name}",
+      "unlinkRecord": "Datensatzverknüpfung entfernen",
+      "unlinkRecordNamed": "Datensatzverknüpfung entfernen: {name}"
     },
     "previewAudio": "🎵 Audio",
     "previewFile": "📄 Anhang",
