@@ -138,14 +138,20 @@ describe("robots.txt", () => {
   });
 
   it("treats an unreachable robots.txt as disallow-all and a missing one as allow-all, per RFC 9309", () => {
-    expect(robotsFromFetch({ ok: false, reason: "unavailable", status: 503 })).toMatchObject({ blocked: true });
+    expect(robotsFromFetch({ ok: false, reason: "unavailable", status: 503 })).toMatchObject({
+      blocked: true,
+      unreachable: true,
+    });
     expect(robotsFromFetch({ ok: false, reason: "unavailable", status: 500 }).allows("/help")).toBe(false);
     expect(robotsFromFetch({ ok: false, reason: "timeout" }).blocked).toBe(true);
     expect(robotsFromFetch({ ok: false, reason: "blocked_address" }).blocked).toBe(true);
     for (const status of [400, 401, 403, 404, 410, 429])
       expect(robotsFromFetch({ ok: false, reason: "unavailable", status }).blocked).toBe(false);
     expect(robotsFromFetch({ ok: false, reason: "redirect_limit" }).blocked).toBe(false);
-    expect(robotsFromFetch({ ok: true, body: "User-agent: *\nDisallow: /" }).blocked).toBe(true);
+    expect(robotsFromFetch({ ok: true, body: "User-agent: *\nDisallow: /" })).toMatchObject({
+      blocked: true,
+      unreachable: false,
+    });
   });
 
   it("parses a robots.txt cut at 500 KiB up to its last complete line instead of disallowing everything", () => {
@@ -439,10 +445,10 @@ describe("website discovery and fetching", () => {
     expect(mocks.requested.filter((line) => line.includes("/private"))).toEqual([]);
   });
 
-  it("stops when robots.txt is unreachable and imports normally when it is missing", async () => {
+  it("stops as unavailable when robots.txt is unreachable and imports normally when it is missing", async () => {
     routes.set("https://example.com/robots.txt", { status: 503, type: "text/plain", body: "busy" });
     expect(await discoverWikiWebsite({ homepage: "https://example.com", locale: "en", scope })).toEqual({
-      status: "blocked",
+      status: "unavailable",
     });
     expect(mocks.requested).toHaveLength(1);
 

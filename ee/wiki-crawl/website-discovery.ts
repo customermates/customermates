@@ -39,6 +39,7 @@ export type RobotsRules = {
   sitemaps: string[];
   crawlDelayMs: number;
   blocked: boolean;
+  unreachable: boolean;
 };
 
 export const WIKI_CRAWL_MAX_ROBOTS_RULES = 1_000;
@@ -81,7 +82,13 @@ export function robotsPathOf(url: string): string {
   return `${parsed.pathname}${parsed.search}`;
 }
 
-const DISALLOW_ALL: RobotsRules = { allows: () => false, sitemaps: [], crawlDelayMs: 0, blocked: true };
+const DISALLOW_ALL: RobotsRules = {
+  allows: () => false,
+  sitemaps: [],
+  crawlDelayMs: 0,
+  blocked: true,
+  unreachable: true,
+};
 
 export function robotsFromFetch(
   result: { ok: true; body: string; truncated?: boolean } | { ok: false; reason: string; status?: number },
@@ -149,6 +156,7 @@ export function parseRobots(text: string | null): RobotsRules {
     sitemaps,
     crawlDelayMs: Math.min(WIKI_CRAWL_MAX_CRAWL_DELAY_MS, Math.max(0, ...delays)),
     blocked: !allows("/"),
+    unreachable: false,
   };
 }
 

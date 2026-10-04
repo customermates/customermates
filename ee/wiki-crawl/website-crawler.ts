@@ -65,6 +65,7 @@ export async function discoverWikiWebsite(input: {
   const origin = new URL(homepage.url).origin;
   const robots = new WikiCrawlRobots(input.scope);
   const rootRules = await robots.forUrl(homepage.url);
+  if (rootRules.unreachable) return { status: "unavailable" };
   if (!(await robots.allows(homepage.url))) return { status: "blocked" };
 
   const home = await fetchText(homepage.url, input.scope, PAGE_TYPES, robots);
