@@ -133,6 +133,7 @@ export enum CustomErrorCode {
   webhookHeadersTooLarge = "webhookHeadersTooLarge",
   webhookBodyTemplateInvalid = "webhookBodyTemplateInvalid",
   webhookHeadersRequireHttps = "webhookHeadersRequireHttps",
+  webhookDestinationNotAllowed = "webhookDestinationNotAllowed",
   activityScopeTooManyIds = "activityScopeTooManyIds",
   activitySourcesUnavailable = "activitySourcesUnavailable",
   activityDuplicateFilterField = "activityDuplicateFilterField",

@@ -2,12 +2,12 @@ import type { DeliverWebhookPayload } from "@/features/webhook/deliver-webhook.i
 import type { WorkflowTenant } from "./workflow-tenant";
 
 import { getDeliverWebhookInteractor } from "@/core/di";
+import { isNonRetryableWebhookStatus } from "@/features/webhook/webhook-delivery-retry";
 import { isExpectedError, WebhookExternalFailure, WebhookNonRetryableFailure } from "@/core/errors/app-errors";
 
 import { reportFailure, toWorkflowFailure } from "./capture-failure";
 
 const WORKFLOW_NAME = "deliver-webhook";
-const RETRYABLE_4XX = new Set([408, 425, 429]);
 
 export type DeliverWebhookWorkflowPayload = DeliverWebhookPayload & { tenant?: WorkflowTenant };
 
@@ -17,9 +17,8 @@ async function deliverStep(payload: DeliverWebhookPayload): Promise<void> {
 
   if (data.status === "failed") {
     const code = data.statusCode;
-    const nonRetryable = code !== null && code >= 400 && code < 500 && !RETRYABLE_4XX.has(code);
 
-    if (nonRetryable) throw new WebhookNonRetryableFailure(code, data.responseMessage);
+    if (isNonRetryableWebhookStatus(code)) throw new WebhookNonRetryableFailure(code, data.responseMessage);
 
     throw new WebhookExternalFailure(code, data.responseMessage);
   }

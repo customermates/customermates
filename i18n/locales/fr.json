@@ -1333,6 +1333,7 @@
       "userSelfAdminUpdateForbidden": "Vous ne pouvez pas mettre à jour votre propre compte depuis l’administration de l’équipe.",
       "webhookBodyTemplateInvalid": "Le modèle de corps doit produire un objet JSON valide.",
       "webhookDeliveryNotFound": "ID de livraison de webhook introuvable ou inaccessible.",
+      "webhookDestinationNotAllowed": "Cette destination n'est pas autorisée. Utilisez une adresse publique.",
       "webhookEventsRequired": "Sélectionnez au moins un évènement.",
       "webhookHeaderNameInvalid": "Les noms d'en-tête ne peuvent contenir que des lettres, des chiffres et des caractères de jeton HTTP.",
       "webhookHeaderNameReserved": "Cet en-tête est défini automatiquement et ne peut pas être remplacé.",

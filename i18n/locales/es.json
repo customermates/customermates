@@ -1333,6 +1333,7 @@
       "userSelfAdminUpdateForbidden": "No puedes actualizar tu propia cuenta desde la administración del equipo.",
       "webhookBodyTemplateInvalid": "La plantilla del cuerpo debe producir un objeto JSON válido.",
       "webhookDeliveryNotFound": "ID de entrega de webhook no encontrado o no accesible.",
+      "webhookDestinationNotAllowed": "Este destino no está permitido. Usa una dirección pública.",
       "webhookEventsRequired": "Selecciona al menos un evento.",
       "webhookHeaderNameInvalid": "Los nombres de cabecera solo pueden contener letras, dígitos y caracteres de token HTTP.",
       "webhookHeaderNameReserved": "Esta cabecera se establece automáticamente y no se puede sobrescribir.",

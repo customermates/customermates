@@ -2,6 +2,8 @@ import { z } from "zod";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
+import { allowsPrivateWebhookDestinations } from "./webhook-destination";
+
 export const WEBHOOK_HEADER_MAX_COUNT = 20;
 export const WEBHOOK_HEADER_NAME_MAX_CHARS = 128;
 export const WEBHOOK_HEADER_VALUE_MAX_CHARS = 2048;
@@ -78,34 +80,6 @@ export function parseStoredWebhookHeaders(value: unknown): Record<string, string
   return Object.fromEntries(entries) as Record<string, string>;
 }
 
-export function formatWebhookHeaderLines(headers: Record<string, string> | null | undefined): string {
-  if (!headers) return "";
-
-  return Object.entries(headers)
-    .map(([name, value]) => `${name}: ${value}`)
-    .join("\n");
-}
-
-export function parseWebhookHeaderLines(text: string): Record<string, string> {
-  const headers: Record<string, string> = {};
-
-  for (const line of text.split("\n")) {
-    const trimmed = line.trim();
-    if (trimmed.length === 0) continue;
-
-    const separator = trimmed.indexOf(":");
-    if (separator <= 0) continue;
-
-    const name = trimmed.slice(0, separator).trim();
-    const value = trimmed.slice(separator + 1).trim();
-    if (name.length === 0) continue;
-
-    headers[name] = value;
-  }
-
-  return headers;
-}
-
 const LOOPBACK_HOSTNAMES = new Set(["localhost", "127.0.0.1", "::1", "[::1]"]);
 
 export function allowsCredentialedHeaders(url: string): boolean {
@@ -114,7 +88,7 @@ export function allowsCredentialedHeaders(url: string): boolean {
 
     if (parsed.protocol === "https:") return true;
 
-    return parsed.protocol === "http:" && LOOPBACK_HOSTNAMES.has(parsed.hostname);
+    return parsed.protocol === "http:" && LOOPBACK_HOSTNAMES.has(parsed.hostname) && allowsPrivateWebhookDestinations();
   } catch {
     return false;
   }

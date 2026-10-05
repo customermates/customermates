@@ -1333,6 +1333,7 @@
       "userSelfAdminUpdateForbidden": "Du kannst dein eigenes Konto nicht über die Teamverwaltung aktualisieren.",
       "webhookBodyTemplateInvalid": "Die Body-Vorlage muss ein gültiges JSON-Objekt ergeben.",
       "webhookDeliveryNotFound": "Webhook-Zustellungs-ID nicht gefunden oder nicht zugänglich.",
+      "webhookDestinationNotAllowed": "Dieses Ziel ist nicht erlaubt. Verwende eine öffentliche Adresse.",
       "webhookEventsRequired": "Wähle mindestens ein Ereignis aus.",
       "webhookHeaderNameInvalid": "Header-Namen dürfen nur Buchstaben, Ziffern und HTTP-Token-Zeichen enthalten.",
       "webhookHeaderNameReserved": "Dieser Header wird automatisch gesetzt und kann nicht überschrieben werden.",

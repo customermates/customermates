@@ -1333,6 +1333,7 @@
       "userSelfAdminUpdateForbidden": "Non puoi aggiornare il tuo account dall’amministrazione del team.",
       "webhookBodyTemplateInvalid": "Il modello del corpo deve produrre un oggetto JSON valido.",
       "webhookDeliveryNotFound": "ID consegna del webhook non trovato o non accessibile.",
+      "webhookDestinationNotAllowed": "Questa destinazione non è consentita. Usa un indirizzo pubblico.",
       "webhookEventsRequired": "Seleziona almeno un evento.",
       "webhookHeaderNameInvalid": "I nomi delle intestazioni possono contenere solo lettere, cifre e caratteri token HTTP.",
       "webhookHeaderNameReserved": "Questa intestazione viene impostata automaticamente e non può essere sovrascritta.",
