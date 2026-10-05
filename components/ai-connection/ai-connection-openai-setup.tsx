@@ -82,7 +82,7 @@ export const AiConnectionOpenAiSetup = observer(function AiConnectionOpenAiSetup
 
       {method === "chatgpt" ? (
         <div id="openai-chatgpt-details">
-          <AiConnectionConnectorSetup mcpUrl={mcpUrl} provider="chatgpt" />
+          <AiConnectionConnectorSetup disabled={disabled} mcpUrl={mcpUrl} provider="chatgpt" />
         </div>
       ) : null}
 
@@ -93,7 +93,8 @@ export const AiConnectionOpenAiSetup = observer(function AiConnectionOpenAiSetup
             baseUrl={baseUrl}
             expiresAt={store.apiKeyExpiresAt}
             hasError={store.hasError}
-            isCreating={store.isCreating}
+            hasSavedApiKey={store.hasSavedApiKey}
+            isCreating={store.isCreating || disabled}
             resultHeadingRef={resultHeadingRef}
             tool="codex"
             onCreate={onCreate}

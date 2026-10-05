@@ -20,6 +20,8 @@ const AUTHENTICATED_TENANT_ENTRYPOINTS = [
   "features/acquisition/withdraw-ad-attribution.interactor.ts",
   "features/onboarding-wizard/complete-onboarding-wiki-step.interactor.ts",
   "features/onboarding-wizard/complete-onboarding-wizard.interactor.ts",
+  "features/onboarding-wizard/get-onboarding-wizard-progress.interactor.ts",
+  "features/onboarding-wizard/save-onboarding-wizard-progress.interactor.ts",
   "features/user/register/register-user.interactor.ts",
 ];
 

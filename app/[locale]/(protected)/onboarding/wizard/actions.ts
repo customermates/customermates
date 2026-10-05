@@ -1,6 +1,7 @@
 "use server";
 
 import type { RegisterOnboardingProfileData } from "@/features/user/register/register-onboarding-profile.interactor";
+import type { SaveOnboardingWizardProgressData } from "@/features/onboarding-wizard/save-onboarding-wizard-progress.interactor";
 
 import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
@@ -10,6 +11,7 @@ import {
   getCompleteOnboardingWikiStepInteractor,
   getCompleteOnboardingWizardInteractor,
   getRegisterOnboardingProfileInteractor,
+  getSaveOnboardingWizardProgressInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 import { isRedirect } from "@/features/auth/auth-outcome";
@@ -36,6 +38,10 @@ export async function completeOnboardingWizardAction() {
   const result = await serializeResult(getCompleteOnboardingWizardInteractor().invoke());
   if (result.ok) refresh();
   return result;
+}
+
+export async function saveOnboardingWizardProgressAction(data: SaveOnboardingWizardProgressData) {
+  return serializeResult(getSaveOnboardingWizardProgressInteractor().invoke(data));
 }
 
 export async function completeOnboardingWikiStepAction() {

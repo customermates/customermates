@@ -29,7 +29,10 @@ describe("guarded account-state route contract", () => {
       "app/[locale]/(protected)/subscription-expired/page.tsx",
       /requireAccountState\(\s*"subscription",\s*"\/company\/subscription",?\s*\)/,
     ],
-    ["app/[locale]/(public)/auth/mcp-consent/page.tsx", /requireAccountState\(\s*"allowed"\s*\)/],
+    [
+      "app/[locale]/(public)/auth/mcp-consent/page.tsx",
+      /requireAccountState\(\s*\[\s*"allowed",\s*"onboarding"\s*\]\s*\)/,
+    ],
   ])("server-gates %s with the canonical state resolver", (path, contract) => {
     expect(source(path)).toMatch(contract);
   });
@@ -54,8 +57,10 @@ describe("guarded account-state route contract", () => {
     expect(registrationBoundary).toContain('target = { type: "invitation"');
     expect(registrationBoundary).toContain('target = { type: "createCompany" }');
     expect(actions).toContain("getCompleteOnboardingWizardInteractor().invoke()");
+    expect(actions.match(/serializeResult\(/g)).toHaveLength(4);
     expect(actions).toContain("getCompleteOnboardingWikiStepInteractor().invoke()");
-    expect(actions.match(/serializeResult\(/g)).toHaveLength(3);
+    expect(actions).toContain("getSaveOnboardingWizardProgressInteractor().invoke(data)");
+    expect(page).toContain("getGetOnboardingWizardProgressInteractor().invoke()");
     expect(actions).toContain("redirect(result.data.redirectTo)");
     expect(actions).not.toContain('redirect("/")');
     expect(actions).not.toContain("requireAccountState");
@@ -130,7 +135,11 @@ describe("guarded account-state route contract", () => {
     expect(authActions).toContain("serializeResult(getDecideMcpConsentInteractor().invoke(data))");
     expect(authActions).not.toContain("resolveRequestAccountState");
     expect(authActions).not.toContain("getAuthService");
-    expect(consentInteractor).toContain('resolution.state !== "allowed"');
+    expect(consentInteractor).toContain("this.routeGuardService.resolveMcpConsentState(resolution)");
+    expect(consentInteractor).toContain('state !== "allowed" && state !== "onboarding"');
+    expect(source("app/[locale]/(public)/auth/mcp-consent/page.tsx")).toContain(
+      "getRouteGuardService().resolveMcpConsentState(resolution)",
+    );
     const requireSource = source("features/auth/next/require.ts");
     expect(requireSource).toMatch(
       /accessRedirectForAccountState\(\s*await resolveRequestAccountState\(\),\s*options,?\s*\)/,

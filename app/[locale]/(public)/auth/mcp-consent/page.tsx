@@ -1,9 +1,12 @@
 import { redirect } from "next/navigation";
+import { getLocale } from "next-intl/server";
 
 import { McpConsentCard } from "./mcp-consent-card";
 
-import { getAuthService } from "@/core/di";
+import { getAuthService, getRouteGuardService } from "@/core/di";
 import { requireAccountState } from "@/features/auth/next/require";
+import { accountStateRedirect } from "@/features/auth/account-state";
+import { buildLocalePath } from "@/i18n/locale-registry";
 import { CenteredCardPage } from "@/components/shared/centered-card-page";
 import { NOINDEX_METADATA } from "@/core/seo/noindex-metadata";
 
@@ -14,7 +17,9 @@ type Props = {
 };
 
 export default async function McpConsentPage({ searchParams }: Props) {
-  await requireAccountState("allowed");
+  const resolution = await requireAccountState(["allowed", "onboarding"]);
+  if ((await getRouteGuardService().resolveMcpConsentState(resolution)) !== resolution.state)
+    redirect(buildLocalePath(await getLocale(), accountStateRedirect(resolution.state) ?? "/"));
 
   const params = await searchParams;
   const consentCode = typeof params.consent_code === "string" ? params.consent_code : undefined;

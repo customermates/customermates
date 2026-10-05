@@ -2684,6 +2684,7 @@
       "providers": {
         "ariaLabel": "AI clients"
       },
+      "savedKey": "You already created an API key for this setup. You can finish onboarding. If you need the key value again, create a new key.",
       "screen": {
         "back": "All AI clients",
         "claude": {

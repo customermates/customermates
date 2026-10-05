@@ -163,6 +163,8 @@ import { ImportRecordsInteractor } from "@/features/data-transfer/import/import-
 // Tasks interactors
 // User interactors
 import { CompleteOnboardingWizardInteractor } from "@/features/onboarding-wizard/complete-onboarding-wizard.interactor";
+import { GetOnboardingWizardProgressInteractor } from "@/features/onboarding-wizard/get-onboarding-wizard-progress.interactor";
+import { SaveOnboardingWizardProgressInteractor } from "@/features/onboarding-wizard/save-onboarding-wizard-progress.interactor";
 import { CompleteOnboardingWikiStepInteractor } from "@/features/onboarding-wizard/complete-onboarding-wiki-step.interactor";
 import { GetTeamMemberInteractor } from "@/features/user/get/get-team-member.interactor";
 import { GetUserByIdInteractor } from "@/features/user/get/get-user-by-id.interactor";
@@ -682,6 +684,12 @@ export const getCompleteOnboardingWizardInteractor = () =>
   new CompleteOnboardingWizardInteractor(getUserRepo(), getRouteGuardService());
 export const getCompleteOnboardingWikiStepInteractor = () =>
   new CompleteOnboardingWikiStepInteractor(getUserRepo(), getRouteGuardService());
+
+export const getGetOnboardingWizardProgressInteractor = () =>
+  new GetOnboardingWizardProgressInteractor(getUserRepo(), getRouteGuardService(), getAuthService());
+
+export const getSaveOnboardingWizardProgressInteractor = () =>
+  new SaveOnboardingWizardProgressInteractor(getUserRepo(), getRouteGuardService(), getAuthService());
 
 export const getGetUserDetailsInteractor = () => new GetUserDetailsInteractor();
 

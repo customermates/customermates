@@ -1,6 +1,7 @@
 import type { $ZodErrorTree } from "zod/v4/core";
 import type { RootStore } from "@/core/stores/root.store";
 import type { McpTool } from "@/features/docs/mcp-install-snippet";
+import type { AiConnectionSelection } from "@/features/onboarding-wizard/onboarding-wizard-progress.schema";
 
 import { makeAutoObservable, runInAction } from "mobx";
 
@@ -53,8 +54,10 @@ export class AiConnectionStore {
   claudeClient: AiConnectionClaudeClient | null = null;
   openAiMethod: AiConnectionOpenAiMethod | null = null;
   credentials: Partial<Record<McpTool, AiConnectionCredential>> = {};
+  savedApiKeyIds: AiConnectionSelection["apiKeyIds"] = {};
   pendingTool: McpTool | null = null;
   errorTool: McpTool | null = null;
+  private credentialGeneration = 0;
 
   constructor(public readonly rootStore: RootStore) {
     makeAutoObservable(this, { rootStore: false });
@@ -100,11 +103,51 @@ export class AiConnectionStore {
   get canFinish(): boolean {
     if (this.isCreating) return false;
     if (this.connectorProvider) return true;
-    return this.selectedTool !== null && this.credential !== null;
+    return this.selectedTool !== null && (this.credential !== null || this.hasSavedApiKey);
   }
 
-  reset = () => {
-    if (this.isCreating) return;
+  get hasSavedApiKey(): boolean {
+    return this.selectedTool !== null && Boolean(this.savedApiKeyIds[this.selectedTool]);
+  }
+
+  get selection(): AiConnectionSelection {
+    return {
+      route: { ...this.route },
+      selectedProvider: this.selectedProvider,
+      claudeMethod: this.claudeMethod,
+      claudeClient: this.claudeClient,
+      openAiMethod: this.openAiMethod,
+      apiKeyIds: {
+        ...this.savedApiKeyIds,
+        ...Object.fromEntries(Object.entries(this.credentials).map(([tool, credential]) => [tool, credential.id])),
+      },
+    };
+  }
+
+  restoreSelection = (selection: AiConnectionSelection) => {
+    this.route = selection.route;
+    this.selectedProvider = selection.selectedProvider;
+    this.claudeMethod = selection.claudeMethod;
+    this.claudeClient = selection.claudeClient;
+    this.openAiMethod = selection.openAiMethod;
+    this.savedApiKeyIds = selection.apiKeyIds;
+  };
+
+  forgetApiKeyIds = (ids: string[]) => {
+    if (!ids.length) return;
+    const forgotten = new Set(ids);
+    this.savedApiKeyIds = Object.fromEntries(
+      Object.entries(this.savedApiKeyIds).filter(([, id]) => !forgotten.has(id)),
+    ) as AiConnectionSelection["apiKeyIds"];
+    this.credentials = Object.fromEntries(
+      Object.entries(this.credentials).filter(([, credential]) => !forgotten.has(credential.id)),
+    ) as AiConnectionStore["credentials"];
+  };
+
+  reset = (force = false) => {
+    if (this.isCreating && !force) return;
+    this.credentialGeneration += 1;
+    this.pendingTool = null;
 
     this.route = { screen: "providers" };
     this.selectedProvider = null;
@@ -112,6 +155,7 @@ export class AiConnectionStore {
     this.claudeClient = null;
     this.openAiMethod = null;
     this.credentials = {};
+    this.savedApiKeyIds = {};
     this.errorTool = null;
   };
 
@@ -165,12 +209,14 @@ export class AiConnectionStore {
 
     this.pendingTool = tool;
     this.errorTool = null;
+    const generation = this.credentialGeneration;
 
     try {
       const res = await createApiKeyAction({
         name: TOOL_LABELS[tool],
         expiresIn: API_KEY_MAX_EXPIRATION_SECONDS,
       });
+      if (generation !== this.credentialGeneration) return { status: "ignored" };
 
       if (!res.ok) {
         runInAction(() => {
@@ -179,19 +225,24 @@ export class AiConnectionStore {
         return { status: "failed", error: res.error };
       }
 
-      const credential = { id: res.data.id, key: res.data.key, expiresAt: res.data.expiresAt };
+      const credential = {
+        id: res.data.id,
+        key: res.data.key,
+        expiresAt: res.data.expiresAt,
+      };
       runInAction(() => {
         this.credentials = { ...this.credentials, [tool]: credential };
       });
       return { status: "created", credential };
     } catch {
+      if (generation !== this.credentialGeneration) return { status: "ignored" };
       runInAction(() => {
         this.errorTool = tool;
       });
       return { status: "failed" };
     } finally {
       runInAction(() => {
-        if (this.pendingTool === tool) this.pendingTool = null;
+        if (generation === this.credentialGeneration && this.pendingTool === tool) this.pendingTool = null;
       });
     }
   };

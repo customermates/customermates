@@ -7,7 +7,7 @@ import type { GetBillingPortalUrlRepo } from "@/ee/subscription/get-billing-port
 import type { GetSubscriptionRepo } from "@/ee/subscription/get-subscription.interactor";
 import type { RefreshSubscriptionRepo } from "@/ee/subscription/refresh-subscription.interactor";
 import type { SubscriptionRepo } from "@/ee/subscription/subscription.service";
-import type { RouteGuardCompanyRepo } from "@/features/auth/route-guard.service";
+import type { RouteGuardCompanyRepo } from "@/features/auth/route-guard-company.repo";
 import type { InviteTokenRepo } from "@/features/company/invite-token-validation.interactor";
 import type { RegisterUserCompanyRepo } from "@/features/user/register/register-user-company.repo";
 import type { AdminUpdateUserSubscriptionRepo } from "@/features/user/upsert/admin-update-user-subscription.repo";
