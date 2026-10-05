@@ -127,20 +127,6 @@ export function filterOptionSources(
   _activityQueryRef: ActivityQueryRef,
 ): Record<FilterFieldKey, FilterOptionSource> {
   return {
-    [FilterFieldKey.userIds]: {
-      getItems: (params) =>
-        getUsersAction(params).then((res) => ({
-          items: res.items.map((user) => {
-            const name = `${user.firstName} ${user.lastName}`.trim();
-            return {
-              key: user.id,
-              value: user.id,
-              textValue: name,
-              startContent: renderAvatar(name, user.avatarUrl ?? undefined),
-            };
-          }),
-        })),
-    },
     [FilterFieldKey.ownerUserId]: {
       getItems: (params) =>
         getUsersAction(params).then((res) => ({
@@ -155,10 +141,6 @@ export function filterOptionSources(
           }),
         })),
     },
-    [FilterFieldKey.serviceIds]: NO_FILTER_OPTIONS,
-    [FilterFieldKey.dealIds]: NO_FILTER_OPTIONS,
-    [FilterFieldKey.organizationIds]: NO_FILTER_OPTIONS,
-    [FilterFieldKey.contactIds]: NO_FILTER_OPTIONS,
     [FilterFieldKey.participantContactId]: {
       getItems: async (params) => {
         const result = await getIdentityRecordChoicesAction(params.searchTerm ?? "");
@@ -195,7 +177,6 @@ export function filterOptionSources(
         };
       },
     },
-    [FilterFieldKey.taskIds]: NO_FILTER_OPTIONS,
     [FilterFieldKey.updatedAt]: NO_FILTER_OPTIONS,
     [FilterFieldKey.createdAt]: NO_FILTER_OPTIONS,
     [FilterFieldKey.event]: {
@@ -426,7 +407,7 @@ export function useFilterSelectItems(
         },
       };
     }
-    if (presentationType === "member") return filterOptionSources(t, activityQueryRef)[FilterFieldKey.userIds];
+    if (presentationType === "member") return filterOptionSources(t, activityQueryRef)[FilterFieldKey.ownerUserId];
     if (presentationType === "boolean") {
       return {
         items: () => [

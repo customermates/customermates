@@ -18,7 +18,6 @@ import { SignatureTemplate } from "@/ee/messaging/email-settings";
 import { OPERATOR_AUDIT_ACTION } from "@/ee/operator/operator.schema";
 import { ROUTINE_RUN_REASONS } from "@/ee/routines/routine-run-outcome";
 import { ROUTINE_SCHEDULE_PRESETS } from "@/ee/routines/routine-schedule-preset";
-import { RELATION_FILTER_PRESETS } from "@/components/data-view/use-filter-field-label";
 import { RECORD_PRESET_KEYS } from "@/features/records/record-navigation.schema";
 import { DomainEvent } from "@/features/event/domain-events";
 import { FeedbackType } from "@/features/feedback/send-feedback.schema";
@@ -120,9 +119,7 @@ const ROUTINE_WEEKDAY_KEYS = [
 const FEEDBACK_DESCRIPTION_KEYS = Object.values(FeedbackType).map((type) => `feedback.${type}.description`);
 const FEEDBACK_TITLE_KEYS = Object.values(FeedbackType).map((type) => `feedback.${type}.title`);
 const CUSTOM_ERROR_CODE_KEYS = Object.values(CustomErrorCode).map((code) => `Common.errors.${code}`);
-const FILTER_FIELD_KEYS = Object.values(FilterFieldKey)
-  .filter((field) => !(field in RELATION_FILTER_PRESETS))
-  .map((field) => `Common.filters.fields.${field}`);
+const FILTER_FIELD_KEYS = Object.values(FilterFieldKey).map((field) => `Common.filters.fields.${field}`);
 const ROLE_RESOURCE_KEYS = Object.values(Resource).map((resource) => `RoleModal.resources.${resource}`);
 const DISPLAY_TYPE_KEYS = Object.values(DisplayType).map((displayType) => `Dashboard.displayTypes.${displayType}`);
 const WIDGET_KIND_KEYS = Object.values(WidgetKind).map((kind) => `Dashboard.widgetKinds.${kind}`);
@@ -784,7 +781,6 @@ export const DYNAMIC_KEY_SITES = [
   "components/data-view/use-column-label.ts :: t.has :: AuditLogModal.fields.${columnId}",
   "components/data-view/use-column-label.ts :: t.has :: Common.table.columns.${columnId}",
   'components/data-view/use-filter-field-label.ts :: t :: Common.filters.fields.${field.replace(/\\./g, "_")}',
-  "components/data-view/use-filter-field-label.ts :: t :: RecordModel.starterTypes.${preset}.singular",
   "features/records/workspace-record-preset.ts :: t :: RecordModel.starterTypes.${key}.plural",
   "features/records/workspace-record-preset.ts :: t :: RecordModel.starterTypes.${key}.singular",
   "components/forms/form-iso-date-picker.tsx :: t :: Common.datePresets.${preset.key}",

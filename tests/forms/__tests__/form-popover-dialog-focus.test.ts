@@ -178,7 +178,7 @@ describe("form popovers inside a modal dialog", () => {
   it("moves focus into the filter value search box, so arrow keys and Enter pick a value", async () => {
     renderInDialog(
       createElement(FilterInputSelect, {
-        filter: { field: FilterFieldKey.contactIds, operator: FilterOperatorKey.in, value: [] },
+        filter: { field: FilterFieldKey.participantContactId, operator: FilterOperatorKey.in, value: [] },
         id: "filters[0].value",
         isValidFilter: true,
       }),

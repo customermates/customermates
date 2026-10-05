@@ -32,7 +32,7 @@ import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import { resolveDataViewState } from "@/core/data-view/resolve-data-view-state";
 import { env } from "@/env";
 import { runPrecheck } from "../validation/run-precheck";
-import { acceptSingleValueEquals } from "./filter-compat";
+import { acceptSingleValueEquals } from "./filter-value";
 import type { ViewMode } from "./base-query-builder";
 
 export interface GetResult<T> {

@@ -6,7 +6,7 @@ import { FilterFieldKey } from "@/core/types/filter-field-key";
 
 describe("FilterSchema relation existence operators", () => {
   it.each([FilterOperatorKey.hasNone, FilterOperatorKey.hasSome])("parses %s without a value", (operator) => {
-    const filter = { field: FilterFieldKey.userIds, operator };
+    const filter = { field: FilterFieldKey.draft, operator };
 
     expect(FilterSchema.parse(filter)).toEqual(filter);
     expect(isStandaloneOperator(operator)).toBe(true);
@@ -15,10 +15,10 @@ describe("FilterSchema relation existence operators", () => {
   it.each([FilterOperatorKey.hasNone, FilterOperatorKey.hasSome])(
     "parses %s carrying the explicit undefined value every producer emits",
     (operator) => {
-      const fromUrl = { field: FilterFieldKey.userIds, operator, value: undefined };
+      const fromUrl = { field: FilterFieldKey.draft, operator, value: undefined };
 
       expect("value" in fromUrl).toBe(true);
-      expect(FilterSchema.parse(fromUrl)).toEqual({ field: FilterFieldKey.userIds, operator });
+      expect(FilterSchema.parse(fromUrl)).toEqual({ field: FilterFieldKey.draft, operator });
     },
   );
 
@@ -28,17 +28,15 @@ describe("FilterSchema relation existence operators", () => {
     FilterOperatorKey.hasUnset,
     FilterOperatorKey.allSet,
   ])("keeps accepting %s with the same explicit undefined value", (operator) => {
-    expect(FilterSchema.parse({ field: FilterFieldKey.userIds, operator, value: undefined })).toEqual({
-      field: FilterFieldKey.userIds,
+    expect(FilterSchema.parse({ field: FilterFieldKey.draft, operator, value: undefined })).toEqual({
+      field: FilterFieldKey.draft,
       operator,
     });
   });
 
   it("continues to require values for relation membership operators", () => {
-    expect(FilterSchema.safeParse({ field: FilterFieldKey.userIds, operator: FilterOperatorKey.in }).success).toBe(
-      false,
-    );
-    expect(FilterSchema.safeParse({ field: FilterFieldKey.userIds, operator: FilterOperatorKey.notIn }).success).toBe(
+    expect(FilterSchema.safeParse({ field: FilterFieldKey.draft, operator: FilterOperatorKey.in }).success).toBe(false);
+    expect(FilterSchema.safeParse({ field: FilterFieldKey.draft, operator: FilterOperatorKey.notIn }).success).toBe(
       false,
     );
   });
@@ -48,7 +46,7 @@ describe("FilterSchema relation existence operators", () => {
     (operator) => {
       expect(
         FilterSchema.safeParse({
-          field: FilterFieldKey.userIds,
+          field: FilterFieldKey.draft,
           operator,
           value: "u1",
         }).success,

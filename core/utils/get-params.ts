@@ -199,16 +199,10 @@ function decodeFilterToken(token: string): Filter | undefined {
         break;
       case FilterOperatorKey.isNull:
       case FilterOperatorKey.isNotNull:
+      case FilterOperatorKey.hasNone:
+      case FilterOperatorKey.hasSome:
       case FilterOperatorKey.hasUnset:
       case FilterOperatorKey.allSet:
-        value = undefined;
-        break;
-      case FilterOperatorKey.hasNone:
-        if (rest) return { field, operator: FilterOperatorKey.notIn, value: decodeListValue(rest) };
-        value = undefined;
-        break;
-      case FilterOperatorKey.hasSome:
-        if (rest) return { field, operator: FilterOperatorKey.in, value: decodeListValue(rest) };
         value = undefined;
         break;
       case FilterOperatorKey.inLastDays:

@@ -178,7 +178,7 @@ function filterSelect(maxSelectedValues?: number) {
   testContext.filterMaxSelectedValues = maxSelectedValues;
   return createElement(FilterInputSelect, {
     filter: {
-      field: FilterFieldKey.contactIds,
+      field: FilterFieldKey.participantContactId,
       operator: FilterOperatorKey.in,
       value: Array.isArray(testContext.formValue) ? testContext.formValue : [],
     },
@@ -633,12 +633,12 @@ describe("FilterInputSelect command behavior", () => {
           baseId: "filters[0]",
           customColumns: undefined,
           filter: {
-            field: FilterFieldKey.contactIds,
+            field: FilterFieldKey.participantContactId,
             operator,
           },
           filterableFields: [
             {
-              field: FilterFieldKey.contactIds,
+              field: FilterFieldKey.participantContactId,
               operators: [
                 FilterOperatorKey.in,
                 FilterOperatorKey.notIn,
@@ -654,13 +654,13 @@ describe("FilterInputSelect command behavior", () => {
     },
   );
 
-  it("never renders unresolved entity IDs when no option loader exists", () => {
+  it("never renders unresolved IDs when the field cannot be resolved", () => {
     const rawId = "8b2ce431-63b2-4671-8954-cdd93d05fe6d";
     const container = mount(
       createElement(FilterChipValue, {
         customColumns: undefined,
         filter: {
-          field: FilterFieldKey.contactIds,
+          field: "11111111-1111-4111-8111-111111111111",
           operator: FilterOperatorKey.in,
           value: [rawId],
         },

@@ -10,15 +10,7 @@ import {
   SubscriptionStatus,
 } from "@/generated/prisma";
 
-export type FilterEntityKind =
-  | "organization"
-  | "contact"
-  | "user"
-  | "deal"
-  | "service"
-  | "task"
-  | "thread"
-  | "connectedAccount";
+export type FilterEntityKind = "user" | "thread" | "connectedAccount";
 
 export type FilterValueKind =
   | { kind: "entityId"; entity: FilterEntityKind }
@@ -47,12 +39,6 @@ export const BOOLEAN_FILTER_VALUES = ["true", "false"] as const;
 export const AUDIT_SOURCE_FILTER_VALUES = ["product", "operator"] as const;
 
 export const DEFAULT_FILTER_VALUE_KIND: Record<FilterFieldKey, FilterValueKind> = {
-  [FilterFieldKey.userIds]: { kind: "entityId", entity: "user" },
-  [FilterFieldKey.serviceIds]: { kind: "entityId", entity: "service" },
-  [FilterFieldKey.dealIds]: { kind: "entityId", entity: "deal" },
-  [FilterFieldKey.organizationIds]: { kind: "entityId", entity: "organization" },
-  [FilterFieldKey.contactIds]: { kind: "entityId", entity: "contact" },
-  [FilterFieldKey.taskIds]: { kind: "entityId", entity: "task" },
   [FilterFieldKey.participantContactId]: { kind: "recordRef" },
   [FilterFieldKey.ownerUserId]: { kind: "entityId", entity: "user" },
   [FilterFieldKey.timelineThreadId]: { kind: "entityId", entity: "thread" },

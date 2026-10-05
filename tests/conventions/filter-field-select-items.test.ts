@@ -11,7 +11,6 @@ import { resolveFilterValueClass } from "@/components/data-view/filter-modal/fil
 
 import { REPO_ROOT } from "./walk";
 
-const RETIRED_RECORD_FIELDS = new Set([FilterFieldKey.contactIds, FilterFieldKey.organizationIds, FilterFieldKey.dealIds, FilterFieldKey.serviceIds, FilterFieldKey.taskIds]);
 const SELECT_ITEMS = join(REPO_ROOT, "components/data-view/filter-modal/inputs/use-filter-select-items.tsx");
 
 function optionSourceEntries(): Map<string, "source" | "none"> {
@@ -52,7 +51,7 @@ describe("filter field select items", () => {
   it("gives every picker filter field a source of options, whatever its value kind", () => {
     const entries = optionSourceEntries();
     const missing = Object.values(FilterFieldKey).filter(
-      (field) => !RETIRED_RECORD_FIELDS.has(field) && rendersPicker(field) && entries.get(field) !== "source",
+      (field) => rendersPicker(field) && entries.get(field) !== "source",
     );
 
     expect(

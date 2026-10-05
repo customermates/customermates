@@ -10,7 +10,7 @@ vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 import { Repo } from "./fixtures/single-value-equals-repo";
 import { SingleValueEqualsInteractor } from "./fixtures/single-value-equals-interactor";
 
-import { acceptSingleValueEquals } from "../filter-compat";
+import { acceptSingleValueEquals } from "../filter-value";
 
 const SELECT_COLUMN = "11111111-1111-4111-8111-111111111111";
 const OPTION = "22222222-2222-4222-8222-222222222222";

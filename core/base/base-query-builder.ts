@@ -9,7 +9,7 @@ import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
 
 import { startOfDay, subDays } from "date-fns";
 
-import { normalizeFilter } from "@/core/base/filter-compat";
+import { normalizeFilterInput } from "@/core/base/filter-value";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 
 export interface SortableField {
@@ -388,7 +388,7 @@ export function defaultValidateFilters(args: {
 
     if (!hasValidStructure) continue;
 
-    const filter = normalizeFilter(candidate);
+    const filter = normalizeFilterInput(candidate) as Filter;
     const fieldConfig = filterableFields.find((f) => f.field === filter.field);
     if (!fieldConfig || !fieldConfig.operators.includes(filter.operator)) continue;
 
