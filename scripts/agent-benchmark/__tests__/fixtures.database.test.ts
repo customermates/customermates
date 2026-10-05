@@ -73,8 +73,6 @@ describeDatabase("agent benchmark fixtures and oracle", () => {
     });
     expect(planted.passed).toBe(false);
     expect(planted.checks.filter((check) => !check.passed).map((check) => check.id)).toEqual(["exact-filtered-count-23"]);
-    const retired = await scoreBenchmarkCase(db, fixture, { turns: [{ text: "Sofia Rossi has 23 open deals.", tools: [{ ...listCall, name: "list_records" }], terminalCode: "completed" }] });
-    expect(retired.checks.find((check) => check.id === "current-record-tool-contract")?.passed).toBe(false);
   }, 60_000);
 
   it("accepts native note and select mutations and catches an unrelated record edit", async () => {

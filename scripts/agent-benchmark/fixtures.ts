@@ -46,7 +46,6 @@ import {
 } from "./guard-live-cases";
 import { isOutboundOrSupportAction, isReadOnlyMixedToolAction } from "./tool-safety";
 
-const LEGACY_CONTACT_SURFACE = "contacts-card-store";
 
 export const FIXTURE_VERSION = "chat-benchmark-fixture-v7";
 export const AS_OF = "2026-09-05T08:00:00.000Z";
@@ -977,13 +976,13 @@ export async function seedBenchmarkCase(
         data: {
           companyId,
           userId: id(actorKey),
-          p13nId: LEGACY_CONTACT_SURFACE,
+          p13nId: `records:${presetId(companyId, "contact")}`,
           activeViewKey: ALL_VIEW_KEY,
           filters: [
-            { field: "firstName", operator: "contains", value: "Ada" },
+            { field: presetId(companyId, "contact.firstName"), operator: "contains", value: "Ada" },
           ],
           searchTerm: "Lovelace",
-          sortDescriptor: { field: "name", direction: "asc" },
+          sortDescriptor: { field: presetId(companyId, "contact.name"), direction: "asc" },
           pagination: { pageSize: 25 },
           columnOrder: [],
           hiddenColumns: [],
@@ -1000,7 +999,7 @@ export async function seedBenchmarkCase(
           id: viewKey,
           companyId,
           userId: id(actorKey),
-          surfaceKey: LEGACY_CONTACT_SURFACE,
+          surfaceKey: `records:${presetId(companyId, "contact")}`,
           name: isProtected
             ? "Protected setup"
             : isUnsupported
@@ -1008,11 +1007,11 @@ export async function seedBenchmarkCase(
               : "Deletion guard",
           position: isProtected ? 0 : isUnsupported ? 1 : 2,
           filters: isProtected
-            ? [{ field: "firstName", operator: "equals", value: "Ada" }]
+            ? [{ field: presetId(companyId, "contact.firstName"), operator: "equals", value: "Ada" }]
             : isUnsupported
               ? [
                   {
-                    field: "lastName",
+                    field: presetId(companyId, "contact.lastName"),
                     operator: "contains",
                     value: "Lovelace",
                   },
@@ -1020,22 +1019,24 @@ export async function seedBenchmarkCase(
               : [],
           searchTerm: isProtected ? "Lovelace" : isUnsupported ? "Ada" : "",
           sortDescriptor: isProtected
-            ? { field: "createdAt", direction: "desc" }
-            : { field: "name", direction: "asc" },
+            ? { field: "system:createdAt", direction: "desc" }
+            : { field: presetId(companyId, "contact.name"), direction: "asc" },
           grouping: isProtected
-            ? { field: "createdAt", bucket: "month" }
+            ? { field: "system:createdAt", bucket: "month" }
             : undefined,
           columnOrder:
-            isProtected || isUnsupported ? ["firstName", "lastName"] : [],
+            isProtected || isUnsupported
+              ? [presetId(companyId, "contact.firstName"), presetId(companyId, "contact.lastName")]
+              : [],
           columnWidths: isProtected
-            ? { firstName: 220 }
+            ? { [presetId(companyId, "contact.firstName")]: 220 }
             : isUnsupported
-              ? { lastName: 180 }
+              ? { [presetId(companyId, "contact.lastName")]: 180 }
               : {},
           hiddenColumns: isProtected
-            ? ["updatedAt"]
+            ? ["system:updatedAt"]
             : isUnsupported
-              ? ["createdAt"]
+              ? ["system:createdAt"]
               : [],
           pageSize: isProtected ? 100 : isUnsupported ? 25 : null,
           viewMode: isProtected ? "card" : "table",
@@ -1045,7 +1046,7 @@ export async function seedBenchmarkCase(
         data: {
           companyId,
           userId: id(actorKey),
-          p13nId: LEGACY_CONTACT_SURFACE,
+          p13nId: `records:${presetId(companyId, "contact")}`,
           activeViewKey: viewKey,
           filters: [],
           columnOrder: [],
@@ -1069,7 +1070,7 @@ export async function seedBenchmarkCase(
         data: {
           companyId,
           userId: id(actorKey),
-          p13nId: LEGACY_CONTACT_SURFACE,
+          p13nId: `records:${presetId(companyId, "contact")}`,
           activeViewKey: ALL_VIEW_KEY,
           filters: [],
           columnOrder: [],

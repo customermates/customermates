@@ -7,14 +7,11 @@ import { validateRecordModel } from "@/features/records/record-model-validation"
 import { RecordCalculationService } from "@/features/records/record-calculation.service";
 import { decodeRecordValue, recordJson } from "@/features/records/record-storage";
 import { identityKeys } from "@/features/records/record-identity";
-import { buildLegacyFixtureModel, legacyFieldScalar, LEGACY_RELATIONSHIPS, type LegacyType } from "@/prisma/seeds/legacy-conversion/v2/legacy-model";
-import { presentationMigrationModel } from "@/prisma/seeds/legacy-conversion/v5/model";
-import { migratePresentationState } from "@/prisma/seeds/legacy-conversion/v5/state";
+import { BENCHMARK_LINK_TABLES, benchmarkFieldScalar, benchmarkRecordModel, type BenchmarkFieldDeclaration } from "./record-fixture-model";
 import { syntheticCalculationRepo } from "@/prisma/seeds/records";
-import { SURFACE } from "@/core/data-view/data-view-keys";
 
 const KINDS = ["contact", "organization", "deal", "service", "task"] as const;
-const FIXTURE_TABLES = [...KINDS, "customColumn", "customFieldValue", "contactIdentifier", "serviceDeal", "dataView", "p13n", ...KINDS.map((kind) => `${kind}User`), ...LEGACY_RELATIONSHIPS.map((relation) => relation.table[0].toLowerCase() + relation.table.slice(1))];
+const FIXTURE_TABLES = [...KINDS, "customColumn", "customFieldValue", "contactIdentifier", "serviceDeal", "dataView", "p13n", ...KINDS.map((kind) => `${kind}User`), ...BENCHMARK_LINK_TABLES.map((relation) => relation.table)];
 type FixtureRow = Record<string, unknown> & { id: string; companyId: string };
 type FixtureDelegate = { create<T extends Record<string, unknown>>(args: { data: T }): Promise<T & { id: string }>; createMany(args: { data: Record<string, unknown>[] }): Promise<{ count: number }> };
 export type BenchmarkFixtureWriter = Prisma.TransactionClient & Record<string, FixtureDelegate>;
@@ -36,11 +33,7 @@ export function benchmarkRecordFixtures(prisma: Prisma.TransactionClient, compan
   const flush = async () => {
     for (const companyId of companyIds) {
       const columns = rows("customColumn", companyId);
-      const source = buildLegacyFixtureModel(companyId, "eur", null, columns.map((row) => ({ ...row, createdAt: row.createdAt ?? new Date(0), updatedAt: row.updatedAt ?? new Date(0) })) as unknown as Parameters<typeof buildLegacyFixtureModel>[3]);
-      if (source.issues.length) throw new Error(`Benchmark schema is invalid: ${JSON.stringify(source.issues)}`);
-      const presentationModel = { ...presentationMigrationModel(source), revision: 1 };
-      const model = readRecordModelSnapshot(presentationModel);
-      const validation = validateRecordModel(model); if (validation.issues.length) throw new Error(`Invalid benchmark model: ${JSON.stringify(validation.issues)}`);
+      const model = benchmarkRecordModel(companyId, columns as unknown as BenchmarkFieldDeclaration[]);
       await initialize(prisma, companyId, model);
       const values = syntheticCalculationRepo(prisma, companyId);
       const save = async (kind: string, row: FixtureRow) => {
@@ -63,11 +56,11 @@ export function benchmarkRecordFixtures(prisma: Prisma.TransactionClient, compan
       for (const row of rows("customFieldValue", companyId)) {
         const field = model.fields.find((field) => field.id === row.columnId);
         if (!field) throw new Error("Benchmark field is missing");
-        const value = legacyFieldScalar(row.value as string | null, field, "EUR");
+        const value = benchmarkFieldScalar(row.value as string | null, field);
         await values.setValue({ typeId: field.typeId, recordId: String(row[`${row.entityType}Id`]) }, field.id, value ? { state: "value", value } : { state: "missing" }, model.revision);
       }
       for (const kind of KINDS) for (const row of rows(`${kind}User`, companyId)) await prisma.recordAssignment.create({ data: { companyId, typeId: presetId(companyId, kind), recordId: String(row[`${kind}Id`]), userId: String(row.userId) } });
-      for (const relation of LEGACY_RELATIONSHIPS) for (const row of rows(relation.table[0].toLowerCase() + relation.table.slice(1), companyId)) await prisma.recordLink.create({ data: { companyId, id: row.id, relationId: presetId(companyId, relation.key), sourceTypeId: presetId(companyId, relation.source), sourceId: String(row[`${relation.source}Id`]), targetTypeId: presetId(companyId, relation.target), targetId: String(row[`${relation.target}Id`]) } });
+      for (const relation of BENCHMARK_LINK_TABLES) for (const row of rows(relation.table, companyId)) await prisma.recordLink.create({ data: { companyId, id: row.id, relationId: presetId(companyId, relation.key), sourceTypeId: presetId(companyId, relation.source), sourceId: String(row[`${relation.source}Id`]), targetTypeId: presetId(companyId, relation.target), targetId: String(row[`${relation.target}Id`]) } });
       for (const row of rows("serviceDeal", companyId)) {
         await save("lineItem", { ...row, name: "Line item", pricingMode: "live" });
         for (const kind of ["deal", "service"]) await prisma.recordLink.create({ data: { companyId, id: row.id, relationId: presetId(companyId, `lineItem.${kind}`), sourceTypeId: presetId(companyId, "lineItem"), sourceId: row.id, targetTypeId: presetId(companyId, kind), targetId: String(row[`${kind}Id`]) } });
@@ -75,14 +68,8 @@ export function benchmarkRecordFixtures(prisma: Prisma.TransactionClient, compan
       for (const row of rows("contactIdentifier", companyId)) {
         await prisma.recordIdentity.create({ data: { id: row.id, companyId, records: { create: { typeId: presetId(companyId, "contact"), recordId: String(row.contactId) } }, provider: row.provider as Prisma.RecordIdentityCreateInput["provider"], channelClass: String(row.channelClass), value: String(row.value), displayName: row.displayName as string | null, messagingId: row.messagingId as string | null, profileUrl: row.profileUrl as string | null, keys: { create: identityKeys({ value: String(row.value), messagingId: row.messagingId as string | null }).map((value) => ({ value })) } } });
       }
-      for (const table of ["dataView", "p13n"] as const) for (const row of rows(table, companyId)) {
-        const surface = String(table === "dataView" ? row.surfaceKey : row.p13nId);
-        const kind = KINDS.find((kind) => SURFACE[`${kind}s` as keyof typeof SURFACE] === surface);
-        const state = kind ? migratePresentationState(source, kind, row, presentationModel, table === "p13n") : {};
-        const data = { ...row, ...state, ...(kind ? { [table === "dataView" ? "surfaceKey" : "p13nId"]: `records:${presetId(companyId, kind)}` } : {}) };
-        if (table === "dataView") await prisma.dataView.create({ data: data as unknown as Prisma.DataViewUncheckedCreateInput });
-        else await prisma.p13n.create({ data: data as unknown as Prisma.P13nUncheckedCreateInput });
-      }
+      for (const row of rows("dataView", companyId)) await prisma.dataView.create({ data: row as unknown as Prisma.DataViewUncheckedCreateInput });
+      for (const row of rows("p13n", companyId)) await prisma.p13n.create({ data: row as unknown as Prisma.P13nUncheckedCreateInput });
       const refs = (await prisma.crmRecord.findMany({ where: { companyId }, select: { id: true, typeId: true } })).map((row) => ({ typeId: row.typeId, recordId: row.id }));
       const result = await new RecordCalculationService(values).recalculate(model, refs, "EUR", new Map(), 10000);
       if (!result.complete) throw new Error("Benchmark fixture calculation exceeded its budget");
@@ -141,7 +128,7 @@ export async function benchmarkRecordSnapshot(prisma: PrismaClient, companyId: s
     });
     result[`${kind}User`] = assignments.filter((row) => row.typeId === typeId).map((row) => ({ id: `${row.recordId}:${row.userId}`, companyId, [`${kind}Id`]: row.recordId, userId: row.userId }));
   }
-  for (const relation of LEGACY_RELATIONSHIPS) result[relation.table[0].toLowerCase() + relation.table.slice(1)] = links.filter((link) => link.relationId === presetId(companyId, relation.key)).map((link) => ({ id: link.id, companyId, [`${relation.source}Id`]: link.sourceId, [`${relation.target}Id`]: link.targetId }));
+  for (const relation of BENCHMARK_LINK_TABLES) result[relation.table] = links.filter((link) => link.relationId === presetId(companyId, relation.key)).map((link) => ({ id: link.id, companyId, [`${relation.source}Id`]: link.sourceId, [`${relation.target}Id`]: link.targetId }));
   result.serviceDeal = records.filter((row) => row.typeId === presetId(companyId, "lineItem")).map((row) => ({ id: row.id, companyId, dealId: links.find((link) => link.relationId === presetId(companyId, "lineItem.deal") && link.sourceId === row.id)?.targetId, serviceId: links.find((link) => link.relationId === presetId(companyId, "lineItem.service") && link.sourceId === row.id)?.targetId, quantity: Number(valueString(read(row, presetId(companyId, "lineItem.quantity")))) }));
   const typeOf = (typeId: string) => KINDS.find((kind) => presetId(companyId, kind) === typeId);
   result.customColumn = customFields.map((field) => ({ id: field.id, companyId, entityType: typeOf(field.typeId), label: field.label, type: ({ text: "plain", currency: "currency", select: "singleSelect", url: "link", email: "email", phone: "phone", dateTime: "dateTime", date: "date" } as Record<string, string>)[field.valueType] ?? field.valueType, options: field.valueType === "select" ? { options: field.options.map((option, index) => ({ value: option.id, label: option.label, color: option.color, index })) } : field.valueType === "currency" ? { currency: field.format?.currency?.toLowerCase() } : null }));

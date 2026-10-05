@@ -1,5 +1,5 @@
 import { presetId } from "@/features/records/crm-preset";
-import { LEGACY_RELATIONSHIPS } from "@/prisma/seeds/legacy-conversion/v2/legacy-model";
+import { BENCHMARK_LINK_TABLES } from "./record-fixture-model";
 
 type Row = Record<string, unknown>;
 type Snapshot = Record<string, unknown[]>;
@@ -77,7 +77,7 @@ export function withoutRecordState(snapshot: Snapshot, omitted: readonly string[
   const companyId = String(values("generic:recordSchemaState")[0]?.companyId ?? "");
   const typeIds = new Set(KINDS.filter((kind) => omitted.includes(kind) || (kind === "lineItem" && omitted.includes("serviceDeal"))).map((kind) => presetId(companyId, kind)));
   const assignmentTypes = new Set(KINDS.filter((kind) => omitted.includes(`${kind}User`)).map((kind) => presetId(companyId, kind)));
-  const relationIds = new Set(LEGACY_RELATIONSHIPS.filter((relation) => omitted.includes(relation.table[0].toLowerCase() + relation.table.slice(1))).map((relation) => presetId(companyId, relation.key)));
+  const relationIds = new Set(BENCHMARK_LINK_TABLES.filter((relation) => omitted.includes(relation.table)).map((relation) => presetId(companyId, relation.key)));
   if (omitted.includes("serviceDeal")) for (const endpoint of ["deal", "service"]) relationIds.add(presetId(companyId, `lineItem.${endpoint}`));
   const customFields = new Set(values("customColumn").map((field) => field.id));
   const customValues = omitted.includes("customFieldValue");

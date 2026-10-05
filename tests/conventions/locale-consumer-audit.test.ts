@@ -17,7 +17,6 @@ const ALLOWED = new Set([
   "__tests__/proxy-locales.test.ts",
   "__tests__/proxy.test.ts",
   "tests/helpers/mock-user.ts",
-  "prisma/seeds/legacy-conversion/v5/contract/record-query.schema.ts",
 ]);
 
 const LOCALE_ALTERNATION = REGISTERED_LOCALES.join("|");
