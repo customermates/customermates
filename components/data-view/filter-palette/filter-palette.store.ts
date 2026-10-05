@@ -88,11 +88,7 @@ export class FilterPaletteStore extends BaseModalStore<FilterPaletteForm> {
   }
 
   planFor = (field: string): PalettePlan =>
-    palettePlan(
-      field,
-      this.tableStore?.filterableFields ?? [],
-      this.tableStore?.filterColumns ?? this.tableStore?.customColumns,
-    );
+    palettePlan(field, this.tableStore?.filterableFields ?? [], this.tableStore?.filterColumns);
 
   openFor = (tableStore: BaseDataViewStore<any>) => {
     this.cancelPending();
@@ -285,7 +281,7 @@ export class FilterPaletteStore extends BaseModalStore<FilterPaletteForm> {
   };
 
   private get customColumns() {
-    return this.tableStore?.filterColumns ?? this.tableStore?.customColumns;
+    return this.tableStore?.filterColumns;
   }
 
   private boundIndex = (field: string): number | undefined => {

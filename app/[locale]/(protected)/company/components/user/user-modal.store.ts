@@ -34,12 +34,7 @@ export class UserModalStore extends BaseModalStore<AdminUpdateUserDetailsData> {
 
       loadedUserId: observable,
       isOwnProfile: computed,
-      customColumns: computed,
     });
-  }
-
-  get customColumns() {
-    return this.rootStore.usersStore.customColumns;
   }
 
   get isOwnProfile() {

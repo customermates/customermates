@@ -146,7 +146,7 @@ const CUSTOM_COLUMNS = [
 
 function tableStore(filters: Filter[] = []) {
   const table = {
-    customColumns: CUSTOM_COLUMNS,
+    filterColumns: CUSTOM_COLUMNS,
     filterableFields: FILTERABLE_FIELDS,
     filters,
     p13nId: "deals",

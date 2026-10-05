@@ -2,7 +2,6 @@ import type { UpdateWidgetLayoutsData } from "@/features/widget/update-widget-la
 import { WidgetKind } from "@/generated/prisma";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 import type { RootStore } from "@/core/stores/root.store";
 import { DisplayType, type WidgetDto } from "@/features/widget/widget.schema";
 
@@ -92,15 +91,12 @@ describe("WidgetsStore refresh compatibility", () => {
       loadingOverlayStore: { isLoading: false },
     } as unknown as RootStore;
     const store = new WidgetsStore(root);
-    const customColumns = [{ id: "custom-column" }] as CustomColumnDto[];
-
-    store.setItems({ customColumns, items: [widget(FIRST_ID, 0, 0)] });
+    store.setItems({ items: [widget(FIRST_ID, 0, 0)] });
     refreshWidgetsAction.mockResolvedValueOnce([widget(SECOND_ID, 6, 4)]);
 
     await store.refresh();
 
     expect(store.items.map(({ id }) => id)).toEqual([SECOND_ID]);
-    expect(store.customColumns).toEqual(customColumns);
     expect(store.layouts.lg).toEqual([{ h: 2, i: SECOND_ID, w: 3, x: 6, y: 4 }]);
     expect(store.layouts.lg).not.toEqual(expect.arrayContaining([expect.objectContaining({ i: FIRST_ID })]));
     expect(store.isReady).toBe(true);

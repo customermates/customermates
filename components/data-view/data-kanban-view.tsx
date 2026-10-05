@@ -6,7 +6,6 @@ import type { KeyboardEvent as ReactKeyboardEvent, ReactNode } from "react";
 
 import { useId, useRef } from "react";
 
-import { CustomColumnType } from "@/core/data-view/column-presentation.types";
 import {
   DndContext,
   type DragEndEvent,
@@ -28,7 +27,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { ChipColor } from "@/constants/chip-colors";
 import { NO_VALUE_GROUP_KEY } from "@/core/base/grouping/grouping.schema";
-import { useRouter } from "@/i18n/navigation";
 import { visibleColumnDefs } from "./visible-column-defs";
 
 import { useNavigateToHref } from "@/components/shared/use-navigate-to-href";
@@ -165,7 +163,6 @@ const KanbanColumn = observer(function KanbanColumn({
   weight,
   droppable,
   recordLabels,
-  onHeaderClick,
   loadMore,
   children,
 }: {
@@ -177,7 +174,6 @@ const KanbanColumn = observer(function KanbanColumn({
   weight?: number;
   droppable: boolean;
   recordLabels?: { singular: string; plural: string };
-  onHeaderClick?: () => void;
   loadMore?: LoadMoreAction;
   children: ReactNode;
 }) {
@@ -200,17 +196,7 @@ const KanbanColumn = observer(function KanbanColumn({
   return (
     <div ref={setNodeRef} className={DATA_KANBAN_COLUMN_CLASS_NAME} data-group-key={id}>
       <div className={DATA_KANBAN_HEADER_CLASS_NAME}>
-        {onHeaderClick ? (
-          <button
-            className="inline-flex items-center rounded-md cursor-pointer transition-[background-color,transform] hover:bg-accent active:scale-[0.97] motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            type="button"
-            onClick={onHeaderClick}
-          >
-            {headerContent}
-          </button>
-        ) : (
-          headerContent
-        )}
+        {headerContent}
 
         <Tooltip>
           <TooltipTrigger asChild>
@@ -267,13 +253,9 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
   const t = useTranslations();
   const dndContextId = useId();
   const boardRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
   const groupLabel = useGroupLabel(store.groupingResult);
   const supportsDragWriteBack = store.groupingResult?.supportsDragWriteBack ?? false;
   const writeBackColumnId = store.groupingResult?.columnId;
-  const editableColumn = store.customColumns.find(
-    (column) => column.id === writeBackColumnId && column.type === CustomColumnType.singleSelect,
-  );
 
   const pointerSensor = useSensor(PointerSensor, {
     activationConstraint: { distance: 4 },
@@ -404,13 +386,6 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
                 recordLabels={store.recordLabels}
                 summaries={group.summaries}
                 weight={group.weight}
-                onHeaderClick={
-                  editableColumn && store.schemaSettingsHref
-                    ? () => {
-                        if (store.schemaSettingsHref) router.push(store.schemaSettingsHref);
-                      }
-                    : undefined
-                }
               >
                 {group.itemIds.map((itemId) => {
                   const item = itemsById.get(itemId);

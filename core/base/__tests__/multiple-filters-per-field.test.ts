@@ -1,5 +1,4 @@
 import { TestQueryBuilder } from "./fixtures/multiple-filters-per-field-test-query-builder";
-import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 import type { RootStore } from "@/core/stores/root.store";
 import type { GetResult } from "../base-get.interactor";
 import type { Filter, FilterableField, GetQueryParams } from "../base-get.schema";
@@ -11,49 +10,24 @@ vi.mock("@/app/actions", () => ({
   saveDataViewStateAction: vi.fn(),
   selectDataViewAction: vi.fn(),
   bulkDeleteEntitiesAction: vi.fn(),
-  bulkUpdateCustomFieldValuesAction: vi.fn(),
-  getCustomColumnsByEntityTypeAction: vi.fn(),
-  updateEntityCustomFieldValueAction: vi.fn(),
 }));
 
 import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { decodeGetParams, encodeGetParams } from "@/core/utils/get-params";
-import { CustomColumnType } from "@/core/data-view/column-presentation.types";
-import { EntityType } from "@/features/records/history/v1/legacy-enums";
 import { BaseDataViewStore } from "../base-data-view.store";
 import { defaultValidateFilters, FilterOperatorKey, ViewMode } from "../base-query-builder";
 
 type Item = { id: string };
-
-const CUSTOM_COLUMN_ID = "3f1c9a72-5d84-4a1e-9f3b-6c2d8e0a7b45";
 
 const FILTERABLE_FIELDS: FilterableField[] = [
   {
     field: FilterFieldKey.status,
     operators: [FilterOperatorKey.in, FilterOperatorKey.notIn],
   },
-  {
-    field: FilterFieldKey.userIds,
-    operators: [FilterOperatorKey.in, FilterOperatorKey.notIn],
-  },
-  {
-    field: CUSTOM_COLUMN_ID,
-    operators: [FilterOperatorKey.contains, FilterOperatorKey.equals],
-  },
 ];
 
-const CUSTOM_COLUMNS = [
-  {
-    id: CUSTOM_COLUMN_ID,
-    label: "Notes",
-    entityType: EntityType.deal,
-    type: CustomColumnType.plain,
-  },
-] as unknown as CustomColumnDto[];
-
 TestQueryBuilder.filterableFields = FILTERABLE_FIELDS;
-TestQueryBuilder.customColumns = CUSTOM_COLUMNS;
 
 const statusFilter = (value: string): Filter =>
   ({

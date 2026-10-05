@@ -43,7 +43,7 @@ export const FilterPopover = observer(function FilterPopover({ store, compact, i
   const page = palette.page;
   const title =
     isOpen && page.kind !== "root"
-      ? filterFieldLabel(page.field, store.filterColumns ?? store.customColumns)
+      ? filterFieldLabel(page.field, store.filterColumns)
       : t("Common.filters.palette.title");
 
   function handleOpenChange(open: boolean) {

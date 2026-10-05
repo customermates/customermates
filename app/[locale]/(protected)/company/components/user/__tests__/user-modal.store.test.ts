@@ -36,7 +36,7 @@ const makeRootStore = ({ signedInUserId, canManage }: { signedInUserId: string |
       canManage: () => canManage,
     },
     rolesStore: { setItems: vi.fn() },
-    usersStore: { customColumns: [], refresh: vi.fn() },
+    usersStore: { refresh: vi.fn() },
   }) as unknown as RootStore;
 
 const loadUserInto = async (store: UserModalStore, id: string) => {

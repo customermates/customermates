@@ -7,7 +7,6 @@ import { FilterOperatorKey, ViewMode } from "./base-query-builder";
 import { normalizeFilterInput } from "./filter-value";
 
 import { GroupPageRequestSchema, GroupingSchema } from "@/core/base/grouping/grouping.schema";
-import { CustomColumnDtoSchema } from "@/core/data-view/column-presentation.schema";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { zx } from "@/core/validation/validation.utils";
 
@@ -159,14 +158,7 @@ export type GetQueryParams = Data<typeof GetQueryParamsSchema> & {
   groupScope?: GroupScope;
 };
 
-export const GetConfigurationSchema = z.object({
-  customColumns: z.array(CustomColumnDtoSchema),
-  filterableFields: z.array(FilterableFieldSchema),
-  sortableFields: z.array(SortableFieldDescriptorSchema),
-});
-
 export const GetResultSchema = z.object({
-  customColumns: z.array(CustomColumnDtoSchema).optional(),
   filters: z.array(FilterSchema).optional(),
   searchTerm: z.string().optional(),
   sortDescriptor: SortDescriptorSchema.optional(),
@@ -193,7 +185,6 @@ export function createApiGetResultSchema<T extends z.ZodSchema>(itemSchema: T) {
   return z.object({
     p13nId: z.string().optional(),
     items: z.array(itemSchema),
-    customColumns: z.array(z.any()).optional(),
     filters: z.array(z.any()).optional(),
     searchTerm: z.string().nullish(),
     sortDescriptor: z.any().optional(),

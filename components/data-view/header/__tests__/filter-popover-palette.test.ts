@@ -56,7 +56,7 @@ const CUSTOM_COLUMNS = [
 
 function dataViewStore(filters: Filter[] = [], filterableFields = [{ field: "name", operators: ["contains"] }]) {
   return {
-    customColumns: CUSTOM_COLUMNS,
+    filterColumns: CUSTOM_COLUMNS,
     filterableFields,
     filters,
   } as unknown as BaseDataViewStore<{ id: string }>;

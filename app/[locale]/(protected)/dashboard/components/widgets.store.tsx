@@ -63,7 +63,6 @@ export class WidgetsStore extends BaseDataViewStore<WidgetDto> {
         this.layoutReceipts.delete(widget.id);
         return widget;
       }),
-      customColumns: args.customColumns ?? this.customColumns,
     });
     this.rebuildLayouts();
   }

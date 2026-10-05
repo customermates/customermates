@@ -2,7 +2,6 @@ import type { SortableField } from "@/core/base/base-query-builder";
 import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
 import type { DataViewConfigurationRepo } from "./data-view-configuration.repo";
 import type { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
-import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
 import type { Validated } from "@/core/validation/validation.utils";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
@@ -154,14 +153,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
         const description = filterFieldAgentNote(field.field);
         return { ...field, ...(values ? { values } : {}), ...(description ? { description } : {}) };
       });
-      const sortableFields = [
-        ...config.sortableFields.map(({ field }) => ({ field })),
-        ...config.customColumns.map(({ id, label, type }) => ({
-          field: id,
-          label,
-          columnType: type,
-        })),
-      ];
+      const sortableFields = [...config.sortableFields.map(({ field }) => ({ field }))];
       const groupableFields = config.groupableDtos;
       const totals = {
         filters: filterableFields.length,
@@ -453,7 +445,6 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
           field,
         }));
       return {
-        customColumns: [] satisfies CustomColumnDto[],
         filterableFields: recordFilterableFields(fields),
         filterValues: new Map(
           fields
@@ -495,7 +486,6 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
     if (surfaceKey === SURFACE.entityTimeline) {
       const types = (await this.recordViews?.list()) ?? [];
       return {
-        customColumns: [] satisfies CustomColumnDto[],
         filterableFields: activityViewFilterableFields(types),
         sortableFields: [{ field: "at", resolvedFields: ["at"] }] as SortableField[],
         groupableFields: [] as GroupableFieldSpec[],
@@ -507,22 +497,15 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
       };
     }
     const source = this.sources[surfaceKey];
-    const [customColumns, filterableFields] = await Promise.all([
-      source.getCustomColumns(),
-      source.getFilterableFields(),
-    ]);
-    const groupableFields = await source.getGroupableFields(customColumns);
+    const filterableFields = await source.getFilterableFields();
+    const groupableFields = await source.getGroupableFields();
     return {
-      customColumns,
       filterableFields,
       sortableFields: source.getSortableFields(),
       groupableFields,
       groupableDtos: groupableFieldDtos(groupableFields),
       filterValues: undefined,
-      appearance: [
-        ...source.getSortableFields().map(({ field }) => ({ id: field, field })),
-        ...customColumns.map(({ id, label, type }) => ({ id, field: id, label, columnType: type })),
-      ],
+      appearance: [...source.getSortableFields().map(({ field }) => ({ id: field, field }))],
       supportsSearch: source.getSearchableFields().length > 0,
       viewModes: groupableFields.length > 0 ? [ViewMode.table, ViewMode.card] : [ViewMode.table],
     };

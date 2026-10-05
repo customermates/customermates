@@ -1,6 +1,5 @@
 import type { GroupAxis, GroupCountRow, ResolvedGrouping } from "@/core/base/grouping/group-axis";
 import type { DataViewGroup, GroupPageRequest, Grouping, GroupingResult } from "@/core/base/grouping/grouping.schema";
-import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
 import type { DataViewChipDto, DataViewState } from "@/core/data-view/data-view-state.schema";
 import type {
@@ -39,7 +38,6 @@ import type { ViewMode } from "./base-query-builder";
 export interface GetResult<T> {
   p13nId?: string;
   items: T[];
-  customColumns?: CustomColumnDto[];
   filters?: Filter[];
   searchTerm?: string;
   sortDescriptor?: SortDescriptor;
@@ -114,10 +112,7 @@ export abstract class BaseGetInteractor<T> {
     const pageSize = resolved.pageSize;
     const pagination: PaginationRequest = { page, pageSize };
 
-    const [filterableFields, customColumns] = await Promise.all([
-      this.repo.filterableFieldsOnce(),
-      this.repo.customColumnsOnce(),
-    ]);
+    const filterableFields = await this.repo.filterableFieldsOnce();
     const sortableFields = this.repo.getSortableFields();
     const requestedFilters = acceptSingleValueEquals(
       resolved.filters,
@@ -134,7 +129,6 @@ export abstract class BaseGetInteractor<T> {
           precheck.invoke(
             {
               filterableFields: this.queryParamsPrecheckFilterableFields ?? filterableFields,
-              customColumns,
               sortableFields,
             },
             data,
@@ -152,7 +146,6 @@ export abstract class BaseGetInteractor<T> {
       this.repo.validateSortDescriptor({
         sortDescriptor: candidate ?? undefined,
         sortableFields,
-        customColumns,
       });
     const sortDescriptor =
       validSort(resolved.sortDescriptor) ??
@@ -165,7 +158,7 @@ export abstract class BaseGetInteractor<T> {
       sortDescriptor,
     };
     const requested = normaliseGroupingRequest(params, resolved);
-    const groupableSpecs = await this.repo.getGroupableFields(customColumns);
+    const groupableSpecs = await this.repo.getGroupableFields();
     const resolvedGrouping = resolveGrouping(requested.grouping, groupableSpecs);
 
     const { items, total, grouping, groupCounts } = resolvedGrouping
@@ -180,7 +173,6 @@ export abstract class BaseGetInteractor<T> {
         filters,
         searchTerm: resolved.searchTerm,
         sortDescriptor,
-        customColumns,
         filterableFields,
         ...(grouping ? { grouping } : {}),
         ...(groupableSpecs.length > 0 ? { groupableFields: groupableFieldDtos(groupableSpecs) } : {}),

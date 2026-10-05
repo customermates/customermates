@@ -18,7 +18,6 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 
 type StrictFields = {
   filterableFields: FilterableField[];
-  customColumns: { id: string }[];
   sortableFields: SortableField[];
 };
 
@@ -34,7 +33,7 @@ export class QueryParamsPrecheckInteractor {
     data: { filters?: Filter[]; sortDescriptor?: SortDescriptor },
     ctx: z.RefinementCtx,
   ) {
-    const { filterableFields, customColumns, sortableFields } = fields;
+    const { filterableFields, sortableFields } = fields;
 
     if (data.filters) {
       await Promise.all(
@@ -82,15 +81,12 @@ export class QueryParamsPrecheckInteractor {
     }
 
     if (data.sortDescriptor) {
-      const isStaticField = sortableFields.some((f) => f.field === data.sortDescriptor?.field);
-      const isCustomColumn = customColumns.some((c) => c.id === data.sortDescriptor?.field);
-
-      if (!isStaticField && !isCustomColumn) {
+      if (!sortableFields.some((f) => f.field === data.sortDescriptor?.field)) {
         ctx.addIssue({
           code: "custom",
           params: {
             error: CustomErrorCode.invalidSortField,
-            validValues: [...sortableFields.map((f) => f.field), ...customColumns.map((c) => c.id)].join(", "),
+            validValues: sortableFields.map((f) => f.field).join(", "),
           },
           path: ["sortDescriptor", "field"],
         });

@@ -6,7 +6,6 @@ import type {
   SortDescriptor,
 } from "@/core/base/base-get.schema";
 import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
-import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 
 import { startOfDay, subDays } from "date-fns";
 
@@ -86,24 +85,14 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
     return Promise.resolve([]);
   }
 
-  getCustomColumns(): Promise<Array<CustomColumnDto>> {
-    return Promise.resolve([]);
-  }
-
-  private memoCustomColumns?: Promise<Array<CustomColumnDto>>;
   private memoFilterableFields?: Promise<Array<FilterableField>>;
-
-  customColumnsOnce(): Promise<Array<CustomColumnDto>> {
-    this.memoCustomColumns ??= this.getCustomColumns();
-    return this.memoCustomColumns;
-  }
 
   filterableFieldsOnce(): Promise<Array<FilterableField>> {
     this.memoFilterableFields ??= this.getFilterableFields();
     return this.memoFilterableFields;
   }
 
-  getGroupableFields(_customColumns?: readonly CustomColumnDto[]): Promise<Array<GroupableFieldSpec>> {
+  getGroupableFields(): Promise<Array<GroupableFieldSpec>> {
     return Promise.resolve([]);
   }
 
@@ -140,9 +129,8 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
   validateSortDescriptor(args: {
     sortDescriptor: SortDescriptor | undefined;
     sortableFields: SortableField[];
-    customColumns?: CustomColumnDto[];
   }): SortDescriptor | undefined {
-    const { sortDescriptor, sortableFields, customColumns = [] } = args;
+    const { sortDescriptor, sortableFields } = args;
     if (!sortDescriptor || typeof sortDescriptor !== "object") return undefined;
     if (!sortDescriptor.field || typeof sortDescriptor.field !== "string") return undefined;
     if (!sortDescriptor.direction || typeof sortDescriptor.direction !== "string") return undefined;
@@ -150,8 +138,6 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
     const validDirections = ["asc", "desc"];
     const isValidDirection = validDirections.includes(sortDescriptor.direction);
     if (!isValidDirection) return undefined;
-
-    if (customColumns.some((c) => c.id === sortDescriptor.field)) return sortDescriptor;
 
     const matched = sortableFields.find((s) => s.field === sortDescriptor.field);
     return matched ? sortDescriptor : undefined;

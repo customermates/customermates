@@ -1,5 +1,4 @@
 import type { SortableField, SearchableField } from "./base-query-builder";
-import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 import type { FilterableField, Filter, GetQueryParams, SortDescriptor } from "./base-get.schema";
 import type { DateBucket } from "@/core/base/grouping/grouping.schema";
 import type { GroupCountRow, GroupLabel } from "@/core/base/grouping/group-axis";
@@ -11,14 +10,10 @@ export abstract class BaseGetRepo<T> {
   abstract getSortableFields(): SortableField[];
   abstract getSearchableFields(): SearchableField[];
   abstract getFilterableFields(): Promise<FilterableField[]>;
-  abstract getCustomColumns(): Promise<CustomColumnDto[]>;
-  customColumnsOnce(): Promise<CustomColumnDto[]> {
-    return this.getCustomColumns();
-  }
   filterableFieldsOnce(): Promise<FilterableField[]> {
     return this.getFilterableFields();
   }
-  getGroupableFields(_customColumns?: readonly CustomColumnDto[]): Promise<GroupableFieldSpec[]> {
+  getGroupableFields(): Promise<GroupableFieldSpec[]> {
     return Promise.resolve([]);
   }
   countByGroup?(args: {
@@ -35,6 +30,5 @@ export abstract class BaseGetRepo<T> {
   abstract validateSortDescriptor(args: {
     sortDescriptor: SortDescriptor | undefined;
     sortableFields: SortableField[];
-    customColumns?: CustomColumnDto[];
   }): SortDescriptor | undefined;
 }

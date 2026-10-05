@@ -1,7 +1,7 @@
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type { GroupableFieldDto } from "@/core/base/grouping/groupable-field";
 import type { GroupPageRequest, Grouping, GroupingResult } from "@/core/base/grouping/grouping.schema";
-import type { ColumnPresentation, CustomColumnDto } from "@/core/data-view/column-presentation.schema";
+import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
 import type { DataViewSurfaceKey } from "@/core/data-view/data-view-keys";
 import type { DataViewChipDto, DataViewState } from "@/core/data-view/data-view-state.schema";
 import type { ObservableSet } from "mobx";
@@ -50,7 +50,6 @@ type SelectionScope = { filters: Filter[]; searchTerm: string | null };
 
 export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore {
   items: Entity[] = [];
-  customColumns: CustomColumnDto[] = [];
 
   searchTerm: string | undefined;
   pagination: (PaginationRequest & { totalPages?: number; total?: number }) | undefined;
@@ -129,7 +128,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       isReady: computed,
 
       items: observable,
-      customColumns: observable,
 
       searchTerm: observable,
       filters: observable,
@@ -186,7 +184,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       upsertItemLocal: action,
       removeItem: action,
       registerOnChange: action,
-      setCustomColumns: action,
       executeOnChanges: action,
       setItems: action,
       setSelectedIds: action,
@@ -218,7 +215,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   }
 
   get filterColumns(): ColumnPresentation[] {
-    return this.customColumns;
+    return [];
   }
 
   get canBoard(): boolean {
@@ -414,7 +411,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
     this.requestGeneration += 1;
     this.items = args.items;
-    this.customColumns = args.customColumns ?? [];
     this.p13nId = args.p13nId;
     this.filterableFields = args.filterableFields || [];
     this.searchTerm = args.searchTerm;
@@ -911,10 +907,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       const index = this.onChangesCallbacks.indexOf(callback);
       if (index > -1) this.onChangesCallbacks.splice(index, 1);
     };
-  };
-
-  setCustomColumns = (customColumns: CustomColumnDto[]) => {
-    this.customColumns = customColumns;
   };
 
   executeOnChanges = async () => {

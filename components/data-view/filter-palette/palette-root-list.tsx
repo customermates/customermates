@@ -49,7 +49,7 @@ export const PaletteRootList = observer(function PaletteRootList({
 
           <div className="flex flex-wrap gap-1.5 px-2 pb-2">
             {filters.map((filter, index) => {
-              const label = fieldLabel(filter.field, store.filterColumns ?? store.customColumns);
+              const label = fieldLabel(filter.field, store.filterColumns);
               const operator = operatorLabel(filter.operator as FilterOperatorKey);
 
               return (
@@ -77,7 +77,7 @@ export const PaletteRootList = observer(function PaletteRootList({
                 >
                   <span className="truncate text-[11px]">
                     <FilterChipValue
-                      customColumns={store.filterColumns ?? store.customColumns}
+                      customColumns={store.filterColumns}
                       filter={filter}
                       label={label}
                       operator={operator}
@@ -95,7 +95,7 @@ export const PaletteRootList = observer(function PaletteRootList({
 
         <CommandGroup className={PALETTE_GROUP_CLASS} heading={t("Common.filters.palette.fieldsGroup")}>
           {store.filterableFields.map((field, index) => {
-            const label = fieldLabel(field.field, store.filterColumns ?? store.customColumns);
+            const label = fieldLabel(field.field, store.filterColumns);
             const applied = appliedPerField.get(field.field) ?? 0;
 
             return (
