@@ -60,10 +60,10 @@ test("opens upgraded records with persisted values, totals and links", async ({
   await expect(page.getByRole("button", { name: "Synthetic deal", exact: true })).toHaveCount(2);
   await page.getByRole("button", { name: "Synthetic deal", exact: true }).first().click();
   const drawer = page.getByRole("dialog", { name: "Deal", exact: true });
-  await expect(drawer.locator(`[data-summary-field="${presetId(companyId, "deal.name")}"]`)).toContainText(
-    "Synthetic deal",
-  );
-  await expect(drawer.getByText("€2,600.00", { exact: true })).toBeVisible();
+  await expect(drawer.getByRole("heading", { name: "Synthetic deal", exact: true })).toBeVisible();
+  await expect(drawer.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Synthetic deal");
+  await expect(drawer.getByRole("textbox", { name: "Value", exact: true })).toHaveText("€2,600.00");
+  await expect(drawer.getByRole("textbox", { name: "Weighted value", exact: true })).toHaveText("€1,560.00");
   await drawer.getByRole("textbox", { name: "Name", exact: false }).fill("Migrated deal edited");
   await drawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(drawer).not.toBeVisible();
