@@ -400,3 +400,39 @@ describe("unauthenticatedRedirectForAccountState", () => {
     });
   });
 });
+
+describe("RouteGuardService.resolveMcpConsentState", () => {
+  async function consentState() {
+    const service = makeService();
+    return service.resolveMcpConsentState(await service.resolveAccountState());
+  }
+
+  it("keeps an incomplete administrator with a current workspace in onboarding", async () => {
+    mocks.findCurrentUserUnscoped.mockResolvedValue(user({ onboardingWizardCompletedAt: null }));
+
+    expect(await consentState()).toBe("onboarding");
+  });
+
+  it("keeps a pending legal update blocking consent during onboarding", async () => {
+    mocks.findCurrentUserUnscoped.mockResolvedValue(user({ onboardingWizardCompletedAt: null }));
+    mocks.getLegalStatus.mockResolvedValue({ mustAccept: true });
+
+    expect(await consentState()).toBe("legal");
+  });
+
+  it("keeps an expired subscription blocking consent during onboarding", async () => {
+    mocks.findCurrentUserUnscoped.mockResolvedValue(user({ onboardingWizardCompletedAt: null }));
+    mocks.getSubscriptionOrThrowUnscoped.mockResolvedValue(subscription(SubscriptionStatus.trial, PAST));
+
+    expect(await consentState()).toBe("subscription");
+  });
+
+  it("passes every other state through without further checks", async () => {
+    const service = makeService();
+    for (const state of ["allowed", "pending", "legal", "subscription", "unregistered"] as const)
+      expect(await service.resolveMcpConsentState({ state, user: user() } as never)).toBe(state);
+
+    expect(mocks.getLegalStatus).not.toHaveBeenCalled();
+    expect(mocks.getSubscriptionOrThrowUnscoped).not.toHaveBeenCalled();
+  });
+});
