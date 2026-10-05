@@ -28,9 +28,9 @@ describe("manage_routines trigger events", () => {
     expect(shape.triggerEvents.safeParse(["record.updated"]).success).toBe(true);
   });
 
-  it("describes watched fields as field IDs of the subscribed record type", () => {
-    expect(shape.changedFields.description).toContain("field IDs of the subscribed record type");
-    expect(shape.changedFields.description).not.toMatch(/custom-column/);
+  it("takes watched fields only as field IDs on the record trigger", () => {
+    expect("changedFields" in shape).toBe(false);
+    expect(shape.recordTrigger.description).toContain("watched field IDs");
     expect(shape.recordTrigger.description).not.toMatch(/retired entity events/);
   });
 });

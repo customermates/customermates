@@ -484,14 +484,13 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
     expect(
       await rows(
         client,
-        'SELECT enabled, "triggerEvents", "changedFields", "triggerFilters", "disabledReason" FROM "Routine" WHERE id=$1',
+        'SELECT enabled, "triggerEvents", "triggerFilters", "disabledReason" FROM "Routine" WHERE id=$1',
         [f.routine],
       ),
     ).toEqual([
       {
         enabled: false,
         triggerEvents: ["messaging.message.received"],
-        changedFields: [],
         triggerFilters: [],
         disabledReason: null,
       },
@@ -523,6 +522,12 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
       ]),
     ).toEqual([]);
     expect(await rows(client, "SELECT nspname FROM pg_namespace WHERE nspname = 'crm_upgrade'")).toEqual([]);
+    expect(
+      await rows(
+        client,
+        "SELECT column_name FROM information_schema.columns WHERE table_name = 'Routine' AND column_name = 'changedFields'",
+      ),
+    ).toEqual([]);
   });
 
   it("converts columns without options and empty notes, and keeps scheduled routines running", async () => {
@@ -534,14 +539,13 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
     expect(
       await rows(
         client,
-        'SELECT enabled, "triggerEvents", "changedFields", "triggerFilters", "cronExpression" FROM "Routine" WHERE id=$1',
+        'SELECT enabled, "triggerEvents", "triggerFilters", "cronExpression" FROM "Routine" WHERE id=$1',
         [empty.scheduled],
       ),
     ).toEqual([
       {
         enabled: true,
         triggerEvents: ["messaging.message.received"],
-        changedFields: [],
         triggerFilters: [],
         cronExpression: "0 9 * * *",
       },
@@ -728,19 +732,12 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
     });
     await applyConfigurableRecordsMigration(client);
     expect(
-      await rows(
-        client,
-        'SELECT id, enabled, "triggerEvents", "changedFields" FROM "Routine" WHERE id = ANY($1) ORDER BY name',
-        [[messaging, orphaned]],
-      ),
+      await rows(client, 'SELECT id, enabled, "triggerEvents" FROM "Routine" WHERE id = ANY($1) ORDER BY name', [
+        [messaging, orphaned],
+      ]),
     ).toEqual([
-      {
-        id: messaging,
-        enabled: false,
-        triggerEvents: ["messaging.message.received"],
-        changedFields: ["subject"],
-      },
-      { id: orphaned, enabled: false, triggerEvents: [], changedFields: [] },
+      { id: messaging, enabled: false, triggerEvents: ["messaging.message.received"] },
+      { id: orphaned, enabled: false, triggerEvents: [] },
     ]);
     expect(await rows(client, 'SELECT events, enabled FROM "Webhook" WHERE id=$1', [quiet.id])).toEqual([
       { events: [], enabled: false },

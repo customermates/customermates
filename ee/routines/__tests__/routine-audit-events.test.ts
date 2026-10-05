@@ -76,7 +76,6 @@ function routine(overrides: Partial<RoutineDto> = {}): RoutineDto {
     cronExpression: "0 9 * * *",
     timezone: "Europe/Berlin",
     triggerEvents: [],
-    changedFields: [],
     triggerFilters: [],
     debounceSeconds: 300,
     nextRunAt: null,

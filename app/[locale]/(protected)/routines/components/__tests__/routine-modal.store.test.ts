@@ -55,7 +55,6 @@ function makeRoutine(overrides: Partial<RoutineDto> = {}): RoutineDto {
     cronExpression: "0 9 * * *",
     timezone: "Europe/Berlin",
     triggerEvents: [],
-    changedFields: [],
     triggerFilters: [],
     ...overrides,
   } as unknown as RoutineDto;
@@ -393,7 +392,6 @@ describe("RoutineModalStore", () => {
       relationships: [],
     });
     expect(store.payload.triggerFilters).toEqual([]);
-    expect(store.payload.changedFields).toEqual([]);
   });
 
   it("refreshes the configured record metadata whenever the editor is opened", async () => {

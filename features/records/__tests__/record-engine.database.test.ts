@@ -15139,7 +15139,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(post).toHaveBeenCalledTimes(1);
     expect(await f.run(() => resend.invoke({ id: delivery.id }))).toMatchObject({ ok: false });
   });
-  it("admits record routines by their subscription fields and ignores legacy changed-field names", async () => {
+  it("admits record routines by their subscription fields", async () => {
     const f = await fixture();
     await f.run(() =>
       prisma.subscription.create({ data: { companyId: f.company.id, status: "active", plan: "enterprise" } }),
@@ -15160,12 +15160,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     if (!created.ok) throw new Error("Routine creation failed");
     const routineId = created.data.id;
-    await f.run(() =>
-      prisma.routine.updateMany({
-        where: { companyId: f.company.id, id: routineId },
-        data: { changedFields: ["amount"] },
-      }),
-    );
     const service = await f.create("service", "Watched price", [["service.amount", decimal("5")]]);
     expect(await f.update(service, [["service.amount", decimal("7")]])).toMatchObject({ ok: true });
     const match = recordInvariant(

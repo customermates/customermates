@@ -2329,15 +2329,14 @@ DELETE FROM "AuditLog" WHERE event ~ '^(contact|organization|deal|service|task|c
 
 -- Automations: every webhook and every event-triggered routine is disabled; scheduled routines keep their
 -- schedule and enabled state. Legacy record events are removed from every webhook and routine, together with
--- the watched fields and filters of those events, and from the trigger of past routine runs. Nothing
--- subscribes to generic record events.
+-- the filters of those events, and from the trigger of past routine runs. Section 7 drops the watched fields of
+-- every routine. Nothing subscribes to generic record events.
 UPDATE "Webhook" SET enabled = false,
   events = ARRAY(SELECT e.event FROM unnest(events) WITH ORDINALITY AS e(event, ordinality)
     WHERE e.event !~ '^(contact|organization|deal|service|task)\.' ORDER BY e.ordinality);
 UPDATE "Routine" SET enabled = enabled AND "triggerKind"::text <> 'event',
   "triggerEvents" = ARRAY(SELECT e.event FROM unnest("triggerEvents") WITH ORDINALITY AS e(event, ordinality)
     WHERE e.event !~ '^(contact|organization|deal|service|task)\.' ORDER BY e.ordinality),
-  "changedFields" = CASE WHEN legacy.events THEN ARRAY[]::text[] ELSE "changedFields" END,
   "triggerFilters" = CASE WHEN legacy.events THEN '[]'::jsonb ELSE "triggerFilters" END
 FROM (SELECT r.id, EXISTS (SELECT 1 FROM unnest(r."triggerEvents") AS e(event) WHERE e.event ~ '^(contact|organization|deal|service|task)\.') AS events
   FROM "Routine" r) AS legacy
@@ -2824,6 +2823,7 @@ $$;
 -- =============================================================================================
 
 ALTER TABLE "Company" DROP COLUMN "dealWeightingColumnId";
+ALTER TABLE "Routine" DROP COLUMN "changedFields";
 DROP TABLE "Contact", "Organization", "Deal", "Service", "Task", "CustomColumn", "CustomFieldValue", "ContactIdentifier", "ServiceDeal",
   "ServiceUser", "DealOrganization", "DealUser", "DealContact", "ContactUser", "OrganizationUser", "TaskUser", "TaskContact",
   "TaskOrganization", "TaskDeal", "TaskService", "ContactOrganization", "EntityTerminology";

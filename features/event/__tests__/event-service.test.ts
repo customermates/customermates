@@ -265,7 +265,6 @@ describe("EventService routine triggers", () => {
     return {
       id: ROUTINE_ID,
       ownerUserId: mockUser.id,
-      changedFields: [],
       triggerFilters: [],
       updatedAt: UPDATED_AT,
       ...overrides,

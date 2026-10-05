@@ -240,7 +240,6 @@ function routineFixture(overrides: Record<string, unknown> = {}) {
     cronExpression: "0 9 * * *",
     timezone: "UTC",
     triggerEvents: [],
-    changedFields: [],
     triggerFilters: [],
     debounceSeconds: 300,
     nextRunAt: null,

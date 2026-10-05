@@ -684,7 +684,6 @@ export async function seedRoutines(context: SeedContext): Promise<void> {
       cronExpression: schedule?.cron ?? null,
       timezone: schedule ? ROUTINE_TIMEZONE : null,
       triggerEvents: event?.events ?? [],
-      changedFields: [],
       triggerFilters: undefined,
       debounceSeconds: event?.debounceSeconds ?? 300,
       nextRunAt: schedule && routine.enabled ? nextScheduledRun(schedule.cron) : null,
