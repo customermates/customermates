@@ -44,13 +44,18 @@ const InviteLink = observer(() => {
 
 export const StepInvite = observer(() => {
   const t = useTranslations();
+  const { onboardingWizardStore } = useRootStore();
 
   return (
-    <Tabs className="w-full" defaultValue="link">
+    <Tabs className="w-full" value={onboardingWizardStore.inviteTab} onValueChange={onboardingWizardStore.setInviteTab}>
       <TabsList variant="line">
-        <TabsTrigger value="link">{t("OnboardingWizard.invite.tabs.link")}</TabsTrigger>
+        <TabsTrigger disabled={onboardingWizardStore.isSaving} value="link">
+          {t("OnboardingWizard.invite.tabs.link")}
+        </TabsTrigger>
 
-        <TabsTrigger value="email">{t("OnboardingWizard.invite.tabs.email")}</TabsTrigger>
+        <TabsTrigger disabled={onboardingWizardStore.isSaving} value="email">
+          {t("OnboardingWizard.invite.tabs.email")}
+        </TabsTrigger>
       </TabsList>
 
       <TabsContent className="mt-3" value="link">

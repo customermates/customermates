@@ -26,6 +26,7 @@ type Props = {
   baseUrl: string;
   expiresAt: Date | null;
   hasError: boolean;
+  hasSavedApiKey?: boolean;
   isCreating: boolean;
   nested?: boolean;
   resultHeadingRef: Ref<HTMLHeadingElement>;
@@ -38,6 +39,7 @@ export function AiConnectionApiKeySetup({
   baseUrl,
   expiresAt,
   hasError,
+  hasSavedApiKey = false,
   isCreating,
   nested = false,
   resultHeadingRef,
@@ -55,6 +57,12 @@ export function AiConnectionApiKeySetup({
   if (!apiKey) {
     return (
       <div className="flex flex-col gap-2">
+        {hasSavedApiKey ? (
+          <p className="text-xs text-muted-foreground" role="status">
+            {t("OnboardingWizard.ai.savedKey")}
+          </p>
+        ) : null}
+
         <Button
           aria-busy={isCreating}
           aria-describedby={`${actionDescriptionId}${hasError ? ` ${errorId}` : ""}`}

@@ -33,7 +33,7 @@ export const StepWiki = observer(({ canSetupWithMate, initialState }: Props) => 
         toastZodErrorTree(result.error);
         return;
       }
-      if (onboardingWizardStore.currentStep === "wiki") onboardingWizardStore.next();
+      if (onboardingWizardStore.currentStep === "wiki") await onboardingWizardStore.next();
     } finally {
       completing.current = false;
       onboardingWizardStore.setIsSubmitting(false);

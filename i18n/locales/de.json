@@ -3042,6 +3042,7 @@
       "providers": {
         "ariaLabel": "KI-Clients"
       },
+      "savedKey": "Du hast bereits einen API-Schlüssel für diese Einrichtung erstellt. Du kannst das Onboarding abschließen. Wenn du den Schlüsselwert erneut benötigst, erstelle einen neuen Schlüssel.",
       "screen": {
         "back": "Alle KI-Clients",
         "claude": {

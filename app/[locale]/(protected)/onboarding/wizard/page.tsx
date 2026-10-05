@@ -8,8 +8,13 @@ import { CenteredCardPage } from "@/components/shared/centered-card-page";
 import { ONBOARDING_INTENT_QUERY_PARAM, onboardingIntentAuthRedirects } from "@/features/company/onboarding-intent-url";
 import { resolveOnboardingIntent } from "@/features/company/next/onboarding-intent";
 import { buildLocalePath } from "@/i18n/locale-registry";
-import { getEntitlementService, getGetWikiHomepageSetupStateInteractor } from "@/core/di";
+import {
+  getEntitlementService,
+  getGetOnboardingWizardProgressInteractor,
+  getGetWikiHomepageSetupStateInteractor,
+} from "@/core/di";
 import { runWithTenant } from "@/core/decorators/tenant-context";
+import { isRedirect } from "@/features/auth/auth-outcome";
 import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
 
 type Props = {
@@ -72,6 +77,8 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
       : sessionName.slice(0, spaceIndex);
   const sessionLastName = isEmail ? undefined : spaceIndex === -1 ? undefined : sessionName.slice(spaceIndex + 1);
   const sessionAvatarUrl = sessionUser.image?.startsWith("https:") ? sessionUser.image : "";
+  const savedProgress = user?.role?.isSystemRole ? await getGetOnboardingWizardProgressInteractor().invoke() : null;
+  if (savedProgress && isRedirect(savedProgress)) redirect(buildLocalePath(await getLocale(), savedProgress.redirect));
 
   return (
     <CenteredCardPage>
@@ -81,10 +88,12 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
         isInvited={isInvited}
         onboardingIntent={effectiveIntent?.intent}
         profileCompleted={Boolean(user)}
+        savedProgress={savedProgress?.data}
         sessionAvatarUrl={sessionAvatarUrl}
         sessionEmail={sessionUser.email}
         sessionFirstName={sessionFirstName}
         sessionLastName={sessionLastName}
+        userId={user?.role?.isSystemRole ? user.id : undefined}
         wikiSetupState={wikiSetupState}
         wikiStepCompleted={wikiStepCompleted}
       />

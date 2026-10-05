@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
   getWikiHomepageSetupState: vi.fn(),
   requireAccountState: vi.fn(),
   resolveOnboardingIntent: vi.fn(),
+  getProgress: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({
@@ -20,6 +21,7 @@ vi.mock("@/features/auth/next/require", () => ({
 }));
 vi.mock("@/core/di", () => ({
   getEntitlementService: () => ({ require: mocks.requireAgentEntitlement }),
+  getGetOnboardingWizardProgressInteractor: () => ({ invoke: mocks.getProgress }),
   getGetWikiHomepageSetupStateInteractor: () => ({
     invoke: mocks.getWikiHomepageSetupState,
   }),
@@ -50,6 +52,42 @@ describe("OnboardingWizardPage authentication detours", () => {
       },
     });
     mocks.requireAgentEntitlement.mockResolvedValue(null);
+    mocks.getProgress.mockResolvedValue({ ok: true, data: { step: "invite", inviteTab: "link" } });
+  });
+
+  it("passes the saved AI setup and owner identity to a fresh wizard render", async () => {
+    const progress = { step: "ai", inviteTab: "email", ai: { route: { screen: "claude" }, claudeMethod: "account" } };
+    mocks.resolveOnboardingIntent.mockResolvedValue({ status: "absent" });
+    mocks.requireAccountState.mockResolvedValue({
+      sessionUser: { id: "auth-a" },
+      user: {
+        id: "owner-a",
+        companyId: "company-a",
+        role: { isSystemRole: true },
+        onboardingWikiStepCompletedAt: new Date(),
+      },
+    });
+    mocks.getProgress.mockResolvedValue({ ok: true, data: progress });
+
+    const page = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
+    expect(page.props.children.props).toMatchObject({
+      savedProgress: progress,
+      userId: "owner-a",
+      profileCompleted: true,
+    });
+  });
+
+  it("neither reads nor writes saved progress for a registered member without a system role", async () => {
+    mocks.resolveOnboardingIntent.mockResolvedValue({ status: "absent" });
+    mocks.requireAccountState.mockResolvedValue({
+      sessionUser: { id: "auth-b", companyId: "company-a" },
+      user: { id: "member-b", companyId: "company-a", role: { isSystemRole: false } },
+    });
+
+    const page = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
+
+    expect(mocks.getProgress).not.toHaveBeenCalled();
+    expect(page.props.children.props).toMatchObject({ userId: undefined, savedProgress: undefined });
   });
 
   it.each([

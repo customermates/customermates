@@ -3042,6 +3042,7 @@
       "providers": {
         "ariaLabel": "Clients d’IA"
       },
+      "savedKey": "Vous avez déjà créé une clé API pour cette configuration. Vous pouvez terminer la configuration initiale. Si vous avez besoin de sa valeur à nouveau, créez une nouvelle clé.",
       "screen": {
         "back": "Tous les clients d’IA",
         "claude": {

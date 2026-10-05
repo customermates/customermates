@@ -8,6 +8,8 @@ import type { UpdateUserDetailsRepo } from "@/features/user/upsert/update-user-d
 import type { AdminUpdateUserDetailsRepo } from "@/features/user/upsert/admin-update-user-details.interactor";
 import type { GetUserByIdRepo } from "@/features/user/get/get-user-by-id.interactor";
 import type { CompleteOnboardingWizardRepo } from "@/features/onboarding-wizard/complete-onboarding-wizard.interactor";
+import type { GetOnboardingWizardProgressRepo } from "@/features/onboarding-wizard/get-onboarding-wizard-progress.repo";
+import type { SaveOnboardingWizardProgressRepo } from "@/features/onboarding-wizard/save-onboarding-wizard-progress.repo";
 import type { CompleteOnboardingWikiStepRepo } from "@/features/onboarding-wizard/complete-onboarding-wiki-step.repo";
 import type { SendWelcomeAndDemoActionRepo } from "@/ee/lifecycle/send-welcome-and-demo.interactor";
 import type { DeleteAccountsForPlanUserRepo } from "@/ee/messaging/connect/delete-accounts-for-plan.interactor";
@@ -99,6 +101,8 @@ export class PrismaUserRepo
     DeleteAccountsForPlanUserRepo,
     CountActiveUsersRepo,
     CompleteOnboardingWizardRepo,
+    GetOnboardingWizardProgressRepo,
+    SaveOnboardingWizardProgressRepo,
     CompleteOnboardingWikiStepRepo,
     WebhookUserRepo,
     SendLegalDocumentNoticesRepo,
@@ -278,6 +282,31 @@ export class PrismaUserRepo
       data: { onboardingWizardCompletedAt: new Date() },
       where: { id: args.userId, companyId },
     });
+  }
+
+  async findOnboardingWizardProgressOrThrow() {
+    const { id, companyId } = this.user;
+    const user = await this.prisma.user.findUniqueOrThrow({
+      where: { id, companyId },
+      select: { onboardingWizardProgress: true },
+    });
+    return user.onboardingWizardProgress;
+  }
+
+  async saveOnboardingWizardProgress(
+    progress: RepoArgs<SaveOnboardingWizardProgressRepo, "saveOnboardingWizardProgress">,
+  ) {
+    const { id, companyId } = this.user;
+    const result = await this.prisma.user.updateMany({
+      where: {
+        id,
+        companyId,
+        status: Status.active,
+        onboardingWizardCompletedAt: null,
+      },
+      data: { onboardingWizardProgress: progress },
+    });
+    return result.count === 1;
   }
 
   async markOnboardingWikiStepCompleted(

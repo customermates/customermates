@@ -4,6 +4,7 @@ import type { Redirect } from "./auth-outcome";
 import type { TenantUser } from "@/features/user/user.schema";
 import type { GetLegalStatusInteractor, LegalUpdateStatus } from "@/features/legal/get-legal-status.interactor";
 import type { AccountState } from "./account-state";
+import type { RouteGuardCompanyRepo } from "./route-guard-company.repo";
 
 import { Action, Status } from "@/generated/prisma";
 
@@ -20,11 +21,6 @@ const READ_ACTIONS: readonly Action[] = [Action.readOwn, Action.readAll];
 export type AccessOptions = {
   resource?: Resource;
 };
-
-export abstract class RouteGuardCompanyRepo {
-  abstract existsUnscoped(companyId: string): Promise<boolean>;
-  abstract getSubscriptionOrThrowUnscoped(companyId: string): Promise<Subscription>;
-}
 
 export type AccountStateResolution = {
   state: AccountState;
@@ -144,18 +140,33 @@ export class RouteGuardService {
     }
     if (user.role?.isSystemRole && user.onboardingWizardCompletedAt == null) return { state: "onboarding", ...base };
 
+    return { ...base, ...(await this.resolveCommercialState(user)) };
+  }
+
+  async resolveMcpConsentState(resolution: AccountStateResolution): Promise<AccountState> {
+    if (resolution.state !== "onboarding" || !resolution.user) return resolution.state;
+
+    const { state } = await this.resolveCommercialState(resolution.user);
+    return state === "allowed" ? "onboarding" : state;
+  }
+
+  private async resolveCommercialState(user: TenantUser): Promise<{
+    state: Extract<AccountState, "legal" | "subscription" | "allowed">;
+    legalStatus: LegalUpdateStatus | null;
+    subscription: Subscription | null;
+  }> {
     let legalStatus: LegalUpdateStatus | null = null;
     if (env.APP_MODE === "cloud") {
       legalStatus = await this.getLegalStatusInteractor.invoke();
-      if (legalStatus.mustAccept) return { state: "legal", ...base, legalStatus };
+      if (legalStatus.mustAccept) return { state: "legal", legalStatus, subscription: null };
     }
 
     let subscription: Subscription | null = null;
     if (env.APP_MODE !== "demo") {
       subscription = await this.companyRepo.getSubscriptionOrThrowUnscoped(user.companyId);
-      if (isSubscriptionExpired(subscription)) return { state: "subscription", ...base, legalStatus, subscription };
+      if (isSubscriptionExpired(subscription)) return { state: "subscription", legalStatus, subscription };
     }
 
-    return { state: "allowed", ...base, legalStatus, subscription };
+    return { state: "allowed", legalStatus, subscription };
   }
 }

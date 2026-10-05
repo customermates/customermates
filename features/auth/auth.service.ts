@@ -17,6 +17,7 @@ import { auth } from "@/core/auth/better-auth";
 import { prisma } from "@/prisma/db";
 import { runWithoutTenant } from "@/core/decorators/tenant-context";
 import { redirectTo } from "./auth-outcome";
+import { approveMcpAuthorizationCodeValue } from "./mcp-authorization-code";
 import { SESSION_HINT_COOKIE_NAME } from "./session-hint";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { env } from "@/env";
@@ -305,6 +306,28 @@ export class AuthService {
     return result.apiKeys;
   }
 
+  async resolveApiKeyReferences(
+    ownerAuthUserId: string,
+    ids: string[],
+  ): Promise<{ active: Set<string>; foreign: Set<string> }> {
+    const keys = ids.length
+      ? await prisma.apikey.findMany({
+          where: { id: { in: ids } },
+          select: { id: true, referenceId: true, enabled: true, expiresAt: true },
+        })
+      : [];
+    const now = Date.now();
+    const active = new Set<string>();
+    const foreign = new Set<string>();
+
+    for (const key of keys) {
+      if (key.referenceId !== ownerAuthUserId) foreign.add(key.id);
+      else if (key.enabled !== false && (!key.expiresAt || key.expiresAt.getTime() > now)) active.add(key.id);
+    }
+
+    return { active, foreign };
+  }
+
   async getMcpConsentPrompt(args: {
     consentCode: string;
     clientId: string;
@@ -343,7 +366,7 @@ export class AuthService {
 
     await prisma.authVerification.update({
       where: { id: verification.id },
-      data: { identifier: code, value: JSON.stringify({ ...value, requireConsent: false }) },
+      data: { identifier: code, value: JSON.stringify(approveMcpAuthorizationCodeValue(value)) },
     });
 
     await prisma.oauthConsent.upsert({

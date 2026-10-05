@@ -83,7 +83,7 @@ export const AiConnectionClaudeSetup = observer(function AiConnectionClaudeSetup
 
       {method === "account" ? (
         <div id="claude-account-details">
-          <AiConnectionConnectorSetup mcpUrl={mcpUrl} provider="claude" />
+          <AiConnectionConnectorSetup disabled={disabled} mcpUrl={mcpUrl} provider="claude" />
         </div>
       ) : null}
 
@@ -141,7 +141,8 @@ export const AiConnectionClaudeSetup = observer(function AiConnectionClaudeSetup
               baseUrl={baseUrl}
               expiresAt={store.apiKeyExpiresAt}
               hasError={store.hasError}
-              isCreating={store.isCreating}
+              hasSavedApiKey={store.hasSavedApiKey}
+              isCreating={store.isCreating || disabled}
               resultHeadingRef={resultHeadingRef}
               tool={store.claudeClient}
               onCreate={onCreate}
