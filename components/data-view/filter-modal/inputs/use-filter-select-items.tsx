@@ -388,7 +388,7 @@ export function useFilterSelectItems(
   const presentation = customColumns?.find((column) => column.id === field);
   const referenceTypeId = presentation?.type === "recordReference" ? presentation.typeId : undefined;
   const presentationType = presentation?.type;
-  const timelineScopeKey = JSON.stringify([activityQuery?.scope ?? null, validActivityFilters(activityQuery?.filters)]);
+  const timelineScopeKey = JSON.stringify(validActivityFilters(activityQuery?.filters));
   const scopeKey = fieldKey === FilterFieldKey.timelineThreadId ? timelineScopeKey : String(field);
 
   const source = useMemo<FilterOptionSource>(() => {

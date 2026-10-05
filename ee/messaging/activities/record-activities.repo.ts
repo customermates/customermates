@@ -17,7 +17,6 @@ export interface RecordActivitiesRepo {
   ): Promise<RecordActivityIndexRow[]>;
   eventsCompanyWide(ids: string[]): Promise<Array<RecordEvent & { actor: RecordActivityActor }>>;
   auditLogsCompanyWide(ids: string[]): Promise<Array<AuditLog & { actor: RecordActivityActor }>>;
-  legacyModelOrThrow(): Promise<{ model: RecordModel; currency: string }>;
   hasHistoryCompanyWide(ref: RecordRef): Promise<boolean>;
   messagesCompanyWide(ids: string[]): Promise<RecordActivityMessage[]>;
   activitiesCompanyWide(ids: string[]): Promise<

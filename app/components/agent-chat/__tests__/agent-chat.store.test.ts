@@ -90,7 +90,7 @@ function recordContext(index: number, label = `Contact ${index}`): AgentContextA
   return {
     reference: {
       kind: "record",
-      entityType: "contact",
+      typeId: "10000000-0000-4000-8000-000000000001",
       recordId: `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
     },
     label,

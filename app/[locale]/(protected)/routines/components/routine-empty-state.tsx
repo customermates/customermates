@@ -5,15 +5,13 @@ import type { RoutineModalStore } from "./routine-modal.store";
 
 import { History } from "lucide-react";
 import { observer } from "mobx-react-lite";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 
 import { RoutineTriggerKind } from "@/generated/prisma";
 
-import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { describeRoutineSchedule, scheduleHasClockTime } from "@/ee/routines/routine-schedule-preset";
 import { orderedRoutineTriggerGuidance } from "@/ee/routines/routine-trigger-guidance";
-import { terminologyLabelForSentence } from "@/features/entity-terminology/entity-terminology-label.utils";
 
 function actionCopy(
   action: RoutineTriggerGuidanceAction,
@@ -59,10 +57,8 @@ function actionCopy(
 }
 
 export const RoutineEmptyState = observer(({ store }: { store: RoutineModalStore }) => {
-  const locale = useLocale();
   const t = useTranslations();
   const intlStore = useHydratedIntlStore();
-  const { singular } = useEntityTerminology();
   const { form } = store;
   const scheduled = form.triggerKind === RoutineTriggerKind.schedule;
 
@@ -128,14 +124,12 @@ export const RoutineEmptyState = observer(({ store }: { store: RoutineModalStore
 
       <ul aria-label={t("RoutineDetail.empty.event.instructionsLabel")} className="w-full max-w-lg space-y-2 text-left">
         {eventGuidance.map(({ event, guidance }) => {
-          const entity = guidance.entityType
-            ? terminologyLabelForSentence(singular(guidance.entityType), locale)
-            : event.startsWith("record.")
-              ? sources
-                  .map((source) => store.recordModel?.types.find((type) => type.id === source.query.typeId)?.label)
-                  .filter((label): label is string => Boolean(label))
-                  .join(", ") || t("RecordModel.record")
-              : null;
+          const entity = event.startsWith("record.")
+            ? sources
+                .map((source) => store.recordModel?.types.find((type) => type.id === source.query.typeId)?.label)
+                .filter((label): label is string => Boolean(label))
+                .join(", ") || t("RecordModel.record")
+            : null;
 
           return (
             <li key={event} className="rounded-lg border px-3 py-2.5">

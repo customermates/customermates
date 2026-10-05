@@ -34,12 +34,7 @@ import {
   parsePendingAgentApprovalToolName,
   pendingAgentApprovalToolName,
 } from "./agent-approval";
-import {
-  agentPlainTextPreview,
-  sanitizeAgentConversationTitle,
-  sanitizeAgentVisibleText,
-  stripLegacyUserPageContextPrefix,
-} from "./agent-output-safety";
+import { agentPlainTextPreview, sanitizeAgentConversationTitle, sanitizeAgentVisibleText } from "./agent-output-safety";
 import {
   areAgentTurnAffectedResources,
   AGENT_RUN_LEASE_MS,
@@ -475,9 +470,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         id: row.id,
         title: sanitizeAgentConversationTitle(row.title),
         preview: agentPlainTextPreview(
-          latest?.role === AgentMessageRole.user
-            ? stripLegacyUserPageContextPrefix(latestText)
-            : sanitizeAgentVisibleText(latestText, env.BASE_URL),
+          latest?.role === AgentMessageRole.user ? latestText : sanitizeAgentVisibleText(latestText, env.BASE_URL),
           140,
         ),
         updatedAt: row.updatedAt,

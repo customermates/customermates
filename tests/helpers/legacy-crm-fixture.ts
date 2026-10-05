@@ -419,6 +419,21 @@ export async function populateLegacyWorkspace(client: ClientBase, { currency = "
       },
     })
   ).id;
+  const run = (
+    await db.routineRun.create({
+      data: {
+        companyId,
+        routineId: routine,
+        executedByUserId: admin.id,
+        executedByName: "Ada Admin",
+        triggerKind: "event",
+        triggerEvent: "contact.updated",
+        triggerEntityId: contacts.solo,
+        triggerPayload: { companyId, entityId: contacts.solo },
+        scheduledFor: timestamps.updatedAt,
+      },
+    })
+  ).id;
   const webhook = (
     await db.webhook.create({
       data: {
@@ -471,6 +486,7 @@ export async function populateLegacyWorkspace(client: ClientBase, { currency = "
     inbox,
     widgets,
     routine,
+    run,
     webhook,
     history,
     delivery,

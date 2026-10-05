@@ -16,30 +16,6 @@ export const WEBHOOK_MESSAGING_EVENTS = [
 
 export const WEBHOOK_CURRENT_EVENTS = [...WEBHOOK_RECORD_EVENTS, ...WEBHOOK_MESSAGING_EVENTS] as const;
 
-export const WEBHOOK_LEGACY_EVENTS = [
-  "contact.created",
-  "contact.updated",
-  "contact.deleted",
-  "organization.created",
-  "organization.updated",
-  "organization.deleted",
-  "deal.created",
-  "deal.updated",
-  "deal.deleted",
-  "service.created",
-  "service.updated",
-  "service.deleted",
-  "task.created",
-  "task.updated",
-  "task.deleted",
-] as const;
-
-export const WEBHOOK_EVENTS = [
-  ...WEBHOOK_RECORD_EVENTS,
-  ...WEBHOOK_LEGACY_EVENTS,
-  ...WEBHOOK_MESSAGING_EVENTS,
-] as const;
-
 export const WEBHOOK_EVENT_COUNT = WEBHOOK_CURRENT_EVENTS.length;
 export const WEBHOOK_MESSAGING_EVENT_COUNT = WEBHOOK_MESSAGING_EVENTS.length;
 export const WEBHOOK_RECORD_EVENT_COUNT = WEBHOOK_RECORD_EVENTS.length;

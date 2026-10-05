@@ -25,14 +25,14 @@ It runs on PostgreSQL 16 and 17. It requires the `pg_trgm` extension (created if
 | Role permissions on the five legacy resources | Per-type grants |
 | Conversation participants | The normalised lookup key that matches them to channel identities |
 
-Every workspace gets the starter record model with deterministic preset IDs as configuration revision 1 (actor `system:configurable-records-upgrade`): the five starter types and line items, without the preset stage field because legacy stages are custom columns. The weighted value reads the probability of the option selected in `Company.dealWeightingColumnId`, which also groups the deal list by default. Explicit conversation-to-record links start empty: the legacy schema had none.
+Every workspace gets the starter record model with deterministic preset IDs as configuration revision 1 (actor `system:configurable-records-upgrade`): the five starter types and line items, without the preset stage field because legacy stages are custom columns. The weighted value reads the probability of the option selected in `Company.dealWeightingColumnId`, which also groups the deal list by default. Deal value, quantity and weighted value are published summaries, so whoever can read a deal keeps seeing its totals without access to the services behind them, as before. Explicit conversation-to-record links start empty: the legacy schema had none.
 
 ## What is not carried over
 
 - Saved views and personalisation of the legacy record surfaces (`<type>s-card-store`, `<type>-detail`) and of the entity timeline. Views and personalisation of other surfaces stay.
 - Every dashboard widget.
 - Legacy record and custom column history (`AuditLog` events `contact.*`, `organization.*`, `deal.*`, `service.*`, `task.*`, `custom_column.*`). Record history starts at the upgrade; other audit events stay.
-- Legacy record event triggers. Every webhook is disabled and loses its legacy record events (`contact.created` and so on). Every event-triggered routine is disabled and loses its legacy record events; a routine that had such events also loses its watched fields and filters. Scheduled routines are unchanged. No routine or webhook subscribes to record events after the upgrade; re-enable them after choosing record triggers again.
+- Legacy record event triggers. Every webhook and every event-triggered routine is disabled. Legacy record events (`contact.created` and so on) are removed from every webhook and routine, and a routine that had such events also loses its watched fields and filters. Scheduled routines keep their schedule and enabled state; a schedule never read their leftover events. Past routine runs triggered by a legacy event keep their outcome and charge but lose the legacy trigger event, record ID and payload. No routine or webhook subscribes to record events after the upgrade; re-enable them after choosing record triggers again.
 - Entity terminology presets: types keep their starter labels.
 
 No record events are written, so no routine run or webhook delivery is emitted. Existing webhook delivery history stays; completed deliveries are never replayed.
@@ -85,7 +85,7 @@ WHERE r."triggerKind"::text = 'event'
 ORDER BY 1, 2, 3;
 ```
 
-Every listed row is disabled by the upgrade; `enabled_before` shows which of them are active today.
+Every listed row is disabled by the upgrade; `enabled_before` shows which of them are active today. Scheduled routines are not listed: they keep running.
 
 ## Refusals
 

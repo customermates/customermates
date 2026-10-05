@@ -1,7 +1,5 @@
 import { describe, expect, it } from "vitest";
 
-import { EntityType } from "@/features/records/history/v1/legacy-enums";
-
 import {
   clientSafeAgentMessageParts,
   hasRenderableAgentMessageParts,
@@ -10,7 +8,6 @@ import {
   userMessagePartsToProviderText,
 } from "../agent-chat.schema";
 import {
-  AGENT_CONTEXT_RECORD_ENTITIES,
   agentContextAttachmentKey,
   AgentContextAttachmentSchema,
   agentContextAttachmentsEqual,
@@ -35,7 +32,7 @@ const viewContext: AgentContextAttachment = {
 };
 
 const recordContext: AgentContextAttachment = {
-  reference: { kind: "record", entityType: "contact", recordId: RECORD_ID },
+  reference: { kind: "record", typeId: "10000000-0000-4000-8000-000000000001", recordId: RECORD_ID },
   label: 'Julian "CEO" <private>',
 };
 
@@ -75,10 +72,6 @@ describe("agent context contract", () => {
         { type: "context", context: recordContext },
       ]),
     ).toEqual([field, recordContext]);
-  });
-
-  it("covers every record entity type", () => {
-    expect([...AGENT_CONTEXT_RECORD_ENTITIES].sort()).toEqual(Object.values(EntityType).sort());
   });
 
   it("accepts canonical view and record references while normalizing display labels", () => {
@@ -216,7 +209,9 @@ describe("agent context contract", () => {
     expect(agentContextAttachmentKey(viewContext)).toBe(
       `dataView:records:10000000-0000-4000-8000-000000000101:update:${VIEW_ID}`,
     );
-    expect(agentContextAttachmentKey(recordContext.reference)).toBe(`record:contact:${RECORD_ID}`);
+    expect(agentContextAttachmentKey(recordContext.reference)).toBe(
+      `record:v2:10000000-0000-4000-8000-000000000001:${RECORD_ID}`,
+    );
     expect(agentContextAttachmentsEqual([viewContext, recordContext], [viewContext, recordContext])).toBe(true);
     expect(agentContextAttachmentsEqual([viewContext], [{ ...viewContext, label: "A different display label" }])).toBe(
       true,
@@ -236,7 +231,7 @@ describe("agent context contract", () => {
     const prefix = agentContextProviderPrefix([viewContext, recordContext]);
     expect(prefix).toBe(
       `<selected_context kind="dataView" surfaceKey="records:10000000-0000-4000-8000-000000000101" viewKey="${VIEW_ID}" requestedAction="update"/>\n` +
-        `<selected_context kind="record" entityType="contact" recordId="${RECORD_ID}"/>\n`,
+        `<selected_context kind="record" typeId="10000000-0000-4000-8000-000000000001" recordId="${RECORD_ID}"/>\n`,
     );
     expect(prefix).not.toContain(viewContext.label);
     expect(prefix).not.toContain(recordContext.label);
@@ -264,7 +259,7 @@ describe("agent context contract", () => {
         context: {
           reference: {
             kind: "record" as const,
-            entityType: "contact" as const,
+            typeId: "10000000-0000-4000-8000-000000000001",
             recordId: `22222222-2222-4222-8222-22222222222${index}`,
           },
           label: `Contact ${index}`,

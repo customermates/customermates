@@ -1,6 +1,6 @@
 import type { z } from "zod";
 
-import { WebhookCurrentEventSchema, WebhookEventSchema } from "@/features/webhook/webhook.schema";
+import { WebhookCurrentEventSchema } from "@/features/webhook/webhook.schema";
 import { DomainEvent } from "@/features/event/domain-events";
 
 const NON_TRIGGERING_EVENTS = [DomainEvent.MESSAGING_EMAIL_DELETED, DomainEvent.MESSAGING_CHAT_DELETED] as const;
@@ -14,9 +14,3 @@ export type RoutineTriggerEvent = z.infer<typeof RoutineTriggerEventSchema>;
 export function isRoutineTriggerEvent(value: string): value is RoutineTriggerEvent {
   return (ROUTINE_TRIGGER_EVENTS as readonly string[]).includes(value);
 }
-
-export const StoredRoutineTriggerEventSchema = WebhookEventSchema.exclude([...NON_TRIGGERING_EVENTS]);
-
-export const STORED_ROUTINE_TRIGGER_EVENTS = StoredRoutineTriggerEventSchema.options;
-
-export type StoredRoutineTriggerEvent = z.infer<typeof StoredRoutineTriggerEventSchema>;

@@ -41,7 +41,6 @@ function setup() {
     getFilterableFields: vi.fn().mockResolvedValue([{ field: "name", operators: [FilterOperatorKey.contains] }]),
     getCustomColumns: vi.fn().mockResolvedValue([]),
     getGroupableFields: vi.fn().mockResolvedValue(dateGroupables("user", { createdAt: true, updatedAt: false })),
-    setMessagingSourcesEnabled: vi.fn(),
   });
   const sources = Object.fromEntries(DATA_VIEW_SURFACE_KEYS.map((key) => [key, source()])) as Record<
     (typeof DATA_VIEW_SURFACE_KEYS)[number],

@@ -32,9 +32,8 @@ import { DeleteRoutineInteractor } from "../delete-routine.interactor";
 import { PauseRoutineInteractor } from "../pause-routine.interactor";
 import { UpsertRoutineInteractor } from "../upsert-routine.interactor";
 import { DomainEvent } from "@/features/event/domain-events";
-import { AUDIT_EVENT_ENTITY_TYPE } from "@/features/event/audit-entity-type";
 import { getEntityName } from "@/features/event/entity-name.utils";
-import { WEBHOOK_EVENTS } from "@/features/webhook/webhook-event-registry";
+import { WEBHOOK_CURRENT_EVENTS } from "@/features/webhook/webhook-event-registry";
 
 const ROUTINE_ID = "00000000-0000-4000-8000-000000000001";
 const OWNER_ID = "00000000-0000-4000-8000-000000000002";
@@ -248,12 +247,6 @@ describe("routine audit events", () => {
 });
 
 describe("routine audit event wiring", () => {
-  it("classifies every routine event as unlinked to a record entity type", () => {
-    expect(AUDIT_EVENT_ENTITY_TYPE[DomainEvent.ROUTINE_CREATED]).toBeNull();
-    expect(AUDIT_EVENT_ENTITY_TYPE[DomainEvent.ROUTINE_UPDATED]).toBeNull();
-    expect(AUDIT_EVENT_ENTITY_TYPE[DomainEvent.ROUTINE_DELETED]).toBeNull();
-  });
-
   it("names the routine in the audit row for each event", () => {
     const current = routine();
 
@@ -292,6 +285,6 @@ describe("routine audit event wiring", () => {
       DomainEvent.ROUTINE_DELETED,
     ];
 
-    for (const event of routineEvents) expect(WEBHOOK_EVENTS).not.toContain(event);
+    for (const event of routineEvents) expect(WEBHOOK_CURRENT_EVENTS).not.toContain(event);
   });
 });

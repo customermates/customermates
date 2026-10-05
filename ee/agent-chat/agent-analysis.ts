@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-import { ACTIVITY_SCOPE_CONTACT_MAX } from "@/ee/messaging/activities/activity-scope.schema";
 import { executeMcpTool, validationError, type McpTool } from "@/features/mcp-tools/mcp-tool";
 
 import { checkAnalysisCode, runAnalysisCode, type AnalysisLimits } from "./agent-analysis-isolate";
@@ -260,7 +259,7 @@ async function runRead(mcp: McpTool, read: Read, rowBudget: number, usage: DataU
   if (firstContent.scopeTruncated === true) {
     return {
       ok: false,
-      error: `${mcp.name} left out every message, activity and calendar event because its filters or scope reach more than ${ACTIVITY_SCOPE_CONTACT_MAX} contacts. Narrow them.`,
+      error: `${mcp.name} left out every message, activity and calendar event because its filters or scope reach too many contacts. Narrow them.`,
     };
   }
   if (firstContent.grouping !== undefined) {

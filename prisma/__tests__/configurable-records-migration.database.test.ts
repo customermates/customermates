@@ -450,6 +450,12 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
       ],
     });
     expect(model.fields.some((field) => field.id === id("deal.stage"))).toBe(false);
+    expect(
+      model.fields
+        .filter((field) => field.publishedSummary)
+        .map((field) => field.id)
+        .sort(),
+    ).toEqual([id("deal.totalValue"), id("deal.totalQuantity"), id("deal.weightedValue")].sort());
     expect(model.types.find((type) => type.id === id("deal"))?.defaults.groupBy).toBe(f.columns.stage);
     expect(model.capabilities).toContainEqual(expect.objectContaining({ kind: "channels", providerAvatar: true }));
     expect(
@@ -493,6 +499,11 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
     expect(await rows(client, 'SELECT events, enabled FROM "Webhook" WHERE id=$1', [f.webhook])).toEqual([
       { events: ["messaging.message.received"], enabled: false },
     ]);
+    expect(
+      await rows(client, 'SELECT "triggerEvent", "triggerEntityId", "triggerPayload" FROM "RoutineRun" WHERE id=$1', [
+        f.run,
+      ]),
+    ).toEqual([{ triggerEvent: null, triggerEntityId: null, triggerPayload: null }]);
     expect(await rows(client, 'SELECT count(*)::int AS count FROM "RecordEventSubscription"')).toEqual([{ count: 0 }]);
     // Completed deliveries are never replayed; no record events (and so no deliveries) were emitted.
     expect(await rows(client, 'SELECT "nextAttemptAt" FROM "WebhookDelivery" WHERE id=$1', [f.delivery])).toEqual([
@@ -514,15 +525,10 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
     expect(await rows(client, "SELECT nspname FROM pg_namespace WHERE nspname = 'crm_upgrade'")).toEqual([]);
   });
 
-  it("converts columns without options and empty notes, and leaves scheduled routines untouched", async () => {
+  it("converts columns without options and empty notes, and keeps scheduled routines running", async () => {
     const { client } = await legacyDatabase();
     const f = await populateLegacyWorkspace(client);
     const empty = await addEmptyLegacyStates(client, f);
-    const scheduledBefore = await rows(
-      client,
-      'SELECT enabled, "triggerEvents", "changedFields", "triggerFilters", "cronExpression" FROM "Routine" WHERE id=$1',
-      [empty.scheduled],
-    );
     await applyConfigurableRecordsMigration(client);
 
     expect(
@@ -531,7 +537,15 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
         'SELECT enabled, "triggerEvents", "changedFields", "triggerFilters", "cronExpression" FROM "Routine" WHERE id=$1',
         [empty.scheduled],
       ),
-    ).toEqual(scheduledBefore);
+    ).toEqual([
+      {
+        enabled: true,
+        triggerEvents: ["messaging.message.received"],
+        changedFields: [],
+        triggerFilters: [],
+        cronExpression: "0 9 * * *",
+      },
+    ]);
     for (const columnId of Object.values(empty.columns)) {
       expect(
         (

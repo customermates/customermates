@@ -21,6 +21,7 @@ import { seedIdentity } from "./identity";
 import { seedDemoMessagingFixtures } from "./messaging/seed";
 import { seedOrganizations } from "./organizations";
 import { seedPersonalization } from "./personalization";
+import { seedRecordHistory } from "./record-history";
 import { seedRelationships } from "./relationships";
 import { seedRoutines } from "./routines";
 import { seedServices } from "./services";
@@ -53,21 +54,22 @@ export async function runSyntheticSeed(
     ...taskData,
   };
 
-  const customFieldData = await seedCustomFields(context, entities);
+  const customFieldData = seedCustomFields(context, entities);
   await seedRecordFixtures(context, entities, customFieldData);
   await seedRelationships(context, entities);
   await calculateSyntheticRecords(context.prisma, context.ids.company);
   await seedWidgets(context, customFieldData);
   await seedDataViews(context, customFieldData);
   await seedPersonalization(context, customFieldData);
-  await seedWebhooks(context);
   await seedDemoMessagingFixtures(context.prisma, {
     companyId: context.ids.company,
     contactIds: contactData.contacts.map(({ id }) => id),
     seedUserEmail: context.seedUserEmail,
     userId: context.ids.user,
   });
-  await seedSyntheticAuditLogs(context, entities);
+  await seedRecordHistory(context, entities);
+  await seedWebhooks(context);
+  await seedSyntheticAuditLogs(context);
   await seedWikiPages(context);
   await seedAgentConversations(context);
   await seedRoutines(context);

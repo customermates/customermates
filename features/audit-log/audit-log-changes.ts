@@ -1,8 +1,6 @@
-import type { DomainEvent, DomainEventMap } from "@/features/event/domain-events";
 import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
-import deepEqual from "fast-deep-equal/es6";
 
 export function partitionRelationIds(previous: unknown, current: unknown) {
   const prevArr = Array.isArray(previous) ? previous : [];
@@ -28,7 +26,7 @@ export const AuditChangeSchema = z.object({
 
 export type AuditChange = Data<typeof AuditChangeSchema>;
 
-type Changes = DomainEventMap[DomainEvent.DEAL_UPDATED]["payload"]["changes"];
+type Changes = Record<string, { previous: unknown; current: unknown }>;
 
 const IGNORED_FIELDS = new Set(["id", "createdAt", "updatedAt", "avatarUrl", "roleId", "ownerUserId"]);
 
@@ -74,30 +72,6 @@ export function extractAuditChanges(eventData: unknown): AuditChange[] {
 
   for (const [field, value] of Object.entries(changes)) {
     if (IGNORED_FIELDS.has(field) || REDACTED_FIELDS.has(field)) continue;
-
-    if (field === "customFieldValues") {
-      const previousItems = Array.isArray(value.previous)
-        ? (value.previous as { columnId: string; value: unknown }[])
-        : [];
-      const currentItems = Array.isArray(value.current)
-        ? (value.current as { columnId: string; value: unknown }[])
-        : [];
-
-      const previousMap = new Map(previousItems.map((entry) => [entry.columnId, entry.value]));
-      const currentMap = new Map(currentItems.map((entry) => [entry.columnId, entry.value]));
-
-      for (const columnId of new Set([...previousMap.keys(), ...currentMap.keys()])) {
-        if (deepEqual(previousMap.get(columnId), currentMap.get(columnId))) continue;
-        result.push({
-          field: "customFieldValues",
-          columnId,
-          ...(isSnapshot && { snapshot: true }),
-          previous: previousMap.get(columnId),
-          current: currentMap.get(columnId),
-        });
-      }
-      continue;
-    }
 
     result.push({ field, ...(isSnapshot && { snapshot: true }), previous: value.previous, current: value.current });
   }

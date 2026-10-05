@@ -90,7 +90,6 @@ describe("routine trigger sufficiency", () => {
       "event",
       "entity",
       "entityId",
-      "entityName",
       "threadId",
       "changedFields",
       "changedFieldLabels",

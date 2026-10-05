@@ -1386,21 +1386,6 @@
         "resynced": "Cuenta resincronizada",
         "updated": "Visibilidad de la cuenta modificada"
       },
-      "contact": {
-        "created": "Contacto creado",
-        "deleted": "Contacto eliminado",
-        "updated": "Contacto actualizado"
-      },
-      "custom_column": {
-        "created": "Columna personalizada creada",
-        "deleted": "Columna personalizada eliminada",
-        "updated": "Columna personalizada actualizada"
-      },
-      "deal": {
-        "created": "Oportunidad creada",
-        "deleted": "Oportunidad eliminada",
-        "updated": "Oportunidad actualizada"
-      },
       "legal": {
         "documents_accepted": "Documentos legales aceptados",
         "notice_sent": "Aviso legal enviado"
@@ -1430,11 +1415,6 @@
           "created": "Relación creada"
         }
       },
-      "organization": {
-        "created": "Organización creada",
-        "deleted": "Organización eliminada",
-        "updated": "Organización actualizada"
-      },
       "record": {
         "created": "Registro creado",
         "deleted": "Registro eliminado",
@@ -1452,16 +1432,6 @@
         "created": "Rutina creada",
         "deleted": "Rutina eliminada",
         "updated": "Rutina actualizada"
-      },
-      "service": {
-        "created": "Servicio creado",
-        "deleted": "Servicio eliminado",
-        "updated": "Servicio actualizado"
-      },
-      "task": {
-        "created": "Tarea creada",
-        "deleted": "Tarea eliminada",
-        "updated": "Tarea actualizada"
       },
       "user": {
         "registered": "Usuario registrado",
@@ -3294,7 +3264,6 @@
     "apply": "Aplicar cambios",
     "archiveActivityPath": "Archivar conexión",
     "archived": "Archivado",
-    "archivedField": "Campo archivado",
     "archiveField": "Archivar campo",
     "archiveList": "Archivar lista",
     "archiveListDescription": "Al archivar, esta lista y sus registros dejan de aparecer en el trabajo diario. Se conservan los registros, los vínculos y el historial, y puedes restaurar la lista en cualquier momento.",

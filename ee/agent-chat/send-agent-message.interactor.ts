@@ -40,7 +40,6 @@ import { AgentActivityDescriptorSchema, type AgentActivityDescriptor } from "./a
 import { conservativeAgentInitialContextBytes } from "./agent-provider-context";
 import { renderAgentSchemaDigest } from "./agent-schema-digest";
 import { agentPageContextPrefix } from "./agent-page-context";
-import { canonicalAgentRecordContexts } from "./agent-context-migration";
 import { AGENT_REPLAY_COUNT, budgetAgentReplayHistory } from "./agent-replay-budget";
 import { isAgentModelKey, resolveAgentModel, SHIPPED_AGENT_MODEL_KEY } from "./model-catalog";
 import { BENCHMARK_MODEL_KEY_PREFIX } from "./benchmark-model-registry";
@@ -161,13 +160,10 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
 
     const replay = await this.repo.findAgentTurnRequestForAdmission(data.clientRequestId, now, model.modelId);
     const pageRoute = data.pageContext?.route ?? null;
-    const contexts: AgentContextAttachment[] = canonicalAgentRecordContexts(data.contexts ?? [], this.companyId);
+    const contexts: AgentContextAttachment[] = data.contexts ?? [];
     const contextsChanged =
       replay !== null &&
-      !agentContextAttachmentsEqual(
-        canonicalAgentRecordContexts(agentContextsFromMessageParts(replay.userMessageParts), this.companyId),
-        contexts,
-      );
+      !agentContextAttachmentsEqual(agentContextsFromMessageParts(replay.userMessageParts), contexts);
     const decision = contextsChanged
       ? ({ disposition: "conflict" } as const)
       : decideAgentTurnAdmission(replay?.snapshot ?? null, {
@@ -467,7 +463,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           ...toolsetsForRequest({
             text: partsToText(message.parts),
             pageRoute: null,
-            contexts: canonicalAgentRecordContexts(agentContextsFromMessageParts(message.parts), this.companyId),
+            contexts: agentContextsFromMessageParts(message.parts),
           }),
         ]);
       const toolsets = [...new Set([...requestedToolsets, ...priorToolsets, ...earlierRequestToolsets])];
@@ -476,11 +472,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         const text = partsToText(message.parts);
         const current = message.id === userMessageId;
         const selectedContexts =
-          message.role === "user"
-            ? agentContextProviderPrefix(
-                canonicalAgentRecordContexts(agentContextsFromMessageParts(message.parts), this.companyId),
-              )
-            : "";
+          message.role === "user" ? agentContextProviderPrefix(agentContextsFromMessageParts(message.parts)) : "";
         return {
           role: message.role as string,
           prefix: current ? `${pageContext}${selectedContexts}` : selectedContexts,

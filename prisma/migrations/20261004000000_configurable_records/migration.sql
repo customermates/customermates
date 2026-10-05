@@ -55,8 +55,8 @@ $$;
 LOCK TABLE "Contact", "Organization", "Deal", "Service", "Task", "CustomColumn", "CustomFieldValue", "ContactIdentifier",
   "ServiceDeal", "ServiceUser", "DealOrganization", "DealUser", "DealContact", "ContactUser", "OrganizationUser", "TaskUser",
   "TaskContact", "TaskOrganization", "TaskDeal", "TaskService", "ContactOrganization", "EntityTerminology" IN ACCESS EXCLUSIVE MODE;
-LOCK TABLE "Company", "User", "UserRole", "RolePermission", "Widget", "DataView", "P13n", "Routine", "Webhook", "WebhookDelivery",
-  "MessagingThreadParticipant", "MessagingThread", "AuditLog" IN SHARE ROW EXCLUSIVE MODE;
+LOCK TABLE "Company", "User", "UserRole", "RolePermission", "Widget", "DataView", "P13n", "Routine", "RoutineRun", "Webhook",
+  "WebhookDelivery", "MessagingThreadParticipant", "MessagingThread", "AuditLog" IN SHARE ROW EXCLUSIVE MODE;
 
 -- Fresh planner statistics for the legacy source (statistics only; rolled back with everything else).
 ANALYZE "Company", "User", "UserRole", "RolePermission", "Contact", "Organization", "Deal", "Service", "Task", "CustomColumn",
@@ -1337,7 +1337,7 @@ $$;
 
 -- The workspace record model: the CRM preset without its stage field (legacy stages are custom columns),
 -- one field per legacy custom column (trimmed label, options, default, format) appended to its type's default
--- columns, and the weighted value bound to Company.dealWeightingColumnId. Refusals are recorded as issues;
+-- columns, the weighted value bound to Company.dealWeightingColumnId and the deal totals as published summaries. Refusals are recorded as issues;
 -- the returned model is then only used if no issue exists.
 CREATE FUNCTION crm_upgrade.legacy_model(p_company_id text) RETURNS jsonb
 LANGUAGE plpgsql AS $$
@@ -1427,6 +1427,11 @@ BEGIN
   ELSE
     v_model := jsonb_set(v_model, ARRAY['fields', v_weighted_index::text, 'behavior'], '{"kind":"formula","expression":{"kind":"literal","value":null}}'::jsonb);
   END IF;
+  -- Deal totals stay readable with the deal, as they were: they are published summaries of their line items.
+  v_model := jsonb_set(v_model, '{fields}', (SELECT jsonb_agg(CASE WHEN f.value ->> 'id' IN (crm_upgrade.preset_id(p_company_id, 'deal.totalValue'),
+      crm_upgrade.preset_id(p_company_id, 'deal.totalQuantity'), crm_upgrade.preset_id(p_company_id, 'deal.weightedValue'))
+    THEN jsonb_set(f.value, '{publishedSummary}', 'true') ELSE f.value END ORDER BY f.ordinality)
+    FROM jsonb_array_elements(v_model -> 'fields') WITH ORDINALITY AS f(value, ordinality)));
   -- validateRecordModel: the only definitions legacy columns can make invalid.
   PERFORM crm_upgrade.issue(p_company_id, 'CustomColumn', 'definition', code) FROM (
     SELECT 'invalid_multiple_value_type' AS code FROM jsonb_array_elements(v_model -> 'fields') AS f(value)
@@ -2322,20 +2327,23 @@ DELETE FROM "Widget";
 -- History of legacy records and custom columns is removed.
 DELETE FROM "AuditLog" WHERE event ~ '^(contact|organization|deal|service|task|custom_column)\.';
 
--- Automations: every webhook is disabled and loses its legacy record events; event-triggered routines are
--- disabled and lose their legacy record events together with the watched fields and filters of those
--- events. Scheduled routines stay as they are. Nothing subscribes to generic record events.
+-- Automations: every webhook and every event-triggered routine is disabled; scheduled routines keep their
+-- schedule and enabled state. Legacy record events are removed from every webhook and routine, together with
+-- the watched fields and filters of those events, and from the trigger of past routine runs. Nothing
+-- subscribes to generic record events.
 UPDATE "Webhook" SET enabled = false,
   events = ARRAY(SELECT e.event FROM unnest(events) WITH ORDINALITY AS e(event, ordinality)
     WHERE e.event !~ '^(contact|organization|deal|service|task)\.' ORDER BY e.ordinality);
-UPDATE "Routine" SET enabled = false,
+UPDATE "Routine" SET enabled = enabled AND "triggerKind"::text <> 'event',
   "triggerEvents" = ARRAY(SELECT e.event FROM unnest("triggerEvents") WITH ORDINALITY AS e(event, ordinality)
     WHERE e.event !~ '^(contact|organization|deal|service|task)\.' ORDER BY e.ordinality),
   "changedFields" = CASE WHEN legacy.events THEN ARRAY[]::text[] ELSE "changedFields" END,
   "triggerFilters" = CASE WHEN legacy.events THEN '[]'::jsonb ELSE "triggerFilters" END
 FROM (SELECT r.id, EXISTS (SELECT 1 FROM unnest(r."triggerEvents") AS e(event) WHERE e.event ~ '^(contact|organization|deal|service|task)\.') AS events
   FROM "Routine" r) AS legacy
-WHERE legacy.id = "Routine".id AND "Routine"."triggerKind"::text = 'event';
+WHERE legacy.id = "Routine".id;
+UPDATE "RoutineRun" SET "triggerEvent" = NULL, "triggerEntityId" = NULL, "triggerPayload" = NULL
+WHERE "triggerEvent" ~ '^(contact|organization|deal|service|task)\.';
 
 -- =============================================================================================
 -- Section 4b: secondary indexes of the generic storage, built once after the bulk conversion (as a

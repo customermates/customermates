@@ -14,7 +14,7 @@ import type { RoutineEventAccess } from "@/ee/routines/routine-event-access";
 import { UserAccessor } from "@/core/base/user-accessor";
 import { currentRoutineContext } from "@/core/decorators/routine-context";
 import { carriesChangedFields, changedFieldsOf, matchesChangedFields } from "@/ee/routines/routine-event-filter";
-import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
+import { WebhookCurrentEventSchema } from "@/features/webhook/webhook.schema";
 import { env } from "@/env";
 
 type ScopedEventData<E extends DomainEvent> = Omit<DomainEventMap[E], "userId" | "companyId">;
@@ -122,7 +122,7 @@ export class EventService extends UserAccessor {
     payload: DomainEventMap[DomainEvent],
     companyId: string,
   ): Promise<number> {
-    if (!WebhookEventSchema.options.some((option) => option === event)) return 0;
+    if (!WebhookCurrentEventSchema.options.some((option) => option === event)) return 0;
     if (currentRoutineContext()) return 0;
 
     const subscribed = await this.routineRepo.findEventRoutinesUnscoped(companyId, event);
@@ -181,7 +181,7 @@ export class EventService extends UserAccessor {
     companyId: string,
     system: boolean,
   ): Promise<number> {
-    if (!WebhookEventSchema.options.some((option) => option === event)) return 0;
+    if (!WebhookCurrentEventSchema.options.some((option) => option === event)) return 0;
 
     const webhooks = system
       ? await this.webhookRepo.getWebhooksForEventUnscoped(event, companyId)

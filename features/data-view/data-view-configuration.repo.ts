@@ -9,5 +9,4 @@ export abstract class DataViewConfigurationRepo {
   abstract getFilterableFields(): Promise<FilterableField[]>;
   abstract getCustomColumns(): Promise<CustomColumnDto[]>;
   abstract getGroupableFields(customColumns?: readonly CustomColumnDto[]): Promise<GroupableFieldSpec[]>;
-  setMessagingSourcesEnabled?(enabled: boolean): void;
 }

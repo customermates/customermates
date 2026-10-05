@@ -66,15 +66,15 @@ describe("EventService webhook dispatch", () => {
     webhookRepo.getWebhooksForEvent.mockResolvedValue([
       {
         url: "https://hook.example/path",
-        events: [DomainEvent.CONTACT_UPDATED],
+        events: [DomainEvent.MESSAGING_MESSAGE_RECEIVED],
       },
     ]);
     webhookDeliveryRepo.create.mockResolvedValue(["delivery-1"]);
 
     await runWithTenant(mockUser, () =>
-      service.publish(DomainEvent.CONTACT_UPDATED, {
+      service.publish(DomainEvent.MESSAGING_MESSAGE_RECEIVED, {
         entityId: CONTACT_ID,
-        payload: { changes: { firstName: { from: "A", to: "B" } } } as any,
+        payload: { connectedAccountId: CONTACT_ID } as any,
       }),
     );
 
@@ -84,7 +84,7 @@ describe("EventService webhook dispatch", () => {
       url: "https://hook.example/path",
       companyId: mockUser.companyId,
       requestBody: expect.objectContaining({
-        event: DomainEvent.CONTACT_UPDATED,
+        event: DomainEvent.MESSAGING_MESSAGE_RECEIVED,
         data: expect.any(Object),
         timestamp: expect.any(String),
       }),
@@ -95,9 +95,9 @@ describe("EventService webhook dispatch", () => {
     webhookRepo.getWebhooksForEvent.mockResolvedValue([]);
 
     await runWithTenant(mockUser, () =>
-      service.publish(DomainEvent.CONTACT_UPDATED, {
+      service.publish(DomainEvent.MESSAGING_MESSAGE_RECEIVED, {
         entityId: CONTACT_ID,
-        payload: { changes: { firstName: { from: "A", to: "B" } } } as any,
+        payload: { connectedAccountId: CONTACT_ID } as any,
       }),
     );
 
@@ -132,9 +132,9 @@ describe("EventService no-op update skip", () => {
 
   it("skips an update whose changes are empty, writing no audit log and dispatching no webhook", async () => {
     const result = await runWithTenant(mockUser, () =>
-      service.publish(DomainEvent.CONTACT_UPDATED, {
+      service.publish(DomainEvent.ROLE_UPDATED, {
         entityId: CONTACT_ID,
-        payload: { contact: { id: CONTACT_ID }, changes: {} } as any,
+        payload: { role: { id: CONTACT_ID }, changes: {} } as any,
       }),
     );
 
@@ -146,11 +146,11 @@ describe("EventService no-op update skip", () => {
 
   it("publishes an update whose changes are non-empty", async () => {
     const result = await runWithTenant(mockUser, () =>
-      service.publish(DomainEvent.CONTACT_UPDATED, {
+      service.publish(DomainEvent.ROLE_UPDATED, {
         entityId: CONTACT_ID,
         payload: {
-          contact: { id: CONTACT_ID },
-          changes: { firstName: { previous: "A", current: "B" } },
+          role: { id: CONTACT_ID },
+          changes: { name: { previous: "A", current: "B" } },
         } as any,
       }),
     );
@@ -301,26 +301,17 @@ describe("EventService routine triggers", () => {
     );
   });
 
-  function publishContactUpdate() {
+  function publishMessageReceived() {
     return runWithTenant(mockUser, () =>
-      service.publish(DomainEvent.CONTACT_UPDATED, {
+      service.publish(DomainEvent.MESSAGING_MESSAGE_RECEIVED, {
         entityId: CONTACT_ID,
-        payload: { changes: { firstName: { from: "A", to: "B" } } } as never,
-      }),
-    );
-  }
-
-  function publishContactCreate() {
-    return runWithTenant(mockUser, () =>
-      service.publish(DomainEvent.CONTACT_CREATED, {
-        entityId: CONTACT_ID,
-        payload: { id: CONTACT_ID, firstName: "A" } as never,
+        payload: { connectedAccountId: CONTACT_ID } as never,
       }),
     );
   }
 
   it("starts a routine run for a subscribed event", async () => {
-    const result = await publishContactUpdate();
+    const result = await publishMessageReceived();
 
     expect(result.routineRuns).toBe(1);
     expect(backgroundTaskService.dispatch).toHaveBeenCalledWith("run-routine", {
@@ -347,7 +338,7 @@ describe("EventService routine triggers", () => {
       },
     ]);
 
-    const result = await publishContactUpdate();
+    const result = await publishMessageReceived();
 
     expect(result.routineRuns).toBe(2);
     expect(backgroundTaskService.dispatch).toHaveBeenCalledTimes(2);
@@ -366,7 +357,7 @@ describe("EventService routine triggers", () => {
   it("does not create company-visible history for an event the routine owner cannot access", async () => {
     routineEventAccess.matchesUserUnscoped.mockResolvedValue(false);
 
-    const result = await publishContactUpdate();
+    const result = await publishMessageReceived();
 
     expect(result.routineRuns).toBe(0);
     expect(routineRepo.admitEventRoutineRunsUnscoped).not.toHaveBeenCalled();
@@ -382,7 +373,7 @@ describe("EventService routine triggers", () => {
     ]);
     routineEventAccess.matchesUserUnscoped.mockImplementation(({ userId }) => Promise.resolve(userId === mockUser.id));
 
-    await publishContactUpdate();
+    await publishMessageReceived();
 
     expect(routineRepo.admitEventRoutineRunsUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -392,7 +383,7 @@ describe("EventService routine triggers", () => {
     expect(routineEventAccess.matchesUserUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
         companyId: mockUser.companyId,
-        event: DomainEvent.CONTACT_UPDATED,
+        event: DomainEvent.MESSAGING_MESSAGE_RECEIVED,
         entityId: CONTACT_ID,
         triggerPayload: expect.objectContaining({
           companyId: mockUser.companyId,
@@ -413,7 +404,7 @@ describe("EventService routine triggers", () => {
   });
 
   it("suppresses an event a routine caused, instead of re-triggering the routine", async () => {
-    const result = await runInRoutineContext({ causationDepth: 1 }, () => publishContactUpdate());
+    const result = await runInRoutineContext({ causationDepth: 1 }, () => publishMessageReceived());
 
     expect(result.routineRuns).toBe(0);
     expect(routineRepo.findEventRoutinesUnscoped).not.toHaveBeenCalled();
@@ -422,36 +413,9 @@ describe("EventService routine triggers", () => {
     expect(backgroundTaskService.dispatch).not.toHaveBeenCalledWith("run-routine", expect.anything());
   });
 
-  it("skips a routine whose required fields did not change", async () => {
-    routineRepo.findEventRoutinesUnscoped.mockResolvedValue([routineCandidate({ changedFields: ["stage"] })]);
-
-    const result = await publishContactUpdate();
-
-    expect(result.routineRuns).toBe(0);
-    expect(routineRepo.admitEventRoutineRunsUnscoped).not.toHaveBeenCalled();
-  });
-
-  it("triggers when one of the required fields is among the changes", async () => {
-    routineRepo.findEventRoutinesUnscoped.mockResolvedValue([
-      routineCandidate({ changedFields: ["firstName", "stage"] }),
-    ]);
-
-    const result = await publishContactUpdate();
-
-    expect(result.routineRuns).toBe(1);
-  });
-
-  it("ignores the required fields on an event that reports no changes", async () => {
-    routineRepo.findEventRoutinesUnscoped.mockResolvedValue([routineCandidate({ changedFields: ["firstName"] })]);
-
-    const result = await publishContactCreate();
-
-    expect(result.routineRuns).toBe(1);
-  });
-
   it("still triggers once the routine's own execution context has ended", async () => {
-    await runInRoutineContext({ causationDepth: 1 }, () => publishContactUpdate());
-    const result = await publishContactUpdate();
+    await runInRoutineContext({ causationDepth: 1 }, () => publishMessageReceived());
+    const result = await publishMessageReceived();
 
     expect(result.routineRuns).toBe(1);
   });

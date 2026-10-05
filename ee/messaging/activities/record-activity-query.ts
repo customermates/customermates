@@ -7,8 +7,6 @@ import { RecordWriteError } from "@/features/records/record-write.service";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { ActivityKind } from "./activities.schema";
 import type { RecordActivitiesInput } from "./record-activities.schema";
-import { LEGACY_RECORD_KINDS } from "@/features/records/legacy-record-history";
-import { presetId } from "@/features/records/crm-preset";
 import { systemActivityAuditEvents } from "./system-audit-events";
 
 export type RecordActivityIndexRow = {
@@ -211,10 +209,6 @@ export function compileRecordActivityIndex(
     branches.push(Prisma.sql`SELECT event.id, 'record'::text AS kind, event."createdAt" AS at FROM "RecordEvent" event
     JOIN history_scope scope ON scope."typeId" = event."typeId" AND scope.id = event."recordId"
     WHERE event."companyId" = ${companyId} AND ${auditMatches(Prisma.sql`event."typeId"`, Prisma.sql`event."recordId"`)}`);
-    branches.push(Prisma.sql`SELECT event.id, 'audit'::text AS kind, event."createdAt" AS at FROM "AuditLog" event
-      JOIN legacy_types legacy ON legacy.event = event.event
-      JOIN history_scope scope ON scope."typeId" = legacy."typeId" AND scope.id = event."entityId"
-      WHERE event."companyId" = ${companyId} AND ${auditMatches(Prisma.sql`legacy."typeId"`, Prisma.sql`event."entityId"`)}`);
   }
   if (enabled("message")) {
     branches.push(Prisma.sql`SELECT message.id, 'message'::text AS kind, message."sentAt" AS at FROM "MessagingMessage" message
@@ -243,7 +237,7 @@ export function compileRecordActivityIndex(
     ? Prisma.sql`(at, kind, id) < ((${cursor.at}::timestamptz AT TIME ZONE 'UTC'), ${cursor.kind}, ${cursor.id})`
     : Prisma.sql`TRUE`;
   const history = compileRecordHistoryScope(companyId, input, model, access);
-  const query = Prisma.sql`WITH legacy_types AS (${compileLegacyActivityTypes(companyId)}), activity_scope AS (${scope}), history_scope AS (${history}),
+  const query = Prisma.sql`WITH activity_scope AS (${scope}), history_scope AS (${history}),
     ${recordFilters.length ? Prisma.sql`${Prisma.join(recordFilters.map((filter) => filter.cte))},` : Prisma.empty}
     candidates AS (${branches.length ? Prisma.join(branches, " UNION ALL ") : Prisma.sql`SELECT NULL::text AS id, NULL::text AS kind, NULL::timestamp AS at WHERE FALSE`})
     SELECT id, kind, to_char(at, 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS at FROM candidates WHERE ${afterCursor}
@@ -253,16 +247,6 @@ export function compileRecordActivityIndex(
   if (query.values.length > 12000 || query.sql.length > 1500000)
     throw new RecordWriteError(CustomErrorCode.recordCalculationBudget);
   return query;
-}
-
-export function compileLegacyActivityTypes(companyId: string) {
-  return Prisma.sql`SELECT * FROM (VALUES ${Prisma.join(
-    LEGACY_RECORD_KINDS.flatMap((kind) =>
-      ["created", "updated", "deleted"].map(
-        (action) => Prisma.sql`(${`${kind}.${action}`}::text, ${presetId(companyId, kind)}::text)`,
-      ),
-    ),
-  )}) types(event, "typeId")`;
 }
 
 export function compileRecordHistoryScope(
@@ -292,7 +276,6 @@ export function compileRecordHistoryScope(
       ? Prisma.sql`
     UNION SELECT historical."typeId", historical.id FROM (
       SELECT event."typeId", event."recordId" AS id FROM "RecordEvent" event WHERE event."companyId" = ${companyId}
-      UNION SELECT legacy."typeId", event."entityId" AS id FROM "AuditLog" event JOIN legacy_types legacy ON legacy.event = event.event WHERE event."companyId" = ${companyId}
     ) historical WHERE (${Prisma.join(selection, " OR ")}) AND NOT EXISTS (
       SELECT 1 FROM "CrmRecord" record WHERE record."companyId" = ${companyId} AND record."typeId" = historical."typeId" AND record.id = historical.id
     )`

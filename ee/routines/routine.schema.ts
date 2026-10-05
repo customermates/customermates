@@ -9,17 +9,11 @@ import {
   RoutineTriggerKind,
   Status,
 } from "@/generated/prisma";
-import { EntityType } from "@/features/records/history/v1/legacy-enums";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { zx } from "@/core/validation/validation.utils";
-import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
+import { WebhookCurrentEventSchema } from "@/features/webhook/webhook.schema";
 import { FilterSchema } from "@/core/base/base-get.schema";
-import {
-  ROUTINE_TRIGGER_EVENTS,
-  RoutineTriggerEventSchema,
-  STORED_ROUTINE_TRIGGER_EVENTS,
-  StoredRoutineTriggerEventSchema,
-} from "./routine-trigger-events";
+import { ROUTINE_TRIGGER_EVENTS, RoutineTriggerEventSchema } from "./routine-trigger-events";
 import { ROUTINE_TRIGGER_FIELD_LIMIT } from "./routine-run-trigger-context";
 import {
   RecordTriggerDefinitionSchema,
@@ -42,12 +36,7 @@ export const RoutineRunStatusSchema = z.enum(RoutineRunStatus);
 
 export const RoutineRecordTriggerSchema = RecordTriggerDefinitionSchema;
 
-export {
-  ROUTINE_TRIGGER_EVENTS,
-  RoutineTriggerEventSchema,
-  STORED_ROUTINE_TRIGGER_EVENTS,
-  StoredRoutineTriggerEventSchema,
-};
+export { ROUTINE_TRIGGER_EVENTS, RoutineTriggerEventSchema };
 
 export const RoutineOwnerDtoSchema = z.object({
   id: z.uuid(),
@@ -70,7 +59,7 @@ export const RoutineDtoSchema = z.object({
   triggerKind: RoutineTriggerKindSchema,
   cronExpression: z.string().nullable(),
   timezone: z.string().nullable(),
-  triggerEvents: z.array(WebhookEventSchema),
+  triggerEvents: z.array(WebhookCurrentEventSchema),
   changedFields: z.array(z.string()),
   triggerFilters: z.array(FilterSchema),
   recordTrigger: RoutineRecordTriggerSchema.nullable().optional(),
@@ -88,7 +77,6 @@ export type RoutineDto = Data<typeof RoutineDtoSchema>;
 
 export const RoutineRunTriggerContextSchema = z.object({
   recordRef: RecordRefSchema.optional(),
-  entityType: z.enum(EntityType).nullable(),
   threadId: z.string().nullable(),
   changedFields: z.array(z.string()).max(ROUTINE_TRIGGER_FIELD_LIMIT),
   changedFieldsTruncated: z.boolean(),
@@ -103,7 +91,7 @@ export const RoutineRunDtoSchema = z.object({
   turnRequestId: z.uuid().nullable(),
   status: RoutineRunStatusSchema,
   triggerKind: RoutineTriggerKindSchema,
-  triggerEvent: StoredRoutineTriggerEventSchema.nullable(),
+  triggerEvent: RoutineTriggerEventSchema.nullable(),
   triggerEntityId: z.string().nullable(),
   triggerContext: RoutineRunTriggerContextSchema.nullable(),
   scheduledFor: z.date(),
@@ -138,7 +126,7 @@ const UpsertRoutineFieldsSchema = z.object({
 });
 
 export type RoutineValidationData = Omit<z.output<typeof UpsertRoutineFieldsSchema>, "triggerEvents"> & {
-  triggerEvents?: z.output<typeof StoredRoutineTriggerEventSchema>[];
+  triggerEvents?: z.output<typeof RoutineTriggerEventSchema>[];
 };
 
 export function validateRoutineFinalState(data: RoutineValidationData, ctx: z.RefinementCtx) {

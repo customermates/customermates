@@ -1,93 +1,35 @@
 import { describe, expect, it } from "vitest";
 
-import { EntityType } from "@/features/records/history/v1/legacy-enums";
-
 import {
   carriesChangedFields,
   changedFieldsOf,
-  entityTypeForEvent,
-  entityTypeForEvents,
   isRecordChangeEvent,
   isRecordRemovalEvent,
   matchesChangedFields,
 } from "@/ee/routines/routine-event-filter";
 
-describe("event entity types", () => {
-  it("derives the entity type from an event name", () => {
-    expect(entityTypeForEvent("contact.updated")).toBe(EntityType.contact);
-    expect(entityTypeForEvent("deal.created")).toBe(EntityType.deal);
-  });
-
-  it("returns null for an event that names no entity", () => {
-    expect(entityTypeForEvent("messaging.message.received")).toBeNull();
-  });
-
-  it("resolves one entity type when every event shares it", () => {
-    expect(entityTypeForEvents(["contact.created", "contact.updated"])).toBe(EntityType.contact);
-  });
-
-  it("refuses to guess when events span entity types", () => {
-    expect(entityTypeForEvents(["contact.updated", "deal.updated"])).toBeNull();
-  });
-
-  it("refuses record filters when CRM and messaging triggers are mixed", () => {
-    expect(entityTypeForEvents(["contact.updated", "messaging.email.received"])).toBeNull();
-  });
-
-  it("refuses to guess for an empty selection", () => {
-    expect(entityTypeForEvents([])).toBeNull();
-  });
-
-  it("recognises the record events that carry a change map", () => {
-    expect(isRecordChangeEvent("organization.updated")).toBe(true);
-    expect(isRecordChangeEvent("organization.created")).toBe(false);
+describe("record events", () => {
+  it("recognises the record event that carries changed fields", () => {
+    expect(isRecordChangeEvent("record.updated")).toBe(true);
+    expect(isRecordChangeEvent("record.created")).toBe(false);
+    expect(isRecordChangeEvent("organization.updated")).toBe(false);
     expect(isRecordChangeEvent("messaging.chat.updated")).toBe(false);
   });
 
-  it("recognises the record events whose record is already gone", () => {
-    expect(isRecordRemovalEvent("deal.deleted")).toBe(true);
-    expect(isRecordRemovalEvent("deal.updated")).toBe(false);
+  it("recognises the record event whose record is already gone", () => {
+    expect(isRecordRemovalEvent("record.deleted")).toBe(true);
+    expect(isRecordRemovalEvent("deal.deleted")).toBe(false);
   });
 });
 
 describe("changed field extraction", () => {
-  it("reads the changed field names from an update payload", () => {
-    const eventData = {
-      payload: {
-        changes: {
-          firstName: { previous: "A", current: "B" },
-          notes: { previous: 1, current: 2 },
-        },
-      },
-    };
+  it("reads changed fields only from record event envelopes", () => {
+    const eventData = { payload: { changes: { firstName: { previous: "A", current: "B" } } } };
 
-    expect(changedFieldsOf(eventData).sort()).toEqual(["firstName", "notes"]);
-  });
-
-  it("names a changed custom column by its column id", () => {
-    const columnId = "3f1e0a12-0000-4000-8000-000000000001";
-    const eventData = {
-      payload: {
-        changes: {
-          customFieldValues: {
-            previous: [{ columnId, value: "a" }],
-            current: [{ columnId, value: "b" }],
-          },
-        },
-      },
-    };
-
-    expect(changedFieldsOf(eventData)).toEqual([columnId]);
-  });
-
-  it("reports that a create payload carries no change map", () => {
-    expect(carriesChangedFields({ payload: { id: "1" } })).toBe(false);
+    expect(carriesChangedFields(eventData)).toBe(false);
+    expect(changedFieldsOf(eventData)).toEqual([]);
     expect(carriesChangedFields(null)).toBe(false);
     expect(changedFieldsOf({ payload: { id: "1" } })).toEqual([]);
-  });
-
-  it("reports that an update payload carries one", () => {
-    expect(carriesChangedFields({ payload: { changes: {} } })).toBe(true);
   });
 });
 

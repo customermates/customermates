@@ -1,5 +1,4 @@
-import { changedFieldsOf, entityKindForEvent, entityTypeForEvent, threadIdOf } from "./routine-event-filter";
-import { getEntityName } from "@/features/event/entity-name.utils";
+import { changedFieldsOf, entityKindForEvent, threadIdOf } from "./routine-event-filter";
 import { ROUTINE_TRIGGER_FIELD_LIMIT } from "./routine-run-trigger-context";
 import { routineRecordReference } from "./routine-record-reference";
 import { RecordDeliveryEnvelopeSchema } from "@/features/records/record-delivery.schema";
@@ -26,18 +25,12 @@ function attribute(name: string, value: string | null | undefined): string | nul
   return value ? `${name}="${attributeValue(value)}"` : null;
 }
 
-function recordName(context: RoutineTriggerContext): string | null {
-  if (!context.triggerEvent || !entityTypeForEvent(context.triggerEvent)) return null;
-
-  return getEntityName(context.triggerEvent as never, context.triggerPayload as never) ?? null;
-}
-
 export function composeRoutinePrompt(prompt: string, context: RoutineTriggerContext): string {
   if (!context.triggerEvent) return prompt;
 
   const changed = changedFieldsOf(context.triggerPayload);
   const record = RecordDeliveryEnvelopeSchema.safeParse(context.triggerPayload);
-  const ref = routineRecordReference(context.triggerEvent, context.triggerPayload, context.triggerEntityId);
+  const ref = routineRecordReference(context.triggerPayload);
   const recordLabels = record.success
     ? Object.fromEntries(
         record.data.record.fields.map((field) => [field.fieldId, field.after?.label ?? field.before?.label]),
@@ -51,7 +44,6 @@ export function composeRoutinePrompt(prompt: string, context: RoutineTriggerCont
     attribute("entityId", context.triggerEntityId),
     attribute("typeId", ref?.typeId),
     attribute("recordId", ref?.recordId),
-    attribute("entityName", recordName(context)),
     attribute("threadId", threadIdOf(context.triggerPayload)),
     attribute("changedFields", fields.length > 0 ? fields.join(",") : null),
     attribute("changedFieldLabels", fields.length > 0 ? labels.join(",") : null),

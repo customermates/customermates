@@ -3,7 +3,6 @@ import { describe, expect, it } from "vitest";
 import {
   WEBHOOK_CURRENT_EVENTS,
   WEBHOOK_EVENT_COUNT,
-  WEBHOOK_LEGACY_EVENTS,
   WEBHOOK_MESSAGING_EVENTS,
   WEBHOOK_MESSAGING_EVENT_COUNT,
   WEBHOOK_RECORD_EVENTS,
@@ -42,7 +41,8 @@ describe("derived content tokens", () => {
     expect(WEBHOOK_MESSAGING_EVENT_COUNT).toBe(WEBHOOK_MESSAGING_EVENTS.length);
     expect(WEBHOOK_RECORD_EVENT_COUNT + WEBHOOK_MESSAGING_EVENT_COUNT).toBe(WEBHOOK_EVENT_COUNT);
     expect(WebhookCurrentEventSchema.options).toHaveLength(WEBHOOK_EVENT_COUNT);
-    for (const legacy of WEBHOOK_LEGACY_EVENTS) expect(WebhookCurrentEventSchema.safeParse(legacy).success).toBe(false);
+    for (const retired of ["contact.created", "deal.updated", "task.deleted"])
+      expect(WebhookCurrentEventSchema.safeParse(retired).success).toBe(false);
     expect(resolveDerivedTokens("[[derived.webhooks.events.records]]")).toBe("3");
   });
 

@@ -888,13 +888,6 @@ export function sanitizeAgentPlainText(value: string) {
   return unwrapRecordPageLinks(sanitizeVisibleText(value));
 }
 
-const LEGACY_USER_PAGE_CONTEXT_PREFIX =
-  /^(?:\uFEFF)?[ \t]*<page_context[ \t]+route="[^"\r\n]{0,500}"[ \t]*\/>[ \t]*(?:\r?\n)?/i;
-
-export function stripLegacyUserPageContextPrefix(value: string) {
-  return value.replace(LEGACY_USER_PAGE_CONTEXT_PREFIX, "");
-}
-
 const MARKDOWN_BLOCK_PREFIX_PATTERN = /^[ \t]{0,3}(?:#{1,6}[ \t]+|>[ \t]?|[-*+][ \t]+|\d{1,9}[.)][ \t]+)/gm;
 const MARKDOWN_RULE_LINE_PATTERN = /^[ \t]{0,3}(?:[-*_][ \t]*){3,}$/gm;
 const MARKDOWN_FENCE_PATTERN = /^[ \t]{0,3}(?:`{3,}|~{3,}).*$/gm;
@@ -923,10 +916,7 @@ export function agentPlainTextPreview(value: string, maxChars: number) {
 
 export function sanitizeAgentConversationTitle(value: string | null | undefined) {
   if (!value) return null;
-  const title = sanitizeAgentPlainText(stripLegacyUserPageContextPrefix(value))
-    .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, 80);
+  const title = sanitizeAgentPlainText(value).replace(/\s+/g, " ").trim().slice(0, 80);
   return title || null;
 }
 

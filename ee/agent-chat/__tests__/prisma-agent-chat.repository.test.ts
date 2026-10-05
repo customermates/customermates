@@ -818,41 +818,6 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     expect(result[0]?.preview).toBe("Opened [internal reference].");
   });
 
-  it("removes the legacy route envelope from user conversation previews", async () => {
-    prismaMock.agentConversation.findMany.mockResolvedValue([
-      {
-        id: "conversation-1",
-        title: '\uFEFF <page_context route="/en/deals"/>\nLegacy context',
-        updatedAt: new Date("2026-08-06T10:00:00.000Z"),
-        userLastReadAt: null,
-        messages: [
-          {
-            role: "user",
-            parts: [
-              {
-                type: "text",
-                text: '<page_context route="/en/deals"/>\nShow open deals',
-              },
-            ],
-            createdAt: new Date("2026-08-06T10:00:00.000Z"),
-          },
-        ],
-      },
-    ]);
-    prismaMock.agentMessage.findMany.mockResolvedValue([]);
-
-    const result = await runWithTenant(user, () =>
-      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies())
-        .listConversationPage({ archived: false })
-        .then((page) => page.conversations),
-    );
-
-    expect(result[0]).toMatchObject({
-      title: "Legacy context",
-      preview: "Show open deals",
-    });
-  });
-
   it("keeps routine runs out of the chat list", async () => {
     prismaMock.agentConversation.findMany.mockResolvedValue([]);
     prismaMock.agentMessage.findMany.mockResolvedValue([]);

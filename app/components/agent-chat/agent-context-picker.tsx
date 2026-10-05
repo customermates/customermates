@@ -14,7 +14,6 @@ import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
 import { globalSearchAction } from "@/app/[locale]/(protected)/search/actions";
-import { ENTITY_ICON } from "@/components/entity-detail/entity-relations";
 import { assistantSurfaceProps } from "@/components/modal/assistant-surface";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -56,9 +55,7 @@ function CandidateIcon({ context }: { context: AgentContextAttachment }) {
   if (context.reference.kind === "dataView") return <LayoutPanelTop aria-hidden className="size-4" />;
   if (context.reference.kind === "widget") return <ChartColumn aria-hidden className="size-4" />;
   if (context.reference.kind !== "record") return <Settings2 aria-hidden className="size-4" />;
-  if ("typeId" in context.reference) return <List aria-hidden className="size-4" />;
-  const Icon = ENTITY_ICON[context.reference.entityType];
-  return <Icon aria-hidden className="size-4" />;
+  return <List aria-hidden className="size-4" />;
 }
 
 export const AgentContextPicker = observer(function AgentContextPicker({
