@@ -74,7 +74,7 @@ import { readAgentServedCharge, readGatewayCostMicrocents } from "@/ee/agent-cha
 import { agentServingProviderUsesGateway } from "@/ee/agent-chat/ovh-ai-endpoints-catalog";
 import {
   readAgentProviderErrorCharge,
-  readAgentProviderRateLimit,
+  readAgentProviderRetryableRejection,
   readAgentProviderRoundCharge,
 } from "@/ee/agent-chat/agent-provider-error";
 import { isReadOnlyAgentToolCall, requiresApproval } from "@/ee/agent-chat/gated-tools";
@@ -1622,7 +1622,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           });
           unreportedProviderRounds -= 1;
         }
-        const rateLimit = readAgentProviderRateLimit(error, payload.turnBudget.servingProvider);
+        const rateLimit = readAgentProviderRetryableRejection(error, payload.turnBudget.servingProvider);
         if (
           rateLimit &&
           failureCharge &&
@@ -1637,7 +1637,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           const delayMs = agentRateLimitRetryDelayMs(rateLimitRetries, rateLimit.retryAfterMs);
           await reportWarning(
             WORKFLOW_NAME,
-            `The provider rate-limited a round with HTTP 429 (retry ${rateLimitRetries} of ${AGENT_RATE_LIMIT_RETRIES}, after ${delayMs} ms).`,
+            `The provider rejected a round before streaming with HTTP ${rateLimit.statusCode} (retry ${rateLimitRetries} of ${AGENT_RATE_LIMIT_RETRIES}, after ${delayMs} ms).`,
             payload.tenant,
           );
           await sleep(delayMs);

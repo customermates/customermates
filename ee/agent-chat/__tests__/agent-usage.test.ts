@@ -351,6 +351,33 @@ describe("AgentUsageService admission and ledger", () => {
     },
   );
 
+  it("reports hosted Mate as not configured in the usage summary and view when the OVH key is missing", async () => {
+    const service = new AgentUsageService(makeRepo({ usedMicrocents: 100 * CREDIT }));
+    const configuredKey = env.OVH_AI_ENDPOINTS_API_KEY;
+    try {
+      env.OVH_AI_ENDPOINTS_API_KEY = undefined;
+      const missing = await service.getUsageSummary("user-1", NOW);
+      expect(missing.blockedReason).toBe("configuration_unavailable");
+      expect(toAgentUsageView(missing).blockedReason).toBe("configuration_unavailable");
+
+      env.OVH_AI_ENDPOINTS_API_KEY = "test-ovh-key";
+      expect((await service.getUsageSummary("user-1", NOW)).blockedReason).toBeNull();
+    } finally {
+      env.OVH_AI_ENDPOINTS_API_KEY = configuredKey;
+    }
+  });
+
+  it("keeps an exhausted allowance as the reported reason when the OVH key is also missing", async () => {
+    const service = new AgentUsageService(makeRepo({ usedMicrocents: 2_400 * CREDIT }));
+    const configuredKey = env.OVH_AI_ENDPOINTS_API_KEY;
+    env.OVH_AI_ENDPOINTS_API_KEY = undefined;
+    try {
+      expect((await service.getUsageSummary("user-1", NOW)).blockedReason).toBe("credits_exhausted");
+    } finally {
+      env.OVH_AI_ENDPOINTS_API_KEY = configuredKey;
+    }
+  });
+
   it("still admits a Gateway-served model without the OVH key", async () => {
     const service = new AgentUsageService(makeRepo({ usedMicrocents: 100 * CREDIT }));
     const configuredKey = env.OVH_AI_ENDPOINTS_API_KEY;

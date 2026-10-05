@@ -3985,7 +3985,11 @@ describe("agent-turn rate-limited provider requests", () => {
   });
 
   it.each([
-    ["a 503 rejection", () => providerRejection(503)],
+    ["a 500 server error", () => providerRejection(500)],
+    [
+      "a 503 after the response stream began",
+      () => providerRejection(503, { attempts: [], currentAttempt: { errorAttempts: [null] } }),
+    ],
     [
       "a 429 after the response stream began",
       () => rateLimited({ attempts: [], currentAttempt: { errorAttempts: [null] } }),
@@ -4006,6 +4010,80 @@ describe("agent-turn rate-limited provider requests", () => {
     state.runTools = () => Promise.reject(error());
 
     await runAgentTurn(ovhPayload);
+
+    expect(state.providerCalls).toBe(1);
+    expect(sleeps()).toEqual([]);
+    expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ stopReason: "provider_error" }));
+  });
+
+  it("retries an OVH 503 answered before any stream and prices the successful round from its tokens", async () => {
+    let attempts = 0;
+    state.runTools = () => (attempts++ === 0 ? Promise.reject(providerRejection(503)) : Promise.resolve(ovhReply()));
+
+    await runAgentTurn(ovhPayload);
+
+    expect(state.providerCalls).toBe(2);
+    expect(sleeps()).toEqual([2_000]);
+    expect(state.reportWarning).toHaveBeenCalledWith(
+      "agent-turn",
+      expect.stringContaining("HTTP 503 (retry 1 of 2, after 2000 ms)"),
+      ovhPayload.tenant,
+    );
+    expect(state.recordRound).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ costMicrocents: 110_800 }));
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        terminalCode: "completed",
+        stopReason: null,
+        usageSettlement: expect.objectContaining({ costMicrocents: 110_800, costSource: "measured" }),
+      }),
+    );
+  });
+
+  it.each([502, 503, 504])(
+    "stops a persistent OVH %i after two backed-off retries without charging the reservation",
+    async (statusCode) => {
+      const last = providerRejection(statusCode);
+      let attempts = 0;
+      state.runTools = () => Promise.reject(++attempts === 3 ? last : providerRejection(statusCode));
+
+      await runAgentTurn(ovhPayload);
+
+      expect(state.providerCalls).toBe(3);
+      expect(sleeps()).toEqual([2_000, 4_000]);
+      expect(state.reportFailure).toHaveBeenCalledExactlyOnceWith("agent-turn", last, ovhPayload.tenant);
+      expect(state.finalize).toHaveBeenCalledWith(
+        expect.objectContaining({
+          terminalCode: "partial",
+          stopReason: "provider_error",
+          usageSettlement: expect.objectContaining({ costMicrocents: 0, costSource: "measured" }),
+        }),
+      );
+      expect(JSON.stringify(state.writes)).toContain("localized:AgentChat.runner.providerError");
+    },
+  );
+
+  it("still charges the reservation for an OVH 500 and does not retry it", async () => {
+    state.runTools = () => Promise.reject(providerRejection(500));
+
+    await runAgentTurn(ovhPayload);
+
+    expect(state.providerCalls).toBe(1);
+    expect(sleeps()).toEqual([]);
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        stopReason: "provider_error",
+        usageSettlement: expect.objectContaining({
+          costMicrocents: ovhPayload.turnBudget.reservedMicrocents,
+          costSource: "estimated",
+        }),
+      }),
+    );
+  });
+
+  it("keeps a Gateway 503 on the SDK's retries without a turn retry", async () => {
+    state.runTools = () => Promise.reject(providerRejection(503, { attempts: [gatewayNotBilled] }));
+
+    await runAgentTurn(payload);
 
     expect(state.providerCalls).toBe(1);
     expect(sleeps()).toEqual([]);

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   readAgentProviderErrorCharge,
-  readAgentProviderRateLimit,
+  readAgentProviderRetryableRejection,
   readAgentProviderRoundCharge,
 } from "../agent-provider-error";
 
@@ -191,7 +191,20 @@ describe("OVHcloud rejections before generation", () => {
     },
   );
 
-  it.each([408, 500, 503, undefined])("keeps an OVH failure with status %s unreadable", (statusCode) => {
+  it.each([502, 503, 504])("releases a single OVH dispatch answered with %i before any stream", (statusCode) => {
+    const single = { kind: "ai-sdk-workflow-provider-error", version: 1, attempts: [null], statusCode };
+    expect(readAgentProviderErrorCharge(ovhError(single), "ovh")).toEqual({ costMicrocents: 0, measured: true });
+  });
+
+  it.each([502, 503, 504])("keeps an OVH %i unreadable once the stream began or after an SDK retry", (statusCode) => {
+    for (const value of [
+      envelope([], { errorAttempts: [null] }, { statusCode }),
+      { kind: "ai-sdk-workflow-provider-error", version: 1, attempts: [null, null], statusCode },
+    ])
+      expect(readAgentProviderErrorCharge(ovhError(value), "ovh")).toMatchObject({ measured: false });
+  });
+
+  it.each([408, 500, undefined])("keeps an OVH failure with status %s unreadable", (statusCode) => {
     const single = { kind: "ai-sdk-workflow-provider-error", version: 1, attempts: [null], statusCode };
     expect(readAgentProviderErrorCharge(ovhError(single), "ovh")).toMatchObject({ measured: false });
   });
@@ -248,7 +261,7 @@ describe("turn-owned rate-limit retries", () => {
       statusCode: 429,
       retryAfterMs: 3_000,
     });
-    expect(readAgentProviderRateLimit(error, "ovh")).toEqual({ retryAfterMs: 3_000 });
+    expect(readAgentProviderRetryableRejection(error, "ovh")).toEqual({ statusCode: 429, retryAfterMs: 3_000 });
   });
 
   it("leaves a Gateway 429 to the SDK's own retries", () => {
@@ -258,7 +271,20 @@ describe("turn-owned rate-limit retries", () => {
       attempts: [metadata("0", false)],
       statusCode: 429,
     });
-    expect(readAgentProviderRateLimit(error, "vertex")).toBeNull();
+    expect(readAgentProviderRetryableRejection(error, "vertex")).toBeNull();
+  });
+
+  it.each([502, 503, 504])(
+    "hands a single OVH dispatch answered with %i before any stream to the turn",
+    (statusCode) => {
+      const error = rateLimited({ kind: "ai-sdk-workflow-provider-error", version: 1, attempts: [null], statusCode });
+      expect(readAgentProviderRetryableRejection(error, "ovh")).toEqual({ statusCode, retryAfterMs: null });
+    },
+  );
+
+  it.each([500, 400, 408])("leaves an OVH %i to the turn's ordinary failure handling", (statusCode) => {
+    const error = rateLimited({ kind: "ai-sdk-workflow-provider-error", version: 1, attempts: [null], statusCode });
+    expect(readAgentProviderRetryableRejection(error, "ovh")).toBeNull();
   });
 
   it("does not retry an OVH 429 after the stream began or after more than one attempt", () => {
@@ -266,6 +292,6 @@ describe("turn-owned rate-limit retries", () => {
       envelope([], { errorAttempts: [null] }, { statusCode: 429 }),
       { kind: "ai-sdk-workflow-provider-error", version: 1, attempts: [null, null], statusCode: 429 },
     ])
-      expect(readAgentProviderRateLimit(rateLimited(cause), "ovh")).toBeNull();
+      expect(readAgentProviderRetryableRejection(rateLimited(cause), "ovh")).toBeNull();
   });
 });

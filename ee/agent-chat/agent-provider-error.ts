@@ -148,11 +148,20 @@ function isDispatchRejectionWithoutReceipt(envelope: Record<string, unknown>) {
   );
 }
 
+const UNAVAILABLE_BEFORE_STREAM_STATUSES = new Set([502, 503, 504]);
+
+function isSingleDispatchWithoutReceipt(envelope: Record<string, unknown>) {
+  const attempts = envelope.attempts;
+  return !("currentAttempt" in envelope) && Array.isArray(attempts) && attempts.length === 1 && attempts[0] === null;
+}
+
 function rejectedBeforeGenerationWithoutGateway(envelope: Record<string, unknown>, expectedProvider: string) {
   if (agentServingProviderUsesGateway(expectedProvider)) return false;
   const status = envelope.statusCode;
-  if (typeof status !== "number" || status < 400 || status >= 500 || status === 408) return false;
+  if (typeof status !== "number") return false;
   if (envelope.providerFailure === false || envelope.incompleteAttempts === true) return false;
+  if (UNAVAILABLE_BEFORE_STREAM_STATUSES.has(status)) return isSingleDispatchWithoutReceipt(envelope);
+  if (status < 400 || status >= 500 || status === 408) return false;
   return isDispatchRejectionWithoutReceipt(envelope);
 }
 
@@ -248,15 +257,22 @@ export function readAgentProviderRoundCharge(
   return readProviderReceiptEnvelope(envelope, expectedProvider);
 }
 
-export type AgentProviderRateLimit = { retryAfterMs: number | null };
+export type AgentProviderRetryableRejection = { statusCode: number; retryAfterMs: number | null };
 
-export function readAgentProviderRateLimit(error: unknown, expectedProvider: string): AgentProviderRateLimit | null {
+export function readAgentProviderRetryableRejection(
+  error: unknown,
+  expectedProvider: string,
+): AgentProviderRetryableRejection | null {
   if (agentServingProviderUsesGateway(expectedProvider)) return null;
   const envelope = providerFailureEnvelope(error);
-  if (!envelope || envelope.statusCode !== 429 || "currentAttempt" in envelope) return null;
-  if (!Array.isArray(envelope.attempts) || envelope.attempts.length !== 1) return null;
+  const statusCode = envelope?.statusCode;
+  if (!envelope || typeof statusCode !== "number") return null;
+  if (statusCode !== 429 && !UNAVAILABLE_BEFORE_STREAM_STATUSES.has(statusCode)) return null;
+  if (envelope.providerFailure === false || envelope.incompleteAttempts === true) return null;
+  if (!isSingleDispatchWithoutReceipt(envelope)) return null;
   const retryAfterMs = envelope.retryAfterMs;
   return {
+    statusCode,
     retryAfterMs:
       typeof retryAfterMs === "number" && Number.isSafeInteger(retryAfterMs) && retryAfterMs >= 0 ? retryAfterMs : null,
   };

@@ -15,7 +15,7 @@ import {
   workspaceIndexingShareMicrocents,
 } from "./agent-credit-policy";
 import { agentRoundWorstCaseMicrocents, resolveAgentTurnBudget, type AgentTurnBudget } from "./agent-budget-policy";
-import type { AgentModelEntry } from "./model-catalog";
+import { SHIPPED_AGENT_MODEL, type AgentModelEntry } from "./model-catalog";
 import { configuredOvhApiKey, isOvhModelId } from "./ovh-ai-endpoints-catalog";
 
 export type AgentRetrievalPayer = "grant" | "platform";
@@ -148,7 +148,7 @@ function servableAgentModel(model: AgentModelEntry) {
 export class AgentUsageService {
   constructor(private repo: AgentUsageRepo) {}
 
-  private async resolveUsageState(userId: string, now: Date): Promise<ResolvedUsageState> {
+  private async resolveUsageState(userId: string, now: Date, model?: AgentModelEntry): Promise<ResolvedUsageState> {
     const user = await this.repo.findUserForUsageUnscoped(userId);
     if (!user) throw new Error("User not found for agent usage.");
 
@@ -230,7 +230,12 @@ export class AgentUsageService {
         ? ("configuration_unavailable" as const)
         : entitlement.blockedReason;
     const blockedReason = activeSeat
-      ? (publicEntitlementBlock ?? (remainingMicrocents === 0 ? ("credits_exhausted" as const) : null))
+      ? (publicEntitlementBlock ??
+        (remainingMicrocents === 0
+          ? ("credits_exhausted" as const)
+          : model && !servableAgentModel(model)
+            ? ("configuration_unavailable" as const)
+            : null))
       : ("subscription_unavailable" as const);
 
     return {
@@ -254,7 +259,7 @@ export class AgentUsageService {
   }
 
   async getUsageSummary(userId: string, now = new Date()): Promise<AgentUsageSummary> {
-    return (await this.resolveUsageState(userId, now)).summary;
+    return (await this.resolveUsageState(userId, now, SHIPPED_AGENT_MODEL)).summary;
   }
 
   async prepareTurn(
@@ -269,9 +274,9 @@ export class AgentUsageService {
     summary: AgentUsageSummary;
     reservation: AgentTurnCreditReservation | null;
   }> {
-    const state = await this.resolveUsageState(userId, now);
+    const state = await this.resolveUsageState(userId, now, options.model);
     if (state.summary.blockedReason) return { summary: state.summary, reservation: null };
-    if (!state.user.subscription || !state.summary.plan || !servableAgentModel(options.model)) {
+    if (!state.user.subscription || !state.summary.plan) {
       return {
         summary: {
           ...state.summary,
