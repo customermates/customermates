@@ -29,7 +29,7 @@ Important behavior:
 - A normalized channel identifier is indexed and may have associations with several records/types. Removing an association must not delete another association or silently grant inbox access. Removing the last association deletes the canonical identity with its aliases and cached provider metadata; disabling Channels or archiving a type keeps associations for restoration. Conversation links and declared activity paths remain explicit.
 - Application identity, authentication, memberships, provider connections and protected membership-task operations remain system responsibilities. Ordinary fields and renamed types cannot bypass those constraints.
 - Large operations retain the previous complete readable state, pause CRM writes and publish a complete revision atomically. Failure, cancellation and retry must not leak partial values or repeat accepted mutations.
-- Legacy CRUD implementations are removed. Remaining legacy names should be justified as presets, migration logic, redirects or historical read-only decoders. Do not remove preservation code simply because active CRUD is generic.
+- The upgrade preserves CRM data only. Legacy CRUD, legacy history decoders, presentation and terminology conversion are removed; record history, views and widgets start at the upgrade. Remaining legacy names must be starter presets or the single upgrade migration.
 
 ## Fresh-machine setup
 
