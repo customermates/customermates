@@ -1,6 +1,6 @@
 import type { Page, Route } from "@playwright/test";
 import { presetId } from "../../features/records/crm-preset";
-import { addFromConfigure, openConfigure } from "./configure";
+import { addFromConfigure, openConfigure, saveDrawer } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 function collectErrors(page: Page) {
@@ -149,10 +149,7 @@ test("discards an earlier real configuration preview without attaching it to ano
       path: testInfo.outputPath("field-draft-after-delayed-preview.png"),
       animations: "disabled",
     });
-    await editor.getByRole("button", { name: "Save", exact: true }).first().click();
-    await expect(editor.getByRole("status")).toContainText("Ready to apply");
-    await editor.getByRole("button", { name: "Apply changes", exact: true }).first().click();
-    await expect(editor).not.toBeVisible();
+    await saveDrawer(page);
     expect(
       (
         await database.query(

@@ -18,6 +18,7 @@ test("keeps currency on Settings and routes CRM configuration to Configure", asy
       return result.rows[0]?.currency;
     })
     .toBe("usd");
+  await page.waitForLoadState("networkidle");
   await page.reload();
   await expect(page.locator("#company-settings-currency")).toContainText("USD");
 

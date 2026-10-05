@@ -15,6 +15,7 @@ export function configureTopBar(page: Page) {
 }
 
 export async function openConfigure(page: Page, typeId?: string) {
+  if (page.url() !== "about:blank") await page.waitForLoadState("networkidle");
   await page.goto(typeId ? `/en/configure?typeId=${typeId}` : "/en/configure");
   await expect(page.locator("[data-configure-page]")).toBeVisible();
   if (typeId) await expect(page.locator("[data-configure-list-pane]")).toBeVisible();

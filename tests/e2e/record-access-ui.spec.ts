@@ -923,13 +923,8 @@ async function relationshipCreateTypeUi(page: Page, name: string) {
 }
 
 async function relationshipApplyUi(page: Page) {
-  const dialog = page.getByRole("dialog", { name: englishMessages.RecordModel.relationship, exact: true });
-  await dialog.getByRole("button", { name: englishMessages.Common.actions.save, exact: true }).first().click();
-  await expect(dialog.getByRole("status")).toContainText(
-    englishMessages.RecordModel.previewReady.split("{count}")[0]?.trim() ?? "Ready to apply",
-  );
-  await dialog.getByRole("button", { name: englishMessages.RecordModel.apply, exact: true }).first().click();
-  await expect(dialog).not.toBeVisible();
+  await expect(page.getByRole("dialog", { name: englishMessages.RecordModel.relationship, exact: true })).toBeVisible();
+  await saveDrawer(page);
 }
 
 async function relationshipOptionUi(page: Page, id: string, label: string) {
@@ -984,6 +979,7 @@ async function relationshipEditUi(page: Page, typeId: string, label: string, res
 }
 
 async function relationshipOpenRecordUi(page: Page, typeId: string, typeLabel: string, title: string) {
+  await page.waitForLoadState("networkidle");
   await page.goto(`/en/records/${typeId}`);
   await page.getByRole("button", { name: title, exact: true }).click();
   const editor = page.getByRole("dialog", { name: typeLabel, exact: true });
@@ -1506,12 +1502,7 @@ test("keeps personal views separate from shared defaults and completes their UI 
   await presentationOptionUi(page, "type-summary-field-0", "Budget");
   await presentationOptionUi(page, "type-summary-aggregation-0", englishMessages.RecordModel.reducers.average);
   await presentationOptionUi(page, "type-summary-aggregation-0", englishMessages.RecordModel.reducers.sum);
-  await shared.getByRole("button", { name: englishMessages.Common.actions.save, exact: true }).first().click();
-  await expect(shared.getByRole("status")).toContainText(
-    englishMessages.RecordModel.previewReady.split("{count}")[0]?.trim() ?? "Ready to apply",
-  );
-  await shared.getByRole("button", { name: englishMessages.RecordModel.apply, exact: true }).first().click();
-  await expect(shared).not.toBeVisible();
+  await saveDrawer(page);
   const changed = (await readModel(page)).types.find((candidate) => candidate.id === type.id);
   expect(changed?.defaults).toMatchObject({
     layout: "board",
@@ -1717,12 +1708,7 @@ test("keeps personal views separate from shared defaults and completes their UI 
   await expect(shared.locator("#type-summary-field-0")).toContainText("Budget");
   await shared.getByRole("button", { name: englishMessages.RecordModel.removeGroupSummary, exact: true }).click();
   await expect(shared.locator("#type-summary-field-0")).toHaveCount(0);
-  await shared.getByRole("button", { name: englishMessages.Common.actions.save, exact: true }).first().click();
-  await expect(shared.getByRole("status")).toContainText(
-    englishMessages.RecordModel.previewReady.split("{count}")[0]?.trim() ?? "Ready to apply",
-  );
-  await shared.getByRole("button", { name: englishMessages.RecordModel.apply, exact: true }).first().click();
-  await expect(shared).not.toBeVisible();
+  await saveDrawer(page);
   expect((await readModel(page)).types.find((candidate) => candidate.id === type.id)?.defaults.groupSummaries).toEqual(
     [],
   );
@@ -2154,12 +2140,7 @@ test("publishes and withdraws a private-input summary through the field UI witho
     const toggle = dialog.getByRole("switch", { name: englishMessages.RecordModel.publishSummary, exact: true });
     if (next) await toggle.check();
     else await toggle.uncheck();
-    await dialog.getByRole("button", { name: englishMessages.Common.actions.save, exact: true }).first().click();
-    await expect(dialog.getByRole("status")).toContainText(
-      englishMessages.RecordModel.previewReady.split("{count}")[0]?.trim() ?? "Ready to apply",
-    );
-    await dialog.getByRole("button", { name: englishMessages.RecordModel.apply, exact: true }).first().click();
-    await expect(dialog).not.toBeVisible();
+    await saveDrawer(page);
     await expect.poll(published).toBe(next);
     expect(
       (
@@ -2252,10 +2233,7 @@ test("publishes and withdraws a private-input summary through the field UI witho
     await expect(
       sourceEditor.getByRole("button", { name: englishMessages.Common.actions.save, exact: true }).first(),
     ).toBeEnabled();
-    await sourceEditor.getByRole("button", { name: englishMessages.Common.actions.save, exact: true }).first().click();
-    await expect(sourceEditor.getByRole("status")).toContainText("Ready to apply");
-    await sourceEditor.getByRole("button", { name: englishMessages.RecordModel.apply, exact: true }).first().click();
-    await expect(sourceEditor).not.toBeVisible();
+    await saveDrawer(page);
     expect((await readModel(page)).fields.find((field) => field.id === id("service.amount"))?.behavior).toEqual({
       kind: "input",
       defaultValue: { kind: "decimal", value: "50", currency: "EUR" },
