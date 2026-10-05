@@ -39,6 +39,7 @@ import { Icon } from "@/components/shared/icon";
 import { signOutAction } from "@/app/[locale]/actions";
 import { FeedbackType } from "@/features/feedback/send-feedback.schema";
 import { recordNavigationKey } from "@/features/records/record-navigation.schema";
+import { assistantEntryVisible } from "./navigation/assistant-entry-visibility";
 import { recordTypeIcon } from "@/components/records/record-type-icon";
 
 import { NavHeader } from "./navigation/nav-header";
@@ -413,7 +414,12 @@ const FullAppSidebar = observer(
             assistantBusy={assistantBusy}
             assistantBusyLabel={assistantBusyLabel}
             assistantLabel={
-              rootStore.agentChatEnabled && (restricted || rootStore.agentChatStore.enabled === true)
+              assistantEntryVisible({
+                agentChatEnabled: rootStore.agentChatEnabled,
+                restricted,
+                configEnabled: rootStore.agentChatStore.enabled,
+                subscription,
+              })
                 ? t("AgentChat.askAi")
                 : undefined
             }
