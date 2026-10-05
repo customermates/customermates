@@ -39,7 +39,6 @@ function setup() {
     getSearchableFields: vi.fn(() => [{ field: "name" }]),
     getSortableFields: vi.fn(() => [{ field: "createdAt", resolvedFields: ["createdAt"] }]),
     getFilterableFields: vi.fn().mockResolvedValue([{ field: "name", operators: [FilterOperatorKey.contains] }]),
-    getCustomColumns: vi.fn().mockResolvedValue([]),
     getGroupableFields: vi.fn().mockResolvedValue(dateGroupables("user", { createdAt: true, updatedAt: false })),
   });
   const sources = Object.fromEntries(DATA_VIEW_SURFACE_KEYS.map((key) => [key, source()])) as Record<
@@ -146,7 +145,8 @@ describe("agent saved-view management", () => {
     );
     expect(result.ok).toBe(false);
     if (!result.ok) expect(interactorFailureKind(result.error)).toBe("authorization");
-    expect(subject.sources[SURFACE.users].getCustomColumns).not.toHaveBeenCalled();
+    expect(subject.sources[SURFACE.users].getFilterableFields).not.toHaveBeenCalled();
+    expect(subject.sources[SURFACE.users].getGroupableFields).not.toHaveBeenCalled();
     expect(subject.views.loadSurfaceState).not.toHaveBeenCalled();
   });
 
@@ -366,7 +366,8 @@ describe("agent saved-view management", () => {
     const result = await subject.run(input as never);
     expect(result.ok).toBe(false);
     expect(subject.views.loadSurfaceState).not.toHaveBeenCalled();
-    expect(subject.sources[SURFACE.users].getCustomColumns).not.toHaveBeenCalled();
+    expect(subject.sources[SURFACE.users].getFilterableFields).not.toHaveBeenCalled();
+    expect(subject.sources[SURFACE.users].getGroupableFields).not.toHaveBeenCalled();
   });
 
   it("narrows configuration by field and label without matching operator metadata", async () => {
@@ -530,7 +531,8 @@ describe("agent saved-view management", () => {
 
   it("treats an unchanged echo of the listed state as a no-op without writing or reading configuration", async () => {
     const subject = setup();
-    subject.sources[SURFACE.users].getCustomColumns.mockRejectedValue(new Error("configuration unavailable"));
+    subject.sources[SURFACE.users].getFilterableFields.mockRejectedValue(new Error("configuration unavailable"));
+    subject.sources[SURFACE.users].getGroupableFields.mockRejectedValue(new Error("configuration unavailable"));
     const [view] = subject.surfaceState.views;
 
     const named = await subject.run({
@@ -557,6 +559,8 @@ describe("agent saved-view management", () => {
     expect(all.ok && all.data).toMatchObject({ viewKey: ALL_VIEW_KEY, state: { pageSize: 25 } });
     expect(subject.upsert.invoke).not.toHaveBeenCalled();
     expect(subject.save.invoke).not.toHaveBeenCalled();
+    expect(subject.sources[SURFACE.users].getFilterableFields).not.toHaveBeenCalled();
+    expect(subject.sources[SURFACE.users].getGroupableFields).not.toHaveBeenCalled();
   });
 
   it("applies a changed column layout through the same changed-keys patch", async () => {
@@ -577,7 +581,8 @@ describe("agent saved-view management", () => {
 
   it("renames without loading or validating unrelated view configuration", async () => {
     const subject = setup();
-    subject.sources[SURFACE.users].getCustomColumns.mockRejectedValue(new Error("configuration unavailable"));
+    subject.sources[SURFACE.users].getFilterableFields.mockRejectedValue(new Error("configuration unavailable"));
+    subject.sources[SURFACE.users].getGroupableFields.mockRejectedValue(new Error("configuration unavailable"));
 
     const result = await subject.run({
       action: "update",
@@ -592,7 +597,8 @@ describe("agent saved-view management", () => {
       surfaceKey: SURFACE.users,
       name: "Renamed only",
     });
-    expect(subject.sources[SURFACE.users].getCustomColumns).not.toHaveBeenCalled();
+    expect(subject.sources[SURFACE.users].getFilterableFields).not.toHaveBeenCalled();
+    expect(subject.sources[SURFACE.users].getGroupableFields).not.toHaveBeenCalled();
   });
 
   it("rejects a malformed child result through the declared output contract", async () => {
