@@ -45,6 +45,7 @@ export const AreaTimeChart = observer(
         <AreaChart data={data} margin={{ top: 8, right: 12, bottom: 0, left: 0 }}>
           <XAxis
             dataKey="label"
+            interval="preserveStartEnd"
             minTickGap={12}
             reversed={Boolean(reverseXAxis)}
             stroke={gridColor}
