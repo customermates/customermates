@@ -7,7 +7,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { StackDropdownItem } from "@/components/shared/stack-dropdown-item";
-import { useNavigateToHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
+import { useNavigateToHref } from "@/components/shared/use-navigate-to-href";
 
 import { AppChip } from "./app-chip";
 

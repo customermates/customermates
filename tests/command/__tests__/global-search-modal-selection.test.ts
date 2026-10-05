@@ -18,11 +18,8 @@ vi.mock("@/core/stores/root-store.provider", () => ({
     recordWorkspaceStore: { open: harness.openEntity },
   }),
 }));
-vi.mock("@/components/entity-detail/hooks/use-entity-drawer-stack", () => ({
-  useOpenEntity: () => harness.openEntity,
-}));
-vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
-  useEntityTerminology: () => ({ plural: (type: string) => type, singular: (type: string) => type }),
+vi.mock("@/components/records/use-record-href", () => ({
+  useOpenPresetRecord: () => harness.openEntity,
 }));
 
 import { GlobalSearchModal } from "@/app/components/global-search-modal";

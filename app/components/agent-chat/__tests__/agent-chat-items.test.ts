@@ -10,9 +10,6 @@ vi.mock("next-intl", () => ({
         ? `${key}:${values.target}`
         : key,
 }));
-vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
-  useEntityTerminology: () => ({ plural: () => "Contacts" }),
-}));
 vi.mock("@/components/shared/app-link", async () => {
   const { createElement } = await import("react");
   return {
@@ -51,7 +48,7 @@ describe("AgentActivity", () => {
               kind: "views.configure" as const,
               affectedResources: [],
               risk: "write" as const,
-              viewHref: "/contacts?view=__all__",
+              viewHref: "/company/webhooks?view=__all__",
             },
             status: "done" as const,
           },
@@ -59,7 +56,7 @@ describe("AgentActivity", () => {
       }),
     );
 
-    expect(html).toContain('href="/contacts?view=__all__"');
+    expect(html).toContain('href="/company/webhooks?view=__all__"');
     expect(html).toContain("AgentChat.openSavedView");
     expect(html.match(/AgentChat\.activity\.state\.views\.configure\.done/g)).toHaveLength(1);
     expect(html).not.toContain('data-slot="collapsible-trigger"');

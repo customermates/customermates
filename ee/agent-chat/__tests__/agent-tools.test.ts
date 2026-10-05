@@ -71,7 +71,7 @@ import { ANALYZE_RECORDS_TOOL_NAME } from "../agent-toolset-routing";
 import { WIKI_REFERENCE_MAX_BYTES, agentWikiReferenceBytes, serializeAgentWikiCatalog } from "../agent-wiki-context";
 import { SHIPPED_AGENT_MODEL } from "../model-catalog";
 import { buildAgentSystemPrompt } from "../system-prompt";
-import { ACTIVE_AGENT_UI_TARGETS, AGENT_UI_TARGETS, unopenedUiPrerequisite } from "../ui-targets";
+import { AGENT_UI_TARGETS, unopenedUiPrerequisite } from "../ui-targets";
 import {
   AGENT_UI_TOOL_NAMES,
   agentToolDefinitionsForToolsets,
@@ -795,7 +795,7 @@ describe("agent tools", () => {
     const tools = getAgentAiTools(deps({ resultMaxChars: 6000 }));
     const pages: string[] = [];
     let cursor: number | undefined;
-    for (let page = 0; page < ACTIVE_AGENT_UI_TARGETS.length; page += 1) {
+    for (let page = 0; page < AGENT_UI_TARGETS.length; page += 1) {
       const result = String(await execute(tools.list_ui_targets, cursor === undefined ? {} : { cursor }));
       pages.push(result);
       const match = /\nnextCursor=(\d+);total=(\d+)$/.exec(result);
@@ -816,13 +816,13 @@ describe("agent tools", () => {
         .filter((line) => line.includes("|"))
         .map((line) => line.split("|")[0]),
     );
-    expect(ids).toEqual(ACTIVE_AGENT_UI_TARGETS.map((target) => target.id));
+    expect(ids).toEqual(AGENT_UI_TARGETS.map((target) => target.id));
   });
 
   it("keeps every highlight target discoverable through bounded queries and pages", async () => {
     const tools = getAgentAiTools(deps({ resultMaxChars: 512 }));
 
-    for (const target of ACTIVE_AGENT_UI_TARGETS) {
+    for (const target of AGENT_UI_TARGETS) {
       const result = String(await execute(tools.list_ui_targets, { query: target.id }));
       expect(result.length).toBeLessThanOrEqual(512);
       expect(result).toContain(target.id);
@@ -850,7 +850,7 @@ describe("agent tools", () => {
 
     const seen: string[] = [];
     let cursor: number | undefined;
-    for (let page = 0; page < ACTIVE_AGENT_UI_TARGETS.length; page += 1) {
+    for (let page = 0; page < AGENT_UI_TARGETS.length; page += 1) {
       const result = String(await execute(tools.list_ui_targets, cursor === undefined ? {} : { cursor }));
       expect(result.length).toBeLessThanOrEqual(512);
       seen.push(
@@ -863,7 +863,7 @@ describe("agent tools", () => {
       if (!match) break;
       cursor = Number(match[1]);
     }
-    expect(seen).toEqual(ACTIVE_AGENT_UI_TARGETS.map((target) => target.id));
+    expect(seen).toEqual(AGENT_UI_TARGETS.map((target) => target.id));
     expect(new Set(seen).size).toBe(seen.length);
   });
 
@@ -1113,17 +1113,17 @@ describe("agent tools", () => {
     const runUiCommand = vi.fn().mockResolvedValue({ ok: true, result: "shown" });
     const tools = getAgentAiTools(deps({ runUiCommand }));
     const refusal =
-      "deals-layout-board is inside deals-display-options, which the user must open first, so nothing was shown. Highlight deals-display-options and tell the user to open it, or run start_tour with deals-display-options as the step before deals-layout-board.";
+      "company-webhooks-layout-board is inside company-webhooks-display-options, which the user must open first, so nothing was shown. Highlight company-webhooks-display-options and tell the user to open it, or run start_tour with company-webhooks-display-options as the step before company-webhooks-layout-board.";
 
-    await expect(execute(tools.highlight_element, { targetId: "deals-layout-board" })).resolves.toEqual({
+    await expect(execute(tools.highlight_element, { targetId: "company-webhooks-layout-board" })).resolves.toEqual({
       ok: false,
       result: refusal,
     });
     await expect(
       execute(tools.start_tour, {
         steps: [
-          { targetId: "nav-deals", note: "Open deals." },
-          { targetId: "deals-layout-board", note: "Switch to the board." },
+          { targetId: "nav-company-webhooks", note: "Open webhooks." },
+          { targetId: "company-webhooks-layout-board", note: "Switch to the board." },
         ],
       }),
     ).resolves.toEqual({ ok: false, result: refusal });
@@ -1132,13 +1132,13 @@ describe("agent tools", () => {
     const throughOpener = {
       steps: [
         {
-          targetId: "deals-display-options",
+          targetId: "company-webhooks-display-options",
           note: "Open the display options.",
         },
-        { targetId: "deals-layout-board", note: "Switch to the board." },
+        { targetId: "company-webhooks-layout-board", note: "Switch to the board." },
       ],
     };
-    await expect(execute(tools.highlight_element, { targetId: "deals-display-options" })).resolves.toEqual({
+    await expect(execute(tools.highlight_element, { targetId: "company-webhooks-display-options" })).resolves.toEqual({
       ok: true,
       result: "shown",
     });
@@ -1156,7 +1156,7 @@ describe("agent tools", () => {
       result: "shown",
     });
     expect(runUiCommand.mock.calls.map(([, name, input]) => [name, input])).toEqual([
-      ["highlight_element", { targetId: "deals-display-options" }],
+      ["highlight_element", { targetId: "company-webhooks-display-options" }],
       ["start_tour", throughOpener],
       ["highlight_element", { targetId: namedRow.id }],
     ]);
@@ -1644,8 +1644,7 @@ describe("agent tools", () => {
     expect(prompt).toContain("require a fresh explicit approval every time; there is no standing permission to offer");
     expect(prompt).toContain("Destructive actions");
     expect(prompt).toContain("team invitations");
-    expect(prompt).toContain("renaming record types (workspace terminology)");
-    expect(prompt).toContain("workspace settings other than record type names");
+    expect(prompt).toContain("workspace settings, custom fields");
     expect(prompt).toContain("webhook delivery resends");
     expect(prompt).toContain("If an approval is declined or times out, nothing changed");
     expect(prompt).toContain("A support email is sent only after that approval is granted");

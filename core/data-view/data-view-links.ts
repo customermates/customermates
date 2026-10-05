@@ -8,16 +8,9 @@ import { SURFACE } from "./data-view-keys";
 import { DATA_VIEW_PATHS, isRecordTimelinePath } from "./data-view-paths";
 
 const STANDALONE_DATA_VIEW_PATHS = new Set(
-  [
-    ...AI_MANAGEABLE_DATA_VIEW_SURFACE_KEYS,
-    SURFACE.contacts,
-    SURFACE.organizations,
-    SURFACE.deals,
-    SURFACE.services,
-    SURFACE.tasks,
-  ]
-    .map((surfaceKey) => DATA_VIEW_PATHS[surfaceKey])
-    .filter((path): path is string => path !== null),
+  AI_MANAGEABLE_DATA_VIEW_SURFACE_KEYS.map((surfaceKey) => DATA_VIEW_PATHS[surfaceKey]).filter(
+    (path): path is string => path !== null,
+  ),
 );
 const RECORD_ID_SCHEMA = z.uuid();
 

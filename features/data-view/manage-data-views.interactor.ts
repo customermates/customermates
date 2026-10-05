@@ -100,13 +100,8 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
       const surfaces = [];
       for (const surfaceKey of AI_MANAGEABLE_DATA_VIEW_SURFACE_KEYS) {
         if (await this.accessDenied(surfaceKey)) continue;
-        const { label, path, entityType } = DATA_VIEW_SURFACES[surfaceKey];
-        surfaces.push({
-          surfaceKey,
-          label,
-          path,
-          ...(entityType ? { entityType } : {}),
-        });
+        const { label, path } = DATA_VIEW_SURFACES[surfaceKey];
+        surfaces.push({ surfaceKey, label, path });
       }
       if (this.recordViews) surfaces.push(...(await this.recordViews.list()));
       return {
@@ -181,7 +176,6 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
             action: data.action,
             ...location,
             label: descriptor.label,
-            entityType: descriptor.entityType,
             section,
             totals,
             supportsSearch: config.supportsSearch,
@@ -210,7 +204,6 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
           action: data.action,
           ...location,
           label: descriptor.label,
-          entityType: descriptor.entityType,
           section,
           ...result,
         },
@@ -531,10 +524,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
         ...customColumns.map(({ id, label, type }) => ({ id, field: id, label, columnType: type })),
       ],
       supportsSearch: source.getSearchableFields().length > 0,
-      viewModes:
-        DATA_VIEW_SURFACES[surfaceKey].entityType || groupableFields.length > 0
-          ? [ViewMode.table, ViewMode.card]
-          : [ViewMode.table],
+      viewModes: groupableFields.length > 0 ? [ViewMode.table, ViewMode.card] : [ViewMode.table],
     };
   }
 
@@ -549,7 +539,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
     return runPrecheck(state, async (input, ctx) => {
       await this.queryPrecheck.invoke(
         config,
-        DATA_VIEW_SURFACES[surfaceKey].entityType,
+        undefined,
         {
           filters: input.filters,
           sortDescriptor: input.sortDescriptor ?? undefined,

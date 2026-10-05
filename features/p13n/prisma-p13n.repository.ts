@@ -11,7 +11,7 @@ import { Prisma } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
 import { groupingShadowColumnId, readStoredGrouping } from "@/core/base/grouping/stored-grouping";
-import { normalizeFilters } from "@/core/base/filter-compat";
+import { normalizeFilterInput } from "@/core/base/filter-value";
 import { EntityDetailOptionsSchema, type EntityDetailOptions } from "./p13n.schema";
 
 export interface P13nEntry {
@@ -30,7 +30,7 @@ export interface P13nEntry {
 }
 
 function normalizeStoredFilters(value: unknown): Filter[] | undefined {
-  return Array.isArray(value) ? normalizeFilters(value as unknown as Filter[]) : undefined;
+  return Array.isArray(value) ? (value.map(normalizeFilterInput) as Filter[]) : undefined;
 }
 
 function normalizeStoredPagination(value: unknown): Pick<PaginationRequest, "pageSize"> | undefined {

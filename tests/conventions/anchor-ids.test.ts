@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -11,9 +10,8 @@ import {
   SCOPES_WITHOUT_SEARCH,
   TOOLBAR_SCOPES_WITH_ADD,
   TOOLBAR_SCOPES_WITHOUT_ADD,
-  TRANSFERABLE_SCOPES,
 } from "@/ee/agent-chat/ui-anchors";
-import { ACTIVE_AGENT_UI_TARGETS } from "@/ee/agent-chat/ui-targets";
+import { AGENT_UI_TARGETS } from "@/ee/agent-chat/ui-targets";
 import { recordUiTargets } from "@/ee/agent-chat/record-ui-targets";
 
 import { REPO_ROOT, walkFiles } from "./walk";
@@ -26,7 +24,6 @@ const DOCS_ID_PATTERN = /`#([a-z][a-z0-9]*(?:-[a-z0-9]+)+)`/g;
 const LITERAL_ID_PATTERN =
   /\b(?:id|inputId)=["']([a-z][a-z0-9]*(?:-[a-z0-9]+)+)["']|\b(?:composerId|fallbackFocusId|usageId|anchorId):\s*["']([a-z][a-z0-9]*(?:-[a-z0-9]+)+)["']/g;
 const ANCHOR_SCOPE_PATTERN = /anchorScope=["']([a-z0-9-]+)["']/g;
-const TERMINOLOGY_ID_TEMPLATE = "id={`terminology-${entityType}`}";
 const DOCS_LOCALES = CONTENT_LOCALES;
 
 const RESERVED_LITERAL_PREFIXES = [
@@ -43,8 +40,7 @@ const RESERVED_LITERAL_PREFIXES = [
   "inbox-",
   "records-",
 ];
-const RETIRED_RECORD_SCOPES = new Set(["contacts", "organizations", "deals", "services", "tasks"]);
-const RETIRED_RECORD_IDS = /^(?:drawer-|entity-|mass-|confirm-)/;
+const UNDOCUMENTED_DIALOG_IDS = /^(?:mass-|confirm-)/;
 
 function appGuideFiles(locale: string): string[] {
   return walkFiles(join(REPO_ROOT, "content", "docs", locale), (path) => /app-[a-z-]+\.mdx$/.test(path));
@@ -71,8 +67,6 @@ function codeIds(): Set<string> {
   for (const file of sourceFiles()) {
     const text = readFileSync(file, "utf8");
     for (const match of text.matchAll(LITERAL_ID_PATTERN)) ids.add(match[1] ?? match[2]);
-    if (text.includes(TERMINOLOGY_ID_TEMPLATE))
-      for (const entityType of Object.values(EntityType)) ids.add(`terminology-${entityType}`);
     for (const match of text.matchAll(ANCHOR_SCOPE_PATTERN)) {
       const scope = match[1];
       if (TOOLBAR_SCOPES_WITH_ADD.includes(scope) || TOOLBAR_SCOPES_WITHOUT_ADD.includes(scope)) {
@@ -82,7 +76,6 @@ function codeIds(): Set<string> {
         ids.add(`${scope}-layout-table`);
         ids.add(`${scope}-layout-board`);
         if (TOOLBAR_SCOPES_WITH_ADD.includes(scope)) ids.add(`${scope}-add`);
-        if (TRANSFERABLE_SCOPES.has(scope)) ids.add(`${scope}-transfer`);
       }
       if (FORM_SCOPES.includes(scope)) {
         ids.add(`${scope}-save`);
@@ -109,7 +102,7 @@ function toolbarSuffixes(scope: string, hasAdd: boolean): string[] {
 
 function expectedDocumentedIds(): Set<string> {
   const ids = new Set<string>();
-  for (const scope of TOOLBAR_SCOPES_WITH_ADD.filter((scope) => !RETIRED_RECORD_SCOPES.has(scope)))
+  for (const scope of TOOLBAR_SCOPES_WITH_ADD)
     for (const suffix of toolbarSuffixes(scope, true)) ids.add(`${scope}${suffix}`);
   for (const suffix of toolbarSuffixes("records", true)) ids.add(`records${suffix}`);
   ids.add("records-transfer");
@@ -121,7 +114,7 @@ function expectedDocumentedIds(): Set<string> {
     const text = readFileSync(file, "utf8");
     for (const match of text.matchAll(LITERAL_ID_PATTERN)) {
       const id = match[1] ?? match[2];
-      if (RESERVED_LITERAL_PREFIXES.some((prefix) => id.startsWith(prefix)) && !RETIRED_RECORD_IDS.test(id))
+      if (RESERVED_LITERAL_PREFIXES.some((prefix) => id.startsWith(prefix)) && !UNDOCUMENTED_DIALOG_IDS.test(id))
         ids.add(id);
     }
   }
@@ -151,7 +144,7 @@ describe("app-guide anchor id fidelity", () => {
       .map((file) => readFileSync(file, "utf8"))
       .join("\n");
     for (const scope of [
-      ...TOOLBAR_SCOPES_WITH_ADD.filter((scope) => !RETIRED_RECORD_SCOPES.has(scope)),
+      ...TOOLBAR_SCOPES_WITH_ADD,
       ...TOOLBAR_SCOPES_WITHOUT_ADD,
       ...FORM_SCOPES,
     ])
@@ -185,10 +178,10 @@ describe("app-guide anchor id fidelity", () => {
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("offers the agent only targets that exist in code", () => {
     const inCode = codeIds();
-    const unknown = ACTIVE_AGENT_UI_TARGETS.map((target) => target.id)
+    const unknown = AGENT_UI_TARGETS.map((target) => target.id)
       .filter((id) => !inCode.has(id))
       .sort();
-    expect(unknown, "ACTIVE_AGENT_UI_TARGETS references ids that no component renders").toEqual([]);
+    expect(unknown, "AGENT_UI_TARGETS references ids that no component renders").toEqual([]);
     const typeId = "00000000-0000-4000-8000-000000000001";
     const dynamicTargets = recordUiTargets({
       companyId: "00000000-0000-4000-8000-000000000002",

@@ -72,8 +72,7 @@
         },
         "workspace": {
           "configure": "Prêt à modifier le modèle de données de l’espace de travail",
-          "settings": "Prêt à modifier les paramètres de l’espace de travail, y compris les noms des types d’enregistrement",
-          "terminology": "Prêt à renommer des types d’enregistrement pour tout l’espace de travail"
+          "settings": "Prêt à modifier les paramètres de l’espace de travail, y compris les noms des types d’enregistrement"
         }
       },
       "cancelled": "Arrêté",
@@ -132,7 +131,6 @@
         "organizations": "organisations",
         "services": "services",
         "tasks": "tâches",
-        "terminology": "terminologie de l’espace de travail",
         "widgets": "widgets du Dashboard",
         "wiki": "pages de la base de connaissances"
       },
@@ -143,7 +141,6 @@
         "organizations": "organisation",
         "services": "prestation",
         "tasks": "tâche",
-        "terminology": "terme de l’espace de travail",
         "widgets": "widget de Dashboard",
         "wiki": "page de la base de connaissances"
       },
@@ -425,11 +422,6 @@
             "done": "Paramètres de l’espace de travail mis à jour",
             "error": "Impossible de mettre à jour les paramètres de l’espace de travail",
             "running": "Mise à jour des paramètres de l’espace de travail"
-          },
-          "terminology": {
-            "done": "Terminologie de l’espace de travail mise à jour",
-            "error": "Impossible de mettre à jour la terminologie de l’espace de travail",
-            "running": "Mise à jour de la terminologie de l’espace de travail"
           }
         }
       },
@@ -548,36 +540,6 @@
             }
           }
         },
-        "contacts": {
-          "data": {
-            "contacts-cleanup": {
-              "label": "Repérer les données manquantes",
-              "prompt": "Passez en revue mes contacts pour repérer les informations manquantes ou incohérentes et proposez des corrections."
-            },
-            "contacts-summary": {
-              "label": "Résumer les contacts",
-              "prompt": "Résumez mes contacts et signalez les tendances utiles ou les informations manquantes."
-            },
-            "create-contact": {
-              "label": "Créer un contact",
-              "prompt": "Aidez-moi à créer un contact. Demandez uniquement les informations indispensables."
-            }
-          },
-          "empty": {
-            "contacts-tour": {
-              "label": "Découvrir le fonctionnement des contacts",
-              "prompt": "Faites-moi visiter la page des contacts et expliquez comment les contacts se relient au reste du CRM."
-            },
-            "first-contact": {
-              "label": "Créer mon premier contact",
-              "prompt": "Aidez-moi à créer mon premier contact réel à partir de faits confirmés dans ma base de connaissances, l’espace de travail ou mes indications. Demandez de quelle personne il s’agit et uniquement les informations obligatoires manquantes ; ne créez pas de contact d’exemple ou issu d’un témoignage."
-            },
-            "setup-contacts": {
-              "label": "Configurer les contacts",
-              "prompt": "Configure des champs et vues de contacts utiles à partir de ma base de connaissances et de l’espace de travail. Ne crée pas de contacts d’exemple et ne transforme pas les témoignages publics en contacts. Demande uniquement les décisions manquantes."
-            }
-          }
-        },
         "dashboard": {
           "data": {
             "dashboard-tour": {
@@ -605,36 +567,6 @@
             "tour": {
               "label": "Faites-moi visiter",
               "prompt": "Proposez-moi une visite guidée approfondie de Customermates et expliquez comment les principales zones fonctionnent ensemble."
-            }
-          }
-        },
-        "deals": {
-          "data": {
-            "create-deal": {
-              "label": "Créer une opportunité",
-              "prompt": "Aidez-moi à créer une opportunité et à relier tous les enregistrements pertinents."
-            },
-            "pipeline-gaps": {
-              "label": "Repérer les lacunes du pipeline",
-              "prompt": "Passez en revue mes opportunités pour repérer les relations, montants ou prochaines étapes manquants."
-            },
-            "pipeline-summary": {
-              "label": "Résumer mon pipeline",
-              "prompt": "Résumez mon pipeline d'opportunités, les risques et les prochaines actions les plus utiles."
-            }
-          },
-          "empty": {
-            "deals-tour": {
-              "label": "Découvrir le fonctionnement des opportunités",
-              "prompt": "Faites-moi visiter les opportunités et expliquez comment gérer un pipeline dans Customermates."
-            },
-            "first-deal": {
-              "label": "Créer ma première opportunité",
-              "prompt": "Aidez-moi à créer ma première opportunité réelle à partir d’une opportunité confirmée que j’identifie. Utilisez ma base de connaissances et l’espace de travail, reliez uniquement des organisations, contacts et services confirmés et demandez les faits obligatoires manquants, comme le montant ou l’étape actuelle, avant de la créer."
-            },
-            "setup-pipeline": {
-              "label": "Configurer mon pipeline",
-              "prompt": "Configure un pipeline commercial simple à partir de ma base de connaissances et de l’espace de travail. Ne crée pas d’opportunités d’exemple et ne considère pas les études de cas publiques comme des opportunités actuelles. Demande uniquement les décisions manquantes du pipeline ; n’invente jamais de montants, budgets ou étapes actuelles."
             }
           }
         },
@@ -698,36 +630,6 @@
             }
           }
         },
-        "organizations": {
-          "data": {
-            "create-organization": {
-              "label": "Créer une organisation",
-              "prompt": "Aidez-moi à créer une organisation et à relier les enregistrements pertinents."
-            },
-            "organization-gaps": {
-              "label": "Repérer les relations manquantes",
-              "prompt": "Trouvez les organisations auxquelles il manque des relations utiles avec des contacts, des opportunités ou des tâches."
-            },
-            "organizations-summary": {
-              "label": "Résumer les organisations",
-              "prompt": "Résumez mes organisations et mettez en avant les relations qui méritent votre attention."
-            }
-          },
-          "empty": {
-            "first-organization": {
-              "label": "Créer ma première organisation",
-              "prompt": "Aidez-moi à créer ma première organisation réelle à partir de faits confirmés dans ma base de connaissances, l’espace de travail ou mes indications. Demandez de quelle organisation il s’agit et uniquement les informations obligatoires manquantes. Reliez uniquement des personnes ou opportunités confirmées ; n’inventez pas de relation client."
-            },
-            "organizations-tour": {
-              "label": "Découvrir le fonctionnement des organisations",
-              "prompt": "Faites-moi visiter les organisations et expliquez comment elles relient contacts, opportunités et tâches."
-            },
-            "setup-organizations": {
-              "label": "Configurer les organisations",
-              "prompt": "Configure des champs et vues d’organisations utiles à partir de ma base de connaissances et de l’espace de travail. Ne crée pas d’organisations d’exemple et ne considère pas les études de cas publiques comme des relations commerciales actuelles. Demande uniquement les décisions manquantes."
-            }
-          }
-        },
         "routines": {
           "data": {
             "create-routine": {
@@ -755,66 +657,6 @@
             "routines-tour": {
               "label": "Découvrir les routines",
               "prompt": "Guide-moi dans la page Routines et explique les planifications, les déclencheurs d’événements, les tests, les crédits et l’historique des exécutions. N’effectue aucune modification."
-            }
-          }
-        },
-        "services": {
-          "data": {
-            "create-service": {
-              "label": "Créer une offre",
-              "prompt": "Aidez-moi à créer un service ou un produit avec les bonnes informations commerciales."
-            },
-            "service-gaps": {
-              "label": "Repérer les lacunes du catalogue",
-              "prompt": "Passez en revue mes services ou produits pour repérer les prix manquants, les relations absentes ou les offres en double."
-            },
-            "services-summary": {
-              "label": "Résumer les offres",
-              "prompt": "Résumez mes services ou produits et la façon dont ils sont utilisés dans les opportunités."
-            }
-          },
-          "empty": {
-            "first-service": {
-              "label": "Créer ma première offre",
-              "prompt": "Aidez-moi à créer mon premier service ou produit réel à partir de ma base de connaissances et de l’espace de travail. Demandez uniquement quelle offre choisir et les informations obligatoires manquantes. Si son prix obligatoire est inconnu, demandez avant de le créer ; ne devinez jamais de prix et n’utilisez pas de valeur provisoire."
-            },
-            "services-tour": {
-              "label": "Découvrir le fonctionnement des offres",
-              "prompt": "Faites-moi visiter les services et expliquez comment les offres se relient aux opportunités et aux tâches."
-            },
-            "setup-services": {
-              "label": "Configurer mes offres",
-              "prompt": "Crée uniquement les services ou produits réels documentés dans ma base de connaissances, en évitant les doublons dans l’espace de travail. Utilise des prix confirmés. Si un prix obligatoire ou une autre information commerciale obligatoire est inconnu, demande avant de créer cette offre ; n’invente jamais de prix et n’utilise pas de valeur provisoire."
-            }
-          }
-        },
-        "tasks": {
-          "data": {
-            "create-task": {
-              "label": "Créer une tâche",
-              "prompt": "Aidez-moi à créer une tâche et à la relier aux bons enregistrements."
-            },
-            "task-gaps": {
-              "label": "Repérer les suivis manquants",
-              "prompt": "Trouvez les enregistrements importants qui semblent dépourvus d'une tâche de suivi claire."
-            },
-            "task-priorities": {
-              "label": "Planifier mes prochaines actions",
-              "prompt": "Passez en revue mes tâches et les données CRM associées, puis recommandez ce que je devrais faire ensuite."
-            }
-          },
-          "empty": {
-            "first-task": {
-              "label": "Créer ma première tâche",
-              "prompt": "Aidez-moi à créer ma première tâche réelle que j’identifie, à partir de ma base de connaissances et de l’espace de travail. Reliez uniquement des fiches confirmées et demandez uniquement les décisions obligatoires manquantes. N’inventez pas de tâche, de responsable ou d’échéance."
-            },
-            "setup-tasks": {
-              "label": "Configurer mon flux de travail",
-              "prompt": "Configure un flux de tâches minimal avec des champs et vues utiles à partir de ma base de connaissances et de l’espace de travail. Ne crée pas de tâches d’exemple et n’invente pas de responsables ou d’échéances. Demande uniquement les décisions manquantes du flux de travail."
-            },
-            "tasks-tour": {
-              "label": "Découvrir le fonctionnement des tâches",
-              "prompt": "Faites-moi visiter les tâches et expliquez comment elles se relient aux contacts, organisations, opportunités et services."
             }
           }
         },
@@ -1326,7 +1168,6 @@
       "taskNameCannotBeChangedForSystemTasks": "Le nom des tâches système ne peut pas être modifié.",
       "taskNotFound": "ID de tâche introuvable ou inaccessible.",
       "taskOnlyCustomTasksCanBeDeleted": "Seules les tâches personnalisées peuvent être supprimées.",
-      "terminologyInvalidPreset": "Choisissez l’un des modèles de nom disponibles.",
       "termsNotAgreed": "Vous devez accepter les conditions générales.",
       "threadNotFound": "ID de conversation introuvable ou inaccessible.",
       "unipileAccountRestricted": "Le fournisseur a restreint ce canal. Le reconnecter ne résoudra rien ; réglez d’abord la restriction auprès du fournisseur.",
@@ -2294,96 +2135,6 @@
     },
     "showField": "Afficher {field} dans les détails",
     "unpinField": "Désépingler {field} de l’aperçu"
-  },
-  "EntityTerminology": {
-    "presets": {
-      "contact": {
-        "client": {
-          "plural": "Clients",
-          "singular": "Client"
-        },
-        "contact": {
-          "plural": "Contacts",
-          "singular": "Contact"
-        },
-        "lead": {
-          "plural": "Prospects",
-          "singular": "Prospect"
-        },
-        "person": {
-          "plural": "Personnes",
-          "singular": "Personne"
-        }
-      },
-      "deal": {
-        "deal": {
-          "plural": "Affaires",
-          "singular": "Affaire"
-        },
-        "job": {
-          "plural": "Missions",
-          "singular": "Mission"
-        },
-        "opportunity": {
-          "plural": "Opportunités",
-          "singular": "Opportunité"
-        },
-        "project": {
-          "plural": "Projets",
-          "singular": "Projet"
-        }
-      },
-      "organization": {
-        "account": {
-          "plural": "Comptes",
-          "singular": "Compte"
-        },
-        "company": {
-          "plural": "Entreprises",
-          "singular": "Entreprise"
-        },
-        "organization": {
-          "plural": "Organisations",
-          "singular": "Organisation"
-        }
-      },
-      "service": {
-        "offering": {
-          "plural": "Offres",
-          "singular": "Offre"
-        },
-        "package": {
-          "plural": "Forfaits",
-          "singular": "Forfait"
-        },
-        "product": {
-          "plural": "Produits",
-          "singular": "Produit"
-        },
-        "service": {
-          "plural": "Services",
-          "singular": "Service"
-        }
-      },
-      "task": {
-        "actionItem": {
-          "plural": "Actions",
-          "singular": "Action"
-        },
-        "followUp": {
-          "plural": "Relances",
-          "singular": "Relance"
-        },
-        "task": {
-          "plural": "Tâches",
-          "singular": "Tâche"
-        },
-        "todo": {
-          "plural": "À faire",
-          "singular": "Élément à faire"
-        }
-      }
-    }
   },
   "EntityTimeline": {
     "detailDescription": "Détails de l'activité et contexte de l'enregistrement lié.",
@@ -3540,6 +3291,28 @@
     "staleRefreshFailed": "Impossible d’actualiser le modèle de données. Votre brouillon est conservé ; réessayez.",
     "staleRefreshRequired": "Le modèle de données a changé. Actualisez-le pour poursuivre ce brouillon.",
     "staleTargetMissing": "Cette définition a été supprimée. Votre brouillon est conservé, mais ne peut pas être appliqué.",
+    "starterTypes": {
+      "contact": {
+        "plural": "Contacts",
+        "singular": "Contact"
+      },
+      "deal": {
+        "plural": "Affaires",
+        "singular": "Affaire"
+      },
+      "organization": {
+        "plural": "Organisations",
+        "singular": "Organisation"
+      },
+      "service": {
+        "plural": "Services",
+        "singular": "Service"
+      },
+      "task": {
+        "plural": "Tâches",
+        "singular": "Tâche"
+      }
+    },
     "summaryAggregation": "Calcul",
     "summaryApprovalRequired": "Ce résumé est publié. Un administrateur doit approuver les modifications des données utilisées dans le calcul.",
     "summaryField": "Champ de la synthèse",

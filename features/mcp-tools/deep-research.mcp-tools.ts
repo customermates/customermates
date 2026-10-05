@@ -21,12 +21,10 @@ import {
   getGetRecordInteractor,
   getGetRecordModelInteractor,
   getSearchRecordsInteractor,
-  getResolveRecordSearchInteractor,
   getGetWikiPageInteractor,
   getSearchExternalizedWikiPagesInteractor,
 } from "@/core/di";
 import { RecordRefSchema, type RecordRef } from "@/features/records/record-model.schema";
-import { LegacySearchReferenceSchema } from "@/features/search/legacy-search-reference";
 import { recordSearchLabel } from "@/features/records/record-search.schema";
 import { extractWikiPageLinks, externalizeWikiPageLinks } from "@/features/wiki/wiki-markdown-links";
 import { parseWikiPageReference, wikiPageFetchId, wikiPageUrl } from "@/features/wiki/wiki-links";
@@ -367,13 +365,6 @@ export const fetchTool = {
     if (kind === "record") {
       const ref = RecordRefSchema.safeParse({ typeId: qualifier, recordId: key });
       if (ref.success) return fetchRecord(ref.data);
-      const legacy = LegacySearchReferenceSchema.safeParse({ type: qualifier, id: key });
-      if (legacy.success) {
-        const resolved = await getResolveRecordSearchInteractor().invoke({ refs: [legacy.data] });
-        if (!resolved.ok) return mcpInteractorFailure(resolved.error);
-        const match = resolved.data.results[0];
-        return match ? fetchRecord(match.ref) : customMcpFailure(CustomErrorCode.recordNotFound);
-      }
     }
     if (kind === "doc" && isContentLocale(qualifier) && key.length > 0) return fetchDoc(qualifier, key);
     return mcpMessageFailure(

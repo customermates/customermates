@@ -7,13 +7,13 @@ Customermates starts with Contacts, Organizations, Deals, Services, and Tasks. A
 
 ## What is the shared layout of a record type, and what is the add drawer for? [#what-is-the-shared-layout-of-a-record-type]
 
-Every type has a list at `/records/<typeId>` and a record page at `/records/<typeId>/<recordId>`. The type ID remains stable when the label changes. Selecting a row opens an editor drawer; the record URL opens its full page. **Add** opens the same editor with an empty record. A record has fields, linked records, Notes, and Activities. The sidebar lists the types you can read. Existing `/contacts`, `/organizations`, `/deals`, `/services`, and `/tasks` links redirect to their configured types.
+Every type has a list at `/records/<typeId>` and a record page at `/records/<typeId>/<recordId>`. The type ID remains stable when the label changes. Selecting a row opens an editor drawer; the record URL opens its full page. **Add** opens the same editor with an empty record. A record has fields, linked records, Notes, and Activities. The sidebar lists the types you can read. The former `/contacts`, `/organizations`, `/deals`, `/services`, and `/tasks` URLs were removed; bookmarks need the list's `/records/<typeId>` address.
 
 The detail page opens with an overview of the fields that matter most; every field carries a pin control that adds it to or removes it from that overview. **Customize** also lets you hide fields or drag them into another order, and **Done** ends it. These choices are per person on top of the type's shared defaults.
 
 The sidebar's **Add** button (`#nav-add`) opens a type picker. The record editor keeps unsaved edits when the assistant is opened. A reader only sees fields and calculated values allowed by their permissions.
 
-**Link:** the **Contacts** list, `/contacts`, redirects to its record type at `/records/<typeId>`; the other original list URLs also redirect. **Mate:** discover the type with `get_record_model` or `list_ui_targets`; navigate using `nav-records:<typeId>` and highlight `records:<typeId>:add`.
+**Link:** each list at `/records/<typeId>`, for example the **Contacts** list. **Mate:** discover the type with `get_record_model` or `list_ui_targets`; navigate using `nav-records:<typeId>` and highlight `records:<typeId>:add`.
 
 ## Where do I see the lists of contacts, organizations, deals, services, and tasks, and add a record? [#how-do-i-add-a-record]
 
@@ -21,7 +21,7 @@ Choose the type in the sidebar, then use **Add**. This works for Contacts, Organ
 
 To see a list of all tasks, select **Tasks** in the sidebar. To see your services, select **Services**. To add a new contact, select **Contacts** and click **Add**.
 
-**Link:** the **Contacts** list, `/contacts`, and similarly `/organizations`, `/deals`, `/services`, `/tasks`, redirect to the current record lists. **Mate:** use `get_record_model`, then `mutate_crm_record`; the UI target is `records:<typeId>:add`.
+**Link:** the list at `/records/<typeId>`. **Mate:** use `get_record_model`, then `mutate_crm_record`; the UI target is `records:<typeId>:add`.
 
 ## Which controls does each list have?
 
@@ -29,21 +29,21 @@ The same toolbar appears for each type. Search, Filters, Appearance, Import and 
 
 ## How do I import or export records? [#how-do-i-import-or-export-records]
 
-Use **Import and export** on a record list. The current generic export produces a JSON document containing the type schema revision, records, field values, and links. Import accepts that JSON document in create or update mode, validates the type and revision, and rejects incompatible or oversized files. Export and import are also available through the version-two record API. The earlier Excel wizard is not part of the generic list flow; an Excel or CSV file must be converted to the generic format before import.
+Use **Import and export** on a record list. The current generic export produces a JSON document containing the type schema revision, records, field values, and links. Import accepts that JSON document in create or update mode, validates the type and revision, and rejects incompatible or oversized files. Export and import are also available through the record API. The earlier Excel wizard is not part of the generic list flow; an Excel or CSV file must be converted to the generic format before import.
 
-**Link:** the **Contacts** list, `/contacts`, redirects to its generic list; the transfer control is `records:<typeId>:transfer`.
+**Link:** the list at `/records/<typeId>`; the transfer control is `records:<typeId>:transfer`.
 
 ## How do saved views work, and can I share one with my team? [#how-do-saved-views-work]
 
 Saved views are personal. They remember filters, search, sorting, grouping, layout, page size, and column preferences for the chosen type. Shared type defaults supply the initial layout and columns, while personal changes remain yours. The tabs and controls appear below the page header: `#global-data-views`, `#global-data-views-all`, `#global-data-views-new`, `#global-data-views-menu`, and `#global-data-views-ai`. The view editor offers `#view-editor-ai`. A link with `?view=<id>` points to your personal view; a colleague can use the URL's query settings to create their own view. Opening Ask AI attaches the view as context but does not send a message.
 
-**Link:** a **Deals** list at `/deals` redirects to `/records/<typeId>`; its saved view uses `/records/<typeId>?view=<id>`. **Mate:** `manage_data_views` configures supported view settings.
+**Link:** a list at `/records/<typeId>`, for example **Deals**; its saved view uses `/records/<typeId>?view=<id>`. **Mate:** `manage_data_views` configures supported view settings.
 
 ## What is the difference between the record types, and where does a phone number go? [#what-is-special-about-each-record-type]
 
 Contacts start as people records with Channels enabled. A schema manager can enable Channels on another list. One record has one channel collection with many identifiers; each indexed identifier can link to several records. Exact lookup returns all accessible matches. An ordinary email or phone field does not automatically become a channel identity. Conversation-specific links apply only to their selected thread. Organizations, Deals, Services, and Tasks are starting configurations rather than separate storage engines. Deals begin with line items linked to Services: quantity times effective unit price makes each line amount, line amounts sum to deal value, and a stage probability can calculate weighted value. Live service prices update linked live-priced lines; saved prices stay fixed. Membership approval tasks retain protected authorization behavior. A customer-created type can have ordinary fields, relationships, and calculations without receiving those protected capabilities by accident.
 
-**Link:** the starting **Contacts** `/contacts`, **Organizations** `/organizations`, **Deals** `/deals`, **Services** `/services`, and **Tasks** `/tasks` URLs redirect to their configured record lists. See [core concepts](/docs/concepts) for calculation and relationship behavior.
+**Link:** the starting **Contacts**, **Organizations**, **Deals**, **Services**, and **Tasks** lists each live at `/records/<typeId>`. See [core concepts](/docs/concepts) for calculation and relationship behavior.
 
 ## How do I switch between table and board view, group a pipeline, and sort by a custom field? [#how-do-i-switch-between-table-and-board-view]
 
@@ -51,7 +51,7 @@ Open **Appearance** (`#records-display-options`) and choose **Table** or **Board
 
 To sort a list by a custom field, open **Appearance → Sort by** and choose that field. The same control can sort a Deals list by its calculated value or a Tasks list by a configured due date.
 
-**Link:** the **Deals** list, `/deals`, redirects to its configured list. **Mate:** discover `records:<typeId>:display-options`, then `records:<typeId>:layout-board` with `list_ui_targets`.
+**Link:** a list at `/records/<typeId>`, for example **Deals**. **Mate:** discover `records:<typeId>:display-options`, then `records:<typeId>:layout-board` with `list_ui_targets`.
 
 ## How do I change a deal stage or a task status on the board? [#how-do-i-change-a-deal-stage-or-a-task-status-on-the-board]
 
@@ -59,7 +59,7 @@ A stage or status is a configured select field. Edit it on the record or move a 
 
 To set up pipeline stages, add or edit a select field on Deals, define its stage options, and choose it as the board grouping field. A probability on each option can feed the weighted-value calculation.
 
-**Link:** the **Deals** `/deals` and **Tasks** `/tasks` URLs redirect to their record lists.
+**Link:** the **Deals** and **Tasks** lists at `/records/<typeId>`.
 
 ## Tips for agents
 

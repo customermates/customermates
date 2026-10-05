@@ -1,23 +1,17 @@
 import type { Root } from "react-dom/client";
-import type { ComponentType, ReactNode } from "react";
-import type { EntityDetailSummaryField } from "../entity-detail-summary";
+import type { ReactNode } from "react";
 
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { CustomColumnType } from "@/core/data-view/column-presentation.types";
-import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 const harness = vi.hoisted(() => ({
   isTruncated: false,
   onAvatarClick: vi.fn(),
-  starredFieldIds: [] as string[],
 }));
 
 vi.mock("../entity-detail-personalization", () => ({
-  useEntityDetailPersonalization: () => ({
-    starredFieldIds: harness.starredFieldIds,
-  }),
+  useEntityDetailPersonalization: () => ({ starredFieldIds: [] }),
 }));
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => (key === "NavigationBar.overview" ? "Overview" : key),
@@ -27,12 +21,6 @@ vi.mock("../entity-detail-pin-button", () => ({
 }));
 vi.mock("../entity-detail-field-actions", () => ({
   EntityDetailFieldActions: ({ fieldId }: { fieldId: string }) => createElement("button", { "data-pin": fieldId }),
-}));
-vi.mock("../hooks/use-entity-drawer-stack", () => ({
-  useEntityHref: () => vi.fn(),
-}));
-vi.mock("@/components/entity-detail/hooks/use-entity-drawer-stack", () => ({
-  useEntityHref: () => vi.fn(),
 }));
 vi.mock("@/components/chip/app-chip-stack", () => ({
   AppChipStack: () => createElement("span"),
@@ -78,22 +66,10 @@ vi.mock("@/core/utils/use-is-truncated", () => ({
   useIsTruncated: () => harness.isTruncated,
 }));
 
-import { EntityDetailAvatarSummaryValue, EntityDetailSummary, previewItems } from "../entity-detail-summary";
+import { EntityDetailAvatarSummaryValue, EntityDetailSummaryRail } from "../entity-detail-summary";
 import { EntityDetailStaticField } from "../entity-detail-static-field";
 
 const roots = new Set<Root>();
-const Summary = EntityDetailSummary as ComponentType<{
-  customColumns: Array<{
-    id: string;
-    entityType: EntityType;
-    label: string;
-    type: CustomColumnType;
-  }>;
-  customFieldValues: Array<{ columnId: string; value: string }>;
-  entityId: string;
-  fields: EntityDetailSummaryField[];
-}>;
-
 function mount(node: ReactNode) {
   const container = document.createElement("div");
   document.body.append(container);
@@ -107,7 +83,6 @@ beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   harness.isTruncated = false;
   harness.onAvatarClick.mockReset();
-  harness.starredFieldIds = [];
 });
 
 afterEach(() => {
@@ -116,13 +91,7 @@ afterEach(() => {
   document.body.replaceChildren();
 });
 
-describe("EntityDetailSummary", () => {
-  it("keeps a selected fallback item visible while its autocomplete data is being rehydrated", () => {
-    const fallback = [{ id: "organization-1", name: "Acme" }];
-
-    expect(previewItems([{ key: "organization-1" }], fallback)).toEqual(fallback);
-  });
-
+describe("EntityDetailSummaryRail", () => {
   it("preserves the item action on a pinned avatar stack", () => {
     const container = mount(
       createElement(EntityDetailAvatarSummaryValue, {
@@ -150,45 +119,11 @@ describe("EntityDetailSummary", () => {
     );
   });
 
-  it("uses the saved pin order across built-in and custom fields and ignores stale fields", () => {
-    harness.starredFieldIds = ["updatedAt", "custom-1", "deleted", "name"];
-    const container = mount(
-      createElement(Summary, {
-        customColumns: [
-          {
-            id: "custom-1",
-            entityType: EntityType.contact,
-            label: "Customer tier",
-            type: CustomColumnType.plain,
-          },
-        ],
-        customFieldValues: [{ columnId: "custom-1", value: "Gold" }],
-        entityId: "contact-1",
-        fields: [
-          { id: "name", label: "Name", value: "Ada Lovelace" },
-          { id: "updatedAt", label: "Updated at", value: "Today" },
-        ],
-      }),
-    );
-
-    expect(
-      [...container.querySelectorAll<HTMLElement>("[data-summary-cell]")].map((cell) => cell.dataset.summaryCell),
-    ).toEqual(["updatedAt", "custom-1", "name"]);
-    expect(container.querySelector('[data-custom-value="custom-1"]')).not.toBeNull();
-    expect(container.querySelector('[data-custom-value="custom-1"]')?.getAttribute("data-overflow-tooltip")).toBe(
-      "true",
-    );
-  });
-
   it("renders the selected D pattern as quiet content-sized cards joined by one lower boundary", () => {
     const ids = Array.from({ length: 12 }, (_, index) => `field-${index}`);
-    harness.starredFieldIds = ids;
     const container = mount(
-      createElement(Summary, {
-        customColumns: [],
-        customFieldValues: [],
-        entityId: "deal-1",
-        fields: ids.map((id) => ({ id, label: id, value: id })),
+      createElement(EntityDetailSummaryRail, {
+        items: ids.map((id) => ({ id, label: id, value: id })),
       }),
     );
 
@@ -214,13 +149,9 @@ describe("EntityDetailSummary", () => {
   });
 
   it("makes the horizontal rail a labelled keyboard region only while it overflows", () => {
-    harness.starredFieldIds = ["name", "updatedAt"];
     const container = mount(
-      createElement(Summary, {
-        customColumns: [],
-        customFieldValues: [],
-        entityId: "deal-1",
-        fields: [
+      createElement(EntityDetailSummaryRail, {
+        items: [
           { id: "name", label: "Name", value: "Process Automation Program" },
           { id: "updatedAt", label: "Updated at", value: "Today" },
         ],
@@ -267,13 +198,9 @@ describe("EntityDetailSummary", () => {
 
   it("discloses truncated labels and primitive values without wrapping rich controls", () => {
     harness.isTruncated = true;
-    harness.starredFieldIds = ["name", "relation"];
     const container = mount(
-      createElement(Summary, {
-        customColumns: [],
-        customFieldValues: [],
-        entityId: "deal-1",
-        fields: [
+      createElement(EntityDetailSummaryRail, {
+        items: [
           {
             id: "name",
             label: "A very long field label that needs to be disclosed",
@@ -307,13 +234,9 @@ describe("EntityDetailSummary", () => {
   });
 
   it("keeps short pinned text out of the keyboard order without a redundant tooltip", () => {
-    harness.starredFieldIds = ["name"];
     const container = mount(
-      createElement(Summary, {
-        customColumns: [],
-        customFieldValues: [],
-        entityId: "deal-1",
-        fields: [{ id: "name", label: "Name", value: "Acme" }],
+      createElement(EntityDetailSummaryRail, {
+        items: [{ id: "name", label: "Name", value: "Acme" }],
       }),
     );
 
@@ -322,19 +245,6 @@ describe("EntityDetailSummary", () => {
     expect(nameCell?.querySelectorAll('[data-slot="tooltip-trigger"]')).toHaveLength(2);
     expect(nameCell?.querySelector('[data-slot="tooltip-content"]')).toBeNull();
     expect(nameCell?.querySelector('[tabindex="0"]')).toBeNull();
-  });
-
-  it("does not render an empty pinned-fields row", () => {
-    const container = mount(
-      createElement(Summary, {
-        customColumns: [],
-        customFieldValues: [],
-        entityId: "contact-1",
-        fields: [{ id: "name", label: "Name", value: "Ada Lovelace" }],
-      }),
-    );
-
-    expect(container.querySelector("[data-entity-detail-summary]")).toBeNull();
   });
 });
 

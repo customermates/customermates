@@ -18,7 +18,7 @@ vi.mock("@/hooks/use-media-query", () => ({ useIsWiderThan: () => true }));
 vi.mock("@/i18n/navigation", () => ({
   IntlLink: ({ children, ...props }: { children: ReactNode; href: string }) => createElement("a", props, children),
 }));
-vi.mock("@/components/entity-detail/hooks/use-entity-drawer-stack", () => ({
+vi.mock("@/components/shared/use-navigate-to-href", () => ({
   useNavigateToHref: () => vi.fn(),
 }));
 vi.mock("@/core/stores/use-hydrated-intl-store", () => ({ useHydratedIntlStore: () => ({}) }));

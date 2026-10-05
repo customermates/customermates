@@ -14,9 +14,6 @@ import { defaultEmailSettings } from "@/ee/messaging/email-settings";
 
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("@/components/modal/use-navigation-guard", () => ({ useNavigationGuard: vi.fn() }));
-vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
-  useEntityTerminology: () => ({ plural: (value: string) => value }),
-}));
 vi.mock("@/app/[locale]/(protected)/profile/connected-accounts/actions", () => ({
   setConnectedAccountSignatureAction: vi.fn(),
 }));

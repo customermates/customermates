@@ -22,9 +22,7 @@ const translatorFor = (locale: keyof typeof CATALOGS) => {
 };
 
 describe("suggestionPageId", () => {
-  it("maps entity list routes to their page id", () => {
-    expect(suggestionPageId("/contacts")).toBe("contacts");
-    expect(suggestionPageId("/deals")).toBe("deals");
+  it("maps page routes to their page id", () => {
     expect(suggestionPageId("/inbox")).toBe("inbox");
     expect(suggestionPageId("/dashboard")).toBe("dashboard");
     expect(suggestionPageId("/routines")).toBe("routines");
@@ -42,8 +40,9 @@ describe("suggestionPageId", () => {
     expect(suggestionPageId("/default")).toBe("default");
   });
 
-  it("keys detail pages by their entity segment", () => {
-    expect(suggestionPageId("/contacts/123")).toBe("contacts");
+  it("uses the default page for record lists and records", () => {
+    expect(suggestionPageId("/records/123")).toBe("default");
+    expect(suggestionPageId("/records/123/456")).toBe("default");
   });
 });
 
@@ -52,14 +51,10 @@ describe("suggestion catalogs", () => {
     const t = translatorFor("en");
     for (const [pageId, actionId] of [
       ["dashboard", "setup"],
-      ["contacts", "setup-contacts"],
-      ["organizations", "setup-organizations"],
-      ["deals", "setup-pipeline"],
-      ["services", "setup-services"],
       ["routines", "first-routine"],
       ["wiki", "wiki-structure"],
     ] as const) {
-      const action = agentPageActions(pageId, "empty", t, "en").find(({ id }) => id === actionId);
+      const action = agentPageActions(pageId, "empty", t).find(({ id }) => id === actionId);
       expect(action?.prompt).toMatch(/Knowledge Base/);
       expect(action?.prompt).not.toMatch(/Ask me a few focused questions|Ask about my use case first/);
     }
@@ -68,7 +63,7 @@ describe("suggestion catalogs", () => {
   it.each(APP_LOCALES)("%s catalog returns exactly three usable actions for every page and state", (locale) => {
     for (const pageId of SUGGESTION_PAGE_IDS) {
       for (const state of ["data", "empty"] as const) {
-        const actions = agentPageActions(pageId, state, translatorFor(locale), locale);
+        const actions = agentPageActions(pageId, state, translatorFor(locale));
 
         expect(actions, `${pageId}.${state}`).toHaveLength(3);
         for (const action of actions) {

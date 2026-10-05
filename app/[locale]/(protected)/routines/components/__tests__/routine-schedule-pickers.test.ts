@@ -18,7 +18,7 @@ vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
   useHydratedIntlStore: () => ({ formatTime: () => "09:00" }),
 }));
-vi.mock("@/components/entity-terminology/use-change-field-label", () => ({
+vi.mock("@/components/data-view/use-column-label", () => ({
   useChangeFieldLabel: () => (field: string) => field,
 }));
 vi.mock("@/components/forms/form-select", () => ({

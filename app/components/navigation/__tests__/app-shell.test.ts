@@ -25,7 +25,6 @@ vi.mock("../navigation-data", () => ({
   loadNavigationData: () =>
     Promise.resolve({
       company: null,
-      terminology: [],
       subscription: null,
       trialDaysLeft: null,
       systemTaskCount: 0,

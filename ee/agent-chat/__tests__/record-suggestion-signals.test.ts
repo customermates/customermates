@@ -38,7 +38,7 @@ describe("record suggestion signals", () => {
       new RecordSuggestionSignals(records as never, policy as never).read(),
     );
 
-    expect(result).toEqual({ contacts: true, organizations: false, deals: true, services: false, tasks: false });
+    expect(result).toEqual({ contacts: true, deals: true });
     expect(query).toHaveBeenCalledTimes(2);
     expect(query.mock.calls.map(([spec]) => spec.typeId).sort()).toEqual([contactId, dealId].sort());
     expect(query.mock.calls[0]?.[2].get(dealId)?.access).toBe("own");

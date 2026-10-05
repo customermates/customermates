@@ -7,7 +7,6 @@ test("keeps currency on Settings and routes CRM configuration to Configure", asy
   await expect(page.locator("#company-settings-data-model").getByRole("link", { name: "Configure" })).toBeVisible();
   await expect(page.locator("#company-settings-deal-stage-field")).toHaveCount(0);
   await expect(page.locator("#company-settings-stage-weights")).toHaveCount(0);
-  await expect(page.locator("#terminology-contact")).toHaveCount(0);
 
   await page.locator("#company-settings-currency").click();
   await page.getByRole("option", { name: /USD/ }).click();

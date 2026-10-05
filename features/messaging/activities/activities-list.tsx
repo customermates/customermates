@@ -10,7 +10,7 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
 import { auditChangeLabel } from "@/components/entity-detail/audit-event-tone";
-import { useCanonicalColumnLabel } from "@/components/entity-terminology/use-column-label";
+import { useCanonicalColumnLabel } from "@/components/data-view/use-column-label";
 import { Icon } from "@/components/shared/icon";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";

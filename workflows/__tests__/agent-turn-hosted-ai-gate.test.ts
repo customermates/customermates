@@ -2751,20 +2751,18 @@ describe("agent-turn authoritative tool inputs", () => {
     expect(state.createApproval).not.toHaveBeenCalled();
   });
 
-  it("asks for a fresh approval before renaming record types, and not for a currency change", async () => {
+  it("does not ask for an approval before a workspace currency change", async () => {
     define("update_workspace_settings");
-    const rename = { target: "company", terminology: [{ entityType: "deal", presetKey: "opportunity" }] };
     const currency = { target: "company", currency: "EUR" };
     state.normalize.mockImplementation((_name: string, value: unknown) => Promise.resolve({ ok: true, input: value }));
     state.runTools = async ({ tools }) => {
-      expect(await tools.update_workspace_settings.needsApproval(rename, { toolCallId: "call-1" })).toBe(true);
-      expect(await tools.update_workspace_settings.needsApproval(currency, { toolCallId: "call-2" })).toBe(false);
+      expect(await tools.update_workspace_settings.needsApproval(currency, { toolCallId: "call-1" })).toBe(false);
       return finish();
     };
 
     await runAgentTurn(payload);
 
-    expect(state.normalize).toHaveBeenCalledTimes(2);
+    expect(state.normalize).toHaveBeenCalledTimes(1);
   });
 
   it("does not approve or execute invalid write input", async () => {

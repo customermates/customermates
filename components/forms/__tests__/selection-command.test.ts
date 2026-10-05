@@ -55,11 +55,11 @@ vi.mock("@/components/forms/use-form-field", () => ({
   useResolvedFieldLabel: (_id: string, label?: string | null) => label,
 }));
 
-vi.mock("@/components/entity-detail/hooks/use-entity-drawer-stack", () => ({
+vi.mock("@/components/shared/use-navigate-to-href", () => ({
   useNavigateToHref: () => vi.fn(),
 }));
 
-vi.mock("@/components/entity-terminology/use-filter-field-label", () => ({
+vi.mock("@/components/data-view/use-filter-field-label", () => ({
   useFilterFieldLabel: () => () => "Contacts",
 }));
 

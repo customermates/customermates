@@ -1,5 +1,4 @@
 import { Resource } from "@/generated/prisma";
-import { EntityType } from "@/features/records/history/v1/legacy-enums";
 import { SURFACE, type BuiltinDataViewSurfaceKey } from "@/core/data-view/data-view-keys";
 import { DATA_VIEW_PATHS } from "@/core/data-view/data-view-paths";
 
@@ -8,41 +7,10 @@ export type SurfaceDescriptor = {
   path: string | null;
   resource?: Resource;
   readAllOnly?: boolean;
-  entityType?: EntityType;
   messaging?: boolean;
 };
 
 export const DATA_VIEW_SURFACES: Record<BuiltinDataViewSurfaceKey, SurfaceDescriptor> = {
-  [SURFACE.contacts]: {
-    label: "Contacts",
-    path: DATA_VIEW_PATHS[SURFACE.contacts],
-    resource: Resource.contacts,
-    entityType: EntityType.contact,
-  },
-  [SURFACE.organizations]: {
-    label: "Organizations",
-    path: DATA_VIEW_PATHS[SURFACE.organizations],
-    resource: Resource.organizations,
-    entityType: EntityType.organization,
-  },
-  [SURFACE.deals]: {
-    label: "Deals",
-    path: DATA_VIEW_PATHS[SURFACE.deals],
-    resource: Resource.deals,
-    entityType: EntityType.deal,
-  },
-  [SURFACE.services]: {
-    label: "Services",
-    path: DATA_VIEW_PATHS[SURFACE.services],
-    resource: Resource.services,
-    entityType: EntityType.service,
-  },
-  [SURFACE.tasks]: {
-    label: "Tasks",
-    path: DATA_VIEW_PATHS[SURFACE.tasks],
-    resource: Resource.tasks,
-    entityType: EntityType.task,
-  },
   [SURFACE.users]: {
     label: "Members",
     path: DATA_VIEW_PATHS[SURFACE.users],

@@ -115,7 +115,6 @@ export const ManageDataViewsResultSchema = z
     surfaceKey: AiManageableDataViewSurfaceKeySchema.optional(),
     label: z.string().optional(),
     path: z.string().nullable().optional(),
-    entityType: z.string().optional(),
     section: DataViewConfigSectionSchema.optional(),
     total: z.number().int().min(0).optional(),
     page: z.number().int().min(1).optional(),

@@ -25,10 +25,7 @@ import { GetAgentConfigInteractor } from "../get-agent-config.interactor";
 
 const COUNTS = {
   contacts: true,
-  organizations: false,
   deals: true,
-  services: false,
-  tasks: true,
   routines: true,
   wiki: false,
   widgets: false,
@@ -45,10 +42,7 @@ describe("GetAgentConfigInteractor", () => {
   const recordSignals = {
     read: vi.fn().mockResolvedValue({
       contacts: COUNTS.contacts,
-      organizations: COUNTS.organizations,
       deals: COUNTS.deals,
-      services: COUNTS.services,
-      tasks: COUNTS.tasks,
     }),
   };
   const usageService = {

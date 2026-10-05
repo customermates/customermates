@@ -11,13 +11,11 @@ import { agentActivityCopy } from "@/ee/agent-chat/agent-activity";
 
 import { useAgentChatStore } from "./agent-chat-store-context";
 import { agentProgressLabel, chatUiCopy, TypingDots } from "./chat-ui";
-import { useAgentActivityTerminology } from "./agent-chat-items";
 
 export const AgentStatusAnnouncer = observer(function AgentStatusAnnouncer() {
   const store = useAgentChatStore();
   const t = useTranslations();
   const copy = chatUiCopy(t);
-  const terminology = useAgentActivityTerminology();
 
   const latestItem = store.items.at(-1);
   const latestUserIndex = store.items.findLastIndex((item) => item.kind === "user");
@@ -30,7 +28,7 @@ export const AgentStatusAnnouncer = observer(function AgentStatusAnnouncer() {
   else if (store.isWorking && store.streamStatus === "stopping") status = copy.stopping;
   else if (store.isContinuingAfterApproval) status = t("AgentChat.approval.resuming");
   else if (store.isWorking && latestTurnActivity?.status === "running") {
-    const activity = agentActivityCopy(latestTurnActivity.activity, t, terminology);
+    const activity = agentActivityCopy(latestTurnActivity.activity, t);
     status = activity.running;
   } else if (store.isAwaitingAssistantResponse && store.streamStatus === "working")
     status = agentProgressLabel(store.progressPhase, t);
@@ -39,7 +37,7 @@ export const AgentStatusAnnouncer = observer(function AgentStatusAnnouncer() {
   else if (store.routeSyncStatus === "waiting") status = copy.routeSyncWaiting;
   else if (store.streamStatus === "finalizing") status = copy.finalizing;
   else if (store.hasInSessionTerminalResult && latestItem?.kind === "activity") {
-    const activity = agentActivityCopy(latestItem.activity, t, terminology);
+    const activity = agentActivityCopy(latestItem.activity, t);
     status =
       latestItem.status === "error"
         ? activity.error

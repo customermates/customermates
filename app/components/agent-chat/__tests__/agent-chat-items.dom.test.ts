@@ -8,9 +8,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
 }));
-vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
-  useEntityTerminology: () => ({ plural: () => "Contacts" }),
-}));
 vi.mock("../agent-chat-store-context", () => ({
   useAgentChatStore: () => ({}),
   useAgentChatUiTargets: () => ({
@@ -34,7 +31,7 @@ vi.mock("@/core/stores/root-store.provider", () => ({
 }));
 vi.mock("@/i18n/navigation", () => ({
   IntlLink: ({ children, href }: { children?: ReactNode; href: string }) => createElement("a", { href }, children),
-  usePathname: () => "/contacts",
+  usePathname: () => "/company/webhooks",
 }));
 vi.mock("@/components/shared/app-link", async () => {
   const { createElement } = await import("react");
@@ -90,7 +87,7 @@ describe("AgentActivity controls", () => {
                 kind: "views.configure",
                 affectedResources: [],
                 risk: "write",
-                viewHref: "/contacts?view=__all__",
+                viewHref: "/company/webhooks?view=__all__",
               },
               status: "done",
               at: new Date("2026-09-21T10:00:00.000Z"),
@@ -101,7 +98,7 @@ describe("AgentActivity controls", () => {
     });
 
     const trigger = container.querySelector<HTMLButtonElement>('[data-slot="collapsible-trigger"]');
-    const link = container.querySelector<HTMLAnchorElement>('a[href="/contacts?view=__all__"]');
+    const link = container.querySelector<HTMLAnchorElement>('a[href="/company/webhooks?view=__all__"]');
     expect(trigger?.getAttribute("aria-expanded")).toBe("false");
     expect(trigger?.className).toContain("focus-visible:ring-[3px]");
     expect(link).not.toBeNull();

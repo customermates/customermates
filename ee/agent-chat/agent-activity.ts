@@ -3,7 +3,7 @@ import { AgentActivityContextSchema, agentToolInputContext } from "./agent-activ
 import { SurfaceKeySchema, ViewKeySchema } from "@/core/data-view/data-view-identity.schema";
 import { dataViewNavigationHref } from "@/core/data-view/data-view-links";
 
-import { approvalFreeActionsForTool, isApprovalRelevantValue, readOnlyActionsForTool } from "./gated-tools";
+import { approvalFreeActionsForTool, readOnlyActionsForTool } from "./gated-tools";
 import { recordToolRisk } from "./record-tool-risk";
 import type { AgentToolIdentity } from "./tool-identity";
 import { internalToolIdentity, isInternalToolIdentity, WIKI_WEBSITE_IMPORT_TOOL_NAME } from "./tool-identity";
@@ -23,7 +23,6 @@ export const AGENT_ACTIVITY_KINDS = [
   "workspace.read",
   "workspace.inspect",
   "workspace.settings",
-  "workspace.terminology",
   "profile.configure",
   "customFields.read",
   "customFields.create",
@@ -81,7 +80,6 @@ export const AGENT_ACTIVITY_RESOURCES = [
   "services",
   "tasks",
   "widgets",
-  "terminology",
   "messages",
   "wiki",
 ] as const;
@@ -422,17 +420,9 @@ function describeAgentToolAction(identity: AgentToolIdentity, input: unknown): A
       : descriptor(kind, undefined, risk);
   }
   if (isMultiplexedRead(toolName, details)) return descriptor("workspace.read", undefined, "read");
-  if (toolName === "update_workspace_settings") {
-    const updatesTerminology = Array.isArray(details.terminology) && details.terminology.length > 0;
-    const kind =
-      details.target === "profile"
-        ? "profile.configure"
-        : updatesTerminology && details.currency === undefined
-          ? "workspace.terminology"
-          : "workspace.settings";
-    const risk = isApprovalRelevantValue(details.terminology) ? "sensitive" : "write";
-    return descriptor(kind, undefined, risk, updatesTerminology ? ["terminology"] : []);
-  }
+  if (toolName === "update_workspace_settings")
+    return descriptor(details.target === "profile" ? "profile.configure" : "workspace.settings", undefined, "write");
+
   if (toolName === "manage_roles") {
     const action = actionValue(details);
     return descriptor("roles.manage", undefined, multiplexedRisk(toolName, details), [], {
@@ -616,7 +606,6 @@ export const AGENT_APPROVAL_COPY_KINDS: readonly AgentActivityKind[] = [
   "views.configure",
   "views.delete",
   "workspace.settings",
-  "workspace.terminology",
   "workspace.configure",
 ];
 
@@ -625,11 +614,10 @@ function countedResourceCopy(
   resourceKey: AgentActivityResource | undefined,
   t: AgentTranslator,
   resource: string | undefined,
-  hasCustomTerminology: boolean,
 ) {
   const fallback = resource ?? t("AgentChat.activity.defaultRecords");
   if (count === undefined) return fallback;
-  if (count === 1 && resourceKey && !hasCustomTerminology) {
+  if (count === 1 && resourceKey) {
     return t("AgentChat.activity.countedSingular", {
       resource: t(`AgentChat.activity.resourceSingular.${resourceKey}`),
     });
@@ -639,12 +627,7 @@ function countedResourceCopy(
   return t("AgentChat.activity.countedResource", { count, resource: fallback });
 }
 
-function agentConsequenceDetail(
-  activity: AgentActivityDescriptor,
-  t: AgentTranslator,
-  resource: string | undefined,
-  hasCustomTerminology: boolean,
-) {
+function agentConsequenceDetail(activity: AgentActivityDescriptor, t: AgentTranslator, resource: string | undefined) {
   const consequence = activity.consequence;
   if (!consequence) return undefined;
 
@@ -713,7 +696,7 @@ function agentConsequenceDetail(
       if (count === undefined) return undefined;
 
       return t("AgentChat.activity.consequence.recordsDelete", {
-        target: countedResourceCopy(count, activity.resource, t, resource, hasCustomTerminology),
+        target: countedResourceCopy(count, activity.resource, t, resource),
       });
     }
     case "records.link":
@@ -765,18 +748,11 @@ function agentConsequenceDetail(
   }
 }
 
-export function agentActivityCopy(
-  activity: AgentActivityDescriptor,
-  t: AgentTranslator,
-  terminology: Partial<Record<AgentActivityResource, string>> = {},
-): ActivityCopy {
-  const resource = activity.resource
-    ? (terminology[activity.resource] ?? t(`AgentChat.activity.resource.${activity.resource}`))
-    : undefined;
-  const hasCustomTerminology = Boolean(activity.resource && terminology[activity.resource]);
-  const mutationTarget = countedResourceCopy(activity.count, activity.resource, t, resource, hasCustomTerminology);
+export function agentActivityCopy(activity: AgentActivityDescriptor, t: AgentTranslator): ActivityCopy {
+  const resource = activity.resource ? t(`AgentChat.activity.resource.${activity.resource}`) : undefined;
+  const mutationTarget = countedResourceCopy(activity.count, activity.resource, t, resource);
   const detail =
-    agentConsequenceDetail(activity, t, resource, hasCustomTerminology) ??
+    agentConsequenceDetail(activity, t, resource) ??
     (resource ? resource.charAt(0).toUpperCase() + resource.slice(1) : undefined);
   const context = activity.context
     ? activity.context.additionalCount

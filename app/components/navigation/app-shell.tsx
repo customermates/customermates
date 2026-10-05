@@ -39,13 +39,7 @@ export async function AppShell({ children, displayLanguage }: Props) {
   ]);
   const navigation = await loadNavigationData(account.state, {
     records: () => unwrapValidated(getGetRecordNavigationInteractor().invoke()),
-    company: async () => {
-      const result = await getGetCompanySettingsInteractor().invoke();
-      return {
-        company: result.data,
-        terminology: [],
-      };
-    },
+    company: async () => (await getGetCompanySettingsInteractor().invoke()).data,
     subscription: async () => (await getGetSubscriptionInteractor().invoke()).data,
     systemTaskCount: async () => (await getCountSystemTasksInteractor().invoke()).data,
     unreadThreadCount: async () => {
@@ -74,7 +68,6 @@ export async function AppShell({ children, displayLanguage }: Props) {
           locale: isRoutingLocale(displayLanguage) ? displayLanguage : DEFAULT_LOCALE,
           user: appUser,
           company: accountAllowed ? navigation.company : null,
-          terminology: accountAllowed ? navigation.terminology : [],
           subscription: accountAllowed ? navigation.subscription : null,
           recordNavigation: accountAllowed ? navigation.records : null,
         }}
@@ -92,7 +85,6 @@ export async function AppShell({ children, displayLanguage }: Props) {
           sidebarUser={toSidebarUser(account.user)}
           subscription={navigation.subscription}
           systemTaskCount={navigation.systemTaskCount}
-          terminology={navigation.terminology}
           trialDaysLeft={navigation.trialDaysLeft}
           unreadThreadCount={navigation.unreadThreadCount}
           userDisplayLanguage={account.user?.displayLanguage}

@@ -54,7 +54,6 @@ import { DeleteConfirmationModalStore } from "@/components/modal/delete-confirma
 import { LoadingOverlayStore } from "@/components/shared/loading-overlay.store";
 import { IntlStore } from "@/core/stores/intl.store";
 import { LocaleStore } from "@/core/stores/locale.store";
-import { TerminologyStore } from "@/core/stores/terminology.store";
 import { TimelineDetailModalStore } from "@/features/messaging/activities/activities-detail-modal.store";
 import { RecordWorkspaceStore } from "./record-workspace.store";
 import { WikiPageStore } from "@/app/[locale]/(protected)/wiki/components/wiki-page.store";
@@ -74,7 +73,6 @@ export class RootStore {
   private _connectedAccountModalStore?: ConnectedAccountModalStore;
   private _connectUpsellModalStore?: ConnectUpsellModalStore;
   private _companyStore?: CompanyStore;
-  private _terminologyStore?: TerminologyStore;
   private _messagingThreadsStore?: MessagingThreadsStore;
   private _messagingThreadDetailStore?: MessagingThreadDetailStore;
   private _threadComposeStore?: ThreadComposeStore;
@@ -166,10 +164,6 @@ export class RootStore {
 
   get companyStore() {
     return (this._companyStore ??= new CompanyStore(this));
-  }
-
-  get terminologyStore() {
-    return (this._terminologyStore ??= new TerminologyStore(this));
   }
 
   get usersStore() {

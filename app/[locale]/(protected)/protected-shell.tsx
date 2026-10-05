@@ -30,10 +30,6 @@ const ConnectedAccountModal = dynamic(
   () => import("./profile/components/connected-account-modal").then((mod) => mod.ConnectedAccountModal),
   { ssr: false },
 );
-const LegacyRecordDrawerBridge = dynamic(
-  () => import("@/components/records/legacy-record-drawer-bridge").then((mod) => mod.LegacyRecordDrawerBridge),
-  { ssr: false },
-);
 const WorkspaceRecordEditor = dynamic(
   () => import("@/components/records/workspace-record-editor").then((mod) => mod.WorkspaceRecordEditor),
   { ssr: false },
@@ -111,8 +107,6 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
           <CompanyUserModal />
 
           <CompanyInviteModal />
-
-          <LegacyRecordDrawerBridge />
 
           <WorkspaceRecordEditor />
 

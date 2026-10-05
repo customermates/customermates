@@ -1,13 +1,11 @@
 import type { Company } from "@/generated/prisma";
 import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interactor";
-import type { EntityTerminologyOverride } from "@/features/entity-terminology/entity-terminology.types";
 import type { AccountState } from "@/features/auth/account-state";
 import type { RecordNavigation } from "@/features/records/record-navigation.schema";
 
 type NavigationData = {
   records: RecordNavigation | null;
   company: Company | null;
-  terminology: EntityTerminologyOverride[];
   subscription: SubscriptionDto | null;
   trialDaysLeft: number | null;
   systemTaskCount: number;
@@ -17,10 +15,7 @@ type NavigationData = {
 
 export type NavigationDataLoaders = {
   records: () => Promise<RecordNavigation>;
-  company: () => Promise<{
-    company: Company;
-    terminology: EntityTerminologyOverride[];
-  }>;
+  company: () => Promise<Company>;
   subscription: () => Promise<SubscriptionDto | null>;
   systemTaskCount: () => Promise<number>;
   unreadThreadCount: () => Promise<number>;
@@ -30,7 +25,6 @@ export type NavigationDataLoaders = {
 const EMPTY_NAVIGATION_DATA: NavigationData = {
   records: null,
   company: null,
-  terminology: [],
   subscription: null,
   trialDaysLeft: null,
   systemTaskCount: 0,
@@ -60,8 +54,7 @@ export async function loadNavigationData(
 
   return {
     records,
-    company: company.company,
-    terminology: company.terminology,
+    company,
     subscription,
     trialDaysLeft,
     systemTaskCount,

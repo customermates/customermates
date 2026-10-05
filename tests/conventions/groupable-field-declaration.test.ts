@@ -13,7 +13,7 @@ import {
   OPERATOR_GROUPABLE_MODELS,
   type GroupableModel,
 } from "@/core/base/grouping/groupable-field";
-import { FILTER_FIELD_TERMINOLOGY } from "@/features/entity-terminology/entity-terminology.constants";
+import { RELATION_FILTER_PRESETS } from "@/components/data-view/use-filter-field-label";
 import { ROUTING_LOCALES } from "@/i18n/locale-registry";
 
 const DECLARATION_METHOD = "getGroupableFields";
@@ -182,13 +182,13 @@ describe("groupable field declarations", () => {
         expect([file, field, filterableFields.includes(field)]).toEqual([file, field, true]);
   });
 
-  it("labels every relation and date groupable through terminology or a leaf that exists in all bundles", () => {
+  it("labels every relation and date groupable through its starter list or a leaf that exists in all bundles", () => {
     const fields = [
       ...new Set([...Object.values(GROUPING_JOIN).flatMap((wiring) => Object.keys(wiring)), ...GROUPABLE_DATE_FIELDS]),
     ];
 
     for (const field of fields)
-      expect([field, Boolean(FILTER_FIELD_TERMINOLOGY[field]) || resolvesInEveryBundle(`Common.filters.fields.${field}`)]).toEqual(
+      expect([field, Boolean(RELATION_FILTER_PRESETS[field]) || resolvesInEveryBundle(`Common.filters.fields.${field}`)]).toEqual(
         [field, true],
       );
   });

@@ -30,9 +30,11 @@ vi.mock("next/navigation", async (importOriginal) => ({
   ...(await importOriginal<Record<string, unknown>>()),
   usePathname: () => "/en/deals",
 }));
-vi.mock("@/core/stores/root-store.provider", () => ({ useRootStore: () => ({ terminologyStore: { overrides: [] } }) }));
-vi.mock("@/components/entity-terminology/use-column-label", () => ({ useColumnLabel: () => (uid: string) => uid }));
-vi.mock("@/components/entity-terminology/use-filter-field-label", () => ({
+vi.mock("@/core/stores/root-store.provider", () => ({
+  useRootStore: () => ({ recordWorkspaceStore: { navigation: null } }),
+}));
+vi.mock("@/components/data-view/use-column-label", () => ({ useColumnLabel: () => (uid: string) => uid }));
+vi.mock("@/components/data-view/use-filter-field-label", () => ({
   useFilterFieldLabel: () => (field: string) =>
     field === "organizationIds" ? "Account" : `Common.filters.fields.${field}`,
 }));

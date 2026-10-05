@@ -75,7 +75,7 @@ class TestStore extends BaseDataViewStore<Item> {
 function serverEcho(params?: GetQueryParams): GetResult<Item> {
   return {
     items: [],
-    p13nId: SURFACE.tasks,
+    p13nId: SURFACE.routines,
     filterableFields: FILTERABLE_FIELDS,
     filters: params?.filters ?? [],
     searchTerm: params?.searchTerm,

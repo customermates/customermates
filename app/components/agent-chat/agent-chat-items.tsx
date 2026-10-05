@@ -3,15 +3,10 @@
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Check, ChevronDown, Copy, Loader2, Square, X } from "lucide-react";
-import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 import type { AgentChatItem } from "./agent-chat.store";
 
-import {
-  agentActivityCopy,
-  agentActivityGroupSummary,
-  type AgentActivityResource,
-} from "@/ee/agent-chat/agent-activity";
+import { agentActivityCopy, agentActivityGroupSummary } from "@/ee/agent-chat/agent-activity";
 
 import { useActivityGroupState } from "./use-activity-group-state";
 import { useSteadyLabel } from "./use-steady-label";
@@ -24,22 +19,10 @@ import { AppLink } from "@/components/shared/app-link";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { MessageResponse } from "@/components/ai-elements/message";
 import { agentMessageComponents, agentMessageRehypePlugins } from "./agent-message-links";
-import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { cn } from "@/core/utils/cn";
 import { dataViewNavigationHref } from "@/core/data-view/data-view-links";
 import { ActionTooltip, ItemTime, TypingDots, chatUiCopy, focusAgentComposer } from "./chat-ui";
 import { AgentComposerContexts } from "./agent-composer-contexts";
-
-export function useAgentActivityTerminology(): Partial<Record<AgentActivityResource, string>> {
-  const { plural } = useEntityTerminology();
-  return {
-    contacts: plural(EntityType.contact),
-    organizations: plural(EntityType.organization),
-    deals: plural(EntityType.deal),
-    services: plural(EntityType.service),
-    tasks: plural(EntityType.task),
-  };
-}
 
 export const AgentChatItemView = observer(function AgentChatItemView({
   item,
@@ -54,7 +37,6 @@ export const AgentChatItemView = observer(function AgentChatItemView({
   const uiTargets = useAgentChatUiTargets();
   const t = useTranslations();
   const copyToClipboard = useCopyToClipboard();
-  const terminology = useAgentActivityTerminology();
   const decideApproval = async (
     approval: Extract<AgentChatItem, { kind: "approval" }>,
     decision: "approve" | "reject",
@@ -144,7 +126,7 @@ export const AgentChatItemView = observer(function AgentChatItemView({
     );
   }
 
-  const copy = agentActivityCopy(item.activity, t, terminology);
+  const copy = agentActivityCopy(item.activity, t);
 
   return (
     <div className="rounded-2xl border px-4 py-3.5 text-sm" data-testid="agent-approval">
@@ -247,7 +229,7 @@ export const AgentActivity = observer(function AgentActivity({
   const t = useTranslations();
   const rows = compactActivityItems(items);
   const activityCopy = (item: (typeof rows)[number]) => {
-    const copy = agentActivityCopy(item.activity, t, terminology);
+    const copy = agentActivityCopy(item.activity, t);
     return item.activity.kind === "generic" && item.repetitions > 1
       ? {
           ...copy,
@@ -259,7 +241,6 @@ export const AgentActivity = observer(function AgentActivity({
       : copy;
   };
   const uiCopy = chatUiCopy(t);
-  const terminology = useAgentActivityTerminology();
   const hasRunning = items.some((item) => item.status === "running");
   const isPending = isWorking && isTrailing;
   const hasError = items.some((item) => item.status === "error");
@@ -287,7 +268,7 @@ export const AgentActivity = observer(function AgentActivity({
           t,
         );
   const runningItem = items.findLast((item) => item.status === "running" || (isRecovering && item.status === "error"));
-  const runningLabel = runningItem ? agentActivityCopy(runningItem.activity, t, terminology).running : uiCopy.thinking;
+  const runningLabel = runningItem ? agentActivityCopy(runningItem.activity, t).running : uiCopy.thinking;
   const liveSummary =
     hasDetails && !hasError && !hasCancelled && elapsedSeconds !== null
       ? uiCopy.stepsTook(rows.length, elapsedSeconds)

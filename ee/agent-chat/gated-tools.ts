@@ -9,7 +9,7 @@ export function isReadOnlyTool(tool: { annotations?: Record<string, boolean> }) 
 }
 
 type AgentApprovalPolicy =
-  | { approvalFree: true; approvalRequiredFields?: readonly string[] }
+  | { approvalFree: true }
   | { inputRisk: (input: unknown) => "read" | "write" | "sensitive" | null }
   | { approvalFreeActions: readonly string[]; readOnlyActions?: readonly string[] };
 
@@ -61,7 +61,7 @@ const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
   send_chat_message: { approvalFree: true },
   send_email: { approvalFree: true },
   update_messaging_thread: { approvalFree: true },
-  update_workspace_settings: { approvalFree: true, approvalRequiredFields: ["terminology"] },
+  update_workspace_settings: { approvalFree: true },
 };
 
 const AGENT_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = Object.fromEntries(
@@ -90,11 +90,6 @@ export function readOnlyActionsForTool(identity: AgentToolIdentity): readonly st
   return policy && "readOnlyActions" in policy ? (policy.readOnlyActions ?? null) : null;
 }
 
-export function isApprovalRelevantValue(value: unknown) {
-  if (value === undefined || value === null) return false;
-  return !Array.isArray(value) || value.length > 0;
-}
-
 export function isReadOnlyAgentToolCall(name: string, tool: { annotations?: Record<string, boolean> }, input: unknown) {
   if (isReadOnlyTool(tool) || name === "web_search" || name === "list_ui_targets" || name === LOAD_TOOLSET_TOOL_NAME)
     return true;
@@ -115,9 +110,8 @@ export function requiresApproval(
 
   const policy = policyFor(identity);
   if (!policy) return true;
+  if ("approvalFree" in policy) return false;
   const fields = input && typeof input === "object" && !Array.isArray(input) ? (input as Record<string, unknown>) : {};
-  if ("approvalFree" in policy)
-    return (policy.approvalRequiredFields ?? []).some((field) => isApprovalRelevantValue(fields[field]));
   if ("inputRisk" in policy) return !["read", "write"].includes(policy.inputRisk(input) ?? "sensitive");
 
   const action = fields.action;

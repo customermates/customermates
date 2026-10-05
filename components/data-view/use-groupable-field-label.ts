@@ -4,8 +4,8 @@ import type { GroupableFieldDto } from "@/core/base/grouping/groupable-field";
 
 import { useTranslations } from "next-intl";
 
-import { useColumnLabel } from "@/components/entity-terminology/use-column-label";
-import { useFilterFieldLabel } from "@/components/entity-terminology/use-filter-field-label";
+import { useColumnLabel } from "@/components/data-view/use-column-label";
+import { useFilterFieldLabel } from "@/components/data-view/use-filter-field-label";
 
 import { useDateBucketLabel } from "./group-label";
 

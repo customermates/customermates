@@ -19,7 +19,6 @@ const state = vi.hoisted(() => ({
   renderPhaseUserWrites: [] as Array<{ id: string } | null>,
   closeAllModals: vi.fn(),
   setCompany: vi.fn(),
-  setOverrides: vi.fn(),
   setSubscription: vi.fn(),
   setUser: vi.fn(),
   setRecordNavigation: vi.fn(),
@@ -46,7 +45,6 @@ vi.mock("@/core/stores/root-store.provider", () => ({
     closeAllModals: state.closeAllModals,
     companyStore: { setCompany: state.setCompany },
     subscriptionStore: { setSubscription: state.setSubscription },
-    terminologyStore: { setOverrides: state.setOverrides },
     recordWorkspaceStore: { setNavigation: state.setRecordNavigation },
     userStore: {
       get user() {
@@ -157,7 +155,6 @@ function allowedProps(): Omit<NavigationSwitchProps, "children"> {
     },
     subscription: null,
     systemTaskCount: 0,
-    terminology: [],
     trialDaysLeft: null,
     unreadThreadCount: 0,
     userDisplayLanguage: "en",

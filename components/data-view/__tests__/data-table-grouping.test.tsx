@@ -17,7 +17,7 @@ vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, values?: Record<string, unknown>) =>
     values ? `${key}:${Object.values(values).join(",")}` : key,
 }));
-vi.mock("@/components/entity-detail/hooks/use-entity-drawer-stack", () => ({
+vi.mock("@/components/shared/use-navigate-to-href", () => ({
   useNavigateToHref: () => vi.fn(),
 }));
 vi.mock("@/components/ui/tooltip", () => ({

@@ -11,7 +11,7 @@ import { useTranslations } from "next-intl";
 import { ClickableChip } from "@/components/chip/clickable-chip";
 import { CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
 import { FilterChipValue } from "@/components/data-view/filter-modal/filter-chip-display";
-import { useFilterFieldLabel } from "@/components/entity-terminology/use-filter-field-label";
+import { useFilterFieldLabel } from "@/components/data-view/use-filter-field-label";
 import { useFilterOperatorLabel } from "@/components/data-view/filter-modal/use-filter-operator-label";
 
 const ZONE_LABEL_CLASS = "px-2 py-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground";

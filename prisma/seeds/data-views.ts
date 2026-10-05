@@ -17,6 +17,14 @@ import type { CustomFieldSeedData } from "./custom-fields";
 
 import { SYNTHETIC_DATA_VIEW_ID_PREFIX, SYNTHETIC_DATA_VIEW_IDS } from "./data-view-ids";
 
+const LEGACY_SURFACE = {
+  contacts: "contacts-card-store",
+  organizations: "organizations-card-store",
+  deals: "deals-card-store",
+  services: "services-card-store",
+  tasks: "tasks-card-store",
+} as const;
+
 export { SYNTHETIC_DATA_VIEW_ID_PREFIX, SYNTHETIC_DATA_VIEW_IDS } from "./data-view-ids";
 
 export type SyntheticDataViewFixture = {
@@ -50,7 +58,7 @@ export function buildSyntheticDataViewFixtures(
     {
       id: SYNTHETIC_DATA_VIEW_IDS.openDeals,
       userId: user,
-      surfaceKey: SURFACE.deals,
+      surfaceKey: LEGACY_SURFACE.deals,
       name: "Open deals",
       position: 0,
       state: {
@@ -71,7 +79,7 @@ export function buildSyntheticDataViewFixtures(
     {
       id: SYNTHETIC_DATA_VIEW_IDS.dealPipeline,
       userId: user,
-      surfaceKey: SURFACE.deals,
+      surfaceKey: LEGACY_SURFACE.deals,
       name: "Sales pipeline",
       position: 1,
       state: {
@@ -92,7 +100,7 @@ export function buildSyntheticDataViewFixtures(
     {
       id: SYNTHETIC_DATA_VIEW_IDS.dealForecast,
       userId: user,
-      surfaceKey: SURFACE.deals,
+      surfaceKey: LEGACY_SURFACE.deals,
       name: "Forecast review",
       position: 2,
       state: {
@@ -107,7 +115,7 @@ export function buildSyntheticDataViewFixtures(
     {
       id: SYNTHETIC_DATA_VIEW_IDS.dealsByAccount,
       userId: user,
-      surfaceKey: SURFACE.deals,
+      surfaceKey: LEGACY_SURFACE.deals,
       name: "By account",
       position: 3,
       state: {
@@ -118,7 +126,7 @@ export function buildSyntheticDataViewFixtures(
     {
       id: SYNTHETIC_DATA_VIEW_IDS.contactPipeline,
       userId: user,
-      surfaceKey: SURFACE.contacts,
+      surfaceKey: LEGACY_SURFACE.contacts,
       name: "Lead pipeline",
       position: 0,
       state: {
@@ -137,7 +145,7 @@ export function buildSyntheticDataViewFixtures(
     {
       id: SYNTHETIC_DATA_VIEW_IDS.contactsInPlay,
       userId: user,
-      surfaceKey: SURFACE.contacts,
+      surfaceKey: LEGACY_SURFACE.contacts,
       name: "In play",
       position: 1,
       state: {
@@ -155,7 +163,7 @@ export function buildSyntheticDataViewFixtures(
     {
       id: SYNTHETIC_DATA_VIEW_IDS.contactsRecentlyAdded,
       userId: user,
-      surfaceKey: SURFACE.contacts,
+      surfaceKey: LEGACY_SURFACE.contacts,
       name: "Added by month",
       position: 2,
       state: {
@@ -169,7 +177,7 @@ export function buildSyntheticDataViewFixtures(
     {
       id: SYNTHETIC_DATA_VIEW_IDS.organizationsByType,
       userId: user,
-      surfaceKey: SURFACE.organizations,
+      surfaceKey: LEGACY_SURFACE.organizations,
       name: "Accounts by type",
       position: 0,
       state: {
@@ -187,7 +195,7 @@ export function buildSyntheticDataViewFixtures(
     {
       id: SYNTHETIC_DATA_VIEW_IDS.directCustomers,
       userId: user,
-      surfaceKey: SURFACE.organizations,
+      surfaceKey: LEGACY_SURFACE.organizations,
       name: "Direct customers",
       position: 1,
       state: {
@@ -202,7 +210,7 @@ export function buildSyntheticDataViewFixtures(
     {
       id: SYNTHETIC_DATA_VIEW_IDS.serviceCatalogue,
       userId: user,
-      surfaceKey: SURFACE.services,
+      surfaceKey: LEGACY_SURFACE.services,
       name: "Catalogue by pricing",
       position: 0,
       state: {
@@ -213,7 +221,7 @@ export function buildSyntheticDataViewFixtures(
     {
       id: SYNTHETIC_DATA_VIEW_IDS.hardwareServices,
       userId: user,
-      surfaceKey: SURFACE.services,
+      surfaceKey: LEGACY_SURFACE.services,
       name: "Hardware",
       position: 1,
       state: {
@@ -227,7 +235,7 @@ export function buildSyntheticDataViewFixtures(
     {
       id: SYNTHETIC_DATA_VIEW_IDS.servicesRecentlyUpdated,
       userId: user,
-      surfaceKey: SURFACE.services,
+      surfaceKey: LEGACY_SURFACE.services,
       name: "Updated by week",
       position: 2,
       state: {
@@ -240,7 +248,7 @@ export function buildSyntheticDataViewFixtures(
     {
       id: SYNTHETIC_DATA_VIEW_IDS.taskBoard,
       userId: user,
-      surfaceKey: SURFACE.tasks,
+      surfaceKey: LEGACY_SURFACE.tasks,
       name: "Delivery board",
       position: 0,
       state: {
@@ -251,7 +259,7 @@ export function buildSyntheticDataViewFixtures(
     {
       id: SYNTHETIC_DATA_VIEW_IDS.highPriorityTasks,
       userId: user,
-      surfaceKey: SURFACE.tasks,
+      surfaceKey: LEGACY_SURFACE.tasks,
       name: "High priority",
       position: 1,
       state: {
@@ -265,7 +273,7 @@ export function buildSyntheticDataViewFixtures(
     {
       id: SYNTHETIC_DATA_VIEW_IDS.tasksByPriority,
       userId: user,
-      surfaceKey: SURFACE.tasks,
+      surfaceKey: LEGACY_SURFACE.tasks,
       name: "Priority list",
       position: 2,
       state: {
@@ -334,11 +342,11 @@ export async function persistSyntheticDataViewFixtures(
 export async function seedDataViews(context: SeedContext, customFields: CustomFieldSeedData): Promise<void> {
   const { source, presentationModel } = syntheticRecordModel(context, customFields);
   const kindBySurface: Record<string, LegacyType> = {
-    [SURFACE.contacts]: "contact",
-    [SURFACE.organizations]: "organization",
-    [SURFACE.deals]: "deal",
-    [SURFACE.services]: "service",
-    [SURFACE.tasks]: "task",
+    [LEGACY_SURFACE.contacts]: "contact",
+    [LEGACY_SURFACE.organizations]: "organization",
+    [LEGACY_SURFACE.deals]: "deal",
+    [LEGACY_SURFACE.services]: "service",
+    [LEGACY_SURFACE.tasks]: "task",
   };
   const views = buildSyntheticDataViewFixtures(context, customFields).map((view) => {
     const kind = kindBySurface[view.surfaceKey];

@@ -8,7 +8,7 @@ import { useClientReady } from "@/hooks/use-client-ready";
 
 import type { DataViewView } from "./data-view-state";
 
-import { useColumnLabel } from "@/components/entity-terminology/use-column-label";
+import { useColumnLabel } from "@/components/data-view/use-column-label";
 
 import { DataKanbanView } from "./data-kanban-view";
 import { DataTable } from "./data-table";

@@ -18,7 +18,6 @@ import {
   SubscriptionStatus,
   Theme,
 } from "@/generated/prisma";
-import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 vi.mock("../root.store", () => ({
   RootStore: class {
@@ -46,12 +45,6 @@ vi.mock("../root.store", () => ({
       navigation: null as RootStoreInitialState["recordNavigation"],
       setNavigation: (navigation: RootStoreInitialState["recordNavigation"]) => {
         this.recordWorkspaceStore.navigation = navigation;
-      },
-    };
-    readonly terminologyStore = {
-      overrides: [] as RootStoreInitialState["terminology"],
-      setOverrides: (overrides: RootStoreInitialState["terminology"]) => {
-        this.terminologyStore.overrides = overrides;
       },
     };
     readonly subscriptionStore = {
@@ -104,7 +97,6 @@ const initialState: RootStoreInitialState = {
     role: { isSystemRole: true, permissions: [] },
   } as unknown as TenantUser,
   company: { currency: Currency.usd } as unknown as Company,
-  terminology: [{ entityType: EntityType.deal, presetKey: "opportunity" }],
   subscription: {
     status: SubscriptionStatus.active,
     plan: SubscriptionPlan.pro,
@@ -127,7 +119,6 @@ function InitialStateProbe() {
   const values = [
     rootStore.userStore.can(Resource.contacts, Action.readAll) ? "allowed" : "blocked",
     rootStore.companyStore.company?.currency,
-    rootStore.terminologyStore.overrides[0]?.presetKey,
     rootStore.subscriptionStore.subscription?.plan,
     rootStore.intlStore.formatNumber(1234.5),
   ];
@@ -159,9 +150,9 @@ afterEach(() => {
 });
 
 describe("RootStoreProvider initial state", () => {
-  it("seeds permission, company, terminology, subscription, and locale before a delayed child hydrates", async () => {
+  it("seeds permission, company, subscription, and locale before a delayed child hydrates", async () => {
     const html = renderToString(createElement(TestApp));
-    expect(html).toContain("allowed|usd|opportunity|pro|1.234,5");
+    expect(html).toContain("allowed|usd|pro|1.234,5");
 
     hydrationDelay = new Promise<void>((resolve) => {
       releaseHydration = resolve;
@@ -188,7 +179,7 @@ describe("RootStoreProvider initial state", () => {
       __customermatesHistory: { session: expect.any(String), index: expect.any(Number) },
     });
 
-    expect(container.querySelector("[data-initial-state]")?.textContent).toBe("allowed|usd|opportunity|pro|1.234,5");
+    expect(container.querySelector("[data-initial-state]")?.textContent).toBe("allowed|usd|pro|1.234,5");
 
     await act(async () => {
       delayHydration = false;
@@ -197,7 +188,7 @@ describe("RootStoreProvider initial state", () => {
     });
 
     await vi.waitFor(() => {
-      expect(container.querySelector("[data-initial-state]")?.textContent).toBe("allowed|usd|opportunity|pro|1.234,5");
+      expect(container.querySelector("[data-initial-state]")?.textContent).toBe("allowed|usd|pro|1.234,5");
     });
     expect(recoverableErrors).toEqual([]);
   });

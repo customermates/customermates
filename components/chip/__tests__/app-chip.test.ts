@@ -3,7 +3,6 @@ import type { CustomColumnDto } from "@/core/data-view/column-presentation.schem
 import type { ComponentType, ReactNode } from "react";
 
 import { CustomColumnType } from "@/core/data-view/column-presentation.types";
-import { EntityType } from "@/features/records/history/v1/legacy-enums";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -71,7 +70,6 @@ describe("AppChip overflow tooltip accessibility", () => {
     const optionLabel = "Enterprise procurement and strategic transformation";
     const column: CustomColumnDto = {
       id: columnId,
-      entityType: EntityType.deal,
       label: "Sales pipeline",
       type: CustomColumnType.singleSelect,
       options: {

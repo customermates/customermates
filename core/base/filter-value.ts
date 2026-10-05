@@ -62,3 +62,16 @@ export function normalizeFilterNumberValueInput(input: unknown): unknown {
 
   return canonical === value ? input : { ...filter, value: canonical };
 }
+
+const EXISTENCE_OPERATORS = new Set(["hasNone", "hasSome"]);
+
+export function normalizeFilterInput(input: unknown): unknown {
+  const normalized = normalizeFilterNumberValueInput(input);
+  if (!normalized || typeof normalized !== "object" || Array.isArray(normalized)) return normalized;
+  const filter = normalized as Record<string, unknown>;
+  if (!EXISTENCE_OPERATORS.has(filter.operator as string) || !("value" in filter) || filter.value !== undefined)
+    return normalized;
+  const withoutValue: Record<string, unknown> = { ...filter };
+  delete withoutValue.value;
+  return withoutValue;
+}

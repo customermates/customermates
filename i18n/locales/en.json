@@ -72,8 +72,7 @@
         },
         "workspace": {
           "configure": "Ready to change the workspace data model",
-          "settings": "Ready to change workspace settings, including record type names",
-          "terminology": "Ready to rename record types for the whole workspace"
+          "settings": "Ready to change workspace settings, including record type names"
         }
       },
       "cancelled": "Stopped",
@@ -132,7 +131,6 @@
         "organizations": "organizations",
         "services": "services",
         "tasks": "tasks",
-        "terminology": "workspace terminology",
         "widgets": "dashboard widgets",
         "wiki": "Knowledge Base pages"
       },
@@ -143,7 +141,6 @@
         "organizations": "organization",
         "services": "service",
         "tasks": "task",
-        "terminology": "workspace term",
         "widgets": "dashboard widget",
         "wiki": "Knowledge Base page"
       },
@@ -425,11 +422,6 @@
             "done": "Updated workspace settings",
             "error": "Couldn’t update workspace settings",
             "running": "Updating workspace settings"
-          },
-          "terminology": {
-            "done": "Updated workspace terminology",
-            "error": "Couldn’t update workspace terminology",
-            "running": "Updating workspace terminology"
           }
         }
       },
@@ -548,36 +540,6 @@
             }
           }
         },
-        "contacts": {
-          "data": {
-            "contacts-cleanup": {
-              "label": "Find data gaps",
-              "prompt": "Review my contacts for missing or inconsistent information and suggest what to fix."
-            },
-            "contacts-summary": {
-              "label": "Summarize contacts",
-              "prompt": "Summarize my contacts and point out useful patterns or missing information."
-            },
-            "create-contact": {
-              "label": "Create a contact",
-              "prompt": "Help me create a contact. Ask for only the required details."
-            }
-          },
-          "empty": {
-            "contacts-tour": {
-              "label": "Learn how contacts work",
-              "prompt": "Show me around the contacts page and explain how contacts connect to the rest of the CRM."
-            },
-            "first-contact": {
-              "label": "Create my first contact",
-              "prompt": "Help me create my first real contact from confirmed facts in my Knowledge Base, existing workspace or what I tell you. Ask which person and only for missing required details; do not create a sample or testimonial contact."
-            },
-            "setup-contacts": {
-              "label": "Set up contacts",
-              "prompt": "Configure useful contact fields and views from my Knowledge Base and existing workspace. Do not create sample contacts or turn public testimonials into contacts. Ask only for missing decisions."
-            }
-          }
-        },
         "dashboard": {
           "data": {
             "dashboard-tour": {
@@ -605,36 +567,6 @@
             "tour": {
               "label": "Show me around",
               "prompt": "Give me an in-depth guided tour of Customermates and explain how the core areas work together."
-            }
-          }
-        },
-        "deals": {
-          "data": {
-            "create-deal": {
-              "label": "Create a deal",
-              "prompt": "Help me create a deal and connect all relevant records."
-            },
-            "pipeline-gaps": {
-              "label": "Find pipeline gaps",
-              "prompt": "Review my deals for missing relationships, values, or next steps."
-            },
-            "pipeline-summary": {
-              "label": "Summarize my pipeline",
-              "prompt": "Summarize my deal pipeline, risks, and most useful next actions."
-            }
-          },
-          "empty": {
-            "deals-tour": {
-              "label": "Learn how deals work",
-              "prompt": "Show me around deals and explain how to manage a pipeline in Customermates."
-            },
-            "first-deal": {
-              "label": "Create my first deal",
-              "prompt": "Help me create my first real deal from a confirmed opportunity I identify. Use my Knowledge Base and existing workspace, link only confirmed organizations, contacts and services, and ask for missing required facts such as the amount or current stage before creating it."
-            },
-            "setup-pipeline": {
-              "label": "Set up my pipeline",
-              "prompt": "Configure a simple sales pipeline from my Knowledge Base and existing workspace. Do not create sample deals or treat public case studies as current opportunities. Ask only for missing pipeline decisions; never invent deal amounts, budgets or current stages."
             }
           }
         },
@@ -698,36 +630,6 @@
             }
           }
         },
-        "organizations": {
-          "data": {
-            "create-organization": {
-              "label": "Create an organization",
-              "prompt": "Help me create an organization and link the relevant records."
-            },
-            "organization-gaps": {
-              "label": "Find relationship gaps",
-              "prompt": "Find organizations missing useful contact, deal, or task relationships."
-            },
-            "organizations-summary": {
-              "label": "Summarize organizations",
-              "prompt": "Summarize my organizations and highlight the relationships that deserve attention."
-            }
-          },
-          "empty": {
-            "first-organization": {
-              "label": "Create my first organization",
-              "prompt": "Help me create my first real organization from confirmed facts in my Knowledge Base, existing workspace or what I tell you. Ask which organization and only for missing required details. Link only confirmed people or deals; do not invent a customer relationship."
-            },
-            "organizations-tour": {
-              "label": "Learn how organizations work",
-              "prompt": "Show me around organizations and explain how they connect contacts, deals, and tasks."
-            },
-            "setup-organizations": {
-              "label": "Set up organizations",
-              "prompt": "Configure useful organization fields and views from my Knowledge Base and existing workspace. Do not create sample organizations or treat public case studies as current business relationships. Ask only for missing decisions."
-            }
-          }
-        },
         "routines": {
           "data": {
             "create-routine": {
@@ -755,66 +657,6 @@
             "routines-tour": {
               "label": "Learn how routines work",
               "prompt": "Show me around the Routines page and explain schedules, event triggers, testing, credits, and run history. Do not make any changes."
-            }
-          }
-        },
-        "services": {
-          "data": {
-            "create-service": {
-              "label": "Create an offering",
-              "prompt": "Help me create a service or product with the right commercial details."
-            },
-            "service-gaps": {
-              "label": "Find catalog gaps",
-              "prompt": "Review my services or products for missing prices, relationships, or duplicated offerings."
-            },
-            "services-summary": {
-              "label": "Summarize offerings",
-              "prompt": "Summarize my services or products and how they are used in deals."
-            }
-          },
-          "empty": {
-            "first-service": {
-              "label": "Create my first offering",
-              "prompt": "Help me create my first real service or product from my Knowledge Base and existing workspace. Ask only for the offering choice and required details that are missing. If its required price is unknown, ask before creating it; never guess a price or use a placeholder."
-            },
-            "services-tour": {
-              "label": "Learn how offerings work",
-              "prompt": "Show me around services and explain how offerings connect to deals and tasks."
-            },
-            "setup-services": {
-              "label": "Set up my offerings",
-              "prompt": "Create only real services or products documented in my Knowledge Base, avoiding duplicates in my workspace. Use confirmed prices. If a required price or other commercial detail is unknown, ask before creating that offering; never invent a price or use a placeholder."
-            }
-          }
-        },
-        "tasks": {
-          "data": {
-            "create-task": {
-              "label": "Create a task",
-              "prompt": "Help me create a task and connect it to the right records."
-            },
-            "task-gaps": {
-              "label": "Find follow-up gaps",
-              "prompt": "Find important records that appear to be missing a clear follow-up task."
-            },
-            "task-priorities": {
-              "label": "Plan my next actions",
-              "prompt": "Review my tasks and related CRM data, then recommend what I should do next."
-            }
-          },
-          "empty": {
-            "first-task": {
-              "label": "Create my first task",
-              "prompt": "Help me create my first real task that I identify, using my Knowledge Base and existing workspace. Link only confirmed records and ask only for missing required decisions. Do not invent a task, owner or due date."
-            },
-            "setup-tasks": {
-              "label": "Set up my workflow",
-              "prompt": "Configure a minimal task workflow with useful fields and views from my Knowledge Base and existing workspace. Do not create sample tasks, owners or due dates. Ask only for missing workflow decisions."
-            },
-            "tasks-tour": {
-              "label": "Learn how tasks work",
-              "prompt": "Show me around tasks and explain how they connect to contacts, organizations, deals, and services."
             }
           }
         },
@@ -1326,7 +1168,6 @@
       "taskNameCannotBeChangedForSystemTasks": "Name cannot be changed for system tasks.",
       "taskNotFound": "Task ID not found or not accessible.",
       "taskOnlyCustomTasksCanBeDeleted": "Only custom tasks can be deleted.",
-      "terminologyInvalidPreset": "Choose one of the available name presets.",
       "termsNotAgreed": "You must agree to the terms and conditions.",
       "threadNotFound": "Thread ID not found or not accessible.",
       "unipileAccountRestricted": "The provider has restricted this channel. Reconnecting won't fix it; resolve the restriction with the provider first.",
@@ -2294,96 +2135,6 @@
     },
     "showField": "Show {field} in details",
     "unpinField": "Unpin {field} from the overview"
-  },
-  "EntityTerminology": {
-    "presets": {
-      "contact": {
-        "client": {
-          "plural": "Clients",
-          "singular": "Client"
-        },
-        "contact": {
-          "plural": "Contacts",
-          "singular": "Contact"
-        },
-        "lead": {
-          "plural": "Leads",
-          "singular": "Lead"
-        },
-        "person": {
-          "plural": "People",
-          "singular": "Person"
-        }
-      },
-      "deal": {
-        "deal": {
-          "plural": "Deals",
-          "singular": "Deal"
-        },
-        "job": {
-          "plural": "Jobs",
-          "singular": "Job"
-        },
-        "opportunity": {
-          "plural": "Opportunities",
-          "singular": "Opportunity"
-        },
-        "project": {
-          "plural": "Projects",
-          "singular": "Project"
-        }
-      },
-      "organization": {
-        "account": {
-          "plural": "Accounts",
-          "singular": "Account"
-        },
-        "company": {
-          "plural": "Companies",
-          "singular": "Company"
-        },
-        "organization": {
-          "plural": "Organizations",
-          "singular": "Organization"
-        }
-      },
-      "service": {
-        "offering": {
-          "plural": "Offerings",
-          "singular": "Offering"
-        },
-        "package": {
-          "plural": "Packages",
-          "singular": "Package"
-        },
-        "product": {
-          "plural": "Products",
-          "singular": "Product"
-        },
-        "service": {
-          "plural": "Services",
-          "singular": "Service"
-        }
-      },
-      "task": {
-        "actionItem": {
-          "plural": "Action items",
-          "singular": "Action item"
-        },
-        "followUp": {
-          "plural": "Follow-ups",
-          "singular": "Follow-up"
-        },
-        "task": {
-          "plural": "Tasks",
-          "singular": "Task"
-        },
-        "todo": {
-          "plural": "To-dos",
-          "singular": "To-do"
-        }
-      }
-    }
   },
   "EntityTimeline": {
     "detailDescription": "Activity details and related record context.",
@@ -3540,6 +3291,28 @@
     "staleRefreshFailed": "Could not refresh the data model. Your draft is still here; try again.",
     "staleRefreshRequired": "The data model changed. Refresh it to keep editing this draft.",
     "staleTargetMissing": "This definition was removed. Your draft is preserved, but it cannot be applied.",
+    "starterTypes": {
+      "contact": {
+        "plural": "Contacts",
+        "singular": "Contact"
+      },
+      "deal": {
+        "plural": "Deals",
+        "singular": "Deal"
+      },
+      "organization": {
+        "plural": "Organizations",
+        "singular": "Organization"
+      },
+      "service": {
+        "plural": "Services",
+        "singular": "Service"
+      },
+      "task": {
+        "plural": "Tasks",
+        "singular": "Task"
+      }
+    },
     "summaryAggregation": "Calculation",
     "summaryApprovalRequired": "This summary is published. An administrator must approve changes to its calculation inputs.",
     "summaryField": "Summary field",

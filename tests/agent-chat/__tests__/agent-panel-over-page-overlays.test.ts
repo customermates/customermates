@@ -42,9 +42,6 @@ vi.mock("@/app/components/agent-chat/agent-conversation", () => ({
 }));
 vi.mock("next/navigation", () => ({ usePathname: () => "/company/webhooks" }));
 vi.mock("@/app/[locale]/(protected)/search/actions", () => ({ globalSearchAction: vi.fn() }));
-vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
-  useEntityTerminology: () => ({ singular: (entity: string) => entity }),
-}));
 vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
   useHydratedIntlStore: () => ({
     formatDayMonth: () => "1 Oct",

@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+export const RECORD_PRESET_KEYS = ["contact", "organization", "deal", "service", "task"] as const;
+export type RecordPresetKey = (typeof RECORD_PRESET_KEYS)[number];
+
 export const RecordNavigationSchema = z
   .object({
     companyId: z.uuid(),
@@ -14,7 +17,7 @@ export const RecordNavigationSchema = z
           icon: z.string(),
           canCreate: z.boolean(),
           hasAuthorizationTasks: z.boolean(),
-          legacyAlias: z.enum(["contact", "organization", "deal", "service", "task"]).optional(),
+          presetKey: z.enum(RECORD_PRESET_KEYS).optional(),
         })
         .strict(),
     ),

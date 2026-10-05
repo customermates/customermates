@@ -1,7 +1,7 @@
 import { AI_MANAGEABLE_DATA_VIEW_SURFACE_KEYS } from "@/core/data-view/ai-manageable-surfaces";
 import { SURFACE } from "@/core/data-view/data-view-keys";
 import { dataViewNavigationHref, dataViewNavigationRanges } from "@/core/data-view/data-view-links";
-import { DATA_VIEW_PATHS, ENTITY_TIMELINE_PARENT_PATHS, isRecordTimelinePath } from "@/core/data-view/data-view-paths";
+import { DATA_VIEW_PATHS, isRecordTimelinePath } from "@/core/data-view/data-view-paths";
 import { findWikiPageHrefRanges, parseWikiPageHref } from "@/features/wiki/wiki-links";
 import { APP_LOCALES, ROUTING_LOCALES } from "@/i18n/locale-registry";
 
@@ -19,22 +19,12 @@ const WIKI_TO_LINK_PATTERN = /\]\(to:(\/(?:[a-z]{2}\/)?wiki\?page=[^)]+)\)/giu;
 const UUID_PATTERN = /(^|[^0-9a-f])([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})(?=$|[^0-9a-f])/gi;
 const PARTIAL_UUID_PATTERN = /(^|[^0-9a-f])([0-9a-f]{8}-(?:[0-9a-f]{0,4}(?:-[0-9a-f]{0,4}){0,3})?)$/gi;
 const REDACTION_TOKEN_SOURCE = "\\[(?:internal reference|internal details|redacted)\\]";
-const SAVED_VIEW_PATHS = [
-  ...AI_MANAGEABLE_DATA_VIEW_SURFACE_KEYS,
-  SURFACE.contacts,
-  SURFACE.organizations,
-  SURFACE.deals,
-  SURFACE.services,
-  SURFACE.tasks,
-]
-  .map((surfaceKey) => DATA_VIEW_PATHS[surfaceKey])
-  .filter((path): path is string => path !== null);
+const SAVED_VIEW_PATHS = AI_MANAGEABLE_DATA_VIEW_SURFACE_KEYS.map((surfaceKey) => DATA_VIEW_PATHS[surfaceKey]).filter(
+  (path): path is string => path !== null,
+);
 const escapePattern = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const UUID_SOURCE = "[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}";
-const TIMELINE_PARENT_SOURCE = [
-  ...ENTITY_TIMELINE_PARENT_PATHS.map((path) => escapePattern(path.slice(1))),
-  `records/${UUID_SOURCE}`,
-].join("|");
+const TIMELINE_PARENT_SOURCE = `records/${UUID_SOURCE}`;
 const VIEW_KEY_SOURCE = `(?:__all__|${UUID_SOURCE})`;
 const LOCALE_PREFIX_SOURCE = `(?:(?:${APP_LOCALES.map(escapePattern).join("|")})/)?`;
 const SAVED_VIEW_URL_PATTERN = new RegExp(
@@ -46,7 +36,8 @@ const MAX_LOCALE_PREFIX_LENGTH = Math.max(...APP_LOCALES.map((locale) => locale.
 const MAX_STANDALONE_VIEW_URL_LENGTH =
   Math.max(...SAVED_VIEW_PATHS.map((path) => path.length)) + MAX_LOCALE_PREFIX_LENGTH + "?view=".length + 36;
 const MAX_TIMELINE_VIEW_URL_LENGTH =
-  Math.max(9 + 36, ...ENTITY_TIMELINE_PARENT_PATHS.map((path) => path.length)) +
+  9 +
+  36 +
   MAX_LOCALE_PREFIX_LENGTH +
   1 +
   36 +
@@ -380,9 +371,7 @@ function isAlreadyRedactedDataViewDestination(value: string, appBaseUrl?: string
       target.searchParams.get("viewSurface") !== SURFACE.entityTimeline
     )
       return false;
-    if (generic && segments.length === 4 && recordIdentity(segments[3])) return true;
-    const parentPath = ENTITY_TIMELINE_PARENT_PATHS.find((path) => localPath.startsWith(`${path}/`));
-    return Boolean(parentPath && localPath.slice(parentPath.length + 1) === INTERNAL_REFERENCE);
+    return generic && segments.length === 4 && recordIdentity(segments[3]);
   } catch {
     return false;
   }

@@ -35,7 +35,7 @@ vi.mock("@/core/stores/root-store.provider", () => ({
       use12Hour: false,
     },
     localeStore: { locale: "en" },
-    terminologyStore: { overrides: [] },
+    recordWorkspaceStore: { navigation: null },
   }),
 }));
 

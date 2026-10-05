@@ -172,10 +172,7 @@ export function hasSuccessfulAgentMutation(parts: readonly AgentMessagePart[]) {
 
 export const AgentDataCountsSchema = z.object({
   contacts: z.boolean(),
-  organizations: z.boolean(),
   deals: z.boolean(),
-  services: z.boolean(),
-  tasks: z.boolean(),
   routines: z.boolean(),
   wiki: z.boolean(),
   widgets: z.boolean(),
@@ -193,19 +190,7 @@ export const AgentConversationSummarySchema = z.object({
 
 export type AgentConversationSummary = Data<typeof AgentConversationSummarySchema>;
 
-export const SUGGESTION_PAGE_IDS = [
-  "dashboard",
-  "inbox",
-  "tasks",
-  "contacts",
-  "organizations",
-  "deals",
-  "services",
-  "routines",
-  "wiki",
-  "connected-accounts",
-  "default",
-] as const;
+export const SUGGESTION_PAGE_IDS = ["dashboard", "inbox", "routines", "wiki", "connected-accounts", "default"] as const;
 
 export type SuggestionPageId = (typeof SUGGESTION_PAGE_IDS)[number];
 

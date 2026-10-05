@@ -68,9 +68,6 @@ vi.mock("@/i18n/navigation", () => ({
     push: harness.push,
   }),
 }));
-vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
-  useEntityTerminology: () => ({ map: () => ({}) }),
-}));
 vi.mock("@/app/components/topbar-actions-context", async (importOriginal) => {
   const actual = await importOriginal<typeof TopBarActionsModule>();
   return {

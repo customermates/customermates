@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { LegacySearchReferenceSchema } from "@/features/search/legacy-search-reference";
 import { CalculatedValueSchema, RecordDateTimeSchema, RecordRefSchema } from "./record-model.schema";
 
 export const RecordSearchCursorSchema = z
@@ -54,7 +53,7 @@ export function recordSearchLabel(item: RecordSearchHit, translate: (key: string
   return item.typeLabel;
 }
 
-export const StoredSearchReferenceSchema = z.union([RecordRefSchema, LegacySearchReferenceSchema]);
+export const StoredSearchReferenceSchema = RecordRefSchema;
 export type StoredSearchReference = z.infer<typeof StoredSearchReferenceSchema>;
 export const ResolveRecordSearchSchema = z.object({ refs: z.array(StoredSearchReferenceSchema).max(50) }).strict();
 export type ResolveRecordSearchInput = z.infer<typeof ResolveRecordSearchSchema>;

@@ -4,7 +4,7 @@ import { Prisma } from "@/generated/prisma";
 import { z } from "zod";
 
 import { FilterOperatorKey, ViewMode } from "./base-query-builder";
-import { normalizeFilterInput } from "./filter-compat";
+import { normalizeFilterInput } from "./filter-value";
 
 import { GROUP_PAGE_SIZE_MAX, GroupPageRequestSchema, GroupingSchema } from "@/core/base/grouping/grouping.schema";
 import { CustomColumnDtoSchema } from "@/core/data-view/column-presentation.schema";

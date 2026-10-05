@@ -21,14 +21,14 @@ describe("Ask AI view type label", () => {
       });
       const viewTypeTranslator = translate as (key: string, values?: Record<string, string>) => string;
       for (const surfaceKey of AI_MANAGEABLE_DATA_VIEW_SURFACE_KEYS) {
-        expect(viewAiTypeLabel(surfaceKey, viewTypeTranslator, () => "Custom entity name", "embedded")).toBeTruthy();
-        expect(viewAiTypeLabel(surfaceKey, viewTypeTranslator, () => "Custom entity name", "standalone")).toBeTruthy();
+        expect(viewAiTypeLabel(surfaceKey, viewTypeTranslator, "embedded")).toBeTruthy();
+        expect(viewAiTypeLabel(surfaceKey, viewTypeTranslator, "standalone")).toBeTruthy();
       }
 
       expect(errors).toEqual([]);
       const key = "records:10000000-0000-4000-8000-000000000011";
-      const embedded = viewAiTypeLabel(key, viewTypeTranslator, () => "Unused", "embedded");
-      const standalone = viewAiTypeLabel(key, viewTypeTranslator, () => "Unused", "standalone");
+      const embedded = viewAiTypeLabel(key, viewTypeTranslator, "embedded");
+      const standalone = viewAiTypeLabel(key, viewTypeTranslator, "standalone");
       expect(embedded).toContain(messages.RecordModel.records);
       expect(standalone).toContain(messages.RecordModel.records);
       expect(errors).toEqual([]);

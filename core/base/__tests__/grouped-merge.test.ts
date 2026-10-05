@@ -55,7 +55,7 @@ function fullResult(): GetResult<Item> {
 
   return {
     items: [{ id: "a" }, { id: "b" }],
-    p13nId: SURFACE.deals,
+    p13nId: SURFACE.routines,
     pagination: { page: 1, pageSize: 25, total: 3, totalPages: 1 },
     views: [],
     activeViewKey: ALL_VIEW_KEY,

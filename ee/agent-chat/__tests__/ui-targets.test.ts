@@ -8,7 +8,6 @@ import { REPO_ROOT, walkFiles } from "@/tests/conventions/walk";
 
 import { CONTROL_PAGES, FORM_PAGES } from "../ui-anchors";
 import {
-  ACTIVE_AGENT_UI_TARGETS,
   AGENT_UI_TARGETS,
   NavigationUiTargetIdSchema,
   UiTargetIdSchema,
@@ -40,13 +39,13 @@ const controlTargetIds = CONTROL_PAGES.flatMap((page) =>
 const formTargetIds = FORM_PAGES.flatMap((page) => [`${page.scope}-save`, `${page.scope}-reset`]);
 
 describe("agent interface targets", () => {
-  it("accepts only active interface targets, never the retired fixed record pages", () => {
+  it("accepts only registered interface targets", () => {
     for (const id of ["nav-contacts", "contacts-add", "deals-search", "tasks-filter"]) {
-      expect(findAgentUiTarget(id), id).not.toBeNull();
+      expect(findAgentUiTarget(id), id).toBeNull();
       expect(UiTargetIdSchema.safeParse(id).success, id).toBe(false);
       expect(NavigationUiTargetIdSchema.safeParse(id).success, id).toBe(false);
     }
-    for (const target of ACTIVE_AGENT_UI_TARGETS) expect(UiTargetIdSchema.safeParse(target.id).success).toBe(true);
+    for (const target of AGENT_UI_TARGETS) expect(UiTargetIdSchema.safeParse(target.id).success).toBe(true);
     expect(NavigationUiTargetIdSchema.safeParse("nav-dashboard").success).toBe(true);
     expect(UiTargetIdSchema.safeParse("records:10000000-0000-4000-8000-000000000101:add").success).toBe(true);
   });
@@ -92,13 +91,13 @@ describe("agent interface targets", () => {
       for (const subroute of WORKSPACE_SECTIONS[section])
         expect(agentSidebarGroupId(`nav-${section}-${subroute.slug}`), subroute.slug).toBe(`nav-${section}`);
     }
-    expect(agentSidebarGroupId("nav-contacts")).toBeNull();
+    expect(agentSidebarGroupId("nav-dashboard")).toBeNull();
     expect(agentSidebarGroupId("company-members-add")).toBeNull();
     expect(agentSidebarGroupId("nav-company-unknown")).toBeNull();
   });
 
   it("recognises the toolbar search boxes that narrow screens collapse", () => {
-    expect(isToolbarSearchTarget("contacts-search")).toBe(true);
+    expect(isToolbarSearchTarget("company-webhooks-search")).toBe(true);
     expect(isToolbarSearchTarget("company-webhook-deliveries-search")).toBe(true);
     expect(isToolbarSearchTarget("nav-search")).toBe(false);
     expect(isToolbarSearchTarget("company-roles-search")).toBe(false);
@@ -116,10 +115,8 @@ describe("agent interface targets", () => {
     expect(agentRouteVisible("/profile/api-keys", "cloud", reads(Resource.users))).toBe(false);
     expect(agentRouteVisible("/profile/settings", "cloud", reads())).toBe(true);
     expect(agentRouteVisible("/dashboard", "cloud", reads())).toBe(true);
-    expect(agentRouteVisible("/deals/00000000-0000-4000-8000-000000000001", "cloud", reads(Resource.contacts))).toBe(
-      false,
-    );
-    expect(agentRouteVisible("/contacts", "cloud", reads(Resource.contacts))).toBe(true);
+    expect(agentRouteVisible("/routines", "cloud", reads(Resource.contacts))).toBe(false);
+    expect(agentRouteVisible("/routines", "cloud", reads(Resource.routines))).toBe(true);
     expect(agentRouteVisible("/inbox", "cloud", everything)).toBe(true);
     for (const path of ["/inbox", "/routines", "/profile/connected-accounts", "/company/subscription"])
       expect(agentRouteVisible(path, "self-hosted", everything), path).toBe(false);
@@ -130,9 +127,7 @@ describe("agent interface targets", () => {
     expect(agentUiPageLabelKeys("/company/members")).toEqual(["NavigationBar.members"]);
     expect(agentUiPageLabelKeys("/profile/api-keys")).toEqual(["ApiKeysCard.title"]);
     expect(agentUiPageLabelKeys("/inbox")).toEqual(["NavigationBar.inbox"]);
-    expect(agentUiPageLabelKeys("/tasks")[0]).toBe("EntityTerminology.presets.task.task.plural");
-    expect(agentUiPageLabelKeys("/contacts")).toContain("EntityTerminology.presets.contact.lead.plural");
-    expect(agentUiPageLabelKeys("/organizations")).toContain("EntityTerminology.presets.organization.account.plural");
+    expect(agentUiPageLabelKeys("/routines")).toEqual(["NavigationBar.routines"]);
     expect(agentUiPageLabelKeys("*")).toEqual([]);
     for (const target of AGENT_UI_TARGETS.filter((candidate) => candidate.route.startsWith("/")))
       expect(agentUiPageLabelKeys(target.route), target.id).not.toEqual([]);
@@ -192,7 +187,6 @@ describe("agent interface targets", () => {
     expect(findAgentUiTarget("company-settings-data-model")?.route).toBe("/company/settings");
     expect(findAgentUiTarget("nav-configure-records")?.route).toBe("/configure");
     expect(findAgentUiTarget("nav-company-data-model")).toBeNull();
-    expect(findAgentUiTarget("terminology-contact")).toBeNull();
   });
 
   it("points dialog field targets at the control that opens their dialog or tab", () => {
@@ -258,7 +252,7 @@ describe("agent interface targets", () => {
   it("lets navigate resolve only targets with an app route", () => {
     for (const target of AGENT_UI_TARGETS)
       expect(findAgentNavigationTarget(target.id) !== null, target.id).toBe(target.route.startsWith("/"));
-    for (const target of ACTIVE_AGENT_UI_TARGETS) {
+    for (const target of AGENT_UI_TARGETS) {
       const routable = target.route.startsWith("/");
       expect(NavigationUiTargetIdSchema.safeParse(target.id).success, target.id).toBe(routable);
       expect(UiTargetIdSchema.safeParse(target.id).success, target.id).toBe(true);

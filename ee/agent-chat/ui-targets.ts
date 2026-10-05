@@ -22,7 +22,6 @@ import {
   WORKSPACE_NAV_GROUPS,
   type AnchorPage,
   type ControlPage,
-  TRANSFERABLE_SCOPES,
 } from "./ui-anchors";
 
 export type AgentUiTarget = {
@@ -91,15 +90,6 @@ function toolbarTargets(page: AnchorPage, hasAdd: boolean): AgentUiTarget[] {
             description: `Search input over ${page.label}`,
           },
         ]),
-    ...(TRANSFERABLE_SCOPES.has(page.scope)
-      ? [
-          {
-            id: `${page.scope}-transfer`,
-            route: page.route,
-            description: `Menu that exports ${page.label} to a spreadsheet or adds them from one`,
-          },
-        ]
-      : []),
     ...(SCOPES_WITHOUT_FILTER.has(page.scope)
       ? []
       : [
@@ -171,11 +161,7 @@ export const AGENT_UI_TARGETS: AgentUiTarget[] = [
   ...CONTROL_PAGES.flatMap(controlTargets),
 ];
 
-const RETIRED_RECORD_UI_ROUTE = /^\/(?:contacts|organizations|deals|services|tasks)(?:\/|$)/;
-
-export const ACTIVE_AGENT_UI_TARGETS = AGENT_UI_TARGETS.filter((target) => !RETIRED_RECORD_UI_ROUTE.test(target.route));
-
-export const AGENT_UI_TARGET_IDS = ACTIVE_AGENT_UI_TARGETS.map((target) => target.id) as [string, ...string[]];
+export const AGENT_UI_TARGET_IDS = AGENT_UI_TARGETS.map((target) => target.id) as [string, ...string[]];
 
 function exactTargetIdSchema(ids: readonly string[], label: string) {
   const allowedIds = new Set(ids);
@@ -187,7 +173,7 @@ function exactTargetIdSchema(ids: readonly string[], label: string) {
 
 export const UiTargetIdSchema = exactTargetIdSchema(AGENT_UI_TARGET_IDS, "interface");
 
-export const AGENT_NAV_TARGET_IDS = ACTIVE_AGENT_UI_TARGETS.filter((target) => target.route.startsWith("/")).map(
+export const AGENT_NAV_TARGET_IDS = AGENT_UI_TARGETS.filter((target) => target.route.startsWith("/")).map(
   (target) => target.id,
 ) as [string, ...string[]];
 export const NavigationUiTargetIdSchema = exactTargetIdSchema(AGENT_NAV_TARGET_IDS, "navigation");

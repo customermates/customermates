@@ -7,7 +7,7 @@ import type { RecordField } from "@/features/records/record-model.schema";
 import { useTranslations } from "next-intl";
 
 import { AppChip } from "@/components/chip/app-chip";
-import { useChangeFieldLabel } from "@/components/entity-terminology/use-change-field-label";
+import { useChangeFieldLabel } from "@/components/data-view/use-column-label";
 import { InfoRow } from "@/components/shared/info-row";
 import { IntlLink } from "@/i18n/navigation";
 

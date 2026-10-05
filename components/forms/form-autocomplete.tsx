@@ -12,7 +12,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { AppChip } from "@/components/chip/app-chip";
-import { useNavigateToHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
+import { useNavigateToHref } from "@/components/shared/use-navigate-to-href";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { FormLabel } from "./form-label";
 import { FormControlRow } from "./form-control-row";

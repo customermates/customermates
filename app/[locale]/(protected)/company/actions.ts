@@ -67,8 +67,6 @@ export async function getBillingPortalUrlAction() {
 }
 
 export async function updateCompanyAction(data: UpdateCompanySettingsData) {
-  if (Object.keys(data).some((key) => key !== "currency"))
-    throw new Error("Legacy record labels and weighting settings are retired. Use Data model configuration.");
   return serializeResult(getUpdateCompanySettingsInteractor().invoke(data));
 }
 

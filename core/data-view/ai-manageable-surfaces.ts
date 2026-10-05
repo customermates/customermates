@@ -15,25 +15,16 @@ export const OPERATOR_DATA_VIEW_SURFACE_KEYS = [
   SURFACE.operatorAudit,
 ] as const satisfies readonly DataViewSurfaceKey[];
 
-const RETIRED_RECORD_SURFACES = [
-  SURFACE.contacts,
-  SURFACE.organizations,
-  SURFACE.deals,
-  SURFACE.services,
-  SURFACE.tasks,
-] as const;
-
 export type BuiltinAiManageableDataViewSurfaceKey = Exclude<
   BuiltinDataViewSurfaceKey,
-  (typeof OPERATOR_DATA_VIEW_SURFACE_KEYS)[number] | (typeof RETIRED_RECORD_SURFACES)[number]
+  (typeof OPERATOR_DATA_VIEW_SURFACE_KEYS)[number]
 >;
 export type AiManageableDataViewSurfaceKey = BuiltinAiManageableDataViewSurfaceKey | RecordSurfaceKey;
 
 const OPERATOR_SURFACES = new Set<DataViewSurfaceKey>(OPERATOR_DATA_VIEW_SURFACE_KEYS);
 
 export const AI_MANAGEABLE_DATA_VIEW_SURFACE_KEYS = DATA_VIEW_SURFACE_KEYS.filter(
-  (surfaceKey) =>
-    !OPERATOR_SURFACES.has(surfaceKey) && !RETIRED_RECORD_SURFACES.some((retired) => retired === surfaceKey),
+  (surfaceKey) => !OPERATOR_SURFACES.has(surfaceKey),
 ) as readonly BuiltinAiManageableDataViewSurfaceKey[];
 
 export const AiManageableDataViewSurfaceKeySchema = z.union([

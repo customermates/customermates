@@ -40,9 +40,6 @@ vi.mock("next-intl", () => ({
 vi.mock("@/app/[locale]/(protected)/search/actions", () => ({
   globalSearchAction: harness.globalSearchAction,
 }));
-vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
-  useEntityTerminology: () => ({ singular: (value: string) => value }),
-}));
 vi.mock("@/components/entity-detail/entity-relations", () => ({
   ENTITY_ICON: {
     contact: () => null,

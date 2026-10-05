@@ -31,7 +31,6 @@ describe("UpdateCompanySettingsInteractor", () => {
 
     mockRepo = {
       updateDetails: vi.fn().mockResolvedValue(undefined),
-      upsertTerminology: vi.fn().mockResolvedValue(undefined),
       setDealStageWeights: vi.fn().mockResolvedValue(undefined),
     };
     mockEventService = {
@@ -56,10 +55,9 @@ describe("UpdateCompanySettingsInteractor", () => {
     );
   });
 
-  it("rejects legacy terminology and weighting at the interactor boundary", async () => {
+  it("rejects unknown settings at the interactor boundary", async () => {
     const interactor = createInteractor();
     for (const input of [
-      { terminology: [{ entityType: "task", presetKey: "followUp" }] },
       { dealWeightingColumnId: null },
       { dealStageWeights: [{ optionValue: "stage-open", weight: 30 }] },
     ]) {
@@ -67,7 +65,6 @@ describe("UpdateCompanySettingsInteractor", () => {
       expect(result.ok).toBe(false);
     }
     expect(mockRepo.updateDetails).not.toHaveBeenCalled();
-    expect(mockRepo.upsertTerminology).not.toHaveBeenCalled();
     expect(mockRepo.setDealStageWeights).not.toHaveBeenCalled();
   });
 

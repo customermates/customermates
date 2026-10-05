@@ -246,47 +246,25 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
       "invite",
       "role",
       "permission",
-      "terminology",
       "rename",
       "currency",
       "workspace setting",
       "my name",
     ],
-    de: ["teammitglied", "einladen", "rolle", "berechtigung", "terminologie", "umbenennen", "währung", "einstellung"],
+    de: ["teammitglied", "einladen", "rolle", "berechtigung", "umbenennen", "währung", "einstellung"],
     es: [
       "miembro del equipo",
       "invita",
       "roles",
       "permiso",
-      "terminología",
       "cambiar el nombre",
       "renombrar",
       "moneda",
       "configuración",
       "mi nombre",
     ],
-    fr: [
-      "membre de l'équipe",
-      "inviter",
-      "rôle",
-      "autorisation",
-      "terminologie",
-      "renommer",
-      "devise",
-      "paramètres",
-      "mon nom",
-    ],
-    it: [
-      "membro del team",
-      "invita",
-      "ruolo",
-      "permesso",
-      "terminologia",
-      "rinominare",
-      "valuta",
-      "impostazioni",
-      "il mio nome",
-    ],
+    fr: ["membre de l'équipe", "inviter", "rôle", "autorisation", "renommer", "devise", "paramètres", "mon nom"],
+    it: ["membro del team", "invita", "ruolo", "permesso", "rinominare", "valuta", "impostazioni", "il mio nome"],
   },
 };
 
@@ -318,7 +296,6 @@ const ACTIVITY_KIND_TOOLSETS: Record<string, AgentOnDemandToolset> = {
 
 const ACTIVITY_KIND_EXACT_TOOLSETS: Record<string, AgentOnDemandToolset> = {
   "workspace.settings": "admin",
-  "workspace.terminology": "admin",
   "workspace.configure": "admin",
 };
 

@@ -18,10 +18,8 @@ import { SignatureTemplate } from "@/ee/messaging/email-settings";
 import { OPERATOR_AUDIT_ACTION } from "@/ee/operator/operator.schema";
 import { ROUTINE_RUN_REASONS } from "@/ee/routines/routine-run-outcome";
 import { ROUTINE_SCHEDULE_PRESETS } from "@/ee/routines/routine-schedule-preset";
-import {
-  ENTITY_TERMINOLOGY_PRESETS,
-  FILTER_FIELD_TERMINOLOGY,
-} from "@/features/entity-terminology/entity-terminology.constants";
+import { RELATION_FILTER_PRESETS } from "@/components/data-view/use-filter-field-label";
+import { RECORD_PRESET_KEYS } from "@/features/records/record-navigation.schema";
 import { DomainEvent } from "@/features/event/domain-events";
 import { FeedbackType } from "@/features/feedback/send-feedback.schema";
 import { RecordDeliveryEnvelopeSchema } from "@/features/records/record-delivery.schema";
@@ -51,10 +49,8 @@ import { TaskType } from "@/features/records/history/v1/legacy-enums";
 import { ROUTING_LOCALES } from "@/i18n/locale-registry";
 import { WIKI_PAGE_KINDS } from "@/features/wiki/wiki.schema";
 
-const ENTITY_TERMINOLOGY_KEYS = Object.entries(ENTITY_TERMINOLOGY_PRESETS).flatMap(([entityType, presets]) =>
-  presets.flatMap((preset) =>
-    (["plural", "singular"] as const).map((form) => `EntityTerminology.presets.${entityType}.${preset}.${form}`),
-  ),
+const STARTER_TYPE_KEYS = RECORD_PRESET_KEYS.flatMap((preset) =>
+  (["plural", "singular"] as const).map((form) => `RecordModel.starterTypes.${preset}.${form}`),
 );
 
 const DOMAIN_EVENT_KEYS = [...Object.values(DomainEvent), ...RecordDeliveryEnvelopeSchema.shape.event.options].map(
@@ -125,7 +121,7 @@ const FEEDBACK_DESCRIPTION_KEYS = Object.values(FeedbackType).map((type) => `fee
 const FEEDBACK_TITLE_KEYS = Object.values(FeedbackType).map((type) => `feedback.${type}.title`);
 const CUSTOM_ERROR_CODE_KEYS = Object.values(CustomErrorCode).map((code) => `Common.errors.${code}`);
 const FILTER_FIELD_KEYS = Object.values(FilterFieldKey)
-  .filter((field) => !(field in FILTER_FIELD_TERMINOLOGY))
+  .filter((field) => !(field in RELATION_FILTER_PRESETS))
   .map((field) => `Common.filters.fields.${field}`);
 const ROLE_RESOURCE_KEYS = Object.values(Resource).map((resource) => `RoleModal.resources.${resource}`);
 const DISPLAY_TYPE_KEYS = Object.values(DisplayType).map((displayType) => `Dashboard.displayTypes.${displayType}`);
@@ -435,7 +431,6 @@ const AGENT_ACTIVITY_RESOURCE_KEYS = [
   "AgentChat.activity.resource.organizations",
   "AgentChat.activity.resource.services",
   "AgentChat.activity.resource.tasks",
-  "AgentChat.activity.resource.terminology",
   "AgentChat.activity.resource.widgets",
   "AgentChat.activity.resource.wiki",
 ];
@@ -458,7 +453,6 @@ const AGENT_ACTIVITY_RESOURCE_SINGULAR_KEYS = [
   "AgentChat.activity.resourceSingular.organizations",
   "AgentChat.activity.resourceSingular.services",
   "AgentChat.activity.resourceSingular.tasks",
-  "AgentChat.activity.resourceSingular.terminology",
   "AgentChat.activity.resourceSingular.widgets",
   "AgentChat.activity.resourceSingular.wiki",
 ];
@@ -473,24 +467,12 @@ const AGENT_SUGGESTION_KEYS = [
   "AgentChat.suggestions.pages.connected-accounts.empty.accounts-connect-email",
   "AgentChat.suggestions.pages.connected-accounts.empty.accounts-connect-linkedin",
   "AgentChat.suggestions.pages.connected-accounts.empty.accounts-connect-whatsapp",
-  "AgentChat.suggestions.pages.contacts.data.contacts-cleanup",
-  "AgentChat.suggestions.pages.contacts.data.contacts-summary",
-  "AgentChat.suggestions.pages.contacts.data.create-contact",
-  "AgentChat.suggestions.pages.contacts.empty.contacts-tour",
-  "AgentChat.suggestions.pages.contacts.empty.first-contact",
-  "AgentChat.suggestions.pages.contacts.empty.setup-contacts",
   "AgentChat.suggestions.pages.dashboard.data.dashboard-tour",
   "AgentChat.suggestions.pages.dashboard.data.next-actions",
   "AgentChat.suggestions.pages.dashboard.data.summary",
   "AgentChat.suggestions.pages.dashboard.empty.capabilities",
   "AgentChat.suggestions.pages.dashboard.empty.setup",
   "AgentChat.suggestions.pages.dashboard.empty.tour",
-  "AgentChat.suggestions.pages.deals.data.create-deal",
-  "AgentChat.suggestions.pages.deals.data.pipeline-gaps",
-  "AgentChat.suggestions.pages.deals.data.pipeline-summary",
-  "AgentChat.suggestions.pages.deals.empty.deals-tour",
-  "AgentChat.suggestions.pages.deals.empty.first-deal",
-  "AgentChat.suggestions.pages.deals.empty.setup-pipeline",
   "AgentChat.suggestions.pages.default.data.default-contact-count",
   "AgentChat.suggestions.pages.default.data.default-open-deals",
   "AgentChat.suggestions.pages.default.data.default-tour",
@@ -503,12 +485,6 @@ const AGENT_SUGGESTION_KEYS = [
   "AgentChat.suggestions.pages.inbox.empty.inbox-connect-email",
   "AgentChat.suggestions.pages.inbox.empty.inbox-connect-whatsapp",
   "AgentChat.suggestions.pages.inbox.empty.inbox-explain",
-  "AgentChat.suggestions.pages.organizations.data.create-organization",
-  "AgentChat.suggestions.pages.organizations.data.organization-gaps",
-  "AgentChat.suggestions.pages.organizations.data.organizations-summary",
-  "AgentChat.suggestions.pages.organizations.empty.first-organization",
-  "AgentChat.suggestions.pages.organizations.empty.organizations-tour",
-  "AgentChat.suggestions.pages.organizations.empty.setup-organizations",
   "AgentChat.suggestions.pages.routines.data.create-routine",
   "AgentChat.suggestions.pages.routines.data.routine-health",
   "AgentChat.suggestions.pages.routines.data.routines-tour-data",
@@ -521,18 +497,6 @@ const AGENT_SUGGESTION_KEYS = [
   "AgentChat.suggestions.pages.wiki.empty.first-wiki-page",
   "AgentChat.suggestions.pages.wiki.empty.wiki-structure",
   "AgentChat.suggestions.pages.wiki.empty.wiki-tour",
-  "AgentChat.suggestions.pages.services.data.create-service",
-  "AgentChat.suggestions.pages.services.data.service-gaps",
-  "AgentChat.suggestions.pages.services.data.services-summary",
-  "AgentChat.suggestions.pages.services.empty.first-service",
-  "AgentChat.suggestions.pages.services.empty.services-tour",
-  "AgentChat.suggestions.pages.services.empty.setup-services",
-  "AgentChat.suggestions.pages.tasks.data.create-task",
-  "AgentChat.suggestions.pages.tasks.data.task-gaps",
-  "AgentChat.suggestions.pages.tasks.data.task-priorities",
-  "AgentChat.suggestions.pages.tasks.empty.first-task",
-  "AgentChat.suggestions.pages.tasks.empty.setup-tasks",
-  "AgentChat.suggestions.pages.tasks.empty.tasks-tour",
 ];
 
 const AGENT_CREDIT_BLOCKED_KEYS = [
@@ -561,6 +525,8 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["RecordModel.condition${*}", ["If", "Then", "Otherwise"].map((key) => `RecordModel.condition${key}`)],
   ["RecordModel.range${*}", ["Start", "End"].map((key) => `RecordModel.range${key}`)],
   ["RecordModel.behaviors.${*}", RECORD_BEHAVIOR_KEYS],
+  ["RecordModel.starterTypes.${*}.singular", STARTER_TYPE_KEYS.filter((key) => key.endsWith(".singular"))],
+  ["RecordModel.starterTypes.${*}.plural", STARTER_TYPE_KEYS.filter((key) => key.endsWith(".plural"))],
   ["RecordModel.deletion.${*}", ["unlink", "restrict", "cascade"].map((value) => `RecordModel.deletion.${value}`)],
   ["RecordModel.operators.${*}", RECORD_OPERATOR_KEYS],
   ["RecordModel.reducers.${*}", RECORD_REDUCER_KEYS],
@@ -656,10 +622,10 @@ const DYNAMIC_SITE_CONSUMERS = new Map<string, readonly string[]>([
     "app/[locale]/(protected)/company/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.title",
     FEEDBACK_TITLE_KEYS,
   ],
-  ["components/entity-terminology/use-column-label.ts :: t :: Common.table.columns.${columnId}", TABLE_COLUMN_KEYS],
-  ["components/entity-terminology/use-column-label.ts :: t.has :: Common.table.columns.${columnId}", TABLE_COLUMN_KEYS],
+  ["components/data-view/use-column-label.ts :: t :: Common.table.columns.${columnId}", TABLE_COLUMN_KEYS],
+  ["components/data-view/use-column-label.ts :: t.has :: Common.table.columns.${columnId}", TABLE_COLUMN_KEYS],
   [
-    'components/entity-terminology/use-filter-field-label.ts :: t :: Common.filters.fields.${field.replace(/\\./g, "_")}',
+    'components/data-view/use-filter-field-label.ts :: t :: Common.filters.fields.${field.replace(/\\./g, "_")}',
     FILTER_FIELD_KEYS,
   ],
   ["components/forms/use-form-field.ts :: t :: Common.inputs.${id}", FORM_FIELD_INPUT_KEYS],
@@ -813,11 +779,14 @@ export const DYNAMIC_KEY_SITES = [
   "components/data-view/filter-modal/use-filter-operator-label.ts :: t :: Common.filters.operators.${operator}",
   "components/data-view/group-label.ts :: t :: Common.dateBuckets.${bucket}",
   "components/data-view/group-summaries.tsx :: t :: RecordModel.reducers.${summary.aggregation}",
-  "components/entity-terminology/use-column-label.ts :: t :: AuditLogModal.fields.${columnId}",
-  "components/entity-terminology/use-column-label.ts :: t :: Common.table.columns.${columnId}",
-  "components/entity-terminology/use-column-label.ts :: t.has :: AuditLogModal.fields.${columnId}",
-  "components/entity-terminology/use-column-label.ts :: t.has :: Common.table.columns.${columnId}",
-  'components/entity-terminology/use-filter-field-label.ts :: t :: Common.filters.fields.${field.replace(/\\./g, "_")}',
+  "components/data-view/use-column-label.ts :: t :: AuditLogModal.fields.${columnId}",
+  "components/data-view/use-column-label.ts :: t :: Common.table.columns.${columnId}",
+  "components/data-view/use-column-label.ts :: t.has :: AuditLogModal.fields.${columnId}",
+  "components/data-view/use-column-label.ts :: t.has :: Common.table.columns.${columnId}",
+  'components/data-view/use-filter-field-label.ts :: t :: Common.filters.fields.${field.replace(/\\./g, "_")}',
+  "components/data-view/use-filter-field-label.ts :: t :: RecordModel.starterTypes.${preset}.singular",
+  "features/records/workspace-record-preset.ts :: t :: RecordModel.starterTypes.${key}.plural",
+  "features/records/workspace-record-preset.ts :: t :: RecordModel.starterTypes.${key}.singular",
   "components/forms/form-iso-date-picker.tsx :: t :: Common.datePresets.${preset.key}",
   "components/forms/form-iso-date-range-picker.tsx :: t :: Common.datePresets.${key}",
   "components/forms/use-form-field.ts :: t :: Common.inputs.${id}",
@@ -872,8 +841,6 @@ export const DYNAMIC_KEY_SITES = [
 ];
 
 const NONLITERAL_T_CALL_SITES = new Map<string, number>([
-  ['ee/agent-chat/agent-page-actions.ts :: t :: terminologyMessageKey(entityType, "", form)', 1],
-  ["ee/agent-chat/agent-page-actions.ts :: t :: terminologyMessageKey(entityType, preset, form)", 1],
   ["core/validation/interactor-failure-server.ts :: t.raw :: code", 1],
   ["features/mcp-tools/mcp-tool.ts :: t.raw :: customCode", 1],
   [
@@ -924,7 +891,6 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
     'components/data-view/views/view-ai-type-label.ts :: t :: form === "standalone" ? "AgentChat.context.surfaceViewTypeStandalone" : "AgentChat.context.surfaceViewType"',
     1,
   ],
-  ["components/entity-terminology/use-entity-terminology.ts :: t :: key", 1],
   [
     'components/records/record-configuration-preview.tsx :: t :: issue.code === "existing_values_incompatible" ? "RecordModel.existingValuesIncompatible" : issue.code === "saved_view_incompatible" ? "RecordModel.savedViewIncompatible" : issue.code === "detail_layout_incompatible" ? "RecordModel.detailLayoutIncompatible" : issue.code === "summary_approval_required" ? "RecordModel.summaryApprovalRequired" : "RecordModel.dependencyHelp"',
     1,
@@ -948,10 +914,6 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
   ],
   ["features/messaging/activities/audit-detail.tsx :: t :: nameKey", 1],
   ["features/messaging/activities/audit-detail.tsx :: t :: systemTaskKey as never", 1],
-  [
-    'features/messaging/activities/audit-detail.tsx :: t :: terminologyMessageKey(selection.entityType, presetKey, "plural") as never',
-    1,
-  ],
   [
     'features/messaging/activities/record-audit-detail.tsx :: t :: side === "before" ? "RecordModel.previousValue" : "RecordModel.currentValue"',
     1,
@@ -982,18 +944,6 @@ const OPERATOR_AUDIT_ACTION_LABEL_EVIDENCE = Object.fromEntries(
       {
         kind: "template" as const,
         value: "`OperatorAudit.values.action.${name}`",
-      },
-    ],
-  ]),
-);
-const TERMINOLOGY_TEMPLATE_EVIDENCE = Object.fromEntries(
-  ENTITY_TERMINOLOGY_KEYS.map((key) => [
-    key,
-    [
-      {
-        kind: "template" as const,
-        value:
-          "`EntityTerminology.presets.${entityType}.${resolveTerminologyPresetKey(entityType, presetKey)}.${form}`",
       },
     ],
   ]),
@@ -1069,11 +1019,6 @@ const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
     file: "app/[locale]/(protected)/operator/components/operator-value-labels.tsx",
     keys: OPERATOR_AUDIT_ACTION_LABEL_KEYS,
     evidence: OPERATOR_AUDIT_ACTION_LABEL_EVIDENCE,
-  },
-  {
-    file: "features/entity-terminology/entity-terminology.constants.ts",
-    keys: ENTITY_TERMINOLOGY_KEYS,
-    evidence: TERMINOLOGY_TEMPLATE_EVIDENCE,
   },
   {
     file: "features/event/entity-name.utils.ts",
@@ -1506,10 +1451,10 @@ describe("i18n key resolution", () => {
     expect(translatedEvents).toEqual(domainEvents);
   });
 
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("keeps terminology translations aligned with presets", () => {
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("keeps starter type translations aligned with presets", () => {
     const { leafPaths } = loadCatalogPaths();
-    const translatedPresets = [...leafPaths].filter((key) => key.startsWith("EntityTerminology.presets.")).sort();
-    expect(translatedPresets).toEqual([...ENTITY_TERMINOLOGY_KEYS].sort());
+    const translated = [...leafPaths].filter((key) => key.startsWith("RecordModel.starterTypes.")).sort();
+    expect(translated).toEqual([...STARTER_TYPE_KEYS].sort());
   });
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(

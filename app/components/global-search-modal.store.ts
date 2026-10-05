@@ -5,7 +5,6 @@ import type {
   RecordSearchResult,
   StoredSearchReference,
 } from "@/features/records/record-search.schema";
-import type { LegacySearchResultItem } from "@/features/search/legacy-search-reference";
 
 import { action, makeObservable, observable, reaction } from "mobx";
 import { BaseModalStore } from "@/core/base/base-modal.store";
@@ -16,7 +15,6 @@ import { globalSearchAction, resolveSearchReferencesAction } from "@/app/[locale
 import { recordSearchKey, StoredSearchReferenceSchema } from "@/features/records/record-search.schema";
 
 const PREFIX = "customermates:globalSearch:recent:v3";
-const LEGACY_PREFIX = "customermates:globalSearch:recent:v2";
 const RECENT_MAX = 8;
 
 function actorScope(root: RootStore) {
@@ -27,13 +25,10 @@ function actorScope(root: RootStore) {
 function storedReferences(scope: string | null): StoredSearchReference[] {
   if (!scope || typeof window === "undefined") return [];
   try {
-    const current = window.localStorage.getItem(`${PREFIX}:${scope}`);
-    const parsed: unknown = JSON.parse(current ?? window.localStorage.getItem(`${LEGACY_PREFIX}:${scope}`) ?? "[]");
+    const parsed: unknown = JSON.parse(window.localStorage.getItem(`${PREFIX}:${scope}`) ?? "[]");
     if (!Array.isArray(parsed)) return [];
     return parsed.slice(0, RECENT_MAX).flatMap((raw: unknown) => {
-      if (!raw || typeof raw !== "object") return [];
-      const candidate = "typeId" in raw ? raw : "type" in raw && "id" in raw ? { type: raw.type, id: raw.id } : null;
-      const result = StoredSearchReferenceSchema.safeParse(candidate);
+      const result = StoredSearchReferenceSchema.safeParse(raw);
       return result.success ? [result.data] : [];
     });
   } catch {
@@ -45,7 +40,6 @@ function persist(scope: string | null, refs: RecordRef[]) {
   if (!scope || typeof window === "undefined") return;
   try {
     window.localStorage.setItem(`${PREFIX}:${scope}`, JSON.stringify(refs));
-    window.localStorage.removeItem(`${LEGACY_PREFIX}:${scope}`);
   } catch {}
 }
 
@@ -155,10 +149,7 @@ export class GlobalSearchModalStore extends BaseModalStore<{ searchTerm: string 
 
   refreshRecentItems = () => this.resolveRecent(storedReferences(this.scope));
 
-  pushRecentItem = (item: RecordSearchHit | LegacySearchResultItem) => {
-    const ref = "ref" in item ? item.ref : { type: item.type, id: item.id };
-    this.pushRecentReference(ref);
-  };
+  pushRecentItem = (item: RecordSearchHit) => this.pushRecentReference(item.ref);
 
   pushRecentReference = (ref: StoredSearchReference) => {
     const references = storedReferences(this.scope);

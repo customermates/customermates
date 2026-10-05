@@ -2,7 +2,6 @@ import type { RecordRepo } from "./record.repo";
 import type { RecordAccessPolicy } from "./record-access";
 import type { RecordSearchHit } from "./record-search.schema";
 import type { Validated } from "@/core/validation/validation.utils";
-import { presetId } from "./crm-preset";
 import { recordSearchHit } from "./search-records.interactor";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -34,9 +33,7 @@ export class ResolveRecordSearchInteractor extends AuthenticatedInteractor<
       async () => {
         const [model, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
         if (!policy.actor) return failAuthorization(CustomErrorCode.permissionDenied);
-        const refs = input.refs.map((ref) =>
-          "typeId" in ref ? ref : { typeId: presetId(this.companyId, ref.type), recordId: ref.id },
-        );
+        const refs = input.refs;
         try {
           const rows = await this.records.searchRecords(
             { refs },

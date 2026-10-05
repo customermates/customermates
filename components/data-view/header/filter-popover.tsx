@@ -13,7 +13,7 @@ import { MAX_APPLIED_FILTERS } from "@/components/data-view/filter-palette/filte
 import { ResponsiveOverlay } from "@/components/modal";
 import { cn } from "@/core/utils/cn";
 import { runUserAction } from "@/core/errors/report-application-error";
-import { useFilterFieldLabel } from "@/components/entity-terminology/use-filter-field-label";
+import { useFilterFieldLabel } from "@/components/data-view/use-filter-field-label";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useViewAi } from "@/components/data-view/views/use-view-ai";
 import { ViewAiAction } from "@/components/data-view/views/view-ai-action";

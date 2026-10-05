@@ -7,13 +7,13 @@ Customermates startet mit Kontakten, Organisationen, Deals, Services und Aufgabe
 
 ## Wie ist ein Datensatztyp aufgebaut und wofür dient der Hinzufügen-Drawer? [#what-is-the-shared-layout-of-a-record-type]
 
-Jeder Typ hat eine Liste unter `/records/<typeId>` und eine Datensatzseite unter `/records/<typeId>/<recordId>`. Die Typ-ID bleibt beim Umbenennen gleich. Ein Klick auf eine Zeile öffnet den Editor-Drawer; die Datensatz-URL öffnet die vollständige Seite. **Hinzufügen** öffnet den Editor für einen neuen Datensatz. Zu Datensätzen gehören Felder, verknüpfte Datensätze, Notizen und Aktivitäten. Die Sidebar zeigt lesbare Typen. Die bisherigen URLs `/contacts`, `/organizations`, `/deals`, `/services` und `/tasks` leiten zu den konfigurierten Typen weiter.
+Jeder Typ hat eine Liste unter `/records/<typeId>` und eine Datensatzseite unter `/records/<typeId>/<recordId>`. Die Typ-ID bleibt beim Umbenennen gleich. Ein Klick auf eine Zeile öffnet den Editor-Drawer; die Datensatz-URL öffnet die vollständige Seite. **Hinzufügen** öffnet den Editor für einen neuen Datensatz. Zu Datensätzen gehören Felder, verknüpfte Datensätze, Notizen und Aktivitäten. Die Sidebar zeigt lesbare Typen. Die früheren URLs `/contacts`, `/organizations`, `/deals`, `/services` und `/tasks` wurden entfernt; Lesezeichen brauchen die Adresse `/records/<typeId>` der Liste.
 
 Die Detailseite öffnet mit einer Übersicht der wichtigsten Felder; jedes Feld hat eine Anheften-Steuerung, die es der Übersicht hinzufügt oder daraus entfernt. **Anpassen** blendet außerdem Felder aus oder ordnet sie per Ziehen neu, **Fertig** beendet den Modus. Diese Einstellungen gelten pro Person zusätzlich zu den gemeinsamen Vorgaben des Typs.
 
 **Hinzufügen** in der Sidebar (`#nav-add`) öffnet die Typauswahl. Beim Öffnen des Assistenten bleibt ein ungespeicherter Entwurf erhalten. Berechnete Werte erscheinen nur, wenn die Berechtigungen dies erlauben.
 
-**Link:** die Liste **Kontakte**, `/contacts`, leitet zu `/records/<typeId>` weiter; die anderen bisherigen Listen-URLs ebenso. **Mate:** Typ über `get_record_model` oder `list_ui_targets` finden; mit `nav-records:<typeId>` navigieren und `records:<typeId>:add` hervorheben.
+**Link:** jede Liste unter `/records/<typeId>`, zum Beispiel **Kontakte**. **Mate:** Typ über `get_record_model` oder `list_ui_targets` finden; mit `nav-records:<typeId>` navigieren und `records:<typeId>:add` hervorheben.
 
 ## Wo finde ich Datensätze und wie lege ich einen Kontakt, eine Organisation oder einen Deal an? [#how-do-i-add-a-record]
 
@@ -21,7 +21,7 @@ Wählen Sie den Typ in der Sidebar und klicken Sie auf **Hinzufügen**. Das gilt
 
 Alle Aufgaben sehen Sie unter **Aufgaben** in der Sidebar, Ihre Services unter **Services**. Einen neuen Kontakt legen Sie unter **Kontakte → Hinzufügen** an.
 
-**Link:** **Kontakte** `/contacts` sowie `/organizations`, `/deals`, `/services` und `/tasks` leiten zu den aktuellen Listen weiter. **Mate:** `get_record_model` lesen und anschließend `mutate_crm_record` verwenden; UI-Ziel: `records:<typeId>:add`.
+**Link:** die Liste unter `/records/<typeId>`. **Mate:** `get_record_model` lesen und anschließend `mutate_crm_record` verwenden; UI-Ziel: `records:<typeId>:add`.
 
 ## Welche Steuerelemente hat jede Liste? [#which-controls-does-each-list-have]
 
@@ -29,21 +29,21 @@ Jeder Typ verwendet dieselbe Toolbar. Suche, Filter, Darstellung, Import und Exp
 
 ## Wie importiere oder exportiere ich Datensätze? [#how-do-i-import-or-export-records]
 
-Öffnen Sie **Import und Export** in der Datensatzliste. Der generische Export erzeugt eine JSON-Datei mit Schema-Revision, Datensätzen, Feldwerten und Verknüpfungen. Der Import akzeptiert dieses Format zum Anlegen oder Aktualisieren, prüft Typ und Revision und lehnt unpassende oder zu große Dateien ab. Export und Import stehen auch über die Datensatz-API Version zwei zur Verfügung. Der bisherige Excel-Wizard gehört nicht zur generischen Liste; Excel- und CSV-Dateien müssen vor dem Import in das generische Format übertragen werden.
+Öffnen Sie **Import und Export** in der Datensatzliste. Der generische Export erzeugt eine JSON-Datei mit Schema-Revision, Datensätzen, Feldwerten und Verknüpfungen. Der Import akzeptiert dieses Format zum Anlegen oder Aktualisieren, prüft Typ und Revision und lehnt unpassende oder zu große Dateien ab. Export und Import stehen auch über die Datensatz-API zur Verfügung. Der bisherige Excel-Wizard gehört nicht zur generischen Liste; Excel- und CSV-Dateien müssen vor dem Import in das generische Format übertragen werden.
 
-**Link:** **Kontakte** `/contacts` leitet zur generischen Liste weiter; das Transfer-Ziel lautet `records:<typeId>:transfer`.
+**Link:** die Liste unter `/records/<typeId>`; das Transfer-Ziel lautet `records:<typeId>:transfer`.
 
 ## Wie funktionieren gespeicherte Ansichten, und kann ich eine mit dem Team teilen? [#how-do-saved-views-work]
 
 Gespeicherte Ansichten sind persönlich. Sie merken sich Filter, Suche, Sortierung, Gruppierung, Layout, Seitengröße und Spalteneinstellungen für den Typ. Gemeinsame Typ-Standards bestimmen die anfängliche Darstellung; persönliche Änderungen bleiben erhalten. Tabs und Bedienelemente stehen unter dem Seitenkopf: `#global-data-views`, `#global-data-views-all`, `#global-data-views-new`, `#global-data-views-menu` und `#global-data-views-ai`. Im Ansichts-Editor gibt es `#view-editor-ai`. Ein Link mit `?view=<id>` bezeichnet Ihre persönliche Ansicht; Kollegen können die Filter aus einer URL als eigene Ansicht speichern. **KI fragen** hängt den Ansichtskontext an, sendet aber noch keine Nachricht.
 
-**Link:** **Deals** `/deals` leitet zu `/records/<typeId>` weiter; eine gespeicherte Ansicht liegt unter `/records/<typeId>?view=<id>`. **Mate:** `manage_data_views` konfiguriert unterstützte Ansichtseinstellungen.
+**Link:** eine Liste unter `/records/<typeId>`, zum Beispiel **Deals**; eine gespeicherte Ansicht liegt unter `/records/<typeId>?view=<id>`. **Mate:** `manage_data_views` konfiguriert unterstützte Ansichtseinstellungen.
 
 ## Was unterscheidet die Datensatztypen, und wohin gehört eine Telefonnummer? [#what-is-special-about-each-record-type]
 
 Kontakte starten mit aktivierter Kanal-Funktion. Mit dem Recht zur Datenmodell-Konfiguration lässt sie sich für weitere Listen aktivieren. Ein Datensatz besitzt eine Kanalsammlung mit mehreren Kennungen; dieselbe indizierte Kennung kann mit mehreren Datensätzen verbunden sein. Die exakte Suche liefert alle zugänglichen Treffer. Gewöhnliche E-Mail- oder Telefonfelder werden nicht automatisch zu Kanalkennungen. Konversationsverknüpfungen gelten nur für den gewählten Thread. Organisationen, Deals, Services und Aufgaben sind Startkonfigurationen derselben Engine. Deals starten mit Service-Positionen: Menge mal wirksamer Einzelpreis ergibt den Positionswert, alle Positionen ergeben den Deal-Wert, und eine Phasenwahrscheinlichkeit kann den gewichteten Wert berechnen. Live-Preise folgen Service-Änderungen; gespeicherte Preise bleiben fest. Genehmigungsaufgaben für Mitgliedschaften behalten ihre geschützte Funktion. Eigene Typen können normale Felder, Beziehungen und Berechnungen erhalten, ohne diese Systemfunktionen automatisch zu übernehmen.
 
-**Link:** **Kontakte** `/contacts`, **Organisationen** `/organizations`, **Deals** `/deals`, **Services** `/services` und **Aufgaben** `/tasks` leiten zu den konfigurierten Listen weiter. Siehe [Kernkonzepte](/docs/concepts).
+**Link:** die Startlisten **Kontakte**, **Organisationen**, **Deals**, **Services** und **Aufgaben** liegen jeweils unter `/records/<typeId>`. Siehe [Kernkonzepte](/docs/concepts).
 
 ## Wie wechsle ich zwischen Tabelle und Board, gruppiere und sortiere nach einem benutzerdefinierten Feld? [#how-do-i-switch-between-table-and-board-view]
 
@@ -51,7 +51,7 @@ Kontakte starten mit aktivierter Kanal-Funktion. Mit dem Recht zur Datenmodell-K
 
 Um nach einem benutzerdefinierten Feld zu sortieren, öffnen Sie **Darstellung → Sortieren nach** und wählen das Feld. Deals lassen sich ebenso nach berechnetem Wert und Aufgaben nach einem konfigurierten Fälligkeitsdatum sortieren.
 
-**Link:** **Deals** `/deals` leitet zur konfigurierten Liste weiter. **Mate:** `records:<typeId>:display-options` und dann `records:<typeId>:layout-board` mit `list_ui_targets` entdecken.
+**Link:** eine Liste unter `/records/<typeId>`, zum Beispiel **Deals**. **Mate:** `records:<typeId>:display-options` und dann `records:<typeId>:layout-board` mit `list_ui_targets` entdecken.
 
 ## Wie ändere ich eine Deal-Phase oder einen Aufgabenstatus auf dem Board? [#how-do-i-change-a-deal-stage-or-a-task-status-on-the-board]
 
@@ -59,7 +59,7 @@ Phase und Status sind konfigurierte Auswahlfelder. Ändern Sie sie am Datensatz 
 
 Für Pipeline-Phasen legen Sie bei Deals ein Auswahlfeld an oder bearbeiten es, definieren die Phasen-Optionen und wählen es als Gruppierungsfeld des Boards. Eine Wahrscheinlichkeit je Option kann in die Berechnung des gewichteten Werts einfließen.
 
-**Link:** **Deals** `/deals` und **Aufgaben** `/tasks` leiten zu ihren Datensatzlisten weiter.
+**Link:** die Listen **Deals** und **Aufgaben** unter `/records/<typeId>`.
 
 ## Tipps für Agents [#tips-for-agents]
 

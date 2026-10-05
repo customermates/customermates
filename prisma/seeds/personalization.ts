@@ -25,6 +25,14 @@ import type { CustomFieldSeedData } from "./custom-fields";
 
 import { fixtureId } from "./helpers";
 
+const LEGACY_SURFACE = {
+  contacts: "contacts-card-store",
+  organizations: "organizations-card-store",
+  deals: "deals-card-store",
+  services: "services-card-store",
+  tasks: "tasks-card-store",
+} as const;
+
 export const SYNTHETIC_P13N_ID_PREFIX = "1f000000";
 export const SYNTHETIC_P13N_IDS = {
   contacts: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 1),
@@ -410,11 +418,11 @@ export async function persistSyntheticP13nFixtures(
 export async function seedPersonalization(context: SeedContext, customFields: CustomFieldSeedData): Promise<void> {
   const { source, presentationModel } = syntheticRecordModel(context, customFields);
   const kindBySurface: Record<string, LegacyType> = {
-    [SURFACE.contacts]: "contact",
-    [SURFACE.organizations]: "organization",
-    [SURFACE.deals]: "deal",
-    [SURFACE.services]: "service",
-    [SURFACE.tasks]: "task",
+    [LEGACY_SURFACE.contacts]: "contact",
+    [LEGACY_SURFACE.organizations]: "organization",
+    [LEGACY_SURFACE.deals]: "deal",
+    [LEGACY_SURFACE.services]: "service",
+    [LEGACY_SURFACE.tasks]: "task",
   };
   const fixtures = buildSyntheticP13nFixtures(context, customFields).map((fixture) => {
     const plain = Object.fromEntries(

@@ -46,6 +46,8 @@ import {
 } from "./guard-live-cases";
 import { isOutboundOrSupportAction, isReadOnlyMixedToolAction } from "./tool-safety";
 
+const LEGACY_CONTACT_SURFACE = "contacts-card-store";
+
 export const FIXTURE_VERSION = "chat-benchmark-fixture-v7";
 export const AS_OF = "2026-09-05T08:00:00.000Z";
 const FIXED_CREATED = new Date("2026-08-01T08:00:00.000Z");
@@ -268,7 +270,7 @@ export const BENCHMARK_CASES: readonly BenchmarkCase[] = [
             label: benchmarkMessage(en.AgentChat.context.viewLabel, {
               name: en.DataView.views.all,
               viewType: benchmarkMessage(en.AgentChat.context.surfaceViewTypeStandalone, {
-                location: en.EntityTerminology.presets.contact.contact.singular,
+                location: en.RecordModel.starterTypes.contact.singular,
               }),
             }),
             reference: {
@@ -325,7 +327,7 @@ export const BENCHMARK_CASES: readonly BenchmarkCase[] = [
             label: benchmarkMessage(en.AgentChat.context.namedNewViewLabel, {
               name: "Contacts with deals",
               viewType: benchmarkMessage(en.AgentChat.context.surfaceViewType, {
-                location: en.EntityTerminology.presets.contact.contact.singular,
+                location: en.RecordModel.starterTypes.contact.singular,
               }),
             }),
             reference: {
@@ -975,7 +977,7 @@ export async function seedBenchmarkCase(
         data: {
           companyId,
           userId: id(actorKey),
-          p13nId: SURFACE.contacts,
+          p13nId: LEGACY_CONTACT_SURFACE,
           activeViewKey: ALL_VIEW_KEY,
           filters: [
             { field: "firstName", operator: "contains", value: "Ada" },
@@ -998,7 +1000,7 @@ export async function seedBenchmarkCase(
           id: viewKey,
           companyId,
           userId: id(actorKey),
-          surfaceKey: SURFACE.contacts,
+          surfaceKey: LEGACY_CONTACT_SURFACE,
           name: isProtected
             ? "Protected setup"
             : isUnsupported
@@ -1043,7 +1045,7 @@ export async function seedBenchmarkCase(
         data: {
           companyId,
           userId: id(actorKey),
-          p13nId: SURFACE.contacts,
+          p13nId: LEGACY_CONTACT_SURFACE,
           activeViewKey: viewKey,
           filters: [],
           columnOrder: [],
@@ -1067,7 +1069,7 @@ export async function seedBenchmarkCase(
         data: {
           companyId,
           userId: id(actorKey),
-          p13nId: SURFACE.contacts,
+          p13nId: LEGACY_CONTACT_SURFACE,
           activeViewKey: ALL_VIEW_KEY,
           filters: [],
           columnOrder: [],

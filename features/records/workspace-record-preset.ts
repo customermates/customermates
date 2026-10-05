@@ -1,5 +1,5 @@
 import type { RecordField } from "./record-model.schema";
-import { buildTerminologyMap } from "@/features/entity-terminology/entity-terminology.resolver";
+import { RECORD_PRESET_KEYS } from "./record-navigation.schema";
 import { createCrmPreset, presetId } from "./crm-preset";
 import { DEFAULT_SELECT_COLUMNS } from "./crm-preset-options";
 import { recordInvariant } from "./record-invariant";
@@ -7,9 +7,13 @@ import { recordInvariant } from "./record-invariant";
 export function createWorkspaceRecordPreset(companyId: string, currency: string, t: (key: string) => string) {
   const model = createCrmPreset(companyId, currency);
   const id = (key: string) => presetId(companyId, key);
-  const terminology = buildTerminologyMap([], t);
   const labels = new Map<string, { singular: string; plural: string }>();
-  for (const [key, label] of Object.entries(terminology)) labels.set(id(key), label);
+  for (const key of RECORD_PRESET_KEYS) {
+    labels.set(id(key), {
+      singular: t(`RecordModel.starterTypes.${key}.singular`),
+      plural: t(`RecordModel.starterTypes.${key}.plural`),
+    });
+  }
   labels.set(id("lineItem"), {
     singular: t("RecordModel.lineItem"),
     plural: t("RecordModel.lineItems"),

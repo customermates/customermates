@@ -1,8 +1,3 @@
-import { EntityType } from "@/features/records/history/v1/legacy-enums";
-import { terminologyMessageKey } from "@/features/entity-terminology/entity-terminology.constants";
-import { lowercaseEntityLabelsInSentences } from "@/i18n/locale-registry";
-import { appLocaleOrDefault, type AppLocale } from "@/i18n/locale-registry";
-
 import type { AgentDataCounts, SuggestionPageId } from "./agent-chat.schema";
 import type { AgentTranslator } from "./agent-activity";
 
@@ -13,15 +8,10 @@ export type AgentPageAction = {
 };
 
 type SupportedPage = SuggestionPageId;
-type EntityPage = Extract<SupportedPage, "tasks" | "contacts" | "organizations" | "deals" | "services">;
 type PageState = "empty" | "data";
-
-export type AgentPageTerminology = Partial<Record<EntityPage, { singular: string; plural: string }>>;
 
 type AgentPageCapabilities = {
   canCreate?: boolean;
-  canSetupWorkspace?: boolean;
-  terminology?: AgentPageTerminology;
 };
 
 export const WIKI_WEBSITE_SETUP_ACTION_ID = "first-wiki-page";
@@ -30,26 +20,6 @@ const PAGE_ACTION_IDS: Record<SupportedPage, Record<PageState, readonly string[]
   dashboard: {
     empty: ["setup", "tour", "capabilities"],
     data: ["summary", "next-actions", "dashboard-tour"],
-  },
-  contacts: {
-    empty: ["setup-contacts", "first-contact", "contacts-tour"],
-    data: ["contacts-summary", "create-contact", "contacts-cleanup"],
-  },
-  organizations: {
-    empty: ["setup-organizations", "first-organization", "organizations-tour"],
-    data: ["organizations-summary", "create-organization", "organization-gaps"],
-  },
-  deals: {
-    empty: ["setup-pipeline", "first-deal", "deals-tour"],
-    data: ["pipeline-summary", "create-deal", "pipeline-gaps"],
-  },
-  services: {
-    empty: ["setup-services", "first-service", "services-tour"],
-    data: ["services-summary", "create-service", "service-gaps"],
-  },
-  tasks: {
-    empty: ["setup-tasks", "first-task", "tasks-tour"],
-    data: ["task-priorities", "create-task", "task-gaps"],
   },
   routines: {
     empty: ["first-routine", "routine-ideas", "routines-tour"],
@@ -75,87 +45,6 @@ const PAGE_ACTION_IDS: Record<SupportedPage, Record<PageState, readonly string[]
 
 const READ_ONLY_ACTION_IDS = ["explain", "relationships", "tour"] as const;
 
-type TermRule = readonly [source: string, template: string];
-type LocaleTermRules = { caseSensitive: boolean; rules: Record<EntityPage, readonly TermRule[]> };
-
-const TERM_RULES: Record<AppLocale, LocaleTermRules> = {
-  en: {
-    caseSensitive: false,
-    rules: {
-      contacts: [
-        ["contacts", "{plural}"],
-        ["contact", "{singular}"],
-      ],
-      organizations: [
-        ["organizations", "{plural}"],
-        ["organization", "{singular}"],
-      ],
-      deals: [
-        ["deals", "{plural}"],
-        ["deal", "{singular}"],
-      ],
-      services: [
-        ["services or products", "{plural}"],
-        ["service or product", "{singular}"],
-        ["offerings", "{plural}"],
-        ["offering", "{singular}"],
-        ["services", "{plural}"],
-        ["service", "{singular}"],
-      ],
-      tasks: [
-        ["tasks", "{plural}"],
-        ["task", "{singular}"],
-      ],
-    },
-  },
-  de: {
-    caseSensitive: true,
-    rules: {
-      contacts: [
-        ["Kontaktstruktur", "{singular}-Struktur"],
-        ["Kontaktseite", "{singular}-Seite"],
-        ["Kontakten", "{plural}"],
-        ["Kontakte", "{plural}"],
-        ["Kontakt", "{singular}"],
-      ],
-      organizations: [
-        ["Organisationsstruktur", "{singular}-Struktur"],
-        ["Organisationen", "{plural}"],
-        ["Organisation", "{singular}"],
-      ],
-      deals: [
-        ["Deal-Pipeline", "{singular}-Pipeline"],
-        ["Deals", "{plural}"],
-        ["Deal", "{singular}"],
-      ],
-      services: [
-        ["Leistungen oder Produkte", "{plural}"],
-        ["Leistung oder Produkt", "{singular}"],
-        ["Angebote", "{plural}"],
-        ["Angebot", "{singular}"],
-        ["Leistungen", "{plural}"],
-        ["Leistung", "{singular}"],
-      ],
-      tasks: [
-        ["Aufgaben-Workflow", "{singular}-Workflow"],
-        ["Aufgaben", "{plural}"],
-        ["Aufgabe", "{singular}"],
-      ],
-    },
-  },
-  fr: { caseSensitive: false, rules: { contacts: [], organizations: [], deals: [], services: [], tasks: [] } },
-  it: { caseSensitive: false, rules: { contacts: [], organizations: [], deals: [], services: [], tasks: [] } },
-  es: { caseSensitive: false, rules: { contacts: [], organizations: [], deals: [], services: [], tasks: [] } },
-};
-
-const ENTITY_PAGE_TYPES: Record<EntityPage, EntityType> = {
-  contacts: EntityType.contact,
-  organizations: EntityType.organization,
-  deals: EntityType.deal,
-  services: EntityType.service,
-  tasks: EntityType.task,
-};
-
 export function agentPageState(page: SupportedPage, counts: AgentDataCounts): PageState {
   switch (page) {
     case "dashboard":
@@ -170,10 +59,6 @@ export function agentPageState(page: SupportedPage, counts: AgentDataCounts): Pa
   }
 }
 
-function isEntityPage(page: SupportedPage): page is EntityPage {
-  return page === "tasks" || page === "contacts" || page === "organizations" || page === "deals" || page === "services";
-}
-
 function suggestionAction(page: SupportedPage, state: PageState, id: string, t: AgentTranslator) {
   return {
     id,
@@ -186,21 +71,12 @@ export function agentPageActions(
   page: SupportedPage,
   state: PageState,
   t: AgentTranslator,
-  locale: string,
   capabilities: AgentPageCapabilities = {},
 ): AgentPageAction[] {
   const readOnly = readOnlyAgentPageActions(page, t);
-  const writeGated = isEntityPage(page) || page === "dashboard" || page === "routines" || page === "wiki";
-  let actions: AgentPageAction[];
-
-  if (writeGated && capabilities.canCreate === false) actions = readOnly;
-  else {
-    actions = PAGE_ACTION_IDS[page][state].map((id) => suggestionAction(page, state, id, t));
-    if (isEntityPage(page) && state === "empty" && capabilities.canSetupWorkspace === false)
-      actions = [actions[1], actions[2], readOnly[0]];
-  }
-
-  return applyAgentPageTerminology(actions, locale, capabilities.terminology, t);
+  const writeGated = page === "dashboard" || page === "routines" || page === "wiki";
+  if (writeGated && capabilities.canCreate === false) return readOnly;
+  return PAGE_ACTION_IDS[page][state].map((id) => suggestionAction(page, state, id, t));
 }
 
 function readOnlyAgentPageActions(page: SupportedPage, t: AgentTranslator): AgentPageAction[] {
@@ -211,59 +87,6 @@ function readOnlyAgentPageActions(page: SupportedPage, t: AgentTranslator): Agen
   }));
 }
 
-function lowerFirst(value: string) {
-  return value ? `${value[0].toLocaleLowerCase()}${value.slice(1)}` : value;
-}
-
-function replaceTerms(value: string, replacements: readonly (readonly [string, string])[], caseSensitive: boolean) {
-  const escape = (source: string) => source.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const ordered = [...replacements].sort(([left], [right]) => right.length - left.length);
-  const pattern = ordered.map(([source]) => escape(source)).join("|");
-  if (!pattern) return value;
-  const bySource = new Map(
-    ordered.map(([source, replacement]) => [caseSensitive ? source : source.toLowerCase(), replacement]),
-  );
-  return value.replace(new RegExp(pattern, caseSensitive ? "g" : "gi"), (match) => {
-    const replacement = bySource.get(caseSensitive ? match : match.toLowerCase()) ?? match;
-    return caseSensitive || /^[A-Z]/.test(match) ? replacement : lowerFirst(replacement);
-  });
-}
-
-function applyAgentPageTerminology(
-  actions: AgentPageAction[],
-  locale: string,
-  terminology: AgentPageTerminology | undefined,
-  t: AgentTranslator,
-) {
-  const appLocale = appLocaleOrDefault(locale);
-  const localeRules = TERM_RULES[appLocale];
-  if (!terminology) return actions;
-
-  const replacements: [string, string][] = [];
-  for (const entity of Object.keys(localeRules.rules) as EntityPage[]) {
-    const terms = terminology[entity];
-    if (!terms) continue;
-    const entityType = ENTITY_PAGE_TYPES[entity];
-    for (const form of ["singular", "plural"] as const)
-      replacements.push([t(terminologyMessageKey(entityType, "", form)), terms[form]]);
-    if (entity === "services") {
-      for (const preset of ["product", "offering"]) {
-        for (const form of ["singular", "plural"] as const)
-          replacements.push([t(terminologyMessageKey(entityType, preset, form)), terms[form]]);
-      }
-    }
-    for (const [source, template] of localeRules.rules[entity])
-      replacements.push([source, template.replace("{singular}", terms.singular).replace("{plural}", terms.plural)]);
-  }
-  if (replacements.length === 0) return actions;
-
-  return actions.map((action) => ({
-    ...action,
-    label: replaceTerms(action.label, replacements, !lowercaseEntityLabelsInSentences(appLocale)),
-    prompt: replaceTerms(action.prompt, replacements, localeRules.caseSensitive),
-  }));
-}
-
 export function agentActionPageFromPathname(pathname: string) {
   const segments = pathname.split(/[?#]/, 1)[0]?.split("/").filter(Boolean);
   const page = segments?.find((segment) => isAgentActionPage(segment as SuggestionPageId));
@@ -271,12 +94,5 @@ export function agentActionPageFromPathname(pathname: string) {
 }
 
 export function isAgentActionPage(page: SuggestionPageId): page is SupportedPage {
-  return (
-    page === "dashboard" ||
-    page === "tasks" ||
-    page === "contacts" ||
-    page === "organizations" ||
-    page === "deals" ||
-    page === "services"
-  );
+  return page === "dashboard";
 }

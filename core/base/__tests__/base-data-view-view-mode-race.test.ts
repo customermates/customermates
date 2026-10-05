@@ -55,7 +55,7 @@ class TestStore extends BaseDataViewStore<Item> {
 
     return Promise.resolve({
       items: [],
-      p13nId: SURFACE.deals,
+      p13nId: SURFACE.routines,
       pagination: { page: 1, pageSize: 25, total: 0, totalPages: 1 },
       views: [],
       activeViewKey: ALL_VIEW_KEY,
@@ -77,7 +77,7 @@ function hydrated(): TestStore {
   const store = new TestStore(rootStore());
   store.setItems({
     items: [],
-    p13nId: SURFACE.deals,
+    p13nId: SURFACE.routines,
     pagination: { page: 1, pageSize: 25, total: 0, totalPages: 1 },
     views: [],
     activeViewKey: ALL_VIEW_KEY,
@@ -138,7 +138,7 @@ describe("view mode survives the refresh that races its own persistence", () => 
 
     store.setItems({
       items: [],
-      p13nId: SURFACE.deals,
+      p13nId: SURFACE.routines,
       viewMode: ViewMode.card,
       grouping: groupingResult({ field: GROUPING_COLUMN_ID }),
       viewPersistable: true,

@@ -60,7 +60,7 @@ function serverEcho(params?: GetQueryParams): GetResult<Item> {
 
   return {
     items: [],
-    p13nId: SURFACE.tasks,
+    p13nId: SURFACE.routines,
     filterableFields: FILTERABLE_FIELDS,
     filters: params?.filters ?? viewFilters,
     searchTerm: params?.searchTerm,
@@ -327,7 +327,7 @@ describe("data view autosave", () => {
     });
 
     expect(completed).toBe(false);
-    expect(store.requestedParams).toEqual([{ p13nId: SURFACE.tasks, viewId: ALL_VIEW_KEY }]);
+    expect(store.requestedParams).toEqual([{ p13nId: SURFACE.routines, viewId: ALL_VIEW_KEY }]);
     expect(selectDataViewAction).not.toHaveBeenCalled();
     response.resolve({ ...serverEcho(), items: [{ id: "updated" }] });
     await reload;
@@ -377,7 +377,7 @@ describe("data view autosave", () => {
     await vi.advanceTimersByTimeAsync(1000);
 
     expect(saveDataViewStateAction).toHaveBeenCalledExactlyOnceWith({
-      surfaceKey: SURFACE.tasks,
+      surfaceKey: SURFACE.routines,
       viewKey: ALL_VIEW_KEY,
       state: {
         filters: [filter("open")],
@@ -420,7 +420,7 @@ describe("data view autosave", () => {
     await vi.advanceTimersByTimeAsync(1000);
 
     expect(saveDataViewStateAction).toHaveBeenCalledExactlyOnceWith(
-      expect.objectContaining({ surfaceKey: SURFACE.tasks, viewKey: VIEW_ID }),
+      expect.objectContaining({ surfaceKey: SURFACE.routines, viewKey: VIEW_ID }),
     );
     expect(saveDataViewStateAction.mock.calls[0]?.[0]?.state).toMatchObject({
       filters: [filter("open")],
@@ -464,7 +464,7 @@ describe("data view autosave", () => {
     store.applyView(ALL_VIEW_KEY);
 
     expect(store.dataRequest).toEqual({ status: "refreshing" });
-    expect(store.requestedParams).toEqual([{ p13nId: SURFACE.tasks, viewId: ALL_VIEW_KEY }]);
+    expect(store.requestedParams).toEqual([{ p13nId: SURFACE.routines, viewId: ALL_VIEW_KEY }]);
   });
 
   it("shows the loading state at once while a write into the same view is flushed first", async () => {
@@ -483,7 +483,7 @@ describe("data view autosave", () => {
 
     await vi.advanceTimersByTimeAsync(0);
 
-    expect(store.requestedParams).toEqual([{ p13nId: SURFACE.tasks, viewId: VIEW_ID }]);
+    expect(store.requestedParams).toEqual([{ p13nId: SURFACE.routines, viewId: VIEW_ID }]);
     expect(store.dataRequest).toEqual({ status: "ready" });
   });
 
@@ -538,7 +538,7 @@ describe("data view autosave", () => {
 
     expect(store.views[0].state).toMatchObject({ filters: [filter("won")] });
 
-    pending.resolve(serverEcho({ p13nId: SURFACE.tasks, viewId: VIEW_ID }));
+    pending.resolve(serverEcho({ p13nId: SURFACE.routines, viewId: VIEW_ID }));
     await vi.advanceTimersByTimeAsync(0);
 
     expect(store.views[0].state).toMatchObject({ filters: [filter("won")] });
@@ -558,7 +558,7 @@ describe("data view autosave", () => {
     expect(store.requestedParams.at(-1)).toMatchObject({ viewId: ALL_VIEW_KEY });
     expect(store.activeViewKey).toBe(ALL_VIEW_KEY);
     expect(saveDataViewStateAction).toHaveBeenCalledExactlyOnceWith(
-      expect.objectContaining({ surfaceKey: SURFACE.tasks, viewKey: ALL_VIEW_KEY }),
+      expect.objectContaining({ surfaceKey: SURFACE.routines, viewKey: ALL_VIEW_KEY }),
     );
   });
 
@@ -696,7 +696,7 @@ describe("same-view local column state across pending reads", () => {
     await store.settleViewState();
     expect(saveDataViewStateAction).toHaveBeenCalledExactlyOnceWith(
       expect.objectContaining({
-        surfaceKey: SURFACE.tasks,
+        surfaceKey: SURFACE.routines,
         viewKey: ALL_VIEW_KEY,
         state: expect.objectContaining({
           hiddenColumns: ["stage"],

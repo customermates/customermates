@@ -9,11 +9,16 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { RoutineTriggerKind } from "@/generated/prisma";
 
-import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
+import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { describeRoutineSchedule, scheduleHasClockTime } from "@/ee/routines/routine-schedule-preset";
 import { orderedRoutineTriggerGuidance } from "@/ee/routines/routine-trigger-guidance";
-import { terminologyLabelForSentence } from "@/features/entity-terminology/entity-terminology-label.utils";
+import { appLocaleOrDefault, formattingTagFor, lowercaseEntityLabelsInSentences } from "@/i18n/locale-registry";
+
+function labelForSentence(label: string, locale: string): string {
+  const appLocale = appLocaleOrDefault(locale);
+  return lowercaseEntityLabelsInSentences(appLocale) ? label.toLocaleLowerCase(formattingTagFor(appLocale)) : label;
+}
 
 function actionCopy(
   action: RoutineTriggerGuidanceAction,
@@ -62,7 +67,7 @@ export const RoutineEmptyState = observer(({ store }: { store: RoutineModalStore
   const locale = useLocale();
   const t = useTranslations();
   const intlStore = useHydratedIntlStore();
-  const { singular } = useEntityTerminology();
+  const navigationTypes = useRootStore().recordWorkspaceStore.navigation?.types ?? [];
   const { form } = store;
   const scheduled = form.triggerKind === RoutineTriggerKind.schedule;
 
@@ -128,8 +133,11 @@ export const RoutineEmptyState = observer(({ store }: { store: RoutineModalStore
 
       <ul aria-label={t("RoutineDetail.empty.event.instructionsLabel")} className="w-full max-w-lg space-y-2 text-left">
         {eventGuidance.map(({ event, guidance }) => {
+          const presetLabel = guidance.entityType
+            ? navigationTypes.find((type) => type.presetKey === guidance.entityType)?.label
+            : undefined;
           const entity = guidance.entityType
-            ? terminologyLabelForSentence(singular(guidance.entityType), locale)
+            ? labelForSentence(presetLabel ?? t("RecordModel.record"), locale)
             : event.startsWith("record.")
               ? sources
                   .map((source) => store.recordModel?.types.find((type) => type.id === source.query.typeId)?.label)

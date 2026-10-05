@@ -29,9 +29,6 @@ vi.mock("../../connected-accounts/actions", () => ({
 vi.mock("@/components/modal/use-navigation-guard", () => ({
   useNavigationGuard: vi.fn(),
 }));
-vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
-  useEntityTerminology: () => ({ plural: (value: string) => value }),
-}));
 
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,

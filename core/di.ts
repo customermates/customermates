@@ -297,7 +297,6 @@ import { StartWikiHomepageSetupInteractor } from "@/features/wiki/start-wiki-hom
 import { GetWikiHomepageSetupStateInteractor } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
 import { FailWikiWebsiteCrawlInteractor } from "@/ee/wiki-crawl/fail-wiki-website-crawl.interactor";
 // Custom Column interactors
-// Entity Terminology
 // Search interactor
 import { ResolveRecordSearchInteractor } from "@/features/records/resolve-record-search.interactor";
 import { SearchRecordsInteractor } from "@/features/records/search-records.interactor";

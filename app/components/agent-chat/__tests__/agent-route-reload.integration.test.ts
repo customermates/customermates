@@ -66,7 +66,6 @@ function createStore(navigationGuard: NavigationGuardController) {
     servicesStore: refreshStore(),
     tasksStore: refreshStore(),
     widgetsStore: refreshStore(),
-    terminologyStore: refreshStore(),
     messagingThreadsStore: refreshStore(),
     agentUiControlStore,
   };

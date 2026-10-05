@@ -52,9 +52,6 @@ vi.mock("next-intl", () => ({
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({ appMode: harness.appMode.current, agentChatStore: harness.agent }),
 }));
-vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
-  useEntityTerminology: () => ({ singular: (entity: string) => entity }),
-}));
 vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 vi.mock("@/app/actions", () => ({
   deleteDataViewAction: (...args: unknown[]) => {

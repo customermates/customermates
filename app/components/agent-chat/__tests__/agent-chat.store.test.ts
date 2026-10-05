@@ -120,7 +120,6 @@ function root(
     servicesStore: refreshStore(),
     tasksStore: refreshStore(),
     widgetsStore: refreshStore(),
-    terminologyStore: refreshStore(),
     messagingThreadsStore: refreshStore(),
     agentUiControlStore: {
       navigate: vi.fn().mockResolvedValue({ ok: true, result: "Navigated to /routines." }),

@@ -14180,7 +14180,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       f.resolveSearch.invoke({
         refs: [
           { typeId: type.id, recordId: id },
-          { type: "service", id },
+          { typeId: f.id("service"), recordId: id },
         ],
       }),
     );

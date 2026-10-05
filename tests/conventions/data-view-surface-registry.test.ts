@@ -18,13 +18,6 @@ const pageFiles = filesUnder("app").filter((path) => path.endsWith("/page.tsx"))
 
 const surfaceKeys = new Set<string>(DATA_VIEW_SURFACE_KEYS);
 const surfaceNames = new Map<string, string>(Object.entries(SURFACE).map(([name, key]) => [name, key]));
-const legacyRecordRedirects = [
-  [SURFACE.contacts, "contacts", "contact"],
-  [SURFACE.organizations, "organizations", "organization"],
-  [SURFACE.deals, "deals", "deal"],
-  [SURFACE.services, "services", "service"],
-  [SURFACE.tasks, "tasks", "task"],
-] as const;
 
 // A page hands the read path a surface through readSurfaceParams, and nothing else may invent a key.
 describe("data view surface registry", () => {
@@ -61,14 +54,8 @@ describe("data view surface registry", () => {
       }
     }
 
-    const redirected = new Set<string>(legacyRecordRedirects.map(([key]) => key));
-    const expected = new Set(Object.values(SURFACE).filter((key) => key !== SURFACE.entityTimeline && !redirected.has(key)));
+    const expected = new Set(Object.values(SURFACE).filter((key) => key !== SURFACE.entityTimeline));
     expect([...reached].sort()).toEqual([...expected].sort());
-    for (const [, route, kind] of legacyRecordRedirects) {
-      expect(read(`app/[locale]/(protected)/${route}/page.tsx`)).toContain(
-        `redirectLegacyRecordRoute("${kind}", undefined, searchParams)`,
-      );
-    }
   });
 
   it("mounts the embedded timeline surface from the activities panel rather than from a page", () => {

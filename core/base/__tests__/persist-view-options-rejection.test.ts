@@ -31,7 +31,7 @@ class TestStore extends BaseDataViewStore<HasId> {
 function makeStore() {
   const rootStore = { localeStore: { getTranslation: (key: string) => key } } as unknown as RootStore;
   const store = new TestStore(rootStore);
-  store.p13nId = SURFACE.tasks;
+  store.p13nId = SURFACE.routines;
   return store;
 }
 
@@ -109,7 +109,7 @@ describe("persistViewState rejection handling", () => {
     await vi.advanceTimersByTimeAsync(1500);
 
     expect(saveDataViewStateAction).toHaveBeenCalledExactlyOnceWith({
-      surfaceKey: SURFACE.tasks,
+      surfaceKey: SURFACE.routines,
       viewKey: ALL_VIEW_KEY,
       state: {
         filters: [],

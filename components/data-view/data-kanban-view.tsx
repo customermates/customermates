@@ -32,7 +32,7 @@ import { NO_VALUE_GROUP_KEY } from "@/core/base/grouping/grouping.schema";
 import { useRouter } from "@/i18n/navigation";
 import { visibleColumnDefs } from "./visible-column-defs";
 
-import { useNavigateToHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
+import { useNavigateToHref } from "@/components/shared/use-navigate-to-href";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { cn } from "@/core/utils/cn";
 import type { RecordGroupSummaryResult } from "@/features/records/record-grouping.schema";

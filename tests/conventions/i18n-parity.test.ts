@@ -459,28 +459,6 @@ describe("i18n parity", () => {
     expect(mismatches, `Spanish API-key terminology drift:\n${mismatches.join("\n")}`).toEqual([]);
   });
 
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("keeps distinct Spanish deal presets unambiguous", () => {
-    const leaves = loadLocaleLeaves("es");
-    const deal = {
-      plural: leaves.get("EntityTerminology.presets.deal.deal.plural"),
-      singular: leaves.get("EntityTerminology.presets.deal.deal.singular"),
-    };
-    const opportunity = {
-      plural: leaves.get("EntityTerminology.presets.deal.opportunity.plural"),
-      singular: leaves.get("EntityTerminology.presets.deal.opportunity.singular"),
-    };
-
-    expect(deal).toEqual({
-      plural: "Oportunidades",
-      singular: "Oportunidad",
-    });
-    expect(opportunity).toEqual({
-      plural: "Oportunidades comerciales",
-      singular: "Oportunidad comercial",
-    });
-    expect(deal).not.toEqual(opportunity);
-  });
-
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("preserves reviewed semantic translation fragments", () => {
     const mismatches: string[] = [];
     for (const [locale, expectations] of Object.entries(REQUIRED_TRANSLATION_FRAGMENTS)) {

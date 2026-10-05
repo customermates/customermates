@@ -38,7 +38,7 @@ vi.mock("@/core/stores/root-store.provider", () => ({
       parseNumberToCanonical: (value: string) => value,
       use12Hour: false,
     },
-    terminologyStore: { overrides: [] },
+    recordWorkspaceStore: { navigation: null },
   }),
 }));
 vi.mock("@/components/forms/form-context", () => ({

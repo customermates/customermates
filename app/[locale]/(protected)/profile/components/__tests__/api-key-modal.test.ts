@@ -82,7 +82,7 @@ function renderModal(
       formatNumericalShortDateTime: vi.fn(),
     },
     registerModalStore: vi.fn(),
-    terminologyStore: { overrides: {} },
+    recordWorkspaceStore: { navigation: null },
     userStore: {
       can: vi.fn().mockReturnValue(true),
       canAccess: vi.fn().mockReturnValue(true),
@@ -109,7 +109,7 @@ function renderViewModal(name = "Gemini", canManage = true) {
       formatNumericalShortDateTime: vi.fn(() => "date"),
     },
     registerModalStore: vi.fn(),
-    terminologyStore: { overrides: {} },
+    recordWorkspaceStore: { navigation: null },
     userStore: {
       can: vi.fn().mockReturnValue(true),
       canAccess: vi.fn().mockReturnValue(true),

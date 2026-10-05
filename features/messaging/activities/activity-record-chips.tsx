@@ -8,14 +8,15 @@ import { EntityType } from "@/features/records/history/v1/legacy-enums";
 import { Avatar } from "@/components/ui/avatar";
 import { AppChip } from "@/components/chip/app-chip";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
-import { ENTITY_ICON } from "@/components/entity-detail/entity-relations";
-import { useEntityHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
+import { usePresetRecordHref } from "@/components/records/use-record-href";
+import { useRootStore } from "@/core/stores/root-store.provider";
 import { recordRefKey } from "@/ee/messaging/activities/activity-record-refs";
 import { recordTypeIcon } from "@/components/records/record-type-icon";
 
 export function ActivityRecordChips({ context }: { context: ActivityRecordContextDto }) {
   const t = useTranslations();
-  const entityHref = useEntityHref();
+  const entityHref = usePresetRecordHref();
+  const navigationTypes = useRootStore().recordWorkspaceStore.navigation?.types ?? [];
 
   if (!context.primary) return null;
 
@@ -33,7 +34,9 @@ export function ActivityRecordChips({ context }: { context: ActivityRecordContex
         ),
       };
     }
-    const RecordIcon = ENTITY_ICON[ref.entityType];
+    const RecordIcon = recordTypeIcon(
+      navigationTypes.find((type) => type.presetKey === ref.entityType)?.icon ?? "list",
+    );
 
     return {
       id: recordRefKey(ref.entityType, ref.id),

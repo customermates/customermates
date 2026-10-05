@@ -1,39 +1,17 @@
 "use client";
 
-import type { CustomFieldValueDto } from "@/core/base/base-entity.schema";
-import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 import type { ReactNode } from "react";
-import type { EntityDetailPreviewItem } from "./entity-detail-personalization";
 
-import type { EntityType } from "@/features/records/history/v1/legacy-enums";
-import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
-import { AppChipStack } from "@/components/chip/app-chip-stack";
-import { CustomFieldValue } from "@/components/data-view/custom-columns/custom-field-value";
 import { AvatarStack } from "@/components/shared/avatar-stack";
 import { OverflowRail } from "@/components/shared/overflow-rail";
 import { TruncatedText } from "@/components/shared/truncated-text";
-import { useEntityDetailPersonalization } from "./entity-detail-personalization";
-import { useEntityHref } from "./hooks/use-entity-drawer-stack";
 
 export type EntityDetailSummaryField = {
   id: string;
   label: string;
   value: ReactNode;
-};
-
-type SummaryProps = {
-  entityId: string;
-  fields: EntityDetailSummaryField[];
-  customColumns: CustomColumnDto[];
-  customFieldValues: readonly CustomFieldValueDto[];
-};
-
-type ChipItem = {
-  id: string;
-  label: string;
-  startContent?: ReactNode;
 };
 
 type AvatarItem = {
@@ -44,52 +22,13 @@ type AvatarItem = {
   email?: string | null;
 };
 
-type AvatarSummaryValueProps =
-  | {
-      entityType: EntityType;
-      items: readonly AvatarItem[];
-      onItemClick?: never;
-    }
-  | {
-      entityType?: never;
-      items: readonly AvatarItem[];
-      onItemClick: (item: AvatarItem) => void;
-    };
+type AvatarSummaryValueProps = {
+  items: readonly AvatarItem[];
+  onItemClick: (item: AvatarItem) => void;
+};
 
-export function previewItems<T extends { id: string }>(
-  preview: EntityDetailPreviewItem[] | undefined,
-  fallback: readonly T[],
-): T[] {
-  if (!preview) return [...fallback];
-  const fallbackById = new Map(fallback.map((item) => [item.id, item]));
-  return preview.flatMap((item) => {
-    const value = item.data as T | undefined;
-    const fallbackItem = fallbackById.get(item.key);
-    return value ? [value] : fallbackItem ? [fallbackItem] : [];
-  });
-}
-
-export function EntityDetailChipSummaryValue({ entityType, items }: { entityType: EntityType; items: ChipItem[] }) {
-  const entityHref = useEntityHref();
-
-  if (items.length === 0) return "—";
-
-  return <AppChipStack chipHref={(item) => entityHref(entityType, item.id)} items={items} />;
-}
-
-export function EntityDetailAvatarSummaryValue({ items, entityType, onItemClick }: AvatarSummaryValueProps) {
-  const entityHref = useEntityHref();
-
-  return items.length > 0 ? (
-    <AvatarStack
-      avatarHref={entityType ? (item) => entityHref(entityType, item.id) : undefined}
-      items={[...items]}
-      size="default"
-      onAvatarClick={onItemClick}
-    />
-  ) : (
-    "—"
-  );
+export function EntityDetailAvatarSummaryValue({ items, onItemClick }: AvatarSummaryValueProps) {
+  return items.length > 0 ? <AvatarStack items={[...items]} size="default" onAvatarClick={onItemClick} /> : "—";
 }
 
 function SummaryValue({ children }: { children: ReactNode }) {
@@ -153,34 +92,3 @@ export function EntityDetailSummaryRail({ items }: { items: EntityDetailSummaryF
     </section>
   );
 }
-
-export const EntityDetailSummary = observer(function EntityDetailSummary({
-  entityId,
-  fields,
-  customColumns,
-  customFieldValues,
-}: SummaryProps) {
-  const { starredFieldIds } = useEntityDetailPersonalization();
-  const builtIn = new Map(fields.map((field) => [field.id, field]));
-  const customItem = {
-    id: entityId,
-    customFieldValues: [...customFieldValues],
-  };
-  const custom = new Map(
-    customColumns.map<readonly [string, EntityDetailSummaryField]>((column) => [
-      column.id,
-      {
-        id: column.id,
-        label: column.label,
-        value: <CustomFieldValue showOverflowTooltip column={column} item={customItem} />,
-      },
-    ]),
-  );
-  const items = starredFieldIds
-    .map((fieldId) => builtIn.get(fieldId) ?? custom.get(fieldId))
-    .filter((item): item is EntityDetailSummaryField => Boolean(item));
-
-  if (items.length === 0) return null;
-
-  return <EntityDetailSummaryRail items={items} />;
-});

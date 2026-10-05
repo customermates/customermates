@@ -52,31 +52,34 @@ describe("agent saved-view context", () => {
   it("settles pending saves only for the same captured view and page", async () => {
     const context = new AgentViewContext();
     const prepare = vi.fn(() => Promise.resolve());
-    context.register("/en/contacts", () => ({ surfaceKey: SURFACE.contacts, viewKey: VIEW_ID }), prepare);
-    await context.prepare(context.route("/en/contacts"));
+    context.register("/en/company/members", () => ({ surfaceKey: SURFACE.users, viewKey: VIEW_ID }), prepare);
+    await context.prepare(context.route("/en/company/members"));
     expect(prepare).toHaveBeenCalledOnce();
-    await context.prepare("/en/deals?view=__all__&viewSurface=deals-card-store");
-    await context.prepare("/en/contacts?view=__all__&viewSurface=contacts-card-store");
+    await context.prepare("/en/company/webhooks?view=__all__&viewSurface=webhooks-card-store");
+    await context.prepare("/en/company/members?view=__all__&viewSurface=users-card-store");
     expect(prepare).toHaveBeenCalledOnce();
   });
   it("reads the current selection at send time without leaking other URL values", () => {
     const context = new AgentViewContext();
     let viewKey = ALL_VIEW_KEY;
-    context.register("/en/contacts", () => ({ surfaceKey: SURFACE.contacts, viewKey }));
-    expect(context.route("/en/contacts")).toBe("/en/contacts?view=__all__&viewSurface=contacts-card-store");
+    context.register("/en/company/members", () => ({ surfaceKey: SURFACE.users, viewKey }));
+    expect(context.route("/en/company/members")).toBe("/en/company/members?view=__all__&viewSurface=users-card-store");
     viewKey = VIEW_ID;
-    expect(context.route("/en/contacts")).toContain(`view=${VIEW_ID}`);
-    expect(context.route("/en/deals")).toBe("/en/deals");
+    expect(context.route("/en/company/members")).toContain(`view=${VIEW_ID}`);
+    expect(context.route("/en/company/webhooks")).toBe("/en/company/webhooks");
   });
 
   it("does not let an old unmount remove the incoming page registration", () => {
     const context = new AgentViewContext();
-    const old = context.register("/en/contacts", () => ({ surfaceKey: SURFACE.contacts, viewKey: VIEW_ID }));
-    const current = context.register("/en/deals", () => ({ surfaceKey: SURFACE.deals, viewKey: ALL_VIEW_KEY }));
+    const old = context.register("/en/company/members", () => ({ surfaceKey: SURFACE.users, viewKey: VIEW_ID }));
+    const current = context.register("/en/company/webhooks", () => ({
+      surfaceKey: SURFACE.webhooks,
+      viewKey: ALL_VIEW_KEY,
+    }));
     old();
-    expect(context.route("/en/deals")).toContain("viewSurface=deals-card-store");
+    expect(context.route("/en/company/webhooks")).toContain("viewSurface=webhooks-card-store");
     current();
-    expect(context.route("/en/deals")).toBe("/en/deals");
+    expect(context.route("/en/company/webhooks")).toBe("/en/company/webhooks");
   });
 
   it("restores the mounted page owner and its save callback after an explicit detail owner leaves", async () => {
@@ -84,38 +87,38 @@ describe("agent saved-view context", () => {
     const pagePrepare = vi.fn(() => Promise.resolve());
     const detailPrepare = vi.fn(() => Promise.resolve());
     const releasePage = context.register(
-      "/en/contacts",
-      () => ({ surfaceKey: SURFACE.contacts, viewKey: VIEW_ID }),
+      "/en/company/members",
+      () => ({ surfaceKey: SURFACE.users, viewKey: VIEW_ID }),
       pagePrepare,
     );
-    const pageRoute = context.route("/en/contacts");
+    const pageRoute = context.route("/en/company/members");
     const releaseDetail = context.register(
-      "/en/contacts",
+      "/en/company/members",
       () => ({ surfaceKey: SURFACE.entityTimeline, viewKey: ALL_VIEW_KEY }),
       detailPrepare,
     );
-    const detailRoute = context.route("/en/contacts");
+    const detailRoute = context.route("/en/company/members");
     await context.prepare(detailRoute);
     expect(detailPrepare).toHaveBeenCalledOnce();
     expect(pagePrepare).not.toHaveBeenCalled();
     releaseDetail();
-    expect(context.route("/en/contacts")).toBe(pageRoute);
+    expect(context.route("/en/company/members")).toBe(pageRoute);
     await context.prepare(detailRoute);
     expect(detailPrepare).toHaveBeenCalledOnce();
     await context.prepare(pageRoute);
     expect(pagePrepare).toHaveBeenCalledOnce();
     releasePage();
-    expect(context.route("/en/contacts")).toBe("/en/contacts");
+    expect(context.route("/en/company/members")).toBe("/en/company/members");
   });
 
   it("falls back to the mounted page owner when a temporary owner for the same page becomes invalid", async () => {
     const context = new AgentViewContext();
     const pagePrepare = vi.fn(() => Promise.resolve());
     const temporaryPrepare = vi.fn(() => Promise.resolve());
-    context.register("/en/contacts", () => ({ surfaceKey: SURFACE.contacts, viewKey: VIEW_ID }), pagePrepare);
-    context.register("/en/contacts", () => null, temporaryPrepare);
+    context.register("/en/company/members", () => ({ surfaceKey: SURFACE.users, viewKey: VIEW_ID }), pagePrepare);
+    context.register("/en/company/members", () => null, temporaryPrepare);
 
-    const route = context.route("/en/contacts");
+    const route = context.route("/en/company/members");
     expect(route).toContain(`view=${VIEW_ID}`);
     await context.prepare(route);
     expect(pagePrepare).toHaveBeenCalledOnce();
@@ -124,58 +127,61 @@ describe("agent saved-view context", () => {
 
   it("does not fall back to a stale page under a newer owner, or revive an owner already removed", () => {
     const context = new AgentViewContext();
-    const releaseOld = context.register("/en/contacts", () => ({ surfaceKey: SURFACE.contacts, viewKey: VIEW_ID }));
-    const releaseNew = context.register("/en/deals", () => ({ surfaceKey: SURFACE.deals, viewKey: ALL_VIEW_KEY }));
-    expect(context.route("/en/contacts")).toBe("/en/contacts");
+    const releaseOld = context.register("/en/company/members", () => ({ surfaceKey: SURFACE.users, viewKey: VIEW_ID }));
+    const releaseNew = context.register("/en/company/webhooks", () => ({
+      surfaceKey: SURFACE.webhooks,
+      viewKey: ALL_VIEW_KEY,
+    }));
+    expect(context.route("/en/company/members")).toBe("/en/company/members");
     releaseOld();
     releaseOld();
-    expect(context.route("/en/deals")).toContain("viewSurface=deals-card-store");
+    expect(context.route("/en/company/webhooks")).toContain("viewSurface=webhooks-card-store");
     releaseNew();
-    expect(context.route("/en/contacts")).toBe("/en/contacts");
-    expect(context.route("/en/deals")).toBe("/en/deals");
+    expect(context.route("/en/company/members")).toBe("/en/company/members");
+    expect(context.route("/en/company/webhooks")).toBe("/en/company/webhooks");
   });
 
   it("omits invalid or uninitialized context", () => {
     const context = new AgentViewContext();
-    context.register("/en/contacts", () => null);
-    expect(context.route("/en/contacts")).toBe("/en/contacts");
-    context.register("/en/contacts", () => ({ surfaceKey: SURFACE.contacts, viewKey: "invalid" }));
-    expect(context.route("/en/contacts")).toBe("/en/contacts");
-    context.register("/en/contacts", () => ({ surfaceKey: "invalid", viewKey: VIEW_ID }));
-    expect(context.route("/en/contacts")).toBe("/en/contacts");
+    context.register("/en/company/members", () => null);
+    expect(context.route("/en/company/members")).toBe("/en/company/members");
+    context.register("/en/company/members", () => ({ surfaceKey: SURFACE.users, viewKey: "invalid" }));
+    expect(context.route("/en/company/members")).toBe("/en/company/members");
+    context.register("/en/company/members", () => ({ surfaceKey: "invalid", viewKey: VIEW_ID }));
+    expect(context.route("/en/company/members")).toBe("/en/company/members");
   });
 
   it("reloads the server-selected view without stale query overrides, preserving foreign params", () => {
     const context = new AgentViewContext();
-    context.register("/en/contacts", () => ({ surfaceKey: SURFACE.contacts, viewKey: VIEW_ID }));
-    const href = `http://localhost:4016/en/contacts?view=${VIEW_ID}&searchTerm=old&filters=status:eq:old&sort=name:asc&groupBy=old&page=2&pageSize=5&viewMode=board&contact=selected#details`;
-    expect(context.reloadHref(href, [{ surfaceKey: SURFACE.contacts, action: "create" }])).toBe(
-      "/en/contacts?contact=selected#details",
+    context.register("/en/company/members", () => ({ surfaceKey: SURFACE.users, viewKey: VIEW_ID }));
+    const href = `http://localhost:4016/en/company/members?view=${VIEW_ID}&searchTerm=old&filters=status:eq:old&sort=name:asc&groupBy=old&page=2&pageSize=5&viewMode=board&contact=selected#details`;
+    expect(context.reloadHref(href, [{ surfaceKey: SURFACE.users, action: "create" }])).toBe(
+      "/en/company/members?contact=selected#details",
     );
-    expect(context.reloadHref(href, [{ surfaceKey: SURFACE.contacts, action: "update", viewKey: VIEW_ID }])).toBe(
-      `/en/contacts?contact=selected&view=${VIEW_ID}#details`,
+    expect(context.reloadHref(href, [{ surfaceKey: SURFACE.users, action: "update", viewKey: VIEW_ID }])).toBe(
+      `/en/company/members?contact=selected&view=${VIEW_ID}#details`,
     );
-    expect(context.reloadHref(href, [{ surfaceKey: SURFACE.contacts, action: "reset", viewKey: VIEW_ID }])).toBe(
-      `/en/contacts?contact=selected&view=${VIEW_ID}#details`,
+    expect(context.reloadHref(href, [{ surfaceKey: SURFACE.users, action: "reset", viewKey: VIEW_ID }])).toBe(
+      `/en/company/members?contact=selected&view=${VIEW_ID}#details`,
     );
-    expect(context.reloadHref(href, [{ surfaceKey: SURFACE.contacts, action: "delete", viewKey: VIEW_ID }])).toBe(
-      "/en/contacts?contact=selected#details",
+    expect(context.reloadHref(href, [{ surfaceKey: SURFACE.users, action: "delete", viewKey: VIEW_ID }])).toBe(
+      "/en/company/members?contact=selected#details",
     );
-    expect(context.reloadHref(href, [{ surfaceKey: SURFACE.contacts, action: "delete", viewKey: "other" }])).toBeNull();
-    expect(context.reloadHref(href, [{ surfaceKey: SURFACE.contacts, action: "update", viewKey: "other" }])).toBeNull();
-    expect(context.reloadHref(href, [{ surfaceKey: SURFACE.contacts, action: "reset", viewKey: "other" }])).toBeNull();
-    expect(context.reloadHref(href, [{ surfaceKey: SURFACE.deals, action: "create" }])).toBeNull();
+    expect(context.reloadHref(href, [{ surfaceKey: SURFACE.users, action: "delete", viewKey: "other" }])).toBeNull();
+    expect(context.reloadHref(href, [{ surfaceKey: SURFACE.users, action: "update", viewKey: "other" }])).toBeNull();
+    expect(context.reloadHref(href, [{ surfaceKey: SURFACE.users, action: "reset", viewKey: "other" }])).toBeNull();
+    expect(context.reloadHref(href, [{ surfaceKey: SURFACE.webhooks, action: "create" }])).toBeNull();
     expect(
-      context.reloadHref("http://localhost:4016/en/deals?searchTerm=keep", [
-        { surfaceKey: SURFACE.contacts, action: "create" },
+      context.reloadHref("http://localhost:4016/en/company/webhooks?searchTerm=keep", [
+        { surfaceKey: SURFACE.users, action: "create" },
       ]),
     ).toBeNull();
   });
 
   it("reloads an embedded view without rewriting its parent page query", () => {
     const context = new AgentViewContext();
-    context.register("/en/contacts", () => ({ surfaceKey: SURFACE.entityTimeline, viewKey: VIEW_ID }));
-    const parentHref = `http://localhost:4016/en/contacts?view=parent-view&searchTerm=keep&filters=keep&page=2#details`;
+    context.register("/en/company/members", () => ({ surfaceKey: SURFACE.entityTimeline, viewKey: VIEW_ID }));
+    const parentHref = `http://localhost:4016/en/company/members?view=parent-view&searchTerm=keep&filters=keep&page=2#details`;
 
     for (const change of [
       { surfaceKey: SURFACE.entityTimeline, action: "create" as const },
@@ -188,7 +194,7 @@ describe("agent saved-view context", () => {
 
   it("reloads a record timeline while keeping the record and applying the server-selected view", () => {
     const context = new AgentViewContext();
-    const pathname = `/en/contacts/${RECORD_ID}`;
+    const pathname = `/en/records/50000000-0000-4000-8000-000000000001/${RECORD_ID}`;
     context.register(pathname, () => ({ surfaceKey: SURFACE.entityTimeline, viewKey: VIEW_ID }));
     const href = `http://localhost:4016${pathname}?view=${VIEW_ID}&viewSurface=entity-timeline&filters=timelineKind:in:audit&page=2&tab=profile#activity`;
 

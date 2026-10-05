@@ -22,11 +22,11 @@ describe("benchmark read-call predicate", () => {
 
   it("counts exactly the surfaces, config and list actions of the saved-view tool as reads", () => {
     const actions = ManageDataViewsSchema.options.map((option) => option.shape.action.value);
-    const call = (action: string) => ({ name: "manage_data_views", input: { action, surfaceKey: SURFACE.contacts, viewKey: ALL_VIEW_KEY } });
+    const call = (action: string) => ({ name: "manage_data_views", input: { action, surfaceKey: SURFACE.users, viewKey: ALL_VIEW_KEY } });
     expect(actions.filter((action) => isReadCall(call(action)))).toEqual(["surfaces", "config", "list"]);
     expect(actions.filter((action) => !isReadCall(call(action)))).toEqual(["create", "update", "reset", "select", "delete"]);
-    expect(isReadCall({ name: "manage_data_views", input: { surfaceKey: SURFACE.contacts } })).toBe(false);
-    expect(isReadCall({ name: "manage_data_views", input: { action: "rename", surfaceKey: SURFACE.contacts } })).toBe(false);
+    expect(isReadCall({ name: "manage_data_views", input: { surfaceKey: SURFACE.users } })).toBe(false);
+    expect(isReadCall({ name: "manage_data_views", input: { action: "rename", surfaceKey: SURFACE.users } })).toBe(false);
   });
 
   it("counts every interface call and load_toolset as a read, whatever it opens or targets", () => {

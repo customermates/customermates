@@ -1,11 +1,6 @@
 import { Resource } from "@/generated/prisma";
-import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 import { WORKSPACE_SECTIONS, type WorkspaceSection } from "@/app/components/navigation/workspace-sections";
-import {
-  ENTITY_TERMINOLOGY_PRESETS,
-  terminologyMessageKey,
-} from "@/features/entity-terminology/entity-terminology.constants";
 
 export type AnchorPage = {
   scope: string;
@@ -29,11 +24,6 @@ export type ControlPage = {
 };
 
 export const TOOLBAR_PAGES_WITH_ADD: AnchorPage[] = [
-  { scope: "contacts", route: "/contacts", label: "contacts" },
-  { scope: "organizations", route: "/organizations", label: "organizations" },
-  { scope: "deals", route: "/deals", label: "deals" },
-  { scope: "services", route: "/services", label: "services" },
-  { scope: "tasks", route: "/tasks", label: "tasks" },
   { scope: "routines", route: "/routines", label: "routines" },
   {
     scope: "company-members",
@@ -435,12 +425,6 @@ export type PrimaryNavPage = {
   cloudOnly?: boolean;
 };
 
-function entityPageLabelKeys(entityType: EntityType) {
-  return ENTITY_TERMINOLOGY_PRESETS[entityType].map((presetKey) =>
-    terminologyMessageKey(entityType, presetKey, "plural"),
-  );
-}
-
 export const PRIMARY_NAV_PAGES: PrimaryNavPage[] = [
   {
     key: "dashboard",
@@ -455,41 +439,6 @@ export const PRIMARY_NAV_PAGES: PrimaryNavPage[] = [
     labelKeys: ["NavigationBar.inbox"],
     resource: Resource.inboxMessages,
     cloudOnly: true,
-  },
-  {
-    key: "tasks",
-    route: "/tasks",
-    description: "Sidebar link to the tasks list",
-    labelKeys: entityPageLabelKeys(EntityType.task),
-    resource: Resource.tasks,
-  },
-  {
-    key: "contacts",
-    route: "/contacts",
-    description: "Sidebar link to the contacts list",
-    labelKeys: entityPageLabelKeys(EntityType.contact),
-    resource: Resource.contacts,
-  },
-  {
-    key: "organizations",
-    route: "/organizations",
-    description: "Sidebar link to the organizations list",
-    labelKeys: entityPageLabelKeys(EntityType.organization),
-    resource: Resource.organizations,
-  },
-  {
-    key: "deals",
-    route: "/deals",
-    description: "Sidebar link to the deals pipeline",
-    labelKeys: entityPageLabelKeys(EntityType.deal),
-    resource: Resource.deals,
-  },
-  {
-    key: "services",
-    route: "/services",
-    description: "Sidebar link to the services list",
-    labelKeys: entityPageLabelKeys(EntityType.service),
-    resource: Resource.services,
   },
   {
     key: "configure-records",
@@ -552,8 +501,6 @@ export function workspaceNavKeys(section: WorkspaceSection): string[] {
   return WORKSPACE_SECTIONS[section].map((subroute) => `${section}-${subroute.slug}`);
 }
 
-export const TRANSFERABLE_SCOPES = new Set(["contacts", "organizations", "deals", "services", "tasks"]);
-
 export const SCOPES_WITHOUT_FILTER = new Set(["company-roles"]);
 
 export const SCOPES_WITHOUT_SEARCH = new Set(["company-roles"]);
@@ -563,9 +510,7 @@ export const TOOLBAR_SCOPES_WITHOUT_ADD = TOOLBAR_PAGES_WITHOUT_ADD.map((page) =
 export const FORM_SCOPES = FORM_PAGES.map((page) => page.scope);
 
 export const NAV_KEYS = [
-  ...PRIMARY_NAV_PAGES.filter(
-    (page) => !["contacts", "organizations", "deals", "services", "tasks"].includes(page.key),
-  ).map((page) => page.key),
+  ...PRIMARY_NAV_PAGES.map((page) => page.key),
   ...WORKSPACE_NAV_GROUPS.flatMap((group) => [group.section, ...workspaceNavKeys(group.section)]),
   ...STATIC_NAV_PAGES.map((page) => page.key),
 ];

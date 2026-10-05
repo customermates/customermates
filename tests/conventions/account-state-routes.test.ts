@@ -115,7 +115,6 @@ describe("guarded account-state route contract", () => {
       "<GlobalSearchModal />",
       "<CompanyUserModal />",
       "<CompanyInviteModal />",
-      "<LegacyRecordDrawerBridge />",
       "<WorkspaceRecordEditor />",
       "<ConnectedAccountModal />",
     ]) {

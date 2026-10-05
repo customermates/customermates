@@ -15,7 +15,6 @@ const SECOND_TYPE = "20000000-0000-4000-8000-000000000001";
 const ID = "30000000-0000-4000-8000-000000000001";
 const FIRST_KEY = "customermates:globalSearch:recent:v3:company-1:user-1";
 const SECOND_KEY = "customermates:globalSearch:recent:v3:company-1:user-2";
-const LEGACY_KEY = "customermates:globalSearch:recent:v2:company-1:user-1";
 const hit = recordSearchHit(TYPE, ID, "Current name");
 const page = (results = [hit], nextCursor: RecordSearchResult["nextCursor"] = null) => ({
   ok: true as const,
@@ -62,9 +61,9 @@ afterEach(() => {
 });
 
 describe("generic search state and recent references", () => {
-  it("resolves legacy references before showing labels and persists only stable references", async () => {
+  it("resolves stored references before showing labels and persists only stable references", async () => {
     const values = browser({
-      [LEGACY_KEY]: [{ type: "contact", id: ID, name: "Stale private name", pictureUrl: null }],
+      [FIRST_KEY]: [hit.ref, { type: "contact", id: ID }],
       [SECOND_KEY]: [{ typeId: SECOND_TYPE, recordId: ID }],
     });
     const { store } = setup();
@@ -72,12 +71,11 @@ describe("generic search state and recent references", () => {
     vi.mocked(resolveSearchReferencesAction).mockReturnValueOnce(pending.promise);
     store.open();
     expect(store.recentItems).toEqual([]);
-    expect(resolveSearchReferencesAction).toHaveBeenCalledWith({ refs: [{ type: "contact", id: ID }] });
+    expect(resolveSearchReferencesAction).toHaveBeenCalledWith({ refs: [hit.ref] });
     pending.finish({ ok: true, data: { results: [hit] } });
     await vi.advanceTimersByTimeAsync(0);
     expect(store.recentItems).toEqual([hit]);
     expect(JSON.parse(values.get(FIRST_KEY) ?? "null")).toEqual([hit.ref]);
-    expect(values.has(LEGACY_KEY)).toBe(false);
     expect(values.get(SECOND_KEY)).toContain(SECOND_TYPE);
     expect(values.get(FIRST_KEY)).not.toContain("Current name");
   });

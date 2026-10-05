@@ -61,7 +61,7 @@ class TestStore extends BaseDataViewStore<Item> {
 
     return Promise.resolve({
       items: [],
-      p13nId: SURFACE.deals,
+      p13nId: SURFACE.routines,
       pagination: { page: 1, pageSize: 25, total: 0, totalPages: 1 },
       views: [],
       activeViewKey: ALL_VIEW_KEY,
@@ -83,7 +83,7 @@ function groupedByTheStoredState(): TestStore {
   const store = new TestStore(rootStore());
   store.setItems({
     items: [],
-    p13nId: SURFACE.deals,
+    p13nId: SURFACE.routines,
     pagination: { page: 1, pageSize: 25, total: 0, totalPages: 1 },
     views: [],
     activeViewKey: ALL_VIEW_KEY,

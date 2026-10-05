@@ -27,7 +27,6 @@ describe("OnboardingWizardStore", () => {
     expect(WIZARD_STEPS).toEqual(["profile", "wiki", "invite", "ai"]);
     expect(store.totalSteps).toBe(4);
     expect(store.currentStep).toBe("profile");
-    expect("terminology" in store).toBe(false);
   });
 
   it("starts registered owners at Wiki and prevents returning to Profile", () => {

@@ -1,11 +1,6 @@
 export const ALL_VIEW_KEY = "__all__";
 
 export const SURFACE = Object.freeze({
-  contacts: "contacts-card-store",
-  organizations: "organizations-card-store",
-  deals: "deals-card-store",
-  services: "services-card-store",
-  tasks: "tasks-card-store",
   users: "users-card-store",
   roles: "roles-card-store",
   webhooks: "webhooks-card-store",
@@ -20,11 +15,6 @@ export const SURFACE = Object.freeze({
 } as const);
 
 export const DATA_VIEW_SURFACE_KEYS = [
-  SURFACE.contacts,
-  SURFACE.organizations,
-  SURFACE.deals,
-  SURFACE.services,
-  SURFACE.tasks,
   SURFACE.users,
   SURFACE.roles,
   SURFACE.webhooks,

@@ -1,54 +1,12 @@
-import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
 import { followConfigureLink, saveGeneral } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 
-test("opens original CRM URLs in the shared record screens", async ({ page, database, companyId }) => {
-  for (const [path, kind] of [
-    ["contacts", "contact"],
-    ["organizations", "organization"],
-    ["deals", "deal"],
-    ["services", "service"],
-    ["tasks", "task"],
-  ] as const) {
-    await page.goto(`/en/${path}`);
-    await expect(page).toHaveURL(`/en/records/${presetId(companyId, kind)}`);
-    await expect(page.locator("#records-add")).toBeVisible();
+test("answers the removed fixed-entity routes with not found", async ({ page, companyId }) => {
+  for (const path of ["contacts", "organizations", "deals", "services", "tasks"]) {
+    const response = await page.goto(`/en/${path}/${presetId(companyId, "contact")}`);
+    expect(response?.status(), path).toBe(404);
   }
-  const serviceId = presetId(companyId, "service");
-  await page.goto(`/en/records/${serviceId}`);
-  await page.locator("#records-add").click();
-  const editor = page.getByRole("dialog");
-  await editor.getByRole("textbox", { name: "Name", exact: false }).fill("Legacy link target");
-  await editor.getByRole("button", { name: "Save", exact: true }).click();
-  await expect(editor).not.toBeVisible();
-  const stored = await database.query(
-    'SELECT id FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 ORDER BY "createdAt" DESC LIMIT 1',
-    [companyId, serviceId],
-  );
-  const recordId = stored.rows[0]?.id;
-  expect(recordId).toBeTruthy();
-  await page.goto(`/en/services/${recordId}`);
-  await expect(page).toHaveURL(`/en/records/${serviceId}/${recordId}`);
-  await expect(page.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Legacy link target");
-  await page.close();
-});
-
-test("opens a legacy create deep link through the shared record editor", async ({ page, database, companyId }) => {
-  const name = `Deep link catalog item ${randomUUID().slice(0, 8)}`;
-  await page.goto("/en/dashboard?open=service:new");
-  const editor = page.getByRole("dialog");
-  await expect(editor.getByRole("textbox", { name: "Name", exact: false })).toBeVisible();
-  await editor.getByRole("textbox", { name: "Name", exact: false }).fill(name);
-  await editor.getByRole("button", { name: "Save", exact: true }).click();
-  await expect(editor).not.toBeVisible();
-  await expect(page).not.toHaveURL(/open=service%3Anew/);
-  const generic = await database.query(
-    'SELECT r.id FROM "CrmRecord" r JOIN "RecordValue" v ON v."companyId"=r."companyId" AND v."typeId"=r."typeId" AND v."recordId"=r.id WHERE r."companyId"=$1 AND r."typeId"=$2 AND v."textValue"=$3',
-    [companyId, presetId(companyId, "service"), name],
-  );
-  expect(generic.rows).toHaveLength(1);
-  expect((await database.query("SELECT to_regclass('\"Service\"') AS table")).rows[0].table).toBeNull();
 });
 
 test("uses configured navigation, quick creation, rename-safe routes, and hidden types", async ({

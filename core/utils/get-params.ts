@@ -3,7 +3,7 @@ import { FilterSchema } from "@/core/base/base-get.schema";
 
 import { FilterOperatorKey, ViewMode } from "../base/base-query-builder";
 import { decodeGroupingToken, encodeGroupingToken } from "../base/grouping/grouping.schema";
-import { normalizeFilter } from "../base/filter-compat";
+import { normalizeFilterInput } from "../base/filter-value";
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_PAGE_SIZE = 25;
@@ -45,7 +45,7 @@ export function encodeGetParams(params: GetQueryParams = {}): URLSearchParams {
 
   if (params.filters && params.filters.length > 0) {
     for (const candidate of params.filters) {
-      const f = normalizeFilter(candidate);
+      const f = normalizeFilterInput(candidate) as Filter;
       if (
         f.field.includes(":") ||
         ("value" in f && Array.isArray(f.value) && f.value.some((value) => value.includes(",")))

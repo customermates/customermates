@@ -470,19 +470,6 @@ describe("overlay contract", () => {
     expect(focusTarget).toContain("[data-overlay-surface][data-state='closed']");
     expect(focusTarget).toContain("element.focus({ preventScroll: true })");
 
-    const entityDrawerStack = readFileSync(
-      join(REPO_ROOT, "components/entity-detail/hooks/use-entity-drawer-stack.ts"),
-      "utf8",
-    );
-    expect(entityDrawerStack).toContain(
-      "stack.length === 0) rememberEntityDrawerInvoker(preferredInvoker, fallbackInvoker)",
-    );
-    expect(entityDrawerStack).toContain("stack.length === 1) prepareEntityDrawerInvokerRestore()");
-    expect(entityDrawerStack).toContain("focusOverlayTarget(entityDrawerInvoker, entityDrawerFallback)");
-    expect(entityDrawerStack).not.toContain("document.getElementById(");
-    expect(entityDrawerStack).not.toContain(".focus(");
-    expect(entityDrawerStack).not.toContain("window.setTimeout(");
-
     const entityDrawer = readFileSync(join(REPO_ROOT, "app/[locale]/(protected)/records/[typeId]/components/record-editor.tsx"), "utf8");
     expect(entityDrawer).toContain("store.focusReturnTarget, store.focusReturnFallback");
     expect(entityDrawer).toContain("{...focusReturn}");

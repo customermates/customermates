@@ -23,8 +23,8 @@ import { AppChip } from "@/components/chip/app-chip";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { CustomFieldValue } from "@/components/data-view/custom-columns/custom-field-value";
 import { serializeJSONToMarkdown } from "@/components/editor/editor.utils";
-import { useEntityHref, useOpenEntity } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
-import { useCanonicalColumnLabel } from "@/components/entity-terminology/use-column-label";
+import { useOpenPresetRecord, usePresetRecordHref } from "@/components/records/use-record-href";
+import { useCanonicalColumnLabel } from "@/components/data-view/use-column-label";
 import { AvatarStack } from "@/components/shared/avatar-stack";
 import { Icon } from "@/components/shared/icon";
 import { countryLabelForLocale } from "@/constants/countries";
@@ -32,10 +32,6 @@ import { getCurrencyLabel } from "@/constants/currencies";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
-import {
-  CANONICAL_TERMINOLOGY_PRESET_KEY,
-  terminologyMessageKey,
-} from "@/features/entity-terminology/entity-terminology.constants";
 import { getSystemTaskNameTranslationKey } from "@/features/records/protected-task-labels";
 import { CustomColumnType } from "@/core/data-view/column-presentation.types";
 import { EntityType, TaskType } from "@/features/records/history/v1/legacy-enums";
@@ -143,8 +139,8 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
   const columnLabel = useCanonicalColumnLabel();
   const { userModalStore } = useRootStore();
   const intlStore = useHydratedIntlStore();
-  const openEntity = useOpenEntity();
-  const entityHref = useEntityHref();
+  const openEntity = useOpenPresetRecord();
+  const entityHref = usePresetRecordHref();
   const isWikiEvent = entry.event.startsWith("wiki_page.");
 
   function fieldLabel(field: string): string {
@@ -367,30 +363,6 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
                 {definition.label}
               </AppChip>
             ))}
-          </div>
-        );
-      }
-      case "terminology": {
-        const selections = value as {
-          entityType: EntityType;
-          presetKey: string;
-        }[];
-
-        return (
-          <div className="flex flex-wrap items-center gap-1.5">
-            {selections.map((selection) => {
-              const presetName = (presetKey: string) =>
-                t(terminologyMessageKey(selection.entityType, presetKey, "plural") as never);
-
-              const canonicalName = presetName(CANONICAL_TERMINOLOGY_PRESET_KEY[selection.entityType]);
-              const chosenName = presetName(selection.presetKey);
-
-              return (
-                <AppChip key={selection.entityType} size="sm">
-                  {canonicalName === chosenName ? canonicalName : `${canonicalName} → ${chosenName}`}
-                </AppChip>
-              );
-            })}
           </div>
         );
       }

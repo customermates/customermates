@@ -128,16 +128,17 @@ describe("toolsetsForRequest", () => {
     expect([
       ...toolsetsForRequest({
         text: "Only show records with deals",
-        pageRoute: "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update",
+        pageRoute:
+          "/en/records/10000000-0000-4000-8000-000000000011?view=__all__&viewSurface=records:10000000-0000-4000-8000-000000000011&viewAction=update",
       }),
-    ]).toEqual(["views"]);
+    ]).toEqual(["views", "record-model"]);
     expect([
       ...toolsetsForRequest({
         text: "Nur Änderungen anzeigen",
         pageRoute:
-          "/de/contacts/00000000-0000-4000-8000-000000000001?view=__all__&viewSurface=entity-timeline&viewAction=update",
+          "/de/records/10000000-0000-4000-8000-000000000011/00000000-0000-4000-8000-000000000001?view=__all__&viewSurface=entity-timeline&viewAction=update",
       }),
-    ]).toEqual(["views"]);
+    ]).toEqual(["views", "record-model"]);
   });
 
   it("routes a selected data view context without relying on localized prompt text", () => {
@@ -161,7 +162,7 @@ describe("toolsetsForRequest", () => {
   });
 
   it("keeps a plain records question on the core set", () => {
-    expect(toolsetsForRequest({ text: "How many open deals do we have?", pageRoute: "/en/deals" }).size).toBe(0);
+    expect(toolsetsForRequest({ text: "How many open deals do we have?", pageRoute: "/en/wiki" }).size).toBe(0);
   });
 });
 
@@ -169,7 +170,7 @@ describe("toolsetsFromActivities", () => {
   it("re-enables the sets a conversation already used", () => {
     const toolsets = toolsetsFromActivities([
       { kind: "messages.read" },
-      { kind: "workspace.terminology" },
+      { kind: "workspace.settings" },
       { kind: "views.configure" },
       { kind: "records.read" },
       { kind: "generic", consequence: { action: "salesList.save" } },

@@ -66,24 +66,17 @@ describe("gated-tools", () => {
     expect(approvalNeeded(routines, {})).toBe(true);
   });
 
-  it("requires a fresh approval to rename record types, while other workspace settings stay immediate", () => {
+  it("keeps workspace and profile settings immediate", () => {
     const settings = toolByName("update_workspace_settings");
-    const rename = { target: "company", terminology: [{ entityType: "deal", presetKey: "opportunity" }] };
 
-    expect(approvalNeeded(settings, rename)).toBe(true);
-    expect(approvalNeeded(settings, { ...rename, currency: "EUR" })).toBe(true);
-    expect(approvalNeeded(settings, { target: "company", terminology: "opportunity" })).toBe(true);
     expect(approvalNeeded(settings, { target: "company", currency: "EUR" })).toBe(false);
-    expect(approvalNeeded(settings, { target: "company", currency: "EUR", terminology: [] })).toBe(false);
-    expect(approvalNeeded(settings, { target: "company", currency: "EUR", terminology: null })).toBe(false);
     expect(approvalNeeded(settings, { target: "profile", firstName: "Ada" })).toBe(false);
-    expect(describeInternalTool("update_workspace_settings", rename)).toMatchObject({
-      kind: "workspace.terminology",
-      risk: "sensitive",
-    });
     expect(describeInternalTool("update_workspace_settings", { target: "company", currency: "EUR" })).toMatchObject({
       kind: "workspace.settings",
       risk: "write",
+    });
+    expect(describeInternalTool("update_workspace_settings", { target: "profile", firstName: "Ada" })).toMatchObject({
+      kind: "profile.configure",
     });
   });
 

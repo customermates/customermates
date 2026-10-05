@@ -91,16 +91,11 @@ describe("update_workspace_settings", () => {
     expect(mcpToolResultText(result)).not.toContain("avatarUrl");
   });
 
-  it("routes type renaming to the generic configuration contract and rejects legacy terminology writes", async () => {
-    const input = { target: "company", terminology: [{ entityType: "contact", presetKey: "people" }] };
-    expect(updateWorkspaceSettingsTool.inputSchema.safeParse(input).success).toBe(false);
-    const result = await updateWorkspaceSettingsTool.execute(input as never);
-    expect(mcpToolResultText(result)).toContain("terminology");
-    expect(spies.updateCompanySettings).not.toHaveBeenCalled();
+  it("points record type renaming to the generic configuration contract", () => {
     expect(updateWorkspaceSettingsTool.description).toContain("configure_record_model");
   });
 
-  it("reports only a changed currency when terminology was omitted", async () => {
+  it("reports only a changed currency", async () => {
     spies.updateCompanySettings.mockResolvedValue({
       ok: true,
       data: { currency: "eur" },
@@ -116,7 +111,6 @@ describe("update_workspace_settings", () => {
       currency: "eur",
     });
     expect(mcpToolResultText(result)).toContain("currency: eur");
-    expect(mcpToolResultText(result)).not.toContain("terminology");
   });
 
   it("rejects an empty company update instead of reporting a no-op as success", async () => {
@@ -139,15 +133,6 @@ describe("update_workspace_settings", () => {
 
     expect(mcpToolResultText(result)).toContain("Validation error:");
     expect(spies.updateUserDetails).not.toHaveBeenCalled();
-  });
-
-  it("rejects terminology presets outside the canonical catalog", () => {
-    expect(() =>
-      updateWorkspaceSettingsTool.inputSchema.parse({
-        target: "company",
-        terminology: [{ entityType: "deal", presetKey: "banana" }],
-      }),
-    ).toThrow();
   });
 });
 

@@ -6,14 +6,11 @@ import { UserAccessor } from "@/core/base/user-accessor";
 import { presetId } from "@/features/records/crm-preset";
 import { RecordQuerySchema } from "@/features/records/record-query.schema";
 
-type RecordSignals = Pick<AgentDataCounts, "contacts" | "organizations" | "deals" | "services" | "tasks">;
+type RecordSignals = Pick<AgentDataCounts, "contacts" | "deals">;
 
 const STARTER_TYPES = [
   ["contacts", "contact"],
-  ["organizations", "organization"],
   ["deals", "deal"],
-  ["services", "service"],
-  ["tasks", "task"],
 ] as const;
 
 export class RecordSuggestionSignals extends UserAccessor {

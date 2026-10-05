@@ -15,7 +15,7 @@ vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, values?: Record<string, unknown>) =>
     values ? `${key}:${Object.values(values).join(",")}` : key,
 }));
-vi.mock("@/components/entity-detail/hooks/use-entity-drawer-stack", () => ({
+vi.mock("@/components/shared/use-navigate-to-href", () => ({
   useNavigateToHref: () => vi.fn(),
 }));
 vi.mock("@/components/ui/tooltip", () => ({
@@ -27,7 +27,7 @@ vi.mock("@/components/ui/tooltip", () => ({
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({ customColumnModalStore: { openForCreate: vi.fn(), openWithColumn: vi.fn() } }),
 }));
-vi.mock("@/components/entity-terminology/use-filter-field-label", () => ({
+vi.mock("@/components/data-view/use-filter-field-label", () => ({
   useFilterFieldLabel: () => (field: string) => field,
 }));
 vi.mock("@/components/ui/select", () => ({
@@ -45,10 +45,7 @@ vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
     formatDescriptiveShortDate: (date: Date) => `date:${date.toISOString()}`,
   }),
 }));
-vi.mock("@/components/entity-terminology/use-column-label", () => ({ useColumnLabel: () => (uid: string) => uid }));
-vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
-  useEntityTerminology: () => ({ singular: () => "deal", plural: () => "deals" }),
-}));
+vi.mock("@/components/data-view/use-column-label", () => ({ useColumnLabel: () => (uid: string) => uid }));
 
 import { DataKanbanView } from "../data-kanban-view";
 

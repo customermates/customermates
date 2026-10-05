@@ -1,4 +1,4 @@
-import type { ProductDemoPath } from "./product-demo";
+import { DEMO_RECORD_LIST_PATHS, type ProductDemoPath } from "./product-demo";
 
 export type ProductDemoConfig = {
   hostedBoundary?: boolean;
@@ -6,35 +6,35 @@ export type ProductDemoConfig = {
 };
 
 export const FEATURE_PRODUCT_DEMOS = {
-  "account-management": { path: "/organizations" },
+  "account-management": { path: DEMO_RECORD_LIST_PATHS.organizations },
   api: { path: "/profile/api-keys" },
   "cloud-crm": { hostedBoundary: true, path: "/dashboard" },
-  "contact-management": { path: "/contacts" },
+  "contact-management": { path: DEMO_RECORD_LIST_PATHS.contacts },
   "crm-integration": { path: "/company/webhooks" },
   "customer-service": { hostedBoundary: true, path: "/inbox" },
   "email-integration": { hostedBoundary: true, path: "/inbox" },
-  "follow-up": { path: "/tasks" },
+  "follow-up": { path: DEMO_RECORD_LIST_PATHS.tasks },
   integrations: { hostedBoundary: true, path: "/profile/connected-accounts" },
-  "lead-management": { path: "/contacts" },
-  "lead-tracking": { path: "/deals" },
+  "lead-management": { path: DEMO_RECORD_LIST_PATHS.contacts },
+  "lead-tracking": { path: DEMO_RECORD_LIST_PATHS.deals },
   "linkedin-integration": { hostedBoundary: true, path: "/inbox" },
   "outlook-integration": { hostedBoundary: true, path: "/inbox" },
-  pipeline: { path: "/deals" },
-  "project-management": { path: "/tasks" },
+  pipeline: { path: DEMO_RECORD_LIST_PATHS.deals },
+  "project-management": { path: DEMO_RECORD_LIST_PATHS.tasks },
   reporting: { path: "/dashboard" },
   "sales-automation": { path: "/company/webhooks" },
-  "sales-tracking": { path: "/deals" },
-  sales: { path: "/deals" },
+  "sales-tracking": { path: DEMO_RECORD_LIST_PATHS.deals },
+  sales: { path: DEMO_RECORD_LIST_PATHS.deals },
   "self-hosted": { hostedBoundary: true, path: "/dashboard" },
   "simple-crm": { path: "/dashboard" },
   "slack-integration": { path: "/company/webhooks" },
-  "task-management": { path: "/tasks" },
+  "task-management": { path: DEMO_RECORD_LIST_PATHS.tasks },
   "unified-inbox": { hostedBoundary: true, path: "/inbox" },
   "workflow-automation": { path: "/company/webhooks" },
 } as const satisfies Record<string, ProductDemoConfig>;
 
 export const INDUSTRY_PRODUCT_DEMOS = {
-  "professional-services": { path: "/deals" },
+  "professional-services": { path: DEMO_RECORD_LIST_PATHS.deals },
 } as const satisfies Record<string, ProductDemoConfig>;
 
 export function productDemoForFeature(slug: string): ProductDemoConfig | null {

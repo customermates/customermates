@@ -20,8 +20,8 @@ vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({ customColumnModalStore: { openForCreate: harness.openForCreate } }),
 }));
 vi.mock("@/core/stores/use-hydrated-intl-store", () => ({ useHydratedIntlStore: () => ({}) }));
-vi.mock("@/components/entity-terminology/use-column-label", () => ({ useColumnLabel: () => (uid: string) => uid }));
-vi.mock("@/components/entity-terminology/use-filter-field-label", () => ({
+vi.mock("@/components/data-view/use-column-label", () => ({ useColumnLabel: () => (uid: string) => uid }));
+vi.mock("@/components/data-view/use-filter-field-label", () => ({
   useFilterFieldLabel: () => (field: string) => `field:${field}`,
 }));
 vi.mock("@/components/ui/select", () => ({

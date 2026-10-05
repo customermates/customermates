@@ -73,9 +73,6 @@ vi.mock("@/components/ui/sonner", () => ({ Toaster: () => "toaster" }));
 vi.mock("@/app/components/global-search-modal", () => ({
   GlobalSearchModal: () => "global-search-modal",
 }));
-vi.mock("@/components/records/legacy-record-drawer-bridge", () => ({
-  LegacyRecordDrawerBridge: () => "legacy-record-drawer-bridge",
-}));
 vi.mock("@/components/records/workspace-record-editor", () => ({
   WorkspaceRecordEditor: () => "workspace-record-editor",
 }));
@@ -163,7 +160,6 @@ describe("ProtectedLayout account-state boundary", () => {
     expect(container.textContent).toContain("translation-sync");
     expect(container.textContent).not.toContain("global-search-modal");
     expect(container.textContent).not.toContain("company-user-modal");
-    expect(container.textContent).not.toContain("legacy-record-drawer-bridge");
     expect(container.textContent).not.toContain("routine-modal");
     expect(container.textContent).not.toContain("import-wizard");
     expect(container.textContent).not.toContain("agent-chat");
@@ -181,7 +177,6 @@ describe("ProtectedLayout account-state boundary", () => {
 
     expect(container.textContent).toContain("global-search-modal");
     expect(container.textContent).toContain("company-user-modal");
-    expect(container.textContent).toContain("legacy-record-drawer-bridge");
     expect(container.textContent).toContain("routine-modal");
     expect(container.textContent).not.toContain("import-wizard");
     expect(container.textContent).not.toContain("agent-chat");

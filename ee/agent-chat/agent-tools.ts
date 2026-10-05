@@ -52,7 +52,7 @@ import { recordToolRisk } from "./record-tool-risk";
 import { internalToolIdentity, WIKI_WEBSITE_IMPORT_TOOL_NAME } from "./tool-identity";
 import { NavigateInputSchema } from "./ui-operations";
 import {
-  ACTIVE_AGENT_UI_TARGETS,
+  AGENT_UI_TARGETS,
   UiTargetIdSchema,
   agentUiPageLabelKeys,
   uiPrerequisiteRefusal,
@@ -287,7 +287,7 @@ function localizedUiTargetPageNames() {
   uiTargetPageNames ??= Promise.all(APP_LOCALES.map((locale) => getTranslator(locale))).then(
     (translators) =>
       new Map(
-        ACTIVE_AGENT_UI_TARGETS.map((target) => {
+        AGENT_UI_TARGETS.map((target) => {
           const labelKeys = [...(target.labelKey ? [target.labelKey] : []), ...agentUiPageLabelKeys(target.route)];
           return [
             target.id,
@@ -310,7 +310,7 @@ function matchesUiTargetQuery(target: AgentUiTarget, tokens: string[], pageNames
 
 function uiTargetPrefixes(limit: number): string[] {
   const counts = new Map<string, number>();
-  for (const target of ACTIVE_AGENT_UI_TARGETS) {
+  for (const target of AGENT_UI_TARGETS) {
     const prefix = target.id.split("-")[0] ?? target.id;
     counts.set(prefix, (counts.get(prefix) ?? 0) + 1);
   }
@@ -344,10 +344,7 @@ async function matchingUiTargets(query: string | undefined, targets: AgentUiTarg
 async function listUiTargets(input: z.infer<typeof ListUiTargetsSchema>, resultMaxChars: number) {
   const navigation = await getGetRecordNavigationInteractor().invoke();
   if (!navigation.ok) return "Interface targets are unavailable with the current account access.";
-  const targets = await matchingUiTargets(input.query, [
-    ...ACTIVE_AGENT_UI_TARGETS,
-    ...recordUiTargets(navigation.data),
-  ]);
+  const targets = await matchingUiTargets(input.query, [...AGENT_UI_TARGETS, ...recordUiTargets(navigation.data)]);
   if (targets.length === 0) {
     return `No interface target matches "${input.query ?? ""}". Target names are English: query with the English page or workflow phrase (for example "deals", "inbox", "settings"), or with one of these id prefixes: ${uiTargetPrefixes(10).join(", ")}.`.slice(
       0,

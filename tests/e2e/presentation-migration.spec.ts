@@ -114,9 +114,8 @@ test("opens migrated saved views, personal details and financial widgets with pe
   );
   expect(saved.rows[0].count).toBe(15);
   await widget("Organization values").screenshot({ path: testInfo.outputPath("migrated-organization-values.png") });
-  await page.goto("/en/contacts");
   const personType = presetId(companyId, "contact");
-  await expect(page).toHaveURL(new RegExp(`/en/records/${personType}$`));
+  await page.goto(`/en/records/${personType}`);
   await expect(page.locator("#sidebar-trigger")).toHaveAttribute("aria-disabled", "false");
   await expect(page.locator("header")).toContainText("People");
   const person = (await database.query('SELECT id FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 LIMIT 1', [companyId, personType])).rows[0];

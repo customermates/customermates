@@ -27,9 +27,6 @@ vi.mock("@/app/components/agent-chat/suggested-questions", () => ({
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: harness.getRootStore,
 }));
-vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
-  useEntityTerminology: () => ({ map: () => ({}) }),
-}));
 vi.mock("@/components/data-view/use-data-view-sync", () => ({
   useDataViewSync: vi.fn(),
 }));

@@ -25,14 +25,11 @@ import {
 import { cn } from "@/core/utils/cn";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { IntlLink } from "@/i18n/navigation";
-import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 
 import { ShellHeader } from "./shell-header";
 import { stripLocalePrefix } from "@/i18n/locale-registry";
 import { useTopBarActions } from "./topbar-actions-context";
 import { buildAppTopbarCrumbs } from "./app-topbar-crumbs";
-
-import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 export const AppTopBar = observer(({ operatorConsoleVisible }: { operatorConsoleVisible: boolean }) => {
   const t = useTranslations();
@@ -41,24 +38,14 @@ export const AppTopBar = observer(({ operatorConsoleVisible }: { operatorConsole
   const inboxThreadId = searchParams.get("threadId");
   const rootStore = useRootStore();
   const navigationDisabled = !rootStore.recordWorkspaceStore.routeReady(stripLocalePrefix(pathname));
-  const { layoutStore, userStore, terminologyStore } = rootStore;
+  const { layoutStore, userStore } = rootStore;
   const { actions, override } = useTopBarActions();
-  const { plural } = useEntityTerminology();
-
-  const entityLabels: Record<string, string> = {
-    contacts: plural(EntityType.contact),
-    organizations: plural(EntityType.organization),
-    deals: plural(EntityType.deal),
-    services: plural(EntityType.service),
-    tasks: plural(EntityType.task),
-  };
 
   const { crumbs, section } = useMemo(
     () =>
       buildAppTopbarCrumbs(
         pathname,
         t,
-        entityLabels,
         layoutStore.runtimeIdentity,
         rootStore.appMode,
         userStore.canAccess,
@@ -68,7 +55,6 @@ export const AppTopBar = observer(({ operatorConsoleVisible }: { operatorConsole
     [
       pathname,
       t,
-      terminologyStore.overrides,
       layoutStore.runtimeIdentity,
       rootStore.appMode,
       userStore.user,

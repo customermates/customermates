@@ -22,11 +22,11 @@ vi.mock("@/core/stores/root-store.provider", () => ({ useRootStore: () => ({ use
 vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
   useHydratedIntlStore: () => ({ formatNumericalShortDateTime: () => "date" }),
 }));
-vi.mock("@/components/entity-detail/hooks/use-entity-drawer-stack", () => ({
-  useEntityHref: () => () => undefined,
-  useOpenEntity: () => vi.fn(),
+vi.mock("@/components/records/use-record-href", () => ({
+  usePresetRecordHref: () => () => undefined,
+  useOpenPresetRecord: () => vi.fn(),
 }));
-vi.mock("@/components/entity-terminology/use-column-label", () => ({
+vi.mock("@/components/data-view/use-column-label", () => ({
   useCanonicalColumnLabel: () => (field: string) => field,
 }));
 vi.mock("../activities-row", () => ({

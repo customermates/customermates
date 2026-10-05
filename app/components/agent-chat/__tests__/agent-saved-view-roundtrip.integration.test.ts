@@ -61,9 +61,6 @@ vi.mock("@/core/errors/report-application-error", () => ({
   reportApplicationError: vi.fn(),
   runUserAction: (run: () => unknown) => run(),
 }));
-vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
-  useEntityTerminology: () => ({ plural: () => "Contacts" }),
-}));
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({ agentChatStore: { enabled: true, isOpen: true }, agentUiControlStore: { active: null } }),
 }));
@@ -198,7 +195,6 @@ function rootStore() {
     servicesStore: refresh(),
     tasksStore: refresh(),
     widgetsStore: refresh(),
-    terminologyStore: refresh(),
     messagingThreadsStore: refresh(),
     agentUiControlStore: {
       active: null,

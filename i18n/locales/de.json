@@ -72,8 +72,7 @@
         },
         "workspace": {
           "configure": "Bereit, das Datenmodell des Arbeitsbereichs zu ändern",
-          "settings": "Bereit, Workspace-Einstellungen einschließlich der Datensatztyp-Namen zu ändern",
-          "terminology": "Bereit, Datensatztypen für den gesamten Workspace umzubenennen"
+          "settings": "Bereit, Workspace-Einstellungen einschließlich der Datensatztyp-Namen zu ändern"
         }
       },
       "cancelled": "Gestoppt",
@@ -132,7 +131,6 @@
         "organizations": "Organisationen",
         "services": "Leistungen",
         "tasks": "Aufgaben",
-        "terminology": "Workspace-Begriffe",
         "widgets": "Dashboard-Widgets",
         "wiki": "Wissensdatenbank-Seiten"
       },
@@ -143,7 +141,6 @@
         "organizations": "Organisation",
         "services": "Leistung",
         "tasks": "Aufgabe",
-        "terminology": "Workspace-Begriff",
         "widgets": "Dashboard-Widget",
         "wiki": "Wissensdatenbank-Seite"
       },
@@ -425,11 +422,6 @@
             "done": "Workspace-Einstellungen wurden aktualisiert",
             "error": "Workspace-Einstellungen konnten nicht aktualisiert werden",
             "running": "Workspace-Einstellungen werden aktualisiert"
-          },
-          "terminology": {
-            "done": "Workspace-Bezeichnungen wurden aktualisiert",
-            "error": "Workspace-Bezeichnungen konnten nicht aktualisiert werden",
-            "running": "Workspace-Bezeichnungen werden aktualisiert"
           }
         }
       },
@@ -548,36 +540,6 @@
             }
           }
         },
-        "contacts": {
-          "data": {
-            "contacts-cleanup": {
-              "label": "Datenlücken finden",
-              "prompt": "Prüfe meine Kontakte auf fehlende oder uneinheitliche Angaben und schlage Verbesserungen vor."
-            },
-            "contacts-summary": {
-              "label": "Kontakte zusammenfassen",
-              "prompt": "Fasse meine Kontakte zusammen und zeige nützliche Muster oder fehlende Informationen."
-            },
-            "create-contact": {
-              "label": "Kontakt erstellen",
-              "prompt": "Hilf mir, einen Kontakt zu erstellen. Frage nur die nötigen Angaben ab."
-            }
-          },
-          "empty": {
-            "contacts-tour": {
-              "label": "Kontakte kennenlernen",
-              "prompt": "Zeige mir die Kontaktseite und erkläre, wie Kontakte mit dem restlichen CRM verbunden sind."
-            },
-            "first-contact": {
-              "label": "Ersten Kontakt erstellen",
-              "prompt": "Hilf mir, meinen ersten echten Kontakt aus bestätigten Fakten in meiner Wissensdatenbank, meinem Arbeitsbereich oder meinen Angaben zu erstellen. Frage nach der Person und nur nach fehlenden Pflichtangaben; erstelle keinen Beispielkontakt und keinen Kontakt aus einem Testimonial."
-            },
-            "setup-contacts": {
-              "label": "Kontakte einrichten",
-              "prompt": "Konfiguriere nützliche Kontaktfelder und Ansichten anhand meiner Wissensdatenbank und meines Arbeitsbereichs. Erstelle keine Beispielkontakte und mache aus öffentlichen Testimonials keine Kontakte. Frage nur nach fehlenden Entscheidungen."
-            }
-          }
-        },
         "dashboard": {
           "data": {
             "dashboard-tour": {
@@ -605,36 +567,6 @@
             "tour": {
               "label": "Plattform kennenlernen",
               "prompt": "Gib mir eine ausführliche Tour durch Customermates und erkläre, wie die Kernbereiche zusammenspielen."
-            }
-          }
-        },
-        "deals": {
-          "data": {
-            "create-deal": {
-              "label": "Deal erstellen",
-              "prompt": "Hilf mir, einen Deal zu erstellen und alle relevanten Datensätze zu verknüpfen."
-            },
-            "pipeline-gaps": {
-              "label": "Pipeline-Lücken finden",
-              "prompt": "Prüfe meine Deals auf fehlende Beziehungen, Werte oder nächste Schritte."
-            },
-            "pipeline-summary": {
-              "label": "Pipeline zusammenfassen",
-              "prompt": "Fasse meine Deal-Pipeline, Risiken und die sinnvollsten nächsten Schritte zusammen."
-            }
-          },
-          "empty": {
-            "deals-tour": {
-              "label": "Deals kennenlernen",
-              "prompt": "Zeige mir Deals und erkläre, wie eine Pipeline in Customermates verwaltet wird."
-            },
-            "first-deal": {
-              "label": "Ersten Deal erstellen",
-              "prompt": "Hilf mir, meinen ersten echten Deal aus einer bestätigten Verkaufschance zu erstellen, die ich benenne. Nutze meine Wissensdatenbank und meinen Arbeitsbereich, verknüpfe nur bestätigte Organisationen, Kontakte und Leistungen und frage vor dem Anlegen nach fehlenden Pflichtangaben wie Betrag oder aktueller Phase."
-            },
-            "setup-pipeline": {
-              "label": "Pipeline einrichten",
-              "prompt": "Konfiguriere eine einfache Vertriebspipeline anhand meiner Wissensdatenbank und meines Arbeitsbereichs. Erstelle keine Beispiel-Deals und behandle öffentliche Fallstudien nicht als aktuelle Verkaufschancen. Frage nur nach fehlenden Pipeline-Entscheidungen; erfinde keine Deal-Beträge, Budgets oder aktuellen Phasen."
             }
           }
         },
@@ -698,36 +630,6 @@
             }
           }
         },
-        "organizations": {
-          "data": {
-            "create-organization": {
-              "label": "Organisation erstellen",
-              "prompt": "Hilf mir, eine Organisation zu erstellen und die passenden Datensätze zu verknüpfen."
-            },
-            "organization-gaps": {
-              "label": "Beziehungslücken finden",
-              "prompt": "Finde Organisationen, denen sinnvolle Kontakte, Deals oder Aufgaben fehlen."
-            },
-            "organizations-summary": {
-              "label": "Organisationen zusammenfassen",
-              "prompt": "Fasse meine Organisationen zusammen und hebe wichtige Beziehungen hervor."
-            }
-          },
-          "empty": {
-            "first-organization": {
-              "label": "Erste Organisation erstellen",
-              "prompt": "Hilf mir, meine erste echte Organisation aus bestätigten Fakten in meiner Wissensdatenbank, meinem Arbeitsbereich oder meinen Angaben zu erstellen. Frage nach der Organisation und nur nach fehlenden Pflichtangaben. Verknüpfe nur bestätigte Personen oder Deals; erfinde keine Kundenbeziehung."
-            },
-            "organizations-tour": {
-              "label": "Organisationen kennenlernen",
-              "prompt": "Zeige mir Organisationen und erkläre ihre Verbindung zu Kontakten, Deals und Aufgaben."
-            },
-            "setup-organizations": {
-              "label": "Organisationen einrichten",
-              "prompt": "Konfiguriere nützliche Organisationsfelder und Ansichten anhand meiner Wissensdatenbank und meines Arbeitsbereichs. Erstelle keine Beispielorganisationen und behandle öffentliche Fallstudien nicht als aktuelle Geschäftsbeziehungen. Frage nur nach fehlenden Entscheidungen."
-            }
-          }
-        },
         "routines": {
           "data": {
             "create-routine": {
@@ -755,66 +657,6 @@
             "routines-tour": {
               "label": "Routinen kennenlernen",
               "prompt": "Führe mich durch die Routinen-Seite und erkläre Zeitpläne, Ereignisauslöser, Tests, Credits und den Ausführungsverlauf. Nimm keine Änderungen vor."
-            }
-          }
-        },
-        "services": {
-          "data": {
-            "create-service": {
-              "label": "Angebot erstellen",
-              "prompt": "Hilf mir, eine Leistung oder ein Produkt mit den passenden kaufmännischen Angaben zu erstellen."
-            },
-            "service-gaps": {
-              "label": "Kataloglücken finden",
-              "prompt": "Prüfe meine Leistungen oder Produkte auf fehlende Preise, Beziehungen oder Dubletten."
-            },
-            "services-summary": {
-              "label": "Angebote zusammenfassen",
-              "prompt": "Fasse meine Leistungen oder Produkte und ihre Verwendung in Deals zusammen."
-            }
-          },
-          "empty": {
-            "first-service": {
-              "label": "Erstes Angebot erstellen",
-              "prompt": "Hilf mir, meine erste echte Leistung oder mein erstes echtes Produkt anhand meiner Wissensdatenbank und meines Arbeitsbereichs zu erstellen. Frage nur nach der Auswahl und fehlenden Pflichtangaben. Wenn der erforderliche Preis unbekannt ist, frage vor dem Anlegen; schätze keinen Preis und verwende keinen Platzhalter."
-            },
-            "services-tour": {
-              "label": "Angebote kennenlernen",
-              "prompt": "Zeige mir Leistungen und erkläre, wie Angebote mit Deals und Aufgaben verbunden sind."
-            },
-            "setup-services": {
-              "label": "Angebot einrichten",
-              "prompt": "Erstelle nur echte Leistungen oder Produkte, die meine Wissensdatenbank beschreibt, und vermeide Duplikate im Arbeitsbereich. Verwende bestätigte Preise. Wenn ein erforderlicher Preis oder eine andere kaufmännische Pflichtangabe unbekannt ist, frage vor dem Anlegen der Leistung; erfinde keinen Preis und verwende keinen Platzhalter."
-            }
-          }
-        },
-        "tasks": {
-          "data": {
-            "create-task": {
-              "label": "Aufgabe erstellen",
-              "prompt": "Hilf mir, eine Aufgabe zu erstellen und mit den passenden Datensätzen zu verknüpfen."
-            },
-            "task-gaps": {
-              "label": "Follow-up-Lücken finden",
-              "prompt": "Finde wichtige Datensätze, denen eine klare Follow-up-Aufgabe fehlt."
-            },
-            "task-priorities": {
-              "label": "Nächste Schritte planen",
-              "prompt": "Prüfe meine Aufgaben und verknüpften CRM-Daten und empfehle, was ich als Nächstes tun sollte."
-            }
-          },
-          "empty": {
-            "first-task": {
-              "label": "Erste Aufgabe erstellen",
-              "prompt": "Hilf mir, meine erste echte Aufgabe zu erstellen, die ich benenne, und nutze dafür meine Wissensdatenbank und meinen Arbeitsbereich. Verknüpfe nur bestätigte Datensätze und frage nur nach fehlenden Pflichtentscheidungen. Erfinde keine Aufgabe, Zuständigen oder Fälligkeiten."
-            },
-            "setup-tasks": {
-              "label": "Workflow einrichten",
-              "prompt": "Konfiguriere einen minimalen Aufgaben-Workflow mit nützlichen Feldern und Ansichten anhand meiner Wissensdatenbank und meines Arbeitsbereichs. Erstelle keine Beispielaufgaben und erfinde keine Zuständigen oder Fälligkeiten. Frage nur nach fehlenden Workflow-Entscheidungen."
-            },
-            "tasks-tour": {
-              "label": "Aufgaben kennenlernen",
-              "prompt": "Zeige mir Aufgaben und erkläre ihre Verbindung zu Kontakten, Organisationen, Deals und Leistungen."
             }
           }
         },
@@ -1326,7 +1168,6 @@
       "taskNameCannotBeChangedForSystemTasks": "Der Name kann für Systemaufgaben nicht geändert werden.",
       "taskNotFound": "Aufgaben-ID nicht gefunden oder nicht zugänglich.",
       "taskOnlyCustomTasksCanBeDeleted": "Nur benutzerdefinierte Aufgaben können gelöscht werden.",
-      "terminologyInvalidPreset": "Wähle eine der verfügbaren Namensvorlagen.",
       "termsNotAgreed": "Du musst den Allgemeinen Geschäftsbedingungen zustimmen.",
       "threadNotFound": "Konversations-ID nicht gefunden oder nicht zugänglich.",
       "unipileAccountRestricted": "Der Anbieter hat diesen Kanal eingeschränkt. Neu verbinden behebt das nicht; kläre die Einschränkung zuerst mit dem Anbieter.",
@@ -2294,96 +2135,6 @@
     },
     "showField": "{field} in den Details anzeigen",
     "unpinField": "{field} von der Übersicht lösen"
-  },
-  "EntityTerminology": {
-    "presets": {
-      "contact": {
-        "client": {
-          "plural": "Kunden",
-          "singular": "Kunde"
-        },
-        "contact": {
-          "plural": "Kontakte",
-          "singular": "Kontakt"
-        },
-        "lead": {
-          "plural": "Leads",
-          "singular": "Lead"
-        },
-        "person": {
-          "plural": "Personen",
-          "singular": "Person"
-        }
-      },
-      "deal": {
-        "deal": {
-          "plural": "Deals",
-          "singular": "Deal"
-        },
-        "job": {
-          "plural": "Aufträge",
-          "singular": "Auftrag"
-        },
-        "opportunity": {
-          "plural": "Chancen",
-          "singular": "Chance"
-        },
-        "project": {
-          "plural": "Projekte",
-          "singular": "Projekt"
-        }
-      },
-      "organization": {
-        "account": {
-          "plural": "Accounts",
-          "singular": "Account"
-        },
-        "company": {
-          "plural": "Unternehmen",
-          "singular": "Unternehmen"
-        },
-        "organization": {
-          "plural": "Organisationen",
-          "singular": "Organisation"
-        }
-      },
-      "service": {
-        "offering": {
-          "plural": "Leistungen",
-          "singular": "Leistung"
-        },
-        "package": {
-          "plural": "Pakete",
-          "singular": "Paket"
-        },
-        "product": {
-          "plural": "Produkte",
-          "singular": "Produkt"
-        },
-        "service": {
-          "plural": "Services",
-          "singular": "Service"
-        }
-      },
-      "task": {
-        "actionItem": {
-          "plural": "Action Items",
-          "singular": "Action Item"
-        },
-        "followUp": {
-          "plural": "Follow-ups",
-          "singular": "Follow-up"
-        },
-        "task": {
-          "plural": "Aufgaben",
-          "singular": "Aufgabe"
-        },
-        "todo": {
-          "plural": "To-dos",
-          "singular": "To-do"
-        }
-      }
-    }
   },
   "EntityTimeline": {
     "detailDescription": "Aktivitätsdetails und zugehöriger Datensatzkontext.",
@@ -3540,6 +3291,28 @@
     "staleRefreshFailed": "Das Datenmodell konnte nicht aktualisiert werden. Dein Entwurf ist noch da; versuche es erneut.",
     "staleRefreshRequired": "Das Datenmodell wurde geändert. Aktualisiere es, um diesen Entwurf weiterzubearbeiten.",
     "staleTargetMissing": "Diese Definition wurde entfernt. Dein Entwurf bleibt erhalten, kann aber nicht angewendet werden.",
+    "starterTypes": {
+      "contact": {
+        "plural": "Kontakte",
+        "singular": "Kontakt"
+      },
+      "deal": {
+        "plural": "Deals",
+        "singular": "Deal"
+      },
+      "organization": {
+        "plural": "Organisationen",
+        "singular": "Organisation"
+      },
+      "service": {
+        "plural": "Services",
+        "singular": "Service"
+      },
+      "task": {
+        "plural": "Aufgaben",
+        "singular": "Aufgabe"
+      }
+    },
     "summaryAggregation": "Berechnung",
     "summaryApprovalRequired": "Diese Zusammenfassung ist freigegeben. Änderungen an den Berechnungseingaben erfordern die Freigabe eines Administrators.",
     "summaryField": "Feld für die Übersicht",

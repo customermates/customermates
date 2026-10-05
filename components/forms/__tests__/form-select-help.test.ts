@@ -6,9 +6,6 @@ import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
-vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
-  useEntityTerminology: () => ({ plural: (entity: string) => entity }),
-}));
 vi.mock("../form-context", () => ({
   useAppForm: () => ({ getError: () => undefined, getValue: () => "knowledge", onChange: vi.fn() }),
 }));

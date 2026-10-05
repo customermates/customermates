@@ -69941,16 +69941,6 @@
                               "label": {
                                 "type": "string"
                               },
-                              "entityType": {
-                                "type": "string",
-                                "enum": [
-                                  "contact",
-                                  "organization",
-                                  "deal",
-                                  "service",
-                                  "task"
-                                ]
-                              },
                               "type": {
                                 "type": "string",
                                 "const": "plain"
@@ -69959,7 +69949,6 @@
                             "required": [
                               "id",
                               "label",
-                              "entityType",
                               "type"
                             ],
                             "additionalProperties": false,
@@ -69975,16 +69964,6 @@
                               },
                               "label": {
                                 "type": "string"
-                              },
-                              "entityType": {
-                                "type": "string",
-                                "enum": [
-                                  "contact",
-                                  "organization",
-                                  "deal",
-                                  "service",
-                                  "task"
-                                ]
                               },
                               "type": {
                                 "type": "string",
@@ -70020,7 +69999,6 @@
                             "required": [
                               "id",
                               "label",
-                              "entityType",
                               "type"
                             ],
                             "additionalProperties": false,
@@ -70036,16 +70014,6 @@
                               },
                               "label": {
                                 "type": "string"
-                              },
-                              "entityType": {
-                                "type": "string",
-                                "enum": [
-                                  "contact",
-                                  "organization",
-                                  "deal",
-                                  "service",
-                                  "task"
-                                ]
                               },
                               "type": {
                                 "type": "string",
@@ -70081,7 +70049,6 @@
                             "required": [
                               "id",
                               "label",
-                              "entityType",
                               "type"
                             ],
                             "additionalProperties": false,
@@ -70097,16 +70064,6 @@
                               },
                               "label": {
                                 "type": "string"
-                              },
-                              "entityType": {
-                                "type": "string",
-                                "enum": [
-                                  "contact",
-                                  "organization",
-                                  "deal",
-                                  "service",
-                                  "task"
-                                ]
                               },
                               "type": {
                                 "type": "string",
@@ -70142,7 +70099,6 @@
                             "required": [
                               "id",
                               "label",
-                              "entityType",
                               "type"
                             ],
                             "additionalProperties": false,
@@ -70158,16 +70114,6 @@
                               },
                               "label": {
                                 "type": "string"
-                              },
-                              "entityType": {
-                                "type": "string",
-                                "enum": [
-                                  "contact",
-                                  "organization",
-                                  "deal",
-                                  "service",
-                                  "task"
-                                ]
                               },
                               "type": {
                                 "type": "string",
@@ -70203,7 +70149,6 @@
                             "required": [
                               "id",
                               "label",
-                              "entityType",
                               "type"
                             ],
                             "additionalProperties": false,
@@ -70219,16 +70164,6 @@
                               },
                               "label": {
                                 "type": "string"
-                              },
-                              "entityType": {
-                                "type": "string",
-                                "enum": [
-                                  "contact",
-                                  "organization",
-                                  "deal",
-                                  "service",
-                                  "task"
-                                ]
                               },
                               "type": {
                                 "type": "string",
@@ -70262,7 +70197,6 @@
                             "required": [
                               "id",
                               "label",
-                              "entityType",
                               "type",
                               "options"
                             ],
@@ -70279,16 +70213,6 @@
                               },
                               "label": {
                                 "type": "string"
-                              },
-                              "entityType": {
-                                "type": "string",
-                                "enum": [
-                                  "contact",
-                                  "organization",
-                                  "deal",
-                                  "service",
-                                  "task"
-                                ]
                               },
                               "type": {
                                 "type": "string",
@@ -70467,7 +70391,6 @@
                             "required": [
                               "id",
                               "label",
-                              "entityType",
                               "type",
                               "options"
                             ],
@@ -70484,16 +70407,6 @@
                               },
                               "label": {
                                 "type": "string"
-                              },
-                              "entityType": {
-                                "type": "string",
-                                "enum": [
-                                  "contact",
-                                  "organization",
-                                  "deal",
-                                  "service",
-                                  "task"
-                                ]
                               },
                               "type": {
                                 "type": "string",
@@ -70556,7 +70469,6 @@
                             "required": [
                               "id",
                               "label",
-                              "entityType",
                               "type",
                               "options"
                             ],
@@ -70573,16 +70485,6 @@
                               },
                               "label": {
                                 "type": "string"
-                              },
-                              "entityType": {
-                                "type": "string",
-                                "enum": [
-                                  "contact",
-                                  "organization",
-                                  "deal",
-                                  "service",
-                                  "task"
-                                ]
                               },
                               "type": {
                                 "type": "string",
@@ -70616,7 +70518,6 @@
                             "required": [
                               "id",
                               "label",
-                              "entityType",
                               "type",
                               "options"
                             ],
@@ -70633,16 +70534,6 @@
                               },
                               "label": {
                                 "type": "string"
-                              },
-                              "entityType": {
-                                "type": "string",
-                                "enum": [
-                                  "contact",
-                                  "organization",
-                                  "deal",
-                                  "service",
-                                  "task"
-                                ]
                               },
                               "type": {
                                 "type": "string",
@@ -70676,7 +70567,6 @@
                             "required": [
                               "id",
                               "label",
-                              "entityType",
                               "type",
                               "options"
                             ],
@@ -71674,16 +71564,6 @@
                               "label": {
                                 "type": "string"
                               },
-                              "entityType": {
-                                "type": "string",
-                                "enum": [
-                                  "contact",
-                                  "organization",
-                                  "deal",
-                                  "service",
-                                  "task"
-                                ]
-                              },
                               "type": {
                                 "type": "string",
                                 "const": "plain"
@@ -71692,7 +71572,6 @@
                             "required": [
                               "id",
                               "label",
-                              "entityType",
                               "type"
                             ],
                             "additionalProperties": false,
@@ -71708,16 +71587,6 @@
                               },
                               "label": {
                                 "type": "string"
-                              },
-                              "entityType": {
-                                "type": "string",
-                                "enum": [
-                                  "contact",
-                                  "organization",
-                                  "deal",
-                                  "service",
-                                  "task"
-                                ]
                               },
                               "type": {
                                 "type": "string",
@@ -71753,7 +71622,6 @@
                             "required": [
                               "id",
                               "label",
-                              "entityType",
                               "type"
                             ],
                             "additionalProperties": false,
@@ -71769,16 +71637,6 @@
                               },
                               "label": {
                                 "type": "string"
-                              },
-                              "entityType": {
-                                "type": "string",
-                                "enum": [
-                                  "contact",
-                                  "organization",
-                                  "deal",
-                                  "service",
-                                  "task"
-                                ]
                               },
                               "type": {
                                 "type": "string",
@@ -71814,7 +71672,6 @@
                             "required": [
                               "id",
                               "label",
-                              "entityType",
                               "type"
                             ],
                             "additionalProperties": false,
@@ -71830,16 +71687,6 @@
                               },
                               "label": {
                                 "type": "string"
-                              },
-                              "entityType": {
-                                "type": "string",
-                                "enum": [
-                                  "contact",
-                                  "organization",
-                                  "deal",
-                                  "service",
-                                  "task"
-                                ]
                               },
                               "type": {
                                 "type": "string",
@@ -71875,7 +71722,6 @@
                             "required": [
                               "id",
                               "label",
-                              "entityType",
                               "type"
                             ],
                             "additionalProperties": false,
@@ -71891,16 +71737,6 @@
                               },
                               "label": {
                                 "type": "string"
-                              },
-                              "entityType": {
-                                "type": "string",
-                                "enum": [
-                                  "contact",
-                                  "organization",
-                                  "deal",
-                                  "service",
-                                  "task"
-                                ]
                               },
                               "type": {
                                 "type": "string",
@@ -71936,7 +71772,6 @@
                             "required": [
                               "id",
                               "label",
-                              "entityType",
                               "type"
                             ],
                             "additionalProperties": false,
@@ -71952,16 +71787,6 @@
                               },
                               "label": {
                                 "type": "string"
-                              },
-                              "entityType": {
-                                "type": "string",
-                                "enum": [
-                                  "contact",
-                                  "organization",
-                                  "deal",
-                                  "service",
-                                  "task"
-                                ]
                               },
                               "type": {
                                 "type": "string",
@@ -71995,7 +71820,6 @@
                             "required": [
                               "id",
                               "label",
-                              "entityType",
                               "type",
                               "options"
                             ],
@@ -72012,16 +71836,6 @@
                               },
                               "label": {
                                 "type": "string"
-                              },
-                              "entityType": {
-                                "type": "string",
-                                "enum": [
-                                  "contact",
-                                  "organization",
-                                  "deal",
-                                  "service",
-                                  "task"
-                                ]
                               },
                               "type": {
                                 "type": "string",
@@ -72200,7 +72014,6 @@
                             "required": [
                               "id",
                               "label",
-                              "entityType",
                               "type",
                               "options"
                             ],
@@ -72217,16 +72030,6 @@
                               },
                               "label": {
                                 "type": "string"
-                              },
-                              "entityType": {
-                                "type": "string",
-                                "enum": [
-                                  "contact",
-                                  "organization",
-                                  "deal",
-                                  "service",
-                                  "task"
-                                ]
                               },
                               "type": {
                                 "type": "string",
@@ -72289,7 +72092,6 @@
                             "required": [
                               "id",
                               "label",
-                              "entityType",
                               "type",
                               "options"
                             ],
@@ -72306,16 +72108,6 @@
                               },
                               "label": {
                                 "type": "string"
-                              },
-                              "entityType": {
-                                "type": "string",
-                                "enum": [
-                                  "contact",
-                                  "organization",
-                                  "deal",
-                                  "service",
-                                  "task"
-                                ]
                               },
                               "type": {
                                 "type": "string",
@@ -72349,7 +72141,6 @@
                             "required": [
                               "id",
                               "label",
-                              "entityType",
                               "type",
                               "options"
                             ],
@@ -72366,16 +72157,6 @@
                               },
                               "label": {
                                 "type": "string"
-                              },
-                              "entityType": {
-                                "type": "string",
-                                "enum": [
-                                  "contact",
-                                  "organization",
-                                  "deal",
-                                  "service",
-                                  "task"
-                                ]
                               },
                               "type": {
                                 "type": "string",
@@ -72409,7 +72190,6 @@
                             "required": [
                               "id",
                               "label",
-                              "entityType",
                               "type",
                               "options"
                             ],
@@ -89606,7 +89386,6 @@
                         "notesExceedsMaxLength",
                         "mustNotBeBlank",
                         "mustNotContainNullChars",
-                        "terminologyInvalidPreset",
                         "duplicateWebhookEvents",
                         "webhookEventsRequired",
                         "duplicateWebhookHeaders",

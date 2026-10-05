@@ -110,7 +110,6 @@ export type DomainEventMap = {
     entityId: string;
     payload: {
       currency?: Currency;
-      terminology?: { entityType: EntityType; presetKey: string }[];
     };
   };
   [DomainEvent.CONTACT_CREATED]: {

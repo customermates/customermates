@@ -26,7 +26,7 @@ import { SelectDataViewInteractor } from "../select-data-view.interactor";
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
 
-const SURFACE = "contacts-card-store";
+const SURFACE = "webhooks-card-store";
 
 describeDatabase("data view user isolation on PostgreSQL", () => {
   const client = new Client({ connectionString: databaseUrl ?? undefined });

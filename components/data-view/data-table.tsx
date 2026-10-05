@@ -11,7 +11,7 @@ import { useTranslations } from "next-intl";
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { AppChip } from "@/components/chip/app-chip";
-import { useNavigateToHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
+import { useNavigateToHref } from "@/components/shared/use-navigate-to-href";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";

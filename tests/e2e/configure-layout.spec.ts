@@ -50,9 +50,8 @@ test("lists every list flat with embedded lists under their parent, searches and
   const errors = captureErrors(page);
   const id = (key: string) => presetId(companyId, key);
 
-  await test.step("the old data model route redirects with its parameters", async () => {
-    await page.goto(`/en/company/data-model?typeId=${id("service")}`);
-    await expect(page).toHaveURL(new RegExp(`/en/configure\\?typeId=${id("service")}$`));
+  await test.step("Configure opens the list named in its parameters", async () => {
+    await page.goto(`/en/configure?typeId=${id("service")}`);
     await expect(page.getByRole("heading", { level: 1, name: "Services", exact: true })).toBeVisible();
   });
 

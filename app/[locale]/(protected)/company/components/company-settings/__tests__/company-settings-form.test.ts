@@ -54,12 +54,11 @@ afterEach(() => {
 });
 
 describe("CompanySettingsForm record-model cutover", () => {
-  it("shows currency and a Data model link without legacy weighting or terminology controls", () => {
+  it("shows currency and a Data model link without weighting controls", () => {
     const html = renderForm();
     expect(html).toContain("data-currency");
     expect(html).toContain("/configure");
     expect(html).not.toContain("data-forecasting");
-    expect(html).not.toContain("terminology-contact");
   });
 
   it("hydrates the currency and Data model link without changing the server structure", async () => {

@@ -44,16 +44,9 @@ vi.mock("@/components/data-view/use-data-view-sync", () => ({
   useDataViewSync: harness.sync,
 }));
 
-vi.mock("@/components/entity-detail/hooks/use-entity-drawer-stack", () => ({
-  useEntityHref: () => (entityType: EntityType, id: string) => `/${entityType}/${id}`,
-  useOpenEntity: () => harness.openEntity,
-}));
-
-vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
-  useEntityTerminology: () => ({
-    plural: (entityType: EntityType) => `${entityType}-plural`,
-    singular: (entityType: EntityType) => entityType,
-  }),
+vi.mock("@/components/records/use-record-href", () => ({
+  usePresetRecordHref: () => (entityType: EntityType, id: string) => `/${entityType}/${id}`,
+  useOpenPresetRecord: () => harness.openEntity,
 }));
 
 vi.mock("@/components/data-view/header/display-options", () => ({

@@ -78,16 +78,10 @@ vi.mock("@/core/stores/root-store.provider", () => ({
     filterPaletteStore: harness.palette,
   }),
 }));
-vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
-  useEntityTerminology: () => ({
-    singular: (entity: string) =>
-      harness.locale ? catalogs[harness.locale].EntityTerminology.presets.contact.contact.singular : entity,
-  }),
-}));
-vi.mock("@/components/entity-terminology/use-column-label", () => ({
+vi.mock("@/components/data-view/use-column-label", () => ({
   useColumnLabel: () => (uid: string) => uid,
 }));
-vi.mock("@/components/entity-terminology/use-filter-field-label", () => ({
+vi.mock("@/components/data-view/use-filter-field-label", () => ({
   useFilterFieldLabel: () => (field: string) => field,
 }));
 vi.mock("@/components/data-view/filter-palette/filter-palette", () => ({

@@ -18,9 +18,6 @@ const harness = vi.hoisted(() => ({
 }));
 
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
-vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
-  useEntityTerminology: () => ({ plural: (value: string) => value }),
-}));
 vi.mock("@/components/forms/form-context", () => ({ useAppForm: () => harness.form }));
 vi.mock("@/core/stores/root-store.provider", () => ({ useRootStore: () => ({ intlStore: harness.intl }) }));
 

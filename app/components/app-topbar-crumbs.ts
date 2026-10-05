@@ -22,11 +22,6 @@ const GROUP_MAP: Record<string, { group: "overview" | "crm" | "settings" | null;
   inbox: { group: "overview", labelKey: "inbox" },
   wiki: { group: "overview", labelKey: "wiki" },
   routines: { group: "overview", labelKey: "routines" },
-  contacts: { group: "crm", labelKey: "contacts" },
-  organizations: { group: "crm", labelKey: "organizations" },
-  deals: { group: "crm", labelKey: "deals" },
-  services: { group: "crm", labelKey: "services" },
-  tasks: { group: "crm", labelKey: "tasks" },
   settings: { group: "settings", labelKey: "settings" },
   profile: { group: "settings", labelKey: "profile" },
   company: { group: "settings", labelKey: "company" },
@@ -40,7 +35,6 @@ function isWorkspaceSection(segment: string): segment is WorkspaceSection {
 export function buildAppTopbarCrumbs(
   pathname: string,
   t: (key: string) => string,
-  entityLabels: Record<string, string>,
   runtimeIdentity: RuntimeIdentity | null,
   appMode: AppMode,
   canAccess: (resource: Resource) => boolean,
@@ -93,7 +87,7 @@ export function buildAppTopbarCrumbs(
     : first === "operator"
       ? "/operator/overview"
       : `/${first}`;
-  crumbs.push({ label: entityLabels[first] ?? t(leafKey), href: sectionHref });
+  crumbs.push({ label: t(leafKey), href: sectionHref });
 
   if (parts.length > 1) {
     const leaf = parts[1];
@@ -122,7 +116,6 @@ export function buildAppTopbarCrumbs(
         pictureUrl: matchingIdentity?.pictureUrl,
         isEntity: matchingIdentity?.avatarKind != null,
         isLoading: matchingIdentity === null,
-        showAvatarPlaceholder: first === "contacts" || first === "organizations",
       });
     }
   }

@@ -2,7 +2,6 @@
 
 import type { TenantUser } from "@/features/user/user.schema";
 import type { Company } from "@/generated/prisma";
-import type { EntityTerminologyOverride } from "@/features/entity-terminology/entity-terminology.types";
 import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interactor";
 import type { LegalUpdateStatus } from "@/features/legal/get-legal-status.interactor";
 import type { AccountState } from "@/features/auth/account-state";
@@ -39,7 +38,6 @@ type NavigationSwitchProps = {
   appUser: TenantUser | null;
   userDisplayLanguage: unknown;
   company: Company | null;
-  terminology: EntityTerminologyOverride[];
   subscription: SubscriptionDto | null;
   trialDaysLeft: number | null;
   systemTaskCount: number;
@@ -59,7 +57,6 @@ export function NavigationSwitch({
   appUser,
   userDisplayLanguage,
   company,
-  terminology,
   subscription,
   trialDaysLeft,
   systemTaskCount,
@@ -91,7 +88,7 @@ export function NavigationSwitch({
     isRegistered,
   });
   const rootStore = useRootStore();
-  const { userStore, companyStore, subscriptionStore, terminologyStore, navigationGuard } = rootStore;
+  const { userStore, companyStore, subscriptionStore, navigationGuard } = rootStore;
   const accountAllowed = currentAccountState === "allowed";
   const protectedEnhancementsAllowed = accountAllowed && shellMode === "app";
   const identifiedUser = accountAllowed ? appUser : null;
@@ -123,7 +120,6 @@ export function NavigationSwitch({
     userStore.setUser(identifiedUser);
     rootStore.recordWorkspaceStore.setNavigation(accountAllowed ? recordNavigation : null);
     companyStore.setCompany(accountAllowed ? company : null);
-    terminologyStore.setOverrides(accountAllowed ? terminology : []);
     subscriptionStore.setSubscription(accountAllowed ? subscription : null);
 
     if (!protectedEnhancementsAllowed) rootStore.closeAllModals();
@@ -134,7 +130,6 @@ export function NavigationSwitch({
     protectedEnhancementsAllowed,
     rootStore,
     subscription,
-    terminology,
     recordNavigation,
   ]);
 

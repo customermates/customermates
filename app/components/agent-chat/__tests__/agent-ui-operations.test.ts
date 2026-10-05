@@ -302,8 +302,8 @@ describe("AgentUiControlStore.highlight", () => {
     expect((await settled(controlStore().highlight("nav-company-members"))).result).toBe(
       "Target nav-company-members is a sidebar entry that is not visible right now. Ask the user to open the sidebar with the sidebar button at the top left of the header, then open nav-company in it, then highlight it again.",
     );
-    expect((await settled(controlStore().highlight("nav-contacts"))).result).toBe(
-      "Target nav-contacts is a sidebar entry that is not visible right now. Ask the user to open the sidebar with the sidebar button at the top left of the header, then highlight it again.",
+    expect((await settled(controlStore().highlight("nav-dashboard"))).result).toBe(
+      "Target nav-dashboard is a sidebar entry that is not visible right now. Ask the user to open the sidebar with the sidebar button at the top left of the header, then highlight it again.",
     );
 
     onSidebarPage("/en/company/settings", {});
@@ -339,10 +339,10 @@ describe("AgentUiControlStore.highlight", () => {
 
   it("names the toolbar Search button when a narrower screen collapses the search box", async () => {
     const collapsed = element(0);
-    onPage("/contacts", (id) => (id === "contacts-search" ? collapsed : null));
+    onPage("/company/webhooks", (id) => (id === "company-webhooks-search" ? collapsed : null));
 
-    expect((await settled(controlStore().highlight("contacts-search"))).result).toBe(
-      "Target contacts-search is the list's search box, which narrower screens collapse behind the Search button (magnifier icon) in the toolbar. Ask the user to click that button, then highlight it again.",
+    expect((await settled(controlStore().highlight("company-webhooks-search"))).result).toBe(
+      "Target company-webhooks-search is the list's search box, which narrower screens collapse behind the Search button (magnifier icon) in the toolbar. Ask the user to click that button, then highlight it again.",
     );
   });
 
@@ -474,19 +474,19 @@ describe("AgentUiControlStore guided tour", () => {
       store.startGuidedTour([
         { targetId: "nav-dashboard", note: "Start here." },
         { targetId: "company-webhooks-add", note: "Not for this role." },
-        { targetId: "contacts-add", note: "Add a contact." },
+        { targetId: "routines-add", note: "Add a routine." },
       ]),
     ).resolves.toMatchObject({ ok: true });
     setTimeout(() => {
       pageLoaded = true;
-      rendered.set("contacts-add", laidOut());
+      rendered.set("routines-add", laidOut());
     }, 3200);
 
     store.nextStep();
     await vi.advanceTimersByTimeAsync(3500);
 
-    expect(store.active?.targetId).toBe("contacts-add");
-    expect(navigate).toHaveBeenLastCalledWith("/contacts");
+    expect(store.active?.targetId).toBe("routines-add");
+    expect(navigate).toHaveBeenLastCalledWith("/routines");
   });
 
   it("moves on from a stop whose control disappears after the user acts on it", async () => {
@@ -568,21 +568,21 @@ describe("AgentUiControlStore guided tour", () => {
 
   it("ends the tour instead of pulling the user back when they leave the page of a stop", async () => {
     const rendered = new Map([
-      ["contacts-add", laidOut()],
-      ["contacts-filter", laidOut()],
+      ["company-webhooks-add", laidOut()],
+      ["company-webhooks-filter", laidOut()],
     ]);
-    const navigate = onApp("/contacts", rendered);
+    const navigate = onApp("/company/webhooks", rendered);
     const store = controlStore();
     store.registerNavigate(navigate);
 
     await store.startGuidedTour([
-      { targetId: "contacts-add", note: "Click Add." },
-      { targetId: "contacts-filter", note: "Filter the list." },
+      { targetId: "company-webhooks-add", note: "Click Add." },
+      { targetId: "company-webhooks-filter", note: "Filter the list." },
     ]);
     const stop = currentStop(store);
     navigate.mockClear();
 
-    window.location.pathname = "/deals";
+    window.location.pathname = "/company/roles";
     rendered.clear();
     store.reportTourTarget(stop, false);
     await vi.advanceTimersByTimeAsync(2100);
@@ -597,8 +597,8 @@ describe("AgentUiControlStore guided tour", () => {
     const rendered = new Map<string, ReturnType<typeof laidOut>>();
     let loading = false;
     const load = { ms: 0 };
-    const navigate = onApp("/contacts", rendered, () => loading);
-    rendered.set(pages["/contacts"], laidOut());
+    const navigate = onApp("/company/webhooks", rendered, () => loading);
+    rendered.set(pages["/company/webhooks"], laidOut());
     navigate.mockImplementation((path: string) => {
       if (window.location.pathname !== path) {
         window.location.pathname = path;
@@ -624,52 +624,52 @@ describe("AgentUiControlStore guided tour", () => {
 
   it("keeps a Back across pages while the earlier page is still loading its stop", async () => {
     const { navigate, rendered, load } = onSlowPages({
-      "/contacts": "contacts-add",
-      "/deals": "deals-add",
-      "/tasks": "tasks-add",
+      "/company/webhooks": "company-webhooks-add",
+      "/company/roles": "company-roles-add",
+      "/routines": "routines-add",
     });
     const store = controlStore();
     store.registerNavigate(navigate);
 
     await store.startGuidedTour([
-      { targetId: "contacts-add", note: "Add a contact." },
-      { targetId: "deals-add", note: "Add a deal." },
-      { targetId: "tasks-add", note: "Add a task." },
+      { targetId: "company-webhooks-add", note: "Add a webhook." },
+      { targetId: "company-roles-add", note: "Add a role." },
+      { targetId: "routines-add", note: "Add a routine." },
     ]);
     store.nextStep();
     await reportTargetsFor(store, rendered, 600);
-    expect(currentStop(store).targetId).toBe("deals-add");
+    expect(currentStop(store).targetId).toBe("company-roles-add");
 
     load.ms = 3000;
     store.previousStep();
     await reportTargetsFor(store, rendered, 6000);
 
-    expect(currentStop(store)).toMatchObject({ targetId: "contacts-add", stepIndex: 0 });
-    expect(window.location.pathname).toBe("/contacts");
-    expect(navigate).not.toHaveBeenCalledWith("/tasks");
+    expect(currentStop(store)).toMatchObject({ targetId: "company-webhooks-add", stepIndex: 0 });
+    expect(window.location.pathname).toBe("/company/webhooks");
+    expect(navigate).not.toHaveBeenCalledWith("/routines");
   });
 
   it("ends the tour after a Back that found no earlier stop leaves the user off the shown stop's page", async () => {
     const { navigate, rendered, load } = onSlowPages({
-      "/contacts": "contacts-add",
-      "/deals": "deals-add",
+      "/company/webhooks": "company-webhooks-add",
+      "/company/roles": "company-roles-add",
     });
     const store = controlStore();
     store.registerNavigate(navigate);
 
     await store.startGuidedTour([
-      { targetId: "contacts-add", note: "Add a contact." },
-      { targetId: "deals-add", note: "Add a deal." },
+      { targetId: "company-webhooks-add", note: "Add a webhook." },
+      { targetId: "company-roles-add", note: "Add a role." },
     ]);
     store.nextStep();
     await reportTargetsFor(store, rendered, 600);
-    expect(currentStop(store).targetId).toBe("deals-add");
+    expect(currentStop(store).targetId).toBe("company-roles-add");
 
     load.ms = 60_000;
     store.previousStep();
     await reportTargetsFor(store, rendered, 13_000);
 
     expect(store.active).toBeNull();
-    expect(navigate).toHaveBeenLastCalledWith("/contacts");
+    expect(navigate).toHaveBeenLastCalledWith("/company/webhooks");
   });
 });

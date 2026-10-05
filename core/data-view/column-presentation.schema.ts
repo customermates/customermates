@@ -3,7 +3,6 @@ import type { Data } from "@/core/validation/validation.utils";
 import { z } from "zod";
 import { Currency } from "@/generated/prisma";
 import { CustomColumnType } from "@/core/data-view/column-presentation.types";
-import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 import { CHIP_COLORS } from "@/constants/chip-colors";
 import { DATE_DISPLAY_FORMATS } from "@/constants/date-format";
@@ -21,7 +20,6 @@ export type CustomColumnOption = Data<typeof OptionSchema>;
 const BaseSchema = z.object({
   id: z.uuid(),
   label: z.string(),
-  entityType: z.enum(EntityType),
 });
 
 const PlainSchema = BaseSchema.extend({
@@ -122,6 +120,6 @@ export const CustomColumnDtoSchema = z.discriminatedUnion("type", [
 export type CustomColumnDto = Data<typeof CustomColumnDtoSchema>;
 
 export type ColumnPresentation<T = CustomColumnDto> =
-  | (T extends unknown ? Omit<T, "entityType"> : never)
+  | T
   | { id: string; label: string; type: "number" | "member" | "boolean" }
   | { id: string; label: string; type: "recordReference"; typeId: string };

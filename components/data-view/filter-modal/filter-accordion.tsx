@@ -6,7 +6,7 @@ import type { ColumnPresentation } from "@/core/data-view/column-presentation.sc
 import { observer } from "mobx-react-lite";
 
 import { FilterField } from "@/components/data-view/filter-modal/filter-field";
-import { useFilterFieldLabel } from "@/components/entity-terminology/use-filter-field-label";
+import { useFilterFieldLabel } from "@/components/data-view/use-filter-field-label";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { cn } from "@/core/utils/cn";
 

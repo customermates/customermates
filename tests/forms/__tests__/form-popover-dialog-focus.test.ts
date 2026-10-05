@@ -24,11 +24,8 @@ vi.mock("@/components/forms/form-context", () => ({
   }),
 }));
 
-vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
-  useEntityTerminology: () => ({ plural: (entity: string) => entity }),
-}));
 
-vi.mock("@/components/entity-detail/hooks/use-entity-drawer-stack", () => ({
+vi.mock("@/components/shared/use-navigate-to-href", () => ({
   useNavigateToHref: () => vi.fn(),
 }));
 

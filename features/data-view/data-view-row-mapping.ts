@@ -7,7 +7,7 @@ import { Prisma } from "@/generated/prisma";
 
 import { DATA_VIEW_PAGE_SIZES, DATA_VIEW_STATE_FIELDS } from "@/core/data-view/data-view-state.schema";
 import { groupingShadowColumnId, readStoredGrouping } from "@/core/base/grouping/stored-grouping";
-import { normalizeFilters } from "@/core/base/filter-compat";
+import { normalizeFilterInput } from "@/core/base/filter-value";
 
 type NullableJson = Prisma.InputJsonValue | typeof Prisma.DbNull;
 
@@ -97,7 +97,7 @@ function storedPageSize(pagination: unknown): number | null {
 export function readStoredState(row: StoredStateRow): DataViewState {
   const state: DataViewState = {};
 
-  if (Array.isArray(row.filters)) state.filters = normalizeFilters(row.filters as unknown as Filter[]);
+  if (Array.isArray(row.filters)) state.filters = row.filters.map(normalizeFilterInput) as Filter[];
   if (row.searchTerm !== null) state.searchTerm = row.searchTerm;
   if (row.sortDescriptor !== null)
     state.sortDescriptor = isClearedSortDescriptor(row.sortDescriptor) ? null : (row.sortDescriptor as SortDescriptor);

@@ -20,7 +20,7 @@ vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({
     filterPaletteStore: harness.palette.current,
-    terminologyStore: { overrides: [] },
+    recordWorkspaceStore: { navigation: null },
   }),
 }));
 vi.mock("@/components/modal", () => ({

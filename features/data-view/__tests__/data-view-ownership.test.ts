@@ -26,7 +26,7 @@ import { interactorFailureKind } from "@/core/validation/validation.utils";
 import { ViewMode } from "@/core/base/base-query-builder";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
-const SURFACE = "contacts-card-store";
+const SURFACE = "webhooks-card-store";
 const OPERATOR_SURFACE = "operator-users";
 const FOREIGN_VIEW_ID = "3a7b2c11-5d4e-4f60-8a91-2b3c4d5e6f70";
 const MISSING_VIEW_ID = "11111111-2222-4333-8444-555555555555";

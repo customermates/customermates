@@ -35,10 +35,7 @@ const deT = translatorFor("de");
 
 const EMPTY_COUNTS = {
   contacts: false,
-  organizations: false,
   deals: false,
-  services: false,
-  tasks: false,
   routines: false,
   wiki: false,
   widgets: false,
@@ -47,91 +44,35 @@ const EMPTY_COUNTS = {
 
 describe("agent experience contract", () => {
   it("selects exactly three deterministic actions from page data state", () => {
-    expect(agentPageState("contacts", EMPTY_COUNTS)).toBe("empty");
-    expect(agentPageActions("contacts", "empty", enT, "en")).toHaveLength(3);
-    expect(agentPageActions("contacts", "empty", enT, "en")).toEqual(agentPageActions("contacts", "empty", enT, "en"));
-
-    const populated = { ...EMPTY_COUNTS, contacts: true };
-    expect(agentPageState("contacts", populated)).toBe("data");
+    expect(agentPageState("default", EMPTY_COUNTS)).toBe("empty");
+    expect(agentPageState("default", { ...EMPTY_COUNTS, contacts: true })).toBe("data");
+    expect(agentPageActions("dashboard", "empty", enT)).toEqual(agentPageActions("dashboard", "empty", enT));
     expect(agentPageState("routines", EMPTY_COUNTS)).toBe("empty");
     expect(agentPageState("routines", { ...EMPTY_COUNTS, routines: true })).toBe("data");
     expect(agentPageState("wiki", EMPTY_COUNTS)).toBe("empty");
     expect(agentPageState("wiki", { ...EMPTY_COUNTS, wiki: true })).toBe("data");
-    expect(agentPageActions("contacts", "data", enT, "en").map((action) => action.id)).not.toEqual(
-      agentPageActions("contacts", "empty", enT, "en").map((action) => action.id),
+    expect(agentPageActions("dashboard", "data", enT).map((action) => action.id)).not.toEqual(
+      agentPageActions("dashboard", "empty", enT).map((action) => action.id),
     );
 
-    for (const page of [
-      "dashboard",
-      "tasks",
-      "contacts",
-      "organizations",
-      "deals",
-      "services",
-      "routines",
-      "wiki",
-    ] as const) {
+    for (const page of ["dashboard", "routines", "wiki"] as const) {
       for (const state of ["empty", "data"] as const) {
-        expect(agentPageActions(page, state, enT, "en")).toHaveLength(3);
-        expect(agentPageActions(page, state, deT, "de")).toHaveLength(3);
-        expect(new Set(agentPageActions(page, state, enT, "en").map((action) => action.id)).size).toBe(3);
+        expect(agentPageActions(page, state, enT)).toHaveLength(3);
+        expect(agentPageActions(page, state, deT)).toHaveLength(3);
+        expect(new Set(agentPageActions(page, state, enT).map((action) => action.id)).size).toBe(3);
       }
     }
   });
 
   it("substitutes exactly three permission-safe actions and resolves the current page path", () => {
-    const actions = agentPageActions("contacts", "empty", enT, "en", {
-      canCreate: false,
-    });
+    const actions = agentPageActions("dashboard", "empty", enT, { canCreate: false });
 
     expect(actions).toHaveLength(3);
     expect(actions.every((action) => /Do not make any changes|without changing any data/.test(action.prompt))).toBe(
       true,
     );
-    expect(agentActionPageFromPathname("/en/contacts")).toBe("contacts");
-    expect(agentActionPageFromPathname("/de/deals/record-1?tab=notes")).toBe("deals");
+    expect(agentActionPageFromPathname("/en/dashboard")).toBe("dashboard");
     expect(agentActionPageFromPathname("/en/company/audit-logs")).toBeNull();
-  });
-
-  it("hides broad setup actions without broad setup access and applies workspace terminology", () => {
-    const actions = agentPageActions("contacts", "empty", enT, "en", {
-      canCreate: true,
-      canSetupWorkspace: false,
-      terminology: {
-        contacts: { singular: "Client", plural: "Clients" },
-        organizations: { singular: "Account", plural: "Accounts" },
-        deals: { singular: "Project", plural: "Projects" },
-        services: { singular: "Product", plural: "Products" },
-        tasks: { singular: "Follow-up", plural: "Follow-ups" },
-      },
-    });
-
-    expect(actions.map((action) => action.id)).toEqual([
-      "first-contact",
-      "contacts-tour",
-      "contacts-explain-read-only",
-    ]);
-    expect(actions[0]?.label).toBe("Create my first client");
-    expect(actions[1]?.prompt).toContain("clients");
-    expect(actions.flatMap((action) => [action.label, action.prompt]).join(" ")).not.toMatch(/\bcontacts?\b/i);
-  });
-
-  it("applies custom terminology in one pass without rewriting replacement text", () => {
-    const english = agentPageActions("contacts", "data", enT, "en", {
-      terminology: {
-        contacts: { singular: "Customer contact", plural: "Customer contacts" },
-      },
-    });
-    const german = agentPageActions("contacts", "data", deT, "de", {
-      terminology: {
-        contacts: { singular: "Kunden-Kontakt", plural: "Kunden-Kontakte" },
-      },
-    });
-
-    expect(JSON.stringify(english)).toContain("customer contacts");
-    expect(JSON.stringify(english).toLowerCase()).not.toContain("customer customer");
-    expect(JSON.stringify(german)).toContain("Kunden-Kontakte");
-    expect(JSON.stringify(german)).not.toContain("Kunden-Kunden");
   });
 
   it("describes work without retaining tool payloads or identifiers", () => {
@@ -151,18 +92,6 @@ describe("agent experience contract", () => {
     expect(JSON.stringify(activity)).not.toContain(input.id);
     expect(JSON.stringify(activity)).not.toContain(input.apiKey);
     expect(agentActivityCopy(activity, deT).running).toContain("Kontakte");
-  });
-
-  it("uses the workspace's custom entity terminology in safe activity copy", () => {
-    const activity = describeInternalTool("create_contacts", [{ firstName: "Ada" }, { firstName: "Grace" }]);
-    const copy = agentActivityCopy(activity, deT, {
-      contacts: "Kundinnen und Kunden",
-    });
-
-    expect(copy.running).toBe("2 Kundinnen und Kunden werden erstellt · Ada, Grace");
-    expect(copy.done).toBe("2 Kundinnen und Kunden wurden erstellt · Ada, Grace");
-    expect(copy.running).toContain("Ada, Grace");
-    expect(copy.done).toContain("Ada, Grace");
   });
 
   it("shows counts and record names without retaining IDs or other record details", () => {
@@ -309,7 +238,7 @@ describe("agent experience contract", () => {
     }
   });
 
-  it("gives custom fields, widgets, terminology, settings, and profiles distinct privacy-safe activity names", () => {
+  it("gives custom fields, widgets, settings, and profiles distinct privacy-safe activity names", () => {
     const privateId = "00000000-0000-4000-8000-000000000001";
     const tools = [
       ["manage_custom_columns", { action: "list", entityType: "contact", id: privateId }, "customFields.read"],
@@ -339,14 +268,6 @@ describe("agent experience contract", () => {
       ["manage_widgets", { action: "create", name: "Private widget" }, "widgets.create"],
       ["manage_widgets", { action: "update", id: privateId, name: "Private widget" }, "widgets.update"],
       ["manage_widgets", { action: "delete", id: privateId }, "widgets.delete"],
-      [
-        "update_workspace_settings",
-        {
-          target: "company",
-          terminology: [{ entityType: "contact", singular: "Private person" }],
-        },
-        "workspace.terminology",
-      ],
       ["update_workspace_settings", { target: "company", currency: "EUR" }, "workspace.settings"],
       ["update_workspace_settings", { target: "profile", firstName: "Private name" }, "profile.configure"],
     ] as const;
@@ -366,7 +287,6 @@ describe("agent experience contract", () => {
         "Dashboard-Widget wurde erstellt · Private widget",
         "Dashboard-Widget wurde aktualisiert · Private widget",
         "Dashboard-Widget wurde entfernt",
-        "Workspace-Bezeichnungen wurden aktualisiert",
         "Workspace-Einstellungen wurden aktualisiert",
         "Profil wurde aktualisiert",
       ],
@@ -379,7 +299,6 @@ describe("agent experience contract", () => {
         "Created a dashboard widget · Private widget",
         "Updated a dashboard widget · Private widget",
         "Removed a dashboard widget",
-        "Updated workspace terminology",
         "Updated workspace settings",
         "Updated your profile",
       ],
@@ -392,7 +311,6 @@ describe("agent experience contract", () => {
         "Widget del panel creado · Private widget",
         "Widget del panel actualizado · Private widget",
         "Widget del panel eliminado",
-        "Terminología del espacio de trabajo actualizada",
         "Configuración del espacio de trabajo actualizada",
         "Perfil actualizado",
       ],
@@ -405,7 +323,6 @@ describe("agent experience contract", () => {
         "Widget du tableau de bord créé · Private widget",
         "Widget du tableau de bord mis à jour · Private widget",
         "Widget du tableau de bord supprimé",
-        "Terminologie de l’espace de travail mise à jour",
         "Paramètres de l’espace de travail mis à jour",
         "Profil mis à jour",
       ],
@@ -418,7 +335,6 @@ describe("agent experience contract", () => {
         "Widget della dashboard creato · Private widget",
         "Widget della dashboard aggiornato · Private widget",
         "Widget della dashboard rimosso",
-        "Terminologia dell’area di lavoro aggiornata",
         "Impostazioni dell’area di lavoro aggiornate",
         "Profilo aggiornato",
       ],

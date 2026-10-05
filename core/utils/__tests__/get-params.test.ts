@@ -116,13 +116,4 @@ describe("filter URL parameters", () => {
     expect(decoded.sortDescriptor).toBeUndefined();
     expect(decoded.filters).toEqual([]);
   });
-
-  it("normalizes legacy filter objects before encoding", () => {
-    const filters = [
-      { field: FilterFieldKey.userIds, operator: FilterOperatorKey.hasNone, value: ["u1"] },
-      { field: FilterFieldKey.contactIds, operator: FilterOperatorKey.hasSome, value: ["c1"] },
-    ] as unknown as Filter[];
-
-    expect(encodeGetParams({ filters }).getAll("filters")).toEqual(["userIds:notIn:u1", "contactIds:in:c1"]);
-  });
 });

@@ -2,7 +2,7 @@ import type { RecordRepo } from "./record.repo";
 import { compareRecordKey } from "./record-json";
 import { presetId } from "./crm-preset";
 import type { RecordAccessPolicy } from "./record-access";
-import type { RecordNavigation } from "./record-navigation.schema";
+import { RECORD_PRESET_KEYS, type RecordNavigation } from "./record-navigation.schema";
 import type { Validated } from "@/core/validation/validation.utils";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -26,12 +26,7 @@ export class GetRecordNavigationInteractor extends AuthenticatedInteractor<void,
       async () => {
         const [model, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
         if (!policy.actor) return failAuthorization(CustomErrorCode.permissionDenied);
-        const aliases = new Map(
-          (["contact", "organization", "deal", "service", "task"] as const).map((alias) => [
-            presetId(this.companyId, alias),
-            alias,
-          ]),
-        );
+        const presets = new Map(RECORD_PRESET_KEYS.map((key) => [presetId(this.companyId, key), key]));
         return {
           ok: true,
           data: {
@@ -56,7 +51,7 @@ export class GetRecordNavigationInteractor extends AuthenticatedInteractor<void,
                 hasAuthorizationTasks: model.capabilities.some(
                   (binding) => binding.typeId === type.id && binding.kind === "membershipAuthorization",
                 ),
-                ...(aliases.has(type.id) ? { legacyAlias: aliases.get(type.id) } : {}),
+                ...(presets.has(type.id) ? { presetKey: presets.get(type.id) } : {}),
               })),
           },
         };

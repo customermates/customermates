@@ -3,25 +3,23 @@ import {
   type AiManageableDataViewSurfaceKey,
   type BuiltinAiManageableDataViewSurfaceKey,
 } from "@/core/data-view/ai-manageable-surfaces";
-import type { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 import { SURFACE } from "@/core/data-view/data-view-keys";
 
-const LOCATIONS: Record<BuiltinAiManageableDataViewSurfaceKey, { entity: EntityType } | { labelKey: string }> = {
-  [SURFACE.users]: { labelKey: "NavigationBar.members" },
-  [SURFACE.roles]: { labelKey: "RolesCard.title" },
-  [SURFACE.webhooks]: { labelKey: "WebhooksCard.title" },
-  [SURFACE.webhookDeliveries]: { labelKey: "WebhookDeliveriesCard.title" },
-  [SURFACE.auditLogs]: { labelKey: "AuditLogsCard.title" },
-  [SURFACE.messagingThreads]: { labelKey: "NavigationBar.inbox" },
-  [SURFACE.entityTimeline]: { labelKey: "Common.actions.labelHistory" },
-  [SURFACE.routines]: { labelKey: "NavigationBar.routines" },
+const LOCATIONS: Record<BuiltinAiManageableDataViewSurfaceKey, string> = {
+  [SURFACE.users]: "NavigationBar.members",
+  [SURFACE.roles]: "RolesCard.title",
+  [SURFACE.webhooks]: "WebhooksCard.title",
+  [SURFACE.webhookDeliveries]: "WebhookDeliveriesCard.title",
+  [SURFACE.auditLogs]: "AuditLogsCard.title",
+  [SURFACE.messagingThreads]: "NavigationBar.inbox",
+  [SURFACE.entityTimeline]: "Common.actions.labelHistory",
+  [SURFACE.routines]: "NavigationBar.routines",
 };
 
 export function viewAiTypeLabel(
   surfaceKey: AiManageableDataViewSurfaceKey,
   translate: (key: string, values?: Record<string, string>) => string,
-  entitySingular: (entity: EntityType) => string,
   form: "embedded" | "standalone",
   recordLabel?: string,
 ): string {
@@ -38,8 +36,7 @@ export function viewAiTypeLabel(
     );
   }
 
-  const location = LOCATIONS[surfaceKey];
-  const label = "entity" in location ? entitySingular(location.entity) : translate(location.labelKey);
+  const label = translate(LOCATIONS[surfaceKey]);
   if (form === "standalone") {
     return t("AgentChat.context.surfaceViewTypeStandalone", {
       location: label,

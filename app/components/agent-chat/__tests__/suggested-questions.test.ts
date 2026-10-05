@@ -23,9 +23,6 @@ vi.mock("@/i18n/navigation", () => ({ usePathname: () => harness.pathname }));
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => harness.root,
 }));
-vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
-  useEntityTerminology: () => ({ map: () => ({}) }),
-}));
 vi.mock("../chat-ui", () => ({ focusAgentComposer: harness.focusComposer }));
 
 import { AgentStarterActions } from "../suggested-questions";
@@ -60,27 +57,6 @@ afterEach(() => {
 });
 
 describe("AgentStarterActions", () => {
-  it("uses the configured type's creation permission when legacy resource grants are absent", () => {
-    harness.root.userStore = { can: () => false };
-    act(() => {
-      reactRoot.render(createElement(AgentStarterActions, { pageId: "contacts", state: "empty", surface: "page" }));
-    });
-    expect(container.textContent).toContain("AgentChat.suggestions.pages.contacts.empty.first-contact.label");
-  });
-
-  it("hides creation suggestions when the type's current permission is revoked", () => {
-    harness.root.recordWorkspaceStore = {
-      navigation: {
-        canManageSchema: false,
-        types: [{ id: "00000000-0000-4000-8000-000000000001", canCreate: false }],
-      },
-    };
-    act(() => {
-      reactRoot.render(createElement(AgentStarterActions, { pageId: "contacts", state: "empty", surface: "page" }));
-    });
-    expect(container.textContent).not.toContain("AgentChat.suggestions.pages.contacts.empty.first-contact.label");
-    expect(container.textContent).toContain("AgentChat.suggestions.readOnly.explain.label");
-  });
   it("keeps the server and hydration fallback deterministic before showing AI actions", () => {
     const html = renderToStaticMarkup(
       createElement(AgentStarterActions, {
@@ -98,7 +74,7 @@ describe("AgentStarterActions", () => {
     act(() => {
       reactRoot.render(
         createElement(AgentStarterActions, {
-          pageId: "contacts",
+          pageId: "dashboard",
           state: "empty",
           surface: "page",
         }),
@@ -111,9 +87,7 @@ describe("AgentStarterActions", () => {
 
     act(() => buttons[0]?.click());
 
-    expect(harness.openWithDraft).toHaveBeenCalledWith(
-      "AgentChat.suggestions.pages.contacts.empty.setup-contacts.prompt",
-    );
+    expect(harness.openWithDraft).toHaveBeenCalledWith("AgentChat.suggestions.pages.dashboard.empty.setup.prompt");
     expect(harness.focusComposer).toHaveBeenCalledOnce();
   });
 
@@ -214,7 +188,7 @@ describe("AgentStarterActions", () => {
       reactRoot.render(
         createElement(AgentStarterActions, {
           fallback: createElement("button", null, "Manual add"),
-          pageId: "contacts",
+          pageId: "routines",
           state: "empty",
           surface: "page",
         }),
@@ -240,7 +214,7 @@ describe("AgentStarterActions", () => {
       reactRoot.render(
         createElement(AgentStarterActions, {
           fallback: createElement("button", null, "Manual add"),
-          pageId: "contacts",
+          pageId: "routines",
           state: "empty",
           surface: "page",
         }),

@@ -72,8 +72,7 @@
         },
         "workspace": {
           "configure": "Pronto a modificare il modello dati dell’area di lavoro",
-          "settings": "Pronto a modificare le impostazioni dell’area di lavoro, compresi i nomi dei tipi di record",
-          "terminology": "Pronto a rinominare i tipi di record per l’intera area di lavoro"
+          "settings": "Pronto a modificare le impostazioni dell’area di lavoro, compresi i nomi dei tipi di record"
         }
       },
       "cancelled": "Interrotto",
@@ -132,7 +131,6 @@
         "organizations": "organizzazioni",
         "services": "servizi",
         "tasks": "attività",
-        "terminology": "terminologia dell’area di lavoro",
         "widgets": "widget della dashboard",
         "wiki": "pagine della base di conoscenza"
       },
@@ -143,7 +141,6 @@
         "organizations": "organizzazione",
         "services": "servizio",
         "tasks": "attività",
-        "terminology": "termine dello spazio di lavoro",
         "widgets": "widget della dashboard",
         "wiki": "pagina della base di conoscenza"
       },
@@ -425,11 +422,6 @@
             "done": "Impostazioni dell’area di lavoro aggiornate",
             "error": "Impossibile aggiornare le impostazioni dell’area di lavoro",
             "running": "Aggiornamento delle impostazioni dell’area di lavoro"
-          },
-          "terminology": {
-            "done": "Terminologia dell’area di lavoro aggiornata",
-            "error": "Impossibile aggiornare la terminologia dell’area di lavoro",
-            "running": "Aggiornamento della terminologia dell’area di lavoro"
           }
         }
       },
@@ -548,36 +540,6 @@
             }
           }
         },
-        "contacts": {
-          "data": {
-            "contacts-cleanup": {
-              "label": "Trova lacune nei dati",
-              "prompt": "Controlla i miei contatti per individuare informazioni mancanti o incoerenti e suggerisci che cosa correggere."
-            },
-            "contacts-summary": {
-              "label": "Riepiloga i contatti",
-              "prompt": "Riepiloga i miei contatti e segnala schemi utili o informazioni mancanti."
-            },
-            "create-contact": {
-              "label": "Crea un contatto",
-              "prompt": "Aiutami a creare un contatto. Chiedimi solo i dati indispensabili."
-            }
-          },
-          "empty": {
-            "contacts-tour": {
-              "label": "Scopri come funzionano i contatti",
-              "prompt": "Fammi visitare la pagina dei contatti e spiegami come i contatti si collegano al resto del CRM."
-            },
-            "first-contact": {
-              "label": "Crea il mio primo contatto",
-              "prompt": "Aiutami a creare il mio primo contatto reale usando dati confermati nella mia base di conoscenza, nello spazio di lavoro o da ciò che ti indico. Chiedimi quale persona e solo i dati obbligatori mancanti; non creare un contatto di esempio o tratto da una testimonianza."
-            },
-            "setup-contacts": {
-              "label": "Configura i contatti",
-              "prompt": "Configura campi e viste dei contatti utili a partire dalla mia base di conoscenza e dallo spazio di lavoro. Non creare contatti di esempio e non trasformare testimonianze pubbliche in contatti. Chiedimi solo le decisioni mancanti."
-            }
-          }
-        },
         "dashboard": {
           "data": {
             "dashboard-tour": {
@@ -605,36 +567,6 @@
             "tour": {
               "label": "Fammi fare un giro",
               "prompt": "Fammi un tour guidato approfondito di Customermates e spiegami come le aree principali lavorano insieme."
-            }
-          }
-        },
-        "deals": {
-          "data": {
-            "create-deal": {
-              "label": "Crea una trattativa",
-              "prompt": "Aiutami a creare una trattativa e a collegare tutti i record pertinenti."
-            },
-            "pipeline-gaps": {
-              "label": "Trova lacune nella pipeline",
-              "prompt": "Controlla le mie trattative per individuare relazioni, importi o passi successivi mancanti."
-            },
-            "pipeline-summary": {
-              "label": "Riepiloga la mia pipeline",
-              "prompt": "Riepiloga la mia pipeline di trattative, i rischi e le azioni successive più utili."
-            }
-          },
-          "empty": {
-            "deals-tour": {
-              "label": "Scopri come funzionano le trattative",
-              "prompt": "Fammi vedere le trattative e spiegami come gestire una pipeline in Customermates."
-            },
-            "first-deal": {
-              "label": "Crea la mia prima trattativa",
-              "prompt": "Aiutami a creare la mia prima trattativa reale a partire da un’opportunità confermata che identifico. Usa la mia base di conoscenza e lo spazio di lavoro, collega solo organizzazioni, contatti e servizi confermati e chiedimi i dati obbligatori mancanti, come l’importo o la fase attuale, prima di crearla."
-            },
-            "setup-pipeline": {
-              "label": "Configura la mia pipeline",
-              "prompt": "Configura una semplice pipeline di vendita a partire dalla mia base di conoscenza e dallo spazio di lavoro. Non creare trattative di esempio e non trattare casi di studio pubblici come opportunità attuali. Chiedimi solo le decisioni mancanti sulla pipeline; non inventare importi, budget o fasi attuali."
             }
           }
         },
@@ -698,36 +630,6 @@
             }
           }
         },
-        "organizations": {
-          "data": {
-            "create-organization": {
-              "label": "Crea un'organizzazione",
-              "prompt": "Aiutami a creare un'organizzazione e a collegare i record pertinenti."
-            },
-            "organization-gaps": {
-              "label": "Trova lacune nelle relazioni",
-              "prompt": "Trova le organizzazioni a cui mancano relazioni utili con contatti, trattative o attività."
-            },
-            "organizations-summary": {
-              "label": "Riepiloga le organizzazioni",
-              "prompt": "Riepiloga le mie organizzazioni ed evidenzia le relazioni che meritano attenzione."
-            }
-          },
-          "empty": {
-            "first-organization": {
-              "label": "Crea la mia prima organizzazione",
-              "prompt": "Aiutami a creare la mia prima organizzazione reale usando dati confermati nella mia base di conoscenza, nello spazio di lavoro o da ciò che ti indico. Chiedimi quale organizzazione e solo i dati obbligatori mancanti. Collega solo persone o trattative confermate; non inventare una relazione con un cliente."
-            },
-            "organizations-tour": {
-              "label": "Scopri come funzionano le organizzazioni",
-              "prompt": "Fammi vedere le organizzazioni e spiegami come collegano contatti, trattative e attività."
-            },
-            "setup-organizations": {
-              "label": "Configura le organizzazioni",
-              "prompt": "Configura campi e viste delle organizzazioni utili a partire dalla mia base di conoscenza e dallo spazio di lavoro. Non creare organizzazioni di esempio e non trattare casi di studio pubblici come relazioni commerciali attuali. Chiedimi solo le decisioni mancanti."
-            }
-          }
-        },
         "routines": {
           "data": {
             "create-routine": {
@@ -755,66 +657,6 @@
             "routines-tour": {
               "label": "Scopri come funzionano",
               "prompt": "Guidami nella pagina Routine e spiega pianificazioni, eventi di attivazione, test, crediti e cronologia delle esecuzioni. Non apportare modifiche."
-            }
-          }
-        },
-        "services": {
-          "data": {
-            "create-service": {
-              "label": "Crea un'offerta",
-              "prompt": "Aiutami a creare un servizio o un prodotto con i dati commerciali giusti."
-            },
-            "service-gaps": {
-              "label": "Trova lacune nel catalogo",
-              "prompt": "Controlla i miei servizi o prodotti per individuare prezzi mancanti, relazioni assenti o offerte duplicate."
-            },
-            "services-summary": {
-              "label": "Riepiloga le offerte",
-              "prompt": "Riepiloga i miei servizi o prodotti e come vengono usati nelle trattative."
-            }
-          },
-          "empty": {
-            "first-service": {
-              "label": "Crea la mia prima offerta",
-              "prompt": "Aiutami a creare il mio primo servizio o prodotto reale a partire dalla mia base di conoscenza e dallo spazio di lavoro. Chiedimi solo quale offerta scegliere e i dati obbligatori mancanti. Se il prezzo obbligatorio è sconosciuto, chiedimi prima di crearlo; non indovinare un prezzo e non usare un valore provvisorio."
-            },
-            "services-tour": {
-              "label": "Scopri come funzionano le offerte",
-              "prompt": "Fammi vedere i servizi e spiegami come le offerte si collegano a trattative e attività."
-            },
-            "setup-services": {
-              "label": "Configura le mie offerte",
-              "prompt": "Crea solo servizi o prodotti reali documentati nella mia base di conoscenza, evitando duplicati nello spazio di lavoro. Usa prezzi confermati. Se un prezzo obbligatorio o un altro dato commerciale obbligatorio è sconosciuto, chiedimi prima di creare l’offerta; non inventare un prezzo e non usare un valore provvisorio."
-            }
-          }
-        },
-        "tasks": {
-          "data": {
-            "create-task": {
-              "label": "Crea un'attività",
-              "prompt": "Aiutami a creare un'attività e a collegarla ai record giusti."
-            },
-            "task-gaps": {
-              "label": "Trova follow-up mancanti",
-              "prompt": "Trova i record importanti che sembrano privi di un'attività di follow-up chiara."
-            },
-            "task-priorities": {
-              "label": "Pianifica le mie prossime azioni",
-              "prompt": "Analizza le mie attività e i dati CRM correlati, poi consigliami che cosa fare dopo."
-            }
-          },
-          "empty": {
-            "first-task": {
-              "label": "Crea la mia prima attività",
-              "prompt": "Aiutami a creare la mia prima attività reale che identifico, usando la mia base di conoscenza e lo spazio di lavoro. Collega solo record confermati e chiedimi solo le decisioni obbligatorie mancanti. Non inventare un’attività, un responsabile o una scadenza."
-            },
-            "setup-tasks": {
-              "label": "Configura il mio flusso di lavoro",
-              "prompt": "Configura un flusso di attività minimo con campi e viste utili a partire dalla mia base di conoscenza e dallo spazio di lavoro. Non creare attività di esempio e non inventare responsabili o scadenze. Chiedimi solo le decisioni mancanti sul flusso di lavoro."
-            },
-            "tasks-tour": {
-              "label": "Scopri come funzionano le attività",
-              "prompt": "Fammi vedere le attività e spiegami come si collegano a contatti, organizzazioni, trattative e servizi."
             }
           }
         },
@@ -1326,7 +1168,6 @@
       "taskNameCannotBeChangedForSystemTasks": "Il nome delle attività di sistema non può essere modificato.",
       "taskNotFound": "ID attività non trovato o non accessibile.",
       "taskOnlyCustomTasksCanBeDeleted": "Solo le attività personalizzate possono essere eliminate.",
-      "terminologyInvalidPreset": "Scegli uno dei modelli di nome disponibili.",
       "termsNotAgreed": "Devi accettare i termini e le condizioni.",
       "threadNotFound": "ID conversazione non trovato o non accessibile.",
       "unipileAccountRestricted": "Il provider ha limitato questo canale. Ricollegarlo non risolve; risolvi prima la limitazione con il provider.",
@@ -2294,96 +2135,6 @@
     },
     "showField": "Mostra {field} nei dettagli",
     "unpinField": "Togli {field} dalla panoramica"
-  },
-  "EntityTerminology": {
-    "presets": {
-      "contact": {
-        "client": {
-          "plural": "Clienti",
-          "singular": "Cliente"
-        },
-        "contact": {
-          "plural": "Contatti",
-          "singular": "Contatto"
-        },
-        "lead": {
-          "plural": "Lead",
-          "singular": "Lead"
-        },
-        "person": {
-          "plural": "Persone",
-          "singular": "Persona"
-        }
-      },
-      "deal": {
-        "deal": {
-          "plural": "Trattative",
-          "singular": "Trattativa"
-        },
-        "job": {
-          "plural": "Lavori",
-          "singular": "Lavoro"
-        },
-        "opportunity": {
-          "plural": "Opportunità",
-          "singular": "Opportunità"
-        },
-        "project": {
-          "plural": "Progetti",
-          "singular": "Progetto"
-        }
-      },
-      "organization": {
-        "account": {
-          "plural": "Account",
-          "singular": "Account"
-        },
-        "company": {
-          "plural": "Aziende",
-          "singular": "Azienda"
-        },
-        "organization": {
-          "plural": "Organizzazioni",
-          "singular": "Organizzazione"
-        }
-      },
-      "service": {
-        "offering": {
-          "plural": "Offerte",
-          "singular": "Offerta"
-        },
-        "package": {
-          "plural": "Pacchetti",
-          "singular": "Pacchetto"
-        },
-        "product": {
-          "plural": "Prodotti",
-          "singular": "Prodotto"
-        },
-        "service": {
-          "plural": "Servizi",
-          "singular": "Servizio"
-        }
-      },
-      "task": {
-        "actionItem": {
-          "plural": "Azioni",
-          "singular": "Azione"
-        },
-        "followUp": {
-          "plural": "Follow-up",
-          "singular": "Follow-up"
-        },
-        "task": {
-          "plural": "Attività",
-          "singular": "Attività"
-        },
-        "todo": {
-          "plural": "Cose da fare",
-          "singular": "Cosa da fare"
-        }
-      }
-    }
   },
   "EntityTimeline": {
     "detailDescription": "Dettagli dell'attività e contesto dei record collegati.",
@@ -3540,6 +3291,28 @@
     "staleRefreshFailed": "Impossibile aggiornare il modello dati. La bozza è ancora disponibile; riprova.",
     "staleRefreshRequired": "Il modello dati è cambiato. Aggiornalo per continuare a modificare questa bozza.",
     "staleTargetMissing": "Questa definizione è stata rimossa. La bozza è conservata, ma non può essere applicata.",
+    "starterTypes": {
+      "contact": {
+        "plural": "Contatti",
+        "singular": "Contatto"
+      },
+      "deal": {
+        "plural": "Trattative",
+        "singular": "Trattativa"
+      },
+      "organization": {
+        "plural": "Organizzazioni",
+        "singular": "Organizzazione"
+      },
+      "service": {
+        "plural": "Servizi",
+        "singular": "Servizio"
+      },
+      "task": {
+        "plural": "Attività",
+        "singular": "Attività"
+      }
+    },
     "summaryAggregation": "Calcolo",
     "summaryApprovalRequired": "Questo riepilogo è pubblicato. Un amministratore deve approvare le modifiche ai dati usati nel calcolo.",
     "summaryField": "Campo del riepilogo",
