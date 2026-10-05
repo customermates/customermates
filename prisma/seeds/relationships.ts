@@ -208,6 +208,6 @@ export async function seedRelationships(context: SeedContext, entities: Relation
         }
       }
     },
-    { timeout: 60000 },
+    { maxWait: 60000, timeout: 600000 },
   );
 }

@@ -297,7 +297,7 @@ export async function seedRecordFixtures(
         );
       }
     },
-    { timeout: 60000 },
+    { maxWait: 60000, timeout: 600000 },
   );
   // Operator-only fixture workspaces also initialize directly on generic storage.
   const companies = await context.prisma.company.findMany({
@@ -341,6 +341,6 @@ export async function calculateSyntheticRecords(prisma: PrismaClient, companyId:
       );
       if (!result.complete) throw new Error("Synthetic calculation exceeded its record budget");
     },
-    { timeout: 60000 },
+    { maxWait: 60000, timeout: 600000 },
   );
 }
