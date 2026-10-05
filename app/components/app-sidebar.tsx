@@ -52,6 +52,9 @@ import { LegalUpdateAlert } from "./navigation/legal-update-alert";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { sidebarUserCanAccess } from "./navigation/sidebar-user";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
+import { startBackgroundPoll } from "@/core/utils/background-poll";
+
+const UNREAD_REFRESH_INTERVAL_MS = 10000;
 
 type FullProps = {
   systemTaskCount: number;
@@ -162,37 +165,13 @@ const FullAppSidebar = observer(
 
     useEffect(() => {
       if (!inboxVisible) return;
-      let stopped = false;
-      let pending = false;
-      const refresh = async () => {
-        if (stopped || pending || document.visibilityState !== "visible") return;
-        pending = true;
-        try {
-          await messagingThreadsStore.refreshUnreadCount();
-        } finally {
-          pending = false;
-        }
-      };
-      const scheduleRefresh = () => {
-        void refresh().catch((error) => {
-          if (!stopped) reportApplicationError(error);
-        });
-      };
-      scheduleRefresh();
-      if (onInbox) {
-        return () => {
-          stopped = true;
-        };
-      }
-      const timer = window.setInterval(scheduleRefresh, 10000);
-      document.addEventListener("visibilitychange", scheduleRefresh);
-      window.addEventListener("focus", scheduleRefresh);
-      return () => {
-        stopped = true;
-        window.clearInterval(timer);
-        document.removeEventListener("visibilitychange", scheduleRefresh);
-        window.removeEventListener("focus", scheduleRefresh);
-      };
+      return startBackgroundPoll({
+        refresh: () => messagingThreadsStore.refreshUnreadCount(),
+        onError: reportApplicationError,
+        intervalMs: UNREAD_REFRESH_INTERVAL_MS,
+        immediate: true,
+        repeat: !onInbox,
+      });
     }, [inboxVisible, onInbox, messagingThreadsStore]);
 
     function closeMobileSidebar(cb?: () => void) {

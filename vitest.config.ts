@@ -51,6 +51,7 @@ const domTestFiles = [
   "core/base/__tests__/base-data-view-view-mode-race.test.ts",
   "core/base/__tests__/persist-view-options-rejection.test.ts",
   "core/utils/__tests__/clipboard.test.ts",
+  "core/utils/__tests__/background-poll.dom.test.ts",
   "core/utils/__tests__/use-is-truncated.test.ts",
   "components/data-view/__tests__/is-interactive-click.test.ts",
   "components/data-view/__tests__/data-table-grouping.test.tsx",
