@@ -1,3 +1,4 @@
+import type { PermissionService } from "@/core/base/permission.service";
 import type { MessagingProvider, Prisma } from "@/generated/prisma";
 
 import type { GetMyConnectedAccountsRepo } from "../connect/get-my-connected-accounts.interactor";
@@ -37,7 +38,7 @@ import { randomUUID } from "node:crypto";
 
 import { AccountActivityKind, ConnectedAccountStatus, Resource, Status, SubscriptionStatus } from "@/generated/prisma";
 
-import { BaseRepository } from "@/core/base/base-repository";
+import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { accessibleConnectedAccountWhere, messageVisibilityWhere, threadAccessWhere } from "../messaging-access";
 import { accountNeedsAction, isEmailProvider } from "../provider";
@@ -46,7 +47,7 @@ import { emailFolderFilterValue } from "../inbox/messaging-filter-options.schema
 const BACKFILL_CLAIM_STALE_MS = 15 * 60 * 1000;
 
 export class PrismaConnectedAccountRepo
-  extends BaseRepository
+  extends TenantRepository
   implements
     GetMyConnectedAccountsRepo,
     CountChannelsNeedingActionRepo,
@@ -75,6 +76,10 @@ export class PrismaConnectedAccountRepo
     FindConnectedAccountsByIdsRepo,
     MessagingFilterOptionsRepo
 {
+  constructor(private readonly permissions: PermissionService) {
+    super();
+  }
+
   @BypassTenantGuard
   async createAccountUnscoped(args: RepoArgs<AccountWebhookRepo, "createAccountUnscoped">) {
     const row = await this.prisma.connectedAccount.upsert({
@@ -490,7 +495,7 @@ export class PrismaConnectedAccountRepo
   }
 
   async listAccounts() {
-    if (!this.canAccess(Resource.inboxMessages)) return [];
+    if (!this.permissions.canRead(Resource.inboxMessages)) return [];
 
     const rows = await this.prisma.connectedAccount.findMany({
       where: {
@@ -587,7 +592,7 @@ export class PrismaConnectedAccountRepo
   }
 
   async countAccountsNeedingAction() {
-    if (!this.canAccess(Resource.inboxMessages)) return 0;
+    if (!this.permissions.canRead(Resource.inboxMessages)) return 0;
 
     const rows = await this.prisma.connectedAccount.findMany({
       where: {

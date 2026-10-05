@@ -28,8 +28,6 @@ import { recordWriteFailure } from "@/features/records/mutate-record.interactor"
 import { hydrateMessageRecordIdentities } from "../record-message-identities";
 import { toMessagingMessageDto } from "../inbox/inbox.schema";
 import { ACTIVITY_RELATED_RECORD_LIMIT } from "./activity-record-refs";
-import { decodeLegacyRecordHistory } from "@/features/records/legacy-record-history";
-import { getTranslations } from "next-intl/server";
 import { isSystemActivityAuditEvent, systemActivityChanges } from "./system-audit-events";
 
 @AllowInDemoMode
@@ -98,7 +96,7 @@ export class GetRecordActivitiesInteractor extends AuthenticatedInteractor<
           const index = await this.activities.index(input, model, access, availableSources);
           const page = index.slice(0, input.limit);
           const ids = (kind: string) => page.filter((row) => row.kind === kind).map((row) => row.id);
-          const [events, messages, activities, calendar, eventRefs, legacyEvents] = await Promise.all([
+          const [events, messages, activities, calendar, eventRefs, auditEvents] = await Promise.all([
             this.activities.eventsCompanyWide(ids("record")),
             this.activities.messagesCompanyWide(ids("message")),
             this.activities.activitiesCompanyWide(ids("activity")),
@@ -184,7 +182,7 @@ export class GetRecordActivitiesInteractor extends AuthenticatedInteractor<
             };
           };
           const entries = new Map<string, ActivityEntryDto>();
-          for (const event of legacyEvents.filter((event) => isSystemActivityAuditEvent(event.event))) {
+          for (const event of auditEvents.filter((event) => isSystemActivityAuditEvent(event.event))) {
             entries.set(`audit:${event.id}`, {
               kind: "audit",
               id: event.id,
@@ -194,54 +192,6 @@ export class GetRecordActivitiesInteractor extends AuthenticatedInteractor<
               changes: systemActivityChanges(event.event, event.eventData, policy.isAdmin),
               records: context("audit", event.id),
             });
-          }
-          const legacyRecords = legacyEvents.filter((event) => !isSystemActivityAuditEvent(event.event));
-          if (legacyRecords.length) {
-            const [legacy, t] = await Promise.all([this.activities.legacyModelOrThrow(), getTranslations()]);
-            const decoded = legacyRecords.flatMap((event) => {
-              const history = decodeLegacyRecordHistory({
-                companyId: this.companyId,
-                event: event.event,
-                entityId: event.entityId,
-                eventData: event.eventData,
-                model: legacy.model,
-                currency: legacy.currency,
-                isAdmin: policy.isAdmin,
-                archivedFieldLabel: t("RecordModel.archivedField"),
-              });
-              return history ? [{ event, ...history }] : [];
-            });
-            const relatedRefs = [
-              ...new Map(
-                decoded
-                  .flatMap((entry) => entry.related.flatMap((relation) => [...relation.before, ...relation.after]))
-                  .map((entry) => [recordKey(entry.ref), entry.ref]),
-              ).values(),
-            ];
-            const readable = new Set<string>();
-            for (let offset = 0; offset < relatedRefs.length; offset += 100) {
-              for (const row of await this.records.getRecordsCompanyWide(relatedRefs.slice(offset, offset + 100)))
-                if (await policy.canRead(row)) readable.add(recordKey({ typeId: row.typeId, recordId: row.id }));
-            }
-            for (const { event, changes, related } of decoded) {
-              changes.related = related
-                .map((relation) => ({
-                  label: relation.label,
-                  before: relation.before.filter((entry) => readable.has(recordKey(entry.ref))),
-                  after: relation.after.filter((entry) => readable.has(recordKey(entry.ref))),
-                }))
-                .filter((relation) => relation.before.length || relation.after.length);
-              entries.set(`audit:${event.id}`, {
-                kind: "audit",
-                id: event.id,
-                at: event.createdAt,
-                actor: event.actor,
-                event: event.event,
-                changes: [],
-                recordChanges: changes,
-                records: context("audit", event.id),
-              });
-            }
           }
           for (const event of events) {
             const parsed = RecordEventPayloadSchema.safeParse(event.payload);

@@ -13,7 +13,7 @@ import { WidgetKind } from "@/generated/prisma";
 import { SYNTHETIC_SEED_USER } from "@/core/config/synthetic-seed-user";
 
 import { SEED_IDS, type SeedContext } from "../seeds/context";
-import { SYNTHETIC_CUSTOM_COLUMN_IDS, SYNTHETIC_CUSTOM_OPTION_IDS } from "../seeds/custom-fields";
+import { SYNTHETIC_CUSTOM_FIELD_IDS, SYNTHETIC_CUSTOM_OPTION_IDS } from "../seeds/custom-fields";
 import { seedWidgets, SYNTHETIC_WIDGET_NAMES } from "../seeds/widgets";
 
 type SeedLayoutItem = { h: number; i: string; w: number; x: number; y: number };
@@ -46,7 +46,7 @@ describe("synthetic widget filters", () => {
     const services = await seedServices(context);
     const deals = await seedDeals(context, services);
     const tasks = await seedTasks(context);
-    const fields = await seedCustomFields(context, { ...organizations, ...contacts, ...services, ...deals, ...tasks });
+    const fields = seedCustomFields(context, { ...organizations, ...contacts, ...services, ...deals, ...tasks });
     await seedWidgets(context, fields);
 
     const widgets = calls.map(({ create }) => create);
@@ -82,7 +82,7 @@ describe("synthetic widget filters", () => {
     ).toEqual([
       [
         {
-          fieldId: SYNTHETIC_CUSTOM_COLUMN_IDS.dealStatus,
+          fieldId: SYNTHETIC_CUSTOM_FIELD_IDS.dealStatus,
           operator: "notIn",
           value: null,
           values: [{ kind: "select", value: SYNTHETIC_CUSTOM_OPTION_IDS.dealStatus.abandoned }],
@@ -90,7 +90,7 @@ describe("synthetic widget filters", () => {
       ],
       [
         {
-          fieldId: SYNTHETIC_CUSTOM_COLUMN_IDS.dealStatus,
+          fieldId: SYNTHETIC_CUSTOM_FIELD_IDS.dealStatus,
           operator: "notIn",
           value: null,
           values: [{ kind: "select", value: SYNTHETIC_CUSTOM_OPTION_IDS.dealStatus.abandoned }],

@@ -7,7 +7,7 @@ import { AgentContextRegistry } from "../agent-context-registry";
 
 function record(label: string, recordId: string): AgentContextAttachment {
   return {
-    reference: { kind: "record", entityType: "contact", recordId },
+    reference: { kind: "record", typeId: "10000000-0000-4000-8000-000000000001", recordId },
     label,
   };
 }

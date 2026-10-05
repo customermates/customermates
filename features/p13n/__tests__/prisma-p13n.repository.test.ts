@@ -34,49 +34,12 @@ vi.mock("@/prisma/db", () => ({
 import type { Grouping } from "@/core/base/grouping/grouping.schema";
 
 import { PrismaP13nRepo } from "../prisma-p13n.repository";
-import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { runWithTenant } from "@/core/decorators/tenant-context";
-import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { Prisma } from "@/generated/prisma";
 
-describe("PrismaP13nRepo legacy filter normalization", () => {
+describe("PrismaP13nRepo stored state", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-  });
-
-  it("preserves legacy relation filter behavior on read", async () => {
-    p13nFindUnique.mockResolvedValue({
-      companyId: mockUser.companyId,
-      userId: mockUser.id,
-      p13nId: "organizations",
-      activeViewKey: null,
-      filters: [
-        {
-          field: FilterFieldKey.dealIds,
-          operator: FilterOperatorKey.hasNone,
-          value: ["d1"],
-        },
-      ],
-      searchTerm: null,
-      sortDescriptor: null,
-      pagination: null,
-      columnOrder: [],
-      columnWidths: null,
-      hiddenColumns: [],
-      viewMode: null,
-      groupingColumnId: null,
-      grouping: null,
-    });
-
-    const result = await runWithTenant(mockUser, () => new PrismaP13nRepo().getP13n("organizations"));
-
-    expect(result?.filters).toEqual([
-      {
-        field: FilterFieldKey.dealIds,
-        operator: FilterOperatorKey.notIn,
-        value: ["d1"],
-      },
-    ]);
   });
 
   it("reads the remembered active view key and reports an unset one as undefined", async () => {

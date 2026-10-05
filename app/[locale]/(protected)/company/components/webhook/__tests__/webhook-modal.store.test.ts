@@ -94,16 +94,6 @@ describe("WebhookModalStore submit", () => {
 
     expect(submittedPayload()).toMatchObject({ id: SAVED_WEBHOOK.id, secret: "", bodyTemplate: "" });
   });
-
-  it("requires a retired event to be replaced before saving an old subscription", async () => {
-    const store = makeStore();
-    store.openWith({ ...SAVED_WEBHOOK, events: ["contact.created"] });
-
-    await store.onSubmit();
-
-    expect(companyActions.upsertWebhookAction).not.toHaveBeenCalled();
-    expect(store.error?.properties?.events).toBeDefined();
-  });
 });
 
 const COMPANY_ID = "30000000-0000-4000-8000-000000000010";

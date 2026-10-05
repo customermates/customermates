@@ -108,6 +108,7 @@ import { QueryRecordMeasureInteractor } from "@/features/records/query-record-me
 import { QueryRecordsInteractor } from "@/features/records/query-records.interactor";
 import { GetRecordInteractor } from "@/features/records/get-record.interactor";
 import { RecordAccessPolicy } from "@/features/records/record-access";
+import { PermissionService } from "@/core/base/permission.service";
 import { RecordCalculationService } from "@/features/records/record-calculation.service";
 import { SaveRecordDetailLayoutInteractor } from "@/features/records/record-detail-layout.interactor";
 import { RecordDetailLayoutReader } from "@/features/records/record-detail-layout-reader";
@@ -410,7 +411,7 @@ export const getSearchChannelCandidatesInteractor = () =>
 export const getCheckRecordIdentityInteractor = () =>
   new CheckRecordIdentityInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getRecordRepo = () => new PrismaRecordRepo(undefined, getBackgroundTaskService());
-export const getRecordActivitiesRepo = () => new PrismaRecordActivitiesRepo();
+export const getRecordActivitiesRepo = () => new PrismaRecordActivitiesRepo(getPermissionService());
 export const getRecordHistoryReader = () => new RecordHistoryReader(getRecordRepo());
 export const getGetRecordActivityPresentationInteractor = () =>
   new GetRecordActivityPresentationInteractor(
@@ -501,14 +502,15 @@ export const getCancelRecordOperationInteractor = () =>
   new CancelRecordOperationInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getResumeRecordOperationInteractor = () =>
   new ResumeRecordOperationInteractor(getRecordRepo(), getRecordAccessPolicy(), getBackgroundTaskService());
-export const getUserRepo = () => new PrismaUserRepo();
+export const getPermissionService = () => new PermissionService();
+export const getUserRepo = () => new PrismaUserRepo(getPermissionService());
 export const getCompanyRepo = () => new PrismaCompanyRepo();
 export const getRoleRepo = () => new PrismaRoleRepo();
 export const getP13nRepo = () => new PrismaP13nRepo();
 export const getDataViewRepo = () => new PrismaDataViewRepo();
 export const getDataViewStateRepo = () => new PrismaDataViewRepo();
 export const getWidgetRepo = () => new PrismaWidgetRepo();
-export const getWebhookRepo = () => new PrismaWebhookRepo(getRecordEventSubscriptionRepo());
+export const getWebhookRepo = () => new PrismaWebhookRepo(getRecordEventSubscriptionRepo(), getPermissionService());
 
 export const getRecordRecipientReader = () => new RecordRecipientReader((companyId) => new PrismaRecordRepo(companyId));
 export const getRecordEventSubscriptionRepo = () => new PrismaRecordEventSubscriptionRepo(getRecordRepo());
@@ -531,18 +533,20 @@ export const getSweepRecordDeliveriesInteractor = () =>
     new PrismaRecordOperationQueueRepo(),
     getBackgroundTaskService(),
   );
-export const getRoutineRepo = () => new PrismaRoutineRepo(getRoutineEventAccess(), getRecordEventSubscriptionRepo());
+export const getRoutineRepo = () =>
+  new PrismaRoutineRepo(getRoutineEventAccess(), getRecordEventSubscriptionRepo(), getPermissionService());
 
 export const getRoutineEventAccess = () => new PrismaRoutineEventAccess(getRecordRecipientReader());
 export const getWebhookDeliveryRepo = () => new PrismaWebhookDeliveryRepo(getRecordRecipientReader());
-export const getAuditLogRepo = () => new PrismaAuditLogRepo();
-export const getWikiPageRepo = () => new PrismaWikiPageRepo();
+export const getAuditLogRepo = () => new PrismaAuditLogRepo(getPermissionService());
+export const getWikiPageRepo = () => new PrismaWikiPageRepo(getPermissionService());
 export const getMessagingRepo = () => new PrismaMessagingRepo();
-export const getConnectedAccountRepo = () => new PrismaConnectedAccountRepo();
+export const getConnectedAccountRepo = () => new PrismaConnectedAccountRepo(getPermissionService());
 export const getUnipileWebhookRepo = () => new PrismaUnipileWebhookRepo();
 export const getCalendarRepo = () => new PrismaCalendarRepo();
 export const getCalendarEventsRepo = () => new PrismaCalendarEventsRepo();
-export const getAgentChatRepo = (): PrismaAgentChatRepo => new PrismaAgentChatRepo(getWikiPageRepo());
+export const getAgentChatRepo = (): PrismaAgentChatRepo =>
+  new PrismaAgentChatRepo(getWikiPageRepo(), getPermissionService());
 export const getOperatorRepo = () => new PrismaOperatorRepo(getAgentChatRepo());
 export const getOperatorAccessRepo = () => new PrismaOperatorAccessRepo();
 

@@ -9,7 +9,7 @@ import { DATA_VIEW_STATE_FIELDS } from "@/core/data-view/data-view-state.schema"
 import { readStoredPersonalizationState, writePersonalizationState } from "@/features/data-view/data-view-row-mapping";
 import { Prisma } from "@/generated/prisma";
 
-import { BaseRepository } from "@/core/base/base-repository";
+import { TenantRepository } from "@/core/base/tenant-repository";
 import { groupingShadowColumnId, readStoredGrouping } from "@/core/base/grouping/stored-grouping";
 import { normalizeFilters } from "@/core/base/filter-compat";
 import { EntityDetailOptionsSchema, type EntityDetailOptions } from "./p13n.schema";
@@ -44,7 +44,7 @@ function normalizeDetailOptions(value: unknown): EntityDetailOptions | undefined
   return parsed.success ? parsed.data : undefined;
 }
 
-export class PrismaP13nRepo extends BaseRepository implements GetP13nRepo, UpsertP13nRepo {
+export class PrismaP13nRepo extends TenantRepository implements GetP13nRepo, UpsertP13nRepo {
   async getP13n(p13nId: string): Promise<P13nEntry | undefined> {
     const { companyId, id: userId } = this.user;
 

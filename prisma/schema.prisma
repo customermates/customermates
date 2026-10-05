@@ -1685,7 +1685,6 @@ model Routine {
   cronExpression  String?
   timezone        String?
   triggerEvents   String[]
-  changedFields   String[]
   triggerFilters  Json               @default("[]")
   debounceSeconds Int                @default(300)
   nextRunAt       DateTime?

@@ -22,7 +22,7 @@ const emptySurface: SurfaceViewState = { activeViewKey: null, views: [], allStat
 function probe(mode: "interactive" | "api") {
   const repo = new StubRepo();
   const viewStateRepo: DataViewStateRepo = { loadSurfaceState: () => Promise.resolve(emptySurface) };
-  const interactor = new ProbeInteractor(repo, viewStateRepo, mode, undefined, SURFACE_DEFAULTS, {
+  const interactor = new ProbeInteractor(repo, viewStateRepo, mode, SURFACE_DEFAULTS, {
     invoke: vi.fn(),
   } as never);
 

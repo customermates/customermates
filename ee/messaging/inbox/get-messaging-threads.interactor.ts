@@ -34,7 +34,7 @@ export class GetMessagingThreadsInteractor extends BaseGetInteractor<MessagingTh
     queryParamsPrecheck: QueryParamsPrecheckInteractor,
     private entitlements: EntitlementService,
   ) {
-    super(repo, viewStateRepo, mode, undefined, { pagination: { page: 1, pageSize: 25 } }, queryParamsPrecheck);
+    super(repo, viewStateRepo, mode, { pagination: { page: 1, pageSize: 25 } }, queryParamsPrecheck);
   }
 
   @Validate(GetQueryParamsSchema)

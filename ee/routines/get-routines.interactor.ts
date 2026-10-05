@@ -34,7 +34,6 @@ export class GetRoutinesInteractor extends BaseGetInteractor<RoutineDto> {
       repo,
       viewStateRepo,
       mode,
-      undefined,
       { sortDescriptor: { field: "createdAt", direction: "desc" } },
       queryParamsPrecheck,
     );

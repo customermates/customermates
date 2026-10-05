@@ -47,7 +47,6 @@ function mergeRoutineFinalState(previous: RoutineDto, update: UpsertRoutineData)
         : update.timezone
       : null,
     triggerEvents: update.triggerEvents ?? previous.triggerEvents,
-    changedFields: update.changedFields ?? previous.changedFields,
     triggerFilters: update.triggerFilters ?? previous.triggerFilters,
     recordTrigger:
       scheduled || update.recordSources?.length

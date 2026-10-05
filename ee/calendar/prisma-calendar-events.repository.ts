@@ -2,7 +2,7 @@ import type { GetQueryParams } from "@/core/base/base-get.schema";
 
 import type { Prisma } from "@/generated/prisma";
 
-import { BaseRepository } from "@/core/base/base-repository";
+import { QueryRepository } from "@/core/base/query-repository";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 import { calendarEventAccessWhere } from "@/ee/messaging/messaging-access";
@@ -11,7 +11,7 @@ import type { GetCalendarEventsRepo } from "@/ee/calendar/get-calendar-events.re
 import type { GetCalendarEventByIdRepo } from "./get-calendar-event-by-id.interactor";
 
 export class PrismaCalendarEventsRepo
-  extends BaseRepository<Prisma.CalendarEventWhereInput>
+  extends QueryRepository<Prisma.CalendarEventWhereInput>
   implements GetCalendarEventsRepo, GetCalendarEventByIdRepo
 {
   private get calendarEventSelect() {

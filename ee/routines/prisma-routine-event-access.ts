@@ -1,6 +1,7 @@
+import { roleReadScope } from "@/core/base/permission.service";
 import type { Filter } from "@/core/base/base-get.schema";
-import { Action, Resource, Status } from "@/generated/prisma";
-import { BaseRepository } from "@/core/base/base-repository";
+import { Resource, Status } from "@/generated/prisma";
+import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import {
   accessibleConnectedAccountWhere,
@@ -18,7 +19,7 @@ import type {
 } from "./routine-event-access";
 import { MESSAGE_EVENTS, CHAT_EVENTS } from "./routine-event-access";
 
-export class PrismaRoutineEventAccess extends BaseRepository implements RoutineEventAccess {
+export class PrismaRoutineEventAccess extends TenantRepository implements RoutineEventAccess {
   constructor(private readonly records: RecordRecipientReader) {
     super();
   }
@@ -172,22 +173,8 @@ export class PrismaRoutineEventAccess extends BaseRepository implements RoutineE
   }
 
   private readAccess(user: RoutineEventUser, resource: Resource): "all" | "own" | null {
-    if (!user.role) return null;
-    if (user.role.isSystemRole) return "all";
-    if (
-      user.role.permissions.some(
-        (permission) => permission.resource === resource && permission.action === Action.readAll,
-      )
-    )
-      return "all";
-    if (
-      user.role.permissions.some(
-        (permission) => permission.resource === resource && permission.action === Action.readOwn,
-      )
-    )
-      return "own";
-
-    return null;
+    const scope = roleReadScope(user.role, resource);
+    return scope === "none" ? null : scope;
   }
 
   private eventBody(triggerPayload: unknown): Record<string, unknown> | null {

@@ -12,26 +12,12 @@ export class AuditLogModalStore extends BaseModalStore<AuditLogDto> {
       rootStore,
       {
         id: "",
-        event: DomainEvent.CONTACT_CREATED,
+        event: DomainEvent.COMPANY_UPDATED,
         eventData: {
           userId: "",
           companyId: "",
           entityId: "",
-          payload: {
-            id: "",
-            firstName: "",
-            lastName: "",
-            avatarUrl: null,
-            notes: null,
-            identifiers: [],
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            organizations: [],
-            users: [],
-            deals: [],
-            tasks: [],
-            customFieldValues: [],
-          },
+          payload: {},
         } as AuditLogDto["eventData"],
         createdAt: new Date(),
         user: {

@@ -14,7 +14,7 @@ import { OperatorAuditRowDtoSchema } from "../operator-lists.schema";
 @OperatorInteractor
 export class GetOperatorAuditLogsInteractor extends BaseGetInteractor<OperatorAuditRowDto> {
   constructor(repo: GetOperatorAuditLogsRepo, viewStateRepo: DataViewStateRepo) {
-    super(repo, viewStateRepo, "interactive", undefined, {
+    super(repo, viewStateRepo, "interactive", {
       sortDescriptor: { field: "createdAt", direction: "desc" },
       pagination: { pageSize: 25, page: 1 },
     });

@@ -116,50 +116,6 @@ describe("two filters on one field", () => {
     expect(andEntries(where)).toEqual([{ status: { in: ["open"] } }, { status: { in: ["won"] } }]);
   });
 
-  it("becomes two separate AND clauses on a relation field", async () => {
-    const { where } = await new TestQueryBuilder().buildQueryArgs({
-      filters: [
-        {
-          field: FilterFieldKey.userIds,
-          operator: FilterOperatorKey.in,
-          value: ["u1"],
-        } as Filter,
-        {
-          field: FilterFieldKey.userIds,
-          operator: FilterOperatorKey.in,
-          value: ["u2"],
-        } as Filter,
-      ],
-    });
-
-    expect(andEntries(where)).toHaveLength(2);
-    expect(andEntries(where)).toEqual([
-      { users: { some: { userId: { in: ["u1"] } } } },
-      { users: { some: { userId: { in: ["u2"] } } } },
-    ]);
-  });
-
-  it("becomes two separate AND clauses on a custom column", async () => {
-    const { where } = await new TestQueryBuilder().buildQueryArgs({
-      filters: [
-        {
-          field: CUSTOM_COLUMN_ID,
-          operator: FilterOperatorKey.contains,
-          value: "acme",
-        } as Filter,
-        {
-          field: CUSTOM_COLUMN_ID,
-          operator: FilterOperatorKey.contains,
-          value: "corp",
-        } as Filter,
-      ],
-    });
-
-    expect(andEntries(where)).toHaveLength(2);
-    expect(JSON.stringify(andEntries(where)[0])).toContain("acme");
-    expect(JSON.stringify(andEntries(where)[1])).toContain("corp");
-  });
-
   it("round-trips through the URL in order", () => {
     const filters = [statusFilter("open"), statusFilter("won")];
     const encoded = encodeGetParams({ filters });

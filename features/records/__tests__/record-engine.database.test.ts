@@ -1,3 +1,4 @@
+import { PermissionService } from "@/core/base/permission.service";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 import { FilterOperatorKey as FilterOperator } from "@/core/base/base-query-builder";
 import { recordInvariant } from "../record-invariant";
@@ -188,7 +189,7 @@ async function fixture() {
     role: { ...seed.memberRole, permissions: [] },
   });
   const repo = new PrismaRecordRepo();
-  const policy = new RecordAccessPolicy(new PrismaUserRepo(), repo);
+  const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
   const calculations = new RecordCalculationService(repo);
   const company = { getDetails: () => Promise.resolve({ currency: "EUR" }) };
   const background = { dispatch: () => Promise.resolve() };
@@ -217,7 +218,7 @@ async function fixture() {
   const choices = new GetRecordChoicesInteractor(repo, policy, query);
   const measure = new QueryRecordMeasureInteractor(repo, policy, company);
   const widgets = new PrismaRecordWidgetRepo();
-  const widgetReader = new RecordWidgetReader(repo, measure, new PrismaUserRepo());
+  const widgetReader = new RecordWidgetReader(repo, measure, new PrismaUserRepo(new PermissionService()));
   const writeWidget = new UpsertRecordWidgetInteractor(widgets, repo, policy, measure, widgetReader);
   const configurations = new RecordConfigurationService(repo);
   const preview = new PreviewRecordConfigurationInteractor(repo, policy, configurations);
@@ -274,7 +275,7 @@ async function fixture() {
     });
   const worker = () => new RecordOperationService(repo, policy, configurations, company);
   const activities = new GetRecordActivitiesInteractor(
-    new PrismaRecordActivitiesRepo(),
+    new PrismaRecordActivitiesRepo(new PermissionService()),
     repo,
     policy,
     new RecordIdentityReader(repo, policy),
@@ -3055,7 +3056,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     let fail = true;
     const admission = {
       admit: vi.fn(async () => {
-        await new PrismaAuditLogRepo().logUnscoped({
+        await new PrismaAuditLogRepo(new PermissionService()).logUnscoped({
           companyId: f.company.id,
           userId: f.admin.id,
           entityId: event.id,
@@ -4414,7 +4415,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const notify = vi.fn().mockResolvedValue(undefined);
     const register = new RegisterUserInteractor(
       { sendNewUserNotificationEmail: notify } as never,
-      new PrismaUserRepo(),
+      new PrismaUserRepo(new PermissionService()),
       getEventService(),
       {
         resolveAccountState: () =>
@@ -5327,135 +5328,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
     const other = await fixture();
     expect(await other.timeline({ scope: { records: [ref], typeIds: [] } })).toMatchObject({ ok: false });
-  });
-
-  it("decodes legacy audit records without disclosing inaccessible relations or mixing identical ids across types", async () => {
-    const f = await fixture();
-    const deal = await f.create("deal", "Current deal");
-    const organization = await f.create("organization", "Visible organization");
-    const hidden = await f.create("organization", "Private organization");
-    const deleted = { typeId: f.id("organization"), recordId: deal.recordId };
-    await f.run(() =>
-      prisma.recordTypeGrant.createMany({
-        data: [
-          {
-            companyId: f.company.id,
-            roleId: f.memberRole.id,
-            typeId: deal.typeId,
-            actions: ["readAll"],
-          },
-          {
-            companyId: f.company.id,
-            roleId: f.memberRole.id,
-            typeId: organization.typeId,
-            actions: ["readOwn"],
-          },
-        ],
-      }),
-    );
-    await f.run(() =>
-      prisma.rolePermission.create({
-        data: {
-          companyId: f.company.id,
-          roleId: f.memberRole.id,
-          resource: "auditLog",
-          action: "readAll",
-        },
-      }),
-    );
-    expect(
-      await f.mutation({
-        action: "update",
-        ref: organization,
-        expectedVersion: (await f.readRecord(organization)).version,
-        fields: [],
-        assignedUserIds: [f.member.id],
-      }),
-    ).toMatchObject({ ok: true });
-    const eventData = {
-      payload: {
-        changes: {
-          name: { previous: "Historical deal", current: "Current deal" },
-          totalValue: { previous: 100, current: 200 },
-          organizations: {
-            previous: [],
-            current: [
-              { id: organization.recordId, name: "Historical organization" },
-              { id: hidden.recordId, name: "Confidential organization" },
-            ],
-          },
-        },
-      },
-    };
-    const audit = await f.run(() =>
-      prisma.auditLog.create({
-        data: {
-          companyId: f.company.id,
-          userId: f.admin.id,
-          event: "deal.updated",
-          entityId: deal.recordId,
-          eventData,
-        },
-      }),
-    );
-    const deletedAudit = await f.run(() =>
-      prisma.auditLog.create({
-        data: {
-          companyId: f.company.id,
-          userId: f.admin.id,
-          event: "organization.deleted",
-          entityId: deleted.recordId,
-          eventData: { payload: { name: "Deleted organization" } },
-        },
-      }),
-    );
-    const timeline = await f.timeline({ scope: { records: [deal], typeIds: [] }, kinds: ["audit"] }, f.member);
-    expect(timeline, JSON.stringify(timeline)).toMatchObject({ ok: true });
-    if (!timeline.ok) throw new Error("Legacy history failed");
-    const entry = timeline.data.items.find((item) => item.id === audit.id);
-    expect(entry).toMatchObject({
-      kind: "audit",
-      recordChanges: {
-        ref: deal,
-        related: [
-          {
-            label: "Organizations",
-            before: [],
-            after: [{ ref: organization, title: "Historical organization" }],
-          },
-        ],
-      },
-    });
-    if (entry?.kind !== "audit" || !entry.recordChanges) throw new Error("Decoded history missing");
-    expect(entry.recordChanges.fields.find((field) => field.fieldId === f.id("deal.totalValue"))).toMatchObject({
-      before: { value: { state: "restricted" } },
-      after: { value: { state: "restricted" } },
-    });
-    expect(JSON.stringify(timeline)).not.toContain("Confidential organization");
-    expect(JSON.stringify(timeline)).not.toContain(hidden.recordId);
-    expect(timeline.data.items.some((item) => item.id === deletedAudit.id)).toBe(false);
-    const old = await f.timeline({
-      scope: { records: [deleted], typeIds: [] },
-      kinds: ["audit"],
-    });
-    expect(old).toMatchObject({
-      ok: true,
-      data: {
-        items: [expect.objectContaining({ id: deletedAudit.id, kind: "audit" })],
-      },
-    });
-    expect(await f.timeline({ scope: { records: [deleted], typeIds: [] }, kinds: ["audit"] }, f.member)).toMatchObject({
-      ok: false,
-    });
-    expect(
-      (
-        await f.run(() =>
-          prisma.auditLog.findUniqueOrThrow({
-            where: { id: audit.id, companyId: f.company.id },
-          }),
-        )
-      ).eventData,
-    ).toEqual(eventData);
   });
 
   it("withdraws historical summary exposure when publication is revoked or its dependencies change", async () => {
@@ -6887,7 +6759,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
     if (!result.ok || result.data.status !== "completed") throw new Error("Identity fixture failed");
     const ref = recordInvariant(result.data.refs[0]);
-    const checker = new CheckRecordIdentityInteractor(f.repo, new RecordAccessPolicy(new PrismaUserRepo(), f.repo));
+    const checker = new CheckRecordIdentityInteractor(
+      f.repo,
+      new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), f.repo),
+    );
     const input = {
       typeId: f.id("contact"),
       identity: { provider: "outlook" as const, value: "CLAIMED@example.test" },
@@ -6929,7 +6804,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const ref = recordInvariant(result.data.refs[0]);
     const resolver = new ResolveRecordIdentitiesInteractor(
       f.repo,
-      new RecordAccessPolicy(new PrismaUserRepo(), f.repo),
+      new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), f.repo),
     );
     const resolve = () =>
       resolver.invoke({
@@ -7068,7 +6943,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       }),
     );
     const inbox = new PrismaMessagingRepo();
-    const lookup = new GetIdentityRecordChoicesInteractor(f.repo, new RecordAccessPolicy(new PrismaUserRepo(), f.repo));
+    const lookup = new GetIdentityRecordChoicesInteractor(
+      f.repo,
+      new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), f.repo),
+    );
     const filter = (operator: "allSet" | "hasUnset"): GetQueryParams => ({
       filters: [{ field: "participants", operator: FilterOperatorKey[operator] }],
     });
@@ -15261,7 +15139,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(post).toHaveBeenCalledTimes(1);
     expect(await f.run(() => resend.invoke({ id: delivery.id }))).toMatchObject({ ok: false });
   });
-  it("admits record routines by their subscription fields and ignores legacy changed-field names", async () => {
+  it("admits record routines by their subscription fields", async () => {
     const f = await fixture();
     await f.run(() =>
       prisma.subscription.create({ data: { companyId: f.company.id, status: "active", plan: "enterprise" } }),
@@ -15282,12 +15160,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     if (!created.ok) throw new Error("Routine creation failed");
     const routineId = created.data.id;
-    await f.run(() =>
-      prisma.routine.updateMany({
-        where: { companyId: f.company.id, id: routineId },
-        data: { changedFields: ["amount"] },
-      }),
-    );
     const service = await f.create("service", "Watched price", [["service.amount", decimal("5")]]);
     expect(await f.update(service, [["service.amount", decimal("7")]])).toMatchObject({ ok: true });
     const match = recordInvariant(

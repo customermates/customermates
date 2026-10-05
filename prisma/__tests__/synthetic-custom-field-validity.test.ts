@@ -3,17 +3,9 @@ import type { PrismaClient } from "@/generated/prisma";
 import { describe, expect, it } from "vitest";
 
 import { normalizeRecordScalar } from "@/features/records/record-write.service";
-import { legacyFieldScalar } from "../seeds/legacy-conversion/v2/legacy-model";
 import { SEED_IDS } from "../seeds/context";
 import { seedCustomFields } from "../seeds/custom-fields";
 import { syntheticRecordModel } from "../seeds/records";
-
-// The synthetic seed writes custom-field values that the application re-validates on every
-// write (`ContactWritePrecheckInteractor` and siblings run `validateCustomFieldValues`). If a
-// seeded value does not pass its own column-type validator, every save of that record is
-// rejected server-side — e.g. a "Phones" value like "+1 202-555-0100" fails `z.e164()` and
-// blocks even an unrelated first-name edit. This test drives the real seed generator and the
-// real validators so that class of drift fails in CI instead of silently in the product.
 
 function context(prisma: PrismaClient) {
   return {
@@ -47,17 +39,17 @@ function entities() {
 }
 
 describe("synthetic seed custom-field values", () => {
-  it("every seeded value passes its column-type validator", async () => {
+  it("every seeded value passes its field-type validator", () => {
     const ctx = context({} as PrismaClient);
-    const fields = await seedCustomFields(ctx, entities() as never);
-    const { model } = syntheticRecordModel(ctx, fields);
-    expect(fields.customColumns?.length).toBeGreaterThan(0);
-    expect(fields.customFieldValues?.length).toBeGreaterThan(0);
-    for (const row of fields.customFieldValues ?? []) {
-      const field = model.fields.find((field) => field.id === row.columnId);
+    const fields = seedCustomFields(ctx, entities() as never);
+    const model = syntheticRecordModel(ctx, fields);
+    expect(fields.customFields.length).toBeGreaterThan(0);
+    expect(fields.customFieldValues.length).toBeGreaterThan(0);
+    for (const row of fields.customFieldValues) {
+      const field = model.fields.find((field) => field.id === row.fieldId);
       expect(field).toBeDefined();
       if (!field) throw new Error("Seed field is missing");
-      expect(() => normalizeRecordScalar(legacyFieldScalar(row.value, field, "EUR"), field), field.label).not.toThrow();
+      expect(() => normalizeRecordScalar(row.value, field), field.label).not.toThrow();
     }
   });
 });

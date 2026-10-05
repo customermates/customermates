@@ -2,7 +2,7 @@ import { presetId } from "@/features/records/crm-preset";
 import type { Prisma } from "@/generated/prisma";
 import { ConnectedAccountStatus, Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
-import { BaseRepository } from "@/core/base/base-repository";
+import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { getOperatorActor } from "@/core/decorators/operator-context";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
@@ -213,7 +213,7 @@ function toUsageTotals(input: {
 
 const PLATFORM_OPERATOR_INVARIANT_LOCK = "customermates:platform-operator-invariant";
 
-export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
+export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo {
   constructor(private readonly agentRepo: AgentUsageRepo) {
     super();
   }

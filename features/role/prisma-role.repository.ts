@@ -9,7 +9,7 @@ import { Action, Resource } from "@/generated/prisma";
 
 import type { Prisma } from "@/generated/prisma";
 
-import { BaseRepository } from "@/core/base/base-repository";
+import { QueryRepository } from "@/core/base/query-repository";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { type GetQueryParams } from "@/core/base/base-get.schema";
 
@@ -25,7 +25,7 @@ export function mapRoleWithAssignments<T extends { _count: { users: number } }>(
 }
 
 export class PrismaRoleRepo
-  extends BaseRepository
+  extends QueryRepository
   implements UpsertRoleRepo, GetRolesRepo, DeleteRoleRepo, UpdateUserRoleRepo, FindRolesByIdsRepo
 {
   private get baseSelect() {

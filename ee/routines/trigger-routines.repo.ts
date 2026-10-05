@@ -3,7 +3,6 @@ import type { Filter } from "@/core/base/base-get.schema";
 export type EventRoutineCandidate = {
   id: string;
   ownerUserId: string;
-  changedFields: string[];
   triggerFilters: Filter[];
   updatedAt: Date;
 };

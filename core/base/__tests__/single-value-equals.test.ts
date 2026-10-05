@@ -3,7 +3,6 @@ import type { Filter, FilterableField } from "../base-get.schema";
 
 import { describe, expect, it, vi } from "vitest";
 
-import { EntityType } from "@/features/records/history/v1/legacy-enums";
 import { MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-test-setup";
 
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
@@ -42,19 +41,12 @@ describe("BaseGetInteractor in api mode", () => {
   it("prechecks and applies the rewritten filter, so a single-select equals is accepted", async () => {
     const prechecked: unknown[] = [];
     const precheck = {
-      invoke: (_fields: unknown, _entity: unknown, data: { filters?: Filter[] }) => {
+      invoke: (_fields: unknown, data: { filters?: Filter[] }) => {
         prechecked.push(...(data.filters ?? []));
       },
     } as unknown as QueryParamsPrecheckInteractor;
     const repo = new Repo();
-    const interactor = new SingleValueEqualsInteractor(
-      repo,
-      { loadSurfaceState: vi.fn() },
-      "api",
-      EntityType.task,
-      undefined,
-      precheck,
-    );
+    const interactor = new SingleValueEqualsInteractor(repo, { loadSurfaceState: vi.fn() }, "api", undefined, precheck);
 
     const result = await interactor.invoke({
       filters: [{ field: SELECT_COLUMN, operator: "equals", value: OPTION } as Filter],

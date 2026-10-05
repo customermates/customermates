@@ -1,19 +1,10 @@
 import { z } from "zod";
 
-import type { EntityType } from "@/features/records/history/v1/legacy-enums";
-
 import { AiManageableDataViewSurfaceKeySchema } from "@/core/data-view/ai-manageable-surfaces";
 import { DATA_VIEW_NAME_MAX_LENGTH } from "@/core/data-view/data-view-limits";
 import { ViewKeySchema } from "@/core/data-view/data-view-identity.schema";
 
 export const AGENT_CONTEXT_ATTACHMENT_LIMIT = 5;
-export const AGENT_CONTEXT_RECORD_ENTITIES = [
-  "contact",
-  "organization",
-  "deal",
-  "service",
-  "task",
-] as const satisfies readonly EntityType[];
 
 const AgentDataViewCreateContextReferenceSchema = z
   .object({
@@ -34,14 +25,6 @@ const AgentDataViewUpdateContextReferenceSchema = z
   .strict();
 
 const AgentRecordContextReferenceSchema = z
-  .object({
-    kind: z.literal("record"),
-    entityType: z.enum(AGENT_CONTEXT_RECORD_ENTITIES),
-    recordId: z.uuid(),
-  })
-  .strict();
-
-const AgentDynamicRecordContextReferenceSchema = z
   .object({ kind: z.literal("record"), typeId: z.uuid(), recordId: z.uuid() })
   .strict();
 
@@ -62,7 +45,6 @@ export const AgentContextReferenceSchema = z.union([
   AgentDataViewCreateContextReferenceSchema,
   AgentDataViewUpdateContextReferenceSchema,
   AgentRecordContextReferenceSchema,
-  AgentDynamicRecordContextReferenceSchema,
   AgentConfigurationContextReferenceSchema,
 ]);
 
@@ -91,11 +73,7 @@ export type AgentContextAttachment = z.infer<typeof AgentContextAttachmentSchema
 
 export function agentContextAttachmentKey(context: AgentContextAttachment | AgentContextReference): string {
   const reference = "reference" in context ? context.reference : context;
-  if (reference.kind === "record") {
-    return "typeId" in reference
-      ? `record:v2:${reference.typeId}:${reference.recordId}`
-      : `record:${reference.entityType}:${reference.recordId}`;
-  }
+  if (reference.kind === "record") return `record:v2:${reference.typeId}:${reference.recordId}`;
   if (reference.kind === "dataModel") return "dataModel";
   if (reference.kind === "recordType") return `recordType:${reference.typeId}`;
   if (reference.kind === "recordField") return `recordField:${reference.typeId}:${reference.fieldId}`;
@@ -180,23 +158,17 @@ export function agentContextProviderPrefix(contexts: readonly AgentContextAttach
     keys.add(key);
     const reference = parsed.data.reference;
     const attributes =
-      reference.kind === "record" && "entityType" in reference
+      reference.kind === "dataView"
         ? {
             kind: reference.kind,
-            entityType: reference.entityType,
-            recordId: reference.recordId,
+            surfaceKey: reference.surfaceKey,
+            ...(reference.requestedAction === "update" ? { viewKey: reference.viewKey } : {}),
+            ...(reference.requestedAction === "create" && reference.proposedName
+              ? { proposedName: reference.proposedName }
+              : {}),
+            requestedAction: reference.requestedAction,
           }
-        : reference.kind === "dataView"
-          ? {
-              kind: reference.kind,
-              surfaceKey: reference.surfaceKey,
-              ...(reference.requestedAction === "update" ? { viewKey: reference.viewKey } : {}),
-              ...(reference.requestedAction === "create" && reference.proposedName
-                ? { proposedName: reference.proposedName }
-                : {}),
-              requestedAction: reference.requestedAction,
-            }
-          : reference;
+        : reference;
     blocks.push(
       `<selected_context ${Object.entries(attributes)
         .map(([key, value]) => `${key}="${escapeAttribute(value)}"`)
@@ -208,17 +180,11 @@ export function agentContextProviderPrefix(contexts: readonly AgentContextAttach
 }
 
 const PROVIDER_PREFIX_LINE = /^<(?:page_context|selected_context) [^\n]*\/>$/;
-const PROVIDER_RECORD_LINE = /^<selected_context kind="record" entityType="[a-z]+" recordId="([0-9a-fA-F-]{36})"\/>$/;
 
-export function agentContextFromProviderText(text: string): { recordIds: string[]; body: string } {
-  const recordIds: string[] = [];
+export function agentContextFromProviderText(text: string): { body: string } {
   const lines = text.split("\n");
   const bodyStart = lines.findIndex((line) => !PROVIDER_PREFIX_LINE.test(line));
-  for (const line of bodyStart === -1 ? lines : lines.slice(0, bodyStart)) {
-    const recordId = PROVIDER_RECORD_LINE.exec(line)?.[1];
-    if (recordId) recordIds.push(recordId.toLowerCase());
-  }
-  return { recordIds, body: bodyStart === -1 ? "" : lines.slice(bodyStart).join("\n") };
+  return { body: bodyStart === -1 ? "" : lines.slice(bodyStart).join("\n") };
 }
 
 export function agentContextAttachmentsEqual(

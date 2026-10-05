@@ -1,3 +1,4 @@
+import { PermissionService } from "@/core/base/permission.service";
 import { randomUUID } from "node:crypto";
 import { Client } from "pg";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
@@ -194,7 +195,7 @@ async function boundedQuery<T extends object>(query: Prisma.Sql) {
 async function queryActivity(user: TenantUser) {
   const context = await runWithTenant(user, () =>
     runInTransaction(async () => {
-      const policy = await new RecordAccessPolicy(new PrismaUserRepo(), workspace.repo).load();
+      const policy = await new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), workspace.repo).load();
       const model = await workspace.repo.getModel();
       const available: ActivityKind[] = [];
       if (policy.allowedSystem("auditLog", "readAll")) available.push("audit");

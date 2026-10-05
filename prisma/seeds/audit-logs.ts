@@ -1,46 +1,17 @@
-import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 import type { DomainEventMap } from "@/features/event/domain-events";
-import type { ContactDto } from "@/features/records/history/v1/contact.schema";
-import type { DealDto } from "@/features/records/history/v1/deal.schema";
-import type { OrganizationDto } from "@/features/records/history/v1/organization.schema";
-import type { ServiceDto } from "@/features/records/history/v1/service.schema";
-import type { TaskDto } from "@/features/records/history/v1/task.schema";
 import type { RoleDto } from "@/features/role/role.schema";
 import type { WebhookDto } from "@/features/webhook/webhook.schema";
 import type { Prisma, PrismaClient } from "@/generated/prisma";
-import { seedCustomFields } from "./custom-fields";
-import { historicalRecordFixtureRows } from "./historical-record-fixtures";
 
-import { CustomColumnDtoSchema } from "@/core/data-view/column-presentation.schema";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { DomainEvent } from "@/features/event/domain-events";
-import { ContactDtoSchema } from "@/features/records/history/v1/contact.schema";
-import { DealDtoSchema } from "@/features/records/history/v1/deal.schema";
-import { OrganizationDtoSchema } from "@/features/records/history/v1/organization.schema";
-import { ServiceDtoSchema } from "@/features/records/history/v1/service.schema";
-import { TaskDtoSchema } from "@/features/records/history/v1/task.schema";
 import { RoleDtoSchema } from "@/features/role/role.schema";
 import { toWebhookEventPayload } from "@/features/webhook/webhook-event-payload";
 import { WebhookDtoSchema } from "@/features/webhook/webhook.schema";
 
 import type { SeedContext } from "./context";
-import type { RelationshipSeedInput } from "./relationships";
 
-import { SYNTHETIC_CUSTOM_COLUMN_IDS } from "./custom-fields";
 import { fixtureId } from "./helpers";
-import {
-  SYNTHETIC_CONTACT_UPDATE_INDEXES,
-  SYNTHETIC_DEAL_UPDATE_INDEXES,
-  SYNTHETIC_ORGANIZATION_UPDATE_INDEXES,
-  SYNTHETIC_TASK_UPDATE_INDEXES,
-} from "./timeline";
-
-export {
-  SYNTHETIC_CONTACT_UPDATE_INDEXES,
-  SYNTHETIC_DEAL_UPDATE_INDEXES,
-  SYNTHETIC_ORGANIZATION_UPDATE_INDEXES,
-  SYNTHETIC_TASK_UPDATE_INDEXES,
-} from "./timeline";
 
 export const SYNTHETIC_AUDIT_LOG_ID_PREFIX = "1e000000";
 
@@ -57,12 +28,6 @@ type RegisteredUserSnapshot = {
   updatedAt: Date;
 };
 
-type CustomColumnSnapshot = {
-  createdAt: Date;
-  dto: CustomColumnDto;
-  updatedAt: Date;
-};
-
 type ConnectedAccountSnapshot = {
   createdAt: Date;
   displayName: string | null;
@@ -74,13 +39,7 @@ type ConnectedAccountSnapshot = {
 
 export type SyntheticAuditSnapshot = {
   connectedAccounts: ConnectedAccountSnapshot[];
-  contacts: ContactDto[];
-  customColumns: CustomColumnSnapshot[];
-  deals: DealDto[];
-  organizations: OrganizationDto[];
   roles: RoleDto[];
-  services: ServiceDto[];
-  tasks: TaskDto[];
   users: RegisteredUserSnapshot[];
   webhook: WebhookDto;
 };
@@ -101,59 +60,6 @@ function inputJson(value: unknown): Prisma.InputJsonValue {
 
 function assertSnapshotCount(label: string, actual: number, expected: number): void {
   if (actual !== expected) throw new Error(`Expected ${expected} ${label} audit snapshots, received ${actual}`);
-}
-
-export const SYNTHETIC_PREVIOUS_ORGANIZATION_NAMES = new Map<number, string>([
-  [5, "ASM Lithography"],
-  [10, "PricewaterhouseCoopers"],
-  [12, "NRW Bank"],
-  [13, "Hoffmann-La Roche"],
-]);
-
-export const SYNTHETIC_PREVIOUS_CONTACT_FIRST_NAMES = new Map<number, string>([
-  [0, "Leo"],
-  [6, "Johannes"],
-  [7, "Ayman"],
-  [19, "Sophia"],
-  [22, "Annika"],
-  [23, "Jasmin"],
-  [26, "Rachid"],
-]);
-
-export const SYNTHETIC_PREVIOUS_DEAL_NAMES = new Map<number, string>([
-  [0, "Workflow Automation Program"],
-  [1, "Business Intelligence Transformation"],
-  [2, "CRM Implementation"],
-]);
-
-export const SYNTHETIC_PREVIOUS_TASK_NAMES = new Map<number, string>([
-  [0, "Draft the Wavestone proposal"],
-  [4, "Arrange a discovery call with BMW"],
-  [7, "Follow up with Roche legal"],
-  [8, "Arrange a discovery call with PwC"],
-  [13, "Review notes from the Roche demo"],
-]);
-
-export const SYNTHETIC_RECENT_TASK_AUDIT_OFFSETS_MINUTES = {
-  created: new Map<number, number>([
-    [10, 156],
-    [11, 126],
-    [12, 66],
-    [13, 96],
-    [14, 12],
-  ]),
-  updated: new Map<number, number>([[13, 38]]),
-} as const;
-
-// Connected-account sync time is stable across reseeds, unlike Date.now(), and keeps these rows among recent messages.
-function recentTaskAuditTime(
-  messagingSyncAt: Date,
-  phase: keyof typeof SYNTHETIC_RECENT_TASK_AUDIT_OFFSETS_MINUTES,
-  taskIndex: number,
-  fallback: Date,
-): Date {
-  const offsetMinutes = SYNTHETIC_RECENT_TASK_AUDIT_OFFSETS_MINUTES[phase].get(taskIndex);
-  return offsetMinutes === undefined ? fallback : new Date(messagingSyncAt.getTime() - offsetMinutes * 60_000);
 }
 
 function auditFixture<E extends DomainEvent>(args: {
@@ -196,16 +102,6 @@ function updateState<T extends { createdAt: Date; updatedAt: Date }>(entity: T, 
   return { ...entity, ...changes };
 }
 
-function assertDealTotals(deal: DealDto): void {
-  const totalValue = deal.services.reduce((sum, service) => sum + service.amount * service.quantity, 0);
-  const totalQuantity = deal.services.reduce((sum, service) => sum + service.quantity, 0);
-  if (deal.totalValue !== totalValue || deal.totalQuantity !== totalQuantity) {
-    throw new Error(
-      `Deal ${deal.id} totals do not match its services: expected ${totalQuantity}/${totalValue}, received ${deal.totalQuantity}/${deal.totalValue}`,
-    );
-  }
-}
-
 export function buildSyntheticAuditLogFixtures(args: {
   companyId: string;
   primaryUserId: string;
@@ -213,11 +109,6 @@ export function buildSyntheticAuditLogFixtures(args: {
 }): SyntheticAuditFixture[] {
   const { companyId, primaryUserId, snapshot } = args;
   const fixtures: SyntheticAuditFixture[] = [];
-  const customColumnUpdates = [
-    { index: 2, previousLabel: "Customer type" },
-    { index: 5, previousLabel: "Deal status" },
-    { index: 6, previousLabel: "Task status" },
-  ] as const;
   const push = <E extends DomainEvent>(
     event: E,
     entityId: string,
@@ -239,19 +130,6 @@ export function buildSyntheticAuditLogFixtures(args: {
 
   const primaryUser = snapshot.users.find(({ id }) => id === primaryUserId);
   if (!primaryUser) throw new Error(`Missing primary synthetic user ${primaryUserId}`);
-  const taskActorIds = [
-    primaryUserId,
-    ...snapshot.users
-      .filter(({ id }) => id !== primaryUserId)
-      .map(({ id }) => id)
-      .sort(),
-  ];
-  const messagingSyncTimes = snapshot.connectedAccounts.flatMap(({ lastSyncedAt }) =>
-    lastSyncedAt ? [lastSyncedAt.getTime()] : [],
-  );
-  if (messagingSyncTimes.length === 0) throw new Error("Missing synthetic messaging sync anchor for recent audit logs");
-  const messagingSyncAt = new Date(Math.max(...messagingSyncTimes));
-  const taskActorId = (taskIndex: number) => taskActorIds[taskIndex % taskActorIds.length];
 
   push(
     DomainEvent.USER_REGISTERED,
@@ -306,149 +184,6 @@ export function buildSyntheticAuditLogFixtures(args: {
         user.updatedAt,
       );
     }
-  }
-
-  for (const [index, customColumn] of snapshot.customColumns.entries()) {
-    const previousLabel = customColumnUpdates.find((update) => update.index === index)?.previousLabel;
-    if (previousLabel === customColumn.dto.label)
-      throw new Error(`Synthetic custom-column audit change at index ${index} must change the label`);
-
-    const initialCustomColumn = previousLabel ? { ...customColumn.dto, label: previousLabel } : customColumn.dto;
-    push(DomainEvent.CUSTOM_COLUMN_CREATED, customColumn.dto.id, initialCustomColumn, customColumn.createdAt);
-  }
-
-  for (const { index, previousLabel } of customColumnUpdates) {
-    const customColumn = snapshot.customColumns[index];
-    if (!customColumn) throw new Error(`Missing custom-column audit snapshot at index ${index}`);
-    if (customColumn.updatedAt.getTime() <= customColumn.createdAt.getTime())
-      throw new Error(`Custom column ${customColumn.dto.id} update must follow its creation`);
-    push(
-      DomainEvent.CUSTOM_COLUMN_UPDATED,
-      customColumn.dto.id,
-      {
-        customColumn: customColumn.dto,
-        changes: { label: { previous: previousLabel, current: customColumn.dto.label } },
-      },
-      customColumn.updatedAt,
-    );
-  }
-
-  for (const organization of snapshot.organizations) {
-    const organizationIndex = snapshot.organizations.indexOf(organization);
-    const initialOrganization = creationState(organization, {
-      contacts: [],
-      deals: [],
-      name: SYNTHETIC_PREVIOUS_ORGANIZATION_NAMES.get(organizationIndex) ?? organization.name,
-      tasks: [],
-    });
-    push(DomainEvent.ORGANIZATION_CREATED, organization.id, initialOrganization, initialOrganization.createdAt);
-  }
-
-  for (const organizationIndex of SYNTHETIC_ORGANIZATION_UPDATE_INDEXES) {
-    const organization = snapshot.organizations[organizationIndex];
-    const previousName = SYNTHETIC_PREVIOUS_ORGANIZATION_NAMES.get(organizationIndex);
-    if (!organization || !previousName) throw new Error(`Missing organization update snapshot ${organizationIndex}`);
-    const updatedOrganization = updateState(organization, {
-      contacts: [],
-      deals: [],
-      tasks: [],
-    });
-    push(
-      DomainEvent.ORGANIZATION_UPDATED,
-      organization.id,
-      {
-        organization: updatedOrganization,
-        changes: { name: { previous: previousName, current: updatedOrganization.name } },
-      },
-      updatedOrganization.updatedAt,
-    );
-  }
-
-  for (const [contactIndex, contact] of snapshot.contacts.entries()) {
-    const initialContact = creationState(contact, {
-      avatarUrl: null,
-      deals: [],
-      firstName: SYNTHETIC_PREVIOUS_CONTACT_FIRST_NAMES.get(contactIndex) ?? contact.firstName,
-      tasks: [],
-    });
-    push(DomainEvent.CONTACT_CREATED, contact.id, initialContact, initialContact.createdAt);
-  }
-  for (const contactIndex of SYNTHETIC_CONTACT_UPDATE_INDEXES) {
-    const contact = snapshot.contacts[contactIndex];
-    const previousFirstName = SYNTHETIC_PREVIOUS_CONTACT_FIRST_NAMES.get(contactIndex);
-    if (!contact || !previousFirstName) throw new Error(`Missing contact update snapshot ${contactIndex}`);
-    const updatedContact = updateState(contact, { deals: [], tasks: [] });
-    push(
-      DomainEvent.CONTACT_UPDATED,
-      contact.id,
-      {
-        contact: updatedContact,
-        changes: { firstName: { previous: previousFirstName, current: updatedContact.firstName } },
-      },
-      updatedContact.updatedAt,
-    );
-  }
-
-  for (const service of snapshot.services) {
-    const initialService = creationState(service, { deals: [], tasks: [] });
-    push(DomainEvent.SERVICE_CREATED, service.id, initialService, initialService.createdAt);
-  }
-
-  for (const [dealIndex, deal] of snapshot.deals.entries()) {
-    assertDealTotals(deal);
-    const initialDeal = creationState(deal, {
-      name: SYNTHETIC_PREVIOUS_DEAL_NAMES.get(dealIndex) ?? deal.name,
-      tasks: [],
-    });
-    push(DomainEvent.DEAL_CREATED, deal.id, initialDeal, initialDeal.createdAt);
-  }
-
-  for (const dealIndex of SYNTHETIC_DEAL_UPDATE_INDEXES) {
-    const deal = snapshot.deals[dealIndex];
-    const previousName = SYNTHETIC_PREVIOUS_DEAL_NAMES.get(dealIndex);
-    if (!deal || !previousName) throw new Error(`Missing deal update snapshot ${dealIndex}`);
-    const updatedDeal = updateState(deal, { tasks: [] });
-    assertDealTotals(updatedDeal);
-    push(
-      DomainEvent.DEAL_UPDATED,
-      deal.id,
-      { deal: updatedDeal, changes: { name: { previous: previousName, current: updatedDeal.name } } },
-      updatedDeal.updatedAt,
-    );
-  }
-
-  for (const [taskIndex, task] of snapshot.tasks.entries()) {
-    if (task.type !== "custom") continue;
-    const initialTask = creationState(task, { name: SYNTHETIC_PREVIOUS_TASK_NAMES.get(taskIndex) ?? task.name });
-    push(
-      DomainEvent.TASK_CREATED,
-      task.id,
-      initialTask,
-      recentTaskAuditTime(messagingSyncAt, "created", taskIndex, initialTask.createdAt),
-      taskActorId(taskIndex),
-    );
-  }
-
-  for (const taskIndex of SYNTHETIC_TASK_UPDATE_INDEXES) {
-    const task = snapshot.tasks[taskIndex];
-    const previousName = SYNTHETIC_PREVIOUS_TASK_NAMES.get(taskIndex);
-    if (!task || task.type !== "custom" || !previousName) throw new Error(`Missing custom task update ${taskIndex}`);
-    const updatedTask = updateState(task);
-    push(
-      DomainEvent.TASK_UPDATED,
-      task.id,
-      {
-        task: updatedTask,
-        changes: {
-          name: {
-            previous: previousName,
-            current: updatedTask.name,
-          },
-        },
-      },
-      recentTaskAuditTime(messagingSyncAt, "updated", taskIndex, updatedTask.updatedAt),
-      taskActorId(taskIndex),
-    );
   }
 
   for (const account of snapshot.connectedAccounts) {
@@ -510,23 +245,8 @@ export async function persistSyntheticAuditLogFixtures(
   });
 }
 
-async function loadSyntheticAuditSnapshot(
-  prisma: PrismaClient,
-  entities: RelationshipSeedInput,
-  context: SeedContext,
-): Promise<SyntheticAuditSnapshot> {
-  const [
-    users,
-    roles,
-    customColumnRows,
-    contactRows,
-    organizationRows,
-    dealRows,
-    serviceRows,
-    taskRows,
-    connectedAccounts,
-    webhook,
-  ] = await Promise.all([
+async function loadSyntheticAuditSnapshot(prisma: PrismaClient, context: SeedContext): Promise<SyntheticAuditSnapshot> {
+  const [users, roles, connectedAccounts, webhook] = await Promise.all([
     prisma.user.findMany({
       where: {
         id: {
@@ -569,37 +289,6 @@ async function loadSyntheticAuditSnapshot(
         },
       },
     }),
-    Promise.resolve((await seedCustomFields(context, entities)).customColumns ?? []),
-    historicalRecordFixtureRows(
-      prisma,
-      context.ids.company,
-      "contact",
-      entities.contacts.map(({ id }) => id),
-    ),
-    historicalRecordFixtureRows(
-      prisma,
-      context.ids.company,
-      "organization",
-      entities.organizations.map(({ id }) => id),
-    ),
-    historicalRecordFixtureRows(
-      prisma,
-      context.ids.company,
-      "deal",
-      entities.deals.map(({ id }) => id),
-    ),
-    historicalRecordFixtureRows(
-      prisma,
-      context.ids.company,
-      "service",
-      entities.services.map(({ id }) => id),
-    ),
-    historicalRecordFixtureRows(
-      prisma,
-      context.ids.company,
-      "task",
-      entities.tasks.map(({ id }) => id),
-    ),
     prisma.connectedAccount.findMany({
       where: {
         companyId: context.ids.company,
@@ -636,78 +325,18 @@ async function loadSyntheticAuditSnapshot(
 
   assertSnapshotCount("users", users.length, 3);
   assertSnapshotCount("roles", roles.length, 2);
-  assertSnapshotCount("custom columns", customColumnRows.length, Object.values(SYNTHETIC_CUSTOM_COLUMN_IDS).length);
-  assertSnapshotCount("contacts", contactRows.length, entities.contacts.length);
-  assertSnapshotCount("organizations", organizationRows.length, entities.organizations.length);
-  assertSnapshotCount("deals", dealRows.length, entities.deals.length);
-  assertSnapshotCount("services", serviceRows.length, entities.services.length);
-  assertSnapshotCount("tasks", taskRows.length, entities.tasks.length);
   assertSnapshotCount("connected accounts", connectedAccounts.length, 3);
 
   return {
     connectedAccounts,
     users,
     roles: roles.map((role) => RoleDtoSchema.parse(role)),
-    customColumns: customColumnRows.map(({ createdAt, updatedAt, ...customColumn }) => ({
-      createdAt,
-      dto: CustomColumnDtoSchema.parse(customColumn),
-      updatedAt,
-    })),
-    contacts: contactRows.map((contact) =>
-      ContactDtoSchema.parse({
-        ...contact,
-        organizations: contact.organizations.map(({ organization }) => organization),
-        users: contact.users.map(({ user }) => user),
-        deals: contact.deals.map(({ deal }) => deal),
-        tasks: contact.tasks.map(({ task }) => task),
-      }),
-    ),
-    organizations: organizationRows.map((organization) =>
-      OrganizationDtoSchema.parse({
-        ...organization,
-        contacts: organization.contacts.map(({ contact }) => contact),
-        users: organization.users.map(({ user }) => user),
-        deals: organization.deals.map(({ deal }) => deal),
-        tasks: organization.tasks.map(({ task }) => task),
-      }),
-    ),
-    deals: dealRows.map((deal) =>
-      DealDtoSchema.parse({
-        ...deal,
-        organizations: deal.organizations.map(({ organization }) => organization),
-        users: deal.users.map(({ user }) => user),
-        contacts: deal.contacts.map(({ contact }) => contact),
-        services: deal.services.map(({ service, quantity }) => ({
-          ...service,
-          quantity,
-        })),
-        tasks: deal.tasks.map(({ task }) => task),
-      }),
-    ),
-    services: serviceRows.map((service) =>
-      ServiceDtoSchema.parse({
-        ...service,
-        users: service.users.map(({ user }) => user),
-        deals: service.deals.map(({ deal }) => deal),
-        tasks: service.tasks.map(({ task }) => task),
-      }),
-    ),
-    tasks: taskRows.map((task) =>
-      TaskDtoSchema.parse({
-        ...task,
-        users: task.users.map(({ user }) => user),
-        contacts: task.contacts.map(({ contact }) => contact),
-        organizations: task.organizations.map(({ organization }) => organization),
-        deals: task.deals.map(({ deal }) => deal),
-        services: task.services.map(({ service }) => service),
-      }),
-    ),
     webhook: WebhookDtoSchema.parse(webhook),
   };
 }
 
-export async function seedSyntheticAuditLogs(context: SeedContext, entities: RelationshipSeedInput): Promise<void> {
-  const snapshot = await loadSyntheticAuditSnapshot(context.prisma, entities, context);
+export async function seedSyntheticAuditLogs(context: SeedContext): Promise<void> {
+  const snapshot = await loadSyntheticAuditSnapshot(context.prisma, context);
   const fixtures = buildSyntheticAuditLogFixtures({
     companyId: context.ids.company,
     primaryUserId: context.ids.user,

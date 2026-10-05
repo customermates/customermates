@@ -57,7 +57,6 @@ export class GetWebhookDeliveriesInteractor extends BaseGetInteractor<WebhookDel
       repo,
       viewStateRepo,
       mode,
-      undefined,
       { sortDescriptor: { field: "createdAt", direction: "desc" }, pagination: { pageSize: 25, page: 1 } },
       queryParamsPrecheck,
     );

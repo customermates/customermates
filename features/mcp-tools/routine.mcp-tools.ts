@@ -62,12 +62,6 @@ const ManageRoutinesSchema = z.object({
     .array(RoutineTriggerEventSchema)
     .optional()
     .describe("Events an event routine reacts to. Required for triggerKind event."),
-  changedFields: z
-    .array(z.string())
-    .optional()
-    .describe(
-      "Not stored for record events: put the watched field IDs of the subscribed record type in recordTrigger.changedFieldIds instead.",
-    ),
   triggerFilters: z
     .array(FilterSchema)
     .optional()
@@ -171,7 +165,6 @@ export const manageRoutinesTool = {
           cronExpression: params.cronExpression,
           timezone: params.timezone,
           triggerEvents: params.triggerEvents,
-          changedFields: params.changedFields,
           triggerFilters: params.triggerFilters,
           recordTrigger: params.recordTrigger,
           expectedSchemaRevision: params.expectedSchemaRevision,

@@ -43,44 +43,6 @@ describe("FilterSchema relation existence operators", () => {
     );
   });
 
-  it("normalizes legacy value-taking operators before parsing strips their values", () => {
-    expect(
-      FilterSchema.parse({
-        field: FilterFieldKey.userIds,
-        operator: FilterOperatorKey.hasNone,
-        value: ["u1"],
-      }),
-    ).toEqual({
-      field: FilterFieldKey.userIds,
-      operator: FilterOperatorKey.notIn,
-      value: ["u1"],
-    });
-
-    expect(
-      FilterSchema.parse({
-        field: FilterFieldKey.userIds,
-        operator: FilterOperatorKey.hasSome,
-        value: ["u2"],
-      }),
-    ).toEqual({
-      field: FilterFieldKey.userIds,
-      operator: FilterOperatorKey.in,
-      value: ["u2"],
-    });
-
-    expect(
-      FilterSchema.parse({
-        field: FilterFieldKey.userIds,
-        operator: FilterOperatorKey.hasSome,
-        value: [],
-      }),
-    ).toEqual({
-      field: FilterFieldKey.userIds,
-      operator: FilterOperatorKey.in,
-      value: [],
-    });
-  });
-
   it.each([FilterOperatorKey.hasNone, FilterOperatorKey.hasSome])(
     "rejects a malformed non-array value on %s instead of widening it to an existence filter",
     (operator) => {

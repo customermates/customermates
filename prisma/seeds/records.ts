@@ -6,34 +6,64 @@ import { type RecordModel, type RecordRef, type RecordScalar } from "@/features/
 import { validateRecordModel } from "@/features/records/record-model-validation";
 import { RecordCalculationService, type CalculationRecordRepo } from "@/features/records/record-calculation.service";
 import { encodeRecordValue, recordJson } from "@/features/records/record-storage";
-import {
-  buildLegacyFixtureModel,
-  legacyFieldScalar,
-  type LegacyModel,
-  type LegacyType,
-} from "./legacy-conversion/v2/legacy-model";
-import { presentationMigrationModel } from "./legacy-conversion/v5/model";
 import type { SeedContext } from "./context";
 import type { SyntheticSeedData } from "./run";
-import type { CustomFieldSeedData } from "./custom-fields";
-import { SYNTHETIC_CUSTOM_COLUMN_IDS } from "./custom-fields";
+import type { CustomFieldSeedData, SyntheticRecordType } from "./custom-fields";
+import { SYNTHETIC_CUSTOM_FIELD_IDS } from "./custom-fields";
 
-export function syntheticRecordModel(
-  context: Pick<SeedContext, "ids">,
-  fields: CustomFieldSeedData,
-): { source: LegacyModel; model: RecordModel; presentationModel: ReturnType<typeof presentationMigrationModel> } {
-  if (!fields.customColumns) throw new Error("Synthetic record fields are missing");
-  const source = buildLegacyFixtureModel(
-    context.ids.company,
-    "eur",
-    SYNTHETIC_CUSTOM_COLUMN_IDS.dealStatus,
-    fields.customColumns,
-  );
-  if (source.issues.length) throw new Error(`Invalid synthetic field configuration: ${JSON.stringify(source.issues)}`);
-  const presentationModel = { ...presentationMigrationModel(source), revision: 1 };
-  const model = readRecordModelSnapshot(presentationModel);
-  if (validateRecordModel(model).issues.length) throw new Error("Invalid synthetic record configuration");
-  return { source, model, presentationModel };
+export function syntheticRecordModel(context: Pick<SeedContext, "ids">, fields: CustomFieldSeedData): RecordModel {
+  const companyId = context.ids.company;
+  const id = (key: string) => presetId(companyId, key);
+  const preset = createCrmPreset(companyId, "eur");
+  const modelFields = preset.fields.filter((field) => field.id !== id("deal.stage"));
+  for (const field of fields.customFields)
+    modelFields.push({ ...field, position: modelFields.filter((existing) => existing.typeId === field.typeId).length });
+  for (const field of modelFields) {
+    if ([id("deal.totalValue"), id("deal.totalQuantity"), id("deal.weightedValue")].includes(field.id))
+      field.publishedSummary = true;
+  }
+  const weighted = modelFields.find((field) => field.id === id("deal.weightedValue"));
+  if (!weighted || weighted.behavior.kind !== "formula") throw new Error("Synthetic weighted value is missing");
+  weighted.behavior = {
+    kind: "formula",
+    expression: {
+      kind: "operation",
+      operator: "divide",
+      arguments: [
+        {
+          kind: "operation",
+          operator: "multiply",
+          arguments: [
+            { kind: "field", fieldId: id("deal.totalValue") },
+            { kind: "optionAttribute", fieldId: SYNTHETIC_CUSTOM_FIELD_IDS.dealStatus, attribute: "probability" },
+          ],
+        },
+        { kind: "literal", value: { kind: "decimal", value: "100", currency: null } },
+      ],
+    },
+  };
+  const model: RecordModel = {
+    ...preset,
+    fields: modelFields,
+    types: preset.types.map((type) => {
+      const columns = [
+        ...type.defaults.columns.filter((column) => column !== id("deal.stage")),
+        ...fields.customFields.filter((field) => field.typeId === type.id).map((field) => field.id),
+      ];
+      return {
+        ...type,
+        defaults: {
+          ...type.defaults,
+          columns,
+          groupBy: type.id === id("deal") ? SYNTHETIC_CUSTOM_FIELD_IDS.dealStatus : type.defaults.groupBy,
+        },
+      };
+    }),
+  };
+  const parsed = readRecordModelSnapshot(model);
+  const issues = validateRecordModel(parsed).issues;
+  if (issues.length) throw new Error(`Invalid synthetic record configuration: ${JSON.stringify(issues)}`);
+  return parsed;
 }
 
 async function initialize(
@@ -182,7 +212,7 @@ export async function seedRecordFixtures(
   entities: SyntheticSeedData,
   fields: CustomFieldSeedData,
 ): Promise<void> {
-  const { model: proposed } = syntheticRecordModel(context, fields),
+  const proposed = syntheticRecordModel(context, fields),
     companyId = context.ids.company;
   await context.prisma.$transaction(
     async (prisma) => {
@@ -206,7 +236,7 @@ export async function seedRecordFixtures(
       }
 
       const save = async (
-        kind: LegacyType,
+        kind: SyntheticRecordType,
         row: { id: string; createdAt: Date; updatedAt: Date },
         values: Array<[string, RecordScalar | null]>,
       ) => {
@@ -255,17 +285,14 @@ export async function seedRecordFixtures(
           ]);
         }
       }
-      for (const row of fields.customFieldValues ?? []) {
-        const field = model.fields.find((field) => field.id === row.columnId);
-        if (!field || field.typeId !== presetId(companyId, row.entityType) || field.behavior.kind !== "input")
+      for (const row of fields.customFieldValues) {
+        const field = model.fields.find((field) => field.id === row.fieldId);
+        if (!field || field.typeId !== presetId(companyId, row.recordType) || field.behavior.kind !== "input")
           throw new Error("Synthetic custom field has changed");
-        const recordId = row[`${row.entityType}Id`];
-        if (!recordId) throw new Error("Synthetic field has no record");
-        const value = legacyFieldScalar(row.value, field, "EUR");
         await records.setValue(
-          { typeId: field.typeId, recordId },
+          { typeId: field.typeId, recordId: row.recordId },
           field.id,
-          value ? { state: "value", value } : { state: "missing" },
+          { state: "value", value: row.value },
           model.revision,
         );
       }

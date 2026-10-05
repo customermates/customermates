@@ -1,4 +1,4 @@
-import type { FindUserRepo } from "../user/user.service";
+import type { FindUserRepo } from "../user/find-user.repo";
 import type { AuthService } from "./auth.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { Redirect } from "./auth-outcome";

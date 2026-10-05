@@ -1,3 +1,4 @@
+import { PermissionService } from "@/core/base/permission.service";
 import type { TenantUser } from "@/features/user/user.schema";
 
 import { randomUUID } from "node:crypto";
@@ -62,7 +63,7 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
         create: () => Promise.resolve([]),
         createUnscoped: () => Promise.resolve([]),
       },
-      new PrismaAuditLogRepo(),
+      new PrismaAuditLogRepo(new PermissionService()),
       { dispatch: () => Promise.resolve() } as never,
       {
         findEventRoutinesUnscoped: () => Promise.resolve([]),
@@ -78,7 +79,10 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
 
   const create = (tenant: TenantUser, pages: Array<{ title: string; markdown: string }>, requireEmpty = false) =>
     runWithTenant(tenant, () =>
-      new CreateWikiPagesInteractor(new PrismaWikiPageRepo(), eventService()).invoke({ pages, requireEmpty }),
+      new CreateWikiPagesInteractor(new PrismaWikiPageRepo(new PermissionService()), eventService()).invoke({
+        pages,
+        requireEmpty,
+      }),
     );
   const update = (
     tenant: TenantUser,
@@ -88,9 +92,14 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
       title?: string;
       markdown?: string;
     },
-  ) => runWithTenant(tenant, () => new UpdateWikiPageInteractor(new PrismaWikiPageRepo(), eventService()).invoke(data));
+  ) =>
+    runWithTenant(tenant, () =>
+      new UpdateWikiPageInteractor(new PrismaWikiPageRepo(new PermissionService()), eventService()).invoke(data),
+    );
   const remove = (tenant: TenantUser, data: { id: string; expectedUpdatedAt: Date }) =>
-    runWithTenant(tenant, () => new DeleteWikiPageInteractor(new PrismaWikiPageRepo(), eventService()).invoke(data));
+    runWithTenant(tenant, () =>
+      new DeleteWikiPageInteractor(new PrismaWikiPageRepo(new PermissionService()), eventService()).invoke(data),
+    );
 
   beforeAll(async () => {
     await client.connect();
@@ -142,16 +151,16 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
 
     const [listed, searched, loaded] = await runWithTenant(user, async () =>
       Promise.all([
-        new GetWikiPagesInteractor(new PrismaWikiPageRepo()).invoke({
+        new GetWikiPagesInteractor(new PrismaWikiPageRepo(new PermissionService())).invoke({
           page: 1,
           pageSize: 25,
         }),
-        new SearchWikiPagesInteractor(new PrismaWikiPageRepo(), "stored").invoke({
+        new SearchWikiPagesInteractor(new PrismaWikiPageRepo(new PermissionService()), "stored").invoke({
           query: "foreign",
           page: 1,
           pageSize: 25,
         }),
-        new GetWikiPageInteractor(new PrismaWikiPageRepo()).invoke({
+        new GetWikiPageInteractor(new PrismaWikiPageRepo(new PermissionService())).invoke({
           id: foreignPage.id,
         }),
       ]),
@@ -190,7 +199,7 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     if (!local.ok) throw new Error("Wiki fixtures were not created.");
     const search = (query: string, page = 1) =>
       runWithTenant(user, () =>
-        new SearchWikiPagesInteractor(new PrismaWikiPageRepo(), "stored").invoke({
+        new SearchWikiPagesInteractor(new PrismaWikiPageRepo(new PermissionService()), "stored").invoke({
           query,
           page,
           pageSize: 5,
@@ -236,7 +245,11 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     if (!created.ok) throw new Error("Wiki fixtures were not created.");
     const search = (query: string) =>
       runWithTenant(user, () =>
-        new SearchWikiPagesInteractor(new PrismaWikiPageRepo(), "stored").invoke({ query, page: 1, pageSize: 5 }),
+        new SearchWikiPagesInteractor(new PrismaWikiPageRepo(new PermissionService()), "stored").invoke({
+          query,
+          page: 1,
+          pageSize: 5,
+        }),
       );
 
     const refund = await search("What is our refund policy?");
@@ -264,7 +277,7 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     const page = created.data[0];
     const search = (query: string) =>
       runWithTenant(user, () =>
-        new SearchWikiPagesInteractor(new PrismaWikiPageRepo(), "stored").invoke({
+        new SearchWikiPagesInteractor(new PrismaWikiPageRepo(new PermissionService()), "stored").invoke({
           query,
           page: 1,
           pageSize: 5,
@@ -289,7 +302,7 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
       data: { total: 1 },
     });
     const catalog = await runWithTenant(user, () =>
-      new GetWikiCatalogInteractor(new PrismaWikiPageRepo()).invoke({
+      new GetWikiCatalogInteractor(new PrismaWikiPageRepo(new PermissionService())).invoke({
         page: 1,
       }),
     );
@@ -327,7 +340,7 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     const page = created.data[0];
 
     const searched = await runWithTenant(user, () =>
-      new SearchWikiPagesInteractor(new PrismaWikiPageRepo(), "stored").invoke({
+      new SearchWikiPagesInteractor(new PrismaWikiPageRepo(new PermissionService()), "stored").invoke({
         query: "支持",
         page: 1,
         pageSize: 5,
@@ -339,7 +352,7 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     });
 
     const question = await runWithTenant(user, () =>
-      new SearchWikiPagesInteractor(new PrismaWikiPageRepo(), "stored").invoke({
+      new SearchWikiPagesInteractor(new PrismaWikiPageRepo(new PermissionService()), "stored").invoke({
         query: "如何处理支持请求？",
         page: 1,
         pageSize: 5,
@@ -350,7 +363,7 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
 
     expect(
       await runWithTenant(user, () =>
-        new SearchWikiPagesInteractor(new PrismaWikiPageRepo(), "stored").invoke({
+        new SearchWikiPagesInteractor(new PrismaWikiPageRepo(new PermissionService()), "stored").invoke({
           query: "지원절차",
           page: 1,
           pageSize: 5,
@@ -374,7 +387,9 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     }
     await create(foreignUser, [{ title: "Foreign catalog entry", markdown: "Hidden" }]);
     const catalog = (page: number) =>
-      runWithTenant(user, () => new GetWikiCatalogInteractor(new PrismaWikiPageRepo()).invoke({ page }));
+      runWithTenant(user, () =>
+        new GetWikiCatalogInteractor(new PrismaWikiPageRepo(new PermissionService())).invoke({ page }),
+      );
     const first = await catalog(1);
     const second = await catalog(2);
     expect(first).toMatchObject({
@@ -416,7 +431,7 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     const longQuery = `${Array.from({ length: 40 }, (_, index) => `a${index}`).join(" ")} zephyr escalation`;
 
     const searched = await runWithTenant(user, () =>
-      new SearchWikiPagesInteractor(new PrismaWikiPageRepo(), "stored").invoke({
+      new SearchWikiPagesInteractor(new PrismaWikiPageRepo(new PermissionService()), "stored").invoke({
         query: longQuery,
         page: 1,
         pageSize: 5,
@@ -471,7 +486,7 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
       pageId,
     ]);
     const loaded = await runWithTenant(user, () =>
-      new GetWikiPageInteractor(new PrismaWikiPageRepo()).invoke({
+      new GetWikiPageInteractor(new PrismaWikiPageRepo(new PermissionService())).invoke({
         id: pageId,
       }),
     );
@@ -494,7 +509,7 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     expect(outcomes.filter((outcome) => customCode(outcome) === CustomErrorCode.wikiPageConflict)).toHaveLength(1);
 
     const current = await runWithTenant(user, () =>
-      new GetWikiPageInteractor(new PrismaWikiPageRepo()).invoke({
+      new GetWikiPageInteractor(new PrismaWikiPageRepo(new PermissionService())).invoke({
         id: pageId,
       }),
     );
@@ -572,16 +587,16 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     const setupState = (tenant: TenantUser) =>
       runWithTenant(tenant, () =>
         new GetWikiHomepageSetupStateInteractor(
-          new PrismaWikiPageRepo(),
-          new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo()),
+          new PrismaWikiPageRepo(new PermissionService()),
+          new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo(new PermissionService())),
         ).invoke(),
       );
     const background = { dispatch: vi.fn().mockResolvedValue(undefined) };
     const startSetup = (tenant: TenantUser) =>
       runWithTenant(tenant, () =>
         new StartWikiHomepageSetupInteractor(
-          new PrismaWikiPageRepo(),
-          new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo()),
+          new PrismaWikiPageRepo(new PermissionService()),
+          new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo(new PermissionService())),
           background as never,
         ).invoke({ homepage: "example.org", clientRequestId: randomUUID(), locale: "en" }),
       );
@@ -640,7 +655,10 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
       runWithTenant(tenant, async () => {
         if (!(await new UserService({} as never, {} as never).hasPermission(Resource.wiki, Action.create)))
           return false;
-        const pages = await new GetWikiPagesInteractor(new PrismaWikiPageRepo()).invoke({ page: 1, pageSize: 5 });
+        const pages = await new GetWikiPagesInteractor(new PrismaWikiPageRepo(new PermissionService())).invoke({
+          page: 1,
+          pageSize: 5,
+        });
         return pages.ok && pages.data.total === 0;
       });
     const readOnly = {

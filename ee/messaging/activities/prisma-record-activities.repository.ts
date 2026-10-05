@@ -1,5 +1,6 @@
+import type { PermissionService } from "@/core/base/permission.service";
 import { recordReadPredicate } from "@/features/records/record-query";
-import { BaseRepository } from "@/core/base/base-repository";
+import { TenantRepository } from "@/core/base/tenant-repository";
 import { Action, Prisma, Resource } from "@/generated/prisma";
 import type { RecordActivitiesRepo, RecordActivityActor } from "./record-activities.repo";
 import type { RecordActivitiesInput } from "./record-activities.schema";
@@ -11,17 +12,17 @@ import {
   compileRecordActivityIndex,
   compileRecordActivityScope,
   compileRecordHistoryScope,
-  compileLegacyActivityTypes,
   type RecordActivityIndexRow,
 } from "./record-activity-query";
 import { formatChannelIdentifier, threadCounterpart } from "../thread-display";
-import { readRecordModelSnapshot } from "@/features/records/record-model-snapshot";
 import type { RecordRef } from "@/features/records/record-model.schema";
-import { presetId } from "@/features/records/crm-preset";
-import { LEGACY_RECORD_KINDS } from "@/features/records/legacy-record-history";
 import { WIKI_PAGE_AUDIT_EVENTS } from "@/features/wiki/wiki-audit-events";
 
-export class PrismaRecordActivitiesRepo extends BaseRepository implements RecordActivitiesRepo {
+export class PrismaRecordActivitiesRepo extends TenantRepository implements RecordActivitiesRepo {
+  constructor(private readonly permissions: PermissionService) {
+    super();
+  }
+
   index(input: RecordActivitiesInput, model: RecordModel, access: RecordAccessMap, available: ActivityKind[]) {
     return this.prisma.$queryRaw<RecordActivityIndexRow[]>(
       compileRecordActivityIndex(
@@ -31,7 +32,7 @@ export class PrismaRecordActivitiesRepo extends BaseRepository implements Record
         model,
         access,
         available,
-        this.hasPermission(Resource.wiki, Action.readAll),
+        this.permissions.has(Resource.wiki, Action.readAll),
       ),
     );
   }
@@ -73,7 +74,9 @@ export class PrismaRecordActivitiesRepo extends BaseRepository implements Record
       where: {
         companyId: this.companyId,
         id: { in: ids },
-        ...(this.hasPermission(Resource.wiki, Action.readAll) ? {} : { event: { notIn: [...WIKI_PAGE_AUDIT_EVENTS] } }),
+        ...(this.permissions.has(Resource.wiki, Action.readAll)
+          ? {}
+          : { event: { notIn: [...WIKI_PAGE_AUDIT_EVENTS] } }),
       },
     });
     const actors = await this.prisma.user.findMany({
@@ -101,43 +104,12 @@ export class PrismaRecordActivitiesRepo extends BaseRepository implements Record
     }));
   }
 
-  async legacyModelOrThrow() {
-    const [revision, company] = await Promise.all([
-      this.prisma.recordSchemaRevision.findFirstOrThrow({
-        where: { companyId: this.companyId },
-        orderBy: { revision: "asc" },
-      }),
-      this.prisma.company.findUniqueOrThrow({
-        where: { id: this.companyId },
-        select: { currency: true },
-      }),
-    ]);
-    return {
-      model: readRecordModelSnapshot(revision.snapshot),
-      currency: company.currency,
-    };
-  }
-
   async hasHistoryCompanyWide(ref: RecordRef) {
     const event = await this.prisma.recordEvent.findFirst({
       where: { companyId: this.companyId, ...ref },
       select: { id: true },
     });
-    if (event) return true;
-    const kind = LEGACY_RECORD_KINDS.find((kind) => presetId(this.companyId, kind) === ref.typeId);
-    return Boolean(
-      kind &&
-        (await this.prisma.auditLog.findFirst({
-          where: {
-            companyId: this.companyId,
-            entityId: ref.recordId,
-            event: {
-              in: ["created", "updated", "deleted"].map((action) => `${kind}.${action}`),
-            },
-          },
-          select: { id: true },
-        })),
-    );
+    return Boolean(event);
   }
 
   async messagesCompanyWide(ids: string[]) {
@@ -202,13 +174,12 @@ export class PrismaRecordActivitiesRepo extends BaseRepository implements Record
     model: RecordModel,
     access: RecordAccessMap,
   ) {
-    const records = index.filter((row) => row.kind === "record" || row.kind === "audit");
+    const records = index.filter((row) => row.kind === "record");
     const messageIds = index.filter((row) => row.kind === "message").map((row) => row.id);
     if (!records.length && !messageIds.length) return [];
     const scope = compileRecordActivityScope(this.companyId, this.userId, input, model, access);
     const history = compileRecordHistoryScope(this.companyId, input, model, access);
-    const recordIds = records.filter((row) => row.kind === "record").map((row) => row.id);
-    const auditIds = records.filter((row) => row.kind === "audit").map((row) => row.id);
+    const recordIds = records.map((row) => row.id);
     const readableTypes = model.types
       .filter((type) => !type.archived)
       .map(
@@ -218,14 +189,10 @@ export class PrismaRecordActivitiesRepo extends BaseRepository implements Record
     const rows = await this.prisma.$queryRaw<
       Array<{ id: string; kind: string; typeId: string; recordId: string }>
     >(Prisma.sql`
-      WITH legacy_types AS (${compileLegacyActivityTypes(this.companyId)}), activity_scope AS (${scope}), history_scope AS (${history})
+      WITH activity_scope AS (${scope}), history_scope AS (${history})
       SELECT event.id, 'record'::text AS kind, event."typeId", event."recordId" FROM "RecordEvent" event
       JOIN history_scope scope ON scope."typeId" = event."typeId" AND scope.id = event."recordId"
       WHERE event."companyId" = ${this.companyId} AND ${recordIds.length ? Prisma.sql`event.id IN (${Prisma.join(recordIds)})` : Prisma.sql`FALSE`}
-      UNION ALL SELECT event.id, 'audit'::text AS kind, legacy."typeId", event."entityId" AS "recordId" FROM "AuditLog" event
-      JOIN legacy_types legacy ON legacy.event = event.event
-      JOIN history_scope scope ON scope."typeId" = legacy."typeId" AND scope.id = event."entityId"
-      WHERE event."companyId" = ${this.companyId} AND ${auditIds.length ? Prisma.sql`event.id IN (${Prisma.join(auditIds)})` : Prisma.sql`FALSE`}
       UNION ALL SELECT message.id, 'message'::text AS kind, association."typeId", association."recordId"
       FROM "MessagingMessage" message
       JOIN "MessagingThreadRecordLink" association ON association."companyId" = ${this.companyId} AND association."threadId" = message."messagingThreadId"

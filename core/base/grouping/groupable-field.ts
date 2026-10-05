@@ -13,28 +13,7 @@ export const AUTOMATION_GROUPABLE_MODELS = ["routine"] as const;
 export const GROUPABLE_MODELS = [...OPERATOR_GROUPABLE_MODELS, ...AUTOMATION_GROUPABLE_MODELS] as const;
 export type OperatorGroupableModel = (typeof OPERATOR_GROUPABLE_MODELS)[number];
 export type GroupableModel = (typeof GROUPABLE_MODELS)[number];
-export type GroupingTargetModel = "user";
-
 export type GroupingKind = "customSingleSelect" | "enum" | "relation" | "dateBucket";
-
-export type RelationJoinWiring = {
-  via?: "join";
-  collection: string;
-  joinModel: string;
-  keyColumn: string;
-  parentRelation: string;
-  targetModel: GroupingTargetModel;
-  targetRelation: string;
-};
-
-export type RelationColumnWiring = {
-  via: "column";
-  column: string;
-  targetModel: GroupingTargetModel;
-  targetRelation: string;
-};
-
-export type RelationWiring = RelationJoinWiring | RelationColumnWiring;
 
 export type EnumWiring = {
   column: string;
@@ -44,19 +23,12 @@ export type EnumWiring = {
   valueLabelKey: (value: string) => string;
 };
 
-export const GROUPING_JOIN = {
+export const GROUPING_RELATIONS = {
   user: {},
   company: {},
   operatorAudit: {},
-  routine: {
-    ownerUserId: {
-      via: "column",
-      column: "ownerUserId",
-      targetModel: "user",
-      targetRelation: "owner",
-    },
-  },
-} satisfies Record<GroupableModel, Readonly<Partial<Record<FilterFieldKey, RelationWiring>>>>;
+  routine: { ownerUserId: true },
+} satisfies Record<GroupableModel, Readonly<Partial<Record<FilterFieldKey, true>>>>;
 
 const SUBSCRIPTION_PLAN_WIRING: EnumWiring = {
   column: "plan",
@@ -104,7 +76,7 @@ export const GROUPING_ENUM = {
 
 export const GROUPABLE_DATE_FIELDS = [FilterFieldKey.createdAt, FilterFieldKey.updatedAt] as const;
 
-export type GroupableRelationField<M extends GroupableModel> = keyof (typeof GROUPING_JOIN)[M] & string;
+export type GroupableRelationField<M extends GroupableModel> = keyof (typeof GROUPING_RELATIONS)[M] & string;
 export type GroupableEnumField<M extends GroupableModel> = keyof (typeof GROUPING_ENUM)[M] & string;
 export type GroupableDateField = (typeof GROUPABLE_DATE_FIELDS)[number];
 
@@ -121,7 +93,7 @@ export type GroupableFieldSpec =
       labelKey: string;
       valueLabelKey: (value: string) => string;
     })
-  | (SpecBase & { kind: "relation"; labelKey: string } & RelationWiring)
+  | (SpecBase & { kind: "relation"; labelKey: string })
   | (SpecBase & {
       kind: "dateBucket";
       column: string;
@@ -144,14 +116,13 @@ export function relationGroupable<M extends GroupableModel>(args: {
   model: M;
   field: GroupableRelationField<M>;
 }): GroupableFieldSpec {
-  const wiring = (GROUPING_JOIN[args.model] as Record<string, RelationWiring | undefined>)[args.field];
-  if (!wiring) throw new Error(`No grouping join wired for ${args.model}.${args.field}`);
+  if (!(GROUPING_RELATIONS[args.model] as Record<string, true | undefined>)[args.field])
+    throw new Error(`No grouping relation declared for ${args.model}.${args.field}`);
 
   return {
     kind: "relation",
     field: args.field,
     model: args.model,
-    ...wiring,
     labelKey: `Common.filters.fields.${args.field}`,
   };
 }

@@ -1,10 +1,10 @@
 import type { AdConversionExportRow, GetAdConversionExportRepo } from "./get/get-ad-conversion-export.interactor";
 import type { AdIdentifierKind } from "@/features/acquisition/ad-provider-registry";
 
-import { BaseRepository } from "@/core/base/base-repository";
+import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 
-export class PrismaAdConversionExportRepo extends BaseRepository implements GetAdConversionExportRepo {
+export class PrismaAdConversionExportRepo extends TenantRepository implements GetAdConversionExportRepo {
   @BypassTenantGuard
   async listAdConversionCandidatesUnscoped(noticeVersion: string): Promise<AdConversionExportRow[]> {
     const attributions = await this.prisma.adAttribution.findMany({

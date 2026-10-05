@@ -1,4 +1,3 @@
-import { presetId } from "@/features/records/crm-preset";
 import { mockRecordDiscovery } from "@/tests/helpers/record-tools";
 import * as Sentry from "@sentry/nextjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -202,7 +201,7 @@ describe("agent access", () => {
                   context: {
                     reference: {
                       kind: "record",
-                      entityType: "contact",
+                      typeId: "10000000-0000-4000-8000-000000000001",
                       recordId: MESSAGE_ID,
                     },
                     label: "Ada Lovelace",
@@ -251,7 +250,7 @@ describe("agent access", () => {
     expect(result.ok).toBe(true);
     if (!result.ok || result.data.disposition !== "run") return;
     expect(result.data.messages[0]?.text).toBe(
-      `<selected_context kind="record" typeId="${presetId(mockUser.companyId, "contact")}" recordId="${MESSAGE_ID}"/>\nEarlier question`,
+      `<selected_context kind="record" typeId="10000000-0000-4000-8000-000000000001" recordId="${MESSAGE_ID}"/>\nEarlier question`,
     );
     expect(result.data.messages[1]?.text).toHaveLength(2000);
     expect(result.data.messages[2]?.text).toBe(
@@ -1067,7 +1066,7 @@ describe("agent access", () => {
     const storedContext = {
       reference: {
         kind: "record" as const,
-        entityType: "contact" as const,
+        typeId: "10000000-0000-4000-8000-000000000001",
         recordId: MESSAGE_ID,
       },
       label: "Ada Lovelace",
@@ -1371,65 +1370,6 @@ describe("agent access", () => {
     expect(JSON.stringify(result.data)).not.toContain("private-uuid");
     expect(JSON.stringify(result.data)).not.toContain("private-result");
     expect(repo.markConversationRead).not.toHaveBeenCalled();
-  });
-
-  it("strips only the legacy server-injected page context prefix from user messages", async () => {
-    const repo = {
-      findConversation: vi.fn().mockResolvedValue({
-        id: CONVERSATION_ID,
-        title: '\uFEFF <page_context route="/en/dashboard"/>\nLegacy title',
-      }),
-      hasRunningTurn: vi.fn().mockResolvedValue(false),
-      listMessagePage: vi.fn().mockResolvedValue(
-        messagePage([
-          {
-            id: "m1",
-            role: "user",
-            parts: [
-              {
-                type: "context",
-                context: {
-                  reference: {
-                    kind: "record",
-                    entityType: "contact",
-                    recordId: MESSAGE_ID,
-                  },
-                  label: "Ada Lovelace",
-                },
-              },
-              {
-                type: "text",
-                text: '<page_context route="/en/dashboard"/>\nShow 00000000-0000-4000-8000-000000000123 around <page_context route="typed-by-user"/>',
-              },
-            ],
-            createdAt: new Date(0),
-          },
-        ]),
-      ),
-    };
-
-    const result = await new GetAgentConversationInteractor(repo as never, mockEntitlementService()).invoke({
-      conversationId: CONVERSATION_ID,
-    });
-
-    expect(result.ok && result.data.messages[0]?.parts).toEqual([
-      {
-        type: "context",
-        context: {
-          reference: {
-            kind: "record",
-            entityType: "contact",
-            recordId: MESSAGE_ID,
-          },
-          label: "Ada Lovelace",
-        },
-      },
-      {
-        type: "text",
-        text: 'Show 00000000-0000-4000-8000-000000000123 around <page_context route="typed-by-user"/>',
-      },
-    ]);
-    expect(result.ok && result.data.title).toBe("Legacy title");
   });
 
   it("tells the client a turn is still in flight, so a reloaded page can rejoin it", async () => {

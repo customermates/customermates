@@ -156,9 +156,6 @@ describe("system prompt", () => {
       "messaging.message.received",
     ]);
     expect(one.length).toBeLessThan(all.length);
-    const retired = buildAgentSystemPrompt({ ...base, surface: "routine", triggerEvent: "deal.updated" });
-    expect(retired).toContain("- deal.updated:");
-    expect(retired).not.toContain("- record.created:");
     const unknown = buildAgentSystemPrompt({ ...base, surface: "routine", triggerEvent: "made.up" });
     for (const event of ROUTINE_TRIGGER_EVENTS) expect(unknown).toContain(`- ${event}:`);
   });

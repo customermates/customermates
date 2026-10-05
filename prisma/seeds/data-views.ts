@@ -1,10 +1,6 @@
 import type { DateBucket } from "@/core/base/grouping/grouping.schema";
 import type { DataViewState } from "@/core/data-view/data-view-state.schema";
-import { presetId } from "@/features/records/crm-preset";
 import type { PrismaClient } from "@/generated/prisma";
-import type { LegacyType } from "./legacy-conversion/v2/legacy-model";
-import { migratePresentationState } from "./legacy-conversion/v5/state";
-import { syntheticRecordModel } from "./records";
 
 import { FilterOperatorKey, ViewMode } from "@/core/base/base-query-builder";
 import { SURFACE } from "@/core/data-view/data-view-keys";
@@ -14,6 +10,7 @@ import { MessagingProvider, MessagingThreadState } from "@/generated/prisma";
 
 import type { SeedContext } from "./context";
 import type { CustomFieldSeedData } from "./custom-fields";
+import { syntheticRecordKeys } from "./record-keys";
 
 import { SYNTHETIC_DATA_VIEW_ID_PREFIX, SYNTHETIC_DATA_VIEW_IDS } from "./data-view-ids";
 
@@ -32,8 +29,9 @@ export function buildSyntheticDataViewFixtures(
   context: Pick<SeedContext, "ids">,
   customFields: CustomFieldSeedData,
 ): SyntheticDataViewFixture[] {
-  const { customColumnIds, customOptionIds } = customFields;
+  const { customFieldIds, customOptionIds } = customFields;
   const { user } = context.ids;
+  const { id, surface, relationship, path } = syntheticRecordKeys(context.ids.company);
 
   const board = (field: string, bucket?: DateBucket): Pick<DataViewState, "viewMode" | "grouping"> => ({
     viewMode: ViewMode.card,
@@ -46,234 +44,315 @@ export function buildSyntheticDataViewFixtures(
 
   const sorted = (field: string, direction: "asc" | "desc"): DataViewState["sortDescriptor"] => ({ field, direction });
 
+  const dealContacts = relationship("deal.contacts", "outgoing");
+  const dealOrganizations = relationship("deal.organizations", "outgoing");
+  const dealServices = path("deal.services.path");
+  const dealTasks = relationship("task.deals", "incoming");
+  const dealLineItems = relationship("lineItem.deal", "incoming");
+  const contactTasks = relationship("task.contacts", "incoming");
+  const contactNameParts = [id("contact.firstName"), id("contact.lastName"), id("contact.avatarUrl")];
+  const organizationTasks = relationship("task.organizations", "incoming");
+  const serviceTasks = relationship("task.services", "incoming");
+  const serviceLineItems = relationship("lineItem.service", "incoming");
+
   return [
     {
       id: SYNTHETIC_DATA_VIEW_IDS.openDeals,
       userId: user,
-      surfaceKey: SURFACE.deals,
+      surfaceKey: surface("deal"),
       name: "Open deals",
       position: 0,
       state: {
-        filters: selected(customColumnIds.dealStatus, [customOptionIds.dealStatus.open]),
-        ...board(customColumnIds.dealStatus),
+        filters: selected(customFieldIds.dealStatus, [customOptionIds.dealStatus.open]),
+        ...board(customFieldIds.dealStatus),
         hiddenColumns: [
-          customColumnIds.dealStatus,
-          "contacts",
-          "services",
-          "tasks",
-          "totalQuantity",
-          "users",
-          "createdAt",
-          "updatedAt",
+          customFieldIds.dealStatus,
+          dealContacts,
+          dealServices,
+          dealTasks,
+          id("deal.totalQuantity"),
+          "system:assignedTo",
+          "system:createdAt",
+          "system:updatedAt",
+          dealLineItems,
         ],
       },
     },
     {
       id: SYNTHETIC_DATA_VIEW_IDS.dealPipeline,
       userId: user,
-      surfaceKey: SURFACE.deals,
+      surfaceKey: surface("deal"),
       name: "Sales pipeline",
       position: 1,
       state: {
-        ...board(customColumnIds.dealStatus),
-        sortDescriptor: sorted("totalValue", "desc"),
+        ...board(customFieldIds.dealStatus),
+        sortDescriptor: sorted(id("deal.totalValue"), "desc"),
         hiddenColumns: [
-          customColumnIds.dealStatus,
-          "contacts",
-          "services",
-          "tasks",
-          "totalQuantity",
-          "users",
-          "createdAt",
-          "updatedAt",
+          customFieldIds.dealStatus,
+          dealContacts,
+          dealServices,
+          dealTasks,
+          id("deal.totalQuantity"),
+          "system:assignedTo",
+          "system:createdAt",
+          "system:updatedAt",
+          dealLineItems,
         ],
       },
     },
     {
       id: SYNTHETIC_DATA_VIEW_IDS.dealForecast,
       userId: user,
-      surfaceKey: SURFACE.deals,
+      surfaceKey: surface("deal"),
       name: "Forecast review",
       position: 2,
       state: {
         viewMode: ViewMode.table,
-        sortDescriptor: sorted("weightedValue", "desc"),
+        sortDescriptor: sorted(id("deal.weightedValue"), "desc"),
         pageSize: 25,
-        columnOrder: ["totalValue", "weightedValue", customColumnIds.dealStatus, "organizations", "users"],
-        columnWidths: { totalValue: 160, weightedValue: 180 },
-        hiddenColumns: ["contacts", "services", "tasks", "totalQuantity", "createdAt", "updatedAt"],
+        columnOrder: [
+          id("deal.totalValue"),
+          id("deal.weightedValue"),
+          customFieldIds.dealStatus,
+          dealOrganizations,
+          "system:assignedTo",
+        ],
+        columnWidths: { [id("deal.totalValue")]: 160, [id("deal.weightedValue")]: 180 },
+        hiddenColumns: [
+          dealContacts,
+          dealServices,
+          dealTasks,
+          id("deal.totalQuantity"),
+          "system:createdAt",
+          "system:updatedAt",
+          dealLineItems,
+        ],
       },
     },
     {
       id: SYNTHETIC_DATA_VIEW_IDS.dealsByAccount,
       userId: user,
-      surfaceKey: SURFACE.deals,
+      surfaceKey: surface("deal"),
       name: "By account",
       position: 3,
       state: {
-        ...board("organizationIds"),
-        hiddenColumns: ["organizations", "contacts", "tasks", "totalQuantity", "users", "createdAt", "updatedAt"],
+        ...board(dealOrganizations),
+        hiddenColumns: [
+          dealOrganizations,
+          dealContacts,
+          dealTasks,
+          id("deal.totalQuantity"),
+          "system:assignedTo",
+          "system:createdAt",
+          "system:updatedAt",
+          dealLineItems,
+        ],
       },
     },
     {
       id: SYNTHETIC_DATA_VIEW_IDS.contactPipeline,
       userId: user,
-      surfaceKey: SURFACE.contacts,
+      surfaceKey: surface("contact"),
       name: "Lead pipeline",
       position: 0,
       state: {
-        ...board(customColumnIds.contactSalesPipeline),
+        ...board(customFieldIds.contactSalesPipeline),
         hiddenColumns: [
-          customColumnIds.contactSalesPipeline,
-          customColumnIds.contactPhone,
-          "channels",
-          "tasks",
-          "users",
-          "createdAt",
-          "updatedAt",
+          customFieldIds.contactSalesPipeline,
+          customFieldIds.contactPhone,
+          "system:channels",
+          contactTasks,
+          "system:assignedTo",
+          "system:createdAt",
+          "system:updatedAt",
+          ...contactNameParts,
         ],
       },
     },
     {
       id: SYNTHETIC_DATA_VIEW_IDS.contactsInPlay,
       userId: user,
-      surfaceKey: SURFACE.contacts,
+      surfaceKey: surface("contact"),
       name: "In play",
       position: 1,
       state: {
-        filters: selected(customColumnIds.contactSalesPipeline, [
+        filters: selected(customFieldIds.contactSalesPipeline, [
           customOptionIds.contactSalesPipeline.contact,
           customOptionIds.contactSalesPipeline.qualified,
           customOptionIds.contactSalesPipeline.inProgress,
         ]),
         viewMode: ViewMode.table,
-        sortDescriptor: sorted("updatedAt", "desc"),
-        columnOrder: [customColumnIds.contactSalesPipeline, "organizations", "deals", "users"],
-        hiddenColumns: ["channels", "tasks", "createdAt"],
+        sortDescriptor: sorted("system:updatedAt", "desc"),
+        columnOrder: [
+          customFieldIds.contactSalesPipeline,
+          relationship("contact.organizations", "outgoing"),
+          relationship("deal.contacts", "incoming"),
+          "system:assignedTo",
+        ],
+        hiddenColumns: ["system:channels", contactTasks, "system:createdAt", ...contactNameParts],
       },
     },
     {
       id: SYNTHETIC_DATA_VIEW_IDS.contactsRecentlyAdded,
       userId: user,
-      surfaceKey: SURFACE.contacts,
+      surfaceKey: surface("contact"),
       name: "Added by month",
       position: 2,
       state: {
         viewMode: ViewMode.table,
-        grouping: { field: "createdAt", bucket: "month" },
-        sortDescriptor: sorted("createdAt", "desc"),
+        grouping: { field: "system:createdAt", bucket: "month" },
+        sortDescriptor: sorted("system:createdAt", "desc"),
         pageSize: 25,
-        hiddenColumns: ["channels", "tasks", "updatedAt"],
+        hiddenColumns: ["system:channels", contactTasks, "system:updatedAt", ...contactNameParts],
       },
     },
     {
       id: SYNTHETIC_DATA_VIEW_IDS.organizationsByType,
       userId: user,
-      surfaceKey: SURFACE.organizations,
+      surfaceKey: surface("organization"),
       name: "Accounts by type",
       position: 0,
       state: {
-        ...board(customColumnIds.organizationType),
+        ...board(customFieldIds.organizationType),
         hiddenColumns: [
-          customColumnIds.organizationType,
-          customColumnIds.organizationWebsite,
-          "tasks",
-          "users",
-          "createdAt",
-          "updatedAt",
+          customFieldIds.organizationType,
+          customFieldIds.organizationWebsite,
+          organizationTasks,
+          "system:assignedTo",
+          "system:createdAt",
+          "system:updatedAt",
         ],
       },
     },
     {
       id: SYNTHETIC_DATA_VIEW_IDS.directCustomers,
       userId: user,
-      surfaceKey: SURFACE.organizations,
+      surfaceKey: surface("organization"),
       name: "Direct customers",
       position: 1,
       state: {
-        filters: selected(customColumnIds.organizationType, [customOptionIds.organizationType.directCustomer]),
+        filters: selected(customFieldIds.organizationType, [customOptionIds.organizationType.directCustomer]),
         viewMode: ViewMode.table,
-        sortDescriptor: sorted("name", "asc"),
-        columnOrder: [customColumnIds.organizationType, "deals", "contacts", "users"],
-        columnWidths: { name: 260 },
-        hiddenColumns: ["tasks", "createdAt"],
+        sortDescriptor: sorted(id("organization.name"), "asc"),
+        columnOrder: [
+          customFieldIds.organizationType,
+          relationship("deal.organizations", "incoming"),
+          relationship("contact.organizations", "incoming"),
+          "system:assignedTo",
+        ],
+        columnWidths: { [id("organization.name")]: 260 },
+        hiddenColumns: [organizationTasks, "system:createdAt"],
       },
     },
     {
       id: SYNTHETIC_DATA_VIEW_IDS.serviceCatalogue,
       userId: user,
-      surfaceKey: SURFACE.services,
+      surfaceKey: surface("service"),
       name: "Catalogue by pricing",
       position: 0,
       state: {
-        ...board(customColumnIds.servicePricing),
-        hiddenColumns: [customColumnIds.servicePricing, "tasks", "users", "createdAt", "updatedAt"],
+        ...board(customFieldIds.servicePricing),
+        hiddenColumns: [
+          customFieldIds.servicePricing,
+          serviceTasks,
+          "system:assignedTo",
+          "system:createdAt",
+          "system:updatedAt",
+          serviceLineItems,
+        ],
       },
     },
     {
       id: SYNTHETIC_DATA_VIEW_IDS.hardwareServices,
       userId: user,
-      surfaceKey: SURFACE.services,
+      surfaceKey: surface("service"),
       name: "Hardware",
       position: 1,
       state: {
-        filters: selected(customColumnIds.serviceType, [customOptionIds.serviceType.hardware]),
+        filters: selected(customFieldIds.serviceType, [customOptionIds.serviceType.hardware]),
         viewMode: ViewMode.table,
-        sortDescriptor: sorted("amount", "desc"),
-        columnOrder: ["amount", customColumnIds.servicePricing, "deals"],
-        hiddenColumns: ["tasks", "users", "createdAt", "updatedAt"],
+        sortDescriptor: sorted(id("service.amount"), "desc"),
+        columnOrder: [id("service.amount"), customFieldIds.servicePricing, path("service.deals.path")],
+        hiddenColumns: [serviceTasks, "system:assignedTo", "system:createdAt", "system:updatedAt", serviceLineItems],
       },
     },
     {
       id: SYNTHETIC_DATA_VIEW_IDS.servicesRecentlyUpdated,
       userId: user,
-      surfaceKey: SURFACE.services,
+      surfaceKey: surface("service"),
       name: "Updated by week",
       position: 2,
       state: {
         viewMode: ViewMode.table,
-        grouping: { field: "updatedAt", bucket: "week" },
-        sortDescriptor: sorted("updatedAt", "desc"),
-        hiddenColumns: ["tasks", "createdAt"],
+        grouping: { field: "system:updatedAt", bucket: "week" },
+        sortDescriptor: sorted("system:updatedAt", "desc"),
+        hiddenColumns: [serviceTasks, "system:createdAt", serviceLineItems],
       },
     },
     {
       id: SYNTHETIC_DATA_VIEW_IDS.taskBoard,
       userId: user,
-      surfaceKey: SURFACE.tasks,
+      surfaceKey: surface("task"),
       name: "Delivery board",
       position: 0,
       state: {
-        ...board(customColumnIds.taskStatus),
-        hiddenColumns: [customColumnIds.taskStatus, "contacts", "services", "users", "createdAt", "updatedAt"],
+        ...board(customFieldIds.taskStatus),
+        hiddenColumns: [
+          customFieldIds.taskStatus,
+          relationship("task.contacts", "outgoing"),
+          relationship("task.services", "outgoing"),
+          "system:assignedTo",
+          "system:createdAt",
+          "system:updatedAt",
+        ],
       },
     },
     {
       id: SYNTHETIC_DATA_VIEW_IDS.highPriorityTasks,
       userId: user,
-      surfaceKey: SURFACE.tasks,
+      surfaceKey: surface("task"),
       name: "High priority",
       position: 1,
       state: {
-        filters: selected(customColumnIds.taskPriority, [customOptionIds.taskPriority.high]),
+        filters: selected(customFieldIds.taskPriority, [customOptionIds.taskPriority.high]),
         viewMode: ViewMode.table,
-        sortDescriptor: sorted("updatedAt", "desc"),
-        columnOrder: [customColumnIds.taskPriority, customColumnIds.taskStatus, "deals", "users"],
-        hiddenColumns: ["contacts", "organizations", "services", "createdAt"],
+        sortDescriptor: sorted("system:updatedAt", "desc"),
+        columnOrder: [
+          customFieldIds.taskPriority,
+          customFieldIds.taskStatus,
+          relationship("task.deals", "outgoing"),
+          "system:assignedTo",
+        ],
+        hiddenColumns: [
+          relationship("task.contacts", "outgoing"),
+          relationship("task.organizations", "outgoing"),
+          relationship("task.services", "outgoing"),
+          "system:createdAt",
+        ],
       },
     },
     {
       id: SYNTHETIC_DATA_VIEW_IDS.tasksByPriority,
       userId: user,
-      surfaceKey: SURFACE.tasks,
+      surfaceKey: surface("task"),
       name: "Priority list",
       position: 2,
       state: {
         viewMode: ViewMode.table,
-        grouping: { field: customColumnIds.taskPriority },
-        sortDescriptor: sorted("name", "asc"),
-        columnOrder: [customColumnIds.taskStatus, "deals", "organizations"],
-        hiddenColumns: ["contacts", "services", "users", "createdAt", "updatedAt"],
+        grouping: { field: customFieldIds.taskPriority },
+        sortDescriptor: sorted(id("task.name"), "asc"),
+        columnOrder: [
+          customFieldIds.taskStatus,
+          relationship("task.deals", "outgoing"),
+          relationship("task.organizations", "outgoing"),
+        ],
+        hiddenColumns: [
+          relationship("task.contacts", "outgoing"),
+          relationship("task.services", "outgoing"),
+          "system:assignedTo",
+          "system:createdAt",
+          "system:updatedAt",
+        ],
       },
     },
     {
@@ -332,24 +411,9 @@ export async function persistSyntheticDataViewFixtures(
 }
 
 export async function seedDataViews(context: SeedContext, customFields: CustomFieldSeedData): Promise<void> {
-  const { source, presentationModel } = syntheticRecordModel(context, customFields);
-  const kindBySurface: Record<string, LegacyType> = {
-    [SURFACE.contacts]: "contact",
-    [SURFACE.organizations]: "organization",
-    [SURFACE.deals]: "deal",
-    [SURFACE.services]: "service",
-    [SURFACE.tasks]: "task",
-  };
-  const views = buildSyntheticDataViewFixtures(context, customFields).map((view) => {
-    const kind = kindBySurface[view.surfaceKey];
-    return kind
-      ? {
-          ...view,
-          surfaceKey: `records:${presetId(context.ids.company, kind)}`,
-          state: migratePresentationState(source, kind, view.state, presentationModel, false) as DataViewState,
-        }
-      : view;
-  });
-
-  await persistSyntheticDataViewFixtures(context.prisma, context.ids.company, views);
+  await persistSyntheticDataViewFixtures(
+    context.prisma,
+    context.ids.company,
+    buildSyntheticDataViewFixtures(context, customFields),
+  );
 }

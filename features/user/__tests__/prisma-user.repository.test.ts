@@ -1,3 +1,4 @@
+import { PermissionService } from "@/core/base/permission.service";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import { Status } from "@/generated/prisma";
@@ -59,7 +60,7 @@ describe("PrismaUserRepo.createCompanyAndUser", () => {
   });
 
   it("creates membership, role, subscription, and workspace infrastructure", async () => {
-    await new PrismaUserRepo().createCompanyAndUser(registerArgs);
+    await new PrismaUserRepo(new PermissionService()).createCompanyAndUser(registerArgs);
     expect(prismaMock.company.create).toHaveBeenCalledOnce();
     expect(prismaMock.userRole.create).toHaveBeenCalledOnce();
     expect(prismaMock.user.create).toHaveBeenCalledOnce();
@@ -93,7 +94,7 @@ describe("PrismaUserRepo.createCompanyAndUser", () => {
       },
     ];
 
-    await new PrismaUserRepo().createCompanyAndUser({ ...registerArgs, adAttribution });
+    await new PrismaUserRepo(new PermissionService()).createCompanyAndUser({ ...registerArgs, adAttribution });
 
     expect(prismaMock.adAttribution.create).toHaveBeenCalledTimes(2);
     expect(prismaMock.adAttribution.create).toHaveBeenCalledWith({
@@ -113,7 +114,7 @@ describe("PrismaUserRepo.createCompanyAndUser", () => {
   });
 
   it("records no attribution or conversion for an unattributed registration", async () => {
-    await new PrismaUserRepo().createCompanyAndUser({ ...registerArgs, adAttribution: [] });
+    await new PrismaUserRepo(new PermissionService()).createCompanyAndUser({ ...registerArgs, adAttribution: [] });
 
     expect(prismaMock.adAttribution.create).not.toHaveBeenCalled();
     expect(prismaMock.conversionEvent.create).not.toHaveBeenCalled();
@@ -123,7 +124,7 @@ describe("PrismaUserRepo.createCompanyAndUser", () => {
     const now = new Date("2026-11-29T10:00:00.000Z");
     prismaMock.adAttribution.deleteMany.mockResolvedValueOnce({ count: 3 });
 
-    await expect(new PrismaUserRepo().expireAdAttributionUnscoped(now)).resolves.toBe(3);
+    await expect(new PrismaUserRepo(new PermissionService()).expireAdAttributionUnscoped(now)).resolves.toBe(3);
 
     expect(prismaMock.adAttribution.deleteMany).toHaveBeenCalledWith({ where: { expiresAt: { lte: now } } });
     expect(prismaMock.user.updateMany).not.toHaveBeenCalled();
@@ -134,7 +135,9 @@ describe("PrismaUserRepo.createCompanyAndUser", () => {
     const user = createMockUser({ id: "user-1", companyId: "company-1" });
 
     await expect(
-      runWithTenant(user, () => new PrismaUserRepo().clearAdAttributionForUser({ userId: user.id })),
+      runWithTenant(user, () =>
+        new PrismaUserRepo(new PermissionService()).clearAdAttributionForUser({ userId: user.id }),
+      ),
     ).resolves.toBe(false);
 
     expect(prismaMock.adAttribution.deleteMany).toHaveBeenCalledWith({
@@ -145,7 +148,7 @@ describe("PrismaUserRepo.createCompanyAndUser", () => {
   it("creates the catalog-owned Pro cloud trial", async () => {
     const before = new Date();
     before.setDate(before.getDate() + CLOUD_TRIAL.days);
-    await new PrismaUserRepo().createCompanyAndUser(registerArgs);
+    await new PrismaUserRepo(new PermissionService()).createCompanyAndUser(registerArgs);
     const after = new Date();
     after.setDate(after.getDate() + CLOUD_TRIAL.days);
 
@@ -172,7 +175,9 @@ describe("PrismaUserRepo.findActiveLegalNoticeRecipientsUnscoped", () => {
       },
     ]);
 
-    await expect(new PrismaUserRepo().findActiveLegalNoticeRecipientsUnscoped()).resolves.toEqual([
+    await expect(
+      new PrismaUserRepo(new PermissionService()).findActiveLegalNoticeRecipientsUnscoped(),
+    ).resolves.toEqual([
       expect.objectContaining({
         id: "user-1",
         createdAt,

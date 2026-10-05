@@ -4,7 +4,8 @@ import { createMockUser } from "@/tests/helpers/mock-user";
 import { runWithTenant, runWithoutTenant } from "@/core/decorators/tenant-context";
 import { Action, Resource } from "@/generated/prisma";
 
-import { UserService, type FindUserRepo } from "../user.service";
+import type { FindUserRepo } from "../find-user.repo";
+import { UserService } from "../user.service";
 
 const sessionUser = createMockUser({ id: "session-user" });
 const tenantUser = createMockUser({ id: "tenant-user" });

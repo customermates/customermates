@@ -1386,21 +1386,6 @@
         "resynced": "Konto neu synchronisiert",
         "updated": "Kontosichtbarkeit geändert"
       },
-      "contact": {
-        "created": "Kontakt erstellt",
-        "deleted": "Kontakt gelöscht",
-        "updated": "Kontakt aktualisiert"
-      },
-      "custom_column": {
-        "created": "Benutzerdefinierte Spalte erstellt",
-        "deleted": "Benutzerdefinierte Spalte gelöscht",
-        "updated": "Benutzerdefinierte Spalte aktualisiert"
-      },
-      "deal": {
-        "created": "Deal erstellt",
-        "deleted": "Deal gelöscht",
-        "updated": "Deal aktualisiert"
-      },
       "legal": {
         "documents_accepted": "Rechtsdokumente angenommen",
         "notice_sent": "Rechtsmitteilung versandt"
@@ -1430,11 +1415,6 @@
           "created": "Kontaktanfrage angenommen"
         }
       },
-      "organization": {
-        "created": "Organisation erstellt",
-        "deleted": "Organisation gelöscht",
-        "updated": "Organisation aktualisiert"
-      },
       "record": {
         "created": "Datensatz erstellt",
         "deleted": "Datensatz gelöscht",
@@ -1452,16 +1432,6 @@
         "created": "Routine erstellt",
         "deleted": "Routine gelöscht",
         "updated": "Routine aktualisiert"
-      },
-      "service": {
-        "created": "Service erstellt",
-        "deleted": "Service gelöscht",
-        "updated": "Service aktualisiert"
-      },
-      "task": {
-        "created": "Aufgabe erstellt",
-        "deleted": "Aufgabe gelöscht",
-        "updated": "Aufgabe aktualisiert"
       },
       "user": {
         "registered": "Benutzer registriert",
@@ -3294,7 +3264,6 @@
     "apply": "Änderungen anwenden",
     "archiveActivityPath": "Verbindung archivieren",
     "archived": "Archiviert",
-    "archivedField": "Archiviertes Feld",
     "archiveField": "Feld archivieren",
     "archiveList": "Liste archivieren",
     "archiveListDescription": "Beim Archivieren verschwinden diese Liste und ihre Datensätze aus der täglichen Arbeit. Datensätze, Verknüpfungen und Verlauf bleiben erhalten, und Sie können die Liste jederzeit wiederherstellen.",

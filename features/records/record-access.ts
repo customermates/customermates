@@ -4,6 +4,7 @@ import type { RecordAccessMap, RecordReadScope } from "./record-query.schema";
 
 import type { RecordModel } from "./record-model.schema";
 
+import { rolePermits, roleReadScope } from "@/core/base/permission.service";
 import { UserAccessor } from "@/core/base/user-accessor";
 
 export class RecordAccessPolicy extends UserAccessor {
@@ -119,9 +120,7 @@ export function recordAccessForActor({
       (allowed(record.typeId, "readOwn") && record.assignments.some((assignment) => assignment.userId === userId))
     );
   };
-  const resourceAllowed = (resource: string, action: Action) =>
-    isAdmin ||
-    Boolean(role?.permissions.some((permission) => permission.resource === resource && permission.action === action));
+  const resourceAllowed = (resource: string, action: Action) => rolePermits(role, resource, action);
   return {
     actor: valid ? actor : null,
     isAdmin,
@@ -129,10 +128,7 @@ export function recordAccessForActor({
     allowedSystem: resourceAllowed,
     canManageSchema: resourceAllowed("dataModel", "update"),
     canAssignOthers: resourceAllowed("users", "readAll"),
-    memberScope: {
-      userId: userId,
-      access: resourceAllowed("users", "readAll") ? "all" : resourceAllowed("users", "readOwn") ? "own" : "none",
-    } as RecordReadScope,
+    memberScope: { userId: userId, access: roleReadScope(role, "users") } as RecordReadScope,
     canManageRoles: resourceAllowed("users", "create") && resourceAllowed("users", "update"),
     access: (typeIds: string[]): RecordAccessMap => new Map(typeIds.map((typeId) => [typeId, scopeFor(typeId)])),
     canRead,
