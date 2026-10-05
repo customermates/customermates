@@ -6,6 +6,8 @@ import { Client } from "pg";
 import { afterAll, describe, expect, it } from "vitest";
 import { identityLookupValue } from "@/ee/messaging/identity-lookup";
 import { presetId } from "@/features/records/crm-preset";
+import { RecordModelSchema } from "@/features/records/record-model.schema";
+import { validateRecordModel } from "@/features/records/record-model-validation";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import {
   addEmptyLegacyStates,
@@ -40,7 +42,11 @@ async function rows<T = Record<string, unknown>>(client: Client, sql: string, pa
 
 /** The decimal of one stored value as text without trailing zeros, its state and currency. */
 async function decimal(client: Client, f: LegacyWorkspace, kind: string, recordId: string, key: string) {
-  const [value] = await rows<{ state: string; value: string | null; currency: string | null }>(
+  const [value] = await rows<{
+    state: string;
+    value: string | null;
+    currency: string | null;
+  }>(
     client,
     'SELECT state, trim_scale("decimalValue")::text AS value, currency FROM "RecordValue" WHERE "companyId"=$1 AND "typeId"=$2 AND "recordId"=$3 AND "fieldId"=$4',
     [f.companyId, presetId(f.companyId, kind), recordId, key.includes(".") ? presetId(f.companyId, key) : key],
@@ -52,6 +58,7 @@ async function legacySnapshot(client: Client) {
   const snapshot: Record<string, unknown[]> = {};
   for (const table of LEGACY_CRM_TABLES)
     snapshot[table] = await rows(client, `SELECT to_jsonb(t) AS row FROM "${table}" t ORDER BY id`);
+
   for (const table of [
     "Company",
     "DataView",
@@ -63,6 +70,7 @@ async function legacySnapshot(client: Client) {
     "MessagingThreadParticipant",
   ])
     snapshot[table] = await rows(client, `SELECT to_jsonb(t) AS row FROM "${table}" t ORDER BY id`);
+
   return snapshot;
 }
 
@@ -120,7 +128,7 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
     for (const database of databases) await database.close();
   }, 120000);
 
-  it("converts a populated legacy workspace with exact values, identities, history and presentation", async () => {
+  it("converts a populated legacy workspace with exact values, identities and links, and drops the rest", async () => {
     const { client } = await legacyDatabase();
     const f = await populateLegacyWorkspace(client);
     const id = (key: string) => presetId(f.companyId, key);
@@ -153,7 +161,12 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
         'SELECT "protectedKind","systemData" FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 AND id=$3',
         [f.companyId, id("task"), f.tasks.protected],
       ),
-    ).toEqual([{ protectedKind: "membershipAuthorization", systemData: { relatedUserId: f.member.id } }]);
+    ).toEqual([
+      {
+        protectedKind: "membershipAuthorization",
+        systemData: { relatedUserId: f.member.id },
+      },
+    ]);
 
     // Line items and rollups: 2 x 1000 + 3 x 200 = 2600 over quantity 5; 60% weights 1560.
     expect(await decimal(client, f, "lineItem", f.lines.weightedA, "lineItem.amount")).toEqual({
@@ -272,20 +285,35 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
       instant: "2026-09-28T10:34:56.123456",
     });
     expect(await custom(f.deals.weighted, f.columns.window)).toMatchObject({
-      jsonValue: { start: "2026-09-28T12:34:56.123456+02:00", end: "2026-09-28T16:34:56.654321+02:00" },
+      jsonValue: {
+        start: "2026-09-28T12:34:56.123456+02:00",
+        end: "2026-09-28T16:34:56.654321+02:00",
+      },
       start: "2026-09-28T10:34:56.123456",
       end: "2026-09-28T14:34:56.654321",
     });
     expect(await custom(f.contacts.solo, f.columns.emails)).toMatchObject({
       textListValue: ["one@example.test", " two@example.test"],
     });
-    expect(await custom(f.contacts.solo, f.columns.phone)).toMatchObject({ state: "missing", textValue: null });
-    expect(await custom(f.services.a, f.columns.note)).toMatchObject({ textValue: "with, comma" });
-    expect(await custom(f.deals.weighted, f.columns.stage)).toMatchObject({ textValue: "proposal" });
+    expect(await custom(f.contacts.solo, f.columns.phone)).toMatchObject({
+      state: "missing",
+      textValue: null,
+    });
+    expect(await custom(f.services.a, f.columns.note)).toMatchObject({
+      textValue: "with, comma",
+    });
+    expect(await custom(f.deals.weighted, f.columns.stage)).toMatchObject({
+      textValue: "proposal",
+    });
     expect(await custom(f.contacts.solo, id("contact.notes"))).toMatchObject({
       jsonValue: {
         type: "doc",
-        content: [{ type: "paragraph", content: [{ type: "text", text: "A retained note" }] }],
+        content: [
+          {
+            type: "paragraph",
+            content: [{ type: "text", text: "A retained note" }],
+          },
+        ],
       },
     });
 
@@ -321,9 +349,21 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
       ),
     ).toEqual(
       [
-        { fieldId: id("deal.totalValue"), sourceTypeId: id("lineItem"), count: 2 },
-        { fieldId: id("deal.totalValue"), sourceTypeId: id("service"), count: 2 },
-        { fieldId: id("deal.totalQuantity"), sourceTypeId: id("lineItem"), count: 2 },
+        {
+          fieldId: id("deal.totalValue"),
+          sourceTypeId: id("lineItem"),
+          count: 2,
+        },
+        {
+          fieldId: id("deal.totalValue"),
+          sourceTypeId: id("service"),
+          count: 2,
+        },
+        {
+          fieldId: id("deal.totalQuantity"),
+          sourceTypeId: id("lineItem"),
+          count: 2,
+        },
       ].sort((a, b) => (`${a.fieldId}${a.sourceTypeId}` < `${b.fieldId}${b.sourceTypeId}` ? -1 : 1)),
     );
 
@@ -334,7 +374,13 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
         'SELECT value, "messagingId", "createdAt" FROM "RecordIdentity" WHERE "companyId"=$1 AND id=$2',
         [f.companyId, f.identities.linkedin],
       ),
-    ).toEqual([{ value: "person", messagingId: "provider-person", createdAt: new Date("2021-02-03T04:05:06.789Z") }]);
+    ).toEqual([
+      {
+        value: "person",
+        messagingId: "provider-person",
+        createdAt: new Date("2021-02-03T04:05:06.789Z"),
+      },
+    ]);
     expect(
       await rows(client, 'SELECT value FROM "RecordIdentityKey" WHERE "identityId"=$1 ORDER BY value', [
         f.identities.linkedin,
@@ -357,50 +403,61 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
     ))
       expect(participant.identityLookupValue).toBe(identityLookupValue(participant.provider, participant.identifier));
 
-    // Configuration history: legacy model, activity paths, presentation, German terminology, channels.
+    // Configuration: one revision holding a valid record model with the legacy custom columns.
     expect(
-      await rows(
-        client,
-        'SELECT revision, "actorId" FROM "RecordSchemaRevision" WHERE "companyId"=$1 ORDER BY revision',
-        [f.companyId],
-      ),
-    ).toEqual([
-      { revision: 1, actorId: f.admin.id },
-      { revision: 2, actorId: "system:record-migration:v4" },
-      { revision: 3, actorId: "system:record-migration:v5" },
-      { revision: 4, actorId: "migration:legacy-terminology" },
-      { revision: 5, actorId: "system:shared-channel-migration" },
-    ]);
+      await rows(client, 'SELECT revision, "actorId" FROM "RecordSchemaRevision" WHERE "companyId"=$1', [f.companyId]),
+    ).toEqual([{ revision: 1, actorId: "system:configurable-records-upgrade" }]);
     expect(
       await rows(
         client,
         'SELECT revision, "storageMode", "activeOperationId" FROM "RecordSchemaState" WHERE "companyId"=$1',
         [f.companyId],
       ),
-    ).toEqual([{ revision: 5, storageMode: "generic", activeOperationId: null }]);
-    const [latest] = await rows<{
-      snapshot: {
-        revision: number;
-        types: { id: string; label: string; pluralLabel: string }[];
-        fields: { id: string; label: string }[];
-        capabilities: { kind: string }[];
-      };
-    }>(client, 'SELECT snapshot FROM "RecordSchemaRevision" WHERE "companyId"=$1 AND revision=5', [f.companyId]);
-    expect(latest.snapshot.revision).toBe(5);
-    expect(latest.snapshot.types.find((type) => type.id === id("contact"))).toMatchObject({
-      label: "Person",
-      pluralLabel: "Personen",
-    });
-    expect(latest.snapshot.fields.find((field) => field.id === f.columns.budget)?.label).toBe("Budget");
-    expect(latest.snapshot.capabilities).toContainEqual(
-      expect.objectContaining({ kind: "channels", enabled: true, providerAvatar: true }),
+    ).toEqual([{ revision: 1, storageMode: "generic", activeOperationId: null }]);
+    const [revision] = await rows<{ snapshot: unknown }>(
+      client,
+      'SELECT snapshot FROM "RecordSchemaRevision" WHERE "companyId"=$1',
+      [f.companyId],
     );
+    const model = RecordModelSchema.parse(revision.snapshot);
+    expect(validateRecordModel(model).issues).toEqual([]);
+    expect(model.types.find((type) => type.id === id("contact"))).toMatchObject({
+      label: "Contact",
+      pluralLabel: "Contacts",
+    });
+    expect(model.fields.find((field) => field.id === f.columns.budget)).toMatchObject({
+      label: "Budget",
+      valueType: "currency",
+      format: { currency: "USD" },
+    });
+    expect(model.fields.find((field) => field.id === f.columns.stage)).toMatchObject({
+      behavior: {
+        kind: "input",
+        defaultValue: { kind: "select", value: "proposal" },
+      },
+      options: [
+        expect.objectContaining({
+          id: "proposal",
+          attributes: [
+            {
+              key: "probability",
+              value: expect.objectContaining({ value: "60" }),
+            },
+          ],
+        }),
+        expect.objectContaining({ id: "zero" }),
+        expect.objectContaining({ id: "open", attributes: [] }),
+      ],
+    });
+    expect(model.fields.some((field) => field.id === id("deal.stage"))).toBe(false);
     expect(
-      await rows(client, 'SELECT label, "pluralLabel" FROM "RecordTypeDefinition" WHERE "companyId"=$1 AND id=$2', [
-        f.companyId,
-        id("contact"),
-      ]),
-    ).toEqual([{ label: "Person", pluralLabel: "Personen" }]);
+      model.fields
+        .filter((field) => field.publishedSummary)
+        .map((field) => field.id)
+        .sort(),
+    ).toEqual([id("deal.totalValue"), id("deal.totalQuantity"), id("deal.weightedValue")].sort());
+    expect(model.types.find((type) => type.id === id("deal"))?.defaults.groupBy).toBe(f.columns.stage);
+    expect(model.capabilities).toContainEqual(expect.objectContaining({ kind: "channels", providerAvatar: true }));
     expect(
       (
         await rows<{ definition: { label: string } }>(
@@ -409,141 +466,44 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
           [f.companyId, f.columns.budget],
         )
       )[0].definition.label,
-    ).toBe("  Budget  ");
+    ).toBe("Budget");
 
-    // Presentation state.
-    const board = (
-      await rows<Record<string, unknown>>(client, 'SELECT * FROM "DataView" WHERE id=$1', [f.views.board])
-    )[0];
-    expect(board).toMatchObject({
-      surfaceKey: `records:${id("deal")}`,
-      filters: [
-        { field: "system:assignedTo", operator: "in", value: [f.admin.id] },
-        { field: id("deal.totalValue"), operator: "gt", value: "100" },
-        { field: "system:updatedAt", operator: "notInLastDays", value: 3 },
-      ],
-      sortDescriptor: { field: id("deal.name"), direction: "asc" },
-      grouping: { field: f.columns.stage },
-      groupingColumnId: f.columns.stage,
-      columnOrder: [id("deal.name"), f.columns.stage, `path:${id("deal.services.path")}`],
-      hiddenColumns: ["system:updatedAt", `relationship:${id("lineItem.deal")}:incoming`],
-      columnWidths: { [id("deal.name")]: 220.5 },
-    });
-    expect(
-      (
-        await rows(client, 'SELECT "p13nId","viewStateKeys","activeViewKey","columnOrder" FROM "P13n" WHERE id=$1', [
-          f.preferences.list,
-        ])
-      )[0],
-    ).toEqual({
-      p13nId: `records:${id("deal")}`,
-      viewStateKeys: [
-        "filters",
-        "sortDescriptor",
-        "pageSize",
-        "viewMode",
-        "columnOrder",
-        "columnWidths",
-        "hiddenColumns",
-      ],
-      activeViewKey: f.views.board,
-      columnOrder: [id("deal.name")],
-    });
-    expect(
-      (
-        await rows(client, 'SELECT "p13nId","columnOrder","detailOptions" FROM "P13n" WHERE id=$1', [
-          f.preferences.detail,
-        ])
-      )[0],
-    ).toEqual({
-      p13nId: `record-detail:${id("contact")}`,
-      columnOrder: [id("contact.name"), "system:assignedTo"],
-      detailOptions: {
-        starredFieldIds: [id("contact.name")],
-        hiddenFieldIds: ["system:createdAt"],
-        collapsedSectionIds: ["relations"],
-      },
-    });
-    expect(
-      (await rows<{ filters: unknown }>(client, 'SELECT filters FROM "P13n" WHERE id=$1', [f.preferences.timeline]))[0]
-        .filters,
-    ).toEqual([
-      { field: `records:${id("contact")}`, operator: "in", value: [f.contacts.solo] },
-      { field: "timelineKind", operator: "in", value: ["changes"] },
+    // Legacy presentation state and history are not carried over; other surfaces keep theirs.
+    expect(await rows(client, 'SELECT id FROM "DataView" WHERE "companyId"=$1 ORDER BY id', [f.companyId])).toEqual([
+      { id: f.inbox.view },
     ]);
-    const value = (
-      await rows<{ measure: Record<string, unknown>; displayOptions: unknown; version: number }>(
+    expect(await rows(client, 'SELECT id FROM "P13n" WHERE "companyId"=$1 ORDER BY id', [f.companyId])).toEqual([
+      { id: f.inbox.preference },
+    ]);
+    expect(await rows(client, 'SELECT id FROM "Widget" WHERE "companyId"=$1', [f.companyId])).toEqual([]);
+    expect(
+      await rows(client, 'SELECT event FROM "AuditLog" WHERE "companyId"=$1 ORDER BY event', [f.companyId]),
+    ).toEqual([{ event: "webhook.created" }]);
+
+    // Automations: webhooks and event routines are disabled without legacy events; nothing subscribes.
+    expect(
+      await rows(
         client,
-        'SELECT measure, "displayOptions", version FROM "Widget" WHERE id=$1',
-        [f.widgets.value],
-      )
-    )[0];
-    expect(value).toEqual({
-      measure: {
-        source: { typeId: id("deal"), filters: [], relationships: [], relatedFilters: [] },
-        aggregation: "sum",
-        valueFieldId: id("deal.totalValue"),
-        groupBy: { path: [], fieldId: f.columns.stage },
-        groupLimit: 1000,
-      },
-      displayOptions: { displayType: "horizontalBarChart", showLegend: false },
-      version: 1,
-    });
-    expect(
-      (
-        await rows<{ activityQuery: unknown; displayOptions: unknown }>(
-          client,
-          'SELECT "activityQuery","displayOptions" FROM "Widget" WHERE id=$1',
-          [f.widgets.activity],
-        )
-      )[0],
-    ).toEqual({
-      activityQuery: {
-        scope: { records: [], typeIds: [] },
-        kinds: ["audit", "message", "activity", "calendar_event"],
-        filters: [
-          { kind: "record", typeId: id("contact"), operator: "in", recordIds: [f.contacts.solo] },
-          { kind: "source", operator: "in", values: ["audit", "activity", "calendar_event"] },
-        ],
-      },
-      displayOptions: { showFilters: true },
-    });
-
-    // Triggers: generic events, one subscription each; converted routines keep no legacy field names.
-    expect(
-      await rows(client, 'SELECT "triggerEvents","changedFields","triggerFilters" FROM "Routine" WHERE id=$1', [
-        f.routine,
-      ]),
+        'SELECT enabled, "triggerEvents", "triggerFilters", "disabledReason" FROM "Routine" WHERE id=$1',
+        [f.routine],
+      ),
     ).toEqual([
-      { triggerEvents: ["messaging.message.received", "record.updated"], changedFields: [], triggerFilters: [] },
+      {
+        enabled: false,
+        triggerEvents: ["messaging.message.received"],
+        triggerFilters: [],
+        disabledReason: null,
+      },
     ]);
-    const [routine] = await rows<{ ownerUserId: string; events: string[]; sources: unknown[] }>(
-      client,
-      'SELECT "ownerUserId", events, sources FROM "RecordEventSubscription" WHERE id=$1',
-      [f.routine],
-    );
-    expect(routine).toEqual({
-      ownerUserId: f.admin.id,
-      events: ["record.updated"],
-      sources: [
-        {
-          query: {
-            typeId: id("contact"),
-            filters: [{ fieldId: id("contact.lastName"), operator: "notEmpty", value: null }],
-            relationships: [],
-            relatedFilters: [],
-          },
-          changedFieldIds: [id("contact.firstName"), f.columns.emails],
-          events: ["record.updated"],
-        },
-      ],
-    });
     expect(await rows(client, 'SELECT events, enabled FROM "Webhook" WHERE id=$1', [f.webhook])).toEqual([
-      { events: ["messaging.message.received", "record.created", "record.updated"], enabled: true },
+      { events: ["messaging.message.received"], enabled: false },
     ]);
     expect(
-      await rows(client, 'SELECT kind, enabled, events FROM "RecordEventSubscription" WHERE id=$1', [f.webhook]),
-    ).toEqual([{ kind: "webhook", enabled: true, events: ["record.created", "record.updated"] }]);
+      await rows(client, 'SELECT "triggerEvent", "triggerEntityId", "triggerPayload" FROM "RoutineRun" WHERE id=$1', [
+        f.run,
+      ]),
+    ).toEqual([{ triggerEvent: null, triggerEntityId: null, triggerPayload: null }]);
+    expect(await rows(client, 'SELECT count(*)::int AS count FROM "RecordEventSubscription"')).toEqual([{ count: 0 }]);
     // Completed deliveries are never replayed; no record events (and so no deliveries) were emitted.
     expect(await rows(client, 'SELECT "nextAttemptAt" FROM "WebhookDelivery" WHERE id=$1', [f.delivery])).toEqual([
       { nextAttemptAt: null },
@@ -562,175 +522,44 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
       ]),
     ).toEqual([]);
     expect(await rows(client, "SELECT nspname FROM pg_namespace WHERE nspname = 'crm_upgrade'")).toEqual([]);
+    expect(
+      await rows(
+        client,
+        "SELECT column_name FROM information_schema.columns WHERE table_name = 'Routine' AND column_name = 'changedFields'",
+      ),
+    ).toEqual([]);
   });
 
-  it("converts empty and null legacy states exactly as the retired upgrade did", async () => {
+  it("converts columns without options and empty notes, and keeps scheduled routines running", async () => {
     const { client } = await legacyDatabase();
     const f = await populateLegacyWorkspace(client);
     const empty = await addEmptyLegacyStates(client, f);
-    const id = (key: string) => presetId(f.companyId, key);
     await applyConfigurableRecordsMigration(client);
 
-    // Timeline views: an empty list stays empty, JSON null and SQL NULL stay as they were.
-    const timeline = async (table: string, rowId: string) =>
-      (
-        await rows<{ filters: unknown; isNull: boolean }>(
-          client,
-          `SELECT filters, filters IS NULL AS "isNull" FROM "${table}" WHERE id=$1`,
-          [rowId],
-        )
-      )[0];
-    expect(await timeline("DataView", empty.timelines.viewEmpty)).toEqual({ filters: [], isNull: false });
-    expect(await timeline("DataView", empty.timelines.viewJsonNull)).toEqual({ filters: null, isNull: false });
-    expect(await timeline("DataView", empty.timelines.viewSqlNull)).toEqual({ filters: null, isNull: true });
-    expect(await timeline("P13n", empty.timelines.preferenceEmpty)).toEqual({ filters: [], isNull: false });
-    expect(await timeline("P13n", empty.timelines.preferenceJsonNull)).toEqual({ filters: null, isNull: false });
-    expect(await timeline("P13n", empty.timelines.preferenceSqlNull)).toEqual({ filters: null, isNull: true });
-
-    // List views and personalisation with empty state keep it; introduced columns start hidden.
-    const introducedContact = [id("contact.firstName"), id("contact.lastName"), id("contact.avatarUrl")];
     expect(
-      (
-        await rows(
-          client,
-          'SELECT "surfaceKey", filters, "sortDescriptor", grouping, "columnOrder", "columnWidths", "hiddenColumns" FROM "DataView" WHERE id=$1',
-          [empty.views.empty],
-        )
-      )[0],
-    ).toEqual({
-      surfaceKey: `records:${id("contact")}`,
-      filters: [],
-      sortDescriptor: {},
-      grouping: null,
-      columnOrder: [],
-      columnWidths: {},
-      hiddenColumns: introducedContact,
-    });
-    expect(
-      (
-        await rows(
-          client,
-          'SELECT "surfaceKey", filters, "sortDescriptor", "columnOrder", "columnWidths", "hiddenColumns" FROM "DataView" WHERE id=$1',
-          [empty.views.nulls],
-        )
-      )[0],
-    ).toEqual({
-      surfaceKey: `records:${id("organization")}`,
-      filters: null,
-      sortDescriptor: null,
-      columnOrder: null,
-      columnWidths: null,
-      hiddenColumns: null,
-    });
-    expect(
-      (
-        await rows(
-          client,
-          'SELECT "p13nId", filters, "sortDescriptor", pagination, "columnOrder", "columnWidths", "hiddenColumns", "viewStateKeys" FROM "P13n" WHERE id=$1',
-          [empty.preferences.empty],
-        )
-      )[0],
-    ).toEqual({
-      p13nId: `records:${id("contact")}`,
-      filters: [],
-      sortDescriptor: {},
-      pagination: null,
-      columnOrder: [],
-      columnWidths: {},
-      hiddenColumns: introducedContact,
-      viewStateKeys: ["filters", "sortDescriptor", "viewMode", "columnOrder", "columnWidths", "hiddenColumns"],
-    });
-    expect(
-      (
-        await rows(
-          client,
-          'SELECT "p13nId", filters, "columnOrder", "hiddenColumns", "viewStateKeys" FROM "P13n" WHERE id=$1',
-          [empty.preferences.nulls],
-        )
-      )[0],
-    ).toEqual({
-      p13nId: `records:${id("task")}`,
-      filters: null,
-      columnOrder: null,
-      hiddenColumns: null,
-      viewStateKeys: ["viewMode"],
-    });
-    expect(
-      (
-        await rows(client, 'SELECT "p13nId", "columnOrder", "detailOptions" FROM "P13n" WHERE id=$1', [
-          empty.preferences.detail,
-        ])
-      )[0],
-    ).toEqual({
-      p13nId: `record-detail:${id("deal")}`,
-      columnOrder: [],
-      detailOptions: null,
-    });
-
-    // Widgets.
-    expect(
-      (
-        await rows(client, 'SELECT measure, "displayOptions", layout FROM "Widget" WHERE id=$1', [empty.widgets.chart])
-      )[0],
-    ).toEqual({
-      measure: {
-        source: { typeId: id("contact"), filters: [], relationships: [], relatedFilters: [] },
-        aggregation: "count",
-        valueFieldId: null,
-        groupBy: null,
-        groupLimit: 1000,
-      },
-      displayOptions: { displayType: "verticalBarChart" },
-      layout: {},
-    });
-    const emptyActivity = {
-      scope: { records: [], typeIds: [] },
-      kinds: ["audit", "message", "activity", "calendar_event"],
-      filters: [],
-    };
-    for (const widget of [empty.widgets.timeline, empty.widgets.timelineNull]) {
-      expect(
-        (await rows(client, 'SELECT "activityQuery", "displayOptions" FROM "Widget" WHERE id=$1', [widget]))[0],
-      ).toEqual({
-        activityQuery: emptyActivity,
-        displayOptions: { showFilters: true },
-      });
-    }
-
-    // Triggers: an event routine with empty watch lists subscribes; a scheduled routine and a webhook
-    // without legacy record events stay as they are.
-    expect(
-      await rows(client, 'SELECT events, sources FROM "RecordEventSubscription" WHERE id=$1', [empty.routine]),
+      await rows(
+        client,
+        'SELECT enabled, "triggerEvents", "triggerFilters", "cronExpression" FROM "Routine" WHERE id=$1',
+        [empty.scheduled],
+      ),
     ).toEqual([
       {
-        events: ["record.created"],
-        sources: [
-          {
-            query: { typeId: id("deal"), filters: [], relationships: [], relatedFilters: [] },
-            changedFieldIds: [],
-            events: ["record.created"],
-          },
-        ],
+        enabled: true,
+        triggerEvents: ["messaging.message.received"],
+        triggerFilters: [],
+        cronExpression: "0 9 * * *",
       },
     ]);
-    expect(
-      await rows(client, 'SELECT id FROM "RecordEventSubscription" WHERE id = ANY($1)', [
-        [empty.scheduled, empty.webhook],
-      ]),
-    ).toEqual([]);
-    expect(await rows(client, 'SELECT events, headers, enabled FROM "Webhook" WHERE id=$1', [empty.webhook])).toEqual([
-      { events: [], headers: {}, enabled: true },
-    ]);
-
-    // Columns without options and notes with empty documents.
     for (const columnId of Object.values(empty.columns)) {
       expect(
         (
-          await rows<{ definition: { options: unknown; behavior: unknown; multiple: boolean } }>(
-            client,
-            'SELECT definition FROM "RecordFieldDefinition" WHERE id=$1',
-            [columnId],
-          )
+          await rows<{
+            definition: {
+              options: unknown;
+              behavior: unknown;
+              multiple: boolean;
+            };
+          }>(client, 'SELECT definition FROM "RecordFieldDefinition" WHERE id=$1', [columnId])
         )[0].definition,
       ).toMatchObject({
         options: [],
@@ -742,22 +571,23 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
       (
         await rows(client, 'SELECT state, "jsonValue" FROM "RecordValue" WHERE "recordId"=$1 AND "fieldId"=$2', [
           recordId,
-          id("organization.notes"),
+          presetId(f.companyId, "organization.notes"),
         ])
       )[0];
-    expect(await note(empty.notes.emptyObject)).toEqual({ state: "value", jsonValue: {} });
-    expect(await note(empty.notes.jsonNull)).toEqual({ state: "missing", jsonValue: null });
+    expect(await note(empty.notes.emptyObject)).toEqual({
+      state: "value",
+      jsonValue: {},
+    });
+    expect(await note(empty.notes.jsonNull)).toEqual({
+      state: "missing",
+      jsonValue: null,
+    });
   });
 
-  it("keeps Knowledge Base pages, permissions, audit history and resized detail panels written after the mate bundle", async () => {
+  it("keeps Knowledge Base pages, their permissions and audit history", async () => {
     const { client } = await legacyDatabase();
     const f = await populateLegacyWorkspace(client);
     const pageId = randomUUID();
-    const panelWidths = {
-      "panel:master-notes-history:master": 40,
-      "panel:master-notes-history:notes": 35,
-      "panel:master-notes-history:history": 25,
-    };
     for (const action of ["readAll", "update"]) {
       await client.query(
         'INSERT INTO "RolePermission" (id, "roleId", "companyId", resource, action) VALUES ($1, $2, $3, $4, $5)',
@@ -771,11 +601,6 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
     await client.query(
       'INSERT INTO "AuditLog" (id, event, "eventData", "companyId", "userId", "entityId") VALUES ($1, $2, $3, $4, $5, $6)',
       [randomUUID(), "wiki_page.created", { title: "Operating Guide" }, f.companyId, f.admin.id, pageId],
-    );
-    const panelRow = randomUUID();
-    await client.query(
-      'INSERT INTO "P13n" (id, "userId", "companyId", "p13nId", "columnOrder", "hiddenColumns", "columnWidths", "updatedAt") VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())',
-      [panelRow, f.member.id, f.companyId, "deal-detail", [], [], panelWidths],
     );
     const mateState = async () => ({
       pages: await rows(client, 'SELECT to_jsonb(p) AS row FROM "WikiPage" p WHERE "companyId"=$1', [f.companyId]),
@@ -792,22 +617,13 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
     await applyConfigurableRecordsMigration(client);
 
     expect(await mateState()).toEqual(before);
-    expect(
-      await rows(client, 'SELECT "p13nId", "columnWidths", "detailOptions" FROM "P13n" WHERE id=$1', [panelRow]),
-    ).toEqual([
-      {
-        p13nId: `record-detail:${presetId(f.companyId, "deal")}`,
-        columnWidths: panelWidths,
-        detailOptions: null,
-      },
-    ]);
   });
 
   it("reports an unexpected failure as an internal error, never as a data issue", async () => {
     const { client } = await legacyDatabase();
-    const f = await populateLegacyWorkspace(client);
-    // Simulated defect: the webhook owner lookup can no longer read the audit history.
-    await client.query('ALTER TABLE "AuditLog" RENAME COLUMN "userId" TO "actorUserId"');
+    await populateLegacyWorkspace(client);
+    // Simulated defect: the identity validation can no longer read a column it checks.
+    await client.query('ALTER TABLE "ContactIdentifier" RENAME COLUMN "displayName" TO "label"');
     const before = await legacySnapshot(client);
     const failure = await client.query(await readMigration(CONFIGURABLE_RECORDS_MIGRATION)).then(
       () => null,
@@ -815,14 +631,12 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
     );
     expect(failure?.code).toBe("CRM02");
     expect(failure?.message).toBe(
-      "Configurable record upgrade internal error in Webhook trigger conversion (SQLSTATE 42703): column audit.userId does not exist",
+      "Configurable record upgrade internal error in channel identities (SQLSTATE 42703): column i.displayName does not exist",
     );
-    expect(failure?.detail).toContain("crm_upgrade.migrate_trigger");
+    expect(failure?.detail).toContain("Context:");
     expect(failure?.message).not.toContain("refused");
-    expect(failure?.message).not.toContain("unconvertible");
     expect(await legacySnapshot(client)).toEqual(before);
     expect(await rows(client, "SELECT to_regclass('\"CrmRecord\"') AS table")).toEqual([{ table: null }]);
-    expect(f.webhook).toBeTruthy();
   });
 
   it("weights deal values with fractional probabilities exactly", async () => {
@@ -847,21 +661,9 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
     });
   });
 
-  it("applies the documented repairs and reconciles them", async () => {
+  it("repairs links without scheme and reconciles them", async () => {
     const { client } = await legacyDatabase();
     const f = await populateLegacyWorkspace(client);
-    const id = (key: string) => presetId(f.companyId, key);
-    const deleted = randomUUID();
-    const inactive = await f.db.user.create({
-      data: {
-        companyId: f.companyId,
-        roleId: f.adminRole.id,
-        firstName: "Gone",
-        lastName: "User",
-        status: "inactive",
-        email: `${randomUUID()}@example.test`,
-      },
-    });
     const sites = await f.db.customFieldValue.create({
       data: {
         companyId: f.companyId,
@@ -876,72 +678,6 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
       f.columns.website,
       " acme.example ",
     ]);
-    const view = await f.db.dataView.create({
-      data: {
-        companyId: f.companyId,
-        userId: f.admin.id,
-        surfaceKey: "deals-card-store",
-        name: "Stale",
-        position: 2,
-        pageSize: 1000,
-        filters: [
-          { field: deleted, operator: "isNull" },
-          { field: f.columns.stage, operator: "in", value: ["removed"] },
-          { field: f.columns.stage, operator: "notIn", value: ["proposal", "removed"] },
-        ],
-        sortDescriptor: { field: deleted, direction: "desc" },
-        grouping: { field: deleted },
-        groupingColumnId: deleted,
-        columnOrder: ["name", deleted],
-        hiddenColumns: [deleted],
-        columnWidths: { [deleted]: 100, name: 150 },
-      },
-    });
-    await client.query('UPDATE "P13n" SET pagination = $2, "activeViewKey" = $3 WHERE id = $1', [
-      f.preferences.list,
-      JSON.stringify({ page: 1, pageSize: 1000 }),
-      randomUUID(),
-    ]);
-    const small = await f.db.p13n.create({
-      data: {
-        companyId: f.companyId,
-        userId: f.member.id,
-        p13nId: "deals-card-store",
-        pagination: { pageSize: 3 },
-        columnOrder: [],
-        hiddenColumns: [],
-      },
-    });
-    const widget = await f.db.widget.create({
-      data: {
-        companyId: f.companyId,
-        userId: f.admin.id,
-        name: "Filtered",
-        kind: "chart",
-        entityType: "deal",
-        aggregationType: "count",
-        groupByType: "none",
-        entityFilters: [
-          { field: f.columns.stage, operator: "notIn", value: ["removed"] },
-          { field: f.columns.stage, operator: "in", value: ["removed"] },
-        ],
-      },
-    });
-    const disabled = await f.db.webhook.create({
-      data: { companyId: f.companyId, url: "https://receiver.example.test/x", events: ["deal.created"], enabled: true },
-    });
-    await f.db.auditLog.create({
-      data: {
-        companyId: f.companyId,
-        userId: inactive.id,
-        entityId: disabled.id,
-        event: "webhook.created",
-        eventData: {},
-      },
-    });
-    const orphan = await f.db.webhook.create({
-      data: { companyId: f.companyId, url: "https://receiver.example.test/y", events: ["task.updated"], enabled: true },
-    });
     await applyConfigurableRecordsMigration(client);
 
     expect(
@@ -959,7 +695,9 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
           sites.organizationId,
         ])
       )[0],
-    ).toEqual({ textListValue: ["https://Acme.Example/team", " https://ok.test"] });
+    ).toEqual({
+      textListValue: ["https://Acme.Example/team", " https://ok.test"],
+    });
     expect(
       (
         await rows(client, 'SELECT "textListValue" FROM "RecordValue" WHERE "fieldId"=$1 AND "recordId"=$2', [
@@ -967,119 +705,43 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
           f.organizations.shared,
         ])
       )[0],
-    ).toEqual({ textListValue: ["https://example.test/a", "https://example.test/b"] });
-    expect(
-      (
-        await rows(
-          client,
-          'SELECT filters, "sortDescriptor", grouping, "groupingColumnId", "columnOrder", "hiddenColumns", "columnWidths", "pageSize" FROM "DataView" WHERE id=$1',
-          [view.id],
-        )
-      )[0],
     ).toEqual({
-      filters: [
-        { field: f.columns.stage, operator: "in", value: [] },
-        { field: f.columns.stage, operator: "notIn", value: ["proposal"] },
-      ],
-      sortDescriptor: null,
-      grouping: null,
-      groupingColumnId: null,
-      columnOrder: [id("deal.name")],
-      hiddenColumns: [`relationship:${id("lineItem.deal")}:incoming`],
-      columnWidths: { [id("deal.name")]: 150 },
-      pageSize: 100,
+      textListValue: ["https://example.test/a", "https://example.test/b"],
     });
-    expect(
-      (await rows(client, 'SELECT pagination, "activeViewKey" FROM "P13n" WHERE id=$1', [f.preferences.list]))[0],
-    ).toEqual({ pagination: { page: 1, pageSize: 100 }, activeViewKey: null });
-    expect((await rows(client, 'SELECT pagination FROM "P13n" WHERE id=$1', [small.id]))[0]).toEqual({
-      pagination: { pageSize: 5 },
-    });
-    expect(
-      (
-        await rows<{ measure: { source: { filters: unknown[] } } }>(
-          client,
-          'SELECT measure FROM "Widget" WHERE id=$1',
-          [widget.id],
-        )
-      )[0].measure.source.filters,
-    ).toEqual([{ fieldId: f.columns.stage, operator: "in", value: null, values: [] }]);
-    expect(
-      await rows(
-        client,
-        'SELECT w.enabled, s."ownerUserId", s.enabled AS subscribed FROM "Webhook" w JOIN "RecordEventSubscription" s ON s.id = w.id WHERE w.id=$1',
-        [disabled.id],
-      ),
-    ).toEqual([{ enabled: false, ownerUserId: inactive.id, subscribed: false }]);
-    expect(
-      await rows(
-        client,
-        'SELECT w.enabled, s."ownerUserId", s.enabled AS subscribed FROM "Webhook" w JOIN "RecordEventSubscription" s ON s.id = w.id WHERE w.id=$1',
-        [orphan.id],
-      ),
-    ).toEqual([{ enabled: true, ownerUserId: f.admin.id, subscribed: true }]);
   });
 
-  it("disables a webhook without provable creator and without an active administrator", async () => {
+  it("disables every webhook and event routine, whatever their owners", async () => {
     const { client } = await legacyDatabase();
     const f = await populateLegacyWorkspace(client);
-    await client.query("UPDATE \"User\" SET status = 'inactive' WHERE id = $1", [f.admin.id]);
-    await client.query('UPDATE "Routine" SET "ownerUserId" = $2 WHERE id = $1', [f.routine, f.member.id]);
-    await client.query('DELETE FROM "AuditLog" WHERE "entityId" = $1', [f.webhook]);
-    await applyConfigurableRecordsMigration(client);
-    expect(await rows(client, 'SELECT enabled, events FROM "Webhook" WHERE id=$1', [f.webhook])).toEqual([
-      { enabled: false, events: ["messaging.message.received", "record.created", "record.updated"] },
-    ]);
-    expect(await rows(client, 'SELECT id FROM "RecordEventSubscription" WHERE id=$1', [f.webhook])).toEqual([]);
-  });
-
-  it("keeps routines of unavailable owners disabled and drops leftover legacy events of scheduled routines", async () => {
-    const { client } = await legacyDatabase();
-    const f = await populateLegacyWorkspace(client);
-    await client.query('UPDATE "Routine" SET "ownerUserId" = $2, enabled = true WHERE id = $1', [
-      f.routine,
-      f.member.id,
-    ]);
     await client.query("UPDATE \"User\" SET status = 'inactive' WHERE id = $1", [f.member.id]);
+    const messaging = randomUUID();
     const orphaned = randomUUID();
-    const switched = randomUUID();
     await client.query(
-      `INSERT INTO "Routine" (id, "companyId", "ownerUserId", name, prompt, enabled, "triggerKind", "cronExpression", "triggerEvents", "changedFields", "triggerFilters", "updatedAt")
-       VALUES ($1, $3, NULL, 'Orphaned', 'Inspect.', false, 'event', NULL, ARRAY['contact.updated'], ARRAY['firstName'], '[]', now()),
-              ($2, $3, $4, 'Switched', 'Inspect.', true, 'schedule', '0 9 * * *', ARRAY['deal.created', 'messaging.message.received'], ARRAY[]::text[], '[]', now())`,
-      [orphaned, switched, f.companyId, f.admin.id],
+      `INSERT INTO "Routine" (id, "companyId", "ownerUserId", name, prompt, enabled, "triggerKind", "triggerEvents", "changedFields", "triggerFilters", "updatedAt")
+       VALUES ($1, $3, $4, 'Messages', 'Inspect.', true, 'event', ARRAY['messaging.message.received'], ARRAY['subject'], '[]', now()),
+              ($2, $3, NULL, 'Orphaned', 'Inspect.', false, 'event', ARRAY['contact.updated'], ARRAY['firstName'], '[]', now())`,
+      [messaging, orphaned, f.companyId, f.member.id],
     );
+    const quiet = await f.db.webhook.create({
+      data: {
+        companyId: f.companyId,
+        url: "https://receiver.example.test/q",
+        events: [],
+        enabled: true,
+      },
+    });
     await applyConfigurableRecordsMigration(client);
     expect(
-      await rows(
-        client,
-        'SELECT id, enabled, "disabledReason", "triggerEvents", "changedFields" FROM "Routine" WHERE id = ANY($1) ORDER BY name',
-        [[f.routine, orphaned, switched]],
-      ),
+      await rows(client, 'SELECT id, enabled, "triggerEvents" FROM "Routine" WHERE id = ANY($1) ORDER BY name', [
+        [messaging, orphaned],
+      ]),
     ).toEqual([
-      { id: orphaned, enabled: false, disabledReason: null, triggerEvents: ["record.updated"], changedFields: [] },
-      {
-        id: switched,
-        enabled: true,
-        disabledReason: null,
-        triggerEvents: ["messaging.message.received"],
-        changedFields: [],
-      },
-      {
-        id: f.routine,
-        enabled: false,
-        disabledReason: "ownerUnavailable",
-        triggerEvents: ["messaging.message.received", "record.updated"],
-        changedFields: [],
-      },
+      { id: messaging, enabled: false, triggerEvents: ["messaging.message.received"] },
+      { id: orphaned, enabled: false, triggerEvents: [] },
     ]);
-    expect(
-      await rows(
-        client,
-        'SELECT id, "ownerUserId", enabled FROM "RecordEventSubscription" WHERE id = ANY($1) ORDER BY id',
-        [[f.routine, orphaned, switched]],
-      ),
-    ).toEqual([{ id: f.routine, ownerUserId: f.member.id, enabled: false }]);
+    expect(await rows(client, 'SELECT events, enabled FROM "Webhook" WHERE id=$1', [quiet.id])).toEqual([
+      { events: [], enabled: false },
+    ]);
   });
 
   it("refuses malformed data with grouped counts, leaves everything unchanged and deploys after resolve and repair", async () => {
@@ -1152,7 +814,7 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
       for (let attempt = 0; attempt < 600 && !terminated; attempt++) {
         await delay(100);
         const busy = await observer.query(
-          "SELECT pid FROM pg_stat_activity WHERE datname = current_database() AND pid <> pg_backend_pid() AND state = 'active' AND query LIKE '%Configurable records: the complete, one-step upgrade%' AND now() - query_start > interval '1 second'",
+          "SELECT pid FROM pg_stat_activity WHERE datname = current_database() AND pid <> pg_backend_pid() AND state = 'active' AND query LIKE '%Configurable records: the one-step upgrade%' AND now() - query_start > interval '1 second'",
         );
         if (busy.rowCount) {
           terminated = (await observer.query("SELECT pg_terminate_backend($1) AS done", [busy.rows[0].pid])).rows[0]

@@ -1,3 +1,4 @@
+import type { PermissionService } from "@/core/base/permission.service";
 import { CLOUD_TRIAL } from "@/core/commercial/plan-catalog";
 import type { RepoArgs } from "@/core/utils/types";
 import type { CompleteOnboardingWikiStepRepo } from "@/features/onboarding-wizard/complete-onboarding-wiki-step.repo";
@@ -21,14 +22,15 @@ import type { UpdateUserDetailsRepo } from "@/features/user/upsert/update-user-d
 import type { Prisma } from "@/generated/prisma";
 import type { CountActiveUsersRepo } from "./count-active-users.repo";
 import type { ResolveUserOptionsRepo } from "./get/resolve-user-options.repo";
-import type { FindUserRepo } from "./user.service";
+import type { FindUserRepo } from "./find-user.repo";
 
 import { ConversionEventType, Status, SubscriptionStatus } from "@/generated/prisma";
 
 import { type UserDto } from "./user.schema";
 
 import { type GetQueryParams } from "@/core/base/base-get.schema";
-import { BaseRepository } from "@/core/base/base-repository";
+import { QueryRepository } from "@/core/base/query-repository";
+import { userAccessWhere } from "./user-access";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
@@ -36,7 +38,7 @@ import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operat
 import { env } from "@/env";
 
 export class PrismaUserRepo
-  extends BaseRepository
+  extends QueryRepository
   implements
     FindUserRepo,
     GetUsersRepo,
@@ -60,6 +62,10 @@ export class PrismaUserRepo
     ExpireAdAttributionRepo,
     WithdrawAdAttributionRepo
 {
+  constructor(private readonly permissions: PermissionService) {
+    super();
+  }
+
   @BypassTenantGuard
   async findUserByIdOrThrowUnscoped(userId: string) {
     return this.prisma.user.findUniqueOrThrow({
@@ -155,7 +161,7 @@ export class PrismaUserRepo
   async getItems(params: GetQueryParams) {
     return this.list({
       model: "user",
-      baseWhere: this.accessWhere("user"),
+      baseWhere: userAccessWhere(this.permissions),
       select: this.userSelect,
       params,
       map: (user: Prisma.UserGetPayload<{ select: PrismaUserRepo["userSelect"] }>) => user,
@@ -163,7 +169,7 @@ export class PrismaUserRepo
   }
 
   async getCount(params: GetQueryParams) {
-    const { where } = await this.buildQueryArgs(params, this.accessWhere("user"));
+    const { where } = await this.buildQueryArgs(params, userAccessWhere(this.permissions));
 
     return await this.prisma.user.count({ where });
   }
@@ -173,7 +179,7 @@ export class PrismaUserRepo
 
     const users = await this.prisma.user.findMany({
       where: {
-        ...this.accessWhere("user"),
+        ...userAccessWhere(this.permissions),
         AND: [{ id: { in: Array.from(ids) } }],
       },
       select: { id: true },
@@ -184,7 +190,7 @@ export class PrismaUserRepo
 
   resolveUserOptions(ids: string[]) {
     return this.prisma.user.findMany({
-      where: { ...this.accessWhere("user"), AND: [{ id: { in: ids } }] },
+      where: { ...userAccessWhere(this.permissions), AND: [{ id: { in: ids } }] },
       select: { id: true, firstName: true, lastName: true, avatarUrl: true },
       orderBy: [{ firstName: "asc" }, { lastName: "asc" }, { id: "asc" }],
       take: 100,
@@ -194,7 +200,7 @@ export class PrismaUserRepo
   async getUserById(id: string) {
     const user = await this.prisma.user.findFirst({
       where: {
-        ...this.accessWhere("user"),
+        ...userAccessWhere(this.permissions),
         AND: [{ id }],
       },
       select: this.userSelect,

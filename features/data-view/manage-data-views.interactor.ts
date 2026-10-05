@@ -539,7 +539,6 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
     return runPrecheck(state, async (input, ctx) => {
       await this.queryPrecheck.invoke(
         config,
-        undefined,
         {
           filters: input.filters,
           sortDescriptor: input.sortDescriptor ?? undefined,

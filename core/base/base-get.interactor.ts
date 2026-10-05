@@ -1,5 +1,4 @@
-import type { GroupAxis, ResolvedGrouping } from "@/core/base/grouping/group-axis";
-import type { GroupCountRow } from "@/core/base/grouping/group-count";
+import type { GroupAxis, GroupCountRow, ResolvedGrouping } from "@/core/base/grouping/group-axis";
 import type { DataViewGroup, GroupPageRequest, Grouping, GroupingResult } from "@/core/base/grouping/grouping.schema";
 import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
@@ -22,8 +21,6 @@ import type {
 import type { BaseGetRepo } from "./base-get.repo";
 
 import type { GroupableFieldDto, GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
-import type { EntityType } from "@/features/records/history/v1/legacy-enums";
-import type { SummableModel } from "./base-repository";
 import type { QueryParamsPrecheckInteractor } from "./query-params-precheck.interactor";
 
 import { resolveGroupAxis, resolveGrouping } from "@/core/base/grouping/group-axis";
@@ -74,7 +71,6 @@ type GroupPage<T> = {
   key: string;
   items: T[];
   hasMore: boolean;
-  sums: GroupValueSums | undefined;
 };
 
 type HasId = { id: string };
@@ -84,8 +80,6 @@ type FetchResult<T> = {
   total: number;
   grouping?: GroupingResult;
   groupCounts?: Record<string, number>;
-  groupValueSums?: Record<string, GroupValueSums>;
-  valueSums?: GroupValueSums;
 };
 
 type ViewContext = {
@@ -101,11 +95,9 @@ export abstract class BaseGetInteractor<T> {
     protected repo: BaseGetRepo<T>,
     protected viewStateRepo: DataViewStateRepo,
     protected mode: "interactive" | "api",
-    protected entityType: EntityType | undefined,
     protected defaultParams?: GetQueryParams,
     protected queryParamsPrecheck?: QueryParamsPrecheckInteractor,
     protected queryParamsPrecheckFilterableFields?: FilterableField[],
-    protected groupValueSumFields: readonly string[] = [],
   ) {}
 
   async invoke(params: GetQueryParams = {}): Validated<GetResult<T>> {
@@ -148,7 +140,6 @@ export abstract class BaseGetInteractor<T> {
               customColumns,
               sortableFields,
             },
-            this.entityType,
             data,
             ctx,
           ),
@@ -180,11 +171,9 @@ export abstract class BaseGetInteractor<T> {
     const groupableSpecs = await this.repo.getGroupableFields(customColumns);
     const resolvedGrouping = resolveGrouping(requested.grouping, groupableSpecs);
 
-    const { items, total, grouping, groupCounts, groupValueSums } = resolvedGrouping
+    const { items, total, grouping, groupCounts } = resolvedGrouping
       ? await this.fetchGrouped(baseQuery, resolvedGrouping, requested.page)
       : await this.fetchFlat(baseQuery, pagination);
-
-    const valueSums = await this.sumDeclaredFields(baseQuery);
 
     return {
       ok: true,
@@ -199,8 +188,6 @@ export abstract class BaseGetInteractor<T> {
         ...(grouping ? { grouping } : {}),
         ...(groupableSpecs.length > 0 ? { groupableFields: groupableFieldDtos(groupableSpecs) } : {}),
         groupCounts,
-        groupValueSums,
-        valueSums,
         pagination: {
           page,
           pageSize,
@@ -256,25 +243,21 @@ export abstract class BaseGetInteractor<T> {
     const now = new Date().toISOString();
 
     if (page.only !== undefined) return this.fetchOneGroup(baseQuery, resolved, page, now);
+    if (!this.repo.countByGroup) throw new Error("This repository declares groupable fields but cannot count groups");
 
     const [rows, total] = await Promise.all([
-      this.repo.countByGroup({
-        spec,
-        params: baseQuery,
-        bucket: grouping.bucket,
-        sumFields: this.groupValueSumFields,
-        now,
-      }),
+      this.repo.countByGroup({ spec, params: baseQuery, bucket: grouping.bucket, now }),
       this.repo.getCount({
         filters: baseQuery.filters,
         searchTerm: baseQuery.searchTerm,
       }),
     ]);
 
-    const labels = await this.repo.resolveGroupLabels(
-      spec,
-      rows.map((row) => row.key),
-    );
+    const labels =
+      (await this.repo.resolveGroupLabels?.(
+        spec,
+        rows.map((row) => row.key),
+      )) ?? new Map();
     const axis = resolveGroupAxis({
       spec,
       bucket: grouping.bucket,
@@ -288,7 +271,6 @@ export abstract class BaseGetInteractor<T> {
     const materialised = axis.groups
       .filter((group) => !collapsed.has(group.key) && group.count > 0)
       .slice(0, MAX_MATERIALISED_GROUPS);
-    const wantsSums = page.includeValueSums !== false && this.groupValueSumFields.length > 0 && spec.kind !== "enum";
 
     const pages = await Promise.all(
       materialised.map(async (group): Promise<GroupPage<T>> => {
@@ -300,21 +282,17 @@ export abstract class BaseGetInteractor<T> {
         };
         const take = page.overrides?.[group.key] ?? page.perGroup ?? GROUP_PAGE_SIZE_DEFAULT;
 
-        const [items, sums] = await Promise.all([
-          this.repo.getItems({
-            ...baseQuery,
-            groupScope,
-            take: take + 1,
-            skip: 0,
-          }),
-          wantsSums ? this.sumDeclaredFields({ ...baseQuery, groupScope }) : Promise.resolve(undefined),
-        ]);
+        const items = await this.repo.getItems({
+          ...baseQuery,
+          groupScope,
+          take: take + 1,
+          skip: 0,
+        });
 
         return {
           key: group.key,
           items: items.slice(0, take),
           hasMore: items.length > take,
-          sums,
         };
       }),
     );
@@ -362,20 +340,6 @@ export abstract class BaseGetInteractor<T> {
         ],
       },
     };
-  }
-
-  private async sumDeclaredFields(params: GetQueryParams): Promise<GroupValueSums | undefined> {
-    if (this.groupValueSumFields.length === 0 || !this.entityType) return undefined;
-
-    const sums = await this.repo.sumNumericFields({
-      model: this.entityType as SummableModel,
-      fields: this.groupValueSumFields,
-      params,
-    });
-
-    return Object.fromEntries(
-      this.groupValueSumFields.flatMap((field) => (typeof sums[field] === "number" ? [[field, sums[field]]] : [])),
-    );
   }
 }
 
@@ -474,7 +438,6 @@ function assembleGroupedResult<T>(input: {
       materialised: true,
       itemIds: itemIds(page.items),
       hasMore: page.hasMore,
-      ...(page.sums === undefined ? {} : { valueSums: page.sums }),
     };
   });
 
@@ -489,7 +452,6 @@ function assembleGroupedResult<T>(input: {
     }),
   );
 
-  const summed = groups.flatMap((group) => (group.valueSums ? [[group.key, group.valueSums] as const] : []));
   const membershipTotal = input.rows.reduce((sum, row) => sum + row.count, 0);
 
   return {
@@ -505,6 +467,5 @@ function assembleGroupedResult<T>(input: {
       ...(input.axis.overflow ? { overflow: input.axis.overflow } : {}),
     },
     groupCounts: Object.fromEntries(groups.map((group) => [group.key, group.count])),
-    groupValueSums: summed.length > 0 ? Object.fromEntries(summed) : undefined,
   };
 }

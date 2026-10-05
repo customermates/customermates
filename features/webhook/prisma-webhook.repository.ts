@@ -1,3 +1,4 @@
+import type { PermissionService } from "@/core/base/permission.service";
 import type { RecordEventSubscriptionRepo } from "@/features/records/record-event-subscription.repo";
 import {
   RecordTriggerDefinitionSchema,
@@ -16,7 +17,7 @@ import type { GetWebhookByIdRepo } from "./get-webhook-by-id.interactor";
 
 import { Action, Prisma, Resource } from "@/generated/prisma";
 
-import { BaseRepository } from "@/core/base/base-repository";
+import { QueryRepository } from "@/core/base/query-repository";
 import { transactionStorage } from "@/core/decorators/transaction-context";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
@@ -27,7 +28,7 @@ import { parseStoredWebhookHeaders } from "./webhook-headers";
 import { WEBHOOK_MASKED_VALUE } from "./webhook.schema";
 
 export class PrismaWebhookRepo
-  extends BaseRepository<Prisma.WebhookWhereInput>
+  extends QueryRepository<Prisma.WebhookWhereInput>
   implements
     GetWebhooksRepo,
     UpsertWebhookRepo,
@@ -36,7 +37,10 @@ export class PrismaWebhookRepo
     FindWebhooksByIdsRepo,
     GetWebhookByIdRepo
 {
-  constructor(private readonly subscriptions: RecordEventSubscriptionRepo) {
+  constructor(
+    private readonly subscriptions: RecordEventSubscriptionRepo,
+    private readonly permissions: PermissionService,
+  ) {
     super();
   }
 
@@ -150,7 +154,7 @@ export class PrismaWebhookRepo
     const headers = parseStoredWebhookHeaders(row.headers);
     const webhook = { ...row, headers: Object.keys(headers).length > 0 ? headers : null } as WebhookDto;
 
-    if (this.hasPermission(Resource.api, Action.update)) return webhook;
+    if (this.permissions.has(Resource.api, Action.update)) return webhook;
 
     return {
       ...webhook,

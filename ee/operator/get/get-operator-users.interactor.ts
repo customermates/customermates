@@ -14,7 +14,7 @@ import { OperatorUserRowDtoSchema } from "../operator-lists.schema";
 @OperatorInteractor
 export class GetOperatorUsersInteractor extends BaseGetInteractor<OperatorUserRowDto> {
   constructor(repo: GetOperatorUsersRepo, viewStateRepo: DataViewStateRepo) {
-    super(repo, viewStateRepo, "interactive", undefined, {
+    super(repo, viewStateRepo, "interactive", {
       sortDescriptor: { field: "createdAt", direction: "desc" },
       pagination: { pageSize: 25, page: 1 },
     });

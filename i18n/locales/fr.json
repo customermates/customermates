@@ -1227,21 +1227,6 @@
         "resynced": "Compte resynchronisé",
         "updated": "Visibilité du compte modifiée"
       },
-      "contact": {
-        "created": "Contact créé",
-        "deleted": "Contact supprimé",
-        "updated": "Contact mis à jour"
-      },
-      "custom_column": {
-        "created": "Colonne personnalisée créée",
-        "deleted": "Colonne personnalisée supprimée",
-        "updated": "Colonne personnalisée mise à jour"
-      },
-      "deal": {
-        "created": "Affaire créée",
-        "deleted": "Affaire supprimée",
-        "updated": "Affaire mise à jour"
-      },
       "legal": {
         "documents_accepted": "Documents juridiques acceptés",
         "notice_sent": "Notification juridique envoyée"
@@ -1271,11 +1256,6 @@
           "created": "Relation créée"
         }
       },
-      "organization": {
-        "created": "Organisation créée",
-        "deleted": "Organisation supprimée",
-        "updated": "Organisation mise à jour"
-      },
       "record": {
         "created": "Fiche créée",
         "deleted": "Fiche supprimée",
@@ -1293,16 +1273,6 @@
         "created": "Routine créée",
         "deleted": "Routine supprimée",
         "updated": "Routine mise à jour"
-      },
-      "service": {
-        "created": "Service créé",
-        "deleted": "Service supprimé",
-        "updated": "Service mis à jour"
-      },
-      "task": {
-        "created": "Tâche créée",
-        "deleted": "Tâche supprimée",
-        "updated": "Tâche mise à jour"
       },
       "user": {
         "registered": "Utilisateur inscrit",
@@ -3045,7 +3015,6 @@
     "apply": "Appliquer les modifications",
     "archiveActivityPath": "Archiver la connexion",
     "archived": "Archivé",
-    "archivedField": "Champ archivé",
     "archiveField": "Archiver le champ",
     "archiveList": "Archiver la liste",
     "archiveListDescription": "L’archivage retire cette liste et ses enregistrements de l’usage courant. Les enregistrements, les liens et l’historique sont conservés, et vous pouvez restaurer la liste à tout moment.",

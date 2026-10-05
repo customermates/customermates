@@ -1,3 +1,4 @@
+import { PermissionService } from "@/core/base/permission.service";
 import type { TenantUser } from "@/features/user/user.schema";
 import type { WikiPageKind } from "../wiki.schema";
 
@@ -65,10 +66,15 @@ describeDatabase("Workspace Wiki page kinds on PostgreSQL", () => {
     );
   const create = (pages: PageInput[], tenant = user) =>
     runWithTenant(tenant, () =>
-      new CreateWikiPagesInteractor(new PrismaWikiPageRepo(), eventService()).invoke({ pages, requireEmpty: false }),
+      new CreateWikiPagesInteractor(new PrismaWikiPageRepo(new PermissionService()), eventService()).invoke({
+        pages,
+        requireEmpty: false,
+      }),
     );
   const update = (data: Parameters<UpdateWikiPageInteractor["invoke"]>[0]) =>
-    runWithTenant(user, () => new UpdateWikiPageInteractor(new PrismaWikiPageRepo(), eventService()).invoke(data));
+    runWithTenant(user, () =>
+      new UpdateWikiPageInteractor(new PrismaWikiPageRepo(new PermissionService()), eventService()).invoke(data),
+    );
 
   beforeAll(async () => {
     await client.connect();
@@ -117,7 +123,7 @@ describeDatabase("Workspace Wiki page kinds on PostgreSQL", () => {
     expect(created.ok).toBe(true);
     await create([{ title: "Foreign guide", markdown: "Foreign rules.", kind: "guide" }], foreignUser);
     await runWithTenant(user, async () => {
-      const repo = new PrismaWikiPageRepo();
+      const repo = new PrismaWikiPageRepo(new PermissionService());
       const context = await repo.loadOperatingPages(20);
       expect(context.guide).toMatchObject({ title: "Operating Guide" });
       expect(context.procedures.map(({ title }) => title)).toEqual(["Refunds"]);
@@ -195,7 +201,11 @@ describeDatabase("Workspace Wiki page kinds on PostgreSQL", () => {
     ).rejects.toThrow(/WikiPage_companyId_guide_key/);
 
     const guides = await runWithTenant(user, () =>
-      new GetWikiPagesInteractor(new PrismaWikiPageRepo()).invoke({ page: 1, pageSize: 25, kind: "guide" }),
+      new GetWikiPagesInteractor(new PrismaWikiPageRepo(new PermissionService())).invoke({
+        page: 1,
+        pageSize: 25,
+        kind: "guide",
+      }),
     );
     expect(guides).toMatchObject({
       ok: true,
@@ -226,11 +236,11 @@ describeDatabase("Workspace Wiki page kinds on PostgreSQL", () => {
     if (!last || !user.role) throw new Error("Missing test fixture");
     const move = (id: string, targetId: string, placement: "before" | "after") =>
       runWithTenant(user, () =>
-        new MoveWikiPageInteractor(new PrismaWikiPageRepo()).invoke({ id, targetId, placement }),
+        new MoveWikiPageInteractor(new PrismaWikiPageRepo(new PermissionService())).invoke({ id, targetId, placement }),
       );
     expect(await move(last.id, first.id, "before")).toMatchObject({ ok: true });
     const listed = await runWithTenant(user, () =>
-      new GetWikiPagesInteractor(new PrismaWikiPageRepo()).invoke({ page: 1, pageSize: 5 }),
+      new GetWikiPagesInteractor(new PrismaWikiPageRepo(new PermissionService())).invoke({ page: 1, pageSize: 5 }),
     );
     expect(listed.ok && listed.data.items.map(({ id }) => id)).toEqual([
       guide.id,
@@ -239,7 +249,7 @@ describeDatabase("Workspace Wiki page kinds on PostgreSQL", () => {
       second.id,
       rest[0].id,
     ]);
-    const unchanged = await runWithTenant(user, () => new PrismaWikiPageRepo().getPage(last.id));
+    const unchanged = await runWithTenant(user, () => new PrismaWikiPageRepo(new PermissionService()).getPage(last.id));
     expect(unchanged).toEqual(last);
     expect(await update({ id: last.id, expectedUpdatedAt: last.updatedAt, title: "Still editable" })).toMatchObject({
       ok: true,
@@ -247,7 +257,9 @@ describeDatabase("Workspace Wiki page kinds on PostgreSQL", () => {
     expect(await move(first.id, second.id, "after")).toMatchObject({ ok: true });
     expect(await move(first.id, first.id, "before")).toMatchObject({ ok: true });
     expect(await create([{ title: "Appended", markdown: "New content" }])).toMatchObject({ ok: true });
-    const all = await runWithTenant(user, () => new PrismaWikiPageRepo().listPages({ page: 1, pageSize: 25 }));
+    const all = await runWithTenant(user, () =>
+      new PrismaWikiPageRepo(new PermissionService()).listPages({ page: 1, pageSize: 25 }),
+    );
     expect(all.items.map(({ title }) => title)).toEqual([
       "Guide",
       "Still editable",
@@ -268,13 +280,17 @@ describeDatabase("Workspace Wiki page kinds on PostgreSQL", () => {
     const reader = createMockUser({ ...user, role: { ...user.role, isSystemRole: false, permissions: [] } });
     await expect(
       runWithTenant(reader, () =>
-        new MoveWikiPageInteractor(new PrismaWikiPageRepo()).invoke({
+        new MoveWikiPageInteractor(new PrismaWikiPageRepo(new PermissionService())).invoke({
           id: first.id,
           targetId: second.id,
           placement: "after",
         }),
       ),
     ).rejects.toThrow("Access denied");
-    expect(await runWithTenant(user, () => new PrismaWikiPageRepo().listPages({ page: 1, pageSize: 25 }))).toEqual(all);
+    expect(
+      await runWithTenant(user, () =>
+        new PrismaWikiPageRepo(new PermissionService()).listPages({ page: 1, pageSize: 25 }),
+      ),
+    ).toEqual(all);
   });
 });

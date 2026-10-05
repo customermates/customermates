@@ -298,15 +298,14 @@ describe("PrismaDataViewRepo stored state", () => {
   });
 
   it("reads a malformed stored filter entry without throwing", async () => {
-    const malformed = [null, { field: FilterFieldKey.userIds, operator: FilterOperatorKey.in, value: ["u2"] }];
+    const malformed = [null, { field: FilterFieldKey.status, operator: FilterOperatorKey.in, value: ["active"] }];
     dataViewFindMany.mockResolvedValue([storedView({ filters: malformed })]);
     p13nFindUnique.mockResolvedValue(storedPersonalization({ filters: malformed }));
 
     const surface = await asTenant(() => new PrismaDataViewRepo().loadSurfaceState(SURFACE));
 
-    const tolerated = [null, { field: FilterFieldKey.userIds, operator: FilterOperatorKey.in, value: ["u2"] }];
-    expect(surface.views[0].state.filters).toEqual(tolerated);
-    expect(surface.allState.filters).toEqual(tolerated);
+    expect(surface.views[0].state.filters).toEqual(malformed);
+    expect(surface.allState.filters).toEqual(malformed);
   });
 
   it("distinguishes an unset column from a cleared value", async () => {

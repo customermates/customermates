@@ -1,13 +1,13 @@
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type { DateBucket } from "@/core/base/grouping/grouping.schema";
-import type { GroupCountRow } from "@/core/base/grouping/group-count";
+import type { GroupCountRow } from "@/core/base/grouping/group-axis";
 import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
 import type { OperatorAuditRowDto } from "./operator-lists.schema";
 import type { GetOperatorAuditLogsRepo } from "@/ee/operator/get/get-operator-audit-logs.repo";
 
 import type { Prisma } from "@/generated/prisma";
 
-import { BaseRepository } from "@/core/base/base-repository";
+import { QueryRepository } from "@/core/base/query-repository";
 import { dateGroupables, enumGroupables } from "@/core/base/grouping/groupable-field";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
@@ -35,7 +35,7 @@ const OPERATOR_READ_ACTIONS: string[] = [
 
 const AUDIT_MAX_SKIP = 10_000;
 
-export class PrismaOperatorAuditRepo extends BaseRepository implements GetOperatorAuditLogsRepo {
+export class PrismaOperatorAuditRepo extends QueryRepository implements GetOperatorAuditLogsRepo {
   getSortableFields() {
     return [{ field: "createdAt", resolvedFields: ["createdAt"] }];
   }

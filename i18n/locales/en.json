@@ -1227,21 +1227,6 @@
         "resynced": "Account Resynced",
         "updated": "Account Visibility Changed"
       },
-      "contact": {
-        "created": "Contact Created",
-        "deleted": "Contact Deleted",
-        "updated": "Contact Updated"
-      },
-      "custom_column": {
-        "created": "Custom Column Created",
-        "deleted": "Custom Column Deleted",
-        "updated": "Custom Column Updated"
-      },
-      "deal": {
-        "created": "Deal Created",
-        "deleted": "Deal Deleted",
-        "updated": "Deal Updated"
-      },
       "legal": {
         "documents_accepted": "Legal Documents Accepted",
         "notice_sent": "Legal Notice Sent"
@@ -1271,11 +1256,6 @@
           "created": "Relation Created"
         }
       },
-      "organization": {
-        "created": "Organization Created",
-        "deleted": "Organization Deleted",
-        "updated": "Organization Updated"
-      },
       "record": {
         "created": "Record created",
         "deleted": "Record deleted",
@@ -1293,16 +1273,6 @@
         "created": "Routine Created",
         "deleted": "Routine Deleted",
         "updated": "Routine Updated"
-      },
-      "service": {
-        "created": "Service Created",
-        "deleted": "Service Deleted",
-        "updated": "Service Updated"
-      },
-      "task": {
-        "created": "Task Created",
-        "deleted": "Task Deleted",
-        "updated": "Task Updated"
       },
       "user": {
         "registered": "User Registered",
@@ -3045,7 +3015,6 @@
     "apply": "Apply changes",
     "archiveActivityPath": "Archive connection",
     "archived": "Archived",
-    "archivedField": "Archived field",
     "archiveField": "Archive field",
     "archiveList": "Archive list",
     "archiveListDescription": "Archiving hides this list and its records from everyday use. Records, links and history are kept, and you can restore the list at any time.",

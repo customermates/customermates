@@ -1,264 +1,134 @@
-import { ContactDtoSchema } from "@/features/records/history/v1/contact.schema";
-import { DealDtoSchema } from "@/features/records/history/v1/deal.schema";
-import { OrganizationDtoSchema } from "@/features/records/history/v1/organization.schema";
 import type { PrismaClient } from "@/generated/prisma";
-import { z, type ZodType } from "zod";
 
-import { SYNTHETIC_COMPANY_USERS, SYNTHETIC_SEED_USER } from "@/core/config/synthetic-seed-user";
-import { DomainEvent } from "@/features/event/domain-events";
 import { describe, expect, it, vi } from "vitest";
 
-import type { SeedContext } from "../seeds/context";
+import { SYNTHETIC_SEED_USER } from "@/core/config/synthetic-seed-user";
+import { presetId } from "@/features/records/crm-preset";
 
-import { SYNTHETIC_CONTACT_NAMES } from "../seeds/contacts";
-import { SEED_IDS } from "../seeds/context";
-import { SYNTHETIC_DEAL_NAMES } from "../seeds/deals";
+import { SEED_IDS, type SeedContext } from "../seeds/context";
 import { fixtureId } from "../seeds/helpers";
-import { SYNTHETIC_ORGANIZATION_NAMES } from "../seeds/organizations";
 import { SYNTHETIC_SEED_TIMELINE } from "../seeds/timeline";
-import { seedWebhooks, SYNTHETIC_WEBHOOK_DELIVERY_DEFINITIONS, SYNTHETIC_WEBHOOK_URL } from "../seeds/webhooks";
+import {
+  seedWebhooks,
+  SYNTHETIC_WEBHOOK_DELIVERY_DEFINITIONS,
+  SYNTHETIC_WEBHOOK_ID,
+  SYNTHETIC_WEBHOOK_URL,
+} from "../seeds/webhooks";
 
-vi.mock("../seeds/historical-record-fixtures", () => ({
-  historicalRecordFixtureRows: (
-    prisma: Record<string, { findMany(): Promise<unknown> }>,
-    _companyId: string,
-    kind: string,
-  ) => prisma[kind].findMany(),
-}));
-const envelope = (event: string, payload: ZodType) =>
-  z.object({
-    event: z.literal(event),
-    data: z.object({ userId: z.uuid(), companyId: z.uuid(), entityId: z.uuid(), payload }),
-    timestamp: z.iso.datetime(),
-  });
-const DELIVERY_SCHEMAS = {
-  [DomainEvent.CONTACT_CREATED]: envelope("contact.created", ContactDtoSchema),
-  [DomainEvent.CONTACT_UPDATED]: envelope(
-    "contact.updated",
-    z.object({ contact: ContactDtoSchema, changes: z.record(z.string(), z.unknown()) }),
-  ),
-  [DomainEvent.DEAL_CREATED]: envelope("deal.created", DealDtoSchema),
-  [DomainEvent.DEAL_UPDATED]: envelope(
-    "deal.updated",
-    z.object({ deal: DealDtoSchema, changes: z.record(z.string(), z.unknown()) }),
-  ),
-  [DomainEvent.ORGANIZATION_CREATED]: envelope("organization.created", OrganizationDtoSchema),
-  [DomainEvent.ORGANIZATION_UPDATED]: envelope(
-    "organization.updated",
-    z.object({ organization: OrganizationDtoSchema, changes: z.record(z.string(), z.unknown()) }),
-  ),
-} satisfies Record<(typeof SYNTHETIC_WEBHOOK_DELIVERY_DEFINITIONS)[number]["event"], ZodType>;
+const PREFIX = { contact: "60000000", deal: "80000000", organization: "70000000" } as const;
 
-const USER_REFERENCE = {
-  id: SEED_IDS.user,
-  firstName: SYNTHETIC_COMPANY_USERS.maxBergmann.firstName,
-  lastName: SYNTHETIC_COMPANY_USERS.maxBergmann.lastName,
-  avatarUrl: "https://customermates.com/demo/avatars/photos/max-bergmann.png",
-  email: SYNTHETIC_COMPANY_USERS.maxBergmann.email,
-};
-
-function selectedEntityIndexes(entityType: "contact" | "deal" | "organization"): number[] {
-  return [
-    ...new Set(
-      SYNTHETIC_WEBHOOK_DELIVERY_DEFINITIONS.filter((definition) => definition.entityType === entityType).map(
-        ({ entityIndex }) => entityIndex,
-      ),
-    ),
-  ];
-}
-
-function contactRows() {
-  return selectedEntityIndexes("contact").map((index) => {
-    const [firstName, lastName] = SYNTHETIC_CONTACT_NAMES[index];
-    const id = fixtureId("60000000", index + 1);
-
-    return {
-      id,
-      firstName,
-      lastName,
-      avatarUrl: `/demo/contact-${index + 1}.svg`,
-      notes: null,
-      createdAt: new Date(`2026-03-${String(index + 1).padStart(2, "0")}T09:00:00.000Z`),
-      updatedAt: new Date(`2026-03-${String(index + 1).padStart(2, "0")}T10:00:00.000Z`),
-      identifiers: [
-        {
-          id: fixtureId("b0000000", index + 1),
-          provider: "mail" as const,
-          value: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@example.com`,
-          messagingId: null,
-          displayName: `${firstName} ${lastName}`,
-          profileUrl: null,
-        },
-      ],
-      organizations: [],
-      users: [{ user: USER_REFERENCE }],
-      deals: [],
-      tasks: [],
-      customFieldValues: [],
-    };
-  });
-}
-
-function dealRows() {
-  return selectedEntityIndexes("deal").map((index) => ({
-    id: fixtureId("80000000", index + 1),
-    name: SYNTHETIC_DEAL_NAMES[index],
-    totalValue: 15_000 + index * 2_500,
-    totalQuantity: 2 + index,
-    weightedValue: null,
-    notes: null,
-    createdAt: new Date(`2026-03-${String(index + 1).padStart(2, "0")}T09:00:00.000Z`),
-    updatedAt: new Date(`2026-03-${String(index + 1).padStart(2, "0")}T10:00:00.000Z`),
-    organizations: [],
-    users: [{ user: USER_REFERENCE }],
-    contacts: [],
-    services: [],
-    tasks: [],
-    customFieldValues: [],
+function recordEvents() {
+  return SYNTHETIC_WEBHOOK_DELIVERY_DEFINITIONS.map((definition, index) => ({
+    id: fixtureId("3a000000", index + 1),
+    typeId: presetId(SEED_IDS.company, definition.entityType),
+    recordId: fixtureId(PREFIX[definition.entityType], definition.entityIndex + 1),
+    kind: definition.event,
   }));
 }
 
-function organizationRows() {
-  return selectedEntityIndexes("organization").map((index) => ({
-    id: fixtureId("70000000", index + 1),
-    name: SYNTHETIC_ORGANIZATION_NAMES[index],
-    notes: null,
-    createdAt: new Date(`2026-03-${String(index + 1).padStart(2, "0")}T09:00:00.000Z`),
-    updatedAt: new Date(`2026-03-${String(index + 1).padStart(2, "0")}T10:00:00.000Z`),
-    contacts: [],
-    users: [{ user: USER_REFERENCE }],
-    deals: [],
-    tasks: [],
-    customFieldValues: [],
-  }));
-}
-
-function context() {
-  const webhookUpsert = vi.fn().mockResolvedValue(undefined);
-  const webhookDeleteMany = vi.fn().mockResolvedValue({ count: 0 });
-  const deliveryUpsert = vi.fn().mockResolvedValue(undefined);
-  const deliveryDeleteMany = vi.fn().mockResolvedValue({ count: 0 });
-  const contactFindMany = vi.fn().mockResolvedValue(contactRows());
-  const dealFindMany = vi.fn().mockResolvedValue(dealRows());
-  const organizationFindMany = vi.fn().mockResolvedValue(organizationRows());
-
-  return {
-    calls: {
-      contactFindMany,
-      dealFindMany,
-      deliveryDeleteMany,
-      deliveryUpsert,
-      organizationFindMany,
-      webhookDeleteMany,
-      webhookUpsert,
-    },
-    seedContext: {
-      ids: SEED_IDS,
-      prisma: {
-        contact: { findMany: contactFindMany },
-        deal: { findMany: dealFindMany },
-        organization: { findMany: organizationFindMany },
-        recordEventSubscription: {
-          upsert: vi.fn().mockResolvedValue({}),
-          deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
-        },
-        webhook: { deleteMany: webhookDeleteMany, upsert: webhookUpsert },
-        webhookDelivery: {
-          deleteMany: deliveryDeleteMany,
-          upsert: deliveryUpsert,
-        },
-      } as unknown as PrismaClient,
-      seedUserEmail: SYNTHETIC_SEED_USER.email,
-      sharedUserPassword: "test-password",
-    } satisfies SeedContext,
+async function seed() {
+  const calls = {
+    webhook: [] as Array<{ create: Record<string, unknown>; update: Record<string, unknown> }>,
+    deliveries: [] as Array<{ create: Record<string, unknown>; update: Record<string, unknown> }>,
+    subscriptions: [] as Array<{ create: Record<string, unknown> }>,
   };
-}
-
-function reviveDtoDates(value: unknown, key = ""): unknown {
-  if (Array.isArray(value)) return value.map((item) => reviveDtoDates(item));
-  if (value === null || typeof value !== "object") {
-    if ((key === "createdAt" || key === "updatedAt") && typeof value === "string") return new Date(value);
-    return value;
-  }
-
-  return Object.fromEntries(
-    Object.entries(value).map(([childKey, child]) => [childKey, reviveDtoDates(child, childKey)]),
-  );
+  const prisma = {
+    recordEventSubscription: {
+      upsert: vi.fn((input: { create: Record<string, unknown> }) => {
+        calls.subscriptions.push(input);
+        return Promise.resolve(input.create);
+      }),
+      deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
+    },
+    recordEvent: { findMany: vi.fn().mockResolvedValue(recordEvents()) },
+    webhook: {
+      upsert: vi.fn((input: { create: Record<string, unknown>; update: Record<string, unknown> }) => {
+        calls.webhook.push(input);
+        return Promise.resolve(input.create);
+      }),
+      deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
+    },
+    webhookDelivery: {
+      upsert: vi.fn((input: { create: Record<string, unknown>; update: Record<string, unknown> }) => {
+        calls.deliveries.push(input);
+        return Promise.resolve(input.create);
+      }),
+      deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
+    },
+  } as unknown as PrismaClient;
+  const context = {
+    prisma,
+    ids: SEED_IDS,
+    seedUserEmail: SYNTHETIC_SEED_USER.email,
+    sharedUserPassword: "test-password",
+  } satisfies SeedContext;
+  await seedWebhooks(context);
+  return calls;
 }
 
 describe("synthetic webhook fixtures", () => {
-  it("restores the disabled legacy demo webhook without a credential or live endpoint", async () => {
-    const { calls, seedContext } = context();
+  it("restores the disabled demo webhook on record events without a credential or live endpoint", async () => {
+    const calls = await seed();
 
-    await seedWebhooks(seedContext);
-
-    const webhook = calls.webhookUpsert.mock.calls[0][0].create;
-    expect(webhook).toMatchObject({
-      description: "Webhook for demo",
+    expect(calls.webhook).toHaveLength(1);
+    expect(calls.webhook[0].create).toMatchObject({
+      id: SYNTHETIC_WEBHOOK_ID,
+      companyId: SEED_IDS.company,
       enabled: false,
+      events: ["record.created", "record.updated"],
       secret: null,
       url: SYNTHETIC_WEBHOOK_URL,
+      createdAt: SYNTHETIC_SEED_TIMELINE.webhook.createdAt,
+      updatedAt: SYNTHETIC_SEED_TIMELINE.webhook.updatedAt,
     });
-    expect(new URL(webhook.url).hostname).toBe("receiver.example");
-    expect(new Set(webhook.events)).toEqual(new Set(["record.created", "record.updated"]));
-    expect(webhook.createdAt).toEqual(SYNTHETIC_SEED_TIMELINE.webhook.createdAt);
-    expect(webhook.updatedAt).toEqual(SYNTHETIC_SEED_TIMELINE.webhook.updatedAt);
-    expect(calls.webhookDeleteMany).toHaveBeenCalledOnce();
-    expect(calls.webhookDeleteMany).toHaveBeenCalledWith({
-      where: {
-        companyId: SEED_IDS.company,
-        id: {
-          startsWith: "22000000-",
-          notIn: [fixtureId("22000000", 1)],
-        },
-      },
+    expect(new URL(SYNTHETIC_WEBHOOK_URL).hostname).toBe("receiver.example");
+    expect(calls.subscriptions).toHaveLength(1);
+    expect(calls.subscriptions[0].create).toMatchObject({
+      id: SYNTHETIC_WEBHOOK_ID,
+      kind: "webhook",
+      ownerUserId: SEED_IDS.user,
+      enabled: false,
+      events: ["record.created", "record.updated"],
+      sources: ["contact", "deal", "organization"].map((type) => ({
+        query: { typeId: presetId(SEED_IDS.company, type), filters: [], relationships: [] },
+        events: ["record.created", "record.updated"],
+        changedFieldIds: [],
+      })),
     });
   });
 
-  it("restores 14 sanitized delivery examples with full payloads that satisfy their OpenAPI schemas", async () => {
-    const { calls, seedContext } = context();
+  it("restores 14 deliveries bound to the seeded record events of their record", async () => {
+    const calls = await seed();
+    const events = recordEvents();
 
-    await seedWebhooks(seedContext);
-
-    expect(calls.deliveryUpsert).toHaveBeenCalledTimes(14);
-    expect(SYNTHETIC_WEBHOOK_DELIVERY_DEFINITIONS).toHaveLength(14);
-    expect(SYNTHETIC_WEBHOOK_DELIVERY_DEFINITIONS.filter(({ status }) => status === "success")).toHaveLength(9);
-    expect(SYNTHETIC_WEBHOOK_DELIVERY_DEFINITIONS.filter(({ status }) => status === "failed")).toHaveLength(3);
-    expect(SYNTHETIC_WEBHOOK_DELIVERY_DEFINITIONS.filter(({ status }) => status === "processing")).toHaveLength(2);
-
-    for (const [{ create }] of calls.deliveryUpsert.mock.calls) {
-      expect(create.url).toBe(SYNTHETIC_WEBHOOK_URL);
-      expect(create.requestBody).toMatchObject({ event: create.event });
-      expect(create.requestBody.data).toMatchObject({
-        companyId: SEED_IDS.company,
-        entityId: expect.any(String),
-        userId: SEED_IDS.user,
+    expect(calls.deliveries).toHaveLength(14);
+    for (const [index, { create }] of calls.deliveries.entries()) {
+      const definition = SYNTHETIC_WEBHOOK_DELIVERY_DEFINITIONS[index];
+      const event = events[index];
+      expect(create).toMatchObject({
+        id: fixtureId("23000000", index + 1),
+        webhookId: SYNTHETIC_WEBHOOK_ID,
+        recordEventId: event.id,
+        subscriptionRevision: 1,
+        admissionKey: `${SYNTHETIC_WEBHOOK_ID}:${event.id}`,
+        event: definition.event,
+        requestBody: { version: 2, eventId: event.id },
+        status: definition.status,
+        statusCode: definition.statusCode,
+        success: definition.status === "success",
+        url: SYNTHETIC_WEBHOOK_URL,
+        nextAttemptAt: null,
+        createdAt: SYNTHETIC_SEED_TIMELINE.webhookDelivery(index),
       });
-      expect(() =>
-        DELIVERY_SCHEMAS[create.event as keyof typeof DELIVERY_SCHEMAS].parse(reviveDtoDates(create.requestBody)),
-      ).not.toThrow();
-      expect(JSON.stringify(create.requestBody)).not.toMatch(/secret|token|api[_-]?key/i);
+      expect(create.deliveredAt === null).toBe(definition.status === "processing");
     }
-
-    expect(calls.deliveryDeleteMany).toHaveBeenCalledOnce();
   });
 
-  it("uses a fixed timeline and produces the same upsert data on every run", async () => {
-    const { calls, seedContext } = context();
+  it("produces the same upsert data on every run", async () => {
+    const first = await seed();
+    const second = await seed();
 
-    await seedWebhooks(seedContext);
-    const firstRun = calls.deliveryUpsert.mock.calls.map(([{ create }]) => create);
-
-    calls.deliveryUpsert.mockClear();
-    await seedWebhooks(seedContext);
-    const secondRun = calls.deliveryUpsert.mock.calls.map(([{ create }]) => create);
-
-    expect(secondRun).toEqual(firstRun);
-    expect(firstRun.every(({ createdAt }) => createdAt instanceof Date)).toBe(true);
-    expect(firstRun.map(({ createdAt }) => createdAt)).toEqual(
-      SYNTHETIC_WEBHOOK_DELIVERY_DEFINITIONS.map((_, index) => SYNTHETIC_SEED_TIMELINE.webhookDelivery(index)),
-    );
-    expect(firstRun[0].createdAt.getTime()).toBeGreaterThan(SYNTHETIC_SEED_TIMELINE.webhook.createdAt.getTime());
-    expect(firstRun.at(-1)?.createdAt.getTime()).toBeLessThan(SYNTHETIC_SEED_TIMELINE.webhook.updatedAt.getTime());
+    expect(second).toEqual(first);
+    for (const { create, update } of [...first.webhook, ...first.deliveries]) expect(update).toEqual(create);
   });
 });

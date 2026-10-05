@@ -93,7 +93,8 @@ try {
   const user = TenantUserSchema.parse(actor);
   const run = <T>(work: () => Promise<T>) => context.runWithTenant(user, work);
   const repo = new repository.PrismaRecordRepo();
-  const policy = new access.RecordAccessPolicy(new users.PrismaUserRepo(), repo);
+  const { PermissionService } = await import("../core/base/permission.service");
+  const policy = new access.RecordAccessPolicy(new users.PrismaUserRepo(new PermissionService()), repo);
   const calculator = new calculations.RecordCalculationService(repo);
   const writer = new writes.RecordWriteService(repo, policy, calculator);
   const company = {

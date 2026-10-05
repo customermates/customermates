@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import { SYNTHETIC_CONTACT_NAMES } from "../seeds/contacts";
-import { SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS } from "../seeds/custom-fields";
 import { SYNTHETIC_DEAL_NAMES } from "../seeds/deals";
 import { threads } from "../seeds/messaging/fixtures";
 import { SYNTHETIC_ORGANIZATION_DEFINITIONS } from "../seeds/organizations";
@@ -21,11 +20,10 @@ function timelineDates(count: number, timeline: (index: number) => { createdAt: 
 }
 
 describe("synthetic activity chronology", () => {
-  it("spreads audit-backed fixture timestamps across nearly a full year", () => {
+  it("spreads history-backed fixture timestamps across nearly a full year", () => {
     const dates = [
       SYNTHETIC_SEED_TIMELINE.company.createdAt,
       SYNTHETIC_SEED_TIMELINE.systemRole.createdAt,
-      ...timelineDates(SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS.length, SYNTHETIC_SEED_TIMELINE.customColumn),
       ...timelineDates(SYNTHETIC_ORGANIZATION_DEFINITIONS.length, SYNTHETIC_SEED_TIMELINE.organization),
       ...timelineDates(SYNTHETIC_CONTACT_NAMES.length, SYNTHETIC_SEED_TIMELINE.contact),
       ...timelineDates(SYNTHETIC_SERVICE_NAMES.length, SYNTHETIC_SEED_TIMELINE.service),

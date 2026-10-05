@@ -31,7 +31,7 @@ const AuditLogDtoSchema = z.object({
 @TenantInteractor({ resource: Resource.auditLog, action: Action.readAll })
 export class GetAuditLogsInteractor extends BaseGetInteractor<AuditLogDto> {
   constructor(repo: GetAuditLogsRepo, viewStateRepo: DataViewStateRepo) {
-    super(repo, viewStateRepo, "interactive", undefined, {
+    super(repo, viewStateRepo, "interactive", {
       sortDescriptor: { field: "createdAt", direction: "desc" },
       pagination: { pageSize: 25, page: 1 },
     });

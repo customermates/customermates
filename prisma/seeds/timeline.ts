@@ -33,13 +33,11 @@ export const SYNTHETIC_ORGANIZATION_UPDATE_INDEXES = [5, 10, 12, 13] as const;
 export const SYNTHETIC_CONTACT_UPDATE_INDEXES = [0, 6, 7, 19, 22, 23, 26] as const;
 export const SYNTHETIC_DEAL_UPDATE_INDEXES = [0, 1, 2] as const;
 export const SYNTHETIC_TASK_UPDATE_INDEXES = [0, 4, 7, 8, 13] as const;
-export const SYNTHETIC_CUSTOM_COLUMN_UPDATE_INDEXES = [2, 5, 6] as const;
 
 const organizationUpdates = new Set<number>(SYNTHETIC_ORGANIZATION_UPDATE_INDEXES);
 const contactUpdates = new Set<number>(SYNTHETIC_CONTACT_UPDATE_INDEXES);
 const dealUpdates = new Set<number>(SYNTHETIC_DEAL_UPDATE_INDEXES);
 const taskUpdates = new Set<number>(SYNTHETIC_TASK_UPDATE_INDEXES);
-const customColumnUpdates = new Set<number>(SYNTHETIC_CUSTOM_COLUMN_UPDATE_INDEXES);
 
 export const SYNTHETIC_SEED_TIMELINE = {
   company: {
@@ -63,13 +61,6 @@ export const SYNTHETIC_SEED_TIMELINE = {
           ? moment("2025-08-08T17:00:00.000Z")
           : timestamp("2025-08-07T09:00:00.000Z", index, 8 * 60 * MINUTE),
   }),
-  customColumn: (index: number) => {
-    const createdAt = timestamp("2025-08-10T12:00:00.000Z", index, 2 * DAY);
-    return {
-      createdAt,
-      updatedAt: customColumnUpdates.has(index) ? nextDay(createdAt) : createdAt,
-    };
-  },
   organization: (index: number) => {
     const createdAt = timestamp("2025-09-03T15:00:00.000Z", index, 2 * DAY);
     return {

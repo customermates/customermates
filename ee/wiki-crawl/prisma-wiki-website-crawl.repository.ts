@@ -9,7 +9,7 @@ import type { WikiWebsiteCrawlCleanupRepo, WikiWebsiteCrawlCleanup } from "./wik
 
 import { Prisma } from "@/generated/prisma";
 
-import { BaseRepository } from "@/core/base/base-repository";
+import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { WIKI_CRAWL_ACTIVE_STATUSES } from "./wiki-website-crawl.service";
 import { parseStoredWikiCrawlTargets } from "./wiki-crawl-target.schema";
@@ -95,7 +95,7 @@ function crawlPatch({ targets, topics, mode, ...rest }: Partial<Omit<WikiCrawlRe
 }
 
 export class PrismaWikiWebsiteCrawlRepo
-  extends BaseRepository
+  extends TenantRepository
   implements WikiWebsiteCrawlRepo, StartWikiWebsiteCrawlRepo, GetWikiWebsiteCrawlStateRepo, WikiWebsiteCrawlCleanupRepo
 {
   constructor(private readonly pages: WikiImportPageRepo) {

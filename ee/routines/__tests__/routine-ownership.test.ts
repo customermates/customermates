@@ -79,7 +79,6 @@ function routine(ownerUserId = OWNER_ID): RoutineDto {
     cronExpression: "0 9 * * *",
     timezone: "Europe/Berlin",
     triggerEvents: [],
-    changedFields: [],
     triggerFilters: [],
     debounceSeconds: 300,
     nextRunAt: new Date(),

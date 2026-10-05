@@ -1,3 +1,4 @@
+import { PermissionService } from "@/core/base/permission.service";
 import type { TenantUser } from "@/features/user/user.schema";
 
 import { randomUUID } from "node:crypto";
@@ -94,7 +95,7 @@ describeDatabase("built-in text sorts on PostgreSQL follow the user's locale", (
     const params = { sortDescriptor: { field: "name", direction } };
 
     const routines = await read(() => createTestRoutineRepo().getItems(params));
-    const members = await read(() => new PrismaUserRepo().getItems(params));
+    const members = await read(() => new PrismaUserRepo(new PermissionService()).getItems(params));
     const webhooks = await read(() => createTestWebhookRepo().getItems(params));
     const roles = await read(() =>
       new PrismaRoleRepo().getItems({ sortDescriptor: { field: "type", direction: "asc" } }),

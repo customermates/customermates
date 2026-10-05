@@ -32,14 +32,7 @@ export class GetRolesInteractor extends BaseGetInteractor<RoleDto> {
     mode: "interactive" | "api",
     queryParamsPrecheck: QueryParamsPrecheckInteractor,
   ) {
-    super(
-      repo,
-      viewStateRepo,
-      mode,
-      undefined,
-      { sortDescriptor: { field: "type", direction: "asc" } },
-      queryParamsPrecheck,
-    );
+    super(repo, viewStateRepo, mode, { sortDescriptor: { field: "type", direction: "asc" } }, queryParamsPrecheck);
   }
 
   @Validate(GetQueryParamsSchema)

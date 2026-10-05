@@ -1,3 +1,4 @@
+import { PermissionService } from "@/core/base/permission.service";
 import { PrismaWebhookRepo } from "@/features/webhook/prisma-webhook.repository";
 import { PrismaRecordRepo } from "@/features/records/prisma-record.repository";
 import { PrismaRecordEventSubscriptionRepo } from "@/features/records/prisma-record-event-subscription.repository";
@@ -12,7 +13,8 @@ export const createTestRoutineRepo = (access?: RoutineEventAccess) =>
   new PrismaRoutineRepo(
     access ?? new PrismaRoutineEventAccess(createTestRecordRecipientReader()),
     new PrismaRecordEventSubscriptionRepo(new PrismaRecordRepo()),
+    new PermissionService(),
   );
 
 export const createTestWebhookRepo = () =>
-  new PrismaWebhookRepo(new PrismaRecordEventSubscriptionRepo(new PrismaRecordRepo()));
+  new PrismaWebhookRepo(new PrismaRecordEventSubscriptionRepo(new PrismaRecordRepo()), new PermissionService());

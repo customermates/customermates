@@ -322,12 +322,7 @@ export const TimelineDetailModal = observer(() => {
 
       {entry?.kind === "activity" && <ActivityDetail entry={entry} />}
 
-      {entry?.kind === "audit" &&
-        (entry.recordChanges ? (
-          <RecordAuditDetail entry={{ ...entry, changes: entry.recordChanges }} />
-        ) : (
-          <AuditDetail customColumns={customColumns} entry={entry} />
-        ))}
+      {entry?.kind === "audit" && <AuditDetail customColumns={customColumns} entry={entry} />}
 
       {entry?.kind === "record" && <RecordAuditDetail entry={entry} />}
     </AppModal>

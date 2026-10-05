@@ -9,7 +9,11 @@ import { ViewMode } from "@/core/base/base-query-builder";
 import { DataViewStateSchema } from "@/core/data-view/data-view-state.schema";
 
 import { SEED_IDS } from "../seeds/context";
-import { SYNTHETIC_CUSTOM_COLUMN_IDS, SYNTHETIC_CUSTOM_OPTION_IDS } from "../seeds/custom-fields";
+import {
+  SYNTHETIC_CUSTOM_FIELD_IDS,
+  SYNTHETIC_CUSTOM_OPTION_IDS,
+  type CustomFieldSeedData,
+} from "../seeds/custom-fields";
 import {
   buildSyntheticDataViewFixtures,
   persistSyntheticDataViewFixtures,
@@ -17,11 +21,15 @@ import {
   SYNTHETIC_DATA_VIEW_IDS,
 } from "../seeds/data-views";
 import { fixtureId } from "../seeds/helpers";
+import { syntheticRecordKeys } from "../seeds/record-keys";
 
-const customFields = {
-  customColumnIds: SYNTHETIC_CUSTOM_COLUMN_IDS,
+const customFields: CustomFieldSeedData = {
+  customFields: [],
+  customFieldValues: [],
+  customFieldIds: SYNTHETIC_CUSTOM_FIELD_IDS,
   customOptionIds: SYNTHETIC_CUSTOM_OPTION_IDS,
 };
+const { surface } = syntheticRecordKeys(SEED_IDS.company);
 
 const views = () => buildSyntheticDataViewFixtures({ ids: SEED_IDS }, customFields);
 
@@ -81,11 +89,11 @@ describe("synthetic data view fixtures", () => {
 
     expect(new Set(fixtures.map(({ surfaceKey }) => surfaceKey))).toEqual(
       new Set([
-        "contacts-card-store",
-        "organizations-card-store",
-        "deals-card-store",
-        "services-card-store",
-        "tasks-card-store",
+        surface("contact"),
+        surface("organization"),
+        surface("deal"),
+        surface("service"),
+        surface("task"),
         "messaging-threads-card-store",
       ]),
     );
@@ -115,13 +123,7 @@ describe("synthetic data view fixtures", () => {
     const grouped = views().filter(({ state }) => state.grouping);
 
     expect(new Set(grouped.map(({ surfaceKey }) => surfaceKey))).toEqual(
-      new Set([
-        "contacts-card-store",
-        "organizations-card-store",
-        "deals-card-store",
-        "services-card-store",
-        "tasks-card-store",
-      ]),
+      new Set([surface("contact"), surface("organization"), surface("deal"), surface("service"), surface("task")]),
     );
 
     const inbox = views().filter(({ surfaceKey }) => surfaceKey === "messaging-threads-card-store");
@@ -156,8 +158,7 @@ describe("synthetic data view fixtures", () => {
     for (const boardView of boards) {
       expect((boardView.state.hiddenColumns ?? []).length, boardView.name).toBeGreaterThan(3);
       const groupingField = boardView.state.grouping?.field;
-      if (groupingField && !groupingField.endsWith("Ids"))
-        expect(boardView.state.hiddenColumns, boardView.name).toContain(groupingField);
+      if (groupingField) expect(boardView.state.hiddenColumns, boardView.name).toContain(groupingField);
     }
   });
 
@@ -169,7 +170,10 @@ describe("synthetic data view fixtures", () => {
     expect(all.some(({ state }) => Object.keys(state.columnWidths ?? {}).length > 0)).toBe(true);
     expect(all.some(({ state }) => state.sortDescriptor)).toBe(true);
     expect(all.some(({ state }) => state.pageSize)).toBe(true);
-    expect(all.every(({ state }) => !(state.hiddenColumns ?? []).includes("name"))).toBe(true);
+    const names = ["contact", "organization", "deal", "service", "task"].map((type) =>
+      syntheticRecordKeys(SEED_IDS.company).id(`${type}.name`),
+    );
+    expect(all.every(({ state }) => !(state.hiddenColumns ?? []).some((column) => names.includes(column)))).toBe(true);
   });
 
   it("converges on a second run and removes only stale deterministic rows", async () => {
@@ -196,7 +200,7 @@ describe("synthetic data view fixtures", () => {
     expect(recorder.rows.get(SYNTHETIC_DATA_VIEW_IDS.openDeals)).toMatchObject({
       companyId: SEED_IDS.company,
       userId: SEED_IDS.user,
-      surfaceKey: "deals-card-store",
+      surfaceKey: surface("deal"),
     });
 
     await persistSyntheticDataViewFixtures(prisma, SEED_IDS.company, []);

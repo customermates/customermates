@@ -1,4 +1,4 @@
-import { BaseRepository } from "@/core/base/base-repository";
+import { TenantRepository } from "@/core/base/tenant-repository";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Prisma } from "@/generated/prisma";
@@ -26,7 +26,7 @@ function deliveryDefinition(subscription: RecordEventSubscriptionDefinition) {
   });
 }
 
-export class PrismaRecordEventSubscriptionRepo extends BaseRepository implements RecordEventSubscriptionRepo {
+export class PrismaRecordEventSubscriptionRepo extends TenantRepository implements RecordEventSubscriptionRepo {
   constructor(private readonly records: RecordRepo) {
     super();
   }

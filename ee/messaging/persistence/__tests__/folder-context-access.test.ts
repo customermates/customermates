@@ -1,3 +1,4 @@
+import { PermissionService } from "@/core/base/permission.service";
 import { describe, expect, it, vi } from "vitest";
 
 const COMPANY = "company-1";
@@ -17,7 +18,9 @@ const asViewer = <T>(fn: () => Promise<T>) =>
 describe("findFolderContextById access scope", () => {
   it("never scopes on company alone, so a colleague's private mailbox stays private", async () => {
     findFirst.mockResolvedValueOnce(null);
-    await asViewer(() => new PrismaConnectedAccountRepo().findFolderContextById("someone-elses-account"));
+    await asViewer(() =>
+      new PrismaConnectedAccountRepo(new PermissionService()).findFolderContextById("someone-elses-account"),
+    );
 
     const where = findFirst.mock.calls.at(-1)?.[0].where;
 
@@ -31,6 +34,8 @@ describe("findFolderContextById access scope", () => {
   it("returns nothing when the account is not accessible to the viewer", async () => {
     findFirst.mockResolvedValueOnce(null);
 
-    await expect(asViewer(() => new PrismaConnectedAccountRepo().findFolderContextById("hidden"))).resolves.toBeNull();
+    await expect(
+      asViewer(() => new PrismaConnectedAccountRepo(new PermissionService()).findFolderContextById("hidden")),
+    ).resolves.toBeNull();
   });
 });

@@ -1,3 +1,5 @@
+import type { PermissionService } from "@/core/base/permission.service";
+import { routineAccessWhere } from "@/ee/routines/routine-access";
 import { randomUUID } from "node:crypto";
 
 import {
@@ -12,7 +14,7 @@ import {
   type SubscriptionStatus,
 } from "@/generated/prisma";
 
-import { BaseRepository } from "@/core/base/base-repository";
+import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { env } from "@/env";
@@ -34,12 +36,7 @@ import {
   parsePendingAgentApprovalToolName,
   pendingAgentApprovalToolName,
 } from "./agent-approval";
-import {
-  agentPlainTextPreview,
-  sanitizeAgentConversationTitle,
-  sanitizeAgentVisibleText,
-  stripLegacyUserPageContextPrefix,
-} from "./agent-output-safety";
+import { agentPlainTextPreview, sanitizeAgentConversationTitle, sanitizeAgentVisibleText } from "./agent-output-safety";
 import {
   areAgentTurnAffectedResources,
   AGENT_RUN_LEASE_MS,
@@ -224,8 +221,11 @@ export type AgentUsageReservationExtension =
   | { disposition: "hosted_ai_unavailable" }
   | { disposition: "turn_error" };
 
-export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRepo {
-  constructor(private readonly wikiSuggestions: GetWikiSuggestionSignalRepo) {
+export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageRepo {
+  constructor(
+    private readonly wikiSuggestions: GetWikiSuggestionSignalRepo,
+    private readonly permissions: PermissionService,
+  ) {
     super();
   }
 
@@ -475,9 +475,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         id: row.id,
         title: sanitizeAgentConversationTitle(row.title),
         preview: agentPlainTextPreview(
-          latest?.role === AgentMessageRole.user
-            ? stripLegacyUserPageContextPrefix(latestText)
-            : sanitizeAgentVisibleText(latestText, env.BASE_URL),
+          latest?.role === AgentMessageRole.user ? latestText : sanitizeAgentVisibleText(latestText, env.BASE_URL),
           140,
         ),
         updatedAt: row.updatedAt,
@@ -727,7 +725,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     const select = { id: true };
     const [routine, wikiPage, widget, connectedAccount] = await Promise.all([
       this.prisma.routine.findFirst({
-        where: this.accessWhere("routine"),
+        where: routineAccessWhere(this.permissions),
         select,
       }),
       this.wikiSuggestions.findSuggestionWikiPage(),
@@ -739,7 +737,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         select,
       }),
       this.prisma.connectedAccount.findFirst({
-        where: this.canAccess(Resource.inboxMessages)
+        where: this.permissions.canRead(Resource.inboxMessages)
           ? {
               companyId: this.companyId,
               OR: [{ userId: this.userId }, { shared: true }],

@@ -1,9 +1,9 @@
 import { Prisma } from "@/generated/prisma";
-import { BaseRepository } from "@/core/base/base-repository";
+import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import type { DueRecordOperation, RecordOperationQueueRepo } from "./record-operation-queue.repo";
 
-export class PrismaRecordOperationQueueRepo extends BaseRepository implements RecordOperationQueueRepo {
+export class PrismaRecordOperationQueueRepo extends TenantRepository implements RecordOperationQueueRepo {
   @BypassTenantGuard
   claimDueUnscoped(now: Date, leaseUntil: Date, take: number): Promise<DueRecordOperation[]> {
     return this.prisma.$queryRaw<DueRecordOperation[]>(Prisma.sql`

@@ -8,7 +8,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { hasValidFilterConfiguration } from "@/components/data-view/table-view.utils";
 import { GetQueryParamsApiSchema } from "@/core/base/base-get.schema";
 import { defaultValidateFilters, FilterOperatorKey } from "@/core/base/base-query-builder";
-import { ActivityFiltersSchema } from "@/ee/messaging/activities/activities.schema";
 import { CustomColumnType } from "@/core/data-view/column-presentation.types";
 import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
@@ -222,7 +221,6 @@ describe("filter palette commit timing", () => {
       operator: FilterOperatorKey.hasSome,
     });
     expect("value" in (committed as object)).toBe(false);
-    expect(() => ActivityFiltersSchema.parse([committed])).not.toThrow();
     expectExecutable(table);
   });
 

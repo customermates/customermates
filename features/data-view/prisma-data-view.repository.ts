@@ -5,7 +5,7 @@ import { Prisma } from "@/generated/prisma";
 import type { ResetDataViewStateInput } from "./reset-data-view-state.schema";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 
-import { BaseRepository } from "@/core/base/base-repository";
+import { TenantRepository } from "@/core/base/tenant-repository";
 import { runAsViewOwner } from "@/core/data-view/view-owner-context";
 import {
   readStoredPersonalizationState,
@@ -82,7 +82,7 @@ function toDto(row: StoredViewRow): DataViewDto {
   };
 }
 
-export class PrismaDataViewRepo extends BaseRepository implements DataViewStateRepo {
+export class PrismaDataViewRepo extends TenantRepository implements DataViewStateRepo {
   async resetOwnedViewState({ surfaceKey, viewKey, fields }: ResetDataViewStateInput): Promise<boolean> {
     const { companyId, id: userId } = this.user;
     const all = viewKey === ALL_VIEW_KEY;

@@ -193,43 +193,6 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
     await client.end();
   });
 
-  it("detects routine filter and watched-field dependencies only inside the caller's company", async () => {
-    const referencedField = randomUUID();
-    const watchedField = randomUUID();
-    const otherCompanyField = randomUUID();
-    const liveFilter = { field: "assignedUserIds", operator: "isNotNull" };
-    const companyFilters = [{ field: referencedField, operator: "isNotNull" }, liveFilter];
-    const otherCompanyFilters = [{ field: otherCompanyField, operator: "isNotNull" }, liveFilter];
-
-    await client.query('UPDATE "Routine" SET "triggerFilters" = $1 WHERE "id" = $2', [
-      JSON.stringify(companyFilters),
-      routineId,
-    ]);
-    await client.query('UPDATE "Routine" SET "triggerFilters" = $1 WHERE "id" = $2', [
-      JSON.stringify(otherCompanyFilters),
-      otherRoutineId,
-    ]);
-    await client.query('UPDATE "Routine" SET "changedFields" = ARRAY[$1] WHERE "id" = $2', [watchedField, routineId]);
-
-    const [referenced, watched, crossTenantReference] = await runWithTenant(tenant(ownerId), () =>
-      Promise.all([
-        createTestRoutineRepo().hasRoutineFieldReference(referencedField),
-        createTestRoutineRepo().hasRoutineFieldReference(watchedField),
-        createTestRoutineRepo().hasRoutineFieldReference(otherCompanyField),
-      ]),
-    );
-
-    expect(referenced).toBe(true);
-    expect(watched).toBe(true);
-    expect(crossTenantReference).toBe(false);
-
-    const mine = await client.query('SELECT "triggerFilters" FROM "Routine" WHERE "id" = $1', [routineId]);
-    expect(mine.rows[0].triggerFilters).toEqual(companyFilters);
-
-    const theirs = await client.query('SELECT "triggerFilters" FROM "Routine" WHERE "id" = $1', [otherRoutineId]);
-    expect(theirs.rows[0].triggerFilters).toEqual(otherCompanyFilters);
-  });
-
   it("rejects stale admin pause and delete sessions after the database role or membership is revoked", async () => {
     const staleAdmin = tenant(teammateId);
 
@@ -699,7 +662,6 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
     const staleRoutineId = randomUUID();
     const kindChangedRunId = randomUUID();
     const eventRemovedRunId = randomUUID();
-    const fieldChangedRunId = randomUUID();
     const matchingRunId = randomUUID();
     await insertRoutine(staleRoutineId);
 
@@ -733,19 +695,15 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
     });
     await client.query(
       `UPDATE "Routine"
-       SET "triggerKind" = 'event', "triggerEvents" = ARRAY['deal.updated'], "changedFields" = ARRAY['name']
+       SET "triggerKind" = 'event', "triggerEvents" = ARRAY['deal.updated']
        WHERE "id" = $1`,
       [staleRoutineId],
     );
     await expect(claim(eventRemovedRunId)).resolves.toBe("triggerChanged");
 
-    await insertQueuedRun(fieldChangedRunId, {
-      payload: { changes: { notes: {} } },
-    });
     await client.query(`UPDATE "Routine" SET "triggerEvents" = ARRAY['contact.updated'] WHERE "id" = $1`, [
       staleRoutineId,
     ]);
-    await expect(claim(fieldChangedRunId)).resolves.toBe("triggerChanged");
 
     await insertQueuedRun(matchingRunId, {
       payload: { changes: { name: {} } },
@@ -759,13 +717,12 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
       status: string;
       error: string | null;
     }>(`SELECT "id", "status", "error" FROM "RoutineRun" WHERE "id" = ANY($1)`, [
-      [kindChangedRunId, eventRemovedRunId, fieldChangedRunId, matchingRunId],
+      [kindChangedRunId, eventRemovedRunId, matchingRunId],
     ]);
     expect(new Map(rows.rows.map((row) => [row.id, { status: row.status, error: row.error }]))).toEqual(
       new Map([
         [kindChangedRunId, { status: "skipped", error: "startAbandoned" }],
         [eventRemovedRunId, { status: "skipped", error: "startAbandoned" }],
-        [fieldChangedRunId, { status: "skipped", error: "startAbandoned" }],
         [matchingRunId, { status: "running", error: null }],
       ]),
     );

@@ -513,7 +513,7 @@ List or read widgets; create, update or delete chart and activity configurations
 
 One tool with an `action` switch: list, runs, create, update, pause, run_now, delete. A routine is saved instructions the assistant runs on a cron schedule or when a CRM event fires. Omitting `enabled` on create produces a LIVE routine, so pass `enabled: false` to draft one; the hosted assistant must state `enabled` explicitly and drafts unless the user asked to activate. A change of `triggerKind` must arrive with that kind's schedule or events. pause disables the routine and settles its queued runs to skipped, which re-enabling does not undo; only an active system administrator may pause or delete a routine. run_now applies to scheduled routines only, and only to an enabled routine the caller owns. Runs are paginated by `cursor` and carry status, summary and trigger.
 
-**Can delete data.** Required: `action`. Optional: `id`, `cursor`, `page`, `pageSize`, `searchTerm`, `name`, `prompt`, `enabled`, `triggerKind`, `cronExpression`, `timezone`, `triggerEvents`, `changedFields`, `triggerFilters`, `recordTrigger`, `expectedSchemaRevision`, `debounceSeconds`.
+**Can delete data.** Required: `action`. Optional: `id`, `cursor`, `page`, `pageSize`, `searchTerm`, `name`, `prompt`, `enabled`, `triggerKind`, `cronExpression`, `timezone`, `triggerEvents`, `triggerFilters`, `recordTrigger`, `expectedSchemaRevision`, `debounceSeconds`.
 {/* /mcp-catalog */}
 
 ### Webhooks

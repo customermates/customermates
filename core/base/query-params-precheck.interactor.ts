@@ -6,7 +6,6 @@ import type { ValidateConnectedAccountIdsInteractor } from "@/core/validation/va
 import type { ValidateThreadIdsInteractor } from "@/core/validation/validators/validate-thread-ids.interactor";
 import type { ValidateUserIdsInteractor } from "@/core/validation/validators/validate-user-ids.interactor";
 import { parseRecordReferenceKey } from "@/features/records/record-reference-key";
-import type { EntityType } from "@/features/records/history/v1/legacy-enums";
 import { z } from "zod";
 
 import { FilterOperatorKey } from "./base-query-builder";
@@ -32,7 +31,6 @@ export class QueryParamsPrecheckInteractor {
 
   async invoke(
     fields: StrictFields,
-    entityType: EntityType | undefined,
     data: { filters?: Filter[]; sortDescriptor?: SortDescriptor },
     ctx: z.RefinementCtx,
   ) {
@@ -78,7 +76,7 @@ export class QueryParamsPrecheckInteractor {
               ctx,
               ["filters", i, "value"],
             );
-          } else await this.checkFilterValue(filter, i, entityType, ctx);
+          } else await this.checkFilterValue(filter, i, ctx);
         }),
       );
     }
@@ -111,12 +109,7 @@ export class QueryParamsPrecheckInteractor {
     }
   }
 
-  private async checkFilterValue(
-    filter: Filter,
-    filterIndex: number,
-    entityType: EntityType | undefined,
-    ctx: z.RefinementCtx,
-  ) {
+  private async checkFilterValue(filter: Filter, filterIndex: number, ctx: z.RefinementCtx) {
     if (!("value" in filter)) return;
     if (filter.operator === FilterOperatorKey.contains) return;
     if (typeof filter.value === "number") return;

@@ -1,9 +1,9 @@
-import { BaseRepository } from "@/core/base/base-repository";
+import { TenantRepository } from "@/core/base/tenant-repository";
 import type { RecordRef } from "@/features/records/record-model.schema";
 import { threadAccessWhere } from "../messaging-access";
 import type { ThreadRecordsRepo } from "./thread-records.repo";
 
-export class PrismaThreadRecordsRepo extends BaseRepository implements ThreadRecordsRepo {
+export class PrismaThreadRecordsRepo extends TenantRepository implements ThreadRecordsRepo {
   async canAccessThread(threadId: string) {
     return Boolean(
       await this.prisma.messagingThread.findFirst({

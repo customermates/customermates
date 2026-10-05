@@ -1,3 +1,4 @@
+import { PermissionService } from "@/core/base/permission.service";
 import type { RecordField, RecordRef, RecordScalar } from "../record-model.schema";
 import type { RecordMeasure, RecordMeasureResult } from "../record-measure.schema";
 
@@ -69,7 +70,7 @@ async function fixture(preset: Preset = "crm") {
   const admin = createMockUser({ ...seed.admin, role: { ...seed.role, permissions: [] } });
   const member = createMockUser({ ...seed.member, role: { ...seed.memberRole, permissions: [] } });
   const repo = new PrismaRecordRepo();
-  const policy = new RecordAccessPolicy(new PrismaUserRepo(), repo);
+  const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
   const company = { getDetails: () => Promise.resolve({ currency: "EUR" }) };
   const mutate = new MutateRecordInteractor(
     repo,
@@ -79,7 +80,7 @@ async function fixture(preset: Preset = "crm") {
     { dispatch: () => Promise.resolve() },
   );
   const measure = new QueryRecordMeasureInteractor(repo, policy, company);
-  const reader = new RecordWidgetReader(repo, measure, new PrismaUserRepo());
+  const reader = new RecordWidgetReader(repo, measure, new PrismaUserRepo(new PermissionService()));
   const widgets = new UpsertRecordWidgetInteractor(new PrismaRecordWidgetRepo(), repo, policy, measure, reader);
   const gallery = new GetWidgetGalleryInteractor(repo, policy);
   const id = (key: string) => presetId(seed.company.id, key);
@@ -508,10 +509,10 @@ describeDatabase("time-bucketed record measures", () => {
     const service = await restricted.run(async () => {
       const result = await new MutateRecordInteractor(
         restricted.repo,
-        new RecordAccessPolicy(new PrismaUserRepo(), restricted.repo),
+        new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), restricted.repo),
         new RecordWriteService(
           restricted.repo,
-          new RecordAccessPolicy(new PrismaUserRepo(), restricted.repo),
+          new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), restricted.repo),
           new RecordCalculationService(restricted.repo),
         ),
         { getDetails: () => Promise.resolve({ currency: "EUR" }) },
@@ -533,10 +534,10 @@ describeDatabase("time-bucketed record measures", () => {
       if (!created) throw new Error("Service missing");
       const line = await new MutateRecordInteractor(
         restricted.repo,
-        new RecordAccessPolicy(new PrismaUserRepo(), restricted.repo),
+        new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), restricted.repo),
         new RecordWriteService(
           restricted.repo,
-          new RecordAccessPolicy(new PrismaUserRepo(), restricted.repo),
+          new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), restricted.repo),
           new RecordCalculationService(restricted.repo),
         ),
         { getDetails: () => Promise.resolve({ currency: "EUR" }) },

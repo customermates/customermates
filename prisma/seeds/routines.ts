@@ -1,12 +1,13 @@
 import { recordRoutinePrompt } from "./record-routine-prompts";
 import { seedRecordEventSubscription } from "./record-event-subscriptions";
 import { presetId } from "@/features/records/crm-preset";
+import { RecordEventPayloadSchema } from "@/features/records/record-event.schema";
+import type { RecordDeliveryEnvelope } from "@/features/records/record-delivery.schema";
+import type { RoutineTriggerEvent } from "@/ee/routines/routine-trigger-events";
 import type { SeedContext } from "./context";
-import { SYNTHETIC_CUSTOM_COLUMN_IDS } from "./custom-fields";
+import type { SyntheticRecordType } from "./custom-fields";
 
 import type { Prisma } from "@/generated/prisma";
-
-import { DomainEvent } from "@/features/event/domain-events";
 import {
   AgentConversationOrigin,
   AgentTurnTerminalCode,
@@ -31,23 +32,25 @@ export const ROUTINE_TIMEZONE = "Europe/Berlin";
 
 type SeedOwner = "user" | "sofiaRossiUser" | "elenaHoffmannUser";
 
+type SyntheticRecordEventKey = `${SyntheticRecordType}:${number}:${"record.created" | "record.updated"}`;
+
 type SeedTriggerRefs = {
-  dealId: string;
-  organizationId: string;
-  serviceId: string;
-  contactId: string;
-  statusColumnId: string | null;
+  records: ReadonlyMap<SyntheticRecordEventKey, RecordDeliveryEnvelope>;
   thread: { id: string; connectedAccountId: string } | null;
 };
+
+type SeedTriggerSample =
+  | { kind: "record"; key: SyntheticRecordEventKey }
+  | { kind: "messaging"; entityId: string; payload: (thread: { id: string; connectedAccountId: string }) => object };
 
 type SeedTrigger =
   | { kind: "schedule"; cron: string }
   | {
       kind: "event";
-      events: DomainEvent[];
-      changedFields?: string[];
+      events: RoutineTriggerEvent[];
+      recordTypes?: SyntheticRecordType[];
       debounceSeconds: number;
-      sample?: (refs: SeedTriggerRefs) => { entityId: string; payload: Record<string, unknown> } | null;
+      sample?: SeedTriggerSample;
     };
 
 type SeedRun = {
@@ -124,18 +127,10 @@ const SYNTHETIC_ROUTINE_LIBRARY: SeedRoutine[] = [
     enabled: true,
     trigger: {
       kind: "event",
-      events: [DomainEvent.DEAL_UPDATED],
+      events: ["record.updated"],
+      recordTypes: ["deal"],
       debounceSeconds: 900,
-      sample: (refs) => ({
-        entityId: refs.dealId,
-        payload: {
-          deal: { id: refs.dealId, name: "Data & Analytics Transformation" },
-          changes: {
-            ...(refs.statusColumnId ? { [refs.statusColumnId]: { from: "Open", to: "Won" } } : {}),
-            totalValue: { from: 180000, to: 210000 },
-          },
-        },
-      }),
+      sample: { kind: "record", key: "deal:0:record.updated" },
     },
     runs: [
       {
@@ -186,7 +181,8 @@ const SYNTHETIC_ROUTINE_LIBRARY: SeedRoutine[] = [
     enabled: true,
     trigger: {
       kind: "event",
-      events: [DomainEvent.CONTACT_CREATED],
+      events: ["record.created"],
+      recordTypes: ["contact"],
       debounceSeconds: 600,
     },
     runs: [],
@@ -199,15 +195,10 @@ const SYNTHETIC_ROUTINE_LIBRARY: SeedRoutine[] = [
     enabled: true,
     trigger: {
       kind: "event",
-      events: [DomainEvent.ORGANIZATION_CREATED, DomainEvent.ORGANIZATION_UPDATED],
+      events: ["record.created", "record.updated"],
+      recordTypes: ["organization"],
       debounceSeconds: 900,
-      sample: (refs) => ({
-        entityId: refs.organizationId,
-        payload: {
-          organization: { id: refs.organizationId, name: "PwC" },
-          changes: { website: { from: null, to: "https://www.pwc.de" } },
-        },
-      }),
+      sample: { kind: "record", key: "organization:0:record.created" },
     },
     runs: [
       {
@@ -234,18 +225,18 @@ const SYNTHETIC_ROUTINE_LIBRARY: SeedRoutine[] = [
     enabled: true,
     trigger: {
       kind: "event",
-      events: [DomainEvent.MESSAGING_EMAIL_RECEIVED],
+      events: ["messaging.email.received"],
       debounceSeconds: 300,
-      sample: (refs) =>
-        refs.thread && {
-          entityId: fixtureId("35000000", 1),
-          payload: {
-            connectedAccountId: refs.thread.connectedAccountId,
-            provider: "google",
-            providerMessageId: "demo-provider-message-1",
-            threadId: refs.thread.id,
-          },
-        },
+      sample: {
+        kind: "messaging",
+        entityId: fixtureId("35000000", 1),
+        payload: (thread) => ({
+          connectedAccountId: thread.connectedAccountId,
+          provider: "google",
+          providerMessageId: "demo-provider-message-1",
+          threadId: thread.id,
+        }),
+      },
     },
     runs: [
       {
@@ -279,18 +270,18 @@ const SYNTHETIC_ROUTINE_LIBRARY: SeedRoutine[] = [
     enabled: true,
     trigger: {
       kind: "event",
-      events: [DomainEvent.MESSAGING_MESSAGE_RECEIVED],
+      events: ["messaging.message.received"],
       debounceSeconds: 900,
-      sample: (refs) =>
-        refs.thread && {
-          entityId: fixtureId("35000000", 2),
-          payload: {
-            connectedAccountId: refs.thread.connectedAccountId,
-            provider: "whatsapp",
-            providerMessageId: "demo-provider-message-2",
-            threadId: refs.thread.id,
-          },
-        },
+      sample: {
+        kind: "messaging",
+        entityId: fixtureId("35000000", 2),
+        payload: (thread) => ({
+          connectedAccountId: thread.connectedAccountId,
+          provider: "whatsapp",
+          providerMessageId: "demo-provider-message-2",
+          threadId: thread.id,
+        }),
+      },
     },
     runs: [
       {
@@ -382,7 +373,8 @@ const SYNTHETIC_ROUTINE_LIBRARY: SeedRoutine[] = [
     enabled: true,
     trigger: {
       kind: "event",
-      events: [DomainEvent.DEAL_UPDATED],
+      events: ["record.updated"],
+      recordTypes: ["deal"],
       debounceSeconds: 600,
     },
     runs: [],
@@ -395,17 +387,17 @@ const SYNTHETIC_ROUTINE_LIBRARY: SeedRoutine[] = [
     enabled: false,
     trigger: {
       kind: "event",
-      events: [DomainEvent.MESSAGING_RELATION_CREATED],
+      events: ["messaging.relation.created"],
       debounceSeconds: 900,
-      sample: (refs) =>
-        refs.thread && {
-          entityId: fixtureId("35000000", 3),
-          payload: {
-            connectedAccountId: refs.thread.connectedAccountId,
-            provider: "linkedin",
-            providerUserId: "demo-provider-user-1",
-          },
-        },
+      sample: {
+        kind: "messaging",
+        entityId: fixtureId("35000000", 3),
+        payload: (thread) => ({
+          connectedAccountId: thread.connectedAccountId,
+          provider: "linkedin",
+          providerUserId: "demo-provider-user-1",
+        }),
+      },
     },
     runs: [
       {
@@ -480,15 +472,10 @@ const SYNTHETIC_ROUTINE_LIBRARY: SeedRoutine[] = [
     enabled: true,
     trigger: {
       kind: "event",
-      events: [DomainEvent.SERVICE_UPDATED, DomainEvent.DEAL_UPDATED],
+      events: ["record.updated"],
+      recordTypes: ["service", "deal"],
       debounceSeconds: 900,
-      sample: (refs) => ({
-        entityId: refs.serviceId,
-        payload: {
-          service: { id: refs.serviceId, name: "Implementation" },
-          changes: { amount: { from: 1200, to: 1350 } },
-        },
-      }),
+      sample: { kind: "record", key: "deal:0:record.updated" },
     },
     runs: [
       {
@@ -539,28 +526,90 @@ const OWNER_NAMES: Record<SeedOwner, string> = {
   elenaHoffmannUser: "Elena Hoffmann",
 };
 
+const SAMPLE_RECORDS: ReadonlyArray<[SyntheticRecordEventKey, string]> = [
+  ["deal:0:record.updated", fixtureId("80000000", 1)],
+  ["organization:0:record.created", fixtureId("70000000", 1)],
+];
+
 async function resolveTriggerRefs(context: SeedContext): Promise<SeedTriggerRefs> {
   const companyId = context.ids.company;
+  const records = new Map<SyntheticRecordEventKey, RecordDeliveryEnvelope>();
+  for (const [key, recordId] of SAMPLE_RECORDS) {
+    const [type, , kind] = key.split(":") as [SyntheticRecordType, string, RecordDeliveryEnvelope["event"]];
+    const event = await context.prisma.recordEvent.findFirstOrThrow({
+      where: { companyId, typeId: presetId(companyId, type), recordId, kind },
+      orderBy: { id: "asc" },
+    });
+    const payload = RecordEventPayloadSchema.parse(event.payload);
+    records.set(key, {
+      version: 2,
+      id: event.id,
+      companyId,
+      event: kind,
+      timestamp: event.createdAt.toISOString(),
+      actorId: event.actorId,
+      causeId: event.causeId,
+      cause: payload.cause,
+      record: {
+        ref: payload.ref,
+        schemaRevision: payload.schemaRevision,
+        beforeVersion: payload.beforeVersion,
+        afterVersion: payload.afterVersion,
+        assignments: payload.assignments,
+        identities: payload.identities,
+        links: payload.links,
+        related: [],
+        fields: payload.fields.map(({ fieldId, before, after }) => ({
+          fieldId,
+          before: before && {
+            fieldId: before.fieldId,
+            label: before.label,
+            valueType: before.valueType,
+            format: before.format,
+            options: before.options,
+            value: before.value,
+          },
+          after: after && {
+            fieldId: after.fieldId,
+            label: after.label,
+            valueType: after.valueType,
+            format: after.format,
+            options: after.options,
+            value: after.value,
+          },
+        })),
+      },
+    });
+  }
+  const thread = await context.prisma.messagingThread.findFirst({
+    where: { companyId },
+    orderBy: { createdAt: "asc" },
+    select: { id: true, connectedAccountId: true },
+  });
+  return { records, thread };
+}
 
-  const [statusColumn, thread] = await Promise.all([
-    context.prisma.recordFieldDefinition.findFirst({
-      where: { companyId, typeId: presetId(companyId, "deal"), id: SYNTHETIC_CUSTOM_COLUMN_IDS.dealStatus },
-      select: { id: true },
-    }),
-    context.prisma.messagingThread.findFirst({
-      where: { companyId },
-      orderBy: { createdAt: "asc" },
-      select: { id: true, connectedAccountId: true },
-    }),
-  ]);
-
+function triggerSample(
+  context: SeedContext,
+  refs: SeedTriggerRefs,
+  ownerUserId: string,
+  sample: SeedTriggerSample | undefined,
+): { entityId: string; triggerPayload: object } | null {
+  if (!sample) return null;
+  if (sample.kind === "record") {
+    const envelope = refs.records.get(sample.key);
+    if (!envelope) throw new Error(`Missing synthetic routine trigger ${sample.key}`);
+    return { entityId: envelope.record.ref.recordId, triggerPayload: envelope };
+  }
+  if (!refs.thread) return null;
   return {
-    dealId: fixtureId("80000000", 1),
-    organizationId: fixtureId("70000000", 1),
-    serviceId: fixtureId("90000000", 1),
-    contactId: fixtureId("60000000", 1),
-    statusColumnId: statusColumn?.id ?? null,
-    thread,
+    entityId: sample.entityId,
+    triggerPayload: {
+      companyId: context.ids.company,
+      userId: ownerUserId,
+      entityId: sample.entityId,
+      payload: sample.payload(refs.thread),
+    },
   };
 }
 
@@ -614,23 +663,16 @@ export async function seedRoutines(context: SeedContext): Promise<void> {
     const schedule = routine.trigger.kind === "schedule" ? routine.trigger : undefined;
     const event = routine.trigger.kind === "event" ? routine.trigger : undefined;
     const lastRun = routine.runs.at(0);
-    const sample = event?.sample?.(refs) ?? null;
-    const triggerPayload = sample
-      ? {
-          companyId: context.ids.company,
-          userId: ownerUserId,
-          entityId: sample.entityId,
-          payload: sample.payload,
-        }
-      : null;
+    const sample = triggerSample(context, refs, ownerUserId, event?.sample);
+    const triggerPayload = sample?.triggerPayload ?? null;
 
-    const liveEvents = await seedRecordEventSubscription(context, {
+    await seedRecordEventSubscription(context, {
       id,
       kind: "routine",
       ownerUserId,
       events: event?.events ?? [],
+      recordTypes: event?.recordTypes ?? [],
       enabled: routine.enabled,
-      changedFields: event?.changedFields,
     });
     const data = {
       companyId: context.ids.company,
@@ -641,8 +683,7 @@ export async function seedRoutines(context: SeedContext): Promise<void> {
       triggerKind: schedule ? RoutineTriggerKind.schedule : RoutineTriggerKind.event,
       cronExpression: schedule?.cron ?? null,
       timezone: schedule ? ROUTINE_TIMEZONE : null,
-      triggerEvents: liveEvents,
-      changedFields: [],
+      triggerEvents: event?.events ?? [],
       triggerFilters: undefined,
       debounceSeconds: event?.debounceSeconds ?? 300,
       nextRunAt: schedule && routine.enabled ? nextScheduledRun(schedule.cron) : null,

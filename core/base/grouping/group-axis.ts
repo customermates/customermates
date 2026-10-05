@@ -1,10 +1,12 @@
 import type { DataViewGroup, DateBucket, GroupOverflow, Grouping } from "./grouping.schema";
-import type { GroupCountRow } from "./group-count";
-import type { GroupLabel } from "./group-labels";
 import type { GroupableFieldSpec } from "./groupable-field";
 
 import { dateBucketLadder } from "./date-buckets";
 import { DEFAULT_DATE_BUCKET, MAX_AXIS_GROUPS, NO_VALUE_GROUP_KEY } from "./grouping.schema";
+
+export type GroupCountRow = { key: string; count: number };
+
+export type GroupLabel = { label: string; avatarUrl?: string | null };
 
 export type ResolvedGrouping = { spec: GroupableFieldSpec; grouping: Grouping };
 
@@ -113,7 +115,6 @@ function group(args: {
     ...(args.color === undefined ? {} : { color: args.color }),
     ...(args.weight === undefined ? {} : { weight: args.weight }),
     ...(args.avatarUrl === undefined ? {} : { avatarUrl: args.avatarUrl }),
-    ...(args.row?.sums === undefined ? {} : { valueSums: args.row.sums }),
     isNoValue: args.isNoValue ?? false,
     materialised: false,
     itemIds: [],

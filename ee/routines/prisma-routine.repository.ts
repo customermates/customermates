@@ -1,3 +1,4 @@
+import type { PermissionService } from "@/core/base/permission.service";
 import type { RepoArgs } from "@/core/utils/types";
 import { RecordFieldSchema } from "@/features/records/record-model.schema";
 import type { DeleteRoutineRepo } from "./delete-routine.interactor";
@@ -14,7 +15,10 @@ import type { SweepDueRoutinesRepo } from "./sweep-due-routines.interactor";
 import type { AdmittedRoutineRun, TriggerRoutinesRepo } from "./trigger-routines.repo";
 import type { UpsertRoutineRepo } from "./upsert-routine.repo";
 
+import type { GroupCountRow, GroupLabel } from "@/core/base/grouping/group-axis";
+import type { GroupScope } from "@/core/base/grouping/group-scope";
 import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
+import type { DateBucket } from "@/core/base/grouping/grouping.schema";
 import type { AgentTurnTerminalCode } from "@/generated/prisma";
 
 import {
@@ -27,8 +31,10 @@ import {
 } from "@/generated/prisma";
 
 import { FilterSchema, type Filter, type GetQueryParams } from "@/core/base/base-get.schema";
-import { BaseRepository } from "@/core/base/base-repository";
+import { QueryRepository } from "@/core/base/query-repository";
+import { dateBucketEntry, dateBucketLadder } from "@/core/base/grouping/date-buckets";
 import { dateGroupables, relationGroupables } from "@/core/base/grouping/groupable-field";
+import { DEFAULT_DATE_BUCKET, MAX_AXIS_GROUPS, NO_VALUE_GROUP_KEY } from "@/core/base/grouping/grouping.schema";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
@@ -37,6 +43,8 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { isAgentTurnStopReason } from "@/ee/agent-chat/agent-turn-request";
 import type { RecordEventSubscriptionRepo } from "@/features/records/record-event-subscription.repo";
 import { RecordWriteError } from "@/features/records/record-write.service";
+import { userAccessWhere } from "@/features/user/user-access";
+import { routineAccessWhere } from "./routine-access";
 import { routineRunTriggerContext } from "./routine-run-trigger-context";
 import { RoutineRecordTriggerSchema } from "./routine.schema";
 import { agentMicrocentsFromStorage, agentMicrocentsToCredits } from "@/ee/agent-chat/agent-credit-policy";
@@ -47,7 +55,6 @@ import {
   ROUTINE_DISABLED_REASON_OWNER_UNAVAILABLE,
 } from "./routine-disabled-reason";
 import { type RoutineEventAccess } from "./routine-event-access";
-import { carriesChangedFields, changedFieldsOf, matchesChangedFields } from "./routine-event-filter";
 import {
   DEFAULT_ROUTINE_MAX_RUNS_PER_HOUR,
   RoutineLimitExceededError,
@@ -75,7 +82,6 @@ const ROUTINE_SELECT = {
   cronExpression: true,
   timezone: true,
   triggerEvents: true,
-  changedFields: true,
   triggerFilters: true,
   debounceSeconds: true,
   nextRunAt: true,
@@ -191,7 +197,7 @@ function decodeRoutineRunCursor(cursor: string) {
 }
 
 export class PrismaRoutineRepo
-  extends BaseRepository<Prisma.RoutineWhereInput>
+  extends QueryRepository<Prisma.RoutineWhereInput>
   implements
     GetRoutinesRepo,
     GetRoutineRunsRepo,
@@ -208,6 +214,7 @@ export class PrismaRoutineRepo
   constructor(
     private readonly routineEventAccess: RoutineEventAccess,
     private readonly subscriptions: RecordEventSubscriptionRepo,
+    private readonly permissions: PermissionService,
   ) {
     super();
   }
@@ -287,7 +294,7 @@ export class PrismaRoutineRepo
 
   getFilterableFields() {
     return Promise.resolve([
-      ...(this.canAccess(Resource.users)
+      ...(this.permissions.canRead(Resource.users)
         ? [
             {
               field: FilterFieldKey.ownerUserId,
@@ -307,18 +314,19 @@ export class PrismaRoutineRepo
   }
 
   getGroupableFields(): Promise<GroupableFieldSpec[]> {
-    if (!this.canAccess(Resource.routines)) return Promise.resolve([]);
+    if (!this.permissions.canRead(Resource.routines)) return Promise.resolve([]);
 
     return Promise.resolve([
-      ...relationGroupables("routine", { ownerUserId: this.canAccess(Resource.users) }),
+      ...relationGroupables("routine", { ownerUserId: this.permissions.canRead(Resource.users) }),
       ...dateGroupables("routine", { createdAt: true, updatedAt: true }),
     ]);
   }
 
   async getItems(params: GetQueryParams) {
+    const access = routineAccessWhere(this.permissions);
     const rows = await this.list({
       model: "routine",
-      baseWhere: this.accessWhere("routine"),
+      baseWhere: params.groupScope ? { ...access, AND: [this.groupWhere(params.groupScope)] } : access,
       select: ROUTINE_SELECT,
       params,
       map: routineDto,
@@ -327,9 +335,87 @@ export class PrismaRoutineRepo
   }
 
   async getCount(params: GetQueryParams) {
-    const { where } = await this.buildQueryArgs(params, this.accessWhere("routine"));
+    const { where } = await this.buildQueryArgs(params, routineAccessWhere(this.permissions));
 
     return this.prisma.routine.count({ where });
+  }
+
+  async countByGroup({
+    spec,
+    params,
+    bucket,
+    now,
+  }: {
+    spec: GroupableFieldSpec;
+    params: GetQueryParams;
+    bucket?: DateBucket;
+    now?: string;
+  }): Promise<GroupCountRow[]> {
+    const { where } = await this.buildQueryArgs(params, routineAccessWhere(this.permissions));
+    const within = (scope: Prisma.RoutineWhereInput): Prisma.RoutineWhereInput => ({
+      ...where,
+      AND: [...(Array.isArray(where.AND) ? where.AND : where.AND ? [where.AND] : []), scope],
+    });
+    const count = (scope: Prisma.RoutineWhereInput) => this.prisma.routine.count({ where: within(scope) });
+
+    if (spec.kind === "relation") {
+      const owner = { owner: userAccessWhere(this.permissions) };
+      const [rows, noValue] = await Promise.all([
+        this.prisma.routine.groupBy({
+          by: ["ownerUserId"],
+          where: within(owner),
+          _count: { _all: true },
+          orderBy: { _count: { ownerUserId: "desc" } },
+          take: MAX_AXIS_GROUPS + 1,
+        }),
+        count({ NOT: owner }),
+      ]);
+
+      return [
+        ...rows.map((row) => ({ key: String(row.ownerUserId), count: row._count._all })),
+        ...(noValue > 0 ? [{ key: NO_VALUE_GROUP_KEY, count: noValue }] : []),
+      ];
+    }
+
+    const ladder = dateBucketLadder(bucket ?? DEFAULT_DATE_BUCKET, now ? new Date(now) : new Date());
+    const counts = await Promise.all(
+      ladder.map((entry) => count(this.groupWhere({ spec, key: entry.key, bucket, now }))),
+    );
+
+    return ladder.map((entry, index) => ({ key: entry.key, count: counts[index] }));
+  }
+
+  async resolveGroupLabels(spec: GroupableFieldSpec, keys: readonly string[]): Promise<Map<string, GroupLabel>> {
+    if (spec.kind !== "relation" || keys.length === 0) return new Map();
+
+    const users = await this.prisma.user.findMany({
+      where: { companyId: this.companyId, AND: [{ id: { in: [...keys] } }, userAccessWhere(this.permissions)] },
+      select: { id: true, firstName: true, lastName: true, avatarUrl: true },
+    });
+
+    return new Map(
+      users.map((user) => [
+        user.id,
+        { label: [user.firstName, user.lastName].filter(Boolean).join(" "), avatarUrl: user.avatarUrl },
+      ]),
+    );
+  }
+
+  private groupWhere({ spec, key, bucket, now }: GroupScope): Prisma.RoutineWhereInput {
+    switch (spec.kind) {
+      case "relation": {
+        const owner = { owner: userAccessWhere(this.permissions) };
+        return key === NO_VALUE_GROUP_KEY ? { NOT: owner } : { ownerUserId: key, ...owner };
+      }
+      case "dateBucket": {
+        const entry = dateBucketEntry(key, bucket ?? DEFAULT_DATE_BUCKET, now ? new Date(now) : new Date());
+        if (!entry) return { id: { in: [] } };
+        const column = spec.column === "updatedAt" ? "updatedAt" : "createdAt";
+        return { [column]: { ...(entry.start ? { gte: entry.start } : {}), ...(entry.end ? { lt: entry.end } : {}) } };
+      }
+      default:
+        throw new Error(`Routines cannot group by ${spec.kind} (${spec.field})`);
+    }
   }
 
   async findRoutineById(id: string): Promise<RoutineDto | null> {
@@ -371,25 +457,13 @@ export class PrismaRoutineRepo
     );
   }
 
-  async hasRoutineFieldReference(field: string): Promise<boolean> {
-    const routines = await this.prisma.routine.findMany({
-      where: { companyId: this.companyId },
-      select: { changedFields: true, triggerFilters: true },
-    });
-
-    return routines.some(
-      ({ changedFields, triggerFilters }) =>
-        changedFields.includes(field) || storedRoutineFilters(triggerFilters).some((filter) => filter.field === field),
-    );
-  }
-
   async getRoutineRuns(routineId: string, limit: number, cursor?: string | null): Promise<RoutineRunPage> {
     const decoded = cursor ? decodeRoutineRunCursor(cursor) : null;
     const rows = await this.prisma.routineRun.findMany({
       where: {
         routineId,
         companyId: this.companyId,
-        routine: this.accessWhere("routine"),
+        routine: routineAccessWhere(this.permissions),
         ...(decoded
           ? {
               OR: [{ createdAt: { lt: decoded.createdAt } }, { createdAt: decoded.createdAt, id: { lt: decoded.id } }],
@@ -492,7 +566,6 @@ export class PrismaRoutineRepo
           cronExpression,
           timezone,
           triggerEvents: input.triggerEvents,
-          changedFields: [],
           triggerFilters: [],
           debounceSeconds: input.debounceSeconds,
           nextRunAt: enabled && scheduled ? resolveNextRunAt({ cronExpression, timezone }, now) : null,
@@ -550,7 +623,6 @@ export class PrismaRoutineRepo
         cronExpression,
         timezone,
         triggerEvents,
-        changedFields: [],
         triggerFilters: [],
         debounceSeconds: input.debounceSeconds ?? 300,
         nextRunAt: (input.enabled ?? true) && scheduled ? resolveNextRunAt({ cronExpression, timezone }, now) : null,
@@ -852,10 +924,7 @@ export class PrismaRoutineRepo
       const triggerChanged =
         run.routine.triggerKind !== run.triggerKind ||
         (run.triggerKind === RoutineTriggerKind.event &&
-          (!run.triggerEvent ||
-            !run.routine.triggerEvents.includes(run.triggerEvent) ||
-            (carriesChangedFields(run.triggerPayload) &&
-              !matchesChangedFields(run.routine.changedFields, changedFieldsOf(run.triggerPayload)))));
+          (!run.triggerEvent || !run.routine.triggerEvents.includes(run.triggerEvent)));
       if (triggerChanged) {
         const skipped = await this.prisma.routineRun.updateMany({
           where: { id: args.routineRunId, companyId: identity.companyId, status: RoutineRunStatus.queued },
@@ -1033,7 +1102,6 @@ export class PrismaRoutineRepo
       select: {
         id: true,
         ownerUserId: true,
-        changedFields: true,
         triggerFilters: true,
         updatedAt: true,
       },
@@ -1047,7 +1115,6 @@ export class PrismaRoutineRepo
         {
           ...routine,
           ownerUserId: routine.ownerUserId,
-          changedFields: [...routine.changedFields],
           triggerFilters,
         },
       ];
@@ -1079,7 +1146,6 @@ export class PrismaRoutineRepo
           id: true,
           ownerUserId: true,
           owner: { select: ROUTINE_OWNER_SELECT },
-          changedFields: true,
           triggerFilters: true,
           debounceSeconds: true,
           updatedAt: true,
@@ -1094,12 +1160,6 @@ export class PrismaRoutineRepo
           !expected ||
           expected.ownerUserId !== routine.ownerUserId ||
           expected.updatedAt.getTime() !== routine.updatedAt.getTime()
-        )
-          continue;
-        if (
-          !args.event.startsWith("record.") &&
-          carriesChangedFields(args.triggerPayload) &&
-          !matchesChangedFields(routine.changedFields, changedFieldsOf(args.triggerPayload))
         )
           continue;
         const triggerFilters = storedRoutineFilters(routine.triggerFilters);

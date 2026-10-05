@@ -1227,21 +1227,6 @@
         "resynced": "Account risincronizzato",
         "updated": "Visibilità dell'account modificata"
       },
-      "contact": {
-        "created": "Contatto creato",
-        "deleted": "Contatto eliminato",
-        "updated": "Contatto aggiornato"
-      },
-      "custom_column": {
-        "created": "Colonna personalizzata creata",
-        "deleted": "Colonna personalizzata eliminata",
-        "updated": "Colonna personalizzata aggiornata"
-      },
-      "deal": {
-        "created": "Trattativa creata",
-        "deleted": "Trattativa eliminata",
-        "updated": "Trattativa aggiornata"
-      },
       "legal": {
         "documents_accepted": "Documenti legali accettati",
         "notice_sent": "Avviso legale inviato"
@@ -1271,11 +1256,6 @@
           "created": "Relazione creata"
         }
       },
-      "organization": {
-        "created": "Organizzazione creata",
-        "deleted": "Organizzazione eliminata",
-        "updated": "Organizzazione aggiornata"
-      },
       "record": {
         "created": "Record creato",
         "deleted": "Record eliminato",
@@ -1293,16 +1273,6 @@
         "created": "Routine creata",
         "deleted": "Routine eliminata",
         "updated": "Routine aggiornata"
-      },
-      "service": {
-        "created": "Servizio creato",
-        "deleted": "Servizio eliminato",
-        "updated": "Servizio aggiornato"
-      },
-      "task": {
-        "created": "Attività creata",
-        "deleted": "Attività eliminata",
-        "updated": "Attività aggiornata"
       },
       "user": {
         "registered": "Utente registrato",
@@ -3045,7 +3015,6 @@
     "apply": "Applica modifiche",
     "archiveActivityPath": "Archivia collegamento",
     "archived": "Archiviato",
-    "archivedField": "Campo archiviato",
     "archiveField": "Archivia campo",
     "archiveList": "Archivia lista",
     "archiveListDescription": "Archiviando questa lista, la lista e i suoi record escono dall’uso quotidiano. Record, collegamenti e cronologia vengono conservati e puoi ripristinare la lista in qualsiasi momento.",

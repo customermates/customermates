@@ -26,13 +26,7 @@ vi.mock("next-intl/server", () => ({
   getLocale: () => Promise.resolve("en"),
 }));
 
-import {
-  ROUTINE_TRIGGER_EVENTS,
-  RoutineDtoSchema,
-  RoutineRunDtoSchema,
-  STORED_ROUTINE_TRIGGER_EVENTS,
-  UpsertRoutineSchema,
-} from "../routine.schema";
+import { ROUTINE_TRIGGER_EVENTS, RoutineDtoSchema, RoutineRunDtoSchema, UpsertRoutineSchema } from "../routine.schema";
 import { RunRoutineNowInteractor } from "../run-routine-now.interactor";
 import { FailRoutineRunInteractor } from "../fail-routine-run.interactor";
 import { StartRoutineRunInteractor } from "../start-routine-run.interactor";
@@ -41,7 +35,7 @@ import { ReconcileRoutineRunsInteractor } from "../reconcile-routine-runs.intera
 import { UpsertRoutineInteractor } from "../upsert-routine.interactor";
 import { PruneRoutineRunsInteractor } from "../prune-routine-runs.interactor";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
+import { WebhookCurrentEventSchema } from "@/features/webhook/webhook.schema";
 import { RoutineLimitExceededError, type RoutineCountLimit } from "../routine-run-limits";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { ForbiddenError } from "@/core/errors/app-errors";
@@ -106,7 +100,7 @@ describe("UpsertRoutineSchema", () => {
   });
 
   it("excludes messaging deletions that lack an access snapshot while keeping soft-deleted messages", () => {
-    expect(WebhookEventSchema.options).toEqual(
+    expect(WebhookCurrentEventSchema.options).toEqual(
       expect.arrayContaining(["messaging.email.deleted", "messaging.chat.deleted"]),
     );
     expect(ROUTINE_TRIGGER_EVENTS).toContain("messaging.message.deleted");
@@ -138,18 +132,17 @@ describe("UpsertRoutineSchema", () => {
     ).toBe(false);
   });
 
-  it("accepts only events that are still emitted when creating or updating, but still decodes retired ones", () => {
+  it("accepts only events that are still emitted", () => {
     const retired = "deal.updated";
     expect(ROUTINE_TRIGGER_EVENTS).not.toContain(retired);
-    expect(STORED_ROUTINE_TRIGGER_EVENTS).toContain(retired);
     const routine = { name: "Deal watcher", prompt: "Summarise the change", triggerKind: "event" } as const;
     expect(UpsertRoutineSchema.safeParse({ ...routine, triggerEvents: [retired] }).success).toBe(false);
     expect(UpsertRoutineSchema.safeParse({ id: ROUTINE_ID, triggerEvents: [retired] }).success).toBe(false);
     expect(UpsertRoutineSchema.safeParse({ ...routine, triggerEvents: ["messaging.message.received"] }).success).toBe(
       true,
     );
-    expect(RoutineDtoSchema.shape.triggerEvents.safeParse([retired]).success).toBe(true);
-    expect(RoutineRunDtoSchema.shape.triggerEvent.safeParse(retired).success).toBe(true);
+    expect(RoutineDtoSchema.shape.triggerEvents.safeParse([retired]).success).toBe(false);
+    expect(RoutineRunDtoSchema.shape.triggerEvent.safeParse(retired).success).toBe(false);
   });
 
   it("rejects an unparseable cron expression", () => {
@@ -247,7 +240,6 @@ function routineFixture(overrides: Record<string, unknown> = {}) {
     cronExpression: "0 9 * * *",
     timezone: "UTC",
     triggerEvents: [],
-    changedFields: [],
     triggerFilters: [],
     debounceSeconds: 300,
     nextRunAt: null,

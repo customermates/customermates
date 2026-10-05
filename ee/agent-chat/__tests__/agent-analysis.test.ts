@@ -1102,7 +1102,7 @@ describe("analyze_records on a read that holds only part of its rows", () => {
       analyzeRecords({ reads: [read("get_activities")], code: "(data) => data[0].items.length" }, deps(activities)),
     ).resolves.toEqual({
       ok: false,
-      result: `get_activities left out every message, activity and calendar event because its filters or scope reach more than 500 contacts. Narrow them. ${NOT_RUN}`,
+      result: `get_activities left out every message, activity and calendar event because its filters or scope reach too many contacts. Narrow them. ${NOT_RUN}`,
     });
     expect(execute).toHaveBeenCalledTimes(1);
   });

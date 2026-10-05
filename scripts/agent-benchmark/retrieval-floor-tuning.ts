@@ -1,3 +1,4 @@
+import { PermissionService } from "@/core/base/permission.service";
 import "dotenv/config";
 
 import type { RankableSection, RetrievalCorpus, SectionRanker } from "@/core/retrieval/retrieval-context";
@@ -233,7 +234,7 @@ async function wikiSignals(databaseUrl: string): Promise<Signal[]> {
         [randomUUID(), companyId, page.title, markdown, new Date(Date.UTC(2026, 0, 1, 0, 0, index))],
       );
     }
-    const indexer = new WikiSemanticIndexService(new PrismaWikiPageRepo(), new TuningEmbeddingService());
+    const indexer = new WikiSemanticIndexService(new PrismaWikiPageRepo(new PermissionService()), new TuningEmbeddingService());
     for (let step = 0; step < 50; step += 1) {
       const result = await runWithTenant(user, () => indexer.indexStalePages());
       if (result.indexed === 0) break;
@@ -259,7 +260,7 @@ async function wikiSignals(databaseUrl: string): Promise<Signal[]> {
     for (const labelled of queries) {
       const embedding = await embed(labelled.query);
       const arrived = embedding.vector !== null && embedding.ms <= RETRIEVAL_EMBEDDING_WAIT_MS;
-      const repo = new PrismaWikiPageRepo();
+      const repo = new PrismaWikiPageRepo(new PermissionService());
       const fullText = await runWithTenant(user, () => repo.fullTextPageCandidates(labelled.query, 30));
       const semantic =
         arrived && embedding.vector
@@ -268,7 +269,7 @@ async function wikiSignals(databaseUrl: string): Promise<Signal[]> {
             )
           : null;
       const seen = { none: null as boolean | null };
-      const interactor = new SearchWikiPagesInteractor(new PrismaWikiPageRepo(), "stored", {
+      const interactor = new SearchWikiPagesInteractor(new PrismaWikiPageRepo(new PermissionService()), "stored", {
         embedder: {
           embedQuery: () => Promise.resolve(arrived ? embedding.vector : null),
         },

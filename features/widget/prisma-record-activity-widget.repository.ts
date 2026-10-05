@@ -1,12 +1,12 @@
 import { Prisma } from "@/generated/prisma";
-import { BaseRepository } from "@/core/base/base-repository";
+import { TenantRepository } from "@/core/base/tenant-repository";
 import { recordJson } from "@/features/records/record-storage";
 import { RecordActivityWidgetDtoSchema } from "./record-activity-widget.schema";
 import type { RecordActivityWidgetRepo, RecordActivityWidgetInput } from "./record-activity-widget.schema";
 
 const StoredSchema = RecordActivityWidgetDtoSchema.omit({ schemaRevision: true, data: true, status: true }).strip();
 
-export class PrismaRecordActivityWidgetRepo extends BaseRepository implements RecordActivityWidgetRepo {
+export class PrismaRecordActivityWidgetRepo extends TenantRepository implements RecordActivityWidgetRepo {
   async findOwned(id: string) {
     const row = await this.prisma.widget.findFirst({
       where: {

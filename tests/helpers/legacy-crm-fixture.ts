@@ -347,6 +347,18 @@ export async function populateLegacyWorkspace(client: ClientBase, { currency = "
       })
     ).id,
   };
+  const inbox = {
+    view: (
+      await db.dataView.create({
+        data: { companyId, userId: admin.id, surfaceKey: "inbox", name: "Inbox", position: 0 },
+      })
+    ).id,
+    preference: (
+      await db.p13n.create({
+        data: { companyId, userId: admin.id, p13nId: "inbox", columnOrder: ["subject"], hiddenColumns: [] },
+      })
+    ).id,
+  };
   const widgets = {
     value: (
       await db.widget.create({
@@ -407,6 +419,21 @@ export async function populateLegacyWorkspace(client: ClientBase, { currency = "
       },
     })
   ).id;
+  const run = (
+    await db.routineRun.create({
+      data: {
+        companyId,
+        routineId: routine,
+        executedByUserId: admin.id,
+        executedByName: "Ada Admin",
+        triggerKind: "event",
+        triggerEvent: "contact.updated",
+        triggerEntityId: contacts.solo,
+        triggerPayload: { companyId, entityId: contacts.solo },
+        scheduledFor: timestamps.updatedAt,
+      },
+    })
+  ).id;
   const webhook = (
     await db.webhook.create({
       data: {
@@ -420,6 +447,11 @@ export async function populateLegacyWorkspace(client: ClientBase, { currency = "
   await db.auditLog.create({
     data: { companyId, userId: admin.id, entityId: webhook, event: "webhook.created", eventData: {} },
   });
+  const history = (
+    await db.auditLog.create({
+      data: { companyId, userId: admin.id, entityId: contacts.solo, event: "contact.updated", eventData: {} },
+    })
+  ).id;
   const delivery = (
     await db.webhookDelivery.create({
       data: {
@@ -451,9 +483,12 @@ export async function populateLegacyWorkspace(client: ClientBase, { currency = "
     participants,
     views,
     preferences,
+    inbox,
     widgets,
     routine,
+    run,
     webhook,
+    history,
     delivery,
     db,
   };
@@ -461,12 +496,9 @@ export async function populateLegacyWorkspace(client: ClientBase, { currency = "
 
 export type LegacyWorkspace = Awaited<ReturnType<typeof populateLegacyWorkspace>>;
 
-/**
- * Empty and null variants of every legacy JSON and array column the upgrade reads, in the shapes the legacy
- * application wrote: SQL NULL, JSON null, empty arrays and empty objects.
- */
+/** Empty and null variants of the legacy column options and notes, and a scheduled routine with leftover legacy events. */
 export async function addEmptyLegacyStates(client: ClientBase, f: LegacyWorkspace) {
-  const { db, companyId } = f;
+  const { companyId } = f;
   const json = (value: string) => ({ toPostgres: () => value });
   const raw = async (table: string, values: Record<string, unknown>) => {
     const row: Record<string, unknown> = { id: randomUUID(), companyId, updatedAt: new Date(), ...values };
@@ -482,173 +514,15 @@ export async function addEmptyLegacyStates(client: ClientBase, f: LegacyWorkspac
     );
     return row.id as string;
   };
-  const timelines: Record<string, string> = {
-    viewEmpty: await raw("DataView", {
-      userId: f.admin.id,
-      surfaceKey: "entity-timeline",
-      name: "Empty",
-      position: 1,
-      filters: json("[]"),
-    }),
-    viewJsonNull: await raw("DataView", {
-      userId: f.admin.id,
-      surfaceKey: "entity-timeline",
-      name: "JSON null",
-      position: 2,
-      filters: json("null"),
-    }),
-    viewSqlNull: await raw("DataView", {
-      userId: f.admin.id,
-      surfaceKey: "entity-timeline",
-      name: "SQL null",
-      position: 3,
-      filters: null,
-    }),
-    preferenceEmpty: await raw("P13n", {
-      userId: f.member.id,
-      p13nId: "entity-timeline",
-      filters: json("[]"),
-      columnOrder: [],
-      hiddenColumns: [],
-    }),
-  };
-  const member2 = await db.user.create({
-    data: {
-      companyId,
-      roleId: f.memberRole.id,
-      firstName: "Nil",
-      lastName: "Null",
-      status: "active",
-      email: `${randomUUID()}@example.test`,
-    },
-  });
-  timelines.preferenceJsonNull = await raw("P13n", {
-    userId: member2.id,
-    p13nId: "entity-timeline",
-    filters: json("null"),
-    columnOrder: null,
-    hiddenColumns: null,
-  });
-  const member3 = await db.user.create({
-    data: {
-      companyId,
-      roleId: f.memberRole.id,
-      firstName: "Sql",
-      lastName: "Null",
-      status: "active",
-      email: `${randomUUID()}@example.test`,
-    },
-  });
-  timelines.preferenceSqlNull = await raw("P13n", { userId: member3.id, p13nId: "entity-timeline", filters: null });
-  const views = {
-    empty: await raw("DataView", {
-      userId: f.admin.id,
-      surfaceKey: "contacts-card-store",
-      name: "Empty state",
-      position: 0,
-      filters: json("[]"),
-      sortDescriptor: json("{}"),
-      grouping: json("null"),
-      columnOrder: json("[]"),
-      columnWidths: json("{}"),
-      hiddenColumns: json("[]"),
-    }),
-    nulls: await raw("DataView", {
-      userId: f.admin.id,
-      surfaceKey: "organizations-card-store",
-      name: "Null state",
-      position: 0,
-      filters: json("null"),
-      sortDescriptor: null,
-      grouping: null,
-      columnOrder: json("null"),
-      columnWidths: null,
-      hiddenColumns: json("null"),
-    }),
-  };
-  const preferences = {
-    empty: await raw("P13n", {
-      userId: f.member.id,
-      p13nId: "contacts-card-store",
-      filters: json("[]"),
-      sortDescriptor: json("{}"),
-      pagination: json("null"),
-      columnOrder: [],
-      columnWidths: json("{}"),
-      hiddenColumns: [],
-      grouping: json("null"),
-      detailOptions: json("null"),
-    }),
-    nulls: await raw("P13n", {
-      userId: member2.id,
-      p13nId: "tasks-card-store",
-      filters: null,
-      sortDescriptor: json("null"),
-      pagination: null,
-      columnOrder: null,
-      hiddenColumns: null,
-      columnWidths: json("null"),
-    }),
-    detail: await raw("P13n", {
-      userId: f.member.id,
-      p13nId: "deal-detail",
-      columnOrder: [],
-      hiddenColumns: [],
-      detailOptions: json("null"),
-    }),
-  };
-  const widgets = {
-    chart: await raw("Widget", {
-      userId: f.admin.id,
-      name: "Empty filters",
-      kind: "chart",
-      entityType: "contact",
-      aggregationType: "count",
-      groupByType: "none",
-      entityFilters: json("[]"),
-      dealFilters: json("null"),
-      displayOptions: null,
-      layout: json("{}"),
-    }),
-    timeline: await raw("Widget", {
-      userId: f.admin.id,
-      name: "Empty history",
-      kind: "activityTimeline",
-      timelineFilters: json("[]"),
-      displayOptions: json("null"),
-    }),
-    timelineNull: await raw("Widget", {
-      userId: f.admin.id,
-      name: "Null history",
-      kind: "activityTimeline",
-      timelineFilters: null,
-      displayOptions: json("{}"),
-    }),
-  };
-  const routine = await raw("Routine", {
-    ownerUserId: f.admin.id,
-    name: "Empty trigger",
-    prompt: "Inspect.",
-    triggerKind: "event",
-    triggerEvents: ["deal.created"],
-    changedFields: [],
-    triggerFilters: json("[]"),
-  });
   const scheduled = await raw("Routine", {
     ownerUserId: f.admin.id,
     name: "Scheduled",
     prompt: "Inspect.",
     triggerKind: "schedule",
     cronExpression: "0 9 * * *",
-    triggerEvents: [],
-    changedFields: [],
+    triggerEvents: ["deal.created", "messaging.message.received"],
+    changedFields: ["name"],
     triggerFilters: json("[]"),
-  });
-  const webhook = await raw("Webhook", {
-    url: "https://receiver.example.test/empty",
-    events: [],
-    headers: json("{}"),
-    enabled: true,
   });
   const columns = {
     nullOptions: await raw("CustomColumn", {
@@ -680,5 +554,5 @@ export async function addEmptyLegacyStates(client: ClientBase, f: LegacyWorkspac
     emptyObject: await raw("Organization", { name: "Empty note", notes: json("{}") }),
     jsonNull: await raw("Organization", { name: "JSON null note", notes: json("null") }),
   };
-  return { timelines, views, preferences, widgets, routine, scheduled, webhook, columns, notes, member2, member3 };
+  return { scheduled, columns, notes };
 }

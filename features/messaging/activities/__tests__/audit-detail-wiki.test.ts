@@ -77,10 +77,7 @@ describe("Wiki activity detail", () => {
   });
 
   it("preserves the normal field/value contract for a non-Wiki event", () => {
-    const markup = renderDetail(
-      [{ field: "kind", previous: "knowledge", current: "guide" }],
-      DomainEvent.CONTACT_UPDATED,
-    );
+    const markup = renderDetail([{ field: "kind", previous: "knowledge", current: "guide" }], DomainEvent.ROLE_UPDATED);
 
     expect(markup).toContain("knowledge");
     expect(markup).toContain("guide");

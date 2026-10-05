@@ -13,16 +13,15 @@ import { RecordWidgetDtoSchema } from "./record-widget.schema";
 import type { UpdateWidgetLayoutsRepo } from "./update-widget-layouts.repo";
 import type { WidgetDto, WidgetLayout } from "./widget.schema";
 
-import { Action, Prisma, Resource, WidgetKind } from "@/generated/prisma";
+import { Prisma, WidgetKind } from "@/generated/prisma";
 
 import { BREAKPOINTS } from "@/constants/breakpoints";
-import { BaseRepository } from "@/core/base/base-repository";
+import { TenantRepository } from "@/core/base/tenant-repository";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { getRecordActivityWidgetReader, getRecordWidgetReader } from "@/core/di";
-import { activityFilterableFieldsForViewer } from "@/ee/messaging/activities/activity-filterable-fields";
 
 export class PrismaWidgetRepo
-  extends BaseRepository
+  extends TenantRepository
   implements
     GetWidgetsRepo,
     DeleteWidgetRepo,
@@ -32,8 +31,6 @@ export class PrismaWidgetRepo
     FindWidgetsByIdsRepo,
     WidgetCompatibilityRepo
 {
-  private messagingSourcesEnabled = false;
-
   async hasLegacyDefinitions(): Promise<boolean> {
     const row = await this.prisma.widget.findFirst({
       where: {
@@ -51,27 +48,6 @@ export class PrismaWidgetRepo
       select: { id: true },
     });
     return row !== null;
-  }
-
-  canReadMessagingSources() {
-    return (
-      this.hasPermission(Resource.inboxMessages, Action.readAll) ||
-      this.hasPermission(Resource.inboxMessages, Action.readOwn)
-    );
-  }
-
-  setMessagingSourcesEnabled(enabled: boolean) {
-    this.messagingSourcesEnabled = enabled;
-  }
-
-  getActivityFilterableFields() {
-    return Promise.resolve(
-      activityFilterableFieldsForViewer({
-        canAccess: (resource) => this.canAccess(resource),
-        canReadMessages: this.messagingSourcesEnabled && this.canReadMessagingSources(),
-        hasPermission: (resource, action) => this.hasPermission(resource, action),
-      }),
-    );
   }
 
   private get dtoSelect() {

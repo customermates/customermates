@@ -203,8 +203,8 @@ export const ActivitiesList = observer(({ customColumns, hasMore, items, loading
             );
           }
 
-          if (entry.kind === "record" || entry.recordChanges) {
-            const changes = entry.kind === "record" ? entry.changes : entry.recordChanges;
+          if (entry.kind === "record") {
+            const changes = entry.changes;
             const category = auditCategory(entry.event);
             const actorName =
               resolveActorName(entry.actor.firstName, entry.actor.lastName, entry.actor.email) ||
