@@ -8,6 +8,7 @@ import { isReadOnlyAgentToolCall } from "@/ee/agent-chat/gated-tools";
 import { AGENT_WEB_SEARCH_TOOL_NAME } from "@/ee/agent-chat/agent-web-search";
 import { ManageDataViewsSchema } from "@/features/data-view/manage-data-views.schema";
 import { ALL_MCP_TOOLS } from "@/features/mcp-tools/tool-registry";
+import { presetId } from "@/features/records/crm-preset";
 
 import { analysisReads, isPageSizeRefusal, isReadCall, readsCustomFieldValues, withAnalysisReads, type ObservedTool } from "../fixtures";
 
@@ -67,10 +68,10 @@ describe("benchmark read-call predicate", () => {
   });
 
   it("fails closed on writes, write actions, missing actions and unknown tools", () => {
-    expect(isReadCall({ name: "update_deals", input: { deals: [] } })).toBe(false);
+    expect(isReadCall({ name: "mutate_crm_record", input: { mutation: { action: "update" } } })).toBe(false);
     expect(isReadCall({ name: "manage_webhooks", input: { action: "create" } })).toBe(false);
     expect(isReadCall({ name: "manage_webhooks", input: {} })).toBe(false);
-    expect(isReadCall({ name: "manage_record_links", input: { action: "add" } })).toBe(false);
+    expect(isReadCall({ name: "configure_record_model", input: { action: "apply" } })).toBe(false);
     expect(isReadCall({ name: "a_tool_this_build_does_not_define", input: {} })).toBe(false);
   });
 
@@ -80,12 +81,12 @@ describe("benchmark read-call predicate", () => {
       input: { reads: [{ tool: "query_crm_records", input: '{"typeId":"00000000-0000-4000-8000-0000000000d1"}' }, { tool: "get_activities", input: "{}" }], code: "(data) => data" },
       outcome: "error" as const,
     };
-    const write = { name: "update_deals", input: { deals: [] }, outcome: "ok" as const };
+    const write = { name: "mutate_crm_record", input: { mutation: { action: "update" } }, outcome: "ok" as const };
     expect(analysisReads(analysis)).toEqual([
       { name: "query_crm_records", input: { typeId: "00000000-0000-4000-8000-0000000000d1" }, outcome: "error", viaAnalysis: true },
       { name: "get_activities", input: {}, outcome: "error", viaAnalysis: true },
     ]);
-    expect(withAnalysisReads([analysis, write]).map((tool) => tool.name)).toEqual(["analyze_records", "query_crm_records", "get_activities", "update_deals"]);
+    expect(withAnalysisReads([analysis, write]).map((tool) => tool.name)).toEqual(["analyze_records", "query_crm_records", "get_activities", "mutate_crm_record"]);
     expect(withAnalysisReads([analysis, write]).filter((tool) => !isReadCall(tool))).toEqual([write]);
   });
 
@@ -110,49 +111,51 @@ describe("benchmark read-call predicate", () => {
   });
 
   it("adds nothing for a write named inside analyze_records or for any other tool", () => {
-    const smuggled = { name: "analyze_records", input: { reads: [{ tool: "update_deals", input: '{"deals":[]}' }], code: "(data) => data" }, outcome: "error" as const };
+    const smuggled = { name: "analyze_records", input: { reads: [{ tool: "mutate_crm_record", input: '{"mutation":{"action":"delete"}}' }], code: "(data) => data" }, outcome: "error" as const };
     expect(analysisReads(smuggled)).toEqual([]);
-    expect(analysisReads({ name: "list_records", input: { reads: [{ tool: "list_records", input: "{}" }] } })).toEqual([]);
+    expect(analysisReads({ name: "query_crm_records", input: { reads: [{ tool: "query_crm_records", input: "{}" }] } })).toEqual([]);
   });
 
-  it("takes a list read as reading custom-field values only when it succeeded ungrouped with rows that carry them", () => {
-    const analyze = (input: object, outcome?: "ok" | "error") => analysisReads({ name: "analyze_records", input: { reads: [{ tool: "list_records", input }], code: "(data) => data" }, outcome });
-    const reads = (entity: "task" | "deal", tools: ObservedTool[]) => tools.map((tool) => readsCustomFieldValues(tool, entity));
+  it("takes a record query as reading field values only when it succeeded ungrouped with rows that carry them", () => {
+    const companyId = "10000000-0000-4000-8000-000000000001";
+    const task = presetId(companyId, "task");
+    const deal = presetId(companyId, "deal");
+    const analyze = (input: object, outcome?: "ok" | "error") => analysisReads({ name: "analyze_records", input: { reads: [{ tool: "query_crm_records", input }], code: "(data) => data" }, outcome });
+    const reads = (entity: "task" | "deal", tools: ObservedTool[]) => tools.map((tool) => readsCustomFieldValues(tool, entity, companyId));
 
     expect(reads("task", [
-      ...analyze({ entity: "task" }, "ok"),
-      ...analyze({ entity: "task", include: ["customFields"] }, "ok"),
-      { name: "list_records", input: { entity: "task", include: ["customFields"] }, outcome: "ok" },
-      { name: "list_records", input: { entity: "task", include: ["links", "customFields"], pageSize: 5 }, outcome: "ok" },
-    ])).toEqual([true, true, true, true]);
+      ...analyze({ typeId: task }, "ok"),
+      ...analyze({ typeId: task, fields: [presetId(companyId, "task.status")] }, "ok"),
+      { name: "query_crm_records", input: { typeId: task }, outcome: "ok" },
+      { name: "query_crm_records", input: { typeId: task, pageSize: 5 }, outcome: "ok" },
+      ...analyze({ source: { typeId: task } }, "ok"),
+    ])).toEqual([true, true, true, true, true]);
     expect(reads("task", [
-      ...analyze({ entity: "task" }, "error"),
-      ...analyze({ entity: "task" }),
-      ...analyze({ entity: "task", groupBy: { field: "userIds" } }, "ok"),
-      ...analyze({ entity: "task", include: [] }, "ok"),
-      ...analyze({ entity: "task", include: ["owners", "links", "dates"] }, "ok"),
-      { name: "list_records", input: { entity: "task" }, outcome: "ok" },
-      { name: "list_records", input: { entity: "task", include: ["customFields"] }, outcome: "error" },
-      { name: "list_records", input: { entity: "task", include: ["customFields"] } },
-      { name: "list_records", input: { entity: "task", include: ["customFields"], groupBy: { field: "userIds" } }, outcome: "ok" },
-      { name: "get_records", input: { entity: "task", include: ["customFields"] }, outcome: "ok" },
-      ...analyze({ entity: "deal" }, "ok"),
-    ])).toEqual(Array(11).fill(false));
+      ...analyze({ typeId: task }, "error"),
+      ...analyze({ typeId: task }),
+      ...analyze({ typeId: task, grouping: { fieldId: "system:assignedTo" } }, "ok"),
+      ...analyze({ typeId: task, fields: [] }, "ok"),
+      { name: "query_crm_measure", input: { source: { typeId: task } }, outcome: "ok" },
+      { name: "query_crm_records", input: { typeId: task }, outcome: "error" },
+      { name: "query_crm_records", input: { typeId: task } },
+      { name: "query_crm_records", input: { typeId: task, grouping: { fieldId: "system:assignedTo" } }, outcome: "ok" },
+      { name: "read_crm_record", input: { typeId: task, recordId: "record" }, outcome: "ok" },
+      ...analyze({ typeId: deal }, "ok"),
+    ])).toEqual(Array(10).fill(false));
     expect(reads("deal", [
-      ...analyze({ entity: "deal" }, "ok"),
-      ...analyze({ entity: "deal", include: ["customFields"] }, "ok"),
-      { name: "list_records", input: { entity: "deal", include: ["customFields"] }, outcome: "ok" },
-    ])).toEqual([true, true, true]);
+      ...analyze({ typeId: deal }, "ok"),
+      { name: "query_crm_records", input: { typeId: deal }, outcome: "ok" },
+    ])).toEqual([true, true]);
     expect(reads("deal", [
-      ...analyze({ entity: "deal" }, "error"),
-      ...analyze({ entity: "deal" }),
-      ...analyze({ entity: "deal", groupBy: { field: "userIds" } }, "ok"),
-      { name: "list_records", input: { entity: "deal" }, outcome: "ok" },
+      ...analyze({ typeId: deal }, "error"),
+      ...analyze({ typeId: deal }),
+      ...analyze({ source: { typeId: deal }, groupBy: { fieldId: "system:assignedTo" } }, "ok"),
+      { name: "query_crm_records", input: { typeId: task }, outcome: "ok" },
     ])).toEqual([false, false, false, false]);
   });
 
   it("counts a failed call as a page-size refusal only when it asked for a size that is not a whole number from 1 to 100", () => {
-    const call = (pageSize: unknown, outcome?: "ok" | "error") => ({ name: "list_records", input: { entity: "deal", pageSize }, outcome });
+    const call = (pageSize: unknown, outcome?: "ok" | "error") => ({ name: "query_crm_records", input: { typeId: "deal", pageSize }, outcome });
     expect([call(150, "error"), call(0, "error"), call(12.5, "error"), call(150)].map(isPageSizeRefusal)).toEqual([true, true, true, true]);
     expect([call(50, "error"), call(50), call(1, "error"), call(100, "error"), call(150, "ok"), call(undefined, "error")].map(isPageSizeRefusal)).toEqual([false, false, false, false, false, false]);
   });

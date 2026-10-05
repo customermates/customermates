@@ -48,7 +48,7 @@ test("resolves a protected task through member approval and rejects ordinary rec
       expectedVersion: 1,
       ...(action === "update" ? { fields: [] } : {}),
     };
-    const result = await page.request.post("/api/v2/records/mutate", {
+    const result = await page.request.post("/api/v1/records/mutate", {
       data: { expectedRevision: 1, idempotencyKey: randomUUID(), mutation },
     });
     expect(result.status()).toBe(403);

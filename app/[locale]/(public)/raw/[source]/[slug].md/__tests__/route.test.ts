@@ -53,7 +53,7 @@ describe("raw markdown twin route", () => {
 
       expect(status).toBe(200);
       expect(text.startsWith("# Create, update, delete or link records\n")).toBe(true);
-      expect(text).toContain("**Endpoint:** `POST /api/v2/records/mutate`, operationId `mutateRecord`.");
+      expect(text).toContain("**Endpoint:** `POST /api/v1/records/mutate`, operationId `mutateRecord`.");
       expect(text).toContain("Parameters and schemas: `/api/v1/openapi`.");
       expect(text).not.toContain("<APIPage");
       expect(text).not.toContain("{/*");

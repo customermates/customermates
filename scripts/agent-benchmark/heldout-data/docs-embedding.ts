@@ -304,7 +304,7 @@ export const DOCS_EMBEDDING_HELDOUT: readonly DocsHeldoutItem[] = [
     slug: "n8n",
     anchors: ["n8n#how-do-i-write-to-customermates-from-n8n"],
     alternatives: [],
-    fact: "Use an HTTP Request node with the x-api-key header and POST /api/v1/contacts (or /api/v1/contacts/many for up to 100) with a JSON body matching the OpenAPI spec.",
+    fact: "Use an HTTP Request node with the x-api-key header: discover the contact type with POST /api/v1/model/discover, then POST /api/v1/records/mutate with a create mutation whose JSON body matches the OpenAPI spec.",
   },
   {
     id: "de-es-07",

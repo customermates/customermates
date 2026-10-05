@@ -189,44 +189,13 @@ describe("MCP tool description quality", () => {
 });
 
 describe("MCP tool catalog fidelity", () => {
-  it("keeps current app instructions in both locales free of retired CRM tool calls", async () => {
-    const { RETIRED_RECORD_TOOLS } = await import("@/features/mcp-tools/retired-record-tools");
-    const pages = ["app-assistant", "app-dashboard", "app-routines", "app-search", "webhooks"];
-    const stale: string[] = [];
-    for (const locale of CATALOG_LOCALES) {
-      for (const page of pages) {
-        const source = readFileSync(join(REPO_ROOT, "content", "docs", locale, `${page}.mdx`), "utf8");
-        for (const name of Object.keys(RETIRED_RECORD_TOOLS))
-          if (new RegExp(`\\b${name}\\b`).test(source)) stale.push(`${locale}/${page}: ${name}`);
-      }
-    }
-    expect(stale).toEqual([]);
-  });
-
-  it("keeps marketing pages in every locale free of retired CRM tool names", async () => {
-    const { RETIRED_RECORD_TOOLS } = await import("@/features/mcp-tools/retired-record-tools");
-    const stale: string[] = [];
-    for (const collection of ["blog-posts", "compare-pages", "feature-pages"]) {
-      const files = walkFiles(join(REPO_ROOT, "content", collection), (path) => path.endsWith(".mdx"));
-      expect(files.length, collection).toBeGreaterThan(0);
-      for (const file of files) {
-        const text = readFileSync(file, "utf8");
-        for (const name of Object.keys(RETIRED_RECORD_TOOLS))
-          if (new RegExp(`\\b${name}\\b`).test(text)) stale.push(`${file.slice(REPO_ROOT.length + 1)}: ${name}`);
-      }
-    }
-    expect(stale, stale.join("\n")).toEqual([]);
-  });
-
-  it("registers each active tool once with complete metadata and excludes retired write contracts", async () => {
-    const { RETIRED_RECORD_TOOLS } = await import("@/features/mcp-tools/retired-record-tools");
+  it("registers each active tool once with complete metadata", () => {
     expect(registeredToolNames().size).toBe(activeTools.length);
     for (const tool of activeTools) {
       expect(tool.name).toMatch(/^[a-z][a-z0-9_]+$/);
       expect(tool.title?.trim()).toBeTruthy();
       for (const annotation of REQUIRED_ANNOTATIONS)
         expect(typeof tool.annotations?.[annotation as keyof NonNullable<typeof tool.annotations>]).toBe("boolean");
-      expect(Object.hasOwn(RETIRED_RECORD_TOOLS, tool.name)).toBe(false);
     }
   });
 

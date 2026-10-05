@@ -659,7 +659,7 @@ test("preserves missing, false, zero and exact money defaults and captures a sna
     currency: "EUR",
   });
   expect(valueFor(originalValues, "Disabled snapshot")).toBeUndefined();
-  const snapshotRead = await page.request.post("/api/v2/records/read", {
+  const snapshotRead = await page.request.post("/api/v1/records/read", {
     data: { typeId, recordId: original.recordId },
   });
   expect(snapshotRead.ok()).toBe(true);

@@ -49,7 +49,7 @@ test("edits identity channels in the generic drawer and searches persisted chann
   });
   await page.keyboard.press("Escape");
   await expect(dialog).not.toBeVisible();
-  const response = await page.request.post("/api/v2/records/search", { data: { searchTerm: "person@example.test" } });
+  const response = await page.request.post("/api/v1/records/search", { data: { searchTerm: "person@example.test" } });
   expect(response.status(), await response.text()).toBe(200);
   expect(await response.json()).toMatchObject({ results: [{ ref: { typeId, recordId } }] });
   const unchanged = await database.query('SELECT id FROM "RecordIdentity" WHERE "companyId"=$1', [companyId]);

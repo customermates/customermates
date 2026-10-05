@@ -125,7 +125,7 @@ test("persists personal detail pins, visibility and keyboard order without losin
   await expect(main.locator("[data-summary-field]")).toHaveCount(0);
   await page.locator("[data-record-page-actions]").getByRole("button", { name: "Done", exact: true }).click();
   await expect(main.locator('[data-sortable-field="system:updatedAt"]')).toBeVisible();
-  const api = await page.request.post("/api/v2/records/detail-layout/save", {
+  const api = await page.request.post("/api/v1/records/detail-layout/save", {
     data: {
       typeId,
       expectedRevision: 1,

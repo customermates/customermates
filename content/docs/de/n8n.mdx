@@ -1,7 +1,7 @@
 ---
 title: "n8n mit Customermates verbinden: Webhooks und REST-API"
 heading: "Customermates-Workflows in n8n erstellen"
-description: "Visuelle Abläufe mit generischen CRM-Datensatzereignissen und der Datensatz-API Version zwei erstellen."
+description: "Visuelle Abläufe mit generischen CRM-Datensatzereignissen und der Datensatz-API erstellen."
 ---
 
 Verbinden Sie n8n über einen Webhook-Node für CRM-Änderungen und HTTP-Request-Nodes für die Customermates-REST-API. Für JSON-RPC-Clients gibt es außerdem den MCP-Endpunkt. Der separate [Customermates Community Node](https://github.com/customermates/n8n-nodes-crm) hat möglicherweise einen eigenen Veröffentlichungsplan; prüfen Sie seine Kompatibilität mit Version zwei, bevor Sie seine CRM-Aktionen nutzen.
@@ -24,7 +24,7 @@ Kopieren Sie die erzeugte URL.
 Öffnen Sie **Mein Unternehmen → Webhooks**, klicken Sie **Hinzufügen** und fügen Sie die URL ein. Wählen Sie `record.created`, `record.updated` oder `record.deleted`, dann die zu beobachtenden Datensatztypen und optional Filter. Fügen Sie ein Signatur-Secret hinzu und speichern Sie. Zum Anlegen brauchen Sie **Verwalten** für **API & Webhooks**.
 </Step>
 <Step title="Payload verarbeiten">
-Prüfen Sie die Signatur und verwenden Sie in weiteren Schritten die Ereignis-ID und die stabile `typeId`/`recordId`-Referenz aus der Payload der Version zwei.
+Prüfen Sie die Signatur und verwenden Sie in weiteren Schritten die Ereignis-ID und die stabile `typeId`/`recordId`-Referenz aus der Payload des Datensatzereignisses.
 </Step>
 </Steps>
 
@@ -34,22 +34,24 @@ Der [Webhook-Guide](/docs/webhooks) beschreibt Payloads, Wiederholungen und Sign
 
 ## Wie kann ich aus n8n Datensätze anlegen, lesen, ändern oder löschen? [#how-do-i-write-to-customermates-from-n8n]
 
-Verwenden Sie einen **HTTP Request**-Node mit einer `x-api-key`-Credential und JSON gemäß der [OpenAPI-Spezifikation](/docs/openapi). Die Routen der Version zwei funktionieren für Starttypen und selbst angelegte Typen:
+Verwenden Sie einen **HTTP Request**-Node mit einer `x-api-key`-Credential und JSON gemäß der [OpenAPI-Spezifikation](/docs/openapi). Die Datensatz-Routen funktionieren für Starttypen und selbst angelegte Typen:
 
 | Ziel | Methode und Pfad |
 |---|---|
-| Konfiguration und stabile IDs lesen | `POST /api/v2/model/discover` |
-| Datensätze abfragen oder suchen | `POST /api/v2/records/query` oder `POST /api/v2/records/search` |
-| Einen Datensatz lesen | `POST /api/v2/records/read` |
-| Anlegen, ändern, löschen oder verknüpfen | `POST /api/v2/records/mutate` |
-| Löschung vorab prüfen | `POST /api/v2/records/preview-deletion` |
-| Export oder Import | `POST /api/v2/records/export` oder `POST /api/v2/records/import` |
+| Konfiguration und stabile IDs lesen | `POST /api/v1/model/discover` |
+| Datensätze abfragen oder suchen | `POST /api/v1/records/query` oder `POST /api/v1/records/search` |
+| Einen Datensatz lesen | `POST /api/v1/records/read` |
+| Anlegen, ändern, löschen oder verknüpfen | `POST /api/v1/records/mutate` |
+| Löschung vorab prüfen | `POST /api/v1/records/preview-deletion` |
+| Export oder Import | `POST /api/v1/records/export` oder `POST /api/v1/records/import` |
+
+**Breaking Change:** Diese Routen ersetzen die früheren entitätsspezifischen Endpunkte und das Präfix `/api/v2`, die entfernt wurden. Passen Sie HTTP-Request-Nodes an, die noch einen Endpunkt für Kontakte, Organisationen, Deals, Leistungen oder Aufgaben aufrufen.
 
 Die Basis-URL ist die Adresse, unter der Sie Customermates öffnen. Eine Mutation enthält eine stabile `typeId`, einen Idempotenzschlüssel und die erwartete Konfigurationsrevision. Änderungen und Löschungen enthalten außerdem Datensatzreferenz und erwartete Version. Felder sind typisierte Zuweisungen; Verknüpfungen nennen ihre Beziehungsdefinition. Eine Löschung kann den Hash einer aktuellen Auswirkungs-Vorschau verlangen. Abfrageformen stehen unter [Filtersyntax](/docs/filter-syntax).
 
 ## Wie rufe ich MCP-Tools aus n8n auf? [#how-do-i-call-mcp-tools-from-n8n]
 
-Senden Sie `POST <BASE_URL>/api/v1/mcp` mit `Content-Type: application/json`, `Accept: application/json, text/event-stream` und Ihrer `x-api-key`-Credential. Die Verbindungsadresse bleibt bei Version eins, der CRM-Toolkatalog ist Version zwei. Beispiel für die Typ-Ermittlung:
+Senden Sie `POST <BASE_URL>/api/v1/mcp` mit `Content-Type: application/json`, `Accept: application/json, text/event-stream` und Ihrer `x-api-key`-Credential. Beispiel für die Typ-Ermittlung:
 
 ```json
 {"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"discover_record_types","arguments":{}}}
@@ -59,7 +61,7 @@ Das Ergebnis kann als Server-Sent Event eintreffen; parsen Sie die JSON-RPC-Zeil
 
 ## Wie führe ich geplante Jobs aus? [#how-do-i-run-scheduled-jobs]
 
-Mit dem Zeitplan-Trigger von n8n und der API der Version zwei können Sie passende Datensätze finden, exportieren oder validiert ändern. Eine [Customermates Routine](/docs/app-routines) kann den Assistenten stattdessen innerhalb des Produkts nach Zeitplan ausführen. Deal-Phasen, Task-Prioritäten und eigene Typen sind Workspace-Konfiguration; ermitteln Sie vor dem Filtern oder Schreiben ihre IDs.
+Mit dem Zeitplan-Trigger von n8n und der Datensatz-API können Sie passende Datensätze finden, exportieren oder validiert ändern. Eine [Customermates Routine](/docs/app-routines) kann den Assistenten stattdessen innerhalb des Produkts nach Zeitplan ausführen. Deal-Phasen, Task-Prioritäten und eigene Typen sind Workspace-Konfiguration; ermitteln Sie vor dem Filtern oder Schreiben ihre IDs.
 
 ## Wie funktioniert die Authentifizierung? [#how-does-authentication-work]
 
@@ -76,5 +78,5 @@ Erstellen Sie unter **Mein Profil → API & Konnektoren** einen API-Key. Speiche
 ## Weiter [#next]
 
 - [Webhooks](/docs/webhooks): Ereignis-Payloads und Zustellung.
-- [OpenAPI](/docs/openapi): REST-Verträge der Version zwei.
+- [OpenAPI](/docs/openapi): REST-Verträge.
 - [MCP](/docs/mcp): KI- und Tool-Aufrufe.

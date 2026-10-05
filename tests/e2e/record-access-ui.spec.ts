@@ -27,13 +27,13 @@ async function post(page: Page, path: string, data: unknown): Promise<unknown> {
 }
 
 async function readModel(page: Page) {
-  return RecordModelSchema.parse(await post(page, "/api/v2/model/discover", {}));
+  return RecordModelSchema.parse(await post(page, "/api/v1/model/discover", {}));
 }
 
 async function saveRole(page: Page, role: Omit<UpsertRoleData, "expectedRevision" | "idempotencyKey">) {
   const model = await readModel(page);
   return RoleApiMutationResultSchema.parse(
-    await post(page, "/api/v2/roles/save", {
+    await post(page, "/api/v1/roles/save", {
       ...role,
       expectedRevision: model.revision,
       idempotencyKey: randomUUID(),
@@ -44,7 +44,7 @@ async function saveRole(page: Page, role: Omit<UpsertRoleData, "expectedRevision
 async function mutate(page: Page, mutation: Extract<RecordMutation, { action: "create" }>) {
   const model = await readModel(page);
   const result = RecordOperationResultSchema.parse(
-    await post(page, "/api/v2/records/mutate", {
+    await post(page, "/api/v1/records/mutate", {
       expectedRevision: model.revision,
       idempotencyKey: randomUUID(),
       mutation,
@@ -145,7 +145,7 @@ test("admits an assigned-record writer and separately delegates schema configura
 }, testInfo) => {
   test.setTimeout(240000);
   let model = await readModel(page);
-  await post(page, "/api/v2/model/apply", {
+  await post(page, "/api/v1/model/apply", {
     expectedRevision: model.revision,
     idempotencyKey: randomUUID(),
     operations: [
@@ -242,7 +242,7 @@ test("admits an assigned-record writer and separately delegates schema configura
     ).toEqual([{ textValue: "Edited assigned project" }]);
     expect(
       (
-        await member.page.request.post("/api/v2/records/read", {
+        await member.page.request.post("/api/v1/records/read", {
           data: unassigned,
         })
       ).status(),
@@ -272,7 +272,7 @@ test("admits an assigned-record writer and separately delegates schema configura
     await expect.poll(assignees).toEqual([workspace.userId, member.userId].sort());
     await member.page.reload();
     await expect(member.page.getByRole("button", { name: "Other member project", exact: true })).toBeVisible();
-    expect((await member.page.request.post("/api/v2/records/read", { data: unassigned })).status()).toBe(200);
+    expect((await member.page.request.post("/api/v1/records/read", { data: unassigned })).status()).toBe(200);
     await page.getByRole("button", { name: "Other member project", exact: true }).click();
     const assignmentField = administratorEditor.locator('[data-entity-field="system:assignedTo"]');
     await assignmentField
@@ -286,7 +286,7 @@ test("admits an assigned-record writer and separately delegates schema configura
     await member.page.reload();
     await expect(member.page.getByRole("button", { name: "Other member project", exact: true })).toHaveCount(0);
     await expect(member.page.getByRole("button", { name: "Edited assigned project", exact: true })).toBeVisible();
-    expect((await member.page.request.post("/api/v2/records/read", { data: unassigned })).status()).toBe(404);
+    expect((await member.page.request.post("/api/v1/records/read", { data: unassigned })).status()).toBe(404);
     await openConfigure(member.page, type.id);
     await expect(member.page.getByRole("heading", { name: "Projects", exact: true })).toBeVisible();
     await expect(configureTopBar(member.page).getByRole("button", { name: "Add", exact: true })).toHaveCount(0);
@@ -313,7 +313,7 @@ test("admits an assigned-record writer and separately delegates schema configura
     };
     expect(
       (
-        await member.page.request.post("/api/v2/model/apply", {
+        await member.page.request.post("/api/v1/model/apply", {
           data: unauthorized,
         })
       ).status(),
@@ -363,12 +363,12 @@ test("admits an assigned-record writer and separately delegates schema configura
     await expect(member.page.locator(`[id="nav-records:${delegated.id}"]`)).toHaveCount(0);
     expect(
       (
-        await member.page.request.post("/api/v2/records/query", {
+        await member.page.request.post("/api/v1/records/query", {
           data: { typeId: delegated.id },
         })
       ).status(),
     ).toBe(404);
-    const roleDenied = await member.page.request.post("/api/v2/roles/save", {
+    const roleDenied = await member.page.request.post("/api/v1/roles/save", {
       data: {
         ...roleInput,
         id: saved.role.id,
@@ -386,7 +386,7 @@ test("admits an assigned-record writer and separately delegates schema configura
     model = await readModel(page);
     const presetId = randomUUID();
     expect(
-      await post(page, "/api/v2/model/apply", {
+      await post(page, "/api/v1/model/apply", {
         expectedRevision: model.revision,
         idempotencyKey: randomUUID(),
         operations: [
@@ -437,8 +437,8 @@ test("admits an assigned-record writer and separately delegates schema configura
       fields: [{ fieldId: approved.primaryFieldId, value: { kind: "text", value: "Unassigned approved record" } }],
       assignedUserIds: [],
     });
-    expect((await member.page.request.post("/api/v2/records/read", { data: foreign })).status()).toBe(404);
-    const readable = await post(member.page, "/api/v2/records/query", { typeId: approved.id });
+    expect((await member.page.request.post("/api/v1/records/read", { data: foreign })).status()).toBe(404);
+    const readable = await post(member.page, "/api/v1/records/query", { typeId: approved.id });
     expect(readable).toMatchObject({ total: 1 });
     expect(
       (
@@ -532,7 +532,7 @@ test("renders dependency-restricted calculated widget values as a secondary read
         },
       ],
     });
-    const authoritative = RecordDtoSchema.parse(await post(page, "/api/v2/records/read", deal));
+    const authoritative = RecordDtoSchema.parse(await post(page, "/api/v1/records/read", deal));
     expect(authoritative.fields.find((field) => field.fieldId === id("deal.totalValue"))?.result).toEqual({
       state: "value",
       value: { kind: "decimal", value: "82.5", currency: "EUR" },
@@ -544,7 +544,7 @@ test("renders dependency-restricted calculated widget values as a secondary read
     });
     const widgetName = "Restricted deal total";
     const widget = WidgetSchema.parse(
-      await post(member.page, "/api/v2/widgets/save", {
+      await post(member.page, "/api/v1/widgets/save", {
         expectedRevision: (await readModel(page)).revision,
         idempotencyKey: randomUUID(),
         name: widgetName,
@@ -573,7 +573,7 @@ test("renders dependency-restricted calculated widget values as a secondary read
       await expect(
         card.getByText("This measure is unavailable. Review its configuration or access.", { exact: true }),
       ).toHaveCount(0);
-      expect(WidgetSchema.parse(await post(member.page, "/api/v2/widgets/read", { id: widget.id }))).toMatchObject({
+      expect(WidgetSchema.parse(await post(member.page, "/api/v1/widgets/read", { id: widget.id }))).toMatchObject({
         status: "ready",
         data: {
           total: { result: { state: "restricted" } },
@@ -595,7 +595,7 @@ test("renders dependency-restricted calculated widget values as a secondary read
     await member.page.reload();
     await expect(card.getByText("Overall: €82.50", { exact: true })).toBeVisible();
     await expect(card.getByText("Restricted", { exact: true })).toHaveCount(0);
-    expect(WidgetSchema.parse(await post(member.page, "/api/v2/widgets/read", { id: widget.id }))).toMatchObject({
+    expect(WidgetSchema.parse(await post(member.page, "/api/v1/widgets/read", { id: widget.id }))).toMatchObject({
       status: "ready",
       data: {
         total: {
@@ -702,7 +702,7 @@ test("keeps shared Inbox participants permission-scoped across genuine readers a
     );
     const readIdentities = async (actorPage: Page) =>
       z.object({ matches: z.array(z.object({ records: z.array(RecordIdentityReferenceSchema) })) }).parse(
-        await post(actorPage, "/api/v2/records/identities/resolve", {
+        await post(actorPage, "/api/v1/records/identities/resolve", {
           identifiers: [{ provider: "mail", value: email.toUpperCase() }],
         }),
       );
@@ -710,7 +710,7 @@ test("keeps shared Inbox participants permission-scoped across genuine readers a
     expect((await readIdentities(reader.page)).matches[0]?.records.map((record) => record.ref)).toEqual([contact]);
     expect(
       (
-        await reader.page.request.post("/api/v2/records/mutate", {
+        await reader.page.request.post("/api/v1/records/mutate", {
           data: {
             expectedRevision: (await readModel(page)).revision,
             idempotencyKey: randomUUID(),
@@ -726,7 +726,7 @@ test("keeps shared Inbox participants permission-scoped across genuine readers a
         })
       ).status(),
     ).toBe(403);
-    expect((await noAccess.page.request.post("/api/v2/records/read", { data: contact })).status()).toBe(404);
+    expect((await noAccess.page.request.post("/api/v1/records/read", { data: contact })).status()).toBe(404);
     for (const member of [noAccess, reader])
       expect((await member.page.request.get(`/api/v1/messaging/threads/${threadId}`)).status()).toBe(404);
 
@@ -832,7 +832,7 @@ test("keeps shared Inbox participants permission-scoped across genuine readers a
       await expect(member.page.getByText(body, { exact: true })).toHaveCount(0);
       expect((await member.page.request.get(`/api/v1/messaging/threads/${threadId}`)).status()).toBe(404);
       expect(
-        (await member.page.request.post("/api/v2/messaging/record-links/read", { data: { threadId } })).status(),
+        (await member.page.request.post("/api/v1/messaging/record-links/read", { data: { threadId } })).status(),
       ).toBe(404);
     }
     expect((await readIdentities(reader.page)).matches[0]?.records.map((record) => record.ref)).toEqual([contact]);
@@ -861,9 +861,9 @@ test("keeps shared Inbox participants permission-scoped across genuine readers a
       foreignContact,
     ]);
     expect((await readIdentities(reader.page)).matches[0]?.records.map((record) => record.ref)).toEqual([contact]);
-    expect((await foreign.page.request.post("/api/v2/records/read", { data: contact })).status()).toBe(404);
+    expect((await foreign.page.request.post("/api/v1/records/read", { data: contact })).status()).toBe(404);
     expect(
-      (await foreign.page.request.post("/api/v2/messaging/record-links/read", { data: { threadId } })).status(),
+      (await foreign.page.request.post("/api/v1/messaging/record-links/read", { data: { threadId } })).status(),
     ).toBe(404);
     await foreign.page.goto(`/en/records/${foreignContactTypeId}`);
     await expect(foreign.page.getByRole("button", { name: "Foreign CRM Ada", exact: true })).toBeVisible();
@@ -1369,7 +1369,7 @@ test("keeps personal views separate from shared defaults and completes their UI 
   test.setTimeout(360000);
   const errors = relationshipCaptureErrors(page);
   let model = await readModel(page);
-  await post(page, "/api/v2/model/apply", {
+  await post(page, "/api/v1/model/apply", {
     expectedRevision: model.revision,
     idempotencyKey: randomUUID(),
     operations: [
@@ -1405,7 +1405,7 @@ test("keeps personal views separate from shared defaults and completes their UI 
     { id: budgetId, label: "Budget", valueType: "number", options: [], position: 3 },
     { id: internalId, label: "Internal memo", valueType: "text", options: [], position: 4 },
   ];
-  await post(page, "/api/v2/model/apply", {
+  await post(page, "/api/v1/model/apply", {
     expectedRevision: model.revision,
     idempotencyKey: randomUUID(),
     operations: definitions.map((definition) => ({
@@ -1737,7 +1737,7 @@ test("keeps retained values restricted after a delegated manager converts fields
 }, testInfo) => {
   test.setTimeout(240000);
   const errors = relationshipCaptureErrors(page);
-  await post(page, "/api/v2/model/apply", {
+  await post(page, "/api/v1/model/apply", {
     expectedRevision: (await readModel(page)).revision,
     idempotencyKey: randomUUID(),
     operations: [
@@ -1838,7 +1838,7 @@ test("keeps retained values restricted after a delegated manager converts fields
   const relation = model.relationships.find((entry) => entry.sourceLabel === "Private source");
   if (!sourceType || !summaryType || !amount || !total || !memo || !relation)
     throw new Error("The private-source fixture schema is incomplete");
-  await post(page, "/api/v2/model/apply", {
+  await post(page, "/api/v1/model/apply", {
     expectedRevision: model.revision,
     idempotencyKey: randomUUID(),
     operations: [
@@ -1867,7 +1867,7 @@ test("keeps retained values restricted after a delegated manager converts fields
     links: [{ relationId: relation.id, direction: "outgoing", record: source }],
   });
   expect(
-    RecordDtoSchema.parse(await post(page, "/api/v2/records/read", summary)).fields.find(
+    RecordDtoSchema.parse(await post(page, "/api/v1/records/read", summary)).fields.find(
       (field) => field.fieldId === total.id,
     )?.result,
   ).toEqual({ state: "value", value: { kind: "decimal", value: "41.25", currency: "EUR" } });
@@ -1895,13 +1895,13 @@ test("keeps retained values restricted after a delegated manager converts fields
   });
   const widgetName = "Retained private total";
   try {
-    expect((await manager.page.request.post("/api/v2/records/read", { data: source })).status()).toBe(404);
-    expect((await manager.page.request.post("/api/v2/records/read", { data: summary })).status()).toBe(404);
-    expect((await reader.page.request.post("/api/v2/records/read", { data: source })).status()).toBe(404);
+    expect((await manager.page.request.post("/api/v1/records/read", { data: source })).status()).toBe(404);
+    expect((await manager.page.request.post("/api/v1/records/read", { data: summary })).status()).toBe(404);
+    expect((await reader.page.request.post("/api/v1/records/read", { data: source })).status()).toBe(404);
     for (const type of model.types.filter((type) => type.embedded))
-      expect((await reader.page.request.post("/api/v2/records/query", { data: { typeId: type.id } })).status()).toBe(200);
+      expect((await reader.page.request.post("/api/v1/records/query", { data: { typeId: type.id } })).status()).toBe(200);
     const widget = widgetSchema.parse(
-      await post(reader.page, "/api/v2/widgets/save", {
+      await post(reader.page, "/api/v1/widgets/save", {
         expectedRevision: (await readModel(page)).revision,
         idempotencyKey: randomUUID(),
         name: widgetName,
@@ -1938,7 +1938,7 @@ test("keeps retained values restricted after a delegated manager converts fields
         ).toEqual([{ sourceTypeId: source.typeId, sourceId: source.recordId }]);
     };
     const assertRestricted = async () => {
-      const dto = RecordDtoSchema.parse(await post(reader.page, "/api/v2/records/read", summary));
+      const dto = RecordDtoSchema.parse(await post(reader.page, "/api/v1/records/read", summary));
       for (const field of [total, memo])
         expect(dto.fields.find((entry) => entry.fieldId === field.id)?.result).toEqual({ state: "restricted" });
       await reader.page.goto(`/en/records/${summaryType.id}`);
@@ -1970,7 +1970,7 @@ test("keeps retained values restricted after a delegated manager converts fields
       expect(
         z
           .object({ results: z.array(z.unknown()) })
-          .parse(await post(reader.page, "/api/v2/records/search", { searchTerm: canary })).results,
+          .parse(await post(reader.page, "/api/v1/records/search", { searchTerm: canary })).results,
       ).toEqual([]);
       await reader.page.locator("#global-search-input input").fill("Readable archive summary");
       await reader.page.getByRole("option").filter({ hasText: "Readable archive summary" }).click();
@@ -1989,7 +1989,7 @@ test("keeps retained values restricted after a delegated manager converts fields
       await expect(card.locator("dd").getByText("Restricted", { exact: true })).toBeVisible();
       await expect(card.locator(".recharts-wrapper")).toHaveCount(0);
       await expect(card).not.toContainText("€41.25");
-      expect(widgetSchema.parse(await post(reader.page, "/api/v2/widgets/read", { id: widget.id }))).toMatchObject({
+      expect(widgetSchema.parse(await post(reader.page, "/api/v1/widgets/read", { id: widget.id }))).toMatchObject({
         status: "ready",
         data: { total: { result: { state: "restricted" } } },
       });
@@ -2042,7 +2042,7 @@ test("keeps retained values restricted after a delegated manager converts fields
         .map((type) => ({ typeId: type.id, actions: ["readAll"] }))
         .sort((a, b) => a.typeId.localeCompare(b.typeId)),
     );
-    expect((await manager.page.request.post("/api/v2/records/read", { data: source })).status()).toBe(404);
+    expect((await manager.page.request.post("/api/v1/records/read", { data: source })).status()).toBe(404);
     await assertRestricted();
     await reader.page.reload();
     await expect(reader.page.getByText("Overall: Restricted", { exact: true })).toBeVisible();
@@ -2115,7 +2115,7 @@ test("publishes and withdraws a private-input summary through the field UI witho
       )
     ).rows;
   const readSummary = async () =>
-    RecordDtoSchema.parse(await post(member.page, "/api/v2/records/read", deal)).fields.find(
+    RecordDtoSchema.parse(await post(member.page, "/api/v1/records/read", deal)).fields.find(
       (field) => field.fieldId === summary.id,
     )?.result;
   const openReader = async () => {
@@ -2124,7 +2124,7 @@ test("publishes and withdraws a private-input summary through the field UI witho
     return member.page.getByRole("dialog", { name: "Deal", exact: true });
   };
   const privateInputsStayPrivate = async () => {
-    const response = await member.page.request.post("/api/v2/records/read", { data: service });
+    const response = await member.page.request.post("/api/v1/records/read", { data: service });
     expect(response.status(), await response.text()).toBe(404);
     expect(
       (
@@ -2168,7 +2168,7 @@ test("publishes and withdraws a private-input summary through the field UI witho
     );
     await member.page.keyboard.press("Escape");
     await expect(delegated).not.toBeVisible();
-    const denied = await member.page.request.post("/api/v2/model/apply", {
+    const denied = await member.page.request.post("/api/v1/model/apply", {
       data: {
         expectedRevision: (await readModel(page)).revision,
         idempotencyKey: randomUUID(),

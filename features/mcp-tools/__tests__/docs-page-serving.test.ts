@@ -47,7 +47,7 @@ describe("docs pages served to agents", () => {
     }
     expect(
       mcpToolResultText(docsPageResult({ slug: "readRecord", locale: "en", source: "api" }) as McpToolResult),
-    ).toContain("**Endpoint:** `POST /api/v2/records/read`, operationId `readRecord`.");
+    ).toContain("**Endpoint:** `POST /api/v1/records/read`, operationId `readRecord`.");
     expect(getDocsPageRaw("getContactById", "en", "api")).toBeNull();
     expect(getDocsPageRaw("createContact", "en", "api")).toBeNull();
   });
@@ -65,7 +65,7 @@ describe("docs pages served to agents", () => {
     expect(markers).toEqual([]);
     expect(
       mcpToolResultText(docsPageResult({ slug: "mutateRecord", locale: "en", source: "api" }) as McpToolResult),
-    ).toContain("\n> Version 2 configurable CRM contract. Record references contain both typeId and recordId.");
+    ).toContain("\n> Configurable CRM record contract. Record references contain both typeId and recordId.");
   });
 
   it("treats inherited object keys as unknown slugs", () => {

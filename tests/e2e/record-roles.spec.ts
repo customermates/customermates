@@ -60,7 +60,7 @@ test("configures a role for a new type, preserves granular rights after rename a
   await expect(projectGrant.getByRole("checkbox", { name: "Create", exact: true })).toBeChecked();
   await expect(projectGrant.getByRole("checkbox", { name: "Edit", exact: true })).not.toBeChecked();
   await expect(projectGrant.getByRole("checkbox", { name: "Delete", exact: true })).not.toBeChecked();
-  const beforeRename = await page.request.post("/api/v2/roles/read", { data: { id: roleId } });
+  const beforeRename = await page.request.post("/api/v1/roles/read", { data: { id: roleId } });
   expect(beforeRename.ok()).toBe(true);
   const before = await beforeRename.json();
   await page.keyboard.press("Escape");
@@ -71,7 +71,7 @@ test("configures a role for a new type, preserves granular rights after rename a
     .getByRole("textbox", { name: "Navigation label", exact: true })
     .fill("Initiatives");
   await saveGeneral(page);
-  const stale = await page.request.post("/api/v2/roles/delete", {
+  const stale = await page.request.post("/api/v1/roles/delete", {
     data: { id: roleId, expectedRevision: before.schemaRevision, idempotencyKey: randomUUID() },
   });
   expect(stale.status()).toBe(409);

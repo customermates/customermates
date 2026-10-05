@@ -3719,8 +3719,6 @@
     "title": "Admin-Steuerung"
   },
   "RoutineDetail": {
-    "contractReviewHelp": "Die Anweisung verweist auf abgelöste CRM-Werkzeuge oder API-Endpunkte. Aktualisiere diese Verweise vor der Ausführung. Deine Anweisung wurde unverändert beibehalten.",
-    "contractReviewTitle": "Routine überprüfen",
     "credits": "Guthaben",
     "empty": {
       "event": {

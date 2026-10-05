@@ -3719,8 +3719,6 @@
     "title": "Controles de administración"
   },
   "RoutineDetail": {
-    "contractReviewHelp": "La instrucción hace referencia a herramientas o endpoints de API del CRM retirados. Actualiza esas referencias antes de ejecutarla. Tu instrucción se ha conservado.",
-    "contractReviewTitle": "Revisa esta rutina",
     "credits": "Créditos",
     "empty": {
       "event": {

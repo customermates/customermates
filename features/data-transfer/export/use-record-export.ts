@@ -15,7 +15,7 @@ export function useRecordExport(presentation: RecordPresentationResult) {
   return useCallback(async () => {
     try {
       const { typeId, search, filters, relatedFilters, relationships, sort } = presentationRef.current.query;
-      const response = await fetch("/api/v2/records/export", {
+      const response = await fetch("/api/v1/records/export", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ typeId, search, filters, relatedFilters, relationships, sort }),

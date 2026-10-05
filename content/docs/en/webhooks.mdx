@@ -129,7 +129,7 @@ Example, `record.updated` for a contact, with unrelated fields omitted:
 }
 ```
 
-The actual record envelope also carries IDs, timestamps, cause information, assignments, identities and link changes. Field entries include display metadata and may show `missing`, `restricted`, or `error` instead of a value. Use `POST /api/v2/model/discover` or the `get_record_model` MCP tool to resolve stable type and field IDs.
+The actual record envelope also carries IDs, timestamps, cause information, assignments, identities and link changes. Field entries include display metadata and may show `missing`, `restricted`, or `error` instead of a value. Use `POST /api/v1/model/discover` or the `get_record_model` MCP tool to resolve stable type and field IDs.
 
 ## The `changes` object: changed fields [#the-changes-object]
 
@@ -281,7 +281,7 @@ The `notes` field in payloads is Tiptap JSON, the same structure the editor stor
 
 ## What do delete payloads contain?
 
-For `record.deleted`, `data.payload` is a version-two envelope with the qualified `record.ref`, authorized before-values and removed relationships. Its `afterVersion` is null. Source filters match immediately before removal, while the owner’s current access is checked again before delivery. The record ID also appears as `data.entityId`; use the qualified reference when joining CRM data.
+For `record.deleted`, `data.payload` is a version 2 record envelope with the qualified `record.ref`, authorized before-values and removed relationships. Its `afterVersion` is null. Source filters match immediately before removal, while the owner’s current access is checked again before delivery. The record ID also appears as `data.entityId`; use the qualified reference when joining CRM data.
 
 ## How do I debug a delivery?
 

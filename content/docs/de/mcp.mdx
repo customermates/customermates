@@ -141,6 +141,8 @@ Wenn Sie einen lokalen Client statt GUI wollen, verbinden Tools wie `mcporter` d
 
 Beide liegen an derselben Basis-URL. MCP nutzt `/api/v1/mcp`, die OpenAPI-Spezifikation `/api/v1/openapi`. Die OpenAPI-Operationen entsprechen den REST-Endpunkten. MCP bildet unterstützte Operationen als typisierte Tools mit Anweisungen, Metadaten und derselben Produkt-Autorisierung ab. Die Anweisungen fügen keine zweite serverseitige Bestätigung hinzu.
 
+**Breaking Change:** Die früheren entitätsspezifischen REST-Endpunkte und MCP-Tools für Kontakte, Organisationen, Deals, Leistungen und Aufgaben, das separate Präfix `/api/v2` und die Export-Route pro Typ wurden ohne Kompatibilitätsschicht entfernt. Die konfigurierbare Datensatz-API liegt jetzt unter `/api/v1`, zum Beispiel `/api/v1/model/discover` und `/api/v1/records/mutate`. Entfernte Endpunkte antworten mit `404`, entfernte Tool-Namen erscheinen nicht mehr im Katalog. Aktualisieren Sie gespeicherte Integrationen: Datensatztypen ermitteln und Referenzen aus `typeId` und `recordId` verwenden.
+
 ## Welche Tools bietet der MCP-Server? Tool-Katalog [#tool-catalog]
 
 Customermates bietet [[derived.mcp.tools.total]] MCP-Tools, standardmäßig alle aktiviert. Sie decken konfigurierbare Datensätze, Datenmodell-Verwaltung, Workspace, Ansichten, die Wissensdatenbank, Messaging, Social Posts, Dokumentation und Deep Research, Widgets, Routinen, Webhooks, Administration und Support ab.
@@ -470,7 +472,7 @@ Typen, Felder, Beziehungen, Berechnungen und gemeinsame Standards über ein Konf
 
 Das relevante Modell lesen, das Paket prüfen, Abhängigkeiten und Rechtefolgen ansehen und anschließend dasselbe Paket mit erwarteter Revision und idempotencyKey anwenden. Temporäre `$client`-Referenzen verbinden neue Definitionen innerhalb des Pakets. Formeln bestehen aus typisierten Knoten in Abhängigkeitsreihenfolge und einem Wurzelknoten. Sie führen weder JavaScript noch SQL aus. Das Backend lehnt Zyklen, ungültige Typen, unzulässige Währungskombinationen und inkompatible Abhängigkeiten ab.
 
-Ein ausstehendes Ergebnis liefert eine Vorgangs-ID. Den Fortschritt bis zum Abschluss abfragen; während CRM-Schreibzugriffe pausieren, bleibt der letzte vollständige Stand lesbar. Fehlgeschlagene oder abgebrochene Vorgänge veröffentlichen keine Teilberechnungen. Bei veralteter Revision die Konfiguration neu lesen und erneut prüfen. Alte entitätsspezifische Aufrufe liefern Migrationshinweise, ohne zu schreiben: `tools/list` aktualisieren und eine Anfrage im Vertrag Version 2 erstellen. MCP-Verbindungs-URL und Anmeldung bleiben gleich.
+Ein ausstehendes Ergebnis liefert eine Vorgangs-ID. Den Fortschritt bis zum Abschluss abfragen; während CRM-Schreibzugriffe pausieren, bleibt der letzte vollständige Stand lesbar. Fehlgeschlagene oder abgebrochene Vorgänge veröffentlichen keine Teilberechnungen. Bei veralteter Revision die Konfiguration neu lesen und erneut prüfen.
 
 {/* mcp-catalog:record-model */}
 #### `configure_record_model`
@@ -606,8 +608,6 @@ Zwei Arten von Ergebnissen mit `isError: true` tragen kein `_meta.failure`; unte
 - **Unerwarteter Serverfehler.** Der Text lautet genau „Error: The operation could not be completed“; behandeln Sie es wie `unavailable`.
 
 Jede Ablehnung, die das Tool selbst entscheidet, einschließlich Berechtigungs-, Tarif-, Not-found- und Konflikt-Ablehnungen, trägt `_meta.failure`.
-
-Ein zurückgezogener Datensatz-Toolname wird gesondert behandelt: Nach der Anmeldung liefert er ausdrückliche Migrationshinweise auf Vertrag Version 2 und führt keine Änderung aus. Katalog aktualisieren und die Anfrage neu aufbauen; alte Argumente aktivieren keinen Kompatibilitätsschreibzugriff.
 
 Tarife lehnen auf demselben Weg ab. Messaging-, Kalender- und Social-Tools brauchen einen Tarif mit Messaging (ab Pro, nur Cloud), Sales-Navigator-Tools das entsprechende LinkedIn-Abo, und das Verbinden eines Kontos endet, sobald das Kontolimit pro Nutzer des Tarifs erreicht ist. Eine Tarif-Ablehnung kommt als kind `validation` mit leerem `path` und ohne `customCode`; andere Argumente helfen nicht, also geben Sie die Meldung (Pro-Tarif nötig, kein aktives Abonnement und keine laufende Testphase, oder nur in der Cloud) an den User weiter. Auch Routinen sind pro Nutzer begrenzt: `manage_routines` create wird mit kind `conflict` und `customCode` `routineLimitReached` abgelehnt, sobald der Aufrufer so viele Routinen besitzt, wie der Tarif enthält ([[commercial.entitlement.starter.includedRoutinesPerUser]] in Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] in Pro, [[commercial.entitlement.business.includedRoutinesPerUser]] in Business und Enterprise). Ohne Messaging im Tarif lassen Aktivitäts-Widgets und ihre filterbaren Felder in `manage_widgets` Nachrichten und Kalendertermine weg, statt abzulehnen. Berechtigung und Tarif sind unabhängig: Ein Aufrufer kann die Berechtigung für **Inbox-Nachrichten** haben und trotzdem am Tarif scheitern, und umgekehrt.
 

@@ -224,10 +224,10 @@ Add any transformation logic here: split "John Smith" into first name and last n
 
 ### Step 3: Create or Update the Contact in Customermates
 
-First call `POST <BASE_URL>/api/v2/model/discover` with `{}` and save the current schema revision, the Contacts type ID, and the field and relationship IDs you need. These stable IDs still work if someone renames a type or field. Then add an **HTTP Request** node:
+First call `POST <BASE_URL>/api/v1/model/discover` with `{}` and save the current schema revision, the Contacts type ID, and the field and relationship IDs you need. These stable IDs still work if someone renames a type or field. Then add an **HTTP Request** node:
 
 - **Method:** POST
-- **URL:** `<BASE_URL>/api/v2/records/mutate` (the address you open Customermates at)
+- **URL:** `<BASE_URL>/api/v1/records/mutate` (the address you open Customermates at)
 - **Headers:** `x-api-key: YOUR_API_KEY`
 - **Body (JSON, with placeholders filled from discovery and Calendly):**
 
@@ -250,14 +250,14 @@ First call `POST <BASE_URL>/api/v2/model/discover` with `{}` and save the curren
 
 Add Lead source as an input field in Data model before using that assignment, or omit it. To link an organization, use the relationship ID from discovery and a `link` mutation with both record references.
 
-To avoid duplicates, search first with `POST /api/v2/records/search`. If the contact already exists, read its current version and send an `update` mutation to the same endpoint instead. Use an **IF** node to branch between those paths. Keep the Calendly event ID as the idempotency key so retries do not create another record.
+To avoid duplicates, search first with `POST /api/v1/records/search`. If the contact already exists, read its current version and send an `update` mutation to the same endpoint instead. Use an **IF** node to branch between those paths. Keep the Calendly event ID as the idempotency key so retries do not create another record.
 
 ### Step 4: Create a Deal Automatically
 
 Add another **HTTP Request** node:
 
 - **Method:** POST
-- **URL:** `<BASE_URL>/api/v2/records/mutate`
+- **URL:** `<BASE_URL>/api/v1/records/mutate`
 - **Body (JSON):**
 
 ```json

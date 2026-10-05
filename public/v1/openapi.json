@@ -12,7 +12,7 @@
     }
   ],
   "paths": {
-    "/v2/messaging/record-links/read": {
+    "/v1/messaging/record-links/read": {
       "post": {
         "operationId": "readConversationRecords",
         "summary": "Read accessible conversation records",
@@ -24,7 +24,7 @@
             "apiKeyAuth": []
           }
         ],
-        "description": "Version 2 configurable CRM contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
+        "description": "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
         "requestBody": {
           "required": true,
           "content": {
@@ -442,7 +442,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -452,7 +452,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -462,7 +462,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -472,7 +472,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -482,7 +482,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -492,7 +492,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -500,7 +500,7 @@
         }
       }
     },
-    "/v2/messaging/record-links/mutate": {
+    "/v1/messaging/record-links/mutate": {
       "post": {
         "operationId": "mutateConversationRecords",
         "summary": "Link or unlink one conversation record",
@@ -512,7 +512,7 @@
             "apiKeyAuth": []
           }
         ],
-        "description": "Version 2 configurable CRM contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
+        "description": "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
         "requestBody": {
           "required": true,
           "content": {
@@ -627,7 +627,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -637,7 +637,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -647,7 +647,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -657,7 +657,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -667,7 +667,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -677,7 +677,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -685,7 +685,7 @@
         }
       }
     },
-    "/v2/records/identities/resolve": {
+    "/v1/records/identities/resolve": {
       "post": {
         "operationId": "resolveRecordIdentifiers",
         "summary": "Resolve exact channel identifiers to every accessible linked record",
@@ -697,7 +697,7 @@
             "apiKeyAuth": []
           }
         ],
-        "description": "Version 2 configurable CRM contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
+        "description": "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
         "requestBody": {
           "required": true,
           "content": {
@@ -871,7 +871,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -881,7 +881,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -891,7 +891,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -901,7 +901,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -911,7 +911,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -921,7 +921,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -929,7 +929,7 @@
         }
       }
     },
-    "/v2/roles/read": {
+    "/v1/roles/read": {
       "post": {
         "operationId": "readRoleConfiguration",
         "summary": "Read role permissions and the record type catalog",
@@ -941,7 +941,7 @@
             "apiKeyAuth": []
           }
         ],
-        "description": "Version 2 configurable CRM contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
+        "description": "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
         "requestBody": {
           "required": true,
           "content": {
@@ -1160,7 +1160,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -1170,7 +1170,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -1180,7 +1180,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -1190,7 +1190,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -1200,7 +1200,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -1210,7 +1210,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -1218,7 +1218,7 @@
         }
       }
     },
-    "/v2/roles/save": {
+    "/v1/roles/save": {
       "post": {
         "operationId": "saveRoleConfiguration",
         "summary": "Save system and record type permissions atomically",
@@ -1230,7 +1230,7 @@
             "apiKeyAuth": []
           }
         ],
-        "description": "Version 2 configurable CRM contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
+        "description": "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
         "requestBody": {
           "required": true,
           "content": {
@@ -1607,7 +1607,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -1617,7 +1617,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -1627,7 +1627,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -1637,7 +1637,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -1647,7 +1647,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -1657,7 +1657,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -1665,7 +1665,7 @@
         }
       }
     },
-    "/v2/roles/delete": {
+    "/v1/roles/delete": {
       "post": {
         "operationId": "deleteRoleConfiguration",
         "summary": "Delete an unused custom role",
@@ -1677,7 +1677,7 @@
             "apiKeyAuth": []
           }
         ],
-        "description": "Version 2 configurable CRM contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
+        "description": "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
         "requestBody": {
           "required": true,
           "content": {
@@ -1727,7 +1727,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -1737,7 +1737,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -1747,7 +1747,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -1757,7 +1757,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -1767,7 +1767,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -1777,7 +1777,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -1785,7 +1785,7 @@
         }
       }
     },
-    "/v2/records/detail-layout/read": {
+    "/v1/records/detail-layout/read": {
       "post": {
         "operationId": "readRecordDetailLayout",
         "summary": "Read personal record detail layout",
@@ -1797,7 +1797,7 @@
             "apiKeyAuth": []
           }
         ],
-        "description": "Version 2 configurable CRM contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
+        "description": "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
         "requestBody": {
           "required": true,
           "content": {
@@ -2029,7 +2029,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -2039,7 +2039,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -2049,7 +2049,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -2059,7 +2059,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -2069,7 +2069,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -2079,7 +2079,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -2087,7 +2087,7 @@
         }
       }
     },
-    "/v2/records/detail-layout/save": {
+    "/v1/records/detail-layout/save": {
       "post": {
         "operationId": "saveRecordDetailLayout",
         "summary": "Save or reset personal record detail layout",
@@ -2099,7 +2099,7 @@
             "apiKeyAuth": []
           }
         ],
-        "description": "Version 2 configurable CRM contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
+        "description": "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
         "requestBody": {
           "required": true,
           "content": {
@@ -2474,7 +2474,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -2484,7 +2484,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -2494,7 +2494,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -2504,7 +2504,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -2514,7 +2514,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -2524,7 +2524,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -2532,7 +2532,7 @@
         }
       }
     },
-    "/v2/records/activities": {
+    "/v1/records/activities": {
       "post": {
         "operationId": "queryRecordActivities",
         "summary": "Read the activity timeline through declared record paths",
@@ -2544,7 +2544,7 @@
             "apiKeyAuth": []
           }
         ],
-        "description": "Version 2 configurable CRM contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
+        "description": "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
         "requestBody": {
           "required": true,
           "content": {
@@ -8882,7 +8882,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -8892,7 +8892,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -8902,7 +8902,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -8912,7 +8912,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -8922,7 +8922,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -8932,7 +8932,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -8940,7 +8940,7 @@
         }
       }
     },
-    "/v2/records/search": {
+    "/v1/records/search": {
       "post": {
         "operationId": "searchRecords",
         "summary": "Search accessible record types",
@@ -8952,7 +8952,7 @@
             "apiKeyAuth": []
           }
         ],
-        "description": "Version 2 configurable CRM contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
+        "description": "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
         "requestBody": {
           "required": true,
           "content": {
@@ -9479,7 +9479,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -9489,7 +9489,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -9499,7 +9499,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -9509,7 +9509,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -9519,7 +9519,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -9529,7 +9529,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -9537,7 +9537,7 @@
         }
       }
     },
-    "/v2/records/export": {
+    "/v1/records/export": {
       "post": {
         "operationId": "exportRecords",
         "summary": "Export accessible records and their embedded children",
@@ -11594,7 +11594,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -11604,7 +11604,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -11614,7 +11614,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -11624,7 +11624,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -11634,7 +11634,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -11644,7 +11644,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -11652,7 +11652,7 @@
         }
       }
     },
-    "/v2/records/import": {
+    "/v1/records/import": {
       "post": {
         "operationId": "importRecords",
         "summary": "Import a same-workspace record document",
@@ -12636,7 +12636,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -12646,7 +12646,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -12656,7 +12656,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -12666,7 +12666,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -12676,7 +12676,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -12686,7 +12686,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -12694,7 +12694,7 @@
         }
       }
     },
-    "/v2/records/preview-deletion": {
+    "/v1/records/preview-deletion": {
       "post": {
         "operationId": "previewRecordDeletion",
         "summary": "Preview record deletion and cascading effects",
@@ -12706,7 +12706,7 @@
             "apiKeyAuth": []
           }
         ],
-        "description": "Version 2 configurable CRM contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
+        "description": "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
         "requestBody": {
           "required": true,
           "content": {
@@ -12958,7 +12958,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -12968,7 +12968,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -12978,7 +12978,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -12988,7 +12988,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -12998,7 +12998,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -13008,7 +13008,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -13016,7 +13016,7 @@
         }
       }
     },
-    "/v2/widgets/save": {
+    "/v1/widgets/save": {
       "post": {
         "operationId": "saveRecordWidget",
         "summary": "Save a schema-aware widget",
@@ -13028,7 +13028,7 @@
             "apiKeyAuth": []
           }
         ],
-        "description": "Version 2 configurable CRM contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
+        "description": "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
         "requestBody": {
           "required": true,
           "content": {
@@ -25491,7 +25491,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -25501,7 +25501,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -25511,7 +25511,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -25521,7 +25521,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -25531,7 +25531,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -25541,7 +25541,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -25549,7 +25549,7 @@
         }
       }
     },
-    "/v2/widgets/read": {
+    "/v1/widgets/read": {
       "post": {
         "operationId": "readRecordWidget",
         "summary": "Read a widget with current authorized results",
@@ -25561,7 +25561,7 @@
             "apiKeyAuth": []
           }
         ],
-        "description": "Version 2 configurable CRM contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
+        "description": "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
         "requestBody": {
           "required": true,
           "content": {
@@ -36180,7 +36180,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -36190,7 +36190,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -36200,7 +36200,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -36210,7 +36210,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -36220,7 +36220,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -36230,7 +36230,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -36238,7 +36238,7 @@
         }
       }
     },
-    "/v2/widgets/list": {
+    "/v1/widgets/list": {
       "post": {
         "operationId": "listRecordWidgets",
         "summary": "Read personal widgets",
@@ -36250,7 +36250,7 @@
             "apiKeyAuth": []
           }
         ],
-        "description": "Version 2 configurable CRM contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
+        "description": "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
         "requestBody": {
           "required": true,
           "content": {
@@ -46872,7 +46872,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -46882,7 +46882,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -46892,7 +46892,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -46902,7 +46902,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -46912,7 +46912,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -46922,7 +46922,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -46930,7 +46930,7 @@
         }
       }
     },
-    "/v2/model/discover": {
+    "/v1/model/discover": {
       "post": {
         "operationId": "discoverRecordModel",
         "summary": "Discover record types and their configuration",
@@ -46942,7 +46942,7 @@
             "apiKeyAuth": []
           }
         ],
-        "description": "Version 2 configurable CRM contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
+        "description": "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
         "requestBody": {
           "required": true,
           "content": {
@@ -48620,7 +48620,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -48630,7 +48630,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -48640,7 +48640,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -48650,7 +48650,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -48660,7 +48660,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -48670,7 +48670,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -48678,7 +48678,7 @@
         }
       }
     },
-    "/v2/model/preview": {
+    "/v1/model/preview": {
       "post": {
         "operationId": "previewRecordConfiguration",
         "summary": "Preview a configuration change",
@@ -48690,7 +48690,7 @@
             "apiKeyAuth": []
           }
         ],
-        "description": "Version 2 configurable CRM contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
+        "description": "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
         "requestBody": {
           "required": true,
           "content": {
@@ -50461,7 +50461,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -50471,7 +50471,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -50481,7 +50481,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -50491,7 +50491,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -50501,7 +50501,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -50511,7 +50511,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -50519,7 +50519,7 @@
         }
       }
     },
-    "/v2/model/apply": {
+    "/v1/model/apply": {
       "post": {
         "operationId": "applyRecordConfiguration",
         "summary": "Apply a configuration change",
@@ -50531,7 +50531,7 @@
             "apiKeyAuth": []
           }
         ],
-        "description": "Version 2 configurable CRM contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
+        "description": "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
         "requestBody": {
           "required": true,
           "content": {
@@ -52260,7 +52260,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -52270,7 +52270,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -52280,7 +52280,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -52290,7 +52290,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -52300,7 +52300,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -52310,7 +52310,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -52318,7 +52318,7 @@
         }
       }
     },
-    "/v2/records/read": {
+    "/v1/records/read": {
       "post": {
         "operationId": "readRecord",
         "summary": "Read one record",
@@ -52330,7 +52330,7 @@
             "apiKeyAuth": []
           }
         ],
-        "description": "Version 2 configurable CRM contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
+        "description": "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
         "requestBody": {
           "required": true,
           "content": {
@@ -53678,7 +53678,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -53688,7 +53688,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -53698,7 +53698,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -53708,7 +53708,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -53718,7 +53718,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -53728,7 +53728,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -53736,7 +53736,7 @@
         }
       }
     },
-    "/v2/records/query": {
+    "/v1/records/query": {
       "post": {
         "operationId": "queryRecords",
         "summary": "Query records",
@@ -53748,7 +53748,7 @@
             "apiKeyAuth": []
           }
         ],
-        "description": "Version 2 configurable CRM contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
+        "description": "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
         "requestBody": {
           "required": true,
           "content": {
@@ -56415,7 +56415,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -56425,7 +56425,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -56435,7 +56435,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -56445,7 +56445,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -56455,7 +56455,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -56465,7 +56465,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -56473,7 +56473,7 @@
         }
       }
     },
-    "/v2/records/mutate": {
+    "/v1/records/mutate": {
       "post": {
         "operationId": "mutateRecord",
         "summary": "Create, update, delete or link records",
@@ -56485,7 +56485,7 @@
             "apiKeyAuth": []
           }
         ],
-        "description": "Version 2 configurable CRM contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
+        "description": "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
         "requestBody": {
           "required": true,
           "content": {
@@ -57034,7 +57034,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -57044,7 +57044,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -57054,7 +57054,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -57064,7 +57064,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -57074,7 +57074,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -57084,7 +57084,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -57092,7 +57092,7 @@
         }
       }
     },
-    "/v2/reports/query": {
+    "/v1/reports/query": {
       "post": {
         "operationId": "queryRecordMeasure",
         "summary": "Aggregate record values at an explicit grain",
@@ -57104,7 +57104,7 @@
             "apiKeyAuth": []
           }
         ],
-        "description": "Version 2 configurable CRM contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
+        "description": "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
         "requestBody": {
           "required": true,
           "content": {
@@ -59544,7 +59544,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -59554,7 +59554,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -59564,7 +59564,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -59574,7 +59574,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -59584,7 +59584,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -59594,7 +59594,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -59602,7 +59602,7 @@
         }
       }
     },
-    "/v2/operations/status": {
+    "/v1/operations/status": {
       "post": {
         "operationId": "readRecordOperation",
         "summary": "Read the status of a staged operation",
@@ -59614,7 +59614,7 @@
             "apiKeyAuth": []
           }
         ],
-        "description": "Version 2 configurable CRM contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
+        "description": "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
         "requestBody": {
           "required": true,
           "content": {
@@ -59778,7 +59778,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -59788,7 +59788,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -59798,7 +59798,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -59808,7 +59808,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -59818,7 +59818,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -59828,7 +59828,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -59836,7 +59836,7 @@
         }
       }
     },
-    "/v2/operations/cancel": {
+    "/v1/operations/cancel": {
       "post": {
         "operationId": "cancelRecordOperation",
         "summary": "Cancel an operation before publication",
@@ -59848,7 +59848,7 @@
             "apiKeyAuth": []
           }
         ],
-        "description": "Version 2 configurable CRM contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
+        "description": "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
         "requestBody": {
           "required": true,
           "content": {
@@ -59895,7 +59895,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -59905,7 +59905,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -59915,7 +59915,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -59925,7 +59925,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -59935,7 +59935,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -59945,7 +59945,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -59953,7 +59953,7 @@
         }
       }
     },
-    "/v2/operations/resume": {
+    "/v1/operations/resume": {
       "post": {
         "operationId": "resumeRecordOperation",
         "summary": "Resume an interrupted operation",
@@ -59965,7 +59965,7 @@
             "apiKeyAuth": []
           }
         ],
-        "description": "Version 2 configurable CRM contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
+        "description": "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
         "requestBody": {
           "required": true,
           "content": {
@@ -60012,7 +60012,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -60022,7 +60022,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -60032,7 +60032,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -60042,7 +60042,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -60052,7 +60052,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -60062,7 +60062,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/V2ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -83179,7 +83179,7 @@
       "post": {
         "operationId": "record_created",
         "summary": "record.created",
-        "description": "A version-two record event. The payload uses stable type and record references, field IDs and the accepted schema revision. Values are redacted using the subscription owner's current access before delivery. Retries retain the event ID; receivers must deduplicate it. Deleted events do not apply record-query filters.",
+        "description": "A record event. The payload uses stable type and record references, field IDs and the accepted schema revision. Values are redacted using the subscription owner's current access before delivery. Retries retain the event ID; receivers must deduplicate it. Deleted events do not apply record-query filters.",
         "tags": [
           "webhooks"
         ],
@@ -84508,7 +84508,7 @@
       "post": {
         "operationId": "record_updated",
         "summary": "record.updated",
-        "description": "A version-two record event. The payload uses stable type and record references, field IDs and the accepted schema revision. Values are redacted using the subscription owner's current access before delivery. Retries retain the event ID; receivers must deduplicate it. Deleted events do not apply record-query filters.",
+        "description": "A record event. The payload uses stable type and record references, field IDs and the accepted schema revision. Values are redacted using the subscription owner's current access before delivery. Retries retain the event ID; receivers must deduplicate it. Deleted events do not apply record-query filters.",
         "tags": [
           "webhooks"
         ],
@@ -85837,7 +85837,7 @@
       "post": {
         "operationId": "record_deleted",
         "summary": "record.deleted",
-        "description": "A version-two record event. The payload uses stable type and record references, field IDs and the accepted schema revision. Values are redacted using the subscription owner's current access before delivery. Retries retain the event ID; receivers must deduplicate it. Deleted events do not apply record-query filters.",
+        "description": "A record event. The payload uses stable type and record references, field IDs and the accepted schema revision. Values are redacted using the subscription owner's current access before delivery. Retries retain the event ID; receivers must deduplicate it. Deleted events do not apply record-query filters.",
         "tags": [
           "webhooks"
         ],
@@ -89425,7 +89425,7 @@
       "ErrorResponseSchema": {
         "type": "string"
       },
-      "V2ErrorResponseSchema": {
+      "StructuredErrorResponseSchema": {
         "type": "object",
         "properties": {
           "error": {

@@ -10,7 +10,7 @@ export const recordWebhookOperations = Object.fromEntries(
         operationId: event.replace(".", "_"),
         summary: event,
         description:
-          "A version-two record event. The payload uses stable type and record references, field IDs and the accepted schema revision. Values are redacted using the subscription owner's current access before delivery. Retries retain the event ID; receivers must deduplicate it. Deleted events do not apply record-query filters.",
+          "A record event. The payload uses stable type and record references, field IDs and the accepted schema revision. Values are redacted using the subscription owner's current access before delivery. Retries retain the event ID; receivers must deduplicate it. Deleted events do not apply record-query filters.",
         tags: ["webhooks"],
         requestBody: {
           content: {

@@ -3719,8 +3719,6 @@
     "title": "Contrôles d’administration"
   },
   "RoutineDetail": {
-    "contractReviewHelp": "La consigne fait référence à des outils CRM ou à des endpoints API retirés. Mettez ces références à jour avant de l’exécuter. Votre consigne a été conservée.",
-    "contractReviewTitle": "Vérifier cette routine",
     "credits": "Crédits",
     "empty": {
       "event": {

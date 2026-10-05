@@ -50,7 +50,7 @@ The pattern is always the same: Customermates fires a webhook, your automation t
 
 **New lead alerts.** Subscribe to `record.created` for the Contacts record type and notify the team when a record lands. Include the fields you care about and a link back to the record.
 
-**Pipeline summary reports.** Webhooks are event-driven, so a digest is a scheduled job in your automation tool: run on a cron, query a configured measure with `POST /api/v2/reports/query`, and post the summary. The REST API is documented in the [OpenAPI spec](/docs/openapi).
+**Pipeline summary reports.** Webhooks are event-driven, so a digest is a scheduled job in your automation tool: run on a cron, query a configured measure with `POST /api/v1/reports/query`, and post the summary. The REST API is documented in the [OpenAPI spec](/docs/openapi).
 
 **Messaging alerts.** Subscribe to `messaging.message.received` or `messaging.email.received` to route new inbound conversations into Slack. These events require the unified inbox, which is available in Customermates Cloud from Pro; Starter and self-hosted installations have no messaging events.
 
@@ -58,9 +58,9 @@ The pattern is always the same: Customermates fires a webhook, your automation t
 
 The reverse direction runs through the REST API or MCP, again driven by your automation tool.
 
-**Create records from Slack.** A Slack shortcut or slash command triggers your workflow, which discovers the type and field IDs with `POST /api/v2/model/discover`, then calls `POST /api/v2/records/mutate` with a create mutation and an `x-api-key` header. The same contract works for the five starter types and customer-created types.
+**Create records from Slack.** A Slack shortcut or slash command triggers your workflow, which discovers the type and field IDs with `POST /api/v1/model/discover`, then calls `POST /api/v1/records/mutate` with a create mutation and an `x-api-key` header. The same contract works for the five starter types and customer-created types.
 
-**Update records from Slack.** Call `POST /api/v2/records/mutate` with an update mutation and the record's current version. Use its link or unlink mutation to change a relationship. The MCP equivalent is `mutate_crm_record`.
+**Update records from Slack.** Call `POST /api/v1/records/mutate` with an update mutation and the record's current version. Use its link or unlink mutation to change a relationship. The MCP equivalent is `mutate_crm_record`.
 
 **Log notes from Slack.** Update the record's configured Notes field through the same mutation API or `mutate_crm_record` MCP tool.
 

@@ -2,7 +2,7 @@ import { recordWebhookOperations } from "@/features/records/record-webhooks.open
 import { createDocument } from "zod-openapi";
 
 import { ErrorResponseSchema } from "@/core/api/interactor-handler";
-import { V2ErrorResponseSchema } from "@/core/api/v2-interactor-handler";
+import { StructuredErrorResponseSchema } from "@/core/api/structured-interactor-handler";
 import { getCalendarByIdOperation } from "@/ee/calendar/get-calendar-by-id.openapi";
 import { getCalendarEventByIdOperation } from "@/ee/calendar/get-calendar-event-by-id.openapi";
 import { getCalendarEventsOperation } from "@/ee/calendar/get-calendar-events.openapi";
@@ -237,7 +237,7 @@ export function generateOpenApiSpec() {
     components: {
       schemas: {
         ErrorResponseSchema,
-        V2ErrorResponseSchema,
+        StructuredErrorResponseSchema,
         WebhookMessagingMessageReceivedSchema,
         WebhookMessagingMessageUpdatedSchema,
         WebhookMessagingMessageDeletedSchema,

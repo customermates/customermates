@@ -50,7 +50,7 @@ Das Muster ist immer dasselbe: Customermates feuert einen Webhook, Ihr Automatis
 
 **Alarme bei neuen Leads.** Abonnieren Sie `record.created` für den Datensatztyp Kontakte und informieren Sie das Team, wenn ein Datensatz entsteht. Nehmen Sie die benötigten Felder und einen Link zum Datensatz auf.
 
-**Pipeline-Zusammenfassungen.** Webhooks sind ereignisgetrieben; ein Digest läuft daher als geplanter Job in Ihrem Automatisierungstool. Rufen Sie per Cron eine konfigurierte Kennzahl über `POST /api/v2/reports/query` ab und posten Sie die Zusammenfassung. Die REST API ist in der [OpenAPI-Spezifikation](/docs/openapi) dokumentiert.
+**Pipeline-Zusammenfassungen.** Webhooks sind ereignisgetrieben; ein Digest läuft daher als geplanter Job in Ihrem Automatisierungstool. Rufen Sie per Cron eine konfigurierte Kennzahl über `POST /api/v1/reports/query` ab und posten Sie die Zusammenfassung. Die REST API ist in der [OpenAPI-Spezifikation](/docs/openapi) dokumentiert.
 
 **Messaging-Alarme.** Abonnieren Sie `messaging.message.received` oder `messaging.email.received`, um neue eingehende Konversationen nach Slack zu leiten. Diese Events setzen den einheitlichen Posteingang voraus, der in Customermates Cloud ab Pro verfügbar ist; Starter und Self-Hosting kennen keine Messaging-Events.
 
@@ -58,9 +58,9 @@ Das Muster ist immer dasselbe: Customermates feuert einen Webhook, Ihr Automatis
 
 Die Gegenrichtung läuft über die REST API oder MCP, wieder gesteuert von Ihrem Automatisierungstool.
 
-**Datensätze aus Slack erstellen.** Ein Slack-Shortcut oder Slash-Befehl löst Ihren Workflow aus. Er ermittelt Typ- und Feld-IDs über `POST /api/v2/model/discover` und sendet dann eine Erstellen-Mutation an `POST /api/v2/records/mutate` mit einem `x-api-key`-Header. Derselbe Vertrag gilt für die fünf Starttypen und selbst angelegte Typen.
+**Datensätze aus Slack erstellen.** Ein Slack-Shortcut oder Slash-Befehl löst Ihren Workflow aus. Er ermittelt Typ- und Feld-IDs über `POST /api/v1/model/discover` und sendet dann eine Erstellen-Mutation an `POST /api/v1/records/mutate` mit einem `x-api-key`-Header. Derselbe Vertrag gilt für die fünf Starttypen und selbst angelegte Typen.
 
-**Datensätze aus Slack aktualisieren.** Senden Sie eine Aktualisieren-Mutation mit der aktuellen Datensatzversion an `POST /api/v2/records/mutate`. Beziehungen ändern Sie mit einer Verknüpfen- oder Trennen-Mutation. Das entsprechende MCP-Tool ist `mutate_crm_record`.
+**Datensätze aus Slack aktualisieren.** Senden Sie eine Aktualisieren-Mutation mit der aktuellen Datensatzversion an `POST /api/v1/records/mutate`. Beziehungen ändern Sie mit einer Verknüpfen- oder Trennen-Mutation. Das entsprechende MCP-Tool ist `mutate_crm_record`.
 
 **Notizen aus Slack schreiben.** Aktualisieren Sie das konfigurierte Notizenfeld des Datensatzes über dieselbe Mutations-API oder das MCP-Tool `mutate_crm_record`.
 

@@ -10,7 +10,6 @@ import { REPO_ROOT, walkFiles } from "./walk";
 const ENFORCED = true;
 
 const SPEC_EXEMPT_PATHS = new Set(["/v1/mcp", "/v1/openapi"]);
-const RETIRED_RECORD_PATH = /^\/v1\/(?:contacts|organizations|deals|services|tasks|messaging\/activities\/search)(?:\/|$)/;
 const HTTP_VERBS = new Set(["get", "post", "put", "patch", "delete", "head", "options"]);
 const HTTP_HANDLER_NAMES = new Set(["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]);
 const SCHEMA_PARSE_METHOD_NAMES = new Set(["parse", "safeParse", "parseAsync", "safeParseAsync"]);
@@ -454,14 +453,13 @@ function inspectRouteSource(path: string, text: string): Map<string, RouteOperat
   const operations = new Map<string, RouteOperation>();
   const allowedHandlerDeclarations = new Set<ts.Identifier>();
   const specPath = toSpecPath(path);
-  if (SPEC_EXEMPT_PATHS.has(specPath) || RETIRED_RECORD_PATH.test(specPath)) return operations;
+  if (SPEC_EXEMPT_PATHS.has(specPath)) return operations;
 
   const source = ts.createSourceFile(path, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
   const file = path.slice(REPO_ROOT.length + 1);
-  const errorBoundary = path.startsWith(`${join(REPO_ROOT, "app", "api", "v2")}/`)
-    ? "@/core/api/v2-interactor-handler"
-    : "@/core/api/interactor-handler";
-  const hasExactHandleErrorImport = hasExactValueImport(source, errorBoundary, "handleError");
+  const hasExactHandleErrorImport = ["@/core/api/interactor-handler", "@/core/api/structured-interactor-handler"].some(
+    (errorBoundary) => hasExactValueImport(source, errorBoundary, "handleError"),
+  );
   const hasExactMapperImport = hasExactValueImport(source, "@/core/api/request-json-error", "mapRequestJsonError");
   const setOperation = (name: string, node: ts.Node, operation: RouteOperation) => {
     if (!HTTP_HANDLER_NAMES.has(name)) return;
@@ -597,9 +595,7 @@ function inspectRouteModule(path: string, text: string): Map<string, RouteOperat
 
 function routeOperations(): Map<string, RouteOperation> {
   const operations = new Map<string, RouteOperation>();
-  const routeFiles = ["v1", "v2"].flatMap((version) =>
-    walkFiles(join(REPO_ROOT, "app", "api", version), (path) => ROUTE_MODULE_PATTERN.test(path)),
-  );
+  const routeFiles = walkFiles(join(REPO_ROOT, "app", "api", "v1"), (path) => ROUTE_MODULE_PATTERN.test(path));
 
   for (const path of routeFiles) {
     const text = readFileSync(path, "utf8");
@@ -1282,10 +1278,10 @@ describe("versioned REST OpenAPI coverage", () => {
     expect(orphaned).toEqual([]);
   });
 
-  it("does not advertise the retired entity-specific CRM contract", () => {
+  it("publishes the record API under version one only", () => {
     const spec = generateOpenApiSpec() as { paths?: Record<string, unknown> };
-    expect(Object.keys(spec.paths ?? {}).filter((path) => RETIRED_RECORD_PATH.test(path))).toEqual([]);
-    expect(spec.paths?.["/v2/records/mutate"]).toBeDefined();
+    expect(Object.keys(spec.paths ?? {}).filter((path) => !path.startsWith("/v1/"))).toEqual([]);
+    expect(spec.paths?.["/v1/records/mutate"]).toBeDefined();
   });
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("documents a requestBody for every write-verb operation", () => {

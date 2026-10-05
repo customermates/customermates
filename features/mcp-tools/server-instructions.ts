@@ -14,7 +14,7 @@ export const CRM_DATA_INVARIANTS = [
   "Business records represent real items the user requested, with facts confirmed by the user, existing workspace records or relevant Knowledge Base pages. A general workspace setup request is for useful configuration; create sample records only when explicitly requested.",
   "Never invent service prices, budgets, deal amounts or current deal stages. Leave optional unknowns unset; if a required commercial value such as a service amount is missing, ask before writing that record instead of using a guessed or placeholder value.",
   "Public website case studies and testimonials are reference material, not evidence of live CRM customers, contacts, opportunities or business relationships. Do not turn them into records, deal stages or record links without confirmation of the actual items and relationships requested.",
-  "CRM contract version 2 uses configurable record types; contacts, organizations, deals, services and tasks are starter configurations.",
+  "The CRM uses configurable record types; contacts, organizations, deals, services and tasks are starter configurations.",
   "Never guess type, field, relationship or select-option ids. Discover relevant types with discover_record_types and fetch their current schemas with get_record_model.",
   "A record reference always includes typeId and recordId. Names are editable labels, never identifiers. An ordinary email field is not an identity key.",
   "Read totals from query_crm_measure at the requested grain, never sum one result page. Follow pagination for complete record lists; a restricted, missing or failed value is never zero.",
@@ -65,7 +65,7 @@ const MCP_CONFIRMATION_TOOL_NAMES = [
 ];
 
 export const MCP_RECORD_CONTRACT_INSTRUCTION =
-  "Customermates CRM, record contract version 2. The same record engine serves starter and customer-defined types. Discover types, read only relevant schemas, query with search_crm_records or query_crm_records, read a full record with read_crm_record, and write through mutate_crm_record. Configure types, fields, relationships and calculations through configure_record_model: preview a bundle, inspect its effects, then apply the same bundle and revision. Read pending work through read_crm_operation until completion. Schema editing and record access are separate permissions.";
+  "Customermates CRM records. The same record engine serves starter and customer-defined types. Discover types, read only relevant schemas, query with search_crm_records or query_crm_records, read a full record with read_crm_record, and write through mutate_crm_record. Configure types, fields, relationships and calculations through configure_record_model: preview a bundle, inspect its effects, then apply the same bundle and revision. Read pending work through read_crm_operation until completion. Schema editing and record access are separate permissions.";
 
 function hasAny(names: Set<string>, candidates: readonly string[]) {
   return candidates.some((candidate) => names.has(candidate));

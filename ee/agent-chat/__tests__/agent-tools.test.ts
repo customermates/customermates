@@ -1,5 +1,4 @@
 import { TOOL_TYPE_ID, TOOL_RECORD_ID, TOOL_CREATE_RECORD, TOOL_CREATE_TYPE } from "@/tests/helpers/record-tools";
-import { RETIRED_RECORD_TOOLS } from "@/features/mcp-tools/retired-record-tools";
 import { describe, expect, it, vi } from "vitest";
 import { generateText, stepCountIs, tool } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
@@ -427,16 +426,11 @@ describe("agent tools", () => {
     },
   );
 
-  it("replaces entity-specific tools with a versioned generic catalog and actionable retirement errors", async () => {
-    const definitions = getAgentAiToolDefinitions();
-    expect(definitions.find(({ name }) => name === "configure_record_model")?.description).toContain("Version 2");
-    for (const name of Object.keys(RETIRED_RECORD_TOOLS)) {
-      expect(definitions.some((definition) => definition.name === name)).toBe(false);
-      expect(await normalizeAgentAiToolInput(name, {}, 6000)).toMatchObject({
-        ok: false,
-        result: expect.stringContaining("No operation was performed"),
-      });
-    }
+  it("rejects a tool name outside the catalog without running it", async () => {
+    expect(await normalizeAgentAiToolInput("unknown_tool", {}, 6000)).toMatchObject({
+      ok: false,
+      result: expect.stringContaining("The requested tool is not available."),
+    });
   });
 
   it("publishes fresh-state and minimal-patch instructions for saved-view updates", () => {

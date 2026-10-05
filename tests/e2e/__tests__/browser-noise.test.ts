@@ -17,7 +17,7 @@ describe("browser engine noise filters", () => {
     expect(
       isBenignPageError("Fetch API cannot load http://127.0.0.1:4127/en/dashboard?_rsc=RxfmFIOaYlZ7eL0a due to access control checks."),
     ).toBe(true);
-    expect(isBenignPageError("Fetch API cannot load http://127.0.0.1:4127/api/v2/records/query due to access control checks.")).toBe(false);
+    expect(isBenignPageError("Fetch API cannot load http://127.0.0.1:4127/api/v1/records/query due to access control checks.")).toBe(false);
     expect(isBenignPageError("/127.0.0.1:4127/en/dashboard?_rsc=RxfmFIOaYlZ7eL0a due to access control checks.")).toBe(true);
     expect(isBenignPageError("Unhandled: /127.0.0.1:4127/en/dashboard?_rsc=abc due to access control checks.")).toBe(false);
     expect(isBenignPageError("/127.0.0.1:4127/en/dashboard?_rsc=abc due to access control checks. Retry")).toBe(false);

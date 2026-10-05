@@ -1,4 +1,3 @@
-import { routineContractReview } from "./routine-contract-review";
 import type { RepoArgs } from "@/core/utils/types";
 import { RecordFieldSchema } from "@/features/records/record-model.schema";
 import type { DeleteRoutineRepo } from "./delete-routine.interactor";
@@ -144,11 +143,6 @@ function routineDto(row: unknown): RoutineDto {
   const routine: RoutineDto = {
     ...stored,
     triggerFilters: storedRoutineFilters(stored.triggerFilters),
-    ...(routineContractReview(stored.prompt).length
-      ? {
-          contractReview: { retiredReferences: routineContractReview(stored.prompt) },
-        }
-      : {}),
   };
   if (routine.owner?.status === Status.active) return routine;
 

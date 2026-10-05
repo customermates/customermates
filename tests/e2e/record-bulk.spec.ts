@@ -161,8 +161,8 @@ test("retains off-view selections, keeps visible rows, clears selection and clea
     expect(response.status(), await response.text()).toBe(200);
     return response.json();
   };
-  const model = RecordModelSchema.parse(await post("/api/v2/model/discover", {}));
-  await post("/api/v2/model/apply", {
+  const model = RecordModelSchema.parse(await post("/api/v1/model/discover", {}));
+  await post("/api/v1/model/apply", {
     expectedRevision: model.revision,
     idempotencyKey: randomUUID(),
     operations: [
@@ -189,7 +189,7 @@ test("retains off-view selections, keeps visible rows, clears selection and clea
     ["Other C", "3.75"],
   ]) {
     const result = RecordOperationResultSchema.parse(
-      await post("/api/v2/records/mutate", {
+      await post("/api/v1/records/mutate", {
         expectedRevision: model.revision + 1,
         idempotencyKey: randomUUID(),
         mutation: {

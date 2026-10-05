@@ -1,7 +1,7 @@
 ---
 title: "Connect n8n to Customermates: Webhooks, REST API"
 heading: "Build Customermates workflows in n8n"
-description: "Build visual workflows from generic CRM record events and the version-two record API."
+description: "Build visual workflows from generic CRM record events and the record API."
 ---
 
 Connect n8n with a Webhook node for CRM changes and HTTP Request nodes for the Customermates REST API. The MCP endpoint is also available for clients that speak JSON-RPC. The separate [Customermates community node](https://github.com/customermates/n8n-nodes-crm) may have its own release schedule; check its version-two compatibility before using its dedicated CRM operations.
@@ -24,7 +24,7 @@ Copy the URL it generates.
 Go to **My Company → Webhooks**, click **Add**, and paste the URL. Select `record.created`, `record.updated`, or `record.deleted`, then choose the record types and optional filters to watch. Add a signing secret and save. Creating a webhook needs **Manage** on **API & Webhooks**.
 </Step>
 <Step title="Handle the payload">
-Verify the signature, then use the event ID and stable `typeId`/`recordId` reference from the version-two payload in downstream steps.
+Verify the signature, then use the event ID and stable `typeId`/`recordId` reference from the record event payload in downstream steps.
 </Step>
 </Steps>
 
@@ -34,22 +34,24 @@ The [webhook guide](/docs/webhooks) documents payloads, retries, and signature v
 
 ## How do I create, read, update or delete records from n8n? [#how-do-i-write-to-customermates-from-n8n]
 
-Use an **HTTP Request** node with an `x-api-key` credential and JSON matching the [OpenAPI spec](/docs/openapi). The version-two routes work for starter and customer-created types:
+Use an **HTTP Request** node with an `x-api-key` credential and JSON matching the [OpenAPI spec](/docs/openapi). The record routes work for starter and customer-created types:
 
 | Goal | Method and path |
 |---|---|
-| Read the configuration and stable IDs | `POST /api/v2/model/discover` |
-| Query or search records | `POST /api/v2/records/query` or `POST /api/v2/records/search` |
-| Read one record | `POST /api/v2/records/read` |
-| Create, update, delete, link, or unlink | `POST /api/v2/records/mutate` |
-| Preview a deletion | `POST /api/v2/records/preview-deletion` |
-| Export or import | `POST /api/v2/records/export` or `POST /api/v2/records/import` |
+| Read the configuration and stable IDs | `POST /api/v1/model/discover` |
+| Query or search records | `POST /api/v1/records/query` or `POST /api/v1/records/search` |
+| Read one record | `POST /api/v1/records/read` |
+| Create, update, delete, link, or unlink | `POST /api/v1/records/mutate` |
+| Preview a deletion | `POST /api/v1/records/preview-deletion` |
+| Export or import | `POST /api/v1/records/export` or `POST /api/v1/records/import` |
+
+**Breaking change:** these routes replaced the former entity-specific endpoints and the `/api/v2` prefix, which were removed. Update HTTP Request nodes that still call a contact, organization, deal, service or task endpoint.
 
 The base URL is the address at which you open Customermates. A mutation uses a stable `typeId`, an idempotency key and the expected configuration revision; updates and deletes also carry the record reference and expected version. Fields are typed assignments, and links name a relationship definition. A deletion may require a current impact preview hash. See [filter syntax](/docs/filter-syntax) for query shapes.
 
 ## How do I call MCP tools from n8n?
 
-Send `POST <BASE_URL>/api/v1/mcp` with `Content-Type: application/json`, `Accept: application/json, text/event-stream`, and your `x-api-key` credential. The connection address stays at version one; the CRM tool catalog is version two. For example, to discover record types:
+Send `POST <BASE_URL>/api/v1/mcp` with `Content-Type: application/json`, `Accept: application/json, text/event-stream`, and your `x-api-key` credential. For example, to discover record types:
 
 ```json
 {"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"discover_record_types","arguments":{}}}
@@ -59,7 +61,7 @@ The result may arrive as a server-sent event; parse the JSON-RPC `data:` line. A
 
 ## How do I run scheduled jobs?
 
-n8n's schedule trigger plus the version-two API can find records matching a saved query, export them, or apply a validated mutation. A [Customermates routine](/docs/app-routines) can instead run the assistant on a schedule inside the product. Deal stages, task priorities, and custom types are workspace configuration; discover their IDs before filtering or writing.
+n8n's schedule trigger plus the record API can find records matching a saved query, export them, or apply a validated mutation. A [Customermates routine](/docs/app-routines) can instead run the assistant on a schedule inside the product. Deal stages, task priorities, and custom types are workspace configuration; discover their IDs before filtering or writing.
 
 ## How does authentication work?
 
@@ -76,5 +78,5 @@ Create an API key under **My Profile → API & Connectors**. Store it as an n8n 
 ## Next
 
 - [Webhooks](/docs/webhooks): event payloads and delivery.
-- [OpenAPI](/docs/openapi): version-two REST contracts.
+- [OpenAPI](/docs/openapi): REST contracts.
 - [MCP](/docs/mcp): AI and tool calls.

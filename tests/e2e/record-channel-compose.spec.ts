@@ -36,9 +36,9 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
     expect(response.status(), await response.text()).toBe(200);
     return response.json();
   };
-  let model = await post("/api/v2/model/discover", {});
+  let model = await post("/api/v1/model/discover", {});
   const typeId = presetId(companyId, "organization");
-  await post("/api/v2/model/apply", {
+  await post("/api/v1/model/apply", {
     expectedRevision: model.revision,
     idempotencyKey: randomUUID(),
     operations: [
@@ -54,11 +54,11 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
       },
     ],
   });
-  model = await post("/api/v2/model/discover", {});
+  model = await post("/api/v1/model/discover", {});
   const recipients = ["first-channel@example.test", "second-channel@example.test"];
   const records: RecordRef[] = [];
   for (const [index, recipient] of recipients.entries()) {
-    const result = await post("/api/v2/records/mutate", {
+    const result = await post("/api/v1/records/mutate", {
       expectedRevision: model.revision,
       idempotencyKey: randomUUID(),
       mutation: {

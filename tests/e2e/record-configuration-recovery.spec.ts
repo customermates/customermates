@@ -113,12 +113,12 @@ async function apiConfiguration(page: Page, current: RecordModel, operations: Co
     idempotencyKey: randomUUID(),
     operations,
   });
-  const previewResponse = await page.request.post("/api/v2/model/preview", { data: change });
+  const previewResponse = await page.request.post("/api/v1/model/preview", { data: change });
   expect(previewResponse.status()).toBe(200);
   const validated = ConfigurationPreviewSchema.parse(await previewResponse.json());
   expect(validated.valid).toBe(true);
   expect(validated.execution).toBe("synchronous");
-  const response = await page.request.post("/api/v2/model/apply", { data: change });
+  const response = await page.request.post("/api/v1/model/apply", { data: change });
   expect(response.status()).toBe(200);
   const result = RecordOperationResultSchema.parse(await response.json());
   expect(result.status).toBe("completed");

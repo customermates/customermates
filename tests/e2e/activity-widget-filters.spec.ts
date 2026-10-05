@@ -24,7 +24,7 @@ async function model(database: Client, companyId: string): Promise<RecordModel> 
 }
 
 async function mutation(page: Page, current: RecordModel, change: RecordMutation) {
-  const response = await page.request.post("/api/v2/records/mutate", {
+  const response = await page.request.post("/api/v1/records/mutate", {
     data: MutateRecordSchema.parse({
       expectedRevision: current.revision,
       idempotencyKey: randomUUID(),

@@ -139,6 +139,8 @@ If you prefer a local client over a GUI, tools like `mcporter` can connect to th
 
 Both live at the same base URL. MCP is `/api/v1/mcp`; the OpenAPI spec is at `/api/v1/openapi`. The OpenAPI operations map 1:1 to REST endpoints. MCP wraps supported operations as typed tools with instructions, annotations and the same product authorization. Those instructions do not add a second server-side confirmation step.
 
+**Breaking change:** the former entity-specific REST endpoints and MCP tools for contacts, organizations, deals, services and tasks, the separate `/api/v2` prefix and the per-type export route were removed without a compatibility layer. The configurable record API now lives under `/api/v1`, for example `/api/v1/model/discover` and `/api/v1/records/mutate`. Removed endpoints answer `404` and removed tool names are no longer listed. Update saved integrations to discover the record types and use `typeId` and `recordId` references.
+
 ## What can the MCP server do? Tool catalog [#tool-catalog]
 
 Customermates exposes [[derived.mcp.tools.total]] MCP tools, all enabled by default. They cover configurable records, record-model management, workspace, saved views, the Knowledge Base, messaging, social posts, documentation and deep research, widgets, routines, webhooks, admin and support.
@@ -468,7 +470,7 @@ Create or update types, fields, relationships, calculations and shared defaults 
 
 Read the relevant model, preview the bundle, inspect dependencies and permission effects, then apply the same bundle with its expected revision and idempotency key. `$client` references let new definitions refer to one another in the bundle. Formula programs contain typed nodes ordered before their dependents and a root node. They cannot execute JavaScript or SQL. Backend validation rejects cycles, invalid types, unsafe currency combinations and incompatible dependencies.
 
-A pending result supplies an operation ID. Read progress until completion; the last complete state stays readable while CRM writes pause. Failed or cancelled work does not publish partially calculated values. After a stale revision, read the current configuration and preview again. Retired entity-specific calls return migration guidance without writing: refresh `tools/list` and build a version-two request. The MCP connection URL and authentication handshake stay the same.
+A pending result supplies an operation ID. Read progress until completion; the last complete state stays readable while CRM writes pause. Failed or cancelled work does not publish partially calculated values. After a stale revision, read the current configuration and preview again.
 
 {/* mcp-catalog:record-model */}
 #### `configure_record_model`
@@ -604,8 +606,6 @@ Two kinds of `isError: true` result carry no `_meta.failure`, so tell them apart
 - **Unexpected server error.** The text is exactly "Error: The operation could not be completed"; treat it like `unavailable`.
 
 Every refusal the tool itself decides, including permission, plan, not-found and conflict refusals, carries `_meta.failure`.
-
-A retired record-tool name is handled separately: after authentication it returns explicit version-two migration guidance and performs no mutation. Refresh the catalog and rebuild the request; replaying legacy arguments does not invoke a compatibility writer.
 
 Plans refuse the same way. Messaging, calendar and social tools need a plan with messaging (Pro or higher, cloud only), Sales Navigator tools need that LinkedIn subscription, and connecting an account stops when the plan's account limit per user is reached. A plan refusal arrives as kind `validation` with an empty `path` and no `customCode`; changing the arguments will not help, so report its message (Pro plan needed, no active subscription or trial, or cloud only) to the user. Routines are limited per user as well: `manage_routines` create is refused with kind `conflict` and `customCode` `routineLimitReached` once the caller owns as many routines as the plan includes ([[commercial.entitlement.starter.includedRoutinesPerUser]] on Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] on Pro, [[commercial.entitlement.business.includedRoutinesPerUser]] on Business and Enterprise). Without messaging in the plan, activity widgets and their filterable fields in `manage_widgets` leave out messages and calendar events instead of refusing. Permission and plan are independent: a caller can have **Inbox messages** permission and still be refused for the plan, and the reverse.
 

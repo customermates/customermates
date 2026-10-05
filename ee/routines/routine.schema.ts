@@ -65,7 +65,6 @@ export const RoutineDtoSchema = z.object({
   owner: RoutineOwnerDtoSchema.nullable(),
   name: z.string(),
   prompt: z.string(),
-  contractReview: z.object({ retiredReferences: z.array(z.string()) }).optional(),
   enabled: z.boolean(),
   triggerKind: RoutineTriggerKindSchema,
   cronExpression: z.string().nullable(),

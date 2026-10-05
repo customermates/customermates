@@ -15,7 +15,7 @@ Follow these sources through their consumers rather than reviewing the UI or sch
 | Dynamic permissions and restricted values | [access policy](../../features/records/record-access.ts), [query compiler](../../features/records/record-query.ts), [recipient reader](../../features/records/record-recipient-reader.ts) |
 | Indexed identifiers shared across record associations | [identity schema](../../features/records/record-identity.schema.ts), [record sources](../../features/records), [shared-channel journey](shared-channels.spec.ts) |
 | Widget grain, relationship attribution and visibility | [measure schema](../../features/records/record-measure.schema.ts), [measure interactor](../../features/records/query-record-measure.interactor.ts) |
-| REST/MCP parity and configuration bundles | [REST v2](../../app/api/v2), [MCP tools](../../features/mcp-tools/record-model.mcp-tools.ts), [actual tool journey](record-tools.spec.ts) |
+| REST/MCP parity and configuration bundles | [REST API](../../app/api/v1), [MCP tools](../../features/mcp-tools/record-model.mcp-tools.ts), [actual tool journey](record-tools.spec.ts) |
 | Staging, retries, atomic publication and write pauses | [operation service](../../features/records/record-operation.service.ts), [staging repository](../../features/records/record-staging.repository.ts), [operation journey](record-operation.spec.ts) |
 | Legacy upgrade | [single upgrade migration](../../prisma/migrations/20261004000000_configurable_records/migration.sql) and its [README](../../prisma/migrations/20261004000000_configurable_records/README.md), [migration database tests](../../prisma/__tests__/configurable-records-migration.database.test.ts), [populated legacy fixtures](../helpers/legacy-crm-fixture.ts) |
 

@@ -22,13 +22,13 @@ test("returns to a valid relationship, path and embedded page after deleting its
     expect(response.ok(), await response.text()).toBe(true);
     return response.json();
   };
-  const modelResponse = await page.request.post("/api/v2/model/discover", { data: {} });
+  const modelResponse = await page.request.post("/api/v1/model/discover", { data: {} });
   expect(modelResponse.ok()).toBe(true);
   const model = RecordModelSchema.parse(await modelResponse.json());
   const type = model.types.find((candidate) => candidate.id === id("deal"));
   if (!type) throw new Error("The deal fixture type is missing");
   const pathId = randomUUID();
-  await post("/api/v2/model/apply", {
+  await post("/api/v1/model/apply", {
     expectedRevision: model.revision,
     idempotencyKey: randomUUID(),
     operations: [
@@ -50,7 +50,7 @@ test("returns to a valid relationship, path and embedded page after deleting its
     ],
   });
   const create = async (kind: string, fields: unknown[], links: unknown[] = []) => {
-    const result = await post("/api/v2/records/mutate", {
+    const result = await post("/api/v1/records/mutate", {
       expectedRevision: model.revision + 1,
       idempotencyKey: randomUUID(),
       mutation: { action: "create", typeId: id(kind), fields, links },

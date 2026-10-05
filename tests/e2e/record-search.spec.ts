@@ -30,7 +30,7 @@ test("searches custom records across pages, opens generic drawers, and attaches 
   await expect(dialog).not.toBeVisible();
   await expect(page.getByRole("button", { name: "Searchable project", exact: true })).toBeVisible();
   for (let index = 0; index < 41; index += 1) {
-    const response = await page.request.post("/api/v2/records/mutate", {
+    const response = await page.request.post("/api/v1/records/mutate", {
       data: {
         expectedRevision: 2,
         idempotencyKey: randomUUID(),

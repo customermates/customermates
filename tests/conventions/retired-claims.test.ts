@@ -70,8 +70,8 @@ const RETIRED_CLAIMS: readonly RetiredClaim[] = [
     pattern:
       /\b(?:full|complete|entire|whole)[ -](?:data|account|workspace|database)[ -]?export\b|\bVollst(?:ä|ae)ndexport\b|\bexport\s+everything\b|\bexport(?:s|ing)?[^.!?;|]{0,24}\b(?:all|every|entire|whole|complete)\s+(?:of\s+)?(?:your|the|their)?\s*(?:data|account|workspace|database|CRM)\b|\b(?:alle|s(?:ä|ae)mtliche|gesamten?)\s+(?:Ihre\s+)?(?:Daten|Datenbank)\b[^.!?;|]{0,24}\bexportier\w*|\bexportier\w*[^.!?;|]{0,24}\b(?:alle|s(?:ä|ae)mtliche|gesamten?)\s+(?:Ihre\s+)?(?:Daten|Datenbank)\b|\b(?:unlimited|unbegrenzte?s?)\b[^.!?;|]{0,24}\bexport/iu,
     permittedContext: [...NO_OR_EXTERNAL, CONTRASTED],
-    why: "Export runs per entity type, scoped to the caller's read access and the current view, and stops at EXPORT_ROW_LIMIT rows",
-    authority: "app/api/export/[entityType]/route.ts, features/data-transfer/data-transfer.schema.ts",
+    why: "Export runs per record type, scoped to the caller's read access and the current view, and stops at RECORD_EXPORT_LIMIT rows",
+    authority: "app/api/v1/records/export/route.ts, features/data-transfer/record-transfer.schema.ts",
   },
   {
     id: "record-attachments",

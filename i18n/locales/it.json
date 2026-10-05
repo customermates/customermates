@@ -3719,8 +3719,6 @@
     "title": "Controlli di amministrazione"
   },
   "RoutineDetail": {
-    "contractReviewHelp": "Il prompt fa riferimento a strumenti CRM o endpoint API ritirati. Aggiorna questi riferimenti prima di eseguirla. Le tue istruzioni sono state conservate.",
-    "contractReviewTitle": "Verifica questa routine",
     "credits": "Crediti",
     "empty": {
       "event": {

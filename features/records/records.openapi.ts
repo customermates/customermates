@@ -31,7 +31,7 @@ import type { ZodOpenApiOperationObject } from "zod-openapi";
 
 import { z } from "zod";
 
-import { V2ApiResponses } from "@/core/api/v2-interactor-handler";
+import { StructuredApiResponses } from "@/core/api/structured-interactor-handler";
 import { GenericRecordWidgetInputSchema, GenericRecordWidgetDtoSchema } from "@/features/widget/record-widget.schema";
 import { RecordWidgetReadSchema } from "@/features/widget/get-record-widgets.interactor";
 import { RecordModelSchema, RecordDtoSchema } from "./record-model.schema";
@@ -64,7 +64,7 @@ function operation(
     tags: ["records"],
     security: [{ apiKeyAuth: [] }],
     description:
-      "Version 2 configurable CRM contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
+      "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
     requestBody: {
       required: true,
       content: { "application/json": { schema: input } },
@@ -74,13 +74,13 @@ function operation(
         description: "The operation was accepted or completed.",
         content: { "application/json": { schema: output } },
       },
-      ...V2ApiResponses,
+      ...StructuredApiResponses,
     },
   };
 }
 
 export const recordApiPaths = {
-  "/v2/messaging/record-links/read": {
+  "/v1/messaging/record-links/read": {
     post: operation(
       "readConversationRecords",
       "Read accessible conversation records",
@@ -88,7 +88,7 @@ export const recordApiPaths = {
       ThreadRecordsResultSchema,
     ),
   },
-  "/v2/messaging/record-links/mutate": {
+  "/v1/messaging/record-links/mutate": {
     post: operation(
       "mutateConversationRecords",
       "Link or unlink one conversation record",
@@ -96,7 +96,7 @@ export const recordApiPaths = {
       ThreadRecordMutationResultSchema,
     ),
   },
-  "/v2/records/identities/resolve": {
+  "/v1/records/identities/resolve": {
     post: operation(
       "resolveRecordIdentifiers",
       "Resolve exact channel identifiers to every accessible linked record",
@@ -104,7 +104,7 @@ export const recordApiPaths = {
       ResolveRecordIdentitiesResultSchema,
     ),
   },
-  "/v2/roles/read": {
+  "/v1/roles/read": {
     post: operation(
       "readRoleConfiguration",
       "Read role permissions and the record type catalog",
@@ -112,7 +112,7 @@ export const recordApiPaths = {
       RoleApiEditorContextSchema,
     ),
   },
-  "/v2/roles/save": {
+  "/v1/roles/save": {
     post: operation(
       "saveRoleConfiguration",
       "Save system and record type permissions atomically",
@@ -120,10 +120,10 @@ export const recordApiPaths = {
       RoleApiMutationResultSchema,
     ),
   },
-  "/v2/roles/delete": {
+  "/v1/roles/delete": {
     post: operation("deleteRoleConfiguration", "Delete an unused custom role", DeleteRoleSchema, z.string()),
   },
-  "/v2/records/detail-layout/read": {
+  "/v1/records/detail-layout/read": {
     post: operation(
       "readRecordDetailLayout",
       "Read personal record detail layout",
@@ -131,7 +131,7 @@ export const recordApiPaths = {
       RecordDetailLayoutResultSchema,
     ),
   },
-  "/v2/records/detail-layout/save": {
+  "/v1/records/detail-layout/save": {
     post: operation(
       "saveRecordDetailLayout",
       "Save or reset personal record detail layout",
@@ -139,7 +139,7 @@ export const recordApiPaths = {
       RecordDetailLayoutResultSchema,
     ),
   },
-  "/v2/records/activities": {
+  "/v1/records/activities": {
     post: operation(
       "queryRecordActivities",
       "Read the activity timeline through declared record paths",
@@ -147,10 +147,10 @@ export const recordApiPaths = {
       RecordActivitiesResultSchema,
     ),
   },
-  "/v2/records/search": {
+  "/v1/records/search": {
     post: operation("searchRecords", "Search accessible record types", RecordSearchSchema, RecordSearchResultSchema),
   },
-  "/v2/records/export": {
+  "/v1/records/export": {
     post: {
       ...operation(
         "exportRecords",
@@ -162,7 +162,7 @@ export const recordApiPaths = {
         "Exports the selected type's filtered records, readable embedded descendants and readable outbound links from one consistent workspace snapshot. Maximum 5,000 records and 50,000 candidate links. The document carries stable type, field, relationship and record IDs plus the current schema revision; restricted values remain marked restricted. Incoming links from records outside the selection are not included.",
     },
   },
-  "/v2/records/import": {
+  "/v1/records/import": {
     post: {
       ...operation(
         "importRecords",
@@ -174,7 +174,7 @@ export const recordApiPaths = {
         "Creates records with their exported IDs or updates matching IDs in one transaction. Embedded descendants are created after their parents, saved-price snapshots are preserved, and readable outbound links are merged. The document must match the current workspace's type IDs and schema revision. Maximum 100 records and 500 links per request. Create rejects existing IDs; update checks each exported record version. Retries of the identical request use its idempotency key.",
     },
   },
-  "/v2/records/preview-deletion": {
+  "/v1/records/preview-deletion": {
     post: operation(
       "previewRecordDeletion",
       "Preview record deletion and cascading effects",
@@ -182,7 +182,7 @@ export const recordApiPaths = {
       RecordDeletionPreviewSchema,
     ),
   },
-  "/v2/widgets/save": {
+  "/v1/widgets/save": {
     post: operation(
       "saveRecordWidget",
       "Save a schema-aware widget",
@@ -190,7 +190,7 @@ export const recordApiPaths = {
       GenericRecordWidgetDtoSchema,
     ),
   },
-  "/v2/widgets/read": {
+  "/v1/widgets/read": {
     post: operation(
       "readRecordWidget",
       "Read a widget with current authorized results",
@@ -198,7 +198,7 @@ export const recordApiPaths = {
       GenericRecordWidgetDtoSchema,
     ),
   },
-  "/v2/widgets/list": {
+  "/v1/widgets/list": {
     post: operation(
       "listRecordWidgets",
       "Read personal widgets",
@@ -206,7 +206,7 @@ export const recordApiPaths = {
       z.object({ widgets: z.array(GenericRecordWidgetDtoSchema) }),
     ),
   },
-  "/v2/model/discover": {
+  "/v1/model/discover": {
     post: operation(
       "discoverRecordModel",
       "Discover record types and their configuration",
@@ -214,7 +214,7 @@ export const recordApiPaths = {
       RecordModelSchema,
     ),
   },
-  "/v2/model/preview": {
+  "/v1/model/preview": {
     post: operation(
       "previewRecordConfiguration",
       "Preview a configuration change",
@@ -222,7 +222,7 @@ export const recordApiPaths = {
       ConfigurationPreviewSchema,
     ),
   },
-  "/v2/model/apply": {
+  "/v1/model/apply": {
     post: operation(
       "applyRecordConfiguration",
       "Apply a configuration change",
@@ -230,13 +230,13 @@ export const recordApiPaths = {
       RecordOperationResultSchema,
     ),
   },
-  "/v2/records/read": {
+  "/v1/records/read": {
     post: operation("readRecord", "Read one record", RecordReadSchema, RecordDtoSchema),
   },
-  "/v2/records/query": {
+  "/v1/records/query": {
     post: operation("queryRecords", "Query records", RecordQuerySchema, RecordQueryResultSchema),
   },
-  "/v2/records/mutate": {
+  "/v1/records/mutate": {
     post: operation(
       "mutateRecord",
       "Create, update, delete or link records",
@@ -244,7 +244,7 @@ export const recordApiPaths = {
       RecordOperationResultSchema,
     ),
   },
-  "/v2/reports/query": {
+  "/v1/reports/query": {
     post: operation(
       "queryRecordMeasure",
       "Aggregate record values at an explicit grain",
@@ -252,7 +252,7 @@ export const recordApiPaths = {
       RecordMeasureResultSchema,
     ),
   },
-  "/v2/operations/status": {
+  "/v1/operations/status": {
     post: operation(
       "readRecordOperation",
       "Read the status of a staged operation",
@@ -260,7 +260,7 @@ export const recordApiPaths = {
       RecordOperationStatusSchema,
     ),
   },
-  "/v2/operations/cancel": {
+  "/v1/operations/cancel": {
     post: operation(
       "cancelRecordOperation",
       "Cancel an operation before publication",
@@ -268,7 +268,7 @@ export const recordApiPaths = {
       z.object({ cancelled: z.boolean() }),
     ),
   },
-  "/v2/operations/resume": {
+  "/v1/operations/resume": {
     post: operation(
       "resumeRecordOperation",
       "Resume an interrupted operation",

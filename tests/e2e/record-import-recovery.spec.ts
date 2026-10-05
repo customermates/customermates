@@ -24,7 +24,7 @@ test("rejects malformed and invalid typed imports without partial records and ac
   let expectedImportRejection = false;
   const importRequests: string[] = [];
   page.on("request", (request) => {
-    if (new URL(request.url()).pathname === "/api/v2/records/import") importRequests.push(request.url());
+    if (new URL(request.url()).pathname === "/api/v1/records/import") importRequests.push(request.url());
   });
   page.on("pageerror", (error) => {
     if (!isBenignPageError(error.message)) errors.push(error.message);
@@ -33,7 +33,7 @@ test("rejects malformed and invalid typed imports without partial records and ac
     if (!isAppConsoleError(message)) return;
     if (
       expectedImportRejection &&
-      message.location().url.endsWith("/api/v2/records/import") &&
+      message.location().url.endsWith("/api/v1/records/import") &&
       /400/.test(message.text())
     )
       return;
@@ -113,7 +113,7 @@ test("rejects malformed and invalid typed imports without partial records and ac
   await expect(dialog.getByRole("alert")).toHaveCount(0);
   await expect(dialog).toContainText("2 records and 0 links are ready to import.");
   expectedImportRejection = true;
-  const rejected = page.waitForResponse((response) => new URL(response.url()).pathname === "/api/v2/records/import");
+  const rejected = page.waitForResponse((response) => new URL(response.url()).pathname === "/api/v1/records/import");
   await submit.click();
   expect((await rejected).status()).toBe(400);
   await expect(dialog.getByRole("alert")).toHaveText(englishMessages.DataTransfer.recordImport.failed);
@@ -130,7 +130,7 @@ test("rejects malformed and invalid typed imports without partial records and ac
   await expect(dialog).not.toContainText("invalid-typed-batch.json");
   await expect(dialog).toContainText("corrected-batch.json");
   await expect(submit).toBeEnabled();
-  const imported = page.waitForResponse((response) => new URL(response.url()).pathname === "/api/v2/records/import");
+  const imported = page.waitForResponse((response) => new URL(response.url()).pathname === "/api/v1/records/import");
   await submit.click();
   expect((await imported).status()).toBe(200);
   await expect(dialog).not.toBeVisible();

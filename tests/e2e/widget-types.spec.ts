@@ -72,9 +72,9 @@ async function post(page: Page, path: string, data: unknown): Promise<unknown> {
 }
 
 async function mutate(page: Page, mutation: Extract<RecordMutation, { action: "create" }>): Promise<RecordRef> {
-  const model = RecordModelSchema.parse(await post(page, "/api/v2/model/discover", {}));
+  const model = RecordModelSchema.parse(await post(page, "/api/v1/model/discover", {}));
   const result = RecordOperationResultSchema.parse(
-    await post(page, "/api/v2/records/mutate", {
+    await post(page, "/api/v1/records/mutate", {
       expectedRevision: model.revision,
       idempotencyKey: randomUUID(),
       mutation,
@@ -90,7 +90,7 @@ async function seedPipeline(page: Page, database: Client, companyId: string, use
   const id = (key: string) => presetId(companyId, key);
   const closeDateId = randomUUID();
   const statusId = randomUUID();
-  const model = RecordModelSchema.parse(await post(page, "/api/v2/model/discover", {}));
+  const model = RecordModelSchema.parse(await post(page, "/api/v1/model/discover", {}));
   const field = (fieldId: string, typeId: string, label: string, valueType: string, options: object[] = []) => ({
     operation: "putField",
     field: {
@@ -105,7 +105,7 @@ async function seedPipeline(page: Page, database: Client, companyId: string, use
       position: 40,
     },
   });
-  await post(page, "/api/v2/model/apply", {
+  await post(page, "/api/v1/model/apply", {
     expectedRevision: model.revision,
     idempotencyKey: randomUUID(),
     operations: [

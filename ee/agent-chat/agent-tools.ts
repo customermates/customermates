@@ -1,5 +1,4 @@
 import { getGetRecordNavigationInteractor } from "@/core/di";
-import { retiredRecordToolMessage } from "@/features/mcp-tools/retired-record-tools";
 import { asSchema, jsonSchema, tool, type ToolSet } from "ai";
 import { agentToolOutputContext } from "./agent-activity-context";
 import { boundedAgentToolFailure } from "./agent-tool-failure";
@@ -697,10 +696,7 @@ export async function normalizeAgentAiToolInput(
   if (!Object.hasOwn(tools, toolName)) {
     return {
       ok: false,
-      result: agentToolResultText(
-        retiredRecordToolMessage(toolName) ?? "The requested tool is not available.",
-        maxChars,
-      ),
+      result: agentToolResultText("The requested tool is not available.", maxChars),
     };
   }
   const agentTool = tools[toolName];

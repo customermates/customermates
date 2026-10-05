@@ -26,7 +26,6 @@ import {
   scheduleHasClockTime,
 } from "@/ee/routines/routine-schedule-preset";
 import { ROUTINE_TRIGGER_EVENTS } from "@/ee/routines/routine.schema";
-import { routineContractReview } from "@/ee/routines/routine-contract-review";
 import { RoutineRecordTrigger } from "./routine-record-trigger";
 
 const TRIGGER_EVENT_ITEMS = ROUTINE_TRIGGER_EVENTS.map((event) => ({
@@ -163,14 +162,6 @@ export const RoutineConfigurationPane = observer(({ store, onPause }: Props) => 
         placeholder={scheduled ? t("RoutineModal.promptExampleSchedule") : t("RoutineModal.promptExampleEvent")}
         rows={4}
       />
-
-      {routineContractReview(form.prompt ?? "").length > 0 && (
-        <Alert
-          color="warning"
-          description={t("RoutineDetail.contractReviewHelp")}
-          title={t("RoutineDetail.contractReviewTitle")}
-        />
-      )}
 
       <FormSelect
         required

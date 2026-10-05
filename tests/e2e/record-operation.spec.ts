@@ -258,7 +258,7 @@ test("keeps complete application reads, History and a blocked form draft while a
           const state = await snapshot();
           const started = performance.now();
           try {
-            const response = await page.request.post("/api/v2/records/query", {
+            const response = await page.request.post("/api/v1/records/query", {
               data: { typeId: id("deal"), fields: [id("deal.totalValue")], page: 1, pageSize: 25 },
             });
             if (!response.ok()) applicationReadFailures.push(`HTTP ${response.status()}`);

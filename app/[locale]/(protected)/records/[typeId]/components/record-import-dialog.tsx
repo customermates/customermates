@@ -109,7 +109,7 @@ export function RecordImportDialog({
     setBusy(true);
     setError("");
     try {
-      const response = await fetch("/api/v2/records/import", {
+      const response = await fetch("/api/v1/records/import", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ document, mode, idempotencyKey: key.current }),

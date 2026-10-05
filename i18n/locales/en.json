@@ -3719,8 +3719,6 @@
     "title": "Administrator controls"
   },
   "RoutineDetail": {
-    "contractReviewHelp": "The prompt references retired CRM tools or API endpoints. Update those references before running it. Your instructions have been preserved.",
-    "contractReviewTitle": "Review this routine",
     "credits": "Credits",
     "empty": {
       "event": {

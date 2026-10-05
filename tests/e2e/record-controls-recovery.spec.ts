@@ -25,13 +25,13 @@ async function post(page: Page, path: string, data: unknown) {
   return response.json();
 }
 async function model(page: Page) {
-  return RecordModelSchema.parse(await post(page, "/api/v2/model/discover", {}));
+  return RecordModelSchema.parse(await post(page, "/api/v1/model/discover", {}));
 }
 async function mutate(page: Page, current: RecordModel, mutation: RecordMutation) {
   const result = RecordOperationResultSchema.parse(
     await post(
       page,
-      "/api/v2/records/mutate",
+      "/api/v1/records/mutate",
       MutateRecordSchema.parse({
         expectedRevision: current.revision,
         idempotencyKey: randomUUID(),
@@ -477,7 +477,7 @@ test("uses Average, Minimum and Maximum at record grain, groups through relation
   let current = await model(page);
   const stage = current.fields.find((field) => field.id === id("deal.stage"));
   if (!stage) throw new Error("Expected the shipped stage field");
-  const applied = await post(page, "/api/v2/model/apply", {
+  const applied = await post(page, "/api/v1/model/apply", {
     expectedRevision: current.revision,
     idempotencyKey: randomUUID(),
     operations: [
@@ -924,7 +924,7 @@ test("uses explicit activity record scope, event kinds, positive and negative re
       recordIds: [],
     },
   ]);
-  const result = await post(page, "/api/v2/records/activities", {
+  const result = await post(page, "/api/v1/records/activities", {
     ...query,
     cursor: null,
     limit: 25,
@@ -1532,7 +1532,7 @@ test("recovers a parent after an embedded save without repeating the child mutat
   await notesTab.click();
   await expect(main.getByRole("textbox", { name: notes.label, exact: true })).toHaveText("Previously stored notes");
   await main.getByRole("tab", { name: english.EntityDetail.overview, exact: true }).click();
-  const latestDeal = await post(page, "/api/v2/records/read", deal);
+  const latestDeal = await post(page, "/api/v1/records/read", deal);
   await mutate(page, current, {
     action: "update",
     ref: deal,
