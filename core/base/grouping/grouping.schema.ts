@@ -1,6 +1,5 @@
 import type { ChipColor } from "@/constants/chip-colors";
 import type { Data } from "@/core/validation/validation.utils";
-import type { GroupValueSums } from "@/core/base/base-get.schema";
 import type { GroupingKind } from "./groupable-field";
 import type { RecordGroupSummaryResult } from "@/features/records/record-grouping.schema";
 
@@ -28,7 +27,6 @@ export const GroupPageRequestSchema = z.object({
   overrides: z.record(z.string(), z.number().int().min(1).max(GROUP_PAGE_SIZE_MAX)).optional(),
   collapsed: z.array(z.string().max(256)).max(MAX_AXIS_GROUPS).optional(),
   only: z.string().max(256).optional(),
-  includeValueSums: z.boolean().optional(),
 });
 export type GroupPageRequest = Data<typeof GroupPageRequestSchema>;
 
@@ -52,7 +50,6 @@ export type DataViewGroup = {
   itemIds: string[];
   hasMore: boolean;
   writable?: boolean;
-  valueSums?: GroupValueSums;
   summaries?: RecordGroupSummaryResult[];
 };
 

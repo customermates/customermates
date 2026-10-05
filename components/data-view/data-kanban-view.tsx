@@ -27,7 +27,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { ChipColor } from "@/constants/chip-colors";
-import type { GroupValueSums } from "@/core/base/base-get.schema";
 import { NO_VALUE_GROUP_KEY } from "@/core/base/grouping/grouping.schema";
 import { useRouter } from "@/i18n/navigation";
 import { visibleColumnDefs } from "./visible-column-defs";
@@ -173,7 +172,6 @@ const KanbanColumn = observer(function KanbanColumn({
   id: string;
   label: string;
   count: number;
-  valueSums?: GroupValueSums;
   summaries?: RecordGroupSummaryResult[];
   color?: ChipColor;
   weight?: number;
@@ -338,7 +336,6 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
       fromGroupKey,
       toGroupKey: targetGroup,
       value: nextValue,
-      destinationValueSums: undefined,
     });
     if (event.activatorEvent instanceof KeyboardEvent) {
       requestAnimationFrame(() => {
@@ -406,7 +403,6 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
                 loadMore={loadMore}
                 recordLabels={store.recordLabels}
                 summaries={group.summaries}
-                valueSums={group.valueSums}
                 weight={group.weight}
                 onHeaderClick={
                   editableColumn && store.schemaSettingsHref

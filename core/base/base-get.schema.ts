@@ -6,7 +6,7 @@ import { z } from "zod";
 import { FilterOperatorKey, ViewMode } from "./base-query-builder";
 import { normalizeFilterInput } from "./filter-value";
 
-import { GROUP_PAGE_SIZE_MAX, GroupPageRequestSchema, GroupingSchema } from "@/core/base/grouping/grouping.schema";
+import { GroupPageRequestSchema, GroupingSchema } from "@/core/base/grouping/grouping.schema";
 import { CustomColumnDtoSchema } from "@/core/data-view/column-presentation.schema";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { zx } from "@/core/validation/validation.utils";
@@ -112,16 +112,6 @@ export const PaginationResponseSchema = PaginationRequestSchema.extend({
 });
 export type PaginationResponse = Data<typeof PaginationResponseSchema>;
 
-export const GroupedPaginationRequestSchema = z.object({
-  groupingColumnId: z.string(),
-  perGroup: z.number().int().min(1).max(GROUP_PAGE_SIZE_MAX),
-  overrides: z.record(z.string(), z.number().int().min(1).max(GROUP_PAGE_SIZE_MAX)).optional(),
-});
-export type GroupedPaginationRequest = Data<typeof GroupedPaginationRequestSchema>;
-
-export const GroupValueSumsSchema = z.record(z.string(), z.number());
-export type GroupValueSums = Data<typeof GroupValueSumsSchema>;
-
 export const FilterOptionSchema = z.object({
   value: z.string(),
   label: z.string().nullable(),
@@ -151,7 +141,6 @@ export const GetQueryParamsApiSchema = z.object({
   searchTerm: zx.nulFreeText().max(200).optional(),
   sortDescriptor: SortDescriptorSchema.optional(),
   pagination: PaginationRequestSchema.optional(),
-  groupedPagination: GroupedPaginationRequestSchema.optional(),
 });
 export type GetQueryParamsApi = Data<typeof GetQueryParamsApiSchema>;
 
@@ -222,8 +211,6 @@ export function createApiGetResultSchema<T extends z.ZodSchema>(itemSchema: T) {
     hiddenColumns: z.array(z.string()).optional(),
     viewMode: z.string().optional(),
     groupCounts: z.record(z.string(), z.number()).optional(),
-    groupValueSums: z.record(z.string(), GroupValueSumsSchema).optional(),
-    valueSums: GroupValueSumsSchema.optional(),
   });
 }
 

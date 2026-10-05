@@ -7,7 +7,7 @@ import type { DataViewChipDto, DataViewState } from "@/core/data-view/data-view-
 import type { ObservableSet } from "mobx";
 import type { RootStore } from "../stores/root.store";
 import type { GetResult } from "./base-get.interactor";
-import type { Filter, FilterableField, GroupValueSums, PaginationRequest, SortDescriptor } from "./base-get.schema";
+import type { Filter, FilterableField, PaginationRequest, SortDescriptor } from "./base-get.schema";
 
 import deepEqual from "fast-deep-equal/es6";
 import { action, computed, makeObservable, observable, runInAction, toJS } from "mobx";
@@ -48,14 +48,6 @@ export type DataViewRefreshMode = "background" | "visible";
 
 type SelectionScope = { filters: Filter[]; searchTerm: string | null };
 
-function shiftValueSums(group: GroupValueSums, item: GroupValueSums, sign: 1 | -1): GroupValueSums {
-  const fields = new Set([...Object.keys(group), ...Object.keys(item)]);
-
-  return Object.fromEntries(
-    [...fields].map((field) => [field, Math.max(0, (group[field] ?? 0) + sign * (item[field] ?? 0))]),
-  );
-}
-
 export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore {
   items: Entity[] = [];
   customColumns: CustomColumnDto[] = [];
@@ -84,7 +76,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   selectedScope: SelectionScope | undefined = undefined;
 
   groupCounts: Record<string, number> = {};
-  groupValueSums: Record<string, GroupValueSums> = {};
   groupedTakeOverrides: Record<string, number> = {};
 
   public readonly resource?: Resource;
@@ -119,7 +110,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     fromGroupKey: string;
     toGroupKey: string;
     value: string | null;
-    destinationValueSums?: GroupValueSums;
   }): Promise<void> {}
 
   abstract get columnsDefinition(): TableColumn[];
@@ -164,7 +154,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       selectedScope: observable.ref,
 
       groupCounts: observable,
-      groupValueSums: observable,
       groupedTakeOverrides: observable,
 
       filterColumns: computed,
@@ -209,10 +198,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       toggleGroupCollapsed: action,
       setGroupSelection: action,
       resetGroupedTakeOverrides: action,
-      transferItemBetweenGroups: action,
-      transferItemBetweenResultGroups: action,
-      restoreGroupValueSums: action,
-      restoreResultGroups: action,
     });
   }
 
@@ -448,7 +433,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.activeViewKey = args.activeViewKey ?? ALL_VIEW_KEY;
     this.viewPersistable = args.viewPersistable ?? true;
     this.groupCounts = args.groupCounts ?? {};
-    this.groupValueSums = args.groupValueSums ?? {};
     this.requestState = { status: "ready" };
   }
 
@@ -533,87 +517,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   resetGroupedTakeOverrides = (): void => {
     if (Object.keys(this.groupedTakeOverrides).length === 0) return;
     this.groupedTakeOverrides = {};
-  };
-
-  transferItemBetweenGroups = (
-    fromGroupKey: string,
-    toGroupKey: string,
-    itemValueSums?: GroupValueSums,
-    destinationValueSums?: GroupValueSums,
-  ): void => {
-    if (fromGroupKey === toGroupKey) return;
-    const fromCount = this.groupCounts[fromGroupKey] ?? 0;
-    const toCount = this.groupCounts[toGroupKey] ?? 0;
-    this.groupCounts = {
-      ...this.groupCounts,
-      [fromGroupKey]: Math.max(0, fromCount - 1),
-      [toGroupKey]: toCount + 1,
-    };
-
-    const fromValueSums = this.groupValueSums[fromGroupKey];
-    const toValueSums = this.groupValueSums[toGroupKey];
-    if (!itemValueSums || !fromValueSums || !toValueSums) return;
-
-    this.groupValueSums = {
-      ...this.groupValueSums,
-      [fromGroupKey]: shiftValueSums(fromValueSums, itemValueSums, -1),
-      [toGroupKey]: shiftValueSums(toValueSums, destinationValueSums ?? itemValueSums, 1),
-    };
-  };
-
-  transferItemBetweenResultGroups = (args: {
-    itemId: string;
-    fromGroupKey: string;
-    toGroupKey: string;
-    itemValueSums?: GroupValueSums;
-    destinationValueSums?: GroupValueSums;
-  }): void => {
-    const current = this.groupingResult;
-    if (!current || args.fromGroupKey === args.toGroupKey) return;
-
-    const creditedSums = args.destinationValueSums ?? args.itemValueSums;
-
-    this.groupingResult = {
-      ...current,
-      groups: current.groups.map((group) => {
-        if (group.key === args.fromGroupKey) {
-          return {
-            ...group,
-            count: Math.max(0, group.count - 1),
-            itemIds: group.itemIds.filter((id) => id !== args.itemId),
-            ...(group.valueSums && args.itemValueSums
-              ? {
-                  valueSums: shiftValueSums(group.valueSums, args.itemValueSums, -1),
-                }
-              : {}),
-          };
-        }
-
-        if (group.key === args.toGroupKey) {
-          return {
-            ...group,
-            count: group.count + 1,
-            itemIds: group.itemIds.includes(args.itemId) ? group.itemIds : [args.itemId, ...group.itemIds],
-            ...(group.valueSums && creditedSums ? { valueSums: shiftValueSums(group.valueSums, creditedSums, 1) } : {}),
-          };
-        }
-
-        return group;
-      }),
-    };
-  };
-
-  restoreResultGroups = (snapshot: GroupingResult | undefined, expected: GroupingResult | undefined): void => {
-    if (this.groupingResult !== expected) return;
-    this.groupingResult = snapshot;
-  };
-
-  restoreGroupValueSums = (
-    snapshot: Record<string, GroupValueSums>,
-    expected: Record<string, GroupValueSums>,
-  ): void => {
-    if (this.groupValueSums !== expected) return;
-    this.groupValueSums = snapshot;
   };
 
   setViewOptions = (updates: {
@@ -958,7 +861,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       ...(Object.keys(this.groupedTakeOverrides).length > 0 ? { overrides: toJS(this.groupedTakeOverrides) } : {}),
       ...(this.collapsedGroupKeys.size > 0 ? { collapsed: [...this.collapsedGroupKeys] } : {}),
       ...(only === undefined ? {} : { only }),
-      includeValueSums: this.viewMode === ViewMode.card,
     };
   }
 

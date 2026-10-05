@@ -161,13 +161,13 @@ describe("board group sums after a regroup in table layout", () => {
     vi.useRealTimers();
   });
 
-  it("refetches the groups with their value sums when the layout switches back to board", async () => {
+  it("refetches the groups when the layout switches back to board", async () => {
     const store = hydrated();
 
     store.setViewOptions({ grouping: { field: GROUPING_COLUMN_ID } });
     await vi.advanceTimersByTimeAsync(0);
 
-    expect(store.requestedParams.at(-1)?.groupPage?.includeValueSums).toBe(false);
+    expect(store.requestedParams.at(-1)?.groupPage).toEqual({ perGroup: 10 });
 
     store.requestedParams = [];
     store.setViewOptions({ viewMode: ViewMode.card });
@@ -175,7 +175,7 @@ describe("board group sums after a regroup in table layout", () => {
 
     expect(store.requestedParams).toHaveLength(1);
     expect(store.requestedParams[0]?.viewMode).toBe(ViewMode.card);
-    expect(store.requestedParams[0]?.groupPage?.includeValueSums).toBe(true);
+    expect(store.requestedParams[0]?.groupPage).toEqual({ perGroup: 10 });
   });
 
   it("does not refetch when the layout switches to table or to board without a grouping", async () => {

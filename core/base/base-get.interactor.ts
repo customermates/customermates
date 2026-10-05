@@ -13,7 +13,6 @@ import type {
   Filter,
   FilterableField,
   GetQueryParams,
-  GroupValueSums,
   PaginationRequest,
   PaginationResponse,
   SortDescriptor,
@@ -53,8 +52,6 @@ export interface GetResult<T> {
   grouping?: GroupingResult;
   groupableFields?: GroupableFieldDto[];
   groupCounts?: Record<string, number>;
-  groupValueSums?: Record<string, GroupValueSums>;
-  valueSums?: GroupValueSums;
   views?: DataViewChipDto[];
   activeViewKey?: string;
   allState?: DataViewState;
@@ -406,13 +403,7 @@ function normaliseGroupingRequest(
   params: GetQueryParams,
   resolved: ResolvedDataViewState,
 ): { grouping: Grouping | undefined; page: GroupPageRequest } {
-  const legacy = params.groupedPagination;
-  const page: GroupPageRequest =
-    params.groupPage ?? (legacy ? { perGroup: legacy.perGroup, overrides: legacy.overrides } : {});
-
-  if (legacy) return { grouping: { field: legacy.groupingColumnId }, page };
-
-  return { grouping: resolved.grouping, page };
+  return { grouping: resolved.grouping, page: params.groupPage ?? {} };
 }
 
 function itemIds<T>(items: T[]): string[] {
