@@ -5,12 +5,12 @@ import type { GetWidgetFilterableFieldsDealRepo } from "../widget/get-widget-fil
 import type { GetCompanyWideDealRepo } from "./get-company-wide-deal.repo";
 import type { CreateDealRepo } from "./upsert/create-deal.repo";
 import type { UpdateDealRepo } from "./upsert/update-deal.repo";
-import type { GetDealsRepo } from "./get/get-deals.interactor";
+import type { GetDealsRepo } from "@/features/deals/get/get-deals.repo";
 import type { GetConfigurationRepo } from "@/core/base/base-get-configuration.interactor";
 import type { GetDealByIdRepo } from "./get/get-deal-by-id.interactor";
 import type { DeleteDealRepo } from "./delete/delete-deal.repo";
 import type { FindDealsByIdsRepo } from "./find-deals-by-ids.repo";
-import type { ModifyRelationDealRepo } from "@/features/relations/modify-entity-relation.interactor";
+import type { ModifyRelationDealRepo } from "@/features/relations/modify-relation-deal.repo";
 
 import { EntityType, Resource } from "@/generated/prisma";
 

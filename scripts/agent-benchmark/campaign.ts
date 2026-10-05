@@ -4,9 +4,10 @@ import type { Pool } from "pg";
 
 import type { BenchmarkArm } from "./arms";
 
-import { agentRoundWorstCaseCredits } from "@/ee/agent-chat/agent-budget-policy";
+import { agentRoundWorstCaseMicrocents } from "@/ee/agent-chat/agent-budget-policy";
+import { AGENT_CREDIT_MICROCENTS, AGENT_MICROCENTS_PER_USD } from "@/core/commercial/agent-credits";
 
-export const USD_PER_CREDIT = 0.01;
+export const USD_PER_CREDIT = AGENT_CREDIT_MICROCENTS / AGENT_MICROCENTS_PER_USD;
 export const BENCHMARK_PROVIDER_ROUNDS_PER_PROMPT = 32;
 
 export const LEDGER_DDL = [
@@ -107,17 +108,20 @@ export async function campaignSpendUsd(pool: Pool, campaignId: string): Promise<
   return Number(result.rows[0]?.spent ?? 0);
 }
 
+// The episode ceiling seeds a whole-credit Enterprise allowance, so the exact worst case in
+// microcents rounds up to the next whole credit here.
 export function worstCaseEpisodeCredits(
   arm: BenchmarkArm,
   prompts: number,
 ): number {
   if (!Number.isSafeInteger(prompts) || prompts < 1)
     throw new Error("Episode prompt count must be a positive safe integer.");
-  const credits =
-    agentRoundWorstCaseCredits(arm) *
+  const microcents =
+    agentRoundWorstCaseMicrocents(arm) *
     BENCHMARK_PROVIDER_ROUNDS_PER_PROMPT *
     prompts;
-  if (!Number.isSafeInteger(credits) || credits < 1)
+  const credits = Math.ceil(microcents / AGENT_CREDIT_MICROCENTS);
+  if (!Number.isSafeInteger(microcents) || !Number.isSafeInteger(credits) || credits < 1)
     throw new Error(`Arm ${arm.id} produced an invalid episode credit ceiling.`);
   return credits;
 }

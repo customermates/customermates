@@ -3,7 +3,7 @@ title: "Self-Hosting Customermates with Docker Compose"
 description: "Run Customermates on your own server with Docker Compose: install, .env values, email, sign-up, updates, backups and restore, and what differs from Cloud."
 ---
 
-Self-hosting runs Customermates from two files, `docker-compose.yml` and `.env`, with `docker compose up -d`. You fetch both from the [Customermates repo](https://github.com/customermates/customermates) with `curl`; no `git clone` and no build step are needed. The Compose file starts two containers: PostgreSQL 16 (`postgres:16-alpine`) and the app image `ghcr.io/customermates/customermates:latest`, which applies pending database migrations every time it starts.
+Self-hosting runs Customermates from two files, `docker-compose.yml` and `.env`, with `docker compose up -d`. You fetch both from the [Customermates repo](https://github.com/customermates/customermates) with `curl`; no `git clone` and no build step are needed. The Compose file starts two containers: PostgreSQL 16 (`postgres:16-alpine`) and the app image `ghcr.io/customermates/customermates:latest`, which applies pending database migrations every time it starts. The database needs the `pg_trgm` extension, which the migrations create: it is trusted on PostgreSQL 13 and later, but some managed providers require you to allow-list it first.
 
 ## Should I self-host or use the cloud?
 

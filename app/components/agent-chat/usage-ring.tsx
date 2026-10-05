@@ -21,6 +21,7 @@ export const UsageRing = observer(function UsageRing() {
   const usage = store.usage;
   if (usage.creditsLimit <= 0) return null;
   const pct = usage.usedPct;
+  const remaining = intlStore.formatAgentCredits(usage.creditsRemaining);
   const resetAt = intlStore.formatDayMonth(new Date(usage.resetAt));
   const circumference = 2 * Math.PI * 7;
 
@@ -58,8 +59,9 @@ export const UsageRing = observer(function UsageRing() {
       >
         <p className="font-medium text-foreground tabular-nums">
           {t("AgentChat.credits.remaining", {
-            remaining: usage.creditsRemaining,
-            limit: usage.creditsLimit,
+            remaining: remaining.amount,
+            credits: remaining.credits,
+            limit: intlStore.formatAgentCredits(usage.creditsLimit).amount,
           })}
         </p>
 
@@ -73,7 +75,7 @@ export const UsageRing = observer(function UsageRing() {
         </p>
 
         {usage.recentTurnCredits !== null && (
-          <p>{t("AgentChat.credits.recentTurn", { credits: usage.recentTurnCredits })}</p>
+          <p>{t("AgentChat.credits.recentTurn", intlStore.formatAgentCredits(usage.recentTurnCredits))}</p>
         )}
       </PopoverContent>
     </Popover>

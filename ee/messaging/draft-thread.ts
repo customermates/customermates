@@ -10,6 +10,8 @@ export type DraftThreadTarget = {
   connectedAccountId: string;
   unipileThreadId: string;
   recipientIdentifiers: string[];
+  ccIdentifiers?: string[];
+  bccIdentifiers?: string[];
   updatedAt: Date;
 };
 
@@ -63,4 +65,8 @@ export function draftThreadRecipientSetsMatch(
   const canonicalLeft = [...normalizedLeft].sort();
   const canonicalRight = [...normalizedRight].sort();
   return canonicalLeft.every((recipient, index) => recipient === canonicalRight[index]);
+}
+
+export function canManageThreadDrafts(thread: { isOwner: boolean; accountShared: boolean } | null): boolean {
+  return Boolean(thread && (thread.isOwner || thread.accountShared));
 }

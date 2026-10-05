@@ -139,61 +139,55 @@ function stripAbsentExistenceValue(input: unknown): unknown {
   return withoutValue;
 }
 
-const activityRelationFilterSchema = <TField extends FilterFieldKey>(field: TField) =>
-  z.preprocess(
-    stripAbsentExistenceValue,
-    z.discriminatedUnion("operator", [
-      z
-        .object({
-          field: z.literal(field),
-          operator: z.union([ActivityInOperatorSchema, ActivityNotInOperatorSchema]),
-          value: ActivityIdValuesSchema,
-        })
-        .strict(),
-      z
-        .object({
-          field: z.literal(field),
-          operator: z.union([ActivityHasSomeOperatorSchema, ActivityHasNoneOperatorSchema]),
-        })
-        .strict(),
-    ]),
-  );
+const ACTIVITY_ID_FILTER_FIELDS = [
+  FilterFieldKey.timelineThreadId,
+  FilterFieldKey.connectedAccountId,
+  FilterFieldKey.contactIds,
+  FilterFieldKey.organizationIds,
+  FilterFieldKey.dealIds,
+  FilterFieldKey.serviceIds,
+  FilterFieldKey.taskIds,
+] as const;
+const ACTIVITY_RELATION_FILTER_FIELDS = [
+  FilterFieldKey.contactIds,
+  FilterFieldKey.organizationIds,
+  FilterFieldKey.dealIds,
+  FilterFieldKey.serviceIds,
+  FilterFieldKey.taskIds,
+] as const;
 
-export const ActivityFilterSchema = z.union([
-  z
-    .object({
-      field: z.literal(FilterFieldKey.timelineKind),
-      operator: z.union([ActivityInOperatorSchema, ActivityNotInOperatorSchema]),
-      value: z.array(z.enum(TIMELINE_KIND_FILTER_VALUES)).min(1).max(TIMELINE_KIND_FILTER_VALUES.length),
-    })
-    .strict(),
-  z
-    .object({
-      field: z.literal(FilterFieldKey.timelineThreadId),
-      operator: z.union([ActivityInOperatorSchema, ActivityNotInOperatorSchema]),
-      value: ActivityIdValuesSchema,
-    })
-    .strict(),
-  z
-    .object({
-      field: z.literal(FilterFieldKey.provider),
-      operator: ActivityInOperatorSchema,
-      value: z.array(z.enum(MessagingProvider)).min(1).max(Object.keys(MessagingProvider).length),
-    })
-    .strict(),
-  z
-    .object({
-      field: z.literal(FilterFieldKey.connectedAccountId),
-      operator: z.union([ActivityInOperatorSchema, ActivityNotInOperatorSchema]),
-      value: ActivityIdValuesSchema,
-    })
-    .strict(),
-  activityRelationFilterSchema(FilterFieldKey.contactIds),
-  activityRelationFilterSchema(FilterFieldKey.organizationIds),
-  activityRelationFilterSchema(FilterFieldKey.dealIds),
-  activityRelationFilterSchema(FilterFieldKey.serviceIds),
-  activityRelationFilterSchema(FilterFieldKey.taskIds),
-]);
+export const ActivityFilterSchema = z.preprocess(
+  stripAbsentExistenceValue,
+  z.union([
+    z
+      .object({
+        field: z.literal(FilterFieldKey.timelineKind),
+        operator: z.union([ActivityInOperatorSchema, ActivityNotInOperatorSchema]),
+        value: z.array(z.enum(TIMELINE_KIND_FILTER_VALUES)).min(1).max(TIMELINE_KIND_FILTER_VALUES.length),
+      })
+      .strict(),
+    z
+      .object({
+        field: z.literal(FilterFieldKey.provider),
+        operator: ActivityInOperatorSchema,
+        value: z.array(z.enum(MessagingProvider)).min(1).max(Object.keys(MessagingProvider).length),
+      })
+      .strict(),
+    z
+      .object({
+        field: z.enum(ACTIVITY_ID_FILTER_FIELDS),
+        operator: z.union([ActivityInOperatorSchema, ActivityNotInOperatorSchema]),
+        value: ActivityIdValuesSchema,
+      })
+      .strict(),
+    z
+      .object({
+        field: z.enum(ACTIVITY_RELATION_FILTER_FIELDS),
+        operator: z.union([ActivityHasSomeOperatorSchema, ActivityHasNoneOperatorSchema]),
+      })
+      .strict(),
+  ]),
+);
 
 export const ActivityFiltersSchema = z
   .array(ActivityFilterSchema)

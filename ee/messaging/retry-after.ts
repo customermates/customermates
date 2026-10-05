@@ -1,11 +1,13 @@
 import { appLocaleOrDefault, formattingTagFor } from "@/i18n/locale-registry";
 
+export const RETRY_AFTER_LATER = "later";
+
 export function formatRetryAfter(locale: unknown, seconds: number | null | undefined): string {
-  const value = !seconds || seconds <= 0 ? 60 : seconds;
+  if (!seconds || seconds <= 0) return RETRY_AFTER_LATER;
 
   const rtf = new Intl.RelativeTimeFormat(formattingTagFor(appLocaleOrDefault(locale)), { numeric: "always" });
-  if (value < 60) return rtf.format(Math.ceil(value), "second");
-  if (value < 3600) return rtf.format(Math.ceil(value / 60), "minute");
+  if (seconds < 60) return rtf.format(Math.ceil(seconds), "second");
+  if (seconds < 3600) return rtf.format(Math.ceil(seconds / 60), "minute");
 
-  return rtf.format(Math.ceil(value / 3600), "hour");
+  return rtf.format(Math.ceil(seconds / 3600), "hour");
 }

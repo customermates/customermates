@@ -45,8 +45,12 @@ export const StepAiFooter = observer(() => {
       </Button>
 
       {isProviderChooser ? (
-        <Button disabled={interactionDisabled} type="button" onClick={stepAiStore.selectSkip}>
-          {t("OnboardingWizard.ai.choices.skip")}
+        <Button
+          disabled={interactionDisabled}
+          type="button"
+          onClick={() => runUserAction(() => onboardingWizardStore.complete())}
+        >
+          {t("OnboardingWizard.finish")}
         </Button>
       ) : (
         <Button

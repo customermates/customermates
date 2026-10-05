@@ -48,13 +48,15 @@ Use an HTTPS endpoint. A plain `http://` URL is accepted for any host as long as
 
 ## Who can see and change webhooks?
 
-Access is set by the **API & Webhooks** row of the role editor under **My Company** → **Roles**. The same row also controls **My Profile** → **API & Connectors**, so a role that may manage its own API keys may also manage every webhook in the workspace.
+Access is set by the **API & Webhooks** row of the role editor under **My Company** → **Roles**. Saved **Secret** and **Custom headers** values are visible in the dialog only to the **Admin** role or roles with **Manage** **Yes** on **API & Webhooks**. **Read access** **All** alone shows `********`.
 
 | Role setting on **API & Webhooks** | What members with that role can do |
 |---|---|
 | **Read access** **None** (the default for a new role) | **Webhooks** and **Recent Deliveries** are hidden in the sidebar. Opening their address directly leads to the Dashboard. |
 | **Read access** **All**, **Manage** **No** | Open both pages, open every webhook's dialog read-only, and open **Event Details** for every delivery. In the dialog, a saved **Secret** and every **Custom headers** value appear as `********`; the header names stay visible. |
-| **Read access** **All**, **Manage** **Yes** | Everything above, plus add, edit and delete webhooks and resend deliveries. |
+| **Read access** **All**, **Manage** **Yes** | Open both pages and see saved **Secret** and **Custom headers** values in the webhook dialog; add, edit and delete webhooks and resend deliveries. |
+
+The same row also controls **My Profile** → **API & Connectors**, so a role that may manage its own API keys may also manage every webhook in the workspace.
 
 The **Admin** role can do everything. Webhooks have no plan restriction: they work on every Cloud plan and in a self-hosted installation. The same permissions apply to `manage_webhooks` through MCP and in the hosted assistant. In the hosted assistant, deleting a webhook or resending a delivery asks for your approval first.
 

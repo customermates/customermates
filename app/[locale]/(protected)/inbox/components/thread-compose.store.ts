@@ -3,9 +3,11 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { MessagingMessageDto } from "@/ee/messaging/inbox/inbox.schema";
 import type { LinkedinProduct } from "@/ee/messaging/provider";
 import type { $ZodErrorTree } from "zod/v4/core";
+import type { SendAttachment } from "@/ee/messaging/outbound/send-email.interactor";
 
 import { action, computed, makeObservable, observable, runInAction } from "mobx";
 import { z } from "zod";
+import { toast } from "sonner";
 
 import {
   sendChatMessageAction,
@@ -16,11 +18,11 @@ import {
 } from "../actions";
 
 import { BaseFormStore } from "@/core/base/base-form.store";
-import { isEmailProvider } from "@/ee/messaging/provider";
+import { isDraftThreadId, isEmailProvider } from "@/ee/messaging/provider";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { defaultEmailSettings } from "@/ee/messaging/email-settings";
 import { composeEmailBodies } from "@/ee/messaging/outbound/email-signature";
-import { reportApplicationError } from "@/core/errors/report-application-error";
+import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 
 import { formatBytes } from "./attachment-classify";
 import { MAX_ATTACHMENTS_BYTES, toAttachmentInput } from "./attachment-input";
@@ -47,6 +49,20 @@ function sameValues(left: readonly string[], right: readonly string[]): boolean 
   return left.length === right.length && left.every((value, index) => value === right[index]);
 }
 
+type DeliveryResult =
+  | Awaited<ReturnType<typeof sendEmailAction>>
+  | Awaited<ReturnType<typeof sendChatMessageAction>>
+  | Awaited<ReturnType<typeof startChatAction>>;
+
+type PendingDelivery = {
+  message: MessagingMessageDto;
+  files: File[];
+  status: "sending" | "failed";
+  retryable?: boolean;
+  send: (attachments: SendAttachment[] | undefined) => Promise<DeliveryResult>;
+  onSent?: (threadId: string | null) => void;
+};
+
 export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
   showCcBcc = false;
   editingDraftId: string | null = null;
@@ -55,10 +71,11 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
   draftAttachments: File[] = [];
   pendingAttachments: Record<string, File[]> = {};
   newThreadTarget: NewThreadTarget | null = null;
+  submissionVersion = 0;
+  private pendingDeliveries = new Map<string, PendingDelivery>();
 
   private onNewThreadDone: (() => void) | null = null;
   private onNewThreadSent: ((threadId: string | null) => void) | null = null;
-  private retryDraftBindings = new Map<string, { messageId: string; revision: string }>();
   private composeGeneration = 0;
 
   constructor(rootStore: RootStore) {
@@ -74,7 +91,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       inmailSignature: "",
     });
 
-    makeObservable(this, {
+    makeObservable<this, "pendingDeliveries">(this, {
       showCcBcc: observable,
       editingDraftId: observable,
       editingDraftRevision: observable,
@@ -82,6 +99,8 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       draftAttachments: observable,
       pendingAttachments: observable,
       newThreadTarget: observable,
+      submissionVersion: observable,
+      pendingDeliveries: observable.shallow,
       isEmail: computed,
       isLinkedin: computed,
       isNewThread: computed,
@@ -93,6 +112,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       initializeNewThread: action,
       setNewThreadAccount: action,
       send: action,
+      sendDraft: action,
       saveDraft: action,
       loadDraft: action,
       discardDraft: action,
@@ -135,9 +155,18 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     const email = z.email({ error });
     const result = z
       .object({
-        recipients: requireRecipients ? z.array(email).min(1, { error }) : z.array(email),
+        recipients: z.array(email),
         cc: z.array(email),
         bcc: z.array(email),
+      })
+      .superRefine((value, ctx) => {
+        if (requireRecipients && value.recipients.length + value.cc.length + value.bcc.length === 0) {
+          ctx.addIssue({
+            code: "custom",
+            message: this.t("Common.errors.emailRecipientsRequired"),
+            path: ["recipients"],
+          });
+        }
       })
       .safeParse({
         recipients: this.form.recipients,
@@ -152,6 +181,31 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
 
     this.setError(z.treeifyError(result.error) as $ZodErrorTree<typeof this.form>);
     return false;
+  }
+
+  private validateSend(): boolean {
+    if (!this.validateEmails(true)) return false;
+    if (this.isEmail && !this.form.subject.trim()) {
+      this.setError({ errors: [], properties: { subject: { errors: [this.t("Common.errors.subjectRequired")] } } });
+      return false;
+    }
+    if (this.isNewThread && this.isLinkedin && this.form.linkedinProduct !== "classic") {
+      if (!this.form.subject.trim()) {
+        this.setError({
+          errors: [],
+          properties: { subject: { errors: [this.t("Common.errors.inmailSubjectRequired")] } },
+        });
+        return false;
+      }
+      if (this.form.linkedinProduct === "recruiter" && !this.form.inmailSignature.trim()) {
+        this.setError({
+          errors: [],
+          properties: { inmailSignature: { errors: [this.t("Common.errors.inmailSignatureRequired")] } },
+        });
+        return false;
+      }
+    }
+    return true;
   }
 
   get isEmail(): boolean {
@@ -297,23 +351,124 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     this.pendingAttachments = Object.fromEntries(Object.entries(this.pendingAttachments).filter(([key]) => key !== id));
   };
 
+  getPendingMessages = (threadId: string): MessagingMessageDto[] =>
+    [...this.pendingDeliveries.values()]
+      .filter((delivery) => delivery.message.messagingThreadId === threadId)
+      .map((delivery) => delivery.message);
+
+  getDeliveryStatus = (messageId: string): "sending" | "failed" | undefined =>
+    this.pendingDeliveries.get(messageId)?.status;
+
+  private displayDelivery = (delivery: PendingDelivery) => {
+    const detail = this.rootStore.messagingThreadDetailStore;
+    if (detail.thread?.id !== delivery.message.messagingThreadId) return;
+    if (detail.messages.some((message) => message.id === delivery.message.id))
+      detail.replaceMessageById(delivery.message.id, delivery.message);
+    else detail.appendMessage(delivery.message);
+    detail.setMessageStatus(delivery.message.id, delivery.status);
+  };
+
+  private deliver = async (delivery: PendingDelivery): Promise<void> => {
+    const id = delivery.message.id;
+    if (this.pendingDeliveries.get(id)?.status === "sending") return;
+    runInAction(() => {
+      this.pendingDeliveries.set(id, { ...delivery, status: "sending" });
+      if (delivery.files.length) this.pendingAttachments = { ...this.pendingAttachments, [id]: delivery.files };
+      this.displayDelivery({ ...delivery, status: "sending" });
+    });
+    const toastId = `send:${id}`;
+    toast.info(this.t("Inbox.compose.sendStarted"), {
+      id: toastId,
+      duration: 4000,
+      action: undefined,
+      description: this.t("Inbox.compose.sendInBackground"),
+    });
+    const options = {
+      id: toastId,
+      duration: Infinity,
+      description: undefined,
+      action: {
+        label: this.t("Inbox.compose.retry"),
+        onClick: () => runUserAction(() => this.retrySend(id)),
+      },
+    };
+    const finalOptions = { ...options, action: undefined };
+
+    const failed = (retryable: boolean) =>
+      runInAction(() => {
+        const next = { ...delivery, status: "failed" as const, retryable };
+        this.pendingDeliveries.set(id, next);
+        this.displayDelivery(next);
+      });
+
+    let dispatched = false;
+    let delivered = false;
+    try {
+      const attachments = delivery.files.length ? await Promise.all(delivery.files.map(toAttachmentInput)) : undefined;
+      dispatched = true;
+      const result = await delivery.send(attachments);
+      if (!result.ok) {
+        const retryable = "retryable" in result && result.retryable === true;
+        const toastOptions = retryable ? options : finalOptions;
+        failed(retryable);
+        if (!toastZodErrorTree(result.error, toastOptions))
+          toast.error(this.t("ErrorCard.unexpectedError"), toastOptions);
+        return;
+      }
+
+      const sent = result.data && "messagingThreadId" in result.data ? result.data : null;
+      const sentThreadId = result.data
+        ? "messagingThreadId" in result.data
+          ? result.data.messagingThreadId
+          : result.data.threadId
+        : null;
+      runInAction(() => {
+        this.pendingDeliveries.delete(id);
+        this.clearPending(id);
+        const detail = this.rootStore.messagingThreadDetailStore;
+        if (detail.thread?.id === delivery.message.messagingThreadId) {
+          if (sent && sent.messagingThreadId === detail.thread.id) detail.replaceMessageById(id, sent);
+          else detail.removeMessageById(id);
+          detail.clearMessageStatus(id);
+        }
+      });
+      delivered = true;
+      this.rootStore.messagingThreadsStore.refreshInBackground();
+      toast.success(this.t("Inbox.compose.messageSent"), {
+        id: toastId,
+        duration: 4000,
+        action: undefined,
+        description: undefined,
+      });
+      runUserAction(() => runInAction(() => delivery.onSent?.(sentThreadId)));
+    } catch (error) {
+      if (delivered) {
+        reportApplicationError(error);
+        return;
+      }
+      failed(!dispatched);
+      reportApplicationError(
+        error,
+        dispatched ? { ...finalOptions, description: this.t("Inbox.compose.sendOutcomeUnknown") } : options,
+      );
+    }
+  };
+
+  canRetry = (messageId: string): boolean => this.pendingDeliveries.get(messageId)?.retryable !== false;
+
   send = async (): Promise<void> => {
     if (this.isLoading) return;
     if (this.isNewThread) return this.sendNewThread();
     if (!this.form.threadId || (!this.form.body.trim() && this.attachments.length === 0)) return;
-    if (!this.validateEmails(true)) return;
+    if (!this.validateSend()) return;
 
-    const detail = this.rootStore.messagingThreadDetailStore;
-    const generation = this.composeGeneration;
     const isEmail = this.isEmail;
     const threadId = this.form.threadId;
-    const draftId = this.editingDraftId;
-    const draftRevision = this.editingDraftRevision;
-    const optimistic = this.buildOptimisticMessage({
-      isDraft: false,
-      id: draftId ?? undefined,
-    });
-    const tempId = optimistic.id;
+    const draftBinding =
+      this.editingDraftId && this.editingDraftRevision
+        ? { draftMessageId: this.editingDraftId, draftRevision: this.editingDraftRevision }
+        : {};
+    const message = this.buildOptimisticMessage({ isDraft: false, id: this.editingDraftId ?? undefined });
     const files = [...this.attachments];
     const snapshot = {
       body: this.form.body,
@@ -322,20 +477,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       subject: this.form.subject,
       recipients: [...this.form.recipients],
     };
-
     runInAction(() => {
-      if (draftId && detail.messages.some((message) => message.id === draftId))
-        detail.replaceMessageById(draftId, optimistic);
-      else detail.appendMessage(optimistic);
-
-      detail.setMessageStatus(tempId, "sending");
-      if (files.length) {
-        this.pendingAttachments = {
-          ...this.pendingAttachments,
-          [tempId]: files,
-        };
-      }
-
       this.form.body = "";
       this.form.cc = [];
       this.form.bcc = [];
@@ -343,85 +485,42 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       this.draftAttachments = [];
       this.editingDraftId = null;
       this.editingDraftRevision = null;
+      this.submissionVersion += 1;
+      this.onInitOrRefresh(this.form);
     });
-    if (draftId && draftRevision) {
-      this.retryDraftBindings.set(tempId, {
-        messageId: draftId,
-        revision: draftRevision,
-      });
-    }
-
-    this.setIsLoading(true);
-    try {
-      const attachments = files.length ? await Promise.all(files.map(toAttachmentInput)) : undefined;
-      const result = isEmail
-        ? await sendEmailAction({
-            threadId,
-            to: snapshot.recipients
-              .map((value) => value.trim())
-              .filter((value) => value.includes("@"))
-              .map((value) => ({ identifier: value })),
-            cc: snapshot.cc.length ? snapshot.cc : undefined,
-            bcc: snapshot.bcc.length ? snapshot.bcc : undefined,
-            subject: snapshot.subject,
-            body: snapshot.body,
-            bodyFormat: "markdown",
-            attachments,
-            ...(draftId && draftRevision ? { draftMessageId: draftId, draftRevision } : {}),
-          })
-        : await sendChatMessageAction({
-            threadId,
-            text: snapshot.body,
-            attachments,
-            ...(draftId && draftRevision ? { draftMessageId: draftId, draftRevision } : {}),
-          });
-
-      if (generation !== this.composeGeneration) return;
-
-      if (!result.ok) {
-        runInAction(() => detail.setMessageStatus(tempId, "failed"));
-        if (!toastZodErrorTree(result.error)) this.toastError("Common.notifications.unexpectedError");
-        return;
-      }
-
-      const sent = result.data;
-      runInAction(() => {
-        if (sent) detail.replaceMessageById(tempId, sent);
-        else detail.removeMessageById(tempId);
-        detail.clearMessageStatus(tempId);
-        this.clearPending(tempId);
-      });
-      this.retryDraftBindings.delete(tempId);
-    } catch (error) {
-      reportApplicationError(error);
-      if (generation !== this.composeGeneration) return;
-      runInAction(() => detail.setMessageStatus(tempId, "failed"));
-    } finally {
-      if (generation === this.composeGeneration) runInAction(() => this.setIsLoading(false));
-      else {
-        runInAction(() => this.clearPending(tempId));
-        this.retryDraftBindings.delete(tempId);
-      }
-    }
+    return this.deliver({
+      message,
+      files,
+      status: "sending",
+      send: (attachments) =>
+        isEmail
+          ? sendEmailAction({
+              threadId,
+              to: snapshot.recipients.map((identifier) => ({ identifier })),
+              cc: snapshot.cc.length ? snapshot.cc : undefined,
+              bcc: snapshot.bcc.length ? snapshot.bcc : undefined,
+              subject: snapshot.subject,
+              body: snapshot.body,
+              bodyFormat: "markdown",
+              attachments,
+              ...draftBinding,
+            })
+          : sendChatMessageAction({ threadId, text: snapshot.body, attachments, ...draftBinding }),
+    });
   };
 
   private sendNewThread = async (): Promise<void> => {
     const target = this.newThreadTarget;
-    if (!target) return;
-    if (!this.validateEmails()) return;
-
+    if (!target || !this.validateSend()) return;
+    if (!this.form.body.trim() && this.attachments.length === 0) return;
     const generation = this.composeGeneration;
     const onDone = this.onNewThreadDone;
     const onSent = this.onNewThreadSent;
     const draftBinding =
       this.editingDraftId && this.editingDraftRevision
-        ? {
-            draftMessageId: this.editingDraftId,
-            draftRevision: this.editingDraftRevision,
-          }
+        ? { draftMessageId: this.editingDraftId, draftRevision: this.editingDraftRevision }
         : {};
     const snapshot = {
-      provider: this.form.provider,
       isEmail: this.isEmail,
       isLinkedin: this.isLinkedin,
       recipients: [...this.form.recipients],
@@ -433,129 +532,133 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       inmailSignature: this.form.inmailSignature,
       files: [...this.attachments],
     };
-
-    this.setIsLoading(true);
-    try {
-      const attachments = snapshot.files.length ? await Promise.all(snapshot.files.map(toAttachmentInput)) : undefined;
-      const result = snapshot.isEmail
-        ? await sendEmailAction({
-            connectedAccountId: target.connectedAccountId,
-            to: snapshot.recipients.map((identifier) => ({
-              identifier,
-              display_name:
-                target.recipients.find((recipient) => recipient.identifier === identifier)?.displayName ?? undefined,
-            })),
-            cc: snapshot.cc.length ? snapshot.cc : undefined,
-            bcc: snapshot.bcc.length ? snapshot.bcc : undefined,
-            subject: snapshot.subject.trim(),
-            body: snapshot.body,
-            bodyFormat: "markdown",
-            attachments,
-            ...draftBinding,
-          })
-        : await startChatAction({
-            connectedAccountId: target.connectedAccountId,
-            attendeeIdentifiers: snapshot.recipients,
-            text: snapshot.body,
-            attachments,
-            ...draftBinding,
-            ...(snapshot.isLinkedin && snapshot.linkedinProduct !== "classic"
-              ? {
-                  linkedinProduct: snapshot.linkedinProduct,
-                  inmailSubject: snapshot.subject.trim() || undefined,
-                  inmailSignature:
-                    snapshot.linkedinProduct === "recruiter" ? snapshot.inmailSignature.trim() || undefined : undefined,
-                }
-              : {}),
-          });
-
-      if (
-        generation !== this.composeGeneration ||
-        this.newThreadTarget?.connectedAccountId !== target.connectedAccountId ||
-        this.form.provider !== snapshot.provider
-      )
-        return;
-
-      if (!result.ok) {
-        const tree = this.toComposeError(result.error);
-        this.setError(tree);
-        if (!toastZodErrorTree(tree)) this.toastError("Common.notifications.unexpectedError");
-        return;
-      }
-
-      const draftUnchanged =
-        this.form.body === snapshot.body &&
-        this.form.subject === snapshot.subject &&
-        sameValues(this.form.recipients, snapshot.recipients) &&
-        sameValues(this.form.cc, snapshot.cc) &&
-        sameValues(this.form.bcc, snapshot.bcc) &&
-        this.form.linkedinProduct === snapshot.linkedinProduct &&
-        this.form.inmailSignature === snapshot.inmailSignature &&
-        this.attachments.length === snapshot.files.length &&
-        this.attachments.every((file, index) => file === snapshot.files[index]);
-
-      if (draftUnchanged) {
-        runInAction(() => {
-          if (this.error) this.setError(undefined);
-          this.form.body = "";
-          this.form.subject = "";
-          this.form.cc = [];
-          this.form.bcc = [];
-          this.form.linkedinProduct = "classic";
-          this.form.inmailSignature = "";
-          this.attachments = [];
-          this.onInitOrRefresh(this.form);
-        });
-      }
-
-      if (
-        draftBinding.draftMessageId &&
-        this.editingDraftId === draftBinding.draftMessageId &&
-        this.editingDraftRevision === draftBinding.draftRevision
-      ) {
-        runInAction(() => {
-          this.editingDraftId = null;
-          this.editingDraftRevision = null;
-          if (this.newThreadTarget?.draftThreadId) {
-            const targetWithoutDraft = { ...this.newThreadTarget };
-            delete targetWithoutDraft.draftThreadId;
-            this.newThreadTarget = targetWithoutDraft;
-          }
-        });
-      }
-
-      this.toastSuccess("Inbox.compose.newThreadSent");
-      if (draftUnchanged) {
-        const sentThreadId = result.data
-          ? "messagingThreadId" in result.data
-            ? result.data.messagingThreadId
-            : result.data.threadId
-          : null;
-        onSent?.(sentThreadId);
-        onDone?.();
-      }
-    } catch (error) {
-      reportApplicationError(error);
-    } finally {
-      if (generation === this.composeGeneration) runInAction(() => this.setIsLoading(false));
-    }
+    const message = this.buildOptimisticMessage({ isDraft: false, id: this.editingDraftId ?? undefined });
+    message.messagingThreadId = target.draftThreadId ?? "";
+    runInAction(() => {
+      this.form.body = "";
+      this.form.subject = "";
+      this.form.cc = [];
+      this.form.bcc = [];
+      this.form.linkedinProduct = "classic";
+      this.form.inmailSignature = "";
+      this.attachments = [];
+      this.draftAttachments = [];
+      this.editingDraftId = null;
+      this.editingDraftRevision = null;
+      this.submissionVersion += 1;
+      if (target.draftThreadId) this.newThreadTarget = { ...target, draftThreadId: undefined };
+      this.onInitOrRefresh(this.form);
+    });
+    const sending = this.deliver({
+      message,
+      files: snapshot.files,
+      status: "sending",
+      send: (attachments) =>
+        snapshot.isEmail
+          ? sendEmailAction({
+              connectedAccountId: target.connectedAccountId,
+              to: snapshot.recipients.map((identifier) => ({
+                identifier,
+                display_name:
+                  target.recipients.find((recipient) => recipient.identifier === identifier)?.displayName ?? undefined,
+              })),
+              cc: snapshot.cc.length ? snapshot.cc : undefined,
+              bcc: snapshot.bcc.length ? snapshot.bcc : undefined,
+              subject: snapshot.subject.trim(),
+              body: snapshot.body,
+              bodyFormat: "markdown",
+              attachments,
+              ...draftBinding,
+            })
+          : startChatAction({
+              connectedAccountId: target.connectedAccountId,
+              attendeeIdentifiers: snapshot.recipients,
+              text: snapshot.body,
+              attachments,
+              ...draftBinding,
+              ...(snapshot.isLinkedin && snapshot.linkedinProduct !== "classic"
+                ? {
+                    linkedinProduct: snapshot.linkedinProduct,
+                    inmailSubject: snapshot.subject.trim() || undefined,
+                    inmailSignature:
+                      snapshot.linkedinProduct === "recruiter"
+                        ? snapshot.inmailSignature.trim() || undefined
+                        : undefined,
+                  }
+                : {}),
+            }),
+      onSent: (threadId) => {
+        if (generation !== this.composeGeneration || this.hasUnsavedChanges || this.hasComposedContent) return;
+        if (this.newThreadTarget?.connectedAccountId !== target.connectedAccountId) return;
+        onSent?.(threadId);
+      },
+    });
+    onDone?.();
+    return sending;
   };
 
-  private toComposeError(error: unknown): $ZodErrorTree<ThreadComposeForm> {
-    const tree = error as { properties?: Record<string, unknown> };
-    if (!tree?.properties?.text && !tree?.properties?.inmailSubject) return error as $ZodErrorTree<ThreadComposeForm>;
-
-    const properties: Record<string, unknown> = { ...tree.properties };
-    if (properties.text) {
-      properties.body = properties.text;
-      delete properties.text;
+  sendDraft = async (draft: MessagingMessageDto): Promise<void> => {
+    if (!draft.draftRevision || this.pendingDeliveries.get(draft.id)?.status === "sending") return;
+    if (isEmailProvider(draft.provider) && !draft.subject?.trim()) {
+      this.toastError("Common.errors.subjectRequired");
+      return;
     }
-    if (properties.inmailSubject) {
-      properties.subject = properties.inmailSubject;
-      delete properties.inmailSubject;
-    }
-    return { ...tree, properties } as $ZodErrorTree<ThreadComposeForm>;
-  }
+    const detail = this.rootStore.messagingThreadDetailStore;
+    const newThread = detail.thread?.id === draft.messagingThreadId && isDraftThreadId(detail.thread.unipileThreadId);
+    const generation = this.composeGeneration;
+    const onSent = this.onNewThreadSent;
+    const draftBinding = { draftMessageId: draft.id, draftRevision: draft.draftRevision };
+    const email = isEmailProvider(draft.provider);
+    const recipients =
+      email || draft.recipients.to.length
+        ? draft.recipients.to.map((recipient) => recipient.identifier)
+        : detail.thread?.id === draft.messagingThreadId
+          ? [...this.form.recipients]
+          : [];
+    if (newThread && this.newThreadTarget?.draftThreadId === draft.messagingThreadId)
+      this.newThreadTarget = { ...this.newThreadTarget, draftThreadId: undefined };
+    return this.deliver({
+      message: { ...draft, isDraft: false, draftRevision: null },
+      files: [],
+      status: "sending",
+      send: (attachments) =>
+        email
+          ? sendEmailAction({
+              ...(newThread ? { connectedAccountId: draft.connectedAccountId } : { threadId: draft.messagingThreadId }),
+              to: recipients.map((identifier) => ({ identifier })),
+              cc: draft.recipients.cc.length ? draft.recipients.cc.map((recipient) => recipient.identifier) : undefined,
+              bcc: draft.recipients.bcc.length
+                ? draft.recipients.bcc.map((recipient) => recipient.identifier)
+                : undefined,
+              subject: draft.subject ?? "",
+              body: draft.bodyText ?? "",
+              bodyFormat: "markdown",
+              attachments,
+              ...draftBinding,
+            })
+          : newThread
+            ? startChatAction({
+                connectedAccountId: draft.connectedAccountId,
+                attendeeIdentifiers: recipients,
+                text: draft.bodyText ?? "",
+                attachments,
+                ...draftBinding,
+              })
+            : sendChatMessageAction({
+                threadId: draft.messagingThreadId,
+                text: draft.bodyText ?? "",
+                attachments,
+                ...draftBinding,
+              }),
+      onSent: newThread
+        ? (threadId) => {
+            if (generation !== this.composeGeneration || this.hasUnsavedChanges || this.hasComposedContent) return;
+            if (this.newThreadTarget?.connectedAccountId !== draft.connectedAccountId) return;
+            onSent?.(threadId);
+          }
+        : undefined,
+    });
+  };
 
   saveDraft = async (): Promise<void> => {
     if (this.isLoading) return;
@@ -643,12 +746,12 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
   };
 
   loadDraft = (draft: MessagingMessageDto) => {
-    if (this.isLoading) return;
+    if (this.isLoading || this.pendingDeliveries.get(draft.id)?.status === "sending") return;
     runInAction(() => {
       this.form.subject = draft.subject ?? this.form.subject;
       this.form.body = draft.bodyText ?? "";
       const recipients = draft.recipients.to.map((attendee) => attendee.identifier).filter(Boolean);
-      if (recipients.length > 0) this.form.recipients = recipients;
+      if (this.isEmail || recipients.length > 0) this.form.recipients = recipients;
       this.form.cc = draft.recipients.cc.map((attendee) => attendee.identifier).filter(Boolean);
       this.form.bcc = draft.recipients.bcc.map((attendee) => attendee.identifier).filter(Boolean);
       this.attachments = [...this.draftAttachments];
@@ -660,7 +763,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
   };
 
   discardDraft = async (messageId: string, draftRevision: string): Promise<void> => {
-    if (this.isLoading) return;
+    if (this.isLoading || this.pendingDeliveries.get(messageId)?.status === "sending") return;
     const detail = this.rootStore.messagingThreadDetailStore;
     const generation = this.composeGeneration;
     const removed = detail.messages.find((message) => message.id === messageId);
@@ -698,80 +801,35 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
   };
 
   retrySend = async (messageId: string): Promise<void> => {
-    if (this.isLoading) return;
-    const detail = this.rootStore.messagingThreadDetailStore;
-    const message = detail.messages.find((entry) => entry.id === messageId);
-    if (!message || !this.form.threadId) return;
-    const generation = this.composeGeneration;
-    const isEmail = this.isEmail;
-    const threadId = this.form.threadId;
-    const draftBinding = this.retryDraftBindings.get(messageId);
-
-    runInAction(() => detail.setMessageStatus(messageId, "sending"));
-    this.setIsLoading(true);
-    try {
-      const files = this.pendingAttachments[messageId] ?? [];
-      const attachments = files.length ? await Promise.all(files.map(toAttachmentInput)) : undefined;
-      const result = isEmail
-        ? await sendEmailAction({
-            threadId,
-            to: message.recipients.to
-              .map((attendee) => attendee.identifier)
-              .filter((value) => value.includes("@"))
-              .map((value) => ({ identifier: value })),
-            cc: message.recipients.cc.length ? message.recipients.cc.map((attendee) => attendee.identifier) : undefined,
-            bcc: message.recipients.bcc.length
-              ? message.recipients.bcc.map((attendee) => attendee.identifier)
-              : undefined,
-            subject: message.subject ?? "",
-            body: message.bodyText ?? "",
-            bodyFormat: "markdown",
-            attachments,
-            ...(draftBinding
-              ? {
-                  draftMessageId: draftBinding.messageId,
-                  draftRevision: draftBinding.revision,
-                }
-              : {}),
-          })
-        : await sendChatMessageAction({
-            threadId,
-            text: message.bodyText ?? "",
-            attachments,
-            ...(draftBinding
-              ? {
-                  draftMessageId: draftBinding.messageId,
-                  draftRevision: draftBinding.revision,
-                }
-              : {}),
-          });
-
-      if (generation !== this.composeGeneration) return;
-
-      if (!result.ok) {
-        runInAction(() => detail.setMessageStatus(messageId, "failed"));
-        if (!toastZodErrorTree(result.error)) this.toastError("Common.notifications.unexpectedError");
-        return;
-      }
-
-      const sent = result.data;
-      runInAction(() => {
-        if (sent) detail.replaceMessageById(messageId, sent);
-        else detail.removeMessageById(messageId);
-        detail.clearMessageStatus(messageId);
-        this.clearPending(messageId);
-      });
-      this.retryDraftBindings.delete(messageId);
-    } catch (error) {
-      reportApplicationError(error);
-      if (generation !== this.composeGeneration) return;
-      runInAction(() => detail.setMessageStatus(messageId, "failed"));
-    } finally {
-      if (generation === this.composeGeneration) runInAction(() => this.setIsLoading(false));
-      else {
-        runInAction(() => this.clearPending(messageId));
-        this.retryDraftBindings.delete(messageId);
-      }
+    const pending = this.pendingDeliveries.get(messageId);
+    if (pending) {
+      if (pending.status !== "sending") await this.deliver(pending);
+      return;
     }
+    const message = this.rootStore.messagingThreadDetailStore.messages.find((entry) => entry.id === messageId);
+    if (!message) return;
+    const email = isEmailProvider(message.provider);
+    await this.deliver({
+      message,
+      files: this.pendingAttachments[messageId] ?? [],
+      status: "failed",
+      send: (attachments) =>
+        email
+          ? sendEmailAction({
+              threadId: message.messagingThreadId,
+              to: message.recipients.to.map((recipient) => ({ identifier: recipient.identifier })),
+              cc: message.recipients.cc.length
+                ? message.recipients.cc.map((recipient) => recipient.identifier)
+                : undefined,
+              bcc: message.recipients.bcc.length
+                ? message.recipients.bcc.map((recipient) => recipient.identifier)
+                : undefined,
+              subject: message.subject ?? "",
+              body: message.bodyText ?? "",
+              bodyFormat: "markdown",
+              attachments,
+            })
+          : sendChatMessageAction({ threadId: message.messagingThreadId, text: message.bodyText ?? "", attachments }),
+    });
   };
 }

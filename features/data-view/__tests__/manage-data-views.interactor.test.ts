@@ -21,6 +21,7 @@ import { ManageDataViewsInteractor } from "../manage-data-views.interactor";
 import {
   ManageDataViewsResultSchema,
   type AgentDataViewState,
+  type AgentDataViewUpdateState,
   type ManageDataViewsData,
 } from "../manage-data-views.schema";
 import de from "@/i18n/locales/de.json";
@@ -209,6 +210,82 @@ describe("agent saved-view management", () => {
     expect(grouping.ok && grouping.data.items).toHaveLength(3);
   });
 
+  it("tells an agent which inbox date field means the last actual message", async () => {
+    const subject = setup();
+    const dates = [FilterOperatorKey.inLastDays, FilterOperatorKey.notInLastDays];
+    subject.sources[SURFACE.messagingThreads].getFilterableFields.mockResolvedValue([
+      { field: "lastMessageSentAt", operators: dates },
+      { field: "lastMessageAt", operators: dates },
+    ] as never);
+
+    const discovery = await subject.run({ action: "config", surfaceKey: SURFACE.messagingThreads, section: "filters" });
+
+    const items = (discovery.ok ? discovery.data.items : []) as Array<{ field: string; description?: string }>;
+    expect(items.find((item) => item.field === "lastMessageSentAt")?.description).toMatch(/ignores drafts/);
+    expect(items.find((item) => item.field === "lastMessageAt")?.description).toMatch(/including saved drafts/);
+  });
+
+  it("discovers scoped inbox choices and preserves folder references when saving a personal view", async () => {
+    const subject = setup();
+    const folder = JSON.stringify(["00000000-0000-4000-8000-000000000001", "inbox"]);
+    const options = [
+      {
+        value: folder,
+        label: "Inbox",
+        groupLabel: "Shared mailbox",
+        provider: "mail",
+      },
+    ];
+    subject.sources[SURFACE.messagingThreads].getFilterableFields.mockResolvedValue([
+      {
+        field: "emailFolder",
+        operators: [FilterOperatorKey.in, FilterOperatorKey.notIn],
+        options,
+      },
+    ] as never);
+    const discovery = await subject.run({
+      action: "config",
+      surfaceKey: SURFACE.messagingThreads,
+      section: "filters",
+    });
+    expect(discovery.ok && discovery.data.items).toEqual([
+      {
+        field: "emailFolder",
+        operators: ["in", "notIn"],
+        options,
+        values: [folder],
+        description: expect.stringContaining("account-qualified"),
+      },
+    ]);
+    const filters = [
+      {
+        field: "emailFolder",
+        operator: FilterOperatorKey.notIn as const,
+        value: [folder],
+      },
+    ];
+    const result = await subject.run({
+      action: "update",
+      surfaceKey: SURFACE.messagingThreads,
+      viewKey: VIEW_ID,
+      state: { filters },
+    });
+    expect(result.ok).toBe(true);
+    expect(subject.upsert.invoke).toHaveBeenCalledWith(
+      expect.objectContaining({ state: expect.objectContaining({ filters }) }),
+    );
+    const rejected = await subject.run({
+      action: "update",
+      surfaceKey: SURFACE.messagingThreads,
+      viewKey: VIEW_ID,
+      state: {
+        filters: [{ ...filters[0], value: [JSON.stringify([MISSING_ID, "inbox"])] }],
+      },
+    });
+    expect(rejected.ok).toBe(false);
+    expect(subject.upsert.invoke).toHaveBeenCalledOnce();
+  });
+
   it("pages summary discovery, narrows only documented keys, and always returns an exact view's fresh state", async () => {
     const subject = setup();
     const views = Array.from({ length: 12 }, (_, index) => ({
@@ -238,12 +315,22 @@ describe("agent saved-view management", () => {
     expect(secondPage.ok && secondPage.data.items).toHaveLength(5);
     if (secondPage.ok) for (const item of secondPage.data.items ?? []) expect(item).not.toHaveProperty("state");
 
-    const roundedPageSize = await subject.run({
+    const exactPageSize = await subject.run({
       action: "list",
       surfaceKey: SURFACE.contacts,
       pageSize: 6,
     } as never);
-    expect(roundedPageSize.ok && roundedPageSize.data).toMatchObject({ pageSize: 10, totalPages: 2 });
+    expect(exactPageSize.ok && exactPageSize.data).toMatchObject({ pageSize: 6, totalPages: 2 });
+    expect(exactPageSize.ok && exactPageSize.data.items).toHaveLength(6);
+
+    const lastPage = await subject.run({
+      action: "list",
+      surfaceKey: SURFACE.contacts,
+      page: 2,
+      pageSize: 7,
+    } as never);
+    expect(lastPage.ok && lastPage.data).toMatchObject({ page: 2, pageSize: 7, totalPages: 2 });
+    expect(lastPage.ok && lastPage.data.items).toHaveLength(5);
 
     const narrowed = await subject.run({
       action: "list",
@@ -533,6 +620,87 @@ describe("agent saved-view management", () => {
       },
       link: `/contacts?view=${VIEW_ID}`,
     });
+  });
+
+  it("accepts the full listed state echoed back and applies only the keys that changed", async () => {
+    const subject = setup();
+    subject.surfaceState.views[0].state = {
+      ...subject.surfaceState.views[0].state,
+      columnOrder: ["name", "createdAt"],
+      hiddenColumns: ["updatedAt"],
+    } as never;
+    const listed = await subject.run({ action: "list", surfaceKey: SURFACE.contacts, viewKey: VIEW_ID });
+    const item = (listed.ok && listed.data.items?.[0]) as { name: string; state: Record<string, unknown> };
+    expect(item.state).toMatchObject({ columnOrder: ["name", "createdAt"], hiddenColumns: ["updatedAt"] });
+
+    const result = await subject.run({
+      action: "update",
+      surfaceKey: SURFACE.contacts,
+      viewKey: VIEW_ID,
+      name: item.name,
+      state: { ...item.state, searchTerm: "new", viewMode: ViewMode.card } as AgentDataViewUpdateState,
+    });
+
+    expect(result.ok).toBe(true);
+    expect(subject.upsert.invoke).toHaveBeenCalledWith({
+      id: VIEW_ID,
+      surfaceKey: SURFACE.contacts,
+      state: { searchTerm: "new", viewMode: ViewMode.card },
+    });
+  });
+
+  it("treats an unchanged echo of the listed state as a no-op without writing or reading configuration", async () => {
+    const subject = setup();
+    subject.sources[SURFACE.contacts].getCustomColumns.mockRejectedValue(new Error("configuration unavailable"));
+    const [view] = subject.surfaceState.views;
+
+    const named = await subject.run({
+      action: "update",
+      surfaceKey: SURFACE.contacts,
+      viewKey: VIEW_ID,
+      name: view.name,
+      state: view.state as AgentDataViewUpdateState,
+    });
+    expect(named.ok && named.data).toMatchObject({
+      action: "update",
+      viewKey: VIEW_ID,
+      name: view.name,
+      state: view.state,
+      link: `/contacts?view=${VIEW_ID}`,
+    });
+
+    const all = await subject.run({
+      action: "update",
+      surfaceKey: SURFACE.contacts,
+      viewKey: ALL_VIEW_KEY,
+      state: { pageSize: 25 },
+    });
+    expect(all.ok && all.data).toMatchObject({ viewKey: ALL_VIEW_KEY, state: { pageSize: 25 } });
+    expect(subject.upsert.invoke).not.toHaveBeenCalled();
+    expect(subject.save.invoke).not.toHaveBeenCalled();
+  });
+
+  it("rejects a changed column layout with an explanation and writes nothing", async () => {
+    const subject = setup();
+    const cases: Array<[string, AgentDataViewUpdateState]> = [
+      [VIEW_ID, { searchTerm: "new", columnWidths: { name: 300 } }],
+      [VIEW_ID, { hiddenColumns: ["createdAt"] }],
+      [ALL_VIEW_KEY, { columnOrder: ["createdAt", "name"] }],
+    ];
+    for (const [viewKey, state] of cases) {
+      const result = await subject.run({ action: "update", surfaceKey: SURFACE.contacts, viewKey, state });
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error.issues).toEqual([
+          expect.objectContaining({
+            path: ["state", Object.keys(state).at(-1)],
+            params: { error: CustomErrorCode.dataViewLayoutReadOnly },
+          }),
+        ]);
+      }
+    }
+    expect(subject.upsert.invoke).not.toHaveBeenCalled();
+    expect(subject.save.invoke).not.toHaveBeenCalled();
   });
 
   it("renames without loading or validating unrelated view configuration", async () => {

@@ -1,11 +1,9 @@
 import { z } from "zod";
 
 import {
-  CUSTOM_COLUMN_PREREQ,
   CUSTOM_FIELDS_MERGE_NOTE,
   CreatedRecordsOutputSchema,
   toonResult,
-  IDEMPOTENT_NOTE,
   UpdatedRecordsOutputSchema,
   forbidNullFields,
   relationsViaLinkNote,
@@ -40,8 +38,7 @@ export const createOrganizationsTool = {
     "Required per item: name. " +
     "Optional per item: notes, contactIds, userIds, dealIds, taskIds, customFieldValues. " +
     "You can pass contactIds/userIds/dealIds/taskIds directly in create so linked orgs are created in one call. " +
-    CUSTOM_COLUMN_PREREQ +
-    " Returns the list of created organization ids and names.",
+    "Returns the list of created organization ids and names.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
   inputSchema: CreateOrganizationsSchema,
   outputSchema: CreatedRecordsOutputSchema,
@@ -60,9 +57,7 @@ export const updateOrganizationsTool = {
     "Optional per item: name, notes, customFieldValues. " +
     relationsViaLinkNote("contacts, users, deals, tasks") +
     " " +
-    CUSTOM_FIELDS_MERGE_NOTE +
-    " " +
-    IDEMPOTENT_NOTE,
+    CUSTOM_FIELDS_MERGE_NOTE,
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: UpdateOrganizationsSchema,
   outputSchema: UpdatedRecordsOutputSchema,

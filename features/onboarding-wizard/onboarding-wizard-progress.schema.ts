@@ -9,7 +9,6 @@ export const AiConnectionSelectionSchema = z.strictObject({
       screen: z.literal("setup"),
       provider: z.enum(["cursor", "gemini"]),
     }),
-    z.strictObject({ screen: z.literal("skip") }),
   ]),
   selectedProvider: z.enum(["claude", "openai", "cursor", "gemini"]).nullable(),
   claudeMethod: z.enum(["account", "local"]).nullable(),

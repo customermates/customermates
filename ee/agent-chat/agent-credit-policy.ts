@@ -5,9 +5,52 @@ import { SubscriptionStatus, type SubscriptionPlan } from "@/generated/prisma";
 import type { Data } from "@/core/validation/validation.utils";
 import { assertValidDate } from "@/core/utils/date";
 
+import { agentCreditsToMicrocents } from "@/core/commercial/agent-credits";
 import { getEntitlements, TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER } from "@/ee/subscription/entitlements";
 
-export const AGENT_CREDIT_MICROCENTS = 1_000_000;
+export {
+  AGENT_CREDIT_MICROCENTS,
+  AGENT_MICROCENTS_PER_USD,
+  agentCreditsToMicrocents,
+  agentMicrocentsToCredits,
+} from "@/core/commercial/agent-credits";
+
+export const AGENT_RETRIEVAL_RESERVATION_TTL_MS = 15 * 60 * 1000;
+export const AGENT_RETRIEVAL_PLATFORM_PURPOSE = "wikiQueryEmbeddingUnused";
+
+export function workspaceIndexingShareMicrocents(args: {
+  unassignedMicrocents: number;
+  memberLimitMicrocents: number;
+  poolLimitMicrocents: number;
+}): number {
+  const { unassignedMicrocents, memberLimitMicrocents, poolLimitMicrocents } = args;
+  if (unassignedMicrocents <= 0 || memberLimitMicrocents <= 0 || poolLimitMicrocents <= 0) return 0;
+  const numerator = BigInt(unassignedMicrocents) * BigInt(memberLimitMicrocents);
+  const denominator = BigInt(poolLimitMicrocents);
+  return Number((numerator + denominator - 1n) / denominator);
+}
+
+export function memberCreditHeadroomMicrocents(args: {
+  memberLimitMicrocents: number;
+  memberUsedMicrocents: number;
+  poolLimitMicrocents: number;
+  poolUsedMicrocents: number;
+}): number {
+  return Math.max(
+    0,
+    Math.min(
+      args.memberLimitMicrocents - args.memberUsedMicrocents,
+      args.poolLimitMicrocents - args.poolUsedMicrocents,
+    ),
+  );
+}
+
+export function agentMicrocentsFromStorage(value: bigint | number | null | undefined, description: string): number {
+  const microcents = typeof value === "bigint" ? Number(value) : (value ?? 0);
+  if (!Number.isSafeInteger(microcents) || (typeof value === "bigint" && BigInt(microcents) !== value))
+    throw new Error(`${description} is invalid.`);
+  return microcents;
+}
 
 export const AgentCreditEntitlementBlockedReasonSchema = z.enum([
   "self_hosted",
@@ -24,7 +67,7 @@ export type AgentCreditPeriod = {
 
 export type AgentCreditEntitlement = AgentCreditPeriod & {
   plan: SubscriptionPlan;
-  limit: number;
+  limitMicrocents: number;
   blockedReason: AgentCreditEntitlementBlockedReason | null;
 };
 
@@ -35,7 +78,7 @@ type AgentCreditEntitlementInput = {
   trialEndDate: Date | null;
   creditAnchorAt: Date;
   enterpriseCreditsPerUser: number | null;
-  adjustmentCredits?: number;
+  adjustmentMicrocents?: number;
   activeSeatAt: Date | null;
   now: Date;
 };
@@ -74,14 +117,14 @@ export function agentCreditPeriodForAnchor(anchor: Date, now: Date): AgentCredit
   return { start, resetAt };
 }
 
-export function prorateAgentCreditsForSeat(
-  fullAllowance: number,
+export function prorateAgentAllowanceForSeat(
+  fullAllowanceMicrocents: number,
   activeSeatAt: Date | null,
   period: AgentCreditPeriod,
 ) {
-  if (!Number.isSafeInteger(fullAllowance) || fullAllowance < 0)
-    throw new Error("AI credit allowance must be a non-negative whole number.");
-  if (!activeSeatAt || activeSeatAt.getTime() <= period.start.getTime()) return fullAllowance;
+  if (!Number.isSafeInteger(fullAllowanceMicrocents) || fullAllowanceMicrocents < 0)
+    throw new Error("AI credit allowance must be a non-negative whole number of microcents.");
+  if (!activeSeatAt || activeSeatAt.getTime() <= period.start.getTime()) return fullAllowanceMicrocents;
   assertValidDate(activeSeatAt, "AI credit active-seat time");
   if (activeSeatAt.getTime() >= period.resetAt.getTime()) return 0;
 
@@ -90,7 +133,7 @@ export function prorateAgentCreditsForSeat(
   if (!Number.isSafeInteger(periodMs) || periodMs <= 0 || !Number.isSafeInteger(remainingMs) || remainingMs <= 0)
     throw new Error("AI credit proration period is invalid.");
 
-  const numerator = BigInt(fullAllowance) * BigInt(remainingMs);
+  const numerator = BigInt(fullAllowanceMicrocents) * BigInt(remainingMs);
   const denominator = BigInt(periodMs);
   const prorated = (numerator + denominator - 1n) / denominator;
   const result = Number(prorated);
@@ -110,10 +153,11 @@ function paidPlanAllowance(plan: SubscriptionPlan, enterpriseCreditsPerUser: num
   return contracted;
 }
 
-function adjustedAllowance(baseAllowance: number, adjustmentCredits = 0): number {
-  if (!Number.isSafeInteger(adjustmentCredits)) throw new Error("AI credit adjustment must be a whole number.");
+function adjustedAllowance(baseAllowanceMicrocents: number, adjustmentMicrocents = 0): number {
+  if (!Number.isSafeInteger(adjustmentMicrocents))
+    throw new Error("AI credit adjustment must be a whole number of microcents.");
 
-  const allowance = baseAllowance + adjustmentCredits;
+  const allowance = baseAllowanceMicrocents + adjustmentMicrocents;
   if (!Number.isSafeInteger(allowance) || allowance < 0) throw new Error("Adjusted AI credit allowance is invalid.");
 
   return allowance;
@@ -142,7 +186,7 @@ export function resolveAgentCreditEntitlement(input: AgentCreditEntitlementInput
     return {
       ...period,
       plan: input.plan,
-      limit: 0,
+      limitMicrocents: 0,
       blockedReason: "self_hosted",
     };
   }
@@ -155,7 +199,7 @@ export function resolveAgentCreditEntitlement(input: AgentCreditEntitlementInput
     return {
       ...period,
       plan: input.plan,
-      limit: 0,
+      limitMicrocents: 0,
       blockedReason: "subscription_unavailable",
     };
   }
@@ -164,7 +208,10 @@ export function resolveAgentCreditEntitlement(input: AgentCreditEntitlementInput
     return {
       ...period,
       plan: input.plan,
-      limit: adjustedAllowance(TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER, input.adjustmentCredits),
+      limitMicrocents: adjustedAllowance(
+        agentCreditsToMicrocents(TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER),
+        input.adjustmentMicrocents,
+      ),
       blockedReason: null,
     };
   }
@@ -174,7 +221,7 @@ export function resolveAgentCreditEntitlement(input: AgentCreditEntitlementInput
     return {
       ...period,
       plan: input.plan,
-      limit: 0,
+      limitMicrocents: 0,
       blockedReason: "enterprise_allowance_missing",
     };
   }
@@ -188,7 +235,7 @@ export function resolveAgentCreditEntitlement(input: AgentCreditEntitlementInput
     return {
       ...period,
       plan: input.plan,
-      limit: 0,
+      limitMicrocents: 0,
       blockedReason: "subscription_unavailable",
     };
   }
@@ -196,16 +243,10 @@ export function resolveAgentCreditEntitlement(input: AgentCreditEntitlementInput
   return {
     ...period,
     plan: input.plan,
-    limit: adjustedAllowance(
-      prorateAgentCreditsForSeat(allowance, input.activeSeatAt, period),
-      input.adjustmentCredits,
+    limitMicrocents: adjustedAllowance(
+      prorateAgentAllowanceForSeat(agentCreditsToMicrocents(allowance), input.activeSeatAt, period),
+      input.adjustmentMicrocents,
     ),
     blockedReason: null,
   };
-}
-
-export function agentCreditsForStartedProviderCost(costMicrocents: number) {
-  if (!Number.isSafeInteger(costMicrocents) || costMicrocents < 0)
-    throw new Error("AI provider cost must be a non-negative whole number of microcents.");
-  return Math.max(1, Math.ceil(costMicrocents / AGENT_CREDIT_MICROCENTS));
 }

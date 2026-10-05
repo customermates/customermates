@@ -13,7 +13,10 @@ vi.mock("next-intl", () => ({
     values?.owner === undefined ? key : `${key}:${values.owner}`,
 }));
 vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
-  useHydratedIntlStore: () => ({ formatRelativeTime: () => "just now" }),
+  useHydratedIntlStore: () => ({
+    formatRelativeTime: () => "just now",
+    formatAgentCredits: (credits: number) => ({ credits, amount: credits === 0.75 ? "0.8" : String(credits) }),
+  }),
 }));
 vi.mock("@/core/errors/report-application-error", () => ({
   runUserAction: (operation: () => unknown) => operation(),
@@ -54,7 +57,7 @@ function makeRun(overrides: Partial<RoutineRunDto> = {}): RoutineRunDto {
     finishedAt: new Date("2026-09-08T09:00:02Z"),
     terminalCode: "completed",
     stopReason: null,
-    chargedCredits: 1,
+    chargedCredits: 0.75,
     summary: "Done",
     error: null,
     createdAt: new Date("2026-09-08T09:00:00Z"),
@@ -128,6 +131,7 @@ describe("RoutineRunsPane rendered states", () => {
     expect(container.querySelector("#routine-run-run-2")).not.toBeNull();
     const ids = [...container.querySelectorAll<HTMLElement>("[id]")].map(({ id }) => id);
     expect(new Set(ids).size).toBe(ids.length);
+    expect(container.textContent).toContain("RoutineDetail.credits: 0.8");
   });
 
   it("opens an active run without a conversation and leaves restricted transcripts disabled", () => {

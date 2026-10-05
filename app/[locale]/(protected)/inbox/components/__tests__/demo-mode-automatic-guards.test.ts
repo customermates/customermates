@@ -22,6 +22,7 @@ function unreadThread(): MessagingThread {
     isOwner: true,
     lastMessageAt: new Date("2026-07-16T08:00:00.000Z"),
     lastMessageFromSelf: false,
+    lastSentMessageFromSelf: false,
     lastMessageSenderName: "Anna Müller",
     name: null,
     participants: [],
@@ -40,6 +41,7 @@ function unreadThread(): MessagingThread {
 function demoRoot(): RootStore {
   return {
     appMode: "demo",
+    threadComposeStore: { getPendingMessages: () => [], getDeliveryStatus: () => undefined },
     localeStore: {
       locale: "en",
       getTranslation: (key: string) => key,
@@ -54,6 +56,7 @@ function demoRoot(): RootStore {
 function readOnlyRoot(): RootStore {
   return {
     appMode: "cloud",
+    threadComposeStore: { getPendingMessages: () => [], getDeliveryStatus: () => undefined },
     localeStore: {
       locale: "en",
       getTranslation: (key: string) => key,

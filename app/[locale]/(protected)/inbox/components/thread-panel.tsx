@@ -21,20 +21,20 @@ import type { NewThreadTarget } from "./thread-compose.store";
 
 import { ThreadTopBar } from "./thread-topbar";
 import { ThreadReplyComposer } from "./thread-reply-composer";
-import { isDraftThreadId } from "@/ee/messaging/provider";
+import { isDraftThreadId, isEmailProvider } from "@/ee/messaging/provider";
 
 type Props = {
   threadDetail: ThreadDetail | null;
   locked?: boolean;
 };
 
-function draftThreadTarget(thread: MessagingThread): NewThreadTarget | null {
+export function draftThreadTarget(thread: MessagingThread): NewThreadTarget | null {
   if (!isDraftThreadId(thread.unipileThreadId)) return null;
 
   const recipients = thread.participants
     .filter((participant) => !participant.isSelf && participant.identifier)
     .map((participant) => ({ identifier: participant.identifier, displayName: participant.displayName }));
-  if (recipients.length === 0) return null;
+  if (recipients.length === 0 && !isEmailProvider(thread.provider)) return null;
 
   return {
     connectedAccountId: thread.connectedAccountId,

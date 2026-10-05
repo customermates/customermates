@@ -38,11 +38,11 @@ const GUARD_EXEMPT_MODELS = new Set([
 ]);
 
 const REACHED_ONLY_FROM_BYPASSED_CALLERS = new Set([
-  "core/auth/better-auth.ts:113",
-  "features/user/prisma-user.repository.ts:685",
-  "features/user/prisma-user.repository.ts:695",
-  "features/user/prisma-user.repository.ts:705",
-  "features/user/prisma-user.repository.ts:715",
+  "core/auth/better-auth.ts#(module scope)",
+  "features/user/prisma-user.repository.ts#claimWelcomeEmailSent",
+  "features/user/prisma-user.repository.ts#claimTrialExpiredOfferSent",
+  "features/user/prisma-user.repository.ts#claimTrialInactivationReminderSent",
+  "features/user/prisma-user.repository.ts#claimTrialInactivationNoticeSent",
 ]);
 
 type WriteSite = {
@@ -53,6 +53,8 @@ type WriteSite = {
   scoped: boolean;
   bypassed: boolean;
 };
+
+const siteKey = (site: WriteSite) => `${site.file}#${site.method}`;
 
 function sourceFiles() {
   return SCANNED_DIRECTORIES.flatMap((dir) =>
@@ -72,9 +74,7 @@ function enclosingMethod(node: ts.Node): ts.MethodDeclaration | undefined {
 function declaresBypass(method: ts.MethodDeclaration): boolean {
   return (method.modifiers ?? []).some(
     (modifier) =>
-      ts.isDecorator(modifier) &&
-      ts.isIdentifier(modifier.expression) &&
-      modifier.expression.text === BYPASS_DECORATOR,
+      ts.isDecorator(modifier) && ts.isIdentifier(modifier.expression) && modifier.expression.text === BYPASS_DECORATOR,
   );
 }
 
@@ -174,7 +174,7 @@ function writeSites(): WriteSite[] {
           const line = source.getLineAndCharacterOfPosition(node.getStart()).line + 1;
           const isBypassed = bypassed.has(methodName);
 
-          if ((strict || !isBypassed) && !REACHED_ONLY_FROM_BYPASSED_CALLERS.has(`${relativePath}:${line}`))
+          if (strict || !isBypassed)
             sites.push({
               file: relativePath,
               line,
@@ -200,10 +200,19 @@ describe("tenant-scoped writes", () => {
 
   it.runIf(ENFORCED)("scopes every tenant-guarded update, updateMany and upsert by companyId in its where", () => {
     const unscoped = sites
-      .filter((site) => !site.scoped)
+      .filter((site) => !site.scoped && !REACHED_ONLY_FROM_BYPASSED_CALLERS.has(siteKey(site)))
       .map((site) => `${site.file}:${site.line} ${site.operation} in ${site.method}`);
 
     expect(unscoped).toEqual([]);
+  });
+
+  it("exempts exactly one unscoped write per allowlisted method, so no entry is stale or covers a new write", () => {
+    const matches = [...REACHED_ONLY_FROM_BYPASSED_CALLERS].map((key) => [
+      key,
+      sites.filter((site) => !site.scoped && siteKey(site) === key).length,
+    ]);
+
+    expect(matches).toEqual([...REACHED_ONLY_FROM_BYPASSED_CALLERS].map((key) => [key, 1]));
   });
 
   it("still finds the write sites it is meant to guard", () => {

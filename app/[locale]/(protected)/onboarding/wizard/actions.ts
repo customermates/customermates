@@ -8,6 +8,7 @@ import { redirect } from "next/navigation";
 import { getLocale } from "next-intl/server";
 
 import {
+  getCompleteOnboardingWikiStepInteractor,
   getCompleteOnboardingWizardInteractor,
   getRegisterOnboardingProfileInteractor,
   getSaveOnboardingWizardProgressInteractor,
@@ -41,4 +42,9 @@ export async function completeOnboardingWizardAction() {
 
 export async function saveOnboardingWizardProgressAction(data: SaveOnboardingWizardProgressData) {
   return serializeResult(getSaveOnboardingWizardProgressInteractor().invoke(data));
+}
+
+export async function completeOnboardingWikiStepAction() {
+  const result = await serializeResult(getCompleteOnboardingWikiStepInteractor().invoke());
+  return result;
 }

@@ -6,12 +6,13 @@ import type { MessagingMessageDto } from "@/ee/messaging/inbox/inbox.schema";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { ImageOff, Pencil, Send, Trash2 } from "lucide-react";
+import { Pencil, Send, Trash2 } from "lucide-react";
+import { Action, Resource } from "@/generated/prisma";
 
-import { AppChip } from "@/components/chip/app-chip";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { canManageThreadDrafts } from "@/ee/messaging/draft-thread";
 import { isEmailProvider } from "@/ee/messaging/provider";
 import { deriveMessageSender, displayableIdentifier } from "@/ee/messaging/thread-display";
 import { cn } from "@/core/utils/cn";
@@ -24,6 +25,7 @@ import { composeEmailBodies } from "@/ee/messaging/outbound/email-signature";
 import { attachmentSubtitle, classifyAttachment, describeFile, downloadLocalFile } from "./attachment-classify";
 import { AttachmentRow } from "./attachment-row";
 import { MessageAttachment } from "./message-attachment";
+import { EmailMessageHeader } from "./email-message-header";
 import { hasLoadableRemoteImages, MessageBody } from "@/features/messaging/message-body";
 import { MessageSurface } from "@/features/messaging/message-surface";
 
@@ -41,6 +43,7 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
     threadComposeStore: compose,
     threadParticipantsStore,
     connectedAccountsStore,
+    userStore,
   } = useRootStore();
   const intlStore = useHydratedIntlStore();
   const [showRemoteImages, setShowRemoteImages] = useState(false);
@@ -49,7 +52,8 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
   const isDeleted = message.isDeleted;
   const isEdited = Boolean(message.editedAt) && !isDeleted;
   const isDraft = message.isDraft;
-  const status = detail.messageStatus[message.id];
+  const canManageDraft = canManageThreadDrafts(detail.thread);
+  const status = compose.getDeliveryStatus(message.id) ?? detail.messageStatus[message.id];
   const isSending = status === "sending";
   const isFailed = status === "failed";
   const pendingFiles = isDraft ? compose.draftAttachments : (compose.pendingAttachments[message.id] ?? []);
@@ -84,7 +88,7 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
           "markdown",
         ).html
       : (message.bodyHtml ?? "");
-  const isEmail = providerIsEmail && Boolean(renderedEmailHtml);
+  const isEmail = providerIsEmail;
 
   const reactionTotals = new Map<string, number>();
   for (const r of message.reactions) reactionTotals.set(r.value, (reactionTotals.get(r.value) ?? 0) + 1);
@@ -92,13 +96,6 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
   const hasAttachments = message.attachmentsMeta.length > 0;
   const hasReactions = reactionTotals.size > 0;
   const canLoadRemoteImages = isEmail && !isDeleted && !showRemoteImages && hasLoadableRemoteImages(renderedEmailHtml);
-  const recipientRows = (
-    [
-      ["Inbox.compose.toLabel", message.recipients.to],
-      ["Inbox.compose.ccLabel", message.recipients.cc],
-      ["Inbox.compose.bccLabel", message.recipients.bcc],
-    ] as const
-  ).filter(([, list]) => list.length > 0);
   const fullBleedMedia =
     hasAttachments &&
     message.attachmentsMeta.every((a) => {
@@ -136,28 +133,26 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
       >
         <MessageSurface
           className={cn(
-            isDraft && "border-primary/30 border border-dashed",
+            isDraft && !isEmail && "border-primary/30 border border-dashed",
             isSending && "opacity-60",
             isFailed && "ring-destructive/50 ring-1",
           )}
           isEmail={isEmail}
           isOutbound={isOutbound}
         >
-          {!isDeleted && isEmail && recipientRows.length > 0 && (
-            <div className="border-border text-muted-foreground flex flex-col gap-1 border-b px-3.5 py-2 text-xs">
-              {recipientRows.map(([labelKey, list]) => (
-                <div key={labelKey} className="flex flex-wrap items-center gap-1">
-                  <span className="font-medium">{t(labelKey)}:</span>
-
-                  {list.map((r, index) => {
-                    const label = r.identifier?.trim() || r.displayName;
-                    if (!label) return null;
-
-                    return <AppChip key={`${labelKey}:${label}:${index}`}>{label}</AppChip>;
-                  })}
-                </div>
-              ))}
-            </div>
+          {providerIsEmail && (
+            <EmailMessageHeader
+              folders={detail.folderContext?.folders ?? []}
+              message={message}
+              moving={Boolean(detail.thread && detail.movingThreadIds.has(detail.thread.id))}
+              senderName={resolvedName}
+              onLoadRemoteImages={canLoadRemoteImages ? () => setShowRemoteImages(true) : undefined}
+              onMove={
+                userStore.can(Resource.inboxMessages, Action.update) && detail.folderContext?.canMove
+                  ? (folderId) => runUserAction(() => detail.moveToFolder(folderId, message.id))
+                  : undefined
+              }
+            />
           )}
 
           <MessageBody
@@ -205,61 +200,68 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
             </div>
           )}
 
-          {(isDraft || isFailed || canLoadRemoteImages) && (
-            <div className="flex flex-wrap items-center gap-2 px-3 py-1.5">
+          {((isDraft && canManageDraft) || (isFailed && compose.canRetry(message.id))) && (
+            <div
+              data-message-actions
+              className={cn("flex flex-wrap items-center gap-2", isEmail ? "px-3.5 pt-1 pb-3" : "px-3 py-1.5")}
+            >
               {isDraft ? (
-                <span className="flex items-center gap-1">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        aria-label={t("Inbox.compose.draftEdit")}
-                        size="icon-xs"
-                        type="button"
-                        variant="secondary"
-                        onClick={() => compose.loadDraft(message)}
-                      >
-                        <Pencil />
-                      </Button>
-                    </TooltipTrigger>
+                <span className={cn("flex items-center gap-1", isEmail && "w-full flex-wrap justify-between gap-3")}>
+                  <span className="flex items-center gap-1">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          aria-label={t("Inbox.compose.draftEdit")}
+                          className={isEmail ? "text-muted-foreground font-normal" : undefined}
+                          size={isEmail ? "xs" : "icon-xs"}
+                          type="button"
+                          variant={isEmail ? "ghost" : "secondary"}
+                          onClick={() => compose.loadDraft(message)}
+                        >
+                          <Pencil />
 
-                    <TooltipContent>{t("Inbox.compose.draftEdit")}</TooltipContent>
-                  </Tooltip>
+                          {isEmail && t("Inbox.compose.draftEdit")}
+                        </Button>
+                      </TooltipTrigger>
 
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        aria-label={t("Inbox.compose.draftDiscard")}
-                        disabled={!message.draftRevision}
-                        size="icon-xs"
-                        type="button"
-                        variant="softDestructive"
-                        onClick={() => {
-                          const draftRevision = message.draftRevision;
-                          if (!draftRevision) return;
-                          runUserAction(() => compose.discardDraft(message.id, draftRevision));
-                        }}
-                      >
-                        <Trash2 />
-                      </Button>
-                    </TooltipTrigger>
+                      <TooltipContent>{t("Inbox.compose.draftEdit")}</TooltipContent>
+                    </Tooltip>
 
-                    <TooltipContent>{t("Inbox.compose.draftDiscard")}</TooltipContent>
-                  </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          aria-label={t("Inbox.compose.draftDiscard")}
+                          className={isEmail ? "text-muted-foreground hover:text-destructive" : undefined}
+                          disabled={!message.draftRevision}
+                          size="icon-xs"
+                          type="button"
+                          variant={isEmail ? "ghost" : "softDestructive"}
+                          onClick={() => {
+                            const draftRevision = message.draftRevision;
+                            if (!draftRevision) return;
+                            runUserAction(() => compose.discardDraft(message.id, draftRevision));
+                          }}
+                        >
+                          <Trash2 />
+                        </Button>
+                      </TooltipTrigger>
+
+                      <TooltipContent>{t("Inbox.compose.draftDiscard")}</TooltipContent>
+                    </Tooltip>
+                  </span>
 
                   <Button
+                    className={isEmail ? "ml-auto" : undefined}
                     size="xs"
                     type="button"
-                    onClick={() => {
-                      compose.loadDraft(message);
-                      runUserAction(() => compose.send());
-                    }}
+                    onClick={() => runUserAction(() => compose.sendDraft(message))}
                   >
                     <Send />
 
                     {t("Inbox.compose.draftSendNow")}
                   </Button>
                 </span>
-              ) : isFailed ? (
+              ) : isFailed && compose.canRetry(message.id) ? (
                 <Button
                   size="xs"
                   type="button"
@@ -269,29 +271,25 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
                   {t("Inbox.compose.retry")}
                 </Button>
               ) : null}
-
-              {canLoadRemoteImages && (
-                <Button size="xs" type="button" variant="secondary" onClick={() => setShowRemoteImages(true)}>
-                  <ImageOff className="size-3" />
-
-                  {t("Inbox.compose.loadRemoteImages")}
-                </Button>
-              )}
             </div>
           )}
         </MessageSurface>
 
-        {!isDraft && (
+        {!isDraft && (!providerIsEmail || hasReactions) && (
           <div className="flex items-center gap-1.5 px-1">
-            {!isOutbound && (
+            {!providerIsEmail && !isOutbound && (
               <span className="text-foreground/80 max-w-48 truncate text-xs font-medium">{resolvedName}</span>
             )}
 
-            <span className="text-muted-foreground text-[11px] whitespace-nowrap">
-              {intlStore.formatTime(message.sentAt)}
-            </span>
+            {!providerIsEmail && (
+              <span className="text-muted-foreground text-[11px] whitespace-nowrap">
+                {intlStore.formatTime(message.sentAt)}
+              </span>
+            )}
 
-            {isEdited && <span className="text-muted-foreground/70 text-[10px] italic">{t("Inbox.edited")}</span>}
+            {!providerIsEmail && isEdited && (
+              <span className="text-muted-foreground/70 text-[10px] italic">{t("Inbox.edited")}</span>
+            )}
 
             {hasReactions && !isDeleted && (
               <span className="flex items-center gap-1">

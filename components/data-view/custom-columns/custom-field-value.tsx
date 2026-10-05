@@ -23,7 +23,7 @@ import { TruncatedText } from "@/components/shared/truncated-text";
 import { openableLinkTarget } from "@/core/validation/openable-link-target";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { Icon } from "@/components/shared/icon";
-import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
+import { CopyableText } from "@/components/shared/copyable-text";
 import { runUserAction } from "@/core/errors/report-application-error";
 
 type Props<E extends HasId & { customFieldValues: CustomFieldValueDto[] }> = {
@@ -60,7 +60,6 @@ export const CustomFieldValue = observer(
     showOverflowTooltip = false,
     store,
   }: Props<E>) => {
-    const copy = useCopyToClipboard();
     const intlStore = useHydratedIntlStore();
 
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -247,19 +246,20 @@ export const CustomFieldValue = observer(
         case CustomColumnType.email:
         case CustomColumnType.phone:
           return value ? (
-            <AppChipStack
-              items={value.split(",").map((it) => ({
-                id: it,
-                label: it,
-              }))}
-              size="sm"
-              onChipClick={(e) => runUserAction(() => copy(e.label))}
-            />
+            <span className="inline-flex max-w-full flex-wrap items-baseline gap-x-2 gap-y-0.5">
+              {value
+                .split(",")
+                .map((it) => it.trim())
+                .filter(Boolean)
+                .map((it, index) => (
+                  <CopyableText key={`${it}-${index}`} value={it} />
+                ))}
+            </span>
           ) : (
             <span />
           );
       }
-    }, [column, item, value, isDropdownOpen, handleSelectOption, copy, showOverflowTooltip]);
+    }, [column, item, value, isDropdownOpen, handleSelectOption, showOverflowTooltip]);
 
     return renderValue();
   },

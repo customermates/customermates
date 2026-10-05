@@ -9,7 +9,7 @@ import { DATA_VIEW_NAME_MAX_LENGTH } from "@/core/data-view/data-view-limits";
 import { ViewKeySchema } from "@/core/data-view/data-view-state.schema";
 import { getZodParseContext } from "@/core/validation/zod-error-map-server";
 import {
-  AgentDataViewStateSchema,
+  AgentDataViewUpdateStateSchema,
   DataViewConfigSectionSchema,
   ManageDataViewPageSchema,
   ManageDataViewPageSizeSchema,
@@ -47,14 +47,14 @@ export const ManageDataViewsToolSchema = z
       "Config and summary-list only. 1-indexed page; default 1. Ignored when list has an exact viewKey.",
     ),
     pageSize: ManageDataViewPageSizeSchema.optional().describe(
-      "Config and summary-list only. Results per page, 1-25, rounded up to 5, 10 or 25; default 10. Ignored for an exact viewKey.",
+      "Config and summary-list only. Results per page, 1-25, served exactly; default 10. Ignored for an exact viewKey.",
     ),
     query: ManageDataViewQuerySchema.describe(
       "Config and summary-list only. Narrow by an exact or partial field id, label, view id or view name after a truncated or broad result. Ignored for an exact viewKey.",
     ),
     name: z.string().trim().min(1).max(DATA_VIEW_NAME_MAX_LENGTH).optional().describe("Required on create."),
-    state: AgentDataViewStateSchema.optional().describe(
-      "Call config first. Create: initial state. Update: call list immediately before every update with the exact viewKey; include only keys the user asked to change. Arrays replace. Never copy old conversation/full state.",
+    state: AgentDataViewUpdateStateSchema.optional().describe(
+      "Call config first. Create: initial state without columnOrder, columnWidths or hiddenColumns. Update: call list immediately before every update with the exact viewKey; include only keys the user asked to change. Keys equal to the listed value are no-ops; columnOrder, columnWidths and hiddenColumns change only in the app. Arrays replace. Never copy old conversation/full state.",
     ),
   })
   .strict()
@@ -68,10 +68,11 @@ export const manageDataViewsTool = {
   name: "manage_data_views",
   title: "Manage personal saved views",
   description:
-    "Read and change personal saved views on supported workspace pages; operator-console views are outside this tool. " +
-    "Use surfaces to discover authorized pages. For config, start with section overview, then page filters, sorting or grouping; narrow with query and retry a narrower page after any truncation. " +
-    "List without viewKey returns paged summaries; pass an exact viewKey to read its current state immediately before update. Create requires name and state and selects the new view; update patches only supplied name/state keys, so omit name unless the user requested a rename and include only changed state keys; select remembers a view. " +
-    "Clear filters with [], search with an empty string, and sort/grouping with null; filters are ANDed. Timeline views accept only filters and sortDescriptor. Use only filter fields returned by config for that surface; never create a custom column to manufacture a missing saved-view filter. If the requested field is absent, report that it is unavailable and leave the view unchanged. Custom-column option ids come from get_record_schema. " +
+    "Manage personal saved views; operator-console views are excluded. " +
+    "Discover authorized pages with surfaces. Start config at overview, then page filters/sorting/grouping; narrow query/page after truncation. " +
+    "List returns paged summaries; pass viewKey to read current state immediately before update. Create requires name/state and selects it; update patches only supplied keys, so omit name unless the user requested renaming and include only changed state keys. Select remembers a view. " +
+    "Clear filters with [], search with an empty string, and sort/grouping with null; filters are ANDed. Timeline views accept only filters and sortDescriptor. Use only filter fields config returns for that surface, following their descriptions; never create a custom column to manufacture a missing saved-view filter. If the requested field is absent, report that it is unavailable and leave the view unchanged. Custom-column option ids come from get_record_schema. " +
+    "Relative days (last N, over N ago, N-M ago) use whole-day inLastDays/notInLastDays, never absolute dates. Verify every requested condition in the saved state before reporting success. " +
     "Deleting a view is IRREVERSIBLE and never deletes records; All (__all__) cannot be renamed or deleted. Use the returned link rather than constructing one.",
   annotations: {
     readOnlyHint: false,

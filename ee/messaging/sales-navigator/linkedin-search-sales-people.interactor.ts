@@ -8,7 +8,6 @@ import type { SalesListItemPage } from "./sales-navigator.schema";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
-import { getLocale } from "next-intl/server";
 
 import { Resource, Action, MessagingProvider } from "@/generated/prisma";
 
@@ -16,7 +15,7 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { formatRetryAfter } from "../retry-after";
+import { retryAfterPhrase } from "../retry-after.server";
 import { SalesListItemPageSchema, SalesPeopleFiltersSchema } from "./sales-navigator.schema";
 
 export const LinkedinSearchSalesPeopleSchema = z.object({
@@ -66,7 +65,7 @@ export class LinkedinSearchSalesPeopleInteractor extends AuthenticatedInteractor
       offset: data.offset,
       limit: data.limit,
     });
-    if (!res.ok) return fail(res.error, [], { retryAfter: formatRetryAfter(await getLocale(), res.retryAfterSeconds) });
+    if (!res.ok) return fail(res.error, [], { retryAfter: await retryAfterPhrase(res.retryAfterSeconds) });
 
     return { ok: true as const, data: res.data };
   }

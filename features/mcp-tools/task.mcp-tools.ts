@@ -1,11 +1,9 @@
 import { z } from "zod";
 
 import {
-  CUSTOM_COLUMN_PREREQ,
   CUSTOM_FIELDS_MERGE_NOTE,
   CreatedRecordsOutputSchema,
   toonResult,
-  IDEMPOTENT_NOTE,
   UpdatedRecordsOutputSchema,
   forbidNullFields,
   relationsViaLinkNote,
@@ -46,8 +44,7 @@ export const createTasksTool = {
     "Required per item: name. " +
     "Optional per item: notes, userIds, contactIds, organizationIds, dealIds, serviceIds, customFieldValues. " +
     "You can pass userIds/contactIds/organizationIds/dealIds/serviceIds directly in create to link the task to those entities in one call. " +
-    CUSTOM_COLUMN_PREREQ +
-    " Returns the list of created task ids and names.",
+    "Returns the list of created task ids and names.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
   inputSchema: CreateTasksSchema,
   outputSchema: CreatedRecordsOutputSchema,
@@ -66,9 +63,7 @@ export const updateTasksTool = {
     "Optional per item: name, notes, customFieldValues. " +
     relationsViaLinkNote("users, contacts, organizations, deals, services") +
     " " +
-    CUSTOM_FIELDS_MERGE_NOTE +
-    " " +
-    IDEMPOTENT_NOTE,
+    CUSTOM_FIELDS_MERGE_NOTE,
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: UpdateTasksSchema,
   outputSchema: UpdatedRecordsOutputSchema,

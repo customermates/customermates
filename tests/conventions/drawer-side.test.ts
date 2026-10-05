@@ -6,10 +6,10 @@ import { describe, it, expect } from "vitest";
 import { REPO_ROOT } from "./walk";
 
 /**
- * CUS-61 moved the sidebar Add picker and the shared entity drawer to the left edge.
+ * CUS-61 moved the shared entity drawer to the left edge.
  * These are source-level tripwires: the repo has no DOM test environment, so rendered
  * placement is covered by the browser acceptance pass instead. What this guards is that
- * nobody silently flips the two moved surfaces back, and that unrelated sheets keep
+ * nobody silently flips that surface back, and that unrelated sheets keep
  * their intentional side.
  */
 const ENFORCED = true;
@@ -19,14 +19,6 @@ function read(relativePath: string): string {
 }
 
 describe("drawer side placement", () => {
-  it("opens the sidebar Add picker from the left", () => {
-    if (!ENFORCED) return;
-    const source = read("app/components/app-sidebar.tsx");
-
-    expect(source).toContain('side="left"');
-    expect(source).not.toContain('side="right"');
-  });
-
   it("opens the shared entity drawer from the left", () => {
     if (!ENFORCED) return;
     const source = read("components/entity-detail/entity-drawer.tsx");

@@ -1,10 +1,10 @@
 import type { MessagingService } from "../messaging.service";
 import type { Redirect } from "@/features/auth/auth-outcome";
-import type { SubscriptionStatus } from "@/generated/prisma";
 import type { EntitlementService, EntitlementDenialCode } from "@/ee/subscription/entitlement.service";
 
 import { headers } from "next/headers";
 import { z } from "zod";
+import * as Sentry from "@sentry/node";
 import { getTranslations } from "next-intl/server";
 
 import { Action, Resource, SubscriptionPlan } from "@/generated/prisma";
@@ -18,8 +18,14 @@ import { getEntitlements } from "@/ee/subscription/entitlements";
 import { redirectTo } from "@/features/auth/auth-outcome";
 import { env } from "@/env";
 
+import { fail } from "@/core/validation/interactor-failure-server";
+import { retryAfterPhrase } from "../retry-after.server";
+import { unipileErrorCode } from "../messaging.service";
+import { UnipileRequestError } from "../unipile-request-error";
 import { signHostedAuthState } from "../webhook-signature";
 import { CONNECT_CHANNELS, CONNECT_CHANNEL_KEYS } from "./connect-channels";
+import type { CreateHostedAuthLinkRepo } from "./create-hosted-auth-link.repo";
+import type { CreateAuthLinkSubscriptionRepo } from "./create-auth-link-subscription.repo";
 
 const HOSTED_AUTH_EXPIRY_MINUTES = 30;
 
@@ -30,18 +36,6 @@ type ConnectDenialCode = "upgradeToBusinessForMoreAccounts" | "accountLimitReach
 
 type Denial = { key: `ConnectedAccountsCard.${ConnectDenialCode}`; code: ConnectDenialCode };
 type CreateAuthLinkFailure = { ok: false; error: z.ZodError; code?: ConnectDenialCode | EntitlementDenialCode };
-
-export abstract class CreateHostedAuthLinkRepo {
-  abstract countActiveAccountsForUser(): Promise<number>;
-}
-
-export abstract class CreateAuthLinkSubscriptionRepo {
-  abstract getSubscriptionOrThrow(): Promise<{
-    status: SubscriptionStatus;
-    trialEndDate: Date | null;
-    plan: SubscriptionPlan;
-  }>;
-}
 
 @TenantInteractor({ resource: Resource.inboxMessages, action: Action.create })
 export class CreateAuthLinkInteractor extends UserAccessor {
@@ -71,13 +65,21 @@ export class CreateAuthLinkInteractor extends UserAccessor {
     const expiresOn = new Date(Date.now() + HOSTED_AUTH_EXPIRY_MINUTES * 60_000).toISOString();
 
     const entry: { providers: readonly string[]; config?: Record<string, unknown> } = CONNECT_CHANNELS[data.channel];
-    const link = await this.messagingService.createAuthLink({
-      providers: [...entry.providers],
-      redirectUri: `${baseUrl}/profile/connected-accounts`,
-      expiresOn,
-      state,
-      ...(entry.config ? { config: entry.config } : {}),
-    });
+    let link: string;
+    try {
+      link = await this.messagingService.createAuthLink({
+        providers: [...entry.providers],
+        redirectUri: `${baseUrl}/profile/connected-accounts`,
+        expiresOn,
+        state,
+        ...(entry.config ? { config: entry.config } : {}),
+      });
+    } catch (err) {
+      if (!(err instanceof UnipileRequestError)) throw err;
+
+      Sentry.captureException(err, { tags: { kind: "unipile-auth-link" } });
+      return fail(unipileErrorCode(err), [], { retryAfter: await retryAfterPhrase(err.retryAfterSeconds) });
+    }
 
     return redirectTo(link);
   }

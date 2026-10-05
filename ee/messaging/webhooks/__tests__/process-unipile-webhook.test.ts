@@ -20,7 +20,7 @@ import * as Sentry from "@sentry/node";
 
 import { ProcessUnipileWebhookInteractor } from "../process-unipile-webhook.interactor";
 import { UnmappableWebhookPayloadError } from "@/core/errors/app-errors";
-import { UnipileRequestError } from "../../messaging.service";
+import { UnipileRequestError } from "../../unipile-request-error";
 import { DeferredWebhookError } from "@/core/errors/app-errors";
 
 const EVENT_ID = "11111111-1111-4111-8111-111111111111";

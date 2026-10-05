@@ -12,6 +12,7 @@ import { adProviderDisplayName, isAdProvider } from "@/features/acquisition/ad-p
 import { AppChip } from "@/components/chip/app-chip";
 import { OperatorTagsCell } from "../tags/operator-tags-cell";
 import { USER_STATUS_COLORS_MAP } from "@/constants/user-statuses";
+import { agentMicrocentsToCredits } from "@/core/commercial/agent-credits";
 import { SUBSCRIPTION_STATUS_COLOR_MAP } from "@/app/[locale]/(protected)/company/components/subscription/subscription-panel";
 
 function displayName(user: OperatorUserRowDto): string {
@@ -127,11 +128,13 @@ export function useOperatorUserColumns(): ColumnDef<OperatorUserRowDto>[] {
           <span className="text-sm">
             {row.original.creditsBlockedReason === "enterprise_allowance_missing"
               ? t("OperatorUsers.credits.allowanceMissingShort")
-              : row.original.creditsLimit === null
+              : row.original.limitMicrocents === null
                 ? t("OperatorUsers.credits.noneShort")
                 : t("OperatorUsers.credits.position", {
-                    remaining: intlStore.formatNumber(row.original.creditsRemaining ?? 0),
-                    limit: intlStore.formatNumber(row.original.creditsLimit),
+                    remaining: intlStore.formatAgentCredits(
+                      agentMicrocentsToCredits(row.original.remainingMicrocents ?? 0),
+                    ).amount,
+                    limit: intlStore.formatAgentCredits(agentMicrocentsToCredits(row.original.limitMicrocents)).amount,
                   })}
           </span>
         ),

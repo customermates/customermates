@@ -26,6 +26,7 @@ import { seedServices } from "./services";
 import { seedTasks } from "./tasks";
 import { seedWebhooks } from "./webhooks";
 import { seedWidgets } from "./widgets";
+import { seedWikiPages } from "./wiki";
 
 export type SyntheticSeedData = OrganizationSeedData & ContactSeedData & DealSeedData & ServiceSeedData & TaskSeedData;
 
@@ -64,6 +65,7 @@ export async function runSyntheticSeed(
     userId: context.ids.user,
   });
   await seedSyntheticAuditLogs(context, entities);
+  await seedWikiPages(context);
   await seedAgentConversations(context);
   await seedRoutines(context);
   await context.prisma

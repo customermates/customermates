@@ -25,9 +25,11 @@ export function resolveSeparatorLabel(
   return intlStore.formatDescriptiveShortDate(date);
 }
 
-export const MessageDateSeparator = observer(({ date }: { date: Date }) => {
+export const MessageDateSeparator = observer(({ date, hideToday = false }: { date: Date; hideToday?: boolean }) => {
   const t = useTranslations();
   const intlStore = useHydratedIntlStore();
+
+  if (hideToday && (!intlStore.rendersZonedValues || isSameDay(date, new Date()))) return null;
 
   const label = intlStore.rendersZonedValues ? resolveSeparatorLabel(date, new Date(), t, intlStore) : "";
 

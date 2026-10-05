@@ -40,6 +40,7 @@ import { countryLabelForLocale } from "@/constants/countries";
 import { getCurrencyLabel } from "@/constants/currencies";
 import type { AppLocale } from "@/i18n/locale-registry";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { WikiPageKindSchema } from "@/features/wiki/wiki.schema";
 
 type AvatarItem = {
   id: string;
@@ -143,6 +144,13 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
   const intlStore = useHydratedIntlStore();
   const openEntity = useOpenEntity();
   const entityHref = useEntityHref();
+  const isWikiEvent = entry.event.startsWith("wiki_page.");
+
+  function fieldLabel(field: string): string {
+    if (isWikiEvent && field === "kind") return t("Wiki.kind.label");
+    if (isWikiEvent && field === "whenToUse") return t("Wiki.whenToUse.label");
+    return columnLabel(field);
+  }
 
   function legalDocumentLabel(document: string): string {
     return t.has(`LegalDocumentNotice.documents.${document}`)
@@ -159,6 +167,11 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
 
   function renderValue(key: string, value: unknown, customColumn?: CustomColumnDto): string | JSX.Element {
     if (isEmpty(value)) return t("AuditLogModal.noValue");
+
+    if (isWikiEvent && key === "kind") {
+      const kind = WikiPageKindSchema.safeParse(value);
+      if (kind.success) return t(`Wiki.kind.${kind.data}`);
+    }
 
     switch (key) {
       case "identifiers":
@@ -182,6 +195,7 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
           />
         );
       case "notes":
+      case "markdown":
         try {
           const markdown = typeof value === "string" ? value : serializeJSONToMarkdown(value as object);
           return (
@@ -444,7 +458,7 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
         field:
           change.columnId !== undefined
             ? (customColumn?.label ?? t("AuditLogModal.deletedField"))
-            : columnLabel(change.field),
+            : fieldLabel(change.field),
         previous: change.previous,
         current: change.current,
         customColumn,
@@ -456,7 +470,8 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
     if (change.snapshot)
       return <div className="min-w-0 break-words">{renderValue(change.key, change.current, change.customColumn)}</div>;
 
-    if (change.key === "notes") return <NotesDiff current={change.current} previous={change.previous} />;
+    if (change.key === "notes" || change.key === "markdown")
+      return <NotesDiff current={change.current} previous={change.previous} />;
 
     if (change.key === "customFieldValues" && !change.customColumn)
       return <p className="text-subdued italic">{t("AuditLogModal.deletedFieldChanged")}</p>;
@@ -477,7 +492,12 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
   const renderRow = (change: (typeof changes)[number], index: number) => {
     const key = `${entry.id}-${change.field}-${index}`;
 
-    if (!change.snapshot && change.key === "notes" && !hasNotesDiff(change.previous, change.current)) return null;
+    if (
+      !change.snapshot &&
+      (change.key === "notes" || change.key === "markdown") &&
+      !hasNotesDiff(change.previous, change.current)
+    )
+      return null;
 
     if (
       !change.snapshot &&

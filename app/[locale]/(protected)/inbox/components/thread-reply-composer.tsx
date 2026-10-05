@@ -122,7 +122,7 @@ export const ThreadReplyComposer = observer(
 
     useEffect(() => {
       setExpanded(false);
-    }, [threadId]);
+    }, [threadId, threadComposeStore.submissionVersion]);
 
     function insertEmoji(emoji: string) {
       if (threadComposeStore.isEmail) {
@@ -226,7 +226,7 @@ export const ThreadReplyComposer = observer(
       Boolean(threadComposeStore.form.body?.trim()) ||
       attachments.length > 0 ||
       Boolean(editingDraftId) ||
-      isNewThread ||
+      (isNewThread && !threadId) ||
       isLoading;
     const isOpen = expanded || hasWorkInProgress;
 
@@ -334,22 +334,21 @@ export const ThreadReplyComposer = observer(
               placeholder={t("Inbox.compose.subjectPlaceholder")}
             />
 
-            {!isNewThread && (
-              <div className="border-border flex items-center gap-2 border-b px-3 py-1">
-                <span className="text-muted-foreground w-8 shrink-0 text-xs font-medium" id={`${recipientLabelId}-to`}>
-                  {t("Inbox.compose.toLabel")}
-                </span>
+            <div className="border-border flex items-center gap-2 border-b px-3 py-1">
+              <span className="text-muted-foreground w-8 shrink-0 text-xs font-medium" id={`${recipientLabelId}-to`}>
+                {t("Inbox.compose.toLabel")}
+              </span>
 
-                <FormInputChips
-                  arrayMode
-                  ariaLabelledBy={`${recipientLabelId}-to`}
-                  className="min-h-7 border-0 bg-transparent p-0 text-sm shadow-none focus-within:ring-0"
-                  containerClassName="flex-1"
-                  id="recipients"
-                  label={null}
-                />
-              </div>
-            )}
+              <FormInputChips
+                arrayMode
+                ariaLabelledBy={`${recipientLabelId}-to`}
+                className="min-h-7 border-0 bg-transparent p-0 text-sm shadow-none focus-within:ring-0"
+                containerClassName="flex-1"
+                id="recipients"
+                label={null}
+                readOnly={isNewThread && Boolean(threadComposeStore.newThreadTarget?.draftThreadId)}
+              />
+            </div>
 
             {showCcBcc && (
               <div className="border-border flex flex-col border-b">

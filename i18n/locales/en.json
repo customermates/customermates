@@ -66,6 +66,11 @@
         "widgets": {
           "configure": "Ready to change dashboard widgets",
           "delete": "Ready to permanently delete a dashboard widget"
+        },
+        "workspace": {
+          "configure": "Ready to permanently delete this Knowledge Base page",
+          "settings": "Ready to change workspace settings, including record type names",
+          "terminology": "Ready to rename record types for the whole workspace"
         }
       },
       "cancelled": "Stopped",
@@ -104,6 +109,8 @@
         "webhookResend": "Resend the selected webhook delivery",
         "webhookUpdate": "Change the selected webhook"
       },
+      "contextMore": "{labels} (+{count})",
+      "contextual": "{action} · {context}",
       "countedRecordInResource": "1 record in {resource}",
       "countedResource": "{count} {resource}",
       "countedSingular": "1 {resource}",
@@ -121,7 +128,8 @@
         "services": "services",
         "tasks": "tasks",
         "terminology": "workspace terminology",
-        "widgets": "dashboard widgets"
+        "widgets": "dashboard widgets",
+        "wiki": "Knowledge Base pages"
       },
       "resourceSingular": {
         "contacts": "contact",
@@ -131,7 +139,8 @@
         "services": "service",
         "tasks": "task",
         "terminology": "workspace term",
-        "widgets": "dashboard widget"
+        "widgets": "dashboard widget",
+        "wiki": "Knowledge Base page"
       },
       "state": {
         "accounts": {
@@ -242,6 +251,11 @@
           }
         },
         "records": {
+          "analyze": {
+            "done": "Analyzed {resource}",
+            "error": "Couldn’t analyze {resource}",
+            "running": "Analyzing {resource}"
+          },
           "create": {
             "done": "{count, plural, one {Created {target}} other {Created {target}}}",
             "error": "{count, plural, one {Couldn’t create {target}} other {Couldn’t create {target}}}",
@@ -338,6 +352,13 @@
             "running": "Reviewing saved views"
           }
         },
+        "web": {
+          "search": {
+            "done": "Searched the web",
+            "error": "Couldn’t search the web",
+            "running": "Searching the web"
+          }
+        },
         "webhooks": {
           "manage": {
             "done": "Completed the webhook action",
@@ -408,12 +429,12 @@
       "cancelled": "Cancelled",
       "reject": "Rejected",
       "rejectAction": "Cancel",
-      "resuming": "Decision saved — Mate is continuing…",
+      "resuming": "Decision saved. Mate is continuing…",
       "retryResume": "Mate could not resume yet. Retry the same decision.",
       "timeout": "Timed out without a response",
       "title": "Mate wants to run:"
     },
-    "askAi": "Ask AI",
+    "askAi": "Ask Mate",
     "askAiWorking": "Mate is working",
     "context": {
       "addAria": "Add context",
@@ -449,8 +470,8 @@
       },
       "contact": "Contact us",
       "planAndReset": "{plan} plan · resets {resetAt}",
-      "recentTurn": "{credits, plural, one {Last turn used # credit} other {Last turn used # credits}}",
-      "remaining": "{remaining, number} of {limit, number} credits remaining",
+      "recentTurn": "{credits, plural, one {Last turn used {amount} credit} other {Last turn used {amount} credits}}",
+      "remaining": "{credits, plural, one {{remaining} of {limit} credits remaining} other {{remaining} of {limit} credits remaining}}",
       "resetShort": "Resets {resetAt}",
       "usage": "{pct}% of monthly hosted AI credits used",
       "viewPlans": "View plans"
@@ -478,6 +499,7 @@
       "hostedAiUnavailable": "Hosted AI is temporarily unavailable. Please try again later.",
       "policyBreach": "The AI provider exceeded the reserved credit budget, so the run was stopped. No further provider work was started.",
       "providerError": "The AI provider returned an error before I could finish. Nothing further was changed. Please try again.",
+      "sourcesHeading": "Sources",
       "turnError": "I couldn't complete that request. Please try again."
     },
     "send": "Send",
@@ -536,11 +558,11 @@
             },
             "first-contact": {
               "label": "Create my first contact",
-              "prompt": "Help me create my first contact. Ask for only the details you need."
+              "prompt": "Help me create my first real contact from confirmed facts in my Knowledge Base, existing workspace or what I tell you. Ask which person and only for missing required details; do not create a sample or testimonial contact."
             },
             "setup-contacts": {
               "label": "Set up contacts",
-              "prompt": "Help me design and create a minimal contact setup for my business. Ask about my use case first."
+              "prompt": "Configure useful contact fields and views from my Knowledge Base and existing workspace. Do not create sample contacts or turn public testimonials into contacts. Ask only for missing decisions."
             }
           }
         },
@@ -566,7 +588,7 @@
             },
             "setup": {
               "label": "Set up my workspace",
-              "prompt": "Help me set up Customermates for my business. Ask me a few focused questions before proposing any changes."
+              "prompt": "Configure my workspace from my Knowledge Base and existing CRM facts. Set up useful fields, views and settings without adding sample records. Do not turn public case studies or testimonials into contacts, organizations or deals, or invent prices, budgets or current deal stages. Ask only for missing decisions."
             },
             "tour": {
               "label": "Show me around",
@@ -596,11 +618,11 @@
             },
             "first-deal": {
               "label": "Create my first deal",
-              "prompt": "Help me create my first deal and link the right organization, contacts, and services."
+              "prompt": "Help me create my first real deal from a confirmed opportunity I identify. Use my Knowledge Base and existing workspace, link only confirmed organizations, contacts and services, and ask for missing required facts such as the amount or current stage before creating it."
             },
             "setup-pipeline": {
               "label": "Set up my pipeline",
-              "prompt": "Help me design a minimal sales pipeline for my business, then propose the fields and example deals to create."
+              "prompt": "Configure a simple sales pipeline from my Knowledge Base and existing workspace. Do not create sample deals or treat public case studies as current opportunities. Ask only for missing pipeline decisions; never invent deal amounts, budgets or current stages."
             }
           }
         },
@@ -630,7 +652,7 @@
             },
             "default-setup": {
               "label": "Help me set up my CRM",
-              "prompt": "Help me set up Customermates for my business. Ask me a few focused questions before proposing any changes."
+              "prompt": "Configure my CRM from my Knowledge Base and existing workspace facts. Set up useful fields, views and settings without adding sample records. Do not turn public case studies or testimonials into contacts, organizations or deals, or invent prices, budgets or current deal stages. Ask only for missing decisions."
             }
           }
         },
@@ -682,7 +704,7 @@
           "empty": {
             "first-organization": {
               "label": "Create my first organization",
-              "prompt": "Help me create my first organization and connect the right people or deals."
+              "prompt": "Help me create my first real organization from confirmed facts in my Knowledge Base, existing workspace or what I tell you. Ask which organization and only for missing required details. Link only confirmed people or deals; do not invent a customer relationship."
             },
             "organizations-tour": {
               "label": "Learn how organizations work",
@@ -690,7 +712,7 @@
             },
             "setup-organizations": {
               "label": "Set up organizations",
-              "prompt": "Help me design and create a minimal organization setup for my business. Ask about my use case first."
+              "prompt": "Configure useful organization fields and views from my Knowledge Base and existing workspace. Do not create sample organizations or treat public case studies as current business relationships. Ask only for missing decisions."
             }
           }
         },
@@ -698,7 +720,7 @@
           "data": {
             "create-routine": {
               "label": "Create a routine",
-              "prompt": "Help me create a routine. Ask what I want to automate, then recommend whether it should run on a schedule or an event."
+              "prompt": "Use my Knowledge Base and existing routines to identify what to automate. Ask only if its trigger or action is unclear, then create it."
             },
             "routine-health": {
               "label": "Review my routines",
@@ -712,7 +734,7 @@
           "empty": {
             "first-routine": {
               "label": "Create my first routine",
-              "prompt": "Help me create my first routine. Ask what I want to automate, then recommend whether it should run on a schedule or an event."
+              "prompt": "Use my Knowledge Base and workspace to suggest a useful first routine. Ask only if its trigger or action is unclear, then create it."
             },
             "routine-ideas": {
               "label": "Suggest useful routines",
@@ -742,7 +764,7 @@
           "empty": {
             "first-service": {
               "label": "Create my first offering",
-              "prompt": "Help me create my first service or product with the right name and price."
+              "prompt": "Help me create my first real service or product from my Knowledge Base and existing workspace. Ask only for the offering choice and required details that are missing. If its required price is unknown, ask before creating it; never guess a price or use a placeholder."
             },
             "services-tour": {
               "label": "Learn how offerings work",
@@ -750,7 +772,7 @@
             },
             "setup-services": {
               "label": "Set up my offerings",
-              "prompt": "Help me define a minimal set of services or products for my business and create them after review."
+              "prompt": "Create only real services or products documented in my Knowledge Base, avoiding duplicates in my workspace. Use confirmed prices. If a required price or other commercial detail is unknown, ask before creating that offering; never invent a price or use a placeholder."
             }
           }
         },
@@ -772,15 +794,45 @@
           "empty": {
             "first-task": {
               "label": "Create my first task",
-              "prompt": "Help me create my first task and connect it to the right records."
+              "prompt": "Help me create my first real task that I identify, using my Knowledge Base and existing workspace. Link only confirmed records and ask only for missing required decisions. Do not invent a task, owner or due date."
             },
             "setup-tasks": {
               "label": "Set up my workflow",
-              "prompt": "Help me design a minimal task workflow for my business and propose the fields and first tasks to create."
+              "prompt": "Configure a minimal task workflow with useful fields and views from my Knowledge Base and existing workspace. Do not create sample tasks, owners or due dates. Ask only for missing workflow decisions."
             },
             "tasks-tour": {
               "label": "Learn how tasks work",
               "prompt": "Show me around tasks and explain how they connect to contacts, organizations, deals, and services."
+            }
+          }
+        },
+        "wiki": {
+          "data": {
+            "create-wiki-page": {
+              "label": "Create a Knowledge Base page",
+              "prompt": "Create a useful Knowledge Base page from verified workspace knowledge or a clear gap. Avoid duplicates and ask only for missing facts."
+            },
+            "wiki-gaps": {
+              "label": "Find knowledge gaps",
+              "prompt": "Review our Knowledge Base and identify the most important missing, outdated, or conflicting knowledge. Do not make changes."
+            },
+            "wiki-summary": {
+              "label": "Summarize the Knowledge Base",
+              "prompt": "Summarize our Knowledge Base, including the key company processes, product knowledge, support guidance, and voice guidance it contains."
+            }
+          },
+          "empty": {
+            "first-wiki-page": {
+              "label": "Build from my website",
+              "prompt": "Build my Knowledge Base from my company website."
+            },
+            "wiki-structure": {
+              "label": "Suggest a Knowledge Base structure",
+              "prompt": "Review my Knowledge Base and workspace, identify missing company knowledge, and create useful pages without duplicating existing ones. Ask for a website only if you need one."
+            },
+            "wiki-tour": {
+              "label": "Learn how the Knowledge Base works",
+              "prompt": "Explain how the Knowledge Base is used by Mate, routines, and connected AI tools, including links and permissions. Do not make changes."
             }
           }
         }
@@ -919,6 +971,7 @@
       "emails": "Email addresses",
       "headers": "Custom headers",
       "isNewCompany": "First user in the workspace",
+      "markdown": "Markdown",
       "postalCode": "Postal code",
       "prompt": "Instructions",
       "recipientEmail": "Sent to",
@@ -1039,6 +1092,7 @@
       "warning": "Yellow"
     },
     "company": "Company",
+    "creditsBelowMinimum": "<{amount}",
     "customColumnTypes": {
       "currency": "Currency",
       "date": "Date",
@@ -1142,6 +1196,7 @@
       "agentConversationNotFound": "This conversation was not found or is no longer accessible.",
       "agentLimitReached": "Not enough AI credits remain to start another request.",
       "agentModelUnavailable": "That Assistant model is not available.",
+      "agentServiceUnavailable": "Hosted AI is temporarily unavailable. Please try again later.",
       "agentTurnAlreadyRunning": "Another Assistant turn is already running.",
       "apiKeyMaxExpiration": "API key expiration cannot exceed 365 days.",
       "apiKeyMinExpiration": "API key expiration must be at least 1 day.",
@@ -1167,12 +1222,14 @@
       "customFieldInvalidSingleSelect": "The single select value is invalid. Must be one of the allowed options: {validValues}.",
       "customFieldInvalidUrl": "The URL value is invalid. Must be a valid URL format (e.g., https://example.com). For multiple URLs, separate by comma (e.g., https://example.com, https://example.org).",
       "dataViewAllNameImmutable": "The All view cannot be renamed. Omit name and update only the requested state settings. Read config for supported settings and list for the current state before retrying.",
+      "dataViewLayoutReadOnly": "Column order, column widths and hidden columns can only be changed in the app. Omit columnOrder, columnWidths and hiddenColumns, or send them exactly as list returned them.",
       "dataViewNotFound": "This saved view was not found.",
       "dataViewUpdateEmpty": "Provide a name or at least one view setting to update.",
       "dealNotFound": "Deal ID not found or not accessible.",
       "demoMode": "This action is not available in demo mode. Sign in to access all features.",
       "draftMessageNotFound": "That draft could not be found. It may have already been sent or discarded.",
       "draftThreadNotSent": "This draft has no conversation yet. Send it from the inbox.",
+      "draftToRecipientsLocked": "A saved new message keeps its To recipients. Discard the draft and start a new message to address someone else.",
       "duplicateChannel": "This channel is listed more than once. Add each email address, phone number, or handle only once.",
       "duplicateOutboundSuppressed": "An identical message was sent to this thread moments ago. Change the text or wait a minute before retrying.",
       "duplicateWebhookEvents": "Duplicate events are not allowed.",
@@ -1184,6 +1241,7 @@
       "emailLinkColourInvalid": "Enter # followed by 6 hexadecimal characters (0–9, A–F), for example #1A2B3C.",
       "emailMismatch": "Email addresses must match.",
       "emailNotVerified": "Email not verified.",
+      "emailRecipientsRequired": "Add at least one recipient in To, Cc or Bcc.",
       "enterpriseCheckoutUnavailable": "Enterprise workspaces are billed manually and cannot start self-service checkout.",
       "filterBetweenInvalidArrayLength": "The 'between' operator requires an array with exactly 2 elements.",
       "generic": "An error occurred.",
@@ -1204,6 +1262,7 @@
       "linkedinProductRequiresLinkedin": "InMail and LinkedIn product options require a LinkedIn account.",
       "linkedinProductUnavailable": "This LinkedIn account does not have that product connected.",
       "messageContentRequired": "Add a message or an attachment.",
+      "messageNotFound": "This message is no longer available.",
       "mustNotBeBlank": "Must not be blank.",
       "mustNotContainNullChars": "Must not contain null characters.",
       "notAuthenticated": "Sign in to use this action.",
@@ -1212,6 +1271,9 @@
       "operatorAllowanceMissing": "This workspace has no contracted Enterprise allowance yet, so credits cannot be corrected. Set the allowance on the Workspaces list first.",
       "operatorConflict": "That change was refused. The record may have changed since the list loaded, or the workspace may not allow it right now. Reload and check the current state.",
       "operatorConnectedAccountsActive": "This workspace still has connected messaging accounts. Disconnect them first so the provider accounts are released, then delete the workspace.",
+      "operatorCreditNonzero": "Enter a credit adjustment greater or less than zero.",
+      "operatorCreditPeriodInvalid": "The adjustment period must end after it starts.",
+      "operatorCreditPrecision": "Use at most one decimal place for the credit adjustment.",
       "operatorTrialEndRequired": "A trial end date cannot be removed, only moved. Clearing it would leave the workspace on a trial that never expires.",
       "operatorUnavailable": "The requested correction is not available for the current account configuration.",
       "organizationNotFound": "Organization ID not found or not accessible.",
@@ -1252,15 +1314,19 @@
       "terminologyInvalidPreset": "Choose one of the available name presets.",
       "termsNotAgreed": "You must agree to the terms and conditions.",
       "threadNotFound": "Thread ID not found or not accessible.",
-      "unipileDisconnectedAccount": "The channel is disconnected. Please reconnect it and try again.",
+      "unipileAccountRestricted": "The provider has restricted this channel. Reconnecting won't fix it; resolve the restriction with the provider first.",
+      "unipileDisconnectedAccount": "The channel is disconnected. Its owner needs to reconnect it under Channels before it can be used again.",
       "unipileFeatureUnavailable": "This is not available on this channel. Retrying will not help; the team has been notified.",
       "unipileInvalidRequest": "The provider rejected the request as invalid. Check the identifiers and parameters.",
       "unipileProviderError": "The provider is having issues right now. Please try again shortly.",
+      "unipileProviderRejected": "The provider rejected this request. Repeating it unchanged won't help; check the recipients, content or target first.",
       "unipileRateLimit": "This channel reached its limit for now. You can try again {retryAfter}. Learn more at https://customermates.com/docs/messaging-rate-limits.",
       "unipileRequestTimeout": "The request timed out. The action may still have completed, please check before retrying.",
       "unipileResourceNotFound": "The recipient or thread couldn't be found on this channel.",
+      "unipileSendOutcomeUnknown": "The provider reported an error, but the message may still have gone out. Check the conversation before sending it again.",
+      "unipileSendUnconfirmed": "The provider accepted the message, but Customermates couldn't record it. Check the conversation before sending it again.",
       "unipileServiceUnavailable": "The messaging service is temporarily unavailable. Please try again shortly.",
-      "unipileUnknown": "The provider rejected this message. Please try again or contact support.",
+      "unipileUnknown": "Something went wrong between Customermates and the provider. Retrying unchanged probably won't help; contact support if it keeps happening.",
       "userInactive": "Your user account is inactive. Contact a workspace administrator.",
       "userNotFound": "User ID not found or not accessible.",
       "userPlatformOperatorStatusForbidden": "This account belongs to a platform operator and cannot be deactivated here. Use the operator console.",
@@ -1284,7 +1350,16 @@
       "widgetKindImmutable": "A widget's type cannot be changed after it is created.",
       "widgetNotFound": "Widget ID not found or not accessible.",
       "widgetTaskCanOnlyGroupByCustomColumn": "Tasks can only be grouped by custom columns, not by element types.",
-      "widgetWeightedValueNotAllowedForService": "Weighted value aggregation is not allowed for Service element type."
+      "widgetWeightedValueNotAllowedForService": "Weighted value aggregation is not allowed for Service element type.",
+      "wikiGuideExists": "This Knowledge Base already has an Operating Guide. Update the existing guide instead.",
+      "wikiHomepageSetupStartFailed": "Mate could not start the Knowledge Base setup. Please try again.",
+      "wikiNotEmpty": "This action requires an empty Knowledge Base.",
+      "wikiPageConflict": "This Knowledge Base page changed after you opened it. Reload it and try again.",
+      "wikiPageNotFound": "Knowledge Base page not found or not accessible.",
+      "wikiPagePinned": "The Operating Guide stays first. Move another page instead.",
+      "wikiPageUpdateEmpty": "Provide at least one field to update the page.",
+      "wikiProcedureNeedsSteps": "A procedure needs numbered steps.",
+      "wikiWhenToUseRequired": "A procedure needs a short description of when to use it."
     },
     "events": {
       "company": {
@@ -1377,9 +1452,15 @@
         "created": "Webhook Created",
         "deleted": "Webhook Deleted",
         "updated": "Webhook Updated"
+      },
+      "wiki_page": {
+        "created": "Knowledge Base Page Created",
+        "deleted": "Knowledge Base Page Deleted",
+        "updated": "Knowledge Base Page Updated"
       }
     },
     "filters": {
+      "daysCount": "{count, plural, one {# day} other {# days}}",
       "daysPlaceholder": "Days",
       "daysPreset": "{count, plural, =1 {1 day} other {# days}}",
       "daysSuffix": "days",
@@ -1390,10 +1471,14 @@
         "connectedAccountId": "Channel",
         "createdAt": "Created at",
         "draft": "Draft",
+        "emailFolder": "Email folder",
         "event": "Event",
         "firstName": "First name",
         "isPlatformOperator": "Platform operator",
         "lastActiveAt": "Last active",
+        "lastMessageAt": "Last activity",
+        "lastMessageDirection": "Last message",
+        "lastMessageSentAt": "Last message date",
         "lastName": "Last name",
         "name": "Name",
         "ownerUserId": "Owner",
@@ -1429,6 +1514,7 @@
         "lt": "<",
         "lte": "≤",
         "notIn": "not in",
+        "notInLastDays": "older than",
         "startsWith": "Starts with"
       },
       "palette": {
@@ -1440,6 +1526,7 @@
         "dateBetween": "Between…",
         "dateCustom": "Custom range…",
         "dateIncludes": "Includes…",
+        "dateOlderThan": "Older than…",
         "dateOnOrAfter": "On or after…",
         "dateOnOrBefore": "On or before…",
         "editOperator": "Change condition",
@@ -1558,6 +1645,7 @@
       "whatsapp": "WhatsApp"
     },
     "relatedPages": "Related pages",
+    "retryLater": "later",
     "scroll": {
       "backToTop": "Back to top"
     },
@@ -2196,6 +2284,7 @@
     "formatting": "Formatting",
     "heading1": "Heading 1",
     "heading2": "Heading 2",
+    "heading3": "Heading 3",
     "image": "Image",
     "imageUrlPrompt": "Enter image URL",
     "italic": "Italic",
@@ -2550,13 +2639,16 @@
       "inmailSignaturePlaceholder": "Signature",
       "inmailSubjectPlaceholder": "InMail subject",
       "loadRemoteImages": "Load remote images",
+      "messageSent": "Message sent.",
       "moreSendOptions": "More send options",
-      "newThreadSent": "Message sent. The conversation will appear shortly.",
       "noContacts": "No contacts.",
       "retry": "Retry",
       "saveDraft": "Save as draft",
       "send": "Send",
       "sendAs": "Send as",
+      "sendInBackground": "You can keep working. We’ll notify you when it’s sent.",
+      "sendOutcomeUnknown": "It may have been sent. Check the conversation before sending it again.",
+      "sendStarted": "Sending message",
       "subjectPlaceholder": "Subject",
       "toLabel": "To",
       "typeMessage": "Type a message...",
@@ -2565,9 +2657,11 @@
       "writeReply": "Write a reply..."
     },
     "conversationRegion": "Conversation",
+    "copyAddress": "Copy {address}",
     "dateToday": "Today",
     "dateYesterday": "Yesterday",
     "edited": "(edited)",
+    "emailActions": "Email actions",
     "emptyState": "No messages yet. Connect a channel in your profile to start receiving messages.",
     "fileTypeExcel": "Excel spreadsheet",
     "fileTypeImage": "Image file",
@@ -2575,23 +2669,30 @@
     "fileTypePowerpoint": "PowerPoint presentation",
     "fileTypeWord": "Word document",
     "folders": {
-      "current": "In {folder}",
-      "hiddenTooltip": "In {folder}, which is hidden from your inbox",
+      "messageLocations": "Email folders and labels",
+      "messageOptions": "Folder options: {folders}",
+      "moveConversation": "Move conversation to folder…",
       "moved": "Moved to {folder}.",
       "movedHidden": "Moved to {folder}. It no longer appears in your inbox.",
+      "moveMessage": "Move this email to…",
       "moveNothing": "Nothing to move to {folder}.",
       "movePartial": "Moved part of this conversation to {folder}. {failed} message(s) could not be moved.",
-      "moveRateLimited": "Stopped filing into {folder} because the provider is rate limiting. Try the rest again {retryAfter}.",
-      "none": "No folder"
+      "moveRateLimited": "Stopped filing into {folder} because the provider is rate limiting. Try the rest again {retryAfter, select, later {later} other {{retryAfter}}}.",
+      "moveStopped": "Moved {moved} email(s) to {folder}, then stopped: {reason}"
     },
     "groupThread": "Group ({count, plural, one {# member} other {# members}})",
     "hideQuotedText": "Hide quoted text",
     "jumpToLatest": "Jump to latest",
+    "lastMessageDirections": {
+      "inbound": "Received",
+      "outbound": "Sent"
+    },
     "learnMore": "Learn more",
     "linkedinContact": "LinkedIn contact",
     "loadMedia": "Load media",
     "mediaUnavailable": "Media unavailable",
     "messageDeleted": "This message was deleted",
+    "messageDetails": "Message details",
     "participants": {
       "link": "Link",
       "linkUpdateFailed": "Couldn't update the contact link",
@@ -2607,9 +2708,11 @@
     "previewUnsupported": "💬 Unsupported message",
     "previewVideo": "🎥 Video",
     "previewVoice": "🎙️ Voice message",
-    "rateLimited": "This channel hit its rate limit. You can try again {retryAfter}.",
+    "rateLimited": "This channel hit its rate limit. You can try again {retryAfter, select, later {later} other {{retryAfter}}}.",
     "refresh": "Refresh",
     "refreshDone": "Inbox refreshed.",
+    "refreshNeedsReconnect": "{count, plural, one {# channel needs} other {# channels need}} reconnecting before it can sync. Open Channels to reconnect.",
+    "refreshPartial": "{count, plural, one {# channel} other {# channels}} couldn't be refreshed. The inbox shows what was synced before.",
     "refreshRateLimited": "Some channels hit their rate limit. Try again in a few minutes.",
     "resyncThread": "Resync thread",
     "resyncThreadDone": "Conversation refreshed",
@@ -2827,6 +2930,7 @@
     "search": "Search",
     "settings": "Settings",
     "subscription": "Subscription",
+    "wiki": "Knowledge Base",
     "workspace": "Workspace"
   },
   "NotFoundPage": {
@@ -2868,8 +2972,7 @@
         "codex": "Codex",
         "cursor": "Cursor",
         "gemini": "Gemini",
-        "openai": "ChatGPT & Codex",
-        "skip": "Skip for now"
+        "openai": "ChatGPT & Codex"
       },
       "connector": {
         "chatgptDescription": "In the ChatGPT desktop app, add Customermates as a Streamable HTTP MCP server. Authentication uses OAuth.",
@@ -2953,10 +3056,6 @@
         "setup": {
           "apiKeySubtitle": "Create an API key, then follow the setup made for {provider}.",
           "title": "Connect {provider}"
-        },
-        "skip": {
-          "subtitle": "You can finish onboarding now and connect one from your profile whenever you're ready.",
-          "title": "Set up an AI later"
         }
       }
     },
@@ -2976,23 +3075,36 @@
         "link": "Share link"
       }
     },
+    "milestones": {
+      "ai": "AI tools",
+      "invite": "Team",
+      "profile": "You",
+      "wiki": "Knowledge"
+    },
     "next": "Next",
     "progress": "Step {current} of {total}",
     "progressLabel": "Onboarding progress",
     "steps": {
       "ai": {
-        "subtitle": "Choose one to connect now. You can add the others later.",
-        "title": "Connect your AI"
+        "subtitle": "Choose an AI tool to connect with your workspace and its company knowledge. Connect one now, add others later, or skip this step.",
+        "title": "Connect the AI you already use"
       },
       "invite": {
-        "subtitle": "Share a link or send email invitations.",
-        "title": "Invite your team"
+        "subtitle": "Invite colleagues with a shared link or individual email invitations. You can also continue on your own and invite people later.",
+        "title": "Bring your team into the picture"
       },
       "profile": {
-        "invitedSubtitle": "Complete your profile to request access to the invited workspace.",
-        "subtitle": "Tell us who you are so we can set up your workspace.",
-        "title": "Your profile"
+        "invitedSubtitle": "Complete your profile to request access to the workspace you were invited to.",
+        "subtitle": "Add your name and country so your teammates can recognize you. These details become your profile and can be updated later.",
+        "title": "Make this workspace yours"
+      },
+      "wiki": {
+        "subtitle": "Start with your company website. Mate turns what it can verify into shared, editable Knowledge Base pages, with sources and gaps for you to review.",
+        "title": "Give Mate your company knowledge"
       }
+    },
+    "wiki": {
+      "skip": "Not now"
     }
   },
   "OperatorAudit": {
@@ -3088,7 +3200,7 @@
   "OperatorUsers": {
     "adjustment": {
       "deltaLabel": "Signed credit correction",
-      "deltaPlaceholder": "For example, 500 or -100",
+      "deltaPlaceholder": "For example, 500, 2.5 or -100",
       "expiresAt": "This correction applies to the current period only and lapses on {date}."
     },
     "confirm": {
@@ -3113,7 +3225,7 @@
     "emptyTitle": "No users match these filters",
     "modal": {
       "access": "Access",
-      "adjustmentConfirm": "Apply a correction of {value} credits to {name}?",
+      "adjustmentConfirm": "{credits, plural, one {Apply a correction of {amount} credit to {name}?} other {Apply a correction of {amount} credits to {name}?}}",
       "identity": "{person} · {email}"
     },
     "navigation": "Users",
@@ -3231,6 +3343,9 @@
     "resetPasswordCta": "Reset",
     "title": "Reset your password"
   },
+  "ResizablePanels": {
+    "resize": "Resize {before} and {after}. Drag or use arrow keys to resize; double-tap or press Enter to reset."
+  },
   "RoleModal": {
     "manageAccess": "Manage",
     "no": "No",
@@ -3251,7 +3366,8 @@
       "routines": "Routines",
       "services": "Services",
       "tasks": "Tasks",
-      "users": "Users & Roles"
+      "users": "Users & Roles",
+      "wiki": "Knowledge Base"
     },
     "systemAlert": "This is a system role and cannot be edited or deleted.",
     "systemDescription": "Full access to all features and settings. Cannot be modified or deleted.",
@@ -3478,7 +3594,7 @@
     "manageWithLemonSqueezy": "Manage with Lemon Squeezy",
     "picker": {
       "connectedAccountsPerUser": "{accounts, plural, one {# connected account per user} other {# connected accounts per user}}",
-      "creditNote": "Hosted AI credits refresh monthly; unused credits do not roll over. External MCP clients use your own AI provider and do not consume these credits.",
+      "creditNote": "Hosted AI credits refresh monthly; unused credits do not roll over. Each request is charged its exact provider cost, shown to one decimal. External MCP clients bill model use through your own AI provider. Server-side semantic searches can consume hosted AI credits.",
       "features": {
         "business": ["Everything in Pro", "Shared accounts and priority support"],
         "pro": ["Everything in Starter", "Unified inbox"],
@@ -3650,5 +3766,114 @@
     "emptyBody": "Add a webhook to send workspace events to your systems.",
     "emptyTitle": "No webhooks yet",
     "title": "Webhooks"
+  },
+  "Wiki": {
+    "conflict": "This page has changed. Your edits are still here. Reload to use the latest version.",
+    "copyLink": "Copy page link",
+    "delete": "Delete page",
+    "document": "Document",
+    "emptyBody": "Give Mate and connected AI tools the company knowledge, processes, and guidance they need.",
+    "emptyBodyReadOnly": "No Knowledge Base pages have been created yet.",
+    "emptyTitle": "Your Knowledge Base is empty",
+    "kind": {
+      "guide": "Operating Guide",
+      "guideDescription": "Shared rules and tone for every request. One per workspace.",
+      "guideExists": "An Operating Guide already exists. Edit that page to change the shared rules.",
+      "guideHelp": "The Operating Guide sets how Mate and connected AI tools should work: tone, rules and boundaries. Put the key rules first; Mate reads the opening guidance for every request. One per workspace.",
+      "knowledge": "Knowledge",
+      "knowledgeDescription": "Company facts and reference information to look up when needed.",
+      "knowledgeHelp": "Use for company facts, products, services or answers to common questions. Mate and connected AI tools find these pages when a question needs them.",
+      "label": "Page type",
+      "procedure": "Procedure",
+      "procedureDescription": "Steps for a repeatable task, used when a request matches.",
+      "procedureHelp": "Use for a repeatable task, such as customer onboarding. Write numbered steps and describe the matching request in “When to use.” Mate and connected AI tools follow them when that request comes up."
+    },
+    "linkPage": "Link to a Knowledge Base page…",
+    "loadFailed": "Pages could not be loaded.",
+    "newPage": "New page",
+    "next": "Next",
+    "noResults": "No matching pages.",
+    "onThisPage": "On this page",
+    "page": "Page {current} of {total}",
+    "pageActions": "Page actions",
+    "pagesLabel": "Knowledge Base pages",
+    "pageTitle": "Page title",
+    "previous": "Previous",
+    "reload": "Reload page",
+    "search": "Search pages…",
+    "unavailableBody": "This page was deleted or you do not have access to it. Choose another page.",
+    "unavailableTitle": "Page unavailable",
+    "untitled": "Untitled page",
+    "websiteImport": {
+      "faqHeading": "Frequently asked questions",
+      "source": "Source: {url} · fetched {date}"
+    },
+    "whenToUse": {
+      "label": "When to use",
+      "placeholder": "Use when a customer asks for a refund or to cancel a paid plan."
+    }
+  },
+  "WikiSetup": {
+    "continue": "Continue",
+    "continueBackground": "Continue while Mate works",
+    "crawlProgress": {
+      "created": "Created",
+      "discovering": "Finding website pages",
+      "failed": "Skipped",
+      "found": "{count} pages found",
+      "pending": "Waiting",
+      "read": "Read",
+      "reading": "Reading",
+      "readingCount": "Reading pages · {fetched}/{total}",
+      "skipped": {
+        "credits": "Out of AI credits",
+        "error": "Not written",
+        "evidence": "Not enough source evidence",
+        "generation": "Not written",
+        "persistence": "Could not be saved",
+        "review": "Not supported by the sources",
+        "reviewUnavailable": "Review unavailable"
+      },
+      "steps": "3 steps",
+      "title": "Website import progress",
+      "writing": "Writing",
+      "writingCount": "Writing pages · {created}/{total}",
+      "writingStep": "Writing Knowledge Base pages"
+    },
+    "generated": {
+      "gapsHeading": "Gaps to confirm",
+      "pagesHeading": "Knowledge Base pages",
+      "roles": {
+        "company_overview": "Company overview",
+        "customers_and_use_cases": "Customers and use cases",
+        "operating_guide": "Operating Guide",
+        "sales_messaging": "Sales messaging and FAQs",
+        "voice_and_tone": "Voice and tone"
+      },
+      "sourcesHeading": "Sources"
+    },
+    "homepageLabel": "Company website",
+    "homepagePlaceholder": "https://example.com",
+    "languageDescription": "Defaults to your browser language. Existing Knowledge Base pages determine the language when available.",
+    "languageLabel": "Knowledge Base language",
+    "start": "Build my Knowledge Base",
+    "status": {
+      "completedBodyOnboarding": "Mate created your starter pages with cited website facts. You can review them later in the Knowledge Base and confirm anything marked as a gap.",
+      "completedExistingBody": "Your Knowledge Base already contains pages. Continue onboarding or review the existing content.",
+      "completedTitle": "Your starter Knowledge Base is ready",
+      "failedBody": "Setup stopped before all pages were ready. Any pages already created are still available. You can continue and review them in the Knowledge Base.",
+      "failedBodyBlocked": "{domain} does not allow automated reading in its robots.txt, so nothing was imported. You can add pages yourself instead.",
+      "failedBodySynthesis": "The website was read, but Mate could not write the pages. Try again. Any pages already created are still available.",
+      "failedBodyUnavailable": "Mate could not read {domain}. Check the address, or continue and add pages later.",
+      "failedTitle": "Setup did not finish",
+      "noContentBody": "Mate found no usable information for Knowledge Base pages. You can try another website or continue and add pages later.",
+      "noContentTitle": "No Knowledge Base pages were created",
+      "readingBody": "Mate has read {fetched} of {total} pages from {domain}.",
+      "workingBody": "Mate is reading {domain} and turning sourced information into your Knowledge Base. You can continue to the next step while it works.",
+      "workingBodyWiki": "Mate is reading {domain} and building the Knowledge Base. You can return later to see the finished pages.",
+      "workingTitle": "Mate is learning about your company"
+    },
+    "tryAnother": "Try another website",
+    "unavailable": "Mate setup is not available right now. You can create Knowledge Base pages later in the Knowledge Base."
   }
 }

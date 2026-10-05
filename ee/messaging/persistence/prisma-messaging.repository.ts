@@ -1,10 +1,13 @@
-import type { MessagingProvider, Prisma } from "@/generated/prisma";
+import type { MessagingProvider } from "@/generated/prisma";
+
+import { startOfDay, subDays } from "date-fns";
 
 import {
   MessagingMessageDirection,
   MessagingMessageOrigin,
   MessagingThreadState,
   MessagingThreadType,
+  Prisma,
 } from "@/generated/prisma";
 
 import type {
@@ -15,20 +18,20 @@ import type {
   IngestMessage,
 } from "../messaging.schema";
 
-import type { GetMessagingThreadRepo } from "../inbox/get-messaging-thread.interactor";
-import type { ResyncThreadRepo } from "../inbox/resync-thread.interactor";
-import type { MoveEmailThreadRepo } from "../inbox/move-email-thread.interactor";
+import type { GetMessagingThreadRepo } from "../inbox/get-messaging-thread.repo";
+import type { ResyncThreadRepo } from "../inbox/resync-thread.repo";
+import type { MoveEmailThreadRepo } from "../inbox/move-email-thread.repo";
 import type { GetUnreadThreadCountRepo } from "../inbox/get-unread-thread-count.interactor";
 import type { UpdateThreadRepo } from "../thread-state/update-thread.interactor";
 import type { MessagingIngestRepo } from "../ingest/messaging-ingest.repo";
 import type { RepoArgs } from "@/core/utils/types";
-import type { SendChatMessageRepo } from "../outbound/send-chat-message.interactor";
-import type { SendEmailRepo } from "../outbound/send-email.interactor";
-import type { StartChatThreadRepo } from "../outbound/start-chat.interactor";
-import type { SaveDraftRepo } from "../outbound/save-draft.interactor";
+import type { SendChatMessageRepo } from "../outbound/send-chat-message.repo";
+import type { SendEmailRepo } from "../outbound/send-email.repo";
+import type { StartChatThreadRepo } from "../outbound/start-chat-thread.repo";
+import type { SaveDraftRepo } from "../outbound/save-draft.repo";
 import type { DiscardDraftRepo } from "../outbound/discard-draft.interactor";
 import type { GetMessageAttachmentMetaRepo } from "../inbox/get-message-attachment.interactor";
-import type { GetMessagingThreadsRepo } from "../inbox/get-messaging-threads.interactor";
+import type { GetMessagingThreadsRepo } from "@/ee/messaging/inbox/get-messaging-threads.repo";
 import type { FindThreadsByIdsRepo } from "../find-threads-by-ids.repo";
 import type { ChannelCandidateDto } from "../inbox/search-channel-candidates.interactor";
 import type { SearchChannelCandidatesRepo } from "../inbox/search-channel-candidates.interactor";
@@ -37,7 +40,7 @@ import type { ContactReference } from "@/core/base/base-entity.schema";
 
 import { BaseRepository } from "@/core/base/base-repository";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
-import { getContactRepo } from "@/core/di";
+import { getConnectedAccountRepo, getContactRepo } from "@/core/di";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
@@ -50,14 +53,24 @@ import {
   accessibleFolderStatesWhere,
   inboxThreadVisibilityWhere,
   messageVisibilityWhere,
+  accessibleConnectedAccountWhere,
   threadAccessWhere,
 } from "../messaging-access";
-import { channelClass, classWhere, isDraftThreadId, isEmailProvider, isHandleProvider } from "../provider";
+import {
+  channelClass,
+  classWhere,
+  DRAFT_THREAD_PREFIX,
+  isDraftThreadId,
+  isEmailProvider,
+  isHandleProvider,
+} from "../provider";
 import { draftRevisionMatches, normalizeDraftThreadRecipients, type DraftDeleteResult } from "../draft-thread";
 import { draftThreadProviderId } from "../draft-thread-id";
 import { identifierKey } from "@/features/contacts/upsert/validate-identifiers";
+import { parseEmailFolderFilterValue } from "../inbox/messaging-filter-options.schema";
 
 type MappedThreadRow = ReturnType<PrismaMessagingRepo["mapThreadRow"]>;
+type ThreadRow = Prisma.MessagingThreadGetPayload<{ select: PrismaMessagingRepo["threadSelect"] }>;
 type ConvertDraftToSentArgs = {
   messageId: string;
   expectedUpdatedAt: Date;
@@ -210,8 +223,9 @@ export class PrismaMessagingRepo
     ];
   }
 
-  getFilterableFields() {
-    return Promise.resolve([
+  async getFilterableFields() {
+    const options = await getConnectedAccountRepo().listInboxFilterOptions();
+    return [
       {
         field: FilterFieldKey.state,
         operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.state],
@@ -232,7 +246,29 @@ export class PrismaMessagingRepo
         field: FilterFieldKey.draft,
         operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.draft],
       },
-    ]);
+      {
+        field: FilterFieldKey.connectedAccountId,
+        operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.connectedAccountId],
+        options: options.accounts,
+      },
+      {
+        field: FilterFieldKey.emailFolder,
+        operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.emailFolder],
+        options: options.folders,
+      },
+      {
+        field: FilterFieldKey.lastMessageDirection,
+        operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.lastMessageDirection],
+      },
+      {
+        field: FilterFieldKey.lastMessageSentAt,
+        operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.lastMessageSentAt],
+      },
+      {
+        field: FilterFieldKey.lastMessageAt,
+        operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.lastMessageAt],
+      },
+    ];
   }
 
   private isContactFilterField(field: string) {
@@ -244,7 +280,130 @@ export class PrismaMessagingRepo
   }
 
   private isRepoHandledFilterField(field: string) {
-    return this.isContactFilterField(field) || this.isDraftFilterField(field);
+    return (
+      this.isContactFilterField(field) ||
+      this.isDraftFilterField(field) ||
+      field === FilterFieldKey.emailFolder.toString() ||
+      this.isLastMessageFilterField(field)
+    );
+  }
+
+  private isLastMessageFilterField(field: string) {
+    return (
+      field === FilterFieldKey.lastMessageDirection.toString() || field === FilterFieldKey.lastMessageSentAt.toString()
+    );
+  }
+
+  private async folderWhereForFilters(filters: Filter[]): Promise<Prisma.MessagingThreadWhereInput[]> {
+    if (filters.length === 0) return [];
+    const visibility = messageVisibilityWhere(await this.loadAccessibleFolderStates());
+    return filters.map((filter) => {
+      const values = "value" in filter ? (Array.isArray(filter.value) ? filter.value : [String(filter.value)]) : [];
+      const references = values.map(parseEmailFolderFilterValue);
+      if (references.length === 0 || references.some((reference) => reference === null)) return { id: { in: [] } };
+      const membership: Prisma.MessagingThreadWhereInput = {
+        OR: references.flatMap((reference) =>
+          reference
+            ? [
+                {
+                  connectedAccountId: reference.accountId,
+                  messages: {
+                    some: {
+                      companyId: this.companyId,
+                      ...visibility,
+                      folderIds: { has: reference.folderId },
+                    },
+                  },
+                },
+              ]
+            : [],
+        ),
+      };
+      return filter.operator === FilterOperatorKey.notIn ? { NOT: membership } : membership;
+    });
+  }
+
+  private lastMessageDateCondition(filter: Filter, now: Date): Prisma.Sql {
+    if (filter.operator === FilterOperatorKey.inLastDays || filter.operator === FilterOperatorKey.notInLastDays) {
+      const cutoff = startOfDay(subDays(now, filter.value));
+      if (Number.isNaN(cutoff.getTime())) return Prisma.sql`FALSE`;
+      return filter.operator === FilterOperatorKey.inLastDays
+        ? Prisma.sql`latest."sentAt" >= ${cutoff}`
+        : Prisma.sql`latest."sentAt" < ${cutoff}`;
+    }
+    const values = "value" in filter ? (Array.isArray(filter.value) ? filter.value : [String(filter.value)]) : [];
+    const dates = values.map((value) => new Date(value));
+    if (dates.length === 0 || dates.some((date) => Number.isNaN(date.getTime()))) return Prisma.sql`FALSE`;
+    switch (filter.operator) {
+      case FilterOperatorKey.gt:
+        return Prisma.sql`latest."sentAt" > ${dates[0]}`;
+      case FilterOperatorKey.gte:
+        return Prisma.sql`latest."sentAt" >= ${dates[0]}`;
+      case FilterOperatorKey.lt:
+        return Prisma.sql`latest."sentAt" < ${dates[0]}`;
+      case FilterOperatorKey.lte:
+        return Prisma.sql`latest."sentAt" <= ${dates[0]}`;
+      case FilterOperatorKey.between:
+        return dates.length === 2
+          ? Prisma.sql`latest."sentAt" >= ${dates[0]} AND latest."sentAt" <= ${dates[1]}`
+          : Prisma.sql`FALSE`;
+      default:
+        return Prisma.sql`FALSE`;
+    }
+  }
+
+  private async lastMessageQuery(params: GetQueryParams, baseWhere: Prisma.MessagingThreadWhereInput) {
+    const filters = (params.filters ?? []).filter(
+      (filter) => filter.field === FilterFieldKey.lastMessageDirection.toString(),
+    );
+    const validDirections = Object.values(MessagingMessageDirection);
+    let directions = validDirections;
+    for (const filter of filters) {
+      const values = "value" in filter ? (Array.isArray(filter.value) ? filter.value : [String(filter.value)]) : [];
+      if (values.length === 0 || values.some((value) => !validDirections.includes(value as MessagingMessageDirection)))
+        return null;
+      directions = directions.filter((direction) =>
+        filter.operator === FilterOperatorKey.notIn ? !values.includes(direction) : values.includes(direction),
+      );
+    }
+    if (directions.length === 0) return null;
+    const now = new Date();
+    const dateConditions = (params.filters ?? [])
+      .filter((filter) => filter.field === FilterFieldKey.lastMessageSentAt.toString())
+      .map((filter) => this.lastMessageDateCondition(filter, now));
+    const dateWhere =
+      dateConditions.length > 0 ? Prisma.sql`AND ${Prisma.join(dateConditions, " AND ")}` : Prisma.empty;
+    const { where } = await this.buildQueryArgs(params, baseWhere);
+    const candidates = await this.prisma.messagingThread.findMany({ where, select: { id: true } });
+    if (candidates.length === 0) return null;
+    const candidateIds = candidates.map(({ id }) => id);
+    return Prisma.sql`
+      WITH latest AS (
+        SELECT thread.id AS "messagingThreadId", message.direction, message."sentAt",
+          thread."lastMessageAt"
+        FROM "MessagingThread" thread
+        JOIN unnest(${candidateIds}::text[]) candidate(id) ON candidate.id = thread.id
+        JOIN "ConnectedAccount" account ON account.id = thread."connectedAccountId"
+          AND account."companyId" = ${this.companyId}
+        JOIN LATERAL (
+          SELECT message.direction, message."sentAt"
+          FROM "MessagingMessage" message
+          WHERE message."messagingThreadId" = thread.id AND message."companyId" = thread."companyId"
+            AND message."connectedAccountId" = thread."connectedAccountId"
+            AND NOT message."isDraft" AND NOT message."isHidden"
+            AND NOT message."isDeleted" AND NOT message."isEvent"
+            AND (account."foldersSyncedAt" IS NULL OR cardinality(message."folderIds") = 0
+              OR message."folderIds" && account."selectedFolderIds")
+          ORDER BY message."sentAt" DESC, message.id DESC
+          LIMIT 1
+        ) message ON TRUE
+        WHERE thread."companyId" = ${this.companyId}
+          AND (account."userId" = ${this.userId} OR account.shared OR thread."sharedToCrm")
+      )
+      SELECT latest."messagingThreadId" AS id, latest."lastMessageAt"
+      FROM latest
+      WHERE latest.direction::text IN (${Prisma.join(directions)}) ${dateWhere}
+    `;
   }
 
   private draftWhereForFilters(filters: Filter[]): Prisma.MessagingThreadWhereInput[] {
@@ -307,6 +466,9 @@ export class PrismaMessagingRepo
         handledFilters.filter((f) => this.isContactFilterField(f.field)),
       )),
       ...this.draftWhereForFilters(handledFilters.filter((f) => this.isDraftFilterField(f.field))),
+      ...(await this.folderWhereForFilters(
+        handledFilters.filter((f) => f.field === FilterFieldKey.emailFolder.toString()),
+      )),
     ];
     const existingAnd = Array.isArray(baseWhere.AND) ? baseWhere.AND : baseWhere.AND ? [baseWhere.AND] : [];
     const mergedBaseWhere: Prisma.MessagingThreadWhereInput = {
@@ -405,9 +567,37 @@ export class PrismaMessagingRepo
 
   async getItems(params: GetQueryParams) {
     const folderStates = await this.loadAccessibleFolderStates();
-    const threads = await this.list({
+    const baseWhere = inboxThreadVisibilityWhere(this.companyId, this.userId, folderStates);
+    if ((params.filters ?? []).some((filter) => this.isLastMessageFilterField(filter.field))) {
+      const query = await this.lastMessageQuery(params, baseWhere);
+      if (!query) return [];
+      const { skip, take } = await this.buildQueryArgs(params, baseWhere);
+      const sort = this.validateSortDescriptor({
+        sortDescriptor: params.sortDescriptor,
+        sortableFields: this.getSortableFields(),
+      });
+      const direction = sort?.direction === "asc" ? Prisma.sql`ASC` : Prisma.sql`DESC`;
+      const page = await this.prisma.$queryRaw<{ id: string }[]>(Prisma.sql`
+        SELECT matches.id FROM (${query}) matches
+        ORDER BY matches."lastMessageAt" ${direction} NULLS LAST, matches.id ${direction}
+        LIMIT ${take} OFFSET ${skip}
+      `);
+      if (page.length === 0) return [];
+      const rows = await this.prisma.messagingThread.findMany({
+        where: { ...baseWhere, id: { in: page.map(({ id }) => id) } },
+        select: this.threadSelect,
+      });
+      const byId = new Map(rows.map((row) => [row.id, row]));
+      return this.mapThreadRows(
+        page.flatMap(({ id }) => {
+          const row = byId.get(id);
+          return row ? [row] : [];
+        }),
+      );
+    }
+    const rows = await this.list({
       model: "messagingThread",
-      baseWhere: inboxThreadVisibilityWhere(this.companyId, this.userId, folderStates),
+      baseWhere,
       select: this.threadSelect,
       params: {
         ...params,
@@ -416,22 +606,24 @@ export class PrismaMessagingRepo
           direction: "desc",
         },
       },
-      map: (
-        row: Prisma.MessagingThreadGetPayload<{
-          select: PrismaMessagingRepo["threadSelect"];
-        }>,
-      ) => this.mapThreadRow(row),
+      map: (row: ThreadRow) => row,
     });
 
-    return this.hydrateThreadContacts(threads);
+    return this.mapThreadRows(rows);
   }
 
   async getCount(params: GetQueryParams) {
     const folderStates = await this.loadAccessibleFolderStates();
-    const { where } = await this.buildQueryArgs(
-      params,
-      inboxThreadVisibilityWhere(this.companyId, this.userId, folderStates),
-    );
+    const baseWhere = inboxThreadVisibilityWhere(this.companyId, this.userId, folderStates);
+    if ((params.filters ?? []).some((filter) => this.isLastMessageFilterField(filter.field))) {
+      const query = await this.lastMessageQuery(params, baseWhere);
+      if (!query) return 0;
+      const rows = await this.prisma.$queryRaw<{ total: bigint }[]>(
+        Prisma.sql`SELECT COUNT(*) AS total FROM (${query}) matches`,
+      );
+      return Number(rows[0].total);
+    }
+    const { where } = await this.buildQueryArgs(params, baseWhere);
 
     return this.prisma.messagingThread.count({ where });
   }
@@ -724,7 +916,7 @@ export class PrismaMessagingRepo
       select: this.threadSelect,
     });
 
-    const [hydrated] = await this.hydrateThreadContacts([this.mapThreadRow(row)]);
+    const [hydrated] = await this.mapThreadRows([row]);
     return hydrated;
   }
 
@@ -735,7 +927,7 @@ export class PrismaMessagingRepo
     });
     if (!row) return null;
 
-    const [hydrated] = await this.hydrateThreadContacts([this.mapThreadRow(row)]);
+    const [hydrated] = await this.mapThreadRows([row]);
     return hydrated;
   }
 
@@ -800,11 +992,28 @@ export class PrismaMessagingRepo
     return new Set(threads.map((thread) => thread.id));
   }
 
-  private mapThreadRow(
-    row: Prisma.MessagingThreadGetPayload<{
-      select: PrismaMessagingRepo["threadSelect"];
-    }>,
-  ) {
+  private async mapThreadRows(rows: ThreadRow[]) {
+    const draftLed = rows.filter((row) => row.messages[0]?.isDraft).map((row) => row.id);
+    const latestSent = await Promise.all(
+      draftLed.map((threadId) =>
+        this.prisma.messagingMessage.findFirst({
+          where: { messagingThreadId: threadId, companyId: this.companyId, isDraft: false, isHidden: false },
+          orderBy: [{ sentAt: "desc" }, { id: "desc" }],
+          select: { direction: true },
+        }),
+      ),
+    );
+    const sentFromSelfBehindDraft = new Map(
+      draftLed.map((threadId, index) => {
+        const sent = latestSent[index];
+        return [threadId, sent ? sent.direction === MessagingMessageDirection.outbound : null] as const;
+      }),
+    );
+
+    return this.hydrateThreadContacts(rows.map((row) => this.mapThreadRow(row, sentFromSelfBehindDraft.get(row.id))));
+  }
+
+  private mapThreadRow(row: ThreadRow, sentFromSelfBehindDraft?: boolean | null) {
     const { messages, participants, connectedAccount, lastMessagePreview, lastMessageIsSender, ...rest } = row;
     const last = messages[0];
     const previewSource =
@@ -828,6 +1037,7 @@ export class PrismaMessagingRepo
 
     return {
       ...rest,
+      unipileThreadId: isDraftThreadId(row.unipileThreadId) ? `${DRAFT_THREAD_PREFIX}${row.id}` : row.unipileThreadId,
       accountShared: connectedAccount.shared,
       isOwner: connectedAccount.userId === this.userId,
       participants: participants.map(({ providerUserId, identifier, ...attendee }) => ({
@@ -841,6 +1051,11 @@ export class PrismaMessagingRepo
       lastMessageFromSelf: last
         ? last.direction === MessagingMessageDirection.outbound
         : (lastMessageIsSender ?? false),
+      lastSentMessageFromSelf: last?.isDraft
+        ? (sentFromSelfBehindDraft ?? null)
+        : last
+          ? last.direction === MessagingMessageDirection.outbound
+          : (lastMessageIsSender ?? false),
       lastMessageSenderName: (last?.sender as unknown as MessagingAttendee | null)?.displayName?.trim() || null,
       lastMessageSenderIdentifier: (last?.sender as unknown as MessagingAttendee | null)?.identifier ?? null,
     };
@@ -899,11 +1114,13 @@ export class PrismaMessagingRepo
     connectedAccountId: string;
     provider: MessagingProvider;
     recipients: string[];
+    cc?: string[];
+    bcc?: string[];
   }) {
     const normalizedRecipients = normalizeDraftThreadRecipients(args.provider, args.recipients);
     if (!normalizedRecipients) throw new Error("Cannot create a draft thread for an invalid recipient");
     const recipients = normalizedRecipients;
-    const unipileThreadId = draftThreadProviderId(args.provider, recipients);
+    const unipileThreadId = draftThreadProviderId(args.provider, recipients, { cc: args.cc, bcc: args.bcc });
     let row: MessagingThread;
     try {
       row = (await this.prisma.messagingThread.upsert({
@@ -967,6 +1184,7 @@ export class PrismaMessagingRepo
         where: {
           id: args.threadId,
           ...threadAccessWhere(this.companyId, this.userId),
+          connectedAccount: { is: accessibleConnectedAccountWhere(this.companyId, this.userId) },
         },
         select: { id: true, unipileThreadId: true },
       });
@@ -1041,6 +1259,16 @@ export class PrismaMessagingRepo
           ),
           lastMessageIsSender: true,
           ...(isDraftThreadId(thread.unipileThreadId) ? { subject: args.subject } : {}),
+          ...(isDraftThreadId(thread.unipileThreadId) &&
+          isEmailProvider(args.provider) &&
+          args.recipients.to.length === 0
+            ? {
+                unipileThreadId: draftThreadProviderId(args.provider, [], {
+                  cc: args.recipients.cc.map((recipient) => recipient.identifier),
+                  bcc: args.recipients.bcc.map((recipient) => recipient.identifier),
+                }),
+              }
+            : {}),
         },
       });
 
@@ -1061,6 +1289,7 @@ export class PrismaMessagingRepo
         messagingThreadId: true,
         connectedAccountId: true,
         updatedAt: true,
+        recipients: true,
         thread: {
           select: {
             unipileThreadId: true,
@@ -1083,6 +1312,12 @@ export class PrismaMessagingRepo
           recipientIdentifiers: draft.thread.participants
             .map((participant) => participant.identifier)
             .filter((identifier): identifier is string => Boolean(identifier)),
+          ccIdentifiers: (draft.recipients as unknown as MessagingMessage["recipients"]).cc.map(
+            (person) => person.identifier,
+          ),
+          bccIdentifiers: (draft.recipients as unknown as MessagingMessage["recipients"]).bcc.map(
+            (person) => person.identifier,
+          ),
         }
       : null;
   }
@@ -1226,7 +1461,7 @@ export class PrismaMessagingRepo
         id: args.messageId,
         companyId: this.companyId,
         isDraft: true,
-        thread: threadAccessWhere(this.companyId, this.userId),
+        connectedAccount: { is: accessibleConnectedAccountWhere(this.companyId, this.userId) },
       },
       select: { messagingThreadId: true, updatedAt: true },
     });
@@ -1350,6 +1585,7 @@ export class PrismaMessagingRepo
       const duplicate = args.message.providerMessageId
         ? await this.prisma.messagingMessage.findFirst({
             where: {
+              companyId: this.companyId,
               connectedAccountId: args.connectedAccountId,
               providerMessageId: args.message.providerMessageId,
               isDraft: false,
@@ -1360,10 +1596,10 @@ export class PrismaMessagingRepo
 
       if (!duplicate) throw new Error("Outbound message deduplicated without a persisted row");
 
-      return duplicate as unknown as MessagingMessage;
+      return (await this.keepOutboundBcc(duplicate, args.message)) as unknown as MessagingMessage;
     }
 
-    if (!result.isEcho) return result.message;
+    if (!result.isEcho) return this.keepOutboundBcc(result.message, args.message);
 
     const existing = await this.findMessageByUnipileIdUnscoped({
       connectedAccountId: args.connectedAccountId,
@@ -1372,7 +1608,23 @@ export class PrismaMessagingRepo
 
     if (!existing) throw new Error("Outbound message echoed without a persisted row");
 
-    return existing;
+    return (await this.keepOutboundBcc(existing, args.message)) as unknown as MessagingMessage;
+  }
+
+  private async keepOutboundBcc<T extends { id: string; recipients: unknown; direction: MessagingMessageDirection }>(
+    row: T,
+    message: IngestMessage,
+  ): Promise<T> {
+    const stored = row.recipients as { bcc?: unknown[] } | null;
+    if (row.direction !== MessagingMessageDirection.outbound) return row;
+    if (message.recipients.bcc.length === 0 || (stored?.bcc?.length ?? 0) > 0) return row;
+
+    const recipients = { ...(stored ?? {}), bcc: message.recipients.bcc };
+    await this.prisma.messagingMessage.update({
+      where: { id: row.id, companyId: this.companyId },
+      data: { recipients: recipients as Prisma.InputJsonValue },
+    });
+    return { ...row, recipients };
   }
 
   private async reconcileOutboundChatEcho(args: {
@@ -1528,7 +1780,7 @@ export class PrismaMessagingRepo
         name: true,
         type: true,
         connectedAccount: {
-          select: { selectedFolderIds: true, foldersSyncedAt: true },
+          select: { selectedFolderIds: true, foldersSyncedAt: true, userId: true, shared: true },
         },
       },
     });
@@ -1536,6 +1788,7 @@ export class PrismaMessagingRepo
     if (!accessibleThread) return { messages: [] as MessagingMessage[], total: 0 };
 
     const account = accessibleThread.connectedAccount;
+    const canViewBcc = account.userId === this.userId || account.shared;
     const folderStates =
       account.foldersSyncedAt !== null
         ? [{ id: accessibleThread.connectedAccountId, visibleSet: account.selectedFolderIds }]
@@ -1553,7 +1806,10 @@ export class PrismaMessagingRepo
         where,
         orderBy: { sentAt: "asc" },
       });
-      const messages = this.redactBcc(rows) as unknown as MessagingMessage[];
+      const messages = this.redactBcc(
+        this.limitFolderIds(rows, canViewBcc, folderStates),
+        canViewBcc,
+      ) as unknown as MessagingMessage[];
       await this.hydrateMessageSenderContacts(messages, accessibleThread);
 
       return { messages, total: messages.length };
@@ -1568,7 +1824,9 @@ export class PrismaMessagingRepo
       take: pageSize,
     });
 
-    const messages = (this.redactBcc(rows) as unknown as MessagingMessage[]).reverse();
+    const messages = (
+      this.redactBcc(this.limitFolderIds(rows, canViewBcc, folderStates), canViewBcc) as unknown as MessagingMessage[]
+    ).reverse();
     await this.hydrateMessageSenderContacts(messages, accessibleThread);
 
     return { messages, total };
@@ -1606,9 +1864,23 @@ export class PrismaMessagingRepo
     });
   }
 
-  private redactBcc<T extends { recipients: unknown; direction: MessagingMessageDirection }>(rows: T[]): T[] {
+  private limitFolderIds<T extends { folderIds: string[] }>(
+    rows: T[],
+    canViewAllFolders: boolean,
+    folderStates: { visibleSet: string[] }[],
+  ): T[] {
+    if (canViewAllFolders || folderStates.length === 0) return rows;
+
+    const visible = new Set(folderStates[0].visibleSet);
+    return rows.map((row) => ({ ...row, folderIds: row.folderIds.filter((id) => visible.has(id)) }));
+  }
+
+  private redactBcc<T extends { recipients: unknown; direction: MessagingMessageDirection }>(
+    rows: T[],
+    canViewBcc: boolean,
+  ): T[] {
     return rows.map((row) => {
-      if (row.direction === MessagingMessageDirection.outbound) return row;
+      if (row.direction === MessagingMessageDirection.outbound && canViewBcc) return row;
 
       const recipients = row.recipients;
       if (recipients && typeof recipients === "object" && "bcc" in recipients)

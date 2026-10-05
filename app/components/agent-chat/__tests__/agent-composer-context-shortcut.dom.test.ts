@@ -24,6 +24,9 @@ vi.mock("@/core/errors/report-application-error", () => ({
   runUserAction: (action: () => unknown) => action(),
 }));
 vi.mock("@/core/utils/background-task.service", () => ({}));
+vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
+  useHydratedIntlStore: () => ({ rendersZonedValues: true }),
+}));
 vi.mock("@/app/[locale]/(protected)/inbox/components/message-date-separator", () => ({
   MessageDateSeparator: () => null,
   isSameDay: () => false,

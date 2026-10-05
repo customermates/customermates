@@ -46,9 +46,16 @@ export const SerializedInteractorIssueSchema = z.object({
 export const SerializedInteractorFailureSchema = z.object({
   kind: InteractorFailureKindSchema,
   issues: z.array(SerializedInteractorIssueSchema).min(1),
+  retryable: z.boolean().optional(),
 });
 
 export type SerializedInteractorFailure = z.infer<typeof SerializedInteractorFailureSchema>;
+
+export function serializedFailureErrorTree(failure: SerializedInteractorFailure) {
+  return z.treeifyError(
+    new z.ZodError(failure.issues.map(({ path, message }) => ({ code: "custom" as const, path, message }))),
+  );
+}
 
 const AUTHENTICATION_FAILURE_CODES = new Set<CustomErrorCode>([CustomErrorCode.notAuthenticated]);
 const AUTHORIZATION_FAILURE_CODES = new Set<CustomErrorCode>([
@@ -69,23 +76,49 @@ const NOT_FOUND_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.serviceNotFound,
   CustomErrorCode.taskNotFound,
   CustomErrorCode.threadNotFound,
+  CustomErrorCode.messageNotFound,
   CustomErrorCode.unipileResourceNotFound,
   CustomErrorCode.userNotFound,
   CustomErrorCode.webhookDeliveryNotFound,
   CustomErrorCode.webhookNotFound,
+  CustomErrorCode.wikiPageNotFound,
   CustomErrorCode.widgetNotFound,
 ]);
 const CONFLICT_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.channelAlreadyLinked,
   CustomErrorCode.operatorConflict,
   CustomErrorCode.roleSystemImmutable,
+  CustomErrorCode.unipileProviderRejected,
+  CustomErrorCode.unipileDisconnectedAccount,
+  CustomErrorCode.unipileAccountRestricted,
+  CustomErrorCode.unipileFeatureUnavailable,
+  CustomErrorCode.unipileUnknown,
+  CustomErrorCode.wikiGuideExists,
+  CustomErrorCode.wikiNotEmpty,
+  CustomErrorCode.wikiPageConflict,
 ]);
 const RATE_LIMIT_FAILURE_CODES = new Set<CustomErrorCode>([CustomErrorCode.unipileRateLimit]);
 const UNAVAILABLE_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.unipileProviderError,
   CustomErrorCode.unipileRequestTimeout,
   CustomErrorCode.unipileServiceUnavailable,
+  CustomErrorCode.unipileSendUnconfirmed,
+  CustomErrorCode.unipileSendOutcomeUnknown,
 ]);
+const RETRYABLE_FAILURE_CODES = new Set<CustomErrorCode>([
+  CustomErrorCode.unipileRateLimit,
+  CustomErrorCode.unipileProviderError,
+  CustomErrorCode.unipileServiceUnavailable,
+]);
+
+export function interactorFailureCodes(error: z.ZodError): CustomErrorCode[] {
+  return error.issues.map(issueCustomCode).filter((code): code is CustomErrorCode => Boolean(code));
+}
+
+export function isRetryableFailure(error: z.ZodError): boolean {
+  const codes = interactorFailureCodes(error);
+  return codes.length > 0 && codes.every((code) => RETRYABLE_FAILURE_CODES.has(code));
+}
 
 function issueCustomCode(issue: $ZodIssue): CustomErrorCode | null {
   const candidate = issue.code === "custom" ? issue.params?.error : undefined;
@@ -137,6 +170,7 @@ export function serializeInteractorFailure(
 ): SerializedInteractorFailure {
   return {
     kind,
+    ...(isRetryableFailure(error) ? { retryable: true } : {}),
     issues: error.issues.map((issue) => {
       const customCode = issueCustomCode(issue) ?? undefined;
 

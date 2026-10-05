@@ -12,6 +12,7 @@ const spies = vi.hoisted(() => ({
   createAuthLink: vi.fn(),
   getActivities: vi.fn(),
   getMessagingThread: vi.fn(),
+  getMessagingThreads: vi.fn(),
 }));
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
@@ -21,6 +22,7 @@ vi.mock("@/core/di", () => ({
   getCreateAuthLinkInteractor: () => ({ invoke: spies.createAuthLink }),
   getGetActivitiesApiInteractor: () => ({ invoke: spies.getActivities }),
   getGetMessagingThreadInteractor: () => ({ invoke: spies.getMessagingThread }),
+  getGetMessagingThreadsApiInteractor: () => ({ invoke: spies.getMessagingThreads }),
 }));
 
 import {
@@ -28,6 +30,8 @@ import {
   getActivitiesTool,
   getCalendarsTool,
   getMessagingThreadsTool,
+  sendEmailTool,
+  saveMessageDraftTool,
 } from "../messaging.mcp-tools";
 import { mcpToolResultText } from "../mcp-tool";
 
@@ -37,6 +41,28 @@ function run(args: Record<string, unknown>) {
 
 beforeEach(() => {
   vi.clearAllMocks();
+});
+
+describe("email Bcc tool input contracts", () => {
+  it("uses the same recipient groups for cold drafts and sends", () => {
+    const target = { connectedAccountId: "00000000-0000-4000-8000-000000000001", body: "Private review" };
+    expect(saveMessageDraftTool.inputSchema.parse({ ...target, recipients: [], bcc: ["hidden@example.test"] })).toEqual(
+      { ...target, recipients: [], bcc: ["hidden@example.test"] },
+    );
+    expect(
+      sendEmailTool.inputSchema.parse({ ...target, to: [], bcc: ["hidden@example.test"], subject: "Review" }),
+    ).toEqual({ ...target, to: [], bcc: ["hidden@example.test"], subject: "Review" });
+    expect(sendEmailTool.inputSchema.safeParse({ ...target, to: [], subject: "Review" }).success).toBe(false);
+    expect(saveMessageDraftTool.inputSchema.safeParse({ ...target, recipients: [] }).success).toBe(false);
+    expect(
+      sendEmailTool.inputSchema.safeParse({
+        ...target,
+        to: [],
+        bcc: [{ identifier: "hidden@example.test" }],
+        subject: "Review",
+      }).success,
+    ).toBe(false);
+  });
 });
 
 describe("connect_messaging_account", () => {
@@ -219,11 +245,54 @@ describe.each([
   });
 });
 
+describe("inbox filter discovery", () => {
+  it("returns scoped folder references and passes the complete filter combination to the API interactor", async () => {
+    const accountId = "00000000-0000-4000-8000-000000000001";
+    const folder = JSON.stringify([accountId, "inbox"]);
+    const fields = [
+      {
+        field: "emailFolder",
+        operators: ["in", "notIn"],
+        options: [
+          {
+            value: folder,
+            label: "Inbox",
+            groupLabel: "Mailbox",
+            groupKey: accountId,
+            provider: "mail",
+          },
+        ],
+      },
+    ];
+    const filters = [
+      { field: "emailFolder", operator: "notIn", value: [folder] },
+      { field: "connectedAccountId", operator: "in", value: [accountId] },
+      { field: "lastMessageDirection", operator: "in", value: ["inbound"] },
+      { field: "lastMessageAt", operator: "inLastDays", value: 7 },
+      { field: "lastMessageSentAt", operator: "inLastDays", value: 7 },
+      { field: "lastMessageSentAt", operator: "notInLastDays", value: 3 },
+    ];
+    spies.getMessagingThreads.mockResolvedValue({
+      ok: true,
+      data: { items: [], filterableFields: fields, pagination: { total: 0 } },
+    });
+    const result = await getMessagingThreadsTool.execute(getMessagingThreadsTool.inputSchema.parse({ filters }));
+    expect(spies.getMessagingThreads).toHaveBeenCalledWith(expect.objectContaining({ filters }));
+    const text = mcpToolResultText(result);
+    expect(text).toContain("filterableFields");
+    expect(text).toContain("emailFolder");
+    expect(text).toContain("Mailbox");
+    expect(text).toContain(accountId);
+    expect(text).not.toContain("bodyHtml");
+  });
+});
+
 describe("email body exposure", () => {
   const message = {
     id: "44444444-4444-4444-8444-444444444444",
     direction: "inbound",
     sender: { displayName: "Syften", identifier: "alerts@syften.com" },
+    recipients: { to: [], cc: [], bcc: [] },
     subject: "Your filters have matched a new result",
     bodyText: "New mention of Customermates (https://www.reddit.com/r/smallbusiness/comments/1abcd/)",
     bodyHtml: '<p>New mention <a href="https://www.reddit.com/r/smallbusiness/comments/1abcd/">link</a></p>',
@@ -250,6 +319,36 @@ describe("email body exposure", () => {
     const text = mcpToolResultText(result);
     expect(text).toContain("New mention of Customermates");
     expect(text).toContain("https://www.reddit.com/r/smallbusiness/comments/1abcd/");
+  });
+
+  it("returns the server-authorized recipient groups so an agent can recover a Bcc-only draft", async () => {
+    for (const bcc of [[{ identifier: "hidden@example.test", displayName: null }], []]) {
+      spies.getMessagingThread.mockResolvedValue({
+        ok: true,
+        data: {
+          thread: { id: "t1", participants: [], sharedToCrm: true, isOwner: true },
+          messages: [{ ...message, direction: "outbound", isDraft: true, recipients: { to: [], cc: [], bcc } }],
+          total: 1,
+        },
+      });
+      const result = await getMessagingThreadsTool.execute(
+        getMessagingThreadsTool.inputSchema.parse({ threadId: "55555555-5555-4555-8555-555555555555" }),
+      );
+      if (typeof result === "string" || !("structuredContent" in result))
+        throw new Error("Expected structured thread details");
+      expect(getMessagingThreadsTool.outputSchema.safeParse(result.structuredContent).success).toBe(true);
+      expect(result.structuredContent).toEqual(
+        expect.objectContaining({
+          messages: [
+            expect.objectContaining({
+              senderIdentifier: "alerts@syften.com",
+              recipients: { to: [], cc: [], bcc },
+            }),
+          ],
+        }),
+      );
+      if (bcc.length === 0) expect(mcpToolResultText(result)).not.toContain("hidden@example.test");
+    }
   });
 
   it("does not ship raw email html through the activity timeline", async () => {
@@ -280,5 +379,112 @@ describe("email body exposure", () => {
     expect(text).not.toContain("<p>");
     expect(text).not.toContain("<a href");
     expect(text).toContain("New mention of Customermates");
+  });
+});
+
+describe("get_messaging_threads list rows", () => {
+  it("say whether the latest sent message went out from the connected account, so answered threads are not read as waiting", async () => {
+    const thread = (id: string, lastSentMessageFromSelf: boolean) => ({
+      id,
+      connectedAccountId: "66666666-6666-4666-8666-666666666666",
+      provider: "gmail",
+      type: "single",
+      name: null,
+      subject: `Thread ${id}`,
+      preview: "preview",
+      state: "read",
+      lastMessageAt: new Date("2026-09-01T06:55:15.000Z"),
+      lastMessageFromSelf: true,
+      lastSentMessageFromSelf,
+      participants: [],
+      sharedToCrm: false,
+      isOwner: true,
+    });
+    spies.getMessagingThreads.mockResolvedValue({
+      ok: true,
+      data: { items: [thread("answered", true), thread("waiting", false)], pagination: { total: 2 } },
+    });
+
+    const result = await getMessagingThreadsTool.execute(getMessagingThreadsTool.inputSchema.parse({}));
+
+    expect(result).toMatchObject({
+      structuredContent: {
+        items: [
+          { id: "answered", lastSentMessageFromSelf: true },
+          { id: "waiting", lastSentMessageFromSelf: false },
+        ],
+      },
+    });
+    const [first] = (result as { structuredContent: Record<string, unknown[]> }).structuredContent.items;
+    expect(first).not.toHaveProperty("lastMessageFromSelf");
+    expect(getMessagingThreadsTool.description).toContain("lastSentMessageFromSelf");
+    expect(getMessagingThreadsTool.description).toContain("null when nothing has been sent yet");
+  });
+});
+
+describe("page sizes that are not offered", () => {
+  it("report the activity page limit from the page asked for, not from the offered page read behind it", async () => {
+    const items = Array.from({ length: 10 }, (_, index) => ({
+      kind: "audit",
+      id: `a${index}`,
+      at: new Date(),
+      records: {},
+    }));
+    spies.getActivities.mockResolvedValue({
+      ok: true,
+      data: {
+        availableSources: [],
+        items,
+        pageLimitReached: false,
+        scopeTruncated: false,
+        pagination: { page: 28, pageSize: 10, total: 400, totalPages: 40 },
+      },
+    });
+
+    const result = await getActivitiesTool.execute(getActivitiesTool.inputSchema.parse({ page: 40, pageSize: 7 }));
+
+    expect(spies.getActivities).toHaveBeenCalledTimes(1);
+    expect(spies.getActivities).toHaveBeenCalledWith(
+      expect.objectContaining({ pagination: { page: 28, pageSize: 10 } }),
+    );
+    expect(result).toMatchObject({
+      structuredContent: { page: 40, pageSize: 7, total: 400, pageLimitReached: true },
+    });
+    expect((result as { structuredContent: Record<string, unknown[]> }).structuredContent.items).toEqual(
+      items.slice(3, 10).map((item) => ({ ...item, at: item.at.toISOString() })),
+    );
+  });
+
+  it("leave the page limit unset while the pages asked for still cover every activity", async () => {
+    spies.getActivities.mockResolvedValue({
+      ok: true,
+      data: {
+        availableSources: [],
+        items: [],
+        pageLimitReached: false,
+        scopeTruncated: false,
+        pagination: { page: 28, pageSize: 10, total: 280, totalPages: 28 },
+      },
+    });
+
+    const result = await getActivitiesTool.execute(getActivitiesTool.inputSchema.parse({ page: 40, pageSize: 7 }));
+
+    expect(result).toMatchObject({ structuredContent: { pageLimitReached: false } });
+  });
+
+  it("pass a thread detail's page size straight through, since the thread reader takes any size", async () => {
+    spies.getMessagingThread.mockResolvedValue({
+      ok: true,
+      data: { thread: { id: "t1", participants: [], sharedToCrm: false, isOwner: true }, messages: [], total: 0 },
+    });
+    const threadId = "55555555-5555-4555-8555-555555555555";
+
+    const result = await getMessagingThreadsTool.execute(
+      getMessagingThreadsTool.inputSchema.parse({ threadId, page: 3, pageSize: 7 }),
+    );
+
+    expect(spies.getMessagingThread).toHaveBeenCalledTimes(1);
+    expect(spies.getMessagingThread).toHaveBeenCalledWith({ threadId, page: 3, pageSize: 7 });
+    expect(result).toMatchObject({ structuredContent: { page: 3, pageSize: 7 } });
   });
 });

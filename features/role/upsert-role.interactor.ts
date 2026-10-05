@@ -1,3 +1,4 @@
+import type { UpsertRoleRepo } from "./upsert-role.repo";
 import type { RoleDto } from "./role.schema";
 import type { EventService } from "@/features/event/event.service";
 import type { Data } from "@/core/validation/validation.utils";
@@ -55,6 +56,10 @@ const Schema = z.object({
       canManage: z.enum(["yes", "no"]),
       readAccess: z.enum(["none", "all"]),
     }),
+    wiki: z.object({
+      canManage: z.enum(["yes", "no"]),
+      readAccess: z.enum(["none", "all"]),
+    }),
     auditLog: z.object({
       readAccess: z.enum(["none", "all"]),
     }),
@@ -65,12 +70,6 @@ const Schema = z.object({
   }),
 });
 export type UpsertRoleData = Data<typeof Schema>;
-
-export abstract class UpsertRoleRepo {
-  abstract isSystemRoleOrThrow(id: string): Promise<boolean>;
-  abstract upsertRoleOrThrow(data: UpsertRoleData): Promise<RoleDto>;
-  abstract getRoleByIdOrThrow(id: string): Promise<RoleDto>;
-}
 
 @TenantInteractor({
   permissions: [

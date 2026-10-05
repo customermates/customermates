@@ -1,9 +1,6 @@
-import type { FilterableField } from "@/core/base/base-get.schema";
-import type { SearchableField, SortableField } from "@/core/base/base-query-builder";
-import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
+import type { DataViewConfigurationRepo } from "./data-view-configuration.repo";
 import type { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
 import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { UpsertDataViewInteractor } from "./upsert-data-view.interactor";
 import type { SaveDataViewStateInteractor } from "./save-data-view-state.interactor";
@@ -16,6 +13,8 @@ import type {
   ManageDataViewsResult,
 } from "./manage-data-views.schema";
 import type { Validated } from "@/core/validation/validation.utils";
+
+import equal from "fast-deep-equal/es6";
 
 import { Action, Resource } from "@/generated/prisma";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -35,22 +34,17 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { fail, failAuthorization, failNotFound } from "@/core/validation/interactor-failure-server";
 import { runPrecheck } from "@/core/validation/run-precheck";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { filterValueKind, TIMELINE_KIND_VIEW_VALUES } from "@/core/types/filter-field-value-kind";
+import { filterFieldAgentNote, filterValueKind, TIMELINE_KIND_VIEW_VALUES } from "@/core/types/filter-field-value-kind";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { DomainEvent } from "@/features/event/domain-events";
 import { DATA_VIEW_SURFACES } from "./data-view-surfaces";
 import { ActivityFiltersSchema } from "@/ee/messaging/activities/activities.schema";
 import { getZodParseContext } from "@/core/validation/zod-error-map-server";
-import { ManageDataViewsResultSchema, ManageDataViewsSchema } from "./manage-data-views.schema";
-
-export abstract class DataViewConfigurationRepo {
-  abstract getSearchableFields(): SearchableField[];
-  abstract getSortableFields(): SortableField[];
-  abstract getFilterableFields(): Promise<FilterableField[]>;
-  abstract getCustomColumns(): Promise<CustomColumnDto[]>;
-  abstract getGroupableFields(customColumns?: readonly CustomColumnDto[]): Promise<GroupableFieldSpec[]>;
-  setMessagingSourcesEnabled?(enabled: boolean): void;
-}
+import {
+  DATA_VIEW_LAYOUT_FIELDS,
+  ManageDataViewsResultSchema,
+  ManageDataViewsSchema,
+} from "./manage-data-views.schema";
 
 export type DataViewConfigurationSources = Record<AiManageableDataViewSurfaceKey, DataViewConfigurationRepo>;
 
@@ -125,15 +119,17 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
           : ["filters", "searchTerm", "sortDescriptor", "pageSize", "viewMode", "grouping"];
       const filterableFields = config.filterableFields.map((field) => {
         const valueKind = filterValueKind(field.field);
-        const values =
-          field.field === FilterFieldKey.timelineKind.toString()
+        const values = field.options
+          ? field.options.map((option) => option.value)
+          : field.field === FilterFieldKey.timelineKind.toString()
             ? TIMELINE_KIND_VIEW_VALUES
             : valueKind?.kind === "enum"
               ? valueKind.values
               : valueKind?.kind === "event"
                 ? Object.values(DomainEvent)
                 : undefined;
-        return { ...field, ...(values ? { values } : {}) };
+        const description = filterFieldAgentNote(field.field);
+        return { ...field, ...(values ? { values } : {}), ...(description ? { description } : {}) };
       });
       const sortableFields = [
         ...config.sortableFields.map(({ field }) => ({ field })),
@@ -295,17 +291,39 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
 
     if (data.viewKey === ALL_VIEW_KEY && data.name !== undefined)
       return fail(CustomErrorCode.dataViewAllNameImmutable, ["name"]);
+    const currentState = owned?.state ?? surfaceState.allState;
+    const name = data.name !== undefined && data.name !== owned?.name ? data.name : undefined;
 
-    if (data.state !== undefined) {
-      const checked = await this.validateState(data.surfaceKey, data.state);
+    const changed = Object.entries(data.state ?? {}).filter(
+      ([field, value]) => !equal(value, currentState[field as keyof typeof currentState]),
+    );
+    const layoutField = changed.find(([field]) => (DATA_VIEW_LAYOUT_FIELDS as readonly string[]).includes(field));
+    if (layoutField) return fail(CustomErrorCode.dataViewLayoutReadOnly, ["state", layoutField[0]]);
+    const state = changed.length > 0 ? (Object.fromEntries(changed) as AgentDataViewState) : undefined;
+
+    if (name === undefined && state === undefined) {
+      return {
+        ok: true,
+        data: {
+          action: data.action,
+          ...(owned ?? { state: currentState }),
+          ...location,
+          viewKey: data.viewKey,
+          link: this.link(descriptor.path, data.viewKey),
+        },
+      };
+    }
+
+    if (state !== undefined) {
+      const checked = await this.validateState(data.surfaceKey, state);
       if (!checked.ok) return checked;
     }
     if (owned) {
       const result = await this.upsert.invoke({
         id: owned.id,
         surfaceKey: data.surfaceKey,
-        ...(data.name !== undefined ? { name: data.name } : {}),
-        ...(data.state !== undefined ? { state: data.state } : {}),
+        ...(name !== undefined ? { name } : {}),
+        ...(state !== undefined ? { state } : {}),
       });
       if (!result.ok) return result;
       return {
@@ -322,7 +340,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
     const result = await this.saveState.invoke({
       surfaceKey: data.surfaceKey,
       viewKey: ALL_VIEW_KEY,
-      state: data.state ?? {},
+      state: state ?? {},
     });
     if (!result.ok) return result;
     const savedAllState = result.data;

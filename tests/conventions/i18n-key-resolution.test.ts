@@ -11,6 +11,7 @@ import {
   ConnectedAccountStatus,
   CustomColumnType,
   MessagingProvider,
+  MessagingMessageDirection,
   MessagingThreadState,
   Resource,
   RoutineRunStatus,
@@ -45,6 +46,7 @@ import {
 import { DIAGRAM_SYSTEM_LABEL_KEYS, DisplayType } from "@/features/widget/widget.schema";
 import { ACCOUNT_REMOVAL_REASONS } from "@/ee/messaging/connect/account-removal-reason";
 import { ROUTING_LOCALES } from "@/i18n/locale-registry";
+import { WIKI_PAGE_KINDS } from "@/features/wiki/wiki.schema";
 
 const ENTITY_TERMINOLOGY_KEYS = Object.entries(ENTITY_TERMINOLOGY_PRESETS).flatMap(([entityType, presets]) =>
   presets.flatMap((preset) =>
@@ -95,6 +97,7 @@ const DATE_BUCKET_KEYS = [
   "Common.dateBuckets.week",
 ] as const;
 const TASK_TYPE_KEYS = Object.values(TaskType).map((type) => `Common.taskTypes.${type}`);
+const WIKI_PAGE_KIND_KEYS = WIKI_PAGE_KINDS.map((kind) => `Wiki.kind.${kind}`);
 const DATE_PRESET_KEYS = [
   "Common.datePresets.endTime",
   "Common.datePresets.inAMonth",
@@ -268,6 +271,9 @@ const COLOR_KEYS = CHIP_COLORS.map((color) => `Common.colors.${color}`);
 const CUSTOM_COLUMN_TYPE_KEYS = Object.values(CustomColumnType).map(
   (columnType) => `Common.customColumnTypes.${columnType}`,
 );
+const LAST_MESSAGE_DIRECTION_KEYS = Object.values(MessagingMessageDirection).map(
+  (direction) => `Inbox.lastMessageDirections.${direction}`,
+);
 const THREAD_STATE_KEYS = Object.values(MessagingThreadState).map((state) => `Inbox.threadStates.${state}`);
 const WEBHOOK_DELIVERY_STATUS_KEYS = Object.values(WebhookDeliveryStatus).map(
   (status) => `WebhookDeliveryModal.deliveryStatus.${status}`,
@@ -339,8 +345,10 @@ const DEFAULT_DATA_OPTION_KEYS = [
   "Common.defaultData.task.options.onHold",
   "Common.defaultData.task.options.open",
 ] as const;
-const ONBOARDING_STEP_TITLE_KEYS = ["profile", "invite", "ai"].map((step) => `OnboardingWizard.steps.${step}.title`);
-const ONBOARDING_STEP_SUBTITLE_KEYS = ["profile", "invite", "ai"].map(
+const ONBOARDING_STEP_TITLE_KEYS = ["profile", "wiki", "invite", "ai"].map(
+  (step) => `OnboardingWizard.steps.${step}.title`,
+);
+const ONBOARDING_STEP_SUBTITLE_KEYS = ["profile", "wiki", "invite", "ai"].map(
   (step) => `OnboardingWizard.steps.${step}.subtitle`,
 );
 const ONBOARDING_CHOICE_KEYS = [
@@ -352,7 +360,6 @@ const ONBOARDING_CHOICE_KEYS = [
   "cursor",
   "gemini",
   "openai",
-  "skip",
 ].map((choice) => `OnboardingWizard.ai.choices.${choice}`);
 const MCP_TOOL_KEYS = ["claudeCode", "claudeDesktop", "codex", "cursor", "gemini"] as const;
 const ONBOARDING_INSTALL_KEYS = MCP_TOOL_KEYS.map((tool) => `OnboardingWizard.ai.install.instruction.${tool}`);
@@ -375,6 +382,7 @@ const AGENT_ACTIVITY_RESOURCE_KEYS = [
   "AgentChat.activity.resource.tasks",
   "AgentChat.activity.resource.terminology",
   "AgentChat.activity.resource.widgets",
+  "AgentChat.activity.resource.wiki",
 ];
 const AGENT_ACTIVITY_LABEL_KEYS = [
   "AgentChat.activity.label.preview",
@@ -397,6 +405,7 @@ const AGENT_ACTIVITY_RESOURCE_SINGULAR_KEYS = [
   "AgentChat.activity.resourceSingular.tasks",
   "AgentChat.activity.resourceSingular.terminology",
   "AgentChat.activity.resourceSingular.widgets",
+  "AgentChat.activity.resourceSingular.wiki",
 ];
 const AGENT_ACTIVITY_STATE_KEYS = AGENT_ACTIVITY_KINDS.flatMap((kind) =>
   (["done", "error", "running"] as const).map((state) => `AgentChat.activity.state.${kind}.${state}`),
@@ -451,6 +460,12 @@ const AGENT_SUGGESTION_KEYS = [
   "AgentChat.suggestions.pages.routines.empty.first-routine",
   "AgentChat.suggestions.pages.routines.empty.routine-ideas",
   "AgentChat.suggestions.pages.routines.empty.routines-tour",
+  "AgentChat.suggestions.pages.wiki.data.create-wiki-page",
+  "AgentChat.suggestions.pages.wiki.data.wiki-gaps",
+  "AgentChat.suggestions.pages.wiki.data.wiki-summary",
+  "AgentChat.suggestions.pages.wiki.empty.first-wiki-page",
+  "AgentChat.suggestions.pages.wiki.empty.wiki-structure",
+  "AgentChat.suggestions.pages.wiki.empty.wiki-tour",
   "AgentChat.suggestions.pages.services.data.create-service",
   "AgentChat.suggestions.pages.services.data.service-gaps",
   "AgentChat.suggestions.pages.services.data.services-summary",
@@ -519,6 +534,7 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
     ],
   ],
   ["Inbox.threadStates.${*}", THREAD_STATE_KEYS],
+  ["Inbox.lastMessageDirections.${*}", LAST_MESSAGE_DIRECTION_KEYS],
   ["OnboardingWizard.ai.choices.${*}", ONBOARDING_CHOICE_KEYS],
   ["OnboardingWizard.ai.install.instruction.${*}", ONBOARDING_INSTALL_KEYS],
   ["OnboardingWizard.ai.methods.${*}.description", onboardingMethodKeys("description")],
@@ -532,6 +548,7 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["OnboardingWizard.steps.${*}.subtitle", ONBOARDING_STEP_SUBTITLE_KEYS],
   ["OnboardingWizard.steps.${*}.title", ONBOARDING_STEP_TITLE_KEYS],
   ["RoleModal.resources.${*}", ROLE_RESOURCE_KEYS],
+  ["Wiki.kind.${*}", WIKI_PAGE_KIND_KEYS],
   ["Subscription.picker.features.${*}", SUBSCRIPTION_FEATURE_KEYS],
   ["Subscription.planNames.${*}", SUBSCRIPTION_PLAN_KEYS],
   ["Subscription.status.${*}", SUBSCRIPTION_STATUS_KEYS],
@@ -685,6 +702,7 @@ export const DYNAMIC_KEY_SITES = [
   "components/data-view/filter-modal/inputs/filter-input-iso-date.tsx :: t :: Common.datePresets.${preset.key}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Common.events.${event}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Common.providers.${account.provider}",
+  "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Common.providers.${option.provider}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Common.providers.${provider}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Common.providers.${thread.provider}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Common.userStatuses.${status}",
@@ -692,6 +710,7 @@ export const DYNAMIC_KEY_SITES = [
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Subscription.planNames.${plan}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Subscription.status.${status}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Inbox.threadStates.${state}",
+  "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Inbox.lastMessageDirections.${direction}",
   "components/data-view/filter-modal/use-filter-operator-label.ts :: t :: Common.filters.operators.${operator}",
   "components/data-view/group-label.ts :: t :: Common.dateBuckets.${bucket}",
   "components/entity-terminology/use-column-label.ts :: t :: AuditLogModal.fields.${columnId}",
@@ -703,6 +722,7 @@ export const DYNAMIC_KEY_SITES = [
   "components/forms/use-form-field.ts :: t :: Common.inputs.${id}",
   "components/shared/locale-menu.tsx :: t :: Common.locales.${currentLocale}",
   "components/shared/locale-menu.tsx :: t :: Common.locales.${locale}",
+  "components/wiki/wiki-homepage-setup.tsx :: t :: Common.locales.${locale}",
   "core/validation/zod-error-map-server.ts :: t.raw :: Common.errors.${code}",
   "ee/lifecycle/send-legal-document-notices.interactor.ts :: t :: documents.${document}",
   "features/auth/sign-in-with-email.interactor.ts :: t :: Common.errors.${res.error}",
@@ -728,6 +748,7 @@ export const DYNAMIC_KEY_SITES = [
   "features/messaging/activities/audit-detail.tsx :: t :: AccountRemovalReason.${String(value)}",
   "features/messaging/activities/audit-detail.tsx :: t :: Common.customColumnTypes.${String(value)}",
   "features/messaging/activities/audit-detail.tsx :: t :: Common.events.${entry.event}",
+  "features/messaging/activities/audit-detail.tsx :: t :: Wiki.kind.${kind.data}",
   "features/messaging/activities/audit-detail.tsx :: t :: Common.providers.${String(value)}",
   "features/messaging/activities/audit-detail.tsx :: t :: Common.userStatuses.${String(value)}",
   "features/messaging/activities/audit-detail.tsx :: t :: LegalDocumentNotice.documents.${document}",
@@ -742,6 +763,8 @@ export const DYNAMIC_KEY_SITES = [
 ];
 
 const NONLITERAL_T_CALL_SITES = new Map<string, number>([
+  ['ee/agent-chat/agent-page-actions.ts :: t :: terminologyMessageKey(entityType, "", form)', 1],
+  ["ee/agent-chat/agent-page-actions.ts :: t :: terminologyMessageKey(entityType, preset, form)", 1],
   ["core/validation/interactor-failure-server.ts :: t.raw :: code", 1],
   ["features/mcp-tools/mcp-tool.ts :: t.raw :: customCode", 1],
   [
@@ -753,7 +776,7 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
   ["app/[locale]/(protected)/contacts/components/use-contact-columns.tsx :: t :: nameKey", 1],
   ["app/[locale]/(protected)/deals/components/use-deal-columns.tsx :: t :: nameKey", 1],
   ["app/[locale]/(protected)/inbox/components/attachment-classify.ts :: t :: typeLabelKey", 2],
-  ["app/[locale]/(protected)/inbox/components/message-item.tsx :: t :: labelKey", 1],
+  ["app/[locale]/(protected)/inbox/components/email-message-header.tsx :: t :: labelKey", 1],
   ["app/[locale]/(protected)/inbox/components/thread-row.tsx :: t :: PREVIEW_KIND_LABEL[thread.previewKind]", 1],
   [
     'app/[locale]/(protected)/onboarding/wizard/components/step-profile.tsx :: t.rich :: isInvited ? "OnboardingForm.invitedAgreeToTerms" : "OnboardingForm.agreeToTerms"',

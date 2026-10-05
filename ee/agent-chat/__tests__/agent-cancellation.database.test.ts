@@ -1,3 +1,4 @@
+import { prismaAgentChatRepoDependencies } from "@/tests/helpers/prisma-agent-chat-repo";
 import type { TenantUser } from "@/features/user/user.schema";
 
 import { randomUUID } from "node:crypto";
@@ -22,7 +23,7 @@ describeDatabase("agent turn cancellation against PostgreSQL", () => {
 
   const tenant: TenantUser = createMockUser({ companyId, id: userId });
   const asTenant = <T>(fn: () => Promise<T>) => runWithTenant(tenant, fn);
-  const repo = () => new PrismaAgentChatRepo();
+  const repo = () => new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
 
   async function insertTurn(id: string, status: string, owner = userId) {
     await client.query(

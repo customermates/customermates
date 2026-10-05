@@ -92,3 +92,37 @@ describe("IntlStore zoned-value hydration gate", () => {
     expect(store.formatNumber(1234.5)).not.toBe("");
   });
 });
+
+describe("IntlStore credit display", () => {
+  it("writes an amount below a tenth of a credit with the locale's below-minimum copy", async () => {
+    const { createTranslator } = await import("next-intl");
+    const messages = (await import("@/i18n/locales/fr.json")).default;
+    const t = createTranslator({ locale: "fr", messages });
+    const localeStore = {
+      locale: "fr",
+      translation: (key: string, values?: Record<string, string>) => t(key as never, values as never),
+      getTranslation(key: string, values?: Record<string, string>) {
+        return this.translation(key, values);
+      },
+    };
+    const store = new IntlStore({
+      companyStore: { company: null },
+      localeStore,
+      userStore: { user: { formattingLocale: Locale.fr } },
+    } as unknown as RootStore);
+
+    expect(store.formatAgentCredits(0.00001)).toEqual({ credits: 0.1, amount: "< 0,1" });
+    expect(store.formatAgentCredits(-0.00001).amount).toBe("-< 0,1");
+    expect(store.formatAgentCredits(1.25).amount).toBe("1,3");
+  });
+
+  it("falls back to a bare less-than sign before translations load", () => {
+    const store = new IntlStore({
+      companyStore: { company: null },
+      localeStore: { locale: "en", translation: null, getTranslation: (key: string) => key },
+      userStore: { user: { formattingLocale: Locale.en } },
+    } as unknown as RootStore);
+
+    expect(store.formatAgentCredits(0.00001).amount).toBe("<0.1");
+  });
+});

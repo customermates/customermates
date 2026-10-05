@@ -3,7 +3,6 @@ import { describe, expect, it } from "vitest";
 import {
   beginColumnResize,
   columnResizeLabel,
-  isTouchResetDoubleTap,
   keyboardColumnWidth,
   MIN_COLUMN_WIDTH,
   shouldCommitColumnResize,
@@ -74,13 +73,6 @@ describe("data-table column resizing", () => {
     expect(withoutColumnWidth({ name: 240, email: 320 }, "name")).toEqual({
       email: 320,
     });
-  });
-
-  it("recognizes only a timely second touch tap as reset", () => {
-    expect(isTouchResetDoubleTap(undefined, 1000)).toBe(false);
-    expect(isTouchResetDoubleTap(1000, 1400)).toBe(true);
-    expect(isTouchResetDoubleTap(1000, 1401)).toBe(false);
-    expect(isTouchResetDoubleTap(1000, 999)).toBe(false);
   });
 
   it("uses the visible or configured label instead of exposing custom-column IDs", () => {

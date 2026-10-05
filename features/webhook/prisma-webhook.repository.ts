@@ -1,5 +1,5 @@
 import type { RepoArgs } from "@/core/utils/types";
-import type { GetWebhooksRepo } from "./get-webhooks.interactor";
+import type { GetWebhooksRepo } from "@/features/webhook/get-webhooks.repo";
 import type { UpsertWebhookRepo } from "./upsert-webhook.interactor";
 import type { DeleteWebhookRepo } from "./delete-webhook.interactor";
 import type { FindWebhooksByIdsRepo } from "./find-webhooks-by-ids.repo";

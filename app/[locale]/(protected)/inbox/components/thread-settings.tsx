@@ -24,6 +24,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
 
 import { ThreadPeopleManager } from "./thread-participants-contacts";
+import { CopyableAddress } from "./copyable-address";
 import { displayableIdentifier, participantLabel } from "@/ee/messaging/thread-display";
 import { runUserAction } from "@/core/errors/report-application-error";
 
@@ -163,11 +164,14 @@ export const ThreadSettings = observer(
                           <div className="truncate text-sm font-medium">{selfLabel}</div>
 
                           {(selfParticipant?.identifier || accountOwner?.accountLabel) && (
-                            <div className="text-muted-foreground truncate text-xs">
-                              {selfParticipant?.identifier
-                                ? displayableIdentifier(provider, selfParticipant.identifier)
-                                : accountOwner?.accountLabel}
-                            </div>
+                            <CopyableAddress
+                              className="text-muted-foreground max-w-full"
+                              value={
+                                selfParticipant?.identifier
+                                  ? (displayableIdentifier(provider, selfParticipant.identifier) ?? "")
+                                  : (accountOwner?.accountLabel ?? "")
+                              }
+                            />
                           )}
                         </div>
                       </div>

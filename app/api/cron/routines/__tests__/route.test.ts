@@ -1,6 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const invokes = vi.hoisted(() => ({ reconcile: vi.fn(), sweep: vi.fn() }));
+const invokes = vi.hoisted(() => ({
+  reconcile: vi.fn(),
+  sweep: vi.fn(),
+  releaseRetrieval: vi.fn(),
+  settlePlatform: vi.fn(),
+}));
 const mockEnv = vi.hoisted(() => ({
   APP_MODE: "cloud" as "cloud" | "demo" | "self-hosted",
   CRON_SECRET: "test-cron-secret" as string | undefined,
@@ -12,6 +17,12 @@ vi.mock("@/env", () => ({ env: mockEnv }));
 vi.mock("@/core/di", () => ({
   getReconcileRoutineRunsInteractor: () => ({ invoke: invokes.reconcile }),
   getSweepDueRoutinesInteractor: () => ({ invoke: invokes.sweep }),
+  getReconcileRetrievalReservationsInteractor: () => ({
+    invoke: async () => ({
+      releasedRetrievalReservations: await invokes.releaseRetrieval(),
+      settledPlatformReservations: await invokes.settlePlatform(),
+    }),
+  }),
 }));
 
 import { GET } from "../route";
@@ -30,6 +41,8 @@ describe("routines cron", () => {
     mockEnv.VERCEL_ENV = "production";
     invokes.reconcile.mockResolvedValue({ reconciled: 2 });
     invokes.sweep.mockResolvedValue({ swept: 3 });
+    invokes.releaseRetrieval.mockResolvedValue(4);
+    invokes.settlePlatform.mockResolvedValue(1);
   });
 
   it("refuses a caller with no bearer token", async () => {
@@ -69,12 +82,20 @@ describe("routines cron", () => {
     await expect(response.json()).resolves.toEqual({ skipped });
     expect(invokes.reconcile).not.toHaveBeenCalled();
     expect(invokes.sweep).not.toHaveBeenCalled();
+    expect(invokes.releaseRetrieval).not.toHaveBeenCalled();
+    expect(invokes.settlePlatform).not.toHaveBeenCalled();
   });
 
   it("reconciles orphaned runs before sweeping for due ones", async () => {
     const response = await GET(request("Bearer test-cron-secret"));
 
-    await expect(response.json()).resolves.toEqual({ ok: true, reconciled: 2, swept: 3 });
+    await expect(response.json()).resolves.toEqual({
+      ok: true,
+      reconciled: 2,
+      swept: 3,
+      releasedRetrievalReservations: 4,
+      settledPlatformReservations: 1,
+    });
     expect(invokes.reconcile.mock.invocationCallOrder[0]).toBeLessThan(invokes.sweep.mock.invocationCallOrder[0]);
   });
 });

@@ -109,21 +109,6 @@ export const AiConnectionFlow = observer(
       );
     }
 
-    if (store.route.screen === "skip") {
-      return (
-        <AiConnectionSubstepHeader
-          backDisabled={interactionDisabled}
-          backLabel={resolvedBackLabel}
-          headingRef={screenHeadingRef}
-          mode={substepHeaderMode}
-          showBack={showInlineBack}
-          subtitle={t("OnboardingWizard.ai.screen.skip.subtitle")}
-          title={t("OnboardingWizard.ai.screen.skip.title")}
-          onBack={store.backToProviders}
-        />
-      );
-    }
-
     if (store.route.screen === "openai") {
       return (
         <div className="flex flex-col gap-4">

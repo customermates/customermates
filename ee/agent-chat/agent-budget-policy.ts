@@ -7,19 +7,19 @@ import {
   isAgentModelWithinBudgetEnvelope,
 } from "./model-catalog";
 import { resolveModelPricing } from "./model-pricing";
+import { AGENT_WEB_SEARCH_WORST_CASE_MICROCENTS } from "./agent-web-search";
+import { AGENT_MICROCENTS_PER_USD } from "@/core/commercial/agent-credits";
 
 export const AGENT_RESERVATION_ROUNDS_AHEAD = 2;
 export const AGENT_MAX_TOOL_RESULT_CHARS = 6000;
 export const AGENT_MIN_CONTEXT_TOKENS_PER_STEP = 8_000;
 
-const USD_PER_AGENT_CREDIT = 0.01;
-
 export type AgentTurnBudget = {
   modelSpec: string;
   servingProvider: string;
   inferenceRegion: AgentModelEntry["inferenceRegion"];
-  reservedCredits: number;
-  roundReserveCredits: number;
+  reservedMicrocents: number;
+  roundReserveMicrocents: number;
   maxOutputTokens: number;
   maxContextTokens: number;
   maxContextBytes: number;
@@ -40,34 +40,60 @@ export function agentContextBytesToWorstCaseProviderTokens(bytes: number) {
   return Math.ceil(bytes / AGENT_MIN_BYTES_PER_PROVIDER_TOKEN);
 }
 
-function stepWorstCaseUsd(entry: AgentModelEntry, contextTokens: number, outputTokens: number) {
+const MICROCENTS_PER_USD_PER_MILLION_TOKENS = AGENT_MICROCENTS_PER_USD / 1_000_000;
+
+function stepWorstCaseMicrocents(entry: AgentModelEntry, contextTokens: number, outputTokens: number) {
   const promptTokens = contextTokens + AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS;
   const pricing = resolveModelPricing(entry.modelId, promptTokens, entry.servingProvider, entry.inferenceRegion);
   const maxInputRate = Math.max(pricing.inputPerMTok, pricing.cacheReadPerMTok, pricing.cacheWritePerMTok);
+  const microcents =
+    (promptTokens * maxInputRate + outputTokens * pricing.outputPerMTok) * MICROCENTS_PER_USD_PER_MILLION_TOKENS;
 
-  return (promptTokens * maxInputRate) / 1_000_000 + (outputTokens * pricing.outputPerMTok) / 1_000_000;
+  return Math.ceil(Math.round(microcents * 1_000_000) / 1_000_000);
 }
 
-export function agentRoundWorstCaseCreditsForContextBytes(entry: AgentModelEntry, contextBytes: number) {
-  const roundUsd = stepWorstCaseUsd(
+export function agentRoundWorstCaseMicrocentsForContextBytes(entry: AgentModelEntry, contextBytes: number) {
+  return stepWorstCaseMicrocents(
     entry,
     agentContextBytesToWorstCaseProviderTokens(contextBytes),
     entry.maxOutputTokens,
   );
-  return Math.max(1, Math.ceil(roundUsd / USD_PER_AGENT_CREDIT));
 }
 
-export function agentRoundWorstCaseCredits(entry: AgentModelEntry) {
-  return agentRoundWorstCaseCreditsForContextBytes(entry, agentContextTokensToBytes(entry.maxContextTokens));
+export function agentRoundWorstCaseMicrocents(entry: AgentModelEntry) {
+  return agentRoundWorstCaseMicrocentsForContextBytes(entry, agentContextTokensToBytes(entry.maxContextTokens));
+}
+
+export function agentFundedRetryCount(args: {
+  remainingMicrocents: number;
+  roundReserveMicrocents: number;
+  maxRetries: number;
+}): number {
+  if (
+    !Number.isSafeInteger(args.remainingMicrocents) ||
+    args.remainingMicrocents < 0 ||
+    !Number.isSafeInteger(args.roundReserveMicrocents) ||
+    args.roundReserveMicrocents < 1 ||
+    !Number.isSafeInteger(args.maxRetries) ||
+    args.maxRetries < 0
+  )
+    return 0;
+  return Math.min(args.maxRetries, Math.max(0, Math.floor(args.remainingMicrocents / args.roundReserveMicrocents) - 1));
+}
+
+export function agentWebSearchReserveMicrocents(remainingSearches: number): number {
+  if (!Number.isSafeInteger(remainingSearches) || remainingSearches < 1) return 0;
+  return remainingSearches * AGENT_WEB_SEARCH_WORST_CASE_MICROCENTS;
 }
 
 export function resolveAgentTurnBudget(args: {
   model: AgentModelEntry;
-  availableCredits: number;
+  availableMicrocents: number;
   requiredContextBytes?: number;
+  webSearchReserveMicrocents?: number;
 }): AgentTurnBudget | null {
   const entry = args.model;
-  if (!Number.isSafeInteger(args.availableCredits) || args.availableCredits < 1) return null;
+  if (!Number.isSafeInteger(args.availableMicrocents) || args.availableMicrocents < 1) return null;
   if (!isAgentModelWithinBudgetEnvelope(entry)) return null;
 
   const requiredContextBytes =
@@ -75,19 +101,26 @@ export function resolveAgentTurnBudget(args: {
   if (!Number.isSafeInteger(requiredContextBytes) || requiredContextBytes < 1) return null;
   if (agentContextBytesToTokens(requiredContextBytes) > entry.maxContextTokens) return null;
 
-  const roundReserveCredits = agentRoundWorstCaseCredits(entry);
-  const firstRoundReserveCredits =
+  const roundReserveMicrocents = agentRoundWorstCaseMicrocents(entry);
+  const firstRoundReserveMicrocents =
     args.requiredContextBytes === undefined
-      ? roundReserveCredits
-      : Math.min(roundReserveCredits, agentRoundWorstCaseCreditsForContextBytes(entry, requiredContextBytes));
-  if (args.availableCredits < firstRoundReserveCredits) return null;
+      ? roundReserveMicrocents
+      : Math.min(roundReserveMicrocents, agentRoundWorstCaseMicrocentsForContextBytes(entry, requiredContextBytes));
+  if (!Number.isSafeInteger(firstRoundReserveMicrocents) || firstRoundReserveMicrocents < 1) return null;
+  if (args.availableMicrocents < firstRoundReserveMicrocents) return null;
 
   return {
     modelSpec: entry.modelId,
     servingProvider: entry.servingProvider,
     inferenceRegion: entry.inferenceRegion,
-    reservedCredits: Math.min(args.availableCredits, firstRoundReserveCredits * AGENT_RESERVATION_ROUNDS_AHEAD),
-    roundReserveCredits,
+    reservedMicrocents: Math.min(
+      args.availableMicrocents,
+      Math.max(
+        firstRoundReserveMicrocents * AGENT_RESERVATION_ROUNDS_AHEAD,
+        firstRoundReserveMicrocents + (args.webSearchReserveMicrocents ?? 0),
+      ),
+    ),
+    roundReserveMicrocents,
     maxOutputTokens: entry.maxOutputTokens,
     maxContextTokens: entry.maxContextTokens,
     maxContextBytes: agentContextTokensToBytes(entry.maxContextTokens),
@@ -119,12 +152,14 @@ export function resolveAgentToolResultMaxChars(configured: number) {
 export const AGENT_TOOL_RESULT_TRUNCATED_MARK = "[truncated:";
 
 function truncationNotice(kept: number, total: number) {
-  return `\n${AGENT_TOOL_RESULT_TRUNCATED_MARK} first ${kept} of ${total} characters. The rest was not read: report partial data and re-run with fewer ids, a smaller pageSize, or a narrower filter.]`;
+  return `\n${AGENT_TOOL_RESULT_TRUNCATED_MARK} first ${kept} of ${total} characters. The rest was not read, so this page is incomplete: re-run it with a smaller pageSize, about half, fewer ids, or a narrower filter before answering. Report partial data only once a smaller request has also been truncated, and say so.]`;
 }
 
 export function agentToolResultText(result: string, maxChars: number) {
   if (result.length <= maxChars) return result;
   const budget = maxChars - truncationNotice(maxChars, result.length).length;
   if (budget < 1) return result.slice(0, maxChars);
-  return `${result.slice(0, budget)}${truncationNotice(budget, result.length)}`;
+  const lineEnd = result.lastIndexOf("\n", budget);
+  const kept = lineEnd >= budget / 2 ? lineEnd : budget;
+  return `${result.slice(0, kept)}${truncationNotice(kept, result.length)}`;
 }

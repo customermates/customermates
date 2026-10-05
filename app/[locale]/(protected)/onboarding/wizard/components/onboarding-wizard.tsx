@@ -13,15 +13,23 @@ import { WizardProgress } from "@/components/shared/wizard-progress";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import type { OnboardingWizardProgress } from "@/features/onboarding-wizard/onboarding-wizard-progress.schema";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
+import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
+import { EMPTY_WIKI_HOMEPAGE_SETUP_STATE } from "@/components/wiki/wiki-homepage-setup";
+
+import { OnboardingArtwork, OnboardingMilestones } from "./onboarding-artwork";
 
 import { StepProfile } from "./step-profile";
 import { StepAi, StepAiFooter } from "./step-ai";
 import { StepInvite } from "./step-invite";
+import { StepWiki } from "./step-wiki";
 
 type Props = {
   profileCompleted: boolean;
   userId?: string;
   savedProgress?: OnboardingWizardProgress;
+  canSetupWithMate?: boolean;
+  wikiStepCompleted?: boolean;
+  wikiSetupState?: WikiHomepageSetupState;
   onboardingIntent?: string;
   inviterName?: string;
   isInvited?: boolean;
@@ -36,6 +44,9 @@ export const OnboardingWizard = observer(
     profileCompleted,
     userId,
     savedProgress,
+    canSetupWithMate = false,
+    wikiStepCompleted = false,
+    wikiSetupState = EMPTY_WIKI_HOMEPAGE_SETUP_STATE,
     onboardingIntent,
     inviterName,
     isInvited = false,
@@ -46,25 +57,27 @@ export const OnboardingWizard = observer(
   }: Props) => {
     const t = useTranslations();
     const { onboardingWizardStore } = useRootStore();
-    const initialStepIndex = profileCompleted ? (savedProgress?.step === "ai" ? 2 : 1) : 0;
-    const initializationKey = JSON.stringify([profileCompleted, userId, savedProgress]);
+    const resumeStepIndex = profileCompleted ? (isInvited || wikiStepCompleted ? 2 : 1) : 0;
+    const resumesSavedStep = resumeStepIndex === 2;
+    const initialStepIndex = resumesSavedStep && savedProgress?.step === "ai" ? 3 : resumeStepIndex;
+    const initializationKey = JSON.stringify([resumeStepIndex, userId, savedProgress]);
     const [initializedKey, setInitializedKey] = useState<string | null>(null);
     const isStepSynchronized = initializedKey === initializationKey;
     const currentStep = isStepSynchronized
       ? onboardingWizardStore.currentStep
       : profileCompleted
-        ? (savedProgress?.step ?? "invite")
+        ? resumesSavedStep
+          ? (savedProgress?.step ?? "invite")
+          : "wiki"
         : "profile";
     const currentStepIndex = isStepSynchronized ? onboardingWizardStore.currentStepIndex : initialStepIndex;
-    const isFirstStep = isStepSynchronized
-      ? onboardingWizardStore.isFirstStep
-      : initialStepIndex <= (profileCompleted ? 1 : 0);
+    const isFirstStep = isStepSynchronized ? onboardingWizardStore.isFirstStep : initialStepIndex <= resumeStepIndex;
     const { totalSteps, isSubmitting, next, back } = onboardingWizardStore;
     const headingRef = useRef<HTMLHeadingElement>(null);
     const previousStep = useRef(currentStep);
 
     useEffect(() => {
-      onboardingWizardStore.initialize(profileCompleted, userId, savedProgress);
+      onboardingWizardStore.initialize(resumeStepIndex, userId, savedProgress);
       setInitializedKey(initializationKey);
       return reaction(
         () => onboardingWizardStore.progress,
@@ -73,7 +86,7 @@ export const OnboardingWizard = observer(
         },
         { equals: comparer.structural },
       );
-    }, [initializationKey, onboardingWizardStore, profileCompleted, savedProgress, userId]);
+    }, [initializationKey, onboardingWizardStore, resumeStepIndex, savedProgress, userId]);
 
     useEffect(() => {
       if (previousStep.current !== currentStep) headingRef.current?.focus();
@@ -96,15 +109,23 @@ export const OnboardingWizard = observer(
           );
         case "ai":
           return isStepSynchronized ? <StepAi /> : <div aria-busy="true" className="min-h-36" />;
+        case "wiki":
+          return <StepWiki canSetupWithMate={canSetupWithMate} initialState={wikiSetupState} />;
         case "invite":
           return <StepInvite />;
       }
     };
 
-    const showFooterNav = currentStep !== "profile" && currentStep !== "ai";
+    const showFooterNav = currentStep === "invite";
 
     return (
-      <AppCard className="max-w-2xl">
+      <AppCard className="relative max-w-2xl shadow-xl shadow-primary/5">
+        <OnboardingArtwork
+          complete={currentStep === "wiki" && wikiSetupState.status === "completed"}
+          pageTitles={wikiSetupState.pages.map((page) => page.title)}
+          step={currentStep}
+        />
+
         <AppCardBody>
           <div className="flex flex-col gap-1">
             {!isInvited && (
@@ -128,15 +149,26 @@ export const OnboardingWizard = observer(
           </div>
 
           {!isInvited && (
-            <WizardProgress
-              current={currentStepIndex + 1}
-              label={t("OnboardingWizard.progressLabel")}
-              total={totalSteps}
-              valueText={t("OnboardingWizard.progress", {
-                current: currentStepIndex + 1,
-                total: totalSteps,
-              })}
-            />
+            <>
+              <OnboardingMilestones
+                current={currentStepIndex}
+                labels={{
+                  profile: t("OnboardingWizard.milestones.profile"),
+                  wiki: t("OnboardingWizard.milestones.wiki"),
+                  invite: t("OnboardingWizard.milestones.invite"),
+                  ai: t("OnboardingWizard.milestones.ai"),
+                }}
+              />
+
+              <div className="sr-only">
+                <WizardProgress
+                  current={currentStepIndex + 1}
+                  label={t("OnboardingWizard.progressLabel")}
+                  total={totalSteps}
+                  valueText={t("OnboardingWizard.progress", { current: currentStepIndex + 1, total: totalSteps })}
+                />
+              </div>
+            </>
           )}
 
           {renderStep()}

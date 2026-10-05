@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { comparePaired, costPerSuccessfulTask, holmAdjust, passAtLeastK, percentile, uniformlyFailingChecks } from "../stats";
+import { comparePaired, costPerSuccessfulTask, holmAdjust, mcnemarExact, passAtLeastK, percentile, uniformlyFailingChecks } from "../stats";
 
 const episode = (arm: string, caseId: string, repetition: number, passed: boolean, usd = 0.01) => ({ arm, caseId, repetition, passed, usd, judge: null });
 
@@ -59,6 +59,18 @@ describe("benchmark statistics", () => {
       [{ id: "always-fails", passed: false }, { id: "varies", passed: true }],
     ];
     expect(uniformlyFailingChecks(checks)).toEqual(["always-fails"]);
+  });
+
+  it("runs an exact McNemar test on the discordant pairs only", () => {
+    const pairs = [
+      ...Array.from({ length: 6 }, () => ({ control: false, candidate: true })),
+      { control: true, candidate: false },
+      ...Array.from({ length: 20 }, () => ({ control: true, candidate: true })),
+    ];
+    const result = mcnemarExact(pairs);
+    expect(result).toMatchObject({ pairs: 27, candidateOnly: 6, controlOnly: 1 });
+    expect(result.p).toBeCloseTo(0.125, 6);
+    expect(mcnemarExact([{ control: true, candidate: true }]).p).toBe(1);
   });
 
   it("takes percentiles from a sorted copy", () => {

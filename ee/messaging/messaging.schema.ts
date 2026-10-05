@@ -106,6 +106,7 @@ export const MessagingThreadSchema = z.object({
   accountShared: z.boolean().default(false),
   isOwner: z.boolean().default(false),
   lastMessageFromSelf: z.boolean().default(false),
+  lastSentMessageFromSelf: z.boolean().nullable().default(null),
   lastMessageSenderName: z.string().nullable().default(null),
   createdAt: z.date(),
   updatedAt: z.date(),

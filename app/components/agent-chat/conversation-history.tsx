@@ -12,6 +12,7 @@ import { type AgentConversationSummary } from "@/ee/agent-chat/agent-chat.schema
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
@@ -193,26 +194,11 @@ export const ConversationHistoryStatus = observer(function ConversationHistorySt
       </div>
     );
   }
-  if (store.conversationLoadError) {
-    return (
-      <div
-        className="mb-2 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive"
-        role="alert"
-      >
-        {copy.loadChatFailed}
-      </div>
-    );
-  }
-  if (store.historyRefreshError) {
-    return (
-      <div
-        className="mb-2 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive"
-        role="alert"
-      >
-        {copy.refreshHistoryFailed}
-      </div>
-    );
-  }
+  if (store.conversationLoadError) return <Alert className="mb-2" color="danger" description={copy.loadChatFailed} />;
+
+  if (store.historyRefreshError)
+    return <Alert className="mb-2" color="danger" description={copy.refreshHistoryFailed} />;
+
   return null;
 });
 

@@ -4,24 +4,27 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Alert as UiAlert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { cn } from "@/core/utils/cn";
 
-const alertColorVariants = cva("inline-links", {
-  variants: {
-    color: {
-      default: "",
-      success:
-        "border-success/30 bg-success/10 text-success [&>svg]:text-success *:data-[slot=alert-description]:text-success/90",
-      warning:
-        "border-warning/30 bg-warning/10 text-warning [&>svg]:text-warning *:data-[slot=alert-description]:text-warning/90",
-      danger:
-        "border-destructive/30 bg-destructive/10 text-destructive [&>svg]:text-destructive *:data-[slot=alert-description]:text-destructive/90",
-      primary:
-        "border-primary/30 bg-primary/10 text-primary [&>svg]:text-primary *:data-[slot=alert-description]:text-primary/90",
+const alertColorVariants = cva(
+  "inline-links [&_[data-slot=button][data-variant=secondary]]:border-current/30 [&_[data-slot=button][data-variant=secondary]]:bg-transparent [&_[data-slot=button][data-variant=secondary]]:text-inherit [&_[data-slot=button][data-variant=secondary]]:hover:bg-current/10 [&_[data-slot=button][data-variant=secondary]]:focus-visible:ring-current/30",
+  {
+    variants: {
+      color: {
+        default: "",
+        success:
+          "border-success/30 bg-success/10 text-success [&>svg]:text-success *:data-[slot=alert-description]:text-success/90",
+        warning:
+          "border-warning/30 bg-warning/10 text-warning [&>svg]:text-warning *:data-[slot=alert-description]:text-warning/90",
+        danger:
+          "border-destructive/30 bg-destructive/10 text-destructive [&>svg]:text-destructive *:data-[slot=alert-description]:text-destructive/90",
+        primary:
+          "border-primary/30 bg-primary/10 text-primary [&>svg]:text-primary *:data-[slot=alert-description]:text-primary/90",
+      },
+    },
+    defaultVariants: {
+      color: "default",
     },
   },
-  defaultVariants: {
-    color: "default",
-  },
-});
+);
 
 export const ALERT_ICONS = {
   default: Info,

@@ -147,6 +147,14 @@ export function lowestModelPromptTierBoundary(
   return modelPromptTierBoundaries(model, provider, inferenceRegion)[0] ?? null;
 }
 
+export function modelContextLength(
+  model: string,
+  provider?: string,
+  inferenceRegion?: ModelInferenceRegion | null,
+): number {
+  return findEndpoint(model, provider, inferenceRegion).contextLength;
+}
+
 export function pinnedModelEndpoints() {
   return SNAPSHOT.endpoints.map((endpoint) => ({
     modelId: endpoint.modelId,

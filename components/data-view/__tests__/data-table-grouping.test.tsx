@@ -197,7 +197,7 @@ describe("grouped table rows", () => {
   });
 
   it("reports how many groups the axis kept", () => {
-    const host = render(store({ groupingResult: groupingResult({ overflow: { shown: 12 } }) }));
+    const host = render(store({ groupingResult: groupingResult({ overflow: { shown: 12, withRecords: true } }) }));
 
     expect(host.querySelector('[data-slot="group-overflow"]')?.textContent).toBe("DataView.groupOverflow:12");
   });

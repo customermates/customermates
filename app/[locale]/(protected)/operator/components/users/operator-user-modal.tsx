@@ -23,6 +23,11 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { useRouter } from "@/i18n/navigation";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import {
+  agentCreditsToMicrocents,
+  agentMicrocentsToCredits,
+  isWholeTenthOfCredit,
+} from "@/core/commercial/agent-credits";
 
 import { OperatorChipSelect } from "../operator-chip-select";
 import { PLATFORM_ACCESS_GRANTED, useOperatorChipOptions } from "../use-operator-chip-options";
@@ -96,13 +101,15 @@ export const OperatorUserModal = observer(function OperatorUserModal({ user, onC
 
   const applyCorrection = () => {
     const creditDelta = delta;
-    if (!period || creditDelta === undefined || !Number.isInteger(creditDelta) || creditDelta === 0) return;
+    if (!period || creditDelta === undefined || !isWholeTenthOfCredit(creditDelta)) return;
+    const deltaMicrocents = agentCreditsToMicrocents(creditDelta);
+    if (deltaMicrocents === 0) return;
 
     showConfirmation({
       title: t("OperatorConsole.confirm.title"),
       message: t("OperatorUsers.modal.adjustmentConfirm", {
         name: identity,
-        value: intlStore.formatNumber(creditDelta),
+        ...intlStore.formatAgentCredits(agentMicrocentsToCredits(deltaMicrocents)),
       }),
       confirmLabel: t("Common.actions.confirm"),
       confirmVariant: "default",
@@ -226,19 +233,19 @@ export const OperatorUserModal = observer(function OperatorUserModal({ user, onC
               <>
                 <div className="flex flex-col gap-1.5">
                   <InfoRow label={t("OperatorUsers.credits.remaining")}>
-                    {intlStore.formatNumber(period.remainingCredits)}
+                    {intlStore.formatAgentCredits(agentMicrocentsToCredits(period.remainingMicrocents)).amount}
                   </InfoRow>
 
                   <InfoRow label={t("OperatorUsers.credits.base")}>
-                    {intlStore.formatNumber(period.baseAllowanceCredits)}
+                    {intlStore.formatAgentCredits(agentMicrocentsToCredits(period.baseAllowanceMicrocents)).amount}
                   </InfoRow>
 
                   <InfoRow label={t("OperatorUsers.credits.adjustments")}>
-                    {intlStore.formatNumber(period.adjustmentCredits)}
+                    {intlStore.formatAgentCredits(agentMicrocentsToCredits(period.adjustmentMicrocents)).amount}
                   </InfoRow>
 
                   <InfoRow label={t("OperatorUsers.credits.committed")}>
-                    {intlStore.formatNumber(period.committedCredits)}
+                    {intlStore.formatAgentCredits(agentMicrocentsToCredits(period.committedMicrocents)).amount}
                   </InfoRow>
                 </div>
 
