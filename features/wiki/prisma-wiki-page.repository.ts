@@ -1,3 +1,4 @@
+import type { PermissionService } from "@/core/base/permission.service";
 import {
   RETRIEVAL_TYPO_PREFIX,
   RETRIEVAL_TYPO_LENGTH_SLACK,
@@ -38,7 +39,7 @@ import {
 } from "@/core/retrieval/full-text-query";
 
 import { RETRIEVAL_SEMANTIC_MIN_SIMILARITY } from "@/core/retrieval/retrieval-pipeline";
-import { BaseRepository } from "@/core/base/base-repository";
+import { TenantRepository } from "@/core/base/tenant-repository";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { WIKI_CATALOG_PAGE_SIZE, wikiPageKindFields, wikiPageKindIssue } from "./wiki.schema";
 import { WIKI_EXCERPT_MAX_LENGTH } from "./wiki-content";
@@ -56,7 +57,7 @@ const WIKI_SHORT_HEADLINE_OPTIONS = "StartSel=**, StopSel=**, HighlightAll=true"
 let semanticIndexColumn: Promise<boolean> | undefined;
 
 export class PrismaWikiPageRepo
-  extends BaseRepository<Prisma.WikiPageWhereInput>
+  extends TenantRepository
   implements
     GetWikiPagesRepo,
     GetWikiCatalogRepo,
@@ -71,9 +72,13 @@ export class PrismaWikiPageRepo
     WikiImportPageRepo,
     GetWikiSuggestionSignalRepo
 {
+  constructor(private readonly permissions: PermissionService) {
+    super();
+  }
+
   async findSuggestionWikiPage(): Promise<{ id: string } | null> {
     return this.prisma.wikiPage.findFirst({
-      where: this.canAccess(Resource.wiki)
+      where: this.permissions.canRead(Resource.wiki)
         ? { companyId: this.companyId }
         : { companyId: this.companyId, id: { in: [] } },
       select: { id: true },

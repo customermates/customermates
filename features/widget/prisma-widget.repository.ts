@@ -16,12 +16,12 @@ import type { WidgetDto, WidgetLayout } from "./widget.schema";
 import { Prisma, WidgetKind } from "@/generated/prisma";
 
 import { BREAKPOINTS } from "@/constants/breakpoints";
-import { BaseRepository } from "@/core/base/base-repository";
+import { TenantRepository } from "@/core/base/tenant-repository";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { getRecordActivityWidgetReader, getRecordWidgetReader } from "@/core/di";
 
 export class PrismaWidgetRepo
-  extends BaseRepository
+  extends TenantRepository
   implements
     GetWidgetsRepo,
     DeleteWidgetRepo,

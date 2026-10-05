@@ -5,7 +5,7 @@ import { afterAll, describe, expect, it, vi } from "vitest";
 
 import type { Filter, GetQueryParams } from "@/core/base/base-get.schema";
 import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
-import type { GroupCountRow } from "@/core/base/grouping/group-count";
+import type { GroupCountRow } from "@/core/base/grouping/group-axis";
 
 import { runWithoutTenant } from "@/core/decorators/tenant-context";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";

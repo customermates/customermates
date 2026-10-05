@@ -1,3 +1,4 @@
+import { PermissionService } from "@/core/base/permission.service";
 import type { RecordRef, RecordScalar } from "../record-model.schema";
 import type { RecordMutation } from "../record-query.schema";
 
@@ -64,7 +65,7 @@ async function fixture() {
   const admin = createMockUser({ ...seed.admin, role: { ...seed.adminRole, permissions: [] } });
   const member = createMockUser({ ...seed.member, role: { ...seed.memberRole, permissions: [] } });
   const repo = new PrismaRecordRepo();
-  const policy = new RecordAccessPolicy(new PrismaUserRepo(), repo);
+  const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
   const calculations = new RecordCalculationService(repo);
   const mutate = new MutateRecordInteractor(
     repo,

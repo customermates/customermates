@@ -29,7 +29,6 @@ export class GetWebhooksInteractor extends BaseGetInteractor<WebhookDto> {
       repo,
       viewStateRepo,
       mode,
-      undefined,
       { sortDescriptor: { field: "createdAt", direction: "desc" } },
       queryParamsPrecheck,
     );

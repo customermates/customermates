@@ -1,3 +1,4 @@
+import { PermissionService } from "@/core/base/permission.service";
 import { randomUUID } from "node:crypto";
 import { afterAll, describe, expect, it, vi } from "vitest";
 
@@ -102,9 +103,9 @@ describeDatabase("Knowledge Base audit entries in workspace activity", () => {
     const visibleAudit = async (wiki: boolean) =>
       runWithTenant(auditor(wiki), () =>
         runInTransaction(async () => {
-          const policy = await new RecordAccessPolicy(new PrismaUserRepo(), repo).load();
+          const policy = await new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo).load();
           const model = await repo.getModel();
-          const activities = new PrismaRecordActivitiesRepo();
+          const activities = new PrismaRecordActivitiesRepo(new PermissionService());
           const index = await activities.index(input, model, policy.access(model.types.map((type) => type.id)), [
             "audit",
           ]);

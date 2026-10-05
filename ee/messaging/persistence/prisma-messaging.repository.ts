@@ -38,7 +38,7 @@ import type { SendEmailRepo } from "../outbound/send-email.repo";
 import type { StartChatThreadRepo } from "../outbound/start-chat-thread.repo";
 import type { UpdateThreadRepo } from "../thread-state/update-thread.interactor";
 
-import { BaseRepository } from "@/core/base/base-repository";
+import { QueryRepository } from "@/core/base/query-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import {
   getConnectedAccountRepo,
@@ -91,7 +91,7 @@ function draftMessageProviderId(threadId: string): string {
 }
 
 export class PrismaMessagingRepo
-  extends BaseRepository
+  extends QueryRepository
   implements
     GetMessagingThreadRepo,
     ResyncThreadRepo,

@@ -1,3 +1,4 @@
+import type { PermissionService } from "@/core/base/permission.service";
 import type { DomainEventMap } from "@/features/event/domain-events";
 import type { CreateAuditLogRepo } from "@/features/event/create-audit-log.repo";
 import type { RepoArgs } from "@/core/utils/types";
@@ -8,7 +9,7 @@ import type { GetAuditLogsRepo } from "@/features/audit-log/get/get-audit-logs.r
 import { Action, Resource, type Prisma } from "@/generated/prisma";
 
 import { transactionStorage } from "@/core/decorators/transaction-context";
-import { BaseRepository } from "@/core/base/base-repository";
+import { QueryRepository } from "@/core/base/query-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { type GetQueryParams } from "@/core/base/base-get.schema";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
@@ -18,9 +19,13 @@ import { LegalAcceptanceAuditPayloadSchema, LegalNoticeAuditPayloadSchema } from
 import { WIKI_PAGE_AUDIT_EVENTS } from "@/features/wiki/wiki-audit-events";
 
 export class PrismaAuditLogRepo
-  extends BaseRepository<Prisma.AuditLogWhereInput>
+  extends QueryRepository<Prisma.AuditLogWhereInput>
   implements GetAuditLogsRepo, CreateAuditLogRepo, LegalAuditRepo
 {
+  constructor(private readonly permissions: PermissionService) {
+    super();
+  }
+
   private auditPayload(eventData: Prisma.JsonValue): unknown {
     if (!eventData || typeof eventData !== "object" || Array.isArray(eventData) || !("payload" in eventData))
       return null;
@@ -92,7 +97,7 @@ export class PrismaAuditLogRepo
   private viewerAuditWhere(): Prisma.AuditLogWhereInput {
     return {
       companyId: this.companyId,
-      ...(this.hasPermission(Resource.wiki, Action.readAll) ? {} : { event: { notIn: [...WIKI_PAGE_AUDIT_EVENTS] } }),
+      ...(this.permissions.has(Resource.wiki, Action.readAll) ? {} : { event: { notIn: [...WIKI_PAGE_AUDIT_EVENTS] } }),
     };
   }
 

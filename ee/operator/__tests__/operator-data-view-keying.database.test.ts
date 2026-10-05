@@ -67,7 +67,6 @@ describeDatabase("operator data view keying on PostgreSQL", () => {
         new PrismaOperatorUsersRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies())),
         views(),
         "interactive",
-        undefined,
         {
           sortDescriptor: { field: "createdAt", direction: "desc" },
           pagination: { pageSize: 25, page: 1 },

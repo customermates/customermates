@@ -1,5 +1,5 @@
 import type { AuthService } from "../auth.service";
-import type { FindUserRepo } from "@/features/user/user.service";
+import type { FindUserRepo } from "@/features/user/find-user.repo";
 
 import { describe, expect, it, vi } from "vitest";
 

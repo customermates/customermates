@@ -29,11 +29,6 @@ export function isRecordRemovalEvent(event: string): boolean {
   return event === "record.deleted";
 }
 
-export function carriesChangedFields(eventData: unknown): boolean {
-  const record = RecordDeliveryEnvelopeSchema.safeParse(eventData);
-  return record.success && record.data.event === "record.updated";
-}
-
 export function changedFieldsOf(eventData: unknown): string[] {
   const record = RecordDeliveryEnvelopeSchema.safeParse(eventData);
   return record.success ? record.data.record.fields.map((field) => field.fieldId) : [];
@@ -48,13 +43,4 @@ export function threadIdOf(eventData: unknown): string | null {
   const { threadId } = payload as { threadId?: unknown };
 
   return typeof threadId === "string" ? threadId : null;
-}
-
-export function matchesChangedFields(required: readonly string[], changed: readonly string[]): boolean {
-  if (required.length === 0) return true;
-  if (changed.length === 0) return false;
-
-  const changedSet = new Set(changed);
-
-  return required.some((field) => changedSet.has(field));
 }

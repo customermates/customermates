@@ -1,10 +1,5 @@
-import type { GroupableFieldSpec, GroupingTargetModel } from "./groupable-field";
+import type { GroupableFieldSpec } from "./groupable-field";
 import type { DateBucket } from "./grouping.schema";
-
-import { dateBucketEntry } from "./date-buckets";
-import { DEFAULT_DATE_BUCKET, NO_VALUE_GROUP_KEY } from "./grouping.schema";
-
-export type GroupTargetWhere = (model: GroupingTargetModel) => Record<string, unknown>;
 
 export type GroupScope = {
   spec: GroupableFieldSpec;
@@ -12,58 +7,3 @@ export type GroupScope = {
   bucket?: DateBucket;
   now?: string;
 };
-
-const MATCHES_NOTHING = { id: { in: [] as string[] } };
-
-export function withFragment<W extends Record<string, unknown>>(where: W, fragment: unknown): W {
-  const existing = Array.isArray(where.AND) ? where.AND : where.AND === undefined ? [] : [where.AND];
-
-  return { ...where, AND: [...existing, fragment] } as W;
-}
-
-export function groupScopeFragment(scope: GroupScope, targetWhere: GroupTargetWhere): Record<string, unknown> {
-  const { spec, key } = scope;
-  const isNoValue = key === NO_VALUE_GROUP_KEY;
-
-  switch (spec.kind) {
-    case "enum":
-      if (isNoValue) return { [spec.column]: null };
-
-      return spec.values.includes(key) ? { [spec.column]: key } : MATCHES_NOTHING;
-
-    case "relation": {
-      const target = { [spec.targetRelation]: targetWhere(spec.targetModel) };
-
-      if (spec.via === "column") {
-        return isNoValue
-          ? { NOT: { [spec.targetRelation]: targetWhere(spec.targetModel) } }
-          : { [spec.column]: key, ...target };
-      }
-
-      return isNoValue
-        ? { [spec.collection]: { none: target } }
-        : { [spec.collection]: { some: { [spec.keyColumn]: key, ...target } } };
-    }
-
-    case "dateBucket": {
-      const entry = dateBucketEntry(
-        key,
-        scope.bucket ?? DEFAULT_DATE_BUCKET,
-        scope.now ? new Date(scope.now) : new Date(),
-      );
-      if (!entry) return MATCHES_NOTHING;
-
-      const range = {
-        ...(entry.start ? { gte: entry.start } : {}),
-        ...(entry.end ? { lt: entry.end } : {}),
-      };
-
-      return { [spec.column]: range };
-    }
-
-    default: {
-      const exhaustive: never = spec;
-      throw new Error(String(exhaustive));
-    }
-  }
-}

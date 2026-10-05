@@ -1,5 +1,5 @@
 import type { RecordEvent } from "@/generated/prisma";
-import { BaseRepository } from "@/core/base/base-repository";
+import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import type { RecordEventAdmission } from "@/features/records/record-event-admission";
@@ -7,7 +7,7 @@ import { RecordEventPayloadSchema } from "@/features/records/record-event.schema
 import type { RecordRecipientReader } from "@/features/records/record-recipient-reader";
 import type { TriggerRoutinesRepo } from "./trigger-routines.repo";
 
-export class RecordRoutineAdmission extends BaseRepository implements RecordEventAdmission {
+export class RecordRoutineAdmission extends TenantRepository implements RecordEventAdmission {
   constructor(
     private readonly routines: TriggerRoutinesRepo,
     private readonly background: BackgroundTaskService,

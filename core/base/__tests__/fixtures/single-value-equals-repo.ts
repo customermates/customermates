@@ -36,7 +36,4 @@ export class Repo extends BaseGetRepo<{ id: string }> {
   validateSortDescriptor(): SortDescriptor | undefined {
     return undefined;
   }
-  sumNumericFields() {
-    return Promise.resolve({});
-  }
 }

@@ -1,9 +1,9 @@
 import { Prisma, type RecordEvent } from "@/generated/prisma";
-import { BaseRepository } from "@/core/base/base-repository";
+import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import type { RecordEventOutboxRepo } from "./record-event-outbox.repo";
 
-export class PrismaRecordEventOutboxRepo extends BaseRepository implements RecordEventOutboxRepo {
+export class PrismaRecordEventOutboxRepo extends TenantRepository implements RecordEventOutboxRepo {
   @BypassTenantGuard
   findUnscoped(companyId: string, eventId: string): Promise<RecordEvent | null> {
     return this.prisma.recordEvent.findFirst({ where: { companyId, id: eventId } });

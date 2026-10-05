@@ -31,14 +31,7 @@ export class GetUsersInteractor extends BaseGetInteractor<UserDto> {
     mode: "interactive" | "api",
     queryParamsPrecheck: QueryParamsPrecheckInteractor,
   ) {
-    super(
-      repo,
-      viewStateRepo,
-      mode,
-      undefined,
-      { sortDescriptor: { field: "name", direction: "asc" } },
-      queryParamsPrecheck,
-    );
+    super(repo, viewStateRepo, mode, { sortDescriptor: { field: "name", direction: "asc" } }, queryParamsPrecheck);
   }
 
   @Validate(GetQueryParamsSchema)

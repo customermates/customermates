@@ -3,11 +3,11 @@ import type { Prisma } from "@/generated/prisma";
 import type { RepoArgs } from "@/core/utils/types";
 import type { WebhookEventRepo } from "../webhooks/webhook-event.repo";
 
-import { BaseRepository } from "@/core/base/base-repository";
+import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { WEBHOOK_INBOUND_SOURCE } from "../webhooks/webhook-event.repo";
 
-export class PrismaUnipileWebhookRepo extends BaseRepository implements WebhookEventRepo {
+export class PrismaUnipileWebhookRepo extends TenantRepository implements WebhookEventRepo {
   @BypassTenantGuard
   async createWebhookEventUnscoped(args: RepoArgs<WebhookEventRepo, "createWebhookEventUnscoped">) {
     const row = await this.prisma.messagingInboundEvent.create({

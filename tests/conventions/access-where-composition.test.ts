@@ -11,8 +11,8 @@ const ENFORCED = true;
 const SCANNED_DIRECTORIES = ["core", "ee", "features", "workflows", "app"];
 
 const HELPER_KEYS: Record<string, string[]> = {
-  'accessWhere("user")': ["companyId", "id"],
-  'accessWhere("routine")': ["companyId", "ownerUserId"],
+  "userAccessWhere(": ["companyId", "id"],
+  "routineAccessWhere(": ["companyId", "ownerUserId"],
   "threadAccessWhere(": ["companyId", "OR"],
   "calendarAccessWhere(": ["companyId", "connectedAccount"],
   "calendarEventAccessWhere(": ["companyId", "connectedAccount"],

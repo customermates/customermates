@@ -12,7 +12,7 @@ import type { Prisma } from "@/generated/prisma";
 import { type WebhookDeliveryDto } from "./get-webhook-deliveries.interactor";
 
 import { transactionStorage } from "@/core/decorators/transaction-context";
-import { BaseRepository } from "@/core/base/base-repository";
+import { QueryRepository } from "@/core/base/query-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { type GetQueryParams } from "@/core/base/base-get.schema";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
@@ -25,7 +25,7 @@ function storedMessagingBody(event: string, requestBody: Prisma.JsonValue): Reco
 }
 
 export class PrismaWebhookDeliveryRepo
-  extends BaseRepository<Prisma.WebhookDeliveryWhereInput>
+  extends QueryRepository<Prisma.WebhookDeliveryWhereInput>
   implements
     GetWebhookDeliveriesRepo,
     GetWebhookDeliveryByIdRepo,

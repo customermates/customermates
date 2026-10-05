@@ -1,6 +1,5 @@
 import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
 import { Prisma } from "@/generated/prisma";
-import { EntityType } from "@/features/records/history/v1/legacy-enums";
 import { BaseGetInteractor } from "../../base-get.interactor";
 import type { StubRepo } from "./base-get-does-not-persist-stub-repo";
 
@@ -8,7 +7,7 @@ type Item = { id: string };
 
 export class ProbeInteractor extends BaseGetInteractor<Item> {
   constructor(viewStateRepo: DataViewStateRepo, repo: StubRepo) {
-    super(repo, viewStateRepo, "interactive", EntityType.contact, {
+    super(repo, viewStateRepo, "interactive", {
       sortDescriptor: { field: "createdAt", direction: Prisma.SortOrder.desc },
     });
   }

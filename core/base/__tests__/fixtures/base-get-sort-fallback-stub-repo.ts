@@ -45,8 +45,4 @@ export class StubRepo extends BaseGetRepo<Item> {
       ? sortDescriptor
       : undefined;
   }
-
-  sumNumericFields<F extends string>(): Promise<Partial<Record<F, number | null>>> {
-    return Promise.resolve({} as Partial<Record<F, number | null>>);
-  }
 }

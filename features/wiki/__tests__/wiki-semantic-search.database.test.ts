@@ -1,3 +1,4 @@
+import { PermissionService } from "@/core/base/permission.service";
 import type { TenantUser } from "@/features/user/user.schema";
 import type { WikiEmbeddingService } from "@/ee/wiki-retrieval/wiki-embedding.service";
 
@@ -75,7 +76,7 @@ describeDatabase("Workspace Wiki semantic retrieval on PostgreSQL with pgvector"
   };
   const indexAll = (tenant: TenantUser, service: WikiEmbeddingService) =>
     runWithTenant(tenant, async () => {
-      const indexer = new WikiSemanticIndexService(new PrismaWikiPageRepo(), service);
+      const indexer = new WikiSemanticIndexService(new PrismaWikiPageRepo(new PermissionService()), service);
       let indexed = 0;
       for (;;) {
         const result = await indexer.indexStalePages();
@@ -85,7 +86,7 @@ describeDatabase("Workspace Wiki semantic retrieval on PostgreSQL with pgvector"
     });
   const search = (query: string, service: WikiEmbeddingService, tenant = user, schedule = vi.fn()) =>
     runWithTenant(tenant, () =>
-      new SearchWikiPagesInteractor(new PrismaWikiPageRepo(), "stored", {
+      new SearchWikiPagesInteractor(new PrismaWikiPageRepo(new PermissionService()), "stored", {
         embedder: new WikiSemanticQueryEmbedder(service),
         scheduler: { schedule },
       }).invoke({ query, page: 1, pageSize: 5 }),
@@ -145,7 +146,7 @@ describeDatabase("Workspace Wiki semantic retrieval on PostgreSQL with pgvector"
     await Promise.all(
       Array.from({ length: 10 }, (_, index) => insert(user, `Page ${index}`, `Holiday note ${index}`, index)),
     );
-    const repo = () => new PrismaWikiPageRepo();
+    const repo = () => new PrismaWikiPageRepo(new PermissionService());
     const [left, right] = await runWithTenant(user, () =>
       Promise.all([
         repo().claimStaleSemanticPages(WIKI_EMBEDDING_MODEL, 6),
@@ -184,7 +185,9 @@ describeDatabase("Workspace Wiki semantic retrieval on PostgreSQL with pgvector"
       Array.from({ length: 20 }, (_, index) => insert(user, `Page ${index}`, `Holiday note ${index}`, index)),
     );
     const claim = () =>
-      runWithTenant(user, () => new PrismaWikiPageRepo().claimStaleSemanticPages(WIKI_EMBEDDING_MODEL, 8));
+      runWithTenant(user, () =>
+        new PrismaWikiPageRepo(new PermissionService()).claimStaleSemanticPages(WIKI_EMBEDDING_MODEL, 8),
+      );
 
     const batches = [await claim(), await claim(), await claim(), await claim()];
     expect(batches.map((batch) => batch.length)).toEqual([8, 8, 4, 0]);
@@ -192,7 +195,10 @@ describeDatabase("Workspace Wiki semantic retrieval on PostgreSQL with pgvector"
 
     await client.query('UPDATE "WikiPage" SET "semanticIndexClaimedAt" = NULL WHERE "companyId" = $1', [companyId]);
     const results = await runWithTenant(user, async () => {
-      const indexer = new WikiSemanticIndexService(new PrismaWikiPageRepo(), fakeEmbeddings().service);
+      const indexer = new WikiSemanticIndexService(
+        new PrismaWikiPageRepo(new PermissionService()),
+        fakeEmbeddings().service,
+      );
       return [await indexer.indexStalePages(), await indexer.indexStalePages(), await indexer.indexStalePages()];
     });
     expect(results.map(({ indexed }) => indexed)).toEqual([

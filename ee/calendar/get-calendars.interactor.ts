@@ -32,7 +32,7 @@ export class GetCalendarsInteractor extends BaseGetInteractor<CalendarDto> {
     queryParamsPrecheck: QueryParamsPrecheckInteractor,
     private entitlements: EntitlementService,
   ) {
-    super(repo, viewStateRepo, mode, undefined, undefined, queryParamsPrecheck);
+    super(repo, viewStateRepo, mode, undefined, queryParamsPrecheck);
   }
 
   @Validate(GetQueryParamsSchema)

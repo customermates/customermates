@@ -3,13 +3,13 @@ import type { RepoArgs } from "@/core/utils/types";
 import type { RecordRepo } from "./record.repo";
 import type { RecordAccessPolicy } from "./record-access";
 import type { MutateRecordInteractor } from "./mutate-record.interactor";
-import { BaseRepository } from "@/core/base/base-repository";
+import { TenantRepository } from "@/core/base/tenant-repository";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { channelClass } from "@/ee/messaging/provider";
 import { identityLookupValue } from "@/ee/messaging/identity-lookup";
 import { RecordIdentityReader } from "./record-identity-reader";
 
-export class StartChatRecordChannelRepo extends BaseRepository implements StartChatContactRepo {
+export class StartChatRecordChannelRepo extends TenantRepository implements StartChatContactRepo {
   constructor(
     private records: RecordRepo,
     private access: RecordAccessPolicy,

@@ -1,3 +1,4 @@
+import { PermissionService } from "@/core/base/permission.service";
 import { randomUUID } from "node:crypto";
 import { afterAll, describe, expect, it, vi } from "vitest";
 
@@ -53,7 +54,7 @@ async function fixture() {
   });
   const admin = createMockUser({ ...seed.user, role: { ...seed.role, permissions: [] } });
   const repo = new PrismaRecordRepo();
-  const policy = new RecordAccessPolicy(new PrismaUserRepo(), repo);
+  const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
   const mutate = new MutateRecordInteractor(
     repo,
     policy,

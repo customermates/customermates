@@ -23,7 +23,7 @@ function createMockCtx() {
 describe("validateEvent", () => {
   it("passes for a valid domain event", () => {
     const ctx = createMockCtx();
-    validateEvent("contact.created", ctx, ["events"]);
+    validateEvent("webhook.created", ctx, ["events"]);
     expect(ctx.addIssue).not.toHaveBeenCalled();
   });
 
@@ -37,7 +37,7 @@ describe("validateEvent", () => {
 
   it("validates arrays of events", () => {
     const ctx = createMockCtx();
-    validateEvent(["contact.created", "bad.event", "deal.updated"], ctx, ["events"]);
+    validateEvent(["webhook.created", "bad.event", "routine.updated"], ctx, ["events"]);
     expect(ctx.addIssue).toHaveBeenCalledTimes(1);
   });
 });

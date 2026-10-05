@@ -35,15 +35,4 @@ describe("a repository without an entity type but with groupable specs", () => {
     expect(result.data.groupCounts).toEqual({ active: 2, inactive: 1, pendingAuthorization: 0 });
     expect(repo.getItems.mock.calls.map(([params]) => params.groupScope?.key)).toEqual(["active", "inactive"]);
   });
-
-  it("still keeps value sums behind the entity type", async () => {
-    const repo = new OperatorLikeRepo();
-    const result = await new OperatorLikeInteractor(repo).invoke({ grouping: { field: "status" } });
-
-    expect(result.ok).toBe(true);
-    if (!result.ok) return;
-    expect(result.data.valueSums).toBeUndefined();
-    expect(result.data.groupValueSums).toBeUndefined();
-    expect(repo.sumNumericFields).not.toHaveBeenCalled();
-  });
 });

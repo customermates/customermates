@@ -39,8 +39,4 @@ export class StubRepo extends BaseGetRepo<Item> {
   validateSortDescriptor({ sortDescriptor }: { sortDescriptor: SortDescriptor | undefined }) {
     return sortDescriptor;
   }
-
-  sumNumericFields<F extends string>(): Promise<Partial<Record<F, number | null>>> {
-    return Promise.resolve({} as Partial<Record<F, number | null>>);
-  }
 }

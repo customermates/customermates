@@ -5,17 +5,13 @@ import type {
   PaginationRequest,
   SortDescriptor,
 } from "@/core/base/base-get.schema";
-import type { GroupableFieldSpec, GroupingTargetModel } from "@/core/base/grouping/groupable-field";
+import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
 import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 
-import { CustomColumnType } from "@/core/data-view/column-presentation.types";
 import { startOfDay, subDays } from "date-fns";
 
 import { normalizeFilter } from "@/core/base/filter-compat";
-import { groupScopeFragment } from "@/core/base/grouping/group-scope";
-import { orderByOptionIndex } from "@/core/base/grouping/option-order";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
-import { isCustomField } from "@/core/utils/custom-field";
 
 export interface SortableField {
   field: string;
@@ -72,47 +68,12 @@ type WithDynamicFields<T> = T & {
 
 type OrderByInput = Record<string, unknown>[];
 
-const RELATION_FIELD_MAPPING: Record<FilterFieldKey, string> = {
-  [FilterFieldKey.userIds]: "users.userId",
-  [FilterFieldKey.serviceIds]: "services.serviceId",
-  [FilterFieldKey.dealIds]: "deals.dealId",
-  [FilterFieldKey.organizationIds]: "organizations.organizationId",
-  [FilterFieldKey.contactIds]: "contacts.contactId",
-  [FilterFieldKey.taskIds]: "tasks.taskId",
-  [FilterFieldKey.timelineKind]: "timelineKind",
-  [FilterFieldKey.timelineThreadId]: "timelineThreadId",
-  [FilterFieldKey.updatedAt]: "updatedAt",
-  [FilterFieldKey.createdAt]: "createdAt",
-  [FilterFieldKey.event]: "event",
-  [FilterFieldKey.url]: "url",
-  [FilterFieldKey.status]: "status",
-  [FilterFieldKey.provider]: "provider",
-  [FilterFieldKey.state]: "state",
-  [FilterFieldKey.draft]: "draft",
-  [FilterFieldKey.participantContactId]: "participantContactId",
-  [FilterFieldKey.ownerUserId]: "ownerUserId",
-  [FilterFieldKey.participants]: "participants",
-  [FilterFieldKey.connectedAccountId]: "connectedAccountId",
-  [FilterFieldKey.emailFolder]: "emailFolder",
-  [FilterFieldKey.lastMessageDirection]: "lastMessageDirection",
-  [FilterFieldKey.lastMessageSentAt]: "lastMessageSentAt",
-  [FilterFieldKey.lastMessageAt]: "lastMessageAt",
-  [FilterFieldKey.calendarId]: "calendarId",
-  [FilterFieldKey.startsAt]: "startsAt",
-  [FilterFieldKey.plan]: "plan",
-  [FilterFieldKey.subscriptionStatus]: "subscriptionStatus",
-  [FilterFieldKey.isPlatformOperator]: "isPlatformOperator",
-  [FilterFieldKey.lastActiveAt]: "lastActiveAt",
+const FILTER_COLUMN: Partial<Record<string, string>> = {
   [FilterFieldKey.workspaceId]: "companyId",
-  [FilterFieldKey.adProvider]: "adProvider",
-  [FilterFieldKey.auditSource]: "auditSource",
   [FilterFieldKey.workspaceTags]: "tags",
-  [FilterFieldKey.name]: "name",
-  [FilterFieldKey.firstName]: "firstName",
-  [FilterFieldKey.lastName]: "lastName",
 };
 
-export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknown>> {
+export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknown> = Record<string, unknown>> {
   getSearchableFields(): Array<SearchableField> {
     return [];
   }
@@ -146,22 +107,16 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
     return Promise.resolve([]);
   }
 
-  protected groupTargetWhere(_model: GroupingTargetModel): Record<string, unknown> {
-    return {};
-  }
-
   async buildQueryArgs(params: GetQueryParams, baseWhere: TWhereInput = {} as TWhereInput) {
     const where = await this.buildWhereClause(params, baseWhere);
-    const customColumns = await this.customColumnsOnce();
-    const customSort = resolveCustomSort(params.sortDescriptor, customColumns);
-    const textSort = customSort ? undefined : this.resolveTextSort(params.sortDescriptor);
-    const orderBy = customSort || textSort ? [] : this.buildOrderBy({ sortDescriptor: params.sortDescriptor });
+    const textSort = this.resolveTextSort(params.sortDescriptor);
+    const orderBy = textSort ? [] : this.buildOrderBy({ sortDescriptor: params.sortDescriptor });
     const pagination =
       params.take !== undefined || params.skip !== undefined
         ? { skip: params.skip ?? 0, take: params.take ?? 100 }
         : this.buildPagination(params.pagination);
 
-    return { where, orderBy, customSort, textSort, ...pagination };
+    return { where, orderBy, textSort, ...pagination };
   }
 
   private resolveTextSort(sortDescriptor: SortDescriptor | undefined): TextSort | undefined {
@@ -225,21 +180,11 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
       filterableFields,
     });
 
-    const customColumns = validFilters.some((f) => isCustomField(f.field)) ? await this.customColumnsOnce() : [];
-    const customColumnTypeById = new Map(customColumns.map((c) => [c.id, c.type]));
-
-    for (const filter of validFilters) this.applyFieldFilter(where, filter, filterableFields, customColumnTypeById);
+    for (const filter of validFilters) this.applyFieldFilter(where, filter);
 
     const searchGroup = this.buildSearchGroup(params.searchTerm);
 
     if (searchGroup) where.AND = [...(where.AND ?? []), searchGroup];
-
-    if (params.groupScope) {
-      where.AND = [
-        ...(where.AND ?? []),
-        groupScopeFragment(params.groupScope, (model) => this.groupTargetWhere(model)) as TWhereInput,
-      ];
-    }
 
     return where;
   }
@@ -297,90 +242,10 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
   private applyFieldFilter(
     where: WithDynamicFields<TWhereInput> & WithLogicalOperators<TWhereInput>,
     filter: Filter,
-    filterableFields: FilterableField[],
-    customColumnTypeById: Map<string, CustomColumnType>,
   ): void {
-    const isCustom = isCustomField(filter.field);
+    const column = FILTER_COLUMN[filter.field] ?? filter.field;
 
-    if (isCustom) {
-      const fieldConfig = filterableFields.find((f) => f.field === filter.field);
-      const columnType = customColumnTypeById.get(filter.field);
-      const isRange = columnType === CustomColumnType.dateRange || columnType === CustomColumnType.dateTimeRange;
-      const valueField = fieldConfig && isNumericField(fieldConfig.operators) ? "numericValue" : "value";
-      const condition = isRange
-        ? this.buildRangeRelationFilterCondition(filter)
-        : this.buildFilterCondition(filter, valueField);
-      where.AND = [...(where.AND ?? []), this.createClause("customFieldValues", condition)];
-      return;
-    }
-
-    const enumValue = Object.values(FilterFieldKey).find((key) => key.toString() === filter.field);
-    const relationFieldPath = enumValue ? RELATION_FIELD_MAPPING[enumValue] : filter.field;
-    const isRelationField = relationFieldPath.includes(".");
-
-    if (isRelationField) {
-      const [relation, field] = relationFieldPath.split(".");
-      const condition = this.buildFilterCondition(filter, field);
-
-      where.AND = [...(where.AND ?? []), this.createClause(relation, condition)];
-
-      return;
-    }
-
-    const fieldCondition = this.buildFilterCondition(filter);
-
-    where.AND = [...(where.AND ?? []), this.createClause(filter.field, fieldCondition)];
-
-    return;
-  }
-
-  private buildRangeRelationFilterCondition(filter: Filter) {
-    const columnIdClause = { columnId: filter.field };
-
-    switch (filter.operator) {
-      case FilterOperatorKey.isNull:
-        return { none: { AND: [columnIdClause, { value: { not: null } }] } };
-      case FilterOperatorKey.isNotNull:
-        return { some: { AND: [columnIdClause, { value: { not: null } }] } };
-      case FilterOperatorKey.contains:
-        return {
-          some: {
-            AND: [columnIdClause, { rangeStart: { lte: filter.value } }, { rangeEnd: { gte: filter.value } }],
-          },
-        };
-      case FilterOperatorKey.gt:
-        return {
-          some: { AND: [columnIdClause, { rangeStart: { gt: filter.value } }] },
-        };
-      case FilterOperatorKey.gte:
-        return {
-          some: {
-            AND: [columnIdClause, { rangeStart: { gte: filter.value } }],
-          },
-        };
-      case FilterOperatorKey.lt:
-        return {
-          some: { AND: [columnIdClause, { rangeEnd: { lt: filter.value } }] },
-        };
-      case FilterOperatorKey.lte:
-        return {
-          some: { AND: [columnIdClause, { rangeEnd: { lte: filter.value } }] },
-        };
-      case FilterOperatorKey.between:
-        return {
-          some: {
-            AND: [columnIdClause, { rangeStart: { gte: filter.value[0] } }, { rangeEnd: { lte: filter.value[1] } }],
-          },
-        };
-      case FilterOperatorKey.inLastDays: {
-        const cutoff = startOfDay(subDays(new Date(), Number(filter.value)));
-        return {
-          some: { AND: [columnIdClause, { rangeEnd: { gte: cutoff } }] },
-        };
-      }
-      default:
-        throw new Error(`Operator ${filter.operator} is not supported for range custom columns`);
-    }
+    where.AND = [...(where.AND ?? []), this.createClause(column, this.buildScalarFilterCondition(filter))];
   }
 
   private buildSearchConditions(search: string): Array<TWhereInput> {
@@ -438,12 +303,6 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
     return { AND: tokenGroups } as LogicalGroup<TWhereInput>;
   }
 
-  private buildFilterCondition(filter: Filter, relationField?: string) {
-    if (relationField) return this.buildRelationFilterCondition(filter, relationField);
-
-    return this.buildScalarFilterCondition(filter);
-  }
-
   private buildScalarFilterCondition(filter: Filter) {
     switch (filter.operator) {
       case FilterOperatorKey.equals:
@@ -484,133 +343,10 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
         throw new Error("allSet should only be used for relation fields, not direct fields");
     }
   }
-
-  private buildRelationFilterCondition(filter: Filter, relationField: string) {
-    const isCustom = isCustomField(filter.field);
-
-    switch (filter.operator) {
-      case FilterOperatorKey.in: {
-        return isCustom
-          ? {
-              some: {
-                AND: [{ columnId: filter.field }, { [relationField]: { in: filter.value } }],
-              },
-            }
-          : { some: { [relationField]: { in: filter.value } } };
-      }
-      case FilterOperatorKey.notIn: {
-        return isCustom
-          ? {
-              none: {
-                AND: [{ columnId: filter.field }, { [relationField]: { in: filter.value } }],
-              },
-            }
-          : { none: { [relationField]: { in: filter.value } } };
-      }
-      case FilterOperatorKey.hasNone:
-        return isCustom ? { none: { columnId: filter.field } } : { none: {} };
-      case FilterOperatorKey.hasSome:
-        return isCustom ? { some: { columnId: filter.field } } : { some: {} };
-      case FilterOperatorKey.isNull:
-        return isCustom
-          ? {
-              none: {
-                AND: [{ columnId: filter.field }, { [relationField]: { not: null } }],
-              },
-            }
-          : { none: { [relationField]: { not: null } } };
-      case FilterOperatorKey.isNotNull:
-        return isCustom
-          ? {
-              some: {
-                AND: [{ columnId: filter.field }, { [relationField]: { not: null } }],
-              },
-            }
-          : { some: { [relationField]: { not: null } } };
-      case FilterOperatorKey.hasUnset:
-        return isCustom
-          ? {
-              some: {
-                AND: [{ columnId: filter.field }, { [relationField]: null }],
-              },
-            }
-          : { some: { [relationField]: null } };
-      case FilterOperatorKey.allSet:
-        return isCustom
-          ? {
-              none: {
-                AND: [{ columnId: filter.field }, { [relationField]: null }],
-              },
-            }
-          : { none: { [relationField]: null } };
-      default: {
-        const fieldCondition = this.buildScalarFilterCondition(filter);
-
-        return isCustom
-          ? {
-              some: {
-                AND: [{ columnId: filter.field }, { [relationField]: fieldCondition }],
-              },
-            }
-          : { some: { [relationField]: fieldCondition } };
-      }
-    }
-  }
-}
-
-export type CustomSort = {
-  columnId: string;
-  direction: "asc" | "desc";
-  columnType: CustomColumnDto["type"];
-  optionRank?: ReadonlyMap<string, number>;
-};
-
-function resolveCustomSort(
-  sortDescriptor: SortDescriptor | undefined,
-  customColumns: CustomColumnDto[],
-): CustomSort | undefined {
-  if (!sortDescriptor) return undefined;
-  const column = customColumns.find((c) => c.id === sortDescriptor.field);
-  if (!column) return undefined;
-  return {
-    columnId: column.id,
-    direction: sortDescriptor.direction,
-    columnType: column.type,
-    optionRank:
-      column.type === CustomColumnType.singleSelect
-        ? new Map(orderByOptionIndex(column.options?.options ?? []).map((option, position) => [option.value, position]))
-        : undefined,
-  };
 }
 
 function isMissingSortValue(value: unknown): value is null | undefined | "" {
   return value === null || value === undefined || value === "";
-}
-
-export function compareCustomFieldValues(
-  a: string | null | undefined,
-  b: string | null | undefined,
-  direction: "asc" | "desc",
-  columnType: CustomColumnDto["type"],
-  collator: Pick<Intl.Collator, "compare">,
-  optionRank?: ReadonlyMap<string, number>,
-): number {
-  if (isMissingSortValue(a)) return isMissingSortValue(b) ? 0 : 1;
-  if (isMissingSortValue(b)) return -1;
-
-  const isRetiredOption = (value: string) => optionRank !== undefined && !optionRank.has(value);
-  if (isRetiredOption(a)) return isRetiredOption(b) ? collator.compare(a, b) : 1;
-  if (isRetiredOption(b)) return -1;
-
-  const cmp =
-    columnType === "currency"
-      ? Number(a) - Number(b)
-      : columnType === "date" || columnType === "dateTime"
-        ? new Date(a).getTime() - new Date(b).getTime()
-        : optionRank
-          ? (optionRank.get(a) ?? optionRank.size) - (optionRank.get(b) ?? optionRank.size)
-          : collator.compare(a, b);
-  return direction === "asc" ? cmp : -cmp;
 }
 
 export function compareSortValues(

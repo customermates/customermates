@@ -1,12 +1,12 @@
 import { randomUUID } from "node:crypto";
-import { BaseRepository } from "@/core/base/base-repository";
+import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import type { WebhookDeliveryQueueRepo, WebhookDeliveryClaim } from "./webhook-delivery-queue.repo";
 
 const LEASE_MS = 60_000;
 
-export class PrismaWebhookDeliveryQueueRepo extends BaseRepository implements WebhookDeliveryQueueRepo {
+export class PrismaWebhookDeliveryQueueRepo extends TenantRepository implements WebhookDeliveryQueueRepo {
   @BypassTenantGuard
   claimUnscoped(companyId: string, deliveryId: string, now: Date): Promise<WebhookDeliveryClaim> {
     return runInTransaction(

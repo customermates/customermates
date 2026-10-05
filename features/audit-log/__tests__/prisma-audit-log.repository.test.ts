@@ -1,3 +1,4 @@
+import { PermissionService } from "@/core/base/permission.service";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { GetQueryParams } from "@/core/base/base-get.schema";
@@ -31,7 +32,7 @@ describe("PrismaAuditLogRepo Wiki visibility", () => {
     const user = createMockUserWithPermissions([{ resource: Resource.auditLog, action: Action.readAll }]);
 
     await runWithTenant(user, async () => {
-      const repo = new PrismaAuditLogRepo();
+      const repo = new PrismaAuditLogRepo(new PermissionService());
       if (method === "getItems") await repo.getItems({});
       else await repo.getCount({});
     });
@@ -62,7 +63,7 @@ describe("PrismaAuditLogRepo Wiki visibility", () => {
     };
 
     await runWithTenant(user, async () => {
-      const repo = new PrismaAuditLogRepo();
+      const repo = new PrismaAuditLogRepo(new PermissionService());
       if (method === "getItems") await repo.getItems(params);
       else await repo.getCount(params);
     });
@@ -90,7 +91,7 @@ describe("PrismaAuditLogRepo Wiki visibility", () => {
       ]);
 
       await runWithTenant(user, async () => {
-        const repo = new PrismaAuditLogRepo();
+        const repo = new PrismaAuditLogRepo(new PermissionService());
         if (method === "getItems") await repo.getItems({});
         else await repo.getCount({});
       });

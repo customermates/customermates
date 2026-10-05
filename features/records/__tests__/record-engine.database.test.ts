@@ -1,3 +1,4 @@
+import { PermissionService } from "@/core/base/permission.service";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 import { FilterOperatorKey as FilterOperator } from "@/core/base/base-query-builder";
 import { recordInvariant } from "../record-invariant";
@@ -188,7 +189,7 @@ async function fixture() {
     role: { ...seed.memberRole, permissions: [] },
   });
   const repo = new PrismaRecordRepo();
-  const policy = new RecordAccessPolicy(new PrismaUserRepo(), repo);
+  const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
   const calculations = new RecordCalculationService(repo);
   const company = { getDetails: () => Promise.resolve({ currency: "EUR" }) };
   const background = { dispatch: () => Promise.resolve() };
@@ -217,7 +218,7 @@ async function fixture() {
   const choices = new GetRecordChoicesInteractor(repo, policy, query);
   const measure = new QueryRecordMeasureInteractor(repo, policy, company);
   const widgets = new PrismaRecordWidgetRepo();
-  const widgetReader = new RecordWidgetReader(repo, measure, new PrismaUserRepo());
+  const widgetReader = new RecordWidgetReader(repo, measure, new PrismaUserRepo(new PermissionService()));
   const writeWidget = new UpsertRecordWidgetInteractor(widgets, repo, policy, measure, widgetReader);
   const configurations = new RecordConfigurationService(repo);
   const preview = new PreviewRecordConfigurationInteractor(repo, policy, configurations);
@@ -274,7 +275,7 @@ async function fixture() {
     });
   const worker = () => new RecordOperationService(repo, policy, configurations, company);
   const activities = new GetRecordActivitiesInteractor(
-    new PrismaRecordActivitiesRepo(),
+    new PrismaRecordActivitiesRepo(new PermissionService()),
     repo,
     policy,
     new RecordIdentityReader(repo, policy),
@@ -3055,7 +3056,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     let fail = true;
     const admission = {
       admit: vi.fn(async () => {
-        await new PrismaAuditLogRepo().logUnscoped({
+        await new PrismaAuditLogRepo(new PermissionService()).logUnscoped({
           companyId: f.company.id,
           userId: f.admin.id,
           entityId: event.id,
@@ -4414,7 +4415,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const notify = vi.fn().mockResolvedValue(undefined);
     const register = new RegisterUserInteractor(
       { sendNewUserNotificationEmail: notify } as never,
-      new PrismaUserRepo(),
+      new PrismaUserRepo(new PermissionService()),
       getEventService(),
       {
         resolveAccountState: () =>
@@ -6758,7 +6759,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
     if (!result.ok || result.data.status !== "completed") throw new Error("Identity fixture failed");
     const ref = recordInvariant(result.data.refs[0]);
-    const checker = new CheckRecordIdentityInteractor(f.repo, new RecordAccessPolicy(new PrismaUserRepo(), f.repo));
+    const checker = new CheckRecordIdentityInteractor(
+      f.repo,
+      new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), f.repo),
+    );
     const input = {
       typeId: f.id("contact"),
       identity: { provider: "outlook" as const, value: "CLAIMED@example.test" },
@@ -6800,7 +6804,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const ref = recordInvariant(result.data.refs[0]);
     const resolver = new ResolveRecordIdentitiesInteractor(
       f.repo,
-      new RecordAccessPolicy(new PrismaUserRepo(), f.repo),
+      new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), f.repo),
     );
     const resolve = () =>
       resolver.invoke({
@@ -6939,7 +6943,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       }),
     );
     const inbox = new PrismaMessagingRepo();
-    const lookup = new GetIdentityRecordChoicesInteractor(f.repo, new RecordAccessPolicy(new PrismaUserRepo(), f.repo));
+    const lookup = new GetIdentityRecordChoicesInteractor(
+      f.repo,
+      new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), f.repo),
+    );
     const filter = (operator: "allSet" | "hasUnset"): GetQueryParams => ({
       filters: [{ field: "participants", operator: FilterOperatorKey[operator] }],
     });

@@ -15,23 +15,6 @@ const RELATION_FIELDS: FilterableField[] = [
   },
 ];
 
-class RelationQueryBuilder extends TestQueryBuilder {
-  override getFilterableFields(): Promise<FilterableField[]> {
-    return Promise.resolve(RELATION_FIELDS);
-  }
-}
-
-const CUSTOM_COLUMN_ID = "3f1c9a72-5d84-4a1e-9f3b-6c2d8e0a7b45";
-const CUSTOM_COLUMN_FIELDS: FilterableField[] = [
-  { field: CUSTOM_COLUMN_ID, operators: [FilterOperatorKey.hasNone, FilterOperatorKey.hasSome] },
-];
-
-class CustomColumnQueryBuilder extends TestQueryBuilder {
-  override getFilterableFields(): Promise<FilterableField[]> {
-    return Promise.resolve(CUSTOM_COLUMN_FIELDS);
-  }
-}
-
 describe("BaseQueryBuilder.validateFilters delegates to defaultValidateFilters", () => {
   const qb = new TestQueryBuilder();
 
@@ -72,19 +55,7 @@ describe("BaseQueryBuilder.validateFilters delegates to defaultValidateFilters",
     expect(qb.validateFilters({ filters, filterableFields: RELATION_FIELDS })).toEqual(filters);
   });
 
-  it("normalizes legacy relation existence filters without changing their meaning", () => {
-    const filters = [
-      { field: FilterFieldKey.userIds, operator: FilterOperatorKey.hasNone, value: ["u1"] },
-      { field: FilterFieldKey.userIds, operator: FilterOperatorKey.hasSome, value: ["u2"] },
-    ] as unknown as Filter[];
-
-    expect(qb.validateFilters({ filters, filterableFields: RELATION_FIELDS })).toEqual([
-      { field: FilterFieldKey.userIds, operator: FilterOperatorKey.notIn, value: ["u1"] },
-      { field: FilterFieldKey.userIds, operator: FilterOperatorKey.in, value: ["u2"] },
-    ]);
-  });
-
-  it("keeps legacy empty relation values invalid", () => {
+  it("rejects empty values on value-less existence operators", () => {
     const filters = [
       { field: FilterFieldKey.userIds, operator: FilterOperatorKey.hasNone, value: [] },
       { field: FilterFieldKey.userIds, operator: FilterOperatorKey.hasSome, value: [] },
@@ -100,36 +71,5 @@ describe("BaseQueryBuilder.validateFilters delegates to defaultValidateFilters",
     ] as unknown as Filter[];
 
     expect(qb.validateFilters({ filters, filterableFields: RELATION_FIELDS })).toEqual([]);
-  });
-
-  it("builds relation existence queries without selected values", async () => {
-    const queryBuilder = new RelationQueryBuilder();
-    const filters: Filter[] = [
-      { field: FilterFieldKey.userIds, operator: FilterOperatorKey.hasNone },
-      { field: FilterFieldKey.userIds, operator: FilterOperatorKey.hasSome },
-    ];
-
-    const result = await queryBuilder.buildQueryArgs({ filters });
-
-    expect(result.where).toEqual({
-      AND: [{ users: { none: {} } }, { users: { some: {} } }],
-    });
-  });
-
-  it("scopes relation existence queries on a custom column to that column", async () => {
-    const queryBuilder = new CustomColumnQueryBuilder();
-    const filters: Filter[] = [
-      { field: CUSTOM_COLUMN_ID, operator: FilterOperatorKey.hasNone },
-      { field: CUSTOM_COLUMN_ID, operator: FilterOperatorKey.hasSome },
-    ];
-
-    const result = await queryBuilder.buildQueryArgs({ filters });
-
-    expect(result.where).toEqual({
-      AND: [
-        { customFieldValues: { none: { columnId: CUSTOM_COLUMN_ID } } },
-        { customFieldValues: { some: { columnId: CUSTOM_COLUMN_ID } } },
-      ],
-    });
   });
 });

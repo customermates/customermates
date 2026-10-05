@@ -17,12 +17,12 @@ import type { UpdateCompanySettingsRepo } from "./update-company-settings.repo";
 
 import { ConversionEventType, SubscriptionStatus } from "@/generated/prisma";
 
-import { BaseRepository } from "@/core/base/base-repository";
+import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 
 export class PrismaCompanyRepo
-  extends BaseRepository
+  extends TenantRepository
   implements
     GetCompanySettingsRepo,
     UpdateCompanySettingsRepo,
