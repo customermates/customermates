@@ -60,9 +60,9 @@ export const WidgetDtoSchema = GenericRecordWidgetDtoSchema;
 export type WidgetDto = Data<typeof WidgetDtoSchema>;
 
 export function isRecordWidget(widget: WidgetDto): widget is RecordWidgetDto {
-  return widget.kind === WidgetKind.chart && "contractVersion" in widget && widget.contractVersion === 2;
+  return widget.kind === WidgetKind.chart;
 }
 
 export function isRecordActivityWidget(widget: WidgetDto): widget is RecordActivityWidgetDto {
-  return widget.kind === "activityTimeline" && "contractVersion" in widget && widget.contractVersion === 2;
+  return widget.kind === "activityTimeline";
 }

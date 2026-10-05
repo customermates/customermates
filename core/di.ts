@@ -203,7 +203,6 @@ import { UpsertRoleInteractor } from "@/features/role/upsert-role.interactor";
 import { DeleteWidgetInteractor } from "@/features/widget/delete-widget.interactor";
 import { GetCompanyWidgetsInteractor } from "@/features/widget/get-company-widgets.interactor";
 import { GetWidgetByIdInteractor } from "@/features/widget/get-widget-by-id.interactor";
-import { GetWidgetCompatibilityInteractor } from "@/features/widget/get-widget-compatibility.interactor";
 import { GetWidgetsInteractor } from "@/features/widget/get-widgets.interactor";
 import { UpdateWidgetLayoutsInteractor } from "@/features/widget/update-widget-layouts.interactor";
 // Messaging interactors
@@ -791,7 +790,6 @@ export const getDeleteRoleInteractor = () => new DeleteRoleInteractor(getRoleMan
 // --- Widget ---
 
 export const getGetWidgetsInteractor = () => new GetWidgetsInteractor(getWidgetRepo());
-export const getGetWidgetCompatibilityInteractor = () => new GetWidgetCompatibilityInteractor(getWidgetRepo());
 
 export const getDeleteWidgetInteractor = () => new DeleteWidgetInteractor(getWidgetRepo(), getWidgetIdsValidator());
 

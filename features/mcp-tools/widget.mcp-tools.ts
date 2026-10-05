@@ -9,7 +9,7 @@ import {
 } from "@/core/di";
 import { RecordWidgetInputSchema } from "@/features/widget/record-widget.schema";
 import { RecordMeasureSchema } from "@/features/records/record-measure.schema";
-import { WidgetDisplayOptionsSchema, isRecordWidget, isRecordActivityWidget } from "@/features/widget/widget.schema";
+import { WidgetDisplayOptionsSchema, isRecordWidget } from "@/features/widget/widget.schema";
 import { RecordActivityQuerySchema } from "@/ee/messaging/activities/record-activities.schema";
 import { RecordActivityWidgetInputSchema } from "@/features/widget/record-activity-widget.schema";
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -108,9 +108,8 @@ export const manageWidgetsTool = {
           id: widget.id,
           name: widget.name,
           kind: widget.kind,
-          ...(isRecordWidget(widget) || isRecordActivityWidget(widget)
-            ? { contractVersion: 2, version: widget.version }
-            : {}),
+          contractVersion: 2,
+          version: widget.version,
         })),
       });
     }
@@ -155,8 +154,6 @@ export const manageWidgetsTool = {
       if (!valid.success) return mcpValidationFailure(valid.error);
       if (widget && widget.kind !== WidgetKind.activityTimeline)
         return customMcpFailure(CustomErrorCode.widgetKindImmutable);
-      if (widget && !isRecordActivityWidget(widget))
-        return mcpMessageFailure("This legacy timeline needs migration before it can be edited.");
       const change = RecordActivityWidgetInputSchema.safeParse({
         id: params.id,
         expectedVersion: params.expectedVersion,
@@ -179,8 +176,7 @@ export const manageWidgetsTool = {
           })
         : mcpInteractorFailure(result.error);
     }
-    if (widget && !isRecordWidget(widget))
-      return mcpMessageFailure("This legacy chart needs migration to a record measure before it can be edited.");
+    const chart = widget && isRecordWidget(widget) ? widget : undefined;
     const valid = ChartChangeSchema.safeParse(params);
     if (!valid.success) return mcpValidationFailure(valid.error);
     const change = RecordWidgetInputSchema.safeParse({
@@ -189,7 +185,7 @@ export const manageWidgetsTool = {
       expectedRevision: params.expectedRevision,
       idempotencyKey: params.idempotencyKey,
       name: params.name ?? widget?.name,
-      measure: params.measure ?? widget?.measure,
+      measure: params.measure ?? chart?.measure,
       displayOptions: params.displayOptions ?? widget?.displayOptions,
       isTemplate: params.isTemplate ?? widget?.isTemplate ?? false,
     });

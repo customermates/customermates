@@ -521,7 +521,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
         },
       };
     }
-    throw new Error("Widget migration is required before editing legacy definitions");
+    throw new Error("Unsupported widget kind");
   };
 
   private hydrateWidget = (widget: WidgetDto, asTemplate: boolean) => {

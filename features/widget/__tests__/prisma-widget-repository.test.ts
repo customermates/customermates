@@ -118,9 +118,9 @@ describe("generic widget repository", () => {
       }),
     );
   });
-  it("refuses unreconciled legacy definitions instead of guessing a replacement", async () => {
+  it("refuses a widget without a record definition instead of guessing one", async () => {
     mocks.findMany.mockResolvedValue([row({ measure: null })]);
-    await expect(scoped((repo) => repo.getWidgets())).rejects.toThrow("Widget migration is required");
+    await expect(scoped((repo) => repo.getWidgets())).rejects.toThrow("has no record definition");
     expect(mocks.chart).not.toHaveBeenCalled();
   });
   it("uses validated structured definitions", async () => {

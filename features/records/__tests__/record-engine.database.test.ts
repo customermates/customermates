@@ -121,7 +121,6 @@ const { InitializeRecordModelService } = await import("../initialize-record-mode
 const { DomainEvent } = await import("@/features/event/domain-events");
 const { PrismaWidgetRepo } = await import("@/features/widget/prisma-widget.repository");
 const { UpdateWidgetLayoutsInteractor } = await import("@/features/widget/update-widget-layouts.interactor");
-const { GetWidgetCompatibilityInteractor } = await import("@/features/widget/get-widget-compatibility.interactor");
 const { executeMcpTool } = await import("@/features/mcp-tools/mcp-tool");
 const { manageDataViewsTool } = await import("@/features/mcp-tools/data-view.mcp-tools");
 const { manageRecordDetailLayoutV2Tool } = await import("@/features/mcp-tools/record-model.mcp-tools");
@@ -4815,101 +4814,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       }),
     );
     expect(await f.run(() => getMembershipTaskService().getSystemTasksCount())).toBe(1);
-  });
-
-  it("requires legacy widget metadata only for owned widgets or shared templates in the same workspace", async () => {
-    const f = await fixture();
-    const foreign = await fixture();
-    const compatibility = new GetWidgetCompatibilityInteractor(new PrismaWidgetRepo());
-    const read = () => f.run(() => compatibility.invoke());
-    expect(await read()).toEqual({
-      ok: true,
-      data: { legacyDefinitions: false },
-    });
-    const hidden = await runWithoutTenant(() =>
-      prisma.widget.create({
-        data: {
-          companyId: f.company.id,
-          userId: f.member.id,
-          name: "Private legacy chart",
-          kind: "chart",
-        },
-      }),
-    );
-    await runWithoutTenant(() =>
-      prisma.widget.create({
-        data: {
-          companyId: foreign.company.id,
-          userId: foreign.admin.id,
-          name: "Foreign legacy template",
-          kind: "chart",
-          isTemplate: true,
-        },
-      }),
-    );
-    expect(await read()).toEqual({
-      ok: true,
-      data: { legacyDefinitions: false },
-    });
-    const own = await runWithoutTenant(() =>
-      prisma.widget.create({
-        data: {
-          companyId: f.company.id,
-          userId: f.admin.id,
-          name: "Owned legacy chart",
-          kind: "chart",
-        },
-      }),
-    );
-    expect(await read()).toEqual({
-      ok: true,
-      data: { legacyDefinitions: true },
-    });
-    await runWithoutTenant(() =>
-      prisma.widget.update({
-        where: { id: own.id },
-        data: {
-          measure: {
-            source: { typeId: f.id("deal") },
-            aggregation: "count",
-            valueFieldId: null,
-            groupBy: null,
-          },
-        },
-      }),
-    );
-    expect(await read()).toEqual({
-      ok: true,
-      data: { legacyDefinitions: false },
-    });
-    await runWithoutTenant(() =>
-      prisma.widget.update({
-        where: { id: hidden.id },
-        data: { isTemplate: true },
-      }),
-    );
-    expect(await read()).toEqual({
-      ok: true,
-      data: { legacyDefinitions: true },
-    });
-    await runWithoutTenant(() =>
-      prisma.widget.update({
-        where: { id: hidden.id },
-        data: {
-          kind: "activityTimeline",
-          activityQuery: {
-            filters: [],
-            mode: "timeline",
-            page: 1,
-            pageSize: 25,
-          },
-        },
-      }),
-    );
-    expect(await read()).toEqual({
-      ok: true,
-      data: { legacyDefinitions: false },
-    });
   });
 
   it("journals committed field, assignment and identity changes without duplicate or no-op events", async () => {

@@ -6,14 +6,14 @@ import type { DeleteWidgetRepo } from "./delete-widget.interactor";
 import type { FindWidgetsByIdsRepo } from "./find-widgets-by-ids.repo";
 import type { GetCompanyWidgetsRepo } from "./get-company-widgets.interactor";
 import type { GetWidgetByIdRepo } from "./get-widget-by-id.interactor";
-import type { WidgetCompatibilityRepo } from "./get-widget-compatibility.interactor";
 import type { GetWidgetsRepo } from "./get-widgets.interactor";
 import { RecordActivityWidgetDtoSchema } from "./record-activity-widget.schema";
 import { RecordWidgetDtoSchema } from "./record-widget.schema";
 import type { UpdateWidgetLayoutsRepo } from "./update-widget-layouts.repo";
 import type { WidgetDto, WidgetLayout } from "./widget.schema";
 
-import { Prisma, WidgetKind } from "@/generated/prisma";
+import type { Prisma } from "@/generated/prisma";
+import { WidgetKind } from "@/generated/prisma";
 
 import { BREAKPOINTS } from "@/constants/breakpoints";
 import { TenantRepository } from "@/core/base/tenant-repository";
@@ -28,28 +28,8 @@ export class PrismaWidgetRepo
     GetCompanyWidgetsRepo,
     GetWidgetByIdRepo,
     UpdateWidgetLayoutsRepo,
-    FindWidgetsByIdsRepo,
-    WidgetCompatibilityRepo
+    FindWidgetsByIdsRepo
 {
-  async hasLegacyDefinitions(): Promise<boolean> {
-    const row = await this.prisma.widget.findFirst({
-      where: {
-        companyId: this.companyId,
-        AND: [
-          { OR: [{ userId: this.userId }, { isTemplate: true }] },
-          {
-            OR: [
-              { kind: "chart", measure: { equals: Prisma.AnyNull } },
-              { kind: "activityTimeline", activityQuery: { equals: Prisma.AnyNull } },
-            ],
-          },
-        ],
-      },
-      select: { id: true },
-    });
-    return row !== null;
-  }
-
   private get dtoSelect() {
     return {
       id: true,
@@ -86,7 +66,7 @@ export class PrismaWidgetRepo
         });
       return getRecordWidgetReader().read(stored);
     }
-    throw new Error("Widget migration is required before reading legacy definitions");
+    throw new Error(`Widget ${row.id} has no record definition`);
   }
 
   async getWidgets() {
