@@ -801,8 +801,6 @@
   },
   "AuditLogModal": {
     "createdAt": "Creado el",
-    "deletedField": "Campo eliminado",
-    "deletedFieldChanged": "Valor modificado en un campo que se ha eliminado desde entonces.",
     "entity": "Elemento",
     "entityId": "ID del elemento",
     "event": "Evento",
@@ -940,18 +938,6 @@
     },
     "company": "Empresa",
     "creditsBelowMinimum": "<{amount}",
-    "customColumnTypes": {
-      "currency": "Moneda",
-      "date": "Fecha",
-      "dateRange": "Intervalo de fechas",
-      "dateTime": "Fecha y hora",
-      "dateTimeRange": "Intervalo de fecha y hora",
-      "email": "Correo electrónico",
-      "link": "Enlace",
-      "phone": "Teléfono",
-      "plain": "Texto",
-      "singleSelect": "Selección única"
-    },
     "dateBuckets": {
       "day": "Día",
       "earlier": "Anterior",
@@ -971,7 +957,6 @@
       "thisMonth": "Este mes",
       "today": "Hoy"
     },
-    "default": "Predeterminado",
     "defaultData": {
       "contact": {
         "columnLabel": "Pipeline de ventas",
@@ -1474,8 +1459,7 @@
     "stageProbability": "Probabilidad de la etapa",
     "systemTasks": {
       "userPendingAuthorization": {
-        "alert": "Esta es una tarea del sistema que no se puede eliminar manualmente. Aprueba al usuario en la <link>configuración de la empresa</link> para resolverla.",
-        "title": "Aprobar al usuario"
+        "alert": "Esta es una tarea del sistema que no se puede eliminar manualmente. Aprueba al usuario en la <link>configuración de la empresa</link> para resolverla."
       }
     },
     "table": {

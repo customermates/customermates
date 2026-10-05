@@ -51,7 +51,6 @@ function makeStore(allowed: Action[] = [Action.create, Action.update, Action.del
   const granted = new Set(allowed);
   const rootStore = {
     localeStore: { getTranslation: (key: string) => key },
-    activityTimelines: { refreshForMany: vi.fn() },
     userStore: {
       user: {},
       can: (_resource: Resource, action: Action) => granted.has(action),

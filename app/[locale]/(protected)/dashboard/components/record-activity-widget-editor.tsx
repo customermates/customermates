@@ -261,13 +261,7 @@ export const RecordActivityWidgetEditor = observer(
         {previewError && <p role="alert">{t("Dashboard.activityWidget.error")}</p>}
 
         {preview?.key === key && (
-          <ActivitiesList
-            customColumns={[]}
-            hasMore={false}
-            items={preview.result.items}
-            loading={false}
-            onLoadOlder={() => undefined}
-          />
+          <ActivitiesList hasMore={false} items={preview.result.items} loading={false} onLoadOlder={() => undefined} />
         )}
       </section>
     );

@@ -92,7 +92,6 @@ export const RecordActivityWidgetCard = observer(({ widget }: { widget: RecordAc
 
         {state === "content" ? (
           <ActivitiesList
-            customColumns={[]}
             hasMore={timeline.hasMore}
             items={timeline.items}
             loading={timeline.loading}

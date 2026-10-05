@@ -7,7 +7,6 @@ import type { Root } from "react-dom/client";
 import type { EntityDetailPersonalizationConfig } from "../entity-detail-personalization";
 
 import { CustomColumnType } from "@/core/data-view/column-presentation.types";
-import { EntityType } from "@/features/records/history/v1/legacy-enums";
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -287,7 +286,7 @@ describe("entity detail custom field order", () => {
   it("retains the original form index after visual reordering", () => {
     const columns: CustomColumnDto[] = [firstId, secondId, thirdId].map((id, index) => ({
       id,
-      entityType: EntityType.contact,
+      entityType: "contact",
       label: `Field ${index + 1}`,
       type: CustomColumnType.plain,
     }));

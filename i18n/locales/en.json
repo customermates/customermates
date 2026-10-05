@@ -801,8 +801,6 @@
   },
   "AuditLogModal": {
     "createdAt": "Created At",
-    "deletedField": "Deleted field",
-    "deletedFieldChanged": "Value changed on a field that has since been deleted.",
     "entity": "Element",
     "entityId": "Element ID",
     "event": "Event",
@@ -940,18 +938,6 @@
     },
     "company": "Company",
     "creditsBelowMinimum": "<{amount}",
-    "customColumnTypes": {
-      "currency": "Currency",
-      "date": "Date",
-      "dateRange": "Date Range",
-      "dateTime": "Date & Time",
-      "dateTimeRange": "Date & Time Range",
-      "email": "Email",
-      "link": "Link",
-      "phone": "Phone",
-      "plain": "Text",
-      "singleSelect": "Single Select"
-    },
     "dateBuckets": {
       "day": "Day",
       "earlier": "Earlier",
@@ -971,7 +957,6 @@
       "thisMonth": "This month",
       "today": "Today"
     },
-    "default": "Default",
     "defaultData": {
       "contact": {
         "columnLabel": "Sales Pipeline",
@@ -1474,8 +1459,7 @@
     "stageProbability": "Stage probability",
     "systemTasks": {
       "userPendingAuthorization": {
-        "alert": "This is a system task that cannot be manually deleted. Please approve the user in <link>company settings</link> to resolve this task.",
-        "title": "Approve User"
+        "alert": "This is a system task that cannot be manually deleted. Please approve the user in <link>company settings</link> to resolve this task."
       }
     },
     "table": {

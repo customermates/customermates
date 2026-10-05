@@ -29,7 +29,6 @@ function makeStore(ids: string[], total: number) {
   const pageSize = 25;
   const rootStore = {
     localeStore: { getTranslation: (key: string) => key },
-    activityTimelines: { refreshForMany: vi.fn() },
     userStore: { user: {}, can: () => true, canManage: () => true },
   } as unknown as RootStore;
   const store = new TestStore(rootStore);

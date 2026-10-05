@@ -60,13 +60,11 @@ import { WikiPageStore } from "@/app/[locale]/(protected)/wiki/components/wiki-p
 
 import { AgentChatStore } from "@/app/components/agent-chat/agent-chat.store";
 import { AgentUiControlStore } from "@/app/components/agent-chat/ui-control.store";
-import { ActivityTimelineRegistry } from "./activity-timeline.registry";
 import { NavigationGuardController } from "./navigation-guard.controller";
 
 export class RootStore {
   private readonly modalStores = new Set<BaseModalStore<any>>();
   public readonly navigationGuard = new NavigationGuardController();
-  public readonly activityTimelines = new ActivityTimelineRegistry();
 
   private _apiKeysStore?: ApiKeysStore;
   private _connectedAccountsStore?: ConnectedAccountsStore;

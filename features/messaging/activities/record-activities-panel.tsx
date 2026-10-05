@@ -71,7 +71,6 @@ export const RecordActivitiesPanel = observer(function RecordActivitiesPanel({
         <ActivityTimelineSkeleton />
       ) : store.items.length ? (
         <ActivitiesList
-          customColumns={[]}
           hasMore={store.hasMore}
           items={store.items}
           loading={store.loading}

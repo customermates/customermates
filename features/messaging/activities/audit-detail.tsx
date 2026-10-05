@@ -1,13 +1,12 @@
 "use client";
 
-import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 import type { ActivityEntryDto } from "@/ee/messaging/activities/activities.schema";
 import type { MessagingProvider } from "@/generated/prisma";
 
 import { ArrowRight } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useLocale, useTranslations } from "next-intl";
-import { Fragment, type ComponentProps, type ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -19,11 +18,8 @@ import { isEmpty, partitionRelationIds } from "@/features/audit-log/audit-log-ch
 
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
-import { AppChip } from "@/components/chip/app-chip";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
-import { CustomFieldValue } from "@/components/data-view/custom-columns/custom-field-value";
 import { serializeJSONToMarkdown } from "@/components/editor/editor.utils";
-import { useOpenPresetRecord, usePresetRecordHref } from "@/components/records/use-record-href";
 import { useCanonicalColumnLabel } from "@/components/data-view/use-column-label";
 import { AvatarStack } from "@/components/shared/avatar-stack";
 import { Icon } from "@/components/shared/icon";
@@ -32,9 +28,6 @@ import { getCurrencyLabel } from "@/constants/currencies";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
-import { getSystemTaskNameTranslationKey } from "@/features/records/protected-task-labels";
-import { CustomColumnType } from "@/core/data-view/column-presentation.types";
-import { EntityType, TaskType } from "@/features/records/history/v1/legacy-enums";
 import type { AppLocale } from "@/i18n/locale-registry";
 import { auditCategory, DetailHeader, IdentityAvatar, TypeBadge } from "./activities-row";
 import { WikiPageKindSchema } from "@/features/wiki/wiki.schema";
@@ -130,17 +123,14 @@ function ChangeRow({ label, children }: { label: string; children: ReactNode }) 
 
 type Props = {
   entry: Extract<ActivityEntryDto, { kind: "audit" }>;
-  customColumns: CustomColumnDto[];
 };
 
-export const AuditDetail = observer(({ entry, customColumns }: Props) => {
+export const AuditDetail = observer(({ entry }: Props) => {
   const t = useTranslations();
   const locale = useLocale() as AppLocale;
   const columnLabel = useCanonicalColumnLabel();
   const { userModalStore } = useRootStore();
   const intlStore = useHydratedIntlStore();
-  const openEntity = useOpenPresetRecord();
-  const entityHref = usePresetRecordHref();
   const isWikiEvent = entry.event.startsWith("wiki_page.");
 
   function fieldLabel(field: string): string {
@@ -162,7 +152,7 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
     return value;
   }
 
-  function renderValue(key: string, value: unknown, customColumn?: CustomColumnDto): string | JSX.Element {
+  function renderValue(key: string, value: unknown): string | JSX.Element {
     if (isEmpty(value)) return t("AuditLogModal.noValue");
 
     if (isWikiEvent && key === "kind") {
@@ -210,162 +200,14 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
             onAvatarClick={(user) => runUserAction(() => userModalStore.loadById(user.id))}
           />
         );
-      case "contacts":
-        return (
-          <AvatarStack
-            avatarHref={(contact) => entityHref(EntityType.contact, contact.id)}
-            items={value as AvatarItem[]}
-            onAvatarClick={(contact) => openEntity(EntityType.contact, contact.id)}
-          />
-        );
-      case "organizations":
-        return (
-          <AppChipStack
-            chipHref={(org) => entityHref(EntityType.organization, org.id)}
-            items={(value as { id: string; name: string }[]).map((item) => ({
-              id: item.id,
-              label: item.name,
-            }))}
-            size="sm"
-          />
-        );
-      case "deals":
-        return (
-          <AppChipStack
-            chipHref={(deal) => entityHref(EntityType.deal, deal.id)}
-            items={(value as { id: string; name: string }[]).map((item) => ({
-              id: item.id,
-              label: item.name,
-            }))}
-            size="sm"
-          />
-        );
-      case "services":
-        return (
-          <AppChipStack
-            chipHref={(service) => entityHref(EntityType.service, service.id)}
-            items={(
-              value as {
-                id: string;
-                name: string;
-                quantity?: number;
-                amount?: number;
-              }[]
-            ).map((item) => ({
-              id: item.id,
-              label:
-                typeof item.quantity === "number" && typeof item.amount === "number"
-                  ? `${item.name} · ${intlStore.formatCurrency(item.amount)} × ${intlStore.formatNumber(item.quantity)}`
-                  : item.name,
-            }))}
-            size="sm"
-          />
-        );
-      case "tasks":
-        return (
-          <AppChipStack
-            chipHref={(task) => entityHref(EntityType.task, task.id)}
-            items={(value as { id: string; name: string; type: TaskType }[]).map((task) => {
-              const nameKey = getSystemTaskNameTranslationKey(task.type);
-              const label = nameKey && task.type !== TaskType.custom ? t(nameKey) : task.name;
-              return { id: task.id, label };
-            })}
-            size="sm"
-          />
-        );
       case "firstName":
       case "lastName":
       case "name":
         return String(value);
-      case "totalValue":
-      case "amount":
-        return intlStore.formatCurrency(value as number);
-      case "totalQuantity":
-        return intlStore.formatNumber(value as number);
       case "country":
         return countryLabelForLocale(String(value), locale);
       case "currency":
         return getCurrencyLabel(String(value), locale);
-      case "dealWeightingColumnId":
-        return customColumns.find((candidate) => candidate.id === value)?.label ?? t("AuditLogModal.deletedField");
-      case "dealStageWeights": {
-        const stageOptions = new Map(
-          customColumns.flatMap((candidate) =>
-            candidate.type === CustomColumnType.singleSelect
-              ? (candidate.options?.options ?? []).map((option) => [option.value, option] as const)
-              : [],
-          ),
-        );
-
-        return (
-          <div className="flex flex-wrap items-center gap-1.5">
-            {(value as { optionValue: string; weight?: number }[]).map((stage) => {
-              const option = stageOptions.get(stage.optionValue);
-
-              return (
-                <AppChip
-                  key={stage.optionValue}
-                  endContent={
-                    stage.weight === undefined ? undefined : (
-                      <span className="flex shrink-0 items-center gap-1">
-                        <span className="opacity-60">·</span>
-
-                        <span className="tabular-nums">{stage.weight}%</span>
-                      </span>
-                    )
-                  }
-                  size="sm"
-                  variant={option?.color}
-                >
-                  {option?.label ?? t("AuditLogModal.deletedField")}
-                </AppChip>
-              );
-            })}
-          </div>
-        );
-      }
-      case "options": {
-        const configured = isPlainObject(value) ? value.options : undefined;
-
-        if (!Array.isArray(configured)) return <StructuredValue value={value} />;
-
-        const definitions = configured as {
-          value: string;
-          label: string;
-          color?: ComponentProps<typeof AppChip>["variant"];
-          weight?: number;
-          isDefault?: boolean;
-        }[];
-
-        return (
-          <div className="flex flex-wrap items-center gap-1.5">
-            {definitions.map((definition) => (
-              <AppChip
-                key={definition.value}
-                endContent={
-                  definition.weight === undefined && !definition.isDefault ? undefined : (
-                    <span className="flex shrink-0 items-center gap-1">
-                      <span className="opacity-60">·</span>
-
-                      <span className="tabular-nums">
-                        {definition.weight === undefined
-                          ? t("Common.default")
-                          : definition.isDefault
-                            ? `${definition.weight}% · ${t("Common.default")}`
-                            : `${definition.weight}%`}
-                      </span>
-                    </span>
-                  )
-                }
-                size="sm"
-                variant={definition.color}
-              >
-                {definition.label}
-              </AppChip>
-            ))}
-          </div>
-        );
-      }
       case "changedDocuments":
         return (value as string[]).map((document) => legalDocumentLabel(document)).join(", ");
       case "versions":
@@ -388,28 +230,7 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
         return t.has(`Common.userStatuses.${String(value)}`)
           ? t(`Common.userStatuses.${String(value)}`)
           : String(value);
-      case "type": {
-        if (entry.event.startsWith("custom_column.")) {
-          return t.has(`Common.customColumnTypes.${String(value)}`)
-            ? t(`Common.customColumnTypes.${String(value)}`)
-            : String(value);
-        }
-
-        const systemTaskKey = getSystemTaskNameTranslationKey(value as TaskType);
-        return systemTaskKey ? t(systemTaskKey as never) : String(value);
-      }
       default:
-        if (customColumn) {
-          return (
-            <CustomFieldValue
-              column={customColumn}
-              item={{
-                id: "history",
-                customFieldValues: [{ columnId: customColumn.id, value: value as string }],
-              }}
-            />
-          );
-        }
         if (typeof value === "string" && (ISO_DATE_TIME.test(value) || DATE_ONLY.test(value)))
           return formatDateValue(value);
         if (!isPrimitive(value) && !(Array.isArray(value) && value.every(isPrimitive)))
@@ -419,43 +240,27 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
   }
 
   const authorName = `${entry.actor.firstName} ${entry.actor.lastName}`.trim();
-  const customColumnsById = new Map(customColumns.map((customColumn) => [customColumn.id, customColumn]));
-  const isUninformativeTaskType = (change: { field: string; current: unknown }) =>
-    change.field === "type" && entry.event.startsWith("task.") && change.current === TaskType.custom;
-  const changes = entry.changes
-    .filter((change) => !isUninformativeTaskType(change))
-    .map((change) => {
-      const customColumn = change.columnId !== undefined ? customColumnsById.get(change.columnId) : undefined;
-      return {
-        key: change.field,
-        field:
-          change.columnId !== undefined
-            ? (customColumn?.label ?? t("AuditLogModal.deletedField"))
-            : fieldLabel(change.field),
-        previous: change.previous,
-        current: change.current,
-        customColumn,
-        snapshot: change.snapshot === true,
-      };
-    });
+  const changes = entry.changes.map((change) => ({
+    key: change.field,
+    field: fieldLabel(change.field),
+    previous: change.previous,
+    current: change.current,
+    snapshot: change.snapshot === true,
+  }));
 
   function renderChangeRow(change: (typeof changes)[number]): ReactNode {
-    if (change.snapshot)
-      return <div className="min-w-0 break-words">{renderValue(change.key, change.current, change.customColumn)}</div>;
+    if (change.snapshot) return <div className="min-w-0 break-words">{renderValue(change.key, change.current)}</div>;
 
     if (change.key === "notes" || change.key === "markdown")
       return <NotesDiff current={change.current} previous={change.previous} />;
 
-    if (change.key === "customFieldValues" && !change.customColumn)
-      return <p className="text-subdued italic">{t("AuditLogModal.deletedFieldChanged")}</p>;
-
     return (
       <div className="flex flex-wrap items-center gap-2">
-        <div className="min-w-0 text-subdued">{renderValue(change.key, change.previous, change.customColumn)}</div>
+        <div className="min-w-0 text-subdued">{renderValue(change.key, change.previous)}</div>
 
         <Icon className="text-subdued shrink-0 self-center" icon={ArrowRight} size="sm" />
 
-        <div className="min-w-0">{renderValue(change.key, change.current, change.customColumn)}</div>
+        <div className="min-w-0">{renderValue(change.key, change.current)}</div>
       </div>
     );
   }
@@ -472,10 +277,7 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
     )
       return null;
 
-    if (
-      !change.snapshot &&
-      ["users", "contacts", "organizations", "deals", "services", "tasks", "identifiers"].includes(change.key)
-    ) {
+    if (!change.snapshot && ["users", "identifiers"].includes(change.key)) {
       const { added, removed } = partitionRelationIds(change.previous, change.current);
       if (added.length === 0 && removed.length === 0) return null;
 
@@ -487,7 +289,7 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
                 field: change.field,
               })}
             >
-              {renderValue(change.key, removed, change.customColumn)}
+              {renderValue(change.key, removed)}
             </ChangeRow>
           )}
 
@@ -497,7 +299,7 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
                 field: change.field,
               })}
             >
-              {renderValue(change.key, added, change.customColumn)}
+              {renderValue(change.key, added)}
             </ChangeRow>
           )}
         </Fragment>

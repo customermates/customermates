@@ -6,7 +6,6 @@ import type { WebhookEventPayload } from "@/features/webhook/webhook-event-paylo
 import type { WikiPageDto } from "@/features/wiki/wiki.schema";
 
 import type { CountryCode, Currency, MessagingProvider, Status } from "@/generated/prisma";
-import type { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 export enum DomainEvent {
   USER_REGISTERED = "user.registered",
@@ -341,7 +340,7 @@ export type DomainEventMap = {
     companyId: string;
     entityId: string;
     payload: {
-      entityType: EntityType;
+      typeId: string;
       rowCount: number;
       truncated: boolean;
       scope: "selection" | "view";

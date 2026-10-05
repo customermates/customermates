@@ -1,19 +1,6 @@
 import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
-import { TaskType } from "@/features/records/history/v1/legacy-enums";
-
-export const NotesSchema = z
-  .any()
-  .nullish()
-  .describe(
-    "Markdown content. Writing this REPLACES the record's existing notes; read them first, or use update_record_notes to append without losing what is there.",
-  );
-
-export const OrganizationReferenceSchema = z.object({
-  id: z.uuid(),
-  name: z.string(),
-});
 
 export const UserReferenceSchema = z.object({
   id: z.uuid(),
@@ -23,43 +10,8 @@ export const UserReferenceSchema = z.object({
   email: z.email(),
 });
 
-export const DealReferenceSchema = z.object({
-  id: z.uuid(),
-  name: z.string(),
-});
-
-export const ContactReferenceSchema = z.object({
-  id: z.uuid(),
-  firstName: z.string(),
-  lastName: z.string(),
-  avatarUrl: z.string().nullable(),
-});
-export type ContactReference = z.infer<typeof ContactReferenceSchema>;
-
-export const ServiceReferenceSchema = z.object({
-  id: z.uuid(),
-  name: z.string(),
-  amount: z.number(),
-  quantity: z.number(),
-});
-
-export const TaskReferenceSchema = z.object({
-  id: z.uuid(),
-  name: z.string(),
-  type: z.enum(TaskType),
-});
-
 export const CustomFieldValueSchema = z.object({
   columnId: z.uuid(),
   value: z.string().nullish(),
 });
 export type CustomFieldValueDto = Data<typeof CustomFieldValueSchema>;
-
-export const CustomFieldValueInputSchema = CustomFieldValueSchema.extend({
-  value: z.coerce
-    .string()
-    .nullish()
-    .describe(
-      'Column value. Stored as a string; currency columns also accept a raw number. Pass money as a plain number or number string like "1500" or "12.50" (dot decimal, no thousands separators).',
-    ),
-});

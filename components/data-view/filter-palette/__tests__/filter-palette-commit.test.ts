@@ -9,7 +9,6 @@ import { hasValidFilterConfiguration } from "@/components/data-view/table-view.u
 import { GetQueryParamsApiSchema } from "@/core/base/base-get.schema";
 import { defaultValidateFilters, FilterOperatorKey } from "@/core/base/base-query-builder";
 import { CustomColumnType } from "@/core/data-view/column-presentation.types";
-import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 import { FILTER_AUTO_APPLY_DELAY_MS, FilterPaletteStore, MAX_APPLIED_FILTERS } from "../filter-palette.store";
 
@@ -63,7 +62,7 @@ const CUSTOM_COLUMNS = [
   {
     id: CURRENCY_COLUMN,
     label: "Budget",
-    entityType: EntityType.deal,
+    entityType: "deal",
     type: CustomColumnType.currency,
   },
 ] as unknown as CustomColumnDto[];

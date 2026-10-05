@@ -9,7 +9,6 @@ import { FilterOperatorKey, isStandaloneOperator } from "@/core/base/base-query-
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 import { CustomColumnType } from "@/core/data-view/column-presentation.types";
-import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 import { PALETTE_OPERATOR_PREFERENCE, palettePlan } from "../palette-field-plan";
 
@@ -75,7 +74,7 @@ const CUSTOM_COLUMNS = Object.entries(CUSTOM_COLUMN_IDS).map(
     ({
       id,
       label: type,
-      entityType: EntityType.contact,
+      entityType: "contact",
       type: type as CustomColumnType,
       options: [],
     }) as unknown as CustomColumnDto,

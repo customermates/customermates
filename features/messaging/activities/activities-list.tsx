@@ -1,6 +1,5 @@
 "use client";
 
-import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 import type { ActivityEntryDto } from "@/ee/messaging/activities/activities.schema";
 import type { ReactNode } from "react";
 
@@ -9,7 +8,6 @@ import { ArrowLeft, ArrowRight, Calendar as CalendarIcon, Clock, Plus } from "lu
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
-import { auditChangeLabel } from "@/components/entity-detail/audit-event-tone";
 import { useCanonicalColumnLabel } from "@/components/data-view/use-column-label";
 import { Icon } from "@/components/shared/icon";
 import { Button } from "@/components/ui/button";
@@ -35,18 +33,16 @@ import {
 
 type Props = {
   items: ActivityEntryDto[];
-  customColumns: CustomColumnDto[];
   hasMore: boolean;
   loading: boolean;
   onLoadOlder: () => void;
 };
 
-export const ActivitiesList = observer(({ customColumns, hasMore, items, loading, onLoadOlder }: Props) => {
+export const ActivitiesList = observer(({ hasMore, items, loading, onLoadOlder }: Props) => {
   const t = useTranslations();
   const columnLabel = useCanonicalColumnLabel();
   const { timelineDetailModalStore } = useRootStore();
   const intlStore = useHydratedIntlStore();
-  const customColumnsById = new Map(customColumns.map((c) => [c.id, c]));
 
   return (
     <>
@@ -248,9 +244,7 @@ export const ActivitiesList = observer(({ customColumns, hasMore, items, loading
 
           const actorName = resolveActorName(entry.actor.firstName, entry.actor.lastName, entry.actor.email);
           const isRecordSnapshot = !entry.event.endsWith(".created") && entry.changes.some((c) => c.snapshot);
-          const fields = isRecordSnapshot
-            ? ""
-            : formatFieldList(entry.changes.map((c) => auditChangeLabel(c, customColumnsById, t, columnLabel)));
+          const fields = isRecordSnapshot ? "" : formatFieldList(entry.changes.map((c) => columnLabel(c.field)));
           const category = auditCategory(entry.event);
 
           return (
@@ -270,7 +264,7 @@ export const ActivitiesList = observer(({ customColumns, hasMore, items, loading
               subtitle={fields || t(`Common.events.${entry.event}`)}
               time={time}
               title={actorName}
-              onClick={() => timelineDetailModalStore.openWith({ entry, customColumns })}
+              onClick={() => timelineDetailModalStore.openWith({ entry })}
             />
           );
         })}

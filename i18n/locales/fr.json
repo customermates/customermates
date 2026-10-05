@@ -801,8 +801,6 @@
   },
   "AuditLogModal": {
     "createdAt": "Créé le",
-    "deletedField": "Champ supprimé",
-    "deletedFieldChanged": "Valeur modifiée sur un champ supprimé depuis.",
     "entity": "Élément",
     "entityId": "ID de l'élément",
     "event": "Évènement",
@@ -940,18 +938,6 @@
     },
     "company": "Entreprise",
     "creditsBelowMinimum": "< {amount}",
-    "customColumnTypes": {
-      "currency": "Devise",
-      "date": "Date",
-      "dateRange": "Plage de dates",
-      "dateTime": "Date et heure",
-      "dateTimeRange": "Plage de dates et heures",
-      "email": "E-mail",
-      "link": "Lien",
-      "phone": "Téléphone",
-      "plain": "Texte",
-      "singleSelect": "Choix unique"
-    },
     "dateBuckets": {
       "day": "Jour",
       "earlier": "Plus tôt",
@@ -971,7 +957,6 @@
       "thisMonth": "Ce mois-ci",
       "today": "Aujourd'hui"
     },
-    "default": "Par défaut",
     "defaultData": {
       "contact": {
         "columnLabel": "Pipeline commercial",
@@ -1474,8 +1459,7 @@
     "stageProbability": "Probabilité de l'étape",
     "systemTasks": {
       "userPendingAuthorization": {
-        "alert": "Il s'agit d'une tâche système qui ne peut pas être supprimée manuellement. Approuvez l'utilisateur dans les <link>paramètres de l'entreprise</link> pour résoudre cette tâche.",
-        "title": "Approuver l'utilisateur"
+        "alert": "Il s'agit d'une tâche système qui ne peut pas être supprimée manuellement. Approuvez l'utilisateur dans les <link>paramètres de l'entreprise</link> pour résoudre cette tâche."
       }
     },
     "table": {

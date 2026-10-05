@@ -4941,9 +4941,6 @@
                                     "field": {
                                       "type": "string"
                                     },
-                                    "columnId": {
-                                      "type": "string"
-                                    },
                                     "snapshot": {
                                       "type": "boolean"
                                     },
@@ -19286,9 +19283,6 @@
                                                 "field": {
                                                   "type": "string"
                                                 },
-                                                "columnId": {
-                                                  "type": "string"
-                                                },
                                                 "snapshot": {
                                                   "type": "boolean"
                                                 },
@@ -27747,9 +27741,6 @@
                                                 "field": {
                                                   "type": "string"
                                                 },
-                                                "columnId": {
-                                                  "type": "string"
-                                                },
                                                 "snapshot": {
                                                   "type": "boolean"
                                                 },
@@ -36202,9 +36193,6 @@
                                                     "type": "object",
                                                     "properties": {
                                                       "field": {
-                                                        "type": "string"
-                                                      },
-                                                      "columnId": {
                                                         "type": "string"
                                                       },
                                                       "snapshot": {

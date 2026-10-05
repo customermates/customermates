@@ -255,7 +255,7 @@ export const TimelineDetailModal = observer(() => {
   const intlStore = useHydratedIntlStore();
   const t = useTranslations();
   const { isOpen } = store;
-  const { entry, customColumns } = store.form;
+  const { entry } = store.form;
 
   const title = !entry
     ? ""
@@ -322,7 +322,7 @@ export const TimelineDetailModal = observer(() => {
 
       {entry?.kind === "activity" && <ActivityDetail entry={entry} />}
 
-      {entry?.kind === "audit" && <AuditDetail customColumns={customColumns} entry={entry} />}
+      {entry?.kind === "audit" && <AuditDetail entry={entry} />}
 
       {entry?.kind === "record" && <RecordAuditDetail entry={entry} />}
     </AppModal>

@@ -3,7 +3,6 @@ import type { WidgetDto } from "@/features/widget/widget.schema";
 import type { ReactElement, ReactNode } from "react";
 
 import { WidgetKind } from "@/generated/prisma";
-import { EntityType } from "@/features/records/history/v1/legacy-enums";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -94,7 +93,7 @@ function renderDashboard(
   };
   const widgetModalStore = {
     add: harness.add,
-    availableEntityTypes: options.canAdd === false ? [] : [EntityType.contact],
+    availableEntityTypes: options.canAdd === false ? [] : ["contact"],
     availableKinds: options.canAdd === false ? [] : [WidgetKind.chart],
     loadById: vi.fn(),
     setExpandedFilterField: vi.fn(),

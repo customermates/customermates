@@ -12,7 +12,6 @@ import { describe, expect, it, vi } from "vitest";
 
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { CustomColumnType } from "@/core/data-view/column-presentation.types";
-import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 const harness = vi.hoisted(() => ({ palette: { current: null as unknown } }));
 
@@ -139,7 +138,7 @@ const CUSTOM_COLUMNS = [
   {
     id: CURRENCY_COLUMN,
     label: "Budget",
-    entityType: EntityType.deal,
+    entityType: "deal",
     type: CustomColumnType.currency,
   },
 ] as unknown as CustomColumnDto[];

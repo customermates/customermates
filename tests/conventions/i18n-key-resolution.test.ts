@@ -43,8 +43,6 @@ import {
   WebhookDeliveryStatus,
   WidgetKind,
 } from "@/generated/prisma";
-import { CustomColumnType } from "@/core/data-view/column-presentation.types";
-import { TaskType } from "@/features/records/history/v1/legacy-enums";
 import { ROUTING_LOCALES } from "@/i18n/locale-registry";
 import { WIKI_PAGE_KINDS } from "@/features/wiki/wiki.schema";
 
@@ -145,7 +143,6 @@ const DATE_BUCKET_KEYS = [
   "Common.dateBuckets.month",
   "Common.dateBuckets.week",
 ] as const;
-const TASK_TYPE_KEYS = Object.values(TaskType).map((type) => `Common.taskTypes.${type}`);
 const WIKI_PAGE_KIND_KEYS = WIKI_PAGE_KINDS.map((kind) => `Wiki.kind.${kind}`);
 const DATE_PRESET_KEYS = [
   "Common.datePresets.endTime",
@@ -316,9 +313,6 @@ const LOCALE_KEYS = [...ROUTING_LOCALES, "system"].map((locale) => `Common.local
 const THEME_KEYS = Object.values(Theme).map((theme) => `Common.themes.${theme}`);
 const FILTER_OPERATOR_KEYS = Object.values(FilterOperatorKey).map((operator) => `Common.filters.operators.${operator}`);
 const COLOR_KEYS = CHIP_COLORS.map((color) => `Common.colors.${color}`);
-const CUSTOM_COLUMN_TYPE_KEYS = Object.values(CustomColumnType).map(
-  (columnType) => `Common.customColumnTypes.${columnType}`,
-);
 const LAST_MESSAGE_DIRECTION_KEYS = Object.values(MessagingMessageDirection).map(
   (direction) => `Inbox.lastMessageDirections.${direction}`,
 );
@@ -532,7 +526,6 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["AuditLogModal.fields.${*}", AUDIT_FIELD_KEYS],
   ["AuthSocialErrors.${*}", AUTH_SOCIAL_ERROR_KEYS],
   ["Common.colors.${*}", COLOR_KEYS],
-  ["Common.customColumnTypes.${*}", CUSTOM_COLUMN_TYPE_KEYS],
   ["Common.dateBuckets.${*}", DATE_BUCKET_KEYS],
   ["Common.datePresets.${*}", DATE_PRESET_KEYS],
   ["Common.defaultData.${*}.columnLabel", DEFAULT_DATA_COLUMN_KEYS],
@@ -818,14 +811,12 @@ export const DYNAMIC_KEY_SITES = [
   "features/messaging/activities/activities-list.tsx :: t :: Common.providers.${ev.provider}",
   "features/messaging/activities/activities-list.tsx :: t :: Common.providers.${message.provider}",
   "features/messaging/activities/audit-detail.tsx :: t :: AccountRemovalReason.${String(value)}",
-  "features/messaging/activities/audit-detail.tsx :: t :: Common.customColumnTypes.${String(value)}",
   "features/messaging/activities/audit-detail.tsx :: t :: Common.events.${entry.event}",
   "features/messaging/activities/audit-detail.tsx :: t :: Wiki.kind.${kind.data}",
   "features/messaging/activities/audit-detail.tsx :: t :: Common.providers.${String(value)}",
   "features/messaging/activities/audit-detail.tsx :: t :: Common.userStatuses.${String(value)}",
   "features/messaging/activities/audit-detail.tsx :: t :: LegalDocumentNotice.documents.${document}",
   "features/messaging/activities/audit-detail.tsx :: t.has :: AccountRemovalReason.${String(value)}",
-  "features/messaging/activities/audit-detail.tsx :: t.has :: Common.customColumnTypes.${String(value)}",
   "features/messaging/activities/audit-detail.tsx :: t.has :: Common.providers.${String(value)}",
   "features/messaging/activities/audit-detail.tsx :: t.has :: Common.userStatuses.${String(value)}",
   "features/messaging/activities/audit-detail.tsx :: t.has :: LegalDocumentNotice.documents.${document}",
@@ -908,8 +899,6 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
     "features/messaging/activities/activities-list.tsx :: t :: PREVIEW_KIND_LABEL[classifyAttachment(firstAttachment)]",
     1,
   ],
-  ["features/messaging/activities/audit-detail.tsx :: t :: nameKey", 1],
-  ["features/messaging/activities/audit-detail.tsx :: t :: systemTaskKey as never", 1],
   [
     'features/messaging/activities/record-audit-detail.tsx :: t :: side === "before" ? "RecordModel.previousValue" : "RecordModel.currentValue"',
     1,

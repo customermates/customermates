@@ -801,8 +801,6 @@
   },
   "AuditLogModal": {
     "createdAt": "Creato il",
-    "deletedField": "Campo eliminato",
-    "deletedFieldChanged": "Valore modificato su un campo che nel frattempo è stato eliminato.",
     "entity": "Elemento",
     "entityId": "ID dell'elemento",
     "event": "Evento",
@@ -940,18 +938,6 @@
     },
     "company": "Azienda",
     "creditsBelowMinimum": "<{amount}",
-    "customColumnTypes": {
-      "currency": "Valuta",
-      "date": "Data",
-      "dateRange": "Intervallo di date",
-      "dateTime": "Data e ora",
-      "dateTimeRange": "Intervallo di data e ora",
-      "email": "E-mail",
-      "link": "Link",
-      "phone": "Telefono",
-      "plain": "Testo",
-      "singleSelect": "Scelta singola"
-    },
     "dateBuckets": {
       "day": "Giorno",
       "earlier": "Precedente",
@@ -971,7 +957,6 @@
       "thisMonth": "Questo mese",
       "today": "Oggi"
     },
-    "default": "Predefinito",
     "defaultData": {
       "contact": {
         "columnLabel": "Pipeline di vendita",
@@ -1474,8 +1459,7 @@
     "stageProbability": "Probabilità della fase",
     "systemTasks": {
       "userPendingAuthorization": {
-        "alert": "Questa è un'attività di sistema che non può essere eliminata manualmente. Approva l'utente nelle <link>impostazioni dell'azienda</link> per risolverla.",
-        "title": "Approva l'utente"
+        "alert": "Questa è un'attività di sistema che non può essere eliminata manualmente. Approva l'utente nelle <link>impostazioni dell'azienda</link> per risolverla."
       }
     },
     "table": {

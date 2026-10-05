@@ -11,7 +11,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { CustomColumnType } from "@/core/data-view/column-presentation.types";
-import { EntityType } from "@/features/records/history/v1/legacy-enums";
 
 const harness = vi.hoisted(() => ({ palette: { current: null as unknown } }));
 
@@ -119,19 +118,19 @@ const CUSTOM_COLUMNS = [
   {
     id: RANGE_COLUMN,
     label: "Project period",
-    entityType: EntityType.deal,
+    entityType: "deal",
     type: CustomColumnType.dateRange,
   },
   {
     id: FIRST_STAGE_COLUMN,
     label: "Stage",
-    entityType: EntityType.deal,
+    entityType: "deal",
     type: CustomColumnType.singleSelect,
   },
   {
     id: SECOND_STAGE_COLUMN,
     label: "Stage",
-    entityType: EntityType.deal,
+    entityType: "deal",
     type: CustomColumnType.singleSelect,
   },
 ] as unknown as CustomColumnDto[];

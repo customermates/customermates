@@ -50,7 +50,7 @@ function renderDetail(changes: AuditChange[], event: DomainEvent = DomainEvent.W
     changes,
     records: { primary: null, related: [], relatedOverflow: 0 },
   };
-  return renderToStaticMarkup(createElement(AuditDetail, { customColumns: [], entry }));
+  return renderToStaticMarkup(createElement(AuditDetail, { entry }));
 }
 
 describe("Wiki activity detail", () => {

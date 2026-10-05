@@ -801,8 +801,6 @@
   },
   "AuditLogModal": {
     "createdAt": "Erstellt am",
-    "deletedField": "Gelöschtes Feld",
-    "deletedFieldChanged": "Ein Feld wurde geändert, das inzwischen gelöscht wurde.",
     "entity": "Element",
     "entityId": "Element-ID",
     "event": "Ereignis",
@@ -940,18 +938,6 @@
     },
     "company": "Unternehmen",
     "creditsBelowMinimum": "<{amount}",
-    "customColumnTypes": {
-      "currency": "Währung",
-      "date": "Datum",
-      "dateRange": "Datumsbereich",
-      "dateTime": "Datum & Uhrzeit",
-      "dateTimeRange": "Datums- und Uhrzeitbereich",
-      "email": "E-Mail",
-      "link": "Link",
-      "phone": "Telefon",
-      "plain": "Text",
-      "singleSelect": "Einzelauswahl"
-    },
     "dateBuckets": {
       "day": "Tag",
       "earlier": "Früher",
@@ -971,7 +957,6 @@
       "thisMonth": "Diesen Monat",
       "today": "Heute"
     },
-    "default": "Standard",
     "defaultData": {
       "contact": {
         "columnLabel": "Vertriebsphase",
@@ -1474,8 +1459,7 @@
     "stageProbability": "Phasenwahrscheinlichkeit",
     "systemTasks": {
       "userPendingAuthorization": {
-        "alert": "Dies ist eine Systemaufgabe, die nicht manuell gelöscht werden kann. Genehmige den Benutzer in den <link>Unternehmenseinstellungen</link>, um diese Aufgabe zu lösen.",
-        "title": "Benutzer genehmigen"
+        "alert": "Dies ist eine Systemaufgabe, die nicht manuell gelöscht werden kann. Genehmige den Benutzer in den <link>Unternehmenseinstellungen</link>, um diese Aufgabe zu lösen."
       }
     },
     "table": {

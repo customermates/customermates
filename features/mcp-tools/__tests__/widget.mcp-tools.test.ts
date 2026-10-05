@@ -38,7 +38,6 @@ vi.mock("@/core/di", () => ({
 }));
 
 import { WidgetKind } from "@/generated/prisma";
-import { AggregationType, EntityType } from "@/features/records/history/v1/legacy-enums";
 import type { RecordWidgetDto } from "@/features/widget/record-widget.schema";
 import { RecordMeasureSchema } from "@/features/records/record-measure.schema";
 import { DisplayType } from "@/features/widget/widget.schema";
@@ -234,7 +233,7 @@ describe("manage_widgets create", () => {
         action: "create",
         kind: WidgetKind.activityTimeline,
         name: "Recent activity",
-        entityType: EntityType.contact,
+        entityType: "contact",
       }),
     ).toContain("Validation error:");
     expect(spies.upsertWidget).not.toHaveBeenCalled();
@@ -369,7 +368,7 @@ describe("manage_widgets update", () => {
       await run({
         action: "update",
         id: WIDGET_ID,
-        aggregationType: AggregationType.count,
+        aggregationType: "count",
       }),
     ).toContain("Validation error:");
     expect(spies.upsertWidget).not.toHaveBeenCalled();

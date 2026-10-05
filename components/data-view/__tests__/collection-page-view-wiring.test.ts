@@ -1,7 +1,6 @@
 import type { ReactElement, ReactNode } from "react";
 
 import { ViewMode } from "@/core/base/base-query-builder";
-import type { EntityType } from "@/features/records/history/v1/legacy-enums";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -45,7 +44,7 @@ vi.mock("@/components/data-view/use-data-view-sync", () => ({
 }));
 
 vi.mock("@/components/records/use-record-href", () => ({
-  usePresetRecordHref: () => (entityType: EntityType, id: string) => `/${entityType}/${id}`,
+  usePresetRecordHref: () => (entityType: string, id: string) => `/${entityType}/${id}`,
   useOpenPresetRecord: () => harness.openEntity,
 }));
 
