@@ -8,7 +8,7 @@ vi.mock("ai", async (importOriginal) => ({ ...(await importOriginal<typeof ai>()
 import type { AgentModelEntry } from "@/ee/agent-chat/model-catalog";
 
 import { env } from "@/env";
-import { INITIAL_WIKI_SYNTHESIS_MODEL, SHIPPED_AGENT_MODEL } from "@/ee/agent-chat/model-catalog";
+import { INITIAL_WIKI_SYNTHESIS_MODEL, SHIPPED_AGENT_MODEL, WIKI_SYNTHESIS_MODEL } from "@/ee/agent-chat/model-catalog";
 import { computeCostMicrocents } from "@/ee/agent-chat/model-pricing";
 
 import { generateWikiSynthesisObject, wikiSynthesisWorstCaseMicrocents } from "../wiki-synthesis-model";
@@ -58,7 +58,23 @@ describe("generateWikiSynthesisObject", () => {
       servingProvider: "ovh",
       inferenceRegion: "eu",
       maxOutputTokens: 16_384,
+      reasoningEffort: "low",
     });
+    expect(WIKI_SYNTHESIS_MODEL).toMatchObject({ modelId: SHIPPED_AGENT_MODEL.modelId, reasoningEffort: "low" });
+    expect(SHIPPED_AGENT_MODEL).not.toHaveProperty("reasoningEffort");
+  });
+
+  it("sends the import model's reasoning effort with the request", async () => {
+    provider.generate.mockResolvedValue({
+      output: { title: "Pricing" },
+      usage: { inputTokens: 10, outputTokens: 5 },
+      providerMetadata: undefined,
+    });
+    await call();
+    expect(provider.generate).toHaveBeenCalledWith(expect.objectContaining({ reasoning: "low" }));
+    provider.generate.mockClear();
+    await call(GATEWAY_IMPORT_MODEL);
+    expect(provider.generate.mock.calls[0][0]).not.toHaveProperty("reasoning");
   });
 
   it.each([400, 401, 403, 404, 422, 429])(

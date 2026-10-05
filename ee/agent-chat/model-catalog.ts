@@ -26,8 +26,15 @@ export const SHIPPED_AGENT_MODEL = {
 
 assertServableEntry(SHIPPED_AGENT_MODEL_KEY, SHIPPED_AGENT_MODEL);
 
-export const INITIAL_WIKI_SYNTHESIS_MODEL = {
+export const WIKI_SYNTHESIS_MODEL = {
   ...SHIPPED_AGENT_MODEL,
+  reasoningEffort: "low",
+} as const satisfies AgentModelEntry;
+
+assertServableEntry("Knowledge Base synthesis", WIKI_SYNTHESIS_MODEL);
+
+export const INITIAL_WIKI_SYNTHESIS_MODEL = {
+  ...WIKI_SYNTHESIS_MODEL,
   maxOutputTokens: 16_384,
 } as const satisfies AgentModelEntry;
 

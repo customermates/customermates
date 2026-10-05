@@ -15,7 +15,7 @@ import { computeCostMicrocents } from "@/ee/agent-chat/model-pricing";
 import { resolveAgentLanguageModel } from "@/ee/agent-chat/ovh-ai-endpoints";
 import { agentServingProviderUsesGateway } from "@/ee/agent-chat/ovh-ai-endpoints-catalog";
 
-const TIMEOUT_MS = 90_000;
+const TIMEOUT_MS = 180_000;
 
 function promptTokens(system: string, prompt: string) {
   return (
@@ -123,6 +123,7 @@ export async function generateWikiSynthesisObject<T>(args: {
       prompt: args.prompt,
       output: Output.object({ schema: args.schema }),
       maxOutputTokens: args.model.maxOutputTokens,
+      ...(args.model.reasoningEffort ? { reasoning: args.model.reasoningEffort } : {}),
       maxRetries: 0,
       abortSignal: AbortSignal.timeout(TIMEOUT_MS),
       providerOptions: {

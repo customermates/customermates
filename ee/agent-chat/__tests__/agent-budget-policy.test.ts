@@ -66,7 +66,7 @@ describe("agent turn credit budget", () => {
 
     expect(model.maxOutputTokens).toBe(16_384);
     expect(model.modelId).toBe(SHIPPED_AGENT_MODEL.modelId);
-    expect(model).not.toHaveProperty("reasoningEffort");
+    expect(model).toHaveProperty("reasoningEffort", "low");
     expect(model).not.toHaveProperty("thinkingLevel");
     expect(perRound).toBe(9_996_996);
     expect(resolveAgentTurnBudget({ model, availableMicrocents: perRound - 1 })).toBeNull();
