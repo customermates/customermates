@@ -4,6 +4,7 @@ import type { Redirect } from "./auth-outcome";
 import type { TenantUser } from "@/features/user/user.schema";
 import type { GetLegalStatusInteractor, LegalUpdateStatus } from "@/features/legal/get-legal-status.interactor";
 import type { AccountState } from "./account-state";
+import type { RouteGuardCompanyRepo } from "./route-guard-company.repo";
 
 import { Action, Status } from "@/generated/prisma";
 
@@ -20,11 +21,6 @@ const READ_ACTIONS: readonly Action[] = [Action.readOwn, Action.readAll];
 export type AccessOptions = {
   resource?: Resource;
 };
-
-export abstract class RouteGuardCompanyRepo {
-  abstract existsUnscoped(companyId: string): Promise<boolean>;
-  abstract getSubscriptionOrThrowUnscoped(companyId: string): Promise<Subscription>;
-}
 
 export type AccountStateResolution = {
   state: AccountState;

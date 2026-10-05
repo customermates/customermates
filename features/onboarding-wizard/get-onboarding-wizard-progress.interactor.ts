@@ -2,6 +2,7 @@ import type { RouteGuardService } from "@/features/auth/route-guard.service";
 import type { AuthService } from "@/features/auth/auth.service";
 import type { Redirect } from "@/features/auth/auth-outcome";
 import type { OnboardingWizardProgress } from "./onboarding-wizard-progress.schema";
+import type { GetOnboardingWizardProgressRepo } from "./get-onboarding-wizard-progress.repo";
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
@@ -9,10 +10,6 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { accountStateRedirect } from "@/features/auth/account-state";
 import { redirectTo } from "@/features/auth/auth-outcome";
 import { readOnboardingWizardProgress } from "./onboarding-wizard-progress.schema";
-
-export abstract class GetOnboardingWizardProgressRepo {
-  abstract findOnboardingWizardProgressOrThrow(): Promise<unknown>;
-}
 
 @AllowInDemoMode
 @SystemInteractor

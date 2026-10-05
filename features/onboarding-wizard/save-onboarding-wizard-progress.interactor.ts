@@ -3,6 +3,7 @@ import type { AuthService } from "@/features/auth/auth.service";
 import type { Redirect } from "@/features/auth/auth-outcome";
 import type { Validated } from "@/core/validation/validation.utils";
 import type { OnboardingWizardProgress } from "./onboarding-wizard-progress.schema";
+import type { SaveOnboardingWizardProgressRepo } from "./save-onboarding-wizard-progress.repo";
 
 import { z } from "zod";
 
@@ -20,10 +21,6 @@ const Schema = z.strictObject({
   progress: OnboardingWizardProgressSchema,
 });
 export type SaveOnboardingWizardProgressData = z.infer<typeof Schema>;
-
-export abstract class SaveOnboardingWizardProgressRepo {
-  abstract saveOnboardingWizardProgress(progress: OnboardingWizardProgress): Promise<boolean>;
-}
 
 @SystemInteractor
 export class SaveOnboardingWizardProgressInteractor {

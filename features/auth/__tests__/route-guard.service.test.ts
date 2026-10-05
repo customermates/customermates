@@ -1,7 +1,8 @@
 import type { TenantUser } from "@/features/user/user.schema";
 import type { AuthService } from "../auth.service";
 import type { FindUserRepo } from "../../user/user.service";
-import type { AccessOptions, RouteGuardCompanyRepo } from "../route-guard.service";
+import type { RouteGuardCompanyRepo } from "../route-guard-company.repo";
+import type { AccessOptions } from "../route-guard.service";
 import type { GetLegalStatusInteractor } from "@/features/legal/get-legal-status.interactor";
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
