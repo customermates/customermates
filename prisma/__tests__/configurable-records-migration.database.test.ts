@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import { Client } from "pg";
@@ -127,6 +127,191 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
   afterAll(async () => {
     for (const database of databases) await database.close();
   }, 120000);
+
+  it("the read-only pre-deploy inventory predicts disabling and scheduled configuration cleanup", async () => {
+    const { client } = await legacyDatabase();
+    const f = await populateLegacyWorkspace(client);
+    const empty = await addEmptyLegacyStates(client, f);
+    const schedule = {
+      ownerUserId: f.admin.id,
+      companyId: f.companyId,
+      prompt: "Inspect.",
+      triggerKind: "schedule",
+      cronExpression: "0 9 * * *",
+    };
+    const watched = await f.db.routine.create({
+      data: {
+        ...schedule,
+        name: "Watched fields only",
+        triggerEvents: ["messaging.message.received"],
+        changedFields: ["subject"],
+        triggerFilters: [{ field: "subject", operator: "isNotNull" }],
+      },
+    });
+    const untouched = await f.db.routine.create({
+      data: {
+        ...schedule,
+        name: "Unchanged schedule",
+        triggerEvents: ["messaging.message.received"],
+        changedFields: [],
+        triggerFilters: [],
+      },
+    });
+    const messaging = await f.db.routine.create({
+      data: {
+        companyId: f.companyId,
+        ownerUserId: f.admin.id,
+        name: "Message event",
+        prompt: "Inspect.",
+        triggerKind: "event",
+        triggerEvents: ["messaging.message.received"],
+        changedFields: [],
+        triggerFilters: [],
+      },
+    });
+    const sanitized = await f.db.webhook.create({
+      data: {
+        companyId: f.companyId,
+        url: "http://127.0.0.1/disabled",
+        enabled: false,
+        events: [],
+      },
+    });
+    const readme = await readFile(resolve("prisma/migrations", CONFIGURABLE_RECORDS_MIGRATION, "README.md"), "utf8");
+    const query = /```sql\n([\s\S]*?)\n```/.exec(readme)?.[1];
+    expect(query).toBeDefined();
+    if (!query) throw new Error("The pre-deploy inventory must contain a SQL query.");
+    type Prediction = {
+      kind: "Routine" | "Webhook";
+      companyId: string;
+      id: string;
+      enabled_before: boolean;
+      enabled_after: boolean;
+      disabled_by_upgrade: boolean;
+      legacy_events_removed: string[];
+      watched_fields_removed: string[];
+      filters_cleared: boolean;
+      state_changes: boolean;
+    };
+    await client.query("BEGIN READ ONLY");
+    const predictions = await rows<Prediction>(client, query);
+    await client.query("ROLLBACK");
+    expect(predictions.map((p) => p.id).sort()).toEqual(
+      [f.routine, f.webhook, empty.scheduled, watched.id, messaging.id, sanitized.id].sort(),
+    );
+    const predicted = (id: string) => predictions.find((p) => p.id === id);
+    expect(predicted(empty.scheduled)).toMatchObject({
+      kind: "Routine",
+      enabled_before: true,
+      enabled_after: true,
+      disabled_by_upgrade: false,
+      legacy_events_removed: ["deal.created"],
+      watched_fields_removed: ["name"],
+      filters_cleared: false,
+      state_changes: true,
+    });
+    expect(predicted(watched.id)).toMatchObject({
+      kind: "Routine",
+      enabled_before: true,
+      enabled_after: true,
+      disabled_by_upgrade: false,
+      legacy_events_removed: [],
+      watched_fields_removed: ["subject"],
+      filters_cleared: false,
+      state_changes: true,
+    });
+    expect(predicted(messaging.id)).toMatchObject({
+      kind: "Routine",
+      enabled_before: true,
+      enabled_after: false,
+      disabled_by_upgrade: true,
+      legacy_events_removed: [],
+      watched_fields_removed: [],
+      filters_cleared: false,
+      state_changes: true,
+    });
+    expect(predicted(sanitized.id)).toMatchObject({
+      kind: "Webhook",
+      enabled_before: false,
+      enabled_after: false,
+      disabled_by_upgrade: true,
+      legacy_events_removed: [],
+      watched_fields_removed: [],
+      filters_cleared: false,
+      state_changes: false,
+    });
+    expect(predicted(f.routine)).toMatchObject({
+      filters_cleared: true,
+      state_changes: true,
+    });
+    const before = {
+      webhooks: await rows<{ id: string; enabled: boolean; events: string[] }>(
+        client,
+        'SELECT id, enabled, events FROM "Webhook"',
+      ),
+      routines: await rows<{
+        id: string;
+        enabled: boolean;
+        triggerEvents: string[];
+        triggerFilters: unknown;
+        changedFields: string[];
+      }>(client, 'SELECT id, enabled, "triggerEvents", "triggerFilters", "changedFields" FROM "Routine"'),
+    };
+    await applyConfigurableRecordsMigration(client);
+    const after = {
+      webhooks: await rows<{ id: string; enabled: boolean; events: string[] }>(
+        client,
+        'SELECT id, enabled, events FROM "Webhook"',
+      ),
+      routines: await rows<{
+        id: string;
+        enabled: boolean;
+        triggerEvents: string[];
+        triggerFilters: unknown;
+      }>(client, 'SELECT id, enabled, "triggerEvents", "triggerFilters" FROM "Routine"'),
+    };
+    const actualChanges = [
+      ...before.webhooks.filter((old) => {
+        const current = after.webhooks.find((w) => w.id === old.id);
+        if (!current) throw new Error("The upgrade must preserve every webhook.");
+        return old.enabled !== current.enabled || JSON.stringify(old.events) !== JSON.stringify(current.events);
+      }),
+      ...before.routines.filter((old) => {
+        const current = after.routines.find((r) => r.id === old.id);
+        if (!current) throw new Error("The upgrade must preserve every routine.");
+        return (
+          old.enabled !== current.enabled ||
+          old.changedFields.length > 0 ||
+          JSON.stringify(old.triggerEvents) !== JSON.stringify(current.triggerEvents) ||
+          JSON.stringify(old.triggerFilters) !== JSON.stringify(current.triggerFilters)
+        );
+      }),
+    ]
+      .map((r) => r.id)
+      .sort();
+    expect(
+      predictions
+        .filter((p) => p.state_changes)
+        .map((p) => p.id)
+        .sort(),
+    ).toEqual(actualChanges);
+    for (const p of predictions) {
+      const current =
+        p.kind === "Webhook" ? after.webhooks.find((w) => w.id === p.id) : after.routines.find((r) => r.id === p.id);
+      expect(current?.enabled).toBe(p.enabled_after);
+    }
+    expect(after.routines.find((r) => r.id === untouched.id)).toMatchObject({
+      enabled: true,
+      triggerEvents: ["messaging.message.received"],
+      triggerFilters: [],
+    });
+    expect(after.routines.find((r) => r.id === watched.id)?.triggerFilters).toEqual([
+      { field: "subject", operator: "isNotNull" },
+    ]);
+    expect(await rows(client, 'SELECT "cronExpression" FROM "Routine" WHERE id=$1', [empty.scheduled])).toEqual([
+      { cronExpression: "0 9 * * *" },
+    ]);
+  });
 
   it("converts a populated legacy workspace with exact values, identities and links, and drops the rest", async () => {
     const { client } = await legacyDatabase();
@@ -736,7 +921,11 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
         [messaging, orphaned],
       ]),
     ).toEqual([
-      { id: messaging, enabled: false, triggerEvents: ["messaging.message.received"] },
+      {
+        id: messaging,
+        enabled: false,
+        triggerEvents: ["messaging.message.received"],
+      },
       { id: orphaned, enabled: false, triggerEvents: [] },
     ]);
     expect(await rows(client, 'SELECT events, enabled FROM "Webhook" WHERE id=$1', [quiet.id])).toEqual([

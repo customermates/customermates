@@ -71,21 +71,39 @@ A `link` custom value (each comma-separated part of a multi-value link) that is 
 
 ## Before deploying
 
-Deployment logs may not show which automations the upgrade disables, so list them on the production database (read-only) before deploying and tell their owners:
+Deployment logs may not show which automations change. Run this read-only inventory before deploying so their owners can review the disabled triggers and removed configuration:
 
 ```sql
-SELECT 'Webhook' AS kind, w."companyId", w.id, w.enabled AS enabled_before,
-  ARRAY(SELECT e FROM unnest(w.events) e WHERE e ~ '^(contact|organization|deal|service|task)\.') AS legacy_events_removed
-FROM "Webhook" w
-UNION ALL
-SELECT 'Routine', r."companyId", r.id, r.enabled,
-  ARRAY(SELECT e FROM unnest(r."triggerEvents") e WHERE e ~ '^(contact|organization|deal|service|task)\.')
-FROM "Routine" r
-WHERE r."triggerKind"::text = 'event'
-ORDER BY 1, 2, 3;
+WITH planned AS (
+  SELECT 'Webhook' AS kind, w."companyId", w.id, w.enabled AS enabled_before,
+    false AS enabled_after, true AS disabled_by_upgrade,
+    ARRAY(SELECT e FROM unnest(w.events) WITH ORDINALITY AS e(e, position)
+      WHERE e ~ '^(contact|organization|deal|service|task)\.' ORDER BY position) AS legacy_events_removed,
+    ARRAY[]::text[] AS watched_fields_removed, false AS filters_cleared
+  FROM "Webhook" w
+  UNION ALL
+  SELECT 'Routine', r."companyId", r.id, r.enabled,
+    r.enabled AND r."triggerKind"::text <> 'event', r."triggerKind"::text = 'event',
+    ARRAY(SELECT e FROM unnest(r."triggerEvents") WITH ORDINALITY AS e(e, position)
+      WHERE e ~ '^(contact|organization|deal|service|task)\.' ORDER BY position),
+    coalesce(r."changedFields", ARRAY[]::text[]),
+    EXISTS (SELECT 1 FROM unnest(r."triggerEvents") e
+      WHERE e ~ '^(contact|organization|deal|service|task)\.') AND r."triggerFilters" IS DISTINCT FROM '[]'::jsonb
+  FROM "Routine" r
+  WHERE r."triggerKind"::text = 'event'
+    OR cardinality(r."changedFields") > 0
+    OR EXISTS (SELECT 1 FROM unnest(r."triggerEvents") e
+      WHERE e ~ '^(contact|organization|deal|service|task)\.')
+)
+SELECT *, enabled_before IS DISTINCT FROM enabled_after
+  OR cardinality(legacy_events_removed) > 0
+  OR cardinality(watched_fields_removed) > 0
+  OR filters_cleared AS state_changes
+FROM planned
+ORDER BY kind, "companyId", id;
 ```
 
-Every listed row is disabled by the upgrade; `enabled_before` shows which of them are active today. Scheduled routines are not listed: they keep running.
+`disabled_by_upgrade` identifies every webhook and event-triggered routine, including ones already disabled. `enabled_after` preserves the enabled state of scheduled routines. Scheduled routines are also listed when they lose legacy events or watched fields; their schedules keep running. `legacy_events_removed`, `watched_fields_removed` and `filters_cleared` describe that cleanup. `state_changes` distinguishes rows whose automation state actually changes from an already-disabled webhook with no legacy events. Unchanged scheduled routines are omitted.
 
 ## Refusals
 
