@@ -1,3 +1,4 @@
+import { addFromConfigure, openConfigure } from "./configure";
 import { test, expect, isBenignPageError } from "./fixtures";
 import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
@@ -50,11 +51,11 @@ test("persists a webhook for a customer-created type with an explicit owner and 
   page.on("pageerror", (error) => {
     if (!isBenignPageError(error.message)) errors.push(error.message);
   });
-  await page.goto("/en/company/data-model");
-  await page.getByRole("button", { name: "Create list", exact: true }).click();
+  await openConfigure(page);
+  await addFromConfigure(page, "List");
   const creation = page.getByRole("dialog");
   await creation.getByRole("textbox", { name: "Name", exact: false }).first().fill("Projects");
-  await creation.getByRole("button", { name: "Create list", exact: true }).click();
+  await creation.getByRole("button", { name: "Create list", exact: true }).first().click();
   await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
   const typeId = new URL(page.url()).pathname.split("/").at(-1);
   const field = await database.query(

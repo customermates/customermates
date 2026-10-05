@@ -188,9 +188,10 @@ describe("agent interface targets", () => {
     expect(findAgentUiTarget("invite-modal-send")?.prerequisite).toBe("invite-modal-tab-email");
   });
 
-  it("routes record configuration to Data model instead of preset-only settings controls", () => {
+  it("routes record configuration to Configure instead of preset-only settings controls", () => {
     expect(findAgentUiTarget("company-settings-data-model")?.route).toBe("/company/settings");
-    expect(findAgentUiTarget("nav-company-data-model")?.route).toBe("/company/data-model");
+    expect(findAgentUiTarget("nav-configure-records")?.route).toBe("/configure");
+    expect(findAgentUiTarget("nav-company-data-model")).toBeNull();
     expect(findAgentUiTarget("terminology-contact")).toBeNull();
   });
 

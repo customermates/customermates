@@ -9,6 +9,7 @@ import {
 import { RecordModelSchema, type RecordModel } from "../../features/records/record-model.schema";
 import { RecordOperationResultSchema } from "../../features/records/record-query.schema";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
+import { addFromConfigure, configureTopBar, openConfigure, openConfigureRow, saveDrawer, saveGeneral } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 const labels = englishMessages.RecordModel;
@@ -47,8 +48,17 @@ function type(model: RecordModel, typeId: string) {
 }
 
 async function configure(page: Page, typeId: string) {
-  await page.goto(`/en/company/data-model?typeId=${typeId}`);
-  await expect(page.getByRole("button", { name: labels.typeSettings, exact: true })).toBeEnabled();
+  await openConfigure(page, typeId);
+  await expect(configureTopBar(page).getByRole("button", { name: "Add", exact: true })).toBeEnabled();
+  await expect(general(page)).toBeVisible();
+}
+
+function general(page: Page) {
+  return page.getByRole("region", { name: labels.general, exact: true });
+}
+
+function generalControl(page: Page, id: string) {
+  return page.locator(`#configure-general-${id}`);
 }
 
 async function select(page: Page, control: string, option: string) {
@@ -58,24 +68,21 @@ async function select(page: Page, control: string, option: string) {
 
 async function preview(page: Page) {
   const dialog = page.getByRole("dialog");
-  await dialog.getByRole("button", { name: labels.preview, exact: true }).click();
+  await dialog.getByRole("button", { name: englishMessages.Common.actions.save, exact: true }).first().click();
   await expect(dialog.getByRole("status").filter({ hasText: "Ready to apply" })).toBeVisible();
-  await expect(dialog.getByRole("button", { name: labels.apply, exact: true })).toBeEnabled();
+  await expect(dialog.getByRole("button", { name: labels.apply, exact: true }).first()).toBeEnabled();
 }
 
 async function apply(page: Page) {
-  await preview(page);
-  const dialog = page.getByRole("dialog");
-  await dialog.getByRole("button", { name: labels.apply, exact: true }).click();
-  await expect(dialog).not.toBeVisible();
+  await saveDrawer(page);
 }
 
 async function createList(page: Page, name: string) {
-  await page.goto("/en/company/data-model");
-  await page.getByRole("button", { name: labels.createList, exact: true }).click();
+  await openConfigure(page);
+  await addFromConfigure(page, "List");
   const dialog = page.getByRole("dialog");
   await dialog.locator("#name").fill(name);
-  await dialog.getByRole("button", { name: labels.createList, exact: true }).click();
+  await dialog.getByRole("button", { name: labels.createList, exact: true }).first().click();
   await expect(dialog).not.toBeVisible();
   await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
   const typeId = new URL(page.url()).pathname.split("/").at(-1);
@@ -85,27 +92,17 @@ async function createList(page: Page, name: string) {
 }
 
 async function editField(page: Page, label: string) {
-  const row = page
-    .getByRole("region", { name: labels.fields, exact: true })
-    .getByText(label, { exact: true })
-    .locator("..")
-    .locator("..");
-  await row.getByRole("button", { name: labels.edit, exact: true }).click();
+  await openConfigureRow(page, "Fields", label);
   await expect(page.getByRole("dialog", { name: labels.editField, exact: true })).toBeVisible();
-}
-
-async function editType(page: Page) {
-  await page.getByRole("button", { name: labels.typeSettings, exact: true }).click();
-  await expect(page.getByRole("dialog", { name: labels.typeSettings, exact: true })).toBeVisible();
 }
 
 async function stalePreview(page: Page, inputId: string, draft: string) {
   const dialog = page.getByRole("dialog");
-  await dialog.getByRole("button", { name: labels.preview, exact: true }).click();
+  await dialog.getByRole("button", { name: englishMessages.Common.actions.save, exact: true }).first().click();
   await expect(dialog.getByText(recovery.required, { exact: true })).toBeVisible();
   await expect(dialog.locator(`#${inputId}`)).toHaveValue(draft);
   await expect(dialog.locator(`#${inputId}`)).toHaveAttribute("readonly", "");
-  await expect(dialog.getByRole("button", { name: labels.preview, exact: true })).toBeDisabled();
+  await expect(dialog.getByRole("button", { name: englishMessages.Common.actions.save, exact: true }).first()).toBeDisabled();
   await dialog.getByRole("button", { name: recovery.refresh, exact: true }).click();
   await expect(dialog.getByText(recovery.required, { exact: true })).not.toBeVisible();
 }
@@ -138,7 +135,7 @@ test("recovers concurrent configuration drafts and resolves each same-control ch
   const errors = collectErrors(page);
   const initialName = `Recovery entries ${randomUUID().slice(0, 8)}`;
   const typeId = await createList(page, initialName);
-  await page.getByRole("button", { name: labels.addField, exact: true }).click();
+  await addFromConfigure(page, "Field");
   await page.getByRole("dialog").locator("#label").fill("Budget");
   await select(page, "valueType", labels.types.number);
   await apply(page);
@@ -166,7 +163,7 @@ test("recovers concurrent configuration drafts and resolves each same-control ch
     await expect(page.getByRole("dialog").getByRole("button", { name: recovery.keep, exact: true })).toHaveCount(0);
     await preview(page);
     expect((await model(database, companyId)).revision).toBe(remoteFieldModel.revision);
-    await page.getByRole("dialog").getByRole("button", { name: labels.apply, exact: true }).click();
+    await page.getByRole("dialog").getByRole("button", { name: labels.apply, exact: true }).first().click();
     await expect(page.getByRole("dialog")).not.toBeVisible();
     const merged = await model(database, companyId);
     expect(merged.revision).toBe(remoteFieldModel.revision + 1);
@@ -178,8 +175,8 @@ test("recovers concurrent configuration drafts and resolves each same-control ch
       valueType: "number",
     });
     for (const scenario of [
-      { choice: recovery.keep, iconLabel: labels.briefcase, icon: "briefcase", keepLocal: true },
-      { choice: recovery.latest, iconLabel: labels.building, icon: "building", keepLocal: false },
+      { choice: recovery.keep, iconLabel: labels.icons.briefcase, icon: "briefcase", keepLocal: true },
+      { choice: recovery.latest, iconLabel: labels.icons.building, icon: "building", keepLocal: false },
     ]) {
       await test.step(scenario.choice, async () => {
         await configure(page, typeId);
@@ -188,39 +185,45 @@ test("recovers concurrent configuration drafts and resolves each same-control ch
         const localName = `${initialName} ${scenario.keepLocal ? "local" : "discarded"}`;
         const remoteName = `${initialName} ${scenario.keepLocal ? "remote first" : "remote last"}`;
         const localDescription = `${scenario.choice}: retain my separate description`;
-        await editType(page);
-        await editType(other);
-        await page.getByRole("dialog").locator("#name").fill(localName);
-        await page.getByRole("dialog").locator("#description").fill(localDescription);
-        await other.getByRole("dialog").locator("#name").fill(remoteName);
-        await select(other, "icon", scenario.iconLabel);
-        await apply(other);
+        await generalControl(page, "name").fill(localName);
+        await generalControl(page, "description").fill(localDescription);
+        await generalControl(other, "name").fill(remoteName);
+        await generalControl(other, "icon").click();
+        await other.getByRole("option", { name: scenario.iconLabel, exact: true }).click();
+        await saveGeneral(other);
         const remote = await model(database, companyId);
         expect(remote.revision).toBe(before.revision + 1);
         expect(type(remote, typeId)).toMatchObject({ label: remoteName, icon: scenario.icon });
-        await stalePreview(page, "name", localName);
-        const dialog = page.getByRole("dialog");
-        await expect(dialog.getByText(recovery.conflict, { exact: true })).toBeVisible();
-        await expect(dialog.locator("#name")).toHaveValue(localName);
-        await expect(dialog.locator("#description")).toHaveValue(localDescription);
-        await expect(dialog.locator("#icon")).toContainText(scenario.iconLabel);
-        await expect(dialog.getByRole("button", { name: labels.preview, exact: true })).toBeDisabled();
-        await expect(dialog.getByRole("button", { name: recovery.keep, exact: true })).toBeVisible();
-        await expect(dialog.getByRole("button", { name: recovery.latest, exact: true })).toBeVisible();
-        await dialog.getByRole("button", { name: scenario.choice, exact: true }).click();
-        await expect(dialog.getByText(recovery.conflict, { exact: true })).not.toBeVisible();
+        const save = configureTopBar(page).getByRole("button", {
+          name: englishMessages.Common.actions.save,
+          exact: true,
+        });
+        await save.click();
+        await expect(general(page).getByText(recovery.required, { exact: true })).toBeVisible();
+        await expect(generalControl(page, "name")).toHaveValue(localName);
+        await expect(generalControl(page, "name")).toHaveAttribute("readonly", "");
+        await expect(save).toBeDisabled();
+        await general(page).getByRole("button", { name: recovery.refresh, exact: true }).click();
+        await expect(general(page).getByText(recovery.required, { exact: true })).not.toBeVisible();
+        await expect(general(page).getByText(recovery.conflict, { exact: true })).toBeVisible();
+        await expect(generalControl(page, "name")).toHaveValue(localName);
+        await expect(generalControl(page, "description")).toHaveValue(localDescription);
+        await expect(generalControl(page, "icon")).toContainText(scenario.iconLabel);
+        await expect(save).toBeDisabled();
+        await expect(general(page).getByRole("button", { name: recovery.keep, exact: true })).toBeVisible();
+        await expect(general(page).getByRole("button", { name: recovery.latest, exact: true })).toBeVisible();
+        await general(page).getByRole("button", { name: scenario.choice, exact: true }).click();
+        await expect(general(page).getByText(recovery.conflict, { exact: true })).not.toBeVisible();
         const expectedName = scenario.keepLocal ? localName : remoteName;
-        await expect(dialog.locator("#name")).toHaveValue(expectedName);
-        await expect(dialog.locator("#description")).toHaveValue(localDescription);
-        await expect(dialog.locator("#name")).not.toHaveAttribute("readonly", "");
-        await preview(page);
+        await expect(generalControl(page, "name")).toHaveValue(expectedName);
+        await expect(generalControl(page, "description")).toHaveValue(localDescription);
+        await expect(generalControl(page, "name")).not.toHaveAttribute("readonly", "");
         expect((await model(database, companyId)).revision).toBe(remote.revision);
         await page.screenshot({
           path: testInfo.outputPath(`stale-${scenario.keepLocal ? "keep" : "latest"}.png`),
           fullPage: true,
         });
-        await dialog.getByRole("button", { name: labels.apply, exact: true }).click();
-        await expect(dialog).not.toBeVisible();
+        await saveGeneral(page);
         const committed = await model(database, companyId);
         expect(committed.revision).toBe(remote.revision + 1);
         expect(type(committed, typeId)).toMatchObject({
@@ -237,9 +240,8 @@ test("recovers concurrent configuration drafts and resolves each same-control ch
       });
     }
     await configure(page, typeId);
-    await editType(page);
-    await expect(page.getByRole("dialog").locator("#name")).toHaveValue(`${initialName} remote last`);
-    await expect(page.getByRole("dialog").locator("#icon")).toContainText(labels.building);
+    await expect(generalControl(page, "name")).toHaveValue(`${initialName} remote last`);
+    await expect(generalControl(page, "icon")).toContainText(labels.icons.building);
     expect(errors).toEqual([]);
     expect(otherErrors).toEqual([]);
   } finally {
@@ -257,13 +259,12 @@ test("preserves a stale relationship-path draft and blocks publication after the
   const errors = collectErrors(page);
   const name = `Removed path ${randomUUID().slice(0, 8)}`;
   const typeId = await createList(page, name);
-  const relationships = page.getByRole("region", { name: labels.relationships, exact: true });
-  await relationships.getByRole("button", { name: labels.relationship, exact: true }).click();
+  await addFromConfigure(page, "Relationship");
   await select(page, "targetTypeId", name);
   await page.getByRole("dialog").locator("#sourceLabel").fill("Related entries");
   await page.getByRole("dialog").locator("#targetLabel").fill("Related from");
   await apply(page);
-  await relationships.getByRole("button", { name: labels.relationship, exact: true }).click();
+  await addFromConfigure(page, "Relationship");
   await select(page, "mode", labels.relationshipPath);
   await page.getByRole("dialog").locator("#sourceLabel").fill("Related overview");
   await page.getByRole("dialog").getByRole("combobox", { name: labels.addPathStep, exact: true }).click();
@@ -274,8 +275,7 @@ test("preserves a stale relationship-path draft and blocks publication after the
   if (!path) throw new Error("Expected UI-created relationship path");
   const relation = before.relationships.find((candidate) => candidate.id === path.path[0]?.relationId);
   if (!relation) throw new Error("Expected path relationship");
-  const row = relationships.getByText(path.label, { exact: true }).locator("..").locator("..");
-  await row.getByRole("button", { name: labels.edit, exact: true }).click();
+  await openConfigureRow(page, "Relationships", path.label);
   const dialog = page.getByRole("dialog");
   await dialog.locator("#sourceLabel").fill("Unsaved overview name");
   const other = await context.newPage();
@@ -295,7 +295,7 @@ test("preserves a stale relationship-path draft and blocks publication after the
     await expect(dialog.getByText(recovery.removed, { exact: true })).toBeVisible();
     await expect(dialog.locator("#sourceLabel")).toHaveValue("Unsaved overview name");
     await expect(dialog.locator("#sourceLabel")).toHaveAttribute("readonly", "");
-    await expect(dialog.getByRole("button", { name: labels.preview, exact: true })).toBeDisabled();
+    await expect(dialog.getByRole("button", { name: englishMessages.Common.actions.save, exact: true }).first()).toBeDisabled();
     await expect(dialog.getByRole("button", { name: recovery.refresh, exact: true })).toHaveCount(0);
     await expect(dialog.getByRole("button", { name: recovery.keep, exact: true })).toHaveCount(0);
     await expect(dialog.getByRole("button", { name: labels.apply, exact: true })).toHaveCount(0);

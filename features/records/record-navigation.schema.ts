@@ -25,5 +25,6 @@ export type RecordNavigation = z.infer<typeof RecordNavigationSchema>;
 
 export function recordNavigationKey(pathname: string): string | null {
   const [, section, typeId] = pathname.split("/");
+  if (section === "configure") return "configure-records";
   return section === "records" && typeId ? `records:${typeId}` : section || null;
 }

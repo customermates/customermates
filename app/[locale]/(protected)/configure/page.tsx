@@ -2,15 +2,11 @@ import { getGetRecordModelInteractor, getDiscoverRecordTypesInteractor } from "@
 import { requireAccess } from "@/features/auth/next/require";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 import { PageContainer } from "@/components/shared/page-container";
-import { DataModelPageView } from "./components/data-model-page-view";
+import { ConfigurePageView } from "./components/configure-page-view";
 
-export default async function DataModelPage({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
+export default async function ConfigurePage() {
   await requireAccess();
-  const [model, catalog, params] = await Promise.all([
+  const [model, catalog] = await Promise.all([
     unwrapValidated(getGetRecordModelInteractor().invoke({})),
     unwrapValidated(
       getDiscoverRecordTypesInteractor().invoke({
@@ -19,15 +15,13 @@ export default async function DataModelPage({
         includeEmbedded: false,
       }),
     ),
-    searchParams,
   ]);
   return (
-    <PageContainer>
-      <DataModelPageView
+    <PageContainer padded={false}>
+      <ConfigurePageView
         canManage={catalog.canManageSchema}
         canPublishSummary={catalog.canPublishSummary ?? false}
         initialModel={model}
-        selectedTypeId={typeof params.typeId === "string" ? params.typeId : undefined}
       />
     </PageContainer>
   );

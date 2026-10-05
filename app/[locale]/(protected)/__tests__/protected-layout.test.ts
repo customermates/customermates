@@ -142,7 +142,7 @@ describe("ProtectedLayout account-state boundary", () => {
     state.pathname = "/records/projects";
     await renderLayout();
     expect(state.closeAllModals).not.toHaveBeenCalled();
-    state.pathname = "/company/data-model";
+    state.pathname = "/configure";
     await renderLayout();
     expect(state.closeAllModals).toHaveBeenCalledOnce();
     state.protectedEnhancementsAllowed = false;

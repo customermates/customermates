@@ -1,5 +1,6 @@
 import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
+import { addFromConfigure, openConfigure } from "./configure";
 import { test, expect, isBenignPageError } from "./fixtures";
 
 test("delivers a custom-record event to a loopback receiver and retries a transient failure", async ({
@@ -30,11 +31,11 @@ test("delivers a custom-record event to a loopback receiver and retries a transi
     if (!isBenignPageError(error.message)) errors.push(error.message);
   });
   try {
-    await page.goto("/en/company/data-model");
-    await page.getByRole("button", { name: "Create list", exact: true }).click();
+    await openConfigure(page);
+    await addFromConfigure(page, "List");
     const creation = page.getByRole("dialog");
     await creation.getByRole("textbox", { name: "Name", exact: false }).first().fill("Projects");
-    await creation.getByRole("button", { name: "Create list", exact: true }).click();
+    await creation.getByRole("button", { name: "Create list", exact: true }).first().click();
     await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
     const typeId = new URL(page.url()).pathname.split("/").at(-1);
     const field = await database.query(
@@ -129,11 +130,11 @@ test("delivers only deleted records that matched the webhook filter before remov
     if (!isBenignPageError(error.message)) errors.push(error.message);
   });
   try {
-    await page.goto("/en/company/data-model");
-    await page.getByRole("button", { name: "Create list", exact: true }).click();
+    await openConfigure(page);
+    await addFromConfigure(page, "List");
     const dialog = page.getByRole("dialog");
     await dialog.getByRole("textbox", { name: "Name", exact: false }).first().fill("Projects");
-    await dialog.getByRole("button", { name: "Create list", exact: true }).click();
+    await dialog.getByRole("button", { name: "Create list", exact: true }).first().click();
     await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
     const typeId = new URL(page.url()).pathname.split("/").at(-1);
     const field = await database.query(

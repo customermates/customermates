@@ -35,9 +35,7 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   constructor(rootStore: RootStore, presentation: RecordPresentationResult) {
     super(rootStore);
     this.presentation = presentation;
-    this.schemaSettingsHref = presentation.canManageSchema
-      ? `/company/data-model?typeId=${presentation.typeId}`
-      : undefined;
+    this.schemaSettingsHref = presentation.canManageSchema ? `/configure?typeId=${presentation.typeId}` : undefined;
     makeObservable<this, "awaitingBulkRefresh" | "bulkRefreshRetryNeeded">(this, {
       presentation: observable.ref,
       fields: computed,

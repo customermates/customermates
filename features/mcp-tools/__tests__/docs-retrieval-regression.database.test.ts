@@ -874,7 +874,7 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
       const excerpt = await excerptOf("concepts", query, locale);
       expect(excerpt, query).toContain(formula);
       expect(
-        excerpt.split("\n").some((line) => line.startsWith("**Link:**") && line.includes("`/company/data-model`")),
+        excerpt.split("\n").some((line) => line.startsWith("**Link:**") && line.includes("`/configure`")),
         query,
       ).toBe(true);
       expect(excerpt.length, query).toBeLessThanOrEqual(1400);

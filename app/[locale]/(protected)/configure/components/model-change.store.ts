@@ -16,7 +16,7 @@ import {
   applyRecordConfigurationAction,
   getRecordModelAction,
   previewRecordConfigurationAction,
-} from "../../../records/actions";
+} from "../../records/actions";
 
 export abstract class ModelChangeStore<Form extends object> extends BaseModalStore<Form> {
   model: RecordModel;
@@ -63,6 +63,7 @@ export abstract class ModelChangeStore<Form extends object> extends BaseModalSto
       setPendingOperation: action,
       markRefreshRequired: action,
       resolveConflicts: action,
+      rebaseDraft: action,
     });
   }
   abstract operations(): ConfigurationChange["operations"];
@@ -71,6 +72,18 @@ export abstract class ModelChangeStore<Form extends object> extends BaseModalSto
     return change;
   }
   protected immediateApply = false;
+  applyWithoutReview = false;
+  private needsNoReview(preview: ConfigurationPreview) {
+    return (
+      this.applyWithoutReview &&
+      preview.valid &&
+      preview.issues.length === 0 &&
+      preview.affectedRecords === 0 &&
+      preview.execution === "synchronous" &&
+      preview.dataValidation === "complete" &&
+      this.summaryRenewalCandidates.length === 0
+    );
+  }
   protected override prepareToClose() {
     this.sessionGeneration += 1;
     return true;
@@ -191,6 +204,27 @@ export abstract class ModelChangeStore<Form extends object> extends BaseModalSto
     this.conflicts = [];
     this.setPreview(null);
   };
+  private adoptLatest(latest: RecordModel) {
+    const projected = this.projectLatestModel(latest);
+    this.model = latest;
+    this.setPreview(null);
+    if (!projected) {
+      this.targetMissing = true;
+      this.refreshRequired = true;
+      this.conflicts = [];
+      return;
+    }
+    const merged = rebaseModelChangeDraft(toJS(this.savedState), toJS(this.form), projected);
+    this.form = merged.form;
+    this.savedState = merged.savedState;
+    this.conflicts = merged.conflicts;
+    this.targetMissing = false;
+    this.refreshRequired = false;
+  }
+  rebaseDraft = (latest: RecordModel) => {
+    if (latest.revision <= this.model.revision || this.isLoading || this.pendingOperationId) return;
+    this.adoptLatest(latest);
+  };
   refreshModel = async () => {
     if (!this.isOpen || this.isLoading || this.pendingOperationId) return;
     const session = this.sessionGeneration;
@@ -203,22 +237,8 @@ export abstract class ModelChangeStore<Form extends object> extends BaseModalSto
       if (session !== this.sessionGeneration || !this.isOpen) return;
       if (latest.revision < this.model.revision) throw new Error("Data model refresh returned an older revision");
       runInAction(() => {
-        const projected = this.projectLatestModel(latest);
-        this.model = latest;
-        this.setPreview(null);
+        this.adoptLatest(latest);
         this.onModelRefreshed?.(latest);
-        if (!projected) {
-          this.targetMissing = true;
-          this.refreshRequired = true;
-          this.conflicts = [];
-          return;
-        }
-        const merged = rebaseModelChangeDraft(toJS(this.savedState), toJS(this.form), projected);
-        this.form = merged.form;
-        this.savedState = merged.savedState;
-        this.conflicts = merged.conflicts;
-        this.targetMissing = false;
-        this.refreshRequired = false;
       });
     } catch (error) {
       if (session === this.sessionGeneration && this.isOpen) {
@@ -299,7 +319,7 @@ export abstract class ModelChangeStore<Form extends object> extends BaseModalSto
           this.forcePreviewBeforeApply = false;
           return;
         }
-        if (!this.immediateApply || !preview.valid) return;
+        if (!preview.valid || !(this.immediateApply || this.needsNoReview(preview))) return;
       }
       if (!preview.valid) return;
       const result = await applyRecordConfigurationAction(change);

@@ -2,14 +2,11 @@ import type { Page } from "@playwright/test";
 import type { Client } from "pg";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
+import { addFromConfigure, configureRailLink, configureRow, configureTopBar, followConfigureLink, openConfigure, openConfigureRow, openListAction, saveDrawer, saveGeneral, selectConfigureList, setShowArchived, setShowArchivedParts } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 async function applyConfiguration(page: Page) {
-  const dialog = page.getByRole("dialog");
-  await dialog.getByRole("button", { name: "Preview changes", exact: true }).click();
-  await expect(dialog.getByRole("status")).toContainText("Ready to apply");
-  await dialog.getByRole("button", { name: "Apply changes", exact: true }).click();
-  await expect(dialog).not.toBeVisible();
+  await saveDrawer(page);
 }
 
 async function readModel(database: Client, companyId: string) {
@@ -28,14 +25,14 @@ async function openRecordList(page: Page, typeId: string) {
 }
 
 async function createList(page: Page, name: string, channels = false) {
-  await page.goto("/en/company/data-model");
-  await page.getByRole("button", { name: "Create list", exact: true }).click();
+  await openConfigure(page);
+  await addFromConfigure(page, "List");
   const dialog = page.getByRole("dialog");
   await dialog.getByRole("textbox", { name: "Name", exact: false }).first().fill(name);
   const toggle = dialog.getByRole("switch", { name: "Enable channels", exact: true });
   await expect(toggle).not.toBeChecked();
   if (channels) await toggle.check();
-  await dialog.getByRole("button", { name: "Create list", exact: true }).click();
+  await dialog.getByRole("button", { name: "Create list", exact: true }).first().click();
   await expect(dialog).not.toBeVisible();
   await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
   const typeId = new URL(page.url()).pathname.split("/").at(-1);
@@ -68,15 +65,14 @@ test("opens Sidebar Configure and preserves channel binding choices for seeded a
     .and(page.locator("#nav-configure-records"));
   if (!(await configure.isVisible())) await page.locator("#sidebar-trigger").click();
   await expect(page.locator("#nav-assistant")).toBeVisible();
-  await expect(configure).toHaveAttribute("href", "/en/company/data-model");
+  await expect(configure).toHaveAttribute("href", "/en/configure");
   await configure.click();
-  await expect(page).toHaveURL(/\/en\/company\/data-model$/);
-  await page.getByRole("main").getByRole("link", { name: "Contacts", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Contacts", exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "Type settings", exact: true }).click();
+  await expect(page).toHaveURL(/\/en\/configure(?:\?typeId=[a-f0-9-]+)?$/);
+  await selectConfigureList(page, "Contacts");
   const dialog = page.getByRole("dialog");
-  const channels = dialog.getByRole("switch", { name: "Enable channels", exact: true });
-  const providerAvatar = dialog.getByRole("switch", { name: "Use channel profile picture", exact: true });
+  const general = page.getByRole("region", { name: "General", exact: true });
+  const channels = general.getByRole("switch", { name: "Enable channels", exact: true });
+  const providerAvatar = general.getByRole("switch", { name: "Use channel profile picture", exact: true });
   await expect(channels).toBeChecked();
   await expect(providerAvatar).toBeChecked();
   const before = (await readModel(database, companyId)).capabilities.find(
@@ -84,28 +80,26 @@ test("opens Sidebar Configure and preserves channel binding choices for seeded a
   );
   expect(before).toBeDefined();
   await providerAvatar.uncheck();
-  await applyConfiguration(page);
+  await saveGeneral(page);
   expect((await readModel(database, companyId)).capabilities.find((binding) => binding.id === before?.id)).toEqual({
     ...before,
     enabled: true,
     providerAvatar: false,
   });
-  await page.getByRole("button", { name: "Type settings", exact: true }).click();
   await expect(providerAvatar).not.toBeChecked();
   await channels.uncheck();
   await expect(providerAvatar).not.toBeVisible();
-  await applyConfiguration(page);
+  await saveGeneral(page);
   expect((await readModel(database, companyId)).capabilities.find((binding) => binding.id === before?.id)).toEqual({
     ...before,
     enabled: false,
     providerAvatar: false,
   });
   await page.reload();
-  await page.getByRole("button", { name: "Type settings", exact: true }).click();
   await expect(channels).not.toBeChecked();
   await channels.check();
   await expect(providerAvatar).not.toBeChecked();
-  await applyConfiguration(page);
+  await saveGeneral(page);
   expect((await readModel(database, companyId)).capabilities.find((binding) => binding.id === before?.id)).toEqual({
     ...before,
     enabled: true,
@@ -120,10 +114,10 @@ test("opens Sidebar Configure and preserves channel binding choices for seeded a
   await expect(dialog.getByRole("combobox", { name: "Add channel", exact: true })).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(dialog).not.toBeVisible();
-  await page.getByRole("link", { name: "Configure", exact: true }).and(page.locator("#records-configure")).click();
-  for (const name of ["Type settings", "Shared defaults", "Add field"])
-    await expect(page.getByRole("button", { name, exact: true })).toBeInViewport({ ratio: 1 });
-  await page.getByRole("button", { name: "Type settings", exact: true }).click();
+  await followConfigureLink(page);
+  await expect(page).toHaveURL(new RegExp(`/en/configure\\?typeId=${customTypeId}$`));
+  for (const name of ["List actions", "Add"])
+    await expect(configureTopBar(page).getByRole("button", { name, exact: true })).toBeInViewport({ ratio: 1 });
   await expect(channels).toBeChecked();
   await expect(providerAvatar).not.toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("custom-list-channel-settings.png"), animations: "disabled" });
@@ -140,14 +134,13 @@ test("edits a linear calculation and restores archived fields, activity connecti
   const name = "Research budgets";
   const typeId = await createList(page, name);
   const dialog = page.getByRole("dialog");
-  const configure = page.getByRole("link", { name: "Configure", exact: true }).and(page.locator("#records-configure"));
-  await configure.click();
-  await page.getByRole("button", { name: "Add field", exact: true }).click();
+  await followConfigureLink(page);
+  await addFromConfigure(page, "Field");
   await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Budget");
   await dialog.getByRole("combobox", { name: "Value type", exact: true }).click();
   await page.getByRole("option", { name: "Number", exact: true }).click();
   await applyConfiguration(page);
-  await page.getByRole("button", { name: "Add field", exact: true }).click();
+  await addFromConfigure(page, "Field");
   await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Double budget");
   await dialog.getByRole("combobox", { name: "Value type", exact: true }).click();
   await page.getByRole("option", { name: "Number", exact: true }).click();
@@ -198,27 +191,26 @@ test("edits a linear calculation and restores archived fields, activity connecti
   expect(calculated.rows).toEqual([{ state: "value", value: "25" }]);
   await page.reload();
   await expect(page.getByRole("button", { name: "Pilot research", exact: true })).toBeVisible();
-  await configure.click();
-  const fields = page.getByRole("region", { name: "Fields", exact: true });
-  const fieldRow = fields.getByText("Double budget", { exact: true }).locator("..").locator("..");
-  await fieldRow.getByRole("button", { name: "Edit", exact: true }).click();
+  await followConfigureLink(page);
+  await openConfigureRow(page, "Fields", "Double budget");
   await dialog.getByRole("switch", { name: "Archive field", exact: true }).check();
   await applyConfiguration(page);
-  await expect(fields.getByText("Double budget", { exact: true })).not.toBeVisible();
-  await page.getByRole("button", { name: "Show archived", exact: true }).click();
-  await fieldRow.getByRole("button", { name: "Restore", exact: true }).click();
+  await expect(configureRow(page, "Fields", "Double budget")).toHaveCount(0);
+  await setShowArchivedParts(page, true);
+  await expect(configureRow(page, "Fields", "Double budget")).toContainText("Archived");
+  await openConfigureRow(page, "Fields", "Double budget");
   await expect(dialog.getByRole("switch", { name: "Archive field", exact: true })).not.toBeChecked();
   await applyConfiguration(page);
   expect((await readModel(database, companyId)).fields.find((field) => field.id === doubled?.id)).toMatchObject({
     archived: false,
     behavior: doubled?.behavior,
   });
-  const activities = page.getByRole("region", { name: "Activity connections", exact: true });
-  const activityRow = activities.getByText(name, { exact: false }).locator("..");
-  await activityRow.getByRole("button", { name: "Edit", exact: true }).click();
+  await openConfigureRow(page, "Activity connections", name);
   await dialog.getByRole("switch", { name: "Archive connection", exact: true }).check();
   await applyConfiguration(page);
-  await activityRow.getByRole("button", { name: "Restore", exact: true }).click();
+  await expect(configureRow(page, "Activity connections", name)).toContainText("Archived");
+  await openConfigureRow(page, "Activity connections", name);
+  await expect(dialog.getByRole("switch", { name: "Archive connection", exact: true })).not.toBeChecked();
   await applyConfiguration(page);
   expect((await readModel(database, companyId)).activityPaths.find((path) => path.typeId === typeId)).toMatchObject({
     label: name,
@@ -227,23 +219,19 @@ test("edits a linear calculation and restores archived fields, activity connecti
     includeAudit: true,
     includeMessages: false,
   });
-  await activityRow.getByRole("button", { name: "Edit", exact: true }).click();
+  await openConfigureRow(page, "Activity connections", name);
   await dialog.getByRole("switch", { name: "Archive connection", exact: true }).check();
   await applyConfiguration(page);
-  await page.getByRole("button", { name: "Type settings", exact: true }).click();
-  await dialog.getByRole("switch", { name: "Archive this type", exact: true }).check();
+  await openListAction(page, "Archive list");
   await applyConfiguration(page);
-  await page.getByRole("link", { name: "All lists", exact: true }).click();
-  await expect(page).toHaveURL(/\/en\/company\/data-model$/);
-  await expect(page.locator("header").getByRole("button", { name: "Create list", exact: true })).toBeVisible();
-  const list = page.getByRole("main").getByRole("link", { name: new RegExp(`^${name}`) });
-  const hideArchived = page.getByRole("button", { name: "Hide archived", exact: true });
-  if (await hideArchived.isVisible()) await hideArchived.click();
-  await expect(list).not.toBeVisible();
-  await page.getByRole("button", { name: "Show archived", exact: true }).click();
-  await list.click();
-  await page.locator("header").getByRole("button", { name: "Restore", exact: true }).click();
-  await expect(dialog.getByRole("switch", { name: "Archive this type", exact: true })).not.toBeChecked();
+  await selectConfigureList(page, "Contacts");
+  if ((page.viewportSize()?.width ?? 0) < 1024) await page.getByRole("button", { name: "All lists", exact: true }).click();
+  await setShowArchived(page, false);
+  await expect(configureRailLink(page, name)).toHaveCount(0);
+  await setShowArchived(page, true);
+  await expect(configureRailLink(page, name)).toContainText("Archived");
+  await selectConfigureList(page, name);
+  await openListAction(page, "Restore list");
   await applyConfiguration(page);
   expect((await readModel(database, companyId)).types.find((type) => type.id === typeId)).toMatchObject({
     archived: false,

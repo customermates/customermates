@@ -114,7 +114,7 @@ export const RecordsPageView = observer(function RecordsPageView({
           <Button asChild className="max-sm:size-8 max-sm:p-0 max-sm:has-[>svg]:px-0" size="sm" variant="secondary">
             <IntlLink
               aria-label={t("RecordModel.configure")}
-              href={`/company/data-model?typeId=${presentation.typeId}`}
+              href={`/configure?typeId=${presentation.typeId}`}
               id="records-configure"
             >
               <Settings2 aria-hidden className="size-4" />

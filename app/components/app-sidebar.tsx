@@ -258,7 +258,7 @@ const FullAppSidebar = observer(
                   {
                     key: "configure-records",
                     title: t("RecordModel.configure"),
-                    href: "/company/data-model",
+                    href: "/configure",
                     icon: Settings2,
                     visible: true,
                   },
@@ -505,7 +505,7 @@ const FullAppSidebar = observer(
                   addPickerInvokerRef.current,
                   addPickerFallbackRef.current,
                 );
-              } else router.push("/company/data-model?create=true");
+              } else router.push("/configure?create=true");
             }}
           />
         ) : null}

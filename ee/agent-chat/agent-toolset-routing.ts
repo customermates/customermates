@@ -295,7 +295,7 @@ const TOOLSET_TERMS = new Map(
 );
 
 const TOOLSET_ROUTES: Record<AgentOnDemandToolset, readonly string[]> = {
-  "record-model": ["/records", "/company/data-model"],
+  "record-model": ["/records", "/configure"],
   views: [],
   messaging: ["/inbox", "/calendar"],
   social: ["/social"],

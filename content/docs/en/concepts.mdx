@@ -41,19 +41,19 @@ Behaviors are manually entered input, formula, lookup through a relationship, ro
 
 ## How do I add, change or delete custom columns, including the deal stage column? [#how-do-i-add-change-or-delete-a-custom-column]
 
-Open **Company → Data model** (`/company/data-model`), select a type, and add or edit its fields. The field dialog offers the value type, entered or calculated behavior, options, formatting, and a readable calculation editor. A change previews its affected records, views, widgets, routines, and other formulas before it is applied. Incompatible changes are blocked until their dependencies are resolved. Archiving a type removes it from ordinary use without silently deleting its records.
+Open **Configure** (`/configure`), select a list in the left rail, and add or edit its fields; **Add** in the top bar also creates calculations, relationships and activity connections, and **Map** shows how lists connect. The field editor opens beside the list and offers the value type, entered or calculated behavior, options, formatting, and a readable calculation editor. A change previews its affected records, views, widgets, routines, and other formulas before it is applied. Incompatible changes are blocked until their dependencies are resolved. Archiving a type removes it from ordinary use without silently deleting its records.
 
 Schema editing is separate from record editing. Administrators can delegate it; expanding role access still requires role-management authority. Over MCP, `get_record_model` reads the schema and `configure_record_model` previews and applies a change with an expected revision and idempotency key. A stale revision requires a fresh preview.
 
-**Link:** `/company/data-model`. **Mate:** navigate to `nav-company-data-model`; the assistant can use `configure_record_model` for the same validated change.
+**Link:** `/configure`. **Mate:** navigate to `nav-configure-records`; the assistant can use `configure_record_model` for the same validated change.
 
 ## How does a weighted pipeline work? [#how-does-a-weighted-pipeline-work]
 
 A configured select field can represent deal stages. Each stage option can carry a probability from 0 to 100 percent. **Weighted deal value = deal value × stage probability / 100**. A 2,600 deal at 60 percent contributes 1,560; a zero-percent stage contributes zero, while a missing probability leaves the weighted value absent. A changed live service price recalculates dependent values; a saved quote price does not.
 
-A schema manager edits stage options, their probability metadata, or the weighted-value formula in **Data model**. The dependency preview shows the effect on existing deals and widgets. A published summary of restricted inputs requires explicit administrator approval; otherwise readers who cannot access the inputs see a restricted value rather than a leaked total.
+A schema manager edits stage options, their probability metadata, or the weighted-value formula in **Configure**. The dependency preview shows the effect on existing deals and widgets. A published summary of restricted inputs requires explicit administrator approval; otherwise readers who cannot access the inputs see a restricted value rather than a leaked total.
 
-**Link:** `/company/data-model`. **Mate:** use `get_record_model` and `configure_record_model` after reviewing the change preview.
+**Link:** `/configure`. **Mate:** use `get_record_model` and `configure_record_model` after reviewing the change preview.
 
 ## What are widgets? [#what-are-widgets]
 

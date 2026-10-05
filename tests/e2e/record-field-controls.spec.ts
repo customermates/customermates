@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { Page } from "@playwright/test";
 import { RecordModelSchema, type RecordModel } from "../../features/records/record-model.schema";
+import { addFromConfigure, followConfigureLink, openConfigure, openConfigureRow, saveDrawer } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 async function choose(page: Page, label: string, option: string) {
@@ -9,28 +10,24 @@ async function choose(page: Page, label: string, option: string) {
 }
 
 async function apply(page: Page) {
-  const dialog = page.getByRole("dialog");
-  await dialog.getByRole("button", { name: "Preview changes", exact: true }).click();
-  await expect(dialog.getByRole("status")).toContainText("Ready to apply");
-  await dialog.getByRole("button", { name: "Apply changes", exact: true }).click();
-  await expect(dialog).not.toBeVisible();
+  await saveDrawer(page);
 }
 
 async function createList(page: Page, name: string) {
-  await page.goto("/en/company/data-model");
-  await page.getByRole("button", { name: "Create list", exact: true }).click();
+  await openConfigure(page);
+  await addFromConfigure(page, "List");
   const dialog = page.getByRole("dialog");
   await dialog.getByRole("textbox", { name: "Name", exact: false }).first().fill(name);
-  await dialog.getByRole("button", { name: "Create list", exact: true }).click();
+  await dialog.getByRole("button", { name: "Create list", exact: true }).first().click();
   await expect(dialog).not.toBeVisible();
   await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
   const typeId = new URL(page.url()).pathname.split("/").at(-1)!;
-  await page.locator("#records-configure").click();
+  await followConfigureLink(page);
   return typeId;
 }
 
 async function addField(page: Page, name: string, valueType: string, behavior?: string) {
-  await page.getByRole("button", { name: "Add field", exact: true }).click();
+  await addFromConfigure(page, "Field");
   await page.getByRole("dialog").getByRole("textbox", { name: "Name", exact: false }).fill(name);
   await choose(page, "Value type", valueType);
   if (behavior) await choose(page, "Value source", behavior);
@@ -542,13 +539,8 @@ test("captures snapshots on request and on stage changes while preserving manual
 });
 
 async function editFieldDefinitionUi(page: Page, typeId: string, label: string) {
-  await page.goto(`/en/company/data-model?typeId=${typeId}`);
-  const row = page
-    .getByRole("region", { name: "Fields", exact: true })
-    .getByText(label, { exact: true })
-    .locator("..")
-    .locator("..");
-  await row.getByRole("button", { name: "Edit", exact: true }).click();
+  await openConfigure(page, typeId);
+  await openConfigureRow(page, "Fields", label);
   await expect(page.getByRole("dialog", { name: "Edit field", exact: true })).toBeVisible();
 }
 
@@ -767,10 +759,10 @@ test("changes numeric display precision through the field editor without roundin
         await database.query('SELECT revision FROM "RecordSchemaState" WHERE "companyId"=$1', [companyId])
       ).rows[0]?.revision;
       await precision.fill("31");
-      await dialog.getByRole("button", { name: "Preview changes", exact: true }).click();
+      await dialog.getByRole("button", { name: "Save", exact: true }).first().click();
       await expect(page.getByText("Too big: expected number to be <=30", { exact: true })).toBeVisible();
       await expect(precision).toHaveValue("31");
-      await expect(dialog.getByRole("button", { name: "Preview changes", exact: true })).toBeEnabled();
+      await expect(dialog.getByRole("button", { name: "Save", exact: true }).first()).toBeEnabled();
       expect(
         (await database.query('SELECT revision FROM "RecordSchemaState" WHERE "companyId"=$1', [companyId])).rows[0]
           ?.revision,

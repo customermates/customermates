@@ -395,7 +395,7 @@ async function fixture(): Promise<AgentTurnWorkflowPayload> {
     userName: "Scripted Tester",
     locale: "en",
     appBaseUrl: "http://localhost:4000",
-    pageRoute: "/en/company/data-model",
+    pageRoute: "/en/configure",
     messages: [{ role: "user", text: "Create Projects with a doubled budget and linked Applications" }],
     tenant: { companyId, userId },
     surface: "chat",

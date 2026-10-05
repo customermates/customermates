@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
+import { followConfigureLink, saveGeneral } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 test("opens original CRM URLs in the shared record screens", async ({ page, database, companyId }) => {
@@ -96,7 +97,7 @@ test("uses configured navigation, quick creation, rename-safe routes, and hidden
   await page.locator("#nav-add").click();
   await page.getByRole("dialog").getByRole("button", { name: "Create list", exact: true }).click();
   await editor.getByRole("textbox", { name: "Name", exact: false }).first().fill("Projects");
-  await editor.getByRole("button", { name: "Create list", exact: true }).click();
+  await editor.getByRole("button", { name: "Create list", exact: true }).first().click();
   await expect(page).toHaveURL(/\/records\/[a-f0-9-]+$/);
   await expect(editor).not.toBeVisible();
   const typeId = new URL(page.url()).pathname.split("/").at(-1);
@@ -106,26 +107,20 @@ test("uses configured navigation, quick creation, rename-safe routes, and hidden
   await navLink.click();
   await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}$`));
   await expect(page.locator("#records-add")).toBeVisible();
-  await page.getByRole("link", { name: "Configure", exact: true }).and(page.locator("#records-configure")).click();
-  await page.getByRole("button", { name: "Type settings", exact: true }).click();
-  await editor.getByRole("textbox", { name: "Name", exact: false }).first().fill("Engagement");
-  await editor.getByRole("textbox", { name: "Navigation label", exact: false }).fill("Engagements");
-  await editor.getByRole("button", { name: "Preview changes", exact: true }).click();
-  await expect(editor.getByRole("status")).toContainText("Ready to apply");
-  await editor.getByRole("button", { name: "Apply changes", exact: true }).click();
-  await expect(editor).not.toBeVisible();
+  await followConfigureLink(page);
+  const general = page.getByRole("region", { name: "General", exact: true });
+  await general.getByRole("textbox", { name: "Name", exact: false }).first().fill("Engagement");
+  await general.getByRole("textbox", { name: "Navigation label", exact: false }).fill("Engagements");
+  await saveGeneral(page);
   await openSidebar();
   await expect(navLink).toHaveText("Engagements");
   await expect(navLink).toHaveAttribute("href", `/en/records/${typeId}`);
   await navLink.click();
   await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}$`));
   await expect(page.locator("#records-add")).toBeVisible();
-  await page.getByRole("link", { name: "Configure", exact: true }).and(page.locator("#records-configure")).click();
-  await page.getByRole("button", { name: "Type settings", exact: true }).click();
-  await editor.getByRole("switch", { name: "Show in navigation", exact: true }).uncheck();
-  await editor.getByRole("button", { name: "Preview changes", exact: true }).click();
-  await editor.getByRole("button", { name: "Apply changes", exact: true }).click();
-  await expect(editor).not.toBeVisible();
+  await followConfigureLink(page);
+  await general.getByRole("switch", { name: "Show in navigation", exact: true }).uncheck();
+  await saveGeneral(page);
   await openSidebar();
   await expect(navLink).toHaveCount(0);
   await page.waitForLoadState("networkidle");

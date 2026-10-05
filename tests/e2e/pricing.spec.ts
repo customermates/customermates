@@ -1,3 +1,4 @@
+import { addFromConfigure, followConfigureLink } from "./configure";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
 
@@ -88,8 +89,8 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
   ).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(dialogs).not.toBeVisible();
-  await page.locator("#records-configure").click();
-  await page.getByRole("button", { name: "Relationship", exact: true }).click();
+  await followConfigureLink(page);
+  await addFromConfigure(page, "Relationship");
   await dialogs.getByRole("combobox", { name: "Connection", exact: true }).click();
   await page.getByRole("option", { name: "Through linked records", exact: true }).click();
   await dialogs.getByRole("textbox", { name: "Name", exact: false }).fill("Offered services");
@@ -97,9 +98,9 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
   await page.getByRole("option", { name: "Line items", exact: true }).click();
   await dialogs.getByRole("combobox", { name: "Add a relationship step", exact: true }).click();
   await page.getByRole("option", { name: "Service", exact: true }).click();
-  await dialogs.getByRole("button", { name: "Preview changes", exact: true }).click();
+  await dialogs.getByRole("button", { name: "Save", exact: true }).first().click();
   await expect(dialogs.getByRole("status")).toContainText("Ready to apply");
-  await dialogs.getByRole("button", { name: "Apply changes", exact: true }).click();
+  await dialogs.getByRole("button", { name: "Apply changes", exact: true }).first().click();
   await expect(dialogs).not.toBeVisible();
   const configured = await database.query(
     'SELECT definition FROM "RecordTypeDefinition" WHERE "companyId"=$1 AND id=$2',

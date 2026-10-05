@@ -1,0 +1,146 @@
+import { omit } from "lodash";
+
+import type {
+  CalculationExpression,
+  RecordField,
+  RecordModel,
+  RecordType,
+} from "@/features/records/record-model.schema";
+import type { ConfigurationChange } from "@/features/records/configuration.schema";
+import { compareRecordKey } from "@/features/records/record-json";
+
+export type ConfigureRailRow = { type: RecordType; depth: number };
+
+export type ConfigureFieldSource =
+  | { kind: "input" | "formula" | "snapshot" }
+  | { kind: "lookup" | "rollup"; list: string | null };
+
+const byPosition = (left: RecordType, right: RecordType) =>
+  left.position - right.position || compareRecordKey(left.id, right.id);
+
+export function configureParentId(model: RecordModel, type: RecordType): string | null {
+  if (!type.parentRelationshipId) return null;
+  const relation = model.relationships.find((candidate) => candidate.id === type.parentRelationshipId);
+  if (!relation || relation.sourceTypeId !== type.id || relation.targetTypeId === type.id) return null;
+  return model.types.some((candidate) => candidate.id === relation.targetTypeId) ? relation.targetTypeId : null;
+}
+
+export function configureRailRows(
+  model: RecordModel,
+  { query = "", showArchived = false, selectedId }: { query?: string; showArchived?: boolean; selectedId?: string },
+): ConfigureRailRow[] {
+  const visible = (type: RecordType) => !type.archived || showArchived || type.id === selectedId;
+  const children = new Map<string, RecordType[]>();
+  const roots: RecordType[] = [];
+  for (const type of [...model.types].sort(byPosition)) {
+    const parentId = configureParentId(model, type);
+    if (parentId) children.set(parentId, [...(children.get(parentId) ?? []), type]);
+    else roots.push(type);
+  }
+  const rows: ConfigureRailRow[] = [];
+  const visited = new Set<string>();
+  const visit = (type: RecordType, depth: number) => {
+    if (visited.has(type.id)) return;
+    visited.add(type.id);
+    if (!visible(type)) return;
+    rows.push({ type, depth });
+    for (const child of children.get(type.id) ?? []) visit(child, depth + 1);
+  };
+  for (const root of roots) visit(root, 0);
+  for (const type of [...model.types].sort(byPosition)) if (!visited.has(type.id)) visit(type, 0);
+  const needle = query.trim().toLocaleLowerCase();
+  if (!needle) return rows;
+  const matches = rows.filter(({ type }) =>
+    [type.pluralLabel, type.label].some((label) => label.toLocaleLowerCase().includes(needle)),
+  );
+  const shown = new Set(matches.map(({ type }) => type.id));
+  return matches.map((row) => {
+    const parentId = configureParentId(model, row.type);
+    return { type: row.type, depth: parentId && shown.has(parentId) ? row.depth : 0 };
+  });
+}
+
+export function configureCounts(model: RecordModel, typeId: string) {
+  const type = model.types.find((candidate) => candidate.id === typeId);
+  return {
+    fields: model.fields.filter((field) => field.typeId === typeId && !field.archived).length,
+    relationships:
+      model.relationships.filter(
+        (relation) => !relation.archived && (relation.sourceTypeId === typeId || relation.targetTypeId === typeId),
+      ).length + (type?.relationshipPaths ?? []).filter((path) => !path.archived).length,
+    activity: model.activityPaths.filter((path) => path.typeId === typeId && !path.archived).length,
+  };
+}
+
+export function configureFieldOrder(model: RecordModel, typeId: string): string[] {
+  return model.fields.filter((field) => field.typeId === typeId).map((field) => field.id);
+}
+
+export function moveConfigureField(order: readonly string[], activeId: string, overId: string): string[] {
+  const from = order.indexOf(activeId);
+  const to = order.indexOf(overId);
+  if (from < 0 || to < 0 || from === to) return [...order];
+  const next = [...order];
+  next.splice(to, 0, ...next.splice(from, 1));
+  return next;
+}
+
+export function reorderFieldOperations(
+  model: RecordModel,
+  typeId: string,
+  order: readonly string[],
+): ConfigurationChange["operations"] {
+  const current = configureFieldOrder(model, typeId);
+  if (current.length !== order.length || current.every((id, index) => order[index] === id)) return [];
+  const fields = order.flatMap((fieldId) =>
+    model.fields.filter((field) => field.id === fieldId && field.typeId === typeId),
+  );
+  if (fields.length !== order.length) return [];
+  const offset = fields.some((field, index) => field.position !== index) ? 0 : fields.length;
+  return fields.flatMap((field, index) =>
+    field.position === index + offset
+      ? []
+      : [{ operation: "putField" as const, field: { ...omit(field, "publishedSummary"), position: index + offset } }],
+  );
+}
+
+function relatedExpression(
+  expression: CalculationExpression,
+): Extract<CalculationExpression, { kind: "related" }> | null {
+  if (expression.kind === "related") return expression;
+  if (expression.kind !== "operation") return null;
+  for (const argument of expression.arguments) {
+    const related = relatedExpression(argument);
+    if (related) return related;
+  }
+  return null;
+}
+
+export function configureFieldSource(model: RecordModel, field: RecordField): ConfigureFieldSource {
+  const behavior = field.behavior;
+  if (behavior.kind !== "lookup" && behavior.kind !== "rollup") return { kind: behavior.kind };
+  const related = relatedExpression(behavior.expression);
+  const relation = related && model.relationships.find((candidate) => candidate.id === related.relationId);
+  const listId = relation ? (related.direction === "outgoing" ? relation.targetTypeId : relation.sourceTypeId) : null;
+  return {
+    kind: behavior.kind,
+    list: model.types.find((type) => type.id === listId)?.pluralLabel ?? null,
+  };
+}
+
+export function configurePathLists(
+  model: RecordModel,
+  typeId: string,
+  path: ReadonlyArray<{ relationId: string; direction: "incoming" | "outgoing" }>,
+): string[] {
+  const lists: string[] = [];
+  for (const step of path) {
+    const relation = model.relationships.find((candidate) => candidate.id === step.relationId);
+    if (!relation) return [];
+    const next = step.direction === "outgoing" ? relation.targetTypeId : relation.sourceTypeId;
+    const label = model.types.find((type) => type.id === next)?.pluralLabel;
+    if (!label) return [];
+    lists.push(label);
+  }
+  return lists;
+}

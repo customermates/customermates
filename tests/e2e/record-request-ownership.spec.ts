@@ -1,5 +1,6 @@
 import type { Page, Route } from "@playwright/test";
 import { presetId } from "../../features/records/crm-preset";
+import { addFromConfigure, openConfigure } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 function collectErrors(page: Page) {
@@ -129,28 +130,28 @@ test("discards an earlier real configuration preview without attaching it to ano
 }, testInfo) => {
   const typeId = presetId(companyId, "organization");
   const errors = collectErrors(page);
-  await page.goto(`/en/company/data-model?typeId=${typeId}`);
-  await page.getByRole("button", { name: "Add field", exact: true }).click();
+  await openConfigure(page, typeId);
+  await addFromConfigure(page, "Field");
   const editor = page.getByRole("dialog");
   await editor.getByRole("textbox", { name: "Name", exact: false }).fill("Earlier preview field");
   const delayed = await delayNextAction(page);
   try {
-    await editor.getByRole("button", { name: "Preview changes", exact: true }).click();
+    await editor.getByRole("button", { name: "Save", exact: true }).first().click();
     await delayed.received;
     await discard(page);
-    await page.getByRole("button", { name: "Add field", exact: true }).click();
+    await addFromConfigure(page, "Field");
     await editor.getByRole("textbox", { name: "Name", exact: false }).fill("Current configured field");
     await delayed.release();
     await expect(editor.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Current configured field");
-    await expect(editor.getByRole("button", { name: "Preview changes", exact: true })).toBeEnabled();
-    await expect(editor.getByRole("button", { name: "Apply changes", exact: true })).toHaveCount(0);
+    await expect(editor.getByRole("button", { name: "Save", exact: true }).first()).toBeEnabled();
+    await expect(editor.getByRole("button", { name: "Apply changes", exact: true }).first()).toHaveCount(0);
     await page.screenshot({
       path: testInfo.outputPath("field-draft-after-delayed-preview.png"),
       animations: "disabled",
     });
-    await editor.getByRole("button", { name: "Preview changes", exact: true }).click();
+    await editor.getByRole("button", { name: "Save", exact: true }).first().click();
     await expect(editor.getByRole("status")).toContainText("Ready to apply");
-    await editor.getByRole("button", { name: "Apply changes", exact: true }).click();
+    await editor.getByRole("button", { name: "Apply changes", exact: true }).first().click();
     await expect(editor).not.toBeVisible();
     expect(
       (
