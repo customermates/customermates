@@ -1,0 +1,393 @@
+{
+  "report": {
+    "campaignId": "2e00af25-f313-4176-af75-63c32212d0b3",
+    "generatedAt": "2026-10-05T01:54:58.958Z",
+    "cohort": {
+      "schemaVersion": "5",
+      "fixtureVersion": "chat-benchmark-fixture-v7",
+      "sourceCommits": [
+        "05567f93c8a028536d92f2d4faa5633b50084f02"
+      ],
+      "hasDirtyArtifacts": false
+    },
+    "arms": [
+      {
+        "arm": "shipped",
+        "label": "ovh/Qwen3.8-27B, balanced catalog configuration (shipped)",
+        "runtimeVariant": "merge",
+        "sourceCommit": "05567f93c8a028536d92f2d4faa5633b50084f02",
+        "sourceDirty": false,
+        "episodes": 68,
+        "distinctCases": 68,
+        "coverage": [
+          "A1:r1",
+          "A2:r1",
+          "A3:r1",
+          "A4:r1",
+          "B1:r1",
+          "B2:r1",
+          "B3:r1",
+          "B4:r1",
+          "B5:r1",
+          "C25:r1",
+          "C26:r1",
+          "C27:r1",
+          "C28:r1",
+          "C29:r1",
+          "C30:r1",
+          "C31:r1",
+          "C32:r1",
+          "C33:r1",
+          "C34:r1",
+          "C35:r1",
+          "C36:r1",
+          "D10:r1",
+          "D1:r1",
+          "D2:r1",
+          "D3:r1",
+          "D4:r1",
+          "D5:r1",
+          "D6:r1",
+          "D7:r1",
+          "D8:r1",
+          "D9:r1",
+          "H10:r1",
+          "H11:r1",
+          "H12:r1",
+          "H9:r1",
+          "M5:r1",
+          "M6:r1",
+          "M7:r1",
+          "M8:r1",
+          "N13:r1",
+          "N14:r1",
+          "N15:r1",
+          "N16:r1",
+          "N17:r1",
+          "N18:r1",
+          "N19:r1",
+          "N20:r1",
+          "N21:r1",
+          "N22:r1",
+          "N23:r1",
+          "N24:r1",
+          "R47:r1",
+          "R48:r1",
+          "R53:r1",
+          "S1:r1",
+          "S2:r1",
+          "S3:r1",
+          "S4:r1",
+          "U44:r1",
+          "U45:r1",
+          "U46:r1",
+          "V37:r1",
+          "V38:r1",
+          "V39:r1",
+          "V40:r1",
+          "V41:r1",
+          "V53:r1",
+          "V54:r1"
+        ],
+        "skipped": 0,
+        "contractEpisodes": 20,
+        "contractPassed": 20,
+        "passRate": 0.9411764705882353,
+        "passAt3": null,
+        "judgeMean": null,
+        "judgeComplete": 0,
+        "judgeEligible": 55,
+        "judgeDisagreementShare": null,
+        "usdPerEpisode": 0.051023125294117636,
+        "usdPerTurn": 0.046886115135135124,
+        "creditsPerTurn": 4.688611513513514,
+        "costPerSuccessfulTask": 0.05421207062499999,
+        "measuredShare": 1,
+        "cacheReadShare": 0,
+        "cacheWriteShare": 0,
+        "roundsPerTurn": 3.27027027027027,
+        "ttftP50Ms": 14535,
+        "ttftP95Ms": 45789,
+        "firstOutputP50Ms": 5993,
+        "firstOutputP95Ms": 29747,
+        "wallP50Ms": 17791,
+        "wallP95Ms": 69050,
+        "lengthFinishShare": 0,
+        "incompleteTurnShare": 0,
+        "neverSolvedCases": [
+          "C25",
+          "C32",
+          "C36",
+          "N23"
+        ],
+        "retrievalLatency": [
+          {
+            "corpus": "docs",
+            "calls": 10,
+            "totalP50Ms": 1685,
+            "totalP95Ms": 2657,
+            "fullTextP95Ms": 237,
+            "embeddingP95Ms": 2307,
+            "rerankP95Ms": 1747,
+            "embeddingUsedShare": 0.9,
+            "embeddingTimeoutShare": 0.1,
+            "rerankUsedShare": 1
+          }
+        ],
+        "wikiRerankCallsPerTurn": 0,
+        "classifierUsdPerTurn": 0.00004826472972972973,
+        "classifierCostShare": 0.0010294034724485312,
+        "docsToolCallsPerTurn": 0.25675675675675674,
+        "docsRerankCallsPerTurn": 0.13513513513513514
+      }
+    ],
+    "comparisons": [],
+    "caseMatrix": {
+      "A1": {
+        "merge/shipped": "1/1"
+      },
+      "A2": {
+        "merge/shipped": "1/1"
+      },
+      "A3": {
+        "merge/shipped": "1/1"
+      },
+      "A4": {
+        "merge/shipped": "1/1"
+      },
+      "B1": {
+        "merge/shipped": "1/1"
+      },
+      "B2": {
+        "merge/shipped": "1/1"
+      },
+      "B3": {
+        "merge/shipped": "1/1"
+      },
+      "B4": {
+        "merge/shipped": "1/1"
+      },
+      "B5": {
+        "merge/shipped": "1/1"
+      },
+      "C25": {
+        "merge/shipped": "0/1"
+      },
+      "C26": {
+        "merge/shipped": "1/1"
+      },
+      "C27": {
+        "merge/shipped": "1/1"
+      },
+      "C28": {
+        "merge/shipped": "1/1"
+      },
+      "C29": {
+        "merge/shipped": "1/1"
+      },
+      "C30": {
+        "merge/shipped": "1/1"
+      },
+      "C31": {
+        "merge/shipped": "1/1"
+      },
+      "C32": {
+        "merge/shipped": "0/1"
+      },
+      "C33": {
+        "merge/shipped": "1/1"
+      },
+      "C34": {
+        "merge/shipped": "1/1"
+      },
+      "C35": {
+        "merge/shipped": "1/1"
+      },
+      "C36": {
+        "merge/shipped": "0/1"
+      },
+      "D1": {
+        "merge/shipped": "1/1"
+      },
+      "D10": {
+        "merge/shipped": "1/1"
+      },
+      "D2": {
+        "merge/shipped": "1/1"
+      },
+      "D3": {
+        "merge/shipped": "1/1"
+      },
+      "D4": {
+        "merge/shipped": "1/1"
+      },
+      "D5": {
+        "merge/shipped": "1/1"
+      },
+      "D6": {
+        "merge/shipped": "1/1"
+      },
+      "D7": {
+        "merge/shipped": "1/1"
+      },
+      "D8": {
+        "merge/shipped": "1/1"
+      },
+      "D9": {
+        "merge/shipped": "1/1"
+      },
+      "H10": {
+        "merge/shipped": "1/1"
+      },
+      "H11": {
+        "merge/shipped": "1/1"
+      },
+      "H12": {
+        "merge/shipped": "1/1"
+      },
+      "H9": {
+        "merge/shipped": "1/1"
+      },
+      "M5": {
+        "merge/shipped": "1/1"
+      },
+      "M6": {
+        "merge/shipped": "1/1"
+      },
+      "M7": {
+        "merge/shipped": "1/1"
+      },
+      "M8": {
+        "merge/shipped": "1/1"
+      },
+      "N13": {
+        "merge/shipped": "1/1"
+      },
+      "N14": {
+        "merge/shipped": "1/1"
+      },
+      "N15": {
+        "merge/shipped": "1/1"
+      },
+      "N16": {
+        "merge/shipped": "1/1"
+      },
+      "N17": {
+        "merge/shipped": "1/1"
+      },
+      "N18": {
+        "merge/shipped": "1/1"
+      },
+      "N19": {
+        "merge/shipped": "1/1"
+      },
+      "N20": {
+        "merge/shipped": "1/1"
+      },
+      "N21": {
+        "merge/shipped": "1/1"
+      },
+      "N22": {
+        "merge/shipped": "1/1"
+      },
+      "N23": {
+        "merge/shipped": "0/1"
+      },
+      "N24": {
+        "merge/shipped": "1/1"
+      },
+      "R43": {
+        "merge/shipped": "1/1"
+      },
+      "R47": {
+        "merge/shipped": "1/1"
+      },
+      "R48": {
+        "merge/shipped": "1/1"
+      },
+      "R49": {
+        "merge/shipped": "1/1"
+      },
+      "R50": {
+        "merge/shipped": "1/1"
+      },
+      "R51": {
+        "merge/shipped": "1/1"
+      },
+      "R52": {
+        "merge/shipped": "1/1"
+      },
+      "R53": {
+        "merge/shipped": "1/1"
+      },
+      "S1": {
+        "merge/shipped": "1/1"
+      },
+      "S2": {
+        "merge/shipped": "1/1"
+      },
+      "S3": {
+        "merge/shipped": "1/1"
+      },
+      "S4": {
+        "merge/shipped": "1/1"
+      },
+      "U44": {
+        "merge/shipped": "1/1"
+      },
+      "U45": {
+        "merge/shipped": "1/1"
+      },
+      "U46": {
+        "merge/shipped": "1/1"
+      },
+      "V37": {
+        "merge/shipped": "1/1"
+      },
+      "V38": {
+        "merge/shipped": "1/1"
+      },
+      "V39": {
+        "merge/shipped": "1/1"
+      },
+      "V40": {
+        "merge/shipped": "1/1"
+      },
+      "V41": {
+        "merge/shipped": "1/1"
+      },
+      "V42": {
+        "merge/shipped": "1/1"
+      },
+      "V53": {
+        "merge/shipped": "1/1"
+      },
+      "V54": {
+        "merge/shipped": "1/1"
+      }
+    },
+    "uniformlyFailingChecks": [],
+    "judgeModels": [],
+    "skippedEpisodes": [],
+    "suiteCoverage": {
+      "episodes": 74,
+      "distinctCases": 74,
+      "turns": 81,
+      "skippedEpisodes": 0,
+      "comparativeEpisodes": 68,
+      "comparativeCases": 68,
+      "comparativeTurns": 74,
+      "strictCases": 20
+    },
+    "mergeCheck": {
+      "status": "passed",
+      "expectedCases": 74,
+      "expectedTurns": 81,
+      "runtimeVariant": "merge",
+      "sourceCommit": "05567f93c8a028536d92f2d4faa5633b50084f02",
+      "failures": []
+    },
+    "totalUsd": 3.68922717,
+    "comparativeCaseCount": 68
+  }
+}
