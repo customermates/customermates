@@ -93,7 +93,7 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
         sessionEmail={sessionUser.email}
         sessionFirstName={sessionFirstName}
         sessionLastName={sessionLastName}
-        userId={user?.id}
+        userId={user?.role?.isSystemRole ? user.id : undefined}
         wikiSetupState={wikiSetupState}
         wikiStepCompleted={wikiStepCompleted}
       />

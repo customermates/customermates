@@ -77,6 +77,19 @@ describe("OnboardingWizardPage authentication detours", () => {
     });
   });
 
+  it("neither reads nor writes saved progress for a registered member without a system role", async () => {
+    mocks.resolveOnboardingIntent.mockResolvedValue({ status: "absent" });
+    mocks.requireAccountState.mockResolvedValue({
+      sessionUser: { id: "auth-b", companyId: "company-a" },
+      user: { id: "member-b", companyId: "company-a", role: { isSystemRole: false } },
+    });
+
+    const page = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
+
+    expect(mocks.getProgress).not.toHaveBeenCalled();
+    expect(page.props.children.props).toMatchObject({ userId: undefined, savedProgress: undefined });
+  });
+
   it.each([
     {
       name: "registered creator",
