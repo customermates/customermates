@@ -86,7 +86,6 @@ function makeRun(overrides: Partial<RoutineRunDto> = {}): RoutineRunDto {
     finishedAt: new Date("2026-09-08T09:00:02Z"),
     terminalCode: "completed",
     stopReason: null,
-    chargedCredits: 1,
     chargedPct: 0.5,
     summary: "Done",
     error: null,

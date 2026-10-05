@@ -16,6 +16,7 @@ import {
 } from "./agent-credit-policy";
 import { agentRoundWorstCaseMicrocents, resolveAgentTurnBudget, type AgentTurnBudget } from "./agent-budget-policy";
 import type { AgentModelEntry } from "./model-catalog";
+import { configuredOvhApiKey, isOvhModelId } from "./ovh-ai-endpoints-catalog";
 
 export type AgentRetrievalPayer = "grant" | "platform";
 
@@ -138,6 +139,10 @@ function usagePct(used: number, limit: number) {
 
 function assertMicrocentCount(value: number, description: string) {
   if (!Number.isSafeInteger(value) || value < 0) throw new Error(`${description} is invalid.`);
+}
+
+function servableAgentModel(model: AgentModelEntry) {
+  return !isOvhModelId(model.modelId) || configuredOvhApiKey(env.OVH_AI_ENDPOINTS_API_KEY) !== null;
 }
 
 export class AgentUsageService {
@@ -266,7 +271,7 @@ export class AgentUsageService {
   }> {
     const state = await this.resolveUsageState(userId, now);
     if (state.summary.blockedReason) return { summary: state.summary, reservation: null };
-    if (!state.user.subscription || !state.summary.plan) {
+    if (!state.user.subscription || !state.summary.plan || !servableAgentModel(options.model)) {
       return {
         summary: {
           ...state.summary,

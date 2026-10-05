@@ -8,7 +8,7 @@ import { getVercelOidcToken } from "@vercel/oidc";
 
 import { env } from "@/env";
 
-import { configuredOvhApiKey } from "../ovh-ai-endpoints";
+import { configuredOvhApiKey } from "../ovh-ai-endpoints-catalog";
 
 import { ClassifierRequestError, classifierFailureOf } from "./failure";
 import { runJev } from "./jev-runner";

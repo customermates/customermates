@@ -35,7 +35,7 @@ import { routineRunTriggerContext } from "./routine-run-trigger-context";
 import { dateGroupables, relationGroupables } from "@/core/base/grouping/groupable-field";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 import { isAgentTurnStopReason } from "@/ee/agent-chat/agent-turn-request";
-import { agentMicrocentsFromStorage, agentMicrocentsToCredits } from "@/ee/agent-chat/agent-credit-policy";
+import { agentMicrocentsFromStorage } from "@/ee/agent-chat/agent-credit-policy";
 
 import { DEFAULT_ROUTINE_TIMEZONE, nextCronOccurrence, parseCronExpression } from "./routine-schedule";
 import {
@@ -122,7 +122,7 @@ function storedRoutineFilters(value: unknown): Filter[] {
   return parsed.data;
 }
 
-type RoutineRunRow = Omit<RoutineRunDto, "triggerContext" | "stopReason" | "chargedCredits" | "chargedPct"> & {
+type RoutineRunRow = Omit<RoutineRunDto, "triggerContext" | "stopReason" | "chargedPct"> & {
   triggerPayload: unknown;
   chargedMicrocents: bigint;
 };
@@ -145,7 +145,6 @@ function routineRunDto(
 
   return {
     ...run,
-    chargedCredits: agentMicrocentsToCredits(charged),
     chargedPct: routineRunChargedPct(charged, allowanceMicrocents),
     stopReason: storedStopReason,
     triggerContext: routineRunTriggerContext(run.triggerEvent, triggerPayload),

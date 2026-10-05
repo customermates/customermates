@@ -54,6 +54,20 @@ describe("agent client payload boundary", () => {
     expect(keys.filter((key) => SERVER_ONLY_KEY_PATTERN.test(key) || RAW_CREDIT_KEY_PATTERN.test(key))).toEqual([]);
   });
 
+  it("sends routine runs to the browser and MCP clients with a usage share, never a raw credit amount", () => {
+    const keys = objectLiteralKeys(
+      readRepoFile("ee/routines/routine.schema.ts"),
+      "export const RoutineRunDtoSchema = z.object(",
+    );
+
+    expect(keys).toContain("chargedPct");
+    expect(keys.filter((key) => SERVER_ONLY_KEY_PATTERN.test(key) || RAW_CREDIT_KEY_PATTERN.test(key))).toEqual([]);
+
+    const repository = readRepoFile("ee/routines/prisma-routine.repository.ts");
+    const projection = repository.slice(repository.indexOf("function routineRunDto("));
+    expect(projection.slice(0, projection.indexOf("\n}\n"))).not.toMatch(/agentMicrocentsToCredits|Credits:/);
+  });
+
   it("sends the agent config usage as the percentage view, never the credit summary", () => {
     const config = readRepoFile("ee/agent-chat/get-agent-config.interactor.ts");
 

@@ -133,10 +133,11 @@ describe("PrismaRoutineRepo run projection", () => {
       where: { turnRequestId: { in: ["turn-1", "turn-2"] }, companyId: user.companyId, purpose: "turn" },
       select: { turnRequestId: true, allowanceMicrocentsSnapshot: true },
     });
-    expect(result.runs.map(({ id, chargedCredits, chargedPct }) => ({ id, chargedCredits, chargedPct }))).toEqual([
-      { id: "run-1", chargedCredits: 5, chargedPct: 2.5 },
-      { id: "run-2", chargedCredits: 0.000001, chargedPct: 0.01 },
-      { id: "run-3", chargedCredits: 5, chargedPct: null },
+    expect(result.runs.map(({ id, chargedPct }) => ({ id, chargedPct }))).toEqual([
+      { id: "run-1", chargedPct: 2.5 },
+      { id: "run-2", chargedPct: 0.01 },
+      { id: "run-3", chargedPct: null },
     ]);
+    expect(result.runs.every((run) => !("chargedCredits" in run) && !("chargedMicrocents" in run))).toBe(true);
   });
 });

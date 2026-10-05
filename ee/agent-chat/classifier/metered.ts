@@ -76,7 +76,10 @@ export async function classifyMetered(
 ): Promise<{ result: ClassifierResult | null; charge: ClassifierCharge | null; failure?: ClassifierFailure }> {
   const attempt = await classifyAttempt(spec, state, model, options);
   if (!attempt.requested) return { result: null, charge: null };
-  const measured = attempt.result?.costMicrocents ?? attempt.costMicrocents ?? null;
+  const measured =
+    attempt.result?.costMicrocents ??
+    attempt.costMicrocents ??
+    (model !== "jev" && (attempt.failure === "rejected" || attempt.failure === "rateLimited") ? 0 : null);
   const charge: ClassifierCharge = {
     use,
     model,

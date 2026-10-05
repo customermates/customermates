@@ -119,10 +119,6 @@ function hosted(
   };
 }
 
-// OVHcloud AI Endpoints arms are served directly, not through the Gateway
-// (servingProvider "ovh", region "eu"). The shared envelope fits every OVH
-// model's context window (131k or 262k tokens). Qwen3.x thinking models run
-// with OVH's default reasoning behavior; only gpt-oss accepts reasoning_effort.
 function ovh(
   id: string,
   nativeModelId: string,

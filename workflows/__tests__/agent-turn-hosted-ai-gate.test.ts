@@ -3840,7 +3840,16 @@ describe("routine browse-or-mutate batch safety", () => {
 });
 
 describe("agent-turn rate-limited provider requests", () => {
-  const notBilled = {
+  const ovhPayload: AgentTurnWorkflowPayload = {
+    ...payload,
+    turnBudget: {
+      ...payload.turnBudget,
+      modelSpec: "ovh/Qwen3.8-27B",
+      servingProvider: "ovh",
+      inferenceRegion: "eu",
+    },
+  };
+  const gatewayNotBilled = {
     gateway: {
       gatewayCost: "0",
       cost: "0",
@@ -3850,57 +3859,96 @@ describe("agent-turn rate-limited provider requests", () => {
       },
     },
   };
-  const billed = {
-    gateway: {
-      gatewayCost: "0.0005",
-      cost: "0.0005",
-      routing: {
-        finalProvider: "vertex",
-        modelAttempts: [{ providerAttempts: [{ provider: "vertex", credentialType: "system", success: true }] }],
-      },
-    },
-  };
 
   const providerRejection = (statusCode: number, extra: Record<string, unknown> = {}) =>
     new Error(`A provider request failed before complete usage was available (HTTP ${statusCode}).`, {
       cause: {
         kind: "ai-sdk-workflow-provider-error",
         version: 1,
-        attempts: [notBilled],
+        attempts: [null],
         statusCode,
         isRetryable: true,
         ...extra,
       },
     });
   const rateLimited = (extra: Record<string, unknown> = {}) => providerRejection(429, extra);
-  const reply = () => ({
-    finishReason: "stop",
-    messages: [],
-    steps: [{ ...streamedStep("Done.", "stop"), providerMetadata: billed }],
-  });
+  const ovhReply = () => {
+    const step = streamedStep("Done.", "stop", 200);
+    return {
+      finishReason: "stop",
+      messages: [],
+      steps: [
+        {
+          ...step,
+          usage: {
+            ...step.usage,
+            inputTokens: 1_000,
+            totalTokens: 1_200,
+            inputTokenDetails: { noCacheTokens: 1_000, cacheReadTokens: 0, cacheWriteTokens: 0 },
+          },
+        },
+      ],
+    };
+  };
   const sleeps = () => vi.mocked(sleep).mock.calls.map(([duration]) => duration);
 
   beforeEach(() => {
     vi.mocked(sleep).mockClear();
   });
 
-  it("retries a request-time 429 after its Retry-After wait and completes the turn", async () => {
-    let attempts = 0;
-    state.runTools = () =>
-      attempts++ === 0 ? Promise.reject(rateLimited({ retryAfterMs: 3_000 })) : Promise.resolve(reply());
+  it("sends every OVH round to the SDK with no internal retries, so each provider attempt is one recorded attempt", async () => {
+    const prepared: unknown[] = [];
+    state.runTools = async ({ prepared: first, completeStepAndPrepareNext }) => {
+      prepared.push(first);
+      await completeStepAndPrepareNext(streamedStep("", "tool-calls"));
+      prepared.push(state.prepared);
+      return { finishReason: "stop", messages: [], steps: [] };
+    };
+
+    await runAgentTurn(ovhPayload);
+
+    expect(prepared).toEqual([expect.objectContaining({ maxRetries: 0 }), expect.objectContaining({ maxRetries: 0 })]);
+  });
+
+  it("keeps the SDK's own funded retries for a Gateway round and never retries its 429 again at the turn", async () => {
+    const prepared: unknown[] = [];
+    state.runTools = ({ prepared: first }) => {
+      prepared.push(first);
+      return Promise.reject(
+        rateLimited({ attempts: [gatewayNotBilled, gatewayNotBilled, gatewayNotBilled], isRetryable: true }),
+      );
+    };
 
     await runAgentTurn(payload);
+
+    expect(prepared).toEqual([expect.not.objectContaining({ maxRetries: expect.anything() })]);
+    expect(state.providerCalls).toBe(1);
+    expect(sleeps()).toEqual([]);
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        stopReason: "provider_error",
+        usageSettlement: expect.objectContaining({ costMicrocents: 0, costSource: "measured" }),
+      }),
+    );
+  });
+
+  it("retries an OVH request-time 429 after its Retry-After wait and prices the successful round from its tokens", async () => {
+    let attempts = 0;
+    state.runTools = () =>
+      attempts++ === 0 ? Promise.reject(rateLimited({ retryAfterMs: 3_000 })) : Promise.resolve(ovhReply());
+
+    await runAgentTurn(ovhPayload);
 
     expect(state.providerCalls).toBe(2);
     expect(sleeps()).toEqual([3_000]);
     expect(state.reportFailure).not.toHaveBeenCalled();
     expect(state.extendReservation).not.toHaveBeenCalled();
-    expect(state.recordRound).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ costMicrocents: 50_000 }));
+    expect(state.recordRound).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ costMicrocents: 110_800 }));
     expect(state.finalize).toHaveBeenCalledWith(
       expect.objectContaining({
         terminalCode: "completed",
         stopReason: null,
-        usageSettlement: expect.objectContaining({ costMicrocents: 50_000, costSource: "measured" }),
+        usageSettlement: expect.objectContaining({ costMicrocents: 110_800, costSource: "measured" }),
       }),
     );
   });
@@ -3908,9 +3956,9 @@ describe("agent-turn rate-limited provider requests", () => {
   it("caps a long Retry-After wait", async () => {
     let attempts = 0;
     state.runTools = () =>
-      attempts++ === 0 ? Promise.reject(rateLimited({ retryAfterMs: 45_000 })) : Promise.resolve(reply());
+      attempts++ === 0 ? Promise.reject(rateLimited({ retryAfterMs: 45_000 })) : Promise.resolve(ovhReply());
 
-    await runAgentTurn(payload);
+    await runAgentTurn(ovhPayload);
 
     expect(sleeps()).toEqual([10_000]);
     expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ stopReason: null }));
@@ -3921,11 +3969,11 @@ describe("agent-turn rate-limited provider requests", () => {
     let attempts = 0;
     state.runTools = () => Promise.reject(++attempts === 3 ? last : rateLimited());
 
-    await runAgentTurn(payload);
+    await runAgentTurn(ovhPayload);
 
     expect(state.providerCalls).toBe(3);
     expect(sleeps()).toEqual([2_000, 4_000]);
-    expect(state.reportFailure).toHaveBeenCalledExactlyOnceWith("agent-turn", last, payload.tenant);
+    expect(state.reportFailure).toHaveBeenCalledExactlyOnceWith("agent-turn", last, ovhPayload.tenant);
     expect(state.finalize).toHaveBeenCalledWith(
       expect.objectContaining({
         terminalCode: "partial",
@@ -3938,20 +3986,26 @@ describe("agent-turn rate-limited provider requests", () => {
 
   it.each([
     ["a 503 rejection", () => providerRejection(503)],
-    ["a 429 the SDK already retried", () => rateLimited({ attempts: [notBilled, notBilled, notBilled] })],
     [
       "a 429 after the response stream began",
-      () => rateLimited({ attempts: [], currentAttempt: { errorAttempts: [notBilled] } }),
+      () => rateLimited({ attempts: [], currentAttempt: { errorAttempts: [null] } }),
+    ],
+    [
+      "a 429 after the stream finished",
+      () => rateLimited({ attempts: [], currentAttempt: { finishMetadata: null, errorAttempts: [null] } }),
     ],
     [
       "a 429 without the durable provider receipt",
       () =>
-        Object.assign(new Error("rate limited"), { [Symbol.for("vercel.ai.gateway.error")]: true, statusCode: 429 }),
+        Object.assign(new Error("rate limited"), {
+          [Symbol.for("vercel.ai.error.AI_APICallError")]: true,
+          statusCode: 429,
+        }),
     ],
   ])("does not retry %s", async (_label, error) => {
     state.runTools = () => Promise.reject(error());
 
-    await runAgentTurn(payload);
+    await runAgentTurn(ovhPayload);
 
     expect(state.providerCalls).toBe(1);
     expect(sleeps()).toEqual([]);
@@ -3967,7 +4021,7 @@ describe("agent-turn rate-limited provider requests", () => {
     async (reservedMicrocents, calls) => {
       state.runTools = () => Promise.reject(rateLimited());
 
-      await runAgentTurn({ ...payload, turnBudget: { ...payload.turnBudget, reservedMicrocents } });
+      await runAgentTurn({ ...ovhPayload, turnBudget: { ...ovhPayload.turnBudget, reservedMicrocents } });
 
       expect(state.providerCalls).toBe(calls);
       expect(state.extendReservation).not.toHaveBeenCalled();
@@ -3979,7 +4033,7 @@ describe("agent-turn rate-limited provider requests", () => {
     state.readCancellation.mockResolvedValueOnce(false).mockResolvedValue(true);
     state.runTools = () => Promise.reject(rateLimited());
 
-    await runAgentTurn(payload);
+    await runAgentTurn(ovhPayload);
 
     expect(state.providerCalls).toBe(1);
     expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ stopReason: "cancelled" }));
@@ -3991,13 +4045,13 @@ describe("agent-turn rate-limited provider requests", () => {
     const seen: string[] = [];
     state.runTools = async ({ messages, executeAndCompleteTool, completeStepAndPrepareNext }) => {
       seen.push(JSON.stringify(messages));
-      if (seen.length > 1) return reply();
+      if (seen.length > 1) return ovhReply();
       await executeAndCompleteTool("list_users", {}, "call-1");
       await completeStepAndPrepareNext(streamedToolCallStep("list_users", "call-1", {}));
       throw rateLimited();
     };
 
-    await runAgentTurn(payload);
+    await runAgentTurn(ovhPayload);
 
     expect(seen).toHaveLength(2);
     expect(seen[1]).toContain("call-1");
@@ -4006,25 +4060,6 @@ describe("agent-turn rate-limited provider requests", () => {
     expect(state.finalize).toHaveBeenCalledWith(
       expect.objectContaining({ terminalCode: "completed", stopReason: null }),
     );
-  });
-
-  it("does not retry a 429 whose current attempt was already billed", async () => {
-    let attempts = 0;
-    state.runTools = () => {
-      attempts += 1;
-      return Promise.reject(
-        rateLimited({
-          attempts: [],
-          currentAttempt: { finishMetadata: billed },
-        }),
-      );
-    };
-
-    await runAgentTurn(payload);
-
-    expect(attempts).toBe(1);
-    expect(sleeps()).toEqual([]);
-    expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ stopReason: "provider_error" }));
   });
 });
 
@@ -4114,6 +4149,72 @@ describe("agent-turn rounds on a provider without receipts", () => {
       );
     },
   );
+
+  it("prices a successful OVH round from its tokens even when an earlier SDK attempt left no receipt", async () => {
+    state.runTools = ({ messages }) =>
+      Promise.resolve({
+        finishReason: "stop",
+        messages,
+        steps: [
+          {
+            ...ovhStep(1_000, 200),
+            providerMetadata: {
+              workflow: {
+                providerReceipt: {
+                  kind: "ai-sdk-workflow-provider-error",
+                  version: 1,
+                  attempts: [null],
+                  currentAttempt: { finishMetadata: null },
+                },
+              },
+            },
+          },
+        ],
+      });
+
+    await runAgentTurn(ovhPayload);
+
+    expect(state.recordRound).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ costMicrocents: 110_800 }));
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        usageSettlement: expect.objectContaining({ costMicrocents: 110_800, costSource: "measured" }),
+      }),
+    );
+  });
+
+  it("does not charge the reservation for an OVH dispatch the SDK retried that was rejected before generating", async () => {
+    state.runTools = () =>
+      Promise.reject(
+        new Error("Provider request failed", {
+          cause: { kind: "ai-sdk-workflow-provider-error", version: 1, attempts: [null, null, null], statusCode: 429 },
+        }),
+      );
+    await runAgentTurn(ovhPayload);
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        stopReason: "provider_error",
+        usageSettlement: expect.objectContaining({ costMicrocents: 0, chargedMicrocents: 0, costSource: "measured" }),
+      }),
+    );
+  });
+
+  it("keeps charging the reservation for an OVH dispatch the SDK retried that ended in a server error", async () => {
+    state.runTools = () =>
+      Promise.reject(
+        new Error("Provider request failed", {
+          cause: { kind: "ai-sdk-workflow-provider-error", version: 1, attempts: [null, null, null], statusCode: 503 },
+        }),
+      );
+    await runAgentTurn(ovhPayload);
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        usageSettlement: expect.objectContaining({
+          costMicrocents: ovhPayload.turnBudget.reservedMicrocents,
+          costSource: "estimated",
+        }),
+      }),
+    );
+  });
 
   it("charges the reservation when an OVH round fails with a server error that may have generated", async () => {
     state.runTools = () =>

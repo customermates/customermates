@@ -38,6 +38,11 @@ export function ovhNativeModelId(modelId: string): string {
   return nativeModelId;
 }
 
+export function configuredOvhApiKey(value: string | undefined): string | null {
+  const trimmed = value?.trim();
+  return trimmed && trimmed !== "XXX" ? trimmed : null;
+}
+
 export function agentServingProviderUsesGateway(servingProvider: string): boolean {
   return servingProvider !== OVH_SERVING_PROVIDER;
 }

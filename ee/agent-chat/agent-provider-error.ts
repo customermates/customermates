@@ -131,10 +131,11 @@ function currentProviderReceipt(value: unknown, expectedProvider: string): Provi
   };
 }
 
-function isSingleAttemptWithoutReceipt(envelope: Record<string, unknown>) {
+function isDispatchRejectionWithoutReceipt(envelope: Record<string, unknown>) {
   const attempts = envelope.attempts;
   if (!Array.isArray(attempts)) return false;
-  if (!("currentAttempt" in envelope)) return attempts.length === 1 && attempts[0] === null;
+  if (!("currentAttempt" in envelope))
+    return attempts.length > 0 && attempts.length <= 16 && attempts.every((attempt) => attempt === null);
   const current = gatewayFailureRecord(envelope.currentAttempt);
   const errorAttempts = current?.errorAttempts;
   return (
@@ -152,7 +153,7 @@ function rejectedBeforeGenerationWithoutGateway(envelope: Record<string, unknown
   const status = envelope.statusCode;
   if (typeof status !== "number" || status < 400 || status >= 500 || status === 408) return false;
   if (envelope.providerFailure === false || envelope.incompleteAttempts === true) return false;
-  return isSingleAttemptWithoutReceipt(envelope);
+  return isDispatchRejectionWithoutReceipt(envelope);
 }
 
 function readProviderReceiptEnvelope(
@@ -249,7 +250,8 @@ export function readAgentProviderRoundCharge(
 
 export type AgentProviderRateLimit = { retryAfterMs: number | null };
 
-export function readAgentProviderRateLimit(error: unknown): AgentProviderRateLimit | null {
+export function readAgentProviderRateLimit(error: unknown, expectedProvider: string): AgentProviderRateLimit | null {
+  if (agentServingProviderUsesGateway(expectedProvider)) return null;
   const envelope = providerFailureEnvelope(error);
   if (!envelope || envelope.statusCode !== 429 || "currentAttempt" in envelope) return null;
   if (!Array.isArray(envelope.attempts) || envelope.attempts.length !== 1) return null;

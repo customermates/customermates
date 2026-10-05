@@ -97,9 +97,6 @@ async function verifyGatewayArm(
   });
 }
 
-// OVH is served directly, so the Gateway's per-endpoint ZDR and training flags
-// do not exist for it. Eligibility rests on the recorded attestation of OVH's
-// public statement and on the model still being in OVH's live public catalog.
 function verifyOvhArm(
   arm: BenchmarkArm,
   catalog: OvhCatalog | string,

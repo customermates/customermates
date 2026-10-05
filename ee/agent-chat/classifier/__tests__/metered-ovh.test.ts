@@ -139,6 +139,7 @@ describe("metered OVHcloud classifier calls", () => {
     [429, "rateLimited"],
     [503, "unavailable"],
     [400, "rejected"],
+    [408, "timeout"],
   ] as const)("names why an answered-with-%i classification produced nothing", async (status, failure) => {
     const { failure: reported } = await classifyMetered("wiki_synthesis_review", SPEC, STATE, MODEL, {
       apiKey: "k",
@@ -180,6 +181,34 @@ describe("metered OVHcloud classifier calls", () => {
       failure: "unavailable",
     });
     expect(charges).toHaveLength(1);
+  });
+
+  it.each([
+    [429, "rateLimited"],
+    [400, "rejected"],
+    [401, "rejected"],
+  ] as const)("charges nothing for a request OVHcloud refused with %i before generating", async (status, failure) => {
+    const { value, charges } = await collectClassifierCharges(() =>
+      classifyMetered("wiki_synthesis_review", SPEC, STATE, MODEL, { apiKey: "k", fetch: reply({}, status) }),
+    );
+
+    expect(value).toEqual({
+      result: null,
+      charge: { use: "wiki_synthesis_review", model: MODEL, costMicrocents: 0, measured: true, answered: false },
+      failure,
+    });
+    expect(charges).toHaveLength(1);
+  });
+
+  it.each([408, 504])("keeps the sent-failure estimate for a %i that may have generated", async (status) => {
+    const { value } = await collectClassifierCharges(() =>
+      classifyMetered("wiki_synthesis_review", SPEC, STATE, MODEL, { apiKey: "k", fetch: reply({}, status) }),
+    );
+
+    expect(value.charge).toMatchObject({
+      costMicrocents: estimateClassifierCostMicrocents(SPEC, STATE, MODEL),
+      measured: false,
+    });
   });
 
   it("estimates an answered call whose provider reported no token usage", async () => {

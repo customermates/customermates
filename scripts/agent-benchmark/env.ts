@@ -32,9 +32,6 @@ function configuredKey(value: string | undefined): string {
   return trimmed === "XXX" ? "" : trimmed;
 }
 
-// `arms` are the arms this command will run. A directly served provider needs
-// its own key on the application server; the CLI checks it is configured only
-// when such an arm is selected, so Gateway-only runs need nothing new.
 export function requireLocalBenchmarkEnvironment(
   environment: Record<string, string | undefined> = process.env,
   arms: readonly { servingProvider: string }[] = [],

@@ -9,9 +9,11 @@ vi.mock("@/env", () => ({
     APP_MODE: "cloud",
     AGENT_MAX_STEPS: 8,
     AGENT_MAX_OUTPUT_TOKENS: 2048,
+    OVH_AI_ENDPOINTS_API_KEY: "test-ovh-key" as string | undefined,
   },
 }));
 
+import { env } from "@/env";
 import { AgentUsageService, AgentUsageViewSchema, toAgentUsageView } from "../agent-usage.service";
 import { type AgentUsageRepo } from "@/ee/agent-chat/agent-usage.repo";
 import { agentRoundWorstCaseMicrocents } from "../agent-budget-policy";
@@ -328,6 +330,41 @@ describe("AgentUsageService admission and ledger", () => {
     expect(admission.summary.creditsRemaining).toBe((required - 1) / CREDIT);
     expect(admission.summary.blockedReason).toBe("credits_exhausted");
     expect(admission.reservation).toBeNull();
+  });
+
+  it.each([undefined, "", "XXX"])(
+    "fails closed before reserving an OVH-served turn when the OVH key is %j",
+    async (apiKey) => {
+      const repo = makeRepo({ usedMicrocents: 100 * CREDIT });
+      const service = new AgentUsageService(repo);
+      const configuredKey = env.OVH_AI_ENDPOINTS_API_KEY;
+      env.OVH_AI_ENDPOINTS_API_KEY = apiKey;
+      try {
+        const admission = await service.prepareTurn("user-1", NOW, { model: MODEL });
+
+        expect(admission.summary.blockedReason).toBe("configuration_unavailable");
+        expect(admission.reservation).toBeNull();
+        expect(repo.reserveUsageEventUnscoped).not.toHaveBeenCalled();
+      } finally {
+        env.OVH_AI_ENDPOINTS_API_KEY = configuredKey;
+      }
+    },
+  );
+
+  it("still admits a Gateway-served model without the OVH key", async () => {
+    const service = new AgentUsageService(makeRepo({ usedMicrocents: 100 * CREDIT }));
+    const configuredKey = env.OVH_AI_ENDPOINTS_API_KEY;
+    env.OVH_AI_ENDPOINTS_API_KEY = undefined;
+    try {
+      const admission = await service.prepareTurn("user-1", NOW, {
+        model: { ...MODEL, modelId: "google/gemini-3.5-flash", servingProvider: "vertex" },
+      });
+
+      expect(admission.summary.blockedReason).toBeNull();
+      expect(admission.reservation).not.toBeNull();
+    } finally {
+      env.OVH_AI_ENDPOINTS_API_KEY = configuredKey;
+    }
   });
 
   it("does not reserve when the allowance is exhausted", async () => {

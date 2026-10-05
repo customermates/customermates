@@ -19,6 +19,7 @@ vi.mock("@/env", () => ({
     BASE_URL: "http://localhost:4000",
     AUTH_ALLOWED_HOSTS: ["localhost:4000"],
     AI_GATEWAY_API_KEY: undefined,
+    OVH_AI_ENDPOINTS_API_KEY: "test-ovh-key",
     HOSTED_AI_MONTHLY_SPEND_CAP_MICROCENTS: null,
     HOSTED_AI_OPERATOR_CONTROLS_ENABLED: false,
     HOSTED_AI_PROVIDER_WORK_PAUSED: false,

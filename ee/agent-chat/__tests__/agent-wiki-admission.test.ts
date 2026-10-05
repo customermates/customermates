@@ -20,7 +20,12 @@ const mockUser = createMockUser();
 const definitions = vi.hoisted(() => vi.fn().mockReturnValue([]));
 
 vi.mock("@/env", () => ({
-  env: { ...MOCK_ENV_MODULE.env, APP_MODE: "cloud", AUTH_ALLOWED_HOSTS: ["localhost:4000"] },
+  env: {
+    ...MOCK_ENV_MODULE.env,
+    APP_MODE: "cloud",
+    AUTH_ALLOWED_HOSTS: ["localhost:4000"],
+    OVH_AI_ENDPOINTS_API_KEY: "test-ovh-key",
+  },
 }));
 vi.mock("next/headers", () => ({
   headers: () => new Headers({ origin: "http://localhost:4000" }),

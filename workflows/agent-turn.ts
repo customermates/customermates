@@ -71,6 +71,7 @@ import { getAgentChatRepo, getBackgroundTaskService } from "@/core/di";
 import { internalToolIdentity, WIKI_WEBSITE_IMPORT_TOOL_NAME } from "@/ee/agent-chat/tool-identity";
 import type { readAgentProviderCharge } from "@/ee/agent-chat/gateway-cost";
 import { readAgentServedCharge, readGatewayCostMicrocents } from "@/ee/agent-chat/gateway-cost";
+import { agentServingProviderUsesGateway } from "@/ee/agent-chat/ovh-ai-endpoints-catalog";
 import {
   readAgentProviderErrorCharge,
   readAgentProviderRateLimit,
@@ -980,6 +981,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     let providerStop: Extract<AgentTurnStopReason, "provider_error" | "content_filter" | "turn_error"> | null = null;
     let resolvedProviderErrorRetries = 0;
     let rateLimitRetries = 0;
+    const turnOwnsProviderRetries = !agentServingProviderUsesGateway(payload.turnBudget.servingProvider);
     let toolExecutedThisCall = false;
     let providerFailure: WorkflowFailure | null = null;
     let budgetStop = false;
@@ -1266,7 +1268,9 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
               } as const)
             : servedCharge;
         const tokenPriced = charge.outcome === "tokenPriced";
-        const roundCharge = readAgentProviderRoundCharge(step.providerMetadata, payload.turnBudget.servingProvider);
+        const roundCharge = tokenPriced
+          ? null
+          : readAgentProviderRoundCharge(step.providerMetadata, payload.turnBudget.servingProvider);
         const gatewayDebitMicrocents = readGatewayCostMicrocents(step.providerMetadata);
         const hasPositiveGatewayDebit = (gatewayDebitMicrocents ?? 0) > 0;
         const remainingReservationMicrocents = Math.max(0, reservedMicrocents - accruedCostMicrocents());
@@ -1539,7 +1543,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           if (!(await canStartNextHostedAiProviderRound(payload))) throw hostedAiPaused;
           const webPageReadPermitted =
             webPageReads < webPageReadLimit && !(isUnattendedSurface(surface) && performedWrite);
-          const maxRetries = fundedRetryCount();
+          const maxRetries = turnOwnsProviderRetries ? 0 : fundedRetryCount();
           return {
             activeTools: webPageReadPermitted
               ? activeTools
@@ -1618,7 +1622,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           });
           unreportedProviderRounds -= 1;
         }
-        const rateLimit = readAgentProviderRateLimit(error);
+        const rateLimit = readAgentProviderRateLimit(error, payload.turnBudget.servingProvider);
         if (
           rateLimit &&
           failureCharge &&

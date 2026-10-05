@@ -3,6 +3,7 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { env } from "@/env";
 
 import {
+  configuredOvhApiKey,
   isOvhModelId,
   OVH_AI_ENDPOINTS_BASE_URL,
   OVH_SERVING_PROVIDER,
@@ -14,11 +15,6 @@ export type AgentDirectLanguageModel = ReturnType<ReturnType<typeof createOpenAI
 export const AGENT_LANGUAGE_MODEL_RESOLVER = Symbol.for("ai-sdk.workflow.resolveLanguageModel");
 
 type AgentLanguageModelResolver = (modelId: string) => AgentDirectLanguageModel | undefined;
-
-export function configuredOvhApiKey(value: string | undefined): string | null {
-  const trimmed = value?.trim();
-  return trimmed && trimmed !== "XXX" ? trimmed : null;
-}
 
 export function createOvhLanguageModel(
   modelId: string,

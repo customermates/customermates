@@ -906,6 +906,36 @@ describe("StartRoutineRunInteractor", () => {
     );
   });
 
+  it("blocks a run without starting a charged turn when hosted Mate is not configured", async () => {
+    const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures();
+    sendAgentMessage.invokeRoutine.mockResolvedValue({
+      ok: false,
+      error: {
+        issues: [
+          {
+            code: "custom",
+            message: "The assistant is unavailable.",
+            params: { error: CustomErrorCode.agentServiceUnavailable },
+          },
+        ],
+      },
+    });
+    const interactor = new StartRoutineRunInteractor(
+      repo as never,
+      conversations as never,
+      sendAgentMessage as never,
+      filterMatcher as never,
+    );
+
+    const result = await interactor.invoke({ routineRunId: RUN_ID });
+
+    expect(result).toEqual({ ok: true, data: { started: false, reason: "startFailed" } });
+    expect(conversations.deleteUnusedAgentConversation).toHaveBeenCalledOnce();
+    expect(repo.settleRoutineRunUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({ status: "blocked", error: "startFailed" }),
+    );
+  });
+
   it("never stores a rendered sentence when the failure carries no code", async () => {
     const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures();
     sendAgentMessage.invokeRoutine.mockResolvedValue({

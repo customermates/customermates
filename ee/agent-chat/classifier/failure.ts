@@ -16,5 +16,5 @@ export function classifierFailureOf(error: unknown): ClassifierFailure {
 }
 
 export function httpClassifierFailure(status: number): ClassifierFailure {
-  return status === 429 ? "rateLimited" : status >= 500 ? "unavailable" : "rejected";
+  return status === 429 ? "rateLimited" : status === 408 ? "timeout" : status >= 500 ? "unavailable" : "rejected";
 }

@@ -46,8 +46,6 @@ const PINNED = [
   pin("typesafe-ai/jev", "digitalocean", null),
 ];
 
-// OVHcloud AI Endpoints is served directly, so its prices come from OVH's own
-// public catalog rather than the Gateway. Each pin is the native OVH id.
 const OVH_PINNED = [
   "Qwen3.8-27B",
   "Qwen3.5-397B-A17B",

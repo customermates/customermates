@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { readAgentProviderErrorCharge, readAgentProviderRoundCharge } from "../agent-provider-error";
+import {
+  readAgentProviderErrorCharge,
+  readAgentProviderRateLimit,
+  readAgentProviderRoundCharge,
+} from "../agent-provider-error";
 
 function metadata(cost: string, success = true, generationId?: string) {
   return {
@@ -192,10 +196,32 @@ describe("OVHcloud rejections before generation", () => {
     expect(readAgentProviderErrorCharge(ovhError(single), "ovh")).toMatchObject({ measured: false });
   });
 
+  it.each([400, 429])(
+    "releases an OVH dispatch the SDK retried when every attempt was rejected without a receipt, ending in %i",
+    (statusCode) => {
+      const retried = { kind: "ai-sdk-workflow-provider-error", version: 1, attempts: [null, null, null], statusCode };
+      expect(readAgentProviderErrorCharge(ovhError(retried), "ovh")).toEqual({ costMicrocents: 0, measured: true });
+    },
+  );
+
+  it.each([408, 500, undefined])("keeps an SDK-retried OVH dispatch ending in %s unreadable", (statusCode) => {
+    const retried = { kind: "ai-sdk-workflow-provider-error", version: 1, attempts: [null, null, null], statusCode };
+    expect(readAgentProviderErrorCharge(ovhError(retried), "ovh")).toMatchObject({ measured: false });
+  });
+
+  it("keeps an OVH dispatch with a receipt-bearing attempt on the receipt rule", () => {
+    const mixed = {
+      kind: "ai-sdk-workflow-provider-error",
+      version: 1,
+      attempts: [metadata("0.0007"), null],
+      statusCode: 429,
+    };
+    expect(readAgentProviderErrorCharge(ovhError(mixed), "ovh")).toMatchObject({ measured: false });
+  });
+
   it("keeps an OVH rejection after an earlier attempt, a partial stream or incomplete attempts unreadable", () => {
     const statusCode = 400;
     for (const value of [
-      { kind: "ai-sdk-workflow-provider-error", version: 1, attempts: [null, null], statusCode },
       envelope([null], { errorAttempts: [null] }, { statusCode }),
       envelope([], { finishMetadata: null, errorAttempts: [null] }, { statusCode }),
       envelope([], { errorAttempts: [null] }, { statusCode, incompleteAttempts: true }),
@@ -207,5 +233,39 @@ describe("OVHcloud rejections before generation", () => {
   it("leaves a Gateway rejection on the Gateway receipt rule", () => {
     const single = { kind: "ai-sdk-workflow-provider-error", version: 1, attempts: [null], statusCode: 400 };
     expect(readAgentProviderErrorCharge(ovhError(single), "vertex")).toMatchObject({ measured: false });
+  });
+});
+
+describe("turn-owned rate-limit retries", () => {
+  const rateLimited = (cause: Record<string, unknown>) =>
+    Object.assign(new Error("A provider request failed before complete usage was available (HTTP 429)."), { cause });
+
+  it("hands a single OVH dispatch rejected with 429 to the turn with its Retry-After wait", () => {
+    const error = rateLimited({
+      kind: "ai-sdk-workflow-provider-error",
+      version: 1,
+      attempts: [null],
+      statusCode: 429,
+      retryAfterMs: 3_000,
+    });
+    expect(readAgentProviderRateLimit(error, "ovh")).toEqual({ retryAfterMs: 3_000 });
+  });
+
+  it("leaves a Gateway 429 to the SDK's own retries", () => {
+    const error = rateLimited({
+      kind: "ai-sdk-workflow-provider-error",
+      version: 1,
+      attempts: [metadata("0", false)],
+      statusCode: 429,
+    });
+    expect(readAgentProviderRateLimit(error, "vertex")).toBeNull();
+  });
+
+  it("does not retry an OVH 429 after the stream began or after more than one attempt", () => {
+    for (const cause of [
+      envelope([], { errorAttempts: [null] }, { statusCode: 429 }),
+      { kind: "ai-sdk-workflow-provider-error", version: 1, attempts: [null, null], statusCode: 429 },
+    ])
+      expect(readAgentProviderRateLimit(rateLimited(cause), "ovh")).toBeNull();
   });
 });
