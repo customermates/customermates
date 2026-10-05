@@ -22,19 +22,19 @@ const PAGE_LINK_QUESTIONS: [ContentLocale, string, string][] = [
   ["en", "API keys page URL", "/profile/api-keys"],
   ["en", "routines page URL", "/routines"],
   ["en", "URL of the routines page", "/routines"],
-  ["en", "contacts page URL", "/contacts"],
-  ["en", "link to the deals page", "/deals"],
-  ["en", "tasks page URL", "/tasks"],
-  ["en", "organizations page URL", "/organizations"],
-  ["en", "link to the services page", "/services"],
+  ["en", "contacts page URL", "/records/<typeId>"],
+  ["en", "link to the deals page", "/records/<typeId>"],
+  ["en", "tasks page URL", "/records/<typeId>"],
+  ["en", "organizations page URL", "/records/<typeId>"],
+  ["en", "link to the services page", "/records/<typeId>"],
   ["de", "URL der Rollen-Seite", "/company/roles"],
   ["de", "URL der Webhooks-Seite", "/company/webhooks"],
   ["de", "URL der API-Keys-Seite", "/profile/api-keys"],
   ["de", "Link zur Routinen-Seite", "/routines"],
-  ["de", "URL der Kontakte-Seite", "/contacts"],
-  ["de", "Link zur Aufgaben-Seite", "/tasks"],
-  ["de", "URL der Organisationen-Seite", "/organizations"],
-  ["de", "URL der Services-Seite", "/services"],
+  ["de", "URL der Kontakte-Seite", "/records/<typeId>"],
+  ["de", "Link zur Aufgaben-Seite", "/records/<typeId>"],
+  ["de", "URL der Organisationen-Seite", "/records/<typeId>"],
+  ["de", "URL der Services-Seite", "/records/<typeId>"],
   ["en", "webhooks route", "/company/webhooks"],
   ["de", "Route Webhooks", "/company/webhooks"],
   ["de", "URL der Unternehmenseinstellungen-Seite", "/company/settings"],
@@ -54,7 +54,7 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
   ["de", "Webhook pausieren ohne ihn zu löschen", "webhooks#how-do-i-create-a-webhook", "/company/webhooks"],
   ["en", "webhooks route", "app-company#webhooks-tab", "/company/webhooks"],
   ["de", "Route Webhooks", "app-company#webhooks-tab", "/company/webhooks"],
-  ["en", "list_records page size", "mcp#records", null],
+  ["en", "query_crm_records page size", "mcp#records", null],
   ["en", "who can create API keys", "api-keys#who-can-create-and-see-api-keys", "/profile/api-keys"],
   ["en", "how long do quick connection keys last", "api-keys#do-keys-expire", "/profile/api-keys"],
   ["en", "API key name length", "api-keys#what-is-the-key-format", "/profile/api-keys"],
@@ -64,24 +64,24 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
   ["de", "Wie lang darf ein Key-Name sein", "api-keys#what-is-the-key-format", "/profile/api-keys"],
   ["de", "Wer kann Webhooks sehen und ändern", "webhooks#who-can-see-and-change-webhooks", "/company/webhooks"],
   ["de", "Wie debugge ich eine Delivery", "webhooks#how-do-i-debug-a-delivery", "/company/webhook-deliveries"],
-  ["en", "where do I add a new contact", "app-records#how-do-i-add-a-record", "/contacts"],
-  ["en", "where do I see a list of all tasks", "app-records#how-do-i-add-a-record", "/tasks"],
-  ["en", "where do I see my services", "app-records#how-do-i-add-a-record", "/services"],
-  ["de", "Kontakt anlegen", "app-records#how-do-i-add-a-record", "/contacts"],
-  ["de", "Wo lege ich einen neuen Deal an", "app-records#how-do-i-add-a-record", "/deals"],
+  ["en", "where do I add a new contact", "app-records#how-do-i-add-a-record", "/records/<typeId>"],
+  ["en", "where do I see a list of all tasks", "app-records#how-do-i-add-a-record", "/records/<typeId>"],
+  ["en", "where do I see my services", "app-records#how-do-i-add-a-record", "/records/<typeId>"],
+  ["de", "Kontakt anlegen", "app-records#how-do-i-add-a-record", "/records/<typeId>"],
+  ["de", "Wo lege ich einen neuen Deal an", "app-records#how-do-i-add-a-record", "/records/<typeId>"],
   ["en", "where do I create a routine", "app-routines#how-do-i-create-a-routine", "/routines"],
   ["de", "Wo lege ich eine Routine an", "app-routines#how-do-i-create-a-routine", "/routines"],
   [
     "en",
     "where do I rename the Deals record type",
     "app-company#how-do-i-rename-record-types-in-the-data-model",
-    "/company/settings",
+    "/configure",
   ],
   [
     "de",
     "Wo benenne ich den Datensatztyp Deals um?",
     "app-company#how-do-i-rename-record-types-in-the-data-model",
-    "/company/settings",
+    "/configure",
   ],
   ["en", "where do I see who changed what in the workspace", "app-company#audit-logs-tab", "/company/audit-logs"],
   [
@@ -137,12 +137,7 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
   ["en", "link to the API keys page", "api-keys#how-do-i-create-an-api-key", "/profile/api-keys"],
   ["en", "Where is the Recent Deliveries page?", "app-company#deliveries-tab", "/company/webhook-deliveries"],
   ["en", "Who can manage billing?", "app-company#who-can-manage-billing", "/company/subscription"],
-  [
-    "en",
-    "Where do I set stage probabilities?",
-    "app-company#how-do-stage-probabilities-and-totals-work",
-    "/company/settings",
-  ],
+  ["en", "Where do I set stage probabilities?", "app-company#how-do-stage-probabilities-and-totals-work", "/configure"],
   [
     "en",
     "What happens to my connected accounts if we switch to Starter?",
@@ -154,7 +149,7 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
     "en",
     "Can I name contacts anything I want?",
     "app-company#how-do-i-rename-record-types-in-the-data-model",
-    "/company/settings",
+    "/configure",
   ],
   [
     "en",
@@ -172,18 +167,23 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
   ["en", "How is a deal's total value calculated?", "concepts#how-is-a-deals-total-value-calculated", null],
   ["en", "What does Assigned read access mean?", "concepts#who-are-users-roles-and-the-company", null],
   ["en", "Which custom field types are there?", "concepts#what-are-custom-columns", null],
-  ["en", "show my pipeline as a kanban board", "app-records#how-do-i-switch-between-table-and-board-view", "/deals"],
+  [
+    "en",
+    "show my pipeline as a kanban board",
+    "app-records#how-do-i-switch-between-table-and-board-view",
+    "/records/<typeId>",
+  ],
   [
     "en",
     "How do I set up pipeline stages?",
     "app-records#how-do-i-change-a-deal-stage-or-a-task-status-on-the-board",
-    "/deals",
+    "/records/<typeId>",
   ],
   [
     "en",
     "Can I edit an existing record in the add drawer?",
     "app-records#what-is-the-shared-layout-of-a-record-type",
-    "/contacts",
+    "/records/<typeId>",
   ],
   [
     "en",
@@ -200,7 +200,12 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
     "app-inbox#which-conversations-do-i-see",
     "/profile/connected-accounts",
   ],
-  ["en", "write a new email to a contact", "app-inbox#how-do-i-start-a-new-conversation", "/contacts/<id>"],
+  [
+    "en",
+    "write a new email to a contact",
+    "app-inbox#how-do-i-start-a-new-conversation",
+    "/records/<typeId>/<recordId>",
+  ],
   ["en", "Is there a calendar in Customermates?", "app-dashboard#what-can-an-activity-timeline-show", "/dashboard"],
   ["en", "share a dashboard widget with my team", "app-dashboard#what-does-the-dashboard-show", "/dashboard"],
   ["en", "Which chart types can a widget show?", "app-dashboard#which-widget-types-exist", "/dashboard"],
@@ -221,7 +226,7 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
     "de",
     "Wo speichere ich die Telefonnummer eines Kontakts?",
     "app-records#what-is-special-about-each-record-type",
-    "/contacts",
+    "/records/<typeId>",
   ],
   ["de", "Wie lege ich eine Automatisierung an?", "app-routines#how-do-i-create-a-routine", "/routines"],
   ["de", "Kanal für Kollegen sichtbar machen", "app-profile#private-or-shared", "/profile/connected-accounts"],
@@ -242,20 +247,20 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
     "de",
     "Deals in Opportunities umbenennen",
     "app-company#how-do-i-rename-record-types-in-the-data-model",
-    "/company/settings",
+    "/configure",
   ],
   ["de", "Onboarding überspringen", "app-onboarding#kann-ich-teile-des-onboardings-uberspringen", "/onboarding/wizard"],
   [
     "en",
     "where can I change the stage field used for deal weighting",
     "app-company#how-do-stage-probabilities-and-totals-work",
-    "/company/settings",
+    "/configure",
   ],
   [
     "de",
     "Wo ändere ich das Deal-Phasenfeld für die Gewichtung?",
     "app-company#how-do-stage-probabilities-and-totals-work",
-    "/company/settings",
+    "/configure",
   ],
   [
     "en",
@@ -299,6 +304,29 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
   ["de", "LinkedIn Limit Fehler", "messaging-rate-limits#what-are-the-limits-for-sending-and-profile-lookups", null],
   ["de", "Claude erneute Verbindung", "connect-custom-connector#claude", null],
 ];
+
+it("keeps the hosted route and section expectations aligned with the current docs", () => {
+  const corpus = docsCorpus();
+  const localeSections = (locale: ContentLocale) =>
+    [...corpus.sections].filter(([key]) => key.startsWith(`${locale}:docs:`)).map(([, section]) => section);
+  const links = (text: string) =>
+    text
+      .split("\n")
+      .filter((line) => line.startsWith("**Link:**"))
+      .join("\n");
+
+  for (const [locale, query, route] of PAGE_LINK_QUESTIONS) {
+    const linkLines = localeSections(locale)
+      .map((section) => links(section.text))
+      .join("\n");
+    expect(linkLines, `${locale} "${query}"`).toContain(`\`${route}\``);
+  }
+  for (const [locale, query, expected, route] of SECTION_QUESTIONS) {
+    const section = localeSections(locale).find((candidate) => `${candidate.slug}#${candidate.anchor}` === expected);
+    expect(section, `${locale} "${query}" -> ${expected}`).toBeDefined();
+    if (route) expect(links(section?.text ?? ""), `${locale} "${query}" -> ${expected}`).toContain(`\`${route}\``);
+  }
+});
 
 describeDatabase("documentation retrieval exact regression contracts", () => {
   const repo = new PrismaDocsChunkRepo();

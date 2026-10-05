@@ -13,9 +13,27 @@ import { runInTransaction } from "@/core/decorators/transaction-runner";
 import type { AppPrismaClient } from "@/prisma/db";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 
+// These tests control the complete platform-operator population, so their table locks
+// must not block unrelated workspace fixtures running in parallel.
+const operatorDatabase = await vi.hoisted(async () => {
+  const { getLocalDatabaseTestUrl } = await import("@/tests/helpers/database-test");
+  const sourceUrl = getLocalDatabaseTestUrl();
+  if (!sourceUrl) return undefined;
+  const { createLegacyMigrationDatabase, deployMigrations } = await import("@/tests/helpers/legacy-migration-database");
+  const database = await createLegacyMigrationDatabase(sourceUrl, false);
+  try {
+    const result = await deployMigrations(database.url);
+    if (result.code !== 0) throw new Error("Could not migrate the isolated operator test database.");
+    return database;
+  } catch (error) {
+    await database.close();
+    throw error;
+  }
+});
+
 const operatorEnv = vi.hoisted(() => ({
   APP_MODE: "cloud",
-  DATABASE_URL: process.env.DATABASE_URL,
+  DATABASE_URL: operatorDatabase?.url ?? process.env.DATABASE_URL,
   HOSTED_AI_OPERATOR_CONTROLS_ENABLED: true,
   NODE_ENV: "test",
 }));
@@ -139,18 +157,26 @@ async function seedEnterpriseUser(email: string, allowance = 10) {
 }
 
 afterAll(async () => {
-  await runWithoutTenant(async () => {
-    await prisma.operatorAuditEvent.deleteMany({ where: { actorUserId: { in: actorIds } } });
-    for (const companyId of companyIds) {
-      await prisma.agentCreditAdjustment.deleteMany({ where: { companyId } });
-      await prisma.agentUsageEvent.deleteMany({ where: { companyId } });
-      await prisma.user.deleteMany({ where: { companyId } });
-      await prisma.subscription.deleteMany({ where: { companyId } });
-      await prisma.company.deleteMany({ where: { id: companyId } });
+  if (!operatorDatabase) return;
+  try {
+    await runWithoutTenant(async () => {
+      await prisma.operatorAuditEvent.deleteMany({ where: { actorUserId: { in: actorIds } } });
+      for (const companyId of companyIds) {
+        await prisma.agentCreditAdjustment.deleteMany({ where: { companyId } });
+        await prisma.agentUsageEvent.deleteMany({ where: { companyId } });
+        await prisma.user.deleteMany({ where: { companyId } });
+        await prisma.subscription.deleteMany({ where: { companyId } });
+        await prisma.company.deleteMany({ where: { id: companyId } });
+      }
+      await prisma.authUser.deleteMany({ where: { id: { in: authUserIds } } });
+    });
+  } finally {
+    try {
+      await prisma.$disconnect();
+    } finally {
+      await operatorDatabase.close();
     }
-    await prisma.authUser.deleteMany({ where: { id: { in: authUserIds } } });
-  });
-  await prisma.$disconnect();
+  }
 });
 
 describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_000 }, () => {
