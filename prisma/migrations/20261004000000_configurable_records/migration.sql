@@ -1,26 +1,24 @@
 -- =============================================================================================
--- Configurable records: the complete, one-step upgrade from the legacy CRM tables.
+-- Configurable records: the one-step upgrade from the legacy CRM tables.
 --
 -- prisma migrate deploy sends this file to PostgreSQL as one batch of statements, which PostgreSQL runs as a
 -- single implicit transaction (there is deliberately no BEGIN/COMMIT: an explicit block would leave the
 -- connection aborted after a refusal and hide the refusal message from Prisma). To run it by hand, use
 -- psql --single-transaction --set ON_ERROR_STOP=1 -f migration.sql. The file
 --   0. locks every workspace and the legacy tables,
---   1. VALIDATES all legacy data and stages every conversion (refusing with grouped counts),
+--   1. VALIDATES the legacy CRM data and builds each workspace's record model (refusing with grouped counts),
 --   2. EXPANDS the schema with the generic record storage,
 --   3. converts RECORDS, values, links, assignments, identities and participant lookups,
---   4. converts CONFIGURATION: record models and revisions, permissions, presentation state,
---      widgets, routine/webhook triggers, timeline views and terminology,
+--   4. writes the CONFIGURATION (record model revision, grants) and removes what is not carried over:
+--      legacy saved views, personalisation, dashboard widgets, legacy history and legacy automation triggers,
 --   5. materialises CALCULATED values and their provenance with exact decimals,
---   6. RECONCILES the result against the legacy source and refuses on any mismatch,
+--   6. RECONCILES the CRM data against the legacy source and refuses on any mismatch,
 --   7. REMOVES the legacy tables, columns and enums.
 -- A refusal or interruption rolls everything back: the legacy data stays exactly as it was.
 -- Recovery: fix the reported rows, run `prisma migrate resolve --rolled-back 20261004000000_configurable_records`,
 -- then `prisma migrate deploy` again. See README.md next to this file.
 --
 -- An empty database passes sections 1 and 3-6 without work and ends in the schema of prisma/schema.prisma.
--- The conversion reproduces the retired TypeScript upgrade (prisma/record-migrations at c77dfb7bb) value for
--- value, except for the explicit, documented repairs marked "Documented repair" below.
 -- =============================================================================================
 
 SET LOCAL TIME ZONE 'UTC';
@@ -43,7 +41,7 @@ $$;
 
 -- ---------------------------------------------------------------------------------------------
 -- Section 0: locks. Every workspace advisory lock (the record engine's per-workspace lock, taken in id
--- order), then the legacy CRM tables exclusively and the converted presentation tables against writes.
+-- order), then the legacy CRM tables exclusively and the other tables this upgrade reads or changes against writes.
 -- ---------------------------------------------------------------------------------------------
 DO $$
 DECLARE
@@ -63,25 +61,21 @@ LOCK TABLE "Company", "User", "UserRole", "RolePermission", "Widget", "DataView"
 -- Fresh planner statistics for the legacy source (statistics only; rolled back with everything else).
 ANALYZE "Company", "User", "UserRole", "RolePermission", "Contact", "Organization", "Deal", "Service", "Task", "CustomColumn",
   "CustomFieldValue", "ContactIdentifier", "ServiceDeal", "ServiceUser", "DealOrganization", "DealUser", "DealContact", "ContactUser",
-  "OrganizationUser", "TaskUser", "TaskContact", "TaskOrganization", "TaskDeal", "TaskService", "ContactOrganization", "EntityTerminology",
-  "DataView", "P13n", "Widget", "Routine", "Webhook", "AuditLog", "MessagingThreadParticipant";
+  "OrganizationUser", "TaskUser", "TaskContact", "TaskOrganization", "TaskDeal", "TaskService", "ContactOrganization",
+  "MessagingThreadParticipant";
 
 -- Transaction-scoped working state: the helper schema (dropped in section 7) and staging tables.
 CREATE SCHEMA crm_upgrade;
 CREATE TEMP TABLE crm_upgrade_issue (company_id text, source_table text NOT NULL, field text NOT NULL, code text NOT NULL) ON COMMIT DROP;
-CREATE TEMP TABLE crm_upgrade_repair (company_id text NOT NULL, source_table text NOT NULL, row_id text, kind text NOT NULL, detail text) ON COMMIT DROP;
--- Untouched routine trigger state, so routine repairs are recounted from the legacy rows after conversion.
-CREATE TEMP TABLE crm_upgrade_routine_source ON COMMIT DROP AS
-  SELECT id, "companyId" AS company_id, "triggerEvents" AS events, enabled, "ownerUserId" AS owner_user_id, "triggerKind"::text AS trigger_kind FROM "Routine";
 
 -- ---------------------------------------------------------------------------------------------
 -- Helper functions. They live in the transaction-scoped schema "crm_upgrade" and are dropped in
--- section 7. Each one reproduces the exact JavaScript/zod semantics the retired TypeScript
--- upgrade used, so that acceptance, rejection and every converted value stay identical.
+-- section 7. The validation helpers reproduce the JavaScript/zod semantics of the record engine, so that
+-- acceptance, rejection and every converted value match what the application would store.
 -- ---------------------------------------------------------------------------------------------
 
--- presetId(companyId, key): sha256("customermates:records:v2:<companyId>:<key>") shaped as a UUID
--- with fixed version/variant nibbles (prisma/record-migrations/v2/contract/crm-preset.ts).
+-- presetId(companyId, key) (features/records/crm-preset.ts): sha256("customermates:records:v2:<companyId>:<key>")
+-- shaped as a UUID with fixed version/variant nibbles.
 CREATE FUNCTION crm_upgrade.preset_id(company_id text, key text) RETURNS text
 LANGUAGE sql IMMUTABLE STRICT AS $$
   SELECT substr(h, 1, 8) || '-' || substr(h, 9, 4) || '-8' || substr(h, 14, 3) || '-8' || substr(h, 18, 3) || '-' || substr(h, 21, 12)
@@ -182,71 +176,6 @@ BEGIN
         FROM jsonb_each(p_document) AS entry), '{}'::jsonb);
     ELSE
       RETURN p_document;
-  END CASE;
-END
-$$;
-
--- String(value) for JSON values as used by Number(value) coercion (arrays join with commas).
-CREATE FUNCTION crm_upgrade.js_string(p_value jsonb) RETURNS text
-LANGUAGE plpgsql IMMUTABLE AS $$
-BEGIN
-  IF p_value IS NULL THEN RETURN 'undefined'; END IF;
-  CASE jsonb_typeof(p_value)
-    WHEN 'string' THEN RETURN p_value #>> '{}';
-    WHEN 'number' THEN RETURN crm_upgrade.js_num(crm_upgrade.js_parse_number(p_value::text::numeric));
-    WHEN 'boolean' THEN RETURN p_value::text;
-    WHEN 'null' THEN RETURN 'null';
-    WHEN 'array' THEN
-      RETURN COALESCE((SELECT string_agg(CASE WHEN jsonb_typeof(item.value) = 'null' THEN '' ELSE crm_upgrade.js_string(item.value) END, ',' ORDER BY item.ordinality)
-        FROM jsonb_array_elements(p_value) WITH ORDINALITY AS item(value, ordinality)), '');
-    ELSE RETURN '[object Object]';
-  END CASE;
-END
-$$;
-
--- Number(string): StringToNumber, NULL for NaN.
-CREATE FUNCTION crm_upgrade.js_string_to_number(p_value text) RETURNS double precision
-LANGUAGE plpgsql IMMUTABLE STRICT AS $$
-DECLARE
-  v_trimmed text := crm_upgrade.js_trim(p_value);
-  v_result numeric;
-BEGIN
-  IF v_trimmed = '' THEN RETURN 0; END IF;
-  IF v_trimmed ~ '^0[xX][0-9a-fA-F]+$' THEN
-    v_result := 0;
-    FOR v_i IN 3..length(v_trimmed) LOOP
-      v_result := v_result * 16 + position(lower(substr(v_trimmed, v_i, 1)) IN '0123456789abcdef') - 1;
-    END LOOP;
-    RETURN crm_upgrade.js_parse_number(v_result);
-  ELSIF v_trimmed ~ '^0[oO][0-7]+$' THEN
-    v_result := 0;
-    FOR v_i IN 3..length(v_trimmed) LOOP v_result := v_result * 8 + substr(v_trimmed, v_i, 1)::integer; END LOOP;
-    RETURN crm_upgrade.js_parse_number(v_result);
-  ELSIF v_trimmed ~ '^0[bB][01]+$' THEN
-    v_result := 0;
-    FOR v_i IN 3..length(v_trimmed) LOOP v_result := v_result * 2 + substr(v_trimmed, v_i, 1)::integer; END LOOP;
-    RETURN crm_upgrade.js_parse_number(v_result);
-  ELSIF v_trimmed ~ '^[+-]?Infinity$' THEN
-    RETURN CASE WHEN left(v_trimmed, 1) = '-' THEN '-Infinity'::float8 ELSE 'Infinity'::float8 END;
-  ELSIF v_trimmed ~ '^[+-]?([0-9]+\.?[0-9]*|\.[0-9]+)([eE][+-]?[0-9]+)?$' THEN
-    RETURN crm_upgrade.js_parse_number(v_trimmed::numeric);
-  END IF;
-  RETURN NULL;
-END
-$$;
-
--- Number(jsonValue) as used by z.coerce.number().
-CREATE FUNCTION crm_upgrade.js_to_number(p_value jsonb) RETURNS double precision
-LANGUAGE plpgsql IMMUTABLE AS $$
-BEGIN
-  IF (p_value IS NULL) IS NOT FALSE THEN RETURN NULL; END IF;
-  CASE jsonb_typeof(p_value)
-    WHEN 'number' THEN RETURN crm_upgrade.js_parse_number(p_value::text::numeric);
-    WHEN 'boolean' THEN RETURN CASE WHEN p_value = 'true'::jsonb THEN 1 ELSE 0 END;
-    WHEN 'null' THEN RETURN 0;
-    WHEN 'string' THEN RETURN crm_upgrade.js_string_to_number(p_value #>> '{}');
-    WHEN 'array' THEN RETURN crm_upgrade.js_string_to_number(crm_upgrade.js_string(p_value));
-    ELSE RETURN NULL;
   END CASE;
 END
 $$;
@@ -402,7 +331,7 @@ BEGIN
 END
 $$;
 
--- Code points matched by /[\p{L}\p{N}\p{M}]/u in the Node.js runtime that ran the retired upgrade
+-- Code points matched by /[\p{L}\p{N}\p{M}]/u in the Node.js runtime of the record engine
 -- (Node 24.18, ICU 78.3, Unicode 17). Frozen here so the conversion does not depend on database ICU.
 CREATE FUNCTION crm_upgrade.letter_number_mark() RETURNS int4multirange
 LANGUAGE sql IMMUTABLE AS $$ SELECT '{[48,58),[65,91),[97,123),[170,171),[178,180),[181,182),[185,187),[188,191),[192,215),[216,247),[248,706),
@@ -537,7 +466,7 @@ LANGUAGE sql IMMUTABLE AS $$
     END, value), '^@', ''), '/+$', ''))
 $$;
 
--- prisma/record-migrations/v3/participant-identities.ts participantLookupValue (repair: derives a lookup key).
+-- identityLookupValue (ee/messaging/identity-lookup.ts): the normalised lookup key of a conversation participant.
 CREATE FUNCTION crm_upgrade.participant_lookup_value(p_provider text, p_raw text) RETURNS text
 LANGUAGE plpgsql IMMUTABLE AS $$
 DECLARE
@@ -558,7 +487,7 @@ BEGIN
 END
 $$;
 
--- prisma/record-migrations/v2/identity.ts canonicalChannel (validation only; NULL = invalid).
+-- The canonical value of a channel identity (validation only; NULL = invalid).
 CREATE FUNCTION crm_upgrade.canonical_channel(p_provider text, p_raw text) RETURNS text
 LANGUAGE plpgsql IMMUTABLE AS $$
 DECLARE
@@ -782,8 +711,8 @@ EXCEPTION WHEN program_limit_exceeded OR invalid_parameter_value THEN
 END
 $$;
 
--- Code point classes of the WHATWG domain-to-ASCII (UTS #46) behaviour of the Node.js runtime that ran
--- the retired upgrade, sampled per code point: accepted inside a label, refused at the start of a label
+-- Code point classes of the WHATWG domain-to-ASCII (UTS #46) behaviour of the Node.js runtime of the record
+-- engine, sampled per code point: accepted inside a label, refused at the start of a label
 -- (combining marks), and right-to-left code points that cannot share a label with left-to-right letters.
 CREATE FUNCTION crm_upgrade.host_valid_code_points() RETURNS int4multirange
 LANGUAGE sql IMMUTABLE AS $$ SELECT '{[161,168),[169,175),[176,180),[181,184),[185,728),[734,888),[891,896),[902,907),[908,909),[910,930),[931,1328),
@@ -1192,25 +1121,11 @@ LANGUAGE sql IMMUTABLE AS $$
   SELECT COALESCE((raw IS NOT NULL AND crm_upgrade.is_http_url(crm_upgrade.js_trim(raw)) AND crm_upgrade.js_len(crm_upgrade.js_trim(raw)) <= 2000), false)
 $$;
 
--- Raise a conversion refusal. Callers record the code against the owning legacy table; row
--- contents are never part of the message.
-CREATE FUNCTION crm_upgrade.fail(p_code text) RETURNS void
-LANGUAGE plpgsql AS $$
-BEGIN
-  RAISE EXCEPTION USING ERRCODE = 'CRM01', MESSAGE = p_code;
-END
-$$;
 
 -- Records one refused row. Section 1 reports these grouped by table, field and code.
 CREATE FUNCTION crm_upgrade.issue(company_id text, source_table text, field text, code text) RETURNS void
 LANGUAGE sql AS $$
   INSERT INTO crm_upgrade_issue (company_id, source_table, field, code) VALUES (company_id, source_table, field, code)
-$$;
-
--- Records one explicit repair (counted again independently in section 6).
-CREATE FUNCTION crm_upgrade.repair(company_id text, source_table text, row_id text, kind text, detail text DEFAULT NULL) RETURNS void
-LANGUAGE sql AS $$
-  INSERT INTO crm_upgrade_repair (company_id, source_table, row_id, kind, detail) VALUES (company_id, source_table, row_id, kind, detail)
 $$;
 
 -- Calculation expression constructors (CalculationExpression JSON).
@@ -1230,131 +1145,130 @@ LANGUAGE sql IMMUTABLE AS $$ SELECT jsonb_build_object('kind', 'text', 'value', 
 CREATE FUNCTION crm_upgrade.scalar_decimal(value text, currency text) RETURNS jsonb
 LANGUAGE sql IMMUTABLE AS $$ SELECT jsonb_build_object('kind', 'decimal', 'value', value, 'currency', currency) $$;
 
--- createCrmPreset(companyId, currency) (v2/contract/crm-preset.ts), field-for-field and in the same order.
+-- One preset field definition (createCrmPreset in features/records/crm-preset.ts).
+CREATE FUNCTION crm_upgrade.preset_field(p_company_id text, p_type text, p_key text, p_label text, p_value_type text, p_behavior jsonb,
+  p_required boolean, p_position integer, p_options jsonb DEFAULT '[]') RETURNS jsonb
+LANGUAGE sql IMMUTABLE AS $$
+  SELECT jsonb_build_object('id', crm_upgrade.preset_id(p_company_id, p_key), 'typeId', crm_upgrade.preset_id(p_company_id, p_type),
+    'label', p_label, 'valueType', p_value_type, 'behavior', p_behavior, 'required', p_required, 'archived', false,
+    'publishedSummary', false, 'options', p_options, 'position', p_position)
+$$;
+
+-- One preset type definition (createCrmPreset in features/records/crm-preset.ts).
+CREATE FUNCTION crm_upgrade.preset_type(p_company_id text, p_key text, p_label text, p_plural text, p_icon text, p_position integer,
+  p_columns jsonb, p_hidden jsonb) RETURNS jsonb
+LANGUAGE sql IMMUTABLE AS $$
+  SELECT jsonb_build_object('id', crm_upgrade.preset_id(p_company_id, p_key), 'label', p_label, 'pluralLabel', p_plural, 'icon', p_icon,
+    'description', '', 'primaryFieldId', crm_upgrade.preset_id(p_company_id, p_key || '.name'),
+    'parentRelationshipId', CASE WHEN p_key = 'lineItem' THEN to_jsonb(crm_upgrade.preset_id(p_company_id, 'lineItem.deal')) ELSE 'null'::jsonb END,
+    'archived', false, 'embedded', p_key = 'lineItem', 'navigationVisible', p_key <> 'lineItem', 'position', p_position,
+    'defaults', jsonb_build_object('columns', p_columns, 'hiddenColumns', p_hidden, 'layout', 'table', 'groupBy', NULL,
+      'sortField', crm_upgrade.preset_id(p_company_id, p_key || '.name'), 'sortDirection', 'asc', 'pinnedFields', '[]'::jsonb))
+$$;
+
+-- createCrmPreset(companyId, currency) (features/records/crm-preset.ts): the starter model of a new workspace.
 CREATE FUNCTION crm_upgrade.crm_preset(p_company_id text, p_currency text) RETURNS jsonb
 LANGUAGE plpgsql IMMUTABLE AS $$
 DECLARE
-  v_fields jsonb := '[]';
-  v_types jsonb := '[]';
-  v_relationships jsonb := '[]';
-  v_type_row record;
-  v_position integer;
+  c text := p_company_id;
+  v_input jsonb := '{"kind":"input"}';
+  v_fields jsonb;
+  v_types jsonb;
+  v_relationships jsonb;
 BEGIN
-  FOR v_type_row IN SELECT * FROM (VALUES
-    (0, 'contact', 'Contact', 'Contacts', 'contact'),
-    (1, 'organization', 'Organization', 'Organizations', 'building'),
-    (2, 'deal', 'Deal', 'Deals', 'handshake'),
-    (3, 'service', 'Service', 'Services', 'package'),
-    (4, 'task', 'Task', 'Tasks', 'check'),
-    (5, 'lineItem', 'Line item', 'Line items', 'list')) AS t(position, key, label, plural, icon) ORDER BY v_position LOOP
-    v_fields := v_fields || jsonb_build_array(
-      jsonb_build_object('id', crm_upgrade.preset_id(p_company_id, v_type_row.key || '.name'), 'typeId', crm_upgrade.preset_id(p_company_id, v_type_row.key),
-        'label', 'Name', 'valueType', 'text', 'behavior', '{"kind":"input"}'::jsonb, 'required', true, 'archived', false,
-        'publishedSummary', false, 'options', '[]'::jsonb, 'position', 0),
-      jsonb_build_object('id', crm_upgrade.preset_id(p_company_id, v_type_row.key || '.notes'), 'typeId', crm_upgrade.preset_id(p_company_id, v_type_row.key),
-        'label', 'Notes', 'valueType', 'richText', 'behavior', '{"kind":"input"}'::jsonb, 'required', false, 'archived', false,
-        'publishedSummary', false, 'options', '[]'::jsonb, 'position', 1));
-    v_types := v_types || jsonb_build_array(jsonb_build_object(
-      'id', crm_upgrade.preset_id(p_company_id, v_type_row.key), 'label', v_type_row.label, 'pluralLabel', v_type_row.plural,
-      'icon', v_type_row.icon, 'description', '', 'primaryFieldId', crm_upgrade.preset_id(p_company_id, v_type_row.key || '.name'),
-      'parentRelationshipId', CASE WHEN v_type_row.key = 'lineItem' THEN to_jsonb(crm_upgrade.preset_id(p_company_id, 'lineItem.deal')) ELSE 'null'::jsonb END,
-      'archived', false, 'embedded', v_type_row.key = 'lineItem', 'position', v_type_row.position,
-      'defaults', jsonb_build_object('columns', jsonb_build_array(crm_upgrade.preset_id(p_company_id, v_type_row.key || '.name')),
-        'hiddenColumns', '[]'::jsonb, 'layout', 'table', 'groupBy', NULL, 'sortField', crm_upgrade.preset_id(p_company_id, v_type_row.key || '.name'),
-        'sortDirection', 'asc', 'pinnedFields', '[]'::jsonb)));
-  END LOOP;
-  v_fields := v_fields || jsonb_build_array(
-    jsonb_build_object('id', crm_upgrade.preset_id(p_company_id, 'contact.firstName'), 'typeId', crm_upgrade.preset_id(p_company_id, 'contact'),
-      'label', 'First name', 'valueType', 'text', 'behavior', '{"kind":"input"}'::jsonb, 'required', false, 'archived', false,
-      'publishedSummary', false, 'options', '[]'::jsonb, 'position', 2),
-    jsonb_build_object('id', crm_upgrade.preset_id(p_company_id, 'contact.lastName'), 'typeId', crm_upgrade.preset_id(p_company_id, 'contact'),
-      'label', 'Last name', 'valueType', 'text', 'behavior', '{"kind":"input"}'::jsonb, 'required', false, 'archived', false,
-      'publishedSummary', false, 'options', '[]'::jsonb, 'position', 3),
-    jsonb_build_object('id', crm_upgrade.preset_id(p_company_id, 'contact.avatarUrl'), 'typeId', crm_upgrade.preset_id(p_company_id, 'contact'),
-      'label', 'Avatar', 'valueType', 'url', 'behavior', '{"kind":"input"}'::jsonb, 'required', false, 'archived', false,
-      'publishedSummary', false, 'options', '[]'::jsonb, 'position', 4));
-  -- contact.name = trim(concat(coalesce(firstName, ""), " ", coalesce(lastName, "")))
-  v_fields := jsonb_set(v_fields, '{0,behavior}', jsonb_build_object('kind', 'formula', 'expression',
-    crm_upgrade.expr_operation('trim', crm_upgrade.expr_operation('concat',
-      crm_upgrade.expr_operation('coalesce', crm_upgrade.expr_field(crm_upgrade.preset_id(p_company_id, 'contact.firstName')), crm_upgrade.expr_literal(crm_upgrade.scalar_text(''))),
-      crm_upgrade.expr_literal(crm_upgrade.scalar_text(' ')),
-      crm_upgrade.expr_operation('coalesce', crm_upgrade.expr_field(crm_upgrade.preset_id(p_company_id, 'contact.lastName')), crm_upgrade.expr_literal(crm_upgrade.scalar_text('')))))));
-  v_fields := v_fields || jsonb_build_array(jsonb_build_object('id', crm_upgrade.preset_id(p_company_id, 'service.amount'),
-    'typeId', crm_upgrade.preset_id(p_company_id, 'service'), 'label', 'Price', 'valueType', 'currency',
-    'behavior', jsonb_build_object('kind', 'input', 'defaultValue', crm_upgrade.scalar_decimal('0', upper(p_currency))),
-    'required', true, 'archived', false, 'publishedSummary', false, 'options', '[]'::jsonb, 'position', 2));
-  v_types := jsonb_set(v_types, '{3,defaults,columns}', (v_types #> '{3,defaults,columns}') || to_jsonb(crm_upgrade.preset_id(p_company_id, 'service.amount')));
-  FOR v_type_row IN SELECT * FROM (VALUES
-    (0, 'contact.organizations', 'contact', 'organization', 'Organizations', 'Contacts', 'many', 'many', 'unlink', 'unlink'),
-    (1, 'deal.contacts', 'deal', 'contact', 'Contacts', 'Deals', 'many', 'many', 'unlink', 'unlink'),
-    (2, 'deal.organizations', 'deal', 'organization', 'Organizations', 'Deals', 'many', 'many', 'unlink', 'unlink'),
-    (3, 'task.contacts', 'task', 'contact', 'Contacts', 'Tasks', 'many', 'many', 'unlink', 'unlink'),
-    (4, 'task.organizations', 'task', 'organization', 'Organizations', 'Tasks', 'many', 'many', 'unlink', 'unlink'),
-    (5, 'task.deals', 'task', 'deal', 'Deals', 'Tasks', 'many', 'many', 'unlink', 'unlink'),
-    (6, 'task.services', 'task', 'service', 'Services', 'Tasks', 'many', 'many', 'unlink', 'unlink'),
-    (7, 'lineItem.deal', 'lineItem', 'deal', 'Deal', 'Line items', 'one', 'many', 'unlink', 'cascade'),
-    (8, 'lineItem.service', 'lineItem', 'service', 'Service', 'Line items', 'one', 'many', 'unlink', 'cascade'))
-    AS r(position, key, source, target, source_label, target_label, source_cardinality, target_cardinality, on_source_delete, on_target_delete)
-    ORDER BY v_position LOOP
-    v_relationships := v_relationships || jsonb_build_array(jsonb_build_object('id', crm_upgrade.preset_id(p_company_id, v_type_row.key),
-      'sourceTypeId', crm_upgrade.preset_id(p_company_id, v_type_row.source), 'targetTypeId', crm_upgrade.preset_id(p_company_id, v_type_row.target),
-      'sourceLabel', v_type_row.source_label, 'targetLabel', v_type_row.target_label, 'sourceCardinality', v_type_row.source_cardinality,
-      'targetCardinality', v_type_row.target_cardinality, 'onSourceDelete', v_type_row.on_source_delete, 'onTargetDelete', v_type_row.on_target_delete,
-      'archived', false));
-  END LOOP;
-  v_fields := v_fields || jsonb_build_array(
-    jsonb_build_object('id', crm_upgrade.preset_id(p_company_id, 'lineItem.quantity'), 'typeId', crm_upgrade.preset_id(p_company_id, 'lineItem'),
-      'label', 'Quantity', 'valueType', 'number', 'behavior', jsonb_build_object('kind', 'input', 'defaultValue', crm_upgrade.scalar_decimal('1', NULL)),
-      'required', true, 'archived', false, 'publishedSummary', false, 'options', '[]'::jsonb, 'position', 2),
-    jsonb_build_object('id', crm_upgrade.preset_id(p_company_id, 'lineItem.pricingMode'), 'typeId', crm_upgrade.preset_id(p_company_id, 'lineItem'),
-      'label', 'Pricing', 'valueType', 'select', 'behavior', '{"kind":"input","defaultValue":{"kind":"select","value":"live"}}'::jsonb,
-      'required', true, 'archived', false, 'publishedSummary', false,
-      'options', '[{"id":"live","label":"Live price","color":null,"attributes":[]},{"id":"saved","label":"Saved price","color":null,"attributes":[]}]'::jsonb,
-      'position', 3),
-    jsonb_build_object('id', crm_upgrade.preset_id(p_company_id, 'lineItem.savedPrice'), 'typeId', crm_upgrade.preset_id(p_company_id, 'lineItem'),
-      'label', 'Saved unit price', 'valueType', 'currency', 'behavior', jsonb_build_object('kind', 'snapshot', 'capture', 'whenChanged',
-        'allowManualOverride', true, 'triggerFieldId', crm_upgrade.preset_id(p_company_id, 'lineItem.pricingMode'),
-        'triggerValue', '{"kind":"select","value":"saved"}'::jsonb,
-        'expression', crm_upgrade.expr_related(crm_upgrade.preset_id(p_company_id, 'lineItem.service'), 'outgoing', crm_upgrade.preset_id(p_company_id, 'service.amount'), 'one')),
-      'required', false, 'archived', false, 'publishedSummary', false, 'options', '[]'::jsonb, 'position', 4),
-    jsonb_build_object('id', crm_upgrade.preset_id(p_company_id, 'lineItem.effectivePrice'), 'typeId', crm_upgrade.preset_id(p_company_id, 'lineItem'),
-      'label', 'Unit price', 'valueType', 'currency', 'behavior', jsonb_build_object('kind', 'formula', 'expression',
-        crm_upgrade.expr_operation('if',
-          crm_upgrade.expr_operation('equal', crm_upgrade.expr_field(crm_upgrade.preset_id(p_company_id, 'lineItem.pricingMode')), crm_upgrade.expr_literal('{"kind":"select","value":"saved"}'::jsonb)),
-          crm_upgrade.expr_field(crm_upgrade.preset_id(p_company_id, 'lineItem.savedPrice')),
-          crm_upgrade.expr_related(crm_upgrade.preset_id(p_company_id, 'lineItem.service'), 'outgoing', crm_upgrade.preset_id(p_company_id, 'service.amount'), 'one'))),
-      'required', false, 'archived', false, 'publishedSummary', false, 'options', '[]'::jsonb, 'position', 5),
-    jsonb_build_object('id', crm_upgrade.preset_id(p_company_id, 'lineItem.amount'), 'typeId', crm_upgrade.preset_id(p_company_id, 'lineItem'),
-      'label', 'Amount', 'valueType', 'currency', 'behavior', jsonb_build_object('kind', 'formula', 'expression',
-        crm_upgrade.expr_operation('multiply', crm_upgrade.expr_field(crm_upgrade.preset_id(p_company_id, 'lineItem.quantity')), crm_upgrade.expr_field(crm_upgrade.preset_id(p_company_id, 'lineItem.effectivePrice')))),
-      'required', false, 'archived', false, 'publishedSummary', false, 'options', '[]'::jsonb, 'position', 6),
-    jsonb_build_object('id', crm_upgrade.preset_id(p_company_id, 'deal.stage'), 'typeId', crm_upgrade.preset_id(p_company_id, 'deal'),
-      'label', 'Stage', 'valueType', 'select', 'behavior', '{"kind":"input"}'::jsonb, 'required', false, 'archived', false,
-      'publishedSummary', false, 'options', (SELECT jsonb_agg(jsonb_build_object('id', crm_upgrade.preset_id(p_company_id, 'deal.stage.' || s.key),
-        'label', s.label, 'color', NULL, 'attributes', jsonb_build_array(jsonb_build_object('key', 'probability', 'value', crm_upgrade.scalar_decimal(s.probability, NULL))))
-        ORDER BY s.position) FROM (VALUES (0, 'new', 'New', '10'), (1, 'qualified', 'Qualified', '25'), (2, 'proposal', 'Proposal', '60'), (3, 'won', 'Won', '100'), (4, 'lost', 'Lost', '0')) AS s(position, key, label, probability)),
-      'position', 2),
-    jsonb_build_object('id', crm_upgrade.preset_id(p_company_id, 'deal.totalValue'), 'typeId', crm_upgrade.preset_id(p_company_id, 'deal'),
-      'label', 'Value', 'valueType', 'currency', 'behavior', jsonb_build_object('kind', 'rollup', 'expression',
-        crm_upgrade.expr_related(crm_upgrade.preset_id(p_company_id, 'lineItem.deal'), 'incoming', crm_upgrade.preset_id(p_company_id, 'lineItem.amount'), 'sum')),
-      'required', false, 'archived', false, 'publishedSummary', false, 'options', '[]'::jsonb, 'position', 3),
-    jsonb_build_object('id', crm_upgrade.preset_id(p_company_id, 'deal.totalQuantity'), 'typeId', crm_upgrade.preset_id(p_company_id, 'deal'),
-      'label', 'Quantity', 'valueType', 'number', 'behavior', jsonb_build_object('kind', 'rollup', 'expression',
-        crm_upgrade.expr_related(crm_upgrade.preset_id(p_company_id, 'lineItem.deal'), 'incoming', crm_upgrade.preset_id(p_company_id, 'lineItem.quantity'), 'sum')),
-      'required', false, 'archived', false, 'publishedSummary', false, 'options', '[]'::jsonb, 'position', 4),
-    jsonb_build_object('id', crm_upgrade.preset_id(p_company_id, 'deal.weightedValue'), 'typeId', crm_upgrade.preset_id(p_company_id, 'deal'),
-      'label', 'Weighted value', 'valueType', 'currency', 'behavior', jsonb_build_object('kind', 'formula', 'expression',
-        crm_upgrade.expr_operation('divide',
-          crm_upgrade.expr_operation('multiply', crm_upgrade.expr_field(crm_upgrade.preset_id(p_company_id, 'deal.totalValue')),
-            jsonb_build_object('kind', 'optionAttribute', 'fieldId', crm_upgrade.preset_id(p_company_id, 'deal.stage'), 'attribute', 'probability')),
-          crm_upgrade.expr_literal(crm_upgrade.scalar_decimal('100', NULL)))),
-      'required', false, 'archived', false, 'publishedSummary', false, 'options', '[]'::jsonb, 'position', 5));
-  v_types := jsonb_set(v_types, '{2,defaults,columns}', (v_types #> '{2,defaults,columns}') || jsonb_build_array(
-    crm_upgrade.preset_id(p_company_id, 'deal.stage'), crm_upgrade.preset_id(p_company_id, 'deal.totalValue'), crm_upgrade.preset_id(p_company_id, 'deal.weightedValue')));
-  v_types := jsonb_set(v_types, '{2,defaults,groupBy}', to_jsonb(crm_upgrade.preset_id(p_company_id, 'deal.stage')));
-  v_types := jsonb_set(v_types, '{5,defaults,columns}', (v_types #> '{5,defaults,columns}') || jsonb_build_array(
-    crm_upgrade.preset_id(p_company_id, 'lineItem.quantity'), crm_upgrade.preset_id(p_company_id, 'lineItem.pricingMode'),
-    crm_upgrade.preset_id(p_company_id, 'lineItem.effectivePrice'), crm_upgrade.preset_id(p_company_id, 'lineItem.amount')));
+  v_fields := (SELECT jsonb_agg(f.field ORDER BY f.ordinality) FROM unnest(ARRAY[
+    crm_upgrade.preset_field(c, 'contact', 'contact.name', 'Name', 'text', jsonb_build_object('kind', 'formula', 'expression',
+      crm_upgrade.expr_operation('trim', crm_upgrade.expr_operation('concat',
+        crm_upgrade.expr_operation('coalesce', crm_upgrade.expr_field(crm_upgrade.preset_id(c, 'contact.firstName')), crm_upgrade.expr_literal(crm_upgrade.scalar_text(''))),
+        crm_upgrade.expr_literal(crm_upgrade.scalar_text(' ')),
+        crm_upgrade.expr_operation('coalesce', crm_upgrade.expr_field(crm_upgrade.preset_id(c, 'contact.lastName')), crm_upgrade.expr_literal(crm_upgrade.scalar_text('')))))),
+      true, 0),
+    crm_upgrade.preset_field(c, 'contact', 'contact.notes', 'Notes', 'richText', v_input, false, 1),
+    crm_upgrade.preset_field(c, 'organization', 'organization.name', 'Name', 'text', v_input, true, 0),
+    crm_upgrade.preset_field(c, 'organization', 'organization.notes', 'Notes', 'richText', v_input, false, 1),
+    crm_upgrade.preset_field(c, 'deal', 'deal.name', 'Name', 'text', v_input, true, 0),
+    crm_upgrade.preset_field(c, 'deal', 'deal.notes', 'Notes', 'richText', v_input, false, 1),
+    crm_upgrade.preset_field(c, 'service', 'service.name', 'Name', 'text', v_input, true, 0),
+    crm_upgrade.preset_field(c, 'service', 'service.notes', 'Notes', 'richText', v_input, false, 1),
+    crm_upgrade.preset_field(c, 'task', 'task.name', 'Name', 'text', v_input, true, 0),
+    crm_upgrade.preset_field(c, 'task', 'task.notes', 'Notes', 'richText', v_input, false, 1),
+    crm_upgrade.preset_field(c, 'lineItem', 'lineItem.name', 'Name', 'text', '{"kind":"input","defaultValue":{"kind":"text","value":"Line item"}}', true, 0),
+    crm_upgrade.preset_field(c, 'lineItem', 'lineItem.notes', 'Notes', 'richText', v_input, false, 1),
+    crm_upgrade.preset_field(c, 'contact', 'contact.firstName', 'First name', 'text', v_input, false, 2),
+    crm_upgrade.preset_field(c, 'contact', 'contact.lastName', 'Last name', 'text', v_input, false, 3),
+    crm_upgrade.preset_field(c, 'contact', 'contact.avatarUrl', 'Avatar', 'url', v_input, false, 4),
+    crm_upgrade.preset_field(c, 'service', 'service.amount', 'Price', 'currency',
+      jsonb_build_object('kind', 'input', 'defaultValue', crm_upgrade.scalar_decimal('0', upper(p_currency))), true, 2),
+    crm_upgrade.preset_field(c, 'lineItem', 'lineItem.quantity', 'Quantity', 'number',
+      jsonb_build_object('kind', 'input', 'defaultValue', crm_upgrade.scalar_decimal('1', NULL)), true, 2),
+    crm_upgrade.preset_field(c, 'lineItem', 'lineItem.pricingMode', 'Pricing', 'select', '{"kind":"input","defaultValue":{"kind":"select","value":"live"}}', true, 3,
+      '[{"id":"live","label":"Live price","color":null,"attributes":[]},{"id":"saved","label":"Saved price","color":null,"attributes":[]}]'),
+    crm_upgrade.preset_field(c, 'lineItem', 'lineItem.savedPrice', 'Saved unit price', 'currency', jsonb_build_object('kind', 'snapshot', 'capture', 'whenChanged',
+      'allowManualOverride', true, 'triggerFieldId', crm_upgrade.preset_id(c, 'lineItem.pricingMode'), 'triggerValue', '{"kind":"select","value":"saved"}'::jsonb,
+      'expression', crm_upgrade.expr_related(crm_upgrade.preset_id(c, 'lineItem.service'), 'outgoing', crm_upgrade.preset_id(c, 'service.amount'), 'one')), false, 4),
+    crm_upgrade.preset_field(c, 'lineItem', 'lineItem.effectivePrice', 'Unit price', 'currency', jsonb_build_object('kind', 'formula', 'expression',
+      crm_upgrade.expr_operation('if',
+        crm_upgrade.expr_operation('equal', crm_upgrade.expr_field(crm_upgrade.preset_id(c, 'lineItem.pricingMode')), crm_upgrade.expr_literal('{"kind":"select","value":"saved"}')),
+        crm_upgrade.expr_field(crm_upgrade.preset_id(c, 'lineItem.savedPrice')),
+        crm_upgrade.expr_related(crm_upgrade.preset_id(c, 'lineItem.service'), 'outgoing', crm_upgrade.preset_id(c, 'service.amount'), 'one'))), false, 5),
+    crm_upgrade.preset_field(c, 'lineItem', 'lineItem.amount', 'Amount', 'currency', jsonb_build_object('kind', 'formula', 'expression',
+      crm_upgrade.expr_operation('multiply', crm_upgrade.expr_field(crm_upgrade.preset_id(c, 'lineItem.quantity')), crm_upgrade.expr_field(crm_upgrade.preset_id(c, 'lineItem.effectivePrice')))), false, 6),
+    crm_upgrade.preset_field(c, 'deal', 'deal.stage', 'Stage', 'select', v_input, false, 2, (SELECT jsonb_agg(jsonb_build_object('id', crm_upgrade.preset_id(c, 'deal.stage.' || s.key),
+      'label', s.label, 'color', NULL, 'attributes', jsonb_build_array(jsonb_build_object('key', 'probability', 'value', crm_upgrade.scalar_decimal(s.probability, NULL))))
+      ORDER BY s.position) FROM (VALUES (0, 'new', 'New', '10'), (1, 'qualified', 'Qualified', '25'), (2, 'proposal', 'Proposal', '60'), (3, 'won', 'Won', '100'), (4, 'lost', 'Lost', '0')) AS s(position, key, label, probability))),
+    crm_upgrade.preset_field(c, 'deal', 'deal.totalValue', 'Value', 'currency', jsonb_build_object('kind', 'rollup', 'expression',
+      crm_upgrade.expr_related(crm_upgrade.preset_id(c, 'lineItem.deal'), 'incoming', crm_upgrade.preset_id(c, 'lineItem.amount'), 'sum')), false, 3),
+    crm_upgrade.preset_field(c, 'deal', 'deal.totalQuantity', 'Quantity', 'number', jsonb_build_object('kind', 'rollup', 'expression',
+      crm_upgrade.expr_related(crm_upgrade.preset_id(c, 'lineItem.deal'), 'incoming', crm_upgrade.preset_id(c, 'lineItem.quantity'), 'sum')), false, 4),
+    crm_upgrade.preset_field(c, 'deal', 'deal.weightedValue', 'Weighted value', 'currency', jsonb_build_object('kind', 'formula', 'expression',
+      crm_upgrade.expr_operation('divide',
+        crm_upgrade.expr_operation('multiply', crm_upgrade.expr_field(crm_upgrade.preset_id(c, 'deal.totalValue')),
+          jsonb_build_object('kind', 'optionAttribute', 'fieldId', crm_upgrade.preset_id(c, 'deal.stage'), 'attribute', 'probability')),
+        crm_upgrade.expr_literal(crm_upgrade.scalar_decimal('100', NULL)))), false, 5)
+  ]) WITH ORDINALITY AS f(field, ordinality));
+  v_types := jsonb_build_array(
+    crm_upgrade.preset_type(c, 'contact', 'Contact', 'Contacts', 'contact', 0,
+      jsonb_build_array(crm_upgrade.preset_id(c, 'contact.name'), 'system:channels'),
+      jsonb_build_array(crm_upgrade.preset_id(c, 'contact.firstName'), crm_upgrade.preset_id(c, 'contact.lastName'), crm_upgrade.preset_id(c, 'contact.avatarUrl'))),
+    crm_upgrade.preset_type(c, 'organization', 'Organization', 'Organizations', 'building', 1,
+      jsonb_build_array(crm_upgrade.preset_id(c, 'organization.name')), '[]'),
+    crm_upgrade.preset_type(c, 'deal', 'Deal', 'Deals', 'handshake', 2,
+      jsonb_build_array(crm_upgrade.preset_id(c, 'deal.name'), crm_upgrade.preset_id(c, 'deal.stage'), crm_upgrade.preset_id(c, 'deal.totalValue'), crm_upgrade.preset_id(c, 'deal.weightedValue')),
+      jsonb_build_array('relationship:' || crm_upgrade.preset_id(c, 'lineItem.deal') || ':incoming')),
+    crm_upgrade.preset_type(c, 'service', 'Service', 'Services', 'package', 3,
+      jsonb_build_array(crm_upgrade.preset_id(c, 'service.name'), crm_upgrade.preset_id(c, 'service.amount')),
+      jsonb_build_array('relationship:' || crm_upgrade.preset_id(c, 'lineItem.service') || ':incoming')),
+    crm_upgrade.preset_type(c, 'task', 'Task', 'Tasks', 'check', 4, jsonb_build_array(crm_upgrade.preset_id(c, 'task.name')), '[]'),
+    crm_upgrade.preset_type(c, 'lineItem', 'Line item', 'Line items', 'list', 5,
+      jsonb_build_array(crm_upgrade.preset_id(c, 'lineItem.name'), crm_upgrade.preset_id(c, 'lineItem.quantity'), crm_upgrade.preset_id(c, 'lineItem.pricingMode'),
+        crm_upgrade.preset_id(c, 'lineItem.effectivePrice'), crm_upgrade.preset_id(c, 'lineItem.amount')), '[]'));
+  v_types := jsonb_set(v_types, '{2,defaults,groupBy}', to_jsonb(crm_upgrade.preset_id(c, 'deal.stage')));
+  v_types := jsonb_set(v_types, '{2,defaults,groupSummaries}', jsonb_build_array(
+    jsonb_build_object('fieldId', crm_upgrade.preset_id(c, 'deal.totalValue'), 'aggregation', 'sum'),
+    jsonb_build_object('fieldId', crm_upgrade.preset_id(c, 'deal.weightedValue'), 'aggregation', 'sum')));
+  v_types := jsonb_set(v_types, '{2,relationshipPaths}', jsonb_build_array(jsonb_build_object('id', crm_upgrade.preset_id(c, 'deal.services.path'),
+    'label', 'Services', 'archived', false, 'path', jsonb_build_array(
+      jsonb_build_object('relationId', crm_upgrade.preset_id(c, 'lineItem.deal'), 'direction', 'incoming'),
+      jsonb_build_object('relationId', crm_upgrade.preset_id(c, 'lineItem.service'), 'direction', 'outgoing')))));
+  v_types := jsonb_set(v_types, '{3,relationshipPaths}', jsonb_build_array(jsonb_build_object('id', crm_upgrade.preset_id(c, 'service.deals.path'),
+    'label', 'Deals', 'archived', false, 'path', jsonb_build_array(
+      jsonb_build_object('relationId', crm_upgrade.preset_id(c, 'lineItem.service'), 'direction', 'incoming'),
+      jsonb_build_object('relationId', crm_upgrade.preset_id(c, 'lineItem.deal'), 'direction', 'outgoing')))));
+  v_relationships := (SELECT jsonb_agg(jsonb_build_object('id', crm_upgrade.preset_id(c, r.key),
+      'sourceTypeId', crm_upgrade.preset_id(c, r.source), 'targetTypeId', crm_upgrade.preset_id(c, r.target),
+      'sourceLabel', r.source_label, 'targetLabel', r.target_label, 'sourceCardinality', r.source_cardinality,
+      'targetCardinality', 'many', 'onSourceDelete', 'unlink', 'onTargetDelete', r.on_target_delete, 'archived', false) ORDER BY r.position)
+    FROM (VALUES
+      (0, 'contact.organizations', 'contact', 'organization', 'Organizations', 'Contacts', 'many', 'unlink'),
+      (1, 'deal.contacts', 'deal', 'contact', 'Contacts', 'Deals', 'many', 'unlink'),
+      (2, 'deal.organizations', 'deal', 'organization', 'Organizations', 'Deals', 'many', 'unlink'),
+      (3, 'task.contacts', 'task', 'contact', 'Contacts', 'Tasks', 'many', 'unlink'),
+      (4, 'task.organizations', 'task', 'organization', 'Organizations', 'Tasks', 'many', 'unlink'),
+      (5, 'task.deals', 'task', 'deal', 'Deals', 'Tasks', 'many', 'unlink'),
+      (6, 'task.services', 'task', 'service', 'Services', 'Tasks', 'many', 'unlink'),
+      (7, 'lineItem.deal', 'lineItem', 'deal', 'Deal', 'Line items', 'one', 'cascade'),
+      (8, 'lineItem.service', 'lineItem', 'service', 'Service', 'Line items', 'one', 'cascade'))
+      AS r(position, key, source, target, source_label, target_label, source_cardinality, on_target_delete));
   RETURN jsonb_build_object(
     'revision', 1,
     'types', v_types,
@@ -1362,43 +1276,30 @@ BEGIN
     'relationships', v_relationships,
     'accessPresets', '[]'::jsonb,
     'capabilities', jsonb_build_array(
-      jsonb_build_object('id', crm_upgrade.preset_id(p_company_id, 'capability.identity'), 'kind', 'personIdentity', 'typeId', crm_upgrade.preset_id(p_company_id, 'contact'),
-        'fields', jsonb_build_array(jsonb_build_object('role', 'firstName', 'fieldId', crm_upgrade.preset_id(p_company_id, 'contact.firstName')),
-          jsonb_build_object('role', 'lastName', 'fieldId', crm_upgrade.preset_id(p_company_id, 'contact.lastName')))),
-      jsonb_build_object('id', crm_upgrade.preset_id(p_company_id, 'capability.avatar'), 'kind', 'avatar', 'typeId', crm_upgrade.preset_id(p_company_id, 'contact'),
-        'fields', jsonb_build_array(jsonb_build_object('role', 'image', 'fieldId', crm_upgrade.preset_id(p_company_id, 'contact.avatarUrl')))),
-      jsonb_build_object('id', crm_upgrade.preset_id(p_company_id, 'capability.membership'), 'kind', 'membershipAuthorization', 'typeId', crm_upgrade.preset_id(p_company_id, 'task'),
+      jsonb_build_object('id', crm_upgrade.preset_id(c, 'capability.identity'), 'kind', 'channels', 'providerAvatar', true, 'typeId', crm_upgrade.preset_id(c, 'contact'),
+        'fields', jsonb_build_array(jsonb_build_object('role', 'firstName', 'fieldId', crm_upgrade.preset_id(c, 'contact.firstName')),
+          jsonb_build_object('role', 'lastName', 'fieldId', crm_upgrade.preset_id(c, 'contact.lastName')))),
+      jsonb_build_object('id', crm_upgrade.preset_id(c, 'capability.avatar'), 'kind', 'avatar', 'typeId', crm_upgrade.preset_id(c, 'contact'),
+        'fields', jsonb_build_array(jsonb_build_object('role', 'image', 'fieldId', crm_upgrade.preset_id(c, 'contact.avatarUrl')))),
+      jsonb_build_object('id', crm_upgrade.preset_id(c, 'capability.membership'), 'kind', 'membershipAuthorization', 'typeId', crm_upgrade.preset_id(c, 'task'),
         'fields', '[]'::jsonb)),
-    'activityPaths', (SELECT jsonb_agg(jsonb_build_object('id', crm_upgrade.preset_id(p_company_id, 'activities:' || (type.value ->> 'id') || ':self'),
+    'activityPaths', (SELECT jsonb_agg(jsonb_build_object('id', crm_upgrade.preset_id(c, 'activities:' || (type.value ->> 'id') || ':self'),
         'typeId', type.value -> 'id', 'label', type.value -> 'pluralLabel', 'path', '[]'::jsonb,
-        'includeMessages', type.value ->> 'id' = crm_upgrade.preset_id(p_company_id, 'contact'), 'includeAudit', true, 'archived', false) ORDER BY type.ordinality)
-      FROM jsonb_array_elements(v_types) WITH ORDINALITY AS type(value, ordinality) WHERE NOT (type.value ->> 'embedded')::boolean));
-END
-$$;
-
--- migratedActivityPaths(companyId, model) (v4/activity-paths.ts): a self path for every type, then the
--- person paths for organizations, deals, services and tasks.
-CREATE FUNCTION crm_upgrade.migrated_activity_paths(company_id text, model jsonb) RETURNS jsonb
-LANGUAGE sql IMMUTABLE AS $$
-  SELECT
-    (SELECT jsonb_agg(jsonb_build_object('id', crm_upgrade.preset_id(company_id, 'activities:' || (type.value ->> 'id') || ':self'),
-        'typeId', type.value -> 'id', 'label', type.value -> 'pluralLabel', 'path', '[]'::jsonb,
-        'includeMessages', type.value ->> 'id' = crm_upgrade.preset_id(company_id, 'contact'), 'includeAudit', true, 'archived', false) ORDER BY type.ordinality)
-      FROM jsonb_array_elements(model -> 'types') WITH ORDINALITY AS type(value, ordinality))
-    || (SELECT jsonb_agg(jsonb_build_object('id', crm_upgrade.preset_id(company_id, 'activities:' || crm_upgrade.preset_id(company_id, p.key) || ':people'),
-        'typeId', crm_upgrade.preset_id(company_id, p.key), 'label', people.value -> 'pluralLabel', 'path', p.path,
+        'includeMessages', type.value ->> 'id' = crm_upgrade.preset_id(c, 'contact'), 'includeAudit', true, 'archived', false) ORDER BY type.ordinality)
+      FROM jsonb_array_elements(v_types) WITH ORDINALITY AS type(value, ordinality))
+    || (SELECT jsonb_agg(jsonb_build_object('id', crm_upgrade.preset_id(c, 'activities:' || crm_upgrade.preset_id(c, p.key) || ':people'),
+        'typeId', crm_upgrade.preset_id(c, p.key), 'label', 'Contacts', 'path', p.path,
         'includeMessages', true, 'includeAudit', false, 'archived', false) ORDER BY p.position)
       FROM (VALUES
-        (0, 'organization', jsonb_build_array(jsonb_build_object('relationId', crm_upgrade.preset_id(company_id, 'contact.organizations'), 'direction', 'incoming'))),
-        (1, 'deal', jsonb_build_array(jsonb_build_object('relationId', crm_upgrade.preset_id(company_id, 'deal.contacts'), 'direction', 'outgoing'))),
+        (0, 'organization', jsonb_build_array(jsonb_build_object('relationId', crm_upgrade.preset_id(c, 'contact.organizations'), 'direction', 'incoming'))),
+        (1, 'deal', jsonb_build_array(jsonb_build_object('relationId', crm_upgrade.preset_id(c, 'deal.contacts'), 'direction', 'outgoing'))),
         (2, 'service', jsonb_build_array(
-          jsonb_build_object('relationId', crm_upgrade.preset_id(company_id, 'lineItem.service'), 'direction', 'incoming'),
-          jsonb_build_object('relationId', crm_upgrade.preset_id(company_id, 'lineItem.deal'), 'direction', 'outgoing'),
-          jsonb_build_object('relationId', crm_upgrade.preset_id(company_id, 'deal.contacts'), 'direction', 'outgoing'))),
-        (3, 'task', jsonb_build_array(jsonb_build_object('relationId', crm_upgrade.preset_id(company_id, 'task.contacts'), 'direction', 'outgoing'))))
-        AS p(position, key, path)
-      CROSS JOIN LATERAL (SELECT type.value FROM jsonb_array_elements(model -> 'types') AS type(value)
-        WHERE type.value ->> 'id' = crm_upgrade.preset_id(company_id, 'contact')) AS people)
+          jsonb_build_object('relationId', crm_upgrade.preset_id(c, 'lineItem.service'), 'direction', 'incoming'),
+          jsonb_build_object('relationId', crm_upgrade.preset_id(c, 'lineItem.deal'), 'direction', 'outgoing'),
+          jsonb_build_object('relationId', crm_upgrade.preset_id(c, 'deal.contacts'), 'direction', 'outgoing'))),
+        (3, 'task', jsonb_build_array(jsonb_build_object('relationId', crm_upgrade.preset_id(c, 'task.contacts'), 'direction', 'outgoing'))))
+        AS p(position, key, path)));
+END
 $$;
 
 -- String.prototype.toUpperCase() restricted to inputs whose result can be three ASCII capitals.
@@ -1409,7 +1310,7 @@ LANGUAGE sql IMMUTABLE STRICT AS $$
     'abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ')
 $$;
 
--- LegacyOptionsSchema.safeParse(options ?? {}) (v2/legacy-model.ts): strict top level, permissive items.
+-- Legacy CustomColumn.options (null or {}) as the legacy application wrote them: strict top level, permissive items.
 CREATE FUNCTION crm_upgrade.legacy_options_valid(options jsonb) RETURNS boolean
 LANGUAGE sql IMMUTABLE AS $$
   SELECT COALESCE((CASE WHEN options IS NULL OR options = 'null'::jsonb THEN true
@@ -1434,9 +1335,10 @@ LANGUAGE sql IMMUTABLE AS $$
   END), false)
 $$;
 
--- buildLegacyFixtureModel (v2/legacy-model.ts): the CRM preset without the unused stage field,
--- one field per legacy custom column, and the weighted value bound to Company.dealWeightingColumnId.
--- Refusals are recorded as issues; the returned model is then only used if no issue exists.
+-- The workspace record model: the CRM preset without its stage field (legacy stages are custom columns),
+-- one field per legacy custom column (trimmed label, options, default, format) appended to its type's default
+-- columns, and the weighted value bound to Company.dealWeightingColumnId. Refusals are recorded as issues;
+-- the returned model is then only used if no issue exists.
 CREATE FUNCTION crm_upgrade.legacy_model(p_company_id text) RETURNS jsonb
 LANGUAGE plpgsql AS $$
 DECLARE
@@ -1456,10 +1358,9 @@ BEGIN
   SELECT id, currency::text AS currency, "dealWeightingColumnId" AS weighting INTO v_company FROM "Company" WHERE id = p_company_id;
   v_model := crm_upgrade.crm_preset(p_company_id, v_company.currency);
   v_model := jsonb_set(v_model, '{fields}', (SELECT jsonb_agg(f.value ORDER BY f.ordinality) FROM jsonb_array_elements(v_model -> 'fields') WITH ORDINALITY AS f(value, ordinality) WHERE f.value ->> 'id' <> v_stage_id));
-  v_model := jsonb_set(v_model, '{types}', (SELECT jsonb_agg(
-      jsonb_set(jsonb_set(t.value, '{defaults,columns}', COALESCE((SELECT jsonb_agg(c.value ORDER BY c.ordinality) FROM jsonb_array_elements(t.value #> '{defaults,columns}') WITH ORDINALITY AS c(value, ordinality) WHERE c.value #>> '{}' <> v_stage_id), '[]'::jsonb)),
-        '{defaults,groupBy}', CASE WHEN t.value #>> '{defaults,groupBy}' = v_stage_id THEN 'null'::jsonb ELSE t.value #> '{defaults,groupBy}' END)
-      ORDER BY t.ordinality) FROM jsonb_array_elements(v_model -> 'types') WITH ORDINALITY AS t(value, ordinality)));
+  v_model := jsonb_set(v_model, '{types,2,defaults,columns}', (SELECT jsonb_agg(c.value ORDER BY c.ordinality)
+    FROM jsonb_array_elements(v_model #> '{types,2,defaults,columns}') WITH ORDINALITY AS c(value, ordinality) WHERE c.value #>> '{}' <> v_stage_id));
+  v_model := jsonb_set(v_model, '{types,2,defaults,groupBy}', 'null');
   FOR v_column_row IN
     SELECT id, "entityType"::text AS entity_type, label, type::text AS type, options FROM "CustomColumn" WHERE "companyId" = p_company_id ORDER BY "createdAt", id
   LOOP
@@ -1485,7 +1386,7 @@ BEGIN
     v_field := jsonb_build_object(
       'id', v_column_row.id,
       'typeId', v_type_id,
-      'label', v_column_row.label,
+      'label', crm_upgrade.js_trim(v_column_row.label),
       'valueType', CASE v_column_row.type WHEN 'plain' THEN 'text' WHEN 'link' THEN 'url' WHEN 'singleSelect' THEN 'select' ELSE v_column_row.type END,
       'behavior', CASE WHEN jsonb_array_length(v_defaults) > 0
         THEN jsonb_build_object('kind', 'input', 'defaultValue', jsonb_build_object('kind', 'select', 'value', v_defaults -> 0 -> 'value'))
@@ -1526,10 +1427,6 @@ BEGIN
   ELSE
     v_model := jsonb_set(v_model, ARRAY['fields', v_weighted_index::text, 'behavior'], '{"kind":"formula","expression":{"kind":"literal","value":null}}'::jsonb);
   END IF;
-  v_model := jsonb_set(v_model, '{fields}', (SELECT jsonb_agg(CASE WHEN f.value ->> 'id' IN (crm_upgrade.preset_id(p_company_id, 'deal.totalValue'),
-      crm_upgrade.preset_id(p_company_id, 'deal.totalQuantity'), crm_upgrade.preset_id(p_company_id, 'deal.weightedValue'))
-    THEN jsonb_set(f.value, '{publishedSummary}', 'true') ELSE f.value END ORDER BY f.ordinality)
-    FROM jsonb_array_elements(v_model -> 'fields') WITH ORDINALITY AS f(value, ordinality)));
   -- validateRecordModel: the only definitions legacy columns can make invalid.
   PERFORM crm_upgrade.issue(p_company_id, 'CustomColumn', 'definition', code) FROM (
     SELECT 'invalid_multiple_value_type' AS code FROM jsonb_array_elements(v_model -> 'fields') AS f(value)
@@ -1548,15 +1445,14 @@ BEGIN
 END
 $$;
 
--- RecordModelSchema.parse (v5/contract/record-model.schema.ts) can only refuse legacy column data
--- through these constraints: trimmed field labels of 1-200 UTF-16 units, option identifiers and labels
--- of 1-200 units, colours and date formats of at most 64 units, ISO currency codes, and probability
--- attributes whose JavaScript string form is a plain decimal.
-CREATE FUNCTION crm_upgrade.presentation_model_issues(company_id text, model jsonb) RETURNS void
+-- RecordModelSchema.parse can only refuse legacy column data through these constraints: trimmed field labels
+-- of 1-200 UTF-16 units, option identifiers and labels of 1-200 units, colours and date formats of at most
+-- 64 units, ISO currency codes, and probability attributes whose JavaScript string form is a plain decimal.
+CREATE FUNCTION crm_upgrade.model_issues(company_id text, model jsonb) RETURNS void
 LANGUAGE sql AS $$
   SELECT crm_upgrade.issue(company_id, 'CustomColumn', invalid.field, 'invalid_model_definition') FROM (
     SELECT 'label' AS field FROM jsonb_array_elements(model -> 'fields') AS f(value)
-      WHERE crm_upgrade.js_len(crm_upgrade.js_trim(f.value ->> 'label')) NOT BETWEEN 1 AND 200
+      WHERE crm_upgrade.js_len(f.value ->> 'label') NOT BETWEEN 1 AND 200
     UNION ALL
     SELECT 'options' FROM jsonb_array_elements(model -> 'fields') AS f(value), jsonb_array_elements(f.value -> 'options') AS o(value)
       WHERE crm_upgrade.js_len(o.value ->> 'id') NOT BETWEEN 1 AND 200
@@ -1570,190 +1466,6 @@ LANGUAGE sql AS $$
         OR crm_upgrade.js_len(f.value #>> '{format,dateFormat}') > 64
         OR (f.value #> '{format,currency}' IS NOT NULL AND f.value #> '{format,currency}' <> 'null'::jsonb AND f.value #>> '{format,currency}' !~ '^[A-Z]{3}$')
   ) AS invalid
-$$;
-
-CREATE FUNCTION crm_upgrade.relationship_column_key(relation_id text, direction text) RETURNS text
-LANGUAGE sql IMMUTABLE AS $$ SELECT 'relationship:' || relation_id || ':' || direction $$;
-
--- presentationTypeDefaults (v5/columns.ts) for one legacy type.
-CREATE FUNCTION crm_upgrade.presentation_type_defaults(p_company_id text, p_kind text, p_model jsonb) RETURNS jsonb
-LANGUAGE plpgsql AS $$
-DECLARE
-  v_legacy_columns text[] := CASE p_kind
-    WHEN 'contact' THEN ARRAY['name', 'channels', 'organizations', 'deals', 'tasks']
-    WHEN 'organization' THEN ARRAY['name', 'contacts', 'deals', 'tasks']
-    WHEN 'deal' THEN ARRAY['name', 'totalValue', 'weightedValue', 'totalQuantity', 'contacts', 'organizations', 'services', 'tasks']
-    WHEN 'service' THEN ARRAY['name', 'amount', 'deals', 'tasks']
-    ELSE ARRAY['name', 'contacts', 'organizations', 'deals', 'services'] END;
-  v_columns jsonb := '[]';
-  v_key text;
-BEGIN
-  FOREACH v_key IN ARRAY v_legacy_columns LOOP
-    v_columns := v_columns || to_jsonb(crm_upgrade.migrate_column_key(p_company_id, p_kind, v_key, p_model));
-  END LOOP;
-  v_columns := v_columns || COALESCE((SELECT jsonb_agg(c.id ORDER BY c."createdAt", c.id) FROM "CustomColumn" c
-    WHERE c."companyId" = p_company_id AND c."entityType"::text = p_kind), '[]'::jsonb)
-    || '["system:assignedTo","system:updatedAt","system:createdAt"]'::jsonb;
-  RETURN jsonb_build_object('columns', v_columns, 'hiddenColumns', to_jsonb(crm_upgrade.introduced_columns(p_company_id, p_kind)),
-    'layout', 'table', 'groupBy', NULL, 'sortField', NULL, 'sortDirection', 'asc', 'pinnedFields', '[]'::jsonb)
-    || CASE WHEN p_kind = 'deal' THEN jsonb_build_object('groupSummaries', jsonb_build_array(
-      jsonb_build_object('fieldId', crm_upgrade.preset_id(p_company_id, 'deal.totalValue'), 'aggregation', 'sum'),
-      jsonb_build_object('fieldId', crm_upgrade.preset_id(p_company_id, 'deal.weightedValue'), 'aggregation', 'sum'))) ELSE '{}'::jsonb END;
-END
-$$;
-
--- introducedPresentationColumns: columns that did not exist in the legacy UI and start hidden.
-CREATE FUNCTION crm_upgrade.introduced_columns(company_id text, kind text) RETURNS text[]
-LANGUAGE sql IMMUTABLE AS $$
-  SELECT CASE
-    WHEN kind = 'contact' THEN ARRAY[crm_upgrade.preset_id(company_id, 'contact.firstName'), crm_upgrade.preset_id(company_id, 'contact.lastName'), crm_upgrade.preset_id(company_id, 'contact.avatarUrl')]
-    WHEN kind IN ('deal', 'service') THEN ARRAY[crm_upgrade.relationship_column_key(crm_upgrade.preset_id(company_id, 'lineItem.' || kind), 'incoming')]
-    ELSE ARRAY[]::text[] END
-$$;
-
--- migrateColumnKey (v5/columns.ts): maps a legacy column/filter key of one legacy type to a record column key.
--- Returns NULL for an unresolvable key (callers decide whether that refuses or is a documented repair).
-CREATE FUNCTION crm_upgrade.migrate_column_key(p_company_id text, p_kind text, p_key text, p_model jsonb) RETURNS text
-LANGUAGE plpgsql AS $$
-DECLARE
-  v_type_id text := crm_upgrade.preset_id(p_company_id, p_kind);
-  v_preset_field text := crm_upgrade.preset_id(p_company_id, p_kind || '.' || p_key);
-  v_found text;
-  v_target text;
-  v_relation record;
-BEGIN
-  IF p_key IN ('createdAt', 'updatedAt') THEN RETURN 'system:' || p_key; END IF;
-  IF p_key IN ('users', 'userIds') THEN RETURN 'system:assignedTo'; END IF;
-  IF p_kind = 'contact' AND p_key IN ('channels', 'identifiers') THEN RETURN 'system:channels'; END IF;
-  SELECT f.value ->> 'id' INTO v_found FROM jsonb_array_elements(p_model -> 'fields') WITH ORDINALITY AS f(value, ordinality)
-    WHERE f.value ->> 'typeId' = v_type_id AND (f.value ->> 'id' = p_key OR f.value ->> 'id' = v_preset_field) ORDER BY f.ordinality LIMIT 1;
-  IF v_found IS NOT NULL THEN RETURN v_found; END IF;
-  SELECT t.kind INTO v_target FROM unnest(ARRAY['contact', 'organization', 'deal', 'service', 'task']) WITH ORDINALITY AS t(kind, ordinality)
-    WHERE p_key = t.kind || 's' OR p_key = t.kind || 'Ids' ORDER BY t.ordinality LIMIT 1;
-  IF v_target IS NOT NULL THEN
-    IF (p_kind = 'deal' AND v_target = 'service') OR (p_kind = 'service' AND v_target = 'deal') THEN
-      RETURN 'path:' || crm_upgrade.preset_id(p_company_id, p_kind || '.' || v_target || 's.path');
-    END IF;
-    SELECT r.key, r.source INTO v_relation FROM (VALUES
-      (0, 'contact.organizations', 'contact', 'organization'), (1, 'deal.contacts', 'deal', 'contact'),
-      (2, 'deal.organizations', 'deal', 'organization'), (3, 'task.contacts', 'task', 'contact'),
-      (4, 'task.organizations', 'task', 'organization'), (5, 'task.deals', 'task', 'deal'), (6, 'task.services', 'task', 'service'))
-      AS r(position, key, source, target)
-      WHERE (r.source = p_kind AND r.target = v_target) OR (r.target = p_kind AND r.source = v_target) ORDER BY r.position LIMIT 1;
-    IF v_relation.key IS NOT NULL THEN
-      RETURN crm_upgrade.relationship_column_key(crm_upgrade.preset_id(p_company_id, v_relation.key), CASE WHEN v_relation.source = p_kind THEN 'outgoing' ELSE 'incoming' END);
-    END IF;
-  END IF;
-  RETURN NULL;
-END
-$$;
-
--- presentationMigrationModel (v5/model.ts): revision 3 with person activity paths, legacy presentation
--- defaults, deal/service relationship paths, trimmed labels and navigationVisible = true (schema defaults).
-CREATE FUNCTION crm_upgrade.presentation_model(p_company_id text, p_model jsonb) RETURNS jsonb
-LANGUAGE plpgsql AS $$
-DECLARE
-  v_result jsonb := p_model || jsonb_build_object('revision', 3, 'activityPaths', crm_upgrade.migrated_activity_paths(p_company_id, p_model));
-  v_kind text;
-  v_type_index integer;
-BEGIN
-  v_result := jsonb_set(v_result, '{fields}', (SELECT jsonb_agg(jsonb_set(f.value, '{label}', to_jsonb(crm_upgrade.js_trim(f.value ->> 'label'))) ORDER BY f.ordinality)
-    FROM jsonb_array_elements(v_result -> 'fields') WITH ORDINALITY AS f(value, ordinality)));
-  v_result := jsonb_set(v_result, '{types}', (SELECT jsonb_agg(t.value || '{"navigationVisible":true}'::jsonb ORDER BY t.ordinality)
-    FROM jsonb_array_elements(v_result -> 'types') WITH ORDINALITY AS t(value, ordinality)));
-  FOREACH v_kind IN ARRAY ARRAY['contact', 'organization', 'deal', 'service', 'task'] LOOP
-    SELECT t.ordinality - 1 INTO v_type_index FROM jsonb_array_elements(v_result -> 'types') WITH ORDINALITY AS t(value, ordinality)
-      WHERE t.value ->> 'id' = crm_upgrade.preset_id(p_company_id, v_kind);
-    v_result := jsonb_set(v_result, ARRAY['types', v_type_index::text, 'defaults'], crm_upgrade.presentation_type_defaults(p_company_id, v_kind, p_model));
-    IF v_kind IN ('deal', 'service') THEN
-      v_result := jsonb_set(v_result, ARRAY['types', v_type_index::text], (v_result #> ARRAY['types', v_type_index::text]) || jsonb_build_object('relationshipPaths', jsonb_build_array(jsonb_build_object(
-        'id', crm_upgrade.preset_id(p_company_id, v_kind || '.' || CASE WHEN v_kind = 'deal' THEN 'service' ELSE 'deal' END || 's.path'),
-        'label', (SELECT t.value -> 'pluralLabel' FROM jsonb_array_elements(v_result -> 'types') AS t(value)
-          WHERE t.value ->> 'id' = crm_upgrade.preset_id(p_company_id, CASE WHEN v_kind = 'deal' THEN 'service' ELSE 'deal' END)),
-        'archived', false,
-        'path', jsonb_build_array(
-          jsonb_build_object('relationId', crm_upgrade.preset_id(p_company_id, 'lineItem.' || v_kind), 'direction', 'incoming'),
-          jsonb_build_object('relationId', crm_upgrade.preset_id(p_company_id, 'lineItem.' || CASE WHEN v_kind = 'deal' THEN 'service' ELSE 'deal' END), 'direction', 'outgoing'))))));
-    END IF;
-  END LOOP;
-  RETURN v_result;
-END
-$$;
-
--- recordColumns (v5/contract/record-columns.ts): available column keys of a type, with sortability.
-CREATE FUNCTION crm_upgrade.record_columns(type_id text, model jsonb) RETURNS TABLE (id text, sortable boolean)
-LANGUAGE sql STABLE AS $$
-  SELECT f.value ->> 'id', f.value ->> 'valueType' NOT IN ('dateRange', 'dateTimeRange')
-    FROM jsonb_array_elements(model -> 'fields') AS f(value)
-    WHERE f.value ->> 'typeId' = type_id AND NOT (f.value ->> 'archived')::boolean AND f.value ->> 'valueType' <> 'richText'
-  UNION ALL
-  SELECT crm_upgrade.relationship_column_key(r.value ->> 'id', d.direction), false
-    FROM jsonb_array_elements(model -> 'relationships') AS r(value)
-    CROSS JOIN (VALUES ('outgoing'), ('incoming')) AS d(direction)
-    WHERE NOT (r.value ->> 'archived')::boolean
-      AND (CASE WHEN d.direction = 'outgoing' THEN r.value ->> 'sourceTypeId' ELSE r.value ->> 'targetTypeId' END) = type_id
-  UNION ALL
-  SELECT 'path:' || (p.value ->> 'id'), false
-    FROM jsonb_array_elements(model -> 'types') AS t(value), jsonb_array_elements(COALESCE(t.value -> 'relationshipPaths', '[]')) AS p(value)
-    WHERE t.value ->> 'id' = type_id AND NOT (p.value ->> 'archived')::boolean AND crm_upgrade.resolve_path(type_id, p.value -> 'path', model) IS NOT NULL
-  UNION ALL
-  SELECT 'system:channels', false
-    WHERE EXISTS (SELECT 1 FROM jsonb_array_elements(model -> 'capabilities') AS c(value) WHERE c.value ->> 'kind' = 'personIdentity' AND c.value ->> 'typeId' = type_id)
-  UNION ALL
-  SELECT * FROM (VALUES ('system:assignedTo', false), ('system:createdAt', true), ('system:updatedAt', true)) AS s(id, sortable)
-$$;
-
--- resolveRecordPath: terminal type of a relationship path or NULL.
-CREATE FUNCTION crm_upgrade.resolve_path(p_type_id text, p_path jsonb, p_model jsonb) RETURNS text
-LANGUAGE plpgsql STABLE AS $$
-DECLARE
-  v_step jsonb;
-  v_relation jsonb;
-BEGIN
-  IF (jsonb_typeof(p_path) <> 'array' OR jsonb_array_length(p_path) = 0 OR jsonb_array_length(p_path) > 6) IS NOT FALSE THEN RETURN NULL; END IF;
-  FOR v_step IN SELECT value FROM jsonb_array_elements(p_path) LOOP
-    SELECT r.value INTO v_relation FROM jsonb_array_elements(p_model -> 'relationships') AS r(value)
-      WHERE r.value ->> 'id' = v_step ->> 'relationId' AND NOT (r.value ->> 'archived')::boolean LIMIT 1;
-    IF (v_relation IS NULL OR (CASE WHEN v_step ->> 'direction' = 'outgoing' THEN v_relation ->> 'sourceTypeId' ELSE v_relation ->> 'targetTypeId' END) IS DISTINCT FROM p_type_id) IS NOT FALSE THEN
-      RETURN NULL;
-    END IF;
-    p_type_id := CASE WHEN v_step ->> 'direction' = 'outgoing' THEN v_relation ->> 'targetTypeId' ELSE v_relation ->> 'sourceTypeId' END;
-  END LOOP;
-  RETURN p_type_id;
-END
-$$;
-
--- resolveRecordGrouping (v5/contract/record-grouping.ts): whether a grouping is valid for the type.
-CREATE FUNCTION crm_upgrade.grouping_valid(p_type_id text, p_group_spec jsonb, p_model jsonb) RETURNS boolean
-LANGUAGE plpgsql STABLE AS $$
-DECLARE
-  v_key text := p_group_spec ->> 'field';
-  v_bucket boolean := p_group_spec ? 'bucket';
-  v_relation jsonb;
-  v_field jsonb;
-  v_parts text[];
-BEGIN
-  IF v_key LIKE 'path:%' AND crm_upgrade.is_uuid(substr(v_key, 6)) THEN
-    RETURN COALESCE((NOT v_bucket AND EXISTS (SELECT 1 FROM jsonb_array_elements(p_model -> 'types') AS t(value), jsonb_array_elements(COALESCE(t.value -> 'relationshipPaths', '[]')) AS p(value)
-      WHERE t.value ->> 'id' = p_type_id AND p.value ->> 'id' = substr(v_key, 6) AND NOT (p.value ->> 'archived')::boolean
-        AND crm_upgrade.resolve_path(p_type_id, p.value -> 'path', p_model) IS NOT NULL)), false);
-  END IF;
-  v_parts := string_to_array(v_key, ':');
-  IF v_parts[1] = 'relationship' AND array_length(v_parts, 1) = 3 AND crm_upgrade.is_uuid(v_parts[2]) AND v_parts[3] IN ('outgoing', 'incoming') THEN
-    SELECT r.value INTO v_relation FROM jsonb_array_elements(p_model -> 'relationships') AS r(value)
-      WHERE r.value ->> 'id' = v_parts[2] AND NOT (r.value ->> 'archived')::boolean LIMIT 1;
-    RETURN COALESCE((v_relation IS NOT NULL AND NOT v_bucket
-      AND (CASE WHEN v_parts[3] = 'outgoing' THEN v_relation ->> 'sourceTypeId' ELSE v_relation ->> 'targetTypeId' END) = p_type_id), false);
-  END IF;
-  IF v_key = 'system:assignedTo' THEN RETURN COALESCE((NOT v_bucket), false); END IF;
-  IF v_key IN ('system:createdAt', 'system:updatedAt') THEN RETURN true; END IF;
-  SELECT f.value INTO v_field FROM jsonb_array_elements(p_model -> 'fields') AS f(value)
-    WHERE f.value ->> 'typeId' = p_type_id AND f.value ->> 'id' = v_key AND NOT (f.value ->> 'archived')::boolean LIMIT 1;
-  IF (v_field IS NULL OR COALESCE((v_field ->> 'multiple')::boolean, false)) IS NOT FALSE THEN RETURN false; END IF;
-  IF v_field ->> 'valueType' IN ('date', 'dateTime', 'dateRange', 'dateTimeRange') THEN RETURN true; END IF;
-  IF (v_bucket) IS NOT FALSE THEN RETURN false; END IF;
-  RETURN COALESCE((v_field ->> 'valueType' IN ('select', 'boolean', 'member')), false);
-END
 $$;
 
 -- RecordScalarSchema (strict object piped into the kind-specific union).
@@ -1789,8 +1501,8 @@ BEGIN
 END
 $$;
 
--- scalarMatchesType; date_parse selects the v2 range order (Date.parse, milliseconds) instead of the
--- v5 one (recordInstantMicros).
+-- scalarMatchesType; date_parse compares range endpoints at millisecond precision (Date.parse) instead of
+-- microseconds (recordInstantMicros).
 CREATE FUNCTION crm_upgrade.scalar_matches_type(p_scalar jsonb, p_value_type text, p_multiple boolean, p_date_parse boolean) RETURNS boolean
 LANGUAGE plpgsql IMMUTABLE AS $$
 DECLARE
@@ -1835,1004 +1547,16 @@ EXCEPTION WHEN numeric_value_out_of_range OR invalid_text_representation OR prog
 END
 $$;
 
--- recordFilterOperators
-CREATE FUNCTION crm_upgrade.filter_operators(value_type text, multiple boolean) RETURNS text[]
-LANGUAGE sql IMMUTABLE AS $$
-  SELECT CASE
-    WHEN value_type = 'richText' THEN ARRAY[]::text[]
-    WHEN value_type IN ('dateRange', 'dateTimeRange') THEN ARRAY['contains', 'gt', 'gte', 'lt', 'lte', 'between', 'inLastDays', 'notInLastDays', 'empty', 'notEmpty']
-    ELSE ARRAY['eq', 'ne', 'empty', 'notEmpty']
-      || CASE WHEN NOT multiple THEN ARRAY['in', 'notIn'] ELSE ARRAY[]::text[] END
-      || CASE WHEN value_type IN ('text', 'email', 'phone', 'url') THEN ARRAY['contains', 'startsWith'] ELSE ARRAY[]::text[] END
-      || CASE WHEN NOT multiple AND value_type IN ('number', 'currency', 'date', 'dateTime') THEN ARRAY['gt', 'gte', 'lt', 'lte'] ELSE ARRAY[]::text[] END
-      || CASE WHEN value_type IN ('date', 'dateTime') THEN ARRAY['between', 'inLastDays', 'notInLastDays'] ELSE ARRAY[]::text[] END
-  END
-$$;
-
--- temporalFilterIsValid
-CREATE FUNCTION crm_upgrade.temporal_filter_valid(p_filter jsonb, p_value_type text) RETURNS boolean
-LANGUAGE plpgsql IMMUTABLE AS $$
-DECLARE
-  v_point_type text := CASE p_value_type WHEN 'dateRange' THEN 'date' WHEN 'dateTimeRange' THEN 'dateTime' ELSE p_value_type END;
-  v_operator text := p_filter ->> 'operator';
-  v_first jsonb;
-  v_second jsonb;
-BEGIN
-  IF v_operator IN ('empty', 'notEmpty') THEN RETURN true; END IF;
-  IF v_operator IN ('inLastDays', 'notInLastDays') THEN
-    RETURN COALESCE((p_filter #>> '{value,kind}' = 'decimal' AND p_filter #> '{value,currency}' = 'null'::jsonb AND p_filter #>> '{value,value}' ~ '^[0-9]+$'
-      AND (p_filter #>> '{value,value}')::numeric > 0 AND (p_filter #>> '{value,value}')::numeric <= 365000), false);
-  END IF;
-  IF v_operator = 'between' THEN
-    IF (NOT p_filter ? 'values' OR jsonb_array_length(p_filter -> 'values') <> 2) IS NOT FALSE THEN RETURN false; END IF;
-    v_first := p_filter -> 'values' -> 0;
-    v_second := p_filter -> 'values' -> 1;
-    RETURN COALESCE((v_first ->> 'kind' = v_point_type AND v_second ->> 'kind' = v_point_type AND v_first ->> 'kind' IN ('date', 'dateTime')
-      AND crm_upgrade.iso_micros(v_first ->> 'value', false) <= crm_upgrade.iso_micros(v_second ->> 'value', false)), false);
-  END IF;
-  IF v_operator IN ('in', 'notIn') THEN
-    RETURN COALESCE((p_filter ? 'values' AND NOT EXISTS (SELECT 1 FROM jsonb_array_elements(p_filter -> 'values') AS v(value) WHERE v.value ->> 'kind' IS DISTINCT FROM v_point_type)), false);
-  END IF;
-  RETURN COALESCE((jsonb_typeof(p_filter -> 'value') = 'object' AND p_filter #>> '{value,kind}' = v_point_type), false);
-END
-$$;
-
--- invalidRecordQueryPart restricted to the parts the conversion produces (filters, sort, relationships,
--- relatedFilters). The query is assumed to have passed record_query_parse_valid.
-CREATE FUNCTION crm_upgrade.query_valid(p_query jsonb, p_model jsonb) RETURNS boolean
-LANGUAGE plpgsql STABLE AS $$
-DECLARE
-  v_type_id text := p_query ->> 'typeId';
-  v_filter jsonb;
-  v_field jsonb;
-  v_values_list jsonb;
-  v_sort jsonb;
-  v_relation jsonb;
-  v_related jsonb;
-  v_step jsonb;
-  v_current_type text;
-  v_operator text;
-BEGIN
-  FOR v_filter IN SELECT value FROM jsonb_array_elements(COALESCE(p_query -> 'filters', '[]')) LOOP
-    v_operator := v_filter ->> 'operator';
-    IF v_filter ->> 'fieldId' IN ('system:createdAt', 'system:updatedAt', 'system:assignedTo') THEN
-      IF v_filter ->> 'fieldId' = 'system:assignedTo' THEN
-        IF (v_operator <> ALL (ARRAY['eq', 'ne', 'in', 'notIn', 'empty', 'notEmpty'])) IS NOT FALSE THEN RETURN false; END IF;
-        IF v_operator IN ('empty', 'notEmpty') THEN CONTINUE; END IF;
-        v_values_list := CASE WHEN v_operator IN ('in', 'notIn') THEN v_filter -> 'values'
-          WHEN jsonb_typeof(v_filter -> 'value') = 'object' THEN jsonb_build_array(v_filter -> 'value') END;
-        IF (v_values_list IS NULL OR EXISTS (SELECT 1 FROM jsonb_array_elements(v_values_list) AS v(value) WHERE v.value ->> 'kind' <> 'member')) IS NOT FALSE THEN RETURN false; END IF;
-      ELSE
-        IF (v_operator <> ALL (crm_upgrade.filter_operators('dateTime', false)) OR NOT crm_upgrade.temporal_filter_valid(v_filter, 'dateTime')) IS NOT FALSE THEN RETURN false; END IF;
-      END IF;
-      CONTINUE;
-    END IF;
-    SELECT f.value INTO v_field FROM jsonb_array_elements(p_model -> 'fields') AS f(value)
-      WHERE f.value ->> 'typeId' = v_type_id AND NOT (f.value ->> 'archived')::boolean AND f.value ->> 'id' = v_filter ->> 'fieldId' LIMIT 1;
-    IF (v_field IS NULL OR v_operator <> ALL (crm_upgrade.filter_operators(v_field ->> 'valueType', COALESCE((v_field ->> 'multiple')::boolean, false)))) IS NOT FALSE THEN RETURN false; END IF;
-    IF v_field ->> 'valueType' IN ('date', 'dateTime', 'dateRange', 'dateTimeRange') THEN
-      IF (NOT crm_upgrade.temporal_filter_valid(v_filter, v_field ->> 'valueType')) IS NOT FALSE THEN RETURN false; END IF;
-      CONTINUE;
-    END IF;
-    IF v_operator IN ('contains', 'startsWith') THEN
-      IF (v_filter #>> '{value,kind}' IS DISTINCT FROM 'text' OR v_field ->> 'valueType' NOT IN ('text', 'email', 'phone', 'url')) IS NOT FALSE THEN RETURN false; END IF;
-      CONTINUE;
-    END IF;
-    v_values_list := COALESCE(v_filter -> 'values', CASE WHEN jsonb_typeof(v_filter -> 'value') = 'object' THEN jsonb_build_array(v_filter -> 'value') ELSE '[]'::jsonb END);
-    IF (v_field ->> 'valueType' = 'select' AND EXISTS (SELECT 1 FROM jsonb_array_elements(v_values_list) AS v(value)
-      WHERE v.value ->> 'kind' <> 'select' OR NOT EXISTS (SELECT 1 FROM jsonb_array_elements(v_field -> 'options') AS o(value) WHERE o.value ->> 'id' = v.value ->> 'value'))) IS NOT FALSE THEN
-      RETURN false;
-    END IF;
-    IF v_operator IN ('in', 'notIn') THEN
-      IF (NOT v_filter ? 'values' OR EXISTS (SELECT 1 FROM jsonb_array_elements(v_filter -> 'values') AS v(value)
-        WHERE NOT crm_upgrade.scalar_matches_type(v.value, v_field ->> 'valueType', false, false))) IS NOT FALSE THEN RETURN false; END IF;
-      CONTINUE;
-    END IF;
-    IF (v_operator NOT IN ('empty', 'notEmpty') AND (jsonb_typeof(v_filter -> 'value') IS DISTINCT FROM 'object'
-      OR NOT crm_upgrade.scalar_matches_type(v_filter -> 'value', v_field ->> 'valueType', false, false))) IS NOT FALSE THEN
-      RETURN false;
-    END IF;
-  END LOOP;
-  FOR v_sort IN SELECT value FROM jsonb_array_elements(COALESCE(p_query -> 'sort', '[]')) LOOP
-    IF v_sort ->> 'fieldId' IN ('system:createdAt', 'system:updatedAt') THEN CONTINUE; END IF;
-    IF (NOT EXISTS (SELECT 1 FROM jsonb_array_elements(p_model -> 'fields') AS f(value)
-      WHERE f.value ->> 'typeId' = v_type_id AND NOT (f.value ->> 'archived')::boolean AND f.value ->> 'id' = v_sort ->> 'fieldId'
-        AND f.value ->> 'valueType' NOT IN ('richText', 'dateRange', 'dateTimeRange'))) IS NOT FALSE THEN
-      RETURN false;
-    END IF;
-  END LOOP;
-  FOR v_filter IN SELECT value FROM jsonb_array_elements(COALESCE(p_query -> 'relationships', '[]')) LOOP
-    SELECT r.value INTO v_relation FROM jsonb_array_elements(p_model -> 'relationships') AS r(value)
-      WHERE r.value ->> 'id' = v_filter ->> 'relationId' AND NOT (r.value ->> 'archived')::boolean LIMIT 1;
-    IF (v_relation IS NULL OR (CASE WHEN v_filter ->> 'direction' = 'outgoing' THEN v_relation ->> 'sourceTypeId' ELSE v_relation ->> 'targetTypeId' END) <> v_type_id) IS NOT FALSE THEN
-      RETURN false;
-    END IF;
-  END LOOP;
-  FOR v_related IN SELECT value FROM jsonb_array_elements(COALESCE(p_query -> 'relatedFilters', '[]')) LOOP
-    v_current_type := v_type_id;
-    FOR v_step IN SELECT value FROM jsonb_array_elements(v_related -> 'path') LOOP
-      SELECT r.value INTO v_relation FROM jsonb_array_elements(p_model -> 'relationships') AS r(value)
-        WHERE r.value ->> 'id' = v_step ->> 'relationId' AND NOT (r.value ->> 'archived')::boolean LIMIT 1;
-      IF (v_relation IS NULL OR (CASE WHEN v_step ->> 'direction' = 'outgoing' THEN v_relation ->> 'sourceTypeId' ELSE v_relation ->> 'targetTypeId' END) <> v_current_type) IS NOT FALSE THEN
-        RETURN false;
-      END IF;
-      v_current_type := CASE WHEN v_step ->> 'direction' = 'outgoing' THEN v_relation ->> 'targetTypeId' ELSE v_relation ->> 'sourceTypeId' END;
-      IF (NOT EXISTS (SELECT 1 FROM jsonb_array_elements(p_model -> 'types') AS t(value) WHERE t.value ->> 'id' = v_current_type AND NOT (t.value ->> 'archived')::boolean)) IS NOT FALSE THEN
-        RETURN false;
-      END IF;
-    END LOOP;
-    IF (NOT crm_upgrade.query_valid(jsonb_build_object('typeId', v_current_type, 'filters', v_related -> 'filters', 'relationships', COALESCE(v_related -> 'relationships', '[]')), p_model)) IS NOT FALSE THEN
-      RETURN false;
-    END IF;
-  END LOOP;
-  RETURN true;
-END
-$$;
-
--- RecordQuerySchema.parse for the parts the conversion produces; false means a ZodError.
-CREATE FUNCTION crm_upgrade.query_parse_valid(p_query jsonb) RETURNS boolean
-LANGUAGE plpgsql IMMUTABLE AS $$
-DECLARE
-  v_filter jsonb;
-  v_related jsonb;
-BEGIN
-  IF (jsonb_array_length(COALESCE(p_query -> 'filters', '[]')) > 50 OR jsonb_array_length(COALESCE(p_query -> 'relationships', '[]')) > 50
-    OR jsonb_array_length(COALESCE(p_query -> 'relatedFilters', '[]')) > 16 OR jsonb_array_length(COALESCE(p_query -> 'sort', '[]')) > 5) IS NOT FALSE THEN
-    RETURN false;
-  END IF;
-  FOR v_filter IN SELECT value FROM jsonb_array_elements(COALESCE(p_query -> 'filters', '[]')) LOOP
-    IF (NOT (crm_upgrade.is_uuid(v_filter ->> 'fieldId') OR v_filter ->> 'fieldId' IN ('system:createdAt', 'system:updatedAt', 'system:assignedTo'))) IS NOT FALSE THEN RETURN false; END IF;
-    IF (v_filter -> 'value' <> 'null'::jsonb AND NOT crm_upgrade.scalar_valid(v_filter -> 'value')) IS NOT FALSE THEN RETURN false; END IF;
-    IF (v_filter ? 'values' AND (jsonb_array_length(v_filter -> 'values') > 100 OR EXISTS (
-      SELECT 1 FROM jsonb_array_elements(v_filter -> 'values') AS v(value) WHERE NOT crm_upgrade.scalar_valid(v.value)))) IS NOT FALSE THEN
-      RETURN false;
-    END IF;
-  END LOOP;
-  FOR v_filter IN SELECT value FROM jsonb_array_elements(COALESCE(p_query -> 'sort', '[]')) LOOP
-    IF (NOT (crm_upgrade.is_uuid(v_filter ->> 'fieldId') OR v_filter ->> 'fieldId' IN ('system:createdAt', 'system:updatedAt', 'system:assignedTo'))) IS NOT FALSE THEN RETURN false; END IF;
-  END LOOP;
-  FOR v_filter IN SELECT value FROM jsonb_array_elements(COALESCE(p_query -> 'relationships', '[]')) LOOP
-    IF (v_filter -> 'recordIds' <> 'null'::jsonb AND jsonb_array_length(v_filter -> 'recordIds') > 100) IS NOT FALSE THEN RETURN false; END IF;
-  END LOOP;
-  FOR v_related IN SELECT value FROM jsonb_array_elements(COALESCE(p_query -> 'relatedFilters', '[]')) LOOP
-    IF (jsonb_array_length(v_related -> 'path') NOT BETWEEN 1 AND 6 OR (v_related ? 'recordIds' AND jsonb_array_length(v_related -> 'recordIds') > 100)
-      OR NOT crm_upgrade.query_parse_valid(jsonb_build_object('filters', v_related -> 'filters', 'relationships', COALESCE(v_related -> 'relationships', '[]')))) IS NOT FALSE THEN
-      RETURN false;
-    END IF;
-  END LOOP;
-  RETURN true;
-END
-$$;
-
--- LegacyFilterSchema (v5/filters.ts) for one element: preprocess (hasSome/hasNone with arrays become
--- in/notIn; finite numbers become decimal strings except for inLastDays and notInLastDays) and the strict union.
--- Returns the parsed filter or NULL when zod would reject it.
-CREATE FUNCTION crm_upgrade.legacy_filter_parse(p_input jsonb) RETURNS jsonb
-LANGUAGE plpgsql IMMUTABLE AS $$
-DECLARE
-  v_filter jsonb := p_input;
-  v_operator text;
-  v_number double precision;
-BEGIN
-  IF (jsonb_typeof(v_filter) <> 'object') IS NOT FALSE THEN RETURN NULL; END IF;
-  IF jsonb_typeof(v_filter -> 'value') = 'array' AND v_filter ->> 'operator' IN ('hasSome', 'hasNone') THEN
-    v_filter := v_filter || jsonb_build_object('operator', CASE WHEN v_filter ->> 'operator' = 'hasSome' THEN 'in' ELSE 'notIn' END);
-  END IF;
-  IF v_filter ->> 'operator' IS DISTINCT FROM 'inLastDays' AND v_filter ->> 'operator' IS DISTINCT FROM 'notInLastDays' AND v_filter ? 'value' THEN
-    IF jsonb_typeof(v_filter -> 'value') = 'array' THEN
-      v_filter := v_filter || jsonb_build_object('value', (SELECT COALESCE(jsonb_agg(crm_upgrade.legacy_filter_canonical(v.value) ORDER BY v.ordinality), '[]'::jsonb)
-        FROM jsonb_array_elements(v_filter -> 'value') WITH ORDINALITY AS v(value, ordinality)));
-    ELSE
-      v_filter := v_filter || jsonb_build_object('value', crm_upgrade.legacy_filter_canonical(v_filter -> 'value'));
-    END IF;
-  END IF;
-  IF (jsonb_typeof(v_filter -> 'field') IS DISTINCT FROM 'string' OR jsonb_typeof(v_filter -> 'operator') IS DISTINCT FROM 'string') IS NOT FALSE THEN RETURN NULL; END IF;
-  v_operator := v_filter ->> 'operator';
-  IF v_operator IN ('equals', 'contains', 'startsWith', 'gt', 'gte', 'lt', 'lte') THEN
-    IF (SELECT array_agg(key ORDER BY key) FROM jsonb_object_keys(v_filter) AS key) = ARRAY['field', 'operator', 'value'] AND jsonb_typeof(v_filter -> 'value') = 'string' THEN
-      RETURN v_filter;
-    END IF;
-    RETURN NULL;
-  ELSIF v_operator IN ('in', 'notIn', 'between') THEN
-    IF (SELECT array_agg(key ORDER BY key) FROM jsonb_object_keys(v_filter) AS key) = ARRAY['field', 'operator', 'value'] AND jsonb_typeof(v_filter -> 'value') = 'array'
-      AND jsonb_array_length(v_filter -> 'value') <= 100 AND NOT EXISTS (SELECT 1 FROM jsonb_array_elements(v_filter -> 'value') AS v(value) WHERE jsonb_typeof(v.value) <> 'string') THEN
-      RETURN v_filter;
-    END IF;
-    RETURN NULL;
-  ELSIF v_operator IN ('isNull', 'isNotNull', 'hasSome', 'hasNone') THEN
-    IF (SELECT array_agg(key ORDER BY key) FROM jsonb_object_keys(v_filter) AS key) = ARRAY['field', 'operator'] THEN RETURN v_filter; END IF;
-    RETURN NULL;
-  ELSIF v_operator IN ('inLastDays', 'notInLastDays') THEN
-    IF ((SELECT array_agg(key ORDER BY key) FROM jsonb_object_keys(v_filter) AS key) <> ARRAY['field', 'operator', 'value']) IS NOT FALSE THEN RETURN NULL; END IF;
-    v_number := crm_upgrade.js_to_number(v_filter -> 'value');
-    IF (v_number IS NULL OR v_number <> floor(v_number) OR v_number <= 0 OR v_number > 365000) IS NOT FALSE THEN RETURN NULL; END IF;
-    RETURN v_filter || jsonb_build_object('value', v_number::bigint);
-  END IF;
-  RETURN NULL;
-END
-$$;
-
--- typeof value === "number" && Number.isFinite(value) ? new Decimal(String(value)).toFixed() : value
-CREATE FUNCTION crm_upgrade.legacy_filter_canonical(p_value jsonb) RETURNS jsonb
-LANGUAGE plpgsql IMMUTABLE AS $$
-DECLARE
-  v_number double precision;
-BEGIN
-  IF jsonb_typeof(p_value) <> 'number' THEN RETURN p_value; END IF;
-  v_number := crm_upgrade.js_parse_number(p_value::text::numeric);
-  IF v_number IN ('Infinity'::float8, '-Infinity'::float8) THEN RETURN p_value; END IF;
-  RETURN to_jsonb(crm_upgrade.decimal_text(crm_upgrade.js_num(v_number)::numeric));
-END
-$$;
-
--- migrateFilters (v5/filters.ts) with the documented repairs. Parses legacy filters, maps each field to a
--- record column key and returns the legacy-shaped filters that DataView/P13n keep.
---   * repair_missing_columns: a UUID-shaped field that resolves to no field of the type references a
---     deleted legacy CustomColumn; that filter is dropped (the legacy UI ignored it). Counted per row.
---   * Unknown option values are removed from select in/notIn filters; a notIn left empty is dropped
---     (no record holds a deleted option), an in left empty stays and still matches nothing.
-CREATE FUNCTION crm_upgrade.migrate_filters(p_company_id text, p_kind text, p_raw jsonb, p_model jsonb, p_repair_missing_columns boolean,
-  p_owner_table text, p_owner_id text) RETURNS jsonb
-LANGUAGE plpgsql AS $$
-DECLARE
-  v_filters jsonb := '[]';
-  v_parsed jsonb;
-  v_mapped text;
-  v_field jsonb;
-  v_kept jsonb;
-  v_item record;
-BEGIN
-  IF p_raw IS NULL OR p_raw = 'null'::jsonb THEN RETURN '[]'::jsonb; END IF;
-  IF (jsonb_typeof(p_raw) <> 'array' OR jsonb_array_length(p_raw) > 50) IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
-  FOR v_item IN SELECT value, ordinality FROM jsonb_array_elements(p_raw) WITH ORDINALITY ORDER BY ordinality LOOP
-    v_parsed := crm_upgrade.legacy_filter_parse(v_item.value);
-    IF (v_parsed IS NULL) IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
-  END LOOP;
-  FOR v_item IN SELECT value, ordinality FROM jsonb_array_elements(p_raw) WITH ORDINALITY ORDER BY ordinality LOOP
-    v_parsed := crm_upgrade.legacy_filter_parse(v_item.value);
-    v_mapped := crm_upgrade.migrate_column_key(p_company_id, p_kind, v_parsed ->> 'field', p_model);
-    IF v_mapped IS NULL THEN
-      IF p_repair_missing_columns AND crm_upgrade.is_uuid(v_parsed ->> 'field') THEN
-        PERFORM crm_upgrade.repair(p_company_id, p_owner_table, p_owner_id, 'dropped_column_reference', 'filters');
-        CONTINUE;
-      END IF;
-      PERFORM crm_upgrade.fail('unresolved_presentation_field');
-    END IF;
-    v_parsed := v_parsed || jsonb_build_object('field', v_mapped);
-    SELECT f.value INTO v_field FROM jsonb_array_elements(p_model -> 'fields') AS f(value)
-      WHERE f.value ->> 'typeId' = crm_upgrade.preset_id(p_company_id, p_kind) AND f.value ->> 'id' = v_mapped LIMIT 1;
-    IF v_field ->> 'valueType' = 'select' AND v_parsed ->> 'operator' IN ('in', 'notIn') THEN
-      v_kept := COALESCE((SELECT jsonb_agg(v.value ORDER BY v.ordinality) FROM jsonb_array_elements(v_parsed -> 'value') WITH ORDINALITY AS v(value, ordinality)
-        WHERE EXISTS (SELECT 1 FROM jsonb_array_elements(v_field -> 'options') AS o(value) WHERE o.value ->> 'id' = v.value #>> '{}')), '[]'::jsonb);
-      IF v_kept <> v_parsed -> 'value' THEN
-        PERFORM crm_upgrade.repair(p_company_id, p_owner_table, p_owner_id, 'removed_unknown_option', v_parsed ->> 'operator');
-        IF v_parsed ->> 'operator' = 'notIn' AND jsonb_array_length(v_kept) = 0 THEN CONTINUE; END IF;
-        v_parsed := v_parsed || jsonb_build_object('value', v_kept);
-      END IF;
-    END IF;
-    v_filters := v_filters || jsonb_build_array(v_parsed);
-  END LOOP;
-  RETURN v_filters;
-END
-$$;
-
--- scalar(raw, field, currency) of migrationQueryFilter.
-CREATE FUNCTION crm_upgrade.filter_scalar(p_raw text, p_value_type text, p_field_currency text, p_currency text) RETURNS jsonb
-LANGUAGE plpgsql IMMUTABLE AS $$
-BEGIN
-  IF p_value_type = 'select' THEN RETURN jsonb_build_object('kind', 'select', 'value', p_raw); END IF;
-  IF p_value_type = 'member' THEN RETURN jsonb_build_object('kind', 'member', 'value', p_raw); END IF;
-  IF p_value_type IN ('number', 'currency') THEN
-    RETURN crm_upgrade.scalar_decimal(p_raw, CASE WHEN p_value_type = 'currency' THEN COALESCE(p_field_currency, p_currency) END);
-  END IF;
-  IF p_value_type IN ('date', 'dateTime', 'dateRange', 'dateTimeRange') THEN
-    RETURN jsonb_build_object('kind', CASE WHEN p_value_type IN ('date', 'dateRange') THEN 'date' ELSE 'dateTime' END, 'value', p_raw);
-  END IF;
-  IF p_value_type = 'boolean' THEN
-    IF (p_raw NOT IN ('true', 'false')) IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_boolean_filter'); END IF;
-    RETURN jsonb_build_object('kind', 'boolean', 'value', p_raw = 'true');
-  END IF;
-  RETURN crm_upgrade.scalar_text(p_raw);
-END
-$$;
-
--- migrationQueryFilter (v5/filters.ts): legacy filters (already mapped) to a validated generic query part
--- {filters, relationships, relatedFilters}.
-CREATE FUNCTION crm_upgrade.query_filter(p_type_id text, p_filters jsonb, p_model jsonb, p_currency text) RETURNS jsonb
-LANGUAGE plpgsql AS $$
-DECLARE
-  v_result_filters jsonb := '[]';
-  v_result_relationships jsonb := '[]';
-  v_result_related jsonb := '[]';
-  v_filter jsonb;
-  v_key text;
-  v_operator text;
-  v_path_id text;
-  v_parts text[];
-  v_relation_id text;
-  v_direction text;
-  v_record_ids jsonb;
-  v_generic_operator text;
-  v_path jsonb;
-  v_field jsonb;
-  v_value_type text;
-BEGIN
-  FOR v_filter IN SELECT value FROM jsonb_array_elements(p_filters) WITH ORDINALITY AS f(value, ordinality) ORDER BY ordinality LOOP
-    v_key := v_filter ->> 'field';
-    v_operator := v_filter ->> 'operator';
-    v_path_id := CASE WHEN v_key LIKE 'path:%' AND crm_upgrade.is_uuid(substr(v_key, 6)) THEN substr(v_key, 6) END;
-    v_parts := string_to_array(v_key, ':');
-    v_relation_id := NULL;
-    IF v_parts[1] = 'relationship' AND array_length(v_parts, 1) = 3 AND crm_upgrade.is_uuid(v_parts[2]) AND v_parts[3] IN ('outgoing', 'incoming') THEN
-      v_relation_id := v_parts[2];
-      v_direction := v_parts[3];
-    END IF;
-    IF v_path_id IS NOT NULL OR v_relation_id IS NOT NULL THEN
-      IF (v_operator NOT IN ('in', 'notIn', 'hasSome', 'hasNone')) IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_relationship_filter'); END IF;
-      v_record_ids := NULL;
-      IF v_operator IN ('in', 'notIn') THEN
-        IF (EXISTS (SELECT 1 FROM jsonb_array_elements(v_filter -> 'value') AS v(value) WHERE NOT crm_upgrade.is_uuid(v.value #>> '{}'))) IS NOT FALSE THEN
-          PERFORM crm_upgrade.fail('invalid_presentation_configuration');
-        END IF;
-        v_record_ids := v_filter -> 'value';
-      END IF;
-      v_generic_operator := CASE WHEN v_operator IN ('notIn', 'hasNone') THEN 'none' ELSE 'any' END;
-      IF v_relation_id IS NOT NULL THEN
-        v_result_relationships := v_result_relationships || jsonb_build_array(jsonb_build_object('relationId', v_relation_id, 'direction', v_direction,
-          'operator', v_generic_operator, 'recordIds', COALESCE(v_record_ids, 'null'::jsonb)));
-      ELSE
-        SELECT p.value -> 'path' INTO v_path FROM jsonb_array_elements(p_model -> 'types') AS t(value), jsonb_array_elements(COALESCE(t.value -> 'relationshipPaths', '[]')) AS p(value)
-          WHERE t.value ->> 'id' = p_type_id AND p.value ->> 'id' = v_path_id LIMIT 1;
-        IF (v_path IS NULL) IS NOT FALSE THEN PERFORM crm_upgrade.fail('unresolved_relationship_path'); END IF;
-        v_result_related := v_result_related || jsonb_build_array(jsonb_build_object('path', v_path, 'operator', v_generic_operator, 'filters', '[]'::jsonb, 'relationships', '[]'::jsonb)
-          || CASE WHEN v_record_ids IS NOT NULL THEN jsonb_build_object('recordIds', v_record_ids) ELSE '{}'::jsonb END);
-      END IF;
-      CONTINUE;
-    END IF;
-    v_field := NULL;
-    SELECT f.value INTO v_field FROM jsonb_array_elements(p_model -> 'fields') AS f(value) WHERE f.value ->> 'typeId' = p_type_id AND f.value ->> 'id' = v_key LIMIT 1;
-    v_value_type := COALESCE(v_field ->> 'valueType', CASE WHEN v_key IN ('system:createdAt', 'system:updatedAt') THEN 'dateTime' WHEN v_key = 'system:assignedTo' THEN 'member' END);
-    IF (v_value_type IS NULL) IS NOT FALSE THEN PERFORM crm_upgrade.fail('unresolved_filter_field'); END IF;
-    IF v_operator IN ('isNull', 'isNotNull', 'hasSome', 'hasNone') THEN
-      IF (v_operator IN ('hasSome', 'hasNone') AND v_key <> 'system:assignedTo') IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_scalar_existence_filter'); END IF;
-      v_result_filters := v_result_filters || jsonb_build_array(jsonb_build_object('fieldId', v_key,
-        'operator', CASE WHEN v_operator IN ('isNull', 'hasNone') THEN 'empty' ELSE 'notEmpty' END, 'value', NULL));
-    ELSIF v_operator IN ('inLastDays', 'notInLastDays') THEN
-      v_result_filters := v_result_filters || jsonb_build_array(jsonb_build_object('fieldId', v_key, 'operator', v_operator,
-        'value', crm_upgrade.scalar_decimal((v_filter ->> 'value'), NULL)));
-    ELSIF v_operator IN ('in', 'notIn', 'between') THEN
-      v_result_filters := v_result_filters || jsonb_build_array(jsonb_build_object('fieldId', v_key, 'operator', v_operator, 'value', NULL,
-        'values', COALESCE((SELECT jsonb_agg(crm_upgrade.filter_scalar(v.value #>> '{}', v_value_type, v_field #>> '{format,currency}', p_currency) ORDER BY v.ordinality)
-          FROM jsonb_array_elements(v_filter -> 'value') WITH ORDINALITY AS v(value, ordinality)), '[]'::jsonb)));
-    ELSIF jsonb_typeof(v_filter -> 'value') = 'string' THEN
-      v_result_filters := v_result_filters || jsonb_build_array(jsonb_build_object('fieldId', v_key,
-        'operator', CASE WHEN v_operator = 'equals' THEN 'eq' ELSE v_operator END,
-        'value', crm_upgrade.filter_scalar(v_filter ->> 'value', v_value_type, v_field #>> '{format,currency}', p_currency)));
-    ELSE
-      PERFORM crm_upgrade.fail('invalid_filter_value');
-    END IF;
-  END LOOP;
-  RETURN jsonb_build_object('filters', v_result_filters, 'relationships', v_result_relationships, 'relatedFilters', v_result_related);
-END
-$$;
-
--- Validates a generic query part exactly like RecordQuerySchema.parse + invalidRecordQueryPart.
-CREATE FUNCTION crm_upgrade.assert_query(p_query jsonb, p_model jsonb, p_code text) RETURNS void
-LANGUAGE plpgsql AS $$
-BEGIN
-  IF (NOT crm_upgrade.query_parse_valid(p_query)) IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
-  IF (NOT crm_upgrade.query_valid(p_query, p_model)) IS NOT FALSE THEN PERFORM crm_upgrade.fail(p_code); END IF;
-END
-$$;
-
--- migrateQueryFilter: the validated generic filter of a legacy filter list of one legacy type.
-CREATE FUNCTION crm_upgrade.migrate_query_filter(p_company_id text, p_kind text, p_legacy_filters jsonb, p_model jsonb, p_currency text) RETURNS jsonb
-LANGUAGE plpgsql AS $$
-DECLARE
-  v_result jsonb := crm_upgrade.query_filter(crm_upgrade.preset_id(p_company_id, p_kind), p_legacy_filters, p_model, p_currency);
-BEGIN
-  PERFORM crm_upgrade.assert_query(v_result || jsonb_build_object('typeId', crm_upgrade.preset_id(p_company_id, p_kind)), p_model, 'invalid_migrated_filter');
-  RETURN v_result;
-END
-$$;
-
--- validatePresentationReferences (v5/references.ts): every referenced member and record must exist in
--- the same workspace (records in the legacy table of their type, line items in ServiceDeal).
-CREATE FUNCTION crm_upgrade.reference_issues(p_company_id text, p_model jsonb, p_scopes jsonb, p_owner_table text) RETURNS void
-LANGUAGE plpgsql AS $$
-DECLARE
-  v_wanted record;
-  v_found boolean;
-BEGIN
-  FOR v_wanted IN
-    WITH RECURSIVE scope(type_id, filters, relationships, related) AS (
-      SELECT s.value ->> 'typeId', COALESCE(s.value -> 'filters', '[]'), COALESCE(s.value -> 'relationships', '[]'), COALESCE(s.value -> 'relatedFilters', '[]')
-        FROM jsonb_array_elements(p_scopes) AS s(value)
-      UNION ALL
-      SELECT crm_upgrade.resolve_path(scope.type_id, r.value -> 'path', p_model), COALESCE(r.value -> 'filters', '[]'), COALESCE(r.value -> 'relationships', '[]'), '[]'::jsonb
-        FROM scope, jsonb_array_elements(scope.related) AS r(value)
-    ), refs(scope, id) AS (
-      SELECT 'member', v.value ->> 'value' FROM scope, jsonb_array_elements(scope.filters) AS f(value),
-        jsonb_array_elements(COALESCE(f.value -> 'values', CASE WHEN jsonb_typeof(f.value -> 'value') = 'object' THEN jsonb_build_array(f.value -> 'value') ELSE '[]'::jsonb END)) AS v(value)
-        WHERE v.value ->> 'kind' = 'member'
-      UNION
-      SELECT (SELECT CASE WHEN rel.value ->> 'sourceTypeId' = scope.type_id AND f.value ->> 'direction' = 'outgoing' THEN rel.value ->> 'targetTypeId' ELSE rel.value ->> 'sourceTypeId' END
-          FROM jsonb_array_elements(p_model -> 'relationships') AS rel(value) WHERE rel.value ->> 'id' = f.value ->> 'relationId'), id.value #>> '{}'
-        FROM scope, jsonb_array_elements(scope.relationships) AS f(value), jsonb_array_elements(CASE WHEN jsonb_typeof(f.value -> 'recordIds') = 'array' THEN f.value -> 'recordIds' ELSE '[]'::jsonb END) AS id(value)
-      UNION
-      SELECT crm_upgrade.resolve_path(scope.type_id, r.value -> 'path', p_model), id.value #>> '{}'
-        FROM scope, jsonb_array_elements(scope.related) AS r(value), jsonb_array_elements(COALESCE(r.value -> 'recordIds', '[]')) AS id(value)
-    )
-    SELECT refs.scope, refs.id FROM refs
-  LOOP
-    v_found := CASE
-      WHEN v_wanted.scope = 'member' THEN EXISTS (SELECT 1 FROM "User" u WHERE u."companyId" = p_company_id AND u.id = v_wanted.id)
-      WHEN v_wanted.scope = crm_upgrade.preset_id(p_company_id, 'contact') THEN EXISTS (SELECT 1 FROM "Contact" r WHERE r."companyId" = p_company_id AND r.id = v_wanted.id)
-      WHEN v_wanted.scope = crm_upgrade.preset_id(p_company_id, 'organization') THEN EXISTS (SELECT 1 FROM "Organization" r WHERE r."companyId" = p_company_id AND r.id = v_wanted.id)
-      WHEN v_wanted.scope = crm_upgrade.preset_id(p_company_id, 'deal') THEN EXISTS (SELECT 1 FROM "Deal" r WHERE r."companyId" = p_company_id AND r.id = v_wanted.id)
-      WHEN v_wanted.scope = crm_upgrade.preset_id(p_company_id, 'service') THEN EXISTS (SELECT 1 FROM "Service" r WHERE r."companyId" = p_company_id AND r.id = v_wanted.id)
-      WHEN v_wanted.scope = crm_upgrade.preset_id(p_company_id, 'task') THEN EXISTS (SELECT 1 FROM "Task" r WHERE r."companyId" = p_company_id AND r.id = v_wanted.id)
-      WHEN v_wanted.scope = crm_upgrade.preset_id(p_company_id, 'lineItem') THEN EXISTS (SELECT 1 FROM "ServiceDeal" r WHERE r."companyId" = p_company_id AND r.id = v_wanted.id)
-      ELSE false END;
-    IF NOT v_found THEN
-      PERFORM crm_upgrade.issue(p_company_id, p_owner_table, 'references', 'unresolved_presentation_reference');
-    END IF;
-  END LOOP;
-END
-$$;
-
--- Maps a presentation column key of a list or detail surface. Returns NULL when the key is a UUID that
--- resolves to no field of the type (a deleted legacy CustomColumn: documented repair, reference dropped).
-CREATE FUNCTION crm_upgrade.presentation_key(p_company_id text, p_kind text, p_key text, p_model jsonb, p_owner_table text, p_owner_id text,
-  p_location text, p_unavailable_code text) RETURNS text
-LANGUAGE plpgsql AS $$
-DECLARE
-  v_mapped text := crm_upgrade.migrate_column_key(p_company_id, p_kind, p_key, p_model);
-BEGIN
-  IF v_mapped IS NULL THEN
-    IF crm_upgrade.is_uuid(p_key) THEN
-      PERFORM crm_upgrade.repair(p_company_id, p_owner_table, p_owner_id, 'dropped_column_reference', p_location);
-      RETURN NULL;
-    END IF;
-    PERFORM crm_upgrade.fail('unresolved_presentation_field');
-  END IF;
-  IF (NOT EXISTS (SELECT 1 FROM crm_upgrade.record_columns(crm_upgrade.preset_id(p_company_id, p_kind), p_model) AS c WHERE c.id = v_mapped)) IS NOT FALSE THEN
-    PERFORM crm_upgrade.fail(p_unavailable_code);
-  END IF;
-  RETURN v_mapped;
-END
-$$;
-
--- keys(raw): a string array of at most 500 entries mapped key by key; duplicates after mapping refuse.
-CREATE FUNCTION crm_upgrade.presentation_keys(p_company_id text, p_kind text, p_raw jsonb, p_model jsonb, p_owner_table text, p_owner_id text,
-  p_location text, p_max_length integer, p_unavailable_code text, p_duplicate_code text) RETURNS jsonb
-LANGUAGE plpgsql AS $$
-DECLARE
-  v_result text[] := ARRAY[]::text[];
-  v_mapped text;
-  v_item jsonb;
-BEGIN
-  IF (jsonb_typeof(p_raw) <> 'array' OR (p_max_length IS NOT NULL AND jsonb_array_length(p_raw) > p_max_length)
-    OR EXISTS (SELECT 1 FROM jsonb_array_elements(p_raw) AS v(value) WHERE jsonb_typeof(v.value) <> 'string')) IS NOT FALSE THEN
-    PERFORM crm_upgrade.fail('invalid_presentation_configuration');
-  END IF;
-  FOR v_item IN SELECT value FROM jsonb_array_elements(p_raw) WITH ORDINALITY AS v(value, ordinality) ORDER BY ordinality LOOP
-    v_mapped := crm_upgrade.presentation_key(p_company_id, p_kind, v_item #>> '{}', p_model, p_owner_table, p_owner_id, p_location, p_unavailable_code);
-    IF v_mapped IS NOT NULL THEN v_result := v_result || v_mapped; END IF;
-  END LOOP;
-  IF ((SELECT count(DISTINCT v) FROM unnest(v_result) AS v) <> coalesce(array_length(v_result, 1), 0)) IS NOT FALSE THEN PERFORM crm_upgrade.fail(p_duplicate_code); END IF;
-  RETURN to_jsonb(v_result);
-END
-$$;
-
--- Largest supported page size not above the stored one (5 for anything smaller). Documented repair.
-CREATE FUNCTION crm_upgrade.supported_page_size(value double precision) RETURNS integer
-LANGUAGE sql IMMUTABLE AS $$
-  SELECT CASE WHEN value >= 100 THEN 100 WHEN value >= 25 THEN 25 WHEN value >= 10 THEN 10 ELSE 5 END
-$$;
-
--- migratePresentationState (v5/state.ts) for a list DataView (personalization = false) or list P13n
--- (personalization = true). row is to_jsonb of the legacy row with array columns as JSON arrays.
--- Returns {"output": <changed row>, "query": <generic list query>}.
-CREATE FUNCTION crm_upgrade.migrate_presentation_state(p_company_id text, p_kind text, p_source_row jsonb, p_model jsonb, p_personalization boolean,
-  p_currency text, p_owner_table text) RETURNS jsonb
-LANGUAGE plpgsql AS $$
-DECLARE
-  v_type_id text := crm_upgrade.preset_id(p_company_id, p_kind);
-  v_owner_id text := p_source_row ->> 'id';
-  v_output jsonb := p_source_row;
-  v_legacy_filters jsonb;
-  v_filters jsonb;
-  v_sort jsonb;
-  v_order_field text;
-  v_group_spec jsonb;
-  v_mapped text;
-  v_explicit jsonb;
-  v_widths jsonb := '{}';
-  v_entry record;
-  v_number double precision;
-  v_page_size jsonb;
-  v_state_keys jsonb;
-  v_query jsonb;
-BEGIN
-  v_legacy_filters := crm_upgrade.migrate_filters(p_company_id, p_kind, p_source_row -> 'filters', p_model, true, p_owner_table, v_owner_id);
-  IF p_source_row -> 'filters' <> 'null'::jsonb THEN v_output := v_output || jsonb_build_object('filters', v_legacy_filters); END IF;
-  v_filters := crm_upgrade.migrate_query_filter(p_company_id, p_kind, v_legacy_filters, p_model, p_currency);
-  v_sort := p_source_row -> 'sortDescriptor';
-  IF v_sort <> 'null'::jsonb THEN
-    IF (jsonb_typeof(v_sort) <> 'object') IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
-    IF v_sort <> '{}'::jsonb THEN
-      IF ((SELECT array_agg(key ORDER BY key) FROM jsonb_object_keys(v_sort) AS key) <> ARRAY['direction', 'field']
-        OR jsonb_typeof(v_sort -> 'field') <> 'string' OR v_sort ->> 'direction' NOT IN ('asc', 'desc') OR jsonb_typeof(v_sort -> 'direction') <> 'string') IS NOT FALSE THEN
-        PERFORM crm_upgrade.fail('invalid_presentation_configuration');
-      END IF;
-      v_order_field := crm_upgrade.presentation_key(p_company_id, p_kind, v_sort ->> 'field', p_model, p_owner_table, v_owner_id, 'sortDescriptor', 'unsupported_presentation_column');
-      IF v_order_field IS NULL THEN
-        v_output := v_output || '{"sortDescriptor":null}'::jsonb;
-      ELSE
-        v_output := v_output || jsonb_build_object('sortDescriptor', jsonb_build_object('field', v_order_field, 'direction', v_sort -> 'direction'));
-      END IF;
-    END IF;
-  END IF;
-  v_group_spec := p_source_row -> 'grouping';
-  IF v_group_spec <> 'null'::jsonb THEN
-    IF (jsonb_typeof(v_group_spec) <> 'object' OR EXISTS (SELECT 1 FROM jsonb_object_keys(v_group_spec) AS key WHERE key NOT IN ('field', 'bucket'))
-      OR jsonb_typeof(v_group_spec -> 'field') IS DISTINCT FROM 'string' OR crm_upgrade.js_len(v_group_spec ->> 'field') NOT BETWEEN 1 AND 200
-      OR (v_group_spec ? 'bucket' AND (jsonb_typeof(v_group_spec -> 'bucket') <> 'string' OR v_group_spec ->> 'bucket' NOT IN ('day', 'week', 'month')))) IS NOT FALSE THEN
-      PERFORM crm_upgrade.fail('invalid_presentation_configuration');
-    END IF;
-    v_mapped := crm_upgrade.presentation_key(p_company_id, p_kind, v_group_spec ->> 'field', p_model, p_owner_table, v_owner_id, 'grouping', 'unsupported_presentation_column');
-    IF v_mapped IS NULL THEN
-      v_output := v_output || '{"grouping":null,"groupingColumnId":null}'::jsonb;
-    ELSE
-      v_group_spec := v_group_spec || jsonb_build_object('field', v_mapped);
-      IF (NOT crm_upgrade.grouping_valid(v_type_id, v_group_spec, p_model)) IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_grouping'); END IF;
-      v_output := v_output || jsonb_build_object('grouping', v_group_spec, 'groupingColumnId', CASE WHEN crm_upgrade.is_uuid(v_mapped) THEN to_jsonb(v_mapped) ELSE 'null'::jsonb END);
-    END IF;
-  ELSE
-    v_output := v_output || '{"groupingColumnId":null}'::jsonb;
-  END IF;
-  IF p_source_row -> 'columnOrder' <> 'null'::jsonb THEN
-    v_output := v_output || jsonb_build_object('columnOrder', crm_upgrade.presentation_keys(p_company_id, p_kind, p_source_row -> 'columnOrder', p_model, p_owner_table, v_owner_id,
-      'columnOrder', 500, 'unsupported_presentation_column', 'duplicate_column_after_mapping'));
-  END IF;
-  IF p_source_row -> 'hiddenColumns' <> 'null'::jsonb THEN
-    v_output := v_output || jsonb_build_object('hiddenColumns', crm_upgrade.presentation_keys(p_company_id, p_kind, p_source_row -> 'hiddenColumns', p_model, p_owner_table, v_owner_id,
-      'hiddenColumns', 500, 'unsupported_presentation_column', 'duplicate_column_after_mapping'));
-  END IF;
-  IF jsonb_typeof(v_output -> 'hiddenColumns') = 'array' THEN
-    v_explicit := CASE WHEN jsonb_typeof(v_output -> 'columnOrder') = 'array' THEN v_output -> 'columnOrder' ELSE '[]'::jsonb END;
-    v_output := v_output || jsonb_build_object('hiddenColumns', (SELECT COALESCE(jsonb_agg(c.id ORDER BY c.first), '[]'::jsonb) FROM (
-      SELECT h.id, min(h.ordinality) AS first FROM (
-        SELECT v.value #>> '{}' AS id, v.ordinality FROM jsonb_array_elements(v_output -> 'hiddenColumns') WITH ORDINALITY AS v(value, ordinality)
-        UNION ALL
-        SELECT i.id, 100000 + i.ordinality FROM unnest(crm_upgrade.introduced_columns(p_company_id, p_kind)) WITH ORDINALITY AS i(id, ordinality)
-          WHERE NOT v_explicit ? i.id
-      ) AS h GROUP BY h.id) AS c));
-  END IF;
-  IF p_source_row -> 'columnWidths' <> 'null'::jsonb THEN
-    IF (jsonb_typeof(p_source_row -> 'columnWidths') <> 'object') IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
-    FOR v_entry IN SELECT key, value FROM jsonb_each(p_source_row -> 'columnWidths') LOOP
-      IF (jsonb_typeof(v_entry.value) <> 'number') IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
-      v_number := crm_upgrade.js_parse_number(v_entry.value::text::numeric);
-      IF (v_number IN ('Infinity'::float8, '-Infinity'::float8) OR v_number < 0) IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
-    END LOOP;
-    FOR v_entry IN SELECT key, value FROM jsonb_each(p_source_row -> 'columnWidths') LOOP
-      v_mapped := crm_upgrade.presentation_key(p_company_id, p_kind, v_entry.key, p_model, p_owner_table, v_owner_id, 'columnWidths', 'unsupported_presentation_column');
-      IF v_mapped IS NULL THEN CONTINUE; END IF;
-      IF (v_widths ? v_mapped) IS NOT FALSE THEN PERFORM crm_upgrade.fail('duplicate_column_after_mapping'); END IF;
-      v_widths := v_widths || jsonb_build_object(v_mapped, crm_upgrade.js_json(v_entry.value));
-    END LOOP;
-    v_output := v_output || jsonb_build_object('columnWidths', v_widths);
-  END IF;
-  IF (p_source_row -> 'searchTerm' <> 'null'::jsonb AND crm_upgrade.js_len(p_source_row ->> 'searchTerm') > 200) IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
-  IF (p_source_row -> 'viewMode' <> 'null'::jsonb AND p_source_row ->> 'viewMode' NOT IN ('table', 'card')) IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
-  IF p_personalization AND p_source_row -> 'pagination' <> 'null'::jsonb THEN
-    v_page_size := p_source_row #> '{pagination,pageSize}';
-    IF (jsonb_typeof(p_source_row -> 'pagination') <> 'object' OR jsonb_typeof(v_page_size) IS DISTINCT FROM 'number') IS NOT FALSE THEN
-      PERFORM crm_upgrade.fail('invalid_presentation_configuration');
-    END IF;
-    v_number := crm_upgrade.js_parse_number(v_page_size::text::numeric);
-    IF v_number NOT IN (5, 10, 25, 100) THEN
-      PERFORM crm_upgrade.repair(p_company_id, p_owner_table, v_owner_id, 'page_size', crm_upgrade.supported_page_size(v_number)::text);
-      v_output := v_output || jsonb_build_object('pagination', (p_source_row -> 'pagination') || jsonb_build_object('pageSize', crm_upgrade.supported_page_size(v_number)));
-    END IF;
-  END IF;
-  IF NOT p_personalization AND p_source_row -> 'pageSize' <> 'null'::jsonb AND (p_source_row ->> 'pageSize')::integer NOT IN (5, 10, 25, 100) THEN
-    PERFORM crm_upgrade.repair(p_company_id, p_owner_table, v_owner_id, 'page_size', crm_upgrade.supported_page_size((p_source_row ->> 'pageSize')::integer)::text);
-    v_output := v_output || jsonb_build_object('pageSize', crm_upgrade.supported_page_size((p_source_row ->> 'pageSize')::integer));
-  END IF;
-  IF p_personalization THEN
-    -- viewStateKeys did not exist on legacy rows: the explicitly stored state keys, in StateKey order.
-    v_output := v_output || jsonb_build_object('viewStateKeys', (SELECT COALESCE(jsonb_agg(k.name ORDER BY k.position), '[]'::jsonb) FROM (VALUES
-      (1, 'filters', 'filters'), (2, 'searchTerm', 'searchTerm'), (3, 'sortDescriptor', 'sortDescriptor'), (4, 'pageSize', 'pagination'),
-      (5, 'viewMode', 'viewMode'), (6, 'grouping', 'grouping'), (7, 'columnOrder', 'columnOrder'), (8, 'columnWidths', 'columnWidths'),
-      (9, 'hiddenColumns', 'hiddenColumns')) AS k(position, name, column_name)
-      WHERE v_output -> k.column_name IS NOT NULL AND v_output -> k.column_name <> 'null'::jsonb));
-  END IF;
-  v_query := v_filters || jsonb_build_object('typeId', v_type_id,
-    'sort', CASE WHEN jsonb_typeof(v_output -> 'sortDescriptor') = 'object' AND v_output #> '{sortDescriptor,field}' IS NOT NULL
-      THEN jsonb_build_array(jsonb_build_object('fieldId', v_output #> '{sortDescriptor,field}', 'direction', v_output #> '{sortDescriptor,direction}')) ELSE '[]'::jsonb END);
-  IF (NOT crm_upgrade.query_parse_valid(v_query)) IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
-  IF (NOT crm_upgrade.query_valid(v_query, p_model)) IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_view_query'); END IF;
-  RETURN jsonb_build_object('output', v_output, 'query', v_filters || jsonb_build_object('typeId', v_type_id));
-END
-$$;
-
--- migrateDetailState (v5/state.ts) for a "<kind>-detail" P13n row.
-CREATE FUNCTION crm_upgrade.migrate_detail_state(p_company_id text, p_kind text, p_source_row jsonb, p_model jsonb) RETURNS jsonb
-LANGUAGE plpgsql AS $$
-DECLARE
-  v_owner_id text := p_source_row ->> 'id';
-  v_output jsonb := p_source_row || jsonb_build_object('p13nId', 'record-detail:' || crm_upgrade.preset_id(p_company_id, p_kind));
-  v_detail jsonb := p_source_row -> 'detailOptions';
-  v_converted jsonb;
-  v_key text;
-BEGIN
-  IF p_source_row -> 'columnOrder' <> 'null'::jsonb THEN
-    v_output := v_output || jsonb_build_object('columnOrder', crm_upgrade.presentation_keys(p_company_id, p_kind, p_source_row -> 'columnOrder', p_model, 'P13n', v_owner_id,
-      'columnOrder', NULL, 'unsupported_detail_field', 'duplicate_detail_field_after_mapping'));
-  END IF;
-  IF v_detail <> 'null'::jsonb THEN
-    IF (jsonb_typeof(v_detail) <> 'object' OR EXISTS (SELECT 1 FROM jsonb_object_keys(v_detail) AS k WHERE k NOT IN ('starredFieldIds', 'collapsedSectionIds', 'hiddenFieldIds', 'fieldOrder'))
-      OR NOT v_detail ? 'starredFieldIds' OR NOT v_detail ? 'collapsedSectionIds'
-      OR EXISTS (SELECT 1 FROM jsonb_each(v_detail) AS e WHERE jsonb_typeof(e.value) <> 'array'
-        OR EXISTS (SELECT 1 FROM jsonb_array_elements(e.value) AS v(value) WHERE jsonb_typeof(v.value) <> 'string'))) IS NOT FALSE THEN
-      PERFORM crm_upgrade.fail('invalid_presentation_configuration');
-    END IF;
-    v_converted := v_detail;
-    FOREACH v_key IN ARRAY ARRAY['starredFieldIds', 'hiddenFieldIds', 'fieldOrder'] LOOP
-      IF v_detail ? v_key THEN
-        v_converted := v_converted || jsonb_build_object(v_key, crm_upgrade.presentation_keys(p_company_id, p_kind, v_detail -> v_key, p_model, 'P13n', v_owner_id,
-          'detailOptions', NULL, 'unsupported_detail_field', 'duplicate_detail_field_after_mapping'));
-      END IF;
-    END LOOP;
-    v_output := v_output || jsonb_build_object('detailOptions', v_converted);
-  END IF;
-  RETURN v_output;
-END
-$$;
-
--- RecordMeasureSchema.parse validity of the measure parts the conversion produces.
-CREATE FUNCTION crm_upgrade.measure_parse_valid(measure jsonb) RETURNS boolean
-LANGUAGE sql IMMUTABLE AS $$
-  SELECT COALESCE((crm_upgrade.query_parse_valid(measure -> 'source')
-    AND (measure #> '{groupBy,filter}' IS NULL OR crm_upgrade.query_parse_valid(measure #> '{groupBy,filter}'))), false)
-$$;
-
--- migrateChartMeasure (v5/widgets.ts). row is to_jsonb of the legacy Widget row.
-CREATE FUNCTION crm_upgrade.migrate_chart_measure(p_company_id text, p_source_row jsonb, p_model jsonb, p_currency text) RETURNS jsonb
-LANGUAGE plpgsql AS $$
-DECLARE
-  v_kind text := p_source_row ->> 'entityType';
-  v_aggregation text := p_source_row ->> 'aggregationType';
-  v_group_type text := p_source_row ->> 'groupByType';
-  v_owner_id text := p_source_row ->> 'id';
-  v_entity jsonb;
-  v_deals jsonb;
-  v_is_count boolean := v_aggregation = 'count';
-  v_source_type text;
-  v_related jsonb := '[]';
-  v_entity_path jsonb;
-  v_source_filter jsonb;
-  v_value_field text;
-  v_field jsonb;
-  v_measure jsonb;
-  v_terminal text;
-BEGIN
-  IF (v_kind NOT IN ('contact', 'organization', 'deal', 'service', 'task') OR v_kind IS NULL
-    OR v_aggregation IS NULL OR v_aggregation NOT IN ('count', 'dealValue', 'dealWeightedValue', 'dealQuantity')
-    OR v_group_type IS NULL OR v_group_type NOT IN ('none', 'customColumn', 'contact', 'organization', 'deal', 'service')) IS NOT FALSE THEN
-    PERFORM crm_upgrade.fail('invalid_presentation_configuration');
-  END IF;
-  v_entity := crm_upgrade.migrate_query_filter(p_company_id, v_kind,
-    crm_upgrade.migrate_filters(p_company_id, v_kind, p_source_row -> 'entityFilters', p_model, false, 'Widget', v_owner_id), p_model, p_currency);
-  v_deals := crm_upgrade.migrate_query_filter(p_company_id, 'deal',
-    crm_upgrade.migrate_filters(p_company_id, 'deal', p_source_row -> 'dealFilters', p_model, false, 'Widget', v_owner_id), p_model, p_currency);
-  IF ((NOT v_is_count AND v_kind = 'task') OR (v_aggregation = 'dealQuantity' AND v_kind <> 'service') OR (v_aggregation = 'dealWeightedValue' AND v_kind = 'service')) IS NOT FALSE THEN
-    PERFORM crm_upgrade.fail('unsupported_legacy_widget_measure');
-  END IF;
-  IF (v_group_type NOT IN ('none', 'customColumn') AND (v_group_type <> v_kind OR v_is_count)) IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_legacy_widget_group'); END IF;
-  v_source_type := CASE WHEN v_is_count THEN v_kind WHEN v_kind = 'service' THEN 'lineItem' ELSE 'deal' END;
-  v_entity_path := CASE WHEN v_source_type = v_kind THEN '[]'::jsonb ELSE jsonb_build_array(jsonb_build_object(
-    'relationId', crm_upgrade.preset_id(p_company_id, CASE WHEN v_kind = 'service' THEN 'lineItem.service' ELSE 'deal.' || v_kind || 's' END), 'direction', 'outgoing')) END;
-  IF v_is_count THEN
-    v_source_filter := v_entity;
-  ELSIF v_kind = 'deal' THEN
-    v_source_filter := jsonb_build_object('filters', (v_entity -> 'filters') || (v_deals -> 'filters'), 'relationships', (v_entity -> 'relationships') || (v_deals -> 'relationships'),
-      'relatedFilters', (v_entity -> 'relatedFilters') || (v_deals -> 'relatedFilters'));
-  ELSIF v_kind = 'service' THEN
-    v_related := v_related || crm_upgrade.measure_through(jsonb_build_array(jsonb_build_object('relationId', crm_upgrade.preset_id(p_company_id, 'lineItem.deal'), 'direction', 'outgoing')), v_deals, p_model);
-    v_source_filter := '{"filters":[],"relationships":[]}'::jsonb;
-  ELSE
-    v_source_filter := v_deals;
-  END IF;
-  IF NOT v_is_count AND v_kind <> 'deal' THEN v_related := v_related || crm_upgrade.measure_through(v_entity_path, v_entity, p_model); END IF;
-  v_value_field := CASE WHEN v_is_count THEN NULL WHEN v_kind = 'service' THEN crm_upgrade.preset_id(p_company_id, CASE WHEN v_aggregation = 'dealQuantity' THEN 'lineItem.quantity' ELSE 'lineItem.amount' END)
-    ELSE crm_upgrade.preset_id(p_company_id, CASE WHEN v_aggregation = 'dealWeightedValue' THEN 'deal.weightedValue' ELSE 'deal.totalValue' END) END;
-  IF v_group_type = 'customColumn' THEN
-    SELECT f.value INTO v_field FROM jsonb_array_elements(p_model -> 'fields') AS f(value)
-      WHERE f.value ->> 'id' = p_source_row ->> 'groupByCustomColumnId' AND f.value ->> 'typeId' = crm_upgrade.preset_id(p_company_id, v_kind) AND f.value ->> 'valueType' = 'select' LIMIT 1;
-    IF (v_field IS NULL) IS NOT FALSE THEN PERFORM crm_upgrade.fail('unresolved_widget_group_field'); END IF;
-  END IF;
-  -- RecordMeasureSchema.parse output: query defaults (filters/relationships) and groupLimit.
-  v_measure := jsonb_build_object(
-    'source', jsonb_build_object('typeId', crm_upgrade.preset_id(p_company_id, v_source_type),
-      'filters', v_source_filter -> 'filters', 'relationships', v_source_filter -> 'relationships',
-      'relatedFilters', COALESCE(v_source_filter -> 'relatedFilters', '[]'::jsonb) || v_related),
-    'aggregation', CASE WHEN v_is_count THEN 'count' ELSE 'sum' END,
-    'valueFieldId', v_value_field,
-    'groupBy', CASE WHEN v_group_type = 'none' THEN 'null'::jsonb ELSE jsonb_build_object('path', v_entity_path, 'fieldId', v_field -> 'id')
-      || CASE WHEN jsonb_array_length(v_entity_path) > 0 THEN jsonb_build_object('filter', v_entity) ELSE '{}'::jsonb END END,
-    'groupLimit', 1000);
-  IF v_measure #> '{groupBy,fieldId}' IS NULL AND v_measure -> 'groupBy' <> 'null'::jsonb THEN
-    v_measure := jsonb_set(v_measure, '{groupBy,fieldId}', 'null'::jsonb);
-  END IF;
-  IF (NOT crm_upgrade.measure_parse_valid(v_measure)) IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
-  -- recordMeasureIsValid
-  IF (NOT crm_upgrade.query_valid(v_measure -> 'source', p_model)) IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_migrated_widget_measure'); END IF;
-  IF v_measure -> 'groupBy' <> 'null'::jsonb THEN
-    v_terminal := CASE WHEN jsonb_array_length(v_entity_path) = 0 THEN v_measure #>> '{source,typeId}' ELSE crm_upgrade.resolve_path(v_measure #>> '{source,typeId}', v_entity_path, p_model) END;
-    IF (v_terminal IS NULL) IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_migrated_widget_measure'); END IF;
-    IF (v_measure #> '{groupBy,filter}' IS NOT NULL AND NOT crm_upgrade.query_valid((v_measure #> '{groupBy,filter}') || jsonb_build_object('typeId', v_terminal), p_model)) IS NOT FALSE THEN
-      PERFORM crm_upgrade.fail('invalid_migrated_widget_measure');
-    END IF;
-    IF (NOT EXISTS (SELECT 1 FROM jsonb_array_elements(p_model -> 'fields') AS f(value)
-      WHERE f.value ->> 'typeId' = v_terminal AND NOT (f.value ->> 'archived')::boolean
-        AND f.value ->> 'id' = COALESCE(v_measure #>> '{groupBy,fieldId}', (SELECT t.value ->> 'primaryFieldId' FROM jsonb_array_elements(p_model -> 'types') AS t(value) WHERE t.value ->> 'id' = v_terminal))
-        AND NOT COALESCE((f.value ->> 'multiple')::boolean, false) AND f.value ->> 'valueType' NOT IN ('richText', 'dateRange', 'dateTimeRange'))) IS NOT FALSE THEN
-      PERFORM crm_upgrade.fail('invalid_migrated_widget_measure');
-    END IF;
-  END IF;
-  RETURN v_measure;
-END
-$$;
-
--- through(path, filter) of migrateChartMeasure.
-CREATE FUNCTION crm_upgrade.measure_through(p_path jsonb, p_filter jsonb, p_model jsonb) RETURNS jsonb
-LANGUAGE plpgsql AS $$
-BEGIN
-  IF (jsonb_array_length(COALESCE(p_filter -> 'relatedFilters', '[]')) > 0 AND EXISTS (
-    SELECT 1 FROM jsonb_array_elements(p_path) AS s(value)
-    WHERE NOT EXISTS (SELECT 1 FROM jsonb_array_elements(p_model -> 'relationships') AS r(value)
-      WHERE r.value ->> 'id' = s.value ->> 'relationId'
-        AND (CASE WHEN s.value ->> 'direction' = 'outgoing' THEN r.value ->> 'sourceCardinality' ELSE r.value ->> 'targetCardinality' END) = 'one'))) IS NOT FALSE THEN
-    PERFORM crm_upgrade.fail('ambiguous_nested_relationship_filter');
-  END IF;
-  RETURN jsonb_build_array(jsonb_build_object('path', p_path, 'operator', 'any', 'filters', p_filter -> 'filters', 'relationships', p_filter -> 'relationships'))
-    || COALESCE((SELECT jsonb_agg(n.value || jsonb_build_object('path', p_path || (n.value -> 'path')) ORDER BY n.ordinality)
-      FROM jsonb_array_elements(COALESCE(p_filter -> 'relatedFilters', '[]')) WITH ORDINALITY AS n(value, ordinality)), '[]'::jsonb);
-END
-$$;
-
--- WidgetDisplayOptionsSchema (strict).
-CREATE FUNCTION crm_upgrade.widget_display_valid(options jsonb) RETURNS boolean
-LANGUAGE sql IMMUTABLE AS $$
-  SELECT COALESCE((jsonb_typeof(options) = 'object'
-    AND NOT EXISTS (SELECT 1 FROM jsonb_object_keys(options) AS k WHERE k NOT IN ('barColors', 'displayType', 'reverseXAxis', 'reverseYAxis', 'useGroupColors', 'showLegend', 'showFilters'))
-    AND options ->> 'displayType' IN ('verticalBarChart', 'horizontalBarChart', 'verticalBarChartWithLabels', 'horizontalBarChartWithLabels', 'doughnutChart', 'radarChart')
-    AND jsonb_typeof(options -> 'displayType') = 'string'
-    AND (NOT options ? 'barColors' OR (jsonb_typeof(options -> 'barColors') = 'array' AND NOT EXISTS (SELECT 1 FROM jsonb_array_elements(options -> 'barColors') AS c(value)
-      WHERE jsonb_typeof(c.value) <> 'string' OR c.value #>> '{}' NOT IN ('default1', 'default2', 'default3', 'primary1', 'primary2', 'primary3', 'secondary1', 'secondary2',
-        'secondary3', 'success1', 'success2', 'success3', 'warning1', 'warning2', 'warning3', 'danger1', 'danger2', 'danger3'))))
-    AND NOT EXISTS (SELECT 1 FROM jsonb_each(options) AS e WHERE e.key IN ('reverseXAxis', 'reverseYAxis', 'useGroupColors', 'showLegend', 'showFilters') AND jsonb_typeof(e.value) <> 'boolean')), false)
-$$;
-
--- migrateActivityQuery (v4/activity-query.ts): legacy timeline filters to the generic activity query.
-CREATE FUNCTION crm_upgrade.migrate_activity_query(p_company_id text, p_legacy jsonb) RETURNS jsonb
-LANGUAGE plpgsql AS $$
-DECLARE
-  v_filters jsonb := '[]';
-  v_item jsonb;
-  v_field text;
-  v_operator text;
-  v_record_type text;
-  v_presence boolean;
-  v_kinds jsonb;
-BEGIN
-  IF p_legacy IS NULL OR p_legacy = 'null'::jsonb THEN p_legacy := '[]'; END IF;
-  IF (jsonb_typeof(p_legacy) <> 'array' OR jsonb_array_length(p_legacy) > 20 OR EXISTS (
-    SELECT 1 FROM jsonb_array_elements(p_legacy) AS f(value)
-    WHERE jsonb_typeof(f.value) <> 'object' OR EXISTS (SELECT 1 FROM jsonb_object_keys(f.value) AS k WHERE k NOT IN ('field', 'operator', 'value'))
-      OR jsonb_typeof(f.value -> 'field') IS DISTINCT FROM 'string' OR jsonb_typeof(f.value -> 'operator') IS DISTINCT FROM 'string'
-      OR f.value ->> 'operator' NOT IN ('in', 'notIn', 'hasSome', 'hasNone')
-      OR (f.value ? 'value' AND (jsonb_typeof(f.value -> 'value') <> 'array' OR EXISTS (SELECT 1 FROM jsonb_array_elements(f.value -> 'value') AS v(value) WHERE jsonb_typeof(v.value) <> 'string'))))) IS NOT FALSE THEN
-    PERFORM crm_upgrade.fail('unsupported_activity_configuration');
-  END IF;
-  FOR v_item IN SELECT value FROM jsonb_array_elements(p_legacy) WITH ORDINALITY AS f(value, ordinality) ORDER BY ordinality LOOP
-    v_field := v_item ->> 'field';
-    v_operator := v_item ->> 'operator';
-    v_record_type := CASE v_field WHEN 'contactIds' THEN 'contact' WHEN 'organizationIds' THEN 'organization' WHEN 'dealIds' THEN 'deal' WHEN 'serviceIds' THEN 'service' WHEN 'taskIds' THEN 'task' END;
-    v_presence := v_operator IN ('hasSome', 'hasNone');
-    IF (v_presence AND (v_record_type IS NULL OR v_item ? 'value')) IS NOT FALSE THEN PERFORM crm_upgrade.fail('unsupported_activity_configuration'); END IF;
-    IF (NOT v_presence AND (NOT v_item ? 'value' OR jsonb_array_length(v_item -> 'value') = 0)) IS NOT FALSE THEN PERFORM crm_upgrade.fail('unsupported_activity_configuration'); END IF;
-    IF v_record_type IS NOT NULL THEN
-      IF (jsonb_array_length(COALESCE(v_item -> 'value', '[]')) > 50 OR EXISTS (SELECT 1 FROM jsonb_array_elements(COALESCE(v_item -> 'value', '[]')) AS v(value) WHERE NOT crm_upgrade.is_uuid(v.value #>> '{}'))) IS NOT FALSE THEN
-        PERFORM crm_upgrade.fail('unsupported_activity_configuration');
-      END IF;
-      v_filters := v_filters || jsonb_build_array(jsonb_build_object('kind', 'record', 'typeId', crm_upgrade.preset_id(p_company_id, v_record_type), 'operator', v_operator,
-        'recordIds', COALESCE(v_item -> 'value', '[]'::jsonb)));
-      CONTINUE;
-    END IF;
-    IF (v_operator NOT IN ('in', 'notIn')) IS NOT FALSE THEN PERFORM crm_upgrade.fail('unsupported_activity_configuration'); END IF;
-    IF v_field = 'timelineKind' THEN
-      IF (EXISTS (SELECT 1 FROM jsonb_array_elements_text(v_item -> 'value') AS v(value) WHERE v.value NOT IN ('changes', 'messages', 'activities', 'audit', 'message', 'activity', 'calendar_event'))) IS NOT FALSE THEN
-        PERFORM crm_upgrade.fail('unsupported_activity_configuration');
-      END IF;
-      SELECT jsonb_agg(k.kind ORDER BY k.first) INTO v_kinds FROM (
-        SELECT a.kind, min(v.ordinality * 10 + a.position) AS first
-        FROM jsonb_array_elements_text(v_item -> 'value') WITH ORDINALITY AS v(value, ordinality)
-        JOIN (VALUES ('changes', 'audit', 0), ('messages', 'message', 0), ('activities', 'activity', 0), ('activities', 'calendar_event', 1),
-          ('audit', 'audit', 0), ('message', 'message', 0), ('activity', 'activity', 0), ('calendar_event', 'calendar_event', 0)) AS a(alias, kind, position)
-          ON a.alias = v.value
-        GROUP BY a.kind) AS k;
-      v_filters := v_filters || jsonb_build_array(jsonb_build_object('kind', 'source', 'operator', v_operator, 'values', v_kinds));
-    ELSIF v_field = 'provider' THEN
-      IF (v_operator <> 'in' OR jsonb_array_length(v_item -> 'value') > 7 OR EXISTS (SELECT 1 FROM jsonb_array_elements_text(v_item -> 'value') AS v(value)
-        WHERE v.value NOT IN ('google', 'outlook', 'mail', 'linkedin', 'whatsapp', 'instagram', 'telegram'))) IS NOT FALSE THEN
-        PERFORM crm_upgrade.fail('unsupported_activity_configuration');
-      END IF;
-      v_filters := v_filters || jsonb_build_array(jsonb_build_object('kind', 'provider', 'operator', 'in', 'values', v_item -> 'value'));
-    ELSIF v_field IN ('connectedAccountId', 'timelineThreadId') THEN
-      IF (jsonb_array_length(v_item -> 'value') > 50 OR EXISTS (SELECT 1 FROM jsonb_array_elements_text(v_item -> 'value') AS v(value) WHERE NOT crm_upgrade.is_uuid(v.value))) IS NOT FALSE THEN
-        PERFORM crm_upgrade.fail('unsupported_activity_configuration');
-      END IF;
-      v_filters := v_filters || jsonb_build_array(jsonb_build_object('kind', CASE WHEN v_field = 'connectedAccountId' THEN 'account' ELSE 'thread' END,
-        'operator', v_operator, 'values', v_item -> 'value'));
-    ELSE
-      PERFORM crm_upgrade.fail('unsupported_activity_configuration');
-    END IF;
-  END LOOP;
-  RETURN jsonb_build_object('scope', '{"records":[],"typeIds":[]}'::jsonb, 'kinds', '["audit","message","activity","calendar_event"]'::jsonb, 'filters', v_filters);
-END
-$$;
-
--- convert() of v6/run.ts for one routine or webhook that subscribes to legacy record events.
--- Returns {"targetEvents": [...], "subscription": {...} | null, "enabled": <Webhook/Routine enabled after conversion>}.
--- Documented repair for webhooks only: an inactive creator stays the owner and the webhook is disabled;
--- an unprovable creator is replaced by the oldest active system-role member, or the webhook is disabled
--- without a subscription when no such member exists.
-CREATE FUNCTION crm_upgrade.migrate_trigger(p_company_id text, p_source_table text, p_source_row jsonb, p_model jsonb, p_legacy_model jsonb, p_currency text) RETURNS jsonb
-LANGUAGE plpgsql AS $$
-DECLARE
-  v_event text;
-  v_match text[];
-  v_kinds text[] := ARRAY[]::text[];
-  v_system_events text[] := ARRAY[]::text[];
-  v_kind text;
-  v_kind_events text[];
-  v_sources jsonb := '[]';
-  v_filters jsonb;
-  v_changed jsonb;
-  v_field text;
-  v_mapped text;
-  v_owner_id text;
-  v_owner_active boolean;
-  v_enabled boolean := (p_source_row ->> 'enabled')::boolean;
-  v_events text[] := ARRAY(SELECT jsonb_array_elements_text(p_source_row -> 'events'));
-  v_changed_fields text[] := ARRAY(SELECT jsonb_array_elements_text(p_source_row -> 'changed_fields'));
-  v_row_id text := p_source_row ->> 'id';
-  v_generic_events text[];
-  v_target_events text[];
-BEGIN
-  FOREACH v_event IN ARRAY v_events LOOP
-    v_match := regexp_match(v_event, '^(contact|organization|deal|service|task)\.(created|updated|deleted)$');
-    IF v_match IS NULL THEN
-      v_system_events := v_system_events || v_event;
-    ELSIF NOT v_match[1] = ANY (v_kinds) THEN
-      v_kinds := v_kinds || v_match[1];
-    END IF;
-  END LOOP;
-  FOREACH v_kind IN ARRAY v_kinds LOOP
-    SELECT array_agg(DISTINCT 'record.' || m[2] ORDER BY 'record.' || m[2]) INTO v_kind_events
-      FROM unnest(v_events) AS e(event), regexp_match(e.event, '^(contact|organization|deal|service|task)\.(created|updated|deleted)$') AS m
-      WHERE m[1] = v_kind;
-    IF p_source_table = 'Routine' THEN
-      v_filters := crm_upgrade.migrate_query_filter(p_company_id, v_kind,
-        crm_upgrade.migrate_filters(p_company_id, v_kind, p_source_row -> 'trigger_filters', p_legacy_model, false, p_source_table, v_row_id), p_model, p_currency);
-      v_changed := '[]';
-      FOREACH v_field IN ARRAY v_changed_fields LOOP
-        v_mapped := crm_upgrade.migrate_column_key(p_company_id, v_kind, v_field, p_legacy_model);
-        IF (v_mapped IS NULL) IS NOT FALSE THEN PERFORM crm_upgrade.fail('unresolved_presentation_field'); END IF;
-        v_changed := v_changed || to_jsonb(v_mapped);
-      END LOOP;
-      IF (EXISTS (SELECT 1 FROM jsonb_array_elements_text(v_changed) AS c(id) WHERE NOT EXISTS (SELECT 1 FROM jsonb_array_elements(p_model -> 'fields') AS f(value)
-        WHERE f.value ->> 'id' = c.id AND f.value ->> 'typeId' = crm_upgrade.preset_id(p_company_id, v_kind) AND NOT (f.value ->> 'archived')::boolean))) IS NOT FALSE THEN
-        PERFORM crm_upgrade.fail('unresolved_trigger_field');
-      END IF;
-    ELSE
-      v_filters := '{"filters":[],"relationships":[],"relatedFilters":[]}'::jsonb;
-      v_changed := '[]';
-    END IF;
-    v_sources := v_sources || jsonb_build_array(jsonb_build_object('query', jsonb_build_object('typeId', crm_upgrade.preset_id(p_company_id, v_kind)) || v_filters,
-      'changedFieldIds', v_changed, 'events', to_jsonb(v_kind_events)));
-  END LOOP;
-  IF p_source_table = 'Routine' THEN
-    -- A routine whose owner was deactivated or deleted is kept, as main keeps it: the conversion keeps it
-    -- disabled (owner unavailable), with a disabled subscription for an inactive owner and none for a
-    -- deleted owner, so a later owner change re-subscribes it.
-    v_owner_id := p_source_row ->> 'owner_user_id';
-    v_owner_active := v_owner_id IS NOT NULL AND EXISTS (SELECT 1 FROM "User" u WHERE u."companyId" = p_company_id AND u.id = v_owner_id AND u.status::text = 'active');
-    IF NOT v_owner_active THEN
-      IF v_enabled THEN PERFORM crm_upgrade.repair(p_company_id, 'Routine', v_row_id, 'routine_disabled'); END IF;
-      v_enabled := false;
-    END IF;
-  ELSE
-    SELECT CASE WHEN count(*) = 1 THEN min(creator."userId") END INTO v_owner_id FROM (
-      SELECT DISTINCT audit."userId" FROM "AuditLog" audit JOIN "User" owner ON owner.id = audit."userId" AND owner."companyId" = audit."companyId"
-      WHERE audit."companyId" = p_company_id AND audit."entityId" = v_row_id AND audit.event = 'webhook.created') AS creator;
-    IF v_owner_id IS NULL THEN
-      PERFORM crm_upgrade.repair(p_company_id, 'Webhook', v_row_id, 'webhook_owner_unresolved');
-      SELECT member.id INTO v_owner_id FROM "User" member JOIN "UserRole" role ON role."companyId" = p_company_id AND role.id = member."roleId"
-        WHERE member."companyId" = p_company_id AND role."isSystemRole" AND member.status::text = 'active' ORDER BY member."createdAt", member.id LIMIT 1;
-    END IF;
-    v_owner_active := v_owner_id IS NOT NULL AND EXISTS (SELECT 1 FROM "User" u WHERE u."companyId" = p_company_id AND u.id = v_owner_id AND u.status::text = 'active');
-    IF NOT v_owner_active THEN
-      IF v_enabled THEN PERFORM crm_upgrade.repair(p_company_id, 'Webhook', v_row_id, 'webhook_disabled'); END IF;
-      v_enabled := false;
-    END IF;
-  END IF;
-  IF (v_owner_id IS NOT NULL AND NOT crm_upgrade.is_uuid(v_owner_id)) IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_legacy_trigger'); END IF;
-  SELECT array_agg(DISTINCT g ORDER BY g) INTO v_generic_events FROM jsonb_array_elements(v_sources) AS s(value), jsonb_array_elements_text(s.value -> 'events') AS g;
-  SELECT array_agg(t.event ORDER BY t.first) INTO v_target_events FROM (
-    SELECT e.event, min(e.ordinality) AS first FROM unnest(v_system_events || v_generic_events) WITH ORDINALITY AS e(event, ordinality) GROUP BY e.event) AS t;
-  RETURN jsonb_build_object(
-    'targetEvents', to_jsonb(v_target_events),
-    'enabled', v_enabled,
-    'subscription', CASE WHEN v_owner_id IS NULL THEN 'null'::jsonb ELSE jsonb_build_object('id', v_row_id, 'kind', lower(p_source_table), 'ownerUserId', v_owner_id,
-      'events', to_jsonb(v_generic_events), 'sources', v_sources,
-      'enabled', v_enabled AND (p_source_table <> 'Routine' OR p_source_row ->> 'trigger_kind' = 'event')) END);
-END
-$$;
-
--- migrateTimelineViewReferences (v8/timeline-views.ts) for one entity-timeline filter list.
-CREATE FUNCTION crm_upgrade.migrate_timeline_filters(p_company_id text, p_filters jsonb) RETURNS jsonb
-LANGUAGE plpgsql AS $$
-DECLARE
-  v_item jsonb;
-BEGIN
-  IF (jsonb_typeof(p_filters) <> 'array' OR jsonb_array_length(p_filters) > 20 OR EXISTS (
-    SELECT 1 FROM jsonb_array_elements(p_filters) AS f(value)
-    WHERE jsonb_typeof(f.value) <> 'object' OR EXISTS (SELECT 1 FROM jsonb_object_keys(f.value) AS k WHERE k NOT IN ('field', 'operator', 'value'))
-      OR jsonb_typeof(f.value -> 'field') IS DISTINCT FROM 'string' OR jsonb_typeof(f.value -> 'operator') IS DISTINCT FROM 'string'
-      OR f.value ->> 'operator' NOT IN ('in', 'notIn', 'hasSome', 'hasNone')
-      OR (f.value ? 'value' AND (jsonb_typeof(f.value -> 'value') <> 'array' OR EXISTS (SELECT 1 FROM jsonb_array_elements(f.value -> 'value') AS v(value) WHERE jsonb_typeof(v.value) <> 'string'))))) IS NOT FALSE THEN
-    PERFORM crm_upgrade.fail('invalid_timeline_view');
-  END IF;
-  PERFORM crm_upgrade.migrate_activity_query(p_company_id, COALESCE((SELECT jsonb_agg(f.value ORDER BY f.ordinality)
-    FROM jsonb_array_elements(p_filters) WITH ORDINALITY AS f(value, ordinality) WHERE f.value ->> 'field' NOT LIKE 'records:%'), '[]'::jsonb));
-  FOR v_item IN SELECT value FROM jsonb_array_elements(p_filters) AS f(value) WHERE f.value ->> 'field' LIKE 'records:%' LOOP
-    IF (NOT crm_upgrade.is_uuid(substr(v_item ->> 'field', 9))
-      OR (v_item ->> 'operator' IN ('in', 'notIn')) <> (jsonb_array_length(COALESCE(v_item -> 'value', '[]')) > 0)
-      OR EXISTS (SELECT 1 FROM jsonb_array_elements_text(COALESCE(v_item -> 'value', '[]')) AS v(value) WHERE NOT crm_upgrade.is_uuid(v.value))) IS NOT FALSE THEN
-      PERFORM crm_upgrade.fail('invalid_timeline_view');
-    END IF;
-  END LOOP;
-  -- An empty list stays an empty list (the retired upgrade rewrote it unchanged).
-  RETURN COALESCE((SELECT jsonb_agg(CASE f.value ->> 'field'
-      WHEN 'contactIds' THEN f.value || jsonb_build_object('field', 'records:' || crm_upgrade.preset_id(p_company_id, 'contact'))
-      WHEN 'organizationIds' THEN f.value || jsonb_build_object('field', 'records:' || crm_upgrade.preset_id(p_company_id, 'organization'))
-      WHEN 'dealIds' THEN f.value || jsonb_build_object('field', 'records:' || crm_upgrade.preset_id(p_company_id, 'deal'))
-      WHEN 'serviceIds' THEN f.value || jsonb_build_object('field', 'records:' || crm_upgrade.preset_id(p_company_id, 'service'))
-      WHEN 'taskIds' THEN f.value || jsonb_build_object('field', 'records:' || crm_upgrade.preset_id(p_company_id, 'task'))
-      ELSE f.value END ORDER BY f.ordinality)
-    FROM jsonb_array_elements(p_filters) WITH ORDINALITY AS f(value, ordinality)), '[]'::jsonb);
-END
-$$;
-
 -- =============================================================================================
--- Section 1: VALIDATION and staging. Nothing is written to persistent tables here. Every check of the
--- retired preflight (v2 records and identities, v4 activity widgets, v5 presentation, v6 triggers, v8
--- timeline views and terminology) runs for every workspace; all refusals are collected and reported
--- together as "table.field code xCOUNT". Converted values are staged for sections 3-5.
+-- Section 1: VALIDATION and staging. Nothing is written to persistent tables here. Every check runs for
+-- every workspace; all refusals are collected and reported together as "table.field code xCOUNT".
+-- Converted custom values are staged for sections 3-5.
 -- =============================================================================================
 
 CREATE TEMP TABLE crm_upgrade_workspace (
   company_id text PRIMARY KEY,
   currency text NOT NULL,
-  actor_id text NOT NULL,
-  model jsonb,
-  presentation_model jsonb
+  model jsonb NOT NULL
 ) ON COMMIT DROP;
 CREATE TEMP TABLE crm_upgrade_field (
   company_id text NOT NULL, field_id text NOT NULL, field jsonb NOT NULL, PRIMARY KEY (company_id, field_id)
@@ -2841,17 +1565,8 @@ CREATE TEMP TABLE crm_upgrade_value (
   company_id text NOT NULL, value_id text PRIMARY KEY, type_id text NOT NULL, record_id text, field_id text NOT NULL,
   scalar jsonb, code text, created_at timestamp(3) NOT NULL, updated_at timestamp(3) NOT NULL, raw text, repaired boolean NOT NULL
 ) ON COMMIT DROP;
-CREATE TEMP TABLE crm_upgrade_presentation (
-  company_id text NOT NULL, source_table text NOT NULL, row_id text NOT NULL, user_id text, original jsonb NOT NULL, target jsonb NOT NULL, scopes jsonb NOT NULL
-) ON COMMIT DROP;
-CREATE TEMP TABLE crm_upgrade_trigger (
-  company_id text NOT NULL, source_table text NOT NULL, row_id text NOT NULL, result jsonb NOT NULL
-) ON COMMIT DROP;
-CREATE TEMP TABLE crm_upgrade_timeline (
-  source_table text NOT NULL, row_id text NOT NULL, filters jsonb NOT NULL
-) ON COMMIT DROP;
 
--- legacyFieldScalar (v2/legacy-model.ts) for one CustomFieldValue. Returns {"scalar": ...} (scalar NULL
+-- The typed value of one CustomFieldValue. Returns {"scalar": ...} (scalar NULL
 -- for a missing value), {"code": ...} for a refusal, and "repaired": true for the documented link repair:
 -- a single-valued (or per comma segment, multi-valued) url value without scheme that matches
 -- ^[a-z0-9-]+(\.[a-z0-9-]+)+(/\S*)?$ (case-insensitive, after trimming spaces) becomes "https://" || that text.
@@ -2913,29 +1628,10 @@ BEGIN
 END
 $$;
 
--- Optional timing of the upgrade steps (SET crm_upgrade.debug = on), printed as notices.
-CREATE TEMP TABLE crm_upgrade_timing (step text NOT NULL, milliseconds numeric NOT NULL) ON COMMIT DROP;
-CREATE FUNCTION crm_upgrade.timing(p_step text, p_since timestamptz) RETURNS void
-LANGUAGE sql AS $$
-  INSERT INTO crm_upgrade_timing SELECT p_step, extract(epoch FROM clock_timestamp() - p_since) * 1000
-  WHERE current_setting('crm_upgrade.debug', true) = 'on'
-$$;
-CREATE FUNCTION crm_upgrade.report_timing(p_section text) RETURNS void
-LANGUAGE plpgsql AS $$
-DECLARE
-  v_row record;
-BEGIN
-  FOR v_row IN SELECT step, round(sum(milliseconds)) AS total, count(*) AS calls FROM crm_upgrade_timing GROUP BY step ORDER BY sum(milliseconds) DESC LOOP
-    RAISE NOTICE '% timing: % % ms (% calls)', p_section, v_row.step, v_row.total, v_row.calls;
-  END LOOP;
-  DELETE FROM crm_upgrade_timing;
-END
-$$;
-
--- Re-raises an unexpected error of a conversion step as an internal failure. Only validated data refusals
--- (SQLSTATE CRM01) become issue codes; anything else is a defect of the upgrade and must not be reported as a
--- data problem. The message keeps the SQLSTATE, the error text and the PL/pgSQL call chain; error texts of
--- data exceptions (class 22) are omitted because they can quote a value, and the DETAIL is never included.
+-- Re-raises an unexpected error of a validation step as an internal failure. Only validated data refusals
+-- become issue codes; anything else is a defect of the upgrade and must not be reported as a data problem.
+-- The message keeps the SQLSTATE, the error text and the PL/pgSQL call chain; error texts of data
+-- exceptions (class 22) are omitted because they can quote a value, and the DETAIL is never included.
 CREATE FUNCTION crm_upgrade.raise_internal(p_step text, p_state text, p_message text, p_context text) RETURNS void
 LANGUAGE plpgsql AS $$
 BEGIN
@@ -2946,343 +1642,106 @@ BEGIN
 END
 $$;
 
--- Runs one conversion step; a validated refusal (CRM01) becomes an issue of the owning table.
-CREATE FUNCTION crm_upgrade.try_presentation(p_company_id text, p_source_table text, p_code_override text, p_statement text, VARIADIC p_arguments jsonb[]) RETURNS jsonb
-LANGUAGE plpgsql AS $$
-DECLARE
-  v_result jsonb;
-BEGIN
-  EXECUTE p_statement INTO v_result USING p_arguments;
-  RETURN v_result;
-EXCEPTION
-  WHEN SQLSTATE 'CRM01' THEN
-    PERFORM crm_upgrade.issue(p_company_id, p_source_table, 'configuration', COALESCE(p_code_override, SQLERRM));
-    RETURN NULL;
-  WHEN OTHERS THEN
-    DECLARE
-      v_state text;
-      v_message text;
-      v_context text;
-    BEGIN
-      GET STACKED DIAGNOSTICS v_state = RETURNED_SQLSTATE, v_message = MESSAGE_TEXT, v_context = PG_EXCEPTION_CONTEXT;
-      PERFORM crm_upgrade.raise_internal(p_source_table || ' conversion', v_state, v_message, v_context);
-      RETURN NULL;
-    END;
-END
-$$;
-
--- v4 DisplayOptions: strict {showFilters?: boolean}; stored as {showFilters: value ?? true}.
-CREATE FUNCTION crm_upgrade.activity_display_options(p_options jsonb) RETURNS jsonb
-LANGUAGE plpgsql AS $$
-BEGIN
-  IF p_options IS NULL OR p_options = 'null'::jsonb THEN p_options := '{}'; END IF;
-  IF (jsonb_typeof(p_options) <> 'object' OR EXISTS (SELECT 1 FROM jsonb_object_keys(p_options) AS k WHERE k <> 'showFilters')
-    OR (p_options ? 'showFilters' AND jsonb_typeof(p_options -> 'showFilters') <> 'boolean')) IS NOT FALSE THEN
-    PERFORM crm_upgrade.fail('unsupported_activity_configuration');
-  END IF;
-  RETURN jsonb_build_object('showFilters', COALESCE(p_options -> 'showFilters', 'true'::jsonb));
-END
-$$;
-
--- v5 chart widget: the generic measure, the validated display options and the reference scopes.
-CREATE FUNCTION crm_upgrade.migrate_chart_widget(p_company_id text, p_source_row jsonb, p_model jsonb, p_currency text) RETURNS jsonb
-LANGUAGE plpgsql AS $$
-DECLARE
-  v_measure jsonb := crm_upgrade.migrate_chart_measure(p_company_id, p_source_row, p_model, p_currency);
-  v_display jsonb := CASE WHEN p_source_row -> 'displayOptions' IS NULL OR p_source_row -> 'displayOptions' = 'null'::jsonb THEN '{"displayType":"verticalBarChart"}'::jsonb ELSE p_source_row -> 'displayOptions' END;
-  v_scopes jsonb := jsonb_build_array(v_measure -> 'source');
-BEGIN
-  IF (NOT crm_upgrade.widget_display_valid(v_display)) IS NOT FALSE THEN PERFORM crm_upgrade.fail('invalid_presentation_configuration'); END IF;
-  IF v_measure #> '{groupBy,filter}' IS NOT NULL THEN
-    v_scopes := v_scopes || jsonb_build_array((v_measure #> '{groupBy,filter}') || jsonb_build_object('typeId',
-      COALESCE(crm_upgrade.resolve_path(v_measure #>> '{source,typeId}', v_measure #> '{groupBy,path}', p_model), v_measure #>> '{source,typeId}')));
-  END IF;
-  RETURN jsonb_build_object('measure', v_measure, 'displayOptions', v_display, 'scopes', v_scopes);
-END
-$$;
-
 DO $validate$
 DECLARE
   v_workspace record;
-  v_ws_id text;
-  v_ws_currency text;
-  v_ws_model jsonb;
-  v_ws_presentation jsonb;
-  v_row_data jsonb;
-  v_ws_kind text;
-  v_converted jsonb;
-  v_trigger_row record;
-  v_timeline record;
-  v_terminology record;
-  v_catalog jsonb := '{"de": {"contact": {"client": {"plural": "Kunden", "singular": "Kunde"}, "contact": {"plural": "Kontakte", "singular": "Kontakt"}, "lead": {"plural": "Leads", "singular": "Lead"}, "person": {"plural": "Personen", "singular": "Person"}}, "deal": {"deal": {"plural": "Deals", "singular": "Deal"}, "job": {"plural": "Aufträge", "singular": "Auftrag"}, "opportunity": {"plural": "Chancen", "singular": "Chance"}, "project": {"plural": "Projekte", "singular": "Projekt"}}, "organization": {"account": {"plural": "Accounts", "singular": "Account"}, "company": {"plural": "Unternehmen", "singular": "Unternehmen"}, "organization": {"plural": "Organisationen", "singular": "Organisation"}}, "service": {"offering": {"plural": "Leistungen", "singular": "Leistung"}, "package": {"plural": "Pakete", "singular": "Paket"}, "product": {"plural": "Produkte", "singular": "Produkt"}, "service": {"plural": "Services", "singular": "Service"}}, "task": {"actionItem": {"plural": "Action Items", "singular": "Action Item"}, "followUp": {"plural": "Follow-ups", "singular": "Follow-up"}, "task": {"plural": "Aufgaben", "singular": "Aufgabe"}, "todo": {"plural": "To-dos", "singular": "To-do"}}}, "en": {"contact": {"client": {"plural": "Clients", "singular": "Client"}, "contact": {"plural": "Contacts", "singular": "Contact"}, "lead": {"plural": "Leads", "singular": "Lead"}, "person": {"plural": "People", "singular": "Person"}}, "deal": {"deal": {"plural": "Deals", "singular": "Deal"}, "job": {"plural": "Jobs", "singular": "Job"}, "opportunity": {"plural": "Opportunities", "singular": "Opportunity"}, "project": {"plural": "Projects", "singular": "Project"}}, "organization": {"account": {"plural": "Accounts", "singular": "Account"}, "company": {"plural": "Companies", "singular": "Company"}, "organization": {"plural": "Organizations", "singular": "Organization"}}, "service": {"offering": {"plural": "Offerings", "singular": "Offering"}, "package": {"plural": "Packages", "singular": "Package"}, "product": {"plural": "Products", "singular": "Product"}, "service": {"plural": "Services", "singular": "Service"}}, "task": {"actionItem": {"plural": "Action items", "singular": "Action item"}, "followUp": {"plural": "Follow-ups", "singular": "Follow-up"}, "task": {"plural": "Tasks", "singular": "Task"}, "todo": {"plural": "To-dos", "singular": "To-do"}}}, "es": {"contact": {"client": {"plural": "Clientes", "singular": "Cliente"}, "contact": {"plural": "Contactos", "singular": "Contacto"}, "lead": {"plural": "Leads", "singular": "Lead"}, "person": {"plural": "Personas", "singular": "Persona"}}, "deal": {"deal": {"plural": "Oportunidades", "singular": "Oportunidad"}, "job": {"plural": "Trabajos", "singular": "Trabajo"}, "opportunity": {"plural": "Oportunidades comerciales", "singular": "Oportunidad comercial"}, "project": {"plural": "Proyectos", "singular": "Proyecto"}}, "organization": {"account": {"plural": "Cuentas", "singular": "Cuenta"}, "company": {"plural": "Empresas", "singular": "Empresa"}, "organization": {"plural": "Organizaciones", "singular": "Organización"}}, "service": {"offering": {"plural": "Ofertas", "singular": "Oferta"}, "package": {"plural": "Paquetes", "singular": "Paquete"}, "product": {"plural": "Productos", "singular": "Producto"}, "service": {"plural": "Servicios", "singular": "Servicio"}}, "task": {"actionItem": {"plural": "Acciones", "singular": "Acción"}, "followUp": {"plural": "Seguimientos", "singular": "Seguimiento"}, "task": {"plural": "Tareas", "singular": "Tarea"}, "todo": {"plural": "Pendientes", "singular": "Pendiente"}}}, "fr": {"contact": {"client": {"plural": "Clients", "singular": "Client"}, "contact": {"plural": "Contacts", "singular": "Contact"}, "lead": {"plural": "Prospects", "singular": "Prospect"}, "person": {"plural": "Personnes", "singular": "Personne"}}, "deal": {"deal": {"plural": "Affaires", "singular": "Affaire"}, "job": {"plural": "Missions", "singular": "Mission"}, "opportunity": {"plural": "Opportunités", "singular": "Opportunité"}, "project": {"plural": "Projets", "singular": "Projet"}}, "organization": {"account": {"plural": "Comptes", "singular": "Compte"}, "company": {"plural": "Entreprises", "singular": "Entreprise"}, "organization": {"plural": "Organisations", "singular": "Organisation"}}, "service": {"offering": {"plural": "Offres", "singular": "Offre"}, "package": {"plural": "Forfaits", "singular": "Forfait"}, "product": {"plural": "Produits", "singular": "Produit"}, "service": {"plural": "Services", "singular": "Service"}}, "task": {"actionItem": {"plural": "Actions", "singular": "Action"}, "followUp": {"plural": "Relances", "singular": "Relance"}, "task": {"plural": "Tâches", "singular": "Tâche"}, "todo": {"plural": "À faire", "singular": "Élément à faire"}}}, "it": {"contact": {"client": {"plural": "Clienti", "singular": "Cliente"}, "contact": {"plural": "Contatti", "singular": "Contatto"}, "lead": {"plural": "Lead", "singular": "Lead"}, "person": {"plural": "Persone", "singular": "Persona"}}, "deal": {"deal": {"plural": "Trattative", "singular": "Trattativa"}, "job": {"plural": "Lavori", "singular": "Lavoro"}, "opportunity": {"plural": "Opportunità", "singular": "Opportunità"}, "project": {"plural": "Progetti", "singular": "Progetto"}}, "organization": {"account": {"plural": "Account", "singular": "Account"}, "company": {"plural": "Aziende", "singular": "Azienda"}, "organization": {"plural": "Organizzazioni", "singular": "Organizzazione"}}, "service": {"offering": {"plural": "Offerte", "singular": "Offerta"}, "package": {"plural": "Pacchetti", "singular": "Pacchetto"}, "product": {"plural": "Prodotti", "singular": "Prodotto"}, "service": {"plural": "Servizi", "singular": "Servizio"}}, "task": {"actionItem": {"plural": "Azioni", "singular": "Azione"}, "followUp": {"plural": "Follow-up", "singular": "Follow-up"}, "task": {"plural": "Attività", "singular": "Attività"}, "todo": {"plural": "Cose da fare", "singular": "Cosa da fare"}}}}'::jsonb;
-  v_locale text;
+  v_model jsonb;
+  v_step text;
   v_state text;
   v_message text;
   v_context text;
-  v_tick timestamptz := clock_timestamp();
 BEGIN
+  v_step := 'record model';
   FOR v_workspace IN SELECT id, currency::text AS currency FROM "Company" ORDER BY id LOOP
-    v_ws_id := v_workspace.id;
-    v_ws_currency := upper(v_workspace.currency);
-    v_tick := clock_timestamp();
-    v_ws_model := crm_upgrade.legacy_model(v_ws_id);
-    PERFORM crm_upgrade.timing('legacy_model', v_tick); v_tick := clock_timestamp();
-    v_ws_presentation := crm_upgrade.presentation_model(v_ws_id, v_ws_model);
-    PERFORM crm_upgrade.timing('presentation_model', v_tick); v_tick := clock_timestamp();
-    PERFORM crm_upgrade.presentation_model_issues(v_ws_id, v_ws_presentation);
-    PERFORM crm_upgrade.timing('model_issues', v_tick); v_tick := clock_timestamp();
-    INSERT INTO crm_upgrade_workspace (company_id, currency, actor_id, model, presentation_model)
-    SELECT v_ws_id, v_ws_currency, COALESCE((
-      SELECT member.id FROM "User" member JOIN "UserRole" role ON role."companyId" = v_ws_id AND role.id = member."roleId"
-      WHERE member."companyId" = v_ws_id AND role."isSystemRole" AND member.status = 'active' ORDER BY member.id LIMIT 1
-    ), 'system:record-migration:v2'), v_ws_model, v_ws_presentation;
-
-    PERFORM crm_upgrade.timing('workspace_row', v_tick); v_tick := clock_timestamp();
-    -- v2 preflight: source prices and line quantities must be exact, representable decimals.
-    PERFORM crm_upgrade.issue(v_ws_id, 'Service', 'amount', 'unrepresentable_decimal')
-      FROM "Service" WHERE "companyId" = v_ws_id AND NOT crm_upgrade.is_representable(amount::text::numeric);
-    PERFORM crm_upgrade.issue(v_ws_id, 'ServiceDeal', 'quantity', 'unrepresentable_decimal')
-      FROM "ServiceDeal" WHERE "companyId" = v_ws_id AND NOT crm_upgrade.is_representable(quantity::text::numeric);
-
-    PERFORM crm_upgrade.timing('decimals', v_tick); v_tick := clock_timestamp();
-    -- v2 preflight: every link, line item and assignment must join records (and members) of the same workspace.
-    PERFORM crm_upgrade.issue(v_ws_id, link.source_table, 'endpoints', 'cross_workspace_reference') FROM (
-      SELECT 'ContactOrganization' AS source_table FROM "ContactOrganization" l WHERE l."companyId" = v_ws_id
-        AND (NOT EXISTS (SELECT 1 FROM "Contact" s WHERE s.id = l."contactId" AND s."companyId" = v_ws_id) OR NOT EXISTS (SELECT 1 FROM "Organization" t WHERE t.id = l."organizationId" AND t."companyId" = v_ws_id))
-      UNION ALL SELECT 'DealContact' FROM "DealContact" l WHERE l."companyId" = v_ws_id
-        AND (NOT EXISTS (SELECT 1 FROM "Deal" s WHERE s.id = l."dealId" AND s."companyId" = v_ws_id) OR NOT EXISTS (SELECT 1 FROM "Contact" t WHERE t.id = l."contactId" AND t."companyId" = v_ws_id))
-      UNION ALL SELECT 'DealOrganization' FROM "DealOrganization" l WHERE l."companyId" = v_ws_id
-        AND (NOT EXISTS (SELECT 1 FROM "Deal" s WHERE s.id = l."dealId" AND s."companyId" = v_ws_id) OR NOT EXISTS (SELECT 1 FROM "Organization" t WHERE t.id = l."organizationId" AND t."companyId" = v_ws_id))
-      UNION ALL SELECT 'TaskContact' FROM "TaskContact" l WHERE l."companyId" = v_ws_id
-        AND (NOT EXISTS (SELECT 1 FROM "Task" s WHERE s.id = l."taskId" AND s."companyId" = v_ws_id) OR NOT EXISTS (SELECT 1 FROM "Contact" t WHERE t.id = l."contactId" AND t."companyId" = v_ws_id))
-      UNION ALL SELECT 'TaskOrganization' FROM "TaskOrganization" l WHERE l."companyId" = v_ws_id
-        AND (NOT EXISTS (SELECT 1 FROM "Task" s WHERE s.id = l."taskId" AND s."companyId" = v_ws_id) OR NOT EXISTS (SELECT 1 FROM "Organization" t WHERE t.id = l."organizationId" AND t."companyId" = v_ws_id))
-      UNION ALL SELECT 'TaskDeal' FROM "TaskDeal" l WHERE l."companyId" = v_ws_id
-        AND (NOT EXISTS (SELECT 1 FROM "Task" s WHERE s.id = l."taskId" AND s."companyId" = v_ws_id) OR NOT EXISTS (SELECT 1 FROM "Deal" t WHERE t.id = l."dealId" AND t."companyId" = v_ws_id))
-      UNION ALL SELECT 'TaskService' FROM "TaskService" l WHERE l."companyId" = v_ws_id
-        AND (NOT EXISTS (SELECT 1 FROM "Task" s WHERE s.id = l."taskId" AND s."companyId" = v_ws_id) OR NOT EXISTS (SELECT 1 FROM "Service" t WHERE t.id = l."serviceId" AND t."companyId" = v_ws_id))
-      UNION ALL SELECT 'ServiceDeal' FROM "ServiceDeal" l WHERE l."companyId" = v_ws_id
-        AND (NOT EXISTS (SELECT 1 FROM "Service" s WHERE s.id = l."serviceId" AND s."companyId" = v_ws_id) OR NOT EXISTS (SELECT 1 FROM "Deal" t WHERE t.id = l."dealId" AND t."companyId" = v_ws_id))
-      UNION ALL SELECT 'ContactUser' FROM "ContactUser" l WHERE l."companyId" = v_ws_id
-        AND (NOT EXISTS (SELECT 1 FROM "Contact" s WHERE s.id = l."contactId" AND s."companyId" = v_ws_id) OR NOT EXISTS (SELECT 1 FROM "User" u WHERE u.id = l."userId" AND u."companyId" = v_ws_id))
-      UNION ALL SELECT 'OrganizationUser' FROM "OrganizationUser" l WHERE l."companyId" = v_ws_id
-        AND (NOT EXISTS (SELECT 1 FROM "Organization" s WHERE s.id = l."organizationId" AND s."companyId" = v_ws_id) OR NOT EXISTS (SELECT 1 FROM "User" u WHERE u.id = l."userId" AND u."companyId" = v_ws_id))
-      UNION ALL SELECT 'DealUser' FROM "DealUser" l WHERE l."companyId" = v_ws_id
-        AND (NOT EXISTS (SELECT 1 FROM "Deal" s WHERE s.id = l."dealId" AND s."companyId" = v_ws_id) OR NOT EXISTS (SELECT 1 FROM "User" u WHERE u.id = l."userId" AND u."companyId" = v_ws_id))
-      UNION ALL SELECT 'ServiceUser' FROM "ServiceUser" l WHERE l."companyId" = v_ws_id
-        AND (NOT EXISTS (SELECT 1 FROM "Service" s WHERE s.id = l."serviceId" AND s."companyId" = v_ws_id) OR NOT EXISTS (SELECT 1 FROM "User" u WHERE u.id = l."userId" AND u."companyId" = v_ws_id))
-      UNION ALL SELECT 'TaskUser' FROM "TaskUser" l WHERE l."companyId" = v_ws_id
-        AND (NOT EXISTS (SELECT 1 FROM "Task" s WHERE s.id = l."taskId" AND s."companyId" = v_ws_id) OR NOT EXISTS (SELECT 1 FROM "User" u WHERE u.id = l."userId" AND u."companyId" = v_ws_id))
-    ) AS link;
-
-    PERFORM crm_upgrade.timing('links', v_tick); v_tick := clock_timestamp();
-    -- Record grants are keyed by the workspace role; a permission row naming another workspace's role
-    -- cannot become a grant (the retired upgrade failed on the foreign key instead).
-    PERFORM crm_upgrade.issue(v_ws_id, 'RolePermission', 'roleId', 'cross_workspace_reference')
-      FROM "RolePermission" p WHERE p."companyId" = v_ws_id AND p.resource::text IN ('contacts', 'organizations', 'deals', 'services', 'tasks')
-        AND NOT EXISTS (SELECT 1 FROM "UserRole" r WHERE r.id = p."roleId" AND r."companyId" = v_ws_id);
-
-    PERFORM crm_upgrade.timing('grants', v_tick); v_tick := clock_timestamp();
-    -- The workspace's fields, for the set-based custom value checks after this loop.
+    v_model := crm_upgrade.legacy_model(v_workspace.id);
+    PERFORM crm_upgrade.model_issues(v_workspace.id, v_model);
+    INSERT INTO crm_upgrade_workspace (company_id, currency, model) VALUES (v_workspace.id, upper(v_workspace.currency), v_model);
     INSERT INTO crm_upgrade_field (company_id, field_id, field)
-    SELECT v_ws_id, f.value ->> 'id', f.value FROM jsonb_array_elements(v_ws_model -> 'fields') WITH ORDINALITY AS f(value, ordinality)
-    ORDER BY f.ordinality ON CONFLICT DO NOTHING;
-
-    PERFORM crm_upgrade.timing('fields', v_tick); v_tick := clock_timestamp();
-    -- v2 preflight: a pending membership authorisation task must name a member of the workspace.
-    PERFORM crm_upgrade.issue(v_ws_id, 'Task', 'relatedUserId', 'invalid_protected_task_owner')
-      FROM "Task" t WHERE t."companyId" = v_ws_id AND t.type = 'userPendingAuthorization'
-        AND NOT EXISTS (SELECT 1 FROM "User" u WHERE u.id = t."relatedUserId" AND u."companyId" = v_ws_id);
-
-    PERFORM crm_upgrade.timing('protected_tasks', v_tick); v_tick := clock_timestamp();
-    -- v2 identity preflight: canonical, well-formed channel identities with unique lookup keys.
-    PERFORM crm_upgrade.issue(v_ws_id, 'ContactIdentifier', problem.field, problem.code) FROM (
-      SELECT 'contactId' AS field, 'cross_workspace_reference' AS code FROM "ContactIdentifier" i
-        WHERE i."companyId" = v_ws_id AND NOT EXISTS (SELECT 1 FROM "Contact" c WHERE c."companyId" = v_ws_id AND c.id = i."contactId")
-      UNION ALL
-      SELECT 'channelClass', 'invalid_identity_class' FROM "ContactIdentifier" i WHERE i."companyId" = v_ws_id
-        AND i."channelClass" IS DISTINCT FROM CASE WHEN i.provider::text IN ('mail', 'google', 'outlook') THEN 'email' WHEN i.provider::text = 'whatsapp' THEN 'phone' ELSE i.provider::text END
-      UNION ALL
-      SELECT 'value', CASE WHEN crm_upgrade.canonical_channel(i.provider::text, i.value) IS NULL THEN 'invalid_identity_value' ELSE 'noncanonical_identity_value' END
-        FROM "ContactIdentifier" i WHERE i."companyId" = v_ws_id AND crm_upgrade.canonical_channel(i.provider::text, i.value) IS DISTINCT FROM i.value
-      UNION ALL
-      SELECT 'messagingId', 'invalid_identity_value' FROM "ContactIdentifier" i WHERE i."companyId" = v_ws_id AND i."messagingId" IS NOT NULL
-        AND (crm_upgrade.js_trim(i."messagingId") = '' OR i."messagingId" <> crm_upgrade.js_trim(i."messagingId") OR crm_upgrade.js_len(i."messagingId") > 2000)
-      UNION ALL
-      SELECT 'displayName', 'identity_value_too_long' FROM "ContactIdentifier" i WHERE i."companyId" = v_ws_id AND crm_upgrade.js_len(i."displayName") > 500
-      UNION ALL
-      SELECT 'profileUrl', 'invalid_identity_url' FROM "ContactIdentifier" i WHERE i."companyId" = v_ws_id AND i."profileUrl" IS NOT NULL
-        AND NOT crm_upgrade.is_zod_http_url(i."profileUrl")
-      UNION ALL
-      SELECT DISTINCT ON (source.id) 'value', 'duplicate_identity_key' FROM (
-        SELECT DISTINCT i.id, i."channelClass", key.value FROM "ContactIdentifier" i, unnest(ARRAY[i.value, i."messagingId"]) AS key(value) WHERE i."companyId" = v_ws_id
-      ) AS source JOIN (
-        SELECT k."channelClass", k.value FROM (
-          SELECT DISTINCT i.id, i."channelClass", key.value FROM "ContactIdentifier" i, unnest(ARRAY[i.value, i."messagingId"]) AS key(value) WHERE i."companyId" = v_ws_id
-        ) AS k WHERE k.value IS NOT NULL GROUP BY k."channelClass", k.value HAVING count(*) > 1
-      ) AS duplicate ON duplicate."channelClass" = source."channelClass" AND duplicate.value = source.value
-    ) AS problem;
-
-    PERFORM crm_upgrade.timing('identities', v_tick); v_tick := clock_timestamp();
-    -- A model that fails validation cannot drive the presentation conversion; its issues are reported already.
-    IF EXISTS (SELECT 1 FROM crm_upgrade_issue i WHERE i.company_id = v_ws_id AND i.source_table IN ('CustomColumn', 'Company')) THEN
-      CONTINUE;
-    END IF;
-
-    -- v4: activity timeline widgets become generic activity queries; referenced records must exist (or
-    -- have audit history), referenced accounts and threads must exist.
-    FOR v_row_data IN SELECT to_jsonb(w) FROM "Widget" w WHERE w."companyId" = v_ws_id AND w.kind = 'activityTimeline' ORDER BY w.id LOOP
-      v_converted := crm_upgrade.try_presentation(v_ws_id, 'Widget', 'unsupported_activity_configuration',
-        'SELECT jsonb_build_object(''activityQuery'', crm_upgrade.migrate_activity_query($1[1] #>> ''{}'', $1[2]),
-           ''displayOptions'', crm_upgrade.activity_display_options($1[3]))',
-        to_jsonb(v_ws_id), v_row_data -> 'timelineFilters', v_row_data -> 'displayOptions');
-      IF v_converted IS NULL THEN CONTINUE; END IF;
-      PERFORM crm_upgrade.issue(v_ws_id, 'Widget', 'activityQuery', 'unresolved_activity_reference')
-        FROM jsonb_array_elements(v_converted #> '{activityQuery,filters}') AS f(value), jsonb_array_elements_text(COALESCE(f.value -> 'recordIds', f.value -> 'values')) AS wanted(id)
-        WHERE (f.value ->> 'kind' = 'record' AND NOT EXISTS (
-            SELECT 1 FROM unnest(ARRAY['contact', 'organization', 'deal', 'service', 'task']) AS k(kind)
-            WHERE crm_upgrade.preset_id(v_ws_id, k.kind) = f.value ->> 'typeId' AND (
-              CASE k.kind
-                WHEN 'contact' THEN EXISTS (SELECT 1 FROM "Contact" r WHERE r."companyId" = v_ws_id AND r.id = wanted.id)
-                WHEN 'organization' THEN EXISTS (SELECT 1 FROM "Organization" r WHERE r."companyId" = v_ws_id AND r.id = wanted.id)
-                WHEN 'deal' THEN EXISTS (SELECT 1 FROM "Deal" r WHERE r."companyId" = v_ws_id AND r.id = wanted.id)
-                WHEN 'service' THEN EXISTS (SELECT 1 FROM "Service" r WHERE r."companyId" = v_ws_id AND r.id = wanted.id)
-                ELSE EXISTS (SELECT 1 FROM "Task" r WHERE r."companyId" = v_ws_id AND r.id = wanted.id) END
-              OR EXISTS (SELECT 1 FROM "AuditLog" history WHERE history."companyId" = v_ws_id AND history."entityId" = wanted.id
-                AND history.event IN (k.kind || '.created', k.kind || '.updated', k.kind || '.deleted')))))
-          OR (f.value ->> 'kind' = 'account' AND NOT EXISTS (SELECT 1 FROM "ConnectedAccount" a WHERE a."companyId" = v_ws_id AND a.id = wanted.id))
-          OR (f.value ->> 'kind' = 'thread' AND NOT EXISTS (SELECT 1 FROM "MessagingThread" t WHERE t."companyId" = v_ws_id AND t.id = wanted.id));
-      INSERT INTO crm_upgrade_presentation (company_id, source_table, row_id, user_id, original, target, scopes)
-      VALUES (v_ws_id, 'Widget', v_row_data ->> 'id', v_row_data ->> 'userId', v_row_data, v_row_data || v_converted, '[]');
-    END LOOP;
-
-    PERFORM crm_upgrade.timing('activity_widgets', v_tick); v_tick := clock_timestamp();
-    -- v5: list views (DataView), list and detail personalisation (P13n) and chart widgets.
-    FOREACH v_ws_kind IN ARRAY ARRAY['contact', 'organization', 'deal', 'service', 'task'] LOOP
-      FOR v_row_data IN SELECT to_jsonb(v) FROM "DataView" v WHERE v."companyId" = v_ws_id AND v."surfaceKey" = v_ws_kind || 's-card-store' ORDER BY v.id LOOP
-        v_converted := crm_upgrade.try_presentation(v_ws_id, 'DataView', NULL,
-          'SELECT crm_upgrade.migrate_presentation_state($1[1] #>> ''{}'', $1[2] #>> ''{}'', $1[3], $1[4], false, $1[5] #>> ''{}'', ''DataView'')',
-          to_jsonb(v_ws_id), to_jsonb(v_ws_kind), v_row_data, v_ws_presentation, to_jsonb(v_ws_currency));
-        IF v_converted IS NOT NULL THEN
-          INSERT INTO crm_upgrade_presentation (company_id, source_table, row_id, user_id, original, target, scopes)
-          VALUES (v_ws_id, 'DataView', v_row_data ->> 'id', v_row_data ->> 'userId', v_row_data,
-            (v_converted -> 'output') || jsonb_build_object('surfaceKey', 'records:' || crm_upgrade.preset_id(v_ws_id, v_ws_kind)), jsonb_build_array(v_converted -> 'query'));
-        END IF;
-      END LOOP;
-      FOR v_row_data IN SELECT to_jsonb(p) FROM "P13n" p WHERE p."companyId" = v_ws_id AND p."p13nId" = v_ws_kind || 's-card-store' ORDER BY p.id LOOP
-        v_converted := crm_upgrade.try_presentation(v_ws_id, 'P13n', NULL,
-          'SELECT crm_upgrade.migrate_presentation_state($1[1] #>> ''{}'', $1[2] #>> ''{}'', $1[3], $1[4], true, $1[5] #>> ''{}'', ''P13n'')',
-          to_jsonb(v_ws_id), to_jsonb(v_ws_kind), v_row_data || '{"viewStateKeys":null}'::jsonb, v_ws_presentation, to_jsonb(v_ws_currency));
-        IF v_converted IS NOT NULL THEN
-          INSERT INTO crm_upgrade_presentation (company_id, source_table, row_id, user_id, original, target, scopes)
-          VALUES (v_ws_id, 'P13n', v_row_data ->> 'id', v_row_data ->> 'userId', v_row_data,
-            (v_converted -> 'output') || jsonb_build_object('p13nId', 'records:' || crm_upgrade.preset_id(v_ws_id, v_ws_kind)), jsonb_build_array(v_converted -> 'query'));
-        END IF;
-      END LOOP;
-      FOR v_row_data IN SELECT to_jsonb(p) FROM "P13n" p WHERE p."companyId" = v_ws_id AND p."p13nId" = v_ws_kind || '-detail' ORDER BY p.id LOOP
-        v_converted := crm_upgrade.try_presentation(v_ws_id, 'P13n', NULL,
-          'SELECT crm_upgrade.migrate_detail_state($1[1] #>> ''{}'', $1[2] #>> ''{}'', $1[3], $1[4])',
-          to_jsonb(v_ws_id), to_jsonb(v_ws_kind), v_row_data, v_ws_presentation);
-        IF v_converted IS NOT NULL THEN
-          INSERT INTO crm_upgrade_presentation (company_id, source_table, row_id, user_id, original, target, scopes)
-          VALUES (v_ws_id, 'P13n', v_row_data ->> 'id', v_row_data ->> 'userId', v_row_data, v_converted, '[]');
-        END IF;
-      END LOOP;
-    END LOOP;
-    FOR v_row_data IN SELECT to_jsonb(w) FROM "Widget" w WHERE w."companyId" = v_ws_id AND w.kind = 'chart' ORDER BY w.id LOOP
-      v_converted := crm_upgrade.try_presentation(v_ws_id, 'Widget', NULL,
-        'SELECT crm_upgrade.migrate_chart_widget($1[1] #>> ''{}'', $1[2], $1[3], $1[4] #>> ''{}'')',
-        to_jsonb(v_ws_id), v_row_data, v_ws_presentation, to_jsonb(v_ws_currency));
-      IF v_converted IS NOT NULL THEN
-        INSERT INTO crm_upgrade_presentation (company_id, source_table, row_id, user_id, original, target, scopes)
-        VALUES (v_ws_id, 'Widget', v_row_data ->> 'id', v_row_data ->> 'userId', v_row_data, v_row_data || (v_converted - 'scopes'), v_converted -> 'scopes');
-      END IF;
-    END LOOP;
-
-    PERFORM crm_upgrade.timing('presentation_conversion', v_tick); v_tick := clock_timestamp();
-    -- v5: presentation rows must belong to workspace members and reference existing records and members.
-    PERFORM crm_upgrade.issue(v_ws_id, p.source_table, 'userId', 'foreign_presentation_owner')
-      FROM crm_upgrade_presentation p WHERE p.company_id = v_ws_id
-        AND NOT EXISTS (SELECT 1 FROM "User" u WHERE u."companyId" = v_ws_id AND u.id = p.user_id);
-    PERFORM crm_upgrade.reference_issues(v_ws_id, v_ws_presentation, p.scopes, p.source_table)
-      FROM crm_upgrade_presentation p WHERE p.company_id = v_ws_id AND jsonb_array_length(p.scopes) > 0;
-    PERFORM crm_upgrade.timing('owners_references', v_tick); v_tick := clock_timestamp();
-    -- v5: converted keys must not collide with existing generic presentation rows.
-    PERFORM crm_upgrade.issue(v_ws_id, 'DataView', 'id', 'presentation_target_collision')
-      FROM "DataView" v WHERE v."companyId" = v_ws_id AND v."surfaceKey" IN (SELECT 'records:' || crm_upgrade.preset_id(v_ws_id, k) FROM unnest(ARRAY['contact', 'organization', 'deal', 'service', 'task']) AS k);
-    PERFORM crm_upgrade.issue(v_ws_id, 'P13n', 'id', 'presentation_target_collision')
-      FROM "P13n" p WHERE p."companyId" = v_ws_id AND p."p13nId" IN (SELECT prefix || crm_upgrade.preset_id(v_ws_id, k)
-        FROM unnest(ARRAY['contact', 'organization', 'deal', 'service', 'task']) AS k, unnest(ARRAY['records:', 'record-detail:']) AS prefix);
-    PERFORM crm_upgrade.issue(v_ws_id, 'P13n', 'p13nId', 'presentation_target_collision')
-      FROM crm_upgrade_presentation p JOIN "P13n" other ON other."companyId" = v_ws_id AND other."userId" = p.user_id AND other."p13nId" = p.target ->> 'p13nId' AND other.id <> p.row_id
-      WHERE p.company_id = v_ws_id AND p.source_table = 'P13n';
-    PERFORM crm_upgrade.timing('collisions', v_tick); v_tick := clock_timestamp();
-    -- Documented repair: an active list view that does not resolve to a converted view of the same member
-    -- and surface falls back to the default (All) view.
-    WITH unresolved AS (
-      SELECT p.row_id FROM crm_upgrade_presentation p
-      WHERE p.company_id = v_ws_id AND p.source_table = 'P13n' AND p.target ->> 'p13nId' LIKE 'records:%'
-        AND p.target ->> 'activeViewKey' IS NOT NULL AND p.target ->> 'activeViewKey' <> '__all__'
-        AND NOT EXISTS (SELECT 1 FROM crm_upgrade_presentation view WHERE view.company_id = v_ws_id AND view.source_table = 'DataView'
-          AND view.row_id = p.target ->> 'activeViewKey' AND view.target ->> 'userId' = p.target ->> 'userId' AND view.target ->> 'surfaceKey' = p.target ->> 'p13nId')
-    ), repaired AS (
-      INSERT INTO crm_upgrade_repair (company_id, source_table, row_id, kind) SELECT v_ws_id, 'P13n', unresolved.row_id, 'active_view_reset' FROM unresolved
-    )
-    UPDATE crm_upgrade_presentation p SET target = p.target || '{"activeViewKey":null}'::jsonb
-      FROM unresolved WHERE p.company_id = v_ws_id AND p.source_table = 'P13n' AND p.row_id = unresolved.row_id;
-
-    PERFORM crm_upgrade.timing('active_views', v_tick); v_tick := clock_timestamp();
-    -- v6: routines and webhooks subscribing to legacy record events.
-    FOR v_trigger_row IN
-      SELECT 'Webhook' AS source_table, w.id, w.events, w.enabled, NULL::text AS owner_user_id, NULL::text AS trigger_kind, ARRAY[]::text[] AS changed_fields, NULL::jsonb AS trigger_filters
-        FROM "Webhook" w WHERE w."companyId" = v_ws_id
-      UNION ALL
-      SELECT 'Routine', r.id, r."triggerEvents", r.enabled, r."ownerUserId", r."triggerKind"::text, r."changedFields", r."triggerFilters"
-        FROM "Routine" r WHERE r."companyId" = v_ws_id
-      ORDER BY 1 DESC, 2
-    LOOP
-      -- Every routine and webhook row passes the strict row decoding of the retired upgrade.
-      IF NOT crm_upgrade.is_uuid(v_trigger_row.id) OR v_trigger_row.events IS NULL OR v_trigger_row.changed_fields IS NULL
-        OR (v_trigger_row.owner_user_id IS NOT NULL AND NOT crm_upgrade.is_uuid(v_trigger_row.owner_user_id)) THEN
-        PERFORM crm_upgrade.issue(v_ws_id, v_trigger_row.source_table, 'row', 'invalid_legacy_trigger');
-        CONTINUE;
-      END IF;
-      IF NOT EXISTS (SELECT 1 FROM unnest(v_trigger_row.events) AS e WHERE e ~ '^(contact|organization|deal|service|task)\.(created|updated|deleted)$') THEN CONTINUE; END IF;
-      -- A scheduled routine never reads its trigger events; main keeps old events when a routine is switched
-      -- to a schedule. Those leftover legacy events are dropped instead of refusing the upgrade.
-      IF v_trigger_row.source_table = 'Routine' AND v_trigger_row.trigger_kind IS DISTINCT FROM 'event' THEN
-        PERFORM crm_upgrade.repair(v_ws_id, 'Routine', v_trigger_row.id, 'scheduled_routine_events_dropped');
-        INSERT INTO crm_upgrade_trigger (company_id, source_table, row_id, result)
-        VALUES (v_ws_id, 'Routine', v_trigger_row.id, jsonb_build_object(
-          'targetEvents', to_jsonb(ARRAY(SELECT e FROM unnest(v_trigger_row.events) WITH ORDINALITY AS u(e, n)
-            WHERE e !~ '^(contact|organization|deal|service|task)\.(created|updated|deleted)$' ORDER BY n)),
-          'enabled', v_trigger_row.enabled,
-          'subscription', 'null'::jsonb));
-        CONTINUE;
-      END IF;
-      BEGIN
-        INSERT INTO crm_upgrade_trigger (company_id, source_table, row_id, result)
-        VALUES (v_ws_id, v_trigger_row.source_table, v_trigger_row.id, crm_upgrade.migrate_trigger(v_ws_id, v_trigger_row.source_table, to_jsonb(v_trigger_row), v_ws_presentation, v_ws_model, v_ws_currency));
-      EXCEPTION
-        WHEN SQLSTATE 'CRM01' THEN PERFORM crm_upgrade.issue(v_ws_id, v_trigger_row.source_table, 'trigger', SQLERRM);
-        WHEN OTHERS THEN
-          GET STACKED DIAGNOSTICS v_state = RETURNED_SQLSTATE, v_message = MESSAGE_TEXT, v_context = PG_EXCEPTION_CONTEXT;
-          PERFORM crm_upgrade.raise_internal(v_trigger_row.source_table || ' trigger conversion', v_state, v_message, v_context);
-      END;
-    END LOOP;
-
-    PERFORM crm_upgrade.timing('triggers', v_tick); v_tick := clock_timestamp();
-    -- v8: legacy terminology presets must exist in the label catalogue.
-    v_locale := COALESCE((SELECT u."displayLanguage"::text FROM "User" u WHERE u."companyId" = v_ws_id ORDER BY u."createdAt", u.id LIMIT 1), 'en');
-    PERFORM crm_upgrade.issue(v_ws_id, 'EntityTerminology', 'presetKey', 'unsupported_terminology')
-      FROM "EntityTerminology" t WHERE t."companyId" = v_ws_id
-        AND COALESCE(v_catalog -> v_locale, v_catalog -> 'en') #> ARRAY[t."entityType"::text, t."presetKey"] IS NULL;
-    PERFORM crm_upgrade.timing('terminology', v_tick); v_tick := clock_timestamp();
+    SELECT v_workspace.id, f.value ->> 'id', f.value FROM jsonb_array_elements(v_model -> 'fields') AS f(value) ON CONFLICT DO NOTHING;
   END LOOP;
 
-  -- v2 preflight (all workspaces at once): custom values must belong to a known column of the same type,
-  -- reference exactly one record of that type in the same workspace, and convert to a typed value.
-  v_tick := clock_timestamp();
+  -- Source prices and line quantities must be exact, representable decimals.
+  v_step := 'decimals';
+  PERFORM crm_upgrade.issue("companyId", 'Service', 'amount', 'unrepresentable_decimal')
+    FROM "Service" WHERE NOT crm_upgrade.is_representable(amount::text::numeric);
+  PERFORM crm_upgrade.issue("companyId", 'ServiceDeal', 'quantity', 'unrepresentable_decimal')
+    FROM "ServiceDeal" WHERE NOT crm_upgrade.is_representable(quantity::text::numeric);
+
+  -- Every link, line item and assignment must join records (and members) of the same workspace.
+  v_step := 'links';
+  PERFORM crm_upgrade.issue(link.company_id, link.source_table, 'endpoints', 'cross_workspace_reference') FROM (
+    SELECT l."companyId" AS company_id, 'ContactOrganization' AS source_table FROM "ContactOrganization" l
+      WHERE NOT EXISTS (SELECT 1 FROM "Contact" s WHERE s.id = l."contactId" AND s."companyId" = l."companyId") OR NOT EXISTS (SELECT 1 FROM "Organization" t WHERE t.id = l."organizationId" AND t."companyId" = l."companyId")
+    UNION ALL SELECT l."companyId", 'DealContact' FROM "DealContact" l
+      WHERE NOT EXISTS (SELECT 1 FROM "Deal" s WHERE s.id = l."dealId" AND s."companyId" = l."companyId") OR NOT EXISTS (SELECT 1 FROM "Contact" t WHERE t.id = l."contactId" AND t."companyId" = l."companyId")
+    UNION ALL SELECT l."companyId", 'DealOrganization' FROM "DealOrganization" l
+      WHERE NOT EXISTS (SELECT 1 FROM "Deal" s WHERE s.id = l."dealId" AND s."companyId" = l."companyId") OR NOT EXISTS (SELECT 1 FROM "Organization" t WHERE t.id = l."organizationId" AND t."companyId" = l."companyId")
+    UNION ALL SELECT l."companyId", 'TaskContact' FROM "TaskContact" l
+      WHERE NOT EXISTS (SELECT 1 FROM "Task" s WHERE s.id = l."taskId" AND s."companyId" = l."companyId") OR NOT EXISTS (SELECT 1 FROM "Contact" t WHERE t.id = l."contactId" AND t."companyId" = l."companyId")
+    UNION ALL SELECT l."companyId", 'TaskOrganization' FROM "TaskOrganization" l
+      WHERE NOT EXISTS (SELECT 1 FROM "Task" s WHERE s.id = l."taskId" AND s."companyId" = l."companyId") OR NOT EXISTS (SELECT 1 FROM "Organization" t WHERE t.id = l."organizationId" AND t."companyId" = l."companyId")
+    UNION ALL SELECT l."companyId", 'TaskDeal' FROM "TaskDeal" l
+      WHERE NOT EXISTS (SELECT 1 FROM "Task" s WHERE s.id = l."taskId" AND s."companyId" = l."companyId") OR NOT EXISTS (SELECT 1 FROM "Deal" t WHERE t.id = l."dealId" AND t."companyId" = l."companyId")
+    UNION ALL SELECT l."companyId", 'TaskService' FROM "TaskService" l
+      WHERE NOT EXISTS (SELECT 1 FROM "Task" s WHERE s.id = l."taskId" AND s."companyId" = l."companyId") OR NOT EXISTS (SELECT 1 FROM "Service" t WHERE t.id = l."serviceId" AND t."companyId" = l."companyId")
+    UNION ALL SELECT l."companyId", 'ServiceDeal' FROM "ServiceDeal" l
+      WHERE NOT EXISTS (SELECT 1 FROM "Service" s WHERE s.id = l."serviceId" AND s."companyId" = l."companyId") OR NOT EXISTS (SELECT 1 FROM "Deal" t WHERE t.id = l."dealId" AND t."companyId" = l."companyId")
+    UNION ALL SELECT l."companyId", 'ContactUser' FROM "ContactUser" l
+      WHERE NOT EXISTS (SELECT 1 FROM "Contact" s WHERE s.id = l."contactId" AND s."companyId" = l."companyId") OR NOT EXISTS (SELECT 1 FROM "User" u WHERE u.id = l."userId" AND u."companyId" = l."companyId")
+    UNION ALL SELECT l."companyId", 'OrganizationUser' FROM "OrganizationUser" l
+      WHERE NOT EXISTS (SELECT 1 FROM "Organization" s WHERE s.id = l."organizationId" AND s."companyId" = l."companyId") OR NOT EXISTS (SELECT 1 FROM "User" u WHERE u.id = l."userId" AND u."companyId" = l."companyId")
+    UNION ALL SELECT l."companyId", 'DealUser' FROM "DealUser" l
+      WHERE NOT EXISTS (SELECT 1 FROM "Deal" s WHERE s.id = l."dealId" AND s."companyId" = l."companyId") OR NOT EXISTS (SELECT 1 FROM "User" u WHERE u.id = l."userId" AND u."companyId" = l."companyId")
+    UNION ALL SELECT l."companyId", 'ServiceUser' FROM "ServiceUser" l
+      WHERE NOT EXISTS (SELECT 1 FROM "Service" s WHERE s.id = l."serviceId" AND s."companyId" = l."companyId") OR NOT EXISTS (SELECT 1 FROM "User" u WHERE u.id = l."userId" AND u."companyId" = l."companyId")
+    UNION ALL SELECT l."companyId", 'TaskUser' FROM "TaskUser" l
+      WHERE NOT EXISTS (SELECT 1 FROM "Task" s WHERE s.id = l."taskId" AND s."companyId" = l."companyId") OR NOT EXISTS (SELECT 1 FROM "User" u WHERE u.id = l."userId" AND u."companyId" = l."companyId")
+  ) AS link;
+
+  -- Record grants are keyed by the workspace role; a permission row naming another workspace's role cannot become a grant.
+  v_step := 'grants';
+  PERFORM crm_upgrade.issue(p."companyId", 'RolePermission', 'roleId', 'cross_workspace_reference')
+    FROM "RolePermission" p WHERE p.resource::text IN ('contacts', 'organizations', 'deals', 'services', 'tasks')
+      AND NOT EXISTS (SELECT 1 FROM "UserRole" r WHERE r.id = p."roleId" AND r."companyId" = p."companyId");
+
+  -- A pending membership authorisation task must name a member of the workspace.
+  v_step := 'protected tasks';
+  PERFORM crm_upgrade.issue(t."companyId", 'Task', 'relatedUserId', 'invalid_protected_task_owner')
+    FROM "Task" t WHERE t.type = 'userPendingAuthorization'
+      AND NOT EXISTS (SELECT 1 FROM "User" u WHERE u.id = t."relatedUserId" AND u."companyId" = t."companyId");
+
+  -- Canonical, well-formed channel identities with lookup keys unique per workspace and channel class.
+  v_step := 'channel identities';
+  PERFORM crm_upgrade.issue(problem.company_id, 'ContactIdentifier', problem.field, problem.code) FROM (
+    SELECT i."companyId" AS company_id, 'contactId' AS field, 'cross_workspace_reference' AS code FROM "ContactIdentifier" i
+      WHERE NOT EXISTS (SELECT 1 FROM "Contact" c WHERE c."companyId" = i."companyId" AND c.id = i."contactId")
+    UNION ALL
+    SELECT i."companyId", 'channelClass', 'invalid_identity_class' FROM "ContactIdentifier" i
+      WHERE i."channelClass" IS DISTINCT FROM CASE WHEN i.provider::text IN ('mail', 'google', 'outlook') THEN 'email' WHEN i.provider::text = 'whatsapp' THEN 'phone' ELSE i.provider::text END
+    UNION ALL
+    SELECT i."companyId", 'value', CASE WHEN crm_upgrade.canonical_channel(i.provider::text, i.value) IS NULL THEN 'invalid_identity_value' ELSE 'noncanonical_identity_value' END
+      FROM "ContactIdentifier" i WHERE crm_upgrade.canonical_channel(i.provider::text, i.value) IS DISTINCT FROM i.value
+    UNION ALL
+    SELECT i."companyId", 'messagingId', 'invalid_identity_value' FROM "ContactIdentifier" i WHERE i."messagingId" IS NOT NULL
+      AND (crm_upgrade.js_trim(i."messagingId") = '' OR i."messagingId" <> crm_upgrade.js_trim(i."messagingId") OR crm_upgrade.js_len(i."messagingId") > 2000)
+    UNION ALL
+    SELECT i."companyId", 'displayName', 'identity_value_too_long' FROM "ContactIdentifier" i WHERE crm_upgrade.js_len(i."displayName") > 500
+    UNION ALL
+    SELECT i."companyId", 'profileUrl', 'invalid_identity_url' FROM "ContactIdentifier" i WHERE i."profileUrl" IS NOT NULL
+      AND NOT crm_upgrade.is_zod_http_url(i."profileUrl")
+    UNION ALL
+    SELECT DISTINCT ON (source.id) source.company_id, 'value', 'duplicate_identity_key' FROM (
+      SELECT DISTINCT i.id, i."companyId" AS company_id, i."channelClass", key.value FROM "ContactIdentifier" i, unnest(ARRAY[i.value, i."messagingId"]) AS key(value)
+    ) AS source JOIN (
+      SELECT k.company_id, k."channelClass", k.value FROM (
+        SELECT DISTINCT i.id, i."companyId" AS company_id, i."channelClass", key.value FROM "ContactIdentifier" i, unnest(ARRAY[i.value, i."messagingId"]) AS key(value)
+      ) AS k WHERE k.value IS NOT NULL GROUP BY k.company_id, k."channelClass", k.value HAVING count(*) > 1
+    ) AS duplicate ON duplicate.company_id = source.company_id AND duplicate."channelClass" = source."channelClass" AND duplicate.value = source.value
+  ) AS problem;
+
+  -- Custom values must belong to a known column of the same type, reference exactly one record of that type
+  -- in the same workspace, and convert to a typed value.
+  v_step := 'custom values';
   ANALYZE crm_upgrade_field, crm_upgrade_workspace;
   INSERT INTO crm_upgrade_value (company_id, value_id, type_id, record_id, field_id, scalar, code, created_at, updated_at, raw, repaired)
   SELECT v."companyId", v.id, field.field ->> 'typeId', COALESCE(v."contactId", v."organizationId", v."dealId", v."serviceId", v."taskId"), v."columnId",
@@ -3314,31 +1773,13 @@ BEGIN
     SELECT v."companyId", 'value', 'duplicate_field_value' FROM "CustomFieldValue" v
       GROUP BY v."companyId", v."columnId", COALESCE(v."contactId", v."organizationId", v."dealId", v."serviceId", v."taskId") HAVING count(*) > 1
   ) AS problem;
-  PERFORM crm_upgrade.timing('custom_values', v_tick);
-
-  v_tick := clock_timestamp();
-  -- v8: timeline views (any workspace) referencing legacy record types.
-  FOR v_timeline IN
-    SELECT 'DataView' AS source_table, v.id, v."companyId", v.filters FROM "DataView" v WHERE v."surfaceKey" = 'entity-timeline' AND v.filters IS NOT NULL AND v.filters <> 'null'::jsonb
-    UNION ALL
-    SELECT 'P13n', p.id, p."companyId", p.filters FROM "P13n" p WHERE p."p13nId" = 'entity-timeline' AND p.filters IS NOT NULL AND p.filters <> 'null'::jsonb
-  LOOP
-    BEGIN
-      INSERT INTO crm_upgrade_timeline (source_table, row_id, filters)
-      VALUES (v_timeline.source_table, v_timeline.id, crm_upgrade.migrate_timeline_filters(v_timeline."companyId", v_timeline.filters));
-    EXCEPTION
-      WHEN SQLSTATE 'CRM01' THEN PERFORM crm_upgrade.issue(v_timeline."companyId", v_timeline.source_table, 'filters', 'invalid_timeline_view');
-      WHEN OTHERS THEN
-        GET STACKED DIAGNOSTICS v_state = RETURNED_SQLSTATE, v_message = MESSAGE_TEXT, v_context = PG_EXCEPTION_CONTEXT;
-        PERFORM crm_upgrade.raise_internal(v_timeline.source_table || ' timeline view conversion', v_state, v_message, v_context);
-    END;
-  END LOOP;
-  PERFORM crm_upgrade.timing('timeline_views', v_tick);
-  PERFORM crm_upgrade.report_timing('validation');
+EXCEPTION WHEN OTHERS THEN
+  GET STACKED DIAGNOSTICS v_state = RETURNED_SQLSTATE, v_message = MESSAGE_TEXT, v_context = PG_EXCEPTION_CONTEXT;
+  PERFORM crm_upgrade.raise_internal(v_step, v_state, v_message, v_context);
 END
 $validate$;
 
-ANALYZE crm_upgrade_workspace, crm_upgrade_value, crm_upgrade_presentation, crm_upgrade_trigger;
+ANALYZE crm_upgrade_workspace, crm_upgrade_value;
 
 -- Refuse with every issue, grouped (never row contents).
 DO $refuse$
@@ -3350,7 +1791,7 @@ BEGIN
   IF v_summary IS NOT NULL THEN
     RAISE EXCEPTION 'Configurable record upgrade refused (% workspaces affected): %',
       (SELECT count(DISTINCT company_id) FROM crm_upgrade_issue), v_summary
-      USING HINT = 'Nothing was changed. Fix the reported legacy rows, run prisma migrate resolve --rolled-back 20261004000000_configurable_records, then prisma migrate deploy.';
+      USING ERRCODE = 'CRM01', HINT = 'Nothing was changed. Fix the reported legacy rows, run prisma migrate resolve --rolled-back 20261004000000_configurable_records, then prisma migrate deploy.';
   END IF;
 END
 $refuse$;
@@ -3703,14 +2144,14 @@ ALTER TABLE "WebhookDelivery" ADD CONSTRAINT "WebhookDelivery_record_revision_ch
 ALTER TABLE "WebhookDelivery" ADD CONSTRAINT "WebhookDelivery_attempts_check" CHECK (attempts >= 0);
 ALTER TABLE "WebhookDelivery" ADD CONSTRAINT "WebhookDelivery_lease_check" CHECK (("leaseToken" IS NULL) = ("leaseExpiresAt" IS NULL));
 
+
 -- =============================================================================================
 -- Section 3: DATA CONVERSION. Record IDs and createdAt/updatedAt are copied unchanged. Collisions of
 -- legacy IDs across types are preserved (records are keyed by type). No record events are written, so
 -- no routine or webhook delivery is emitted.
 -- =============================================================================================
 
--- The record model rows (version-1 definitions; section 4 publishes the later revisions) come first
--- because records, values and links reference them.
+-- The record model rows come first because records, values and links reference them.
 INSERT INTO "RecordTypeDefinition" ("companyId", id, "presetKey", label, "pluralLabel", archived, embedded, position, definition, "createdAt", "updatedAt")
 SELECT w.company_id, t.value ->> 'id',
   (SELECT k FROM unnest(ARRAY['contact', 'organization', 'deal', 'service', 'task', 'lineItem']) AS k WHERE crm_upgrade.preset_id(w.company_id, k) = t.value ->> 'id'),
@@ -3847,95 +2288,23 @@ WHERE key.value IS NOT NULL;
 INSERT INTO "RecordIdentityLink" ("companyId", "identityId", "typeId", "recordId", "createdAt")
 SELECT "companyId", id, crm_upgrade.preset_id("companyId", 'contact'), "contactId", "createdAt" FROM "ContactIdentifier";
 
--- Conversation participants get the normalised lookup key of their identifier (v3).
+-- Conversation participants get the normalised lookup key of their identifier.
 UPDATE "MessagingThreadParticipant" participant
 SET "identityLookupValue" = crm_upgrade.participant_lookup_value(participant.provider::text, participant.identifier)
 WHERE crm_upgrade.participant_lookup_value(participant.provider::text, participant.identifier) IS NOT NULL;
 
 
 -- =============================================================================================
--- Section 4: CONFIGURATION CONVERSION. The configuration history is the one the retired upgrade wrote:
---   revision 1  the legacy model (actor: first active system-role member, else system:record-migration:v2)
---   revision 2  person activity paths (system:record-migration:v4)
---   revision 3  presentation defaults, relationship paths, trimmed labels (system:record-migration:v5)
---   revision 4  legacy terminology labels, only when they change a label (migration:legacy-terminology)
---   last        Channels enabled on the person type (system:shared-channel-migration)
--- Every workspace ends with storageMode = generic, no active operation and the last revision.
+-- Section 4: CONFIGURATION. Every workspace gets its record model as configuration revision 1, is set to
+-- storageMode = generic and keeps its role permissions as per-type grants. Legacy presentation state,
+-- history and automation triggers are not converted: history starts at the upgrade.
 -- =============================================================================================
 
-CREATE TEMP TABLE crm_upgrade_revision (company_id text NOT NULL, revision integer NOT NULL, actor_id text NOT NULL, snapshot jsonb NOT NULL) ON COMMIT DROP;
-
-INSERT INTO crm_upgrade_revision (company_id, revision, actor_id, snapshot)
-SELECT w.company_id, 1, w.actor_id, w.model FROM crm_upgrade_workspace w
-UNION ALL
-SELECT w.company_id, 2, 'system:record-migration:v4', w.model || jsonb_build_object('revision', 2, 'activityPaths', crm_upgrade.migrated_activity_paths(w.company_id, w.model))
-FROM crm_upgrade_workspace w
-UNION ALL
-SELECT w.company_id, 3, 'system:record-migration:v5', w.presentation_model FROM crm_upgrade_workspace w;
-
--- Revision 3 publishes the presentation type definitions.
-UPDATE "RecordTypeDefinition" definition SET definition = t.value
-FROM crm_upgrade_workspace w, jsonb_array_elements(w.presentation_model -> 'types') AS t(value)
-WHERE definition."companyId" = w.company_id AND definition.id = t.value ->> 'id';
-
--- Legacy terminology presets (EntityTerminology) relabel a type when it still carries the English or the
--- workspace-locale default label (v8/terminology.ts; the locale is the first member's display language).
-DO $terminology$
-DECLARE
-  v_catalog jsonb := '{"de": {"contact": {"client": {"plural": "Kunden", "singular": "Kunde"}, "contact": {"plural": "Kontakte", "singular": "Kontakt"}, "lead": {"plural": "Leads", "singular": "Lead"}, "person": {"plural": "Personen", "singular": "Person"}}, "deal": {"deal": {"plural": "Deals", "singular": "Deal"}, "job": {"plural": "Aufträge", "singular": "Auftrag"}, "opportunity": {"plural": "Chancen", "singular": "Chance"}, "project": {"plural": "Projekte", "singular": "Projekt"}}, "organization": {"account": {"plural": "Accounts", "singular": "Account"}, "company": {"plural": "Unternehmen", "singular": "Unternehmen"}, "organization": {"plural": "Organisationen", "singular": "Organisation"}}, "service": {"offering": {"plural": "Leistungen", "singular": "Leistung"}, "package": {"plural": "Pakete", "singular": "Paket"}, "product": {"plural": "Produkte", "singular": "Produkt"}, "service": {"plural": "Services", "singular": "Service"}}, "task": {"actionItem": {"plural": "Action Items", "singular": "Action Item"}, "followUp": {"plural": "Follow-ups", "singular": "Follow-up"}, "task": {"plural": "Aufgaben", "singular": "Aufgabe"}, "todo": {"plural": "To-dos", "singular": "To-do"}}}, "en": {"contact": {"client": {"plural": "Clients", "singular": "Client"}, "contact": {"plural": "Contacts", "singular": "Contact"}, "lead": {"plural": "Leads", "singular": "Lead"}, "person": {"plural": "People", "singular": "Person"}}, "deal": {"deal": {"plural": "Deals", "singular": "Deal"}, "job": {"plural": "Jobs", "singular": "Job"}, "opportunity": {"plural": "Opportunities", "singular": "Opportunity"}, "project": {"plural": "Projects", "singular": "Project"}}, "organization": {"account": {"plural": "Accounts", "singular": "Account"}, "company": {"plural": "Companies", "singular": "Company"}, "organization": {"plural": "Organizations", "singular": "Organization"}}, "service": {"offering": {"plural": "Offerings", "singular": "Offering"}, "package": {"plural": "Packages", "singular": "Package"}, "product": {"plural": "Products", "singular": "Product"}, "service": {"plural": "Services", "singular": "Service"}}, "task": {"actionItem": {"plural": "Action items", "singular": "Action item"}, "followUp": {"plural": "Follow-ups", "singular": "Follow-up"}, "task": {"plural": "Tasks", "singular": "Task"}, "todo": {"plural": "To-dos", "singular": "To-do"}}}, "es": {"contact": {"client": {"plural": "Clientes", "singular": "Cliente"}, "contact": {"plural": "Contactos", "singular": "Contacto"}, "lead": {"plural": "Leads", "singular": "Lead"}, "person": {"plural": "Personas", "singular": "Persona"}}, "deal": {"deal": {"plural": "Oportunidades", "singular": "Oportunidad"}, "job": {"plural": "Trabajos", "singular": "Trabajo"}, "opportunity": {"plural": "Oportunidades comerciales", "singular": "Oportunidad comercial"}, "project": {"plural": "Proyectos", "singular": "Proyecto"}}, "organization": {"account": {"plural": "Cuentas", "singular": "Cuenta"}, "company": {"plural": "Empresas", "singular": "Empresa"}, "organization": {"plural": "Organizaciones", "singular": "Organización"}}, "service": {"offering": {"plural": "Ofertas", "singular": "Oferta"}, "package": {"plural": "Paquetes", "singular": "Paquete"}, "product": {"plural": "Productos", "singular": "Producto"}, "service": {"plural": "Servicios", "singular": "Servicio"}}, "task": {"actionItem": {"plural": "Acciones", "singular": "Acción"}, "followUp": {"plural": "Seguimientos", "singular": "Seguimiento"}, "task": {"plural": "Tareas", "singular": "Tarea"}, "todo": {"plural": "Pendientes", "singular": "Pendiente"}}}, "fr": {"contact": {"client": {"plural": "Clients", "singular": "Client"}, "contact": {"plural": "Contacts", "singular": "Contact"}, "lead": {"plural": "Prospects", "singular": "Prospect"}, "person": {"plural": "Personnes", "singular": "Personne"}}, "deal": {"deal": {"plural": "Affaires", "singular": "Affaire"}, "job": {"plural": "Missions", "singular": "Mission"}, "opportunity": {"plural": "Opportunités", "singular": "Opportunité"}, "project": {"plural": "Projets", "singular": "Projet"}}, "organization": {"account": {"plural": "Comptes", "singular": "Compte"}, "company": {"plural": "Entreprises", "singular": "Entreprise"}, "organization": {"plural": "Organisations", "singular": "Organisation"}}, "service": {"offering": {"plural": "Offres", "singular": "Offre"}, "package": {"plural": "Forfaits", "singular": "Forfait"}, "product": {"plural": "Produits", "singular": "Produit"}, "service": {"plural": "Services", "singular": "Service"}}, "task": {"actionItem": {"plural": "Actions", "singular": "Action"}, "followUp": {"plural": "Relances", "singular": "Relance"}, "task": {"plural": "Tâches", "singular": "Tâche"}, "todo": {"plural": "À faire", "singular": "Élément à faire"}}}, "it": {"contact": {"client": {"plural": "Clienti", "singular": "Cliente"}, "contact": {"plural": "Contatti", "singular": "Contatto"}, "lead": {"plural": "Lead", "singular": "Lead"}, "person": {"plural": "Persone", "singular": "Persona"}}, "deal": {"deal": {"plural": "Trattative", "singular": "Trattativa"}, "job": {"plural": "Lavori", "singular": "Lavoro"}, "opportunity": {"plural": "Opportunità", "singular": "Opportunità"}, "project": {"plural": "Progetti", "singular": "Progetto"}}, "organization": {"account": {"plural": "Account", "singular": "Account"}, "company": {"plural": "Aziende", "singular": "Azienda"}, "organization": {"plural": "Organizzazioni", "singular": "Organizzazione"}}, "service": {"offering": {"plural": "Offerte", "singular": "Offerta"}, "package": {"plural": "Pacchetti", "singular": "Pacchetto"}, "product": {"plural": "Prodotti", "singular": "Prodotto"}, "service": {"plural": "Servizi", "singular": "Servizio"}}, "task": {"actionItem": {"plural": "Azioni", "singular": "Azione"}, "followUp": {"plural": "Follow-up", "singular": "Follow-up"}, "task": {"plural": "Attività", "singular": "Attività"}, "todo": {"plural": "Cose da fare", "singular": "Cosa da fare"}}}}'::jsonb;
-  v_workspace record;
-  v_entry record;
-  v_messages jsonb;
-  v_snapshot jsonb;
-  v_type_index integer;
-  v_type jsonb;
-  v_labels jsonb;
-  v_changed boolean;
-BEGIN
-  FOR v_workspace IN SELECT w.company_id, w.presentation_model FROM crm_upgrade_workspace w
-    WHERE EXISTS (SELECT 1 FROM "EntityTerminology" t WHERE t."companyId" = w.company_id) ORDER BY w.company_id LOOP
-    v_messages := COALESCE(v_catalog -> (SELECT u."displayLanguage"::text FROM "User" u WHERE u."companyId" = v_workspace.company_id ORDER BY u."createdAt", u.id LIMIT 1), v_catalog -> 'en');
-    v_snapshot := v_workspace.presentation_model;
-    v_changed := false;
-    FOR v_entry IN SELECT t.id, t."entityType"::text AS entity_type, t."presetKey" AS preset_key FROM "EntityTerminology" t WHERE t."companyId" = v_workspace.company_id ORDER BY t.id LOOP
-      v_labels := v_messages #> ARRAY[v_entry.entity_type, v_entry.preset_key];
-      SELECT t.ordinality - 1, t.value INTO v_type_index, v_type FROM jsonb_array_elements(v_snapshot -> 'types') WITH ORDINALITY AS t(value, ordinality)
-        WHERE t.value ->> 'id' = crm_upgrade.preset_id(v_workspace.company_id, v_entry.entity_type);
-      IF NOT ((v_type ->> 'label' = v_catalog #>> ARRAY['en', v_entry.entity_type, v_entry.entity_type, 'singular'] AND v_type ->> 'pluralLabel' = v_catalog #>> ARRAY['en', v_entry.entity_type, v_entry.entity_type, 'plural'])
-        OR (v_type ->> 'label' = v_messages #>> ARRAY[v_entry.entity_type, v_entry.entity_type, 'singular'] AND v_type ->> 'pluralLabel' = v_messages #>> ARRAY[v_entry.entity_type, v_entry.entity_type, 'plural'])) THEN
-        CONTINUE;
-      END IF;
-      IF v_type ->> 'label' = v_labels ->> 'singular' AND v_type ->> 'pluralLabel' = v_labels ->> 'plural' THEN CONTINUE; END IF;
-      v_type := v_type || jsonb_build_object('label', v_labels -> 'singular', 'pluralLabel', v_labels -> 'plural');
-      v_snapshot := jsonb_set(v_snapshot, ARRAY['types', v_type_index::text], v_type);
-      UPDATE "RecordTypeDefinition" SET label = v_type ->> 'label', "pluralLabel" = v_type ->> 'pluralLabel', definition = v_type, "updatedAt" = now()
-        WHERE "companyId" = v_workspace.company_id AND id = v_type ->> 'id';
-      v_changed := true;
-    END LOOP;
-    IF v_changed THEN
-      INSERT INTO crm_upgrade_revision (company_id, revision, actor_id, snapshot)
-      VALUES (v_workspace.company_id, 4, 'migration:legacy-terminology', v_snapshot || '{"revision":4}'::jsonb);
-    END IF;
-  END LOOP;
-END
-$terminology$;
-
--- Shared channels: the person identity binding becomes an enabled Channels capability with provider
--- avatars, appended as the next revision (earlier snapshots stay as written).
-INSERT INTO crm_upgrade_revision (company_id, revision, actor_id, snapshot)
-SELECT latest.company_id, latest.revision + 1, 'system:shared-channel-migration',
-  jsonb_set(jsonb_set(latest.snapshot, '{capabilities}',
-    (SELECT COALESCE(jsonb_agg(CASE WHEN binding ->> 'kind' = 'personIdentity' THEN binding || '{"kind":"channels","enabled":true,"providerAvatar":true}'::jsonb ELSE binding END ORDER BY ordinal), '[]'::jsonb)
-     FROM jsonb_array_elements(COALESCE(latest.snapshot -> 'capabilities', '[]'::jsonb)) WITH ORDINALITY AS capability(binding, ordinal))),
-    '{revision}', to_jsonb(latest.revision + 1))
-FROM (SELECT DISTINCT ON (company_id) company_id, revision, snapshot FROM crm_upgrade_revision ORDER BY company_id, revision DESC) AS latest
-WHERE EXISTS (SELECT 1 FROM jsonb_array_elements(COALESCE(latest.snapshot -> 'capabilities', '[]'::jsonb)) AS binding(value) WHERE binding.value ->> 'kind' = 'personIdentity');
-
 INSERT INTO "RecordSchemaRevision" ("companyId", revision, "actorId", snapshot, "createdAt")
-SELECT company_id, revision, actor_id, snapshot, now() FROM crm_upgrade_revision;
+SELECT company_id, 1, 'system:configurable-records-upgrade', model, now() FROM crm_upgrade_workspace;
 
 INSERT INTO "RecordSchemaState" ("companyId", revision, "activeOperationId", "storageMode")
-SELECT company_id, max(revision), NULL, 'generic' FROM crm_upgrade_revision GROUP BY company_id;
+SELECT company_id, 1, NULL, 'generic' FROM crm_upgrade_workspace;
 
 -- Role permissions on the legacy resources become per-type grants (action order normalised).
 INSERT INTO "RecordTypeGrant" ("companyId", "typeId", "roleId", actions)
@@ -3944,65 +2313,29 @@ FROM "RolePermission" p JOIN (VALUES ('contacts', 'contact'), ('organizations', 
   ON p.resource::text = k.resource
 GROUP BY p."companyId", k.kind, p."roleId";
 
--- Presentation rows (v4/v5): only columns whose JavaScript value changed are written, as the retired
--- upgrade did; text[] columns of P13n are written as arrays.
-CREATE FUNCTION crm_upgrade.changed(original jsonb, target jsonb, key text) RETURNS boolean
-LANGUAGE sql IMMUTABLE AS $$ SELECT crm_upgrade.js_json(original -> key) IS DISTINCT FROM (target -> key) $$;
-CREATE FUNCTION crm_upgrade.text_array(value jsonb) RETURNS text[]
-LANGUAGE sql IMMUTABLE AS $$ SELECT CASE WHEN value IS NULL OR value = 'null'::jsonb THEN NULL ELSE ARRAY(SELECT jsonb_array_elements_text(value)) END $$;
+-- Saved views and personalisation of the legacy record surfaces and timelines, and every dashboard widget
+-- (all of them are legacy widgets), are removed.
+DELETE FROM "DataView" WHERE "surfaceKey" ~ '^((contact|organization|deal|service|task)s-card-store|entity-timeline)$';
+DELETE FROM "P13n" WHERE "p13nId" ~ '^((contact|organization|deal|service|task)s-card-store|(contact|organization|deal|service|task)-detail|entity-timeline)$';
+DELETE FROM "Widget";
 
-UPDATE "DataView" view SET
-  filters = CASE WHEN crm_upgrade.changed(p.original, p.target, 'filters') THEN p.target -> 'filters' ELSE view.filters END,
-  "sortDescriptor" = CASE WHEN crm_upgrade.changed(p.original, p.target, 'sortDescriptor') THEN NULLIF(p.target -> 'sortDescriptor', 'null') ELSE view."sortDescriptor" END,
-  grouping = CASE WHEN crm_upgrade.changed(p.original, p.target, 'grouping') THEN NULLIF(p.target -> 'grouping', 'null') ELSE view.grouping END,
-  "columnOrder" = CASE WHEN crm_upgrade.changed(p.original, p.target, 'columnOrder') THEN p.target -> 'columnOrder' ELSE view."columnOrder" END,
-  "columnWidths" = CASE WHEN crm_upgrade.changed(p.original, p.target, 'columnWidths') THEN p.target -> 'columnWidths' ELSE view."columnWidths" END,
-  "hiddenColumns" = CASE WHEN crm_upgrade.changed(p.original, p.target, 'hiddenColumns') THEN p.target -> 'hiddenColumns' ELSE view."hiddenColumns" END,
-  "surfaceKey" = p.target ->> 'surfaceKey',
-  "groupingColumnId" = p.target ->> 'groupingColumnId',
-  "pageSize" = (p.target ->> 'pageSize')::integer
-FROM crm_upgrade_presentation p WHERE p.source_table = 'DataView' AND view.id = p.row_id;
+-- History of legacy records and custom columns is removed.
+DELETE FROM "AuditLog" WHERE event ~ '^(contact|organization|deal|service|task|custom_column)\.';
 
-UPDATE "P13n" preference SET
-  "viewStateKeys" = CASE WHEN p.target ? 'viewStateKeys' THEN p.target -> 'viewStateKeys' ELSE preference."viewStateKeys" END,
-  filters = CASE WHEN crm_upgrade.changed(p.original, p.target, 'filters') THEN p.target -> 'filters' ELSE preference.filters END,
-  "sortDescriptor" = CASE WHEN crm_upgrade.changed(p.original, p.target, 'sortDescriptor') THEN NULLIF(p.target -> 'sortDescriptor', 'null') ELSE preference."sortDescriptor" END,
-  "columnWidths" = CASE WHEN crm_upgrade.changed(p.original, p.target, 'columnWidths') THEN p.target -> 'columnWidths' ELSE preference."columnWidths" END,
-  grouping = CASE WHEN crm_upgrade.changed(p.original, p.target, 'grouping') THEN NULLIF(p.target -> 'grouping', 'null') ELSE preference.grouping END,
-  "detailOptions" = CASE WHEN crm_upgrade.changed(p.original, p.target, 'detailOptions') THEN p.target -> 'detailOptions' ELSE preference."detailOptions" END,
-  pagination = CASE WHEN crm_upgrade.changed(p.original, p.target, 'pagination') THEN p.target -> 'pagination' ELSE preference.pagination END,
-  "p13nId" = p.target ->> 'p13nId',
-  "columnOrder" = crm_upgrade.text_array(p.target -> 'columnOrder'),
-  "hiddenColumns" = crm_upgrade.text_array(p.target -> 'hiddenColumns'),
-  "groupingColumnId" = p.target ->> 'groupingColumnId',
-  "activeViewKey" = p.target ->> 'activeViewKey'
-FROM crm_upgrade_presentation p WHERE p.source_table = 'P13n' AND preference.id = p.row_id;
-
-UPDATE "Widget" widget SET
-  measure = CASE WHEN p.target ? 'measure' THEN p.target -> 'measure' ELSE widget.measure END,
-  "activityQuery" = CASE WHEN p.target ? 'activityQuery' THEN p.target -> 'activityQuery' ELSE widget."activityQuery" END,
-  "displayOptions" = CASE WHEN crm_upgrade.changed(p.original, p.target, 'displayOptions') THEN p.target -> 'displayOptions' ELSE widget."displayOptions" END
-FROM crm_upgrade_presentation p WHERE p.source_table = 'Widget' AND widget.id = p.row_id;
-
--- Timeline views (v8): legacy record filter keys become records:<typeId>.
-UPDATE "DataView" view SET filters = t.filters FROM crm_upgrade_timeline t WHERE t.source_table = 'DataView' AND view.id = t.row_id;
-UPDATE "P13n" preference SET filters = t.filters FROM crm_upgrade_timeline t WHERE t.source_table = 'P13n' AND preference.id = t.row_id;
-
--- Triggers (v6): legacy record events become generic record events with one subscription per routine or
--- webhook. Converted routines no longer keep legacy watched-field names or legacy filters: they live,
--- as field IDs and generic filters, in the subscription sources (intentional change, see README).
-UPDATE "Webhook" webhook SET events = ARRAY(SELECT jsonb_array_elements_text(t.result -> 'targetEvents')), enabled = (t.result ->> 'enabled')::boolean
-FROM crm_upgrade_trigger t WHERE t.source_table = 'Webhook' AND webhook.id = t.row_id;
-UPDATE "Routine" routine SET "triggerEvents" = ARRAY(SELECT jsonb_array_elements_text(t.result -> 'targetEvents')),
-  "changedFields" = ARRAY[]::text[], "triggerFilters" = '[]'::jsonb,
-  enabled = (t.result ->> 'enabled')::boolean,
-  "disabledReason" = CASE WHEN routine.enabled AND NOT (t.result ->> 'enabled')::boolean THEN 'ownerUnavailable' ELSE routine."disabledReason" END
-FROM crm_upgrade_trigger t WHERE t.source_table = 'Routine' AND routine.id = t.row_id;
-INSERT INTO "RecordEventSubscription" ("companyId", id, kind, "ownerUserId", "typeId", events, "changedFieldIds", query, sources, revision, enabled)
-SELECT t.company_id, t.row_id, t.result #>> '{subscription,kind}', t.result #>> '{subscription,ownerUserId}', NULL,
-  ARRAY(SELECT jsonb_array_elements_text(t.result #> '{subscription,events}')), ARRAY[]::text[], NULL, t.result #> '{subscription,sources}', 1,
-  (t.result #>> '{subscription,enabled}')::boolean
-FROM crm_upgrade_trigger t WHERE t.result -> 'subscription' <> 'null'::jsonb;
+-- Automations: every webhook is disabled and loses its legacy record events; event-triggered routines are
+-- disabled and lose their legacy record events together with the watched fields and filters of those
+-- events. Scheduled routines stay as they are. Nothing subscribes to generic record events.
+UPDATE "Webhook" SET enabled = false,
+  events = ARRAY(SELECT e.event FROM unnest(events) WITH ORDINALITY AS e(event, ordinality)
+    WHERE e.event !~ '^(contact|organization|deal|service|task)\.' ORDER BY e.ordinality);
+UPDATE "Routine" SET enabled = false,
+  "triggerEvents" = ARRAY(SELECT e.event FROM unnest("triggerEvents") WITH ORDINALITY AS e(event, ordinality)
+    WHERE e.event !~ '^(contact|organization|deal|service|task)\.' ORDER BY e.ordinality),
+  "changedFields" = CASE WHEN legacy.events THEN ARRAY[]::text[] ELSE "changedFields" END,
+  "triggerFilters" = CASE WHEN legacy.events THEN '[]'::jsonb ELSE "triggerFilters" END
+FROM (SELECT r.id, EXISTS (SELECT 1 FROM unnest(r."triggerEvents") AS e(event) WHERE e.event ~ '^(contact|organization|deal|service|task)\.') AS events
+  FROM "Routine" r) AS legacy
+WHERE legacy.id = "Routine".id AND "Routine"."triggerKind"::text = 'event';
 
 -- =============================================================================================
 -- Section 4b: secondary indexes of the generic storage, built once after the bulk conversion (as a
@@ -4050,7 +2383,7 @@ ANALYZE "RecordTypeDefinition", "RecordFieldDefinition", "RecordRelationshipDefi
 
 -- =============================================================================================
 -- Section 5: CALCULATIONS. The preset's calculated fields are materialised with exact decimals, exactly
--- as the record engine evaluates them (v2/materialize.ts, v2/contract/calculation.ts):
+-- as the record engine evaluates them:
 --   contact.name          trim(firstName + " " + lastName)         (JavaScript whitespace trimming)
 --   lineItem.effectivePrice  live price = the linked service's amount (every migrated line item is live)
 --   lineItem.amount       quantity x unit price
@@ -4058,8 +2391,8 @@ ANALYZE "RecordTypeDefinition", "RecordFieldDefinition", "RecordRelationshipDefi
 --   deal.totalQuantity    sum of line quantities (0 without lines)
 --   deal.weightedValue    totalValue x probability / 100 of the weighting stage option; missing without a
 --                         weighting column, a stage value or a probability (0 stays 0)
--- A result outside |x| < 1e35 or with more than 30 decimals is an evaluation error, which the retired
--- upgrade refused; so does this one. Provenance rows record the records each value depends on.
+-- A result outside |x| < 1e35 or with more than 30 decimals is an evaluation error and refuses the
+-- upgrade. Provenance rows record the records each value depends on.
 -- =============================================================================================
 
 CREATE TEMP TABLE crm_upgrade_calculated (
@@ -4237,8 +2570,8 @@ ALTER TABLE "RecordEventMatch" ADD CONSTRAINT "RecordEventMatch_companyId_eventI
 ALTER TABLE "RecordEventMatch" ADD CONSTRAINT "RecordEventMatch_companyId_subscriptionId_fkey" FOREIGN KEY ("companyId", "subscriptionId") REFERENCES "RecordEventSubscription"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- =============================================================================================
--- Section 6: RECONCILIATION. Independent comparisons of the generic data with the legacy source (the
--- checks of v2/reconcile.ts, the identity and provenance reconciliations, and the repairs). Any mismatch
+-- Section 6: RECONCILIATION. Independent comparisons of the generic data with the legacy source (records,
+-- assignments, values, links, totals, identities, provenance, configuration and the link repair). Any mismatch
 -- aborts the transaction; the legacy data is then untouched.
 -- =============================================================================================
 
@@ -4364,9 +2697,8 @@ WHERE value."recordId" IS NULL
     ELSE value."textValue" = legacy.value END))
 HAVING count(*) > 0;
 
--- Deal totals against the legacy line items (the v2 reconciliation query; the weighted value uses the
--- legacy option weight of the deal's stage value, read as JavaScript read it, and is computed exactly: the
--- retired check divided by 100 with PostgreSQL's rounded division and refused fractional weights).
+-- Deal totals against the legacy line items (the weighted value uses the legacy option weight of the
+-- deal's stage value, read as JavaScript read it, and is computed exactly).
 INSERT INTO crm_upgrade_mismatch
 SELECT 'values:deal.totals', count(*) FROM (
   WITH totals AS (
@@ -4419,7 +2751,7 @@ FULL JOIN "RecordIdentityKey" actual ON actual."companyId" = expected."companyId
 WHERE expected.id IS DISTINCT FROM actual."identityId"
 HAVING count(*) > 0;
 
--- Provenance, against the expectation computed from the legacy line items (v4/provenance.ts).
+-- Provenance, against the expectation computed from the legacy line items.
 INSERT INTO crm_upgrade_mismatch
 SELECT 'provenance', count(*) FROM (
   WITH expected AS (
@@ -4439,15 +2771,15 @@ SELECT 'provenance', count(*) FROM (
 ) AS mismatched
 HAVING count(*) > 0;
 
--- Configuration: every workspace is generic, idle, at its last revision, with one revision chain from 1
--- and the six record types, their fields and the nine relationships of its model.
+
+-- Configuration: every workspace is generic, idle, at revision 1 with exactly one revision, and has the six
+-- record types, the fields of its model and the nine relationships.
 INSERT INTO crm_upgrade_mismatch
 SELECT 'workspaces', count(*) FROM "Company" company
 LEFT JOIN "RecordSchemaState" state ON state."companyId" = company.id
 LEFT JOIN crm_upgrade_workspace w ON w.company_id = company.id
-WHERE state."companyId" IS NULL OR state."storageMode" <> 'generic' OR state."activeOperationId" IS NOT NULL
-  OR state.revision <> (SELECT max(revision) FROM "RecordSchemaRevision" r WHERE r."companyId" = company.id)
-  OR (SELECT count(*) FROM "RecordSchemaRevision" r WHERE r."companyId" = company.id) <> state.revision
+WHERE state."companyId" IS NULL OR state."storageMode" <> 'generic' OR state."activeOperationId" IS NOT NULL OR state.revision <> 1
+  OR (SELECT count(*) FROM "RecordSchemaRevision" r WHERE r."companyId" = company.id) <> 1
   OR (SELECT count(*) FROM "RecordTypeDefinition" t WHERE t."companyId" = company.id) <> 6
   OR (SELECT count(*) FROM "RecordFieldDefinition" f WHERE f."companyId" = company.id) <> jsonb_array_length(w.model -> 'fields')
   OR (SELECT count(*) FROM "RecordRelationshipDefinition" r WHERE r."companyId" = company.id) <> 9
@@ -4457,33 +2789,7 @@ WHERE state."companyId" IS NULL OR state."storageMode" <> 'generic' OR state."ac
       + 3 * (SELECT count(*) FROM "Deal" r WHERE r."companyId" = company.id)
 HAVING count(*) > 0;
 
--- Triggers: each converted routine/webhook has its generic events and (unless its owner could not be
--- resolved) one subscription; converted routines keep no legacy watched fields or filters.
-INSERT INTO crm_upgrade_mismatch
-SELECT 'triggers', count(*) FROM crm_upgrade_trigger t
-LEFT JOIN "RecordEventSubscription" s ON s."companyId" = t.company_id AND s.id = t.row_id
-LEFT JOIN "Routine" r ON t.source_table = 'Routine' AND r.id = t.row_id
-LEFT JOIN "Webhook" h ON t.source_table = 'Webhook' AND h.id = t.row_id
-WHERE (t.result -> 'subscription' <> 'null'::jsonb) <> (s.id IS NOT NULL)
-  OR (r.id IS NOT NULL AND (cardinality(r."changedFields") <> 0 OR r."triggerFilters" <> '[]'::jsonb
-    OR EXISTS (SELECT 1 FROM unnest(r."triggerEvents") e WHERE e ~ '^(contact|organization|deal|service|task)\.')))
-  OR (h.id IS NOT NULL AND EXISTS (SELECT 1 FROM unnest(h.events) e WHERE e ~ '^(contact|organization|deal|service|task)\.'))
-HAVING count(*) > 0;
-
--- Presentation: no legacy surface keys remain, and documented repairs left only supported page sizes.
-INSERT INTO crm_upgrade_mismatch
-SELECT 'presentation', count(*) FROM (
-  SELECT id FROM "DataView" WHERE "surfaceKey" ~ '^(contact|organization|deal|service|task)s-card-store$'
-    OR ("pageSize" IS NOT NULL AND "pageSize" NOT IN (5, 10, 25, 100) AND "surfaceKey" LIKE 'records:%')
-  UNION ALL
-  SELECT id FROM "P13n" WHERE "p13nId" ~ '^((contact|organization|deal|service|task)s-card-store|(contact|organization|deal|service|task)-detail)$'
-    OR ("p13nId" LIKE 'records:%' AND pagination IS NOT NULL AND jsonb_typeof(pagination -> 'pageSize') = 'number' AND (pagination ->> 'pageSize')::numeric NOT IN (5, 10, 25, 100))
-  UNION ALL
-  SELECT id FROM "Widget" WHERE (kind = 'chart' AND measure IS NULL) OR (kind = 'activityTimeline' AND "activityQuery" IS NULL)
-) AS remaining
-HAVING count(*) > 0;
-
--- Documented repairs, recounted independently from the legacy source.
+-- Documented repair: scheme-less links, recounted independently from the legacy source.
 INSERT INTO crm_upgrade_mismatch
 SELECT 'repairs:links', abs(recorded.total - expected.total) FROM
   (SELECT count(*) AS total FROM crm_upgrade_value WHERE repaired) AS recorded,
@@ -4491,39 +2797,6 @@ SELECT 'repairs:links', abs(recorded.total - expected.total) FROM
    WHERE legacy.value IS NOT NULL AND EXISTS (SELECT 1 FROM unnest(CASE WHEN COALESCE((c.options ->> 'allowMultiple')::boolean, false)
      THEN crm_upgrade.js_split(legacy.value, ',') ELSE ARRAY[legacy.value] END) AS part
      WHERE NOT crm_upgrade.is_http_url(part) AND btrim(part) ~* '^[a-z0-9-]+(\.[a-z0-9-]+)+(/\S*)?$')) AS expected
-WHERE recorded.total <> expected.total;
-
--- Every dropped column reference named a UUID that is no field of its type in the converted model.
-INSERT INTO crm_upgrade_mismatch
-SELECT 'repairs:dropped_column_references', abs(recorded.total - expected.total) FROM
-  (SELECT count(*) AS total FROM crm_upgrade_repair WHERE kind = 'dropped_column_reference') AS recorded,
-  (SELECT count(*) AS total FROM crm_upgrade_presentation p
-   CROSS JOIN LATERAL (
-     SELECT f.value ->> 'field' AS key FROM jsonb_array_elements(CASE WHEN jsonb_typeof(p.original -> 'filters') = 'array' THEN p.original -> 'filters' ELSE '[]' END) AS f(value)
-     UNION ALL SELECT p.original #>> '{sortDescriptor,field}'
-     UNION ALL SELECT p.original #>> '{grouping,field}'
-     UNION ALL SELECT k.value #>> '{}' FROM jsonb_array_elements(CASE WHEN jsonb_typeof(p.original -> 'columnOrder') = 'array' THEN p.original -> 'columnOrder' ELSE '[]' END) AS k(value)
-     UNION ALL SELECT k.value #>> '{}' FROM jsonb_array_elements(CASE WHEN COALESCE(p.original ->> 'p13nId', '') NOT LIKE '%-detail' AND jsonb_typeof(p.original -> 'hiddenColumns') = 'array' THEN p.original -> 'hiddenColumns' ELSE '[]' END) AS k(value)
-     UNION ALL SELECT k.key FROM jsonb_each(CASE WHEN COALESCE(p.original ->> 'p13nId', '') NOT LIKE '%-detail' THEN COALESCE(NULLIF(p.original -> 'columnWidths', 'null'), '{}') ELSE '{}' END) AS k(key, value)
-     UNION ALL SELECT k.value #>> '{}' FROM jsonb_each(CASE WHEN p.original ->> 'p13nId' LIKE '%-detail' AND jsonb_typeof(p.original -> 'detailOptions') = 'object' THEN p.original -> 'detailOptions' ELSE '{}' END) AS d(key, value),
-       jsonb_array_elements(CASE WHEN d.key IN ('starredFieldIds', 'hiddenFieldIds', 'fieldOrder') THEN d.value ELSE '[]' END) AS k(value)
-   ) AS reference
-   JOIN crm_upgrade_workspace w ON w.company_id = p.company_id
-   WHERE p.source_table IN ('DataView', 'P13n') AND crm_upgrade.is_uuid(reference.key)
-     AND NOT EXISTS (SELECT 1 FROM jsonb_array_elements(w.model -> 'fields') AS f(value)
-       WHERE f.value ->> 'id' = reference.key AND f.value ->> 'typeId' = crm_upgrade.preset_id(p.company_id, substring(COALESCE(p.original ->> 'surfaceKey', p.original ->> 'p13nId') FROM '^([a-z]+?)s?-')))) AS expected
-WHERE recorded.total <> expected.total;
-
--- Routines kept but disabled because their owner is unavailable, and scheduled routines whose leftover
--- legacy events were dropped, recounted from the legacy rows.
-INSERT INTO crm_upgrade_mismatch
-SELECT 'repairs:routines', abs(recorded.total - expected.total) FROM
-  (SELECT count(*) AS total FROM crm_upgrade_repair WHERE kind IN ('routine_disabled', 'scheduled_routine_events_dropped')) AS recorded,
-  (SELECT count(*) AS total FROM crm_upgrade_routine_source r
-   WHERE EXISTS (SELECT 1 FROM unnest(r.events) e WHERE e ~ '^(contact|organization|deal|service|task)\.(created|updated|deleted)$')
-     AND (r.trigger_kind <> 'event'
-       OR (r.enabled AND NOT EXISTS (SELECT 1 FROM "User" u WHERE u."companyId" = r.company_id AND u.id = r.owner_user_id AND u.status::text = 'active')))
-  ) AS expected
 WHERE recorded.total <> expected.total;
 
 DO $$
@@ -4535,21 +2808,6 @@ BEGIN
     RAISE EXCEPTION 'Configurable record upgrade reconciliation failed: %', v_summary
       USING HINT = 'Nothing was changed. Report this failure; the converted data did not match the legacy source.';
   END IF;
-END
-$$;
-
--- Report every repair that disables or changes an automation, so the operator can follow up.
-DO $$
-DECLARE
-  v_row record;
-BEGIN
-  FOR v_row IN
-    SELECT source_table, kind, count(*) AS total, string_agg(row_id, ', ' ORDER BY row_id) AS ids
-    FROM crm_upgrade_repair WHERE kind IN ('webhook_disabled', 'webhook_owner_unresolved', 'routine_disabled', 'scheduled_routine_events_dropped')
-    GROUP BY source_table, kind ORDER BY source_table, kind
-  LOOP
-    RAISE NOTICE 'Configurable record upgrade repair: % % x% (%)', v_row.source_table, v_row.kind, v_row.total, v_row.ids;
-  END LOOP;
 END
 $$;
 

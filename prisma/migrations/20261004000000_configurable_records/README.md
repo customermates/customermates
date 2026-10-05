@@ -1,6 +1,6 @@
 # Configurable records upgrade
 
-`migration.sql` converts the legacy CRM tables (contacts, organizations, deals, services, tasks, their custom columns, links, assignments, identifiers, line items, saved views, personalisation, dashboard widgets, routine and webhook triggers and terminology) into configurable records, then removes the legacy storage. It is an ordinary Prisma migration: there is no separate tool, script or manual step.
+`migration.sql` converts the legacy CRM tables (contacts, organizations, deals, services, tasks, their custom columns, links, assignments, identifiers and line items) into configurable records, then removes the legacy storage. It preserves the CRM data only. It is an ordinary Prisma migration: there is no separate tool, script or manual step.
 
 ```sh
 prisma migrate deploy
@@ -10,17 +10,44 @@ The production build (`scripts/vercel-build.sh`) and the self-hosted image (`Doc
 
 It runs on PostgreSQL 16 and 17. It requires the `pg_trgm` extension (created if missing) and ICU collations.
 
+## What is preserved
+
+| Legacy data | Result |
+| --- | --- |
+| Contacts, organizations, deals, services, tasks | Records of the five starter types with their IDs, `createdAt` and `updatedAt`. One ID may exist in several types. |
+| Pending membership authorisation tasks | Protected tasks (`protectedKind = membershipAuthorization`) that keep their related member |
+| Names, contact name parts, avatars, notes, service prices | Typed values; notes keep their document, prices their exact decimal |
+| Custom columns and their values | Fields of their type with the same IDs, trimmed labels, options, default option, format and currency; values with exact decimals, dates with their lexical form and ranges with both endpoints |
+| Links between records | Record links with their IDs and timestamps |
+| Deal services (`ServiceDeal`) | Embedded line items with the same IDs, their exact quantity and live pricing (no saved price) |
+| Assignees | Record assignments with their creation time |
+| Contact identifiers | Channel identities with the same IDs, their lookup aliases and their contact association |
+| Role permissions on the five legacy resources | Per-type grants |
+| Conversation participants | The normalised lookup key that matches them to channel identities |
+
+Every workspace gets the starter record model with deterministic preset IDs as configuration revision 1 (actor `system:configurable-records-upgrade`): the five starter types and line items, without the preset stage field because legacy stages are custom columns. The weighted value reads the probability of the option selected in `Company.dealWeightingColumnId`, which also groups the deal list by default. Explicit conversation-to-record links start empty: the legacy schema had none.
+
+## What is not carried over
+
+- Saved views and personalisation of the legacy record surfaces (`<type>s-card-store`, `<type>-detail`) and of the entity timeline. Views and personalisation of other surfaces stay.
+- Every dashboard widget.
+- Legacy record and custom column history (`AuditLog` events `contact.*`, `organization.*`, `deal.*`, `service.*`, `task.*`, `custom_column.*`). Record history starts at the upgrade; other audit events stay.
+- Legacy record event triggers. Every webhook is disabled and loses its legacy record events (`contact.created` and so on). Every event-triggered routine is disabled and loses its legacy record events; a routine that had such events also loses its watched fields and filters. Scheduled routines are unchanged. No routine or webhook subscribes to record events after the upgrade; re-enable them after choosing record triggers again.
+- Entity terminology presets: types keep their starter labels.
+
+No record events are written, so no routine run or webhook delivery is emitted. Existing webhook delivery history stays; completed deliveries are never replayed.
+
 ## What the sections do
 
 | Section | Work |
 | --- | --- |
-| 0 Locks | Takes every workspace's record advisory lock, locks the legacy tables exclusively and the converted presentation, trigger and messaging tables against writes, and refreshes planner statistics. Refuses a database that already has generic record storage. |
-| 1 Validation | Builds each workspace's record model and checks every legacy row the conversion depends on. All refusals are collected and reported together as `Table.field code xCOUNT` with the number of affected workspaces; row contents are never printed. Converted values and presentation rows are staged in temporary tables. |
-| 2 Expansion | Creates the generic storage in its final shape (types, fields, relationships, records, typed values, provenance, links, assignments, grants, revisions, operations, events, subscriptions, identities, conversation links) and the new columns of existing tables. |
-| 3 Data | Copies records with their IDs and timestamps (line items keep their `ServiceDeal` IDs; one ID may exist in several types), typed values, notes, links, assignments, channel identities with aliases and record associations, and participant lookup keys. No record events are written, so no routine or webhook delivery is emitted. |
-| 4 Configuration | Writes the configuration history (revision 1 legacy model, 2 activity paths, 3 presentation, 4 terminology when it changes a label, then Channels), grants, converted saved views, personalisation, widgets, timeline views, routine and webhook subscriptions, and sets every workspace to `storageMode = generic`. Section 4b builds the secondary indexes. |
+| 0 Locks | Takes every workspace's record advisory lock, locks the legacy tables exclusively and the other changed tables against writes, and refreshes planner statistics. Refuses a database that already has generic record storage. |
+| 1 Validation | Builds each workspace's record model and checks every legacy row the conversion depends on. All refusals are collected and reported together as `Table.field code xCOUNT` with the number of affected workspaces; row contents are never printed. Converted custom values are staged in a temporary table. |
+| 2 Expansion | Creates the generic storage in its final shape and the new columns of existing tables. |
+| 3 Data | Copies records, typed values, notes, links, assignments, channel identities with aliases and record associations, and participant lookup keys. |
+| 4 Configuration | Writes revision 1, the schema state and the grants, removes the legacy presentation state, widgets and history, and disables the automations as described above. Section 4b builds the secondary indexes. |
 | 5 Calculations | Materialises contact names, line prices and amounts, deal value and quantity rollups and weighted values with exact decimals, plus their provenance rows. Section 5b adds the foreign keys, which validates every converted row. |
-| 6 Reconciliation | Recomputes the result independently from the legacy rows (records, timestamps, protected tasks, assignments, built-in and custom values, prices, quantities, totals, weighted values, links, identities, aliases, provenance, workspace state, triggers, presentation, repairs) and refuses on any mismatch. |
+| 6 Reconciliation | Recomputes the CRM data independently from the legacy rows (records, timestamps, protected tasks, assignments, built-in and custom values, prices, quantities, totals, weighted values, links, identities, aliases, provenance, workspace state and the link repair) and refuses on any mismatch. |
 | 7 Removal | Drops the 22 legacy tables, `Company.dealWeightingColumnId`, the legacy widget columns, the legacy enums and range functions, and the temporary helpers, never with `CASCADE`. |
 
 An empty database (a new installation) passes the data sections without work and ends with exactly the schema in `prisma/schema.prisma`. A second `prisma migrate deploy` applies nothing.
@@ -38,68 +65,35 @@ An empty database (a new installation) passes the data sections without work and
 
 Legacy prices and quantities are binary floating point; they are converted through their shortest exact decimal text (`0.1 + 0.2` stays `0.30000000000000004`). A result of 10^35 or more, or with more than 30 decimals, is refused.
 
-## Documented repairs
+## Documented repair
 
-The retired multi-step upgrade refused the following data. This migration converts it deterministically instead; each repair is recounted independently during reconciliation.
+A `link` custom value (each comma-separated part of a multi-value link) that is not an http(s) URL but matches `^[a-z0-9-]+(\.[a-z0-9-]+)+(/\S*)?$` (case-insensitive, after trimming spaces) becomes `https://` followed by the trimmed text. Any other invalid link is refused. The reconciliation recounts the repaired values independently.
 
-1. **Links without scheme.** A `link` custom value (each comma-separated part of a multi-value link) that is not an http(s) URL but matches `^[a-z0-9-]+(\.[a-z0-9-]+)+(/\S*)?$` (case-insensitive, after trimming spaces) becomes `https://` followed by the trimmed text. Any other invalid link is still refused.
-2. **Page sizes.** A saved list page size (`P13n.pagination.pageSize`, `DataView.pageSize`) outside 5, 10, 25 and 100 becomes the largest supported size not above it (1000 becomes 100; anything below 5 becomes 5).
-3. **Deleted columns in views.** A UUID that resolves to no field of its record type (a deleted custom column) is removed from saved views and personalisation: filters on it are dropped, columns and widths lose it, and a sort or grouping on it falls back to the default (`null`). Detail layouts drop it from starred, hidden and ordered fields.
-4. **Unknown active views.** A list personalisation whose active view is not a converted view of the same member and surface returns to the default view (`activeViewKey = null`).
-5. **Deleted select options in filters.** Option values that no longer exist are removed from `in`/`notIn` filters on select fields (views, widgets and routines). A `notIn` left empty is dropped (no record holds a deleted option); an `in` left empty stays and still matches nothing.
-6. **Webhook owners.** A webhook whose creator (the single `webhook.created` audit row) is inactive keeps that creator as its subscription owner but is disabled. Without a provable creator, the oldest active system-role member becomes the owner; without one, the webhook is disabled and gets no subscription. No arbitrary other user is chosen.
-7. **Routine owners.** A routine with legacy record events whose owner is inactive keeps that owner and a disabled subscription; a routine whose owner was deleted gets no subscription. An enabled routine in either state is disabled with `disabledReason = ownerUnavailable`, as main disables routines of unavailable owners. Assigning an active owner later re-subscribes it.
-8. **Scheduled routines with legacy events.** Main keeps a routine's previous trigger events when it is switched to a schedule, and a schedule never reads them. Those leftover legacy events are dropped; other events, the schedule and the enabled state are unchanged.
+## Before deploying
 
-Repairs that disable or change an automation are reported as notices at the end of the migration (`Configurable record upgrade repair: Webhook webhook_disabled x2 (<ids>)`). Deployment logs may not show notices, so list the affected automations on the production database (read-only) before deploying:
+Deployment logs may not show which automations the upgrade disables, so list them on the production database (read-only) before deploying and tell their owners:
 
 ```sql
-SELECT 'Routine' AS kind, r."companyId", r.id,
-  CASE WHEN r."triggerKind"::text <> 'event' THEN 'legacy events dropped' ELSE 'disabled (owner unavailable)' END AS change
-FROM "Routine" r
-WHERE EXISTS (SELECT 1 FROM unnest(r."triggerEvents") e WHERE e ~ '^(contact|organization|deal|service|task)\.(created|updated|deleted)$')
-  AND (r."triggerKind"::text <> 'event' OR (r.enabled AND NOT EXISTS (
-    SELECT 1 FROM "User" u WHERE u."companyId" = r."companyId" AND u.id = r."ownerUserId" AND u.status::text = 'active')))
-UNION ALL
-SELECT 'Webhook', w."companyId", w.id,
-  CASE
-    WHEN owner.creator IS NULL AND admin.id IS NOT NULL THEN 'owner set to the oldest active administrator'
-    WHEN owner.creator IS NULL THEN CASE WHEN w.enabled THEN 'disabled, no subscription' ELSE 'stays disabled, no subscription' END
-    WHEN w.enabled THEN 'disabled (inactive creator kept as owner)'
-    ELSE 'stays disabled (inactive creator kept as owner)'
-  END
+SELECT 'Webhook' AS kind, w."companyId", w.id, w.enabled AS enabled_before,
+  ARRAY(SELECT e FROM unnest(w.events) e WHERE e ~ '^(contact|organization|deal|service|task)\.') AS legacy_events_removed
 FROM "Webhook" w
-CROSS JOIN LATERAL (
-  SELECT CASE WHEN count(DISTINCT a."userId") = 1 THEN min(a."userId") END AS creator
-  FROM "AuditLog" a JOIN "User" u ON u.id = a."userId" AND u."companyId" = a."companyId"
-  WHERE a."companyId" = w."companyId" AND a."entityId" = w.id AND a.event = 'webhook.created'
-) owner
-LEFT JOIN LATERAL (
-  SELECT u.id FROM "User" u JOIN "UserRole" role ON role.id = u."roleId" AND role."isSystemRole"
-  WHERE u."companyId" = w."companyId" AND u.status::text = 'active' ORDER BY u."createdAt", u.id LIMIT 1
-) admin ON true
-WHERE EXISTS (SELECT 1 FROM unnest(w.events) e WHERE e ~ '^(contact|organization|deal|service|task)\.(created|updated|deleted)$')
-  AND (owner.creator IS NULL OR NOT EXISTS (
-    SELECT 1 FROM "User" u WHERE u."companyId" = w."companyId" AND u.id = owner.creator AND u.status::text = 'active'));
+UNION ALL
+SELECT 'Routine', r."companyId", r.id, r.enabled,
+  ARRAY(SELECT e FROM unnest(r."triggerEvents") e WHERE e ~ '^(contact|organization|deal|service|task)\.')
+FROM "Routine" r
+WHERE r."triggerKind"::text = 'event'
+ORDER BY 1, 2, 3;
 ```
 
-The query mirrors the migration's owner and event rules and lists every routine and webhook the upgrade disables, re-owns or strips of leftover events, with the change it makes; scheduled routines are listed whether or not they are enabled.
-
-## Intentional differences from the retired upgrade
-
-- Converted routines keep their watched fields (as field IDs) and filters only in their record event subscription; `Routine.changedFields` and `Routine.triggerFilters` are cleared, because legacy names there would never match generic record events.
-- Custom column labels with surrounding whitespace are converted (trimmed from revision 3 on); the retired upgrade refused them through a consistency check between its separately committed steps, which cannot drift in one transaction.
-- The migration bookkeeping table `RecordMigrationCheckpoint` and the legacy `custom_field_range_*` functions are not kept.
-- Grant actions are stored in enum order.
-- The weighted value check of the reconciliation is exact (`× 0.01`) and reads the probability as JavaScript did. The retired check divided by 100 with PostgreSQL's rounded division, so a fractional probability such as 33.333333333333336 failed its own reconciliation although the converted value was exact.
+Every listed row is disabled by the upgrade; `enabled_before` shows which of them are active today.
 
 ## Refusals
 
-Refusal codes name the owning table and field, for example `CustomFieldValue.value invalid_typed_value x3` or `Widget.configuration unresolved_presentation_field x1`. Empty and null presentation state (`[]`, `{}`, JSON `null`, SQL `NULL`) converts as the retired upgrade did; for example an empty timeline filter list stays empty. Refusals include malformed or unrepresentable decimals, dates and ranges, invalid emails, phone numbers and URLs, unknown select options, invalid column options and definitions, references to records, members, accounts or threads of another (or no) workspace, duplicate custom values or identity keys, noncanonical identities, unsupported legacy filters, sorts, groupings and widget measures and unknown terminology presets.
+Refusals (error code `CRM01`) name the owning table and field, for example `CustomFieldValue.value invalid_typed_value x3`. They cover malformed or unrepresentable decimals, dates and ranges, invalid emails, phone numbers and URLs, unknown select options, invalid column options and definitions, references to records, members or roles of another (or no) workspace, duplicate custom values or identity keys and noncanonical identities.
 
 ## Internal errors
 
-Only validated data refusals become the grouped `Table.field code xCOUNT` report. Any other failure during a conversion step is a defect of the migration, not of the data, and is raised as `Configurable record upgrade internal error in <step> (SQLSTATE <code>): <message>` with error code `CRM02` and the PL/pgSQL call chain as detail. Messages of data exceptions (SQLSTATE class 22) are replaced by `data exception` because they can quote a value. Report such errors; they cannot be fixed by changing legacy data.
+Only validated data refusals become the grouped `Table.field code xCOUNT` report. Any other failure during validation is a defect of the migration, not of the data, and is raised as `Configurable record upgrade internal error in <step> (SQLSTATE <code>): <message>` with error code `CRM02` and the PL/pgSQL call chain as detail. Messages of data exceptions (SQLSTATE class 22) are replaced by `data exception` because they can quote a value. Report such errors; they cannot be fixed by changing legacy data.
 
 ## Recovery
 
@@ -117,6 +111,5 @@ Rehearse on a disposable copy of the production database before deploying:
 1. Restore the copy into a disposable PostgreSQL database of the production major version.
 2. Run `prisma migrate deploy` against it and keep the log.
 3. On a refusal, follow the recovery steps on the copy until the deployment succeeds; apply the same corrections to production before deploying there.
-4. Optionally run the file with `psql --single-transaction --set ON_ERROR_STOP=1` after `SET crm_upgrade.debug = on` (for example `PGOPTIONS='-c crm_upgrade.debug=on'`) to print the duration of every validation step as notices.
 
-The migration holds the locks above for its whole transaction, so CRM writes wait until it finishes. It disables just-in-time compilation for its transaction (`SET LOCAL jit = off`): the conversion runs many small statements per workspace, and compiling each of them cost minutes on databases with default settings. On the development host, 135 workspaces with 28,000 custom values, 3,400 identifiers and 11,000 webhook deliveries convert in about 22 seconds, and one workspace with 50,000 contacts, 20,000 deals, 40,000 line items and 70,000 custom values in about three minutes.
+The migration holds the locks above for its whole transaction, so CRM writes wait until it finishes. It disables just-in-time compilation for its transaction (`SET LOCAL jit = off`): the conversion runs many small statements per workspace, and compiling each of them costs far more than it saves.
