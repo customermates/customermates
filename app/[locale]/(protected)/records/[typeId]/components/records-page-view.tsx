@@ -30,8 +30,9 @@ import { RecordOperationProgress } from "@/components/records/record-operation-p
 import { useRecordExport } from "@/features/data-transfer/export/use-record-export";
 import { RecordImportDialog } from "./record-import-dialog";
 import { RecordMassActions } from "./record-mass-actions";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
-export const RecordsPageView = observer(function RecordsPageView({
+const RecordsPageViewContent = observer(function RecordsPageView({
   presentation,
 }: {
   presentation: RecordPresentationResult;
@@ -219,3 +220,5 @@ export const RecordsPageView = observer(function RecordsPageView({
     </>
   );
 });
+
+export const RecordsPageView = serverRenderedClient(RecordsPageViewContent);

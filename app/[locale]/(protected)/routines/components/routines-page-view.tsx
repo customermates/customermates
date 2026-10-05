@@ -23,10 +23,11 @@ import { runUserAction } from "@/core/errors/report-application-error";
 
 import { useRoutineColumns } from "./use-routine-columns";
 import { RoutinesPageSkeleton } from "./routines-page-skeleton";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 type Props = { initialRoutines: GetResult<RoutineDto> };
 
-export const RoutinesPageView = observer(function RoutinesPageView({ initialRoutines }: Props) {
+const RoutinesPageViewContent = observer(function RoutinesPageView({ initialRoutines }: Props) {
   const { routineModalStore, routinesStore } = useRootStore();
 
   useDataViewSync(routinesStore, initialRoutines);
@@ -131,3 +132,5 @@ export const RoutinesPageView = observer(function RoutinesPageView({ initialRout
     </DataViewLayout>
   );
 });
+
+export const RoutinesPageView = serverRenderedClient(RoutinesPageViewContent);

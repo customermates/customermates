@@ -22,10 +22,11 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { OperatorUserModal } from "./operator-user-modal";
 import { OperatorUsersPageSkeleton } from "./operator-users-page-skeleton";
 import { useOperatorUserColumns } from "./use-operator-user-columns";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 type Props = { initialUsers: GetResult<OperatorUserRowDto> };
 
-export const OperatorUsersPageView = observer(function OperatorUsersPageView({ initialUsers }: Props) {
+const OperatorUsersPageViewContent = observer(function OperatorUsersPageView({ initialUsers }: Props) {
   const { operatorUsersStore } = useRootStore();
   const [selected, setSelected] = useState<OperatorUserRowDto | null>(null);
 
@@ -123,3 +124,5 @@ export const OperatorUsersPageView = observer(function OperatorUsersPageView({ i
     </DataViewLayout>
   );
 });
+
+export const OperatorUsersPageView = serverRenderedClient(OperatorUsersPageViewContent);

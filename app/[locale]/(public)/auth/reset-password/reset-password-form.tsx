@@ -17,13 +17,14 @@ import { PasswordInput } from "@/components/forms/password-input";
 import { AppLink } from "@/components/shared/app-link";
 import { Alert } from "@/components/shared/alert";
 import { pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 type Props = {
   inviterName?: string;
   onboardingIntent?: string;
 };
 
-export const ResetPasswordForm = observer(({ inviterName, onboardingIntent }: Props) => {
+const ResetPasswordFormContent = observer(({ inviterName, onboardingIntent }: Props) => {
   const t = useTranslations();
   const { resetPasswordStore } = useRootStore();
   const searchParams = useSearchParams();
@@ -86,3 +87,5 @@ export const ResetPasswordForm = observer(({ inviterName, onboardingIntent }: Pr
     </AppForm>
   );
 });
+
+export const ResetPasswordForm = serverRenderedClient(ResetPasswordFormContent);

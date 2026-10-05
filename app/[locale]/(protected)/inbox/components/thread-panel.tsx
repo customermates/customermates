@@ -86,7 +86,7 @@ export function resolveThreadPanelPageState({
   return { status: "content", thread };
 }
 
-export const ThreadPanel = observer(({ threadDetail, locked = false }: Props) => {
+const ThreadPanelContent = observer(({ threadDetail, locked = false }: Props) => {
   const t = useTranslations();
   const { messagingThreadDetailStore: store } = useRootStore();
 
@@ -194,3 +194,6 @@ export const ThreadPanel = observer(({ threadDetail, locked = false }: Props) =>
   return body;
 });
 import { participantAvatar } from "@/ee/messaging/thread-display";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
+
+export const ThreadPanel = serverRenderedClient(ThreadPanelContent);

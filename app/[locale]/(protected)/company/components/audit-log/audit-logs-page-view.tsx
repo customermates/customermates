@@ -21,10 +21,11 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { AuditLogsPageSkeleton } from "./audit-logs-page-skeleton";
 import { useAuditLogColumns } from "./use-audit-log-columns";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 type Props = { initialAuditLogs: GetResult<AuditLogDto> };
 
-export const AuditLogsPageView = observer(function AuditLogsPageView({ initialAuditLogs }: Props) {
+const AuditLogsPageViewContent = observer(function AuditLogsPageView({ initialAuditLogs }: Props) {
   const { auditLogModalStore, auditLogsStore } = useRootStore();
 
   useDataViewSync(auditLogsStore, initialAuditLogs);
@@ -116,3 +117,5 @@ export const AuditLogsPageView = observer(function AuditLogsPageView({ initialAu
     </DataViewLayout>
   );
 });
+
+export const AuditLogsPageView = serverRenderedClient(AuditLogsPageViewContent);

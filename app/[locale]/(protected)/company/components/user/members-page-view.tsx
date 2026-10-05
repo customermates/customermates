@@ -23,13 +23,14 @@ import { runUserAction } from "@/core/errors/report-application-error";
 
 import { MembersPageSkeleton } from "./members-page-skeleton";
 import { useMemberColumns } from "./use-member-columns";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 type Props = {
   initialRoles: GetResult<RoleDto>;
   initialUsers: GetResult<UserDto>;
 };
 
-export const MembersPageView = observer(function MembersPageView({ initialRoles, initialUsers }: Props) {
+const MembersPageViewContent = observer(function MembersPageView({ initialRoles, initialUsers }: Props) {
   const { companyInviteModalStore, rolesStore, userModalStore, usersStore } = useRootStore();
 
   useDataViewSync(usersStore, initialUsers);
@@ -125,3 +126,5 @@ export const MembersPageView = observer(function MembersPageView({ initialRoles,
     </DataViewLayout>
   );
 });
+
+export const MembersPageView = serverRenderedClient(MembersPageViewContent);

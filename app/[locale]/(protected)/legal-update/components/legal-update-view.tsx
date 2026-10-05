@@ -18,10 +18,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 type Props = { status: LegalUpdateStatus };
 
-export const LegalUpdateView = observer(({ status }: Props) => {
+const LegalUpdateViewContent = observer(({ status }: Props) => {
   const t = useTranslations();
   const format = useFormatter();
   const { legalUpdateStore: store, loadingOverlayStore } = useRootStore();
@@ -100,3 +101,5 @@ export const LegalUpdateView = observer(({ status }: Props) => {
     </AppCard>
   );
 });
+
+export const LegalUpdateView = serverRenderedClient(LegalUpdateViewContent);

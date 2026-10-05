@@ -14,12 +14,13 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { Button } from "@/components/ui/button";
 import { IntlLink } from "@/i18n/navigation";
 import { useRouter } from "@/i18n/navigation";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 type Props = {
   currency: Currency;
 };
 
-export const CompanySettingsForm = observer(({ currency }: Props) => {
+const CompanySettingsFormContent = observer(({ currency }: Props) => {
   const t = useTranslations();
   const router = useRouter();
   const formId = useId();
@@ -63,3 +64,5 @@ export const CompanySettingsForm = observer(({ currency }: Props) => {
     </AppForm>
   );
 });
+
+export const CompanySettingsForm = serverRenderedClient(CompanySettingsFormContent);

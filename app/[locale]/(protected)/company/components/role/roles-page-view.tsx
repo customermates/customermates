@@ -22,10 +22,11 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { RoleModal } from "./role-modal";
 import { RolesPageSkeleton } from "./roles-page-skeleton";
 import { useRoleColumns } from "./use-role-columns";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 type Props = { initialRoles: GetResult<RoleDto> };
 
-export const RolesPageView = observer(function RolesPageView({ initialRoles }: Props) {
+const RolesPageViewContent = observer(function RolesPageView({ initialRoles }: Props) {
   const { roleModalStore, rolesStore } = useRootStore();
   const columns = useRoleColumns();
   const t = useTranslations();
@@ -115,3 +116,5 @@ export const RolesPageView = observer(function RolesPageView({ initialRoles }: P
     </>
   );
 });
+
+export const RolesPageView = serverRenderedClient(RolesPageViewContent);

@@ -25,6 +25,7 @@ import {
   displayLanguageNavigationTarget,
   expiredAppLocaleCookie,
 } from "@/i18n/locale-preference";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 type Props = {
   userDetails: UserDetails;
@@ -43,7 +44,7 @@ function resolveFormattingLanguageName(uiLocale: string): string {
   return new Intl.DisplayNames([uiLocale], { type: "language" }).of(baseLanguage) ?? resolvedLocale;
 }
 
-export const ProfileSettingsForm = observer(({ userDetails, emailVerified }: Props) => {
+const ProfileSettingsFormContent = observer(({ userDetails, emailVerified }: Props) => {
   const t = useTranslations();
   const pathname = usePathname();
   const currentLocale = useLocale();
@@ -184,3 +185,5 @@ export const ProfileSettingsForm = observer(({ userDetails, emailVerified }: Pro
     </AppForm>
   );
 });
+
+export const ProfileSettingsForm = serverRenderedClient(ProfileSettingsFormContent);

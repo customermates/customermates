@@ -11,8 +11,9 @@ import { RecordEditor } from "./record-editor";
 import { RecordEditorContent } from "./record-editor-content";
 import { useRecordRouteReady } from "@/components/records/use-record-route-ready";
 import { recordPanelsP13nId } from "./record-panels-personalization";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
-export const RecordDetailPage = observer(function RecordDetailPage({
+const RecordDetailPageContent = observer(function RecordDetailPage({
   initial,
   panelLayoutInitial,
 }: {
@@ -86,3 +87,5 @@ export const RecordDetailPage = observer(function RecordDetailPage({
     />
   );
 });
+
+export const RecordDetailPage = serverRenderedClient(RecordDetailPageContent);

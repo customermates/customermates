@@ -34,6 +34,7 @@ import {
   WIDGET_INTERACTIVE_SELECTOR,
 } from "./widget-interaction";
 import { WidgetModal } from "./widget-modal";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 const ResponsiveGridLayout = dynamic(
   () =>
@@ -49,7 +50,7 @@ type Props = {
   widgets: WidgetDto[];
 };
 
-export const DashboardPageView = observer(function DashboardPageView({ gallery, recordTypes, widgets }: Props) {
+const DashboardPageViewContent = observer(function DashboardPageView({ gallery, recordTypes, widgets }: Props) {
   const { widgetModalStore, widgetsStore } = useRootStore();
   const { items, layouts } = widgetsStore;
   const canAddWidget = widgetModalStore.availableKinds.length > 0;
@@ -227,3 +228,5 @@ export const DashboardPageView = observer(function DashboardPageView({ gallery, 
     </>
   );
 });
+
+export const DashboardPageView = serverRenderedClient(DashboardPageViewContent);

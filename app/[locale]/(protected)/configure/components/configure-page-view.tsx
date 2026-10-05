@@ -32,6 +32,7 @@ import { DataModelStore } from "./data-model.store";
 import { FieldModal, FieldModalStore } from "./field-modal";
 import { RelationshipModal, RelationshipModalStore } from "./relationship-modal";
 import { TypeModal, TypeModalStore } from "./type-modal";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 const LAST_LIST_KEY = "customermates:configure:last-list";
 
@@ -70,7 +71,7 @@ function configureHref(changes: Record<string, string | null>) {
   return `${url.pathname}${url.search}${url.hash}`;
 }
 
-export const ConfigurePageView = observer(function ConfigurePageView({
+const ConfigurePageViewContent = observer(function ConfigurePageView({
   initialModel,
   canManage,
   canPublishSummary = false,
@@ -411,3 +412,5 @@ export const ConfigurePageView = observer(function ConfigurePageView({
     </div>
   );
 });
+
+export const ConfigurePageView = serverRenderedClient(ConfigurePageViewContent);

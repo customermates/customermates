@@ -13,6 +13,7 @@ import { observer } from "mobx-react-lite";
 import { DataViewViewsRail } from "@/components/data-view/views/data-view-views-rail";
 import { useDataViewSync } from "@/components/data-view/use-data-view-sync";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 const INBOX_REFRESH_INTERVAL_MS = 10000;
 
@@ -21,7 +22,7 @@ type Props = {
   threads: GetResult<MessagingThread>;
 };
 
-export const InboxSurface = observer(function InboxSurface({ children, threads }: Props) {
+const InboxSurfaceContent = observer(function InboxSurface({ children, threads }: Props) {
   const { messagingThreadsStore, messagingThreadDetailStore } = useRootStore();
   const router = useRouter();
   const pathname = usePathname();
@@ -54,3 +55,5 @@ export const InboxSurface = observer(function InboxSurface({ children, threads }
     </div>
   );
 });
+
+export const InboxSurface = serverRenderedClient(InboxSurfaceContent);

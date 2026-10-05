@@ -15,12 +15,13 @@ import { runUserAction } from "@/core/errors/report-application-error";
 
 import { SubscriptionPanel } from "./subscription-panel";
 import { SubscribeManageButton } from "./subscribe-manage-button";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 type Props = {
   initialSubscription: SubscriptionDto | null;
 };
 
-export const SubscriptionView = observer(({ initialSubscription }: Props) => {
+const SubscriptionViewContent = observer(({ initialSubscription }: Props) => {
   const t = useTranslations();
   const { subscriptionStore, userStore } = useRootStore();
 
@@ -62,3 +63,5 @@ export const SubscriptionView = observer(({ initialSubscription }: Props) => {
     </div>
   );
 });
+
+export const SubscriptionView = serverRenderedClient(SubscriptionViewContent);

@@ -21,12 +21,13 @@ import { runUserAction } from "@/core/errors/report-application-error";
 
 import { ApiKeysPageSkeleton } from "./profile-resource-page-skeleton";
 import { PROFILE_RESOURCE_CARD_GRID_CLASS_NAME } from "./profile-resource-page-geometry";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 type Props = {
   apiKeys: ApiKey[];
 };
 
-export const ApiKeysPageView = observer(({ apiKeys }: Props) => {
+const ApiKeysPageViewContent = observer(({ apiKeys }: Props) => {
   const t = useTranslations();
   const { apiKeyModalStore, apiKeysStore } = useRootStore();
   const intlStore = useHydratedIntlStore();
@@ -145,3 +146,5 @@ export const ApiKeysPageView = observer(({ apiKeys }: Props) => {
 
   return body;
 });
+
+export const ApiKeysPageView = serverRenderedClient(ApiKeysPageViewContent);

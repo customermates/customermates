@@ -21,10 +21,11 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { OperatorAuditPageSkeleton } from "./operator-audit-page-skeleton";
 import { useOperatorAuditColumns } from "./use-operator-audit-columns";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 type Props = { initialAudit: GetResult<OperatorAuditRowDto> };
 
-export const OperatorAuditPageView = observer(function OperatorAuditPageView({ initialAudit }: Props) {
+const OperatorAuditPageViewContent = observer(function OperatorAuditPageView({ initialAudit }: Props) {
   const { operatorAuditStore } = useRootStore();
 
   useDataViewSync(operatorAuditStore, initialAudit);
@@ -110,3 +111,5 @@ export const OperatorAuditPageView = observer(function OperatorAuditPageView({ i
     </DataViewLayout>
   );
 });
+
+export const OperatorAuditPageView = serverRenderedClient(OperatorAuditPageViewContent);

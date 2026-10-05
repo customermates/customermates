@@ -37,6 +37,7 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { accountStatusChipColor, getProviderDisplayLabel } from "./account-status-color";
 import { ConnectedAccountsPageSkeleton } from "./profile-resource-page-skeleton";
 import { PROFILE_RESOURCE_CARD_GRID_CLASS_NAME } from "./profile-resource-page-geometry";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 type Props = {
   accounts: ConnectedAccountDto[];
@@ -174,7 +175,7 @@ const ConnectedAccountsAlert = () => {
   );
 };
 
-export const ConnectedAccountsPageView = observer(({ accounts, locked = false }: Props) => {
+const ConnectedAccountsPageViewContent = observer(({ accounts, locked = false }: Props) => {
   const t = useTranslations();
   const { connectedAccountsStore, connectedAccountModalStore, userStore } = useRootStore();
   const intlStore = useHydratedIntlStore();
@@ -358,3 +359,5 @@ export const ConnectedAccountsPageView = observer(({ accounts, locked = false }:
 
   return body;
 });
+
+export const ConnectedAccountsPageView = serverRenderedClient(ConnectedAccountsPageViewContent);

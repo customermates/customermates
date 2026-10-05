@@ -29,6 +29,7 @@ import { runUserAction } from "@/core/errors/report-application-error";
 
 import { InboxPageSkeleton } from "./inbox-page-skeleton";
 import { ThreadRow } from "./thread-row";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 type Props = {
   canConnect: boolean;
@@ -42,7 +43,7 @@ type InboxListPageState = DataViewPageState | "locked";
 let didAutoScrollToThread = false;
 let savedListScrollTop = 0;
 
-export const InboxList = observer(({ canConnect, threads, selectedThreadId, locked = false }: Props) => {
+const InboxListContent = observer(({ canConnect, threads, selectedThreadId, locked = false }: Props) => {
   const t = useTranslations();
   const router = useRouter();
   const pathname = usePathname();
@@ -267,3 +268,5 @@ export const InboxList = observer(({ canConnect, threads, selectedThreadId, lock
     </div>
   );
 });
+
+export const InboxList = serverRenderedClient(InboxListContent);

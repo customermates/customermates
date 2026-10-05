@@ -14,8 +14,9 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { PlanPicker } from "@/app/[locale]/(protected)/company/components/subscription/plan-picker";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
-export const SubscriptionExpiredView = observer(({ recoveryPath }: { recoveryPath: SubscriptionRecoveryPath }) => {
+const SubscriptionExpiredViewContent = observer(({ recoveryPath }: { recoveryPath: SubscriptionRecoveryPath }) => {
   const t = useTranslations();
   const { subscriptionExpiredStore, loadingOverlayStore } = useRootStore();
   const description =
@@ -60,3 +61,5 @@ export const SubscriptionExpiredView = observer(({ recoveryPath }: { recoveryPat
     </AppCard>
   );
 });
+
+export const SubscriptionExpiredView = serverRenderedClient(SubscriptionExpiredViewContent);

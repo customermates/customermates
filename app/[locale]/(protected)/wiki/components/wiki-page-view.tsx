@@ -47,6 +47,7 @@ import { resolveWikiPageState } from "./wiki-page-state";
 import { WIKI_LAYOUT_P13N_ID, WIKI_PANEL_LAYOUT_ID } from "./wiki-personalization";
 import { useWikiPages } from "./use-wiki-pages";
 import { WikiPageKindSchema, WIKI_PAGE_KINDS, WIKI_WHEN_TO_USE_MAX_LENGTH } from "@/features/wiki/wiki.schema";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 const WIKI_PANEL_IDS = ["pages", "document"] as const;
 
@@ -60,7 +61,7 @@ type Props = {
   unavailable?: boolean;
 };
 
-export const WikiPageView = observer(function WikiPageView({
+const WikiPageViewContent = observer(function WikiPageView({
   initialPage,
   initialSetupState = EMPTY_WIKI_HOMEPAGE_SETUP_STATE,
   layoutInitial,
@@ -437,3 +438,5 @@ export const WikiPageView = observer(function WikiPageView({
     />
   );
 });
+
+export const WikiPageView = serverRenderedClient(WikiPageViewContent);

@@ -22,10 +22,11 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { useWebhookColumns } from "./use-webhook-columns";
 import { WebhooksPageSkeleton } from "./webhooks-page-skeleton";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 type Props = { initialWebhooks: GetResult<WebhookDto> };
 
-export const WebhooksPageView = observer(function WebhooksPageView({ initialWebhooks }: Props) {
+const WebhooksPageViewContent = observer(function WebhooksPageView({ initialWebhooks }: Props) {
   const { webhookModalStore, webhooksStore } = useRootStore();
 
   useDataViewSync(webhooksStore, initialWebhooks);
@@ -143,3 +144,5 @@ export const WebhooksPageView = observer(function WebhooksPageView({ initialWebh
     </DataViewLayout>
   );
 });
+
+export const WebhooksPageView = serverRenderedClient(WebhooksPageViewContent);

@@ -1,8 +1,16 @@
 import { randomUUID } from "node:crypto";
 import type { Client } from "pg";
 import type { Page, Locator, Request, Route, TestInfo } from "@playwright/test";
-import { configureRow, followConfigureLink, openConfigure, openConfigureRow, saveDrawer, setShowArchivedParts } from "./configure";
+import {
+  configureRow,
+  followConfigureLink,
+  openConfigure,
+  openConfigureRow,
+  saveDrawer,
+  setShowArchivedParts,
+} from "./configure";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { invokesServerAction, serverActionIds } from "./server-actions";
 import { presetId } from "../../features/records/crm-preset";
 import {
   RecordModelSchema,
@@ -128,7 +136,14 @@ test("paginates and retries record and widget history, restores a personal timel
           label = input.cursor === null ? "widget history" : "older widget history";
       }
     }
-    if (dashboardFaultArmed && args.length === 0 && new URL(route.request().url()).pathname === "/en/dashboard")
+    if (
+      dashboardFaultArmed &&
+      args.length === 0 &&
+      invokesServerAction(
+        route.request(),
+        serverActionIds("app/[locale]/(protected)/dashboard/actions.ts", "refreshWidgetsAction"),
+      )
+    )
       label = "dashboard collection";
     if (label && faults.delete(label)) await evidence.failResponse(route, label);
     else await route.fallback();
@@ -398,8 +413,7 @@ function transportEvidence(page: Page) {
   const expectedTransport: string[] = [];
   const faults: Array<{ label: string; pathname: string; resourceErrorAccepted: boolean }> = [];
   page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message))
-      unexpected.push(error.message);
+    if (!isBenignPageError(error.message)) unexpected.push(error.message);
   });
   page.on("console", (message) => {
     if (!isAppConsoleError(message)) return;
@@ -1271,6 +1285,8 @@ test("retries relationship reads and accepted record, bulk and schema refreshes 
   let bulkFaultsRemaining = 0;
   let modelFault = false;
   let acceptedNavigationReads = 0;
+  const navigationAction = serverActionIds("app/[locale]/(protected)/records/actions.ts", "getRecordNavigationAction");
+  const modelAction = serverActionIds("app/[locale]/(protected)/records/actions.ts", "getRecordModelAction");
   await page.route("**/*", async (route) => {
     const args = nextArguments(route.request());
     const input = args?.length === 1 && typeof args[0] === "object" && args[0] !== null ? args[0] : null;
@@ -1307,14 +1323,12 @@ test("retries relationship reads and accepted record, bulk and schema refreshes 
         route,
         bulkFaultsRemaining === 1 ? "accepted bulk refresh" : "accepted bulk fallback refresh",
       );
-    } else if (modelFault && args?.length === 0) {
-      if (acceptedNavigationReads === 0) {
-        acceptedNavigationReads += 1;
-        await evidence.failResponse(route, "accepted navigation refresh");
-      } else {
-        modelFault = false;
-        await evidence.failResponse(route, "accepted schema refresh");
-      }
+    } else if (modelFault && acceptedNavigationReads === 0 && invokesServerAction(route.request(), navigationAction)) {
+      acceptedNavigationReads += 1;
+      await evidence.failResponse(route, "accepted navigation refresh");
+    } else if (modelFault && args?.length === 0 && invokesServerAction(route.request(), modelAction)) {
+      modelFault = false;
+      await evidence.failResponse(route, "accepted schema refresh");
     } else await route.fallback();
   });
   await page.goto(`/en/records/${service.typeId}/${service.recordId}`);
