@@ -139,7 +139,7 @@ describe("unified documentation search", () => {
     const markdown = (fetched as { structuredContent: { markdown: string } }).structuredContent.markdown;
     expect(markdown).toContain("To set up pipeline stages, add or edit a select field on Deals");
     expect(markdown).toContain("open the field in **Configure**");
-    expect(markdown).toContain("`/deals`");
+    expect(markdown).toContain("`/records/<typeId>`");
     expect(markdown.length).toBeLessThanOrEqual(1_400);
     expect(ranker).toHaveBeenCalledTimes(1);
   });
@@ -806,7 +806,7 @@ describe("authoritative action and condition excerpts", () => {
         "Öffnen Sie **Import und Export** in der Datensatzliste",
         "lehnt unpassende oder zu große Dateien ab",
         "Excel- und CSV-Dateien müssen vor dem Import in das generische Format übertragen werden",
-        "`/contacts`",
+        "`/records/<typeId>`",
       ],
     },
     {

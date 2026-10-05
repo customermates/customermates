@@ -794,7 +794,7 @@ describe("complete record procedures in bounded classifier evidence", () => {
         "A stage or status is a configured select field",
         "To set up pipeline stages, add or edit a select field on Deals",
         "board grouping field",
-        "Link: /deals",
+        "Link: /records/<typeId>",
       ],
     },
     {
@@ -805,7 +805,7 @@ describe("complete record procedures in bounded classifier evidence", () => {
         "Phase und Status sind konfigurierte Auswahlfelder",
         "Für Pipeline-Phasen legen Sie bei Deals ein Auswahlfeld an",
         "Gruppierungsfeld des Boards",
-        "Link: /deals",
+        "Link: /records/<typeId>",
       ],
     },
     {
@@ -815,7 +815,7 @@ describe("complete record procedures in bounded classifier evidence", () => {
       controls: [
         "To sort a list by a custom field, open Appearance → Sort by",
         "a Tasks list by a configured due date",
-        "Link: /deals",
+        "Link: /records/<typeId>",
       ],
     },
     {
@@ -825,7 +825,7 @@ describe("complete record procedures in bounded classifier evidence", () => {
       controls: [
         "Um nach einem benutzerdefinierten Feld zu sortieren, öffnen Sie Darstellung → Sortieren nach",
         "Aufgaben nach einem konfigurierten Fälligkeitsdatum",
-        "Link: /deals",
+        "Link: /records/<typeId>",
       ],
     },
   ])(
