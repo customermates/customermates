@@ -13,8 +13,6 @@ import { runInTransaction } from "@/core/decorators/transaction-runner";
 import type { AppPrismaClient } from "@/prisma/db";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 
-// These tests control the complete platform-operator population, so their table locks
-// must not block unrelated workspace fixtures running in parallel.
 const operatorDatabase = await vi.hoisted(async () => {
   const { getLocalDatabaseTestUrl } = await import("@/tests/helpers/database-test");
   const sourceUrl = getLocalDatabaseTestUrl();
