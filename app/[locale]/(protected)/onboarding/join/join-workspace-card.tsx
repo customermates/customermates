@@ -6,7 +6,7 @@ import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { CardHeroHeader } from "@/components/card/card-hero-header";
 import { Step, Steps } from "@/components/marketing/process-steps";
-import { CopyableCode } from "@/components/shared/copyable-code";
+import { CopyableText } from "@/components/shared/copyable-text";
 import { IconContainer } from "@/components/shared/icon-container";
 import { Button } from "@/components/ui/button";
 import { IntlLink } from "@/i18n/navigation";
@@ -48,7 +48,7 @@ export function JoinWorkspaceCard({ email }: Props) {
             <h2 className="text-sm font-medium">{t("JoinWorkspace.emailLabel")}</h2>
           </div>
 
-          <CopyableCode value={email} />
+          <CopyableText className="text-sm" value={email} />
         </div>
 
         <section aria-labelledby="join-workspace-steps-title">

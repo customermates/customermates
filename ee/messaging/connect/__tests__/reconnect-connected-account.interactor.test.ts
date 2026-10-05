@@ -57,14 +57,8 @@ describe("ReconnectConnectedAccountInteractor", () => {
     const messagingService = {
       createReconnectAuthLink: vi.fn().mockResolvedValue("https://auth.example.com/reconnect"),
     };
-    const eventService = { publish: vi.fn().mockResolvedValue(undefined) };
     const entitlements = new EntitlementService({ getSubscriptionOrThrow: repo.getSubscriptionOrThrow } as never);
-    const interactor = new ReconnectConnectedAccountInteractor(
-      repo as never,
-      messagingService as never,
-      eventService as never,
-      entitlements,
-    );
+    const interactor = new ReconnectConnectedAccountInteractor(repo as never, messagingService as never, entitlements);
 
     await interactor.invoke({ id: "10000000-0000-4000-8000-000000000001" });
 

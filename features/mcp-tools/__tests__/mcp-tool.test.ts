@@ -97,6 +97,7 @@ describe("MCP tool execution contract", () => {
       result: failure.text,
       failure: {
         kind: "rate_limit",
+        retryable: true,
         issues: [{ code: "custom", path: [], message, customCode: "unipileRateLimit" }],
       },
     });

@@ -33,7 +33,7 @@ Regeln sind UND-verknüpft. Für ODER-Logik lassen Sie zwei Abfragen laufen und 
 
 ## Welche Operatoren gibt es? [#which-operators-exist]
 
-Es gibt siebzehn Filter-Operatoren; jeder erwartet einen Wert, ein Array oder keinen Wert:
+Jeder Filter-Operator erwartet einen Wert, ein Array oder keinen Wert:
 
 | Operator | Erwartet | Wirkt auf | Beispielwert |
 |---|---|---|---|
@@ -43,16 +43,16 @@ Es gibt siebzehn Filter-Operatoren; jeder erwartet einen Wert, ein Array oder ke
 | `gt`, `gte`, `lt`, `lte` | einen Wert | Daten (eingebaute und Datums-Custom-Columns) und Währungsspalten | `"2024-01-01"`, `100` |
 | `in`, `notIn` | Array | Relationship-Felder, ID-, Enum- und Auswahlfelder sowie Einzelauswahl-Spalten | `["id1", "id2"]` |
 | `between` | Array aus 2 | nur Daten (eingebaute und Datums-Custom-Columns) | `["2024-01-01", "2024-12-31"]` |
-| `inLastDays` | einen Wert (positive Ganzzahl) | eingebaute Datumsfelder wie `createdAt` und `updatedAt` | `30` |
+| `inLastDays`, `notInLastDays` | einen Wert (positive Ganzzahl) | eingebaute Datumsfelder wie `createdAt` und `updatedAt` | `30` |
 | `isNull`, `isNotNull` | keinen Wert | nur Custom Columns | (keiner) |
 | `hasNone`, `hasSome` | keinen Wert | Relationship-Felder, `draft` von Messaging-Threads | (keiner) |
 | `hasUnset`, `allSet` | keinen Wert | `participants` von Messaging-Threads | (keiner) |
 
 ### Welche Datums-Operatoren gibt es, etwa für die letzten 7 Tage? [#which-date-operators-exist]
 
-Eingebaute Datumsfelder wie `createdAt` und `updatedAt` akzeptieren `gt`, `gte`, `lt`, `lte`, `between` und `inLastDays`. Nutzen Sie `inLastDays` mit einer positiven ganzzahligen Anzahl von Tagen für ein rollierendes Fenster vom Beginn des Tages vor N Tagen bis jetzt, zum Beispiel `{ "field": "createdAt", "operator": "inLastDays", "value": 7 }` für Datensätze, die in der letzten Woche erstellt wurden. In der App setzen die Auswahlen 7, 30, 90 und 365 Tage sowie **Eigener Zeitraum…** den Operator `inLastDays`.
+Eingebaute Datumsfelder wie `createdAt` und `updatedAt` akzeptieren `gt`, `gte`, `lt`, `lte`, `between`, `inLastDays` und `notInLastDays`. Nutzen Sie `inLastDays` mit einer positiven ganzzahligen Anzahl von Tagen für Zeitstempel ab dem Beginn des Tages vor N Tagen, zum Beispiel `{ "field": "createdAt", "operator": "inLastDays", "value": 7 }` für Datensätze, die in der letzten Woche erstellt wurden. In der App setzen die Auswahlen 7, 30, 90 und 365 Tage sowie **Eigener Zeitraum…** den Operator `inLastDays`. **Älter als…** setzt `notInLastDays` und findet Zeitstempel strikt vor derselben Tagesgrenze. Mehrere Bedingungen werden mit UND kombiniert und bleiben auch in gespeicherten Ansichten relativ.
 
-Custom Columns der Typen Datum und Datum & Uhrzeit akzeptieren `gt`, `gte`, `lt`, `lte`, `between`, `isNull` und `isNotNull`, aber nicht `inLastDays`; Spalten der Typen Datumsbereich sowie Datums- und Uhrzeitbereich akzeptieren zusätzlich `contains` für ein Datum innerhalb des Bereichs.
+Custom Columns der Typen Datum und Datum & Uhrzeit akzeptieren `gt`, `gte`, `lt`, `lte`, `between`, `isNull` und `isNotNull`, aber keinen der relativen Tagesoperatoren; Spalten der Typen Datumsbereich sowie Datums- und Uhrzeitbereich akzeptieren zusätzlich `contains` für ein Datum innerhalb des Bereichs.
 
 ### Welche Operatoren wirken auf Textfelder? [#which-operators-work-on-text-fields]
 
@@ -83,6 +83,8 @@ Der Wert von `field` ist, was `get_record_schema` unter `filterableFields` für 
 - Custom-Column-IDs. Nutzen Sie die UUID der Spalte als Feld; eine singleSelect-Spalte akzeptiert nur `in`, `notIn`, `isNull` und `isNotNull` und filtert auf ihre Optionswerte.
 
 Manche Felder lassen sich nicht filtern: Wert, Menge und gewichteter Wert eines Deals sowie der Preis eines Services lassen sich nur sortieren, und die Kanal-Identifikatoren eines Kontakts, etwa die E-Mail-Adresse, finden Sie mit `searchTerm`. Rufen Sie immer zuerst `get_record_schema` auf, wenn Sie unsicher sind, was filterbar ist. Die Fehlermeldung bei einem unbekannten Feld listet jedes verfügbare Feld mit seinen erlaubten Operatoren.
+
+Inbox-Listen bieten außerdem `connectedAccountId`, kontospezifische `emailFolder`, `lastMessageDirection`, `lastMessageSentAt` und `lastMessageAt`. Rufen Sie zuerst `get_messaging_threads` ohne Filter auf (oder `manage_data_views` mit `action: "config"`, der Inbox-Oberfläche und `section: "filters"`) und übernehmen Sie den exakten `filterableFields.options[].value` für Konto oder Ordner. `emailFolder` erlaubt `in` und `notIn`; jede Ordnerreferenz enthält ihr Konto. Ordneroptionen liefern `groupKey` als Kontoidentität und `groupLabel` als Überschrift, damit Konten auch bei gleichem Anzeigenamen getrennte Gruppen bleiben. `lastMessageDirection` erlaubt `inbound`/`outbound` mit `in`/`notIn` und ignoriert Entwürfe, ausgeblendete oder gelöschte Nachrichten und Systemereignisse. `lastMessageSentAt` filtert das Datum derselben letzten tatsächlichen Nachricht. Kombinieren Sie `notInLastDays` mit Wert 3 und `inLastDays` mit Wert 7 auf diesem Feld für drei bis sieben Tage alte Nachrichten; Konto-, Ordner- und Richtungsfilter lassen sich zusätzlich kombinieren. `lastMessageAt` filtert die letzte Aktivität einschließlich Entwürfen. Siehe [Inbox-Filter](/docs/app-inbox#how-do-i-search-filter-or-refresh-the-inbox).
 
 ## Beispiele [#examples]
 

@@ -21,7 +21,7 @@ export type FilterDateGranularity = "day" | "minute";
 const DAY_GRANULARITY_COLUMN_TYPES = ["date", "dateRange"];
 
 function dateValueClass(operator: FilterOperatorKey): FilterValueClass {
-  if (operator === FilterOperatorKey.inLastDays) return "daysCount";
+  if (operator === FilterOperatorKey.inLastDays || operator === FilterOperatorKey.notInLastDays) return "daysCount";
 
   return operator === FilterOperatorKey.between ? "isoRange" : "isoDate";
 }
@@ -49,6 +49,7 @@ function standardValueClass(field: string, operator: FilterOperatorKey): FilterV
     case FilterOperatorKey.between:
       return "isoRange";
     case FilterOperatorKey.inLastDays:
+    case FilterOperatorKey.notInLastDays:
       return "daysCount";
     case FilterOperatorKey.gt:
     case FilterOperatorKey.gte:
@@ -137,6 +138,7 @@ export function shouldPreserveFilterValue(
   if (previous === next) return true;
   if (previous === FilterOperatorKey.between || next === FilterOperatorKey.between) return false;
   if (previous === FilterOperatorKey.inLastDays || next === FilterOperatorKey.inLastDays) return false;
+  if (previous === FilterOperatorKey.notInLastDays || next === FilterOperatorKey.notInLastDays) return false;
 
   const valueClass = resolveFilterValueClass(filter.field, previous, customColumns);
   if (valueClass !== resolveFilterValueClass(filter.field, next, customColumns)) return false;

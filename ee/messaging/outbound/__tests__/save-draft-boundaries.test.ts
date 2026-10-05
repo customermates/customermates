@@ -15,6 +15,13 @@ vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
+vi.mock("next-intl/server", () => ({
+  getTranslations: (namespace?: string) => {
+    const t = (key: string) => (namespace ? `${namespace}.${key}` : key);
+    return Promise.resolve(Object.assign(t, { raw: t }));
+  },
+  getLocale: () => Promise.resolve("en"),
+}));
 
 import { ForbiddenError } from "@/core/errors/app-errors";
 import { SaveDraftInteractor } from "../save-draft.interactor";
@@ -85,7 +92,6 @@ describe("draft interactor entry boundaries", () => {
   it.each([
     { ...replyDraft, threadId: THREAD_ID },
     { ...replyDraft, connectedAccountId: ACCOUNT_ID },
-    { ...replyDraft, recipients: ["other@example.com"] },
     { ...replyDraft, unexpected: true },
     null,
     [],
@@ -117,5 +123,41 @@ describe("draft interactor entry boundaries", () => {
     await expect(create.invoke(newDraft)).rejects.toBeInstanceOf(ForbiddenError);
     await expect(reply.invoke({ threadId: THREAD_ID, draft: replyDraft })).rejects.toBeInstanceOf(ForbiddenError);
     expect(invoke).not.toHaveBeenCalled();
+  });
+
+  it("accepts Bcc-only new drafts and an explicit empty To field in path-bound reply drafts", async () => {
+    const { create, reply, invoke, outcome } = harness();
+    const draft = { body: "Private draft", recipients: [], bcc: ["hidden@example.com"] };
+    expect(await create.invoke({ ...draft, connectedAccountId: ACCOUNT_ID })).toBe(outcome);
+    expect(await reply.invoke({ threadId: THREAD_ID, draft })).toBe(outcome);
+    expect(invoke).toHaveBeenNthCalledWith(1, { ...draft, connectedAccountId: ACCOUNT_ID });
+    expect(invoke).toHaveBeenNthCalledWith(2, { ...draft, threadId: THREAD_ID });
+  });
+
+  it("rejects clearing every recipient on an existing cold email draft before persistence", async () => {
+    const persist = vi.fn();
+    const core = new SaveDraftInteractor(
+      {
+        findThreadByIdOrThrow: vi.fn().mockResolvedValue({
+          id: THREAD_ID,
+          connectedAccountId: ACCOUNT_ID,
+          provider: "google",
+          unipileThreadId: `draft_${THREAD_ID}`,
+          participants: [],
+        }),
+        findOrCreateDraftThread: vi.fn(),
+        findSelfAttendeeForThread: vi.fn(),
+        upsertThreadDraftOrThrow: persist,
+      },
+      { findUsableAccountByIdOrThrow: vi.fn() },
+      mockEntitlementService(),
+    );
+    const result = await core.invoke({ threadId: THREAD_ID, recipients: [], cc: [], bcc: [], body: "Draft" });
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error("Expected invalid recipient outcome");
+    expect(result.error.issues).toEqual([
+      expect.objectContaining({ path: ["recipients"], params: { error: "emailRecipientsRequired" } }),
+    ]);
+    expect(persist).not.toHaveBeenCalled();
   });
 });

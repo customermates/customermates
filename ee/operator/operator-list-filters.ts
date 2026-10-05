@@ -272,9 +272,12 @@ export function createdAtFilter(filter: Filter): Prisma.DateTimeFilter | undefin
   const toDate = (value: unknown) => (typeof value === "string" || value instanceof Date ? new Date(value) : undefined);
 
   switch (filter.operator) {
-    case FilterOperatorKey.inLastDays: {
+    case FilterOperatorKey.inLastDays:
+    case FilterOperatorKey.notInLastDays: {
       const days = Number(raw);
-      return Number.isInteger(days) && days > 0 ? { gte: startOfDay(subDays(new Date(), days)) } : undefined;
+      if (!Number.isInteger(days) || days <= 0) return undefined;
+      const cutoff = startOfDay(subDays(new Date(), days));
+      return filter.operator === FilterOperatorKey.inLastDays ? { gte: cutoff } : { lt: cutoff };
     }
     case FilterOperatorKey.between:
       return Array.isArray(raw) ? { gte: toDate(raw[0]), lte: toDate(raw[1]) } : undefined;

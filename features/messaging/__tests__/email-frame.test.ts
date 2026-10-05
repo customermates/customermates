@@ -12,10 +12,6 @@ vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
 }));
 
-vi.mock("@/components/shared/sanitize-html", () => ({
-  sanitizeHtml: (html: string) => html,
-}));
-
 vi.mock("@/ee/messaging/email-quote", () => ({
   HTML_QUOTE_HIDE_CSS: "",
   htmlContainsQuote: () => false,
@@ -66,6 +62,68 @@ afterEach(() => {
 });
 
 describe("EmailFrame", () => {
+  it.each(["light", "dark"])("keeps received HTML on its original canvas in the %s app theme", (appTheme) => {
+    theme.resolvedTheme = appTheme;
+    vi.spyOn(window, "getComputedStyle").mockReturnValue({
+      getPropertyValue: () => "rgb(240, 240, 240)",
+    } as unknown as CSSStyleDeclaration);
+    for (const html of [
+      '<p>Hello <strong>Alex</strong>. <a href="https://example.test">Review</a></p>',
+      '<p style="color:black">Authored color</p>',
+      '<div style="background:#121212;color:#fafafa"><p>Authored dark palette</p></div>',
+      "<table><tr><td>Layout</td></tr></table>",
+      '<img src="https://example.test/image.png">',
+    ]) {
+      const authored = render(html);
+      expect(authored.className).toContain("bg-white");
+      expect(authored.srcdoc).not.toContain("background: transparent");
+      expect(authored.srcdoc).not.toContain("color: rgb(240, 240, 240)");
+      expect(authored.srcdoc).not.toContain("!important");
+      const received = new DOMParser().parseFromString(authored.srcdoc, "text/html");
+      const original = new DOMParser().parseFromString(html, "text/html");
+      expect(received.body.textContent).toBe(original.body.textContent);
+      expect(received.body.querySelector("[style]")?.getAttribute("style")).toBe(
+        original.body.querySelector("[style]")?.getAttribute("style"),
+      );
+      expect(authored.getAttribute("sandbox")).toBe("allow-same-origin");
+      expect(authored.srcdoc).toContain("img-src data:;");
+    }
+  });
+  it("preserves head styles and body attributes while keeping active content and image requests blocked", () => {
+    const html =
+      '<html><head><style>.palette{background:#102138;color:#dcecff}</style></head><body style="background:#edf1f5" bgcolor="#edf1f5" text="#203348" onload="alert(1)"><div class="palette">Authored HTML</div><img src="https://example.test/image.png" onerror="alert(1)"><script>alert(1)</script><iframe src="https://example.test"></iframe></body></html>';
+    const iframe = render(html);
+
+    expect(iframe.srcdoc).toContain(".palette{background:#102138;color:#dcecff}");
+    expect(iframe.srcdoc).toContain('style="background:#edf1f5"');
+    expect(iframe.srcdoc).toContain('bgcolor="#edf1f5"');
+    expect(iframe.srcdoc).toContain('text="#203348"');
+    expect(iframe.srcdoc.indexOf("Content-Security-Policy")).toBeLessThan(iframe.srcdoc.indexOf(".palette"));
+    expect(iframe.srcdoc).not.toMatch(/<script|<iframe|onload|onerror/);
+    expect(iframe.srcdoc).toContain("img-src data:;");
+    expect(iframe.getAttribute("sandbox")).toBe("allow-same-origin");
+  });
+  it.each(['id="authored-head"', 'class="authored-head"', 'data-theme="dark"', 'title="quoted > <head>"'])(
+    "enforces frame policies for an attributed head: %s",
+    (headAttributes) => {
+      const html = `<html data-content="<head>"><head ${headAttributes}><style>.palette{color:#123456}</style></head><body><p class="palette">Authored email</p><img src="https://example.test/image.png"></body></html>`;
+      for (const showRemoteImages of [false, true]) {
+        const iframe = render(html, showRemoteImages);
+        const frame = new DOMParser().parseFromString(iframe.srcdoc, "text/html");
+        const policy = frame.head.querySelector('meta[http-equiv="Content-Security-Policy"]');
+        expect(policy?.getAttribute("content")).toContain("default-src 'none'");
+        expect(policy?.getAttribute("content")).toContain(
+          showRemoteImages ? "img-src data: https:;" : "img-src data:;",
+        );
+        expect(frame.head.querySelector("base")?.target).toBe("_blank");
+        expect(frame.head.querySelector("style")?.textContent).toContain("background: #ffffff");
+        expect(frame.head.querySelectorAll("style")[1]?.textContent).toBe(".palette{color:#123456}");
+        expect(frame.head.attributes.length).toBeGreaterThan(0);
+        expect(frame.body.textContent).toBe("Authored email");
+        expect(iframe.getAttribute("sandbox")).toBe("allow-same-origin");
+      }
+    },
+  );
   it("integrates a composer signature without changing authored typography, links or remote-image privacy", () => {
     vi.spyOn(window, "getComputedStyle").mockReturnValue({
       getPropertyValue: () => "rgb(240, 240, 240)",
@@ -77,7 +135,9 @@ describe("EmailFrame", () => {
     expect(iframe.style.minHeight).toBe("24px");
     expect(iframe.srcdoc).toContain("padding: 0; background: transparent");
     expect(iframe.srcdoc).toContain("color: rgb(240, 240, 240) !important");
-    expect(iframe.srcdoc).toContain(html);
+    expect(iframe.srcdoc).toContain("font-family:Georgia;font-size:15px");
+    expect(iframe.srcdoc).toContain('style="color:#d23128;text-decoration:none"');
+    expect(iframe.srcdoc).toContain('href="https://example.com"');
     expect(iframe.srcdoc).toContain("img-src data:;");
     expect(iframe.getAttribute("sandbox")).toBe("allow-same-origin");
   });

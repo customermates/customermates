@@ -124,7 +124,10 @@ describe("provider-safe tool schemas", () => {
     );
     expect(restating, restating.join("\n")).toEqual([]);
 
-    const constants = collect({ schemas: shippedSchemas }, (node) => node.const === "inLastDays");
+    const constants = collect(
+      { schemas: shippedSchemas },
+      (node) => node.const === "inLastDays" || (Array.isArray(node.enum) && node.enum.includes("inLastDays")),
+    );
     expect(constants.length).toBeGreaterThan(0);
     const branches = collect({ schemas: shippedSchemas }, (node) => node.title === "Relative window filter");
     expect(branches.length).toBeGreaterThan(0);
@@ -202,7 +205,7 @@ describe("provider-safe tool schemas", () => {
     }
 
     expect(Object.fromEntries(census)).toEqual({
-      uuid: 74,
+      uuid: 75,
       "date-time": 3,
       email: 6,
       uri: 4,

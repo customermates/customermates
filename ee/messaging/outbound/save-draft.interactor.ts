@@ -1,8 +1,7 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
-import type { MessagingAttendee, MessagingMessage, MessagingThread } from "../messaging.schema";
+import type { MessagingAttendee, MessagingThread } from "../messaging.schema";
 import type { MessagingMessageDto } from "../inbox/inbox.schema";
-import type { MessagingProvider } from "@/generated/prisma";
 import type { FindUsableAccountRepo } from "../persistence/find-usable-account.repo";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
@@ -22,6 +21,7 @@ import { renderEmailMarkdown } from "./render-signature";
 import { draftThreadRecipientSetsMatch, normalizeDraftThreadRecipients } from "../draft-thread";
 import { MessagingMessageDtoSchema, toMessagingMessageDto } from "../inbox/inbox.schema";
 import { EMPTY_ATTENDEE } from "../unipile.mappers";
+import type { SaveDraftRepo } from "./save-draft.repo";
 
 const DraftRecipientsSchema = z.array(z.string().min(1)).max(100).describe("Recipients to preserve with the draft");
 
@@ -35,7 +35,7 @@ export const BaseSaveDraftSchema = z.object({
     .optional()
     .describe("New outbound draft: the connected account to send from later. Required when threadId is omitted"),
   recipients: DraftRecipientsSchema.optional().describe(
-    "Recipients to preserve with the draft. Required when threadId is omitted",
+    "Primary recipients to preserve with the draft. Required when threadId is omitted; use [] for Cc-only or Bcc-only email",
   ),
   subject: z.string().max(998).optional(),
   body: z.string().min(1).max(100_000).describe("Email drafts use Markdown; chat drafts use plain text"),
@@ -46,7 +46,6 @@ export const BaseSaveDraftSchema = z.object({
 export const SaveReplyDraftBodySchema = BaseSaveDraftSchema.omit({
   threadId: true,
   connectedAccountId: true,
-  recipients: true,
 }).strict();
 
 export const SaveNewThreadDraftSchema = BaseSaveDraftSchema.omit({
@@ -54,9 +53,18 @@ export const SaveNewThreadDraftSchema = BaseSaveDraftSchema.omit({
 })
   .extend({
     connectedAccountId: z.uuid().describe("Connected account the future conversation will send from"),
-    recipients: DraftRecipientsSchema.min(1),
+    recipients: DraftRecipientsSchema,
   })
-  .strict();
+  .strict()
+  .superRefine((d, ctx) => {
+    if (d.recipients.length + (d.cc?.length ?? 0) + (d.bcc?.length ?? 0) === 0) {
+      ctx.addIssue({
+        code: "custom",
+        params: { error: CustomErrorCode.emailRecipientsRequired },
+        path: ["recipients"],
+      });
+    }
+  });
 
 export const SaveDraftSchema = BaseSaveDraftSchema.superRefine((d, ctx) => {
   if (!d.threadId && !d.connectedAccountId) {
@@ -67,42 +75,20 @@ export const SaveDraftSchema = BaseSaveDraftSchema.superRefine((d, ctx) => {
     });
   }
 
-  if (!d.threadId && !d.recipients?.length) {
+  if (!d.threadId && (!d.recipients || d.recipients.length + (d.cc?.length ?? 0) + (d.bcc?.length ?? 0) === 0)) {
     ctx.addIssue({
       code: "custom",
-      params: { error: CustomErrorCode.invalidChannelValue },
+      params: { error: CustomErrorCode.emailRecipientsRequired },
       path: ["recipients"],
     });
   }
 });
 export type SaveDraftData = Data<typeof SaveDraftSchema>;
 
-export abstract class SaveDraftRepo {
-  abstract findThreadByIdOrThrow(threadId: string): Promise<MessagingThread>;
-  abstract findOrCreateDraftThread(args: {
-    connectedAccountId: string;
-    provider: MessagingProvider;
-    recipients: string[];
-  }): Promise<MessagingThread>;
-  abstract findSelfAttendeeForThread(threadId: string): Promise<MessagingAttendee | null>;
-  abstract upsertThreadDraftOrThrow(args: {
-    threadId: string;
-    connectedAccountId: string;
-    provider: MessagingProvider;
-    sender: MessagingAttendee;
-    subject: string | null;
-    bodyText: string;
-    bodyHtml?: string | null;
-    recipients: {
-      to: MessagingAttendee[];
-      cc: MessagingAttendee[];
-      bcc: MessagingAttendee[];
-    };
-  }): Promise<MessagingMessage>;
-}
+type UsableAccount = Awaited<ReturnType<FindUsableAccountRepo["findUsableAccountByIdOrThrow"]>>;
 
 type ResolvedDraftThread =
-  | { ok: true; thread: MessagingThread; recipients: string[] }
+  | { ok: true; thread: MessagingThread; recipients: string[]; account?: UsableAccount }
   | { ok: false; failure: Validated<MessagingMessageDto> };
 
 function draftRecipient(identifier: string): MessagingAttendee {
@@ -130,11 +116,19 @@ export class SaveDraftInteractor extends AuthenticatedInteractor<SaveDraftData, 
 
     const thread = resolved.thread;
     const isEmail = isEmailProvider(thread.provider);
+    if (
+      isEmail &&
+      isDraftThreadId(thread.unipileThreadId) &&
+      resolved.recipients.length + (data.cc?.length ?? 0) + (data.bcc?.length ?? 0) === 0
+    )
+      return fail(CustomErrorCode.emailRecipientsRequired, ["recipients"]);
+
+    const account =
+      resolved.account ?? (await this.accountRepo.findUsableAccountByIdOrThrow(thread.connectedAccountId));
 
     let sender: MessagingAttendee;
     let bodyHtml: string | null = null;
     if (isEmail) {
-      const account = await this.accountRepo.findUsableAccountByIdOrThrow(thread.connectedAccountId);
       const email = resolveStoredEmailSettings(account.signature, account.signatureFields);
       bodyHtml = renderEmailMarkdown(data.body, email.settings.appearance).html;
       sender = {
@@ -191,7 +185,7 @@ export class SaveDraftInteractor extends AuthenticatedInteractor<SaveDraftData, 
       ) {
         return {
           ok: false,
-          failure: fail(CustomErrorCode.invalidChannelValue, ["recipients"]),
+          failure: fail(CustomErrorCode.draftToRecipientsLocked, ["recipients"]),
         };
       }
 
@@ -218,8 +212,9 @@ export class SaveDraftInteractor extends AuthenticatedInteractor<SaveDraftData, 
       connectedAccountId: account.id,
       provider: account.provider,
       recipients,
+      ...(recipients.length === 0 ? { cc: data.cc, bcc: data.bcc } : {}),
     });
 
-    return { ok: true, thread, recipients };
+    return { ok: true, thread, recipients, account };
   }
 }

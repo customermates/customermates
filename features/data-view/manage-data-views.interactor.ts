@@ -34,7 +34,7 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { fail, failAuthorization, failNotFound } from "@/core/validation/interactor-failure-server";
 import { runPrecheck } from "@/core/validation/run-precheck";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { filterValueKind, TIMELINE_KIND_VIEW_VALUES } from "@/core/types/filter-field-value-kind";
+import { filterFieldAgentNote, filterValueKind, TIMELINE_KIND_VIEW_VALUES } from "@/core/types/filter-field-value-kind";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { DomainEvent } from "@/features/event/domain-events";
 import { DATA_VIEW_SURFACES } from "./data-view-surfaces";
@@ -119,15 +119,17 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
           : ["filters", "searchTerm", "sortDescriptor", "pageSize", "viewMode", "grouping"];
       const filterableFields = config.filterableFields.map((field) => {
         const valueKind = filterValueKind(field.field);
-        const values =
-          field.field === FilterFieldKey.timelineKind.toString()
+        const values = field.options
+          ? field.options.map((option) => option.value)
+          : field.field === FilterFieldKey.timelineKind.toString()
             ? TIMELINE_KIND_VIEW_VALUES
             : valueKind?.kind === "enum"
               ? valueKind.values
               : valueKind?.kind === "event"
                 ? Object.values(DomainEvent)
                 : undefined;
-        return { ...field, ...(values ? { values } : {}) };
+        const description = filterFieldAgentNote(field.field);
+        return { ...field, ...(values ? { values } : {}), ...(description ? { description } : {}) };
       });
       const sortableFields = [
         ...config.sortableFields.map(({ field }) => ({ field })),

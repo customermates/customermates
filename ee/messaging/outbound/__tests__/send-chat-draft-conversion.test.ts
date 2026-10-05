@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 
-import type { SendChatMessageRepo } from "../send-chat-message.interactor";
-import type { SendEmailRepo } from "../send-email.interactor";
+import type { SendChatMessageRepo } from "../send-chat-message.repo";
+import type { SendEmailRepo } from "../send-email.repo";
 
 type ChatArgs = Parameters<SendChatMessageRepo["convertDraftToSent"]>[0];
 type EmailArgs = Parameters<SendEmailRepo["convertDraftToSent"]>[0];

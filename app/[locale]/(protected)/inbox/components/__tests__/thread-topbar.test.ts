@@ -29,8 +29,8 @@ vi.mock("@/ee/messaging/thread-display", () => ({
   deriveThreadDisplay: () => ({ avatarUrl: null, displayName: "Ada Lovelace" }),
 }));
 
-vi.mock("../thread-folder-chip", () => ({
-  ThreadFolderChip: () => createElement("span", { "data-folder-chip": true }),
+vi.mock("../thread-folder-menu", () => ({
+  ThreadFolderMenu: () => createElement("span", { "data-folder-menu": true }),
 }));
 
 vi.mock("../thread-settings", () => ({
@@ -73,6 +73,13 @@ describe("ThreadTopBar", () => {
 
     expect(buttons).toHaveLength(1);
     expect(buttons[0]).toContain('aria-label="Inbox.resyncThread"');
+  });
+
+  it("places the filing action above the conversation before the other thread actions", () => {
+    const html = renderActions();
+
+    expect(html.indexOf("data-folder-menu")).toBeLessThan(html.indexOf("Inbox.resyncThread"));
+    expect(html).not.toContain("data-folder-chip");
   });
 
   it("leaves the resync button out without update permission", () => {

@@ -210,6 +210,82 @@ describe("agent saved-view management", () => {
     expect(grouping.ok && grouping.data.items).toHaveLength(3);
   });
 
+  it("tells an agent which inbox date field means the last actual message", async () => {
+    const subject = setup();
+    const dates = [FilterOperatorKey.inLastDays, FilterOperatorKey.notInLastDays];
+    subject.sources[SURFACE.messagingThreads].getFilterableFields.mockResolvedValue([
+      { field: "lastMessageSentAt", operators: dates },
+      { field: "lastMessageAt", operators: dates },
+    ] as never);
+
+    const discovery = await subject.run({ action: "config", surfaceKey: SURFACE.messagingThreads, section: "filters" });
+
+    const items = (discovery.ok ? discovery.data.items : []) as Array<{ field: string; description?: string }>;
+    expect(items.find((item) => item.field === "lastMessageSentAt")?.description).toMatch(/ignores drafts/);
+    expect(items.find((item) => item.field === "lastMessageAt")?.description).toMatch(/including saved drafts/);
+  });
+
+  it("discovers scoped inbox choices and preserves folder references when saving a personal view", async () => {
+    const subject = setup();
+    const folder = JSON.stringify(["00000000-0000-4000-8000-000000000001", "inbox"]);
+    const options = [
+      {
+        value: folder,
+        label: "Inbox",
+        groupLabel: "Shared mailbox",
+        provider: "mail",
+      },
+    ];
+    subject.sources[SURFACE.messagingThreads].getFilterableFields.mockResolvedValue([
+      {
+        field: "emailFolder",
+        operators: [FilterOperatorKey.in, FilterOperatorKey.notIn],
+        options,
+      },
+    ] as never);
+    const discovery = await subject.run({
+      action: "config",
+      surfaceKey: SURFACE.messagingThreads,
+      section: "filters",
+    });
+    expect(discovery.ok && discovery.data.items).toEqual([
+      {
+        field: "emailFolder",
+        operators: ["in", "notIn"],
+        options,
+        values: [folder],
+        description: expect.stringContaining("account-qualified"),
+      },
+    ]);
+    const filters = [
+      {
+        field: "emailFolder",
+        operator: FilterOperatorKey.notIn as const,
+        value: [folder],
+      },
+    ];
+    const result = await subject.run({
+      action: "update",
+      surfaceKey: SURFACE.messagingThreads,
+      viewKey: VIEW_ID,
+      state: { filters },
+    });
+    expect(result.ok).toBe(true);
+    expect(subject.upsert.invoke).toHaveBeenCalledWith(
+      expect.objectContaining({ state: expect.objectContaining({ filters }) }),
+    );
+    const rejected = await subject.run({
+      action: "update",
+      surfaceKey: SURFACE.messagingThreads,
+      viewKey: VIEW_ID,
+      state: {
+        filters: [{ ...filters[0], value: [JSON.stringify([MISSING_ID, "inbox"])] }],
+      },
+    });
+    expect(rejected.ok).toBe(false);
+    expect(subject.upsert.invoke).toHaveBeenCalledOnce();
+  });
+
   it("pages summary discovery, narrows only documented keys, and always returns an exact view's fresh state", async () => {
     const subject = setup();
     const views = Array.from({ length: 12 }, (_, index) => ({

@@ -1,12 +1,10 @@
 import type { MessagingService } from "../messaging.service";
 import type { IngestMessage, MessagingAttendee } from "../messaging.schema";
-import type { MessagingProvider } from "@/generated/prisma";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 import * as Sentry from "@sentry/node";
-import { getLocale } from "next-intl/server";
 
 import { Action, Resource, MessagingThreadType } from "@/generated/prisma";
 
@@ -20,7 +18,8 @@ import { buildEmailMessage } from "../unipile.mappers";
 import { UnipileMessageSchema, UnipileEmailSchema } from "../unipile.schema";
 import { isEmailProvider } from "../provider";
 import { isUnipileRateLimit, getRetryAfterSeconds } from "../messaging.service";
-import { formatRetryAfter } from "../retry-after";
+import { retryAfterPhrase } from "../retry-after.server";
+import type { ResyncThread, ResyncThreadRepo } from "./resync-thread.repo";
 
 const Schema = z.object({ threadId: z.uuid() });
 type ResyncThreadData = Data<typeof Schema>;
@@ -32,40 +31,6 @@ type ResyncThreadResult = {
   rateLimited?: boolean;
   retryAfter?: string;
 };
-
-type ResyncThread = {
-  id: string;
-  unipileThreadId: string;
-  connectedAccountId: string;
-  provider: MessagingProvider;
-  type: MessagingThreadType;
-  companyId: string;
-  unipileAccountId: string;
-  emailAddress: string | null;
-  sentFolderIds: string[];
-};
-
-export abstract class ResyncThreadRepo {
-  abstract findThreadForResyncOrThrow(threadId: string): Promise<ResyncThread>;
-  abstract upsertThreadParticipantsUnscoped(args: {
-    messagingThreadId: string;
-    companyId: string;
-    provider: MessagingProvider;
-    participants: MessagingAttendee[];
-  }): Promise<void>;
-  abstract ingestMessageUnscoped(args: {
-    companyId: string;
-    connectedAccountId: string;
-    message: IngestMessage;
-    backfill?: boolean;
-  }): Promise<unknown>;
-  abstract recordUnusableItemUnscoped(args: {
-    companyId: string;
-    connectedAccountId: string;
-    payload: unknown;
-    unipileMessageId?: string | null;
-  }): Promise<void>;
-}
 
 @TenantInteractor({ resource: Resource.inboxMessages, action: Action.update })
 export class ResyncThreadInteractor extends AuthenticatedInteractor<ResyncThreadData, ResyncThreadResult> {
@@ -105,7 +70,7 @@ export class ResyncThreadInteractor extends AuthenticatedInteractor<ResyncThread
         });
       }
 
-      const retryAfter = rateLimited ? formatRetryAfter(await getLocale(), getRetryAfterSeconds(err)) : undefined;
+      const retryAfter = rateLimited ? await retryAfterPhrase(getRetryAfterSeconds(err)) : undefined;
 
       return {
         ok: true as const,

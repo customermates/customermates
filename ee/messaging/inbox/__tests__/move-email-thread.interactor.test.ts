@@ -77,7 +77,7 @@ function setup(overrides: {
 
 function invoke(
   parts: ReturnType<typeof setup>,
-  data: { threadId: string; folderId: string } = { threadId: THREAD_ID, folderId: "archive" },
+  data: { threadId: string; folderId: string; messageId?: string } = { threadId: THREAD_ID, folderId: "archive" },
 ) {
   return new MoveEmailThreadInteractor(
     parts.repo as never,
@@ -88,6 +88,49 @@ function invoke(
 }
 
 describe("MoveEmailThreadInteractor", () => {
+  it("moves only the selected email and leaves the other eligible email in place", async () => {
+    const id = "00000000-0000-4000-8000-000000000002";
+    const parts = setup({
+      messages: [
+        { id, unipileMessageId: "selected-email", folderIds: ["inbox"] },
+        { id: "other", unipileMessageId: "other-email", folderIds: ["inbox"] },
+      ],
+      moveResults: [{ ok: true, data: { id: "moved-email", folderIds: ["archive"] } }],
+    });
+
+    const result = await invoke(parts, { threadId: THREAD_ID, folderId: "archive", messageId: id });
+
+    expect(result.ok).toBe(true);
+    expect(parts.messagingService.moveEmail).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ emailId: "selected-email" }),
+    );
+    if (result.ok) expect(result.data).toMatchObject({ movedCount: 1, skippedCount: 0 });
+  });
+
+  it("rejects a message outside the accessible conversation before any provider write", async () => {
+    const parts = setup({ messages: [{ id: "mine", unipileMessageId: "mine", folderIds: ["inbox"] }] });
+
+    const result = await invoke(parts, {
+      threadId: THREAD_ID,
+      folderId: "archive",
+      messageId: "00000000-0000-4000-8000-000000000003",
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(JSON.stringify(result.error)).toContain(CustomErrorCode.messageNotFound);
+    expect(parts.messagingService.moveEmail).not.toHaveBeenCalled();
+    expect(parts.repo.moveEmailMessageUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("validates the optional message selector before reading the conversation", async () => {
+    const parts = setup({});
+
+    const result = await invoke(parts, { threadId: THREAD_ID, folderId: "archive", messageId: "not-a-message-id" });
+
+    expect(result.ok).toBe(false);
+    expect(parts.repo.findThreadForMoveOrThrow).not.toHaveBeenCalled();
+  });
+
   it("moves every message of the thread and reports the folder by name", async () => {
     const parts = setup({
       messages: [
@@ -305,7 +348,7 @@ describe("MoveEmailThreadInteractor safety", () => {
     if (result.ok) expect(result.data.skippedCount).toBe(1);
   });
 
-  it("counts a local write that throws as failed rather than as moved", async () => {
+  it("counts an email the provider moved as moved even when the local write fails", async () => {
     const parts = setup({
       messages: [{ id: "a", unipileMessageId: "old-a", folderIds: ["inbox"] }],
       moveResults: [{ ok: true, data: { id: "new-a", folderIds: ["archive"] } }],
@@ -316,9 +359,34 @@ describe("MoveEmailThreadInteractor safety", () => {
 
     expect(result.ok).toBe(true);
     if (result.ok) {
-      expect(result.data.movedCount).toBe(0);
-      expect(result.data.failedCount).toBe(1);
+      expect(result.data.movedCount).toBe(1);
+      expect(result.data.failedCount).toBe(0);
     }
+  });
+
+  it("stops at a disconnected channel and says why instead of counting the rest as failed", async () => {
+    const parts = setup({
+      messages: [
+        { id: "a", unipileMessageId: "a", folderIds: ["inbox"] },
+        { id: "b", unipileMessageId: "b", folderIds: ["inbox"] },
+        { id: "c", unipileMessageId: "c", folderIds: ["inbox"] },
+      ],
+      moveResults: [
+        { ok: true, data: { id: "new-a", folderIds: ["archive"] } },
+        { ok: false, error: CustomErrorCode.unipileDisconnectedAccount },
+      ],
+    });
+
+    const result = await invoke(parts);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.movedCount).toBe(1);
+      expect(result.data.failedCount).toBe(1);
+      expect(result.data.stoppedReason).toBe(CustomErrorCode.unipileDisconnectedAccount);
+      expect(result.data.stoppedMessage).toBeTruthy();
+    }
+    expect(parts.messagingService.moveEmail).toHaveBeenCalledTimes(2);
   });
 });
 

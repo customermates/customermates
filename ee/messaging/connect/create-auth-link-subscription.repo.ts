@@ -1,4 +1,4 @@
-import type { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
+import type { SubscriptionStatus, SubscriptionPlan } from "@/generated/prisma";
 
 export abstract class CreateAuthLinkSubscriptionRepo {
   abstract getSubscriptionOrThrow(): Promise<{

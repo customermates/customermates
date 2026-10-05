@@ -8,7 +8,6 @@ import type { FindUsableAccountRepo } from "../persistence/find-usable-account.r
 import type { SocialProfile } from "./social-posts.schema";
 
 import { z } from "zod";
-import { getLocale } from "next-intl/server";
 
 import { MessagingProvider, Resource, Action } from "@/generated/prisma";
 
@@ -17,7 +16,7 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { isSocialProvider } from "../provider";
-import { formatRetryAfter } from "../retry-after";
+import { retryAfterPhrase } from "../retry-after.server";
 import { SocialProfileSchema } from "./social-posts.schema";
 
 export const GetSocialProfileSchema = z
@@ -72,7 +71,7 @@ export class GetSocialProfileInteractor extends AuthenticatedInteractor<GetSocia
       identifier: data.identifier,
       profileType: data.profileType,
     });
-    if (!res.ok) return fail(res.error, [], { retryAfter: formatRetryAfter(await getLocale(), res.retryAfterSeconds) });
+    if (!res.ok) return fail(res.error, [], { retryAfter: await retryAfterPhrase(res.retryAfterSeconds) });
 
     return { ok: true as const, data: res.data };
   }

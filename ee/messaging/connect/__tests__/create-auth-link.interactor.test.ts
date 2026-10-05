@@ -21,15 +21,19 @@ vi.mock("@/env", () => ({
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
+vi.mock("@sentry/node", () => ({ captureException: vi.fn() }));
 vi.mock("next/headers", () => ({
   headers: () => new Headers({ origin: request.origin }),
 }));
 vi.mock("next-intl/server", () => ({
-  getTranslations: () => Promise.resolve((key: string) => key),
+  getTranslations: () => Promise.resolve(Object.assign((key: string) => key, { raw: (key: string) => key })),
   getLocale: () => Promise.resolve("en"),
 }));
 
+import * as Sentry from "@sentry/node";
+
 import { CreateAuthLinkInteractor } from "../create-auth-link.interactor";
+import { UnipileRequestError } from "../../unipile-request-error";
 import { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 const TRIAL_ACTIVE = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
@@ -76,6 +80,19 @@ describe("CreateAuthLinkInteractor", () => {
     expect(result.error.issues[0].message).toBe("ConnectedAccountsCard.messagingRequiresPro");
     expect(result.code).toBe("messagingRequiresPro");
     expect(messagingService.createAuthLink).not.toHaveBeenCalled();
+  });
+
+  it("reports a provider refusal to create the link as a conflict the user can read, and to Sentry", async () => {
+    const repo = makeRepo({ status: "active", trialEndDate: null, plan: "pro", activeAccountsForUser: 0 });
+    const { interactor, messagingService } = makeInteractor(repo);
+    const refusal = new UnipileRequestError(403, "api/account_restricted", "");
+    messagingService.createAuthLink.mockRejectedValueOnce(refusal);
+
+    const result: any = await interactor.invoke({ channel: "google" });
+
+    expect(result.ok).toBe(false);
+    expect(result.error.issues[0].message).toBe("unipileAccountRestricted");
+    expect(Sentry.captureException).toHaveBeenCalledWith(refusal, expect.anything());
   });
 
   it("lets a pro plan under its included cap proceed", async () => {

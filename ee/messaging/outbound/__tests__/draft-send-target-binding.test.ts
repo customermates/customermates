@@ -184,6 +184,51 @@ function expectDraftNotFound(result: any) {
 describe("SendEmailInteractor draft target binding", () => {
   beforeEach(() => vi.clearAllMocks());
 
+  it("delivers a saved Bcc-only cold draft with an empty public To list", async () => {
+    const repo = emailRepo({
+      findDraftById: vi.fn().mockResolvedValue({
+        ...emailDraft,
+        recipientIdentifiers: [],
+        ccIdentifiers: [],
+        bccIdentifiers: ["hidden@example.com"],
+      }),
+    });
+    const service = emailService();
+    service.getEmail.mockResolvedValue({ ...sentEmail, to: [], bcc: [{ email: "hidden@example.com" }] });
+    const result = await emailInteractor(repo, service).invoke({
+      ...coldEmailInput,
+      to: [],
+      bcc: ["hidden@example.com"],
+    });
+    expect(result.ok).toBe(true);
+    expect(service.sendEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: [],
+        bcc: [{ email: "hidden@example.com" }],
+      }),
+    );
+  });
+
+  it.each([
+    { to: [], bcc: ["other@example.com"] },
+    { to: [], cc: ["hidden@example.com"] },
+    { to: [{ identifier: "hidden@example.com" }] },
+  ])("rejects a changed Bcc-only target or a hidden recipient promoted to another field: %j", async (groups) => {
+    const repo = emailRepo({
+      findDraftById: vi.fn().mockResolvedValue({
+        ...emailDraft,
+        recipientIdentifiers: [],
+        ccIdentifiers: [],
+        bccIdentifiers: ["hidden@example.com"],
+      }),
+    });
+    const service = emailService();
+    const result = await emailInteractor(repo, service).invoke({ ...coldEmailInput, ...groups });
+    expectDraftNotFound(result);
+    expect(service.sendEmail).not.toHaveBeenCalled();
+    expect(repo.discardDraftAfterSend).not.toHaveBeenCalled();
+  });
+
   it.each([
     ["another account", { connectedAccountId: OTHER_ACCOUNT_ID, unipileThreadId: "draft_email" }],
     ["a real provider thread", { connectedAccountId: EMAIL_ACCOUNT_ID, unipileThreadId: "email-thread" }],
@@ -565,14 +610,14 @@ function saveDraftInteractor(repo: any) {
   );
 }
 
-function expectInvalidRecipients(result: any) {
+function expectLockedToRecipients(result: any) {
   expect(result.ok).toBe(false);
   expect(result.error.issues).toEqual(
     expect.arrayContaining([
       expect.objectContaining({
         path: ["recipients"],
         params: expect.objectContaining({
-          error: CustomErrorCode.invalidChannelValue,
+          error: CustomErrorCode.draftToRecipientsLocked,
         }),
       }),
     ]),
@@ -581,6 +626,39 @@ function expectInvalidRecipients(result: any) {
 
 describe("SaveDraftInteractor cold-draft target binding", () => {
   beforeEach(() => vi.clearAllMocks());
+
+  it("checks the sending account once when saving a new conversation draft", async () => {
+    const repo = saveDraftRepo({ findOrCreateDraftThread: vi.fn().mockResolvedValue(emailDraftThread) });
+    const accountRepo = { findUsableAccountByIdOrThrow: vi.fn().mockResolvedValue(emailAccount) };
+    const interactor = new SaveDraftInteractor(repo as never, accountRepo as never, mockEntitlementService());
+
+    const result = await interactor.invoke({
+      connectedAccountId: EMAIL_ACCOUNT_ID,
+      recipients: [EMAIL_RECIPIENT],
+      body: "Hello",
+    });
+
+    expect(result.ok).toBe(true);
+    expect(accountRepo.findUsableAccountByIdOrThrow).toHaveBeenCalledOnce();
+  });
+
+  it("never saves a chat draft for a teammate without access to the sending account", async () => {
+    const chatThread = {
+      ...emailDraftThread,
+      provider: MessagingProvider.linkedin,
+      unipileThreadId: "provider-chat-thread",
+      participants: [{ ...emailDraftThread.participants[0], attendeeId: "handle", identifier: "handle" }],
+    };
+    const repo = saveDraftRepo({ findThreadByIdOrThrow: vi.fn().mockResolvedValue(chatThread) });
+    const interactor = new SaveDraftInteractor(
+      repo as never,
+      { findUsableAccountByIdOrThrow: vi.fn().mockRejectedValue(new Error("not found")) } as never,
+      mockEntitlementService(),
+    );
+
+    await expect(interactor.invoke({ threadId: chatThread.id, body: "teammate overwrite" })).rejects.toThrow();
+    expect(repo.upsertThreadDraftOrThrow).not.toHaveBeenCalled();
+  });
 
   it("renders email draft HTML before persistence while preserving editable Markdown", async () => {
     const repo = saveDraftRepo();
@@ -600,7 +678,7 @@ describe("SaveDraftInteractor cold-draft target binding", () => {
     expect(repo.upsertThreadDraftOrThrow.mock.calls[0][0].bodyHtml).not.toContain("data-customermates-signature");
   });
 
-  it("rejects changing recipients on an existing cold-draft shell", async () => {
+  it("explains that a saved new message keeps its To recipients", async () => {
     const repo = saveDraftRepo();
 
     const result = await saveDraftInteractor(repo).invoke({
@@ -610,7 +688,7 @@ describe("SaveDraftInteractor cold-draft target binding", () => {
       body: "Updated draft",
     });
 
-    expectInvalidRecipients(result);
+    expectLockedToRecipients(result);
     expect(repo.findOrCreateDraftThread).not.toHaveBeenCalled();
     expect(repo.upsertThreadDraftOrThrow).not.toHaveBeenCalled();
   });

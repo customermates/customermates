@@ -21,7 +21,7 @@ export function threadFolder(
     id: context.currentFolderIds.find((id) => byId.has(id)) ?? null,
     name: names.join(", "),
     hiddenFromInbox: !context.currentFolderIds.some((id) => context.selectedFolderIds.includes(id)),
-    moveTargets: emailMoveTargets(context.folders, provider).map((folder) => ({
+    moveTargets: (context.canMove ? emailMoveTargets(context.folders, provider) : []).map((folder) => ({
       id: folder.id,
       name: folder.name?.trim() || "Unnamed",
     })),

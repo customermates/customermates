@@ -2,13 +2,12 @@ import { fail, failNotFound } from "@/core/validation/interactor-failure-server"
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import type { ConnectedAccount } from "@/generated/prisma";
-import type { IngestMessage, MessagingAttendee, MessagingMessage } from "../messaging.schema";
+import type { MessagingAttendee } from "../messaging.schema";
 import type { MessagingService, StartChatSpecifics } from "../messaging.service";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
 import { randomUUID } from "node:crypto";
-import { getLocale } from "next-intl/server";
 import * as Sentry from "@sentry/node";
 
 import {
@@ -37,14 +36,16 @@ import {
   draftThreadRecipientSetsMatch,
   draftUpdatedAtFromRevision,
   hasCompleteDraftBinding,
-  type DraftThreadTarget,
 } from "../draft-thread";
-import { formatRetryAfter } from "../retry-after";
+import { retryAfterPhrase } from "../retry-after.server";
 import { EMPTY_ATTENDEE, buildChatAttendee } from "../unipile.mappers";
 import { UnipileInboxSchema } from "../unipile.schema";
 import { SendAttachmentSchema } from "./send-email.interactor";
 
 import type { FindUsableAccountRepo } from "../persistence/find-usable-account.repo";
+import { accountNeedsReconnect } from "../account-health";
+import type { StartChatContactRepo } from "./start-chat-contact.repo";
+import type { StartChatThreadRepo } from "./start-chat-thread.repo";
 
 export const LinkedinProductSchema = z.enum(LINKEDIN_PRODUCTS);
 
@@ -108,28 +109,6 @@ export type StartChatData = Data<typeof StartChatInputSchema>;
 
 export type StartChatResult = { threadId: string | null };
 
-export abstract class StartChatContactRepo {
-  abstract findContactChannelCompanyWide(args: {
-    provider: MessagingProvider;
-    identifier: string;
-  }): Promise<{ id: string; messagingId: string | null; displayName: string | null; profileUrl: string | null } | null>;
-  abstract saveResolvedContactChannel(args: {
-    id: string;
-    messagingId: string;
-    displayName: string | null;
-    profileUrl: string | null;
-  }): Promise<void>;
-}
-
-export abstract class StartChatThreadRepo {
-  abstract findDraftById(args: { messageId: string }): Promise<DraftThreadTarget | null>;
-  abstract discardDraftAfterSend(args: { messageId: string; expectedUpdatedAt: Date }): Promise<void>;
-  abstract persistOutboundMessageOrThrow(args: {
-    connectedAccountId: string;
-    message: IngestMessage;
-  }): Promise<MessagingMessage>;
-}
-
 type ResolvedAttendees =
   | { ok: true; ids: string[]; attendees: MessagingAttendee[] }
   | { ok: false; error: CustomErrorCode; retryAfterSeconds?: number };
@@ -162,6 +141,7 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
     if (denied) return denied;
 
     const account = await this.accountRepo.findUsableAccountByIdOrThrow(data.connectedAccountId);
+    if (accountNeedsReconnect(account)) return fail(CustomErrorCode.unipileDisconnectedAccount, []);
     const draft = data.draftMessageId ? await this.threadRepo.findDraftById({ messageId: data.draftMessageId }) : null;
     if (data.draftMessageId && !draft) return failNotFound(CustomErrorCode.draftMessageNotFound);
     if (draft && (!data.draftRevision || !draftRevisionMatches(draft.updatedAt, data.draftRevision)))
@@ -180,7 +160,7 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
 
     if (!attendees.ok) {
       return fail(attendees.error, [], {
-        retryAfter: formatRetryAfter(await getLocale(), attendees.retryAfterSeconds),
+        retryAfter: await retryAfterPhrase(attendees.retryAfterSeconds),
       });
     }
 
@@ -200,7 +180,7 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
       specifics: this.buildSpecifics(data),
     });
 
-    if (!res.ok) return fail(res.error, [], { retryAfter: formatRetryAfter(await getLocale(), res.retryAfterSeconds) });
+    if (!res.ok) return fail(res.error, [], { retryAfter: await retryAfterPhrase(res.retryAfterSeconds) });
 
     let threadId: string | null = null;
 

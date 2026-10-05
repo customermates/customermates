@@ -11,6 +11,8 @@ import type { MessagingService } from "../../messaging.service";
 
 import { mapUnipileStatus } from "../../unipile.mappers";
 import type { AccountWebhookRepo } from "./account-webhook.repo";
+import type { EventService } from "@/features/event/event.service";
+import { DomainEvent } from "@/features/event/domain-events";
 
 const Schema = z.object({
   type: z.literal("account.reconnect"),
@@ -24,6 +26,7 @@ export class ProcessAccountReconnectWebhookInteractor {
     private messagingService: MessagingService,
     private accountRepo: AccountWebhookRepo,
     private backgroundTaskService: BackgroundTaskService,
+    private eventService: EventService,
   ) {}
 
   @Enforce(Schema)
@@ -32,9 +35,11 @@ export class ProcessAccountReconnectWebhookInteractor {
     if (!account || account.status === ConnectedAccountStatus.deleted) return;
 
     let status: ConnectedAccountStatus = ConnectedAccountStatus.ok;
+    let confirmed = false;
     try {
       const snapshot = await this.messagingService.getAccount(account.unipileAccountId);
       status = mapUnipileStatus(snapshot.status);
+      confirmed = true;
     } catch (err) {
       if (!(err instanceof z.ZodError)) throw err;
 
@@ -47,5 +52,16 @@ export class ProcessAccountReconnectWebhookInteractor {
     });
 
     await this.backgroundTaskService.dispatch("backfill-connected-account", { connectedAccountId: account.id });
+
+    if (confirmed && status === ConnectedAccountStatus.ok) {
+      await this.eventService.publish(
+        DomainEvent.CONNECTED_ACCOUNT_RECONNECTED,
+        {
+          entityId: account.id,
+          payload: { provider: account.provider, displayName: account.displayName, emailAddress: account.emailAddress },
+        },
+        { systemCompanyId: account.companyId, systemUserId: account.userId },
+      );
+    }
   }
 }

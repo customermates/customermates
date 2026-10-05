@@ -1,6 +1,5 @@
 import { failNotFound } from "@/core/validation/interactor-failure-server";
-import type { MessagingMessage, MessagingThread } from "../messaging.schema";
-import type { EmailFolder } from "../email-folders";
+import type { MessagingThread } from "../messaging.schema";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
@@ -20,6 +19,8 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import type { GetMessagingThreadRepo } from "./get-messaging-thread.repo";
+import type { ThreadAccountOwnersRepo } from "./thread-account-owners.repo";
 
 const AccountOwnerDtoSchema = z.object({
   displayName: z.string().nullable(),
@@ -39,6 +40,7 @@ const ThreadFolderContextSchema = z.object({
   folders: z.array(EmailFolderSchema),
   selectedFolderIds: z.array(z.string()),
   currentFolderIds: z.array(z.string()),
+  canMove: z.boolean(),
 });
 export type ThreadFolderContext = z.infer<typeof ThreadFolderContextSchema>;
 
@@ -50,22 +52,6 @@ export const GetMessagingThreadResultSchema = z.object({
   folderContext: ThreadFolderContextSchema.nullable(),
 });
 type GetMessagingThreadResult = z.infer<typeof GetMessagingThreadResultSchema>;
-
-export abstract class GetMessagingThreadRepo {
-  abstract findThreadById(id: string): Promise<MessagingThread | null>;
-  abstract listMessagesForThread(
-    threadId: string,
-    opts?: { page?: number; pageSize?: number },
-  ): Promise<{ messages: MessagingMessage[]; total: number }>;
-  abstract listThreadFolderPlacements(threadId: string): Promise<{ folderIds: string[]; sentAt: Date }[]>;
-}
-
-export abstract class ThreadAccountOwnersRepo {
-  abstract listAccountOwnersByIds(accountIds: string[]): Promise<Record<string, AccountOwnerDto>>;
-  abstract findFolderContextById(
-    accountId: string,
-  ): Promise<{ folders: EmailFolder[]; selectedFolderIds: string[] } | null>;
-}
 
 @AllowInDemoMode
 @TenantInteractor({
@@ -115,9 +101,23 @@ export class GetMessagingThreadInteractor extends AuthenticatedInteractor<
     if (!isEmailProvider(thread.provider)) return null;
 
     const context = await this.accountRepo.findFolderContextById(thread.connectedAccountId);
-    if (!context) return null;
+    if (context) {
+      const placements = await this.repo.listThreadFolderPlacements(thread.id);
+      return { ...context, currentFolderIds: threadEmailFolderIds(placements, context.folders), canMove: true };
+    }
+    if (!thread.sharedToCrm) return null;
 
     const placements = await this.repo.listThreadFolderPlacements(thread.id);
-    return { ...context, currentFolderIds: threadEmailFolderIds(placements, context.folders) };
+    const shared = await this.accountRepo.findSharedThreadFolderContext(thread.id, [
+      ...new Set(placements.flatMap((placement) => placement.folderIds)),
+    ]);
+    if (!shared) return null;
+
+    const visible = new Set(shared.selectedFolderIds);
+    const visiblePlacements = placements.map((placement) => ({
+      ...placement,
+      folderIds: placement.folderIds.filter((id) => visible.has(id)),
+    }));
+    return { ...shared, currentFolderIds: threadEmailFolderIds(visiblePlacements, shared.folders), canMove: false };
   }
 }

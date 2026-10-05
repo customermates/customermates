@@ -81,6 +81,8 @@ export type CaseId =
   | "R51"
   | "R52"
   | "R53"
+  | "V53"
+  | "V54"
   | ComplexCaseId
   | ScaleCaseId
   | DocsCaseId
@@ -493,6 +495,68 @@ export const BENCHMARK_CASES: readonly BenchmarkCase[] = [
     mergeRequired: true,
     prompts: ["Add a dashboard widget that shows how many contacts I have."],
   },
+  {
+    id: "V53",
+    title: "Filter the Inbox by the last actual message with a relative window",
+    actor: "driver",
+    judgeable: false,
+    mergeRequired: true,
+    prompts: [
+      `${en.AgentChat.context.starter.filters}Show only conversations whose last actual message was received, not sent, more than 7 days ago. Keep every other setting.`,
+    ],
+    contexts: [
+      {
+        pageRoute: `/en/inbox?view=${ALL_VIEW_KEY}&viewSurface=${SURFACE.messagingThreads}&viewAction=update`,
+        contexts: [
+          {
+            label: benchmarkMessage(en.AgentChat.context.viewLabel, {
+              name: en.DataView.views.all,
+              viewType: benchmarkMessage(en.AgentChat.context.surfaceViewTypeStandalone, {
+                location: en.NavigationBar.inbox,
+              }),
+            }),
+            reference: {
+              kind: "dataView",
+              surfaceKey: SURFACE.messagingThreads,
+              viewKey: ALL_VIEW_KEY,
+              requestedAction: "update",
+            },
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "V54",
+    title: "Filter the German Inbox to last sent messages three to seven days old",
+    actor: "driver",
+    judgeable: false,
+    mergeRequired: true,
+    prompts: [
+      `${de.AgentChat.context.starter.filters}Zeige nur Konversationen, deren letzte tatsächliche Nachricht ich vor 3 bis 7 Tagen selbst gesendet habe.`,
+    ],
+    contexts: [
+      {
+        pageRoute: `/de/inbox?view=${ALL_VIEW_KEY}&viewSurface=${SURFACE.messagingThreads}&viewAction=update`,
+        contexts: [
+          {
+            label: benchmarkMessage(de.AgentChat.context.viewLabel, {
+              name: de.DataView.views.all,
+              viewType: benchmarkMessage(de.AgentChat.context.surfaceViewTypeStandalone, {
+                location: de.NavigationBar.inbox,
+              }),
+            }),
+            reference: {
+              kind: "dataView",
+              surfaceKey: SURFACE.messagingThreads,
+              viewKey: ALL_VIEW_KEY,
+              requestedAction: "update",
+            },
+          },
+        ],
+      },
+    ],
+  },
   ...COMPLEX_CASES,
   ...SCALE_CASES,
   ...DOCS_CASES,
@@ -870,6 +934,22 @@ export async function seedBenchmarkCase(
       await auditNote("aster", aster, "2026-09-04T12:00:00.000Z");
       await auditNote("boreal", boreal, "2026-09-03T12:00:00.000Z");
       await auditNote("cygnus", cygnus, "2026-08-20T12:00:00.000Z");
+    }
+    if (caseId === "V53" || caseId === "V54") {
+      await tx.p13n.create({
+        data: {
+          companyId,
+          userId: id(actorKey),
+          p13nId: SURFACE.messagingThreads,
+          activeViewKey: ALL_VIEW_KEY,
+          filters: [],
+          searchTerm: "",
+          pagination: { pageSize: 25 },
+          columnOrder: [],
+          hiddenColumns: [],
+          viewMode: "card",
+        },
+      });
     }
     if (caseId === "V37") {
       await contact("view-contact", "Ada", "Lovelace");
@@ -1656,6 +1736,36 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, reco
         "everything-else-identical",
         same(without(fixture.before, ["customFieldValue"]), without(after, ["customFieldValue"])),
       );
+      break;
+    }
+    case "V53":
+    case "V54": {
+      const p13n = rows(after, "p13n").find((row) => row.p13nId === SURFACE.messagingThreads);
+      const filters = (Array.isArray(p13n?.filters) ? p13n.filters : []) as Array<{
+        field?: string;
+        operator?: string;
+        value?: unknown;
+      }>;
+      const has = (field: string, operator: string, value: unknown) =>
+        filters.some((filter) => filter.field === field && filter.operator === operator && same(filter.value, value));
+      const absoluteDates = filters.some(
+        (filter) =>
+          (filter.field === "lastMessageSentAt" || filter.field === "lastMessageAt") &&
+          !["inLastDays", "notInLastDays"].includes(String(filter.operator)),
+      );
+      check("inbox-view-context-preserved", p13n?.activeViewKey === ALL_VIEW_KEY);
+      check("uses-last-actual-message-not-activity", !filters.some((filter) => filter.field === "lastMessageAt"));
+      check("relative-window-not-absolute-dates", !absoluteDates);
+      if (fixture.caseId === "V53") {
+        check("received-more-than-seven-days-ago", has("lastMessageSentAt", "notInLastDays", 7));
+        check("received-direction", has("lastMessageDirection", "in", ["inbound"]));
+      } else {
+        check(
+          "three-to-seven-days-window",
+          has("lastMessageSentAt", "inLastDays", 7) && has("lastMessageSentAt", "notInLastDays", 3),
+        );
+        check("sent-direction", has("lastMessageDirection", "in", ["outbound"]));
+      }
       break;
     }
     case "V37": {

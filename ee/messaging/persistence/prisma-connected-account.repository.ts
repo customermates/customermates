@@ -3,11 +3,11 @@ import type { MessagingProvider, Prisma } from "@/generated/prisma";
 import type { GetMyConnectedAccountsRepo } from "../connect/get-my-connected-accounts.interactor";
 import type { CountChannelsNeedingActionRepo } from "../connect/count-channels-needing-action.interactor";
 import type { CreateHostedAuthLinkRepo } from "../connect/create-hosted-auth-link.repo";
-import type { ThreadAccountOwnersRepo } from "../inbox/get-messaging-thread.interactor";
-import type { MoveEmailThreadAccountRepo } from "../inbox/move-email-thread.interactor";
+import type { ThreadAccountOwnersRepo } from "../inbox/thread-account-owners.repo";
+import type { MoveEmailThreadAccountRepo } from "../inbox/move-email-thread-account.repo";
 import type { DeleteConnectedAccountRepo } from "../connect/delete-connected-account.interactor";
 import type { ResyncConnectedAccountRepo } from "../connect/resync-connected-account.interactor";
-import type { ReconnectConnectedAccountRepo } from "../connect/reconnect-connected-account.interactor";
+import type { ReconnectConnectedAccountRepo } from "../connect/reconnect-connected-account.repo";
 import type { SetConnectedAccountVisibilityRepo } from "../connect/set-connected-account-visibility.interactor";
 import type { SetConnectedAccountSignatureRepo } from "../connect/set-connected-account-signature.interactor";
 import type { AccountWebhookRepo } from "../webhooks/account/account-webhook.repo";
@@ -26,10 +26,12 @@ import type { DeleteAccountsForPlanConnectedAccountRepo } from "../connect/delet
 import type { DeleteConnectedAccountsForExpiredTrialsRepo } from "@/ee/lifecycle/delete-connected-accounts-for-expired-trials.interactor";
 import type { DeleteConnectedAccountsForInactiveOwnersRepo } from "@/ee/lifecycle/delete-connected-accounts-for-inactive-owners.interactor";
 import type { DeleteOrphanedUnipileAccountsRepo } from "@/ee/lifecycle/delete-orphaned-unipile-accounts.interactor";
-import type { RefreshInboxRepo } from "../inbox/refresh-inbox.interactor";
+import type { RefreshInboxRepo } from "../inbox/refresh-inbox.repo";
 import type { SetSelectedFoldersRepo } from "../connect/set-selected-folders.interactor";
 import type { FindConnectedAccountsByIdsRepo } from "../find-connected-accounts-by-ids.repo";
 import type { RepoArgs } from "@/core/utils/types";
+import type { MessagingFilterOptionsRepo } from "../inbox/messaging-filter-options.repo";
+import type { MessagingFilterOptions } from "../inbox/messaging-filter-options.schema";
 
 import { randomUUID } from "node:crypto";
 
@@ -37,8 +39,9 @@ import { AccountActivityKind, ConnectedAccountStatus, Resource, Status, Subscrip
 
 import { BaseRepository } from "@/core/base/base-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
-import { accessibleConnectedAccountWhere } from "../messaging-access";
-import { accountNeedsAction } from "../provider";
+import { accessibleConnectedAccountWhere, messageVisibilityWhere, threadAccessWhere } from "../messaging-access";
+import { accountNeedsAction, isEmailProvider } from "../provider";
+import { emailFolderFilterValue } from "../inbox/messaging-filter-options.schema";
 
 const BACKFILL_CLAIM_STALE_MS = 15 * 60 * 1000;
 
@@ -69,7 +72,8 @@ export class PrismaConnectedAccountRepo
     DeleteOrphanedUnipileAccountsRepo,
     RefreshInboxRepo,
     SetSelectedFoldersRepo,
-    FindConnectedAccountsByIdsRepo
+    FindConnectedAccountsByIdsRepo,
+    MessagingFilterOptionsRepo
 {
   @BypassTenantGuard
   async createAccountUnscoped(args: RepoArgs<AccountWebhookRepo, "createAccountUnscoped">) {
@@ -398,6 +402,24 @@ export class PrismaConnectedAccountRepo
     };
   }
 
+  async findSharedThreadFolderContext(threadId: string, folderIds: string[]) {
+    const thread = await this.prisma.messagingThread.findFirst({
+      where: { id: threadId, ...threadAccessWhere(this.companyId, this.userId), sharedToCrm: true },
+      select: { connectedAccount: { select: { folders: true, selectedFolderIds: true, foldersSyncedAt: true } } },
+    });
+    const row = thread?.connectedAccount;
+    if (!row || row.foldersSyncedAt === null) return null;
+
+    const visible = new Set(folderIds.filter((id) => row.selectedFolderIds.includes(id)));
+    return {
+      folders: EmailFolderSchema.array()
+        .catch([])
+        .parse(row.folders)
+        .filter((folder) => visible.has(folder.id)),
+      selectedFolderIds: [...visible],
+    };
+  }
+
   async findIds(ids: Set<string>): Promise<Set<string>> {
     if (ids.size === 0) return new Set();
 
@@ -484,6 +506,86 @@ export class PrismaConnectedAccountRepo
       .sort((a, b) => Number(b.isOwner) - Number(a.isOwner) || b.createdAt.getTime() - a.createdAt.getTime());
   }
 
+  async listInboxFilterOptions(): Promise<MessagingFilterOptions> {
+    const rows = await this.prisma.connectedAccount.findMany({
+      where: {
+        companyId: this.companyId,
+        status: { not: ConnectedAccountStatus.deleted },
+        hasMessaging: true,
+        OR: [{ userId: this.userId }, { shared: true }, { threads: { some: { sharedToCrm: true } } }],
+      },
+      select: {
+        id: true,
+        provider: true,
+        userId: true,
+        shared: true,
+        displayName: true,
+        emailAddress: true,
+        folders: true,
+        selectedFolderIds: true,
+        foldersSyncedAt: true,
+        user: { select: { firstName: true, lastName: true } },
+      },
+      orderBy: [{ displayName: "asc" }, { id: "asc" }],
+    });
+
+    const individualAccounts = rows.filter((row) => row.userId !== this.userId && !row.shared);
+    const sharedPlacementsByAccount = new Map<string, Set<string>>();
+    if (individualAccounts.length > 0) {
+      const placements = await this.prisma.messagingMessage.groupBy({
+        by: ["connectedAccountId", "folderIds"],
+        where: {
+          companyId: this.companyId,
+          connectedAccountId: { in: individualAccounts.map((row) => row.id) },
+          thread: { is: { companyId: this.companyId, sharedToCrm: true } },
+          ...messageVisibilityWhere(
+            individualAccounts
+              .filter((row) => row.foldersSyncedAt !== null)
+              .map((row) => ({ id: row.id, visibleSet: row.selectedFolderIds })),
+          ),
+        },
+      });
+      for (const placement of placements) {
+        const ids = sharedPlacementsByAccount.get(placement.connectedAccountId) ?? new Set<string>();
+        placement.folderIds.forEach((id) => ids.add(id));
+        sharedPlacementsByAccount.set(placement.connectedAccountId, ids);
+      }
+    }
+
+    const accounts: MessagingFilterOptions["accounts"] = [];
+    const folders: MessagingFilterOptions["folders"] = [];
+    for (const row of rows) {
+      const fullAccountAccess = row.userId === this.userId || row.shared;
+      if (!fullAccountAccess && !sharedPlacementsByAccount.has(row.id)) continue;
+      const label = row.displayName || row.emailAddress || null;
+      const groupLabel =
+        row.emailAddress && row.emailAddress !== label
+          ? row.emailAddress
+          : `${row.user.firstName} ${row.user.lastName}`.trim() || null;
+      accounts.push({ value: row.id, label, groupLabel, provider: row.provider });
+      if (!isEmailProvider(row.provider)) continue;
+
+      const selected = row.foldersSyncedAt ? new Set(row.selectedFolderIds) : null;
+      const sharedPlacements = sharedPlacementsByAccount.get(row.id) ?? new Set<string>();
+      const catalog = EmailFolderSchema.array().catch([]).parse(row.folders);
+      const available = new Map(catalog.map((folder) => [folder.id, folder.name]));
+      if (!fullAccountAccess) for (const id of sharedPlacements) if (!available.has(id)) available.set(id, null);
+
+      for (const [id, name] of available) {
+        if (selected && !selected.has(id)) continue;
+        if (!fullAccountAccess && !sharedPlacements.has(id)) continue;
+        folders.push({
+          value: emailFolderFilterValue(row.id, id),
+          label: name,
+          groupLabel: [label, groupLabel].filter(Boolean).join(" · ") || null,
+          groupKey: row.id,
+          provider: row.provider,
+        });
+      }
+    }
+    return { accounts, folders };
+  }
+
   async countAccountsNeedingAction() {
     if (!this.canAccess(Resource.inboxMessages)) return 0;
 
@@ -504,7 +606,7 @@ export class PrismaConnectedAccountRepo
         companyId: this.companyId,
         OR: [{ userId: this.userId }, { shared: true }],
       },
-      select: { id: true, unipileAccountId: true, status: true },
+      select: { id: true, userId: true, unipileAccountId: true, status: true },
     });
   }
 

@@ -1,5 +1,5 @@
 import type { GetResult } from "@/core/base/base-get.interactor";
-import type { GetQueryParams, Filter } from "@/core/base/base-get.schema";
+import type { GetQueryParams, Filter, FilterOption } from "@/core/base/base-get.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { ActivityThreadOptionsData } from "@/ee/messaging/activities/get-activity-thread-options.interactor";
 
@@ -19,6 +19,7 @@ import {
 } from "@/generated/prisma";
 
 import { isCustomField } from "@/components/data-view/table-view.utils";
+import { useFilterOptions } from "@/components/data-view/filter-options-context";
 import { useActivityQuery } from "@/features/messaging/activities/activity-query-context";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { Avatar } from "@/components/ui/avatar";
@@ -44,6 +45,7 @@ import {
   getActivityThreadOptionsAction,
   getCalendarsAction,
   getConnectedAccountsAction,
+  getMessagingFilterOptionsAction,
 } from "@/app/[locale]/(protected)/actions";
 import { getSystemTaskNameTranslationKey } from "@/app/[locale]/(protected)/tasks/components/system-task.config";
 import {
@@ -59,6 +61,9 @@ export type FilterSelectItem = {
   key: string;
   value: string;
   textValue: string;
+  optionLabel?: string;
+  groupKey?: string;
+  groupLabel?: string;
   color?: ChipColor;
   startContent?: React.ReactNode;
 };
@@ -95,6 +100,23 @@ const contactItems: GetItemsFunction = (params) =>
 function renderProviderIcon(provider: string, label: string) {
   const ProviderIcon = getProviderIcon(provider as MessagingProvider);
   return <ProviderIcon aria-label={label} className="size-4 shrink-0" />;
+}
+
+function scopedOptionItems(options: FilterOption[], field: string, t: Translate): FilterSelectItem[] {
+  return options.map((option) => {
+    const providerLabel = option.provider ? t(`Common.providers.${option.provider}`) : "";
+    const label =
+      option.label || (field === FilterFieldKey.emailFolder.toString() ? t("Common.unnamed") : providerLabel);
+    return {
+      key: option.value,
+      value: option.value,
+      textValue: option.groupLabel ? `${label} · ${option.groupLabel}` : label,
+      ...(field === FilterFieldKey.emailFolder.toString() && option.groupKey
+        ? { optionLabel: label, groupKey: option.groupKey, groupLabel: option.groupLabel || providerLabel }
+        : {}),
+      startContent: option.provider ? renderProviderIcon(option.provider, providerLabel) : undefined,
+    };
+  });
 }
 
 const RecordOptionIdSchema = z.uuid();
@@ -280,6 +302,22 @@ export function filterOptionSources(
             }),
         })),
     },
+    [FilterFieldKey.emailFolder]: {
+      getItems: () =>
+        getMessagingFilterOptionsAction().then((options) => ({
+          items: scopedOptionItems(options.folders, FilterFieldKey.emailFolder, t),
+        })),
+    },
+    [FilterFieldKey.lastMessageDirection]: {
+      items: () =>
+        ["inbound", "outbound"].map((direction) => ({
+          key: direction,
+          value: direction,
+          textValue: t(`Inbox.lastMessageDirections.${direction}`),
+        })),
+    },
+    [FilterFieldKey.lastMessageSentAt]: NO_FILTER_OPTIONS,
+    [FilterFieldKey.lastMessageAt]: NO_FILTER_OPTIONS,
     [FilterFieldKey.calendarId]: {
       getItems: (params) =>
         getCalendarsAction(params).then((res) => ({
@@ -381,6 +419,7 @@ export function useFilterSelectItems(
   const hasActivityQuery = activityQuery !== null;
 
   const { field } = filter;
+  const scopedOptions = useFilterOptions(field);
   const fieldKey = field as FilterFieldKey;
   const value = "value" in filter ? filter.value : undefined;
   const isCustom = isCustomField(field);
@@ -389,10 +428,11 @@ export function useFilterSelectItems(
 
   const source = useMemo<FilterOptionSource>(() => {
     if (isCustom) return NO_FILTER_OPTIONS;
+    if (scopedOptions) return { items: () => scopedOptionItems(scopedOptions, field, t) };
 
     const enumValue = filterFieldKeyOf(field);
     return enumValue ? filterOptionSources(t, activityQueryRef)[enumValue] : NO_FILTER_OPTIONS;
-  }, [field, isCustom, t, timelineScopeKey]);
+  }, [field, isCustom, t, timelineScopeKey, scopedOptions]);
 
   const getItems = source && "getItems" in source ? source.getItems : undefined;
 

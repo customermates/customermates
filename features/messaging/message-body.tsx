@@ -25,6 +25,7 @@ type Props = {
 export function hasLoadableRemoteImages(html: string): boolean {
   if (!html) return false;
   if (/url\(\s*["']?https?:/i.test(html)) return true;
+  if (/<(?:body|table|td|th)\b(?:[^>"']|"[^"]*"|'[^']*')*\sbackground\s*=\s*["']?https?:/i.test(html)) return true;
 
   return (html.match(/<img\b[^>]*>/gi) ?? []).some((tag) => {
     if (!/\bsrc\s*=\s*["']https?:/i.test(tag)) return false;

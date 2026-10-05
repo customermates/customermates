@@ -60,8 +60,21 @@ export class MessagingThreadsStore extends BaseDataViewStore<MessagingThread> {
         });
       }
 
+      const { reconnectAccounts, failedAccounts } = result.data;
+      if (reconnectAccounts > 0) {
+        this.toastError("Inbox.refreshNeedsReconnect", {
+          values: { count: reconnectAccounts },
+          action: {
+            labelKey: "ConnectedAccountsCard.title",
+            href: `/${this.rootStore.localeStore.locale}/profile/connected-accounts`,
+          },
+        });
+      }
+      if (failedAccounts > 0) this.toastError("Inbox.refreshPartial", { values: { count: failedAccounts } });
+
       await this.refresh();
-      if (!result.data.rateLimited) this.toastSuccess("Inbox.refreshDone");
+      if (!result.data.rateLimited && reconnectAccounts === 0 && failedAccounts === 0)
+        this.toastSuccess("Inbox.refreshDone");
     } catch {
       this.toastError("Common.notifications.unexpectedError");
     } finally {

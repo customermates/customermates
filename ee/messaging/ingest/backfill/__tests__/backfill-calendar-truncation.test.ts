@@ -19,7 +19,7 @@ import * as Sentry from "@sentry/node";
 
 import { BackfillCalendarsInteractor } from "../backfill-calendars.interactor";
 import { UNIPILE_CALENDAR_EVENT_MAX_LIMIT } from "../paginate";
-import { UnipileRequestError } from "../../../messaging.service";
+import { UnipileRequestError } from "../../../unipile-request-error";
 
 const CONNECTED_ACCOUNT_ID = "44444444-4444-4444-8444-444444444444";
 const account = {

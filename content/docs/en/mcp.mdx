@@ -359,7 +359,7 @@ Required: `threadId`, `state`.
 
 Move an email conversation into another mailbox folder at the provider.
 
-Required: `threadId`, `folderId`.
+Required: `threadId`, `folderId`. Optional: `messageId`.
 
 #### `connect_messaging_account`
 
@@ -606,7 +606,7 @@ Plans refuse the same way. Messaging, calendar and social tools need a plan with
 
 - **Client confirmation guidance.** The server instructions state plainly that nothing is gated here, list the tools that delete, send or reach outside the workspace (`move_email_thread` and the accept and cancel actions of `manage_social_relations` are not on that list), and tell the model to get its own user's confirmation, naming the exact records or recipients, before calling one. The MCP route executes an authorized tool call once the client makes it, so the confirmation step is the client's, and verifying that the client honours it is part of choosing one.
 - **Relations change via `manage_record_links`.** The `update_*` tools do not accept relation id fields; one sent anyway is rejected as an unknown field. The one exception is `services` on `update_deals`, which replaces the deal's whole service list with quantities. `null` on `customFieldValues`, or on `services` in `update_deals`, is rejected server-side with a hint to omit the field, pass `[]`, or use `manage_record_links`.
-- **Draft, then send.** `send_email` and `send_chat_message` deliver immediately. When asked to prepare a message, the agent uses `save_message_draft` and the user sends from the inbox. A draft needs no existing conversation: pass `connectedAccountId` and `recipients` and the thread is created locally, appears in the inbox, and reaches the provider only when it is sent.
+- **Draft, then send.** `send_email` and `send_chat_message` send immediately; success means the provider accepted the message, not that it reached the recipient. A failure states whether retrying can help, and its structured result carries `retryable: true` only then: after a timeout or a provider error during sending, the agent checks the conversation before sending again. When asked to prepare a message, the agent uses `save_message_draft` and the user sends from the inbox. A draft needs no existing conversation: pass `connectedAccountId` and `recipients` and the thread is created locally, appears in the inbox, and reaches the provider only when it is sent.
 - **Destructive flags everywhere.** Every destructive tool or action has `destructiveHint: true` and says `IRREVERSIBLE` in its description.
 - **Every enum field** lists its valid values inline in the description, and **every `filters` field** includes a concrete JSON example.
 

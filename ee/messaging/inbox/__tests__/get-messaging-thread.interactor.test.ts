@@ -39,7 +39,11 @@ describe("GetMessagingThreadInteractor", () => {
       listMessagesForThread: vi.fn(),
       listThreadFolderPlacements: vi.fn().mockResolvedValue([]),
     };
-    const accountRepo = { listAccountOwnersByIds: vi.fn(), findFolderContextById: vi.fn() };
+    const accountRepo = {
+      listAccountOwnersByIds: vi.fn(),
+      findFolderContextById: vi.fn(),
+      findSharedThreadFolderContext: vi.fn(),
+    };
 
     const result = await new GetMessagingThreadInteractor(repo, accountRepo, mockEntitlementService()).invoke({
       threadId: THREAD_ID,
@@ -134,6 +138,7 @@ describe("GetMessagingThreadInteractor", () => {
     const accountRepo = {
       listAccountOwnersByIds: vi.fn().mockResolvedValue({}),
       findFolderContextById: vi.fn().mockResolvedValue(context),
+      findSharedThreadFolderContext: vi.fn().mockResolvedValue(null),
     };
 
     return { repo, accountRepo };
@@ -172,6 +177,74 @@ describe("GetMessagingThreadInteractor", () => {
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.data.folderContext?.currentFolderIds).toEqual(["trash"]);
+  });
+
+  it("lets the account owner or a whole-account teammate move the thread", async () => {
+    const { repo, accountRepo } = build("mail", [message(["inbox"], "2026-09-01T10:00:00Z")], {
+      folders: CATALOG,
+      selectedFolderIds: ["inbox", "archive"],
+    });
+
+    const result = await new GetMessagingThreadInteractor(repo, accountRepo, mockEntitlementService()).invoke({
+      threadId: THREAD_ID,
+    });
+
+    expect(result.ok && result.data.folderContext?.canMove).toBe(true);
+    expect(accountRepo.findSharedThreadFolderContext).not.toHaveBeenCalled();
+  });
+
+  it("names only this shared conversation's folders for a teammate without access to the whole account", async () => {
+    const { repo, accountRepo } = build("mail", [message(["archive"], "2026-09-01T10:00:00Z")], null);
+    repo.findThreadById.mockResolvedValue({ ...thread("mail"), sharedToCrm: true });
+    accountRepo.findSharedThreadFolderContext.mockResolvedValue({
+      folders: [CATALOG[2]],
+      selectedFolderIds: ["archive"],
+    });
+
+    const result = await new GetMessagingThreadInteractor(repo, accountRepo, mockEntitlementService()).invoke({
+      threadId: THREAD_ID,
+    });
+
+    expect(accountRepo.findSharedThreadFolderContext).toHaveBeenCalledWith(THREAD_ID, ["archive"]);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data.folderContext).toEqual({
+      folders: [CATALOG[2]],
+      selectedFolderIds: ["archive"],
+      currentFolderIds: ["archive"],
+      canMove: false,
+    });
+  });
+
+  it("drops placements in folders the owner hides from a shared reader", async () => {
+    const { repo, accountRepo } = build("mail", [message(["archive", "hidden"], "2026-09-01T10:00:00Z")], null, [
+      message(["hidden"], "2026-09-01T12:00:00Z"),
+      message(["archive", "hidden"], "2026-09-01T10:00:00Z"),
+    ]);
+    repo.findThreadById.mockResolvedValue({ ...thread("mail"), sharedToCrm: true });
+    accountRepo.findSharedThreadFolderContext.mockResolvedValue({
+      folders: [CATALOG[2]],
+      selectedFolderIds: ["archive"],
+    });
+
+    const result = await new GetMessagingThreadInteractor(repo, accountRepo, mockEntitlementService()).invoke({
+      threadId: THREAD_ID,
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data.folderContext?.currentFolderIds).toEqual(["archive"]);
+  });
+
+  it("reveals no folders of an account the reader cannot access when the conversation is not shared", async () => {
+    const { repo, accountRepo } = build("mail", [message(["archive"], "2026-09-01T10:00:00Z")], null);
+
+    const result = await new GetMessagingThreadInteractor(repo, accountRepo, mockEntitlementService()).invoke({
+      threadId: THREAD_ID,
+    });
+
+    expect(result.ok && result.data.folderContext).toBeNull();
+    expect(accountRepo.findSharedThreadFolderContext).not.toHaveBeenCalled();
   });
 
   it("omits the folder context for a chat provider, which has no folders", async () => {

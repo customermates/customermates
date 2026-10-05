@@ -16,7 +16,7 @@ vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 
 import { BackfillEmailsInteractor } from "../backfill-emails.interactor";
 import { UNIPILE_EMAIL_MAX_LIMIT } from "../paginate";
-import { UnipileRequestError } from "../../../messaging.service";
+import { UnipileRequestError } from "../../../unipile-request-error";
 
 const CONNECTED_ACCOUNT_ID = "22222222-2222-4222-8222-222222222222";
 const FOLDER = "INBOX";

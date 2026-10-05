@@ -95,6 +95,7 @@ const domTestFiles = [
   "app/[locale]/(protected)/routines/components/__tests__/routine-runs-pane.render.test.tsx",
   "features/messaging/__tests__/email-frame.test.ts",
   "app/[locale]/(protected)/inbox/components/__tests__/thread-reply-composer-navigation.test.ts",
+  "app/[locale]/(protected)/inbox/components/__tests__/email-message-header.test.ts",
   "app/components/navigation/__tests__/use-marketing-account-state.test.ts",
 ];
 
