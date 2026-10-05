@@ -2,14 +2,11 @@ import type { Page } from "@playwright/test";
 import type { Client } from "pg";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
+import { addFromConfigure, configureTopBar, followConfigureLink, openConfigure, openConfigureRow, saveDrawer, selectConfigureList } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 async function applyConfiguration(page: Page) {
-  const dialog = page.getByRole("dialog");
-  await dialog.getByRole("button", { name: "Preview changes", exact: true }).click();
-  await expect(dialog.getByRole("status")).toContainText("Ready to apply");
-  await dialog.getByRole("button", { name: "Apply changes", exact: true }).click();
-  await expect(dialog).not.toBeVisible();
+  await saveDrawer(page);
 }
 
 async function readModel(database: Client, companyId: string) {
@@ -55,20 +52,20 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
   const dialog = page.getByRole("dialog");
   const id = (key: string) => presetId(companyId, key);
   const addMoneyField = async (name: string, source: string) => {
-    await page.getByRole("button", { name: "Add field", exact: true }).click();
+    await addFromConfigure(page, "Field");
     await dialog.getByRole("textbox", { name: "Name", exact: false }).fill(name);
     await selectOption(page, "Value type", "Money");
     await selectOption(page, "Value source", source);
     await expect(dialog.locator('[data-calculation-editor="linear"]')).toHaveCount(1);
   };
   const selectType = async (label: string, typeId: string) => {
-    await page.getByRole("main").getByRole("link", { name: label, exact: true }).click();
+    await selectConfigureList(page, label);
     await expect.poll(() => new URL(page.url()).searchParams.get("typeId")).toBe(typeId);
-    await expect(page.getByRole("button", { name: "Add field", exact: true })).toBeEnabled();
+    await expect(configureTopBar(page).getByRole("button", { name: "Add", exact: true })).toBeEnabled();
   };
 
   await test.step("create snapshot and rollup definitions on Services, and a singular lookup on Line items", async () => {
-    await page.goto("/en/company/data-model");
+    await openConfigure(page);
     await selectType("Services", id("service"));
     await addMoneyField("Original price", "Saved at an event");
     const calculation = dialog.getByRole("region", { name: "Calculation", exact: true });
@@ -86,7 +83,6 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
     await selectOption(page, "Value", "Amount");
     await applyConfiguration(page);
 
-    await page.getByRole("link", { name: "All lists", exact: true }).click();
     await selectType("Line items", id("lineItem"));
     await addMoneyField("Catalog price", "Value from a linked record");
     await selectOption(page, "Relationship", "Service");
@@ -238,10 +234,8 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
   });
 
   await test.step("switch Deal Value to manual, retain its result, and continue weighting the entered amount", async () => {
-    await page.locator("#records-configure").click();
-    const fields = page.getByRole("region", { name: "Fields", exact: true });
-    const row = fields.getByText("Value", { exact: true }).locator("..").locator("..");
-    await row.getByRole("button", { name: "Edit", exact: true }).click();
+    await followConfigureLink(page);
+    await openConfigureRow(page, "Fields", "Value");
     await selectOption(page, "Value source", "Entered manually");
     await expect(dialog.locator('[data-calculation-editor="linear"]')).toHaveCount(0);
     await applyConfiguration(page);

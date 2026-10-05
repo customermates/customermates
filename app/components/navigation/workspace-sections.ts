@@ -37,7 +37,6 @@ export const WORKSPACE_SECTIONS: Record<WorkspaceSection, WorkspaceSubroute[]> =
       labelKey: "NavigationBar.settings",
       resource: Resource.company,
     },
-    { slug: "data-model", labelKey: "RecordModel.dataModel" },
     {
       slug: "members",
       labelKey: "NavigationBar.members",

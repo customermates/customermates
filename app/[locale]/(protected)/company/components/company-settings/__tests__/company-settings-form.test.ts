@@ -57,7 +57,7 @@ describe("CompanySettingsForm record-model cutover", () => {
   it("shows currency and a Data model link without legacy weighting or terminology controls", () => {
     const html = renderForm();
     expect(html).toContain("data-currency");
-    expect(html).toContain("/company/data-model");
+    expect(html).toContain("/configure");
     expect(html).not.toContain("data-forecasting");
     expect(html).not.toContain("terminology-contact");
   });
@@ -75,6 +75,6 @@ describe("CompanySettingsForm record-model cutover", () => {
     );
     mountedRoots.push(root);
     expect(recoverableErrors).toEqual([]);
-    expect(container.querySelector('a[href="/company/data-model"]')).not.toBeNull();
+    expect(container.querySelector('a[href="/configure"]')).not.toBeNull();
   });
 });

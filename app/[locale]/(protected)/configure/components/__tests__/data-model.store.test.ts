@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import type { RecordModel } from "@/features/records/record-model.schema";
 const actions = vi.hoisted(() => ({ getRecordModelAction: vi.fn(), reportApplicationError: vi.fn() }));
-vi.mock("../../../../records/actions", () => ({ getRecordModelAction: actions.getRecordModelAction }));
+vi.mock("../../../records/actions", () => ({ getRecordModelAction: actions.getRecordModelAction }));
 vi.mock("@/core/errors/report-application-error", () => ({ reportApplicationError: actions.reportApplicationError }));
 import { DataModelStore } from "../data-model.store";
 const model = (revision: number): RecordModel => ({

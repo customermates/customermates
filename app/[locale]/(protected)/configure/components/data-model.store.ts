@@ -1,6 +1,6 @@
 import { action, makeObservable, observable, runInAction } from "mobx";
 import type { RecordModel } from "@/features/records/record-model.schema";
-import { getRecordModelAction } from "../../../records/actions";
+import { getRecordModelAction } from "../../records/actions";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 
 export class DataModelStore {

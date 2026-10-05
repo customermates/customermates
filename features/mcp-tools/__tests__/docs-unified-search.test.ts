@@ -73,7 +73,7 @@ describe("unified documentation search", () => {
       expect(markdown.startsWith(`## ${total.headingPath.at(-1)}`)).toBe(true);
       expect(markdown).toContain(weighted.headingPath.at(-1));
       expect(markdown).toContain(formula);
-      expect(markdown).toContain("**Link:** `/company/data-model`.");
+      expect(markdown).toContain("**Link:** `/configure`.");
       expect(markdown.length).toBeLessThanOrEqual(1_400);
     },
   );
@@ -100,7 +100,7 @@ describe("unified documentation search", () => {
     );
     const markdown = (fetched as { structuredContent: { markdown: string } }).structuredContent.markdown;
     expect(markdown).toContain(formula);
-    expect(markdown).toContain("**Link:** `/company/data-model`.");
+    expect(markdown).toContain("**Link:** `/configure`.");
     expect(markdown.length).toBeLessThanOrEqual(1_400);
   });
 
@@ -138,7 +138,7 @@ describe("unified documentation search", () => {
     );
     const markdown = (fetched as { structuredContent: { markdown: string } }).structuredContent.markdown;
     expect(markdown).toContain("To set up pipeline stages, add or edit a select field on Deals");
-    expect(markdown).toContain("open the field in **Company → Data model**");
+    expect(markdown).toContain("open the field in **Configure**");
     expect(markdown).toContain("`/deals`");
     expect(markdown.length).toBeLessThanOrEqual(1_400);
     expect(ranker).toHaveBeenCalledTimes(1);

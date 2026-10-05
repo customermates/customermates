@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { toLocalIso } from "@/components/forms/iso-date-values";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { Currency } from "@/generated/prisma";
-import { getUsersAction } from "../../actions";
+import { getUsersAction } from "../../company/actions";
 import {
   expressionAt,
   expressionTypeId,

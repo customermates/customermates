@@ -125,7 +125,7 @@ export class RecordWorkspaceStore {
   };
 
   routeReady = (pathname: string) =>
-    (!pathname.startsWith("/records/") && pathname !== "/company/data-model") || this.readyRoutes.has(pathname);
+    (!pathname.startsWith("/records/") && pathname !== "/configure") || this.readyRoutes.has(pathname);
 
   handOffDraft = (editor: RecordEditorStore) => {
     this.draftHandoff =

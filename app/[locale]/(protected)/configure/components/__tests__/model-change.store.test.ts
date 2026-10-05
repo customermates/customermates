@@ -8,7 +8,7 @@ const actions = vi.hoisted(() => ({
   applyRecordConfigurationAction: vi.fn(),
   getRecordModelAction: vi.fn(),
 }));
-vi.mock("../../../../records/actions", () => actions);
+vi.mock("../../../records/actions", () => actions);
 vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 vi.mock("@/core/errors/report-application-error", () => ({ reportApplicationError: vi.fn() }));
 import { ModelChangeStore } from "../model-change.store";
@@ -397,5 +397,20 @@ describe("explicit approval of affected published summaries", () => {
     expect(store.preview).toBeNull();
     expect(store.summaryRenewal).toBeUndefined();
     expect(store.summaryRenewalsApproved).toBe(false);
+  });
+  it.each([
+    ["no affected records", preview(0), 1],
+    ["affected records", preview(2), 0],
+    ["an issue", { ...preview(0), issues: [{ code: "saved_view_incompatible" }] }, 0],
+    ["background execution", { ...preview(0), execution: "background" as const }, 0],
+  ])("applies a saved change without a second review only when the preview has %s", async (_, result, applies) => {
+    const { store } = fixture();
+    store.applyWithoutReview = true;
+    store.onChange("name", "Renamed definition");
+    actions.previewRecordConfigurationAction.mockResolvedValueOnce({ ok: true, data: result });
+    actions.applyRecordConfigurationAction.mockResolvedValueOnce({ ok: true, data: { status: "completed" } });
+    await store.onSubmit();
+    expect(actions.applyRecordConfigurationAction).toHaveBeenCalledTimes(applies);
+    expect(store.isOpen).toBe(applies === 0);
   });
 });

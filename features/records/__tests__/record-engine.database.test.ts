@@ -4,6 +4,7 @@ import { recordInvariant } from "../record-invariant";
 
 import { Prisma } from "@/generated/prisma";
 import { randomUUID } from "node:crypto";
+import { omit } from "lodash";
 
 import { afterAll, describe, expect, it, vi } from "vitest";
 
@@ -553,6 +554,32 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       state: "value",
       value: decimal("25"),
     });
+  });
+
+  it("orders a type's fields by their saved positions after a reorder without moving other types", async () => {
+    const f = await fixture();
+    const model = await f.run(() => f.repo.getModel());
+    const order = (typeId: string, fields = model.fields) =>
+      fields.filter((field) => field.typeId === typeId).map((field) => field.id);
+    const reversed = model.fields.filter((field) => field.typeId === f.id("deal")).reverse();
+    const result = await f.run(() =>
+      f.configure.invoke({
+        expectedRevision: model.revision,
+        idempotencyKey: randomUUID(),
+        operations: reversed.map((field, position) => ({
+          operation: "putField" as const,
+          field: { ...omit(field, "publishedSummary"), position },
+        })),
+      }),
+    );
+    expect(result, JSON.stringify(result)).toMatchObject({ ok: true, data: { schemaRevision: model.revision + 1 } });
+    const saved = await f.run(() => f.repo.getModel());
+    expect(order(f.id("deal"), saved.fields)).toEqual(reversed.map((field) => field.id));
+    expect(saved.fields.filter((field) => field.typeId === f.id("deal")).map((field) => field.position)).toEqual(
+      reversed.map((_, position) => position),
+    );
+    expect(order(f.id("contact"), saved.fields)).toEqual(order(f.id("contact")));
+    expect(order(f.id("lineItem"), saved.fields)).toEqual(order(f.id("lineItem")));
   });
 
   it("marks a newly initialized workspace as generic storage", async () => {

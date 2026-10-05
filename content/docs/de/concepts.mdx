@@ -41,21 +41,21 @@ Das Verhalten ist manuelle Eingabe, Formel, Lookup über eine Beziehung, Rollup 
 
 ## Wie lege ich eigene Felder an, ändere oder lösche sie, etwa das Deal-Phasenfeld? [#how-do-i-add-change-or-delete-a-custom-column]
 
-Öffnen Sie **Unternehmen → Datenmodell** (`/company/data-model`), wählen Sie einen Typ und bearbeiten Sie seine Felder. Der Feld-Dialog bietet Werttyp, manuelles oder berechnetes Verhalten, Optionen, Formatierung und einen verständlichen Berechnungseditor. Vor dem Übernehmen zeigt eine Vorschau die betroffenen Datensätze, Ansichten, Widgets, Routinen und Formeln. Unverträgliche Änderungen bleiben gesperrt, bis ihre Abhängigkeiten aufgelöst sind. Das Archivieren eines Typs entfernt ihn aus der gewöhnlichen Nutzung, ohne seine Datensätze stillschweigend zu löschen.
+Öffnen Sie **Konfigurieren** (`/configure`), wählen Sie eine Liste in der linken Leiste und bearbeiten Sie ihre Felder; **Hinzufügen** oben in der Leiste legt auch Berechnungen, Beziehungen und Aktivitätsverbindungen an, und **Karte** zeigt, wie Listen verbunden sind. Der Feld-Editor öffnet sich neben der Liste und bietet Werttyp, manuelles oder berechnetes Verhalten, Optionen, Formatierung und einen verständlichen Berechnungseditor. Vor dem Übernehmen zeigt eine Vorschau die betroffenen Datensätze, Ansichten, Widgets, Routinen und Formeln. Unverträgliche Änderungen bleiben gesperrt, bis ihre Abhängigkeiten aufgelöst sind. Das Archivieren eines Typs entfernt ihn aus der gewöhnlichen Nutzung, ohne seine Datensätze stillschweigend zu löschen.
 
-Um ein eigenes Feld zu Kontakten hinzuzufügen, wählen Sie im Datenmodell **Kontakte** und dann **Feld hinzufügen**. Die gleiche Funktion steht bei jedem anderen Typ zur Verfügung.
+Um ein eigenes Feld zu Kontakten hinzuzufügen, wählen Sie unter **Konfigurieren** die Liste **Kontakte** und dann **Hinzufügen** → **Feld**. Die gleiche Funktion steht bei jedem anderen Typ zur Verfügung.
 
 Schema-Bearbeitung ist von Datensatz-Bearbeitung getrennt. Admins können sie delegieren; größere Rollenzugriffe brauchen weiterhin die Rollenverwaltung. Über MCP liest `get_record_model` das Schema und `configure_record_model` prüft und übernimmt eine Änderung mit erwarteter Revision und Idempotenzschlüssel. Eine veraltete Revision braucht eine neue Vorschau.
 
-**Link:** `/company/data-model`. **Mate:** zu `nav-company-data-model` navigieren; der Assistent kann dieselbe validierte Änderung mit `configure_record_model` ausführen.
+**Link:** `/configure`. **Mate:** zu `nav-configure-records` navigieren; der Assistent kann dieselbe validierte Änderung mit `configure_record_model` ausführen.
 
 ## Wie funktioniert eine gewichtete Pipeline? [#how-does-a-weighted-pipeline-work]
 
 Ein konfiguriertes Auswahlfeld kann Deal-Phasen enthalten. Jede Option kann eine Wahrscheinlichkeit zwischen 0 und 100 Prozent tragen. **Gewichteter Deal-Wert = Deal-Wert × Phasenwahrscheinlichkeit / 100**. Ein Deal über 2.600 bei 60 Prozent zählt 1.560; eine Null-Prozent-Phase ergibt Null, eine fehlende Wahrscheinlichkeit keinen gewichteten Wert. Ein geänderter Live-Service-Preis berechnet abhängige Werte neu; ein gespeicherter Angebotspreis nicht.
 
-Ein Schema-Verwalter bearbeitet Optionen, Wahrscheinlichkeiten oder die Formel unter **Datenmodell**. Die Abhängigkeitsvorschau zeigt Auswirkungen auf Deals und Widgets. Die Freigabe einer Zusammenfassung aus eingeschränkt lesbaren Eingängen erfordert eine ausdrückliche Admin-Entscheidung; sonst sehen Leser ohne Zugriff einen eingeschränkten Wert statt einer offengelegten Summe.
+Ein Schema-Verwalter bearbeitet Optionen, Wahrscheinlichkeiten oder die Formel unter **Konfigurieren**. Die Abhängigkeitsvorschau zeigt Auswirkungen auf Deals und Widgets. Die Freigabe einer Zusammenfassung aus eingeschränkt lesbaren Eingängen erfordert eine ausdrückliche Admin-Entscheidung; sonst sehen Leser ohne Zugriff einen eingeschränkten Wert statt einer offengelegten Summe.
 
-**Link:** `/company/data-model`. **Mate:** `get_record_model` lesen und `configure_record_model` nach Prüfung der Vorschau verwenden.
+**Link:** `/configure`. **Mate:** `get_record_model` lesen und `configure_record_model` nach Prüfung der Vorschau verwenden.
 
 ## Was sind Widgets? [#what-are-widgets]
 

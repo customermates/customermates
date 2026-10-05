@@ -37,6 +37,13 @@ describe("app topbar crumbs", () => {
     expect(JSON.stringify(read(`/en/records/another-type/${OPAQUE_ID}`, identity))).not.toContain("Customer launch");
   });
 
+  it("titles Configure as its own page without a section breadcrumb", () => {
+    expect(buildAppTopbarCrumbs("/en/configure", translate, ENTITY_LABELS, null, "cloud", canAccess)).toEqual({
+      crumbs: [{ label: "RecordModel.configure" }],
+      section: null,
+    });
+  });
+
   it.each([
     ["overview", "OperatorOverview.navigation"],
     ["users", "OperatorUsers.navigation"],

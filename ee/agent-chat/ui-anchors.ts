@@ -492,6 +492,13 @@ export const PRIMARY_NAV_PAGES: PrimaryNavPage[] = [
     resource: Resource.services,
   },
   {
+    key: "configure-records",
+    route: "/configure",
+    description:
+      "Sidebar link to Configure, where schema managers edit lists, fields, calculations, relationships and the map of lists",
+    labelKeys: ["RecordModel.configure"],
+  },
+  {
     key: "routines",
     route: "/routines",
     description: "Sidebar link to the scheduled assistant routines",

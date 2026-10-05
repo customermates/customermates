@@ -1,0 +1,138 @@
+import type { Page } from "@playwright/test";
+import { expect } from "./fixtures";
+
+export type ConfigureAddItem = "List" | "Field" | "Calculation" | "Relationship" | "Activity connection";
+export type ConfigureSection = "Fields" | "Relationships" | "Activity connections";
+
+const escapePattern = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+export function configureDrawer(page: Page) {
+  return page.getByRole("dialog");
+}
+
+export function configureTopBar(page: Page) {
+  return page.locator("header").first();
+}
+
+export async function openConfigure(page: Page, typeId?: string) {
+  if (page.url() !== "about:blank") await page.waitForLoadState("networkidle");
+  await page.goto(typeId ? `/en/configure?typeId=${typeId}` : "/en/configure");
+  await expect(page.locator("[data-configure-page]")).toBeVisible();
+  if (typeId) await expect(page.locator("[data-configure-list-pane]")).toBeVisible();
+}
+
+export function configureRailLink(page: Page, label: string) {
+  return page
+    .locator("[data-configure-rail]")
+    .getByRole("link", { name: new RegExp(`^${escapePattern(label)}(?: (?:Hidden|Archived))?$`) });
+}
+
+export async function selectConfigureList(page: Page, label: string) {
+  await expect(page.locator("[data-configure-page]")).toBeVisible();
+  const link = configureRailLink(page, label);
+  const back = page.getByRole("button", { name: "All lists", exact: true });
+  if ((page.viewportSize()?.width ?? 0) < 1024 && (await back.isVisible())) await back.click();
+  await link.click();
+  await expect(page.getByRole("heading", { level: 1, name: label, exact: true })).toBeVisible();
+}
+
+export async function addFromConfigure(page: Page, item: ConfigureAddItem) {
+  await configureTopBar(page).getByRole("button", { name: "Add", exact: true }).click();
+  await page.getByRole("menuitem", { name: item, exact: true }).click();
+  await expect(configureDrawer(page)).toBeVisible();
+}
+
+export async function openListAction(page: Page, item: "Shared defaults" | "Archive list" | "Restore list") {
+  await configureTopBar(page).getByRole("button", { name: "List actions", exact: true }).click();
+  await page.getByRole("menuitem", { name: item, exact: true }).click();
+  await expect(configureDrawer(page)).toBeVisible();
+}
+
+export function configureRow(page: Page, section: ConfigureSection, label: string) {
+  return page
+    .getByRole("region", { name: section, exact: true })
+    .getByRole("button", { name: new RegExp(`^${escapePattern(label)}(?:\\s|$)`) });
+}
+
+export async function openConfigureRow(page: Page, section: ConfigureSection, label: string) {
+  await configureRow(page, section, label).click();
+  await expect(configureDrawer(page)).toBeVisible();
+}
+
+export async function configureRevision(page: Page) {
+  return Number(await page.locator("[data-configure-page]").getAttribute("data-configure-revision"));
+}
+
+export async function expectConfigureRevisionAfter(page: Page, revision: number) {
+  await expect
+    .poll(async () => configureRevision(page), { message: "the page shows the saved configuration revision" })
+    .toBeGreaterThan(revision);
+}
+
+export async function saveDrawer(page: Page) {
+  const revision = await configureRevision(page);
+  const dialog = configureDrawer(page);
+  await dialog.getByRole("button", { name: "Save", exact: true }).first().click();
+  await expect(dialog.getByRole("status").last()).toContainText("Ready to apply");
+  await dialog.getByRole("button", { name: "Apply changes", exact: true }).first().click();
+  await expect(dialog).not.toBeVisible();
+  await expectConfigureRevisionAfter(page, revision);
+}
+
+export async function saveGeneral(page: Page) {
+  const revision = await configureRevision(page);
+  const topBar = configureTopBar(page);
+  const apply = topBar.getByRole("button", { name: "Apply changes", exact: true });
+  const reset = topBar.getByRole("button", { name: "Reset", exact: true });
+  await topBar.getByRole("button", { name: "Save", exact: true }).click();
+  await expect
+    .poll(async () => ((await apply.isVisible()) && (await apply.isEnabled())) || !(await reset.isVisible()))
+    .toBe(true);
+  if (await reset.isVisible()) await apply.click();
+  await expect(reset).toHaveCount(0);
+  await expectConfigureRevisionAfter(page, revision);
+}
+
+export async function setShowArchived(page: Page, visible: boolean) {
+  const toggle = page.locator("[data-configure-rail]").getByRole("button", {
+    name: visible ? "Show archived" : "Hide archived",
+    exact: true,
+  });
+  if (await toggle.isVisible()) await toggle.click();
+}
+
+export async function setShowArchivedParts(page: Page, visible: boolean) {
+  const toggle = page.locator("[data-configure-list-pane]").getByRole("button", {
+    name: visible ? "Show archived" : "Hide archived",
+    exact: true,
+  });
+  if (await toggle.isVisible()) await toggle.click();
+  await expect(
+    page.locator("[data-configure-list-pane]").getByRole("button", {
+      name: visible ? "Hide archived" : "Show archived",
+      exact: true,
+    }),
+  ).toBeVisible();
+}
+
+export async function createConfiguredList(page: Page, name: string, { channels = false } = {}) {
+  await openConfigure(page);
+  await addFromConfigure(page, "List");
+  const dialog = configureDrawer(page);
+  await dialog.getByRole("textbox", { name: "Name", exact: false }).first().fill(name);
+  const toggle = dialog.getByRole("switch", { name: "Enable channels", exact: true });
+  await expect(toggle).not.toBeChecked();
+  if (channels) await toggle.check();
+  await dialog.getByRole("button", { name: "Create list", exact: true }).first().click();
+  await expect(dialog).not.toBeVisible();
+  await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
+  const typeId = new URL(page.url()).pathname.split("/").at(-1);
+  if (!typeId) throw new Error("The created list route did not contain its identity");
+  return typeId;
+}
+
+export async function followConfigureLink(page: Page) {
+  await page.getByRole("link", { name: "Configure", exact: true }).and(page.locator("#records-configure")).click();
+  await expect(page).toHaveURL(/\/en\/configure\?typeId=[a-f0-9-]+$/);
+  await expect(page.locator("[data-configure-list-pane]")).toBeVisible();
+}

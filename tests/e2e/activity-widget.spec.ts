@@ -1,3 +1,4 @@
+import { addFromConfigure, openConfigure } from "./configure";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 test("creates a custom-type activity widget, previews history, edits it and preserves assistant drafts", async ({
@@ -18,10 +19,10 @@ test("creates a custom-type activity widget, previews history, edits it and pres
       errors.push(message.text());
   });
   const dialog = page.getByRole("dialog");
-  await page.goto("/en/company/data-model");
-  await page.getByRole("button", { name: "Create list", exact: true }).click();
+  await openConfigure(page);
+  await addFromConfigure(page, "List");
   await dialog.getByRole("textbox", { name: "Name", exact: false }).first().fill("Tenders");
-  await dialog.getByRole("button", { name: "Create list", exact: true }).click();
+  await dialog.getByRole("button", { name: "Create list", exact: true }).first().click();
   await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
   await expect(dialog).not.toBeVisible();
   const typeId = new URL(page.url()).pathname.split("/").at(-1);

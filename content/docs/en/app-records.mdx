@@ -55,7 +55,7 @@ To sort a list by a custom field, open **Appearance → Sort by** and choose tha
 
 ## How do I change a deal stage or a task status on the board? [#how-do-i-change-a-deal-stage-or-a-task-status-on-the-board]
 
-A stage or status is a configured select field. Edit it on the record or move a card between groups when that board supports editing the grouped select value. To change options or probabilities, open the field in **Company → Data model** and preview the effect on dependent calculations and widgets. Over MCP, use stable type, field, and option IDs from `get_record_model`, then `mutate_crm_record`. Renaming a label does not change those IDs.
+A stage or status is a configured select field. Edit it on the record or move a card between groups when that board supports editing the grouped select value. To change options or probabilities, open the field in **Configure** and preview the effect on dependent calculations and widgets. Over MCP, use stable type, field, and option IDs from `get_record_model`, then `mutate_crm_record`. Renaming a label does not change those IDs.
 
 To set up pipeline stages, add or edit a select field on Deals, define its stage options, and choose it as the board grouping field. A probability on each option can feed the weighted-value calculation.
 

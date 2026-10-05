@@ -16,7 +16,7 @@ import type { RecordIdentityInput } from "@/features/records/record-identity.sch
 
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { rebaseModelChangeDraft } from "@/app/[locale]/(protected)/company/data-model/components/model-change-rebase";
+import { rebaseModelChangeDraft } from "@/app/[locale]/(protected)/configure/components/model-change-rebase";
 import { recordInputValue } from "@/features/records/record-input-value";
 import { RecordScalarSchema } from "@/features/records/record-model.schema";
 import { mutateRecordAction, getRecordEditorAction } from "../../actions";

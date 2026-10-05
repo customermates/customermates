@@ -12,7 +12,7 @@ describe("currency picker catalog", () => {
       "utf8",
     );
     const customColumn = readFileSync(
-      join(REPO_ROOT, "app/[locale]/(protected)/company/data-model/components/field-modal.tsx"),
+      join(REPO_ROOT, "app/[locale]/(protected)/configure/components/field-modal.tsx"),
       "utf8",
     );
     const currencyAutocomplete = readFileSync(

@@ -3,12 +3,12 @@ import type { RootStore } from "@/core/stores/root.store";
 import { createCrmPreset, presetId } from "@/features/records/crm-preset";
 import { recordInvariant } from "@/features/records/record-invariant";
 import { ConfigurationChangeSchema } from "@/features/records/configuration.schema";
-vi.mock("../../../../records/actions", () => ({
+vi.mock("../../../records/actions", () => ({
   applyRecordConfigurationAction: vi.fn(),
   previewRecordConfigurationAction: vi.fn(),
 }));
 import { FieldModalStore } from "../field-modal";
-import { applyRecordConfigurationAction, previewRecordConfigurationAction } from "../../../../records/actions";
+import { applyRecordConfigurationAction, previewRecordConfigurationAction } from "../../../records/actions";
 import { ActivityPathModalStore } from "../activity-path-modal";
 import { TypeModalStore } from "../type-modal";
 import { RelationshipModalStore } from "../relationship-modal";

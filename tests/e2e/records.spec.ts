@@ -1,6 +1,7 @@
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { presetId } from "../../features/records/crm-preset";
 import { randomUUID } from "node:crypto";
+import { addFromConfigure, followConfigureLink, openConfigure, openListAction, saveDrawer, saveGeneral } from "./configure";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 test("creates a custom list and field through the UI, then persists a decimal record across reloads", async ({
@@ -21,11 +22,11 @@ test("creates a custom list and field through the UI, then persists a decimal re
   });
   const name = `Projects ${randomUUID().slice(0, 8)}`;
   const recordName = `Office expansion ${name.slice(-8)}`;
-  await page.goto("/en/company/data-model");
-  await page.getByRole("button", { name: "Create list", exact: true }).click();
+  await openConfigure(page);
+  await addFromConfigure(page, "List");
   const dialog = page.getByRole("dialog");
   await dialog.getByRole("textbox", { name: "Name", exact: false }).first().fill(name);
-  await dialog.getByRole("button", { name: "Create list", exact: true }).click();
+  await dialog.getByRole("button", { name: "Create list", exact: true }).first().click();
   await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
   await expect(dialog).not.toBeVisible();
   const typeId = new URL(page.url()).pathname.split("/").at(-1);
@@ -40,15 +41,12 @@ test("creates a custom list and field through the UI, then persists a decimal re
     typeId,
   ]);
   expect(type.rows[0]?.definition.pluralLabel).toBe(name);
-  await page.getByRole("link", { name: "Configure", exact: true }).and(page.locator("#records-configure")).click();
-  await page.getByRole("button", { name: "Add field", exact: true }).click();
+  await followConfigureLink(page);
+  await addFromConfigure(page, "Field");
   await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Budget");
   await dialog.getByRole("combobox", { name: "Value type", exact: true }).click();
   await page.getByRole("option", { name: "Money", exact: true }).click();
-  await dialog.getByRole("button", { name: "Preview changes", exact: true }).click();
-  await expect(dialog.getByRole("status")).toContainText("Ready to apply");
-  await dialog.getByRole("button", { name: "Apply changes", exact: true }).click();
-  await expect(dialog).not.toBeVisible();
+  await saveDrawer(page);
   await openConfiguredRecords();
   await page.locator("#records-add").click();
   await dialog.getByRole("textbox", { name: name, exact: false }).fill(recordName);
@@ -73,16 +71,13 @@ test("creates a custom list and field through the UI, then persists a decimal re
   expect(errors).toEqual([]);
   await page.screenshot({ path: testInfo.outputPath("record-details.png"), fullPage: true, animations: "disabled" });
   await page.keyboard.press("Escape");
-  await page.getByRole("link", { name: "Configure", exact: true }).and(page.locator("#records-configure")).click();
-  await page.getByRole("button", { name: "Relationship", exact: true }).click();
+  await followConfigureLink(page);
+  await addFromConfigure(page, "Relationship");
   await dialog.getByRole("combobox", { name: "Link to", exact: true }).click();
   await page.getByRole("option", { name: "Organizations", exact: true }).click();
   await dialog.getByRole("textbox", { name: "Label on this side", exact: false }).fill("Client organization");
   await dialog.getByRole("textbox", { name: "Label on the other side", exact: false }).fill(name);
-  await dialog.getByRole("button", { name: "Preview changes", exact: true }).click();
-  await expect(dialog.getByRole("status")).toContainText("Ready to apply");
-  await dialog.getByRole("button", { name: "Apply changes", exact: true }).click();
-  await expect(dialog).not.toBeVisible();
+  await saveDrawer(page);
   const organization = await database.query(
     'SELECT r.id,r."typeId",v."textValue" AS name FROM "CrmRecord" r JOIN "RecordTypeDefinition" t ON t."companyId"=r."companyId" AND t.id=r."typeId" JOIN "RecordValue" v ON v."companyId"=r."companyId" AND v."typeId"=r."typeId" AND v."recordId"=r.id AND v."fieldId"=(t.definition->>\'primaryFieldId\') WHERE r."companyId"=$1 AND t.definition->>\'pluralLabel\'=\'Organizations\' ORDER BY r.id LIMIT 1',
     [companyId],
@@ -114,16 +109,15 @@ test("creates a custom list and field through the UI, then persists a decimal re
   expect(unlinked.rows).toHaveLength(0);
   await expect(dialog).toHaveCount(0);
   await expect(page.locator("#sidebar-trigger")).toHaveAttribute("aria-disabled", "false");
-  await page.getByRole("link", { name: "Configure", exact: true }).and(page.locator("#records-configure")).click();
-  await expect(page).toHaveURL(`/en/company/data-model?typeId=${typeId}`);
-  await page.getByRole("button", { name: "Type settings", exact: true }).click();
+  await followConfigureLink(page);
+  await expect(page).toHaveURL(`/en/configure?typeId=${typeId}`);
   const renamed = name.replace("Projects", "Initiatives");
-  await dialog.locator("#pluralName").fill(renamed);
-  await dialog.getByRole("button", { name: "Preview changes", exact: true }).click();
-  await expect(dialog.getByRole("status")).toContainText("Ready to apply");
-  await dialog.getByRole("button", { name: "Apply changes", exact: true }).click();
-  await expect(dialog).not.toBeVisible();
-  await page.getByRole("button", { name: "Shared defaults", exact: true }).click();
+  await page
+    .getByRole("region", { name: "General", exact: true })
+    .getByRole("textbox", { name: "Navigation label", exact: true })
+    .fill(renamed);
+  await saveGeneral(page);
+  await openListAction(page, "Shared defaults");
   await dialog.getByRole("combobox", { name: "Default grouping", exact: true }).click();
   await page.getByRole("option", { name: "Assigned to", exact: true }).click();
   await dialog.getByRole("button", { name: "Add summary", exact: true }).click();
@@ -134,10 +128,7 @@ test("creates a custom list and field through the UI, then persists a decimal re
     .uncheck();
   await dialog.getByRole("combobox", { name: "Default sort", exact: true }).click();
   await page.getByRole("option", { name: "Budget", exact: true }).click();
-  await dialog.getByRole("button", { name: "Preview changes", exact: true }).click();
-  await expect(dialog.getByRole("status")).toContainText("Ready to apply");
-  await dialog.getByRole("button", { name: "Apply changes", exact: true }).click();
-  await expect(dialog).not.toBeVisible();
+  await saveDrawer(page);
   await openConfiguredRecords();
   await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}`));
   await expect(

@@ -117,6 +117,7 @@ test("exports a customer-created type through the same transfer menu", async ({
     .fill("Projects");
   await dialog
     .getByRole("button", { name: "Create list", exact: true })
+    .first()
     .click();
   await expect(dialog).not.toBeVisible();
   const typeId = new URL(page.url()).pathname.split("/").at(-1);

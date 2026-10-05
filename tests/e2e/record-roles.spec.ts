@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { addFromConfigure, openConfigure, saveGeneral } from "./configure";
 import { test, expect, isBenignPageError } from "./fixtures";
 
 test("configures a role for a new type, preserves granular rights after rename and deletes the unused role", async ({
@@ -11,11 +12,11 @@ test("configures a role for a new type, preserves granular rights after rename a
   page.on("pageerror", (error) => {
     if (!isBenignPageError(error.message)) errors.push(error.message);
   });
-  await page.goto("/en/company/data-model");
-  await page.getByRole("button", { name: "Create list", exact: true }).click();
+  await openConfigure(page);
+  await addFromConfigure(page, "List");
   const creation = page.getByRole("dialog");
   await creation.getByRole("textbox", { name: "Name", exact: false }).first().fill("Projects");
-  await creation.getByRole("button", { name: "Create list", exact: true }).click();
+  await creation.getByRole("button", { name: "Create list", exact: true }).first().click();
   await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
   const typeId = new URL(page.url()).pathname.split("/").at(-1);
   expect(typeId).toBeTruthy();
@@ -64,14 +65,12 @@ test("configures a role for a new type, preserves granular rights after rename a
   const before = await beforeRename.json();
   await page.keyboard.press("Escape");
   await expect(role).not.toBeVisible();
-  await page.goto(`/en/company/data-model?typeId=${typeId}`);
-  await page.getByRole("button", { name: "Type settings", exact: true }).click();
-  const settings = page.getByRole("dialog");
-  await settings.locator("#pluralName").fill("Initiatives");
-  await settings.getByRole("button", { name: "Preview changes", exact: true }).click();
-  await expect(settings.getByRole("status")).toContainText("Ready to apply");
-  await settings.getByRole("button", { name: "Apply changes", exact: true }).click();
-  await expect(settings).not.toBeVisible();
+  await openConfigure(page, typeId);
+  await page
+    .getByRole("region", { name: "General", exact: true })
+    .getByRole("textbox", { name: "Navigation label", exact: true })
+    .fill("Initiatives");
+  await saveGeneral(page);
   const stale = await page.request.post("/api/v2/roles/delete", {
     data: { id: roleId, expectedRevision: before.schemaRevision, idempotencyKey: randomUUID() },
   });

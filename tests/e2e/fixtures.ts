@@ -83,7 +83,7 @@ export const test = base.extend<Fixtures>({
           if (!type.rows[0])
             throw new Error("The browser baseline record types are missing");
           for (const path of [
-            "/en/company/data-model",
+            "/en/configure",
             `/en/records/${type.rows[0].id}`,
           ]) {
             const response = await context.request.get(`${baseUrl}${path}`, {

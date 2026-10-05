@@ -2,7 +2,7 @@ import { recordInvariant } from "@/features/records/record-invariant";
 import { describe, expect, it, vi } from "vitest";
 import type { RootStore } from "@/core/stores/root.store";
 import { createCrmPreset, presetId } from "@/features/records/crm-preset";
-vi.mock("../../../../records/actions", () => ({
+vi.mock("../../../records/actions", () => ({
   applyRecordConfigurationAction: vi.fn(),
   previewRecordConfigurationAction: vi.fn(),
 }));
@@ -50,5 +50,40 @@ describe("list configuration", () => {
     expect(first.map((operation) => operation.operation)).toEqual(["createType", "putCapability"]);
     const channels = first[1];
     expect(channels.operation === "putCapability" && channels.capability.typeId).toBe("$type");
+  });
+  it("saves a dragged field order with the General settings and resets it with the form", () => {
+    const model = createCrmPreset(company, "EUR");
+    const deal = recordInvariant(model.types.find((type) => type.id === id("deal")));
+    const store = new TypeModalStore(root, model, vi.fn());
+    store.edit(model, deal);
+    const order = store.form.fieldOrder;
+    expect(order).toEqual(model.fields.filter((field) => field.typeId === deal.id).map((field) => field.id));
+    expect(store.operations().map((operation) => operation.operation)).toEqual(["putType"]);
+    store.moveField(order[1], order[0]);
+    store.onChange("name", "Opportunity");
+    expect(store.hasUnsavedChanges).toBe(true);
+    const operations = store.operations();
+    expect(operations[0]).toMatchObject({ operation: "putType", type: { id: deal.id, label: "Opportunity" } });
+    expect(
+      operations
+        .slice(1)
+        .map((operation) => operation.operation === "putField" && [operation.field.id, operation.field.position]),
+    ).toEqual([
+      [order[1], 0],
+      [order[0], 1],
+    ]);
+    store.resetForm();
+    expect(store.form.fieldOrder).toEqual(order);
+    expect(store.operations().map((operation) => operation.operation)).toEqual(["putType"]);
+  });
+  it("archives and restores a list through the archive section", () => {
+    const model = createCrmPreset(company, "EUR");
+    const store = new TypeModalStore(root, model, vi.fn());
+    store.edit(model, model.types[0], "archive");
+    store.onChange("archived", true);
+    expect(store.section).toBe("archive");
+    expect(store.operations()).toEqual([
+      expect.objectContaining({ operation: "putType", type: expect.objectContaining({ archived: true }) }),
+    ]);
   });
 });

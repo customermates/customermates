@@ -14,6 +14,7 @@ import { RecordOperationResultSchema } from "../../features/records/record-query
 import { RecordMeasureResultSchema } from "../../features/records/record-measure.schema";
 import { presetId } from "../../features/records/crm-preset";
 import { localE2eEnvironment } from "./local-environment";
+import { addFromConfigure, configureRow, configureTopBar, followConfigureLink, openConfigure, openConfigureRow, openListAction, saveDrawer, setShowArchivedParts } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 import { createBrowserWorkspace, removeBrowserWorkspace } from "./workspace";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
@@ -286,10 +287,14 @@ test("admits an assigned-record writer and separately delegates schema configura
     await expect(member.page.getByRole("button", { name: "Other member project", exact: true })).toHaveCount(0);
     await expect(member.page.getByRole("button", { name: "Edited assigned project", exact: true })).toBeVisible();
     expect((await member.page.request.post("/api/v2/records/read", { data: unassigned })).status()).toBe(404);
-    await member.page.goto(`/en/company/data-model?typeId=${type.id}`);
+    await openConfigure(member.page, type.id);
     await expect(member.page.getByRole("heading", { name: "Projects", exact: true })).toBeVisible();
-    await expect(member.page.getByRole("button", { name: "Type settings", exact: true })).toHaveCount(0);
-    await expect(member.page.getByRole("button", { name: "Add field", exact: true })).toHaveCount(0);
+    await expect(configureTopBar(member.page).getByRole("button", { name: "Add", exact: true })).toHaveCount(0);
+    await expect(configureTopBar(member.page).getByRole("button", { name: "List actions", exact: true })).toHaveCount(0);
+    await expect(
+      member.page.getByRole("region", { name: "General", exact: true }).getByRole("textbox"),
+    ).toHaveCount(0);
+    await expect(member.page.getByRole("region", { name: "Fields", exact: true }).getByRole("button")).toHaveCount(0);
     const unauthorized = {
       expectedRevision: (await readModel(page)).revision,
       idempotencyKey: randomUUID(),
@@ -323,21 +328,22 @@ test("admits an assigned-record writer and separately delegates schema configura
       recordGrants: [],
     });
     await member.page.reload();
-    await expect(member.page.getByRole("button", { name: "Type settings", exact: true })).toBeVisible();
-    await expect(member.page.getByRole("button", { name: "Add field", exact: true })).toBeVisible();
+    await expect(configureTopBar(member.page).getByRole("button", { name: "Add", exact: true })).toBeVisible();
+    await expect(configureTopBar(member.page).getByRole("button", { name: "List actions", exact: true })).toBeVisible();
+    await expect(member.page.getByRole("region", { name: "Fields", exact: true }).getByRole("button").first()).toBeVisible();
     const configure = member.page.locator("#nav-configure-records");
     if (!(await configure.isVisible())) await member.page.locator("#sidebar-trigger").click();
     await expect(member.page.locator("#nav-assistant")).toBeVisible();
-    await expect(configure).toHaveAttribute("href", "/en/company/data-model");
+    await expect(configure).toHaveAttribute("href", "/en/configure");
     await configure.click();
-    await expect(member.page).toHaveURL(/\/en\/company\/data-model$/);
-    await member.page.getByRole("button", { name: "Create list", exact: true }).click();
+    await expect(member.page).toHaveURL(/\/en\/configure(?:\?typeId=[a-f0-9-]+)?$/);
+    await addFromConfigure(member.page, "List");
     const creation = member.page.getByRole("dialog");
     await expect(creation).toBeVisible();
     await creation.getByRole("textbox", { name: "Name", exact: false }).first().fill("Delegated records");
-    await creation.getByRole("button", { name: "Create list", exact: true }).click();
+    await creation.getByRole("button", { name: "Create list", exact: true }).first().click();
     await expect(creation).not.toBeVisible();
-    await expect(member.page).toHaveURL(/\/en\/company\/data-model\?typeId=[a-f0-9-]+$/);
+    await expect(member.page).toHaveURL(/\/en\/configure\?typeId=[a-f0-9-]+$/);
     await expect(
       member.page.getByRole("heading", {
         name: "Delegated records",
@@ -396,15 +402,15 @@ test("admits an assigned-record writer and separately delegates schema configura
         ],
       }),
     ).toMatchObject({ status: "completed" });
-    await member.page.goto("/en/company/data-model");
-    await member.page.getByRole("button", { name: englishMessages.RecordModel.createList, exact: true }).click();
+    await openConfigure(member.page);
+    await addFromConfigure(member.page, "List");
     await creation
       .getByRole("textbox", { name: englishMessages.RecordModel.name, exact: false })
       .first()
       .fill("Approved delegated records");
     await creation.getByRole("combobox", { name: englishMessages.RecordModel.access, exact: true }).click();
     await member.page.getByRole("option", { name: "Approved assigned writers", exact: true }).click();
-    await creation.getByRole("button", { name: englishMessages.RecordModel.createList, exact: true }).click();
+    await creation.getByRole("button", { name: "Create list", exact: true }).first().click();
     await expect(creation).not.toBeVisible();
     const approved = (await readModel(page)).types.find(
       (candidate) => candidate.pluralLabel === "Approved delegated records",
@@ -903,11 +909,11 @@ function relationshipCaptureErrors(page: Page) {
 }
 
 async function relationshipCreateTypeUi(page: Page, name: string) {
-  await page.goto("/en/company/data-model");
-  await page.getByRole("button", { name: englishMessages.RecordModel.createList, exact: true }).click();
+  await openConfigure(page);
+  await addFromConfigure(page, "List");
   const dialog = page.getByRole("dialog");
   await dialog.getByRole("textbox", { name: englishMessages.RecordModel.name, exact: false }).first().fill(name);
-  await dialog.getByRole("button", { name: englishMessages.RecordModel.createList, exact: true }).click();
+  await dialog.getByRole("button", { name: "Create list", exact: true }).first().click();
   await expect(dialog).not.toBeVisible();
   await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
   const typeId = new URL(page.url()).pathname.split("/").at(-1);
@@ -917,13 +923,8 @@ async function relationshipCreateTypeUi(page: Page, name: string) {
 }
 
 async function relationshipApplyUi(page: Page) {
-  const dialog = page.getByRole("dialog", { name: englishMessages.RecordModel.relationship, exact: true });
-  await dialog.getByRole("button", { name: englishMessages.RecordModel.preview, exact: true }).click();
-  await expect(dialog.getByRole("status")).toContainText(
-    englishMessages.RecordModel.previewReady.split("{count}")[0]?.trim() ?? "Ready to apply",
-  );
-  await dialog.getByRole("button", { name: englishMessages.RecordModel.apply, exact: true }).click();
-  await expect(dialog).not.toBeVisible();
+  await expect(page.getByRole("dialog", { name: englishMessages.RecordModel.relationship, exact: true })).toBeVisible();
+  await saveDrawer(page);
 }
 
 async function relationshipOptionUi(page: Page, id: string, label: string) {
@@ -943,11 +944,8 @@ async function relationshipCreateUi(
   singular: boolean,
   restrictTarget = false,
 ) {
-  await page.goto(`/en/company/data-model?typeId=${typeId}`);
-  await page
-    .getByRole("region", { name: englishMessages.RecordModel.relationships, exact: true })
-    .getByRole("button", { name: englishMessages.RecordModel.relationship, exact: true })
-    .click();
+  await openConfigure(page, typeId);
+  await addFromConfigure(page, "Relationship");
   const dialog = page.getByRole("dialog", { name: englishMessages.RecordModel.relationship, exact: true });
   await relationshipOptionUi(page, "targetTypeId", targetLabel);
   await dialog.locator("#sourceLabel").fill(sourceLabel);
@@ -968,27 +966,20 @@ async function relationshipCreateUi(
 }
 
 async function relationshipEditUi(page: Page, typeId: string, label: string, restore = false) {
-  await page.locator("#records-configure").click();
-  await expect(page).toHaveURL(`/en/company/data-model?typeId=${typeId}`);
+  await followConfigureLink(page);
+  await expect(page).toHaveURL(`/en/configure?typeId=${typeId}`);
   await expect(
     page.getByRole("region", { name: englishMessages.RecordModel.relationships, exact: true }),
   ).toBeVisible();
-  if (restore) await page.getByRole("button", { name: englishMessages.RecordModel.showArchived, exact: true }).click();
-  const row = page
-    .getByRole("region", { name: englishMessages.RecordModel.relationships, exact: true })
-    .getByText(label, { exact: true })
-    .locator("..")
-    .locator("..");
-  await row
-    .getByRole("button", {
-      name: restore ? englishMessages.RecordModel.restore : englishMessages.RecordModel.edit,
-      exact: true,
-    })
-    .click();
+  if (restore) await setShowArchivedParts(page, true);
+  await openConfigureRow(page, "Relationships", label);
+  if (restore)
+    await expect(page.getByRole("dialog").getByRole("switch", { name: "Archive relationship", exact: true })).not.toBeChecked();
   return page.getByRole("dialog", { name: englishMessages.RecordModel.relationship, exact: true });
 }
 
 async function relationshipOpenRecordUi(page: Page, typeId: string, typeLabel: string, title: string) {
+  await page.waitForLoadState("networkidle");
   await page.goto(`/en/records/${typeId}`);
   await page.getByRole("button", { name: title, exact: true }).click();
   const editor = page.getByRole("dialog", { name: typeLabel, exact: true });
@@ -1245,11 +1236,8 @@ test("configures a two-hop relationship path and lets a genuine read-only user n
   const errors = relationshipCaptureErrors(page);
   const type = await relationshipCreateTypeUi(page, "Reporting nodes");
   const parent = await relationshipCreateUi(page, type.id, type.pluralLabel, "Reports to", "Direct reports", true);
-  await page.goto(`/en/company/data-model?typeId=${type.id}`);
-  await page
-    .getByRole("region", { name: englishMessages.RecordModel.relationships, exact: true })
-    .getByRole("button", { name: englishMessages.RecordModel.relationship, exact: true })
-    .click();
+  await openConfigure(page, type.id);
+  await addFromConfigure(page, "Relationship");
   const dialog = page.getByRole("dialog", { name: englishMessages.RecordModel.relationship, exact: true });
   await relationshipOptionUi(page, "mode", englishMessages.RecordModel.relationshipPath);
   await dialog.locator("#sourceLabel").fill("Second-level manager");
@@ -1496,8 +1484,8 @@ test("keeps personal views separate from shared defaults and completes their UI 
     sortDescriptor: { field: type.primaryFieldId, direction: "asc" },
     hiddenColumns: [budgetId],
   });
-  await page.goto(`/en/company/data-model?typeId=${type.id}`);
-  await page.getByRole("button", { name: englishMessages.RecordModel.sharedDefaults, exact: true }).click();
+  await openConfigure(page, type.id);
+  await openListAction(page, "Shared defaults");
   const shared = page.getByRole("dialog", { name: englishMessages.RecordModel.sharedDefaults, exact: true });
   await presentationOptionUi(page, "layout", englishMessages.RecordModel.board);
   await presentationOptionUi(page, "groupBy", "Stage");
@@ -1514,12 +1502,7 @@ test("keeps personal views separate from shared defaults and completes their UI 
   await presentationOptionUi(page, "type-summary-field-0", "Budget");
   await presentationOptionUi(page, "type-summary-aggregation-0", englishMessages.RecordModel.reducers.average);
   await presentationOptionUi(page, "type-summary-aggregation-0", englishMessages.RecordModel.reducers.sum);
-  await shared.getByRole("button", { name: englishMessages.RecordModel.preview, exact: true }).click();
-  await expect(shared.getByRole("status")).toContainText(
-    englishMessages.RecordModel.previewReady.split("{count}")[0]?.trim() ?? "Ready to apply",
-  );
-  await shared.getByRole("button", { name: englishMessages.RecordModel.apply, exact: true }).click();
-  await expect(shared).not.toBeVisible();
+  await saveDrawer(page);
   const changed = (await readModel(page)).types.find((candidate) => candidate.id === type.id);
   expect(changed?.defaults).toMatchObject({
     layout: "board",
@@ -1720,22 +1703,17 @@ test("keeps personal views separate from shared defaults and completes their UI 
       ])
     ).rows,
   ).toEqual([]);
-  await page.goto(`/en/company/data-model?typeId=${type.id}`);
-  await page.getByRole("button", { name: englishMessages.RecordModel.sharedDefaults, exact: true }).click();
+  await openConfigure(page, type.id);
+  await openListAction(page, "Shared defaults");
   await expect(shared.locator("#type-summary-field-0")).toContainText("Budget");
   await shared.getByRole("button", { name: englishMessages.RecordModel.removeGroupSummary, exact: true }).click();
   await expect(shared.locator("#type-summary-field-0")).toHaveCount(0);
-  await shared.getByRole("button", { name: englishMessages.RecordModel.preview, exact: true }).click();
-  await expect(shared.getByRole("status")).toContainText(
-    englishMessages.RecordModel.previewReady.split("{count}")[0]?.trim() ?? "Ready to apply",
-  );
-  await shared.getByRole("button", { name: englishMessages.RecordModel.apply, exact: true }).click();
-  await expect(shared).not.toBeVisible();
+  await saveDrawer(page);
   expect((await readModel(page)).types.find((candidate) => candidate.id === type.id)?.defaults.groupSummaries).toEqual(
     [],
   );
   await page.reload();
-  await page.getByRole("button", { name: englishMessages.RecordModel.sharedDefaults, exact: true }).click();
+  await openListAction(page, "Shared defaults");
   await expect(shared.locator("#type-summary-field-0")).toHaveCount(0);
   await page.keyboard.press("Escape");
   await expect(shared).not.toBeVisible();
@@ -1744,13 +1722,8 @@ test("keeps personal views separate from shared defaults and completes their UI 
 });
 
 async function summaryFieldEditorUi(page: Page, typeId: string, label: string) {
-  await page.goto(`/en/company/data-model?typeId=${typeId}`);
-  const row = page
-    .getByRole("region", { name: englishMessages.RecordModel.fields, exact: true })
-    .getByText(label, { exact: true })
-    .locator("..")
-    .locator("..");
-  await row.getByRole("button", { name: englishMessages.RecordModel.edit, exact: true }).click();
+  await openConfigure(page, typeId);
+  await openConfigureRow(page, "Fields", label);
   const dialog = page.getByRole("dialog", { name: englishMessages.RecordModel.editField, exact: true });
   await expect(dialog).toBeVisible();
   return dialog;
@@ -2025,11 +1998,8 @@ test("keeps retained values restricted after a delegated manager converts fields
     await assertRestricted();
     const applyUi = async () => {
       const dialog = manager.page.getByRole("dialog");
-      await dialog.getByRole("button", { name: "Preview changes", exact: true }).click();
-      await expect(dialog.getByRole("status")).toContainText("Ready to apply");
-      await dialog.getByRole("button", { name: "Apply changes", exact: true }).click();
-      await expect(dialog).not.toBeVisible();
-      await manager.page.waitForLoadState("networkidle");
+      await expect(dialog).toBeVisible();
+      await saveDrawer(manager.page);
     };
     for (const field of [total, memo]) {
       const dialog = await summaryFieldEditorUi(manager.page, summaryType.id, field.label);
@@ -2041,25 +2011,15 @@ test("keeps retained values restricted after a delegated manager converts fields
       await applyUi();
     }
     await assertRestricted();
-    await manager.page.goto(`/en/company/data-model?typeId=${summaryType.id}`);
-    const relationshipRow = manager.page
-      .getByRole("region", { name: "Relationships", exact: true })
-      .getByText("Private source", { exact: true })
-      .locator("..")
-      .locator("..");
-    await relationshipRow.getByRole("button", { name: "Edit", exact: true }).click();
+    await openConfigure(manager.page, summaryType.id);
+    await openConfigureRow(manager.page, "Relationships", "Private source");
     await manager.page.getByRole("dialog").locator("#archived").check();
     await applyUi();
-    await manager.page.goto(`/en/company/data-model?typeId=${sourceType.id}`);
-    const activity = manager.page
-      .getByRole("region", { name: "Activity connections", exact: true })
-      .getByText(sourceType.pluralLabel, { exact: true })
-      .locator("..");
-    await activity.getByRole("button", { name: "Edit", exact: true }).click();
+    await openConfigure(manager.page, sourceType.id);
+    await openConfigureRow(manager.page, "Activity connections", sourceType.pluralLabel);
     await manager.page.getByRole("dialog").getByRole("switch", { name: "Archive connection", exact: true }).check();
     await applyUi();
-    await manager.page.getByRole("button", { name: "Type settings", exact: true }).click();
-    await manager.page.getByRole("dialog").getByRole("switch", { name: "Archive this type", exact: true }).check();
+    await openListAction(manager.page, "Archive list");
     await applyUi();
     model = await readModel(page);
     expect(model.types.find((type) => type.id === sourceType.id)?.archived).toBe(true);
@@ -2180,12 +2140,7 @@ test("publishes and withdraws a private-input summary through the field UI witho
     const toggle = dialog.getByRole("switch", { name: englishMessages.RecordModel.publishSummary, exact: true });
     if (next) await toggle.check();
     else await toggle.uncheck();
-    await dialog.getByRole("button", { name: englishMessages.RecordModel.preview, exact: true }).click();
-    await expect(dialog.getByRole("status")).toContainText(
-      englishMessages.RecordModel.previewReady.split("{count}")[0]?.trim() ?? "Ready to apply",
-    );
-    await dialog.getByRole("button", { name: englishMessages.RecordModel.apply, exact: true }).click();
-    await expect(dialog).not.toBeVisible();
+    await saveDrawer(page);
     await expect.poll(published).toBe(next);
     expect(
       (
@@ -2205,7 +2160,7 @@ test("publishes and withdraws a private-input summary through the field UI witho
     await privateInputsStayPrivate();
     const delegated = await summaryFieldEditorUi(member.page, deal.typeId, summary.label);
     await expect(
-      delegated.getByRole("button", { name: englishMessages.RecordModel.preview, exact: true }),
+      delegated.getByRole("button", { name: englishMessages.Common.actions.save, exact: true }).first(),
     ).toBeEnabled();
     await expect(delegated.locator("#publishedSummary")).toHaveCount(0);
     await expect(delegated.getByText(englishMessages.RecordModel.summaryApprovalRequired, { exact: true })).toHaveCount(
@@ -2253,13 +2208,13 @@ test("publishes and withdraws a private-input summary through the field UI witho
     await delegatedSource
       .getByRole("textbox", { name: englishMessages.RecordModel.defaultValue, exact: true })
       .fill("50");
-    await delegatedSource.getByRole("button", { name: englishMessages.RecordModel.preview, exact: true }).click();
+    await delegatedSource.getByRole("button", { name: englishMessages.Common.actions.save, exact: true }).first().click();
     await expect(delegatedSource.getByRole("status")).toContainText(
       englishMessages.RecordModel.summaryApprovalRequired,
     );
     await expect(delegatedSource.locator("#renew-published-summaries")).toHaveCount(0);
     await expect(
-      delegatedSource.getByRole("button", { name: englishMessages.RecordModel.apply, exact: true }),
+      delegatedSource.getByRole("button", { name: englishMessages.RecordModel.apply, exact: true }).first(),
     ).toHaveCount(0);
     await member.page.keyboard.press("Escape");
     await member.page.getByRole("alertdialog").getByRole("button", { name: "Discard", exact: true }).click();
@@ -2267,7 +2222,7 @@ test("publishes and withdraws a private-input summary through the field UI witho
     const sourceEditor = await summaryFieldEditorUi(page, service.typeId, "Price");
     await sourceEditor.getByRole("switch", { name: englishMessages.RecordModel.setDefaultValue, exact: true }).check();
     await sourceEditor.getByRole("textbox", { name: englishMessages.RecordModel.defaultValue, exact: true }).fill("50");
-    await sourceEditor.getByRole("button", { name: englishMessages.RecordModel.preview, exact: true }).click();
+    await sourceEditor.getByRole("button", { name: englishMessages.Common.actions.save, exact: true }).first().click();
     await expect(sourceEditor.getByRole("status")).toContainText(englishMessages.RecordModel.summaryApprovalRequired);
     await expect(
       sourceEditor.getByRole("checkbox", { name: englishMessages.RecordModel.renewPublishedSummaries, exact: true }),
@@ -2276,12 +2231,9 @@ test("publishes and withdraws a private-input summary through the field UI witho
       .getByRole("checkbox", { name: englishMessages.RecordModel.renewPublishedSummaries, exact: true })
       .check();
     await expect(
-      sourceEditor.getByRole("button", { name: englishMessages.RecordModel.preview, exact: true }),
+      sourceEditor.getByRole("button", { name: englishMessages.Common.actions.save, exact: true }).first(),
     ).toBeEnabled();
-    await sourceEditor.getByRole("button", { name: englishMessages.RecordModel.preview, exact: true }).click();
-    await expect(sourceEditor.getByRole("status")).toContainText("Ready to apply");
-    await sourceEditor.getByRole("button", { name: englishMessages.RecordModel.apply, exact: true }).click();
-    await expect(sourceEditor).not.toBeVisible();
+    await saveDrawer(page);
     expect((await readModel(page)).fields.find((field) => field.id === id("service.amount"))?.behavior).toEqual({
       kind: "input",
       defaultValue: { kind: "decimal", value: "50", currency: "EUR" },

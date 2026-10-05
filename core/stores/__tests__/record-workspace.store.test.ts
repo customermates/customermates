@@ -167,7 +167,8 @@ describe("workspace record navigation and drawers", () => {
   it("distinguishes stable type routes from the surrounding system pages", () => {
     expect(recordNavigationKey("/records/type-a/record-a")).toBe("records:type-a");
     expect(recordNavigationKey("/records/type-b")).toBe("records:type-b");
-    expect(recordNavigationKey("/company/data-model")).toBe("company");
+    expect(recordNavigationKey("/company/settings")).toBe("company");
+    expect(recordNavigationKey("/configure")).toBe("configure-records");
   });
 });
 

@@ -15,6 +15,9 @@ export const VIEW_TAB_CLASS = cn(
   VIEW_SURFACE_CLASS,
 );
 
+export const VIEW_TAB_ACTIVE_CLASS =
+  "border-primary/40 bg-primary/20 text-primary-soft-foreground hover:bg-primary/20 hover:text-primary-soft-foreground";
+
 type Props = {
   href: string;
   id?: string;
@@ -32,11 +35,7 @@ export function ViewChip({ href, id, isActive, label, preview, tabIndex, onKeyDo
       <TooltipTrigger asChild>
         <a
           aria-current={isActive ? "page" : undefined}
-          className={cn(
-            VIEW_TAB_CLASS,
-            isActive &&
-              "border-primary/40 bg-primary/20 text-primary-soft-foreground hover:bg-primary/20 hover:text-primary-soft-foreground",
-          )}
+          className={cn(VIEW_TAB_CLASS, isActive && VIEW_TAB_ACTIVE_CLASS)}
           data-view-chip=""
           href={href}
           id={id}

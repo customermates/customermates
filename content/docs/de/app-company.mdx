@@ -19,7 +19,6 @@ Abonnement gibt es nur in der Cloud. Audit-Logs erfordert Leserecht **Alle** auf
 |---|---|---|---|---|
 | **Abonnement** | `/company/subscription` | `nav-company-subscription` | `company-subscription-manage`, `company-subscription-refresh`, `company-subscription-plan-picker` | [Abonnement](#subscription-tab) |
 | **Einstellungen** | `/company/settings` | `nav-company-settings`, auch `nav-company` | `company-settings-currency`, `company-settings-data-model`, `company-settings-save`, `company-settings-reset` | [Einstellungen](#settings-tab) |
-| **Datenmodell** | `/company/data-model` | `#nav-company-data-model` | Datensatztypen, Felder, Beziehungen und Berechnungen konfigurieren | [CRM-Datensätze](/docs/app-records) |
 | **Mitglieder** | `/company/members` | `nav-company-members` | `company-members-add`, `company-members-search`, `company-members-filter`, `company-members-display-options`, `company-members-layout-table`, `company-members-layout-board`; in **Benutzer einladen** `invite-modal-tab-link`, `invite-modal-link`, `invite-modal-copy-link`, `invite-modal-tab-email`, `invite-modal-emails`, `invite-modal-send`; in **Benutzer** `member-modal-email`, `member-modal-first-name`, `member-modal-last-name`, `member-modal-country`, `member-modal-role`, `member-modal-avatar-url`, `member-modal-status`, `member-modal-save`, `member-modal-reset` | [Mitglieder](#members-tab) |
 | **Rollen** | `/company/roles` | `nav-company-roles` | `company-roles-add`, `company-roles-display-options`, `company-roles-layout-table`, `company-roles-layout-board`; im Editor `role-modal-save`, `role-modal-reset`, `role-modal-delete` | [Rollen](#roles-tab) |
 | **Audit-Logs** | `/company/audit-logs` | `nav-company-audit-logs` | `company-audit-logs-search`, `company-audit-logs-filter`, `company-audit-logs-display-options`, `company-audit-logs-layout-table`, `company-audit-logs-layout-board` | [Audit-Logs](#audit-logs-tab) |
@@ -168,9 +167,9 @@ Bei Starter zeigen der Posteingang und **Mein Profil** › **Kanäle** den Hinwe
 
 ## Seite Einstellungen (Unternehmenseinstellungen) [#settings-tab]
 
-Die URL der Unternehmenseinstellungen-Seite und der Link zur Unternehmenseinstellungen-Seite lauten `/company/settings`. Dort finden Sie die Workspace-Währung und einen Link zum **Datenmodell**. Die Währung dient der Anzeige: Eine Änderung rechnet gespeicherte Beträge nicht um. Währungsfelder mit eigener Währung behalten ihre Einstellung.
+Die URL der Unternehmenseinstellungen-Seite und der Link zur Unternehmenseinstellungen-Seite lauten `/company/settings`. Dort finden Sie die Workspace-Währung und einen Link zu **Konfigurieren**, der eigenen Seite für CRM-Listen. Die Währung dient der Anzeige: Eine Änderung rechnet gespeicherte Beträge nicht um. Währungsfelder mit eigener Währung behalten ihre Einstellung.
 
-Das Währungsfeld hat die Id `#company-settings-currency`. Mitglieder mit **Unternehmen → Verwalten** speichern eine Änderung über `#company-settings-save` oder verwerfen sie über `#company-settings-reset`; andere sehen das Feld schreibgeschützt. Der Link **Datenmodell** (`#company-settings-data-model`) öffnet `/company/data-model`. Dort werden Datensatztypen, Felder, Beziehungen, Phasenwahrscheinlichkeiten und Berechnungen verwaltet.
+Das Währungsfeld hat die Id `#company-settings-currency`. Mitglieder mit **Unternehmen → Verwalten** speichern eine Änderung über `#company-settings-save` oder verwerfen sie über `#company-settings-reset`; andere sehen das Feld schreibgeschützt. Der Link **Konfigurieren** unter **Datenmodell** (`#company-settings-data-model`) öffnet `/configure`. Diese eigene Seite, auch als **Konfigurieren** in der Sidebar-Gruppe **CRM** erreichbar (`#nav-configure-records`), verwaltet Listen, Felder, Beziehungen, Phasenwahrscheinlichkeiten und Berechnungen. Die frühere Adresse `/company/data-model` leitet dorthin weiter.
 
 **Link:** `/company/settings`. **Mate:** `nav-company-settings` öffnet die Seite; `company-settings-currency`, `company-settings-data-model`, `company-settings-save` und `company-settings-reset` bezeichnen die verfügbaren Controls.
 
@@ -178,19 +177,19 @@ Das Währungsfeld hat die Id `#company-settings-currency`. Mitglieder mit **Unte
 
 **Unternehmen → Verwalten** berechtigt zur Änderung der Währung auf der Seite Einstellungen. **Datenmodell → Verwalten** berechtigt zur Konfiguration von Typen und Feldern; dieses Recht lässt sich separat vergeben und gewährt weder Zugriff auf Datensätze noch die Berechtigung, Rollenzugriffe auszuweiten. Für die Ausweitung von Zugriffen ist Rollenverwaltung nötig. Der Assistent nutzt `update_workspace_settings` für die Währung und `configure_record_model` für das Datenmodell; im Backend gelten dieselben Prüfungen wie in der Oberfläche.
 
-**Link:** `/company/settings` für die Währung; `/company/data-model` für die CRM-Konfiguration.
+**Link:** `/company/settings` für die Währung; `/configure` für die CRM-Konfiguration.
 
 ### Wo lege ich Phasenwahrscheinlichkeiten für die Gewichtung fest, und wie funktionieren Summen? [#how-do-stage-probabilities-and-totals-work]
 
-Öffnen Sie **Mein Unternehmen → Datenmodell**, wählen Sie **Deals** und bearbeiten Sie das Auswahlfeld für die Phase. Jede Option kann eine Wahrscheinlichkeit enthalten. Die mitgelieferte Berechnung **Gewichteter Wert** multipliziert den berechneten Deal-Wert mit der Wahrscheinlichkeit der gewählten Phase und teilt durch 100. Null Prozent ergeben null; ohne Wahrscheinlichkeit bleibt der gewichtete Wert leer. Änderungen an Wahrscheinlichkeiten oder Berechnungen erhalten eine Vorschau ihrer Abhängigkeiten und berechnen betroffene Datensätze neu. Die Formel kann geändert und der Deal-Wert stattdessen manuell eingegeben werden. Für Pipeline-Summen legen Sie auf dem Dashboard ein Diagramm-Widget an, das **Wert** oder **Gewichteter Wert** summiert, optional nach Phase gruppiert. Auf der Seite Unternehmenseinstellungen gibt es dafür kein separates Formular.
+Öffnen Sie **Konfigurieren**, wählen Sie **Deals** und bearbeiten Sie das Auswahlfeld für die Phase. Jede Option kann eine Wahrscheinlichkeit enthalten. Die mitgelieferte Berechnung **Gewichteter Wert** multipliziert den berechneten Deal-Wert mit der Wahrscheinlichkeit der gewählten Phase und teilt durch 100. Null Prozent ergeben null; ohne Wahrscheinlichkeit bleibt der gewichtete Wert leer. Änderungen an Wahrscheinlichkeiten oder Berechnungen erhalten eine Vorschau ihrer Abhängigkeiten und berechnen betroffene Datensätze neu. Die Formel kann geändert und der Deal-Wert stattdessen manuell eingegeben werden. Für Pipeline-Summen legen Sie auf dem Dashboard ein Diagramm-Widget an, das **Wert** oder **Gewichteter Wert** summiert, optional nach Phase gruppiert. Auf der Seite Unternehmenseinstellungen gibt es dafür kein separates Formular.
 
-**Link:** `/company/data-model` für Phasen und Berechnungen; `/dashboard` für Summen. Siehe [gewichtete Pipeline](/docs/concepts#how-does-a-weighted-pipeline-work).
+**Link:** `/configure` für Phasen und Berechnungen; `/dashboard` für Summen. Siehe [gewichtete Pipeline](/docs/concepts#how-does-a-weighted-pipeline-work).
 
 ### Wo benenne ich den Datensatztyp Deals um, zum Beispiel Deals in Opportunities? [#how-do-i-rename-record-types-in-the-data-model]
 
-Öffnen Sie **Mein Unternehmen → Datenmodell**, wählen Sie einen Typ und öffnen Sie **Typeinstellungen**. Sie können jeden der fünf mitgelieferten oder einen selbst erstellten Typ umbenennen. Die Namen sind frei bearbeitbar; stabile Typ-Ids halten Datensätze, Verknüpfungen, Ansichten, Widgets und API-Verweise verbunden. Der Assistent kann dieselbe geprüfte Konfiguration mit `get_record_model` und `configure_record_model` ändern. Dafür ist **Datenmodell → Verwalten** nötig; die Währung muss nicht geändert werden.
+Öffnen Sie **Konfigurieren**, wählen Sie die Liste in der linken Leiste und ändern Sie **Name** und **Navigationsbezeichnung** unter **Allgemein**; danach **Speichern** oben in der Leiste. Sie können jeden der fünf mitgelieferten oder einen selbst erstellten Typ umbenennen. Die Namen sind frei bearbeitbar; stabile Typ-Ids halten Datensätze, Verknüpfungen, Ansichten, Widgets und API-Verweise verbunden. Der Assistent kann dieselbe geprüfte Konfiguration mit `get_record_model` und `configure_record_model` ändern. Dafür ist **Datenmodell → Verwalten** nötig; die Währung muss nicht geändert werden.
 
-**Link:** `/company/data-model`. **Mate:** `nav-company-data-model` öffnet die Seite; `company-settings-data-model` ist der Link aus den Einstellungen.
+**Link:** `/configure`. **Mate:** `nav-configure-records` öffnet die Seite; `company-settings-data-model` ist der Link aus den Einstellungen.
 
 ## Seite Mitglieder [#members-tab]
 

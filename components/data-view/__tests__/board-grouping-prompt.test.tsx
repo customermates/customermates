@@ -70,7 +70,7 @@ function store(overrides: Partial<BaseDataViewStore<Item>> = {}): BaseDataViewSt
   return {
     canManage: true,
     currentGroupableFieldId: "",
-    schemaSettingsHref: "/company/data-model?typeId=00000000-0000-4000-8000-000000000099",
+    schemaSettingsHref: "/configure?typeId=00000000-0000-4000-8000-000000000099",
     groupableFields: [STAGE, CREATED_MONTH],
     setViewOptions: vi.fn(),
     ...overrides,

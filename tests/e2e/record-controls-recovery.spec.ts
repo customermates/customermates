@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { Client } from "pg";
 import type { Page, Locator, Request, Route, TestInfo } from "@playwright/test";
+import { configureRow, followConfigureLink, openConfigure, openConfigureRow, saveDrawer, setShowArchivedParts } from "./configure";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
 import {
@@ -462,11 +463,7 @@ async function chartPreview(page: Page, total: string, groups: Record<string, st
   await expect(dialog.locator("svg.recharts-surface")).toBeVisible();
 }
 async function applyDefinition(page: Page) {
-  const dialog = page.getByRole("dialog");
-  await dialog.getByRole("button", { name: english.RecordModel.preview, exact: true }).click();
-  await expect(dialog.getByRole("status")).toContainText("Ready to apply");
-  await dialog.getByRole("button", { name: english.RecordModel.apply, exact: true }).click();
-  await expect(dialog).not.toBeVisible();
+  await saveDrawer(page);
 }
 
 test("uses Average, Minimum and Maximum at record grain, groups through relationships, edits group colors and retries an owned preview", async ({
@@ -1073,13 +1070,12 @@ test("retries failed participant and conversation searches and archives and rest
   await page.keyboard.press("Escape");
   await expect(settings).not.toBeVisible();
   await page.unrouteAll({ behavior: "wait" });
-  await page.goto(`/en/company/data-model?typeId=${id("service")}`);
+  await openConfigure(page, id("service"));
   const relationships = page.getByRole("region", {
     name: english.RecordModel.relationships,
     exact: true,
   });
-  const row = () => relationships.getByText("Deals", { exact: true }).locator("..").locator("..");
-  await row().getByRole("button", { name: english.RecordModel.edit, exact: true }).click();
+  await openConfigureRow(page, "Relationships", "Deals");
   const dialog = page.getByRole("dialog");
   await dialog
     .getByRole("switch", {
@@ -1088,7 +1084,7 @@ test("retries failed participant and conversation searches and archives and rest
     })
     .check();
   await applyDefinition(page);
-  await expect(relationships.getByText("Deals", { exact: true })).toHaveCount(0);
+  await expect(configureRow(page, "Relationships", "Deals")).toHaveCount(0);
   let latest = await model(page);
   expect(
     latest.types
@@ -1103,13 +1099,8 @@ test("retries failed participant and conversation searches and archives and rest
       )
     ).rows,
   ).toEqual([{ count: 2 }]);
-  await page
-    .getByRole("button", {
-      name: english.RecordModel.showArchived,
-      exact: true,
-    })
-    .click();
-  await row().getByRole("button", { name: english.RecordModel.restore, exact: true }).click();
+  await setShowArchivedParts(page, true);
+  await openConfigureRow(page, "Relationships", "Deals");
   await expect(
     dialog.getByRole("switch", {
       name: english.RecordModel.archiveRelationshipPath,
@@ -1404,21 +1395,16 @@ test("retries relationship reads and accepted record, bulk and schema refreshes 
   await expect(mass).toHaveCount(0);
   expect(await receiptCount()).toBe(beforeBulk + 1);
   expect(await sourceRows()).toEqual(afterBulk);
-  await page.locator("#records-configure").click();
+  await followConfigureLink(page);
   const fields = page.getByRole("region", { name: english.RecordModel.fields, exact: true });
-  await fields
-    .getByText("Price", { exact: true })
-    .locator("..")
-    .locator("..")
-    .getByRole("button", { name: english.RecordModel.edit, exact: true })
-    .click();
+  await openConfigureRow(page, "Fields", "Price");
   const dialog = page.getByRole("dialog");
   await dialog.locator("#label").fill("Recovered price");
-  await dialog.getByRole("button", { name: english.RecordModel.preview, exact: true }).click();
+  await dialog.getByRole("button", { name: english.Common.actions.save, exact: true }).first().click();
   await expect(dialog.getByRole("status")).toContainText("Ready to apply");
   const beforeSchema = await receiptCount();
   modelFault = true;
-  await dialog.getByRole("button", { name: english.RecordModel.apply, exact: true }).click();
+  await dialog.getByRole("button", { name: english.RecordModel.apply, exact: true }).first().click();
   await expect(dialog).not.toBeVisible();
   const schemaError = page.getByRole("alert").filter({ hasText: english.ErrorCard.title });
   await expect(schemaError).toBeVisible();

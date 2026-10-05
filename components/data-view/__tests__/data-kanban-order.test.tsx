@@ -251,7 +251,7 @@ describe("board column order and labels", () => {
     const host = renderBoard(
       boardStore({
         canManage: true,
-        schemaSettingsHref: "/company/data-model?typeId=00000000-0000-4000-8000-000000000001",
+        schemaSettingsHref: "/configure?typeId=00000000-0000-4000-8000-000000000001",
         currentGroupableFieldId: "",
         groupableFields: [],
         groupingResult: undefined,

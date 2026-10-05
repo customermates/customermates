@@ -189,6 +189,7 @@ export class RecordConfigurationService extends UserAccessor {
       if (index < 0) items.push(item);
       else items[index] = item;
     };
+    const reorderedTypes = new Set<string>();
     const grants: PreparedConfiguration["grants"] = [];
     const previousGrants = input.operations.some(
       (operation) => operation.operation === "setTypeGrants" || operation.operation === "createType",
@@ -285,6 +286,7 @@ export class RecordConfigurationService extends UserAccessor {
         const existing = current.fields.find((candidate) => candidate.id === field.id);
         if (existing && existing.typeId !== field.typeId)
           throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
+        if (existing && existing.position !== field.position) reorderedTypes.add(field.typeId);
         upsert(model.fields, {
           ...field,
           publishedSummary: field.behavior.kind === "input" ? false : (existing?.publishedSummary ?? false),
@@ -353,6 +355,13 @@ export class RecordConfigurationService extends UserAccessor {
       }
       if (operation.operation === "putActivityPath")
         upsert(model.activityPaths, resolveDefinition(operation.activityPath) as RecordModel["activityPaths"][number]);
+    }
+    for (const typeId of reorderedTypes) {
+      const slots = model.fields.flatMap((field, index) => (field.typeId === typeId ? [index] : []));
+      const ordered = slots.map((index) => model.fields[index]).sort((left, right) => left.position - right.position);
+      slots.forEach((slot, offset) => {
+        model.fields[slot] = ordered[offset];
+      });
     }
     if (!RecordModelSchema.safeParse(model).success)
       throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);

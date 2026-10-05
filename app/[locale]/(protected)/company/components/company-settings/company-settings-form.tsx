@@ -56,7 +56,7 @@ export const CompanySettingsForm = observer(({ currency }: Props) => {
           <h2 className="text-sm font-medium">{t("CompanySettings.dataModelTitle")}</h2>
 
           <Button asChild className="w-fit" size="sm" variant="secondary">
-            <IntlLink href="/company/data-model">{t("RecordModel.configure")}</IntlLink>
+            <IntlLink href="/configure">{t("RecordModel.configure")}</IntlLink>
           </Button>
         </section>
       </div>

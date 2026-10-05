@@ -19,7 +19,6 @@ Subscription is Cloud only. Audit Logs needs **Audit Log** read access **All**, 
 |---|---|---|---|---|
 | **Subscription** | `/company/subscription` | `nav-company-subscription` | `company-subscription-manage`, `company-subscription-refresh`, `company-subscription-plan-picker` | [Subscription](#subscription-tab) |
 | **Settings** | `/company/settings` | `nav-company-settings`, also `nav-company` | `company-settings-currency`, `company-settings-data-model`, `company-settings-save`, `company-settings-reset` | [Settings](#settings-tab) |
-| **Data model** | `/company/data-model` | `#nav-company-data-model` | Configure record types, fields, relationships and calculations | [CRM records](/docs/app-records) |
 | **Members** | `/company/members` | `nav-company-members` | `company-members-add`, `company-members-search`, `company-members-filter`, `company-members-display-options`, `company-members-layout-table`, `company-members-layout-board`; in **Invite User** `invite-modal-tab-link`, `invite-modal-link`, `invite-modal-copy-link`, `invite-modal-tab-email`, `invite-modal-emails`, `invite-modal-send`; in **User** `member-modal-email`, `member-modal-first-name`, `member-modal-last-name`, `member-modal-country`, `member-modal-role`, `member-modal-avatar-url`, `member-modal-status`, `member-modal-save`, `member-modal-reset` | [Members](#members-tab) |
 | **Roles** | `/company/roles` | `nav-company-roles` | `company-roles-add`, `company-roles-display-options`, `company-roles-layout-table`, `company-roles-layout-board`; in the editor `role-modal-save`, `role-modal-reset`, `role-modal-delete` | [Roles](#roles-tab) |
 | **Audit Logs** | `/company/audit-logs` | `nav-company-audit-logs` | `company-audit-logs-search`, `company-audit-logs-filter`, `company-audit-logs-display-options`, `company-audit-logs-layout-table`, `company-audit-logs-layout-board` | [Audit Logs](#audit-logs-tab) |
@@ -168,13 +167,13 @@ On Starter, the Inbox and **My Profile** › **Channels** show **Upgrade to unlo
 
 ## Company settings page [#settings-tab]
 
-**My Company → Settings** at `/company/settings` contains the workspace currency and a link to **Data model**.
+**My Company → Settings** at `/company/settings` contains the workspace currency and a link to **Configure**, the separate page for CRM lists.
 
 | Field | What it does |
 |---|---|
 | **Currency** | Formats amounts in the workspace; switching does not convert amounts. Currency fields with their own configured currency retain that setting. |
 
-The currency selector is `#company-settings-currency`. Members with **Company → Manage** can save a change with `#company-settings-save` or discard an unsaved change with `#company-settings-reset`; other members see the currency read-only. The **Data model** link (`#company-settings-data-model`) opens `/company/data-model`. That separate page owns record types, fields, relationships, stage probabilities, and calculations.
+The currency selector is `#company-settings-currency`. Members with **Company → Manage** can save a change with `#company-settings-save` or discard an unsaved change with `#company-settings-reset`; other members see the currency read-only. The **Configure** link under **Data model** (`#company-settings-data-model`) opens `/configure`. That separate page, also reachable as **Configure** in the sidebar's **CRM** group (`#nav-configure-records`), owns lists, fields, relationships, stage probabilities, and calculations. The former `/company/data-model` address redirects there.
 
 **Link:** `/company/settings`. **Mate:** `nav-company-settings` opens the page; `company-settings-currency`, `company-settings-data-model`, `company-settings-save`, and `company-settings-reset` identify the available controls.
 
@@ -182,19 +181,19 @@ The currency selector is `#company-settings-currency`. Members with **Company �
 
 **Company → Manage** controls currency changes on Settings. **Data model → Manage** controls type and field configuration; it can be delegated separately and does not grant access to records or permission to expand role grants. Role administration is required to expand access. The assistant uses `update_workspace_settings` for currency and `configure_record_model` for record configuration, with the same backend checks as the UI.
 
-**Link:** `/company/settings` for currency; `/company/data-model` for CRM configuration.
+**Link:** `/company/settings` for currency; `/configure` for CRM configuration.
 
 ### Where do I set stage probabilities for weighting, and how do totals work? [#how-do-stage-probabilities-and-totals-work]
 
-Open **My Company → Data model**, select **Deals**, and edit its stage select field to set a probability on each option. The shipped **Weighted value** calculation multiplies the calculated deal value by the selected stage probability divided by 100. A zero probability produces zero; a missing probability leaves weighted value absent. Changes to probabilities or calculations go through a dependency preview and recalculate affected records. You can change the formula or make deal value manually entered in the same configuration system. To show pipeline totals, add a Dashboard chart widget that sums **Value** or **Weighted value**, optionally grouped by stage. There is no separate pipeline-total form on Company Settings.
+Open **Configure**, select **Deals**, and edit its stage select field to set a probability on each option. The shipped **Weighted value** calculation multiplies the calculated deal value by the selected stage probability divided by 100. A zero probability produces zero; a missing probability leaves weighted value absent. Changes to probabilities or calculations go through a dependency preview and recalculate affected records. You can change the formula or make deal value manually entered in the same configuration system. To show pipeline totals, add a Dashboard chart widget that sums **Value** or **Weighted value**, optionally grouped by stage. There is no separate pipeline-total form on Company Settings.
 
-**Link:** `/company/data-model` for stage metadata and calculations; `/dashboard` for totals. See [weighted pipeline](/docs/concepts#how-does-a-weighted-pipeline-work).
+**Link:** `/configure` for stage metadata and calculations; `/dashboard` for totals. See [weighted pipeline](/docs/concepts#how-does-a-weighted-pipeline-work).
 
 ### Can I name Contacts anything I want, and how do I rename record types such as Deals? [#how-do-i-rename-record-types-in-the-data-model]
 
-Open **My Company → Data model**, select a type, and open **Type settings**. You can rename any of the five starting types or a customer-created type. Names are editable text, while stable type IDs keep records, links, views, widgets, and API references connected. The same validated configuration operation is available to the assistant through `get_record_model` and `configure_record_model`. A schema manager needs **Data model → Manage**; renaming does not require changing currency.
+Open **Configure**, select the list in the left rail, and edit **Name** and **Navigation label** under **General**, then **Save** in the top bar. You can rename any of the five starting types or a customer-created type. Names are editable text, while stable type IDs keep records, links, views, widgets, and API references connected. The same validated configuration operation is available to the assistant through `get_record_model` and `configure_record_model`. A schema manager needs **Data model → Manage**; renaming does not require changing currency.
 
-**Link:** `/company/data-model`. **Mate:** navigate with `nav-company-data-model`; `company-settings-data-model` is the link from Settings.
+**Link:** `/configure`. **Mate:** navigate with `nav-configure-records`; `company-settings-data-model` is the link from Settings.
 
 ## Members page [#members-tab]
 

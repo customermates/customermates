@@ -11,6 +11,10 @@ const icons = {
   list: List,
 };
 
+export type RecordTypeIconKey = keyof typeof icons;
+
+export const RECORD_TYPE_ICON_KEYS = Object.keys(icons) as RecordTypeIconKey[];
+
 export function recordTypeIcon(icon: string) {
-  return Object.hasOwn(icons, icon) ? icons[icon as keyof typeof icons] : Folder;
+  return Object.hasOwn(icons, icon) ? icons[icon as RecordTypeIconKey] : Folder;
 }

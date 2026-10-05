@@ -10,6 +10,7 @@ import {
 } from "../../features/records/record-query.schema";
 import type { RecordActivityQuery } from "../../ee/messaging/activities/record-activities.schema";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
+import { addFromConfigure, openConfigure, openConfigureRow, saveDrawer, setShowArchivedParts } from "./configure";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 const labels = englishMessages.RecordModel;
@@ -37,11 +38,7 @@ async function mutation(page: Page, current: RecordModel, change: RecordMutation
 }
 
 async function applyPath(page: Page) {
-  const dialog = page.locator(':is([data-overlay-surface="dialog"],[data-overlay-surface="drawer"])[role="dialog"]');
-  await dialog.getByRole("button", { name: labels.preview, exact: true }).click();
-  await expect(dialog.getByRole("status").filter({ hasText: "Ready to apply" })).toBeVisible();
-  await dialog.getByRole("button", { name: labels.apply, exact: true }).click();
-  await expect(dialog).not.toBeVisible();
+  await saveDrawer(page);
 }
 
 async function chooseMultiple(page: Page, selector: string, value: string) {
@@ -87,10 +84,6 @@ async function todayBound(page: Page, key: "after" | "before", time: string) {
   await expect(calendar).toHaveCount(0);
 }
 
-function activityRow(region: Locator, name: string) {
-  return region.getByText(name, { exact: false }).locator("..");
-}
-
 test("configures an activity path and applies provider, channel, conversation and date filters to a persisted widget", async ({
   page,
   database,
@@ -107,19 +100,20 @@ test("configures an activity path and applies provider, channel, conversation an
   });
   const organizationTypeId = presetId(companyId, "organization");
   const contactTypeId = presetId(companyId, "contact");
-  await page.goto(`/en/company/data-model?typeId=${organizationTypeId}`);
-  const connections = page.getByRole("region", { name: labels.activityConnections, exact: true });
-  const dialog = page.locator(':is([data-overlay-surface="dialog"],[data-overlay-surface="drawer"])[role="dialog"]');
+  await openConfigure(page, organizationTypeId);
+  const dialog = page.locator(
+    ':is([data-overlay-surface="dialog"],[data-overlay-surface="drawer"],[data-overlay-surface="sheet"])[role="dialog"]',
+  );
   const seedModel = await model(database, companyId);
   const seededPath = seedModel.activityPaths.find(
     (path) => path.typeId === organizationTypeId && path.label === "Contacts",
   );
   if (!seededPath) throw new Error("Expected preset contact activity path");
-  await activityRow(connections, seededPath.label).getByRole("button", { name: labels.edit, exact: true }).click();
+  await openConfigureRow(page, "Activity connections", seededPath.label);
   await dialog.locator("#archived").check();
   await applyPath(page);
   const pathName = "Configured client conversations";
-  await connections.getByRole("button", { name: labels.addActivityConnection, exact: true }).click();
+  await addFromConfigure(page, "Activity connection");
   await dialog.locator("#label").fill(pathName);
   await dialog.getByRole("combobox", { name: labels.addPathStep, exact: true }).click();
   await page.getByRole("option", { name: "Contacts", exact: true }).click();
@@ -344,8 +338,8 @@ test("configures an activity path and applies provider, channel, conversation an
   else await expect(selectedInboxRow).toBeVisible();
   await returnToDashboard();
   await page.screenshot({ path: testInfo.outputPath("activity-message-inbox-return.png"), fullPage: true });
-  await page.goto(`/en/company/data-model?typeId=${organizationTypeId}`);
-  await activityRow(connections, pathName).getByRole("button", { name: labels.edit, exact: true }).click();
+  await openConfigure(page, organizationTypeId);
+  await openConfigureRow(page, "Activity connections", pathName);
   await dialog.locator("#includeMessages").uncheck();
   await dialog.locator("#includeAudit").check();
   await dialog.locator("#archived").check();
@@ -358,9 +352,9 @@ test("configures an activity path and applies provider, channel, conversation an
   await page.goto("/en/dashboard");
   await expect(card.getByText(englishMessages.Dashboard.activityWidget.noMatches, { exact: true })).toBeVisible();
   await expect(card.getByText(selectedBody, { exact: true })).toHaveCount(0);
-  await page.goto(`/en/company/data-model?typeId=${organizationTypeId}`);
-  await page.getByRole("button", { name: labels.showArchived, exact: true }).click();
-  await activityRow(connections, pathName).getByRole("button", { name: labels.restore, exact: true }).click();
+  await openConfigure(page, organizationTypeId);
+  await setShowArchivedParts(page, true);
+  await openConfigureRow(page, "Activity connections", pathName);
   await expect(dialog.locator("#archived")).not.toBeChecked();
   await expect(dialog.locator("#includeMessages")).not.toBeChecked();
   await expect(dialog.locator("#includeAudit")).toBeChecked();
