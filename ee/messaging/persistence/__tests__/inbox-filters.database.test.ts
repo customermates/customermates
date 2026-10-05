@@ -546,6 +546,7 @@ describeDatabase("inbox filters on PostgreSQL", () => {
         SELECT gen_random_uuid()::text,$1,id,$2,id,'mail','outbound','external','{}'::jsonb,'{"to":[],"cc":[],"bcc":[]}'::jsonb,'Large filter regression',ARRAY[]::text[],NOW(),NOW() FROM "MessagingThread" WHERE "companyId"=$1 AND subject=$3`,
         [companyId, account.a, subject],
       );
+      await client.query('ANALYZE "MessagingThread", "MessagingMessage"');
       await runWithTenant(tenant, async () => {
         const repo = new PrismaMessagingRepo();
         const params: { filters: Filter[] } = {
