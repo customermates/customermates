@@ -2,7 +2,7 @@
 
 import type { ChartDataPoint } from "./chart.types";
 
-import { Bar, BarChart, XAxis, YAxis, Cell } from "recharts";
+import { Area, AreaChart, XAxis, YAxis } from "recharts";
 import { observer } from "mobx-react-lite";
 import { useReducedMotion } from "framer-motion";
 
@@ -15,6 +15,7 @@ type Props = {
   currency?: string | null;
   chartData: ChartDataPoint[];
   colors: string[];
+  strokeColors: string[];
   gridColor: string;
   textColor: string;
   reverseXAxis?: boolean;
@@ -22,19 +23,34 @@ type Props = {
   allowDecimals?: boolean;
 };
 
-export const VerticalBarChart = observer(
-  ({ currency, chartData, colors, gridColor, textColor, reverseXAxis, reverseYAxis, allowDecimals = true }: Props) => {
+export const AreaTimeChart = observer(
+  ({
+    currency,
+    chartData,
+    colors,
+    strokeColors,
+    gridColor,
+    textColor,
+    reverseXAxis,
+    reverseYAxis,
+    allowDecimals = true,
+  }: Props) => {
     const formatValue = useChartFormatter(currency);
     const reducedMotion = useReducedMotion();
+    const axisLabels = new Map(chartData.map((point) => [point.label, point.axisLabel ?? point.label]));
+    const data = chartData.map((point) => ({ ...point, value: point.missing ? null : point.value }));
 
     return (
       <DashboardChartContainer>
-        <BarChart data={chartData}>
+        <AreaChart data={data} margin={{ top: 8, right: 12, bottom: 0, left: 0 }}>
           <XAxis
             dataKey="label"
+            interval="preserveStartEnd"
+            minTickGap={12}
             reversed={Boolean(reverseXAxis)}
             stroke={gridColor}
             tick={{ fill: textColor, fontSize: 12 }}
+            tickFormatter={(value) => axisLabels.get(String(value)) ?? String(value)}
             type="category"
           />
 
@@ -50,14 +66,20 @@ export const VerticalBarChart = observer(
             width="auto"
           />
 
-          <ChartTooltip currency={currency} />
+          <ChartTooltip currency={currency} filterNull={false} />
 
-          <Bar dataKey="value" fill={colors[0]} isAnimationActive={reducedMotion === false} radius={4}>
-            {chartData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.fill} stroke={entry.strokeColor} strokeWidth={1.5} />
-            ))}
-          </Bar>
-        </BarChart>
+          <Area
+            connectNulls={false}
+            dataKey="value"
+            dot={data.length === 1 ? { r: 3, fill: strokeColors[0], stroke: strokeColors[0] } : false}
+            fill={colors[0]}
+            fillOpacity={0.3}
+            isAnimationActive={reducedMotion === false}
+            stroke={strokeColors[0]}
+            strokeWidth={2}
+            type="linear"
+          />
+        </AreaChart>
       </DashboardChartContainer>
     );
   },

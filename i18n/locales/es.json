@@ -1285,6 +1285,7 @@
       "recordDependencies": "Actualiza primero los campos, las vistas, los widgets o las asociaciones dependientes.",
       "recordIdempotencyConflict": "Esta clave de solicitud se usó para otro cambio. Inicia una nueva solicitud.",
       "recordIdUnavailable": "Este ID ya perteneció a un registro anterior. Importa el registro con un ID nuevo.",
+      "recordMeasureDateIntervalInvalid": "Los intervalos de tiempo requieren agrupar por un campo de fecha, fecha y hora, creación o actualización, y una zona horaria requiere un intervalo de tiempo.",
       "recordNotFound": "Este registro no está disponible.",
       "recordProtected": "Este registro está gestionado por un proceso del sistema.",
       "recordReadOnlyField": "Este campo se calcula. Cambia su definición para introducir valores manualmente.",
@@ -1358,6 +1359,7 @@
       "widgetDealAggregationNotAllowedForTask": "Los tipos de agregación de oportunidades no están permitidos para el tipo de elemento Tarea.",
       "widgetDealFiltersNotAllowedForDealEntityType": "Los filtros de oportunidad no están permitidos cuando el tipo de elemento es Oportunidad.",
       "widgetDealQuantityOnlyForService": "La agregación de cantidad de oportunidades solo está permitida para el tipo de elemento Servicio.",
+      "widgetDisplayTypeUnsupported": "Este estilo de gráfico no encaja con la agrupación seleccionada. Elige otro estilo o cambia la agrupación.",
       "widgetGroupByEntityTypeNotAllowedForCount": "No se permite agrupar por tipo de elemento cuando el tipo de agregación es el recuento.",
       "widgetGroupByTypeMustMatchEntityType": "El tipo de agrupación debe coincidir con el tipo de elemento del gráfico.",
       "widgetKindImmutable": "El tipo de un widget no se puede cambiar después de crearlo.",
@@ -1989,11 +1991,21 @@
       "title": "Actividad reciente"
     },
     "addCard": "Añadir widget",
+    "displayTypeRequirements": {
+      "grouping": "Elige una agrupación para clasificar los grupos.",
+      "noGrouping": "Establece Agrupar por en Sin agrupación para mostrar un número.",
+      "singleChoice": "Agrupa por un campo de selección única, como una etapa.",
+      "timeInterval": "Agrupa por un campo de fecha y elige un intervalo de tiempo."
+    },
     "displayTypes": {
+      "areaChart": "Área en el tiempo",
       "doughnutChart": "Gráfico de anillo",
+      "funnelChart": "Embudo",
       "horizontalBarChart": "Gráfico de barras horizontal",
       "horizontalBarChartWithLabels": "Gráfico de barras horizontal con etiquetas",
+      "number": "Número",
       "radarChart": "Gráfico radar",
+      "rankedTable": "Tabla de clasificación",
       "verticalBarChart": "Gráfico de barras vertical",
       "verticalBarChartWithLabels": "Gráfico de barras vertical con etiquetas"
     },
@@ -2036,6 +2048,32 @@
         "description": "Usa una configuración compartida en tu espacio de trabajo y adáptala a tu gusto.",
         "title": "Empezar con una plantilla"
       }
+    },
+    "widgetGallery": {
+      "description": "Widgets listos para tu modelo de datos actual. Puedes editarlo todo antes de guardar.",
+      "templates": {
+        "dealsByStage": {
+          "description": "Oportunidades en cada etapa, en el orden de las etapas, con la conversión entre pasos.",
+          "name": "Oportunidades por etapa"
+        },
+        "openPipeline": {
+          "description": "Valor total de las oportunidades que no están ganadas ni perdidas.",
+          "name": "Pipeline abierto"
+        },
+        "openTasksPerAssignee": {
+          "description": "Tareas que no están completadas ni archivadas, contadas por cada usuario asignado.",
+          "name": "Tareas abiertas por responsable"
+        },
+        "topOrganizationsByRevenue": {
+          "description": "Valor de las oportunidades ganadas por organización vinculada, clasificado con su parte del total.",
+          "name": "Principales organizaciones por ingresos"
+        },
+        "wonValuePerMonth": {
+          "description": "Valor de las oportunidades ganadas por mes, según el primer campo de fecha de la oportunidad o la fecha de creación.",
+          "name": "Valor ganado por mes"
+        }
+      },
+      "title": "Widgets iniciales"
     },
     "widgetKinds": {
       "activityTimeline": "Cronología de actividad",
@@ -3517,14 +3555,26 @@
     "filterOperator": "Condición",
     "filterUntil": "Hasta",
     "filterValue": "Valor",
+    "funnelClosedStage": "{label}: {value}, una etapa perdida que se muestra fuera del embudo.",
+    "funnelTooltip": "{value} ({conversion} del paso anterior)",
     "group": "Agrupar por",
     "groupFilterHelp": "Elige qué registros aparecen como grupos. El total general sigue usando los filtros de origen de arriba.",
     "groupFilters": "Filtros de grupos",
     "groupFilterSummary": "Los grupos están filtrados. El total general incluye todos los registros de origen que coinciden.",
     "groupPath": "Seguir relaciones",
     "groupRecord": "Cada registro",
+    "interval": "Intervalo de tiempo",
+    "intervals": {
+      "day": "Día",
+      "month": "Mes",
+      "none": "Valor exacto",
+      "quarter": "Trimestre",
+      "week": "Semana (empieza el lunes)",
+      "year": "Año"
+    },
     "loadingSchema": "Cargando campos…",
     "measure": "Medida",
+    "noRecordsInPeriod": "Sin registros",
     "operators": {
       "between": "Entre",
       "contains": "Contiene",
@@ -3546,6 +3596,15 @@
     "preview": "Vista previa de la medida",
     "previewFailed": "No se pudo cargar la vista previa. Inténtalo de nuevo.",
     "previewHelp": "La vista previa usa los registros actuales y tus permisos.",
+    "quarterLabel": "T{quarter} {year}",
+    "ranked": {
+      "group": "Grupo",
+      "more": "+ {count} más",
+      "rank": "#",
+      "share": "Parte",
+      "value": "Valor"
+    },
+    "recordCount": "{count, plural, one {# registro} other {# registros}}",
     "relatedAny": "Coincide al menos un registro vinculado accesible",
     "relatedFilterHelp": "Todas las condiciones de un filtro de registros vinculados se aplican al mismo registro. Solo se consideran los registros a los que tienes acceso.",
     "relatedMatch": "Registros vinculados",
@@ -3555,7 +3614,13 @@
     "signedChart": "Los valores negativos se muestran en una lista. Elige un gráfico de barras para representarlos.",
     "source": "Registros de",
     "unavailable": "Esta medida no está disponible. Revisa su configuración o los permisos.",
-    "value": "Campo de valor"
+    "unavailableMember": "Usuario no disponible",
+    "unplacedGroups": "Algunos registros están restringidos o no se pudieron calcular y no se muestran.",
+    "value": "Campo de valor",
+    "weekOf": "Semana del {date}",
+    "weekShort": "Sem. {week} {year}",
+    "withoutDate": "{count, plural, one {# registro no tiene fecha y no se muestra.} other {# registros no tienen fecha y no se muestran.}}",
+    "withoutValue": "{count, plural, one {# registro no tiene valor y no se muestra.} other {# registros no tienen valor y no se muestran.}}"
   },
   "ResetPassword": {
     "cta": "Restablecer la contraseña",

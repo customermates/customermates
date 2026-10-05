@@ -6,10 +6,18 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { RecordAiAction } from "@/app/components/agent-chat/record-ai-action";
 import { X } from "lucide-react";
+import { omit } from "lodash";
 import type { RecordModel } from "@/features/records/record-model.schema";
-import type { RecordMeasureResult } from "@/features/records/record-measure.schema";
+import type { RecordWidgetPreview } from "@/features/widget/record-widget-reader";
 import type { WidgetModalStore } from "./widget-modal.store";
-import { RecordMeasureSchema } from "@/features/records/record-measure.schema";
+import {
+  RECORD_MEASURE_DATE_INTERVALS,
+  RECORD_MEASURE_DEFAULT_GROUP_LIMIT,
+  RECORD_MEASURE_MAX_GROUP_LIMIT,
+  RecordMeasureSchema,
+} from "@/features/records/record-measure.schema";
+import { DisplayType } from "@/features/widget/widget.schema";
+import { widgetDisplayTypeIssue } from "@/features/widget/widget-display-rules";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item";
 import { FormInput } from "@/components/forms/form-input";
@@ -21,6 +29,7 @@ import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { getRecordModelAction } from "../../records/actions";
 import { discoverWidgetRecordTypesAction, previewRecordWidgetAction } from "../actions";
 import { isRecordWidgetForm } from "./record-widget-form";
+import { browserTimeZone } from "./widget-time-zone";
 import { RecordWidgetChart } from "./record-widget-chart";
 import { recordFilterFields } from "@/features/records/record-filter";
 import {
@@ -89,13 +98,13 @@ export const RecordWidgetEditor = observer(
     appearance,
   }: {
     store: WidgetModalStore;
-    appearance?: ReactNode;
+    appearance?: ReactNode | ((model: RecordModel | null | undefined) => ReactNode);
     section: "data" | "filters" | "preview" | "all";
   }) => {
     const t = useTranslations();
     const { model, retry } = useWidgetModel(store);
     const form = store.form;
-    const [preview, setPreview] = useState<{ key: string; result: RecordMeasureResult } | null>(null);
+    const [preview, setPreview] = useState<({ key: string } & RecordWidgetPreview) | null>(null);
     const [loading, setLoading] = useState(false);
     const [previewError, setPreviewError] = useState(false);
     const previewGeneration = useRef(0);
@@ -130,12 +139,12 @@ export const RecordWidgetEditor = observer(
           if (explicit) toastZodErrorTree(result.error);
           return;
         }
-        if (model && result.data.schemaRevision !== model.revision) {
+        if (model && result.data.result.schemaRevision !== model.revision) {
           retry();
           return;
         }
-        setPreview({ key: previewed, result: result.data });
-        if (explicit || store.hasUnsavedChanges) store.onChange("expectedRevision", result.data.schemaRevision);
+        setPreview({ key: previewed, ...result.data });
+        if (explicit || store.hasUnsavedChanges) store.onChange("expectedRevision", result.data.result.schemaRevision);
       } catch (error) {
         if (isCurrent()) {
           setPreviewError(true);
@@ -162,6 +171,14 @@ export const RecordWidgetEditor = observer(
       if (!debouncedAutoPreviewKey || debouncedAutoPreviewKey !== autoPreviewKey) return;
       runAutoPreview.current(false).catch(reportApplicationError);
     }, [debouncedAutoPreviewKey, autoPreviewKey]);
+    const displayIssue =
+      model && isRecordWidgetForm(form)
+        ? widgetDisplayTypeIssue(form.displayOptions.displayType, form.measure, model)
+        : null;
+    useEffect(() => {
+      if (displayIssue && store.isOpen && !store.isHydrating)
+        store.onChange("displayOptions.displayType", DisplayType.verticalBarChart);
+    }, [displayIssue, store, store.isOpen, store.isHydrating]);
     if (!isRecordWidgetForm(form)) return null;
     const measure = form.measure;
     const key = JSON.stringify(measure);
@@ -180,6 +197,12 @@ export const RecordWidgetEditor = observer(
           !field.multiple &&
           !["richText", "dateRange", "dateTimeRange"].includes(field.valueType),
       ) ?? [];
+    const temporalGroup =
+      measure.groupBy?.fieldId === "system:createdAt" ||
+      measure.groupBy?.fieldId === "system:updatedAt" ||
+      groupFields.some(
+        (field) => field.id === measure.groupBy?.fieldId && ["date", "dateTime"].includes(field.valueType),
+      );
     const status =
       model === undefined ? (
         <p className="text-sm text-muted-foreground" role="status">
@@ -221,11 +244,12 @@ export const RecordWidgetEditor = observer(
         )}
 
         {preview?.key === key && preview.result.schemaRevision === model?.revision && (
-          <div className="h-64">
+          <div className="h-64" data-slot="widget-preview">
             <RecordWidgetChart
               data={preview.result}
               displayOptions={form.displayOptions}
-              groupOptions={model?.fields.find((field) => field.id === measure.groupBy?.fieldId)?.options ?? []}
+              groupOptions={preview.groupOptions}
+              label={form.name}
               measure={measure}
               status="ready"
             />
@@ -389,18 +413,54 @@ export const RecordWidgetEditor = observer(
             { value: "none", label: t("RecordModel.noGrouping") },
             { value: "record", label: t("RecordWidgets.groupRecord") },
             ...groupFields.map((field) => ({ value: field.id, label: field.label })),
+            { value: "system:assignedTo", label: t("RecordModel.assignedTo") },
+            { value: "system:createdAt", label: t("RecordModel.createdAt") },
+            { value: "system:updatedAt", label: t("RecordModel.updatedAt") },
           ]}
           label={t("RecordWidgets.group")}
           value={measure.groupBy ? (measure.groupBy.fieldId ?? "record") : "none"}
-          onValueChange={(value) =>
+          onValueChange={(value) => {
             store.onChange(
               "measure.groupBy",
               value === "none"
                 ? null
-                : { ...measure.groupBy, path: measure.groupBy?.path ?? [], fieldId: value === "record" ? null : value },
-            )
-          }
+                : {
+                    path: measure.groupBy?.path ?? [],
+                    fieldId: value === "record" ? null : value,
+                    ...(measure.groupBy?.filter ? { filter: measure.groupBy.filter } : {}),
+                  },
+            );
+            if (measure.groupLimit === RECORD_MEASURE_MAX_GROUP_LIMIT)
+              store.onChange("measure.groupLimit", RECORD_MEASURE_DEFAULT_GROUP_LIMIT);
+          }}
         />
+
+        {measure.groupBy && temporalGroup && (
+          <FormSelect
+            id="widget-group-interval"
+            items={[
+              { value: "none", label: t("RecordWidgets.intervals.none") },
+              ...RECORD_MEASURE_DATE_INTERVALS.map((interval) => ({
+                value: interval,
+                label: t(`RecordWidgets.intervals.${interval}`),
+              })),
+            ]}
+            label={t("RecordWidgets.interval")}
+            value={measure.groupBy.dateInterval ?? "none"}
+            onValueChange={(value) => {
+              const grouping = omit(measure.groupBy, ["dateInterval", "timeZone"]);
+              const interval = RECORD_MEASURE_DATE_INTERVALS.find((candidate) => candidate === value);
+              store.onChange(
+                "measure.groupBy",
+                interval ? { ...grouping, dateInterval: interval, timeZone: browserTimeZone() } : grouping,
+              );
+              store.onChange(
+                "measure.groupLimit",
+                interval ? RECORD_MEASURE_MAX_GROUP_LIMIT : RECORD_MEASURE_DEFAULT_GROUP_LIMIT,
+              );
+            }}
+          />
+        )}
       </div>
     );
     if (section === "data") return dataContent;
@@ -412,7 +472,7 @@ export const RecordWidgetEditor = observer(
 
         <section id="widget-config-filters">{filtersContent}</section>
 
-        {appearance}
+        {typeof appearance === "function" ? appearance(model) : appearance}
 
         <section id="widget-config-preview">{previewContent}</section>
       </div>

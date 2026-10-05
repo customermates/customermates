@@ -29,11 +29,19 @@ export enum DisplayType {
   horizontalBarChartWithLabels = "horizontalBarChartWithLabels",
   doughnutChart = "doughnutChart",
   radarChart = "radarChart",
+  number = "number",
+  areaChart = "areaChart",
+  rankedTable = "rankedTable",
+  funnelChart = "funnelChart",
 }
 
 export const WidgetDisplayOptionsSchema = z.object({
   barColors: z.array(z.enum(ChartColor)).optional(),
-  displayType: z.enum(DisplayType),
+  displayType: z
+    .enum(DisplayType)
+    .describe(
+      "number shows the overall result and requires no grouping. areaChart plots a time series and requires groupBy.dateInterval. rankedTable lists groups by value with their share of the total and requires a grouping. funnelChart orders groups by the options of a single-choice grouping field with step-to-step conversion and requires one.",
+    ),
   reverseXAxis: z.boolean().optional(),
   reverseYAxis: z.boolean().optional(),
   useGroupColors: z.boolean().optional(),

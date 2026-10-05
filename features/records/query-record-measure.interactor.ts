@@ -15,7 +15,7 @@ import { fail, failAuthorization, failNotFound } from "@/core/validation/interac
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordMeasureSchema, RecordMeasureResultSchema } from "./record-measure.schema";
 import { RecordScalarSchema } from "./record-model.schema";
-import { recordMeasureIsValid } from "./record-measure-validation";
+import { recordMeasureIssue } from "./record-measure-validation";
 import { recordWriteFailure } from "./mutate-record.interactor";
 
 @AllowInDemoMode
@@ -43,7 +43,8 @@ export class QueryRecordMeasureInteractor extends AuthenticatedInteractor<Record
           (!policy.allowed(measure.source.typeId, "readAll") && !policy.allowed(measure.source.typeId, "readOwn"))
         )
           return failNotFound(CustomErrorCode.recordTypeNotFound);
-        if (!recordMeasureIsValid(measure, model)) return fail(CustomErrorCode.recordValueInvalid);
+        const issue = recordMeasureIssue(measure, model);
+        if (issue) return fail(issue.code, issue.path);
         try {
           const rows = await this.records.measure(
             measure,

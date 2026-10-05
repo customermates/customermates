@@ -1285,6 +1285,7 @@
       "recordDependencies": "Aggiorna prima i campi, le viste, i widget o le associazioni dipendenti.",
       "recordIdempotencyConflict": "Questa chiave di richiesta è stata usata per un’altra modifica. Crea una nuova richiesta.",
       "recordIdUnavailable": "Questo ID apparteneva già a un record precedente. Importa il record con un nuovo ID.",
+      "recordMeasureDateIntervalInvalid": "Gli intervalli di tempo richiedono un raggruppamento per un campo data, data e ora, creazione o modifica, e un fuso orario richiede un intervallo di tempo.",
       "recordNotFound": "Questo record non è disponibile.",
       "recordProtected": "Questo record è gestito da un processo di sistema.",
       "recordReadOnlyField": "Questo campo è calcolato. Modifica la definizione per inserire valori manualmente.",
@@ -1358,6 +1359,7 @@
       "widgetDealAggregationNotAllowedForTask": "I tipi di aggregazione delle trattative non sono consentiti per il tipo di elemento Attività.",
       "widgetDealFiltersNotAllowedForDealEntityType": "I filtri sulle trattative non sono consentiti quando il tipo di elemento è Trattativa.",
       "widgetDealQuantityOnlyForService": "L'aggregazione della quantità delle trattative è consentita solo per il tipo di elemento Servizio.",
+      "widgetDisplayTypeUnsupported": "Questo stile di grafico non è adatto al raggruppamento scelto. Scegli un altro stile o modifica il raggruppamento.",
       "widgetGroupByEntityTypeNotAllowedForCount": "Il raggruppamento per tipo di elemento non è consentito quando il tipo di aggregazione è il conteggio.",
       "widgetGroupByTypeMustMatchEntityType": "Il tipo di raggruppamento deve corrispondere al tipo di elemento del grafico.",
       "widgetKindImmutable": "Il tipo di un widget non può essere modificato dopo la creazione.",
@@ -1989,11 +1991,21 @@
       "title": "Attività recenti"
     },
     "addCard": "Aggiungi widget",
+    "displayTypeRequirements": {
+      "grouping": "Scegli un raggruppamento per classificare i gruppi.",
+      "noGrouping": "Imposta Raggruppa per su Nessun raggruppamento per mostrare un numero.",
+      "singleChoice": "Raggruppa per un campo a scelta singola, come una fase.",
+      "timeInterval": "Raggruppa per un campo data e scegli un intervallo di tempo."
+    },
     "displayTypes": {
+      "areaChart": "Area nel tempo",
       "doughnutChart": "Grafico ad anello",
+      "funnelChart": "Imbuto",
       "horizontalBarChart": "Grafico a barre orizzontali",
       "horizontalBarChartWithLabels": "Grafico a barre orizzontali con etichette",
+      "number": "Numero",
       "radarChart": "Grafico radar",
+      "rankedTable": "Classifica",
       "verticalBarChart": "Grafico a barre verticali",
       "verticalBarChartWithLabels": "Grafico a barre verticali con etichette"
     },
@@ -2036,6 +2048,32 @@
         "description": "Usa una configurazione condivisa nel tuo spazio di lavoro e personalizzala.",
         "title": "Parti da un modello"
       }
+    },
+    "widgetGallery": {
+      "description": "Widget pronti per il tuo modello di dati attuale. Puoi modificare tutto prima di salvare.",
+      "templates": {
+        "dealsByStage": {
+          "description": "Trattative in ogni fase, nell’ordine delle fasi, con la conversione tra i passaggi.",
+          "name": "Trattative per fase"
+        },
+        "openPipeline": {
+          "description": "Valore totale delle trattative né vinte né perse.",
+          "name": "Pipeline aperta"
+        },
+        "openTasksPerAssignee": {
+          "description": "Attività non completate né archiviate, conteggiate per ogni utente assegnato.",
+          "name": "Attività aperte per assegnatario"
+        },
+        "topOrganizationsByRevenue": {
+          "description": "Valore delle trattative vinte per organizzazione collegata, in classifica con la quota sul totale.",
+          "name": "Organizzazioni principali per fatturato"
+        },
+        "wonValuePerMonth": {
+          "description": "Valore delle trattative vinte al mese, in base al primo campo data della trattativa o alla data di creazione.",
+          "name": "Valore vinto al mese"
+        }
+      },
+      "title": "Widget iniziali"
     },
     "widgetKinds": {
       "activityTimeline": "Cronologia attività",
@@ -3517,14 +3555,26 @@
     "filterOperator": "Condizione",
     "filterUntil": "Fino a",
     "filterValue": "Valore",
+    "funnelClosedStage": "{label}: {value}, una fase persa mostrata fuori dall’imbuto.",
+    "funnelTooltip": "{value} ({conversion} del passaggio precedente)",
     "group": "Raggruppa per",
     "groupFilterHelp": "Scegli quali record vengono mostrati come gruppi. Il totale complessivo continua a usare i filtri di origine qui sopra.",
     "groupFilters": "Filtri dei gruppi",
     "groupFilterSummary": "I gruppi sono filtrati. Il totale complessivo include tutti i record di origine corrispondenti.",
     "groupPath": "Segui le relazioni",
     "groupRecord": "Ogni record",
+    "interval": "Intervallo di tempo",
+    "intervals": {
+      "day": "Giorno",
+      "month": "Mese",
+      "none": "Valore esatto",
+      "quarter": "Trimestre",
+      "week": "Settimana (inizia il lunedì)",
+      "year": "Anno"
+    },
     "loadingSchema": "Caricamento dei campi…",
     "measure": "Misura",
+    "noRecordsInPeriod": "Nessun record",
     "operators": {
       "between": "Tra",
       "contains": "Contiene",
@@ -3546,6 +3596,15 @@
     "preview": "Anteprima della misura",
     "previewFailed": "Impossibile caricare l’anteprima. Riprova.",
     "previewHelp": "L’anteprima usa i record attuali e i tuoi permessi di accesso.",
+    "quarterLabel": "T{quarter} {year}",
+    "ranked": {
+      "group": "Gruppo",
+      "more": "+ altri {count}",
+      "rank": "#",
+      "share": "Quota",
+      "value": "Valore"
+    },
+    "recordCount": "{count, plural, one {# record} other {# record}}",
     "relatedAny": "Almeno un record collegato accessibile corrisponde",
     "relatedFilterHelp": "Tutte le condizioni di un filtro sui record collegati si applicano allo stesso record. Vengono considerati solo i record a cui hai accesso.",
     "relatedMatch": "Record collegati",
@@ -3555,7 +3614,13 @@
     "signedChart": "I valori negativi sono mostrati in un elenco. Scegli un grafico a barre per rappresentarli.",
     "source": "Record da",
     "unavailable": "Questa misura non è disponibile. Controlla configurazione e accesso.",
-    "value": "Campo del valore"
+    "unavailableMember": "Utente non disponibile",
+    "unplacedGroups": "Alcuni record sono riservati o non è stato possibile calcolarli e non vengono mostrati.",
+    "value": "Campo del valore",
+    "weekOf": "Settimana del {date}",
+    "weekShort": "Sett. {week} {year}",
+    "withoutDate": "{count, plural, one {# record non ha una data e non viene mostrato.} other {# record non hanno una data e non vengono mostrati.}}",
+    "withoutValue": "{count, plural, one {# record non ha un valore e non viene mostrato.} other {# record non hanno un valore e non vengono mostrati.}}"
   },
   "ResetPassword": {
     "cta": "Reimposta la password",

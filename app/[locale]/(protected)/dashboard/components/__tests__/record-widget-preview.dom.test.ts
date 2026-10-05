@@ -79,7 +79,7 @@ beforeEach(() => {
   mocks.getRecordModelAction.mockResolvedValue(model);
   mocks.previewRecordWidgetAction.mockResolvedValue({
     ok: true,
-    data: { schemaRevision: model.revision, groups: [], total: 0 },
+    data: { result: { schemaRevision: model.revision, groups: [], total: 0 }, groupOptions: [] },
   });
 });
 afterEach(() => {

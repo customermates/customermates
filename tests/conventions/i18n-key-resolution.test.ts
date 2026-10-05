@@ -26,7 +26,9 @@ import { DomainEvent } from "@/features/event/domain-events";
 import { FeedbackType } from "@/features/feedback/send-feedback.schema";
 import { RecordDeliveryEnvelopeSchema } from "@/features/records/record-delivery.schema";
 import { FieldBehaviorSchema, RecordValueTypeSchema } from "@/features/records/record-model.schema";
-import { RecordMeasureSchema } from "@/features/records/record-measure.schema";
+import { RECORD_MEASURE_DATE_INTERVALS, RecordMeasureSchema } from "@/features/records/record-measure.schema";
+import { WIDGET_DISPLAY_REQUIREMENTS } from "@/features/widget/widget-display-rules";
+import { WIDGET_GALLERY_KEYS } from "@/features/widget/widget-gallery";
 import { RecordFilterSchema } from "@/features/records/record-query.schema";
 import { DIAGRAM_SYSTEM_LABEL_KEYS, DisplayType } from "@/features/widget/widget.schema";
 import {
@@ -128,6 +130,14 @@ const FILTER_FIELD_KEYS = Object.values(FilterFieldKey)
 const ROLE_RESOURCE_KEYS = Object.values(Resource).map((resource) => `RoleModal.resources.${resource}`);
 const DISPLAY_TYPE_KEYS = Object.values(DisplayType).map((displayType) => `Dashboard.displayTypes.${displayType}`);
 const WIDGET_KIND_KEYS = Object.values(WidgetKind).map((kind) => `Dashboard.widgetKinds.${kind}`);
+const WIDGET_DISPLAY_REQUIREMENT_KEYS = WIDGET_DISPLAY_REQUIREMENTS.map(
+  (requirement) => `Dashboard.displayTypeRequirements.${requirement}`,
+);
+const WIDGET_GALLERY_NAME_KEYS = WIDGET_GALLERY_KEYS.map((key) => `Dashboard.widgetGallery.templates.${key}.name`);
+const WIDGET_GALLERY_DESCRIPTION_KEYS = WIDGET_GALLERY_KEYS.map(
+  (key) => `Dashboard.widgetGallery.templates.${key}.description`,
+);
+const RECORD_MEASURE_INTERVAL_KEYS = RECORD_MEASURE_DATE_INTERVALS.map((interval) => `RecordWidgets.intervals.${interval}`);
 const WIDGET_KIND_DESCRIPTION_KEYS = Object.values(WidgetKind).map(
   (kind) => `Dashboard.widgetEditor.kind.${kind}Description`,
 );
@@ -582,6 +592,10 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["ConnectedAccountsCard.statusLabels.${*}", CONNECTED_ACCOUNT_STATUS_KEYS],
   ["ConnectedAccountsCard.signatureTemplates.${*}", SIGNATURE_TEMPLATE_KEYS],
   ["Dashboard.displayTypes.${*}", DISPLAY_TYPE_KEYS],
+  ["Dashboard.displayTypeRequirements.${*}", WIDGET_DISPLAY_REQUIREMENT_KEYS],
+  ["Dashboard.widgetGallery.templates.${*}.name", WIDGET_GALLERY_NAME_KEYS],
+  ["Dashboard.widgetGallery.templates.${*}.description", WIDGET_GALLERY_DESCRIPTION_KEYS],
+  ["RecordWidgets.intervals.${*}", RECORD_MEASURE_INTERVAL_KEYS],
   ["Dashboard.widgetEditor.kind.${*}Description", WIDGET_KIND_DESCRIPTION_KEYS],
   ["Dashboard.widgetKinds.${*}", WIDGET_KIND_KEYS],
   ["EntityTimeline.types.${*}", ENTITY_TIMELINE_TYPE_KEYS],
@@ -697,10 +711,15 @@ export const DYNAMIC_KEY_SITES = [
   'app/[locale]/(protected)/dashboard/components/record-widget-chart.tsx :: t :: RecordModel.${result.state === "error" ? "calculationError" : result.state}',
   'app/[locale]/(protected)/dashboard/components/record-widget-chart.tsx :: t :: RecordModel.${value.value ? "yes" : "no"}',
   "app/[locale]/(protected)/dashboard/components/record-widget-editor.tsx :: t :: RecordModel.reducers.${value}",
+  "app/[locale]/(protected)/dashboard/components/record-widget-editor.tsx :: t :: RecordWidgets.intervals.${interval}",
   "app/[locale]/(protected)/dashboard/components/record-widget-filters.tsx :: t :: RecordWidgets.operators.${value}",
+  "app/[locale]/(protected)/dashboard/components/widget-display-type-picker.tsx :: t :: Dashboard.displayTypeRequirements.${requirement}",
   "app/[locale]/(protected)/dashboard/components/widget-display-type-picker.tsx :: t :: Dashboard.displayTypes.${type}",
   "app/[locale]/(protected)/dashboard/components/widget-filter-chip.tsx :: t :: Common.filters.operators.${filter.operator}",
+  "app/[locale]/(protected)/dashboard/components/widget-modal.tsx :: t :: Dashboard.widgetGallery.templates.${template.key}.name",
   "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetEditor.kind.${kind}Description",
+  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetGallery.templates.${template.key}.description",
+  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetGallery.templates.${template.key}.name",
   "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetKinds.${kind}",
   "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetKinds.${widget.kind}",
   "app/[locale]/(protected)/inbox/components/thread-row.tsx :: t :: Common.providers.${thread.provider}",

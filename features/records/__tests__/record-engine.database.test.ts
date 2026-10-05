@@ -216,7 +216,7 @@ async function fixture() {
   const choices = new GetRecordChoicesInteractor(repo, policy, query);
   const measure = new QueryRecordMeasureInteractor(repo, policy, company);
   const widgets = new PrismaRecordWidgetRepo();
-  const widgetReader = new RecordWidgetReader(repo, measure);
+  const widgetReader = new RecordWidgetReader(repo, measure, new PrismaUserRepo());
   const writeWidget = new UpsertRecordWidgetInteractor(widgets, repo, policy, measure, widgetReader);
   const configurations = new RecordConfigurationService(repo);
   const preview = new PreviewRecordConfigurationInteractor(repo, policy, configurations);

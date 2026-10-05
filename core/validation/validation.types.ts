@@ -15,6 +15,7 @@ export enum CustomErrorCode {
   recordDependencies = "recordDependencies",
   recordCalculationBudget = "recordCalculationBudget",
   recordProtected = "recordProtected",
+  recordMeasureDateIntervalInvalid = "recordMeasureDateIntervalInvalid",
 
   agentApprovalUnavailable = "agentApprovalUnavailable",
   agentConversationNotFound = "agentConversationNotFound",
@@ -78,6 +79,7 @@ export enum CustomErrorCode {
   widgetDealFiltersNotAllowedForDealEntityType = "widgetDealFiltersNotAllowedForDealEntityType",
   widgetDealAggregationNotAllowedForTask = "widgetDealAggregationNotAllowedForTask",
   widgetKindImmutable = "widgetKindImmutable",
+  widgetDisplayTypeUnsupported = "widgetDisplayTypeUnsupported",
   taskOnlyCustomTasksCanBeDeleted = "taskOnlyCustomTasksCanBeDeleted",
   taskNameCannotBeChangedForSystemTasks = "taskNameCannotBeChangedForSystemTasks",
   organizationNotFound = "organizationNotFound",

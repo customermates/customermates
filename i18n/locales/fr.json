@@ -1285,6 +1285,7 @@
       "recordDependencies": "Mets d’abord à jour les champs, vues, widgets ou associations dépendants.",
       "recordIdempotencyConflict": "Cette clé de requête a été utilisée pour une autre modification. Crée une nouvelle requête.",
       "recordIdUnavailable": "Cet identifiant appartenait déjà à un enregistrement précédent. Importe l’enregistrement avec un nouvel identifiant.",
+      "recordMeasureDateIntervalInvalid": "Les intervalles de temps nécessitent un regroupement par un champ de date, de date et heure, de création ou de modification, et un fuseau horaire nécessite un intervalle de temps.",
       "recordNotFound": "Cet enregistrement est indisponible.",
       "recordProtected": "Cet enregistrement est géré par un processus système.",
       "recordReadOnlyField": "Ce champ est calculé. Modifie sa définition pour saisir des valeurs manuellement.",
@@ -1358,6 +1359,7 @@
       "widgetDealAggregationNotAllowedForTask": "Les types d'agrégation d'affaires ne sont pas autorisés pour le type d'élément Tâche.",
       "widgetDealFiltersNotAllowedForDealEntityType": "Les filtres d'affaire ne sont pas autorisés lorsque le type d'élément est Affaire.",
       "widgetDealQuantityOnlyForService": "L'agrégation de quantité d'affaire n'est autorisée que pour le type d'élément Service.",
+      "widgetDisplayTypeUnsupported": "Ce style de graphique ne correspond pas au regroupement choisi. Choisissez un autre style ou modifiez le regroupement.",
       "widgetGroupByEntityTypeNotAllowedForCount": "Le regroupement par type d'élément n'est pas autorisé lorsque le type d'agrégation est le comptage.",
       "widgetGroupByTypeMustMatchEntityType": "Le type de regroupement doit correspondre au type d'élément du graphique.",
       "widgetKindImmutable": "Le type d'un widget ne peut pas être modifié après sa création.",
@@ -1989,11 +1991,21 @@
       "title": "Activité récente"
     },
     "addCard": "Ajouter un widget",
+    "displayTypeRequirements": {
+      "grouping": "Choisissez un regroupement pour classer les groupes.",
+      "noGrouping": "Réglez Regrouper par sur Aucun regroupement pour afficher un nombre.",
+      "singleChoice": "Regroupez par un champ à choix unique, comme une étape.",
+      "timeInterval": "Regroupez par un champ de date et choisissez un intervalle de temps."
+    },
     "displayTypes": {
+      "areaChart": "Aire dans le temps",
       "doughnutChart": "Graphique en anneau",
+      "funnelChart": "Entonnoir",
       "horizontalBarChart": "Histogramme horizontal",
       "horizontalBarChartWithLabels": "Histogramme horizontal avec étiquettes",
+      "number": "Nombre",
       "radarChart": "Graphique radar",
+      "rankedTable": "Tableau classé",
       "verticalBarChart": "Histogramme vertical",
       "verticalBarChartWithLabels": "Histogramme vertical avec étiquettes"
     },
@@ -2036,6 +2048,32 @@
         "description": "Utilisez une configuration partagée dans votre espace de travail, puis adaptez-la.",
         "title": "Partir d'un modèle"
       }
+    },
+    "widgetGallery": {
+      "description": "Des widgets prêts à l’emploi pour votre modèle de données actuel. Vous pouvez tout modifier avant d’enregistrer.",
+      "templates": {
+        "dealsByStage": {
+          "description": "Les affaires de chaque étape, dans l’ordre des étapes, avec la conversion d’une étape à l’autre.",
+          "name": "Affaires par étape"
+        },
+        "openPipeline": {
+          "description": "Valeur totale des affaires ni gagnées ni perdues.",
+          "name": "Pipeline ouvert"
+        },
+        "openTasksPerAssignee": {
+          "description": "Tâches ni terminées ni archivées, comptées pour chaque utilisateur assigné.",
+          "name": "Tâches ouvertes par responsable"
+        },
+        "topOrganizationsByRevenue": {
+          "description": "Valeur des affaires gagnées par organisation liée, classée avec sa part du total.",
+          "name": "Principales organisations par chiffre d’affaires"
+        },
+        "wonValuePerMonth": {
+          "description": "Valeur des affaires gagnées par mois, selon le premier champ de date de l’affaire ou la date de création.",
+          "name": "Valeur gagnée par mois"
+        }
+      },
+      "title": "Widgets de départ"
     },
     "widgetKinds": {
       "activityTimeline": "Chronologie des activités",
@@ -3517,14 +3555,26 @@
     "filterOperator": "Condition",
     "filterUntil": "Jusqu’au",
     "filterValue": "Valeur",
+    "funnelClosedStage": "{label} : {value}, une étape perdue affichée hors de l’entonnoir.",
+    "funnelTooltip": "{value} ({conversion} de l’étape précédente)",
     "group": "Grouper par",
     "groupFilterHelp": "Choisissez les enregistrements affichés comme groupes. Le total général utilise toujours les filtres de source ci-dessus.",
     "groupFilters": "Filtres des groupes",
     "groupFilterSummary": "Les groupes sont filtrés. Le total général inclut tous les enregistrements sources correspondants.",
     "groupPath": "Suivre les relations",
     "groupRecord": "Chaque enregistrement",
+    "interval": "Intervalle de temps",
+    "intervals": {
+      "day": "Jour",
+      "month": "Mois",
+      "none": "Valeur exacte",
+      "quarter": "Trimestre",
+      "week": "Semaine (commence le lundi)",
+      "year": "Année"
+    },
     "loadingSchema": "Chargement des champs…",
     "measure": "Mesure",
+    "noRecordsInPeriod": "Aucun enregistrement",
     "operators": {
       "between": "Entre",
       "contains": "Contient",
@@ -3546,6 +3596,15 @@
     "preview": "Aperçu de la mesure",
     "previewFailed": "Impossible de charger l’aperçu. Réessayez.",
     "previewHelp": "L’aperçu utilise les enregistrements actuels et vos droits d’accès.",
+    "quarterLabel": "T{quarter} {year}",
+    "ranked": {
+      "group": "Groupe",
+      "more": "+ {count} de plus",
+      "rank": "#",
+      "share": "Part",
+      "value": "Valeur"
+    },
+    "recordCount": "{count, plural, one {# enregistrement} other {# enregistrements}}",
     "relatedAny": "Au moins un enregistrement lié accessible correspond",
     "relatedFilterHelp": "Toutes les conditions d’un filtre sur les enregistrements liés s’appliquent au même enregistrement. Seuls les enregistrements auxquels vous avez accès sont pris en compte.",
     "relatedMatch": "Enregistrements liés",
@@ -3555,7 +3614,13 @@
     "signedChart": "Les valeurs négatives sont affichées dans une liste. Choisissez un graphique à barres pour les tracer.",
     "source": "Enregistrements de",
     "unavailable": "Cette mesure est indisponible. Vérifiez sa configuration ou vos accès.",
-    "value": "Champ de valeur"
+    "unavailableMember": "Utilisateur indisponible",
+    "unplacedGroups": "Certains enregistrements sont restreints ou n’ont pas pu être calculés et ne sont pas affichés.",
+    "value": "Champ de valeur",
+    "weekOf": "Semaine du {date}",
+    "weekShort": "S{week} {year}",
+    "withoutDate": "{count, plural, one {# enregistrement n’a pas de date et n’est pas affiché.} other {# enregistrements n’ont pas de date et ne sont pas affichés.}}",
+    "withoutValue": "{count, plural, one {# enregistrement n’a pas de valeur et n’est pas affiché.} other {# enregistrements n’ont pas de valeur et ne sont pas affichés.}}"
   },
   "ResetPassword": {
     "cta": "Réinitialiser le mot de passe",
