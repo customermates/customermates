@@ -70,7 +70,6 @@ function mergeRoutineFinalState(previous: RoutineDto, update: UpsertRoutineData)
     { resource: Resource.routines, action: Action.create },
     { resource: Resource.routines, action: Action.update },
   ],
-  condition: "AND",
 })
 export class UpsertRoutineInteractor extends AuthenticatedInteractor<UpsertRoutineData, RoutineDto> {
   constructor(

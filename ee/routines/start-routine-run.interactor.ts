@@ -8,7 +8,7 @@ import type { RoutineEventAccess } from "./routine-event-access";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 
-import { Action, Resource, RoutineRunStatus } from "@/generated/prisma";
+import { Resource, RoutineRunStatus } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -61,13 +61,7 @@ export type StartRoutineRunData = Data<typeof Schema>;
 
 export type StartRoutineRunOutcome = { started: boolean; reason?: StartRoutineRunReason };
 
-@TenantInteractor({
-  permissions: [
-    { resource: Resource.routines, action: Action.readAll },
-    { resource: Resource.routines, action: Action.readOwn },
-  ],
-  condition: "OR",
-})
+@TenantInteractor({ resource: Resource.routines, read: true })
 export class StartRoutineRunInteractor extends AuthenticatedInteractor<StartRoutineRunData, StartRoutineRunOutcome> {
   constructor(
     private repo: StartRoutineRunRepo,

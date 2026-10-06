@@ -38,7 +38,7 @@ describe("TenantInteractor", () => {
     const user = makeUser({ role: { ...makeUser().role, permissions: [] } });
     mockGetActiveUserOrThrow.mockResolvedValue(user);
 
-    @TenantInteractor({ resource: "contacts" as any, action: "create" as any })
+    @TenantInteractor({ resource: "routines" as any, action: "create" as any })
     class TestInteractor {
       invoke() {
         return Promise.resolve({ ok: true as const, data: "done" });
@@ -53,12 +53,12 @@ describe("TenantInteractor", () => {
     const user = makeUser({
       role: {
         ...makeUser().role,
-        permissions: [{ id: "p1", roleId: "role-1", resource: "contacts", action: "create" }],
+        permissions: [{ id: "p1", roleId: "role-1", resource: "routines", action: "create" }],
       },
     });
     mockGetActiveUserOrThrow.mockResolvedValue(user);
 
-    @TenantInteractor({ resource: "contacts" as any, action: "create" as any })
+    @TenantInteractor({ resource: "routines" as any, action: "create" as any })
     class TestInteractor {
       invoke() {
         return Promise.resolve({ ok: true as const, data: "done" });
@@ -73,17 +73,16 @@ describe("TenantInteractor", () => {
     const user = makeUser({
       role: {
         ...makeUser().role,
-        permissions: [{ id: "p1", roleId: "role-1", resource: "contacts", action: "readAll" }],
+        permissions: [{ id: "p1", roleId: "role-1", resource: "routines", action: "readAll" }],
       },
     });
     mockGetActiveUserOrThrow.mockResolvedValue(user);
 
     @TenantInteractor({
       permissions: [
-        { resource: "contacts" as any, action: "readAll" as any },
-        { resource: "contacts" as any, action: "create" as any },
+        { resource: "routines" as any, action: "readAll" as any },
+        { resource: "routines" as any, action: "create" as any },
       ],
-      condition: "AND",
     })
     class TestInteractor {
       invoke() {
@@ -94,22 +93,16 @@ describe("TenantInteractor", () => {
     await expect(new TestInteractor().invoke()).rejects.toThrow(ForbiddenError);
   });
 
-  it("allows user with any matching permission in OR condition", async () => {
+  it.each(["readAll", "readOwn"])("allows a read requirement for a role with %s", async (action) => {
     const user = makeUser({
       role: {
         ...makeUser().role,
-        permissions: [{ id: "p1", roleId: "role-1", resource: "contacts", action: "readOwn" }],
+        permissions: [{ id: "p1", roleId: "role-1", resource: "routines", action }],
       },
     });
     mockGetActiveUserOrThrow.mockResolvedValue(user);
 
-    @TenantInteractor({
-      permissions: [
-        { resource: "contacts" as any, action: "readAll" as any },
-        { resource: "contacts" as any, action: "readOwn" as any },
-      ],
-      condition: "OR",
-    })
+    @TenantInteractor({ resource: "routines" as any, read: true })
     class TestInteractor {
       invoke() {
         return Promise.resolve({ ok: true as const, data: "done" });
@@ -120,13 +113,35 @@ describe("TenantInteractor", () => {
     expect(result).toEqual({ ok: true, data: "done" });
   });
 
+  it("blocks a read requirement when the role only manages the resource", async () => {
+    const user = makeUser({
+      role: {
+        ...makeUser().role,
+        permissions: [
+          { id: "p1", roleId: "role-1", resource: "routines", action: "create" },
+          { id: "p2", roleId: "role-1", resource: "users", action: "readAll" },
+        ],
+      },
+    });
+    mockGetActiveUserOrThrow.mockResolvedValue(user);
+
+    @TenantInteractor({ resource: "routines" as any, read: true })
+    class TestInteractor {
+      invoke() {
+        return Promise.resolve({ ok: true as const, data: "done" });
+      }
+    }
+
+    await expect(new TestInteractor().invoke()).rejects.toThrow("read on routines");
+  });
+
   it("bypasses permission check for system role", async () => {
     const user = makeUser({
       role: { ...makeUser().role, isSystemRole: true, permissions: [] },
     });
     mockGetActiveUserOrThrow.mockResolvedValue(user);
 
-    @TenantInteractor({ resource: "contacts" as any, action: "delete" as any })
+    @TenantInteractor({ resource: "routines" as any, action: "delete" as any })
     class TestInteractor {
       invoke() {
         return Promise.resolve({ ok: true as const, data: "done" });
@@ -174,7 +189,7 @@ describe("TenantInteractor", () => {
     const user = makeUser({ role: { ...makeUser().role, permissions: [] } });
     mockGetActiveUserOrThrow.mockResolvedValue(user);
 
-    @TenantInteractor({ resource: "contacts" as any, action: "create" as any })
+    @TenantInteractor({ resource: "routines" as any, action: "create" as any })
     class TestInteractor {
       invoke() {
         return Promise.resolve({ ok: true as const, data: "done" });
@@ -186,7 +201,7 @@ describe("TenantInteractor", () => {
       expect.unreachable("should have thrown");
     } catch (e) {
       expect(e).toBeInstanceOf(ForbiddenError);
-      expect((e as ForbiddenError).message).toContain("create on contacts");
+      expect((e as ForbiddenError).message).toContain("create on routines");
     }
   });
 });

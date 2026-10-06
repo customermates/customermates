@@ -1,7 +1,7 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
-import { Resource, Action } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { type UserDto, UserByIdResponseSchema } from "../user.schema";
 
@@ -21,13 +21,7 @@ export abstract class GetUserByIdRepo {
 }
 
 @AllowInDemoMode
-@TenantInteractor({
-  permissions: [
-    { resource: Resource.users, action: Action.readAll },
-    { resource: Resource.users, action: Action.readOwn },
-  ],
-  condition: "OR",
-})
+@TenantInteractor({ resource: Resource.users, read: true })
 export class GetUserByIdInteractor extends AuthenticatedInteractor<GetUserByIdData, { user: UserDto | null }> {
   constructor(private repo: GetUserByIdRepo) {
     super();

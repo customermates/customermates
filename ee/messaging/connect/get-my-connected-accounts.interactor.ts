@@ -1,7 +1,7 @@
 import type { ConnectedAccountDto, ConnectedAccountRecord } from "../messaging.schema";
 import type { Validated } from "@/core/validation/validation.utils";
 
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { ConnectedAccountAppDtoSchema } from "../messaging.schema";
 import { toConnectedAccountDto } from "./connected-account-dto";
@@ -16,13 +16,7 @@ export abstract class GetMyConnectedAccountsRepo {
 }
 
 @AllowInDemoMode
-@TenantInteractor({
-  permissions: [
-    { resource: Resource.inboxMessages, action: Action.readAll },
-    { resource: Resource.inboxMessages, action: Action.readOwn },
-  ],
-  condition: "OR",
-})
+@TenantInteractor({ resource: Resource.inboxMessages, read: true })
 export class GetMyConnectedAccountsInteractor extends AuthenticatedInteractor<void, ConnectedAccountDto[]> {
   constructor(private repo: GetMyConnectedAccountsRepo) {
     super();

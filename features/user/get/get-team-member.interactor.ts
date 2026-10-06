@@ -15,7 +15,6 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
     { resource: Resource.users, action: Action.update },
     { resource: Resource.users, action: Action.readAll },
   ],
-  condition: "AND",
 })
 export class GetTeamMemberInteractor extends AuthenticatedInteractor<GetUserByIdData, { user: UserDto | null }> {
   constructor(private repo: GetUserByIdRepo) {

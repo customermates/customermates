@@ -20,6 +20,10 @@ export function roleReadScope(role: PermissionRole | null | undefined, resource:
   return rolePermits(role, resource, "readOwn") ? "own" : "none";
 }
 
+export function roleCanRead(role: PermissionRole | null | undefined, resource: string): boolean {
+  return roleReadScope(role, resource) !== "none";
+}
+
 export class PermissionService extends UserAccessor {
   has(resource: Resource, action: Action): boolean {
     return rolePermits(this.user.role, resource, action);
@@ -30,6 +34,6 @@ export class PermissionService extends UserAccessor {
   }
 
   canRead(resource: Resource): boolean {
-    return this.readScope(resource) !== "none";
+    return roleCanRead(this.user.role, resource);
   }
 }

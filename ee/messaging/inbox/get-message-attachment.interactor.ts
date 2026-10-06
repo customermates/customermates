@@ -4,7 +4,7 @@ import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 
-import { Resource, Action, type MessagingProvider } from "@/generated/prisma";
+import { Resource, type MessagingProvider } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
@@ -33,13 +33,7 @@ export abstract class GetMessageAttachmentMetaRepo {
 }
 
 @AllowInDemoMode
-@TenantInteractor({
-  permissions: [
-    { resource: Resource.inboxMessages, action: Action.readAll },
-    { resource: Resource.inboxMessages, action: Action.readOwn },
-  ],
-  condition: "OR",
-})
+@TenantInteractor({ resource: Resource.inboxMessages, read: true })
 export class GetMessageAttachmentInteractor extends AuthenticatedInteractor<
   GetMessageAttachmentData,
   MessageAttachment

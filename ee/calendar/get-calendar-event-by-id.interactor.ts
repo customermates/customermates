@@ -5,7 +5,7 @@ import type { CalendarEventDto } from "./calendar.schema";
 
 import { z } from "zod";
 
-import { Resource, Action } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
@@ -22,13 +22,7 @@ export abstract class GetCalendarEventByIdRepo {
 }
 
 @AllowInDemoMode
-@TenantInteractor({
-  permissions: [
-    { resource: Resource.inboxMessages, action: Action.readAll },
-    { resource: Resource.inboxMessages, action: Action.readOwn },
-  ],
-  condition: "OR",
-})
+@TenantInteractor({ resource: Resource.inboxMessages, read: true })
 export class GetCalendarEventByIdInteractor extends AuthenticatedInteractor<
   GetCalendarEventByIdData,
   CalendarEventDto | null

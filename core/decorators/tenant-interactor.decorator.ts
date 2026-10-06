@@ -2,6 +2,7 @@ import type { Resource, Action } from "@/generated/prisma";
 
 import { isAllowedInDemoMode } from "./allow-in-demo-mode.decorator";
 
+import { type PermissionRole, roleCanRead, rolePermits } from "@/core/base/permission.service";
 import { runWithTenant, tenantStorage } from "@/core/decorators/tenant-context";
 import { resolveActiveTenantUser } from "@/core/decorators/resolve-tenant-user";
 import { env } from "@/env";
@@ -11,27 +12,26 @@ interface Permission {
   resource: Resource;
   action: Action;
 }
-interface PermissionRuleSet {
-  permissions: Permission[];
-  condition: "AND" | "OR";
+interface ReadRequirement {
+  resource: Resource;
+  read: true;
+}
+type PermissionRequirement = Permission | { permissions: Permission[] } | ReadRequirement;
+
+function describeRequirement(requirement: PermissionRequirement): string {
+  if ("read" in requirement) return `read on ${requirement.resource}`;
+  const permissions = "permissions" in requirement ? requirement.permissions : [requirement];
+  return permissions.map((p) => `${p.action} on ${p.resource}`).join(" AND ");
 }
 
-export function TenantInteractor<T extends { new (...args: any[]): object }>(
-  permissionRequirement?: PermissionRuleSet | Permission,
-) {
+function satisfies(role: PermissionRole | null | undefined, requirement: PermissionRequirement): boolean {
+  if ("read" in requirement) return roleCanRead(role, requirement.resource);
+  const permissions = "permissions" in requirement ? requirement.permissions : [requirement];
+  return permissions.every((p) => rolePermits(role, p.resource, p.action));
+}
+
+export function TenantInteractor<T extends { new (...args: any[]): object }>(requirement?: PermissionRequirement) {
   return function (constructor: T) {
-    let normalizedRequirement: PermissionRuleSet | undefined;
-
-    if (permissionRequirement) {
-      if ("permissions" in permissionRequirement) normalizedRequirement = permissionRequirement;
-      else {
-        normalizedRequirement = {
-          permissions: [{ resource: permissionRequirement.resource, action: permissionRequirement.action }],
-          condition: "AND",
-        };
-      }
-    }
-
     const originalInvoke = constructor.prototype.invoke;
 
     constructor.prototype.invoke = async function (...args: any[]) {
@@ -46,28 +46,8 @@ export function TenantInteractor<T extends { new (...args: any[]): object }>(
         user = await resolveActiveTenantUser(() => getUserService().getActiveUserOrThrow());
       }
 
-      if (normalizedRequirement) {
-        if (user.role?.isSystemRole) return runWithTenant(user, () => originalInvoke.apply(this, args));
-
-        const { permissions, condition } = normalizedRequirement;
-
-        const permissionChecks = permissions.map((p) => {
-          return (
-            user.role?.permissions.some(
-              (permission) => permission.resource === p.resource && permission.action === p.action,
-            ) ?? false
-          );
-        });
-
-        const hasRequiredPermissions =
-          condition === "AND" ? permissionChecks.every((check) => check) : permissionChecks.some((check) => check);
-
-        if (!hasRequiredPermissions) {
-          const permissionStrings = permissions.map((p) => `${p.action} on ${p.resource}`).join(` ${condition} `);
-
-          throw new ForbiddenError(`Access denied. Required permissions: ${permissionStrings}`);
-        }
-      }
+      if (requirement && !satisfies(user.role, requirement))
+        throw new ForbiddenError(`Access denied. Required permissions: ${describeRequirement(requirement)}`);
 
       return runWithTenant(user, () => originalInvoke.apply(this, args));
     };
