@@ -86,8 +86,6 @@ export const VerticalBarChartWithLabels = observer(
                     x={Number(x) + Number(width) / 2}
                     y={top}
                   >
-                    {text !== truncateLabel(text, Math.max(Number(width) + 16, 40)) && <title>{text}</title>}
-
                     {truncateLabel(text, Math.max(Number(width) + 16, 40))}
                   </text>
                 );

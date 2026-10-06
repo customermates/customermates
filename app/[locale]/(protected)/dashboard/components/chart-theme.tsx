@@ -60,8 +60,6 @@ export function TruncatedTick({
   const shown = truncateLabel(full, maxWidth ?? (Number.isFinite(band) && band > 0 ? band : 96));
   return (
     <g transform={`translate(${Number(x)},${Number(y)})`}>
-      {shown !== full && <title>{full}</title>}
-
       <text
         dominantBaseline={vertical || polar ? "central" : "hanging"}
         fill={CHART_TICK_COLOR}
