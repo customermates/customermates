@@ -262,7 +262,9 @@ export const AuditDetail = observer(({ entry }: Props) => {
 
   const authorName =
     `${entry.actor.firstName} ${entry.actor.lastName}`.trim() || entry.actor.email || t("RecordModel.systemActor");
-  const removal = auditEventTone(entry.event) === "deleted";
+  const tone = auditEventTone(entry.event);
+  const removal = tone === "deleted";
+  const plainSnapshot = entry.kind === "configuration" || (tone !== "created" && tone !== "deleted");
   const changes = entry.changes.map((change) => ({
     key: change.field,
     field: change.label ?? fieldLabel(change.field),
@@ -273,7 +275,7 @@ export const AuditDetail = observer(({ entry }: Props) => {
   }));
 
   function renderChangeRow(change: (typeof changes)[number]): ReactNode {
-    if (change.snapshot && (entry.kind === "configuration" || change.key === "notes" || change.key === "markdown"))
+    if (change.snapshot && (plainSnapshot || change.key === "notes" || change.key === "markdown"))
       return <div className="min-w-0 break-words">{renderValue(change.key, change.value)}</div>;
 
     if (change.key === "notes" || change.key === "markdown")

@@ -32,11 +32,14 @@ test("shows admin and configuration history on the workspace activity page and f
   const configuration = page.getByRole("button", { name: /Record access changed .*Activity auditors/ }).first();
   await expect(admin).toBeVisible();
   await expect(configuration).toBeVisible();
+  await expect(page.locator("main header").getByRole("button", { name: "Filters", exact: true })).toBeVisible();
+  await expect(page.locator("#global-data-views")).toHaveAttribute("data-joins-top-bar", "");
 
   await configuration.click();
   const detail = page.getByRole("dialog");
   await expect(detail.getByText("Contacts · Activity auditors", { exact: true })).toBeVisible();
   await expect(detail.getByText("Read access: All", { exact: true })).toBeVisible();
+  await expect(detail.getByText("No value", { exact: true })).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(detail).not.toBeVisible();
 

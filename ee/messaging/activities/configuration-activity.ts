@@ -57,9 +57,9 @@ export function configurationActivity(
         })),
       ...change.grants.flatMap((grant) =>
         [...new Set([...grant.before, ...grant.after].map((entry) => entry.roleId))].flatMap((roleId) => {
-          const previous = grant.before.find((entry) => entry.roleId === roleId)?.actions ?? [];
-          const current = grant.after.find((entry) => entry.roleId === roleId)?.actions ?? [];
-          if (JSON.stringify(previous) === JSON.stringify(current)) return [];
+          const previous = [...(grant.before.find((entry) => entry.roleId === roleId)?.actions ?? [])].sort();
+          const current = [...(grant.after.find((entry) => entry.roleId === roleId)?.actions ?? [])].sort();
+          if (previous.join() === current.join()) return [];
           return [
             {
               field: "grants",

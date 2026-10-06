@@ -19,7 +19,7 @@ const ActivityPageViewContent = observer(function ActivityPageView() {
 
   return (
     <DataViewLayout showPagination={false} store={store}>
-      <div className="h-full overflow-y-auto p-4">
+      <div className="p-4" data-slot="feed-container">
         <ActivitiesFeed store={store} />
       </div>
     </DataViewLayout>

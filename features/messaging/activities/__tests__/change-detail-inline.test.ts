@@ -34,7 +34,8 @@ vi.mock("../activities-row", () => ({
   TypeBadge: () => null,
 }));
 vi.mock("@/app/[locale]/(protected)/records/[typeId]/components/record-value", () => ({
-  RecordValue: ({ result }: { result: { value: { text: string } } }) => result.value.text,
+  RecordValue: ({ result }: { result: { state: string; value?: { text?: string } } }) =>
+    result.state === "value" ? (result.value?.text ?? "rich") : result.state,
 }));
 vi.mock("@/components/card/app-card", () => ({ AppCard: passthrough }));
 vi.mock("@/components/card/app-card-body", () => ({ AppCardBody: passthrough }));
@@ -61,6 +62,40 @@ function text(fieldId: string, value: string) {
   };
 }
 
+function richText(fieldId: string, text: string | null) {
+  const value =
+    text === null
+      ? { state: "restricted" }
+      : {
+          state: "value",
+          value: {
+            kind: "richText",
+            documentJson: JSON.stringify({
+              type: "doc",
+              content: [{ type: "paragraph", content: [{ type: "text", text }] }],
+            }),
+          },
+        };
+  return { fieldId, label: "Notes", valueType: "richText", format: null, options: [], value };
+}
+
+function renderRecord(fields: unknown[]) {
+  const entry = {
+    ...BASE,
+    kind: "record",
+    event: "record.updated",
+    changes: {
+      ref: { typeId: "type-1", recordId: "record-1" },
+      fields,
+      assignments: null,
+      identities: null,
+      links: [],
+      related: [],
+    },
+  } as unknown as Extract<ActivityEntryDto, { kind: "record" }>;
+  return renderToStaticMarkup(createElement(RecordAuditDetail, { entry }));
+}
+
 describe("change detail", () => {
   it("shows a record field change as previous → current on one line, without value cards", () => {
     const entry = {
@@ -79,7 +114,7 @@ describe("change detail", () => {
     const markup = renderToStaticMarkup(createElement(RecordAuditDetail, { entry }));
 
     expect(markup).toMatch(new RegExp(`Name.*Old name.*${ARROW}.*New name`));
-    expect(markup).toMatch(new RegExp(`RecordModel.assignedTo.*0.*${ARROW}.*1`));
+    expect(markup).toMatch(new RegExp(`RecordModel.assignedMembers.*0.*${ARROW}.*1`));
     expect(markup).not.toContain("RecordModel.previousValue");
     expect(markup).not.toContain("rounded-md border p-3");
   });
@@ -120,5 +155,42 @@ describe("change detail", () => {
     expect(markup).toMatch(
       new RegExp(`Contacts · Auditors.*RoleModal.readAccess: RoleModal.readAll.*${ARROW}.*RoleModal.edit`),
     );
+  });
+
+  it("keeps a snapshot of an event that is neither a creation nor a deletion as a plain value", () => {
+    const markup = renderToStaticMarkup(
+      createElement(AuditDetail, {
+        entry: {
+          ...BASE,
+          kind: "audit",
+          event: DomainEvent.RECORDS_EXPORTED,
+          changes: [{ field: "count", snapshot: true, previous: undefined, current: 42 }],
+        },
+      }),
+    );
+
+    expect(markup).toContain("42");
+    expect(markup).not.toContain(ARROW);
+    expect(markup).not.toContain("AuditLogModal.noValue");
+  });
+
+  it("diffs rich text by line, skips a change without a visible difference and falls back for restricted values", () => {
+    const diff = renderRecord([
+      { fieldId: "notes-1", before: richText("notes-1", "Old notes"), after: richText("notes-1", "New notes") },
+    ]);
+    expect(diff).toContain("Old notes");
+    expect(diff).toContain("New notes");
+    expect(diff).toContain("bg-success/10");
+
+    const unchanged = renderRecord([
+      { fieldId: "notes-1", before: richText("notes-1", "Same"), after: richText("notes-1", "Same") },
+    ]);
+    expect(unchanged).not.toContain("Notes");
+
+    const restricted = renderRecord([
+      { fieldId: "notes-1", before: richText("notes-1", null), after: richText("notes-1", "Visible") },
+    ]);
+    expect(restricted).toMatch(new RegExp(`restricted.*${ARROW}.*rich`));
+    expect(restricted).not.toContain("bg-success/10");
   });
 });

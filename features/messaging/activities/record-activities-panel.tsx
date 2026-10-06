@@ -11,6 +11,7 @@ import { SURFACE } from "@/core/data-view/data-view-keys";
 import { Button } from "@/components/ui/button";
 import { DataViewViewsRail } from "@/components/data-view/views/data-view-views-rail";
 import { FilterPopover } from "@/components/data-view/header/filter-popover";
+import { DataViewEmpty } from "@/components/data-view/data-view-empty";
 import { ActivitiesList, TimelineEmptyState, TimelineNotice } from "./activities-list";
 import { ActivityTimelineSkeleton } from "./activity-timeline-skeleton";
 import { RecordActivityViewsStore } from "./record-activity-views.store";
@@ -70,7 +71,12 @@ export const ActivitiesFeed = observer(function ActivitiesFeed({ store }: { stor
           onLoadOlder={() => runUserAction(() => store.load(true))}
         />
       ) : (
-        !error && <TimelineEmptyState label={t("Dashboard.activityWidget.noActivity")} />
+        !error &&
+        (store.filters?.length ? (
+          <DataViewEmpty reason="filtered" store={store} />
+        ) : (
+          <TimelineEmptyState label={t("Dashboard.activityWidget.noActivity")} />
+        ))
       )}
     </>
   );

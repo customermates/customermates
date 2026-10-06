@@ -11,12 +11,14 @@ import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { DetailHeader, IdentityAvatar, TypeBadge, auditCategory } from "./activities-row";
 import { resolveActorName } from "./activity-row-labels";
 import { ChangeRow, InlineChange } from "./audit-detail";
-import { NotesDiff } from "./notes-diff";
+import { hasNotesDiff, NotesDiff } from "./notes-diff";
 
-function parseDocument(documentJson: string | null): unknown {
-  if (documentJson === null) return null;
+type FieldSide = Extract<ActivityEntryDto, { kind: "record" }>["changes"]["fields"][number]["before"];
+
+function parseDocument(side: FieldSide): unknown {
+  if (side?.value.state !== "value" || side.value.value.kind !== "richText") return null;
   try {
-    return JSON.parse(documentJson) as unknown;
+    return JSON.parse(side.value.value.documentJson) as unknown;
   } catch {
     return null;
   }
@@ -73,16 +75,17 @@ export function RecordAuditDetail({ entry }: { entry: Entry }) {
       <AppCardBody className="flex flex-col gap-4">
         {entry.changes.fields.map((change) => {
           const label = change.after?.label ?? change.before?.label ?? "";
-          const document = (value: Entry["changes"]["fields"][number]["before"]) =>
-            value?.value.state === "value" && value.value.value.kind === "richText"
-              ? value.value.value.documentJson
-              : null;
-          const previous = document(change.before);
-          const current = document(change.after);
+          const sides = [change.before, change.after];
+          const richText =
+            sides.some((side) => side?.valueType === "richText") &&
+            sides.every((side) => !side || side.value.state === "value");
+          const previous = parseDocument(change.before);
+          const current = parseDocument(change.after);
+          if (richText && !hasNotesDiff(previous, current)) return null;
           return (
             <ChangeRow key={change.fieldId} label={label}>
-              {previous !== null || current !== null ? (
-                <NotesDiff current={parseDocument(current)} previous={parseDocument(previous)} />
+              {richText ? (
+                <NotesDiff current={current} previous={previous} />
               ) : (
                 <InlineChange current={render(change.after)} previous={render(change.before)} />
               )}
@@ -91,7 +94,7 @@ export function RecordAuditDetail({ entry }: { entry: Entry }) {
         })}
 
         {entry.changes.assignments && (
-          <ChangeRow label={t("RecordModel.assignedTo")}>
+          <ChangeRow label={t("RecordModel.assignedMembers")}>
             <InlineChange
               current={entry.changes.assignments.after.length}
               previous={entry.changes.assignments.before.length}
