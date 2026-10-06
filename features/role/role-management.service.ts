@@ -41,14 +41,7 @@ export class RoleManagementService extends UserAccessor {
       async () => {
         try {
           const policy = await this.policy.load();
-          if (
-            !policy.actor ||
-            !(
-              policy.canManageRoles ||
-              policy.allowedSystem("users", "readOwn") ||
-              policy.allowedSystem("users", "readAll")
-            )
-          )
+          if (!policy.actor || !(policy.canManageRoles || policy.canReadSystem("users")))
             throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
           const model = await this.records.getModel();
           if (typeIds?.some((id) => !model.types.some((type) => type.id === id && !type.embedded)))
