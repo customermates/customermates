@@ -20,6 +20,7 @@ import {
   getResetDataViewStateInteractor,
   getDiscoverRecordTypesInteractor,
   getGetRecordModelInteractor,
+  getGetRecordModelOverviewInteractor,
   getApplyRecordConfigurationInteractor,
   getPreviewRecordConfigurationInteractor,
   getMutateRecordInteractor,
@@ -81,6 +82,9 @@ export async function getRecordPresentationAction(typeId: string, params: GetQue
 }
 export async function getRecordModelAction(typeIds?: string[]) {
   return unwrapValidated(getGetRecordModelInteractor().invoke({ typeIds }));
+}
+export async function getRecordModelOverviewAction() {
+  return unwrapValidated(getGetRecordModelOverviewInteractor().invoke());
 }
 async function serializeResultWithFailure<T>(result: Validated<T> | Promise<Awaited<Validated<T>> | Redirect>) {
   const resolved = await result;

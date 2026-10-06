@@ -11,7 +11,8 @@ import {
   moveConfigureField,
   reorderFieldOperations,
 } from "../configure-model";
-import { configureMapLayout, MAP_NODE_HEIGHT, MAP_NODE_WIDTH } from "../configure-map-layout";
+import { configureGraphLayout } from "../configure-graph-layout";
+import { configureCalculationSources, configureCardinality, configureGraphData } from "../configure-graph-model";
 
 const company = "6487f9fb-7b10-439a-b783-9d3da8184b14";
 const id = (key: string) => presetId(company, key);
@@ -114,50 +115,97 @@ describe("field reordering", () => {
   });
 });
 
-describe("configure map layout", () => {
-  it("places every visible list once inside the canvas and draws each relationship", () => {
+describe("configure graph", () => {
+  const account = {
+    id: "3f0f8d4e-5a43-4c5b-9a4f-0c8a2c7d9b11",
+    provider: "google",
+    status: "ok",
+    address: "max@example.com",
+    hasMessaging: true,
+    hasCalendar: false,
+    linkedinProducts: [],
+  };
+
+  it("places every visible list once without overlap and draws each relationship", () => {
     const model = createCrmPreset(company, "EUR");
-    const layout = configureMapLayout(model, false);
-    expect(layout).toEqual(configureMapLayout(model, false));
-    expect(layout.nodes.map((node) => node.type.id).sort()).toEqual(model.types.map((type) => type.id).sort());
-    for (const node of layout.nodes) {
-      expect(node.x - MAP_NODE_WIDTH / 2).toBeGreaterThanOrEqual(0);
-      expect(node.y - MAP_NODE_HEIGHT / 2).toBeGreaterThanOrEqual(0);
-      expect(node.x + MAP_NODE_WIDTH / 2).toBeLessThanOrEqual(layout.width);
-      expect(node.y + MAP_NODE_HEIGHT / 2).toBeLessThanOrEqual(layout.height);
-    }
-    expect(layout.edges.map((edge) => edge.relation.id).sort()).toEqual(
+    const data = configureGraphData(model, null, [account], false);
+    const layout = configureGraphLayout(data, true, true);
+    expect(layout.positions.size).toBe(model.types.length + 1);
+    expect(data.lists.map((list) => list.type.id).sort()).toEqual(model.types.map((type) => type.id).sort());
+    expect(data.edges.flatMap((edge) => (edge.kind === "relationship" ? [edge.relation.id] : [])).sort()).toEqual(
       model.relationships.map((relation) => relation.id).sort(),
     );
-    const overlapping = layout.nodes.filter((node, index) =>
-      layout.nodes.some(
+    const boxes = [...layout.positions.values()];
+    const overlapping = boxes.filter((box, index) =>
+      boxes.some(
         (other, otherIndex) =>
           otherIndex !== index &&
-          Math.abs(other.x - node.x) < MAP_NODE_WIDTH &&
-          Math.abs(other.y - node.y) < MAP_NODE_HEIGHT,
+          box.x < other.x + other.width &&
+          other.x < box.x + box.width &&
+          box.y < other.y + other.height &&
+          other.y < box.y + box.height,
       ),
     );
     expect(overlapping).toEqual([]);
+    for (const edge of data.edges) expect(layout.routes.get(edge.id)?.points.length).toBeGreaterThan(1);
   });
 
-  it("draws a self relationship as a loop and omits archived lists unless shown", () => {
+  it("nests child lists, links accounts to channel lists and shows calculation sources", () => {
+    const model = createCrmPreset(company, "EUR");
+    const data = configureGraphData(model, null, [account], false);
+    const lineItems = recordInvariant(data.lists.find((list) => list.type.id === id("lineItem")));
+    expect(lineItems.parentId).toBe(id("deal"));
+    const parent = data.edges.find((edge) => edge.kind === "relationship" && edge.parent);
+    expect(parent?.kind === "relationship" && parent.relation.id).toBe(lineItems.type.parentRelationshipId);
+    const layout = configureGraphLayout(data, true, true);
+    expect(recordInvariant(layout.positions.get(id("lineItem"))).y).toBeGreaterThan(
+      recordInvariant(layout.positions.get(id("deal"))).y,
+    );
+    const accountTargets = data.edges.flatMap((edge) => (edge.kind === "account" ? [edge.target] : []));
+    expect(accountTargets.length).toBeGreaterThan(0);
+    expect(accountTargets).toContain(id("contact"));
+    const deals = recordInvariant(data.lists.find((list) => list.type.id === id("deal")));
+    const rollup = recordInvariant(deals.fields.find((field) => field.field.behavior.kind === "rollup"));
+    expect(rollup.calculated).toBe(true);
+    expect(rollup.sources.some((source) => source.startsWith("Line items"))).toBe(true);
+    expect(configureCalculationSources(model, rollup.field).lists).toEqual([id("lineItem")]);
+    const carrier = data.edges.find(
+      (edge) =>
+        edge.kind === "relationship" &&
+        [edge.relation.sourceTypeId, edge.relation.targetTypeId].includes(id("lineItem")) &&
+        [edge.relation.sourceTypeId, edge.relation.targetTypeId].includes(id("deal")),
+    );
+    expect(carrier?.kind === "relationship" && carrier.calculatedFields).toContain(rollup.field.label);
+    expect(data.edges.some((edge) => edge.kind === "calculation")).toBe(false);
+  });
+
+  it("names cardinality from the source side and prompts for a connection without accounts", () => {
+    const model = createCrmPreset(company, "EUR");
+    const relation = recordInvariant(model.relationships[0]);
+    expect(configureCardinality({ ...relation, sourceCardinality: "one", targetCardinality: "many" })).toBe(
+      "manyToOne",
+    );
+    expect(configureCardinality({ ...relation, sourceCardinality: "many", targetCardinality: "one" })).toBe(
+      "oneToMany",
+    );
+    expect(configureCardinality({ ...relation, sourceCardinality: "one", targetCardinality: "one" })).toBe("oneToOne");
+    expect(configureCardinality({ ...relation, sourceCardinality: "many", targetCardinality: "many" })).toBe(
+      "manyToMany",
+    );
+    const prompt = configureGraphData(model, null, [], false, true);
+    expect(prompt.edges.some((edge) => edge.kind === "account" && edge.source === "accounts")).toBe(true);
+    expect(configureGraphLayout(prompt, false, true).positions.has("accounts")).toBe(true);
+  });
+
+  it("uses overview counts and omits archived lists unless shown", () => {
     const model = createCrmPreset(company, "EUR");
     recordInvariant(model.types.find((type) => type.id === id("task"))).archived = true;
-    model.relationships.push({
-      id: "8b1d3c34-55a1-4f4e-9f77-6ad0a0b8f1aa",
-      sourceTypeId: id("contact"),
-      targetTypeId: id("contact"),
-      sourceLabel: "Referred by",
-      targetLabel: "Referrals",
-      sourceCardinality: "one",
-      targetCardinality: "many",
-      onSourceDelete: "unlink",
-      onTargetDelete: "unlink",
-      archived: false,
-    });
-    const layout = configureMapLayout(model, false);
-    expect(layout.nodes.some((node) => node.type.id === id("task"))).toBe(false);
-    expect(layout.edges.find((edge) => edge.relation.sourceLabel === "Referred by")?.path).toContain(" C ");
-    expect(configureMapLayout(model, true).nodes.some((node) => node.type.id === id("task"))).toBe(true);
+    const overview = {
+      types: model.types.map((type) => ({ id: type.id, standard: type.id === id("deal"), recordCount: 7 })),
+    };
+    const data = configureGraphData(model, overview, [], false);
+    expect(data.lists.some((list) => list.type.id === id("task"))).toBe(false);
+    expect(data.lists.find((list) => list.type.id === id("deal"))).toMatchObject({ standard: true, recordCount: 7 });
+    expect(configureGraphData(model, overview, [], true).lists.some((list) => list.type.id === id("task"))).toBe(true);
   });
 });

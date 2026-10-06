@@ -1,10 +1,13 @@
 "use client";
 
 import type { RecordModel } from "@/features/records/record-model.schema";
+import type { RecordModelOverview } from "@/features/records/get-record-model-overview.interactor";
 import type { ConfigureAddKind } from "./configure-actions";
+import type { ConfigureGraphAccounts } from "./configure-graph";
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import dynamic from "next/dynamic";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
@@ -21,11 +24,10 @@ import { VIEW_TAB_ACTIVE_CLASS, VIEW_TAB_CLASS } from "@/components/data-view/vi
 import { useRecordRouteReady } from "@/components/records/use-record-route-ready";
 import { cn } from "@/core/utils/cn";
 
-import { discoverRecordTypesAction } from "../../records/actions";
+import { discoverRecordTypesAction, getRecordModelOverviewAction } from "../../records/actions";
 import { ActivityPathModal, ActivityPathModalStore } from "./activity-path-modal";
 import { ConfigureTopBarActions } from "./configure-actions";
 import { ConfigureListPane } from "./configure-list-pane";
-import { ConfigureMap } from "./configure-map";
 import { configureRailRows } from "./configure-model";
 import { ConfigureRail } from "./configure-rail";
 import { DataModelStore } from "./data-model.store";
@@ -33,6 +35,11 @@ import { FieldModal, FieldModalStore } from "./field-modal";
 import { RelationshipModal, RelationshipModalStore } from "./relationship-modal";
 import { TypeModal, TypeModalStore } from "./type-modal";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
+
+const ConfigureGraph = dynamic(() => import("./configure-graph").then((module) => module.ConfigureGraph), {
+  ssr: false,
+  loading: () => <div aria-busy className="min-h-0 flex-1 animate-pulse bg-muted/30" data-configure-graph-loading="" />,
+});
 
 const LAST_LIST_KEY = "customermates:configure:last-list";
 
@@ -73,10 +80,14 @@ function configureHref(changes: Record<string, string | null>) {
 
 const ConfigurePageViewContent = observer(function ConfigurePageView({
   initialModel,
+  overview: initialOverview,
+  accounts,
   canManage,
   canPublishSummary = false,
 }: {
   initialModel: RecordModel;
+  overview: RecordModelOverview;
+  accounts: ConfigureGraphAccounts;
   canManage: boolean;
   canPublishSummary?: boolean;
 }) {
@@ -86,7 +97,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
   const router = useRouter();
   const searchParams = useSearchParams();
   const typeId = searchParams.get("typeId") ?? undefined;
-  const mode = searchParams.get("view") === "map" ? "map" : "lists";
+  const mode = searchParams.get("view") === "lists" || typeId ? "lists" : "graph";
   const createRequested = searchParams.get("create") === "true";
   const t = useTranslations();
   const generalFormId = useId();
@@ -101,6 +112,21 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
   }, [initialModel, store]);
   const model = store.model;
   const refresh = store.refresh;
+  const [overview, setOverview] = useState(initialOverview);
+  const overviewRevision = useRef(initialModel.revision);
+  useEffect(() => setOverview(initialOverview), [initialOverview]);
+  useEffect(() => {
+    if (overviewRevision.current === model.revision) return;
+    overviewRevision.current = model.revision;
+    let current = true;
+    getRecordModelOverviewAction().then(
+      (next) => current && setOverview(next),
+      () => undefined,
+    );
+    return () => {
+      current = false;
+    };
+  }, [model.revision]);
   const userScope = root.userStore.user?.id ?? "anonymous";
   const [typeModal] = useState(
     () =>
@@ -217,10 +243,14 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
     [general, tryNavigate],
   );
   const setMode = useCallback(
-    (next: "lists" | "map") =>
+    (next: "lists" | "graph") =>
       tryNavigate(() => {
         general.resetForm();
-        window.history.pushState(null, "", configureHref({ view: next === "map" ? "map" : null }));
+        window.history.pushState(
+          null,
+          "",
+          configureHref(next === "lists" ? { view: "lists" } : { view: null, typeId: null }),
+        );
       }),
     [general, tryNavigate],
   );
@@ -272,20 +302,20 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
       className="flex shrink-0 items-center gap-1.5 border-b border-border bg-background px-4 pb-3 ps-[calc(1rem+var(--safe-left,0px))] pe-[calc(1rem+var(--safe-right,0px))]"
       data-joins-top-bar=""
     >
-      {(["lists", "map"] as const).map((value) => (
+      {(["graph", "lists"] as const).map((value) => (
         <a
           key={value}
           data-navigation-guard-handled
           aria-current={mode === value ? "page" : undefined}
           className={cn(VIEW_TAB_CLASS, mode === value && VIEW_TAB_ACTIVE_CLASS)}
-          href={queryHref(searchParams, { view: value === "map" ? "map" : null })}
+          href={queryHref(searchParams, value === "lists" ? { view: "lists" } : { view: null, typeId: null })}
           onClick={(event) => {
             if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
             event.preventDefault();
             if (mode !== value) setMode(value);
           }}
         >
-          <span className="truncate">{value === "map" ? t("RecordModel.map") : t("RecordModel.lists")}</span>
+          <span className="truncate">{value === "graph" ? t("RecordModel.graph.tab") : t("RecordModel.lists")}</span>
         </a>
       ))}
     </nav>
@@ -309,9 +339,10 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
         </div>
       )}
 
-      {mode === "map" ? (
+      {mode === "graph" ? (
         <div className="flex min-h-0 flex-1 flex-col">
-          <ConfigureMap
+          <ConfigureGraph
+            accounts={accounts}
             action={
               <RecordAiAction
                 registerContext
@@ -320,10 +351,21 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
               />
             }
             canManage={canManage}
+            disabled={!interactive}
             model={model}
+            overview={overview}
             showArchived={showArchived}
+            onAddField={(listId) => fieldModal.edit(model, listId, null)}
+            onAddList={() => add("list")}
             onConnect={(sourceTypeId, targetTypeId) => relationModal.edit(model, sourceTypeId, undefined, targetTypeId)}
-            onEditRelationship={(relation) => relationModal.edit(model, relation.sourceTypeId, relation)}
+            onEditField={(listId, field) => {
+              fieldModal.edit(model, listId, field);
+              if (field.archived) fieldModal.onChange("archived", false);
+            }}
+            onEditRelationship={(relation) => {
+              relationModal.edit(model, relation.sourceTypeId, relation);
+              if (relation.archived) relationModal.onChange("archived", false);
+            }}
             onSelectList={selectList}
           />
         </div>
