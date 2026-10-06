@@ -15,6 +15,7 @@ import {
   useEntityDetailPersonalization,
 } from "@/components/entity-detail/entity-detail-personalization";
 import { Button } from "@/components/ui/button";
+import { AppModalAction } from "@/components/modal/app-modal-action";
 import { cn } from "@/core/utils/cn";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 
@@ -104,30 +105,37 @@ const LayoutControls = observer(function LayoutControls({
   isPersonalizing,
   setIsPersonalizing,
   compact,
+  statusOnly = false,
+  className,
 }: {
   layout: RecordDetailLayoutStore;
   editor: RecordEditorStore;
   isPersonalizing: boolean;
   setIsPersonalizing: (value: boolean) => void;
   compact: boolean;
+  statusOnly?: boolean;
+  className?: string;
 }) {
   const t = useTranslations();
+  if (statusOnly && !isPersonalizing && !layout.isSaving && !layout.failed) return null;
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <Button
-        aria-label={isPersonalizing ? t("EntityDetail.donePersonalizing") : t("EntityDetail.personalize")}
-        aria-pressed={isPersonalizing}
-        size="sm"
-        type="button"
-        variant={isPersonalizing ? "default" : "secondary"}
-        onClick={() => setIsPersonalizing(!isPersonalizing)}
-      >
-        {isPersonalizing ? <Check className="size-4" /> : <Settings2 className="size-4" />}
+    <div className={cn("flex flex-wrap items-center gap-2", className)}>
+      {!statusOnly && (
+        <Button
+          aria-label={isPersonalizing ? t("EntityDetail.donePersonalizing") : t("EntityDetail.personalize")}
+          aria-pressed={isPersonalizing}
+          size="sm"
+          type="button"
+          variant={isPersonalizing ? "default" : "secondary"}
+          onClick={() => setIsPersonalizing(!isPersonalizing)}
+        >
+          {isPersonalizing ? <Check className="size-4" /> : <Settings2 className="size-4" />}
 
-        <span className={cn(compact && "hidden sm:inline")}>
-          {isPersonalizing ? t("EntityDetail.donePersonalizing") : t("EntityDetail.personalize")}
-        </span>
-      </Button>
+          <span className={cn(compact && "hidden sm:inline")}>
+            {isPersonalizing ? t("EntityDetail.donePersonalizing") : t("EntityDetail.personalize")}
+          </span>
+        </Button>
+      )}
 
       {isPersonalizing && (
         <Button
@@ -192,6 +200,38 @@ export function useRecordDetailLayoutControls(compact = false) {
   );
 }
 
-export function RecordDetailLayoutControls() {
-  return useRecordDetailLayoutControls();
+/** Icon-only Customize toggle for an overlay header action rail. */
+export function RecordDetailCustomizeAction() {
+  const t = useTranslations();
+  const context = useContext(LayoutContext);
+  const { enabled, isPersonalizing, setIsPersonalizing } = useEntityDetailPersonalization();
+  if (!enabled || !context) return null;
+  const label = isPersonalizing ? t("EntityDetail.donePersonalizing") : t("EntityDetail.personalize");
+  return (
+    <AppModalAction
+      anchorId="record-customize"
+      icon={isPersonalizing ? Check : Settings2}
+      id="record-customize"
+      label={label}
+      onClick={() => setIsPersonalizing(!isPersonalizing)}
+    />
+  );
+}
+
+/** Reset and save status for the layout while customizing; renders nothing otherwise. */
+export function RecordDetailLayoutStatus({ className }: { className?: string }) {
+  const context = useContext(LayoutContext);
+  const { enabled, isPersonalizing, setIsPersonalizing } = useEntityDetailPersonalization();
+  if (!enabled || !context) return null;
+  return (
+    <LayoutControls
+      statusOnly
+      className={className}
+      compact={false}
+      editor={context.editor}
+      isPersonalizing={isPersonalizing}
+      layout={context.layout}
+      setIsPersonalizing={setIsPersonalizing}
+    />
+  );
 }

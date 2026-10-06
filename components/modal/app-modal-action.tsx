@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import type { MouseEvent, ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 
 import { cn } from "@/core/utils/cn";
@@ -38,6 +38,8 @@ type LinkActionProps = SharedActionProps & {
   disabled?: never;
   external?: boolean;
   href: string;
+  /** Intercepts in-app navigation, e.g. to hand off an open draft before leaving. */
+  onNavigate?: (event: MouseEvent<HTMLAnchorElement>) => void;
   onClick?: never;
 };
 
@@ -81,12 +83,14 @@ export function AppModalAction(props: AppModalActionProps) {
       <IntlLink
         aria-label={label}
         className={className}
+        data-navigation-guard-handled={props.onNavigate ? "" : undefined}
         data-overlay-action=""
         data-size="icon"
         data-slot="app-modal-action"
         data-variant={variant}
         href={props.href}
         id={props.anchorId}
+        onClick={props.onNavigate}
       >
         {content}
       </IntlLink>

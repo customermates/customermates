@@ -16,13 +16,19 @@ import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { IntlLink, usePathname, useRouter } from "@/i18n/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
+import { AppModalAction } from "@/components/modal/app-modal-action";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { runUserAction } from "@/core/errors/report-application-error";
-import { RecordDetailPersonalization, RecordDetailLayoutControls } from "./record-detail-personalization";
+import {
+  RecordDetailCustomizeAction,
+  RecordDetailLayoutStatus,
+  RecordDetailPersonalization,
+} from "./record-detail-personalization";
 import { RecordDetailOverview } from "./record-detail-overview";
 import { RecordDetailSummary } from "./record-detail-summary";
 import { RecordEditorFields } from "./record-editor-fields";
-import { RecordEditorActions, RecordPageActions } from "./record-editor-actions";
+import { RecordDeleteAction, RecordEditorActions, RecordPageActions } from "./record-editor-actions";
 import { EntityDetailPanels, type EntityDetailPanelLayout } from "@/components/entity-detail/entity-detail-panels";
 import { useRecordDeletion } from "./use-record-deletion";
 import { RecordActivitiesPanel } from "@/features/messaging/activities/record-activities-panel";
@@ -226,44 +232,52 @@ const RecordEditorBody = observer(function RecordEditorBody({
   return (
     <AppForm id={id} store={store}>
       <AppCard className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-none border-0 bg-transparent shadow-none">
-        <AppCardHeader className="pb-4">
-          <h2 className="text-lg font-semibold truncate">
+        <AppCardHeader className="justify-between pr-[3.125rem]! pb-4">
+          <h2 className="min-w-0 flex-1 truncate text-lg font-semibold">
             {store.record ? name : t("RecordModel.newRecord", { type: type?.label ?? t("RecordModel.record") })}
           </h2>
+
+          <TooltipProvider>
+            <div
+              className="-mt-4.5 flex min-h-9 shrink-0 items-center gap-2 self-start"
+              data-slot="app-modal-actions"
+              id="record-header-actions"
+            >
+              <RecordAiAction
+                iconOnly
+                registerContext
+                active={store.isOpen}
+                context={{
+                  reference: store.record
+                    ? { kind: "record", typeId: store.record.ref.typeId, recordId: store.record.ref.recordId }
+                    : { kind: "recordType", typeId: store.presentation.typeId },
+                  label: name,
+                }}
+              />
+
+              <RecordDetailCustomizeAction />
+
+              {store.record && (
+                <AppModalAction
+                  anchorId="record-open-page"
+                  href={`/records/${store.record.ref.typeId}/${store.record.ref.recordId}`}
+                  icon={Maximize2}
+                  id="record-open-page"
+                  label={t("RecordModel.openPage")}
+                  onNavigate={(event) => {
+                    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+                    event.preventDefault();
+                    store.runAfterChannelDraft(openPage);
+                  }}
+                />
+              )}
+
+              <RecordDeleteAction deletion={deletion} name={name} store={store} />
+            </div>
+          </TooltipProvider>
         </AppCardHeader>
 
-        <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 px-6 pb-3">
-          <RecordAiAction
-            registerContext
-            active={store.isOpen}
-            context={{
-              reference: store.record
-                ? { kind: "record", typeId: store.record.ref.typeId, recordId: store.record.ref.recordId }
-                : { kind: "recordType", typeId: store.presentation.typeId },
-              label: name,
-            }}
-          />
-
-          <RecordDetailLayoutControls />
-
-          {store.record && (
-            <Button asChild size="sm" variant="ghost">
-              <IntlLink
-                data-navigation-guard-handled=""
-                href={`/records/${store.record.ref.typeId}/${store.record.ref.recordId}`}
-                onClick={(event) => {
-                  if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-                  event.preventDefault();
-                  store.runAfterChannelDraft(openPage);
-                }}
-              >
-                <Maximize2 className="size-4" />
-
-                {t("RecordModel.openPage")}
-              </IntlLink>
-            </Button>
-          )}
-        </div>
+        <RecordDetailLayoutStatus className="shrink-0 px-6 pb-3" />
 
         {notices}
 
@@ -320,9 +334,9 @@ const RecordEditorBody = observer(function RecordEditorBody({
           </AppCardBody>
         </Tabs>
 
-        {(!store.isReadOnly || (store.record && store.presentation.permittedActions.includes("delete"))) && (
+        {!store.isReadOnly && (
           <AppCardFooter>
-            <RecordEditorActions deletion={deletion} formId={id} name={name} store={store} />
+            <RecordEditorActions deletion={deletion} formId={id} name={name} store={store} withDelete={false} />
           </AppCardFooter>
         )}
       </AppCard>

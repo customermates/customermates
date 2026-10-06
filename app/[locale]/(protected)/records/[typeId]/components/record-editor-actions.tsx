@@ -7,6 +7,7 @@ import { RotateCcw, Save, Trash2 } from "lucide-react";
 import type { RecordEditorStore } from "./record-editor.store";
 import type { useRecordDeletion } from "./use-record-deletion";
 import { Button } from "@/components/ui/button";
+import { AppModalAction } from "@/components/modal/app-modal-action";
 import { cn } from "@/core/utils/cn";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { RecordAiAction } from "@/app/components/agent-chat/record-ai-action";
@@ -19,7 +20,47 @@ type Props = {
   name: string;
   deletion: ReturnType<typeof useRecordDeletion>;
   compact?: boolean;
+  /** False when the delete action lives in the overlay header instead. */
+  withDelete?: boolean;
 };
+
+function isDeleteBlocked(store: RecordEditorStore, deletion: Props["deletion"]) {
+  return (
+    deletion.isPreviewing ||
+    store.hasUnsavedChanges ||
+    store.hasRelatedDraft ||
+    store.isLoading ||
+    Boolean(store.pendingOperationId) ||
+    store.refreshRequired
+  );
+}
+
+function requestDeletion(store: RecordEditorStore, deletion: Props["deletion"], name: string) {
+  return store.record
+    ? deletion.requestDeletion(store.record, store.presentation.model.revision, name)
+    : Promise.resolve();
+}
+
+/** Icon-only delete for the record drawer's header action rail. */
+export const RecordDeleteAction = observer(function RecordDeleteAction({
+  store,
+  name,
+  deletion,
+}: Pick<Props, "store" | "name" | "deletion">) {
+  const t = useTranslations();
+  if (!store.record || !store.presentation.permittedActions.includes("delete")) return null;
+  return (
+    <AppModalAction
+      anchorId="record-delete"
+      disabled={isDeleteBlocked(store, deletion)}
+      icon={Trash2}
+      id="record-delete"
+      label={t("Common.actions.delete")}
+      variant="destructive"
+      onClick={() => requestDeletion(store, deletion, name)}
+    />
+  );
+});
 
 export const RecordEditorActions = observer(function RecordEditorActions({
   store,
@@ -27,32 +68,20 @@ export const RecordEditorActions = observer(function RecordEditorActions({
   name,
   deletion,
   compact = false,
+  withDelete = true,
 }: Props) {
   const t = useTranslations();
   return (
     <>
-      {store.record && store.presentation.permittedActions.includes("delete") && (
+      {withDelete && store.record && store.presentation.permittedActions.includes("delete") && (
         <Button
           aria-label={t("Common.actions.delete")}
           className={cn("text-destructive", compact ? "h-8" : "mr-auto")}
-          disabled={
-            deletion.isPreviewing ||
-            store.hasUnsavedChanges ||
-            store.hasRelatedDraft ||
-            store.isLoading ||
-            Boolean(store.pendingOperationId) ||
-            store.refreshRequired
-          }
+          disabled={isDeleteBlocked(store, deletion)}
           size={compact ? "sm" : "default"}
           type="button"
           variant={compact ? "secondary" : "ghost"}
-          onClick={() =>
-            runUserAction(() =>
-              store.record
-                ? deletion.requestDeletion(store.record, store.presentation.model.revision, name)
-                : Promise.resolve(),
-            )
-          }
+          onClick={() => runUserAction(() => requestDeletion(store, deletion, name))}
         >
           <Trash2 aria-hidden className={cn("size-4", compact && "sm:hidden")} />
 
