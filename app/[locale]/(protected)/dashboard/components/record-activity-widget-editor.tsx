@@ -16,7 +16,6 @@ import { FormSelect } from "@/components/forms/form-select";
 import { FormIsoDatePicker } from "@/components/forms/form-iso-date-picker";
 import { useAppForm } from "@/components/forms/form-context";
 import { Button } from "@/components/ui/button";
-import { RecordAiAction } from "@/app/components/agent-chat/record-ai-action";
 import { recordSearchLabel } from "@/features/records/record-search.schema";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { getRecordChoicesAction, getRecordModelAction } from "../../records/actions";
@@ -204,13 +203,6 @@ export const RecordActivityWidgetEditor = observer(
     );
     const previewContent = (
       <div className="min-w-0 space-y-3">
-        {form.id && (
-          <RecordAiAction
-            active={store.isOpen}
-            context={{ reference: { kind: "widget", widgetId: form.id }, label: form.name }}
-          />
-        )}
-
         <WidgetPreviewFrame
           geometry={store.previewGeometry}
           kind={form.kind}

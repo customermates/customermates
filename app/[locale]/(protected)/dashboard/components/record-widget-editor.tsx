@@ -4,7 +4,6 @@ import { z } from "zod";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { RecordAiAction } from "@/app/components/agent-chat/record-ai-action";
 import { X } from "lucide-react";
 import { omit } from "lodash";
 import type { RecordModel } from "@/features/records/record-model.schema";
@@ -227,13 +226,6 @@ export const RecordWidgetEditor = observer(
     const shownPreview = preview && preview.result.schemaRevision === model?.revision ? preview : null;
     const previewContent = (
       <div className="min-w-0 space-y-3">
-        {form.id && (
-          <RecordAiAction
-            active={store.isOpen}
-            context={{ reference: { kind: "widget", widgetId: form.id }, label: form.name }}
-          />
-        )}
-
         <WidgetPreviewFrame
           geometry={store.previewGeometry}
           kind={form.kind}

@@ -4,7 +4,8 @@ import { useEffect } from "react";
 import { RecordActivityWidgetEditor } from "./record-activity-widget-editor";
 
 import { WidgetKind } from "@/generated/prisma";
-import { ChevronsUpDownIcon, Trash2 } from "lucide-react";
+import { ChevronsUpDownIcon, Sparkles, Trash2 } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
@@ -19,6 +20,8 @@ import { FormLabel } from "@/components/forms/form-label";
 import { FormInput } from "@/components/forms/form-input";
 import { FormSwitch } from "@/components/forms/form-switch";
 import { AppModal } from "@/components/modal";
+import type { AppModalActions } from "@/components/modal/app-modal";
+import type { AppModalActionProps } from "@/components/modal/app-modal-action";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { Button } from "@/components/ui/button";
 import {
@@ -66,11 +69,24 @@ function WidgetModalSkeleton() {
 
 export const WidgetModal = observer(() => {
   const t = useTranslations();
-  const { widgetModalStore } = useRootStore();
+  const root = useRootStore();
+  const { widgetModalStore } = root;
   const { showDeleteConfirmation } = useDeleteConfirmation();
   const { resolvedTheme } = useTheme();
+  const pathname = usePathname();
   const starterText = useStarterText();
   const { form, canManage, isDisabled, companyWideWidgets } = widgetModalStore;
+  const agentChat = root.agentChatEnabled && root.agentChatStore.enabled !== false ? root.agentChatStore : null;
+  const widgetId = form.id;
+  const askAi =
+    agentChat && widgetId
+      ? () =>
+          agentChat.openWithContextDraft({
+            context: { reference: { kind: "widget", widgetId }, label: form.name },
+            draft: "",
+            pageRoute: pathname,
+          })
+      : null;
   const chartColors = getChartColors(resolvedTheme);
   const isCreate = !form.id;
   const canDeleteWidget = !isCreate && canManage && Boolean(form.id);
@@ -80,6 +96,27 @@ export const WidgetModal = observer(() => {
     : isCreate
       ? t("Dashboard.widgetEditor.addTitle")
       : t("Dashboard.widgetEditor.editTitle", { name: form.name });
+  const askAction: AppModalActionProps | null = askAi
+    ? { id: "widget-ask-ai", label: t("DataView.views.askAi"), icon: Sparkles, onClick: askAi }
+    : null;
+  const deleteAction: AppModalActionProps | null = canDeleteWidget
+    ? {
+        id: "delete-widget",
+        label: t("Dashboard.widgetEditor.danger.deleteLabel", { name: form.name }),
+        icon: Trash2,
+        variant: "destructive",
+        disabled: isDisabled,
+        onClick: () => showDeleteConfirmation(() => widgetModalStore.delete(), form.name),
+      }
+    : null;
+  const modalActions: AppModalActions =
+    askAction && deleteAction
+      ? [askAction, deleteAction]
+      : askAction
+        ? [askAction]
+        : deleteAction
+          ? [deleteAction]
+          : [];
   const saveDisabled = isDisabled || !form.name.trim() || (!isCreate && !widgetModalStore.hasUnsavedChanges);
 
   useEffect(() => {
@@ -282,22 +319,7 @@ export const WidgetModal = observer(() => {
 
   return (
     <AppModal
-      actions={
-        canDeleteWidget
-          ? [
-              {
-                id: "delete-widget",
-                label: t("Dashboard.widgetEditor.danger.deleteLabel", {
-                  name: form.name,
-                }),
-                icon: Trash2,
-                variant: "destructive",
-                disabled: isDisabled,
-                onClick: () => showDeleteConfirmation(() => widgetModalStore.delete(), form.name),
-              },
-            ]
-          : []
-      }
+      actions={modalActions}
       description={
         isCreate && widgetModalStore.creationStep === "choose"
           ? t("Dashboard.widgetEditor.steps.chooseDescription")
