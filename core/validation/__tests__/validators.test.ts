@@ -76,7 +76,7 @@ describe("checkIds (entity id existence)", () => {
       [{ ids: ["org-1", "org-2"], path: ["organizationIds"] }],
       ctx,
       lookup(new Set(["org-1", "org-2", "org-3"])),
-      CustomErrorCode.organizationNotFound,
+      CustomErrorCode.recordNotFound,
     );
     expect(ctx.addIssue).not.toHaveBeenCalled();
   });
@@ -87,7 +87,7 @@ describe("checkIds (entity id existence)", () => {
       [{ ids: ["org-1", "org-bad", "org-worse"], path: ["organizationIds"] }],
       ctx,
       lookup(new Set(["org-1"])),
-      CustomErrorCode.organizationNotFound,
+      CustomErrorCode.recordNotFound,
     );
     expect(ctx.addIssue).toHaveBeenCalledTimes(2);
     expect(ctx.addIssue).toHaveBeenCalledWith(expect.objectContaining({ path: ["organizationIds", 1] }));
@@ -96,12 +96,7 @@ describe("checkIds (entity id existence)", () => {
   it("skips null, undefined, and empty sources", async () => {
     for (const ids of [null, undefined, []] as (string[] | null | undefined)[]) {
       const ctx = createMockCtx();
-      await checkIds(
-        [{ ids, path: ["organizationIds"] }],
-        ctx,
-        lookup(new Set()),
-        CustomErrorCode.organizationNotFound,
-      );
+      await checkIds([{ ids, path: ["organizationIds"] }], ctx, lookup(new Set()), CustomErrorCode.recordNotFound);
       expect(ctx.addIssue).not.toHaveBeenCalled();
     }
   });
@@ -112,7 +107,7 @@ describe("checkIds (entity id existence)", () => {
       [{ ids: "org-bad", path: ["organizationIds"] }],
       ctx,
       lookup(new Set()),
-      CustomErrorCode.organizationNotFound,
+      CustomErrorCode.recordNotFound,
     );
     expect(ctx.addIssue).toHaveBeenCalledTimes(1);
     expect(ctx.addIssue).toHaveBeenCalledWith(expect.objectContaining({ path: ["organizationIds"] }));
@@ -121,11 +116,7 @@ describe("checkIds (entity id existence)", () => {
   it("resolves all entries in one findIds call and raises the supplied error code", async () => {
     const codes = [
       CustomErrorCode.userNotFound,
-      CustomErrorCode.dealNotFound,
-      CustomErrorCode.serviceNotFound,
-      CustomErrorCode.taskNotFound,
       CustomErrorCode.widgetNotFound,
-      CustomErrorCode.customColumnIdNotFound,
       CustomErrorCode.webhookNotFound,
       CustomErrorCode.webhookDeliveryNotFound,
       CustomErrorCode.threadNotFound,
