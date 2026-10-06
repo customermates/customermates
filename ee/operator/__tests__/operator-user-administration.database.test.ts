@@ -273,7 +273,6 @@ describeDatabase("operator user administration against a real database", { timeo
         data: {
           companyId,
           id: taskType.id,
-          presetKey: "task",
           label: taskType.label,
           pluralLabel: taskType.pluralLabel,
           definition: taskType,

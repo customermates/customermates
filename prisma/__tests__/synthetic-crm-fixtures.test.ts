@@ -197,9 +197,9 @@ describe("canonical synthetic CRM fixture contract", () => {
       id: SEED_IDS.role,
       permissions: [],
     });
-    expect(SYNTHETIC_ROLE_DEFINITIONS[1]?.permissions).toHaveLength(30);
-    expect(SYNTHETIC_ROLE_DEFINITIONS[2]?.permissions).toHaveLength(23);
-    expect(SYNTHETIC_ROLE_PERMISSION_COUNT).toBe(53);
+    expect(SYNTHETIC_ROLE_DEFINITIONS[1]?.permissions).toHaveLength(13);
+    expect(SYNTHETIC_ROLE_DEFINITIONS[2]?.permissions).toHaveLength(9);
+    expect(SYNTHETIC_ROLE_PERMISSION_COUNT).toBe(22);
 
     const permissions = SYNTHETIC_ROLE_DEFINITIONS.flatMap(({ permissions }) => permissions);
     expect(new Set(permissions.map(({ id }) => id))).toHaveLength(permissions.length);

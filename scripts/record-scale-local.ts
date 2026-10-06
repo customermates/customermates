@@ -5,6 +5,7 @@ import { performance } from "node:perf_hooks";
 import { Client } from "pg";
 
 import { assertLocalDatabaseEnvironment } from "./local-database-safety";
+import { presetId } from "../features/records/crm-preset";
 import { RecordModelSchema, type RecordModel } from "../features/records/record-model.schema";
 import { validateRecordModel } from "../features/records/record-model-validation";
 import { RecordQuerySchema } from "../features/records/record-query.schema";
@@ -63,11 +64,12 @@ async function seed() {
     [companyId, JSON.stringify({ benchmark: true })],
   );
   if (prior.rowCount) throw new Error("The scale fixture already exists");
-  const typeRows = await client.query<{ id: string; presetKey: string }>(
-    'SELECT id, "presetKey" FROM "RecordTypeDefinition" WHERE "companyId" = $1 AND "presetKey" = ANY($2::text[])',
-    [companyId, TYPES],
+  const typeIds = new Map(
+    TYPES.flatMap((key) => {
+      const id = presetId(companyId, key);
+      return model.types.some((type) => type.id === id) ? [[key, id] as const] : [];
+    }),
   );
-  const typeIds = new Map(typeRows.rows.map((row) => [row.presetKey, row.id]));
   if (typeIds.size !== TYPES.length) throw new Error("The five starter types are required");
   const fields = [];
   for (const key of TYPES) {
@@ -226,12 +228,8 @@ async function seed() {
 
 async function measure() {
   const { companyId, model } = await workspace();
-  const contactRow = await client.query<{ id: string }>(
-    'SELECT id FROM "RecordTypeDefinition" WHERE "companyId"=$1 AND "presetKey"=$2',
-    [companyId, "contact"],
-  );
   const contact = requireValue(
-    model.types.find((type) => type.id === contactRow.rows[0]?.id),
+    model.types.find((type) => type.id === presetId(companyId, "contact")),
     "Missing contact type",
   );
   const bucket = requireValue(

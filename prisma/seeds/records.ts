@@ -81,15 +81,10 @@ async function initialize(
     return readRecordModelSnapshot(revision.snapshot);
   }
   for (const type of proposed.types) {
-    const presetKey =
-      ["contact", "organization", "deal", "service", "task", "lineItem"].find(
-        (kind) => presetId(companyId, kind) === type.id,
-      ) ?? null;
     await prisma.recordTypeDefinition.create({
       data: {
         companyId,
         id: type.id,
-        presetKey,
         label: type.label,
         pluralLabel: type.pluralLabel,
         archived: type.archived,

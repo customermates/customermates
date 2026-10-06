@@ -1783,7 +1783,6 @@ model RecordSchemaState {
 model RecordTypeDefinition {
   companyId          String
   id                 String                         @default(uuid())
-  presetKey          String?
   label              String
   pluralLabel        String
   archived           Boolean                        @default(false)
@@ -1802,7 +1801,6 @@ model RecordTypeDefinition {
   eventSubscriptions RecordEventSubscription[]
 
   @@id([companyId, id])
-  @@unique([companyId, presetKey])
   @@index([companyId, archived, position])
 }
 
