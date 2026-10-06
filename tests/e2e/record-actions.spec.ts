@@ -47,3 +47,15 @@ test("record drawer keeps record actions icon-only in the header row next to Clo
   await expect(drawer).not.toBeVisible();
   await expect(page.getByRole("button", { name, exact: true })).toHaveCount(0);
 });
+
+test("single select inputs show the selected option as a chip", async ({ page, companyId }) => {
+  await page.goto(`/en/records/${presetId(companyId, "deal")}`);
+  await page.locator("#records-add").click();
+  const drawer = page.getByRole("dialog", { name: "Deal", exact: true });
+  const stage = drawer.getByRole("combobox", { name: "Stage", exact: false });
+  await stage.click();
+  await expect(page.getByRole("option", { name: "Qualified", exact: true }).locator('[data-slot="badge"]')).toBeVisible();
+  await page.getByRole("option", { name: "Qualified", exact: true }).click();
+  await expect(stage.locator('[data-slot="badge"]')).toHaveText("Qualified");
+  await expect(stage.locator('[data-slot="badge"]')).toHaveAttribute("data-variant", "secondary");
+});
