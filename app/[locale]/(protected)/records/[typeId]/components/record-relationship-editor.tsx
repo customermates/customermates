@@ -17,7 +17,8 @@ import { Button } from "@/components/ui/button";
 import { useFocusAfterRemoval } from "@/components/ui/use-focus-after-removal";
 import { SelectionOptionsSkeleton, SelectionValueSkeleton } from "@/components/forms/selection-loading";
 import { AppChip } from "@/components/chip/app-chip";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/core/utils/cn";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { getRecordChoicesAction } from "../../actions";
@@ -126,6 +127,7 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
   const id = `relationship-${relationship.id}-${direction}-${useId()}`;
   const chips = useRef<HTMLDivElement>(null);
   const focusAfterRemoval = useFocusAfterRemoval();
+  const chipVariant = "secondary";
   const error = (retry: () => void) => (
     <div className="flex items-center gap-2 text-sm" role="alert">
       <span>{t("Common.notifications.unexpectedError")}</span>
@@ -139,116 +141,101 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
     <RecordDetailField fieldId={relationshipColumnKey(relationship.id, direction)} inputId={id} label={label}>
       {linked.failed ? (
         error(() => setAttempt((value) => value + 1))
-      ) : chosen.length > 0 || store.isReadOnly ? (
-        <div ref={chips} aria-busy={linked.loading || undefined} className="flex flex-wrap gap-1.5">
-          {linked.loading && store.isReadOnly && chosen.length === 0 && (
-            <span aria-label={t("Loading.text")} role="status">
-              <SelectionValueSkeleton />
-            </span>
-          )}
-
-          {!linked.loading && store.isReadOnly && chosen.length === 0 && (
-            <span className="text-sm text-muted-foreground">—</span>
-          )}
-
-          {chosen.map((record, index) => (
-            <AppChip
-              key={record.ref.recordId}
-              endContent={
-                editable ? (
-                  <button
-                    aria-label={t("RecordModel.unlinkRecord", { name: title(record) })}
-                    className="inline-flex size-5 items-center justify-center rounded-sm focus-visible:ring-2 focus-visible:ring-ring"
-                    data-relationship-unlink=""
-                    type="button"
-                    onClick={() => {
-                      stage(record, "unlink");
-                      focusAfterRemoval({
-                        container: () => chips.current,
-                        selector: "[data-relationship-unlink]",
-                        index,
-                        fallback: () => document.getElementById(id),
-                      });
-                    }}
-                  >
-                    <X className="size-3" />
-                  </button>
-                ) : undefined
-              }
-              tooltip={title(record)}
-            >
-              <button
-                aria-label={t("RecordModel.openRecord", { name: title(record) })}
-                className="max-w-full rounded-sm text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                type="button"
-                onClick={(event) =>
-                  store.rootStore.recordWorkspaceStore.open(
-                    record.ref,
-                    event.currentTarget,
-                    document.getElementById(id),
-                  )
-                }
-              >
-                {title(record)}
-              </button>
-            </AppChip>
-          ))}
-        </div>
-      ) : null}
-
-      {linked.data && linked.data.total > linked.data.pageSize && (
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Button
-            disabled={linkedPage === 1 || linked.loading}
-            size="sm"
-            type="button"
-            variant="ghost"
-            onClick={() => setLinkedPage((value) => value - 1)}
-          >
-            {t("Common.table.previousPage")}
-          </Button>
-
-          <span>{t("RecordModel.linkedRecordCount", { count: linked.data.total })}</span>
-
-          <Button
-            disabled={linkedPage * linked.data.pageSize >= linked.data.total || linked.loading}
-            size="sm"
-            type="button"
-            variant="ghost"
-            onClick={() => setLinkedPage((value) => value + 1)}
-          >
-            {t("Common.table.nextPage")}
-          </Button>
-        </div>
-      )}
-
-      {!store.isReadOnly && (
+      ) : (
         <Popover modal open={open && editable} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            <Button
+          <PopoverAnchor asChild>
+            <div
+              ref={chips}
               aria-busy={linked.loading || undefined}
-              aria-expanded={open && editable}
-              aria-label={label}
-              className="w-full justify-between font-normal"
-              disabled={!editable}
-              id={id}
-              role="combobox"
-              type="button"
-              variant="field"
+              className={cn(
+                "flex min-h-9 w-full flex-wrap items-center gap-1 rounded-md border px-3 py-1.5 text-sm",
+                store.isReadOnly
+                  ? "border-border bg-background"
+                  : "border-input bg-input-background shadow-xs focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50",
+                !store.isReadOnly && !editable && "bg-background",
+              )}
+              data-relationship-field=""
             >
-              {linked.loading ? (
+              {linked.loading && chosen.length === 0 && (
                 <span aria-label={t("Loading.text")} role="status">
                   <SelectionValueSkeleton />
                 </span>
-              ) : (
-                <span>{t("RecordModel.linkRecord")}</span>
               )}
 
-              <ChevronsUpDown className="size-4 opacity-50" />
-            </Button>
-          </PopoverTrigger>
+              {!linked.loading && store.isReadOnly && chosen.length === 0 && (
+                <span className="text-muted-foreground">—</span>
+              )}
 
-          <PopoverContent align="start" className="w-(--radix-popover-trigger-width) p-0">
+              {chosen.map((record, index) => (
+                <AppChip
+                  key={record.ref.recordId}
+                  data-relationship-chip=""
+                  endContent={
+                    editable ? (
+                      <button
+                        aria-label={t("RecordModel.unlinkRecord", { name: title(record) })}
+                        className="inline-flex size-5 items-center justify-center rounded-sm focus-visible:ring-2 focus-visible:ring-ring"
+                        data-relationship-unlink=""
+                        type="button"
+                        onClick={() => {
+                          stage(record, "unlink");
+                          focusAfterRemoval({
+                            container: () => chips.current,
+                            selector: "[data-relationship-unlink]",
+                            index,
+                            fallback: () => document.getElementById(id),
+                          });
+                        }}
+                      >
+                        <X className="size-3" />
+                      </button>
+                    ) : undefined
+                  }
+                  tooltip={title(record)}
+                  variant={chipVariant}
+                >
+                  <button
+                    aria-label={t("RecordModel.openRecord", { name: title(record) })}
+                    className="max-w-full rounded-sm text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    type="button"
+                    onClick={(event) =>
+                      store.rootStore.recordWorkspaceStore.open(
+                        record.ref,
+                        event.currentTarget,
+                        document.getElementById(id),
+                      )
+                    }
+                  >
+                    {title(record)}
+                  </button>
+                </AppChip>
+              ))}
+
+              {!store.isReadOnly && (
+                <PopoverTrigger asChild>
+                  <button
+                    aria-busy={linked.loading || undefined}
+                    aria-controls={`${id}-options`}
+                    aria-expanded={open && editable}
+                    aria-label={label}
+                    className="flex h-6 min-w-16 flex-1 items-center justify-between gap-2 rounded-sm text-left text-muted-foreground outline-none disabled:cursor-default"
+                    disabled={!editable}
+                    id={id}
+                    role="combobox"
+                    type="button"
+                  >
+                    <span className="truncate">
+                      {chosen.length === 0 && !linked.loading ? t("RecordModel.linkRecord") : null}
+                    </span>
+
+                    <ChevronsUpDown aria-hidden className="size-4 shrink-0 opacity-50" />
+                  </button>
+                </PopoverTrigger>
+              )}
+            </div>
+          </PopoverAnchor>
+
+          <PopoverContent align="start" className="w-(--radix-popover-trigger-width) p-0" id={`${id}-options`}>
             <Command shouldFilter={false}>
               <CommandInput
                 placeholder={t("Common.table.search")}
@@ -313,6 +300,32 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
             </Command>
           </PopoverContent>
         </Popover>
+      )}
+
+      {linked.data && linked.data.total > linked.data.pageSize && (
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Button
+            disabled={linkedPage === 1 || linked.loading}
+            size="sm"
+            type="button"
+            variant="ghost"
+            onClick={() => setLinkedPage((value) => value - 1)}
+          >
+            {t("Common.table.previousPage")}
+          </Button>
+
+          <span>{t("RecordModel.linkedRecordCount", { count: linked.data.total })}</span>
+
+          <Button
+            disabled={linkedPage * linked.data.pageSize >= linked.data.total || linked.loading}
+            size="sm"
+            type="button"
+            variant="ghost"
+            onClick={() => setLinkedPage((value) => value + 1)}
+          >
+            {t("Common.table.nextPage")}
+          </Button>
+        </div>
       )}
     </RecordDetailField>
   );

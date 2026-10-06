@@ -59,3 +59,22 @@ test("single select inputs show the selected option as a chip", async ({ page, c
   await expect(stage.locator('[data-slot="badge"]')).toHaveText("Qualified");
   await expect(stage.locator('[data-slot="badge"]')).toHaveAttribute("data-variant", "secondary");
 });
+
+test("relationship inputs keep linked chips and the record search inside one field", async ({ page, companyId }) => {
+  await page.goto(`/en/records/${presetId(companyId, "deal")}`);
+  await page.locator("#records-add").click();
+  const drawer = page.getByRole("dialog", { name: "Deal", exact: true });
+  const combobox = drawer.getByRole("combobox", { name: "Organizations", exact: true });
+  const field = drawer.locator("[data-relationship-field]").filter({ has: combobox });
+  await expect(field).toContainText("Link a record");
+  await combobox.click();
+  await page.getByRole("option", { name: "Example organization", exact: true }).click();
+  const chip = field.locator("[data-relationship-chip]");
+  await expect(chip).toHaveText("Example organization");
+  await expect(field).not.toContainText("Link a record");
+  const [chipBox, comboboxBox] = await Promise.all([chip.boundingBox(), combobox.boundingBox()]);
+  expect(Math.abs(chipBox!.y + chipBox!.height / 2 - (comboboxBox!.y + comboboxBox!.height / 2))).toBeLessThan(4);
+  await field.getByRole("button", { name: "Unlink Example organization", exact: false }).click();
+  await expect(chip).toHaveCount(0);
+  await expect(field).toContainText("Link a record");
+});
