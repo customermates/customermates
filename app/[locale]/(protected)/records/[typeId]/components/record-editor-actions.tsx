@@ -1,21 +1,17 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, type MouseEvent } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { RotateCcw, Save, Trash2 } from "lucide-react";
+import { Check, Maximize2, RotateCcw, Save, Settings2, Trash2 } from "lucide-react";
 import type { RecordEditorStore } from "./record-editor.store";
 import type { useRecordDeletion } from "./use-record-deletion";
 import { Button } from "@/components/ui/button";
-import { AppModalAction } from "@/components/modal/app-modal-action";
+import { AppModalActionRail, type AppModalActionProps } from "@/components/modal/app-modal-action";
 import { cn } from "@/core/utils/cn";
-import { RecordAiAction } from "@/app/components/agent-chat/record-ai-action";
+import { useRecordAiAction } from "@/app/components/agent-chat/record-ai-action";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
-import {
-  RecordDetailCustomizeAction,
-  RecordDetailLayoutStatus,
-  useRecordDetailLayout,
-} from "./record-detail-personalization";
+import { RecordDetailLayoutStatus, useRecordDetailLayout } from "./record-detail-personalization";
 
 type Props = {
   store: RecordEditorStore;
@@ -24,26 +20,69 @@ type Props = {
   deletion: ReturnType<typeof useRecordDeletion>;
 };
 
-/** Icon-only record delete, shown in the drawer header rail and the record page top bar. */
-export const RecordDeleteAction = observer(function RecordDeleteAction({
+/**
+ * Record header actions in the shared rail order: Ask AI, Customize, Delete, then Open page when `onOpenPage`
+ * is given (drawer only). Used by the record drawer header and the record page top bar.
+ */
+export const RecordHeaderActions = observer(function RecordHeaderActions({
   store,
   name,
   deletion,
-}: Omit<Props, "formId">) {
+  onOpenPage,
+  className,
+}: Omit<Props, "formId"> & { onOpenPage?: (event: MouseEvent<HTMLAnchorElement>) => void; className?: string }) {
   const t = useTranslations();
-  if (!store.record || !store.presentation.permittedActions.includes("delete")) return null;
-  return (
-    <AppModalAction
-      disabled={deletion.isPreviewing || store.isBusy}
-      icon={Trash2}
-      id="record-delete"
-      label={t("Common.actions.delete")}
-      variant="destructive"
-      onClick={() =>
-        store.record ? deletion.requestDeletion(store.record, store.presentation.model.revision, name) : undefined
-      }
-    />
-  );
+  const layout = useRecordDetailLayout();
+  const record = store.record;
+  const askAi = useRecordAiAction({
+    registerContext: true,
+    active: store.isOpen,
+    context: {
+      reference: record
+        ? { kind: "record", typeId: record.ref.typeId, recordId: record.ref.recordId }
+        : { kind: "recordType", typeId: store.presentation.typeId },
+      label: name,
+    },
+  });
+  const actions: AppModalActionProps[] = [
+    ...(askAi ? [askAi] : []),
+    ...(layout
+      ? [
+          {
+            id: "customize",
+            kind: "customize" as const,
+            icon: layout.isPersonalizing ? Check : Settings2,
+            label: layout.isPersonalizing ? t("EntityDetail.donePersonalizing") : t("EntityDetail.personalize"),
+            pressed: layout.isPersonalizing,
+            onClick: () => layout.setIsPersonalizing(!layout.isPersonalizing),
+          },
+        ]
+      : []),
+    ...(record && store.presentation.permittedActions.includes("delete")
+      ? [
+          {
+            id: "delete",
+            icon: Trash2,
+            label: t("Common.actions.delete"),
+            variant: "destructive" as const,
+            disabled: deletion.isPreviewing || store.isBusy,
+            onClick: () => deletion.requestDeletion(record, store.presentation.model.revision, name),
+          },
+        ]
+      : []),
+    ...(record && onOpenPage
+      ? [
+          {
+            id: "open-page",
+            icon: Maximize2,
+            label: t("RecordModel.openPage"),
+            href: `/records/${record.ref.typeId}/${record.ref.recordId}`,
+            onNavigate: onOpenPage,
+          },
+        ]
+      : []),
+  ];
+  return <AppModalActionRail actions={actions} className={className} />;
 });
 
 export const RecordEditorActions = observer(function RecordEditorActions({
@@ -91,29 +130,17 @@ export const RecordEditorActions = observer(function RecordEditorActions({
 export const RecordPageActions = observer(function RecordPageActions(props: Props) {
   const { store, formId, name, deletion } = props;
   const layout = useRecordDetailLayout();
-  const record = store.record?.ref;
-  const typeId = store.presentation.typeId;
-  const isOpen = store.isOpen;
   const actions = useMemo(
     () => (
       <div data-record-page-actions className="flex items-center gap-1">
-        <RecordAiAction
-          registerContext
-          active={isOpen}
-          className="[&>span]:hidden sm:[&>span]:inline"
-          context={{ reference: record ? { kind: "record", ...record } : { kind: "recordType", typeId }, label: name }}
-        />
-
-        {layout && <RecordDetailCustomizeAction {...layout} />}
-
         {layout && <RecordDetailLayoutStatus {...layout} />}
 
-        <RecordDeleteAction deletion={deletion} name={name} store={store} />
+        <RecordHeaderActions deletion={deletion} name={name} store={store} />
 
         <RecordEditorActions compact formId={formId} store={store} />
       </div>
     ),
-    [deletion, formId, isOpen, layout, name, record, store, typeId],
+    [deletion, formId, layout, name, store],
   );
   useSetTopBarActions(actions);
   return null;

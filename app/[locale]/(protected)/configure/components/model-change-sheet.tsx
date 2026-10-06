@@ -10,7 +10,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetBody, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
-import { AppModalActionRail } from "@/components/modal/app-modal-action";
+import { AppModalActionRail, type AppModalActionProps } from "@/components/modal/app-modal-action";
 import { UnsavedChangesGuard } from "@/components/modal/unsaved-changes-guard";
 import { keepOpenForAssistantSurface, releaseFocusToAssistantSurface } from "@/components/modal/assistant-surface";
 import { runUserAction } from "@/core/errors/report-application-error";
@@ -43,14 +43,14 @@ export const ModelChangeSheet = observer(function ModelChangeSheet({
   store,
   title,
   submitLabel,
-  headerActions,
+  actions = [],
   children,
 }: {
   store: SheetStore;
   title: string;
   submitLabel?: string;
-  /** Icon-only actions (e.g. Ask AI) shown in the header row before Cancel and Save. */
-  headerActions?: ReactNode;
+  /** Icon-only header actions beside Close, in the shared rail order. */
+  actions?: readonly AppModalActionProps[];
   children: ReactNode;
 }) {
   const t = useTranslations();
@@ -67,8 +67,8 @@ export const ModelChangeSheet = observer(function ModelChangeSheet({
   };
   const label =
     submitLabel ?? (store.previewReady && !store.isLoading ? t("RecordModel.apply") : t("Common.actions.save"));
-  const actions = (
-    <div className="flex shrink-0 items-center justify-end gap-2">
+  const footer = (
+    <div className="flex shrink-0 items-center justify-end gap-2 max-sm:flex-col-reverse max-sm:items-stretch">
       <Button disabled={store.isLoading} size="sm" type="button" variant="secondary" onClick={requestClose}>
         {t("Common.actions.cancel")}
       </Button>
@@ -96,7 +96,6 @@ export const ModelChangeSheet = observer(function ModelChangeSheet({
           className="w-full gap-0 bg-background sm:max-w-xl"
           data-configure-drawer=""
           overlayClassName="bg-black/10 backdrop-blur-none"
-          showCloseButton={false}
           side="right"
           onBlur={releaseFocusToAssistantSurface}
           onEscapeKeyDown={keepOpenForAssistantSurface}
@@ -107,17 +106,15 @@ export const ModelChangeSheet = observer(function ModelChangeSheet({
             focusFirstBodyControl(event);
           }}
         >
-          <SheetHeader className="flex-row items-center justify-between gap-3 px-6">
+          <SheetHeader className="flex-row items-start gap-3 px-6 pt-[calc(1.5rem+var(--safe-top))] pr-[calc(3.125rem+var(--safe-right))] pb-4">
             <SheetTitle className="min-w-0 flex-1 truncate text-lg">{title}</SheetTitle>
 
-            {headerActions && <AppModalActionRail className="self-center">{headerActions}</AppModalActionRail>}
-
-            {actions}
+            <AppModalActionRail actions={actions} className="-mt-4.5" />
           </SheetHeader>
 
           <SheetBody className="px-6 py-5">{children}</SheetBody>
 
-          <SheetFooter className="px-6">{actions}</SheetFooter>
+          <SheetFooter className="px-6">{footer}</SheetFooter>
         </SheetContent>
       </Sheet>
 

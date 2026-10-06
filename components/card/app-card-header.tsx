@@ -15,6 +15,8 @@ export function AppCardHeader({ className, ...props }: Props) {
         "in-data-overlay-close:pr-14",
         "in-data-[overlay-action-count=1]:pr-24!",
         "in-data-[overlay-action-count=2]:pr-36!",
+        "in-data-[overlay-action-count=3]:pr-46!",
+        "in-data-[overlay-action-count=4]:pr-57!",
         OVERLAY_HEADER_ALIGNMENT_CLASS,
         className,
       )}

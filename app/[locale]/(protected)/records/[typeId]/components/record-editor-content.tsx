@@ -5,10 +5,8 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { SURFACE } from "@/core/data-view/data-view-keys";
-import { Maximize2 } from "lucide-react";
 import type { RecordEditorStore } from "./record-editor.store";
 import { RecordOperationProgress } from "@/components/records/record-operation-progress";
-import { RecordAiIconAction } from "@/app/components/agent-chat/record-ai-action";
 import { AppForm } from "@/components/forms/form-context";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardHeader } from "@/components/card/app-card-header";
@@ -17,10 +15,8 @@ import { AppCardFooter } from "@/components/card/app-card-footer";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import { AppModalAction, AppModalActionRail } from "@/components/modal/app-modal-action";
 import { runUserAction } from "@/core/errors/report-application-error";
 import {
-  RecordDetailCustomizeAction,
   RecordDetailLayoutStatus,
   RecordDetailPersonalization,
   useRecordDetailLayout,
@@ -28,7 +24,7 @@ import {
 import { RecordDetailOverview } from "./record-detail-overview";
 import { RecordDetailSummary } from "./record-detail-summary";
 import { RecordEditorFields } from "./record-editor-fields";
-import { RecordDeleteAction, RecordEditorActions, RecordPageActions } from "./record-editor-actions";
+import { RecordEditorActions, RecordHeaderActions, RecordPageActions } from "./record-editor-actions";
 import { EntityDetailPanels, type EntityDetailPanelLayout } from "@/components/entity-detail/entity-detail-panels";
 import { useRecordDeletion } from "./use-record-deletion";
 import { RecordActivitiesPanel } from "@/features/messaging/activities/record-activities-panel";
@@ -234,36 +230,17 @@ const RecordEditorBody = observer(function RecordEditorBody({
             </h2>
           </AppCardHeader>
 
-          <AppModalActionRail className="mt-1.5">
-            <RecordAiIconAction
-              registerContext
-              active={store.isOpen}
-              context={{
-                reference: store.record
-                  ? { kind: "record", typeId: store.record.ref.typeId, recordId: store.record.ref.recordId }
-                  : { kind: "recordType", typeId: store.presentation.typeId },
-                label: name,
-              }}
-            />
-
-            {detailLayout && <RecordDetailCustomizeAction {...detailLayout} />}
-
-            {store.record && (
-              <AppModalAction
-                href={`/records/${store.record.ref.typeId}/${store.record.ref.recordId}`}
-                icon={Maximize2}
-                id="record-open-page"
-                label={t("RecordModel.openPage")}
-                onNavigate={(event) => {
-                  if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-                  event.preventDefault();
-                  store.runAfterChannelDraft(openPage);
-                }}
-              />
-            )}
-
-            <RecordDeleteAction deletion={deletion} name={name} store={store} />
-          </AppModalActionRail>
+          <RecordHeaderActions
+            className="mt-1.5"
+            deletion={deletion}
+            name={name}
+            store={store}
+            onOpenPage={(event) => {
+              if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+              event.preventDefault();
+              store.runAfterChannelDraft(openPage);
+            }}
+          />
         </div>
 
         {detailLayout && <RecordDetailLayoutStatus {...detailLayout} className="shrink-0 px-6 pb-3" />}

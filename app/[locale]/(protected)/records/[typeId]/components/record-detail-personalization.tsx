@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { observer } from "mobx-react-lite";
-import { Check, RotateCcw, Settings2 } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { RecordEditorStore } from "./record-editor.store";
 import type { RecordDetailLayoutStore } from "@/core/stores/record-detail-layout.store";
@@ -15,7 +15,6 @@ import {
   useEntityDetailPersonalization,
 } from "@/components/entity-detail/entity-detail-personalization";
 import { Button } from "@/components/ui/button";
-import { AppModalAction } from "@/components/modal/app-modal-action";
 import { cn } from "@/core/utils/cn";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 
@@ -171,20 +170,3 @@ export const RecordDetailLayoutStatus = observer(function RecordDetailLayoutStat
     </div>
   );
 });
-
-/** Icon-only Customize toggle for the drawer header rail and the record page top bar. */
-export function RecordDetailCustomizeAction({
-  isPersonalizing,
-  setIsPersonalizing,
-}: Pick<RecordDetailLayoutState, "isPersonalizing" | "setIsPersonalizing">) {
-  const t = useTranslations();
-  return (
-    <AppModalAction
-      icon={isPersonalizing ? Check : Settings2}
-      id="record-customize"
-      label={isPersonalizing ? t("EntityDetail.donePersonalizing") : t("EntityDetail.personalize")}
-      pressed={isPersonalizing}
-      onClick={() => setIsPersonalizing(!isPersonalizing)}
-    />
-  );
-}

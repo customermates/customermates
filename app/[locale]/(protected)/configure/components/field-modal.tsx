@@ -16,7 +16,7 @@ import type {
 import type { ConfigurationChange, ConfigurationPreview } from "@/features/records/configuration.schema";
 
 import { RecordConfigurationPreview } from "@/components/records/record-configuration-preview";
-import { RecordAiIconAction } from "@/app/components/agent-chat/record-ai-action";
+import { useRecordAiAction } from "@/app/components/agent-chat/record-ai-action";
 import { RecordOperationProgress } from "@/components/records/record-operation-progress";
 import { AppForm } from "@/components/forms/form-context";
 import { FormAutocompleteCurrency } from "@/components/forms/form-autocomplete-currency";
@@ -340,20 +340,19 @@ export const FieldModal = observer(function FieldModal({ store }: { store: Field
   const t = useTranslations();
   const [showProbability, setShowProbability] = useState(false);
   const optionMetadata = showProbability || store.form.options.some((option) => option.probability !== "");
+  const askAi = useRecordAiAction({
+    registerContext: true,
+    active: store.isOpen,
+    context: {
+      reference: store.original
+        ? { kind: "recordField", typeId: store.typeId, fieldId: store.original.id }
+        : { kind: "recordType", typeId: store.typeId },
+      label: store.original?.label ?? t("RecordModel.addField"),
+    },
+  });
   return (
     <ModelChangeSheet
-      headerActions={
-        <RecordAiIconAction
-          registerContext
-          active={store.isOpen}
-          context={{
-            reference: store.original
-              ? { kind: "recordField", typeId: store.typeId, fieldId: store.original.id }
-              : { kind: "recordType", typeId: store.typeId },
-            label: store.original?.label ?? t("RecordModel.addField"),
-          }}
-        />
-      }
+      actions={askAi ? [askAi] : []}
       store={store}
       title={store.original ? t("RecordModel.editField") : t("RecordModel.addField")}
     >

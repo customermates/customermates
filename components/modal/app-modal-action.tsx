@@ -16,8 +16,24 @@ import { runUserAction } from "@/core/errors/report-application-error";
 
 export type AppModalActionVariant = "neutral" | "destructive";
 
+/**
+ * Where an action sits in the header rail. The rail always renders, left to right:
+ * assistant (Ask AI), customize, other, destructive (Delete), navigate (Open page), then the overlay's Close.
+ */
+export type AppModalActionKind = "assistant" | "customize" | "other" | "destructive" | "navigate";
+
+const ACTION_KIND_ORDER: Record<AppModalActionKind, number> = {
+  assistant: 0,
+  customize: 1,
+  other: 2,
+  destructive: 3,
+  navigate: 4,
+};
+
 type SharedActionProps = {
   id: string;
+  /** Defaults to "destructive" for destructive actions, "navigate" for links and "other" otherwise. */
+  kind?: AppModalActionKind;
   anchorId?: string;
   icon: LucideIcon;
   label: string;
@@ -25,7 +41,7 @@ type SharedActionProps = {
   variant?: AppModalActionVariant;
 };
 
-type ButtonActionProps = SharedActionProps & {
+export type AppModalButtonActionProps = SharedActionProps & {
   busy?: boolean;
   disabled?: boolean;
   /** Marks a toggle action; announced as pressed when true. */
@@ -46,7 +62,7 @@ type LinkActionProps = SharedActionProps & {
   onClick?: never;
 };
 
-export type AppModalActionProps = ButtonActionProps | LinkActionProps;
+export type AppModalActionProps = AppModalButtonActionProps | LinkActionProps;
 
 export const APP_MODAL_ACTION_RAIL_CLASS = OVERLAY_ACTION_RAIL_CLASS;
 
@@ -141,18 +157,39 @@ export function AppModalAction(props: AppModalActionProps) {
   );
 }
 
+function actionKind(action: AppModalActionProps): AppModalActionKind {
+  return (
+    action.kind ?? (action.variant === "destructive" ? "destructive" : isLinkAction(action) ? "navigate" : "other")
+  );
+}
+
+/** Sorts header actions into the fixed rail order; stable within a kind. */
+export function orderAppModalActions(actions: readonly AppModalActionProps[]) {
+  return [...actions].sort((a, b) => ACTION_KIND_ORDER[actionKind(a)] - ACTION_KIND_ORDER[actionKind(b)]);
+}
+
 /**
- * The one overlay header action rail. In flow by default (place it last in a header row whose right padding
- * clears Close); AppModal passes APP_MODAL_ACTION_RAIL_CLASS to pin it beside Close instead.
+ * The one overlay header action rail: icon-only actions styled like Close, each with the app tooltip,
+ * in the fixed order of {@link AppModalActionKind}. AppModal places it beside Close with
+ * APP_MODAL_ACTION_RAIL_CLASS; sheet editors put it last in their header row.
  */
-export function AppModalActionRail({ className, children }: { className?: string; children: ReactNode }) {
+export function AppModalActionRail({
+  actions,
+  className,
+}: {
+  actions: readonly AppModalActionProps[];
+  className?: string;
+}) {
+  if (actions.length === 0) return null;
   return (
     <TooltipProvider>
       <div
-        className={cn("flex min-h-9 shrink-0 items-center gap-2 self-start empty:hidden", className)}
+        className={cn("flex min-h-9 shrink-0 items-center gap-2 self-start", className)}
         data-slot="app-modal-actions"
       >
-        {children}
+        {orderAppModalActions(actions).map((action) => (
+          <AppModalAction key={action.id} {...action} />
+        ))}
       </div>
     </TooltipProvider>
   );

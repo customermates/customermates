@@ -333,8 +333,8 @@ describe("overlay contract", () => {
       `AppModal headers contain titles and metadata only. Pass controls through <AppModal actions={...}>:\n${found.join("\n")}`,
     ).toEqual([]);
     expect(appModal).toContain("actions?: AppModalActions");
-    expect(appModal).toContain("actions.map((action)");
-    expect(appModal).toContain("<AppModalActionRail className={APP_MODAL_ACTION_RAIL_CLASS}>");
+    expect(appModalAction).toContain("orderAppModalActions(actions).map((action)");
+    expect(appModal).toContain("<AppModalActionRail actions={actions} className={APP_MODAL_ACTION_RAIL_CLASS} />");
     expect(appModalAction).toContain('data-slot="app-modal-actions"');
     expect(appModal).toContain("data-overlay-action-count={hasActions");
     expect(appModal).toContain("data-overlay-actions={hasActions");

@@ -17,13 +17,10 @@ import { useIsWiderThan } from "@/hooks/use-media-query";
 import { useClientReady } from "@/hooks/use-client-ready";
 
 import { UnsavedChangesGuard } from "./unsaved-changes-guard";
-import { AppModalAction, AppModalActionRail, APP_MODAL_ACTION_RAIL_CLASS } from "./app-modal-action";
+import { AppModalActionRail, APP_MODAL_ACTION_RAIL_CLASS } from "./app-modal-action";
 import { keepOpenForAssistantSurface, releaseFocusToAssistantSurface } from "./assistant-surface";
 
-export type AppModalActions =
-  | readonly []
-  | readonly [AppModalActionProps]
-  | readonly [AppModalActionProps, AppModalActionProps];
+export type AppModalActions = readonly AppModalActionProps[];
 
 export type ModalSize = "sm" | "md" | "lg" | "xl" | "3xl" | "5xl";
 
@@ -91,7 +88,6 @@ export const AppModal = observer((props: Props) => {
   const actionCount = actions.length;
   const hasActions = actionCount > 0;
 
-  if (actionCount > 2) throw new Error("AppModal supports at most two header actions");
   const focusReturn = useOverlayFocusReturn(
     isOpen,
     store?.focusReturnTarget ?? props.focusReturnTarget,
@@ -154,13 +150,7 @@ export const AppModal = observer((props: Props) => {
               {description ? <DialogDescription>{description}</DialogDescription> : null}
             </VisuallyHidden.Root>
 
-            {hasActions ? (
-              <AppModalActionRail className={APP_MODAL_ACTION_RAIL_CLASS}>
-                {actions.map((action) => (
-                  <AppModalAction key={action.id} {...action} />
-                ))}
-              </AppModalActionRail>
-            ) : null}
+            <AppModalActionRail actions={actions} className={APP_MODAL_ACTION_RAIL_CLASS} />
 
             {children}
           </DialogContent>
@@ -186,13 +176,7 @@ export const AppModal = observer((props: Props) => {
               {description ? <DrawerDescription>{description}</DrawerDescription> : null}
             </VisuallyHidden.Root>
 
-            {hasActions ? (
-              <AppModalActionRail className={APP_MODAL_ACTION_RAIL_CLASS}>
-                {actions.map((action) => (
-                  <AppModalAction key={action.id} {...action} />
-                ))}
-              </AppModalActionRail>
-            ) : null}
+            <AppModalActionRail actions={actions} className={APP_MODAL_ACTION_RAIL_CLASS} />
 
             {children}
           </DrawerContent>
