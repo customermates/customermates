@@ -486,6 +486,39 @@ export async function populateLegacyWorkspace(client: ClientBase, { currency = "
       },
     }),
   };
+  const connectedAccountId = randomUUID();
+  const channels = {
+    created: await db.auditLog.create({
+      data: {
+        companyId,
+        userId: admin.id,
+        entityId: connectedAccountId,
+        event: "connected_account.created",
+        createdAt: new Date("2025-05-03T10:00:00.789Z"),
+        eventData: {
+          userId: admin.id,
+          companyId,
+          entityId: connectedAccountId,
+          payload: { provider: "google", displayName: "Ada", emailAddress: "ada@example.test" },
+        },
+      },
+    }),
+    deleted: await db.auditLog.create({
+      data: {
+        companyId,
+        userId: admin.id,
+        entityId: connectedAccountId,
+        event: "connected_account.deleted",
+        createdAt: new Date("2025-06-04T11:00:00.012Z"),
+        eventData: {
+          userId: admin.id,
+          companyId,
+          entityId: connectedAccountId,
+          payload: { provider: "google", displayName: "Ada", emailAddress: null, removalReason: "planDowngrade" },
+        },
+      },
+    }),
+  };
   const delivery = (
     await db.webhookDelivery.create({
       data: {
@@ -524,6 +557,7 @@ export async function populateLegacyWorkspace(client: ClientBase, { currency = "
     webhook,
     history,
     legal,
+    channels,
     delivery,
     db,
   };

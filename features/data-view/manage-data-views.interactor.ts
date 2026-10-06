@@ -30,8 +30,8 @@ import {
   type BuiltinAiManageableDataViewSurfaceKey,
 } from "@/core/data-view/ai-manageable-surfaces";
 import { activityViewFilterableFields } from "@/ee/messaging/activities/record-activity-view";
-import type { SURFACE } from "@/core/data-view/data-view-keys";
-import { ALL_VIEW_KEY, isActivitySurface } from "@/core/data-view/data-view-keys";
+import { ACTIVITY_KINDS, CHANGE_ACTIVITY_KINDS } from "@/ee/messaging/activities/activities.schema";
+import { ALL_VIEW_KEY, SURFACE, isActivitySurface } from "@/core/data-view/data-view-keys";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
@@ -486,7 +486,10 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
     if (isActivitySurface(surfaceKey)) {
       const types = (await this.recordViews?.list()) ?? [];
       return {
-        filterableFields: activityViewFilterableFields(types),
+        filterableFields: activityViewFilterableFields(
+          types,
+          surfaceKey === SURFACE.activity ? CHANGE_ACTIVITY_KINDS : ACTIVITY_KINDS,
+        ),
         sortableFields: [{ field: "at", resolvedFields: ["at"] }] as SortableField[],
         groupableFields: [] as GroupableFieldSpec[],
         groupableDtos: [],

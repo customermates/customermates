@@ -44,6 +44,7 @@ export class GetRecordActivityPresentationInteractor extends AuthenticatedIntera
     return runInTransaction(
       async () => {
         const surface = record ? SURFACE.entityTimeline : SURFACE.activity;
+        const kinds = record ? ACTIVITY_KINDS : CHANGE_ACTIVITY_KINDS;
         const persisted = await this.views.loadSurfaceState(surface);
         const viewKey = params.viewId ?? persisted.activeViewKey ?? ALL_VIEW_KEY;
         const selected = persisted.views.find((view) => view.id === viewKey);
@@ -56,7 +57,7 @@ export class GetRecordActivityPresentationInteractor extends AuthenticatedIntera
         if (invalid) return fail(invalid);
         const result = await this.activities.invoke({
           scope: { records: record ? [record] : [], typeIds: [] },
-          kinds: [...(record ? ACTIVITY_KINDS : CHANGE_ACTIVITY_KINDS)],
+          kinds: [...kinds],
           filters: activityViewFilters(state.filters),
           cursor: null,
           limit: 25,
@@ -74,7 +75,7 @@ export class GetRecordActivityPresentationInteractor extends AuthenticatedIntera
             activeViewKey: viewKey,
             allState: persisted.allState,
             columns: activityViewColumns(types),
-            filterableFields: activityViewFilterableFields(types),
+            filterableFields: activityViewFilterableFields(types, kinds),
             viewPersistable: true,
           },
         };

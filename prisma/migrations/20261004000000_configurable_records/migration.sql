@@ -11,7 +11,7 @@
 --   3. converts RECORDS, values, links, assignments, identities and participant lookups,
 --   4. writes the CONFIGURATION (record model revision, grants) and removes what is not carried over:
 --      legacy saved views, personalisation, dashboard widgets, legacy history (the audit log, except the legal-consent
---      evidence moved into the event log) and legacy automation triggers,
+--      evidence and the connected account history moved into the event log) and legacy automation triggers,
 --   5. materialises CALCULATED values and their provenance with exact decimals,
 --   6. RECONCILES the CRM data against the legacy source and refuses on any mismatch,
 --   7. REMOVES the legacy tables, columns and enums.
@@ -2327,12 +2327,14 @@ DELETE FROM "DataView" WHERE "surfaceKey" ~ '^((contact|organization|deal|servic
 DELETE FROM "P13n" WHERE "p13nId" ~ '^((contact|organization|deal|service|task|audit-log)s-card-store|(contact|organization|deal|service|task)-detail|entity-timeline)$';
 DELETE FROM "Widget";
 
--- The audit log is not carried over (section 7 drops it), except the legal-consent evidence: accepted legal
--- documents and sent legal notices move into the event log with their id, actor, entity, time and payload.
--- They are history only, so they are written as already delivered and never reach webhooks or routines.
+-- The audit log is not carried over (section 7 drops it), except the legal-consent evidence (accepted legal
+-- documents and sent legal notices) and the connected account history (connected_account.*), which the
+-- operator console's channel usage reads. Those rows move into the event log with their id, actor, entity, time
+-- and payload; the subject kind is the event prefix. They are history only, so they are written as already
+-- delivered and never reach webhooks or routines.
 INSERT INTO "EventLog" ("companyId", id, "subjectKind", "subjectId", "actorId", kind, payload, "createdAt", "deliveredAt", "nextAttemptAt")
-SELECT "companyId", id, 'legal', "entityId", "userId", event, COALESCE("eventData"->'payload', 'null'::jsonb), "createdAt", "createdAt", "createdAt"
-FROM "AuditLog" WHERE event IN ('legal.documents_accepted', 'legal.notice_sent');
+SELECT "companyId", id, split_part(event, '.', 1), "entityId", "userId", event, COALESCE("eventData"->'payload', 'null'::jsonb), "createdAt", "createdAt", "createdAt"
+FROM "AuditLog" WHERE event IN ('legal.documents_accepted', 'legal.notice_sent') OR event ~ '^connected_account\.';
 
 -- Automations: every webhook and every event-triggered routine is disabled; scheduled routines keep their
 -- schedule and enabled state. Legacy record events are removed from every webhook and routine, together with
@@ -2383,6 +2385,7 @@ CREATE INDEX "RecordOperation_companyId_state_createdAt_idx" ON "RecordOperation
 CREATE INDEX "RecordOperation_state_leaseUntil_idx" ON "RecordOperation"("state", "leaseUntil");
 CREATE INDEX "EventLog_subject_idx" ON "EventLog"("companyId", "subjectKind", "subjectTypeId", "subjectId", "createdAt");
 CREATE INDEX "EventLog_companyId_kind_createdAt_idx" ON "EventLog"("companyId", "kind", "createdAt");
+CREATE INDEX "EventLog_subjectKind_createdAt_idx" ON "EventLog"("subjectKind", "createdAt");
 CREATE INDEX "EventLog_deliveredAt_nextAttemptAt_idx" ON "EventLog"("deliveredAt", "nextAttemptAt");
 CREATE UNIQUE INDEX "RecordIdentity_companyId_id_channelClass_key" ON "RecordIdentity"("companyId", "id", "channelClass");
 CREATE INDEX "RecordIdentityKey_companyId_identityId_channelClass_idx" ON "RecordIdentityKey"("companyId", "identityId", "channelClass");
@@ -2586,8 +2589,8 @@ ALTER TABLE "RecordEventMatch" ADD CONSTRAINT "RecordEventMatch_companyId_subscr
 
 -- =============================================================================================
 -- Section 6: RECONCILIATION. Independent comparisons of the generic data with the legacy source (records,
--- assignments, values, links, totals, identities, provenance, configuration, the link repair and the legal-consent
--- events). Any mismatch aborts the transaction; the legacy data is then untouched.
+-- assignments, values, links, totals, identities, provenance, configuration, the link repair and the carried-over
+-- audit events). Any mismatch aborts the transaction; the legacy data is then untouched.
 -- =============================================================================================
 
 CREATE TEMP TABLE crm_upgrade_mismatch (check_name text NOT NULL, total bigint NOT NULL) ON COMMIT DROP;
@@ -2814,14 +2817,15 @@ SELECT 'repairs:links', abs(recorded.total - expected.total) FROM
      WHERE NOT crm_upgrade.is_http_url(part) AND btrim(part) ~* '^[a-z0-9-]+(\.[a-z0-9-]+)+(/\S*)?$')) AS expected
 WHERE recorded.total <> expected.total;
 
--- Legal-consent evidence: every accepted document and sent notice is in the event log, unchanged.
+-- Carried-over audit events: every legal-consent and connected account row is in the event log, unchanged.
 INSERT INTO crm_upgrade_mismatch
-SELECT 'events:legal', count(*) FROM
-  (SELECT * FROM "AuditLog" WHERE event IN ('legal.documents_accepted', 'legal.notice_sent')) AS legacy
-FULL JOIN (SELECT * FROM "EventLog" WHERE "subjectKind" = 'legal') AS event ON event."companyId" = legacy."companyId" AND event.id = legacy.id
-WHERE legacy.id IS NULL OR event.id IS NULL OR event.kind <> legacy.event OR event."subjectId" <> legacy."entityId"
-  OR event."actorId" IS DISTINCT FROM legacy."userId" OR event."createdAt" <> legacy."createdAt"
-  OR event.payload <> COALESCE(legacy."eventData"->'payload', 'null'::jsonb);
+SELECT 'events:' || split_part(COALESCE(legacy.event, event.kind), '.', 1), count(*) FROM
+  (SELECT * FROM "AuditLog" WHERE event IN ('legal.documents_accepted', 'legal.notice_sent') OR event ~ '^connected_account\.') AS legacy
+FULL JOIN "EventLog" event ON event."companyId" = legacy."companyId" AND event.id = legacy.id
+WHERE legacy.id IS NULL OR event.id IS NULL OR event.kind <> legacy.event OR event."subjectKind" <> split_part(legacy.event, '.', 1)
+  OR event."subjectId" <> legacy."entityId" OR event."actorId" IS DISTINCT FROM legacy."userId"
+  OR event."createdAt" <> legacy."createdAt" OR event.payload <> COALESCE(legacy."eventData"->'payload', 'null'::jsonb)
+GROUP BY 1;
 
 DO $$
 DECLARE

@@ -662,7 +662,8 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
       { id: f.inbox.preference },
     ]);
     expect(await rows(client, 'SELECT id FROM "Widget" WHERE "companyId"=$1', [f.companyId])).toEqual([]);
-    // The audit log is dropped; only the legal-consent evidence moves into the event log, unchanged.
+    // The audit log is dropped; only the legal-consent evidence and the connected account history move into the
+    // event log, unchanged.
     expect(await rows(client, "SELECT to_regclass('\"AuditLog\"') AS table")).toEqual([{ table: null }]);
     expect(
       await rows(
@@ -672,9 +673,9 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
         [f.companyId],
       ),
     ).toEqual(
-      [f.legal.accepted, f.legal.notice].map((row) => ({
+      [f.legal.accepted, f.legal.notice, f.channels.created, f.channels.deleted].map((row) => ({
         id: row.id,
-        subjectKind: "legal",
+        subjectKind: row.event.split(".")[0],
         subjectTypeId: null,
         subjectId: row.entityId,
         actorId: row.userId,
@@ -720,7 +721,7 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
     expect(
       await rows(
         client,
-        `SELECT count(*)::int AS count FROM "EventLog" WHERE "subjectKind" <> 'legal' OR "deliveredAt" IS NULL`,
+        `SELECT count(*)::int AS count FROM "EventLog" WHERE "subjectKind" NOT IN ('legal', 'connected_account') OR "deliveredAt" IS NULL`,
       ),
     ).toEqual([{ count: 0 }]);
 

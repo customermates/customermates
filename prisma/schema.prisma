@@ -2094,6 +2094,7 @@ model EventLog {
   @@id([companyId, id])
   @@index([companyId, subjectKind, subjectTypeId, subjectId, createdAt], map: "EventLog_subject_idx")
   @@index([companyId, kind, createdAt])
+  @@index([subjectKind, createdAt])
   @@index([deliveredAt, nextAttemptAt])
 }
 

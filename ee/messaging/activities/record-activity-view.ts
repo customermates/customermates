@@ -5,6 +5,7 @@ import type { DataViewState } from "@/core/data-view/data-view-state.schema";
 import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
 import { RecordSurfaceKeySchema } from "@/core/data-view/data-view-identity.schema";
 import { RecordActivityFilterSchema, type RecordActivityFilter } from "./record-activities.schema";
+import { isChangeActivityKind, type ActivityKind } from "./activities.schema";
 
 const SOURCES = {
   messages: ["message"],
@@ -73,10 +74,12 @@ export function activityViewColumns(types: readonly { surfaceKey: string; label:
 
 export function activityViewFilterableFields(
   types: readonly { surfaceKey: string; label: string }[],
+  kinds: readonly ActivityKind[],
 ): FilterableField[] {
   const selections = [FilterOperatorKey.in, FilterOperatorKey.notIn];
+  const messaging = kinds.some((kind) => !isChangeActivityKind(kind));
   return [
-    ...["timelineKind", "provider", "connectedAccountId", "timelineThreadId"].map((field) => ({
+    ...["timelineKind", ...(messaging ? ["provider", "connectedAccountId", "timelineThreadId"] : [])].map((field) => ({
       field,
       operators: selections,
     })),
