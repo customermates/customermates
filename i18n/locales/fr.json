@@ -3030,6 +3030,12 @@
     "captureOnSaveField": "Capturer {field} à l’enregistrement",
     "captureValue": "Capturer la valeur",
     "captureValueField": "Capturer {field}",
+    "cardinality": {
+      "manyToMany": "Plusieurs à plusieurs",
+      "manyToOne": "Plusieurs à un",
+      "oneToMany": "Un à plusieurs",
+      "oneToOne": "Un à un"
+    },
     "channelsHelp": "Ajoutez des adresses e-mail, numéros de téléphone et comptes sociaux aux fiches de cette liste. Un identifiant peut être lié à plusieurs fiches.",
     "color": "Couleur",
     "conditionIf": "Condition",
@@ -3090,12 +3096,6 @@
       "accountUnit": "{count, plural, one {compte} other {comptes}}",
       "calculatedFrom": "à partir de {sources}",
       "calculationEdge": "Calculé à partir de cette liste : {fields}",
-      "cardinality": {
-        "manyToMany": "Plusieurs à plusieurs",
-        "manyToOne": "Plusieurs à un",
-        "oneToMany": "Un à plusieurs",
-        "oneToOne": "Un à un"
-      },
       "connectDescription": "Connectez Gmail, Outlook ou un autre canal pour intégrer les conversations à vos listes.",
       "connectTitle": "Connecter e-mail et agenda",
       "controls": "Commandes du graphique",
@@ -3142,7 +3142,6 @@
     },
     "lineItem": "Ligne",
     "lineItems": "Lignes",
-    "linkedCount": "Fiches liées par fiche",
     "linkedRecordCount": "{count} enregistrements liés",
     "linkedRecords": "Fiches liées",
     "linkedType": "Lier à",
@@ -3150,7 +3149,6 @@
     "listActions": "Actions de la liste",
     "listCounts": "{fields, plural, one {# champ} other {# champs}} · {relationships, plural, one {# relation} other {# relations}} · {activity, plural, one {# connexion d’activité} other {# connexions d’activité}}",
     "listUnavailable": "Cette liste n’est pas disponible. Choisissez une autre liste.",
-    "many": "Plusieurs",
     "member": "Membre",
     "missing": "Aucune valeur",
     "moveDown": "Descendre {field}",
@@ -3161,7 +3159,6 @@
     "no": "Non",
     "noGrouping": "Aucun regroupement",
     "noneYet": "Aucun pour le moment",
-    "one": "Une seule",
     "onePerLine": "Saisissez une valeur par ligne.",
     "onSourceDelete": "À la suppression de cette fiche",
     "onTargetDelete": "À la suppression de la fiche liée",
@@ -3191,7 +3188,6 @@
       "trim": "Supprimer les espaces autour",
       "upper": "Majuscules"
     },
-    "oppositeCount": "Fiches par fiche liée",
     "oppositeLabel": "Libellé de l’autre côté",
     "option": "Option",
     "optionAttribute": "Attribut de l’option",
@@ -3229,6 +3225,13 @@
     },
     "relationship": "Relation",
     "relationshipChange": "{count} relations modifiées",
+    "relationshipEditor": {
+      "cardinality": "Nombre d’enregistrements liés",
+      "otherList": "la liste liée",
+      "shownOn": "Affiché sur les enregistrements de {list}",
+      "summary": "Chaque enregistrement de {list} est lié à {amount, select, one {un enregistrement} other {un nombre quelconque d’enregistrements}} de {linked}.",
+      "thisList": "Cette liste"
+    },
     "relationshipLabel": "Libellé de ce côté",
     "relationshipPath": "Via des fiches liées",
     "relationshipPathHelp": "Affiche les fiches accessibles via des relations existantes. Modifiez les liens sous-jacents pour changer ces fiches.",

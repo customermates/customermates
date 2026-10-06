@@ -3030,6 +3030,12 @@
     "captureOnSaveField": "Capturar {field} al guardar",
     "captureValue": "Capturar valor",
     "captureValueField": "Capturar {field}",
+    "cardinality": {
+      "manyToMany": "Varios a varios",
+      "manyToOne": "Varios a uno",
+      "oneToMany": "Uno a varios",
+      "oneToOne": "Uno a uno"
+    },
     "channelsHelp": "Añade direcciones de correo, números de teléfono y cuentas sociales a los registros de esta lista. Un identificador puede vincularse con varios registros.",
     "color": "Color",
     "conditionIf": "Condición",
@@ -3090,12 +3096,6 @@
       "accountUnit": "{count, plural, one {cuenta} other {cuentas}}",
       "calculatedFrom": "a partir de {sources}",
       "calculationEdge": "Calculado a partir de esta lista: {fields}",
-      "cardinality": {
-        "manyToMany": "Varios a varios",
-        "manyToOne": "Varios a uno",
-        "oneToMany": "Uno a varios",
-        "oneToOne": "Uno a uno"
-      },
       "connectDescription": "Conecta Gmail, Outlook u otro canal para traer las conversaciones a tus listas.",
       "connectTitle": "Conectar correo y calendario",
       "controls": "Controles del gráfico",
@@ -3142,7 +3142,6 @@
     },
     "lineItem": "Partida",
     "lineItems": "Partidas",
-    "linkedCount": "Registros vinculados por registro",
     "linkedRecordCount": "{count} registros vinculados",
     "linkedRecords": "Registros vinculados",
     "linkedType": "Vincular a",
@@ -3150,7 +3149,6 @@
     "listActions": "Acciones de la lista",
     "listCounts": "{fields, plural, one {# campo} other {# campos}} · {relationships, plural, one {# relación} other {# relaciones}} · {activity, plural, one {# conexión de actividad} other {# conexiones de actividad}}",
     "listUnavailable": "Esta lista no está disponible. Elige otra lista.",
-    "many": "Varios",
     "member": "Miembro",
     "missing": "Sin valor",
     "moveDown": "Bajar {field}",
@@ -3161,7 +3159,6 @@
     "no": "No",
     "noGrouping": "Sin agrupación",
     "noneYet": "Todavía ninguno",
-    "one": "Uno",
     "onePerLine": "Introduce un valor por línea.",
     "onSourceDelete": "Al eliminar este registro",
     "onTargetDelete": "Al eliminar el registro vinculado",
@@ -3191,7 +3188,6 @@
       "trim": "Eliminar espacios al principio y al final",
       "upper": "Mayúsculas"
     },
-    "oppositeCount": "Registros por registro vinculado",
     "oppositeLabel": "Etiqueta en el otro lado",
     "option": "Opción",
     "optionAttribute": "Atributo de la opción",
@@ -3229,6 +3225,13 @@
     },
     "relationship": "Relación",
     "relationshipChange": "{count} relaciones modificadas",
+    "relationshipEditor": {
+      "cardinality": "Cuántos registros se vinculan",
+      "otherList": "la lista vinculada",
+      "shownOn": "Se muestra en los registros de {list}",
+      "summary": "Cada registro de {list} se vincula con {amount, select, one {un registro} other {cualquier número de registros}} de {linked}.",
+      "thisList": "Esta lista"
+    },
     "relationshipLabel": "Etiqueta en este lado",
     "relationshipPath": "A través de registros vinculados",
     "relationshipPathHelp": "Muestra registros a través de relaciones existentes. Edita los vínculos originales para cambiar estos registros.",

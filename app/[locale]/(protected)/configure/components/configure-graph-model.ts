@@ -56,7 +56,9 @@ export type ConfigureGraphData = {
   edges: ConfigureGraphEdge[];
 };
 
-export function configureCardinality(relation: RecordRelationship): ConfigureCardinality {
+export function configureCardinality(
+  relation: Pick<RecordRelationship, "sourceCardinality" | "targetCardinality">,
+): ConfigureCardinality {
   const left = relation.targetCardinality === "one" ? "one" : "many";
   const right = relation.sourceCardinality === "one" ? "One" : "Many";
   return `${left}To${right}`;

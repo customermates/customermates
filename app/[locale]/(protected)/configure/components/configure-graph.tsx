@@ -352,7 +352,7 @@ function GraphEdgeView({ data }: EdgeProps<GraphEdge>) {
   const chipPosition = { transform: `translate(-50%, -50%) translate(${route.label.x}px, ${route.label.y}px)` };
   if (edge.kind === "relationship") {
     const { relation } = edge;
-    const cardinality = t(`RecordModel.graph.cardinality.${edge.cardinality}`);
+    const cardinality = t(`RecordModel.cardinality.${edge.cardinality}`);
     const calculated = edge.calculatedFields.length
       ? t("RecordModel.graph.calculationEdge", { fields: listOf(edge.calculatedFields) })
       : null;

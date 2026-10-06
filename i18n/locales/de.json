@@ -3030,6 +3030,12 @@
     "captureOnSaveField": "{field} beim Speichern erfassen",
     "captureValue": "Wert erfassen",
     "captureValueField": "{field} erfassen",
+    "cardinality": {
+      "manyToMany": "Viele zu viele",
+      "manyToOne": "Viele zu eins",
+      "oneToMany": "Eins zu viele",
+      "oneToOne": "Eins zu eins"
+    },
     "channelsHelp": "Füge Datensätzen in dieser Liste E-Mail-Adressen, Telefonnummern und soziale Konten hinzu. Eine Kennung kann mit mehreren Datensätzen verknüpft sein.",
     "color": "Farbe",
     "conditionIf": "Bedingung",
@@ -3090,12 +3096,6 @@
       "accountUnit": "{count, plural, one {Konto} other {Konten}}",
       "calculatedFrom": "aus {sources}",
       "calculationEdge": "Aus dieser Liste berechnet: {fields}",
-      "cardinality": {
-        "manyToMany": "Viele zu viele",
-        "manyToOne": "Viele zu eins",
-        "oneToMany": "Eins zu viele",
-        "oneToOne": "Eins zu eins"
-      },
       "connectDescription": "Verbinden Sie Gmail, Outlook oder einen anderen Kanal, um Unterhaltungen in Ihre Listen zu holen.",
       "connectTitle": "E-Mail und Kalender verbinden",
       "controls": "Grafiksteuerung",
@@ -3142,7 +3142,6 @@
     },
     "lineItem": "Position",
     "lineItems": "Positionen",
-    "linkedCount": "Verknüpfte Datensätze je Datensatz",
     "linkedRecordCount": "{count} verknüpfte Datensätze",
     "linkedRecords": "Verknüpfte Datensätze",
     "linkedType": "Verknüpfen mit",
@@ -3150,7 +3149,6 @@
     "listActions": "Listenaktionen",
     "listCounts": "{fields, plural, one {# Feld} other {# Felder}} · {relationships, plural, one {# Beziehung} other {# Beziehungen}} · {activity, plural, one {# Aktivitätsverbindung} other {# Aktivitätsverbindungen}}",
     "listUnavailable": "Diese Liste ist nicht verfügbar. Wählen Sie eine andere Liste.",
-    "many": "Mehrere",
     "member": "Mitglied",
     "missing": "Kein Wert",
     "moveDown": "{field} nach unten verschieben",
@@ -3161,7 +3159,6 @@
     "no": "Nein",
     "noGrouping": "Keine Gruppierung",
     "noneYet": "Noch keine",
-    "one": "Einer",
     "onePerLine": "Einen Wert pro Zeile eingeben.",
     "onSourceDelete": "Beim Löschen dieses Datensatzes",
     "onTargetDelete": "Beim Löschen des verknüpften Datensatzes",
@@ -3191,7 +3188,6 @@
       "trim": "Umgebende Leerzeichen entfernen",
       "upper": "Großbuchstaben"
     },
-    "oppositeCount": "Datensätze je verknüpftem Datensatz",
     "oppositeLabel": "Bezeichnung auf der Gegenseite",
     "option": "Option",
     "optionAttribute": "Optionsattribut",
@@ -3229,6 +3225,13 @@
     },
     "relationship": "Verknüpfung",
     "relationshipChange": "{count} Verknüpfungen geändert",
+    "relationshipEditor": {
+      "cardinality": "Wie viele Datensätze verknüpft sind",
+      "otherList": "der verknüpften Liste",
+      "shownOn": "Wird bei Datensätzen in {list} angezeigt",
+      "summary": "Jeder Datensatz in {list} ist mit {amount, select, one {einem Datensatz} other {beliebig vielen Datensätzen}} in {linked} verknüpft.",
+      "thisList": "Diese Liste"
+    },
     "relationshipLabel": "Bezeichnung auf dieser Seite",
     "relationshipPath": "Über verknüpfte Datensätze",
     "relationshipPathHelp": "Zeige Datensätze über bestehende Beziehungen an. Bearbeite die zugrunde liegenden Verknüpfungen, um diese Datensätze zu ändern.",

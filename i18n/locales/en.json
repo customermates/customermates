@@ -3030,6 +3030,12 @@
     "captureOnSaveField": "Capture {field} on save",
     "captureValue": "Capture value",
     "captureValueField": "Capture {field}",
+    "cardinality": {
+      "manyToMany": "Many to many",
+      "manyToOne": "Many to one",
+      "oneToMany": "One to many",
+      "oneToOne": "One to one"
+    },
     "channelsHelp": "Add email addresses, phone numbers, and social accounts to records in this list. An identifier can link to several records.",
     "color": "Color",
     "conditionIf": "Condition",
@@ -3090,12 +3096,6 @@
       "accountUnit": "{count, plural, one {account} other {accounts}}",
       "calculatedFrom": "from {sources}",
       "calculationEdge": "Calculated from this list: {fields}",
-      "cardinality": {
-        "manyToMany": "Many to many",
-        "manyToOne": "Many to one",
-        "oneToMany": "One to many",
-        "oneToOne": "One to one"
-      },
       "connectDescription": "Connect Gmail, Outlook or another channel to bring conversations into your lists.",
       "connectTitle": "Connect email and calendar",
       "controls": "Graph controls",
@@ -3142,7 +3142,6 @@
     },
     "lineItem": "Line item",
     "lineItems": "Line items",
-    "linkedCount": "Linked records per record",
     "linkedRecordCount": "{count} linked records",
     "linkedRecords": "Linked records",
     "linkedType": "Link to",
@@ -3150,7 +3149,6 @@
     "listActions": "List actions",
     "listCounts": "{fields, plural, one {# field} other {# fields}} · {relationships, plural, one {# relationship} other {# relationships}} · {activity, plural, one {# activity connection} other {# activity connections}}",
     "listUnavailable": "This list is not available. Choose another list.",
-    "many": "Several",
     "member": "Member",
     "missing": "No value",
     "moveDown": "Move {field} down",
@@ -3161,7 +3159,6 @@
     "no": "No",
     "noGrouping": "No grouping",
     "noneYet": "None yet",
-    "one": "One",
     "onePerLine": "Enter one value per line.",
     "onSourceDelete": "When this record is deleted",
     "onTargetDelete": "When the linked record is deleted",
@@ -3191,7 +3188,6 @@
       "trim": "Remove surrounding spaces",
       "upper": "Uppercase"
     },
-    "oppositeCount": "Records per linked record",
     "oppositeLabel": "Label on the other side",
     "option": "Option",
     "optionAttribute": "Option attribute",
@@ -3229,6 +3225,13 @@
     },
     "relationship": "Relationship",
     "relationshipChange": "{count} relationships changed",
+    "relationshipEditor": {
+      "cardinality": "How many records link",
+      "otherList": "the linked list",
+      "shownOn": "Shown on records in {list}",
+      "summary": "Each record in {list} links to {amount, select, one {one record} other {any number of records}} in {linked}.",
+      "thisList": "This list"
+    },
     "relationshipLabel": "Label on this side",
     "relationshipPath": "Through linked records",
     "relationshipPathHelp": "Show records reached through existing relationships. Edit the underlying links to change these records.",

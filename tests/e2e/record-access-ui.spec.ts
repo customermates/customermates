@@ -952,10 +952,9 @@ async function relationshipCreateUi(
   await dialog.locator("#targetLabel").fill(oppositeLabel);
   await relationshipOptionUi(
     page,
-    "sourceCardinality",
-    singular ? englishMessages.RecordModel.one : englishMessages.RecordModel.many,
+    "cardinality",
+    singular ? englishMessages.RecordModel.cardinality.manyToOne : englishMessages.RecordModel.cardinality.manyToMany,
   );
-  await relationshipOptionUi(page, "targetCardinality", englishMessages.RecordModel.many);
   if (restrictTarget) await relationshipOptionUi(page, "onTargetDelete", englishMessages.RecordModel.deletion.restrict);
   await relationshipApplyUi(page);
   const relation = (await readModel(page)).relationships.find(
