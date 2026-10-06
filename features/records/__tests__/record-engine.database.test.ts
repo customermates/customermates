@@ -15173,6 +15173,281 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ),
     ).toMatchObject({ ok: false });
   });
+
+  it("permanently deletes archived fields with their values once no calculation depends on them", async () => {
+    const f = await fixture();
+    const typeId = f.id("organization");
+    const sourceId = randomUUID();
+    const formulaId = randomUUID();
+    const source = {
+      id: sourceId,
+      typeId,
+      label: "Legacy code",
+      valueType: "text" as const,
+      required: false,
+      behavior: { kind: "input" as const },
+      archived: false,
+      options: [],
+      position: 90,
+    };
+    const formula = {
+      ...source,
+      id: formulaId,
+      label: "Legacy code upper",
+      behavior: {
+        kind: "formula" as const,
+        expression: {
+          kind: "operation" as const,
+          operator: "upper" as const,
+          arguments: [{ kind: "field" as const, fieldId: sourceId }],
+        },
+      },
+      position: 91,
+    };
+    const apply = (expectedRevision: number, operations: ConfigurationChange["operations"]) =>
+      f.run(() => f.configure.invoke({ expectedRevision, idempotencyKey: randomUUID(), operations }));
+    expect(
+      await apply(1, [
+        { operation: "putField", field: source },
+        { operation: "putField", field: formula },
+      ]),
+    ).toMatchObject({ ok: true });
+    const organization = await f.mutation(
+      {
+        action: "create",
+        typeId,
+        fields: [
+          { fieldId: f.id("organization.name"), value: textValue("Acme") },
+          { fieldId: sourceId, value: textValue("ab-1") },
+        ],
+      },
+      f.admin,
+      randomUUID(),
+      2,
+    );
+    expect(organization).toMatchObject({ ok: true });
+    const deleteSource = (expectedRevision: number): ConfigurationChange => ({
+      expectedRevision,
+      idempotencyKey: randomUUID(),
+      operations: [{ operation: "deleteField", fieldId: sourceId }],
+    });
+    expect(await f.run(() => f.preview.invoke(deleteSource(2)))).toMatchObject({ ok: false });
+
+    expect(
+      await apply(2, [
+        { operation: "putField", field: { ...source, archived: true } },
+        { operation: "putField", field: { ...formula, archived: true } },
+      ]),
+    ).toMatchObject({ ok: true });
+    const blocked = await f.run(() => f.preview.invoke(deleteSource(3)));
+    expect(blocked).toMatchObject({
+      ok: true,
+      data: {
+        valid: false,
+        issues: [{ code: "deletion_dependency", fieldId: formulaId, typeId }],
+        deletion: { records: 0, values: 1, links: 0, relationships: 0, views: 0, grants: 0 },
+      },
+    });
+    expect(await f.run(() => f.configure.invoke(deleteSource(3)))).toMatchObject({ ok: false });
+    expect(
+      await f.run(() =>
+        f.preview.invoke({
+          ...deleteSource(3),
+          operations: [
+            { operation: "deleteField", fieldId: formulaId },
+            { operation: "putField", field: { ...source, label: "Renamed" } },
+          ],
+        }),
+      ),
+    ).toMatchObject({ ok: false });
+
+    const both: ConfigurationChange = {
+      expectedRevision: 3,
+      idempotencyKey: randomUUID(),
+      operations: [
+        { operation: "deleteField", fieldId: formulaId },
+        { operation: "deleteField", fieldId: sourceId },
+      ],
+    };
+    expect(await f.run(() => f.preview.invoke(both))).toMatchObject({ ok: true, data: { valid: true, issues: [] } });
+    expect(await f.run(() => f.configure.invoke(both))).toMatchObject({
+      ok: true,
+      data: { status: "completed", schemaRevision: 4 },
+    });
+    const model = await f.run(() => f.repo.getModel());
+    expect(model.fields.some((field) => field.id === sourceId || field.id === formulaId)).toBe(false);
+    expect(
+      await f.run(() =>
+        Promise.all([
+          prisma.recordFieldDefinition.count({ where: { companyId: f.company.id, id: { in: [sourceId, formulaId] } } }),
+          prisma.recordValue.count({ where: { companyId: f.company.id, fieldId: { in: [sourceId, formulaId] } } }),
+          prisma.crmRecord.count({ where: { companyId: f.company.id, typeId } }),
+        ]),
+      ),
+    ).toEqual([0, 0, 1]);
+    const revision = await f.run(() =>
+      prisma.recordSchemaRevision.findUniqueOrThrow({
+        where: { companyId: f.company.id, companyId_revision: { companyId: f.company.id, revision: 4 } },
+      }),
+    );
+    expect(RecordRevisionChangeSchema.parse(revision.change).configuration?.operations).toEqual(both.operations);
+  });
+
+  it("permanently deletes an archived list with its records, links, relationships, views and grants", async () => {
+    const f = await fixture();
+    const definition: ConfigurationChange = {
+      expectedRevision: 1,
+      idempotencyKey: randomUUID(),
+      operations: [
+        {
+          operation: "createType",
+          reference: "$projects",
+          label: "Project",
+          pluralLabel: "Projects",
+          description: "",
+          icon: "list",
+          embedded: false,
+          accessPresetId: null,
+        },
+        {
+          operation: "putRelationship",
+          relationship: {
+            id: "$projectOrganization",
+            sourceTypeId: "$projects",
+            targetTypeId: f.id("organization"),
+            sourceLabel: "Organization",
+            targetLabel: "Projects",
+            sourceCardinality: "one",
+            targetCardinality: "many",
+            onSourceDelete: "unlink",
+            onTargetDelete: "unlink",
+            archived: false,
+          },
+        },
+        {
+          operation: "setTypeGrants",
+          typeId: "$projects",
+          grants: [{ roleId: f.memberRole.id, actions: ["readAll"] }],
+        },
+      ],
+    };
+    const created = await f.run(() => f.preview.invoke(definition));
+    if (!created.ok) throw created.error;
+    const refId = (reference: string) =>
+      recordInvariant(created.data.references.find((item) => item.reference === reference)).id;
+    expect(await f.run(() => f.configure.invoke(definition))).toMatchObject({ ok: true });
+    const projectTypeId = refId("$projects");
+    const relationId = refId("$projectOrganization");
+    const kept = await f.mutation(
+      {
+        action: "create",
+        typeId: f.id("organization"),
+        fields: [{ fieldId: f.id("organization.name"), value: textValue("Kept") }],
+      },
+      f.admin,
+      randomUUID(),
+      2,
+    );
+    if (!kept.ok || kept.data.status !== "completed") throw new Error("Organization fixture failed");
+    const organization = recordInvariant(kept.data.refs[0]);
+    const project = await f.mutation(
+      {
+        action: "create",
+        typeId: projectTypeId,
+        fields: [{ fieldId: refId("$projects.name"), value: textValue("Pilot") }],
+        links: [{ relationId, direction: "outgoing", record: organization }],
+      },
+      f.admin,
+      randomUUID(),
+      2,
+    );
+    expect(project).toMatchObject({ ok: true });
+    const rollupId = randomUUID();
+    let model = await f.run(() => f.repo.getModel());
+    const projectType = recordInvariant(model.types.find((type) => type.id === projectTypeId));
+    const relation = recordInvariant(model.relationships.find((item) => item.id === relationId));
+    expect(
+      await f.run(() =>
+        f.configure.invoke({
+          expectedRevision: model.revision,
+          idempotencyKey: randomUUID(),
+          operations: [
+            {
+              operation: "putField",
+              field: {
+                id: rollupId,
+                typeId: f.id("organization"),
+                label: "Project count",
+                valueType: "number",
+                required: false,
+                archived: true,
+                options: [],
+                position: 90,
+                behavior: {
+                  kind: "rollup",
+                  expression: {
+                    kind: "related",
+                    relationId,
+                    direction: "incoming",
+                    reducer: "count",
+                    expression: { kind: "literal", value: null },
+                  },
+                },
+              },
+            },
+            { operation: "putType", type: { ...projectType, archived: true } },
+            { operation: "putRelationship", relationship: { ...relation, archived: true } },
+            ...model.activityPaths
+              .filter((path) => path.typeId === projectTypeId)
+              .map((path) => ({ operation: "putActivityPath" as const, activityPath: { ...path, archived: true } })),
+          ],
+        }),
+      ),
+    ).toMatchObject({ ok: true });
+    await f.run(() =>
+      prisma.dataView.create({
+        data: { companyId: f.company.id, userId: f.admin.id, surfaceKey: `records:${projectTypeId}`, name: "Mine" },
+      }),
+    );
+    model = await f.run(() => f.repo.getModel());
+    const deleteList = (operations: ConfigurationChange["operations"]): ConfigurationChange => ({
+      expectedRevision: model.revision,
+      idempotencyKey: randomUUID(),
+      operations,
+    });
+    expect(
+      await f.run(() => f.preview.invoke(deleteList([{ operation: "deleteType", typeId: projectTypeId }]))),
+    ).toMatchObject({
+      ok: true,
+      data: {
+        valid: false,
+        issues: [{ code: "deletion_dependency", fieldId: rollupId, typeId: f.id("organization") }],
+        deletion: { records: 1, values: 1, links: 1, relationships: 1, views: 1, grants: 1 },
+      },
+    });
+    const change = deleteList([
+      { operation: "deleteField", fieldId: rollupId },
+      { operation: "deleteType", typeId: projectTypeId },
+    ]);
+    expect(await f.run(() => f.configure.invoke(change))).toMatchObject({ ok: true, data: { status: "completed" } });
+    const after = await f.run(() => f.repo.getModel());
+    expect(after.types.some((type) => type.id === projectTypeId)).toBe(false);
+    expect(after.relationships.some((item) => item.id === relationId)).toBe(false);
+    expect(after.fields.some((field) => field.typeId === projectTypeId || field.id === rollupId)).toBe(false);
+    expect(after.activityPaths.some((path) => path.typeId === projectTypeId)).toBe(false);
+    expect(
+      await f.run(() =>
+        Promise.all([
+          prisma.recordTypeDefinition.count({ where: { companyId: f.company.id, id: projectTypeId } }),
+          prisma.crmRecord.count({ where: { companyId: f.company.id, typeId: projectTypeId } }),
+          prisma.recordLink.count({ where: { companyId: f.company.id, relationId } }),
+          prisma.recordTypeGrant.count({ where: { companyId: f.company.id, typeId: projectTypeId } }),
+          prisma.dataView.count({ where: { companyId: f.company.id, surfaceKey: `records:${projectTypeId}` } }),
+        ]),
+      ),
+    ).toEqual([0, 0, 0, 0, 0]);
+    expect((await f.readRecord(organization)).ref).toEqual(organization);
+  });
 });
 
 describeDatabase("provider avatar updates through the generic engine", { timeout: 30000 }, () => {

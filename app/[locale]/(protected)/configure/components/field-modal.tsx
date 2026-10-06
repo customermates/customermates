@@ -29,6 +29,7 @@ import { RecordValueTypeSchema } from "@/features/records/record-model.schema";
 import { ModelChangeStore } from "./model-change.store";
 import { ModelChangeRecovery } from "./model-change-recovery";
 import { ModelChangeSheet } from "./model-change-sheet";
+import { useDefinitionDeletion } from "./use-definition-deletion";
 import { CalculationInput } from "./calculation-input";
 import { RecordInputField } from "../../records/[typeId]/components/record-input-field";
 import { recordInputValue } from "@/features/records/record-input-value";
@@ -336,12 +337,36 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
     return [{ operation: "putField", field }];
   }
 }
-export const FieldModal = observer(function FieldModal({ store }: { store: FieldModalStore }) {
+export const FieldModal = observer(function FieldModal({
+  store,
+  onDeleted,
+}: {
+  store: FieldModalStore;
+  onDeleted: () => Promise<void>;
+}) {
   const t = useTranslations();
+  const deletion = useDefinitionDeletion(onDeleted);
+  const archived = store.original?.archived ? store.original : null;
   const [showProbability, setShowProbability] = useState(false);
   const optionMetadata = showProbability || store.form.options.some((option) => option.probability !== "");
   return (
-    <ModelChangeSheet store={store} title={store.original ? t("RecordModel.editField") : t("RecordModel.addField")}>
+    <ModelChangeSheet
+      action={
+        archived
+          ? {
+              id: "delete-field",
+              icon: Trash2,
+              label: t("RecordModel.permanentDeletion.deleteField"),
+              variant: "destructive",
+              busy: deletion.isPreviewing,
+              disabled: store.isLoading,
+              onClick: () => deletion.requestDeletion(store.model, { field: archived }),
+            }
+          : undefined
+      }
+      store={store}
+      title={store.original ? t("RecordModel.editField") : t("RecordModel.addField")}
+    >
       <AppForm store={store}>
         <div className="space-y-4">
           <RecordAiAction

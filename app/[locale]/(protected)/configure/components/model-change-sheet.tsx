@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import type { BaseModalStore } from "@/core/base/base-modal.store";
+import type { AppModalActionProps } from "@/components/modal/app-modal-action";
 
 import { useEffect } from "react";
 import { observer } from "mobx-react-lite";
@@ -11,6 +12,9 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetBody, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
 import { UnsavedChangesGuard } from "@/components/modal/unsaved-changes-guard";
+import { APP_MODAL_ACTION_RAIL_CLASS, AppModalAction } from "@/components/modal/app-modal-action";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { cn } from "@/core/utils/cn";
 import { keepOpenForAssistantSurface, releaseFocusToAssistantSurface } from "@/components/modal/assistant-surface";
 import { runUserAction } from "@/core/errors/report-application-error";
 
@@ -42,11 +46,13 @@ export const ModelChangeSheet = observer(function ModelChangeSheet({
   store,
   title,
   submitLabel,
+  action,
   children,
 }: {
   store: SheetStore;
   title: string;
   submitLabel?: string;
+  action?: AppModalActionProps;
   children: ReactNode;
 }) {
   const t = useTranslations();
@@ -86,7 +92,15 @@ export const ModelChangeSheet = observer(function ModelChangeSheet({
             focusFirstBodyControl(event);
           }}
         >
-          <SheetHeader className="pe-12">
+          {action && (
+            <TooltipProvider>
+              <div className={APP_MODAL_ACTION_RAIL_CLASS} data-slot="app-modal-actions">
+                <AppModalAction {...action} />
+              </div>
+            </TooltipProvider>
+          )}
+
+          <SheetHeader className={cn(action ? "pe-24" : "pe-12")}>
             <SheetTitle className="min-w-0 truncate text-base">{title}</SheetTitle>
           </SheetHeader>
 

@@ -16,7 +16,7 @@ import { Prisma } from "@/generated/prisma";
 
 import type { Action } from "@/generated/prisma";
 import type { AppPrismaClient } from "@/prisma/db";
-import type { RecordRepo } from "./record.repo";
+import type { RecordDefinitionDeletion, RecordRepo } from "./record.repo";
 import type { CalculatedValue, RecordModel, RecordRef, RecordRelationshipSummary } from "./record-model.schema";
 import type { RecordRelationshipSelection } from "./record-column.schema";
 import type { RecordPathSelection } from "./record-relationship-path.schema";
@@ -594,6 +594,37 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
     return this.prisma.crmRecord.count({
       where: { companyId: this.companyId, typeId: { in: typeIds } },
     });
+  }
+
+  async countDefinitionDeletion({ typeIds, fieldIds, relationIds }: RecordDefinitionDeletion) {
+    const companyId = this.companyId;
+    const surfaces = typeIds.map(recordSurfaceKey);
+    const [records, values, links, relationships, views, personalizations, grants] = await Promise.all([
+      this.prisma.crmRecord.count({ where: { companyId, typeId: { in: typeIds } } }),
+      this.prisma.recordValue.count({
+        where: { companyId, state: "value", OR: [{ typeId: { in: typeIds } }, { fieldId: { in: fieldIds } }] },
+      }),
+      this.prisma.recordLink.count({ where: { companyId, relationId: { in: relationIds } } }),
+      this.prisma.recordRelationshipDefinition.count({ where: { companyId, id: { in: relationIds } } }),
+      this.prisma.dataView.count({ where: { companyId, surfaceKey: { in: surfaces } } }),
+      this.prisma.p13n.count({
+        where: { companyId, p13nId: { in: [...surfaces, ...typeIds.map(recordDetailKey)] } },
+      }),
+      this.prisma.recordTypeGrant.count({ where: { companyId, typeId: { in: typeIds } } }),
+    ]);
+    return { records, values, links, relationships, views: views + personalizations, grants };
+  }
+
+  async deleteDefinitions({ typeIds, fieldIds, relationIds }: RecordDefinitionDeletion): Promise<void> {
+    const companyId = this.companyId;
+    const surfaces = typeIds.map(recordSurfaceKey);
+    await this.prisma.dataView.deleteMany({ where: { companyId, surfaceKey: { in: surfaces } } });
+    await this.prisma.p13n.deleteMany({
+      where: { companyId, p13nId: { in: [...surfaces, ...typeIds.map(recordDetailKey)] } },
+    });
+    await this.prisma.recordRelationshipDefinition.deleteMany({ where: { companyId, id: { in: relationIds } } });
+    await this.prisma.recordFieldDefinition.deleteMany({ where: { companyId, id: { in: fieldIds } } });
+    await this.prisma.recordTypeDefinition.deleteMany({ where: { companyId, id: { in: typeIds } } });
   }
 
   async countReadableRecordsByType(access: RecordAccessMap): Promise<Array<{ typeId: string; count: number }>> {

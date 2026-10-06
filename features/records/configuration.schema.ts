@@ -286,6 +286,20 @@ export function configurationSchemaWithExpression<T extends z.ZodType>(expressio
               .strict(),
             z
               .object({
+                operation: z.literal("deleteType"),
+                typeId: z.uuid(),
+              })
+              .strict()
+              .describe("Permanently delete an archived type with its fields, records, links and relationships."),
+            z
+              .object({
+                operation: z.literal("deleteField"),
+                fieldId: z.uuid(),
+              })
+              .strict()
+              .describe("Permanently delete an archived field and its values."),
+            z
+              .object({
                 operation: z.literal("setTypeGrants"),
                 typeId: ConfigurationReferenceSchema,
                 grants: z.array(RecordGrantSchema),
@@ -321,6 +335,17 @@ export const ConfigurationPreviewSchema = z
         .strict(),
     ),
     calculations: z.array(z.object({ fieldId: z.uuid(), dependencyHash: z.string() }).strict()),
+    deletion: z
+      .object({
+        records: z.number().int(),
+        values: z.number().int(),
+        links: z.number().int(),
+        relationships: z.number().int(),
+        views: z.number().int(),
+        grants: z.number().int(),
+      })
+      .strict()
+      .optional(),
   })
   .strict();
 export type ConfigurationPreview = z.infer<typeof ConfigurationPreviewSchema>;

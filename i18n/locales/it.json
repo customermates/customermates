@@ -994,9 +994,11 @@
       }
     },
     "deleteConfirmation": {
+      "blocked": "Risolvi prima questi punti:",
       "message": "Vuoi davvero eliminare questo elemento? L'azione non può essere annullata.",
       "messageWithName": "Vuoi davvero eliminare \"{name}\"? L'azione non può essere annullata.",
-      "title": "Conferma l'eliminazione"
+      "title": "Conferma l'eliminazione",
+      "typeToConfirm": "Digita {name} per confermare"
     },
     "details": "Dettagli",
     "email": "E-mail",
@@ -3193,6 +3195,23 @@
     "option": "Opzione",
     "optionAttribute": "Attributo dell’opzione",
     "options": "Opzioni",
+    "permanentDeletion": {
+      "deleteField": "Elimina campo definitivamente",
+      "deleteList": "Elimina lista definitivamente",
+      "dependentField": "{field} in {list} dipende ancora da questo. Elimina o modifica prima quel campo.",
+      "dependentList": "{list} dipende ancora da questo. Elimina o modifica prima quella lista.",
+      "fieldMessage": "Questo elimina definitivamente il campo e tutti i suoi valori salvati. L’operazione non può essere annullata.",
+      "fieldTitle": "Eliminare {name} definitivamente?",
+      "grants": "{count, plural, one {# permesso di ruolo} other {# permessi di ruolo}}",
+      "links": "{count, plural, one {# collegamento tra record} other {# collegamenti tra record}}",
+      "listMessage": "Questo elimina definitivamente la lista con i suoi campi, record, collegamenti, relazioni, viste salvate e permessi di ruolo. L’operazione non può essere annullata.",
+      "listTitle": "Eliminare {name} definitivamente?",
+      "nothingStored": "Nessun dato salvato lo utilizza.",
+      "records": "{count, plural, one {# record} other {# record}}",
+      "relationships": "{count, plural, one {# relazione} other {# relazioni}}",
+      "values": "{count, plural, one {# valore salvato} other {# valori salvati}}",
+      "views": "{count, plural, one {# vista salvata o layout personale} other {# viste salvate o layout personali}}"
+    },
     "pinnedFields": "Campi di dettaglio fissati",
     "pluralDescription": "Il nome mostrato nella navigazione. Lascia vuoto per usare il nome dell’elenco.",
     "pluralName": "Etichetta di navigazione",

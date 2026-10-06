@@ -182,6 +182,14 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
     general.rebaseDraft(model);
   }, [canManage, general, model, selected]);
 
+  const listDeleted = useCallback(async () => {
+    window.history.pushState(null, "", configureHref({ typeId: null }));
+    await refresh();
+  }, [refresh]);
+  const fieldDeleted = useCallback(async () => {
+    fieldModal.close();
+    await refresh();
+  }, [fieldModal, refresh]);
   const tryNavigate = useCallback((navigate: () => void) => root.navigationGuard.tryNavigate(navigate), [root]);
   const selectList = useCallback(
     (id: string) =>
@@ -229,6 +237,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
         general={general}
         generalFormId={generalFormId}
         hasArchived={hasArchived}
+        model={model}
         selected={selected}
         showArchived={showArchived}
         onAdd={add}
@@ -237,13 +246,27 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
           typeModal.edit(model, selected, "archive");
           typeModal.onChange("archived", !selected.archived);
         }}
+        onDeleted={listDeleted}
         onSharedDefaults={() => {
           if (selected) typeModal.edit(model, selected, "appearance");
         }}
         onToggleArchived={() => setShowArchived((current) => !current)}
       />
     ),
-    [add, canManage, general, generalFormId, hasArchived, interactive, model, selected, showArchived, t, typeModal],
+    [
+      add,
+      canManage,
+      general,
+      generalFormId,
+      hasArchived,
+      interactive,
+      model,
+      selected,
+      showArchived,
+      listDeleted,
+      t,
+      typeModal,
+    ],
   );
   useSetTopBarActions(topBar);
 
@@ -326,7 +349,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
 
       <TypeModal store={typeModal} />
 
-      <FieldModal store={fieldModal} />
+      <FieldModal store={fieldModal} onDeleted={fieldDeleted} />
 
       <RelationshipModal store={relationModal} />
 
