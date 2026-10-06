@@ -108,8 +108,10 @@ export const RecordWidgetEditor = observer(
     const [loading, setLoading] = useState(false);
     const [previewError, setPreviewError] = useState(false);
     const previewGeneration = useRef(0);
+    const explicitPreviewKey = useRef<string | null>(null);
     const previewKey = isRecordWidgetForm(form) ? JSON.stringify(form.measure) : null;
     useEffect(() => {
+      explicitPreviewKey.current = null;
       previewGeneration.current += 1;
       setLoading(false);
       setPreviewError(false);
@@ -121,6 +123,9 @@ export const RecordWidgetEditor = observer(
       const current = store.form;
       if (!isRecordWidgetForm(current)) return;
       const previewed = JSON.stringify(current.measure);
+      const requestKey = model ? `${model.revision}:${previewed}` : null;
+      if (!explicit && requestKey && explicitPreviewKey.current === requestKey) return;
+      if (explicit) explicitPreviewKey.current = requestKey;
       const generation = ++previewGeneration.current;
       const isCurrent = () => generation === previewGeneration.current;
       setLoading(true);
@@ -170,7 +175,7 @@ export const RecordWidgetEditor = observer(
     useEffect(() => {
       if (!debouncedAutoPreviewKey || debouncedAutoPreviewKey !== autoPreviewKey) return;
       runAutoPreview.current(false).catch(reportApplicationError);
-    }, [debouncedAutoPreviewKey, autoPreviewKey]);
+    }, [debouncedAutoPreviewKey, autoPreviewKey, form]);
     const displayIssue =
       model && isRecordWidgetForm(form)
         ? widgetDisplayTypeIssue(form.displayOptions.displayType, form.measure, model)
