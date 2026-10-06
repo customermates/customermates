@@ -416,12 +416,7 @@ const AGENT_APPROVAL_RESOLUTION_KEYS = ["approve", "cancelled", "reject", "timeo
   (resolution) => `AgentChat.approval.${resolution}`,
 );
 const AGENT_ACTIVITY_RESOURCE_KEYS = [
-  "AgentChat.activity.resource.contacts",
-  "AgentChat.activity.resource.deals",
   "AgentChat.activity.resource.messages",
-  "AgentChat.activity.resource.organizations",
-  "AgentChat.activity.resource.services",
-  "AgentChat.activity.resource.tasks",
   "AgentChat.activity.resource.widgets",
   "AgentChat.activity.resource.wiki",
 ];
@@ -438,12 +433,7 @@ const AGENT_READ_ONLY_SUGGESTION_KEYS = [
 ];
 
 const AGENT_ACTIVITY_RESOURCE_SINGULAR_KEYS = [
-  "AgentChat.activity.resourceSingular.contacts",
-  "AgentChat.activity.resourceSingular.deals",
   "AgentChat.activity.resourceSingular.messages",
-  "AgentChat.activity.resourceSingular.organizations",
-  "AgentChat.activity.resourceSingular.services",
-  "AgentChat.activity.resourceSingular.tasks",
   "AgentChat.activity.resourceSingular.widgets",
   "AgentChat.activity.resourceSingular.wiki",
 ];

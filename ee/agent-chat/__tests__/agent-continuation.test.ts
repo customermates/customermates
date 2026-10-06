@@ -150,14 +150,14 @@ describe("agent continuation context compaction", () => {
   it("distinguishes operations that share the same resource and activity kind", () => {
     const activities = summarizeAgentContinuationStep(
       step([
-        { name: "get_record_schema", input: { entity: "contact" } },
-        { name: "list_records", input: { entity: "contact" } },
+        { name: "get_record_model", input: { typeId: "contact-type" } },
+        { name: "query_crm_records", input: { typeId: "contact-type" } },
       ]),
     );
 
     expect(activities).toEqual([
-      expect.objectContaining({ toolName: "get_record_schema", kind: "records.read", resource: "contacts" }),
-      expect.objectContaining({ toolName: "list_records", kind: "records.read", resource: "contacts" }),
+      expect.objectContaining({ toolName: "get_record_model", kind: "records.read" }),
+      expect.objectContaining({ toolName: "query_crm_records", kind: "records.read" }),
     ]);
   });
 
@@ -167,23 +167,21 @@ describe("agent continuation context compaction", () => {
       initialMessages: [{ role: "user", content: "inspect each schema, then continue" }],
       steps: [
         step([{ name: "get_workspace_context" }], "tool-calls", "workspace-response"),
-        step([{ name: "get_record_schema", input: { entity: "contact" } }], "tool-calls", "contact-response"),
-        step([{ name: "get_record_schema", input: { entity: "organization" } }], "tool-calls", "organization-response"),
-        step([{ name: "get_record_schema", input: { entity: "deal" } }], "tool-calls", "deal-response"),
-        step([{ name: "get_record_schema", input: { entity: "service" } }], "tool-calls", "service-response"),
-        step([{ name: "get_record_schema", input: { entity: "task" } }], "tool-calls", "task-response"),
+        step([{ name: "discover_record_types" }], "tool-calls", "contact-response"),
+        step([{ name: "get_record_model", input: { typeId: "organization" } }], "tool-calls", "organization-response"),
+        step([{ name: "query_crm_records", input: { typeId: "deal" } }], "tool-calls", "deal-response"),
+        step([{ name: "search_crm_records", input: { searchTerm: "service" } }], "tool-calls", "service-response"),
+        step([{ name: "read_crm_record", input: { typeId: "task" } }], "tool-calls", "task-response"),
       ],
     });
 
     expect(
-      compacted.checkpoint?.activities.map(
-        (activity) => `${activity.toolName}:${activity.resource ?? "workspace"}:${activity.status}`,
-      ),
+      compacted.checkpoint?.activities.map((activity) => `${activity.toolName}:${activity.kind}:${activity.status}`),
     ).toEqual([
-      "get_workspace_context:workspace:done",
-      "get_record_schema:contacts:done",
-      "get_record_schema:organizations:done",
-      "get_record_schema:deals:done",
+      "get_workspace_context:workspace.inspect:done",
+      "discover_record_types:records.read:done",
+      "get_record_model:records.read:done",
+      "query_crm_records:records.read:done",
     ]);
     expect(compacted.messages.map((message) => message.content)).toEqual([
       "inspect each schema, then continue",
@@ -305,8 +303,8 @@ describe("agent continuation context compaction", () => {
     const activities = summarizeAgentContinuationStep(
       step([
         {
-          name: "create_contacts",
-          input: [{ firstName: privateValue }],
+          name: "mutate_crm_record",
+          input: { mutation: { action: "create", title: privateValue } },
           output: { ok: false, result: privateValue },
         },
         {
@@ -318,7 +316,7 @@ describe("agent continuation context compaction", () => {
     );
 
     expect(activities.map((activity) => activity.status)).toEqual(["error", "cancelled"]);
-    expect(activities.map((activity) => activity.toolName)).toEqual(["create_contacts", "send_email"]);
+    expect(activities.map((activity) => activity.toolName)).toEqual(["mutate_crm_record", "send_email"]);
     expect(JSON.stringify(activities)).not.toContain(privateValue);
     expect(JSON.stringify(activities)).not.toContain("tool-");
   });
@@ -360,7 +358,7 @@ describe("agent continuation decisions", () => {
 
   it("continues through repeated calls, errors, and no-progress rounds", () => {
     const repeated = Array.from({ length: 40 }, () =>
-      step([{ name: "create_contacts", input: [{}], status: "error" }]),
+      step([{ name: "mutate_crm_record", input: {}, status: "error" }]),
     );
     const noProgress = Array.from({ length: 40 }, () => step([], "tool-calls"));
     const decision = advance([...repeated, ...noProgress]);
@@ -403,8 +401,12 @@ describe("agent continuation result digest", () => {
   it("carries the digest into the checkpoint only when enabled and never for failures", () => {
     const steps = [
       step([
-        { name: "list_records", input: { entity: "deal" }, output: listResult },
-        { name: "create_contacts", input: [{ firstName: "x" }], output: { ok: false, result: "total: 9 nope" } },
+        { name: "query_crm_records", input: { typeId: "deal" }, output: listResult },
+        {
+          name: "mutate_crm_record",
+          input: { mutation: { action: "create" } },
+          output: { ok: false, result: "total: 9 nope" },
+        },
       ]),
     ];
     const withDigest = summarizeAgentContinuationSteps(steps, { resultDigest: true }).flat();

@@ -843,7 +843,7 @@ describe("agent access", () => {
           assistantMessageId: "assistant-1",
           terminalCode: "completed",
           stopReason: null,
-          affectedResources: ["contacts"],
+          affectedResources: ["wiki"],
           hasLaterMessages: false,
         },
         assistantMessage: {
@@ -1336,8 +1336,8 @@ describe("agent access", () => {
               {
                 type: "tool_use",
                 id: "tool-1",
-                name: "list_records",
-                input: { entity: "contact", accountId: "private-uuid" },
+                name: "query_crm_records",
+                input: { typeId: "private-uuid" },
                 resultPreview: "private-result",
                 status: "done",
               },
@@ -1361,7 +1361,6 @@ describe("agent access", () => {
         id: "tool-1",
         activity: expect.objectContaining({
           kind: "records.read",
-          resource: "contacts",
         }),
         status: "done",
       },

@@ -774,8 +774,7 @@ describe("agent client-visible output safety", () => {
           id: "activity-1",
           activity: {
             kind: "records.read",
-            resource: "contacts",
-            affectedResources: ["contacts"],
+            affectedResources: [],
             risk: "read",
             rawArguments: { apiKey: "never-show" },
           },
