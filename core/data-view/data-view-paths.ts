@@ -8,6 +8,7 @@ export const DATA_VIEW_PATHS: Readonly<Record<BuiltinDataViewSurfaceKey, string 
   [SURFACE.webhookDeliveries]: "/company/webhook-deliveries",
   [SURFACE.messagingThreads]: "/inbox",
   [SURFACE.entityTimeline]: null,
+  [SURFACE.activity]: "/company/activity",
   [SURFACE.operatorUsers]: "/operator/users",
   [SURFACE.operatorWorkspaces]: "/operator/workspaces",
   [SURFACE.operatorAudit]: "/operator/audit",

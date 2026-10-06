@@ -2057,7 +2057,7 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, reco
         "timeline-state-updated",
         timeline?.activeViewKey === ALL_VIEW_KEY &&
           same(timeline?.filters, [
-            { field: "timelineKind", operator: "in", value: ["changes"] },
+            { field: "timelineKind", operator: "in", value: ["record"] },
           ]) &&
           same(timeline?.sortDescriptor, { field: "at", direction: "desc" }),
       );

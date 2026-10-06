@@ -83,7 +83,7 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
     "app-company#how-do-i-rename-record-types-in-the-data-model",
     "/configure",
   ],
-  ["en", "where do I see who changed what in the workspace", "app-company#audit-logs-tab", "/company/audit-logs"],
+  ["en", "where do I see who changed what in the workspace", "app-company#activity-tab", "/company/activity"],
   [
     "en",
     "Where do I resend the verification email?",
@@ -129,7 +129,7 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
   ["en", "link to the subscription page", "app-company#subscription-tab", "/company/subscription"],
   ["en", "link to billing", "app-company#subscription-tab", "/company/subscription"],
   ["en", "link to company settings", "app-company#settings-tab", "/company/settings"],
-  ["en", "link to the audit logs", "app-company#audit-logs-tab", "/company/audit-logs"],
+  ["en", "link to the audit logs", "app-company#activity-tab", "/company/activity"],
   ["en", "link to the inbox", "app-inbox#what-is-the-inbox", "/inbox"],
   ["en", "link to my profile settings", "app-profile#settings-tab", "/profile/settings"],
   ["en", "link to the routines page", "app-routines#which-ids-does-the-page-have", "/routines"],
@@ -214,7 +214,7 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
   ["en", "Should I use searchTerm or a filter?", "filter-syntax#free-text-search-or-a-filter", null],
   ["de", "Link zur Mitglieder-Seite", "app-company#members-tab", "/company/members"],
   ["de", "Link zu den Unternehmenseinstellungen", "app-company#settings-tab", "/company/settings"],
-  ["de", "Link zum Audit-Log", "app-company#audit-logs-tab", "/company/audit-logs"],
+  ["de", "Link zum Audit-Log", "app-company#activity-tab", "/company/activity"],
   ["de", "Link zum Posteingang", "app-inbox#what-is-the-inbox", "/inbox"],
   ["de", "Link zur Seite mit den API-Keys", "api-keys#how-do-i-create-an-api-key", "/profile/api-keys"],
   ["de", "Link zur Routinen-Seite", "app-routines#which-ids-does-the-page-have", "/routines"],
@@ -523,11 +523,11 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
         await Promise.all(
           (
             [
-              ["en", "where do I find the audit log", "app-company#audit-logs-tab", "/company/audit-logs"],
+              ["en", "where do I find the audit log", "app-company#activity-tab", "/company/activity"],
               ["en", "Where can I find the roles?", "app-company#roles-tab", "/company/roles"],
               ["en", "take me to the webhooks page", "app-company#webhooks-tab", "/company/webhooks"],
               ["de", "Wo ist die Seite Kanäle?", "app-profile#channels-tab", "/profile/connected-accounts"],
-              ["de", "Wo finde ich das Audit-Log?", "app-company#audit-logs-tab", "/company/audit-logs"],
+              ["de", "Wo finde ich das Audit-Log?", "app-company#activity-tab", "/company/activity"],
             ] as const
           ).map(async ([locale, query, expected, route]) => {
             const [best] = await searchHits(query, locale);
@@ -549,7 +549,7 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
           (
             [
               ["en", "can I share an email inbox with my colleagues", "app-profile#private-or-shared"],
-              ["en", "who edited this contact, is there a history", "app-company#audit-logs-tab"],
+              ["en", "who edited this contact, is there a history", "app-company#activity-tab"],
               [
                 "en",
                 "what happens once the free trial expires",
@@ -622,7 +622,7 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
     const [logs] = await searchHits("Where are the logs of my self-hosted instance?");
     expect(logs?.slug).toBe("self-hosting");
     const [history] = await searchHits("Wo sehe ich den Änderungsverlauf eines Kontakts?", "de");
-    expect(`${history?.slug}#${history?.anchor}`).toBe("app-company#audit-logs-tab");
+    expect(`${history?.slug}#${history?.anchor}`).toBe("app-company#activity-tab");
   });
 
   itHosted(

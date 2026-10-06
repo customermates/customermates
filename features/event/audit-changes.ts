@@ -28,7 +28,7 @@ export type AuditChange = Data<typeof AuditChangeSchema>;
 
 type Changes = Record<string, { previous: unknown; current: unknown }>;
 
-const IGNORED_FIELDS = new Set(["id", "createdAt", "updatedAt", "avatarUrl", "roleId", "ownerUserId"]);
+const IGNORED_FIELDS = new Set(["id", "createdAt", "updatedAt", "avatarUrl", "roleId", "ownerUserId", "recordGrants"]);
 
 const REDACTED_FIELDS = new Set(["secret", "headers"]);
 

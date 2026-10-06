@@ -35,7 +35,7 @@ Every workspace gets the starter record model with deterministic preset IDs as c
 - Legacy record event triggers. Every webhook and every event-triggered routine is disabled. Legacy record events (`contact.created` and so on) are removed from every webhook and routine, and a routine that had such events also loses its filters. Watched fields (`Routine.changedFields`) only applied to legacy events and are dropped from every routine. Scheduled routines keep their schedule and enabled state; a schedule never read their leftover events. Past routine runs triggered by a legacy event keep their outcome and charge but lose the legacy trigger event, record ID and payload. No routine or webhook subscribes to record events after the upgrade; re-enable them after choosing record triggers again.
 - Entity terminology presets: types keep their starter labels.
 
-No record events are written, so no routine run or webhook delivery is emitted. Existing webhook delivery history stays; completed deliveries are never replayed.
+No record events are written, so no routine run or webhook delivery is emitted. Existing webhook delivery rows stay with their status, code and time, but they are not bound to an event: their stored legacy body is no longer shown and they cannot be resent, and completed deliveries are never replayed.
 
 ## What the sections do
 

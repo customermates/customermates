@@ -43,6 +43,12 @@ export const DATA_VIEW_SURFACES: Record<BuiltinDataViewSurfaceKey, SurfaceDescri
     label: "Record activity timeline",
     path: DATA_VIEW_PATHS[SURFACE.entityTimeline],
   },
+  [SURFACE.activity]: {
+    label: "Activity",
+    path: DATA_VIEW_PATHS[SURFACE.activity],
+    resource: Resource.auditLog,
+    readAllOnly: true,
+  },
   [SURFACE.operatorUsers]: {
     label: "Operator users",
     path: DATA_VIEW_PATHS[SURFACE.operatorUsers],

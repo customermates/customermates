@@ -30,7 +30,8 @@ import {
   type BuiltinAiManageableDataViewSurfaceKey,
 } from "@/core/data-view/ai-manageable-surfaces";
 import { activityViewFilterableFields } from "@/ee/messaging/activities/record-activity-view";
-import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
+import type { SURFACE } from "@/core/data-view/data-view-keys";
+import { ALL_VIEW_KEY, isActivitySurface } from "@/core/data-view/data-view-keys";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
@@ -49,7 +50,7 @@ import { DATA_VIEW_SURFACES, type SurfaceDescriptor } from "./data-view-surfaces
 import { ManageDataViewsResultSchema, ManageDataViewsSchema } from "./manage-data-views.schema";
 
 export type DataViewConfigurationSources = Record<
-  Exclude<BuiltinAiManageableDataViewSurfaceKey, typeof SURFACE.entityTimeline>,
+  Exclude<BuiltinAiManageableDataViewSurfaceKey, typeof SURFACE.entityTimeline | typeof SURFACE.activity>,
   DataViewConfigurationRepo
 >;
 
@@ -124,20 +125,19 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
     if (data.action === "config") {
       const config = await this.configuration(data.surfaceKey);
       const section = data.section ?? "overview";
-      const writableStateFields =
-        data.surfaceKey === SURFACE.entityTimeline
-          ? ["filters", "sortDescriptor"]
-          : [
-              "filters",
-              "searchTerm",
-              "sortDescriptor",
-              "pageSize",
-              "viewMode",
-              "grouping",
-              "columnOrder",
-              "columnWidths",
-              "hiddenColumns",
-            ];
+      const writableStateFields = isActivitySurface(data.surfaceKey)
+        ? ["filters", "sortDescriptor"]
+        : [
+            "filters",
+            "searchTerm",
+            "sortDescriptor",
+            "pageSize",
+            "viewMode",
+            "grouping",
+            "columnOrder",
+            "columnWidths",
+            "hiddenColumns",
+          ];
       const filterableFields = config.filterableFields.map((field) => {
         const valueKind = filterValueKind(field.field);
         const values =
@@ -483,7 +483,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
           : [ViewMode.table],
       };
     }
-    if (surfaceKey === SURFACE.entityTimeline) {
+    if (isActivitySurface(surfaceKey)) {
       const types = (await this.recordViews?.list()) ?? [];
       return {
         filterableFields: activityViewFilterableFields(types),
@@ -512,7 +512,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
   }
 
   private async validateState(surfaceKey: AiManageableDataViewSurfaceKey, state: AgentDataViewState) {
-    if (isRecordDataViewSurface(surfaceKey) || surfaceKey === SURFACE.entityTimeline) {
+    if (isRecordDataViewSurface(surfaceKey) || isActivitySurface(surfaceKey)) {
       const invalid =
         (await this.recordViews?.validate(surfaceKey, state)) ??
         (this.recordViews ? null : CustomErrorCode.permissionDenied);

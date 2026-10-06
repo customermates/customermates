@@ -77,11 +77,10 @@ export class PrismaRecordActivitiesRepo extends TenantRepository implements Reco
         : [],
     ]);
     return {
-      revisions: revisions.map(({ actorId, change, ...revision }) => ({
-        ...revision,
-        change: RecordRevisionChangeSchema.parse(change),
-        actor: actor(actorId),
-      })),
+      revisions: revisions.flatMap(({ actorId, change, ...revision }) => {
+        const parsed = RecordRevisionChangeSchema.safeParse(change);
+        return parsed.success ? [{ ...revision, change: parsed.data, actor: actor(actorId) }] : [];
+      }),
       roleNames: new Map(roles.map((role) => [role.id, role.name])),
     };
   }

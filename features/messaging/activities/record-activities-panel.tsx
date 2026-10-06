@@ -36,6 +36,7 @@ export const RecordActivitiesPanel = observer(function RecordActivitiesPanel({
   );
   const appliedView = useRef(requestedView);
   useEffect(() => {
+    store.mount();
     runUserAction(() => store.load());
     const release = root.recordWorkspaceStore.subscribe(() => store.load());
     return () => {

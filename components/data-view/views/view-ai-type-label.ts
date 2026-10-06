@@ -13,6 +13,7 @@ const LOCATIONS: Record<BuiltinAiManageableDataViewSurfaceKey, string> = {
   [SURFACE.webhookDeliveries]: "WebhookDeliveriesCard.title",
   [SURFACE.messagingThreads]: "NavigationBar.inbox",
   [SURFACE.entityTimeline]: "Common.actions.labelHistory",
+  [SURFACE.activity]: "ActivityPage.title",
   [SURFACE.routines]: "NavigationBar.routines",
 };
 

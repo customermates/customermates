@@ -46,7 +46,7 @@ export class RecordActivityViewsStore extends BaseDataViewStore<ActivityEntryDto
     }
     const user = root.userStore?.user;
     this.owner = user ? { userId: user.id, companyId: user.companyId } : undefined;
-    this.p13nId = SURFACE.entityTimeline;
+    this.p13nId = record ? SURFACE.entityTimeline : SURFACE.activity;
     this.viewPathname = viewPathname;
     this.viewSyncToUrl = viewSyncToUrl;
     makeObservable(this, {
@@ -133,6 +133,9 @@ export class RecordActivityViewsStore extends BaseDataViewStore<ActivityEntryDto
     }
     this.applyView(key);
   };
+  mount() {
+    this.disposed = false;
+  }
   dispose() {
     if (this.disposed) return;
     if (this.canPersistViewState()) void this.flushPendingViewState();

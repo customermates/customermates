@@ -43,7 +43,8 @@ export class GetRecordActivityPresentationInteractor extends AuthenticatedIntera
   async invoke({ record, params }: RecordActivityPresentationInput): Validated<RecordActivityPresentation> {
     return runInTransaction(
       async () => {
-        const persisted = await this.views.loadSurfaceState(SURFACE.entityTimeline);
+        const surface = record ? SURFACE.entityTimeline : SURFACE.activity;
+        const persisted = await this.views.loadSurfaceState(surface);
         const viewKey = params.viewId ?? persisted.activeViewKey ?? ALL_VIEW_KEY;
         const selected = persisted.views.find((view) => view.id === viewKey);
         if (viewKey !== ALL_VIEW_KEY && !selected) return failNotFound(CustomErrorCode.dataViewNotFound);
@@ -51,7 +52,7 @@ export class GetRecordActivityPresentationInteractor extends AuthenticatedIntera
           params: { filters: params.filters },
           base: selected?.state ?? persisted.allState,
         });
-        const invalid = await this.policy.validate(SURFACE.entityTimeline, state);
+        const invalid = await this.policy.validate(surface, state);
         if (invalid) return fail(invalid);
         const result = await this.activities.invoke({
           scope: { records: record ? [record] : [], typeIds: [] },
@@ -68,7 +69,7 @@ export class GetRecordActivityPresentationInteractor extends AuthenticatedIntera
             ...result.data,
             ...state,
             grouping: undefined,
-            p13nId: SURFACE.entityTimeline,
+            p13nId: surface,
             views: persisted.views,
             activeViewKey: viewKey,
             allState: persisted.allState,
