@@ -41,7 +41,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { cn } from "@/core/utils/cn";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
-import { reportApplicationError } from "@/core/errors/report-application-error";
+import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 
 import { accountStatusChipColor, getProviderDisplayLabel } from "../../profile/components/account-status-color";
 import {
@@ -620,9 +620,9 @@ function ConfigureGraphCanvas({
               (connection.isValid ? connection.toNode?.id : undefined) ??
               (point &&
                 document
-                  .elementFromPoint(point.clientX, point.clientY)
-                  ?.closest("[data-configure-node]")
-                  ?.getAttribute("data-configure-node"));
+                  .elementsFromPoint(point.clientX, point.clientY)
+                  .map((element) => element.closest("[data-configure-node]")?.getAttribute("data-configure-node"))
+                  .find(Boolean));
             if (target && target !== source && listIds.has(target)) onConnect(source, target);
           }}
           onInit={() => setReady(true)}
@@ -649,12 +649,7 @@ function ConfigureGraphCanvas({
             ].map(({ label, icon: Icon, run }) => (
               <Tooltip key={label}>
                 <TooltipTrigger asChild>
-                  <Button
-                    aria-label={label}
-                    size="icon-sm"
-                    variant="secondary"
-                    onClick={() => void run().catch(reportApplicationError)}
-                  >
+                  <Button aria-label={label} size="icon-sm" variant="secondary" onClick={() => runUserAction(run)}>
                     <Icon aria-hidden />
                   </Button>
                 </TooltipTrigger>
