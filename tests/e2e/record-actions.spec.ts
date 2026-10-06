@@ -65,7 +65,7 @@ test("relationship inputs keep linked chips and the record search inside one fie
   await page.locator("#records-add").click();
   const drawer = page.getByRole("dialog", { name: "Deal", exact: true });
   const combobox = drawer.getByRole("combobox", { name: "Organizations", exact: true });
-  const field = drawer.locator("[data-relationship-field]").filter({ has: combobox });
+  const field = combobox.locator("xpath=ancestor::*[@data-relationship-field][1]");
   await expect(field).toContainText("Link a record");
   await combobox.click();
   await page.getByRole("option", { name: "Example organization", exact: true }).click();
@@ -77,4 +77,69 @@ test("relationship inputs keep linked chips and the record search inside one fie
   await field.getByRole("button", { name: "Unlink Example organization", exact: false }).click();
   await expect(chip).toHaveCount(0);
   await expect(field).toContainText("Link a record");
+});
+
+test("record tables edit cells in place, open linked chips and offer row actions", async ({ page, companyId }) => {
+  test.setTimeout(180000);
+  const name = `Inline deal ${randomUUID().slice(0, 8)}`;
+  await page.goto(`/en/records/${presetId(companyId, "deal")}`);
+  await page.locator("#records-add").click();
+  const drawer = page.getByRole("dialog", { name: "Deal", exact: true });
+  await drawer.getByRole("textbox", { name: "Name", exact: false }).fill(name);
+  await drawer.getByRole("combobox", { name: "Stage", exact: true }).click();
+  await page.getByRole("option", { name: "New", exact: true }).click();
+  await drawer.getByRole("combobox", { name: "Organizations", exact: true }).click();
+  await page.getByRole("option", { name: "Example organization", exact: true }).click();
+  await drawer.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(drawer).not.toBeVisible();
+
+  const row = page.getByRole("row").filter({ hasText: name });
+  await row.getByRole("button", { name: "Edit Stage", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Qualified", exact: true }).click();
+  await expect(row.getByRole("button", { name: "Edit Stage", exact: true })).toHaveText("Qualified");
+  await expect(row.getByRole("button", { name: "Edit Value", exact: true })).toHaveCount(0);
+  await expect(drawer).not.toBeVisible();
+
+  await row.getByRole("button", { name: "Open Example organization", exact: true }).click();
+  const organization = page.getByRole("dialog", { name: "Organization", exact: true });
+  await expect(organization.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Example organization");
+  await organization.getByRole("button", { name: "Close", exact: true }).click();
+  await expect(organization).not.toBeVisible();
+
+  const actions = row.locator("[data-record-row-actions]");
+  await expect(actions).toHaveCSS("opacity", "0");
+  await row.getByRole("button", { name: `Open details for ${name}`, exact: true }).focus();
+  await expect(actions).toHaveCSS("opacity", "1");
+  await page.keyboard.press("Enter");
+  await expect(drawer.getByRole("textbox", { name: "Name", exact: false })).toHaveValue(name);
+  await drawer.getByRole("button", { name: "Close", exact: true }).click();
+  await expect(drawer).not.toBeVisible();
+
+  await row.hover();
+  await row.getByRole("button", { name: `More actions for ${name}`, exact: true }).click();
+  await expect(page.getByRole("menuitem", { name: "Open page", exact: true })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await row.getByRole("button", { name: `Delete ${name}`, exact: true }).click();
+  await page.getByRole("alertdialog").locator("#confirm-delete").click();
+  await expect(row).toHaveCount(0);
+});
+
+test("record tables edit number fields in place without opening the drawer", async ({ page, companyId }) => {
+  const name = `Inline service ${randomUUID().slice(0, 8)}`;
+  await page.goto(`/en/records/${presetId(companyId, "service")}`);
+  await page.locator("#records-add").click();
+  const drawer = page.getByRole("dialog", { name: "Service", exact: true });
+  await drawer.getByRole("textbox", { name: "Name", exact: false }).fill(name);
+  await drawer.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(drawer).not.toBeVisible();
+
+  const row = page.getByRole("row").filter({ hasText: name });
+  await row.hover();
+  await row.getByRole("button", { name: "Edit Price", exact: true }).click();
+  const editor = page.locator('[data-slot="popover-content"]');
+  await editor.getByRole("textbox", { name: "Price", exact: false }).fill("250");
+  await editor.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(editor).not.toBeVisible();
+  await expect(row).toContainText("250");
+  await expect(drawer).not.toBeVisible();
 });

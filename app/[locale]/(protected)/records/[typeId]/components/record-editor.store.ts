@@ -17,7 +17,7 @@ import type { RecordIdentityInput } from "@/features/records/record-identity.sch
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { rebaseModelChangeDraft } from "@/app/[locale]/(protected)/configure/components/model-change-rebase";
-import { recordInputValue } from "@/features/records/record-input-value";
+import { recordDraftValue, recordInputValue } from "@/features/records/record-input-value";
 import { RecordScalarSchema } from "@/features/records/record-model.schema";
 import { mutateRecordAction, getRecordEditorAction } from "../../actions";
 
@@ -36,13 +36,6 @@ const STALE_WRITE_CODES: ReadonlySet<string> = new Set([
   CustomErrorCode.recordVersionChanged,
   CustomErrorCode.recordSchemaChanged,
 ]);
-function scalarDraft(value: RecordScalar | null): unknown {
-  if (!value) return undefined;
-  if (value.kind === "richText") return JSON.parse(value.documentJson);
-  if (value.kind === "range") return `${value.start ?? ""},${value.end ?? ""}`;
-  if (value.kind === "textList") return value.value.join("\n");
-  return value.value;
-}
 export class RecordEditorStore extends BaseModalStore<RecordDraft> {
   record: RecordDto | null = null;
   presentation: RecordEditorContext;
@@ -203,7 +196,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
           const result = record?.fields.find((value) => value.fieldId === field.id)?.result;
           return [
             field.id,
-            scalarDraft(
+            recordDraftValue(
               result?.state === "value"
                 ? result.value
                 : !record && field.behavior.kind === "input"
