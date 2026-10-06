@@ -222,8 +222,8 @@ const FullAppSidebar = observer(
           ].filter((i) => i.visible),
         },
         {
-          key: "crm",
-          label: t("NavigationBar.crm"),
+          key: "data",
+          label: t("NavigationBar.data"),
           items: [
             ...(recordWorkspaceStore.navigation?.types ?? []).map((type) => ({
               key: `records:${type.id}`,
