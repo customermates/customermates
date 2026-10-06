@@ -11,9 +11,13 @@ import type {
   RecordType,
 } from "./record-model.schema";
 
-export function presetId(companyId: string, key: string): string {
+export function deterministicId(companyId: string, key: string): string {
   const hash = createHash("sha256").update(`customermates:records:v2:${companyId}:${key}`).digest("hex");
   return `${hash.slice(0, 8)}-${hash.slice(8, 12)}-8${hash.slice(13, 16)}-8${hash.slice(17, 20)}-${hash.slice(20, 32)}`;
+}
+
+export function presetId(companyId: string, presetKey: string): string {
+  return deterministicId(companyId, presetKey);
 }
 
 export function createCrmPreset(companyId: string, currency: string): RecordModel {
