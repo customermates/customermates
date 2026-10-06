@@ -1,25 +1,24 @@
 ---
 title: "My Company: Billing, Roles, Team Access, Audit Log"
-description: "My Company is the workspace admin area in Customermates: subscription and billing, currency, members, roles, webhooks, deliveries and the audit log."
+description: "My Company is the workspace admin area in Customermates: subscription and billing, members, roles, webhooks, deliveries and the audit log."
 ---
 
 Customermates is an open-source CRM with a built-in MCP server. This page documents the **My Company** section of the web app, page by page, for humans and for AI agents that drive the UI: what each setting does, who can change it, and where to find it.
 
 ## What lives under My Company? [#what-lives-on-the-company-screen]
 
-Workspace-wide administration: the subscription (Cloud only), the workspace settings, the team and its permissions, outbound webhooks with their delivery history, and the audit trail. Everything that affects the whole workspace, not a single record, lives here.
+Workspace-wide administration: the subscription (Cloud only), the team and its permissions, outbound webhooks with their delivery history, and the audit trail. Everything that affects the whole workspace, not a single record, lives here.
 
 In the sidebar, **My Company** (`#nav-company`) sits in the **Workspace** group next to **My Profile**. It is a toggle: clicking it expands or collapses its list of pages and opens no page itself. Expanding it collapses the other expanded group, and it opens by itself while you are on one of its pages. Each page has its own route, and the browser address puts the language in front of it (example: `/en/company/members`). The breadcrumb reads **My Company** › page name; the first crumb opens the first page you can see, and the second switches between the sibling pages.
 
 Routes are relative and carry no language prefix: they work on the address the workspace runs on, and the app adds the user's language, so `/company/subscription` opens `/en/company/subscription` for an English user. For a full link, put the route after the origin of the `url` that `search_docs`, `get_docs_page` and `fetch` return; that origin is the instance's configured `BASE_URL`. Mate's `highlight_element` also takes each navigate target: `nav-company` points at the **My Company** toggle, and every other one at its page's sidebar entry. A sidebar entry can be highlighted only while **My Company** is expanded, which it is by default on its own pages unless the member collapsed it. **Add** targets exist only for roles that can manage the page, and the layout targets only while display options are open. Billing targets appear only for roles with **Company** **Manage**, and a dialog target only while its dialog is open: where a control opens the dialog, it is the target's prerequisite, and Mate asks the user to open it first. Where a row opens the dialog, `list_ui_targets` names that row as the prerequisite (for example `a member row`); rows have no target, so Mate asks the user to click the row.
 
-Subscription is Cloud only. Audit Logs needs **Audit Log** read access **All**, and Webhooks and Recent Deliveries need **API & Webhooks** read access **All**. The **Users & Roles** read setting controls whether Members and Roles appear; **Assigned** limits the member list to your own row, and **None** hides both pages. Company read access controls Settings and Subscription. Editing requires the corresponding management permission. The built-in **Admin** role sees and can change everything.
+Subscription is Cloud only. Audit Logs needs **Audit Log** read access **All**, and Webhooks and Recent Deliveries need **API & Webhooks** read access **All**. The **Users & Roles** read setting controls whether Members and Roles appear; **Assigned** limits the member list to your own row, and **None** hides both pages. Company read access controls Subscription. Editing requires the corresponding management permission. The built-in **Admin** role sees and can change everything.
 
 | Page | Route | Navigate target | Highlight targets on the page | Explained in |
 |---|---|---|---|---|
 | **Subscription** | `/company/subscription` | `nav-company-subscription` | `company-subscription-manage`, `company-subscription-refresh`, `company-subscription-plan-picker` | [Subscription](#subscription-tab) |
-| **Settings** | `/company/settings` | `nav-company-settings`, also `nav-company` | `company-settings-currency`, `company-settings-data-model`, `company-settings-save`, `company-settings-reset` | [Settings](#settings-tab) |
-| **Members** | `/company/members` | `nav-company-members` | `company-members-add`, `company-members-search`, `company-members-filter`, `company-members-display-options`, `company-members-layout-table`, `company-members-layout-board`; in **Invite User** `invite-modal-tab-link`, `invite-modal-link`, `invite-modal-copy-link`, `invite-modal-tab-email`, `invite-modal-emails`, `invite-modal-send`; in **User** `member-modal-email`, `member-modal-first-name`, `member-modal-last-name`, `member-modal-country`, `member-modal-role`, `member-modal-avatar-url`, `member-modal-status`, `member-modal-save`, `member-modal-reset` | [Members](#members-tab) |
+| **Members** | `/company/members` | `nav-company-members`, also `nav-company` | `company-members-add`, `company-members-search`, `company-members-filter`, `company-members-display-options`, `company-members-layout-table`, `company-members-layout-board`; in **Invite User** `invite-modal-tab-link`, `invite-modal-link`, `invite-modal-copy-link`, `invite-modal-tab-email`, `invite-modal-emails`, `invite-modal-send`; in **User** `member-modal-email`, `member-modal-first-name`, `member-modal-last-name`, `member-modal-country`, `member-modal-role`, `member-modal-avatar-url`, `member-modal-status`, `member-modal-save`, `member-modal-reset` | [Members](#members-tab) |
 | **Roles** | `/company/roles` | `nav-company-roles` | `company-roles-add`, `company-roles-display-options`, `company-roles-layout-table`, `company-roles-layout-board`; in the editor `role-modal-save`, `role-modal-reset`, `role-modal-delete` | [Roles](#roles-tab) |
 | **Audit Logs** | `/company/audit-logs` | `nav-company-audit-logs` | `company-audit-logs-search`, `company-audit-logs-filter`, `company-audit-logs-display-options`, `company-audit-logs-layout-table`, `company-audit-logs-layout-board` | [Audit Logs](#audit-logs-tab) |
 | **Webhooks** | `/company/webhooks` | `nav-company-webhooks` | `company-webhooks-add`, `company-webhooks-search`, `company-webhooks-filter`, `company-webhooks-display-options`, `company-webhooks-layout-table`, `company-webhooks-layout-board`; in the dialog `webhook-modal-url`, `webhook-modal-description`, `webhook-modal-events`, `webhook-modal-secret`, `webhook-modal-headers`, `webhook-modal-body-template`, `webhook-modal-enabled`, `webhook-modal-save`, `webhook-modal-reset`, `webhook-modal-delete` | [Webhooks](#webhooks-tab) |
@@ -165,35 +164,25 @@ On Starter, the Inbox and **My Profile** › **Channels** show **Upgrade to unlo
 
 **Link:** `/company/subscription`; the buttons sit on `/inbox` and `/profile/connected-accounts`. **Mate:** `navigate` and `highlight_element` with `nav-company-subscription`, `nav-inbox` or `nav-profile-connected-accounts`; **Upgrade your plan** and **View plans** are not highlight targets, so Mate names them.
 
-## Company settings page [#settings-tab]
+## Where is the currency set? [#where-is-the-currency-set]
 
-**My Company → Settings** at `/company/settings` contains the workspace currency and a link to **Configure**, the separate page for CRM lists.
+There is no workspace-wide currency. Every money field carries its own currency: open **Configure** (`#nav-configure-records`), select the list, open the field and pick **Currency**. New workspaces start their money fields (service price, line item prices and amounts, deal value and weighted value) in EUR. Changing a field's currency does not convert stored amounts; amounts keep the currency they were entered or calculated in, and totals that mix currencies show a currency mismatch instead of a sum.
 
-| Field | What it does |
-|---|---|
-| **Currency** | Formats amounts in the workspace; switching does not convert amounts. Currency fields with their own configured currency retain that setting. |
+**Data model → Manage** controls field configuration; it can be delegated separately and does not grant access to records or permission to expand role grants. The assistant changes a field's currency through `configure_record_model`, with the same backend checks as the UI.
 
-The currency selector is `#company-settings-currency`. Members with **Company → Manage** can save a change with `#company-settings-save` or discard an unsaved change with `#company-settings-reset`; other members see the currency read-only. The **Configure** link under **Data model** (`#company-settings-data-model`) opens `/configure`. That separate page, also reachable as **Configure** in the sidebar's **CRM** group (`#nav-configure-records`), owns lists, fields, relationships, stage probabilities, and calculations.
-
-**Link:** `/company/settings`. **Mate:** `nav-company-settings` opens the page; `company-settings-currency`, `company-settings-data-model`, `company-settings-save`, and `company-settings-reset` identify the available controls.
-
-### Who can change the currency and the other settings? [#who-can-change-the-currency-and-the-other-settings]
-
-**Company → Manage** controls currency changes on Settings. **Data model → Manage** controls type and field configuration; it can be delegated separately and does not grant access to records or permission to expand role grants. Role administration is required to expand access. The assistant uses `update_workspace_settings` for currency and `configure_record_model` for record configuration, with the same backend checks as the UI.
-
-**Link:** `/company/settings` for currency; `/configure` for CRM configuration.
+**Link:** `/configure`. **Mate:** navigate with `nav-configure-records`.
 
 ### Where do I set stage probabilities for weighting, and how do totals work? [#how-do-stage-probabilities-and-totals-work]
 
-Open **Configure**, select **Deals**, and edit its stage select field to set a probability on each option. The shipped **Weighted value** calculation multiplies the calculated deal value by the selected stage probability divided by 100. A zero probability produces zero; a missing probability leaves weighted value absent. Changes to probabilities or calculations go through a dependency preview and recalculate affected records. You can change the formula or make deal value manually entered in the same configuration system. To show pipeline totals, add a Dashboard chart widget that sums **Value** or **Weighted value**, optionally grouped by stage. There is no separate pipeline-total form on Company Settings.
+Open **Configure**, select **Deals**, and edit its stage select field to set a probability on each option. The shipped **Weighted value** calculation multiplies the calculated deal value by the selected stage probability divided by 100. A zero probability produces zero; a missing probability leaves weighted value absent. Changes to probabilities or calculations go through a dependency preview and recalculate affected records. You can change the formula or make deal value manually entered in the same configuration system. To show pipeline totals, add a Dashboard chart widget that sums **Value** or **Weighted value**, optionally grouped by stage. There is no separate pipeline-total form.
 
 **Link:** `/configure` for stage metadata and calculations; `/dashboard` for totals. See [weighted pipeline](/docs/concepts#how-does-a-weighted-pipeline-work).
 
 ### Can I name Contacts anything I want, and how do I rename record types such as Deals? [#how-do-i-rename-record-types-in-the-data-model]
 
-Open **Configure**, select the list in the left rail, and edit **Name** and **Navigation label** under **General**, then **Save** in the top bar. You can rename any of the five starting types or a customer-created type. Names are editable text, while stable type IDs keep records, links, views, widgets, and API references connected. The same validated configuration operation is available to the assistant through `get_record_model` and `configure_record_model`. A schema manager needs **Data model → Manage**; renaming does not require changing currency.
+Open **Configure**, select the list in the left rail, and edit **Name** and **Navigation label** under **General**, then **Save** in the top bar. You can rename any of the five starting types or a customer-created type. Names are editable text, while stable type IDs keep records, links, views, widgets, and API references connected. The same validated configuration operation is available to the assistant through `get_record_model` and `configure_record_model`. A schema manager needs **Data model → Manage**.
 
-**Link:** `/configure`. **Mate:** navigate with `nav-configure-records`; `company-settings-data-model` is the link from Settings.
+**Link:** `/configure`. **Mate:** navigate with `nav-configure-records`.
 
 ## Members page [#members-tab]
 
@@ -349,10 +338,10 @@ Reading it needs **Audit Log** read access **All** on your role, or **Admin**; t
 ## Tips for agents
 
 - Every section above closes with its route and the ids Mate can use; for a full link, put the route after the origin of the `url` that `search_docs`, `get_docs_page` and `fetch` return. **Subscription Required** and **Legal documents updated** have no target and Mate is not available there, so pass on their link.
-- `#nav-company` only expands or collapses the sidebar group; it opens no page itself. The hosted assistant's `navigate` opens every page here that the user's role can open through its sidebar id, and `nav-company` itself opens **Settings**; a toolbar id also works and opens its page. For a page the role cannot open, `navigate` refuses instead of landing on the Dashboard. It can highlight the sidebar entries, toolbar controls, Subscription buttons and plan cards, the Settings currency and Data model link, form buttons, and the dialog fields and buttons listed above. `list_ui_targets` lists targets whatever the user's role or plan, so an **Add** or billing target can be missing on screen.
+- `#nav-company` only expands or collapses the sidebar group; it opens no page itself. The hosted assistant's `navigate` opens every page here that the user's role can open through its sidebar id, and `nav-company` itself opens **Members**; a toolbar id also works and opens its page. For a page the role cannot open, `navigate` refuses instead of landing on the Dashboard. It can highlight the sidebar entries, toolbar controls, Subscription buttons and plan cards, form buttons, and the dialog fields and buttons listed above. `list_ui_targets` lists targets whatever the user's role or plan, so an **Add** or billing target can be missing on screen.
 - Dialog targets (every `invite-modal-*`, `member-modal-*`, `role-modal-*` and `webhook-modal-*` id, and `webhook-delivery-modal-resend`) exist only while their dialog is open. `list_ui_targets` names the prerequisite: `company-members-add` for **Invite User**, `invite-modal-tab-email` for `invite-modal-emails` and `invite-modal-send`, `company-roles-add` for `role-modal-save` and `role-modal-reset`, and `company-webhooks-add` for the webhook fields, `webhook-modal-save` and `webhook-modal-reset`. The **User** dialog, **Event Details**, `role-modal-delete` and `webhook-modal-delete` need a row the user opens, and `list_ui_targets` names that row as the prerequisite (`a member row`, `a delivery row`, `a role row`, `a webhook row`); rows have no target, so ask the user to click it first. Mate cannot click a row, fill a field or submit a dialog.
 - Rows never carry ids. Navigate to a page via its URL (for example `/company/webhooks`) and open a row by clicking it. Edits happen in dialogs, not in a drawer.
-- Prefer [MCP](/docs/mcp) tools over clicking when a tool exists: `update_workspace_settings` changes currency, `configure_record_model` changes CRM types and calculations, `manage_roles` changes authorized role grants, `manage_team` invites and updates members, and `manage_webhooks` manages webhooks and deliveries.
+- Prefer [MCP](/docs/mcp) tools over clicking when a tool exists: `configure_record_model` changes CRM types, field currencies and calculations, `manage_roles` changes authorized role grants, `manage_team` invites and updates members, and `manage_webhooks` manages webhooks and deliveries.
 - No tool reads or changes the subscription or invitation link. For "which plan are we on" or "how do I cancel", send the user to **My Company** › **Subscription**.
 
 ## Related

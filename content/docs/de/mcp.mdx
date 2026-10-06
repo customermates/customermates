@@ -52,7 +52,7 @@ Einen AI-Client mit dem Workspace zu verbinden sind immer dieselben drei Schritt
 Dem Client `POST <BASE_URL>/api/v1/mcp` mit dem `x-api-key`-Header aus dem vorherigen Schritt geben, oder per OAuth verbinden, wo der Client das unterstützt. Die Guides pro Client in der Tabelle unten enthalten die genaue Konfiguration.
 </Step>
 <Step title="Prüfen, ob die Tools ankommen">
-Den Client nach seinen Tools fragen. Alle [[derived.mcp.tools.total]] sollten erscheinen, und `get_workspace_context` ist der natürliche erste Aufruf: er liefert User, die Workspace-Währung und die Bezeichnungen der Datensatztypen, Rollen und verbundene Accounts auf einmal.
+Den Client nach seinen Tools fragen. Alle [[derived.mcp.tools.total]] sollten erscheinen, und `get_workspace_context` ist der natürliche erste Aufruf: er liefert User, Rollen, verbundene Accounts und die Wissensdatenbank auf einmal; die Bezeichnungen der Datensatztypen liefert `discover_record_types`.
 </Step>
 </Steps>
 
@@ -299,7 +299,7 @@ Die Änderung gilt atomar für alle Ziele; eine große Neuberechnung kann `statu
 {/* mcp-catalog:workspace */}
 #### `get_workspace_context`
 
-Aktuellen Nutzer, Workspace-Währung, Rollenkatalog mit Berechtigungen, zugängliche verbundene Nachrichtenkonten sowie den Betriebsleitfaden der Wissensdatenbank, ihr Verzeichnis der Abläufe mit ihrem Einsatzfall und eine zugriffsgefilterte Liste der Wissensseiten (`wikiPage` blättert weiter; fehlt ohne Wissensdatenbank-Leserechte) in einem Call lesen. Der natürliche erste Call einer Session. Typnamen separat mit discover_record_types ermitteln und die benötigte Konfiguration mit get_record_model abrufen.
+Aktuellen Nutzer, Rollenkatalog mit Berechtigungen, zugängliche verbundene Nachrichtenkonten sowie den Betriebsleitfaden der Wissensdatenbank, ihr Verzeichnis der Abläufe mit ihrem Einsatzfall und eine zugriffsgefilterte Liste der Wissensseiten (`wikiPage` blättert weiter; fehlt ohne Wissensdatenbank-Leserechte) in einem Call lesen. Der natürliche erste Call einer Session. Typnamen separat mit discover_record_types ermitteln und die benötigte Konfiguration mit get_record_model abrufen.
 
 **Nur lesend.** Optional: `wikiPage`.
 
@@ -594,9 +594,9 @@ Ein Tool mit `action`-Schalter: list, get, create, update, delete, dazu das Deli
 {/* mcp-catalog:admin */}
 #### `update_workspace_settings`
 
-target profile ändert den eigenen Namen, das Land und den Avatar. target company ändert die Workspace-Währung und benötigt Manage auf Company. Datensatztypen über configure_record_model umbenennen und konfigurieren; ihre Namen sind keine Workspace-Terminologieeinstellungen mehr.
+Ändert den eigenen Namen, das Land und den Avatar. Geldfelder haben ihre eigene Währung: Diese ändern und Datensatztypen umbenennen Sie über configure_record_model.
 
-Pflicht: `target`. Optional: `firstName`, `lastName`, `country`, `avatarUrl`, `currency`.
+Optional: `firstName`, `lastName`, `country`, `avatarUrl`.
 
 #### `manage_team`
 
