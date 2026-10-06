@@ -9,55 +9,40 @@ import type { useRecordDeletion } from "./use-record-deletion";
 import { Button } from "@/components/ui/button";
 import { AppModalAction } from "@/components/modal/app-modal-action";
 import { cn } from "@/core/utils/cn";
-import { runUserAction } from "@/core/errors/report-application-error";
 import { RecordAiAction } from "@/app/components/agent-chat/record-ai-action";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
-import { useRecordDetailLayoutControls } from "./record-detail-personalization";
+import {
+  RecordDetailCustomizeAction,
+  RecordDetailLayoutStatus,
+  useRecordDetailLayout,
+} from "./record-detail-personalization";
 
 type Props = {
   store: RecordEditorStore;
   formId: string;
   name: string;
   deletion: ReturnType<typeof useRecordDeletion>;
-  compact?: boolean;
-  /** False when the delete action lives in the overlay header instead. */
-  withDelete?: boolean;
 };
 
-function isDeleteBlocked(store: RecordEditorStore, deletion: Props["deletion"]) {
-  return (
-    deletion.isPreviewing ||
-    store.hasUnsavedChanges ||
-    store.hasRelatedDraft ||
-    store.isLoading ||
-    Boolean(store.pendingOperationId) ||
-    store.refreshRequired
-  );
-}
-
-function requestDeletion(store: RecordEditorStore, deletion: Props["deletion"], name: string) {
-  return store.record
-    ? deletion.requestDeletion(store.record, store.presentation.model.revision, name)
-    : Promise.resolve();
-}
-
-/** Icon-only delete for the record drawer's header action rail. */
+/** Icon-only record delete, shown in the drawer header rail and the record page top bar. */
 export const RecordDeleteAction = observer(function RecordDeleteAction({
   store,
   name,
   deletion,
-}: Pick<Props, "store" | "name" | "deletion">) {
+}: Omit<Props, "formId">) {
   const t = useTranslations();
   if (!store.record || !store.presentation.permittedActions.includes("delete")) return null;
   return (
     <AppModalAction
       anchorId="record-delete"
-      disabled={isDeleteBlocked(store, deletion)}
+      disabled={deletion.isPreviewing || store.isBusy}
       icon={Trash2}
       id="record-delete"
       label={t("Common.actions.delete")}
       variant="destructive"
-      onClick={() => requestDeletion(store, deletion, name)}
+      onClick={() =>
+        store.record ? deletion.requestDeletion(store.record, store.presentation.model.revision, name) : undefined
+      }
     />
   );
 });
@@ -65,30 +50,11 @@ export const RecordDeleteAction = observer(function RecordDeleteAction({
 export const RecordEditorActions = observer(function RecordEditorActions({
   store,
   formId,
-  name,
-  deletion,
   compact = false,
-  withDelete = true,
-}: Props) {
+}: Pick<Props, "store" | "formId"> & { compact?: boolean }) {
   const t = useTranslations();
   return (
     <>
-      {withDelete && store.record && store.presentation.permittedActions.includes("delete") && (
-        <Button
-          aria-label={t("Common.actions.delete")}
-          className={cn("text-destructive", compact ? "h-8" : "mr-auto")}
-          disabled={isDeleteBlocked(store, deletion)}
-          size={compact ? "sm" : "default"}
-          type="button"
-          variant={compact ? "secondary" : "ghost"}
-          onClick={() => runUserAction(() => requestDeletion(store, deletion, name))}
-        >
-          <Trash2 aria-hidden className={cn("size-4", compact && "sm:hidden")} />
-
-          <span className={cn(compact && "hidden sm:inline")}>{t("Common.actions.delete")}</span>
-        </Button>
-      )}
-
       {!store.isReadOnly && store.hasUnsavedChanges && (
         <Button
           aria-label={t("Common.actions.reset")}
@@ -125,7 +91,7 @@ export const RecordEditorActions = observer(function RecordEditorActions({
 
 export const RecordPageActions = observer(function RecordPageActions(props: Props) {
   const { store, formId, name, deletion } = props;
-  const layoutControls = useRecordDetailLayoutControls(true);
+  const layout = useRecordDetailLayout();
   const record = store.record?.ref;
   const typeId = store.presentation.typeId;
   const isOpen = store.isOpen;
@@ -139,12 +105,16 @@ export const RecordPageActions = observer(function RecordPageActions(props: Prop
           context={{ reference: record ? { kind: "record", ...record } : { kind: "recordType", typeId }, label: name }}
         />
 
-        {layoutControls}
+        {layout && <RecordDetailCustomizeAction {...layout} />}
 
-        <RecordEditorActions compact deletion={deletion} formId={formId} name={name} store={store} />
+        {layout && <RecordDetailLayoutStatus {...layout} />}
+
+        <RecordDeleteAction deletion={deletion} name={name} store={store} />
+
+        <RecordEditorActions compact formId={formId} store={store} />
       </div>
     ),
-    [deletion, formId, isOpen, layoutControls, name, record, store, typeId],
+    [deletion, formId, isOpen, layout, name, record, store, typeId],
   );
   useSetTopBarActions(actions);
   return null;

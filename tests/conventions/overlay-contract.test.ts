@@ -334,7 +334,8 @@ describe("overlay contract", () => {
     ).toEqual([]);
     expect(appModal).toContain("actions?: AppModalActions");
     expect(appModal).toContain("actions.map((action)");
-    expect(appModal).toContain('data-slot="app-modal-actions"');
+    expect(appModal).toContain("<AppModalActionRail className={APP_MODAL_ACTION_RAIL_CLASS}>");
+    expect(appModalAction).toContain('data-slot="app-modal-actions"');
     expect(appModal).toContain("data-overlay-action-count={hasActions");
     expect(appModal).toContain("data-overlay-actions={hasActions");
     expect(appModalAction).toContain("OVERLAY_ICON_CONTROL_CLASS");

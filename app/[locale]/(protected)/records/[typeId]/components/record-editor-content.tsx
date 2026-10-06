@@ -8,7 +8,7 @@ import { SURFACE } from "@/core/data-view/data-view-keys";
 import { Maximize2 } from "lucide-react";
 import type { RecordEditorStore } from "./record-editor.store";
 import { RecordOperationProgress } from "@/components/records/record-operation-progress";
-import { RecordAiAction } from "@/app/components/agent-chat/record-ai-action";
+import { RecordAiIconAction } from "@/app/components/agent-chat/record-ai-action";
 import { AppForm } from "@/components/forms/form-context";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardHeader } from "@/components/card/app-card-header";
@@ -17,13 +17,13 @@ import { AppCardFooter } from "@/components/card/app-card-footer";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import { AppModalAction } from "@/components/modal/app-modal-action";
-import { OverlayHeaderActions } from "@/components/modal/overlay-header-actions";
+import { AppModalAction, AppModalActionRail } from "@/components/modal/app-modal-action";
 import { runUserAction } from "@/core/errors/report-application-error";
 import {
   RecordDetailCustomizeAction,
   RecordDetailLayoutStatus,
   RecordDetailPersonalization,
+  useRecordDetailLayout,
 } from "./record-detail-personalization";
 import { RecordDetailOverview } from "./record-detail-overview";
 import { RecordDetailSummary } from "./record-detail-summary";
@@ -114,17 +114,12 @@ const RecordEditorBody = observer(function RecordEditorBody({
   const pathname = usePathname();
   const router = useRouter();
   const [panel, setPanel] = useState("details");
+  const detailLayout = useRecordDetailLayout();
   const id = useId();
   const deletion = useRecordDeletion({
     sessionKey: store.sessionKey,
     captureSession: store.captureSession,
-    canDelete: () =>
-      store.presentation.permittedActions.includes("delete") &&
-      !store.isLoading &&
-      !store.pendingOperationId &&
-      !store.refreshRequired &&
-      !store.hasRelatedDraft &&
-      !store.hasUnsavedChanges,
+    canDelete: () => store.presentation.permittedActions.includes("delete") && !store.isBusy,
     onMutating: store.setIsLoading,
     onInvalidated: store.rootStore.recordWorkspaceStore.invalidate,
     onDeleted: store.deletionCompleted,
@@ -232,14 +227,15 @@ const RecordEditorBody = observer(function RecordEditorBody({
   return (
     <AppForm id={id} store={store}>
       <AppCard className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-none border-0 bg-transparent shadow-none">
-        <AppCardHeader className="justify-between pr-[3.125rem]! pb-4">
-          <h2 className="min-w-0 flex-1 truncate text-lg font-semibold">
-            {store.record ? name : t("RecordModel.newRecord", { type: type?.label ?? t("RecordModel.record") })}
-          </h2>
+        <div className="flex shrink-0 items-start pr-[3.125rem]">
+          <AppCardHeader className="min-w-0 flex-1 pr-4! pb-4">
+            <h2 className="min-w-0 flex-1 truncate text-lg font-semibold">
+              {store.record ? name : t("RecordModel.newRecord", { type: type?.label ?? t("RecordModel.record") })}
+            </h2>
+          </AppCardHeader>
 
-          <OverlayHeaderActions className="-mt-4.5" id="record-header-actions">
-            <RecordAiAction
-              iconOnly
+          <AppModalActionRail className="mt-1.5" id="record-header-actions">
+            <RecordAiIconAction
               registerContext
               active={store.isOpen}
               context={{
@@ -250,7 +246,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
               }}
             />
 
-            <RecordDetailCustomizeAction />
+            {detailLayout && <RecordDetailCustomizeAction {...detailLayout} />}
 
             {store.record && (
               <AppModalAction
@@ -268,10 +264,10 @@ const RecordEditorBody = observer(function RecordEditorBody({
             )}
 
             <RecordDeleteAction deletion={deletion} name={name} store={store} />
-          </OverlayHeaderActions>
-        </AppCardHeader>
+          </AppModalActionRail>
+        </div>
 
-        <RecordDetailLayoutStatus className="shrink-0 px-6 pb-3" />
+        {detailLayout && <RecordDetailLayoutStatus {...detailLayout} className="shrink-0 px-6 pb-3" />}
 
         {notices}
 
@@ -330,7 +326,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
 
         {!store.isReadOnly && (
           <AppCardFooter>
-            <RecordEditorActions deletion={deletion} formId={id} name={name} store={store} withDelete={false} />
+            <RecordEditorActions formId={id} store={store} />
           </AppCardFooter>
         )}
       </AppCard>

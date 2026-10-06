@@ -3,29 +3,22 @@
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { observer } from "mobx-react-lite";
+import { useTranslations } from "next-intl";
+import { Sparkles } from "lucide-react";
 import type { AgentContextAttachment } from "@/ee/agent-chat/agent-context";
 import { agentContextAttachmentKey } from "@/ee/agent-chat/agent-context";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { useTranslations } from "next-intl";
-import { Sparkles } from "lucide-react";
 import { ViewAiAction } from "@/components/data-view/views/view-ai-action";
 import { AppModalAction } from "@/components/modal/app-modal-action";
 
-export const RecordAiAction = observer(function RecordAiAction({
-  context,
-  active = true,
-  registerContext = false,
-  iconOnly = false,
-  className,
-}: {
+type Props = {
   context: AgentContextAttachment;
   active?: boolean;
   registerContext?: boolean;
-  /** Renders the overlay header icon action used next to an overlay's Close button. */
-  iconOnly?: boolean;
-  className?: string;
-}) {
-  const t = useTranslations();
+};
+
+/** Registers the record context for the assistant and returns the Ask AI handler, or null when unavailable. */
+function useRecordAiAction({ context, active = true, registerContext = false }: Props) {
   const root = useRootStore();
   const agentChatStore = root.agentChatEnabled ? root.agentChatStore : null;
   const pathname = usePathname();
@@ -37,21 +30,28 @@ export const RecordAiAction = observer(function RecordAiAction({
     return agentChatStore.contextRegistry.register(pathname, () => [{ context, pageRoute: pathname }]);
   }, [active, registerContext, agentChatStore, key, pathname, serialized]);
   if (!active || !agentChatStore || agentChatStore.enabled === false) return null;
-  if (iconOnly) {
-    return (
-      <AppModalAction
-        anchorId="record-ask-ai"
-        icon={Sparkles}
-        id="record-ask-ai"
-        label={t("DataView.views.askAi")}
-        onClick={() => agentChatStore.openWithContextDraft({ context, draft: "", pageRoute: pathname })}
-      />
-    );
-  }
-  return (
-    <ViewAiAction
-      className={className}
-      onClick={() => agentChatStore.openWithContextDraft({ context, draft: "", pageRoute: pathname })}
+  return () => agentChatStore.openWithContextDraft({ context, draft: "", pageRoute: pathname });
+}
+
+export const RecordAiAction = observer(function RecordAiAction({
+  className,
+  ...props
+}: Props & { className?: string }) {
+  const askAi = useRecordAiAction(props);
+  return askAi ? <ViewAiAction className={className} onClick={askAi} /> : null;
+});
+
+/** Icon-only Ask AI for an overlay header action rail. */
+export const RecordAiIconAction = observer(function RecordAiIconAction(props: Props) {
+  const t = useTranslations();
+  const askAi = useRecordAiAction(props);
+  return askAi ? (
+    <AppModalAction
+      anchorId="record-ask-ai"
+      icon={Sparkles}
+      id="record-ask-ai"
+      label={t("DataView.views.askAi")}
+      onClick={askAi}
     />
-  );
+  ) : null;
 });

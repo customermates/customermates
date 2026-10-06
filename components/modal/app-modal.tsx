@@ -10,7 +10,6 @@ import { VisuallyHidden } from "radix-ui";
 
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from "@/components/ui/drawer";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { OVERLAY_TOPMOST_LAYER_CLASS } from "@/components/ui/overlay-contract";
 import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
 import { cn } from "@/core/utils/cn";
@@ -18,7 +17,7 @@ import { useIsWiderThan } from "@/hooks/use-media-query";
 import { useClientReady } from "@/hooks/use-client-ready";
 
 import { UnsavedChangesGuard } from "./unsaved-changes-guard";
-import { AppModalAction, APP_MODAL_ACTION_RAIL_CLASS } from "./app-modal-action";
+import { AppModalAction, AppModalActionRail, APP_MODAL_ACTION_RAIL_CLASS } from "./app-modal-action";
 import { keepOpenForAssistantSurface, releaseFocusToAssistantSurface } from "./assistant-surface";
 
 export type AppModalActions =
@@ -77,18 +76,6 @@ function focusFirstContentControl(event: Event) {
     return;
   }
   content.focus({ preventScroll: true });
-}
-
-function AppModalActionRail({ actions }: { actions: readonly AppModalActionProps[] }) {
-  return (
-    <TooltipProvider>
-      <div className={APP_MODAL_ACTION_RAIL_CLASS} data-slot="app-modal-actions">
-        {actions.map((action) => (
-          <AppModalAction key={action.id} {...action} />
-        ))}
-      </div>
-    </TooltipProvider>
-  );
 }
 
 export const AppModal = observer((props: Props) => {
@@ -167,7 +154,13 @@ export const AppModal = observer((props: Props) => {
               {description ? <DialogDescription>{description}</DialogDescription> : null}
             </VisuallyHidden.Root>
 
-            {hasActions ? <AppModalActionRail actions={actions} /> : null}
+            {hasActions ? (
+              <AppModalActionRail className={APP_MODAL_ACTION_RAIL_CLASS}>
+                {actions.map((action) => (
+                  <AppModalAction key={action.id} {...action} />
+                ))}
+              </AppModalActionRail>
+            ) : null}
 
             {children}
           </DialogContent>
@@ -193,7 +186,13 @@ export const AppModal = observer((props: Props) => {
               {description ? <DrawerDescription>{description}</DrawerDescription> : null}
             </VisuallyHidden.Root>
 
-            {hasActions ? <AppModalActionRail actions={actions} /> : null}
+            {hasActions ? (
+              <AppModalActionRail className={APP_MODAL_ACTION_RAIL_CLASS}>
+                {actions.map((action) => (
+                  <AppModalAction key={action.id} {...action} />
+                ))}
+              </AppModalActionRail>
+            ) : null}
 
             {children}
           </DrawerContent>

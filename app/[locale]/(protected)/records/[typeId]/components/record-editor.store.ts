@@ -133,6 +133,16 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
     this.refreshGeneration += 1;
     return true;
   }
+  /** True while the record has work in flight or unsaved edits, so destructive actions must wait. */
+  get isBusy() {
+    return (
+      this.isLoading ||
+      Boolean(this.pendingOperationId) ||
+      this.refreshRequired ||
+      this.hasRelatedDraft ||
+      this.hasUnsavedChanges
+    );
+  }
   get isReadOnly() {
     if (this.pendingOperationId || this.refreshRequired || this.conflicts.length || this.hasRelatedDraft) return true;
     return this.record !== null

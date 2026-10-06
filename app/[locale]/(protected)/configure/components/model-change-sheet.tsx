@@ -10,7 +10,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetBody, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
-import { OverlayHeaderActions } from "@/components/modal/overlay-header-actions";
+import { AppModalActionRail } from "@/components/modal/app-modal-action";
 import { UnsavedChangesGuard } from "@/components/modal/unsaved-changes-guard";
 import { keepOpenForAssistantSurface, releaseFocusToAssistantSurface } from "@/components/modal/assistant-surface";
 import { runUserAction } from "@/core/errors/report-application-error";
@@ -110,7 +110,7 @@ export const ModelChangeSheet = observer(function ModelChangeSheet({
           <SheetHeader className="flex-row items-center justify-between gap-3 px-6">
             <SheetTitle className="min-w-0 flex-1 truncate text-lg">{title}</SheetTitle>
 
-            {headerActions && <OverlayHeaderActions className="self-center">{headerActions}</OverlayHeaderActions>}
+            {headerActions && <AppModalActionRail className="self-center">{headerActions}</AppModalActionRail>}
 
             {actions}
           </SheetHeader>

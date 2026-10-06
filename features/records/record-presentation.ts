@@ -1,11 +1,10 @@
-import type { ChipColor } from "@/constants/chip-colors";
 import type { Filter, FilterableField, GetQueryParams } from "@/core/base/base-get.schema";
 import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
 import type { DataViewState } from "@/core/data-view/data-view-state.schema";
 import type { RecordDto, RecordField, RecordRelationship, RecordScalar, RecordType } from "./record-model.schema";
 import type { RecordQuery } from "./record-query.schema";
 
-import { CHIP_COLORS } from "@/constants/chip-colors";
+import { toChipColor } from "@/constants/chip-colors";
 import { FilterOperatorKey, ViewMode } from "@/core/base/base-query-builder";
 import {
   parseRelationshipColumnKey,
@@ -33,7 +32,7 @@ export function recordColumnPresentation(field: RecordField): ColumnPresentation
             field.behavior.kind === "input" &&
             field.behavior.defaultValue?.kind === "select" &&
             field.behavior.defaultValue.value === option.id,
-          color: CHIP_COLORS.includes(option.color as ChipColor) ? (option.color as ChipColor) : "secondary",
+          color: toChipColor(option.color),
         })),
       },
     };

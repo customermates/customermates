@@ -11,7 +11,7 @@ import {
   OVERLAY_ICON_CONTROL_DESTRUCTIVE_CLASS,
   OVERLAY_ICON_CONTROL_NEUTRAL_CLASS,
 } from "@/components/ui/overlay-contract";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { runUserAction } from "@/core/errors/report-application-error";
 
 export type AppModalActionVariant = "neutral" | "destructive";
@@ -134,5 +134,31 @@ export function AppModalAction(props: AppModalActionProps) {
 
       <TooltipContent>{tooltip ?? label}</TooltipContent>
     </Tooltip>
+  );
+}
+
+/**
+ * The one overlay header action rail. In flow by default (place it last in a header row whose right padding
+ * clears Close); AppModal passes APP_MODAL_ACTION_RAIL_CLASS to pin it beside Close instead.
+ */
+export function AppModalActionRail({
+  id,
+  className,
+  children,
+}: {
+  id?: string;
+  className?: string;
+  children: ReactNode;
+}) {
+  return (
+    <TooltipProvider>
+      <div
+        className={cn("flex min-h-9 shrink-0 items-center gap-2 self-start empty:hidden", className)}
+        data-slot="app-modal-actions"
+        id={id}
+      >
+        {children}
+      </div>
+    </TooltipProvider>
   );
 }

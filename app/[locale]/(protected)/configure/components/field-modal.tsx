@@ -16,7 +16,7 @@ import type {
 import type { ConfigurationChange, ConfigurationPreview } from "@/features/records/configuration.schema";
 
 import { RecordConfigurationPreview } from "@/components/records/record-configuration-preview";
-import { RecordAiAction } from "@/app/components/agent-chat/record-ai-action";
+import { RecordAiIconAction } from "@/app/components/agent-chat/record-ai-action";
 import { RecordOperationProgress } from "@/components/records/record-operation-progress";
 import { AppForm } from "@/components/forms/form-context";
 import { FormAutocompleteCurrency } from "@/components/forms/form-autocomplete-currency";
@@ -343,8 +343,7 @@ export const FieldModal = observer(function FieldModal({ store }: { store: Field
   return (
     <ModelChangeSheet
       headerActions={
-        <RecordAiAction
-          iconOnly
+        <RecordAiIconAction
           registerContext
           active={store.isOpen}
           context={{
