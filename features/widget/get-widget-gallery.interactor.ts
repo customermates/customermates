@@ -27,7 +27,7 @@ export class GetWidgetGalleryInteractor extends AuthenticatedInteractor<void, Wi
 
   async invoke(): Validated<WidgetGallery> {
     const translators = await Promise.all(APP_LOCALES.map((locale) => getTranslator(locale)));
-    const closedTaskLabels = translators.flatMap((t) => [
+    const closedLabels = translators.flatMap((t) => [
       t("Common.defaultData.task.options.done"),
       t("Common.defaultData.task.options.archived"),
     ]);
@@ -36,7 +36,7 @@ export class GetWidgetGalleryInteractor extends AuthenticatedInteractor<void, Wi
         const [model, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
         if (!policy.actor) return failAuthorization(CustomErrorCode.permissionDenied);
         const readable = (typeId: string) => policy.allowed(typeId, "readAll") || policy.allowed(typeId, "readOwn");
-        const templates = resolveWidgetGallery(this.companyId, model, closedTaskLabels).filter((template) => {
+        const templates = resolveWidgetGallery(model, closedLabels).filter((template) => {
           const measure = template.measure;
           let typeId = measure.source.typeId;
           const types = [typeId];

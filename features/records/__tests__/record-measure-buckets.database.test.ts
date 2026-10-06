@@ -688,17 +688,15 @@ describeDatabase("time-bucketed record measures", () => {
     const workspace = await f.run(() => f.gallery.invoke());
     expect(workspace.ok).toBe(true);
     if (!workspace.ok) return;
-    const byKey = new Map(workspace.data.templates.map((template) => [template.key, template]));
-    expect([...byKey.keys()]).toEqual([
-      "openPipeline",
-      "dealsByStage",
-      "wonValuePerMonth",
-      "topOrganizationsByRevenue",
-      "openTasksPerAssignee",
-    ]);
+    const byKey = new Map(
+      workspace.data.templates
+        .filter((template) => template.measure.source.typeId === f.deal)
+        .map((template) => [template.recipe, template]),
+    );
+    expect([...byKey.keys()]).toEqual(["openValueTotal", "stageFunnel", "wonValueOverTime", "topRelatedByWonValue"]);
     const won = [f.id("deal.stage.won")];
     const lost = [f.id("deal.stage.lost")];
-    expect(byKey.get("openPipeline")).toMatchObject({
+    expect(byKey.get("openValueTotal")).toMatchObject({
       displayOptions: { displayType: DisplayType.number },
       measure: {
         aggregation: "sum",
@@ -716,38 +714,26 @@ describeDatabase("time-bucketed record measures", () => {
         },
       },
     });
-    expect(byKey.get("dealsByStage")).toMatchObject({
+    expect(byKey.get("stageFunnel")).toMatchObject({
       displayOptions: { displayType: DisplayType.funnelChart },
       measure: { aggregation: "count", groupBy: { fieldId: stage.id } },
     });
-    expect(byKey.get("wonValuePerMonth")).toMatchObject({
+    expect(byKey.get("wonValueOverTime")).toMatchObject({
       displayOptions: { displayType: DisplayType.areaChart },
       measure: { groupBy: { fieldId: f.closeDate.id, dateInterval: "month" }, groupLimit: 1000 },
     });
-    expect(byKey.get("topOrganizationsByRevenue")).toMatchObject({
+    expect(byKey.get("topRelatedByWonValue")).toMatchObject({
       displayOptions: { displayType: DisplayType.rankedTable },
       measure: {
         groupBy: { path: [{ relationId: f.id("deal.organizations"), direction: "outgoing" }], fieldId: null },
       },
     });
-    expect(byKey.get("openTasksPerAssignee")).toMatchObject({
-      displayOptions: { displayType: DisplayType.horizontalBarChart },
-      measure: {
-        source: {
-          typeId: f.id("task"),
-          filters: [
-            {
-              operator: "notIn",
-              values: [f.id("task.status.done"), f.id("task.status.archived")].map((value) => ({
-                kind: "select",
-                value,
-              })),
-            },
-          ],
-        },
-        groupBy: { fieldId: "system:assignedTo" },
-      },
-    });
+    // Task closure comes from translated option labels, which this fixture leaves as raw keys; see widget-gallery.test.ts.
+    expect(
+      workspace.data.templates
+        .filter((template) => template.measure.source.typeId === f.id("task"))
+        .map((template) => template.recipe),
+    ).toEqual(["stageFunnel"]);
     for (const template of workspace.data.templates) {
       const result = await f.run(() => f.measure.invoke(template.measure));
       expect(result.ok, template.key).toBe(true);
@@ -755,14 +741,17 @@ describeDatabase("time-bucketed record measures", () => {
 
     const crm = await fixture("crm");
     const plain = await crm.run(() => crm.gallery.invoke());
-    expect(plain.ok && plain.data.templates.map((template) => template.key)).toEqual([
-      "openPipeline",
-      "dealsByStage",
-      "wonValuePerMonth",
-      "topOrganizationsByRevenue",
-    ]);
+    const dealRecipes = (result: typeof plain) =>
+      result.ok
+        ? result.data.templates
+            .filter((template) => template.measure.source.typeId === crm.deal)
+            .map((template) => template.recipe)
+        : [];
+    expect(dealRecipes(plain)).toEqual(["openValueTotal", "stageFunnel", "wonValueOverTime", "topRelatedByWonValue"]);
     if (plain.ok) {
-      expect(plain.data.templates.find((template) => template.key === "openPipeline")?.measure.source.filters).toEqual([
+      expect(
+        plain.data.templates.find((template) => template.recipe === "openValueTotal")?.measure.source.filters,
+      ).toEqual([
         {
           fieldId: crm.id("deal.stage"),
           operator: "notIn",
@@ -775,10 +764,6 @@ describeDatabase("time-bucketed record measures", () => {
       runInTransaction(() => crm.repo.setGrants(crm.deal, [{ roleId: crm.memberRole.id, actions: ["readOwn"] }])),
     );
     const scoped = await crm.run(() => crm.gallery.invoke(), crm.member);
-    expect(scoped.ok && scoped.data.templates.map((template) => template.key)).toEqual([
-      "openPipeline",
-      "dealsByStage",
-      "wonValuePerMonth",
-    ]);
+    expect(dealRecipes(scoped)).toEqual(["openValueTotal", "stageFunnel", "wonValueOverTime"]);
   }, 120_000);
 });

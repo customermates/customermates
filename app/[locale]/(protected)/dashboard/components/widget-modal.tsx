@@ -40,7 +40,7 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { RecordWidgetEditor } from "./record-widget-editor";
 import { WidgetDisplayTypePicker } from "./widget-display-type-picker";
 import { WIDGET_EDITOR_GRID_CLASS } from "./widget-editor-layout";
-import { WidgetStarterPicker } from "./widget-starter-picker";
+import { WidgetStarterPicker, useStarterText } from "./widget-starter-picker";
 
 function WidgetModalSkeleton() {
   const t = useTranslations();
@@ -69,6 +69,7 @@ export const WidgetModal = observer(() => {
   const { widgetModalStore } = useRootStore();
   const { showDeleteConfirmation } = useDeleteConfirmation();
   const { resolvedTheme } = useTheme();
+  const starterText = useStarterText();
   const { form, canManage, isDisabled, companyWideWidgets } = widgetModalStore;
   const chartColors = getChartColors(resolvedTheme);
   const isCreate = !form.id;
@@ -326,10 +327,7 @@ export const WidgetModal = observer(() => {
                     widgetModalStore.recordTypes?.types.find((type) => type.id === typeId)?.pluralLabel
                   }
                   onSelectGalleryTemplate={(template) =>
-                    widgetModalStore.startFromGallery(
-                      template,
-                      t(`Dashboard.widgetGallery.templates.${template.key}.name`),
-                    )
+                    widgetModalStore.startFromGallery(template, starterText(template).name)
                   }
                   onSelectKind={(kind) => widgetModalStore.startFromKind(kind, t("Dashboard.activityWidget.title"))}
                   onSelectTemplate={(id) => runUserAction(() => widgetModalStore.loadTemplate(id))}

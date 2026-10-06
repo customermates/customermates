@@ -11,6 +11,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/core/utils/cn";
 import { DisplayType } from "@/features/widget/widget.schema";
+import { WIDGET_GALLERY_CREATED_AT_LABEL } from "@/features/widget/widget-gallery";
 import { ChartTypeIllustration } from "./widget-display-type-picker";
 
 type Props = {
@@ -23,6 +24,28 @@ type Props = {
   onSelectKind: (kind: WidgetKind) => void;
   onSelectTemplate: (id: string) => void;
 };
+
+/** Localized name and description of a starter, filled with the labels of the data model it was derived from. */
+export function useStarterText() {
+  const t = useTranslations();
+  return (template: WidgetGalleryTemplate) => {
+    const { labels } = template;
+    const values = {
+      type: labels.type,
+      field: labels.field ?? "",
+      group: labels.group ?? "",
+      related: labels.related ?? "",
+      date:
+        labels.date === WIDGET_GALLERY_CREATED_AT_LABEL
+          ? t("Dashboard.widgetGallery.creationDate")
+          : (labels.date ?? ""),
+    };
+    return {
+      name: t(`Dashboard.widgetGallery.recipes.${template.recipe}.name`, values),
+      description: t(`Dashboard.widgetGallery.recipes.${template.recipe}.description`, values),
+    };
+  };
+}
 
 export function ActivityTimelineIllustration({ className }: { className?: string }) {
   return (
@@ -129,6 +152,7 @@ export function WidgetStarterPicker({
   onSelectTemplate,
 }: Props) {
   const t = useTranslations();
+  const starterText = useStarterText();
 
   return (
     <div className="flex min-w-0 flex-col gap-6">
@@ -138,17 +162,19 @@ export function WidgetStarterPicker({
           id="widget-gallery"
           title={t("Dashboard.widgetGallery.title")}
         >
-          {gallery.map((template) => {
-            const source = typeLabel(template.measure.source.typeId);
+          {gallery.map((template, index) => {
+            const repeat = gallery.slice(0, index).filter((other) => other.recipe === template.recipe).length;
+            const source = typeLabel(template.measure.source.typeId) ?? template.labels.type;
+            const text = starterText(template);
             return (
               <ChooserCard
                 key={template.key}
-                description={t(`Dashboard.widgetGallery.templates.${template.key}.description`)}
+                description={text.description}
                 disabled={disabled}
-                id={`widget-gallery-${template.key}`}
-                meta={source && <Badge variant="secondary">{source}</Badge>}
+                id={`widget-gallery-${template.recipe}${repeat ? `-${repeat + 1}` : ""}`}
+                meta={<Badge variant="secondary">{source}</Badge>}
                 preview={<ChartTypeIllustration className="size-full" type={template.displayOptions.displayType} />}
-                title={t(`Dashboard.widgetGallery.templates.${template.key}.name`)}
+                title={text.name}
                 onSelect={() => onSelectGalleryTemplate(template)}
               />
             );

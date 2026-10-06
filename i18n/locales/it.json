@@ -1851,27 +1851,48 @@
       }
     },
     "widgetGallery": {
+      "creationDate": "data di creazione",
       "description": "Suggerimenti creati dai tipi di record e dai campi del tuo spazio di lavoro. Puoi modificare tutto prima di salvare.",
-      "templates": {
-        "dealsByStage": {
-          "description": "Trattative in ogni fase, nell’ordine delle fasi, con la conversione tra i passaggi.",
-          "name": "Trattative per fase"
+      "recipes": {
+        "countBySelect": {
+          "description": "Numero di {type} per ogni {group}.",
+          "name": "{type} per {group}"
         },
-        "openPipeline": {
-          "description": "Valore totale delle trattative né vinte né perse.",
-          "name": "Pipeline aperta"
+        "countPerMember": {
+          "description": "Numero di {type} per ogni {group}.",
+          "name": "{type} per {group}"
         },
-        "openTasksPerAssignee": {
-          "description": "Attività non completate né archiviate, conteggiate per ogni utente assegnato.",
-          "name": "Attività aperte per assegnatario"
+        "openCountPerAssignee": {
+          "description": "{type} che non sono in un {group} chiuso, contati per ogni utente assegnato.",
+          "name": "{type} aperti per assegnatario"
         },
-        "topOrganizationsByRevenue": {
-          "description": "Valore delle trattative vinte per organizzazione collegata, in classifica con la quota sul totale.",
-          "name": "Organizzazioni principali per fatturato"
+        "openValueTotal": {
+          "description": "Totale di {field} dei {type} che non sono in un {group} chiuso.",
+          "name": "{field} aperto"
         },
-        "wonValuePerMonth": {
-          "description": "Valore delle trattative vinte al mese, in base al primo campo data della trattativa o alla data di creazione.",
-          "name": "Valore vinto al mese"
+        "stageFunnel": {
+          "description": "{type} in ogni {group}, in ordine, con la conversione tra le fasi.",
+          "name": "{type} per {group}"
+        },
+        "topRelatedByValue": {
+          "description": "{related} ordinati per il {field} dei loro {type} collegati, con la quota di ciascuno sul totale.",
+          "name": "Migliori {related} per {field}"
+        },
+        "topRelatedByWonValue": {
+          "description": "{related} ordinati per il {field} dei loro {type} vinti, con la quota di ciascuno sul totale.",
+          "name": "Migliori {related} per {field} vinto"
+        },
+        "valueOverTime": {
+          "description": "{field} dei {type} al mese, in base a {date}.",
+          "name": "{field} al mese"
+        },
+        "valueTotal": {
+          "description": "Somma di {field} su tutti i {type}.",
+          "name": "{field} totale"
+        },
+        "wonValueOverTime": {
+          "description": "{field} dei {type} vinti al mese, in base a {date}.",
+          "name": "{field} vinto al mese"
         }
       },
       "title": "Consigliati per i tuoi dati"
@@ -3361,7 +3382,6 @@
     "overall": "Totale: {value}",
     "preview": "Anteprima della misura",
     "previewFailed": "Impossibile caricare l’anteprima. Riprova.",
-    "previewHelp": "L’anteprima usa i record attuali e i tuoi permessi di accesso.",
     "quarterLabel": "T{quarter} {year}",
     "ranked": {
       "group": "Gruppo",

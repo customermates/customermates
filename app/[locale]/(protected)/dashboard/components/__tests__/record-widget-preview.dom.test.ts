@@ -77,9 +77,7 @@ function readyPreview(revision = model.revision) {
   return { ok: true, data: { result: { schemaRevision: revision, groups: [], total: 0 }, groupOptions: [] } };
 }
 async function requestPreview() {
-  const button = [...container.querySelectorAll("button")].find(
-    (element) => element.textContent === "RecordWidgets.preview",
-  );
+  const button = container.querySelector<HTMLButtonElement>('button[aria-label="RecordWidgets.preview"]');
   if (!button) throw new Error("Expected the preview control");
   expect(button.disabled).toBe(false);
   await act(async () => {

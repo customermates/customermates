@@ -10,11 +10,10 @@ import type { WidgetKind } from "@/generated/prisma";
 
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
 
 import { DASHBOARD_GRID_MARGIN, DASHBOARD_ROW_HEIGHT, GRID_COLS } from "./grid.constants";
-import { widgetLayoutGeometry } from "./widget-layout";
+import { type WidgetLayoutGeometry, widgetLayoutGeometry } from "./widget-layout";
 
 const FALLBACK_GRID_WIDTH = 1120;
 
@@ -40,8 +39,10 @@ function useDashboardGridWidth() {
 type Props = {
   children: ReactNode;
   error?: string | null;
+  geometry?: WidgetLayoutGeometry;
   kind: WidgetKind;
   loading: boolean;
+  name: string;
   refreshDisabled?: boolean;
   refreshLabel: string;
   subtitle?: ReactNode;
@@ -50,14 +51,23 @@ type Props = {
 };
 
 export const WidgetPreviewFrame = observer(
-  ({ children, error, kind, loading, refreshDisabled, refreshLabel, subtitle, toolbar, onRefresh }: Props) => {
+  ({
+    children,
+    error,
+    geometry: layout,
+    kind,
+    loading,
+    name,
+    refreshDisabled,
+    refreshLabel,
+    subtitle,
+    toolbar,
+    onRefresh,
+  }: Props) => {
     const t = useTranslations();
-    const { widgetModalStore, widgetsStore } = useRootStore();
-    const form = widgetModalStore.form;
-    const saved = form.id ? widgetsStore.items.find((widget) => widget.id === form.id)?.layout?.lg : undefined;
-    const geometry = widgetLayoutGeometry(kind, GRID_COLS.lg, saved);
+    const geometry = layout ?? widgetLayoutGeometry(kind, GRID_COLS.lg);
     const size = widgetPixelSize(useDashboardGridWidth(), geometry.w, geometry.h);
-    const title = form.name.trim() || t("Dashboard.widgetEditor.preview.untitled");
+    const title = name.trim() || t("Dashboard.widgetEditor.preview.untitled");
 
     return (
       <section aria-labelledby="widget-preview-heading" className="min-w-0 space-y-3" data-slot="widget-preview-frame">

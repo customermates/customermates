@@ -273,8 +273,10 @@ export const RecordActivityWidgetEditor = observer(
 
         <WidgetPreviewFrame
           error={previewError ? t("Dashboard.activityWidget.error") : null}
+          geometry={store.previewGeometry}
           kind={form.kind}
           loading={loading}
+          name={form.name}
           refreshDisabled={formDisabled}
           refreshLabel={t("Dashboard.widgetEditor.preview.title")}
           onRefresh={() => runUserAction(async () => runActivityPreview(true))}

@@ -484,11 +484,11 @@ test("adds every starter template resolved against the model and keeps them edit
   const wonTotal = won.reduce((sum, deal) => sum + dealValue(deal), 0);
 
   const templates = [
-    { key: "openPipeline", name: "Open pipeline", displayType: "number" },
-    { key: "dealsByStage", name: "Deals by stage", displayType: "funnelChart" },
-    { key: "wonValuePerMonth", name: "Won value per month", displayType: "areaChart" },
-    { key: "topOrganizationsByRevenue", name: "Top organizations by revenue", displayType: "rankedTable" },
-    { key: "openTasksPerAssignee", name: "Open tasks per assignee", displayType: "horizontalBarChart" },
+    { key: "openValueTotal", name: "Open Value", displayType: "number" },
+    { key: "stageFunnel", name: "Deals by Stage", displayType: "funnelChart" },
+    { key: "wonValueOverTime", name: "Won Value per month", displayType: "areaChart" },
+    { key: "topRelatedByWonValue", name: "Top Organizations by won Value", displayType: "rankedTable" },
+    { key: "openCountPerAssignee", name: "Open Tasks per assignee", displayType: "horizontalBarChart" },
   ];
   for (const template of templates) {
     await page.locator("#dashboard-add-widget").click();
@@ -506,7 +506,7 @@ test("adds every starter template resolved against the model and keeps them edit
     value: null,
     values: values.map((value) => ({ kind: "select", value })),
   });
-  expect((await readWidget(database, companyId, "Open pipeline")).measure).toMatchObject({
+  expect((await readWidget(database, companyId, "Open Value")).measure).toMatchObject({
     source: {
       typeId: id("deal"),
       filters: [{ fieldId: id("deal.stage"), ...select("notIn", [id("deal.stage.won"), id("deal.stage.lost")]) }],
@@ -515,27 +515,27 @@ test("adds every starter template resolved against the model and keeps them edit
     valueFieldId: id("deal.totalValue"),
     groupBy: null,
   });
-  expect((await readWidget(database, companyId, "Deals by stage")).measure).toMatchObject({
+  expect((await readWidget(database, companyId, "Deals by Stage")).measure).toMatchObject({
     source: { filters: [{ fieldId: id("deal.stage"), ...select("notIn", [id("deal.stage.lost")]) }] },
     aggregation: "count",
     groupBy: { path: [], fieldId: id("deal.stage") },
   });
-  expect((await readWidget(database, companyId, "Won value per month")).measure).toMatchObject({
+  expect((await readWidget(database, companyId, "Won Value per month")).measure).toMatchObject({
     source: { filters: [{ fieldId: id("deal.stage"), ...select("in", [id("deal.stage.won")]) }] },
     aggregation: "sum",
     groupBy: { path: [], fieldId: closeDateId, dateInterval: "month", timeZone: TIME_ZONE },
     groupLimit: 1000,
   });
-  expect((await readWidget(database, companyId, "Top organizations by revenue")).measure).toMatchObject({
+  expect((await readWidget(database, companyId, "Top Organizations by won Value")).measure).toMatchObject({
     groupBy: { path: [{ relationId: id("deal.organizations"), direction: "outgoing" }], fieldId: null },
   });
-  expect((await readWidget(database, companyId, "Open tasks per assignee")).measure).toMatchObject({
+  expect((await readWidget(database, companyId, "Open Tasks per assignee")).measure).toMatchObject({
     source: { typeId: id("task"), filters: [{ fieldId: statusId, ...select("notIn", ["done", "archived"]) }] },
     aggregation: "count",
     groupBy: { path: [], fieldId: "system:assignedTo" },
   });
 
-  const pipeline = card(page, "Open pipeline");
+  const pipeline = card(page, "Open Value");
   await expect(pipeline.locator('[data-slot="widget-number"] p').first()).toHaveText(
     money(open.reduce((sum, deal) => sum + dealValue(deal), 0)),
   );
@@ -544,7 +544,7 @@ test("adds every starter template resolved against the model and keeps them edit
   const stages = ["new", "qualified", "proposal", "won"] as const;
   const stageCounts = stages.map((stage) => DEALS.filter((deal) => deal.stage === stage).length);
   await expect
-    .poll(() => definitionList(card(page, "Deals by stage")))
+    .poll(() => definitionList(card(page, "Deals by Stage")))
     .toEqual(
       stages.map((stage, index) => [
         STAGE_LABELS[stage],
@@ -561,7 +561,7 @@ test("adds every starter template resolved against the model and keeps them edit
     money(won.filter((deal) => deal.close?.startsWith(month)).reduce((sum, deal) => sum + dealValue(deal), 0)),
   ]);
   expect(monthly.map(([, value]) => value)).toEqual([money(2250.5), money(0), money(0), money(1501)]);
-  const series = card(page, "Won value per month");
+  const series = card(page, "Won Value per month");
   await expect.poll(() => definitionList(series)).toEqual(monthly);
   await expect(series.locator('[data-slot="widget-chart-notes"]')).toHaveText(
     `${won.filter((deal) => !deal.close).length} record has no date and is not shown.`,
@@ -575,10 +575,10 @@ test("adds every starter template resolved against the model and keeps them edit
     .sort((left, right) => right[1] - left[1])
     .map(([name, value], index) => [String(index + 1), name, money(value), percent(value / wonTotal)]);
   expect(ranked.map((row) => row[1])).toEqual(["Acme", "Gamma", "Beta"]);
-  await expect.poll(() => rankedRows(card(page, "Top organizations by revenue"))).toEqual(ranked);
-  await expect(card(page, "Top organizations by revenue")).toContainText(`Overall: ${money(wonTotal)}`);
+  await expect.poll(() => rankedRows(card(page, "Top Organizations by won Value"))).toEqual(ranked);
+  await expect(card(page, "Top Organizations by won Value")).toContainText(`Overall: ${money(wonTotal)}`);
 
-  const tasks = card(page, "Open tasks per assignee");
+  const tasks = card(page, "Open Tasks per assignee");
   await expect(tasks.locator("svg.recharts-surface")).toBeVisible();
   await expect
     .poll(async () => Object.fromEntries(await definitionList(tasks)))
@@ -592,7 +592,7 @@ test("adds every starter template resolved against the model and keeps them edit
   await expect(tasks).toContainText("Overall: 5");
   await expect(tasks).toContainText("A record can appear in several groups.");
 
-  await openEditor(page, "Open pipeline");
+  await openEditor(page, "Open Value");
   await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Open deal count");
   await selectOption(page, "Measure", "Count");
   await dialog.getByRole("button", { name: "Save changes", exact: true }).click();
@@ -607,10 +607,10 @@ test("adds every starter template resolved against the model and keeps them edit
   await page.reload();
   for (const name of [
     "Open deal count",
-    "Deals by stage",
-    "Won value per month",
-    "Top organizations by revenue",
-    "Open tasks per assignee",
+    "Deals by Stage",
+    "Won Value per month",
+    "Top Organizations by won Value",
+    "Open Tasks per assignee",
   ]) {
     const widget = card(page, name);
     await widget.scrollIntoViewIfNeeded();
@@ -625,7 +625,7 @@ test("adds every starter template resolved against the model and keeps them edit
   await keepShot(page, testInfo, "starter-widgets-light");
   await page.emulateMedia({ colorScheme: "dark" });
   await page.reload();
-  await expect(card(page, "Won value per month").locator("svg.recharts-surface")).toBeVisible();
+  await expect(card(page, "Won Value per month").locator("svg.recharts-surface")).toBeVisible();
   await keepShot(page, testInfo, "starter-widgets-dark");
   expect(errors).toEqual([]);
 });

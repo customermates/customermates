@@ -1851,27 +1851,48 @@
       }
     },
     "widgetGallery": {
+      "creationDate": "creation date",
       "description": "Suggestions built from the record types and fields in your workspace. You can change everything before saving.",
-      "templates": {
-        "dealsByStage": {
-          "description": "Deals in each stage, in stage order, with step-to-step conversion.",
-          "name": "Deals by stage"
+      "recipes": {
+        "countBySelect": {
+          "description": "Number of {type} for each {group}.",
+          "name": "{type} by {group}"
         },
-        "openPipeline": {
-          "description": "Total value of deals that are neither won nor lost.",
-          "name": "Open pipeline"
+        "countPerMember": {
+          "description": "Number of {type} for each {group}.",
+          "name": "{type} per {group}"
         },
-        "openTasksPerAssignee": {
-          "description": "Tasks that are not done or archived, counted for each assigned user.",
-          "name": "Open tasks per assignee"
+        "openCountPerAssignee": {
+          "description": "{type} that are not in a closed {group}, counted for each assigned user.",
+          "name": "Open {type} per assignee"
         },
-        "topOrganizationsByRevenue": {
-          "description": "Won deal value per linked organization, ranked with each share of the total.",
-          "name": "Top organizations by revenue"
+        "openValueTotal": {
+          "description": "Total {field} of {type} that are not in a closed {group}.",
+          "name": "Open {field}"
         },
-        "wonValuePerMonth": {
-          "description": "Value of won deals per month, by the first deal date field or the creation date.",
-          "name": "Won value per month"
+        "stageFunnel": {
+          "description": "{type} in each {group}, in order, with step-to-step conversion.",
+          "name": "{type} by {group}"
+        },
+        "topRelatedByValue": {
+          "description": "{related} ranked by the {field} of their linked {type}, with each share of the total.",
+          "name": "Top {related} by {field}"
+        },
+        "topRelatedByWonValue": {
+          "description": "{related} ranked by the {field} of their won {type}, with each share of the total.",
+          "name": "Top {related} by won {field}"
+        },
+        "valueOverTime": {
+          "description": "{field} of {type} per month, by {date}.",
+          "name": "{field} per month"
+        },
+        "valueTotal": {
+          "description": "Sum of {field} across all {type}.",
+          "name": "Total {field}"
+        },
+        "wonValueOverTime": {
+          "description": "{field} of won {type} per month, by {date}.",
+          "name": "Won {field} per month"
         }
       },
       "title": "Recommended for your data"
@@ -3361,7 +3382,6 @@
     "overall": "Overall: {value}",
     "preview": "Preview measure",
     "previewFailed": "The preview could not be loaded. Try again.",
-    "previewHelp": "Preview uses current records and your access.",
     "quarterLabel": "Q{quarter} {year}",
     "ranked": {
       "group": "Group",

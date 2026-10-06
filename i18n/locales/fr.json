@@ -1851,27 +1851,48 @@
       }
     },
     "widgetGallery": {
+      "creationDate": "date de création",
       "description": "Suggestions créées à partir des types d’enregistrement et des champs de votre espace de travail. Vous pouvez tout modifier avant d’enregistrer.",
-      "templates": {
-        "dealsByStage": {
-          "description": "Les affaires de chaque étape, dans l’ordre des étapes, avec la conversion d’une étape à l’autre.",
-          "name": "Affaires par étape"
+      "recipes": {
+        "countBySelect": {
+          "description": "Nombre de {type} pour chaque {group}.",
+          "name": "{type} par {group}"
         },
-        "openPipeline": {
-          "description": "Valeur totale des affaires ni gagnées ni perdues.",
-          "name": "Pipeline ouvert"
+        "countPerMember": {
+          "description": "Nombre de {type} pour chaque {group}.",
+          "name": "{type} par {group}"
         },
-        "openTasksPerAssignee": {
-          "description": "Tâches ni terminées ni archivées, comptées pour chaque utilisateur assigné.",
-          "name": "Tâches ouvertes par responsable"
+        "openCountPerAssignee": {
+          "description": "{type} qui ne sont pas dans un {group} clôturé, comptés pour chaque utilisateur assigné.",
+          "name": "{type} ouverts par responsable"
         },
-        "topOrganizationsByRevenue": {
-          "description": "Valeur des affaires gagnées par organisation liée, classée avec sa part du total.",
-          "name": "Principales organisations par chiffre d’affaires"
+        "openValueTotal": {
+          "description": "Total de {field} des {type} qui ne sont pas dans un {group} clôturé.",
+          "name": "{field} en cours"
         },
-        "wonValuePerMonth": {
-          "description": "Valeur des affaires gagnées par mois, selon le premier champ de date de l’affaire ou la date de création.",
-          "name": "Valeur gagnée par mois"
+        "stageFunnel": {
+          "description": "{type} à chaque {group}, dans l’ordre, avec la conversion d’une étape à l’autre.",
+          "name": "{type} par {group}"
+        },
+        "topRelatedByValue": {
+          "description": "{related} classés selon le {field} de leurs {type} liés, avec la part de chacun dans le total.",
+          "name": "Meilleurs {related} par {field}"
+        },
+        "topRelatedByWonValue": {
+          "description": "{related} classés selon le {field} de leurs {type} gagnés, avec la part de chacun dans le total.",
+          "name": "Meilleurs {related} par {field} gagné"
+        },
+        "valueOverTime": {
+          "description": "{field} des {type} par mois, selon {date}.",
+          "name": "{field} par mois"
+        },
+        "valueTotal": {
+          "description": "Somme de {field} sur tous les {type}.",
+          "name": "{field} total"
+        },
+        "wonValueOverTime": {
+          "description": "{field} des {type} gagnés par mois, selon {date}.",
+          "name": "{field} gagné par mois"
         }
       },
       "title": "Recommandé pour vos données"
@@ -3361,7 +3382,6 @@
     "overall": "Total : {value}",
     "preview": "Aperçu de la mesure",
     "previewFailed": "Impossible de charger l’aperçu. Réessayez.",
-    "previewHelp": "L’aperçu utilise les enregistrements actuels et vos droits d’accès.",
     "quarterLabel": "T{quarter} {year}",
     "ranked": {
       "group": "Groupe",

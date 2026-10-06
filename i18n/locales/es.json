@@ -1851,27 +1851,48 @@
       }
     },
     "widgetGallery": {
+      "creationDate": "fecha de creación",
       "description": "Sugerencias creadas a partir de los tipos de registro y campos de tu espacio de trabajo. Puedes cambiarlo todo antes de guardar.",
-      "templates": {
-        "dealsByStage": {
-          "description": "Oportunidades en cada etapa, en el orden de las etapas, con la conversión entre pasos.",
-          "name": "Oportunidades por etapa"
+      "recipes": {
+        "countBySelect": {
+          "description": "Número de {type} por cada {group}.",
+          "name": "{type} por {group}"
         },
-        "openPipeline": {
-          "description": "Valor total de las oportunidades que no están ganadas ni perdidas.",
-          "name": "Pipeline abierto"
+        "countPerMember": {
+          "description": "Número de {type} por cada {group}.",
+          "name": "{type} por {group}"
         },
-        "openTasksPerAssignee": {
-          "description": "Tareas que no están completadas ni archivadas, contadas por cada usuario asignado.",
-          "name": "Tareas abiertas por responsable"
+        "openCountPerAssignee": {
+          "description": "{type} que no están en un {group} cerrado, contados por cada usuario asignado.",
+          "name": "{type} abiertos por responsable"
         },
-        "topOrganizationsByRevenue": {
-          "description": "Valor de las oportunidades ganadas por organización vinculada, clasificado con su parte del total.",
-          "name": "Principales organizaciones por ingresos"
+        "openValueTotal": {
+          "description": "Total de {field} de {type} que no están en un {group} cerrado.",
+          "name": "{field} abierto"
         },
-        "wonValuePerMonth": {
-          "description": "Valor de las oportunidades ganadas por mes, según el primer campo de fecha de la oportunidad o la fecha de creación.",
-          "name": "Valor ganado por mes"
+        "stageFunnel": {
+          "description": "{type} en cada {group}, en orden, con la conversión entre pasos.",
+          "name": "{type} por {group}"
+        },
+        "topRelatedByValue": {
+          "description": "{related} ordenados por el {field} de sus {type} vinculados, con la parte de cada uno en el total.",
+          "name": "Principales {related} por {field}"
+        },
+        "topRelatedByWonValue": {
+          "description": "{related} ordenados por el {field} de sus {type} ganados, con la parte de cada uno en el total.",
+          "name": "Principales {related} por {field} ganado"
+        },
+        "valueOverTime": {
+          "description": "{field} de {type} por mes, según {date}.",
+          "name": "{field} por mes"
+        },
+        "valueTotal": {
+          "description": "Suma de {field} en todos los {type}.",
+          "name": "{field} total"
+        },
+        "wonValueOverTime": {
+          "description": "{field} de {type} ganados por mes, según {date}.",
+          "name": "{field} ganado por mes"
         }
       },
       "title": "Recomendado para tus datos"
@@ -3361,7 +3382,6 @@
     "overall": "Total: {value}",
     "preview": "Vista previa de la medida",
     "previewFailed": "No se pudo cargar la vista previa. Inténtalo de nuevo.",
-    "previewHelp": "La vista previa usa los registros actuales y tus permisos.",
     "quarterLabel": "T{quarter} {year}",
     "ranked": {
       "group": "Grupo",

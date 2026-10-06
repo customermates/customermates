@@ -236,8 +236,10 @@ export const RecordWidgetEditor = observer(
 
         <WidgetPreviewFrame
           error={previewError ? t("RecordWidgets.previewFailed") : null}
+          geometry={store.previewGeometry}
           kind={form.kind}
           loading={loading || (model === undefined && !shownPreview)}
+          name={form.name}
           refreshDisabled={!model || !measureValid}
           refreshLabel={t("RecordWidgets.preview")}
           onRefresh={() => runUserAction(() => runMeasurePreview(true))}

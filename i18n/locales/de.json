@@ -1851,27 +1851,48 @@
       }
     },
     "widgetGallery": {
+      "creationDate": "Erstellungsdatum",
       "description": "Vorschläge auf Basis der Datensatztypen und Felder in Ihrem Workspace. Vor dem Speichern können Sie alles anpassen.",
-      "templates": {
-        "dealsByStage": {
-          "description": "Deals je Phase in Phasenreihenfolge, mit Umwandlung von Schritt zu Schritt.",
-          "name": "Deals nach Phase"
+      "recipes": {
+        "countBySelect": {
+          "description": "Anzahl der {type} je {group}.",
+          "name": "{type} nach {group}"
         },
-        "openPipeline": {
-          "description": "Gesamtwert der Deals, die weder gewonnen noch verloren sind.",
-          "name": "Offene Pipeline"
+        "countPerMember": {
+          "description": "Anzahl der {type} je {group}.",
+          "name": "{type} pro {group}"
         },
-        "openTasksPerAssignee": {
-          "description": "Aufgaben, die nicht erledigt oder archiviert sind, gezählt je zugewiesener Person.",
-          "name": "Offene Aufgaben pro zuständiger Person"
+        "openCountPerAssignee": {
+          "description": "{type}, die nicht in einem abgeschlossenen {group} sind, gezählt je zugewiesener Person.",
+          "name": "Offene {type} pro zugewiesener Person"
         },
-        "topOrganizationsByRevenue": {
-          "description": "Gewonnener Dealwert je verknüpfter Organisation, als Rangliste mit Anteil an der Gesamtsumme.",
-          "name": "Top-Organisationen nach Umsatz"
+        "openValueTotal": {
+          "description": "Summe von {field} aller {type}, die nicht in einem abgeschlossenen {group} sind.",
+          "name": "Offener Wert: {field}"
         },
-        "wonValuePerMonth": {
-          "description": "Wert gewonnener Deals pro Monat, nach dem ersten Datumsfeld des Deals oder dem Erstellungsdatum.",
-          "name": "Gewonnener Wert pro Monat"
+        "stageFunnel": {
+          "description": "{type} je {group} in Reihenfolge, mit Umwandlung von Schritt zu Schritt.",
+          "name": "{type} nach {group}"
+        },
+        "topRelatedByValue": {
+          "description": "{related}, gereiht nach {field} ihrer verknüpften {type}, mit Anteil an der Summe.",
+          "name": "Top {related} nach {field}"
+        },
+        "topRelatedByWonValue": {
+          "description": "{related}, gereiht nach {field} ihrer gewonnenen {type}, mit Anteil an der Summe.",
+          "name": "Top {related} nach gewonnenem {field}"
+        },
+        "valueOverTime": {
+          "description": "{field} der {type} pro Monat, nach {date}.",
+          "name": "{field} pro Monat"
+        },
+        "valueTotal": {
+          "description": "Summe von {field} über alle {type}.",
+          "name": "Gesamt: {field}"
+        },
+        "wonValueOverTime": {
+          "description": "{field} gewonnener {type} pro Monat, nach {date}.",
+          "name": "Gewonnen pro Monat: {field}"
         }
       },
       "title": "Empfohlen für Ihre Daten"
@@ -3361,7 +3382,6 @@
     "overall": "Insgesamt: {value}",
     "preview": "Kennzahl prüfen",
     "previewFailed": "Die Vorschau konnte nicht geladen werden. Versuche es erneut.",
-    "previewHelp": "Die Vorschau verwendet aktuelle Datensätze und deine Zugriffsrechte.",
     "quarterLabel": "Q{quarter} {year}",
     "ranked": {
       "group": "Gruppe",
