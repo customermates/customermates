@@ -1825,7 +1825,11 @@
         "title": "Elegir un widget"
       },
       "preview": {
-        "title": "Vista previa"
+        "incomplete": "Completa la configuración de datos para ver una vista previa.",
+        "live": "Vista previa en vivo",
+        "size": "Tamaño en el panel {w} × {h}",
+        "title": "Vista previa",
+        "untitled": "Widget sin título"
       },
       "save": "Guardar cambios",
       "sharing": {
@@ -1837,6 +1841,7 @@
       },
       "tabs": {
         "appearance": "Apariencia",
+        "data": "Datos",
         "filtersLabel": "{count, plural, =0 {Filtros, ninguno activo} =1 {Filtros, 1 activo} other {Filtros, # activos}}"
       },
       "templates": {

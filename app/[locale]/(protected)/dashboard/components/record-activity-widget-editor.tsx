@@ -28,6 +28,15 @@ import { resolveSearchReferencesAction } from "../../search/actions";
 import { getMessagingThreadsAction } from "../../inbox/actions";
 import { discoverWidgetRecordTypesAction } from "../actions";
 import { isRecordActivityWidgetForm } from "./record-widget-form";
+import { WidgetEditorColumns, WidgetEditorSection } from "./widget-editor-layout";
+import { WidgetPreviewFrame } from "./widget-preview-frame";
+import { ActivityTimelineSkeleton } from "@/features/messaging/activities/activity-timeline-skeleton";
+import { reportApplicationError } from "@/core/errors/report-application-error";
+import { useDebouncedValue } from "@/core/utils/use-debounced-value";
+import { cn } from "@/core/utils/cn";
+
+const AUTO_PREVIEW_DELAY_MS = 600;
+const ACTIVITY_PREVIEW_PAGE_SIZE = 10;
 
 type Choice = { id: string; label: string };
 const selectedIds = (value: string | string[] | undefined) =>
@@ -106,9 +115,11 @@ export const RecordActivityWidgetEditor = observer(
     store,
     section,
     appearance,
+    settingsHeader,
   }: {
     store: WidgetModalStore;
     appearance?: ReactNode;
+    settingsHeader?: ReactNode;
     section: "data" | "preview" | "all";
   }) => {
     const t = useTranslations();
@@ -160,6 +171,49 @@ export const RecordActivityWidgetEditor = observer(
     useEffect(() => {
       if (needsAccounts) void root.connectedAccountsStore.ensureLoaded().catch(() => undefined);
     }, [root, needsAccounts]);
+    const runActivityPreview = (explicit: boolean) => {
+      if (!query) return;
+      const parsed = RecordActivityQuerySchema.safeParse(query);
+      if (!parsed.success) {
+        if (explicit) toastZodErrorTree(z.treeifyError(parsed.error));
+        return;
+      }
+      const requestKey = JSON.stringify(query);
+      const generation = ++previewGeneration.current;
+      const isCurrent = () => generation === previewGeneration.current;
+      setLoading(true);
+      setPreviewError(false);
+      return store
+        .runPreview(() =>
+          getRecordActivitiesAction({ ...parsed.data, cursor: null, limit: ACTIVITY_PREVIEW_PAGE_SIZE }),
+        )
+        .then((result) => {
+          if (!result || !isCurrent()) return;
+          if (result.ok) setPreview({ key: requestKey, result: result.data });
+          else {
+            setPreviewError(true);
+            if (explicit) toastZodErrorTree(result.error);
+          }
+        })
+        .catch((error: unknown) => {
+          if (!isCurrent()) return;
+          setPreviewError(true);
+          if (explicit) throw error;
+        })
+        .finally(() => {
+          if (isCurrent()) setLoading(false);
+        });
+    };
+    const runAutoPreview = useRef(runActivityPreview);
+    useEffect(() => {
+      runAutoPreview.current = runActivityPreview;
+    });
+    const autoPreviewKey = (section === "preview" || section === "all") && query && store.isOpen ? previewKey : null;
+    const debouncedAutoPreviewKey = useDebouncedValue(autoPreviewKey, AUTO_PREVIEW_DELAY_MS);
+    useEffect(() => {
+      if (!debouncedAutoPreviewKey || debouncedAutoPreviewKey !== autoPreviewKey) return;
+      void runAutoPreview.current(false)?.catch(reportApplicationError);
+    }, [debouncedAutoPreviewKey, autoPreviewKey, form]);
     if (!isRecordActivityWidgetForm(form) || !query) return null;
     const key = JSON.stringify(query);
     const sources = ACTIVITY_KINDS.map((id) => ({
@@ -209,11 +263,7 @@ export const RecordActivityWidgetEditor = observer(
       </FormAutocomplete>
     );
     const previewContent = (
-      <section className="min-w-0 space-y-3">
-        <h3 className="text-sm font-medium" id="widget-preview-heading">
-          {t("Dashboard.widgetEditor.preview.title")}
-        </h3>
-
+      <div className="min-w-0 space-y-3">
         {form.id && (
           <RecordAiAction
             active={store.isOpen}
@@ -221,49 +271,37 @@ export const RecordActivityWidgetEditor = observer(
           />
         )}
 
-        <Button
-          disabled={formDisabled || loading}
-          type="button"
-          variant="secondary"
-          onClick={() => {
-            const parsed = RecordActivityQuerySchema.safeParse(query);
-            if (!parsed.success) {
-              toastZodErrorTree(z.treeifyError(parsed.error));
-              return;
-            }
-            const generation = ++previewGeneration.current;
-            const isCurrent = () => generation === previewGeneration.current;
-            setLoading(true);
-            setPreviewError(false);
-            runUserAction(() =>
-              store
-                .runPreview(() => getRecordActivitiesAction({ ...parsed.data, cursor: null, limit: 25 }))
-                .then((result) => {
-                  if (!result || !isCurrent()) return;
-                  if (result.ok) setPreview({ key, result: result.data });
-                  else {
-                    setPreviewError(true);
-                    toastZodErrorTree(result.error);
-                  }
-                })
-                .catch(() => {
-                  if (isCurrent()) setPreviewError(true);
-                })
-                .finally(() => {
-                  if (isCurrent()) setLoading(false);
-                }),
-            );
-          }}
+        <WidgetPreviewFrame
+          error={previewError ? t("Dashboard.activityWidget.error") : null}
+          kind={form.kind}
+          loading={loading}
+          refreshDisabled={formDisabled}
+          refreshLabel={t("Dashboard.widgetEditor.preview.title")}
+          onRefresh={() => runUserAction(async () => runActivityPreview(true))}
         >
-          {loading ? t("Loading.text") : t("Dashboard.widgetEditor.preview.title")}
-        </Button>
+          {preview ? (
+            <div
+              className={cn("min-h-0 overflow-hidden transition-opacity", preview.key !== key && "opacity-50")}
+              data-preview-current={preview.key === key}
+            >
+              <ActivitiesList
+                hasMore={false}
+                items={preview.result.items}
+                loading={false}
+                onLoadOlder={() => undefined}
+              />
 
-        {previewError && <p role="alert">{t("Dashboard.activityWidget.error")}</p>}
-
-        {preview?.key === key && (
-          <ActivitiesList hasMore={false} items={preview.result.items} loading={false} onLoadOlder={() => undefined} />
-        )}
-      </section>
+              {preview.result.items.length === 0 && (
+                <p className="py-8 text-center text-sm text-muted-foreground">
+                  {t("Dashboard.activityWidget.noMatches")}
+                </p>
+              )}
+            </div>
+          ) : (
+            <ActivityTimelineSkeleton />
+          )}
+        </WidgetPreviewFrame>
+      </div>
     );
     const filters = query.filters ?? [];
     const dataContent = (
@@ -444,13 +482,20 @@ export const RecordActivityWidgetEditor = observer(
     if (section === "data") return dataContent;
     if (section === "preview") return previewContent;
     return (
-      <div className="space-y-6">
-        {dataContent}
+      <WidgetEditorColumns
+        preview={<section id="widget-config-preview">{previewContent}</section>}
+        settings={
+          <>
+            {settingsHeader}
 
-        {appearance}
+            <WidgetEditorSection id="widget-config-data" title={t("Dashboard.widgetEditor.tabs.data")}>
+              {dataContent}
+            </WidgetEditorSection>
 
-        <section id="widget-config-preview">{previewContent}</section>
-      </div>
+            {appearance}
+          </>
+        }
+      />
     );
   },
 );

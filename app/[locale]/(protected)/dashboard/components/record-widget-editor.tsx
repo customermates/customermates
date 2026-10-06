@@ -31,6 +31,9 @@ import { discoverWidgetRecordTypesAction, previewRecordWidgetAction } from "../a
 import { isRecordWidgetForm } from "./record-widget-form";
 import { browserTimeZone } from "./widget-time-zone";
 import { RecordWidgetChart } from "./record-widget-chart";
+import { WidgetEditorColumns, WidgetEditorSection, WidgetPreviewSkeleton } from "./widget-editor-layout";
+import { WidgetPreviewFrame } from "./widget-preview-frame";
+import { cn } from "@/core/utils/cn";
 import { recordFilterFields } from "@/features/records/record-filter";
 import {
   RecordWidgetFieldFilters,
@@ -96,8 +99,10 @@ export const RecordWidgetEditor = observer(
     store,
     section,
     appearance,
+    settingsHeader,
   }: {
     store: WidgetModalStore;
+    settingsHeader?: ReactNode;
     appearance?: ReactNode | ((model: RecordModel | null | undefined) => ReactNode);
     section: "data" | "filters" | "preview" | "all";
   }) => {
@@ -218,12 +223,10 @@ export const RecordWidgetEditor = observer(
           {t("ErrorCard.retry")}
         </Button>
       ) : null;
+    const measureValid = RecordMeasureSchema.safeParse(measure).success;
+    const shownPreview = preview && preview.result.schemaRevision === model?.revision ? preview : null;
     const previewContent = (
-      <section className="min-w-0 space-y-3">
-        <h3 className="text-sm font-medium" id="widget-preview-heading">
-          {t("RecordWidgets.preview")}
-        </h3>
-
+      <div className="min-w-0 space-y-3">
         {form.id && (
           <RecordAiAction
             active={store.isOpen}
@@ -231,36 +234,37 @@ export const RecordWidgetEditor = observer(
           />
         )}
 
-        <p className="text-xs text-muted-foreground">{t("RecordWidgets.previewHelp")}</p>
-
-        <Button
-          disabled={loading || !model}
-          type="button"
-          variant="secondary"
-          onClick={() => runUserAction(() => runMeasurePreview(true))}
+        <WidgetPreviewFrame
+          error={previewError ? t("RecordWidgets.previewFailed") : null}
+          kind={form.kind}
+          loading={loading || (model === undefined && !shownPreview)}
+          refreshDisabled={!model || !measureValid}
+          refreshLabel={t("RecordWidgets.preview")}
+          onRefresh={() => runUserAction(() => runMeasurePreview(true))}
         >
-          {loading ? t("Loading.text") : t("RecordWidgets.preview")}
-        </Button>
-
-        {previewError && (
-          <p className="text-sm text-destructive" role="alert">
-            {t("RecordWidgets.previewFailed")}
-          </p>
-        )}
-
-        {preview?.key === key && preview.result.schemaRevision === model?.revision && (
-          <div className="h-64" data-slot="widget-preview">
-            <RecordWidgetChart
-              data={preview.result}
-              displayOptions={form.displayOptions}
-              groupOptions={preview.groupOptions}
-              label={form.name}
-              measure={measure}
-              status="ready"
-            />
-          </div>
-        )}
-      </section>
+          {shownPreview ? (
+            <div
+              className={cn("h-full min-h-0 transition-opacity", shownPreview.key !== key && "opacity-50")}
+              data-preview-current={shownPreview.key === key}
+            >
+              <RecordWidgetChart
+                data={shownPreview.result}
+                displayOptions={form.displayOptions}
+                groupOptions={shownPreview.groupOptions}
+                label={form.name}
+                measure={measure}
+                status="ready"
+              />
+            </div>
+          ) : !measureValid && model ? (
+            <p className="m-auto max-w-64 text-center text-sm text-muted-foreground">
+              {t("Dashboard.widgetEditor.preview.incomplete")}
+            </p>
+          ) : (
+            <WidgetPreviewSkeleton />
+          )}
+        </WidgetPreviewFrame>
+      </div>
     );
     const filtersContent = (
       <div className="space-y-4">
@@ -472,15 +476,22 @@ export const RecordWidgetEditor = observer(
     if (section === "filters") return filtersContent;
     if (section === "preview") return previewContent;
     return (
-      <div className="space-y-6">
-        {dataContent}
+      <WidgetEditorColumns
+        preview={<section id="widget-config-preview">{previewContent}</section>}
+        settings={
+          <>
+            {settingsHeader}
 
-        <section id="widget-config-filters">{filtersContent}</section>
+            <WidgetEditorSection id="widget-config-data" title={t("Dashboard.widgetEditor.tabs.data")}>
+              {dataContent}
+            </WidgetEditorSection>
 
-        {typeof appearance === "function" ? appearance(model) : appearance}
+            <section id="widget-config-filters">{filtersContent}</section>
 
-        <section id="widget-config-preview">{previewContent}</section>
-      </div>
+            {typeof appearance === "function" ? appearance(model) : appearance}
+          </>
+        }
+      />
     );
   },
 );

@@ -814,7 +814,7 @@ async function activityPreview(page: Page, present: string[], absent: string[]) 
   await expect(
     dialog.getByRole("button", { name: english.Dashboard.widgetEditor.preview.title, exact: true }),
   ).toBeEnabled();
-  await expect(dialog.locator("#widget-preview-heading").locator("..").locator("ol")).toHaveCount(1);
+  await expect(dialog.locator('[data-slot="widget-preview"] ol')).toHaveCount(1);
   for (const body of present) await expect(dialog.getByText(body, { exact: true })).toBeVisible();
   for (const body of absent) await expect(dialog.getByText(body, { exact: true })).toHaveCount(0);
 }
@@ -887,7 +887,7 @@ test("uses explicit activity record scope, event kinds, positive and negative re
     [],
     entries.map((entry) => entry.body),
   );
-  await expect(dialog.locator("#widget-preview-heading").locator("..").locator("ol > li")).toHaveCount(0);
+  await expect(dialog.locator('[data-slot="widget-preview"] ol > li')).toHaveCount(0);
   await toggleMultiple(page, `#activity-scope-${id("contact")}`, entries[0].name);
   await activityPreview(page, [entries[1].body], [entries[0].body]);
   await select(page, '[id="activityQuery.filters[0].operator"]', english.RecordActivityWidgets.operators.in);

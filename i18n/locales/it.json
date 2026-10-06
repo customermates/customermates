@@ -1825,7 +1825,11 @@
         "title": "Scegli un widget"
       },
       "preview": {
-        "title": "Anteprima"
+        "incomplete": "Completa le impostazioni dei dati per vedere un’anteprima.",
+        "live": "Anteprima dal vivo",
+        "size": "Dimensione nella dashboard {w} × {h}",
+        "title": "Anteprima",
+        "untitled": "Widget senza titolo"
       },
       "save": "Salva le modifiche",
       "sharing": {
@@ -1837,6 +1841,7 @@
       },
       "tabs": {
         "appearance": "Aspetto",
+        "data": "Dati",
         "filtersLabel": "{count, plural, =0 {Filtri, nessuno attivo} =1 {Filtri, 1 attivo} other {Filtri, # attivi}}"
       },
       "templates": {

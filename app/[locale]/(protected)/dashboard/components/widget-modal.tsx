@@ -121,10 +121,16 @@ export const WidgetModal = observer(() => {
         {renderAppearanceSettings(model)}
       </section>
     );
+    const nameField = <FormInput id="name" label={t("Common.inputs.name")} />;
     return form.kind === WidgetKind.chart ? (
-      <RecordWidgetEditor appearance={appearance} section="all" store={widgetModalStore} />
+      <RecordWidgetEditor appearance={appearance} section="all" settingsHeader={nameField} store={widgetModalStore} />
     ) : (
-      <RecordActivityWidgetEditor appearance={appearance()} section="all" store={widgetModalStore} />
+      <RecordActivityWidgetEditor
+        appearance={appearance()}
+        section="all"
+        settingsHeader={nameField}
+        store={widgetModalStore}
+      />
     );
   }
 
@@ -296,7 +302,7 @@ export const WidgetModal = observer(() => {
           ? t("Dashboard.widgetEditor.steps.chooseDescription")
           : t("Dashboard.widgetEditor.steps.configureDescription")
       }
-      size={isChooseStep ? "3xl" : "xl"}
+      size={isChooseStep ? "3xl" : "5xl"}
       store={widgetModalStore}
       title={dialogTitle}
     >
@@ -330,11 +336,7 @@ export const WidgetModal = observer(() => {
                 />
               </div>
             ) : (
-              <div className="min-w-0 space-y-6" data-widget-editor="linear">
-                <FormInput id="name" label={t("Common.inputs.name")} />
-
-                {renderDataSettings()}
-              </div>
+              renderDataSettings()
             )}
           </AppCardBody>
 

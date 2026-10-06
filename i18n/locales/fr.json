@@ -1825,7 +1825,11 @@
         "title": "Choisir un widget"
       },
       "preview": {
-        "title": "Aperçu"
+        "incomplete": "Complétez les paramètres de données pour afficher un aperçu.",
+        "live": "Aperçu en direct",
+        "size": "Taille sur le tableau de bord {w} × {h}",
+        "title": "Aperçu",
+        "untitled": "Widget sans titre"
       },
       "save": "Enregistrer les modifications",
       "sharing": {
@@ -1837,6 +1841,7 @@
       },
       "tabs": {
         "appearance": "Apparence",
+        "data": "Données",
         "filtersLabel": "{count, plural, =0 {Filtres, aucun actif} =1 {Filtres, 1 actif} other {Filtres, # actifs}}"
       },
       "templates": {

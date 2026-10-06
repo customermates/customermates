@@ -233,7 +233,7 @@ test("preserves widget previews and accessible draft confirmations across respon
   await recordDrawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(recordDrawer).toHaveCount(0);
   await page.getByRole("link", { name: "Dashboard", exact: true }).click();
-  const preview = page.locator('[data-widget-editor="linear"] svg.recharts-surface');
+  const preview = page.locator('[data-widget-editor="split"] svg.recharts-surface');
   const guard = page.getByRole("alertdialog", { name: "Unsaved Changes", exact: true });
   for (const [initialWidth, changedWidth, surface] of [
     [1100, 600, "dialog"],

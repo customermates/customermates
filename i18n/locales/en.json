@@ -1825,7 +1825,11 @@
         "title": "Choose a Widget"
       },
       "preview": {
-        "title": "Preview"
+        "incomplete": "Complete the data settings to see a preview.",
+        "live": "Live preview",
+        "size": "Dashboard size {w} × {h}",
+        "title": "Preview",
+        "untitled": "Untitled widget"
       },
       "save": "Save changes",
       "sharing": {
@@ -1837,6 +1841,7 @@
       },
       "tabs": {
         "appearance": "Appearance",
+        "data": "Data",
         "filtersLabel": "{count, plural, =0 {Filters, none active} =1 {Filters, 1 active} other {Filters, # active}}"
       },
       "templates": {

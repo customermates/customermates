@@ -1825,7 +1825,11 @@
         "title": "Widget auswählen"
       },
       "preview": {
-        "title": "Vorschau"
+        "incomplete": "Vervollständigen Sie die Dateneinstellungen, um eine Vorschau zu sehen.",
+        "live": "Live-Vorschau",
+        "size": "Dashboard-Größe {w} × {h}",
+        "title": "Vorschau",
+        "untitled": "Unbenanntes Widget"
       },
       "save": "Änderungen speichern",
       "sharing": {
@@ -1837,6 +1841,7 @@
       },
       "tabs": {
         "appearance": "Darstellung",
+        "data": "Daten",
         "filtersLabel": "{count, plural, =0 {Filter, keine aktiv} =1 {Filter, 1 aktiv} other {Filter, # aktiv}}"
       },
       "templates": {
