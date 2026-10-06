@@ -9,7 +9,7 @@ export default async function CompanyActivityPage() {
   await requireAccess({ resource: Resource.auditLog });
 
   return (
-    <PageContainer>
+    <PageContainer padded={false}>
       <ActivityPageView />
     </PageContainer>
   );

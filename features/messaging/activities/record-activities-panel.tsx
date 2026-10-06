@@ -15,14 +15,7 @@ import { ActivitiesList, TimelineEmptyState, TimelineNotice } from "./activities
 import { ActivityTimelineSkeleton } from "./activity-timeline-skeleton";
 import { RecordActivityViewsStore } from "./record-activity-views.store";
 
-export const RecordActivitiesPanel = observer(function RecordActivitiesPanel({
-  record,
-  viewSyncToUrl = false,
-}: {
-  record: RecordRef | null;
-  viewSyncToUrl?: boolean;
-}) {
-  const t = useTranslations();
+export function useRecordActivityViews(record: RecordRef | null, viewSyncToUrl: boolean) {
   const locale = useLocale();
   const root = useRootStore();
   const params = useSearchParams();
@@ -49,19 +42,14 @@ export const RecordActivitiesPanel = observer(function RecordActivitiesPanel({
     appliedView.current = requestedView;
     store.followRequestedView(requestedView);
   }, [store, requestedView]);
+  return store;
+}
+
+export const ActivitiesFeed = observer(function ActivitiesFeed({ store }: { store: RecordActivityViewsStore }) {
+  const t = useTranslations();
   const error = store.error || store.dataRequest.status === "refresh-error";
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-xs text-muted-foreground">
-          {record ? t("Common.actions.labelHistory") : t("ActivityPage.description")}
-        </span>
-
-        <FilterPopover compact store={store} />
-      </div>
-
-      <DataViewViewsRail store={store} />
-
+    <>
       {error && (
         <div className="space-y-2" role="status">
           <TimelineNotice label={t("EntityTimeline.error")} />
@@ -84,6 +72,30 @@ export const RecordActivitiesPanel = observer(function RecordActivitiesPanel({
       ) : (
         !error && <TimelineEmptyState label={t("Dashboard.activityWidget.noActivity")} />
       )}
+    </>
+  );
+});
+
+export const RecordActivitiesPanel = observer(function RecordActivitiesPanel({
+  record,
+  viewSyncToUrl = false,
+}: {
+  record: RecordRef;
+  viewSyncToUrl?: boolean;
+}) {
+  const t = useTranslations();
+  const store = useRecordActivityViews(record, viewSyncToUrl);
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-xs text-muted-foreground">{t("Common.actions.labelHistory")}</span>
+
+        <FilterPopover compact store={store} />
+      </div>
+
+      <DataViewViewsRail store={store} />
+
+      <ActivitiesFeed store={store} />
     </div>
   );
 });
