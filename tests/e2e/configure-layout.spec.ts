@@ -126,8 +126,9 @@ test("adds and edits definitions in a side drawer and reorders fields with drag 
   await addFromConfigure(page, "Calculation");
   await expect(dialog.getByText("Add field", { exact: true })).toBeVisible();
   await expect(dialog.getByRole("combobox", { name: "Value source", exact: true })).toContainText("Calculated");
-  await expect(dialog.getByRole("button", { name: "Save", exact: true })).toHaveCount(2);
-  await expect(dialog.getByRole("button", { name: "Cancel", exact: true })).toHaveCount(2);
+  await expect(dialog.getByRole("button", { name: "Save", exact: true })).toHaveCount(1);
+  await expect(dialog.getByRole("button", { name: "Cancel", exact: true })).toHaveCount(1);
+  await expect(dialog.locator("[data-slot='sheet-header']").getByRole("button", { name: "Save" })).toHaveCount(0);
   await dialog.getByRole("button", { name: "Cancel", exact: true }).last().click();
   await expect(dialog).not.toBeVisible();
   await expect(page.locator("[data-configure-list-pane]")).toBeVisible();

@@ -63,22 +63,6 @@ export const ModelChangeSheet = observer(function ModelChangeSheet({
   };
   const label =
     submitLabel ?? (store.previewReady && !store.isLoading ? t("RecordModel.apply") : t("Common.actions.save"));
-  const actions = (
-    <div className="flex shrink-0 items-center justify-end gap-2">
-      <Button disabled={store.isLoading} size="sm" type="button" variant="secondary" onClick={requestClose}>
-        {t("Common.actions.cancel")}
-      </Button>
-
-      <Button
-        disabled={store.isLoading || store.isReadOnly}
-        size="sm"
-        type="button"
-        onClick={() => runUserAction(store.onSubmit)}
-      >
-        {label}
-      </Button>
-    </div>
-  );
   return (
     <>
       <Sheet
@@ -92,7 +76,6 @@ export const ModelChangeSheet = observer(function ModelChangeSheet({
           className="w-full gap-0 sm:max-w-xl"
           data-configure-drawer=""
           overlayClassName="bg-black/10 backdrop-blur-none"
-          showCloseButton={false}
           side="right"
           onBlur={releaseFocusToAssistantSurface}
           onEscapeKeyDown={keepOpenForAssistantSurface}
@@ -103,15 +86,28 @@ export const ModelChangeSheet = observer(function ModelChangeSheet({
             focusFirstBodyControl(event);
           }}
         >
-          <SheetHeader className="flex-row items-center justify-between gap-3">
+          <SheetHeader className="pe-12">
             <SheetTitle className="min-w-0 truncate text-base">{title}</SheetTitle>
-
-            {actions}
           </SheetHeader>
 
           <SheetBody className="py-5">{children}</SheetBody>
 
-          <SheetFooter>{actions}</SheetFooter>
+          <SheetFooter>
+            <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+              <Button disabled={store.isLoading} size="sm" type="button" variant="secondary" onClick={requestClose}>
+                {t("Common.actions.cancel")}
+              </Button>
+
+              <Button
+                disabled={store.isLoading || store.isReadOnly}
+                size="sm"
+                type="button"
+                onClick={() => runUserAction(store.onSubmit)}
+              >
+                {label}
+              </Button>
+            </div>
+          </SheetFooter>
         </SheetContent>
       </Sheet>
 
