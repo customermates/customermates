@@ -88,7 +88,7 @@ Eine leere Wissensdatenbank bietet **Neue Seite** für manuelles Schreiben und *
 
 Über die Link-Funktion des Editors finden Sie andere Wissensdatenbank-Seiten. Alternativ wählen Sie **Seitenlink kopieren** unter **Seitenaktionen**. Es sind gewöhnliche Markdown-Links; beim Umbenennen bleibt die Adresse erhalten. Ein separater Index oder zusätzliche Verknüpfungsmetadaten sind nicht nötig.
 
-Wissensdatenbank-Leserechte erlauben das Anzeigen von Seiten. Wissensdatenbank-Verwaltungsrechte erlauben das Anlegen, Bearbeiten und Löschen und schließen Leserechte ein. Ändert eine andere Person oder ein Agent die Seite vor Ihrem Speichern, wird Ihr veralteter Speicherstand abgelehnt. Ihre Änderungen bleiben sichtbar, damit Sie sie mit der aktuellen Seite abgleichen können. Löschen ist endgültig. Änderungen erscheinen in den normalen Audit-Logs; ihre Wissensdatenbank-Inhalte benötigen sowohl Audit-Log-Zugriff als auch Wissensdatenbank-Leserechte. Das Audit-Log bietet keine Wiederherstellung.
+Wissensdatenbank-Leserechte erlauben das Anzeigen von Seiten. Wissensdatenbank-Verwaltungsrechte erlauben das Anlegen, Bearbeiten und Löschen und schließen Leserechte ein. Ändert eine andere Person oder ein Agent die Seite vor Ihrem Speichern, wird Ihr veralteter Speicherstand abgelehnt. Ihre Änderungen bleiben sichtbar, damit Sie sie mit der aktuellen Seite abgleichen können. Löschen ist endgültig. Änderungen erscheinen auf der normalen Seite **Aktivität**; ihre Wissensdatenbank-Inhalte benötigen sowohl Audit-Log-Zugriff als auch Wissensdatenbank-Leserechte. Das Audit-Log bietet keine Wiederherstellung.
 
 Der Betriebsleitfaden bleibt in der Seitenliste an erster Stelle angeheftet. Personen mit Wissensdatenbank-Verwaltungsrechten können die übrigen Seiten durch Ziehen umordnen. Die gespeicherte Reihenfolge gilt für den gesamten Workspace.
 
@@ -174,7 +174,7 @@ Jede Datensatzreferenz enthält `typeId` und `recordId`. Abfrage, Suche und Aggr
 {/* mcp-catalog:records */}
 #### `discover_record_types`
 
-Zugängliche Datensatztypen anhand von Namen oder stabilen Typ-IDs finden. Das Ergebnis enthält contractVersion, schemaRevision, erlaubte Aktionen und die Berechtigung zur Schema-Verwaltung. Mit page und pageSize weiterblättern; includeEmbedded zeigt auch eingebettete Typen wie Positionen.
+Zugängliche Datensatztypen anhand von Namen oder stabilen Typ-IDs finden. Das Ergebnis enthält schemaRevision, erlaubte Aktionen und die Berechtigung zur Schema-Verwaltung. Mit page und pageSize weiterblättern; includeEmbedded zeigt auch eingebettete Typen wie Positionen.
 
 **Nur lesend.** Optional: `typeIds`, `search`, `includeEmbedded`, `page`, `pageSize`.
 
