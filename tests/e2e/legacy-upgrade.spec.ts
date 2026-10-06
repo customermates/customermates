@@ -83,8 +83,11 @@ test("opens upgraded records with persisted values, totals and links", async ({
     fullPage: true,
     animations: "disabled",
   });
-  await page.goto("/en/contacts");
   const personType = presetId(companyId, "contact");
+  const retiredContacts = await page.goto("/en/contacts");
+  expect(retiredContacts?.status()).toBe(404);
+  const contacts = await page.goto(`/en/records/${personType}`);
+  expect(contacts?.status()).toBe(200);
   await expect(page).toHaveURL(new RegExp(`/en/records/${personType}$`));
   await expect(page.locator("header")).toContainText("Contacts");
   const person = (
