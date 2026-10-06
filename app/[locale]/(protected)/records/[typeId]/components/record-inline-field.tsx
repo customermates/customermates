@@ -7,15 +7,10 @@ import type { RecordsStore } from "./records.store";
 
 import { useState } from "react";
 import { observer } from "mobx-react-lite";
-import { toJS } from "mobx";
-import { z } from "zod";
 import { useTranslations } from "next-intl";
 import { Pencil } from "lucide-react";
 
-import { BaseFormStore } from "@/core/base/base-form.store";
-import { AppForm } from "@/components/forms/form-context";
 import { AppChip } from "@/components/chip/app-chip";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,9 +21,8 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toChipColor } from "@/constants/chip-colors";
 import { runUserAction } from "@/core/errors/report-application-error";
-import { RecordScalarSchema } from "@/features/records/record-model.schema";
-import { recordDraftValue, recordInputValue } from "@/features/records/record-input-value";
-import { RecordInputField } from "./record-input-field";
+import { recordDraftValue } from "@/features/records/record-input-value";
+import { RecordFieldValueEditor, RecordFieldValueStore } from "./record-field-value-editor";
 
 /** Whether a table cell may edit this field in place; the server re-checks every write. */
 export function canEditInline(store: RecordsStore, record: RecordRow, field: RecordField) {
@@ -38,38 +32,6 @@ export function canEditInline(store: RecordsStore, record: RecordRow, field: Rec
     return false;
   const result = record.fields.find((value) => value.fieldId === field.id)?.result;
   return result?.state !== "restricted" && result?.state !== "error";
-}
-
-class InlineFieldStore extends BaseFormStore<{ value: unknown }> {
-  constructor(
-    readonly records: RecordsStore,
-    readonly record: RecordRow,
-    readonly field: RecordField,
-    readonly done: () => void,
-  ) {
-    const result = record.fields.find((value) => value.fieldId === field.id)?.result;
-    super(records.rootStore, { value: recordDraftValue(result?.state === "value" ? result.value : null) });
-  }
-  onSubmit = async () => this.apply(false);
-  apply = async (clear: boolean) => {
-    if (this.isLoading) return;
-    const value = clear
-      ? null
-      : recordInputValue(toJS(this.form.value), this.field, this.rootStore.companyStore.company?.currency ?? "EUR");
-    if (value !== null) {
-      const parsed = RecordScalarSchema.safeParse(value);
-      if (!parsed.success) {
-        this.setError({ errors: [], properties: { value: z.treeifyError(parsed.error) } });
-        return;
-      }
-    }
-    this.setIsLoading(true);
-    try {
-      if (await this.records.updateRecordField(this.record, this.field.id, value)) this.done();
-    } finally {
-      this.setIsLoading(false);
-    }
-  };
 }
 
 const InlineFieldForm = observer(function InlineFieldForm({
@@ -84,38 +46,17 @@ const InlineFieldForm = observer(function InlineFieldForm({
   onDone: () => void;
 }) {
   const t = useTranslations();
-  const [store] = useState(() => new InlineFieldStore(records, record, field, onDone));
-  return (
-    <AppForm store={store}>
-      <div className="space-y-3">
-        <RecordInputField field={field} id="value" />
-
-        <div className="flex items-center gap-2">
-          {!field.required && (
-            <Button
-              disabled={store.isLoading}
-              size="sm"
-              type="button"
-              variant="ghost"
-              onClick={() => runUserAction(() => store.apply(true))}
-            >
-              {t("Common.actions.clear")}
-            </Button>
-          )}
-
-          <div className="grow" />
-
-          <Button disabled={store.isLoading} size="sm" type="button" variant="secondary" onClick={onDone}>
-            {t("Common.actions.cancel")}
-          </Button>
-
-          <Button disabled={store.isLoading} size="sm" type="submit">
-            {t("Common.actions.save")}
-          </Button>
-        </div>
-      </div>
-    </AppForm>
-  );
+  const [store] = useState(() => {
+    const result = record.fields.find((value) => value.fieldId === field.id)?.result;
+    return new RecordFieldValueStore(
+      records.rootStore,
+      field,
+      recordDraftValue(result?.state === "value" ? result.value : null),
+      (value) => records.updateRecordField(record, field.id, value),
+      onDone,
+    );
+  });
+  return <RecordFieldValueEditor store={store} submitLabel={t("Common.actions.save")} />;
 });
 
 function InlineSelect({

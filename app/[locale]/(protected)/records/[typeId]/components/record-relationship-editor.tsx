@@ -127,7 +127,6 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
   const id = `relationship-${relationship.id}-${direction}-${useId()}`;
   const chips = useRef<HTMLDivElement>(null);
   const focusAfterRemoval = useFocusAfterRemoval();
-  const chipVariant = "secondary";
   const error = (retry: () => void) => (
     <div className="flex items-center gap-2 text-sm" role="alert">
       <span>{t("Common.notifications.unexpectedError")}</span>
@@ -192,7 +191,6 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
                     ) : undefined
                   }
                   tooltip={title(record)}
-                  variant={chipVariant}
                 >
                   <button
                     aria-label={t("RecordModel.openRecord", { name: title(record) })}

@@ -2,58 +2,16 @@
 
 import { useState } from "react";
 import { observer } from "mobx-react-lite";
-import { toJS } from "mobx";
-import { z } from "zod";
 import { ChevronDown, ChevronLeft, ChevronRight, Search, Trash2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { RecordField } from "@/features/records/record-model.schema";
 import type { RecordsStore } from "./records.store";
-import { RecordScalarSchema } from "@/features/records/record-model.schema";
-import { recordInputValue } from "@/features/records/record-input-value";
-import { BaseFormStore } from "@/core/base/base-form.store";
-import { AppForm } from "@/components/forms/form-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ResponsiveOverlay } from "@/components/modal/responsive-overlay";
 import { runUserAction } from "@/core/errors/report-application-error";
-import { RecordInputField } from "./record-input-field";
 import { useRecordDeletion } from "./use-record-deletion";
-
-class BulkFieldStore extends BaseFormStore<{ value: unknown }> {
-  constructor(
-    readonly records: RecordsStore,
-    readonly field: RecordField,
-    readonly done: () => void,
-  ) {
-    super(records.rootStore, { value: undefined });
-  }
-  override get isReadOnly() {
-    return !this.records.presentation.permittedActions.includes("update");
-  }
-  onSubmit = async () => this.apply(false);
-  apply = async (clear: boolean) => {
-    if (this.isReadOnly || this.isLoading) return;
-    const value = clear
-      ? null
-      : recordInputValue(toJS(this.form.value), this.field, this.rootStore.companyStore.company?.currency ?? "EUR");
-    if (value !== null) {
-      const parsed = RecordScalarSchema.safeParse(value);
-      if (!parsed.success) {
-        this.setError({
-          errors: [],
-          properties: { value: z.treeifyError(parsed.error) },
-        });
-        return;
-      }
-    }
-    this.setIsLoading(true);
-    try {
-      if (await this.records.bulkUpdateField(this.field.id, value)) this.done();
-    } finally {
-      this.setIsLoading(false);
-    }
-  };
-}
+import { RecordFieldValueEditor, RecordFieldValueStore } from "./record-field-value-editor";
 
 const BulkFieldEditor = observer(function BulkFieldEditor({
   records,
@@ -65,37 +23,20 @@ const BulkFieldEditor = observer(function BulkFieldEditor({
   onApplied: () => void;
 }) {
   const t = useTranslations();
-  const [store] = useState(() => new BulkFieldStore(records, field, onApplied));
+  const [store] = useState(
+    () =>
+      new RecordFieldValueStore(
+        records.rootStore,
+        field,
+        undefined,
+        (value) => records.bulkUpdateField(field.id, value),
+        onApplied,
+      ),
+  );
   return (
-    <AppForm store={store}>
-      <div className="space-y-3 px-3 py-2.5">
-        <RecordInputField field={field} id="value" />
-
-        <div className="flex items-center gap-2">
-          <Button
-            disabled={field.required || store.isLoading || records.isBulkMutating}
-            size="sm"
-            type="button"
-            variant="secondary"
-            onClick={() => runUserAction(() => store.apply(true))}
-          >
-            {t("MassActions.clearField")}
-          </Button>
-
-          <div className="grow" />
-
-          <Button
-            disabled={
-              store.isLoading || records.isBulkMutating || store.form.value === undefined || store.form.value === ""
-            }
-            size="sm"
-            type="submit"
-          >
-            {t("MassActions.apply")}
-          </Button>
-        </div>
-      </div>
-    </AppForm>
+    <div className="px-3 py-2.5">
+      <RecordFieldValueEditor busy={records.isBulkMutating} store={store} submitLabel={t("MassActions.apply")} />
+    </div>
   );
 });
 
