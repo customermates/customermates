@@ -1,6 +1,6 @@
 "use client";
 
-import type { CSSProperties, ReactNode } from "react";
+import type { ReactNode } from "react";
 
 import { useLayoutEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
@@ -9,10 +9,11 @@ import { RefreshCw } from "lucide-react";
 import type { WidgetKind } from "@/generated/prisma";
 
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/core/utils/cn";
 
-import { DASHBOARD_GRID_MARGIN, DASHBOARD_ROW_HEIGHT, GRID_COLS } from "./grid.constants";
+import { DASHBOARD_GRID_MARGIN, DASHBOARD_ROW_HEIGHT, GRID_BREAKPOINTS, GRID_COLS } from "./grid.constants";
 import { type WidgetLayoutGeometry, widgetLayoutGeometry } from "@/features/widget/widget-grid";
 
 const FALLBACK_GRID_WIDTH = 1120;
@@ -30,7 +31,7 @@ function useDashboardGridWidth() {
   const [width, setWidth] = useState(FALLBACK_GRID_WIDTH);
   useLayoutEffect(() => {
     const grid = document.querySelector<HTMLElement>(".react-grid-layout");
-    if (grid?.clientWidth) setWidth(grid.clientWidth);
+    if (grid && grid.clientWidth >= GRID_BREAKPOINTS.lg) setWidth(grid.clientWidth);
   }, []);
   return width;
 }
@@ -45,63 +46,101 @@ type Props = {
   onRefresh: () => void;
 };
 
+const MAX_PREVIEW_SCALE = 1.75;
+const MAX_PREVIEW_HEIGHT = 560;
+const STAGE_RESET_CLASS =
+  "[&_[data-slot=card-header]]:pr-6! [&_[data-slot=card-content]]:overflow-visible! [&_[data-uid=app-card]]:border! [&_[data-uid=app-card]]:bg-background! [&_[data-uid=app-card]]:shadow-xs!";
+
+function useElementWidth() {
+  const [element, setElement] = useState<HTMLElement | null>(null);
+  const [width, setWidth] = useState(0);
+  useLayoutEffect(() => {
+    if (!element) return;
+    const observer = new ResizeObserver(([entry]) => setWidth(entry.contentRect.width));
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [element]);
+  return [setElement, width] as const;
+}
+
 export const WidgetPreviewFrame = observer(
   ({ children, geometry: layout, kind, loading = false, refreshDisabled, refreshLabel, onRefresh }: Props) => {
     const t = useTranslations();
     const geometry = layout ?? widgetLayoutGeometry(kind, GRID_COLS.lg);
     const size = widgetPixelSize(useDashboardGridWidth(), geometry.w, geometry.h);
+    const [measure, columnWidth] = useElementWidth();
+    const scale = columnWidth
+      ? Math.min(columnWidth / size.width, MAX_PREVIEW_HEIGHT / size.height, MAX_PREVIEW_SCALE)
+      : 1;
 
     return (
       <section aria-labelledby="widget-preview-heading" className="min-w-0 space-y-3" data-slot="widget-preview-frame">
-        <div className="flex min-w-0 items-center justify-between gap-3">
-          <div className="min-w-0 space-y-0.5">
-            <h3 className="flex items-center gap-2 text-sm font-medium" id="widget-preview-heading">
-              <span aria-hidden className="relative flex size-2">
-                <span
-                  className={cn(
-                    "absolute inline-flex size-full rounded-full bg-success opacity-60",
-                    loading && "animate-ping motion-reduce:animate-none",
-                  )}
-                />
+        <div className="flex min-w-0 items-center gap-2">
+          <h3 className="flex items-center gap-2 text-sm font-medium" id="widget-preview-heading">
+            <span aria-hidden className="relative flex size-2">
+              <span
+                className={cn(
+                  "absolute inline-flex size-full rounded-full bg-success opacity-60",
+                  loading && "animate-ping motion-reduce:animate-none",
+                )}
+              />
 
-                <span className="relative inline-flex size-2 rounded-full bg-success" />
-              </span>
+              <span className="relative inline-flex size-2 rounded-full bg-success" />
+            </span>
 
-              {t("Dashboard.widgetEditor.preview.live")}
-            </h3>
+            {t("Dashboard.widgetEditor.preview.live")}
+          </h3>
 
-            <p className="text-xs text-muted-foreground">
-              {t("Dashboard.widgetEditor.preview.size", { w: geometry.w, h: geometry.h })}
-            </p>
-          </div>
+          <span className="text-xs text-muted-foreground">
+            {t("Dashboard.widgetEditor.preview.size", { w: geometry.w, h: geometry.h })}
+          </span>
 
-          <Button
-            aria-label={refreshLabel}
-            disabled={refreshDisabled || loading}
-            size="icon"
-            title={refreshLabel}
-            type="button"
-            variant="ghost"
-            onClick={onRefresh}
-          >
-            <RefreshCw aria-hidden className={cn("size-4", loading && "animate-spin motion-reduce:animate-none")} />
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  aria-label={refreshLabel}
+                  className="ml-auto size-7"
+                  disabled={refreshDisabled || loading}
+                  size="icon"
+                  type="button"
+                  variant="ghost"
+                  onClick={onRefresh}
+                >
+                  <RefreshCw
+                    aria-hidden
+                    className={cn("size-3.5", loading && "animate-spin motion-reduce:animate-none")}
+                  />
+                </Button>
+              </TooltipTrigger>
+
+              <TooltipContent>{refreshLabel}</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
 
-        <div
-          className="relative mx-auto w-full lg:w-(--preview-width) lg:max-w-full"
-          data-slot="widget-preview"
-          style={{ "--preview-width": `${size.width}px`, height: size.height } as CSSProperties}
-        >
-          <div inert className="h-full">
-            {children}
-          </div>
-
-          {loading && (
-            <div className="absolute right-4 top-4" role="status">
-              <Spinner aria-label={t("Loading.text")} className="size-4 text-muted-foreground" />
+        <div ref={measure} className="w-full">
+          <div
+            className="relative mx-auto"
+            data-preview-height={size.height}
+            data-preview-width={size.width}
+            data-slot="widget-preview"
+            style={{ width: size.width * scale, height: size.height * scale }}
+          >
+            <div
+              inert
+              className={cn("absolute left-0 top-0 origin-top-left", STAGE_RESET_CLASS)}
+              style={{ width: size.width, height: size.height, transform: `scale(${scale})` }}
+            >
+              {children}
             </div>
-          )}
+
+            {loading && (
+              <div className="absolute right-4 top-4" role="status">
+                <Spinner aria-label={t("Loading.text")} className="size-4 text-muted-foreground" />
+              </div>
+            )}
+          </div>
         </div>
       </section>
     );

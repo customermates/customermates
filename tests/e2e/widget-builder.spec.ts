@@ -54,7 +54,13 @@ test("starts from a recommended starter, previews it live at dashboard size and 
   await expect(preview.locator('[data-slot="widget-number"]')).toBeVisible();
   await expect(preview.locator('[data-preview-current="true"]')).toBeVisible();
   const size = await preview.boundingBox();
-  expect(size && size.height).toBe(2 * 124 + 16);
+  const real = await preview.evaluate((element) => [
+    Number(element.getAttribute("data-preview-width")),
+    Number(element.getAttribute("data-preview-height")),
+  ]);
+  expect(real[1]).toBe(2 * 124 + 16);
+  expect(size && Math.abs(size.width / size.height - real[0] / real[1])).toBeLessThan(0.02);
+  expect(size && size.width).toBeGreaterThan(real[0]);
 
   await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Open value overview");
   await expect(preview.getByRole("heading", { name: "Open value overview", exact: true })).toBeVisible();

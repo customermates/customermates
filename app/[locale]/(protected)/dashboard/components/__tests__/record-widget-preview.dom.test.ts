@@ -87,7 +87,13 @@ async function requestPreview() {
 }
 
 beforeEach(() => {
-  Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
+  Object.assign(globalThis, {
+    IS_REACT_ACT_ENVIRONMENT: true,
+    ResizeObserver: class {
+      observe() {}
+      disconnect() {}
+    },
+  });
   vi.useFakeTimers();
   mocks.getRecordModelAction.mockResolvedValue(model);
   mocks.previewRecordWidgetAction.mockResolvedValue(readyPreview());
