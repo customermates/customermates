@@ -103,6 +103,7 @@ export function configureRoutePath(points: readonly ConfigureGraphPoint[]) {
 
 const VIEWPORT_PADDING = 16;
 const VIEWPORT_TOP = 64;
+const HINT_WIDTH = 1024;
 const READABLE_ZOOM = 0.55;
 const NARROW_READABLE_ZOOM = 0.4;
 const NARROW_WIDTH = 640;
@@ -115,12 +116,13 @@ export function configureGraphViewport(positions: Map<string, ConfigureGraphPosi
   const graphWidth = Math.max(...boxes.map((box) => box.x + box.width)) - minX;
   const graphHeight = Math.max(...boxes.map((box) => box.y + box.height)) - minY;
   const fitWidth = (width - VIEWPORT_PADDING * 2) / graphWidth;
-  const fitAll = Math.min(fitWidth, (height - VIEWPORT_TOP - VIEWPORT_PADDING) / graphHeight);
+  const top = width >= HINT_WIDTH ? VIEWPORT_TOP : VIEWPORT_PADDING;
+  const fitAll = Math.min(fitWidth, (height - top - VIEWPORT_PADDING) / graphHeight);
   const readable = width < NARROW_WIDTH ? NARROW_READABLE_ZOOM : READABLE_ZOOM;
   const zoom = Math.min(1, fitWidth, Math.max(readable, fitAll));
   return {
     x: Math.max(VIEWPORT_PADDING, (width - graphWidth * zoom) / 2) - minX * zoom,
-    y: VIEWPORT_TOP - minY * zoom,
+    y: top - minY * zoom,
     zoom,
   };
 }
