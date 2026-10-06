@@ -90,6 +90,7 @@ test("opens a stable record page, preserves its draft alongside the assistant, a
   await dialogs.getByRole("link", { name: "Open page", exact: true }).click();
   await expect(page).toHaveURL(recordUrl);
   await expect(dialogs).not.toBeVisible();
+  await expect(page.getByRole("alertdialog", { name: "Unsaved Changes", exact: true })).toHaveCount(0);
   await main.getByRole("tab", { name: "Overview", exact: true }).click();
   await expect(main.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Same page drawer draft");
   await main.getByRole("tab", { name: "Notes", exact: true }).click();

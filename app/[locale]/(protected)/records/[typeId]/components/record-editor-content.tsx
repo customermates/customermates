@@ -16,7 +16,7 @@ import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { IntlLink, useRouter } from "@/i18n/navigation";
+import { IntlLink, usePathname, useRouter } from "@/i18n/navigation";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { RecordDetailPersonalization, RecordDetailLayoutControls } from "./record-detail-personalization";
 import { RecordDetailOverview } from "./record-detail-overview";
@@ -105,6 +105,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
 }) {
   const t = useTranslations();
   const params = useSearchParams();
+  const pathname = usePathname();
   const router = useRouter();
   const [panel, setPanel] = useState("details");
   const id = useId();
@@ -138,7 +139,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
       store.resetForm();
       store.close();
       root.recordWorkspaceStore.close();
-      router.push(href);
+      if (pathname !== href) router.push(href);
     });
     store.setWithUnsavedChangesGuard(true);
   };
