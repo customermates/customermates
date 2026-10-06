@@ -2039,6 +2039,9 @@
     "underline": "Souligné",
     "urlPlaceholder": "Saisissez une URL..."
   },
+  "EditorTabs": {
+    "invalid": "Contient des erreurs"
+  },
   "EmailLayout": {
     "tagline": "Le CRM agentique open source"
   },

@@ -2039,6 +2039,9 @@
     "underline": "Subrayado",
     "urlPlaceholder": "Introduce una URL..."
   },
+  "EditorTabs": {
+    "invalid": "Contiene errores"
+  },
   "EmailLayout": {
     "tagline": "El CRM agéntico de código abierto"
   },

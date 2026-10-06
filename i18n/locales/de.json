@@ -2039,6 +2039,9 @@
     "underline": "Unterstrichen",
     "urlPlaceholder": "URL eingeben..."
   },
+  "EditorTabs": {
+    "invalid": "Enthält Fehler"
+  },
   "EmailLayout": {
     "tagline": "Das agentische Open-Source-CRM"
   },

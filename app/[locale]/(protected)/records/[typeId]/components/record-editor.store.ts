@@ -459,6 +459,24 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
   };
   onSubmit = async () => {
     if (!this.isOpen || this.isReadOnly || this.isLoading || this.pendingOperationId) return;
+    const missing = this.fields.filter((field) => {
+      if (!field.required || field.behavior.kind !== "input") return false;
+      const value = this.scalar(field);
+      return value === null || (value.kind === "text" && !value.value.trim());
+    });
+    if (missing.length) {
+      const required = this.rootStore.localeStore.getTranslation("RecordModel.required");
+      this.setError({
+        errors: [],
+        properties: {
+          values: {
+            errors: [],
+            properties: Object.fromEntries(missing.map((field) => [field.id, { errors: [required] }])),
+          },
+        },
+      } as Parameters<typeof this.setError>[0]);
+      return;
+    }
     const session = this.sessionGeneration;
     const isCurrent = () => session === this.sessionGeneration && this.isOpen;
     this.setIsLoading(true);

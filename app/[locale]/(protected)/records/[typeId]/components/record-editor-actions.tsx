@@ -11,7 +11,11 @@ import { AppModalActionRail, type AppModalActionProps } from "@/components/modal
 import { cn } from "@/core/utils/cn";
 import { useRecordAiAction } from "@/app/components/agent-chat/record-ai-action";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
-import { RecordDetailLayoutStatus, useRecordDetailLayout } from "./record-detail-personalization";
+import {
+  RecordDetailLayoutStatus,
+  useRecordDetailLayout,
+  type RecordDetailLayoutState,
+} from "./record-detail-personalization";
 
 type Props = {
   store: RecordEditorStore;
@@ -28,11 +32,16 @@ export const RecordHeaderActions = observer(function RecordHeaderActions({
   store,
   name,
   deletion,
+  layout,
   onOpenPage,
   className,
-}: Omit<Props, "formId"> & { onOpenPage?: (event: MouseEvent<HTMLAnchorElement>) => void; className?: string }) {
+}: Omit<Props, "formId"> & {
+  /** From useRecordDetailLayout() in the editor tree; the page top bar renders outside that provider. */
+  layout: RecordDetailLayoutState | null;
+  onOpenPage?: (event: MouseEvent<HTMLAnchorElement>) => void;
+  className?: string;
+}) {
   const t = useTranslations();
-  const layout = useRecordDetailLayout();
   const record = store.record;
   const askAi = useRecordAiAction({
     registerContext: true,
@@ -135,7 +144,7 @@ export const RecordPageActions = observer(function RecordPageActions(props: Prop
       <div data-record-page-actions className="flex items-center gap-1">
         {layout && <RecordDetailLayoutStatus {...layout} />}
 
-        <RecordHeaderActions deletion={deletion} name={name} store={store} />
+        <RecordHeaderActions deletion={deletion} layout={layout} name={name} store={store} />
 
         <RecordEditorActions compact formId={formId} store={store} />
       </div>

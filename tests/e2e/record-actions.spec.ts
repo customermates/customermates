@@ -194,7 +194,10 @@ test("linked record chips collapse into a +N stack so rows and cards keep one he
   };
   const suffix = randomUUID().slice(0, 6);
   const crowded = await create("deal", `Crowded deal ${suffix}`);
-  await create("deal", `Quiet deal ${suffix}`);
+  const quiet = await create("deal", `Quiet deal ${suffix}`);
+  await create("organization", `Single organization ${suffix}`, [
+    { relationId: id("deal.organizations"), direction: "incoming", record: quiet },
+  ]);
   for (let index = 1; index <= 8; index += 1)
     await create("organization", `Stacked organization with a long name ${index} ${suffix}`, [
       { relationId: id("deal.organizations"), direction: "incoming", record: crowded },
@@ -211,4 +214,30 @@ test("linked record chips collapse into a +N stack so rows and cards keep one he
   await more.click();
   await expect(page.getByRole("menuitem").filter({ hasText: "Stacked organization" }).first()).toBeVisible();
   await page.keyboard.press("Escape");
+});
+
+test("record drawer tabs remember the last tab and flag invalid fields on other tabs", async ({ page, companyId }) => {
+  const id = (key: string) => presetId(companyId, key);
+  await page.goto(`/en/records/${id("organization")}`);
+  await page.locator("#records-add").click();
+  const drawer = page.getByRole("dialog", { name: "Organization", exact: true });
+  const tabs = drawer.getByRole("tablist", { name: "Overview", exact: true });
+  await expect(tabs.getByRole("tab")).toHaveText(["Overview", "Notes"]);
+  await tabs.getByRole("tab", { name: "Notes" }).click();
+  await drawer.getByRole("button", { name: "Save", exact: true }).click();
+  const overview = tabs.getByRole("tab", { name: /^Overview/ });
+  await expect(overview).toHaveAttribute("data-invalid", "true");
+  await expect(overview.locator("[data-tab-error-dot]")).toBeVisible();
+  await expect(drawer).toBeVisible();
+  await overview.click();
+  await drawer.getByRole("textbox", { name: "Name", exact: false }).fill(`Tabbed ${randomUUID().slice(0, 6)}`);
+  await tabs.getByRole("tab", { name: "Notes" }).click();
+  await drawer.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(drawer).not.toBeVisible();
+
+  await page.getByRole("button", { name: "Example organization", exact: true }).click();
+  await expect(drawer.getByRole("tab", { name: "Notes" })).toHaveAttribute("data-state", "active");
+  await page.setViewportSize({ width: 360, height: 800 });
+  const list = drawer.locator("[data-editor-tabs]");
+  expect(await list.evaluate((element) => getComputedStyle(element).overflowX)).toBe("auto");
 });

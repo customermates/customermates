@@ -98,7 +98,7 @@ export const RecordDetailPersonalization = observer(function RecordDetailPersona
   );
 });
 
-type RecordDetailLayoutState = {
+export type RecordDetailLayoutState = {
   layout: RecordDetailLayoutStore;
   editor: RecordEditorStore;
   isPersonalizing: boolean;
