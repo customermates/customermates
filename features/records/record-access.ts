@@ -3,8 +3,9 @@ import type { RecordActor, RecordActorRepo, RecordRepo, StoredRecord } from "./r
 import type { RecordAccessMap, RecordReadScope } from "./record-query.schema";
 
 import type { RecordModel } from "./record-model.schema";
+import type { ReadScope } from "@/core/base/permission.service";
 
-import { rolePermits, roleReadScope } from "@/core/base/permission.service";
+import { roleCanRead, rolePermits, roleReadScope } from "@/core/base/permission.service";
 import { UserAccessor } from "@/core/base/user-accessor";
 
 export class RecordAccessPolicy extends UserAccessor {
@@ -83,9 +84,12 @@ export function recordAccessForActor({
         ),
     );
   };
+  const readScope = (typeId: string): ReadScope =>
+    allowed(typeId, "readAll") ? "all" : allowed(typeId, "readOwn") ? "own" : "none";
+  const canReadType = (typeId: string) => readScope(typeId) !== "none";
   const scopeFor = (typeId: string, depth = 0): RecordReadScope => {
     if (depth > 12 || !activeTypeIds.has(typeId)) return { userId: userId, access: "none" };
-    const access = allowed(typeId, "readAll") ? "all" : allowed(typeId, "readOwn") ? "own" : "none";
+    const access = readScope(typeId);
     const parent = !isAdmin && parentOf(typeId);
     return {
       userId: userId,
@@ -115,9 +119,9 @@ export function recordAccessForActor({
       const row = refs[0] ? await records.getRecordCompanyWide(refs[0]) : null;
       return row !== null && canRead(row, depth + 1);
     }
+    const scope = readScope(record.typeId);
     return (
-      allowed(record.typeId, "readAll") ||
-      (allowed(record.typeId, "readOwn") && record.assignments.some((assignment) => assignment.userId === userId))
+      scope === "all" || (scope === "own" && record.assignments.some((assignment) => assignment.userId === userId))
     );
   };
   const resourceAllowed = (resource: string, action: Action) => rolePermits(role, resource, action);
@@ -126,11 +130,13 @@ export function recordAccessForActor({
     isAdmin,
     allowed,
     allowedSystem: resourceAllowed,
+    canReadSystem: (resource: string) => roleCanRead(role, resource),
     canManageSchema: resourceAllowed("dataModel", "update"),
     canAssignOthers: resourceAllowed("users", "readAll"),
     memberScope: { userId: userId, access: roleReadScope(role, "users") } as RecordReadScope,
     canManageRoles: resourceAllowed("users", "create") && resourceAllowed("users", "update"),
     access: (typeIds: string[]): RecordAccessMap => new Map(typeIds.map((typeId) => [typeId, scopeFor(typeId)])),
+    canReadType,
     canRead,
   };
 }

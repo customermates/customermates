@@ -80,14 +80,13 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
           "system:channels": t("EntityChannels.heading"),
         };
         const type = model.types.find((type) => type.id === input.typeId && !type.archived);
-        if (!type || (!policy.allowed(type.id, "readAll") && !policy.allowed(type.id, "readOwn")))
-          return failNotFound(CustomErrorCode.recordTypeNotFound);
+        if (!type || !policy.canReadType(type.id)) return failNotFound(CustomErrorCode.recordTypeNotFound);
         const fields = model.fields.filter((field) => field.typeId === type.id && !field.archived);
         const allowedRelationships = model.relationships.filter(
           (relation) =>
             !relation.archived &&
-            (policy.allowed(relation.sourceTypeId, "readOwn") || policy.allowed(relation.sourceTypeId, "readAll")) &&
-            (policy.allowed(relation.targetTypeId, "readOwn") || policy.allowed(relation.targetTypeId, "readAll")),
+            policy.canReadType(relation.sourceTypeId) &&
+            policy.canReadType(relation.targetTypeId),
         );
         const paths = type.relationshipPaths?.filter(
           (path) =>

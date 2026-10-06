@@ -73,10 +73,7 @@ export class DiscoverRecordTypesInteractor extends AuthenticatedInteractor<
             !type.archived &&
             (!input.typeIds || input.typeIds.includes(type.id)) &&
             (input.includeEmbedded || !type.embedded) &&
-            (policy.canManageSchema ||
-              policy.canManageRoles ||
-              policy.allowed(type.id, "readOwn") ||
-              policy.allowed(type.id, "readAll")) &&
+            (policy.canManageSchema || policy.canManageRoles || policy.canReadType(type.id)) &&
             (!search ||
               [type.label, type.pluralLabel, type.description].some((label) =>
                 label.toLocaleLowerCase().includes(search),

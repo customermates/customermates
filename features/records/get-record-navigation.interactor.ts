@@ -35,11 +35,7 @@ export class GetRecordNavigationInteractor extends AuthenticatedInteractor<void,
             canManageSchema: policy.canManageSchema,
             types: model.types
               .filter(
-                (type) =>
-                  !type.archived &&
-                  !type.embedded &&
-                  type.navigationVisible &&
-                  (policy.allowed(type.id, "readAll") || policy.allowed(type.id, "readOwn")),
+                (type) => !type.archived && !type.embedded && type.navigationVisible && policy.canReadType(type.id),
               )
               .sort((a, b) => a.position - b.position || compareRecordKey(a.id, b.id))
               .map((type) => ({
