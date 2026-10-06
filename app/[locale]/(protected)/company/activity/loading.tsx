@@ -7,10 +7,10 @@ import { ActivityTimelineSkeleton } from "@/features/messaging/activities/activi
 export default async function Loading() {
   const t = await getTranslations("PageState");
   return (
-    <PageContainer>
+    <PageContainer padded={false}>
       <PageState
         background={
-          <div className="mx-auto w-full max-w-3xl">
+          <div className="p-4">
             <ActivityTimelineSkeleton />
           </div>
         }
