@@ -188,7 +188,7 @@ export const GOLDEN_QUESTIONS: GoldenQuestion[] = [
   { locale: "de", query: "Datums-Operatoren inLastDays", slug: "filter-syntax", heading: "Datums" },
   { locale: "de", query: "MCP-Endpoint URL", slug: "mcp", heading: "Endpoint" },
   { locale: "de", query: "Nachrichten-Ratenlimits", slug: "messaging-rate-limits" },
-  { locale: "de", query: "n8n aus CRM-Änderungen triggern", slug: "n8n", heading: "n8n auslösen" },
+  { locale: "de", query: "n8n aus CRM-Änderungen triggern", slug: "n8n", heading: "löse ich n8n" },
   { locale: "de", query: "Self-Hosting mit Docker Compose", slug: "self-hosting" },
   { locale: "de", query: "Backups der Datenbank", slug: "self-hosting", heading: "Backups" },
   { locale: "de", query: "Webhook Retries fehlgeschlagene Zustellungen", slug: "webhooks", heading: "Retries" },
