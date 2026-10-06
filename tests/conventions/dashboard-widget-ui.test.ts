@@ -65,16 +65,15 @@ describe("generic dashboard widget UI", () => {
     const borrowed = [...sources("components/data-view/filter-palette"), ...sources("components/data-view/header")].filter((file) => /filter-modal\/filter-accordion|<FilterAccordion/.test(readFileSync(file, "utf8")));
     expect(borrowed).toEqual([]);
   });
-  it("previews both widget kinds using backend results keyed to the current draft", () => {
+  it("previews both widget kinds as their real dashboard cards, keyed to the current draft", () => {
     const chart = component("record-widget-editor.tsx");
     const activity = component("record-activity-widget-editor.tsx");
     expect(chart).toContain('t("RecordWidgets.preview")');
     expect(chart).toContain("await store.runPreview(() => previewRecordWidgetAction(parsed.data))");
-    expect(chart).toContain("<RecordWidgetChart");
+    expect(chart).toContain("<RecordWidgetCard");
+    expect(chart).toContain("preview?.key === key");
     expect(activity).toContain('t("Dashboard.widgetEditor.preview.title")');
-    expect(activity).toContain("getRecordActivitiesAction({ ...parsed.data, cursor: null, limit: 25 })");
-    expect(activity).toContain("<ActivitiesList");
-    for (const source of [chart, activity]) expect(source).toContain("preview?.key === key");
+    expect(activity).toContain("<RecordActivityWidgetCard");
   });
   it("keeps activity loading and empty states on the shared skeleton", () => {
     const card = component("record-activity-widget-card.tsx");

@@ -37,36 +37,19 @@ function useDashboardGridWidth() {
 
 type Props = {
   children: ReactNode;
-  error?: string | null;
   geometry?: WidgetLayoutGeometry;
   kind: WidgetKind;
-  loading: boolean;
-  name: string;
+  loading?: boolean;
   refreshDisabled?: boolean;
   refreshLabel: string;
-  subtitle?: ReactNode;
-  toolbar?: ReactNode;
   onRefresh: () => void;
 };
 
 export const WidgetPreviewFrame = observer(
-  ({
-    children,
-    error,
-    geometry: layout,
-    kind,
-    loading,
-    name,
-    refreshDisabled,
-    refreshLabel,
-    subtitle,
-    toolbar,
-    onRefresh,
-  }: Props) => {
+  ({ children, geometry: layout, kind, loading = false, refreshDisabled, refreshLabel, onRefresh }: Props) => {
     const t = useTranslations();
     const geometry = layout ?? widgetLayoutGeometry(kind, GRID_COLS.lg);
     const size = widgetPixelSize(useDashboardGridWidth(), geometry.w, geometry.h);
-    const title = name.trim() || t("Dashboard.widgetEditor.preview.untitled");
 
     return (
       <section aria-labelledby="widget-preview-heading" className="min-w-0 space-y-3" data-slot="widget-preview-frame">
@@ -92,46 +75,29 @@ export const WidgetPreviewFrame = observer(
             </p>
           </div>
 
-          <div className="flex shrink-0 items-center gap-1">
-            {toolbar}
-
-            <Button
-              aria-label={refreshLabel}
-              disabled={refreshDisabled || loading}
-              size="icon"
-              title={refreshLabel}
-              type="button"
-              variant="ghost"
-              onClick={onRefresh}
-            >
-              <RefreshCw aria-hidden className={cn("size-4", loading && "animate-spin motion-reduce:animate-none")} />
-            </Button>
-          </div>
+          <Button
+            aria-label={refreshLabel}
+            disabled={refreshDisabled || loading}
+            size="icon"
+            title={refreshLabel}
+            type="button"
+            variant="ghost"
+            onClick={onRefresh}
+          >
+            <RefreshCw aria-hidden className={cn("size-4", loading && "animate-spin motion-reduce:animate-none")} />
+          </Button>
         </div>
 
         <div
-          className="relative mx-auto flex max-w-full flex-col overflow-hidden rounded-xl border border-border bg-background shadow-xs"
+          inert
+          className="relative mx-auto max-w-full"
           data-slot="widget-preview"
           style={{ width: size.width, height: size.height }}
         >
-          <div className="flex shrink-0 flex-col gap-0.5 px-6 pt-6">
-            <p className="text-x-md w-full truncate">{title}</p>
-
-            {subtitle}
-          </div>
-
-          <div inert className="flex min-h-0 flex-1 flex-col p-6 recharts-no-focus-outline">
-            {error ? (
-              <p className="m-auto text-center text-sm text-destructive" role="alert">
-                {error}
-              </p>
-            ) : (
-              children
-            )}
-          </div>
+          {children}
 
           {loading && (
-            <div className="absolute right-3 top-3" role="status">
+            <div className="absolute right-4 top-4" role="status">
               <Spinner aria-label={t("Loading.text")} className="size-4 text-muted-foreground" />
             </div>
           )}

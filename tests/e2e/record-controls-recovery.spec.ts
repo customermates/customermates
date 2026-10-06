@@ -814,7 +814,7 @@ async function activityPreview(page: Page, present: string[], absent: string[]) 
   await expect(
     dialog.getByRole("button", { name: english.Dashboard.widgetEditor.preview.title, exact: true }),
   ).toBeEnabled();
-  await expect(dialog.locator('[data-slot="widget-preview"] ol')).toHaveCount(1);
+  if (present.length) await expect(dialog.locator('[data-slot="widget-preview"] ol')).toHaveCount(1);
   for (const body of present) await expect(dialog.getByText(body, { exact: true })).toBeVisible();
   for (const body of absent) await expect(dialog.getByText(body, { exact: true })).toHaveCount(0);
 }

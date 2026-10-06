@@ -8,7 +8,7 @@ import { useTranslations } from "next-intl";
 import { ChartNoAxesColumn } from "lucide-react";
 import { useTheme } from "next-themes";
 import { ChartColor, DisplayType } from "@/features/widget/widget.schema";
-import { CHIP_COLORS } from "@/constants/chip-colors";
+import { toChipColor } from "@/constants/chip-colors";
 import { getChartColors } from "@/constants/chart-colors";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { hasRecordMeasureGroupFilter } from "@/features/records/record-measure.schema";
@@ -171,7 +171,7 @@ export function RecordWidgetChart({
       count: group.count,
       optionId,
       bucketStart,
-      optionColor: CHIP_COLORS.includes(option?.color as ChipColor) ? (option?.color as ChipColor) : undefined,
+      optionColor: option?.color ? toChipColor(option.color) : undefined,
     };
   });
   const point = (row: ChartRow, extra: { detail?: string; formattedValue?: string; missing?: boolean } = {}) => ({
@@ -261,7 +261,7 @@ export function RecordWidgetChart({
         count: 0,
         optionId,
         bucketStart: null,
-        optionColor: CHIP_COLORS.includes(option?.color as ChipColor) ? (option?.color as ChipColor) : undefined,
+        optionColor: option?.color ? toChipColor(option.color) : undefined,
       };
     });
     fallback = steps.length === 0 || ordered.some((row) => row.value === null || row.value < 0) || fallback;

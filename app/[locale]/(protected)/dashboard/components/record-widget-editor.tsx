@@ -30,7 +30,7 @@ import { getRecordModelAction } from "../../records/actions";
 import { discoverWidgetRecordTypesAction, previewRecordWidgetAction } from "../actions";
 import { isRecordWidgetForm } from "./record-widget-form";
 import { browserTimeZone } from "./widget-time-zone";
-import { RecordWidgetChart } from "./record-widget-chart";
+import { RecordWidgetCard } from "./record-widget-card";
 import { WidgetEditorColumns, WidgetEditorSection, WidgetPreviewSkeleton } from "./widget-editor-layout";
 import { WidgetPreviewFrame } from "./widget-preview-frame";
 import { cn } from "@/core/utils/cn";
@@ -235,37 +235,45 @@ export const RecordWidgetEditor = observer(
         )}
 
         <WidgetPreviewFrame
-          error={previewError ? t("RecordWidgets.previewFailed") : null}
           geometry={store.previewGeometry}
           kind={form.kind}
           loading={loading || (model === undefined && !shownPreview)}
-          name={form.name}
           refreshDisabled={!model || !measureValid}
           refreshLabel={t("RecordWidgets.preview")}
           onRefresh={() => runUserAction(() => runMeasurePreview(true))}
         >
           {shownPreview ? (
             <div
-              className={cn("h-full min-h-0 transition-opacity", preview?.key !== key && "opacity-50")}
+              className={cn("h-full transition-opacity", preview?.key !== key && "opacity-50")}
               data-preview-current={preview?.key === key}
             >
-              <RecordWidgetChart
+              <RecordWidgetCard
                 data={shownPreview.result}
                 displayOptions={form.displayOptions}
                 groupOptions={shownPreview.groupOptions}
-                label={form.name}
                 measure={measure}
+                name={form.name.trim() || t("Dashboard.widgetEditor.preview.untitled")}
                 status="ready"
               />
             </div>
-          ) : !measureValid && model ? (
-            <p className="m-auto max-w-64 text-center text-sm text-muted-foreground">
-              {t("Dashboard.widgetEditor.preview.incomplete")}
-            </p>
           ) : (
-            <WidgetPreviewSkeleton />
+            <div className="flex h-full flex-col justify-center rounded-xl border border-dashed border-border p-6">
+              {!measureValid && model ? (
+                <p className="text-center text-sm text-muted-foreground">
+                  {t("Dashboard.widgetEditor.preview.incomplete")}
+                </p>
+              ) : (
+                <WidgetPreviewSkeleton />
+              )}
+            </div>
           )}
         </WidgetPreviewFrame>
+
+        {previewError && (
+          <p className="text-sm text-destructive" role="alert">
+            {t("RecordWidgets.previewFailed")}
+          </p>
+        )}
       </div>
     );
     const filtersContent = (

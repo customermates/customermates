@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { RecordField, RecordModel, RecordRelationship, RecordType } from "@/features/records/record-model.schema";
 import type { RecordMeasure } from "@/features/records/record-measure.schema";
 
+import { expressionFieldDependencies } from "@/features/records/record-model-validation";
 import { RECORD_MEASURE_MAX_GROUP_LIMIT, RecordMeasureSchema } from "@/features/records/record-measure.schema";
 import { ChartColor, DisplayType, WidgetDisplayOptionsSchema } from "./widget-display.schema";
 
@@ -104,19 +105,14 @@ type TypeShape = {
   relations: Array<{ relation: RecordRelationship; related: RecordType }>;
 };
 
-function referencedProbabilityFields(model: RecordModel, typeId: string): string[] {
-  const found: string[] = [];
-  const visit = (value: unknown) => {
-    if (!value || typeof value !== "object") return;
-    if (Array.isArray(value)) return value.forEach(visit);
-    const node = value as Record<string, unknown>;
-    if (node.kind === "optionAttribute" && node.attribute === "probability" && typeof node.fieldId === "string")
-      found.push(node.fieldId);
-    Object.values(node).forEach(visit);
-  };
-  for (const field of model.fields)
-    if (field.typeId === typeId && !field.archived && "expression" in field.behavior) visit(field.behavior.expression);
-  return found;
+function calculationInputs(model: RecordModel, typeId: string): Set<string> {
+  return new Set(
+    model.fields.flatMap((field) =>
+      field.typeId === typeId && !field.archived && "expression" in field.behavior
+        ? [...expressionFieldDependencies(field.behavior.expression)]
+        : [],
+    ),
+  );
 }
 
 function describeType(model: RecordModel, type: RecordType, closedLabels: Set<string>): TypeShape {
@@ -124,9 +120,9 @@ function describeType(model: RecordModel, type: RecordType, closedLabels: Set<st
     .filter((field) => field.typeId === type.id && !field.archived)
     .sort((left, right) => left.position - right.position);
   const selects = fields.filter((field) => isSingleSelect(field) && field.options.length >= 2);
-  const referenced = referencedProbabilityFields(model, type.id);
+  const referenced = calculationInputs(model, type.id);
   const pipeline =
-    selects.find((field) => referenced.includes(field.id)) ??
+    selects.find((field) => referenced.has(field.id)) ??
     selects.find((field) => field.options.some((option) => probability(option) !== null)) ??
     selects.find((field) => field.id === type.defaults.groupBy);
   const status = selects.find((field) => {

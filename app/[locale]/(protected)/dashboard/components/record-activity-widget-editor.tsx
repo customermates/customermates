@@ -1,13 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { runUserAction } from "@/core/errors/report-application-error";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { z } from "zod";
 import { X } from "lucide-react";
 import type { RecordRef } from "@/features/records/record-model.schema";
-import type { RecordActivityFilter, RecordActivitiesResult } from "@/ee/messaging/activities/record-activities.schema";
+import type { RecordActivityFilter, RecordActivityQuery } from "@/ee/messaging/activities/record-activities.schema";
 import type { WidgetModalStore } from "./widget-modal.store";
 import { RecordActivityQuerySchema } from "@/ee/messaging/activities/record-activities.schema";
 import { ACTIVITY_KINDS } from "@/ee/messaging/activities/activities.schema";
@@ -18,24 +16,21 @@ import { FormSelect } from "@/components/forms/form-select";
 import { FormIsoDatePicker } from "@/components/forms/form-iso-date-picker";
 import { useAppForm } from "@/components/forms/form-context";
 import { Button } from "@/components/ui/button";
-import { ActivitiesList } from "@/features/messaging/activities/activities-list";
 import { RecordAiAction } from "@/app/components/agent-chat/record-ai-action";
 import { recordSearchLabel } from "@/features/records/record-search.schema";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
-import { getRecordActivitiesAction, getRecordChoicesAction, getRecordModelAction } from "../../records/actions";
+import { getRecordChoicesAction, getRecordModelAction } from "../../records/actions";
 import { resolveSearchReferencesAction } from "../../search/actions";
 import { getMessagingThreadsAction } from "../../inbox/actions";
 import { discoverWidgetRecordTypesAction } from "../actions";
 import { isRecordActivityWidgetForm } from "./record-widget-form";
 import { WidgetEditorColumns, WidgetEditorSection } from "./widget-editor-layout";
 import { WidgetPreviewFrame } from "./widget-preview-frame";
+import { RecordActivityWidgetCard } from "./record-activity-widget-card";
 import { ActivityTimelineSkeleton } from "@/features/messaging/activities/activity-timeline-skeleton";
-import { reportApplicationError } from "@/core/errors/report-application-error";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
-import { cn } from "@/core/utils/cn";
 
-const AUTO_PREVIEW_DELAY_MS = 600;
+const PREVIEW_DELAY_MS = 600;
 
 type Choice = { id: string; label: string };
 const selectedIds = (value: string | string[] | undefined) =>
@@ -126,20 +121,10 @@ export const RecordActivityWidgetEditor = observer(
     const formDisabled = useAppForm()?.isDisabled ?? false;
     const form = store.form;
     const [typeNames, setTypeNames] = useState<Array<{ id: string; pluralLabel: string }>>([]);
-    const [preview, setPreview] = useState<{ key: string; result: RecordActivitiesResult } | null>(null);
-    const [loading, setLoading] = useState(false);
-    const [previewError, setPreviewError] = useState(false);
     const query = isRecordActivityWidgetForm(form) ? form.activityQuery : null;
-    const previewGeneration = useRef(0);
-    const previewKey = JSON.stringify(query);
-    useEffect(() => {
-      previewGeneration.current += 1;
-      setLoading(false);
-      setPreviewError(false);
-      return () => {
-        previewGeneration.current += 1;
-      };
-    }, [form, previewKey, store.isOpen]);
+    const [refreshes, setRefreshes] = useState(0);
+    const validQuery = query && RecordActivityQuerySchema.safeParse(query).success ? JSON.stringify(query) : null;
+    const previewQuery = useDebouncedValue(validQuery, PREVIEW_DELAY_MS);
     const typeIds = query
       ? [
           ...new Set(
@@ -170,49 +155,7 @@ export const RecordActivityWidgetEditor = observer(
     useEffect(() => {
       if (needsAccounts) void root.connectedAccountsStore.ensureLoaded().catch(() => undefined);
     }, [root, needsAccounts]);
-    const runActivityPreview = (explicit: boolean) => {
-      if (!query) return;
-      const parsed = RecordActivityQuerySchema.safeParse(query);
-      if (!parsed.success) {
-        if (explicit) toastZodErrorTree(z.treeifyError(parsed.error));
-        return;
-      }
-      const requestKey = JSON.stringify(query);
-      const generation = ++previewGeneration.current;
-      const isCurrent = () => generation === previewGeneration.current;
-      setLoading(true);
-      setPreviewError(false);
-      return store
-        .runPreview(() => getRecordActivitiesAction({ ...parsed.data, cursor: null, limit: 25 }))
-        .then((result) => {
-          if (!result || !isCurrent()) return;
-          if (result.ok) setPreview({ key: requestKey, result: result.data });
-          else {
-            setPreviewError(true);
-            if (explicit) toastZodErrorTree(result.error);
-          }
-        })
-        .catch((error: unknown) => {
-          if (!isCurrent()) return;
-          setPreviewError(true);
-          if (explicit) throw error;
-        })
-        .finally(() => {
-          if (isCurrent()) setLoading(false);
-        });
-    };
-    const runAutoPreview = useRef(runActivityPreview);
-    useEffect(() => {
-      runAutoPreview.current = runActivityPreview;
-    });
-    const autoPreviewKey = (section === "preview" || section === "all") && query && store.isOpen ? previewKey : null;
-    const debouncedAutoPreviewKey = useDebouncedValue(autoPreviewKey, AUTO_PREVIEW_DELAY_MS);
-    useEffect(() => {
-      if (!debouncedAutoPreviewKey || debouncedAutoPreviewKey !== autoPreviewKey) return;
-      void runAutoPreview.current(false)?.catch(reportApplicationError);
-    }, [debouncedAutoPreviewKey, autoPreviewKey, form]);
     if (!isRecordActivityWidgetForm(form) || !query) return null;
-    const key = JSON.stringify(query);
     const sources = ACTIVITY_KINDS.map((id) => ({
       id,
       label: t(
@@ -269,35 +212,28 @@ export const RecordActivityWidgetEditor = observer(
         )}
 
         <WidgetPreviewFrame
-          error={previewError ? t("Dashboard.activityWidget.error") : null}
           geometry={store.previewGeometry}
           kind={form.kind}
-          loading={loading}
-          name={form.name}
-          refreshDisabled={formDisabled}
+          refreshDisabled={formDisabled || !previewQuery}
           refreshLabel={t("Dashboard.widgetEditor.preview.title")}
-          onRefresh={() => runUserAction(async () => runActivityPreview(true))}
+          onRefresh={() => setRefreshes((count) => count + 1)}
         >
-          {preview ? (
-            <div
-              className={cn("min-h-0 overflow-hidden transition-opacity", preview.key !== key && "opacity-50")}
-              data-preview-current={preview?.key === key}
-            >
-              <ActivitiesList
-                hasMore={false}
-                items={preview.result.items}
-                loading={false}
-                onLoadOlder={() => undefined}
+          {previewQuery ? (
+            <div className="h-full" data-preview-current={previewQuery === validQuery}>
+              <RecordActivityWidgetCard
+                key={`${previewQuery}:${refreshes}`}
+                widget={{
+                  id: form.id ?? "",
+                  name: form.name.trim() || t("Dashboard.widgetEditor.preview.untitled"),
+                  activityQuery: JSON.parse(previewQuery) as RecordActivityQuery,
+                  displayOptions: form.displayOptions,
+                }}
               />
-
-              {preview.result.items.length === 0 && (
-                <p className="py-8 text-center text-sm text-muted-foreground">
-                  {t("Dashboard.activityWidget.noMatches")}
-                </p>
-              )}
             </div>
           ) : (
-            <ActivityTimelineSkeleton />
+            <div className="h-full rounded-xl border border-dashed border-border p-6">
+              <ActivityTimelineSkeleton animated={false} rows={4} />
+            </div>
           )}
         </WidgetPreviewFrame>
       </div>
