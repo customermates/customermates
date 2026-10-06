@@ -42,7 +42,7 @@ const RelatedSummary = observer(function RelatedSummary({
     {
       typeId,
       page: 1,
-      pageSize: 25,
+      pageSize: 10,
       ...(store.record
         ? column.kind === "relationshipPath"
           ? { throughPath: { ref: store.record.ref, pathId: column.definition.id } }
@@ -87,17 +87,16 @@ const RelatedSummary = observer(function RelatedSummary({
             : t("RecordModel.record"),
   }));
   return (
-    <AppChipStack
-      chipLabel={(item) => t("RecordModel.openRecord", { name: item.label })}
-      items={items}
-      variant={recordLinkColor(store.presentation.linkColors, typeId)}
-      onChipClick={(item) =>
-        store.rootStore.recordWorkspaceStore.open(
-          item.ref,
-          document.activeElement instanceof HTMLElement ? document.activeElement : null,
-        )
-      }
-    />
+    <div className="flex min-w-0 items-center gap-1">
+      <AppChipStack
+        chipLabel={(item) => t("RecordModel.openRecord", { name: item.label })}
+        items={items}
+        variant={recordLinkColor(store.presentation.linkColors, typeId)}
+        onChipClick={(item, trigger) => store.rootStore.recordWorkspaceStore.open(item.ref, trigger)}
+      />
+
+      {(query.data?.total ?? 0) > items.length && <span className="shrink-0 text-xs text-muted-foreground">…</span>}
+    </div>
   );
 });
 

@@ -459,8 +459,15 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
   };
   onSubmit = async () => {
     if (!this.isOpen || this.isReadOnly || this.isLoading || this.pendingOperationId) return;
+    // Mirrors the server: new records need every required input; updates only check the fields being changed.
     const missing = this.fields.filter((field) => {
-      if (!field.required || field.behavior.kind !== "input") return false;
+      if (!field.required || field.behavior.kind !== "input" || this.record?.protectedKind) return false;
+      if (this.record?.fields.find((value) => value.fieldId === field.id)?.result.state === "restricted") return false;
+      if (
+        this.record &&
+        JSON.stringify(this.form.values[field.id]) === JSON.stringify(this.savedState.values[field.id])
+      )
+        return false;
       const value = this.scalar(field);
       return value === null || (value.kind === "text" && !value.value.trim());
     });

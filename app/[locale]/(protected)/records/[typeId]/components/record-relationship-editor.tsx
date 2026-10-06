@@ -156,7 +156,7 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
               )}
               data-relationship-field=""
             >
-              {linked.loading && chosen.length === 0 && (
+              {linked.loading && store.isReadOnly && chosen.length === 0 && (
                 <span aria-label={t("Loading.text")} role="status">
                   <SelectionValueSkeleton />
                 </span>
@@ -224,9 +224,13 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
                     role="combobox"
                     type="button"
                   >
-                    <span className="truncate">
-                      {chosen.length === 0 && !linked.loading ? t("RecordModel.linkRecord") : null}
-                    </span>
+                    {linked.loading && chosen.length === 0 ? (
+                      <span aria-label={t("Loading.text")} role="status">
+                        <SelectionValueSkeleton />
+                      </span>
+                    ) : (
+                      <span className="truncate">{chosen.length === 0 ? t("RecordModel.linkRecord") : null}</span>
+                    )}
 
                     <ChevronsUpDown aria-hidden className="size-4 shrink-0 opacity-50" />
                   </button>

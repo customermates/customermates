@@ -108,7 +108,7 @@ test("relationship inputs keep linked chips and the record search inside one fie
 test("record tables edit cells in place, open linked chips and offer row actions", async ({
   page,
   companyId,
-}) => {
+}, testInfo) => {
   test.setTimeout(180000);
   await setListColor(page, presetId(companyId, "organization"), "info");
   const name = `Inline deal ${randomUUID().slice(0, 8)}`;
@@ -138,7 +138,8 @@ test("record tables edit cells in place, open linked chips and offer row actions
   await expect(organization).not.toBeVisible();
 
   const actions = row.locator("[data-record-row-actions]");
-  await expect(actions).toHaveCSS("opacity", "0");
+  // Touch screens have no hover, so row actions stay visible there.
+  await expect(actions).toHaveCSS("opacity", testInfo.project.name === "mobile" ? "1" : "0");
   await row.getByRole("button", { name: `Open details for ${name}`, exact: true }).focus();
   await expect(actions).toHaveCSS("opacity", "1");
   await page.keyboard.press("Enter");

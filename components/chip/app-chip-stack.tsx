@@ -44,7 +44,8 @@ type AppChipProps = ComponentProps<typeof AppChip>;
 
 type Props<T extends ChipStackItem> = {
   items: T[];
-  onChipClick?: (item: T) => void;
+  /** `trigger` is the clicked chip, or the +N button for items picked from its menu (for focus return). */
+  onChipClick?: (item: T, trigger: HTMLElement | null) => void;
   chipHref?: (item: T) => string | undefined;
   /** Accessible name for a chip's link or button, e.g. "Open {name}". */
   chipLabel?: (item: T) => string;
@@ -68,6 +69,7 @@ export function AppChipStack<T extends ChipStackItem>({
   const MAX_WIDTH_THRESHOLD = 5;
 
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const moreTriggerRef = useRef<HTMLButtonElement | null>(null);
   const measurerRef = useRef<HTMLDivElement | null>(null);
   const moreMeasureRefs = useRef<Map<number, HTMLSpanElement>>(new Map());
   const chipMeasureRefs = useRef<Map<string, HTMLDivElement>>(new Map());
@@ -286,7 +288,7 @@ export function AppChipStack<T extends ChipStackItem>({
                       e.stopPropagation();
                       if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
                       e.preventDefault();
-                      if (onChipClick) onChipClick(item);
+                      if (onChipClick) onChipClick(item, e.currentTarget);
                       else navigateToHref(href);
                     }}
                   >
@@ -299,7 +301,7 @@ export function AppChipStack<T extends ChipStackItem>({
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      onChipClick?.(item);
+                      onChipClick?.(item, e.currentTarget);
                     }}
                   >
                     {chip}
@@ -316,7 +318,7 @@ export function AppChipStack<T extends ChipStackItem>({
       {ensuredHiddenItems.length > 0 && (
         <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
           <DropdownMenuTrigger asChild>
-            <button className="flex-none inline-flex" type="button">
+            <button ref={moreTriggerRef} className="flex-none inline-flex" type="button">
               <AppChip interactive className="max-w-full cursor-pointer" size={size} variant={variant}>
                 <span className="truncate whitespace-nowrap">{moreLabel(ensuredHiddenItems.length)}</span>
               </AppChip>
@@ -332,7 +334,7 @@ export function AppChipStack<T extends ChipStackItem>({
                   close={() => setDropdownOpen(false)}
                   href={href}
                   onActivate={() => {
-                    if (onChipClick) onChipClick(item);
+                    if (onChipClick) onChipClick(item, moreTriggerRef.current);
                     else if (href) navigateToHref(href);
                   }}
                 >

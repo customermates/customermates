@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { AppModalActionRail, type AppModalActionProps } from "@/components/modal/app-modal-action";
 import { cn } from "@/core/utils/cn";
 import { useRecordAiAction } from "@/app/components/agent-chat/record-ai-action";
+import { ViewAiAction } from "@/components/data-view/views/view-ai-action";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import {
   RecordDetailLayoutStatus,
@@ -28,19 +29,13 @@ type Props = {
  * Record header actions in the shared rail order: Ask AI, Customize, Delete, then Open page when `onOpenPage`
  * is given (drawer only). Used by the record drawer header and the record page top bar.
  */
-export const RecordHeaderActions = observer(function RecordHeaderActions({
-  store,
-  name,
-  deletion,
-  layout,
-  onOpenPage,
-  className,
-}: Omit<Props, "formId"> & {
+type HeaderActionProps = Omit<Props, "formId"> & {
   /** From useRecordDetailLayout() in the editor tree; the page top bar renders outside that provider. */
   layout: RecordDetailLayoutState | null;
   onOpenPage?: (event: MouseEvent<HTMLAnchorElement>) => void;
-  className?: string;
-}) {
+};
+
+function useRecordHeaderActions({ store, name, deletion, layout, onOpenPage }: HeaderActionProps) {
   const t = useTranslations();
   const record = store.record;
   const askAi = useRecordAiAction({
@@ -91,7 +86,31 @@ export const RecordHeaderActions = observer(function RecordHeaderActions({
         ]
       : []),
   ];
-  return <AppModalActionRail actions={actions} className={className} />;
+  return actions;
+}
+
+export const RecordHeaderActions = observer(function RecordHeaderActions({
+  className,
+  ...props
+}: HeaderActionProps & { className?: string }) {
+  return <AppModalActionRail actions={useRecordHeaderActions(props)} className={className} />;
+});
+
+/** Record page top bar: the labeled Ask AI of the list pages, the other header actions as icons, then status. */
+const RecordTopBarActions = observer(function RecordTopBarActions(props: HeaderActionProps) {
+  const actions = useRecordHeaderActions(props);
+  const askAi = actions.find((action) => action.kind === "assistant");
+  return (
+    <>
+      {askAi && "onClick" in askAi && askAi.onClick && (
+        <ViewAiAction className="[&>span]:hidden sm:[&>span]:inline" onClick={() => void askAi.onClick?.()} />
+      )}
+
+      <AppModalActionRail actions={actions.filter((action) => action !== askAi)} className="min-h-8 self-center" />
+
+      {props.layout && <RecordDetailLayoutStatus {...props.layout} />}
+    </>
+  );
 });
 
 export const RecordEditorActions = observer(function RecordEditorActions({
@@ -142,9 +161,7 @@ export const RecordPageActions = observer(function RecordPageActions(props: Prop
   const actions = useMemo(
     () => (
       <div data-record-page-actions className="flex items-center gap-1">
-        {layout && <RecordDetailLayoutStatus {...layout} />}
-
-        <RecordHeaderActions deletion={deletion} layout={layout} name={name} store={store} />
+        <RecordTopBarActions deletion={deletion} layout={layout} name={name} store={store} />
 
         <RecordEditorActions compact formId={formId} store={store} />
       </div>

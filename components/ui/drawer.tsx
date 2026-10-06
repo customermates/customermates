@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { XIcon } from "lucide-react";
 
 import { cn } from "@/core/utils/cn";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./tooltip";
 import {
   OVERLAY_CLOSE_CLASS,
   OVERLAY_CLOSE_POSITION_CLASS,
@@ -78,14 +79,22 @@ function DrawerContent({
         {children}
 
         {showCloseButton && (
-          <DrawerPrimitive.Close
-            className={cn(OVERLAY_CLOSE_CLASS, OVERLAY_CLOSE_POSITION_CLASS, "z-10")}
-            data-slot="drawer-close"
-          >
-            <XIcon />
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DrawerPrimitive.Close
+                  className={cn(OVERLAY_CLOSE_CLASS, OVERLAY_CLOSE_POSITION_CLASS, "z-10")}
+                  data-slot="drawer-close"
+                >
+                  <XIcon />
 
-            <span className="sr-only">{t("Common.actions.close")}</span>
-          </DrawerPrimitive.Close>
+                  <span className="sr-only">{t("Common.actions.close")}</span>
+                </DrawerPrimitive.Close>
+              </TooltipTrigger>
+
+              <TooltipContent>{t("Common.actions.close")}</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         )}
       </DrawerPrimitive.Content>
     </DrawerPortal>
