@@ -79,7 +79,12 @@ export function activityViewFilterableFields(
   const selections = [FilterOperatorKey.in, FilterOperatorKey.notIn];
   const messaging = kinds.some((kind) => !isChangeActivityKind(kind));
   return [
-    ...["timelineKind", ...(messaging ? ["provider", "connectedAccountId", "timelineThreadId"] : [])].map((field) => ({
+    {
+      field: "timelineKind",
+      operators: selections,
+      ...(messaging ? {} : { options: kinds.map((kind) => ({ value: kind, label: null })) }),
+    },
+    ...(messaging ? ["provider", "connectedAccountId", "timelineThreadId"] : []).map((field) => ({
       field,
       operators: selections,
     })),

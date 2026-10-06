@@ -771,6 +771,7 @@ export const DYNAMIC_KEY_SITES = [
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Common.providers.${result.thread.provider}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Common.providers.${thread.provider}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Common.userStatuses.${status}",
+  "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: EntityTimeline.types.${option.value}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: EntityTimeline.types.${type}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Inbox.lastMessageDirections.${direction}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Inbox.threadStates.${state}",

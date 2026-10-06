@@ -49,8 +49,16 @@ test("shows admin and configuration history on the workspace activity page and f
   for (const name of ["Provider", "Channel", "Conversation"])
     await expect(filters.getByRole("option", { name, exact: true })).toHaveCount(0);
   await filters.getByRole("option", { name: "Type", exact: true }).click();
-  await page.getByRole("option", { name: "Configuration", exact: true }).click();
-  await page.keyboard.press("Escape");
+  const configurationKind = page.getByRole("option", { name: "Configuration", exact: true });
+  await expect(configurationKind).toBeVisible();
+  for (const name of ["Messages", "Activities"])
+    await expect(page.getByRole("option", { name, exact: true })).toHaveCount(0);
+  await configurationKind.click();
+  const sheet = page.getByRole("dialog");
+  await expect(async () => {
+    if (await sheet.first().isVisible()) await page.keyboard.press("Escape");
+    await expect(sheet).toHaveCount(0, { timeout: 1000 });
+  }).toPass();
   await expect(page.getByRole("button", { name: /Role Created/ })).toHaveCount(0);
   await expect(configuration).toBeVisible();
 
