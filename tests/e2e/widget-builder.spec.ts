@@ -42,7 +42,7 @@ test("starts from a recommended starter, previews it live at dashboard size and 
   const cards = dialog.locator('[data-slot="widget-chooser-card"]');
   expect(await cards.count()).toBeGreaterThan(2);
   const heights = await cards.evaluateAll((elements) =>
-    elements.map((element) => element.querySelector("span")?.getBoundingClientRect().height),
+    elements.map((element) => element.querySelector<HTMLElement>("span")?.offsetHeight),
   );
   expect(new Set(heights).size).toBe(1);
 
