@@ -152,20 +152,19 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
       targets: this.selectionTargets,
       fields: [{ fieldId, value }],
     });
-  /** Whether a row may be edited in place now: update permission and no bulk, board or row write in flight. */
+  /** Whether a row may be edited in place now: update permission and no bulk or board write in flight. */
   canUpdateRecord(record: RecordRow) {
     return (
       this.presentation.permittedActions.includes("update") &&
       !record.protectedKind &&
       !this.isBulkMutating &&
       !this.pendingBulkOperation &&
-      !this.pendingBoardOperation &&
-      !this.movingRecords.has(record.id)
+      !this.pendingBoardOperation
     );
   }
   /** Inline table edit of one field on one record; returns whether the change was accepted. */
   updateRecordField = async (record: RecordRow, fieldId: string, value: RecordScalar | null): Promise<boolean> => {
-    if (!this.canUpdateRecord(record)) return false;
+    if (!this.canUpdateRecord(record) || this.movingRecords.has(record.id)) return false;
     this.movingRecords.add(record.id);
     try {
       const result = await mutateRecordAction({
