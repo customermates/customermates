@@ -112,11 +112,13 @@ const LayoutControls = observer(function LayoutControls({
   compact: boolean;
 }) {
   const t = useTranslations();
+  const isRecordBusy = editor.isLoading || Boolean(editor.pendingOperationId) || editor.refreshRequired;
   return (
     <div className="flex flex-wrap items-center gap-2">
       <Button
         aria-label={isPersonalizing ? t("EntityDetail.donePersonalizing") : t("EntityDetail.personalize")}
         aria-pressed={isPersonalizing}
+        disabled={isRecordBusy}
         size="sm"
         type="button"
         variant={isPersonalizing ? "default" : "secondary"}
@@ -132,7 +134,7 @@ const LayoutControls = observer(function LayoutControls({
       {isPersonalizing && (
         <Button
           aria-label={t("RecordModel.resetDetailLayout")}
-          disabled={layout.isSaving || (!layout.state.hasPersonalization && !layout.dirty)}
+          disabled={isRecordBusy || layout.isSaving || (!layout.state.hasPersonalization && !layout.dirty)}
           size="sm"
           type="button"
           variant="ghost"
@@ -155,6 +157,7 @@ const LayoutControls = observer(function LayoutControls({
           {layout.saveFailed ? t("RecordModel.detailLayoutSaveFailed") : t("RecordModel.detailLayoutReadFailed")}
 
           <Button
+            disabled={isRecordBusy}
             size="sm"
             type="button"
             variant="ghost"
@@ -164,7 +167,13 @@ const LayoutControls = observer(function LayoutControls({
           </Button>
 
           {layout.saveFailed && (
-            <Button size="sm" type="button" variant="ghost" onClick={() => editor.runAfterChannelDraft(layout.discard)}>
+            <Button
+              disabled={isRecordBusy}
+              size="sm"
+              type="button"
+              variant="ghost"
+              onClick={() => editor.runAfterChannelDraft(layout.discard)}
+            >
               {t("Common.actions.discard")}
             </Button>
           )}
