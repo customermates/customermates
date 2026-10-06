@@ -3229,7 +3229,6 @@
       "cardinality": "Cuántos registros se vinculan",
       "otherList": "la lista vinculada",
       "shownOn": "Se muestra en los registros de {list}",
-      "summary": "Cada registro de {list} se vincula con {amount, select, one {un registro} other {cualquier número de registros}} de {linked}.",
       "thisList": "Esta lista"
     },
     "relationshipLabel": "Etiqueta en este lado",

@@ -3229,7 +3229,6 @@
       "cardinality": "Nombre d’enregistrements liés",
       "otherList": "la liste liée",
       "shownOn": "Affiché sur les enregistrements de {list}",
-      "summary": "Chaque enregistrement de {list} est lié à {amount, select, one {un enregistrement} other {un nombre quelconque d’enregistrements}} de {linked}.",
       "thisList": "Cette liste"
     },
     "relationshipLabel": "Libellé de ce côté",

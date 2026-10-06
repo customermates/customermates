@@ -136,91 +136,73 @@ const DirectRelationshipFields = observer(function DirectRelationshipFields({
   const cardinality = configureCardinality(store.form);
   const listLabel = (type: typeof source) => type?.pluralLabel ?? t("RecordModel.relationshipEditor.otherList");
   return (
-    <div className="flex flex-col gap-3">
-      <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:gap-0">
-        <div className="flex flex-col gap-3 rounded-lg border border-border p-3" data-relationship-side="source">
-          <div className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium text-muted-foreground">
-              {t("RecordModel.relationshipEditor.thisList")}
-            </span>
+    <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:gap-0">
+      <div className="flex flex-col gap-3 rounded-lg border border-border p-3" data-relationship-side="source">
+        <FormSelect
+          readOnly
+          id="sourceTypeId"
+          items={[
+            {
+              value: store.sourceTypeId,
+              label: listLabel(source),
+              startContent: <SourceIcon aria-hidden className="size-4 text-muted-foreground" />,
+            },
+          ]}
+          label={t("RecordModel.relationshipEditor.thisList")}
+          value={store.sourceTypeId}
+        />
 
-            <span className="flex h-9 items-center gap-2 rounded-md bg-muted px-3 text-sm">
-              <SourceIcon aria-hidden className="size-4 text-muted-foreground" />
-
-              <span className="truncate">{listLabel(source)}</span>
-            </span>
-          </div>
-
-          <FormInput
-            required
-            description={t("RecordModel.relationshipEditor.shownOn", { list: listLabel(source) })}
-            id="sourceLabel"
-            label={t("RecordModel.relationshipLabel")}
-          />
-        </div>
-
-        <div className="flex items-center justify-center">
-          <span aria-hidden className="hidden h-px w-3 bg-border sm:block" />
-
-          <FormSelect
-            ariaLabel={t("RecordModel.relationshipEditor.cardinality")}
-            className="w-auto rounded-full"
-            id="cardinality"
-            items={CARDINALITIES.map((value) => ({ value, label: t(`RecordModel.cardinality.${value}`) }))}
-            label={null}
-            value={cardinality}
-            onValueChange={(value) => {
-              const [left, right] = value.split("To");
-              store.onChange("targetCardinality", left === "one" ? "one" : "many");
-              store.onChange("sourceCardinality", right === "One" ? "one" : "many");
-            }}
-          />
-
-          <span aria-hidden className="hidden h-px w-3 bg-border sm:block" />
-        </div>
-
-        <div className="flex flex-col gap-3 rounded-lg border border-border p-3" data-relationship-side="target">
-          <FormSelect
-            id="targetTypeId"
-            items={types
-              .filter((type) => !type.archived)
-              .map((type) => {
-                const Icon = recordTypeIcon(type.icon);
-                return {
-                  value: type.id,
-                  label: type.pluralLabel,
-                  startContent: <Icon aria-hidden className="size-4 text-muted-foreground" />,
-                };
-              })}
-            label={t("RecordModel.linkedType")}
-          />
-
-          <FormInput
-            required
-            description={t("RecordModel.relationshipEditor.shownOn", { list: listLabel(target) })}
-            id="targetLabel"
-            label={t("RecordModel.oppositeLabel")}
-          />
-        </div>
+        <FormInput
+          required
+          description={t("RecordModel.relationshipEditor.shownOn", { list: listLabel(source) })}
+          id="sourceLabel"
+          label={t("RecordModel.relationshipLabel")}
+        />
       </div>
 
-      <ul className="flex flex-col gap-1 rounded-lg bg-muted/50 px-3 py-2.5 text-sm" data-relationship-summary="">
-        <li>
-          {t("RecordModel.relationshipEditor.summary", {
-            list: listLabel(source),
-            linked: listLabel(target),
-            amount: store.form.sourceCardinality,
-          })}
-        </li>
+      <div className="flex items-center justify-center">
+        <span aria-hidden className="hidden h-px w-3 bg-border sm:block" />
 
-        <li>
-          {t("RecordModel.relationshipEditor.summary", {
-            list: listLabel(target),
-            linked: listLabel(source),
-            amount: store.form.targetCardinality,
-          })}
-        </li>
-      </ul>
+        <FormSelect
+          ariaLabel={t("RecordModel.relationshipEditor.cardinality")}
+          containerClassName="w-40"
+          id="cardinality"
+          items={CARDINALITIES.map((value) => ({ value, label: t(`RecordModel.cardinality.${value}`) }))}
+          label={null}
+          value={cardinality}
+          onValueChange={(value) => {
+            const [left, right] = value.split("To");
+            store.onChange("targetCardinality", left === "one" ? "one" : "many");
+            store.onChange("sourceCardinality", right === "One" ? "one" : "many");
+          }}
+        />
+
+        <span aria-hidden className="hidden h-px w-3 bg-border sm:block" />
+      </div>
+
+      <div className="flex flex-col gap-3 rounded-lg border border-border p-3" data-relationship-side="target">
+        <FormSelect
+          id="targetTypeId"
+          items={types
+            .filter((type) => !type.archived)
+            .map((type) => {
+              const Icon = recordTypeIcon(type.icon);
+              return {
+                value: type.id,
+                label: type.pluralLabel,
+                startContent: <Icon aria-hidden className="size-4 text-muted-foreground" />,
+              };
+            })}
+          label={t("RecordModel.linkedType")}
+        />
+
+        <FormInput
+          required
+          description={t("RecordModel.relationshipEditor.shownOn", { list: listLabel(target) })}
+          id="targetLabel"
+          label={t("RecordModel.oppositeLabel")}
+        />
+      </div>
     </div>
   );
 });
@@ -242,15 +224,16 @@ export const RelationshipModal = observer(function RelationshipModal({ store }: 
           )}
 
           <div className="space-y-4">
-            <FormSelect
-              disabled={Boolean(store.form.id)}
-              id="mode"
-              items={[
-                { value: "direct", label: t("RecordModel.directRelationship") },
-                { value: "path", label: t("RecordModel.relationshipPath") },
-              ]}
-              label={t("RecordModel.connectionType")}
-            />
+            {!store.form.id && (
+              <FormSelect
+                id="mode"
+                items={[
+                  { value: "direct", label: t("RecordModel.directRelationship") },
+                  { value: "path", label: t("RecordModel.relationshipPath") },
+                ]}
+                label={t("RecordModel.connectionType")}
+              />
+            )}
 
             {store.form.mode === "path" ? (
               <>

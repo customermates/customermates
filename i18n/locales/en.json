@@ -3229,7 +3229,6 @@
       "cardinality": "How many records link",
       "otherList": "the linked list",
       "shownOn": "Shown on records in {list}",
-      "summary": "Each record in {list} links to {amount, select, one {one record} other {any number of records}} in {linked}.",
       "thisList": "This list"
     },
     "relationshipLabel": "Label on this side",

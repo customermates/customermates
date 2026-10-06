@@ -308,19 +308,13 @@ test("shows the data model graph and edits lists, fields and relationships from 
     await expect(dialog.getByRole("textbox", { name: "Label on this side", exact: false })).toHaveValue(
       relation.sourceLabel,
     );
-    const amount = (cardinality: "one" | "many") => (cardinality === "one" ? "one record" : "any number of records");
     const cardinality = dialog.getByRole("combobox", { name: "How many records link", exact: true });
     await expect(cardinality).toContainText(
       `${relation.targetCardinality === "one" ? "One" : "Many"} to ${relation.sourceCardinality}`,
     );
-    const summary = dialog.locator("[data-relationship-summary]");
-    await expect(summary).toContainText(
-      `Each record in Deals links to ${amount(relation.sourceCardinality)} in Organizations.`,
-    );
     await cardinality.click();
     await page.getByRole("option", { name: "One to one", exact: true }).click();
-    await expect(summary).toContainText("Each record in Deals links to one record in Organizations.");
-    await expect(summary).toContainText("Each record in Organizations links to one record in Deals.");
+    await expect(cardinality).toContainText("One to one");
     await dialog.getByRole("button", { name: "Cancel", exact: true }).first().click();
     await page.getByRole("alertdialog").getByRole("button", { name: "Discard", exact: true }).click();
     await expect(dialog).not.toBeVisible();

@@ -3229,7 +3229,6 @@
       "cardinality": "Quanti record sono collegati",
       "otherList": "la lista collegata",
       "shownOn": "Mostrato nei record di {list}",
-      "summary": "Ogni record di {list} è collegato a {amount, select, one {un record} other {un numero qualsiasi di record}} di {linked}.",
       "thisList": "Questa lista"
     },
     "relationshipLabel": "Etichetta su questo lato",
