@@ -33,6 +33,7 @@ import {
 import { Cable, Link2, Maximize, Plus, Sigma, ZoomIn, ZoomOut } from "lucide-react";
 
 import { AppChip } from "@/components/chip/app-chip";
+import { ClickableChip } from "@/components/chip/clickable-chip";
 import { AppLink } from "@/components/shared/app-link";
 import { recordTypeIcon } from "@/components/records/record-type-icon";
 import { Button } from "@/components/ui/button";
@@ -371,6 +372,21 @@ function GraphEdgeView({ data }: EdgeProps<GraphEdge>) {
       target: labelOf(relation.targetTypeId),
       cardinality,
     });
+    const chip = {
+      "aria-describedby": calculated ? descriptionId : undefined,
+      "aria-label": label,
+      "data-configure-relationship": relation.id,
+      size: "md" as const,
+      startContent: calculated ? <Sigma aria-hidden /> : undefined,
+      tooltip: (
+        <>
+          <p>{label}</p>
+
+          {calculated && <p>{calculated}</p>}
+        </>
+      ),
+      variant: "secondary" as const,
+    };
     return (
       <>
         <BaseEdge
@@ -383,36 +399,24 @@ function GraphEdgeView({ data }: EdgeProps<GraphEdge>) {
         />
 
         <EdgeLabelRenderer>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                aria-describedby={calculated ? descriptionId : undefined}
-                aria-label={label}
-                className="nodrag nopan pointer-events-auto absolute z-[4] flex h-7 items-center gap-1 rounded-md border border-border bg-popover px-2 text-xs font-medium text-popover-foreground shadow-xs outline-none hover:border-primary/60 focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none"
-                data-configure-relationship={relation.id}
-                disabled={disabled || !canManage}
-                style={chipPosition}
-                type="button"
-                onClick={() => onEditRelationship(relation)}
-              >
-                {calculated && <Sigma aria-hidden className="size-3 text-primary" />}
-
-                {calculated && (
-                  <span className="sr-only" id={descriptionId}>
-                    {calculated}
-                  </span>
-                )}
-
+          <div
+            className="nodrag nopan pointer-events-auto absolute z-[4] rounded-md bg-background"
+            style={chipPosition}
+          >
+            {canManage && !disabled ? (
+              <ClickableChip {...chip} onClick={() => onEditRelationship(relation)}>
                 {cardinality}
-              </button>
-            </TooltipTrigger>
+              </ClickableChip>
+            ) : (
+              <AppChip {...chip}>{cardinality}</AppChip>
+            )}
+          </div>
 
-            <TooltipContent className="max-w-xs">
-              <p>{label}</p>
-
-              {calculated && <p>{calculated}</p>}
-            </TooltipContent>
-          </Tooltip>
+          {calculated && (
+            <span className="sr-only" id={descriptionId}>
+              {calculated}
+            </span>
+          )}
         </EdgeLabelRenderer>
       </>
     );
@@ -430,24 +434,18 @@ function GraphEdgeView({ data }: EdgeProps<GraphEdge>) {
       />
 
       <EdgeLabelRenderer>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span
-              aria-label={title}
-              className={cn(
-                "pointer-events-auto absolute z-[4] flex size-6 items-center justify-center rounded-md border bg-popover shadow-xs",
-                calculation ? "border-primary/40 text-primary" : "border-border text-muted-foreground",
-              )}
-              data-configure-graph-edge={edge.kind}
-              role="img"
-              style={chipPosition}
-            >
-              {calculation ? <Sigma aria-hidden className="size-3" /> : <Link2 aria-hidden className="size-3" />}
-            </span>
-          </TooltipTrigger>
-
-          <TooltipContent>{title}</TooltipContent>
-        </Tooltip>
+        <div className="pointer-events-auto absolute z-[4] rounded-md bg-background" style={chipPosition}>
+          <AppChip
+            aria-label={title}
+            data-configure-graph-edge={edge.kind}
+            role="img"
+            size="md"
+            tooltip={title}
+            variant={calculation ? "default" : "secondary"}
+          >
+            {calculation ? <Sigma aria-hidden className="size-3.5" /> : <Link2 aria-hidden className="size-3.5" />}
+          </AppChip>
+        </div>
       </EdgeLabelRenderer>
     </>
   );
