@@ -196,7 +196,7 @@ Search accessible configured types, including customer-created types. includeEmb
 
 #### `resolve_record_identifiers`
 
-Resolve exact email, phone or supported profile identifiers through the indexed channel registry. Each input returns every accessible linked record, including its type label. Optional typeIds limit the lists. Empty records arrays mean no accessible match; clarify ambiguity before changing a record.
+Resolve up to 1,000 exact email, phone or supported profile identifiers through the indexed channel registry. Each input returns every accessible linked record with its type label and current version, plus the workspace schemaRevision, so matches feed updateMany directly. Optional typeIds limit the lists. Empty records arrays mean no accessible match; deduplicate records matched through several identifiers and clarify ambiguity before changing a record.
 
 **Read-only.** Required: `identifiers`. Optional: `typeIds`.
 
@@ -230,6 +230,67 @@ Read a durable operation by operationId until it completes, fails or is cancelle
 
 **Read-only.** Required: `operationId`.
 {/* /mcp-catalog */}
+
+### Batch update by channel identifiers [#batch-identifier-update]
+
+Two calls update records you know only by email addresses or profile identifiers. No record reads sit between them.
+
+1. Call `resolve_record_identifiers` (REST: `POST /api/v1/records/identities/resolve`) with up to 1,000 identifiers:
+
+```json
+{
+  "identifiers": [
+    { "provider": "mail", "value": "ada@example.com" },
+    { "provider": "linkedin", "value": "ada-lovelace" },
+    { "provider": "mail", "value": "team@example.com" }
+  ]
+}
+```
+
+   The response keeps the input order and returns every accessible linked record per identifier, each with its current `version`, plus the workspace `schemaRevision`:
+
+```json
+{
+  "schemaRevision": 12,
+  "matches": [
+    {
+      "provider": "mail",
+      "value": "ada@example.com",
+      "records": [
+        {
+          "ref": { "typeId": "<contact typeId>", "recordId": "<ada recordId>" },
+          "identityId": "<identityId>",
+          "typeLabel": "Contact",
+          "typePluralLabel": "Contacts",
+          "title": "Ada Lovelace",
+          "avatarUrl": null,
+          "canEdit": true,
+          "version": 4
+        }
+      ]
+    },
+    { "provider": "linkedin", "value": "ada-lovelace", "records": [{ "ref": { "typeId": "<contact typeId>", "recordId": "<ada recordId>" }, "version": 4, "...": "..." }] },
+    { "provider": "mail", "value": "team@example.com", "records": [{ "...": "record A" }, { "...": "record B" }] }
+  ]
+}
+```
+
+2. Build the targets. A record linked through several identifiers, like Ada above, appears under each of them: keep one target per `typeId` and `recordId`. An identifier with several records, like `team@example.com`, is ambiguous: decide with the user or type context, never pick one arbitrarily. An empty `records` array means no accessible match; records you cannot read are never revealed.
+3. Call `mutate_crm_record` (REST: `POST /api/v1/records/mutate`) once per batch of up to 100 targets, with `schemaRevision` as `expectedRevision`:
+
+```json
+{
+  "expectedRevision": 12,
+  "idempotencyKey": "segment-update-2026-10-06",
+  "mutation": {
+    "action": "updateMany",
+    "targets": [{ "ref": { "typeId": "<contact typeId>", "recordId": "<ada recordId>" }, "expectedVersion": 4 }],
+    "fields": [{ "fieldId": "<field id>", "value": { "kind": "text", "value": "Webinar 2026" } }]
+  }
+}
+```
+
+The patch applies to every target in one transaction. If any target changed after the lookup, or the schema changed, the whole batch is rejected with a `conflict` and nothing is written; resolve again and retry with a new idempotency key. Retrying the identical request with the same idempotency key returns the original result without writing twice.
 
 ### Workspace
 
