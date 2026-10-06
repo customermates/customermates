@@ -19,7 +19,6 @@ type Props = {
   disabled?: boolean;
   gallery: WidgetGalleryTemplate[];
   templates: CompanyWidget[];
-  typeLabel: (typeId: string) => string | undefined;
   onSelectGalleryTemplate: (template: WidgetGalleryTemplate) => void;
   onSelectKind: (kind: WidgetKind) => void;
   onSelectTemplate: (id: string) => void;
@@ -148,7 +147,6 @@ export function WidgetStarterPicker({
   disabled,
   gallery,
   templates,
-  typeLabel,
   onSelectGalleryTemplate,
   onSelectKind,
   onSelectTemplate,
@@ -170,7 +168,6 @@ export function WidgetStarterPicker({
         >
           {gallery.map((template, index) => {
             const repeat = gallery.slice(0, index).filter((other) => other.recipe === template.recipe).length;
-            const source = typeLabel(template.measure.source.typeId) ?? template.labels.type;
             const text = starterText(template);
             return (
               <ChooserCard
@@ -178,7 +175,7 @@ export function WidgetStarterPicker({
                 description={text.description}
                 disabled={disabled}
                 id={`widget-gallery-${template.recipe}${repeat ? `-${repeat + 1}` : ""}`}
-                meta={<Badge variant="secondary">{source}</Badge>}
+                meta={<Badge variant="secondary">{template.labels.type}</Badge>}
                 preview={<ChartTypeIllustration className="size-full" type={template.displayOptions.displayType} />}
                 title={text.name}
                 onSelect={() => onSelectGalleryTemplate(template)}

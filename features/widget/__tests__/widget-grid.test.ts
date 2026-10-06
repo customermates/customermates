@@ -64,6 +64,17 @@ describe("grid geometry", () => {
 describe("placing a widget", () => {
   const widgets = [chart("a", { x: 0, y: 0, w: 6, h: 3 }), chart("b", { x: 6, y: 0, w: 6, h: 3 })];
 
+  it("floats a requested position up into empty rows, as the dashboard shows it", () => {
+    expect(placeWidget({ id: "new", kind: "chart", requested: { x: 0, y: 9, w: 12, h: 2 }, widgets })).toEqual({
+      ok: true,
+      placement: { x: 0, y: 3, w: 12, h: 2 },
+    });
+    expect(occupiedGrid([chart("a", { x: 0, y: 7, w: 4, h: 2 }), chart("b", { x: 0, y: 12, w: 4, h: 1 })])).toEqual([
+      { id: "a", x: 0, y: 0, w: 4, h: 2 },
+      { id: "b", x: 0, y: 2, w: 4, h: 1 },
+    ]);
+  });
+
   it("keeps a requested free position exactly", () => {
     expect(placeWidget({ id: "new", kind: "chart", requested: { x: 0, y: 3, w: 12, h: 2 }, widgets })).toEqual({
       ok: true,

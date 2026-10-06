@@ -25,7 +25,7 @@ export const HorizontalBarChartWithLabels = observer(({ currency, chartData, rev
 
   return (
     <TooltipProvider>
-      <div className="h-full min-h-0 overflow-y-auto pr-1" data-slot="widget-bar-list">
+      <div aria-hidden className="h-full min-h-0 overflow-y-auto pr-1" data-slot="widget-bar-list">
         <ul className="flex min-h-full flex-col justify-around gap-2">
           {rows.map((row, index) => {
             const value = row.formattedValue ?? formatValue(row.value);

@@ -221,7 +221,7 @@ export const RecordActivityWidgetEditor = observer(
           {previewQuery ? (
             <div className="h-full" data-preview-current={previewQuery === validQuery}>
               <RecordActivityWidgetCard
-                key={`${previewQuery}:${refreshes}`}
+                key={refreshes}
                 widget={{
                   id: form.id ?? "",
                   name: form.name.trim() || t("Dashboard.widgetEditor.preview.untitled"),

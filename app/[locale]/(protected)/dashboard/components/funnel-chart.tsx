@@ -15,7 +15,7 @@ export const FunnelChart = observer(({ chartData }: Props) => {
 
   return (
     <TooltipProvider>
-      <div className="h-full min-h-0 overflow-y-auto pr-1" data-slot="widget-funnel">
+      <div aria-hidden className="h-full min-h-0 overflow-y-auto pr-1" data-slot="widget-funnel">
         <ol className="grid min-h-full grid-cols-[minmax(0,7rem)_minmax(0,1fr)_auto] content-around items-center gap-x-3 gap-y-2">
           {chartData.map((step, index) => {
             const width = widest > 0 ? Math.max((step.value / widest) * 100, step.value > 0 ? 2 : 0) : 0;

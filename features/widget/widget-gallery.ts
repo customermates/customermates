@@ -158,7 +158,11 @@ function describeType(model: RecordModel, type: RecordType, closedLabels: Set<st
   };
 }
 
-export function resolveWidgetGallery(model: RecordModel, closedLabels: string[] = []): WidgetGalleryTemplate[] {
+export function resolveWidgetGallery(
+  model: RecordModel,
+  closedLabels: string[] = [],
+  accept: (template: WidgetGalleryTemplate) => boolean = () => true,
+): WidgetGalleryTemplate[] {
   const closedSet = new Set(closedLabels.map((label) => label.trim().toLocaleLowerCase()));
   const perType: WidgetGalleryTemplate[][] = [];
   const types = model.types
@@ -302,7 +306,7 @@ export function resolveWidgetGallery(model: RecordModel, closedLabels: string[] 
 
   const rank = (template: WidgetGalleryTemplate) => WIDGET_STARTER_RECIPES.indexOf(template.recipe);
   const lists = perType
-    .map((list) => [...list].sort((left, right) => rank(left) - rank(right)))
+    .map((list) => list.filter(accept).sort((left, right) => rank(left) - rank(right)))
     .sort((left, right) => right.length - left.length);
   const picked: WidgetGalleryTemplate[] = [];
   for (let round = 0; picked.length < WIDGET_GALLERY_LIMIT && lists.some((list) => list[round]); round += 1)

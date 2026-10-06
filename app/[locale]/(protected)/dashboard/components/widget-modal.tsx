@@ -323,9 +323,6 @@ export const WidgetModal = observer(() => {
                   disabled={isDisabled}
                   gallery={widgetModalStore.galleryTemplates}
                   templates={companyWideWidgets}
-                  typeLabel={(typeId) =>
-                    widgetModalStore.recordTypes?.types.find((type) => type.id === typeId)?.pluralLabel
-                  }
                   onSelectGalleryTemplate={(template) =>
                     widgetModalStore.startFromGallery(template, starterText(template).name)
                   }

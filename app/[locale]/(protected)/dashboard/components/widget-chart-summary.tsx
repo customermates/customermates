@@ -22,7 +22,7 @@ export function WidgetChartSummary({ notes, overall }: { notes: string[]; overal
                 aria-label={t("RecordWidgets.notes")}
                 className="inline-flex size-4 shrink-0 items-center justify-center rounded-full outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50"
                 type="button"
-                {...{ [WIDGET_INTERACTIVE_ATTRIBUTE]: "" }}
+                {...{ [WIDGET_INTERACTIVE_ATTRIBUTE]: "true" }}
               >
                 <Info aria-hidden className="size-3.5" />
               </button>

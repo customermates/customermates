@@ -89,12 +89,13 @@ export const WidgetPreviewFrame = observer(
         </div>
 
         <div
-          inert
           className="relative mx-auto max-w-full"
           data-slot="widget-preview"
           style={{ width: size.width, height: size.height }}
         >
-          {children}
+          <div inert className="h-full">
+            {children}
+          </div>
 
           {loading && (
             <div className="absolute right-4 top-4" role="status">

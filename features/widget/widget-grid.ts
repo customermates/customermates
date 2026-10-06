@@ -101,6 +101,19 @@ export function firstFreeSpot(occupied: GridRect[], cols: number, w: number, h: 
 
 type StoredWidget = { id: string; kind: WidgetKindName; layout: WidgetLayout | null };
 
+function floatUp<T extends GridRect>(rect: T, placed: GridRect[]): T {
+  let y = rect.y;
+  while (y > 0 && !placed.some((other) => rectsOverlap(other, { ...rect, y: y - 1 }))) y -= 1;
+  return { ...rect, y };
+}
+
+export function compactGrid<T extends GridRect>(rects: T[]): T[] {
+  const placed: T[] = [];
+  for (const rect of [...rects].sort((left, right) => left.y - right.y || left.x - right.x))
+    placed.push(floatUp(rect, placed));
+  return placed;
+}
+
 export function occupiedGrid(widgets: StoredWidget[]): PlacedRect[] {
   const placed: PlacedRect[] = [];
   for (const widget of widgets) {
@@ -112,7 +125,7 @@ export function occupiedGrid(widgets: StoredWidget[]): PlacedRect[] {
         : firstFreeSpot(placed, WIDGET_GRID_COLUMNS, w, h);
     placed.push({ id: widget.id, ...spot, w, h });
   }
-  return placed;
+  return compactGrid(placed);
 }
 
 export type PlacementResult =
@@ -133,7 +146,7 @@ export function placeWidget(args: {
     const conflict = others.find((rect) => rectsOverlap(rect, args.requested as GridRect));
     return conflict
       ? { ok: false, reason: "overlap", conflictId: conflict.id }
-      : { ok: true, placement: { ...args.requested } };
+      : { ok: true, placement: floatUp({ ...args.requested }, others) };
   }
   const size = widgetDefaultSize(args.kind, args.displayType);
   return { ok: true, placement: { ...firstFreeSpot(others, WIDGET_GRID_COLUMNS, size.w, size.h), ...size } };

@@ -36,7 +36,7 @@ export class GetWidgetGalleryInteractor extends AuthenticatedInteractor<void, Wi
         const [model, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
         if (!policy.actor) return failAuthorization(CustomErrorCode.permissionDenied);
         const readable = (typeId: string) => policy.allowed(typeId, "readAll") || policy.allowed(typeId, "readOwn");
-        const templates = resolveWidgetGallery(model, closedLabels).filter((template) => {
+        const templates = resolveWidgetGallery(model, closedLabels, (template) => {
           const measure = template.measure;
           let typeId = measure.source.typeId;
           const types = [typeId];
