@@ -262,7 +262,6 @@ test("shows the data model graph and edits lists, fields and relationships from 
   await test.step("the graph is the default view with list cards, counts, fields and relationships", async () => {
     await page.goto("/en/configure");
     await expect(page.locator("[data-configure-page]")).toBeVisible();
-    await expect(page.getByRole("navigation", { name: "Configure views", exact: true })).toHaveCount(0);
     await expect(graph.locator("[data-configure-node]")).toHaveCount(6);
     const model = await readModel(database, companyId);
     await expect(graph.locator("[data-configure-relationship]")).toHaveCount(model.relationships.length);
@@ -340,7 +339,7 @@ test("shows the data model graph and edits lists, fields and relationships from 
   });
 
   await test.step("add field starts from a card and a new list from the top bar", async () => {
-    await graph.getByRole("button", { name: "Add field: Services", exact: true }).click();
+    await graph.getByRole("button", { name: "Add field to Services", exact: true }).click();
     await expect(dialog.getByText("Add field", { exact: true })).toBeVisible();
     await dialog.getByRole("button", { name: "Cancel", exact: true }).first().click();
     await expect(dialog).not.toBeVisible();

@@ -13,7 +13,7 @@ export type ConfigureGraphCatalog = ReadonlyArray<Pick<DiscoveredRecordTypes["ty
 
 export const ACCOUNTS_NODE_ID = "accounts";
 
-export type ConfigureCardinality = "oneToOne" | "oneToMany" | "manyToOne" | "manyToMany";
+type ConfigureCardinality = "oneToOne" | "oneToMany" | "manyToOne" | "manyToMany";
 
 export type ConfigureGraphSource = {
   id: string;
@@ -25,7 +25,7 @@ export type ConfigureGraphSource = {
   linkedinProducts: string[];
 };
 
-export type ConfigureGraphField = {
+type ConfigureGraphField = {
   field: RecordField;
   calculated: boolean;
   sources: string[];
@@ -33,7 +33,7 @@ export type ConfigureGraphField = {
 
 export type ConfigureGraphList = {
   type: RecordType;
-  recordCount: number | null;
+  recordCount: number | null | undefined;
   parentId: string | null;
   fields: ConfigureGraphField[];
 };
@@ -101,7 +101,7 @@ export function configureGraphData(
   const calculations = new Map<string, { source: string; target: string; fields: string[] }>();
   const lists = types.map((type) => ({
     type,
-    recordCount: counts.get(type.id)?.recordCount ?? null,
+    recordCount: counts.get(type.id)?.recordCount,
     parentId: configureParentId(model, type),
     fields: model.fields
       .filter((field) => field.typeId === type.id && (!field.archived || showArchived))

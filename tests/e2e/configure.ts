@@ -97,10 +97,10 @@ export async function saveGeneral(page: Page) {
 }
 
 export async function setShowArchived(page: Page, visible: boolean) {
-  const menu = configureTopBar(page).getByRole("button", { name: "List actions", exact: true });
-  if (!(await menu.isVisible())) return;
-  await menu.click();
+  await expect(page.locator("[data-configure-graph] [data-configure-node]").first()).toBeAttached();
+  await configureTopBar(page).getByRole("button", { name: "List actions", exact: true }).click();
   const item = page.getByRole("menuitem", { name: visible ? "Show archived" : "Hide archived", exact: true });
+  await expect(item.or(page.getByRole("menuitem", { name: visible ? "Hide archived" : "Show archived" }))).toBeVisible();
   if (await item.isVisible()) await item.click();
   else await page.keyboard.press("Escape");
 }

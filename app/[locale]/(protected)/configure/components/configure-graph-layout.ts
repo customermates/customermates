@@ -4,7 +4,7 @@ import type { ConfigureGraphData } from "./configure-graph-model";
 
 import { ACCOUNTS_NODE_ID } from "./configure-graph-model";
 
-export const GRAPH_NODE_WIDTH = 352;
+const GRAPH_NODE_WIDTH = 352;
 export const GRAPH_VISIBLE_FIELDS = 6;
 export const GRAPH_VISIBLE_ACCOUNTS = 4;
 const LIST_CHROME_HEIGHT = 112;
@@ -15,24 +15,24 @@ const PROMPT_HEIGHT = 128;
 const RELATIONSHIP_CHIP = { width: 120, height: 28 };
 const ICON_CHIP = { width: 24, height: 24 };
 
-export type ConfigureGraphPoint = { x: number; y: number };
+type ConfigureGraphPoint = { x: number; y: number };
 
-export type ConfigureGraphPosition = ConfigureGraphPoint & { width: number; height: number };
+type ConfigureGraphPosition = ConfigureGraphPoint & { width: number; height: number };
 
 export type ConfigureGraphRoute = { points: ConfigureGraphPoint[]; label: ConfigureGraphPoint };
 
-export type ConfigureGraphLayout = {
+type ConfigureGraphLayout = {
   positions: Map<string, ConfigureGraphPosition>;
   routes: Map<string, ConfigureGraphRoute>;
 };
 
-export function graphListHeight(fieldCount: number, canManage: boolean) {
+function graphListHeight(fieldCount: number, canManage: boolean) {
   const visible = Math.min(fieldCount, GRAPH_VISIBLE_FIELDS);
   const more = fieldCount > GRAPH_VISIBLE_FIELDS ? 1 : 0;
   return LIST_CHROME_HEIGHT + (visible + more + (canManage ? 1 : 0)) * FIELD_ROW_HEIGHT;
 }
 
-export function graphSourceHeight(accountCount: number) {
+function graphSourceHeight(accountCount: number) {
   if (!accountCount) return PROMPT_HEIGHT;
   const more = accountCount > GRAPH_VISIBLE_ACCOUNTS ? 1 : 0;
   return SOURCE_CHROME_HEIGHT + (Math.min(accountCount, GRAPH_VISIBLE_ACCOUNTS) + more) * SOURCE_ROW_HEIGHT;

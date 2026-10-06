@@ -3094,6 +3094,7 @@
       "accountEdge": "Syncs conversations into {list}",
       "accounts": "Connected accounts",
       "accountUnit": "{count, plural, one {account} other {accounts}}",
+      "addFieldTo": "Add field to {list}",
       "calculatedFrom": "from {sources}",
       "calculationEdge": "Calculated from this list: {fields}",
       "connectDescription": "Connect Gmail, Outlook or another channel to bring conversations into your lists.",

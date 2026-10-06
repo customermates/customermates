@@ -161,19 +161,21 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
         )}
       </button>
 
-      <div className="border-y border-border px-3.5 py-2 text-sm text-muted-foreground" data-configure-node-count="">
-        {list.recordCount === null ? (
-          t("RecordModel.graph.recordsRestricted")
-        ) : (
-          <span className="flex items-baseline gap-1">
-            <span className="text-base font-semibold text-foreground tabular-nums">
-              {intlStore.formatNumber(list.recordCount)}
-            </span>
+      {list.recordCount !== undefined && (
+        <div className="border-y border-border px-3.5 py-2 text-sm text-muted-foreground" data-configure-node-count="">
+          {list.recordCount === null ? (
+            t("RecordModel.graph.recordsRestricted")
+          ) : (
+            <span className="flex items-baseline gap-1">
+              <span className="text-base font-semibold text-foreground tabular-nums">
+                {intlStore.formatNumber(list.recordCount)}
+              </span>
 
-            <span>{t("RecordModel.graph.recordUnit", { count: list.recordCount })}</span>
-          </span>
-        )}
-      </div>
+              <span>{t("RecordModel.graph.recordUnit", { count: list.recordCount })}</span>
+            </span>
+          )}
+        </div>
+      )}
 
       <ul aria-label={t("RecordModel.fields")} className="py-1">
         {visible.map(({ field, calculated, sources }) => {
@@ -234,7 +236,7 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
         {canManage && (
           <li>
             <button
-              aria-label={`${t("RecordModel.addField")}: ${list.type.pluralLabel}`}
+              aria-label={t("RecordModel.graph.addFieldTo", { list: list.type.pluralLabel })}
               className="nodrag flex h-9 w-full items-center gap-2 px-3.5 text-left text-sm text-primary outline-none hover:bg-accent/50 focus-visible:bg-accent/60 disabled:pointer-events-none disabled:opacity-60"
               disabled={disabled}
               type="button"
@@ -528,7 +530,13 @@ function ConfigureGraphCanvas({
     return { nodes, edges, positions: layout.positions };
   }, [model, catalog, accounts, showArchived, connectPrompt, canManage, measured, direction]);
   const [flowNodes, setFlowNodes] = useState<Node[]>(nodes);
-  useEffect(() => setFlowNodes(nodes), [nodes]);
+  useEffect(
+    () =>
+      setFlowNodes((current) =>
+        nodes.map((node) => ({ ...node, measured: current.find((previous) => previous.id === node.id)?.measured })),
+      ),
+    [nodes],
+  );
   useEffect(() => {
     if (!ready || !flowNodes.length || flowNodes.some((node) => !node.measured?.width || !node.measured.height)) return;
     const sizes = new Map(

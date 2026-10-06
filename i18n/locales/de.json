@@ -3094,6 +3094,7 @@
       "accountEdge": "Synchronisiert Unterhaltungen in {list}",
       "accounts": "Verbundene Konten",
       "accountUnit": "{count, plural, one {Konto} other {Konten}}",
+      "addFieldTo": "Feld zu {list} hinzufügen",
       "calculatedFrom": "aus {sources}",
       "calculationEdge": "Aus dieser Liste berechnet: {fields}",
       "connectDescription": "Verbinden Sie Gmail, Outlook oder einen anderen Kanal, um Unterhaltungen in Ihre Listen zu holen.",
