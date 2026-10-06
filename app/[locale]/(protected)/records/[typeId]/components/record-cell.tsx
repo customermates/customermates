@@ -4,8 +4,10 @@ import { useTranslations } from "next-intl";
 
 import type { RecordColumn } from "@/features/records/record-columns";
 import type { RecordDto, RecordRef } from "@/features/records/record-model.schema";
+import type { RecordLinkColors } from "@/features/records/record-presentation";
 
 import { AppChip } from "@/components/chip/app-chip";
+import { recordLinkColor } from "@/features/records/record-presentation";
 import { AvatarStack } from "@/components/shared/avatar-stack";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { RecordValue } from "./record-value";
@@ -17,6 +19,7 @@ import { Avatar } from "@/components/ui/avatar";
 
 export function RecordCell({
   column,
+  linkColors,
   record,
   onOpen,
   onMore,
@@ -24,6 +27,7 @@ export function RecordCell({
   avatarFieldId,
 }: {
   column: RecordColumn;
+  linkColors: RecordLinkColors;
   record: RecordDto;
   onOpen: (ref: RecordRef) => void;
   onMore: () => void;
@@ -105,7 +109,9 @@ export function RecordCell({
             type="button"
             onClick={() => onOpen(related.ref)}
           >
-            <AppChip interactive>{title}</AppChip>
+            <AppChip interactive variant={recordLinkColor(linkColors, related.ref.typeId)}>
+              {title}
+            </AppChip>
           </button>
         );
       })}

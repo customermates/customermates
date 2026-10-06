@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { useFocusAfterRemoval } from "@/components/ui/use-focus-after-removal";
 import { SelectionOptionsSkeleton, SelectionValueSkeleton } from "@/components/forms/selection-loading";
 import { AppChip } from "@/components/chip/app-chip";
+import { recordLinkColor } from "@/features/records/record-presentation";
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/core/utils/cn";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -191,6 +192,7 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
                     ) : undefined
                   }
                   tooltip={title(record)}
+                  variant={recordLinkColor(store.presentation.linkColors, typeId)}
                 >
                   <button
                     aria-label={t("RecordModel.openRecord", { name: title(record) })}

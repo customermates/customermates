@@ -68,7 +68,13 @@ export const RecordDetailOverview = observer(function RecordDetailOverview({
             fieldId={column.id}
             label={label}
             value={
-              <RecordCell column={column} record={store.record} onMore={() => undefined} onOpen={() => undefined} />
+              <RecordCell
+                column={column}
+                linkColors={store.presentation.linkColors}
+                record={store.record}
+                onMore={() => undefined}
+                onOpen={() => undefined}
+              />
             }
           />
         );

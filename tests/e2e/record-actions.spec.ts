@@ -1,6 +1,22 @@
 import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
+import type { Client } from "pg";
 import { test, expect } from "./fixtures";
+
+/** Gives a list a chip color the way a putType configuration change stores it. */
+async function setListColor(database: Client, companyId: string, typeId: string, color: string) {
+  await database.query(
+    `UPDATE "RecordSchemaRevision" r SET snapshot = jsonb_set(r.snapshot, '{types}', (
+       SELECT jsonb_agg(CASE WHEN t->>'id' = $2 THEN t || jsonb_build_object('color', $3::text) ELSE t END ORDER BY o)
+       FROM jsonb_array_elements(r.snapshot->'types') WITH ORDINALITY AS x(t, o)))
+     WHERE r."companyId" = $1 AND r.revision = (SELECT max(revision) FROM "RecordSchemaRevision" WHERE "companyId" = $1)`,
+    [companyId, typeId, color],
+  );
+  await database.query(
+    `UPDATE "RecordTypeDefinition" SET definition = definition || jsonb_build_object('color', $3::text) WHERE "companyId" = $1 AND id = $2`,
+    [companyId, typeId, color],
+  );
+}
 
 test("records list header keeps Configure icon-only and left of the primary Add action", async ({ page, companyId }) => {
   await page.goto(`/en/records/${presetId(companyId, "contact")}`);
@@ -61,7 +77,12 @@ test("single select inputs show the selected option as a chip", async ({ page, c
   await expect(stage.locator('[data-slot="badge"]')).toHaveAttribute("data-variant", "secondary");
 });
 
-test("relationship inputs keep linked chips and the record search inside one field", async ({ page, companyId }) => {
+test("relationship inputs keep linked chips and the record search inside one field", async ({
+  page,
+  companyId,
+  database,
+}) => {
+  await setListColor(database, companyId, presetId(companyId, "organization"), "info");
   await page.goto(`/en/records/${presetId(companyId, "deal")}`);
   await page.locator("#records-add").click();
   const drawer = page.getByRole("dialog", { name: "Deal", exact: true });
@@ -72,6 +93,7 @@ test("relationship inputs keep linked chips and the record search inside one fie
   await page.getByRole("option", { name: "Example organization", exact: true }).click();
   const chip = field.locator("[data-relationship-chip]");
   await expect(chip).toHaveText("Example organization");
+  await expect(chip).toHaveAttribute("data-variant", "info");
   await expect(field).not.toContainText("Link a record");
   const [chipBox, comboboxBox] = await Promise.all([chip.boundingBox(), combobox.boundingBox()]);
   expect(Math.abs(chipBox!.y + chipBox!.height / 2 - (comboboxBox!.y + comboboxBox!.height / 2))).toBeLessThan(4);
@@ -80,8 +102,13 @@ test("relationship inputs keep linked chips and the record search inside one fie
   await expect(field).toContainText("Link a record");
 });
 
-test("record tables edit cells in place, open linked chips and offer row actions", async ({ page, companyId }) => {
+test("record tables edit cells in place, open linked chips and offer row actions", async ({
+  page,
+  companyId,
+  database,
+}) => {
   test.setTimeout(180000);
+  await setListColor(database, companyId, presetId(companyId, "organization"), "info");
   const name = `Inline deal ${randomUUID().slice(0, 8)}`;
   await page.goto(`/en/records/${presetId(companyId, "deal")}`);
   await page.locator("#records-add").click();
@@ -101,6 +128,7 @@ test("record tables edit cells in place, open linked chips and offer row actions
   await expect(row.getByRole("button", { name: "Edit Value", exact: true })).toHaveCount(0);
   await expect(drawer).not.toBeVisible();
 
+  await expect(row.getByRole("button", { name: "Open Example organization", exact: true }).locator('[data-slot="badge"]')).toHaveAttribute("data-variant", "info");
   await row.getByRole("button", { name: "Open Example organization", exact: true }).click();
   const organization = page.getByRole("dialog", { name: "Organization", exact: true });
   await expect(organization.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Example organization");

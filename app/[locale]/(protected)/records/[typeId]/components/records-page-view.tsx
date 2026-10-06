@@ -95,6 +95,7 @@ const RecordsPageViewContent = observer(function RecordsPageView({
             <RecordCell
               avatarFieldId={column.id === store.type?.primaryFieldId ? avatarFieldId : undefined}
               column={column}
+              linkColors={store.presentation.linkColors}
               record={row.original}
               onMore={() => openRecord(row.original)}
               onOpen={openRelated}
