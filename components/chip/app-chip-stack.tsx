@@ -46,6 +46,8 @@ type Props<T extends ChipStackItem> = {
   items: T[];
   onChipClick?: (item: T) => void;
   chipHref?: (item: T) => string | undefined;
+  /** Accessible name for a chip's link or button, e.g. "Open {name}". */
+  chipLabel?: (item: T) => string;
   size?: AppChipProps["size"];
   variant?: AppChipProps["variant"];
   maxWidth?: number;
@@ -55,6 +57,7 @@ export function AppChipStack<T extends ChipStackItem>({
   items,
   onChipClick,
   chipHref,
+  chipLabel,
   size = "sm",
   variant = "secondary",
   maxWidth,
@@ -276,6 +279,7 @@ export function AppChipStack<T extends ChipStackItem>({
               <TooltipTrigger asChild>
                 {href ? (
                   <a
+                    aria-label={chipLabel?.(item)}
                     className="relative inline-flex min-w-0 shrink"
                     href={href}
                     onClick={(e) => {
@@ -290,6 +294,7 @@ export function AppChipStack<T extends ChipStackItem>({
                   </a>
                 ) : (
                   <button
+                    aria-label={chipLabel?.(item)}
                     className="relative inline-flex min-w-0 shrink"
                     type="button"
                     onClick={(e) => {

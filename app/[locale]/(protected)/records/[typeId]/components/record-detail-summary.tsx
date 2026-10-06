@@ -11,7 +11,7 @@ import { EntityDetailSummaryRail } from "@/components/entity-detail/entity-detai
 import { RecordValue } from "./record-value";
 import { RecordCell } from "./record-cell";
 import { useRecordChoices } from "./record-relationship-editor";
-import { AppChip } from "@/components/chip/app-chip";
+import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { recordLinkColor } from "@/features/records/record-presentation";
 import { EntityDetailAvatarSummaryValue } from "@/components/entity-detail/entity-detail-summary";
 import { channelDisplayLabel } from "@/ee/messaging/thread-display";
@@ -42,7 +42,7 @@ const RelatedSummary = observer(function RelatedSummary({
     {
       typeId,
       page: 1,
-      pageSize: 3,
+      pageSize: 25,
       ...(store.record
         ? column.kind === "relationshipPath"
           ? { throughPath: { ref: store.record.ref, pathId: column.definition.id } }
@@ -74,34 +74,30 @@ const RelatedSummary = observer(function RelatedSummary({
   if (query.loading) return <span className="text-muted-foreground">{t("Loading.text")}</span>;
   if (query.failed) return <span className="text-muted-foreground">{t("Common.notifications.unexpectedError")}</span>;
   if (!records.length && !query.data?.total) return "—";
+  const items = records.map((record) => ({
+    id: record.ref.recordId,
+    ref: record.ref,
+    label:
+      record.title.state === "value" && record.title.value.kind === "text"
+        ? record.title.value.value
+        : record.title.state === "restricted"
+          ? t("RecordModel.restricted")
+          : record.title.state === "error"
+            ? t("RecordModel.calculationError")
+            : t("RecordModel.record"),
+  }));
   return (
-    <div className="flex items-center gap-1">
-      {records.slice(0, 3).map((record) => {
-        const title =
-          record.title.state === "value" && record.title.value.kind === "text"
-            ? record.title.value.value
-            : record.title.state === "restricted"
-              ? t("RecordModel.restricted")
-              : record.title.state === "error"
-                ? t("RecordModel.calculationError")
-                : t("RecordModel.record");
-        return (
-          <button
-            key={record.ref.recordId}
-            aria-label={t("RecordModel.openRecord", { name: title })}
-            className="max-w-full rounded-md text-left focus-visible:ring-2 focus-visible:ring-ring"
-            type="button"
-            onClick={(event) => store.rootStore.recordWorkspaceStore.open(record.ref, event.currentTarget)}
-          >
-            <AppChip interactive variant={recordLinkColor(store.presentation.linkColors, record.ref.typeId)}>
-              {title}
-            </AppChip>
-          </button>
-        );
-      })}
-
-      {Math.max(query.data?.total ?? 0, records.length) > 3 && <span className="text-xs text-muted-foreground">…</span>}
-    </div>
+    <AppChipStack
+      chipLabel={(item) => t("RecordModel.openRecord", { name: item.label })}
+      items={items}
+      variant={recordLinkColor(store.presentation.linkColors, typeId)}
+      onChipClick={(item) =>
+        store.rootStore.recordWorkspaceStore.open(
+          item.ref,
+          document.activeElement instanceof HTMLElement ? document.activeElement : null,
+        )
+      }
+    />
   );
 });
 

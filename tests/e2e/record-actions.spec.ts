@@ -1,21 +1,25 @@
 import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
-import type { Client } from "pg";
+import type { Page } from "@playwright/test";
+import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { test, expect } from "./fixtures";
 
-/** Gives a list a chip color the way a putType configuration change stores it. */
-async function setListColor(database: Client, companyId: string, typeId: string, color: string) {
-  await database.query(
-    `UPDATE "RecordSchemaRevision" r SET snapshot = jsonb_set(r.snapshot, '{types}', (
-       SELECT jsonb_agg(CASE WHEN t->>'id' = $2 THEN t || jsonb_build_object('color', $3::text) ELSE t END ORDER BY o)
-       FROM jsonb_array_elements(r.snapshot->'types') WITH ORDINALITY AS x(t, o)))
-     WHERE r."companyId" = $1 AND r.revision = (SELECT max(revision) FROM "RecordSchemaRevision" WHERE "companyId" = $1)`,
-    [companyId, typeId, color],
-  );
-  await database.query(
-    `UPDATE "RecordTypeDefinition" SET definition = definition || jsonb_build_object('color', $3::text) WHERE "companyId" = $1 AND id = $2`,
-    [companyId, typeId, color],
-  );
+async function api(page: Page, path: string, data: unknown) {
+  const response = await page.request.post(path, { data });
+  expect(response.ok(), await response.text()).toBe(true);
+  return response.json();
+}
+
+/** Gives a list a chip color through the public configuration API. */
+async function setListColor(page: Page, typeId: string, color: string) {
+  const model = RecordModelSchema.parse(await api(page, "/api/v1/model/discover", {}));
+  const type = model.types.find((candidate) => candidate.id === typeId);
+  if (!type) throw new Error(`List ${typeId} is missing`);
+  await api(page, "/api/v1/model/apply", {
+    expectedRevision: model.revision,
+    idempotencyKey: randomUUID(),
+    operations: [{ operation: "putType", type: { ...type, color } }],
+  });
 }
 
 test("records list header keeps Configure icon-only and left of the primary Add action", async ({ page, companyId }) => {
@@ -80,9 +84,8 @@ test("single select inputs show the selected option as a chip", async ({ page, c
 test("relationship inputs keep linked chips and the record search inside one field", async ({
   page,
   companyId,
-  database,
 }) => {
-  await setListColor(database, companyId, presetId(companyId, "organization"), "info");
+  await setListColor(page, presetId(companyId, "organization"), "info");
   await page.goto(`/en/records/${presetId(companyId, "deal")}`);
   await page.locator("#records-add").click();
   const drawer = page.getByRole("dialog", { name: "Deal", exact: true });
@@ -105,10 +108,9 @@ test("relationship inputs keep linked chips and the record search inside one fie
 test("record tables edit cells in place, open linked chips and offer row actions", async ({
   page,
   companyId,
-  database,
 }) => {
   test.setTimeout(180000);
-  await setListColor(database, companyId, presetId(companyId, "organization"), "info");
+  await setListColor(page, presetId(companyId, "organization"), "info");
   const name = `Inline deal ${randomUUID().slice(0, 8)}`;
   await page.goto(`/en/records/${presetId(companyId, "deal")}`);
   await page.locator("#records-add").click();
@@ -171,4 +173,42 @@ test("record tables edit number fields in place without opening the drawer", asy
   await expect(editor).not.toBeVisible();
   await expect(row).toContainText("250");
   await expect(drawer).not.toBeVisible();
+});
+
+test("linked record chips collapse into a +N stack so rows and cards keep one height", async ({ page, companyId }) => {
+  test.setTimeout(180000);
+  const id = (key: string) => presetId(companyId, key);
+  const model = RecordModelSchema.parse(await api(page, "/api/v1/model/discover", {}));
+  const create = async (typeKey: string, name: string, links: unknown[] = []) => {
+    const result = await api(page, "/api/v1/records/mutate", {
+      expectedRevision: model.revision,
+      idempotencyKey: randomUUID(),
+      mutation: {
+        action: "create",
+        typeId: id(typeKey),
+        fields: [{ fieldId: id(`${typeKey}.name`), value: { kind: "text", value: name } }],
+        links,
+      },
+    });
+    return result.refs.find((ref: { typeId: string }) => ref.typeId === id(typeKey));
+  };
+  const suffix = randomUUID().slice(0, 6);
+  const crowded = await create("deal", `Crowded deal ${suffix}`);
+  await create("deal", `Quiet deal ${suffix}`);
+  for (let index = 1; index <= 8; index += 1)
+    await create("organization", `Stacked organization with a long name ${index} ${suffix}`, [
+      { relationId: id("deal.organizations"), direction: "incoming", record: crowded },
+    ]);
+
+  await page.setViewportSize({ width: 720, height: 900 });
+  await page.goto(`/en/records/${id("deal")}`);
+  const crowdedRow = page.getByRole("row").filter({ hasText: `Crowded deal ${suffix}` });
+  const quietRow = page.getByRole("row").filter({ hasText: `Quiet deal ${suffix}` });
+  const more = crowdedRow.getByRole("button", { name: /^\+\d+$/ });
+  await expect(more).toBeVisible();
+  const [crowdedBox, quietBox] = await Promise.all([crowdedRow.boundingBox(), quietRow.boundingBox()]);
+  expect(Math.abs(crowdedBox!.height - quietBox!.height)).toBeLessThan(2);
+  await more.click();
+  await expect(page.getByRole("menuitem").filter({ hasText: "Stacked organization" }).first()).toBeVisible();
+  await page.keyboard.press("Escape");
 });
