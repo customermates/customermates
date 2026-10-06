@@ -589,6 +589,7 @@ function ConfigureGraphCanvas({
           nodesConnectable={canManage && !disabled}
           nodesDraggable={false}
           nodesFocusable={false}
+          proOptions={{ hideAttribution: true }}
           zoomOnScroll={false}
           onConnectEnd={(event, connection) => {
             const source = connection.fromNode?.id;
