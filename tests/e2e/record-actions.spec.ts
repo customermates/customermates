@@ -2,8 +2,8 @@ import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
 import { test, expect } from "./fixtures";
 
-test("records list header keeps Configure icon-only and left of the primary Add action", async ({ page }) => {
-  await page.goto("/en/contacts");
+test("records list header keeps Configure icon-only and left of the primary Add action", async ({ page, companyId }) => {
+  await page.goto(`/en/records/${presetId(companyId, "contact")}`);
   const header = page.locator("header.sticky");
   const configure = header.locator("#records-configure");
   const add = header.locator("#records-add");

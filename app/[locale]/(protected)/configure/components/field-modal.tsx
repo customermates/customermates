@@ -341,20 +341,25 @@ export const FieldModal = observer(function FieldModal({ store }: { store: Field
   const [showProbability, setShowProbability] = useState(false);
   const optionMetadata = showProbability || store.form.options.some((option) => option.probability !== "");
   return (
-    <ModelChangeSheet store={store} title={store.original ? t("RecordModel.editField") : t("RecordModel.addField")}>
+    <ModelChangeSheet
+      headerActions={
+        <RecordAiAction
+          iconOnly
+          registerContext
+          active={store.isOpen}
+          context={{
+            reference: store.original
+              ? { kind: "recordField", typeId: store.typeId, fieldId: store.original.id }
+              : { kind: "recordType", typeId: store.typeId },
+            label: store.original?.label ?? t("RecordModel.addField"),
+          }}
+        />
+      }
+      store={store}
+      title={store.original ? t("RecordModel.editField") : t("RecordModel.addField")}
+    >
       <AppForm store={store}>
         <div className="space-y-4">
-          <RecordAiAction
-            registerContext
-            active={store.isOpen}
-            context={{
-              reference: store.original
-                ? { kind: "recordField", typeId: store.typeId, fieldId: store.original.id }
-                : { kind: "recordType", typeId: store.typeId },
-              label: store.original?.label ?? t("RecordModel.addField"),
-            }}
-          />
-
           <ModelChangeRecovery store={store} />
 
           {store.pendingOperationId && (

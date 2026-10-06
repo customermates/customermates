@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { AppModalAction } from "@/components/modal/app-modal-action";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { OverlayHeaderActions } from "@/components/modal/overlay-header-actions";
 import { runUserAction } from "@/core/errors/report-application-error";
 import {
   RecordDetailCustomizeAction,
@@ -237,44 +237,38 @@ const RecordEditorBody = observer(function RecordEditorBody({
             {store.record ? name : t("RecordModel.newRecord", { type: type?.label ?? t("RecordModel.record") })}
           </h2>
 
-          <TooltipProvider>
-            <div
-              className="-mt-4.5 flex min-h-9 shrink-0 items-center gap-2 self-start"
-              data-slot="app-modal-actions"
-              id="record-header-actions"
-            >
-              <RecordAiAction
-                iconOnly
-                registerContext
-                active={store.isOpen}
-                context={{
-                  reference: store.record
-                    ? { kind: "record", typeId: store.record.ref.typeId, recordId: store.record.ref.recordId }
-                    : { kind: "recordType", typeId: store.presentation.typeId },
-                  label: name,
+          <OverlayHeaderActions className="-mt-4.5" id="record-header-actions">
+            <RecordAiAction
+              iconOnly
+              registerContext
+              active={store.isOpen}
+              context={{
+                reference: store.record
+                  ? { kind: "record", typeId: store.record.ref.typeId, recordId: store.record.ref.recordId }
+                  : { kind: "recordType", typeId: store.presentation.typeId },
+                label: name,
+              }}
+            />
+
+            <RecordDetailCustomizeAction />
+
+            {store.record && (
+              <AppModalAction
+                anchorId="record-open-page"
+                href={`/records/${store.record.ref.typeId}/${store.record.ref.recordId}`}
+                icon={Maximize2}
+                id="record-open-page"
+                label={t("RecordModel.openPage")}
+                onNavigate={(event) => {
+                  if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+                  event.preventDefault();
+                  store.runAfterChannelDraft(openPage);
                 }}
               />
+            )}
 
-              <RecordDetailCustomizeAction />
-
-              {store.record && (
-                <AppModalAction
-                  anchorId="record-open-page"
-                  href={`/records/${store.record.ref.typeId}/${store.record.ref.recordId}`}
-                  icon={Maximize2}
-                  id="record-open-page"
-                  label={t("RecordModel.openPage")}
-                  onNavigate={(event) => {
-                    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-                    event.preventDefault();
-                    store.runAfterChannelDraft(openPage);
-                  }}
-                />
-              )}
-
-              <RecordDeleteAction deletion={deletion} name={name} store={store} />
-            </div>
-          </TooltipProvider>
+            <RecordDeleteAction deletion={deletion} name={name} store={store} />
+          </OverlayHeaderActions>
         </AppCardHeader>
 
         <RecordDetailLayoutStatus className="shrink-0 px-6 pb-3" />

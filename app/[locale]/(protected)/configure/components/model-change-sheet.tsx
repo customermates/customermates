@@ -10,6 +10,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetBody, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
+import { OverlayHeaderActions } from "@/components/modal/overlay-header-actions";
 import { UnsavedChangesGuard } from "@/components/modal/unsaved-changes-guard";
 import { keepOpenForAssistantSurface, releaseFocusToAssistantSurface } from "@/components/modal/assistant-surface";
 import { runUserAction } from "@/core/errors/report-application-error";
@@ -42,11 +43,14 @@ export const ModelChangeSheet = observer(function ModelChangeSheet({
   store,
   title,
   submitLabel,
+  headerActions,
   children,
 }: {
   store: SheetStore;
   title: string;
   submitLabel?: string;
+  /** Icon-only actions (e.g. Ask AI) shown in the header row before Cancel and Save. */
+  headerActions?: ReactNode;
   children: ReactNode;
 }) {
   const t = useTranslations();
@@ -89,7 +93,7 @@ export const ModelChangeSheet = observer(function ModelChangeSheet({
       >
         <SheetContent
           aria-describedby={undefined}
-          className="w-full gap-0 sm:max-w-xl"
+          className="w-full gap-0 bg-background sm:max-w-xl"
           data-configure-drawer=""
           overlayClassName="bg-black/10 backdrop-blur-none"
           showCloseButton={false}
@@ -103,15 +107,17 @@ export const ModelChangeSheet = observer(function ModelChangeSheet({
             focusFirstBodyControl(event);
           }}
         >
-          <SheetHeader className="flex-row items-center justify-between gap-3">
-            <SheetTitle className="min-w-0 truncate text-base">{title}</SheetTitle>
+          <SheetHeader className="flex-row items-center justify-between gap-3 px-6">
+            <SheetTitle className="min-w-0 flex-1 truncate text-lg">{title}</SheetTitle>
+
+            {headerActions && <OverlayHeaderActions className="self-center">{headerActions}</OverlayHeaderActions>}
 
             {actions}
           </SheetHeader>
 
-          <SheetBody className="py-5">{children}</SheetBody>
+          <SheetBody className="px-6 py-5">{children}</SheetBody>
 
-          <SheetFooter>{actions}</SheetFooter>
+          <SheetFooter className="px-6">{actions}</SheetFooter>
         </SheetContent>
       </Sheet>
 
