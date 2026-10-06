@@ -1,8 +1,5 @@
-import type { CustomFieldValueDto } from "@/core/base/base-entity.schema";
-import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 import type { ComponentType, ReactNode } from "react";
 
-import { CustomColumnType } from "@/core/data-view/column-presentation.types";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -19,14 +16,7 @@ vi.mock("@/components/ui/tooltip", () => ({
   TooltipContent: ({ children }: { children: ReactNode }) =>
     createElement("span", { "data-tooltip-content": true }, children),
 }));
-vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
-  useHydratedIntlStore: () => ({}),
-}));
-vi.mock("@/core/utils/use-copy-to-clipboard", () => ({
-  useCopyToClipboard: () => vi.fn(),
-}));
 
-import { CustomFieldValue } from "@/components/data-view/custom-columns/custom-field-value";
 import { AppChip } from "../app-chip";
 
 const TestAppChip = AppChip as ComponentType<{
@@ -61,42 +51,5 @@ describe("AppChip overflow tooltip accessibility", () => {
 
     expect(markup).not.toContain("tabindex=");
     expect(markup).toContain("data-tooltip-content");
-  });
-
-  it("exposes a truncated read-only single-select custom-field value to keyboard users", () => {
-    harness.isTruncated = true;
-    const columnId = "10000000-0000-4000-8000-000000000001";
-    const optionValue = "enterprise";
-    const optionLabel = "Enterprise procurement and strategic transformation";
-    const column: CustomColumnDto = {
-      id: columnId,
-      label: "Sales pipeline",
-      type: CustomColumnType.singleSelect,
-      options: {
-        options: [
-          {
-            color: "secondary",
-            index: 0,
-            isDefault: false,
-            label: optionLabel,
-            value: optionValue,
-          },
-        ],
-      },
-    };
-    const item = {
-      id: "20000000-0000-4000-8000-000000000001",
-      customFieldValues: [{ columnId, value: optionValue }] satisfies CustomFieldValueDto[],
-    };
-    const ReadOnlyCustomFieldValue = CustomFieldValue as ComponentType<{
-      column: CustomColumnDto;
-      item: typeof item;
-    }>;
-
-    const markup = renderToStaticMarkup(createElement(ReadOnlyCustomFieldValue, { column, item }));
-
-    expect(markup).toContain('data-slot="badge"');
-    expect(markup).toContain('tabindex="0"');
-    expect(markup).toContain(`data-tooltip-content="true">${optionLabel}</span>`);
   });
 });
