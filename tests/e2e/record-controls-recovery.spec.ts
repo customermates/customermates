@@ -462,9 +462,8 @@ async function toggleMultiple(page: Page, selector: string, name: string) {
   await page.keyboard.press("Escape");
   await expect(popover).toHaveCount(0);
 }
-async function chartPreview(page: Page, total: string, groups: Record<string, string>) {
+async function expectChartPreview(page: Page, total: string, groups: Record<string, string>) {
   const dialog = page.getByRole("dialog");
-  await dialog.getByRole("button", { name: english.RecordWidgets.preview, exact: true }).click();
   await expect(
     dialog.getByText(english.RecordWidgets.overall.replace("{value}", total), {
       exact: true,
@@ -476,6 +475,11 @@ async function chartPreview(page: Page, total: string, groups: Record<string, st
     await expect(entry.locator("dd")).toHaveText(value);
   }
   await expect(dialog.locator("svg.recharts-surface")).toBeVisible();
+}
+async function chartPreview(page: Page, total: string, groups: Record<string, string>) {
+  const dialog = page.getByRole("dialog");
+  await dialog.getByRole("button", { name: english.RecordWidgets.preview, exact: true }).click();
+  await expectChartPreview(page, total, groups);
 }
 async function applyDefinition(page: Page) {
   await saveDrawer(page);
@@ -638,6 +642,8 @@ test("uses Average, Minimum and Maximum at record grain, groups through relation
     })
     .check();
   await expect(dialog.getByRole("button", { name: "Colors", exact: true })).toHaveCount(0);
+  await expectChartPreview(page, "€10.00", { New: "€5.00", Won: "€12.50" });
+  await expect(dialog.getByRole("button", { name: english.RecordWidgets.preview, exact: true })).toBeEnabled();
   previewFault = true;
   await dialog.getByRole("button", { name: english.RecordWidgets.preview, exact: true }).click();
   await expect(dialog.getByRole("alert")).toHaveText(english.RecordWidgets.previewFailed);
