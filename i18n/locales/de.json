@@ -3009,7 +3009,6 @@
     "archiveRelationshipPath": "Diese Spalte mit verknüpften Datensätzen archivieren",
     "ascending": "Aufsteigend",
     "assignedTo": "Zugewiesen an",
-    "assignmentChange": "Zugewiesene Mitglieder: {before} → {after}",
     "attribute": "Attributname",
     "behavior": "Wertquelle",
     "behaviors": {
@@ -3046,7 +3045,6 @@
     "createdAt": "Erstellt am",
     "createList": "Liste erstellen",
     "currency": "Währung",
-    "currentValue": "Aktueller Wert",
     "decimalPlaces": "Dezimalstellen",
     "decimalPlacesHelp": "Für die Standardeinstellung leer lassen. Dies ändert die Anzeige der Werte, nicht ihre Berechnung.",
     "defaultColumns": "Standardspalten",
@@ -3182,7 +3180,6 @@
     "pluralDescription": "Der Name in der Navigation. Leer lassen, um den Listennamen zu verwenden.",
     "pluralName": "Navigationsbezeichnung",
     "previewReady": "Bereit zum Anwenden. {count} Datensätze werden geprüft.",
-    "previousValue": "Vorheriger Wert",
     "priceModes": {
       "live": "Aktueller Preis",
       "saved": "Gespeicherter Preis"

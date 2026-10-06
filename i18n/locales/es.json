@@ -3009,7 +3009,6 @@
     "archiveRelationshipPath": "Archivar esta columna de registros relacionados",
     "ascending": "Ascendente",
     "assignedTo": "Asignado a",
-    "assignmentChange": "Miembros asignados: {before} → {after}",
     "attribute": "Nombre del atributo",
     "behavior": "Origen del valor",
     "behaviors": {
@@ -3046,7 +3045,6 @@
     "createdAt": "Creado el",
     "createList": "Crear lista",
     "currency": "Moneda",
-    "currentValue": "Valor actual",
     "decimalPlaces": "Decimales",
     "decimalPlacesHelp": "Déjalo vacío para usar el formato predeterminado. Solo cambia cómo se muestran los valores, no su cálculo.",
     "defaultColumns": "Columnas predeterminadas",
@@ -3182,7 +3180,6 @@
     "pluralDescription": "El nombre mostrado en la navegación. Déjalo vacío para usar el nombre de la lista.",
     "pluralName": "Etiqueta de navegación",
     "previewReady": "Listo para aplicar. Se comprobarán {count} registros.",
-    "previousValue": "Valor anterior",
     "priceModes": {
       "live": "Precio actual",
       "saved": "Precio guardado"

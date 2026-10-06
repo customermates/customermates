@@ -43,22 +43,10 @@ export function configurationActivity(
         return typeLabel(operation.typeId);
     }
   };
-  const grants = (entries: RecordRevisionChange["grants"][number]["before"]) =>
-    entries.map((grant) => ({ role: roleNames.get(grant.roleId) ?? grant.roleId, actions: grant.actions }));
   const source = change.source;
   return {
     event: EVENTS[source.kind],
     changes: [
-      ...(source.kind === "role"
-        ? [
-            {
-              field: "role",
-              snapshot: true,
-              previous: undefined,
-              current: roleNames.get(source.roleId) ?? source.roleId,
-            },
-          ]
-        : []),
       ...(change.configuration?.operations ?? [])
         .filter((operation) => operation.operation !== "setTypeGrants")
         .map((operation) => ({
@@ -67,12 +55,21 @@ export function configurationActivity(
           previous: undefined,
           current: name(operation),
         })),
-      ...change.grants.map((grant) => ({
-        field: "grants",
-        label: typeLabel(grant.typeId),
-        previous: grants(grant.before),
-        current: grants(grant.after),
-      })),
+      ...change.grants.flatMap((grant) =>
+        [...new Set([...grant.before, ...grant.after].map((entry) => entry.roleId))].flatMap((roleId) => {
+          const previous = grant.before.find((entry) => entry.roleId === roleId)?.actions ?? [];
+          const current = grant.after.find((entry) => entry.roleId === roleId)?.actions ?? [];
+          if (JSON.stringify(previous) === JSON.stringify(current)) return [];
+          return [
+            {
+              field: "grants",
+              label: `${typeLabel(grant.typeId)} · ${roleNames.get(roleId) ?? roleId}`,
+              previous,
+              current,
+            },
+          ];
+        }),
+      ),
     ],
   };
 }

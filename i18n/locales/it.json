@@ -3009,7 +3009,6 @@
     "archiveRelationshipPath": "Archivia questa colonna di record collegati",
     "ascending": "Crescente",
     "assignedTo": "Assegnato a",
-    "assignmentChange": "Membri assegnati: {before} → {after}",
     "attribute": "Nome dell’attributo",
     "behavior": "Origine del valore",
     "behaviors": {
@@ -3046,7 +3045,6 @@
     "createdAt": "Creato il",
     "createList": "Crea elenco",
     "currency": "Valuta",
-    "currentValue": "Valore attuale",
     "decimalPlaces": "Cifre decimali",
     "decimalPlacesHelp": "Lascia vuoto per usare il formato predefinito. Cambia la visualizzazione dei valori, non il loro calcolo.",
     "defaultColumns": "Colonne predefinite",
@@ -3182,7 +3180,6 @@
     "pluralDescription": "Il nome mostrato nella navigazione. Lascia vuoto per usare il nome dell’elenco.",
     "pluralName": "Etichetta di navigazione",
     "previewReady": "Pronto per l’applicazione. Verranno verificati {count} record.",
-    "previousValue": "Valore precedente",
     "priceModes": {
       "live": "Prezzo attuale",
       "saved": "Prezzo salvato"

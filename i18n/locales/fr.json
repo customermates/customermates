@@ -3009,7 +3009,6 @@
     "archiveRelationshipPath": "Archiver cette colonne de fiches liées",
     "ascending": "Croissant",
     "assignedTo": "Attribué à",
-    "assignmentChange": "Membres attribués : {before} → {after}",
     "attribute": "Nom de l’attribut",
     "behavior": "Source de la valeur",
     "behaviors": {
@@ -3046,7 +3045,6 @@
     "createdAt": "Créé le",
     "createList": "Créer une liste",
     "currency": "Devise",
-    "currentValue": "Valeur actuelle",
     "decimalPlaces": "Décimales",
     "decimalPlacesHelp": "Laissez vide pour utiliser le format par défaut. Cela modifie l’affichage des valeurs, pas leur calcul.",
     "defaultColumns": "Colonnes par défaut",
@@ -3182,7 +3180,6 @@
     "pluralDescription": "Le nom affiché dans la navigation. Laissez vide pour utiliser le nom de la liste.",
     "pluralName": "Libellé de navigation",
     "previewReady": "Prêt à appliquer. {count} fiches seront vérifiées.",
-    "previousValue": "Valeur précédente",
     "priceModes": {
       "live": "Prix actuel",
       "saved": "Prix enregistré"

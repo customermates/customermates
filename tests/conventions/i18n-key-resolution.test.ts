@@ -913,10 +913,6 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
     'features/messaging/activities/audit-detail.tsx :: t :: action === "update" ? "RoleModal.edit" : action === "delete" ? "RoleModal.delete" : "RoleModal.create"',
     1,
   ],
-  [
-    'features/messaging/activities/record-audit-detail.tsx :: t :: side === "before" ? "RecordModel.previousValue" : "RecordModel.currentValue"',
-    1,
-  ],
   ["features/records/workspace-record-preset.ts :: t :: key", 1],
 ]);
 const SOURCE_DIRECTORIES = ["app", "components", "constants", "core", "ee", "features", "hooks", "i18n", "workflows"];

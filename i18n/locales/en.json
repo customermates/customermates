@@ -3009,7 +3009,6 @@
     "archiveRelationshipPath": "Archive this related-record column",
     "ascending": "Ascending",
     "assignedTo": "Assigned to",
-    "assignmentChange": "Assigned members: {before} → {after}",
     "attribute": "Attribute name",
     "behavior": "Value source",
     "behaviors": {
@@ -3046,7 +3045,6 @@
     "createdAt": "Created at",
     "createList": "Create list",
     "currency": "Currency",
-    "currentValue": "Current value",
     "decimalPlaces": "Decimal places",
     "decimalPlacesHelp": "Leave empty for the default. This changes how values are displayed, not how they are calculated.",
     "defaultColumns": "Default columns",
@@ -3182,7 +3180,6 @@
     "pluralDescription": "The name shown in navigation. Leave empty to use the list name.",
     "pluralName": "Navigation label",
     "previewReady": "Ready to apply. {count} records will be checked.",
-    "previousValue": "Previous value",
     "priceModes": {
       "live": "Live price",
       "saved": "Saved price"
