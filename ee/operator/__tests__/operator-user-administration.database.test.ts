@@ -266,7 +266,7 @@ describeDatabase("operator user administration against a real database", { timeo
       status: "pendingAuthorization",
     });
     const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
-    const taskType = createCrmPreset(companyId, "EUR").types.find((type) => type.id === presetId(companyId, "task"));
+    const taskType = createCrmPreset(companyId).types.find((type) => type.id === presetId(companyId, "task"));
     if (!taskType) throw new Error("The starter task type is missing");
     const protectedTask = await runWithoutTenant(async () => {
       await prisma.recordTypeDefinition.create({

@@ -101,7 +101,7 @@ async function createWorkspace() {
   const id = (key: string) => presetId(seed.company.id, key);
   await runWithTenant(admin, () =>
     runInTransaction(async () => {
-      await repo.saveModel(createCrmPreset(seed.company.id, "EUR"), admin.id);
+      await repo.saveModel(createCrmPreset(seed.company.id), admin.id);
       await repo.setGrants(id("service"), [{ roleId: seed.memberRole.id, actions: ["readAll"] }]);
       await repo.setGrants(id("deal"), [{ roleId: seed.memberRole.id, actions: ["readOwn"] }]);
       await repo.setGrants(id("contact"), [{ roleId: seed.memberRole.id, actions: ["readOwn"] }]);

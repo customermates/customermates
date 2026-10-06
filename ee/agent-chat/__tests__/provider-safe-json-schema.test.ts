@@ -135,9 +135,9 @@ const ACCEPTED_TODAY: [string, unknown][] = [
   ["configure_record_model", { ...TOOL_CREATE_TYPE, action: "preview" }],
   ["manage_webhooks", { action: "update", secret: null }],
   ["manage_webhooks", { action: "list", pageSize: 100 }],
-  ["update_workspace_settings", { target: "profile", avatarUrl: null }],
-  ["update_workspace_settings", { target: "profile", avatarUrl: "" }],
-  ["update_workspace_settings", { target: "profile", avatarUrl: "https://example.com/a.png" }],
+  ["update_workspace_settings", { avatarUrl: null }],
+  ["update_workspace_settings", { avatarUrl: "" }],
+  ["update_workspace_settings", { avatarUrl: "https://example.com/a.png" }],
   ["navigate", { targetId: "nav-deals" }],
   ["navigate", { typeId: UUID, recordId: UUID }],
   ["linkedin_search_sales_leads", { connectedAccountId: UUID, filters: { network_distance: [1, 2, "GROUP"] } }],
@@ -773,15 +773,14 @@ describe("empty enum members, which Google rejects outright", () => {
     const after = getAgentAiToolDefinitions("vertex").find((d) => d.name === "update_workspace_settings");
     if (!before || !after) throw new Error("update_workspace_settings must exist on both wires");
     const accepts = ajv.compile(after.inputSchema as object);
-    const probe = { target: "company", avatarUrl: "" };
+    const probe = { avatarUrl: "" };
     expect(ajv.compile(before.inputSchema as object)(probe)).toBe(true);
     expect(accepts(probe), "the transform must never tighten").toBe(true);
     expect(
       accepts({
-        target: "company",
         avatarUrl: "https://example.invalid/a.png",
       }),
     ).toBe(true);
-    expect(accepts({ target: "company", avatarUrl: null })).toBe(true);
+    expect(accepts({ avatarUrl: null })).toBe(true);
   });
 });

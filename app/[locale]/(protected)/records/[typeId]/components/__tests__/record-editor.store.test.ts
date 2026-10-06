@@ -17,10 +17,9 @@ import { RecordEditorStore } from "../record-editor.store";
 
 const companyId = randomUUID();
 const id = (key: string) => presetId(companyId, key);
-const model = createCrmPreset(companyId, "EUR");
+const model = createCrmPreset(companyId);
 const root = {
   userStore: { user: { id: randomUUID() } },
-  companyStore: { company: { currency: "EUR" } },
 } as unknown as RootStore;
 const context = (type: string): RecordEditorContext => ({
   model,

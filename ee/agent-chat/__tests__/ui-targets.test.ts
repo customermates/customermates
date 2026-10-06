@@ -183,10 +183,12 @@ describe("agent interface targets", () => {
     expect(findAgentUiTarget("invite-modal-send")?.prerequisite).toBe("invite-modal-tab-email");
   });
 
-  it("routes record configuration to Configure instead of preset-only settings controls", () => {
-    expect(findAgentUiTarget("company-settings-data-model")?.route).toBe("/company/settings");
+  it("routes record configuration and currencies to Configure, with no company settings page", () => {
     expect(findAgentUiTarget("nav-configure-records")?.route).toBe("/configure");
     expect(findAgentUiTarget("nav-company-data-model")).toBeNull();
+    expect(findAgentUiTarget("nav-company-settings")).toBeNull();
+    expect(findAgentUiTarget("company-settings-currency")).toBeNull();
+    expect(findAgentUiTarget("nav-company")?.route).toBe("/company/members");
   });
 
   it("points dialog field targets at the control that opens their dialog or tab", () => {
@@ -208,8 +210,6 @@ describe("agent interface targets", () => {
   it("describes settings controls with the words users ask about", () => {
     const describes = (id: string, word: string) =>
       expect(findAgentUiTarget(id)?.description.toLowerCase(), id).toContain(word);
-    describes("company-settings-currency", "currency");
-    describes("company-settings-data-model", "calculations");
     describes("company-subscription-manage", "lemon squeezy");
     describes("company-subscription-manage", "invoices");
     describes("profile-settings-display-language", "language");
@@ -219,7 +219,6 @@ describe("agent interface targets", () => {
 
   it("describes when a form's save button exists and who sees conditional controls", () => {
     expect(findAgentUiTarget("profile-settings-save")?.description).toContain("shown once something changed");
-    expect(findAgentUiTarget("company-settings-save")?.description).toContain("enabled once something changed");
     expect(findAgentUiTarget("member-modal-save")?.description).toContain("roles with Manage");
     expect(findAgentUiTarget("role-modal-save")?.description).toContain("system role");
     expect(findAgentUiTarget("company-subscription-manage")?.description).toContain("Lemon Squeezy subscription");
@@ -246,7 +245,6 @@ describe("agent interface targets", () => {
     expect(findAgentUiTarget("connected-account-visibility")?.description).toContain("Business plan");
     expect(findAgentUiTarget("connected-account-tab-folders")?.description).toContain("accounts with folders");
     expect(findAgentUiTarget("role-modal-delete")?.description).toContain("not for the system role");
-    expect(findAgentUiTarget("company-settings-total-pipeline")).toBeNull();
   });
 
   it("lets navigate resolve only targets with an app route", () => {
@@ -261,6 +259,6 @@ describe("agent interface targets", () => {
       expect(findAgentNavigationTarget(id)?.route, id).toMatch(/^\//);
     expect(findAgentNavigationTarget("nav-search")).toBeNull();
     expect(UiTargetIdSchema.safeParse("currency").success).toBe(false);
-    expect(UiTargetIdSchema.safeParse("company-settings-currency-x").success).toBe(false);
+    expect(UiTargetIdSchema.safeParse("company-members-add-x").success).toBe(false);
   });
 });

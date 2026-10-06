@@ -13,38 +13,24 @@ import {
   getAdminUpdateUserDetailsInteractor,
   getGetTeamMemberInteractor,
   getInviteUsersByEmailInteractor,
-  getUpdateCompanySettingsInteractor,
   getUpdateUserDetailsInteractor,
 } from "@/core/di";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { UpdateUserDetailsSchema } from "@/features/user/upsert/update-user-details.interactor";
 import { AdminUpdateUserDetailsSchema } from "@/features/user/upsert/admin-update-user-details.interactor";
 import { GetUserByIdSchema } from "@/features/user/get/get-user-by-id.interactor";
-import { UpdateCompanySettingsSchema } from "@/features/company/update-company-settings.interactor";
 import { InviteUsersByEmailSchema } from "@/features/company/invite-users-by-email.interactor";
 
 const UpdateWorkspaceSettingsSchema = z
   .object({
-    target: z
-      .enum(["profile", "company"])
-      .describe(
-        "profile = the authenticated user's own profile, company = the company profile (requires update permission on the company)",
-      ),
-    firstName: UpdateUserDetailsSchema.shape.firstName.describe("profile target: omit to keep existing"),
-    lastName: UpdateUserDetailsSchema.shape.lastName.describe("profile target: omit to keep existing"),
-    country: UpdateUserDetailsSchema.shape.country.describe("profile target: ISO country code. Omit to keep existing."),
+    firstName: UpdateUserDetailsSchema.shape.firstName.describe("Omit to keep existing"),
+    lastName: UpdateUserDetailsSchema.shape.lastName.describe("Omit to keep existing"),
+    country: UpdateUserDetailsSchema.shape.country.describe("ISO country code. Omit to keep existing."),
     avatarUrl: UpdateUserDetailsSchema.shape.avatarUrl.describe(
-      "profile target: HTTPS avatar URL, or '' / null to clear. Omit to keep existing.",
+      "HTTPS avatar URL, or '' / null to clear. Omit to keep existing.",
     ),
-    currency: UpdateCompanySettingsSchema.shape.currency
-      .optional()
-      .describe("company target: currency code. Omit to keep existing."),
   })
   .strict();
-
-const CompanyWorkspaceSettingsSchema = UpdateCompanySettingsSchema.pick({ currency: true }).required({
-  currency: true,
-});
 
 const ProfileWorkspaceSettingsSchema = UpdateUserDetailsSchema.pick({
   firstName: true,
@@ -75,9 +61,9 @@ export const updateWorkspaceSettingsTool = {
   name: "update_workspace_settings",
   title: "Update workspace settings",
   description:
-    "Use this when updating the current user's profile or the company profile. " +
-    "target profile is a partial update of firstName, lastName, country, avatarUrl; omitted fields keep their current values. " +
-    "target company updates currency and requires update permission on the company. Rename record types through configure_record_model using stable type IDs.",
+    "Use this when updating the current user's profile. " +
+    "It is a partial update of firstName, lastName, country, avatarUrl; omitted fields keep their current values. " +
+    "Money fields carry their own currency: change it, or rename record types, through configure_record_model using stable IDs.",
   annotations: {
     readOnlyHint: false,
     destructiveHint: false,
@@ -89,25 +75,15 @@ export const updateWorkspaceSettingsTool = {
   execute: async (params: z.infer<typeof UpdateWorkspaceSettingsSchema>) => {
     const input = UpdateWorkspaceSettingsSchema.safeParse(params);
     if (!input.success) return mcpValidationFailure(input.error);
-    if (params.target === "profile") {
-      const parsed = ProfileWorkspaceSettingsSchema.safeParse(params);
-      if (!parsed.success) return mcpValidationFailure(parsed.error);
-      return runInteractor(getUpdateUserDetailsInteractor().invoke(parsed.data), (data) =>
-        toonResult({
-          ...(parsed.data.firstName !== undefined ? { firstName: data.firstName } : {}),
-          ...(parsed.data.lastName !== undefined ? { lastName: data.lastName } : {}),
-          ...(parsed.data.country !== undefined ? { country: data.country } : {}),
-          ...(parsed.data.avatarUrl !== undefined ? { avatarUrl: data.avatarUrl } : {}),
-          message: "Profile updated",
-        }),
-      );
-    }
-    const parsed = CompanyWorkspaceSettingsSchema.safeParse({ currency: params.currency });
+    const parsed = ProfileWorkspaceSettingsSchema.safeParse(input.data);
     if (!parsed.success) return mcpValidationFailure(parsed.error);
-    return runInteractor(getUpdateCompanySettingsInteractor().invoke(parsed.data), (data) =>
+    return runInteractor(getUpdateUserDetailsInteractor().invoke(parsed.data), (data) =>
       toonResult({
-        ...(data.currency !== undefined ? { currency: data.currency } : {}),
-        message: "Company settings updated",
+        ...(parsed.data.firstName !== undefined ? { firstName: data.firstName } : {}),
+        ...(parsed.data.lastName !== undefined ? { lastName: data.lastName } : {}),
+        ...(parsed.data.country !== undefined ? { country: data.country } : {}),
+        ...(parsed.data.avatarUrl !== undefined ? { avatarUrl: data.avatarUrl } : {}),
+        message: "Profile updated",
       }),
     );
   },

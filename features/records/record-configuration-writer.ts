@@ -51,7 +51,6 @@ export class RecordConfigurationWriter {
     prepared: PreparedConfiguration,
     previous: RecordModel,
     userId: string,
-    currency: string,
     limit = SYNCHRONOUS_RECORD_LIMIT,
   ): Promise<RecordRef[]> {
     if (!prepared.preview.valid) throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
@@ -71,7 +70,7 @@ export class RecordConfigurationWriter {
     await this.records.saveModel(prepared.model, userId, prepared.change);
     for (const ref of refs) await this.initializeRecord(ref, prepared, previous, limit);
     for (const grant of prepared.grants) await this.records.setGrants(grant.typeId, grant.grants);
-    const recalculated = await this.calculations.recalculate(prepared.model, refs, currency, new Map(), limit);
+    const recalculated = await this.calculations.recalculate(prepared.model, refs, new Map(), limit);
     if (!recalculated.complete) throw new RecordWriteError(CustomErrorCode.recordCalculationBudget, "conflict");
     for (const ref of recalculated.changed) await this.records.touch(ref);
     return refs;

@@ -5,7 +5,6 @@ import { WIKI_PAGE_AUDIT_EVENTS } from "@/features/wiki/wiki-audit-events";
 export const SYSTEM_ACTIVITY_AUDIT_EVENTS = [
   DomainEvent.USER_REGISTERED,
   DomainEvent.USER_UPDATED,
-  DomainEvent.COMPANY_UPDATED,
   DomainEvent.ROLE_CREATED,
   DomainEvent.ROLE_UPDATED,
   DomainEvent.ROLE_DELETED,

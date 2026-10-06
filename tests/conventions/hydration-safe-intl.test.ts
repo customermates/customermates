@@ -8,7 +8,7 @@ import { REPO_ROOT, walkFiles } from "./walk";
 
 const SCANNED_DIRECTORIES = ["app", "components", "core", "features"];
 const HYDRATION_SENSITIVE_INTL_MEMBER =
-  /\.(?:(?:date|dateTime)FormatMap|rendersZonedValues|use12Hour|resolvedFormattingLanguageTag|companyCurrency|collator|format(?:Numerical(?:Long|Short)Date(?:Time)?|Descriptive(?:Short|Long)Date(?:Time)?|Time|RelativeTime|Currency|Number(?:ForEditing)?))\b/;
+  /\.(?:(?:date|dateTime)FormatMap|rendersZonedValues|use12Hour|resolvedFormattingLanguageTag|collator|format(?:Numerical(?:Long|Short)Date(?:Time)?|Descriptive(?:Short|Long)Date(?:Time)?|Time|RelativeTime|Number(?:ForEditing)?))\b/;
 const HYDRATION_BOUNDARY = /\b(?:useHydratedIntlStore|HydrationSafeIntlStore)\b/;
 
 function usesHydrationSensitiveIntl(text: string): boolean {
@@ -77,7 +77,7 @@ describe("hydration-safe Intl rendering", () => {
 
   it("distinguishes unsafe direct formatters from the shared boundary", () => {
     expect(usesHydrationSensitiveIntl("intlStore.formatTime(value)")).toBe(true);
-    expect(usesHydrationSensitiveIntl("intlStore.formatCurrency(value)")).toBe(true);
+    expect(usesHydrationSensitiveIntl("intlStore.formatNumber(value)")).toBe(true);
     expect(hasHydrationBoundary("const intlStore = useHydratedIntlStore()")).toBe(true);
     expect(hasHydrationBoundary("const { intlStore } = useRootStore()")).toBe(false);
     expect(acquiresIntlStoreFromRoot("const { intlStore } = useRootStore()")).toBe(true);

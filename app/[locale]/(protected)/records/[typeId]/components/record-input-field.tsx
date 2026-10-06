@@ -78,11 +78,7 @@ export const RecordInputField = observer(function RecordInputField({
     return (
       <FormDecimalInput
         {...shared}
-        endContent={
-          field.valueType === "currency"
-            ? (field.format?.currency ?? root.companyStore.company?.currency ?? "").toUpperCase() || undefined
-            : undefined
-        }
+        endContent={field.valueType === "currency" ? (field.format?.currency ?? undefined) : undefined}
       />
     );
   }

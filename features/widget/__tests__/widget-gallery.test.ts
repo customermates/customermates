@@ -12,7 +12,7 @@ import { resolveWidgetGallery } from "../widget-gallery";
 function legacyModel() {
   const companyId = randomUUID();
   const id = (key: string) => presetId(companyId, key);
-  const model = createCrmPreset(companyId, "EUR");
+  const model = createCrmPreset(companyId);
   const status: RecordField = {
     id: randomUUID(),
     typeId: id("task"),

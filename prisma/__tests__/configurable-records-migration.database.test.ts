@@ -21,6 +21,7 @@ import {
   createLegacyMigrationDatabase,
   deployMigrations,
   LEGACY_CRM_TABLES,
+  migrationNames,
   prismaCli,
   readMigration,
 } from "@/tests/helpers/legacy-migration-database";
@@ -1054,10 +1055,14 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
     expect(
       await rows(
         production.client,
-        "SELECT migration_name FROM \"_prisma_migrations\" WHERE started_at > NOW() - interval '10 minutes' AND migration_name >= $1",
+        "SELECT migration_name FROM \"_prisma_migrations\" WHERE started_at > NOW() - interval '10 minutes' AND migration_name >= $1 ORDER BY migration_name",
         [CONFIGURABLE_RECORDS_MIGRATION],
       ),
-    ).toEqual([{ migration_name: CONFIGURABLE_RECORDS_MIGRATION }]);
+    ).toEqual(
+      (await migrationNames((name) => name >= CONFIGURABLE_RECORDS_MIGRATION)).map((name) => ({
+        migration_name: name,
+      })),
+    );
     expect(
       await rows(production.client, 'SELECT "storageMode" FROM "RecordSchemaState" WHERE "companyId"=$1', [
         f.companyId,

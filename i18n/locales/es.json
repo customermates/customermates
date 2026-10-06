@@ -67,8 +67,7 @@
           "delete": "Listo para eliminar de forma permanente un widget del panel"
         },
         "workspace": {
-          "configure": "Listo para cambiar el modelo de datos del espacio de trabajo",
-          "settings": "Listo para cambiar la configuración del espacio de trabajo, incluidos los nombres de los tipos de registro"
+          "configure": "Listo para cambiar el modelo de datos del espacio de trabajo"
         }
       },
       "cancelled": "Detenido",
@@ -376,11 +375,6 @@
             "done": "Espacio de trabajo revisado",
             "error": "No se pudo comprobar su espacio de trabajo",
             "running": "Revisando el espacio de trabajo"
-          },
-          "settings": {
-            "done": "Configuración del espacio de trabajo actualizada",
-            "error": "No se pudo actualizar la configuración del espacio de trabajo",
-            "running": "Actualizando la configuración del espacio de trabajo"
           }
         }
       },
@@ -895,7 +889,6 @@
       "success": "Verde",
       "warning": "Amarillo"
     },
-    "company": "Empresa",
     "creditsBelowMinimum": "<{amount}",
     "dateBuckets": {
       "day": "Día",
@@ -1128,9 +1121,6 @@
       "wikiWhenToUseRequired": "Un procedimiento necesita una breve descripción de cuándo usarlo."
     },
     "events": {
-      "company": {
-        "updated": "Empresa actualizada"
-      },
       "connected_account": {
         "created": "Cuenta conectada",
         "deleted": "Cuenta desconectada",
@@ -1496,9 +1486,6 @@
     "generating": "Generando el enlace...",
     "label": "Enlace de invitación",
     "title": "Invitar a un usuario"
-  },
-  "CompanySettings": {
-    "dataModelTitle": "Modelo de datos"
   },
   "CompanyUserModal": {
     "activeUserWarning": "Puedes editar tu propia cuenta en tus <settingsLink>ajustes</settingsLink>.",

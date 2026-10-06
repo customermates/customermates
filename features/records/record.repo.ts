@@ -100,7 +100,6 @@ export interface RecordRepo {
   getActivityWidgetQueriesCompanyWide(afterId?: string): Promise<Array<{ id: string; query: RecordActivityQuery }>>;
   getEventSubscriptionsCompanyWide(afterId?: string): Promise<RecordEventSubscriptionDefinition[]>;
   getWidgetMeasuresCompanyWide(afterId?: string): Promise<Array<{ id: string; measure: RecordMeasure }>>;
-  getWorkspaceCurrencyOrThrow(): Promise<string>;
   getState(): Promise<RecordSchemaState | null>;
   getGrants(): Promise<RecordTypeGrant[]>;
   countRecordsCompanyWide(typeIds: string[]): Promise<number>;
@@ -149,7 +148,7 @@ export interface RecordRepo {
     model: RecordModel,
     access: RecordAccessMap,
   ): Promise<Map<string, RecordPathSummary[]>>;
-  measure(measure: RecordMeasure, model: RecordModel, access: RecordAccessMap, currency: string): Promise<MeasureRow[]>;
+  measure(measure: RecordMeasure, model: RecordModel, access: RecordAccessMap): Promise<MeasureRow[]>;
   create(ref: RecordRef, assignedUserIds: string[]): Promise<void>;
   touch(ref: RecordRef): Promise<void>;
   delete(ref: RecordRef): Promise<void>;

@@ -18,7 +18,7 @@ const id = (key: string) => presetId(company, key);
 
 describe("configure rail", () => {
   it("lists every list flat with embedded lists directly under their parent", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const rows = configureRailRows(model, {});
     expect(rows.map((row) => [row.type.pluralLabel, row.depth])).toEqual([
       ["Contacts", 0],
@@ -31,7 +31,7 @@ describe("configure rail", () => {
   });
 
   it("hides archived lists unless requested or selected and searches labels case-insensitively", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     recordInvariant(model.types.find((type) => type.id === id("service"))).archived = true;
     expect(configureRailRows(model, {}).some((row) => row.type.id === id("service"))).toBe(false);
     expect(configureRailRows(model, { showArchived: true }).some((row) => row.type.id === id("service"))).toBe(true);
@@ -47,7 +47,7 @@ describe("configure rail", () => {
 
 describe("configure list details", () => {
   it("counts active fields, relationships and activity connections", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const counts = configureCounts(model, id("deal"));
     expect(counts.fields).toBe(model.fields.filter((field) => field.typeId === id("deal")).length);
     const deal = model.types.find((type) => type.id === id("deal"));
@@ -59,7 +59,7 @@ describe("configure list details", () => {
   });
 
   it("describes calculated fields by their source list", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const sources = model.fields
       .filter((field) => field.typeId === id("deal"))
       .map((field) => configureFieldSource(model, field));
@@ -68,7 +68,7 @@ describe("configure list details", () => {
   });
 
   it("names the lists an activity path passes through", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const path = model.activityPaths.find((path) => path.typeId === id("organization") && path.path.length > 0);
     if (path) expect(configurePathLists(model, id("organization"), path.path).length).toBe(path.path.length);
     expect(configurePathLists(model, id("deal"), [])).toEqual([]);
@@ -77,7 +77,7 @@ describe("configure list details", () => {
 
 describe("field reordering", () => {
   it("moves a field and saves only changed positions as valid field operations", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const order = configureFieldOrder(model, id("deal"));
     const moved = moveConfigureField(order, order[2], order[0]);
     expect(moved).toEqual([order[2], order[0], order[1], ...order.slice(3)]);
@@ -100,7 +100,7 @@ describe("field reordering", () => {
   });
 
   it("renumbers every field when stored positions already match the requested order", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const fields = model.fields.filter((field) => field.typeId === id("contact"));
     const order = fields.map((field) => field.id);
     fields[0].position = 1;
@@ -116,7 +116,7 @@ describe("field reordering", () => {
 
 describe("configure map layout", () => {
   it("places every visible list once inside the canvas and draws each relationship", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const layout = configureMapLayout(model, false);
     expect(layout).toEqual(configureMapLayout(model, false));
     expect(layout.nodes.map((node) => node.type.id).sort()).toEqual(model.types.map((type) => type.id).sort());
@@ -141,7 +141,7 @@ describe("configure map layout", () => {
   });
 
   it("draws a self relationship as a loop and omits archived lists unless shown", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     recordInvariant(model.types.find((type) => type.id === id("task"))).archived = true;
     model.relationships.push({
       id: "8b1d3c34-55a1-4f4e-9f77-6ad0a0b8f1aa",

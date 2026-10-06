@@ -32,13 +32,6 @@ vi.mock("@/core/di", () => ({
   getGetUserDetailsInteractor: () => ({
     invoke: () => Promise.resolve({ ok: true, data: { id: "user" } }),
   }),
-  getGetCompanySettingsInteractor: () => ({
-    invoke: () =>
-      Promise.resolve({
-        ok: true,
-        data: { id: "company", terminology: { labels: {} } },
-      }),
-  }),
   getGetRolesApiInteractor: () => ({
     invoke: () => Promise.resolve({ ok: true, data: { items: [] } }),
   }),
@@ -421,7 +414,6 @@ describe("workspace-context Wiki discovery", () => {
     expect(decode(mcpToolResultText(result))).toMatchObject({ wiki: catalog });
     expect(Object.keys(decode(mcpToolResultText(result)) as object)).toEqual([
       "user",
-      "company",
       "wiki",
       "roles",
       "connectedAccounts",
@@ -473,7 +465,6 @@ describe("workspace-context Wiki discovery", () => {
     const result = await getWorkspaceContextTool.execute();
     expect(decode(mcpToolResultText(result))).toMatchObject({
       user: { id: "user" },
-      company: { id: "company" },
       roles: [],
       wiki: catalog,
       connectedAccounts: [],

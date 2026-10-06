@@ -14,7 +14,7 @@ import { SYNTHETIC_CUSTOM_FIELD_IDS } from "./custom-fields";
 export function syntheticRecordModel(context: Pick<SeedContext, "ids">, fields: CustomFieldSeedData): RecordModel {
   const companyId = context.ids.company;
   const id = (key: string) => presetId(companyId, key);
-  const preset = createCrmPreset(companyId, "eur");
+  const preset = createCrmPreset(companyId);
   const modelFields = preset.fields.filter((field) => field.id !== id("deal.stage"));
   for (const field of fields.customFields)
     modelFields.push({ ...field, position: modelFields.filter((existing) => existing.typeId === field.typeId).length });
@@ -310,11 +310,11 @@ export async function seedRecordFixtures(
       },
       recordSchemaState: null,
     },
-    select: { id: true, currency: true },
+    select: { id: true },
   });
   for (const company of companies) {
     await context.prisma.$transaction((prisma) =>
-      initialize(prisma, company.id, createCrmPreset(company.id, company.currency)).then(() => undefined),
+      initialize(prisma, company.id, createCrmPreset(company.id)).then(() => undefined),
     );
   }
 }
@@ -335,7 +335,6 @@ export async function calculateSyntheticRecords(prisma: PrismaClient, companyId:
       const result = await new RecordCalculationService(syntheticCalculationRepo(tx, companyId)).recalculate(
         model,
         refs,
-        "EUR",
         new Map(),
         10000,
       );

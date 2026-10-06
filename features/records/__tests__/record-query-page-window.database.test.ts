@@ -59,12 +59,11 @@ async function fixture() {
     repo,
     policy,
     new RecordWriteService(repo, policy, new RecordCalculationService(repo)),
-    { getDetails: () => Promise.resolve({ currency: "EUR" }) },
     { dispatch: () => Promise.resolve() },
   );
   const query = new QueryRecordsInteractor(repo, policy);
   const id = (key: string) => presetId(seed.company.id, key);
-  const model = createCrmPreset(seed.company.id, "EUR");
+  const model = createCrmPreset(seed.company.id);
   await runWithTenant(admin, () => runInTransaction(() => repo.saveModel(model, admin.id), { timeout: 30000 }));
   const createDeal = async (name: string) => {
     const state = await runWithoutTenant(() =>

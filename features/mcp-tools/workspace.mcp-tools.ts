@@ -18,7 +18,6 @@ import { filterFieldsHint } from "@/core/types/filter-field-value-kind";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
 import {
-  getGetCompanySettingsInteractor,
   getGetMyConnectedAccountsContextInteractor,
   getGetRolesApiInteractor,
   getGetUserDetailsInteractor,
@@ -28,7 +27,6 @@ import {
 
 const WorkspaceContextOutputSchema = z.looseObject({
   user: z.looseObject({}),
-  company: z.looseObject({ id: z.string(), currency: z.string().nullable().optional() }),
   roles: z.array(z.looseObject({ id: z.string() })),
   connectedAccounts: z.array(z.looseObject({ id: z.string() })),
   wiki: z
@@ -65,9 +63,8 @@ const WORKSPACE_CONTEXT_FIELDS_DESCRIPTION =
   "For LinkedIn, linkedinProducts lists which products the account can send from (classic, sales_navigator, recruiter); only pass a linkedinProduct that appears there.";
 
 async function workspaceContext(wikiPage: number | null) {
-  const [userResult, companyResult, rolesResult, accountsResult, wikiResult] = await Promise.all([
+  const [userResult, rolesResult, accountsResult, wikiResult] = await Promise.all([
     getGetUserDetailsInteractor().invoke(),
-    getGetCompanySettingsInteractor().invoke(),
     getGetRolesApiInteractor().invoke({ pagination: { page: 1, pageSize: 100 } }),
     getGetMyConnectedAccountsContextInteractor().invoke(),
     wikiPage === null
@@ -82,17 +79,10 @@ async function workspaceContext(wikiPage: number | null) {
   if (!rolesResult.ok) return mcpInteractorFailure(rolesResult.error);
   if (!accountsResult.ok) return mcpInteractorFailure(accountsResult.error);
   if (wikiResult && !wikiResult.ok) return mcpInteractorFailure(wikiResult.error);
-  const company = companyResult.data;
   const wiki = wikiResult?.data;
   return toonResult(
     formatDatesInResponse({
       user: userResult.data,
-      company: {
-        id: company.id,
-        currency: company.currency,
-        createdAt: company.createdAt,
-        updatedAt: company.updatedAt,
-      },
       ...(wiki
         ? {
             wiki: {
@@ -116,7 +106,7 @@ export const getWorkspaceContextTool = {
   name: "get_workspace_context",
   title: "Get workspace context",
   description:
-    "Use this when starting a session: returns the current user, company, role catalog with permissions, connected messaging accounts, and the Knowledge Base in one call. " +
+    "Use this when starting a session: returns the current user, role catalog with permissions, connected messaging accounts, and the Knowledge Base in one call. " +
     "On the first page wiki.guide is the Operating Guide (follow it; nextOffset marks where the full page continues) and wiki.procedures lists procedures with whenToUse (read the matching one before acting). " +
     "wiki.items are knowledge pages, ten per page in creation order, each with id, title, url, timestamps and a short opening excerpt, never the complete page. " +
     "Pass wiki.nextPage as wikiPage to continue. wiki is omitted without Knowledge Base Read. " +
@@ -133,7 +123,7 @@ export function hostedWorkspaceContextTool() {
   return {
     ...getWorkspaceContextTool,
     description:
-      "Use this when starting a session: returns the current user, company, role catalog with permissions, and connected messaging accounts in one call. " +
+      "Use this when starting a session: returns the current user, role catalog with permissions, and connected messaging accounts in one call. " +
       WORKSPACE_CONTEXT_FIELDS_DESCRIPTION,
     inputSchema: z.object({}),
     execute: () => workspaceContext(null),

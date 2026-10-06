@@ -16,7 +16,6 @@ export class RecordViewPolicy implements DataViewPolicy {
   constructor(
     private records: RecordRepo,
     private access: RecordAccessPolicy,
-    private company: { getDetails(): Promise<{ currency: string }> },
   ) {}
   async list() {
     const [model, policy] = await Promise.all([this.records.getModel(), this.access.load()]);
@@ -70,7 +69,6 @@ export class RecordViewPolicy implements DataViewPolicy {
     if (!policy.actor || (!policy.allowed(typeId, "readOwn") && !policy.allowed(typeId, "readAll")))
       return CustomErrorCode.permissionDenied;
     if (!state) return null;
-    const company = await this.company.getDetails();
-    return recordViewStateIsValid(typeId, state, model, company.currency) ? null : CustomErrorCode.recordValueInvalid;
+    return recordViewStateIsValid(typeId, state, model) ? null : CustomErrorCode.recordValueInvalid;
   }
 }

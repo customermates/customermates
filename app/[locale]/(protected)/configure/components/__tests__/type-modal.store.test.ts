@@ -13,7 +13,7 @@ const root = { registerModalStore: vi.fn() } as unknown as RootStore;
 
 describe("list configuration", () => {
   it("preserves channel binding identity, naming hints, and avatar setting on disable", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     model.capabilities = model.capabilities.filter((binding) => binding.kind !== "channels");
     const binding = {
       id: id("identity"),
@@ -31,7 +31,7 @@ describe("list configuration", () => {
     expect(operation?.operation === "putCapability" && operation.capability).toEqual({ ...binding, enabled: false });
   });
   it("does not rewrite channel configuration when appearance alone changes", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const store = new TypeModalStore(root, model, vi.fn());
     store.edit(model, model.types[0], "appearance");
     store.onChange("layout", "board");
@@ -39,7 +39,7 @@ describe("list configuration", () => {
     expect(store.operations().map((operation) => operation.operation)).toEqual(["putType"]);
   });
   it("creates enabled channels atomically and uses one stable id across preview and apply", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const store = new TypeModalStore(root, model, vi.fn());
     store.edit(model, null);
     store.onChange("name", "Applicants");
@@ -52,7 +52,7 @@ describe("list configuration", () => {
     expect(channels.operation === "putCapability" && channels.capability.typeId).toBe("$type");
   });
   it("saves a dragged field order with the General settings and resets it with the form", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const deal = recordInvariant(model.types.find((type) => type.id === id("deal")));
     const store = new TypeModalStore(root, model, vi.fn());
     store.edit(model, deal);
@@ -77,7 +77,7 @@ describe("list configuration", () => {
     expect(store.operations().map((operation) => operation.operation)).toEqual(["putType"]);
   });
   it("archives and restores a list through the archive section", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const store = new TypeModalStore(root, model, vi.fn());
     store.edit(model, model.types[0], "archive");
     store.onChange("archived", true);

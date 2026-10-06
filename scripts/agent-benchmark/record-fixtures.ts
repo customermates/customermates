@@ -71,7 +71,7 @@ export function benchmarkRecordFixtures(prisma: Prisma.TransactionClient, compan
       for (const row of rows("dataView", companyId)) await prisma.dataView.create({ data: row as unknown as Prisma.DataViewUncheckedCreateInput });
       for (const row of rows("p13n", companyId)) await prisma.p13n.create({ data: row as unknown as Prisma.P13nUncheckedCreateInput });
       const refs = (await prisma.crmRecord.findMany({ where: { companyId }, select: { id: true, typeId: true } })).map((row) => ({ typeId: row.typeId, recordId: row.id }));
-      const result = await new RecordCalculationService(values).recalculate(model, refs, "EUR", new Map(), 10000);
+      const result = await new RecordCalculationService(values).recalculate(model, refs, new Map(), 10000);
       if (!result.complete) throw new Error("Benchmark fixture calculation exceeded its budget");
     }
   };

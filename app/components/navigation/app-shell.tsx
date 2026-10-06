@@ -9,7 +9,6 @@ import { loadNavigationData } from "./navigation-data";
 import { toSidebarUser } from "./sidebar-user";
 
 import {
-  getGetCompanySettingsInteractor,
   getGetRecordNavigationInteractor,
   getCountSystemTasksInteractor,
   getGetSubscriptionInteractor,
@@ -39,7 +38,6 @@ export async function AppShell({ children, displayLanguage }: Props) {
   ]);
   const navigation = await loadNavigationData(account.state, {
     records: () => unwrapValidated(getGetRecordNavigationInteractor().invoke()),
-    company: async () => (await getGetCompanySettingsInteractor().invoke()).data,
     subscription: async () => (await getGetSubscriptionInteractor().invoke()).data,
     systemTaskCount: async () => (await getCountSystemTasksInteractor().invoke()).data,
     unreadThreadCount: async () => {
@@ -67,7 +65,6 @@ export async function AppShell({ children, displayLanguage }: Props) {
         initialState={{
           locale: isRoutingLocale(displayLanguage) ? displayLanguage : DEFAULT_LOCALE,
           user: appUser,
-          company: accountAllowed ? navigation.company : null,
           subscription: accountAllowed ? navigation.subscription : null,
           recordNavigation: accountAllowed ? navigation.records : null,
         }}
@@ -76,7 +73,6 @@ export async function AppShell({ children, displayLanguage }: Props) {
           accountState={account.state}
           appUser={appUser}
           channelsNeedingActionCount={navigation.channelsNeedingActionCount}
-          company={navigation.company}
           defaultSidebarOpen={initialSidebarOpen}
           emailVerified={accountAllowed ? account.emailVerified : null}
           legalStatus={accountAllowed ? account.legalStatus : null}

@@ -70,7 +70,6 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportRecor
     private records: RecordRepo,
     private policy: RecordAccessPolicy,
     private writer: RecordWriteService,
-    private company: { getDetails(): Promise<{ currency: string }> },
   ) {
     super();
   }
@@ -171,7 +170,6 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportRecor
           (left, right) => (depth(left.ref.typeId) ?? 0) - (depth(right.ref.typeId) ?? 0),
         );
         try {
-          const currency = (await this.company.getDetails()).currency;
           const journal = new RecordJournal(this.records, model);
           const writer = this.writer.withRepository(journal.repository);
           let skipped = 0;
@@ -212,7 +210,6 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportRecor
                 },
                 model,
                 policy,
-                currency,
                 undefined,
                 { createRecordId: row.ref.recordId },
               );
@@ -248,7 +245,6 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportRecor
                 },
                 model,
                 policy,
-                currency,
               );
             }
           }
@@ -261,7 +257,7 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportRecor
               )
             )
               continue;
-            await writer.apply({ action: "link", ...link }, model, policy, currency);
+            await writer.apply({ action: "link", ...link }, model, policy);
             linked += 1;
           }
           await journal.flush(model, this.userId, input.idempotencyKey, {

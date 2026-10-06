@@ -18,7 +18,6 @@ const state = vi.hoisted(() => ({
   navigationRenderActive: false,
   renderPhaseUserWrites: [] as Array<{ id: string } | null>,
   closeAllModals: vi.fn(),
-  setCompany: vi.fn(),
   setSubscription: vi.fn(),
   setUser: vi.fn(),
   setRecordNavigation: vi.fn(),
@@ -43,7 +42,6 @@ vi.mock("@/core/stores/root-store.provider", () => ({
     appMode: state.appMode,
     navigationGuard: state.navigationGuard,
     closeAllModals: state.closeAllModals,
-    companyStore: { setCompany: state.setCompany },
     subscriptionStore: { setSubscription: state.setSubscription },
     recordWorkspaceStore: { setNavigation: state.setRecordNavigation },
     userStore: {
@@ -142,7 +140,6 @@ function allowedProps(): Omit<NavigationSwitchProps, "children"> {
     accountState: "allowed",
     appUser: null,
     channelsNeedingActionCount: 0,
-    company: null,
     emailVerified: true,
     legalStatus: null,
     operatorConsoleVisible: false,

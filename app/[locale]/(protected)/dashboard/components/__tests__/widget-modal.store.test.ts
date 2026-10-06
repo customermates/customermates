@@ -18,7 +18,7 @@ const mocks = vi.hoisted(() => ({
   getWidgetGalleryAction: vi.fn(),
 }));
 vi.mock("../../actions", () => mocks);
-const model = createCrmPreset(randomUUID(), "EUR");
+const model = createCrmPreset(randomUUID());
 const discovery = {
   contractVersion: 2 as const,
   schemaRevision: model.revision,

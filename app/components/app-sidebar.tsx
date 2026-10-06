@@ -268,7 +268,7 @@ const FullAppSidebar = observer(
             {
               key: "company",
               title: t("UserAvatar.company"),
-              href: `/company/${companySubroutes[0]?.slug ?? "settings"}`,
+              href: `/company/${companySubroutes[0]?.slug ?? "members"}`,
               icon: Building,
               visible: companySubroutes.length > 0,
               items: companySubroutes.map((subroute) => ({

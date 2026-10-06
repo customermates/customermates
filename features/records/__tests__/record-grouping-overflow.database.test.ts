@@ -64,12 +64,11 @@ async function fixture() {
     repo,
     policy,
     new RecordWriteService(repo, policy, new RecordCalculationService(repo)),
-    { getDetails: () => Promise.resolve({ currency: "EUR" }) },
     { dispatch: () => Promise.resolve() },
   );
   const query = new QueryRecordsInteractor(repo, policy);
   const id = (key: string) => presetId(seed.company.id, key);
-  const model = createCrmPreset(seed.company.id, "EUR");
+  const model = createCrmPreset(seed.company.id);
   const stage = model.fields.find((field) => field.id === id("deal.stage"));
   if (!stage) throw new Error("The starter stage field is missing");
   stage.options = Array.from({ length: OPTION_COUNT }, (_, index) => ({

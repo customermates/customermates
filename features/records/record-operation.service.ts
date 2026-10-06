@@ -44,7 +44,6 @@ export class RecordOperationService extends UserAccessor {
     private records: RecordRepo,
     private policy: RecordAccessPolicy,
     private configurations: RecordConfigurationService,
-    private company: { getDetails(): Promise<{ currency: string }> },
   ) {
     super();
   }
@@ -70,7 +69,6 @@ export class RecordOperationService extends UserAccessor {
           });
           const staged = journal.repository;
           const calculations = new RecordCalculationService(staged);
-          const currency = (await this.company.getDetails()).currency;
           const prepared =
             operation.kind === "configuration"
               ? await this.configurations.prepare(ConfigurationChangeSchema.parse(operation.request), current, policy)
@@ -113,7 +111,7 @@ export class RecordOperationService extends UserAccessor {
                 await this.records.updateOperation(operationId, { cursor: { phase: "deletePlan", index: 0 } });
                 return { done: false };
               }
-              const result = await writer.apply(request.mutation, current, policy, currency, BACKGROUND_FANOUT_LIMIT, {
+              const result = await writer.apply(request.mutation, current, policy, BACKGROUND_FANOUT_LIMIT, {
                 skipCalculations: true,
                 createRecordId: deterministicId(this.companyId, `operation:${operationId}:record`),
               });
@@ -239,7 +237,7 @@ export class RecordOperationService extends UserAccessor {
                 )
               )
                 continue;
-              await calculations.calculateField(model, ref, field.id, currency, BACKGROUND_FANOUT_LIMIT);
+              await calculations.calculateField(model, ref, field.id, BACKGROUND_FANOUT_LIMIT);
             }
             await journal.persist();
             await this.records.updateOperation(operationId, {

@@ -71,23 +71,19 @@ async function fixture(preset: Preset = "crm") {
   const member = createMockUser({ ...seed.member, role: { ...seed.memberRole, permissions: [] } });
   const repo = new PrismaRecordRepo();
   const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
-  const company = { getDetails: () => Promise.resolve({ currency: "EUR" }) };
   const mutate = new MutateRecordInteractor(
     repo,
     policy,
     new RecordWriteService(repo, policy, new RecordCalculationService(repo)),
-    company,
     { dispatch: () => Promise.resolve() },
   );
-  const measure = new QueryRecordMeasureInteractor(repo, policy, company);
+  const measure = new QueryRecordMeasureInteractor(repo, policy);
   const reader = new RecordWidgetReader(repo, measure, new PrismaUserRepo(new PermissionService()));
   const widgets = new UpsertRecordWidgetInteractor(new PrismaRecordWidgetRepo(), repo, policy, measure, reader);
   const gallery = new GetWidgetGalleryInteractor(repo, policy);
   const id = (key: string) => presetId(seed.company.id, key);
   const model =
-    preset === "crm"
-      ? createCrmPreset(seed.company.id, "EUR")
-      : createWorkspaceRecordPreset(seed.company.id, "EUR", (key) => key);
+    preset === "crm" ? createCrmPreset(seed.company.id) : createWorkspaceRecordPreset(seed.company.id, (key) => key);
   const deal = id("deal");
   const field = (label: string, valueType: RecordField["valueType"]): RecordField => {
     const definition: RecordField = {
@@ -101,6 +97,7 @@ async function fixture(preset: Preset = "crm") {
       publishedSummary: false,
       options: [],
       position: model.fields.filter((candidate) => candidate.typeId === deal).length,
+      ...(valueType === "currency" ? { format: { currency: "EUR" } } : {}),
     };
     model.fields.push(definition);
     return definition;
@@ -515,7 +512,6 @@ describeDatabase("time-bucketed record measures", () => {
           new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), restricted.repo),
           new RecordCalculationService(restricted.repo),
         ),
-        { getDetails: () => Promise.resolve({ currency: "EUR" }) },
         { dispatch: () => Promise.resolve() },
       ).invoke({
         expectedRevision: await restricted.revision(),
@@ -540,7 +536,6 @@ describeDatabase("time-bucketed record measures", () => {
           new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), restricted.repo),
           new RecordCalculationService(restricted.repo),
         ),
-        { getDetails: () => Promise.resolve({ currency: "EUR" }) },
         { dispatch: () => Promise.resolve() },
       ).invoke({
         expectedRevision: await restricted.revision(),

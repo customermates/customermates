@@ -12,7 +12,7 @@ export class AuditLogModalStore extends BaseModalStore<AuditLogDto> {
       rootStore,
       {
         id: "",
-        event: DomainEvent.COMPANY_UPDATED,
+        event: DomainEvent.USER_UPDATED,
         eventData: {
           userId: "",
           companyId: "",

@@ -29,7 +29,7 @@ vi.mock("../record-widget-filters", () => ({
 
 import { RecordWidgetEditor } from "../record-widget-editor";
 
-const model = createCrmPreset("6487f9fb-7b10-439a-b783-9d3da8184b14", "EUR");
+const model = createCrmPreset("6487f9fb-7b10-439a-b783-9d3da8184b14");
 let root: Root;
 let container: HTMLElement;
 

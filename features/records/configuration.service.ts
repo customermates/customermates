@@ -469,14 +469,13 @@ export class RecordConfigurationService extends UserAccessor {
         if (!last || layouts.length < 200) break;
         layoutCursor = last.id;
       }
-      const currency = await this.records.getWorkspaceCurrencyOrThrow();
       let cursor = "";
       const blockedTypes = new Set<string>();
       for (;;) {
         const consumers = await this.records.getViewStatesCompanyWide([...viewTypes], cursor);
         for (const consumer of consumers) {
           if (blockedTypes.has(consumer.typeId)) continue;
-          if (!recordViewStateIsValid(consumer.typeId, consumer.state, model, currency)) {
+          if (!recordViewStateIsValid(consumer.typeId, consumer.state, model)) {
             blockedTypes.add(consumer.typeId);
             validation.issues.push({
               code: "saved_view_incompatible",

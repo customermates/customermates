@@ -19,7 +19,7 @@ import {
 
 const workspace = randomUUID();
 const id = (key: string) => presetId(workspace, key);
-const model = createCrmPreset(workspace, "EUR");
+const model = createCrmPreset(workspace);
 const fields = model.fields.filter((field) => field.typeId === id("deal"));
 const relationship = `relationship:${id("deal.organizations")}:outgoing`;
 const window: RecordField = {
@@ -48,8 +48,8 @@ describe("generic record presentation filters", () => {
     expect(recordColumns(id("organization"), model).some((column) => column.id === "system:channels")).toBe(false);
     expect(RecordColumnKeySchema.safeParse("system:channels").success).toBe(true);
     expect(RecordFieldKeySchema.safeParse("system:channels").success).toBe(false);
-    expect(recordViewStateIsValid(id("contact"), { columnOrder: ["system:channels"] }, model, "EUR")).toBe(true);
-    expect(recordViewStateIsValid(id("organization"), { columnOrder: ["system:channels"] }, model, "EUR")).toBe(false);
+    expect(recordViewStateIsValid(id("contact"), { columnOrder: ["system:channels"] }, model)).toBe(true);
+    expect(recordViewStateIsValid(id("organization"), { columnOrder: ["system:channels"] }, model)).toBe(false);
   });
   it("preserves typed relationship, assignment and relative-date filters in saved views", () => {
     const related = randomUUID();
@@ -60,8 +60,8 @@ describe("generic record presentation filters", () => {
       { field: "system:updatedAt", operator: Operator.inLastDays, value: 30 },
       { field: "system:createdAt", operator: Operator.notInLastDays, value: 3 },
     ];
-    expect(recordViewStateIsValid(id("deal"), { filters }, model, "EUR")).toBe(true);
-    const query = presentationQuery(id("deal"), fields, { filters }, "EUR", model.relationships);
+    expect(recordViewStateIsValid(id("deal"), { filters }, model)).toBe(true);
+    const query = presentationQuery(id("deal"), fields, { filters }, model.relationships);
     expect(query.relationships).toEqual([
       { relationId: id("deal.organizations"), direction: "outgoing", operator: "none", recordIds: [related] },
     ]);
@@ -82,13 +82,8 @@ describe("generic record presentation filters", () => {
       [Operator.hasNone, "none"],
     ] as const) {
       expect(
-        presentationQuery(
-          id("deal"),
-          fields,
-          { filters: [{ field: relationship, operator }] },
-          "EUR",
-          model.relationships,
-        ).relationships[0],
+        presentationQuery(id("deal"), fields, { filters: [{ field: relationship, operator }] }, model.relationships)
+          .relationships[0],
       ).toMatchObject({ operator: expected, recordIds: null });
     }
     expect(
@@ -96,7 +91,6 @@ describe("generic record presentation filters", () => {
         id("organization"),
         { filters: [{ field: relationship, operator: Operator.hasSome }] },
         model,
-        "EUR",
       ),
     ).toBe(false);
     expect(
@@ -104,7 +98,6 @@ describe("generic record presentation filters", () => {
         id("deal"),
         { filters: [{ field: `relationship:${randomUUID()}:outgoing`, operator: Operator.hasSome }] },
         model,
-        "EUR",
       ),
     ).toBe(false);
   });
@@ -116,7 +109,6 @@ describe("generic record presentation filters", () => {
         id("deal"),
         { filters: [{ field: window.id, operator: Operator.between, value: values }] },
         extended,
-        "EUR",
       ),
     ).toBe(false);
     expect(
@@ -124,7 +116,6 @@ describe("generic record presentation filters", () => {
         id("deal"),
         { filters: [{ field: window.id, operator: Operator.between, value: [...values].reverse() }] },
         extended,
-        "EUR",
       ),
     ).toBe(true);
     expect(scalarMatchesType({ kind: "range", start: values[0], end: values[1] }, "dateTimeRange")).toBe(false);
@@ -146,7 +137,7 @@ describe("generic record presentation filters", () => {
       operator: Operator.contains as const,
       value: "a",
     }));
-    expect(presentationQuery(id("deal"), fields, { filters }, "EUR").filters).toHaveLength(50);
+    expect(presentationQuery(id("deal"), fields, { filters }).filters).toHaveLength(50);
   });
 
   it("uses the existing date and selection controls for dynamic and system columns", () => {

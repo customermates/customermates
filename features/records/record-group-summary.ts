@@ -1,3 +1,4 @@
+import { recordInvariant } from "./record-invariant";
 import { Prisma } from "@/generated/prisma";
 
 import type { RecordModel, RecordGroupSummaryDefinition } from "./record-model.schema";
@@ -13,7 +14,6 @@ export function recordGroupSummaryCtes(
   definitions: RecordGroupSummaryDefinition[],
   model: RecordModel,
   access: RecordAccessMap,
-  currency: string,
 ): Prisma.Sql {
   if (!definitions.length) return Prisma.empty;
   const queries = definitions.map((definition, index) => {
@@ -39,7 +39,7 @@ export function recordGroupSummaryCtes(
             'value', trim_scale(COALESCE(${amount}, 0))::text,
             'currency', ${
               field.valueType === "currency"
-                ? Prisma.sql`COALESCE(MAX(amount.currency) FILTER (WHERE amount.state = 'value'), ${field.format?.currency ?? currency.toUpperCase()})`
+                ? Prisma.sql`COALESCE(MAX(amount.currency) FILTER (WHERE amount.state = 'value'), ${recordInvariant(field.format?.currency)})`
                 : Prisma.sql`NULL::text`
             })) END) AS summary
       FROM page_axis axis LEFT JOIN members grain ON grain.key = axis.key

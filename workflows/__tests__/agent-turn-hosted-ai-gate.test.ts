@@ -2751,12 +2751,12 @@ describe("agent-turn authoritative tool inputs", () => {
     expect(state.createApproval).not.toHaveBeenCalled();
   });
 
-  it("does not ask for an approval before a workspace currency change", async () => {
+  it("does not ask for an approval before a profile change", async () => {
     define("update_workspace_settings");
-    const currency = { target: "company", currency: "EUR" };
+    const profile = { firstName: "Ada" };
     state.normalize.mockImplementation((_name: string, value: unknown) => Promise.resolve({ ok: true, input: value }));
     state.runTools = async ({ tools }) => {
-      expect(await tools.update_workspace_settings.needsApproval(currency, { toolCallId: "call-1" })).toBe(false);
+      expect(await tools.update_workspace_settings.needsApproval(profile, { toolCallId: "call-1" })).toBe(false);
       return finish();
     };
 

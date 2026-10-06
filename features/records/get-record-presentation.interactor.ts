@@ -57,7 +57,6 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
     private policy: RecordAccessPolicy,
     private views: DataViewStateRepo,
     private query: QueryRecordsInteractor,
-    private company: { getDetails(): Promise<{ currency: string }> },
   ) {
     super();
   }
@@ -66,11 +65,10 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
   async invoke(input: z.infer<typeof GetRecordPresentationSchema>): Validated<RecordPresentationResult> {
     return runInTransaction(
       async () => {
-        const [model, policy, viewState, company, t] = await Promise.all([
+        const [model, policy, viewState, t] = await Promise.all([
           this.records.getModel(),
           this.policy.load(),
           this.views.loadSurfaceState(recordSurfaceKey(input.typeId)),
-          this.company.getDetails(),
           getTranslations(),
         ]);
         const systemColumnLabels = {
@@ -125,7 +123,6 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
               ...state,
               page: input.params.page ?? input.params.pagination?.page ?? 1,
             },
-            company.currency,
             relationships,
             paths,
           );
