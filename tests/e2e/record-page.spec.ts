@@ -81,7 +81,7 @@ test("opens a stable record page, preserves its draft alongside the assistant, a
   const searchButton = page.locator("#nav-search");
   if (!(await searchButton.isVisible())) await page.locator("#sidebar-trigger").click();
   await searchButton.click();
-  await page.locator("#global-search-input").fill("Opportunity with notes");
+  await page.locator("#global-search-input input").fill("Opportunity with notes");
   await page.locator(`[data-value="${typeId("deal")}:${recordId}"]`).click();
   await waitForDealReads(dialogs);
   await dialogs.getByRole("textbox", { name: "Name", exact: false }).fill("Same page drawer draft");
