@@ -198,7 +198,7 @@ Zugängliche konfigurierte Typen durchsuchen, einschließlich selbst angelegter 
 
 #### `resolve_record_identifiers`
 
-Exakte E-Mail-, Telefon- oder unterstützte Profilkennungen über das indizierte Kanalregister auflösen. Jede Eingabe liefert alle zugänglichen verknüpften Datensätze mit Typbezeichnung. typeIds begrenzt die Listen. Ein leeres records-Array bedeutet keinen zugänglichen Treffer; Mehrdeutigkeit vor Änderungen klären.
+Bis zu 1.000 exakte E-Mail-, Telefon- oder unterstützte Profilkennungen über das indizierte Kanalregister auflösen. Jede Eingabe liefert alle zugänglichen verknüpften Datensätze mit Typbezeichnung und aktueller Version, dazu die schemaRevision des Workspace, sodass Treffer direkt in updateMany einfließen. typeIds begrenzt die Listen. Ein leeres records-Array bedeutet keinen zugänglichen Treffer; über mehrere Kennungen gefundene Datensätze deduplizieren und Mehrdeutigkeit vor Änderungen klären.
 
 **Nur lesend.** Pflicht: `identifiers`. Optional: `typeIds`.
 
@@ -232,6 +232,67 @@ Einen dauerhaften Vorgang über operationId bis zum Abschluss, Fehler oder Abbru
 
 **Nur lesend.** Pflicht: `operationId`.
 {/* /mcp-catalog */}
+
+### Stapel-Update über Kanalkennungen [#batch-identifier-update]
+
+Zwei Aufrufe aktualisieren Datensätze, die Sie nur über E-Mail-Adressen oder Profilkennungen kennen. Dazwischen sind keine Lesezugriffe auf Datensätze nötig.
+
+1. Rufen Sie `resolve_record_identifiers` (REST: `POST /api/v1/records/identities/resolve`) mit bis zu 1.000 Kennungen auf:
+
+   ```json
+   {
+     "identifiers": [
+       { "provider": "mail", "value": "ada@example.com" },
+       { "provider": "linkedin", "value": "ada-lovelace" },
+       { "provider": "mail", "value": "team@example.com" }
+     ]
+   }
+   ```
+
+   Die Antwort behält die Eingabereihenfolge bei und liefert je Kennung alle zugänglichen verknüpften Datensätze, jeweils mit aktueller `version`, dazu die `schemaRevision` des Workspace:
+
+   ```json
+   {
+     "schemaRevision": 12,
+     "matches": [
+       {
+         "provider": "mail",
+         "value": "ada@example.com",
+         "records": [
+           {
+             "ref": { "typeId": "<contact typeId>", "recordId": "<ada recordId>" },
+             "identityId": "<identityId>",
+             "typeLabel": "Contact",
+             "typePluralLabel": "Contacts",
+             "title": "Ada Lovelace",
+             "avatarUrl": null,
+             "canEdit": true,
+             "version": 4
+           }
+         ]
+       },
+       { "provider": "linkedin", "value": "ada-lovelace", "records": [{ "ref": { "typeId": "<contact typeId>", "recordId": "<ada recordId>" }, "version": 4, "...": "..." }] },
+       { "provider": "mail", "value": "team@example.com", "records": [{ "...": "record A" }, { "...": "record B" }] }
+     ]
+   }
+   ```
+
+2. Bauen Sie die Ziele. Ein über mehrere Kennungen verknüpfter Datensatz, wie Ada oben, erscheint unter jeder davon: Behalten Sie ein Ziel je `typeId` und `recordId`. Eine Kennung mit mehreren Datensätzen, wie `team@example.com`, ist mehrdeutig: Entscheiden Sie mit der Person oder über den Typkontext, nie willkürlich. Ein leeres `records`-Array bedeutet keinen zugänglichen Treffer; Datensätze ohne Leserecht werden nie offengelegt.
+3. Rufen Sie `mutate_crm_record` (REST: `POST /api/v1/records/mutate`) einmal je Stapel mit bis zu 100 Zielen auf, mit `schemaRevision` als `expectedRevision`:
+
+   ```json
+   {
+     "expectedRevision": 12,
+     "idempotencyKey": "segment-update-2026-10-06",
+     "mutation": {
+       "action": "updateMany",
+       "targets": [{ "ref": { "typeId": "<contact typeId>", "recordId": "<ada recordId>" }, "expectedVersion": 4 }],
+       "fields": [{ "fieldId": "<field id>", "value": { "kind": "text", "value": "Webinar 2026" } }]
+     }
+   }
+   ```
+
+Die Änderung gilt atomar für alle Ziele; eine große Neuberechnung kann `status: "pending"` mit einer operationId liefern, die Sie über `read_crm_operation` verfolgen. Hat sich ein Ziel nach der Abfrage geändert oder das Schema, wird der ganze Stapel mit `conflict` abgelehnt und nichts geschrieben; fragen Sie erneut ab und senden Sie mit neuem Idempotenzschlüssel. Eine identische Wiederholung mit demselben Idempotenzschlüssel liefert das ursprüngliche Ergebnis, ohne doppelt zu schreiben.
 
 ### Workspace [#workspace]
 
