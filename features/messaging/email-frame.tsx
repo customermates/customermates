@@ -7,6 +7,7 @@ import { useTheme } from "next-themes";
 import DOMPurify from "dompurify";
 
 import { HTML_QUOTE_HIDE_CSS, htmlContainsQuote } from "@/ee/messaging/email-quote";
+import { sanitizeEmailFrameResources } from "./email-frame-resources";
 
 type Props = {
   html: string;
@@ -72,6 +73,7 @@ export function EmailFrame({ html, showRemoteImages = false, presentation = "ema
       ? DOMPurify.sanitize(html, { WHOLE_DOCUMENT: true, RETURN_DOM: true, ADD_ATTR: ["text"] })
       : undefined;
     const sanitizedRoot = sanitized && sanitized instanceof HTMLElement ? sanitized : undefined;
+    if (sanitizedRoot) sanitizeEmailFrameResources(sanitizedRoot, showRemoteImages, document.baseURI);
     const containsQuote = mounted && htmlContainsQuote(sanitizedRoot?.outerHTML ?? "");
     const csp = `default-src 'none'; style-src 'unsafe-inline'; font-src data:; img-src data:${showRemoteImages ? " https:" : ""};`;
     const quoteCss = containsQuote && !showQuoted ? `<style>${HTML_QUOTE_HIDE_CSS}</style>` : "";

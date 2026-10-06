@@ -18,6 +18,7 @@ vi.mock("@/ee/messaging/email-quote", () => ({
 }));
 
 import { EmailFrame } from "../email-frame";
+import { sanitizeEmailCss, sanitizeEmailFrameResources } from "../email-frame-resources";
 
 let root: Root | null = null;
 let container: HTMLDivElement | null = null;
@@ -25,6 +26,158 @@ const observers: {
   resize: () => void;
   disconnect: ReturnType<typeof vi.fn>;
 }[] = [];
+
+describe("email resource policies", () => {
+  const image = "data:image/png;base64,AA==";
+  const font = "data:font/woff2;base64,AA==";
+  const base = "https://example.test/mail";
+  const css = (input: string, optIn = false) => sanitizeEmailCss(input, optIn, base);
+  const resources = (html: string, optIn = false) => {
+    const document = new DOMParser().parseFromString(html, "text/html");
+    sanitizeEmailFrameResources(document.documentElement, optIn, base);
+    return document;
+  };
+
+  it("preserves authored styling and literal URL text exactly when no resource needs removal", () => {
+    const authored = `/* url(https://example.test/comment) */.x{color:#123;display:grid;content:"url(https://example.test/literal)";--label:"url(https://example.test/text)";background:url("${image}")}@supports(background:url(https://example.test/condition)){.x{margin:4px}}`;
+    expect(css(authored)).toBe(authored);
+  });
+
+  it.each([
+    'u\\72l("https://example.test/image")',
+    '\\75 rl("\\68 ttps://example.test/image")',
+    'u\\000072 l("https://example.test/image")',
+    "URL(https://example.test/image)",
+    "url(\\68 ttps://example.test/image)",
+  ])("defers an escaped image URL while preserving its layout: %s", (url) => {
+    const result = css(`.x{background:red ${url} center/cover no-repeat,url("${image}");padding:4px;display:grid}`);
+    expect(result).not.toContain("example.test/image");
+    expect(result).toContain("data:image/png;base64,");
+    expect(result).toContain(image);
+    expect(result).toContain("background:red");
+    expect(result).toContain("center/cover no-repeat");
+    expect(result).toContain("padding:4px;display:grid");
+  });
+
+  it.each(["import", "\\69 mport", "\\000069mport", "IMPORT"])(
+    "removes stylesheet import %s without removing independent styles",
+    (keyword) => {
+      expect(css(`@${keyword} url(https://example.test/import.css);.x{color:red}`, true)).toBe(".x{color:red}");
+    },
+  );
+
+  it.each([false, true])(
+    "filters remote font candidates while preserving local and data candidates (image opt-in: %s)",
+    (optIn) => {
+      const result = css(
+        `@font-face{font-family:Probe;src:local("Public Probe"),url(https://example.test/font.woff2) format("woff2"),url("${font}") format("woff2") tech(variations);font-weight:400}.x{color:red}`,
+        optIn,
+      );
+      expect(result).toContain('local("Public Probe")');
+      expect(result).toContain(font);
+      expect(result).toContain('format("woff2") tech(variations)');
+      expect(result).toContain("font-weight:400");
+      expect(result).toContain(".x{color:red}");
+      expect(result).not.toContain("example.test/font");
+      expect(result).not.toContain("data:image/");
+      expect(css("@font-face{font-family:Probe;src:url(https://example.test/font)}.x{color:red}", optIn)).toBe(
+        ".x{color:red}",
+      );
+    },
+  );
+
+  it("filters custom properties and image-set candidates without changing quoted text", () => {
+    const result = css(
+      `.x{--asset:u\\72l("https://example.test/custom");background:image-set("https://example.test/image" 1x,url("${image}") 2x);content:"url(https://example.test/literal)"}`,
+    );
+    expect(result).not.toContain("example.test/custom");
+    expect(result).not.toContain("example.test/image");
+    expect(result).toContain(" 1x");
+    expect(result).toContain(" 2x");
+    expect(result).toContain(image);
+    expect(result).toContain('content:"url(https://example.test/literal)"');
+  });
+
+  it("applies font policy to variables shared across stylesheets", () => {
+    const document = resources(
+      `<head><style>:root{--font:url(https://example.test/font)}</style><style>@font-face{font-family:Probe;src:var(--font),url("${font}")}.x{color:red}</style></head>`,
+    );
+    const result = document.documentElement.outerHTML;
+    expect(result).toContain(font);
+    expect(result).toContain(".x{color:red}");
+    expect(result).not.toContain("var(--font)");
+    expect(result).not.toContain("example.test/font");
+    expect(result).not.toContain("data:image/");
+  });
+
+  it("retains local fragments and HTTPS image opt-in while continuing to block HTTP resources", () => {
+    const input = `.x{background:url(https://example.test/image),url(http://example.test/blocked),url(/relative),url("${image}");filter:url(#local);content:"url(https://example.test/literal)"}`;
+    const result = css(input, true);
+    expect(result).toContain("https://example.test/image");
+    expect(result).not.toContain("http://example.test/blocked");
+    expect(result).toContain("url(/relative)");
+    expect(result).toContain(image);
+    expect(result).toContain("filter:url(#local)");
+    expect(result).toContain('content:"url(https://example.test/literal)"');
+    expect(sanitizeEmailCss(".x{background:url(/relative)}", true, "http://example.test/mail")).not.toContain(
+      "url(/relative)",
+    );
+  });
+
+  it.each(['.x{background:url("https://example.test/image)', "/* unfinished", ".x{color:red"])(
+    "drops malformed CSS without returning blocked input: %s",
+    (input) => {
+      expect(css(input)).toBe("");
+    },
+  );
+
+  it("filters mixed srcsets and eager media without changing links, alternative text or dimensions", () => {
+    const document = resources(
+      `<body background="https://example.test/background"><a href="https://example.test/link">Link</a><img id="remote" alt="Public alternative" width="80" height="40" src="https://example.test/image"><img id="mixed" src="${image}" srcset="${image} 1x, https://example.test/blocked 2x, ${image} 300w 200h"><picture><source srcset="${image} 1x, https://example.test/blocked 2x"></picture><video src="https://example.test/video" poster="${image}"><source src="https://example.test/media"></video></body>`,
+    );
+    expect(document.querySelector("a")?.getAttribute("href")).toBe("https://example.test/link");
+    const remote = document.querySelector("#remote");
+    expect(remote?.getAttribute("src")).toBeNull();
+    expect(remote?.getAttribute("alt")).toBe("Public alternative");
+    expect(remote?.getAttribute("width")).toBe("80");
+    expect(remote?.getAttribute("height")).toBe("40");
+    expect(document.querySelector("#mixed")?.getAttribute("src")).toBe(image);
+    expect(document.querySelector("#mixed")?.getAttribute("srcset")).toBe(`${image} 1x, ${image} 300w 200h`);
+    expect(document.querySelector("picture source")?.getAttribute("srcset")).toBe(`${image} 1x`);
+    expect(document.body.getAttribute("background")).toBeNull();
+    expect(document.querySelector("video")?.getAttribute("src")).toBeNull();
+    expect(document.querySelector("video")?.getAttribute("poster")).toBe(image);
+    expect(document.querySelector("video source")?.getAttribute("src")).toBeNull();
+  });
+
+  it("applies the same resource policy to root styling and SVG presentation attributes", () => {
+    const document = resources(
+      '<html background="https://example.test/root" style="color:red;padding:5px;background-image:url(https://example.test/root)"><body><svg><rect id="local" fill="url(#paint)" stroke="red" filter="url(#filter)"></rect><rect id="remote" fill="url(https://example.test/paint.svg#p) blue" stroke="url(https://example.test/stroke.svg#s)" filter="url(https://example.test/filter.svg#f) blur(4px)" clip-path="url(https://example.test/clip.svg#c)"></rect></svg><p>Public message</p></body></html>',
+    );
+    expect(document.documentElement.getAttribute("background")).toBeNull();
+    expect(document.documentElement.style.color).toBe("red");
+    expect(document.documentElement.style.padding).toBe("5px");
+    expect(document.documentElement.getAttribute("style")).not.toContain("example.test/root");
+    expect(document.querySelector("#local")?.getAttribute("fill")).toBe("url(#paint)");
+    expect(document.querySelector("#local")?.getAttribute("filter")).toBe("url(#filter)");
+    expect(document.querySelector("#remote")?.getAttribute("fill")).toBe("blue");
+    expect(document.querySelector("#remote")?.getAttribute("stroke")).toBe("none");
+    expect(document.querySelector("#remote")?.getAttribute("filter")).toBe("blur(4px)");
+    expect(document.querySelector("#remote")?.getAttribute("clip-path")).toBe("none");
+    expect(document.body.textContent).toBe("Public message");
+  });
+
+  it("resolves opted-in relative images against the frame base while retaining data sources", () => {
+    const document = resources(
+      `<img src="/allowed.png" srcset="/candidate.png 1x, http://example.test/blocked 2x, ${image} 3x">`,
+      true,
+    );
+    expect(document.querySelector("img")?.getAttribute("src")).toBe("https://example.test/allowed.png");
+    expect(document.querySelector("img")?.getAttribute("srcset")).toBe(
+      `https://example.test/candidate.png 1x, ${image} 3x`,
+    );
+  });
+});
 
 function render(html: string, showRemoteImages = false, presentation: "email" | "composer" = "email") {
   act(() => root?.render(createElement(EmailFrame, { html, showRemoteImages, presentation })));

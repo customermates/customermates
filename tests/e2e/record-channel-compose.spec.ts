@@ -410,6 +410,11 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   expect(sent.recipients.cc).toEqual([]);
   expect(sent.recipients.bcc).toEqual([]);
   expect((await readDrafts()).map((row) => row.id)).toEqual([draft.id]);
+  await database.query('UPDATE "MessagingMessage" SET "bodyHtml"=$1 WHERE "companyId"=$2 AND id=$3', [
+    '<html style="color:#102030;background-image:url(https://example.test/root.png)"><head><style>@import url(https://example.test/import.css);@font-face{font-family:Remote;src:url(https://example.test/font.woff2)}.public-layout{color:#102030;padding:4px;background:red url(https://example.test/background.png)}</style></head><body><p class="public-layout">Message only for the second company</p><img alt="Public photo" width="80" height="40" src="https://example.test/photo.png"><svg><rect fill="url(https://example.test/paint.svg#paint) blue" filter="url(https://example.test/filter.svg#filter)"></rect></svg></body></html>',
+    companyId,
+    sent.id,
+  ]);
   await openInbox();
   await expect(page.locator(`[data-thread-id="${sent.messagingThreadId}"]`)).toBeVisible();
   await page.locator(`[data-thread-id="${sent.messagingThreadId}"]`).click();
@@ -420,6 +425,13 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   ).toBeVisible();
   await expect(page.locator('iframe[title="Email content"]')).toHaveAttribute("sandbox", "allow-same-origin");
   await expect(page.frameLocator('iframe[title="Email content"]').locator("script")).toHaveCount(0);
+  const email = page.frameLocator('iframe[title="Email content"]');
+  await expect(email.locator('img[alt="Public photo"]')).toHaveAttribute("width", "80");
+  await expect(email.locator('img[alt="Public photo"]')).not.toHaveAttribute("src");
+  await expect(email.locator(".public-layout")).toHaveCSS("color", "rgb(16, 32, 48)");
+  await expect(email.locator(".public-layout")).toHaveCSS("padding", "4px");
+  await expect(email.locator("rect")).toHaveAttribute("fill", "blue");
+  await expect(email.locator("rect")).toHaveAttribute("filter", "none");
   await page.locator("#inbox-thread-state").click();
   await page.getByRole("option", { name: "Closed", exact: true }).click();
   await expect

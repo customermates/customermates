@@ -1,16 +1,22 @@
 import { randomUUID } from "node:crypto";
-import { observable, runInAction } from "mobx";
+import { observable, runInAction, toJS } from "mobx";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { RootStore } from "../root.store";
 import type { RecordNavigation } from "@/features/records/record-navigation.schema";
 import { recordNavigationKey } from "@/features/records/record-navigation.schema";
 import { createCrmPreset } from "@/features/records/crm-preset";
 
-const mocks = vi.hoisted(() => ({ getRecordEditorAction: vi.fn(), getRecordNavigationAction: vi.fn() }));
+const mocks = vi.hoisted(() => ({
+  getRecordEditorAction: vi.fn(),
+  getRecordNavigationAction: vi.fn(),
+}));
 vi.mock("@/app/[locale]/(protected)/records/actions", () => mocks);
 
 import { RecordWorkspaceStore } from "../record-workspace.store";
-import type { RecordEditorStore } from "@/app/[locale]/(protected)/records/[typeId]/components/record-editor.store";
+import { RecordEditorStore } from "@/app/[locale]/(protected)/records/[typeId]/components/record-editor.store";
+import type { RecordDto } from "@/features/records/record-model.schema";
+import type { RecordEditorResult } from "@/features/records/get-record-editor.interactor";
+import { NavigationGuardController } from "../navigation-guard.controller";
 
 function fixture() {
   const companyId = randomUUID();
@@ -22,9 +28,14 @@ function fixture() {
     navigationGuard: { tryNavigate: vi.fn((work: () => void) => work()) },
   } as unknown as RootStore;
   const store = new RecordWorkspaceStore(root);
-  const navigation: RecordNavigation = { companyId, schemaRevision: 1, canManageSchema: true, types: [] };
+  const navigation: RecordNavigation = {
+    companyId,
+    schemaRevision: 1,
+    canManageSchema: true,
+    types: [],
+  };
   const model = createCrmPreset(companyId, "EUR");
-  const context = {
+  const context: RecordEditorResult = {
     model,
     typeId: model.types[0].id,
     record: null,
@@ -46,7 +57,10 @@ describe("workspace record navigation and drawers", () => {
     expect(f.store.navigationRefreshFailed).toBe(true);
     f.store.setNavigation({ ...f.navigation });
     expect(f.store.navigationRefreshFailed).toBe(true);
-    mocks.getRecordNavigationAction.mockResolvedValueOnce({ ...f.navigation, schemaRevision: 2 });
+    mocks.getRecordNavigationAction.mockResolvedValueOnce({
+      ...f.navigation,
+      schemaRevision: 2,
+    });
     await f.store.refreshNavigation();
     expect(f.store.navigation?.schemaRevision).toBe(2);
     expect(f.store.navigationRefreshFailed).toBe(false);
@@ -105,9 +119,17 @@ describe("workspace record navigation and drawers", () => {
     mocks.getRecordNavigationAction.mockReturnValueOnce(first.promise).mockReturnValueOnce(second.promise);
     const firstLoad = f.store.refreshNavigation();
     const secondLoad = f.store.refreshNavigation();
-    second.resolve({ ...f.navigation, schemaRevision: 4, canManageSchema: false });
+    second.resolve({
+      ...f.navigation,
+      schemaRevision: 4,
+      canManageSchema: false,
+    });
     await secondLoad;
-    first.resolve({ ...f.navigation, schemaRevision: 4, canManageSchema: true });
+    first.resolve({
+      ...f.navigation,
+      schemaRevision: 4,
+      canManageSchema: true,
+    });
     await firstLoad;
     expect(f.store.navigation?.canManageSchema).toBe(false);
     const third = Promise.withResolvers<RecordNavigation>();
@@ -147,7 +169,10 @@ describe("workspace record navigation and drawers", () => {
     mocks.getRecordEditorAction.mockReturnValueOnce(first.promise).mockReturnValueOnce(second.promise);
     f.store.open({ typeId: f.context.typeId });
     f.store.open({ typeId: f.context.model.types[1].id });
-    second.resolve({ ok: true, data: { ...f.context, typeId: f.context.model.types[1].id } });
+    second.resolve({
+      ok: true,
+      data: { ...f.context, typeId: f.context.model.types[1].id },
+    });
     await second.promise;
     await Promise.resolve();
     first.resolve({ ok: true, data: f.context });
@@ -173,6 +198,185 @@ describe("workspace record navigation and drawers", () => {
 });
 
 describe("record draft handoff", () => {
+  function editors() {
+    const f = fixture();
+    const fieldId = f.context.model.types[0].primaryFieldId;
+    if (!fieldId) throw new Error("Expected the starter type's primary field");
+    const ref = { typeId: f.context.typeId, recordId: randomUUID() };
+    const record = (version: number, name: string): RecordDto => ({
+      ref,
+      version,
+      schemaRevision: 1,
+      createdAt: "2026-10-06T00:00:00.000Z",
+      updatedAt: "2026-10-06T00:00:00.000Z",
+      fields: [
+        {
+          fieldId,
+          result: { state: "value", value: { kind: "text", value: name } },
+        },
+      ],
+      assignedUserIds: [],
+      assignedUsers: [],
+      relationships: [],
+    });
+    const page = new RecordEditorStore(f.root, f.context, async () => {}, true);
+    const drawer = new RecordEditorStore(f.root, f.context, async () => {});
+    page.edit(f.context, record(1, "Saved"));
+    drawer.edit(f.context, record(1, "Saved"));
+    return { ...f, fieldId, ref, record, page, drawer };
+  }
+
+  it("refreshes an already mounted page from a clean same-record drawer without queuing a draft", () => {
+    const f = editors();
+    f.store.registerPageEditor(f.page);
+    f.drawer.edit(f.context, f.record(2, "Updated"));
+    expect(f.store.handOffDraft(f.drawer)).toBe(true);
+    expect(f.page.record?.version).toBe(2);
+    expect(f.page.form.values[f.fieldId]).toBe("Updated");
+    expect(f.page.hasUnsavedChanges).toBe(false);
+    expect(f.store.takeDraftHandoff(f.ref)).toBeNull();
+  });
+
+  it("transfers a same-record drawer draft and rebases it onto a newer mounted page", () => {
+    const f = editors();
+    f.store.registerPageEditor(f.page);
+    f.drawer.onChange(`values.${f.fieldId}`, "Drawer draft");
+    f.drawer.onChange("assignedUserIds", [f.userStore.user.id]);
+    f.drawer.onChange("captureFieldIds", [f.fieldId]);
+    const draft = toJS(f.drawer.form);
+    f.page.edit(f.context, f.record(2, "Updated elsewhere"));
+    expect(f.store.handOffDraft(f.drawer)).toBe(true);
+    expect(f.page.record?.version).toBe(2);
+    expect(f.page.form.values[f.fieldId]).toBe("Drawer draft");
+    expect(f.page.form.assignedUserIds).toEqual(draft.assignedUserIds);
+    expect(f.page.form.captureFieldIds).toEqual(draft.captureFieldIds);
+    expect(f.page.savedState.values[f.fieldId]).toBe("Updated elsewhere");
+    expect(f.page.conflicts).toEqual([f.fieldId]);
+    expect(f.page.hasUnsavedChanges).toBe(true);
+    expect(f.store.takeDraftHandoff(f.ref)).toBeNull();
+    expect(f.drawer.form.values[f.fieldId]).toBe("Drawer draft");
+  });
+
+  it("does not regress a mounted page when schema and record revisions are incomparable", () => {
+    const f = editors();
+    f.store.registerPageEditor(f.page);
+    f.page.edit({ ...f.context, model: { ...f.context.model, revision: 2 } }, f.record(1, "Saved"));
+    f.drawer.edit(f.context, f.record(2, "Updated"));
+    f.drawer.onChange(`values.${f.fieldId}`, "Drawer draft");
+    expect(f.store.handOffDraft(f.drawer)).toBe(false);
+    expect(f.page.presentation.model.revision).toBe(2);
+    expect(f.page.record?.version).toBe(1);
+    expect(f.drawer.staleChange).toBe(true);
+    expect(f.drawer.form.values[f.fieldId]).toBe("Drawer draft");
+    expect(f.store.takeDraftHandoff(f.ref)).toBeNull();
+  });
+
+  it.each([false, true])(
+    "discards a mounted page draft only after the guard accepts (drawer dirty: %s)",
+    (dirtyDrawer) => {
+      const f = editors();
+      f.store.registerPageEditor(f.page);
+      f.page.edit(f.context, f.record(2, "Updated elsewhere"));
+      f.page.onChange(`values.${f.fieldId}`, "Page draft");
+      if (dirtyDrawer) f.drawer.onChange(`values.${f.fieldId}`, "Drawer draft");
+      expect(f.store.handOffDraft(f.drawer)).toBe(false);
+      expect(f.page.form.values[f.fieldId]).toBe("Page draft");
+      expect(f.store.handOffDraft(f.drawer, true)).toBe(true);
+      expect(f.page.record?.version).toBe(2);
+      expect(f.page.savedState.values[f.fieldId]).toBe("Updated elsewhere");
+      expect(f.page.form.values[f.fieldId]).toBe(dirtyDrawer ? "Drawer draft" : "Updated elsewhere");
+      expect(f.page.hasUnsavedChanges).toBe(dirtyDrawer);
+      expect(f.store.takeDraftHandoff(f.ref)).toBeNull();
+    },
+  );
+
+  it("cancels without losing either draft and transfers before closing after confirmed navigation", () => {
+    const f = editors();
+    const guard = new NavigationGuardController();
+    Object.assign(f.root, { navigationGuard: guard });
+    guard.register(f.page);
+    f.store.registerPageEditor(f.page);
+    f.store.setEditor(f.drawer);
+    f.page.onChange(`values.${f.fieldId}`, "Page draft");
+    f.drawer.onChange(`values.${f.fieldId}`, "Drawer draft");
+    const navigate = vi.fn(() => {
+      if (!f.store.handOffDraft(f.drawer, true)) return;
+      f.drawer.resetForm();
+      f.store.close();
+    });
+    expect(guard.tryNavigate(navigate)).toBe(false);
+    expect(f.page.form.values[f.fieldId]).toBe("Page draft");
+    expect(f.drawer.isOpen).toBe(true);
+    guard.cancel();
+    expect(navigate).not.toHaveBeenCalled();
+    expect(f.drawer.form.values[f.fieldId]).toBe("Drawer draft");
+    expect(guard.tryNavigate(navigate)).toBe(false);
+    guard.confirm();
+    expect(navigate).toHaveBeenCalledOnce();
+    expect(f.drawer.isOpen).toBe(false);
+    expect(f.drawer.hasUnsavedChanges).toBe(false);
+    expect(f.page.isOpen).toBe(true);
+    expect(f.page.hasUnsavedChanges).toBe(true);
+    expect(f.page.form.values[f.fieldId]).toBe("Drawer draft");
+    expect(f.store.takeDraftHandoff(f.ref)).toBeNull();
+  });
+
+  it("preserves busy editors and discards only the accepted page-owned channel draft", () => {
+    const f = editors();
+    f.store.registerPageEditor(f.page);
+    const compose = {
+      sourceContextKey: f.page.channelComposeKey,
+      isLoading: false,
+      hasUnsavedChanges: true,
+      discardNewThread: vi.fn(),
+    };
+    compose.discardNewThread.mockImplementation(() => {
+      compose.sourceContextKey = "";
+      compose.hasUnsavedChanges = false;
+    });
+    Object.assign(f.root, { threadComposeStore: compose });
+    f.drawer.onChange(`values.${f.fieldId}`, "Drawer draft");
+    expect(f.store.handOffDraft(f.drawer)).toBe(false);
+    expect(compose.discardNewThread).not.toHaveBeenCalled();
+    compose.isLoading = true;
+    expect(f.store.handOffDraft(f.drawer, true)).toBe(false);
+    compose.isLoading = false;
+    f.page.setPendingOperation("pending-save");
+    expect(f.store.handOffDraft(f.drawer, true)).toBe(false);
+    f.page.setPendingOperation(null);
+    f.page.edit({ ...f.context, model: { ...f.context.model, revision: 2 } }, f.record(1, "Saved"));
+    compose.sourceContextKey = f.page.channelComposeKey;
+    f.drawer.edit(f.context, f.record(2, "Updated"));
+    expect(f.store.handOffDraft(f.drawer, true)).toBe(false);
+    expect(compose.discardNewThread).not.toHaveBeenCalled();
+    f.page.edit(f.context, f.record(1, "Saved"));
+    compose.sourceContextKey = f.page.channelComposeKey;
+    expect(f.store.handOffDraft(f.drawer, true)).toBe(true);
+    expect(compose.discardNewThread).toHaveBeenCalledOnce();
+    expect(f.page.record?.version).toBe(2);
+  });
+
+  it("ignores old page cleanup and clears direct handoff on account replacement", () => {
+    const f = editors();
+    const releaseOld = f.store.registerPageEditor(f.page);
+    const replacement = new RecordEditorStore(f.root, f.context, async () => {}, true);
+    replacement.edit(f.context, f.record(1, "Saved"));
+    const releaseNew = f.store.registerPageEditor(replacement);
+    releaseOld();
+    f.drawer.onChange(`values.${f.fieldId}`, "Drawer draft");
+    expect(f.store.handOffDraft(f.drawer)).toBe(true);
+    expect(replacement.form.values[f.fieldId]).toBe("Drawer draft");
+    expect(f.page.form.values[f.fieldId]).toBe("Saved");
+    releaseNew();
+    f.store.registerPageEditor(f.page);
+    runInAction(() => {
+      f.userStore.user = { id: randomUUID(), companyId: f.companyId };
+    });
+    expect(f.store.handOffDraft(f.drawer)).toBe(true);
+    expect(f.page.form.values[f.fieldId]).toBe("Saved");
+    expect(f.store.takeDraftHandoff(f.ref)?.form.values[f.fieldId]).toBe("Drawer draft");
+  });
+
   it("hands a dirty drawer draft to the page for the same record exactly once", () => {
     const f = fixture();
     const ref = { typeId: f.context.typeId, recordId: randomUUID() };
@@ -186,9 +390,15 @@ describe("record draft handoff", () => {
     f.store.handOffDraft(editor);
     expect(f.store.takeDraftHandoff({ ...ref, recordId: randomUUID() })).toBeNull();
     f.store.handOffDraft(editor);
-    expect(f.store.takeDraftHandoff(ref)).toMatchObject({ form: { values: { a: "draft" } }, record: { version: 3 } });
+    expect(f.store.takeDraftHandoff(ref)).toMatchObject({
+      form: { values: { a: "draft" } },
+      record: { version: 3 },
+    });
     expect(f.store.takeDraftHandoff(ref)).toBeNull();
-    f.store.handOffDraft({ ...editor, hasUnsavedChanges: false } as unknown as RecordEditorStore);
+    f.store.handOffDraft({
+      ...editor,
+      hasUnsavedChanges: false,
+    } as unknown as RecordEditorStore);
     expect(f.store.takeDraftHandoff(ref)).toBeNull();
   });
 });

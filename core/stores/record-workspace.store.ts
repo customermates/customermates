@@ -32,6 +32,10 @@ export class RecordWorkspaceStore {
   private readyRoutes = observable.map<string, number>();
   private detailLayouts = new Map<string, RecordDetailLayoutStore>();
   private draftHandoff: { key: string; draft: RecordDraftHandoff } | null = null;
+  private pageEditor: {
+    editor: RecordEditorStore;
+    actorScope: string | null;
+  } | null = null;
 
   constructor(private root: RootStore) {
     makeObservable(this, {
@@ -54,6 +58,7 @@ export class RecordWorkspaceStore {
         }
         this.detailLayouts.clear();
         this.draftHandoff = null;
+        this.pageEditor = null;
         this.close();
         this.setEditor(null);
         this.setNavigation(null);
@@ -127,8 +132,16 @@ export class RecordWorkspaceStore {
   routeReady = (pathname: string) =>
     (!pathname.startsWith("/records/") && pathname !== "/configure") || this.readyRoutes.has(pathname);
 
-  handOffDraft = (editor: RecordEditorStore) => {
-    this.draftHandoff =
+  registerPageEditor = (editor: RecordEditorStore) => {
+    const registration = { editor, actorScope: this.actorScope };
+    this.pageEditor = registration;
+    return () => {
+      if (this.pageEditor === registration) this.pageEditor = null;
+    };
+  };
+
+  handOffDraft = (editor: RecordEditorStore, discardPageDraft = false): boolean => {
+    const handoff =
       editor.record && editor.hasUnsavedChanges
         ? {
             key: recordKey(editor.record.ref),
@@ -140,6 +153,40 @@ export class RecordWorkspaceStore {
             },
           }
         : null;
+    const page = this.pageEditor?.actorScope === this.actorScope ? this.pageEditor.editor : null;
+    if (
+      page &&
+      page !== editor &&
+      page.record &&
+      editor.record &&
+      recordKey(page.record.ref) === recordKey(editor.record.ref)
+    ) {
+      const compose = this.root.threadComposeStore;
+      const ownsCompose = compose?.sourceContextKey === page.channelComposeKey;
+      if (page.isLoading || page.pendingOperationId || (ownsCompose && compose.isLoading)) return false;
+      if ((page.hasUnsavedChanges || page.hasRelatedDraft) && !discardPageDraft) return false;
+      const pageIsLatest =
+        page.presentation.model.revision >= editor.presentation.model.revision &&
+        page.record.version >= editor.record.version;
+      const drawerIsLatest =
+        editor.presentation.model.revision >= page.presentation.model.revision &&
+        editor.record.version >= page.record.version;
+      if (!pageIsLatest && !drawerIsLatest) {
+        editor.markStale();
+        return false;
+      }
+      const latest = pageIsLatest ? page : editor;
+      if (ownsCompose) compose.discardNewThread();
+      if (handoff) page.restoreDraft(handoff.draft, latest.presentation, latest.record as RecordDto);
+      else {
+        page.resetForm();
+        page.receiveLatest({ ...latest.presentation, record: latest.record });
+      }
+      this.draftHandoff = null;
+      return true;
+    }
+    this.draftHandoff = handoff;
+    return true;
   };
 
   takeDraftHandoff = (ref: RecordRef | undefined) => {
@@ -160,7 +207,10 @@ export class RecordWorkspaceStore {
       toast.error(t("RecordModel.detailLayoutSaveFailed"), {
         id: `record-detail-layout:${layout.state.typeId}`,
         duration: Infinity,
-        action: { label: t("ErrorCard.retry"), onClick: () => runUserAction(layout.retry) },
+        action: {
+          label: t("ErrorCard.retry"),
+          onClick: () => runUserAction(layout.retry),
+        },
         cancel: { label: t("Common.actions.discard"), onClick: layout.discard },
       });
     },

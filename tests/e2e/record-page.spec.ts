@@ -76,6 +76,35 @@ test("opens a stable record page, preserves its draft alongside the assistant, a
     companyId,
   ]);
   expect(messages.rows).toEqual([{ count: 0 }]);
+  const recordUrl = page.url();
+  const recordId = new URL(recordUrl).pathname.split("/").at(-1);
+  const searchButton = page.locator("#nav-search");
+  if (!(await searchButton.isVisible())) await page.locator("#sidebar-trigger").click();
+  await searchButton.click();
+  await page.locator("#global-search-input").fill("Opportunity with notes");
+  await page.locator(`[data-value="${typeId("deal")}:${recordId}"]`).click();
+  await waitForDealReads(dialogs);
+  await dialogs.getByRole("textbox", { name: "Name", exact: false }).fill("Same page drawer draft");
+  await dialogs.getByRole("tab", { name: "Notes", exact: true }).click();
+  await dialogs.getByRole("textbox", { name: "Notes", exact: true }).fill("Draft transferred onto the mounted page.");
+  await dialogs.getByRole("link", { name: "Open page", exact: true }).click();
+  await expect(page).toHaveURL(recordUrl);
+  await expect(dialogs).not.toBeVisible();
+  await main.getByRole("tab", { name: "Overview", exact: true }).click();
+  await expect(main.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Same page drawer draft");
+  await main.getByRole("tab", { name: "Notes", exact: true }).click();
+  await expect(main.getByRole("textbox", { name: "Notes", exact: true })).toContainText(
+    "Draft transferred onto the mounted page.",
+  );
+  await main.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(main.getByRole("button", { name: "Reset", exact: true })).not.toBeVisible();
+  await page.reload();
+  await expect(main.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Same page drawer draft");
+  const transferredNotes = await database.query(
+    'SELECT "jsonValue"::text AS notes FROM "RecordValue" WHERE "companyId"=$1 AND "typeId"=$2 AND "fieldId"=$3 AND "recordId"=$4',
+    [companyId, typeId("deal"), typeId("deal.notes"), recordId],
+  );
+  expect(transferredNotes.rows[0].notes).toContain("Draft transferred onto the mounted page.");
   await page.screenshot({ path: testInfo.outputPath("record-notes-page.png"), fullPage: true, animations: "disabled" });
   await main.getByRole("button", { name: "Delete", exact: true }).click();
   const confirmation = page.getByRole("alertdialog");

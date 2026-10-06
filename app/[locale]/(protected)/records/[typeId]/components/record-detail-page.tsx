@@ -41,6 +41,10 @@ const RecordDetailPageContent = observer(function RecordDetailPage({
     return editor;
   });
   const applied = useRef(initial);
+  useEffect(
+    () => root.recordWorkspaceStore.registerPageEditor(store),
+    [root, store, root.userStore.user?.companyId, root.userStore.user?.id],
+  );
   useEffect(() => root.recordWorkspaceStore.subscribe(store.refreshRecord), [root, store]);
   useEffect(() => {
     if (applied.current === initial) return;

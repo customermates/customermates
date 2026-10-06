@@ -345,9 +345,10 @@ describe("shared message presentation", () => {
     };
     render(createElement(MessageItem, { message, isMine: true, accountOwner: null }));
     expect(container.querySelector("iframe")?.srcdoc).toContain("img-src data:;");
-    expect(container.querySelector("iframe")?.srcdoc).toContain('background="https://example.test/background.png"');
+    expect(container.querySelector("iframe")?.srcdoc).not.toContain('background="https://example.test/background.png"');
     act(() => button("Inbox.compose.loadRemoteImages").click());
     expect(container.querySelector("iframe")?.srcdoc).toContain("img-src data: https:;");
+    expect(container.querySelector("iframe")?.srcdoc).toContain('background="https://example.test/background.png"');
     expect(container.querySelector("iframe")?.srcdoc).toContain("Authored email");
     expect(hasLoadableRemoteImages('<body background="data:image/png;base64,abcd">')).toBe(false);
   });

@@ -134,8 +134,10 @@ const RecordEditorBody = observer(function RecordEditorBody({
     }
     store.setWithUnsavedChangesGuard(false);
     root.navigationGuard.tryNavigate(() => {
-      root.recordWorkspaceStore.handOffDraft(store);
+      if (!root.recordWorkspaceStore.handOffDraft(store, true)) return;
       store.resetForm();
+      store.close();
+      root.recordWorkspaceStore.close();
       router.push(href);
     });
     store.setWithUnsavedChangesGuard(true);
