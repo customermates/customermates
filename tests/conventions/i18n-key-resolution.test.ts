@@ -8,6 +8,7 @@ import { REPO_ROOT, walkFiles } from "./walk";
 
 import { socialErrorMessageKeys } from "@/app/[locale]/(public)/auth/social-error-keys";
 import { CHIP_COLORS } from "@/constants/chip-colors";
+import { RECORD_TYPE_ICON_KEYS } from "@/components/records/record-type-icon";
 import { ALL_LEGAL_DOCUMENTS } from "@/constants/legal-documents";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
@@ -609,6 +610,10 @@ const DYNAMIC_SITE_CONSUMERS = new Map<string, readonly string[]>([
     FILTER_FIELD_KEYS,
   ],
   ["components/forms/use-form-field.ts :: t :: Common.inputs.${id}", FORM_FIELD_INPUT_KEYS],
+  [
+    "components/records/form-record-type-icon.tsx :: t :: RecordModel.icons.${key}",
+    RECORD_TYPE_ICON_KEYS.map((key) => `RecordModel.icons.${key}`),
+  ],
   ["ee/subscription/entitlement.service.ts :: t :: ConnectedAccountsCard.${code}", ENTITLEMENT_DENIAL_KEYS],
 ]);
 
@@ -728,6 +733,7 @@ export const DYNAMIC_KEY_SITES = [
   "app/components/agent-chat/usage-ring.tsx :: t :: Subscription.planNames.${usage.plan}",
   "app/components/navigation/plan-subtitle.ts :: t :: Subscription.planNames.${plan}",
   "app/components/navigation/plan-subtitle.ts :: t :: Subscription.status.${status}",
+  "components/records/form-record-type-icon.tsx :: t :: RecordModel.icons.${key}",
   "components/ai-connection/ai-connection-api-key-setup.tsx :: t :: OnboardingWizard.ai.choices.${tool}",
   "components/ai-connection/ai-connection-api-key-setup.tsx :: t :: OnboardingWizard.ai.install.instruction.${tool}",
   "components/ai-connection/ai-connection-claude-setup.tsx :: t :: OnboardingWizard.ai.choices.${candidate}",

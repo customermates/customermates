@@ -17,7 +17,7 @@ export type AppTopbarCrumb = {
   showAvatarPlaceholder?: boolean;
 };
 
-const GROUP_MAP: Record<string, { group: "overview" | "crm" | "settings" | null; labelKey: string }> = {
+const GROUP_MAP: Record<string, { group: "overview" | "data" | "settings" | null; labelKey: string }> = {
   dashboard: { group: "overview", labelKey: "dashboard" },
   inbox: { group: "overview", labelKey: "inbox" },
   wiki: { group: "overview", labelKey: "wiki" },

@@ -27,6 +27,7 @@ type Props = BaseProps &
         onClick: () => void;
         disabled?: boolean;
         pressed?: boolean;
+        tabIndex?: number;
         type?: "button" | "submit";
       }
   );
@@ -52,6 +53,7 @@ export function IconButton({
         aria-pressed={rest.pressed}
         className={controlClassName}
         disabled={rest.disabled}
+        tabIndex={rest.tabIndex}
         type={rest.type ?? "button"}
         onClick={rest.onClick}
       >
