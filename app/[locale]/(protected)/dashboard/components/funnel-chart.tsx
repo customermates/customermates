@@ -2,13 +2,9 @@
 
 import type { ChartDataPoint } from "./chart.types";
 
-import { Bar, BarChart, Cell, XAxis, YAxis } from "recharts";
 import { observer } from "mobx-react-lite";
-import { useReducedMotion } from "framer-motion";
 
-import { ChartTooltip } from "@/components/chart/chart-tooltip";
-
-import { DashboardChartContainer } from "./dashboard-chart-container";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 type Props = {
   currency?: string | null;
@@ -16,58 +12,50 @@ type Props = {
   textColor: string;
 };
 
-export const FunnelChart = observer(({ currency, chartData, textColor }: Props) => {
-  const reducedMotion = useReducedMotion();
+/** Ordered steps as centered, narrowing bars with each step's value and step-to-step conversion beside it. */
+export const FunnelChart = observer(({ chartData }: Props) => {
   const widest = Math.max(0, ...chartData.map((point) => point.value));
-  const data = chartData.map((point) => ({ ...point, spacer: (widest - point.value) / 2 }));
 
   return (
-    <DashboardChartContainer>
-      <BarChart barCategoryGap="14%" data={data} layout="vertical" margin={{ top: 0, right: 4, bottom: 0, left: 0 }}>
-        <XAxis hide domain={[0, widest || 1]} type="number" />
+    <TooltipProvider>
+      <div className="h-full min-h-0 overflow-y-auto pr-1" data-slot="widget-funnel">
+        <ol className="grid min-h-full grid-cols-[minmax(0,7rem)_minmax(0,1fr)_auto] content-around items-center gap-x-3 gap-y-2">
+          {chartData.map((step, index) => {
+            const width = widest > 0 ? Math.max((step.value / widest) * 100, step.value > 0 ? 2 : 0) : 0;
+            return (
+              <Tooltip key={`${index}:${step.label}`}>
+                <TooltipTrigger asChild>
+                  <li className="col-span-3 grid grid-cols-subgrid items-center" data-slot="widget-funnel-step">
+                    <span className="truncate text-xs text-foreground">{step.label}</span>
 
-        <YAxis
-          axisLine={false}
-          dataKey="label"
-          tick={{ fill: textColor, fontSize: 12 }}
-          tickLine={false}
-          type="category"
-          width="auto"
-          yAxisId="steps"
-        />
+                    <span className="flex h-7 items-center justify-center rounded-md bg-muted/40">
+                      <span
+                        className="h-full rounded-md transition-[width] duration-500 motion-reduce:transition-none"
+                        data-slot="widget-funnel-bar"
+                        style={{ backgroundColor: step.fill, width: `${width}%` }}
+                      />
+                    </span>
 
-        <YAxis
-          axisLine={false}
-          dataKey="detail"
-          orientation="right"
-          tick={{ fill: textColor, fontSize: 12 }}
-          tickLine={false}
-          type="category"
-          width="auto"
-          yAxisId="details"
-        />
+                    <span className="whitespace-nowrap text-right text-xs tabular-nums text-muted-foreground">
+                      {step.detail ?? step.formattedValue}
+                    </span>
+                  </li>
+                </TooltipTrigger>
 
-        <ChartTooltip currency={currency} />
+                <TooltipContent side="top">
+                  <span className="flex items-center gap-2">
+                    <span className="size-2 shrink-0 rounded-full" style={{ backgroundColor: step.color }} />
 
-        <Bar
-          dataKey="spacer"
-          fill="transparent"
-          isAnimationActive={false}
-          stackId="funnel"
-          tooltipType="none"
-          yAxisId="steps"
-        >
-          {data.map((_entry, index) => (
-            <Cell key={`spacer-${index}`} fill="transparent" stroke="none" />
-          ))}
-        </Bar>
+                    <span className="font-semibold">{step.label}</span>
 
-        <Bar dataKey="value" isAnimationActive={reducedMotion === false} radius={4} stackId="funnel" yAxisId="steps">
-          {data.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={entry.fill} stroke={entry.strokeColor} strokeWidth={1.5} />
-          ))}
-        </Bar>
-      </BarChart>
-    </DashboardChartContainer>
+                    <span className="tabular-nums">{step.formattedValue ?? step.detail}</span>
+                  </span>
+                </TooltipContent>
+              </Tooltip>
+            );
+          })}
+        </ol>
+      </div>
+    </TooltipProvider>
   );
 });

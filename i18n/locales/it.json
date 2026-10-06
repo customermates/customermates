@@ -3362,6 +3362,7 @@
     "loadingSchema": "Caricamento dei campi…",
     "measure": "Misura",
     "noRecordsInPeriod": "Nessun record",
+    "notes": "Informazioni su questi numeri",
     "operators": {
       "between": "Tra",
       "contains": "Contiene",

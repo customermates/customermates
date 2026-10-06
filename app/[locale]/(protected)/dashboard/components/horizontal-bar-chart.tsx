@@ -2,13 +2,21 @@
 
 import type { ChartDataPoint } from "./chart.types";
 
-import { Bar, BarChart, XAxis, YAxis, Cell } from "recharts";
+import { Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis } from "recharts";
 import { observer } from "mobx-react-lite";
 import { useReducedMotion } from "framer-motion";
 
 import { useChartFormatter } from "./use-chart-formatter";
 import { ChartTooltip } from "@/components/chart/chart-tooltip";
 
+import {
+  CHART_MAX_BAR_SIZE,
+  TruncatedTick,
+  categoryAxisWidth,
+  chartAxisProps,
+  chartBarCursor,
+  chartGridProps,
+} from "./chart-theme";
 import { DashboardChartContainer } from "./dashboard-chart-container";
 
 type Props = {
@@ -23,44 +31,51 @@ type Props = {
 };
 
 export const HorizontalBarChart = observer(
-  ({ currency, chartData, colors, gridColor, textColor, reverseXAxis, reverseYAxis, allowDecimals = true }: Props) => {
+  ({ currency, chartData, colors, reverseXAxis, reverseYAxis, allowDecimals = true }: Props) => {
     const formatValue = useChartFormatter(currency);
     const reducedMotion = useReducedMotion();
+    const labelWidth = categoryAxisWidth(chartData.map((entry) => entry.label));
 
     return (
       <DashboardChartContainer>
-        <BarChart data={chartData} layout="vertical">
+        <BarChart
+          barCategoryGap="24%"
+          data={chartData}
+          layout="vertical"
+          margin={{ top: 0, right: 12, bottom: 0, left: 0 }}
+        >
+          <CartesianGrid {...chartGridProps} horizontal={false} />
+
           <XAxis
+            {...chartAxisProps}
             allowDecimals={allowDecimals}
             domain={[(minimum: number) => Math.min(0, minimum), (maximum: number) => Math.max(0, maximum)]}
-            padding={{ right: 1, left: 1 }}
             reversed={Boolean(reverseXAxis)}
-            stroke={gridColor}
-            tick={{
-              fill: textColor,
-              fontSize: 12,
-            }}
             tickFormatter={(value) => formatValue(value, true)}
             type="number"
           />
 
           <YAxis
+            {...chartAxisProps}
             dataKey="label"
+            interval={0}
             reversed={Boolean(reverseYAxis)}
-            stroke={gridColor}
-            tick={{
-              fill: textColor,
-              fontSize: 12,
-            }}
+            tick={<TruncatedTick vertical maxWidth={labelWidth - 8} />}
             type="category"
-            width="auto"
+            width={labelWidth}
           />
 
-          <ChartTooltip currency={currency} />
+          <ChartTooltip currency={currency} cursor={chartBarCursor} />
 
-          <Bar dataKey="value" fill={colors[0]} isAnimationActive={reducedMotion === false} radius={4}>
+          <Bar
+            dataKey="value"
+            fill={colors[0]}
+            isAnimationActive={reducedMotion === false}
+            maxBarSize={CHART_MAX_BAR_SIZE}
+            radius={reverseXAxis ? [4, 0, 0, 4] : [0, 4, 4, 0]}
+          >
             {chartData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.fill} stroke={entry.strokeColor} strokeWidth={1.5} />
+              <Cell key={`cell-${index}`} fill={entry.fill} />
             ))}
           </Bar>
         </BarChart>

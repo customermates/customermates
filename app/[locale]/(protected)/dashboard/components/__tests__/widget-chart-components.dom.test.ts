@@ -129,19 +129,13 @@ describe("time series and funnel charts", () => {
       );
       await Promise.resolve();
     });
-    const rectangles = [...container.querySelectorAll(".recharts-bar-rectangle path")];
-    const spacers = rectangles.filter((bar) => bar.getAttribute("fill") === "transparent");
-    const values = rectangles.filter((bar) => bar.getAttribute("fill") === "#336699");
-    expect(spacers).toHaveLength(2);
-    expect(values).toHaveLength(3);
-    const geometry = values.map((bar) => ({
-      x: Number(bar.getAttribute("x")),
-      width: Number(bar.getAttribute("width")),
-    }));
-    expect(geometry[0].width).toBeGreaterThan(geometry[1].width);
-    expect(geometry[1].width).toBeGreaterThan(geometry[2].width);
-    for (const bar of geometry) expect(bar.x + bar.width / 2).toBeCloseTo(geometry[0].x + geometry[0].width / 2, 5);
-    const ticks = [...container.querySelectorAll(".recharts-yAxis-tick-labels text")].map((tick) => tick.textContent);
-    expect(ticks).toEqual(expect.arrayContaining(["New", "Qualified", "Won", "10", "5 · 50%", "2 · 40%"]));
+    const steps = [...container.querySelectorAll('[data-slot="widget-funnel-step"]')];
+    expect(steps.map((step) => step.textContent)).toEqual(["New10", "Qualified5 · 50%", "Won2 · 40%"]);
+    const widths = [...container.querySelectorAll<HTMLElement>('[data-slot="widget-funnel-bar"]')].map((bar) =>
+      Number.parseFloat(bar.style.width),
+    );
+    expect(widths).toEqual([100, 50, 20]);
+    for (const bar of container.querySelectorAll('[data-slot="widget-funnel-bar"]'))
+      expect(bar.parentElement?.className).toContain("justify-center");
   });
 });

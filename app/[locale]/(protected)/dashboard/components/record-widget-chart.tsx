@@ -5,6 +5,7 @@ import type { CalculatedValue } from "@/features/records/record-model.schema";
 import type { ChipColor } from "@/constants/chip-colors";
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import { ChartNoAxesColumn } from "lucide-react";
 import { useTheme } from "next-themes";
 import { ChartColor, DisplayType } from "@/features/widget/widget.schema";
 import { CHIP_COLORS } from "@/constants/chip-colors";
@@ -15,6 +16,7 @@ import { widgetDisplayTypeIssue } from "@/features/widget/widget-display-rules";
 import { RankedTable } from "./ranked-table";
 import { WidgetChart } from "./widget-chart";
 import { WidgetNumber } from "./widget-number";
+import { WidgetChartSummary } from "./widget-chart-summary";
 import {
   RANKED_TABLE_ROW_LIMIT,
   bucketQuarter,
@@ -132,7 +134,18 @@ export function RecordWidgetChart({
       />
     );
   }
-  if (data.total.count === 0) return <p className="text-sm text-muted-foreground">{t("Diagrams.noData")}</p>;
+  if (data.total.count === 0) {
+    return (
+      <div
+        className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2 text-center"
+        data-slot="widget-empty"
+      >
+        <ChartNoAxesColumn aria-hidden className="size-6 text-muted-foreground/60" />
+
+        <p className="text-sm text-muted-foreground">{t("Diagrams.noData")}</p>
+      </div>
+    );
+  }
   const rows: ChartRow[] = data.groups.map((group) => {
     const optionId =
       group.label.state === "value" && group.label.value.kind === "select" ? String(group.label.value.value) : null;
@@ -300,17 +313,15 @@ export function RecordWidgetChart({
   }
   return (
     <div className="flex h-full min-h-0 flex-col gap-2">
-      {displayOptions.showFilters !== false && (
-        <p className="text-xs text-muted-foreground">{t("RecordWidgets.overall", { value: format(total) })}</p>
-      )}
-
-      {measure.groupBy && (measure.groupBy.path.length > 0 || measure.groupBy.fieldId === "system:assignedTo") && (
-        <p className="text-xs text-muted-foreground">{t("RecordWidgets.attribution")}</p>
-      )}
-
-      {hasRecordMeasureGroupFilter(measure) && (
-        <p className="text-xs text-muted-foreground">{t("RecordWidgets.groupFilterSummary")}</p>
-      )}
+      <WidgetChartSummary
+        notes={[
+          ...(measure.groupBy && (measure.groupBy.path.length > 0 || measure.groupBy.fieldId === "system:assignedTo")
+            ? [t("RecordWidgets.attribution")]
+            : []),
+          ...(hasRecordMeasureGroupFilter(measure) ? [t("RecordWidgets.groupFilterSummary")] : []),
+        ]}
+        overall={displayOptions.showFilters !== false ? t("RecordWidgets.overall", { value: format(total) }) : null}
+      />
 
       {useTable ? (
         <div className="min-h-0 overflow-auto">

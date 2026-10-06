@@ -3362,6 +3362,7 @@
     "loadingSchema": "Cargando campos…",
     "measure": "Medida",
     "noRecordsInPeriod": "Sin registros",
+    "notes": "Sobre estas cifras",
     "operators": {
       "between": "Entre",
       "contains": "Contiene",

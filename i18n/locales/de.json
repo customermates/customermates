@@ -3362,6 +3362,7 @@
     "loadingSchema": "Felder werden geladen…",
     "measure": "Kennzahl",
     "noRecordsInPeriod": "Keine Datensätze",
+    "notes": "Zu diesen Zahlen",
     "operators": {
       "between": "Zwischen",
       "contains": "Enthält",
