@@ -1,4 +1,3 @@
-import { omit } from "lodash";
 import { z } from "zod";
 
 import type { RecordField, RecordModel, RecordRelationship, RecordType } from "@/features/records/record-model.schema";
@@ -7,11 +6,6 @@ import type { RecordMeasure } from "@/features/records/record-measure.schema";
 import { RECORD_MEASURE_MAX_GROUP_LIMIT, RecordMeasureSchema } from "@/features/records/record-measure.schema";
 import { ChartColor, DisplayType, WidgetDisplayOptionsSchema } from "./widget-display.schema";
 
-/**
- * Starter widgets are derived from the shape of the current data model, never from a fixed preset:
- * each recipe names the ingredients it needs (a value field, an ordered single select, a date field,
- * a relationship, a member field) and is skipped when the model does not provide them.
- */
 export const WIDGET_STARTER_RECIPES = [
   "openValueTotal",
   "valueTotal",
@@ -27,7 +21,6 @@ export const WIDGET_STARTER_RECIPES = [
 export type WidgetStarterRecipe = (typeof WIDGET_STARTER_RECIPES)[number];
 
 export const WIDGET_GALLERY_LIMIT = 9;
-/** Sentinel for {date} when a series falls back to the record creation time; the client localizes it. */
 export const WIDGET_GALLERY_CREATED_AT_LABEL = "system:createdAt";
 
 export const WidgetGalleryLabelsSchema = z
@@ -90,7 +83,6 @@ const isValue = (field: RecordField) => ["currency", "number"].includes(field.va
 const isDate = (field: RecordField) => ["date", "dateTime"].includes(field.valueType) && !field.multiple;
 const isMember = (field: RecordField) => field.valueType === "member" && !field.multiple;
 
-/** Outcome semantics of a single select: probability 100 means won, 0 means lost, labels can mark closure. */
 function outcomes(field: RecordField, closedLabels: Set<string>) {
   const won = field.options.filter((option) => probability(option) === 100).map((option) => option.id);
   const lost = field.options.filter((option) => probability(option) === 0).map((option) => option.id);
@@ -133,7 +125,6 @@ function describeType(model: RecordModel, type: RecordType, closedLabels: Set<st
     .sort((left, right) => left.position - right.position);
   const selects = fields.filter((field) => isSingleSelect(field) && field.options.length >= 2);
   const referenced = referencedProbabilityFields(model, type.id);
-  // A pipeline is the select that calculations weigh by, that carries probabilities, or that the board groups by.
   const pipeline =
     selects.find((field) => referenced.includes(field.id)) ??
     selects.find((field) => field.options.some((option) => probability(option) !== null)) ??
@@ -142,7 +133,6 @@ function describeType(model: RecordModel, type: RecordType, closedLabels: Set<st
     const { closed } = outcomes(field, closedLabels);
     return closed.length > 0 && closed.length < field.options.length;
   });
-  // "Top X by Y" groups by the related type most other types point to (an account rather than a task).
   const inbound = (typeId: string) =>
     model.relationships.filter((relation) => !relation.archived && relation.targetTypeId === typeId).length;
   const relations = model.relationships
@@ -174,12 +164,14 @@ function describeType(model: RecordModel, type: RecordType, closedLabels: Set<st
 
 export function resolveWidgetGallery(model: RecordModel, closedLabels: string[] = []): WidgetGalleryTemplate[] {
   const closedSet = new Set(closedLabels.map((label) => label.trim().toLocaleLowerCase()));
-  const candidates: Array<WidgetGalleryTemplate & { priority: number; order: number }> = [];
+  const perType: WidgetGalleryTemplate[][] = [];
   const types = model.types
     .filter((type) => !type.archived && !type.embedded)
     .sort((left, right) => left.position - right.position);
 
-  types.forEach((type, typeIndex) => {
+  types.forEach((type) => {
+    const candidates: WidgetGalleryTemplate[] = [];
+    perType.push(candidates);
     const shape = describeType(model, type, closedSet);
     const add = (
       recipe: WidgetStarterRecipe,
@@ -194,8 +186,6 @@ export function resolveWidgetGallery(model: RecordModel, closedLabels: string[] 
         labels: { type: type.pluralLabel, ...labels },
         measure: { groupLimit: measure.groupBy?.dateInterval ? RECORD_MEASURE_MAX_GROUP_LIMIT : 100, ...measure },
         displayOptions: display(displayType),
-        priority: WIDGET_STARTER_RECIPES.indexOf(recipe),
-        order: typeIndex,
       });
     const source = (filters: RecordMeasure["source"]["filters"] = []) => ({
       typeId: type.id,
@@ -314,20 +304,12 @@ export function resolveWidgetGallery(model: RecordModel, closedLabels: string[] 
     }
   });
 
-  // Mix recipes across types: the strongest recipe of every type first (richest types lead), then the next round.
-  const perType = new Map<number, typeof candidates>();
-  for (const candidate of candidates.sort((left, right) => left.priority - right.priority))
-    perType.set(candidate.order, [...(perType.get(candidate.order) ?? []), candidate]);
+  const rank = (template: WidgetGalleryTemplate) => WIDGET_STARTER_RECIPES.indexOf(template.recipe);
+  const lists = perType
+    .map((list) => [...list].sort((left, right) => rank(left) - rank(right)))
+    .sort((left, right) => right.length - left.length);
   const picked: WidgetGalleryTemplate[] = [];
-  for (let round = 0; picked.length < WIDGET_GALLERY_LIMIT; round += 1) {
-    const roundCandidates = [...perType.entries()]
-      .sort(([leftOrder, left], [rightOrder, right]) => right.length - left.length || leftOrder - rightOrder)
-      .flatMap(([, list]) => (list[round] ? [list[round]] : []));
-    if (roundCandidates.length === 0) break;
-    for (const candidate of roundCandidates) {
-      if (picked.length >= WIDGET_GALLERY_LIMIT) break;
-      picked.push(omit(candidate, ["priority", "order"]));
-    }
-  }
+  for (let round = 0; picked.length < WIDGET_GALLERY_LIMIT && lists.some((list) => list[round]); round += 1)
+    for (const list of lists) if (list[round] && picked.length < WIDGET_GALLERY_LIMIT) picked.push(list[round]);
   return picked;
 }

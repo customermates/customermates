@@ -36,7 +36,6 @@ import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { cn } from "@/core/utils/cn";
 
 const AUTO_PREVIEW_DELAY_MS = 600;
-const ACTIVITY_PREVIEW_PAGE_SIZE = 10;
 
 type Choice = { id: string; label: string };
 const selectedIds = (value: string | string[] | undefined) =>
@@ -184,9 +183,7 @@ export const RecordActivityWidgetEditor = observer(
       setLoading(true);
       setPreviewError(false);
       return store
-        .runPreview(() =>
-          getRecordActivitiesAction({ ...parsed.data, cursor: null, limit: ACTIVITY_PREVIEW_PAGE_SIZE }),
-        )
+        .runPreview(() => getRecordActivitiesAction({ ...parsed.data, cursor: null, limit: 25 }))
         .then((result) => {
           if (!result || !isCurrent()) return;
           if (result.ok) setPreview({ key: requestKey, result: result.data });
@@ -284,7 +281,7 @@ export const RecordActivityWidgetEditor = observer(
           {preview ? (
             <div
               className={cn("min-h-0 overflow-hidden transition-opacity", preview.key !== key && "opacity-50")}
-              data-preview-current={preview.key === key}
+              data-preview-current={preview?.key === key}
             >
               <ActivitiesList
                 hasMore={false}

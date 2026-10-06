@@ -681,6 +681,74 @@ describeDatabase("time-bucketed record measures", () => {
     expect(stored).toHaveLength(accepted.length);
   }, 120_000);
 
+  it("saves a widget's grid position in the same write and refuses overlapping positions", async () => {
+    const f = await fixture();
+    const save = async (name: string, extra: Record<string, unknown> = {}) =>
+      f.run(async () =>
+        f.widgets.invoke({
+          expectedRevision: await f.revision(),
+          idempotencyKey: randomUUID(),
+          name,
+          isTemplate: false,
+          measure: RecordMeasureSchema.parse({
+            source: { typeId: f.deal },
+            aggregation: "count",
+            valueFieldId: null,
+            groupBy: null,
+          }),
+          displayOptions: { displayType: DisplayType.number },
+          ...extra,
+        } as Parameters<typeof f.widgets.invoke>[0]),
+      );
+    const first = await save("Auto placed");
+    expect(first.ok && first.data.layout?.lg).toMatchObject({ x: 0, y: 0, w: 3, h: 2 });
+    const second = await save("Auto placed beside");
+    expect(second.ok && second.data.layout?.lg).toMatchObject({ x: 3, y: 0, w: 3, h: 2 });
+    const placed = await save("Requested", { layout: { x: 0, y: 2, w: 12, h: 3 } });
+    expect(placed.ok && placed.data.layout?.lg).toEqual({
+      i: placed.ok ? placed.data.id : "",
+      x: 0,
+      y: 2,
+      w: 12,
+      h: 3,
+    });
+    const overlap = await save("Overlap", { layout: { x: 2, y: 1, w: 4, h: 2 } });
+    expect(overlap.ok).toBe(false);
+    if (!overlap.ok) expect(JSON.stringify(overlap.error)).toContain(CustomErrorCode.widgetLayoutOverlap);
+
+    if (!first.ok) return;
+    const rename = await f.run(async () =>
+      f.widgets.invoke({
+        id: first.data.id,
+        expectedVersion: first.data.version,
+        expectedRevision: await f.revision(),
+        idempotencyKey: randomUUID(),
+        name: "Renamed",
+        isTemplate: false,
+        measure: first.data.measure,
+        displayOptions: first.data.displayOptions,
+      }),
+    );
+    expect(rename.ok && rename.data.layout?.lg).toMatchObject({ x: 0, y: 0, w: 3, h: 2 });
+    if (!rename.ok) return;
+    const moved = await f.run(async () =>
+      f.widgets.invoke({
+        id: first.data.id,
+        expectedVersion: rename.data.version,
+        expectedRevision: await f.revision(),
+        idempotencyKey: randomUUID(),
+        name: "Renamed",
+        isTemplate: false,
+        measure: first.data.measure,
+        displayOptions: first.data.displayOptions,
+        layout: { x: 6, y: 0, w: 6, h: 2 },
+      }),
+    );
+    expect(moved.ok && moved.data.layout?.lg).toMatchObject({ x: 6, y: 0, w: 6, h: 2 });
+    const stored = await runWithoutTenant(() => prisma.widget.count({ where: { companyId: f.company.id } }));
+    expect(stored).toBe(3);
+  }, 120_000);
+
   it("resolves gallery templates against the preset model and hides what the model or access cannot support", async () => {
     const f = await fixture("workspace");
     const stage = f.model.fields.find((field) => field.id === f.id("deal.stage"));
@@ -728,7 +796,6 @@ describeDatabase("time-bucketed record measures", () => {
         groupBy: { path: [{ relationId: f.id("deal.organizations"), direction: "outgoing" }], fieldId: null },
       },
     });
-    // Task closure comes from translated option labels, which this fixture leaves as raw keys; see widget-gallery.test.ts.
     expect(
       workspace.data.templates
         .filter((template) => template.measure.source.typeId === f.id("task"))

@@ -28,7 +28,6 @@ type Props = {
   reverseYAxis?: boolean;
 };
 
-/** Columns with the value printed at each bar end and the category under it, no value axis. */
 export const VerticalBarChartWithLabels = observer(
   ({ currency, chartData, colors, reverseXAxis, reverseYAxis }: Props) => {
     const formatValue = useChartFormatter(currency);

@@ -12,7 +12,6 @@ type Props = {
   textColor: string;
 };
 
-/** Ordered steps as centered, narrowing bars with each step's value and step-to-step conversion beside it. */
 export const FunnelChart = observer(({ chartData }: Props) => {
   const widest = Math.max(0, ...chartData.map((point) => point.value));
 

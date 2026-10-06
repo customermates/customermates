@@ -1189,6 +1189,8 @@
       "widgetGroupByEntityTypeNotAllowedForCount": "Il raggruppamento per tipo di elemento non è consentito quando il tipo di aggregazione è il conteggio.",
       "widgetGroupByTypeMustMatchEntityType": "Il tipo di raggruppamento deve corrispondere al tipo di elemento del grafico.",
       "widgetKindImmutable": "Il tipo di un widget non può essere modificato dopo la creazione.",
+      "widgetLayoutOverlap": "Questa posizione si sovrappone a un altro widget. Scegli uno spazio libero nella griglia a 12 colonne oppure ometti il layout per posizionarlo automaticamente.",
+      "widgetLayoutTooSmall": "Questo widget richiede almeno 2 colonne e 3 righe.",
       "widgetNotFound": "ID widget non trovato o non accessibile.",
       "widgetWeightedValueNotAllowedForService": "L'aggregazione del valore ponderato non è consentita per il tipo di elemento Servizio.",
       "wikiGuideExists": "Questa base di conoscenza ha già una guida operativa. Aggiorna la guida esistente.",
@@ -1860,7 +1862,7 @@
         },
         "countPerMember": {
           "description": "Numero di {type} per ogni {group}.",
-          "name": "{type} per {group}"
+          "name": "{type} suddivisi per {group}"
         },
         "openCountPerAssignee": {
           "description": "{type} che non sono in un {group} chiuso, contati per ogni utente assegnato.",

@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import type { ReactElement, ReactNode } from "react";
 import type { CompanyWidget } from "@/features/widget/widget.schema";
 import type { WidgetGalleryTemplate } from "@/features/widget/widget-gallery";
 
@@ -25,7 +25,6 @@ type Props = {
   onSelectTemplate: (id: string) => void;
 };
 
-/** Localized name and description of a starter, filled with the labels of the data model it was derived from. */
 export function useStarterText() {
   const t = useTranslations();
   return (template: WidgetGalleryTemplate) => {
@@ -75,7 +74,6 @@ type CardProps = {
   onSelect: () => void;
 };
 
-/** One card anatomy for every way to start a widget: preview tile, title, description, optional meta row. */
 function ChooserCard({ description, disabled, id, meta, preview, title, onSelect }: CardProps) {
   return (
     <button
@@ -110,26 +108,30 @@ function ChooserCard({ description, disabled, id, meta, preview, title, onSelect
   );
 }
 
+function ChooserHeading({ description, id, title }: { description: string; id: string; title: string }) {
+  return (
+    <div className="space-y-1">
+      <h3 className="text-sm font-medium" id={id}>
+        {title}
+      </h3>
+
+      <p className="text-xs leading-relaxed text-muted-foreground">{description}</p>
+    </div>
+  );
+}
+
 function ChooserSection({
   children,
-  description,
+  heading,
   id,
-  title,
 }: {
   children: ReactNode;
-  description: string;
-  id: string;
-  title: string;
+  heading: ReactElement<{ id: string }>;
+  id?: string;
 }) {
   return (
-    <section aria-labelledby={`${id}-heading`} className="space-y-3" id={id}>
-      <div className="space-y-1">
-        <h3 className="text-sm font-medium" id={`${id}-heading`}>
-          {title}
-        </h3>
-
-        <p className="text-xs leading-relaxed text-muted-foreground">{description}</p>
-      </div>
+    <section aria-labelledby={heading.props.id} className="space-y-3" id={id}>
+      {heading}
 
       <div className="grid grid-cols-1 gap-3 min-[480px]:grid-cols-2 md:grid-cols-3">{children}</div>
     </section>
@@ -158,9 +160,13 @@ export function WidgetStarterPicker({
     <div className="flex min-w-0 flex-col gap-6">
       {gallery.length > 0 && (
         <ChooserSection
-          description={t("Dashboard.widgetGallery.description")}
-          id="widget-gallery"
-          title={t("Dashboard.widgetGallery.title")}
+          heading={
+            <ChooserHeading
+              description={t("Dashboard.widgetGallery.description")}
+              id="widget-gallery-heading"
+              title={t("Dashboard.widgetGallery.title")}
+            />
+          }
         >
           {gallery.map((template, index) => {
             const repeat = gallery.slice(0, index).filter((other) => other.recipe === template.recipe).length;
@@ -183,9 +189,14 @@ export function WidgetStarterPicker({
       )}
 
       <ChooserSection
-        description={t("Dashboard.widgetEditor.kind.description")}
+        heading={
+          <ChooserHeading
+            description={t("Dashboard.widgetEditor.kind.description")}
+            id="widget-modal-kind-heading"
+            title={t("Dashboard.widgetEditor.kind.scratchTitle")}
+          />
+        }
         id="widget-modal-kind"
-        title={t("Dashboard.widgetEditor.kind.scratchTitle")}
       >
         {availableKinds.map((kind) => (
           <ChooserCard
@@ -202,9 +213,13 @@ export function WidgetStarterPicker({
 
       {templates.length > 0 && (
         <ChooserSection
-          description={t("Dashboard.widgetEditor.templates.description")}
-          id="widget-template"
-          title={t("Dashboard.widgetEditor.templates.title")}
+          heading={
+            <ChooserHeading
+              description={t("Dashboard.widgetEditor.templates.description")}
+              id="widget-template-heading"
+              title={t("Dashboard.widgetEditor.templates.title")}
+            />
+          }
         >
           {templates.map((widget) => {
             const ownerName = `${widget.firstName} ${widget.lastName}`.trim();

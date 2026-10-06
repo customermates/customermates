@@ -3,6 +3,8 @@ import { RecordWidgetDtoSchema } from "./record-widget.schema";
 import { Prisma } from "@/generated/prisma";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { recordJson } from "@/features/records/record-storage";
+import type { WidgetLayout } from "./widget-display.schema";
+import { listWidgetPlacements } from "./widget-placement";
 
 const StoredSchema = RecordWidgetDtoSchema.omit({ data: true, status: true, groupOptions: true }).strip();
 
@@ -31,13 +33,17 @@ export class PrismaRecordWidgetRepo extends TenantRepository implements RecordWi
     });
     return rows.map((row) => StoredSchema.parse({ ...row, contractVersion: 2 }));
   }
-  async save(input: RecordWidgetInput, id: string): Promise<StoredRecordWidget> {
+  async listPlacements() {
+    return listWidgetPlacements(this.prisma, this.companyId, this.userId);
+  }
+  async save(input: RecordWidgetInput, id: string, layout?: WidgetLayout): Promise<StoredRecordWidget> {
     const data = {
       name: input.name,
       kind: "chart" as const,
       measure: recordJson(input.measure),
       displayOptions: recordJson(input.displayOptions),
       isTemplate: input.isTemplate,
+      ...(layout ? { layout: recordJson(layout) } : {}),
     };
     const row = input.id
       ? await this.prisma.widget.update({

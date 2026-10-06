@@ -1189,6 +1189,8 @@
       "widgetGroupByEntityTypeNotAllowedForCount": "Grouping by element type itself is not allowed when aggregation type is count.",
       "widgetGroupByTypeMustMatchEntityType": "Group by type must match the chart's element type.",
       "widgetKindImmutable": "A widget's type cannot be changed after it is created.",
+      "widgetLayoutOverlap": "This position overlaps another widget. Choose a free spot on the 12-column grid or leave the layout out to place the widget automatically.",
+      "widgetLayoutTooSmall": "This widget needs at least 2 columns and 3 rows.",
       "widgetNotFound": "Widget ID not found or not accessible.",
       "widgetWeightedValueNotAllowedForService": "Weighted value aggregation is not allowed for Service element type.",
       "wikiGuideExists": "This Knowledge Base already has an Operating Guide. Update the existing guide instead.",

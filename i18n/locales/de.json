@@ -1189,6 +1189,8 @@
       "widgetGroupByEntityTypeNotAllowedForCount": "Gruppierung nach dem Elementtyp selbst ist nicht erlaubt, wenn der Aggregationstyp Anzahl ist.",
       "widgetGroupByTypeMustMatchEntityType": "Gruppierungstyp muss mit dem Elementtyp des Diagramms übereinstimmen.",
       "widgetKindImmutable": "Der Typ eines Widgets kann nach dem Erstellen nicht geändert werden.",
+      "widgetLayoutOverlap": "Diese Position überschneidet sich mit einem anderen Widget. Wähle einen freien Platz im 12-Spalten-Raster oder lass das Layout weg, damit das Widget automatisch platziert wird.",
+      "widgetLayoutTooSmall": "Dieses Widget braucht mindestens 2 Spalten und 3 Zeilen.",
       "widgetNotFound": "Widget-ID nicht gefunden oder nicht zugänglich.",
       "widgetWeightedValueNotAllowedForService": "Gewichtete Wert-Aggregation ist für den Elementtyp Service nicht erlaubt.",
       "wikiGuideExists": "Diese Wissensdatenbank hat bereits einen Betriebsleitfaden. Aktualisiere stattdessen den vorhandenen Leitfaden.",

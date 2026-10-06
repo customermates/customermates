@@ -17,7 +17,6 @@ import { type WidgetLayoutGeometry, widgetLayoutGeometry } from "./widget-layout
 
 const FALLBACK_GRID_WIDTH = 1120;
 
-/** Pixel size a widget occupies on the large dashboard grid, so the preview matches what the user will get. */
 export function widgetPixelSize(gridWidth: number, w: number, h: number) {
   const cols = GRID_COLS.lg;
   const column = (gridWidth - DASHBOARD_GRID_MARGIN * (cols - 1)) / cols;

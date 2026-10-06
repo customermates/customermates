@@ -1,10 +1,5 @@
 "use client";
 
-/**
- * Shared look for dashboard charts: recessive axes and gridlines, muted ticks with
- * truncation (full label on hover), and subtle hover cursors. Colors stay design tokens.
- */
-
 export const CHART_TICK_COLOR = "var(--muted-foreground)";
 export const CHART_GRID_COLOR = "var(--border)";
 export const CHART_FONT_SIZE = 11;
@@ -47,7 +42,6 @@ type TickProps = {
   visibleTicksCount?: number;
 };
 
-/** Category tick that truncates long labels and exposes the full text as a native tooltip. */
 export function TruncatedTick({
   x,
   y,
@@ -80,7 +74,6 @@ export function TruncatedTick({
   );
 }
 
-/** Width for a vertical category axis: fits the longest label, capped to a share of the chart. */
 export function categoryAxisWidth(labels: string[], cap = 128) {
   const longest = labels.reduce((max, label) => Math.max(max, label.length), 0);
   return Math.min(cap, Math.max(32, Math.ceil(longest * CHAR_WIDTH) + 12));

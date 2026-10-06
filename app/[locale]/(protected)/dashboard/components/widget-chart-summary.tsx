@@ -7,7 +7,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 
 import { WIDGET_INTERACTIVE_ATTRIBUTE } from "./widget-interaction";
 
-/** One compact line above a chart: the overall value plus an info hint for attribution notes. */
 export function WidgetChartSummary({ notes, overall }: { notes: string[]; overall: string | null }) {
   const t = useTranslations();
   if (!overall && notes.length === 0) return null;

@@ -16,10 +16,6 @@ type Props = {
   reverseYAxis?: boolean;
 };
 
-/**
- * Ranked bar list: every row gets its own label line above the bar, so long names never collide with
- * neighboring bars. Rows keep a minimum height and the list scrolls inside the widget when they don't fit.
- */
 export const HorizontalBarChartWithLabels = observer(
   ({ currency, chartData, textColor, reverseXAxis, reverseYAxis }: Props) => {
     const formatValue = useChartFormatter(currency);

@@ -246,8 +246,8 @@ export const RecordWidgetEditor = observer(
         >
           {shownPreview ? (
             <div
-              className={cn("h-full min-h-0 transition-opacity", shownPreview.key !== key && "opacity-50")}
-              data-preview-current={shownPreview.key === key}
+              className={cn("h-full min-h-0 transition-opacity", preview?.key !== key && "opacity-50")}
+              data-preview-current={preview?.key === key}
             >
               <RecordWidgetChart
                 data={shownPreview.result}

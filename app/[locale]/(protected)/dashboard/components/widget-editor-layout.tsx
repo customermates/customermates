@@ -5,7 +5,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 export const WIDGET_EDITOR_GRID_CLASS =
   "grid min-w-0 gap-6 lg:grid-cols-[minmax(0,24rem)_minmax(0,1fr)] lg:items-start xl:grid-cols-[minmax(0,26rem)_minmax(0,1fr)]";
 
-/** Settings on one side, the live preview on the other; stacked on narrow widths. */
 export function WidgetEditorColumns({ preview, settings }: { preview: ReactNode; settings: ReactNode }) {
   return (
     <div className={WIDGET_EDITOR_GRID_CLASS} data-widget-editor="split">

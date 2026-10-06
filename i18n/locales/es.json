@@ -1189,6 +1189,8 @@
       "widgetGroupByEntityTypeNotAllowedForCount": "No se permite agrupar por tipo de elemento cuando el tipo de agregación es el recuento.",
       "widgetGroupByTypeMustMatchEntityType": "El tipo de agrupación debe coincidir con el tipo de elemento del gráfico.",
       "widgetKindImmutable": "El tipo de un widget no se puede cambiar después de crearlo.",
+      "widgetLayoutOverlap": "Esta posición se superpone con otro widget. Elige un hueco libre en la cuadrícula de 12 columnas u omite el diseño para colocarlo automáticamente.",
+      "widgetLayoutTooSmall": "Este widget necesita al menos 2 columnas y 3 filas.",
       "widgetNotFound": "ID de widget no encontrado o no accesible.",
       "widgetWeightedValueNotAllowedForService": "La agregación de valor ponderado no está permitida para el tipo de elemento Servicio.",
       "wikiGuideExists": "Esta base de conocimientos ya tiene una guía operativa. Actualiza la guía existente.",

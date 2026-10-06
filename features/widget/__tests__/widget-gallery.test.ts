@@ -94,7 +94,6 @@ function relation(sourceTypeId: string, targetTypeId: string): RecordRelationshi
   };
 }
 
-/** A recruiting model with no CRM vocabulary at all. */
 function recruitingModel() {
   const candidates = type("Candidate", "Candidates", 0);
   const roles = type("Role", "Roles", 1);

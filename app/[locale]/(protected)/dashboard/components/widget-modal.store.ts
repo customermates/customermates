@@ -22,6 +22,7 @@ import { deleteWidgetAction, getCompanyWidgetsAction, getWidgetByIdAction, getWi
 import { browserTimeZone } from "./widget-time-zone";
 import { GRID_COLS } from "./grid.constants";
 import { type WidgetLayoutGeometry, widgetLayoutGeometry } from "./widget-layout";
+import { widgetDefaultSize } from "@/features/widget/widget-grid";
 
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { reportApplicationError } from "@/core/errors/report-application-error";
@@ -138,12 +139,16 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
   get activeTimelineFiltersCount() {
     return isRecordActivityWidgetForm(this.form) ? recordActivityFilterCount(this.form.activityQuery) : 0;
   }
-  /** Grid size the widget occupies on the large dashboard, used to render the preview at its real size. */
   get previewGeometry(): WidgetLayoutGeometry {
     const saved = this.form.id
       ? this.rootStore.widgetsStore.items.find((widget) => widget.id === this.form.id)?.layout?.lg
       : undefined;
-    return widgetLayoutGeometry(this.form.kind, GRID_COLS.lg, saved ?? undefined);
+    const displayType = isRecordWidgetForm(this.form) ? this.form.displayOptions.displayType : undefined;
+    return widgetLayoutGeometry(
+      this.form.kind,
+      GRID_COLS.lg,
+      saved ?? widgetDefaultSize(this.form.kind, displayType ?? DisplayType.verticalBarChart),
+    );
   }
 
   get availableKinds() {

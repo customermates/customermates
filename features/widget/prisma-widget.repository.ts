@@ -80,6 +80,7 @@ export class PrismaWidgetRepo
             companyId,
           },
           select: this.dtoSelect,
+          orderBy: [{ createdAt: "asc" }, { id: "asc" }],
         });
 
         const widgets = await Promise.all(rows.map((row) => this.toDto(row)));

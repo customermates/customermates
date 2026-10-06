@@ -80,6 +80,8 @@ export enum CustomErrorCode {
   widgetDealAggregationNotAllowedForTask = "widgetDealAggregationNotAllowedForTask",
   widgetKindImmutable = "widgetKindImmutable",
   widgetDisplayTypeUnsupported = "widgetDisplayTypeUnsupported",
+  widgetLayoutOverlap = "widgetLayoutOverlap",
+  widgetLayoutTooSmall = "widgetLayoutTooSmall",
   taskOnlyCustomTasksCanBeDeleted = "taskOnlyCustomTasksCanBeDeleted",
   taskNameCannotBeChangedForSystemTasks = "taskNameCannotBeChangedForSystemTasks",
   organizationNotFound = "organizationNotFound",

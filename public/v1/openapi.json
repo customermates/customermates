@@ -12300,6 +12300,43 @@
                       },
                       "isTemplate": {
                         "type": "boolean"
+                      },
+                      "layout": {
+                        "type": "object",
+                        "properties": {
+                          "x": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 11,
+                            "description": "Column, 0 to 11, from the left edge."
+                          },
+                          "y": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 1000,
+                            "description": "Row from the top. Widgets float up into empty rows above them, as on the dashboard."
+                          },
+                          "w": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 12,
+                            "description": "Width in columns, 1 to 12."
+                          },
+                          "h": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 12,
+                            "description": "Height in rows of 124 px, 1 to 12."
+                          }
+                        },
+                        "required": [
+                          "x",
+                          "y",
+                          "w",
+                          "h"
+                        ],
+                        "additionalProperties": false,
+                        "description": "Optional position and size on the 12-column desktop grid. Omit it to keep the current position on update or to place a new widget in the first free spot. It must not overlap another widget."
                       }
                     },
                     "required": [
@@ -12646,6 +12683,43 @@
                       },
                       "isTemplate": {
                         "type": "boolean"
+                      },
+                      "layout": {
+                        "type": "object",
+                        "properties": {
+                          "x": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 11,
+                            "description": "Column, 0 to 11, from the left edge."
+                          },
+                          "y": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 1000,
+                            "description": "Row from the top. Widgets float up into empty rows above them, as on the dashboard."
+                          },
+                          "w": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 12,
+                            "description": "Width in columns, 1 to 12."
+                          },
+                          "h": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 12,
+                            "description": "Height in rows of 124 px, 1 to 12."
+                          }
+                        },
+                        "required": [
+                          "x",
+                          "y",
+                          "w",
+                          "h"
+                        ],
+                        "additionalProperties": false,
+                        "description": "Optional position and size on the 12-column desktop grid. Omit it to keep the current position on update or to place a new widget in the first free spot. It must not overlap another widget."
                       }
                     },
                     "required": [
@@ -78930,6 +79004,8 @@
                         "widgetDealAggregationNotAllowedForTask",
                         "widgetKindImmutable",
                         "widgetDisplayTypeUnsupported",
+                        "widgetLayoutOverlap",
+                        "widgetLayoutTooSmall",
                         "taskOnlyCustomTasksCanBeDeleted",
                         "taskNameCannotBeChangedForSystemTasks",
                         "organizationNotFound",
