@@ -19,8 +19,8 @@ describe("agent durable stream reader", () => {
         {
           type: "tool-call",
           toolCallId: "call-1",
-          toolName: "list_records",
-          input: { entity: "contact" },
+          toolName: "query_crm_records",
+          input: { typeId: "contact-type" },
         },
       ]),
     ).toEqual([
@@ -30,7 +30,6 @@ describe("agent durable stream reader", () => {
           id: "call-1",
           activity: expect.objectContaining({
             kind: "records.read",
-            resource: "contacts",
           }),
         },
       },
@@ -42,7 +41,7 @@ describe("agent durable stream reader", () => {
       {
         type: "tool-result",
         toolCallId: "call-1",
-        toolName: "list_records",
+        toolName: "query_crm_records",
         output: { ok: true, result: "ada@example.com, +49 170 1234567" },
       },
     ]);
@@ -102,7 +101,7 @@ describe("agent durable stream reader", () => {
       {
         type: "tool-result",
         toolCallId: "other-tool",
-        toolName: "update_contacts",
+        toolName: "mutate_crm_record",
         output: {
           ok: true,
           navigation: { kind: "saved-view", href: "/records/10000000-0000-4000-8000-000000000101?view=__all__" },

@@ -32,10 +32,6 @@
   "AgentChat": {
     "activity": {
       "approval": {
-        "customFields": {
-          "configure": "Prêt à modifier les champs personnalisés",
-          "delete": "Prêt à supprimer définitivement un champ personnalisé"
-        },
         "generic": "Prêt à effectuer une modification qui nécessite votre approbation",
         "messages": {
           "discard": "Prêt à supprimer le brouillon",
@@ -85,8 +81,6 @@
         "emailSend": "Envoyer un e-mail aux destinataires sélectionnés",
         "externalManage": "Modifier des données dans le compte externe connecté",
         "recordsDelete": "Cette action est irréversible.",
-        "recordsLink": "Lier des enregistrements",
-        "recordsUnlink": "Supprimer les liens",
         "roleDelete": "Supprimer le rôle sélectionné",
         "roleSave": "Enregistrer le rôle et ses accès aux fiches",
         "routineDelete": "Supprimer définitivement la routine sélectionnée et son historique",
@@ -125,22 +119,12 @@
         "to": "À"
       },
       "resource": {
-        "contacts": "contacts",
-        "deals": "affaires",
         "messages": "conversations",
-        "organizations": "organisations",
-        "services": "services",
-        "tasks": "tâches",
         "widgets": "widgets du Dashboard",
         "wiki": "pages de la base de connaissances"
       },
       "resourceSingular": {
-        "contacts": "contact",
-        "deals": "affaire",
         "messages": "conversation",
-        "organizations": "organisation",
-        "services": "prestation",
-        "tasks": "tâche",
         "widgets": "widget de Dashboard",
         "wiki": "page de la base de connaissances"
       },
@@ -153,30 +137,10 @@
           }
         },
         "customFields": {
-          "configure": {
-            "done": "Champs personnalisés configurés",
-            "error": "Impossible de configurer les champs personnalisés",
-            "running": "Configuration des champs personnalisés"
-          },
-          "create": {
-            "done": "Champ personnalisé créé",
-            "error": "Impossible de créer le champ personnalisé",
-            "running": "Création d’un champ personnalisé"
-          },
-          "delete": {
-            "done": "Champ personnalisé supprimé",
-            "error": "Impossible de supprimer le champ personnalisé",
-            "running": "Suppression d’un champ personnalisé"
-          },
           "read": {
             "done": "Champs personnalisés vérifiés",
             "error": "Impossible de vérifier les champs personnalisés",
             "running": "Vérification des champs personnalisés"
-          },
-          "update": {
-            "done": "Champ personnalisé mis à jour",
-            "error": "Impossible de mettre à jour le champ personnalisé",
-            "running": "Mise à jour d’un champ personnalisé"
           }
         },
         "docs": {
@@ -272,11 +236,6 @@
             "done": "Enregistrements liés",
             "error": "Impossible de lier les enregistrements",
             "running": "Liaison des enregistrements associés"
-          },
-          "note": {
-            "done": "Notes mises à jour",
-            "error": "Impossible de mettre à jour les notes",
-            "running": "Mise à jour des notes"
           },
           "read": {
             "done": "Vérification de {resource} terminée",

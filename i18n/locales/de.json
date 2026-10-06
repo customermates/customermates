@@ -32,10 +32,6 @@
   "AgentChat": {
     "activity": {
       "approval": {
-        "customFields": {
-          "configure": "Bereit, benutzerdefinierte Felder zu ändern",
-          "delete": "Bereit, ein benutzerdefiniertes Feld endgültig zu löschen"
-        },
         "generic": "Bereit für eine Änderung, die deine Freigabe braucht",
         "messages": {
           "discard": "Bereit, den Entwurf zu verwerfen",
@@ -85,8 +81,6 @@
         "emailSend": "E-Mail an die ausgewählten Empfänger senden",
         "externalManage": "Daten im verbundenen externen Konto ändern",
         "recordsDelete": "Das kann nicht rückgängig gemacht werden.",
-        "recordsLink": "Datensätze verknüpfen",
-        "recordsUnlink": "Verknüpfungen entfernen",
         "roleDelete": "Ausgewählte Rolle löschen",
         "roleSave": "Rolle und Datensatzzugriff speichern",
         "routineDelete": "Die ausgewählte Routine samt Verlauf endgültig löschen",
@@ -125,22 +119,12 @@
         "to": "An"
       },
       "resource": {
-        "contacts": "Kontakte",
-        "deals": "Deals",
         "messages": "Unterhaltungen",
-        "organizations": "Organisationen",
-        "services": "Leistungen",
-        "tasks": "Aufgaben",
         "widgets": "Dashboard-Widgets",
         "wiki": "Wissensdatenbank-Seiten"
       },
       "resourceSingular": {
-        "contacts": "Kontakt",
-        "deals": "Deal",
         "messages": "Unterhaltung",
-        "organizations": "Organisation",
-        "services": "Leistung",
-        "tasks": "Aufgabe",
         "widgets": "Dashboard-Widget",
         "wiki": "Wissensdatenbank-Seite"
       },
@@ -153,30 +137,10 @@
           }
         },
         "customFields": {
-          "configure": {
-            "done": "Benutzerdefinierte Felder wurden konfiguriert",
-            "error": "Benutzerdefinierte Felder konnten nicht konfiguriert werden",
-            "running": "Benutzerdefinierte Felder werden konfiguriert"
-          },
-          "create": {
-            "done": "Benutzerdefiniertes Feld wurde erstellt",
-            "error": "Benutzerdefiniertes Feld konnte nicht erstellt werden",
-            "running": "Benutzerdefiniertes Feld wird erstellt"
-          },
-          "delete": {
-            "done": "Benutzerdefiniertes Feld wurde entfernt",
-            "error": "Benutzerdefiniertes Feld konnte nicht entfernt werden",
-            "running": "Benutzerdefiniertes Feld wird entfernt"
-          },
           "read": {
             "done": "Benutzerdefinierte Felder wurden geprüft",
             "error": "Benutzerdefinierte Felder konnten nicht geprüft werden",
             "running": "Benutzerdefinierte Felder werden geprüft"
-          },
-          "update": {
-            "done": "Benutzerdefiniertes Feld wurde aktualisiert",
-            "error": "Benutzerdefiniertes Feld konnte nicht aktualisiert werden",
-            "running": "Benutzerdefiniertes Feld wird aktualisiert"
           }
         },
         "docs": {
@@ -272,11 +236,6 @@
             "done": "Datensätze wurden verknüpft",
             "error": "Datensätze konnten nicht verknüpft werden",
             "running": "Datensätze werden verknüpft"
-          },
-          "note": {
-            "done": "Notizen wurden aktualisiert",
-            "error": "Notizen konnten nicht aktualisiert werden",
-            "running": "Notizen werden aktualisiert"
           },
           "read": {
             "done": "{resource} wurden geprüft",

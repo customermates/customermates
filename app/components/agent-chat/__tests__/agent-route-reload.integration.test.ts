@@ -147,7 +147,7 @@ describe("agent route reload integration", () => {
         seq: 1,
         type: "activity",
         id: "write-integration",
-        activity: { kind: "records.update", resource: "contacts", affectedResources: [], risk: "write" },
+        activity: { kind: "records.update", resource: "wiki", affectedResources: [], risk: "write" },
       });
       internalStore.handleEvent({
         seq: 2,

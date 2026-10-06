@@ -32,10 +32,6 @@
   "AgentChat": {
     "activity": {
       "approval": {
-        "customFields": {
-          "configure": "Ready to change custom fields",
-          "delete": "Ready to permanently delete a custom field"
-        },
         "generic": "Ready to make a change that needs your approval",
         "messages": {
           "discard": "Ready to discard the draft",
@@ -85,8 +81,6 @@
         "emailSend": "Send an email to the selected recipients",
         "externalManage": "Change data in the connected external account",
         "recordsDelete": "This cannot be undone.",
-        "recordsLink": "Link records",
-        "recordsUnlink": "Remove relationships",
         "roleDelete": "Delete the selected role",
         "roleSave": "Save the role and its record access",
         "routineDelete": "Permanently delete the selected routine and its run history",
@@ -125,22 +119,12 @@
         "to": "To"
       },
       "resource": {
-        "contacts": "contacts",
-        "deals": "deals",
         "messages": "conversations",
-        "organizations": "organizations",
-        "services": "services",
-        "tasks": "tasks",
         "widgets": "dashboard widgets",
         "wiki": "Knowledge Base pages"
       },
       "resourceSingular": {
-        "contacts": "contact",
-        "deals": "deal",
         "messages": "conversation",
-        "organizations": "organization",
-        "services": "service",
-        "tasks": "task",
         "widgets": "dashboard widget",
         "wiki": "Knowledge Base page"
       },
@@ -153,30 +137,10 @@
           }
         },
         "customFields": {
-          "configure": {
-            "done": "Configured custom fields",
-            "error": "Couldn’t configure custom fields",
-            "running": "Configuring custom fields"
-          },
-          "create": {
-            "done": "Created a custom field",
-            "error": "Couldn’t create the custom field",
-            "running": "Creating a custom field"
-          },
-          "delete": {
-            "done": "Removed a custom field",
-            "error": "Couldn’t remove the custom field",
-            "running": "Removing a custom field"
-          },
           "read": {
             "done": "Reviewed custom fields",
             "error": "Couldn’t review custom fields",
             "running": "Reviewing custom fields"
-          },
-          "update": {
-            "done": "Updated a custom field",
-            "error": "Couldn’t update the custom field",
-            "running": "Updating a custom field"
           }
         },
         "docs": {
@@ -272,11 +236,6 @@
             "done": "Connected related records",
             "error": "Couldn’t connect the records",
             "running": "Connecting related records"
-          },
-          "note": {
-            "done": "Updated notes",
-            "error": "Couldn’t update the notes",
-            "running": "Updating notes"
           },
           "read": {
             "done": "Reviewed {resource}",

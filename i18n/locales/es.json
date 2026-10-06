@@ -32,10 +32,6 @@
   "AgentChat": {
     "activity": {
       "approval": {
-        "customFields": {
-          "configure": "Listo para cambiar los campos personalizados",
-          "delete": "Listo para eliminar de forma permanente un campo personalizado"
-        },
         "generic": "Listo para hacer un cambio que necesita tu aprobación",
         "messages": {
           "discard": "Listo para descartar el borrador",
@@ -85,8 +81,6 @@
         "emailSend": "Enviar un correo a los destinatarios seleccionados",
         "externalManage": "Cambiar datos en la cuenta externa conectada",
         "recordsDelete": "Esta acción no se puede deshacer.",
-        "recordsLink": "Vincular registros",
-        "recordsUnlink": "Eliminar vínculos",
         "roleDelete": "Eliminar el rol seleccionado",
         "roleSave": "Guardar el rol y su acceso a registros",
         "routineDelete": "Eliminar definitivamente la rutina seleccionada y su historial",
@@ -125,22 +119,12 @@
         "to": "Para"
       },
       "resource": {
-        "contacts": "contactos",
-        "deals": "oportunidades",
         "messages": "conversaciones",
-        "organizations": "organizaciones",
-        "services": "servicios",
-        "tasks": "tareas",
         "widgets": "widgets del Dashboard",
         "wiki": "páginas de la base de conocimientos"
       },
       "resourceSingular": {
-        "contacts": "contacto",
-        "deals": "oportunidad",
         "messages": "conversación",
-        "organizations": "organización",
-        "services": "servicio",
-        "tasks": "tarea",
         "widgets": "widget del dashboard",
         "wiki": "página de la base de conocimientos"
       },
@@ -153,30 +137,10 @@
           }
         },
         "customFields": {
-          "configure": {
-            "done": "Campos personalizados configurados",
-            "error": "No se pudieron configurar los campos personalizados",
-            "running": "Configurando campos personalizados"
-          },
-          "create": {
-            "done": "Campo personalizado creado",
-            "error": "No se pudo crear el campo personalizado",
-            "running": "Creando un campo personalizado"
-          },
-          "delete": {
-            "done": "Campo personalizado eliminado",
-            "error": "No se pudo eliminar el campo personalizado",
-            "running": "Eliminando un campo personalizado"
-          },
           "read": {
             "done": "Campos personalizados revisados",
             "error": "No se pudieron revisar los campos personalizados",
             "running": "Revisando campos personalizados"
-          },
-          "update": {
-            "done": "Campo personalizado actualizado",
-            "error": "No se pudo actualizar el campo personalizado",
-            "running": "Actualizando un campo personalizado"
           }
         },
         "docs": {
@@ -272,11 +236,6 @@
             "done": "Registros relacionados vinculados",
             "error": "No se pudieron vincular los registros",
             "running": "Vinculando registros relacionados"
-          },
-          "note": {
-            "done": "Notas actualizadas",
-            "error": "No se pudieron actualizar las notas",
-            "running": "Actualizando las notas"
           },
           "read": {
             "done": "Revisión de {resource} completada",

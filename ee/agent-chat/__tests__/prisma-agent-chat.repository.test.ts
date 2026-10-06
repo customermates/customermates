@@ -1682,7 +1682,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
           parts: [{ type: "text", text: "Done" }],
           terminalCode: "completed",
           stopReason: null,
-          affectedResources: ["contacts"],
+          affectedResources: ["wiki"],
           usageSettlement: {
             model: "claude-test",
             inputTokens: 100,
@@ -1706,7 +1706,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       assistantMessage: { id: "assistant-message-1" },
       terminalCode: "completed",
       stopReason: null,
-      affectedResources: ["contacts"],
+      affectedResources: ["wiki"],
       costMicrocents: 123,
     });
     expect(prismaMock.agentUsageEvent.updateMany).toHaveBeenCalledWith({
@@ -1754,7 +1754,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         assistantMessageId: "assistant-message-1",
         terminalCode: "completed",
         stopReason: null,
-        affectedResources: ["contacts"],
+        affectedResources: ["wiki"],
         terminalAt: completedAt,
       },
     });
