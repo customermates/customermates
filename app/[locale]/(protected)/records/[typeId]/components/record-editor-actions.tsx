@@ -34,7 +34,6 @@ export const RecordDeleteAction = observer(function RecordDeleteAction({
   if (!store.record || !store.presentation.permittedActions.includes("delete")) return null;
   return (
     <AppModalAction
-      anchorId="record-delete"
       disabled={deletion.isPreviewing || store.isBusy}
       icon={Trash2}
       id="record-delete"

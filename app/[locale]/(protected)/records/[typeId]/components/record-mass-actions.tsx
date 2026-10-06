@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { ResponsiveOverlay } from "@/components/modal/responsive-overlay";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRecordDeletion } from "./use-record-deletion";
+import { isRecordFieldWritable } from "@/features/records/record-input-value";
 import { RecordFieldValueEditor, RecordFieldValueStore } from "./record-field-value-editor";
 
 const BulkFieldEditor = observer(function BulkFieldEditor({
@@ -51,10 +52,7 @@ export const RecordMassActions = observer(function RecordMassActions({ store }: 
     mutateMany: store.bulkMutation,
   });
   if (!store.hasSelection || !store.supportsSelection) return null;
-  const fields = store.fields.filter(
-    (field) =>
-      field.behavior.kind === "input" || (field.behavior.kind === "snapshot" && field.behavior.allowManualOverride),
-  );
+  const fields = store.fields.filter(isRecordFieldWritable);
   const active = fields.find((field) => field.id === activeId);
   const filtered = fields.filter((field) => field.label.toLocaleLowerCase().includes(query.toLocaleLowerCase()));
   const close = () => {

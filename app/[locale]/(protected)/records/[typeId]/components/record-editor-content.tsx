@@ -234,7 +234,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
             </h2>
           </AppCardHeader>
 
-          <AppModalActionRail className="mt-1.5" id="record-header-actions">
+          <AppModalActionRail className="mt-1.5">
             <RecordAiIconAction
               registerContext
               active={store.isOpen}
@@ -250,7 +250,6 @@ const RecordEditorBody = observer(function RecordEditorBody({
 
             {store.record && (
               <AppModalAction
-                anchorId="record-open-page"
                 href={`/records/${store.record.ref.typeId}/${store.record.ref.recordId}`}
                 icon={Maximize2}
                 id="record-open-page"

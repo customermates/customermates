@@ -5,7 +5,7 @@ import type { RecordsStore } from "./records.store";
 import type { useRecordDeletion } from "./use-record-deletion";
 
 import { observer } from "mobx-react-lite";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Ellipsis, Link2, Maximize2, PanelLeftOpen, Trash2 } from "lucide-react";
 
 import {
@@ -66,6 +66,7 @@ export const RecordRowActions = observer(function RecordRowActions({
 }) {
   const t = useTranslations();
   const copy = useCopyToClipboard();
+  const locale = useLocale();
   const name = recordRowName(store, record);
   const href = `/records/${record.ref.typeId}/${record.ref.recordId}`;
   const canDelete = store.presentation.permittedActions.includes("delete") && !record.protectedKind;
@@ -113,7 +114,6 @@ export const RecordRowActions = observer(function RecordRowActions({
 
           <DropdownMenuItem
             onSelect={() => {
-              const locale = window.location.pathname.split("/")[1];
               runUserAction(() => copy(new URL(`/${locale}${href}`, window.location.origin).toString()));
             }}
           >

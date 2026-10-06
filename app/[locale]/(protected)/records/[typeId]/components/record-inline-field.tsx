@@ -21,15 +21,13 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toChipColor } from "@/constants/chip-colors";
 import { runUserAction } from "@/core/errors/report-application-error";
-import { recordDraftValue } from "@/features/records/record-input-value";
+import { isRecordFieldWritable, recordDraftValue } from "@/features/records/record-input-value";
 import { RecordFieldValueEditor, RecordFieldValueStore } from "./record-field-value-editor";
 
 /** Whether a table cell may edit this field in place; the server re-checks every write. */
 export function canEditInline(store: RecordsStore, record: RecordRow, field: RecordField) {
-  if (!store.presentation.permittedActions.includes("update") || record.protectedKind) return false;
+  if (!store.canUpdateRecord(record) || !isRecordFieldWritable(field)) return false;
   if (field.id === store.type?.primaryFieldId || field.valueType === "richText") return false;
-  if (field.behavior.kind !== "input" && !(field.behavior.kind === "snapshot" && field.behavior.allowManualOverride))
-    return false;
   const result = record.fields.find((value) => value.fieldId === field.id)?.result;
   return result?.state !== "restricted" && result?.state !== "error";
 }
@@ -59,7 +57,7 @@ const InlineFieldForm = observer(function InlineFieldForm({
   return <RecordFieldValueEditor store={store} submitLabel={t("Common.actions.save")} />;
 });
 
-function InlineSelect({
+const InlineSelect = observer(function InlineSelect({
   records,
   record,
   field,
@@ -125,7 +123,7 @@ function InlineSelect({
       </DropdownMenuContent>
     </DropdownMenu>
   );
-}
+});
 
 /** Wraps a table cell value with in-place editing: a chip menu for selects, a small form popover otherwise. */
 export const RecordInlineField = observer(function RecordInlineField({

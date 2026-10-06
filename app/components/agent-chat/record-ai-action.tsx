@@ -46,12 +46,6 @@ export const RecordAiIconAction = observer(function RecordAiIconAction(props: Pr
   const t = useTranslations();
   const askAi = useRecordAiAction(props);
   return askAi ? (
-    <AppModalAction
-      anchorId="record-ask-ai"
-      icon={Sparkles}
-      id="record-ask-ai"
-      label={t("DataView.views.askAi")}
-      onClick={askAi}
-    />
+    <AppModalAction icon={Sparkles} id="record-ask-ai" label={t("DataView.views.askAi")} onClick={askAi} />
   ) : null;
 });

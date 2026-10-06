@@ -17,7 +17,7 @@ import type { RecordIdentityInput } from "@/features/records/record-identity.sch
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { rebaseModelChangeDraft } from "@/app/[locale]/(protected)/configure/components/model-change-rebase";
-import { recordDraftValue, recordInputValue } from "@/features/records/record-input-value";
+import { isRecordFieldWritable, recordDraftValue, recordInputValue } from "@/features/records/record-input-value";
 import { RecordScalarSchema } from "@/features/records/record-model.schema";
 import { mutateRecordAction, getRecordEditorAction } from "../../actions";
 
@@ -450,8 +450,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
   previewValue = (field: RecordField): CalculatedValue => {
     const stored = this.record?.fields.find((value) => value.fieldId === field.id)?.result;
     if (stored?.state === "restricted") return stored;
-    if (field.behavior.kind !== "input" && !(field.behavior.kind === "snapshot" && field.behavior.allowManualOverride))
-      return stored ?? { state: "missing" };
+    if (!isRecordFieldWritable(field)) return stored ?? { state: "missing" };
 
     const value = this.scalar(field);
     if (value === null) return { state: "missing" };
@@ -467,8 +466,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
       const fields = this.fields
         .filter(
           (field) =>
-            (field.behavior.kind === "input" ||
-              (field.behavior.kind === "snapshot" && field.behavior.allowManualOverride)) &&
+            isRecordFieldWritable(field) &&
             !this.form.captureFieldIds.includes(field.id) &&
             (field.behavior.kind !== "snapshot" || this.form.values[field.id] !== undefined) &&
             (!this.record ||

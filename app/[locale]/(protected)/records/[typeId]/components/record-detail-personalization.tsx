@@ -180,10 +180,10 @@ export function RecordDetailCustomizeAction({
   const t = useTranslations();
   return (
     <AppModalAction
-      anchorId="record-customize"
       icon={isPersonalizing ? Check : Settings2}
       id="record-customize"
       label={isPersonalizing ? t("EntityDetail.donePersonalizing") : t("EntityDetail.personalize")}
+      pressed={isPersonalizing}
       onClick={() => setIsPersonalizing(!isPersonalizing)}
     />
   );

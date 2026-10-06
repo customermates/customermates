@@ -21,3 +21,11 @@ export function recordDraftValue(value: RecordScalar | null | undefined): unknow
   if (value.kind === "textList") return value.value.join("\n");
   return value.value;
 }
+
+/** Whether people enter this field's value (input fields, or snapshots that allow a manual override). */
+export function isRecordFieldWritable(field: RecordField) {
+  return (
+    field.behavior.kind === "input" ||
+    (field.behavior.kind === "snapshot" && Boolean(field.behavior.allowManualOverride))
+  );
+}

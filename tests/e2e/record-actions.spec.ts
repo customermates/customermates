@@ -23,7 +23,7 @@ test("record drawer keeps record actions icon-only in the header row next to Clo
   await page.goto(`/en/records/${typeId}`);
   await page.locator("#records-add").click();
   const drawer = page.getByRole("dialog", { name: "Organization", exact: true });
-  const rail = drawer.locator("#record-header-actions");
+  const rail = drawer.locator('[data-slot="app-modal-actions"]');
   await expect(rail.getByRole("button", { name: "Customize", exact: true })).toBeVisible();
   await expect(rail.getByRole("button", { name: "Delete", exact: true })).toHaveCount(0);
   await drawer.getByRole("textbox", { name: "Name", exact: false }).fill(name);
@@ -33,6 +33,7 @@ test("record drawer keeps record actions icon-only in the header row next to Clo
   await page.getByRole("button", { name, exact: true }).click();
   const customize = rail.getByRole("button", { name: "Customize", exact: true });
   await expect(customize).toHaveText("");
+  await expect(customize).toHaveAttribute("aria-pressed", "false");
   await customize.hover();
   await expect(page.getByRole("tooltip", { name: "Customize" })).toBeVisible();
   await expect(rail.getByRole("link", { name: "Open page", exact: true })).toBeVisible();

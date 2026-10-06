@@ -28,6 +28,8 @@ type SharedActionProps = {
 type ButtonActionProps = SharedActionProps & {
   busy?: boolean;
   disabled?: boolean;
+  /** Marks a toggle action; announced as pressed when true. */
+  pressed?: boolean;
   external?: never;
   href?: never;
   onClick: () => void | Promise<void>;
@@ -36,6 +38,7 @@ type ButtonActionProps = SharedActionProps & {
 type LinkActionProps = SharedActionProps & {
   busy?: never;
   disabled?: never;
+  pressed?: never;
   external?: boolean;
   href: string;
   /** Intercepts in-app navigation, e.g. to hand off an open draft before leaving. */
@@ -99,6 +102,7 @@ export function AppModalAction(props: AppModalActionProps) {
     <button
       aria-hidden={isDisabled || undefined}
       aria-label={isDisabled ? undefined : label}
+      aria-pressed={props.pressed}
       className={className}
       data-overlay-action=""
       data-size="icon"
@@ -141,21 +145,12 @@ export function AppModalAction(props: AppModalActionProps) {
  * The one overlay header action rail. In flow by default (place it last in a header row whose right padding
  * clears Close); AppModal passes APP_MODAL_ACTION_RAIL_CLASS to pin it beside Close instead.
  */
-export function AppModalActionRail({
-  id,
-  className,
-  children,
-}: {
-  id?: string;
-  className?: string;
-  children: ReactNode;
-}) {
+export function AppModalActionRail({ className, children }: { className?: string; children: ReactNode }) {
   return (
     <TooltipProvider>
       <div
         className={cn("flex min-h-9 shrink-0 items-center gap-2 self-start empty:hidden", className)}
         data-slot="app-modal-actions"
-        id={id}
       >
         {children}
       </div>

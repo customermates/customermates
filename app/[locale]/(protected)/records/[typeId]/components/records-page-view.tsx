@@ -84,6 +84,7 @@ const RecordsPageViewContent = observer(function RecordsPageView({
   const avatarFieldId = store.presentation.model.capabilities
     .find((binding) => binding.kind === "avatar" && binding.typeId === store.presentation.typeId)
     ?.fields.find((field) => field.role === "image")?.fieldId;
+  const view = resolveDataViewView(store.viewMode, store.canBoard);
   const columns = useMemo<ColumnDef<RecordRow>[]>(
     () =>
       recordColumns.map((column) => ({
@@ -99,7 +100,7 @@ const RecordsPageViewContent = observer(function RecordsPageView({
               onOpen={openRelated}
             />
           );
-          return column.kind === "field" && canEditInline(store, row.original, column.field) ? (
+          return view === "table" && column.kind === "field" && canEditInline(store, row.original, column.field) ? (
             <RecordInlineField field={column.field} record={row.original} records={store}>
               {cell}
             </RecordInlineField>
@@ -108,7 +109,7 @@ const RecordsPageViewContent = observer(function RecordsPageView({
           );
         },
       })),
-    [recordColumns, openRecord, openRelated, avatarFieldId, store],
+    [recordColumns, openRecord, openRelated, avatarFieldId, store, view],
   );
   const deletion = useRecordDeletion({
     onDeleted: () => root.recordWorkspaceStore.invalidate(),
@@ -162,7 +163,6 @@ const RecordsPageViewContent = observer(function RecordsPageView({
     ],
   );
   useSetTopBarActions(toolbar);
-  const view = resolveDataViewView(store.viewMode, store.canBoard);
   const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: false,
     hasActiveQuery: Boolean(store.searchTerm?.trim()) || Boolean(store.filters?.length),
