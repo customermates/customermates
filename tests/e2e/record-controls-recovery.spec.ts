@@ -1176,8 +1176,10 @@ test("retains readable list content after a failed refresh and retries the empty
   await page.goto(`/en/records/${service.typeId}`);
   await expect(page.getByRole("button", { name, exact: true })).toBeVisible();
   const search = page.locator("#records-search");
-  if (!(await search.isVisible()))
+  if ((page.viewportSize()?.width ?? 0) < 1024)
     await page.getByRole("button", { name: english.Common.table.search, exact: true }).click();
+  await expect(search).toBeVisible();
+  await expect(search).toBeEnabled();
   let retainedFault = true;
   let emptyFault = true;
   let matchingReads = 0;

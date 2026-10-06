@@ -226,7 +226,8 @@ test("retains off-view selections, keeps visible rows, clears selection and clea
   };
   await selectPair();
   const search = page.locator("#records-search");
-  if (!(await search.isVisible())) await page.getByRole("button", { name: "Search...", exact: true }).click();
+  if ((page.viewportSize()?.width ?? 0) < 1024)
+    await page.getByRole("button", { name: "Search...", exact: true }).click();
   await expect(search).toBeVisible();
   await expect(search).toBeEnabled();
   await search.fill("Selected A");
