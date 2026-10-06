@@ -153,9 +153,8 @@ test("configures and persists all fourteen field types, multiple values and cale
   await dialog.getByRole("combobox", { name: "Responsible member", exact: true }).click();
   await page.getByRole("option", { name: /Browser Administrator/ }).click();
   for (const label of ["Calendar date", "Calendar time", "Calendar time range"]) {
-    await row(label)
-      .locator(`[id^="values.${field(label).id}-"]`)
-      .click();
+    const trigger = row(label).locator(`[id^="values.${field(label).id}-"]`);
+    await trigger.click();
     const calendar = page.locator('[data-slot="popover-content"][data-state="open"]');
     await calendar.getByRole("button", { name: "Today", exact: true }).click();
     if (label === "Calendar time") {
@@ -170,6 +169,8 @@ test("configures and persists all fourteen field types, multiple values and cale
     }
     await page.keyboard.press("Escape");
     await expect(page.locator('[data-slot="popover-content"][data-state="open"]')).toHaveCount(0);
+    await expect(page.locator('[data-slot="popover-content"]')).toHaveCount(0);
+    await expect(trigger).toBeFocused();
   }
   await row("Calendar range")
     .locator(`[id^="values.${field("Calendar range").id}-"]`)
