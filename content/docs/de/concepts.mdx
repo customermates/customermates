@@ -35,7 +35,7 @@ Das Backend prüft Typen, Workspace, Kardinalität, Duplikate und Löschverhalte
 
 ## Was sind Felder, und welche Feldtypen gibt es? [#what-are-custom-columns]
 
-Ein Feld hat einen **Werttyp** und ein **Verhalten**. Werttypen sind Text, Rich Text, Zahl, Währung, Boolean, Datum, Datum mit Uhrzeit, Datumsbereich, Zeitraum, Auswahl, E-Mail, Telefon, URL und Mitglied. Text-, E-Mail-, Telefon- und URL-Felder können mehrere Werte enthalten. Auswahloptionen haben stabile IDs und bearbeitbare Bezeichnungen.
+Jeder Typ beginnt mit vorbereiteten Feldern, und ein Workspace kann eigene Felder hinzufügen; Tabellenansichten zeigen Felder als Spalten. Ein Feld hat einen **Werttyp** und ein **Verhalten**. Werttypen sind Text, Rich Text, Zahl, Währung, Boolean, Datum, Datum mit Uhrzeit, Datumsbereich, Zeitraum, Auswahl, E-Mail, Telefon, URL und Mitglied. Text-, E-Mail-, Telefon- und URL-Felder können mehrere Werte enthalten. Auswahloptionen haben stabile IDs und bearbeitbare Bezeichnungen.
 
 Das Verhalten ist manuelle Eingabe, Formel, Lookup über eine Beziehung, Rollup über verknüpfte Datensätze oder Snapshot bei einem konfigurierten Ereignis. Formeln verwenden eine geprüfte, deterministische Ausdruckssprache und führen weder beliebiges JavaScript noch SQL aus. Die Engine lehnt Zyklen, unpassende Werte und zu teure Definitionen ab. Eigene Felder können je nach Berechtigung in Filtern, Sortierung, Ansichten, Widgets, Routinen und Assistent-Aktionen genutzt werden.
 
@@ -43,7 +43,7 @@ Das Verhalten ist manuelle Eingabe, Formel, Lookup über eine Beziehung, Rollup 
 
 Öffnen Sie **Konfigurieren** (`/configure`), wählen Sie eine Liste in der linken Leiste und bearbeiten Sie ihre Felder; **Hinzufügen** oben in der Leiste legt auch Berechnungen, Beziehungen und Aktivitätsverbindungen an, und **Karte** zeigt, wie Listen verbunden sind. Der Feld-Editor öffnet sich neben der Liste und bietet Werttyp, manuelles oder berechnetes Verhalten, Optionen, Formatierung und einen verständlichen Berechnungseditor. Vor dem Übernehmen zeigt eine Vorschau die betroffenen Datensätze, Ansichten, Widgets, Routinen und Formeln. Unverträgliche Änderungen bleiben gesperrt, bis ihre Abhängigkeiten aufgelöst sind. Das Archivieren eines Typs entfernt ihn aus der gewöhnlichen Nutzung, ohne seine Datensätze stillschweigend zu löschen.
 
-Um ein eigenes Feld zu Kontakten hinzuzufügen, wählen Sie unter **Konfigurieren** die Liste **Kontakte** und dann **Hinzufügen** → **Feld**. Die gleiche Funktion steht bei jedem anderen Typ zur Verfügung.
+Um ein eigenes Feld zu Kontakten hinzuzufügen, wählen Sie unter **Konfigurieren** die Liste **Kontakte** und dann **Hinzufügen** → **Feld**. Die gleiche Funktion steht bei jedem anderen Typ zur Verfügung. Um ein eigenes Feld zu bearbeiten oder zu löschen, öffnen Sie es im Feld-Editor und ändern seine Einstellungen oder aktivieren **Feld archivieren**.
 
 Schema-Bearbeitung ist von Datensatz-Bearbeitung getrennt. Admins können sie delegieren; größere Rollenzugriffe brauchen weiterhin die Rollenverwaltung. Über MCP liest `get_record_model` das Schema und `configure_record_model` prüft und übernimmt eine Änderung mit erwarteter Revision und Idempotenzschlüssel. Eine veraltete Revision braucht eine neue Vorschau.
 
