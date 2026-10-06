@@ -4,8 +4,7 @@ import type { RecordRepo } from "./record.repo";
 import type { RecordAccessPolicy } from "./record-access";
 import type { Validated } from "@/core/validation/validation.utils";
 
-import { presetId } from "./crm-preset";
-import { RECORD_PRESET_KEYS } from "./record-navigation.schema";
+import { createCrmPreset } from "./crm-preset";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
@@ -62,7 +61,7 @@ export class GetRecordModelOverviewInteractor extends AuthenticatedInteractor<vo
             row.count,
           ]),
         );
-        const presets = new Set(RECORD_PRESET_KEYS.map((key) => presetId(this.companyId, key)));
+        const presets = new Set(createCrmPreset(this.companyId, "EUR").types.map((type) => type.id));
         return {
           ok: true as const,
           data: {

@@ -200,7 +200,7 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
                     {field.label}
                   </span>
 
-                  {detail && <span className="ms-1.5 text-muted-foreground">{detail}</span>}
+                  {detail && <span className="text-muted-foreground">{` ${detail}`}</span>}
                 </span>
 
                 <span className="shrink-0 text-muted-foreground">{t(`RecordModel.types.${field.valueType}`)}</span>
@@ -378,7 +378,7 @@ function GraphEdgeView({ data }: EdgeProps<GraphEdge>) {
           <button
             aria-describedby={calculated ? descriptionId : undefined}
             aria-label={label}
-            className="nodrag nopan pointer-events-auto absolute z-[1001] flex h-6 items-center gap-1 rounded-md border border-border bg-popover px-1.5 text-[11px] font-medium text-popover-foreground shadow-xs outline-none hover:border-primary/60 focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none"
+            className="nodrag nopan pointer-events-auto absolute z-[4] flex h-6 items-center gap-1 rounded-md border border-border bg-popover px-1.5 text-[11px] font-medium text-popover-foreground shadow-xs outline-none hover:border-primary/60 focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none"
             data-configure-relationship={relation.id}
             disabled={disabled || !canManage}
             style={chipPosition}
@@ -416,7 +416,7 @@ function GraphEdgeView({ data }: EdgeProps<GraphEdge>) {
         <span
           aria-label={title}
           className={cn(
-            "pointer-events-auto absolute z-[1001] flex size-6 items-center justify-center rounded-md border bg-popover shadow-xs",
+            "pointer-events-auto absolute z-[4] flex size-6 items-center justify-center rounded-md border bg-popover shadow-xs",
             calculation ? "border-primary/40 text-primary" : "border-border text-muted-foreground",
           )}
           data-configure-graph-edge={edge.kind}
@@ -455,14 +455,25 @@ function ConfigureGraphCanvas({
   const connectPrompt = accounts.state !== "unavailable";
   const help = canManage ? t("RecordModel.graph.help") : t("RecordModel.graph.helpReadOnly");
   const container = useRef<HTMLDivElement>(null);
-  const placed = useRef(false);
+  const [direction, setDirection] = useState<"TB" | "LR" | null>(null);
+  useEffect(() => {
+    const element = container.current;
+    if (!element) return;
+    const observer = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      if (width && height) setDirection(width > height * 1.25 ? "LR" : "TB");
+    });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+  const placed = useRef<"TB" | "LR" | null>(null);
   const flow = useReactFlow<Node, GraphEdge>();
   const [ready, setReady] = useState(false);
   const [measured, setMeasured] = useState<ReadonlyMap<string, { width: number; height: number }>>(new Map());
   const { nodes, edges, positions } = useMemo(() => {
     const sources = accounts.state === "available" ? accounts.accounts : [];
     const data = configureGraphData(model, overview, sources, showArchived, connectPrompt);
-    const layout = configureGraphLayout(data, canManage, connectPrompt, measured);
+    const layout = configureGraphLayout(data, canManage, connectPrompt, measured, direction ?? "TB");
     const at = (id: string) => {
       const position = layout.positions.get(id);
       return { x: position?.x ?? 0, y: position?.y ?? 0 };
@@ -495,7 +506,7 @@ function ConfigureGraphCanvas({
       ];
     });
     return { nodes, edges, positions: layout.positions };
-  }, [model, overview, accounts, showArchived, connectPrompt, canManage, measured]);
+  }, [model, overview, accounts, showArchived, connectPrompt, canManage, measured, direction]);
   const [flowNodes, setFlowNodes] = useState<Node[]>(nodes);
   useEffect(() => setFlowNodes(nodes), [nodes]);
   useEffect(() => {
@@ -518,12 +529,12 @@ function ConfigureGraphCanvas({
       return;
     }
     const element = container.current;
-    if (placed.current || !element) return;
-    placed.current = true;
+    if (!direction || placed.current === direction || !element) return;
+    placed.current = direction;
     void flow
       .setViewport(configureGraphViewport(positions, element.clientWidth, element.clientHeight))
       .catch(reportApplicationError);
-  }, [ready, flow, measured, flowNodes, positions]);
+  }, [ready, flow, measured, flowNodes, positions, direction]);
   const listIds = useMemo(() => new Set(model.types.map((type) => type.id)), [model.types]);
   const actions = useMemo<GraphActions>(
     () => ({
@@ -576,7 +587,6 @@ function ConfigureGraphCanvas({
           nodesConnectable={canManage && !disabled}
           nodesDraggable={false}
           nodesFocusable={false}
-          proOptions={{ hideAttribution: true }}
           zoomOnScroll={false}
           onConnectEnd={(event, connection) => {
             const source = connection.fromNode?.id;
@@ -617,13 +627,10 @@ function ConfigureGraphCanvas({
             )}
 
             {action}
-          </Panel>
 
-          <Panel
-            className="!m-3 hidden max-w-xs rounded-lg border border-border bg-card/90 px-3 py-2 text-xs text-muted-foreground shadow-xs md:block"
-            position="top-right"
-          >
-            <p id="configure-graph-help">{help}</p>
+            <p className="hidden max-w-lg text-xs text-muted-foreground lg:block" id="configure-graph-help">
+              {help}
+            </p>
           </Panel>
         </ReactFlow>
       </div>

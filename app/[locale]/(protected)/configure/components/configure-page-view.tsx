@@ -9,6 +9,7 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
 import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import { observer } from "mobx-react-lite";
+import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useClientReady } from "@/hooks/use-client-ready";
@@ -38,7 +39,11 @@ import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 const ConfigureGraph = dynamic(() => import("./configure-graph").then((module) => module.ConfigureGraph), {
   ssr: false,
-  loading: () => <div aria-busy className="min-h-0 flex-1 animate-pulse bg-muted/30" data-configure-graph-loading="" />,
+  loading: () => (
+    <div aria-busy className="flex min-h-0 flex-1 items-center justify-center" data-configure-graph-loading="">
+      <Loader2 aria-hidden className="size-5 animate-spin text-muted-foreground" />
+    </div>
+  ),
 });
 
 const LAST_LIST_KEY = "customermates:configure:last-list";
