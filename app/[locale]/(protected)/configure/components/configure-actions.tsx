@@ -36,6 +36,9 @@ type Props = {
   general: TypeModalStore;
   generalFormId: string;
   selected?: RecordType;
+  hasArchived: boolean;
+  showArchived: boolean;
+  onToggleArchived: () => void;
   onAdd: (kind: ConfigureAddKind) => void;
   onSharedDefaults: () => void;
   onArchive: () => void;
@@ -47,6 +50,9 @@ export const ConfigureTopBarActions = observer(function ConfigureTopBarActions({
   general,
   generalFormId,
   selected,
+  hasArchived,
+  showArchived,
+  onToggleArchived,
   onAdd,
   onSharedDefaults,
   onArchive,
@@ -65,6 +71,24 @@ export const ConfigureTopBarActions = observer(function ConfigureTopBarActions({
   }
   return (
     <div className="flex shrink-0 items-center gap-1">
+      {!selected && hasArchived && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button aria-label={t("RecordModel.listActions")} disabled={disabled} size="icon-sm" variant="secondary">
+              <MoreHorizontal aria-hidden="true" />
+            </Button>
+          </DropdownMenuTrigger>
+
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onSelect={onToggleArchived}>
+              <Archive aria-hidden="true" />
+
+              {showArchived ? t("RecordModel.hideArchived") : t("RecordModel.showArchived")}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
+
       {selected && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

@@ -2,7 +2,7 @@ import type { Page } from "@playwright/test";
 import type { Client } from "pg";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
-import { addFromConfigure, configureRailLink, configureRow, configureTopBar, followConfigureLink, openConfigure, openConfigureRow, openListAction, saveDrawer, saveGeneral, selectConfigureList, setShowArchived, setShowArchivedParts } from "./configure";
+import { addFromConfigure, configureListCard, configureRow, configureTopBar, followConfigureLink, openConfigure, openConfigureRow, openListAction, saveDrawer, saveGeneral, selectConfigureList, setShowArchived, setShowArchivedParts } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 async function applyConfiguration(page: Page) {
@@ -225,12 +225,10 @@ test("edits a linear calculation and restores archived fields, activity connecti
   await applyConfiguration(page);
   await openListAction(page, "Archive list");
   await applyConfiguration(page);
-  await selectConfigureList(page, "Contacts");
-  if ((page.viewportSize()?.width ?? 0) < 1024) await page.getByRole("button", { name: "All lists", exact: true }).click();
-  await setShowArchived(page, false);
-  await expect(configureRailLink(page, name)).toHaveCount(0);
+  await openConfigure(page);
+  await expect(configureListCard(page, name)).toHaveCount(0);
   await setShowArchived(page, true);
-  await expect(configureRailLink(page, name)).toContainText("Archived");
+  await expect(configureListCard(page, name)).toContainText("Archived");
   await selectConfigureList(page, name);
   await openListAction(page, "Restore list");
   await applyConfiguration(page);

@@ -2,7 +2,7 @@ import type { Locator, Page } from "@playwright/test";
 import type { Client } from "pg";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
-import { addFromConfigure, configureDrawer, configureRailLink, configureRow, configureTopBar, createConfiguredList, openConfigure, openConfigureRow, openListAction, saveDrawer, saveGeneral, selectConfigureList, setShowArchived } from "./configure";
+import { addFromConfigure, backToConfigureGraph, configureDrawer, configureListCard, configureRow, configureTopBar, createConfiguredList, openConfigure, openConfigureRow, openListAction, saveDrawer, saveGeneral, selectConfigureList, setShowArchived } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 async function readModel(database: Client, companyId: string) {
@@ -24,7 +24,6 @@ function captureErrors(page: Page) {
   return errors;
 }
 
-const isWide = (page: Page) => (page.viewportSize()?.width ?? 0) >= 1024;
 const typeIdInUrl = (page: Page) => new URL(page.url()).searchParams.get("typeId");
 
 async function center(locator: Locator) {
@@ -42,81 +41,6 @@ async function dragBetween(page: Page, from: { x: number; y: number }, to: { x: 
   await page.mouse.move(to.x, to.y + 1, { steps: 2 });
   await page.mouse.up();
 }
-
-test("lists every list flat with embedded lists under their parent, searches and remembers the last list", async ({
-  page,
-  companyId,
-}) => {
-  const errors = captureErrors(page);
-  const id = (key: string) => presetId(companyId, key);
-
-  await test.step("Configure opens the list named in its parameters", async () => {
-    await page.goto(`/en/configure?typeId=${id("service")}`);
-    await expect(page.getByRole("heading", { level: 1, name: "Services", exact: true })).toBeVisible();
-  });
-
-  await test.step("the page has a plain title and no section breadcrumb", async () => {
-    const topBar = configureTopBar(page);
-    await expect(topBar.getByText("Configure", { exact: true })).toBeVisible();
-    await expect(topBar.getByRole("link", { name: "My Company" })).toHaveCount(0);
-    await expect(page.getByRole("link", { name: "All lists", exact: true })).toHaveCount(0);
-    await expect(page.getByRole("navigation", { name: "Configure views", exact: true })).toBeVisible();
-  });
-
-  await test.step("the rail is one flat list with Line items under Deals", async () => {
-    if (!isWide(page)) await page.getByRole("button", { name: "All lists", exact: true }).click();
-    const rail = page.locator("[data-configure-rail]");
-    await expect(rail).toBeVisible();
-    await expect(rail.locator("[data-configure-list]")).toHaveCount(6);
-    const order = await rail
-      .locator("[data-configure-list]")
-      .evaluateAll((links) => links.map((link) => link.getAttribute("data-configure-list")));
-    expect(order).toEqual(
-      ["contact", "organization", "deal", "lineItem", "service", "task"].map((key) => id(key)),
-    );
-    const indent = async (key: string) =>
-      (await rail.locator(`[data-configure-list="${id(key)}"]`).boundingBox())?.x ?? 0;
-    const lineItemIcon = rail.locator(`[data-configure-list="${id("lineItem")}"] svg`);
-    const dealIcon = rail.locator(`[data-configure-list="${id("deal")}"] svg`);
-    expect(((await lineItemIcon.boundingBox())?.x ?? 0) - ((await dealIcon.boundingBox())?.x ?? 0)).toBeGreaterThan(8);
-    expect(await indent("lineItem")).toBe(await indent("deal"));
-    await expect(rail.getByText("Starter", { exact: false })).toHaveCount(0);
-    await expect(rail.getByText("Custom", { exact: false })).toHaveCount(0);
-    await expect(rail.getByRole("button", { name: "New list", exact: true })).toBeVisible();
-  });
-
-  await test.step("search narrows the rail", async () => {
-    const search = page.getByRole("searchbox", { name: "Search lists", exact: true });
-    await search.fill("line");
-    await expect(page.locator("[data-configure-rail] [data-configure-list]")).toHaveCount(1);
-    await expect(configureRailLink(page, "Line items")).toBeVisible();
-    await search.fill("no such list");
-    await expect(page.locator("[data-configure-rail]")).toContainText("No lists match your search.");
-    await search.fill("");
-    await expect(page.locator("[data-configure-rail] [data-configure-list]")).toHaveCount(6);
-  });
-
-  await test.step("selection lives in the URL and the last opened list is restored", async () => {
-    await selectConfigureList(page, "Deals");
-    expect(typeIdInUrl(page)).toBe(id("deal"));
-    await page.goto("/en/configure?view=lists");
-    if (isWide(page)) {
-      await expect.poll(() => typeIdInUrl(page)).toBe(id("deal"));
-      await expect(page.getByRole("heading", { level: 1, name: "Deals", exact: true })).toBeVisible();
-    } else {
-      await expect(page.locator("[data-configure-rail]")).toBeVisible();
-      expect(typeIdInUrl(page)).toBeNull();
-      await selectConfigureList(page, "Deals");
-      await page.getByRole("button", { name: "All lists", exact: true }).click();
-      await expect(page.locator("[data-configure-rail]")).toBeVisible();
-      expect(typeIdInUrl(page)).toBeNull();
-    }
-    await page.goBack();
-    await expect.poll(() => typeIdInUrl(page)).toBe(id("deal"));
-    await expect(page.getByRole("heading", { level: 1, name: "Deals", exact: true })).toBeVisible();
-  });
-  expect(errors).toEqual([]);
-});
 
 test("edits General in place, guards unsaved edits and saves from the top bar and the bottom", async ({
   page,
@@ -139,10 +63,7 @@ test("edits General in place, guards unsaved edits and saves from the top bar an
   await expect(pane.getByRole("button", { name: "Save", exact: true })).toBeVisible();
   await expect(pane.getByRole("button", { name: "Reset", exact: true })).toBeVisible();
 
-  const leaveDeals = async () => {
-    if (isWide(page)) await configureRailLink(page, "Contacts").click();
-    else await page.getByRole("button", { name: "All lists", exact: true }).click();
-  };
+  const leaveDeals = () => configureTopBar(page).getByRole("link", { name: "Configure", exact: true }).click();
   await leaveDeals();
   const guard = page.getByRole("alertdialog");
   await expect(guard).toBeVisible();
@@ -174,13 +95,8 @@ test("edits General in place, guards unsaved edits and saves from the top bar an
   await general.getByRole("textbox", { name: "Description", exact: true }).fill("Discarded draft");
   await leaveDeals();
   await guard.getByRole("button", { name: "Discard", exact: true }).click();
-  if (isWide(page)) {
-    await expect(page.getByRole("heading", { level: 1, name: "Contacts", exact: true })).toBeVisible();
-    expect(typeIdInUrl(page)).toBe(id("contact"));
-  } else {
-    await expect(page.locator("[data-configure-rail]")).toBeVisible();
-    await expect.poll(() => typeIdInUrl(page)).toBeNull();
-  }
+  await expect(page.locator("[data-configure-graph]")).toBeVisible();
+  await expect.poll(() => typeIdInUrl(page)).toBeNull();
   expect((await readModel(database, companyId)).types.find((type) => type.id === id("deal"))?.description).toBe(
     "Open opportunities",
   );
@@ -289,9 +205,9 @@ test("archives and restores a list from the list actions and labels hidden and a
   expect((await readModel(database, companyId)).types.find((type) => type.id === id("task"))?.navigationVisible).toBe(
     false,
   );
-  if (!isWide(page)) await page.getByRole("button", { name: "All lists", exact: true }).click();
-  await expect(configureRailLink(page, "Tasks")).toContainText("Hidden");
-  await expect(configureRailLink(page, "Line items")).not.toContainText("Hidden");
+  await openConfigure(page);
+  await expect(configureListCard(page, "Tasks")).toContainText("Hidden");
+  await expect(configureListCard(page, "Line items")).not.toContainText("Hidden");
 
   const tripsId = await createConfiguredList(page, "Field trips");
   await openConfigure(page, tripsId);
@@ -306,20 +222,17 @@ test("archives and restores a list from the list actions and labels hidden and a
   await saveDrawer(page);
   expect((await readModel(database, companyId)).types.find((type) => type.id === tripsId)?.archived).toBe(true);
   await expect(page.locator("[data-configure-list-pane]")).toContainText("Archived");
-  if (isWide(page)) await expect(configureRailLink(page, "Field trips")).toContainText("Archived");
 
-  await selectConfigureList(page, "Contacts");
-  if (!isWide(page)) await page.getByRole("button", { name: "All lists", exact: true }).click();
-  await expect(configureRailLink(page, "Field trips")).toHaveCount(0);
+  await openConfigure(page);
+  await expect(configureListCard(page, "Field trips")).toHaveCount(0);
   await setShowArchived(page, true);
-  await expect(configureRailLink(page, "Field trips")).toContainText("Archived");
+  await expect(configureListCard(page, "Field trips")).toContainText("Archived");
   await selectConfigureList(page, "Field trips");
   await openListAction(page, "Restore list");
   await saveDrawer(page);
   expect((await readModel(database, companyId)).types.find((type) => type.id === tripsId)?.archived).toBe(false);
-  await setShowArchived(page, false);
-  if (!isWide(page)) await page.getByRole("button", { name: "All lists", exact: true }).click();
-  await expect(configureRailLink(page, "Field trips")).not.toContainText("Archived");
+  await openConfigure(page);
+  await expect(configureListCard(page, "Field trips")).not.toContainText("Archived");
 
   await selectConfigureList(page, "Services");
   await openListAction(page, "Shared defaults");
@@ -337,11 +250,10 @@ test("shows the data model graph and edits lists, fields and relationships from 
   const errors = captureErrors(page);
   const id = (key: string) => presetId(companyId, key);
   const dialog = configureDrawer(page);
-  const views = page.getByRole("navigation", { name: "Configure views", exact: true });
   const graph = page.locator("[data-configure-graph]");
   const fitView = () => graph.getByRole("button", { name: "Fit view", exact: true }).click();
   const openGraph = async () => {
-    await views.getByRole("link", { name: "Graph", exact: true }).click();
+    await backToConfigureGraph(page);
     await expect(graph.locator("[data-configure-node]")).toHaveCount(6);
     await fitView();
   };
@@ -349,7 +261,7 @@ test("shows the data model graph and edits lists, fields and relationships from 
   await test.step("the graph is the default view with list cards, counts, fields and relationships", async () => {
     await page.goto("/en/configure");
     await expect(page.locator("[data-configure-page]")).toBeVisible();
-    await expect(views.getByRole("link", { name: "Graph", exact: true })).toHaveAttribute("aria-current", "page");
+    await expect(page.getByRole("navigation", { name: "Configure views", exact: true })).toHaveCount(0);
     await expect(graph.locator("[data-configure-node]")).toHaveCount(6);
     const model = await readModel(database, companyId);
     await expect(graph.locator("[data-configure-relationship]")).toHaveCount(model.relationships.length);
@@ -373,7 +285,6 @@ test("shows the data model graph and edits lists, fields and relationships from 
     await graph.getByRole("button", { name: "Organizations", exact: true }).click();
     await expect.poll(() => typeIdInUrl(page)).toBe(id("organization"));
     await expect(page.getByRole("heading", { level: 1, name: "Organizations", exact: true })).toBeVisible();
-    await expect(views.getByRole("link", { name: "Lists", exact: true })).toHaveAttribute("aria-current", "page");
   });
 
   await test.step("a field row opens the field editor", async () => {

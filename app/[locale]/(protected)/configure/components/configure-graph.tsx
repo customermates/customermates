@@ -156,9 +156,9 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
           )}
         </span>
 
-        {list.type.archived && (
+        {(list.type.archived || (!list.type.navigationVisible && !list.type.embedded)) && (
           <AppChip className="shrink-0" variant="secondary">
-            {t("RecordModel.archived")}
+            {list.type.archived ? t("RecordModel.archived") : t("RecordModel.hiddenList")}
           </AppChip>
         )}
       </button>

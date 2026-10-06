@@ -17,7 +17,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { ArrowLeft, ChevronRight, GripVertical } from "lucide-react";
+import { ChevronRight, GripVertical } from "lucide-react";
 
 import { RecordAiAction } from "@/app/components/agent-chat/record-ai-action";
 import { FormActions } from "@/components/card/form-actions";
@@ -43,7 +43,6 @@ type Props = {
   canManage: boolean;
   interactive: boolean;
   showArchived: boolean;
-  onBack: () => void;
   onToggleArchived: () => void;
   onEditField: (field: RecordField) => void;
   onEditRelationship: (relation: RecordRelationship) => void;
@@ -199,7 +198,6 @@ export const ConfigureListPane = observer(function ConfigureListPane({
   canManage,
   interactive,
   showArchived,
-  onBack,
   onToggleArchived,
   onEditField,
   onEditRelationship,
@@ -274,12 +272,6 @@ export const ConfigureListPane = observer(function ConfigureListPane({
   return (
     <div className="mx-auto w-full max-w-5xl space-y-8 px-4 py-6 md:px-8 md:py-8" data-configure-list-pane="">
       <div className="space-y-4">
-        <Button className="-ml-2 w-fit lg:hidden" size="sm" type="button" variant="ghost" onClick={onBack}>
-          <ArrowLeft aria-hidden="true" className="size-4" />
-
-          {t("RecordModel.allLists")}
-        </Button>
-
         <div className="flex items-start justify-between gap-4">
           <div className="flex min-w-0 items-start gap-3">
             <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg border border-border bg-card">

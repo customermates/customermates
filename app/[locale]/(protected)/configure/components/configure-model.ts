@@ -9,8 +9,6 @@ import type {
 import type { ConfigurationChange } from "@/features/records/configuration.schema";
 import { compareRecordKey } from "@/features/records/record-json";
 
-export type ConfigureRailRow = { type: RecordType; depth: number };
-
 export type ConfigureFieldSource =
   | { kind: "input" | "formula" | "snapshot" }
   | { kind: "lookup" | "rollup"; list: string | null };
@@ -25,11 +23,7 @@ export function configureParentId(model: RecordModel, type: RecordType): string 
   return model.types.some((candidate) => candidate.id === relation.targetTypeId) ? relation.targetTypeId : null;
 }
 
-export function configureRailRows(
-  model: RecordModel,
-  { query = "", showArchived = false, selectedId }: { query?: string; showArchived?: boolean; selectedId?: string },
-): ConfigureRailRow[] {
-  const visible = (type: RecordType) => !type.archived || showArchived || type.id === selectedId;
+export function configureLists(model: RecordModel, showArchived = false): RecordType[] {
   const children = new Map<string, RecordType[]>();
   const roots: RecordType[] = [];
   for (const type of [...model.types].sort(byPosition)) {
@@ -37,27 +31,18 @@ export function configureRailRows(
     if (parentId) children.set(parentId, [...(children.get(parentId) ?? []), type]);
     else roots.push(type);
   }
-  const rows: ConfigureRailRow[] = [];
+  const lists: RecordType[] = [];
   const visited = new Set<string>();
-  const visit = (type: RecordType, depth: number) => {
+  const visit = (type: RecordType) => {
     if (visited.has(type.id)) return;
     visited.add(type.id);
-    if (!visible(type)) return;
-    rows.push({ type, depth });
-    for (const child of children.get(type.id) ?? []) visit(child, depth + 1);
+    if (type.archived && !showArchived) return;
+    lists.push(type);
+    for (const child of children.get(type.id) ?? []) visit(child);
   };
-  for (const root of roots) visit(root, 0);
-  for (const type of [...model.types].sort(byPosition)) if (!visited.has(type.id)) visit(type, 0);
-  const needle = query.trim().toLocaleLowerCase();
-  if (!needle) return rows;
-  const matches = rows.filter(({ type }) =>
-    [type.pluralLabel, type.label].some((label) => label.toLocaleLowerCase().includes(needle)),
-  );
-  const shown = new Set(matches.map(({ type }) => type.id));
-  return matches.map((row) => {
-    const parentId = configureParentId(model, row.type);
-    return { type: row.type, depth: parentId && shown.has(parentId) ? row.depth : 0 };
-  });
+  for (const root of roots) visit(root);
+  for (const type of [...model.types].sort(byPosition)) visit(type);
+  return lists;
 }
 
 export function configureCounts(model: RecordModel, typeId: string) {

@@ -7,7 +7,7 @@ import {
   configureFieldOrder,
   configureFieldSource,
   configurePathLists,
-  configureRailRows,
+  configureLists,
   moveConfigureField,
   reorderFieldOperations,
 } from "../configure-model";
@@ -17,32 +17,24 @@ import { configureCalculationSources, configureCardinality, configureGraphData }
 const company = "6487f9fb-7b10-439a-b783-9d3da8184b14";
 const id = (key: string) => presetId(company, key);
 
-describe("configure rail", () => {
-  it("lists every list flat with embedded lists directly under their parent", () => {
+describe("configure lists", () => {
+  it("orders lists by position with embedded lists directly after their parent", () => {
     const model = createCrmPreset(company, "EUR");
-    const rows = configureRailRows(model, {});
-    expect(rows.map((row) => [row.type.pluralLabel, row.depth])).toEqual([
-      ["Contacts", 0],
-      ["Organizations", 0],
-      ["Deals", 0],
-      ["Line items", 1],
-      ["Services", 0],
-      ["Tasks", 0],
+    expect(configureLists(model).map((type) => type.pluralLabel)).toEqual([
+      "Contacts",
+      "Organizations",
+      "Deals",
+      "Line items",
+      "Services",
+      "Tasks",
     ]);
   });
 
-  it("hides archived lists unless requested or selected and searches labels case-insensitively", () => {
+  it("hides archived lists unless requested", () => {
     const model = createCrmPreset(company, "EUR");
     recordInvariant(model.types.find((type) => type.id === id("service"))).archived = true;
-    expect(configureRailRows(model, {}).some((row) => row.type.id === id("service"))).toBe(false);
-    expect(configureRailRows(model, { showArchived: true }).some((row) => row.type.id === id("service"))).toBe(true);
-    expect(configureRailRows(model, { selectedId: id("service") }).some((row) => row.type.id === id("service"))).toBe(
-      true,
-    );
-    expect(configureRailRows(model, { query: "line" }).map((row) => [row.type.pluralLabel, row.depth])).toEqual([
-      ["Line items", 0],
-    ]);
-    expect(configureRailRows(model, { query: "DEAL" }).map((row) => row.type.pluralLabel)).toEqual(["Deals"]);
+    expect(configureLists(model).some((type) => type.id === id("service"))).toBe(false);
+    expect(configureLists(model, true).some((type) => type.id === id("service"))).toBe(true);
   });
 });
 

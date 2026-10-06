@@ -7,7 +7,7 @@ import {
   expressionRelationshipDependencies,
 } from "@/features/records/record-model-validation";
 
-import { configureParentId, configureRailRows } from "./configure-model";
+import { configureLists, configureParentId } from "./configure-model";
 
 export type ConfigureGraphCatalog = ReadonlyArray<Pick<DiscoveredRecordTypes["types"][number], "id" | "recordCount">>;
 
@@ -94,7 +94,7 @@ export function configureGraphData(
   connectPrompt = false,
 ): ConfigureGraphData {
   const counts = new Map(catalog.map((type) => [type.id, type]));
-  const types = configureRailRows(model, { showArchived }).map((row) => row.type);
+  const types = configureLists(model, showArchived);
   const visible = new Set(types.map((type) => type.id));
   const calculations = new Map<string, { source: string; target: string; fields: string[] }>();
   const lists = types.map((type) => ({
