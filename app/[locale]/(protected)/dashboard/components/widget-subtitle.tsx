@@ -3,6 +3,7 @@
 import { Info } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { TruncatedText } from "@/components/shared/truncated-text";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 import { WIDGET_INTERACTIVE_ATTRIBUTE } from "./widget-interaction";
@@ -16,15 +17,7 @@ export function WidgetSubtitle({ notes, text }: { notes: string[]; text: string 
         className="flex w-full min-w-0 items-center gap-1.5 text-xs text-muted-foreground"
         data-slot="widget-subtitle"
       >
-        {text && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <p className="min-w-0 truncate">{text}</p>
-            </TooltipTrigger>
-
-            <TooltipContent side="top">{text}</TooltipContent>
-          </Tooltip>
-        )}
+        {text && <TruncatedText className="min-w-0">{text}</TruncatedText>}
 
         {notes.length > 0 && (
           <Tooltip>
@@ -47,7 +40,7 @@ export function WidgetSubtitle({ notes, text }: { notes: string[]; text: string 
           </Tooltip>
         )}
 
-        <span className="sr-only">{notes.join(" ")}</span>
+        {notes.length > 0 && <span className="sr-only">{notes.join(" ")}</span>}
       </div>
     </TooltipProvider>
   );

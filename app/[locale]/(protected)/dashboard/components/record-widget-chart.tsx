@@ -18,6 +18,7 @@ import { WidgetChart } from "./widget-chart";
 import { WidgetNumber } from "./widget-number";
 import { WidgetSubtitle } from "./widget-subtitle";
 import { AppCardHeader } from "@/components/card/app-card-header";
+import { TruncatedText } from "@/components/shared/truncated-text";
 import { AppCardBody } from "@/components/card/app-card-body";
 import {
   RANKED_TABLE_ROW_LIMIT,
@@ -126,7 +127,9 @@ export function RecordWidgetChart({
   const frame = (body: ReactNode, subtitle: string | null = null) => (
     <>
       <AppCardHeader className="flex-col items-start gap-0.5">
-        <h2 className="text-x-md w-full truncate">{name}</h2>
+        <h2 className="text-x-md w-full">
+          <TruncatedText>{name}</TruncatedText>
+        </h2>
 
         <WidgetSubtitle notes={infoNotes} text={subtitle} />
       </AppCardHeader>
@@ -163,7 +166,6 @@ export function RecordWidgetChart({
 
         <p className="text-sm text-muted-foreground">{t("Diagrams.noData")}</p>
       </div>,
-      overall,
     );
   }
   const rows: ChartRow[] = data.groups.map((group) => {

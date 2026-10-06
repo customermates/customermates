@@ -47,9 +47,9 @@ type Props = {
 };
 
 const MAX_PREVIEW_SCALE = 1.75;
-const MAX_PREVIEW_HEIGHT = 560;
+const MAX_PREVIEW_VIEWPORT_SHARE = 0.75;
 const STAGE_RESET_CLASS =
-  "[&_[data-slot=card-header]]:pr-6! [&_[data-slot=card-content]]:overflow-visible! [&_[data-uid=app-card]]:border! [&_[data-uid=app-card]]:bg-background! [&_[data-uid=app-card]]:shadow-xs!";
+  "[&_[data-slot=card-header]]:pr-6! [&_[data-slot=card-content]]:overflow-visible! [&_[data-uid=app-card]]:overflow-visible! [&_[data-uid=app-card]]:border! [&_[data-uid=app-card]]:bg-background! [&_[data-uid=app-card]]:shadow-xs!";
 
 function useElementWidth() {
   const [element, setElement] = useState<HTMLElement | null>(null);
@@ -70,7 +70,11 @@ export const WidgetPreviewFrame = observer(
     const size = widgetPixelSize(useDashboardGridWidth(), geometry.w, geometry.h);
     const [measure, columnWidth] = useElementWidth();
     const scale = columnWidth
-      ? Math.min(columnWidth / size.width, MAX_PREVIEW_HEIGHT / size.height, MAX_PREVIEW_SCALE)
+      ? Math.min(
+          columnWidth / size.width,
+          (window.innerHeight * MAX_PREVIEW_VIEWPORT_SHARE) / size.height,
+          MAX_PREVIEW_SCALE,
+        )
       : 1;
 
     return (
@@ -125,7 +129,11 @@ export const WidgetPreviewFrame = observer(
             data-preview-height={size.height}
             data-preview-width={size.width}
             data-slot="widget-preview"
-            style={{ width: size.width * scale, height: size.height * scale }}
+            style={{
+              width: size.width * scale,
+              height: size.height * scale,
+              visibility: columnWidth ? "visible" : "hidden",
+            }}
           >
             <div
               inert

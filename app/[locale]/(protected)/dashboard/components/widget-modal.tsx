@@ -335,7 +335,7 @@ export const WidgetModal = observer(() => {
             <h2 className="min-w-0 break-words text-base font-semibold">{dialogTitle}</h2>
           </AppCardHeader>
 
-          <AppCardBody className={isChooseStep ? "md:flex-initial" : "md:min-h-96"}>
+          <AppCardBody className={isChooseStep ? "md:flex-initial" : "md:min-h-96 [scrollbar-gutter:stable]"}>
             {widgetModalStore.isHydrating ? (
               <WidgetModalSkeleton />
             ) : isChooseStep ? (

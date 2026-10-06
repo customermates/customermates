@@ -7,7 +7,7 @@ import { observer } from "mobx-react-lite";
 import { useReducedMotion } from "framer-motion";
 
 import { ChartTooltip } from "@/components/chart/chart-tooltip";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { TruncatedText } from "@/components/shared/truncated-text";
 
 import { useChartFormatter } from "./use-chart-formatter";
 import { DashboardChartContainer } from "./dashboard-chart-container";
@@ -62,23 +62,15 @@ export const DoughnutChart = observer(({ currency, chartData, showLegend = true 
       </div>
 
       {showLegend && (
-        <TooltipProvider>
-          <ul className="flex max-h-[40%] min-w-0 shrink-0 flex-wrap justify-center gap-x-3 gap-y-1 overflow-hidden">
-            {chartData.map((entry, index) => (
-              <Tooltip key={index}>
-                <TooltipTrigger asChild>
-                  <li className="flex min-w-0 max-w-full items-center gap-1.5 text-xs">
-                    <span className="size-2 shrink-0 rounded-full" style={{ backgroundColor: entry.fill }} />
+        <ul className="flex max-h-[40%] min-w-0 shrink-0 flex-wrap justify-center gap-x-3 gap-y-1 overflow-hidden">
+          {chartData.map((entry, index) => (
+            <li key={index} className="flex min-w-0 max-w-full items-center gap-1.5 text-xs">
+              <span className="size-2 shrink-0 rounded-full" style={{ backgroundColor: entry.fill }} />
 
-                    <span className="min-w-0 truncate text-muted-foreground">{entry.label}</span>
-                  </li>
-                </TooltipTrigger>
-
-                <TooltipContent side="top">{entry.label}</TooltipContent>
-              </Tooltip>
-            ))}
-          </ul>
-        </TooltipProvider>
+              <TruncatedText className="text-muted-foreground">{entry.label}</TruncatedText>
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   );
