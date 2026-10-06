@@ -1,9 +1,9 @@
 "use client";
 
 import type { RecordModel } from "@/features/records/record-model.schema";
-import type { RecordModelOverview } from "@/features/records/get-record-model-overview.interactor";
 import type { ConfigureAddKind } from "./configure-actions";
 import type { ConfigureGraphAccounts } from "./configure-graph";
+import type { ConfigureGraphCatalog } from "./configure-graph-model";
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -25,7 +25,7 @@ import { VIEW_TAB_ACTIVE_CLASS, VIEW_TAB_CLASS } from "@/components/data-view/vi
 import { useRecordRouteReady } from "@/components/records/use-record-route-ready";
 import { cn } from "@/core/utils/cn";
 
-import { discoverRecordTypesAction, getRecordModelOverviewAction } from "../../records/actions";
+import { discoverRecordTypesAction } from "../../records/actions";
 import { ActivityPathModal, ActivityPathModalStore } from "./activity-path-modal";
 import { ConfigureTopBarActions } from "./configure-actions";
 import { ConfigureListPane } from "./configure-list-pane";
@@ -85,13 +85,13 @@ function configureHref(changes: Record<string, string | null>) {
 
 const ConfigurePageViewContent = observer(function ConfigurePageView({
   initialModel,
-  overview: initialOverview,
+  catalog,
   accounts,
   canManage,
   canPublishSummary = false,
 }: {
   initialModel: RecordModel;
-  overview: RecordModelOverview;
+  catalog: ConfigureGraphCatalog;
   accounts: ConfigureGraphAccounts;
   canManage: boolean;
   canPublishSummary?: boolean;
@@ -117,21 +117,6 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
   }, [initialModel, store]);
   const model = store.model;
   const refresh = store.refresh;
-  const [overview, setOverview] = useState(initialOverview);
-  const overviewRevision = useRef(initialModel.revision);
-  useEffect(() => setOverview(initialOverview), [initialOverview]);
-  useEffect(() => {
-    if (overviewRevision.current === model.revision) return;
-    overviewRevision.current = model.revision;
-    let current = true;
-    getRecordModelOverviewAction().then(
-      (next) => current && setOverview(next),
-      () => undefined,
-    );
-    return () => {
-      current = false;
-    };
-  }, [model.revision]);
   const userScope = root.userStore.user?.id ?? "anonymous";
   const [typeModal] = useState(
     () =>
@@ -356,9 +341,9 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
               />
             }
             canManage={canManage}
+            catalog={catalog}
             disabled={!interactive}
             model={model}
-            overview={overview}
             showArchived={showArchived}
             onAddField={(listId) => fieldModal.edit(model, listId, null)}
             onAddList={() => add("list")}

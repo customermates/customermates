@@ -95,7 +95,6 @@ import { ApplyRecordConfigurationInteractor } from "@/features/records/configure
 import { RecordConfigurationWriter } from "@/features/records/record-configuration-writer";
 import { PreviewRecordConfigurationInteractor } from "@/features/records/preview-record-configuration.interactor";
 import { GetRecordModelInteractor } from "@/features/records/get-record-model.interactor";
-import { GetRecordModelOverviewInteractor } from "@/features/records/get-record-model-overview.interactor";
 import { DiscoverRecordTypesInteractor } from "@/features/records/discover-record-types.interactor";
 import { GetRecordChoicesInteractor } from "@/features/records/get-record-choices.interactor";
 import { GetRecordEditorInteractor } from "@/features/records/get-record-editor.interactor";
@@ -452,8 +451,6 @@ export const getRecordWriteService = () =>
   new RecordWriteService(getRecordRepo(), getRecordAccessPolicy(), getRecordCalculationService());
 export const getRecordConfigurationService = () => new RecordConfigurationService(getRecordRepo());
 export const getGetRecordModelInteractor = () => new GetRecordModelInteractor(getRecordRepo(), getRecordAccessPolicy());
-export const getGetRecordModelOverviewInteractor = () =>
-  new GetRecordModelOverviewInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getQueryRecordsInteractor = () => new QueryRecordsInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getExportRecordsInteractor = () => new ExportRecordsInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getImportRecordsInteractor = () =>

@@ -128,7 +128,7 @@ describe("configure graph", () => {
 
   it("places every visible list once without overlap and draws each relationship", () => {
     const model = createCrmPreset(company, "EUR");
-    const data = configureGraphData(model, null, [account], false);
+    const data = configureGraphData(model, [], [account], false);
     const layout = configureGraphLayout(data, true, true);
     expect(layout.positions.size).toBe(model.types.length + 1);
     expect(data.lists.map((list) => list.type.id).sort()).toEqual(model.types.map((type) => type.id).sort());
@@ -152,7 +152,7 @@ describe("configure graph", () => {
 
   it("nests child lists, links accounts to channel lists and shows calculation sources", () => {
     const model = createCrmPreset(company, "EUR");
-    const data = configureGraphData(model, null, [account], false);
+    const data = configureGraphData(model, [], [account], false);
     const lineItems = recordInvariant(data.lists.find((list) => list.type.id === id("lineItem")));
     expect(lineItems.parentId).toBe(id("deal"));
     const parent = data.edges.find((edge) => edge.kind === "relationship" && edge.parent);
@@ -192,20 +192,18 @@ describe("configure graph", () => {
     expect(configureCardinality({ ...relation, sourceCardinality: "many", targetCardinality: "many" })).toBe(
       "manyToMany",
     );
-    const prompt = configureGraphData(model, null, [], false, true);
+    const prompt = configureGraphData(model, [], [], false, true);
     expect(prompt.edges.some((edge) => edge.kind === "account" && edge.source === "accounts")).toBe(true);
     expect(configureGraphLayout(prompt, false, true).positions.has("accounts")).toBe(true);
   });
 
-  it("uses overview counts and omits archived lists unless shown", () => {
+  it("uses discovered counts and omits archived lists unless shown", () => {
     const model = createCrmPreset(company, "EUR");
     recordInvariant(model.types.find((type) => type.id === id("task"))).archived = true;
-    const overview = {
-      types: model.types.map((type) => ({ id: type.id, standard: type.id === id("deal"), recordCount: 7 })),
-    };
-    const data = configureGraphData(model, overview, [], false);
+    const catalog = model.types.map((type) => ({ id: type.id, standard: type.id === id("deal"), recordCount: 7 }));
+    const data = configureGraphData(model, catalog, [], false);
     expect(data.lists.some((list) => list.type.id === id("task"))).toBe(false);
     expect(data.lists.find((list) => list.type.id === id("deal"))).toMatchObject({ standard: true, recordCount: 7 });
-    expect(configureGraphData(model, overview, [], true).lists.some((list) => list.type.id === id("task"))).toBe(true);
+    expect(configureGraphData(model, catalog, [], true).lists.some((list) => list.type.id === id("task"))).toBe(true);
   });
 });

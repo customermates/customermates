@@ -11,6 +11,8 @@ const project = {
   icon: "folder",
   embedded: false,
   fieldCount: 2000,
+  recordCount: null,
+  standard: false,
   permittedActions: ["readOwn" as const],
 };
 const discovery = { ...EMPTY_RECORD_DISCOVERY, total: 1, types: [project] };

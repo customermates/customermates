@@ -5,9 +5,13 @@ import "@xyflow/react/dist/style.css";
 import type { ReactNode } from "react";
 import type { Edge, EdgeProps, Node, NodeProps } from "@xyflow/react";
 import type { RecordField, RecordModel, RecordRelationship } from "@/features/records/record-model.schema";
-import type { RecordModelOverview } from "@/features/records/get-record-model-overview.interactor";
 import type { MessagingProvider } from "@/generated/prisma";
-import type { ConfigureGraphEdge, ConfigureGraphList, ConfigureGraphSource } from "./configure-graph-model";
+import type {
+  ConfigureGraphCatalog,
+  ConfigureGraphEdge,
+  ConfigureGraphList,
+  ConfigureGraphSource,
+} from "./configure-graph-model";
 import type { ConfigureGraphRoute } from "./configure-graph-layout";
 
 import { createContext, useContext, useEffect, useId, useMemo, useRef, useState } from "react";
@@ -56,7 +60,7 @@ export type ConfigureGraphAccounts =
 
 type Props = {
   model: RecordModel;
-  overview: RecordModelOverview | null;
+  catalog: ConfigureGraphCatalog;
   accounts: ConfigureGraphAccounts;
   showArchived: boolean;
   canManage: boolean;
@@ -436,7 +440,7 @@ const edgeTypes = { graph: GraphEdgeView };
 
 function ConfigureGraphCanvas({
   model,
-  overview,
+  catalog,
   accounts,
   showArchived,
   canManage,
@@ -472,7 +476,7 @@ function ConfigureGraphCanvas({
   const [measured, setMeasured] = useState<ReadonlyMap<string, { width: number; height: number }>>(new Map());
   const { nodes, edges, positions } = useMemo(() => {
     const sources = accounts.state === "available" ? accounts.accounts : [];
-    const data = configureGraphData(model, overview, sources, showArchived, connectPrompt);
+    const data = configureGraphData(model, catalog, sources, showArchived, connectPrompt);
     const layout = configureGraphLayout(data, canManage, connectPrompt, measured, direction ?? "TB");
     const at = (id: string) => {
       const position = layout.positions.get(id);
@@ -506,7 +510,7 @@ function ConfigureGraphCanvas({
       ];
     });
     return { nodes, edges, positions: layout.positions };
-  }, [model, overview, accounts, showArchived, connectPrompt, canManage, measured, direction]);
+  }, [model, catalog, accounts, showArchived, connectPrompt, canManage, measured, direction]);
   const [flowNodes, setFlowNodes] = useState<Node[]>(nodes);
   useEffect(() => setFlowNodes(nodes), [nodes]);
   useEffect(() => {
