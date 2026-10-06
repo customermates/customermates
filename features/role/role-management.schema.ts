@@ -1,45 +1,29 @@
 import { z } from "zod";
-import { Action } from "@/generated/prisma";
+import { Action, Resource } from "@/generated/prisma";
 import { zx } from "@/core/validation/validation.utils";
 import { RolePermissionsDtoSchema } from "./role.schema";
+import { grantableActions, RESOURCE_ACCESS } from "./resource-access";
 
-export const RoleSystemControlsSchema = z
-  .object({
-    users: z.object({ canManage: z.enum(["yes", "no"]), readAccess: z.enum(["none", "own", "all"]) }).strict(),
-    company: z.object({ canManage: z.enum(["yes", "no"]) }).strict(),
-    dataModel: z.object({ canManage: z.enum(["yes", "no"]) }).strict(),
-    api: z.object({ canManage: z.enum(["yes", "no"]), readAccess: z.enum(["none", "all"]) }).strict(),
-    inboxMessages: z.object({ canManage: z.enum(["yes", "no"]), readAccess: z.enum(["none", "all"]) }).strict(),
-    wiki: z.object({ canManage: z.enum(["yes", "no"]), readAccess: z.enum(["none", "all"]) }).strict(),
-    auditLog: z.object({ readAccess: z.enum(["none", "all"]) }).strict(),
-    routines: z.object({ canManage: z.enum(["yes", "no"]), readAccess: z.enum(["none", "own", "all"]) }).strict(),
-  })
-  .strict();
+const uniqueActions = (actions: readonly Action[]) => new Set(actions).size === actions.length;
 
-export type RoleSystemControls = z.infer<typeof RoleSystemControlsSchema>;
-export const RoleSystemPermissionsSchema = z
+export const RoleResourceGrantSchema = z
   .object({
-    users: RoleSystemControlsSchema.shape.users.partial().optional(),
-    company: RoleSystemControlsSchema.shape.company.partial().optional(),
-    dataModel: RoleSystemControlsSchema.shape.dataModel.partial().optional(),
-    api: RoleSystemControlsSchema.shape.api.partial().optional(),
-    inboxMessages: RoleSystemControlsSchema.shape.inboxMessages.partial().optional(),
-    wiki: RoleSystemControlsSchema.shape.wiki.partial().optional(),
-    auditLog: RoleSystemControlsSchema.shape.auditLog.partial().optional(),
-    routines: RoleSystemControlsSchema.shape.routines.partial().optional(),
+    resource: z.enum(Resource),
+    actions: z.array(z.enum(Action)).max(5).refine(uniqueActions),
   })
   .strict()
-  .describe(
-    "Only supplied system permission groups change. Omit unchanged groups or properties to preserve exact existing rights.",
+  .refine(
+    ({ resource, actions }) => {
+      const grantable = grantableActions(RESOURCE_ACCESS[resource]);
+      return actions.every((action) => grantable.includes(action));
+    },
+    { message: "Action is not applicable to this resource", path: ["actions"] },
   );
 
 export const RoleRecordGrantSchema = z
   .object({
     typeId: z.uuid(),
-    actions: z
-      .array(z.enum(Action))
-      .max(5)
-      .refine((actions) => new Set(actions).size === actions.length),
+    actions: z.array(z.enum(Action)).max(5).refine(uniqueActions),
   })
   .strict();
 
@@ -48,7 +32,13 @@ export const UpsertRoleSchema = z
     id: z.uuid().optional(),
     name: zx.nonBlankText(255),
     description: zx.nonBlankText(500),
-    permissions: RoleSystemPermissionsSchema,
+    permissions: z
+      .array(RoleResourceGrantSchema)
+      .max(Object.keys(RESOURCE_ACCESS).length)
+      .describe(
+        "Only listed resources change; each listed resource's actions replace its current actions and an empty actions array removes its access. Applicable actions per resource: api, users, wiki, inboxMessages and routines take create, update and delete; company and dataModel take update only; auditLog takes none. Read: readAll for every resource except company and dataModel, plus readOwn for users and routines. Any wiki manage action also grants readAll.",
+      )
+      .refine((grants) => new Set(grants.map((grant) => grant.resource)).size === grants.length),
     recordGrants: z
       .array(RoleRecordGrantSchema)
       .max(1000)

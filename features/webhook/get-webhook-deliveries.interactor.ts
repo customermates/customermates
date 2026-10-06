@@ -5,7 +5,7 @@ import type { QueryParamsPrecheckInteractor } from "@/core/base/query-params-pre
 import type { Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
-import { Resource, Action } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import type { WebhookDeliveryStatus } from "@/generated/prisma";
 
@@ -45,7 +45,7 @@ const OutputSchema = z.object({
 });
 
 @AllowInDemoMode
-@TenantInteractor({ resource: Resource.api, action: Action.readAll })
+@TenantInteractor({ resource: Resource.api, read: "all" })
 export class GetWebhookDeliveriesInteractor extends BaseGetInteractor<WebhookDeliveryDto> {
   constructor(
     repo: GetWebhookDeliveriesRepo,

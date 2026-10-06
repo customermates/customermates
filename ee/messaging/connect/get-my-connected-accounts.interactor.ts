@@ -1,4 +1,4 @@
-import type { ConnectedAccountDto, ConnectedAccountRecord } from "../messaging.schema";
+import type { ConnectedAccountDto } from "../messaging.schema";
 import type { Validated } from "@/core/validation/validation.utils";
 
 import { Resource } from "@/generated/prisma";
@@ -10,10 +10,7 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-
-export abstract class GetMyConnectedAccountsRepo {
-  abstract listAccounts(): Promise<ConnectedAccountRecord[]>;
-}
+import type { GetMyConnectedAccountsRepo } from "./get-my-connected-accounts.repo";
 
 @AllowInDemoMode
 @TenantInteractor({ resource: Resource.inboxMessages, read: true })

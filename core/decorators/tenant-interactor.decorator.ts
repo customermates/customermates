@@ -1,4 +1,5 @@
-import type { Resource, Action } from "@/generated/prisma";
+import type { Resource } from "@/generated/prisma";
+import type { ManageActionOf } from "@/features/role/resource-access";
 
 import { isAllowedInDemoMode } from "./allow-in-demo-mode.decorator";
 
@@ -8,26 +9,25 @@ import { resolveActiveTenantUser } from "@/core/decorators/resolve-tenant-user";
 import { env } from "@/env";
 import { DemoModeError, ForbiddenError } from "@/core/errors/app-errors";
 
-interface Permission {
-  resource: Resource;
-  action: Action;
-}
-interface ReadRequirement {
-  resource: Resource;
-  read: true;
-}
-type PermissionRequirement = Permission | { permissions: Permission[] } | ReadRequirement;
+type Read = true | "all";
+type Manage<R extends Resource> = ManageActionOf<R> | "upsert";
+type PermissionRequirement = {
+  [R in Resource]: { resource: R; read: Read; manage?: Manage<R> } | { resource: R; read?: never; manage: Manage<R> };
+}[Resource];
 
-function describeRequirement(requirement: PermissionRequirement): string {
-  if ("read" in requirement) return `read on ${requirement.resource}`;
-  const permissions = "permissions" in requirement ? requirement.permissions : [requirement];
-  return permissions.map((p) => `${p.action} on ${p.resource}`).join(" AND ");
+function requiredActions(requirement: PermissionRequirement, input: unknown): string[] {
+  const manage =
+    requirement.manage === "upsert"
+      ? (input as { id?: unknown } | undefined)?.id
+        ? "update"
+        : "create"
+      : requirement.manage;
+  return [...(requirement.read === "all" ? ["readAll"] : []), ...(manage ? [manage] : [])];
 }
 
-function satisfies(role: PermissionRole | null | undefined, requirement: PermissionRequirement): boolean {
-  if ("read" in requirement) return roleCanRead(role, requirement.resource);
-  const permissions = "permissions" in requirement ? requirement.permissions : [requirement];
-  return permissions.every((p) => rolePermits(role, p.resource, p.action));
+function satisfies(role: PermissionRole | null | undefined, requirement: PermissionRequirement, actions: string[]) {
+  if (requirement.read === true && !roleCanRead(role, requirement.resource)) return false;
+  return actions.every((action) => rolePermits(role, requirement.resource, action));
 }
 
 export function TenantInteractor<T extends { new (...args: any[]): object }>(requirement?: PermissionRequirement) {
@@ -46,8 +46,15 @@ export function TenantInteractor<T extends { new (...args: any[]): object }>(req
         user = await resolveActiveTenantUser(() => getUserService().getActiveUserOrThrow());
       }
 
-      if (requirement && !satisfies(user.role, requirement))
-        throw new ForbiddenError(`Access denied. Required permissions: ${describeRequirement(requirement)}`);
+      if (requirement) {
+        const actions = requiredActions(requirement, args[0]);
+        if (!satisfies(user.role, requirement, actions)) {
+          const required = [...(requirement.read === true ? ["read"] : []), ...actions];
+          throw new ForbiddenError(
+            `Access denied. Required permissions: ${required.map((action) => `${action} on ${requirement.resource}`).join(" AND ")}`,
+          );
+        }
+      }
 
       return runWithTenant(user, () => originalInvoke.apply(this, args));
     };

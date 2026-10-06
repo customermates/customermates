@@ -29,10 +29,14 @@ test("configures a role for a new type, preserves granular rights after rename a
   await expect(projectGrant.getByRole("radio", { name: "None", exact: true })).toBeChecked();
   await projectGrant.getByRole("radio", { name: "Assigned", exact: true }).check();
   await projectGrant.getByRole("checkbox", { name: "Create", exact: true }).check();
-  await role
-    .getByRole("radiogroup", { name: "Data model — Manage", exact: true })
-    .getByRole("radio", { name: "Yes", exact: true })
-    .check();
+  const dataModel = role.locator('[data-resource-permission="dataModel"]');
+  await expect(dataModel.getByRole("checkbox")).toHaveCount(1);
+  await dataModel.getByRole("checkbox", { name: "Edit", exact: true }).check();
+  const auditLog = role.locator('[data-resource-permission="auditLog"]');
+  await expect(auditLog.getByRole("checkbox")).toHaveCount(0);
+  const api = role.locator('[data-resource-permission="api"]');
+  await api.getByRole("checkbox", { name: "Create", exact: true }).check();
+  await api.getByRole("checkbox", { name: "Delete", exact: true }).check();
   await role.getByRole("button", { name: "Save", exact: true }).click();
   await expect(role).not.toBeVisible();
   const saved = await database.query('SELECT id FROM "UserRole" WHERE "companyId"=$1 AND name=$2', [
@@ -55,6 +59,14 @@ test("configures a role for a new type, preserves granular rights after rename a
       )
     ).rows,
   ).toHaveLength(1);
+  expect(
+    (
+      await database.query(
+        'SELECT action::text FROM "RolePermission" WHERE "roleId"=$1 AND resource IN (\'api\', \'dataModel\') ORDER BY resource, action',
+        [roleId],
+      )
+    ).rows.map(({ action }) => action),
+  ).toEqual(["readAll", "readOwn", "update", "create", "delete"]);
   await page.reload();
   await page.getByRole("button", { name: "Project coordinators", exact: true }).click();
   await expect(projectGrant.getByRole("checkbox", { name: "Create", exact: true })).toBeChecked();

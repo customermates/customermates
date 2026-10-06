@@ -232,6 +232,7 @@ const mountedContainers: HTMLElement[] = [];
 function configure(canManage: boolean, agentChatEnabled: boolean, agentEnabled: boolean | null = agentChatEnabled) {
   harness.store = {
     canManage,
+    allows: () => canManage,
     creating: false,
     form: {
       id: null,
@@ -372,7 +373,7 @@ describe("Wiki document view", () => {
       configure(true, true, true);
       harness.realStore = true;
       harness.realFormSelect = true;
-      harness.rootStore.userStore = { canManage: () => true, user: { id: "user-1" } };
+      harness.rootStore.userStore = { can: () => true, user: { id: "user-1" } };
       const navigationGuard = new NavigationGuardController();
       harness.rootStore.navigationGuard = navigationGuard;
       const replacement = {
@@ -441,7 +442,7 @@ describe("Wiki document view", () => {
     configure(true, true, true);
     harness.realStore = true;
     harness.realFormSelect = true;
-    harness.rootStore.userStore = { canManage: () => true, user: { id: "user-1" } };
+    harness.rootStore.userStore = { can: () => true, user: { id: "user-1" } };
     const navigationGuard = new NavigationGuardController();
     harness.rootStore.navigationGuard = navigationGuard;
     const replacement = {
@@ -515,7 +516,7 @@ describe("Wiki document view", () => {
     async (release) => {
       configure(true, true, true);
       harness.realStore = true;
-      harness.rootStore.userStore = { canManage: () => true, user: { id: "user-1" } };
+      harness.rootStore.userStore = { can: () => true, user: { id: "user-1" } };
       const navigationGuard = new NavigationGuardController();
       harness.rootStore.navigationGuard = navigationGuard;
       const { container, root } = await mount(
@@ -595,7 +596,7 @@ describe("Wiki document view", () => {
   it("releases a pending refresh when the final Wiki view owner unmounts", async () => {
     configure(true, true, true);
     harness.realStore = true;
-    harness.rootStore.userStore = { canManage: () => true, user: { id: "user-1" } };
+    harness.rootStore.userStore = { can: () => true, user: { id: "user-1" } };
     const navigationGuard = new NavigationGuardController();
     harness.rootStore.navigationGuard = navigationGuard;
     const { root } = await mount(
@@ -619,7 +620,7 @@ describe("Wiki document view", () => {
   it("keeps a capture-phase rail navigation on Cancel and loads the new route only after Discard", async () => {
     configure(true, true, true);
     harness.realStore = true;
-    harness.rootStore.userStore = { canManage: () => true, user: { id: "user-1" } };
+    harness.rootStore.userStore = { can: () => true, user: { id: "user-1" } };
     const navigationGuard = new NavigationGuardController();
     harness.rootStore.navigationGuard = navigationGuard;
     const replacement = {
@@ -740,7 +741,7 @@ describe("Wiki document view", () => {
   it("preserves edits made after creating a page while its route response is delayed", async () => {
     configure(true, false);
     harness.realStore = true;
-    harness.rootStore.userStore = { canManage: () => true, user: { id: "user-1" } };
+    harness.rootStore.userStore = { can: () => true, user: { id: "user-1" } };
     const { root } = await mount(
       createElement(WikiPageView, { initialPage: page, requestedPageId: page.id, listPage: populatedList }),
     );
@@ -767,7 +768,7 @@ describe("Wiki document view", () => {
   it("preserves the real dirty store and document instance when refreshed props finish a crawl", async () => {
     configure(true, true, true);
     harness.realStore = true;
-    harness.rootStore.userStore = { canManage: () => true, user: { id: "user-1" } };
+    harness.rootStore.userStore = { can: () => true, user: { id: "user-1" } };
     const state = {
       status: "working" as const,
       homepage: "https://example.com/",
@@ -848,7 +849,7 @@ describe("Wiki document view", () => {
   it("applies a completed refresh after Reset without another poll and preserves newer saved revisions", async () => {
     configure(true, true, true);
     harness.realStore = true;
-    harness.rootStore.userStore = { canManage: () => true, user: { id: "user-1" } };
+    harness.rootStore.userStore = { can: () => true, user: { id: "user-1" } };
     const { root } = await mount(createElement(WikiPageView, { initialPage: page, listPage: populatedList }));
     const store = harness.store as unknown as RealWikiPageStore;
     act(() => store.onChange("title", "Unsaved manual title"));
@@ -1621,7 +1622,7 @@ describe("Wiki route lifetime", () => {
       configure(true, true, true);
       harness.realStore = true;
       harness.rootStore.navigationGuard = new NavigationGuardController();
-      harness.rootStore.userStore = { can: () => true, canManage: () => true, user: { id: "user-1" } };
+      harness.rootStore.userStore = { can: () => true, user: { id: "user-1" } };
       const frame = (child: ReactNode) => createElement(WikiRouteScope, null, child);
       const { root } = await mount(
         frame(createElement(WikiPageView, { key: "before", initialPage: page, listPage: populatedList })),
@@ -1691,7 +1692,7 @@ describe("Wiki route lifetime", () => {
       harness.realStore = true;
       const guard = new NavigationGuardController();
       harness.rootStore.navigationGuard = guard;
-      harness.rootStore.userStore = { canManage: () => true, user: { id: "user-1" } };
+      harness.rootStore.userStore = { can: () => true, user: { id: "user-1" } };
       const frame = (child: ReactNode) => createElement(WikiRouteScope, null, child);
       const { root } = await mount(
         frame(createElement(WikiPageView, { key: "working", initialPage: page, listPage: populatedList })),

@@ -6,7 +6,7 @@ import type { ChipColor } from "@/constants/chip-colors";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useLayoutEffect } from "react";
-import { Resource, SubscriptionStatus, SubscriptionPlan } from "@/generated/prisma";
+import { Action, Resource, SubscriptionStatus, SubscriptionPlan } from "@/generated/prisma";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
@@ -41,7 +41,7 @@ export const SubscriptionPanel = observer(({ initialSubscription }: Props) => {
   const isManaged = subscription?.plan === SubscriptionPlan.enterprise;
   const seats = subscription?.quantity ?? subscription?.activeUsers ?? 0;
   const hasActiveSubscription = subscription?.hasActiveSubscription ?? false;
-  const canManageCompany = userStore.canManage(Resource.company);
+  const canManageCompany = userStore.can(Resource.company, Action.update);
   const hasBillingPortal = Boolean(subscription?.hasBillingPortal);
   const planHelp = !hasActiveSubscription
     ? canManageCompany

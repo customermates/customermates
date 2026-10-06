@@ -12,6 +12,7 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import type { GetRoutineRunsRepo } from "./get-routine-runs.repo";
 
 const Schema = z.object({
   routineId: z.uuid(),
@@ -19,10 +20,6 @@ const Schema = z.object({
 });
 
 export type GetRoutineRunsData = Data<typeof Schema>;
-
-export abstract class GetRoutineRunsRepo {
-  abstract getRoutineRuns(routineId: string, limit: number, cursor?: string | null): Promise<RoutineRunPage>;
-}
 
 @AllowInDemoMode
 @TenantInteractor({ resource: Resource.routines, read: true })

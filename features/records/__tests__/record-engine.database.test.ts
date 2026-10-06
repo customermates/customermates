@@ -2117,11 +2117,11 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
 
   it("enforces record webhook ownership and current API grants inside the write transaction", async () => {
     const f = await fixture();
-    const permissions = ["readAll", "update", "delete"].map((action) => ({
+    const permissions = ["create", "readAll", "update", "delete"].map((action) => ({
       companyId: f.company.id,
       roleId: f.memberRole.id,
       resource: "api" as const,
-      action: action as "readAll" | "update" | "delete",
+      action: action as "create" | "readAll" | "update" | "delete",
     }));
     await f.run(() => prisma.rolePermission.createMany({ data: permissions }));
     const member = createMockUser({
@@ -3019,15 +3019,15 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       expectedRevision: 1,
       idempotencyKey: randomUUID(),
       recordGrants: [],
-      permissions: {
-        users: { canManage: "no", readAccess: "own" },
-        company: { canManage: "no" },
-        dataModel: { canManage: "no" },
-        api: { canManage: "no", readAccess: "none" },
-        inboxMessages: { canManage: "no", readAccess: "none" },
-        auditLog: { readAccess: "none" },
-        routines: { canManage: "no", readAccess: "none" },
-      },
+      permissions: [
+        { resource: "users", actions: ["readOwn"] },
+        { resource: "company", actions: [] },
+        { resource: "dataModel", actions: [] },
+        { resource: "api", actions: [] },
+        { resource: "inboxMessages", actions: [] },
+        { resource: "auditLog", actions: [] },
+        { resource: "routines", actions: [] },
+      ],
       ...overrides,
     });
 
@@ -3807,7 +3807,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     const initial = roleInput({
       id: f.memberRole.id,
-      permissions: {},
+      permissions: [],
       recordGrants: [
         { typeId: f.id("contact"), actions: ["readOwn"] },
         { typeId: f.id("deal"), actions: ["readAll"] },
@@ -3839,7 +3839,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           ...initial,
           idempotencyKey: randomUUID(),
           expectedRevision: 2,
-          permissions: { company: {} },
+          permissions: [],
           recordGrants: [{ typeId: f.id("contact"), actions: [] }],
         }),
       ),
@@ -4113,6 +4113,58 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ),
     ).toMatchObject({ ok: false });
     expect(await f.run(() => f.repo.getState())).toMatchObject({ revision: 1 });
+  });
+
+  it("role management requires the specific Users & Roles action for create, edit and delete", async () => {
+    const f = await fixture();
+    const target = await f.run(() => getUpsertRoleInteractor().invoke(roleInput({ name: "Target" })));
+    if (!target.ok) throw target.error;
+    const grantOnly = (action: "create" | "update" | "delete") =>
+      f.run(async () => {
+        await prisma.rolePermission.deleteMany({ where: { companyId: f.company.id, roleId: f.memberRole.id } });
+        await prisma.rolePermission.create({
+          data: { companyId: f.company.id, roleId: f.memberRole.id, resource: "users", action },
+        });
+      });
+    const revision = async () => (await f.run(() => f.repo.getState()))?.revision ?? 0;
+    const edit = async () =>
+      f.run(
+        async () =>
+          getUpsertRoleInteractor().invoke(
+            roleInput({ id: target.data.role.id, name: `Target ${randomUUID()}`, expectedRevision: await revision() }),
+          ),
+        f.member,
+      );
+    const create = async () =>
+      f.run(
+        async () =>
+          getUpsertRoleInteractor().invoke(
+            roleInput({ name: `New ${randomUUID()}`, expectedRevision: await revision() }),
+          ),
+        f.member,
+      );
+    const remove = async (id: string) =>
+      f.run(
+        async () =>
+          getDeleteRoleInteractor().invoke({ id, expectedRevision: await revision(), idempotencyKey: randomUUID() }),
+        f.member,
+      );
+
+    await grantOnly("create");
+    const created = await create();
+    expect(created).toMatchObject({ ok: true });
+    expect(await edit()).toMatchObject({ ok: false });
+    expect(await remove(target.data.role.id)).toMatchObject({ ok: false });
+
+    await grantOnly("update");
+    expect(await edit()).toMatchObject({ ok: true });
+    expect(await create()).toMatchObject({ ok: false });
+    expect(await remove(target.data.role.id)).toMatchObject({ ok: false });
+
+    await grantOnly("delete");
+    expect(await create()).toMatchObject({ ok: false });
+    expect(await edit()).toMatchObject({ ok: false });
+    expect(await remove(target.data.role.id)).toMatchObject({ ok: true });
   });
 
   it("role management prevents preset dangling references and deletes with retry protection", async () => {

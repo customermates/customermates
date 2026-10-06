@@ -3402,7 +3402,6 @@
     "delete": "Eliminar",
     "edit": "Editar",
     "manageAccess": "Gestión",
-    "no": "No",
     "ownRoleAlert": "Este rol está asignado a ti y no se puede editar. Pide a otro administrador que lo cambie.",
     "readAccess": "Acceso de lectura",
     "readAll": "Todos",
@@ -3424,8 +3423,7 @@
     "systemAlert": "Este es un rol del sistema y no se puede editar ni eliminar.",
     "systemDescription": "Acceso completo a todas las funciones y ajustes. No se puede modificar ni eliminar.",
     "systemName": "Administrador",
-    "title": "Rol",
-    "yes": "Sí"
+    "title": "Rol"
   },
   "RolesCard": {
     "custom": "Personalizado",

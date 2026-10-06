@@ -10,6 +10,7 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { zx } from "@/core/validation/validation.utils";
+import type { SearchChannelCandidatesRepo } from "./search-channel-candidates.repo";
 
 const OutputSchema = z.object({
   provider: z.enum(MessagingProvider),
@@ -24,10 +25,6 @@ const Schema = z.object({
   query: zx.nulFreeText().trim().min(2),
 });
 export type SearchChannelCandidatesData = Data<typeof Schema>;
-
-export abstract class SearchChannelCandidatesRepo {
-  abstract searchChannelCandidates(query: string): Promise<ChannelCandidateDto[]>;
-}
 
 @TenantInteractor({ resource: Resource.inboxMessages, read: true })
 export class SearchChannelCandidatesInteractor extends AuthenticatedInteractor<

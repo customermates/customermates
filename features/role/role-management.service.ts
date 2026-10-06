@@ -41,7 +41,10 @@ export class RoleManagementService extends UserAccessor {
       async () => {
         try {
           const policy = await this.policy.load();
-          if (!policy.actor || !(policy.canManageRoles || policy.canReadSystem("users")))
+          if (
+            !policy.actor ||
+            !(policy.canManageRoles || policy.canReadSystem("users") || policy.allowedSystem("users", "create"))
+          )
             throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
           const model = await this.records.getModel();
           if (typeIds?.some((id) => !model.types.some((type) => type.id === id && !type.embedded)))
@@ -58,7 +61,7 @@ export class RoleManagementService extends UserAccessor {
                 role && typeIds
                   ? { ...role, recordGrants: role.recordGrants?.filter((grant) => typeIds.includes(grant.typeId)) }
                   : role,
-              canEdit: mutable && policy.canManageRoles,
+              canEdit: mutable && policy.allowedSystem("users", role ? "update" : "create"),
               canDelete: Boolean(
                 role &&
                   mutable &&
@@ -84,7 +87,7 @@ export class RoleManagementService extends UserAccessor {
       async (): Validated<RoleMutationResult> => {
         try {
           const policy = await this.policy.load();
-          if (!policy.actor || !policy.canManageRoles)
+          if (!policy.actor || !policy.allowedSystem("users", input.id ? "update" : "create"))
             throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
           const hash = recordRequestHash({ kind: "roleUpsert", input });
           const receipt = await this.records.receipt(input.idempotencyKey, this.userId);

@@ -1,9 +1,8 @@
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
-import type { RoutineDto } from "./routine.schema";
 
 import { z } from "zod";
-import { Action, Resource, RoutineTriggerKind } from "@/generated/prisma";
+import { Resource, RoutineTriggerKind } from "@/generated/prisma";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { failAuthorization, failConflict } from "@/core/validation/interactor-failure-server";
@@ -11,21 +10,13 @@ import { failAuthorization, failConflict } from "@/core/validation/interactor-fa
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { Write } from "@/core/decorators/write.decorator";
+import type { RunRoutineNowRepo } from "./run-routine-now.repo";
 
 const Schema = z.object({ routineId: z.uuid() });
 
 export type RunRoutineNowData = Data<typeof Schema>;
 
-export abstract class RunRoutineNowRepo {
-  abstract getRoutineByIdOrThrow(id: string): Promise<RoutineDto>;
-  abstract createManualRoutineRunOrThrow(
-    routineId: string,
-    executedByUserId: string,
-    now: Date,
-  ): Promise<{ id: string; companyId: string; executedByUserId: string }>;
-}
-
-@TenantInteractor({ resource: Resource.routines, action: Action.update })
+@TenantInteractor({ resource: Resource.routines, manage: "update" })
 export class RunRoutineNowInteractor extends AuthenticatedInteractor<RunRoutineNowData, string> {
   constructor(
     private repo: RunRoutineNowRepo,

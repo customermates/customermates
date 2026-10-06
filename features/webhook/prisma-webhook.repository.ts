@@ -13,7 +13,7 @@ import type { DeleteWebhookRepo } from "./delete-webhook.repo";
 import type { FindWebhooksByIdsRepo } from "./find-webhooks-by-ids.repo";
 import type { WebhookDto } from "./webhook.schema";
 import type { GetWebhooksForEventRepo } from "@/features/event/get-webhooks-for-event.repo";
-import type { GetWebhookByIdRepo } from "./get-webhook-by-id.interactor";
+import type { GetWebhookByIdRepo } from "./get-webhook-by-id.repo";
 
 import { Action, Prisma, Resource } from "@/generated/prisma";
 
@@ -66,7 +66,7 @@ export class PrismaWebhookRepo
     });
   }
 
-  private async assertWriter(action: "update" | "delete", ownerUserId?: string | null) {
+  private async assertWriter(action: "create" | "update" | "delete", ownerUserId?: string | null) {
     const actor = await this.prisma.user.findFirst({
       where: { companyId: this.companyId, id: this.userId, status: "active", role: { companyId: this.companyId } },
       select: {
@@ -207,7 +207,7 @@ export class PrismaWebhookRepo
     const { companyId } = this.user;
     const { id, ...webhookData } = args;
     const previous = id ? await this.getWebhookByIdOrThrow(id) : undefined;
-    await this.assertWriter("update", previous?.recordOwnerUserId);
+    await this.assertWriter(previous ? "update" : "create", previous?.recordOwnerUserId);
 
     if (id) {
       await this.prisma.webhook.findFirstOrThrow({ where: { id, companyId } });

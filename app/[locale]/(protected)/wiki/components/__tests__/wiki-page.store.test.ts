@@ -29,7 +29,7 @@ function rootStore(canManage = true): RootStore {
   return {
     userStore: {
       user: { id: "user-1" },
-      canManage: vi.fn().mockReturnValue(canManage),
+      can: vi.fn().mockReturnValue(canManage),
     },
   } as unknown as RootStore;
 }

@@ -17,6 +17,7 @@ import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confi
 import { runUserAction } from "@/core/errors/report-application-error";
 import { wikiPageUrl } from "@/features/wiki/wiki-links";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
+import { Action } from "@/generated/prisma";
 
 type Props = {
   canManage: boolean;
@@ -91,7 +92,7 @@ export const WikiPageActions = observer((props: Props) => {
               {t("Wiki.reload")}
             </DropdownMenuItem>
 
-            {canManage && (
+            {store.allows(Action.delete) && (
               <DropdownMenuItem
                 variant="destructive"
                 onSelect={() => showDeleteConfirmation(() => store.delete(), store.form.title)}
@@ -105,7 +106,7 @@ export const WikiPageActions = observer((props: Props) => {
         </DropdownMenu>
       )}
 
-      {canManage && canCreate && !store.creating && !store.hasUnsavedChanges && (
+      {store.allows(Action.create) && canCreate && !store.creating && !store.hasUnsavedChanges && (
         <Button
           aria-label={t("Wiki.newPage")}
           disabled={store.isLoading}

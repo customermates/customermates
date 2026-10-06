@@ -13,13 +13,10 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { CalendarDtoSchema } from "./calendar.schema";
+import type { GetCalendarByIdRepo } from "./get-calendar-by-id.repo";
 
 export const GetCalendarByIdSchema = z.object({ id: z.uuid() });
 type GetCalendarByIdData = Data<typeof GetCalendarByIdSchema>;
-
-export abstract class GetCalendarByIdRepo {
-  abstract getCalendarById(id: string): Promise<CalendarDto | null>;
-}
 
 @AllowInDemoMode
 @TenantInteractor({ resource: Resource.inboxMessages, read: true })

@@ -10,15 +10,12 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import type { GetUserByIdRepo } from "./get-user-by-id.repo";
 
 export const GetUserByIdSchema = z.object({
   id: z.uuid(),
 });
 export type GetUserByIdData = Data<typeof GetUserByIdSchema>;
-
-export abstract class GetUserByIdRepo {
-  abstract getUserById(id: string): Promise<UserDto | null>;
-}
 
 @AllowInDemoMode
 @TenantInteractor({ resource: Resource.users, read: true })

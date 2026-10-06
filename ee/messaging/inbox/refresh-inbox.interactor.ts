@@ -8,7 +8,7 @@ import { z } from "zod";
 
 import * as Sentry from "@sentry/node";
 
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
@@ -26,7 +26,7 @@ export const RefreshInboxResultSchema = z.object({
 });
 export type RefreshInboxResult = z.infer<typeof RefreshInboxResultSchema>;
 
-@TenantInteractor({ resource: Resource.inboxMessages, action: Action.update })
+@TenantInteractor({ resource: Resource.inboxMessages, manage: "update" })
 export class RefreshInboxInteractor extends AuthenticatedInteractor<void, RefreshInboxResult> {
   constructor(
     private repo: RefreshInboxRepo,

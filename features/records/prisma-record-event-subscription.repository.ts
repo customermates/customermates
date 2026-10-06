@@ -59,13 +59,13 @@ export class PrismaRecordEventSubscriptionRepo extends TenantRepository implemen
     });
     const [model, grants, state] = await Promise.all([records.getModel(), records.getGrants(), records.getState()]);
     const policy = recordAccessForActor({ actor, model, grants, records, companyId, userId: this.userId });
-    const permitted =
-      input.kind === "routine"
-        ? policy.allowedSystem("routines", "create") && policy.allowedSystem("routines", "update")
-        : policy.allowedSystem("api", "update");
+    const [previous] = await this.findCompanyWide(companyId, [input.id]);
+    const permitted = policy.allowedSystem(
+      input.kind === "routine" ? "routines" : "api",
+      previous ? "update" : "create",
+    );
     if (!permitted || (!policy.isAdmin && input.ownerUserId !== this.userId))
       throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
-    const [previous] = await this.findCompanyWide(companyId, [input.id]);
     const definitionChanged = !previous || deliveryDefinition(previous) !== deliveryDefinition(input);
     if (state?.activeOperationId && (definitionChanged || (input.enabled && !previous?.enabled)))
       throw new RecordWriteError(CustomErrorCode.recordWritePaused, "conflict");

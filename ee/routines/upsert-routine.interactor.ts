@@ -4,7 +4,7 @@ import type { RoutineDto, RoutineValidationData, UpsertRoutineData } from "./rou
 import type { Validated } from "@/core/validation/validation.utils";
 import type { EventService } from "@/features/event/event.service";
 
-import { Action, Resource, RoutineTriggerKind } from "@/generated/prisma";
+import { Resource, RoutineTriggerKind } from "@/generated/prisma";
 
 import { RoutineDtoSchema, UpsertRoutineSchema, validateRoutineFinalState } from "./routine.schema";
 
@@ -65,12 +65,7 @@ function mergeRoutineFinalState(previous: RoutineDto, update: UpsertRoutineData)
   };
 }
 
-@TenantInteractor({
-  permissions: [
-    { resource: Resource.routines, action: Action.create },
-    { resource: Resource.routines, action: Action.update },
-  ],
-})
+@TenantInteractor({ resource: Resource.routines, manage: "upsert" })
 export class UpsertRoutineInteractor extends AuthenticatedInteractor<UpsertRoutineData, RoutineDto> {
   constructor(
     private repo: UpsertRoutineRepo,

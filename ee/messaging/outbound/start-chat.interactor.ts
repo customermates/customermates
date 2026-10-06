@@ -18,7 +18,6 @@ import { Write } from "@/core/decorators/write.decorator";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { normalizeChannelValue } from "@/features/records/channel-value";
 import {
-  Action,
   MessagingMessageDirection,
   MessagingMessageOrigin,
   MessagingProvider,
@@ -119,7 +118,7 @@ const PRODUCT_LABEL: Record<LinkedinProduct, string> = {
   recruiter: "Recruiter",
 };
 
-@TenantInteractor({ resource: Resource.inboxMessages, action: Action.create })
+@TenantInteractor({ resource: Resource.inboxMessages, manage: "create" })
 export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, StartChatResult> {
   constructor(
     private accountRepo: FindUsableAccountRepo,

@@ -26,6 +26,7 @@ import { WebhookCurrentEventSchema } from "@/features/webhook/webhook.schema";
 import { AppChip } from "@/components/chip/app-chip";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { AppCardHeader } from "@/components/card/app-card-header";
+import { Action } from "@/generated/prisma";
 
 const WEBHOOK_EVENTS = WebhookCurrentEventSchema.options.map((event) => ({ key: event }));
 
@@ -46,7 +47,7 @@ export const WebhookModal = observer(() => {
   return (
     <AppModal
       actions={
-        form?.id && canManage
+        form?.id && canManage && webhookModalStore.allows(Action.delete)
           ? [
               {
                 id: "delete-webhook",

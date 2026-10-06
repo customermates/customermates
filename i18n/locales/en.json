@@ -3402,7 +3402,6 @@
     "delete": "Delete",
     "edit": "Edit",
     "manageAccess": "Manage",
-    "no": "No",
     "ownRoleAlert": "This role is assigned to you and cannot be edited. Ask another administrator to change it.",
     "readAccess": "Read access",
     "readAll": "All",
@@ -3424,8 +3423,7 @@
     "systemAlert": "This is a system role and cannot be edited or deleted.",
     "systemDescription": "Full access to all features and settings. Cannot be modified or deleted.",
     "systemName": "Admin",
-    "title": "Role",
-    "yes": "Yes"
+    "title": "Role"
   },
   "RolesCard": {
     "custom": "Custom",
