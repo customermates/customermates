@@ -39,6 +39,7 @@ function fixture() {
     title: index ? "Acme" : "Alice",
     pictureUrl: null,
     createdAt: new Date().toISOString(),
+    version: index + 3,
     errorCode: null,
   })) as RecordSearchRow[];
   const repo = {
@@ -167,5 +168,34 @@ describe("shared identifier resolution", () => {
       ),
     ).toEqual([f.contact]);
     expect(f.owners).toHaveLength(2);
+  });
+
+  it("returns versions and the schema revision for updates while display lookups keep their shape", async () => {
+    const f = fixture();
+    const lookup = [
+      { provider: "mail" as const, value: "alice@example.test" },
+      { provider: "mail" as const, value: "alice@example.test" },
+    ];
+    const display = await f.reader.resolve(lookup);
+    expect(display[0].records.every((record) => !("version" in record))).toBe(true);
+    const forUpdate = await f.reader.resolveForUpdate(lookup);
+    expect(forUpdate.schemaRevision).toBe(f.model.revision);
+    expect(forUpdate.matches).toHaveLength(2);
+    for (const match of forUpdate.matches) {
+      expect(match.records.map(({ ref, version }) => ({ ref, version }))).toEqual(
+        expect.arrayContaining([
+          { ref: f.contact, version: 3 },
+          { ref: f.organization, version: 4 },
+        ]),
+      );
+      expect(match).not.toHaveProperty("moreRecords");
+    }
+    expect(f.repo.getIdentityOwnersCompanyWide).toHaveBeenLastCalledWith(expect.any(Array), expect.any(Array), {
+      access: expect.any(Map),
+    });
+    expect(f.repo.getModel).toHaveBeenCalledTimes(2);
+    expect(f.repo.searchRecords).toHaveBeenCalledTimes(2);
+    expect(await f.reader.resolveForUpdate([])).toEqual({ schemaRevision: f.model.revision, matches: [] });
+    expect(f.repo.getIdentityOwnersCompanyWide).toHaveBeenCalledTimes(2);
   });
 });
