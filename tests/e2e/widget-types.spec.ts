@@ -492,7 +492,7 @@ test("adds every starter template resolved against the model and keeps them edit
   ];
   for (const template of templates) {
     await page.locator("#dashboard-add-widget").click();
-    await expect(dialog.locator("#widget-gallery-heading")).toHaveText("Starter widgets");
+    await expect(dialog.locator("#widget-gallery-heading")).toHaveText("Recommended for your data");
     await dialog.locator(`#widget-gallery-${template.key}`).click();
     await expect(dialog.getByRole("textbox", { name: "Name", exact: false })).toHaveValue(template.name);
     await expect(dialog.locator(`[id="display-type-${template.displayType}"]`)).toBeChecked();

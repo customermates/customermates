@@ -1820,6 +1820,8 @@
       "kind": {
         "activityTimelineDescription": "Segui in ordine cronologico le modifiche ai record, i messaggi e le attività di account e calendario.",
         "chartDescription": "Confronta i dati del CRM in un grafico.",
+        "description": "Scegli un formato e seleziona tu i dati.",
+        "scratchTitle": "Parti da zero",
         "title": "Scegli un widget"
       },
       "preview": {
@@ -1830,7 +1832,7 @@
         "template": "Condividi come modello"
       },
       "steps": {
-        "chooseDescription": "Scegli un formato oppure parti da una configurazione condivisa nel tuo spazio di lavoro.",
+        "chooseDescription": "Inizia da un suggerimento, da un formato vuoto o da una configurazione condivisa nel tuo spazio di lavoro.",
         "configureDescription": "Scegli cosa mostra questo widget e come appare."
       },
       "tabs": {
@@ -1844,7 +1846,7 @@
       }
     },
     "widgetGallery": {
-      "description": "Widget pronti per il tuo modello di dati attuale. Puoi modificare tutto prima di salvare.",
+      "description": "Suggerimenti creati dai tipi di record e dai campi del tuo spazio di lavoro. Puoi modificare tutto prima di salvare.",
       "templates": {
         "dealsByStage": {
           "description": "Trattative in ogni fase, nell’ordine delle fasi, con la conversione tra i passaggi.",
@@ -1867,7 +1869,7 @@
           "name": "Valore vinto al mese"
         }
       },
-      "title": "Widget iniziali"
+      "title": "Consigliati per i tuoi dati"
     },
     "widgetKinds": {
       "activityTimeline": "Cronologia attività",

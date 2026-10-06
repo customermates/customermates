@@ -1820,6 +1820,8 @@
       "kind": {
         "activityTimelineDescription": "Suivez les modifications d'enregistrements, les messages et l'activité des comptes ou agendas dans l'ordre chronologique.",
         "chartDescription": "Comparez vos données CRM dans un graphique.",
+        "description": "Choisissez un format et sélectionnez vous-même les données.",
+        "scratchTitle": "Partir de zéro",
         "title": "Choisir un widget"
       },
       "preview": {
@@ -1830,7 +1832,7 @@
         "template": "Partager comme modèle"
       },
       "steps": {
-        "chooseDescription": "Choisissez un format ou partez d'une configuration partagée dans votre espace de travail.",
+        "chooseDescription": "Commencez par une recommandation, un format vierge ou une configuration partagée dans votre espace de travail.",
         "configureDescription": "Choisissez ce que ce widget affiche et son apparence."
       },
       "tabs": {
@@ -1844,7 +1846,7 @@
       }
     },
     "widgetGallery": {
-      "description": "Des widgets prêts à l’emploi pour votre modèle de données actuel. Vous pouvez tout modifier avant d’enregistrer.",
+      "description": "Suggestions créées à partir des types d’enregistrement et des champs de votre espace de travail. Vous pouvez tout modifier avant d’enregistrer.",
       "templates": {
         "dealsByStage": {
           "description": "Les affaires de chaque étape, dans l’ordre des étapes, avec la conversion d’une étape à l’autre.",
@@ -1867,7 +1869,7 @@
           "name": "Valeur gagnée par mois"
         }
       },
-      "title": "Widgets de départ"
+      "title": "Recommandé pour vos données"
     },
     "widgetKinds": {
       "activityTimeline": "Chronologie des activités",

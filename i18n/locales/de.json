@@ -1820,6 +1820,8 @@
       "kind": {
         "activityTimelineDescription": "Verfolge Datensatzänderungen, Nachrichten sowie Konto- und Kalenderaktivitäten chronologisch.",
         "chartDescription": "Vergleiche CRM-Daten in einem Diagramm.",
+        "description": "Wählen Sie ein Format und legen Sie die Daten selbst fest.",
+        "scratchTitle": "Von Grund auf neu",
         "title": "Widget auswählen"
       },
       "preview": {
@@ -1830,7 +1832,7 @@
         "template": "Als Vorlage freigeben"
       },
       "steps": {
-        "chooseDescription": "Wähle ein Format oder starte mit einer geteilten Konfiguration aus deinem Workspace.",
+        "chooseDescription": "Starten Sie mit einer Empfehlung, einem leeren Format oder einer in Ihrem Workspace geteilten Vorlage.",
         "configureDescription": "Lege fest, welche Daten dieses Widget zeigt und wie es aussieht."
       },
       "tabs": {
@@ -1844,7 +1846,7 @@
       }
     },
     "widgetGallery": {
-      "description": "Fertige Widgets für dein aktuelles Datenmodell. Du kannst vor dem Speichern alles anpassen.",
+      "description": "Vorschläge auf Basis der Datensatztypen und Felder in Ihrem Workspace. Vor dem Speichern können Sie alles anpassen.",
       "templates": {
         "dealsByStage": {
           "description": "Deals je Phase in Phasenreihenfolge, mit Umwandlung von Schritt zu Schritt.",
@@ -1867,7 +1869,7 @@
           "name": "Gewonnener Wert pro Monat"
         }
       },
-      "title": "Startwidgets"
+      "title": "Empfohlen für Ihre Daten"
     },
     "widgetKinds": {
       "activityTimeline": "Aktivitätsverlauf",
