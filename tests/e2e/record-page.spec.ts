@@ -99,6 +99,7 @@ test("opens a stable record page, preserves its draft alongside the assistant, a
   );
   await main.getByRole("button", { name: "Save", exact: true }).click();
   await expect(main.getByRole("button", { name: "Reset", exact: true })).not.toBeVisible();
+  await waitForDealReads(main);
   await page.reload();
   await expect(main.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Same page drawer draft");
   const transferredNotes = await database.query(
