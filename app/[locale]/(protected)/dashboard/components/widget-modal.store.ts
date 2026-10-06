@@ -21,8 +21,7 @@ import { action, computed, makeObservable, observable, reaction, runInAction, to
 import { deleteWidgetAction, getCompanyWidgetsAction, getWidgetByIdAction, getWidgetGalleryAction } from "../actions";
 import { browserTimeZone } from "./widget-time-zone";
 import { GRID_COLS } from "./grid.constants";
-import { type WidgetLayoutGeometry, widgetLayoutGeometry } from "./widget-layout";
-import { widgetDefaultSize } from "@/features/widget/widget-grid";
+import { type WidgetLayoutGeometry, widgetDefaultSize, widgetLayoutGeometry } from "@/features/widget/widget-grid";
 
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { reportApplicationError } from "@/core/errors/report-application-error";

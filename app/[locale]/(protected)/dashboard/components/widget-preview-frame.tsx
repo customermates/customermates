@@ -13,7 +13,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/core/utils/cn";
 
 import { DASHBOARD_GRID_MARGIN, DASHBOARD_ROW_HEIGHT, GRID_COLS } from "./grid.constants";
-import { type WidgetLayoutGeometry, widgetLayoutGeometry } from "./widget-layout";
+import { type WidgetLayoutGeometry, widgetLayoutGeometry } from "@/features/widget/widget-grid";
 
 const FALLBACK_GRID_WIDTH = 1120;
 

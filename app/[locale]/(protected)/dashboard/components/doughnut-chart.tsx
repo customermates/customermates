@@ -14,8 +14,6 @@ import { DashboardChartContainer } from "./dashboard-chart-container";
 type Props = {
   currency?: string | null;
   chartData: ChartDataPoint[];
-  colors: string[];
-  textColor: string;
   showLegend?: boolean;
 };
 

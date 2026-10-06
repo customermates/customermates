@@ -18,8 +18,6 @@ type Props = {
   chartData: ChartDataPoint[];
   colors: string[];
   strokeColors: string[];
-  gridColor: string;
-  textColor: string;
   reverseXAxis?: boolean;
   reverseYAxis?: boolean;
   allowDecimals?: boolean;

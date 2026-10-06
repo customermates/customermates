@@ -9,8 +9,7 @@ import { action, makeObservable, observable, reaction, runInAction, toJS } from 
 import { refreshWidgetsAction, updateWidgetLayoutsAction } from "../actions";
 
 import { GRID_COLS } from "./grid.constants";
-import { widgetLayoutGeometry } from "./widget-layout";
-import { firstFreeSpot } from "@/features/widget/widget-grid";
+import { firstFreeSpot, widgetLayoutGeometry } from "@/features/widget/widget-grid";
 
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
 import { BREAKPOINTS } from "@/constants/breakpoints";

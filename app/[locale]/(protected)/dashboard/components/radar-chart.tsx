@@ -15,7 +15,6 @@ type Props = {
   currency?: string | null;
   chartData: ChartDataPoint[];
   colors: string[];
-  textColor: string;
 };
 
 export const RadarChartComponent = observer(({ currency, chartData, colors }: Props) => {

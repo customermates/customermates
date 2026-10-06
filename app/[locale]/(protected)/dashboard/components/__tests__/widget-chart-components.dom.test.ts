@@ -59,8 +59,6 @@ describe("time series and funnel charts", () => {
             chartData: series,
             colors: ["#336699"],
             strokeColors: ["#224466"],
-            gridColor: "var(--border)",
-            textColor: "var(--muted-foreground)",
             allowDecimals,
           }),
           createElement(HorizontalBarChart, {
@@ -68,8 +66,6 @@ describe("time series and funnel charts", () => {
             currency: null,
             chartData: series,
             colors: ["#336699"],
-            gridColor: "var(--border)",
-            textColor: "var(--muted-foreground)",
             allowDecimals,
           }),
         ]),
@@ -101,8 +97,6 @@ describe("time series and funnel charts", () => {
           ],
           colors: ["#336699"],
           strokeColors: ["#224466"],
-          gridColor: "var(--border)",
-          textColor: "var(--muted-foreground)",
         }),
       );
       await Promise.resolve();
@@ -118,8 +112,6 @@ describe("time series and funnel charts", () => {
     await act(async () => {
       root.render(
         createElement(FunnelChart, {
-          currency: null,
-          textColor: "var(--muted-foreground)",
           chartData: [
             point("New", 10, { detail: "10" }),
             point("Qualified", 5, { detail: "5 · 50%" }),

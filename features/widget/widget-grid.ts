@@ -43,6 +43,24 @@ export function widgetMinimumSize(kind: WidgetKindName): { w: number; h: number 
   return kind === "activityTimeline" ? { w: 2, h: 3 } : { w: 1, h: 1 };
 }
 
+export type WidgetLayoutGeometry = { w: number; h: number; minW?: number; minH?: number };
+
+export function widgetLayoutGeometry(
+  kind: WidgetKindName,
+  cols: number,
+  persisted?: { w: number; h: number },
+): WidgetLayoutGeometry {
+  if (kind === "chart") return { w: Math.min(persisted?.w ?? 4, cols), h: persisted?.h ?? 4 };
+  const minimum = widgetMinimumSize(kind);
+  const minW = Math.min(minimum.w, cols);
+  return {
+    w: Math.max(minW, Math.min(persisted?.w ?? Math.min(cols >= 12 ? 6 : 4, cols), cols)),
+    h: Math.max(minimum.h, persisted?.h ?? 4),
+    minW,
+    minH: minimum.h,
+  };
+}
+
 export function widgetDefaultSize(kind: WidgetKindName, displayType?: DisplayType): { w: number; h: number } {
   if (kind === "activityTimeline") return { w: 6, h: 4 };
   switch (displayType) {
@@ -87,9 +105,7 @@ export function occupiedGrid(widgets: StoredWidget[]): PlacedRect[] {
   const placed: PlacedRect[] = [];
   for (const widget of widgets) {
     const saved = widget.layout?.lg;
-    const fallback = widget.kind === "activityTimeline" ? { w: 6, h: 4 } : { w: 4, h: 4 };
-    const w = Math.min(saved?.w ?? fallback.w, WIDGET_GRID_COLUMNS);
-    const h = saved?.h ?? fallback.h;
+    const { w, h } = widgetLayoutGeometry(widget.kind, WIDGET_GRID_COLUMNS, saved);
     const spot =
       saved && saved.y !== null && saved.y !== undefined
         ? { x: Math.min(saved.x, WIDGET_GRID_COLUMNS - w), y: saved.y }

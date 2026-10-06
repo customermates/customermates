@@ -7,9 +7,7 @@ import { observer } from "mobx-react-lite";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 type Props = {
-  currency?: string | null;
   chartData: ChartDataPoint[];
-  textColor: string;
 };
 
 export const FunnelChart = observer(({ chartData }: Props) => {

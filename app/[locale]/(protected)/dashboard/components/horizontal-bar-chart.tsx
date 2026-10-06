@@ -23,8 +23,6 @@ type Props = {
   currency?: string | null;
   chartData: ChartDataPoint[];
   colors: string[];
-  gridColor: string;
-  textColor: string;
   reverseXAxis?: boolean;
   reverseYAxis?: boolean;
   allowDecimals?: boolean;
