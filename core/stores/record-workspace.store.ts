@@ -175,7 +175,7 @@ export class RecordWorkspaceStore {
         editor.markStale();
         return false;
       }
-      const latest = pageIsLatest ? page : editor;
+      const latest = drawerIsLatest ? editor : page;
       if (ownsCompose) compose.discardNewThread();
       if (handoff) page.restoreDraft(handoff.draft, latest.presentation, latest.record as RecordDto);
       else {

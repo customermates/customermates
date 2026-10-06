@@ -237,6 +237,36 @@ describe("record draft handoff", () => {
     expect(f.store.takeDraftHandoff(f.ref)).toBeNull();
   });
 
+  it.each([false, true])("uses fresh drawer access and layout at equal revisions (drawer dirty: %s)", (dirtyDrawer) => {
+    const f = editors();
+    f.store.registerPageEditor(f.page);
+    const latest: RecordEditorResult = {
+      ...f.context,
+      canManageSchema: false,
+      permittedActions: ["readOwn"],
+      detailLayout: {
+        typeId: f.context.typeId,
+        schemaRevision: 1,
+        hasPersonalization: true,
+        layout: { pinnedFields: [f.fieldId], hiddenFields: [], fieldOrder: [f.fieldId] },
+        fields: [{ id: f.fieldId, label: "Fresh field label" }],
+      },
+      record: f.record(1, "Saved"),
+    };
+    f.drawer.edit(latest, latest.record);
+    if (dirtyDrawer) f.drawer.onChange(`values.${f.fieldId}`, "Drawer draft");
+    expect(f.store.handOffDraft(f.drawer)).toBe(true);
+    expect(f.page.presentation.canManageSchema).toBe(false);
+    expect(f.page.presentation.permittedActions).toEqual(["readOwn"]);
+    expect(f.page.presentation.detailLayout).toEqual(latest.detailLayout);
+    expect(f.page.isReadOnly).toBe(true);
+    expect(f.page.form.values[f.fieldId]).toBe(dirtyDrawer ? "Drawer draft" : "Saved");
+    expect(f.page.hasUnsavedChanges).toBe(dirtyDrawer);
+    expect(f.page.record?.version).toBe(1);
+    expect(f.page.presentation.model.revision).toBe(1);
+    expect(f.store.takeDraftHandoff(f.ref)).toBeNull();
+  });
+
   it("transfers a same-record drawer draft and rebases it onto a newer mounted page", () => {
     const f = editors();
     f.store.registerPageEditor(f.page);
