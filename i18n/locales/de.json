@@ -29,6 +29,10 @@
     "privacyLink": "Datenschutzdetails",
     "title": "Hilf uns zu verstehen, was funktioniert"
   },
+  "ActivityPage": {
+    "description": "Änderungen an Datensätzen, Verwaltung und Konfiguration in diesem Workspace",
+    "title": "Aktivität"
+  },
   "AgentChat": {
     "activity": {
       "approval": {
@@ -800,12 +804,7 @@
     "unnamed": "Unbenannt"
   },
   "AuditLogModal": {
-    "createdAt": "Erstellt am",
-    "entity": "Element",
-    "entityId": "Element-ID",
-    "event": "Ereignis",
     "eventAt": "{event} am {date}",
-    "eventData": "Ereignisdaten",
     "fields": {
       "acceptanceType": "Art der Zustimmung",
       "acceptingEmail": "Zugestimmt von",
@@ -813,10 +812,9 @@
       "changedFields": "Überwachte Felder",
       "city": "Stadt",
       "country": "Land",
+      "createType": "Neuer Typ",
       "cronExpression": "Zeitplan",
       "currency": "Währung",
-      "dealStageWeights": "Phasenwahrscheinlichkeiten",
-      "dealWeightingColumnId": "Phasenfeld",
       "debounceSeconds": "Verzögerung",
       "disabledReason": "Deaktivierungsgrund",
       "effectiveAt": "Gültig ab",
@@ -826,10 +824,16 @@
       "markdown": "Markdown",
       "postalCode": "Postleitzahl",
       "prompt": "Anweisungen",
+      "publishSummary": "Veröffentlichte Zusammenfassung",
+      "putAccessPreset": "Zugriffsvorlage",
+      "putActivityPath": "Aktivitätspfad",
+      "putCapability": "Funktion",
+      "putField": "Feld",
+      "putRelationship": "Beziehung",
+      "putType": "Typ",
       "recipientEmail": "Gesendet an",
       "removalReason": "Entfernungsgrund",
       "street": "Straße",
-      "terminology": "Datensatzbenennung",
       "timezone": "Zeitzone",
       "triggerEvents": "Auslöser-Ereignisse",
       "triggerFilters": "Auslöser-Filter",
@@ -840,15 +844,7 @@
     "noValue": "Kein Wert",
     "relationsAdded": "{field} hinzugefügt",
     "relationsDeleted": "{field} entfernt",
-    "title": "Audit-Log-Details",
-    "unchangedLines": "{count, plural, one {# unveränderte Zeile} other {# unveränderte Zeilen}}",
-    "userId": "Benutzer"
-  },
-  "AuditLogsCard": {
-    "emptyBody": "Änderungen im Workspace werden hier protokolliert.",
-    "emptyTitle": "Noch keine Aktivität",
-    "searchTooltip": "Nach Element-ID suchen",
-    "title": "Audit-Logs"
+    "unchangedLines": "{count, plural, one {# unveränderte Zeile} other {# unveränderte Zeilen}}"
   },
   "AuthSocialErrors": {
     "accessDenied": "Die Anmeldung wurde beim Anbieter abgebrochen.",
@@ -936,7 +932,6 @@
       "success": "Grün",
       "warning": "Gelb"
     },
-    "company": "Unternehmen",
     "creditsBelowMinimum": "<{amount}",
     "dateBuckets": {
       "day": "Tag",
@@ -1245,6 +1240,13 @@
         "created": "Datensatz erstellt",
         "deleted": "Datensatz gelöscht",
         "updated": "Datensatz aktualisiert"
+      },
+      "record_grants": {
+        "updated": "Datensatzzugriff geändert"
+      },
+      "record_model": {
+        "initialized": "Datenmodell eingerichtet",
+        "updated": "Datenmodell geändert"
       },
       "records": {
         "exported": "Datensätze exportiert"
@@ -2097,8 +2099,10 @@
     "noFurtherDetail": "Für dieses Ereignis wurden keine weiteren Details gespeichert.",
     "types": {
       "activities": "Aktivitäten",
-      "changes": "Änderungen",
-      "messages": "Nachrichten"
+      "audit": "Verwaltung und System",
+      "configuration": "Konfiguration",
+      "messages": "Nachrichten",
+      "record": "Datensatzänderungen"
     }
   },
   "ErrorCard": {

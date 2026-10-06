@@ -7,10 +7,11 @@ import { RecordSurfaceKeySchema } from "@/core/data-view/data-view-identity.sche
 import { RecordActivityFilterSchema, type RecordActivityFilter } from "./record-activities.schema";
 
 const SOURCES = {
-  changes: ["audit"],
   messages: ["message"],
   activities: ["activity", "calendar_event"],
+  record: ["record"],
   audit: ["audit"],
+  configuration: ["configuration"],
   message: ["message"],
   activity: ["activity"],
   calendar_event: ["calendar_event"],

@@ -1340,7 +1340,7 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
         (SELECT COUNT(*) FROM "AgentConversation" WHERE "companyId" = ${data.companyId})::int AS "agentConversations",
         (SELECT COUNT(*) FROM "ConnectedAccount" WHERE "companyId" = ${data.companyId})::int AS "connectedAccounts",
         (SELECT MAX("lastActiveAt") FROM "User" WHERE "companyId" = ${data.companyId}) AS "lastActiveAt",
-        (SELECT MAX("createdAt") FROM "AuditLog" WHERE "companyId" = ${data.companyId}) AS "lastActivityAt"
+        (SELECT MAX("createdAt") FROM "EventLog" WHERE "companyId" = ${data.companyId}) AS "lastActivityAt"
     `;
 
     const row = rows[0];
@@ -1417,13 +1417,13 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
       }>
     >`
       WITH ev AS (
-        SELECT "eventData"->>'entityId' AS acct,
-               "eventData"->'payload'->>'provider' AS provider,
-               COALESCE("eventData"->'payload'->>'emailAddress', "eventData"->'payload'->>'displayName') AS ident,
-               "event" AS name,
+        SELECT "subjectId" AS acct,
+               payload->>'provider' AS provider,
+               COALESCE(payload->>'emailAddress', payload->>'displayName') AS ident,
+               kind AS name,
                "createdAt"
-        FROM "AuditLog"
-        WHERE "companyId" = ${companyId} AND "event" LIKE 'connected_account%'
+        FROM "EventLog"
+        WHERE "companyId" = ${companyId} AND "subjectKind" = 'connected_account'
       ),
       iv AS (
         SELECT e.acct,

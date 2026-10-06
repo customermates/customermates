@@ -4,7 +4,11 @@ import type { RecordRef } from "@/features/records/record-model.schema";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type { RecordActivityPresentation } from "@/ee/messaging/activities/get-record-activity-presentation.interactor";
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
-import { ACTIVITY_KINDS, type ActivityEntryDto } from "@/ee/messaging/activities/activities.schema";
+import {
+  ACTIVITY_KINDS,
+  CHANGE_ACTIVITY_KINDS,
+  type ActivityEntryDto,
+} from "@/ee/messaging/activities/activities.schema";
 import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
 import type { RecordActivitiesInput } from "@/ee/messaging/activities/record-activities.schema";
 import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
@@ -28,7 +32,7 @@ export class RecordActivityViewsStore extends BaseDataViewStore<ActivityEntryDto
   initialView?: string;
   constructor(
     root: RootStore,
-    private record: RecordRef,
+    private record: RecordRef | null,
     viewPathname?: string,
     viewSyncToUrl = false,
     initialView?: string,
@@ -93,8 +97,8 @@ export class RecordActivityViewsStore extends BaseDataViewStore<ActivityEntryDto
         return;
       }
       const result = await getRecordActivitiesAction({
-        scope: { records: [this.record], typeIds: [] },
-        kinds: [...ACTIVITY_KINDS],
+        scope: { records: this.record ? [this.record] : [], typeIds: [] },
+        kinds: [...(this.record ? ACTIVITY_KINDS : CHANGE_ACTIVITY_KINDS)],
         filters: activityViewFilters(toJS(this.filters ?? [])),
         cursor: this.cursor,
         limit: 25,

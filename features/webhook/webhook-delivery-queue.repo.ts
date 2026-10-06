@@ -1,4 +1,4 @@
-import type { RecordEventSubscription, Webhook, WebhookDelivery } from "@/generated/prisma";
+import type { EventLog, RecordEventSubscription, Webhook, WebhookDelivery } from "@/generated/prisma";
 
 export type WebhookDeliveryClaim =
   | { status: "missing" }
@@ -15,6 +15,7 @@ export abstract class WebhookDeliveryQueueRepo {
   ): Promise<{
     delivery: WebhookDelivery;
     webhook: Webhook | null;
+    event: EventLog | null;
     subscription: RecordEventSubscription | null;
   } | null>;
   abstract finishUnscoped(input: {

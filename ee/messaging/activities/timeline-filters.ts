@@ -12,7 +12,6 @@ export type ActivityQuery = {
 };
 
 const TYPE_TO_KINDS: Record<string, readonly ActivityKind[]> = {
-  changes: ["audit"],
   messages: ["message"],
   activities: ["activity", "calendar_event"],
 };

@@ -1,5 +1,5 @@
 import { DomainEvent } from "@/features/event/domain-events";
-import { extractAuditChanges } from "@/features/audit-log/audit-log-changes";
+import { extractAuditChanges } from "@/features/event/audit-changes";
 import { WIKI_PAGE_AUDIT_EVENTS } from "@/features/wiki/wiki-audit-events";
 
 export const SYSTEM_ACTIVITY_AUDIT_EVENTS = [
@@ -39,10 +39,10 @@ export function isSystemActivityAuditEvent(
   return systemEvents.has(event);
 }
 
-export function systemActivityChanges(event: string, eventData: unknown, isAdmin: boolean) {
+export function systemActivityChanges(event: string, payload: unknown, isAdmin: boolean) {
   if (!isSystemActivityAuditEvent(event) || (event === DomainEvent.RECORDS_EXPORTED && !isAdmin)) return [];
   try {
-    return extractAuditChanges(eventData);
+    return extractAuditChanges(payload);
   } catch {
     return [];
   }

@@ -29,6 +29,10 @@
     "privacyLink": "Détails de confidentialité",
     "title": "Aidez-nous à comprendre ce qui fonctionne"
   },
+  "ActivityPage": {
+    "description": "Modifications des enregistrements, de l’administration et de la configuration de cet espace de travail",
+    "title": "Activité"
+  },
   "AgentChat": {
     "activity": {
       "approval": {
@@ -800,12 +804,7 @@
     "unnamed": "Sans nom"
   },
   "AuditLogModal": {
-    "createdAt": "Créé le",
-    "entity": "Élément",
-    "entityId": "ID de l'élément",
-    "event": "Évènement",
     "eventAt": "{event} le {date}",
-    "eventData": "Données de l'évènement",
     "fields": {
       "acceptanceType": "Type d'acceptation",
       "acceptingEmail": "Accepté par",
@@ -813,10 +812,9 @@
       "changedFields": "Champs surveillés",
       "city": "Ville",
       "country": "Pays",
+      "createType": "Nouveau type",
       "cronExpression": "Planification",
       "currency": "Devise",
-      "dealStageWeights": "Probabilités d'étape",
-      "dealWeightingColumnId": "Champ d'étape",
       "debounceSeconds": "Délai d’attente",
       "disabledReason": "Motif de désactivation",
       "effectiveAt": "En vigueur à partir du",
@@ -826,10 +824,16 @@
       "markdown": "Markdown",
       "postalCode": "Code postal",
       "prompt": "Consignes",
+      "publishSummary": "Résumé publié",
+      "putAccessPreset": "Modèle d’accès",
+      "putActivityPath": "Chemin d’activité",
+      "putCapability": "Fonctionnalité",
+      "putField": "Champ",
+      "putRelationship": "Relation",
+      "putType": "Type",
       "recipientEmail": "Envoyé à",
       "removalReason": "Motif de suppression",
       "street": "Rue",
-      "terminology": "Noms des enregistrements",
       "timezone": "Fuseau horaire",
       "triggerEvents": "Évènements déclencheurs",
       "triggerFilters": "Filtres du déclencheur",
@@ -840,15 +844,7 @@
     "noValue": "Aucune valeur",
     "relationsAdded": "Ajouts : {field}",
     "relationsDeleted": "Suppressions : {field}",
-    "title": "Détails du journal d'audit",
-    "unchangedLines": "{count, plural, one {# ligne inchangée} other {# lignes inchangées}}",
-    "userId": "Utilisateur"
-  },
-  "AuditLogsCard": {
-    "emptyBody": "Les modifications de l’espace de travail sont enregistrées ici au fur et à mesure.",
-    "emptyTitle": "Aucune activité pour le moment",
-    "searchTooltip": "Rechercher par ID d'élément",
-    "title": "Journaux d'audit"
+    "unchangedLines": "{count, plural, one {# ligne inchangée} other {# lignes inchangées}}"
   },
   "AuthSocialErrors": {
     "accessDenied": "La connexion a été annulée chez le fournisseur.",
@@ -936,7 +932,6 @@
       "success": "Vert",
       "warning": "Jaune"
     },
-    "company": "Entreprise",
     "creditsBelowMinimum": "< {amount}",
     "dateBuckets": {
       "day": "Jour",
@@ -1245,6 +1240,13 @@
         "created": "Fiche créée",
         "deleted": "Fiche supprimée",
         "updated": "Fiche mise à jour"
+      },
+      "record_grants": {
+        "updated": "Accès aux enregistrements modifié"
+      },
+      "record_model": {
+        "initialized": "Modèle de données configuré",
+        "updated": "Modèle de données modifié"
       },
       "records": {
         "exported": "Enregistrements exportés"
@@ -2097,8 +2099,10 @@
     "noFurtherDetail": "Aucun détail supplémentaire n'a été enregistré pour cet événement.",
     "types": {
       "activities": "Activités",
-      "changes": "Modifications",
-      "messages": "Messages"
+      "audit": "Administration et système",
+      "configuration": "Configuration",
+      "messages": "Messages",
+      "record": "Modifications d’enregistrements"
     }
   },
   "ErrorCard": {

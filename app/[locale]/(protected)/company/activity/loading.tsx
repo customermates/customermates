@@ -2,15 +2,18 @@ import { getTranslations } from "next-intl/server";
 
 import { PageState } from "@/components/page-state/page-state";
 import { PageContainer } from "@/components/shared/page-container";
-import { AuditLogsPageSkeleton } from "../components/audit-log/audit-logs-page-skeleton";
+import { ActivityTimelineSkeleton } from "@/features/messaging/activities/activity-timeline-skeleton";
 
 export default async function Loading() {
   const t = await getTranslations("PageState");
   return (
-    <PageContainer padded={false}>
+    <PageContainer>
       <PageState
-        background={<AuditLogsPageSkeleton />}
-        className="h-[calc(100svh-4rem)] md:h-[calc(100svh-5rem)]"
+        background={
+          <div className="mx-auto w-full max-w-3xl">
+            <ActivityTimelineSkeleton />
+          </div>
+        }
         label={t("loading")}
         state="loading"
       />

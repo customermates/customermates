@@ -2441,7 +2441,6 @@ export async function cleanupBenchmarkFixture(db: BenchmarkDb, fixture: Fixture)
   if (await prisma.agentTurnRequest.count({ where: { companyId: { in: companyIds }, status: { in: ["running", "waitingBudget", "needsAttention"] } } }))
     throw new Error("Fixture still has a nonterminal turn; refusing cleanup");
   await prisma.$transaction(async (tx) => {
-    await tx.auditLog.deleteMany({ where: { companyId: { in: companyIds } } });
     await tx.authUser.deleteMany({ where: { id: fixture.actorUserId, companyId: fixture.companyId } });
     await tx.company.deleteMany({ where: { id: { in: companyIds }, tags: { has: FIXTURE_VERSION } } });
   });

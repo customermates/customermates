@@ -63,22 +63,24 @@ describeDatabase("Knowledge Base audit entries in workspace activity", () => {
       await prisma.rolePermission.create({
         data: { companyId: company.id, roleId: auditRole.id, resource: Resource.auditLog, action: Action.readAll },
       });
-      const wikiEntry = await prisma.auditLog.create({
+      const wikiEntry = await prisma.eventLog.create({
         data: {
           companyId: company.id,
-          userId: admin.id,
-          entityId: randomUUID(),
-          event: DomainEvent.WIKI_PAGE_CREATED,
-          eventData: { title: "Refund policy" },
+          actorId: admin.id,
+          subjectId: randomUUID(),
+          subjectKind: "wiki_page",
+          kind: DomainEvent.WIKI_PAGE_CREATED,
+          payload: { title: "Refund policy" },
         },
       });
-      const companyEntry = await prisma.auditLog.create({
+      const companyEntry = await prisma.eventLog.create({
         data: {
           companyId: company.id,
-          userId: admin.id,
-          entityId: company.id,
-          event: DomainEvent.COMPANY_UPDATED,
-          eventData: {},
+          actorId: admin.id,
+          subjectId: company.id,
+          subjectKind: "company",
+          kind: DomainEvent.COMPANY_UPDATED,
+          payload: {},
         },
       });
       return { company, adminRole, auditRole, admin, auditor, wikiEntry, companyEntry };
@@ -110,7 +112,7 @@ describeDatabase("Knowledge Base audit entries in workspace activity", () => {
             "audit",
           ]);
           const ids = index.filter((row) => row.kind === "audit").map((row) => row.id);
-          const loaded = await activities.auditLogsCompanyWide(ids.length ? ids : [seed.wikiEntry.id]);
+          const loaded = await activities.eventsCompanyWide(ids.length ? ids : [seed.wikiEntry.id]);
           return { ids, loaded: loaded.map((row) => row.id) };
         }),
       );

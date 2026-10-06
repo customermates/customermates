@@ -12,15 +12,12 @@ import type { UpsertWebhookRepo } from "./upsert-webhook.repo";
 import type { DeleteWebhookRepo } from "./delete-webhook.repo";
 import type { FindWebhooksByIdsRepo } from "./find-webhooks-by-ids.repo";
 import type { WebhookDto } from "./webhook.schema";
-import type { GetWebhooksForEventRepo } from "@/features/event/get-webhooks-for-event.repo";
 import type { GetWebhookByIdRepo } from "./get-webhook-by-id.interactor";
 
 import { Action, Prisma, Resource } from "@/generated/prisma";
 
 import { QueryRepository } from "@/core/base/query-repository";
-import { transactionStorage } from "@/core/decorators/transaction-context";
 import { Transaction } from "@/core/decorators/transaction.decorator";
-import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { type GetQueryParams } from "@/core/base/base-get.schema";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
@@ -29,13 +26,7 @@ import { WEBHOOK_MASKED_VALUE } from "./webhook.schema";
 
 export class PrismaWebhookRepo
   extends QueryRepository<Prisma.WebhookWhereInput>
-  implements
-    GetWebhooksRepo,
-    UpsertWebhookRepo,
-    DeleteWebhookRepo,
-    GetWebhooksForEventRepo,
-    FindWebhooksByIdsRepo,
-    GetWebhookByIdRepo
+  implements GetWebhooksRepo, UpsertWebhookRepo, DeleteWebhookRepo, FindWebhooksByIdsRepo, GetWebhookByIdRepo
 {
   constructor(
     private readonly subscriptions: RecordEventSubscriptionRepo,
@@ -268,27 +259,6 @@ export class PrismaWebhookRepo
     });
 
     return dto;
-  }
-
-  async getWebhooksForEvent(event: string) {
-    const { companyId } = this.user;
-
-    const store = transactionStorage.getStore();
-
-    if (store) {
-      const webhooks = (store.enabledWebhooks ??= await this.prisma.webhook.findMany({
-        where: { companyId, enabled: true },
-      }));
-
-      return webhooks.filter((webhook) => webhook.events.includes(event));
-    }
-
-    return this.prisma.webhook.findMany({ where: { companyId, enabled: true, events: { has: event } } });
-  }
-
-  @BypassTenantGuard
-  async getWebhooksForEventUnscoped(event: string, companyId: string) {
-    return this.prisma.webhook.findMany({ where: { companyId, enabled: true, events: { has: event } } });
   }
 
   async getWebhookByIdOrThrow(id: string) {

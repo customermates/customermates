@@ -39,7 +39,6 @@ import {
   getDeleteWebhookInteractor,
   getGetWebhookDeliveriesInteractor,
   getResendWebhookDeliveryInteractor,
-  getGetAuditLogsInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 import { isRedirect } from "@/features/auth/auth-outcome";
@@ -115,10 +114,6 @@ export async function getUsersAction(params?: GetQueryParams) {
 export async function getUserByIdAction(data: GetUserByIdData) {
   const result = await getGetUserByIdInteractor().invoke(data);
   return result.ok ? result.data : { user: null };
-}
-
-export async function getAuditLogsAction(params?: GetQueryParams) {
-  return unwrapValidated(getGetAuditLogsInteractor().invoke(params));
 }
 
 export async function upsertWebhookAction(data: UpsertWebhookData) {

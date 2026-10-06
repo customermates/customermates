@@ -30,7 +30,7 @@ export type LegalAcceptanceAuditPayload = z.infer<typeof LegalAcceptanceAuditPay
 type LegalAuditRecordBase = {
   createdAt: Date;
   entityId: string;
-  userId: string;
+  userId: string | null;
 };
 
 export type LegalAuditRecord =

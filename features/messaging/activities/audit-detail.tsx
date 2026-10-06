@@ -13,8 +13,8 @@ import remarkGfm from "remark-gfm";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { channelDisplayLabel } from "@/ee/messaging/thread-display";
 
-import { hasNotesDiff, NotesDiff } from "@/app/[locale]/(protected)/company/components/audit-log/notes-diff";
-import { isEmpty, partitionRelationIds } from "@/features/audit-log/audit-log-changes";
+import { hasNotesDiff, NotesDiff } from "./notes-diff";
+import { isEmpty, partitionRelationIds } from "@/features/event/audit-changes";
 
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
@@ -122,7 +122,7 @@ function ChangeRow({ label, children }: { label: string; children: ReactNode }) 
 }
 
 type Props = {
-  entry: Extract<ActivityEntryDto, { kind: "audit" }>;
+  entry: Extract<ActivityEntryDto, { kind: "audit" | "configuration" }>;
 };
 
 export const AuditDetail = observer(({ entry }: Props) => {
@@ -137,6 +137,12 @@ export const AuditDetail = observer(({ entry }: Props) => {
     if (isWikiEvent && field === "kind") return t("Wiki.kind.label");
     if (isWikiEvent && field === "whenToUse") return t("Wiki.whenToUse.label");
     return columnLabel(field);
+  }
+
+  function grantActionLabel(action: string): string {
+    if (action === "readOwn") return `${t("RoleModal.readAccess")}: ${t("RoleModal.readOwn")}`;
+    if (action === "readAll") return `${t("RoleModal.readAccess")}: ${t("RoleModal.readAll")}`;
+    return t(action === "update" ? "RoleModal.edit" : action === "delete" ? "RoleModal.delete" : "RoleModal.create");
   }
 
   function legalDocumentLabel(document: string): string {
@@ -208,6 +214,16 @@ export const AuditDetail = observer(({ entry }: Props) => {
         return countryLabelForLocale(String(value), locale);
       case "currency":
         return getCurrencyLabel(String(value), locale);
+      case "grants":
+        return (
+          <ul className="space-y-0.5">
+            {(value as { role: string; actions: string[] }[]).map((grant) => (
+              <li key={grant.role} className="break-words">
+                {`${grant.role}: ${grant.actions.map(grantActionLabel).join(", ") || t("RoleModal.readNone")}`}
+              </li>
+            ))}
+          </ul>
+        );
       case "changedDocuments":
         return (value as string[]).map((document) => legalDocumentLabel(document)).join(", ");
       case "versions":
@@ -239,10 +255,11 @@ export const AuditDetail = observer(({ entry }: Props) => {
     }
   }
 
-  const authorName = `${entry.actor.firstName} ${entry.actor.lastName}`.trim();
+  const authorName =
+    `${entry.actor.firstName} ${entry.actor.lastName}`.trim() || entry.actor.email || t("RecordModel.systemActor");
   const changes = entry.changes.map((change) => ({
     key: change.field,
-    field: fieldLabel(change.field),
+    field: change.label ?? fieldLabel(change.field),
     previous: change.previous,
     current: change.current,
     snapshot: change.snapshot === true,

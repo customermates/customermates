@@ -29,6 +29,10 @@
     "privacyLink": "Dettagli sulla privacy",
     "title": "Aiutaci a capire cosa funziona"
   },
+  "ActivityPage": {
+    "description": "Modifiche a record, amministrazione e configurazione in questo workspace",
+    "title": "Attività"
+  },
   "AgentChat": {
     "activity": {
       "approval": {
@@ -800,12 +804,7 @@
     "unnamed": "Senza nome"
   },
   "AuditLogModal": {
-    "createdAt": "Creato il",
-    "entity": "Elemento",
-    "entityId": "ID dell'elemento",
-    "event": "Evento",
     "eventAt": "{event} il {date}",
-    "eventData": "Dati dell'evento",
     "fields": {
       "acceptanceType": "Tipo di accettazione",
       "acceptingEmail": "Accettato da",
@@ -813,10 +812,9 @@
       "changedFields": "Campi monitorati",
       "city": "Città",
       "country": "Paese",
+      "createType": "Nuovo tipo",
       "cronExpression": "Pianificazione",
       "currency": "Valuta",
-      "dealStageWeights": "Probabilità di fase",
-      "dealWeightingColumnId": "Campo della fase",
       "debounceSeconds": "Ritardo",
       "disabledReason": "Motivo disattivazione",
       "effectiveAt": "In vigore dal",
@@ -826,10 +824,16 @@
       "markdown": "Markdown",
       "postalCode": "Codice postale",
       "prompt": "Istruzioni",
+      "publishSummary": "Riepilogo pubblicato",
+      "putAccessPreset": "Modello di accesso",
+      "putActivityPath": "Percorso attività",
+      "putCapability": "Funzionalità",
+      "putField": "Campo",
+      "putRelationship": "Relazione",
+      "putType": "Tipo",
       "recipientEmail": "Inviato a",
       "removalReason": "Motivo rimozione",
       "street": "Via",
-      "terminology": "Nomi dei record",
       "timezone": "Fuso orario",
       "triggerEvents": "Eventi di attivazione",
       "triggerFilters": "Filtri di attivazione",
@@ -840,15 +844,7 @@
     "noValue": "Nessun valore",
     "relationsAdded": "Relazioni aggiunte nel campo «{field}»",
     "relationsDeleted": "Relazioni rimosse dal campo «{field}»",
-    "title": "Dettagli del registro di controllo",
-    "unchangedLines": "{count, plural, one {# riga invariata} other {# righe invariate}}",
-    "userId": "Utente"
-  },
-  "AuditLogsCard": {
-    "emptyBody": "Le modifiche allo spazio di lavoro vengono registrate qui man mano che avvengono.",
-    "emptyTitle": "Ancora nessuna attività",
-    "searchTooltip": "Cerca per ID elemento",
-    "title": "Registri di controllo"
+    "unchangedLines": "{count, plural, one {# riga invariata} other {# righe invariate}}"
   },
   "AuthSocialErrors": {
     "accessDenied": "L'accesso è stato annullato presso il provider.",
@@ -936,7 +932,6 @@
       "success": "Verde",
       "warning": "Giallo"
     },
-    "company": "Azienda",
     "creditsBelowMinimum": "<{amount}",
     "dateBuckets": {
       "day": "Giorno",
@@ -1245,6 +1240,13 @@
         "created": "Record creato",
         "deleted": "Record eliminato",
         "updated": "Record aggiornato"
+      },
+      "record_grants": {
+        "updated": "Accesso ai record modificato"
+      },
+      "record_model": {
+        "initialized": "Modello dati configurato",
+        "updated": "Modello dati modificato"
       },
       "records": {
         "exported": "Record esportati"
@@ -2097,8 +2099,10 @@
     "noFurtherDetail": "Non sono stati registrati altri dettagli per questo evento.",
     "types": {
       "activities": "Attività",
-      "changes": "Modifiche",
-      "messages": "Messaggi"
+      "audit": "Amministrazione e sistema",
+      "configuration": "Configurazione",
+      "messages": "Messaggi",
+      "record": "Modifiche ai record"
     }
   },
   "ErrorCard": {

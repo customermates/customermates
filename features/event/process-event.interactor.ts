@@ -1,25 +1,25 @@
 import { z } from "zod";
-import type { RecordEvent } from "@/generated/prisma";
-import type { RecordEventOutboxRepo } from "./record-event-outbox.repo";
-import type { RecordEventAdmission } from "./record-event-admission";
+import type { EventLog } from "@/generated/prisma";
+import type { EventOutboxRepo } from "./event-outbox.repo";
+import type { EventAdmission } from "./event-admission";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 
-const ProcessRecordEventSchema = z.object({ companyId: z.uuid(), eventId: z.uuid() }).strict();
-type ProcessRecordEventInput = z.infer<typeof ProcessRecordEventSchema>;
-type ProcessRecordEventResult = { status: "delivered" | "deferred" | "not_found" };
+const ProcessEventSchema = z.object({ companyId: z.uuid(), eventId: z.uuid() }).strict();
+type ProcessEventInput = z.infer<typeof ProcessEventSchema>;
+type ProcessEventResult = { status: "delivered" | "deferred" | "not_found" };
 
 @SystemInteractor
-export class ProcessRecordEventInteractor {
+export class ProcessEventInteractor {
   constructor(
-    private readonly outbox: RecordEventOutboxRepo,
-    private readonly admission: RecordEventAdmission,
+    private readonly outbox: EventOutboxRepo,
+    private readonly admission: EventAdmission,
   ) {}
 
-  @Enforce(ProcessRecordEventSchema)
-  async invoke(input: ProcessRecordEventInput): Promise<ProcessRecordEventResult> {
-    const attempt: { event: RecordEvent | null } = { event: null };
+  @Enforce(ProcessEventSchema)
+  async invoke(input: ProcessEventInput): Promise<ProcessEventResult> {
+    const attempt: { event: EventLog | null } = { event: null };
     try {
       return await runInTransaction(
         async () => {

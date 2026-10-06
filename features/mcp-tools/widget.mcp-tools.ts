@@ -108,7 +108,6 @@ export const manageWidgetsTool = {
           id: widget.id,
           name: widget.name,
           kind: widget.kind,
-          contractVersion: 2,
           version: widget.version,
         })),
       });
@@ -172,7 +171,6 @@ export const manageWidgetsTool = {
             kind: result.data.kind,
             name: result.data.name,
             version: result.data.version,
-            contractVersion: 2,
           })
         : mcpInteractorFailure(result.error);
     }
@@ -197,7 +195,6 @@ export const manageWidgetsTool = {
           kind: result.data.kind,
           name: result.data.name,
           version: result.data.version,
-          contractVersion: 2,
         })
       : mcpInteractorFailure(result.error);
   },

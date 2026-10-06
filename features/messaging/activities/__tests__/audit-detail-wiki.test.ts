@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { ActivityEntryDto } from "@/ee/messaging/activities/activities.schema";
-import type { AuditChange } from "@/features/audit-log/audit-log-changes";
+import type { AuditChange } from "@/features/event/audit-changes";
 
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";

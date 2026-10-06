@@ -6,5 +6,4 @@ export abstract class ThreadRecordsRepo {
   abstract has(threadId: string, ref: RecordRef): Promise<boolean>;
   abstract link(threadId: string, ref: RecordRef): Promise<void>;
   abstract unlink(threadId: string, ref: RecordRef): Promise<void>;
-  abstract audit(threadId: string, ref: RecordRef, action: "link" | "unlink"): Promise<void>;
 }

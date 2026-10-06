@@ -347,6 +347,13 @@ export async function populateLegacyWorkspace(client: ClientBase, { currency = "
       })
     ).id,
   };
+  // The audit log page's saved view and personalisation (removed with the audit log).
+  await db.dataView.create({
+    data: { companyId, userId: admin.id, surfaceKey: "audit-logs-card-store", name: "Webhooks", position: 0 },
+  });
+  await db.p13n.create({
+    data: { companyId, userId: admin.id, p13nId: "audit-logs-card-store", columnOrder: ["event"], hiddenColumns: [] },
+  });
   const inbox = {
     view: (
       await db.dataView.create({
@@ -452,6 +459,33 @@ export async function populateLegacyWorkspace(client: ClientBase, { currency = "
       data: { companyId, userId: admin.id, entityId: contacts.solo, event: "contact.updated", eventData: {} },
     })
   ).id;
+  const legal = {
+    accepted: await db.auditLog.create({
+      data: {
+        companyId,
+        userId: admin.id,
+        entityId: companyId,
+        event: "legal.documents_accepted",
+        createdAt: new Date("2025-03-01T08:00:00.123Z"),
+        eventData: {
+          userId: admin.id,
+          companyId,
+          entityId: companyId,
+          payload: { documents: [{ key: "terms", version: "2025-01" }], acceptedAt: "2025-03-01T08:00:00.123Z" },
+        },
+      },
+    }),
+    notice: await db.auditLog.create({
+      data: {
+        companyId,
+        userId: member.id,
+        entityId: member.id,
+        event: "legal.notice_sent",
+        createdAt: new Date("2025-04-02T09:30:00.456Z"),
+        eventData: { userId: member.id, companyId, entityId: member.id, payload: { documents: ["privacy"] } },
+      },
+    }),
+  };
   const delivery = (
     await db.webhookDelivery.create({
       data: {
@@ -489,6 +523,7 @@ export async function populateLegacyWorkspace(client: ClientBase, { currency = "
     run,
     webhook,
     history,
+    legal,
     delivery,
     db,
   };

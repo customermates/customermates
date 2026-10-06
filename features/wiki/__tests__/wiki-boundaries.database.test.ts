@@ -11,7 +11,7 @@ import { runWithTenant } from "@/core/decorators/tenant-context";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { DomainEvent } from "@/features/event/domain-events";
 import { EventService } from "@/features/event/event.service";
-import { PrismaAuditLogRepo } from "@/features/audit-log/prisma-audit-log.repository";
+import { PrismaEventLogRepo } from "@/features/event/prisma-event-log.repository";
 import { PrismaRoleRepo } from "@/features/role/prisma-role.repository";
 import { PrismaWikiWebsiteCrawlRepo } from "@/ee/wiki-crawl/prisma-wiki-website-crawl.repository";
 import { UserService } from "@/features/user/user.service";
@@ -52,30 +52,7 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     companyId: foreignCompanyId,
   });
 
-  const eventService = () =>
-    new EventService(
-      [],
-      {
-        getWebhooksForEvent: () => Promise.resolve([]),
-        getWebhooksForEventUnscoped: () => Promise.resolve([]),
-      },
-      {
-        create: () => Promise.resolve([]),
-        createUnscoped: () => Promise.resolve([]),
-      },
-      new PrismaAuditLogRepo(new PermissionService()),
-      { dispatch: () => Promise.resolve() } as never,
-      {
-        findEventRoutinesUnscoped: () => Promise.resolve([]),
-        admitEventRoutineRunsUnscoped: () => Promise.resolve([]),
-      },
-      {
-        matchesCurrentUser: () => Promise.resolve(true),
-        currentUserTrigger: () => Promise.resolve(null),
-        matchesUserUnscoped: () => Promise.resolve(true),
-        canUserAccessUnscoped: () => Promise.resolve(true),
-      },
-    );
+  const eventService = () => new EventService([], new PrismaEventLogRepo({ dispatch: () => Promise.resolve() }));
 
   const create = (tenant: TenantUser, pages: Array<{ title: string; markdown: string }>, requireEmpty = false) =>
     runWithTenant(tenant, () =>
@@ -123,12 +100,12 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
   });
 
   beforeEach(async () => {
-    await client.query('DELETE FROM "AuditLog" WHERE "companyId" = ANY($1)', [[companyId, foreignCompanyId]]);
+    await client.query('DELETE FROM "EventLog" WHERE "companyId" = ANY($1)', [[companyId, foreignCompanyId]]);
     await client.query('DELETE FROM "WikiPage" WHERE "companyId" = ANY($1)', [[companyId, foreignCompanyId]]);
   });
 
   afterAll(async () => {
-    await client.query('DELETE FROM "AuditLog" WHERE "companyId" = ANY($1)', [[companyId, foreignCompanyId]]);
+    await client.query('DELETE FROM "EventLog" WHERE "companyId" = ANY($1)', [[companyId, foreignCompanyId]]);
     await client.query('DELETE FROM "WikiPage" WHERE "companyId" = ANY($1)', [[companyId, foreignCompanyId]]);
     await client.query('DELETE FROM "User" WHERE "companyId" = ANY($1)', [[companyId, foreignCompanyId]]);
     await client.query('DELETE FROM "Company" WHERE "id" = ANY($1)', [[companyId, foreignCompanyId]]);
@@ -470,11 +447,11 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
 
     expect(entry.markdown).toBe("Use the relevant page.");
     const audit = await client.query(
-      'SELECT "eventData" FROM "AuditLog" WHERE "companyId" = $1 AND "event" = $2 AND "entityId" = $3',
+      'SELECT payload FROM "EventLog" WHERE "companyId" = $1 AND kind = $2 AND "subjectId" = $3',
       [companyId, DomainEvent.WIKI_PAGE_CREATED, entry.id],
     );
     expect(audit.rows).toHaveLength(1);
-    expect(audit.rows[0].eventData.payload.markdown).toBe(entry.markdown);
+    expect(audit.rows[0].payload.markdown).toBe(entry.markdown);
   });
 
   it("serializes same-token updates, suppresses no-ops, and rejects a stale delete", async () => {
@@ -518,11 +495,11 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     expect(current.data.updatedAt.getTime()).toBeGreaterThan(oldUpdatedAt.getTime());
 
     const updateAudits = await client.query(
-      'SELECT "eventData" FROM "AuditLog" WHERE "companyId" = $1 AND "event" = $2 AND "entityId" = $3',
+      'SELECT payload FROM "EventLog" WHERE "companyId" = $1 AND kind = $2 AND "subjectId" = $3',
       [companyId, DomainEvent.WIKI_PAGE_UPDATED, pageId],
     );
     expect(updateAudits.rows).toHaveLength(1);
-    expect(updateAudits.rows[0].eventData.payload.changes.markdown).toEqual({
+    expect(updateAudits.rows[0].payload.changes.markdown).toEqual({
       previous: "Original",
       current: current.data.markdown,
     });
@@ -538,7 +515,7 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
       data: { updatedAt: current.data.updatedAt },
     });
     const auditCountAfterNoOp = await client.query(
-      'SELECT COUNT(*)::int AS "count" FROM "AuditLog" WHERE "companyId" = $1 AND "event" = $2 AND "entityId" = $3',
+      'SELECT COUNT(*)::int AS "count" FROM "EventLog" WHERE "companyId" = $1 AND kind = $2 AND "subjectId" = $3',
       [companyId, DomainEvent.WIKI_PAGE_UPDATED, pageId],
     );
     expect(auditCountAfterNoOp.rows[0].count).toBe(1);
@@ -573,12 +550,12 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     expect(stored.rows.map((row) => row.title)).toEqual(batch(winningPrefix).map((page) => page.title));
 
     const audits = await client.query(
-      'SELECT "entityId", "eventData" FROM "AuditLog" WHERE "companyId" = $1 AND "event" = $2',
+      'SELECT "subjectId", payload FROM "EventLog" WHERE "companyId" = $1 AND kind = $2',
       [companyId, DomainEvent.WIKI_PAGE_CREATED],
     );
     expect(audits.rows).toHaveLength(5);
-    expect(new Set(audits.rows.map((row) => row.entityId))).toEqual(new Set(stored.rows.map((row) => row.id)));
-    for (const audit of audits.rows) expect(audit.eventData.payload).toMatchObject({ id: audit.entityId });
+    expect(new Set(audits.rows.map((row) => row.subjectId))).toEqual(new Set(stored.rows.map((row) => row.id)));
+    for (const audit of audits.rows) expect(audit.payload).toMatchObject({ id: audit.subjectId });
   });
 
   it("keeps another company's pages and active homepage setup out of local setup decisions", async () => {

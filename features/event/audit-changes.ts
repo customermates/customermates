@@ -18,6 +18,7 @@ export function isEmpty(value: unknown): boolean {
 
 export const AuditChangeSchema = z.object({
   field: z.string(),
+  label: z.string().optional(),
   snapshot: z.boolean().optional(),
   previous: z.unknown(),
   current: z.unknown(),
@@ -42,9 +43,7 @@ function fieldRank(change: AuditChange): number {
   return 1;
 }
 
-export function extractAuditChanges(eventData: unknown): AuditChange[] {
-  if (!eventData || typeof eventData !== "object" || Array.isArray(eventData)) return [];
-  const payload = (eventData as { payload?: unknown }).payload;
+export function extractAuditChanges(payload: unknown): AuditChange[] {
   if (!payload || typeof payload !== "object" || Array.isArray(payload)) return [];
 
   let changes: Changes;

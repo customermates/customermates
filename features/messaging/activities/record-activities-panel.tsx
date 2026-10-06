@@ -19,14 +19,16 @@ export const RecordActivitiesPanel = observer(function RecordActivitiesPanel({
   record,
   viewSyncToUrl = false,
 }: {
-  record: RecordRef;
+  record: RecordRef | null;
   viewSyncToUrl?: boolean;
 }) {
   const t = useTranslations();
   const locale = useLocale();
   const root = useRootStore();
   const params = useSearchParams();
-  const viewPathname = `/${locale}/records/${record.typeId}/${record.recordId}`;
+  const viewPathname = record
+    ? `/${locale}/records/${record.typeId}/${record.recordId}`
+    : `/${locale}/company/activity`;
   const requestedView =
     viewSyncToUrl && params.get("viewSurface") === SURFACE.entityTimeline ? params.get("view") : null;
   const [store] = useState(
@@ -50,7 +52,9 @@ export const RecordActivitiesPanel = observer(function RecordActivitiesPanel({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-xs text-muted-foreground">{t("Common.actions.labelHistory")}</span>
+        <span className="text-xs text-muted-foreground">
+          {record ? t("Common.actions.labelHistory") : t("ActivityPage.description")}
+        </span>
 
         <FilterPopover compact store={store} />
       </div>

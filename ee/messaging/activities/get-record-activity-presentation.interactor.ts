@@ -17,11 +17,11 @@ import { SURFACE, ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import { resolveDataViewState } from "@/core/data-view/resolve-data-view-state";
 import { failNotFound, fail } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { ACTIVITY_KINDS } from "./activities.schema";
+import { ACTIVITY_KINDS, CHANGE_ACTIVITY_KINDS } from "./activities.schema";
 import { activityViewColumns, activityViewFilterableFields, activityViewFilters } from "./record-activity-view";
 import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
 
-const Input = z.object({ record: RecordRefSchema, params: GetQueryParamsSchema.default({}) }).strict();
+const Input = z.object({ record: RecordRefSchema.nullable(), params: GetQueryParamsSchema.default({}) }).strict();
 export type RecordActivityPresentationInput = z.infer<typeof Input>;
 export type RecordActivityPresentation = GetResult<ActivityEntryDto> &
   RecordActivitiesResult & { columns: ColumnPresentation[] };
@@ -54,8 +54,8 @@ export class GetRecordActivityPresentationInteractor extends AuthenticatedIntera
         const invalid = await this.policy.validate(SURFACE.entityTimeline, state);
         if (invalid) return fail(invalid);
         const result = await this.activities.invoke({
-          scope: { records: [record], typeIds: [] },
-          kinds: [...ACTIVITY_KINDS],
+          scope: { records: record ? [record] : [], typeIds: [] },
+          kinds: [...(record ? ACTIVITY_KINDS : CHANGE_ACTIVITY_KINDS)],
           filters: activityViewFilters(state.filters),
           cursor: null,
           limit: 25,

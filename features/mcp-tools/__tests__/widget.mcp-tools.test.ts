@@ -70,7 +70,6 @@ function chartWidget(overrides: Partial<RecordWidgetDto> = {}): RecordWidgetDto 
     userId: mockUser.id,
     companyId: mockUser.companyId,
     kind: "chart",
-    contractVersion: 2,
     version: 1,
     name: "Deals",
     measure: RecordMeasureSchema.parse({
@@ -113,7 +112,6 @@ function activityWidget(overrides: Partial<RecordActivityWidgetDto> = {}): Recor
     kind: WidgetKind.activityTimeline,
     name: "Recent activity",
     activityQuery,
-    contractVersion: 2,
     version: 1,
     schemaRevision: 3,
     status: "ready",
@@ -165,7 +163,6 @@ describe("manage_widgets create", () => {
       kind: "chart",
       name: "Deals",
       version: 1,
-      contractVersion: 2,
     });
   });
   it("rejects retired entity chart contracts and missing concurrency preconditions", async () => {
@@ -202,7 +199,6 @@ describe("manage_widgets create", () => {
       kind: "activityTimeline",
       name: "Recent activity",
       version: 1,
-      contractVersion: 2,
     });
   });
   it("rejects omitted preconditions and retired activity filters without writing", async () => {
@@ -394,14 +390,12 @@ describe("manage_widgets read and delete", () => {
           id: WIDGET_ID,
           name: "Deals",
           kind: WidgetKind.chart,
-          contractVersion: 2,
           version: 1,
         },
         {
           id: RECORD_ID,
           name: "Recent activity",
           kind: WidgetKind.activityTimeline,
-          contractVersion: 2,
           version: 1,
         },
       ],

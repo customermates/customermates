@@ -33,12 +33,6 @@ export const DATA_VIEW_SURFACES: Record<BuiltinDataViewSurfaceKey, SurfaceDescri
     resource: Resource.api,
     readAllOnly: true,
   },
-  [SURFACE.auditLogs]: {
-    label: "Audit logs",
-    path: DATA_VIEW_PATHS[SURFACE.auditLogs],
-    resource: Resource.auditLog,
-    readAllOnly: true,
-  },
   [SURFACE.messagingThreads]: {
     label: "Inbox",
     path: DATA_VIEW_PATHS[SURFACE.messagingThreads],

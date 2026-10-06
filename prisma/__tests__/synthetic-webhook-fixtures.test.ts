@@ -108,7 +108,7 @@ describe("synthetic webhook fixtures", () => {
       expect(create).toMatchObject({
         id: fixtureId("23000000", index + 1),
         webhookId: SYNTHETIC_WEBHOOK_ID,
-        recordEventId: event.id,
+        eventId: event.id,
         subscriptionRevision: 1,
         admissionKey: `${SYNTHETIC_WEBHOOK_ID}:${event.id}`,
         event: definition.event,

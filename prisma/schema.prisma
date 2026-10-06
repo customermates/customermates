@@ -166,7 +166,6 @@ model User {
   status                          Status                    @default(pendingAuthorization)
   displayLanguage                 Locale                    @default(system)
   formattingLocale                Locale                    @default(system)
-  auditLogs                       AuditLog[]
   theme                           Theme                     @default(system)
   country                         CountryCode               @default(de)
   avatarUrl                       String?
@@ -213,7 +212,6 @@ model Company {
   adAttributions              AdAttribution[]
   conversionEvents            ConversionEvent[]
   inviteTokens                InviteToken[]
-  auditLogs                   AuditLog[]
   widgets                     Widget[]
   userRoles                   UserRole[]
   rolePermissions             RolePermission[]
@@ -254,7 +252,7 @@ model Company {
   recordOperations            RecordOperation[]
   recordStageRows             RecordStageRow[]
   recordMutationReceipts      RecordMutationReceipt[]
-  recordEvents                RecordEvent[]
+  events                      EventLog[]
   recordEventSubscriptions    RecordEventSubscription[]
   recordEventMatches          RecordEventMatch[]
   recordIdentities            RecordIdentity[]
@@ -487,23 +485,6 @@ model InviteToken {
   @@index([expiresAt])
 }
 
-model AuditLog {
-  id        String   @id @default(uuid())
-  event     String
-  eventData Json
-  createdAt DateTime @default(now())
-  companyId String
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  entityId  String
-
-  @@index([event])
-  @@index([companyId])
-  @@index([userId])
-  @@index([entityId])
-}
-
 model Widget {
   activityQuery  Json?
   measure        Json?
@@ -597,7 +578,7 @@ model WebhookDelivery {
   event                String
   requestBody          Json
   webhookId            String?
-  recordEventId        String?
+  eventId              String?
   admissionKey         String?
   subscriptionRevision Int?
   attempts             Int                   @default(0)
@@ -605,7 +586,7 @@ model WebhookDelivery {
   leaseToken           String?
   leaseExpiresAt       DateTime?
   webhook              Webhook?              @relation(fields: [companyId, webhookId], references: [companyId, id], onDelete: NoAction)
-  recordEvent          RecordEvent?          @relation(fields: [companyId, recordEventId], references: [companyId, id], onDelete: Cascade)
+  eventLog             EventLog?             @relation(fields: [companyId, eventId], references: [companyId, id], onDelete: Cascade)
   statusCode           Int?
   responseMessage      String?
   success              Boolean               @default(false)
@@ -618,7 +599,7 @@ model WebhookDelivery {
   @@index([createdAt])
   @@index([companyId, createdAt])
   @@index([companyId, webhookId, createdAt])
-  @@index([companyId, recordEventId])
+  @@index([companyId, eventId])
   @@index([nextAttemptAt, status])
 }
 
@@ -2088,13 +2069,17 @@ model RecordMutationReceipt {
   @@id([companyId, userId, idempotencyKey])
 }
 
-model RecordEvent {
+// One log for record history, administrative events and the webhook/routine outbox. subjectKind is the
+// prefix of kind ("record", "role", "messaging", ...); subjectTypeId is the record type of record events.
+// actorId is not a foreign key so history outlives its users; null is the system.
+model EventLog {
   companyId         String
   id                String             @default(uuid())
-  typeId            String
-  recordId          String
-  actorId           String
-  causeId           String
+  subjectKind       String
+  subjectTypeId     String?
+  subjectId         String
+  actorId           String?
+  causeId           String?
   kind              String
   payload           Json
   createdAt         DateTime           @default(now())
@@ -2107,7 +2092,8 @@ model RecordEvent {
   lastFailureCode   String?
 
   @@id([companyId, id])
-  @@index([companyId, typeId, recordId, createdAt])
+  @@index([companyId, subjectKind, subjectTypeId, subjectId, createdAt], map: "EventLog_subject_idx")
+  @@index([companyId, kind, createdAt])
   @@index([deliveredAt, nextAttemptAt])
 }
 
@@ -2141,7 +2127,7 @@ model RecordEventMatch {
   subscriptionId       String
   subscriptionRevision Int
   company              Company                 @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  event                RecordEvent             @relation(fields: [companyId, eventId], references: [companyId, id], onDelete: Cascade)
+  event                EventLog                @relation(fields: [companyId, eventId], references: [companyId, id], onDelete: Cascade)
   subscription         RecordEventSubscription @relation(fields: [companyId, subscriptionId], references: [companyId, id], onDelete: Cascade)
 
   @@id([companyId, eventId, subscriptionId])

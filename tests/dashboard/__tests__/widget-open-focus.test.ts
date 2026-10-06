@@ -44,7 +44,7 @@ vi.mock("@/app/[locale]/(protected)/dashboard/components/record-activity-widget-
 }));
 vi.mock("@/app/[locale]/(protected)/dashboard/components/widget-modal", () => ({ WidgetModal: () => null }));
 vi.mock("@/core/stores/root-store.provider", () => {
-  const widget = { id: "widget-1", name: "Total Deal Value", kind: "chart", contractVersion: 2 };
+  const widget = { id: "widget-1", name: "Total Deal Value", kind: "chart" };
   const widgetModalStore = {
     add: vi.fn(),
     availableKinds: ["chart"],

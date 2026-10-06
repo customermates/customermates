@@ -17,6 +17,7 @@ import {
 import { formatChannelIdentifier, threadCounterpart } from "../thread-display";
 import type { RecordRef } from "@/features/records/record-model.schema";
 import { WIKI_PAGE_AUDIT_EVENTS } from "@/features/wiki/wiki-audit-events";
+import { RecordRevisionChangeSchema } from "@/features/records/record-revision.schema";
 
 export class PrismaRecordActivitiesRepo extends TenantRepository implements RecordActivitiesRepo {
   constructor(private readonly permissions: PermissionService) {
@@ -37,76 +38,57 @@ export class PrismaRecordActivitiesRepo extends TenantRepository implements Reco
     );
   }
 
-  async eventsCompanyWide(ids: string[]) {
-    if (!ids.length) return [];
-    const events = await this.prisma.recordEvent.findMany({
-      where: { companyId: this.companyId, id: { in: ids } },
-    });
+  private async actorsCompanyWide(ids: Array<string | null>) {
     const actors = await this.prisma.user.findMany({
-      where: {
-        companyId: this.companyId,
-        id: { in: events.map((event) => event.actorId) },
-      },
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-        email: true,
-        avatarUrl: true,
-      },
+      where: { companyId: this.companyId, id: { in: ids.filter((id): id is string => Boolean(id)) } },
+      select: { id: true, firstName: true, lastName: true, email: true, avatarUrl: true },
     });
-    const byId = new Map(actors.map((actor) => [actor.id, actor]));
-    const missing: RecordActivityActor = {
-      firstName: "",
-      lastName: "",
-      email: "",
-      avatarUrl: null,
-    };
-    return events.map((event) => ({
-      ...event,
-      actor: byId.get(event.actorId) ?? missing,
-    }));
+    const byId = new Map(actors.map(({ id, ...actor }) => [id, actor]));
+    const system: RecordActivityActor = { firstName: "", lastName: "", email: "", avatarUrl: null };
+    return (id: string | null) => (id ? byId.get(id) : undefined) ?? system;
   }
 
-  async auditLogsCompanyWide(ids: string[]) {
+  async eventsCompanyWide(ids: string[]) {
     if (!ids.length) return [];
-    const rows = await this.prisma.auditLog.findMany({
+    const events = await this.prisma.eventLog.findMany({
       where: {
         companyId: this.companyId,
         id: { in: ids },
         ...(this.permissions.has(Resource.wiki, Action.readAll)
           ? {}
-          : { event: { notIn: [...WIKI_PAGE_AUDIT_EVENTS] } }),
+          : { kind: { notIn: [...WIKI_PAGE_AUDIT_EVENTS] } }),
       },
     });
-    const actors = await this.prisma.user.findMany({
-      where: {
-        companyId: this.companyId,
-        id: { in: rows.map((row) => row.userId) },
-      },
-      select: {
-        firstName: true,
-        lastName: true,
-        email: true,
-        avatarUrl: true,
-        id: true,
-      },
-    });
-    const byId = new Map(actors.map((actor) => [actor.id, actor]));
-    return rows.map((row) => ({
-      ...row,
-      actor: byId.get(row.userId) ?? {
-        firstName: "",
-        lastName: "",
-        email: "",
-        avatarUrl: null,
-      },
-    }));
+    const actor = await this.actorsCompanyWide(events.map((event) => event.actorId));
+    return events.map((event) => ({ ...event, actor: actor(event.actorId) }));
+  }
+
+  async configurationsCompanyWide(ids: string[]) {
+    const revisions = ids.length
+      ? await this.prisma.recordSchemaRevision.findMany({
+          where: { companyId: this.companyId, revision: { in: ids.map(Number) }, change: { not: Prisma.DbNull } },
+          select: { revision: true, createdAt: true, actorId: true, change: true },
+        })
+      : [];
+    const [actor, roles] = await Promise.all([
+      this.actorsCompanyWide(revisions.map((revision) => revision.actorId)),
+      revisions.length
+        ? this.prisma.userRole.findMany({ where: { companyId: this.companyId }, select: { id: true, name: true } })
+        : [],
+    ]);
+    return {
+      revisions: revisions.map(({ actorId, change, ...revision }) => ({
+        ...revision,
+        change: RecordRevisionChangeSchema.parse(change),
+        actor: actor(actorId),
+      })),
+      roleNames: new Map(roles.map((role) => [role.id, role.name])),
+    };
   }
 
   async hasHistoryCompanyWide(ref: RecordRef) {
-    const event = await this.prisma.recordEvent.findFirst({
-      where: { companyId: this.companyId, ...ref },
+    const event = await this.prisma.eventLog.findFirst({
+      where: { companyId: this.companyId, subjectKind: "record", subjectTypeId: ref.typeId, subjectId: ref.recordId },
       select: { id: true },
     });
     return Boolean(event);
@@ -190,9 +172,9 @@ export class PrismaRecordActivitiesRepo extends TenantRepository implements Reco
       Array<{ id: string; kind: string; typeId: string; recordId: string }>
     >(Prisma.sql`
       WITH activity_scope AS (${scope}), history_scope AS (${history})
-      SELECT event.id, 'record'::text AS kind, event."typeId", event."recordId" FROM "RecordEvent" event
-      JOIN history_scope scope ON scope."typeId" = event."typeId" AND scope.id = event."recordId"
-      WHERE event."companyId" = ${this.companyId} AND ${recordIds.length ? Prisma.sql`event.id IN (${Prisma.join(recordIds)})` : Prisma.sql`FALSE`}
+      SELECT event.id, 'record'::text AS kind, event."subjectTypeId" AS "typeId", event."subjectId" AS "recordId" FROM "EventLog" event
+      JOIN history_scope scope ON scope."typeId" = event."subjectTypeId" AND scope.id = event."subjectId"
+      WHERE event."companyId" = ${this.companyId} AND event."subjectKind" = 'record' AND ${recordIds.length ? Prisma.sql`event.id IN (${Prisma.join(recordIds)})` : Prisma.sql`FALSE`}
       UNION ALL SELECT message.id, 'message'::text AS kind, association."typeId", association."recordId"
       FROM "MessagingMessage" message
       JOIN "MessagingThreadRecordLink" association ON association."companyId" = ${this.companyId} AND association."threadId" = message."messagingThreadId"

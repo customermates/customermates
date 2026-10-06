@@ -154,22 +154,23 @@ export async function seedWebhooks(context: SeedContext): Promise<void> {
     create: webhook,
   });
 
-  const recordEvents = await prisma.recordEvent.findMany({
+  const recordEvents = await prisma.eventLog.findMany({
     where: {
       companyId: ids.company,
+      subjectKind: "record",
       OR: SYNTHETIC_WEBHOOK_DELIVERY_DEFINITIONS.map((definition) => ({
-        typeId: presetId(ids.company, definition.entityType),
-        recordId: entityId(definition),
+        subjectTypeId: presetId(ids.company, definition.entityType),
+        subjectId: entityId(definition),
         kind: definition.event,
       })),
     },
-    select: { id: true, typeId: true, recordId: true, kind: true },
+    select: { id: true, subjectTypeId: true, subjectId: true, kind: true },
   });
   const deliveries = SYNTHETIC_WEBHOOK_DELIVERY_DEFINITIONS.map((definition: DeliveryDefinition, index) => {
     const recordEvent = recordEvents.find(
       (event) =>
-        event.typeId === presetId(ids.company, definition.entityType) &&
-        event.recordId === entityId(definition) &&
+        event.subjectTypeId === presetId(ids.company, definition.entityType) &&
+        event.subjectId === entityId(definition) &&
         event.kind === definition.event,
     );
     if (!recordEvent) throw new Error(`Missing record event for webhook delivery ${index + 1}`);
@@ -180,14 +181,14 @@ export async function seedWebhooks(context: SeedContext): Promise<void> {
       id: fixtureId("23000000", index + 1),
       companyId: ids.company,
       webhookId: webhook.id,
-      recordEventId: recordEvent.id,
+      eventId: recordEvent.id,
       subscriptionRevision: 1,
       admissionKey: `${webhook.id}:${recordEvent.id}`,
       createdAt,
       deliveredAt: terminal ? new Date(createdAt.getTime() + 1_500) : null,
       nextAttemptAt: null,
       event: definition.event,
-      requestBody: { version: 2, eventId: recordEvent.id },
+      requestBody: { eventId: recordEvent.id },
       responseMessage:
         definition.status === "success"
           ? "OK"

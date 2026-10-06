@@ -29,6 +29,8 @@ import { hydrateMessageRecordIdentities } from "../record-message-identities";
 import { toMessagingMessageDto } from "../inbox/inbox.schema";
 import { ACTIVITY_RELATED_RECORD_LIMIT } from "./activity-record-refs";
 import { isSystemActivityAuditEvent, systemActivityChanges } from "./system-audit-events";
+import { configurationActivity } from "./configuration-activity";
+import { CHANGE_ACTIVITY_KINDS } from "./activities.schema";
 
 @AllowInDemoMode
 @TenantInteractor()
@@ -86,7 +88,7 @@ export class GetRecordActivitiesInteractor extends AuthenticatedInteractor<
               return failNotFound(CustomErrorCode.recordNotFound);
           }
           const availableSources: ActivityKind[] = [];
-          if (policy.allowedSystem("auditLog", "readAll")) availableSources.push("audit");
+          if (policy.allowedSystem("auditLog", "readAll")) availableSources.push(...CHANGE_ACTIVITY_KINDS);
           if (
             (policy.allowedSystem("inboxMessages", "readAll") || policy.allowedSystem("inboxMessages", "readOwn")) &&
             !(await this.entitlements.require("messaging"))
@@ -96,13 +98,13 @@ export class GetRecordActivitiesInteractor extends AuthenticatedInteractor<
           const index = await this.activities.index(input, model, access, availableSources);
           const page = index.slice(0, input.limit);
           const ids = (kind: string) => page.filter((row) => row.kind === kind).map((row) => row.id);
-          const [events, messages, activities, calendar, eventRefs, auditEvents] = await Promise.all([
-            this.activities.eventsCompanyWide(ids("record")),
+          const [events, messages, activities, calendar, eventRefs, configurations] = await Promise.all([
+            this.activities.eventsCompanyWide([...ids("record"), ...ids("audit")]),
             this.activities.messagesCompanyWide(ids("message")),
             this.activities.activitiesCompanyWide(ids("activity")),
             this.activities.calendarEventsCompanyWide(ids("calendar_event")),
             this.activities.relatedRecords(page, input, model, access),
-            this.activities.auditLogsCompanyWide(ids("audit")),
+            this.activities.configurationsCompanyWide(ids("configuration")),
           ]);
           await hydrateMessageRecordIdentities(
             messages.map((entry) => entry.message),
@@ -182,18 +184,28 @@ export class GetRecordActivitiesInteractor extends AuthenticatedInteractor<
             };
           };
           const entries = new Map<string, ActivityEntryDto>();
-          for (const event of auditEvents.filter((event) => isSystemActivityAuditEvent(event.event))) {
+          for (const event of events.filter((event) => isSystemActivityAuditEvent(event.kind))) {
             entries.set(`audit:${event.id}`, {
               kind: "audit",
               id: event.id,
               at: event.createdAt,
               actor: event.actor,
-              event: event.event,
-              changes: systemActivityChanges(event.event, event.eventData, policy.isAdmin),
+              event: event.kind,
+              changes: systemActivityChanges(event.kind, event.payload, policy.isAdmin),
               records: context("audit", event.id),
             });
           }
-          for (const event of events) {
+          for (const revision of configurations.revisions) {
+            entries.set(`configuration:${revision.revision}`, {
+              kind: "configuration",
+              id: String(revision.revision),
+              at: revision.createdAt,
+              actor: revision.actor,
+              ...configurationActivity(revision.change, model, configurations.roleNames),
+              records: context("configuration", String(revision.revision)),
+            });
+          }
+          for (const event of events.filter((event) => event.subjectKind === "record")) {
             const parsed = RecordEventPayloadSchema.safeParse(event.payload);
             if (!parsed.success) continue;
             const changes = await this.history.redact(parsed.data, model, policy);

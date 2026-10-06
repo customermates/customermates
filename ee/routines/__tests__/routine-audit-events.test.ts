@@ -32,7 +32,6 @@ import { DeleteRoutineInteractor } from "../delete-routine.interactor";
 import { PauseRoutineInteractor } from "../pause-routine.interactor";
 import { UpsertRoutineInteractor } from "../upsert-routine.interactor";
 import { DomainEvent } from "@/features/event/domain-events";
-import { getEntityName } from "@/features/event/entity-name.utils";
 import { WEBHOOK_CURRENT_EVENTS } from "@/features/webhook/webhook-event-registry";
 
 const ROUTINE_ID = "00000000-0000-4000-8000-000000000001";
@@ -246,37 +245,6 @@ describe("routine audit events", () => {
 });
 
 describe("routine audit event wiring", () => {
-  it("names the routine in the audit row for each event", () => {
-    const current = routine();
-
-    expect(
-      getEntityName(DomainEvent.ROUTINE_CREATED, {
-        userId: OWNER_ID,
-        companyId: "company",
-        entityId: ROUTINE_ID,
-        payload: current,
-      }),
-    ).toBe("Daily deal digest");
-
-    expect(
-      getEntityName(DomainEvent.ROUTINE_UPDATED, {
-        userId: OWNER_ID,
-        companyId: "company",
-        entityId: ROUTINE_ID,
-        payload: { routine: current, changes: {} },
-      }),
-    ).toBe("Daily deal digest");
-
-    expect(
-      getEntityName(DomainEvent.ROUTINE_DELETED, {
-        userId: OWNER_ID,
-        companyId: "company",
-        entityId: ROUTINE_ID,
-        payload: current,
-      }),
-    ).toBe("Daily deal digest");
-  });
-
   it("keeps routine events out of the webhook catalog, so a routine edit cannot trigger a routine", () => {
     const routineEvents: string[] = [
       DomainEvent.ROUTINE_CREATED,

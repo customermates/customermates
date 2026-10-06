@@ -1,13 +1,13 @@
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import type { WebhookDeliveryQueueRepo } from "@/features/webhook/webhook-delivery-queue.repo";
-import type { RecordEventOutboxRepo } from "./record-event-outbox.repo";
+import type { EventOutboxRepo } from "@/features/event/event-outbox.repo";
 import type { RecordOperationQueueRepo } from "./record-operation-queue.repo";
 
 @SystemInteractor
 export class SweepRecordDeliveriesInteractor {
   constructor(
-    private readonly outbox: RecordEventOutboxRepo,
+    private readonly outbox: EventOutboxRepo,
     private readonly deliveries: WebhookDeliveryQueueRepo,
     private readonly operations: RecordOperationQueueRepo,
     private readonly background: Pick<BackgroundTaskService, "dispatch">,
@@ -25,7 +25,7 @@ export class SweepRecordDeliveriesInteractor {
       this.operations.claimDueUnscoped(now, new Date(now.getTime() + 60000), 100),
     ]);
     const results = await Promise.allSettled([
-      ...companies.map((companyId) => this.background.dispatch("process-record-events", { companyId })),
+      ...companies.map((companyId) => this.background.dispatch("process-events", { companyId })),
       ...deliveries.map(({ companyId, deliveryId }) =>
         this.background.dispatch("deliver-webhook", { companyId, deliveryId }),
       ),
