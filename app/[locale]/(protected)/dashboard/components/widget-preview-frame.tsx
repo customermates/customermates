@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 import { useLayoutEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
@@ -89,9 +89,9 @@ export const WidgetPreviewFrame = observer(
         </div>
 
         <div
-          className="relative mx-auto max-w-full"
+          className="relative mx-auto w-full lg:w-(--preview-width) lg:max-w-full"
           data-slot="widget-preview"
-          style={{ width: size.width, height: size.height }}
+          style={{ "--preview-width": `${size.width}px`, height: size.height } as CSSProperties}
         >
           <div inert className="h-full">
             {children}

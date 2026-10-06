@@ -46,7 +46,7 @@ afterEach(() => {
 
 describe("time series and funnel charts", () => {
   it.each([
-    [false, ["0", "1", "2", "3"]],
+    [false, ["0", "1", "2", "3", "4"]],
     [true, ["0", "0.75", "1.5", "2.25", "3"]],
   ])("uses whole-number value ticks unless decimals are allowed (%s)", async (allowDecimals, expected) => {
     const series = [point("Ada", 3), point("Bo", 2), point("Cy", 1)];

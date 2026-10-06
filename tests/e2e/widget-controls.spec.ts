@@ -100,7 +100,15 @@ test("persists every chart style, appearance, a copied template, resizing and de
       const chart = page
         .locator('[data-uid="app-card"]')
         .filter({ has: page.getByRole("heading", { name: "Complete chart controls", exact: true }) });
-      await expect(chart.locator("svg.recharts-surface")).toBeVisible();
+      await expect(
+        chart
+          .locator(
+            displayType === DisplayType.horizontalBarChartWithLabels
+              ? '[data-slot="widget-bar-row"]'
+              : "svg.recharts-surface",
+          )
+          .first(),
+      ).toBeVisible();
       await expect(chart).toBeVisible();
       await page.screenshot({ path: testInfo.outputPath(`chart-${displayType}.png`), animations: "disabled" });
     });

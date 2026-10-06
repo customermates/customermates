@@ -58,7 +58,7 @@ export const AreaTimeChart = observer(
           <YAxis
             {...chartAxisProps}
             allowDecimals={allowDecimals}
-            domain={[(minimum: number) => Math.min(0, minimum), (maximum: number) => Math.max(0, maximum)]}
+            domain={[(minimum: number) => Math.min(0, minimum), "auto"]}
             reversed={Boolean(reverseYAxis)}
             tickFormatter={(value) => formatValue(value, true)}
             type="number"

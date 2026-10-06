@@ -126,7 +126,7 @@ async function seedPipeline(page: Page, database: Client, companyId: string, use
     [secondUserId, companyId, role.rows[0].roleId, `second-${secondUserId}@example.test`],
   );
   const services = new Map<string, RecordRef>();
-  for (const [name, price] of Object.entries(SERVICES))
+  for (const [name, price] of Object.entries(SERVICES)) {
     services.set(
       name,
       await mutate(page, {
@@ -138,8 +138,9 @@ async function seedPipeline(page: Page, database: Client, companyId: string, use
         ],
       }),
     );
+  }
   const organizations = new Map<string, RecordRef>();
-  for (const name of ["Acme", "Beta", "Gamma"])
+  for (const name of ["Acme", "Beta", "Gamma"]) {
     organizations.set(
       name,
       await mutate(page, {
@@ -148,6 +149,7 @@ async function seedPipeline(page: Page, database: Client, companyId: string, use
         fields: [{ fieldId: id("organization.name"), value: { kind: "text", value: name } }],
       }),
     );
+  }
   for (const deal of DEALS) {
     const organization = deal.organization ? organizations.get(deal.organization) : undefined;
     const ref = await mutate(page, {
@@ -187,7 +189,7 @@ async function seedPipeline(page: Page, database: Client, companyId: string, use
     ["Check renewal", "open", [secondUserId]],
     ["Plan workshop", null, [userId]],
   ];
-  for (const [name, status, assignees] of tasks)
+  for (const [name, status, assignees] of tasks) {
     await mutate(page, {
       action: "create",
       typeId: id("task"),
@@ -197,6 +199,7 @@ async function seedPipeline(page: Page, database: Client, companyId: string, use
       ],
       assignedUserIds: assignees,
     });
+  }
   const values = await database.query(
     `SELECT name.\"textValue\" AS name, value.\"decimalValue\"::text AS value FROM "CrmRecord" deal
       JOIN "RecordValue" name ON name."companyId"=deal."companyId" AND name."recordId"=deal.id AND name."fieldId"=$2
@@ -442,17 +445,15 @@ test("builds, edits and renders number, time series, ranked table and funnel wid
         : `${counts[index]} (${percent(counts[index] / counts[index - 1])} of the previous step)`,
     ]);
     const widget = card(page, "Stage funnel");
-    await expect(widget.locator("svg.recharts-surface")).toBeVisible();
+    await expect(widget.locator('[data-slot="widget-funnel"]')).toBeVisible();
     await expect.poll(() => definitionList(widget)).toEqual(expected);
-    await expect(widget.locator(".recharts-yAxis-tick-labels text")).toContainText([
-      "New",
-      "Qualified",
-      "Proposal",
-      "Won",
-      String(counts[0]),
-      `${counts[1]} · ${percent(counts[1] / counts[0])}`,
+    const rows = widget.locator('[data-slot="widget-funnel-step"]');
+    await expect(rows).toHaveText([
+      `New${counts[0]}`,
+      `Qualified${counts[1]} · ${percent(counts[1] / counts[0])}`,
+      `Proposal${counts[2]} · ${percent(counts[2] / counts[1])}`,
+      `Won${counts[3]} · ${percent(counts[3] / counts[2])}`,
     ]);
-    expect(await widget.locator(".recharts-yAxis-tick-labels text").allTextContents()).not.toContain("Lost");
     await expect(widget.locator('[data-slot="widget-chart-notes"]')).toHaveText(
       `Lost: ${DEALS.filter((deal) => deal.stage === "lost").length}, a lost stage shown outside the funnel.`,
     );
@@ -568,9 +569,10 @@ test("adds every starter template resolved against the model and keeps them edit
   );
 
   const byOrganization = new Map<string, number>();
-  for (const deal of won)
+  for (const deal of won) {
     if (deal.organization)
       byOrganization.set(deal.organization, (byOrganization.get(deal.organization) ?? 0) + dealValue(deal));
+  }
   const ranked = [...byOrganization]
     .sort((left, right) => right[1] - left[1])
     .map(([name, value], index) => [String(index + 1), name, money(value), percent(value / wonTotal)]);
