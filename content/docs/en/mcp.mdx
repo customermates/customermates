@@ -237,60 +237,60 @@ Two calls update records you know only by email addresses or profile identifiers
 
 1. Call `resolve_record_identifiers` (REST: `POST /api/v1/records/identities/resolve`) with up to 1,000 identifiers:
 
-```json
-{
-  "identifiers": [
-    { "provider": "mail", "value": "ada@example.com" },
-    { "provider": "linkedin", "value": "ada-lovelace" },
-    { "provider": "mail", "value": "team@example.com" }
-  ]
-}
-```
+   ```json
+   {
+     "identifiers": [
+       { "provider": "mail", "value": "ada@example.com" },
+       { "provider": "linkedin", "value": "ada-lovelace" },
+       { "provider": "mail", "value": "team@example.com" }
+     ]
+   }
+   ```
 
    The response keeps the input order and returns every accessible linked record per identifier, each with its current `version`, plus the workspace `schemaRevision`:
 
-```json
-{
-  "schemaRevision": 12,
-  "matches": [
-    {
-      "provider": "mail",
-      "value": "ada@example.com",
-      "records": [
-        {
-          "ref": { "typeId": "<contact typeId>", "recordId": "<ada recordId>" },
-          "identityId": "<identityId>",
-          "typeLabel": "Contact",
-          "typePluralLabel": "Contacts",
-          "title": "Ada Lovelace",
-          "avatarUrl": null,
-          "canEdit": true,
-          "version": 4
-        }
-      ]
-    },
-    { "provider": "linkedin", "value": "ada-lovelace", "records": [{ "ref": { "typeId": "<contact typeId>", "recordId": "<ada recordId>" }, "version": 4, "...": "..." }] },
-    { "provider": "mail", "value": "team@example.com", "records": [{ "...": "record A" }, { "...": "record B" }] }
-  ]
-}
-```
+   ```json
+   {
+     "schemaRevision": 12,
+     "matches": [
+       {
+         "provider": "mail",
+         "value": "ada@example.com",
+         "records": [
+           {
+             "ref": { "typeId": "<contact typeId>", "recordId": "<ada recordId>" },
+             "identityId": "<identityId>",
+             "typeLabel": "Contact",
+             "typePluralLabel": "Contacts",
+             "title": "Ada Lovelace",
+             "avatarUrl": null,
+             "canEdit": true,
+             "version": 4
+           }
+         ]
+       },
+       { "provider": "linkedin", "value": "ada-lovelace", "records": [{ "ref": { "typeId": "<contact typeId>", "recordId": "<ada recordId>" }, "version": 4, "...": "..." }] },
+       { "provider": "mail", "value": "team@example.com", "records": [{ "...": "record A" }, { "...": "record B" }] }
+     ]
+   }
+   ```
 
 2. Build the targets. A record linked through several identifiers, like Ada above, appears under each of them: keep one target per `typeId` and `recordId`. An identifier with several records, like `team@example.com`, is ambiguous: decide with the user or type context, never pick one arbitrarily. An empty `records` array means no accessible match; records you cannot read are never revealed.
 3. Call `mutate_crm_record` (REST: `POST /api/v1/records/mutate`) once per batch of up to 100 targets, with `schemaRevision` as `expectedRevision`:
 
-```json
-{
-  "expectedRevision": 12,
-  "idempotencyKey": "segment-update-2026-10-06",
-  "mutation": {
-    "action": "updateMany",
-    "targets": [{ "ref": { "typeId": "<contact typeId>", "recordId": "<ada recordId>" }, "expectedVersion": 4 }],
-    "fields": [{ "fieldId": "<field id>", "value": { "kind": "text", "value": "Webinar 2026" } }]
-  }
-}
-```
+   ```json
+   {
+     "expectedRevision": 12,
+     "idempotencyKey": "segment-update-2026-10-06",
+     "mutation": {
+       "action": "updateMany",
+       "targets": [{ "ref": { "typeId": "<contact typeId>", "recordId": "<ada recordId>" }, "expectedVersion": 4 }],
+       "fields": [{ "fieldId": "<field id>", "value": { "kind": "text", "value": "Webinar 2026" } }]
+     }
+   }
+   ```
 
-The patch applies to every target in one transaction. If any target changed after the lookup, or the schema changed, the whole batch is rejected with a `conflict` and nothing is written; resolve again and retry with a new idempotency key. Retrying the identical request with the same idempotency key returns the original result without writing twice.
+The patch applies to every target atomically; a large recalculation can return `status: "pending"` with an operationId to read through `read_crm_operation`. If any target changed after the lookup, or the schema changed, the whole batch is rejected with a `conflict` and nothing is written; resolve again and retry with a new idempotency key. Retrying the identical request with the same idempotency key returns the original result without writing twice.
 
 ### Workspace
 
