@@ -434,6 +434,7 @@ function ConfigureGraphCanvas({
   const t = useTranslations();
   const { resolvedTheme } = useTheme();
   const connectPrompt = accounts.state !== "unavailable";
+  const help = canManage ? t("RecordModel.graph.help") : t("RecordModel.graph.helpReadOnly");
   const container = useRef<HTMLDivElement>(null);
   const placed = useRef(false);
   const flow = useReactFlow<Node, GraphEdge>();
@@ -527,6 +528,16 @@ function ConfigureGraphCanvas({
       >
         <ReactFlow
           panOnScroll
+          ariaLabelConfig={{
+            "node.a11yDescription.default": help,
+            "node.a11yDescription.keyboardDisabled": help,
+            "edge.a11yDescription.default": help,
+            "controls.ariaLabel": t("RecordModel.graph.controls"),
+            "controls.zoomIn.ariaLabel": t("RecordModel.graph.zoomIn"),
+            "controls.zoomOut.ariaLabel": t("RecordModel.graph.zoomOut"),
+            "controls.fitView.ariaLabel": t("RecordModel.graph.fitView"),
+            "handle.ariaLabel": t("RecordModel.graph.handle"),
+          }}
           colorMode={resolvedTheme === "dark" ? "dark" : "light"}
           connectionMode={ConnectionMode.Loose}
           edgeTypes={edgeTypes}
@@ -545,9 +556,18 @@ function ConfigureGraphCanvas({
           nodesFocusable={false}
           proOptions={{ hideAttribution: true }}
           zoomOnScroll={false}
-          onConnect={(connection) => {
-            if (listIds.has(connection.source) && listIds.has(connection.target))
-              onConnect(connection.source, connection.target);
+          onConnectEnd={(event, connection) => {
+            const source = connection.fromNode?.id;
+            if (!source || !listIds.has(source)) return;
+            const point = "changedTouches" in event ? event.changedTouches[0] : event;
+            const target =
+              (connection.isValid ? connection.toNode?.id : undefined) ??
+              (point &&
+                document
+                  .elementFromPoint(point.clientX, point.clientY)
+                  ?.closest("[data-configure-node]")
+                  ?.getAttribute("data-configure-node"));
+            if (target && target !== source && listIds.has(target)) onConnect(source, target);
           }}
           onInit={() => setReady(true)}
           onNodesChange={(changes) => setFlowNodes((current) => applyNodeChanges(changes, current))}
@@ -581,9 +601,7 @@ function ConfigureGraphCanvas({
             className="!m-3 hidden max-w-xs rounded-lg border border-border bg-card/90 px-3 py-2 text-xs text-muted-foreground shadow-xs md:block"
             position="top-right"
           >
-            <p id="configure-graph-help">
-              {canManage ? t("RecordModel.graph.help") : t("RecordModel.graph.helpReadOnly")}
-            </p>
+            <p id="configure-graph-help">{help}</p>
           </Panel>
         </ReactFlow>
       </div>

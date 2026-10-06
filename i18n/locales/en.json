@@ -3099,7 +3099,10 @@
       },
       "connectDescription": "Connect Gmail, Outlook or another channel to bring conversations into your lists.",
       "connectTitle": "Connect email and calendar",
+      "controls": "Graph controls",
       "custom": "Custom",
+      "fitView": "Fit view",
+      "handle": "Connection point",
       "help": "Select a list or field to edit it, select the chip on a line to edit a relationship, or drag from the dot on one list to another to connect them.",
       "helpReadOnly": "Select a list to open it. Lines show how lists are related and where calculated values come from.",
       "label": "Graph of lists, fields and connected accounts",
@@ -3111,7 +3114,9 @@
       "recordsRestricted": "Record count not available",
       "recordUnit": "{count, plural, one {record} other {records}}",
       "standard": "Standard",
-      "tab": "Graph"
+      "tab": "Graph",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out"
     },
     "groupSummaries": "Group summaries",
     "groupSummariesDescription": "Show totals and other measures in table groups and board columns. Each record contributes once per group, including records on later pages.",

@@ -99,7 +99,7 @@ test("lists every list flat with embedded lists under their parent, searches and
   await test.step("selection lives in the URL and the last opened list is restored", async () => {
     await selectConfigureList(page, "Deals");
     expect(typeIdInUrl(page)).toBe(id("deal"));
-    await page.goto("/en/configure");
+    await page.goto("/en/configure?view=lists");
     if (isWide(page)) {
       await expect.poll(() => typeIdInUrl(page)).toBe(id("deal"));
       await expect(page.getByRole("heading", { level: 1, name: "Deals", exact: true })).toBeVisible();
@@ -329,7 +329,7 @@ test("archives and restores a list from the list actions and labels hidden and a
   expect(errors).toEqual([]);
 });
 
-test("opens lists and relationships from the map and connects two lists by dragging", async ({
+test("shows the data model graph and edits lists, fields and relationships from it", async ({
   page,
   database,
   companyId,
@@ -337,65 +337,93 @@ test("opens lists and relationships from the map and connects two lists by dragg
   const errors = captureErrors(page);
   const id = (key: string) => presetId(companyId, key);
   const dialog = configureDrawer(page);
-  await openConfigure(page, id("contact"));
-  await page.getByRole("navigation", { name: "Configure views", exact: true }).getByRole("link", { name: "Map" }).click();
-  await expect.poll(() => new URL(page.url()).searchParams.get("view")).toBe("map");
-  const map = page.locator("[data-configure-map]");
-  await expect(map).toBeVisible();
-  await expect(map.locator("[data-configure-node]")).toHaveCount(6);
-  const model = await readModel(database, companyId);
-  await expect(map.locator("[data-configure-relationship]")).toHaveCount(model.relationships.length);
+  const views = page.getByRole("navigation", { name: "Configure views", exact: true });
+  const graph = page.locator("[data-configure-graph]");
+  const fitView = () => graph.getByRole("button", { name: "Fit view", exact: true }).click();
+  const openGraph = async () => {
+    await views.getByRole("link", { name: "Graph", exact: true }).click();
+    await expect(graph.locator("[data-configure-node]")).toHaveCount(6);
+    await fitView();
+  };
 
-  await map.getByRole("button", { name: "Organizations", exact: true }).click();
-  await expect.poll(() => new URL(page.url()).searchParams.get("view")).toBeNull();
-  expect(typeIdInUrl(page)).toBe(id("organization"));
-  await expect(page.getByRole("heading", { level: 1, name: "Organizations", exact: true })).toBeVisible();
-
-  await page.getByRole("navigation", { name: "Configure views", exact: true }).getByRole("link", { name: "Map" }).click();
-  await expect(map).toBeVisible();
-  await map.getByRole("button", { name: "Deals", exact: true }).focus();
-  await page.keyboard.press("Enter");
-  await expect(page.getByRole("heading", { level: 1, name: "Deals", exact: true })).toBeVisible();
-
-  await page.getByRole("navigation", { name: "Configure views", exact: true }).getByRole("link", { name: "Map" }).click();
-  const relation = model.relationships.find(
-    (candidate) => candidate.sourceTypeId === id("deal") && candidate.targetTypeId === id("organization"),
-  );
-  if (!relation) throw new Error("The preset deal organization relationship is missing");
-  const edge = map.locator(`[data-configure-relationship="${relation.id}"]`);
-  await edge.scrollIntoViewIfNeeded();
-  const point = await edge.locator("path").first().evaluate((path: SVGPathElement) => {
-    const middle = path.getPointAtLength(path.getTotalLength() / 2);
-    const matrix = path.getScreenCTM();
-    if (!matrix) throw new Error("The relationship line is not rendered");
-    const screen = new DOMPoint(middle.x, middle.y).matrixTransform(matrix);
-    return { x: screen.x, y: screen.y };
+  await test.step("the graph is the default view with list cards, counts, fields and relationships", async () => {
+    await page.goto("/en/configure");
+    await expect(page.locator("[data-configure-page]")).toBeVisible();
+    await expect(views.getByRole("link", { name: "Graph", exact: true })).toHaveAttribute("aria-current", "page");
+    await expect(graph.locator("[data-configure-node]")).toHaveCount(6);
+    const model = await readModel(database, companyId);
+    await expect(graph.locator("[data-configure-relationship]")).toHaveCount(model.relationships.length);
+    const deals = graph.locator(`[data-configure-node="${id("deal")}"]`);
+    await expect(deals).toContainText("Standard");
+    await expect(deals.locator("[data-configure-node-count]")).toHaveText(/^\d[\d,.]*\s*records?$/);
+    await expect(deals.locator(`[data-configure-graph-field="${id("deal.name")}"]`)).toContainText("Name");
+    await expect(graph.locator(`[data-configure-node="${id("lineItem")}"]`)).toContainText("Part of Deals");
+    await expect(graph.locator("[data-configure-source]")).toHaveCount(1);
+    await expect(graph.locator(`[data-configure-node="${id("task")}"]`)).toBeInViewport();
+    await fitView();
+    for (const node of await graph.locator("[data-configure-node]").all()) await expect(node).toBeInViewport();
   });
-  await page.mouse.move(point.x, point.y);
-  await expect(edge.locator("text")).toHaveText(relation.sourceLabel);
-  await page.mouse.click(point.x, point.y);
-  await expect(dialog).toBeVisible();
-  await expect(dialog.getByRole("textbox", { name: "Label on this side", exact: false })).toHaveValue(
-    relation.sourceLabel,
-  );
-  await dialog.getByRole("button", { name: "Cancel", exact: true }).first().click();
-  await expect(dialog).not.toBeVisible();
 
-  const services = map.getByRole("button", { name: "Services", exact: true });
-  const tasks = map.getByRole("button", { name: "Tasks", exact: true });
-  await tasks.scrollIntoViewIfNeeded();
-  await services.scrollIntoViewIfNeeded();
-  await dragBetween(page, await center(services), await center(tasks));
-  await expect(dialog).toBeVisible();
-  await expect(dialog.getByRole("combobox", { name: "Link to", exact: true })).toContainText("Tasks");
-  await dialog.getByRole("textbox", { name: "Label on this side", exact: false }).fill("Follow-up task");
-  await dialog.getByRole("textbox", { name: "Label on the other side", exact: false }).fill("Related service");
-  await saveDrawer(page);
-  await expect
-    .poll(async () =>
-      (await readModel(database, companyId)).relationships.find((candidate) => candidate.sourceLabel === "Follow-up task"),
-    )
-    .toMatchObject({ sourceTypeId: id("service"), targetTypeId: id("task"), targetLabel: "Related service" });
-  await expect(map.locator("[data-configure-relationship]")).toHaveCount(model.relationships.length + 1);
+  await test.step("selecting a list card opens it in the list view", async () => {
+    await graph.getByRole("button", { name: "Organizations", exact: true }).click();
+    await expect.poll(() => typeIdInUrl(page)).toBe(id("organization"));
+    await expect(page.getByRole("heading", { level: 1, name: "Organizations", exact: true })).toBeVisible();
+    await expect(views.getByRole("link", { name: "Lists", exact: true })).toHaveAttribute("aria-current", "page");
+  });
+
+  await test.step("a field row opens the field editor", async () => {
+    await openGraph();
+    await graph.locator(`[data-configure-graph-field="${id("deal.notes")}"]`).click();
+    await expect(dialog.getByText("Edit field", { exact: true })).toBeVisible();
+    await expect(dialog.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Notes");
+    await dialog.getByRole("button", { name: "Cancel", exact: true }).first().click();
+    await expect(dialog).not.toBeVisible();
+  });
+
+  await test.step("a relationship chip opens the relationship editor", async () => {
+    const model = await readModel(database, companyId);
+    const relation = model.relationships.find(
+      (candidate) => candidate.sourceTypeId === id("deal") && candidate.targetTypeId === id("organization"),
+    );
+    if (!relation) throw new Error("The preset deal organization relationship is missing");
+    const chip = graph.locator(`[data-configure-relationship="${relation.id}"]`);
+    await expect(chip).toHaveAttribute("aria-label", new RegExp(`^${relation.sourceLabel} · Deals → Organizations · `));
+    await chip.click();
+    await expect(dialog.getByRole("textbox", { name: "Label on this side", exact: false })).toHaveValue(
+      relation.sourceLabel,
+    );
+    await dialog.getByRole("button", { name: "Cancel", exact: true }).first().click();
+    await expect(dialog).not.toBeVisible();
+  });
+
+  await test.step("dragging from one list's handle to another creates a relationship", async () => {
+    const before = (await readModel(database, companyId)).relationships.length;
+    const services = graph.locator(`[data-configure-node="${id("service")}"]`);
+    const tasks = graph.locator(`[data-configure-node="${id("task")}"]`);
+    const handle = services.locator(".react-flow__handle-bottom");
+    await dragBetween(page, await center(handle), await center(tasks.getByRole("button", { name: "Tasks", exact: true })));
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByRole("combobox", { name: "Link to", exact: true })).toContainText("Tasks");
+    await dialog.getByRole("textbox", { name: "Label on this side", exact: false }).fill("Follow-up task");
+    await dialog.getByRole("textbox", { name: "Label on the other side", exact: false }).fill("Related service");
+    await saveDrawer(page);
+    await expect
+      .poll(async () =>
+        (await readModel(database, companyId)).relationships.find((candidate) => candidate.sourceLabel === "Follow-up task"),
+      )
+      .toMatchObject({ sourceTypeId: id("service"), targetTypeId: id("task"), targetLabel: "Related service" });
+    await expect(graph.locator("[data-configure-relationship]")).toHaveCount(before + 1);
+  });
+
+  await test.step("add field and new list start from the canvas", async () => {
+    await graph.getByRole("button", { name: "Add field: Services", exact: true }).click();
+    await expect(dialog.getByText("Add field", { exact: true })).toBeVisible();
+    await dialog.getByRole("button", { name: "Cancel", exact: true }).first().click();
+    await expect(dialog).not.toBeVisible();
+    await graph.getByRole("button", { name: "New list", exact: true }).click();
+    await expect(dialog.getByText("Create list", { exact: true }).first()).toBeVisible();
+    await dialog.getByRole("button", { name: "Cancel", exact: true }).first().click();
+    await expect(dialog).not.toBeVisible();
+  });
   expect(errors).toEqual([]);
 });

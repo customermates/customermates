@@ -3099,7 +3099,10 @@
       },
       "connectDescription": "Collega Gmail, Outlook o un altro canale per portare le conversazioni nelle tue liste.",
       "connectTitle": "Collega e-mail e calendario",
+      "controls": "Controlli del grafico",
       "custom": "Personalizzata",
+      "fitView": "Adatta alla vista",
+      "handle": "Punto di collegamento",
       "help": "Seleziona una lista o un campo per modificarlo, il chip su una linea per modificare una relazione oppure trascina dal punto di una lista a un’altra per collegarle.",
       "helpReadOnly": "Seleziona una lista per aprirla. Le linee mostrano come sono collegate le liste e da dove provengono i valori calcolati.",
       "label": "Grafico di liste, campi e account collegati",
@@ -3111,7 +3114,9 @@
       "recordsRestricted": "Numero di record non disponibile",
       "recordUnit": "{count, plural, one {record} other {record}}",
       "standard": "Standard",
-      "tab": "Grafico"
+      "tab": "Grafico",
+      "zoomIn": "Ingrandisci",
+      "zoomOut": "Riduci"
     },
     "groupSummaries": "Riepiloghi di gruppo",
     "groupSummariesDescription": "Mostra totali e altre metriche nei gruppi della tabella e nelle colonne della bacheca. Ogni record contribuisce una volta per gruppo, inclusi quelli nelle pagine successive.",

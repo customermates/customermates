@@ -3099,7 +3099,10 @@
       },
       "connectDescription": "Verbinden Sie Gmail, Outlook oder einen anderen Kanal, um Unterhaltungen in Ihre Listen zu holen.",
       "connectTitle": "E-Mail und Kalender verbinden",
+      "controls": "Grafiksteuerung",
       "custom": "Benutzerdefiniert",
+      "fitView": "Alles anzeigen",
+      "handle": "Verbindungspunkt",
       "help": "Wählen Sie eine Liste oder ein Feld zum Bearbeiten, den Chip auf einer Linie zum Bearbeiten einer Beziehung, oder ziehen Sie vom Punkt einer Liste zu einer anderen, um sie zu verbinden.",
       "helpReadOnly": "Wählen Sie eine Liste, um sie zu öffnen. Linien zeigen, wie Listen zusammenhängen und woher berechnete Werte stammen.",
       "label": "Grafik der Listen, Felder und verbundenen Konten",
@@ -3111,7 +3114,9 @@
       "recordsRestricted": "Anzahl der Datensätze nicht verfügbar",
       "recordUnit": "{count, plural, one {Datensatz} other {Datensätze}}",
       "standard": "Standard",
-      "tab": "Grafik"
+      "tab": "Grafik",
+      "zoomIn": "Vergrößern",
+      "zoomOut": "Verkleinern"
     },
     "groupSummaries": "Gruppenübersichten",
     "groupSummariesDescription": "Summen und andere Kennzahlen in Tabellengruppen und Board-Spalten anzeigen. Jeder Datensatz wird pro Gruppe einmal gezählt, auch auf späteren Seiten.",

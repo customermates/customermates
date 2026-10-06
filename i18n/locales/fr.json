@@ -3099,7 +3099,10 @@
       },
       "connectDescription": "Connectez Gmail, Outlook ou un autre canal pour intégrer les conversations à vos listes.",
       "connectTitle": "Connecter e-mail et agenda",
+      "controls": "Commandes du graphique",
       "custom": "Personnalisée",
+      "fitView": "Ajuster à la vue",
+      "handle": "Point de connexion",
       "help": "Sélectionnez une liste ou un champ pour le modifier, la pastille d’une ligne pour modifier une relation, ou faites glisser le point d’une liste vers une autre pour les relier.",
       "helpReadOnly": "Sélectionnez une liste pour l’ouvrir. Les lignes montrent comment les listes sont liées et d’où viennent les valeurs calculées.",
       "label": "Graphique des listes, champs et comptes connectés",
@@ -3111,7 +3114,9 @@
       "recordsRestricted": "Nombre d’enregistrements indisponible",
       "recordUnit": "{count, plural, one {enregistrement} other {enregistrements}}",
       "standard": "Standard",
-      "tab": "Graphique"
+      "tab": "Graphique",
+      "zoomIn": "Zoom avant",
+      "zoomOut": "Zoom arrière"
     },
     "groupSummaries": "Synthèses de groupe",
     "groupSummariesDescription": "Affichez des totaux et d’autres indicateurs dans les groupes du tableau et les colonnes du kanban. Chaque enregistrement compte une fois par groupe, y compris ceux des pages suivantes.",
