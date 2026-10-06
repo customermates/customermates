@@ -36,7 +36,7 @@ export const UpsertRoleSchema = z
       .array(RoleResourceGrantSchema)
       .max(Object.keys(RESOURCE_ACCESS).length)
       .describe(
-        "Only listed resources change; each listed resource's actions replace its current actions and an empty actions array removes its access. Applicable actions per resource: api, users, wiki, inboxMessages and routines take create, update and delete; company and dataModel take update only; auditLog takes none. Read: readAll for every resource except company and dataModel, plus readOwn for users and routines. Any wiki manage action also grants readAll.",
+        "Only listed resources change; each listed resource's actions replace its current actions and an empty actions array removes its access. Applicable actions per resource: api, users, wiki, inboxMessages and routines take create, update and delete; company and dataModel take update only; auditLog takes none. Read: readAll for every resource except company and dataModel, plus readOwn for users and routines. Any wiki manage action also grants readAll. Company and dataModel always keep their read rows, which make Settings and Subscription visible.",
       )
       .refine((grants) => new Set(grants.map((grant) => grant.resource)).size === grants.length),
     recordGrants: z

@@ -2115,6 +2115,63 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
   });
 
+  it("lets an update-only API role add record events to its existing webhook", async () => {
+    const f = await fixture();
+    const grant = async (actions: Array<"create" | "readAll" | "update">) => {
+      await f.run(async () => {
+        await prisma.rolePermission.deleteMany({ where: { companyId: f.company.id, roleId: f.memberRole.id } });
+        await prisma.rolePermission.createMany({
+          data: actions.map((action) => ({
+            companyId: f.company.id,
+            roleId: f.memberRole.id,
+            resource: "api",
+            action,
+          })),
+        });
+      });
+      return createMockUser({
+        ...f.member,
+        role: {
+          ...f.memberRole,
+          permissions: actions.map((action) => ({ id: randomUUID(), resource: "api", action })),
+        },
+      });
+    };
+    const creator = await grant(["create", "readAll"]);
+    const created = await f.run(
+      () =>
+        getUpsertWebhookInteractor().invoke({
+          url: "https://receiver.example.test/member",
+          events: ["messaging.message.received"],
+        }),
+      creator,
+    );
+    if (!created.ok) throw new Error("Member webhook fixture failed");
+    const editor = await grant(["readAll", "update"]);
+    expect(
+      await f.run(
+        () =>
+          getUpsertWebhookInteractor().invoke({
+            id: created.data.id,
+            events: ["record.created"],
+            expectedSchemaRevision: 1,
+          }),
+        editor,
+      ),
+    ).toMatchObject({ ok: true, data: { events: ["record.created"] } });
+    await expect(
+      f.run(
+        () =>
+          getUpsertWebhookInteractor().invoke({
+            url: "https://receiver.example.test/second",
+            events: ["record.created"],
+            expectedSchemaRevision: 1,
+          }),
+        editor,
+      ),
+    ).rejects.toThrow("create on api");
+  });
+
   it("enforces record webhook ownership and current API grants inside the write transaction", async () => {
     const f = await fixture();
     const permissions = ["create", "readAll", "update", "delete"].map((action) => ({

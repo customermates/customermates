@@ -244,6 +244,7 @@ export class PrismaRoutineRepo
     routine: { id: string; triggerKind: RoutineTriggerKind; triggerEvents: string[]; enabled: boolean },
     trigger: RoutineDto["recordTrigger"],
     sources: RoutineDto["recordSources"],
+    action: "create" | "update",
     expectedSchemaRevision?: number,
   ) {
     const subscriptions = this.subscriptions;
@@ -274,6 +275,7 @@ export class PrismaRoutineRepo
         )[],
         enabled: routine.enabled,
       },
+      action,
       expectedSchemaRevision,
     );
   }
@@ -590,6 +592,7 @@ export class PrismaRoutineRepo
           : input.recordTrigger !== undefined
             ? null
             : previous.recordSources,
+        "update",
         input.expectedSchemaRevision,
       );
 
@@ -634,6 +637,7 @@ export class PrismaRoutineRepo
       { id: created.id, triggerKind, triggerEvents, enabled: input.enabled ?? true },
       input.recordTrigger,
       input.recordSources,
+      "create",
       input.expectedSchemaRevision,
     );
 

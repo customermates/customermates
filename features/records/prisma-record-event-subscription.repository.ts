@@ -38,7 +38,11 @@ export class PrismaRecordEventSubscriptionRepo extends TenantRepository implemen
   }
 
   @Transaction
-  async save(definition: Omit<RecordEventSubscriptionDefinition, "revision">, expectedSchemaRevision?: number) {
+  async save(
+    definition: Omit<RecordEventSubscriptionDefinition, "revision">,
+    action: "create" | "update",
+    expectedSchemaRevision?: number,
+  ) {
     const input = RecordEventSubscriptionSchema.parse({ ...definition, revision: 1 });
     const records = this.records;
     const companyId = this.companyId;
@@ -59,13 +63,12 @@ export class PrismaRecordEventSubscriptionRepo extends TenantRepository implemen
     });
     const [model, grants, state] = await Promise.all([records.getModel(), records.getGrants(), records.getState()]);
     const policy = recordAccessForActor({ actor, model, grants, records, companyId, userId: this.userId });
-    const [previous] = await this.findCompanyWide(companyId, [input.id]);
-    const permitted = policy.allowedSystem(
-      input.kind === "routine" ? "routines" : "api",
-      previous ? "update" : "create",
-    );
-    if (!permitted || (!policy.isAdmin && input.ownerUserId !== this.userId))
+    if (
+      !policy.allowedSystem(input.kind === "routine" ? "routines" : "api", action) ||
+      (!policy.isAdmin && input.ownerUserId !== this.userId)
+    )
       throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
+    const [previous] = await this.findCompanyWide(companyId, [input.id]);
     const definitionChanged = !previous || deliveryDefinition(previous) !== deliveryDefinition(input);
     if (state?.activeOperationId && (definitionChanged || (input.enabled && !previous?.enabled)))
       throw new RecordWriteError(CustomErrorCode.recordWritePaused, "conflict");

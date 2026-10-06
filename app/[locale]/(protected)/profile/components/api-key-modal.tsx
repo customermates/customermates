@@ -26,6 +26,7 @@ import { Alert } from "@/components/shared/alert";
 import { CopyableCode } from "@/components/shared/copyable-code";
 import { InfoRow } from "@/components/shared/info-row";
 import { getApiKeyMaximumExpirationDate, isApiKeyExpirationDateAllowed } from "@/features/api-key/api-key-expiration";
+import { Action } from "@/generated/prisma";
 
 const ExpiresInPicker = observer(() => {
   const t = useTranslations();
@@ -98,17 +99,8 @@ export const ApiKeyModal = observer(() => {
   const t = useTranslations();
   const { apiKeyModalStore, apiKeysStore } = useRootStore();
   const intlStore = useHydratedIntlStore();
-  const {
-    aiConnectionStore,
-    canManage,
-    createdKey,
-    creationPath,
-    isLoading,
-    close,
-    hasUnsavedChanges,
-    mode,
-    viewingKey,
-  } = apiKeyModalStore;
+  const { aiConnectionStore, createdKey, creationPath, isLoading, close, hasUnsavedChanges, mode, viewingKey } =
+    apiKeyModalStore;
   const { showDeleteConfirmation } = useDeleteConfirmation();
 
   const isView = mode === "view" && viewingKey !== null;
@@ -183,7 +175,7 @@ export const ApiKeyModal = observer(() => {
   return (
     <AppModal
       actions={
-        isView && viewingKey && canManage
+        isView && viewingKey && apiKeyModalStore.allows(Action.delete)
           ? [
               {
                 id: "delete-api-key",

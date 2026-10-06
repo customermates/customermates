@@ -136,7 +136,7 @@ export class RoleManagementService extends UserAccessor {
             const prepared = await this.configurations.prepare(
               { expectedRevision: model.revision, idempotencyKey: input.idempotencyKey, operations },
               model,
-              policy,
+              previous ? policy : { ...policy, canManageRoles: true },
             );
             prepared.change.source = change.source;
             await this.writer.apply(prepared, model, this.userId, await this.records.getWorkspaceCurrencyOrThrow());

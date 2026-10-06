@@ -131,6 +131,7 @@ export class PrismaWebhookRepo
         events,
         enabled: webhook.enabled,
       },
+      previous ? "update" : "create",
       input.expectedSchemaRevision,
     );
   }
