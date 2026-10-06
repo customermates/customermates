@@ -16,7 +16,9 @@ import { widgetDisplayTypeIssue } from "@/features/widget/widget-display-rules";
 import { RankedTable } from "./ranked-table";
 import { WidgetChart } from "./widget-chart";
 import { WidgetNumber } from "./widget-number";
-import { WidgetChartSummary } from "./widget-chart-summary";
+import { WidgetSubtitle } from "./widget-subtitle";
+import { AppCardHeader } from "@/components/card/app-card-header";
+import { AppCardBody } from "@/components/card/app-card-body";
 import {
   RANKED_TABLE_ROW_LIMIT,
   bucketQuarter,
@@ -33,7 +35,7 @@ import {
 export type RecordWidgetChartProps = Pick<
   RecordWidgetDto,
   "data" | "groupOptions" | "displayOptions" | "measure" | "status"
-> & { label?: string };
+> & { name: string };
 
 const MISSING_NUMBER = "—";
 
@@ -55,7 +57,7 @@ export function RecordWidgetChart({
   displayOptions,
   measure,
   status,
-  label,
+  name,
 }: RecordWidgetChartProps) {
   const t = useTranslations();
   const locale = useHydratedIntlStore().formattingLocale;
@@ -115,27 +117,44 @@ export function RecordWidgetChart({
     if (["text", "email", "phone", "url"].includes(value.kind) && "value" in value) return String(value.value);
     return t("RecordModel.missing");
   };
+  const infoNotes = [
+    ...(measure.groupBy && (measure.groupBy.path.length > 0 || measure.groupBy.fieldId === "system:assignedTo")
+      ? [t("RecordWidgets.attribution")]
+      : []),
+    ...(hasRecordMeasureGroupFilter(measure) ? [t("RecordWidgets.groupFilterSummary")] : []),
+  ];
+  const frame = (body: ReactNode, subtitle: string | null = null) => (
+    <>
+      <AppCardHeader className="flex-col items-start gap-0.5">
+        <h2 className="text-x-md w-full truncate">{name}</h2>
+
+        <WidgetSubtitle notes={infoNotes} text={subtitle} />
+      </AppCardHeader>
+
+      <AppCardBody className="overflow-visible recharts-no-focus-outline">{body}</AppCardBody>
+    </>
+  );
   if (status === "unavailable" || !data) {
-    return (
+    return frame(
       <p className="text-sm text-muted-foreground" role="status">
         {t("RecordWidgets.unavailable")}
-      </p>
+      </p>,
     );
   }
   const displayType = displayOptions.displayType;
   const total = data.total.result;
   const currency = total.state === "value" && total.value.kind === "decimal" ? (total.value.currency ?? null) : null;
   if (displayType === DisplayType.number && !widgetDisplayTypeIssue(displayType, measure, null)) {
-    return (
+    return frame(
       <WidgetNumber
         caption={t("RecordWidgets.recordCount", { count: data.total.count })}
-        label={label}
         value={total.state === "missing" ? MISSING_NUMBER : format(total)}
-      />
+      />,
     );
   }
+  const overall = displayOptions.showFilters !== false ? t("RecordWidgets.overall", { value: format(total) }) : null;
   if (data.total.count === 0) {
-    return (
+    return frame(
       <div
         className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2 text-center"
         data-slot="widget-empty"
@@ -143,7 +162,8 @@ export function RecordWidgetChart({
         <ChartNoAxesColumn aria-hidden className="size-6 text-muted-foreground/60" />
 
         <p className="text-sm text-muted-foreground">{t("Diagrams.noData")}</p>
-      </div>
+      </div>,
+      overall,
     );
   }
   const rows: ChartRow[] = data.groups.map((group) => {
@@ -311,18 +331,8 @@ export function RecordWidgetChart({
       </div>
     );
   }
-  return (
+  return frame(
     <div className="flex h-full min-h-0 flex-col gap-2">
-      <WidgetChartSummary
-        notes={[
-          ...(measure.groupBy && (measure.groupBy.path.length > 0 || measure.groupBy.fieldId === "system:assignedTo")
-            ? [t("RecordWidgets.attribution")]
-            : []),
-          ...(hasRecordMeasureGroupFilter(measure) ? [t("RecordWidgets.groupFilterSummary")] : []),
-        ]}
-        overall={displayOptions.showFilters !== false ? t("RecordWidgets.overall", { value: format(total) }) : null}
-      />
-
       {useTable ? (
         <div className="min-h-0 overflow-auto">
           {signedUnsupported && <p className="mb-2 text-xs text-muted-foreground">{t("RecordWidgets.signedChart")}</p>}
@@ -364,6 +374,7 @@ export function RecordWidgetChart({
           )}
         </dl>
       )}
-    </div>
+    </div>,
+    overall,
   );
 }

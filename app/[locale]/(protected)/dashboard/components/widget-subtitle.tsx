@@ -7,15 +7,26 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 
 import { WIDGET_INTERACTIVE_ATTRIBUTE } from "./widget-interaction";
 
-export function WidgetChartSummary({ notes, overall }: { notes: string[]; overall: string | null }) {
+export function WidgetSubtitle({ notes, text }: { notes: string[]; text: string | null }) {
   const t = useTranslations();
-  if (!overall && notes.length === 0) return null;
+  if (!text && notes.length === 0) return null;
   return (
-    <div className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground" data-slot="widget-chart-summary">
-      {overall && <p className="min-w-0 truncate">{overall}</p>}
+    <TooltipProvider>
+      <div
+        className="flex w-full min-w-0 items-center gap-1.5 text-xs text-muted-foreground"
+        data-slot="widget-subtitle"
+      >
+        {text && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <p className="min-w-0 truncate">{text}</p>
+            </TooltipTrigger>
 
-      {notes.length > 0 && (
-        <TooltipProvider>
+            <TooltipContent side="top">{text}</TooltipContent>
+          </Tooltip>
+        )}
+
+        {notes.length > 0 && (
           <Tooltip>
             <TooltipTrigger asChild>
               <button
@@ -34,10 +45,10 @@ export function WidgetChartSummary({ notes, overall }: { notes: string[]; overal
               ))}
             </TooltipContent>
           </Tooltip>
-        </TooltipProvider>
-      )}
+        )}
 
-      <span className="sr-only">{notes.join(" ")}</span>
-    </div>
+        <span className="sr-only">{notes.join(" ")}</span>
+      </div>
+    </TooltipProvider>
   );
 }
