@@ -10,8 +10,8 @@ import type { MessagingProvider } from "@/generated/prisma";
 import type { ConfigureGraphEdge, ConfigureGraphList, ConfigureGraphSource } from "./configure-graph-model";
 import type { ConfigureGraphRoute } from "./configure-graph-layout";
 
-import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import { createContext, useContext, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import {
   Background,
@@ -73,7 +73,7 @@ type Props = {
 type GraphActions = Pick<
   Props,
   "canManage" | "disabled" | "onSelectList" | "onEditField" | "onAddField" | "onEditRelationship"
-> & { labelOf: (typeId: string) => string };
+> & { labelOf: (typeId: string) => string; listOf: (items: string[]) => string };
 
 const GraphActionsContext = createContext<GraphActions | null>(null);
 
@@ -117,7 +117,7 @@ type PromptNode = Node<{ state: "available" | "locked" }, "prompt">;
 function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
   const t = useTranslations();
   const intlStore = useHydratedIntlStore();
-  const { canManage, disabled, labelOf, onSelectList, onEditField, onAddField } = useGraphActions();
+  const { canManage, disabled, labelOf, listOf, onSelectList, onEditField, onAddField } = useGraphActions();
   const Icon = recordTypeIcon(list.type.icon);
   const visible = list.fields.slice(0, GRAPH_VISIBLE_FIELDS);
   const hidden = list.fields.length - visible.length;
@@ -177,14 +177,15 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
 
       <ul aria-label={t("RecordModel.fields")} className="py-1">
         {visible.map(({ field, calculated, sources }) => {
-          const detail = calculated && sources.length ? `= ${sources.join(", ")}` : null;
+          const detail =
+            calculated && sources.length ? t("RecordModel.graph.calculatedFrom", { sources: listOf(sources) }) : null;
           return (
             <li key={field.id}>
               <button
                 className="nodrag flex h-[30px] w-full items-center gap-2 px-3.5 text-left text-xs outline-none hover:bg-accent/50 focus-visible:bg-accent/60 disabled:pointer-events-none"
                 data-configure-graph-field={field.id}
                 disabled={disabled || !canManage}
-                title={detail ? `${field.label} ${detail}` : field.label}
+                title={detail ? `${field.label}\n${detail}` : field.label}
                 type="button"
                 onClick={() => onEditField(list.type.id, field)}
               >
@@ -344,7 +345,8 @@ type GraphEdge = Edge<GraphEdgeData, "graph">;
 
 function GraphEdgeView({ data }: EdgeProps<GraphEdge>) {
   const t = useTranslations();
-  const { canManage, disabled, labelOf, onEditRelationship } = useGraphActions();
+  const { canManage, disabled, labelOf, listOf, onEditRelationship } = useGraphActions();
+  const descriptionId = useId();
   if (!data) return null;
   const { edge, route } = data;
   const path = configureRoutePath(route.points);
@@ -353,9 +355,14 @@ function GraphEdgeView({ data }: EdgeProps<GraphEdge>) {
     const { relation } = edge;
     const cardinality = t(`RecordModel.graph.cardinality.${edge.cardinality}`);
     const calculated = edge.calculatedFields.length
-      ? ` · ${t("RecordModel.graph.calculationEdge", { fields: edge.calculatedFields.join(", ") })}`
-      : "";
-    const label = `${relation.sourceLabel} · ${labelOf(relation.sourceTypeId)} → ${labelOf(relation.targetTypeId)} · ${cardinality}${calculated}`;
+      ? t("RecordModel.graph.calculationEdge", { fields: listOf(edge.calculatedFields) })
+      : null;
+    const label = t("RecordModel.graph.relationshipLabel", {
+      label: relation.sourceLabel,
+      source: labelOf(relation.sourceTypeId),
+      target: labelOf(relation.targetTypeId),
+      cardinality,
+    });
     return (
       <>
         <BaseEdge
@@ -369,16 +376,23 @@ function GraphEdgeView({ data }: EdgeProps<GraphEdge>) {
 
         <EdgeLabelRenderer>
           <button
+            aria-describedby={calculated ? descriptionId : undefined}
             aria-label={label}
             className="nodrag nopan pointer-events-auto absolute z-[1001] flex h-6 items-center gap-1 rounded-md border border-border bg-popover px-1.5 text-[11px] font-medium text-popover-foreground shadow-xs outline-none hover:border-primary/60 focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none"
             data-configure-relationship={relation.id}
             disabled={disabled || !canManage}
             style={chipPosition}
-            title={label}
+            title={calculated ? `${label}\n${calculated}` : label}
             type="button"
             onClick={() => onEditRelationship(relation)}
           >
             {calculated && <Sigma aria-hidden className="size-3 text-primary" />}
+
+            {calculated && (
+              <span className="sr-only" id={descriptionId}>
+                {calculated}
+              </span>
+            )}
 
             {cardinality}
           </button>
@@ -388,7 +402,7 @@ function GraphEdgeView({ data }: EdgeProps<GraphEdge>) {
   }
   const calculation = edge.kind === "calculation";
   const title = calculation
-    ? t("RecordModel.graph.calculationEdge", { fields: edge.fields.join(", ") })
+    ? t("RecordModel.graph.calculationEdge", { fields: listOf(edge.fields) })
     : t("RecordModel.graph.accountEdge", { list: labelOf(edge.target) });
   return (
     <>
@@ -437,6 +451,7 @@ function ConfigureGraphCanvas({
 }: Props) {
   const t = useTranslations();
   const { resolvedTheme } = useTheme();
+  const locale = useLocale();
   const connectPrompt = accounts.state !== "unavailable";
   const help = canManage ? t("RecordModel.graph.help") : t("RecordModel.graph.helpReadOnly");
   const container = useRef<HTMLDivElement>(null);
@@ -515,12 +530,13 @@ function ConfigureGraphCanvas({
       canManage,
       disabled,
       labelOf: (typeId) => model.types.find((type) => type.id === typeId)?.pluralLabel ?? "",
+      listOf: (items) => new Intl.ListFormat(locale, { style: "short", type: "unit" }).format(items),
       onSelectList,
       onEditField,
       onAddField,
       onEditRelationship,
     }),
-    [canManage, disabled, model.types, onSelectList, onEditField, onAddField, onEditRelationship],
+    [canManage, disabled, locale, model.types, onSelectList, onEditField, onAddField, onEditRelationship],
   );
   return (
     <GraphActionsContext.Provider value={actions}>

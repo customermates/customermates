@@ -13,7 +13,7 @@ import { requireAccess } from "@/features/auth/next/require";
 import { resolveRequestAccountState } from "@/features/auth/next/resolve-account-state";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 import { PageContainer } from "@/components/shared/page-container";
-import { getEntitlements } from "@/ee/subscription/entitlements";
+import { getEntitlements, isSubscriptionUsable } from "@/ee/subscription/entitlements";
 import { env } from "@/env";
 import { ConfigurePageView } from "./components/configure-page-view";
 
@@ -29,7 +29,8 @@ async function loadAccounts(): Promise<ConfigureGraphAccounts> {
     );
   if (!permitted) return { state: "unavailable" };
   const subscription = await getGetSubscriptionInteractor().invoke();
-  if (!getEntitlements(subscription.data.plan).messaging) return { state: "locked" };
+  if (!getEntitlements(subscription.data.plan).messaging || !isSubscriptionUsable(subscription.data))
+    return { state: "locked" };
   const accounts = await unwrapValidated(getGetMyConnectedAccountsInteractor().invoke());
   return {
     state: "available",

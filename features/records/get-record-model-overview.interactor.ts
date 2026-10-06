@@ -45,10 +45,16 @@ export class GetRecordModelOverviewInteractor extends AuthenticatedInteractor<vo
         const [model, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
         if (!policy.actor) return failAuthorization(CustomErrorCode.permissionDenied);
         const readable = model.types
-          .filter((type) => policy.allowed(type.id, "readAll") || policy.allowed(type.id, "readOwn"))
+          .filter(
+            (type) => !type.archived && (policy.allowed(type.id, "readAll") || policy.allowed(type.id, "readOwn")),
+          )
           .map((type) => type.id);
         const visible = model.types.filter(
-          (type) => policy.canManageSchema || policy.canManageRoles || readable.includes(type.id),
+          (type) =>
+            policy.canManageSchema ||
+            policy.canManageRoles ||
+            policy.allowed(type.id, "readAll") ||
+            policy.allowed(type.id, "readOwn"),
         );
         const counts = new Map(
           (await this.records.countReadableRecordsByType(policy.access(readable))).map((row) => [

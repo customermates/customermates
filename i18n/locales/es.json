@@ -3090,6 +3090,7 @@
       "accountEdge": "Sincroniza conversaciones en {list}",
       "accounts": "Cuentas conectadas",
       "accountUnit": "{count, plural, one {cuenta} other {cuentas}}",
+      "calculatedFrom": "a partir de {sources}",
       "calculationEdge": "Calculado a partir de esta lista: {fields}",
       "cardinality": {
         "manyToMany": "Varios a varios",
@@ -3112,6 +3113,7 @@
       "partOf": "Parte de {list}",
       "recordsRestricted": "Número de registros no disponible",
       "recordUnit": "{count, plural, one {registro} other {registros}}",
+      "relationshipLabel": "{label}: {source} con {target}, {cardinality}",
       "standard": "Estándar",
       "tab": "Gráfico",
       "zoomIn": "Acercar",

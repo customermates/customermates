@@ -3090,6 +3090,7 @@
       "accountEdge": "Syncs conversations into {list}",
       "accounts": "Connected accounts",
       "accountUnit": "{count, plural, one {account} other {accounts}}",
+      "calculatedFrom": "from {sources}",
       "calculationEdge": "Calculated from this list: {fields}",
       "cardinality": {
         "manyToMany": "Many to many",
@@ -3112,6 +3113,7 @@
       "partOf": "Part of {list}",
       "recordsRestricted": "Record count not available",
       "recordUnit": "{count, plural, one {record} other {records}}",
+      "relationshipLabel": "{label}: {source} to {target}, {cardinality}",
       "standard": "Standard",
       "tab": "Graph",
       "zoomIn": "Zoom in",

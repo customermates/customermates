@@ -255,7 +255,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
     [general, tryNavigate],
   );
   const backToRail = useCallback(
-    () => tryNavigate(() => window.history.pushState(null, "", configureHref({ typeId: null }))),
+    () => tryNavigate(() => window.history.pushState(null, "", configureHref({ typeId: null, view: "lists" }))),
     [tryNavigate],
   );
   const add = useCallback(

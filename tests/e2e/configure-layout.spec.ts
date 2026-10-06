@@ -393,7 +393,7 @@ test("shows the data model graph and edits lists, fields and relationships from 
     );
     if (!relation) throw new Error("The preset deal organization relationship is missing");
     const chip = graph.locator(`[data-configure-relationship="${relation.id}"]`);
-    await expect(chip).toHaveAttribute("aria-label", new RegExp(`^${relation.sourceLabel} · Deals → Organizations · `));
+    await expect(chip).toHaveAttribute("aria-label", new RegExp(`^${relation.sourceLabel}: Deals to Organizations, `));
     await chip.click();
     await expect(dialog.getByRole("textbox", { name: "Label on this side", exact: false })).toHaveValue(
       relation.sourceLabel,

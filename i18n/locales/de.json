@@ -3090,6 +3090,7 @@
       "accountEdge": "Synchronisiert Unterhaltungen in {list}",
       "accounts": "Verbundene Konten",
       "accountUnit": "{count, plural, one {Konto} other {Konten}}",
+      "calculatedFrom": "aus {sources}",
       "calculationEdge": "Aus dieser Liste berechnet: {fields}",
       "cardinality": {
         "manyToMany": "Viele zu viele",
@@ -3112,6 +3113,7 @@
       "partOf": "Teil von {list}",
       "recordsRestricted": "Anzahl der Datensätze nicht verfügbar",
       "recordUnit": "{count, plural, one {Datensatz} other {Datensätze}}",
+      "relationshipLabel": "{label}: {source} zu {target}, {cardinality}",
       "standard": "Standard",
       "tab": "Grafik",
       "zoomIn": "Vergrößern",
