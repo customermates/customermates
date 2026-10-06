@@ -24,7 +24,7 @@ import {
   type RecordMutation,
 } from "../../features/records/record-query.schema";
 import type { RecordActivityQuery } from "../../ee/messaging/activities/record-activities.schema";
-import { ALL_VIEW_KEY, SURFACE } from "../../core/data-view/data-view-keys";
+import { ALL_VIEW_KEY, SURFACE, recordSurfaceKey } from "../../core/data-view/data-view-keys";
 import english from "../../i18n/locales/en.json" with { type: "json" };
 
 async function post(page: Page, path: string, data: unknown) {
@@ -1158,6 +1158,7 @@ test("retains readable list content after a failed refresh and retries the empty
   page,
   database,
   companyId,
+  workspace,
 }, testInfo) => {
   const evidence = transportEvidence(page);
   const id = (key: string) => presetId(companyId, key);
@@ -1222,6 +1223,30 @@ test("retains readable list content after a failed refresh and retries the empty
   ).toBeVisible();
   await expect(page.getByRole("button", { name, exact: true })).toHaveCount(0);
   await expect(page.locator('[data-page-state="error"]')).toHaveCount(0);
+  const surfaceKey = recordSurfaceKey(service.typeId);
+  const saveAction = serverActionIds("app/actions.ts", "saveDataViewStateAction");
+  const searchSaved = page.waitForResponse(
+    (response) => {
+      if (!invokesServerAction(response.request(), saveAction)) return false;
+      const args = nextArguments(response.request());
+      const input = args?.[0];
+      return (
+        args?.length === 1 &&
+        typeof input === "object" &&
+        input !== null &&
+        "surfaceKey" in input &&
+        input.surfaceKey === surfaceKey &&
+        "viewKey" in input &&
+        input.viewKey === ALL_VIEW_KEY &&
+        "state" in input &&
+        typeof input.state === "object" &&
+        input.state !== null &&
+        "searchTerm" in input.state &&
+        input.state.searchTerm === name
+      );
+    },
+    { timeout: 15000 },
+  );
   await search.fill(name);
   const error = page.locator('[data-page-state="error"][role="alert"]');
   await expect(error).toBeVisible();
@@ -1232,6 +1257,17 @@ test("retains readable list content after a failed refresh and retries the empty
   await expect(error).toHaveCount(0);
   expect(matchingReads).toBe(2);
   expect((await values()).rows).toEqual(before);
+  const savedResponse = await searchSaved;
+  expect(savedResponse.status()).toBe(200);
+  expect(await savedResponse.finished()).toBeNull();
+  expect(
+    (
+      await database.query(
+        'SELECT "searchTerm" FROM "P13n" WHERE "companyId"=$1 AND "userId"=$2 AND "p13nId"=$3',
+        [companyId, workspace.userId, surfaceKey],
+      )
+    ).rows,
+  ).toEqual([{ searchTerm: name }]);
   await page.unrouteAll({ behavior: "wait" });
   await expect(page).toHaveURL((url) => url.searchParams.get("searchTerm") === name);
   await page.reload();
