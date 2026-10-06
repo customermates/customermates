@@ -3101,7 +3101,6 @@
       "connectDescription": "Connect Gmail, Outlook or another channel to bring conversations into your lists.",
       "connectTitle": "Connect email and calendar",
       "controls": "Graph controls",
-      "custom": "Custom",
       "fitView": "Fit view",
       "handle": "Connection point",
       "help": "Select a list or field to edit it, select the chip on a line to edit a relationship, or drag from the dot on one list to another to connect them.",
@@ -3114,7 +3113,6 @@
       "recordsRestricted": "Record count not available",
       "recordUnit": "{count, plural, one {record} other {records}}",
       "relationshipLabel": "{label}: {source} to {target}, {cardinality}",
-      "standard": "Standard",
       "tab": "Graph",
       "zoomIn": "Zoom in",
       "zoomOut": "Zoom out"

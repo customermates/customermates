@@ -3101,7 +3101,6 @@
       "connectDescription": "Connectez Gmail, Outlook ou un autre canal pour intégrer les conversations à vos listes.",
       "connectTitle": "Connecter e-mail et agenda",
       "controls": "Commandes du graphique",
-      "custom": "Personnalisée",
       "fitView": "Ajuster à la vue",
       "handle": "Point de connexion",
       "help": "Sélectionnez une liste ou un champ pour le modifier, la pastille d’une ligne pour modifier une relation, ou faites glisser le point d’une liste vers une autre pour les relier.",
@@ -3114,7 +3113,6 @@
       "recordsRestricted": "Nombre d’enregistrements indisponible",
       "recordUnit": "{count, plural, one {enregistrement} other {enregistrements}}",
       "relationshipLabel": "{label} : {source} vers {target}, {cardinality}",
-      "standard": "Standard",
       "tab": "Graphique",
       "zoomIn": "Zoom avant",
       "zoomOut": "Zoom arrière"

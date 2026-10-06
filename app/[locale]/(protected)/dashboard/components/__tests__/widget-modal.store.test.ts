@@ -30,7 +30,6 @@ const discovery = {
       ...type,
       fieldCount: 3,
       recordCount: 0,
-      standard: true,
       permittedActions: ["readAll" as const],
     })),
 };

@@ -354,7 +354,6 @@ test("shows the data model graph and edits lists, fields and relationships from 
     const model = await readModel(database, companyId);
     await expect(graph.locator("[data-configure-relationship]")).toHaveCount(model.relationships.length);
     const deals = graph.locator(`[data-configure-node="${id("deal")}"]`);
-    await expect(deals).toContainText("Standard");
     const dealCount = await database.query('SELECT COUNT(*)::integer AS count FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2', [
       companyId,
       id("deal"),

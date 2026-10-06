@@ -9,9 +9,7 @@ import {
 
 import { configureParentId, configureRailRows } from "./configure-model";
 
-export type ConfigureGraphCatalog = ReadonlyArray<
-  Pick<DiscoveredRecordTypes["types"][number], "id" | "standard" | "recordCount">
->;
+export type ConfigureGraphCatalog = ReadonlyArray<Pick<DiscoveredRecordTypes["types"][number], "id" | "recordCount">>;
 
 export const ACCOUNTS_NODE_ID = "accounts";
 
@@ -35,7 +33,6 @@ export type ConfigureGraphField = {
 
 export type ConfigureGraphList = {
   type: RecordType;
-  standard: boolean;
   recordCount: number | null;
   parentId: string | null;
   fields: ConfigureGraphField[];
@@ -102,7 +99,6 @@ export function configureGraphData(
   const calculations = new Map<string, { source: string; target: string; fields: string[] }>();
   const lists = types.map((type) => ({
     type,
-    standard: counts.get(type.id)?.standard ?? false,
     recordCount: counts.get(type.id)?.recordCount ?? null,
     parentId: configureParentId(model, type),
     fields: model.fields

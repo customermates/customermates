@@ -156,13 +156,11 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
           )}
         </span>
 
-        <AppChip className="shrink-0" variant="secondary">
-          {list.type.archived
-            ? t("RecordModel.archived")
-            : list.standard
-              ? t("RecordModel.graph.standard")
-              : t("RecordModel.graph.custom")}
-        </AppChip>
+        {list.type.archived && (
+          <AppChip className="shrink-0" variant="secondary">
+            {t("RecordModel.archived")}
+          </AppChip>
+        )}
       </button>
 
       <div className="border-y border-border px-3.5 py-2 text-xs text-muted-foreground" data-configure-node-count="">

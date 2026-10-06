@@ -3101,7 +3101,6 @@
       "connectDescription": "Collega Gmail, Outlook o un altro canale per portare le conversazioni nelle tue liste.",
       "connectTitle": "Collega e-mail e calendario",
       "controls": "Controlli del grafico",
-      "custom": "Personalizzata",
       "fitView": "Adatta alla vista",
       "handle": "Punto di collegamento",
       "help": "Seleziona una lista o un campo per modificarlo, il chip su una linea per modificare una relazione oppure trascina dal punto di una lista a un’altra per collegarle.",
@@ -3114,7 +3113,6 @@
       "recordsRestricted": "Numero di record non disponibile",
       "recordUnit": "{count, plural, one {record} other {record}}",
       "relationshipLabel": "{label}: {source} verso {target}, {cardinality}",
-      "standard": "Standard",
       "tab": "Grafico",
       "zoomIn": "Ingrandisci",
       "zoomOut": "Riduci"

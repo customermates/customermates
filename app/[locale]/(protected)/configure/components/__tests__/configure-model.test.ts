@@ -200,10 +200,10 @@ describe("configure graph", () => {
   it("uses discovered counts and omits archived lists unless shown", () => {
     const model = createCrmPreset(company, "EUR");
     recordInvariant(model.types.find((type) => type.id === id("task"))).archived = true;
-    const catalog = model.types.map((type) => ({ id: type.id, standard: type.id === id("deal"), recordCount: 7 }));
+    const catalog = model.types.map((type) => ({ id: type.id, recordCount: 7 }));
     const data = configureGraphData(model, catalog, [], false);
     expect(data.lists.some((list) => list.type.id === id("task"))).toBe(false);
-    expect(data.lists.find((list) => list.type.id === id("deal"))).toMatchObject({ standard: true, recordCount: 7 });
+    expect(data.lists.find((list) => list.type.id === id("deal"))).toMatchObject({ recordCount: 7 });
     expect(configureGraphData(model, catalog, [], true).lists.some((list) => list.type.id === id("task"))).toBe(true);
   });
 });

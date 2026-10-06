@@ -3101,7 +3101,6 @@
       "connectDescription": "Verbinden Sie Gmail, Outlook oder einen anderen Kanal, um Unterhaltungen in Ihre Listen zu holen.",
       "connectTitle": "E-Mail und Kalender verbinden",
       "controls": "Grafiksteuerung",
-      "custom": "Benutzerdefiniert",
       "fitView": "Alles anzeigen",
       "handle": "Verbindungspunkt",
       "help": "Wählen Sie eine Liste oder ein Feld zum Bearbeiten, den Chip auf einer Linie zum Bearbeiten einer Beziehung, oder ziehen Sie vom Punkt einer Liste zu einer anderen, um sie zu verbinden.",
@@ -3114,7 +3113,6 @@
       "recordsRestricted": "Anzahl der Datensätze nicht verfügbar",
       "recordUnit": "{count, plural, one {Datensatz} other {Datensätze}}",
       "relationshipLabel": "{label}: {source} zu {target}, {cardinality}",
-      "standard": "Standard",
       "tab": "Grafik",
       "zoomIn": "Vergrößern",
       "zoomOut": "Verkleinern"

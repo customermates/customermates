@@ -11,7 +11,6 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { failAuthorization } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { createCrmPreset } from "./crm-preset";
 
 export const DiscoverRecordTypesSchema = z
   .object({
@@ -40,7 +39,6 @@ export const DiscoveredRecordTypesSchema = z
           embedded: z.boolean(),
           fieldCount: z.number().int(),
           recordCount: z.number().int().nonnegative().nullable(),
-          standard: z.boolean(),
           permittedActions: z.array(z.enum(["create", "readOwn", "readAll", "update", "delete"])),
         })
         .strict(),
@@ -95,7 +93,6 @@ export class DiscoverRecordTypesInteractor extends AuthenticatedInteractor<
             row.count,
           ]),
         );
-        const standard = new Set(createCrmPreset(this.companyId, "EUR").types.map((type) => type.id));
         return {
           ok: true as const,
           data: {
@@ -113,7 +110,6 @@ export class DiscoverRecordTypesInteractor extends AuthenticatedInteractor<
               embedded: type.embedded,
               fieldCount: model.fields.filter((field) => field.typeId === type.id && !field.archived).length,
               recordCount: readable.includes(type.id) ? (counts.get(type.id) ?? 0) : null,
-              standard: standard.has(type.id),
               permittedActions: (["create", "readOwn", "readAll", "update", "delete"] as const).filter((action) =>
                 policy.allowed(type.id, action),
               ),
