@@ -3689,6 +3689,23 @@
     "tuesday": "Tuesday",
     "wednesday": "Wednesday"
   },
+  "SidebarCustomize": {
+    "deleteSection": "Delete section",
+    "emptySection": "Drag items here",
+    "hide": "Hide from sidebar",
+    "itemActions": "Options for {item}",
+    "moveDown": "Move down",
+    "moveToSection": "Move to section",
+    "moveUp": "Move up",
+    "newSection": "New section",
+    "newSectionName": "New section",
+    "rename": "Rename",
+    "reset": "Reset to default",
+    "sectionActions": "Options for {section}",
+    "sectionName": "Section name",
+    "show": "Show {item}",
+    "title": "Customize sidebar"
+  },
   "SignInForm": {
     "agreeToTerms": "By continuing, you agree to our <termsOfServiceLink>Terms</termsOfServiceLink> and acknowledge our <dataPrivacyLink>Privacy Policy</dataPrivacyLink>. See our <dpaLink>DPA</dpaLink>.",
     "buttonLabel": "Continue with {provider}",

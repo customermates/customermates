@@ -3689,6 +3689,23 @@
     "tuesday": "Mardi",
     "wednesday": "Mercredi"
   },
+  "SidebarCustomize": {
+    "deleteSection": "Supprimer la section",
+    "emptySection": "Faites glisser des éléments ici",
+    "hide": "Masquer de la barre latérale",
+    "itemActions": "Options pour {item}",
+    "moveDown": "Descendre",
+    "moveToSection": "Déplacer vers la section",
+    "moveUp": "Monter",
+    "newSection": "Nouvelle section",
+    "newSectionName": "Nouvelle section",
+    "rename": "Renommer",
+    "reset": "Rétablir par défaut",
+    "sectionActions": "Options pour {section}",
+    "sectionName": "Nom de la section",
+    "show": "Afficher {item}",
+    "title": "Personnaliser la barre latérale"
+  },
   "SignInForm": {
     "agreeToTerms": "En continuant, vous acceptez nos <termsOfServiceLink>conditions générales</termsOfServiceLink> et reconnaissez avoir lu notre <dataPrivacyLink>politique de confidentialité</dataPrivacyLink>. Consultez notre <dpaLink>DPA</dpaLink>.",
     "buttonLabel": "Continuer avec {provider}",

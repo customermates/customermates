@@ -46,7 +46,8 @@ import { NavHeader } from "./navigation/nav-header";
 import { resolvePlanChip } from "./navigation/plan-subtitle";
 import { OPERATOR_SUBROUTES } from "./navigation/operator-sections";
 import { visibleSubroutes } from "./navigation/workspace-sections";
-import { NavMain } from "./navigation/nav-main";
+import { NavSections } from "./navigation/nav-sections";
+import { SidebarCustomize } from "./navigation/sidebar-customize";
 import { NavSecondary } from "./navigation/nav-secondary";
 import { NavUser } from "./navigation/nav-user";
 import { LegalUpdateAlert } from "./navigation/legal-update-alert";
@@ -446,14 +447,19 @@ const FullAppSidebar = observer(
           <SidebarContent>
             {legalStatus ? <LegalUpdateAlert status={legalStatus} onNavigate={() => closeMobileSidebar()} /> : null}
 
-            <NavMain
+            <NavSections
+              customizable={!restricted}
               groups={navGroups}
               pathname={intlPathname}
               selectedKey={restricted ? null : selectedKey}
               onNavigate={(key) => closeMobileSidebar(restricted ? undefined : () => setSelectedKey(key))}
             />
 
-            <NavSecondary className="mt-auto" items={secondaryItems} />
+            <NavSecondary
+              className="mt-auto"
+              items={secondaryItems}
+              leading={restricted ? null : <SidebarCustomize groups={navGroups} />}
+            />
           </SidebarContent>
 
           <SidebarFooter>

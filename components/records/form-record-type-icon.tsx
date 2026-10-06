@@ -7,6 +7,9 @@ import { useState } from "react";
 
 import { FormLabel } from "@/components/forms/form-label";
 import { useAppForm } from "@/components/forms/form-context";
+import { useFormFieldErrors } from "@/components/forms/use-form-field";
+import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/core/utils/cn";
@@ -24,6 +27,7 @@ const COLUMNS = 8;
 export const FormRecordTypeIcon = observer(({ id, inputId, label }: Props) => {
   const t = useTranslations();
   const store = useAppForm();
+  const { hasError } = useFormFieldErrors(id);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const value = String(store?.getValue(id) ?? "");
@@ -33,9 +37,11 @@ export const FormRecordTypeIcon = observer(({ id, inputId, label }: Props) => {
   const known = RECORD_TYPE_ICON_KEYS.some((key) => key === value);
   const Current = recordTypeIcon(value);
   const search = query.trim().toLocaleLowerCase();
-  const matches = RECORD_TYPE_ICON_KEYS.filter(
+  const matches: string[] = RECORD_TYPE_ICON_KEYS.filter(
     (key) => !search || iconLabel(key).toLocaleLowerCase().includes(search) || key.toLowerCase().includes(search),
   );
+
+  const focusKey = matches.includes(value) ? value : matches[0];
 
   function choose(key: string) {
     store?.onChange(id, key);
@@ -43,13 +49,13 @@ export const FormRecordTypeIcon = observer(({ id, inputId, label }: Props) => {
     setQuery("");
   }
 
-  function moveFocus(event: React.KeyboardEvent<HTMLButtonElement>, index: number) {
+  function moveFocus(event: React.KeyboardEvent<HTMLDivElement>) {
     const step = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: COLUMNS, ArrowUp: -COLUMNS }[event.key];
-    if (!step) return;
+    const buttons = [...event.currentTarget.querySelectorAll("button")];
+    const index = buttons.indexOf(document.activeElement as HTMLButtonElement);
+    if (!step || index < 0) return;
     event.preventDefault();
-    const grid = event.currentTarget.parentElement;
-    const target = grid?.children[Math.min(Math.max(index + step, 0), matches.length - 1)];
-    if (target instanceof HTMLElement) target.focus();
+    buttons[Math.min(Math.max(index + step, 0), buttons.length - 1)]?.focus();
   }
 
   return (
@@ -60,19 +66,20 @@ export const FormRecordTypeIcon = observer(({ id, inputId, label }: Props) => {
 
       <Popover open={canEdit && open} onOpenChange={(next) => setOpen(canEdit && next)}>
         <PopoverTrigger asChild>
-          <button
+          <Button
             aria-haspopup="dialog"
-            className="flex h-9 w-full items-center gap-2 rounded-md border border-input bg-transparent px-3 text-left text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-input/30"
+            aria-invalid={hasError}
+            className="w-full justify-start"
             disabled={!canEdit}
             id={domId}
-            type="button"
+            variant="field"
           >
             <Current aria-hidden className="size-4 text-muted-foreground" />
 
-            <span className="min-w-0 flex-1 truncate">{known ? iconLabel(value) : iconLabel("folder")}</span>
+            <span className="min-w-0 flex-1 truncate text-left">{known ? iconLabel(value) : iconLabel("folder")}</span>
 
             <ChevronDown aria-hidden className="size-4 opacity-50" />
-          </button>
+          </Button>
         </PopoverTrigger>
 
         <PopoverContent align="start" aria-label={t("RecordModel.iconChoose")} className="w-80 p-2">
@@ -94,28 +101,25 @@ export const FormRecordTypeIcon = observer(({ id, inputId, label }: Props) => {
           {matches.length === 0 ? (
             <p className="px-1 py-4 text-center text-sm text-muted-foreground">{t("RecordModel.iconNoMatch")}</p>
           ) : (
-            <div className="grid max-h-64 grid-cols-8 gap-1 overflow-y-auto" role="group">
-              {matches.map((key, index) => {
-                const Icon = recordTypeIcon(key);
-                const selected = key === value;
-                return (
-                  <button
-                    key={key}
-                    aria-label={iconLabel(key)}
-                    aria-pressed={selected}
-                    className={cn(
-                      "flex size-8 items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring",
-                      selected && "bg-primary/10 text-primary",
-                    )}
-                    title={iconLabel(key)}
-                    type="button"
-                    onClick={() => choose(key)}
-                    onKeyDown={(event) => moveFocus(event, index)}
-                  >
-                    <Icon aria-hidden className="size-4" />
-                  </button>
-                );
-              })}
+            <div
+              aria-label={t("RecordModel.iconChoose")}
+              className="grid max-h-64 grid-cols-8 gap-1 overflow-y-auto"
+              role="toolbar"
+              onKeyDown={moveFocus}
+            >
+              {matches.map((key) => (
+                <IconButton
+                  key={key}
+                  fieldAction
+                  className="size-8"
+                  icon={recordTypeIcon(key)}
+                  iconClassName={cn("size-4", key === value && "text-primary")}
+                  label={iconLabel(key)}
+                  pressed={key === value}
+                  tabIndex={key === focusKey ? 0 : -1}
+                  onClick={() => choose(key)}
+                />
+              ))}
             </div>
           )}
         </PopoverContent>

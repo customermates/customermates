@@ -3689,6 +3689,23 @@
     "tuesday": "Dienstag",
     "wednesday": "Mittwoch"
   },
+  "SidebarCustomize": {
+    "deleteSection": "Abschnitt löschen",
+    "emptySection": "Einträge hierher ziehen",
+    "hide": "In der Seitenleiste ausblenden",
+    "itemActions": "Optionen für {item}",
+    "moveDown": "Nach unten",
+    "moveToSection": "In Abschnitt verschieben",
+    "moveUp": "Nach oben",
+    "newSection": "Neuer Abschnitt",
+    "newSectionName": "Neuer Abschnitt",
+    "rename": "Umbenennen",
+    "reset": "Auf Standard zurücksetzen",
+    "sectionActions": "Optionen für {section}",
+    "sectionName": "Abschnittsname",
+    "show": "{item} anzeigen",
+    "title": "Seitenleiste anpassen"
+  },
   "SignInForm": {
     "agreeToTerms": "Mit dem Fortfahren stimmst du unseren <termsOfServiceLink>AGB</termsOfServiceLink> zu und nimmst unsere <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> zur Kenntnis. Siehe unseren <dpaLink>AVV</dpaLink>.",
     "buttonLabel": "Anmelden mit {provider}",

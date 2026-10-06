@@ -13,6 +13,7 @@ import { TenantRepository } from "@/core/base/tenant-repository";
 import { groupingShadowColumnId, readStoredGrouping } from "@/core/base/grouping/stored-grouping";
 import { normalizeFilterInput } from "@/core/base/filter-value";
 import { EntityDetailOptionsSchema, type EntityDetailOptions } from "./p13n.schema";
+import { SidebarLayoutSchema, type SidebarLayout } from "./sidebar-layout.schema";
 
 export interface P13nEntry {
   p13nId: string;
@@ -27,6 +28,7 @@ export interface P13nEntry {
   viewMode?: ViewMode;
   grouping?: Grouping | null;
   detailOptions?: EntityDetailOptions;
+  settings?: SidebarLayout;
 }
 
 function normalizeStoredFilters(value: unknown): Filter[] | undefined {
@@ -69,6 +71,7 @@ export class PrismaP13nRepo extends TenantRepository implements GetP13nRepo, Ups
       viewMode,
       grouping,
       detailOptions,
+      settings,
     } = res;
 
     return {
@@ -84,6 +87,7 @@ export class PrismaP13nRepo extends TenantRepository implements GetP13nRepo, Ups
       viewMode: (viewMode as ViewMode | null) ?? undefined,
       grouping: readStoredGrouping(grouping),
       detailOptions: normalizeDetailOptions(detailOptions),
+      settings: SidebarLayoutSchema.safeParse(settings).data,
       ...(Array.isArray(res.viewStateKeys) ? this.explicitViewState(res) : {}),
     };
   }
@@ -140,6 +144,7 @@ export class PrismaP13nRepo extends TenantRepository implements GetP13nRepo, Ups
       groupingColumnId: groupingShadowColumnId(data.grouping),
       grouping: data.grouping ?? Prisma.DbNull,
       detailOptions: data.detailOptions ?? Prisma.JsonNull,
+      settings: data.settings ?? Prisma.JsonNull,
     };
 
     const updateData = {
@@ -163,6 +168,7 @@ export class PrismaP13nRepo extends TenantRepository implements GetP13nRepo, Ups
       updateData.grouping = data.grouping ?? Prisma.DbNull;
     }
     if (data.detailOptions !== undefined) updateData.detailOptions = data.detailOptions ?? Prisma.JsonNull;
+    if (data.settings !== undefined) updateData.settings = data.settings ?? Prisma.JsonNull;
 
     const row = await this.prisma.p13n.upsert({
       where: {
@@ -186,6 +192,7 @@ export class PrismaP13nRepo extends TenantRepository implements GetP13nRepo, Ups
       viewMode: (row.viewMode as ViewMode | null) ?? undefined,
       grouping: readStoredGrouping(row.grouping),
       detailOptions: normalizeDetailOptions(row.detailOptions),
+      settings: SidebarLayoutSchema.safeParse(row.settings).data,
       ...(Array.isArray(row.viewStateKeys) ? this.explicitViewState(row) : {}),
     };
   }
