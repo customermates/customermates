@@ -52,22 +52,23 @@ type Props = {
 function ConfigureGroup({
   title,
   description,
+  framed = true,
   children,
 }: {
   title: string;
   description?: string;
+  framed?: boolean;
   children: ReactNode;
 }) {
-  const headingId = useId();
   return (
-    <section aria-label={title} className="space-y-2">
-      <h2 className="px-1 text-sm font-medium text-muted-foreground" id={headingId}>
-        {title}
-      </h2>
+    <section aria-label={title} className="flex flex-col gap-3 border-t border-border pt-6">
+      <div className="flex flex-col gap-1">
+        <h2 className="text-sm font-medium">{title}</h2>
 
-      {description && <p className="px-1 text-xs text-muted-foreground">{description}</p>}
+        {description && <p className="text-sm text-muted-foreground">{description}</p>}
+      </div>
 
-      <div className="overflow-hidden rounded-xl border border-border bg-card">{children}</div>
+      {framed ? <div className="overflow-hidden rounded-lg border border-border">{children}</div> : children}
     </section>
   );
 }
@@ -269,39 +270,38 @@ export const ConfigureListPane = observer(function ConfigureListPane({
   const empty = <p className="px-4 py-3 text-sm text-muted-foreground">{t("RecordModel.noneYet")}</p>;
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-8 px-4 py-6 md:px-8 md:py-8" data-configure-list-pane="">
-      <div className="space-y-4">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex min-w-0 items-start gap-3">
-            <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg border border-border bg-card">
-              <Icon aria-hidden="true" className="size-4 text-muted-foreground" />
-            </span>
+    <div
+      className="animate-page-result-in flex w-full max-w-3xl flex-col gap-6 p-4 motion-reduce:animate-none md:p-6"
+      data-configure-list-pane=""
+    >
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary">
+            <Icon aria-hidden="true" className="size-4" />
+          </span>
 
-            <div className="min-w-0 space-y-1">
-              <h1 className="truncate text-xl font-semibold tracking-tight">{selected.pluralLabel}</h1>
+          <div className="min-w-0">
+            <h1 className="truncate text-lg font-semibold">{selected.pluralLabel}</h1>
 
-              <p className="text-sm text-muted-foreground">
-                {t("RecordModel.listCounts", counts)}
+            <p className="text-sm text-muted-foreground">
+              {t("RecordModel.listCounts", counts)}
 
-                {listStatus ? ` · ${listStatus}` : ""}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex shrink-0 items-center gap-1">
-            {hasArchivedParts && (
-              <Button aria-pressed={showArchived} size="sm" type="button" variant="ghost" onClick={onToggleArchived}>
-                {showArchived ? t("RecordModel.hideArchived") : t("RecordModel.showArchived")}
-              </Button>
-            )}
+              {listStatus ? ` · ${listStatus}` : ""}
+            </p>
           </div>
         </div>
+
+        {hasArchivedParts && (
+          <Button aria-pressed={showArchived} size="sm" type="button" variant="ghost" onClick={onToggleArchived}>
+            {showArchived ? t("RecordModel.hideArchived") : t("RecordModel.showArchived")}
+          </Button>
+        )}
       </div>
 
-      <ConfigureGroup title={t("RecordModel.general")}>
+      <ConfigureGroup framed={!editingGeneral} title={t("RecordModel.general")}>
         {editingGeneral ? (
           <AppForm id={generalFormId} store={general}>
-            <div className="space-y-4 p-4 md:p-5">
+            <div className="flex flex-col gap-4">
               <ModelChangeRecovery store={general} />
 
               {general.pendingOperationId && (
