@@ -37,6 +37,7 @@ import { AppChip } from "@/components/chip/app-chip";
 import { AppLink } from "@/components/shared/app-link";
 import { recordTypeIcon } from "@/components/records/record-type-icon";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { cn } from "@/core/utils/cn";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
@@ -125,7 +126,7 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
   return (
     <div
       className={cn(
-        "w-[17rem] rounded-xl border border-border bg-card text-card-foreground shadow-sm",
+        "w-[22rem] rounded-xl border border-border bg-card text-card-foreground shadow-sm",
         list.type.archived && "border-dashed opacity-75",
       )}
       data-configure-node={list.type.id}
@@ -144,10 +145,10 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
         </span>
 
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-sm font-semibold">{list.type.pluralLabel}</span>
+          <span className="block truncate text-base font-semibold">{list.type.pluralLabel}</span>
 
           {list.parentId && (
-            <span className="block truncate text-xs text-muted-foreground">
+            <span className="block truncate text-sm text-muted-foreground">
               {t("RecordModel.graph.partOf", { list: labelOf(list.parentId) })}
             </span>
           )}
@@ -160,12 +161,12 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
         )}
       </button>
 
-      <div className="border-y border-border px-3.5 py-2 text-xs text-muted-foreground" data-configure-node-count="">
+      <div className="border-y border-border px-3.5 py-2 text-sm text-muted-foreground" data-configure-node-count="">
         {list.recordCount === null ? (
           t("RecordModel.graph.recordsRestricted")
         ) : (
           <span className="flex items-baseline gap-1">
-            <span className="text-sm font-semibold text-foreground tabular-nums">
+            <span className="text-base font-semibold text-foreground tabular-nums">
               {intlStore.formatNumber(list.recordCount)}
             </span>
 
@@ -180,30 +181,39 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
             calculated && sources.length ? t("RecordModel.graph.calculatedFrom", { sources: listOf(sources) }) : null;
           return (
             <li key={field.id}>
-              <button
-                className="nodrag flex h-[30px] w-full items-center gap-2 px-3.5 text-left text-xs outline-none hover:bg-accent/50 focus-visible:bg-accent/60 disabled:pointer-events-none"
-                data-configure-graph-field={field.id}
-                disabled={disabled || !canManage}
-                title={detail ? `${field.label}\n${detail}` : field.label}
-                type="button"
-                onClick={() => onEditField(list.type.id, field)}
-              >
-                {calculated ? (
-                  <Sigma aria-hidden className="size-3 shrink-0 text-primary" />
-                ) : (
-                  <span aria-hidden className="size-3 shrink-0" />
-                )}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    className="nodrag flex h-9 w-full items-center gap-2 px-3.5 text-left text-sm outline-none hover:bg-accent/50 focus-visible:bg-accent/60 disabled:pointer-events-none"
+                    data-configure-graph-field={field.id}
+                    disabled={disabled || !canManage}
+                    type="button"
+                    onClick={() => onEditField(list.type.id, field)}
+                  >
+                    {calculated ? (
+                      <Sigma aria-hidden className="size-3.5 shrink-0 text-primary" />
+                    ) : (
+                      <span aria-hidden className="size-3.5 shrink-0" />
+                    )}
 
-                <span className="min-w-0 flex-1 truncate">
-                  <span className={cn("font-medium", field.archived && "text-muted-foreground line-through")}>
-                    {field.label}
-                  </span>
+                    <span className="min-w-0 flex-1 truncate">
+                      <span className={cn("font-medium", field.archived && "text-muted-foreground line-through")}>
+                        {field.label}
+                      </span>
 
-                  {detail && <span className="text-muted-foreground">{` ${detail}`}</span>}
-                </span>
+                      {detail && <span className="text-muted-foreground">{` ${detail}`}</span>}
+                    </span>
 
-                <span className="shrink-0 text-muted-foreground">{t(`RecordModel.types.${field.valueType}`)}</span>
-              </button>
+                    <span className="shrink-0 text-muted-foreground">{t(`RecordModel.types.${field.valueType}`)}</span>
+                  </button>
+                </TooltipTrigger>
+
+                <TooltipContent className="max-w-xs">
+                  <p className="font-medium">{field.label}</p>
+
+                  <p>{detail ?? t(`RecordModel.types.${field.valueType}`)}</p>
+                </TooltipContent>
+              </Tooltip>
             </li>
           );
         })}
@@ -211,7 +221,7 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
         {hidden > 0 && (
           <li>
             <button
-              className="nodrag flex h-[30px] w-full items-center px-3.5 ps-[2.125rem] text-left text-xs text-muted-foreground outline-none hover:bg-accent/50 hover:text-foreground focus-visible:bg-accent/60 disabled:pointer-events-none"
+              className="nodrag flex h-9 w-full items-center px-3.5 ps-[2.375rem] text-left text-sm text-muted-foreground outline-none hover:bg-accent/50 hover:text-foreground focus-visible:bg-accent/60 disabled:pointer-events-none"
               disabled={disabled}
               type="button"
               onClick={() => onSelectList(list.type.id)}
@@ -225,12 +235,12 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
           <li>
             <button
               aria-label={`${t("RecordModel.addField")}: ${list.type.pluralLabel}`}
-              className="nodrag flex h-[30px] w-full items-center gap-2 px-3.5 text-left text-xs text-primary outline-none hover:bg-accent/50 focus-visible:bg-accent/60 disabled:pointer-events-none disabled:opacity-60"
+              className="nodrag flex h-9 w-full items-center gap-2 px-3.5 text-left text-sm text-primary outline-none hover:bg-accent/50 focus-visible:bg-accent/60 disabled:pointer-events-none disabled:opacity-60"
               disabled={disabled}
               type="button"
               onClick={() => onAddField(list.type.id)}
             >
-              <Plus aria-hidden className="size-3" />
+              <Plus aria-hidden className="size-3.5" />
 
               {t("RecordModel.addField")}
             </button>
@@ -248,7 +258,7 @@ function AccountsNodeView({ data: { accounts } }: NodeProps<AccountsNode>) {
   const hidden = accounts.length - visible.length;
   return (
     <div
-      className="w-[17rem] rounded-xl border border-border bg-card text-card-foreground shadow-sm"
+      className="w-[22rem] rounded-xl border border-border bg-card text-card-foreground shadow-sm"
       data-configure-source="accounts"
     >
       <NodeHandles connectable={false} />
@@ -258,9 +268,9 @@ function AccountsNodeView({ data: { accounts } }: NodeProps<AccountsNode>) {
           <Cable aria-hidden className="size-4" />
         </span>
 
-        <span className="min-w-0 flex-1 truncate text-sm font-semibold">{t("RecordModel.graph.accounts")}</span>
+        <span className="min-w-0 flex-1 truncate text-base font-semibold">{t("RecordModel.graph.accounts")}</span>
 
-        <AppLink className="nodrag shrink-0 text-xs" href="/profile/connected-accounts">
+        <AppLink className="nodrag shrink-0 text-sm" href="/profile/connected-accounts">
           {t("RecordModel.graph.manage")}
         </AppLink>
       </div>
@@ -270,14 +280,14 @@ function AccountsNodeView({ data: { accounts } }: NodeProps<AccountsNode>) {
           const Icon = getProviderIcon(account.provider as MessagingProvider);
           const label = getProviderDisplayLabel({ ...account, provider: account.provider as MessagingProvider }, t);
           return (
-            <li key={account.id} className="flex h-10 items-center gap-2.5 px-3.5" data-configure-account={account.id}>
+            <li key={account.id} className="flex h-12 items-center gap-2.5 px-3.5" data-configure-account={account.id}>
               <Icon aria-hidden className="size-4 shrink-0" />
 
               <span className="min-w-0 flex-1 leading-tight">
-                <span className="block truncate text-xs font-medium">{label}</span>
+                <span className="block truncate text-sm font-medium">{label}</span>
 
                 {account.address && (
-                  <span className="block truncate text-[11px] text-muted-foreground">{account.address}</span>
+                  <span className="block truncate text-xs text-muted-foreground">{account.address}</span>
                 )}
               </span>
 
@@ -289,14 +299,14 @@ function AccountsNodeView({ data: { accounts } }: NodeProps<AccountsNode>) {
         })}
 
         {hidden > 0 && (
-          <li className="flex h-10 items-center px-3.5 ps-[2.625rem] text-xs text-muted-foreground">
+          <li className="flex h-12 items-center px-3.5 ps-[2.625rem] text-sm text-muted-foreground">
             {t("RecordModel.graph.moreAccounts", { count: hidden })}
           </li>
         )}
       </ul>
 
-      <div className="flex items-baseline gap-1 border-t border-border px-3.5 py-2 text-xs text-muted-foreground">
-        <span className="text-sm font-semibold text-foreground tabular-nums">
+      <div className="flex items-baseline gap-1 border-t border-border px-3.5 py-2 text-sm text-muted-foreground">
+        <span className="text-base font-semibold text-foreground tabular-nums">
           {intlStore.formatNumber(accounts.length)}
         </span>
 
@@ -310,7 +320,7 @@ function PromptNodeView({ data: { state } }: NodeProps<PromptNode>) {
   const t = useTranslations();
   return (
     <div
-      className="w-[17rem] rounded-xl border border-dashed border-border bg-card/80 text-card-foreground"
+      className="w-[22rem] rounded-xl border border-dashed border-border bg-card/80 text-card-foreground"
       data-configure-source="connect"
     >
       <NodeHandles connectable={false} />
@@ -320,10 +330,10 @@ function PromptNodeView({ data: { state } }: NodeProps<PromptNode>) {
           <Cable aria-hidden className="size-4" />
         </span>
 
-        <span className="min-w-0 flex-1 text-sm font-semibold">{t("RecordModel.graph.connectTitle")}</span>
+        <span className="min-w-0 flex-1 text-base font-semibold">{t("RecordModel.graph.connectTitle")}</span>
       </div>
 
-      <p className="px-3.5 pt-1.5 text-xs text-muted-foreground">{t("RecordModel.graph.connectDescription")}</p>
+      <p className="px-3.5 pt-1.5 text-sm text-muted-foreground">{t("RecordModel.graph.connectDescription")}</p>
 
       <div className="px-3.5 pt-2 pb-3">
         <Button asChild className="nodrag" size="xs" variant="secondary">
@@ -374,27 +384,36 @@ function GraphEdgeView({ data }: EdgeProps<GraphEdge>) {
         />
 
         <EdgeLabelRenderer>
-          <button
-            aria-describedby={calculated ? descriptionId : undefined}
-            aria-label={label}
-            className="nodrag nopan pointer-events-auto absolute z-[4] flex h-6 items-center gap-1 rounded-md border border-border bg-popover px-1.5 text-[11px] font-medium text-popover-foreground shadow-xs outline-none hover:border-primary/60 focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none"
-            data-configure-relationship={relation.id}
-            disabled={disabled || !canManage}
-            style={chipPosition}
-            title={calculated ? `${label}\n${calculated}` : label}
-            type="button"
-            onClick={() => onEditRelationship(relation)}
-          >
-            {calculated && <Sigma aria-hidden className="size-3 text-primary" />}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                aria-describedby={calculated ? descriptionId : undefined}
+                aria-label={label}
+                className="nodrag nopan pointer-events-auto absolute z-[4] flex h-7 items-center gap-1 rounded-md border border-border bg-popover px-2 text-xs font-medium text-popover-foreground shadow-xs outline-none hover:border-primary/60 focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none"
+                data-configure-relationship={relation.id}
+                disabled={disabled || !canManage}
+                style={chipPosition}
+                type="button"
+                onClick={() => onEditRelationship(relation)}
+              >
+                {calculated && <Sigma aria-hidden className="size-3 text-primary" />}
 
-            {calculated && (
-              <span className="sr-only" id={descriptionId}>
-                {calculated}
-              </span>
-            )}
+                {calculated && (
+                  <span className="sr-only" id={descriptionId}>
+                    {calculated}
+                  </span>
+                )}
 
-            {cardinality}
-          </button>
+                {cardinality}
+              </button>
+            </TooltipTrigger>
+
+            <TooltipContent className="max-w-xs">
+              <p>{label}</p>
+
+              {calculated && <p>{calculated}</p>}
+            </TooltipContent>
+          </Tooltip>
         </EdgeLabelRenderer>
       </>
     );
@@ -412,23 +431,30 @@ function GraphEdgeView({ data }: EdgeProps<GraphEdge>) {
       />
 
       <EdgeLabelRenderer>
-        <span
-          aria-label={title}
-          className={cn(
-            "pointer-events-auto absolute z-[4] flex size-6 items-center justify-center rounded-md border bg-popover shadow-xs",
-            calculation ? "border-primary/40 text-primary" : "border-border text-muted-foreground",
-          )}
-          data-configure-graph-edge={edge.kind}
-          role="img"
-          style={chipPosition}
-          title={title}
-        >
-          {calculation ? <Sigma aria-hidden className="size-3" /> : <Link2 aria-hidden className="size-3" />}
-        </span>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span
+              aria-label={title}
+              className={cn(
+                "pointer-events-auto absolute z-[4] flex size-6 items-center justify-center rounded-md border bg-popover shadow-xs",
+                calculation ? "border-primary/40 text-primary" : "border-border text-muted-foreground",
+              )}
+              data-configure-graph-edge={edge.kind}
+              role="img"
+              style={chipPosition}
+            >
+              {calculation ? <Sigma aria-hidden className="size-3" /> : <Link2 aria-hidden className="size-3" />}
+            </span>
+          </TooltipTrigger>
+
+          <TooltipContent>{title}</TooltipContent>
+        </Tooltip>
       </EdgeLabelRenderer>
     </>
   );
 }
+
+const FIT_VIEW = { padding: 0.08, maxZoom: 1 };
 
 const nodeTypes = { list: ListNodeView, accounts: AccountsNodeView, prompt: PromptNodeView };
 const edgeTypes = { graph: GraphEdgeView };
@@ -573,7 +599,7 @@ function ConfigureGraphCanvas({
           edgeTypes={edgeTypes}
           edges={edges}
           edgesFocusable={false}
-          fitViewOptions={{ padding: 0.08, maxZoom: 1 }}
+          fitViewOptions={FIT_VIEW}
           isValidConnection={(connection) =>
             listIds.has(connection.source) && listIds.has(connection.target) && connection.source !== connection.target
           }

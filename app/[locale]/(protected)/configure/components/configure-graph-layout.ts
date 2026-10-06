@@ -4,15 +4,15 @@ import type { ConfigureGraphData } from "./configure-graph-model";
 
 import { ACCOUNTS_NODE_ID } from "./configure-graph-model";
 
-export const GRAPH_NODE_WIDTH = 272;
+export const GRAPH_NODE_WIDTH = 352;
 export const GRAPH_VISIBLE_FIELDS = 6;
 export const GRAPH_VISIBLE_ACCOUNTS = 4;
-const LIST_CHROME_HEIGHT = 98;
-const FIELD_ROW_HEIGHT = 30;
-const SOURCE_CHROME_HEIGHT = 92;
-const SOURCE_ROW_HEIGHT = 40;
+const LIST_CHROME_HEIGHT = 112;
+const FIELD_ROW_HEIGHT = 36;
+const SOURCE_CHROME_HEIGHT = 100;
+const SOURCE_ROW_HEIGHT = 48;
 const PROMPT_HEIGHT = 128;
-const RELATIONSHIP_CHIP = { width: 104, height: 24 };
+const RELATIONSHIP_CHIP = { width: 120, height: 28 };
 const ICON_CHIP = { width: 24, height: 24 };
 
 export type ConfigureGraphPoint = { x: number; y: number };
@@ -104,8 +104,8 @@ export function configureRoutePath(points: readonly ConfigureGraphPoint[]) {
 const VIEWPORT_PADDING = 16;
 const VIEWPORT_TOP = 64;
 const HINT_WIDTH = 1024;
-const READABLE_ZOOM = 0.55;
-const NARROW_READABLE_ZOOM = 0.4;
+const READABLE_ZOOM = 0.85;
+const NARROW_READABLE_ZOOM = 0.55;
 const NARROW_WIDTH = 640;
 
 export function configureGraphViewport(positions: Map<string, ConfigureGraphPosition>, width: number, height: number) {
@@ -119,7 +119,7 @@ export function configureGraphViewport(positions: Map<string, ConfigureGraphPosi
   const top = width >= HINT_WIDTH ? VIEWPORT_TOP : VIEWPORT_PADDING;
   const fitAll = Math.min(fitWidth, (height - top - VIEWPORT_PADDING) / graphHeight);
   const readable = width < NARROW_WIDTH ? NARROW_READABLE_ZOOM : READABLE_ZOOM;
-  const zoom = Math.min(1, fitWidth, Math.max(readable, fitAll));
+  const zoom = Math.min(1, Math.max(readable, fitAll));
   return {
     x: Math.max(VIEWPORT_PADDING, (width - graphWidth * zoom) / 2) - minX * zoom,
     y: top - minY * zoom,

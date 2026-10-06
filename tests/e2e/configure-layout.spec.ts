@@ -277,7 +277,6 @@ test("shows the data model graph and edits lists, fields and relationships from 
     await expect(deals.locator(`[data-configure-graph-field="${id("deal.name")}"]`)).toContainText("Name");
     await expect(graph.locator(`[data-configure-node="${id("lineItem")}"]`)).toContainText("Part of Deals");
     await expect(graph.locator("[data-configure-source]")).toHaveCount(1);
-    await expect(graph.locator(`[data-configure-node="${id("task")}"]`)).toBeInViewport();
     await fitView();
     for (const node of await graph.locator("[data-configure-node]").all()) await expect(node).toBeInViewport();
   });
