@@ -676,13 +676,8 @@ model OperatorAuditEvent {
 
 enum Resource {
   dataModel
-  contacts
-  deals
-  organizations
-  services
   users
   company
-  tasks
   api
   auditLog
   inboxMessages
@@ -1782,7 +1777,6 @@ model RecordSchemaState {
   companyId         String  @id
   revision          Int     @default(0)
   activeOperationId String?
-  storageMode       String  @default("legacy")
   company           Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 }
 

@@ -39,12 +39,11 @@ function requireValue<T>(value: T | undefined | null, message: string): T {
 async function workspace() {
   const company = await client.query<{ id: string }>('SELECT id FROM "Company" ORDER BY id LIMIT 1');
   const companyId = requireValue(company.rows[0]?.id, "Seed the disposable scale database first");
-  const state = await client.query<{ revision: number; storageMode: string }>(
-    'SELECT revision, "storageMode" FROM "RecordSchemaState" WHERE "companyId" = $1',
+  const state = await client.query<{ revision: number }>(
+    'SELECT revision FROM "RecordSchemaState" WHERE "companyId" = $1',
     [companyId],
   );
   const current = requireValue(state.rows[0], "Record migration has not been finalized");
-  if (current.storageMode !== "generic") throw new Error("Finalize the synthetic workspace before scaling it");
   const revision = await client.query<{ snapshot: unknown; actorId: string }>(
     'SELECT snapshot, "actorId" FROM "RecordSchemaRevision" WHERE "companyId" = $1 AND revision = $2',
     [companyId, current.revision],

@@ -582,12 +582,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(order(f.id("lineItem"), saved.fields)).toEqual(order(f.id("lineItem")));
   });
 
-  it("marks a newly initialized workspace as generic storage", async () => {
-    const f = await fixture();
-    const state = await f.run(() => f.repo.getState());
-    expect(state?.storageMode).toBe("generic");
-  });
-
   it("exports filtered generic records and omits links to inaccessible records", async () => {
     const f = await fixture();
     const organization = await f.create("organization", "Private Organization");

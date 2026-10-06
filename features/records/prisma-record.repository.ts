@@ -675,7 +675,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     }
     await this.prisma.recordSchemaState.upsert({
       where: { companyId },
-      create: { companyId, revision: model.revision, storageMode: "generic" },
+      create: { companyId, revision: model.revision },
       update: { companyId, revision: model.revision },
     });
     await this.prisma.recordSchemaRevision.create({
