@@ -9,6 +9,11 @@ export type PermissionRole = {
 
 export type ReadScope = "all" | "own" | "none";
 
+export interface ScopedResource<TWhere> {
+  resource: Resource;
+  ownWhere(userId: string): TWhere;
+}
+
 export function rolePermits(role: PermissionRole | null | undefined, resource: string, action: string): boolean {
   if (!role) return false;
   if (role.isSystemRole) return true;
@@ -35,5 +40,17 @@ export class PermissionService extends UserAccessor {
 
   canRead(resource: Resource): boolean {
     return roleCanRead(this.user.role, resource);
+  }
+
+  accessWhere<TWhere extends { companyId?: unknown; id?: unknown }>(scoped: ScopedResource<TWhere>): TWhere {
+    const { companyId } = this;
+    switch (this.readScope(scoped.resource)) {
+      case "all":
+        return { companyId } as TWhere;
+      case "own":
+        return { ...scoped.ownWhere(this.userId), companyId };
+      case "none":
+        return { id: { in: [] }, companyId } as TWhere;
+    }
   }
 }
