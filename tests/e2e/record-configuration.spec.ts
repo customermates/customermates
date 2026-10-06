@@ -67,8 +67,9 @@ test("opens Sidebar Configure and preserves channel binding choices for seeded a
   await expect(page.locator("#nav-assistant")).toBeVisible();
   await expect(configure).toHaveAttribute("href", "/en/configure");
   await configure.click();
-  await expect(page).toHaveURL(/\/en\/configure(?:\?typeId=[a-f0-9-]+)?$/);
-  await selectConfigureList(page, "Contacts");
+  await expect(page).toHaveURL(/\/en\/configure$/);
+  await page.locator("[data-configure-graph]").getByRole("button", { name: "Contacts", exact: true }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Contacts", exact: true })).toBeVisible();
   const dialog = page.getByRole("dialog");
   const general = page.getByRole("region", { name: "General", exact: true });
   const channels = general.getByRole("switch", { name: "Enable channels", exact: true });

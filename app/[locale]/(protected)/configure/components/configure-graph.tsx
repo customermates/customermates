@@ -36,6 +36,8 @@ import { recordTypeIcon } from "@/components/records/record-type-icon";
 import { Button } from "@/components/ui/button";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { cn } from "@/core/utils/cn";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
+import { reportApplicationError } from "@/core/errors/report-application-error";
 
 import { accountStatusChipColor, getProviderDisplayLabel } from "../../profile/components/account-status-color";
 import {
@@ -114,6 +116,7 @@ type PromptNode = Node<{ state: "available" | "locked" }, "prompt">;
 
 function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
   const t = useTranslations();
+  const intlStore = useHydratedIntlStore();
   const { canManage, disabled, labelOf, onSelectList, onEditField, onAddField } = useGraphActions();
   const Icon = recordTypeIcon(list.type.icon);
   const visible = list.fields.slice(0, GRAPH_VISIBLE_FIELDS);
@@ -164,7 +167,7 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
         ) : (
           <span className="flex items-baseline gap-1">
             <span className="text-sm font-semibold text-foreground tabular-nums">
-              {t("RecordModel.graph.recordNumber", { count: list.recordCount })}
+              {intlStore.formatNumber(list.recordCount)}
             </span>
 
             <span>{t("RecordModel.graph.recordUnit", { count: list.recordCount })}</span>
@@ -240,6 +243,7 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
 
 function AccountsNodeView({ data: { accounts } }: NodeProps<AccountsNode>) {
   const t = useTranslations();
+  const intlStore = useHydratedIntlStore();
   const visible = accounts.slice(0, GRAPH_VISIBLE_ACCOUNTS);
   const hidden = accounts.length - visible.length;
   return (
@@ -293,7 +297,7 @@ function AccountsNodeView({ data: { accounts } }: NodeProps<AccountsNode>) {
 
       <div className="flex items-baseline gap-1 border-t border-border px-3.5 py-2 text-xs text-muted-foreground">
         <span className="text-sm font-semibold text-foreground tabular-nums">
-          {t("RecordModel.graph.recordNumber", { count: accounts.length })}
+          {intlStore.formatNumber(accounts.length)}
         </span>
 
         <span>{t("RecordModel.graph.accountUnit", { count: accounts.length })}</span>
@@ -501,7 +505,9 @@ function ConfigureGraphCanvas({
     const element = container.current;
     if (placed.current || !element) return;
     placed.current = true;
-    void flow.setViewport(configureGraphViewport(positions, element.clientWidth, element.clientHeight));
+    void flow
+      .setViewport(configureGraphViewport(positions, element.clientWidth, element.clientHeight))
+      .catch(reportApplicationError);
   }, [ready, flow, measured, flowNodes, positions]);
   const listIds = useMemo(() => new Set(model.types.map((type) => type.id)), [model.types]);
   const actions = useMemo<GraphActions>(

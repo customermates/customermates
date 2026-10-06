@@ -3110,7 +3110,6 @@
       "moreAccounts": "{count, plural, one {# altro account} other {altri # account}}",
       "moreFields": "{count, plural, one {# altro campo} other {altri # campi}}",
       "partOf": "Parte di {list}",
-      "recordNumber": "{count, number}",
       "recordsRestricted": "Numero di record non disponibile",
       "recordUnit": "{count, plural, one {record} other {record}}",
       "standard": "Standard",

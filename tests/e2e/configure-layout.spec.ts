@@ -355,7 +355,13 @@ test("shows the data model graph and edits lists, fields and relationships from 
     await expect(graph.locator("[data-configure-relationship]")).toHaveCount(model.relationships.length);
     const deals = graph.locator(`[data-configure-node="${id("deal")}"]`);
     await expect(deals).toContainText("Standard");
-    await expect(deals.locator("[data-configure-node-count]")).toHaveText(/^\d[\d,.]*\s*records?$/);
+    const dealCount = await database.query('SELECT COUNT(*)::integer AS count FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2', [
+      companyId,
+      id("deal"),
+    ]);
+    await expect(deals.locator("[data-configure-node-count]")).toHaveText(
+      new RegExp(`^${dealCount.rows[0].count}\\s*records?$`),
+    );
     await expect(deals.locator(`[data-configure-graph-field="${id("deal.name")}"]`)).toContainText("Name");
     await expect(graph.locator(`[data-configure-node="${id("lineItem")}"]`)).toContainText("Part of Deals");
     await expect(graph.locator("[data-configure-source]")).toHaveCount(1);
