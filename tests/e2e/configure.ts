@@ -40,7 +40,8 @@ export async function selectConfigureList(page: Page, label: string) {
 
 export async function addFromConfigure(page: Page, item: ConfigureAddItem) {
   await configureTopBar(page).getByRole("button", { name: "Add", exact: true }).click();
-  await page.getByRole("menuitem", { name: item, exact: true }).click();
+  const onGraph = item === "List" && !(await page.locator("[data-configure-list-pane]").isVisible());
+  if (!onGraph) await page.getByRole("menuitem", { name: item, exact: true }).click();
   await expect(configureDrawer(page)).toBeVisible();
 }
 

@@ -213,6 +213,17 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
   const topBar = useMemo(
     () => (
       <ConfigureTopBarActions
+        ai={
+          <RecordAiAction
+            registerContext
+            className="shrink-0"
+            context={
+              selected
+                ? { reference: { kind: "recordType", typeId: selected.id }, label: selected.pluralLabel }
+                : { reference: { kind: "dataModel" }, label: t("RecordModel.configure") }
+            }
+          />
+        }
         canManage={canManage}
         disabled={!interactive}
         general={general}
@@ -232,7 +243,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
         onToggleArchived={() => setShowArchived((current) => !current)}
       />
     ),
-    [add, canManage, general, generalFormId, hasArchived, interactive, model, selected, showArchived, typeModal],
+    [add, canManage, general, generalFormId, hasArchived, interactive, model, selected, showArchived, t, typeModal],
   );
   useSetTopBarActions(topBar);
 
@@ -293,20 +304,12 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
         <div className="flex min-h-0 flex-1 flex-col">
           <ConfigureGraph
             accounts={accounts}
-            action={
-              <RecordAiAction
-                registerContext
-                className="shrink-0"
-                context={{ reference: { kind: "dataModel" }, label: t("RecordModel.configure") }}
-              />
-            }
             canManage={canManage}
             catalog={catalog}
             disabled={!interactive}
             model={model}
             showArchived={showArchived}
             onAddField={(listId) => fieldModal.edit(model, listId, null)}
-            onAddList={() => add("list")}
             onConnect={(sourceTypeId, targetTypeId) => relationModal.edit(model, sourceTypeId, undefined, targetTypeId)}
             onEditField={(listId, field) => {
               fieldModal.edit(model, listId, field);

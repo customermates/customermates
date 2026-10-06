@@ -331,12 +331,12 @@ test("shows the data model graph and edits lists, fields and relationships from 
     await expect(graph.locator("[data-configure-relationship]")).toHaveCount(before + 1);
   });
 
-  await test.step("add field and new list start from the canvas", async () => {
+  await test.step("add field starts from a card and a new list from the top bar", async () => {
     await graph.getByRole("button", { name: "Add field: Services", exact: true }).click();
     await expect(dialog.getByText("Add field", { exact: true })).toBeVisible();
     await dialog.getByRole("button", { name: "Cancel", exact: true }).first().click();
     await expect(dialog).not.toBeVisible();
-    await graph.getByRole("button", { name: "New list", exact: true }).click();
+    await configureTopBar(page).getByRole("button", { name: "Add", exact: true }).click();
     await expect(dialog.getByText("Create list", { exact: true }).first()).toBeVisible();
     await dialog.getByRole("button", { name: "Cancel", exact: true }).first().click();
     await expect(dialog).not.toBeVisible();

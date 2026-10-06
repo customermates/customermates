@@ -2,7 +2,6 @@
 
 import "@xyflow/react/dist/style.css";
 
-import type { ReactNode } from "react";
 import type { Edge, EdgeProps, Node, NodeProps } from "@xyflow/react";
 import type { RecordField, RecordModel, RecordRelationship } from "@/features/records/record-model.schema";
 import type { MessagingProvider } from "@/generated/prisma";
@@ -65,11 +64,9 @@ type Props = {
   showArchived: boolean;
   canManage: boolean;
   disabled: boolean;
-  action?: ReactNode;
   onSelectList: (typeId: string) => void;
   onEditField: (typeId: string, field: RecordField) => void;
   onAddField: (typeId: string) => void;
-  onAddList: () => void;
   onEditRelationship: (relation: RecordRelationship) => void;
   onConnect: (sourceTypeId: string, targetTypeId: string) => void;
 };
@@ -443,11 +440,9 @@ function ConfigureGraphCanvas({
   showArchived,
   canManage,
   disabled,
-  action,
   onSelectList,
   onEditField,
   onAddField,
-  onAddList,
   onEditRelationship,
   onConnect,
 }: Props) {
@@ -621,16 +616,6 @@ function ConfigureGraphCanvas({
           />
 
           <Panel className="!m-3 flex max-w-[calc(100%-1.5rem)] flex-wrap items-center gap-2" position="top-left">
-            {canManage && (
-              <Button disabled={disabled} size="sm" variant="secondary" onClick={onAddList}>
-                <Plus aria-hidden />
-
-                {t("RecordModel.newList")}
-              </Button>
-            )}
-
-            {action}
-
             <p className="hidden max-w-lg text-xs text-muted-foreground lg:block" id="configure-graph-help">
               {help}
             </p>

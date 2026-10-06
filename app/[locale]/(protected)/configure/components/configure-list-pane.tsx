@@ -19,7 +19,6 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { ChevronRight, GripVertical } from "lucide-react";
 
-import { RecordAiAction } from "@/app/components/agent-chat/record-ai-action";
 import { FormActions } from "@/components/card/form-actions";
 import { AppForm } from "@/components/forms/form-context";
 import { RecordConfigurationPreview } from "@/components/records/record-configuration-preview";
@@ -295,12 +294,6 @@ export const ConfigureListPane = observer(function ConfigureListPane({
                 {showArchived ? t("RecordModel.hideArchived") : t("RecordModel.showArchived")}
               </Button>
             )}
-
-            <RecordAiAction
-              registerContext
-              className="shrink-0"
-              context={{ reference: { kind: "recordType", typeId: selected.id }, label: selected.pluralLabel }}
-            />
           </div>
         </div>
       </div>
