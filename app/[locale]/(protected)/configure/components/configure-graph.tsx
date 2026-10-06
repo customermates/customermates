@@ -21,7 +21,6 @@ import {
   BackgroundVariant,
   BaseEdge,
   ConnectionMode,
-  Controls,
   EdgeLabelRenderer,
   Handle,
   Panel,
@@ -31,7 +30,7 @@ import {
   applyNodeChanges,
   useReactFlow,
 } from "@xyflow/react";
-import { Cable, Link2, Plus, Sigma } from "lucide-react";
+import { Cable, Link2, Maximize, Plus, Sigma, ZoomIn, ZoomOut } from "lucide-react";
 
 import { AppChip } from "@/components/chip/app-chip";
 import { AppLink } from "@/components/shared/app-link";
@@ -588,10 +587,6 @@ function ConfigureGraphCanvas({
             "node.a11yDescription.default": help,
             "node.a11yDescription.keyboardDisabled": help,
             "edge.a11yDescription.default": help,
-            "controls.ariaLabel": t("RecordModel.graph.controls"),
-            "controls.zoomIn.ariaLabel": t("RecordModel.graph.zoomIn"),
-            "controls.zoomOut.ariaLabel": t("RecordModel.graph.zoomOut"),
-            "controls.fitView.ariaLabel": t("RecordModel.graph.fitView"),
             "handle.ariaLabel": t("RecordModel.graph.handle"),
           }}
           colorMode={resolvedTheme === "dark" ? "dark" : "light"}
@@ -599,7 +594,6 @@ function ConfigureGraphCanvas({
           edgeTypes={edgeTypes}
           edges={edges}
           edgesFocusable={false}
-          fitViewOptions={FIT_VIEW}
           isValidConnection={(connection) =>
             listIds.has(connection.source) && listIds.has(connection.target) && connection.source !== connection.target
           }
@@ -636,10 +630,33 @@ function ConfigureGraphCanvas({
             variant={BackgroundVariant.Dots}
           />
 
-          <Controls
-            className="!border-border !shadow-sm [&_button]:!border-border [&_button]:!bg-card [&_button]:!fill-foreground [&_button:hover]:!bg-accent"
-            showInteractive={false}
-          />
+          <Panel
+            aria-label={t("RecordModel.graph.controls")}
+            className="!m-3 flex flex-col gap-1"
+            position="bottom-left"
+            role="group"
+          >
+            {[
+              { label: t("RecordModel.graph.zoomIn"), icon: ZoomIn, run: () => flow.zoomIn() },
+              { label: t("RecordModel.graph.zoomOut"), icon: ZoomOut, run: () => flow.zoomOut() },
+              { label: t("RecordModel.graph.fitView"), icon: Maximize, run: () => flow.fitView(FIT_VIEW) },
+            ].map(({ label, icon: Icon, run }) => (
+              <Tooltip key={label}>
+                <TooltipTrigger asChild>
+                  <Button
+                    aria-label={label}
+                    size="icon-sm"
+                    variant="secondary"
+                    onClick={() => void run().catch(reportApplicationError)}
+                  >
+                    <Icon aria-hidden />
+                  </Button>
+                </TooltipTrigger>
+
+                <TooltipContent side="right">{label}</TooltipContent>
+              </Tooltip>
+            ))}
+          </Panel>
 
           <Panel className="!m-3 flex max-w-[calc(100%-1.5rem)] flex-wrap items-center gap-2" position="top-left">
             <p className="hidden max-w-lg text-xs text-muted-foreground lg:block" id="configure-graph-help">
