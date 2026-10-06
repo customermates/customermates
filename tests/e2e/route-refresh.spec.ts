@@ -32,7 +32,7 @@ test("keeps an open Configure drawer and its unsaved edits through a route refre
 
 test("keeps an unsaved Knowledge Base draft through a route refresh", async ({ page }) => {
   await page.goto("/en/wiki");
-  await page.getByRole("button", { name: "New page", exact: true }).first().click();
+  await page.locator("header").getByRole("button", { name: "New page", exact: true }).click();
   const title = page.getByRole("textbox", { name: "Page title", exact: true });
   await expect(title).toBeVisible();
   await markPageRoot(page, "[data-wiki-document-layout]");
