@@ -137,7 +137,7 @@ function SortableNavItem({
     ...(customizable ? sortable.listeners : {}),
   };
   const action = customizable && (
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <SidebarMenuAction showOnHover aria-label={t("SidebarCustomize.itemActions", { item: item.title })}>
           <MoreHorizontal />
@@ -328,7 +328,7 @@ function NavSection({
       )}
 
       {customizable && !editing && (
-        <DropdownMenu>
+        <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <SidebarGroupAction
               aria-label={t("SidebarCustomize.sectionActions", { section: label })}
