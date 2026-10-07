@@ -23,7 +23,7 @@ export const WidgetCard = observer(({ widget }: Props) => {
   const card = isRecordActivityWidget(widget) ? (
     <RecordActivityWidgetCard widget={widget} />
   ) : isRecordWidget(widget) ? (
-    <RecordWidgetCard widget={widget} />
+    <RecordWidgetCard {...widget} />
   ) : null;
 
   return (

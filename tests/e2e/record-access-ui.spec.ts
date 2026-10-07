@@ -14,7 +14,16 @@ import { RecordOperationResultSchema } from "../../features/records/record-query
 import { RecordMeasureResultSchema } from "../../features/records/record-measure.schema";
 import { presetId } from "../../features/records/crm-preset";
 import { localE2eEnvironment } from "./local-environment";
-import { addFromConfigure, configureRow, configureTopBar, followConfigureLink, openConfigure, openConfigureRow, openListAction, saveDrawer, setShowArchivedParts } from "./configure";
+import {
+  addFromConfigure,
+  configureTopBar,
+  followConfigureLink,
+  openConfigure,
+  openConfigureRow,
+  openListAction,
+  saveDrawer,
+  setShowArchivedParts,
+} from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 import { createBrowserWorkspace, removeBrowserWorkspace } from "./workspace";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
@@ -290,10 +299,10 @@ test("admits an assigned-record writer and separately delegates schema configura
     await openConfigure(member.page, type.id);
     await expect(member.page.getByRole("heading", { name: "Projects", exact: true })).toBeVisible();
     await expect(configureTopBar(member.page).getByRole("button", { name: "Add", exact: true })).toHaveCount(0);
-    await expect(configureTopBar(member.page).getByRole("button", { name: "List actions", exact: true })).toHaveCount(0);
-    await expect(
-      member.page.getByRole("region", { name: "General", exact: true }).getByRole("textbox"),
-    ).toHaveCount(0);
+    await expect(configureTopBar(member.page).getByRole("button", { name: "List actions", exact: true })).toHaveCount(
+      0,
+    );
+    await expect(member.page.getByRole("region", { name: "General", exact: true }).getByRole("textbox")).toHaveCount(0);
     await expect(member.page.getByRole("region", { name: "Fields", exact: true }).getByRole("button")).toHaveCount(0);
     const unauthorized = {
       expectedRevision: (await readModel(page)).revision,
@@ -330,7 +339,9 @@ test("admits an assigned-record writer and separately delegates schema configura
     await member.page.reload();
     await expect(configureTopBar(member.page).getByRole("button", { name: "Add", exact: true })).toBeVisible();
     await expect(configureTopBar(member.page).getByRole("button", { name: "List actions", exact: true })).toBeVisible();
-    await expect(member.page.getByRole("region", { name: "Fields", exact: true }).getByRole("button").first()).toBeVisible();
+    await expect(
+      member.page.getByRole("region", { name: "Fields", exact: true }).getByRole("button").first(),
+    ).toBeVisible();
     const configure = member.page.locator("#nav-configure-records");
     if (!(await configure.isVisible())) await member.page.locator("#sidebar-trigger").click();
     await expect(member.page.locator("#nav-assistant")).toBeVisible();
@@ -973,8 +984,11 @@ async function relationshipEditUi(page: Page, typeId: string, label: string, res
   ).toBeVisible();
   if (restore) await setShowArchivedParts(page, true);
   await openConfigureRow(page, "Relationships", label);
-  if (restore)
-    await expect(page.getByRole("dialog").getByRole("switch", { name: "Archive relationship", exact: true })).not.toBeChecked();
+  if (restore) {
+    await expect(
+      page.getByRole("dialog").getByRole("switch", { name: "Archive relationship", exact: true }),
+    ).not.toBeChecked();
+  }
   return page.getByRole("dialog", { name: englishMessages.RecordModel.relationship, exact: true });
 }
 
@@ -1901,8 +1915,11 @@ test("keeps retained values restricted after a delegated manager converts fields
     expect((await manager.page.request.post("/api/v1/records/read", { data: source })).status()).toBe(404);
     expect((await manager.page.request.post("/api/v1/records/read", { data: summary })).status()).toBe(404);
     expect((await reader.page.request.post("/api/v1/records/read", { data: source })).status()).toBe(404);
-    for (const type of model.types.filter((type) => type.embedded))
-      expect((await reader.page.request.post("/api/v1/records/query", { data: { typeId: type.id } })).status()).toBe(200);
+    for (const type of model.types.filter((type) => type.embedded)) {
+      expect((await reader.page.request.post("/api/v1/records/query", { data: { typeId: type.id } })).status()).toBe(
+        200,
+      );
+    }
     const widget = widgetSchema.parse(
       await post(reader.page, "/api/v1/widgets/save", {
         expectedRevision: (await readModel(page)).revision,
@@ -1930,7 +1947,7 @@ test("keeps retained values restricted after a delegated manager converts fields
           )
         ).rows,
       ).toEqual([{ textValue: canary }]);
-      for (const field of [total, memo])
+      for (const field of [total, memo]) {
         expect(
           (
             await database.query(
@@ -1939,6 +1956,7 @@ test("keeps retained values restricted after a delegated manager converts fields
             )
           ).rows,
         ).toEqual([{ sourceTypeId: source.typeId, sourceId: source.recordId }]);
+      }
     };
     const assertRestricted = async () => {
       const dto = RecordDtoSchema.parse(await post(reader.page, "/api/v1/records/read", summary));
@@ -1977,10 +1995,11 @@ test("keeps retained values restricted after a delegated manager converts fields
       ).toEqual([]);
       await reader.page.locator("#global-search-input input").fill("Readable archive summary");
       await reader.page.getByRole("option").filter({ hasText: "Readable archive summary" }).click();
-      for (const field of [total, memo])
+      for (const field of [total, memo]) {
         await expect(
           editor.locator(`[data-entity-field="${field.id}"]`).getByText("Restricted", { exact: true }),
         ).toBeVisible();
+      }
       await reader.page.waitForLoadState("networkidle");
       await editor.getByRole("button", { name: "Close", exact: true }).click();
       await expect(editor).not.toBeVisible();
@@ -2027,11 +2046,12 @@ test("keeps retained values restricted after a delegated manager converts fields
     model = await readModel(page);
     expect(model.types.find((type) => type.id === sourceType.id)?.archived).toBe(true);
     expect(model.relationships.find((entry) => entry.id === relation.id)?.archived).toBe(true);
-    for (const field of [total, memo])
+    for (const field of [total, memo]) {
       expect(model.fields.find((entry) => entry.id === field.id)).toMatchObject({
         behavior: { kind: "input" },
         publishedSummary: false,
       });
+    }
     expect(
       (
         await database.query(
@@ -2214,7 +2234,10 @@ test("publishes and withdraws a private-input summary through the field UI witho
     await delegatedSource
       .getByRole("textbox", { name: englishMessages.RecordModel.defaultValue, exact: true })
       .fill("50");
-    await delegatedSource.getByRole("button", { name: englishMessages.Common.actions.save, exact: true }).first().click();
+    await delegatedSource
+      .getByRole("button", { name: englishMessages.Common.actions.save, exact: true })
+      .first()
+      .click();
     await expect(delegatedSource.getByRole("status")).toContainText(
       englishMessages.RecordModel.summaryApprovalRequired,
     );
@@ -2278,7 +2301,7 @@ test("copies another member's widget template into an independent owned widget w
   test.setTimeout(240000);
   const errors = relationshipCaptureErrors(page);
   const serviceId = presetId(companyId, "service");
-  for (const name of ["Template service A", "Template service B"])
+  for (const name of ["Template service A", "Template service B"]) {
     await mutate(page, {
       action: "create",
       typeId: serviceId,
@@ -2287,6 +2310,7 @@ test("copies another member's widget template into an independent owned widget w
         { fieldId: presetId(companyId, "service.amount"), value: { kind: "decimal", value: "5", currency: "EUR" } },
       ],
     });
+  }
   const role = await saveRole(page, {
     name: "Template dashboard reader",
     description: "Own dashboard widgets with read-only service access",
@@ -2303,6 +2327,7 @@ test("copies another member's widget template into an independent owned widget w
   await dialog.getByRole("textbox", { name: "Name", exact: false }).fill(sourceName);
   await dialog.getByRole("combobox", { name: "Records from", exact: true }).click();
   await page.getByRole("option", { name: "Services", exact: true }).click();
+  await dialog.getByRole("tab", { name: "Appearance", exact: true }).click();
   await dialog.getByRole("switch", { name: "Share as a template", exact: true }).check();
   await dialog.getByRole("button", { name: "Preview measure", exact: true }).click();
   await expect(dialog.getByText(overall, { exact: true })).toBeVisible();
@@ -2333,8 +2358,9 @@ test("copies another member's widget template into an independent owned widget w
     await expect(template).toContainText(sourceName);
     await template.click();
     await expect(copiedDialog.getByRole("textbox", { name: "Name", exact: false })).toHaveValue(sourceName);
-    await expect(copiedDialog.getByRole("switch", { name: "Share as a template", exact: true })).not.toBeChecked();
     await copiedDialog.getByRole("textbox", { name: "Name", exact: false }).fill(copyName);
+    await copiedDialog.getByRole("tab", { name: "Appearance", exact: true }).click();
+    await expect(copiedDialog.getByRole("switch", { name: "Share as a template", exact: true })).not.toBeChecked();
     await copiedDialog.getByRole("switch", { name: "Show metric and filters", exact: true }).uncheck();
     await copiedDialog.getByRole("button", { name: "Preview measure", exact: true }).click();
     await expect(copiedDialog.locator("svg.recharts-surface")).toBeVisible();

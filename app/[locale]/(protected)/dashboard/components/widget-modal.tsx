@@ -19,6 +19,7 @@ import { FormLabel } from "@/components/forms/form-label";
 import { FormInput } from "@/components/forms/form-input";
 import { FormSwitch } from "@/components/forms/form-switch";
 import { AppModal } from "@/components/modal";
+import type { AppModalActionProps } from "@/components/modal/app-modal-action";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,6 +31,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { getChartColors } from "@/constants/chart-colors";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useRecordAiAction } from "@/app/components/agent-chat/record-ai-action";
 import type { ChartColor } from "@/features/widget/widget.schema";
 import { DisplayType } from "@/features/widget/widget.schema";
 import type { RecordModel } from "@/features/records/record-model.schema";
@@ -40,7 +42,7 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { RecordWidgetEditor } from "./record-widget-editor";
 import { WidgetDisplayTypePicker } from "./widget-display-type-picker";
 import { WIDGET_EDITOR_GRID_CLASS } from "./widget-editor-layout";
-import { WidgetStarterPicker } from "./widget-starter-picker";
+import { WidgetStarterPicker, useStarterText } from "./widget-starter-picker";
 
 function WidgetModalSkeleton() {
   const t = useTranslations();
@@ -69,7 +71,12 @@ export const WidgetModal = observer(() => {
   const { widgetModalStore } = useRootStore();
   const { showDeleteConfirmation } = useDeleteConfirmation();
   const { resolvedTheme } = useTheme();
+  const starterText = useStarterText();
   const { form, canManage, isDisabled, companyWideWidgets } = widgetModalStore;
+  const askAction = useRecordAiAction({
+    context: { reference: { kind: "widget", widgetId: form.id ?? "" }, label: form.name },
+    active: widgetModalStore.isOpen && Boolean(form.id),
+  });
   const chartColors = getChartColors(resolvedTheme);
   const isCreate = !form.id;
   const canDeleteWidget = !isCreate && canManage && Boolean(form.id);
@@ -79,6 +86,20 @@ export const WidgetModal = observer(() => {
     : isCreate
       ? t("Dashboard.widgetEditor.addTitle")
       : t("Dashboard.widgetEditor.editTitle", { name: form.name });
+  const deleteAction: AppModalActionProps | null = canDeleteWidget
+    ? {
+        id: "delete-widget",
+        label: t("Dashboard.widgetEditor.danger.deleteLabel", { name: form.name }),
+        icon: Trash2,
+        variant: "destructive",
+        disabled: isDisabled,
+        onClick: () => showDeleteConfirmation(() => widgetModalStore.delete(), form.name),
+      }
+    : null;
+  const modalActions: AppModalActionProps[] = [
+    ...(askAction ? [askAction] : []),
+    ...(deleteAction ? [deleteAction] : []),
+  ];
   const saveDisabled = isDisabled || !form.name.trim() || (!isCreate && !widgetModalStore.hasUnsavedChanges);
 
   useEffect(() => {
@@ -116,15 +137,21 @@ export const WidgetModal = observer(() => {
         className="space-y-4"
         id="widget-config-appearance"
       >
-        <h3 className="text-sm font-medium">{t("Dashboard.widgetEditor.tabs.appearance")}</h3>
+        <h3 className="sr-only">{t("Dashboard.widgetEditor.tabs.appearance")}</h3>
 
         {renderAppearanceSettings(model)}
       </section>
     );
+    const nameField = <FormInput id="name" label={t("Common.inputs.name")} />;
     return form.kind === WidgetKind.chart ? (
-      <RecordWidgetEditor appearance={appearance} section="all" store={widgetModalStore} />
+      <RecordWidgetEditor appearance={appearance} section="all" settingsHeader={nameField} store={widgetModalStore} />
     ) : (
-      <RecordActivityWidgetEditor appearance={appearance()} section="all" store={widgetModalStore} />
+      <RecordActivityWidgetEditor
+        appearance={appearance()}
+        section="all"
+        settingsHeader={nameField}
+        store={widgetModalStore}
+      />
     );
   }
 
@@ -275,28 +302,13 @@ export const WidgetModal = observer(() => {
 
   return (
     <AppModal
-      actions={
-        canDeleteWidget
-          ? [
-              {
-                id: "delete-widget",
-                label: t("Dashboard.widgetEditor.danger.deleteLabel", {
-                  name: form.name,
-                }),
-                icon: Trash2,
-                variant: "destructive",
-                disabled: isDisabled,
-                onClick: () => showDeleteConfirmation(() => widgetModalStore.delete(), form.name),
-              },
-            ]
-          : []
-      }
+      actions={modalActions}
       description={
         isCreate && widgetModalStore.creationStep === "choose"
           ? t("Dashboard.widgetEditor.steps.chooseDescription")
           : t("Dashboard.widgetEditor.steps.configureDescription")
       }
-      size={isChooseStep ? "3xl" : "xl"}
+      size={isChooseStep ? "3xl" : "5xl"}
       store={widgetModalStore}
       title={dialogTitle}
     >
@@ -306,7 +318,7 @@ export const WidgetModal = observer(() => {
             <h2 className="min-w-0 break-words text-base font-semibold">{dialogTitle}</h2>
           </AppCardHeader>
 
-          <AppCardBody className={isChooseStep ? "md:flex-initial" : "md:min-h-96"}>
+          <AppCardBody className={isChooseStep ? "md:flex-initial" : "md:min-h-96 [scrollbar-gutter:stable]"}>
             {widgetModalStore.isHydrating ? (
               <WidgetModalSkeleton />
             ) : isChooseStep ? (
@@ -317,21 +329,14 @@ export const WidgetModal = observer(() => {
                   gallery={widgetModalStore.galleryTemplates}
                   templates={companyWideWidgets}
                   onSelectGalleryTemplate={(template) =>
-                    widgetModalStore.startFromGallery(
-                      template,
-                      t(`Dashboard.widgetGallery.templates.${template.key}.name`),
-                    )
+                    widgetModalStore.startFromGallery(template, starterText(template).name)
                   }
                   onSelectKind={(kind) => widgetModalStore.startFromKind(kind, t("Dashboard.activityWidget.title"))}
                   onSelectTemplate={(id) => runUserAction(() => widgetModalStore.loadTemplate(id))}
                 />
               </div>
             ) : (
-              <div className="min-w-0 space-y-6" data-widget-editor="linear">
-                <FormInput id="name" label={t("Common.inputs.name")} />
-
-                {renderDataSettings()}
-              </div>
+              renderDataSettings()
             )}
           </AppCardBody>
 

@@ -14026,7 +14026,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       version: 2,
       layout: { lg: layouts.lg[0] },
     });
-    expect(await other.run(() => other.widgets.findOwned(foreign.data.id))).toMatchObject({ version: 1, layout: null });
+    expect(await other.run(() => other.widgets.findOwned(foreign.data.id))).toMatchObject({
+      version: 1,
+      layout: foreign.data.layout,
+    });
     expect(await f.run(() => f.widgets.findOwned(untouchedId))).toMatchObject({
       version: 1,
       layout: { lg: untouchedPosition },

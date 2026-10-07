@@ -681,6 +681,74 @@ describeDatabase("time-bucketed record measures", () => {
     expect(stored).toHaveLength(accepted.length);
   }, 120_000);
 
+  it("saves a widget's grid position in the same write and refuses overlapping positions", async () => {
+    const f = await fixture();
+    const save = async (name: string, extra: Record<string, unknown> = {}) =>
+      f.run(async () =>
+        f.widgets.invoke({
+          expectedRevision: await f.revision(),
+          idempotencyKey: randomUUID(),
+          name,
+          isTemplate: false,
+          measure: RecordMeasureSchema.parse({
+            source: { typeId: f.deal },
+            aggregation: "count",
+            valueFieldId: null,
+            groupBy: null,
+          }),
+          displayOptions: { displayType: DisplayType.number },
+          ...extra,
+        } as Parameters<typeof f.widgets.invoke>[0]),
+      );
+    const first = await save("Auto placed");
+    expect(first.ok && first.data.layout?.lg).toMatchObject({ x: 0, y: 0, w: 3, h: 2 });
+    const second = await save("Auto placed beside");
+    expect(second.ok && second.data.layout?.lg).toMatchObject({ x: 3, y: 0, w: 3, h: 2 });
+    const placed = await save("Requested", { layout: { x: 0, y: 2, w: 12, h: 3 } });
+    expect(placed.ok && placed.data.layout?.lg).toEqual({
+      i: placed.ok ? placed.data.id : "",
+      x: 0,
+      y: 2,
+      w: 12,
+      h: 3,
+    });
+    const overlap = await save("Overlap", { layout: { x: 2, y: 1, w: 4, h: 2 } });
+    expect(overlap.ok).toBe(false);
+    if (!overlap.ok) expect(JSON.stringify(overlap.error)).toContain(CustomErrorCode.widgetLayoutOverlap);
+
+    if (!first.ok) return;
+    const rename = await f.run(async () =>
+      f.widgets.invoke({
+        id: first.data.id,
+        expectedVersion: first.data.version,
+        expectedRevision: await f.revision(),
+        idempotencyKey: randomUUID(),
+        name: "Renamed",
+        isTemplate: false,
+        measure: first.data.measure,
+        displayOptions: first.data.displayOptions,
+      }),
+    );
+    expect(rename.ok && rename.data.layout?.lg).toMatchObject({ x: 0, y: 0, w: 3, h: 2 });
+    if (!rename.ok) return;
+    const moved = await f.run(async () =>
+      f.widgets.invoke({
+        id: first.data.id,
+        expectedVersion: rename.data.version,
+        expectedRevision: await f.revision(),
+        idempotencyKey: randomUUID(),
+        name: "Renamed",
+        isTemplate: false,
+        measure: first.data.measure,
+        displayOptions: first.data.displayOptions,
+        layout: { x: 6, y: 0, w: 6, h: 2 },
+      }),
+    );
+    expect(moved.ok && moved.data.layout?.lg).toMatchObject({ x: 6, y: 0, w: 6, h: 2 });
+    const stored = await runWithoutTenant(() => prisma.widget.count({ where: { companyId: f.company.id } }));
+    expect(stored).toBe(3);
+  }, 120_000);
+
   it("resolves gallery templates against the preset model and hides what the model or access cannot support", async () => {
     const f = await fixture("workspace");
     const stage = f.model.fields.find((field) => field.id === f.id("deal.stage"));
@@ -688,17 +756,15 @@ describeDatabase("time-bucketed record measures", () => {
     const workspace = await f.run(() => f.gallery.invoke());
     expect(workspace.ok).toBe(true);
     if (!workspace.ok) return;
-    const byKey = new Map(workspace.data.templates.map((template) => [template.key, template]));
-    expect([...byKey.keys()]).toEqual([
-      "openPipeline",
-      "dealsByStage",
-      "wonValuePerMonth",
-      "topOrganizationsByRevenue",
-      "openTasksPerAssignee",
-    ]);
+    const byKey = new Map(
+      workspace.data.templates
+        .filter((template) => template.measure.source.typeId === f.deal)
+        .map((template) => [template.recipe, template]),
+    );
+    expect([...byKey.keys()]).toEqual(["openValueTotal", "stageFunnel", "wonValueOverTime", "topRelatedByWonValue"]);
     const won = [f.id("deal.stage.won")];
     const lost = [f.id("deal.stage.lost")];
-    expect(byKey.get("openPipeline")).toMatchObject({
+    expect(byKey.get("openValueTotal")).toMatchObject({
       displayOptions: { displayType: DisplayType.number },
       measure: {
         aggregation: "sum",
@@ -716,38 +782,25 @@ describeDatabase("time-bucketed record measures", () => {
         },
       },
     });
-    expect(byKey.get("dealsByStage")).toMatchObject({
+    expect(byKey.get("stageFunnel")).toMatchObject({
       displayOptions: { displayType: DisplayType.funnelChart },
       measure: { aggregation: "count", groupBy: { fieldId: stage.id } },
     });
-    expect(byKey.get("wonValuePerMonth")).toMatchObject({
+    expect(byKey.get("wonValueOverTime")).toMatchObject({
       displayOptions: { displayType: DisplayType.areaChart },
       measure: { groupBy: { fieldId: f.closeDate.id, dateInterval: "month" }, groupLimit: 1000 },
     });
-    expect(byKey.get("topOrganizationsByRevenue")).toMatchObject({
+    expect(byKey.get("topRelatedByWonValue")).toMatchObject({
       displayOptions: { displayType: DisplayType.rankedTable },
       measure: {
         groupBy: { path: [{ relationId: f.id("deal.organizations"), direction: "outgoing" }], fieldId: null },
       },
     });
-    expect(byKey.get("openTasksPerAssignee")).toMatchObject({
-      displayOptions: { displayType: DisplayType.horizontalBarChart },
-      measure: {
-        source: {
-          typeId: f.id("task"),
-          filters: [
-            {
-              operator: "notIn",
-              values: [f.id("task.status.done"), f.id("task.status.archived")].map((value) => ({
-                kind: "select",
-                value,
-              })),
-            },
-          ],
-        },
-        groupBy: { fieldId: "system:assignedTo" },
-      },
-    });
+    expect(
+      workspace.data.templates
+        .filter((template) => template.measure.source.typeId === f.id("task"))
+        .map((template) => template.recipe),
+    ).toEqual(["stageFunnel"]);
     for (const template of workspace.data.templates) {
       const result = await f.run(() => f.measure.invoke(template.measure));
       expect(result.ok, template.key).toBe(true);
@@ -755,14 +808,17 @@ describeDatabase("time-bucketed record measures", () => {
 
     const crm = await fixture("crm");
     const plain = await crm.run(() => crm.gallery.invoke());
-    expect(plain.ok && plain.data.templates.map((template) => template.key)).toEqual([
-      "openPipeline",
-      "dealsByStage",
-      "wonValuePerMonth",
-      "topOrganizationsByRevenue",
-    ]);
+    const dealRecipes = (result: typeof plain) =>
+      result.ok
+        ? result.data.templates
+            .filter((template) => template.measure.source.typeId === crm.deal)
+            .map((template) => template.recipe)
+        : [];
+    expect(dealRecipes(plain)).toEqual(["openValueTotal", "stageFunnel", "wonValueOverTime", "topRelatedByWonValue"]);
     if (plain.ok) {
-      expect(plain.data.templates.find((template) => template.key === "openPipeline")?.measure.source.filters).toEqual([
+      expect(
+        plain.data.templates.find((template) => template.recipe === "openValueTotal")?.measure.source.filters,
+      ).toEqual([
         {
           fieldId: crm.id("deal.stage"),
           operator: "notIn",
@@ -775,10 +831,6 @@ describeDatabase("time-bucketed record measures", () => {
       runInTransaction(() => crm.repo.setGrants(crm.deal, [{ roleId: crm.memberRole.id, actions: ["readOwn"] }])),
     );
     const scoped = await crm.run(() => crm.gallery.invoke(), crm.member);
-    expect(scoped.ok && scoped.data.templates.map((template) => template.key)).toEqual([
-      "openPipeline",
-      "dealsByStage",
-      "wonValuePerMonth",
-    ]);
+    expect(dealRecipes(scoped)).toEqual(["openValueTotal", "stageFunnel", "wonValueOverTime"]);
   }, 120_000);
 });
