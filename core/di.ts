@@ -766,7 +766,7 @@ export const getDeleteRoleInteractor = () => new DeleteRoleInteractor(getRoleMan
 
 // --- Widget ---
 
-export const getGetWidgetsInteractor = () => new GetWidgetsInteractor(getWidgetRepo());
+export const getGetWidgetsInteractor = () => new GetWidgetsInteractor(getWidgetRepo(), getDataViewStateRepo());
 
 export const getDeleteWidgetInteractor = () => new DeleteWidgetInteractor(getWidgetRepo(), getWidgetIdsValidator());
 
@@ -1515,6 +1515,7 @@ export const getUpsertRecordWidgetInteractor = () =>
     getRecordAccessPolicy(),
     getQueryRecordMeasureInteractor(),
     getRecordWidgetReader(),
+    getDataViewStateRepo(),
   );
 
 export const getGetRecordWidgetInteractor = () =>
@@ -1544,6 +1545,7 @@ export const getUpsertRecordActivityWidgetInteractor = () =>
     getRecordAccessPolicy(),
     getGetRecordActivitiesInteractor(),
     getRecordActivityWidgetReader(),
+    getDataViewStateRepo(),
   );
 
 export const getManageDataViewsInteractor = () =>

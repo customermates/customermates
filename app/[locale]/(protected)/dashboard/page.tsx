@@ -1,27 +1,32 @@
 import { DashboardPageView } from "./components/dashboard-page-view";
 
 import { PageContainer } from "@/components/shared/page-container";
+import { SURFACE } from "@/core/data-view/data-view-keys";
+import { readSurfaceParams } from "@/core/data-view/next/read-surface-params";
 import { getDiscoverRecordTypesInteractor, getGetWidgetGalleryInteractor, getGetWidgetsInteractor } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
 
-export default async function DashboardPage() {
+type Props = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function DashboardPage({ searchParams }: Props) {
   await requireAccess();
 
+  const params = await readSurfaceParams(SURFACE.dashboard, searchParams);
   const [widgetsResult, recordTypesResult, galleryResult] = await Promise.all([
-    getGetWidgetsInteractor().invoke(),
+    getGetWidgetsInteractor().invoke({ viewId: params.viewId }),
     getDiscoverRecordTypesInteractor().invoke({ includeEmbedded: true, page: 1, pageSize: 25 }),
     getGetWidgetGalleryInteractor().invoke(),
   ]);
 
   return (
-    <PageContainer>
-      <div className="relative flex min-h-0 w-full flex-1 flex-col gap-4 md:gap-6">
-        <DashboardPageView
-          gallery={galleryResult.ok ? galleryResult.data : undefined}
-          recordTypes={recordTypesResult.ok ? recordTypesResult.data : undefined}
-          widgets={widgetsResult.data}
-        />
-      </div>
+    <PageContainer padded={false}>
+      <DashboardPageView
+        dashboard={widgetsResult.data}
+        gallery={galleryResult.ok ? galleryResult.data : undefined}
+        recordTypes={recordTypesResult.ok ? recordTypesResult.data : undefined}
+      />
     </PageContainer>
   );
 }

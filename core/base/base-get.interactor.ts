@@ -366,7 +366,7 @@ function toParamsLayer(params: GetQueryParams): DataViewParamsLayer {
   };
 }
 
-function selectActiveViewKey(
+export function selectActiveViewKey(
   requestedViewId: string | undefined,
   rememberedViewKey: string | null,
   readable: Map<string, DataViewChipDto>,

@@ -67,6 +67,7 @@ const activityPreconditions = {
 function chartWidget(overrides: Partial<RecordWidgetDto> = {}): RecordWidgetDto {
   return {
     id: WIDGET_ID,
+    viewId: null,
     userId: mockUser.id,
     companyId: mockUser.companyId,
     kind: "chart",
@@ -107,6 +108,7 @@ function chartWidget(overrides: Partial<RecordWidgetDto> = {}): RecordWidgetDto 
 function activityWidget(overrides: Partial<RecordActivityWidgetDto> = {}): RecordActivityWidgetDto {
   return {
     id: WIDGET_ID,
+    viewId: null,
     userId: mockUser.id,
     companyId: mockUser.companyId,
     kind: WidgetKind.activityTimeline,
@@ -394,7 +396,7 @@ describe("manage_widgets update", () => {
 describe("manage_widgets read and delete", () => {
   it("lists and gets mixed widget kinds with reusable activity filters", async () => {
     spies.getWidgets.mockResolvedValue({
-      data: [chartWidget(), activityWidget({ id: RECORD_ID })],
+      data: { items: [chartWidget(), activityWidget({ id: RECORD_ID })] },
     });
     const list = await run({ action: "list" });
     expect(decode(list)).toEqual({
@@ -404,6 +406,7 @@ describe("manage_widgets read and delete", () => {
           name: "Deals",
           kind: WidgetKind.chart,
           version: 1,
+          viewId: null,
           layout: { x: 0, y: 0, w: 4, h: 4 },
         },
         {
@@ -411,6 +414,7 @@ describe("manage_widgets read and delete", () => {
           name: "Recent activity",
           kind: WidgetKind.activityTimeline,
           version: 1,
+          viewId: null,
           layout: { x: 4, y: 0, w: 6, h: 4 },
         },
       ],
