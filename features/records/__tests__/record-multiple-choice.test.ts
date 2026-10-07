@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { describe, expect, it } from "vitest";
+import type { Filter } from "@/core/base/base-get.schema";
 import type { RecordField, RecordModel } from "../record-model.schema";
 
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
@@ -8,7 +9,12 @@ import { recordColumns } from "../record-columns";
 import { recordDraftValue, recordFieldTypeKey, recordInputValue } from "../record-input-value";
 import { scalarMatchesType, validateRecordModel } from "../record-model-validation";
 import { RecordScalarSchema } from "../record-model.schema";
-import { presentationQuery, recordColumnPresentation, recordFilterableFields } from "../record-presentation";
+import {
+  presentationFiltersAreValid,
+  presentationQuery,
+  recordColumnPresentation,
+  recordFilterableFields,
+} from "../record-presentation";
 import { invalidRecordQueryPart } from "../record-query-validation";
 import { RecordQuerySchema } from "../record-query.schema";
 
@@ -42,7 +48,7 @@ describe("multiple choice fields", () => {
     expect(scalarMatchesType({ kind: "selectList", value: ["alpha"] }, "select", false)).toBe(false);
   });
 
-  it("validate defaults against the options and stay out of calculations", () => {
+  it("validate defaults against the options and stay out of calculations and triggers", () => {
     expect(validateRecordModel(model()).issues).toEqual([]);
     const unknownDefault = model();
     unknownDefault.fields = unknownDefault.fields.map((field) =>
@@ -62,6 +68,16 @@ describe("multiple choice fields", () => {
     expect(validateRecordModel(formula).issues).toContainEqual({
       code: "multiple_choice_not_calculable",
       fieldId: total.id,
+    });
+    const calculated = model();
+    calculated.fields = calculated.fields.map((field) =>
+      field.id === tags.id
+        ? { ...field, behavior: { kind: "formula", expression: { kind: "field", fieldId: total.id } } }
+        : field,
+    );
+    expect(validateRecordModel(calculated).issues).toContainEqual({
+      code: "multiple_choice_requires_input",
+      fieldId: tags.id,
     });
   });
 
@@ -102,11 +118,17 @@ describe("multiple choice fields", () => {
     ]);
   });
 
+  it("keep single choice view filters valid after the switch to multiple choice", () => {
+    const fields = model().fields.filter((field) => field.typeId === typeId);
+    const filters: Filter[] = [{ field: tags.id, operator: FilterOperatorKey.in, value: ["alpha"] }];
+    expect(presentationFiltersAreValid(filters, fields)).toBe(true);
+    expect(presentationQuery(typeId, fields, { filters }).filters[0]).toMatchObject({ operator: "in" });
+  });
+
   it("present as a multiple select column that cannot be sorted", () => {
     expect(recordColumnPresentation(tags)).toMatchObject({
       type: "singleSelect",
       options: {
-        allowMultiple: true,
         options: [
           { value: "alpha", isDefault: false },
           { value: "beta", isDefault: true },

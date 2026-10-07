@@ -204,13 +204,12 @@ export const FILTER_SYNTAX = {
   },
   values: {
     singleValue: "one string",
-    multiValue: "string array; between needs exactly two values",
+    multiValue: "string array; between takes two",
     relativeWindow: "positive integer number of days",
     noValue: "omit value",
   },
   examples: [
     { field: "<single-select-custom-column-uuid>", operator: "in", value: ["<option-uuid>"] },
-    { field: "<multiple-choice-custom-column-uuid>", operator: "hasAllOf", value: ["<option-uuid>", "<option-uuid>"] },
     { field: "createdAt", operator: "inLastDays", value: 30 },
     { field: "email", operator: "isNotNull" },
   ],

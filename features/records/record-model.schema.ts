@@ -289,7 +289,12 @@ export const RecordFieldSchema = z
     valueType: RecordValueTypeSchema,
     behavior: FieldBehaviorSchema,
     required: z.boolean(),
-    multiple: z.boolean().optional(),
+    multiple: z
+      .boolean()
+      .optional()
+      .describe(
+        "Allows several values: text, email, phone and url store a textList; a select field becomes a multiple choice storing selectList option ids and must use input behavior.",
+      ),
     format: z
       .object({
         color: z.string().max(64).nullable().optional(),

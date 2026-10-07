@@ -34,8 +34,7 @@ import { useDefinitionDeletion } from "./use-definition-deletion";
 import { CalculationInput } from "./calculation-input";
 import { RecordInputField } from "../../records/[typeId]/components/record-input-field";
 import { recordDraftValue, recordInputValue } from "@/features/records/record-input-value";
-
-const MULTIPLE_VALUE_TYPES: readonly RecordField["valueType"][] = ["text", "email", "phone", "url", "select"];
+import { MULTIPLE_VALUE_TYPES } from "@/features/records/record-model-validation";
 
 const initial = () => ({
   id: undefined as string | undefined,
@@ -172,8 +171,18 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
     this.setPreview(null);
   };
   chooseValueType = (choice: string) => {
-    this.onChange("valueType", choice === "multiSelect" ? "select" : choice);
-    this.onChange("multiple", choice === "multiSelect");
+    const multiple = choice === "multiSelect";
+    const fromChoice = this.form.valueType === "select" && (choice === "select" || multiple);
+    const previous = fromChoice ? toJS(this.form.defaultValue) : undefined;
+    const hadDefault = this.form.hasDefaultValue;
+    this.onChange("valueType", multiple ? "select" : choice);
+    this.onChange("multiple", multiple);
+    if (multiple) this.onChange("behavior", "input");
+    if (!fromChoice || !hadDefault || previous === undefined) return;
+    const ids = Array.isArray(previous) ? previous.map(String) : [String(previous)];
+    if (!multiple && ids.length > 1) return;
+    this.onChange("hasDefaultValue", true);
+    this.onChange("defaultValue", multiple ? ids : ids[0]);
   };
   removeOption = (id: string) => {
     this.form.options = this.form.options.filter((option) => option.id !== id);
@@ -435,7 +444,10 @@ export const FieldModal = observer(function FieldModal({
 
                       <FormSelect
                         id="behavior"
-                        items={["input", "formula", "lookup", "rollup", "snapshot"].map((value) => ({
+                        items={(store.form.valueType === "select" && store.form.multiple
+                          ? ["input"]
+                          : ["input", "formula", "lookup", "rollup", "snapshot"]
+                        ).map((value) => ({
                           value,
                           label: t(`RecordModel.behaviors.${value}`),
                         }))}

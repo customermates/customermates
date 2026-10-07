@@ -211,9 +211,12 @@ export const RecordWidgetFieldFilters = observer(
           onValueChange={(value) => {
             const field = fields.find((field) => field.id === value);
             if (field) {
+              const operator = recordFilterOperators(field)[0];
               store.onChange(id, [
                 ...filters,
-                { fieldId: field.id, operator: recordFilterOperators(field)[0], value: defaults(field) },
+                ["in", "notIn", "all"].includes(operator)
+                  ? { fieldId: field.id, operator, value: null, values: [defaults(field)] }
+                  : { fieldId: field.id, operator, value: defaults(field) },
               ]);
             }
           }}

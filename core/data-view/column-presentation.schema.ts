@@ -84,7 +84,6 @@ export const SingleSelectSchema = BaseSchema.extend({
   type: z.literal(CustomColumnType.singleSelect),
   options: z.object({
     options: z.array(OptionSchema),
-    allowMultiple: z.boolean().optional(),
   }),
 });
 

@@ -342,9 +342,15 @@ export function AppChipStack<T extends ChipStackItem>({
                     else if (href) navigateToHref(href);
                   }}
                 >
-                  {item.startContent}
+                  {item.variant ? (
+                    <AppChip variant={item.variant}>{item.label}</AppChip>
+                  ) : (
+                    <>
+                      {item.startContent}
 
-                  {item.label}
+                      {item.label}
+                    </>
+                  )}
                 </StackDropdownItem>
               );
             })}

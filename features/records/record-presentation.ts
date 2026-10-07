@@ -34,7 +34,6 @@ export function recordColumnPresentation(field: RecordField): ColumnPresentation
       ...base,
       type: "singleSelect",
       options: {
-        ...(field.multiple ? { allowMultiple: true } : {}),
         options: field.options.map((option, index) => ({
           value: option.id,
           label: option.label,
@@ -299,8 +298,14 @@ export function presentationFiltersAreValid(
   paths: RecordRelationshipPath[] = [],
 ): boolean {
   const definitions = recordFilterableFields(fields, relationships, typeId, paths);
-  return filters.every((filter) =>
-    definitions.some((field) => field.field === filter.field && field.operators.includes(filter.operator)),
+  const convertedChoices = new Set(
+    fields.filter((field) => field.valueType === "select" && field.multiple).map((field) => field.id),
+  );
+  return filters.every(
+    (filter) =>
+      definitions.some((field) => field.field === filter.field && field.operators.includes(filter.operator)) ||
+      (convertedChoices.has(filter.field) &&
+        (filter.operator === FilterOperatorKey.in || filter.operator === FilterOperatorKey.notIn)),
   );
 }
 

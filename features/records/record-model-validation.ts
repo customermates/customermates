@@ -23,6 +23,8 @@ export type ModelIssue = {
   relationId?: string;
 };
 
+export const MULTIPLE_VALUE_TYPES: readonly RecordValueType[] = ["text", "email", "phone", "url", "select"];
+
 export function selectedOptionIds(value: RecordScalar | null): string[] {
   if (!value) return [];
   if (value.kind === "select") return [value.value];
@@ -395,8 +397,10 @@ export function validateRecordModel(model: RecordModel): {
     }
   }
   for (const field of model.fields) {
-    if (field.multiple && !["text", "email", "phone", "url", "select"].includes(field.valueType))
+    if (field.multiple && !MULTIPLE_VALUE_TYPES.includes(field.valueType))
       issues.push({ code: "invalid_multiple_value_type", fieldId: field.id });
+    if (field.valueType === "select" && field.multiple && field.behavior.kind !== "input")
+      issues.push({ code: "multiple_choice_requires_input", fieldId: field.id });
     if (!types.has(field.typeId)) issues.push({ code: "invalid_field_type", fieldId: field.id });
     if (new Set(field.options.map((option) => option.id)).size !== field.options.length)
       issues.push({ code: "duplicate_option_id", fieldId: field.id });
@@ -421,6 +425,7 @@ export function validateRecordModel(model: RecordModel): {
         trigger.typeId !== field.typeId ||
         trigger.archived ||
         trigger.behavior.kind !== "input" ||
+        trigger.multiple ||
         !field.behavior.triggerValue ||
         !scalarMatchesType(field.behavior.triggerValue, trigger.valueType)
       )
