@@ -67,7 +67,6 @@ const ExpiresInPicker = observer(() => {
 
         <PopoverContent align="start" className="w-auto p-0" onOpenAutoFocus={focusCalendarDay}>
           <Calendar
-            autoFocus
             captionLayout="dropdown"
             disabled={(date) => !isApiKeyExpirationDateAllowed(date, today)}
             endMonth={lastMonth}
