@@ -86,10 +86,10 @@ export function ViewMetaOverlay({
     <FormFooterActions
       anchorScope="view-editor"
       dirty={dirty}
+      formId={FORM_ID}
       placement="overlay"
       saving={isSubmitting}
       onCancel={() => onOpenChange(false)}
-      onSave={submit}
     />
   );
 
