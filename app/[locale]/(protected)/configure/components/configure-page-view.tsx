@@ -310,6 +310,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
             model={model}
             selected={selected}
             showArchived={showArchived}
+            onAddRelationship={() => addTo(selected.id, "relationship")}
             onEditActivity={(path) => {
               activityModal.edit(model, selected.id, path);
               if (path.archived) activityModal.onChange("archived", false);

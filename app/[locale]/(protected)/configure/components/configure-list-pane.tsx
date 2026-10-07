@@ -17,7 +17,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { ChevronRight, GripVertical } from "lucide-react";
+import { ChevronRight, GripVertical, Plus } from "lucide-react";
 
 import { FormActions } from "@/components/card/form-actions";
 import { AppForm } from "@/components/forms/form-context";
@@ -52,6 +52,7 @@ type Props = {
   onToggleArchived: () => void;
   onEditField: (field: RecordField) => void;
   onEditChannels: () => void;
+  onAddRelationship: () => void;
   onEditRelationship: (relation: RecordRelationship) => void;
   onEditRelationshipPath: (path: RecordRelationshipPath) => void;
   onEditActivity: (path: ActivityPath) => void;
@@ -204,6 +205,7 @@ export const ConfigureListPane = observer(function ConfigureListPane({
   onToggleArchived,
   onEditField,
   onEditChannels,
+  onAddRelationship,
   onEditRelationship,
   onEditRelationshipPath,
   onEditActivity,
@@ -278,6 +280,19 @@ export const ConfigureListPane = observer(function ConfigureListPane({
     general.moveField(String(active.id), String(over.id));
   };
   const empty = <p className="px-4 py-3 text-sm text-muted-foreground">{t("RecordModel.noneYet")}</p>;
+  const relationshipsEmpty = (
+    <div className="flex flex-col items-start gap-3 p-4" data-configure-relationships-empty="">
+      <p className="text-sm text-muted-foreground">{t("RecordModel.relationshipsEmpty")}</p>
+
+      {canManage && (
+        <Button disabled={!interactive} size="sm" type="button" variant="secondary" onClick={onAddRelationship}>
+          <Plus aria-hidden="true" className="size-4" />
+
+          {t("RecordModel.addRelationship")}
+        </Button>
+      )}
+    </div>
+  );
 
   const tabs = (
     <EditorTabs
@@ -406,7 +421,7 @@ export const ConfigureListPane = observer(function ConfigureListPane({
                   ))}
                 </ul>
               ) : (
-                empty
+                relationshipsEmpty
               )}
             </ConfigureGroup>
           ),
