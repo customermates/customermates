@@ -44,7 +44,7 @@ const LiveWikiEditor = observer(({ store }: { store: WikiPageStore }) =>
 async function mount(markdown = "") {
   const store = new WikiPageStore(
     {
-      userStore: { user: { id: "user-1" }, canManage: () => true },
+      userStore: { user: { id: "user-1" }, can: () => true },
     } as unknown as RootStore,
     { ...page, markdown },
     vi.fn(),

@@ -22,10 +22,6 @@ vi.mock("@/core/stores/root-store.provider", () => ({ useRootStore: () => ({ use
 vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
   useHydratedIntlStore: () => ({ formatNumericalShortDateTime: () => "date" }),
 }));
-vi.mock("@/components/records/use-record-href", () => ({
-  usePresetRecordHref: () => () => undefined,
-  useOpenPresetRecord: () => vi.fn(),
-}));
 vi.mock("@/components/data-view/use-column-label", () => ({
   useCanonicalColumnLabel: () => (field: string) => field,
 }));

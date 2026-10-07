@@ -33,9 +33,12 @@ export class AccountSignatureStore extends BaseFormStore<AccountSignatureForm> {
     });
   }
 
+  protected override get manageAction() {
+    return Action.update;
+  }
+
   override get isReadOnly(): boolean {
-    void this.rootStore.userStore.user;
-    return !this.isOwner || !this.rootStore.userStore.can(Resource.inboxMessages, Action.update);
+    return !this.isOwner || !this.allows(Action.update);
   }
 
   hydrate = (account: ConnectedAccountDto): void => {

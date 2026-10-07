@@ -4,7 +4,7 @@ import type { Validated } from "@/core/validation/validation.utils";
 import type { ValidateWebhookDeliveryIdsInteractor } from "@/core/validation/validators/validate-webhook-delivery-ids.interactor";
 
 import { z } from "zod";
-import { Resource, Action } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { Write } from "@/core/decorators/write.decorator";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -17,7 +17,7 @@ const Schema = z.object({
 });
 export type ResendWebhookDeliveryData = z.infer<typeof Schema>;
 
-@TenantInteractor({ resource: Resource.api, action: Action.create })
+@TenantInteractor({ resource: Resource.api, manage: "create" })
 export class ResendWebhookDeliveryInteractor extends AuthenticatedInteractor<ResendWebhookDeliveryData, string> {
   constructor(
     private deliveryRepo: GetWebhookDeliveryByIdRepo,

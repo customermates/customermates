@@ -21,7 +21,7 @@ export const ManageRolesSchema = z
         "Read action: limit the type catalog and returned grants to relevant types discovered earlier. Omit to read all types.",
       ),
     role: UpsertRoleSchema.optional().describe(
-      "Save action: role name and description plus permission changes. Omitted types and system permission properties keep existing rights; actions=[] explicitly removes a type grant. New roles start without grants.",
+      "Save action: role name and description plus permission changes. System permissions and record grants share one action vocabulary (create, update, delete, readAll, readOwn): each listed resource or type replaces its actions, omitted ones keep existing rights and actions=[] removes them. New roles start without grants.",
     ),
     deletion: DeleteRoleSchema.optional().describe("Delete action: role ID, expected revision and idempotency key."),
   })

@@ -21,10 +21,14 @@ import { resolveDataViewPageState, resolveDataViewView } from "@/components/data
 import { useDataViewSync } from "@/components/data-view/use-data-view-sync";
 import { PageState } from "@/components/page-state/page-state";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { IntlLink } from "@/i18n/navigation";
 import { RecordsStore } from "./records.store";
 import { RecordsPageSkeleton } from "./records-page-skeleton";
 import { RecordCell } from "./record-cell";
+import { RecordInlineField, canEditInline } from "./record-inline-field";
+import { RecordRowActions } from "./record-row-actions";
+import { useRecordDeletion } from "./use-record-deletion";
 import { useRecordRouteReady } from "@/components/records/use-record-route-ready";
 import { RecordOperationProgress } from "@/components/records/record-operation-progress";
 import { useRecordExport } from "@/features/data-transfer/export/use-record-export";
@@ -80,56 +84,86 @@ const RecordsPageViewContent = observer(function RecordsPageView({
   const avatarFieldId = store.presentation.model.capabilities
     .find((binding) => binding.kind === "avatar" && binding.typeId === store.presentation.typeId)
     ?.fields.find((field) => field.role === "image")?.fieldId;
+  const view = resolveDataViewView(store.viewMode, store.canBoard);
   const columns = useMemo<ColumnDef<RecordRow>[]>(
     () =>
       recordColumns.map((column) => ({
         id: column.id,
         header: column.label,
-        cell: ({ row }) => (
-          <RecordCell
-            avatarFieldId={column.id === store.type?.primaryFieldId ? avatarFieldId : undefined}
-            column={column}
-            record={row.original}
-            onMore={() => openRecord(row.original)}
-            onOpen={openRelated}
-          />
-        ),
+        cell: ({ row }) => {
+          const cell = (
+            <RecordCell
+              avatarFieldId={column.id === store.type?.primaryFieldId ? avatarFieldId : undefined}
+              column={column}
+              linkColors={store.presentation.linkColors}
+              record={row.original}
+              onMore={() => openRecord(row.original)}
+              onOpen={openRelated}
+            />
+          );
+          return view === "table" && column.kind === "field" && canEditInline(store, row.original, column.field) ? (
+            <RecordInlineField field={column.field} record={row.original} records={store}>
+              {cell}
+            </RecordInlineField>
+          ) : (
+            cell
+          );
+        },
       })),
-    [recordColumns, openRecord, openRelated, avatarFieldId, store.type?.primaryFieldId],
+    [recordColumns, openRecord, openRelated, avatarFieldId, store, view],
+  );
+  const deletion = useRecordDeletion({
+    onDeleted: () => root.recordWorkspaceStore.invalidate(),
+    onPending: (operationId) => store.setBulkState(false, operationId),
+  });
+  const rowActions = useCallback(
+    (record: RecordRow) => <RecordRowActions deletion={deletion} record={record} store={store} onOpen={openRecord} />,
+    [deletion, store, openRecord],
   );
   const handleAdd = useCallback(() => openEditor({ typeId: store.presentation.typeId }), [openEditor, store]);
   const handleExport = useRecordExport(store.presentation);
   const handleImport = useCallback(() => setImportOpen(true), []);
+  const configureLabel = t("RecordModel.configure");
   const toolbar = useMemo(
     () => (
-      <>
-        <DataViewToolbar
-          anchorScope="records"
-          store={store}
-          onAdd={handleAdd}
-          onExport={handleExport}
-          onImport={handleImport}
-        />
+      <DataViewToolbar
+        actions={
+          store.presentation.canManageSchema && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button asChild className="h-8" size="icon-sm" variant="secondary">
+                  <IntlLink
+                    aria-label={configureLabel}
+                    href={`/configure?typeId=${presentation.typeId}`}
+                    id="records-configure"
+                  >
+                    <Settings2 aria-hidden className="size-4" />
+                  </IntlLink>
+                </Button>
+              </TooltipTrigger>
 
-        {store.presentation.canManageSchema && (
-          <Button asChild className="max-sm:size-8 max-sm:p-0 max-sm:has-[>svg]:px-0" size="sm" variant="secondary">
-            <IntlLink
-              aria-label={t("RecordModel.configure")}
-              href={`/configure?typeId=${presentation.typeId}`}
-              id="records-configure"
-            >
-              <Settings2 aria-hidden className="size-4" />
-
-              <span className="hidden sm:inline">{t("RecordModel.configure")}</span>
-            </IntlLink>
-          </Button>
-        )}
-      </>
+              <TooltipContent>{configureLabel}</TooltipContent>
+            </Tooltip>
+          )
+        }
+        anchorScope="records"
+        store={store}
+        onAdd={handleAdd}
+        onExport={handleExport}
+        onImport={handleImport}
+      />
     ),
-    [store, store.presentation.canManageSchema, handleAdd, handleExport, handleImport, presentation.typeId, t],
+    [
+      store,
+      store.presentation.canManageSchema,
+      handleAdd,
+      handleExport,
+      handleImport,
+      presentation.typeId,
+      configureLabel,
+    ],
   );
   useSetTopBarActions(toolbar);
-  const view = resolveDataViewView(store.viewMode, store.canBoard);
   const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: false,
     hasActiveQuery: Boolean(store.searchTerm?.trim()) || Boolean(store.filters?.length),
@@ -179,7 +213,9 @@ const RecordsPageViewContent = observer(function RecordsPageView({
       );
       break;
     case "content":
-      body = <DataViewContent columns={columns} store={store} view={view} onRowClick={openRecord} />;
+      body = (
+        <DataViewContent columns={columns} rowActions={rowActions} store={store} view={view} onRowClick={openRecord} />
+      );
       break;
     default: {
       const exhaustive: never = pageState;

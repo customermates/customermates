@@ -353,7 +353,7 @@ describe("accessRedirectForAccountState", () => {
   it("denies a member without the required resource permission", async () => {
     mocks.findCurrentUserUnscoped.mockResolvedValue(user({ role: { isSystemRole: false, permissions: [] } }));
 
-    expect(await resolveAccess({ resource: Resource.contacts })).toEqual({
+    expect(await resolveAccess({ resource: Resource.routines })).toEqual({
       redirect: "/",
     });
   });
@@ -363,16 +363,16 @@ describe("accessRedirectForAccountState", () => {
       user({
         role: {
           isSystemRole: false,
-          permissions: [{ resource: Resource.contacts, action: Action.readOwn }],
+          permissions: [{ resource: Resource.routines, action: Action.readOwn }],
         },
       }),
     );
 
-    expect(await resolveAccess({ resource: Resource.contacts })).toBeNull();
+    expect(await resolveAccess({ resource: Resource.routines })).toBeNull();
   });
 
   it("lets a system-role user bypass the resource permission check", async () => {
-    expect(await resolveAccess({ resource: Resource.contacts })).toBeNull();
+    expect(await resolveAccess({ resource: Resource.routines })).toBeNull();
   });
 });
 

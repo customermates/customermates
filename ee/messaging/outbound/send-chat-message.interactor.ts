@@ -12,7 +12,7 @@ import { z } from "zod";
 import * as Sentry from "@sentry/node";
 import { randomUUID } from "node:crypto";
 
-import { Resource, Action, MessagingMessageDirection, MessagingMessageOrigin } from "@/generated/prisma";
+import { Resource, MessagingMessageDirection, MessagingMessageOrigin } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
@@ -62,7 +62,7 @@ export const SendChatMessageSchema = BaseSendChatMessageSchema.superRefine((d, c
 });
 export type SendChatMessageData = Data<typeof SendChatMessageSchema>;
 
-@TenantInteractor({ resource: Resource.inboxMessages, action: Action.create })
+@TenantInteractor({ resource: Resource.inboxMessages, manage: "create" })
 export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatMessageData, MessagingMessageDto> {
   constructor(
     private repo: SendChatMessageRepo,

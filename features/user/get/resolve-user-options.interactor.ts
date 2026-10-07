@@ -1,6 +1,6 @@
 import type { ResolveUserOptionsRepo } from "./resolve-user-options.repo";
 import { z } from "zod";
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 import type { Validated } from "@/core/validation/validation.utils";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -14,13 +14,7 @@ export type ResolveUserOptionsInput = z.infer<typeof ResolveUserOptionsSchema>;
 export type UserOption = { id: string; firstName: string; lastName: string; avatarUrl: string | null };
 
 @AllowInDemoMode
-@TenantInteractor({
-  permissions: [
-    { resource: Resource.users, action: Action.readAll },
-    { resource: Resource.users, action: Action.readOwn },
-  ],
-  condition: "OR",
-})
+@TenantInteractor({ resource: Resource.users, read: true })
 export class ResolveUserOptionsInteractor extends AuthenticatedInteractor<
   ResolveUserOptionsInput,
   { users: UserOption[] }

@@ -1,11 +1,11 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
-import type { ConnectedAccountDto, ConnectedAccountRecord } from "../messaging.schema";
+import type { ConnectedAccountDto } from "../messaging.schema";
 import type { EventService } from "@/features/event/event.service";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
 
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { ConnectedAccountAppDtoSchema } from "../messaging.schema";
 import { toConnectedAccountDto } from "./connected-account-dto";
@@ -15,6 +15,7 @@ import { Enforce } from "@/core/decorators/enforce.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { DomainEvent } from "@/features/event/domain-events";
+import type { SetConnectedAccountVisibilityRepo } from "./set-connected-account-visibility.repo";
 
 const Schema = z.object({
   id: z.uuid(),
@@ -22,12 +23,7 @@ const Schema = z.object({
 });
 type SetConnectedAccountVisibilityData = Data<typeof Schema>;
 
-export abstract class SetConnectedAccountVisibilityRepo {
-  abstract getAccountByIdOrThrow(id: string): Promise<ConnectedAccountRecord>;
-  abstract setAccountSharedOrThrow(args: { id: string; shared: boolean }): Promise<ConnectedAccountRecord>;
-}
-
-@TenantInteractor({ resource: Resource.inboxMessages, action: Action.update })
+@TenantInteractor({ resource: Resource.inboxMessages, manage: "update" })
 export class SetConnectedAccountVisibilityInteractor extends AuthenticatedInteractor<
   SetConnectedAccountVisibilityData,
   ConnectedAccountDto

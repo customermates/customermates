@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { CHIP_COLORS } from "@/constants/chip-colors";
 
 import type { RecordRepo } from "./record.repo";
 import type { RecordAccessPolicy } from "./record-access";
@@ -35,6 +36,7 @@ export const DiscoveredRecordTypesSchema = z
           pluralLabel: z.string(),
           description: z.string(),
           icon: z.string(),
+          color: z.enum(CHIP_COLORS).optional(),
           embedded: z.boolean(),
           fieldCount: z.number().int(),
           permittedActions: z.array(z.enum(["create", "readOwn", "readAll", "update", "delete"])),
@@ -72,10 +74,7 @@ export class DiscoverRecordTypesInteractor extends AuthenticatedInteractor<
             !type.archived &&
             (!input.typeIds || input.typeIds.includes(type.id)) &&
             (input.includeEmbedded || !type.embedded) &&
-            (policy.canManageSchema ||
-              policy.canManageRoles ||
-              policy.allowed(type.id, "readOwn") ||
-              policy.allowed(type.id, "readAll")) &&
+            (policy.canManageSchema || policy.canManageRoles || policy.canReadType(type.id)) &&
             (!search ||
               [type.label, type.pluralLabel, type.description].some((label) =>
                 label.toLocaleLowerCase().includes(search),
@@ -94,6 +93,7 @@ export class DiscoverRecordTypesInteractor extends AuthenticatedInteractor<
               pluralLabel: type.pluralLabel,
               description: type.description,
               icon: type.icon,
+              ...(type.color ? { color: type.color } : {}),
               embedded: type.embedded,
               fieldCount: model.fields.filter((field) => field.typeId === type.id && !field.archived).length,
               permittedActions: (["create", "readOwn", "readAll", "update", "delete"] as const).filter((action) =>

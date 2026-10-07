@@ -1,4 +1,3 @@
-import type { ConnectedAccount } from "@/generated/prisma";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import type { EventService } from "@/features/event/event.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
@@ -6,21 +5,18 @@ import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
 
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { DomainEvent } from "@/features/event/domain-events";
+import type { ResyncConnectedAccountRepo } from "./resync-connected-account.repo";
 
 const Schema = z.object({ id: z.uuid() });
 type ResyncConnectedAccountData = Data<typeof Schema>;
 
-export abstract class ResyncConnectedAccountRepo {
-  abstract findAccountByIdOrThrow(id: string): Promise<ConnectedAccount>;
-}
-
-@TenantInteractor({ resource: Resource.inboxMessages, action: Action.update })
+@TenantInteractor({ resource: Resource.inboxMessages, manage: "update" })
 export class ResyncConnectedAccountInteractor extends AuthenticatedInteractor<ResyncConnectedAccountData, null> {
   constructor(
     private repo: ResyncConnectedAccountRepo,

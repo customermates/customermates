@@ -2,7 +2,7 @@ import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { RoutineDto } from "./routine.schema";
 import type { EventService } from "@/features/event/event.service";
 
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { z } from "zod";
 
@@ -15,18 +15,13 @@ import { failAuthorization } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 import { RoutineDtoSchema } from "./routine.schema";
+import type { PauseRoutineRepo } from "./pause-routine.repo";
 
 const Schema = z.object({ routineId: z.uuid() });
 
 export type PauseRoutineData = Data<typeof Schema>;
 
-export abstract class PauseRoutineRepo {
-  abstract isActiveSystemAdministrator(userId: string): Promise<boolean>;
-  abstract getRoutineByIdOrThrow(id: string): Promise<RoutineDto>;
-  abstract pauseRoutineOrThrow(routineId: string, now: Date): Promise<RoutineDto>;
-}
-
-@TenantInteractor({ resource: Resource.routines, action: Action.delete })
+@TenantInteractor({ resource: Resource.routines, manage: "delete" })
 export class PauseRoutineInteractor extends AuthenticatedInteractor<PauseRoutineData, RoutineDto> {
   constructor(
     private repo: PauseRoutineRepo,

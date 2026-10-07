@@ -668,26 +668,16 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     expect(await client.query('SELECT 1 FROM "WikiPage" WHERE "id" = $1', [pageId])).toMatchObject({ rowCount: 0 });
   });
 
-  it("persists Wiki Manage as CRUD plus Read, supports Read-only, and supports revocation", async () => {
+  it("persists Wiki manage actions with Read, supports Read-only, partial manage and revocation", async () => {
     const repo = new PrismaRoleRepo();
     const roleName = `Wiki permissions ${randomUUID()}`;
-    const permissions = (wiki: UpsertRoleData["permissions"]["wiki"]): UpsertRoleData["permissions"] => ({
-      users: { canManage: "no", readAccess: "own" },
-      company: { canManage: "no" },
-      dataModel: { canManage: "no" },
-      api: { canManage: "no", readAccess: "none" },
-      inboxMessages: { canManage: "no", readAccess: "none" },
-      routines: { canManage: "no", readAccess: "none" },
-      wiki,
-      auditLog: { readAccess: "none" },
-    });
-    const save = (id: string | undefined, wiki: UpsertRoleData["permissions"]["wiki"]) =>
+    const save = (id: string | undefined, wiki: UpsertRoleData["permissions"][number]["actions"]) =>
       runWithTenant(user, () =>
         repo.upsertRoleOrThrow({
           id,
           name: roleName,
           description: "Wiki permission persistence test",
-          permissions: permissions(wiki),
+          permissions: [{ resource: "wiki", actions: wiki }],
           recordGrants: [],
           expectedRevision: 1,
           idempotencyKey: `wiki-permissions-${randomUUID()}`,
@@ -701,26 +691,26 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
       return result.rows.map(({ action }) => action);
     };
 
-    const manager = await save(undefined, {
-      canManage: "yes",
-      readAccess: "none",
-    });
+    const manager = await save(undefined, ["create", "update", "delete"]);
     try {
       expect(await wikiActions(manager.id)).toEqual(["create", "readAll", "update", "delete"]);
 
-      await save(manager.id, { canManage: "yes", readAccess: "all" });
+      await save(manager.id, ["create", "update", "delete", "readAll"]);
       expect(await wikiActions(manager.id)).toEqual(["create", "readAll", "update", "delete"]);
 
-      await save(manager.id, { canManage: "no", readAccess: "all" });
+      await save(manager.id, ["readAll"]);
       expect(await wikiActions(manager.id)).toEqual(["readAll"]);
 
-      await save(manager.id, { canManage: "yes" });
+      await save(manager.id, ["create", "update", "delete"]);
       expect(await wikiActions(manager.id)).toEqual(["create", "readAll", "update", "delete"]);
 
-      await save(manager.id, { canManage: "no", readAccess: "all" });
+      await save(manager.id, ["readAll"]);
       expect(await wikiActions(manager.id)).toEqual(["readAll"]);
 
-      await save(manager.id, { canManage: "no", readAccess: "none" });
+      await save(manager.id, ["update"]);
+      expect(await wikiActions(manager.id)).toEqual(["readAll", "update"]);
+
+      await save(manager.id, []);
       expect(await wikiActions(manager.id)).toEqual([]);
     } finally {
       await client.query('DELETE FROM "UserRole" WHERE "id" = $1', [manager.id]);

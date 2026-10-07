@@ -31,7 +31,6 @@ vi.mock("@/components/forms/form-input", () => ({ FormInput: () => null }));
 vi.mock("@/components/forms/form-textarea", () => ({ FormTextarea: () => null }));
 vi.mock("@/components/forms/form-switch", () => ({ FormSwitch: () => null }));
 vi.mock("@/components/forms/form-autocomplete", () => ({ FormAutocomplete: () => null }));
-vi.mock("@/components/data-view/filter-modal/filter-accordion", () => ({ FilterAccordion: () => null }));
 
 import { RoutineConfigurationPane } from "../routine-configuration-pane";
 

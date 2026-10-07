@@ -61,8 +61,7 @@ export class GetRecordActivitiesInteractor extends AuthenticatedInteractor<
           if (
             typeIds.some(
               (typeId) =>
-                !model.types.some((type) => type.id === typeId && !type.archived) ||
-                !(policy.allowed(typeId, "readAll") || policy.allowed(typeId, "readOwn")),
+                !model.types.some((type) => type.id === typeId && !type.archived) || !policy.canReadType(typeId),
             )
           )
             return failNotFound(CustomErrorCode.recordTypeNotFound);
@@ -89,10 +88,7 @@ export class GetRecordActivitiesInteractor extends AuthenticatedInteractor<
           }
           const availableSources: ActivityKind[] = [];
           if (policy.allowedSystem("auditLog", "readAll")) availableSources.push(...CHANGE_ACTIVITY_KINDS);
-          if (
-            (policy.allowedSystem("inboxMessages", "readAll") || policy.allowedSystem("inboxMessages", "readOwn")) &&
-            !(await this.entitlements.require("messaging"))
-          )
+          if (policy.canReadSystem("inboxMessages") && !(await this.entitlements.require("messaging")))
             availableSources.push("message", "activity", "calendar_event");
           const access = policy.access(model.types.map((type) => type.id));
           const index = await this.activities.index(input, model, access, availableSources);

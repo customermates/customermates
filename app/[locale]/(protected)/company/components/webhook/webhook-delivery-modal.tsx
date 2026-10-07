@@ -3,7 +3,7 @@
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { RefreshCw } from "lucide-react";
-import { WebhookDeliveryStatus } from "@/generated/prisma";
+import { Action, WebhookDeliveryStatus } from "@/generated/prisma";
 
 import { WEBHOOK_DELIVERY_QUEUE_STATUS_CHIP_COLOR } from "@/features/webhook/webhook-delivery-chip-colors";
 import { AppModal } from "@/components/modal";
@@ -25,7 +25,7 @@ export const WebhookDeliveryModal = observer(() => {
   return (
     <AppModal
       actions={
-        store.canManage &&
+        store.allows(Action.create) &&
         delivery.event.startsWith("record.") &&
         Boolean(delivery.requestBody) &&
         !delivery.nextAttemptAt &&

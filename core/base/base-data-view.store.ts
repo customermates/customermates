@@ -13,6 +13,7 @@ import deepEqual from "fast-deep-equal/es6";
 import { action, computed, makeObservable, observable, runInAction, toJS } from "mobx";
 
 import type { Resource } from "@/generated/prisma";
+import { Action } from "@/generated/prisma";
 
 import { reportApplicationError } from "../errors/report-application-error";
 import { toastZodErrorTree } from "../utils/toast-zod-error-tree";
@@ -244,7 +245,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   get canManage(): boolean {
     if (!this.resource) return true;
 
-    return this.rootStore.userStore.canManage(this.resource);
+    return this.rootStore.userStore.can(this.resource, Action.create);
   }
 
   get canExport(): boolean {
@@ -256,7 +257,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   get isDisabled(): boolean {
     if (!this.resource) return false;
 
-    return !this.rootStore.userStore.canManage(this.resource);
+    return !this.canManage;
   }
 
   get hasSelection(): boolean {

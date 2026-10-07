@@ -594,12 +594,10 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
       await rows(client, 'SELECT revision, "actorId" FROM "RecordSchemaRevision" WHERE "companyId"=$1', [f.companyId]),
     ).toEqual([{ revision: 1, actorId: "system:configurable-records-upgrade" }]);
     expect(
-      await rows(
-        client,
-        'SELECT revision, "storageMode", "activeOperationId" FROM "RecordSchemaState" WHERE "companyId"=$1',
-        [f.companyId],
-      ),
-    ).toEqual([{ revision: 1, storageMode: "generic", activeOperationId: null }]);
+      await rows(client, 'SELECT revision, "activeOperationId" FROM "RecordSchemaState" WHERE "companyId"=$1', [
+        f.companyId,
+      ]),
+    ).toEqual([{ revision: 1, activeOperationId: null }]);
     const [revision] = await rows<{ snapshot: unknown }>(
       client,
       'SELECT snapshot FROM "RecordSchemaRevision" WHERE "companyId"=$1',
@@ -1086,15 +1084,17 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
     expect(
       await rows(
         production.client,
-        "SELECT migration_name FROM \"_prisma_migrations\" WHERE started_at > NOW() - interval '10 minutes' AND migration_name >= $1",
+        "SELECT migration_name FROM \"_prisma_migrations\" WHERE started_at > NOW() - interval '10 minutes' AND migration_name >= $1 ORDER BY migration_name",
         [CONFIGURABLE_RECORDS_MIGRATION],
       ),
-    ).toEqual([{ migration_name: CONFIGURABLE_RECORDS_MIGRATION }]);
+    ).toEqual([
+      { migration_name: CONFIGURABLE_RECORDS_MIGRATION },
+      { migration_name: "20261006130000_remove_legacy_record_permissions" },
+      { migration_name: "20261006200000_p13n_settings" },
+    ]);
     expect(
-      await rows(production.client, 'SELECT "storageMode" FROM "RecordSchemaState" WHERE "companyId"=$1', [
-        f.companyId,
-      ]),
-    ).toEqual([{ storageMode: "generic" }]);
+      await rows(production.client, 'SELECT resource::text FROM "RolePermission" WHERE "roleId"=$1', [f.memberRole.id]),
+    ).toEqual([]);
     await expectSchemaMatchesModel(production.url);
   });
 

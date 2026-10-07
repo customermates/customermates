@@ -199,8 +199,7 @@ async function queryActivity(user: TenantUser) {
       const model = await workspace.repo.getModel();
       const available: ActivityKind[] = [];
       if (policy.allowedSystem("auditLog", "readAll")) available.push("record", "audit", "configuration");
-      if (policy.allowedSystem("inboxMessages", "readAll") || policy.allowedSystem("inboxMessages", "readOwn"))
-        available.push("message", "activity", "calendar_event");
+      if (policy.canReadSystem("inboxMessages")) available.push("message", "activity", "calendar_event");
       return { policy, model, available, access: policy.access(model.types.map((type) => type.id)) };
     }),
   );

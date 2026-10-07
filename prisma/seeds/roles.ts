@@ -7,6 +7,8 @@ import { fixtureId } from "./helpers";
 import { SYNTHETIC_SEED_TIMELINE } from "./timeline";
 
 type RoleGrant = readonly [resource: Resource, actions: readonly Action[]];
+type SyntheticRecordKind = "contact" | "organization" | "deal" | "service" | "task";
+type RecordGrant = readonly [kind: SyntheticRecordKind, actions: readonly Action[]];
 export type SyntheticRolePermissionDefinition = Readonly<{
   action: Action;
   companyId: string;
@@ -21,6 +23,7 @@ export type SyntheticRoleDefinition = Readonly<{
   isSystemRole: boolean;
   name: string;
   permissions: readonly SyntheticRolePermissionDefinition[];
+  recordGrants: readonly RecordGrant[];
 }>;
 
 const manageAll = [Action.create, Action.readAll, Action.update, Action.delete] as const;
@@ -38,13 +41,16 @@ function permissionFixtures(roleId: string, offset: number, grants: readonly Rol
     }));
 }
 
+const salesManagerRecordGrants = [
+  ["contact", manageAll],
+  ["organization", manageAll],
+  ["deal", manageAll],
+  ["task", manageAll],
+  ["service", [Action.readAll]],
+] as const satisfies readonly RecordGrant[];
+
 const salesManagerGrants = [
-  [Resource.contacts, manageAll],
-  [Resource.organizations, manageAll],
-  [Resource.deals, manageAll],
-  [Resource.tasks, manageAll],
   [Resource.inboxMessages, manageAll],
-  [Resource.services, [Action.readAll]],
   [Resource.users, [Action.readAll]],
   [Resource.auditLog, [Action.readAll]],
   [Resource.wiki, [Action.readAll]],
@@ -52,13 +58,16 @@ const salesManagerGrants = [
   [Resource.company, companyVisibility],
 ] as const satisfies readonly RoleGrant[];
 
+const customerSuccessRecordGrants = [
+  ["contact", manageAll],
+  ["organization", manageAll],
+  ["task", manageAll],
+  ["deal", [Action.readAll]],
+  ["service", [Action.readAll]],
+] as const satisfies readonly RecordGrant[];
+
 const customerSuccessGrants = [
-  [Resource.contacts, manageAll],
-  [Resource.organizations, manageAll],
-  [Resource.tasks, manageAll],
   [Resource.inboxMessages, manageAll],
-  [Resource.deals, [Action.readAll]],
-  [Resource.services, [Action.readAll]],
   [Resource.users, [Action.readOwn]],
   [Resource.wiki, [Action.readAll]],
   [Resource.routines, [Action.readOwn]],
@@ -73,6 +82,7 @@ export const SYNTHETIC_ROLE_DEFINITIONS = [
     isSystemRole: true,
     name: "Admin",
     permissions: [],
+    recordGrants: [],
   },
   {
     id: SEED_IDS.salesManagerRole,
@@ -81,6 +91,7 @@ export const SYNTHETIC_ROLE_DEFINITIONS = [
     isSystemRole: false,
     name: "Sales Manager",
     permissions: permissionFixtures(SEED_IDS.salesManagerRole, 1, salesManagerGrants),
+    recordGrants: salesManagerRecordGrants,
   },
   {
     id: SEED_IDS.customerSuccessRole,
@@ -89,6 +100,7 @@ export const SYNTHETIC_ROLE_DEFINITIONS = [
     isSystemRole: false,
     name: "Customer Success",
     permissions: permissionFixtures(SEED_IDS.customerSuccessRole, 31, customerSuccessGrants),
+    recordGrants: customerSuccessRecordGrants,
   },
 ] satisfies readonly SyntheticRoleDefinition[];
 
@@ -100,7 +112,7 @@ export const SYNTHETIC_ROLE_PERMISSION_COUNT = SYNTHETIC_ROLE_DEFINITIONS.reduce
 
 async function reconcileRoleId(
   prisma: Prisma.TransactionClient,
-  role: Omit<SyntheticRoleDefinition, "permissions"> & { createdAt: Date; updatedAt: Date },
+  role: Omit<SyntheticRoleDefinition, "permissions" | "recordGrants"> & { createdAt: Date; updatedAt: Date },
 ): Promise<void> {
   const [existingById, existingByName] = await Promise.all([
     prisma.userRole.findUnique({ where: { id: role.id }, select: { id: true } }),

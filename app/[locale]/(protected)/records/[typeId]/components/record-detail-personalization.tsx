@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { observer } from "mobx-react-lite";
-import { Check, RotateCcw, Settings2 } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { RecordEditorStore } from "./record-editor.store";
 import type { RecordDetailLayoutStore } from "@/core/stores/record-detail-layout.store";
@@ -98,39 +98,33 @@ export const RecordDetailPersonalization = observer(function RecordDetailPersona
   );
 });
 
-const LayoutControls = observer(function LayoutControls({
-  layout,
-  editor,
-  isPersonalizing,
-  setIsPersonalizing,
-  compact,
-}: {
+export type RecordDetailLayoutState = {
   layout: RecordDetailLayoutStore;
   editor: RecordEditorStore;
   isPersonalizing: boolean;
   setIsPersonalizing: (value: boolean) => void;
-  compact: boolean;
-}) {
+};
+
+export function useRecordDetailLayout(): RecordDetailLayoutState | null {
+  const context = useContext(LayoutContext);
+  const { enabled, isPersonalizing, setIsPersonalizing } = useEntityDetailPersonalization();
+  return useMemo(
+    () => (enabled && context ? { ...context, isPersonalizing, setIsPersonalizing } : null),
+    [enabled, context, isPersonalizing, setIsPersonalizing],
+  );
+}
+
+export const RecordDetailLayoutStatus = observer(function RecordDetailLayoutStatus({
+  layout,
+  editor,
+  isPersonalizing,
+  className,
+}: RecordDetailLayoutState & { className?: string }) {
   const t = useTranslations();
-  const isRecordBusy = editor.isLoading || Boolean(editor.pendingOperationId) || editor.refreshRequired;
+  if (!isPersonalizing && !layout.isSaving && !layout.failed) return null;
+  const isRecordBusy = editor.isTransactionBusy;
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <Button
-        aria-label={isPersonalizing ? t("EntityDetail.donePersonalizing") : t("EntityDetail.personalize")}
-        aria-pressed={isPersonalizing}
-        disabled={isRecordBusy}
-        size="sm"
-        type="button"
-        variant={isPersonalizing ? "default" : "secondary"}
-        onClick={() => setIsPersonalizing(!isPersonalizing)}
-      >
-        {isPersonalizing ? <Check className="size-4" /> : <Settings2 className="size-4" />}
-
-        <span className={cn(compact && "hidden sm:inline")}>
-          {isPersonalizing ? t("EntityDetail.donePersonalizing") : t("EntityDetail.personalize")}
-        </span>
-      </Button>
-
+    <div className={cn("flex flex-wrap items-center gap-2", className)}>
       {isPersonalizing && (
         <Button
           aria-label={t("RecordModel.resetDetailLayout")}
@@ -142,7 +136,7 @@ const LayoutControls = observer(function LayoutControls({
         >
           <RotateCcw className="size-4" />
 
-          <span className={cn(compact && "hidden sm:inline")}>{t("RecordModel.resetDetailLayout")}</span>
+          <span>{t("RecordModel.resetDetailLayout")}</span>
         </Button>
       )}
 
@@ -182,25 +176,3 @@ const LayoutControls = observer(function LayoutControls({
     </div>
   );
 });
-
-export function useRecordDetailLayoutControls(compact = false) {
-  const context = useContext(LayoutContext);
-  const { enabled, isPersonalizing, setIsPersonalizing } = useEntityDetailPersonalization();
-  return useMemo(
-    () =>
-      enabled && context ? (
-        <LayoutControls
-          compact={compact}
-          editor={context.editor}
-          isPersonalizing={isPersonalizing}
-          layout={context.layout}
-          setIsPersonalizing={setIsPersonalizing}
-        />
-      ) : null,
-    [compact, enabled, isPersonalizing, context, setIsPersonalizing],
-  );
-}
-
-export function RecordDetailLayoutControls() {
-  return useRecordDetailLayoutControls();
-}

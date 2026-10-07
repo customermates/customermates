@@ -11,7 +11,6 @@ const harness = vi.hoisted(() => ({
   getRootStore: vi.fn(),
   inviteOpen: vi.fn(),
   layoutProps: vi.fn(),
-  openEntity: vi.fn(),
   roleAdd: vi.fn(),
   roleEdit: vi.fn(),
   routineCreate: vi.fn(),
@@ -39,11 +38,6 @@ vi.mock("@/core/stores/root-store.provider", () => ({
 
 vi.mock("@/components/data-view/use-data-view-sync", () => ({
   useDataViewSync: harness.sync,
-}));
-
-vi.mock("@/components/records/use-record-href", () => ({
-  usePresetRecordHref: () => (entityType: string, id: string) => `/${entityType}/${id}`,
-  useOpenPresetRecord: () => harness.openEntity,
 }));
 
 vi.mock("@/components/data-view/header/display-options", () => ({

@@ -174,7 +174,7 @@ export const DOCS_EMBEDDING_HELDOUT: readonly DocsHeldoutItem[] = [
     slug: "concepts",
     anchors: ["concepts#what-are-custom-columns"],
     alternatives: ["concepts#how-do-i-add-change-or-delete-a-custom-column"],
-    fact: "Ten custom column types: text, date, date range, date & time, date & time range, currency, single select, link, email and phone; a dropdown is the single select type.",
+    fact: "Fourteen field value types: text, rich text, number, currency, boolean, date, date and time, date range, date and time range, select, email, phone, URL and member; a dropdown is the select type.",
   },
   {
     id: "de-de-06",
@@ -566,7 +566,7 @@ export const DOCS_EMBEDDING_HELDOUT: readonly DocsHeldoutItem[] = [
     slug: "filter-syntax",
     anchors: ["filter-syntax#which-operators-work-on-custom-columns"],
     alternatives: ["filter-syntax#which-field-names-can-i-use"],
-    fact: "Yes: use the custom column's UUID as the field; the operators depend on its type, for example in, notIn, isNull and isNotNull for a single select.",
+    fact: "Yes: use the custom field's ID from get_record_model, never its label; the operators depend on its value type, and select filters use stable option IDs.",
   },
   {
     id: "de-it-09",
@@ -576,7 +576,7 @@ export const DOCS_EMBEDDING_HELDOUT: readonly DocsHeldoutItem[] = [
     slug: "filter-syntax",
     anchors: ["filter-syntax#which-field-names-can-i-use"],
     alternatives: [],
-    fact: "Whatever get_record_schema lists under filterableFields: createdAt and updatedAt, firstName and lastName on contacts, name on the other types, relationship id arrays such as organizationIds, and custom column UUIDs.",
+    fact: "Stable field IDs from get_record_model, the system keys system:createdAt, system:updatedAt and system:assignedTo where supported, and relationship definition IDs instead of names such as organizationIds.",
   },
   {
     id: "de-it-10",

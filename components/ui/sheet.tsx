@@ -6,6 +6,7 @@ import { Dialog as SheetPrimitive } from "radix-ui";
 import { useTranslations } from "next-intl";
 
 import { cn } from "@/core/utils/cn";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./tooltip";
 import {
   OVERLAY_CLOSE_CLASS,
   OVERLAY_HEADER_ALIGNMENT_CLASS,
@@ -81,14 +82,22 @@ function SheetContent({
         {children}
 
         {showCloseButton && (
-          <SheetPrimitive.Close
-            className={cn(OVERLAY_CLOSE_CLASS, OVERLAY_SAFE_CLOSE_POSITION_CLASS)}
-            data-slot="sheet-close"
-          >
-            <XIcon />
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <SheetPrimitive.Close
+                  className={cn(OVERLAY_CLOSE_CLASS, OVERLAY_SAFE_CLOSE_POSITION_CLASS)}
+                  data-slot="sheet-close"
+                >
+                  <XIcon />
 
-            <span className="sr-only">{t("Common.actions.close")}</span>
-          </SheetPrimitive.Close>
+                  <span className="sr-only">{t("Common.actions.close")}</span>
+                </SheetPrimitive.Close>
+              </TooltipTrigger>
+
+              <TooltipContent>{t("Common.actions.close")}</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         )}
       </SheetPrimitive.Content>
     </SheetPortal>

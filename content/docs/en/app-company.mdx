@@ -11,9 +11,9 @@ Workspace-wide administration: the subscription (Cloud only), the workspace sett
 
 In the sidebar, **My Company** (`#nav-company`) sits in the **Workspace** group next to **My Profile**. It is a toggle: clicking it expands or collapses its list of pages and opens no page itself. Expanding it collapses the other expanded group, and it opens by itself while you are on one of its pages. Each page has its own route, and the browser address puts the language in front of it (example: `/en/company/members`). The breadcrumb reads **My Company** › page name; the first crumb opens the first page you can see, and the second switches between the sibling pages.
 
-Routes are relative and carry no language prefix: they work on the address the workspace runs on, and the app adds the user's language, so `/company/subscription` opens `/en/company/subscription` for an English user. For a full link, put the route after the origin of the `url` that `search_docs`, `get_docs_page` and `fetch` return; that origin is the instance's configured `BASE_URL`. Mate's `highlight_element` also takes each navigate target: `nav-company` points at the **My Company** toggle, and every other one at its page's sidebar entry. A sidebar entry can be highlighted only while **My Company** is expanded, which it is by default on its own pages unless the member collapsed it. **Add** targets exist only for roles that can manage the page, and the layout targets only while display options are open. Billing targets appear only for roles with **Company** **Manage**, and a dialog target only while its dialog is open: where a control opens the dialog, it is the target's prerequisite, and Mate asks the user to open it first. Where a row opens the dialog, `list_ui_targets` names that row as the prerequisite (for example `a member row`); rows have no target, so Mate asks the user to click the row.
+Routes are relative and carry no language prefix: they work on the address the workspace runs on, and the app adds the user's language, so `/company/subscription` opens `/en/company/subscription` for an English user. For a full link, put the route after the origin of the `url` that `search_docs`, `get_docs_page` and `fetch` return; that origin is the instance's configured `BASE_URL`. Mate's `highlight_element` also takes each navigate target: `nav-company` points at the **My Company** toggle, and every other one at its page's sidebar entry. A sidebar entry can be highlighted only while **My Company** is expanded, which it is by default on its own pages unless the member collapsed it. **Add** targets exist only for roles that can create there, and the layout targets only while display options are open. Billing targets appear only for roles with **Company** **Edit**, and a dialog target only while its dialog is open: where a control opens the dialog, it is the target's prerequisite, and Mate asks the user to open it first. Where a row opens the dialog, `list_ui_targets` names that row as the prerequisite (for example `a member row`); rows have no target, so Mate asks the user to click the row.
 
-Subscription is Cloud only. Activity needs **Audit Log** read access **All**, and Webhooks and Recent Deliveries need **API & Webhooks** read access **All**. The **Users & Roles** read setting controls whether Members and Roles appear; **Assigned** limits the member list to your own row, and **None** hides both pages. Company read access controls Settings and Subscription. Editing requires the corresponding management permission. The built-in **Admin** role sees and can change everything.
+Subscription is Cloud only. Activity needs **Audit Log** read access **All**, and Webhooks and Recent Deliveries need **API & Webhooks** read access **All**. The **Users & Roles** read setting controls whether Members and Roles appear; **Assigned** limits the member list to your own row, and **None** hides both pages. Settings and Subscription are visible to every role saved with a **Company** row, which the role editor always saves; changing them needs **Company** **Edit**. Adding, editing and deleting need the matching **Create**, **Edit** or **Delete** checkbox on the page's row. The built-in **Admin** role sees and can change everything.
 
 | Page | Route | Navigate target | Highlight targets on the page | Explained in |
 |---|---|---|---|---|
@@ -32,7 +32,7 @@ Subscription is Cloud only. Activity needs **Audit Log** read access **All**, an
 A member without a permission sees fewer pages and controls:
 
 - A page the role cannot read is missing from the sidebar, and opening its URL directly lands on the **Dashboard**.
-- On a page the role can read but not manage, **Save**, **Reset** and **Add** are not shown, and forms and dialogs open read-only.
+- On a page the role can read but not change, **Add** is missing without **Create**, **Save** and **Reset** are missing without the action the save needs, **Delete** is missing without **Delete**, and forms and dialogs open read-only.
 - On Cloud, while the subscription is unpaid or expired, or after the trial has ended, every page shows **Subscription Required** instead; see [what happens when the trial ends](#what-happens-when-the-trial-ends-or-a-payment-fails).
 - On Cloud, when the Terms or the DPA change, the sidebar shows **Legal documents updated** with **Review Terms and DPA** and the date by which to accept. Only a member with the **Admin** role can accept, on the **Legal documents updated** screen (`/legal-update`), by confirming the checkbox and clicking **Accept and continue**; everyone else sees "A company administrator must accept by" that date. If nobody accepts in time, every page opens this screen until an Admin accepts.
 - Role changes apply on the member's next page load or API call.
@@ -52,11 +52,11 @@ The link to billing is the **Subscription** page: it shows the plan, status, sea
 
 The top bar holds **Refresh** (`#company-subscription-refresh`) and **Manage with Lemon Squeezy** (`#company-subscription-manage`), and the plan picker below the fields carries `#company-subscription-plan-picker`. Plan prices and allowances are under [Which plans are there?](#which-plans-are-there); the hosted AI credits per plan are under [Plans and credits](/docs/app-assistant#plans-and-credits).
 
-**Link:** the link to the **Subscription** page, `/company/subscription`. **Mate:** `navigate` and `highlight_element` with `nav-company-subscription`; `highlight_element` also takes `company-subscription-refresh`, `company-subscription-manage` and `company-subscription-plan-picker`, each shown only to roles that manage billing, in the subscription state that offers it. The fields are not highlight targets, so Mate names them. On self-hosted, `list_ui_targets` still offers the targets, but the page redirects to the Dashboard.
+**Link:** the link to the **Subscription** page, `/company/subscription`. **Mate:** `navigate` and `highlight_element` with `nav-company-subscription`; `highlight_element` also takes `company-subscription-refresh`, `company-subscription-manage` and `company-subscription-plan-picker`, each shown only to roles with **Company** **Edit**, in the subscription state that offers it. The fields are not highlight targets, so Mate names them. On self-hosted, `list_ui_targets` still offers the targets, but the page redirects to the Dashboard.
 
 ### Who can manage billing? [#who-can-manage-billing]
 
-Only roles with **Company** set to **Manage** **Yes**, and the **Admin** role, see the billing controls: the plan picker, **Manage with Lemon Squeezy** and **Refresh**. Everyone else sees the values read-only with a hint to ask a workspace administrator. The role's **Company** row is set under **My Company › Roles**.
+Only roles with **Company** **Edit** ticked, and the **Admin** role, see the billing controls: the plan picker, **Manage with Lemon Squeezy** and **Refresh**. Everyone else sees the values read-only with a hint to ask a workspace administrator. The role's **Company** row is set under **My Company › Roles**.
 
 **Link:** `/company/subscription`, and for the role's **Company** row `/company/roles`. **Mate:** `navigate` and `highlight_element` with `nav-company-subscription` or `nav-company-roles`; the role rows are not highlight targets, so Mate names them.
 
@@ -96,7 +96,7 @@ Every plan includes the full CRM, the audit log, the API, the MCP server and the
 
 ### How do I choose, upgrade or change a plan? [#how-do-i-choose-or-change-a-plan]
 
-To choose, upgrade or change a plan, use the plan picker, or **Manage with Lemon Squeezy** after the first checkout. While the workspace has no Lemon Squeezy subscription yet, which in practice means during the trial, roles that can manage Company see the plan picker below the fields: cards for **Starter**, **Pro** and **Business**, the last one marked **Most popular**. Each card shows the price per user and month, the features, the connected accounts per user (left out when a plan includes no connected accounts, as on Starter), the routines per user, and the hosted AI credits per active user and month.
+To choose, upgrade or change a plan, use the plan picker, or **Manage with Lemon Squeezy** after the first checkout. While the workspace has no Lemon Squeezy subscription yet, which in practice means during the trial, roles with **Company** **Edit** see the plan picker below the fields: cards for **Starter**, **Pro** and **Business**, the last one marked **Most popular**. Each card shows the price per user and month, the features, the connected accounts per user (left out when a plan includes no connected accounts, as on Starter), the routines per user, and the hosted AI credits per active user and month.
 
 Clicking a card opens the Lemon Squeezy checkout for as many seats as the workspace has **Active** members. After payment, Lemon Squeezy returns you to the **Subscription** page, and the plan, status and seats update once Lemon Squeezy confirms the payment. Checkout adds no second trial: billing starts at checkout, even when trial days are left.
 
@@ -106,13 +106,13 @@ After the first checkout the picker does not come back on its own; change the pl
 
 ### How do I cancel, change the payment method or get invoices?
 
-Use **Manage with Lemon Squeezy** in the top bar, shown as the Lemon Squeezy icon only on narrow screens. The button appears for roles that can manage Company once the workspace has a self-serve Lemon Squeezy subscription, so not during a trial before checkout and never on Enterprise. It opens the Lemon Squeezy customer portal for the workspace's subscription, which is where billing is managed: changing the plan, updating the payment method, getting invoices and cancelling are what the portal is for. Clicking the button fetches the portal link at that moment and opens the portal in the same tab. If Lemon Squeezy has no portal for the subscription, the page shows "The billing portal is not available for this workspace. Contact support to make changes."
+Use **Manage with Lemon Squeezy** in the top bar, shown as the Lemon Squeezy icon only on narrow screens. The button appears for roles with **Company** **Edit** once the workspace has a self-serve Lemon Squeezy subscription, so not during a trial before checkout and never on Enterprise. It opens the Lemon Squeezy customer portal for the workspace's subscription, which is where billing is managed: changing the plan, updating the payment method, getting invoices and cancelling are what the portal is for. Clicking the button fetches the portal link at that moment and opens the portal in the same tab. If Lemon Squeezy has no portal for the subscription, the page shows "The billing portal is not available for this workspace. Contact support to make changes."
 
 Changes made in the portal reach Customermates automatically. If the page still shows old values, **Refresh** re-reads the subscription from Lemon Squeezy (status, plan, seats and dates) and confirms with "Subscription refreshed successfully". It appears for the same roles once the workspace has a Lemon Squeezy subscription, except during a trial and on Enterprise. Once Lemon Squeezy reports a cancellation, the status shows **Cancelled**: as with **Past Due**, the Inbox and messaging, connecting channels, shared accounts and the hosted assistant are refused. A plan with fewer connected accounts removes accounts; see [plan changes](#what-happens-to-connected-accounts-when-the-plan-changes).
 
-Members without Company Manage see neither button. The hosted assistant and MCP clients cannot read or change the plan, the status, the seats or anything else about billing.
+Members without **Company** **Edit** see neither button. The hosted assistant and MCP clients cannot read or change the plan, the status, the seats or anything else about billing.
 
-**Link:** `/company/subscription`. **Mate:** `navigate` and `highlight_element` with `nav-company-subscription`, then `highlight_element` with `company-subscription-manage` for **Manage with Lemon Squeezy** or `company-subscription-refresh` for **Refresh**; each is shown only to roles with **Company** set to **Manage** **Yes** and to the **Admin** role, **Manage with Lemon Squeezy** once the workspace has a self-serve Lemon Squeezy subscription and **Refresh** once it has a Lemon Squeezy subscription and outside the trial, neither on Enterprise.
+**Link:** `/company/subscription`. **Mate:** `navigate` and `highlight_element` with `nav-company-subscription`, then `highlight_element` with `company-subscription-manage` for **Manage with Lemon Squeezy** or `company-subscription-refresh` for **Refresh**; each is shown only to roles with **Company** **Edit** and to the **Admin** role, **Manage with Lemon Squeezy** once the workspace has a self-serve Lemon Squeezy subscription and **Refresh** once it has a Lemon Squeezy subscription and outside the trial, neither on Enterprise.
 
 ### How are seats counted and billed?
 
@@ -120,7 +120,7 @@ A seat is a member with status **Active**. Members **Waiting for approval** and 
 
 To lower the bill, set members who no longer need access to **Inactive** on [Members](#members-tab). That also pauses the routines they own and removes their connected messaging accounts at the next daily run.
 
-**Link:** `/company/subscription` for **Active seats**, and `/company/members` to change a status. **Mate:** `navigate` and `highlight_element` with `nav-company-subscription` or `nav-company-members`; **Active seats** and the member rows are not highlight targets, so Mate names them. Once the user has opened a member row, `member-modal-status` points at **Status** and `member-modal-save` at **Save** (roles with Manage).
+**Link:** `/company/subscription` for **Active seats**, and `/company/members` to change a status. **Mate:** `navigate` and `highlight_element` with `nav-company-subscription` or `nav-company-members`; **Active seats** and the member rows are not highlight targets, so Mate names them. Once the user has opened a member row, `member-modal-status` points at **Status** and `member-modal-save` at **Save** (roles with **Users & Roles** **Edit**).
 
 ### What happens when the free trial ends or a payment fails, and why am I locked out? [#what-happens-when-the-trial-ends-or-a-payment-fails]
 
@@ -128,7 +128,7 @@ When the status is **Unpaid** or **Expired**, or the trial has passed its end da
 
 | Who | What the page offers |
 |---|---|
-| Roles that can manage Company, and **Admin**, on Starter, Pro or Business | The plan picker to start a new checkout, plus **Contact Support** |
+| Roles with **Company** **Edit**, and **Admin**, on Starter, Pro or Business | The plan picker to start a new checkout, plus **Contact Support** |
 | The same roles on Enterprise | A note that the workspace is billed manually, **Contact Support** and **Retry** |
 | Everyone else | "A company administrator must restore the subscription", **Contact Support** and **Retry** |
 
@@ -161,7 +161,7 @@ An **Enterprise** workspace is set up with Customermates and billed by invoice. 
 
 ### Where do upgrade buttons lead?
 
-On Starter, the Inbox and **My Profile** › **Channels** show **Upgrade to unlock messaging** with the button **Upgrade your plan**. A Pro user at the connected-account limit sees **Upgrade to connect more accounts** with **View plans**, and the hosted assistant's credit notice shows **View plans** too. All of them open **My Company** › **Subscription**. Only roles that can manage Company can act there, and once the workspace has a subscription, upgrading goes through **Manage with Lemon Squeezy**.
+On Starter, the Inbox and **My Profile** › **Channels** show **Upgrade to unlock messaging** with the button **Upgrade your plan**. A Pro user at the connected-account limit sees **Upgrade to connect more accounts** with **View plans**, and the hosted assistant's credit notice shows **View plans** too. All of them open **My Company** › **Subscription**. Only roles with **Company** **Edit** can act there, and once the workspace has a subscription, upgrading goes through **Manage with Lemon Squeezy**.
 
 **Link:** `/company/subscription`; the buttons sit on `/inbox` and `/profile/connected-accounts`. **Mate:** `navigate` and `highlight_element` with `nav-company-subscription`, `nav-inbox` or `nav-profile-connected-accounts`; **Upgrade your plan** and **View plans** are not highlight targets, so Mate names them.
 
@@ -173,13 +173,13 @@ On Starter, the Inbox and **My Profile** › **Channels** show **Upgrade to unlo
 |---|---|
 | **Currency** | Formats amounts in the workspace; switching does not convert amounts. Currency fields with their own configured currency retain that setting. |
 
-The currency selector is `#company-settings-currency`. Members with **Company → Manage** can save a change with `#company-settings-save` or discard an unsaved change with `#company-settings-reset`; other members see the currency read-only. The **Configure** link under **Data model** (`#company-settings-data-model`) opens `/configure`. That separate page, also reachable as **Configure** in the sidebar's **CRM** group (`#nav-configure-records`), owns lists, fields, relationships, stage probabilities, and calculations.
+The currency selector is `#company-settings-currency`. Members with **Company → Edit** can save a change with `#company-settings-save` or discard an unsaved change with `#company-settings-reset`; other members see the currency read-only. The **Configure** link under **Data model** (`#company-settings-data-model`) opens `/configure`. That separate page, also reachable as **Configure** in the sidebar's **CRM** group (`#nav-configure-records`), owns lists, fields, relationships, stage probabilities, and calculations.
 
 **Link:** `/company/settings`. **Mate:** `nav-company-settings` opens the page; `company-settings-currency`, `company-settings-data-model`, `company-settings-save`, and `company-settings-reset` identify the available controls.
 
 ### Who can change the currency and the other settings? [#who-can-change-the-currency-and-the-other-settings]
 
-**Company → Manage** controls currency changes on Settings. **Data model → Manage** controls type and field configuration; it can be delegated separately and does not grant access to records or permission to expand role grants. Role administration is required to expand access. The assistant uses `update_workspace_settings` for currency and `configure_record_model` for record configuration, with the same backend checks as the UI.
+**Company → Edit** controls currency changes on Settings. **Data model → Edit** controls type and field configuration; it can be delegated separately and does not grant access to records or permission to expand role grants. Expanding access requires **Users & Roles → Edit**. The assistant uses `update_workspace_settings` for currency and `configure_record_model` for record configuration, with the same backend checks as the UI.
 
 **Link:** `/company/settings` for currency; `/configure` for CRM configuration.
 
@@ -191,13 +191,13 @@ Open **Configure**, select **Deals**, and edit its stage select field to set a p
 
 ### Can I name Contacts anything I want, and how do I rename record types such as Deals? [#how-do-i-rename-record-types-in-the-data-model]
 
-Open **Configure**, select the list in the left rail, and edit **Name** and **Navigation label** under **General**, then **Save** in the top bar. You can rename any of the five starting types or a customer-created type. Names are editable text, while stable type IDs keep records, links, views, widgets, and API references connected. The same validated configuration operation is available to the assistant through `get_record_model` and `configure_record_model`. A schema manager needs **Data model → Manage**; renaming does not require changing currency.
+Open **Configure**, select the list in the left rail, and edit **Name** and **Navigation label** under **General**, then **Save** in the top bar. You can rename any of the five starting types or a customer-created type. Names are editable text, while stable type IDs keep records, links, views, widgets, and API references connected. The same validated configuration operation is available to the assistant through `get_record_model` and `configure_record_model`. A schema manager needs **Data model → Edit**; renaming does not require changing currency.
 
 **Link:** `/configure`. **Mate:** navigate with `nav-configure-records`; `company-settings-data-model` is the link from Settings.
 
 ## Members page [#members-tab]
 
-The **Members** page lists the people in the workspace and is where you invite teammates. Route `/company/members`, sidebar id `#nav-company-members`. Every member can open it: with **Users & Roles** read access **All** the list shows every member, with **Assigned** only your own row. Inviting needs **Users & Roles** set to **Manage** **Yes**; approving and editing other members also needs **Read access** **All** on **Users & Roles**, because **Assigned** lists only your own row. The **Admin** role can do both. The columns are **Name**, **Email**, **Role**, **Status**, **Updated at** and **Created at**.
+The **Members** page lists the people in the workspace and is where you invite teammates. Route `/company/members`, sidebar id `#nav-company-members`. Every member can open it: with **Users & Roles** read access **All** the list shows every member, with **Assigned** only your own row. Inviting needs **Users & Roles** **Create**; approving and editing other members needs **Users & Roles** **Edit** and **Read access** **All**, because **Assigned** lists only your own row. The **Admin** role can do both. The columns are **Name**, **Email**, **Role**, **Status**, **Updated at** and **Created at**.
 
 | Action | Where | Anchor id | What happens |
 |---|---|---|---|
@@ -208,7 +208,7 @@ The **Members** page lists the people in the workspace and is where you invite t
 | Search, filter, display options | Members toolbar | `#company-members-search` / `#company-members-filter` / `#company-members-display-options` | List controls; filters cover status, updated at and created at |
 | Layout | Display-options popover | `#company-members-layout-table` / `#company-members-layout-board` | Table is the only usable layout; the board control is present but disabled because members have nothing to group by |
 
-**Link:** the link to the **Members** page, `/company/members`. **Mate:** `navigate` and `highlight_element` with `nav-company-members`; `highlight_element` also takes the toolbar ids in this table, `company-members-add` only for roles with Manage. In **Invite User** it takes `invite-modal-tab-link`, `invite-modal-link`, `invite-modal-copy-link` and `invite-modal-tab-email` (prerequisite `company-members-add`), and `invite-modal-emails` and `invite-modal-send` (prerequisite `invite-modal-tab-email`). In the **User** dialog it takes the `member-modal-*` field ids (read-only for roles without Manage), plus `member-modal-save` and `member-modal-reset` for roles with Manage only. The dialog opens from a row, so `list_ui_targets` gives `a member row` as the prerequisite instead of a target id, and Mate asks the user to click the row. Rows have no target, so Mate names them.
+**Link:** the link to the **Members** page, `/company/members`. **Mate:** `navigate` and `highlight_element` with `nav-company-members`; `highlight_element` also takes the toolbar ids in this table, `company-members-add` only for roles with **Users & Roles** **Create**. In **Invite User** it takes `invite-modal-tab-link`, `invite-modal-link`, `invite-modal-copy-link` and `invite-modal-tab-email` (prerequisite `company-members-add`), and `invite-modal-emails` and `invite-modal-send` (prerequisite `invite-modal-tab-email`). In the **User** dialog it takes the `member-modal-*` field ids (read-only for roles without **Users & Roles** **Edit**), plus `member-modal-save` and `member-modal-reset` for roles with **Edit** only. The dialog opens from a row, so `list_ui_targets` gives `a member row` as the prerequisite instead of a target id, and Mate asks the user to click the row. Rows have no target, so Mate names them.
 
 ### How do invitations work?
 
@@ -239,17 +239,17 @@ To approve a member, choose a **Role**, set **Status** to **Active** and click *
 
 Members cannot be deleted; to remove someone, for example a user who left the company, set them **Inactive**. That blocks their sign-in ("Your account is currently inactive. Please contact your administrator to reactivate your account.") and every API key and MCP connection of theirs, removes their seat from billing, pauses the routines they own, and the daily job deletes their connected messaging accounts. **Inactive** is how access ends.
 
-- Your own row opens read-only with "You can edit your own user account in your settings." Change your name in **My Profile** › **Settings**, and ask another member with Users & Roles Manage to change your role or status.
+- Your own row opens read-only with "You can edit your own user account in your settings." Change your name in **My Profile** › **Settings**, and ask another member with **Users & Roles** **Edit** to change your role or status.
 - The workspace always keeps at least one **Active** member with the **Admin** role. A save that would remove the last one fails with "At least one user must be a system administrator."
 - Changes apply on the member's next page load or API call, and every save is recorded in the audit log.
 
 `manage_team` action `update_member` changes a member's role and status without an approval prompt; for a member still **Waiting for approval**, pass both a `roleId` and the status `active`. Other members' names, country and avatar can only be changed in this dialog. `list_users` returns the members your role can read.
 
-**Link:** `/company/members`. **Mate:** `navigate` and `highlight_element` with `nav-company-members`; rows have no id, so Mate names the row. Once the user has opened the **User** dialog from a row, `highlight_element` takes the field ids in this table without `#`, read-only for roles without Manage and on your own row, plus `member-modal-save` for **Save** and `member-modal-reset` for **Reset** (roles with Manage only; **Reset** once something changed).
+**Link:** `/company/members`. **Mate:** `navigate` and `highlight_element` with `nav-company-members`; rows have no id, so Mate names the row. Once the user has opened the **User** dialog from a row, `highlight_element` takes the field ids in this table without `#`, read-only for roles without **Users & Roles** **Edit** and on your own row, plus `member-modal-save` for **Save** and `member-modal-reset` for **Reset** (roles with **Edit** only; **Reset** once something changed).
 
 ## Roles page [#roles-tab]
 
-The **Roles** page lists the roles of the workspace. Route `/company/roles`, sidebar id `#nav-company-roles`. A role is a set of permissions that every member with that role gets. Members with **Users & Roles** read access can open the list, with the columns **Name**, **Type** and **Description**; **Type** is **System** for the built-in **Admin** role and **Custom** for all others. Creating, editing and deleting roles needs **Users & Roles** set to **Manage** **Yes**, or **Admin**.
+The **Roles** page lists the roles of the workspace. Route `/company/roles`, sidebar id `#nav-company-roles`. A role is a set of permissions that every member with that role gets. Members with **Users & Roles** read access can open the list, with the columns **Name**, **Type** and **Description**; **Type** is **System** for the built-in **Admin** role and **Custom** for all others. Creating roles needs **Users & Roles** **Create**, editing them **Edit** and deleting them **Delete**; the **Admin** role can do all three.
 
 | Action | Where | Anchor id | What happens |
 |---|---|---|---|
@@ -260,71 +260,78 @@ The **Roles** page lists the roles of the workspace. Route `/company/roles`, sid
 | Display options | Roles toolbar | `#company-roles-display-options` | List controls |
 | Layout | Display-options popover | `#company-roles-layout-table` / `#company-roles-layout-board` | Table only; the board control is disabled |
 
-**Link:** the link to the **Roles** page, `/company/roles`. **Mate:** `navigate` and `highlight_element` with `nav-company-roles`; `highlight_element` also takes `company-roles-add` (roles with Manage), `company-roles-display-options` and the layout ids. The Roles list has no search box and no filter. In the **Role** editor it takes `role-modal-save` and `role-modal-reset` (roles with Manage; prerequisite `company-roles-add` for a new role, or the user opens a row) and `role-modal-delete` for **Delete** (a saved custom role no member has; the user opens its row first). Rows have no target, so Mate names them.
+**Link:** the link to the **Roles** page, `/company/roles`. **Mate:** `navigate` and `highlight_element` with `nav-company-roles`; `highlight_element` also takes `company-roles-add` (roles with **Users & Roles** **Create**), `company-roles-display-options` and the layout ids. The Roles list has no search box and no filter. In the **Role** editor it takes `role-modal-save` and `role-modal-reset` (roles with **Create** for a new role or **Edit** for a saved one; prerequisite `company-roles-add` for a new role, or the user opens a row) and `role-modal-delete` for **Delete** (a saved custom role no member has; the user opens its row first). Rows have no target, so Mate names them.
 
 ### How do I create a custom role in the role editor, for example to restrict a member to assigned records? [#how-does-the-role-editor-work]
 
-The **Role** editor has **Name** (required, up to 255 characters) and **Description** (required, up to 500 characters), followed by workspace permissions and **Record types**.
+The **Role** editor has three tabs: **General** with **Name** (required, up to 255 characters) and **Description** (required, up to 500 characters), **Workspace** with the workspace permissions in the **Resource** column, and **Record types** with one row per record type. A tab with an invalid field shows a red dot.
 
-Each record type has separate **Create**, **Edit** and **Delete** switches, plus **Read access**:
+Every row has the same columns: **Create**, **Edit** and **Delete** checkboxes, and **Read access** with **All**, **Assigned** and **None**. A cell that does not apply to a row shows a dash (`—`). On narrow screens a **Manage** caption sits above the three checkboxes. **Read access** means:
 
-- **All** allows reading every record of that type in the workspace.
-- **Assigned** allows reading records assigned to the member.
-- **None** grants no read access. Editing or deleting also requires access to the individual record.
+- **All** allows reading everything the row covers, for a record type every record of that type in the workspace.
+- **Assigned** allows reading only what is assigned to the member: their own records, their own member row or their own routines.
+- **None** grants no read access.
 
-The list includes customer-created types and uses their current names. Renaming Projects to Initiatives keeps its grants. Archived types remain labeled in the editor. New roles start without record access; grant only the types they need. Embedded entries, such as deal line items, inherit access from their parent and have no separate row.
+Each record type offers all four columns. Editing or deleting a record also requires access to that individual record. The list includes customer-created types and uses their current names. Renaming Projects to Initiatives keeps its grants. Archived types remain labeled in the editor. New roles start without record access; grant only the types they need. Embedded entries, such as deal line items, inherit access from their parent and have no separate row.
 
-Workspace permissions retain the familiar **Manage** and **Read access** controls:
+The workspace permission rows offer these cells; every other cell shows the dash:
 
-| Row | Manage | Read access | What it controls |
-|---|---|---|---|
-| **API & Webhooks** | Yes, No | All, None | Keys, webhooks and deliveries. Existing keys continue to use their owner's current record permissions. |
-| **Users & Roles** | Yes, No | All, Assigned, None | Members and roles. Manage allows role administration; Assigned limits the member list to your own row. |
-| **Company** | Yes, No | No selector | Workspace settings and billing. |
-| **Data model** | Yes, No | No selector | Types, fields, relationships and calculations. This does not grant record access or role administration. |
-| **Audit Log** | No selector | All, None | Audit pages and permitted record history. |
-| **Inbox messages** (Cloud only) | Yes, No | All, None | Messaging features, subject to plan and inbox/account access. |
-| **Routines** (Cloud only) | Yes, No | All, Assigned, None | All routines or the member's own routines. Deleting a routine or pausing someone else's requires Admin. |
+| Row | Create | Edit | Delete | Read access | What it controls |
+|---|---|---|---|---|---|
+| **API & Webhooks** | Offered | Offered | Offered | All, None | **Create** creates API keys and webhooks and resends a webhook delivery. **Edit** edits webhooks and shows their stored secret. **Delete** deletes API keys and webhooks. **All** shows keys, webhooks and deliveries. Existing keys continue to use their owner's current record permissions. |
+| **Users & Roles** | Offered | Offered | Offered | All, Assigned, None | Members and roles; see below. |
+| **Company** | Dash | Offered | Dash | Dash | **Edit** changes the workspace settings and uses billing: the plan picker and checkout, **Manage with Lemon Squeezy** and **Refresh**. |
+| **Data model** | Dash | Offered | Dash | Dash | **Edit** configures types, fields, relationships and calculations. It does not grant record access or role administration. |
+| **Knowledge Base** | Offered | Offered | Offered | All, None | **Create** creates pages, including the homepage setup. **Edit** edits and moves pages. **Delete** deletes pages. Ticking any of them forces **Read access** **All**. |
+| **Audit Log** | Dash | Dash | Dash | All, None | Audit pages and permitted record history; read only. |
+| **Inbox messages** (Cloud only) | Offered | Offered | Offered | All, None | Messaging; see below. Also subject to the plan and to inbox and account access. |
+| **Routines** (Cloud only) | Offered | Offered | Offered | All, Assigned, None | **Create** creates routines. **Edit** edits routines and runs or tests them now. **Delete** deletes routines; in the app, deleting a routine or pausing someone else's still requires the **Admin** role. **All** shows every routine, **Assigned** the member's own. |
 
-A delegated data-model manager can use approved access presets when creating a type. Expanding grants requires role-administration authority. On self-hosted installations, Inbox messages and Routines are hidden. Editing a role's name or its record grants preserves unchanged system permissions.
+For **Users & Roles**, **Create** invites members, with the invite link or by email, and creates roles. **Edit** edits members (their details, status and role, and the approval tasks for new members) and edits roles, including their record-type access and access presets. **Delete** deletes roles. **Read access** **All** shows the whole member directory and the roles, **Assigned** only your own member row, and **None** hides both pages. **Create** also covers the record access a new role starts with; changing the record access of an existing role needs **Edit**.
+
+For **Inbox messages**, **Create** connects accounts, sends emails and chat messages, starts chats, saves drafts, sends LinkedIn connection requests and saves people to Sales Navigator lists. **Edit** changes connected accounts (reconnect, resync, signature, visibility and synced folders), refreshes the inbox, moves and resyncs threads, changes a conversation's state (read, unread or status), accepts or cancels connection requests, and links or unlinks conversations to records. **Delete** disconnects accounts and discards drafts.
+
+Saving a new webhook, routine or role needs **Create**; saving an existing one needs **Edit**. Roles that existed before these columns were migrated without gaining or losing rights: a row the role could manage before now has every offered checkbox ticked.
+
+A delegated data-model manager can use approved access presets when creating a type. Expanding grants requires **Users & Roles** **Edit**. On self-hosted installations, Inbox messages and Routines are hidden. Editing a role's name or its record grants preserves unchanged system permissions.
 
 **Link:** `/company/roles`. **Mate:** `navigate` and `highlight_element` with `nav-company-roles`, then `highlight_element` with `company-roles-add` for a new role; once the editor is open, `role-modal-save` and `role-modal-reset` point at **Save** and **Reset**, and `role-modal-delete` at **Delete** where it is offered. The fields and the permission rows are not highlight targets, so Mate names them.
 
 ### What is the Admin role, and can I edit it? [#what-is-the-admin-role]
 
-Every workspace starts with one built-in role, **Admin**, given to the person who created the workspace. It passes every permission check, shows every row as Yes and All, and its editor opens read-only with "This is a system role and cannot be edited or deleted." Nobody can change or delete it. The workspace must keep at least one **Active** member with this role, and only members with it can delete routines or pause someone else's routine.
+Every workspace starts with one built-in role, **Admin**, given to the person who created the workspace. It passes every permission check, shows every offered checkbox ticked and **Read access** **All** on every row, and its editor opens read-only with "This is a system role and cannot be edited or deleted." Nobody can change or delete it. The workspace must keep at least one **Active** member with this role, and only members with it can delete routines or pause someone else's routine.
 
-**Link:** `/company/roles`. **Mate:** `navigate` and `highlight_element` with `nav-company-roles`; the **Admin** row has no target, so Mate names it. Once the user has opened it, `role-modal-save` points at the disabled **Save** of the read-only editor, for roles with Manage.
+**Link:** `/company/roles`. **Mate:** `navigate` and `highlight_element` with `nav-company-roles`; the **Admin** row has no target, so Mate names it. Once the user has opened it, `role-modal-save` points at the disabled **Save** of the read-only editor, for roles with **Users & Roles** **Edit**.
 
 ### What are the rules for editing roles, and why can't I edit my own? [#what-are-the-rules-for-editing-roles]
 
 - You cannot edit your own role. Its editor opens read-only with "This role is assigned to you and cannot be edited. Ask another administrator to change it."
 - **Delete** appears only for a custom role that no member has, inactive members included. Move everyone to another role and remove references from access presets before deleting it.
 - Changes apply to every member with the role on their next page load or API call, and they are recorded in the audit log.
-- `manage_roles` reads, creates, edits and deletes roles through the same validated operations. Read the current role and configuration revision first; save with that revision and an idempotency key. Only supplied permission properties and type grants change; an empty action list revokes that type grant. Deletion requires confirmation in the assistant. `manage_team` assigns an existing role to a member.
+- `manage_roles` reads, creates, edits and deletes roles through the same validated operations. Read the current role and configuration revision first; save with that revision and an idempotency key. System permissions travel in the same shape and vocabulary as record grants: `permissions: [{ "resource": "api", "actions": ["create", "readAll"] }]` next to `recordGrants: [{ "typeId": "…", "actions": [...] }]`. The actions are `create`, `update` (shown as **Edit**), `delete`, `readAll` and `readOwn` (shown as **Assigned**), and the resource keys are `api`, `users`, `company`, `dataModel`, `wiki`, `auditLog`, `inboxMessages` and `routines`. Each listed resource or type replaces its current actions, omitted ones keep theirs, and `actions: []` removes access; an action a resource does not offer is rejected. Deletion requires confirmation in the assistant. `manage_team` assigns an existing role to a member.
 
 **Link:** `/company/roles`. **Mate:** `navigate` and `highlight_element` with `nav-company-roles`; rows have no target, so Mate names them. Once the editor is open, `role-modal-save` points at **Save**, disabled on your own role, and `role-modal-delete` at **Delete** where it is offered.
 
 ## Webhooks page: webhook settings [#webhooks-tab]
 
-The link to the webhooks page opens the webhook settings of the workspace. Route `/company/webhooks`, sidebar id `#nav-company-webhooks`. Outbound event subscriptions; payloads, signatures, retries and the rules for every field are on [Webhooks](/docs/webhooks). Opening the page needs **API & Webhooks** read access **All**; adding, editing and deleting need **API & Webhooks** set to **Manage** **Yes**. Anyone who can open the page can also open a webhook's dialog read-only; without **Manage**, the secret and each header value show as `********`, with the header names visible. Available on every plan and self-hosted.
+The link to the webhooks page opens the webhook settings of the workspace. Route `/company/webhooks`, sidebar id `#nav-company-webhooks`. Outbound event subscriptions; payloads, signatures, retries and the rules for every field are on [Webhooks](/docs/webhooks). Opening the page needs **API & Webhooks** read access **All**; adding needs **API & Webhooks** **Create**, editing **Edit** and deleting **Delete**. Anyone who can open the page can also open a webhook's dialog read-only; without **Edit**, the secret and each header value show as `********`, with the header names visible. Available on every plan and self-hosted.
 
 | Action | Where | Anchor id | What happens |
 |---|---|---|---|
 | Create webhook | Webhooks toolbar, **Add** | `#company-webhooks-add` | Opens the **Webhook** dialog with **URL**, **Description**, **Events**, **Secret**, **Custom headers**, **Body template** and **Enabled** |
-| Fill in the webhook | Webhook dialog | `#webhook-modal-url` / `#webhook-modal-description` / `#webhook-modal-events` / `#webhook-modal-secret` / `#webhook-modal-headers` / `#webhook-modal-body-template` / `#webhook-modal-enabled` | The fields in that order; read-only without Manage |
+| Fill in the webhook | Webhook dialog | `#webhook-modal-url` / `#webhook-modal-description` / `#webhook-modal-events` / `#webhook-modal-secret` / `#webhook-modal-headers` / `#webhook-modal-body-template` / `#webhook-modal-enabled` | The fields in that order; read-only without **Edit** (or **Create** for a new webhook) |
 | Save webhook | Webhook dialog footer | `#webhook-modal-save` / `#webhook-modal-reset` | Subscribes the URL to the chosen events; clearing **Enabled** pauses deliveries without deleting the webhook |
 | Delete webhook | Webhook dialog, **Delete** | `#webhook-modal-delete` | Removes the subscription after a confirmation; past deliveries stay in Recent Deliveries |
 | Search, filter, display options | Webhooks toolbar | `#company-webhooks-search` / `#company-webhooks-filter` / `#company-webhooks-display-options` | List controls; search matches the URL |
 | Layout | Display-options popover | `#company-webhooks-layout-table` / `#company-webhooks-layout-board` | Table only; the board control is disabled |
 
-**Link:** the link to the **Webhooks** page, `/company/webhooks`. **Mate:** `navigate` and `highlight_element` with `nav-company-webhooks`; `highlight_element` also takes the toolbar ids in this table, `company-webhooks-add` only for roles with Manage. In the **Webhook** dialog (prerequisite `company-webhooks-add`, or the user opens a row) it takes the field ids in this table without `#`, plus `webhook-modal-save` and `webhook-modal-reset` for roles with **API & Webhooks** **Manage** (**Reset** once something changed), and `webhook-modal-delete` for **Delete** on a saved webhook, also for roles with Manage. Rows have no target, so Mate names them.
+**Link:** the link to the **Webhooks** page, `/company/webhooks`. **Mate:** `navigate` and `highlight_element` with `nav-company-webhooks`; `highlight_element` also takes the toolbar ids in this table, `company-webhooks-add` only for roles with **API & Webhooks** **Create**. In the **Webhook** dialog (prerequisite `company-webhooks-add`, or the user opens a row) it takes the field ids in this table without `#`, plus `webhook-modal-save` and `webhook-modal-reset` for roles with **API & Webhooks** **Create** on a new webhook or **Edit** on a saved one (**Reset** once something changed), and `webhook-modal-delete` for **Delete** on a saved webhook, for roles with **Delete**. Rows have no target, so Mate names them.
 
 ## Where is the Recent Deliveries page, the webhook delivery log? [#deliveries-tab]
 
 The **Recent Deliveries** page is the webhook delivery log. Route `/company/webhook-deliveries`, sidebar id `#nav-company-webhook-deliveries`. Opening it needs **Read access** **All** on **API & Webhooks**. One row per delivery with **URL**, **Event**, **Element**, **Status**, **Status Code** and **Created at**, newest first; search matches the event and the URL. Click a row to open **Event Details** with the status (**Pending** until the first attempt finishes, then **Delivered** or **Failed**), the status code, the response message and the event payload. Payloads cover every record in the workspace, including records the viewer's role cannot open.
 
-**Resend** (`#webhook-delivery-modal-resend`) in **Event Details** appears on delivered and failed deliveries for roles with **Manage** **Yes** on **API & Webhooks**. It sends the stored payload again as a new delivery, with the URL's current secret, headers and body template; the original row stays unchanged.
+**Resend** (`#webhook-delivery-modal-resend`) in **Event Details** appears on delivered and failed deliveries for roles with **Create** on **API & Webhooks**. It sends the stored payload again as a new delivery, with the URL's current secret, headers and body template; the original row stays unchanged.
 
 | Action | Where | Anchor id | What happens |
 |---|---|---|---|

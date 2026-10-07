@@ -49,8 +49,7 @@ export class ExportRecordsInteractor extends AuthenticatedInteractor<ExportRecor
         const [model, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
         if (!policy.actor) return failAuthorization(CustomErrorCode.permissionDenied);
         const type = model.types.find((item) => item.id === input.typeId && !item.archived);
-        if (!type || (!policy.allowed(type.id, "readAll") && !policy.allowed(type.id, "readOwn")))
-          return failNotFound(CustomErrorCode.recordTypeNotFound);
+        if (!type || !policy.canReadType(type.id)) return failNotFound(CustomErrorCode.recordTypeNotFound);
 
         const query = RecordQuerySchema.parse({
           ...input,

@@ -16,12 +16,9 @@ export class RecordDetailLayoutReader {
 
   async read(typeId: string, model: RecordModel, policy: Policy): Validated<RecordDetailLayoutResult> {
     const type = model.types.find((type) => type.id === typeId && !type.archived);
-    if (!type || !policy.actor || (!policy.allowed(typeId, "readAll") && !policy.allowed(typeId, "readOwn")))
-      return failNotFound(CustomErrorCode.recordTypeNotFound);
+    if (!type || !policy.actor || !policy.canReadType(typeId)) return failNotFound(CustomErrorCode.recordTypeNotFound);
     const relationships = model.relationships.filter(
-      (relation) =>
-        (policy.allowed(relation.sourceTypeId, "readAll") || policy.allowed(relation.sourceTypeId, "readOwn")) &&
-        (policy.allowed(relation.targetTypeId, "readAll") || policy.allowed(relation.targetTypeId, "readOwn")),
+      (relation) => policy.canReadType(relation.sourceTypeId) && policy.canReadType(relation.targetTypeId),
     );
     const visibleType = {
       ...type,

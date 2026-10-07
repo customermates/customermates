@@ -16,7 +16,7 @@ import { recordRequestHash } from "@/features/records/mutate-record.interactor";
 import { MutateThreadRecordsSchema, ThreadRecordMutationResultSchema } from "./thread-records.schema";
 
 export function canReadInbox(policy: Awaited<ReturnType<RecordAccessPolicy["load"]>>) {
-  return policy.allowedSystem("inboxMessages", "readAll") || policy.allowedSystem("inboxMessages", "readOwn");
+  return policy.canReadSystem("inboxMessages");
 }
 
 @TenantInteractor()

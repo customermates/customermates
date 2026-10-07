@@ -27,6 +27,7 @@ vi.mock("@/core/errors/sentry-client", () => ({ captureError: mocks.report }));
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("@/app/components/agent-chat/record-ai-action", () => ({
   RecordAiAction: () => createElement("button", { type: "button" }, "Ask AI"),
+  useRecordAiAction: () => null,
 }));
 
 import { RecordEditorStore } from "../record-editor.store";
@@ -91,6 +92,7 @@ function harness(readOnly = false) {
   } as unknown as RootStore;
   const context: RecordEditorContext = {
     model: createCrmPreset(companyId, "EUR"),
+    linkColors: {},
     typeId,
     permittedActions: readOnly ? ["readAll"] : ["readAll", "update", "delete"],
     canManageSchema: false,
@@ -151,10 +153,15 @@ function harness(readOnly = false) {
     ),
   );
   const button = (label: string) => {
+    const disabledAction = container.querySelector<HTMLElement>(
+      `[data-slot="app-modal-action-disabled-trigger"][aria-label="${label}"]`,
+    );
     const found =
+      disabledAction?.querySelector<HTMLButtonElement>("button") ??
       Array.from(container.querySelectorAll<HTMLButtonElement>("button")).find(
         (control) => (control.getAttribute("aria-label") ?? control.textContent?.trim()) === label,
-      ) ?? null;
+      ) ??
+      null;
     expect(found).not.toBeNull();
     if (!found) throw new Error(`Missing control: ${label}`);
     return found;

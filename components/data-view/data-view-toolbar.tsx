@@ -3,6 +3,8 @@
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
 
 import { ArrowDownToLine, ArrowUpFromLine, Plus } from "lucide-react";
+import type { ReactNode } from "react";
+
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
@@ -29,6 +31,7 @@ type Props<E extends HasId> = {
   showDisplayOptions?: boolean;
   anchorScope?: string;
   addLabel?: string;
+  actions?: ReactNode;
 };
 
 export const DataViewToolbar = observer(function DataViewToolbar<E extends HasId>({
@@ -41,6 +44,7 @@ export const DataViewToolbar = observer(function DataViewToolbar<E extends HasId
   showDisplayOptions = true,
   anchorScope,
   addLabel,
+  actions,
 }: Props<E>) {
   const t = useTranslations();
   if (!store.isReady) return null;
@@ -102,6 +106,8 @@ export const DataViewToolbar = observer(function DataViewToolbar<E extends HasId
             </DropdownMenuContent>
           </DropdownMenu>
         )}
+
+        {actions}
 
         {onAdd && !store.isDisabled && (
           <Button

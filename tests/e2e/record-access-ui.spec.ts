@@ -169,7 +169,7 @@ test("admits an assigned-record writer and separately delegates schema configura
   const roleInput = {
     name: "Assigned project writers",
     description: "Edit assigned projects with separate schema authority",
-    permissions: { company: { canManage: "no" as const } },
+    permissions: [{ resource: "company" as const, actions: [] }],
     recordGrants: [
       {
         typeId: type.id,
@@ -321,10 +321,10 @@ test("admits an assigned-record writer and separately delegates schema configura
     await saveRole(page, {
       ...roleInput,
       id: saved.role.id,
-      permissions: {
-        company: { canManage: "no" },
-        dataModel: { canManage: "yes" },
-      },
+      permissions: [
+        { resource: "company", actions: [] },
+        { resource: "dataModel", actions: ["update"] },
+      ],
       recordGrants: [],
     });
     await member.page.reload();
@@ -372,7 +372,7 @@ test("admits an assigned-record writer and separately delegates schema configura
       data: {
         ...roleInput,
         id: saved.role.id,
-        permissions: {},
+        permissions: [],
         recordGrants: [{ typeId: delegated.id, actions: ["readAll"] }],
         expectedRevision: (await readModel(page)).revision,
         idempotencyKey: randomUUID(),
@@ -471,7 +471,7 @@ test("renders dependency-restricted calculated widget values as a secondary read
   const roleInput = {
     name: "Deal summary readers",
     description: "Read deals without access to their service inputs",
-    permissions: { company: { canManage: "no" as const } },
+    permissions: [{ resource: "company" as const, actions: [] }],
     recordGrants: [
       {
         typeId: id("deal"),
@@ -651,10 +651,10 @@ test("keeps shared Inbox participants permission-scoped across genuine readers a
     ],
     identities: [{ provider: "mail", value: email }],
   });
-  const baselinePermissions = {
-    company: { canManage: "no" as const },
-    inboxMessages: { canManage: "no" as const, readAccess: "all" as const },
-  };
+  const baselinePermissions: UpsertRoleData["permissions"] = [
+    { resource: "company", actions: [] },
+    { resource: "inboxMessages", actions: ["readAll"] },
+  ];
   const noAccessRole = await saveRole(page, {
     name: "Inbox without record access",
     description: "Read shared conversations without CRM association access",
@@ -1269,7 +1269,7 @@ test("configures a two-hop relationship path and lets a genuine read-only user n
   const role = await saveRole(page, {
     name: "Reporting readers",
     description: "Read relationships without editing records or schemas",
-    permissions: { company: { canManage: "no" } },
+    permissions: [{ resource: "company", actions: [] }],
     recordGrants: [{ typeId: type.id, actions: ["readAll"] }],
   });
   const reader = await secondaryUser(browser, database, companyId, role.role.id, testInfo);
@@ -1530,7 +1530,7 @@ test("keeps personal views separate from shared defaults and completes their UI 
   const role = await saveRole(page, {
     name: "Portfolio viewers",
     description: "Read the shared presentation without schema or record editing",
-    permissions: { company: { canManage: "no" } },
+    permissions: [{ resource: "company", actions: [] }],
     recordGrants: [{ typeId: type.id, actions: ["readAll"] }],
   });
   const reader = await secondaryUser(browser, database, companyId, role.role.id, testInfo);
@@ -1875,7 +1875,7 @@ test("keeps retained values restricted after a delegated manager converts fields
   const readerRole = await saveRole(page, {
     name: "All active lists reader",
     description: "No private-source access",
-    permissions: { company: { canManage: "no" } },
+    permissions: [{ resource: "company", actions: [] }],
     recordGrants: model.types
       .filter((type) => type.id !== sourceType.id && !type.embedded)
       .map((type) => ({ typeId: type.id, actions: ["readAll"] })),
@@ -1883,7 +1883,10 @@ test("keeps retained values restricted after a delegated manager converts fields
   const managerRole = await saveRole(page, {
     name: "Archive schema manager",
     description: "Schema configuration without record access or publication",
-    permissions: { company: { canManage: "no" }, dataModel: { canManage: "yes" } },
+    permissions: [
+      { resource: "company", actions: [] },
+      { resource: "dataModel", actions: ["update"] },
+    ],
     recordGrants: [],
   });
   const reader = await secondaryUser(browser, database, companyId, readerRole.role.id, testInfo);
@@ -2101,7 +2104,10 @@ test("publishes and withdraws a private-input summary through the field UI witho
   const role = await saveRole(page, {
     name: "Delegated summary readers",
     description: "Configure schemas and read deals without publishing private summaries or reading services",
-    permissions: { company: { canManage: "no" }, dataModel: { canManage: "yes" } },
+    permissions: [
+      { resource: "company", actions: [] },
+      { resource: "dataModel", actions: ["update"] },
+    ],
     recordGrants: [{ typeId: id("deal"), actions: ["readAll"] }],
   });
   const member = await secondaryUser(browser, database, companyId, role.role.id, testInfo);
@@ -2284,7 +2290,7 @@ test("copies another member's widget template into an independent owned widget w
   const role = await saveRole(page, {
     name: "Template dashboard reader",
     description: "Own dashboard widgets with read-only service access",
-    permissions: { company: { canManage: "no" } },
+    permissions: [{ resource: "company", actions: [] }],
     recordGrants: [{ typeId: serviceId, actions: ["readAll"] }],
   });
   const overall = englishMessages.RecordWidgets.overall.replace("{value}", "2");
@@ -2386,6 +2392,67 @@ test("copies another member's widget template into an independent owned widget w
     expect(await read(sourceName)).toEqual([original]);
     expect(member.errors).toEqual([]);
     expect(errors).toEqual([]);
+  } finally {
+    await member.close();
+  }
+});
+
+test("enforces partial system manage actions for a restricted member in the API and the UI", async ({
+  page,
+  browser,
+  database,
+  companyId,
+}, testInfo) => {
+  test.setTimeout(240000);
+  const role = await saveRole(page, {
+    name: "Webhook creators",
+    description: "Create and read webhooks without editing or deleting them",
+    permissions: [
+      { resource: "company", actions: [] },
+      { resource: "api", actions: ["create", "readAll"] },
+    ],
+    recordGrants: [],
+  });
+  expect(
+    (
+      await database.query(
+        'SELECT action::text FROM "RolePermission" WHERE "roleId"=$1 AND resource=\'api\' ORDER BY action',
+        [role.role.id],
+      )
+    ).rows.map(({ action }) => action),
+  ).toEqual(["create", "readAll"]);
+  const { revision } = await readModel(page);
+  const webhook = (url: string) => ({
+    url,
+    events: ["record.created"],
+    description: "Partial rights check",
+    expectedSchemaRevision: revision,
+  });
+  const adminCreated = await page.request.post("/api/v1/webhooks", { data: webhook("https://receiver.example.test/admin") });
+  expect(adminCreated.status(), await adminCreated.text()).toBe(201);
+  const adminHook = await adminCreated.json();
+  const member = await secondaryUser(browser, database, companyId, role.role.id, testInfo);
+  try {
+    const created = await member.page.request.post("/api/v1/webhooks", {
+      data: webhook("https://receiver.example.test/member"),
+    });
+    expect(created.status(), await created.text()).toBe(201);
+    const memberHook = await created.json();
+    const edit = await member.page.request.post("/api/v1/webhooks", {
+      data: { id: memberHook.id, enabled: false },
+    });
+    expect(edit.status()).toBe(403);
+    expect((await member.page.request.delete(`/api/v1/webhooks/${adminHook.id}`)).status()).toBe(403);
+    expect((await member.page.request.delete(`/api/v1/webhooks/${memberHook.id}`)).status()).toBe(403);
+
+    await member.page.goto("/en/company/webhooks");
+    await expect(member.page.locator("#company-webhooks-add")).toBeVisible();
+    await member.page.getByText("https://receiver.example.test/member", { exact: true }).click();
+    const dialog = member.page.getByRole("dialog");
+    await expect(dialog).toBeVisible();
+    await expect(dialog.locator("#webhook-modal-delete")).toHaveCount(0);
+    await expect(dialog.getByRole("button", { name: "Save", exact: true })).toHaveCount(0);
+    expect(member.errors).toEqual([]);
   } finally {
     await member.close();
   }

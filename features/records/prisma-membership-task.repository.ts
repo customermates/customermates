@@ -1,15 +1,9 @@
 import type { MembershipTaskRepo } from "./membership-task.repo";
 import type { RecordRef } from "./record-model.schema";
 import type { RecordReadScope } from "./record-query.schema";
-import { UserAccessor } from "@/core/base/user-accessor";
-import { getTransactionClient } from "@/core/decorators/transaction-context";
-import { prisma } from "@/prisma/db";
+import { TenantRepository } from "@/core/base/tenant-repository";
 
-export class PrismaMembershipTaskRepo extends UserAccessor implements MembershipTaskRepo {
-  private get prisma() {
-    return getTransactionClient() ?? prisma;
-  }
-
+export class PrismaMembershipTaskRepo extends TenantRepository implements MembershipTaskRepo {
   getMemberCompanyWide(userId: string) {
     return this.prisma.user.findFirst({
       where: { companyId: this.companyId, id: userId },

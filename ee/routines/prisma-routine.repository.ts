@@ -1,15 +1,15 @@
 import type { PermissionService } from "@/core/base/permission.service";
 import type { RepoArgs } from "@/core/utils/types";
 import { RecordFieldSchema } from "@/features/records/record-model.schema";
-import type { DeleteRoutineRepo } from "./delete-routine.interactor";
-import type { GetRoutineRunsRepo } from "./get-routine-runs.interactor";
+import type { DeleteRoutineRepo } from "./delete-routine.repo";
+import type { GetRoutineRunsRepo } from "./get-routine-runs.repo";
 import type { GetRoutinesRepo } from "./get-routines.repo";
-import type { PauseRoutineRepo } from "./pause-routine.interactor";
+import type { PauseRoutineRepo } from "./pause-routine.repo";
 import type { ReconcileRoutineRunsRepo } from "./reconcile-routine-runs.repo";
 import type { ReleaseOwnerRoutinesRepo } from "./release-owner-routines.interactor";
 import type { RoutineRunPage } from "./routine-history";
 import type { RoutineDto, RoutineRunDto } from "./routine.schema";
-import type { RunRoutineNowRepo } from "./run-routine-now.interactor";
+import type { RunRoutineNowRepo } from "./run-routine-now.repo";
 import type { StartRoutineRunRepo } from "./start-routine-run.repo";
 import type { SweepDueRoutinesRepo } from "./sweep-due-routines.interactor";
 import type { AdmittedRoutineRun, TriggerRoutinesRepo } from "./trigger-routines.repo";
@@ -244,6 +244,7 @@ export class PrismaRoutineRepo
     routine: { id: string; triggerKind: RoutineTriggerKind; triggerEvents: string[]; enabled: boolean },
     trigger: RoutineDto["recordTrigger"],
     sources: RoutineDto["recordSources"],
+    action: "create" | "update",
     expectedSchemaRevision?: number,
   ) {
     const subscriptions = this.subscriptions;
@@ -274,6 +275,7 @@ export class PrismaRoutineRepo
         )[],
         enabled: routine.enabled,
       },
+      action,
       expectedSchemaRevision,
     );
   }
@@ -590,6 +592,7 @@ export class PrismaRoutineRepo
           : input.recordTrigger !== undefined
             ? null
             : previous.recordSources,
+        "update",
         input.expectedSchemaRevision,
       );
 
@@ -634,6 +637,7 @@ export class PrismaRoutineRepo
       { id: created.id, triggerKind, triggerEvents, enabled: input.enabled ?? true },
       input.recordTrigger,
       input.recordSources,
+      "create",
       input.expectedSchemaRevision,
     );
 
