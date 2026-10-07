@@ -14,7 +14,7 @@ describe("VerifyEmailAction", () => {
   it("keeps the resend action named when its visible label is hidden at narrow widths", () => {
     const markup = renderToStaticMarkup(createElement(VerifyEmailAction));
 
-    expect(markup).toContain('id="profile-settings-verify-email"');
+    expect(markup).toContain('id="settings-profile-verify-email"');
     expect(markup).toContain('aria-label="EmailVerification.resend"');
     expect(markup).toContain('<span class="hidden sm:inline">EmailVerification.resend</span>');
   });

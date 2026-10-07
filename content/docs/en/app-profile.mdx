@@ -19,15 +19,15 @@ Roles are edited under **My Company › Roles** by a member whose role has **Edi
 
 | Page | Route | Navigate target | Highlight targets on the page | Explained in |
 |---|---|---|---|---|
-| **Settings** | `/settings/profile` | `nav-settings-profile` | `profile-settings-verify-email`, `profile-settings-first-name`, `profile-settings-last-name`, `profile-settings-country`, `profile-settings-avatar-url`, `profile-settings-display-language`, `profile-settings-formatting-locale`, `profile-settings-theme`, `profile-settings-save`, `profile-settings-reset` | [Settings](#settings-tab) |
-| **Channels** | `/settings/channels` | `nav-settings-channels`, also `profile-connected-accounts-connect` | `profile-connected-accounts-connect`; in the channel dialog `connected-account-tab-details`, `connected-account-visibility`, `connected-account-tab-email`, `connected-account-signature`, `connected-account-email-save`, `connected-account-tab-folders`, `connected-account-reactivate`, `connected-account-resync`, `connected-account-disconnect` | [Channels](#channels-tab) |
-| **API & Connectors** | `/settings/api-keys` | `nav-settings-api-keys` | `profile-api-keys-generate`; in the key dialog `api-key-option-standard`, `api-key-name`, `api-key-expires`, `api-key-save`, `api-key-delete` | [API & Connectors](#api--connectors-tab) |
+| **Settings** | `/settings/profile` | `nav-settings-profile` | `settings-profile-verify-email`, `settings-profile-first-name`, `settings-profile-last-name`, `settings-profile-country`, `settings-profile-avatar-url`, `settings-profile-display-language`, `settings-profile-formatting-locale`, `settings-profile-theme`, `settings-profile-save`, `settings-profile-reset` | [Settings](#settings-tab) |
+| **Channels** | `/settings/channels` | `nav-settings-channels`, also `settings-channels-connect` | `settings-channels-connect`; in the channel dialog `connected-account-tab-details`, `connected-account-visibility`, `connected-account-tab-email`, `connected-account-signature`, `connected-account-email-save`, `connected-account-tab-folders`, `connected-account-reactivate`, `connected-account-resync`, `connected-account-disconnect` | [Channels](#channels-tab) |
+| **API & Connectors** | `/settings/api-keys` | `nav-settings-api-keys` | `settings-api-keys-generate`; in the key dialog `api-key-option-standard`, `api-key-name`, `api-key-expires`, `api-key-save`, `api-key-delete` | [API & Connectors](#api--connectors-tab) |
 
 ## Profile settings page [#settings-tab]
 
-The profile **Settings** page holds your name, avatar, language, formats and theme. Route `/settings/profile`, sidebar entry **Settings**. Every signed-in member can open it, whatever the role, and the form changes only your own profile. Save or discard with **Save** (`#profile-settings-save`) and **Reset** (`#profile-settings-reset`) below the form; both buttons appear once the form has unsaved changes. **Save** stores all fields at once.
+The profile **Settings** page holds your name, avatar, language, formats and theme. Route `/settings/profile`, sidebar entry **Settings**. Every signed-in member can open it, whatever the role, and the form changes only your own profile. Save or discard with **Save** (`#settings-profile-save`) and **Reset** (`#settings-profile-reset`) below the form; both buttons appear once the form has unsaved changes. **Save** stores all fields at once.
 
-**Link:** the link to the profile **Settings** page, `/settings/profile`. **Mate:** `navigate` and `highlight_element` with `nav-settings-profile`; `highlight_element` also takes the field ids below without `#`, `profile-settings-verify-email` while your email is unverified, and `profile-settings-save` and `profile-settings-reset`, which are on screen only once the form has unsaved changes.
+**Link:** the link to the profile **Settings** page, `/settings/profile`. **Mate:** `navigate` and `highlight_element` with `nav-settings-profile`; `highlight_element` also takes the field ids below without `#`, `settings-profile-verify-email` while your email is unverified, and `settings-profile-save` and `settings-profile-reset`, which are on screen only once the form has unsaved changes.
 
 ### How do I change my name, avatar, language or theme?
 
@@ -35,24 +35,24 @@ Change the field and click **Save**: **Display Language** sets the interface lan
 
 | Field | Id | Options and rules | Effect |
 |---|---|---|---|
-| **First Name**, **Last Name** | `#profile-settings-first-name`, `#profile-settings-last-name` | Required, up to 255 characters each | Your name wherever you appear in the workspace |
-| **Country** | `#profile-settings-country` | Required, chosen from the country list | Stored with your profile; it does not change how dates or numbers are written |
-| **Avatar URL** | `#profile-settings-avatar-url` | Optional link to a publicly reachable image; `https://` is added when you type an address without it; there is no upload | Your picture; with the field empty, your initials are shown |
-| **Display Language** | `#profile-settings-display-language` | **English**, **German**, **French**, **Italian**, **Spanish**, or **System** (your browser's language, English when it is none of the five) | The interface language, which the assistant also answers in. Saving a new value reloads the app in that language. Notification emails from Customermates, such as trial reminders, use it too; with **System** they are sent in English |
-| **Formatting Locale** | `#profile-settings-formatting-locale` | **English** (US formats), **German**, **French**, **Italian**, **Spanish**, or **System** (the formats of your display language) | How numbers, dates, times and amounts are written, independent of the interface language |
-| **Theme** | `#profile-settings-theme` | **System** (follows your operating system), **Dark**, **Light** | Light or dark interface |
+| **First Name**, **Last Name** | `#settings-profile-first-name`, `#settings-profile-last-name` | Required, up to 255 characters each | Your name wherever you appear in the workspace |
+| **Country** | `#settings-profile-country` | Required, chosen from the country list | Stored with your profile; it does not change how dates or numbers are written |
+| **Avatar URL** | `#settings-profile-avatar-url` | Optional link to a publicly reachable image; `https://` is added when you type an address without it; there is no upload | Your picture; with the field empty, your initials are shown |
+| **Display Language** | `#settings-profile-display-language` | **English**, **German**, **French**, **Italian**, **Spanish**, or **System** (your browser's language, English when it is none of the five) | The interface language, which the assistant also answers in. Saving a new value reloads the app in that language. Notification emails from Customermates, such as trial reminders, use it too; with **System** they are sent in English |
+| **Formatting Locale** | `#settings-profile-formatting-locale` | **English** (US formats), **German**, **French**, **Italian**, **Spanish**, or **System** (the formats of your display language) | How numbers, dates, times and amounts are written, independent of the interface language |
+| **Theme** | `#settings-profile-theme` | **System** (follows your operating system), **Dark**, **Light** | Light or dark interface |
 
 The header above the form shows your name, your email address, **Email verified** or **Email not verified**, your status and your role. None of these can be changed here. The email address cannot be changed anywhere in the app. Role and status are set under **My Company › Members** by a member whose role has **Edit** on **Users & Roles**, who can also edit your first name, last name, country and avatar URL there.
 
 The avatar menu at the bottom of the sidebar has a **Dark Mode** or **Light Mode** switch that also saves your theme, and **Sign Out**.
 
-**Link:** `/settings/profile`. **Mate:** `navigate` and `highlight_element` with `nav-settings-profile`, then `highlight_element` with the field id in this table without `#`, for example `profile-settings-first-name`, `profile-settings-avatar-url` or `profile-settings-theme`, and `profile-settings-save` once something changed. The header and the avatar menu have no target, so Mate names them.
+**Link:** `/settings/profile`. **Mate:** `navigate` and `highlight_element` with `nav-settings-profile`, then `highlight_element` with the field id in this table without `#`, for example `settings-profile-first-name`, `settings-profile-avatar-url` or `settings-profile-theme`, and `settings-profile-save` once something changed. The header and the avatar menu have no target, so Mate names them.
 
 ### How do I verify my email address or resend the verification email? [#how-do-i-verify-my-email-address]
 
 While your address is unverified, the sidebar shows **Email not verified** under the brand name; it opens **My Profile › Settings** (`/settings/profile`), where the top bar offers **Resend verification email**. A new account can be used for 24 hours without verification. After that, every page redirects to the verification screen until you confirm the address with the link from the email.
 
-**Link:** `/settings/profile`. **Mate:** `navigate` and `highlight_element` with `nav-settings-profile`; `highlight_element` also takes `profile-settings-verify-email` for **Resend verification email** (`#profile-settings-verify-email`), on screen only while your email is unverified. The **Email not verified** badge has no id, so Mate names it.
+**Link:** `/settings/profile`. **Mate:** `navigate` and `highlight_element` with `nav-settings-profile`; `highlight_element` also takes `settings-profile-verify-email` for **Resend verification email** (`#settings-profile-verify-email`), on screen only while your email is unverified. The **Email not verified** badge has no id, so Mate names it.
 
 ### What can I not change here, such as my password? [#what-can-i-not-change-here]
 
@@ -68,7 +68,7 @@ The **API & Connectors** page holds your API keys. Route `/settings/api-keys`, s
 
 | Action | Where | Anchor id | What happens |
 |---|---|---|---|
-| Add a key | Top bar | `#profile-api-keys-generate` (**Add**) | Opens **Add an API key** with two routes |
+| Add a key | Top bar | `#settings-api-keys-generate` (**Add**) | Opens **Add an API key** with two routes |
 | Create a standard key | **Standard API key** | `#api-key-option-standard` (**Standard API key**), `#api-key-name` (**Name**), `#api-key-expires` (**Expires in**), `#api-key-save` (**Save**) | **Name** plus an optional **Expires in** date 1 to 365 days ahead (default **Never expires**); the key is shown once, so copy it immediately |
 | Quick connections | **Quick connections** | none | Four client tiles, described below |
 | Open a key | Key card | none | The card shows **Created at**, **Expires at** and **Last used**; the dialog shows the creation date, and expiry and last use only when set |
@@ -78,16 +78,16 @@ The quick route offers four tiles: **Claude**, **ChatGPT & Codex**, **Cursor** a
 
 There is no rotate or revoke button: create a new key, update the client, then delete the old one. Taking **API & Webhooks** away from a role does not disable keys its members already hold; to stop a member's keys, set that member **Inactive** under **My Company › Members**.
 
-**Link:** the link to the API keys page, `/settings/api-keys`, titled **API & Connectors**. **Mate:** `navigate` and `highlight_element` with `nav-settings-api-keys`; `highlight_element` also takes `profile-api-keys-generate` for **Add** (roles with **API & Webhooks** **Create**). In the dialog it takes `api-key-option-standard` (prerequisite `profile-api-keys-generate`), then `api-key-name`, `api-key-expires` and `api-key-save` (prerequisite `api-key-option-standard`; **Save** is enabled once something changed), and `api-key-delete` once the user has opened a key from its card. The quick connection tiles and the key cards have no target, so Mate names them.
+**Link:** the link to the API keys page, `/settings/api-keys`, titled **API & Connectors**. **Mate:** `navigate` and `highlight_element` with `nav-settings-api-keys`; `highlight_element` also takes `settings-api-keys-generate` for **Add** (roles with **API & Webhooks** **Create**). In the dialog it takes `api-key-option-standard` (prerequisite `settings-api-keys-generate`), then `api-key-name`, `api-key-expires` and `api-key-save` (prerequisite `api-key-option-standard`; **Save** is enabled once something changed), and `api-key-delete` once the user has opened a key from its card. The quick connection tiles and the key cards have no target, so Mate names them.
 
 ## Channels page [#channels-tab]
 
-Channels are the email, LinkedIn, WhatsApp, Instagram and Telegram accounts that feed the [Inbox](/docs/app-inbox), and the **Channels** page lists them. The link to the **Channels** page is `/settings/channels`, sidebar entry **Channels** (`#nav-settings-channels`), Customermates Cloud only; you connect a channel with **Connect channel** (`#profile-connected-accounts-connect`). The page lists your own channels first, then every channel a teammate has shared with the workspace. When channels need attention (**Reconnect needed**, **Permission issue** or **Error**), the sidebar entry shows their count, including teammates' shared channels that only their owner can fix.
+Channels are the email, LinkedIn, WhatsApp, Instagram and Telegram accounts that feed the [Inbox](/docs/app-inbox), and the **Channels** page lists them. The link to the **Channels** page is `/settings/channels`, sidebar entry **Channels** (`#nav-settings-channels`), Customermates Cloud only; you connect a channel with **Connect channel** (`#settings-channels-connect`). The page lists your own channels first, then every channel a teammate has shared with the workspace. When channels need attention (**Reconnect needed**, **Permission issue** or **Error**), the sidebar entry shows their count, including teammates' shared channels that only their owner can fix.
 
 | Action | Where | Anchor id | What happens |
 |---|---|---|---|
-| Connect a channel | Top bar | `#profile-connected-accounts-connect` (**Connect channel**) | Opens the channel picker; on narrow screens the button shows channel icons only |
-| Connect from an empty page | Centered empty state | `#profile-connected-accounts-connect-empty` (**Connect channel**) | The same picker, shown when you have no channel yet and may connect; when the assistant is available, the empty state shows assistant starter prompts instead of this button |
+| Connect a channel | Top bar | `#settings-channels-connect` (**Connect channel**) | Opens the channel picker; on narrow screens the button shows channel icons only |
+| Connect from an empty page | Centered empty state | `#settings-channels-connect-empty` (**Connect channel**) | The same picker, shown when you have no channel yet and may connect; when the assistant is available, the empty state shows assistant starter prompts instead of this button |
 | Open a channel | Channel card click | none | Opens the channel dialog on its **Details** tab |
 | Details tab | Channel dialog | `#connected-account-tab-details` (**Details**) | **Provider**, **Status**, **Visibility**, **Owner**, **Folders**, **Connected** and **Last synced** |
 | Share or unshare | Details tab | `#connected-account-visibility` | The **Visibility** switch between **Private** and **Shared**; owner only |
@@ -96,7 +96,7 @@ Channels are the email, LinkedIn, WhatsApp, Instagram and Telegram accounts that
 | Folders tab | Channel dialog | `#connected-account-tab-folders` (**Folders** with a count, for example **Folders 4/6**) | One switch per folder; only when the account reports folders |
 | Reactivate, resync or disconnect | Channel dialog | `#connected-account-reactivate` / `#connected-account-resync` / `#connected-account-disconnect` | Owner only, with **Edit** on **Inbox messages** for **Reactivate** and **Resync** and **Delete** for **Disconnect**; **Reactivate** or **Resync** depending on the status |
 
-**Link:** the link to the **Channels** page, `/settings/channels`. **Mate:** `navigate` and `highlight_element` with `nav-settings-channels`, and `highlight_element` with `profile-connected-accounts-connect` for **Connect channel**, on screen only when your role may connect and the page is not locked, loading or failed. Once the user has opened a channel from its card, it also takes the channel dialog ids in the table above without `#`, each only where the table says it appears; the cards and the empty-state button `#profile-connected-accounts-connect-empty` are not highlight targets, so Mate names them.
+**Link:** the link to the **Channels** page, `/settings/channels`. **Mate:** `navigate` and `highlight_element` with `nav-settings-channels`, and `highlight_element` with `settings-channels-connect` for **Connect channel**, on screen only when your role may connect and the page is not locked, loading or failed. Once the user has opened a channel from its card, it also takes the channel dialog ids in the table above without `#`, each only where the table says it appears; the cards and the empty-state button `#settings-channels-connect-empty` are not highlight targets, so Mate names them.
 
 ### Who can use Channels?
 
@@ -108,7 +108,7 @@ The workspace plan must include messaging: Pro, Business, Enterprise, or a trial
 
 ### How do I connect a channel?
 
-Open **My Profile › Channels** (`#nav-settings-channels`), click **Connect channel** (`#profile-connected-accounts-connect`) and pick one of nine entries, for example **WhatsApp** for your WhatsApp chats in the Inbox:
+Open **My Profile › Channels** (`#nav-settings-channels`), click **Connect channel** (`#settings-channels-connect`) and pick one of nine entries, for example **WhatsApp** for your WhatsApp chats in the Inbox:
 
 To connect my e-mail account, choose **Gmail**, **Outlook**, or **IMAP** here. The connected channel card then shows its email and calendar availability.
 
@@ -129,7 +129,7 @@ Picking an entry sends the current browser tab to a secure connection page, not 
 
 An initial connection error needs another attempt from **Connect channel**; for **Error** on an existing channel’s card, its owner uses **Reactivate**.
 
-**Link:** `/settings/channels`. **Mate:** `navigate` and `highlight_element` with `nav-settings-channels`, then `highlight_element` with `profile-connected-accounts-connect`; the nine menu entries have no id, so Mate names them.
+**Link:** `/settings/channels`. **Mate:** `navigate` and `highlight_element` with `nav-settings-channels`, then `highlight_element` with `settings-channels-connect`; the nine menu entries have no id, so Mate names them.
 
 ### How many channels can I connect?
 
@@ -137,7 +137,7 @@ Channels per member: Starter [[commercial.entitlement.starter.includedAccountsPe
 
 At the limit on Pro, **Connect channel** opens **Upgrade to connect more accounts** with **View plans**, which leads to **My Company › Subscription**. On Business, an error message points to Enterprise. After a downgrade, each member's newest channels above the new allowance are removed and marked **Deleted**, and members with the **Admin** role get an email.
 
-**Link:** `/settings/channels`, and `/settings/billing` for **View plans**. **Mate:** `navigate` and `highlight_element` with `nav-settings-channels`, then `highlight_element` with `profile-connected-accounts-connect`, or `nav-settings-billing` for the plans; **View plans** and the upgrade dialog have no id, so Mate names them.
+**Link:** `/settings/channels`, and `/settings/billing` for **View plans**. **Mate:** `navigate` and `highlight_element` with `nav-settings-channels`, then `highlight_element` with `settings-channels-connect`, or `nav-settings-billing` for the plans; **View plans** and the upgrade dialog have no id, so Mate names them.
 
 ### What does each channel status mean? [#what-does-each-status-mean]
 
@@ -204,7 +204,7 @@ Open an existing channel card; only its owner sees **Reactivate** and the other 
 
 ## Tips for agents
 
-- The hosted assistant Mate has these targets here, passed without `#`: `#nav-settings-profile`, `#nav-settings-channels`, `#nav-settings-api-keys` and `#profile-connected-accounts-connect`; on **Settings** every field id in the table above, `#profile-settings-verify-email`, `#profile-settings-save` and `#profile-settings-reset`; on **API & Connectors** `#profile-api-keys-generate` and, in its dialog, `#api-key-option-standard`, `#api-key-name`, `#api-key-expires`, `#api-key-save` and `#api-key-delete`; in the channel dialog `#connected-account-tab-details`, `#connected-account-visibility`, `#connected-account-tab-email`, `#connected-account-signature`, `#connected-account-email-save`, `#connected-account-tab-folders`, `#connected-account-reactivate`, `#connected-account-resync` and `#connected-account-disconnect`. `navigate` takes each of them and opens its page, and `highlight_element` outlines them; it cannot press them. `list_ui_targets` names the prerequisite: `profile-api-keys-generate` opens the key dialog, `api-key-option-standard` its standard form, and `connected-account-tab-email` the signature switch and its save button; a channel dialog or a key dialog for a saved key opens from its card, so `list_ui_targets` names that card as the prerequisite (`a channel card`, `an API key card`) and Mate asks the user to open it first. Ask it for a tour of connecting an account and it walks you there. The empty-state button `#profile-connected-accounts-connect-empty`, the quick connection tiles, the folder switches and the appearance fields are not assistant targets.
+- The hosted assistant Mate has these targets here, passed without `#`: `#nav-settings-profile`, `#nav-settings-channels`, `#nav-settings-api-keys` and `#settings-channels-connect`; on **Settings** every field id in the table above, `#settings-profile-verify-email`, `#settings-profile-save` and `#settings-profile-reset`; on **API & Connectors** `#settings-api-keys-generate` and, in its dialog, `#api-key-option-standard`, `#api-key-name`, `#api-key-expires`, `#api-key-save` and `#api-key-delete`; in the channel dialog `#connected-account-tab-details`, `#connected-account-visibility`, `#connected-account-tab-email`, `#connected-account-signature`, `#connected-account-email-save`, `#connected-account-tab-folders`, `#connected-account-reactivate`, `#connected-account-resync` and `#connected-account-disconnect`. `navigate` takes each of them and opens its page, and `highlight_element` outlines them; it cannot press them. `list_ui_targets` names the prerequisite: `settings-api-keys-generate` opens the key dialog, `api-key-option-standard` its standard form, and `connected-account-tab-email` the signature switch and its save button; a channel dialog or a key dialog for a saved key opens from its card, so `list_ui_targets` names that card as the prerequisite (`a channel card`, `an API key card`) and Mate asks the user to open it first. Ask it for a tour of connecting an account and it walks you there. The empty-state button `#settings-channels-connect-empty`, the quick connection tiles, the folder switches and the appearance fields are not assistant targets.
 - Cards never carry ids. Open a key or a channel by clicking its card; the pages are plain routes.
 - Prefer MCP tools when a tool exists: `connect_messaging_account` creates the connection link for one of the nine channel entries, under the same plan, permission and allowance rules, and `get_workspace_context` lists your own and shared channels with their status, and returns an empty list when your role has no read access on **Inbox messages**. No tool changes visibility, folders, appearance or the signature, reactivates, resyncs or disconnects a channel, changes the display language, formatting locale or theme, or creates an API key; use the pages above. The REST endpoint `GET /v1/messaging/connected-accounts` only reads.
 - A generated API key is shown exactly once, whether created as a standard key or through a quick connection's local setup. Copy it in the same step.

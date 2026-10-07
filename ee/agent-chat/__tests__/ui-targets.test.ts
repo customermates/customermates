@@ -92,15 +92,15 @@ describe("agent interface targets", () => {
     }
     expect(agentSidebarGroupId("nav-workspace-menu")).toBeNull();
     expect(agentSidebarGroupId("nav-dashboard")).toBeNull();
-    expect(agentSidebarGroupId("company-members-add")).toBeNull();
+    expect(agentSidebarGroupId("settings-members-add")).toBeNull();
     expect(agentSidebarGroupId("nav-settings-unknown")).toBeNull();
   });
 
   it("recognises the toolbar search boxes that narrow screens collapse", () => {
-    expect(isToolbarSearchTarget("company-webhooks-search")).toBe(true);
-    expect(isToolbarSearchTarget("company-webhook-deliveries-search")).toBe(true);
+    expect(isToolbarSearchTarget("settings-webhooks-search")).toBe(true);
+    expect(isToolbarSearchTarget("settings-webhooks-deliveries-search")).toBe(true);
     expect(isToolbarSearchTarget("nav-search")).toBe(false);
-    expect(isToolbarSearchTarget("company-roles-search")).toBe(false);
+    expect(isToolbarSearchTarget("settings-roles-search")).toBe(false);
   });
 
   it("opens a page only when the sidebar would show it for the role and installation", () => {
@@ -156,8 +156,8 @@ describe("agent interface targets", () => {
       expect(save?.prerequisite, page.scope).toBe(page.opener);
       expect(reset?.prerequisite, page.scope).toBe(page.resetOpener ?? page.opener);
     }
-    expect(findAgentUiTarget("role-modal-save")?.prerequisite).toBe("company-roles-add");
-    expect(findAgentUiTarget("webhook-modal-reset")?.prerequisite).toBe("company-webhooks-add");
+    expect(findAgentUiTarget("role-modal-save")?.prerequisite).toBe("settings-roles-add");
+    expect(findAgentUiTarget("webhook-modal-reset")?.prerequisite).toBe("settings-webhooks-add");
     for (const id of ["member-modal-save", "member-modal-reset"])
       expect(findAgentUiTarget(id)?.prerequisite, id).toBe("a member row");
     expect(findAgentUiTarget("widget-modal-save")?.prerequisite).toBe("widget-modal-kind");
@@ -180,7 +180,7 @@ describe("agent interface targets", () => {
       "connected-account-disconnect": "a channel card",
     };
     for (const [id, opener] of Object.entries(expected)) expect(findAgentUiTarget(id)?.prerequisite, id).toBe(opener);
-    expect(findAgentUiTarget("invite-modal-tab-email")?.prerequisite).toBe("company-members-add");
+    expect(findAgentUiTarget("invite-modal-tab-email")?.prerequisite).toBe("settings-members-add");
     expect(findAgentUiTarget("invite-modal-send")?.prerequisite).toBe("invite-modal-tab-email");
   });
 
@@ -195,11 +195,11 @@ describe("agent interface targets", () => {
   it("points dialog field targets at the control that opens their dialog or tab", () => {
     const prerequisiteOf = (id: string) => findAgentUiTarget(id)?.prerequisite;
     for (const id of ["invite-modal-tab-link", "invite-modal-link", "invite-modal-copy-link"])
-      expect(prerequisiteOf(id), id).toBe("company-members-add");
+      expect(prerequisiteOf(id), id).toBe("settings-members-add");
     expect(prerequisiteOf("invite-modal-emails")).toBe("invite-modal-tab-email");
     for (const control of ["url", "description", "events", "secret", "headers", "body-template", "enabled"])
-      expect(prerequisiteOf(`webhook-modal-${control}`), control).toBe("company-webhooks-add");
-    expect(prerequisiteOf("api-key-option-standard")).toBe("profile-api-keys-generate");
+      expect(prerequisiteOf(`webhook-modal-${control}`), control).toBe("settings-webhooks-add");
+    expect(prerequisiteOf("api-key-option-standard")).toBe("settings-api-keys-generate");
     for (const id of ["api-key-name", "api-key-expires", "api-key-save"])
       expect(prerequisiteOf(id), id).toBe("api-key-option-standard");
     for (const id of ["connected-account-signature", "connected-account-email-save"])
@@ -211,25 +211,23 @@ describe("agent interface targets", () => {
   it("describes settings controls with the words users ask about", () => {
     const describes = (id: string, word: string) =>
       expect(findAgentUiTarget(id)?.description.toLowerCase(), id).toContain(word);
-    describes("company-subscription-manage", "lemon squeezy");
-    describes("company-subscription-manage", "invoices");
-    describes("profile-settings-display-language", "language");
+    describes("settings-billing-manage", "lemon squeezy");
+    describes("settings-billing-manage", "invoices");
+    describes("settings-profile-display-language", "language");
     describes("invite-modal-send", "invitations");
     describes("webhook-delivery-modal-resend", "resend");
   });
 
   it("describes when a form's save button exists and who sees conditional controls", () => {
-    expect(findAgentUiTarget("profile-settings-save")?.description).toContain("shown once something changed");
+    expect(findAgentUiTarget("settings-profile-save")?.description).toContain("shown once something changed");
     expect(findAgentUiTarget("member-modal-save")?.description).toContain("roles with Manage");
     expect(findAgentUiTarget("role-modal-save")?.description).toContain("system role");
-    expect(findAgentUiTarget("company-subscription-manage")?.description).toContain("Lemon Squeezy subscription");
-    expect(findAgentUiTarget("company-subscription-manage")?.description).toContain("not on Enterprise");
-    expect(findAgentUiTarget("company-subscription-refresh")?.description).toContain("not during the trial");
-    expect(findAgentUiTarget("company-subscription-refresh")?.description).toContain("Lemon Squeezy subscription");
-    expect(findAgentUiTarget("company-subscription-plan-picker")?.description).toContain(
-      "no Lemon Squeezy subscription",
-    );
-    expect(findAgentUiTarget("company-subscription-plan-picker")?.description).toContain("not on Enterprise");
+    expect(findAgentUiTarget("settings-billing-manage")?.description).toContain("Lemon Squeezy subscription");
+    expect(findAgentUiTarget("settings-billing-manage")?.description).toContain("not on Enterprise");
+    expect(findAgentUiTarget("settings-billing-refresh")?.description).toContain("not during the trial");
+    expect(findAgentUiTarget("settings-billing-refresh")?.description).toContain("Lemon Squeezy subscription");
+    expect(findAgentUiTarget("settings-billing-plan-picker")?.description).toContain("no Lemon Squeezy subscription");
+    expect(findAgentUiTarget("settings-billing-plan-picker")?.description).toContain("not on Enterprise");
     expect(findAgentUiTarget("webhook-delivery-modal-resend")?.description).toContain("only on Delivered or Failed");
     expect(findAgentUiTarget("webhook-delivery-modal-resend")?.description).toContain("not Pending or Sending");
     for (const id of [
@@ -241,8 +239,8 @@ describe("agent interface targets", () => {
       "connected-account-signature",
     ])
       expect(findAgentUiTarget(id)?.description, id).toContain("you connected");
-    expect(findAgentUiTarget("profile-settings-verify-email")?.description).toContain("unverified");
-    expect(findAgentUiTarget("profile-api-keys-generate")?.description).toContain("API Manage");
+    expect(findAgentUiTarget("settings-profile-verify-email")?.description).toContain("unverified");
+    expect(findAgentUiTarget("settings-api-keys-generate")?.description).toContain("API Manage");
     expect(findAgentUiTarget("connected-account-visibility")?.description).toContain("Business plan");
     expect(findAgentUiTarget("connected-account-tab-folders")?.description).toContain("accounts with folders");
     expect(findAgentUiTarget("role-modal-delete")?.description).toContain("not for the system role");
@@ -260,6 +258,6 @@ describe("agent interface targets", () => {
       expect(findAgentNavigationTarget(id)?.route, id).toMatch(/^\//);
     expect(findAgentNavigationTarget("nav-search")).toBeNull();
     expect(UiTargetIdSchema.safeParse("currency").success).toBe(false);
-    expect(UiTargetIdSchema.safeParse("company-members-add-x").success).toBe(false);
+    expect(UiTargetIdSchema.safeParse("settings-members-add-x").success).toBe(false);
   });
 });

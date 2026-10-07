@@ -39,7 +39,7 @@ const SubscriptionViewContent = observer(({ initialSubscription }: Props) => {
           <Button
             aria-label={t("Subscription.refresh")}
             className="h-8"
-            id="company-subscription-refresh"
+            id="settings-billing-refresh"
             size="sm"
             variant="secondary"
             onClick={() => runUserAction(() => subscriptionStore.handleRefresh())}

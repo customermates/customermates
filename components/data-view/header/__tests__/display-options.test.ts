@@ -256,10 +256,10 @@ describe("display options", () => {
   });
 
   it("disables the board control when the store cannot board", () => {
-    const html = render(store({ canBoard: false }), "company-roles");
+    const html = render(store({ canBoard: false }), "settings-roles");
 
     expect(html).toMatch(
-      /id="company-roles-layout-board"[^>]*disabled=""|disabled=""[^>]*id="company-roles-layout-board"/,
+      /id="settings-roles-layout-board"[^>]*disabled=""|disabled=""[^>]*id="settings-roles-layout-board"/,
     );
   });
 

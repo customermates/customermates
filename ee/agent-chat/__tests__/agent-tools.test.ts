@@ -6,6 +6,9 @@ import { z } from "zod";
 import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
 
 import { createMockUser } from "@/tests/helpers/mock-user";
+import { runWithTenant } from "@/core/decorators/tenant-context";
+import { presetId } from "@/features/records/crm-preset";
+import { resolvePublicAppLinks } from "@/features/docs/app-links";
 import {
   createMockDiModule,
   MOCK_ENV_MODULE,
@@ -887,7 +890,7 @@ describe("agent tools", () => {
     expect(await lineOf("nav-settings-members")).toBe("nav-settings-members|/settings/members|nh");
     expect(await lineOf("nav-settings-api-keys")).toBe("nav-settings-api-keys|/settings/api-keys|nh");
     expect(await lineOf("widget-modal-reset")).toContain("|>a widget card");
-    expect(await lineOf("webhook-modal-url")).toContain("|>company-webhooks-add");
+    expect(await lineOf("webhook-modal-url")).toContain("|>settings-webhooks-add");
   });
 
   it("answers one query that spans several pages, because the prompt asks for a single focused query", async () => {
@@ -954,7 +957,7 @@ describe("agent tools", () => {
     const tasks = String(await execute(tools.list_ui_targets, { query: "Aufgaben" }));
 
     expect(invite).not.toContain("No interface target matches");
-    for (const id of ["nav-settings-members", "company-members-add", "invite-modal-tab-email", "invite-modal-send"])
+    for (const id of ["nav-settings-members", "settings-members-add", "invite-modal-tab-email", "invite-modal-send"])
       expect(invite, id).toContain(`${id}|`);
     expect(invite).not.toContain("nav-deals|");
     expect(inbox).toContain("nav-inbox|/inbox|nh");
@@ -1071,12 +1074,12 @@ describe("agent tools", () => {
     const provider = String(await execute(tools.list_ui_targets, { query: "WhatsApp" }));
 
     expect(workflow).toContain("nav-settings-channels");
-    expect(workflow).toContain("profile-connected-accounts-connect");
+    expect(workflow).toContain("settings-channels-connect");
     expect(workflow).toMatch(/\n(?:end|nextCursor=\d+;total=\d+)$/);
-    expect(provider).toContain("profile-connected-accounts-connect");
+    expect(provider).toContain("settings-channels-connect");
     expect(
       await schemaOf(tools.highlight_element).validate?.({
-        targetId: "profile-connected-accounts-connect",
+        targetId: "settings-channels-connect",
       }),
     ).toMatchObject({ success: true });
   });
@@ -1110,9 +1113,9 @@ describe("agent tools", () => {
     const runUiCommand = vi.fn().mockResolvedValue({ ok: true, result: "shown" });
     const tools = getAgentAiTools(deps({ runUiCommand }));
     const refusal =
-      "company-webhooks-layout-board is inside company-webhooks-display-options, which the user must open first, so nothing was shown. Highlight company-webhooks-display-options and tell the user to open it, or run start_tour with company-webhooks-display-options as the step before company-webhooks-layout-board.";
+      "settings-webhooks-layout-board is inside settings-webhooks-display-options, which the user must open first, so nothing was shown. Highlight settings-webhooks-display-options and tell the user to open it, or run start_tour with settings-webhooks-display-options as the step before settings-webhooks-layout-board.";
 
-    await expect(execute(tools.highlight_element, { targetId: "company-webhooks-layout-board" })).resolves.toEqual({
+    await expect(execute(tools.highlight_element, { targetId: "settings-webhooks-layout-board" })).resolves.toEqual({
       ok: false,
       result: refusal,
     });
@@ -1120,7 +1123,7 @@ describe("agent tools", () => {
       execute(tools.start_tour, {
         steps: [
           { targetId: "nav-settings-webhooks", note: "Open webhooks." },
-          { targetId: "company-webhooks-layout-board", note: "Switch to the board." },
+          { targetId: "settings-webhooks-layout-board", note: "Switch to the board." },
         ],
       }),
     ).resolves.toEqual({ ok: false, result: refusal });
@@ -1129,13 +1132,13 @@ describe("agent tools", () => {
     const throughOpener = {
       steps: [
         {
-          targetId: "company-webhooks-display-options",
+          targetId: "settings-webhooks-display-options",
           note: "Open the display options.",
         },
-        { targetId: "company-webhooks-layout-board", note: "Switch to the board." },
+        { targetId: "settings-webhooks-layout-board", note: "Switch to the board." },
       ],
     };
-    await expect(execute(tools.highlight_element, { targetId: "company-webhooks-display-options" })).resolves.toEqual({
+    await expect(execute(tools.highlight_element, { targetId: "settings-webhooks-display-options" })).resolves.toEqual({
       ok: true,
       result: "shown",
     });
@@ -1153,7 +1156,7 @@ describe("agent tools", () => {
       result: "shown",
     });
     expect(runUiCommand.mock.calls.map(([, name, input]) => [name, input])).toEqual([
-      ["highlight_element", { targetId: "company-webhooks-display-options" }],
+      ["highlight_element", { targetId: "settings-webhooks-display-options" }],
       ["start_tour", throughOpener],
       ["highlight_element", { targetId: namedRow.id }],
     ]);
@@ -1294,7 +1297,7 @@ describe("agent tools", () => {
 
   it("keeps the head of a documentation result inside the admitted 512-character tool result", async () => {
     const tools = getAgentAiTools(deps({ resultMaxChars: 512 }));
-    const excerpt = `## How do I connect a channel?\nOpen #nav-settings-channels, then #profile-connected-accounts-connect and choose WhatsApp.\n${"More detail. ".repeat(80)}`;
+    const excerpt = `## How do I connect a channel?\nOpen #nav-settings-channels, then #settings-channels-connect and choose WhatsApp.\n${"More detail. ".repeat(80)}`;
     vi.spyOn(searchDocsTool, "execute").mockResolvedValueOnce({
       text: `matches:\ndocs:app-profile#how-do-i-connect-a-channel\ndocs:app-inbox#do-i-need-a-connected-channel\ntotal=2\nbest=http://localhost:4000/en/docs/app-profile\nexcerpt=\n${excerpt}`,
       structuredContent: { results: [], total: 2 },
@@ -1331,8 +1334,35 @@ describe("agent tools", () => {
     expect(pageResult).toMatchObject({ ok: true });
     expect(pageResult.result.length).toBeLessThanOrEqual(512);
     expect(pageResult.result).toContain("nav-settings-channels");
-    expect(pageResult.result).toContain("profile-connected-accounts-connect");
+    expect(pageResult.result).toContain("settings-channels-connect");
     expect(pageResult.result).toContain("WhatsApp");
+  });
+
+  it("hands Mate docs app links as paths into the reader's own workspace", async () => {
+    const tools = getAgentAiTools(deps({ runInCallerContext: (run) => runWithTenant(mockUser, run) }));
+    const markdown = resolvePublicAppLinks(
+      "To add a contact, open [Contacts](app:records/contact) and click [Add](app:records/contact?focus=add).",
+      "http://localhost:4000",
+    );
+    vi.spyOn(getDocsPageTool, "execute").mockResolvedValueOnce({
+      text: markdown,
+      structuredContent: {
+        title: "Records",
+        url: "http://localhost:4000/en/docs/app-records",
+        markdown,
+        excerpt: true,
+      },
+    });
+    const contacts = presetId(mockUser.companyId, "contact");
+
+    const result = (await execute(tools.get_docs_page, { slug: "app-records", locale: "en", source: "docs" })) as {
+      ok: boolean;
+      result: string;
+    };
+
+    expect(result.result).toBe(
+      `To add a contact, open [Contacts](/records/${contacts}) and click [Add](/records/${contacts}?focus=control:records:${contacts}:add).`,
+    );
   });
 
   it("keeps runtime validation for sanitized CRM schemas", async () => {

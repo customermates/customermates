@@ -62,7 +62,7 @@ const WebhooksPageViewContent = observer(function WebhooksPageView({ initialWebh
     () => (
       <DataViewToolbar
         addLabel={pageState === "true-empty" ? t("Common.actions.add") : undefined}
-        anchorScope="company-webhooks"
+        anchorScope="settings-webhooks"
         store={webhooksStore}
         onAdd={handleAdd}
       />

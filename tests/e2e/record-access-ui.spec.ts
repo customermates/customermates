@@ -3840,7 +3840,7 @@ test("enforces partial system manage actions for a restricted member in the API 
     ).toBe(403);
 
     await member.page.goto("/en/settings/webhooks");
-    await expect(member.page.locator("#company-webhooks-add")).toBeVisible();
+    await expect(member.page.locator("#settings-webhooks-add")).toBeVisible();
     await member.page
       .getByText("https://receiver.example.test/member", { exact: true })
       .click();

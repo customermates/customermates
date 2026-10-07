@@ -46,7 +46,7 @@ Getting an AI client onto your workspace is the same three moves every time:
 <Step title="Create an API key">
 **My Profile → API & Connectors → Add**. Choose **Quick connections** for guided setup of Claude, ChatGPT & Codex, Cursor, or Gemini, or **Standard API key** for your own integration. The key is shown once, so copy it before closing the dialog. Creating a key needs **Create** on the **API & Webhooks** row of your role, and the page itself needs **Read access** **All** on that row; the built-in **Admin** role has both. See [API keys](/docs/api-keys).
 
-**Link:** the **API & Connectors** page, `/settings/api-keys`. **Mate:** `navigate` and `highlight_element` with `nav-settings-api-keys`; `highlight_element` also takes `profile-api-keys-generate` for **Add** (roles with **API & Webhooks** **Create**), then `api-key-option-standard` for **Standard API key** (prerequisite `profile-api-keys-generate`) and `api-key-name`, `api-key-expires` and `api-key-save` for **Name**, **Expires in** and **Save** (prerequisite `api-key-option-standard`). The **Quick connections** tiles are not highlight targets, so Mate names them.
+**Link:** the **API & Connectors** page, `/settings/api-keys`. **Mate:** `navigate` and `highlight_element` with `nav-settings-api-keys`; `highlight_element` also takes `settings-api-keys-generate` for **Add** (roles with **API & Webhooks** **Create**), then `api-key-option-standard` for **Standard API key** (prerequisite `settings-api-keys-generate`) and `api-key-name`, `api-key-expires` and `api-key-save` for **Name**, **Expires in** and **Save** (prerequisite `api-key-option-standard`). The **Quick connections** tiles are not highlight targets, so Mate names them.
 </Step>
 <Step title="Point the client at the endpoint">
 Give the client `POST <BASE_URL>/api/v1/mcp` with the `x-api-key` header from the step above, or connect through OAuth where the client supports it. The per-client guides in the table below carry the exact configuration.
@@ -611,7 +611,7 @@ Read, create or edit roles with system permissions and access to any configured 
 
 No tool reads the subscription, plan, seats or billing, or changes the plan, and none creates or deletes API keys; roles are managed with `manage_roles`; `get_workspace_context` returns no plan or trial data either. Billed seats follow the number of **Active** members, so a status change made with `manage_team` changes the seat count just as it does in the app ([how seats are counted](/docs/app-company#how-are-seats-counted-and-billed)). The subscription and API keys are managed in the app, under **My Company → Subscription** and **My Profile → API & Connectors**; roles can also be edited under **My Company → Roles**.
 
-**Link:** the **Subscription** page, `/settings/billing` (cloud only), the **Roles** page, `/settings/roles`, and the **API & Connectors** page, `/settings/api-keys`. **Mate:** `navigate` and `highlight_element` with `nav-settings-billing`, `nav-settings-roles` or `nav-settings-api-keys`, and `highlight_element` with `company-roles-add` for **Add** on **Roles**.
+**Link:** the **Subscription** page, `/settings/billing` (cloud only), the **Roles** page, `/settings/roles`, and the **API & Connectors** page, `/settings/api-keys`. **Mate:** `navigate` and `highlight_element` with `nav-settings-billing`, `nav-settings-roles` or `nav-settings-api-keys`, and `highlight_element` with `settings-roles-add` for **Add** on **Roles**.
 
 ### Support
 

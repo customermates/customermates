@@ -774,7 +774,7 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
     });
     const bounded = result.slice(0, 512);
     expect(bounded).toContain("nav-settings-channels");
-    expect(bounded).toContain("profile-connected-accounts-connect");
+    expect(bounded).toContain("settings-channels-connect");
     expect(bounded).toContain("WhatsApp");
   });
 

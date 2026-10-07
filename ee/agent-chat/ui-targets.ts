@@ -144,7 +144,7 @@ function controlTargets(page: ControlPage): AgentUiTarget[] {
 export const AGENT_UI_TARGETS: AgentUiTarget[] = [
   ...navTargets(),
   {
-    id: "profile-connected-accounts-connect",
+    id: "settings-channels-connect",
     route: settingsHref("channels"),
     description: "Connected accounts page button for email, LinkedIn, WhatsApp, Instagram, and Telegram",
   },

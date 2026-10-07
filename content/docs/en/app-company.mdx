@@ -17,12 +17,12 @@ Subscription is Cloud only. Activity needs **Audit Log** read access **All**, an
 
 | Page | Route | Navigate target | Highlight targets on the page | Explained in |
 |---|---|---|---|---|
-| **Subscription** | `/settings/billing` | `nav-settings-billing` | `company-subscription-manage`, `company-subscription-refresh`, `company-subscription-plan-picker` | [Subscription](#subscription-tab) |
-| **Members** | `/settings/members` | `nav-settings-members` | `company-members-add`, `company-members-search`, `company-members-filter`, `company-members-display-options`, `company-members-layout-table`, `company-members-layout-board`; in **Invite User** `invite-modal-tab-link`, `invite-modal-link`, `invite-modal-copy-link`, `invite-modal-tab-email`, `invite-modal-emails`, `invite-modal-send`; in **User** `member-modal-email`, `member-modal-first-name`, `member-modal-last-name`, `member-modal-country`, `member-modal-role`, `member-modal-avatar-url`, `member-modal-status`, `member-modal-save`, `member-modal-reset` | [Members](#members-tab) |
-| **Roles** | `/settings/roles` | `nav-settings-roles` | `company-roles-add`, `company-roles-display-options`, `company-roles-layout-table`, `company-roles-layout-board`; in the editor `role-modal-save`, `role-modal-reset`, `role-modal-delete` | [Roles](#roles-tab) |
+| **Subscription** | `/settings/billing` | `nav-settings-billing` | `settings-billing-manage`, `settings-billing-refresh`, `settings-billing-plan-picker` | [Subscription](#subscription-tab) |
+| **Members** | `/settings/members` | `nav-settings-members` | `settings-members-add`, `settings-members-search`, `settings-members-filter`, `settings-members-display-options`, `settings-members-layout-table`, `settings-members-layout-board`; in **Invite User** `invite-modal-tab-link`, `invite-modal-link`, `invite-modal-copy-link`, `invite-modal-tab-email`, `invite-modal-emails`, `invite-modal-send`; in **User** `member-modal-email`, `member-modal-first-name`, `member-modal-last-name`, `member-modal-country`, `member-modal-role`, `member-modal-avatar-url`, `member-modal-status`, `member-modal-save`, `member-modal-reset` | [Members](#members-tab) |
+| **Roles** | `/settings/roles` | `nav-settings-roles` | `settings-roles-add`, `settings-roles-display-options`, `settings-roles-layout-table`, `settings-roles-layout-board`; in the editor `role-modal-save`, `role-modal-reset`, `role-modal-delete` | [Roles](#roles-tab) |
 | **Activity** | `/settings/activity` | `nav-settings-activity` | None | [Activity](#activity-tab) |
-| **Webhooks** | `/settings/webhooks` | `nav-settings-webhooks` | `company-webhooks-add`, `company-webhooks-search`, `company-webhooks-filter`, `company-webhooks-display-options`, `company-webhooks-layout-table`, `company-webhooks-layout-board`; in the dialog `webhook-modal-url`, `webhook-modal-description`, `webhook-modal-events`, `webhook-modal-secret`, `webhook-modal-headers`, `webhook-modal-body-template`, `webhook-modal-enabled`, `webhook-modal-save`, `webhook-modal-reset`, `webhook-modal-delete` | [Webhooks](#webhooks-tab) |
-| **Recent Deliveries** | `/settings/webhooks/deliveries` | `nav-settings-webhooks` | `company-webhook-deliveries-search`, `company-webhook-deliveries-filter`, `company-webhook-deliveries-display-options`, `company-webhook-deliveries-layout-table`, `company-webhook-deliveries-layout-board`; in **Event Details** `webhook-delivery-modal-resend` | [Recent Deliveries](#deliveries-tab) |
+| **Webhooks** | `/settings/webhooks` | `nav-settings-webhooks` | `settings-webhooks-add`, `settings-webhooks-search`, `settings-webhooks-filter`, `settings-webhooks-display-options`, `settings-webhooks-layout-table`, `settings-webhooks-layout-board`; in the dialog `webhook-modal-url`, `webhook-modal-description`, `webhook-modal-events`, `webhook-modal-secret`, `webhook-modal-headers`, `webhook-modal-body-template`, `webhook-modal-enabled`, `webhook-modal-save`, `webhook-modal-reset`, `webhook-modal-delete` | [Webhooks](#webhooks-tab) |
+| **Recent Deliveries** | `/settings/webhooks/deliveries` | `nav-settings-webhooks` | `settings-webhooks-deliveries-search`, `settings-webhooks-deliveries-filter`, `settings-webhooks-deliveries-display-options`, `settings-webhooks-deliveries-layout-table`, `settings-webhooks-deliveries-layout-board`; in **Event Details** `webhook-delivery-modal-resend` | [Recent Deliveries](#deliveries-tab) |
 | **Subscription Required** | `/subscription-expired` | None | None, Mate is not available there | [Trial end or failed payment](#what-happens-when-the-trial-ends-or-a-payment-fails) |
 | **Legal documents updated** | `/legal-update` | None | None, Mate is not available there | [Members without a permission](#what-does-a-member-without-a-permission-see) |
 
@@ -49,9 +49,9 @@ The link to billing is the **Subscription** page: it shows the plan, status, sea
 | **Current period ends** | The end of the current billing period, synced from Lemon Squeezy: the renewal date, or after a cancellation the date the subscription ends. Shown once billing has set it. |
 | **Active seats** | The number of billed seats. Before the first checkout it shows the number of **Active** members. The note below reads "You pay per active user. Seat changes are prorated on your next invoice." |
 
-The top bar holds **Refresh** (`#company-subscription-refresh`) and **Manage with Lemon Squeezy** (`#company-subscription-manage`), and the plan picker below the fields carries `#company-subscription-plan-picker`. Plan prices and allowances are under [Which plans are there?](#which-plans-are-there); the hosted AI credits per plan are under [Plans and credits](/docs/app-assistant#plans-and-credits).
+The top bar holds **Refresh** (`#settings-billing-refresh`) and **Manage with Lemon Squeezy** (`#settings-billing-manage`), and the plan picker below the fields carries `#settings-billing-plan-picker`. Plan prices and allowances are under [Which plans are there?](#which-plans-are-there); the hosted AI credits per plan are under [Plans and credits](/docs/app-assistant#plans-and-credits).
 
-**Link:** the link to the **Subscription** page, `/settings/billing`. **Mate:** `navigate` and `highlight_element` with `nav-settings-billing`; `highlight_element` also takes `company-subscription-refresh`, `company-subscription-manage` and `company-subscription-plan-picker`, each shown only to roles with **Company** **Edit**, in the subscription state that offers it. The fields are not highlight targets, so Mate names them. On self-hosted, `list_ui_targets` still offers the targets, but the page redirects to the Dashboard.
+**Link:** the link to the **Subscription** page, `/settings/billing`. **Mate:** `navigate` and `highlight_element` with `nav-settings-billing`; `highlight_element` also takes `settings-billing-refresh`, `settings-billing-manage` and `settings-billing-plan-picker`, each shown only to roles with **Company** **Edit**, in the subscription state that offers it. The fields are not highlight targets, so Mate names them. On self-hosted, `list_ui_targets` still offers the targets, but the page redirects to the Dashboard.
 
 ### Who can manage billing? [#who-can-manage-billing]
 
@@ -91,7 +91,7 @@ Customermates Cloud has four plans, **Starter**, **Pro**, **Business** and **Ent
 
 Every plan includes the full CRM, the audit log, the API, the MCP server and the hosted assistant. Starter, Pro and Business are billed monthly per seat, in euros; there is no other billing interval. Hosted AI credits per active user and month: Starter 200, Pro 500, Business 1,200, Enterprise as contracted, and 500 during the trial. Each request is charged its exact provider cost and shown to one decimal; see [How many credits does each plan include?](/docs/app-assistant#plans-and-credits).
 
-**Link:** `/settings/billing`. **Mate:** `navigate` and `highlight_element` with `nav-settings-billing`, then `highlight_element` with `company-subscription-plan-picker` for the plan cards while the picker is shown; the target outlines all cards, so Mate names the plan.
+**Link:** `/settings/billing`. **Mate:** `navigate` and `highlight_element` with `nav-settings-billing`, then `highlight_element` with `settings-billing-plan-picker` for the plan cards while the picker is shown; the target outlines all cards, so Mate names the plan.
 
 ### How do I choose, upgrade or change a plan? [#how-do-i-choose-or-change-a-plan]
 
@@ -101,7 +101,7 @@ Clicking a card opens the Lemon Squeezy checkout for as many seats as the worksp
 
 After the first checkout the picker does not come back on its own; change the plan with **Manage with Lemon Squeezy** instead. Enterprise workspaces never see the picker, and a checkout is refused with "Enterprise workspaces are billed manually and cannot start self-service checkout."
 
-**Link:** `/settings/billing`. **Mate:** `navigate` and `highlight_element` with `nav-settings-billing`, then `highlight_element` with `company-subscription-plan-picker` while the picker is shown; the target outlines all three cards, so Mate names the card to click. After the first checkout, `company-subscription-manage` points at **Manage with Lemon Squeezy** instead.
+**Link:** `/settings/billing`. **Mate:** `navigate` and `highlight_element` with `nav-settings-billing`, then `highlight_element` with `settings-billing-plan-picker` while the picker is shown; the target outlines all three cards, so Mate names the card to click. After the first checkout, `settings-billing-manage` points at **Manage with Lemon Squeezy** instead.
 
 ### How do I cancel, change the payment method or get invoices?
 
@@ -111,7 +111,7 @@ Changes made in the portal reach Customermates automatically. If the page still 
 
 Members without **Company** **Edit** see neither button. The hosted assistant and MCP clients cannot read or change the plan, the status, the seats or anything else about billing.
 
-**Link:** `/settings/billing`. **Mate:** `navigate` and `highlight_element` with `nav-settings-billing`, then `highlight_element` with `company-subscription-manage` for **Manage with Lemon Squeezy** or `company-subscription-refresh` for **Refresh**; each is shown only to roles with **Company** **Edit** and to the **Admin** role, **Manage with Lemon Squeezy** once the workspace has a self-serve Lemon Squeezy subscription and **Refresh** once it has a Lemon Squeezy subscription and outside the trial, neither on Enterprise.
+**Link:** `/settings/billing`. **Mate:** `navigate` and `highlight_element` with `nav-settings-billing`, then `highlight_element` with `settings-billing-manage` for **Manage with Lemon Squeezy** or `settings-billing-refresh` for **Refresh**; each is shown only to roles with **Company** **Edit** and to the **Admin** role, **Manage with Lemon Squeezy** once the workspace has a self-serve Lemon Squeezy subscription and **Refresh** once it has a Lemon Squeezy subscription and outside the trial, neither on Enterprise.
 
 ### How are seats counted and billed?
 
@@ -144,13 +144,13 @@ A paid workspace that stays **Unpaid** or **Expired** for 3 days has all members
 
 Only the web app is paused before that point. Until the members are set **Inactive**, their API keys and MCP connections keep reading and changing records, and webhooks keep firing for those changes; messaging, channels and the hosted assistant stop as soon as the subscription is no longer usable.
 
-**Link:** `/subscription-expired` for **Subscription Required**; it opens only while access is paused, otherwise it redirects to `/settings/billing`. **Mate:** no target, and Mate is not available on this page, so it can only pass on the URL; the plan cards carry `#company-subscription-plan-picker` here too, but Mate cannot highlight them, and **Contact Support** and **Retry** have no id.
+**Link:** `/subscription-expired` for **Subscription Required**; it opens only while access is paused, otherwise it redirects to `/settings/billing`. **Mate:** no target, and Mate is not available on this page, so it can only pass on the URL; the plan cards carry `#settings-billing-plan-picker` here too, but Mate cannot highlight them, and **Contact Support** and **Retry** have no id.
 
 ### What happens to connected accounts when the plan changes, for example a switch to Starter? [#what-happens-to-connected-accounts-when-the-plan-changes]
 
 When Lemon Squeezy reports a different plan, through the automatic sync or **Refresh**, Customermates removes each user's newest connected accounts beyond the new plan's allowance per user. The Starter allowance is [[commercial.entitlement.starter.includedAccountsPerUser]] per user, so every connected account is removed. The first checkout from the trial counts as a change from Pro: choosing Starter removes every connected account. Members with the **Admin** role get an email that lists the removed accounts. Routines above the new allowance are kept, because the allowance applies only when a routine is created.
 
-**Link:** `/settings/billing`, and the remaining accounts on `/settings/channels`. **Mate:** `navigate` and `highlight_element` with `nav-settings-billing` or `nav-settings-channels`, and `highlight_element` with `company-subscription-refresh` for **Refresh**; the account cards are not highlight targets, so Mate names them.
+**Link:** `/settings/billing`, and the remaining accounts on `/settings/channels`. **Mate:** `navigate` and `highlight_element` with `nav-settings-billing` or `nav-settings-channels`, and `highlight_element` with `settings-billing-refresh` for **Refresh**; the account cards are not highlight targets, so Mate names them.
 
 ### How does an Enterprise workspace differ?
 
@@ -190,14 +190,14 @@ The **Members** page lists the people in the workspace and is where you invite t
 
 | Action | Where | Anchor id | What happens |
 |---|---|---|---|
-| Invite members | Members toolbar, **Add** | `#company-members-add` | Opens the **Invite User** dialog |
+| Invite members | Members toolbar, **Add** | `#settings-members-add` | Opens the **Invite User** dialog |
 | Share the invitation link | **Invite User**, tab **Share link**, open when the dialog opens | `#invite-modal-tab-link` / `#invite-modal-link` / `#invite-modal-copy-link` | Shows the **Invitation link** with a copy button and its expiry date |
 | Invite by email | **Invite User**, tab **Send emails**, address input, **Send invitations** | `#invite-modal-tab-email` / `#invite-modal-emails` / `#invite-modal-send` | Emails the workspace link to up to 20 addresses |
 | Edit or approve a member | Click the row, **User** dialog | Fields in the table below; `#member-modal-save` / `#member-modal-reset` | **Save** applies the role, status and profile fields; **Reset** discards changes |
-| Search, filter, display options | Members toolbar | `#company-members-search` / `#company-members-filter` / `#company-members-display-options` | List controls; filters cover status, updated at and created at |
-| Layout | Display-options popover | `#company-members-layout-table` / `#company-members-layout-board` | Table is the only usable layout; the board control is present but disabled because members have nothing to group by |
+| Search, filter, display options | Members toolbar | `#settings-members-search` / `#settings-members-filter` / `#settings-members-display-options` | List controls; filters cover status, updated at and created at |
+| Layout | Display-options popover | `#settings-members-layout-table` / `#settings-members-layout-board` | Table is the only usable layout; the board control is present but disabled because members have nothing to group by |
 
-**Link:** the link to the **Members** page, `/settings/members`. **Mate:** `navigate` and `highlight_element` with `nav-settings-members`; `highlight_element` also takes the toolbar ids in this table, `company-members-add` only for roles with **Users & Roles** **Create**. In **Invite User** it takes `invite-modal-tab-link`, `invite-modal-link`, `invite-modal-copy-link` and `invite-modal-tab-email` (prerequisite `company-members-add`), and `invite-modal-emails` and `invite-modal-send` (prerequisite `invite-modal-tab-email`). In the **User** dialog it takes the `member-modal-*` field ids (read-only for roles without **Users & Roles** **Edit**), plus `member-modal-save` and `member-modal-reset` for roles with **Edit** only. The dialog opens from a row, so `list_ui_targets` gives `a member row` as the prerequisite instead of a target id, and Mate asks the user to click the row. Rows have no target, so Mate names them.
+**Link:** the link to the **Members** page, `/settings/members`. **Mate:** `navigate` and `highlight_element` with `nav-settings-members`; `highlight_element` also takes the toolbar ids in this table, `settings-members-add` only for roles with **Users & Roles** **Create**. In **Invite User** it takes `invite-modal-tab-link`, `invite-modal-link`, `invite-modal-copy-link` and `invite-modal-tab-email` (prerequisite `settings-members-add`), and `invite-modal-emails` and `invite-modal-send` (prerequisite `invite-modal-tab-email`). In the **User** dialog it takes the `member-modal-*` field ids (read-only for roles without **Users & Roles** **Edit**), plus `member-modal-save` and `member-modal-reset` for roles with **Edit** only. The dialog opens from a row, so `list_ui_targets` gives `a member row` as the prerequisite instead of a target id, and Mate asks the user to click the row. Rows have no target, so Mate names them.
 
 ### How do invitations work?
 
@@ -209,7 +209,7 @@ People who register through the link join with status **Waiting for approval** a
 
 The hosted assistant's `manage_team` action `invite` sends the same emails and always asks for approval first, because it emails real people. No tool returns the invitation link.
 
-**Link:** `/settings/members`. **Mate:** `navigate` and `highlight_element` with `nav-settings-members`, then `highlight_element` with `company-members-add` for **Add**. Once the dialog is open (prerequisite `company-members-add`), it takes `invite-modal-tab-link` for **Share link**, `invite-modal-link` for the **Invitation link**, `invite-modal-copy-link` for the copy button and `invite-modal-tab-email` for **Send emails**; once that tab is open (prerequisite `invite-modal-tab-email`), `invite-modal-emails` for the addresses and `invite-modal-send` for **Send invitations**. The expiry date has no target, so Mate names it.
+**Link:** `/settings/members`. **Mate:** `navigate` and `highlight_element` with `nav-settings-members`, then `highlight_element` with `settings-members-add` for **Add**. Once the dialog is open (prerequisite `settings-members-add`), it takes `invite-modal-tab-link` for **Share link**, `invite-modal-link` for the **Invitation link**, `invite-modal-copy-link` for the copy button and `invite-modal-tab-email` for **Send emails**; once that tab is open (prerequisite `invite-modal-tab-email`), `invite-modal-emails` for the addresses and `invite-modal-send` for **Send invitations**. The expiry date has no target, so Mate names it.
 
 ### How do I approve, edit, deactivate or remove a member? [#how-do-i-approve-deactivate-or-edit-a-member]
 
@@ -242,14 +242,14 @@ The **Roles** page lists the roles of the workspace. Route `/settings/roles`, si
 
 | Action | Where | Anchor id | What happens |
 |---|---|---|---|
-| Add role | Roles toolbar, **Add** | `#company-roles-add` | Opens the **Role** editor with the defaults for a new role |
+| Add role | Roles toolbar, **Add** | `#settings-roles-add` | Opens the **Role** editor with the defaults for a new role |
 | Edit role | Click a row | none | Opens the **Role** editor; **Save** and **Reset** sit in its footer |
 | Save or discard | **Role** editor footer | `#role-modal-save` / `#role-modal-reset` | **Save** applies the name, description and permissions; **Reset** discards changes; on the **Admin** role and on your own role **Save** is shown disabled |
 | Delete role | **Role** editor, **Delete** | `#role-modal-delete` | Offered only for a saved custom role that no member has, with a confirmation |
-| Display options | Roles toolbar | `#company-roles-display-options` | List controls |
-| Layout | Display-options popover | `#company-roles-layout-table` / `#company-roles-layout-board` | Table only; the board control is disabled |
+| Display options | Roles toolbar | `#settings-roles-display-options` | List controls |
+| Layout | Display-options popover | `#settings-roles-layout-table` / `#settings-roles-layout-board` | Table only; the board control is disabled |
 
-**Link:** the link to the **Roles** page, `/settings/roles`. **Mate:** `navigate` and `highlight_element` with `nav-settings-roles`; `highlight_element` also takes `company-roles-add` (roles with **Users & Roles** **Create**), `company-roles-display-options` and the layout ids. The Roles list has no search box and no filter. In the **Role** editor it takes `role-modal-save` and `role-modal-reset` (roles with **Create** for a new role or **Edit** for a saved one; prerequisite `company-roles-add` for a new role, or the user opens a row) and `role-modal-delete` for **Delete** (a saved custom role no member has; the user opens its row first). Rows have no target, so Mate names them.
+**Link:** the link to the **Roles** page, `/settings/roles`. **Mate:** `navigate` and `highlight_element` with `nav-settings-roles`; `highlight_element` also takes `settings-roles-add` (roles with **Users & Roles** **Create**), `settings-roles-display-options` and the layout ids. The Roles list has no search box and no filter. In the **Role** editor it takes `role-modal-save` and `role-modal-reset` (roles with **Create** for a new role or **Edit** for a saved one; prerequisite `settings-roles-add` for a new role, or the user opens a row) and `role-modal-delete` for **Delete** (a saved custom role no member has; the user opens its row first). Rows have no target, so Mate names them.
 
 ### How do I create a custom role in the role editor, for example to restrict a member to assigned records? [#how-does-the-role-editor-work]
 
@@ -284,7 +284,7 @@ Saving a new webhook, routine or role needs **Create**; saving an existing one n
 
 A delegated data-model manager can use approved access presets when creating a type. Expanding grants requires **Users & Roles** **Edit**. On self-hosted installations, Inbox messages and Routines are hidden. Editing a role's name or its record grants preserves unchanged system permissions.
 
-**Link:** `/settings/roles`. **Mate:** `navigate` and `highlight_element` with `nav-settings-roles`, then `highlight_element` with `company-roles-add` for a new role; once the editor is open, `role-modal-save` and `role-modal-reset` point at **Save** and **Reset**, and `role-modal-delete` at **Delete** where it is offered. The fields and the permission rows are not highlight targets, so Mate names them.
+**Link:** `/settings/roles`. **Mate:** `navigate` and `highlight_element` with `nav-settings-roles`, then `highlight_element` with `settings-roles-add` for a new role; once the editor is open, `role-modal-save` and `role-modal-reset` point at **Save** and **Reset**, and `role-modal-delete` at **Delete** where it is offered. The fields and the permission rows are not highlight targets, so Mate names them.
 
 ### What is the Admin role, and can I edit it? [#what-is-the-admin-role]
 
@@ -307,14 +307,14 @@ The link to the webhooks page opens the webhook settings of the workspace. Route
 
 | Action | Where | Anchor id | What happens |
 |---|---|---|---|
-| Create webhook | Webhooks toolbar, **Add** | `#company-webhooks-add` | Opens the **Webhook** dialog with **URL**, **Description**, **Events**, **Secret**, **Custom headers**, **Body template** and **Enabled** |
+| Create webhook | Webhooks toolbar, **Add** | `#settings-webhooks-add` | Opens the **Webhook** dialog with **URL**, **Description**, **Events**, **Secret**, **Custom headers**, **Body template** and **Enabled** |
 | Fill in the webhook | Webhook dialog | `#webhook-modal-url` / `#webhook-modal-description` / `#webhook-modal-events` / `#webhook-modal-secret` / `#webhook-modal-headers` / `#webhook-modal-body-template` / `#webhook-modal-enabled` | The fields in that order; read-only without **Edit** (or **Create** for a new webhook) |
 | Save webhook | Webhook dialog footer | `#webhook-modal-save` / `#webhook-modal-reset` | Subscribes the URL to the chosen events; clearing **Enabled** pauses deliveries without deleting the webhook |
 | Delete webhook | Webhook dialog, **Delete** | `#webhook-modal-delete` | Removes the subscription after a confirmation; past deliveries stay in Recent Deliveries |
-| Search, filter, display options | Webhooks toolbar | `#company-webhooks-search` / `#company-webhooks-filter` / `#company-webhooks-display-options` | List controls; search matches the URL |
-| Layout | Display-options popover | `#company-webhooks-layout-table` / `#company-webhooks-layout-board` | Table only; the board control is disabled |
+| Search, filter, display options | Webhooks toolbar | `#settings-webhooks-search` / `#settings-webhooks-filter` / `#settings-webhooks-display-options` | List controls; search matches the URL |
+| Layout | Display-options popover | `#settings-webhooks-layout-table` / `#settings-webhooks-layout-board` | Table only; the board control is disabled |
 
-**Link:** the link to the **Webhooks** page, `/settings/webhooks`. **Mate:** `navigate` and `highlight_element` with `nav-settings-webhooks`; `highlight_element` also takes the toolbar ids in this table, `company-webhooks-add` only for roles with **API & Webhooks** **Create**. In the **Webhook** dialog (prerequisite `company-webhooks-add`, or the user opens a row) it takes the field ids in this table without `#`, plus `webhook-modal-save` and `webhook-modal-reset` for roles with **API & Webhooks** **Create** on a new webhook or **Edit** on a saved one (**Reset** once something changed), and `webhook-modal-delete` for **Delete** on a saved webhook, for roles with **Delete**. Rows have no target, so Mate names them.
+**Link:** the link to the **Webhooks** page, `/settings/webhooks`. **Mate:** `navigate` and `highlight_element` with `nav-settings-webhooks`; `highlight_element` also takes the toolbar ids in this table, `settings-webhooks-add` only for roles with **API & Webhooks** **Create**. In the **Webhook** dialog (prerequisite `settings-webhooks-add`, or the user opens a row) it takes the field ids in this table without `#`, plus `webhook-modal-save` and `webhook-modal-reset` for roles with **API & Webhooks** **Create** on a new webhook or **Edit** on a saved one (**Reset** once something changed), and `webhook-modal-delete` for **Delete** on a saved webhook, for roles with **Delete**. Rows have no target, so Mate names them.
 
 ## Where is the Recent Deliveries page, the webhook delivery log? [#deliveries-tab]
 
@@ -324,8 +324,8 @@ The **Recent Deliveries** page is the webhook delivery log. Route `/settings/web
 
 | Action | Where | Anchor id | What happens |
 |---|---|---|---|
-| Search, filter, display options | Deliveries toolbar | `#company-webhook-deliveries-search` / `#company-webhook-deliveries-filter` / `#company-webhook-deliveries-display-options` | List controls |
-| Layout | Display-options popover | `#company-webhook-deliveries-layout-table` / `#company-webhook-deliveries-layout-board` | Table only; the board control is disabled |
+| Search, filter, display options | Deliveries toolbar | `#settings-webhooks-deliveries-search` / `#settings-webhooks-deliveries-filter` / `#settings-webhooks-deliveries-display-options` | List controls |
+| Layout | Display-options popover | `#settings-webhooks-deliveries-layout-table` / `#settings-webhooks-deliveries-layout-board` | Table only; the board control is disabled |
 
 **Link:** the link to the **Recent Deliveries** page, `/settings/webhooks/deliveries`. **Mate:** `navigate` and `highlight_element` with `nav-settings-webhooks`; `highlight_element` also takes the toolbar ids in this table, and `webhook-delivery-modal-resend` for **Resend** once the user has opened a delivery row. Rows and the rest of **Event Details** are not highlight targets, so Mate names them.
 
@@ -345,7 +345,7 @@ Reading it needs **Audit Log** read access **All** on your role, or **Admin**; t
 
 - Every section above closes with its route and the ids Mate can use; for a full link, put the route after the origin of the `url` that `search_docs`, `get_docs_page` and `fetch` return. **Subscription Required** and **Legal documents updated** have no target and Mate is not available there, so pass on their link.
 - `#nav-workspace-menu` opens the workspace menu; it is not a navigation target. The hosted assistant's `navigate` opens every page here that the user's role can open through its settings id; a toolbar id also works and opens its page. For a page the role cannot open, `navigate` refuses instead of landing on the Dashboard. It can highlight the sidebar entries, toolbar controls, Subscription buttons and plan cards, form buttons, and the dialog fields and buttons listed above. `list_ui_targets` lists targets whatever the user's role or plan, so an **Add** or billing target can be missing on screen.
-- Dialog targets (every `invite-modal-*`, `member-modal-*`, `role-modal-*` and `webhook-modal-*` id, and `webhook-delivery-modal-resend`) exist only while their dialog is open. `list_ui_targets` names the prerequisite: `company-members-add` for **Invite User**, `invite-modal-tab-email` for `invite-modal-emails` and `invite-modal-send`, `company-roles-add` for `role-modal-save` and `role-modal-reset`, and `company-webhooks-add` for the webhook fields, `webhook-modal-save` and `webhook-modal-reset`. The **User** dialog, **Event Details**, `role-modal-delete` and `webhook-modal-delete` need a row the user opens, and `list_ui_targets` names that row as the prerequisite (`a member row`, `a delivery row`, `a role row`, `a webhook row`); rows have no target, so ask the user to click it first. Mate cannot click a row, fill a field or submit a dialog.
+- Dialog targets (every `invite-modal-*`, `member-modal-*`, `role-modal-*` and `webhook-modal-*` id, and `webhook-delivery-modal-resend`) exist only while their dialog is open. `list_ui_targets` names the prerequisite: `settings-members-add` for **Invite User**, `invite-modal-tab-email` for `invite-modal-emails` and `invite-modal-send`, `settings-roles-add` for `role-modal-save` and `role-modal-reset`, and `settings-webhooks-add` for the webhook fields, `webhook-modal-save` and `webhook-modal-reset`. The **User** dialog, **Event Details**, `role-modal-delete` and `webhook-modal-delete` need a row the user opens, and `list_ui_targets` names that row as the prerequisite (`a member row`, `a delivery row`, `a role row`, `a webhook row`); rows have no target, so ask the user to click it first. Mate cannot click a row, fill a field or submit a dialog.
 - Rows never carry ids. Navigate to a page via its URL (for example `/settings/webhooks`) and open a row by clicking it. Edits happen in dialogs, not in a drawer.
 - Prefer [MCP](/docs/mcp) tools over clicking when a tool exists: `configure_record_model` changes CRM types, field currencies and calculations, `manage_roles` changes authorized role grants, `manage_team` invites and updates members, and `manage_webhooks` manages webhooks and deliveries.
 - No tool reads or changes the subscription or invitation link. For "which plan are we on" or "how do I cancel", send the user to **My Company** › **Subscription**.

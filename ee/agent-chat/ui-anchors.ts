@@ -27,17 +27,17 @@ export type ControlPage = {
 export const TOOLBAR_PAGES_WITH_ADD: AnchorPage[] = [
   { scope: "routines", route: "/routines", label: "routines" },
   {
-    scope: "company-members",
+    scope: "settings-members",
     route: settingsHref("members"),
     label: "team members",
   },
-  { scope: "company-webhooks", route: settingsHref("webhooks"), label: "webhooks" },
-  { scope: "company-roles", route: settingsHref("roles"), label: "roles" },
+  { scope: "settings-webhooks", route: settingsHref("webhooks"), label: "webhooks" },
+  { scope: "settings-roles", route: settingsHref("roles"), label: "roles" },
 ];
 
 export const TOOLBAR_PAGES_WITHOUT_ADD: AnchorPage[] = [
   {
-    scope: "company-webhook-deliveries",
+    scope: "settings-webhooks-deliveries",
     route: WEBHOOK_DELIVERIES_HREF,
     label: "webhook deliveries",
   },
@@ -45,7 +45,7 @@ export const TOOLBAR_PAGES_WITHOUT_ADD: AnchorPage[] = [
 
 export const FORM_PAGES: AnchorPage[] = [
   {
-    scope: "profile-settings",
+    scope: "settings-profile",
     route: settingsHref("profile"),
     label: "profile settings form",
     hiddenUntilDirty: true,
@@ -60,13 +60,13 @@ export const FORM_PAGES: AnchorPage[] = [
     scope: "webhook-modal",
     route: settingsHref("webhooks"),
     label: "webhook dialog (roles with API Manage only; open it first)",
-    opener: "company-webhooks-add",
+    opener: "settings-webhooks-add",
   },
   {
     scope: "role-modal",
     route: settingsHref("roles"),
     label: "role dialog (roles with Manage only; disabled for the system role and your own role; open it first)",
-    opener: "company-roles-add",
+    opener: "settings-roles-add",
   },
   {
     scope: "widget-modal",
@@ -98,7 +98,7 @@ export const CONTROL_PAGES: ControlPage[] = [
     ],
   },
   {
-    scope: "company-subscription",
+    scope: "settings-billing",
     route: settingsHref("billing"),
     controls: [
       {
@@ -119,7 +119,7 @@ export const CONTROL_PAGES: ControlPage[] = [
     ],
   },
   {
-    scope: "profile-settings",
+    scope: "settings-profile",
     route: settingsHref("profile"),
     controls: [
       {
@@ -197,22 +197,22 @@ export const CONTROL_PAGES: ControlPage[] = [
       {
         control: "tab-link",
         description: "Share link tab of the invite dialog, shown when the dialog opens",
-        prerequisite: "company-members-add",
+        prerequisite: "settings-members-add",
       },
       {
         control: "link",
         description: "Read-only invite link on the Share link tab of the invite dialog",
-        prerequisite: "company-members-add",
+        prerequisite: "settings-members-add",
       },
       {
         control: "copy-link",
         description: "Button that copies the invite link on the Share link tab of the invite dialog",
-        prerequisite: "company-members-add",
+        prerequisite: "settings-members-add",
       },
       {
         control: "tab-email",
         description: "Send emails tab of the invite dialog for inviting members by email",
-        prerequisite: "company-members-add",
+        prerequisite: "settings-members-add",
       },
       {
         control: "emails",
@@ -233,37 +233,37 @@ export const CONTROL_PAGES: ControlPage[] = [
       {
         control: "url",
         description: "Endpoint URL input of the webhook dialog",
-        prerequisite: "company-webhooks-add",
+        prerequisite: "settings-webhooks-add",
       },
       {
         control: "description",
         description: "Description input of the webhook dialog",
-        prerequisite: "company-webhooks-add",
+        prerequisite: "settings-webhooks-add",
       },
       {
         control: "events",
         description: "Events select that picks which record events the webhook sends",
-        prerequisite: "company-webhooks-add",
+        prerequisite: "settings-webhooks-add",
       },
       {
         control: "secret",
         description: "Signing secret input of the webhook dialog",
-        prerequisite: "company-webhooks-add",
+        prerequisite: "settings-webhooks-add",
       },
       {
         control: "headers",
         description: "Custom request headers input of the webhook dialog",
-        prerequisite: "company-webhooks-add",
+        prerequisite: "settings-webhooks-add",
       },
       {
         control: "body-template",
         description: "Custom request body template input of the webhook dialog",
-        prerequisite: "company-webhooks-add",
+        prerequisite: "settings-webhooks-add",
       },
       {
         control: "enabled",
         description: "Enabled checkbox that pauses or resumes the webhook",
-        prerequisite: "company-webhooks-add",
+        prerequisite: "settings-webhooks-add",
       },
       {
         control: "delete",
@@ -297,7 +297,7 @@ export const CONTROL_PAGES: ControlPage[] = [
     ],
   },
   {
-    scope: "profile-api-keys",
+    scope: "settings-api-keys",
     route: settingsHref("api-keys"),
     controls: [
       {
@@ -313,7 +313,7 @@ export const CONTROL_PAGES: ControlPage[] = [
       {
         control: "option-standard",
         description: "Standard API key option on the first step of the API key dialog",
-        prerequisite: "profile-api-keys-generate",
+        prerequisite: "settings-api-keys-generate",
       },
       {
         control: "name",
@@ -468,9 +468,9 @@ export function settingsNavKeys(section: SettingsSection): string[] {
   return SETTINGS_SECTIONS[section].map((subroute) => `settings-${subroute.slug}`);
 }
 
-export const SCOPES_WITHOUT_FILTER = new Set(["company-roles"]);
+export const SCOPES_WITHOUT_FILTER = new Set(["settings-roles"]);
 
-export const SCOPES_WITHOUT_SEARCH = new Set(["company-roles"]);
+export const SCOPES_WITHOUT_SEARCH = new Set(["settings-roles"]);
 
 export const TOOLBAR_SCOPES_WITH_ADD = TOOLBAR_PAGES_WITH_ADD.map((page) => page.scope);
 export const TOOLBAR_SCOPES_WITHOUT_ADD = TOOLBAR_PAGES_WITHOUT_ADD.map((page) => page.scope);

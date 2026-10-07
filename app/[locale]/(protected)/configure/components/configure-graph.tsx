@@ -80,13 +80,14 @@ type Props = {
   onSelectList: (typeId: string) => void;
   onEditField: (typeId: string, field: RecordField) => void;
   onAddField: (typeId: string) => void;
+  onEditChannels: (typeId: string) => void;
   onEditRelationship: (relation: RecordRelationship) => void;
   onConnect: (sourceTypeId: string, targetTypeId: string) => void;
 };
 
 type GraphActions = Pick<
   Props,
-  "canManage" | "disabled" | "onSelectList" | "onEditField" | "onAddField" | "onEditRelationship"
+  "canManage" | "disabled" | "onSelectList" | "onEditField" | "onAddField" | "onEditChannels" | "onEditRelationship"
 > & { labelOf: (typeId: string) => string; listOf: (items: string[]) => string };
 
 const GraphActionsContext = createContext<GraphActions | null>(null);
@@ -133,7 +134,8 @@ type PromptNode = Node<{ state: "available" | "locked" }, "prompt">;
 function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
   const t = useTranslations();
   const intlStore = useHydratedIntlStore();
-  const { canManage, disabled, labelOf, listOf, onSelectList, onEditField, onAddField } = useGraphActions();
+  const { canManage, disabled, labelOf, listOf, onSelectList, onEditField, onAddField, onEditChannels } =
+    useGraphActions();
   const Icon = recordTypeIcon(list.type.icon);
   const visible = list.fields.slice(0, GRAPH_VISIBLE_FIELDS);
   const hidden = list.fields.length - visible.length;
@@ -231,6 +233,31 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
             </li>
           );
         })}
+
+        {list.channels && (
+          <li>
+            <button
+              className="nodrag flex h-9 w-full items-center gap-2 px-3.5 text-left text-sm outline-none hover:bg-accent/50 focus-visible:bg-accent/60 disabled:pointer-events-none"
+              data-configure-graph-channels={list.type.id}
+              disabled={disabled || !canManage}
+              type="button"
+              onClick={() => onEditChannels(list.type.id)}
+            >
+              <span aria-hidden className="size-3.5 shrink-0" />
+
+              <span
+                className={cn(
+                  "min-w-0 flex-1 truncate font-medium",
+                  list.channels.deleted && "text-muted-foreground line-through",
+                )}
+              >
+                {t("EntityChannels.heading")}
+              </span>
+
+              <span className="shrink-0 text-muted-foreground">{t("RecordModel.channelsField.short")}</span>
+            </button>
+          </li>
+        )}
 
         {hidden > 0 && (
           <li>
@@ -537,6 +564,7 @@ function ConfigureGraphCanvas({
   onSelectList,
   onEditField,
   onAddField,
+  onEditChannels,
   onEditRelationship,
   onConnect,
 }: Props) {
@@ -662,9 +690,20 @@ function ConfigureGraphCanvas({
       onSelectList,
       onEditField,
       onAddField,
+      onEditChannels,
       onEditRelationship,
     }),
-    [canManage, disabled, locale, model.types, onSelectList, onEditField, onAddField, onEditRelationship],
+    [
+      canManage,
+      disabled,
+      locale,
+      model.types,
+      onSelectList,
+      onEditField,
+      onAddField,
+      onEditChannels,
+      onEditRelationship,
+    ],
   );
   return (
     <GraphActionsContext.Provider value={actions}>

@@ -16,7 +16,7 @@ Ein Key aus den **Schnellverbindungen** trägt den Namen seines Clients (`Claude
 
 Keys gehören dem Nutzer, der sie angelegt hat, und erben dessen Berechtigungen.
 
-**Link:** der Link zur Seite mit den API-Keys, `/settings/api-keys`, mit dem Titel **API & Konnektoren**. **Mate:** `navigate` und `highlight_element` mit `nav-settings-api-keys`; `highlight_element` nimmt außerdem `profile-api-keys-generate` für **Hinzufügen** an (Rollen mit **Erstellen** auf **API & Webhooks**), danach im Dialog `api-key-option-standard` für **Standard-API-Key** (Voraussetzung `profile-api-keys-generate`) sowie `api-key-name` für **Name**, `api-key-expires` für **Läuft ab** und `api-key-save` für **Speichern** (Voraussetzung `api-key-option-standard`; **Speichern** ist aktiv, sobald sich etwas geändert hat). Die Kacheln der **Schnellverbindungen** und ihre Einrichtungsschritte sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** der Link zur Seite mit den API-Keys, `/settings/api-keys`, mit dem Titel **API & Konnektoren**. **Mate:** `navigate` und `highlight_element` mit `nav-settings-api-keys`; `highlight_element` nimmt außerdem `settings-api-keys-generate` für **Hinzufügen** an (Rollen mit **Erstellen** auf **API & Webhooks**), danach im Dialog `api-key-option-standard` für **Standard-API-Key** (Voraussetzung `settings-api-keys-generate`) sowie `api-key-name` für **Name**, `api-key-expires` für **Läuft ab** und `api-key-save` für **Speichern** (Voraussetzung `api-key-option-standard`; **Speichern** ist aktiv, sobald sich etwas geändert hat). Die Kacheln der **Schnellverbindungen** und ihre Einrichtungsschritte sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Wer kann API-Keys anlegen und sehen? [#who-can-create-and-see-api-keys]
 
@@ -31,7 +31,7 @@ Jede Person sieht nur ihre eigenen Keys. Niemand, auch nicht die Rolle **Admin**
 
 Der Custom Connector für Claude und ChatGPT meldet sich per OAuth an und braucht weder einen API-Key noch die Berechtigung **API & Webhooks**. Siehe [Mit einem Custom Connector verbinden](/docs/connect-custom-connector).
 
-**Link:** `/settings/api-keys`, und für die Zeile **API & Webhooks** der Rolle `/settings/roles`. **Mate:** `navigate` mit `nav-settings-api-keys` oder `nav-settings-roles`; `highlight_element` mit `nav-settings-api-keys` auf einer Seite unter **Mein Profil** und mit `nav-settings-roles` auf einer Seite unter **Mein Unternehmen**, weil ein Sidebar-Eintrag nur hervorhebbar ist, solange seine Gruppe aufgeklappt ist, und mit `profile-api-keys-generate` für **Hinzufügen** (Rollen mit **Erstellen** auf **API & Webhooks**); die Zeilen der Rollen sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** `/settings/api-keys`, und für die Zeile **API & Webhooks** der Rolle `/settings/roles`. **Mate:** `navigate` mit `nav-settings-api-keys` oder `nav-settings-roles`; `highlight_element` mit `nav-settings-api-keys` auf einer Seite unter **Mein Profil** und mit `nav-settings-roles` auf einer Seite unter **Mein Unternehmen**, weil ein Sidebar-Eintrag nur hervorhebbar ist, solange seine Gruppe aufgeklappt ist, und mit `settings-api-keys-generate` für **Hinzufügen** (Rollen mit **Erstellen** auf **API & Webhooks**); die Zeilen der Rollen sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Wie kann ich einen Key nutzen, und in welchen Header gehört er? [#how-do-i-use-a-key]
 

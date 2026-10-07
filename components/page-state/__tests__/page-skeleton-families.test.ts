@@ -23,7 +23,7 @@ describe("page skeleton families", () => {
   it.each([
     ["dashboard", DashboardPageSkeleton],
     ["detail", EntityDetailPageSkeleton],
-    ["profile-settings", ProfileSettingsPageSkeleton],
+    ["settings-profile", ProfileSettingsPageSkeleton],
     ["subscription", SubscriptionPageSkeleton],
     ["api-keys", ApiKeysPageSkeleton],
     ["connected-accounts", ConnectedAccountsPageSkeleton],

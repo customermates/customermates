@@ -240,7 +240,7 @@ describe("profile resource page views", () => {
 
     const readOnly = renderApiKeys("ready", { canManage: false });
     expect(readOnly).not.toContain("<button");
-    expect(renderToStaticMarkup(latestTopBar())).not.toContain("profile-api-keys-generate");
+    expect(renderToStaticMarkup(latestTopBar())).not.toContain("settings-api-keys-generate");
 
     const content = renderApiKeys("ready", { withItem: true });
     expect(content).toContain("Integration");
@@ -251,11 +251,11 @@ describe("profile resource page views", () => {
   it("renders connected-account locked, error, empty, permission, and content branches", () => {
     const locked = renderConnected("ready", { locked: true });
     expect(locked).toContain('data-page-skeleton-empty="true"');
-    expect(locked).not.toContain("profile-connected-accounts-connect");
+    expect(locked).not.toContain("settings-channels-connect");
     expect(latestTopBar()).toBeNull();
 
     const loading = renderConnected("uninitialized");
-    expect(loading).not.toContain('id="profile-connected-accounts-connect"');
+    expect(loading).not.toContain('id="settings-channels-connect"');
     expect(latestTopBar()).toBeNull();
 
     harness.refreshAccounts.mockRejectedValue(new Error("failed"));
@@ -270,19 +270,19 @@ describe("profile resource page views", () => {
     const empty = renderConnected("ready");
     expect(empty).toContain('data-page-state="empty"');
     expect(empty).toContain('data-variant="secondary"');
-    expect(empty).toContain("profile-connected-accounts-connect-empty");
-    expect(renderToStaticMarkup(latestTopBar())).toContain('id="profile-connected-accounts-connect"');
+    expect(empty).toContain("settings-channels-connect-empty");
+    expect(renderToStaticMarkup(latestTopBar())).toContain('id="settings-channels-connect"');
     expect(renderToStaticMarkup(latestTopBar())).toContain('data-variant="default"');
 
     const readOnly = renderConnected("ready", { canConnect: false });
     expect(readOnly).not.toContain("<button");
-    expect(renderToStaticMarkup(latestTopBar())).not.toContain("profile-connected-accounts-connect");
+    expect(renderToStaticMarkup(latestTopBar())).not.toContain("settings-channels-connect");
 
     const content = renderConnected("ready", { withItem: true });
     expect(content).toContain("Inbox");
     expect(content).toContain("animate-page-result-in");
     expect(content).not.toContain("data-page-state");
-    expect(renderToStaticMarkup(latestTopBar())).toContain('id="profile-connected-accounts-connect"');
+    expect(renderToStaticMarkup(latestTopBar())).toContain('id="settings-channels-connect"');
   });
 
   it("keeps the compact top-bar actions named when their visible label is hidden", () => {

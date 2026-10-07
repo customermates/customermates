@@ -144,7 +144,7 @@ function renderPage() {
         "div",
         null,
         createElement("button", { id: "nav-assistant", type: "button" }, "Assistant"),
-        createElement("button", { id: "company-webhooks-add", type: "button" }, "Add"),
+        createElement("button", { id: "settings-webhooks-add", type: "button" }, "Add"),
         createElement(AgentChat),
         createElement(WebhookDialog),
       ),
@@ -174,7 +174,7 @@ function startTour() {
       agentUiControlStore.active = {
         note: "Click **Add**.",
         stepIndex: 0,
-        targetId: "company-webhooks-add",
+        targetId: "settings-webhooks-add",
         totalSteps: 2,
       };
     });

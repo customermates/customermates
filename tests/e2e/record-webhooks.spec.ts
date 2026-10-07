@@ -65,7 +65,7 @@ test("persists a webhook for a customer-created type with an explicit owner and 
   expect(field.rows).toHaveLength(1);
   const receiverUrl = "http://127.0.0.1:49999/project-events";
   await page.goto("/en/settings/webhooks");
-  await page.locator("#company-webhooks-add").click();
+  await page.locator("#settings-webhooks-add").click();
   const webhook = page.getByRole("dialog");
   await webhook.locator("#webhook-modal-url").fill(receiverUrl);
   await webhook.locator("#webhook-modal-description").fill("Project delivery");

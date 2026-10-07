@@ -195,7 +195,7 @@ const ConnectedAccountsPageViewContent = observer(({ accounts, locked = false }:
   const topBarActions = useMemo(
     () =>
       pageState !== "locked" && pageState !== "loading" && pageState !== "error" && canConnect ? (
-        <ConnectAction id="profile-connected-accounts-connect" />
+        <ConnectAction id="settings-channels-connect" />
       ) : null,
     [canConnect, pageState],
   );
@@ -235,9 +235,7 @@ const ConnectedAccountsPageViewContent = observer(({ accounts, locked = false }:
           action={
             <AgentStarterActions
               fallback={
-                canConnect ? (
-                  <ConnectAction id="profile-connected-accounts-connect-empty" variant="secondary" />
-                ) : undefined
+                canConnect ? <ConnectAction id="settings-channels-connect-empty" variant="secondary" /> : undefined
               }
               pageId="connected-accounts"
               state="empty"

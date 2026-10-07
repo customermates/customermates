@@ -42,7 +42,7 @@ const ApiKeysPageViewContent = observer(({ apiKeys }: Props) => {
         <Button
           aria-label={t("Common.actions.add")}
           className="h-8"
-          id="profile-api-keys-generate"
+          id="settings-api-keys-generate"
           size="sm"
           variant="default"
           onClick={() => apiKeyModalStore.add()}

@@ -217,8 +217,8 @@ describe("AgentUiControlStore.highlight", () => {
       result:
         "Target member-modal-role belongs to this page but is not rendered right now. It may be inside a dialog, tab or menu the user must open first (a member row), or hidden by role, plan or state.",
     });
-    expect((await settled(controlStore().highlight("company-members-search"))).result).toBe(
-      "Target company-members-search belongs to this page but is not rendered right now. It may be inside a dialog, tab or menu the user must open first, or hidden by role, plan or state.",
+    expect((await settled(controlStore().highlight("settings-members-search"))).result).toBe(
+      "Target settings-members-search belongs to this page but is not rendered right now. It may be inside a dialog, tab or menu the user must open first, or hidden by role, plan or state.",
     );
   });
 
@@ -248,14 +248,14 @@ describe("AgentUiControlStore.highlight", () => {
   it("waits for a target of the current page that renders after the address changed", async () => {
     const filter = element(1);
     let lookups = 0;
-    onPage("/settings/webhooks", (id) => (id === "company-webhooks-filter" && ++lookups > 5 ? filter : null));
+    onPage("/settings/webhooks", (id) => (id === "settings-webhooks-filter" && ++lookups > 5 ? filter : null));
     const store = controlStore();
 
-    await expect(settled(store.highlight("company-webhooks-filter"))).resolves.toEqual({
+    await expect(settled(store.highlight("settings-webhooks-filter"))).resolves.toEqual({
       ok: true,
-      result: "Highlighted company-webhooks-filter.",
+      result: "Highlighted settings-webhooks-filter.",
     });
-    expect(store.active?.targetId).toBe("company-webhooks-filter");
+    expect(store.active?.targetId).toBe("settings-webhooks-filter");
     expect(filter.scrollIntoView).toHaveBeenCalled();
   });
 
@@ -318,7 +318,7 @@ describe("AgentUiControlStore.highlight", () => {
     const unavailable =
       "The page /settings/webhooks is not available to this user's role or installation; the app would redirect to the Dashboard. Tell the user instead of navigating or highlighting.";
 
-    for (const targetId of ["nav-settings-webhooks", "company-webhooks-add"]) {
+    for (const targetId of ["nav-settings-webhooks", "settings-webhooks-add"]) {
       expect(await immediately(store.highlight(targetId)), targetId).toEqual({
         ok: false,
         result: `Target ${targetId} cannot be shown. ${unavailable}`,
@@ -339,10 +339,10 @@ describe("AgentUiControlStore.highlight", () => {
 
   it("names the toolbar Search button when a narrower screen collapses the search box", async () => {
     const collapsed = element(0);
-    onPage("/settings/webhooks", (id) => (id === "company-webhooks-search" ? collapsed : null));
+    onPage("/settings/webhooks", (id) => (id === "settings-webhooks-search" ? collapsed : null));
 
-    expect((await settled(controlStore().highlight("company-webhooks-search"))).result).toBe(
-      "Target company-webhooks-search is the list's search box, which narrower screens collapse behind the Search button (magnifier icon) in the toolbar. Ask the user to click that button, then highlight it again.",
+    expect((await settled(controlStore().highlight("settings-webhooks-search"))).result).toBe(
+      "Target settings-webhooks-search is the list's search box, which narrower screens collapse behind the Search button (magnifier icon) in the toolbar. Ask the user to click that button, then highlight it again.",
     );
   });
 
@@ -351,17 +351,17 @@ describe("AgentUiControlStore.highlight", () => {
     let rendered = false;
     onPage(
       "/settings/webhooks",
-      (id) => (id === "company-webhooks-filter" && rendered ? filter : null),
+      (id) => (id === "settings-webhooks-filter" && rendered ? filter : null),
       () => !rendered,
     );
     setTimeout(() => {
       rendered = true;
     }, 3200);
 
-    const highlighted = controlStore().highlight("company-webhooks-filter");
+    const highlighted = controlStore().highlight("settings-webhooks-filter");
     await vi.advanceTimersByTimeAsync(3500);
 
-    await expect(highlighted).resolves.toEqual({ ok: true, result: "Highlighted company-webhooks-filter." });
+    await expect(highlighted).resolves.toEqual({ ok: true, result: "Highlighted settings-webhooks-filter." });
   });
 
   it("stops waiting for a target of a page that never finishes loading", async () => {
@@ -371,7 +371,7 @@ describe("AgentUiControlStore.highlight", () => {
       () => true,
     );
 
-    const highlighted = controlStore().highlight("company-webhooks-filter");
+    const highlighted = controlStore().highlight("settings-webhooks-filter");
     await vi.advanceTimersByTimeAsync(8100);
 
     await expect(highlighted).resolves.toMatchObject({ ok: false });
@@ -449,7 +449,7 @@ describe("AgentUiControlStore guided tour", () => {
     const store = controlStore();
     store.registerNavigate(navigate);
     const stops = Array.from({ length: 20 }, (_, index) => ({
-      targetId: index % 2 === 0 ? "company-members-add" : "company-roles-add",
+      targetId: index % 2 === 0 ? "settings-members-add" : "settings-roles-add",
       note: "Look here.",
     }));
 
@@ -473,7 +473,7 @@ describe("AgentUiControlStore guided tour", () => {
     await expect(
       store.startGuidedTour([
         { targetId: "nav-dashboard", note: "Start here." },
-        { targetId: "company-webhooks-add", note: "Not for this role." },
+        { targetId: "settings-webhooks-add", note: "Not for this role." },
         { targetId: "routines-add", note: "Add a routine." },
       ]),
     ).resolves.toMatchObject({ ok: true });
@@ -568,16 +568,16 @@ describe("AgentUiControlStore guided tour", () => {
 
   it("ends the tour instead of pulling the user back when they leave the page of a stop", async () => {
     const rendered = new Map([
-      ["company-webhooks-add", laidOut()],
-      ["company-webhooks-filter", laidOut()],
+      ["settings-webhooks-add", laidOut()],
+      ["settings-webhooks-filter", laidOut()],
     ]);
     const navigate = onApp("/settings/webhooks", rendered);
     const store = controlStore();
     store.registerNavigate(navigate);
 
     await store.startGuidedTour([
-      { targetId: "company-webhooks-add", note: "Click Add." },
-      { targetId: "company-webhooks-filter", note: "Filter the list." },
+      { targetId: "settings-webhooks-add", note: "Click Add." },
+      { targetId: "settings-webhooks-filter", note: "Filter the list." },
     ]);
     const stop = currentStop(store);
     navigate.mockClear();
@@ -624,46 +624,46 @@ describe("AgentUiControlStore guided tour", () => {
 
   it("keeps a Back across pages while the earlier page is still loading its stop", async () => {
     const { navigate, rendered, load } = onSlowPages({
-      "/settings/webhooks": "company-webhooks-add",
-      "/settings/roles": "company-roles-add",
+      "/settings/webhooks": "settings-webhooks-add",
+      "/settings/roles": "settings-roles-add",
       "/routines": "routines-add",
     });
     const store = controlStore();
     store.registerNavigate(navigate);
 
     await store.startGuidedTour([
-      { targetId: "company-webhooks-add", note: "Add a webhook." },
-      { targetId: "company-roles-add", note: "Add a role." },
+      { targetId: "settings-webhooks-add", note: "Add a webhook." },
+      { targetId: "settings-roles-add", note: "Add a role." },
       { targetId: "routines-add", note: "Add a routine." },
     ]);
     store.nextStep();
     await reportTargetsFor(store, rendered, 600);
-    expect(currentStop(store).targetId).toBe("company-roles-add");
+    expect(currentStop(store).targetId).toBe("settings-roles-add");
 
     load.ms = 3000;
     store.previousStep();
     await reportTargetsFor(store, rendered, 6000);
 
-    expect(currentStop(store)).toMatchObject({ targetId: "company-webhooks-add", stepIndex: 0 });
+    expect(currentStop(store)).toMatchObject({ targetId: "settings-webhooks-add", stepIndex: 0 });
     expect(window.location.pathname).toBe("/settings/webhooks");
     expect(navigate).not.toHaveBeenCalledWith("/routines");
   });
 
   it("ends the tour after a Back that found no earlier stop leaves the user off the shown stop's page", async () => {
     const { navigate, rendered, load } = onSlowPages({
-      "/settings/webhooks": "company-webhooks-add",
-      "/settings/roles": "company-roles-add",
+      "/settings/webhooks": "settings-webhooks-add",
+      "/settings/roles": "settings-roles-add",
     });
     const store = controlStore();
     store.registerNavigate(navigate);
 
     await store.startGuidedTour([
-      { targetId: "company-webhooks-add", note: "Add a webhook." },
-      { targetId: "company-roles-add", note: "Add a role." },
+      { targetId: "settings-webhooks-add", note: "Add a webhook." },
+      { targetId: "settings-roles-add", note: "Add a role." },
     ]);
     store.nextStep();
     await reportTargetsFor(store, rendered, 600);
-    expect(currentStop(store).targetId).toBe("company-roles-add");
+    expect(currentStop(store).targetId).toBe("settings-roles-add");
 
     load.ms = 60_000;
     store.previousStep();

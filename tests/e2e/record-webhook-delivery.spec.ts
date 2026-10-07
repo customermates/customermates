@@ -45,7 +45,7 @@ test("delivers a custom-record event to a loopback receiver and retries a transi
     expect(field.rows).toHaveLength(1);
 
     await page.goto("/en/settings/webhooks");
-    await page.locator("#company-webhooks-add").click();
+    await page.locator("#settings-webhooks-add").click();
     const webhook = page.getByRole("dialog");
     await webhook.locator("#webhook-modal-url").fill(receiverUrl);
     await webhook.locator("#webhook-modal-events").click();
@@ -157,7 +157,7 @@ test("delivers only deleted records that matched the webhook filter before remov
     }
 
     await page.goto("/en/settings/webhooks");
-    await page.locator("#company-webhooks-add").click();
+    await page.locator("#settings-webhooks-add").click();
     await dialog.locator("#webhook-modal-url").fill(receiverUrl);
     await dialog.locator("#webhook-modal-events").click();
     await page.getByRole("option", { name: "Record deleted", exact: true }).click();

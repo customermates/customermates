@@ -15,7 +15,7 @@ export function VerifyEmailAction() {
     <Button
       aria-label={t("EmailVerification.resend")}
       className="h-8"
-      id="profile-settings-verify-email"
+      id="settings-profile-verify-email"
       size="sm"
       type="button"
       variant="secondary"

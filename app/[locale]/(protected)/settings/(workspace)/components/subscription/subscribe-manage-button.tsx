@@ -32,7 +32,7 @@ export const SubscribeManageButton = observer(() => {
     <Button
       aria-label={t("Subscription.manageWithLemonSqueezy")}
       className="h-8"
-      id="company-subscription-manage"
+      id="settings-billing-manage"
       size="sm"
       onClick={() => runUserAction(() => subscriptionStore.handleManageBilling())}
     >

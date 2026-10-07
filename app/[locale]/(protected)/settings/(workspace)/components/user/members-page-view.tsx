@@ -57,7 +57,7 @@ const MembersPageViewContent = observer(function MembersPageView({ initialRoles,
     () => (
       <DataViewToolbar
         addLabel={pageState === "true-empty" ? t("Common.actions.add") : undefined}
-        anchorScope="company-members"
+        anchorScope="settings-members"
         store={usersStore}
         onAdd={allowedAdd}
       />

@@ -20,13 +20,13 @@ Alle vier Bedingungen müssen erfüllt sein; fehlt eine, etwa im Starter-Tarif, 
 - **Ein nutzbares Abonnement:** der Status **Aktiv** oder eine noch nicht abgelaufene Testphase. Solange der Status **Überfällig** oder **Gekündigt** ist, ist die Seite ebenso gesperrt, mit dem Text „Das Verbinden von Kanälen erfordert ein aktives Abonnement oder eine noch nicht abgelaufene Testphase.“
 - **Ihre Rolle:** die Zeile **Inbox-Nachrichten** mit **Lesen** auf **Alle**. Bei **Keine** ist der Seitenleisten-Eintrag ausgeblendet, und wer `/inbox` öffnet, landet wieder auf dem Dashboard. Die Rolle **Admin** hat immer Zugriff.
 
-**Link:** die Seite **Posteingang**, `/inbox`, und die Seite **Abonnement** für **Tarif upgraden**, `/settings/billing`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`, oder `nav-settings-billing` und danach `company-subscription-plan-picker` für die Tarifkarten (sichtbar bis zum ersten Checkout) oder `company-subscription-manage` für **Verwalten mit Lemon Squeezy** (um einen laufenden Tarif zu wechseln), beide nur für Rollen mit **Bearbeiten** bei **Unternehmen**; **Tarif upgraden** hat keine Id, deshalb nennt Mate den Button beim Namen.
+**Link:** die Seite **Posteingang**, `/inbox`, und die Seite **Abonnement** für **Tarif upgraden**, `/settings/billing`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`, oder `nav-settings-billing` und danach `settings-billing-plan-picker` für die Tarifkarten (sichtbar bis zum ersten Checkout) oder `settings-billing-manage` für **Verwalten mit Lemon Squeezy** (um einen laufenden Tarif zu wechseln), beide nur für Rollen mit **Bearbeiten** bei **Unternehmen**; **Tarif upgraden** hat keine Id, deshalb nennt Mate den Button beim Namen.
 
 ## Brauche ich einen verbundenen Kanal? [#do-i-need-a-connected-channel]
 
 Nicht zum Öffnen des Posteingangs: Ohne eigenen Kanal sehen Sie trotzdem, was Teammitglieder teilen. Um über Ihre eigenen Konten zu senden und zu empfangen, brauchen Sie einen. Ist die Liste leer, zeigt sie **Noch nichts vorhanden** und „Noch keine Nachrichten.“ mit dem Hinweis, einen Kanal im Profil zu verbinden. Darunter erhalten Mitglieder mit **Erstellen** bei **Inbox-Nachrichten** einen Button **Kanäle**, der **Mein Profil › Kanäle** öffnet; ist der Assistent verfügbar, erscheinen dort stattdessen Startvorschläge des Assistenten. Unter **Mein Profil › Kanäle** fügt **Kanal verbinden** mit derselben Berechtigung ein E-Mail-, LinkedIn-, WhatsApp-, Instagram- oder Telegram-Konto hinzu, siehe [Wie verbinde ich einen Kanal?](/docs/app-profile#how-do-i-connect-a-channel). Kanäle pro Mitglied: Pro [[commercial.entitlement.pro.includedAccountsPerUser]], Business [[commercial.entitlement.business.includedAccountsPerUser]], Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]]; eine Testphase zählt als Pro.
 
-**Link:** die Seite **Kanäle**, `/settings/channels`. **Mate:** `navigate` und `highlight_element` mit `nav-settings-channels`, danach `highlight_element` mit `profile-connected-accounts-connect` (**Kanal verbinden**); der Button **Kanäle** im leeren Posteingang hat keine Id, deshalb nennt Mate ihn beim Namen.
+**Link:** die Seite **Kanäle**, `/settings/channels`. **Mate:** `navigate` und `highlight_element` mit `nav-settings-channels`, danach `highlight_element` mit `settings-channels-connect` (**Kanal verbinden**); der Button **Kanäle** im leeren Posteingang hat keine Id, deshalb nennt Mate ihn beim Namen.
 
 ## Welche Konversationen sehe ich, und sieht ein Admin meine privaten Chats? [#which-conversations-do-i-see]
 
@@ -48,7 +48,7 @@ Rollen bearbeiten Sie unter **Mein Unternehmen › Rollen**. Der Posteingang nut
 | Den Status ändern, eine E-Mail verschieben, **Aktualisieren**, **Konversation neu synchronisieren**, ältere Nachrichten durch Hochscrollen laden, eine Konversation teilen | **Inbox-Nachrichten**: **Bearbeiten** |
 | Einen Teilnehmerkanal verknüpfen oder lösen, einen Datensatz erstellen | Lese- und Änderungsrecht für die gewählte Liste; Erstellrecht für neue Datensätze |
 | Einen Datensatz mit dieser Konversation verknüpfen oder lösen | **Inbox-Nachrichten**: **Bearbeiten**, sowie Lese- und Änderungsrecht am Datensatz |
-| Kanal-Funktion und Listen konfigurieren | Das separate Konfigurationsrecht für das Datenmodell |
+| Feld Kanäle hinzufügen und Listen konfigurieren | Das separate Konfigurationsrecht für das Datenmodell |
 
 Ohne **Erstellen** bei **Inbox-Nachrichten** ist das Antwortfeld ausgeblendet. Ohne **Bearbeiten** ist die Aktion zum Verschieben ausgeblendet, der Status erscheint als schreibgeschützter Chip, und eine ungelesene Konversation bleibt beim Öffnen **Ungelesen**. Jede E-Mail zeigt ihre Ordner oder Labels weiterhin unter den Empfängerfeldern. Eine einzelne Konversation zu teilen setzt außerdem voraus, dass Ihnen ihr Kanal gehört.
 

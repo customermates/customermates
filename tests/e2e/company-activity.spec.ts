@@ -12,7 +12,7 @@ test("shows admin and configuration history on the workspace activity page and f
   });
 
   await page.goto("/en/settings/roles");
-  await page.locator("#company-roles-add").click();
+  await page.locator("#settings-roles-add").click();
   const role = page.getByRole("dialog", { name: "Role", exact: true });
   await role.getByRole("textbox", { name: "Name", exact: false }).fill("Activity auditors");
   await role.getByRole("textbox", { name: "Description", exact: false }).fill("Reads the workspace history");

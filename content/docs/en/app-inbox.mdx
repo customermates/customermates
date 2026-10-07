@@ -20,13 +20,13 @@ All four conditions must hold; when one is missing, for example on Starter, the 
 - **A usable subscription:** status **Active** or a trial that has not ended. While the status is **Past Due** or **Cancelled**, the page is locked the same way, with the text "Connecting channels requires an active subscription or a trial that hasn't expired."
 - **Your role:** the **Inbox messages** row set to **Read access** **All**. With **None** the sidebar entry is hidden and opening `/inbox` brings you back to the Dashboard. The **Admin** role always has access.
 
-**Link:** the **Inbox** page, `/inbox`, and the **Subscription** page for **Upgrade your plan**, `/settings/billing`. **Mate:** `navigate` and `highlight_element` with `nav-inbox`, or `nav-settings-billing` and then `company-subscription-plan-picker` for the plan cards (shown until the first checkout) or `company-subscription-manage` for **Manage with Lemon Squeezy** (to change a running plan), both only for roles with **Edit** on **Company**; **Upgrade your plan** has no id, so Mate names it.
+**Link:** the **Inbox** page, `/inbox`, and the **Subscription** page for **Upgrade your plan**, `/settings/billing`. **Mate:** `navigate` and `highlight_element` with `nav-inbox`, or `nav-settings-billing` and then `settings-billing-plan-picker` for the plan cards (shown until the first checkout) or `settings-billing-manage` for **Manage with Lemon Squeezy** (to change a running plan), both only for roles with **Edit** on **Company**; **Upgrade your plan** has no id, so Mate names it.
 
 ## Do I need a connected channel?
 
 Not to open the Inbox: without a channel of your own you still see what teammates share. You need one to send and receive on your own accounts. When the list is empty it reads **Nothing here yet** and "No messages yet. Connect a channel in your profile to start receiving messages." Below that, members with **Create** on **Inbox messages** get a **Channels** button that opens **My Profile › Channels**; when Mate is available, assistant starter prompts appear there instead. On **My Profile › Channels**, **Connect channel** adds an email, LinkedIn, WhatsApp, Instagram or Telegram account with the same permission, see [How do I connect a channel?](/docs/app-profile#how-do-i-connect-a-channel). Channels per member: Pro [[commercial.entitlement.pro.includedAccountsPerUser]], Business [[commercial.entitlement.business.includedAccountsPerUser]], Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]]; a trial counts as Pro.
 
-**Link:** the **Channels** page, `/settings/channels`. **Mate:** `navigate` and `highlight_element` with `nav-settings-channels`, then `highlight_element` with `profile-connected-accounts-connect` (**Connect channel**); the **Channels** button in the empty Inbox has no id, so Mate names it.
+**Link:** the **Channels** page, `/settings/channels`. **Mate:** `navigate` and `highlight_element` with `nav-settings-channels`, then `highlight_element` with `settings-channels-connect` (**Connect channel**); the **Channels** button in the empty Inbox has no id, so Mate names it.
 
 ## Which conversations do I see, and can an admin read my private ones? [#which-conversations-do-i-see]
 
@@ -48,7 +48,7 @@ Roles are edited under **My Company › Roles**. The Inbox uses the **Inbox mess
 | Change the state, move an email, **Refresh**, **Resync thread**, load older messages by scrolling up, share a conversation | **Inbox messages**: **Edit** |
 | Link or unlink a participant’s channel, create a record from one | Read and **Edit** access to the selected record; **Create** for a new record |
 | Link or unlink a record for this conversation | **Inbox messages**: **Edit**, plus read and update access to that record |
-| Enable Channels or configure lists | The separate **Data model** configuration permission |
+| Add a Channels field or configure lists | The separate **Data model** configuration permission |
 
 Without **Create** on **Inbox messages** the reply box is hidden. Without **Edit** the folder move action is hidden, the state shows as a read-only chip, and opening an unread conversation leaves it **Unread**. Each email still shows its folder or label names below its recipient fields. Sharing a single conversation also requires that you own its channel.
 
