@@ -13,6 +13,7 @@ import {
   type AgentUiTarget,
 } from "@/ee/agent-chat/ui-targets";
 import { stripLocalePrefix } from "@/i18n/locale-registry";
+import { isResolvedAppLinkPath } from "@/features/docs/app-links";
 import { NavigateRecordTargetSchema } from "@/ee/agent-chat/ui-operations";
 import { agentGuidedTour, type AgentGuidedTourStep, type AgentTourStepData } from "@/ee/agent-chat/agent-tours";
 import {
@@ -35,11 +36,15 @@ function resolveAgentNavigationRoute(input: Record<string, unknown>): { path: st
   if (record.success)
     return { path: `/records/${record.data.typeId}/${record.data.recordId}`, done: "Opened the record on its page." };
 
+  if (typeof input.href === "string" && isResolvedAppLinkPath(input.href))
+    return { path: input.href, done: `Opened ${input.href}.` };
+
   const target = findAgentNavigationTarget(String(input.targetId ?? ""));
   return target ? { path: target.route, done: `Navigated to ${target.route}.` } : null;
 }
 
 function describeNavigationInput(input: Record<string, unknown>) {
+  if (input.href !== undefined) return String(input.href);
   return input.targetId !== undefined ? String(input.targetId) : `${String(input.typeId)}:${String(input.recordId)}`;
 }
 
@@ -185,12 +190,13 @@ export class AgentUiControlStore extends BaseStore {
       const result = await getRecordAction(record.data);
       if (!result.ok)
         return { ok: false, result: "The record is unavailable or cannot be read with your current access." };
-    } else if (route.path.startsWith("/records/")) {
+    } else if (route.path.startsWith("/records/") || route.path.startsWith("/configure?typeId=")) {
       const navigation = await getRecordNavigationAction();
-      const typeId = route.path.split("/")[2];
-      if (!navigation.types.some((type) => type.id === typeId))
+      const typeId = /[0-9a-f-]{36}/.exec(route.path)?.[0];
+      if (!navigation.types.some((type) => type.id === typeId) || !this.canOpen(route.path.split("?")[0]))
         return { ok: false, result: unavailableRouteMessage(route.path) };
-    } else if (!this.canOpen(route.path)) return { ok: false, result: unavailableRouteMessage(route.path) };
+    } else if (!this.canOpen(route.path.split("?")[0]))
+      return { ok: false, result: unavailableRouteMessage(route.path) };
     if (!this.navigateCallback) return { ok: false, result: "Navigation is not available right now." };
 
     const outcome = await this.navigateCallback(route.path);
