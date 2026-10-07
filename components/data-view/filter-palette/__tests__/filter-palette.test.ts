@@ -47,6 +47,7 @@ vi.mock("@/components/forms/form-context", () => ({
 
 import { Command } from "@/components/ui/command";
 import { ACTIVITY_FILTER_VALUE_MAX } from "@/ee/messaging/activities/activities.schema";
+import { TIMELINE_KIND_VIEW_VALUES } from "@/core/types/filter-field-value-kind";
 import { ActivityQueryProvider } from "@/features/messaging/activities/activity-query-context";
 import { FilterPalette } from "../filter-palette";
 import { FilterPaletteStore } from "../filter-palette.store";
@@ -574,7 +575,7 @@ describe("palette value select on an activity surface", () => {
 
     expect(markup).toContain("Common.filters.selectionLimit");
     expect(markup).toContain('role="status"');
-    expect(occurrences(markup, 'aria-disabled="true"')).toBe(3);
+    expect(occurrences(markup, 'aria-disabled="true"')).toBe(TIMELINE_KIND_VIEW_VALUES.length);
   });
 
   it("leaves the same page uncapped outside an activity query", () => {

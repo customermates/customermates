@@ -39,21 +39,17 @@ export class PrismaWebhookDeliveryQueueRepo extends TenantRepository implements 
       where: { companyId, id: deliveryId, leaseToken: token, status: "processing", leaseExpiresAt: { gt: new Date() } },
     });
     if (!delivery) return null;
-    const candidates =
-      delivery.recordEventId && !delivery.webhookId
-        ? []
-        : await this.prisma.webhook.findMany({
-            where: { companyId, ...(delivery.webhookId ? { id: delivery.webhookId } : { url: delivery.url }) },
-            take: 2,
-          });
-    const webhook = candidates.length === 1 ? candidates[0] : null;
+    const [webhook, event] = await Promise.all([
+      delivery.webhookId ? this.prisma.webhook.findFirst({ where: { companyId, id: delivery.webhookId } }) : null,
+      delivery.eventId ? this.prisma.eventLog.findFirst({ where: { companyId, id: delivery.eventId } }) : null,
+    ]);
     const subscription =
-      delivery.recordEventId && webhook
+      event?.subjectKind === "record" && webhook
         ? await this.prisma.recordEventSubscription.findFirst({
             where: { companyId, id: webhook.id, kind: "webhook" },
           })
         : null;
-    return { delivery, webhook, subscription };
+    return { delivery, webhook, event, subscription };
   }
 
   @BypassTenantGuard

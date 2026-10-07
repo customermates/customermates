@@ -29,13 +29,13 @@ Every workspace gets the starter record model with deterministic preset IDs as c
 
 ## What is not carried over
 
-- Saved views and personalisation of the legacy record surfaces (`<type>s-card-store`, `<type>-detail`) and of the entity timeline. Views and personalisation of other surfaces stay.
+- Saved views and personalisation of the legacy record surfaces (`<type>s-card-store`, `<type>-detail`), of the entity timeline and of the audit log page (`audit-logs-card-store`). Views and personalisation of other surfaces stay.
 - Every dashboard widget.
-- Legacy record and custom column history (`AuditLog` events `contact.*`, `organization.*`, `deal.*`, `service.*`, `task.*`, `custom_column.*`). Record history starts at the upgrade; other audit events stay.
+- The audit log (`AuditLog`). Record, configuration and administrative history starts at the upgrade in the new event log (`EventLog`). The exceptions are the legal-consent evidence (every `legal.documents_accepted` and `legal.notice_sent` row) and the connected account history (every `connected_account.*` row, which the operator console's channel usage reads): they move into `EventLog` with their id, actor (`actorId` = `userId`), entity (`subjectId` = `entityId`), time and payload (`eventData.payload`), with the event prefix as subject kind (`legal`, `connected_account`) and already delivered, so they never reach a webhook or routine. The reconciliation compares every copied row with its source before `AuditLog` is dropped.
 - Legacy record event triggers. Every webhook and every event-triggered routine is disabled. Legacy record events (`contact.created` and so on) are removed from every webhook and routine, and a routine that had such events also loses its filters. Watched fields (`Routine.changedFields`) only applied to legacy events and are dropped from every routine. Scheduled routines keep their schedule and enabled state; a schedule never read their leftover events. Past routine runs triggered by a legacy event keep their outcome and charge but lose the legacy trigger event, record ID and payload. No routine or webhook subscribes to record events after the upgrade; re-enable them after choosing record triggers again.
 - Entity terminology presets: types keep their starter labels.
 
-No record events are written, so no routine run or webhook delivery is emitted. Existing webhook delivery history stays; completed deliveries are never replayed.
+No record events are written, so no routine run or webhook delivery is emitted. Existing webhook delivery rows stay with their status, code and time, but they are not bound to an event: their stored legacy body is no longer shown and they cannot be resent, and completed deliveries are never replayed.
 
 ## What the sections do
 
@@ -47,8 +47,8 @@ No record events are written, so no routine run or webhook delivery is emitted. 
 | 3 Data | Copies records, typed values, notes, links, assignments, channel identities with aliases and record associations, and participant lookup keys. |
 | 4 Configuration | Writes revision 1, the schema state and the grants, removes the legacy presentation state, widgets and history, and disables the automations as described above. Section 4b builds the secondary indexes. |
 | 5 Calculations | Materialises contact names, line prices and amounts, deal value and quantity rollups and weighted values with exact decimals, plus their provenance rows. Section 5b adds the foreign keys, which validates every converted row. |
-| 6 Reconciliation | Recomputes the CRM data independently from the legacy rows (records, timestamps, protected tasks, assignments, built-in and custom values, prices, quantities, totals, weighted values, links, identities, aliases, provenance, workspace state and the link repair) and refuses on any mismatch. |
-| 7 Removal | Drops the 22 legacy tables, `Company.dealWeightingColumnId`, `Routine.changedFields`, the legacy widget columns, the legacy enums and range functions, and the temporary helpers, never with `CASCADE`. |
+| 6 Reconciliation | Recomputes the CRM data independently from the legacy rows (records, timestamps, protected tasks, assignments, built-in and custom values, prices, quantities, totals, weighted values, links, identities, aliases, provenance, workspace state, the link repair and the carried-over legal-consent and connected account events) and refuses on any mismatch. |
+| 7 Removal | Drops the 22 legacy tables and `AuditLog`, `Company.dealWeightingColumnId`, `Routine.changedFields`, the legacy widget columns, the legacy enums and range functions, and the temporary helpers, never with `CASCADE`. |
 
 An empty database (a new installation) passes the data sections without work and ends with exactly the schema in `prisma/schema.prisma`. A second `prisma migrate deploy` applies nothing.
 

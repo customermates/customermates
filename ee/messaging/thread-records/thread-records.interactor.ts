@@ -71,7 +71,6 @@ export class MutateThreadRecordsInteractor extends AuthenticatedInteractor<
       if (existed !== (input.action === "link")) {
         if (input.action === "link") await this.links.link(input.threadId, input.ref);
         else await this.links.unlink(input.threadId, input.ref);
-        await this.links.audit(input.threadId, input.ref, input.action);
       }
       const data = { ref: input.ref, linked: input.action === "link", schemaRevision: model.revision };
       await this.records.saveReceipt(input.idempotencyKey, this.userId, hash, data);

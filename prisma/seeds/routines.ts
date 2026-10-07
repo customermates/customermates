@@ -3,6 +3,7 @@ import { seedRecordEventSubscription } from "./record-event-subscriptions";
 import { presetId } from "@/features/records/crm-preset";
 import { RecordEventPayloadSchema } from "@/features/records/record-event.schema";
 import type { RecordDeliveryEnvelope } from "@/features/records/record-delivery.schema";
+import type { EventEnvelope } from "@/features/event/event-envelope";
 import type { RoutineTriggerEvent } from "@/ee/routines/routine-trigger-events";
 import type { SeedContext } from "./context";
 import type { SyntheticRecordType } from "./custom-fields";
@@ -36,12 +37,17 @@ type SyntheticRecordEventKey = `${SyntheticRecordType}:${number}:${"record.creat
 
 type SeedTriggerRefs = {
   records: ReadonlyMap<SyntheticRecordEventKey, RecordDeliveryEnvelope>;
-  thread: { id: string; connectedAccountId: string } | null;
+  thread: { id: string; connectedAccountId: string; createdAt: Date } | null;
 };
 
 type SeedTriggerSample =
   | { kind: "record"; key: SyntheticRecordEventKey }
-  | { kind: "messaging"; entityId: string; payload: (thread: { id: string; connectedAccountId: string }) => object };
+  | {
+      kind: "messaging";
+      eventId: string;
+      entityId: string;
+      payload: (thread: { id: string; connectedAccountId: string }) => object;
+    };
 
 type SeedTrigger =
   | { kind: "schedule"; cron: string }
@@ -229,6 +235,7 @@ const SYNTHETIC_ROUTINE_LIBRARY: SeedRoutine[] = [
       debounceSeconds: 300,
       sample: {
         kind: "messaging",
+        eventId: fixtureId("2e000000", 1),
         entityId: fixtureId("35000000", 1),
         payload: (thread) => ({
           connectedAccountId: thread.connectedAccountId,
@@ -274,6 +281,7 @@ const SYNTHETIC_ROUTINE_LIBRARY: SeedRoutine[] = [
       debounceSeconds: 900,
       sample: {
         kind: "messaging",
+        eventId: fixtureId("2e000000", 2),
         entityId: fixtureId("35000000", 2),
         payload: (thread) => ({
           connectedAccountId: thread.connectedAccountId,
@@ -391,6 +399,7 @@ const SYNTHETIC_ROUTINE_LIBRARY: SeedRoutine[] = [
       debounceSeconds: 900,
       sample: {
         kind: "messaging",
+        eventId: fixtureId("2e000000", 3),
         entityId: fixtureId("35000000", 3),
         payload: (thread) => ({
           connectedAccountId: thread.connectedAccountId,
@@ -536,55 +545,56 @@ async function resolveTriggerRefs(context: SeedContext): Promise<SeedTriggerRefs
   const records = new Map<SyntheticRecordEventKey, RecordDeliveryEnvelope>();
   for (const [key, recordId] of SAMPLE_RECORDS) {
     const [type, , kind] = key.split(":") as [SyntheticRecordType, string, RecordDeliveryEnvelope["event"]];
-    const event = await context.prisma.recordEvent.findFirstOrThrow({
-      where: { companyId, typeId: presetId(companyId, type), recordId, kind },
+    const event = await context.prisma.eventLog.findFirstOrThrow({
+      where: { companyId, subjectKind: "record", subjectTypeId: presetId(companyId, type), subjectId: recordId, kind },
       orderBy: { id: "asc" },
     });
     const payload = RecordEventPayloadSchema.parse(event.payload);
     records.set(key, {
-      version: 2,
-      id: event.id,
-      companyId,
       event: kind,
+      id: event.id,
       timestamp: event.createdAt.toISOString(),
+      companyId,
       actorId: event.actorId,
-      causeId: event.causeId,
-      cause: payload.cause,
-      record: {
-        ref: payload.ref,
-        schemaRevision: payload.schemaRevision,
-        beforeVersion: payload.beforeVersion,
-        afterVersion: payload.afterVersion,
-        assignments: payload.assignments,
-        identities: payload.identities,
-        links: payload.links,
-        related: [],
-        fields: payload.fields.map(({ fieldId, before, after }) => ({
-          fieldId,
-          before: before && {
-            fieldId: before.fieldId,
-            label: before.label,
-            valueType: before.valueType,
-            format: before.format,
-            options: before.options,
-            value: before.value,
-          },
-          after: after && {
-            fieldId: after.fieldId,
-            label: after.label,
-            valueType: after.valueType,
-            format: after.format,
-            options: after.options,
-            value: after.value,
-          },
-        })),
+      data: {
+        causeId: event.causeId,
+        cause: payload.cause,
+        record: {
+          ref: payload.ref,
+          schemaRevision: payload.schemaRevision,
+          beforeVersion: payload.beforeVersion,
+          afterVersion: payload.afterVersion,
+          assignments: payload.assignments,
+          identities: payload.identities,
+          links: payload.links,
+          related: [],
+          fields: payload.fields.map(({ fieldId, before, after }) => ({
+            fieldId,
+            before: before && {
+              fieldId: before.fieldId,
+              label: before.label,
+              valueType: before.valueType,
+              format: before.format,
+              options: before.options,
+              value: before.value,
+            },
+            after: after && {
+              fieldId: after.fieldId,
+              label: after.label,
+              valueType: after.valueType,
+              format: after.format,
+              options: after.options,
+              value: after.value,
+            },
+          })),
+        },
       },
     });
   }
   const thread = await context.prisma.messagingThread.findFirst({
     where: { companyId },
     orderBy: { createdAt: "asc" },
-    select: { id: true, connectedAccountId: true },
+    select: { id: true, connectedAccountId: true, createdAt: true },
   });
   return { records, thread };
 }
@@ -592,23 +602,25 @@ async function resolveTriggerRefs(context: SeedContext): Promise<SeedTriggerRefs
 function triggerSample(
   context: SeedContext,
   refs: SeedTriggerRefs,
-  ownerUserId: string,
+  event: string | undefined,
   sample: SeedTriggerSample | undefined,
-): { entityId: string; triggerPayload: object } | null {
-  if (!sample) return null;
+): { entityId: string; triggerPayload: EventEnvelope } | null {
+  if (!sample || !event) return null;
   if (sample.kind === "record") {
     const envelope = refs.records.get(sample.key);
     if (!envelope) throw new Error(`Missing synthetic routine trigger ${sample.key}`);
-    return { entityId: envelope.record.ref.recordId, triggerPayload: envelope };
+    return { entityId: envelope.data.record.ref.recordId, triggerPayload: envelope };
   }
   if (!refs.thread) return null;
   return {
     entityId: sample.entityId,
     triggerPayload: {
+      event,
+      id: sample.eventId,
+      timestamp: refs.thread.createdAt.toISOString(),
       companyId: context.ids.company,
-      userId: ownerUserId,
-      entityId: sample.entityId,
-      payload: sample.payload(refs.thread),
+      actorId: null,
+      data: { entityId: sample.entityId, ...sample.payload(refs.thread) },
     },
   };
 }
@@ -663,7 +675,7 @@ export async function seedRoutines(context: SeedContext): Promise<void> {
     const schedule = routine.trigger.kind === "schedule" ? routine.trigger : undefined;
     const event = routine.trigger.kind === "event" ? routine.trigger : undefined;
     const lastRun = routine.runs.at(0);
-    const sample = triggerSample(context, refs, ownerUserId, event?.sample);
+    const sample = triggerSample(context, refs, event?.events[0], event?.sample);
     const triggerPayload = sample?.triggerPayload ?? null;
 
     await seedRecordEventSubscription(context, {

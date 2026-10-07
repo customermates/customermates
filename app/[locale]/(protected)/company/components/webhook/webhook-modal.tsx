@@ -31,7 +31,7 @@ import { Action } from "@/generated/prisma";
 const WEBHOOK_EVENTS = WebhookCurrentEventSchema.options.map((event) => ({ key: event }));
 
 const HEADERS_PLACEHOLDER = "Authorization: Bearer your-token";
-const BODY_TEMPLATE_PLACEHOLDER = '{"text": "{{event}} for {{data.entityId}}"}';
+const BODY_TEMPLATE_PLACEHOLDER = '{"text": "{{event}} ({{id}})"}';
 
 export const WebhookModal = observer(() => {
   const t = useTranslations();

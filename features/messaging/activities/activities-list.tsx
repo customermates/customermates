@@ -242,9 +242,22 @@ export const ActivitiesList = observer(({ hasMore, items, loading, onLoadOlder }
             );
           }
 
-          const actorName = resolveActorName(entry.actor.firstName, entry.actor.lastName, entry.actor.email);
-          const isRecordSnapshot = !entry.event.endsWith(".created") && entry.changes.some((c) => c.snapshot);
-          const fields = isRecordSnapshot ? "" : formatFieldList(entry.changes.map((c) => columnLabel(c.field)));
+          const actorName =
+            resolveActorName(entry.actor.firstName, entry.actor.lastName, entry.actor.email) ||
+            t("RecordModel.systemActor");
+          const isRecordSnapshot =
+            entry.kind === "audit" && !entry.event.endsWith(".created") && entry.changes.some((c) => c.snapshot);
+          const fields = isRecordSnapshot
+            ? ""
+            : formatFieldList(
+                entry.changes.map(
+                  (change) =>
+                    change.label ??
+                    (entry.kind === "configuration" && typeof change.current === "string"
+                      ? change.current
+                      : columnLabel(change.field)),
+                ),
+              );
           const category = auditCategory(entry.event);
 
           return (

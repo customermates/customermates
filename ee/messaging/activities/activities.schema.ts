@@ -12,7 +12,7 @@ import { TIMELINE_KIND_FILTER_VALUES } from "@/core/types/filter-field-value-kin
 
 import { MessagingMessageDtoSchema } from "../inbox/inbox.schema";
 import { MessagingProviderSchema } from "../messaging.schema";
-import { AuditChangeSchema } from "@/features/audit-log/audit-log-changes";
+import { AuditChangeSchema } from "@/features/event/audit-changes";
 import { ACTIVITY_RELATED_RECORD_LIMIT } from "./activity-record-refs";
 import { RecordRefSchema } from "@/features/records/record-model.schema";
 import { RecordHistoryChangesSchema } from "@/features/records/record-event.schema";
@@ -71,6 +71,12 @@ export const ActivityRecordContextSchema = z.object({
 
 export type ActivityRecordContextDto = z.infer<typeof ActivityRecordContextSchema>;
 
+export const CONFIGURATION_ACTIVITY_EVENTS = [
+  "record_model.initialized",
+  "record_model.updated",
+  "record_grants.updated",
+] as const;
+
 export const ActivityEntryDtoSchema = z.union([
   z.object({
     kind: z.literal("record"),
@@ -87,6 +93,15 @@ export const ActivityEntryDtoSchema = z.union([
     at: z.date(),
     actor: ActorSchema,
     event: z.string(),
+    changes: z.array(AuditChangeSchema),
+    records: ActivityRecordContextSchema,
+  }),
+  z.object({
+    kind: z.literal("configuration"),
+    id: z.string(),
+    at: z.date(),
+    actor: ActorSchema,
+    event: z.enum(CONFIGURATION_ACTIVITY_EVENTS),
     changes: z.array(AuditChangeSchema),
     records: ActivityRecordContextSchema,
   }),
@@ -116,9 +131,14 @@ export const ActivityEntryDtoSchema = z.union([
 ]);
 
 export type ActivityEntryDto = z.infer<typeof ActivityEntryDtoSchema>;
-export type ActivityKind = Exclude<ActivityEntryDto["kind"], "record">;
+export type ActivityKind = ActivityEntryDto["kind"];
 
-export const ACTIVITY_KINDS = ["audit", "message", "activity", "calendar_event"] as const;
+export const CHANGE_ACTIVITY_KINDS = ["record", "audit", "configuration"] as const;
+export const ACTIVITY_KINDS = [...CHANGE_ACTIVITY_KINDS, "message", "activity", "calendar_event"] as const;
+
+export function isChangeActivityKind(kind: ActivityKind): kind is (typeof CHANGE_ACTIVITY_KINDS)[number] {
+  return CHANGE_ACTIVITY_KINDS.some((change) => change === kind);
+}
 
 const ActivityInOperatorSchema = z.literal(FilterOperatorKey.in).meta({ title: "in" });
 const ActivityNotInOperatorSchema = z.literal(FilterOperatorKey.notIn).meta({ title: "notIn" });

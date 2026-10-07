@@ -9,9 +9,10 @@ import { decodeRecordValue, recordJson } from "@/features/records/record-storage
 import { identityKeys } from "@/features/records/record-identity";
 import { BENCHMARK_LINK_TABLES, benchmarkFieldScalar, benchmarkRecordModel, type BenchmarkFieldDeclaration } from "./record-fixture-model";
 import { syntheticCalculationRepo } from "@/prisma/seeds/records";
+import { writeRecordChange } from "@/prisma/seeds/record-history";
 
 const KINDS = ["contact", "organization", "deal", "service", "task"] as const;
-const FIXTURE_TABLES = [...KINDS, "customColumn", "customFieldValue", "contactIdentifier", "serviceDeal", "dataView", "p13n", ...KINDS.map((kind) => `${kind}User`), ...BENCHMARK_LINK_TABLES.map((relation) => relation.table)];
+const FIXTURE_TABLES = [...KINDS, "customColumn", "customFieldValue", "contactIdentifier", "serviceDeal", "dataView", "p13n", "recordHistory", ...KINDS.map((kind) => `${kind}User`), ...BENCHMARK_LINK_TABLES.map((relation) => relation.table)];
 type FixtureRow = Record<string, unknown> & { id: string; companyId: string };
 type FixtureDelegate = { create<T extends Record<string, unknown>>(args: { data: T }): Promise<T & { id: string }>; createMany(args: { data: Record<string, unknown>[] }): Promise<{ count: number }> };
 export type BenchmarkFixtureWriter = Prisma.TransactionClient & Record<string, FixtureDelegate>;
@@ -73,6 +74,29 @@ export function benchmarkRecordFixtures(prisma: Prisma.TransactionClient, compan
       const refs = (await prisma.crmRecord.findMany({ where: { companyId }, select: { id: true, typeId: true } })).map((row) => ({ typeId: row.typeId, recordId: row.id }));
       const result = await new RecordCalculationService(values).recalculate(model, refs, new Map(), 10000);
       if (!result.complete) throw new Error("Benchmark fixture calculation exceeded its budget");
+      for (const row of rows("recordHistory", companyId)) {
+        const kind = String(row.kind);
+        const scalars = (values: Record<string, unknown>) =>
+          new Map(
+            Object.entries(values).flatMap(([key, raw]) => {
+              const field = model.fields.find((candidate) => candidate.id === presetId(companyId, `${kind}.${key}`));
+              if (!field) throw new Error(`Benchmark history field ${kind}.${key} is missing`);
+              const scalar: RecordScalar | null =
+                field.valueType === "richText"
+                  ? { kind: "richText", documentJson: JSON.stringify(raw) }
+                  : benchmarkFieldScalar(String(raw), field);
+              return scalar ? [[field.id, scalar] as const] : [];
+            }),
+          );
+        await writeRecordChange(prisma, companyId, model, {
+          id: row.id,
+          ref: { typeId: presetId(companyId, kind), recordId: String(row.recordId) },
+          actorId: String(row.actorId),
+          at: row.at as Date,
+          before: scalars(row.before as Record<string, unknown>),
+          after: scalars(row.after as Record<string, unknown>),
+        });
+      }
     }
   };
   return { writer, flush };

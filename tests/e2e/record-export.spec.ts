@@ -116,7 +116,7 @@ test("exports a customer-created type through the same transfer menu", async ({
     .first()
     .fill("Projects");
   await dialog
-    .getByRole("button", { name: "Create list", exact: true })
+    .getByRole("button", { name: "Save", exact: true })
     .first()
     .click();
   await expect(dialog).not.toBeVisible();
