@@ -129,6 +129,10 @@ describeDatabase("unique configuration names migration", { timeout: 240000 }, ()
     find(model.fields, "contact.notes").label = "First   NAME";
     Object.assign(find(model.fields, "contact.avatarUrl"), { label: "Fírst name", archived: true });
     find(model.fields, "deal.notes").label = "First name";
+    find(model.fields, "contact.lastName").label = `first${String.fromCharCode(0xa0)}name`;
+    const emoji = String.fromCodePoint(0x1f600).repeat(100);
+    find(model.fields, "organization.name").label = emoji;
+    find(model.fields, "organization.notes").label = emoji;
     const stage = model.fields.find((field) => field.options.length > 1);
     if (!stage) throw new Error("A field with options is missing");
     stage.options[1] = { ...stage.options[1], label: ` ${stage.options[0].label.toUpperCase()}` };
@@ -147,6 +151,9 @@ describeDatabase("unique configuration names migration", { timeout: 240000 }, ()
       id("contact.firstName"),
       id("contact.notes"),
       id("contact.avatarUrl"),
+      id("contact.lastName"),
+      id("organization.name"),
+      id("organization.notes"),
     ]);
     await created(client, "RecordRelationshipDefinition", companyId, [id("lineItem.deal"), id("lineItem.service")]);
     const otherBefore = await currentModel(client, untouched.companyId);
@@ -163,6 +170,9 @@ describeDatabase("unique configuration names migration", { timeout: 240000 }, ()
     expect(find(after.fields, "contact.firstName").label).toBe("First name");
     expect(find(after.fields, "contact.notes").label).toBe("First NAME (2)");
     expect(find(after.fields, "contact.avatarUrl").label).toBe("Fírst name (3)");
+    expect(find(after.fields, "contact.lastName").label).toBe("first name (4)");
+    expect(find(after.fields, "organization.name").label).toBe(emoji);
+    expect(find(after.fields, "organization.notes").label).toBe(`${String.fromCodePoint(0x1f600).repeat(98)} (2)`);
     expect(find(after.fields, "deal.notes").label).toBe("First name");
     const stageAfter = after.fields.find((field) => field.id === stage.id);
     if (!stageAfter) throw new Error(stage.id);

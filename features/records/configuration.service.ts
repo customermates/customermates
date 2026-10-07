@@ -430,7 +430,8 @@ export class RecordConfigurationService extends UserAccessor {
       throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
     const validation = validateRecordModel(model);
     validation.issues.push(...(removed?.issues ?? []), ...duplicateNameIssues(model, current));
-    const readsFully = (typeId: string) => policy.isAdmin || policy.readScope(typeId) === "all";
+    const readsFully = (typeId: string) =>
+      policy.isAdmin || !current.types.some((type) => type.id === typeId) || policy.readScope(typeId) === "all";
     if (removed) {
       for (const typeId of removed.deletion.typeIds) {
         if (!readsFully(typeId) && (await this.records.countRecordsCompanyWide([typeId])) > 0)
@@ -622,11 +623,13 @@ export class RecordConfigurationService extends UserAccessor {
     const affectedReadable = [...changedTypes].every(readsFully);
     const inputs = configurationInputFields(current, model);
     const inputTypes = [...new Set(inputs.map((field) => field.typeId))];
-    const validationCount = await this.records.countRecordsCompanyWide(inputTypes);
-    const dataValidation = validationCount > SYNCHRONOUS_RECORD_LIMIT ? "staged" : "complete";
-    if (dataValidation === "complete") {
+    const checkedTypes = inputTypes.filter(readsFully);
+    const validationCount = await this.records.countRecordsCompanyWide(checkedTypes);
+    const dataValidation =
+      checkedTypes.length < inputTypes.length || validationCount > SYNCHRONOUS_RECORD_LIMIT ? "staged" : "complete";
+    if (validationCount <= SYNCHRONOUS_RECORD_LIMIT) {
       const invalid = new Set<string>();
-      for (const typeId of inputTypes) {
+      for (const typeId of checkedTypes) {
         const refs = await this.records.getRecordRefsCompanyWide(typeId, undefined, SYNCHRONOUS_RECORD_LIMIT + 1);
         const rows = await this.records.getRecordsCompanyWide(refs);
         for (const row of rows) {
@@ -668,7 +671,7 @@ export class RecordConfigurationService extends UserAccessor {
       !deletionReadable &&
       Boolean(deletionCounts && (deletionCounts.records || deletionCounts.values || deletionCounts.links));
     const deletion =
-      deletionCounts && !deletionReadable
+      deletionCounts && hiddenDeletion
         ? { ...deletionCounts, records: null, values: null, links: null }
         : deletionCounts;
     return {
@@ -700,7 +703,7 @@ export class RecordConfigurationService extends UserAccessor {
         valid: !validation.issues.length,
         execution: affectedRecords > SYNCHRONOUS_RECORD_LIMIT ? "background" : "synchronous",
         dataValidation,
-        affectedRecords: affectedReadable ? affectedRecords : null,
+        affectedRecords: affectedReadable || affectedRecords === 0 ? affectedRecords : null,
         hiddenRecords: (!affectedReadable && affectedRecords > 0) || hiddenDeletion,
         references: [...references].map(([reference, id]) => ({
           reference,

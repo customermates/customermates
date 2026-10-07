@@ -3017,6 +3017,7 @@
     "deletionCalculations": "Möglicherweise betroffene Berechnungen: {fields}.",
     "deletionLinks": "Entfernte Verknüpfungen: {count}.",
     "deletionRecords": "Dabei werden entfernt: {records}.",
+    "deletionRequiresReadAll": "Zum endgültigen Löschen ist Lesezugriff auf alle zugehörigen Datensätze nötig. Bitte jemanden mit Zugriff auf alle Datensätze oder eine Administratorin bzw. einen Administrator.",
     "deletionRestrictedLinks": "Die Anzahl der Verknüpfungen ist ausgeblendet, da einige verknüpfte Datensätze geschützt sind.",
     "dependencyHelp": "Löse die betroffenen Abhängigkeiten, bevor du diese Änderung anwendest.",
     "descending": "Absteigend",

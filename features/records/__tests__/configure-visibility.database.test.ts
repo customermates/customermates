@@ -449,6 +449,47 @@ describeDatabase("Configure visibility per role", { timeout: 240_000 }, () => {
       expect(exact).toMatchObject({ affectedRecords: 1, hiddenRecords: false });
     });
 
+    it("checks existing values only in lists the caller can read and leaves the rest to the apply", async () => {
+      const operations: ConfigurationChange["operations"] = [
+        {
+          operation: "putField",
+          field: {
+            ...omit(
+              (await modelFor(actors.admin)).fields.find((field) => field.id === scoreId),
+              ["publishedSummary"],
+            ),
+            valueType: "number",
+          } as never,
+        },
+      ];
+      const hidden = await previewAs(actors.schema, operations);
+      expect(hidden).toMatchObject({ valid: true, dataValidation: "staged", issues: [] });
+      const exact = await previewAs(actors.admin, operations);
+      expect(exact).toMatchObject({
+        valid: false,
+        dataValidation: "complete",
+        issues: [{ code: "existing_values_incompatible", fieldId: scoreId }],
+      });
+      expect(await configure(actors.schema, operations)).toMatchObject({ ok: false });
+      expect((await modelFor(actors.admin)).fields.find((field) => field.id === scoreId)?.valueType).toBe("text");
+    });
+
+    it("shows exact zero counts for a list created in the same change", async () => {
+      const created = await previewAs(actors.schema, [
+        {
+          operation: "createType",
+          reference: "$prospects",
+          label: "Prospect",
+          pluralLabel: "Prospects",
+          description: "",
+          icon: "list",
+          embedded: false,
+          accessPresetId: null,
+        },
+      ]);
+      expect(created).toMatchObject({ valid: true, affectedRecords: 0, hiddenRecords: false });
+    });
+
     it("blocks permanently deleting a field with values the caller cannot read, and hides its counts", async () => {
       const field = (await modelFor(actors.admin)).fields.find((candidate) => candidate.id === scoreId);
       expect(

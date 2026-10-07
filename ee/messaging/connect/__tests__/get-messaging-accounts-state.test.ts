@@ -35,19 +35,25 @@ const account = (id: string, status: "ok" | "deleted"): ConnectedAccountRecord =
 const LIVE = "00000000-0000-4000-8000-000000000011";
 const GONE = "00000000-0000-4000-8000-000000000012";
 
-function setup({ read = true, create = false, denial = null as null | { code: string } } = {}) {
+const usable = { plan: "pro", status: "active", trialEndDate: null } as const;
+
+function setup({
+  read = true,
+  create = false,
+  subscription = usable as { plan: string; status: string; trialEndDate: Date | null },
+} = {}) {
   const permissions = {
     canRead: vi.fn(() => read),
     has: vi.fn(() => create),
   };
   const repo = { listAccounts: vi.fn(() => Promise.resolve([account(LIVE, "ok"), account(GONE, "deleted")])) };
-  const entitlements = { require: vi.fn(() => Promise.resolve(denial)) };
+  const subscriptions = { getSubscriptionOrThrow: vi.fn(() => Promise.resolve(subscription)) };
   const interactor = new GetMessagingAccountsStateInteractor(
     repo as never,
     permissions as never,
-    entitlements as never,
+    subscriptions as never,
   );
-  return { interactor, repo, entitlements };
+  return { interactor, repo, subscriptions };
 }
 
 const invoke = (interactor: InstanceType<typeof GetMessagingAccountsStateInteractor>) =>
@@ -60,10 +66,10 @@ beforeEach(() => {
 describe("messaging accounts state for the Configure graph and the Inbox", () => {
   it("is unavailable on self-hosted installations without reading accounts or the subscription", async () => {
     env.APP_MODE = "self-hosted";
-    const { interactor, repo, entitlements } = setup();
+    const { interactor, repo, subscriptions } = setup();
     expect(await invoke(interactor)).toEqual({ ok: true, data: { state: "unavailable" } });
     expect(repo.listAccounts).not.toHaveBeenCalled();
-    expect(entitlements.require).not.toHaveBeenCalled();
+    expect(subscriptions.getSubscriptionOrThrow).not.toHaveBeenCalled();
   });
 
   it("is unavailable for a role that cannot read the inbox", async () => {
@@ -72,11 +78,17 @@ describe("messaging accounts state for the Configure graph and the Inbox", () =>
     expect(repo.listAccounts).not.toHaveBeenCalled();
   });
 
+  const expired = new Date(Date.UTC(2020, 0, 1));
   it.each([
-    ["messagingRequiresPro", "plan"],
-    ["paidSubscriptionRequired", "subscription"],
-  ])("is locked by the %s entitlement denial without listing accounts", async (code, reason) => {
-    const { interactor, repo } = setup({ denial: { code } });
+    ["a plan without messaging", { plan: "starter", status: "active", trialEndDate: null }, "plan"],
+    [
+      "a plan without messaging and an ended trial",
+      { plan: "starter", status: "trial", trialEndDate: expired },
+      "plan",
+    ],
+    ["an ended trial", { plan: "pro", status: "trial", trialEndDate: expired }, "subscription"],
+  ])("is locked by %s without listing accounts", async (_, subscription, reason) => {
+    const { interactor, repo } = setup({ subscription });
     expect(await invoke(interactor)).toEqual({ ok: true, data: { state: "locked", reason } });
     expect(repo.listAccounts).not.toHaveBeenCalled();
   });

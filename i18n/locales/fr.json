@@ -3017,6 +3017,7 @@
     "deletionCalculations": "Calculs pouvant être affectés : {fields}.",
     "deletionLinks": "Liens supprimés : {count}.",
     "deletionRecords": "Seront supprimés : {records}.",
+    "deletionRequiresReadAll": "La suppression définitive nécessite un accès en lecture à tous ses enregistrements. Demandez à une personne qui peut lire tous les enregistrements ou à un administrateur.",
     "deletionRestrictedLinks": "Le nombre de liens est masqué car certains enregistrements liés ont un accès restreint.",
     "dependencyHelp": "Résolvez les dépendances concernées avant d’appliquer cette modification.",
     "descending": "Décroissant",

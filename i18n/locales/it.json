@@ -3017,6 +3017,7 @@
     "deletionCalculations": "Calcoli che potrebbero essere interessati: {fields}.",
     "deletionLinks": "Collegamenti eliminati: {count}.",
     "deletionRecords": "Verranno eliminati: {records}.",
+    "deletionRequiresReadAll": "L'eliminazione definitiva richiede l'accesso in lettura a tutti i suoi record. Chiedi a chi può leggere tutti i record o a un amministratore.",
     "deletionRestrictedLinks": "Il numero di collegamenti è nascosto perché alcuni record collegati hanno un accesso limitato.",
     "dependencyHelp": "Risolvi le dipendenze interessate prima di applicare questa modifica.",
     "descending": "Decrescente",

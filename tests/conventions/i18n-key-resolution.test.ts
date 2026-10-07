@@ -957,6 +957,7 @@ const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
       "RecordModel.savedViewIncompatible",
       "RecordModel.detailLayoutIncompatible",
       "RecordModel.summaryApprovalRequired",
+      "RecordModel.deletionRequiresReadAll",
       "RecordModel.duplicateListName",
       "RecordModel.duplicateFieldName",
       "RecordModel.duplicateOptionLabel",

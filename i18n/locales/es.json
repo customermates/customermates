@@ -3017,6 +3017,7 @@
     "deletionCalculations": "Cálculos que pueden verse afectados: {fields}.",
     "deletionLinks": "Enlaces eliminados: {count}.",
     "deletionRecords": "Se eliminarán: {records}.",
+    "deletionRequiresReadAll": "Eliminarlo definitivamente requiere acceso de lectura a todos sus registros. Pídeselo a alguien que pueda leer todos los registros o a un administrador.",
     "deletionRestrictedLinks": "La cantidad de enlaces está oculta porque algunos registros vinculados tienen acceso restringido.",
     "dependencyHelp": "Resuelve las dependencias afectadas antes de aplicar este cambio.",
     "descending": "Descendente",

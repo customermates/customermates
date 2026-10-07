@@ -864,7 +864,7 @@ export const getCreateAuthLinkInteractor = () =>
 export const getGetMyConnectedAccountsInteractor = () =>
   new GetMyConnectedAccountsInteractor(getConnectedAccountRepo());
 export const getGetMessagingAccountsStateInteractor = () =>
-  new GetMessagingAccountsStateInteractor(getConnectedAccountRepo(), getPermissionService(), getEntitlementService());
+  new GetMessagingAccountsStateInteractor(getConnectedAccountRepo(), getPermissionService(), getCompanyRepo());
 
 export const getCountChannelsNeedingActionInteractor = () =>
   new CountChannelsNeedingActionInteractor(getConnectedAccountRepo());

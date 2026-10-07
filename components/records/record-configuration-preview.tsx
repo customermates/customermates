@@ -12,6 +12,7 @@ const ISSUE_MESSAGES = {
   saved_view_incompatible: "RecordModel.savedViewIncompatible",
   detail_layout_incompatible: "RecordModel.detailLayoutIncompatible",
   summary_approval_required: "RecordModel.summaryApprovalRequired",
+  deletion_requires_read_all: "RecordModel.deletionRequiresReadAll",
   duplicate_list_name: "RecordModel.duplicateListName",
   duplicate_field_name: "RecordModel.duplicateFieldName",
   duplicate_option_label: "RecordModel.duplicateOptionLabel",

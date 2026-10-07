@@ -1,8 +1,8 @@
 -- Configuration names are unique (design rule 40). Existing duplicates are renamed in the current schema
 -- revision and the definition tables: the oldest definition keeps its name, later ones get the first free
--- " (n)" suffix from 2 on after their own name with whitespace collapsed, truncated to the 200-character
--- label limit. Names compare after Unicode NFD,
--- removing combining accents U+0300-U+036F, collapsing whitespace, trimming and lowercasing, matching
+-- " (n)" suffix from 2 on after their own name with whitespace collapsed, truncated so the result stays
+-- within the 200 UTF-16 code unit label limit. Names compare after Unicode NFD, removing combining accents
+-- U+0300-U+036F, collapsing whitespace (the JavaScript \s set), trimming and lowercasing, matching
 -- recordNameKey in features/records/record-names.ts. Scopes:
 --   lists         singular and plural names across active lists; a list's own singular may equal its plural
 --   fields        names per list, deleted fields included
@@ -15,14 +15,21 @@ CREATE FUNCTION pg_temp.config_name_key(value text) RETURNS text
 LANGUAGE sql IMMUTABLE AS $fn$
   SELECT lower(btrim(regexp_replace(
     regexp_replace(normalize(coalesce(value, ''), NFD), '[\u0300-\u036f]', '', 'g'),
-    '[[:space:]]+', ' ', 'g'
+    '[\t\n\v\f\r \u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]+', ' ', 'g'
   )))
 $fn$;
 
 CREATE FUNCTION pg_temp.config_name_suffixed(base text, n integer) RETURNS text
 LANGUAGE sql IMMUTABLE AS $fn$
-  SELECT rtrim(left(regexp_replace(btrim(base), '[[:space:]]+', ' ', 'g'), 200 - length(' (' || n || ')')))
-    || ' (' || n || ')'
+  SELECT rtrim(coalesce(string_agg(kept.ch, '' ORDER BY kept.i), '')) || ' (' || n || ')'
+  FROM (
+    SELECT c.ch, c.i, sum(CASE WHEN ascii(c.ch) > 65535 THEN 2 ELSE 1 END) OVER (ORDER BY c.i) AS units
+    FROM regexp_split_to_table(
+      btrim(regexp_replace(base, '[\t\n\v\f\r \u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]+', ' ', 'g')),
+      ''
+    ) WITH ORDINALITY AS c(ch, i)
+  ) AS kept
+  WHERE kept.units <= 200 - length(' (' || n || ')')
 $fn$;
 
 CREATE FUNCTION pg_temp.config_name_free(base text, taken text[]) RETURNS text

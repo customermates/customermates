@@ -3017,6 +3017,7 @@
     "deletionCalculations": "Calculations that may be affected: {fields}.",
     "deletionLinks": "Links removed: {count}.",
     "deletionRecords": "This removes {records}.",
+    "deletionRequiresReadAll": "Deleting this permanently needs read access to all of its records. Ask someone who can read every record, or an administrator.",
     "deletionRestrictedLinks": "The link count is hidden because some linked records are restricted.",
     "dependencyHelp": "Resolve the affected dependencies before applying this change.",
     "descending": "Descending",
