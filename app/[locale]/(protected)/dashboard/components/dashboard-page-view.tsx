@@ -225,7 +225,23 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
 
   return (
     <>
-      <DataViewViewsRail joinsTopBar allLabel={t("Dashboard.mainView")} allowDuplicate={false} store={widgetsStore} />
+      <DataViewViewsRail
+        joinsTopBar
+        allLabel={t("Dashboard.mainView")}
+        allowDuplicate={false}
+        deleteNotice={(view) => {
+          const widgets = widgetsStore.activeViewKey === view.id ? widgetsStore.items.map((widget) => widget.name) : [];
+          return {
+            message: t("Dashboard.deleteView", {
+              name: view.name,
+              count: widgets.length,
+              main: t("Dashboard.mainView"),
+            }),
+            details: widgets,
+          };
+        }}
+        store={widgetsStore}
+      />
 
       <div className="relative flex min-h-0 w-full flex-1 flex-col gap-4 p-4 md:gap-6 md:p-6">{body}</div>
 

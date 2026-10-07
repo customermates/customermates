@@ -1715,6 +1715,7 @@
       "title": "Letzte Aktivität"
     },
     "addCard": "Widget hinzufügen",
+    "deleteView": "„{name}“ löschen? {count, plural, =0 {Die Ansicht hat keine Widgets.} one {Ihr Widget wird nach {main} verschoben:} other {Ihre # Widgets werden nach {main} verschoben:}}",
     "displayTypeRequirements": {
       "grouping": "Wähle eine Gruppierung, um Gruppen zu ranken.",
       "noGrouping": "Setze Gruppieren nach auf Keine Gruppierung, um eine Zahl anzuzeigen.",

@@ -87,5 +87,27 @@ test("keeps separate widget sets per dashboard view and targets a view through t
   await page.goto(`/en/dashboard?view=${viewId}`);
   await expect(page.getByRole("heading", { name: "Berlin via API", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Berlin starter", exact: true })).toBeVisible();
+
+  await page.locator("#global-data-views-menu").click();
+  await page.getByRole("menuitem", { name: englishMessages.DataView.views.delete, exact: true }).click();
+  const confirm = page.getByRole("alertdialog");
+  await expect(confirm).toContainText('Delete "Site Berlin"? Its 2 widgets move to Main:');
+  await expect
+    .poll(async () => (await confirm.locator("[data-delete-confirmation-details] li").allTextContents()).sort())
+    .toEqual(["Berlin starter", "Berlin via API"]);
+  await confirm.getByRole("button", { name: englishMessages.Common.actions.delete, exact: true }).click();
+  await expect(confirm).toHaveCount(0);
+  await expect(page).not.toHaveURL(/[?&]view=/);
+  await expect(rail.getByText("Site Berlin", { exact: true })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Berlin via API", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Berlin starter", exact: true })).toBeVisible();
+  const moved = await database.query(
+    'SELECT name, "viewId" FROM "Widget" WHERE "companyId"=$1 AND name = ANY($2) ORDER BY name',
+    [companyId, ["Berlin starter", "Berlin via API"]],
+  );
+  expect(moved.rows).toEqual([
+    { name: "Berlin starter", viewId: null },
+    { name: "Berlin via API", viewId: null },
+  ]);
   expect(errors).toEqual([]);
 });

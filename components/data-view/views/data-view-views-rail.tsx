@@ -31,12 +31,13 @@ import { VIEW_META_NAME_INPUT_ID, ViewMetaOverlay } from "./view-meta-overlay";
 import { allViewMenuItems, orderChips, sortViewsByPosition, viewMenuItems } from "./view-rail-model";
 import { surfaceKeyOf, viewHref } from "./view-actions";
 import { useRovingFocus } from "./use-roving-focus";
-import { useViewCommands } from "./use-view-commands";
+import { type ViewDeleteNotice, useViewCommands } from "./use-view-commands";
 import { useViewAi } from "./use-view-ai";
 
 type Props<E extends HasId> = {
   allLabel?: string;
   allowDuplicate?: boolean;
+  deleteNotice?: (view: DataViewChipDto) => ViewDeleteNotice;
   joinsTopBar?: boolean;
   detailParam?: string;
   store: BaseDataViewStore<E>;
@@ -56,6 +57,7 @@ function isPlainClick(event: MouseEvent<HTMLAnchorElement>): boolean {
 export const DataViewViewsRail = observer(function DataViewViewsRail<E extends HasId>({
   allLabel,
   allowDuplicate = true,
+  deleteNotice,
   joinsTopBar = false,
   detailParam,
   store,
@@ -74,6 +76,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
 
   const commands = useViewCommands({
     closeMeta: () => setMeta(null),
+    deleteNotice,
     openMeta: setMeta,
     pathname,
     store,

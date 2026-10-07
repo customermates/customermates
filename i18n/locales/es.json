@@ -1715,6 +1715,7 @@
       "title": "Actividad reciente"
     },
     "addCard": "Añadir widget",
+    "deleteView": "¿Eliminar «{name}»? {count, plural, =0 {No tiene widgets.} one {Su widget pasa a {main}:} other {Sus # widgets pasan a {main}:}}",
     "displayTypeRequirements": {
       "grouping": "Elige una agrupación para clasificar los grupos.",
       "noGrouping": "Establece Agrupar por en Sin agrupación para mostrar un número.",

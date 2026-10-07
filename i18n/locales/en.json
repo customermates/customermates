@@ -1715,6 +1715,7 @@
       "title": "Recent activity"
     },
     "addCard": "Add widget",
+    "deleteView": "Delete \"{name}\"? {count, plural, =0 {It has no widgets.} one {Its widget moves to {main}:} other {Its # widgets move to {main}:}}",
     "displayTypeRequirements": {
       "grouping": "Choose a grouping to rank groups.",
       "noGrouping": "Set Group by to No grouping to show one number.",
