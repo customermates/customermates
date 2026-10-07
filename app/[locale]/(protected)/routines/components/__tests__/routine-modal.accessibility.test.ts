@@ -10,14 +10,12 @@ function read(name: string): string {
 }
 
 describe("routine modal accessibility contract", () => {
-  it("keeps compact details and runs in real Radix tab panels", () => {
+  it("switches compact details and runs with the shared segmented control", () => {
     const source = read("routine-modal.tsx");
-    const tabsContent = "Tabs" + "Content";
 
-    expect(source).toContain('<TabsTrigger id="routine-tab-details" value="details">');
-    expect(source).toContain('<TabsTrigger id="routine-tab-runs" value="runs">');
-    expect(source).toContain(`<${tabsContent} aria-labelledby="routine-tab-details" className="mt-0" value="details">`);
-    expect(source).toContain(`<${tabsContent} aria-labelledby="routine-tab-runs" className="mt-0" value="runs">`);
+    expect(source).toContain('idPrefix="routine"');
+    expect(source).toContain('<SegmentedControlPanel className="mt-0" value="details">');
+    expect(source).toContain('<SegmentedControlPanel className="mt-0" value="runs">');
   });
 
   it("uses owner status and viewer role for read-only guidance", () => {
@@ -78,7 +76,7 @@ describe("routine modal accessibility contract", () => {
     expect(runDetail).toContain("store.openRun(run)");
     expect(runDetail).toContain("RoutineDetail.transcriptOwnerOnly");
     expect(runDetail).toContain("useAgentChatConfig(routineRunChatStore, transcriptSelected)");
-    expect(modal.indexOf("isExistingRoutine && wide")).toBeLessThan(modal.indexOf("<Tabs"));
+    expect(modal.indexOf("isExistingRoutine && wide")).toBeLessThan(modal.indexOf("<SegmentedControl"));
   });
 
   it("keeps new routines configuration-only and restores focus after run drilldown", () => {

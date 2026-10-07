@@ -26,6 +26,8 @@ const DOCS_ID_PATTERN = /`#([a-z][a-z0-9]*(?:-[a-z0-9]+)+)`/g;
 const LITERAL_ID_PATTERN =
   /\b(?:id|inputId)=["']([a-z][a-z0-9]*(?:-[a-z0-9]+)+)["']|\b(?:composerId|fallbackFocusId|usageId|anchorId):\s*["']([a-z][a-z0-9]*(?:-[a-z0-9]+)+)["']/g;
 const ANCHOR_SCOPE_PATTERN = /anchorScope=["']([a-z0-9-]+)["']/g;
+const SEGMENT_ID_PREFIX_PATTERN = /<SegmentedControl\b(?:=>|[^>])*?\sidPrefix=["']([a-z0-9-]+)["']/g;
+const SEGMENT_VALUE_PATTERN = /\{ value: "([a-z0-9-]+)", label:/g;
 const FOOTER_ANCHOR_SCOPE_PATTERN = /<FormFooterActions\b(?:=>|[^>])*?\sanchorScope=["']([a-z0-9-]+)["']/g;
 const DOCS_LOCALES = CONTENT_LOCALES;
 
@@ -70,6 +72,8 @@ function codeIds(): Set<string> {
   for (const file of sourceFiles()) {
     const text = readFileSync(file, "utf8");
     for (const match of text.matchAll(LITERAL_ID_PATTERN)) ids.add(match[1] ?? match[2]);
+    for (const prefix of text.matchAll(SEGMENT_ID_PREFIX_PATTERN))
+      for (const segment of text.matchAll(SEGMENT_VALUE_PATTERN)) ids.add(`${prefix[1]}-tab-${segment[1]}`);
     for (const match of text.matchAll(FOOTER_ANCHOR_SCOPE_PATTERN))
       if (!FORM_SCOPES.includes(match[1]))
         for (const suffix of ["-save", "-cancel", "-reset"]) ids.add(`${match[1]}${suffix}`);
