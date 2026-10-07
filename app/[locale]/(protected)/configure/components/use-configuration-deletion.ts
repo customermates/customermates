@@ -28,6 +28,13 @@ type Lifecycle = "delete" | "restore" | "deletePermanently";
 
 function referenceChip(reference: DeletionReference, model: RecordModel | null): ConfirmationChip {
   const typeIcon = (typeId: string | undefined) => model?.types.find((type) => type.id === typeId)?.icon ?? "list";
+  if (reference.kind === "channels") {
+    return {
+      label: reference.label,
+      icon: "field",
+      href: `/configure?typeId=${reference.typeId}&tab=fields`,
+    };
+  }
   if (reference.kind === "type") {
     return {
       label: reference.label,
@@ -137,6 +144,11 @@ function removedSentences(t: Translate, deletion: Deletion): ConfirmationSentenc
     removed.links > 0 && t("RecordModel.configurationDeletion.removed.links", { count: removed.links }),
     removed.views > 0 && t("RecordModel.configurationDeletion.removed.views", { count: removed.views }),
     removed.grants > 0 && t("RecordModel.configurationDeletion.removed.grants", { count: removed.grants }),
+    removed.identifiers > 0 &&
+      t("RecordModel.configurationDeletion.removed.identifiers", {
+        count: removed.identifiers,
+        records: removed.identifierRecords,
+      }),
   ].filter((line): line is string => Boolean(line));
   return (lines.length ? lines : [t("RecordModel.configurationDeletion.removed.nothingStored")]).map((line) => [line]);
 }

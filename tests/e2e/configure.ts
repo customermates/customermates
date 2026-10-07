@@ -1,7 +1,7 @@
 import type { Page } from "@playwright/test";
 import { expect } from "./fixtures";
 
-export type ConfigureAddItem = "List" | "Field" | "Calculation" | "Relationship" | "Activity connection";
+export type ConfigureAddItem = "List" | "Field" | "Calculation" | "Relationship" | "Channels" | "Activity connection";
 export type ConfigureSection = "Fields" | "Relationships" | "Activity connections";
 
 const escapePattern = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -174,15 +174,28 @@ export async function createConfiguredList(page: Page, name: string, { channels 
   await addFromConfigure(page, "List");
   const dialog = configureDrawer(page);
   await dialog.getByRole("textbox", { name: "Name", exact: false }).first().fill(name);
-  const toggle = dialog.getByRole("switch", { name: "Enable channels", exact: true });
-  await expect(toggle).not.toBeChecked();
-  if (channels) await toggle.check();
+  await expect(dialog.getByRole("switch", { name: "Enable channels", exact: true })).toHaveCount(0);
   await dialog.getByRole("button", { name: "Save", exact: true }).first().click();
   await expect(dialog).not.toBeVisible();
   await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
   const typeId = new URL(page.url()).pathname.split("/").at(-1);
   if (!typeId) throw new Error("The created list route did not contain its identity");
+  if (channels) {
+    await addChannelsField(page, typeId);
+    await page.goto(`/en/records/${typeId}`);
+  }
   return typeId;
+}
+
+export async function addChannelsField(page: Page, typeId: string) {
+  await openConfigure(page, typeId);
+  await addFromConfigure(page, "Channels");
+  const dialog = configureDrawer(page);
+  await expect(dialog.getByRole("combobox", { name: "Value type", exact: true })).toContainText("Channels");
+  await expect(dialog.getByRole("textbox", { name: "Name", exact: false })).toHaveCount(0);
+  await saveDrawer(page);
+  await openConfigureTab(page, "Fields");
+  await expect(configureRow(page, "Fields", "Channels")).toBeVisible();
 }
 
 export async function followConfigureLink(page: Page) {

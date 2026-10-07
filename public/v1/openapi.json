@@ -40665,7 +40665,8 @@
                                   "type",
                                   "field",
                                   "relationship",
-                                  "activityPath"
+                                  "activityPath",
+                                  "channels"
                                 ]
                               },
                               "id": {
@@ -42419,7 +42420,8 @@
                                     "type",
                                     "field",
                                     "relationship",
-                                    "activityPath"
+                                    "activityPath",
+                                    "channels"
                                   ]
                                 },
                                 "id": {
@@ -42440,7 +42442,7 @@
                             "target"
                           ],
                           "additionalProperties": false,
-                          "description": "Move a list, field, relationship or activity connection to Recently deleted. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion."
+                          "description": "Move a list, field, relationship, activity connection or Channels field (target id: its channels capability) to Recently deleted. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion."
                         },
                         {
                           "type": "object",
@@ -42458,7 +42460,8 @@
                                     "type",
                                     "field",
                                     "relationship",
-                                    "activityPath"
+                                    "activityPath",
+                                    "channels"
                                   ]
                                 },
                                 "id": {
@@ -42497,7 +42500,8 @@
                                     "type",
                                     "field",
                                     "relationship",
-                                    "activityPath"
+                                    "activityPath",
+                                    "channels"
                                   ]
                                 },
                                 "id": {
@@ -42518,7 +42522,7 @@
                             "target"
                           ],
                           "additionalProperties": false,
-                          "description": "Permanently remove an item that is in Recently deleted, with its stored values; a list also loses its records, links and relationships."
+                          "description": "Permanently remove an item that is in Recently deleted, with its stored values; a list also loses its records, links and relationships, and Channels its identifiers."
                         },
                         {
                           "type": "object",
@@ -42733,6 +42737,7 @@
                                       "field",
                                       "relationship",
                                       "activityPath",
+                                      "channels",
                                       "routine",
                                       "webhook",
                                       "widget",
@@ -42770,6 +42775,7 @@
                                       "field",
                                       "relationship",
                                       "activityPath",
+                                      "channels",
                                       "routine",
                                       "webhook",
                                       "widget",
@@ -42821,6 +42827,7 @@
                                       "field",
                                       "relationship",
                                       "activityPath",
+                                      "channels",
                                       "routine",
                                       "webhook",
                                       "widget",
@@ -42858,6 +42865,7 @@
                                       "field",
                                       "relationship",
                                       "activityPath",
+                                      "channels",
                                       "routine",
                                       "webhook",
                                       "widget",
@@ -42927,6 +42935,16 @@
                                   "type": "integer",
                                   "minimum": -9007199254740991,
                                   "maximum": 9007199254740991
+                                },
+                                "identifiers": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                },
+                                "identifierRecords": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
                                 }
                               },
                               "required": [
@@ -42935,7 +42953,9 @@
                                 "links",
                                 "relationships",
                                 "views",
-                                "grants"
+                                "grants",
+                                "identifiers",
+                                "identifierRecords"
                               ],
                               "additionalProperties": false
                             },
@@ -44641,7 +44661,8 @@
                                     "type",
                                     "field",
                                     "relationship",
-                                    "activityPath"
+                                    "activityPath",
+                                    "channels"
                                   ]
                                 },
                                 "id": {
@@ -44662,7 +44683,7 @@
                             "target"
                           ],
                           "additionalProperties": false,
-                          "description": "Move a list, field, relationship or activity connection to Recently deleted. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion."
+                          "description": "Move a list, field, relationship, activity connection or Channels field (target id: its channels capability) to Recently deleted. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion."
                         },
                         {
                           "type": "object",
@@ -44680,7 +44701,8 @@
                                     "type",
                                     "field",
                                     "relationship",
-                                    "activityPath"
+                                    "activityPath",
+                                    "channels"
                                   ]
                                 },
                                 "id": {
@@ -44719,7 +44741,8 @@
                                     "type",
                                     "field",
                                     "relationship",
-                                    "activityPath"
+                                    "activityPath",
+                                    "channels"
                                   ]
                                 },
                                 "id": {
@@ -44740,7 +44763,7 @@
                             "target"
                           ],
                           "additionalProperties": false,
-                          "description": "Permanently remove an item that is in Recently deleted, with its stored values; a list also loses its records, links and relationships."
+                          "description": "Permanently remove an item that is in Recently deleted, with its stored values; a list also loses its records, links and relationships, and Channels its identifiers."
                         },
                         {
                           "type": "object",

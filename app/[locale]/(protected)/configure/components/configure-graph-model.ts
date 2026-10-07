@@ -7,7 +7,7 @@ import {
   expressionRelationshipDependencies,
 } from "@/features/records/record-model-validation";
 
-import { configureLists, configureParentId } from "./configure-model";
+import { configureChannelsField, configureLists, configureParentId } from "./configure-model";
 
 export type ConfigureGraphCatalog = ReadonlyArray<Pick<DiscoveredRecordTypes["types"][number], "id" | "recordCount">>;
 
@@ -36,6 +36,7 @@ export type ConfigureGraphList = {
   recordCount: number | null | undefined;
   parentId: string | null;
   fields: ConfigureGraphField[];
+  channels: RecordModel["capabilities"][number] | null;
 };
 
 export type ConfigureGraphEdge =
@@ -117,6 +118,7 @@ export function configureGraphData(
         }
         return { field, calculated, sources };
       }),
+    channels: configureChannelsField(model, type.id),
   }));
   const relationships: ConfigureGraphEdge[] = model.relationships
     .filter((relation) => visible.has(relation.sourceTypeId) && visible.has(relation.targetTypeId))

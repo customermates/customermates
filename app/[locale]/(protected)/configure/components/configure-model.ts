@@ -9,6 +9,7 @@ import type {
 } from "@/features/records/record-model.schema";
 import type { ConfigurationChange } from "@/features/records/configuration.schema";
 import { compareRecordKey } from "@/features/records/record-json";
+import { recordChannelsBinding, recordChannelsEnabled } from "@/features/records/record-channels";
 
 export type ConfigureFieldSource =
   | { kind: "input" | "formula" | "snapshot" }
@@ -45,10 +46,15 @@ export function configureLists(model: RecordModel): RecordType[] {
   return lists;
 }
 
+export function configureChannelsField(model: RecordModel, typeId: string) {
+  return recordChannelsEnabled(model, typeId) ? (recordChannelsBinding(model, typeId) ?? null) : null;
+}
+
 export function configureCounts(model: RecordModel, typeId: string) {
   const type = model.types.find((candidate) => candidate.id === typeId);
   return {
-    fields: model.fields.filter((field) => field.typeId === typeId).length,
+    fields:
+      model.fields.filter((field) => field.typeId === typeId).length + (recordChannelsEnabled(model, typeId) ? 1 : 0),
     relationships:
       model.relationships.filter((relation) => relation.sourceTypeId === typeId || relation.targetTypeId === typeId)
         .length + (type?.relationshipPaths ?? []).length,

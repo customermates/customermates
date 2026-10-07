@@ -3008,6 +3008,10 @@
       "oneToOne": "Eins zu eins"
     },
     "changeBlocked": "Diese Änderung kann noch nicht übernommen werden",
+    "channelsField": {
+      "detail": "E-Mail-Adressen, Telefonnummern und soziale Konten, über die Nachrichten Datensätzen zugeordnet werden",
+      "short": "E-Mail, Telefon, Social"
+    },
     "channelsHelp": "Füge Datensätzen in dieser Liste E-Mail-Adressen, Telefonnummern und soziale Konten hinzu. Eine Kennung kann mit mehreren Datensätzen verknüpft sein.",
     "color": "Farbe",
     "conditionIf": "Bedingung",
@@ -3056,6 +3060,7 @@
       "kind": "Art",
       "kinds": {
         "activityPath": "Aktivitätsverbindung",
+        "channels": "Kanalfeld",
         "field": "Feld",
         "relationship": "Beziehung",
         "type": "Liste"
@@ -3068,6 +3073,7 @@
       "recentlyDeletedHelp": "Gelöschte Listen, Felder, Beziehungen und Aktivitätsverbindungen bleiben hier, bis du sie wiederherstellst oder endgültig löschst.",
       "removed": {
         "grants": "{count, plural, one {# Rollenrecht} other {# Rollenrechte}}",
+        "identifiers": "{count, plural, one {# Kennung} other {# Kennungen}} an {records, plural, one {# Datensatz} other {# Datensätzen}}",
         "links": "{count, plural, one {# Verknüpfung zwischen Datensätzen} other {# Verknüpfungen zwischen Datensätzen}}",
         "nothingStored": "Es werden keine gespeicherten Daten entfernt.",
         "records": "{count, plural, one {# Datensatz} other {# Datensätze}}",
@@ -3115,7 +3121,6 @@
     "editValue": "{field} bearbeiten",
     "empty": "Noch keine Datensätze",
     "emptyDescription": "Erstelle deinen ersten Datensatz.",
-    "enableChannels": "Kanäle aktivieren",
     "enabled": "An",
     "field": "Feld",
     "fields": "Felder",

@@ -343,8 +343,14 @@ export class RecordConfigurationService extends UserAccessor {
         grants.push({ typeId, grants: operation.grants });
       }
       if (operation.operation === "putCapability") {
-        const binding = resolveDefinition(operation.capability) as RecordModel["capabilities"][number];
-        const existing = current.capabilities.find((candidate) => candidate.id === binding.id);
+        const input = resolveDefinition(operation.capability) as RecordModel["capabilities"][number];
+        const existing = current.capabilities.find((candidate) => candidate.id === input.id);
+        const binding =
+          input.kind === "channels" && existing?.kind === "channels"
+            ? { ...input, enabled: existing.enabled }
+            : input.kind === "channels"
+              ? { ...input, enabled: true }
+              : input;
         if (binding.kind !== "channels" && !policy.isAdmin)
           throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
         const protectedKind = (kind: string) => kind === "membershipAuthorization";
@@ -394,6 +400,8 @@ export class RecordConfigurationService extends UserAccessor {
         )
       : null;
     if (lifecycle?.removed?.typeIds.length && !policy.canManageRoles)
+      throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
+    if (lifecycle?.removed?.channelTypeIds.some((typeId) => !policy.isAdmin && !policy.allowed(typeId, "readAll")))
       throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
     const deletedTypeIds = new Set(
       lifecycle?.deletedTargets.filter((target) => target.kind === "type").map((target) => target.id),
@@ -472,7 +480,11 @@ export class RecordConfigurationService extends UserAccessor {
         }
       }
     }
-    const viewTypes = new Set(changedTypes);
+    const viewTypes = new Set([
+      ...changedTypes,
+      ...(lifecycle?.removed?.channelTypeIds ?? []),
+      ...(lifecycle?.channelTypeIds ?? []),
+    ]);
     const changedRelations = new Set(
       [...current.relationships, ...model.relationships]
         .filter(

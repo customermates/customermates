@@ -31,7 +31,9 @@ export function liveRecordModel(model: RecordModel): RecordModel {
       ),
     fields: model.fields.filter((field) => !field.archived && types.has(field.typeId)),
     relationships,
-    capabilities: model.capabilities.filter((binding) => types.has(binding.typeId)),
+    capabilities: model.capabilities.filter(
+      (binding) => types.has(binding.typeId) && !(binding.kind === "channels" && binding.enabled === false),
+    ),
     activityPaths: model.activityPaths.filter(
       (path) => !path.archived && types.has(path.typeId) && path.path.every((step) => relationIds.has(step.relationId)),
     ),

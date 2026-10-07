@@ -25,11 +25,10 @@ import { RecordConfigurationPreview } from "@/components/records/record-configur
 import { usePreviewBlockers } from "./use-preview-blockers";
 import { RecordOperationProgress } from "@/components/records/record-operation-progress";
 import { recordTypeIcon } from "@/components/records/record-type-icon";
-import { recordChannelsEnabled } from "@/features/records/record-channels";
 import { cn } from "@/core/utils/cn";
 import { EditorTabs } from "@/components/editor-tabs/editor-tabs";
 
-import { configureCounts, configureFieldSource, configurePathLists } from "./configure-model";
+import { configureChannelsField, configureCounts, configureFieldSource, configurePathLists } from "./configure-model";
 import { ModelChangeRecovery } from "./model-change-recovery";
 import { TypeSettingsFields } from "./type-modal";
 
@@ -43,6 +42,7 @@ type Props = {
   canManage: boolean;
   interactive: boolean;
   onEditField: (field: RecordField) => void;
+  onEditChannels: () => void;
   onEditRelationship: (relation: RecordRelationship) => void;
   onEditRelationshipPath: (path: RecordRelationshipPath) => void;
   onEditActivity: (path: ActivityPath) => void;
@@ -161,16 +161,12 @@ function SortableField({
   );
 }
 
-const GeneralSummary = observer(function GeneralSummary({ model, type }: { model: RecordModel; type: RecordType }) {
+const GeneralSummary = observer(function GeneralSummary({ type }: { type: RecordType }) {
   const t = useTranslations();
   const rows: Array<[string, string]> = [
     [t("RecordModel.name"), type.label],
     [t("RecordModel.pluralName"), type.pluralLabel],
     ...(type.description ? ([[t("RecordModel.description"), type.description]] as Array<[string, string]>) : []),
-    [
-      t("RecordModel.enableChannels"),
-      recordChannelsEnabled(model, type.id) ? t("RecordModel.enabled") : t("RecordModel.disabled"),
-    ],
     [t("RecordModel.showInNavigation"), type.navigationVisible ? t("RecordModel.enabled") : t("RecordModel.disabled")],
   ];
   return (
@@ -194,6 +190,7 @@ export const ConfigureListPane = observer(function ConfigureListPane({
   canManage,
   interactive,
   onEditField,
+  onEditChannels,
   onEditRelationship,
   onEditRelationshipPath,
   onEditActivity,
@@ -211,6 +208,7 @@ export const ConfigureListPane = observer(function ConfigureListPane({
     ? general.form.fieldOrder
     : model.fields.filter((field) => field.typeId === selected.id).map((field) => field.id);
   const fields = order.flatMap((id) => model.fields.filter((field) => field.id === id && field.typeId === selected.id));
+  const channels = configureChannelsField(model, selected.id);
   const reorderEnabled = editingGeneral && interactive && !general.isDisabled;
   usePreviewBlockers(editingGeneral && general.hasUnsavedChanges ? general.preview : null, general.model);
   const relations = model.relationships.filter(
@@ -260,7 +258,7 @@ export const ConfigureListPane = observer(function ConfigureListPane({
                 {editingGeneral ? (
                   <TypeSettingsFields idPrefix="configure-general" store={general} />
                 ) : (
-                  <GeneralSummary model={model} type={selected} />
+                  <GeneralSummary type={selected} />
                 )}
               </ConfigureGroup>
 
@@ -273,7 +271,7 @@ export const ConfigureListPane = observer(function ConfigureListPane({
           label: t("RecordModel.fields"),
           content: (
             <ConfigureGroup title={t("RecordModel.fields")}>
-              {fields.length ? (
+              {fields.length || channels ? (
                 <DndContext collisionDetection={closestCenter} id={dndId} sensors={sensors} onDragEnd={handleDragEnd}>
                   <SortableContext items={fields.map((field) => field.id)} strategy={verticalListSortingStrategy}>
                     <ul className="divide-y divide-border">
@@ -288,6 +286,18 @@ export const ConfigureListPane = observer(function ConfigureListPane({
                           />
                         </SortableField>
                       ))}
+
+                      {channels && (
+                        <li data-configure-channels-row="">
+                          <ConfigureRow
+                            detail={`${t("EntityChannels.heading")} · ${t("RecordModel.channelsField.detail")}`}
+                            interactive={interactive}
+                            label={t("EntityChannels.heading")}
+                            leading={canManage ? <span aria-hidden="true" className="w-3 shrink-0" /> : undefined}
+                            onOpen={canManage ? onEditChannels : undefined}
+                          />
+                        </li>
+                      )}
                     </ul>
                   </SortableContext>
                 </DndContext>

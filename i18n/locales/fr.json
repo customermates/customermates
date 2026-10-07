@@ -3008,6 +3008,10 @@
       "oneToOne": "Un à un"
     },
     "changeBlocked": "Cette modification ne peut pas encore être appliquée",
+    "channelsField": {
+      "detail": "Adresses e-mail, numéros de téléphone et comptes sociaux qui associent les messages aux fiches",
+      "short": "E-mail, téléphone, réseaux"
+    },
     "channelsHelp": "Ajoutez des adresses e-mail, numéros de téléphone et comptes sociaux aux fiches de cette liste. Un identifiant peut être lié à plusieurs fiches.",
     "color": "Couleur",
     "conditionIf": "Condition",
@@ -3056,6 +3060,7 @@
       "kind": "Type",
       "kinds": {
         "activityPath": "Connexion d’activité",
+        "channels": "Champ des canaux",
         "field": "Champ",
         "relationship": "Relation",
         "type": "Liste"
@@ -3068,6 +3073,7 @@
       "recentlyDeletedHelp": "Les listes, champs, relations et connexions d’activité supprimés restent ici jusqu’à ce que vous les restauriez ou les supprimiez définitivement.",
       "removed": {
         "grants": "{count, plural, one {# droit de rôle} other {# droits de rôle}}",
+        "identifiers": "{count, plural, one {# identifiant} other {# identifiants}} sur {records, plural, one {# enregistrement} other {# enregistrements}}",
         "links": "{count, plural, one {# lien entre enregistrements} other {# liens entre enregistrements}}",
         "nothingStored": "Aucune donnée enregistrée n’est supprimée.",
         "records": "{count, plural, one {# enregistrement} other {# enregistrements}}",
@@ -3115,7 +3121,6 @@
     "editValue": "Modifier {field}",
     "empty": "Aucune fiche pour le moment",
     "emptyDescription": "Créez votre première fiche pour commencer.",
-    "enableChannels": "Activer les canaux",
     "enabled": "Activé",
     "field": "Champ",
     "fields": "Champs",

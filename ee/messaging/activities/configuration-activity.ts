@@ -46,6 +46,10 @@ export function configurationActivity(
       case "deletePermanently": {
         const { kind, id } = operation.target;
         if (kind === "type") return typeLabel(id);
+        if (kind === "channels") {
+          const binding = models.flatMap((model) => model.capabilities).find((capability) => capability.id === id);
+          return binding ? typeLabel(binding.typeId) : id;
+        }
         if (kind === "field") {
           const field = models.flatMap((model) => model.fields).find((field) => field.id === id);
           return field ? `${typeLabel(field.typeId)} · ${field.label}` : id;

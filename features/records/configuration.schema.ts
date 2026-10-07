@@ -15,7 +15,7 @@ import {
   RecordGroupSummaryDefinitionSchema,
 } from "./record-model.schema";
 
-export const CONFIGURATION_TARGET_KINDS = ["type", "field", "relationship", "activityPath"] as const;
+export const CONFIGURATION_TARGET_KINDS = ["type", "field", "relationship", "activityPath", "channels"] as const;
 export const ConfigurationTargetSchema = z.object({ kind: z.enum(CONFIGURATION_TARGET_KINDS), id: z.uuid() }).strict();
 export type ConfigurationTarget = z.infer<typeof ConfigurationTargetSchema>;
 export const DeletionReferenceSchema = z
@@ -341,7 +341,7 @@ export function configurationSchemaWithExpression<T extends z.ZodType>(expressio
               .object({ operation: z.literal("delete"), target: ConfigurationTargetSchema })
               .strict()
               .describe(
-                "Move a list, field, relationship or activity connection to Recently deleted. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion.",
+                "Move a list, field, relationship, activity connection or Channels field (target id: its channels capability) to Recently deleted. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion.",
               ),
             z
               .object({ operation: z.literal("restore"), target: ConfigurationTargetSchema })
@@ -351,7 +351,7 @@ export function configurationSchemaWithExpression<T extends z.ZodType>(expressio
               .object({ operation: z.literal("deletePermanently"), target: ConfigurationTargetSchema })
               .strict()
               .describe(
-                "Permanently remove an item that is in Recently deleted, with its stored values; a list also loses its records, links and relationships.",
+                "Permanently remove an item that is in Recently deleted, with its stored values; a list also loses its records, links and relationships, and Channels its identifiers.",
               ),
             z
               .object({
@@ -402,6 +402,8 @@ export const ConfigurationPreviewSchema = z
             relationships: z.number().int(),
             views: z.number().int(),
             grants: z.number().int(),
+            identifiers: z.number().int(),
+            identifierRecords: z.number().int(),
           })
           .strict()
           .nullable(),

@@ -241,6 +241,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
     () => tryNavigate(() => window.history.pushState(null, "", configureHref({ typeId: null }))),
     [tryNavigate],
   );
+  const editChannels = (listId: string) => fieldModal.editChannels(model, listId);
   const add = useCallback(
     (kind: ConfigureAddKind) => {
       if (kind === "list") {
@@ -252,6 +253,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
       if (kind === "calculation")
         fieldModal.edit(model, selected.id, null, { behavior: "formula", valueType: "number" });
       if (kind === "relationship") relationModal.edit(model, selected.id);
+      if (kind === "channels") fieldModal.edit(model, selected.id, null, { valueType: "channels" });
       if (kind === "activity") activityModal.edit(model, selected.id);
     },
     [activityModal, fieldModal, model, relationModal, selected, typeModal],
@@ -313,6 +315,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
             model={model}
             selected={selected}
             onEditActivity={(path) => activityModal.edit(model, selected.id, path)}
+            onEditChannels={() => editChannels(selected.id)}
             onEditField={(field) => fieldModal.edit(model, selected.id, field)}
             onEditRelationship={(relation) => relationModal.edit(model, selected.id, relation)}
             onEditRelationshipPath={(path) => relationModal.editPath(model, selected.id, path)}
@@ -338,6 +341,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
             model={model}
             onAddField={(listId) => fieldModal.edit(model, listId, null)}
             onConnect={(sourceTypeId, targetTypeId) => relationModal.edit(model, sourceTypeId, undefined, targetTypeId)}
+            onEditChannels={editChannels}
             onEditField={(listId, field) => fieldModal.edit(model, listId, field)}
             onEditRelationship={(relation) => relationModal.edit(model, relation.sourceTypeId, relation)}
             onLayoutChange={setGraphLayout}

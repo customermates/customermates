@@ -7,6 +7,7 @@ import type { TypeModalStore } from "./type-modal";
 import { observer } from "mobx-react-lite";
 import {
   Activity,
+  AtSign,
   History,
   Calculator,
   LayoutList,
@@ -31,9 +32,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+import { recordChannelsBinding } from "@/features/records/record-channels";
 import { useConfigurationDeletion } from "./use-configuration-deletion";
 
-export type ConfigureAddKind = "list" | "field" | "calculation" | "relationship" | "activity";
+export type ConfigureAddKind = "list" | "field" | "calculation" | "relationship" | "channels" | "activity";
 
 type Props = {
   ai: ReactNode;
@@ -173,6 +175,14 @@ export const ConfigureTopBarActions = observer(function ConfigureTopBarActions({
 
               {t("RecordModel.addMenu.relationship")}
             </DropdownMenuItem>
+
+            {!recordChannelsBinding(model, selected.id) && (
+              <DropdownMenuItem onSelect={() => onAdd("channels")}>
+                <AtSign aria-hidden="true" />
+
+                {t("EntityChannels.heading")}
+              </DropdownMenuItem>
+            )}
 
             <DropdownMenuItem onSelect={() => onAdd("activity")}>
               <Activity aria-hidden="true" />

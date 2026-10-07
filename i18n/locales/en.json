@@ -3008,6 +3008,10 @@
       "oneToOne": "One to one"
     },
     "changeBlocked": "This change can't be applied yet",
+    "channelsField": {
+      "detail": "Email addresses, phone numbers and social accounts that match messages to records",
+      "short": "Email, phone, social"
+    },
     "channelsHelp": "Add email addresses, phone numbers, and social accounts to records in this list. An identifier can link to several records.",
     "color": "Color",
     "conditionIf": "Condition",
@@ -3056,6 +3060,7 @@
       "kind": "Type",
       "kinds": {
         "activityPath": "Activity connection",
+        "channels": "Channels field",
         "field": "Field",
         "relationship": "Relationship",
         "type": "List"
@@ -3068,6 +3073,7 @@
       "recentlyDeletedHelp": "Deleted lists, fields, relationships and activity connections stay here until you restore them or delete them permanently.",
       "removed": {
         "grants": "{count, plural, one {# role grant} other {# role grants}}",
+        "identifiers": "{count, plural, one {# identifier} other {# identifiers}} on {records, plural, one {# record} other {# records}}",
         "links": "{count, plural, one {# link between records} other {# links between records}}",
         "nothingStored": "No stored data is removed.",
         "records": "{count, plural, one {# record} other {# records}}",
@@ -3115,7 +3121,6 @@
     "editValue": "Edit {field}",
     "empty": "No records yet",
     "emptyDescription": "Create your first record to get started.",
-    "enableChannels": "Enable channels",
     "enabled": "On",
     "field": "Field",
     "fields": "Fields",

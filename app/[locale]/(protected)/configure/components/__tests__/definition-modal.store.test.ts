@@ -407,3 +407,39 @@ describe("configuration form validation feedback", () => {
     },
   );
 });
+
+describe("Channels field", () => {
+  it("edits the channels binding without replacing its identity or naming roles", () => {
+    const model = createCrmPreset(company);
+    const binding = recordInvariant(
+      model.capabilities.find((candidate) => candidate.kind === "channels" && candidate.typeId === id("contact")),
+    );
+    const store = new FieldModalStore(root, model, vi.fn());
+    store.editChannels(model, id("contact"));
+    expect(store.isChannels).toBe(true);
+    store.onChange("providerAvatar", false);
+    const edited = validate(store.operations()).operations[0];
+    expect(edited.operation === "putCapability" && edited.capability).toEqual({
+      ...binding,
+      enabled: true,
+      providerAvatar: false,
+    });
+  });
+
+  it("adds one Channels field from the Add menu with a stable binding id", () => {
+    const model = createCrmPreset(company);
+    const store = new FieldModalStore(root, model, vi.fn());
+    store.edit(model, id("organization"), null, { valueType: "channels" });
+    expect(store.isChannels).toBe(true);
+    const first = validate(store.operations()).operations;
+    expect(validate(store.operations()).operations).toEqual(first);
+    expect(first).toHaveLength(1);
+    expect(first[0].operation === "putCapability" && first[0].capability).toMatchObject({
+      kind: "channels",
+      typeId: id("organization"),
+      enabled: true,
+      providerAvatar: false,
+      fields: [],
+    });
+  });
+});

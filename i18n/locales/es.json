@@ -3008,6 +3008,10 @@
       "oneToOne": "Uno a uno"
     },
     "changeBlocked": "Este cambio todavía no se puede aplicar",
+    "channelsField": {
+      "detail": "Direcciones de correo, números de teléfono y cuentas sociales que asocian los mensajes con los registros",
+      "short": "Correo, teléfono, redes"
+    },
     "channelsHelp": "Añade direcciones de correo, números de teléfono y cuentas sociales a los registros de esta lista. Un identificador puede vincularse con varios registros.",
     "color": "Color",
     "conditionIf": "Condición",
@@ -3056,6 +3060,7 @@
       "kind": "Tipo",
       "kinds": {
         "activityPath": "Conexión de actividad",
+        "channels": "Campo de canales",
         "field": "Campo",
         "relationship": "Relación",
         "type": "Lista"
@@ -3068,6 +3073,7 @@
       "recentlyDeletedHelp": "Las listas, campos, relaciones y conexiones de actividad eliminados se quedan aquí hasta que los restaures o los elimines definitivamente.",
       "removed": {
         "grants": "{count, plural, one {# permiso de rol} other {# permisos de rol}}",
+        "identifiers": "{count, plural, one {# identificador} other {# identificadores}} en {records, plural, one {# registro} other {# registros}}",
         "links": "{count, plural, one {# vínculo entre registros} other {# vínculos entre registros}}",
         "nothingStored": "No se elimina ningún dato guardado.",
         "records": "{count, plural, one {# registro} other {# registros}}",
@@ -3115,7 +3121,6 @@
     "editValue": "Editar {field}",
     "empty": "Todavía no hay registros",
     "emptyDescription": "Crea tu primer registro para empezar.",
-    "enableChannels": "Activar canales",
     "enabled": "Activado",
     "field": "Campo",
     "fields": "Campos",

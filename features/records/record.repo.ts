@@ -32,7 +32,12 @@ import type { RecordEventSubscriptionDefinition } from "./record-event-subscript
 import type { ConfigurationPreview, ConfigurationTarget } from "./configuration.schema";
 import type { ConfigurationDeletionRecord } from "./configuration-lifecycle";
 
-export type RecordDefinitionDeletion = { typeIds: string[]; fieldIds: string[]; relationIds: string[] };
+export type RecordDefinitionDeletion = {
+  typeIds: string[];
+  fieldIds: string[];
+  relationIds: string[];
+  channelTypeIds: string[];
+};
 export type ConfigurationConsumerCleanup =
   | { kind: "view" | "personalLayout"; id: string; state: DataViewState }
   | { kind: "detailLayout"; id: string; layout: RecordDetailLayout }
