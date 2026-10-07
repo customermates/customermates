@@ -37,6 +37,13 @@ const INLINE_HINT_CLASS =
   "inline-flex size-6 shrink-0 items-center justify-center rounded-md text-muted-foreground opacity-0 outline-none transition-opacity focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-ring/70 group-hover/row:opacity-100 group-hover/card:opacity-100 data-[state=open]:opacity-100 any-pointer-coarse:opacity-100";
 const INLINE_AFFORDANCE_CLASS = `${INLINE_HINT_CLASS} hover:bg-accent hover:text-accent-foreground`;
 
+function focusFirstControl(event: Event) {
+  if (!(event.currentTarget instanceof HTMLElement)) return;
+  event.currentTarget
+    .querySelector<HTMLElement>('input:not([type="hidden"]):not([aria-hidden="true"]), textarea, [role="combobox"]')
+    ?.focus({ preventScroll: true });
+}
+
 export function canEditInline(store: RecordsStore, record: RecordRow, field: RecordFieldView) {
   if (!store.canUpdateRecord(record) || !isRecordFieldWritable(field)) return false;
   if (field.id === store.type?.primaryFieldId || field.valueType === "richText") return false;
@@ -219,7 +226,7 @@ export const RecordInlineField = observer(function RecordInlineField({
           </button>
         </PopoverTrigger>
 
-        <PopoverContent align="start" className="w-80 p-3">
+        <PopoverContent align="start" className="w-80 p-3" onOpenAutoFocus={focusFirstControl}>
           {open && <InlineFieldForm field={field} record={record} records={records} onDone={() => setOpen(false)} />}
         </PopoverContent>
       </Popover>
@@ -389,7 +396,7 @@ export const RecordInlineRelationship = observer(function RecordInlineRelationsh
           </button>
         </PopoverTrigger>
 
-        <PopoverContent align="start" className="w-72 p-0">
+        <PopoverContent align="start" className="w-72 p-0" onOpenAutoFocus={focusFirstControl}>
           {open && (
             <InlineRelationshipPicker
               direction={direction}

@@ -163,8 +163,10 @@ test("edits every field type inline in rows and on board cards, with validation,
   const enterValue = async (label: string, value: string, shown: string) => {
     const editor = await openEditor(label);
     const input = editor.locator("input").first();
-    await input.fill(value);
-    await input.press("Enter");
+    await expect(input).toBeFocused();
+    await input.press("ControlOrMeta+a");
+    await page.keyboard.type(value);
+    await page.keyboard.press("Enter");
     await expect(editor).not.toBeVisible();
     await expect(row).toContainText(shown);
   };
