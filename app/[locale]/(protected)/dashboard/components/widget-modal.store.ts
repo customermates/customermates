@@ -373,6 +373,12 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     this.activityFilterableFields = filterableFields;
   };
 
+  private submissionKey(input: object) {
+    const payload = JSON.stringify(input);
+    if (this.recordSubmission?.payload !== payload) this.recordSubmission = { payload, key: crypto.randomUUID() };
+    return this.recordSubmission.key;
+  }
+
   private targetView(id: string | undefined) {
     if (id) return {};
     const viewKey = this.rootStore.widgetsStore.activeViewKey;
@@ -388,13 +394,10 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     const form = toJS(this.form);
     if (isRecordActivityWidgetForm(form)) {
       try {
-        const input = omit(form, ["kind", "idempotencyKey"]);
-        const payload = JSON.stringify(input);
-        if (this.recordSubmission?.payload !== payload) this.recordSubmission = { payload, key: crypto.randomUUID() };
+        const input = { ...omit(form, ["kind", "idempotencyKey"]), ...this.targetView(form.id) };
         const parsed = RecordActivityWidgetInputSchema.safeParse({
           ...input,
-          ...this.targetView(input.id),
-          idempotencyKey: this.recordSubmission.key,
+          idempotencyKey: this.submissionKey(input),
         });
         if (!parsed.success) {
           this.setError(z.treeifyError(parsed.error));
@@ -415,14 +418,8 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     }
     if (isRecordWidgetForm(form)) {
       try {
-        const input = omit(form, ["kind", "idempotencyKey"]);
-        const payload = JSON.stringify(input);
-        if (this.recordSubmission?.payload !== payload) this.recordSubmission = { payload, key: crypto.randomUUID() };
-        const parsed = RecordWidgetInputSchema.safeParse({
-          ...input,
-          ...this.targetView(input.id),
-          idempotencyKey: this.recordSubmission.key,
-        });
+        const input = { ...omit(form, ["kind", "idempotencyKey"]), ...this.targetView(form.id) };
+        const parsed = RecordWidgetInputSchema.safeParse({ ...input, idempotencyKey: this.submissionKey(input) });
         if (!parsed.success) {
           this.setError(z.treeifyError(parsed.error));
           return;
@@ -590,6 +587,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
 
   private advanceSession = () => {
     this.sessionGeneration += 1;
+    this.recordSubmission = null;
     this.companyWidgetsGeneration += 1;
     this.invalidateLoads();
   };

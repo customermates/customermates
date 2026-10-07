@@ -83,7 +83,7 @@ function setup() {
   } as unknown as RootStore;
   const store = new WidgetModalStore(root);
   store.setRecordTypes(discovery);
-  return { store, refresh, removeItem, items };
+  return { store, root, refresh, removeItem, items };
 }
 function start(store: WidgetModalStore) {
   store.add();
@@ -275,6 +275,33 @@ describe("generic widget modal", () => {
     await expect(store.onSubmit()).rejects.toThrow();
     store.onChange("name", "Changed");
     await store.onSubmit();
+    expect(mocks.upsertRecordWidgetAction.mock.calls[0][0].idempotencyKey).not.toBe(
+      mocks.upsertRecordWidgetAction.mock.calls[1][0].idempotencyKey,
+    );
+  });
+  it("starts a new idempotency key when the same widget is created again after reopening", async () => {
+    const { store } = setup();
+    mocks.upsertRecordWidgetAction.mockResolvedValue({ ok: true, data: chart("Pipeline") });
+    start(store);
+    await store.onSubmit();
+    expect(store.isOpen).toBe(false);
+    start(store);
+    await store.onSubmit();
+    expect(mocks.upsertRecordWidgetAction).toHaveBeenCalledTimes(2);
+    expect(mocks.upsertRecordWidgetAction.mock.calls[0][0].idempotencyKey).not.toBe(
+      mocks.upsertRecordWidgetAction.mock.calls[1][0].idempotencyKey,
+    );
+  });
+  it("changes the retry key when the target dashboard view changes", async () => {
+    const { store, root } = setup();
+    start(store);
+    mocks.upsertRecordWidgetAction
+      .mockRejectedValueOnce(new Error("connection lost"))
+      .mockResolvedValueOnce({ ok: true, data: chart("Pipeline") });
+    await expect(store.onSubmit()).rejects.toThrow();
+    Object.assign(root.widgetsStore, { activeViewKey: randomUUID() });
+    await store.onSubmit();
+    expect(mocks.upsertRecordWidgetAction.mock.calls[1][0].viewId).toBe(root.widgetsStore.activeViewKey);
     expect(mocks.upsertRecordWidgetAction.mock.calls[0][0].idempotencyKey).not.toBe(
       mocks.upsertRecordWidgetAction.mock.calls[1][0].idempotencyKey,
     );
